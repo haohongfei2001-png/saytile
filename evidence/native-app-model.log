@@ -1,0 +1,17 @@
+PASS coalesced initial load waits for populated archive
+PASS historical records do not enter current insertion panel
+PASS only explicit historical reuse enters panel
+PASS clearing panel preserves archive
+PASS new speech enters current session
+PASS archive pinned filter reaches store
+PASS archive search reaches store without mixing pages
+PASS cleanup preview waits for candidates and protects unrecognized audio
+PASS switching records flushes pending draft without waiting for debounce
+PASS switching records does not show another record's draft
+PASS returning to record restores durable unsaved draft
+PASS periodic refresh does not reset unsaved editor text
+PASS save modification creates selected immutable version
+PASS successful version save clears old editor draft
+PASS typing during version commit is retained as version or newer draft
+PASS exit flush persists an intentionally empty unsaved draft
+APP_MODEL_PROBE_PASS 16 checks; no microphone, no external input, no window activation

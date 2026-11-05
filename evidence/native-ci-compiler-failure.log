@@ -1,0 +1,353 @@
+native	Run scripts/test-native.sh	﻿2026-11-05T22:04:56.1981580Z ##[group]Run scripts/test-native.sh
+native	Run scripts/test-native.sh	2026-11-05T22:04:56.1981970Z ^[[36;1mscripts/test-native.sh^[[0m
+native	Run scripts/test-native.sh	2026-11-05T22:04:56.2016080Z shell: /bin/bash -e {0}
+native	Run scripts/test-native.sh	2026-11-05T22:04:56.2016380Z ##[endgroup]
+native	Run scripts/test-native.sh	2026-11-05T22:05:07.8949890Z Building for debugging...
+native	Run scripts/test-native.sh	2026-11-05T22:05:07.9056940Z [0/36] /tmp/saytile-v1-native-tests/arm64-apple-macosx/debug/SaytilePackageTests.derived/runner.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:07.9160810Z [1/36] Write sources
+native	Run scripts/test-native.sh	2026-11-05T22:05:07.9263070Z [5/36] Write Saytile-entitlement.plist
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.1738250Z [6/36] Write swift-version-7974D3F7F03D5E95.txt
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.6085260Z [7/36] Compiling vad_sp.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.6110000Z [8/36] Compiling webrtc_vad.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.6813640Z [9/36] Compiling vad_gmm.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.7017630Z [10/36] Compiling vad_filterbank.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.7629120Z [11/36] Compiling spl_sqrt_floor.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.7720440Z [12/36] Compiling vad_core.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.8337310Z [13/36] Compiling vector_scaling_operations.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.8477120Z [14/36] Compiling spl_sqrt.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.9019940Z [15/36] Compiling spl_inl.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.9131390Z [16/36] Compiling spl_init.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.9654910Z [17/36] Compiling resample_fractional.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:08.9895770Z [18/36] Compiling resample_by_2_internal.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:09.0239420Z [19/36] Compiling resample_48khz.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:09.0433430Z [20/36] Compiling min_max_operations.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:09.0757500Z [21/36] Compiling get_scaling_square.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:09.0915920Z [22/36] Compiling energy.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:09.1275920Z [23/36] Compiling downsample_fast.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:09.1668360Z [24/36] Compiling division_operations.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:09.2001380Z [25/36] Compiling cross_correlation.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:09.2184360Z [26/36] Compiling complex_fft.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:09.2483760Z [27/36] Compiling complex_bit_reverse.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:09.2646540Z [28/36] Compiling CAudio VAD.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:09.3228250Z [29/36] Compiling CAudio AudioRing.c
+native	Run scripts/test-native.sh	2026-11-05T22:05:09.8058070Z [30/36] Compiling checks.cc
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.0287430Z [32/45] Compiling SaytileKit InputAccessibility.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.0389870Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:105:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.0492660Z 103 |                 var conversionError: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.0594660Z 104 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.0694320Z 105 |                     if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.0799220Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.0904820Z 106 |                     supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.1006560Z 107 |                 }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.1107630Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.1209870Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:106:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.1309560Z 104 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.1469860Z 105 |                     if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.1470640Z 106 |                     supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.1575350Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.1710050Z 107 |                 }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.1833180Z 108 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.1966460Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2075720Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2210670Z [33/45] Compiling SaytileKit InputCoordinator.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2281840Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:105:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2290500Z 103 |                 var conversionError: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2291040Z 104 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2291720Z 105 |                     if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2292410Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2293230Z 106 |                     supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2304840Z 107 |                 }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2308440Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2309710Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:106:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2315450Z 104 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2316330Z 105 |                     if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2316950Z 106 |                     supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2328260Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2337530Z 107 |                 }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2338470Z 108 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2395670Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2501550Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2607040Z [34/45] Compiling SaytileKit Models.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2709940Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:105:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2784400Z 103 |                 var conversionError: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.2893190Z 104 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3025690Z 105 |                     if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3133540Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3239220Z 106 |                     supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3288370Z 107 |                 }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3390800Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3515090Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:106:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3627540Z 104 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3700660Z 105 |                     if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3701850Z 106 |                     supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3702600Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3703250Z 107 |                 }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3710080Z 108 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3811440Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3866870Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.3913250Z [35/45] Compiling SaytileKit SpeechRecognition.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4014880Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:105:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4117350Z 103 |                 var conversionError: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4220800Z 104 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4321280Z 105 |                     if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4422980Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4424700Z 106 |                     supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4525880Z 107 |                 }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4583540Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4584610Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:106:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4585710Z 104 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4586720Z 105 |                     if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4587470Z 106 |                     supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4588210Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4590210Z 107 |                 }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4591220Z 108 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4597710Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4598170Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4600830Z [36/48] Emitting module SaytileKit
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4601230Z [37/48] Compiling SaytileKit AudioCapture.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4602080Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:75:28: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4603370Z  73 |                     var supplied = false; var error: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4603930Z  74 |                     let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4604550Z  75 |                         if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4605320Z     |                            `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4689500Z  76 |                         supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4759310Z  77 |                     }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4855620Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.4956810Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:76:25: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.5047990Z  74 |                     let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.5158640Z  75 |                         if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.5270120Z  76 |                         supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.5396600Z     |                         `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.5498780Z  77 |                     }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.5605710Z  78 |                     if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.5707140Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.5717880Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:22:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.5830150Z  20 |             var supplied = false; var error: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.5932390Z  21 |             let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6063260Z  22 |                 if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6168320Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6269910Z  23 |                 supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6355700Z  24 |             }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6466720Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6577050Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6702200Z  21 |             let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6817560Z  22 |                 if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6942040Z  23 |                 supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6962740Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6963700Z  24 |             }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6965160Z  25 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6975030Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6976080Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:83:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6977320Z  81 |         var supplied = false; var error: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6979410Z  82 |         let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6980020Z  83 |             if supplied { state.pointee = .endOfStream; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6981860Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.6989880Z  84 |             supplied = true; state.pointee = .haveData; return input
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7055690Z  85 |         }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7056110Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7056840Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:84:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7057920Z  82 |         let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7064110Z  83 |             if supplied { state.pointee = .endOfStream; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7064760Z  84 |             supplied = true; state.pointee = .haveData; return input
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7073620Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7078400Z  85 |         }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7079450Z  86 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7079990Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7080880Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7135690Z [38/48] Compiling SaytileKit AudioDiagnostics.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7136730Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:75:28: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7138370Z  73 |                     var supplied = false; var error: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7141590Z  74 |                     let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7144050Z  75 |                         if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7144850Z     |                            `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7145630Z  76 |                         supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7169120Z  77 |                     }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7171490Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7172270Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:76:25: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7230310Z  74 |                     let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7233250Z  75 |                         if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7361780Z  76 |                         supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7477350Z     |                         `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7601550Z  77 |                     }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7702870Z  78 |                     if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7764930Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7808430Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:22:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.7909820Z  20 |             var supplied = false; var error: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.8009030Z  21 |             let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.8110090Z  22 |                 if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.8211160Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.8312360Z  23 |                 supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.8350230Z  24 |             }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.8402630Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.8503860Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.8605420Z  21 |             let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.8706360Z  22 |                 if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.8807480Z  23 |                 supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.8909490Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.9011550Z  24 |             }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.9132980Z  25 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.9255190Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.9357270Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:83:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.9475030Z  81 |         var supplied = false; var error: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.9615800Z  82 |         let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.9727910Z  83 |             if supplied { state.pointee = .endOfStream; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.9830890Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:26.9933130Z  84 |             supplied = true; state.pointee = .haveData; return input
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.0045030Z  85 |         }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.0151810Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.0262950Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:84:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.0372750Z  82 |         let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.0479650Z  83 |             if supplied { state.pointee = .endOfStream; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.0599550Z  84 |             supplied = true; state.pointee = .haveData; return input
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.0669130Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.0803980Z  85 |         }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.0928290Z  86 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1051820Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1165030Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1247110Z [39/48] Compiling SaytileKit AudioJournal.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1348550Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:75:28: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1442180Z  73 |                     var supplied = false; var error: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1543640Z  74 |                     let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1644880Z  75 |                         if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1746230Z     |                            `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1761050Z  76 |                         supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1818280Z  77 |                     }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1835720Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1870810Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:76:25: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1972020Z  74 |                     let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1980130Z  75 |                         if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1983440Z  76 |                         supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.1997180Z     |                         `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2004690Z  77 |                     }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2037410Z  78 |                     if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2048890Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2050680Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:22:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2052980Z  20 |             var supplied = false; var error: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2054790Z  21 |             let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2056330Z  22 |                 if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2057470Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2059330Z  23 |                 supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2061800Z  24 |             }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2062400Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2063710Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2066080Z  21 |             let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2066910Z  22 |                 if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2068310Z  23 |                 supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2069960Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2070560Z  24 |             }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2073700Z  25 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2074270Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2074950Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:83:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2075850Z  81 |         var supplied = false; var error: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2077150Z  82 |         let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2078510Z  83 |             if supplied { state.pointee = .endOfStream; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2081740Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2082540Z  84 |             supplied = true; state.pointee = .haveData; return input
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2083520Z  85 |         }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2085290Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2085950Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:84:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2087590Z  82 |         let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2088220Z  83 |             if supplied { state.pointee = .endOfStream; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2088770Z  84 |             supplied = true; state.pointee = .haveData; return input
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2089470Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2090130Z  85 |         }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2090850Z  86 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2092340Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2092780Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2094090Z [40/48] Compiling SaytileKit AudioTapCallbacks.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2095630Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:75:28: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2098990Z  73 |                     var supplied = false; var error: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2100920Z  74 |                     let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2105360Z  75 |                         if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2106320Z     |                            `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2107170Z  76 |                         supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2111130Z  77 |                     }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2111510Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2112160Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:76:25: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2113340Z  74 |                     let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2113850Z  75 |                         if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2114400Z  76 |                         supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2115060Z     |                         `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2115590Z  77 |                     }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2116270Z  78 |                     if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2116660Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2117250Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:22:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2118060Z  20 |             var supplied = false; var error: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2118530Z  21 |             let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2135990Z  22 |                 if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2136840Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2137730Z  23 |                 supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2138340Z  24 |             }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2138650Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2139330Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2140320Z  21 |             let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2141110Z  22 |                 if supplied { state.pointee = .noDataNow; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2141610Z  23 |                 supplied = true; state.pointee = .haveData; return buffer
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2142210Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2142710Z  24 |             }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2143350Z  25 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2143730Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2144370Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:83:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2145110Z  81 |         var supplied = false; var error: NSError?
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2145580Z  82 |         let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2146070Z  83 |             if supplied { state.pointee = .endOfStream; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2146660Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2147610Z  84 |             supplied = true; state.pointee = .haveData; return input
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2148070Z  85 |         }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2148400Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2148970Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:84:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2149770Z  82 |         let status = converter.convert(to: output, error: &error) { _, state in
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2150230Z  83 |             if supplied { state.pointee = .endOfStream; return nil }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2150660Z  84 |             supplied = true; state.pointee = .haveData; return input
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2151220Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2151880Z  85 |         }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2152310Z  86 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2152670Z 
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.2153070Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.4002180Z [41/48] Compiling SaytileKit SpeechResultAccumulator.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.4002770Z [42/48] Compiling SaytileKit Store.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:27.4003150Z [43/48] Compiling SaytileKit StoreSQLite.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:30.2050260Z [44/58] Compiling SaytileApp Theme.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:30.2147470Z [45/58] Emitting module SaytileApp
+native	Run scripts/test-native.sh	2026-11-05T22:05:30.2147930Z [46/58] Compiling SaytileApp AppModel.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:30.2148280Z [47/58] Compiling SaytileApp SaytileApp.swift
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.2864570Z error: compile command failed due to signal 6 (use -v to see invocation)
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.2891390Z <unknown>:0: error: fatal error encountered during compilation; please submit a bug report (https://swift.org/contributing/#reporting-bugs)
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.2892470Z <unknown>:0: note: SmallVector unable to grow. Requested capacity (4294967298) is larger than maximum value for size type (4294967295)
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.2898470Z Please submit a bug report (https://swift.org/contributing/#reporting-bugs) and include the crash backtrace.
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.2899040Z Stack dump:
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.2926850Z 0.	Program arguments: /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c /Users/runner/work/saytile/saytile/Sources/SaytileApp/AppModel.swift /Users/runner/work/saytile/saytile/Sources/SaytileApp/SaytileApp.swift /Users/runner/work/saytile/saytile/Sources/SaytileApp/Theme.swift -primary-file /Users/runner/work/saytile/saytile/Sources/SaytileApp/Views.swift -emit-dependencies-path /tmp/saytile-v1-native-tests/arm64-apple-macosx/debug/SaytileApp.build/Views.d -emit-reference-dependencies-path /tmp/saytile-v1-native-tests/arm64-apple-macosx/debug/SaytileApp.build/Views.swiftdeps -serialize-diagnostics-path /tmp/saytile-v1-native-tests/arm64-apple-macosx/debug/SaytileApp.build/Views.dia -target arm64-apple-macosx26.0 -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk -I /tmp/saytile-v1-native-tests/arm64-apple-macosx/debug/Modules -I /Applications/Xcode_26.6.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib -F /Applications/Xcode_26.6.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format=dwarf -dwarf-version=5 -module-cache-path /tmp/saytile-v1-native-tests/arm64-apple-macosx/debug/ModuleCache -swift-version 6 -Onone -D SWIFT_PACKAGE -D DEBUG -D SWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -new-driver-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-driver -entry-point-function-name SaytileApp_main -empty-abi-descriptor -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -load-plugin-library /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib -enable-anonymous-context-mangled-names -file-compilation-dir /Users/runner/work/saytile/saytile -Xcc -fmodule-map-file=/tmp/saytile-v1-native-tests/arm64-apple-macosx/debug/CAudio.build/module.modulemap -Xcc -I -Xcc /Users/runner/work/saytile/saytile/Sources/CAudio/include -Xcc -fmodule-map-file=/Users/runner/work/saytile/saytile/Sources/CSQLite/module.modulemap -Xcc -isysroot -Xcc /Applications/Xcode_26.6.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk -Xcc -F -Xcc /Applications/Xcode_26.6.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks -Xcc -fPIC -Xcc -g -no-auto-bridging-header-chaining -module-name SaytileApp -package-name saytile -disable-clang-spi -target-sdk-version 26.5 -target-sdk-name macosx26.5 -external-plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins#/Applications/Xcode_26.6.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server -external-plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/local/lib/swift/host/plugins#/Applications/Xcode_26.6.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server -in-process-plugin-server-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins -plugin-path /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/lib/swift/host/plugins -o /tmp/saytile-v1-native-tests/arm64-apple-macosx/debug/SaytileApp.build/Views.swift.o -index-store-path /tmp/saytile-v1-native-tests/arm64-apple-macosx/debug/index/store -index-system-modules
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3003650Z 1.	Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3004480Z 2.	Compiling with the current language version
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3005160Z 3.	While evaluating request IRGenRequest(IR Generation for file "/Users/runner/work/saytile/saytile/Sources/SaytileApp/Views.swift")
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3005930Z 4.	While emitting IR SIL function "@$sSSScA_pSgIeAghgg_SSIeAghn_TR".
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3006870Z  for <<debugloc at "<compiler-generated>":0:0>>Stack dump without symbol names (ensure you have llvm-symbolizer in your PATH or set the environment var `LLVM_SYMBOLIZER_PATH` to point to it):
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3012620Z 0  swift-frontend           0x000000010739508c llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) + 56
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3013260Z 1  swift-frontend           0x000000010739252c llvm::sys::RunSignalHandlers() + 172
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3013700Z 2  swift-frontend           0x000000010739567c SignalHandler(int, __siginfo*, void*) + 356
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3014130Z 3  libsystem_platform.dylib 0x0000000184ce9744 _sigtramp + 56
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3014480Z 4  libsystem_pthread.dylib  0x0000000184cdf8d8 pthread_kill + 296
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3014800Z 5  libsystem_c.dylib        0x0000000184be5978 abort + 148
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3015210Z 6  swift-frontend           0x00000001012fcff4 swift::DiagnosticHelper::~DiagnosticHelper() + 0
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3015720Z 7  swift-frontend           0x00000001073011a0 llvm::report_fatal_error(llvm::Twine const&, bool) + 292
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3016230Z 8  swift-frontend           0x0000000107338828 report_at_maximum_capacity(unsigned long) + 0
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3017560Z 9  swift-frontend           0x0000000107338538 llvm::SmallVectorBase<unsigned int>::grow_pod(void*, unsigned long, unsigned long) + 384
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3019320Z 10 swift-frontend           0x0000000101396e8c (anonymous namespace)::SyncCallEmission::setArgs(swift::irgen::Explosion&, bool, swift::irgen::WitnessMetadata*) + 688
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3020260Z 11 swift-frontend           0x00000001015c18bc (anonymous namespace)::IRGenSILFunction::visitFullApplySite(swift::FullApplySite) + 5196
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3021120Z 12 swift-frontend           0x000000010159a9b0 (anonymous namespace)::IRGenSILFunction::visitSILBasicBlock(swift::SILBasicBlock*) + 3540
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3023790Z 13 swift-frontend           0x00000001015987b8 (anonymous namespace)::IRGenSILFunction::emitSILFunction() + 11648
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3024420Z 14 swift-frontend           0x000000010159573c swift::irgen::IRGenModule::emitSILFunction(swift::SILFunction*) + 2860
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3025000Z 15 swift-frontend           0x00000001013e3d80 swift::irgen::IRGenerator::emitLazyDefinitions() + 5520
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3026100Z 16 swift-frontend           0x000000010154c838 swift::IRGenRequest::evaluate(swift::Evaluator&, swift::IRGenDescriptor) const + 5000
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3027120Z 17 swift-frontend           0x0000000101594460 swift::SimpleRequest<swift::IRGenRequest, swift::GeneratedModule (swift::IRGenDescriptor), (swift::RequestFlags)17>::evaluateRequest(swift::IRGenRequest const&, swift::Evaluator&) + 236
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3029240Z 18 swift-frontend           0x0000000100ea62ac swift::IRGenRequest::OutputType swift::Evaluator::getResultUncached<swift::IRGenRequest, swift::IRGenRequest::OutputType swift::evaluateOrFatal<swift::IRGenRequest>(swift::Evaluator&, swift::IRGenRequest)::'lambda'()>(swift::IRGenRequest const&, swift::IRGenRequest::OutputType swift::evaluateOrFatal<swift::IRGenRequest>(swift::Evaluator&, swift::IRGenRequest)::'lambda'()) + 348
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3032780Z 19 swift-frontend           0x00000001015503e8 swift::performIRGeneration(swift::FileUnit*, swift::IRGenOptions const&, swift::TBDGenOptions const&, std::__1::unique_ptr<swift::SILModule, std::__1::default_delete<swift::SILModule>>, llvm::StringRef, swift::PrimarySpecificPaths const&, std::__1::shared_ptr<llvm::cas::ObjectStore>, llvm::StringRef, llvm::GlobalVariable**, swift::cas::SwiftCASOutputBackend*) + 224
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3036320Z 20 swift-frontend           0x0000000100f06468 generateIR(swift::IRGenOptions const&, swift::TBDGenOptions const&, std::__1::unique_ptr<swift::SILModule, std::__1::default_delete<swift::SILModule>>, swift::PrimarySpecificPaths const&, std::__1::shared_ptr<llvm::cas::ObjectStore>, swift::cas::SwiftCASOutputBackend*, llvm::StringRef, llvm::PointerUnion<swift::ModuleDecl*, swift::SourceFile*>, llvm::GlobalVariable*&, llvm::ArrayRef<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>>, llvm::ArrayRef<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>>) + 172
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3038940Z 21 swift-frontend           0x0000000100eff97c performCompileStepsPostSILGen(swift::CompilerInstance&, std::__1::unique_ptr<swift::SILModule, std::__1::default_delete<swift::SILModule>>, llvm::PointerUnion<swift::ModuleDecl*, swift::SourceFile*>, swift::PrimarySpecificPaths const&, int&, swift::FrontendObserver*, llvm::ArrayRef<char const*>) + 2292
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3040420Z 22 swift-frontend           0x0000000100efe118 swift::performCompileStepsPostSema(swift::CompilerInstance&, int&, swift::FrontendObserver*, llvm::ArrayRef<char const*>) + 1052
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3041320Z 23 swift-frontend           0x0000000100f03ab0 performCompile(swift::CompilerInstance&, int&, swift::FrontendObserver*, llvm::ArrayRef<char const*>) + 1740
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3042130Z 24 swift-frontend           0x0000000100f00818 swift::performFrontend(llvm::ArrayRef<char const*>, char const*, void*, swift::FrontendObserver*) + 3308
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3042760Z 25 swift-frontend           0x0000000100e80424 swift::mainEntry(int, char const**) + 5224
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3043120Z 26 dyld                     0x00000001849144e4 start + 6992
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3245680Z error: fatalError
+native	Run scripts/test-native.sh	2026-11-05T22:05:31.3319430Z ##[error]Process completed with exit code 1.

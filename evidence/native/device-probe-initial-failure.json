@@ -1,0 +1,11 @@
+{
+  "scope": "Packaged app hardware tap metadata-only probe; no audio samples accessed/saved/recognized",
+  "result": "FAILED_SIGTRAP",
+  "reason": "Swift 6 inferred MainActor for AVAudioEngine tap closure; callback executes on RealtimeMessenger.mServiceQueue",
+  "evidence": [
+    "dispatch_assert_queue_fail",
+    "swift_task_checkIsolatedSwift",
+    "AudioDiagnostics.probeInputDevice closure"
+  ],
+  "action": "Fix both production capture and diagnostic callbacks with explicitly Sendable nonisolated closures, add background-callback regression test, then re-run packaged hardware probe."
+}

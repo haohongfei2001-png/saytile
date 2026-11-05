@@ -1,0 +1,197 @@
+Building for debugging...
+[Planning deferred tasks]
+[7 / 77]
+[39 / 88]
+[65 / 88] CAudio
+/Users/hhf/Documents/GitHub/saytile/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[76 / 228]
+[86 / 228]
+[93 / 228]
+[94 / 228]
+[100 / 228]
+[103 / 228]
+[111 / 228]
+[114 / 228]
+[116 / 228]
+[117 / 228]
+[128 / 228]
+[131 / 228]
+[136 / 228]
+[141 / 228]
+[142 / 228]
+[143 / 228]
+[150 / 228]
+[152 / 228]
+[158 / 228]
+[159 / 228]
+[161 / 228]
+[162 / 228]
+[164 / 228]
+[174 / 228]
+[175 / 228]
+[180 / 228]
+[185 / 228]
+[188 / 228]
+[189 / 228]
+[190 / 228]
+[191 / 228]
+[202 / 228] SaytileKit
+[208 / 228] SaytileKitTests-product
+[208 / 226] SaytileKit
+[208 / 226] Saytile-product
+[211 / 234] SaytileKit
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[216 / 234] SaytileKitTests-product
+[217 / 244]
+[226 / 244] SaytileKitTests-product
+[230 / 244] SaytileKitTests-product
+[232 / 244] SaytileKitTests-product/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[234 / 243]
+[239 / 243] Saytile-product
+[240 / 243] Saytile-product
+[242 / 243] Saytile-product
+/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (21.28秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test storePreservesEmbeddedNULInEditedText() started.
+◇ Suite "Audio journal, bounded ring and VAD" started.
+◇ Suite "Capture shutdown tail" started.
+◇ Test storeAudioLeaseDefersPhysicalErasure() started.
+◇ Test storeNewAttemptRejectsOldCallback() started.
+◇ Suite "Input identity and safety" started.
+◇ Suite "Speech range aggregation" started.
+◇ Test storeFrozenClickSnapshotSurvivesPartialPruningWithoutChangingPreferred() started.
+◇ Suite "Input coordinator with isolated SQLite and simulated OS" started.
+◇ Test storeChunkUpdatesAreMonotonic() started.
+◇ Test storeLateRecognitionCannotResurrectDeletedAudio() started.
+◇ Test storeInterruptedCaptureAndASRRecover() started.
+◇ Test storeRejectsTraversalAndOtherRecordingOwnership() started.
+◇ Test storeRejectsSymlinkEscape() started.
+◇ Test storeManualInsertionIsExplicitNewOperationEachTime() started.
+◇ Test storeDispatchRestartInvalidatesTargetAndDoesNotReplay() started.
+◇ Test storeAudioDeletionPreservesEveryTextRevision() started.
+◇ Test storeRecoveryReconcilesTruncatedDurableAudio() started.
+◇ Test storeDeletionRemovesUnregisteredCrashTail() started.
+◇ Test storeFreezesClickTextAfterItsVolatileSourceWasPruned() started.
+◇ Test storePendingErasureResumesAfterCrash() started.
+◇ Test storeLiveDeletionIsRejected() started.
+◇ Test storeCleanupRevalidatesPreview() started.
+◇ Test storeCompletedTombstoneCleansResidualFilesOnRecovery() started.
+◇ Test storeStorageSummaryUsesActualFiles() started.
+◇ Test storeCleanupProtectsPinnedFailedAndActive() started.
+◇ Test storeDispatchOnlyNewStableSuffixAndNeverDuplicate() started.
+◇ Test storeDispatchRejectsPrefixRewriteAndInvalidatesBinding() started.
+◇ Test storeFiltersBeforePagination() started.
+◇ Test storePersistsAcrossReopen() started.
+◇ Test storeRecoveryRetriesAreBoundedAndSurviveRestart() started.
+◇ Test storeMultipleFinalRangesCompleteOnlyAfterDrain() started.
+◇ Test storeDispatchUTF16RejectsSurrogateAndGraphemeSplit() started.
+◇ Test storeYieldingRecoveryToCaptureDoesNotConsumeRetryBudget() started.
+◇ Test storeLatestStableRevisionSurvivesVolatileUpdate() started.
+◇ Test storeDispatchUnverifiedDoesNotBlockIndependentSegment() started.
+◇ Test storeSearchEscapesLikeAndBindsSQL() started.
+◇ Test storeRecognitionPreservesSelectedUserEdit() started.
+◇ Test storeRecoveryQueueDoesNotStarveBeyondOldestHundred() started.
+◇ Test storeRecordDeletionRemovesTextAndSearch() started.
+◇ Test storeDeletingRecordAlsoDeletesDispatchTextSnapshots() started.
+◇ Test storePartialDraftCountIsBoundedAndFinalImmutable() started.
+◇ Test storeMissingAudioStatePreservesTextAndRejectsStaleASR() started.
+◇ Test finishFlushesSubVADFrameTailOfActiveSpeech() started.
+◇ Test recoveryMarksMissingAudioWithoutDiscardingText() started.
+◇ Test testSilenceDoesNotCreateRecordings() started.
+◇ Test testFifteenSecondRotationBoundary() started.
+◇ Test finishDoesNotSaveStandbySilenceAsSpeech() started.
+◇ Test recoveryRetainsCompleteFramesBeyondPublishedCheckpoint() started.
+◇ Test testRingWrapsAndDownmixesStereo() started.
+◇ Test testCheckpointAndInterruptedTailRecovery() started.
+◇ Test testreusedEditorDoesNotMakeSamePage() started.
+◇ Test testnoSelectedReplacement() started.
+◇ Test testRingKeepsOrderingAndRejectsOverflowWithoutOverwrite() started.
+◇ Test invalidRangesDoNotLoseValidText() started.
+◇ Test testunidentifiableWebPageRejected() started.
+◇ Test finalPrefixAdvancesWhileTailIsVolatile() started.
+◇ Test testpasswordsTerminalsAndEmbeddedTerminalBlocked() started.
+◇ Test revisingRangeReplacesInsteadOfDuplicating() started.
+◇ Test testcursorMovementMakesBindingStale() started.
+◇ Test laterFinalDoesNotSkipEarlierVolatileRange() started.
+◇ Test testexistingSpeechNeverAutomaticallyReplayed() started.
+◇ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() started.
+◇ Test teststableSuffixOnlyOnce() started.
+◇ Test mergedRangeReplacesAllOverlaps() started.
+◇ Test testchangedPageStopsBeforeDispatch() started.
+◇ Test testunavailablePermissionHasNoPromptOrSideEffect() started.
+◇ Test testtimeoutIsUncertainAndNeverRetried() started.
+✔ Test storePreservesEmbeddedNULInEditedText() passed after 0.079 seconds.
+✔ Test storeRejectsSymlinkEscape() passed after 0.080 seconds.
+✔ Test storeDispatchRestartInvalidatesTargetAndDoesNotReplay() passed after 0.080 seconds.
+✔ Test storeManualInsertionIsExplicitNewOperationEachTime() passed after 0.080 seconds.
+✔ Test storeInterruptedCaptureAndASRRecover() passed after 0.080 seconds.
+✔ Test storeFrozenClickSnapshotSurvivesPartialPruningWithoutChangingPreferred() passed after 0.080 seconds.
+✔ Test storeNewAttemptRejectsOldCallback() passed after 0.080 seconds.
+✔ Test storeLateRecognitionCannotResurrectDeletedAudio() passed after 0.080 seconds.
+✔ Test storeChunkUpdatesAreMonotonic() passed after 0.080 seconds.
+✔ Test storeAudioLeaseDefersPhysicalErasure() passed after 0.080 seconds.
+✔ Test storeLiveDeletionIsRejected() passed after 0.080 seconds.
+✔ Test storeRecoveryReconcilesTruncatedDurableAudio() passed after 0.080 seconds.
+✔ Test storeDeletionRemovesUnregisteredCrashTail() passed after 0.080 seconds.
+✔ Test storeRejectsTraversalAndOtherRecordingOwnership() passed after 0.080 seconds.
+✔ Test storeAudioDeletionPreservesEveryTextRevision() passed after 0.080 seconds.
+✔ Test storeFreezesClickTextAfterItsVolatileSourceWasPruned() passed after 0.080 seconds.
+✔ Test storeDispatchOnlyNewStableSuffixAndNeverDuplicate() passed after 0.080 seconds.
+✔ Test storeCleanupRevalidatesPreview() passed after 0.080 seconds.
+✔ Test storePendingErasureResumesAfterCrash() passed after 0.080 seconds.
+✔ Test storeCompletedTombstoneCleansResidualFilesOnRecovery() passed after 0.080 seconds.
+✔ Test storeRecoveryRetriesAreBoundedAndSurviveRestart() passed after 0.080 seconds.
+✔ Test storeStorageSummaryUsesActualFiles() passed after 0.081 seconds.
+✔ Test storeDispatchRejectsPrefixRewriteAndInvalidatesBinding() passed after 0.082 seconds.
+✔ Test storeMultipleFinalRangesCompleteOnlyAfterDrain() passed after 0.087 seconds.
+✔ Test storeFiltersBeforePagination() passed after 0.088 seconds.
+✔ Test storePersistsAcrossReopen() passed after 0.093 seconds.
+✔ Test storeLatestStableRevisionSurvivesVolatileUpdate() passed after 0.094 seconds.
+✔ Test storeYieldingRecoveryToCaptureDoesNotConsumeRetryBudget() passed after 0.094 seconds.
+✔ Test storeCleanupProtectsPinnedFailedAndActive() passed after 0.094 seconds.
+✔ Test finishFlushesSubVADFrameTailOfActiveSpeech() passed after 0.028 seconds.
+✔ Test storeDispatchUnverifiedDoesNotBlockIndependentSegment() passed after 0.094 seconds.
+✔ Test storeRecognitionPreservesSelectedUserEdit() passed after 0.094 seconds.
+✔ Test storeRecordDeletionRemovesTextAndSearch() passed after 0.094 seconds.
+✔ Test storeDeletingRecordAlsoDeletesDispatchTextSnapshots() passed after 0.094 seconds.
+✔ Test finishDoesNotSaveStandbySilenceAsSpeech() passed after 0.025 seconds.
+✔ Test testRingWrapsAndDownmixesStereo() passed after 0.025 seconds.
+✔ Test storeSearchEscapesLikeAndBindsSQL() passed after 0.094 seconds.
+✔ Test testFifteenSecondRotationBoundary() passed after 0.026 seconds.
+✔ Test testnoSelectedReplacement() passed after 0.025 seconds.
+✔ Test testRingKeepsOrderingAndRejectsOverflowWithoutOverwrite() passed after 0.025 seconds.
+✔ Test testreusedEditorDoesNotMakeSamePage() passed after 0.025 seconds.
+✔ Test testunidentifiableWebPageRejected() passed after 0.025 seconds.
+✔ Test finalPrefixAdvancesWhileTailIsVolatile() passed after 0.025 seconds.
+✔ Test invalidRangesDoNotLoseValidText() passed after 0.025 seconds.
+✔ Test testcursorMovementMakesBindingStale() passed after 0.025 seconds.
+✔ Test revisingRangeReplacesInsteadOfDuplicating() passed after 0.025 seconds.
+✔ Test testpasswordsTerminalsAndEmbeddedTerminalBlocked() passed after 0.025 seconds.
+✔ Test laterFinalDoesNotSkipEarlierVolatileRange() passed after 0.020 seconds.
+✔ Test mergedRangeReplacesAllOverlaps() passed after 0.015 seconds.
+✔ Suite "Capture shutdown tail" passed after 0.094 seconds.
+✔ Suite "Input identity and safety" passed after 0.094 seconds.
+✔ Suite "Speech range aggregation" passed after 0.094 seconds.
+✔ Test storeMissingAudioStatePreservesTextAndRejectsStaleASR() passed after 0.095 seconds.
+✔ Test testCheckpointAndInterruptedTailRecovery() passed after 0.026 seconds.
+✔ Test testSilenceDoesNotCreateRecordings() passed after 0.028 seconds.
+✔ Test storeDispatchUTF16RejectsSurrogateAndGraphemeSplit() passed after 0.099 seconds.
+✔ Test recoveryMarksMissingAudioWithoutDiscardingText() passed after 0.034 seconds.
+✔ Test recoveryRetainsCompleteFramesBeyondPublishedCheckpoint() passed after 0.035 seconds.
+✔ Suite "Audio journal, bounded ring and VAD" passed after 0.104 seconds.
+✔ Test storePartialDraftCountIsBoundedAndFinalImmutable() passed after 0.114 seconds.
+✔ Test testunavailablePermissionHasNoPromptOrSideEffect() passed after 0.036 seconds.
+✔ Test testexistingSpeechNeverAutomaticallyReplayed() passed after 0.046 seconds.
+✔ Test testchangedPageStopsBeforeDispatch() passed after 0.041 seconds.
+✔ Test testtimeoutIsUncertainAndNeverRetried() passed after 0.041 seconds.
+✔ Test storeRecoveryQueueDoesNotStarveBeyondOldestHundred() passed after 0.128 seconds.
+✔ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() passed after 0.295 seconds.
+✔ Test teststableSuffixOnlyOnce() passed after 0.299 seconds.
+✔ Suite "Input coordinator with isolated SQLite and simulated OS" passed after 0.379 seconds.
+✔ Test run with 63 tests in 5 suites passed after 0.379 seconds.

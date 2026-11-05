@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0-beta.1",
+  "source_commit": "4c4430426050553a7df573053ff4cc582e45b3fa",
+  "bundle_identifier": "app.saytile.mac",
+  "architecture": "arm64",
+  "minimum_macos": "26.0",
+  "signature": "ad-hoc; not Developer ID notarized",
+  "dmg_sha256": "ce0a6c42c6066f3bc875ec3209d50afedaaaddfed505407e92397d9e381b267f",
+  "dmg_bytes": 1032298,
+  "native_tests": 72,
+  "app_model_checks": 16,
+  "verified": [
+    "release build",
+    "dmg checksum",
+    "readonly mounted codesign strict",
+    "mounted app startup/shutdown",
+    "installed app codesign strict and startup",
+    "packaged synthetic Mandarin transcription",
+    "nonactivating startup preserves foreground"
+  ],
+  "ci": {
+    "native": "https://github.com/haohongfei2001-png/saytile/actions/runs/42119366674",
+    "design": "https://github.com/haohongfei2001-png/saytile/actions/runs/42119366642"
+  },
+  "installed_location": "~/Applications/Saytile.app",
+  "not_verified": [
+    "human Mandarin quality",
+    "production foreground binding and browser SPA",
+    "real sleep and device changes",
+    "30-minute physical microphone speech",
+    "whole-system energy",
+    "72-hour longevity",
+    "lock-screen automatic pause"
+  ],
+  "environment_note": "FileProvider adds FinderInfo to bundles in the synced workspace after signing. The readonly DMG and installed ~/Applications bundle retain valid signatures; deliver those artifacts."
+}
