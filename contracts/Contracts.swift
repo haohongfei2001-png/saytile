@@ -330,8 +330,15 @@ protocol DirectDispatchLedger: Actor {
 
 enum UTF16BoundaryError: Error { case invalid }
 func checkedUTF16Prefix(_ text: String, through end: Int) throws -> String {
-    guard end >= 0, end <= text.utf16.count,
-          let range = Range(NSRange(location: 0, length: end), in: text)
-    else { throw UTF16BoundaryError.invalid }
-    return String(text[range])
+    // Foundation's NSRange -> Range bridging can round an offset inside a
+    // surrogate pair on macOS. Only accept exact Character boundaries, so
+    // an acknowledged prefix cannot split emoji or composed graphemes.
+    guard end >= 0, end <= text.utf16.count else {
+        throw UTF16BoundaryError.invalid
+    }
+    let utf16End = text.utf16.index(text.utf16.startIndex, offsetBy: end)
+    guard let exactEnd = utf16End.samePosition(in: text) else {
+        throw UTF16BoundaryError.invalid
+    }
+    return String(text[..<exactEnd])
 }
