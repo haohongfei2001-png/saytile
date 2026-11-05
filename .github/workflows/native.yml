@@ -1,0 +1,28 @@
+name: Saytile native
+on:
+  pull_request:
+    paths: ['Sources/**', 'tests/SaytileKitTests/**', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'packaging/**', '.github/workflows/native.yml']
+  push:
+    branches: [main]
+    paths: ['Sources/**', 'tests/SaytileKitTests/**', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'packaging/**', '.github/workflows/native.yml']
+permissions:
+  contents: read
+concurrency:
+  group: native-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift --version
+      - run: scripts/test-native.sh
+      - run: scripts/build-app.sh
+      - name: Isolated startup without microphone
+        run: dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/saytile-smoke" --smoke-test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Saytile-personal-beta
+          path: dist/Saytile.app
+          retention-days: 14

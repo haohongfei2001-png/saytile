@@ -1,0 +1,23 @@
+{
+  "scope": "Native Apple SpeechAnalyzer and production VAD/journal/SQLite with synthetic Mandarin only; no microphone or external AX input",
+  "fixture": "macOS Tingting synthetic speech: 今天下午三点开会，请不要自动发送。这个版本支持中文和英文。测试数字一二三四五，保留原始录音。",
+  "engine": "Apple SpeechTranscriber progressiveTranscription zh-CN, on-device assets installed by AssetInventory",
+  "recognized": "今天下午 3:00开会 ，请不要自动发送这个版本支持中文和英文测试数字 12345保留原始录音",
+  "duration_seconds": 10.6159375,
+  "recording_state": "audio available, recognition completed",
+  "end_of_utterance_phrase_preserved": true,
+  "long_run": {
+    "scope": "Accelerated 180 repetitions through actual VoiceSegmenter and CaptureWorker persistence while ASR disabled; not 30 minutes wall-clock microphone/performance acceptance",
+    "virtual_input_seconds": 2091.00375,
+    "retained_seconds": 2090.72,
+    "recordings": 180,
+    "pending_asr_jobs": 180,
+    "all_audio_available": true,
+    "all_recordings_finished": true,
+    "audio_bytes": 66910960,
+    "wall_seconds": 1.498685,
+    "maximum_resident_bytes": 83984384,
+    "recovery_repairs_needed": 0
+  },
+  "not_verified": ["microphone TCC", "real human Mandarin accuracy", "30-minute realtime capture", "sleep/wake with active microphone", "whole-machine power"]
+}
