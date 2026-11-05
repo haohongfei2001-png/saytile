@@ -39,7 +39,7 @@ python3 -m playwright install chromium
 python3 scripts/verify.py --ui
 ```
 
-本轮：原有合成故障实验 **10/10**；新增数据契约 **37/37**；DOM 交互 **48/48**；Swift 6 接口类型检查通过，Foundation UTF-16 边界 **6/6**。详见 `evidence/`。这些结果不代表真实麦克风、Apple Speech、中文质量、macOS 辅助功能、ALAC 或整机功耗已经验收。
+本轮：原有合成故障实验 **10/10**；新增数据契约 **37/37**；DOM 交互 **48/48**；Swift 6 接口类型检查通过；Foundation UTF-16 与组合字符边界 **8/8**（含 macOS CI 修复）。详见 `evidence/`。这些结果不代表真实麦克风、Apple Speech、中文质量、macOS 辅助功能、ALAC 或整机功耗已经验收。
 
 ## 目录
 
