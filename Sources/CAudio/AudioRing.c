@@ -23,3 +23,9 @@ uint32_t st_ring_read(STAudioRing *r,float *out,uint32_t max){
  atomic_store_explicit(&r->read,rd+n,memory_order_release);return n;
 }
 uint64_t st_ring_dropped(STAudioRing *r){return atomic_load_explicit(&r->dropped,memory_order_relaxed);}
+struct STAudioProbe { _Atomic uint64_t frames, buffers; };
+STAudioProbe *st_probe_create(void){return calloc(1,sizeof(STAudioProbe));}
+void st_probe_destroy(STAudioProbe *p){free(p);}
+void st_probe_count(STAudioProbe *p,uint32_t frames){atomic_fetch_add(&p->frames,frames);atomic_fetch_add(&p->buffers,1);}
+uint64_t st_probe_frames(STAudioProbe *p){return atomic_load(&p->frames);}
+uint64_t st_probe_buffers(STAudioProbe *p){return atomic_load(&p->buffers);}

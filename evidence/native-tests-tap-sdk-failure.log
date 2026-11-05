@@ -1,0 +1,53 @@
+Building for debugging...
+[Planning deferred tasks]
+[18 / 78] SaytileKit
+[49 / 78] CAudio
+[55 / 78] CAudio
+/Users/hhf/Documents/GitHub/saytile/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[68 / 94] SaytileKit
+[74 / 92] SaytileKit
+[74 / 92] Saytile-product
+[79 / 97] Saytile-product
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[84 / 97] Saytile-product
+[84 / 97] SaytileKitTests-product
+[93 / 106] SaytileKitTests-product
+error: SwiftCompile normal arm64 /Users/hhf/Documents/GitHub/saytile/tests/SaytileKitTests/AudioTapTests.swift failed with a nonzero exit code. Command line:     cd /Users/hhf/Documents/GitHub
+    builtin-SwiftPerFileCompile AudioTapTests.swift
+/Users/hhf/Documents/GitHub/saytile/tests/SaytileKitTests/AudioTapTests.swift:23:28: error: class property 'isMainThread' is unavailable from asynchronous contexts; Work intended for the main actor should be marked with @MainActor
+21 |             buffer.floatChannelData![0].initialize(repeating: 0.25, count: 320)
+22 |             callback.callback(buffer, AVAudioTime(sampleTime: 0, atRate: 16_000))
+23 |             return !Thread.isMainThread
+   |                            `- error: class property 'isMainThread' is unavailable from asynchronous contexts; Work intended for the main actor should be marked with @MainActor
+24 |         }.value
+25 |         #expect(background)
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/System/Library/Frameworks/Foundation.framework/Headers/NSThread.h:126:34: note: 'isMainThread' declared here
+124 | 
+125 | /// Returns a Boolean value that indicates whether the current thread is the main thread.
+126 | @property (class, readonly) BOOL isMainThread API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)) NS_SWIFT_UNAVAILABLE_FROM_ASYNC("Work intended for the main actor should be marked with @MainActor"); // reports whether current thread is main
+    |                                  `- note: 'isMainThread' declared here
+127 | 
+128 | /// Returns the `NSThread` object representing the main thread.
+
+/Users/hhf/Documents/GitHub/saytile/tests/SaytileKitTests/AudioTapTests.swift:38:28: error: class property 'isMainThread' is unavailable from asynchronous contexts; Work intended for the main actor should be marked with @MainActor
+36 |             buffer.frameLength = 640
+37 |             callback.callback(buffer, AVAudioTime(sampleTime: 0, atRate: 16_000))
+38 |             return !Thread.isMainThread
+   |                            `- error: class property 'isMainThread' is unavailable from asynchronous contexts; Work intended for the main actor should be marked with @MainActor
+39 |         }.value
+40 |         #expect(background)
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/System/Library/Frameworks/Foundation.framework/Headers/NSThread.h:126:34: note: 'isMainThread' declared here
+124 | 
+125 | /// Returns a Boolean value that indicates whether the current thread is the main thread.
+126 | @property (class, readonly) BOOL isMainThread API_AVAILABLE(macos(10.5), ios(2.0), watchos(2.0), tvos(9.0)) NS_SWIFT_UNAVAILABLE_FROM_ASYNC("Work intended for the main actor should be marked with @MainActor"); // reports whether current thread is main
+    |                                  `- note: 'isMainThread' declared here
+127 | 
+128 | /// Returns the `NSThread` object representing the main thread.
+Failed frontend command:
+/Library/Developer/CommandLineTools/usr/bin/swift-frontend -frontend -c /tmp/saytile-v1-native-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/DerivedSources/test_entry_point.swift /Users/hhf/Documents/GitHub/saytile/tests/SaytileKitTests/AudioLifecycleTests.swift -primary-file /Users/hhf/Documents/GitHub/saytile/tests/SaytileKitTests/AudioTapTests.swift /Users/hhf/Documents/GitHub/saytile/tests/SaytileKitTests/AudioTests.swift /Users/hhf/Documents/GitHub/saytile/tests/SaytileKitTests/InputTests.swift /Users/hhf/Documents/GitHub/saytile/tests/SaytileKitTests/SpeechResultTests.swift /Users/hhf/Documents/GitHub/saytile/tests/SaytileKitTests/StoreDispatchTests.swift /Users/hhf/Documents/GitHub/saytile/tests/SaytileKitTests/StoreTests.swift -emit-dependencies-path /tmp/saytile-v1-native-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/AudioTapTests.d -emit-const-values-path /tmp/saytile-v1-native-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/AudioTapTests.swiftconstvalues -emit-reference-dependencies-path /tmp/saytile-v1-native-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/AudioTapTests.swiftdeps -serialize-diagnostics-path /tmp/saytile-v1-native-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/AudioTapTests.dia -target arm64-apple-macos26.0 -module-can-import-version Testing 2084 0 -disable-cross-import-overlay-search -swift-module-cross-import Testing /Library/Developer/CommandLineTools/Library/Developer/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/AppKit.swiftoverlay -swift-module-cross-import Testing /Library/Developer/CommandLineTools/Library/Developer/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/CoreGraphics.swiftoverlay -swift-module-cross-import Testing /Library/Developer/CommandLineTools/Library/Developer/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/CoreImage.swiftoverlay -swift-module-cross-import Testing /Library/Developer/CommandLineTools/Library/Developer/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/CoreTransferable.swiftoverlay -swift-module-cross-import Testing /Library/Developer/CommandLineTools/Library/Developer/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/Foundation.swiftoverlay -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libObservationMacros.dylib\#\#ObservationMacros -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#\#SwiftMacros -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib\#\#TestingMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /tmp/saytile-v1-native-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/SaytileKitTests-dependencies-1.json -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk -I /tmp/saytile-v1-native-tests/out/Products/Debug -Isystem /Library/Developer/CommandLineTools/Developer/usr/lib -F /tmp/saytile-v1-native-tests/out/Products/Debug/PackageFrameworks -F /tmp/saytile-v1-native-tests/out/Products/Debug -F /Library/Developer/CommandLineTools/Library/Developer/Frameworks -F /Library/Developer/CommandLineTools/Developer/Library/Frameworks -module-cache-path /tmp/saytile-v1-native-tests/out/Intermediates.noindex/SwiftExplicitPrecompiledModules -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=5 -swift-version 6 -Onone -D SWIFT_PACKAGE -D DEBUG -D Xcode -serialize-debugging-options -enable-experimental-feature DebugDescriptionMacro -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /tmp/saytile-v1-native-tests/out/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/hhf/Documents/GitHub -enable-anonymous-context-mangled-names -file-compilation-dir /Users/hhf/Documents/GitHub -Xcc -fmodule-map-file\=/tmp/saytile-v1-native-tests/out/Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap -Xcc -fmodule-map-file\=/Users/hhf/Documents/GitHub/saytile/Sources/CSQLite/module.modulemap -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /tmp/saytile-v1-native-tests/out/SDKStatCaches.noindex/macosx27.0-26A425-1aa54e4a50e311dbd51de5aafe7eca3dffd68ff603bdaacc80b00cb8898de72d.sdkstatcache -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -Xcc -I/Users/hhf/Documents/GitHub/saytile/Sources/CAudio/include -Xcc -I/tmp/saytile-v1-native-tests/out/Products/Debug/include -Xcc -I/tmp/saytile-v1-native-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/DerivedSources-normal/arm64 -Xcc -I/tmp/saytile-v1-native-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/DerivedSources/arm64 -Xcc -I/tmp/saytile-v1-native-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -no-auto-bridging-header-chaining -module-name SaytileKitTests -package-name saytile -const-gather-protocols-file /tmp/saytile-v1-native-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/SaytileKitTests_const_extract_protocols.json -disable-clang-spi -clang-target arm64-apple-macos27.0 -target-sdk-version 27.0 -target-sdk-name macosx27.0 -in-process-plugin-server-path /Library/Developer/CommandLineTools/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -parse-as-library -o /tmp/saytile-v1-native-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/AudioTapTests.o -debug-module-path /tmp/saytile-v1-native-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/SaytileKitTests.swiftmodule -index-unit-output-path /Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/AudioTapTests.o -index-store-path /tmp/saytile-v1-native-tests/out -index-system-modules
+/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+error: Build failed
+error: fatalError

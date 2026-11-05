@@ -2,45 +2,43 @@
 
 **自然开口，随时取用。**
 
-Saytile 是始终待命的个人 AI 语音输入与表达工作台：连续接收讲话，独立保存原音与文字，并让当前和历史表达以尽可能少的操作进入目标应用。
+Saytile 是 macOS 原生语音输入与表达工作台。开启后持续待命，自然讲话即可分段记录、识别中文，并独立保存原音。文字可以编辑、搜索、回听、重新识别、复制，或追加到明确选择的应用草稿。
 
-> 当前交付是 **V1 设计恢复、交互原型和可执行数据契约**，不是可安装的 macOS App。恢复来源、重建部分和真实验证边界均有记录。
+V1 个人 Beta 正在发布候选验证。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
 
-## 从这里开始
-
-- [打开交互原型源码](prototype/index.html)：下载后用浏览器打开；含七个主要场景及删除/增量输入演示。
-- [V1 设计修订报告](docs/Saytile-V1-Design-Revision.pdf)：产品、技术、修订、验收与下一步。
-- [交付状态](docs/00-DELIVERY-STATUS.md)：已完成、未完成与发布状态。
-- [产品及三版本路线](docs/01-PRODUCT-AND-ROADMAP.md)。
-- [架构与成熟方案复用](docs/02-V1-ARCHITECTURE.md)。
-- [两项中断修订的正式契约](docs/03-REBUILT-REVIEW-CONTRACTS.md)。
-- [验收清单](docs/04-ACCEPTANCE.md)与[工程接续](docs/05-IMPLEMENTATION-HANDOFF.md)。
-- [来源与原件校验](docs/06-PROVENANCE.md)。
-
-GitHub 文件预览不会执行 HTML。原型是完整单文件，不请求麦克风、不调用 ASR、不操作其他应用；只有“复制”会在浏览器允许时使用剪贴板。编辑、删除和设置只影响示例数据。
-
-## 版本边界
-
-| 版本 | 范围 | 当前处理 |
-|---|---|---|
-| V1 | 常驻收音、连续转写、音文历史、恢复、复制及跨应用插入 | 唯一设计和研发重点 |
-| V2 | 共享工位的轻声/低音量识别 | 后续独立研究，不作为 V1 前置 |
-| V3 | 个人词库、授权资料适应、文字输入法 | 第三版研究，不提前开发 |
-
-不以“本地优先”作为产品最高原则。识别路线按质量、延迟、可靠性、功耗、隐私、成本和维护性决定。保存与识别分离，不等于强制所有识别都在本机。
-
-## 验证
+## 构建和运行
 
 ```sh
-python3 scripts/verify.py
-# 可选浏览器检查
-python3 -m pip install -r tests/requirements.txt
-python3 -m playwright install chromium
-python3 scripts/verify.py --ui
+scripts/build-app.sh
+open dist/Saytile.app
 ```
 
-本轮：原有合成故障实验 **10/10**；新增数据契约 **37/37**；DOM 交互 **48/48**；Swift 6 接口类型检查通过；Foundation UTF-16 与组合字符边界 **8/8**（含 macOS CI 修复）。详见 `evidence/`。这些结果不代表真实麦克风、Apple Speech、中文质量、macOS 辅助功能、ALAC 或整机功耗已经验收。
+现有 Command Line Tools 即可构建，不要求安装完整 Xcode。App 使用系统框架和已固定提交的 WebRTC VAD，构建不下载语音模型。首次开启时准备 Apple 中文语言资源；识别失败仍保留原音。
 
-## 目录
+```sh
+scripts/test-native.sh
+scripts/test-app-model.sh
+python3 scripts/verify.py
+scripts/package-beta.sh
+```
 
-`archive/` 保留恢复原件，不修改历史证据；`contracts/` 是修订 SQL/Swift 契约；`model/` 是可运行的设计参考模型，而非生产实现；`prototype/` 是消费级界面演示；`tests/` 与 `evidence/` 负责可重复验证。
+原生测试和 AppModel 检查均用独立测试资料，不操作私人录音或外部草稿。`scripts/test-ax-fixture.py` 只在已有辅助功能权限下使用专用后台文本框。
+
+## 使用
+
+点击菜单栏或按 ⌥ 空格打开输入板。第一次点击开启收音后，后续讲话自动采集；关闭输入板继续待命，暂停随时可用。档案支持搜索全部文字版本、编辑草稿自动暂存、收藏、回听和重新识别。
+
+复制无需辅助功能。跨应用插入需要本人允许辅助功能；目标应用、页面或光标改变会暂停自动输入。Saytile 不发送消息，不按新识别版本重复插入全文，不重试不确定投递。输入板只包含本次表达及明确带回的历史内容。
+
+原音默认保留到手动删除；仅删除原音会保留文字及修改版本。10 GB 是提醒阈值，不是自动删除许可。资料位于 `~/Library/Application Support/Saytile`。
+
+## 交付与验证
+
+- [安装说明](docs/V1-INSTALL.md)
+- [实时开发状态](docs/V1-DEV-STATUS.md)
+- [实际测试记录及限制](docs/V1-TEST-RESULTS.md)
+- [最少用户授权与验收事项](docs/V1-USER-ACTIONS.md)
+- [产品设计](docs/01-PRODUCT-AND-ROADMAP.md)、[架构](docs/02-V1-ARCHITECTURE.md)、[数据契约](docs/03-REBUILT-REVIEW-CONTRACTS.md)
+- [原型](prototype/index.html)、[历史来源](docs/06-PROVENANCE.md)、[第三方许可](THIRD_PARTY_NOTICES.md)
+
+个人包采用 ad-hoc 签名，尚未进行 Developer ID 公证。合成语音、后台 AX 测试、硬件缓冲统计、实际真人输入和整机功耗是不同验证层，详见测试记录。V2 轻声识别与 V3 个人词库/文字输入法不在本轮范围。

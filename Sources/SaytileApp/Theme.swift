@@ -27,13 +27,14 @@ struct VoiceMark: View {
 }
 
 struct QuietButton: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
     var prominent = false
     func makeBody(configuration: Configuration) -> some View {
         configuration.label.font(.system(size: 12, weight: .medium))
             .padding(.horizontal, 13).padding(.vertical, 8)
             .foregroundStyle(prominent ? .white : Palette.green)
             .background(prominent ? Palette.green : Palette.soft, in: RoundedRectangle(cornerRadius: 8))
-            .opacity(configuration.isPressed ? 0.7 : 1)
+            .opacity(!isEnabled ? 0.38 : configuration.isPressed ? 0.7 : 1)
     }
 }
 

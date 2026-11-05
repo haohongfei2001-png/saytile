@@ -66,19 +66,26 @@ final class LiveSpeechSession: @unchecked Sendable {
         let analyzer = SpeechAnalyzer(modules: modules)
         let (inputs, inputContinuation) = AsyncStream<AnalyzerInput>.makeStream(bufferingPolicy: .bufferingOldest(300))
         let resultTask = Task {
-            var pieces: [Double: (String, Bool, Double)] = [:]
+            var accumulator = SpeechResultAccumulator()
             var hasText = false
+            var lastStable = ""
+            var lastDisplayed = ""
             for try await result in transcriber.results {
-                let start = result.range.start.seconds
-                let end = CMTimeRangeGetEnd(result.range).seconds
-                // A later hypothesis replaces the same audio range, never appends duplicate revisions.
-                pieces = pieces.filter { !($0.key < end && $0.value.2 > start) }
-                pieces[start] = (String(result.text.characters), result.isFinal, end)
-                let sorted = pieces.sorted { $0.key < $1.key }
-                let text = sorted.map { $0.value.0 }.joined()
-                if !text.isEmpty { hasText = true; _ = try await store.applyRecognition(ticket: ticket, text: text, isFinal: sorted.allSatisfy { $0.value.1 }) }
+                let snapshot = accumulator.apply(start:result.range.start.seconds, end:CMTimeRangeGetEnd(result.range).seconds, text:String(result.text.characters), isFinal:result.isFinal)
+                if !snapshot.stableText.isEmpty && snapshot.stableText != lastStable {
+                    _ = try await store.applyRecognition(ticket:ticket,text:snapshot.stableText,isFinal:true)
+                    lastStable = snapshot.stableText
+                    lastDisplayed = snapshot.stableText
+                    hasText = true
+                }
+                if !snapshot.fullText.isEmpty && snapshot.fullText != lastDisplayed {
+                    _ = try await store.applyRecognition(ticket:ticket,text:snapshot.fullText,isFinal:false)
+                    lastDisplayed = snapshot.fullText
+                    hasText = true
+                }
             }
             if !hasText { throw AudioFailure.message("未识别到文字；原音可回听或重试") }
+            guard accumulator.snapshot.isCompletelyFinal else { throw AudioFailure.message("部分文字尚未定稿，已保留文字和原音，可稍后重新识别") }
             try await store.finishRecognition(ticket: ticket)
         }
         try await withTaskCancellationHandler {

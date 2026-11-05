@@ -5,6 +5,41 @@ import CAudio
 
 @Suite("Audio journal, bounded ring and VAD")
 struct AudioTests {
+    @Test func recoveryRetainsCompleteFramesBeyondPublishedCheckpoint() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-recover-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory)
+        let record = try await store.createRecording()
+        let journal = try PCMJournal(directory: store.audioDirectory, recordingID: record.id)
+        try journal.openChunk(); try journal.append(Data(repeating: 1, count: 32_000)); try journal.closeChunk()
+        try await store.registerAudioChunk(recordingID: record.id, relativePath: journal.relativePath, frames: 16_000)
+        try await store.finishRecording(id: record.id)
+        let url = store.audioDirectory.appendingPathComponent(journal.relativePath)
+        let handle = try FileHandle(forWritingTo: url)
+        try handle.seekToEnd(); try handle.write(contentsOf: Data(repeating: 2, count: 999)); try handle.close()
+        let repaired = try await AudioDiagnostics.recoverAudio(store: store)
+        let chunks = try await store.audioChunks(recordingID: record.id)
+        #expect(repaired == 1)
+        #expect(chunks.first?.frames == 16_499)
+        #expect(try Data(contentsOf: url).count == 33_042)
+        #expect(try await AudioDiagnostics.recoverAudio(store: store) == 0)
+    }
+    @Test func recoveryMarksMissingAudioWithoutDiscardingText() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-missing-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory)
+        let record = try await store.createRecording()
+        let journal = try PCMJournal(directory: store.audioDirectory, recordingID: record.id)
+        try journal.openChunk(); try journal.append(Data(repeating: 1, count: 640)); try journal.closeChunk()
+        try await store.registerAudioChunk(recordingID: record.id, relativePath: journal.relativePath, frames: 320)
+        try await store.finishRecording(id: record.id)
+        _ = try await store.saveEdit(recordingID: record.id, text: "文字仍在")
+        try FileManager.default.removeItem(at: store.audioDirectory.appendingPathComponent(journal.relativePath))
+        _ = try await AudioDiagnostics.recoverAudio(store: store)
+        let recovered = try #require(try await store.recording(id: record.id))
+        #expect(recovered.audioState == .missing)
+        #expect(recovered.text == "文字仍在")
+    }
     @Test func testRingKeepsOrderingAndRejectsOverflowWithoutOverwrite() throws {
         let ring = try #require(st_ring_create(8)); defer { st_ring_destroy(ring) }
         var input: [Float] = [1, 2, 3, 4, 5, 6]

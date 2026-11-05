@@ -10,7 +10,7 @@ struct SaytileMain {
         let delegate = AppDelegate()
         app.delegate = delegate
         app.setActivationPolicy(.accessory)
-        app.run()
+        withExtendedLifetime(delegate) { app.run() }
     }
 }
 
@@ -28,6 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settings: NSWindow?
     private var hotKey: EventHotKeyRef?
     private var eventHandler: EventHandlerRef?
+    private var shortcutObserver: NSObjectProtocol?
     private var statusTimer: Timer?
     private var terminating = false
     private var shutdownStarted = false
@@ -46,6 +47,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             model.hidePanel = { [weak self] in self?.panel?.orderOut(nil) }
             model.openArchive = { [weak self] in self?.showArchive() }
             model.openSettings = { [weak self] in self?.showSettings() }
+            if CommandLine.arguments.contains("--device-probe") {
+                Task {
+                    do { let result = try await AudioDiagnostics.probeInputDevice(seconds: 5); print("DEVICE_PROBE \(result)") }
+                    catch { print("DEVICE_PROBE_ERROR \(error.localizedDescription)") }
+                    await model.prepareForExit()
+                    NSApp.terminate(nil)
+                }
+                return
+            }
             if let index = CommandLine.arguments.firstIndex(of: "--audio-probe"), CommandLine.arguments.count > index + 1 {
                 let fixture = URL(fileURLWithPath: CommandLine.arguments[index + 1])
                 guard CommandLine.arguments.contains("--data-directory") else { print("PROBE_REQUIRES_ISOLATED_DATA_DIRECTORY"); NSApp.terminate(nil); return }
@@ -64,7 +74,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             if CommandLine.arguments.contains("--smoke-test") {
                 Task {
-                    await model.refresh()
+                    await model.initialLoad()
                     print("SAYTILE_SMOKE_OK records=\(model.records.count) microphone=\(model.microphoneLabel)")
                     await model.prepareForExit()
                     NSApp.terminate(nil)
@@ -74,17 +84,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if let index = CommandLine.arguments.firstIndex(of: "--render-preview"), CommandLine.arguments.count > index + 1 {
                 let path = CommandLine.arguments[index + 1]
                 Task {
-                    await model.refresh()
+                    await model.initialLoad()
+                    if CommandLine.arguments.contains("--preview-detail"), let first = model.records.first {
+                        model.selected = first
+                        model.versions = (try? await model.store.revisions(recordingID: first.id).map { DisplayVersion(id: $0.id, text: $0.text, label: $0.origin == .userEdit ? "手动修改" : "语音识别") }) ?? []
+                    }
+                    if CommandLine.arguments.contains("--preview-content"), let first = model.records.first { model.stageInPanel(first, showPanel: false) }
                     renderPreview(model: model, path: path)
                     await model.prepareForExit()
                     NSApp.terminate(nil)
                 }
                 return
             }
+            configureMainMenu()
             configureStatusItem()
             registerHotKey()
+            shortcutObserver = NotificationCenter.default.addObserver(forName: .init("SaytileShortcutChanged"), object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.registerHotKey() }
+            }
             statusTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
                 Task { @MainActor in self?.updateStatus() }
+            }
+            if CommandLine.arguments.contains("--focus-probe") {
+                showPanel()
+                Task { try? await Task.sleep(for: .seconds(3)); await model.prepareForExit(); print("FOCUS_PROBE_FINISHED"); NSApp.terminate(nil) }
+                return
             }
             // Relaunch never silently resumes the microphone or restores an input binding.
             if !UserDefaults.standard.bool(forKey: "hasLaunched") {
@@ -106,10 +130,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         shutdownStarted = true
         Task {
             await model?.prepareForExit()
+            if model?.hasUnpersistedDrafts == true {
+                shutdownStarted = false
+                showPanel()
+                return
+            }
             terminating = true
             DispatchQueue.main.async { NSApp.terminate(nil) }
         }
         return .terminateCancel
+    }
+    private func configureMainMenu() {
+        let main = NSMenu()
+        let appItem = NSMenuItem(); let appMenu = NSMenu()
+        let quit = NSMenuItem(title: "退出 Saytile", action: #selector(quitApp), keyEquivalent: "q"); quit.target = self
+        appMenu.addItem(quit); appItem.submenu = appMenu; main.addItem(appItem)
+        let edit = NSMenuItem(); let editMenu = NSMenu(title: "编辑")
+        for (title, action, key) in [("撤销", "undo:", "z"), ("剪切", "cut:", "x"), ("复制", "copy:", "c"), ("粘贴", "paste:", "v"), ("全选", "selectAll:", "a")] {
+            editMenu.addItem(NSMenuItem(title: title, action: Selector(action), keyEquivalent: key))
+        }
+        edit.submenu = editMenu; main.addItem(edit); NSApp.mainMenu = main
     }
     private func configureStatusItem() {
         let status = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -122,7 +162,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     private func updateStatus() {
         guard let model else { return }
-        status?.button?.image = NSImage(systemSymbolName: model.captureProblem ? "exclamationmark.waveform" : (model.isListening ? "waveform" : "waveform.slash"), accessibilityDescription: "Saytile · \(model.captureLabel)")
+        status?.button?.image = NSImage(systemSymbolName: model.captureProblem ? "exclamationmark.circle" : (model.isListening ? "waveform" : "waveform.slash"), accessibilityDescription: "Saytile · \(model.captureLabel)")
         status?.button?.toolTip = "Saytile · \(model.captureLabel)"
     }
     @objc private func statusClicked() {
@@ -182,6 +222,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return window
     }
     private func registerHotKey() {
+        if let hotKey { UnregisterEventHotKey(hotKey); self.hotKey = nil }
+        if let eventHandler { RemoveEventHandler(eventHandler); self.eventHandler = nil }
+        guard model?.shortcutChoice != "disabled" else { return }
         var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
         let opaque = Unmanaged.passUnretained(self).toOpaque()
         InstallEventHandler(GetApplicationEventTarget(), { _, _, context in
@@ -191,12 +234,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return noErr
         }, 1, &spec, opaque, &eventHandler)
         let identifier = EventHotKeyID(signature: OSType(0x5359544C), id: 1)
-        let result = RegisterEventHotKey(UInt32(kVK_Space), UInt32(optionKey), identifier, GetApplicationEventTarget(), 0, &hotKey)
-        if result != noErr { model?.notice = "⌥ 空格已被其他功能占用，可以通过菜单栏展开输入板。" }
+        let modifiers: UInt32
+        switch model?.shortcutChoice {
+        case "control-option-space": modifiers = UInt32(controlKey | optionKey)
+        case "command-shift-space": modifiers = UInt32(cmdKey | shiftKey)
+        default: modifiers = UInt32(optionKey)
+        }
+        let result = RegisterEventHotKey(UInt32(kVK_Space), modifiers, identifier, GetApplicationEventTarget(), 0, &hotKey)
+        if result != noErr { model?.notice = "所选快捷键已被其他功能占用，请选择另一组合，或通过菜单栏展开。" }
     }
     private func renderPreview(model: AppModel, path: String) {
-        let view = NSHostingView(rootView: InputPanelView(model: model).preferredColorScheme(.light))
-        view.frame = NSRect(x: 0, y: 0, width: 400, height: 550)
+        if CommandLine.arguments.contains("--preview-archive") {
+            renderView(ArchiveView(model: model).preferredColorScheme(.light), width: 1040, height: 720, path: path)
+        } else if CommandLine.arguments.contains("--preview-settings") {
+            renderView(SettingsView(model: model).preferredColorScheme(.light), width: 650, height: 740, path: path)
+        } else {
+            renderView(InputPanelView(model: model).preferredColorScheme(.light), width: 400, height: 550, path: path)
+        }
+    }
+    private func renderView<V: View>(_ content: V, width: CGFloat, height: CGFloat, path: String) {
+        let view = NSHostingView(rootView: content)
+        view.frame = NSRect(x: 0, y: 0, width: width, height: height)
         view.layoutSubtreeIfNeeded()
         guard let bitmap = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return }
         view.cacheDisplay(in: view.bounds, to: bitmap)

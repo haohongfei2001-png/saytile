@@ -100,9 +100,38 @@ public actor SaytileStore {
         _ = try requireRecording(recordingID)
         return try db.rows("SELECT * FROM revisions WHERE recording_id=? ORDER BY created_at DESC,rowid DESC",[.text(recordingID.uuidString)]).map(Self.decodeRevision)
     }
+    /// Freeze the exact text seen at a manual insertion click, without changing the selected draft.
+    /// A volatile source may already have been pruned while the MainActor was scheduling this call.
+    public func freezeRevision(recordingID: UUID, revisionID: UUID, text: String) throws -> TranscriptRevision {
+        _ = try requireRecording(recordingID)
+        return try db.transaction {
+            let revision: TranscriptRevision
+            if let row = try db.rows("SELECT * FROM revisions WHERE id=?",[.text(revisionID.uuidString)]).first {
+                let existing = Self.decodeRevision(row)
+                guard existing.recordingID == recordingID, existing.text == text else { throw StoreError.missingRevision }
+                revision = existing
+            } else {
+                revision = TranscriptRevision(id:UUID(),recordingID:recordingID,text:text,origin:.partial,createdAt:Date())
+                try insertRevision(revision,attempt:nil,base:nil)
+            }
+            try db.execute("INSERT OR IGNORE INTO frozen_revisions(revision_id) VALUES(?)",[.text(revision.id.uuidString)])
+            return revision
+        }
+    }
     public func latestFinalRevision(recordingID: UUID) throws -> TranscriptRevision? {
         _ = try requireRecording(recordingID)
         return try db.rows("SELECT * FROM revisions WHERE recording_id=? AND origin='final' ORDER BY created_at DESC,rowid DESC LIMIT 1",[.text(recordingID.uuidString)]).first.map(Self.decodeRevision)
+    }
+    /// A durable editing draft is distinct from the selected transcript and its immutable history.
+    public func loadDraft(recordingID: UUID) throws -> String? {
+        try db.rows("SELECT d.text FROM editing_drafts d JOIN recordings r ON r.id=d.recording_id WHERE d.recording_id=? AND r.deleted=0",[.text(recordingID.uuidString)]).first?["text"]
+    }
+    public func saveDraft(recordingID: UUID, text: String) throws {
+        _ = try requireRecording(recordingID)
+        try db.execute("INSERT INTO editing_drafts(recording_id,text,updated_at) VALUES(?,?,?) ON CONFLICT(recording_id) DO UPDATE SET text=excluded.text,updated_at=excluded.updated_at",[.text(recordingID.uuidString),.text(text),.double(Date().timeIntervalSince1970)])
+    }
+    public func clearDraft(recordingID: UUID) throws {
+        try db.execute("DELETE FROM editing_drafts WHERE recording_id=?",[.text(recordingID.uuidString)])
     }
     @discardableResult public func saveEdit(recordingID: UUID, text: String) throws -> TranscriptRevision {
         let record = try requireRecording(recordingID)
@@ -110,6 +139,7 @@ public actor SaytileStore {
         try db.transaction {
             try insertRevision(revision,attempt:nil,base:record.preferredRevisionID)
             try db.execute("UPDATE recordings SET preferred_revision=? WHERE id=?",[.text(revision.id.uuidString),.text(recordingID.uuidString)])
+            try db.execute("DELETE FROM editing_drafts WHERE recording_id=?",[.text(recordingID.uuidString)])
         }
         return revision
     }
@@ -138,7 +168,7 @@ public actor SaytileStore {
             // An explicit user edit remains selected while later ASR results are preserved as other versions.
             try db.execute("UPDATE recordings SET preferred_revision=? WHERE id=? AND NOT EXISTS(SELECT 1 FROM revisions WHERE id=recordings.preferred_revision AND origin='userEdit')",[.text(revision.id.uuidString),.text(ticket.recordingID.uuidString)])
             // Only unreferenced volatile drafts can be replaced; finals and insertion snapshots remain immutable.
-            try db.execute("DELETE FROM revisions WHERE recording_id=? AND origin='partial' AND attempt=? AND id<>? AND id NOT IN(SELECT revision_id FROM dispatches) AND id NOT IN(SELECT preferred_revision FROM recordings WHERE preferred_revision IS NOT NULL) AND id NOT IN(SELECT base_revision FROM revisions WHERE base_revision IS NOT NULL)",[.text(ticket.recordingID.uuidString),.text(ticket.id.uuidString),.text(revision.id.uuidString)])
+            try db.execute("DELETE FROM revisions WHERE recording_id=? AND origin='partial' AND attempt=? AND id<>? AND id NOT IN(SELECT revision_id FROM dispatches) AND id NOT IN(SELECT preferred_revision FROM recordings WHERE preferred_revision IS NOT NULL) AND id NOT IN(SELECT base_revision FROM revisions WHERE base_revision IS NOT NULL) AND id NOT IN(SELECT revision_id FROM frozen_revisions)",[.text(ticket.recordingID.uuidString),.text(ticket.id.uuidString),.text(revision.id.uuidString)])
             return true
         }
     }
@@ -158,6 +188,23 @@ public actor SaytileStore {
     }
     public func pendingRecordings(limit: Int = 100) throws -> [Recording] {
         try db.rows(Self.selection + " WHERE r.deleted=0 AND r.audio_state='available' AND r.is_recording=0 AND r.recognition_state IN('queued','failed') ORDER BY r.created_at LIMIT ?",[.int(Int64(max(1,min(1000,limit))))]).map(Self.decodeRecording)
+    }
+
+    /// Persisted finite retry scheduling prevents old failed records starving newer ones.
+    /// Claims are taken transactionally, at most three automatically per recording.
+    public func claimRecoveryRecording(now: Date = Date()) throws -> Recording? {
+        try db.transaction {
+            guard let row = try db.rows(Self.selection + " LEFT JOIN recovery_attempts a ON a.recording_id=r.id WHERE r.deleted=0 AND r.audio_state='available' AND r.is_recording=0 AND r.recognition_state IN('queued','failed') AND COALESCE(a.attempt_count,0)<3 AND COALESCE(a.retry_after,0)<=? ORDER BY COALESCE(a.attempt_count,0),r.created_at LIMIT 1",[.double(now.timeIntervalSince1970)]).first else { return nil }
+            let record = Self.decodeRecording(row)
+            let previous = Int(try db.rows("SELECT attempt_count FROM recovery_attempts WHERE recording_id=?",[.text(record.id.uuidString)]).first?["attempt_count"] ?? "0") ?? 0
+            let delays: [Double] = [60,300,1800]
+            try db.execute("INSERT INTO recovery_attempts(recording_id,attempt_count,retry_after) VALUES(?,?,?) ON CONFLICT(recording_id) DO UPDATE SET attempt_count=excluded.attempt_count,retry_after=excluded.retry_after",[.text(record.id.uuidString),.int(Int64(previous + 1)),.double(now.timeIntervalSince1970 + delays[min(previous,2)])])
+            return record
+        }
+    }
+    /// Yielding to live capture does not consume a failed recognition attempt.
+    public func releaseRecoveryClaim(recordingID: UUID, now: Date = Date()) throws {
+        try db.execute("UPDATE recovery_attempts SET attempt_count=MAX(0,attempt_count-1),retry_after=? WHERE recording_id=?",[.double(now.timeIntervalSince1970 + 30),.text(recordingID.uuidString)])
     }
 
     /// Leases are process-local; they expire on crash. New leases are refused once erasure is requested.
@@ -254,11 +301,14 @@ public actor SaytileStore {
         try db.transaction {
             try db.execute("INSERT OR IGNORE INTO erasures(recording_id,created_at,completed) VALUES(?,?,0)",[.text(id.uuidString),.double(Date().timeIntervalSince1970)])
             try db.execute("UPDATE recordings SET audio_state='deletePending',audio_epoch=audio_epoch+1,active_attempt=NULL,recognition_state='cancelled' WHERE id=? AND audio_state<>'deleted'",[.text(id.uuidString)])
+            try db.execute("DELETE FROM recovery_attempts WHERE recording_id=?",[.text(id.uuidString)])
             if deleteRecord {
                 // Keep only operation audit metadata; deleting a record erases its text snapshots as well.
                 try db.execute("UPDATE recordings SET deleted=1,preferred_revision=NULL WHERE id=?",[.text(id.uuidString)])
+                try db.execute("DELETE FROM editing_drafts WHERE recording_id=?",[.text(id.uuidString)])
                 try db.execute("DELETE FROM cursors WHERE recording_id=?",[.text(id.uuidString)])
                 try db.execute("DELETE FROM dispatches WHERE recording_id=?",[.text(id.uuidString)])
+                try db.execute("DELETE FROM frozen_revisions WHERE revision_id IN(SELECT id FROM revisions WHERE recording_id=?)",[.text(id.uuidString)])
                 try db.execute("DELETE FROM revisions WHERE recording_id=?",[.text(id.uuidString)])
             }
         }
@@ -367,6 +417,9 @@ extension SaytileStore {
     CREATE TRIGGER IF NOT EXISTS revisions_immutable BEFORE UPDATE ON revisions BEGIN
       SELECT RAISE(ABORT,'create a new revision');
     END;
+    CREATE TABLE IF NOT EXISTS editing_drafts(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),text TEXT NOT NULL,updated_at REAL NOT NULL);
+    CREATE TABLE IF NOT EXISTS frozen_revisions(revision_id TEXT PRIMARY KEY REFERENCES revisions(id));
+    CREATE TABLE IF NOT EXISTS recovery_attempts(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),attempt_count INTEGER NOT NULL CHECK(attempt_count>=0),retry_after REAL NOT NULL);
     CREATE TABLE IF NOT EXISTS erasures(recording_id TEXT PRIMARY KEY,created_at REAL NOT NULL,completed INTEGER NOT NULL DEFAULT 0);
     CREATE TABLE IF NOT EXISTS bindings(id TEXT PRIMARY KEY,label TEXT NOT NULL,active INTEGER NOT NULL,created_at REAL NOT NULL);
     CREATE TABLE IF NOT EXISTS cursors(

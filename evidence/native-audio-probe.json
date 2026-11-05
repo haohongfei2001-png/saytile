@@ -19,5 +19,33 @@
     "maximum_resident_bytes": 83984384,
     "recovery_repairs_needed": 0
   },
-  "not_verified": ["microphone TCC", "real human Mandarin accuracy", "30-minute realtime capture", "sleep/wake with active microphone", "whole-machine power"]
+  "not_verified": [
+    "microphone TCC",
+    "real human Mandarin accuracy",
+    "30-minute realtime capture",
+    "sleep/wake with active microphone",
+    "whole-machine power"
+  ],
+  "realtime_soak": {
+    "scope": "300 seconds wall-clock synthetic fixture producer through the production bounded C ring, CaptureWorker, AVAudioConverter, WebRTC VAD, PCMJournal and SQLite; ASR disabled; AVAudioEngine input tap replaced by direct fixture ring writes; no microphone or speakers",
+    "input_seconds": 300.0,
+    "input_frames": 6615000,
+    "input_sample_rate": 22050,
+    "dropped_frames": 0,
+    "recordings": 10,
+    "saved_seconds": 300.0,
+    "all_audio_available": true,
+    "all_recordings_finished": true,
+    "audio_bytes": 9601276,
+    "pending_asr_jobs": 10,
+    "wall_seconds": 300.42,
+    "user_cpu_seconds": 2.07,
+    "system_cpu_seconds": 1.07,
+    "maximum_resident_bytes": 20398080,
+    "scope_limits": [
+      "Not hardware microphone or AVAudioEngine tap verification",
+      "Not ASR performance",
+      "Not UI or whole-machine power"
+    ]
+  }
 }

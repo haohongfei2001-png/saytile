@@ -26,3 +26,24 @@
 CLT 测试方案使用默认 Swift Build、临时构建目录及已安装 TestingMacros 插件。没有安装完整 Xcode，没有修改系统设置。首次运行发现父目录符号链接校验漏洞，已以逐层 lstat 修复后复跑全部通过；失败证据 `evidence/native-tests-initial-failure.log` 保留。
 
 原生输入板离屏渲染已完成，`evidence/native/panel-empty.png` 展示实际 SwiftUI 内容，不是 HTML 原型。实际目标应用 AX/SPA 尚未验收。
+
+## 实时管线与实际系统验证
+
+- 5 分钟实时生产 C ring → AVAudioConverter → WebRTC VAD → WAV/SQLite：6,615,000 输入帧，丢帧 0，10 段封存，原音 300.0 秒。wall 300.42s，CPU user+sys 3.14s（约1.05%单核平均）、max RSS 20.4MB。见 `evidence/native-audio-realtime-soak.log`；不包括 ASR、UI 或整机功耗。
+- 正式打包 App 的中文合成音频识别通过，见 `evidence/native/app-speech-prepared.log`。首次未准备该 App 资产失败保存在 `app-speech.log`；已增加首次收音后自动准备。
+- 硬件计数探针首次触发 Swift 6 MainActor 隔离崩溃；生产与探针 tap 改为 nonisolated 工厂返回 @Sendable 回调，修复后实际采集 49 buffers / 235200 frames，见 `device-probe-fixed.log`。没有读取、保存或识别环境样本；失败摘要保留 `device-probe-initial-failure.json`。
+- 后台禁止激活的专用 NSPanel/NSTextView，真实 AX 局部中文/emoji 插入、UTF-16 光标、局部确认、前后文保留及前台 PID 不变通过：`evidence/native-ax-fixture.json`。不等同完整生产绑定/浏览器 SPA 测试。
+- 生产 AppModel 的8项隔离检查通过：初始加载、历史不自动入板、明确复用、清板不删档案、当前语音、收藏、搜索及清理预览等待，见 `evidence/native-app-model.log`。
+- 输入板（空/有文字）、档案详情、设置已经实际 SwiftUI 离屏渲染核看，见 `evidence/native/*.png`。没有启动外部浏览器。
+
+本轮实机测试发现的问题均先修根因，再复验；没有将初次失败或权限未验证写作通过。
+
+## 发布候选原生测试
+
+最新全量 **69/69 原生测试通过**，6 suites，见 `evidence/native-tests.log`。新增持久草稿跨重启/独删原音/删记录保护、后台音频回调实际执行、首块登记前崩溃恢复等回归。没有用编译成功替代测试执行。
+
+## 最终界面与草稿
+
+`scripts/test-app-model.sh`：**16/16 通过**，包含持久草稿切换/重选、刷新不覆盖、保存时继续输入及退出保留空草稿。脚本曾错误链接旧静态库，现已统一先构建全部产品，失败记录保留在 `native-draft-probe-initial-failure.log`。
+
+`scripts/test-startup-focus.sh`：打包 App 实际启动菜单栏与非激活输入板，3秒观察中前台 PID 不变，正常退出；未访问其他应用内容。实际符号检查修复了不可用的错误状态 SF Symbol，避免故障时菜单栏图标消失。

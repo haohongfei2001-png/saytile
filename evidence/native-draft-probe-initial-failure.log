@@ -1,0 +1,80 @@
+(lldb) target create "/tmp/saytile-draft-model-probe"
+Current executable set to '/tmp/saytile-draft-model-probe' (arm64).
+(lldb) run
+2026-11-06 06:03:01.537945+0800 saytile-draft-model-probe[19430:29741585] [Connection] Unable to get synchronousRemoteObjectProxy, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-11-06 06:03:01.538119+0800 saytile-draft-model-probe[19430:29741585] [Application] Error registering app with intents framework: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-11-06 06:03:01.538262+0800 saytile-draft-model-probe[19430:29741599] [Connection] Unable to get synchronousRemoteObjectProxy, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-11-06 06:03:01.538288+0800 saytile-draft-model-probe[19430:29741599] [Connection] Unable to re-register with Process Instance Registry, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-11-06 06:03:01.538545+0800 saytile-draft-model-probe[19430:29741586] [Connection] Unable to get synchronousRemoteObjectProxy, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-11-06 06:03:01.538555+0800 saytile-draft-model-probe[19430:29741586] [Connection] Unable to re-register with Process Instance Registry, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-11-06 06:03:01.538762+0800 saytile-draft-model-probe[19430:29741586] [Connection] Will NOT re-try to establish the connection
+2026-11-06 06:03:01.538785+0800 saytile-draft-model-probe[19430:29741585] [Connection] Unable to get synchronousRemoteObjectProxy, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-11-06 06:03:01.538797+0800 saytile-draft-model-probe[19430:29741585] [Connection] Unable to re-register with Process Instance Registry, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-11-06 06:03:01.550772+0800 saytile-draft-model-probe[19430:29741564] [plugin] AddInstanceForFactory: No factory registered for id <CFUUID 0x781709d2a0> F8BB1C28-BAE8-11D6-9C31-00039315CD46
+Process 19430 launched: '/tmp/saytile-draft-model-probe' (arm64)
+Process 19430 stopped
+* thread #9, name = 'Task 10', queue = 'com.apple.root.default-qos.cooperative', stop reason = EXC_BAD_ACCESS (code=1, address=0xa)
+       frame #0: 0x00000001870b7f60 Foundation`Foundation.UUID.uuidString.getter : Swift.String + 44
+Foundation`Foundation.UUID.uuidString.getter : Swift.String:
+->  0x1870b7f60 <+44>: ldr    q0, [x20]
+    0x1870b7f64 <+48>: str    q0, [sp]
+    0x1870b7f68 <+52>: mov    x0, sp
+    0x1870b7f6c <+56>: add    x1, sp, #0x10
+Target 0: (saytile-draft-model-probe) stopped.
+(lldb) thread backtrace all
+  thread #1, queue = 'com.apple.main-thread'
+       frame #0: 0x0000000184fb0c20 libsystem_kernel.dylib`mach_msg2_trap + 8
+       frame #1: 0x0000000184fc38e0 libsystem_kernel.dylib`mach_msg2_internal + 76
+       frame #2: 0x0000000184fb9a28 libsystem_kernel.dylib`mach_msg_overwrite + 480
+       frame #3: 0x0000000184fb0fac libsystem_kernel.dylib`mach_msg + 24
+       frame #4: 0x00000001850b6aec CoreFoundation`__CFRunLoopServiceMachPort + 160
+       frame #5: 0x00000001850b5334 CoreFoundation`__CFRunLoopRun + 1172
+       frame #6: 0x000000018518f82c CoreFoundation`_CFRunLoopRunSpecificWithOptions + 536
+       frame #7: 0x000000018512d4c4 CoreFoundation`CFRunLoopRun + 64
+       frame #8: 0x00000002b19473e8 libswift_Concurrency.dylib`CFMainExecutor.run() + 48
+       frame #9: 0x00000002b19475ec libswift_Concurrency.dylib`protocol witness for RunLoopExecutor.run() in conformance DispatchMainExecutor + 40
+       frame #10: 0x00000002b1947c18 libswift_Concurrency.dylib`swift_task_asyncMainDrainQueueImpl + 140
+       frame #11: 0x00000002b18f1c98 libswift_Concurrency.dylib`swift_task_asyncMainDrainQueue + 92
+       frame #12: 0x0000000100046f58 saytile-draft-model-probe`main at AppModelProbe.swift:0
+       frame #13: 0x0000000184c1fe80 dyld`start + 6688
+  thread #8, name = 'Task 3', queue = 'com.apple.root.default-qos.cooperative'
+       frame #0: 0x0000000184fb0c20 libsystem_kernel.dylib`mach_msg2_trap + 8
+       frame #1: 0x0000000184fc38e0 libsystem_kernel.dylib`mach_msg2_internal + 76
+       frame #2: 0x0000000184fb9a28 libsystem_kernel.dylib`mach_msg_overwrite + 480
+       frame #3: 0x0000000184fb0fac libsystem_kernel.dylib`mach_msg + 24
+       frame #4: 0x0000000184cea288 libxpc.dylib`_xpc_pipe_mach_msg + 56
+       frame #5: 0x0000000184ce9670 libxpc.dylib`_xpc_pipe_routine + 420
+       frame #6: 0x0000000184cb77dc libxpc.dylib`_xpc_interface_routine + 248
+       frame #7: 0x0000000184cbe210 libxpc.dylib`_xpc_look_up_endpoint + 328
+       frame #8: 0x0000000184cbe03c libxpc.dylib`_xpc_connection_bootstrap_look_up_slow + 408
+       frame #9: 0x0000000184cbd658 libxpc.dylib`_xpc_connection_init + 444
+       frame #10: 0x0000000184cbd374 libxpc.dylib`_xpc_connection_activate_if_needed + 548
+       frame #11: 0x0000000184cc037c libxpc.dylib`xpc_connection_resume + 104
+       frame #12: 0x00000001cabfce78 Speech`-[SFLocalSpeechRecognitionClient init] + 432
+       frame #13: 0x00000001cac1f018 Speech`+[SFSpeechAssetManager supportedLanguagesForTaskHint:completion:] + 232
+       frame #14: 0x00000001cad96314 Speech`AssetsInventory.supportedLocales(for:) + 404
+       frame #15: 0x00000001cac9e1b8 Speech`(1) await resume partial function for static Speech.DictationTranscriber.supportedLocales.getter : Swift.Array<Foundation.Locale>
+       frame #16: 0x00000001cad51efc Speech`static SpeechTranscriber.supportedLocale(equivalentTo:)
+       frame #17: 0x00000001000bb34c saytile-draft-model-probe`static AppleSpeechService.availability() at SpeechRecognition.swift:14:52
+    ﹍ frame #18: 0x000000010006af2c saytile-draft-model-probe`closure #6 in AudioController.init() at AudioCapture.swift:232:56
+* thread #9, name = 'Task 10', queue = 'com.apple.root.default-qos.cooperative', stop reason = EXC_BAD_ACCESS (code=1, address=0xa)
+   * frame #0: 0x00000001870b7f60 Foundation`Foundation.UUID.uuidString.getter : Swift.String + 44
+     frame #1: 0x00000001000d8814 saytile-draft-model-probe`SaytileStore.insertRevision(revision=(id = 00000000-0000-0000-0000-000000000000, recordingID = 00000000-0000-0000-0000-000000000000, text = Swift.String @ , origin = SaytileKit.RevisionOrigin @ , createdAt = Foundation.Date @ 0x0000000000000042), attempt=<unavailable>, base=<unavailable>) at Store.swift:278:151
+     frame #2: 0x000000010002dbec saytile-draft-model-probe`AppModel.performRefresh() at AppModel.swift:407:43
+  ﹍ frame #3: 0x0000000100027f3c saytile-draft-model-probe`closure #1 in AppModel.refresh() at AppModel.swift:370:24
+  thread #4
+       frame #0: 0x0000000000000000 
+  thread #5
+       frame #0: 0x0000000184fb29ec libsystem_kernel.dylib`__workq_kernreturn + 8
+  thread #6, name = 'com.apple.NSEventThread'
+       frame #0: 0x0000000184fb0c20 libsystem_kernel.dylib`mach_msg2_trap + 8
+       frame #1: 0x0000000184fc38e0 libsystem_kernel.dylib`mach_msg2_internal + 76
+       frame #2: 0x0000000184fb9a28 libsystem_kernel.dylib`mach_msg_overwrite + 480
+       frame #3: 0x0000000184fb0fac libsystem_kernel.dylib`mach_msg + 24
+       frame #4: 0x00000001850b6aec CoreFoundation`__CFRunLoopServiceMachPort + 160
+       frame #5: 0x00000001850b5334 CoreFoundation`__CFRunLoopRun + 1172
+       frame #6: 0x000000018518f82c CoreFoundation`_CFRunLoopRunSpecificWithOptions + 536
+       frame #7: 0x0000000189790844 AppKit`_NSEventThread + 184
+       frame #8: 0x0000000184ff5d00 libsystem_pthread.dylib`_pthread_start + 136
+(lldb) process kill
+Process 19430 exited with status = 9 (0x00000009) killed

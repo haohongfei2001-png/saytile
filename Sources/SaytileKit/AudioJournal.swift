@@ -18,6 +18,7 @@ final class PCMJournal {
     init(directory: URL, recordingID: UUID) throws {
         self.directory = directory; self.recordingID = recordingID
         try FileManager.default.createDirectory(at: directory.appendingPathComponent(recordingID.uuidString), withIntermediateDirectories: true)
+        try Self.synchronizeDirectory(directory)
     }
     func openChunk() throws {
         relativePath = "\(recordingID.uuidString)/\(UUID().uuidString).wav"
@@ -26,9 +27,14 @@ final class PCMJournal {
         file = try FileHandle(forUpdating: url); frames = 0; lastCheckpoint = 0
         try file?.synchronize()
         // Persist the directory entry as well as the new file before registering it.
-        let fd = Darwin.open(url.deletingLastPathComponent().path, O_RDONLY)
-        if fd >= 0 { _ = fsync(fd); close(fd) }
+        try Self.synchronizeDirectory(url.deletingLastPathComponent())
         try file?.seekToEnd()
+    }
+    private static func synchronizeDirectory(_ url: URL) throws {
+        let fd = Darwin.open(url.path, O_RDONLY)
+        guard fd >= 0 else { throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno)) }
+        defer { Darwin.close(fd) }
+        guard fsync(fd) == 0 else { throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno)) }
     }
     func append(_ pcm: Data) throws {
         guard let file else { throw AudioFailure.message("原音文件尚未打开") }
@@ -97,5 +103,11 @@ final class VoiceSegmenter {
             }
         }
         return events
+    }
+    func finish() -> [Event] {
+        defer { pending.removeAll(); preRoll.removeAll(); speaking = false; speechVotes = 0; silence = 0 }
+        guard speaking else { return [] }
+        let completeBytes = pending.count - pending.count % 2
+        return completeBytes > 0 ? [.audio(Data(pending.prefix(completeBytes))), .end] : [.end]
     }
 }

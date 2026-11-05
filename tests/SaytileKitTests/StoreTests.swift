@@ -269,3 +269,108 @@ private struct Fixture {
     try await f.store.deleteAudio(recordingID:r.id)
     #expect(try await f.store.recording(id:r.id)?.audioState == .deleted)
 }
+@Test func storeRecoveryQueueDoesNotStarveBeyondOldestHundred() async throws {
+    let f = try Fixture(); defer { f.clean() }
+    var ids: [UUID] = []
+    for index in 0..<105 {
+        let r = try await f.store.createRecording(createdAt:Date(timeIntervalSince1970:Double(index)))
+        try await f.store.finishRecording(id:r.id)
+        ids.append(r.id)
+    }
+    let now = Date(timeIntervalSince1970:10_000)
+    var claimed: [UUID] = []
+    for _ in 0..<105 { claimed.append(try await f.store.claimRecoveryRecording(now:now)!.id) }
+    #expect(claimed == ids)
+    #expect(try await f.store.claimRecoveryRecording(now:now) == nil)
+}
+@Test func storeRecoveryRetriesAreBoundedAndSurviveRestart() async throws {
+    let f = try Fixture(); defer { f.clean() }
+    let r = try await f.store.createRecording()
+    try await f.store.finishRecording(id:r.id)
+    let now = Date(timeIntervalSince1970:10_000)
+    #expect(try await f.store.claimRecoveryRecording(now:now)?.id == r.id)
+    #expect(try await f.store.claimRecoveryRecording(now:now) == nil)
+    let reopened = try SaytileStore(directory:f.directory)
+    #expect(try await reopened.claimRecoveryRecording(now:now.addingTimeInterval(61))?.id == r.id)
+    #expect(try await reopened.claimRecoveryRecording(now:now.addingTimeInterval(362))?.id == r.id)
+    #expect(try await reopened.claimRecoveryRecording(now:now.addingTimeInterval(10_000)) == nil)
+}
+@Test func storeYieldingRecoveryToCaptureDoesNotConsumeRetryBudget() async throws {
+    let f = try Fixture(); defer { f.clean() }
+    let r = try await f.store.createRecording()
+    try await f.store.finishRecording(id:r.id)
+    let now = Date(timeIntervalSince1970:10_000)
+    for index in 0..<5 {
+        let time = now.addingTimeInterval(Double(index) * 31)
+        #expect(try await f.store.claimRecoveryRecording(now:time)?.id == r.id)
+        try await f.store.releaseRecoveryClaim(recordingID:r.id,now:time)
+    }
+    #expect(try await f.store.claimRecoveryRecording(now:now.addingTimeInterval(200))?.id == r.id)
+}
+@Test func storeFrozenClickSnapshotSurvivesPartialPruningWithoutChangingPreferred() async throws {
+    let f = try Fixture(); defer { f.clean() }
+    let r = try await f.store.createRecording()
+    let ticket = try await f.store.beginRecognition(recordingID:r.id)
+    try await f.store.applyRecognition(ticket:ticket,text:"点击时",isFinal:false)
+    let clicked = try await f.store.recording(id:r.id)!
+    let frozen = try await f.store.freezeRevision(recordingID:r.id,revisionID:clicked.preferredRevisionID!,text:clicked.text)
+    try await f.store.applyRecognition(ticket:ticket,text:"之后继续说",isFinal:false)
+    #expect(try await f.store.recording(id:r.id)?.text == "之后继续说")
+    let operation = try await f.store.reserveManual(recordingID:r.id,revisionID:frozen.id,label:"测试")
+    #expect(operation.text == "点击时")
+}
+@Test func storeFreezesClickTextAfterItsVolatileSourceWasPruned() async throws {
+    let f = try Fixture(); defer { f.clean() }
+    let r = try await f.store.createRecording()
+    let ticket = try await f.store.beginRecognition(recordingID:r.id)
+    try await f.store.applyRecognition(ticket:ticket,text:"点击时",isFinal:false)
+    let clicked = try await f.store.recording(id:r.id)!
+    try await f.store.applyRecognition(ticket:ticket,text:"新草稿",isFinal:false)
+    let frozen = try await f.store.freezeRevision(recordingID:r.id,revisionID:clicked.preferredRevisionID!,text:clicked.text)
+    #expect(frozen.text == "点击时")
+    #expect(frozen.origin == .partial)
+    #expect(try await f.store.recording(id:r.id)?.text == "新草稿")
+    try await f.store.finishRecording(id:r.id)
+    try await f.store.deleteRecord(recordingID:r.id)
+    #expect(try await f.store.recording(id:r.id) == nil)
+}
+@Test func storeUnsavedEditingDraftPersistsAcrossRestartSeparatelyFromTranscript() async throws {
+    let f = try Fixture(); defer { f.clean() }
+    let r = try await f.record(text:"原来的文字")
+    try await f.store.saveDraft(recordingID:r.id,text:"未保存的修改")
+    let reopened = try SaytileStore(directory:f.directory)
+    #expect(try await reopened.loadDraft(recordingID:r.id) == "未保存的修改")
+    #expect(try await reopened.recording(id:r.id)?.text == "原来的文字")
+    #expect(try await reopened.revisions(recordingID:r.id).count == 1)
+    try await reopened.saveEdit(recordingID:r.id,text:"正式保存修改")
+    #expect(try await reopened.loadDraft(recordingID:r.id) == nil)
+    #expect(try await reopened.recording(id:r.id)?.text == "正式保存修改")
+}
+@Test func storeAudioErasurePreservesDraftAndRecordErasureRemovesIt() async throws {
+    let f = try Fixture(); defer { f.clean() }
+    let r = try await f.record()
+    try await f.store.saveDraft(recordingID:r.id,text:"未保存草稿")
+    try await f.store.deleteAudio(recordingID:r.id)
+    #expect(try await f.store.loadDraft(recordingID:r.id) == "未保存草稿")
+    try await f.store.deleteRecord(recordingID:r.id)
+    #expect(try await f.store.loadDraft(recordingID:r.id) == nil)
+    await #expect(throws:StoreError.self) { try await f.store.saveDraft(recordingID:r.id,text:"删除后的迟到写入") }
+}
+@Test func storeEmptyDraftAndExplicitDiscardRemainDistinct() async throws {
+    let f = try Fixture(); defer { f.clean() }
+    let r = try await f.record()
+    try await f.store.saveDraft(recordingID:r.id,text:"")
+    #expect(try await f.store.loadDraft(recordingID:r.id) == "")
+    try await f.store.clearDraft(recordingID:r.id)
+    #expect(try await f.store.loadDraft(recordingID:r.id) == nil)
+}
+@Test func storeRecoveryMarksInterruptedBeforeFirstChunkAsMissing() async throws {
+    let f = try Fixture(); defer { f.clean() }
+    let r = try await f.store.createRecording()
+    try await f.store.saveEdit(recordingID:r.id,text:"已有文字")
+    let reopened = try SaytileStore(directory:f.directory)
+    _ = try await AudioDiagnostics.recoverAudio(store:reopened)
+    #expect(try await reopened.recording(id:r.id)?.audioState == .missing)
+    #expect(try await reopened.recording(id:r.id)?.text == "已有文字")
+    #expect(try await reopened.claimRecoveryRecording() == nil)
+}

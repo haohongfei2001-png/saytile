@@ -75,14 +75,17 @@ struct InputPanelView: View {
                 HStack {
                     Label(model.saveLabel, systemImage: "externaldrive.badge.checkmark")
                     Spacer()
-                    Text("\(model.recent.count) 段")
+                    Menu {
+                        Button("清空输入板（保留档案）", action: model.clearPanel).disabled(model.isInserting || model.recent.isEmpty)
+                    } label: { Text("输入板 \(model.recent.count) 段") }
+                        .menuStyle(.borderlessButton).fixedSize()
                 }.font(.system(size: 10)).foregroundStyle(Palette.muted)
                 HStack {
                     Button(action: model.openSettings) { Image(systemName: "slider.horizontal.3") }.buttonStyle(.plain).help("设置")
                     Button(action: model.toggleCapture) { Image(systemName: model.isListening ? "pause.circle" : "play.circle") }.buttonStyle(.plain).help(model.isListening ? "暂停收音" : "恢复收音")
                     Spacer()
                     Button { model.copyRecent() } label: { Label("复制", systemImage: "doc.on.doc") }.buttonStyle(QuietButton()).disabled(model.recent.allSatisfy { $0.text.isEmpty })
-                    Button { model.insertRecent() } label: { Label("插入草稿", systemImage: "arrow.up.right") }.buttonStyle(QuietButton(prominent: true)).disabled(model.recent.allSatisfy { $0.text.isEmpty })
+                    Button { model.insertRecent() } label: { Label(model.isInserting ? "正在插入…" : "插入草稿", systemImage: "arrow.up.right") }.buttonStyle(QuietButton(prominent: true)).disabled(model.isInserting || model.recent.allSatisfy { $0.text.isEmpty })
                 }
             }.padding(16)
         }.background(Palette.paper).foregroundStyle(Palette.ink).frame(width: 400, height: 550)
@@ -179,33 +182,39 @@ struct ArchiveView: View {
 struct RecordDetailView: View {
     let item: DisplayRecording
     @ObservedObject var model: AppModel
-    @ViewState private var draft = ""
     @ViewState private var deletingAudio = false
     @ViewState private var deletingRecord = false
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("这段表达").font(.system(size: 16, weight: .semibold)); Spacer()
-                Button { model.selected = nil } label: { Image(systemName: "xmark") }.buttonStyle(.plain)
+                Button { model.closeDetail() } label: { Image(systemName: "xmark") }.buttonStyle(.plain)
             }
             Text(item.date, format: .dateTime.year().month().day().hour().minute()).font(.system(size: 11)).foregroundStyle(Palette.muted)
-            TextEditor(text: $draft).font(.system(size: 14)).scrollContentBackground(.hidden)
-                .padding(8).background(.white, in: RoundedRectangle(cornerRadius: 9)).frame(minHeight: 140)
+            if let error = item.source.lastError {
+                Text(error).font(.system(size: 11)).foregroundStyle(Palette.amber).textSelection(.enabled)
+            }
+            TextEditor(text: Binding(get: { model.editorDraft }, set: model.updateEditorDraft)).font(.system(size: 14)).scrollContentBackground(.hidden)
+                .padding(8).background(.white, in: RoundedRectangle(cornerRadius: 9)).frame(minHeight: 140).disabled(!model.editorCanEdit)
+            Text(model.editorDraftStatus).font(.system(size: 10)).foregroundStyle(Palette.muted)
             HStack {
-                Button("保存修改") { model.saveEdit(item, text: draft) }.buttonStyle(QuietButton(prominent: true)).disabled(draft == item.text)
+                Button(model.savingEditorChanges ? "正在保存…" : "保存修改") { Task { await model.saveEditorChanges() } }.buttonStyle(QuietButton(prominent: true)).disabled(!model.editorCanEdit || model.savingEditorChanges || model.editorDraft == item.text)
                 Button { model.pin(item) } label: { Image(systemName: item.pinned ? "pin.slash" : "pin") }.buttonStyle(QuietButton())
             }
             HStack {
                 Button("回听") { model.play(item) }.disabled(!item.hasAudio)
                 Button("重新识别") { model.retry(item) }.disabled(!item.hasAudio || item.isRecording)
-                Button("复制") { model.copy(draft) }
+                Button("复制") { model.copy(model.editorDraft) }
+            }.buttonStyle(QuietButton())
+            HStack {
+                Button("带到输入板") { model.stageInPanel(item) }.disabled(item.text.isEmpty || model.editorDraft != item.text).help("先保存修改，再将这段表达带到输入板")
             }.buttonStyle(QuietButton())
             Divider()
             Text("历史版本").font(.system(size: 12, weight: .medium))
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(model.versions) { version in
-                        Button { draft = version.text } label: {
+                        Button { model.updateEditorDraft(version.text) } label: {
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(version.label).font(.system(size: 10)).foregroundStyle(Palette.muted)
                                 Text(version.text).font(.system(size: 12)).lineLimit(4)
@@ -215,10 +224,14 @@ struct RecordDetailView: View {
                 }
             }.frame(maxHeight: 180)
             Spacer(minLength: 0)
-            Button("仅删除原音…") { deletingAudio = true }.disabled(!item.hasAudio || item.isRecording)
+            Button("仅删除原音…") { deletingAudio = true }.disabled(item.source.audioState == .deleted || item.source.audioState == .deletePending || item.isRecording)
             Button("删除整条记录…", role: .destructive) { deletingRecord = true }.disabled(item.isRecording)
-        }.padding(22).onAppear { draft = item.text }.onChange(of: item.id) { _, _ in draft = item.text }
-            .onChange(of: item.text) { old, new in if draft == old { draft = new } }
+        }.padding(22)
+            .task(id: item.id) { await model.prepareEditorIfNeeded(item) }
+            .onDisappear { Task { _ = await model.flushEditorDrafts() } }
+            .onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)) { _ in
+                Task { _ = await model.flushEditorDrafts() }
+            }
             .confirmationDialog("仅删除原音？文字和全部修改稿仍会保留。", isPresented: $deletingAudio, titleVisibility: .visible) {
                 Button("删除原音，保留文字", role: .destructive) { model.eraseAudio(item) }
             }
@@ -239,7 +252,7 @@ struct SettingsView: View {
                 Section("收音与识别") {
                     LabeledContent("当前状态", value: model.captureLabel)
                     Picker("输入设备", selection: $model.deviceID) { ForEach(model.devices) { device in Text(device.name).tag(device.id) } }
-                    Text("开启后持续接收讲话；关闭输入板不会停止收音。设备断开、休眠和锁屏会明确暂停。")
+                    Text("开启后持续接收讲话；关闭输入板不会停止收音。设备断开、休眠和用户会话切换会明确暂停。")
                         .font(.system(size: 11)).foregroundStyle(Palette.muted)
                     LabeledContent("识别语言", value: "普通话 · 中文")
                     LabeledContent("识别引擎", value: model.engineLabel)
@@ -258,12 +271,18 @@ struct SettingsView: View {
                     LabeledContent("保留策略", value: "保留至手动删除")
                     Text("达到 10 GB 时提醒。不会自动删除未识别、失败或收藏的原音。")
                         .font(.system(size: 11)).foregroundStyle(Palette.muted)
-                    Button("预览清理 30 天前的已识别原音…") { model.previewCleanup(); cleanup = true }
+                    Button(model.preparingCleanup ? "正在查找可清理原音…" : "预览清理 30 天前的已识别原音…") { Task { cleanup = await model.previewCleanup() } }.disabled(model.preparingCleanup)
                     Button("在 Finder 中显示资料目录", action: model.revealData)
                 }
                 Section("使用习惯") {
                     Toggle("登录时启动 Saytile", isOn: $model.launchAtLogin)
-                    Text("⌥ 空格：展开 / 收起输入板。快捷键注册失败时会显示提示，菜单栏仍然可用。")
+                    Picker("展开 / 收起输入板", selection: $model.shortcutChoice) {
+                        Text("⌥ 空格").tag("option-space")
+                        Text("⌃ ⌥ 空格").tag("control-option-space")
+                        Text("⌘ ⇧ 空格").tag("command-shift-space")
+                        Text("关闭快捷键").tag("disabled")
+                    }
+                    Text("快捷键注册失败时会显示提示，菜单栏仍然可用。")
                         .font(.system(size: 11)).foregroundStyle(Palette.muted)
                 }
             }.formStyle(.grouped)

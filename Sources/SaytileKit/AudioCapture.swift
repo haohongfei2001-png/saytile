@@ -51,7 +51,7 @@ actor CaptureWorker {
     func start() { runTask = Task { await run() } }
     func stop() async {
         stopping = true; await runTask?.value; runTask = nil
-        do { try await endUtterance() } catch {
+        do { try await flushTail(); try await endUtterance() } catch {
             if let recordingID { try? await store.finishRecording(id: recordingID) }
             speech?.cancel(); speech = nil; journal = nil; recordingID = nil
             await failed(error.localizedDescription)
@@ -97,6 +97,20 @@ actor CaptureWorker {
             case let .audio(frame): try await append(frame)
             case .end: try await endUtterance()
             }
+        }
+    }
+    func flushTail() async throws {
+        while true {
+            let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: 4_096)!
+            var error: NSError?
+            let status = converter.convert(to: output, error: &error) { _, state in state.pointee = .endOfStream; return nil }
+            if status == .error { throw error ?? AudioFailure.message("收音尾部转换失败") as NSError }
+            if output.frameLength > 0 { try await acceptPCM(Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)) }
+            if output.frameLength == 0 || status == .endOfStream { break }
+        }
+        for event in segmenter.finish() {
+            if case let .audio(data) = event { try await append(data) }
+            if case .end = event { try await endUtterance() }
         }
     }
     func beginUtterance() async throws {
@@ -156,7 +170,13 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     @Published public var selectedDeviceID: UInt32 = 0 {
         didSet {
             guard oldValue != selectedDeviceID, state.isRunning else { return }
-            Task { await stopCapture(); state = .paused; await start() }
+            let generation = startGeneration
+            Task {
+                state = .paused
+                await stopCapture()
+                guard generation == startGeneration, requestedRunning else { return }
+                await start()
+            }
         }
     }
     @Published public private(set) var playingID: UUID?
@@ -166,9 +186,14 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     private let store: SaytileStore
     private var engine: AVAudioEngine?
     private var worker: CaptureWorker?
+    private var stopTask: Task<Void, Never>?
     private var ring: AudioRing?
     private var observers: [NSObjectProtocol] = []
     private var requestedRunning = false
+    private var startGeneration: UInt64 = 0
+    private var automaticAssetAttempted = false
+    private var systemSleeping = false
+    private var sessionInactive = false
     private var interruption = false
     private var playbackResume = false
     private var playbackLease: UUID?
@@ -176,23 +201,30 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     private var playbackURLs: [URL] = []
     private var retryTask: Task<Void, Never>?
     private var recoveryTask: Task<Void, Never>?
-    private var recoveryAttempted: Set<UUID> = []
     private var meterTask: Task<Void, Never>?
     private var meterContinuation: AsyncStream<(Bool, Float)>.Continuation?
     public init(store: SaytileStore) {
         self.store = store; super.init(); refreshDevices()
         let center = NSWorkspace.shared.notificationCenter
-        observers.append(center.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in await self?.suspend(reason: "Mac 已睡眠") } })
-        observers.append(center.addObserver(forName: NSWorkspace.sessionDidResignActiveNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in await self?.suspend(reason: "会话已锁定") } })
+        observers.append(center.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
+            self?.systemSleeping = true; await self?.suspend(reason: "Mac 已睡眠")
+        } })
+        observers.append(center.addObserver(forName: NSWorkspace.sessionDidResignActiveNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
+            self?.sessionInactive = true; await self?.suspend(reason: "会话已暂停")
+        } })
         observers.append(center.addObserver(forName: NSWorkspace.sessionDidBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
-            guard let self else { return }; if self.requestedRunning { await self.start() }
+            guard let self else { return }; self.sessionInactive = false
+            if self.requestedRunning && !self.systemSleeping { await self.start() }
         } })
         observers.append(center.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
-            guard let self else { return }; if self.requestedRunning { await self.start() }
+            guard let self else { return }; self.systemSleeping = false
+            if self.requestedRunning && !self.sessionInactive { await self.start() }
         } })
         observers.append(NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange, object: nil, queue: .main) { [weak self] note in
+            let changedEngine = (note.object as? AVAudioEngine).map(ObjectIdentifier.init)
             Task { @MainActor in
-                guard let self, self.state.isRunning else { return }
+                guard let self, self.state.isRunning, let engine = self.engine,
+                      changedEngine == ObjectIdentifier(engine) else { return }
                 await self.suspend(reason: "麦克风配置改变，请确认设备后恢复")
                 self.refreshDevices()
             }
@@ -202,25 +234,35 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(30))
                 guard let self, !self.state.isRunning, self.playingID == nil, self.retryTask == nil else { continue }
-                guard let candidates = try? await self.store.pendingRecordings(limit: 100),
-                      let candidate = candidates.first(where: { !self.recoveryAttempted.contains($0.id) }),
-                      await AppleSpeechService.availability().installed else { continue }
-                self.recoveryAttempted.insert(candidate.id)
-                await self.retry(recordingID: candidate.id)
+                guard await AppleSpeechService.availability().installed,
+                      !self.state.isRunning, self.playingID == nil, self.retryTask == nil,
+                      let candidate = try? await self.store.claimRecoveryRecording() else { continue }
+                guard !self.state.isRunning, self.playingID == nil, self.retryTask == nil else {
+                    try? await self.store.releaseRecoveryClaim(recordingID:candidate.id)
+                    continue
+                }
+                await self.retry(recordingID: candidate.id, isAutomatic: true)
             }
         }
     }
     public func prepareSpeechAssets() async {
         guard !preparingSpeech else { return }; preparingSpeech = true; defer { preparingSpeech = false }
+        speechStatus = "正在准备中文识别资源 · 原音继续保存"
         do { try await AppleSpeechService.prepare(); speechStatus = await AppleSpeechService.availability().message }
         catch { issue = "中文资源下载失败：\(error.localizedDescription)"; speechStatus = issue! }
     }
     public func start() async {
+        let generationBeforeStop = startGeneration
+        if let stopTask { await stopTask.value }
+        guard generationBeforeStop == startGeneration, !systemSleeping, !sessionInactive else { return }
         guard !state.isRunning else { return }
         retryTask?.cancel()
         playbackResume = false; stopPlayback(); requestedRunning = true; state = .starting; issue = nil
+        startGeneration &+= 1
+        let generation = startGeneration
         var allowed = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
         if AVCaptureDevice.authorizationStatus(for: .audio) == .notDetermined { allowed = await AVCaptureDevice.requestAccess(for: .audio) }
+        guard generation == startGeneration, requestedRunning, state == .starting else { return }
         guard allowed else { state = .interrupted("需要麦克风权限"); issue = "请在系统设置 → 隐私与安全性 → 麦克风中允许 Saytile"; return }
         do {
             let engine = AVAudioEngine()
@@ -236,31 +278,52 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             let (meter, meterContinuation) = AsyncStream<(Bool, Float)>.makeStream(bufferingPolicy: .bufferingNewest(1))
             self.meterContinuation = meterContinuation
             meterTask = Task { [weak self] in
+                var lastMeter = Date.distantPast
                 for await (speaking, level) in meter {
                     guard let self, self.state.isRunning else { continue }
-                    self.state = speaking ? .speaking : .listening; self.level = level
+                    let nextState: CaptureState = speaking ? .speaking : .listening
+                    if self.state != nextState { self.state = nextState }
+                    if Date().timeIntervalSince(lastMeter) >= 0.1 {
+                        if abs(self.level - level) > 0.01 { self.level = level }
+                        lastMeter = Date()
+                    }
                 }
             }
             let worker = try CaptureWorker(store: store, ring: ring, sampleRate: format.sampleRate, update: { speaking, level in
                 meterContinuation.yield((speaking, level))
             }, failed: { [weak self] message in Task { @MainActor in await self?.suspend(reason: message) } })
-            input.installTap(onBus: 0, bufferSize: 1_024, format: format) { buffer, _ in
-                if let channels = buffer.floatChannelData { st_ring_write(ring.pointer, channels, buffer.format.channelCount, buffer.frameLength) }
-            }
+            let channelCount = format.channelCount
+            input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.recording(ring: ring, channels: channelCount))
             engine.prepare(); try engine.start()
             self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
             await worker.start()
+            if !automaticAssetAttempted {
+                automaticAssetAttempted = true
+                Task {
+                    let availability = await AppleSpeechService.availability()
+                    if availability.installed { speechStatus = availability.message }
+                    else if availability.supported { await prepareSpeechAssets() }
+                    else { speechStatus = availability.message }
+                }
+            }
         } catch { state = .interrupted(error.localizedDescription); issue = error.localizedDescription }
     }
-    public func pause() async { requestedRunning = false; playbackResume = false; await stopCapture(); state = .paused }
+    public func pause() async { startGeneration &+= 1; requestedRunning = false; playbackResume = false; state = .paused; await stopCapture() }
     private func stopCapture() async {
+        if let stopTask { await stopTask.value; return }
         engine?.stop(); engine?.inputNode.removeTap(onBus: 0); engine = nil
-        let old = worker; worker = nil; await old?.stop(); ring = nil; level = 0
+        let old = worker; worker = nil; ring = nil; level = 0
         meterContinuation?.finish(); meterContinuation = nil; meterTask?.cancel(); meterTask = nil
+        let task = Task<Void, Never> { await old?.stop() }
+        stopTask = task
+        await task.value
+        stopTask = nil
     }
     private func suspend(reason: String) async {
         guard !interruption else { return }; interruption = true; defer { interruption = false }
-        await stopCapture(); state = .interrupted(reason); issue = reason
+        startGeneration &+= 1
+        state = .interrupted(reason); issue = reason
+        await stopCapture()
     }
     public func refreshDevices() {
         var address = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDevices, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
@@ -300,12 +363,19 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     public func stopPlayback() {
         player?.stop(); player = nil; playingID = nil; playbackURLs = []
         if let lease = playbackLease { playbackLease = nil; Task { try? await store.releaseAudioLease(lease) } }
-        if playbackResume { playbackResume = false; Task { await start() } }
+        if playbackResume {
+            playbackResume = false
+            let generation = startGeneration
+            Task {
+                guard generation == startGeneration, requestedRunning else { return }
+                await start()
+            }
+        }
     }
     nonisolated public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         Task { @MainActor in do { try playNext() } catch { issue = error.localizedDescription; stopPlayback() } }
     }
-    public func retry(recordingID: UUID) async {
+    public func retry(recordingID: UUID, isAutomatic: Bool = false) async {
         guard retryTask == nil else { issue = "已有重新识别任务，请稍后再试"; return }
         retryTask = Task {
             reprocessingID = recordingID
@@ -332,7 +402,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             } catch is CancellationError {
                 session?.cancel(); await session?.wait()
                 try? await store.queueRecognition(recordingID: recordingID)
-                recoveryAttempted.remove(recordingID)
+                if isAutomatic { try? await store.releaseRecoveryClaim(recordingID:recordingID) }
             } catch { session?.cancel(); issue = error.localizedDescription }
             if let lease { try? await store.releaseAudioLease(lease) }
         }
