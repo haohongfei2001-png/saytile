@@ -1,0 +1,65 @@
+{
+  "scope": "Synthetic design and DOM validation, not native product acceptance",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "python": "3.13.5",
+  "runs": [
+    {
+      "name": "inherited_pcm_sqlite",
+      "exit_code": 0,
+      "command": [
+        "/opt/pyvenv/bin/python",
+        "archive/recovery-source/handoff/reliability_lab.py"
+      ],
+      "output": "evidence/inherited-reliability.json"
+    },
+    {
+      "name": "reconstructed_contracts",
+      "exit_code": 0,
+      "command": [
+        "/opt/pyvenv/bin/python",
+        "tests/test_recovery_contracts.py"
+      ],
+      "output": "evidence/rebuilt-contracts.log"
+    },
+    {
+      "name": "swift6_typecheck",
+      "exit_code": 0,
+      "command": [
+        "swiftc",
+        "-swift-version",
+        "6",
+        "-typecheck",
+        "contracts/Contracts.swift"
+      ],
+      "output": "evidence/swift-typecheck.log"
+    },
+    {
+      "name": "swift_smoke_build",
+      "exit_code": 0,
+      "command": [
+        "swiftc",
+        "-swift-version",
+        "6",
+        "contracts/Contracts.swift",
+        "tests/SwiftSmoke.swift",
+        "-o",
+        "/tmp/saytile-swift-p03rdawv/unicode-smoke"
+      ],
+      "output": "evidence/swift-smoke-build.log"
+    },
+    {
+      "name": "swift_unicode_smoke",
+      "exit_code": 0,
+      "command": [
+        "/tmp/saytile-swift-p03rdawv/unicode-smoke"
+      ],
+      "output": "evidence/swift-smoke.log"
+    },
+    {
+      "name": "prototype_dom",
+      "result": "NOT_RUN",
+      "reason": "--ui not supplied"
+    }
+  ],
+  "success": true
+}
