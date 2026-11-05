@@ -1,0 +1,324 @@
+{
+  "scope": "Chromium DOM simulation; localStorage is a memory test double; no native audio/ASR/input.",
+  "html_loading": "set_content; file/http navigation blocked by environment browser policy",
+  "checks": [
+    {
+      "name": "brand_is_saytile",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "scene_standby",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "scene_live",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "scene_continuous",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "scene_recovery",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "scene_archive",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "scene_settings",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "scene_onboarding",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "manual_insert_preserves_existing_text",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "selected_text_is_not_overwritten",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "incremental_suffix_is_inserted_once",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "same_stable_revision_does_not_duplicate",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "prefix_change_pauses_direct_input",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "rebind_does_not_replay_old_text",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "changed_target_keeps_draft_empty",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "recovery_retains_previous_text",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "chinese_history_search",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "audio_erasure_has_explicit_confirmation",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "audio_erasure_cancel_does_nothing",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "audio_erasure_keeps_record_count",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "audio_erasure_keeps_all_demo_revisions",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "audio_erasure_removes_play_and_retry",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "audio_erasure_keeps_copy_and_reuse",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "erased_audio_text_still_searchable",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "demo_storage_roundtrip_keeps_audio_deleted",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "demo_storage_roundtrip_keeps_text",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "restart_never_rebinds_or_replays",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "whole_record_deletion_has_different_confirmation",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "whole_record_removed",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "undo_restores_record_not_deleted_audio",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "settings_general",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "settings_capture",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "settings_storage",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "settings_privacy",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "default_audio_retention_no_silent_expiry",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "retention_change_requires_confirmation",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "retention_cancel_keeps_previous_policy",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "retention_confirm_changes_policy_only",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "engine_policy_not_local_only",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "mic_permission_required_to_start",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "onboarding_starts_free_recording_demo",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "pause_is_visible",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "resume_is_visible",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "no_horizontal_document_overflow_390",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "no_horizontal_document_overflow_900",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "no_horizontal_document_overflow_1440",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "reset_demo_restores_playback",
+      "result": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "no_page_script_errors",
+      "result": "PASS",
+      "detail": ""
+    }
+  ],
+  "passed": 48,
+  "total": 48,
+  "errors": [],
+  "fatal": null,
+  "widths": [
+    {
+      "viewport": 390,
+      "scene": "continuous",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "viewport": 390,
+      "scene": "archive",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "viewport": 390,
+      "scene": "settings",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "viewport": 390,
+      "scene": "onboarding",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "viewport": 900,
+      "scene": "continuous",
+      "width": 900,
+      "scroll": 900
+    },
+    {
+      "viewport": 900,
+      "scene": "archive",
+      "width": 900,
+      "scroll": 900
+    },
+    {
+      "viewport": 900,
+      "scene": "settings",
+      "width": 900,
+      "scroll": 900
+    },
+    {
+      "viewport": 900,
+      "scene": "onboarding",
+      "width": 900,
+      "scroll": 900
+    },
+    {
+      "viewport": 1440,
+      "scene": "continuous",
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "viewport": 1440,
+      "scene": "archive",
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "viewport": 1440,
+      "scene": "settings",
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "viewport": 1440,
+      "scene": "onboarding",
+      "width": 1440,
+      "scroll": 1440
+    }
+  ]
+}

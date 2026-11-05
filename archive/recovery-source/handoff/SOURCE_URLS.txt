@@ -1,0 +1,91 @@
+[R01] Apple WWDC25：Bring advanced speech-to-text to your app with SpeechAnalyzer。https://developer.apple.com/videos/play/wwdc2025/277/
+
+[R02] Apple SpeechTranscriber 与 availability。https://developer.apple.com/documentation/speech/speechtranscriber
+
+[R03] Apple AssetInventory。https://developer.apple.com/documentation/speech/assetinventory
+
+[R04] Apple SpeechAnalyzer / bestAvailableAudioFormat。https://developer.apple.com/documentation/speech/speechanalyzer
+
+[R05] Apple Asking Permission to Use Speech Recognition；注意仅旧 SFSpeechRecognizer 使用该服务器授权流程。https://developer.apple.com/documentation/speech/asking-permission-to-use-speech-recognition
+
+[R06] Apple SpeechModuleResult.isFinal。https://developer.apple.com/documentation/speech/speechmoduleresult/isfinal
+
+[R07] Apple resultsFinalizationTime。https://developer.apple.com/documentation/speech/speechmoduleresult/resultsfinalizationtime
+
+[R08] Apple finalize(through:)。https://developer.apple.com/documentation/speech/speechanalyzer/finalize(through:)
+
+[R09] FluidAudio VAD API。https://github.com/FluidInference/FluidAudio/blob/main/Documentation/API.md
+
+[R10] FluidAudio 仓库与发布；Apache-2.0，模型另核。https://github.com/FluidInference/FluidAudio
+
+[R11] Argmax OSS Swift / WhisperKit；MIT。https://github.com/argmaxinc/argmax-oss-swift
+
+[R12] WhisperKit Core ML 模型卡与 627 MB 备用目录；MIT。https://huggingface.co/argmaxinc/whisperkit-coreml/tree/main/openai_whisper-large-v3-v20240930_626MB
+
+[R13] 两个 SDK 正式发布。https://github.com/FluidInference/FluidAudio/releases ；https://github.com/argmaxinc/argmax-oss-swift/releases
+
+[R14] OpenAI Whisper；代码与权重 MIT。https://github.com/openai/whisper
+
+[R15] SenseVoice 官方；代码 MIT，权重依模型卡。https://github.com/QwenAudio/SenseVoice
+
+[R16] SenseVoice #334 商业许可讨论；后续重开与早期回复状态须一并阅读。https://github.com/QwenAudio/SenseVoice/issues/334
+
+[R17] sherpa-onnx 在线中英 Paraformer。https://k2-fsa.github.io/sherpa/onnx/pretrained_models/online-paraformer/index.html
+
+[R18] whisper.cpp；MIT。https://github.com/ggml-org/whisper.cpp
+
+[R19] SQLite synchronous 与 WAL。https://sqlite.org/pragma.html
+
+[R20] SQLite FTS5 / trigram。https://sqlite.org/fts5.html
+
+[R21] Apple AXUIElement API 与属性。https://developer.apple.com/documentation/applicationservices/axuielement_h
+
+[R22] Apple NSPanel.becomesKeyOnlyIfNeeded。https://developer.apple.com/documentation/appkit/nspanel/becomeskeyonlyifneeded
+
+[R23] Apple 蓝牙耳机麦影响播放质量。https://support.apple.com/en-ca/102217
+
+[R24] Apple SMAppService。https://developer.apple.com/documentation/servicemanagement/smappservice
+
+[R25] TPCircularBuffer；宽松 zlib 风格条款，保留原始声明及修改标记。https://github.com/michaeltyson/TPCircularBuffer
+
+[R26] GRDB；MIT。https://github.com/groue/GRDB.swift
+
+[R27] Apple Developer Program 费用。https://developer.apple.com/programs/enroll/
+
+[R28] Sparkle；MIT，更新签名与安全指南。https://sparkle-project.org/documentation/
+
+[R29] Apple 音频引擎配置变化。https://developer.apple.com/documentation/foundation/nsnotification/name-swift.struct/avaudioengineconfigurationchange
+
+[R30] Silero VAD；MIT。https://github.com/snakers4/silero-vad
+
+[R31] DictDrop 官方产品页；Windows 始终监听、停顿插入、文本存档及可选离线包为厂商宣称。https://dictdrop.com/
+
+[R32] Wispr Flow：Use Flow hands-free；启动方式、处理期间行为。https://docs.wisprflow.ai/articles/6391241694-use-flow-hands-free
+
+[R33] Wispr Flow：失败转写恢复与转写错误排查；恢复受音频保存条件约束，前次听写正在启动、停止、处理或重试时，新听写被拒绝且不排队。https://docs.wisprflow.ai/articles/2503460374-Retry-failed-transcriptions ；https://docs.wisprflow.ai/articles/4984532368-fix-taking-longer-than-usual-and-transcription-errors
+
+[R34] Aqua Voice History；本地历史、原音保留 3 天、回放与重转。https://aquavoice.com/guide/history
+
+[R35] Aqua Voice Realtime 与 FAQ；实时展示及平台/模式相关能力。https://aquavoice.com/realtime ；https://aquavoice.com/info/faq
+
+[R36] Superwhisper 更新记录、离线转写；历史重处理、本地 Whisper 与已修复的性能/音频问题。https://superwhisper.com/changelog ；https://superwhisper.com/offline-transcription
+
+[R37] VoiceInk 正式仓库与许可证；GPLv3，模型权重需另核许可。https://github.com/Beingpax/VoiceInk ；https://github.com/Beingpax/VoiceInk/blob/main/LICENSE
+
+[R38] VoiceInk 实时转写正式文档；能力具有适用条件。https://tryvoiceink.com/docs/realtime-transcription
+
+[R39] VoiceInk 历史正式文档；文字+音频一起删除与仅删除音频是两种互斥清理策略，其可选期限不同。https://tryvoiceink.com/docs/transcription-history
+
+[R40] Screenpipe 当前官方仓库与 Screenpipe Commercial License；历史 MIT 发行不等同当前主线。https://github.com/screenpipe/screenpipe ；https://github.com/screenpipe/screenpipe/blob/main/LICENSE.md
+
+[R41] Apple：macOS 26 Dictation 使用指南；启动、停止与系统能力条件。https://support.apple.com/en-au/guide/mac-help/mh40584/26/mac/26
+
+[R42] Apple：Voice Control 使用指南与设置。https://support.apple.com/en-mt/guide/mac-help/mchl63d14732/mac ；https://support.apple.com/en-jo/guide/mac-help/mh40719/mac
+
+[R43] Dictop 官方产品页；Mac 连续听写、停顿插入、本地模型与文本历史。https://dictop.com/
+
+[R44] Spokenly 官方产品与定价页；实时听写、本地模型、音频历史及市场价格对照。https://spokenly.app/ ；https://spokenly.app/pricing
+
+[R45] OneTapTranscribe 官方仓库；MIT，Apple SpeechTranscriber 与 WhisperKit 集成的早期参考。https://github.com/jammastergirish/one-tap-transcribe
+
+[R46] FluidAudio VAD 本地模型加载与模型卡；Core ML Silero VAD 标注 MIT。https://github.com/FluidInference/FluidAudio/blob/main/Documentation/VAD/GettingStarted.md ；https://huggingface.co/FluidInference/silero-vad-coreml

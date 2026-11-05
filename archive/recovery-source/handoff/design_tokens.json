@@ -1,0 +1,96 @@
+{
+  "product": "Always-On Voice / 声迹（工作名）",
+  "status": "Design tokens; not a shipped native implementation",
+  "colors": {
+    "ink": "#242923",
+    "background": "#EEEEE8",
+    "surface": "#FDFEFA",
+    "muted": "#697560",
+    "border": "#E5E7DF",
+    "accent": "#42634D",
+    "accentSoft": "#EAF1E7",
+    "recoverable": "#946B38",
+    "recoverableSoft": "#FAF2E5",
+    "captureFailure": "#A7554D"
+  },
+  "typography": {
+    "macOS": [
+      "SF Pro Text",
+      "PingFang SC"
+    ],
+    "bodyPt": 14,
+    "longTextPt": 15,
+    "supportingMinPt": 11,
+    "weights": [
+      400,
+      500,
+      600
+    ]
+  },
+  "spacingPt": [
+    4,
+    8,
+    12,
+    16,
+    24
+  ],
+  "windows": {
+    "panel": {
+      "defaultWidthPt": 400,
+      "defaultHeightPt": 500,
+      "widthRangePt": [
+        360,
+        480
+      ],
+      "fixedHeight": true,
+      "listVirtualized": true
+    },
+    "archive": {
+      "defaultPt": [
+        1040,
+        720
+      ],
+      "minimumPt": [
+        760,
+        560
+      ]
+    },
+    "settings": {
+      "defaultPt": [
+        760,
+        580
+      ]
+    },
+    "menuBarIconPt": [
+      18,
+      18
+    ]
+  },
+  "radiiPt": {
+    "panel": 16,
+    "control": 8
+  },
+  "motionMs": {
+    "open": 160,
+    "close": 120,
+    "stateChange": [
+      120,
+      180
+    ]
+  },
+  "icons": {
+    "native": "SF Symbols",
+    "sizePt": [
+      16,
+      18
+    ],
+    "shapeOrTextWithColor": true
+  },
+  "scrollBehavior": {
+    "followOnlyWhenAtBottom": true,
+    "suspendOnSelectionOrReading": true,
+    "newContentIndicator": true
+  },
+  "reducedMotionRespected": true,
+  "shortcutPolicy": "User configurable; conflict check before enabling. Prototype labels are illustrative."
+}

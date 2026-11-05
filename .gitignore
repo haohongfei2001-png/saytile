@@ -1,0 +1,19 @@
+# Build and temporary data
+.DS_Store
+.build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.pcm
+*.part
+.env
+.env.*
+!.env.example
+# No blanket ZIP/PDF ignore: archived handoff assets are intentional.
