@@ -47,3 +47,11 @@ CLT 测试方案使用默认 Swift Build、临时构建目录及已安装 Testin
 `scripts/test-app-model.sh`：**16/16 通过**，包含持久草稿切换/重选、刷新不覆盖、保存时继续输入及退出保留空草稿。脚本曾错误链接旧静态库，现已统一先构建全部产品，失败记录保留在 `native-draft-probe-initial-failure.log`。
 
 `scripts/test-startup-focus.sh`：打包 App 实际启动菜单栏与非激活输入板，3秒观察中前台 PID 不变，正常退出；未访问其他应用内容。实际符号检查修复了不可用的错误状态 SF Symbol，避免故障时菜单栏图标消失。
+
+## 远端兼容修复记录
+
+PR #2 的本机 Swift 6.4 编译与 Release 包验证通过，但远端 Xcode 26.6 / Swift 6.3.3 在 SwiftUI Binding 的 actor 方法引用适配时触发编译器 IRGen 崩溃（SmallVector），未把该 CI 写作通过。失败日志 `evidence/native-ci-compiler-failure.log` 保留；修复将显式闭包替代方法引用，仍运行完整原生测试与 App 构建。
+
+## 最后故障回归
+
+最新 **72/72 原生测试通过**、**16/16 AppModel 检查通过**。新增目录创建失败、实际写入 ENOSPC、末尾同步失败三项生产路径故障注入：记录均封段，无持久原音标缺失；有持久原音只发布此前已确认水位，文字保留。轮转失败不会误用上一文件的水位。5分钟正常管线结果无需因异常清理分支修改重复跑。

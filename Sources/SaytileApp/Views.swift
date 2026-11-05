@@ -194,7 +194,7 @@ struct RecordDetailView: View {
             if let error = item.source.lastError {
                 Text(error).font(.system(size: 11)).foregroundStyle(Palette.amber).textSelection(.enabled)
             }
-            TextEditor(text: Binding(get: { model.editorDraft }, set: model.updateEditorDraft)).font(.system(size: 14)).scrollContentBackground(.hidden)
+            TextEditor(text: Binding(get: { model.editorDraft }, set: { newText in model.updateEditorDraft(newText) })).font(.system(size: 14)).scrollContentBackground(.hidden)
                 .padding(8).background(.white, in: RoundedRectangle(cornerRadius: 9)).frame(minHeight: 140).disabled(!model.editorCanEdit)
             Text(model.editorDraftStatus).font(.system(size: 10)).foregroundStyle(Palette.muted)
             HStack {

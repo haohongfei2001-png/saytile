@@ -45,6 +45,12 @@ public actor SaytileStore {
         let escaped = query.replacingOccurrences(of:"\\",with:"\\\\").replacingOccurrences(of:"%",with:"\\%").replacingOccurrences(of:"_",with:"\\_")
         return try db.rows(Self.selection + " WHERE r.deleted=0" + filterSQL + " AND (?='' OR EXISTS (SELECT 1 FROM revisions s WHERE s.recording_id=r.id AND s.text LIKE ? ESCAPE '\\')) ORDER BY r.created_at DESC LIMIT ? OFFSET ?",[.text(query),.text("%" + escaped + "%"),.int(Int64(max(1,min(limit,1000)))),.int(Int64(max(0,offset)))]).map(Self.decodeRecording)
     }
+    /// Capture/storage failure closes the source independently of ASR cancellation.
+    /// Only published durable frames justify an available original-audio state.
+    public func recordCaptureFailure(recordingID: UUID, message: String) throws {
+        _ = try requireRecording(recordingID)
+        try db.execute("UPDATE recordings SET is_recording=0,active_attempt=NULL,recognition_state='failed',last_error=?,audio_state=CASE WHEN audio_state='available' AND NOT EXISTS(SELECT 1 FROM chunks WHERE recording_id=recordings.id AND frames>0) THEN 'missing' ELSE audio_state END WHERE id=?",[.text(message),.text(recordingID.uuidString)])
+    }
     public func finishRecording(id: UUID) throws {
         _ = try requireRecording(id)
         try db.execute("UPDATE recordings SET is_recording=0 WHERE id=?",[.text(id.uuidString)])

@@ -9,23 +9,35 @@ public enum AudioFailure: LocalizedError, Sendable {
 
 /// Independent PCM16 WAV files. Header and audio are synchronized before publishing coverage.
 final class PCMJournal {
+    struct IO: Sendable {
+        var write: @Sendable (FileHandle, Data) throws -> Void = { try $0.write(contentsOf: $1) }
+        var synchronize: @Sendable (FileHandle) throws -> Void = { try $0.synchronize() }
+        static let live = IO()
+    }
     let directory: URL
     let recordingID: UUID
+    private let io: IO
     private var file: FileHandle?
     private(set) var relativePath = ""
     private(set) var frames: Int64 = 0
     private var lastCheckpoint: Int64 = 0
-    init(directory: URL, recordingID: UUID) throws {
+    var durableFrames: Int64 { lastCheckpoint }
+    var isOpen: Bool { file != nil }
+    init(directory: URL, recordingID: UUID, io: IO = .live) throws {
         self.directory = directory; self.recordingID = recordingID
+        self.io = io
         try FileManager.default.createDirectory(at: directory.appendingPathComponent(recordingID.uuidString), withIntermediateDirectories: true)
         try Self.synchronizeDirectory(directory)
     }
     func openChunk() throws {
+        // A failed rotation must never attribute the previous file's watermark
+        // to the new pathname.
+        frames = 0; lastCheckpoint = 0
         relativePath = "\(recordingID.uuidString)/\(UUID().uuidString).wav"
         let url = directory.appendingPathComponent(relativePath)
         guard FileManager.default.createFile(atPath: url.path, contents: Self.header(frames: 0)) else { throw AudioFailure.message("无法创建原音文件") }
-        file = try FileHandle(forUpdating: url); frames = 0; lastCheckpoint = 0
-        try file?.synchronize()
+        file = try FileHandle(forUpdating: url)
+        if let file { try io.synchronize(file) }
         // Persist the directory entry as well as the new file before registering it.
         try Self.synchronizeDirectory(url.deletingLastPathComponent())
         try file?.seekToEnd()
@@ -38,16 +50,17 @@ final class PCMJournal {
     }
     func append(_ pcm: Data) throws {
         guard let file else { throw AudioFailure.message("原音文件尚未打开") }
-        try file.write(contentsOf: pcm); frames += Int64(pcm.count / 2)
+        try io.write(file, pcm); frames += Int64(pcm.count / 2)
     }
     var needsCheckpoint: Bool { frames - lastCheckpoint >= 16_000 }
     var needsRotation: Bool { frames >= 240_000 }
     func checkpoint() throws {
         guard let file else { return }
-        try file.seek(toOffset: 0); try file.write(contentsOf: Self.header(frames: frames))
-        try file.synchronize(); try file.seekToEnd(); lastCheckpoint = frames
+        try file.seek(toOffset: 0); try io.write(file, Self.header(frames: frames))
+        try io.synchronize(file); lastCheckpoint = frames; try file.seekToEnd()
     }
     func closeChunk() throws { try checkpoint(); try file?.close(); file = nil }
+    func abandonOpenHandle() { try? file?.close(); file = nil }
     deinit { try? file?.close() }
     static func header(frames: Int64) -> Data {
         var data = Data()

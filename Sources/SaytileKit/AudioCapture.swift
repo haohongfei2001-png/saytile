@@ -28,6 +28,7 @@ actor CaptureWorker {
     let ring: AudioRing
     let sampleRate: Double
     let recognitionEnabled: Bool
+    let journalIO: PCMJournal.IO
     let update: @Sendable (Bool, Float) -> Void
     let failed: @MainActor @Sendable (String) -> Void
     var segmenter: VoiceSegmenter
@@ -40,8 +41,9 @@ actor CaptureWorker {
     var targetFormat: AVAudioFormat
     var runTask: Task<Void, Never>?
     var stopping = false
-    init(store: SaytileStore, ring: AudioRing, sampleRate: Double, recognitionEnabled: Bool = true, update: @escaping @Sendable (Bool, Float) -> Void, failed: @escaping @MainActor @Sendable (String) -> Void) throws {
+    init(store: SaytileStore, ring: AudioRing, sampleRate: Double, recognitionEnabled: Bool = true, journalIO: PCMJournal.IO = .live, update: @escaping @Sendable (Bool, Float) -> Void, failed: @escaping @MainActor @Sendable (String) -> Void) throws {
         self.store = store; self.ring = ring; self.sampleRate = sampleRate; self.recognitionEnabled = recognitionEnabled; self.update = update; self.failed = failed
+        self.journalIO = journalIO
         segmenter = try VoiceSegmenter()
         sourceFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRate, channels: 1, interleaved: false)!
         targetFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16_000, channels: 1, interleaved: false)!
@@ -52,8 +54,7 @@ actor CaptureWorker {
     func stop() async {
         stopping = true; await runTask?.value; runTask = nil
         do { try await flushTail(); try await endUtterance() } catch {
-            if let recordingID { try? await store.finishRecording(id: recordingID) }
-            speech?.cancel(); speech = nil; journal = nil; recordingID = nil
+            await cleanupCaptureFailure(error)
             await failed(error.localizedDescription)
         }
     }
@@ -88,7 +89,7 @@ actor CaptureWorker {
                 if !stopping { try await Task.sleep(for: .milliseconds(40)) }
             }
         } catch is CancellationError { }
-        catch { try? await endUtterance(); await failed(error.localizedDescription) }
+        catch { await cleanupCaptureFailure(error); await failed(error.localizedDescription) }
     }
     func acceptPCM(_ pcm: Data) async throws {
         for event in segmenter.accept(pcm) {
@@ -117,13 +118,11 @@ actor CaptureWorker {
         let record = try await store.createRecording()
         recordingID = record.id
         do {
-            let journal = try PCMJournal(directory: store.audioDirectory, recordingID: record.id)
+            let journal = try PCMJournal(directory: store.audioDirectory, recordingID: record.id, io: journalIO)
             try journal.openChunk(); self.journal = journal
             try await store.registerAudioChunk(recordingID: record.id, relativePath: journal.relativePath, frames: 0)
         } catch {
-            try? await store.finishRecording(id: record.id)
-            try? await store.markAudioMissing(recordingID: record.id, message: "无法保存新原音：\(error.localizedDescription)")
-            self.journal = nil; self.recordingID = nil
+            await cleanupCaptureFailure(error)
             throw error
         }
         // Recognition setup cannot terminate the independent recorder.
@@ -149,7 +148,12 @@ actor CaptureWorker {
         }
     }
     func endUtterance() async throws {
-        guard let journal, let recordingID else { return }
+        guard let recordingID else { return }
+        guard let journal, journal.isOpen else {
+            let error = AudioFailure.message("原音文件未创建，录音已停止")
+            await cleanupCaptureFailure(error); throw error
+        }
+        do {
         try journal.closeChunk()
         try await store.registerAudioChunk(recordingID: recordingID, relativePath: journal.relativePath, frames: journal.frames)
         try await store.finishRecording(id: recordingID)
@@ -158,6 +162,29 @@ actor CaptureWorker {
         if let speech { retired.append(speech) }
         if retired.count > 2 { retired.removeFirst().cancel() }
         self.speech = nil; self.journal = nil; self.recordingID = nil
+        } catch { await cleanupCaptureFailure(error); throw error }
+    }
+    func cleanupCaptureFailure(_ error: Error) async {
+        speech?.cancel()
+        guard let recordingID else { journal?.abandonOpenHandle(); journal = nil; speech = nil; return }
+        if let journal {
+            // Retry synchronization once. If it still fails, only publish the last
+            // successfully synchronized watermark, never the speculative tail.
+            try? journal.closeChunk()
+            if !journal.relativePath.isEmpty, journal.durableFrames > 0 {
+                try? await store.registerAudioChunk(recordingID: recordingID, relativePath: journal.relativePath, frames: journal.durableFrames)
+            }
+            journal.abandonOpenHandle()
+        }
+        try? await store.finishRecording(id: recordingID)
+        let chunks = (try? await store.audioChunks(recordingID: recordingID)) ?? []
+        let message = "采集因保存故障停止：\(error.localizedDescription)。未确认的尾部不计入已保存范围。"
+        if chunks.contains(where: { $0.frames > 0 }) {
+            try? await store.recordCaptureFailure(recordingID: recordingID, message: message)
+        } else {
+            try? await store.markAudioMissing(recordingID: recordingID, message: message)
+        }
+        speech = nil; journal = nil; self.recordingID = nil
     }
 }
 
@@ -264,8 +291,11 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         if AVCaptureDevice.authorizationStatus(for: .audio) == .notDetermined { allowed = await AVCaptureDevice.requestAccess(for: .audio) }
         guard generation == startGeneration, requestedRunning, state == .starting else { return }
         guard allowed else { state = .interrupted("需要麦克风权限"); issue = "请在系统设置 → 隐私与安全性 → 麦克风中允许 Saytile"; return }
+        var startingEngine: AVAudioEngine?
+        var tapInstalled = false
         do {
             let engine = AVAudioEngine()
+            startingEngine = engine
             let input = engine.inputNode
             if selectedDeviceID != 0 {
                 var id = selectedDeviceID
@@ -294,6 +324,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             }, failed: { [weak self] message in Task { @MainActor in await self?.suspend(reason: message) } })
             let channelCount = format.channelCount
             input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.recording(ring: ring, channels: channelCount))
+            tapInstalled = true
             engine.prepare(); try engine.start()
             self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
             await worker.start()
@@ -306,7 +337,13 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                     else { speechStatus = availability.message }
                 }
             }
-        } catch { state = .interrupted(error.localizedDescription); issue = error.localizedDescription }
+        } catch {
+            startingEngine?.stop()
+            if tapInstalled { startingEngine?.inputNode.removeTap(onBus: 0) }
+            meterContinuation?.finish(); meterContinuation = nil
+            meterTask?.cancel(); meterTask = nil
+            state = .interrupted(error.localizedDescription); issue = error.localizedDescription
+        }
     }
     public func pause() async { startGeneration &+= 1; requestedRunning = false; playbackResume = false; state = .paused; await stopCapture() }
     private func stopCapture() async {
