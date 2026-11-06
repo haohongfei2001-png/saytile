@@ -2,12 +2,14 @@
 """Deterministic selection from the existing corpus; never downloads/runs a model."""
 import argparse
 import collections
+import copy
 import hashlib
 import json
 from pathlib import Path
 from metrics import ROOT, critical_items
+from reference_annotations import load_references
 
-SEED = 'saytile-pr4-quality-v1-manifest-only'
+SEED = 'saytile-pr4-quality-v2-reviewed-units'
 MANIFEST = 'research/asr-2026-11-06/corpus/manifest.json'
 
 
@@ -47,11 +49,18 @@ def ordered_sample(items):
 
 
 def build_plan():
-    manifest = json.loads((ROOT / MANIFEST).read_text())
+    manifest, reference_annotations = load_references(ROOT / MANIFEST)
     items = [x for x in manifest if x.get('human_voice') and not x['synthetic_perturbation']]
     if len(items) != 112 or len({x['id'] for x in items}) != len(items):
         raise ValueError('The frozen 112-original manifest changed; review before generating a new plan.')
-    ordered = ordered_sample(items)
+    # Number/negation coverage was reviewed after the v2 panels were frozen.
+    # Extend scoring coverage without reselecting clips or moving checkpoints.
+    selection_items = copy.deepcopy(items)
+    for item in selection_items:
+        item['critical'] = [x for x in item.get('critical', [])
+                            if not x.get('annotation_id', '').startswith('surface-v1-')]
+    by_id = {x['id']: x for x in items}
+    ordered = [by_id[x['id']] for x in ordered_sample(selection_items)]
     models = {
         'Q': {'provider': 'qwenMessage', 'model': 'qwen-audio-3.1-asr-flash-message', 'purpose': 'chineseASR'},
         'A': {'provider': 'assemblyAI', 'model': 'universal-3-6-pro', 'purpose': 'englishASR', 'mode': 'max_accuracy'},
@@ -126,8 +135,11 @@ def build_plan():
             'total_streaming_sessions': sum(x['streaming_sessions'] for x in services.values()),
             'dynamic_review_call_count': None, 'status': 'PLANNED_NOT_AUTHORIZED_OR_RUN',
             'note': 'Review/file ASR can run on multiple PCM snapshots. One full pass is a costing unit, not a call budget or total. Costs/tokens/retries remain unknown until explicit caps and service prices are supplied.'}
-    return {'schema_version': 1, 'selection_seed': SEED, 'manifest_path': MANIFEST,
-            'manifest_sha256': digest(ROOT / MANIFEST), 'original_ids': [x['id'] for x in items],
+    return {'schema_version': 1, 'selection_seed': SEED,
+            'selection_annotation_policy': 'original manifest plus unit-v1 annotations; surface-v1 number/negation additions affect scoring only, preserving frozen v2 panel IDs',
+            'manifest_path': MANIFEST,
+            'manifest_sha256': digest(ROOT / MANIFEST), 'reference_annotations': reference_annotations,
+            'original_ids': [x['id'] for x in items],
             'fixtures': [{'id': x['id'], 'audio': x['audio'], 'audio_sha256': x['audio_sha256'],
                           'duration_seconds': x['duration_seconds'], 'language': x['language'],
                           'group': x['group']} for x in ordered],
@@ -150,7 +162,8 @@ def build_plan():
             'constraints': [
                 'No audio is read, copied, uploaded or selected using model errors by this tool.',
                 '24 and 48 are nested language-balanced purposeful panels, not unbiased population estimates.',
-                'All 112 frozen human originals remain available; do not infer missing unit/hallucination labels.',
+                'All 112 frozen human originals remain unchanged; append-only critical-expression labels are independently reviewed and hash-frozen; number/negation additions do not reselect frozen panels.',
+                'Only reviewed percent/minute forms are equivalent for unit recall; no conversions, translations or semantic-hallucination labels are inferred.',
                 'Run ordering should be counterbalanced per clip, with same PCM hash and one recorded attempt per run index.',
                 'A configuration must be executed as declared; unsupported combinations remain NOT_RUN, never silently downgraded.',
                 'Cloud execution, cost, credentials and per-audio processing consent are outside this offline plan.',

@@ -1,0 +1,77 @@
+FEFFFFFF
+======================================================================
+ERROR: test_complete_early_hypothesis_errors_are_scored_against_whole_gold (test_evaluate.TraceTests.test_complete_early_hypothesis_errors_are_scored_against_whole_gold)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/research/asr/benchmark/quality-evaluation/test_evaluate.py", line 112, in test_complete_early_hypothesis_errors_are_scored_against_whole_gold
+    self.assertEqual(stage['accuracy']['metrics']['mer']['substitutions'], 1)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+FAIL: test_post_eos_whole_candidate_scores_early_stage_without_claiming_final (test_evaluate.TraceTests.test_post_eos_whole_candidate_scores_early_stage_without_claiming_final)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/research/asr/benchmark/quality-evaluation/test_evaluate.py", line 100, in test_post_eos_whole_candidate_scores_early_stage_without_claiming_final
+    self.assertEqual(row['stages'][stage]['reference_scope'], 'complete_reference')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != 'complete_reference'
+
+======================================================================
+FAIL: test_foreign_terminal_state_never_supplies_current_failure_or_final_latency (test_evaluate.TraceTests.test_foreign_terminal_state_never_supplies_current_failure_or_final_latency) (state='failed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/research/asr/benchmark/quality-evaluation/test_evaluate.py", line 144, in test_foreign_terminal_state_never_supplies_current_failure_or_final_latency
+    self.assertNotEqual(row['status'], 'FAILED')
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FAILED' == 'FAILED'
+
+======================================================================
+FAIL: test_foreign_terminal_state_never_supplies_current_failure_or_final_latency (test_evaluate.TraceTests.test_foreign_terminal_state_never_supplies_current_failure_or_final_latency) (state='cancelled')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/research/asr/benchmark/quality-evaluation/test_evaluate.py", line 144, in test_foreign_terminal_state_never_supplies_current_failure_or_final_latency
+    self.assertNotEqual(row['status'], 'FAILED')
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FAILED' == 'FAILED'
+
+======================================================================
+FAIL: test_foreign_terminal_state_never_supplies_current_failure_or_final_latency (test_evaluate.TraceTests.test_foreign_terminal_state_never_supplies_current_failure_or_final_latency) (state='interrupted')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/research/asr/benchmark/quality-evaluation/test_evaluate.py", line 144, in test_foreign_terminal_state_never_supplies_current_failure_or_final_latency
+    self.assertNotEqual(row['status'], 'FAILED')
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FAILED' == 'FAILED'
+
+======================================================================
+FAIL: test_foreign_terminal_state_never_supplies_current_failure_or_final_latency (test_evaluate.TraceTests.test_foreign_terminal_state_never_supplies_current_failure_or_final_latency) (state='completed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/research/asr/benchmark/quality-evaluation/test_evaluate.py", line 146, in test_foreign_terminal_state_never_supplies_current_failure_or_final_latency
+    self.assertIsNone(row['latencies']['final_completed_from_replay_seconds'])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2.4 is not None
+
+======================================================================
+FAIL: test_missing_or_changed_source_revision_prevents_cloud_pair (test_evaluate.TraceTests.test_missing_or_changed_source_revision_prevents_cloud_pair) (revision=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/research/asr/benchmark/quality-evaluation/test_evaluate.py", line 157, in test_missing_or_changed_source_revision_prevents_cloud_pair
+    self.assertEqual(pair['stages']['final']['paired_clips'], 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_missing_or_changed_source_revision_prevents_cloud_pair (test_evaluate.TraceTests.test_missing_or_changed_source_revision_prevents_cloud_pair) (revision='dddddddddddddddddddddddddddddddddddddddd')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/research/asr/benchmark/quality-evaluation/test_evaluate.py", line 157, in test_missing_or_changed_source_revision_prevents_cloud_pair
+    self.assertEqual(pair['stages']['final']['paired_clips'], 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.004s
+
+FAILED (failures=7, errors=1)

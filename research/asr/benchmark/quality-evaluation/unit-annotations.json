@@ -1,0 +1,1728 @@
+{
+  "schema_version": 1,
+  "overlay_id": "reference-critical-v3-reviewed-numbers-negations-2026-11-07",
+  "manifest_path": "research/asr-2026-11-06/corpus/manifest.json",
+  "manifest_sha256": "5a5d9809f016f4119c6e3e9d48ce8b62aecae8bb9a5ab050a73c9cb627f5407f",
+  "review_method": "Read all 112 frozen human-original reference transcripts only; no hypothesis, ASR output, or accuracy result was used to choose labels. No audio listened to or uploaded.",
+  "source_repository_revision": "76e89c2da73af67dab8ddedabdfb8bac78db6b17",
+  "reviewed_original_ids": [
+    "ascend-01047",
+    "ascend-01109",
+    "ascend-01200",
+    "ascend-00681",
+    "ascend-00982",
+    "ascend-01283",
+    "ascend-00438",
+    "ascend-01278",
+    "ascend-00325",
+    "ascend-00248",
+    "ascend-00871",
+    "ascend-00364",
+    "ascend-00321",
+    "ascend-00967",
+    "ascend-00919",
+    "ascend-00362",
+    "ascend-01029",
+    "ascend-00979",
+    "ascend-01056",
+    "ascend-01094",
+    "ascend-00644",
+    "ascend-00331",
+    "ascend-00377",
+    "ascend-00962",
+    "ascend-00764",
+    "ascend-00193",
+    "ascend-00701",
+    "ascend-00638",
+    "ascend-00423",
+    "ascend-00616",
+    "ascend-00266",
+    "ascend-00748",
+    "ascend-01059",
+    "ascend-00123",
+    "ascend-00031",
+    "ascend-00858",
+    "ascend-00268",
+    "ascend-00893",
+    "ascend-00560",
+    "ascend-00749",
+    "ascend-00792",
+    "ascend-00355",
+    "ascend-01215",
+    "ascend-00585",
+    "ascend-00078",
+    "ascend-00856",
+    "ascend-00778",
+    "ascend-00040",
+    "fleurs-zh-13737992583400421680",
+    "fleurs-zh-15084084705355118496",
+    "fleurs-zh-16549419822262830660",
+    "fleurs-zh-870219628413797707",
+    "fleurs-zh-2361100735374204762",
+    "fleurs-zh-4719524538529342597",
+    "fleurs-zh-12753643916718343813",
+    "fleurs-zh-9519471631565549023",
+    "fleurs-zh-9281963460244411454",
+    "fleurs-zh-7459037573375372374",
+    "fleurs-zh-8556305135909113392",
+    "fleurs-zh-288222503248548843",
+    "fleurs-zh-13772234185513146781",
+    "fleurs-zh-9051525594423711202",
+    "fleurs-zh-7208321975419226278",
+    "fleurs-zh-2932636263941166076",
+    "fleurs-zh-4518873800093805764",
+    "fleurs-zh-9699581877784184472",
+    "fleurs-zh-4311928890660363024",
+    "fleurs-zh-2639775160623300502",
+    "fleurs-zh-3637815542348192629",
+    "fleurs-zh-9239339870570537511",
+    "fleurs-zh-13319165352419507810",
+    "fleurs-zh-15209730399349565944",
+    "fleurs-en-9113447011736256545",
+    "fleurs-en-3794657101809943148",
+    "fleurs-en-16367441259442214277",
+    "fleurs-en-3491234462595391279",
+    "fleurs-en-14993919225529607964",
+    "fleurs-en-17858903836434412568",
+    "fleurs-en-4498640649175127270",
+    "fleurs-en-9099003922402856523",
+    "fleurs-en-12725120105000747485",
+    "fleurs-en-11670188897888947692",
+    "fleurs-en-1107772981946748169",
+    "fleurs-en-2372674739221720006",
+    "fleurs-en-13896470903695476292",
+    "fleurs-en-7783164194712761839",
+    "fleurs-en-15278922555301201869",
+    "fleurs-en-11060294228176938598",
+    "fleurs-en-12316410148883063626",
+    "fleurs-en-5059640273671690654",
+    "fleurs-en-4498797456222901763",
+    "fleurs-en-9833173223298420094",
+    "fleurs-en-11820398005906165915",
+    "fleurs-en-12897153867514448386",
+    "fleurs-en-13029464143980259888",
+    "fleurs-en-17623856607065799247",
+    "ascend-00229",
+    "ascend-00304",
+    "ascend-01022",
+    "ascend-01031",
+    "ascend-01133",
+    "ascend-01142",
+    "ascend-00917",
+    "ascend-00922",
+    "fleurs-zh-10056338555786085046",
+    "fleurs-zh-11355960588560603456",
+    "fleurs-zh-14521504222934061665",
+    "fleurs-zh-10026684690566417990",
+    "fleurs-en-11260391063812418810",
+    "fleurs-en-11559094331412401332",
+    "fleurs-en-11966709226632417907",
+    "fleurs-en-6354316372780583820"
+  ],
+  "coordinate_system": "zero-based Unicode code-point [start,end) in unchanged reference",
+  "scope": "Conservative explicit duration, age, distance and proportion units with quantified/indefinite-measure context. Unit-form recall with fixed reviewed conventional percent/minute forms; not general semantic equivalence. Supplement: all 112 references reviewed for explicit concrete numeric/ordinal/range/year/decade expressions and numeric protocol identifiers, and explicit negative/non-occurrence expressions. Chinese short count/classifier phrases avoid matching unrelated indefinite 一 elsewhere. Original annotated probes are retained.",
+  "alias_policy": "NFKC/casefold and token boundaries; percent/per cent/% and minutes/minute/min/mins are fixed before rescoring, independently of hypotheses. All other labeled units retain their literal reference spelling. No translations, numeric rewriting, unit conversion or post-hypothesis alias additions. Offline unit-form recall only; production recognition evidence rules are unchanged. New number/negation expressions accept only their literal text, with existing NFKC/casefold/token rules; no numeric conversion, spelling normalization, synonyms, or post-output alias selection.",
+  "original_annotations_policy": "Append only. All original 43 annotations including 9 invalid substring-only AI annotations remain unchanged.",
+  "annotations": [
+    {
+      "annotation_id": "unit-v1-01",
+      "fixture_id": "ascend-00560",
+      "type": "unit",
+      "text": "年",
+      "accepted_forms": [
+        "年"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 14,
+          "end": 15
+        }
+      ],
+      "reference_sha256": "d48a4bd4195e06a8eefa7ce1ef3a09da338cb8d25cddf6294b3e1365abd4a50f",
+      "reference": "短跑冠军他最近还参加吗最近几年",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "最近几年：明确持续时间单位"
+    },
+    {
+      "annotation_id": "unit-v1-02",
+      "fixture_id": "fleurs-zh-4719524538529342597",
+      "type": "unit",
+      "text": "岁",
+      "accepted_forms": [
+        "岁"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 3,
+          "end": 4
+        }
+      ],
+      "reference_sha256": "9b806bb2feb1880d1446c58ee73356b83c408806cc7f91cb00a3487b321ada7d",
+      "reference": "29 岁的 Malar Balasubramanian 医生在俄亥俄州辛辛那提市以北约 15 英里的郊区布鲁艾施被发现，她被找到时身穿 T 恤衫和内裤，躺在路边的地上，看上去服用了大量药物。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "29 岁：明确年龄单位"
+    },
+    {
+      "annotation_id": "unit-v1-03",
+      "fixture_id": "fleurs-zh-4719524538529342597",
+      "type": "unit",
+      "text": "英里",
+      "accepted_forms": [
+        "英里"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 47,
+          "end": 49
+        }
+      ],
+      "reference_sha256": "9b806bb2feb1880d1446c58ee73356b83c408806cc7f91cb00a3487b321ada7d",
+      "reference": "29 岁的 Malar Balasubramanian 医生在俄亥俄州辛辛那提市以北约 15 英里的郊区布鲁艾施被发现，她被找到时身穿 T 恤衫和内裤，躺在路边的地上，看上去服用了大量药物。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "约 15 英里：明确距离单位"
+    },
+    {
+      "annotation_id": "unit-v1-04",
+      "fixture_id": "fleurs-zh-4518873800093805764",
+      "type": "unit",
+      "text": "分钟",
+      "accepted_forms": [
+        "分钟"
+      ],
+      "expected_reference_occurrences": 2,
+      "reference_occurrences": [
+        {
+          "start": 9,
+          "end": 11
+        },
+        {
+          "start": 25,
+          "end": 27
+        }
+      ],
+      "reference_sha256": "c1e87af53b65ee01a6716d8a1b2b9ff3bb0270e500e759eb4eb7032964cab5e0",
+      "reference": "在某些地区，水煮一分钟就足够了，在其他地区则需要几分钟的时间。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "水煮一分钟与几分钟：两次明确时长单位"
+    },
+    {
+      "annotation_id": "unit-v1-05",
+      "fixture_id": "fleurs-en-13896470903695476292",
+      "type": "unit",
+      "text": "minutes",
+      "accepted_forms": [
+        "minutes",
+        "minute",
+        "min",
+        "mins"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 137,
+          "end": 144
+        }
+      ],
+      "reference_sha256": "0181ce6503149397f14f5fd7e96ce735ea877897f99105ead20b0aa8d90d9058",
+      "reference": "Sleep interruption is the process of purposefully awakening during your normal sleep period and falling asleep a short time later (10–60 minutes).",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "10–60 minutes：明确时长单位"
+    },
+    {
+      "annotation_id": "unit-v1-06",
+      "fixture_id": "ascend-01022",
+      "type": "unit",
+      "text": "percent",
+      "accepted_forms": [
+        "percent",
+        "per cent",
+        "%"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 8,
+          "end": 15
+        }
+      ],
+      "reference_sha256": "7d15a8ea69a29e25eb1da696561eb70b3d4a208b706efb79cefca5336f496762",
+      "reference": "但是在零点零点一percent的几率就是就是需要这个降落伞公司来承担",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "零点零点一percent：保留重复数字原文，只标比例单位"
+    },
+    {
+      "annotation_id": "unit-v1-07",
+      "fixture_id": "ascend-01031",
+      "type": "unit",
+      "text": "percent",
+      "accepted_forms": [
+        "percent",
+        "per cent",
+        "%"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 6,
+          "end": 13
+        }
+      ],
+      "reference_sha256": "54af3f45d8b9dec1ff83658e5285bdc851825af40bad28537dbe77141857193f",
+      "reference": "就是说你有五percent的概率会会有accident happen",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "五percent：明确比例单位"
+    },
+    {
+      "annotation_id": "unit-v1-08",
+      "fixture_id": "ascend-00922",
+      "type": "unit",
+      "text": "月",
+      "accepted_forms": [
+        "月"
+      ],
+      "expected_reference_occurrences": 2,
+      "reference_occurrences": [
+        {
+          "start": 7,
+          "end": 8
+        },
+        {
+          "start": 17,
+          "end": 18
+        }
+      ],
+      "reference_sha256": "904eae39aca41d4abfe5274531619cca9fbdbf988a40962855f1d0e91a3f09e1",
+      "reference": "然后准备了一个月考完之后又用了一个月准备G math",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "一个月与又用了一个月：两次明确时长单位"
+    },
+    {
+      "annotation_id": "surface-v1-number-01",
+      "fixture_id": "ascend-01047",
+      "type": "number",
+      "text": "第二",
+      "accepted_forms": [
+        "第二"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 0,
+          "end": 2
+        }
+      ],
+      "reference_sha256": "2e32526d0c16a6c64c12eaa1e228678ccca97202f7bc2d624421173bf9f594d3",
+      "reference": "第二个呢它的测试也很很复杂就是说你在测试的时候你只能simulate这个scenario",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-02",
+      "fixture_id": "ascend-00362",
+      "type": "number",
+      "text": "fourth year",
+      "accepted_forms": [
+        "fourth year"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 17,
+          "end": 28
+        }
+      ],
+      "reference_sha256": "0bc0ce5a5ac446083841ddb1c1971f9afc40620e0d7ef0af1fd066bc29c9d00e",
+      "reference": "对再说apply for the fourth year i will我觉得我去exchange是在第四年的时候但是我apply是在third years的时候apply",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-03",
+      "fixture_id": "ascend-00362",
+      "type": "number",
+      "text": "第四年",
+      "accepted_forms": [
+        "第四年"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 50,
+          "end": 53
+        }
+      ],
+      "reference_sha256": "0bc0ce5a5ac446083841ddb1c1971f9afc40620e0d7ef0af1fd066bc29c9d00e",
+      "reference": "对再说apply for the fourth year i will我觉得我去exchange是在第四年的时候但是我apply是在third years的时候apply",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-04",
+      "fixture_id": "ascend-00362",
+      "type": "number",
+      "text": "third years",
+      "accepted_forms": [
+        "third years"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 66,
+          "end": 77
+        }
+      ],
+      "reference_sha256": "0bc0ce5a5ac446083841ddb1c1971f9afc40620e0d7ef0af1fd066bc29c9d00e",
+      "reference": "对再说apply for the fourth year i will我觉得我去exchange是在第四年的时候但是我apply是在third years的时候apply",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-05",
+      "fixture_id": "ascend-00792",
+      "type": "number",
+      "text": "one reason",
+      "accepted_forms": [
+        "one reason"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 9,
+          "end": 19
+        }
+      ],
+      "reference_sha256": "ff76616f285cff7939aa5f9f69303a6b9f8cd286e87678452b0635644a5dd839",
+      "reference": "and also one reason from my cousin",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-06",
+      "fixture_id": "ascend-00922",
+      "type": "number",
+      "text": "一个月",
+      "accepted_forms": [
+        "一个月"
+      ],
+      "expected_reference_occurrences": 2,
+      "reference_occurrences": [
+        {
+          "start": 5,
+          "end": 8
+        },
+        {
+          "start": 15,
+          "end": 18
+        }
+      ],
+      "reference_sha256": "904eae39aca41d4abfe5274531619cca9fbdbf988a40962855f1d0e91a3f09e1",
+      "reference": "然后准备了一个月考完之后又用了一个月准备G math",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-07",
+      "fixture_id": "fleurs-zh-870219628413797707",
+      "type": "number",
+      "text": "三部分",
+      "accepted_forms": [
+        "三部分"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 26,
+          "end": 29
+        }
+      ],
+      "reference_sha256": "936dafee3d081ab349e27ba71eae3d43f0f8839216fc5692597d8afbb9df626a",
+      "reference": "它指出，对主体来说最有效的位置是将图像垂直和水平分为三部分的线的交叉点（见示例）。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-08",
+      "fixture_id": "fleurs-zh-4719524538529342597",
+      "type": "number",
+      "text": "29",
+      "accepted_forms": [
+        "29"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 0,
+          "end": 2
+        }
+      ],
+      "reference_sha256": "9b806bb2feb1880d1446c58ee73356b83c408806cc7f91cb00a3487b321ada7d",
+      "reference": "29 岁的 Malar Balasubramanian 医生在俄亥俄州辛辛那提市以北约 15 英里的郊区布鲁艾施被发现，她被找到时身穿 T 恤衫和内裤，躺在路边的地上，看上去服用了大量药物。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-09",
+      "fixture_id": "fleurs-zh-4719524538529342597",
+      "type": "number",
+      "text": "15",
+      "accepted_forms": [
+        "15"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 44,
+          "end": 46
+        }
+      ],
+      "reference_sha256": "9b806bb2feb1880d1446c58ee73356b83c408806cc7f91cb00a3487b321ada7d",
+      "reference": "29 岁的 Malar Balasubramanian 医生在俄亥俄州辛辛那提市以北约 15 英里的郊区布鲁艾施被发现，她被找到时身穿 T 恤衫和内裤，躺在路边的地上，看上去服用了大量药物。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-10",
+      "fixture_id": "fleurs-zh-9519471631565549023",
+      "type": "number",
+      "text": "12",
+      "accepted_forms": [
+        "12"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 15,
+          "end": 17
+        }
+      ],
+      "reference_sha256": "9e77b22dde664070dd2b4b9adb8a31b5fa49525af7607609ff82178a3035c81c",
+      "reference": "因此，这种格式的宽高比（除以 12 得到最简单的整数比）便是 3:2。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-11",
+      "fixture_id": "fleurs-zh-9519471631565549023",
+      "type": "number",
+      "text": "3:2",
+      "accepted_forms": [
+        "3:2"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 31,
+          "end": 34
+        }
+      ],
+      "reference_sha256": "9e77b22dde664070dd2b4b9adb8a31b5fa49525af7607609ff82178a3035c81c",
+      "reference": "因此，这种格式的宽高比（除以 12 得到最简单的整数比）便是 3:2。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-12",
+      "fixture_id": "fleurs-zh-9281963460244411454",
+      "type": "number",
+      "text": "1940",
+      "accepted_forms": [
+        "1940"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 19,
+          "end": 23
+        }
+      ],
+      "reference_sha256": "9bf64ec0e4dea3f2fa9814551e4c2920841bb6d04f34d69e97e6411937ab900c",
+      "reference": "它由“维希”法国人统治。这些法国人在 1940 年与德国人达成了和平协议，不反抗侵略者，而是和他们合作。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-13",
+      "fixture_id": "fleurs-zh-7459037573375372374",
+      "type": "number",
+      "text": "六名",
+      "accepted_forms": [
+        "六名"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 0,
+          "end": 2
+        }
+      ],
+      "reference_sha256": "62b2f59631994b17912e0e2fdfa479baa886dfc59ac80970823600e29e55d709",
+      "reference": "六名人质（包括儿童和老人在内）以及那些菲律宾摄影师被提前释放。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-14",
+      "fixture_id": "fleurs-zh-288222503248548843",
+      "type": "number",
+      "text": "四名",
+      "accepted_forms": [
+        "四名"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 6,
+          "end": 8
+        }
+      ],
+      "reference_sha256": "c2ff6883431e7fa040ba8ea4fb49fe93a816d48f008b30d8bcb557d5ea9dc3d8",
+      "reference": "女子坐式组的四名滑雪选手未能完赛，大回转项目（Giant Slalom）的 117 名选手中有 45 人未能挤进榜单。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-15",
+      "fixture_id": "fleurs-zh-288222503248548843",
+      "type": "number",
+      "text": "117",
+      "accepted_forms": [
+        "117"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 38,
+          "end": 41
+        }
+      ],
+      "reference_sha256": "c2ff6883431e7fa040ba8ea4fb49fe93a816d48f008b30d8bcb557d5ea9dc3d8",
+      "reference": "女子坐式组的四名滑雪选手未能完赛，大回转项目（Giant Slalom）的 117 名选手中有 45 人未能挤进榜单。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-16",
+      "fixture_id": "fleurs-zh-288222503248548843",
+      "type": "number",
+      "text": "45",
+      "accepted_forms": [
+        "45"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 48,
+          "end": 50
+        }
+      ],
+      "reference_sha256": "c2ff6883431e7fa040ba8ea4fb49fe93a816d48f008b30d8bcb557d5ea9dc3d8",
+      "reference": "女子坐式组的四名滑雪选手未能完赛，大回转项目（Giant Slalom）的 117 名选手中有 45 人未能挤进榜单。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-17",
+      "fixture_id": "fleurs-zh-4518873800093805764",
+      "type": "number",
+      "text": "一分钟",
+      "accepted_forms": [
+        "一分钟"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 8,
+          "end": 11
+        }
+      ],
+      "reference_sha256": "c1e87af53b65ee01a6716d8a1b2b9ff3bb0270e500e759eb4eb7032964cab5e0",
+      "reference": "在某些地区，水煮一分钟就足够了，在其他地区则需要几分钟的时间。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-18",
+      "fixture_id": "fleurs-zh-9699581877784184472",
+      "type": "number",
+      "text": "802.11a",
+      "accepted_forms": [
+        "802.11a"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 7,
+          "end": 14
+        }
+      ],
+      "reference_sha256": "24667676cb2b6de585edda7d85f1b714450ae7ed4d0ac2596944d422d4f65a9f",
+      "reference": "它能向后兼容 802.11a、802.11b 和 802.11g，前提是基站要有双无线电。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-19",
+      "fixture_id": "fleurs-zh-9699581877784184472",
+      "type": "number",
+      "text": "802.11b",
+      "accepted_forms": [
+        "802.11b"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 15,
+          "end": 22
+        }
+      ],
+      "reference_sha256": "24667676cb2b6de585edda7d85f1b714450ae7ed4d0ac2596944d422d4f65a9f",
+      "reference": "它能向后兼容 802.11a、802.11b 和 802.11g，前提是基站要有双无线电。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-20",
+      "fixture_id": "fleurs-zh-9699581877784184472",
+      "type": "number",
+      "text": "802.11g",
+      "accepted_forms": [
+        "802.11g"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 25,
+          "end": 32
+        }
+      ],
+      "reference_sha256": "24667676cb2b6de585edda7d85f1b714450ae7ed4d0ac2596944d422d4f65a9f",
+      "reference": "它能向后兼容 802.11a、802.11b 和 802.11g，前提是基站要有双无线电。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-21",
+      "fixture_id": "fleurs-zh-13319165352419507810",
+      "type": "number",
+      "text": "四种",
+      "accepted_forms": [
+        "四种"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 31,
+          "end": 33
+        }
+      ],
+      "reference_sha256": "8195f3f38b6c5c512f5e9d4b8eb8e86c89e3cdd7bfe8a888926bb9e68ad03a2e",
+      "reference": "哲学家亚里士多德提出一种理论，即任何事物都是由土、水、空气和火四种元素中的一种或多种组成的。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-22",
+      "fixture_id": "fleurs-zh-11355960588560603456",
+      "type": "number",
+      "text": "一个质子",
+      "accepted_forms": [
+        "一个质子"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 19,
+          "end": 23
+        }
+      ],
+      "reference_sha256": "93edbbf6aabd115c32d2a2c412f190016f82c5e056391e1d44b96f420a75e627",
+      "reference": "氢离子是失去了电子的质子（因为氢原子由一个质子和一个电子组成）。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-23",
+      "fixture_id": "fleurs-zh-11355960588560603456",
+      "type": "number",
+      "text": "一个电子",
+      "accepted_forms": [
+        "一个电子"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 24,
+          "end": 28
+        }
+      ],
+      "reference_sha256": "93edbbf6aabd115c32d2a2c412f190016f82c5e056391e1d44b96f420a75e627",
+      "reference": "氢离子是失去了电子的质子（因为氢原子由一个质子和一个电子组成）。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-24",
+      "fixture_id": "fleurs-en-16367441259442214277",
+      "type": "number",
+      "text": "1200",
+      "accepted_forms": [
+        "1200"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 82,
+          "end": 86
+        }
+      ],
+      "reference_sha256": "97352f3f5ce83999ee41bf5c57f34a0ceb5ffdd4d62c1b5ded4891b9ce8e078f",
+      "reference": "The vehicle itself was taken away from the scene of the accident at approximately 1200 GMT on the same day.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-25",
+      "fixture_id": "fleurs-en-14993919225529607964",
+      "type": "number",
+      "text": "eleventh",
+      "accepted_forms": [
+        "eleventh"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 38,
+          "end": 46
+        }
+      ],
+      "reference_sha256": "140d0f4af9a1681ff9e0ebd011e26be3b28702c58834ab154dbd93202906c272",
+      "reference": "Australia's Mitchell Gourley finished eleventh in the men's standing Super-G. Czech competitor Oldrich Jelinek finished sixteenth in the men's sitting Super-G.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-26",
+      "fixture_id": "fleurs-en-14993919225529607964",
+      "type": "number",
+      "text": "sixteenth",
+      "accepted_forms": [
+        "sixteenth"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 120,
+          "end": 129
+        }
+      ],
+      "reference_sha256": "140d0f4af9a1681ff9e0ebd011e26be3b28702c58834ab154dbd93202906c272",
+      "reference": "Australia's Mitchell Gourley finished eleventh in the men's standing Super-G. Czech competitor Oldrich Jelinek finished sixteenth in the men's sitting Super-G.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-27",
+      "fixture_id": "fleurs-en-4498640649175127270",
+      "type": "number",
+      "text": "20s",
+      "accepted_forms": [
+        "20s"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 30,
+          "end": 33
+        }
+      ],
+      "reference_sha256": "064d18e7ce7a6e09ba5f924917266e6a67e870b1018fc4245ba1718febb3e401",
+      "reference": "He was reportedly aged in his 20s. In a statement, Bieber said \"[w]hile I was not present nor directly involved with this tragic accident, my thoughts and prayers are with the family of the victim.\"",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-28",
+      "fixture_id": "fleurs-en-13896470903695476292",
+      "type": "number",
+      "text": "10–60",
+      "accepted_forms": [
+        "10–60"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 131,
+          "end": 136
+        }
+      ],
+      "reference_sha256": "0181ce6503149397f14f5fd7e96ce735ea877897f99105ead20b0aa8d90d9058",
+      "reference": "Sleep interruption is the process of purposefully awakening during your normal sleep period and falling asleep a short time later (10–60 minutes).",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-29",
+      "fixture_id": "fleurs-en-11060294228176938598",
+      "type": "number",
+      "text": "two",
+      "accepted_forms": [
+        "two"
+      ],
+      "expected_reference_occurrences": 2,
+      "reference_occurrences": [
+        {
+          "start": 13,
+          "end": 16
+        },
+        {
+          "start": 55,
+          "end": 58
+        }
+      ],
+      "reference_sha256": "13d3604fdb6a16fcb38975772210a1a2424fb51b6db9071bc7bd92f782a01739",
+      "reference": "As a result, two fish species have become extinct, and two others have become endangered, including the humpback chub.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-30",
+      "fixture_id": "fleurs-en-4498797456222901763",
+      "type": "number",
+      "text": "Four",
+      "accepted_forms": [
+        "Four"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 0,
+          "end": 4
+        }
+      ],
+      "reference_sha256": "8738fc26d3c9a67e3265ae501d29b897c137a54bd074fd9f219c030727e750d8",
+      "reference": "Four skiers in the women's sitting group failed to finish their runs, and 45 of the 117 total skiers in the Giant Slalom failed to rank in the race.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-31",
+      "fixture_id": "fleurs-en-4498797456222901763",
+      "type": "number",
+      "text": "45",
+      "accepted_forms": [
+        "45"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 74,
+          "end": 76
+        }
+      ],
+      "reference_sha256": "8738fc26d3c9a67e3265ae501d29b897c137a54bd074fd9f219c030727e750d8",
+      "reference": "Four skiers in the women's sitting group failed to finish their runs, and 45 of the 117 total skiers in the Giant Slalom failed to rank in the race.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-32",
+      "fixture_id": "fleurs-en-4498797456222901763",
+      "type": "number",
+      "text": "117",
+      "accepted_forms": [
+        "117"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 84,
+          "end": 87
+        }
+      ],
+      "reference_sha256": "8738fc26d3c9a67e3265ae501d29b897c137a54bd074fd9f219c030727e750d8",
+      "reference": "Four skiers in the women's sitting group failed to finish their runs, and 45 of the 117 total skiers in the Giant Slalom failed to rank in the race.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-number-33",
+      "fixture_id": "fleurs-en-17623856607065799247",
+      "type": "number",
+      "text": "1920s",
+      "accepted_forms": [
+        "1920s"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 11,
+          "end": 16
+        }
+      ],
+      "reference_sha256": "db3f8886108c3703d3db95970e9073b4de8e0d99d832be92c20e3d69fc0c0ff1",
+      "reference": "During the 1920s, the prevailing attitudes of most citizens and nations was that of pacifism and isolation.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit numeric expression; literal surface preservation, not value equivalence or semantic correctness."
+    },
+    {
+      "annotation_id": "surface-v1-negation-01",
+      "fixture_id": "ascend-00871",
+      "type": "negation",
+      "text": "not",
+      "accepted_forms": [
+        "not"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 8,
+          "end": 11
+        }
+      ],
+      "reference_sha256": "2e7d6cc6eced856ad0e0cf08b9905364e61f34019824673316f471cea9df155d",
+      "reference": "you can not wear your呃clothes",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-02",
+      "fixture_id": "ascend-01056",
+      "type": "negation",
+      "text": "没",
+      "accepted_forms": [
+        "没"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 18,
+          "end": 19
+        }
+      ],
+      "reference_sha256": "23dd91f6d6baf2910ccb1c03e20cf118974e09863dafce1017d92ec8a9303079",
+      "reference": "我觉得呢就是有smart phone没smart phone就是是一个类似于双刃剑",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-03",
+      "fixture_id": "ascend-00644",
+      "type": "negation",
+      "text": "不可能",
+      "accepted_forms": [
+        "不可能"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 3,
+          "end": 6
+        }
+      ],
+      "reference_sha256": "97bbfc526470cc841cf498835a2a23494dabed6d8a65a63b93fd61bc10011ee3",
+      "reference": "因为你不可能邀你的female friends去说走我们去play basketball",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-04",
+      "fixture_id": "ascend-00962",
+      "type": "negation",
+      "text": "没有",
+      "accepted_forms": [
+        "没有"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 0,
+          "end": 2
+        }
+      ],
+      "reference_sha256": "66ca05eee9651fe6f81e86d39c9066785d69727a4006f38f6fa5bead0f0992ac",
+      "reference": "没有吗那可能business school有的就会让我们穿",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-05",
+      "fixture_id": "ascend-00616",
+      "type": "negation",
+      "text": "不可能",
+      "accepted_forms": [
+        "不可能"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 24,
+          "end": 27
+        }
+      ],
+      "reference_sha256": "5782d0ab5a97b6baf3d8e7db6fd1004d3c973dcdf26cc0c2021dce4e04887357",
+      "reference": "嗯但是像running啊或者是举重这种东西就比较不可能男男生就肯定会比女生",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-06",
+      "fixture_id": "ascend-00123",
+      "type": "negation",
+      "text": "从来不",
+      "accepted_forms": [
+        "从来不"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 5,
+          "end": 8
+        }
+      ],
+      "reference_sha256": "bde47829c2ac3eb2122d677dc8bb14bad2eed395cb24912ca1c3c4e185672f99",
+      "reference": "嗯我是一个从来不运动的人",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-07",
+      "fixture_id": "ascend-00031",
+      "type": "negation",
+      "text": "不清",
+      "accepted_forms": [
+        "不清"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 6,
+          "end": 8
+        }
+      ],
+      "reference_sha256": "722fd9cdb8b7671cba42090386d2899e0428378fb322bafdbd341f828538c8c4",
+      "reference": "你看着我就分不清嘛你都说我是北方人",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-08",
+      "fixture_id": "ascend-00355",
+      "type": "negation",
+      "text": "not",
+      "accepted_forms": [
+        "not"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 57,
+          "end": 60
+        }
+      ],
+      "reference_sha256": "8e4fb5579927264048ba5123d5d3fe3abe4aa9a9fc2244d5cac0efe79ff7fba2",
+      "reference": "you know this is like kind of different but like kind of not that big difference",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-09",
+      "fixture_id": "ascend-00585",
+      "type": "negation",
+      "text": "don't",
+      "accepted_forms": [
+        "don't"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 16,
+          "end": 21
+        }
+      ],
+      "reference_sha256": "5bf62a976dbab11a01a79a23f529a70abe70d4ecb9cda4114255602443d25faf",
+      "reference": "um actually i i don't know",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-10",
+      "fixture_id": "ascend-00040",
+      "type": "negation",
+      "text": "not",
+      "accepted_forms": [
+        "not"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 34,
+          "end": 37
+        }
+      ],
+      "reference_sha256": "0bdba744eb68f4a81768bf05ae8932d149fa4cfee184366d08b944bedef73eb0",
+      "reference": "so you you already found a job or not",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-11",
+      "fixture_id": "fleurs-zh-16549419822262830660",
+      "type": "negation",
+      "text": "不活跃",
+      "accepted_forms": [
+        "不活跃"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 18,
+          "end": 21
+        }
+      ],
+      "reference_sha256": "3ea8e3f1fb7eacc3baeb233eccb82192aca11688c57e5c197c4bee4d0ad2ba77",
+      "reference": "罗斯贝数越小，恒星在磁场倒转方面就越不活跃。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-12",
+      "fixture_id": "fleurs-zh-9281963460244411454",
+      "type": "negation",
+      "text": "不反抗",
+      "accepted_forms": [
+        "不反抗"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 37,
+          "end": 40
+        }
+      ],
+      "reference_sha256": "9bf64ec0e4dea3f2fa9814551e4c2920841bb6d04f34d69e97e6411937ab900c",
+      "reference": "它由“维希”法国人统治。这些法国人在 1940 年与德国人达成了和平协议，不反抗侵略者，而是和他们合作。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-13",
+      "fixture_id": "fleurs-zh-8556305135909113392",
+      "type": "negation",
+      "text": "无趣",
+      "accepted_forms": [
+        "无趣"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 11,
+          "end": 13
+        }
+      ],
+      "reference_sha256": "9880f9829619503d154721e96f78a5078aedc2399c30bf72d3139655b17cab13",
+      "reference": "卡萨布兰卡是全摩洛哥最无趣的购物地之一。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-14",
+      "fixture_id": "fleurs-zh-288222503248548843",
+      "type": "negation",
+      "text": "未能",
+      "accepted_forms": [
+        "未能"
+      ],
+      "expected_reference_occurrences": 2,
+      "reference_occurrences": [
+        {
+          "start": 12,
+          "end": 14
+        },
+        {
+          "start": 52,
+          "end": 54
+        }
+      ],
+      "reference_sha256": "c2ff6883431e7fa040ba8ea4fb49fe93a816d48f008b30d8bcb557d5ea9dc3d8",
+      "reference": "女子坐式组的四名滑雪选手未能完赛，大回转项目（Giant Slalom）的 117 名选手中有 45 人未能挤进榜单。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-15",
+      "fixture_id": "fleurs-zh-9051525594423711202",
+      "type": "negation",
+      "text": "不像",
+      "accepted_forms": [
+        "不像"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 7,
+          "end": 9
+        }
+      ],
+      "reference_sha256": "235bcec12d33396f22b30a1c357c3477d6132baff0275f615a41f178311ba8f3",
+      "reference": "“它们的热行为不像地球上的大型洞穴那么稳定，这些大型洞穴通常会保持相当恒定的温度，但它们与地下深穴的情况很相似，”亚利桑那州旗杆镇美国地质调查局 (USGS) 太空地质团队和北亚利桑那大学的格伦·库欣说道。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-16",
+      "fixture_id": "fleurs-zh-7208321975419226278",
+      "type": "negation",
+      "text": "想不到",
+      "accepted_forms": [
+        "想不到"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 4,
+          "end": 7
+        }
+      ],
+      "reference_sha256": "569f140319380d82b692e14739948237006577d7304b8ec51673479846c448f0",
+      "reference": "人们可能想不到，旅行者在回程中也需要耐心和理解。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-17",
+      "fixture_id": "fleurs-zh-9239339870570537511",
+      "type": "negation",
+      "text": "有没有",
+      "accepted_forms": [
+        "有没有"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 42,
+          "end": 45
+        }
+      ],
+      "reference_sha256": "1f9aa8041d3c30dfa486f0c6a786ade56f4bb9f3a33750579b39a17e6e4e7dbc",
+      "reference": "尽管戈马还算安全，但前往戈马以外的任何地方都应该事先调查，以便了解北基伍省持续的战斗有没有缓和。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-18",
+      "fixture_id": "fleurs-en-3491234462595391279",
+      "type": "negation",
+      "text": "don't",
+      "accepted_forms": [
+        "don't"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 3,
+          "end": 8
+        }
+      ],
+      "reference_sha256": "d604a00d1fc8f9b11f67e434aa543717817119dcd8e94e0015b4c0d0e0106460",
+      "reference": "We don't know for sure, but it may have had a forked tongue. Its diet included turtles, large fish, other mosasaurs, and it may even have been a cannibal.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-19",
+      "fixture_id": "fleurs-en-4498640649175127270",
+      "type": "negation",
+      "text": "not",
+      "accepted_forms": [
+        "not"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 78,
+          "end": 81
+        }
+      ],
+      "reference_sha256": "064d18e7ce7a6e09ba5f924917266e6a67e870b1018fc4245ba1718febb3e401",
+      "reference": "He was reportedly aged in his 20s. In a statement, Bieber said \"[w]hile I was not present nor directly involved with this tragic accident, my thoughts and prayers are with the family of the victim.\"",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-20",
+      "fixture_id": "fleurs-en-4498640649175127270",
+      "type": "negation",
+      "text": "nor",
+      "accepted_forms": [
+        "nor"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 90,
+          "end": 93
+        }
+      ],
+      "reference_sha256": "064d18e7ce7a6e09ba5f924917266e6a67e870b1018fc4245ba1718febb3e401",
+      "reference": "He was reportedly aged in his 20s. In a statement, Bieber said \"[w]hile I was not present nor directly involved with this tragic accident, my thoughts and prayers are with the family of the victim.\"",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-21",
+      "fixture_id": "fleurs-en-11670188897888947692",
+      "type": "negation",
+      "text": "Nothing",
+      "accepted_forms": [
+        "Nothing"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 0,
+          "end": 7
+        }
+      ],
+      "reference_sha256": "af0ca3c2f13678e84c1ac43965e0dfefe2e769a6ec61e1d31d4727b1d0a7220b",
+      "reference": "Nothing can be seen other than the clear, beautiful sky above and the many surrounding mountains. Very little of this world can be seen or heard from inside the cave.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-22",
+      "fixture_id": "fleurs-en-2372674739221720006",
+      "type": "negation",
+      "text": "not",
+      "accepted_forms": [
+        "not"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 11,
+          "end": 14
+        }
+      ],
+      "reference_sha256": "9fba17dabeb8d464aaf6769734d5cf62c5a277ff87a4ed3fb18b7384e19490fe",
+      "reference": "People may not anticipate that patience and understanding are also necessary for travellers returning home.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-23",
+      "fixture_id": "fleurs-en-4498797456222901763",
+      "type": "negation",
+      "text": "failed to",
+      "accepted_forms": [
+        "failed to"
+      ],
+      "expected_reference_occurrences": 2,
+      "reference_occurrences": [
+        {
+          "start": 41,
+          "end": 50
+        },
+        {
+          "start": 121,
+          "end": 130
+        }
+      ],
+      "reference_sha256": "8738fc26d3c9a67e3265ae501d29b897c137a54bd074fd9f219c030727e750d8",
+      "reference": "Four skiers in the women's sitting group failed to finish their runs, and 45 of the 117 total skiers in the Giant Slalom failed to rank in the race.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-24",
+      "fixture_id": "fleurs-en-9833173223298420094",
+      "type": "negation",
+      "text": "not",
+      "accepted_forms": [
+        "not"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 15,
+          "end": 18
+        }
+      ],
+      "reference_sha256": "e8b30081e73b7ec6d17e0d107e8f4945e7afb10f6d045dbbcd1e9ec45a8e5660",
+      "reference": "Scaffolding is not a method of learning but rather an aid that provides support to individuals whom are undergoing a new learning experience such as using a new computer program or beginning a new project.",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-25",
+      "fixture_id": "ascend-01142",
+      "type": "negation",
+      "text": "不太懂",
+      "accepted_forms": [
+        "不太懂"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 41,
+          "end": 44
+        }
+      ],
+      "reference_sha256": "62ebae513a31baa28983ff09253199735f3b31f7edec2b591eb18efacc12a664",
+      "reference": "computer language还有problem language的东西我还是不太懂",
+      "source_dataset": "ascend",
+      "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "license": "CC-BY-SA-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-negation-26",
+      "fixture_id": "fleurs-en-11260391063812418810",
+      "type": "negation",
+      "text": "non-serious",
+      "accepted_forms": [
+        "non-serious"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 119,
+          "end": 130
+        }
+      ],
+      "reference_sha256": "f89bc4947ce0684ce7cabe308ace70da8c00a4b8380c8f25e230fa6e6f6d4c07",
+      "reference": "Last week, METI announced that Apple had informed it of 34 additional overheating incidents, which the company called \"non-serious.\"",
+      "source_dataset": "fleurs-en",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only explicit negative/non-occurrence expression; literal surface preservation, not polarity entailment or synonym equivalence."
+    },
+    {
+      "annotation_id": "surface-v1-number-34",
+      "fixture_id": "fleurs-zh-9699581877784184472",
+      "type": "number",
+      "text": "双无线电",
+      "accepted_forms": [
+        "双无线电"
+      ],
+      "expected_reference_occurrences": 1,
+      "reference_occurrences": [
+        {
+          "start": 40,
+          "end": 44
+        }
+      ],
+      "reference_sha256": "24667676cb2b6de585edda7d85f1b714450ae7ed4d0ac2596944d422d4f65a9f",
+      "reference": "它能向后兼容 802.11a、802.11b 和 802.11g，前提是基站要有双无线电。",
+      "source_dataset": "fleurs-zh",
+      "source_revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "license": "CC-BY-4.0",
+      "reason": "Reference-only concrete dual-radio count; literal surface expression, not value equivalence."
+    }
+  ],
+  "excluded_reference_cases": [
+    {
+      "fixture_id": "ascend-00362",
+      "text": "fourth year / 第四年 / third years",
+      "reason": "Academic-year ordinal positioning rather than an explicit measured duration; not labeled by this narrow unit overlay."
+    },
+    {
+      "fixture_id": "ascend-00078",
+      "text": "this year",
+      "reason": "Relative calendar positioning; not a quantified duration."
+    },
+    {
+      "fixture_id": "ascend-00856",
+      "text": "every day every single day",
+      "reason": "Recurrence expression; no measured duration in this conservative annotation scope."
+    },
+    {
+      "fixture_id": "fleurs-zh-9281963460244411454",
+      "text": "1940 年",
+      "reason": "Calendar date; number/date fidelity remains in lexical metrics, not this duration-unit subset."
+    },
+    {
+      "fixture_id": "fleurs-en-16367441259442214277",
+      "text": "1200 GMT / same day",
+      "reason": "Clock/time-zone and calendar positioning, not an explicit measurement unit."
+    },
+    {
+      "fixture_id": "fleurs-en-4498640649175127270",
+      "text": "in his 20s",
+      "reason": "Age range with no explicit standalone unit token; do not invent a spoken years unit."
+    },
+    {
+      "fixture_id": "fleurs-en-17623856607065799247",
+      "text": "1920s",
+      "reason": "Calendar decade, with no explicit spoken measurement unit."
+    },
+    {
+      "fixture_id": "fleurs-en-11260391063812418810",
+      "text": "Last week",
+      "reason": "Relative calendar positioning rather than measured duration."
+    }
+  ],
+  "limits": [
+    "Reference-only lexical labels do not certify acoustic correctness of the upstream transcript.",
+    "Only the fixed conventional percent/minute forms are equivalent; translations, converted units and numeric value fidelity are not certified by unit-form recall.",
+    "The eight annotations/ten occurrences are a small explicit-unit subset, not comprehensive coverage or a semantic unit benchmark."
+  ],
+  "selection_policy": "Retain already frozen v2 panel IDs: only original manifest annotations and unit-v1 additions influence selection; surface-v1 number/negation additions change scoring coverage only.",
+  "interpretation_limits": [
+    "Exhaustive reference reading does not make the labels a semantic gold standard: annotations test surface expression preservation. The original reference audio has not been independently listened to in this pass.",
+    "Number-bearing identifiers 802.11a/b/g are labeled as explicit numeric expressions; classifier-anchored Chinese counts are measured as complete short expressions, so wording changes can count as a surface miss.",
+    "Indefinite 一个/一种, 一些, 几, ordinary 一开始/统一/之一, pronoun one, articles and single-day emphasis are excluded from added concrete-number labels. Concrete duration 一个月/一分钟 and scientific 一个质子/一个电子 are included.",
+    "Explicit Chinese negative morphemes, English contractions/not/nor/Nothing/non-, and failed to are included. 不过 and 差不多 are excluded as discourse/approximation, not logical negatives; comparative least/less and extinct are not expanded into implied negative words.",
+    "Existing 不是 inside 并不是 and similar legacy probes can overlap. Counts are annotated expressions and occurrences, not independent polarity decisions or clinical/general semantic error rates.",
+    "No guarantees about wrong-value association, moved negation, synonym correctness, unit conversion, or hallucination follow from a surface match."
+  ],
+  "coverage_by_type": {
+    "unit": {
+      "annotations": 8,
+      "reference_occurrences": 10,
+      "fixtures": 7
+    },
+    "number": {
+      "annotations": 34,
+      "reference_occurrences": 36,
+      "fixtures": 21
+    },
+    "negation": {
+      "annotations": 26,
+      "reference_occurrences": 28,
+      "fixtures": 25
+    }
+  }
+}

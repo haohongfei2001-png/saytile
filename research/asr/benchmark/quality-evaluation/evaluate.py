@@ -8,6 +8,7 @@ import math
 import re
 from pathlib import Path
 from metrics import ROOT, LEGACY_SCORER, score_text, paired_errors, percentile, tokenize
+from reference_annotations import load_references
 
 STAGES = ('first_preview', 'in_speech_revision', 'stable_prefix', 'final')
 TERMINAL = {'completed', 'failed', 'cancelled', 'interrupted'}
@@ -79,6 +80,42 @@ def stage_reference(item, decision):
         'annotation_id': item['reference_timing_annotation_id'], 'start_seconds': start, 'end_seconds': end}
 
 
+def whole_candidate_scope(item, decision, text, trace, recognition_id):
+    """An observed stage may cover the whole clip before fusion finishes.
+
+    Require its exact acoustic source, received after the final PCM submission,
+    covering the complete fixture. A complete provider result alone is never a
+    logical final, and an input frontier never defines a partial output's gold.
+    """
+    eof = (trace.get('replay') or {}).get('lastAudioSubmittedAt')
+    at = decision.get('createdAt')
+    frames, sample_rate = item.get('frames'), item.get('sample_rate')
+    if not all(finite(x) for x in (eof, at, frames, sample_rate)) or frames <= 0 or sample_rate <= 0 or at < eof:
+        return None
+    duration = frames / sample_rate
+    source_ids = decision.get('proposal', {}).get('sourceCandidateIDs', [])
+    recording_id = (trace.get('recording') or {}).get('id')
+    acoustic_purposes = {'chineseASR', 'englishASR', 'multilingualASR', 'audioReview', 'finalASR'}
+    configured = {(m.get('id'), m.get('provider'), m.get('model'), m.get('purpose'))
+                  for m in (trace.get('configuration') or {}).get('models', []) if m.get('enabled', True) and m.get('id')}
+    for candidate in trace.get('candidates', []):
+        run = candidate.get('run') or {}
+        if (candidate.get('id') not in source_ids or candidate.get('isComplete') is not True
+                or candidate.get('text') != text or run.get('recognitionID') != recognition_id
+                or not recording_id or run.get('recordingID') != recording_id
+                or run.get('purpose') not in acoustic_purposes
+                or (run.get('configurationID'), run.get('provider'), run.get('model'), run.get('purpose')) not in configured):
+            continue
+        start, end, received = (candidate.get(k) for k in ('audioStartSeconds', 'audioEndSeconds', 'createdAt'))
+        if (not all(finite(x) for x in (start, end, received)) or start != 0
+                or abs(end - duration) > 1 / sample_rate or not eof <= received <= at):
+            continue
+        return {'kind': 'post_eos_complete_acoustic_candidate', 'candidate_id': candidate['id'],
+                'recognition_id': recognition_id, 'start_seconds': 0, 'end_seconds': duration,
+                'note': 'Whole-clip stage accuracy only; this is not a logical final or delivery receipt.'}
+    return None
+
+
 def legacy_row(config, item, raw):
     if raw.get('audio_sha256') != item['audio_sha256']:
         raise ValueError('Audio identity mismatch: ' + item['id'])
@@ -147,7 +184,12 @@ def trace_row(config, item, trace):
         parameter_fingerprint({k: v for k, v in m.items() if k not in
             ('id', 'enabled', 'cloudConsent', 'audioHourRate', 'inputMillionTokenRate', 'outputMillionTokenRate', 'currency')})
         for m in active_models}
-    state = (trace.get('finalization') or {}).get('state')
+    finalization = trace.get('finalization') or {}
+    if finalization.get('recognitionID') != recognition_id:
+        if finalization:
+            row['notes'].append('Foreign finalization ignored; it cannot supply this generation\'s failure, final, or latency.')
+        finalization = {}
+    state = finalization.get('state')
     ended = finite(replay.get('sessionEndedAt'))
     row['status'] = 'FAILED' if state in ('failed', 'cancelled', 'interrupted') else 'OBSERVED'
     decisions = [x for x in trace.get('fusionDecisions', []) if x.get('recognitionID') == recognition_id]
@@ -168,13 +210,19 @@ def trace_row(config, item, trace):
         ('stable_prefix', stable[0] if stable else None, 'stableText')):
         if decision:
             reference, scope = stage_reference(item, decision)
+            complete_evidence = None
+            if reference is None:
+                complete_evidence = whole_candidate_scope(item, decision, decision['proposal'][key], trace, recognition_id)
+                if complete_evidence:
+                    reference, scope = item['reference'], 'complete_reference'
             row['stages'][stage] = observation(item, decision['proposal'][key], stage,
                                              decision.get('createdAt'), reference, scope)
+            if complete_evidence:
+                row['stages'][stage]['reference_evidence'] = complete_evidence
             row['stages'][stage]['decision_id'] = decision['id']
             row['stages'][stage]['audio_submitted_seconds'] = decision.get('audioSubmittedSeconds')
             row['stages'][stage]['source'] = 'persisted_fusion_decision_not_ui_render'
     revisions = {x['id']: x for x in trace.get('revisions', [])}
-    finalization = trace.get('finalization') or {}
     final_id = finalization.get('selectedRevisionID')
     final = revisions.get(final_id)
     if (finalization.get('recognitionID') == recognition_id and state == 'completed'
@@ -269,13 +317,72 @@ def summarize(rows, expected):
             'latencies': latency}
 
 
+def compare_latency(before, after):
+    """Same-audio/source/settings deltas; never subtract unrelated medians.
+
+    Missing timed gold must not erase a real latency observation, and missing
+    events/failures must not become zero-second responses.
+    """
+    rejected = {key: [] for key in ('missing_trace', 'unverified_trace', 'audio_mismatch',
+                                  'source_revision', 'shared_parameter_changes')}
+    eligible = []
+    for ident in sorted(before.keys() | after.keys()):
+        left, right = before.get(ident), after.get(ident)
+        reason = None
+        if left is None or right is None:
+            reason = 'missing_trace'
+        elif any(r.get('execution') != 'multi_trace' or r.get('identity') != 'MATCHED_EMBEDDED_AUDIO_AND_CONFIGURATION'
+                 for r in (left, right)):
+            reason = 'unverified_trace'
+        elif not left.get('audio_sha256') or left['audio_sha256'] != right.get('audio_sha256'):
+            reason = 'audio_mismatch'
+        elif (not isinstance(left.get('source_revision'), str) or not left['source_revision'].strip()
+              or left['source_revision'] != right.get('source_revision')):
+            reason = 'source_revision'
+        else:
+            a, b = left.get('model_parameter_fingerprints', {}), right.get('model_parameter_fingerprints', {})
+            if any(a[key] != b[key] for key in a.keys() & b.keys()):
+                reason = 'shared_parameter_changes'
+        if reason:
+            rejected[reason].append(ident)
+        else:
+            eligible.append((ident, left, right))
+
+    def cohort(rows):
+        keys = sorted({key for _, a, b in rows for row in (a, b) for key in row.get('latencies', {})})
+        metrics = {}
+        for key in keys:
+            pairs, missing = [], []
+            for ident, a, b in rows:
+                x, y = a.get('latencies', {}).get(key), b.get('latencies', {}).get(key)
+                if finite(x) and finite(y):
+                    pairs.append({'fixture_id': ident, 'baseline_seconds': x,
+                                  'candidate_seconds': y, 'added_seconds': y - x})
+                else:
+                    missing.append(ident)
+            deltas = [p['added_seconds'] for p in pairs]
+            metrics[key] = {'status': 'PAIRED' if pairs else 'NOT_RUN', 'paired_clips': len(pairs),
+                            'missing_event_clips': missing, 'delta_p50_seconds': percentile(deltas, .5),
+                            'delta_p95_seconds': percentile(deltas, .95), 'pairs': pairs}
+        return {'eligible_clips': len(rows), 'metrics': metrics}
+
+    return {'status': 'PAIRED' if any(finite(a.get('latencies', {}).get(k)) and finite(b.get('latencies', {}).get(k))
+                                    for _, a, b in eligible for k in a.get('latencies', {})) else 'NOT_RUN',
+            'direction': 'candidate_minus_baseline_positive_is_added_delay', 'excluded': rejected,
+            'all': cohort(eligible),
+            'by_language': {language: cohort([row for row in eligible if row[1].get('language') == language])
+                            for language in ('zh', 'en', 'mixed')},
+            'note': 'Paired observed events only; failures and absent endpoints are missing, never zero. Accuracy scope is independent.'}
+
+
 def compare(rows_by_config, spec):
     before = {r['fixture_id']: r for r in rows_by_config.get(spec['baseline'], [])}
     after = {r['fixture_id']: r for r in rows_by_config.get(spec['candidate'], [])}
-    result = {**spec, 'stages': {}}
+    result = {**spec, 'stages': {}, 'paired_latency': compare_latency(before, after)}
     for stage in STAGES:
         pairs = []
         confounded = []
+        source_changed = []
         for fixture_id in sorted(before.keys() & after.keys()):
             left, right = before[fixture_id], after[fixture_id]
             a, b = left['stages'][stage], right['stages'][stage]
@@ -283,12 +390,17 @@ def compare(rows_by_config, spec):
                 continue
             if left['audio_sha256'] != right['audio_sha256'] or a['reference_scope'] != b['reference_scope']:
                 continue
+            if left.get('execution') == 'multi_trace' or right.get('execution') == 'multi_trace':
+                revision = left.get('source_revision')
+                if not isinstance(revision, str) or not revision.strip() or revision != right.get('source_revision'):
+                    source_changed.append(fixture_id); continue
             left_settings, right_settings = left.get('model_parameter_fingerprints', {}), right.get('model_parameter_fingerprints', {})
             if any(left_settings[key] != right_settings[key] for key in left_settings.keys() & right_settings.keys()):
                 confounded.append(fixture_id); continue
             pairs.append({'fixture_id': fixture_id, 'audio_sha256': left['audio_sha256'],
                           **paired_errors(a['accuracy'], b['accuracy'])})
         result['stages'][stage] = {'status': 'PAIRED' if pairs else 'NOT_RUN', 'paired_clips': len(pairs),
+            'excluded_source_revision': source_changed,
             'excluded_shared_parameter_changes': confounded,
             'clips_improved': sum(x['mer_error_delta'] < 0 for x in pairs) if pairs else None,
             'clips_regressed': sum(x['mer_error_delta'] > 0 for x in pairs) if pairs else None,
@@ -302,7 +414,13 @@ def evaluate(plan, trace_index=None, panel='112', include_legacy=True):
     manifest_path = ROOT / plan['manifest_path']
     if checksum(manifest_path) != plan['manifest_sha256']:
         raise ValueError('Manifest checksum changed after sample selection.')
-    manifest = {x['id']: x for x in load_json(manifest_path)}
+    annotations = plan.get('reference_annotations')
+    annotation_receipt = None
+    if annotations:
+        manifest_rows, annotation_receipt = load_references(manifest_path, ROOT / annotations['path'], annotations['sha256'])
+    else:
+        manifest_rows = load_json(manifest_path)
+    manifest = {x['id']: x for x in manifest_rows}
     ids = plan['panels'][panel]['ids']
     items = [manifest[x] for x in ids]
     configurations = plan['configurations'] + (plan['legacy_configurations'] if include_legacy else [])
@@ -356,13 +474,13 @@ def evaluate(plan, trace_index=None, panel='112', include_legacy=True):
                         sum(x['group'] == group for x in items)) for group in sorted({x['group'] for x in items})}}
     return {'schema_version': 1, 'panel': panel, 'normalization': 'inherited_v1_NFKC_casefold_no_lexical_rewrite',
             'normalizer_source_sha256': checksum(LEGACY_SCORER), 'manifest_sha256': plan['manifest_sha256'],
-            'inputs': input_receipts, 'configurations': summaries,
+            'inputs': input_receipts, 'reference_annotations': annotation_receipt, 'configurations': summaries,
             'comparisons': [compare(rows_by_config, spec) for spec in plan['paired_comparisons']],
             'rows': [r for rows in rows_by_config.values() for r in rows if r['identity'] != 'NOT_RUN'],
             'limitations': ['Legacy local Qwen3-ASR results never stand in for hosted Qwen Audio 3.1.',
                 'CER and whitespace WER are reported consistently; Chinese whitespace WER is not a word-segmented Chinese benchmark.',
                 'Unified MER uses Han characters and Latin/numeric tokens across all three language strata.',
-                'Early-stage exact accuracy needs independently timed gold and a validated evaluated output interval.',
+                'Partial-stage exact accuracy needs independently timed gold and a validated output interval; whole-clip stages may use an exact post-EOS complete acoustic source covering the full fixture.',
                 'Insertion and adjacent-repeat proxies do not establish semantic hallucination.',
                 'No cloud model, private data, microphone, UI rendering or external insertion is invoked by this scorer.',
                 'No confidence interval, population ranking, quality win or realtime speed is inferred from absent measurements.']}

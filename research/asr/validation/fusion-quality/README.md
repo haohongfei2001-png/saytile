@@ -35,3 +35,13 @@
 该源码macOS26 CI252项/25组、21AppModel、原生窗口合成渲染、构建与隔离启动全部PASS；设计契约CI也PASS。链接和App artifact ID见delivery-manifest.json。只新增26项离线评分的Ubuntu CI步骤，不调用模型、不上传音频。
 
 本机候选sourceDirty=false，版本1.0.0-asr-preview.2，release/signature/smoke PASS。未安装；App及ZIP保留在本持久工作树dist/。第一候选焦点测试PASS；改为远端同树源码身份重打包后一次探针出现frontmost_changed，该次未归因，不能断言用户操作或App抢焦点。随后仅一次附带候选PID归因的3秒复测PASS，候选从未成为前台、其他应用切换为0；所有日志保留，不把未归因记录删掉或作为长期无干扰保证。没有读取其他应用内容。
+
+## 2026-11-07 最终收口（取代上方候选身份，不改历史证据）
+
+当前未安装候选运行时76e89c2，sourceDirty=false；build-cli-final/signature-cli-final/smoke-cli-final日志与cli-probe-isolation.json对应此源码。macOS26 CI42247755214通过252/25、21AppModel、4项CLI、原生合成窗口和隔离启动；contracts42247755189成功，评分26项为其当时版本。当前评分34项结果见python-tests.log；本次后续修改只涉及评分、固定计划和文档，不改变App运行时。
+
+新增evaluation-scope-before.log（4测试7断言失败+1错误）与after.log（34通过）记录评分器实际红绿；根线补入配置ID缺失/错配两种拒绝后再次34通过，全部整句拒绝子场景16类。单位overlay先独立审阅原参考，8项/10次出现、散列固定；不会把旧本地Qwen伪装云模型。历史焦点证据属于旧1c候选，未移花接木为76e测试。最新App/ZIP散列与CI artifact见delivery-manifest.json。
+
+`requirement-audit.md`逐项区分工程证明、实际未测与外部条件。`AccessPreflight.swift`已于2026-11-07重新执行：只查Saytile专用Keychain属性、禁止交互，仍0匹配/无云配置；本次检查不读取秘密值。
+
+最终参考补审：仅据112条参考新增数字34项/36次、否定26项/28次；原单位8/10保留，原manifest不变。总可评分数字39、否定32、单位8、术语23均为表达保留项，不是独立语义事件。冻结选样ID不变。额外确认延迟现在按同音频相减后统计p50/p95和语言分组，4项回归检查缺失/配置混杂/来源/聚合陷阱；最终全套评分43项。此追加没有真实云数值。

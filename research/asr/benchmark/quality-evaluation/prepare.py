@@ -54,6 +54,8 @@ def generate(plan, output, audio_root, app, panel='24'):
                 'status': 'NOT_RUN', 'execution_authorized': False})
     document = {'schema_version': 1, 'status': 'PREPARE_ONLY_NO_EXECUTION',
         'panel': panel, 'configuration_count': len(plan['configurations']), 'commands': commands,
+        'selection_seed': plan['selection_seed'], 'manifest_sha256': plan['manifest_sha256'],
+        'reference_annotations': plan['reference_annotations'],
         'blocked_until': ['Explicit cloud processing and cost authorization for these public fixtures',
             'Per-service approved account/workspace and per-configuration Keychain keys',
             'Explicit aggregate budget and actual-usage checkpoints for repeated reviews; no hard cap is implemented here',

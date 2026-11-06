@@ -1,13 +1,13 @@
 {
   "status": "ENGINEERING_VERIFIED_CLOUD_QUALITY_NOT_RUN",
   "version": "1.0.0-asr-preview.2",
-  "source_revision": "1c907f63585183ad605140630d1ca979694fb2ea",
+  "source_revision": "76e89c2da73af67dab8ddedabdfb8bac78db6b17",
   "source_dirty": false,
-  "source_tree": "f6d99665e091c178b04dfee1099f89aa3b2081c0",
+  "source_tree": "cffcb283d538db2fe51be0075e9d6d95e259ecf2",
   "local_candidate": "/Users/hhf/.codex/worktrees/saytile-fusion-quality/dist/Saytile-asr-preview.2.app",
   "local_zip": "/Users/hhf/.codex/worktrees/saytile-fusion-quality/dist/Saytile-1.0.0-asr-preview.2-arm64.zip",
-  "app_binary_sha256": "25004e8ce108e95e70272c18d233eb7ebbe32d19923a9162f7d8be85b61cd798",
-  "zip_sha256": "f97fde3f342cf7b22040f0d22e5deccee3b45afc864f999f68883c13a89f5a9f",
+  "app_binary_sha256": "fb3ad204662163dff704f21c4ce32c800d3cbfe6ed81a10195e31a2cf9409932",
+  "zip_sha256": "1adb33b25054e274ef930938e28239cca90bca34f74358253ccd4111a9b2f8bc",
   "native_tests": {
     "passed": 252,
     "suites": 25,
@@ -18,7 +18,7 @@
     "log": "app-model-final.log"
   },
   "python_tests": {
-    "passed": 26,
+    "passed": 43,
     "log": "../../benchmark/quality-evaluation/python-tests.log"
   },
   "build": "PASS",
@@ -35,24 +35,26 @@
     ]
   },
   "ci": {
-    "source_revision": "1c907f63585183ad605140630d1ca979694fb2ea",
+    "source_revision": "76e89c2da73af67dab8ddedabdfb8bac78db6b17",
     "native": {
-      "run_id": 42241293084,
-      "job_id": 127971948168,
+      "run_id": 42247755214,
+      "job_id": 127994349705,
       "conclusion": "success",
       "native_tests": 252,
       "suites": 25,
-      "app_model_checks": 21
+      "app_model_checks": 21,
+      "cli_isolation_checks": 4
     },
     "contracts": {
-      "run_id": 42241293137,
-      "conclusion": "success"
+      "run_id": 42247755189,
+      "conclusion": "success",
+      "python_tests": 26
     },
     "artifact": {
-      "id": 13517315857,
-      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/42241293084/artifacts/13517315857",
-      "sha256": "9d0516585d6dde987e204ee8692e1e31d6c1a9f7fb20477a74d7fa896303ba58",
-      "expires_at": "2026-11-20T15:19:39Z"
+      "id": 13519746685,
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/42247755214/artifacts/13519746685",
+      "sha256": "dacd01fd604454f5892b8a03d8fca86cbd1c2ff0dadbb5a06dcc6b1edf6461ac",
+      "expires_at": "2026-11-20T16:00:23Z"
     }
   },
   "installed_rc1_replaced": false,
@@ -63,5 +65,17 @@
   "confirmation_latency_increment_seconds": null,
   "cloud_quality_status": "NOT_RUN_MISSING_CREDENTIALS_PROCESSING_CONSENT_BUDGET",
   "local_test_commit": "87395e67b76cf862d9f124e30a645237bea06663",
-  "identical_tested_and_remote_source_tree": "f6d99665e091c178b04dfee1099f89aa3b2081c0"
+  "identical_tested_and_remote_source_tree": "f6d99665e091c178b04dfee1099f89aa3b2081c0",
+  "cli_isolation": {
+    "passed": 4,
+    "source_revision": "76e89c2da73af67dab8ddedabdfb8bac78db6b17",
+    "log": "cli-probe-isolation.json"
+  },
+  "test_scope_note": "Local 252/21 evidence predates CLI isolation changes; current runtime 76e89c2 has independent macOS CI 252/21/4. Later scoring/docs checkpoint has no runtime changes. Focus observations belong to earlier source1c907f6 packaging and were not repeated on 76e89c2.",
+  "latest_local_artifact_logs": [
+    "build-cli-final.log",
+    "signature-cli-final.log",
+    "smoke-cli-final.log",
+    "cli-probe-isolation.json"
+  ]
 }

@@ -32,3 +32,11 @@
 独立审查另发现 P1：原入口只检查是否出现 `--data-directory`，该参数缺值时会回退用户默认资料目录，并在后续拒绝回放前创建 AppModel、启动恢复。现诊断模式或显式带此参数时，均先验证存在非空、非 flag 的目录值；失败退出 64，发生在 Store 构造之前。正常无诊断参数启动仍使用默认资料目录。
 
 父线以实际 App 亲跑 `check-probe-isolation.py` 的四个隔离用例；本审查复读脚本、当前入口与 `cli-probe-isolation.json`，未重复启动 App：无目录、末尾无值、下一参数为 flag 均退出 64；显式独立目录加关闭云配置退出 1，独立 SQLite 中 recordings/model_runs 均为 0。脚本已接入 native CI。该验证没有读取私人数据库以证明“未变化”，没有读取真实语料、查询凭据、启用麦克风或调用云服务；也不构成真实云回放质量验收。
+
+**离线评分补审与修复。** 在原合成 trace 上独立复现：把 finalization 改为旧代次 failed，旧评分器错误产出当前代次 final MER=1；仅改变 sourceRevision，旧配对仍接受 1 条单变量对照。现分别忽略外代次终态/完成时间，以及排除源码版本缺失或不一致的云端配对。历史本地对照仍保留其独立标签。
+
+早期阶段现在仅在以下条件全部成立时使用整句金标：该阶段文字与其明确来源候选逐字相同；候选属于同一录音和识别代次、已配置的声学角色且 isComplete；来源从音频起点覆盖完整 fixture（终点只容许一个采样的数值误差）；候选在最后 PCM 提交后、阶段决定之前已到达。此路径只赋予阶段准确率，不产生统一 final。partial、未完成、外代次、非来源、缺头/缺尾、时间不明/未来证据仍无准确率，不把尚未说出尾部计为漏字。单位 overlay 按 plan 固定 hash 加载；%/min 的预先审定单位表示只作用于关键单位召回，数字词和 CER/WER/MER 不重写，真实重复出现仍逐次计数。
+
+新增回归亲跑 red：4 个测试产生 7 个断言失败与 1 个缺失评分错误（`/tmp/saytile-evaluation-scope-before.log`）。修后整个现有 `python3 -m unittest test_evaluate -v` **34/34 PASS**（`/tmp/saytile-evaluation-scope-after.log`），覆盖 14 类整句范围拒绝子案例、四种外代次终态、源码版本配对、单位别名/次数和 overlay hash 变更拒绝。以上读取既存公开文字结果及合成 trace；未读音频、调用真实服务或产生新的质量胜负结论。
+
+根线最终补充（非独立代理执行声明）：整句声学来源还必须匹配配置ID；缺失/错配两种子场景拒绝，整套仍34通过，拒绝子场景现共16类。原独立红绿日志已复制到本目录evaluation-scope-before.log和evaluation-scope-after.log。
