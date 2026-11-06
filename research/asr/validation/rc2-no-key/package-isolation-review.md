@@ -17,6 +17,53 @@ The other four checks invoke the actual idle script against synthetic bundle met
 
 The actual development App is deliberately reported as **dirty**, source metadata `a602236`, release label `1.0.0-rc.2-candidate.2`, executable SHA256 `9689718662c46bf8f34ddd10b498157c266c6d252bb7ef49090383ee71c89dfb`. Its successful build and these checks are not final clean-package acceptance. No true system permission prompt or private production preference values were tested.
 
+Reproduction from the repository root (owned build and temporary fixtures only; the six checks below are the same checks used for the saved evidence, with output printed instead of overwriting historical logs):
+
+```sh
+SAYTILE_BUILD_SCRATCH=/tmp/saytile-isolated-launch-build \
+SAYTILE_APP_OUTPUT=/tmp/saytile-isolated-launch/Saytile.app scripts/build-app.sh debug
+python3 - <<'PY'
+from pathlib import Path
+import hashlib, plistlib, subprocess, tempfile, time
+binary = Path('/tmp/saytile-isolated-launch/Saytile.app/Contents/MacOS/Saytile')
+receipt = 'SAYTILE_ISOLATED_LAUNCH cloud_enabled=false automatic_recovery=false shortcut=disabled visible_panel=false hotkey_registered=false'
+with tempfile.TemporaryDirectory(prefix='saytile-isolated-launch-test-') as tmp:
+    base = Path(tmp)
+    for name, extra in [('explicit_directory_only', []), ('conflicting_argument_preferences', ['-hasLaunched', 'NO', '-shortcutChoice', 'option-space'])]:
+        process = subprocess.Popen([str(binary), '--data-directory', str(base/name), *extra], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            time.sleep(1)
+            assert process.poll() is None, name
+        finally:
+            process.terminate()
+            out, err = process.communicate(timeout=10)
+        assert receipt in out, (name, out, err)
+        assert (base/name/'Saytile.sqlite').is_file()
+        print('PASS', name, receipt)
+    fake = base/'Identity.app'
+    (fake/'Contents/MacOS').mkdir(parents=True)
+    executable = fake/'Contents/MacOS/Saytile'
+    executable.write_text('#!/bin/sh\nexit 99\n')
+    executable.chmod(0o700)
+    good = {'SaytileSourceRevision': 'a'*40, 'SaytileReleaseVersion': 'identity-fixture', 'SaytileSourceDirty': False}
+    digest = hashlib.sha256(executable.read_bytes()).hexdigest()
+    cases = [('wrong_source', {'SaytileSourceRevision': 'b'*40}, 'source does not match'),
+             ('wrong_version', {'SaytileReleaseVersion': 'wrong'}, 'release does not match'),
+             ('wrong_binary', {}, 'binary does not match'),
+             ('dirty_source', {'SaytileSourceDirty': True}, 'uncommitted runtime sources')]
+    for name, override, expected in cases:
+        with (fake/'Contents/Info.plist').open('wb') as stream:
+            plistlib.dump(good | override, stream)
+        result = subprocess.run(['python3', 'scripts/test-app-idle.py', '--app', str(fake), '--seconds', '10',
+                                 '--expected-source', 'a'*40, '--expected-version', 'identity-fixture',
+                                 '--expected-binary-sha256', '0'*64 if name == 'wrong_binary' else digest,
+                                 '--output', str(base/(name+'.json'))], capture_output=True, text=True, timeout=5)
+        assert result.returncode != 0 and expected in result.stderr, (name, result.stdout, result.stderr)
+        assert not (base/(name+'.json')).exists()
+        print('PASS_REJECTED_BEFORE_LAUNCH', name)
+PY
+```
+
 ## Final package commands and rollback boundaries
 
 After the final runtime commit, package once. Mount the intended DMG readonly, verify strict signature, and obtain its exact metadata and executable hash. Use those values for both scripts:

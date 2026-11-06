@@ -1,3 +1,11 @@
+# RC2 candidate.2 最终包验证 · 2026-11-07
+
+源码 7320228、干净包 binary d109e060、DMG a218c4c9。286 native / 34 suites、25 AppModel；最终包 15 原生视图/6 控件组（16 AXPress+2 AXSetValue+2 native editor）、7 设置 CLI、4 回放 CLI、8 实际 RC1 安装升级回退均 PASS。所有包证据绑定同一个从只读 DMG 复制的可执行文件。120.042 秒隔离待命，1.07 user+0.21 sys 秒，最大 RSS 105,725,952 字节；采样暖态 RSS 73,904–102,416 KiB、末次 93,168 KiB。此结果无 ASR/麦克风，不证明功耗或长时稳定。旧普通持有进程偏好隔离缺口已纠正，新回执确认全部禁用。证据：research/asr/validation/rc2-no-key/delivery-manifest.json。
+
+运行时远端 macOS CI42287027227与设计契约CI42287027237均已成功；Swift6.3.3实际日志确认286项原生、25项AppModel及构建/CLI/15视图/启动。纯证据最终head的检查随后记在PR正文，保持同一运行时包。
+
+---
+
 # RC2 无密钥补审回归 · 2026-11-07
 
 **286 tests / 34 suites PASS、25 AppModel checks PASS**，完整最终源码集成日志为 `research/asr/validation/rc2-no-key/native-final.log` 和 `app-model-delivery.log`。待删目录专项为 66 项 / 6 组，与全量重叠。真实 000 目录、已完成删除后的残留、SQLite 事务中断及恢复错误清理均已验证；取消/恢复交叉路径由另一负责人独立只读复审，未发现新的具体 P0/P1。
