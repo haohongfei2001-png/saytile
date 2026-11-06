@@ -19,12 +19,13 @@ public struct FusionProposal: Codable, Sendable, Equatable {
     public let reasonCode: String
     public let selections: [CandidateSpan]
     public let selectionRequestedUnresolved: Bool?
+    public let reviewedCandidateIDs: [UUID]?
     // Only the deterministic engine constructs publishable proposals. Store revalidates sources.
     init(previewText: String, stableText: String, sourceCandidateIDs: [UUID], unresolved: Bool,
-         needsAudioReview: Bool, reasonCode: String, selections: [CandidateSpan] = [], selectionRequestedUnresolved: Bool? = nil) {
+         needsAudioReview: Bool, reasonCode: String, selections: [CandidateSpan] = [], selectionRequestedUnresolved: Bool? = nil, reviewedCandidateIDs: [UUID]? = nil) {
         self.previewText = previewText; self.stableText = stableText; self.sourceCandidateIDs = sourceCandidateIDs
         self.unresolved = unresolved; self.needsAudioReview = needsAudioReview; self.reasonCode = reasonCode
-        self.selections = selections; self.selectionRequestedUnresolved = selectionRequestedUnresolved
+        self.selections = selections; self.selectionRequestedUnresolved = selectionRequestedUnresolved; self.reviewedCandidateIDs = reviewedCandidateIDs
     }
 }
 
@@ -132,10 +133,16 @@ public enum PrecisionFusion {
                 $0.audioEndSeconds >= first.audioStartSeconds && $0.run.purpose != .textFusion
             }
             let signature = protectedSignature(text)
-            let differs = relevant.contains { protectedSignature($0.text) != signature }
+            let horizon = previousEnd ?? first.audioEndSeconds
+            func criticalEvidence(_ candidate: RecognitionCandidate) -> String {
+                // Only actual timed boundaries can exclude later critical words. A plain string
+                // prefix is insufficient: "100" is also a prefix of the conflicting "1000".
+                return protectedSignature(evidencePrefix(candidate, through: horizon) ?? candidate.text)
+            }
+            let differs = relevant.contains { criticalEvidence($0) != signature }
             // Only an additional direct-audio source that corroborates the selected critical
             // content can resolve this guard; a text LLM's self-reported confidence cannot.
-            let matching = relevant.filter { protectedSignature($0.text) == signature }
+            let matching = relevant.filter { criticalEvidence($0) == signature }
             let independent = Set(matching.map { $0.run.provider + ":" + $0.run.model }).count >= 2
             let hasRecheck = matching.contains { [.audioReview, .finalASR].contains($0.run.purpose) && $0.isComplete && $0.stableUTF16Length == $0.text.utf16.count }
             protectedConflict = differs && !(independent && hasRecheck)
@@ -149,7 +156,64 @@ public enum PrecisionFusion {
             sourceCandidateIDs: Array(Set(selected.map(\.id))).sorted { $0.uuidString < $1.uuidString },
             unresolved: uncertain || changesCommitted || truncatedSource, needsAudioReview: needsAudioReview || protectedConflict,
             reasonCode: protectedConflict ? "protected-content-needs-audio" : changesCommitted ? "late-correction-preserved" : reasonCode,
-            selections: spans, selectionRequestedUnresolved: unresolved)
+            selections: spans, selectionRequestedUnresolved: unresolved, reviewedCandidateIDs: candidates.map(\.id))
+    }
+
+    /// An in-flight LLM may finish after providers append more speech. Reuse its decision only
+    /// when all evidence inside the selected audio window still matches the same runs exactly.
+    /// A restarted run, changed prior word, missing source or newly arrived source requires review.
+    public static func rebaseSelection(spans: [CandidateSpan], previousCandidates: [RecognitionCandidate],
+                                       currentCandidates: [RecognitionCandidate], committedPrefix: String = "",
+                                       unresolved: Bool = false, needsAudioReview: Bool = false,
+                                       reasonCode: String = "evidence-selection") throws -> FusionProposal {
+        guard !spans.isEmpty else { throw FusionError.invalidSelection }
+        let previous = Dictionary(previousCandidates.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        let current = Dictionary(latestPerRun(currentCandidates).map { ($0.run.id, $0) }, uniquingKeysWith: { a, _ in a })
+        let previousRuns = Set(previousCandidates.filter { $0.run.purpose != .textFusion }.map { $0.run.id })
+        guard Set(currentCandidates.filter { $0.run.purpose != .textFusion }.map { $0.run.id }).isSubset(of: previousRuns) else { throw FusionError.staleGeneration }
+        var rebased: [CandidateSpan] = [], horizon = 0.0
+        for span in spans {
+            guard let old = previous[span.candidateID], let now = current[old.run.id], old.run == now.run,
+                  now.sequence >= old.sequence, now.sequence > old.sequence || now.id == old.id,
+                  abs(now.audioStartSeconds - old.audioStartSeconds) < 0.001,
+                  let oldPrefix = RecognitionUTF16.slice(old.text, start: 0, end: span.utf16End),
+                  RecognitionUTF16.hasExactPrefix(now.text, prefix: oldPrefix) else { throw FusionError.staleGeneration }
+            horizon = max(horizon, try audioInterval(span: span, candidate: old).end)
+            rebased.append(CandidateSpan(candidateID: now.id, utf16Start: span.utf16Start, utf16End: span.utf16End))
+        }
+        for old in previousCandidates where old.run.purpose != .textFusion {
+            guard let now = current[old.run.id], now.run == old.run, now.sequence >= old.sequence,
+                  now.sequence > old.sequence || now.id == old.id,
+                  abs(now.audioStartSeconds - old.audioStartSeconds) < 0.001 else { throw FusionError.staleGeneration }
+            if let priorWindow = evidencePrefix(old, through: horizon),
+               let currentWindow = evidencePrefix(now, through: horizon) {
+                guard priorWindow.utf16.elementsEqual(currentWindow.utf16) else { throw FusionError.staleGeneration }
+            } else {
+                // With only an utterance interval, appended text is safe only when every old
+                // character remains an exact prefix. No character-to-time interpolation.
+                guard RecognitionUTF16.hasExactPrefix(now.text, prefix: old.text) else { throw FusionError.staleGeneration }
+            }
+        }
+        let checked = try validateSelection(spans: rebased, candidates: currentCandidates,
+            committedPrefix: committedPrefix, unresolved: unresolved, needsAudioReview: needsAudioReview, reasonCode: reasonCode)
+        return FusionProposal(previewText: checked.previewText, stableText: checked.stableText,
+            sourceCandidateIDs: checked.sourceCandidateIDs, unresolved: checked.unresolved,
+            needsAudioReview: checked.needsAudioReview, reasonCode: checked.reasonCode, selections: checked.selections,
+            selectionRequestedUnresolved: checked.selectionRequestedUnresolved, reviewedCandidateIDs: previousCandidates.map(\.id))
+    }
+
+    /// Returns a complete textual prefix backed by actual token/segment boundaries. Nil means
+    /// the requested time falls inside an indivisible segment or has no usable alignment.
+    static func evidencePrefix(_ candidate: RecognitionCandidate, through horizon: Double) -> String? {
+        if candidate.audioEndSeconds <= horizon + 0.001 { return candidate.text }
+        guard let mapped = try? mappedTokens(candidate) else { return nil }
+        var end = 0
+        for item in mapped {
+            if item.token.startSeconds >= horizon - 0.001 { break }
+            guard item.token.endSeconds <= horizon + 0.08 else { return nil }
+            end = item.end
+        }
+        return RecognitionUTF16.slice(candidate.text, start: 0, end: end)
     }
 
     public static func validateCandidate(_ candidate: RecognitionCandidate) throws {

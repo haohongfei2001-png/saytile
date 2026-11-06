@@ -747,6 +747,12 @@ extension SaytileStore {
             let sessionPrefix = session["stable_text"] ?? ""
             let mode = InputQualityMode(rawValue: session["mode"] ?? "") ?? .highestQuality
             if !proposal.selections.isEmpty {
+                if let reviewed = proposal.reviewedCandidateIDs {
+                    guard reviewed.count <= 4096 else { throw FusionError.invalidSelection }
+                    for id in Set(reviewed) {
+                        guard try db.rows("SELECT id FROM recognition_candidates WHERE id=? AND recognition_id=?", [.text(id.uuidString), .text(ticket.id.uuidString)]).first != nil else { throw FusionError.staleGeneration }
+                    }
+                }
                 let horizon = current.filter { $0.run.purpose.isStreaming }.map(PrecisionFusion.stableAudioEnd).min() ?? 0
                 let relevant = current.filter { $0.run.purpose.isStreaming || sourceIDs.contains($0.id) || $0.audioEndSeconds + 0.1 >= horizon }
                 let checked = try PrecisionFusion.validateSelection(spans: proposal.selections, candidates: relevant,

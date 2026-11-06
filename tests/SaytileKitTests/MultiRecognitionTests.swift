@@ -344,3 +344,61 @@ private func sample(_ text: String, purpose: RecognitionPurpose = .chineseASR,
         RecognitionToken(text: "pay", startSeconds: 1, endSeconds: 2, isFinal: true)])
     #expect(throws: FusionError.self) { try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: unmapped.id, utf16Start: 0, utf16End: 2)], candidates: [unmapped]) }
 }
+
+private func appendEvidence(_ old: RecognitionCandidate, text: String, end: Double, tokens: [RecognitionToken]? = nil,
+                            sequence: Int64? = nil) -> RecognitionCandidate {
+    sample(text, run: old.run, sequence: sequence ?? old.sequence + 1, end: end,
+           granularity: tokens == nil ? old.timingGranularity : "word", tokens: tokens ?? old.tokens)
+}
+@Test func multiRebaseAllowsNewIDsWithIdenticalEvidence() throws {
+    let old = [sample("保持原话"), sample("保持原话", purpose: .englishASR)]
+    let current = old.map { appendEvidence($0, text: $0.text, end: 2) }
+    let spans = [CandidateSpan(candidateID: old[0].id, utf16Start: 0, utf16End: old[0].text.utf16.count)]
+    let result = try PrecisionFusion.rebaseSelection(spans: spans, previousCandidates: old, currentCandidates: current)
+    #expect(result.stableText == "保持原话")
+    #expect(result.sourceCandidateIDs == [current[0].id])
+    #expect(Set(result.reviewedCandidateIDs ?? []) == Set(old.map(\.id)))
+}
+
+@Test func multiRebaseAcceptsUntouchedTimedPrefixWhileNewCriticalTailArrives() throws {
+    let prefix = "我想在SwiftUI"
+    let originalTokens = [RecognitionToken(text: "我想在", startSeconds: 0, endSeconds: 0.5, isFinal: true),
+                          RecognitionToken(text: "SwiftUI", startSeconds: 0.5, endSeconds: 1, isFinal: true)]
+    let old = [sample(prefix, end: 1, granularity: "word", tokens: originalTokens),
+               sample(prefix, purpose: .englishASR, end: 1, granularity: "word", tokens: originalTokens)]
+    let grownTokens = originalTokens + [RecognitionToken(text: "里面调用", startSeconds: 1, endSeconds: 1.5, isFinal: true),
+                                        RecognitionToken(text: "两次", startSeconds: 1.5, endSeconds: 2, isFinal: true)]
+    let current = old.map { appendEvidence($0, text: prefix + "里面调用两次", end: 2, tokens: grownTokens) }
+    let result = try PrecisionFusion.rebaseSelection(spans: [CandidateSpan(candidateID: old[0].id, utf16Start: 0, utf16End: prefix.utf16.count)],
+        previousCandidates: old, currentCandidates: current)
+    #expect(result.stableText == prefix)
+    #expect(result.unresolved) // The newer tail still needs its own decision.
+    #expect(!result.needsAudioReview)
+}
+
+@Test func multiRebaseRejectsChangedSelectedWordChangedAlternativeAndRestartedRun() throws {
+    let old = [sample("我不要买"), sample("我不要买", purpose: .englishASR)]
+    let spans = [CandidateSpan(candidateID: old[0].id, utf16Start: 0, utf16End: old[0].text.utf16.count)]
+    let changed = [appendEvidence(old[0], text: "我要买", end: 2), appendEvidence(old[1], text: old[1].text, end: 2)]
+    #expect(throws: FusionError.self) { try PrecisionFusion.rebaseSelection(spans: spans, previousCandidates: old, currentCandidates: changed) }
+    let changedAlternative = [appendEvidence(old[0], text: old[0].text, end: 2), appendEvidence(old[1], text: "我要买", end: 2)]
+    #expect(throws: FusionError.self) { try PrecisionFusion.rebaseSelection(spans: spans, previousCandidates: old, currentCandidates: changedAlternative) }
+    let restarted = [sample(old[0].text), old[1]]
+    #expect(throws: FusionError.self) { try PrecisionFusion.rebaseSelection(spans: spans, previousCandidates: old, currentCandidates: restarted) }
+}
+
+@Test func multiRebaseRejectsNewAcousticSourceAndUnalignedGrowingSelection() throws {
+    let old = [sample("原话"), sample("原话", purpose: .englishASR)]
+    let spans = [CandidateSpan(candidateID: old[0].id, utf16Start: 0, utf16End: old[0].text.utf16.count)]
+    #expect(throws: FusionError.self) { try PrecisionFusion.rebaseSelection(spans: spans, previousCandidates: old,
+        currentCandidates: old + [sample("新的音频证据", purpose: .audioReview)]) }
+    let unaligned = old.map { appendEvidence($0, text: $0.text + "后文", end: 3) }
+    #expect(throws: FusionError.self) { try PrecisionFusion.rebaseSelection(spans: spans, previousCandidates: old, currentCandidates: unaligned) }
+}
+
+@Test func multiCriticalNumericPrefixStillConflictsWithLongerNumber() throws {
+    let short = sample("支付100"), long = sample("支付1000", purpose: .englishASR)
+    let result = try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: short.id, utf16Start: 0, utf16End: short.text.utf16.count)], candidates: [short, long])
+    #expect(result.needsAudioReview)
+    #expect(result.stableText.isEmpty)
+}
