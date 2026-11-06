@@ -1,3 +1,5 @@
+> 当前开发候选：双平等专家 + 唯一 GPT 文字流引擎，见 PR #6 和 `evidence/single-transcript/INTEGRATION.md`。main/已安装 RC1 未改；旧候选描述为历史，不代表新代码的实网准确率或真实外部应用验收。
+
 # Saytile
 
 **自然开口，随时取用。**

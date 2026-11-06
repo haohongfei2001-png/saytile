@@ -160,6 +160,32 @@ struct OwnedRangeRepairTests {
         try db.close(); try await f.close()
     }
 
+    @Test func localRecoveryAfterShorteningRepairKeepsEffectivePrefixAndAddsOnlySuffix() async throws {
+        let f = try await OwnedFixture()
+        _ = try await f.initial("500👩🏽‍💻")
+        let correction = try await f.correction("50😀")
+        #expect(await f.input.repairOwned(revision: correction) == .confirmed)
+        let localTicket = try await f.store.beginRecognition(recordingID: f.record.id)
+        let ingress = LocalCandidateIngress(store: f.store, ticket: localTicket)
+        try await ingress.receive(.init(text: "50😀", stableUTF16Length: "50😀".utf16.count,
+            audioEndSeconds: 1, timingGranularity: "utterance", isComplete: false))
+        let same = try #require(try await f.store.latestDispatchableRevision(recordingID: f.record.id))
+        #expect(await f.input.insertStable(recordingID: f.record.id, revisionID: same.id,
+            stableUTF16End: same.text.utf16.count, recordingStartedAt: f.record.createdAt) == .noNewText)
+        try await ingress.receive(.init(text: "50😀尾", stableUTF16Length: "50😀尾".utf16.count,
+            audioEndSeconds: 2, timingGranularity: "utterance", isComplete: true))
+        try await ingress.finish()
+        let next = try #require(try await f.store.latestDispatchableRevision(recordingID: f.record.id))
+        let ready = try await f.store.directInputCandidates(bindingID: f.binding.id, createdSince: f.binding.boundAt)
+        #expect(ready.contains { $0.id == f.record.id })
+        #expect(await f.input.insertStable(recordingID: f.record.id, revisionID: next.id,
+            stableUTF16End: next.text.utf16.count, recordingStartedAt: f.record.createdAt) == .confirmed)
+        #expect(f.os.text == "用户前缀｜50😀尾用户后缀")
+        #expect(f.os.insertions == ["500👩🏽‍💻", "尾"])
+        #expect(f.os.replacements.count == 1)
+        try await f.close()
+    }
+
     @Test func shorterRepairKeepsInsertionLedgerMonotone() async throws {
         let f = try await OwnedFixture()
         _ = try await f.initial("500👩🏽‍💻")
