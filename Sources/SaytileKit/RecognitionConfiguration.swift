@@ -167,6 +167,7 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
               var config = try? JSONDecoder().decode(Self.self, from: data) else { return Self() }
         // Migrate the former multi-arbiter/audio-review defaults without deleting Keychain
         // items. Preserve the stable GPT-6 configuration ID so an existing Key remains usable.
+        config.inputMode = .highestQuality
         for index in config.models.indices where [.audioReview, .finalASR].contains(config.models[index].purpose) {
             config.models[index].enabled = false
             config.models[index].cloudConsent = false
