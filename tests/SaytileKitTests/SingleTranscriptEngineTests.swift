@@ -57,4 +57,20 @@ struct SingleTranscriptEngineTests {
         value.models.append(.init(purpose: .audioReview, provider: .gemini, model: "gemini-3.8-flash", cloudConsent: true))
         #expect(throws: ProviderFailure.self) { try value.validateForCloud() }
     }
+    @Test func legacySettingsMigrationDisablesSecondStageModelsAndKeepsGPTIdentity() throws {
+        let suite = "com.saytile.tests.single-transcript." + UUID().uuidString
+        let preferences = try #require(UserDefaults(suiteName: suite))
+        defer { preferences.removePersistentDomain(forName: suite) }
+        var old = RecognitionConfiguration()
+        old.models.append(.init(purpose: .audioReview, provider: .gemini, model: "gemini-3.8-flash", enabled: true, cloudConsent: true))
+        old.models.append(.init(purpose: .finalASR, provider: .elevenLabsFile, model: "scribe_v2", enabled: true, cloudConsent: true))
+        let oldGPT = try #require(old.models.first { $0.purpose == .textFusion })
+        try old.save(to: preferences)
+        let migrated = RecognitionConfiguration.load(from: preferences)
+        let active = migrated.enabledModels
+        #expect(active.filter { $0.purpose == .textFusion }.count == 1)
+        #expect(!active.contains { [.audioReview, .finalASR].contains($0.purpose) })
+        #expect(migrated.models.first { $0.purpose == .textFusion }?.id == oldGPT.id)
+    }
+
 }
