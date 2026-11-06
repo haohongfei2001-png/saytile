@@ -47,7 +47,7 @@ private final class ReadyCounter: @unchecked Sendable {
 
 /// Explicit opt-in: ordinary unit runs never launch a peer or use network credentials.
 /// scripts/test-protocol-simulator.sh supplies the loopback server for this suite.
-@Suite("Real URLSession loopback protocol integration", .enabled(if: protocolSimulationEnabled))
+@Suite("Real URLSession loopback protocol integration", .serialized, .enabled(if: protocolSimulationEnabled))
 struct ProtocolNetworkIntegrationTests {
     private func configuration() -> RecognitionConfiguration {
         var value = RecognitionConfiguration(); value.cloudEnabled = true
@@ -98,6 +98,46 @@ struct ProtocolNetworkIntegrationTests {
         #expect(connections.count == 2)
         #expect(connections.allSatisfy { $0["pcm_bytes"] as? Int == pcm.count && $0["sha256"] as? String == hash && $0["eos"] as? Bool == true })
         #expect((state["violations"] as? [String])?.isEmpty == true)
+    }
+
+    @Test func productionTwentyMillisecondFramesAndShortTailKeepExactPCM() async throws {
+        let peer = try ProtocolPeer(), chinese = NetworkEvents(), english = NetworkEvents()
+        let bytes = pcm + Data(repeating: 7, count: 198) // 6.1875 ms final tail: no padding.
+        let config = configuration()
+        @Sendable func receive(_ service: String, events: NetworkEvents) async throws {
+            let item = config.enabledModels.first { $0.provider == (service == "qwen" ? .qwenMessage : .assemblyAI) }!
+            let provider: any StreamingASRProvider = service == "qwen"
+                ? try QwenMessageProvider(testEndpoint: peer.url(service), timeout: 2)
+                : try AssemblyStreamingProvider(testEndpoint: peer.url(service), timeout: 2)
+            let (stream, continuation) = AsyncStream<Data>.makeStream()
+            let producer = Task {
+                defer { continuation.finish() }
+                for offset in stride(from: 0, to: bytes.count, by: 640) {
+                    try Task.checkCancellation()
+                    continuation.yield(bytes.subdata(in: offset..<min(offset + 640, bytes.count)))
+                    try await Task.sleep(for: .milliseconds(20))
+                }
+            }
+            defer { producer.cancel() }
+            try await provider.run(audio: stream, configuration: item, credential: simulatorCredential) { await events.append($0) }
+            try await producer.value
+        }
+        async let a: Void = receive("qwen", events: chinese)
+        async let b: Void = receive("assembly", events: english)
+        try await a; try await b
+        #expect(await chinese.values.last?.isComplete == true)
+        #expect(await english.values.last?.isComplete == true)
+        try await Task.sleep(for: .milliseconds(40))
+        let state = try await peer.snapshot(), connections = try #require(state["connections"] as? [[String: Any]])
+        let hash = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+        #expect(connections.count == 2)
+        #expect(connections.allSatisfy { $0["pcm_bytes"] as? Int == bytes.count && $0["sha256"] as? String == hash && $0["eos"] as? Bool == true })
+        let qwen = try #require(connections.first { $0["provider"] as? String == "qwen" })
+        #expect(qwen["blocks"] as? [Int] == Array(repeating: 640, count: 50) + [198])
+        let assembly = try #require(connections.first { $0["provider"] as? String == "assembly" })
+        #expect((assembly["blocks"] as? [Int])?.allSatisfy { (640...32_000).contains($0) } == true)
+        #expect((state["violations"] as? [String])?.isEmpty == true)
+        print("PROTOCOL_PCM case=\(peer.id) input_frames=50x640+198 bytes=\(bytes.count) no_padding=true scope=SIMULATED_PROTOCOL_NOT_LIVE_CLOUD")
     }
 
     @Test(arguments: ["qwen", "assembly"], ["duplicate", "delay"])
@@ -184,13 +224,16 @@ struct ProtocolNetworkIntegrationTests {
 
     @Test(arguments: ["quota", "rate_limit", "auth", "server_error", "malformed", "stream_quota", "failed_rate"])
     func HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault: String) async throws {
-        let peer = try ProtocolPeer(), client = try PrecisionReviewClient(testEndpoint: peer.url("responses", fault: fault, websocket: false), maximumOutputTokens: 4096)
+        // This checks provider error categories, not the short timeout fault path.
+        // Full native CI shares CPU with hundreds of SQLite/lifecycle test tasks.
+        let peer = try ProtocolPeer(), client = try PrecisionReviewClient(testEndpoint: peer.url("responses", fault: fault, websocket: false), timeout: 10, maximumOutputTokens: 4096)
         do {
             _ = try await client.arbitrate(evidence: [evidence(text: "不是50元")], confirmedPrefix: "", context: "", configuration: gpt, credential: simulatorCredential)
             Issue.record("HTTP service error must fail")
         } catch {
             let expected = ["auth": "authorization_failed", "quota": "quota_exhausted", "rate_limit": "rate_limited", "server_error": "connection_failed", "malformed": "protocol_incompatible", "stream_quota": "quota_exhausted", "failed_rate": "rate_limited"]
-            #expect((error as? ProviderFailure)?.diagnosticCode == expected[fault])
+            let native = error as NSError
+            #expect((error as? ProviderFailure)?.diagnosticCode == expected[fault], "Unexpected transport failure domain=\(native.domain), code=\(native.code)")
             #expect(!error.localizedDescription.contains("DO_NOT_SURFACE_SECRET"))
         }
     }
@@ -281,6 +324,21 @@ struct ProtocolNetworkIntegrationTests {
         for index in stride(from: 0, to: pcm.count, by: 3200) {
             session.append(pcm.subdata(in: index..<min(index + 3200, pcm.count)))
             try await Task.sleep(for: .milliseconds(90))
+            // Do not feed the correcting audio until the earlier hypothesis is
+            // observable in the real Store. A fixed 90 ms poll can miss a valid
+            // short-lived partial when the full CI suite is scheduling other work.
+            if index == 0 || index == 6400 {
+                let expected = index == 0 ? "请支付" : "不要"
+                let deadline = ContinuousClock.now.advanced(by: .seconds(5))
+                var observed = false
+                repeat {
+                    let text = try await store.recording(id: record.id)?.text ?? ""
+                    if !text.isEmpty && displayed.last != text { displayed.append(text) }
+                    if text.contains(expected) { observed = true; break }
+                    try await Task.sleep(for: .milliseconds(20))
+                } while ContinuousClock.now < deadline
+                #expect(observed, "Expected live hypothesis must be visible before feeding its correction: \(expected)")
+            }
             let text = try await store.recording(id: record.id)?.text ?? ""
             if !text.isEmpty && displayed.last != text { displayed.append(text) }
         }

@@ -1,0 +1,65 @@
+{
+  "scope": "Synthetic design and DOM validation, not native product acceptance",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "python": "3.14.7",
+  "runs": [
+    {
+      "name": "inherited_pcm_sqlite",
+      "exit_code": 0,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "archive/recovery-source/handoff/reliability_lab.py"
+      ],
+      "output": "evidence/inherited-reliability.json"
+    },
+    {
+      "name": "reconstructed_contracts",
+      "exit_code": 0,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "tests/test_recovery_contracts.py"
+      ],
+      "output": "evidence/rebuilt-contracts.log"
+    },
+    {
+      "name": "swift6_typecheck",
+      "exit_code": 0,
+      "command": [
+        "swiftc",
+        "-swift-version",
+        "6",
+        "-typecheck",
+        "contracts/Contracts.swift"
+      ],
+      "output": "evidence/swift-typecheck.log"
+    },
+    {
+      "name": "swift_smoke_build",
+      "exit_code": 0,
+      "command": [
+        "swiftc",
+        "-swift-version",
+        "6",
+        "contracts/Contracts.swift",
+        "tests/SwiftSmoke.swift",
+        "-o",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-swift-hrlcweaz/unicode-smoke"
+      ],
+      "output": "evidence/swift-smoke-build.log"
+    },
+    {
+      "name": "swift_unicode_smoke",
+      "exit_code": 0,
+      "command": [
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-swift-hrlcweaz/unicode-smoke"
+      ],
+      "output": "evidence/swift-smoke.log"
+    },
+    {
+      "name": "prototype_dom",
+      "result": "NOT_RUN",
+      "reason": "--ui not supplied"
+    }
+  ],
+  "success": true
+}

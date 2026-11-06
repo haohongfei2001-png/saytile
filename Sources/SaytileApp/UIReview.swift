@@ -147,8 +147,10 @@ extension AppDelegate {
                 }
                 print("UI_CONTROL_PASS isolated setup rejects unfinished configuration through native Finish action; no export or provider request")
             }
+            try await reviewFirstConnection(output: output)
             if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil { print("UI_CONTROLS_NOT_RUN remote AX helper not configured; rendering only") }
-            print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; 15 captures; synthetic data; no activation/microphone")
+            let captures = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil ? 16 : 22
+            print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; \(captures) captures; synthetic data; no activation/microphone")
             return true
         } catch { print("UI_REVIEW_FAILED \(error.localizedDescription)"); return false }
     }
@@ -161,7 +163,7 @@ extension AppDelegate {
     @MainActor private func press(_ label: String, in root: NSView) async throws {
         try await performControl(label, in: root)
     }
-    @MainActor private func setValue(_ value: String, for label: String, in root: NSView) async throws {
+    @MainActor private func setValue(_ value: String, for label: String, in root: NSView, secure: Bool = false) async throws {
         try await performControl(label, in: root, value: value)
         // AXSetValue changes the AppKit presentation but does not necessarily send
         // SwiftUI's editing delegate events. Exercise the real, window-owned editor
@@ -169,7 +171,7 @@ extension AppDelegate {
         var queue = [root], matching: [NSTextField] = []
         while !queue.isEmpty {
             let view = queue.removeFirst()
-            if let field = view as? NSTextField, !(field is NSSecureTextField), field.stringValue == value {
+            if let field = view as? NSTextField, (field is NSSecureTextField) == secure, field.stringValue == value {
                 matching.append(field)
             }
             queue += view.subviews
@@ -183,6 +185,7 @@ extension AppDelegate {
         _ = window.makeFirstResponder(root)
         try await Task.sleep(for: .milliseconds(80))
         print("NATIVE_UI_FIELD_EDIT \(label) via owned NSTextView delegate; no global key events")
+        if secure { print("NATIVE_UI_SECURE_FIELD_EDIT \(label) fixture credential only; value omitted") }
     }
     @MainActor private func performControl(_ label: String, in root: NSView, value: String? = nil) async throws {
         guard let path = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"], let window = root.window else { throw ReviewFailure("Native UI control helper not configured") }
@@ -227,10 +230,7 @@ extension AppDelegate {
         try await Task.sleep(for: .milliseconds(200))
         host.layoutSubtreeIfNeeded()
         if let interaction, ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil { try await interaction(host); try await Task.sleep(for: .milliseconds(100)); host.layoutSubtreeIfNeeded() }
-        guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw CocoaError(.fileWriteUnknown) }
-        host.cacheDisplay(in: host.bounds, to: bitmap)
-        guard let data = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
-        try data.write(to: output.appendingPathComponent(name + ".png"))
+        try captureReview(host, name: name, output: output)
         let after = NSWorkspace.shared.frontmostApplication?.processIdentifier
         guard !activations.candidateActivated, after != ownPID else {
             throw ReviewFailure("candidate activated during \(name); other_activation_events=\(activations.otherActivations)")
@@ -239,6 +239,139 @@ extension AppDelegate {
             print("UI_FOREGROUND_OBSERVATION \(name) candidate_activated=false outside_activation_events=\(activations.otherActivations); unrelated transition retained, no cause inferred")
         }
         print("UI_CAPTURE \(name) \(Int(host.bounds.width))x\(Int(host.bounds.height)) foreground_unchanged=\(before == after) candidate_activated=false")
+    }
+
+    @MainActor private func captureReview(_ host: NSView, name: String, output: URL) throws {
+        host.layoutSubtreeIfNeeded()
+        guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw CocoaError(.fileWriteUnknown) }
+        host.cacheDisplay(in: host.bounds, to: bitmap)
+        guard let data = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
+        try data.write(to: output.appendingPathComponent(name + ".png"))
+    }
+
+    @MainActor private func reviewUntil(_ condition: () -> Bool) async throws {
+        for _ in 0..<250 {
+            if condition() { return }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        throw ReviewFailure("first-connection controller did not reach the expected state")
+    }
+
+    @MainActor private func reviewFirstConnection(output: URL) async throws {
+        let suite = "app.saytile.test.ui-connection." + UUID().uuidString
+        let preferences = UserDefaults(suiteName: suite)!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-ui-connection-" + UUID().uuidString)
+        defer { preferences.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: directory) }
+        let fixture = UIConnectionFixture()
+        let model = try AppModel(directory: directory, preferences: preferences, connectionDependencies: fixture.dependencies)
+        await model.initialLoad()
+        do {
+            guard model.records.isEmpty, fixture.saved.isEmpty, !model.connectionVerified,
+                  !model.recognitionConfiguration.cloudEnabled else { throw ReviewFailure("first connection fixture was not empty") }
+            try await reviewWindow(Form { RecognitionSettingsSection(model: model) }.formStyle(.grouped),
+                size: CGSize(width: 650, height: 840), name: "connection-first-empty", output: output)
+            if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil {
+                try await reviewWindow(Form { RecognitionSettingsSection(model: model) }.formStyle(.grouped),
+                    size: CGSize(width: 650, height: 840), name: "connection-first-success", output: output) { host in
+                    try await self.press("recognition.configureServices", in: host)
+                    for item in model.recognitionConfiguration.enabledModels {
+                        let prefix = "recognition.model." + item.id.uuidString.lowercased()
+                        try await self.press(prefix + ".header", in: host)
+                        if item.provider == .qwenMessage { try await self.setValue("fixture-workspace", for: prefix + ".workspace", in: host) }
+                        try await self.setValue(UIConnectionFixture.credential, for: prefix + ".secret", in: host, secure: true)
+                        try await self.press(prefix + ".saveKey", in: host)
+                        guard model.hasCredential(item) else { throw ReviewFailure("native save-key action failed") }
+                        try await self.press(prefix + ".consent", in: host)
+                        guard model.recognitionConfiguration.models.first(where: { $0.id == item.id })?.cloudConsent == true else {
+                            throw ReviewFailure("native service consent did not update configuration")
+                        }
+                        try await self.press(prefix + ".header", in: host)
+                    }
+                    try await self.reviewUntil { !model.applyingRecognitionSettings }
+                    guard fixture.saved.count == 3, !model.connectionCheckAuthorized, fixture.requests == 0,
+                          model.recognitionConfiguration.models[0].workspaceID == "fixture-workspace" else {
+                        throw ReviewFailure("first setup silently connected or did not save native fields")
+                    }
+                    try self.captureReview(host, name: "connection-first-ready", output: output)
+                    print("UI_STATE_CAPTURE connection-first-ready after native secure fields/save/consent; no network")
+                    try await self.press("connection.checkCosts", in: host)
+                    try self.captureReview(host, name: "connection-first-costs", output: output)
+                    print("UI_STATE_CAPTURE connection-first-costs after native disclosure action")
+                    try await self.press("connection.checkCosts", in: host)
+                    try await self.press("connection.authorizeCheck", in: host)
+                    try await self.press("connection.startCheck", in: host)
+                    try await self.reviewUntil { !model.checkingConnection && !model.applyingRecognitionSettings }
+                    guard fixture.requests == 1, model.connectionVerified, model.appliedRecognitionConfiguration.cloudEnabled,
+                          model.recognitionConfiguration.cloudEnabled else { throw ReviewFailure("native first connection did not pass the receipt-enable branch") }
+                    print("UI_CONTROL_PASS first connection via native Workspace/three secure fields/save/consent/cost/start; TEST_ONLY injected receipt, no live verification")
+                }
+                fixture.outcome = .failure
+                try await reviewWindow(Form { RecognitionSettingsSection(model: model, initiallyExpanded: true) }.formStyle(.grouped),
+                    size: CGSize(width: 650, height: 840), name: "connection-first-failure", output: output) { host in
+                    try await self.press("connection.authorizeCheck", in: host)
+                    try await self.press("connection.startCheck", in: host)
+                    try await self.reviewUntil { !model.checkingConnection }
+                    guard fixture.requests == 2, !model.connectionVerified, !model.appliedRecognitionConfiguration.cloudEnabled,
+                          model.connectionReport?.services.allSatisfy({ $0.state == .failed }) == true else { throw ReviewFailure("failed check did not keep local recognition") }
+                    print("UI_CONTROL_PASS native retry displays isolated service failure and keeps cloud disabled")
+                }
+                fixture.outcome = .waitForCancellation
+                try await reviewWindow(Form { RecognitionSettingsSection(model: model, initiallyExpanded: true) }.formStyle(.grouped),
+                    size: CGSize(width: 650, height: 840), name: "connection-first-cancelled", output: output) { host in
+                    try await self.press("connection.authorizeCheck", in: host)
+                    try await self.press("connection.startCheck", in: host)
+                    try await self.reviewUntil { model.connectionReport?.services.allSatisfy({ $0.state == .receiving }) == true }
+                    try self.captureReview(host, name: "connection-first-progress", output: output)
+                    print("UI_STATE_CAPTURE connection-first-progress from injected backend progress through actual AppModel")
+                    try await self.press("connection.cancelCheck", in: host)
+                    try await self.reviewUntil { !model.checkingConnection && fixture.active == 0 }
+                    guard fixture.requests == 3, !model.connectionVerified, !model.appliedRecognitionConfiguration.cloudEnabled,
+                          model.connectionReport?.services.allSatisfy({ $0.state == .cancelled }) == true else { throw ReviewFailure("native cancellation left stale connection cards") }
+                    print("UI_CONTROL_PASS native cancel closes injected verification and settles all service cards")
+                }
+            }
+            await model.prepareForExit()
+        } catch { await model.prepareForExit(); throw error }
+    }
+}
+
+/// Same AppModel dependency seam as the controller probe; only the peer outcome is
+/// injected. Never read Keychain, upload audio or instantiate a provider transport.
+@MainActor private final class UIConnectionFixture {
+    enum Outcome { case success, failure, waitForCancellation }
+    static let credential = "simulator-fixture-credential"
+    var saved = Set<UUID>()
+    var requests = 0
+    var active = 0
+    var outcome: Outcome = .success
+    var dependencies: AppConnectionDependencies {
+        AppConnectionDependencies(presence: { self.saved.contains($0.id) ? .saved : .missing },
+            save: { value, item in
+                guard value == Self.credential else { throw ProviderFailure.authorization }
+                self.saved.insert(item.id)
+            }, delete: { self.saved.remove($0.id) }, verify: { configuration, progress in
+                guard configuration.enabledModels.allSatisfy({ self.saved.contains($0.id) && $0.cloudConsent }) else { throw ProviderFailure.authorization }
+                self.requests += 1; self.active += 1; defer { self.active -= 1 }
+                progress(try Self.report(configuration, state: .accountAccepted))
+                try await Task.sleep(for: .milliseconds(150))
+                progress(try Self.report(configuration, state: .receiving))
+                if self.outcome == .waitForCancellation { try await Task.sleep(for: .seconds(30)); throw CancellationError() }
+                try await Task.sleep(for: .milliseconds(150))
+                return try Self.report(configuration, state: self.outcome == .success ? .verified : .failed)
+            }, applyConfiguration: { _, _ in }, revokeCloud: { $0.revokeCloudRecognition() })
+    }
+    private static func report(_ configuration: RecognitionConfiguration, state: ConnectionServiceState) throws -> CloudConnectionReport {
+        let success = state == .verified
+        let rows: [[String: Any]] = configuration.enabledModels.map {
+            var value: [String: Any] = ["id": $0.id.uuidString, "provider": $0.provider.rawValue, "state": state.rawValue]
+            if state == .failed { value["code"] = "quota_exhausted"; value["message"] = "测试情形：服务余额不足，请在服务商账户处理后重新检查。" }
+            return value
+        }
+        let value: [String: Any] = ["configurationFingerprint": CloudConnectionVerifier.fingerprint(configuration), "date": 0,
+            "live": success, "services": rows, "transcript": success ? "TEST_ONLY：不要支付15元，send the report。" : "",
+            "pipelineCompleted": success, "elapsedSeconds": 0, "reviewRequests": 0,
+            "message": "TEST_ONLY 原生交互替身；未连接真实服务。"]
+        return try JSONDecoder().decode(CloudConnectionReport.self, from: JSONSerialization.data(withJSONObject: value))
     }
 }
 

@@ -82,6 +82,12 @@ struct ModelConfigurationEditor: View {
     @ViewState private var secret = ""
     @ViewState private var credentialPresence: CloudCredentialPresence = .missing
     @ViewState private var expanded = false
+    init(configuration: Binding<ModelConfiguration>, model: AppModel, initiallyExpanded: Bool = false,
+         onCredentialChange: @escaping () -> Void = {}) {
+        _configuration = configuration; _model = ObservedObject(wrappedValue: model)
+        self.initiallyExpanded = initiallyExpanded; self.onCredentialChange = onCredentialChange
+        _expanded = ViewState(initialValue: initiallyExpanded)
+    }
     private var prefix: String { "recognition.model." + configuration.id.uuidString.lowercased() }
     private var status: String {
         if !configuration.enabled { return "已停用" }
@@ -91,7 +97,18 @@ struct ModelConfigurationEditor: View {
         return "已准备"
     }
     var body: some View {
-        DisclosureGroup(isExpanded: $expanded) {
+        VStack(alignment: .leading, spacing: 12) {
+            Button { expanded.toggle() } label: {
+                HStack {
+                    Image(systemName: expanded ? "chevron.down" : "chevron.right")
+                        .font(.system(size: 10, weight: .semibold)).foregroundStyle(Palette.muted)
+                    Text(connectionRoleLabel(configuration.provider) + " · " + configuration.provider.label)
+                    Spacer()
+                    Text(status).font(.system(size: 11)).foregroundStyle(Palette.muted)
+                }.contentShape(Rectangle())
+            }.buttonStyle(.plain).accessibilityIdentifier(prefix + ".header")
+                .accessibilityValue(expanded ? "已展开" : "已收起")
+            if expanded {
             if configuration.provider == .qwenMessage {
                 Picker("地域", selection: Binding(get: { configuration.region }, set: {
                     configuration.region = $0; configuration.cloudConsent = false
@@ -133,14 +150,9 @@ struct ModelConfigurationEditor: View {
                     Text("按填写单价估算；优惠、最低计费和真实账单可能不同。不填写时费用显示未知。").font(.system(size: 11)).foregroundStyle(Palette.muted)
                 }
             }
-        } label: {
-            HStack {
-                Text(connectionRoleLabel(configuration.provider) + " · " + configuration.provider.label)
-                Spacer()
-                Text(status).font(.system(size: 11)).foregroundStyle(Palette.muted)
             }
         }
-            .task { credentialPresence = model.credentialPresence(configuration); expanded = initiallyExpanded }
+            .task { credentialPresence = model.credentialPresence(configuration) }
     }
     private func selectProvider(_ provider: CloudProvider) {
         configuration.provider = provider
@@ -169,6 +181,7 @@ private func connectionRoleLabel(_ provider: CloudProvider) -> String {
 private struct ConnectionCheckPanel: View {
     @ObservedObject var model: AppModel
     let ready: Bool
+    @ViewState private var costsExpanded = false
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label(model.connectionVerified ? "已接通，可以使用" : "最后一步 · 自动检查连接",
@@ -195,7 +208,15 @@ private struct ConnectionCheckPanel: View {
                     }
                 }
             }
-            DisclosureGroup("检查范围与费用") {
+            Button { costsExpanded.toggle() } label: {
+                HStack {
+                    Image(systemName: costsExpanded ? "chevron.down" : "chevron.right").font(.system(size: 10, weight: .semibold))
+                    Text("检查范围与费用")
+                    Spacer()
+                }.contentShape(Rectangle())
+            }.buttonStyle(.plain).accessibilityIdentifier("connection.checkCosts")
+                .accessibilityValue(costsExpanded ? "已展开" : "已收起")
+            if costsExpanded {
                 Text(ConnectionCheckLimits.disclosure).font(.system(size: 11)).foregroundStyle(Palette.muted)
                 Text("语音服务可能按会话或音频 Token 计费；取消会关闭连接，不能撤销服务商已处理的请求。")
                     .font(.system(size: 11)).foregroundStyle(Palette.muted)

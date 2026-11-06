@@ -14,6 +14,13 @@ private final class ConnectionCheckProbe: @unchecked Sendable {
     var readCount: Int { lock.withLock { reads } }
     var startCount: Int { lock.withLock { starts.count } }
     var stoppedCount: Int { lock.withLock { stopped.count } }
+    var lifecycle: (started: Int, stopped: Int, active: Int, balanced: Bool) {
+        lock.withLock {
+            let startedByProvider = Dictionary(grouping: starts, by: { $0 }).mapValues { $0.count }
+            let stoppedByProvider = Dictionary(grouping: stopped, by: { $0 }).mapValues { $0.count }
+            return (starts.count, stopped.count, starts.count - stopped.count, startedByProvider == stoppedByProvider)
+        }
+    }
     var requests: [Data] { lock.withLock { bodies } }
     var observedContexts: [String] { lock.withLock { contexts } }
     var reports: [CloudConnectionReport] { lock.withLock { snapshots } }
@@ -316,9 +323,22 @@ struct CloudConnectionVerificationTests {
             } else {
                 let report = try await task.value
                 #expect(!report.pipelineCompleted && !report.canEnableCloud && report.reviewRequests == 0)
+                // Silent providers have no normal completion path: cancellation
+                // after the injected deadline must actually terminate this check.
+                #expect(report.elapsedSeconds >= 0.040)
+                #expect(report.services.contains { $0.code == "cancelled" })
             }
             #expect(began.duration(to: .now) < .seconds(2))
-            #expect(probe.stoppedCount == 2)
+            // A watchdog may cancel before the second provider starts. The owner
+            // must drain every provider that did start, not start extra work just
+            // to satisfy an expected total of two.
+            let ended = probe.lifecycle
+            #expect((1...2).contains(ended.started))
+            #expect(ended.stopped == ended.started && ended.active == 0 && ended.balanced)
+            try await Task.sleep(for: .milliseconds(50))
+            let settled = probe.lifecycle
+            #expect(settled.started == ended.started && settled.stopped == ended.stopped && settled.active == 0 && settled.balanced)
+            print("CONNECTION_LIFECYCLE mode=\(explicit ? "explicit-cancel" : "deadline") started=\(settled.started) stopped=\(settled.stopped) active=\(settled.active) per_provider_balanced=\(settled.balanced)")
         }
     }
 }

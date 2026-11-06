@@ -31,3 +31,9 @@ scripts/test-native.sh --filter CloudConnectionVerificationTests
 ```
 
 This component result predates the final integrated source checkpoint. Preserve these intermediate/red logs and use a new filename for the frozen-source regression.
+
+## CI ownership-assertion correction
+
+The full suite at `12ce5eac` exposed a fixture assumption: the real 40 ms watchdog can cancel before the second provider starts. Requiring exactly two stopped providers incorrectly rejected that valid early cancellation. The fixture now requires that the deadline actually elapsed and produced a cancelled service, that at least one provider started, that every started provider exited with balanced per-provider identities and zero active count, and that these counts remain unchanged after another 50 ms. The production deadline and runtime were not changed.
+
+The subsequent **12-test component regression passed** in `connection-check-drain-fix.log`. Its raw safe counters were `started=2 stopped=2 active=0 per_provider_balanced=true` for both deadline and explicit cancellation. This local run does not claim to reproduce the exact CI scheduling order; the revised invariant also correctly verifies CI's one-start/one-stop case. Frozen-source full-suite verification remains required.

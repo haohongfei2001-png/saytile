@@ -1,4 +1,4 @@
-> 当前开发候选：双平等专家 + 唯一 GPT 文字流引擎，见 PR #6 和 `evidence/single-transcript/INTEGRATION.md`。main/已安装 RC1 未改；旧候选描述为历史，不代表新代码的实网准确率或真实外部应用验收。
+> 当前开发候选：`1.0.0-rc.2-no-api.1`，唯一接续 [PR #6](https://github.com/haohongfei2001-png/saytile/pull/6)。双平等专家 + 唯一 GPT 文字流、原生受控连接向导正在完成统一交付；当前进度见 [V1-DEV-STATUS](docs/V1-DEV-STATUS.md)。main/已安装 RC1 未改，尚未进行真实云端和准确率验收。
 
 # Saytile
 
@@ -12,7 +12,7 @@ V1 Release Candidate 已完成工程回归，真实讲话与个人环境验收�
 
 当前契约是两个平等完整音频 ASR 专家、唯一 GPT-6 Astra 文本核心和单份忠实文字流；Apple 本地识别进入统一候选入口。不得恢复五模型默认链、润色或第二评审器。见 [最终架构](research/architecture/FINAL-ARCHITECTURE.md)。
 
-本分支同步 PR #4 的恢复、生命周期与取消所有权修复，同时保留 PR #5 的新产品契约。包装版本继承上游候选标识，不代表本轮已安装、发布或完成原生验收。独立 PR #6 承接运行时集成；真实云端、设备和外部输入验收仍未完成，参见 [工程状态](research/architecture/PROJECT-STATUS.md)。
+本分支保留 PR #4 的可靠性修复、PR #5 的产品契约和 PR #6 的单核心引擎。没有 API Key 时可使用 Apple 本地中文识别；云端凭据在原生设置里填写，由一次明确授权的内置合成语音检查验证接收、融合和定稿，全部通过后自动启用。无需修改JSON或终端联调；真实连接与准确率状态严格分开。参见 [安装与连接](docs/V1-INSTALL.md)。
 
 ## 构建和运行
 
@@ -26,7 +26,7 @@ scripts/package-beta.sh
 现有 Command Line Tools 即可构建，不要求安装完整 Xcode。App 使用系统框架和已固定提交的 WebRTC VAD，构建不下载语音模型。首次开启时准备 Apple 中文语言资源；识别失败仍保留原音。
 
 ```sh
-scripts/test-native.sh
+SAYTILE_SIM_FULL_SUITE=1 scripts/test-protocol-simulator.sh
 scripts/test-app-model.sh
 python3 scripts/verify.py
 scripts/package-beta.sh

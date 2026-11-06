@@ -63,7 +63,7 @@ public enum ConnectionCheckLimits {
     public static let maximumDuration: Duration = .seconds(90)
     public static let maximumReviewRequests = 6
     public static let maximumOutputTokens = 4096
-    public static let disclosure = "只上传应用内置的 6.3 秒中英合成语音，不使用麦克风或你的历史内容。最多两路语音连接、6 次 AI 请求，每次最多 4096 输出 Token，90 秒内停止；可随时取消。按标准公开价格，仅 AI 输出的上限估算约 US$1.23，另有输入、缓存及语音费用；实际以账户账单为准，不能保证金额上限。不会自动重试本次检查。"
+    public static let disclosure = "只上传应用内置的 6.3 秒中英合成语音，不使用麦克风或你的历史内容。最多两路语音连接、6 次 AI 请求，每次最多 4096 输出 Token，联网阶段 90 秒内停止；可随时取消。按标准公开价格，仅 AI 输出的上限估算约 US$1.23，另有输入、缓存及语音费用；实际以账户账单为准，不能保证金额上限。不会自动重试本次检查。"
 }
 
 struct CloudConnectionTransport: Sendable {
@@ -139,6 +139,7 @@ private struct ObservedConnectionProvider: StreamingASRProvider {
     func run(audio: AsyncStream<Data>, configuration: ModelConfiguration, credential: String,
              emit: @escaping @Sendable (ProviderTranscriptEvent) async throws -> Void) async throws {
         do {
+            progress.set(configuration.id, .connecting)
             try await underlying.run(audio: audio, configuration: configuration, credential: credential) { event in
                 try await emit(event)
                 if !event.text.isEmpty { progress.set(configuration.id, .receiving) }
@@ -200,7 +201,6 @@ public enum CloudConnectionVerifier {
             } catch { progress.set(item.id, .failed, error: error); return progress.snapshot }
         }
         try Task.checkCancellation()
-        for item in check.enabledModels { progress.set(item.id, .connecting) }
         let savedCredentials = credentials
         let fusion = check.enabledModels.first { $0.purpose == .textFusion }!
         let budget = ConnectionRequestBudget()
@@ -223,6 +223,7 @@ public enum CloudConnectionVerifier {
         dependencies.maximumLiveReviews = 1
         dependencies.arbitrate = { evidence, prefix, context, item, key in
             do {
+                progress.set(item.id, .connecting)
                 let result = try await review.review(evidence: evidence, prefix: prefix, context: context, configuration: item, credential: key)
                 progress.set(item.id, .receiving)
                 return result
