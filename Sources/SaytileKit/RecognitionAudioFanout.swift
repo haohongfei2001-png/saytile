@@ -47,6 +47,7 @@ final class RecognitionAudioFanout: @unchecked Sendable {
         }
     }
     func didOverflow(_ id: UUID) -> Bool { lock.withLock { failed.contains(id) } }
+    var isFinished: Bool { lock.withLock { closed } }
     var duration: Double { lock.withLock { Double(frames) / 16_000 } }
     var snapshot: Data? { lock.withLock { retainedWholeAudio ? pcm : nil } }
     /// Taking a bounded, exact sample interval never interpolates a word timestamp.

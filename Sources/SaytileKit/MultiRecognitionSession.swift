@@ -98,6 +98,9 @@ actor MultiRecognitionCoordinator {
     private var sequences: [UUID: Int64] = [:]
     private var overflowed: Set<UUID> = []
     private var failures: [UUID: String] = [:]
+    private var blockedConfigurations: Set<UUID> = []
+    private var reviewFailures: [UUID: Int] = [:]
+    private var reviewRetryAfter: [UUID: Date] = [:]
     private var requestIDs: [UUID: String] = [:]
     private var committedPrefix = ""
     private var cancelled = false
@@ -150,8 +153,9 @@ actor MultiRecognitionCoordinator {
                 try await self.receive(event, run: created)
             }
             try await assertCurrent()
-            guard !overflowed.contains(item.id), self.audio?.didOverflow(item.id) != true,
+            guard self.audio?.isFinished == true, !overflowed.contains(item.id), self.audio?.didOverflow(item.id) != true,
                   latest[item.id]?.isComplete == true else { throw ProviderFailure.incomplete }
+            failures.removeValue(forKey: item.id)
             try await store.finishModelRun(created, error: nil, retryable: true)
             await logUsage(run: created, configuration: item, seconds: self.audio?.duration ?? 0,
                            usage: .init(requestID: requestIDs[created.id], inputTokens: nil, outputTokens: nil, elapsedSeconds: Date().timeIntervalSince(began)))
@@ -162,7 +166,7 @@ actor MultiRecognitionCoordinator {
             if let run {
                 try? await store.finishModelRun(run, error: reason, retryable: retryable)
                 await logUsage(run: run, configuration: item, seconds: self.audio?.duration ?? 0,
-                               usage: .init(requestID: requestIDs[run.id], inputTokens: nil, outputTokens: nil, elapsedSeconds: Date().timeIntervalSince(began)))
+                               usage: .init(requestID: requestIDs[run.id], inputTokens: nil, outputTokens: nil, elapsedSeconds: Date().timeIntervalSince(began)), estimateAllowed: false)
             }
             if !retryable { try? await store.setRecognitionRetryable(ticket: ticket, retryable: false) }
         }
@@ -227,7 +231,7 @@ actor MultiRecognitionCoordinator {
     private func scheduleLiveReview() {
         guard !ending, !cancelled, reviewTask == nil,
               lastProposal?.unresolved == true,
-              configuration.enabledModels.contains(where: { $0.purpose == .textFusion }) else { return }
+              configuration.enabledModels.contains(where: { $0.purpose == .textFusion && reviewEligible($0, finalAttempt: false) }) else { return }
         let candidates = activeEvidence()
         let present = Set(candidates.filter { !$0.text.isEmpty }.map { $0.run.configurationID })
         guard requiredConfigurationIDs.isSubset(of: present), signature(candidates) != lastReviewedSignature else { return }
@@ -243,50 +247,125 @@ actor MultiRecognitionCoordinator {
         // Coalesce all changes during a request into one current-evidence request.
         if !ending && !cancelled { scheduleLiveReview() }
     }
-    private func performTextReview(candidates: [RecognitionCandidate], version: UInt64) async {
-        guard let item = configuration.enabledModels.first(where: { $0.purpose == .textFusion }) else { return }
-        let sig = signature(candidates); lastReviewedSignature = sig
+    private func reviewEligible(_ item: ModelConfiguration, finalAttempt: Bool) -> Bool {
+        guard !blockedConfigurations.contains(item.id) else { return false }
+        if finalAttempt { return true }
+        return (reviewFailures[item.id] ?? 0) < 3 && (reviewRetryAfter[item.id] ?? .distantPast) <= Date()
+    }
+    private func recordReviewFailure(_ error: Error, item: ModelConfiguration) async {
+        failures[item.id] = MultiRecognitionSession.safeMessage(error)
+        let retryable = (error as? ProviderFailure)?.canRetryAutomatically ?? true
+        if !retryable {
+            blockedConfigurations.insert(item.id)
+            try? await store.setRecognitionRetryable(ticket: ticket, retryable: false)
+        } else {
+            let count = (reviewFailures[item.id] ?? 0) + 1
+            reviewFailures[item.id] = count
+            reviewRetryAfter[item.id] = Date().addingTimeInterval(min(30, pow(2, Double(count))))
+        }
+    }
+    private struct TextReviewResult: Sendable {
+        let item: ModelConfiguration
+        let run: ModelRunTicket
+        let decision: PrecisionReviewDecision
+    }
+    private func requestTextReview(_ item: ModelConfiguration, candidates: [RecognitionCandidate]) async -> TextReviewResult? {
         var run: ModelRunTicket?
+        let started = Date()
         do {
             try await assertCurrent()
-            let present = Set(candidates.filter { !$0.text.isEmpty }.map { $0.run.configurationID })
-            guard requiredConfigurationIDs.isSubset(of: present) || configuration.inputMode == .fast else { return }
             let created = try await store.beginModelRun(ticket: ticket, configuration: item); run = created
             let credential = try secret(for: item)
             let evidence = candidates.map { candidate in
                 ReviewEvidence(candidateID: candidate.id, provider: candidate.run.provider, model: candidate.run.model,
                     role: candidate.run.purpose.rawValue, text: candidate.text, stableUTF16Length: candidate.stableUTF16Length,
                     audioStartSeconds: candidate.audioStartSeconds, audioEndSeconds: candidate.audioEndSeconds,
-                    timingGranularity: candidate.timingGranularity, language: candidate.language,
-                    tokens: candidate.tokens)
+                    timingGranularity: candidate.timingGranularity, language: candidate.language, tokens: candidate.tokens)
             }
+            try await assertCurrent()
             let (decision, usage) = try await dependencies.arbitrate(evidence, committedPrefix,
                 configuration.topicContext, item, credential)
             await logUsage(run: created, configuration: item, seconds: 0, usage: usage)
-            try await store.finishModelRun(created, error: nil, retryable: true)
             try await assertCurrent()
-            guard version == evidenceVersion || sig == signature(activeEvidence()) else { return }
-            let spans = decision.selections.map { CandidateSpan(candidateID: $0.candidateID, utf16Start: $0.utf16Start, utf16End: $0.utf16End) }
-            let proposal = try PrecisionFusion.validateSelection(spans: spans, candidates: candidates,
-                committedPrefix: committedPrefix, unresolved: decision.unresolved,
-                needsAudioReview: decision.needsAudioReview, reasonCode: decision.reasonCode)
-            // A fast expert cannot settle an interval that another required expert
-            // has not covered. No word times are fabricated for this comparison.
-            let selected = candidates.filter { proposal.sourceCandidateIDs.contains($0.id) }
-            let selectedEnd = selected.map(\.audioEndSeconds).max() ?? 0
-            let coverage = candidates.filter { $0.run.purpose.isStreaming }.map(stableAudioEnd).min() ?? 0
-            if proposal.stableText == committedPrefix || configuration.inputMode == .fast || selectedEnd <= coverage + 0.1 || ending && candidates.filter({ $0.run.purpose.isStreaming }).allSatisfy(\.isComplete) {
-                try await publish(proposal)
-            }
-            if (decision.needsAudioReview || proposal.needsAudioReview), !ending {
-                await performAcousticReviews(onlyIfNeeded: true)
-            }
+            failures.removeValue(forKey: item.id); reviewFailures.removeValue(forKey: item.id)
+            reviewRetryAfter.removeValue(forKey: item.id)
+            return TextReviewResult(item: item, run: created, decision: decision)
         } catch {
-            if let run { try? await store.finishModelRun(run, error: MultiRecognitionSession.safeMessage(error), retryable: (error as? ProviderFailure)?.canRetryAutomatically ?? true) }
+            await recordReviewFailure(error, item: item)
+            if let run {
+                try? await store.finishModelRun(run, error: MultiRecognitionSession.safeMessage(error), retryable: (error as? ProviderFailure)?.canRetryAutomatically ?? true)
+                await logUsage(run: run, configuration: item, seconds: 0,
+                    usage: .init(requestID: nil, inputTokens: nil, outputTokens: nil, elapsedSeconds: Date().timeIntervalSince(started)), estimateAllowed: false)
+            }
+            return nil
         }
     }
+    private func performTextReview(candidates: [RecognitionCandidate], version: UInt64) async {
+        let configured = configuration.enabledModels.filter { $0.purpose == .textFusion }
+        let items = configured.filter { reviewEligible($0, finalAttempt: ending) }
+        guard !items.isEmpty else { return }
+        let present = Set(candidates.filter { !$0.text.isEmpty }.map { $0.run.configurationID })
+        guard requiredConfigurationIDs.isSubset(of: present) || configuration.inputMode == .fast else { return }
+        lastReviewedSignature = signature(candidates)
+        // Every enabled arbiter runs. A failed or dissenting arbiter cannot silently
+        // become an agreement vote in highest-quality mode.
+        let replies = await withTaskGroup(of: TextReviewResult?.self) { group in
+            for item in items { group.addTask { await self.requestTextReview(item, candidates: candidates) } }
+            var result: [TextReviewResult] = []
+            for await reply in group { if let reply { result.append(reply) } }
+            return result.sorted { $0.item.id.uuidString < $1.item.id.uuidString }
+        }
+        guard !cancelled else { return }
+        let current = activeEvidence()
+        var checked: [(TextReviewResult, FusionProposal)] = []
+        for reply in replies {
+            do {
+                try await assertCurrent()
+                let spans = reply.decision.selections.map { CandidateSpan(candidateID: $0.candidateID, utf16Start: $0.utf16Start, utf16End: $0.utf16End) }
+                let proposal = try PrecisionFusion.rebaseSelection(spans: spans,
+                    previousCandidates: candidates, currentCandidates: current, committedPrefix: committedPrefix,
+                    unresolved: reply.decision.unresolved, needsAudioReview: reply.decision.needsAudioReview,
+                    reasonCode: reply.decision.reasonCode)
+                checked.append((reply, proposal))
+                try await store.finishModelRun(reply.run, error: nil, retryable: true)
+            } catch {
+                // The network call may have succeeded while its evidence became stale.
+                // Record the rejected decision, rather than claiming a successful fusion.
+                try? await store.finishModelRun(reply.run, error: MultiRecognitionSession.safeMessage(error), retryable: true)
+            }
+        }
+        guard var proposal = checked.first?.1 else {
+            if replies.contains(where: { $0.decision.needsAudioReview }), !ending {
+                await performAcousticReviews(onlyIfNeeded: true)
+            }
+            return
+        }
+        do {
+            let agrees = checked.count == configured.count && checked.allSatisfy {
+                $0.1.previewText.utf16.elementsEqual(proposal.previewText.utf16) &&
+                $0.1.stableText.utf16.elementsEqual(proposal.stableText.utf16) && !$0.1.needsAudioReview
+            }
+            if configuration.inputMode == .highestQuality && !agrees {
+                proposal = try PrecisionFusion.validateSelection(spans: proposal.selections, candidates: current,
+                    committedPrefix: committedPrefix, unresolved: true,
+                    needsAudioReview: checked.contains { $0.1.needsAudioReview }, reasonCode: "arbiters-not-in-agreement")
+            }
+            let selectedEnd = try proposal.selections.map { span -> Double in
+                guard let source = current.first(where: { $0.id == span.candidateID }) else { throw FusionError.staleGeneration }
+                return try PrecisionFusion.audioInterval(span: span, candidate: source).end
+            }.max() ?? 0
+            let coverage = current.filter { $0.run.purpose.isStreaming }.map(stableAudioEnd).min() ?? 0
+            if proposal.stableText == committedPrefix || configuration.inputMode == .fast ||
+                selectedEnd <= coverage + 0.1 || ending && current.filter({ $0.run.purpose.isStreaming }).allSatisfy(\.isComplete) {
+                try await publish(proposal)
+            }
+            if checked.contains(where: { $0.1.needsAudioReview || $0.0.decision.needsAudioReview }), !ending {
+                await performAcousticReviews(onlyIfNeeded: true)
+            }
+        } catch { /* Current candidate/epoch validation is authoritative; preserve alternatives. */ }
+    }
     private func performAcousticReviews(onlyIfNeeded: Bool) async {
-        let items = configuration.enabledModels.filter { [.audioReview, .finalASR].contains($0.purpose) }
+        let items = configuration.enabledModels.filter { [.audioReview, .finalASR].contains($0.purpose) && reviewEligible($0, finalAttempt: !onlyIfNeeded) }
         guard let pcm = audio?.snapshot, !pcm.isEmpty else {
             for item in items { failures[item.id] = "复核音频暂不可用；本次高精度复核未完成，原音仍可恢复。" }
             return
@@ -309,6 +388,7 @@ actor MultiRecognitionCoordinator {
             let credential = try secret(for: item)
             let event: ProviderTranscriptEvent
             let usage: PrecisionReviewUsage
+            try await assertCurrent()
             if item.purpose == .audioReview {
                 let (result, measured) = try await dependencies.listen(pcm, item, credential)
                 usage = measured
@@ -323,12 +403,18 @@ actor MultiRecognitionCoordinator {
             let candidate = RecognitionCandidate(run: created, sequence: 1, event: event)
             guard try await store.appendRecognitionCandidate(candidate) else { throw FusionError.staleGeneration }
             latest[item.id] = candidate; evidenceVersion &+= 1
+            failures.removeValue(forKey: item.id); reviewFailures.removeValue(forKey: item.id)
+            reviewRetryAfter.removeValue(forKey: item.id)
             try await store.finishModelRun(created, error: nil, retryable: true)
             await logUsage(run: created, configuration: item, seconds: seconds, usage: usage)
             try await evaluateAndPublish()
         } catch {
-            failures[item.id] = MultiRecognitionSession.safeMessage(error)
-            if let run { try? await store.finishModelRun(run, error: MultiRecognitionSession.safeMessage(error), retryable: (error as? ProviderFailure)?.canRetryAutomatically ?? true) }
+            await recordReviewFailure(error, item: item)
+            if let run {
+                try? await store.finishModelRun(run, error: MultiRecognitionSession.safeMessage(error), retryable: (error as? ProviderFailure)?.canRetryAutomatically ?? true)
+                await logUsage(run: run, configuration: item, seconds: seconds,
+                    usage: .init(requestID: nil, inputTokens: nil, outputTokens: nil, elapsedSeconds: Date().timeIntervalSince(began)), estimateAllowed: false)
+            }
         }
     }
     func finalize() async {
@@ -336,6 +422,10 @@ actor MultiRecognitionCoordinator {
         await reviewTask?.value
         reviewTask = nil
         guard !cancelled else { return }
+        guard audio?.isFinished == true else {
+            try? await store.failRecognition(ticket: ticket, message: "识别连接提前结束；当前原音继续保存，停顿后可恢复。")
+            return
+        }
         await performAcousticReviews(onlyIfNeeded: false)
         do {
             try await assertCurrent()
@@ -355,12 +445,12 @@ actor MultiRecognitionCoordinator {
         }
     }
     private func logUsage(run: ModelRunTicket, configuration item: ModelConfiguration, seconds: Double,
-                          usage: PrecisionReviewUsage) async {
+                          usage: PrecisionReviewUsage, estimateAllowed: Bool = true) async {
         // AssemblyAI streaming bills connection duration; file services bill audio duration.
         let billedSeconds = item.provider == .assemblyAI ? usage.elapsedSeconds : seconds
         var estimate: Double?
-        if let rate = item.audioHourRate, seconds > 0 { estimate = billedSeconds / 3600 * rate }
-        if let input = usage.inputTokens, let rate = item.inputMillionTokenRate,
+        if estimateAllowed, let rate = item.audioHourRate, seconds > 0 { estimate = billedSeconds / 3600 * rate }
+        if estimateAllowed, let input = usage.inputTokens, let rate = item.inputMillionTokenRate,
            let output = usage.outputTokens, let outputRate = item.outputMillionTokenRate {
             estimate = (estimate ?? 0) + Double(input) / 1_000_000 * rate + Double(output) / 1_000_000 * outputRate
         }
