@@ -7,6 +7,7 @@
 - [正式重裁决](DECISION.md)：模型、证据强弱、四阶段质量、输入模式。
 - [实现与安全边界](IMPLEMENTATION.md)：音频、候选、发布、重试、BYOK。
 - [本轮实际交付与验证](REVISION-2026-11-06.md)：源码、运行结果与尚未完成的真实云验收。
+- [BYOK 设置与同音频验收](BYOK-AND-QUALITY-ACCEPTANCE.md)：实际原生配置、回放命令与四阶段证据。
 - [当前状态](STATUS.md)；[服务与证据附录](VENDORS.md)。
 - [中文与混说专题](CHINESE-AND-MIXED-2026-11-06.md)；[英文与融合专题](ENGLISH-AND-FUSION-2026-11-06.md)。
 - [历史本地实测](results/README.md)；[RC1 生产采集审计](PRODUCTION_AUDIT.md)。历史测试结果不改标为新云模型成绩。

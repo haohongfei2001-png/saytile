@@ -13,12 +13,12 @@
 | 层次 | 选择 | 用途与限制 |
 |---|---|---|
 | 中文实时专家 | Qwen `qwen-audio-3.1-asr-flash-message` | 中文口语、术语及句末修订；原文识别，不开启自动润色或翻译。北京/新加坡 Workspace 与 Key 配对。 |
-| 英文实时专家 | AssemblyAI `universal-3-6-pro` | 成熟 v3 WebSocket，支持英语与混合语言证据；显式选择模型并核验 Begin 返回实际型号。 |
+| 英文实时专家 | AssemblyAI `universal-3-6-pro` | 成熟 v3 WebSocket，显式 `mode=max_accuracy`；核验 Begin 返回的实际型号和模式。 |
 | 英文强挑战者 | Meta `muse-voice-transcribe-1.0` | 已实现可选实时接入；当前公开语义WER强于Assembly的点估计，但尚无Saytile同条件显著收益证明。必须进入有限同输入验收，可替换或并行。 |
 | 可选第三路混说证据 | Soniox `stt-rt-v6` | token 时间与语言信息、独立混说结果；可并行启用，不作为唯一发布者。是否长期默认加入，以真实边际收益决定。 |
 | AI 文本仲裁 | OpenAI `gpt-6-astra` / Responses | 用证据引用选择候选片段。允许 High/Extra high/Max 与 Standard/Pro；不把纯文本推理当作重新听过音频。 |
 | 原音复听 | Gemini `gemini-3.8-flash` / 原生音频输入 | 对疑难片段盲听，先不提供争议候选作答案暗示；结果成为新的音频候选，仍需本地验证。 |
-| 高精度独立定稿 | ElevenLabs `scribe_v2` | 对完整录音或疑难片段提供另一份文件转写。文件成绩与实时 Scribe 不互相代替。可选 OpenAI 当前转写服务。 |
+| 高精度独立定稿 | ElevenLabs `scribe_v2` | 推荐最高质量配置启用的独立文件转写。文件成绩与实时 Scribe 不互相代替。可选 OpenAI `gpt-transcribe` 文件转写；本轮未实现其独立实时协议。 |
 | 无云授权/无可用云配置 | Apple SpeechAnalyzer | 保留本机可用能力与旧结果，清楚标为备用，不能冒称已启用上述质量配置。 |
 
 最高质量是输入确认策略的默认值。云上传默认不开始，直至用户完成相应服务的 Key 与音频/候选文字处理授权。这不是默认选择低质量模型的产品裁决，而是实际服务尚未配置的状态。
