@@ -25,7 +25,7 @@
 
 ## 3. 证据如何影响选择
 
-- **中文：** Qwen 3.1 官方技术资料包含公开数据集与统一 API 对照，证明它是值得优先接入的中文候选；这仍属厂商实施的评测。其模型族/文件结果不能直接证明 Message 流式在 Saytile 上的错误率。豆包 SeedASR 2.0、Fun-ASR、腾讯、FireRed 等继续作为质量对照，不因为接入便利先排除它们。[Qwen 技术资料](https://qwenaudio.github.io/qwen-audio-3.1-asr/) · [官方 Message 协议](https://help.aliyun.com/zh/model-studio/qwen-asr-message-websocket-api)
+- **中文：** Qwen 3.1 官方技术资料包含公开数据集、行业术语与 Message 能力报告，支持将其作为优先测试的中文候选；这仍属厂商实施的评测。其模型族/文件结果不能直接证明 Message 流式在 Saytile 上的错误率；项目页的流式延迟对照还使用 Qwen H100 自部署与豆包 API，并假设网络延迟相当，不能直接移用为两家云端在本机的实测排名。豆包 SeedASR 2.0、Fun-ASR、腾讯、FireRed 等继续作为质量对照，不因为接入便利先排除它们。[Qwen 技术资料](https://qwenaudio.github.io/qwen-audio-3.1-asr/) · [官方 Message 协议](https://help.aliyun.com/zh/model-studio/qwen-asr-message-websocket-api)
 - **英文：** Pipecat 当前表格给 AssemblyAI `universal-3-6-pro` 的 pooled semantic WER 0.80%，Soniox **v5** 1.09%，Scribe v2 Realtime 3.13%。同表Meta `muse-voice-transcribe-1.0`为0.73%，其公开API已确认并实现，不能以不可得排除。两个点估计的0.07个百分点差异并无本项目显著性结论。这是语义 WER 与特定实时语料，不是严格逐字 WER、中文 CER 或全场景冠军。Assembly 现行官方文档确认 3.6 是 streaming 可用型号；旧单 Soniox 结论不能继续忽略这项证据。[Pipecat](https://github.com/pipecat-ai/stt-benchmark) · [Assembly 官方变更](https://www.assemblyai.com/changelog)
 - **版本：** Soniox v6 官方目录现已 active，但公开表格的 v5 分数不能移植到 v6。Qwen 的 Message/Streaming/Filetrans、Assembly 的 streaming/async、Scribe 的 realtime/file 都要按具体接口区分。Deepgram 2026-10-23 的Nova-3 multi已经更新为55语言，不能拿旧10语言版本或榜单general行直接当其新混说成绩；Speechmatics Enhanced/Melia也分别核查。[Soniox 模型](https://docs.soniox.com/stt/models)
 - **融合：** 当前没有 Saytile 同输入双专家、三专家、加 LLM、加原音复听的消融结果。LLM 更强不等于对声学歧义更正确；多模型一致也可能源于相关错误。因此保留来源、拒绝无证据改词，并用有限现有样本验证收益，而不是宣传“模型越多越准确”。

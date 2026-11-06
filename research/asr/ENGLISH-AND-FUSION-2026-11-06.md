@@ -34,7 +34,7 @@ Enable Meta as an additional challenger or replace the provisional English exper
 
 The integrated text arbitrator is the currently documented **`gpt-6-astra`** through the OpenAI Responses API, with strict structured output. This is a text/image reasoning model, **not a raw-audio listener**. Standard/high reasoning is suitable for evaluating live candidate disagreements; optional pro/max reasoning is a later precision policy, not a realtime latency guarantee. The root implementation independently verifies these model IDs and API parameters.
 
-The integrated audio reviewer is **`gemini-3.8-flash`**, whose official audio guide supports audio input, text output and high thinking. Send only the disputed original audio region plus adequate context and keep its answer as new evidence. Do not assume an unreleased “Pro” version is available. These roles are complementary; model names alone do not prove transcription gains.
+The integrated audio reviewer is **`gemini-3.8-flash`**, whose official documentation supports audio input, text output and high thinking. The current Swift adapter uses the still-supported GenerateContent API with inline WAV and structured JSON, not the distinct Interactions request format shown in newer audio guides. It currently sends the entire retained review window; automatic localization to a disputed subspan is not implemented. Keep its answer as new evidence. Do not assume an unreleased “Pro” version is available. These roles are complementary; model names alone do not prove transcription gains.
 
 An arbitrator selects actual candidate spans, leaves unresolved disagreements explicit, and requests audio review when text cannot distinguish the alternatives. No cross-vendor confidence averaging is justified without calibration. Numbers, units, negation and intentional repetition cannot be repaired from plausibility alone. Even two agreeing models may share the same error; independent audio review and eventual targeted evaluation remain necessary. Later reviews are retained without silently changing already inserted text.
 
@@ -58,6 +58,8 @@ An arbitrator selects actual candidate spans, leaves unresolved disagreements ex
 - OpenAI models: https://developers.openai.com/api/docs/models
 - OpenAI structured output: https://developers.openai.com/api/docs/guides/structured-outputs
 - Google audio input: https://ai.google.dev/gemini-api/docs/audio
+- Google supported GenerateContent interface: https://ai.google.dev/gemini-api/docs/generate-content/get-started
+- Gemini 3.8 Flash model capabilities and supported interfaces: https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-8-flash
 - Soniox current model catalog: https://docs.soniox.com/stt/models
 - Deepgram model catalog: https://developers.deepgram.com/docs/models-languages-overview
 
