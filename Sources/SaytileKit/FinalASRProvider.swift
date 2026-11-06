@@ -6,11 +6,13 @@ public struct FinalASRProvider: Sendable {
     public init() {}
 
     public func transcribe(pcm: Data, configuration: ModelConfiguration, credential: String) async throws -> ProviderTranscriptEvent {
+        try Task.checkCancellation()
         let request = try Self.request(pcm: pcm, configuration: configuration, credential: credential)
         let session = URLSession(configuration: .ephemeral)
         defer { session.invalidateAndCancel() }
         do {
             let (data, response) = try await session.data(for: request)
+            try Task.checkCancellation()
             guard let response = response as? HTTPURLResponse else { throw ProviderFailure.connection }
             guard (200..<300).contains(response.statusCode) else { throw ProviderFailure.http(response.statusCode) }
             return try Self.parse(data, provider: configuration.provider, duration: Double(pcm.count) / 32_000,
@@ -72,13 +74,21 @@ public struct FinalASRProvider: Sendable {
     }
 
     static func parse(_ data: Data, provider: CloudProvider, duration: Double, requestID: String?) throws -> ProviderTranscriptEvent {
-        guard data.count <= 8_000_000,
+        guard [.elevenLabsFile, .openAITranscription].contains(provider), duration.isFinite, duration >= 0,
+              data.count <= 8_000_000,
               let object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let text = object["text"] as? String else { throw ProviderFailure.protocolViolation("file-transcript") }
         let languages = object["languages"] as? [[String: Any]]
         let singleLanguage = languages?.count == 1 ? languages?.first?["code"] as? String : nil
         let language = (object["language_code"] as? String) ?? (object["language"] as? String) ?? singleLanguage
         let words = try EnglishProviderSupport.words(object["words"], scale: 1, final: true, language: language)
+        var previousStart = 0.0
+        for word in words {
+            guard word.startSeconds >= previousStart, word.endSeconds <= duration + 0.08 else {
+                throw ProviderFailure.protocolViolation("file-word-timestamp")
+            }
+            previousStart = word.startSeconds
+        }
         let aligned = EnglishProviderSupport.align(words, to: text, utteranceFinal: true) != nil
         return ProviderTranscriptEvent(text: text, stableUTF16Length: text.utf16.count,
             audioEndSeconds: duration, timingGranularity: words.isEmpty || !aligned ? "utterance" : "word",

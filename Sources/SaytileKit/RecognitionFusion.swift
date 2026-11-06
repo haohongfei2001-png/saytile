@@ -41,6 +41,8 @@ public struct FusionDecisionRecord: Codable, Sendable, Equatable, Identifiable {
     public let revisionID: UUID?
     public let outcome: String
     public let createdAt: Date
+    /// Exact cumulative audio offered to the production fanout at this decision, not UI latency.
+    public var audioSubmittedSeconds: Double? = nil
 }
 
 /// Deliberately conservative baseline. Exact agreement is usable evidence, not a guarantee of truth.
@@ -48,7 +50,8 @@ public struct FusionDecisionRecord: Codable, Sendable, Equatable, Identifiable {
 public enum PrecisionFusion {
     public static func evaluate(candidates: [RecognitionCandidate], mode: InputQualityMode,
                                 committedPrefix: String = "",
-                                requiredPurposes: Set<RecognitionPurpose> = [.chineseASR, .englishASR]) -> FusionProposal {
+                                requiredPurposes: Set<RecognitionPurpose> = [.chineseASR, .englishASR],
+                                requiredConfigurationIDs: Set<UUID>? = nil) -> FusionProposal {
         let valid = candidates.filter { (try? validateCandidate($0)) != nil }
         let live = latestPerRun(valid).filter { $0.run.purpose != .textFusion }
         guard let preview = live.sorted(by: previewOrder).first else {
@@ -62,6 +65,14 @@ public enum PrecisionFusion {
             guard Set(sameOrigin.map { $0.run.purpose }).isSuperset(of: requiredPurposes) else {
                 return FusionProposal(previewText: preview.text, stableText: committedPrefix,
                     sourceCandidateIDs: sameOrigin.map(\.id), unresolved: true, needsAudioReview: false, reasonCode: "waiting-language-experts")
+            }
+            // A purpose can have multiple enabled experts. Their configuration identities,
+            // not just the presence of one Chinese/English role, define required evidence.
+            if let requiredConfigurationIDs,
+               !Set(sameOrigin.map { $0.run.configurationID }).isSuperset(of: requiredConfigurationIDs) {
+                return FusionProposal(previewText: preview.text, stableText: committedPrefix,
+                    sourceCandidateIDs: sameOrigin.map(\.id), unresolved: true, needsAudioReview: false,
+                    reasonCode: "waiting-all-enabled-experts")
             }
             // Include actual acoustic review evidence when present; do not outvote it.
             compared = sameOrigin
@@ -156,9 +167,25 @@ public enum PrecisionFusion {
         let truncatedSource: Bool
         if let last = spans.last, let source = index[last.candidateID] { truncatedSource = last.utf16End < source.text.utf16.count }
         else { truncatedSource = true }
+        // Completing a short source is not the same as covering the current utterance.
+        // A review of an earlier prefix may remain valid after live experts add a later
+        // tail. Keep that prefix publishable, but do not tell the coordinator the whole
+        // utterance is resolved. Use actual boundaries only; equal text with a longer
+        // silence interval does not by itself imply omitted words.
+        let uncoveredTail = previousEnd.map { horizon in
+            candidates.contains { candidate in
+                guard candidate.run.purpose != .textFusion, !candidate.text.isEmpty,
+                      candidate.audioEndSeconds > horizon + 0.08,
+                      !candidate.text.utf16.elementsEqual(text.utf16) else { return false }
+                if let covered = evidencePrefix(candidate, through: horizon) {
+                    return covered.utf16.count < candidate.text.utf16.count
+                }
+                return true // Utterance-only evidence cannot locate the newer words.
+            }
+        } ?? true
         return FusionProposal(previewText: text, stableText: uncertain || changesCommitted ? committedPrefix : text,
             sourceCandidateIDs: Array(Set(selected.map(\.id))).sorted { $0.uuidString < $1.uuidString },
-            unresolved: uncertain || changesCommitted || truncatedSource, needsAudioReview: needsAudioReview || protectedConflict,
+            unresolved: uncertain || changesCommitted || truncatedSource || uncoveredTail, needsAudioReview: needsAudioReview || protectedConflict,
             reasonCode: protectedConflict ? "protected-content-needs-audio" : changesCommitted ? "late-correction-preserved" : reasonCode,
             selections: spans, selectionRequestedUnresolved: unresolved, reviewedCandidateIDs: candidates.map(\.id))
     }
@@ -214,6 +241,7 @@ public enum PrecisionFusion {
     /// Returns a complete textual prefix backed by actual token/segment boundaries. Nil means
     /// the requested time falls inside an indivisible segment or has no usable alignment.
     static func evidencePrefix(_ candidate: RecognitionCandidate, through horizon: Double) -> String? {
+        guard candidate.timingGranularity != "turn-progress" || candidate.isComplete else { return nil }
         if candidate.audioEndSeconds <= horizon + 0.001 { return candidate.text }
         guard let mapped = try? mappedTokens(candidate) else { return nil }
         var end = 0
@@ -267,6 +295,10 @@ public enum PrecisionFusion {
     }
 
     public static func stableAudioEnd(_ candidate: RecognitionCandidate) -> Double {
+        // All currently displayed words can be final while the stream is still open.
+        // Meta's processing-progress clock is not their acoustic endpoint. Only the
+        // acknowledged whole-stream event carries the actual sent PCM duration.
+        guard candidate.timingGranularity != "turn-progress" || candidate.isComplete else { return candidate.audioStartSeconds }
         if candidate.stableUTF16Length == candidate.text.utf16.count { return candidate.audioEndSeconds }
         guard let mapped = try? mappedTokens(candidate) else { return candidate.audioStartSeconds }
         var end = candidate.audioStartSeconds
@@ -313,6 +345,7 @@ public enum PrecisionFusion {
         }
     }
     static func audioInterval(span: CandidateSpan, candidate: RecognitionCandidate) throws -> (start: Double, end: Double) {
+        guard candidate.timingGranularity != "turn-progress" || candidate.isComplete else { throw FusionError.insufficientAlignment }
         if span.utf16Start == 0, span.utf16End == candidate.text.utf16.count {
             return (candidate.audioStartSeconds, candidate.audioEndSeconds)
         }

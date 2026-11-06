@@ -1,0 +1,40 @@
+Building for debugging...
+[Pre-planning 1 / 155]
+[Planning deferred tasks]
+[5 / 22] SaytileKit
+[7 / 24] SaytileKit
+[15 / 28] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[19 / 28] SaytileKitTests-product
+[24 / 33] SaytileKitTests-product
+[28 / 32] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[30 / 32] SaytileKitTests-product
+[34 / 38] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[37 / 38] Saytile-product
+Build complete! (5.22秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Evidence-constrained fusion publication" started.
+◇ Test fullyStableMetaTurnStillCannotTurnProcessingProgressIntoAcousticCoverage() started.
+✘ Test fullyStableMetaTurnStillCannotTurnProcessingProgressIntoAcousticCoverage() recorded an issue at FusionPublicationTests.swift:159:9: Expectation failed: PrecisionFusion.stableAudioEnd(inFlight) == 0
+↳ PrecisionFusion.stableAudioEnd(inFlight) == 0 → false
+↳   PrecisionFusion.stableAudioEnd(inFlight) → 1.7
+↳   0 → 0.0
+✘ Test fullyStableMetaTurnStillCannotTurnProcessingProgressIntoAcousticCoverage() recorded an issue at FusionPublicationTests.swift:160:9: Expectation failed: PrecisionFusion.evidencePrefix(inFlight, through: 2) == nil
+↳ PrecisionFusion.evidencePrefix(inFlight, through: 2) == nil → false
+↳   PrecisionFusion.evidencePrefix(inFlight, through: 2) → "hello"
+↳     some → "hello"
+✘ Test fullyStableMetaTurnStillCannotTurnProcessingProgressIntoAcousticCoverage() recorded an issue at FusionPublicationTests.swift:161:9: Expectation failed: an error was expected but none was thrown and "FusionProposal(previewText: "hello", stableText: "hello", sourceCandidateIDs: [3A258400-22CB-4519-A1FE-37B3C68584B1], unresolved: false, needsAudioReview: false, reasonCode: "evidence-selection", selections: [SaytileKit.CandidateSpan(candidateID: 3A258400-22CB-4519-A1FE-37B3C68584B1, utf16Start: 0, utf16End: 5)], selectionRequestedUnresolved: Optional(false), reviewedCandidateIDs: Optional([3A258400-22CB-4519-A1FE-37B3C68584B1]))" was returned
+↳ FusionError.self → <not evaluated>
+↳   FusionError → <not evaluated>
+↳   self → <not evaluated>
+✘ Test fullyStableMetaTurnStillCannotTurnProcessingProgressIntoAcousticCoverage() failed after 0.005 seconds with 3 issues.
+✘ Suite "Evidence-constrained fusion publication" failed after 0.005 seconds with 3 issues.
+✘ Test run with 1 test in 1 suite failed after 0.005 seconds with 3 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)
