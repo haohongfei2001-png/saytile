@@ -458,3 +458,60 @@ private func appendEvidence(_ old: RecognitionCandidate, text: String, end: Doub
     #expect(PrecisionFusion.stableAudioEnd(candidate) == 0)
     #expect(throws: FusionError.self) { try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: candidate.id, utf16Start: 0, utf16End: 5)], candidates: [candidate]) }
 }
+
+@Test func multiProtectedSignaturesRecognizeCurlyNegationWithoutRewritingSources() throws {
+    for apostrophe in ["’", "‘", "ʼ", "‛"] {
+        let negative = sample("I don\(apostrophe)t want this", purpose: .englishASR)
+        let positive = sample("I want this")
+        let proposal = try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: positive.id,
+            utf16Start: 0, utf16End: positive.text.utf16.count)], candidates: [negative, positive])
+        #expect(proposal.stableText.isEmpty)
+        #expect(proposal.needsAudioReview)
+        #expect(negative.text == "I don\(apostrophe)t want this")
+    }
+}
+
+@Test func multiProtectedSignaturesRecognizeFullWidthAmountsAndKeepSelectedSpelling() throws {
+    let original = sample("支付１００元"), wrong = sample("支付１０００元", purpose: .englishASR)
+    let conflict = try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: wrong.id,
+        utf16Start: 0, utf16End: wrong.text.utf16.count)], candidates: [original, wrong])
+    #expect(conflict.stableText.isEmpty)
+    #expect(conflict.needsAudioReview)
+    #expect(conflict.previewText == "支付１０００元")
+    let equivalent = sample("支付100元", purpose: .englishASR)
+    let agreed = try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: original.id,
+        utf16Start: 0, utf16End: original.text.utf16.count)], candidates: [original, equivalent])
+    #expect(agreed.stableText == "支付１００元")
+    #expect(!agreed.needsAudioReview)
+    #expect(original.text == "支付１００元")
+}
+
+@Test func multiOlderReviewCannotPinTheGrowingLivePreview() {
+    let text = "我想在SwiftUI里面继续输入"
+    let zh = RecognitionCandidate(run: sample("").run, sequence: 0, text: text,
+        stableUTF16Length: 0, audioEndSeconds: 6, isComplete: false)
+    let en = RecognitionCandidate(run: sample("", purpose: .englishASR).run, sequence: 0, text: text,
+        stableUTF16Length: 0, audioEndSeconds: 6, isComplete: false)
+    let oldReview = sample("我想", purpose: .audioReview, end: 2)
+    let proposal = PrecisionFusion.evaluate(candidates: [oldReview, zh, en], mode: .highestQuality)
+    #expect(proposal.previewText == text)
+    #expect(proposal.stableText.isEmpty)
+    #expect(proposal.unresolved)
+}
+
+@Test func multiUncertainAndEmptyAudioReviewsDoNotOverrideUsablePreviewOrLoseUncertainty() {
+    let text = "可信原话"
+    let zh = sample(text, end: 6), en = sample(text, purpose: .englishASR, end: 6)
+    let uncertain = RecognitionCandidate(run: sample("", purpose: .audioReview).run, sequence: 0,
+        text: text, stableUTF16Length: 0, audioEndSeconds: 6, isComplete: false)
+    let proposal = PrecisionFusion.evaluate(candidates: [uncertain, zh, en], mode: .highestQuality, committedPrefix: text)
+    #expect(proposal.previewText == text)
+    #expect(proposal.stableText == text)
+    #expect(proposal.unresolved)
+    #expect(proposal.needsAudioReview)
+    let empty = sample("", purpose: .audioReview, end: 7)
+    let emptyProposal = PrecisionFusion.evaluate(candidates: [empty, zh, en], mode: .highestQuality)
+    #expect(emptyProposal.previewText == text)
+    #expect(emptyProposal.stableText.isEmpty)
+    #expect(emptyProposal.unresolved)
+}

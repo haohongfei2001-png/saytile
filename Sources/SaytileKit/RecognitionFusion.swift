@@ -78,10 +78,14 @@ public enum PrecisionFusion {
         let texts = compared.map(\.text)
         let disagreement = Set(texts).count > 1
         let critical = Set(compared.map { protectedSignature($0.text) }).count > 1
+        let uncertainAudioReview = compared.contains(where: audioReviewAbstains)
         // Even when a provider labels its entire text final, disagreement remains unresolved.
+        // A direct audio review that explicitly abstains cannot become certain merely because
+        // its tentative words happen to equal an already published prefix.
         return FusionProposal(previewText: preview.text, stableText: stable,
-            sourceCandidateIDs: compared.map(\.id), unresolved: disagreement || stable != preview.text,
-            needsAudioReview: disagreement && critical, reasonCode: disagreement ? "acoustic-disagreement" : "exact-stable-agreement")
+            sourceCandidateIDs: compared.map(\.id), unresolved: disagreement || stable != preview.text || uncertainAudioReview,
+            needsAudioReview: disagreement && critical || uncertainAudioReview,
+            reasonCode: disagreement ? "acoustic-disagreement" : uncertainAudioReview ? "audio-review-uncertain" : "exact-stable-agreement")
     }
 
     /// Validate an LLM's exact source spans. No generated characters, confidence comparisons or
@@ -277,7 +281,16 @@ public enum PrecisionFusion {
         for candidate in candidates where candidate.sequence > (results[candidate.run.id]?.sequence ?? -1) { results[candidate.run.id] = candidate }
         return results.values.sorted { $0.run.id.uuidString < $1.run.id.uuidString }
     }
+    static func audioReviewAbstains(_ candidate: RecognitionCandidate) -> Bool {
+        candidate.run.purpose == .audioReview && (!candidate.isComplete || candidate.stableUTF16Length < candidate.text.utf16.count)
+    }
     static func previewOrder(_ lhs: RecognitionCandidate, _ rhs: RecognitionCandidate) -> Bool {
+        // Retaining an old review as evidence must not pin the visible transcript to its shorter
+        // audio window. Empty/explicitly uncertain reviews also cannot displace usable live text.
+        if lhs.text.isEmpty != rhs.text.isEmpty { return !lhs.text.isEmpty }
+        let lhsAbstains = audioReviewAbstains(lhs), rhsAbstains = audioReviewAbstains(rhs)
+        if lhsAbstains != rhsAbstains { return !lhsAbstains }
+        if lhs.audioEndSeconds != rhs.audioEndSeconds { return lhs.audioEndSeconds > rhs.audioEndSeconds }
         func rank(_ candidate: RecognitionCandidate) -> Int {
             switch candidate.run.purpose { case .audioReview: 0; case .finalASR: 1; case .multilingualASR: 2; case .chineseASR: 3; case .englishASR: 4; case .textFusion: 5 }
         }
@@ -352,9 +365,16 @@ public enum PrecisionFusion {
     /// candidates for explicit acoustic review. Preserve the ordered critical tokens verbatim.
     static func protectedSignature(_ text: String) -> String {
         let pattern = #"(?i)(\b[\p{L}]+\b)(?:[\s,，]+\1\b)+|([\x{3400}-\x{9fff}])\2+|[+-]?[0-9]+(?:[.,:/-][0-9]+)*(?:%|％)?|[零〇一二三四五六七八九十百千万亿两]+|不|没|无|未|别|非|否|勿|\b(?:no|not|never|neither|nor|without|cannot|can't|don't|doesn't|didn't|isn't|aren't|wasn't|weren't|won't|wouldn't|shouldn't|couldn't)\b|[¥￥$€£]|\b(?:kg|mg|g|km|cm|mm|ms|usd|rmb|hours?|minutes?|seconds?|percent|dollars?)\b|公斤|千克|毫克|毫升|公里|厘米|毫米|元|万元|亿元|秒|分钟|小时|年|月|日|点"#
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return text }
-        let source = text as NSString
-        return regex.matches(in: text, range: NSRange(location: 0, length: source.length))
+        // Comparison only: preserve the exact source, selected ranges and published text.
+        // NFKC recognizes full-width numbers; apostrophe variants must not hide a negation.
+        let comparison = text.precomposedStringWithCompatibilityMapping
+            .replacingOccurrences(of: "’", with: "'")
+            .replacingOccurrences(of: "‘", with: "'")
+            .replacingOccurrences(of: "ʼ", with: "'")
+            .replacingOccurrences(of: "‛", with: "'")
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return comparison }
+        let source = comparison as NSString
+        return regex.matches(in: comparison, range: NSRange(location: 0, length: source.length))
             .map { source.substring(with: $0.range).lowercased() }.joined(separator: "\u{1f}")
     }
 }
