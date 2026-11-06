@@ -1,0 +1,28 @@
+Building for debugging...
+[1 / 7] SaytileKitTests-product
+[2 / 7] SaytileKitTests-product
+[4 / 9] SaytileKitTests-product
+[7 / 10] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[9 / 13] SaytileKitTests-product
+Build complete! (2.23秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Real coordinator with isolated persistence and controlled providers" started.
+◇ Test cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) started.
+◇ Test case passing 1 argument watchdog → true to cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) started.
+◇ Test case passing 1 argument watchdog → false to cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) started.
+✘ Test cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) recorded an issue with 1 argument watchdog → false at RecognitionCoordinatorTests.swift:381:13: Expectation failed: try await h.store.recording(id: h.recordingID)?.recognitionState == .failed
+↳ try await h.store.recording(id: h.recordingID)?.recognitionState == .failed → <not evaluated>
+✘ Test cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) recorded an issue with 1 argument watchdog → true at RecognitionCoordinatorTests.swift:378:13: Expectation failed: finished
+↳ Cancellation must stop the live review awaited by finalization
+↳ finished → <not evaluated>
+✘ Test cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) recorded an issue with 1 argument watchdog → true at RecognitionCoordinatorTests.swift:381:13: Expectation failed: try await h.store.recording(id: h.recordingID)?.recognitionState == .failed
+↳ try await h.store.recording(id: h.recordingID)?.recognitionState == .failed → <not evaluated>
+✘ Test cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) with 2 test cases failed after 0.649 seconds with 3 issues.
+✘ Suite "Real coordinator with isolated persistence and controlled providers" failed after 0.649 seconds with 3 issues.
+✘ Test run with 1 test in 1 suite failed after 0.649 seconds with 3 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

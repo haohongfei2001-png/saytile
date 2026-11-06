@@ -1,0 +1,90 @@
+Building for debugging...
+[Pre-planning 1 / 155]
+[Planning deferred tasks]
+[1 / 62]
+[33 / 73]
+[59 / 73] CAudio
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[70 / 212] CAudio
+[75 / 212]
+[85 / 212]
+[87 / 212]
+[88 / 212]
+[94 / 212]
+[96 / 212]
+[99 / 212]
+[105 / 212]
+[110 / 212]
+[111 / 212]
+[125 / 212]
+[127 / 212]
+[131 / 212]
+[137 / 212]
+[138 / 212]
+[145 / 212]
+[147 / 212]
+[153 / 212]
+[154 / 212]
+[157 / 212]
+[159 / 212]
+[171 / 212]
+[173 / 212]
+[177 / 212]
+[182 / 212]
+[185 / 212]
+[186 / 212]
+[187 / 212]
+[188 / 212]
+[199 / 212] SaytileKit
+[204 / 217] Saytile-product
+[207 / 228] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[212 / 228] SaytileKitTests-product
+[213 / 243]
+[216 / 243]
+[226 / 243] SaytileKitTests-product
+[227 / 243] Saytile-product
+[228 / 243] SaytileKitTests-product
+[229 / 243] SaytileKitTests-product
+[230 / 243] Saytile-product
+[233 / 245] SaytileKitTests-product
+[235 / 245] SaytileKitTests-product
+[237 / 246] Saytile-product
+[240 / 246] SaytileKitTests-product
+[240 / 246] Saytile-product
+[240 / 246] SaytileKitTests-product
+[240 / 246] Saytile-product
+[240 / 246] SaytileKitTests-product
+[240 / 246] Saytile-product
+[242 / 246] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[242 / 246] SaytileKitTests-product
+[244 / 246] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (25.68秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Real-time tap actor isolation" started.
+◇ Test countOnlyTapNeverReadsSampleDataAndRunsOffMain() started.
+◇ Test recordingTapCreatedOnMainActorRunsOnBackgroundThread() started.
+◇ Test recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt(expected:actual:) started.
+◇ Test recordingTapRejectsChangedSampleRateBeforeOldConverterReadsIt() started.
+◇ Test case passing 2 arguments expected → 1, actual → 2 to recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt(expected:actual:) started.
+◇ Test case passing 2 arguments expected → 2, actual → 1 to recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt(expected:actual:) started.
+✔ Test countOnlyTapNeverReadsSampleDataAndRunsOffMain() passed after 0.001 seconds.
+✔ Test recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt(expected:actual:) with 2 test cases passed after 0.001 seconds.
+✘ Test recordingTapRejectsChangedSampleRateBeforeOldConverterReadsIt() recorded an issue at AudioTapTests.swift:54:9: Expectation failed: output.withUnsafeMutableBufferPointer { st_ring_read(ring.pointer, $0.baseAddress!, 320) } == 0
+↳ output.withUnsafeMutableBufferPointer { st_ring_read(ring.pointer, $0.baseAddress!, 320) } == 0 → false
+↳   output.withUnsafeMutableBufferPointer { st_ring_read(ring.pointer, $0.baseAddress!, 320) } → 320
+✔ Test recordingTapCreatedOnMainActorRunsOnBackgroundThread() passed after 0.001 seconds.
+✘ Test recordingTapRejectsChangedSampleRateBeforeOldConverterReadsIt() recorded an issue at AudioTapTests.swift:55:9: Expectation failed: st_ring_dropped(ring.pointer) == 320
+↳ st_ring_dropped(ring.pointer) == 320 → false
+↳   st_ring_dropped(ring.pointer) → 0
+✘ Test recordingTapRejectsChangedSampleRateBeforeOldConverterReadsIt() failed after 0.001 seconds with 2 issues.
+✘ Suite "Real-time tap actor isolation" failed after 0.001 seconds with 2 issues.
+✘ Test run with 4 tests in 1 suite failed after 0.001 seconds with 2 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

@@ -1,5 +1,6 @@
 import Foundation
 import CoreGraphics
+@preconcurrency import AVFoundation
 
 struct AudioSessionSnapshot: Sendable, Equatable {
     let onConsole: Bool
@@ -44,6 +45,12 @@ struct AudioLifecycleGate: Sendable, Equatable {
         if sleeping { return "Mac 已睡眠" }
         if lockNotification || snapshot?.screenLocked == true { return "屏幕已锁定" }
         return "当前用户会话不可用"
+    }
+    static func requiresPermissionSuspension(state: CaptureState, authorization: AVAuthorizationStatus) -> Bool {
+        // The first system prompt may legitimately remain open longer than the
+        // polling interval. Only this pending start may await an undecided result;
+        // a reset/revocation during actual capture must still stop immediately.
+        state.isRunning && authorization != .authorized && !(state == .starting && authorization == .notDetermined)
     }
 }
 

@@ -8,9 +8,9 @@ V1 Release Candidate 已完成工程回归，真实讲话与个人环境验收�
 
 ## 最高质量中英文识别候选
 
-[PR #4](https://github.com/haohongfei2001-png/saytile/pull/4) 已按新的最高质量目标改为真实工程实现：中文与英文专家并行、可选混说专家、证据约束 AI 仲裁与原音复听、最高质量/快速确认、独立候选数据库和多服务 BYOK。旧的“唯一 Soniox”裁决已撤销。
+当前契约是两个平等完整音频 ASR 专家、唯一 GPT-6 Astra 文本核心和单份忠实文字流；Apple 本地识别进入统一候选入口。不得恢复五模型默认链、润色或第二评审器。见 [最终架构](research/architecture/FINAL-ARCHITECTURE.md)。
 
-本分支为 **1.0.0-rc.2-candidate.1**，已安装 RC1 继续保留。工程收口和真实云端接通是分别记录的验收项，见 [RC2 状态](docs/V1-RC2-STATUS.md)。当前未取得五项核心凭据及处理/费用授权，尚不能宣布实际接通或进入集中真人验收；不重新开展模型排名研究。可用 [独立连接设置](docs/V1-RC2-CONNECTION-SETUP.md) 保存密钥，不必覆盖 RC1。
+本分支同步 PR #4 的恢复、生命周期与取消所有权修复，同时保留 PR #5 的新产品契约。包装版本继承上游候选标识，不代表本轮已安装、发布或完成原生验收。独立 PR #6 承接运行时集成；真实云端、设备和外部输入验收仍未完成，参见 [工程状态](research/architecture/PROJECT-STATUS.md)。
 
 ## 构建和运行
 

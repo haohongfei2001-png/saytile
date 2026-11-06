@@ -1,0 +1,56 @@
+Building for debugging...
+[1 / 10]
+[2 / 11] SaytileKit
+[5 / 14] SaytileKit
+[9 / 16] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[12 / 16] SaytileKitTests-product
+[14 / 18] SaytileKitTests-product
+[20 / 22] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[24 / 28] Saytile-product
+[26 / 30] Saytile-product
+[27 / 30] Saytile-product
+[32 / 35] Saytile-product
+[34 / 35] Saytile-product/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (7.41秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Real-time tap actor isolation" started.
+◇ Suite "Independent lifecycle stop reasons" started.
+◇ Suite "Saved audio real-time replay" started.
+◇ Test recordingTapCreatedOnMainActorRunsOnBackgroundThread() started.
+◇ Test recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt() started.
+◇ Test permissionResetWhileCapturingStillRequiresSuspension() started.
+◇ Test wakeDoesNotOverrideLockOrSessionSwitch() started.
+◇ Test countOnlyTapNeverReadsSampleDataAndRunsOffMain() started.
+◇ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() started.
+◇ Test unknownSessionOrUntrustedUnlockCannotResume() started.
+◇ Test fiveMinuteRecordingDoesNotOverrunHealthyRealtimeConsumer() started.
+◇ Test lockedAtLaunchCannotCapture() started.
+◇ Test shortFinalBlockUsesItsOwnDurationAndCancellationStopsBeforeNextBlock() started.
+◇ Test initialPermissionPromptDoesNotCancelPendingStart() started.
+✔ Test wakeDoesNotOverrideLockOrSessionSwitch() passed after 0.001 seconds.
+✔ Test initialPermissionPromptDoesNotCancelPendingStart() passed after 0.001 seconds.
+✔ Test lockedAtLaunchCannotCapture() passed after 0.001 seconds.
+✔ Test permissionResetWhileCapturingStillRequiresSuspension() passed after 0.001 seconds.
+✔ Test unknownSessionOrUntrustedUnlockCannotResume() passed after 0.001 seconds.
+✔ Test recordingTapCreatedOnMainActorRunsOnBackgroundThread() passed after 0.001 seconds.
+✔ Test countOnlyTapNeverReadsSampleDataAndRunsOffMain() passed after 0.001 seconds.
+✘ Test recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt() recorded an issue at AudioTapTests.swift:25:9: Expectation failed: output.withUnsafeMutableBufferPointer { st_ring_read(ring.pointer, $0.baseAddress!, 320) } == 0
+↳ output.withUnsafeMutableBufferPointer { st_ring_read(ring.pointer, $0.baseAddress!, 320) } == 0 → false
+↳   output.withUnsafeMutableBufferPointer { st_ring_read(ring.pointer, $0.baseAddress!, 320) } → 320
+✘ Test recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt() failed after 0.001 seconds with 1 issue.
+✘ Suite "Real-time tap actor isolation" failed after 0.001 seconds with 1 issue.
+✔ Test shortFinalBlockUsesItsOwnDurationAndCancellationStopsBeforeNextBlock() passed after 0.001 seconds.
+✔ Test fiveMinuteRecordingDoesNotOverrunHealthyRealtimeConsumer() passed after 0.010 seconds.
+✔ Suite "Saved audio real-time replay" passed after 0.010 seconds.
+✔ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() passed after 0.046 seconds.
+✔ Suite "Independent lifecycle stop reasons" passed after 0.046 seconds.
+✘ Test run with 11 tests in 3 suites failed after 0.046 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)
