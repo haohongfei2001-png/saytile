@@ -752,8 +752,8 @@ extension SaytileStore {
                     needsAudioReview: proposal.needsAudioReview, reasonCode: proposal.reasonCode)
                 guard checked.previewText == proposal.previewText, checked.stableText == proposal.stableText, Set(checked.sourceCandidateIDs) == sourceIDs else { throw FusionError.invalidSelection }
             } else if proposal.stableText != sessionPrefix {
-                guard !sources.isEmpty, proposal.stableText.hasPrefix(sessionPrefix),
-                      sources.allSatisfy({ $0.stableText.hasPrefix(proposal.stableText) }),
+                guard !sources.isEmpty, RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: sessionPrefix),
+                      sources.allSatisfy({ RecognitionUTF16.hasExactPrefix($0.stableText, prefix: proposal.stableText) }),
                       mode != .highestQuality || Set(sources.map { $0.run.purpose }).isSuperset(of: [.chineseASR, .englishASR]) else { throw FusionError.invalidSelection }
             }
             // Preview must also be evidence, including when the stable prefix cannot advance.
@@ -761,7 +761,7 @@ extension SaytileStore {
             let old = try latestDispatchableRevision(recordingID: ticket.recordingID)
             let prior = old?.text ?? ""
             let cursors = try db.rows("SELECT prefix FROM cursors WHERE recording_id=? AND end_utf16>0", [.text(ticket.recordingID.uuidString)]).compactMap { $0["prefix"] }
-            let growsSession = proposal.stableText.hasPrefix(sessionPrefix)
+            let growsSession = RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: sessionPrefix)
             let requiredPresent = mode == .fast || Set(current.filter { $0.run.purpose.isStreaming }.map { $0.run.purpose }).isSuperset(of: [.chineseASR, .englishASR])
             let completeSources = !sources.isEmpty && sources.allSatisfy(\.isComplete) && requiredPresent
             let previousAttempt = try old.flatMap { revision in
@@ -770,8 +770,8 @@ extension SaytileStore {
             // A new complete generation may correct a never-reserved version. Once any target
             // owns a UTF-16 cursor, that immutable external prefix remains protected.
             let replacesUnsentGeneration = cursors.isEmpty && previousAttempt != ticket.id.uuidString && completeSources
-            let growsPublished = proposal.stableText.hasPrefix(prior) || replacesUnsentGeneration
-            let growsCursors = cursors.allSatisfy { proposal.stableText.hasPrefix($0) }
+            let growsPublished = RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: prior) || replacesUnsentGeneration
+            let growsCursors = cursors.allSatisfy { RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: $0) }
             let safe = growsSession && growsPublished && growsCursors
             let shouldPublish = safe && !proposal.stableText.isEmpty && proposal.stableText != prior
             var published: TranscriptRevision?

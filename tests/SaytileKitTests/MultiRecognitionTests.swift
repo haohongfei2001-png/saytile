@@ -142,6 +142,8 @@ private func sample(_ text: String, purpose: RecognitionPurpose = .chineseASR,
     #expect(RecognitionUTF16.slice(text, start: 0, end: 2) == nil)
     #expect(RecognitionUTF16.slice(text, start: 1, end: 3) == nil)
     #expect(RecognitionUTF16.commonPrefix(["👩🏽‍💻你好", "👩🏽‍💻您好"]) == "👩🏽‍💻")
+    #expect(RecognitionUTF16.commonPrefix(["e\u{301}", "é"]).isEmpty)
+    #expect(!RecognitionUTF16.hasExactPrefix("éx", prefix: "e\u{301}"))
     #expect(throws: FusionError.self) { try PrecisionFusion.validateCandidate(sample(text, stable: 2)) }
     let a = sample("pay 123", purpose: .englishASR), b = sample("pay 124")
     #expect(PrecisionFusion.evaluate(candidates: [a, b], mode: .highestQuality).stableText == "pay ")

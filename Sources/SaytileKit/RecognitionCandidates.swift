@@ -127,11 +127,14 @@ public enum RecognitionUTF16 {
               (hi == text.endIndex || text.indices.contains(hi)) else { return nil }
         return String(text[lo..<hi])
     }
+    public static func hasExactPrefix(_ text: String, prefix: String) -> Bool {
+        text.utf16.starts(with: prefix.utf16) && slice(text, start: 0, end: prefix.utf16.count) != nil
+    }
     public static func commonPrefix(_ texts: [String]) -> String {
         guard var prefix = texts.first else { return "" }
         for text in texts.dropFirst() {
             var match = ""
-            for (a, b) in zip(prefix, text) { guard a == b else { break }; match.append(a) }
+            for (a, b) in zip(prefix, text) { guard String(a).utf16.elementsEqual(String(b).utf16) else { break }; match.append(a) }
             prefix = match
         }
         return prefix

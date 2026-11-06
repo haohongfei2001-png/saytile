@@ -72,7 +72,7 @@ public enum PrecisionFusion {
         }
         let rawCommon = RecognitionUTF16.commonPrefix(compared.map(\.stableText))
         let common = Set(compared.map(\.stableText)).count > 1 ? completeLexicalPrefix(rawCommon) : rawCommon
-        let stable = common.hasPrefix(committedPrefix) ? common : committedPrefix
+        let stable = RecognitionUTF16.hasExactPrefix(common, prefix: committedPrefix) ? common : committedPrefix
         let texts = compared.map(\.text)
         let disagreement = Set(texts).count > 1
         let critical = Set(compared.map { protectedSignature($0.text) }).count > 1
@@ -140,7 +140,7 @@ public enum PrecisionFusion {
             protectedConflict = differs && !(independent && hasRecheck)
         }
         let uncertain = unresolved || needsAudioReview || protectedConflict || !allStable
-        let changesCommitted = !text.hasPrefix(committedPrefix)
+        let changesCommitted = !RecognitionUTF16.hasExactPrefix(text, prefix: committedPrefix)
         let truncatedSource: Bool
         if let last = spans.last, let source = index[last.candidateID] { truncatedSource = last.utf16End < source.text.utf16.count }
         else { truncatedSource = true }
