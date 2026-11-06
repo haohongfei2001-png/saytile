@@ -1,0 +1,45 @@
+Building for production...
+[Computing dependencies]
+[1 / 4]
+[12 / 54] SaytileKit
+[29 / 54] CAudio
+[38 / 54] CAudio
+[45 / 54] CAudio
+[49 / 54] CAudio
+[49 / 54] SaytileKit
+/Users/hhf/.codex/saytile-multi-asr-20261106/repo/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[51 / 55] CAudio
+[52 / 56] SaytileKit
+/Users/hhf/.codex/saytile-multi-asr-20261106/repo/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[57 / 60] SaytileKit
+[58 / 61] Saytile-product
+[59 / 62] Saytile-product
+/Users/hhf/.codex/saytile-multi-asr-20261106/repo/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/saytile-multi-asr-20261106/repo/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[61 / 62] Saytile-product
+[62 / 62] Saytile-product
+Build complete! (58.69秒)
+/tmp/saytile-bundle.6gGO1X/Saytile.app: replacing existing signature
+/tmp/saytile-bundle.6gGO1X/Saytile.app/Contents/Info.plist: OK
+Built /tmp/saytile-package.N69IRU/Saytile.app
+created: /Users/hhf/.codex/saytile-multi-asr-20261106/repo/dist/Saytile-1.0.0-asr-preview.1-arm64.dmghdiutil: WARNING: 'hdiutil create -volname -format ...' is deprecated. Please use 'diskutil image create from/blank --volumeName --format ...' instead.
+
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $275DF019
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $780C2F3A
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $E4DD9F50
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $85936BC8
+正在检查“（Apple_Free：5）”的校验和…
+                      （Apple_Free：5）：已验证CRC32 $00000000
+正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $E4DD9F50
+正在检查“GPT Header（Backup GPT Header：7）”的校验和…
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $9561F7FB
+已验证CRC32 $8CF2191D
+hdiutil: verify: checksum of "dist/Saytile-1.0.0-asr-preview.1-arm64.dmg" is VALID
+Packaged dist/Saytile-1.0.0-asr-preview.1-arm64.dmg
