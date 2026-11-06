@@ -62,6 +62,7 @@ struct SingleTranscriptEngineTests {
         let preferences = try #require(UserDefaults(suiteName: suite))
         defer { preferences.removePersistentDomain(forName: suite) }
         var old = RecognitionConfiguration()
+        old.inputMode = .fast
         old.models.append(.init(purpose: .audioReview, provider: .gemini, model: "gemini-3.8-flash", enabled: true, cloudConsent: true))
         old.models.append(.init(purpose: .finalASR, provider: .elevenLabsFile, model: "scribe_v2", enabled: true, cloudConsent: true))
         let oldGPT = try #require(old.models.first { $0.purpose == .textFusion })
@@ -71,6 +72,7 @@ struct SingleTranscriptEngineTests {
         #expect(active.filter { $0.purpose == .textFusion }.count == 1)
         #expect(!active.contains { [.audioReview, .finalASR].contains($0.purpose) })
         #expect(migrated.models.first { $0.purpose == .textFusion }?.id == oldGPT.id)
+        #expect(migrated.inputMode == .highestQuality)
     }
 
 }
