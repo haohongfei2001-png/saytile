@@ -209,7 +209,11 @@ struct InputCoordinatorTests {
     @Test func injectedWorkspaceActivationExpiresBindingWithoutChangingFakeSnapshot() async throws {
         let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
         let store = try SaytileStore(directory: directory), access = FakeInputAccess()
-        access.target.processID = -1 // A synthetic target distinct from any running application.
+        let activatedApplication = NSRunningApplication.current
+        // A command-line runner can report -1. Choose relative to the actual
+        // notification payload instead of assuming any sentinel is distinct.
+        access.target.processID = activatedApplication.processIdentifier == 123456 ? 123457 : 123456
+        try #require(access.target.processID != activatedApplication.processIdentifier)
         let expectedTarget = access.target
         let center = NotificationCenter()
         let coordinator = NativeInputCoordinator(store: store, access: access,
@@ -224,7 +228,7 @@ struct InputCoordinatorTests {
         // Post only to the isolated center, using the production notification and
         // payload type. No real activation, accessibility action or draft is involved.
         center.post(name: NSWorkspace.didActivateApplicationNotification, object: nil,
-                    userInfo: [NSWorkspace.applicationUserInfoKey: NSRunningApplication.current])
+                    userInfo: [NSWorkspace.applicationUserInfoKey: activatedApplication])
         let invalidated = await withTaskGroup(of: Bool.self) { group in
             group.addTask {
                 for await _ in invalidations.stream { return true }
