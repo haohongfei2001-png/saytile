@@ -5,6 +5,9 @@ p=argparse.ArgumentParser()
 p.add_argument('--dmg',required=True,type=pathlib.Path)
 p.add_argument('--previous-dmg','--beta-dmg',dest='previous_dmg',required=True,type=pathlib.Path)
 p.add_argument('--baseline-ref',choices=['v1.0.0-beta.1','v1.0.0-rc.1'])
+p.add_argument('--expected-source',required=True,help='Exact committed candidate source revision')
+p.add_argument('--expected-version',required=True,help='Exact candidate release version')
+p.add_argument('--expected-binary-sha256',required=True,help='Executable hash from the intended candidate DMG')
 p.add_argument('--output',type=pathlib.Path,default=pathlib.Path('research/asr/validation/rc2/install-upgrade.json'))
 a=p.parse_args()
 a.baseline_ref=a.baseline_ref or ('v1.0.0-beta.1' if '--beta-dmg' in sys.argv else 'v1.0.0-rc.1')
@@ -43,6 +46,16 @@ with tempfile.TemporaryDirectory(prefix='saytile-install-upgrade-') as temp:
             if app.exists(): shutil.rmtree(app)
             run(['ditto','--norsrc',source,app]);run(['codesign','--verify','--strict',app])
         finally: run(['hdiutil','detach',mount])
+        info=plistlib.loads((app/'Contents/Info.plist').read_bytes())
+        binary_sha256=hashlib.sha256((app/'Contents/MacOS/Saytile').read_bytes()).hexdigest()
+        if label=='candidate':
+            assert info.get('SaytileSourceDirty') is False,'Candidate has uncommitted runtime sources'
+            assert info.get('SaytileSourceRevision')==a.expected_source,'Candidate source does not match expected source'
+            assert info.get('SaytileReleaseVersion')==a.expected_version,'Candidate release does not match expected version'
+            assert binary_sha256==a.expected_binary_sha256,'Candidate binary does not match the intended DMG executable'
+            candidate_binary_sha256=binary_sha256
+        else:
+            previous_binary_sha256=binary_sha256
         timings.append({label+'_startup_seconds':app_start(app,data)})
         if label=='previous':
             previous_info=plistlib.loads((app/'Contents/Info.plist').read_bytes())
@@ -66,14 +79,18 @@ with tempfile.TemporaryDirectory(prefix='saytile-install-upgrade-') as temp:
         checks.append('explicit_preupgrade_snapshot_restores_rc1_without_overwriting_candidate_data')
     for _ in range(3): timings.append({'rc_restart_seconds':app_start(app,data)})
     assert snapshot(data)==after;checks.append('three_normal_restarts_preserve_data_and_uncertain_dispatch')
-    owner=subprocess.Popen([str(app/'Contents/MacOS/Saytile'),'--data-directory',str(data),'-hasLaunched','YES','-shortcutChoice','disabled'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    owner=subprocess.Popen([str(app/'Contents/MacOS/Saytile'),'--data-directory',str(data)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
     try:
         time.sleep(1);assert owner.poll() is None
         rejected=run([app/'Contents/MacOS/Saytile','--data-directory',data,'--smoke-test'],expected=1)
         assert '另一个 Saytile' in rejected.stdout;checks.append('second_packaged_process_rejected_without_modal_prompt')
-    finally: owner.terminate();owner.wait(timeout=10)
+    finally:
+        owner.terminate();owner_output,owner_error=owner.communicate(timeout=10)
+        logs.append(owner_output+owner_error)
+    isolation='SAYTILE_ISOLATED_LAUNCH cloud_enabled=false automatic_recovery=false shortcut=disabled visible_panel=false hotkey_registered=false'
+    assert isolation in owner_output,'Held candidate process did not confirm isolated preferences and disabled recovery/UI/shortcut'
     app_start(app,data);assert snapshot(data)==after;checks.append('restart_after_forced_process_exit_retains_upgrade_data')
     info=plistlib.loads((app/'Contents/Info.plist').read_bytes())
     assert info.get('SaytileSourceDirty') is False
-    report={'status':'PASS','checks':checks,'count':len(checks),'startup_timings':timings,'source_revision':info['SaytileSourceRevision'],'release_version':info['SaytileReleaseVersion'],'baseline_ref':a.baseline_ref,'baseline_app_source_revision':previous_info.get('SaytileSourceRevision'),'baseline_app_release_version':previous_info['SaytileReleaseVersion'],'baseline_revision':subprocess.check_output(['git','rev-parse',a.baseline_ref],cwd=root,text=True).strip(),'dmg_sha256':hashlib.sha256(a.dmg.read_bytes()).hexdigest(),'scope':'Readonly DMG signature, independent installation, actual released app and candidate startup/upgrade, exact synthetic content/audio comparison, explicit copy rollback and duplicate-instance rejection; no real user database or microphone'}
+    report={'status':'PASS','checks':checks,'count':len(checks),'startup_timings':timings,'source_revision':info['SaytileSourceRevision'],'release_version':info['SaytileReleaseVersion'],'binary_sha256':candidate_binary_sha256,'expected_source_revision':a.expected_source,'expected_release_version':a.expected_version,'expected_binary_sha256':a.expected_binary_sha256,'held_candidate_preferences_isolated':True,'baseline_ref':a.baseline_ref,'baseline_app_source_revision':previous_info.get('SaytileSourceRevision'),'baseline_app_release_version':previous_info['SaytileReleaseVersion'],'baseline_binary_sha256':previous_binary_sha256,'baseline_revision':subprocess.check_output(['git','rev-parse',a.baseline_ref],cwd=root,text=True).strip(),'previous_dmg_sha256':hashlib.sha256(a.previous_dmg.read_bytes()).hexdigest(),'dmg_sha256':hashlib.sha256(a.dmg.read_bytes()).hexdigest(),'scope':'Readonly DMG signature, explicit candidate source/version/binary identity, independent installation, actual released app and candidate startup/upgrade, exact synthetic content/audio comparison, explicit copy rollback and duplicate-instance rejection; held candidate has ephemeral preferences with no cloud/recovery/shortcut/window; no real user database or microphone'}
     a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');a.output.with_suffix('.log').write_text('\n'.join(logs));print(json.dumps(report,ensure_ascii=False,indent=2))

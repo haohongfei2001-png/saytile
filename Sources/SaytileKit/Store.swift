@@ -313,15 +313,23 @@ public actor SaytileStore {
             for row in batch {
                 cursor = Int64(row["scan_id"]!)!
                 guard let id = UUID(uuidString:row["recording_id"]!) else { continue }
-                if row["completed"] == "1" {
-                    let residual = try safeAudioURL(id.uuidString)
-                    guard FileManager.default.fileExists(atPath:residual.path) else { continue }
-                    try db.transaction {
-                        try db.execute("UPDATE erasures SET completed=0 WHERE recording_id=?",[.text(id.uuidString)])
-                        try db.execute("UPDATE recordings SET audio_state='deletePending' WHERE id=?",[.text(id.uuidString)])
+                do {
+                    if row["completed"] == "1" {
+                        let residual = try safeAudioURL(id.uuidString)
+                        guard try audioItemExists(residual) else { continue }
+                        try db.transaction {
+                            try db.execute("UPDATE erasures SET completed=0 WHERE recording_id=?",[.text(id.uuidString)])
+                            try db.execute("UPDATE recordings SET audio_state='deletePending' WHERE id=?",[.text(id.uuidString)])
+                        }
                     }
+                    try completeErasure(id)
+                } catch StoreError.invalidPath {
+                    try recordErasureRecoveryFailure(id, message: StoreError.invalidPath.localizedDescription)
+                } catch let error as NSError where error.domain == NSCocoaErrorDomain || error.domain == NSPOSIXErrorDomain {
+                    try recordErasureRecoveryFailure(id, message: error.localizedDescription)
                 }
-                try completeErasure(id)
+                // Only per-item filesystem/path failures are isolated. SQL and
+                // root directory durability failures still stop startup recovery.
                 await Task.yield()
             }
             await Task.yield()
@@ -439,12 +447,29 @@ public actor SaytileStore {
             }
         }
     }
+    private func recordErasureRecoveryFailure(_ id: UUID, message: String) throws {
+        try db.transaction {
+            // Inaccessible is not absent or erased. Keep the durable intent and
+            // refuse leases/recognition until physical deletion can finish.
+            try db.execute("UPDATE erasures SET completed=0 WHERE recording_id=?", [.text(id.uuidString)])
+            try db.execute("UPDATE recordings SET audio_state='deletePending',last_error=? WHERE id=?",
+                [.text("原音删除暂未完成，将在下次启动继续清理：" + message), .text(id.uuidString)])
+        }
+    }
+    private func audioItemExists(_ url: URL) throws -> Bool {
+        var information = stat()
+        if Darwin.lstat(url.path, &information) == 0 { return true }
+        let code = errno
+        if code == ENOENT { return false }
+        // fileExists collapses EACCES into false, which must never certify erasure.
+        throw NSError(domain: NSPOSIXErrorDomain, code: Int(code))
+    }
     private func completeErasure(_ id: UUID) throws {
         guard try db.rows("SELECT recording_id FROM erasures WHERE recording_id=? AND completed=0",[.text(id.uuidString)]).first != nil else { return }
         guard !leases.values.contains(id) else { return }
         // Remove the complete owned directory, including a crash tail not yet registered as a chunk.
         let url = try safeAudioURL(id.uuidString)
-        if FileManager.default.fileExists(atPath:url.path) { try FileManager.default.removeItem(at:url) }
+        if try audioItemExists(url) { try FileManager.default.removeItem(at:url) }
         let descriptor = Darwin.open(audioDirectory.path,O_RDONLY)
         guard descriptor >= 0 else { throw StoreError.database("无法同步原音删除目录") }
         let synced = Darwin.fsync(descriptor)
@@ -452,7 +477,7 @@ public actor SaytileStore {
         guard synced == 0 else { throw StoreError.database("原音删除尚未同步，稍后将继续清理") }
         try db.transaction {
             try db.execute("UPDATE erasures SET completed=1 WHERE recording_id=?",[.text(id.uuidString)])
-            try db.execute("UPDATE recordings SET audio_state='deleted' WHERE id=?",[.text(id.uuidString)])
+            try db.execute("UPDATE recordings SET audio_state='deleted',last_error=CASE WHEN last_error LIKE '原音删除暂未完成，%' THEN NULL ELSE last_error END WHERE id=?",[.text(id.uuidString)])
             try db.execute("DELETE FROM chunks WHERE recording_id=?",[.text(id.uuidString)])
         }
     }
