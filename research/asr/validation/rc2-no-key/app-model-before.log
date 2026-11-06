@@ -1,0 +1,5 @@
+PASS missing remembered microphone never silently selects system default
+PASS explicit default device choice clears remembered hardware UID
+PASS coalesced initial load waits for populated archive
+REFRESH_BURST callers=40 database_passes=40
+Swift/ErrorType.swift:254: Fatal error: Error raised at top level: probe.AppModelProbe.Failure(message: "overlapping refresh callers share database work without losing archive contents")

@@ -125,9 +125,7 @@ extension AppDelegate {
                     }
                 }.formStyle(.grouped), size: CGSize(width: 650, height: 740), name: "ai-chinese-keychain", output: output) { host in
                     let prefix = "recognition.model." + model.recognitionConfiguration.models[0].id.uuidString.lowercased()
-                    try await self.press(prefix + ".enabled", in: host)
-                    guard !model.recognitionConfiguration.models[0].enabled else { throw ReviewFailure("native model disable failed") }
-                    try await self.press(prefix + ".enabled", in: host)
+                    guard model.recognitionConfiguration.models[0].enabled else { throw ReviewFailure("required expert unexpectedly disabled") }
                     try await self.setValue("synthetic-workspace", for: prefix + ".workspace", in: host)
                     guard model.recognitionConfiguration.models[0].workspaceID == "synthetic-workspace" else { throw ReviewFailure("native workspace field failed") }
                     try await self.press(prefix + ".consent", in: host)
@@ -135,7 +133,7 @@ extension AppDelegate {
                     try await self.press(prefix + ".consent", in: host)
                     guard !model.recognitionConfiguration.models[0].cloudConsent,
                           model.recognitionConfiguration.models[0].enabled else { throw ReviewFailure("native model controls did not restore safe defaults") }
-                    print("UI_CONTROL_PASS model controls: enable, workspace and per-service consent; no key read or cloud request")
+                    print("UI_CONTROL_PASS fixed dual-expert setup: workspace and per-service consent; no model toggle, key read or cloud request")
                 }
             }
             let setupRoot = output.appendingPathComponent("connection-setup-" + UUID().uuidString, isDirectory: true)
