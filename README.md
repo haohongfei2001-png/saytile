@@ -1,4 +1,4 @@
-> 当前开发候选：双平等专家 + 唯一 GPT 文字流引擎，见 PR #6 和 `evidence/single-transcript/INTEGRATION.md`。main/已安装 RC1 未改；旧候选描述为历史，不代表新代码的实网准确率或真实外部应用验收。
+> 当前开发候选：双平等专家 + 唯一 GPT 文字流引擎，见 PR #6 和 [最终交付与验收](evidence/single-transcript/DELIVERY.md)。main/已安装 RC1 未改；旧候选描述为历史，不代表新代码的实网准确率或真实外部应用验收。
 
 # Saytile
 
@@ -57,4 +57,4 @@ scripts/package-beta.sh
 
 ## Current recognition architecture (2026-11-07)
 
-Two equal ASR experts receive the same complete audio, and one GPT-6 Astra core continuously reviews their candidate evidence. The UI presents one transcript. GPT-6 Astra is text-only in the API; it does not directly hear audio. See [the final architecture](research/architecture/FINAL-ARCHITECTURE.md), [API capability decision](research/asr/DECISION.md), and [implementation status](research/architecture/PROJECT-STATUS.md).
+Two equal ASR experts receive the same complete audio, and one GPT-6 Astra core continuously reviews their candidate evidence. The UI presents one transcript. GPT-6 Astra does not support audio input in this API; it does not directly hear the original recording. See [the final architecture](research/architecture/FINAL-ARCHITECTURE.md), [API capability decision](research/asr/DECISION.md), and [implementation status](research/architecture/PROJECT-STATUS.md).
