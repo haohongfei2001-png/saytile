@@ -37,7 +37,14 @@ actor SingleTranscriptEngine {
         try await store.configureFusionRequirements(ticket: ticket, configurations: configuration.enabledModels)
         self.audio = audio
     }
-    func cancel() { cancelled = true; reviewTask?.cancel(); reviewTask = nil }
+    func cancel() async {
+        cancelled = true
+        // Retain ownership until the independently scheduled review exits. All
+        // overlapping cancellation callers must await the same draining task.
+        let drainingReview = reviewTask
+        drainingReview?.cancel()
+        await drainingReview?.value
+    }
     func audioOverflow(configurationID: UUID) { overflowed.insert(configurationID) }
     private var requiredPurposes: Set<RecognitionPurpose> {
         Set(configuration.enabledModels.filter { $0.purpose.isStreaming }.map(\.purpose))
@@ -390,6 +397,7 @@ actor SingleTranscriptEngine {
     }
     func finalize() async {
         ending = true
+        dependencies.finalizationStarted()
         await reviewTask?.value
         reviewTask = nil
         guard !cancelled else { return }
