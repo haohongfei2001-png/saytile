@@ -157,12 +157,7 @@ private final class CoordinatorHarness: Sendable {
                 let decision = try await review.arbitrate(evidence)
                 return (decision, .init(requestID: "offline-text", inputTokens: nil, outputTokens: nil, elapsedSeconds: 0))
             },
-            listen: { data, _, _ in
-                guard let reviewText else { throw CoordinatorFixtureFailure.unexpectedDependency }
-                await review.hear(data)
-                if let reviewRelease { try await reviewRelease.wait() }
-                return (.init(text: reviewText, uncertain: false),
-                        .init(requestID: "offline-audio", inputTokens: nil, outputTokens: nil, elapsedSeconds: 0))
+            listen: { _, _, _ in throw CoordinatorFixtureFailure.unexpectedDependency }
             })
         let ticket = try await store.beginFusionRecognition(recordingID: recording.id, mode: mode)
         let completed = CoordinatorGate()
@@ -405,9 +400,7 @@ struct RecognitionCoordinatorTests {
                                          reviewText: "我想买梨子。") { h in
             h.session.append(first)
             try await chinese.liveEmitted.wait(); try await english.liveEmitted.wait()
-            try await coordinatorEventually {
-                try await h.store.recognitionCandidates(recordingID: h.recordingID).contains { $0.run.purpose == .audioReview && $0.isComplete }
-            }
+            try await coordinatorEventually { await h.review.arbitrationCalls > 0 }
             if appendMore {
                 try await h.persist(first + second)
                 h.session.append(second)
