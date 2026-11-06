@@ -51,3 +51,8 @@ scripts/package-beta.sh
 - [原型](prototype/index.html)、[历史来源](docs/06-PROVENANCE.md)、[第三方许可](THIRD_PARTY_NOTICES.md)
 
 个人包采用 ad-hoc 签名，尚未进行 Developer ID 公证。合成语音、后台 AX 测试、硬件缓冲统计、实际真人输入和整机功耗是不同验证层，详见测试记录。V2 轻声识别与 V3 个人词库/文字输入法不在本轮范围。
+
+
+## Current recognition architecture (2026-11-07)
+
+Two equal ASR experts receive the same complete audio, and one GPT-6 Astra core continuously reviews their candidate evidence. The UI presents one transcript. GPT-6 Astra is text-only in the API; it does not directly hear audio. See [the final architecture](research/architecture/FINAL-ARCHITECTURE.md), [API capability decision](research/asr/DECISION.md), and [implementation status](research/architecture/PROJECT-STATUS.md).
