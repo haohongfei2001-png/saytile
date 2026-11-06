@@ -14,6 +14,7 @@ struct RecognitionPipelineDependencies: Sendable {
             case .qwenMessage: return QwenMessageProvider()
             case .assemblyAI: return AssemblyStreamingProvider()
             case .soniox: return SonioxStreamingProvider()
+            case .meta: return MetaStreamingProvider()
             case .elevenLabsRealtime: throw ProviderFailure.configuration("本轮未启用 ElevenLabs 实时适配；可使用 Scribe v2 文件复核。")
             default: throw ProviderFailure.configuration("所选服务不是实时识别接口。")
             }
@@ -332,6 +333,8 @@ actor MultiRecognitionCoordinator {
                 // The network call may have succeeded while its evidence became stale.
                 // Record the rejected decision, rather than claiming a successful fusion.
                 try? await store.finishModelRun(reply.run, error: MultiRecognitionSession.safeMessage(error), retryable: true)
+                if case FusionError.staleGeneration = error { /* New audio superseded evidence. */ }
+                else { await recordReviewFailure(error, item: reply.item) }
             }
         }
         guard var proposal = checked.first?.1 else {
@@ -349,6 +352,13 @@ actor MultiRecognitionCoordinator {
                 proposal = try PrecisionFusion.validateSelection(spans: proposal.selections, candidates: current,
                     committedPrefix: committedPrefix, unresolved: true,
                     needsAudioReview: checked.contains { $0.1.needsAudioReview }, reasonCode: "arbiters-not-in-agreement")
+            }
+            if checked.contains(where: { $0.1.unresolved }) && !proposal.unresolved {
+                proposal = FusionProposal(previewText: proposal.previewText, stableText: proposal.stableText,
+                    sourceCandidateIDs: proposal.sourceCandidateIDs, unresolved: true,
+                    needsAudioReview: proposal.needsAudioReview, reasonCode: "arbiter-retains-uncertainty",
+                    selections: proposal.selections, selectionRequestedUnresolved: proposal.selectionRequestedUnresolved,
+                    reviewedCandidateIDs: candidates.map(\.id))
             }
             let selectedEnd = try proposal.selections.map { span -> Double in
                 guard let source = current.first(where: { $0.id == span.candidateID }) else { throw FusionError.staleGeneration }

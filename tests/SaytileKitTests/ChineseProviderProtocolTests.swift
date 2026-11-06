@@ -141,7 +141,7 @@ struct ChineseProviderProtocolTests {
         #expect(result.tokens.map(\.text).joined() == result.text)
         #expect(result.tokens.map(\.startSeconds) == [0.12, 0.35, 0.7, 1])
         #expect(result.tokens.map(\.endSeconds) == [0.3, 0.65, 0.95, 1.6])
-        #expect(result.tokens.allSatisfy(\.isFinal))
+        #expect(result.tokens.allSatisfy { $0.isFinal })
         let mixedValue = try codec.consume(envelope("result-generated", sentence:
             sentence(2, "然后继续。", false, start: 1700, end: 2200)))
         let mixed = try #require(mixedValue)
