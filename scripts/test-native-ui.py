@@ -26,8 +26,8 @@ with tempfile.TemporaryDirectory(prefix='saytile-native-ui-') as temp:
     (output / 'run.log').write_text(log)
     passed = result.returncode == 0 and 'UI_REVIEW_PASS' in log
     if args.controls:
-        passed = passed and log.count('NATIVE_UI_AXPRESS ') == 5 and log.count('UI_CONTROL_PASS ') == 3
+        passed = passed and log.count('NATIVE_UI_AXPRESS ') == 16 and log.count('NATIVE_UI_AXSETVALUE ') == 2 and log.count('NATIVE_UI_FIELD_EDIT ') == 2 and log.count('UI_CONTROL_PASS ') == 6
     files = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(output.glob('*.png'))}
-    (output / 'manifest.json').write_text(json.dumps({'passed': passed, 'controls_requested': args.controls, 'source_revision': metadata.get('SaytileSourceRevision'), 'source_dirty': metadata.get('SaytileSourceDirty'), 'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'images': files, 'scope': 'Production SwiftUI attached to transparent nonactivating AppKit windows; fixture PID only; synthetic data; no microphone; foreground unchanged'}, ensure_ascii=False, indent=2) + '\n')
+    (output / 'manifest.json').write_text(json.dumps({'passed': passed, 'controls_requested': args.controls, 'source_revision': metadata.get('SaytileSourceRevision'), 'source_dirty': metadata.get('SaytileSourceDirty'), 'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'images': files, 'outside_foreground_observations': log.count('UI_FOREGROUND_OBSERVATION '), 'scope': 'Production SwiftUI in transparent nonactivating AppKit windows; fixture PID only; synthetic data; no microphone/global keys; candidate activation rejected; outside foreground transitions recorded without causal claims'}, ensure_ascii=False, indent=2) + '\n')
     print(log)
     raise SystemExit(0 if passed else 1)

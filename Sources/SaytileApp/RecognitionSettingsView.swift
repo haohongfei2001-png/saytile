@@ -148,7 +148,7 @@ struct ModelConfigurationEditor: View {
                 })) {
                     ForEach(RecognitionPurpose.allCases, id: \.self) { Text($0.label).tag($0) }
                 }.accessibilityIdentifier(prefix + ".purpose")
-                Picker("服务", selection: Binding(get: { configuration.provider }, set: selectProvider)) {
+                Picker("服务", selection: Binding(get: { configuration.provider }, set: { provider in selectProvider(provider) })) {
                     ForEach(CloudProvider.allCases.filter { $0.supports(configuration.purpose) }, id: \.self) { Text($0.label).tag($0) }
                 }.accessibilityIdentifier(prefix + ".provider")
                 TextField("模型 ID", text: $configuration.model).autocorrectionDisabled()
@@ -176,7 +176,7 @@ struct ModelConfigurationEditor: View {
                 Spacer()
                 Text(status).font(.system(size: 11)).foregroundStyle(Palette.muted)
             }
-        }.accessibilityIdentifier(prefix + ".disclosure")
+        }
             .task { credentialPresence = model.credentialPresence(configuration); expanded = initiallyExpanded }
     }
     private func selectProvider(_ provider: CloudProvider) {

@@ -21,12 +21,13 @@ final class VoicePanel: NSPanel {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var model: AppModel?
     private var status: NSStatusItem?
     private var panel: VoicePanel?
     private var archive: NSWindow?
     private var settings: NSWindow?
+    private var connectionSetupWindow: NSWindow?
     private var hotKey: EventHotKeyRef?
     private var eventHandler: EventHandlerRef?
     private var shortcutObserver: NSObjectProtocol?
@@ -39,7 +40,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
-            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--multi-asr-probe", "--render-preview", "--focus-probe", "--ui-review"]
+            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--multi-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--connection-setup"]
             let isDiagnostic = diagnostics.contains(where: CommandLine.arguments.contains)
             let directoryIndex = CommandLine.arguments.firstIndex(of: "--data-directory")
             if isDiagnostic || directoryIndex != nil {
@@ -56,6 +57,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Saytile", isDirectory: true)
             }
+            let setupRequest: ConnectionSetupRequest?
+            if CommandLine.arguments.contains("--connection-setup") {
+                guard !diagnostics.filter({ $0 != "--connection-setup" }).contains(where: CommandLine.arguments.contains),
+                      let index = CommandLine.arguments.firstIndex(of: "--connection-output"),
+                      CommandLine.arguments.count > index + 1,
+                      CommandLine.arguments[index + 1].hasPrefix("/"),
+                      directoryIndex.map({ CommandLine.arguments[$0 + 1].hasPrefix("/") }) == true else {
+                    print("CONNECTION_SETUP_REQUIRES_ISOLATED_DIRECTORY_AND_OUTPUT")
+                    Darwin.exit(64)
+                }
+                do {
+                    setupRequest = try ConnectionSetupRequest(directory: directory,
+                        output: URL(fileURLWithPath: CommandLine.arguments[index + 1]))
+                } catch { print("CONNECTION_SETUP_REJECTED \(error.localizedDescription)"); Darwin.exit(64) }
+            } else { setupRequest = nil }
             let preferences: UserDefaults
             if isDiagnostic {
                 let suite = "app.saytile.diagnostics." + UUID().uuidString
@@ -69,6 +85,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } else { preferences = .standard }
             let model = try AppModel(directory: directory, preferences: preferences)
             self.model = model
+            if let setupRequest {
+                configureMainMenu()
+                let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 680, height: 800),
+                                      styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
+                window.title = "Saytile · 连接识别服务"
+                window.isReleasedWhenClosed = false; window.delegate = self
+                window.contentView = NSHostingView(rootView: ConnectionSetupView(model: model, request: setupRequest) { NSApp.terminate(nil) })
+                connectionSetupWindow = window
+                window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate()
+                return
+            }
             model.openPanel = { [weak self] in self?.showPanel() }
             model.hidePanel = { [weak self] in self?.panel?.orderOut(nil) }
             model.openArchive = { [weak self] in self?.showArchive() }
@@ -155,7 +182,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if let index = CommandLine.arguments.firstIndex(of: "--ui-review"), CommandLine.arguments.count > index + 1 {
                 guard CommandLine.arguments.contains("--data-directory") else { print("UI_REVIEW_REQUIRES_ISOLATED_DIRECTORY"); NSApp.terminate(nil); return }
                 let output = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
-                Task { await runUIReview(model: model, output: output); await model.prepareForExit(); NSApp.terminate(nil) }
+                Task { diagnosticExitStatus = await runUIReview(model: model, output: output) ? 0 : 1; await model.prepareForExit(); NSApp.terminate(nil) }
                 return
             }
             configureMainMenu()
@@ -192,6 +219,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             alert.runModal()
             NSApp.terminate(nil)
         }
+    }
+    func windowWillClose(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === connectionSetupWindow { NSApp.terminate(nil) }
     }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if terminating { return .terminateNow }
