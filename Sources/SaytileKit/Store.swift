@@ -642,6 +642,7 @@ extension SaytileStore {
     CREATE TABLE IF NOT EXISTS model_usage(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES model_runs(id),recording_id TEXT NOT NULL REFERENCES recordings(id),payload TEXT NOT NULL,created_at REAL NOT NULL);
     CREATE TABLE IF NOT EXISTS recognition_retry_blocks(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),reason TEXT NOT NULL);
     CREATE INDEX IF NOT EXISTS model_runs_recording ON model_runs(recording_id,created_at);
+    CREATE INDEX IF NOT EXISTS model_runs_configuration ON model_runs(recognition_id,configuration_id);
     CREATE INDEX IF NOT EXISTS candidates_session ON recognition_candidates(recognition_id,run_id,sequence);
     CREATE INDEX IF NOT EXISTS candidates_recording ON recognition_candidates(recording_id,created_at);
     CREATE INDEX IF NOT EXISTS decisions_recording ON fusion_decisions(recording_id,created_at);
@@ -669,8 +670,11 @@ extension SaytileStore {
         guard try validTicket(ticket), try db.rows("SELECT id FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first != nil else { throw FusionError.staleGeneration }
         let run = ModelRunTicket(recognitionID: ticket.id, recordingID: ticket.recordingID, audioEpoch: ticket.audioEpoch,
             configurationID: configuration.id, provider: configuration.provider.rawValue, model: configuration.model, purpose: configuration.purpose)
-        try db.execute("INSERT INTO model_runs(id,recognition_id,recording_id,audio_epoch,configuration_id,payload,state,last_sequence,retryable,created_at) VALUES(?,?,?,?,?,?,'running',-1,1,?)",
-            [.text(run.id.uuidString), .text(ticket.id.uuidString), .text(ticket.recordingID.uuidString), .int(ticket.audioEpoch), .text(configuration.id.uuidString), .text(try Self.encodeEvidence(run)), .double(Date().timeIntervalSince1970)])
+        try db.transaction {
+            try db.execute("UPDATE model_runs SET state='cancelled' WHERE recognition_id=? AND configuration_id=? AND state='running'", [.text(ticket.id.uuidString), .text(configuration.id.uuidString)])
+            try db.execute("INSERT INTO model_runs(id,recognition_id,recording_id,audio_epoch,configuration_id,payload,state,last_sequence,retryable,created_at) VALUES(?,?,?,?,?,?,'running',-1,1,?)",
+                [.text(run.id.uuidString), .text(ticket.id.uuidString), .text(ticket.recordingID.uuidString), .int(ticket.audioEpoch), .text(configuration.id.uuidString), .text(try Self.encodeEvidence(run)), .double(Date().timeIntervalSince1970)])
+        }
         return run
     }
     @discardableResult public func appendRecognitionCandidate(_ candidate: RecognitionCandidate) throws -> Bool {
@@ -687,7 +691,7 @@ extension SaytileStore {
         }
     }
     public func latestRecognitionCandidates(ticket: RecognitionTicket) throws -> [RecognitionCandidate] {
-        try db.rows("SELECT c.payload FROM recognition_candidates c JOIN model_runs r ON r.id=c.run_id AND r.last_sequence=c.sequence WHERE c.recognition_id=? ORDER BY c.created_at,c.rowid", [.text(ticket.id.uuidString)])
+        try db.rows("SELECT c.payload FROM recognition_candidates c JOIN model_runs r ON r.id=c.run_id AND r.last_sequence=c.sequence WHERE c.recognition_id=? AND NOT EXISTS(SELECT 1 FROM recognition_candidates newer JOIN model_runs n ON n.id=newer.run_id WHERE n.recognition_id=r.recognition_id AND n.configuration_id=r.configuration_id AND n.rowid>r.rowid) ORDER BY c.created_at,c.rowid", [.text(ticket.id.uuidString)])
             .map { try Self.decodeEvidence(RecognitionCandidate.self, $0["payload"]) }
     }
     public func recognitionCandidates(recordingID: UUID) throws -> [RecognitionCandidate] {
@@ -758,7 +762,15 @@ extension SaytileStore {
             let prior = old?.text ?? ""
             let cursors = try db.rows("SELECT prefix FROM cursors WHERE recording_id=? AND end_utf16>0", [.text(ticket.recordingID.uuidString)]).compactMap { $0["prefix"] }
             let growsSession = proposal.stableText.hasPrefix(sessionPrefix)
-            let growsPublished = proposal.stableText.hasPrefix(prior)
+            let requiredPresent = mode == .fast || Set(current.filter { $0.run.purpose.isStreaming }.map { $0.run.purpose }).isSuperset(of: [.chineseASR, .englishASR])
+            let completeSources = !sources.isEmpty && sources.allSatisfy(\.isComplete) && requiredPresent
+            let previousAttempt = try old.flatMap { revision in
+                try db.rows("SELECT attempt FROM revisions WHERE id=?", [.text(revision.id.uuidString)]).first?["attempt"]
+            }
+            // A new complete generation may correct a never-reserved version. Once any target
+            // owns a UTF-16 cursor, that immutable external prefix remains protected.
+            let replacesUnsentGeneration = cursors.isEmpty && previousAttempt != ticket.id.uuidString && completeSources
+            let growsPublished = proposal.stableText.hasPrefix(prior) || replacesUnsentGeneration
             let growsCursors = cursors.allSatisfy { proposal.stableText.hasPrefix($0) }
             let safe = growsSession && growsPublished && growsCursors
             let shouldPublish = safe && !proposal.stableText.isEmpty && proposal.stableText != prior
@@ -774,13 +786,15 @@ extension SaytileStore {
             // Preserve the best complete alternate without making it eligible for external insertion.
             var archiveID: UUID?
             if !proposal.previewText.isEmpty, proposal.previewText != (published?.text ?? prior) {
-                let previous = try db.rows("SELECT v.text FROM fusion_archives a JOIN revisions v ON v.id=a.revision_id WHERE a.recording_id=? ORDER BY v.created_at DESC,v.rowid DESC LIMIT 1", [.text(ticket.recordingID.uuidString)]).first?["text"]
-                if previous != proposal.previewText {
-                    let archive = TranscriptRevision(id: UUID(), recordingID: ticket.recordingID, text: proposal.previewText, origin: .final, createdAt: Date())
+                let previous = try db.rows("SELECT v.text,v.origin FROM fusion_archives a JOIN revisions v ON v.id=a.revision_id WHERE a.recording_id=? ORDER BY v.created_at DESC,v.rowid DESC LIMIT 1", [.text(ticket.recordingID.uuidString)]).first
+                if previous?["text"] != proposal.previewText || completeSources && previous?["origin"] == "partial" {
+                    let archive = TranscriptRevision(id: UUID(), recordingID: ticket.recordingID, text: proposal.previewText,
+                        origin: completeSources ? .final : .partial, createdAt: Date())
                     try insertRevision(archive, attempt: ticket.id, base: old?.id)
                     try db.execute("INSERT INTO fusion_archives(revision_id,recording_id,recognition_id) VALUES(?,?,?)", [.text(archive.id.uuidString), .text(ticket.recordingID.uuidString), .text(ticket.id.uuidString)])
                     try selectAutomaticRevision(archive)
                     archiveID = archive.id
+                    try pruneFusionPreviews(ticket: ticket, keeping: archive.id)
                 }
             }
             let deferred = !safe || proposal.unresolved || proposal.needsAudioReview
@@ -837,6 +851,12 @@ extension SaytileStore {
     private func invalidateModelRuns(recordingID: UUID, sessionState: String = "cancelled") throws {
         try db.execute("UPDATE model_runs SET state='cancelled' WHERE recording_id=? AND state='running'", [.text(recordingID.uuidString)])
         try db.execute("UPDATE fusion_sessions SET state=? WHERE recording_id=? AND state='running'", [.text(sessionState), .text(recordingID.uuidString)])
+    }
+    private func pruneFusionPreviews(ticket: RecognitionTicket, keeping id: UUID) throws {
+        let disposable = "recording_id=? AND origin='partial' AND attempt=? AND id<>? AND NOT EXISTS(SELECT 1 FROM dispatches d WHERE d.revision_id=revisions.id) AND NOT EXISTS(SELECT 1 FROM recordings r WHERE r.preferred_revision=revisions.id) AND NOT EXISTS(SELECT 1 FROM revisions base WHERE base.base_revision=revisions.id) AND NOT EXISTS(SELECT 1 FROM frozen_revisions frozen WHERE frozen.revision_id=revisions.id)"
+        let values: [StoreDatabase.Value] = [.text(ticket.recordingID.uuidString), .text(ticket.id.uuidString), .text(id.uuidString)]
+        try db.execute("DELETE FROM fusion_archives WHERE revision_id IN(SELECT id FROM revisions WHERE " + disposable + ")", values)
+        try db.execute("DELETE FROM revisions WHERE " + disposable, values)
     }
     private func selectAutomaticRevision(_ revision: TranscriptRevision) throws {
         try db.execute("UPDATE recordings SET preferred_revision=? WHERE id=? AND NOT EXISTS(SELECT 1 FROM revisions WHERE id=recordings.preferred_revision AND origin='userEdit') AND NOT EXISTS(SELECT 1 FROM editing_drafts WHERE recording_id=recordings.id)", [.text(revision.id.uuidString), .text(revision.recordingID.uuidString)])

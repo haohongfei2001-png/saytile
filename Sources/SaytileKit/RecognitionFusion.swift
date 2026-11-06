@@ -54,7 +54,7 @@ public enum PrecisionFusion {
                                   sourceCandidateIDs: [], unresolved: true, needsAudioReview: false, reasonCode: "waiting-candidates")
         }
         // The same audio origin is required for exact-prefix comparison. Do not align by text length.
-        let sameOrigin = live.filter { abs($0.audioStartSeconds - preview.audioStartSeconds) < 0.001 }
+        let sameOrigin = live.filter { $0.run.recordingID == preview.run.recordingID && $0.run.recognitionID == preview.run.recognitionID && $0.run.audioEpoch == preview.run.audioEpoch && abs($0.audioStartSeconds - preview.audioStartSeconds) < 0.001 }
         let compared: [RecognitionCandidate]
         if mode == .highestQuality {
             guard Set(sameOrigin.map { $0.run.purpose }).isSuperset(of: requiredPurposes) else {
@@ -89,6 +89,9 @@ public enum PrecisionFusion {
                                          needsAudioReview: Bool = false,
                                          reasonCode: String = "evidence-selection") throws -> FusionProposal {
         guard spans.count <= 4096, reasonCode.count <= 400 else { throw FusionError.invalidSelection }
+        if let origin = candidates.first?.run {
+            guard candidates.allSatisfy({ $0.run.recordingID == origin.recordingID && $0.run.recognitionID == origin.recognitionID && $0.run.audioEpoch == origin.audioEpoch }) else { throw FusionError.invalidSelection }
+        }
         let index = Dictionary(candidates.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         var text = "", previousEnd: Double?, selected: [RecognitionCandidate] = []
         var allStable = true
@@ -133,14 +136,17 @@ public enum PrecisionFusion {
             // content can resolve this guard; a text LLM's self-reported confidence cannot.
             let matching = relevant.filter { protectedSignature($0.text) == signature }
             let independent = Set(matching.map { $0.run.provider + ":" + $0.run.model }).count >= 2
-            let hasRecheck = matching.contains { [.audioReview, .finalASR].contains($0.run.purpose) }
+            let hasRecheck = matching.contains { [.audioReview, .finalASR].contains($0.run.purpose) && $0.isComplete && $0.stableUTF16Length == $0.text.utf16.count }
             protectedConflict = differs && !(independent && hasRecheck)
         }
         let uncertain = unresolved || needsAudioReview || protectedConflict || !allStable
         let changesCommitted = !text.hasPrefix(committedPrefix)
+        let truncatedSource: Bool
+        if let last = spans.last, let source = index[last.candidateID] { truncatedSource = last.utf16End < source.text.utf16.count }
+        else { truncatedSource = true }
         return FusionProposal(previewText: text, stableText: uncertain || changesCommitted ? committedPrefix : text,
             sourceCandidateIDs: Array(Set(selected.map(\.id))).sorted { $0.uuidString < $1.uuidString },
-            unresolved: uncertain || changesCommitted, needsAudioReview: needsAudioReview || protectedConflict,
+            unresolved: uncertain || changesCommitted || truncatedSource, needsAudioReview: needsAudioReview || protectedConflict,
             reasonCode: protectedConflict ? "protected-content-needs-audio" : changesCommitted ? "late-correction-preserved" : reasonCode,
             selections: spans)
     }
@@ -208,7 +214,7 @@ public enum PrecisionFusion {
     static func corroborated(value: String, candidate: RecognitionCandidate,
                              interval: (start: Double, end: Double), candidates: [RecognitionCandidate]) -> Bool {
         candidates.contains { other in
-            other.run.provider + other.run.model != candidate.run.provider + candidate.run.model &&
+            other.run.provider + ":" + other.run.model != candidate.run.provider + ":" + candidate.run.model &&
             other.text == value && abs(other.audioStartSeconds - interval.start) < 0.08 &&
             abs(other.audioEndSeconds - interval.end) < 0.08 && roleSupports(text: value, run: other.run)
         }
@@ -224,7 +230,7 @@ public enum PrecisionFusion {
     /// A rejection guard, not a semantic understanding claim. Unknown conflicts still remain
     /// candidates for explicit acoustic review. Preserve the ordered critical tokens verbatim.
     static func protectedSignature(_ text: String) -> String {
-        let pattern = #"(?i)[+-]?[0-9]+(?:[.,:/-][0-9]+)*(?:%|％)?|[零〇一二三四五六七八九十百千万亿两]+|不|没|无|未|别|非|否|勿|\b(?:no|not|never|neither|nor|without|cannot|can't|don't|doesn't|didn't|isn't|aren't|wasn't|weren't|won't|wouldn't|shouldn't|couldn't)\b|[¥￥$€£]|\b(?:kg|mg|g|km|cm|mm|ms|usd|rmb|hours?|minutes?|seconds?|percent|dollars?)\b|公斤|千克|毫克|毫升|公里|厘米|毫米|元|万元|亿元|秒|分钟|小时|年|月|日|点"#
+        let pattern = #"(?i)(\b[\p{L}]+\b)(?:[\s,，]+\1\b)+|([\x{3400}-\x{9fff}])\2+|[+-]?[0-9]+(?:[.,:/-][0-9]+)*(?:%|％)?|[零〇一二三四五六七八九十百千万亿两]+|不|没|无|未|别|非|否|勿|\b(?:no|not|never|neither|nor|without|cannot|can't|don't|doesn't|didn't|isn't|aren't|wasn't|weren't|won't|wouldn't|shouldn't|couldn't)\b|[¥￥$€£]|\b(?:kg|mg|g|km|cm|mm|ms|usd|rmb|hours?|minutes?|seconds?|percent|dollars?)\b|公斤|千克|毫克|毫升|公里|厘米|毫米|元|万元|亿元|秒|分钟|小时|年|月|日|点"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return text }
         let source = text as NSString
         return regex.matches(in: text, range: NSRange(location: 0, length: source.length))

@@ -31,11 +31,14 @@ private struct MultiFixture {
         return candidates
     }
 }
+private let sampleRecordingID = UUID()
+private let sampleRecognitionID = UUID()
+
 private func sample(_ text: String, purpose: RecognitionPurpose = .chineseASR,
                     run: ModelRunTicket? = nil, sequence: Int64 = 0, stable: Int? = nil,
                     start: Double = 0, end: Double = 2, granularity: String = "utterance",
                     tokens: [RecognitionToken] = []) -> RecognitionCandidate {
-    let ticket = run ?? ModelRunTicket(recognitionID: UUID(), recordingID: UUID(), audioEpoch: 1,
+    let ticket = run ?? ModelRunTicket(recognitionID: sampleRecognitionID, recordingID: sampleRecordingID, audioEpoch: 1,
         configurationID: UUID(), provider: purpose == .chineseASR ? "qwenMessage" : "assemblyAI", model: "test-model", purpose: purpose)
     return RecognitionCandidate(run: ticket, sequence: sequence, text: text, stableUTF16Length: stable ?? text.utf16.count,
         audioStartSeconds: start, audioEndSeconds: end, timingGranularity: granularity, isComplete: true, tokens: tokens)
@@ -229,4 +232,68 @@ private func sample(_ text: String, purpose: RecognitionPurpose = .chineseASR,
     try await reopened.resetRecognitionRetry(recordingID: record.id)
     #expect(try await reopened.claimRecoveryRecording(now: Date().addingTimeInterval(10_000))?.id == record.id)
     try await reopened.close()
+}
+
+@Test func multiNewGenerationMayCorrectUnsentCompleteVersion() async throws {
+    let f = try MultiFixture(); defer { f.clean() }
+    let record = try await f.record()
+    let old = try await f.store.beginFusionRecognition(recordingID: record.id)
+    let before = try await f.pair(old, "我想买苹果")
+    _ = try await f.store.publishFusion(ticket: old, proposal: PrecisionFusion.evaluate(candidates: before, mode: .highestQuality))
+    let new = try await f.store.beginFusionRecognition(recordingID: record.id)
+    let corrected = try await f.pair(new, "我想买梨子")
+    let result = try await f.store.publishFusion(ticket: new, proposal: PrecisionFusion.evaluate(candidates: corrected, mode: .highestQuality))
+    #expect(result.published)
+    #expect(try await f.store.latestDispatchableRevision(recordingID: record.id)?.text == "我想买梨子")
+}
+
+@Test func multiVolatilePreviewsRemainBoundedButCandidatesAreAuditable() async throws {
+    let f = try MultiFixture(); defer { f.clean() }
+    let record = try await f.record()
+    let ticket = try await f.store.beginFusionRecognition(recordingID: record.id)
+    let run = try await f.run(ticket, .chineseASR)
+    for sequence in 0..<20 {
+        let candidate = RecognitionCandidate(run: run, sequence: Int64(sequence), text: "实时 \(sequence)", audioEndSeconds: 1)
+        try await f.store.appendRecognitionCandidate(candidate)
+        _ = try await f.store.publishFusion(ticket: ticket, proposal: PrecisionFusion.evaluate(candidates: [candidate], mode: .highestQuality))
+    }
+    #expect(try await f.store.revisions(recordingID: record.id).count == 1)
+    #expect(try await f.store.revisions(recordingID: record.id).first?.origin == .partial)
+    #expect(try await f.store.recognitionCandidates(recordingID: record.id).count == 20)
+    #expect(try await f.store.latestDispatchableRevision(recordingID: record.id) == nil)
+}
+
+@Test func multiSuccessiveReviewRunsKeepHistoricalEvidenceWithoutCappingLatest() async throws {
+    let f = try MultiFixture(); defer { f.clean() }
+    let record = try await f.record()
+    let ticket = try await f.store.beginFusionRecognition(recordingID: record.id)
+    let config = ModelConfiguration(purpose: .audioReview, provider: .gemini, model: "test-audio")
+    let first = try await f.store.beginModelRun(ticket: ticket, configuration: config)
+    try await f.store.appendRecognitionCandidate(sample("以前", run: first))
+    let second = try await f.store.beginModelRun(ticket: ticket, configuration: config)
+    #expect(try await !f.store.appendRecognitionCandidate(sample("迟到以前", run: first, sequence: 1)))
+    try await f.store.appendRecognitionCandidate(sample("当前", run: second))
+    #expect(try await f.store.latestRecognitionCandidates(ticket: ticket).map(\.text) == ["当前"])
+    #expect(try await f.store.recognitionCandidates(recordingID: record.id).count == 2)
+}
+
+@Test func multiTextSelectionPreservesIntentionalRepetitionAndSignalsOmittedTail() throws {
+    let repeated = sample("我我想去公园"), smooth = sample("我想去公园", purpose: .englishASR)
+    let review = try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: smooth.id, utf16Start: 0, utf16End: smooth.text.utf16.count)], candidates: [repeated, smooth])
+    #expect(review.needsAudioReview)
+    #expect(review.stableText.isEmpty)
+    let timed = sample("我想去公园", granularity: "segment", tokens: [
+        RecognitionToken(text: "我想", startSeconds: 0, endSeconds: 0.5, isFinal: true),
+        RecognitionToken(text: "去公园", startSeconds: 0.5, endSeconds: 2, isFinal: true)])
+    let prefix = try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: timed.id, utf16Start: 0, utf16End: 2)], candidates: [timed])
+    #expect(prefix.stableText == "我想")
+    #expect(prefix.unresolved)
+}
+
+@Test func multiUncertainAudioReviewCannotResolveProtectedConflict() throws {
+    let a = sample("支付100元"), b = sample("支付1000元", purpose: .englishASR)
+    let uncertain = sample("支付100元", purpose: .audioReview, stable: 0)
+    let result = try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: a.id, utf16Start: 0, utf16End: a.text.utf16.count)], candidates: [a, b, uncertain])
+    #expect(result.needsAudioReview)
+    #expect(result.stableText.isEmpty)
 }
