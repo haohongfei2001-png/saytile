@@ -161,7 +161,7 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
               provider: .soniox, model: "stt-rt-v6", enabled: false),
         .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000007")!, purpose: .englishASR,
               provider: .meta, model: "muse-voice-transcribe-1.0", enabled: false)
-    ] }}
+    ] }
     public static func load(from preferences: UserDefaults) -> Self {
         guard let data = preferences.data(forKey: "multiASRConfigurationV1"),
               var config = try? JSONDecoder().decode(Self.self, from: data) else { return Self() }
