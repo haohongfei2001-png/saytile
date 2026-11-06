@@ -1,0 +1,8 @@
+$ swiftc -swift-version 6 -parse-as-library Sources/SaytileApp/CompactTranscriptView.swift /tmp/saytile-compact-text-review/TranscriptReview.swift -o /tmp/saytile-compact-text-review/probe && /tmp/saytile-compact-text-review/probe
+Swift/ErrorType.swift:254: Fatal error: Error raised at top level: Error Domain=TranscriptReview Code=1 "Exact Unicode update or text-storage identity failed in case 2" UserInfo={NSLocalizedDescription=Exact Unicode update or text-storage identity failed in case 2}
+exit_code=133
+red_view_source_sha256=e524ea82b2f6f0e00b0ca13b248c6364a1ffa511e78ce36891854729b1a93f42
+
+Case 2 is zero-based: before="cafe\u{301}" (UTF-16 length 5), after="café" (UTF-16 length 4).
+The red production view used Swift String != in updateTranscript, hasDeferredUpdate and applyLatest. Swift canonical equivalence returns equality for this pair, so the requested exact text update is discarded.
+No NSWindow was created; NSApplication activation policy was prohibited. No input, microphone, cloud service, clipboard or user document was accessed.

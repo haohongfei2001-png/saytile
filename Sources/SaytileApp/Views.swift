@@ -3,104 +3,126 @@ import AppKit
 
 struct InputPanelView: View {
     @ObservedObject var model: AppModel
-    @ViewState private var showNew = false
-    @ViewState private var follow = true
+    @ViewState private var followsLatest = true
+    @ViewState private var selectedText = ""
+    @ViewState private var latestRequest = 0
+    @ViewState private var captureHovered = false
+    @FocusState private var captureFocused: Bool
+
+    private var transcript: String { model.recent.map(\.text).filter { !$0.isEmpty }.joined(separator: "\n") }
+
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 9) {
-                VoiceMark(active: model.isListening, size: 19)
-                Text("此刻").font(.system(size: 15, weight: .semibold))
-                Spacer()
-                Button(action: model.openArchive) { Image(systemName: "clock.arrow.circlepath") }.help("语音档案").accessibilityLabel("打开语音档案")
-                Button { model.hidePanel() } label: { Image(systemName: "minus") }.help("收起输入板，继续待命").accessibilityLabel("收起输入板")
-            }.buttonStyle(.plain).padding(18)
-            HStack(spacing: 4) {
-                modeButton("自由记录", icon: "waveform", direct: false)
-                modeButton("直接输入", icon: "scope", direct: true)
-            }.padding(4).background(Palette.canvas, in: RoundedRectangle(cornerRadius: 10)).padding(.horizontal, 18)
+            HStack(spacing: 6) {
+                Circle().fill(model.captureProblem ? Palette.amber : Palette.green.opacity(model.isListening ? 0.9 : 0.4))
+                    .frame(width: 5, height: 5).accessibilityHidden(true)
+                Text(model.panelCaptureLabel).accessibilityIdentifier("panel.status")
+                if let activity = model.panelActivityLabel {
+                    Text("·").accessibilityHidden(true)
+                    Text(activity).accessibilityIdentifier("panel.activity")
+                }
+                Spacer(minLength: 4)
+                moreMenu
+            }
+            .font(.system(size: 11)).foregroundStyle(Palette.muted)
+            .lineLimit(1).frame(height: 28).padding(.horizontal, 13).padding(.top, 5)
+
             if model.directMode {
-                HStack {
-                    Image(systemName: "arrow.up.forward.app")
-                    Text(model.targetLabel).lineLimit(2)
-                    Spacer()
-                    Button("绑定当前草稿", action: model.bindTarget).buttonStyle(.plain)
-                }.font(.system(size: 11)).foregroundStyle(Palette.green).padding(12).background(Palette.soft).padding(.top, 12)
+                Label(model.targetLabel, systemImage: "arrow.up.forward.app")
+                    .font(.system(size: 10)).foregroundStyle(Palette.muted)
+                    .lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 14).padding(.bottom, 5)
+                    .help(model.targetLabel).accessibilityIdentifier("panel.target")
             }
-            if let message = model.notice {
-                HStack(alignment: .top) {
-                    Image(systemName: "info.circle")
-                    Text(message).fixedSize(horizontal: false, vertical: true)
+            if let message = model.panelCaptureDetail ?? model.notice {
+                HStack(alignment: .top, spacing: 6) {
+                    Image(systemName: "exclamationmark.circle")
+                    Text(message).lineLimit(2).fixedSize(horizontal: false, vertical: true).help(message)
                     Spacer(minLength: 0)
-                    Button { model.notice = nil } label: { Image(systemName: "xmark") }.buttonStyle(.plain)
-                }.font(.system(size: 11)).foregroundStyle(Palette.amber).padding(12).background(Palette.amber.opacity(0.06))
+                    if model.panelCaptureDetail == nil {
+                        Button { model.notice = nil } label: { Image(systemName: "xmark").frame(width: 22, height: 22) }
+                            .buttonStyle(.plain).accessibilityLabel("关闭提示").accessibilityIdentifier("panel.dismissNotice")
+                    }
+                }.font(.system(size: 11)).foregroundStyle(Palette.amber)
+                    .padding(.horizontal, 14).padding(.vertical, 5).accessibilityIdentifier("panel.notice")
             }
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
-                        HStack {
-                            Text(Date.now, format: .dateTime.month().day()).foregroundStyle(Palette.muted)
-                            Spacer()
-                            StatePill(text: model.captureLabel, warning: model.captureProblem)
-                        }.font(.system(size: 11))
-                        if model.recent.isEmpty {
-                            VStack(spacing: 16) {
-                                Image(systemName: "waveform.path").font(.system(size: 45, weight: .ultraLight)).foregroundStyle(Palette.green.opacity(0.4))
-                                Text("想到了，就说出来。").font(.system(size: 20, weight: .medium))
-                                Text(model.hasStarted ? "声音会留在这里。\n你可以随时停顿，再接着说。" : "开启后持续接收讲话。\n原音与文字独立保存，随时可以暂停。")
-                                    .font(.system(size: 13)).foregroundStyle(Palette.muted).multilineTextAlignment(.center).lineSpacing(5)
-                                if !model.isListening {
-                                    Button("开启自由记录", action: model.toggleCapture).buttonStyle(QuietButton(prominent: true))
-                                }
-                            }.frame(maxWidth: .infinity).padding(.vertical, 38)
-                        }
-                        if model.panelHasMore {
-                            Button(model.loadingPanel ? "正在载入…" : "载入本次更早的表达（共 \(model.panelCount) 段）", action: model.loadEarlierPanel)
-                                .buttonStyle(QuietButton()).disabled(model.loadingPanel)
-                            Text("复制与插入仅包含已载入的 \(model.recent.count) 段。更早内容仍保留在档案中。")
-                                .font(.system(size: 11)).foregroundStyle(Palette.muted)
-                        }
-                        ForEach(model.recent) { item in
-                            TranscriptCard(item: item, model: model, compact: true)
-                        }
-                        Color.clear.frame(height: 1).id("tail")
-                    }.padding(18)
-                }
-                .onScrollPhaseChange { _, phase in if phase == .interacting { follow = false } }
-                .onChange(of: model.recent.count) { _, _ in
-                    if follow { proxy.scrollTo("tail", anchor: .bottom) } else { showNew = true }
-                }
-                .overlay(alignment: .bottom) {
-                    if showNew {
-                        Button { follow = true; showNew = false; proxy.scrollTo("tail", anchor: .bottom) } label: { Label("查看新内容", systemImage: "arrow.down") }
-                            .buttonStyle(QuietButton()).padding(8)
+
+            CompactTranscriptView(text: transcript, latestRequest: latestRequest,
+                onFollowChange: { followsLatest = $0 }, onSelectionChange: { selectedText = $0 })
+                .overlay(alignment: .topLeading) {
+                    if transcript.isEmpty {
+                        Text(model.isListening ? "开口，文字会出现在这里。" : "从一句话开始。")
+                            .font(.system(size: 16)).foregroundStyle(Palette.muted.opacity(0.8))
+                            .padding(.top, 6).padding(.horizontal, 2).allowsHitTesting(false)
                     }
                 }
-            }
-            Divider().opacity(0.5)
-            VStack(spacing: 12) {
-                HStack {
-                    Label(model.saveLabel, systemImage: "externaldrive.badge.checkmark")
-                    Spacer()
-                    Menu {
-                        Button("清空输入板（保留档案）", action: model.clearPanel).disabled(model.isInserting || model.recent.isEmpty)
-                    } label: { Text(model.panelScopeLabel) }
-                        .menuStyle(.borderlessButton).fixedSize()
-                }.font(.system(size: 10)).foregroundStyle(Palette.muted)
-                HStack {
-                    Button(action: model.openSettings) { Image(systemName: "slider.horizontal.3") }.buttonStyle(.plain).help("设置").accessibilityLabel("设置")
-                    Button(action: model.toggleCapture) { Image(systemName: model.isListening ? "pause.circle" : "play.circle") }.buttonStyle(.plain).help(model.isListening ? "暂停收音" : "恢复收音")
-                    Spacer()
-                    Button { model.copyRecent() } label: { Label("复制", systemImage: "doc.on.doc") }.buttonStyle(QuietButton()).disabled(model.recent.allSatisfy { $0.text.isEmpty })
-                    Button { model.insertRecent() } label: { Label(model.isInserting ? "正在插入…" : "插入草稿", systemImage: "arrow.up.right") }.buttonStyle(QuietButton(prominent: true)).disabled(model.isInserting || model.recent.allSatisfy { $0.text.isEmpty })
+                .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            HStack(spacing: 7) {
+                Button { if selectedText.isEmpty { model.copyRecent() } else { model.copy(selectedText) } } label: {
+                    Image(systemName: "doc.on.doc").font(.system(size: 12)).frame(width: 28, height: 30)
+                        .contentShape(Rectangle())
+                }.buttonStyle(.plain).disabled(transcript.isEmpty && selectedText.isEmpty)
+                    .help(selectedText.isEmpty ? "复制当前文字" : "复制所选文字")
+                    .accessibilityLabel(selectedText.isEmpty ? "复制当前文字" : "复制所选文字")
+                    .accessibilityIdentifier("panel.copy")
+                if !followsLatest {
+                    Button { latestRequest += 1 } label: {
+                        Label("回到最新", systemImage: "arrow.down").font(.system(size: 10))
+                            .padding(.horizontal, 7).frame(height: 28)
+                            .background(Palette.soft.opacity(0.65), in: Capsule())
+                    }.buttonStyle(.plain).accessibilityIdentifier("panel.latest")
                 }
-            }.padding(16)
-        }.background(Palette.paper).foregroundStyle(Palette.ink).frame(minWidth: 360, idealWidth: 400, maxWidth: .infinity, minHeight: 420, maxHeight: .infinity)
+                Spacer(minLength: 4)
+                Button(action: model.toggleCapture) {
+                    Image(systemName: model.captureActionSymbolName).font(.system(size: 14, weight: .medium))
+                        .frame(width: 36, height: 36)
+                        .background(Palette.green.opacity(model.isListening ? 0.13 : 0.07), in: Circle())
+                        .contentShape(Circle())
+                }.buttonStyle(CaptureButtonStyle())
+                    .overlay(Circle().stroke(Palette.green.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
+                    .onHover { captureHovered = $0 }.focused($captureFocused)
+                    .help(model.captureActionLabel)
+                    .accessibilityLabel(model.captureActionLabel).accessibilityIdentifier("panel.capture")
+            }.foregroundStyle(Palette.green).padding(.horizontal, 11).padding(.top, 4).padding(.bottom, 8)
+        }
+        .background(Palette.paper).foregroundStyle(Palette.ink)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    func modeButton(_ label: String, icon: String, direct: Bool) -> some View {
-        Button { model.setDirect(direct) } label: {
-            Label(label, systemImage: icon).font(.system(size: 12, weight: .medium)).frame(maxWidth: .infinity).padding(.vertical, 8)
-                .background(model.directMode == direct ? Palette.paper : .clear, in: RoundedRectangle(cornerRadius: 7))
-        }.buttonStyle(.plain).accessibilityLabel(label)
+
+    private struct CaptureButtonStyle: ButtonStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label.opacity(configuration.isPressed ? 0.62 : 1)
+        }
+    }
+
+    private var moreMenu: some View {
+        Menu {
+            Button("语音档案…", action: model.openArchive).accessibilityIdentifier("panel.more.archive")
+            Button("设置…", action: model.openSettings).accessibilityIdentifier("panel.more.settings")
+            Divider()
+            Button { model.setDirect(false) } label: {
+                Label("自由记录", systemImage: model.directMode ? "circle" : "checkmark")
+            }.accessibilityIdentifier("panel.more.free")
+            Button { model.setDirect(true) } label: {
+                Label("直接输入", systemImage: model.directMode ? "checkmark" : "circle")
+            }.accessibilityIdentifier("panel.more.direct")
+            Button("绑定当前草稿", action: model.bindTarget).accessibilityIdentifier("panel.more.bind")
+            Button(model.isInserting ? "正在插入…" : "插入当前文字", action: model.insertRecent)
+                .disabled(model.isInserting || transcript.isEmpty).accessibilityIdentifier("panel.more.insert")
+            Divider()
+            if model.panelHasMore {
+                Button(model.loadingPanel ? "正在载入…" : "载入更早表达（已载入 \(model.recent.count) / \(model.panelCount) 段）", action: model.loadEarlierPanel)
+                    .disabled(model.loadingPanel).accessibilityIdentifier("panel.more.earlier")
+            }
+            Text(model.saveLabel)
+            Button("清空输入板（保留档案）") { model.clearPanel(); latestRequest += 1 }
+                .disabled(model.isInserting || model.recent.isEmpty).accessibilityIdentifier("panel.more.clear")
+            Button("收起输入板", action: model.hidePanel).accessibilityIdentifier("panel.more.hide")
+        } label: {
+            Image(systemName: "ellipsis").font(.system(size: 12)).frame(width: 28, height: 28).contentShape(Rectangle())
+        }.menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+            .help("更多操作").accessibilityLabel("更多操作").accessibilityIdentifier("panel.more")
     }
 }
 
@@ -270,13 +292,18 @@ struct SettingsView: View {
                 RecognitionSettingsSection(model: model)
                 Section("收音与识别") {
                     LabeledContent("当前状态", value: model.captureLabel)
+                    if let detail = model.panelCaptureDetail {
+                        Text(detail).font(.system(size: 11)).foregroundStyle(Palette.amber)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("settings.captureDetail")
+                    }
                     Picker("输入设备", selection: $model.deviceID) { ForEach(model.devices) { device in Text(device.name).tag(device.id) } }
                     Text("开启后持续接收讲话；关闭输入板不会停止收音。设备断开、休眠和用户会话切换会明确暂停。")
                         .font(.system(size: 11)).foregroundStyle(Palette.muted)
                     LabeledContent("识别语言", value: model.appliedRecognitionConfiguration.cloudEnabled ? "中文 / English · 自动处理混说" : "普通话 · 本机备用")
                     LabeledContent("识别引擎", value: model.engineLabel)
                     Button("准备中文识别资源", action: model.prepareSpeech)
-                    Button(model.isListening ? "暂停收音" : "开启收音", action: model.toggleCapture)
+                    Button(model.captureActionLabel, action: model.toggleCapture)
                 }
                 Section("系统权限") {
                     LabeledContent("麦克风", value: model.microphoneLabel)

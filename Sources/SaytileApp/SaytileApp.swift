@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import Combine
 import Carbon
 import Darwin
 import SaytileKit
@@ -32,7 +33,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var eventHandler: EventHandlerRef?
     private var shortcutObserver: NSObjectProtocol?
     private var screenObserver: NSObjectProtocol?
-    private var statusTimer: Timer?
+    private var statusSubscription: AnyCancellable?
+    private var positioningPanel = false
     private var terminating = false
     private var shutdownStarted = false
     private var diagnosticPreferencesSuite: String?
@@ -202,12 +204,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             shortcutObserver = NotificationCenter.default.addObserver(forName: .init("SaytileShortcutChanged"), object: nil, queue: .main) { [weak self] _ in
                 Task { @MainActor in self?.registerHotKey() }
             }
-            statusTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            statusSubscription = model.audio.$state.combineLatest(model.$hasStarted).sink { [weak self] _ in
+                // Published values emit before assignment. Read the derived
+                // product state on the next main-actor turn, not a polling timer.
                 Task { @MainActor in self?.updateStatus() }
             }
             if CommandLine.arguments.contains("--focus-probe") {
                 showPanel()
-                Task { try? await Task.sleep(for: .seconds(3)); await model.prepareForExit(); print("FOCUS_PROBE_FINISHED"); NSApp.terminate(nil) }
+                if let panel {
+                    print("FOCUS_PANEL_GEOMETRY width=\(panel.frame.width) height=\(panel.frame.height) min_width=\(panel.minSize.width) min_height=\(panel.minSize.height) max_width=\(panel.maxSize.width) max_height=\(panel.maxSize.height) resizable=\(panel.styleMask.contains(.resizable)) nonactivating=\(panel.styleMask.contains(.nonactivatingPanel)) joins_spaces=\(panel.collectionBehavior.contains(.canJoinAllSpaces)) panel_key=\(panel.isKeyWindow) panel_main=\(panel.isMainWindow)")
+                }
+                Task {
+                    try? await Task.sleep(for: .seconds(3))
+                    print("FOCUS_PANEL_END panel_key=\(panel?.isKeyWindow == true) panel_main=\(panel?.isMainWindow == true)")
+                    await model.prepareForExit(); print("FOCUS_PROBE_FINISHED"); NSApp.terminate(nil)
+                }
                 return
             }
             screenObserver = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
@@ -238,6 +249,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     func windowWillClose(_ notification: Notification) {
         if let window = notification.object as? NSWindow, window === connectionSetupWindow { NSApp.terminate(nil) }
+    }
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        guard sender === panel else { return true }
+        sender.orderOut(nil)
+        return false // Closing the floating surface never changes capture state.
+    }
+    func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
+        guard sender === panel, let screen = sender.screen ?? NSScreen.main else { return frameSize }
+        return WindowPlacement.panelSize(frameSize, visibleFrame: screen.visibleFrame)
+    }
+    func windowDidEndLiveResize(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === panel { restorePanel() }
+    }
+    func windowDidChangeScreen(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === panel { restorePanel() }
     }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if terminating { return .terminateNow }
@@ -276,18 +302,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         status.button?.target = self
         status.button?.action = #selector(statusClicked)
         status.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
-        status.button?.toolTip = "Saytile · 已暂停"
         self.status = status
+        updateStatus()
     }
     private func updateStatus() {
         guard let model else { return }
-        status?.button?.image = NSImage(systemSymbolName: model.captureProblem ? "exclamationmark.circle" : (model.isListening ? "waveform" : "waveform.slash"), accessibilityDescription: "Saytile · \(model.captureLabel)")
-        status?.button?.toolTip = "Saytile · \(model.captureLabel)"
+        let label = "Saytile · \(model.panelCaptureLabel)"
+        status?.button?.image = NSImage(systemSymbolName: model.captureProblem ? "exclamationmark.circle" : (model.isListening ? "waveform" : "waveform.slash"), accessibilityDescription: label)
+        status?.button?.toolTip = [label, model.panelCaptureDetail].compactMap { $0 }.joined(separator: " · ")
+        status?.button?.setAccessibilityLabel(label)
+        status?.button?.setAccessibilityHelp([model.panelCaptureDetail, "单击展开或收起输入板；右键打开收音、档案和设置菜单"].compactMap { $0 }.joined(separator: "。"))
     }
     @objc private func statusClicked() {
         if NSApp.currentEvent?.type == .rightMouseUp {
             let menu = NSMenu()
-            let items: [(String, Selector)] = [("展开输入板", #selector(togglePanel)), (model?.isListening == true ? "暂停收音" : "恢复收音", #selector(toggleCapture)), ("语音档案", #selector(showArchive)), ("设置…", #selector(showSettings))]
+            let state = NSMenuItem(title: model?.panelCaptureLabel ?? "未开启", action: nil, keyEquivalent: "")
+            state.isEnabled = false; menu.addItem(state)
+            if let detail = model?.panelCaptureDetail {
+                let reason = NSMenuItem(title: detail, action: nil, keyEquivalent: "")
+                reason.isEnabled = false; reason.toolTip = detail; menu.addItem(reason)
+            }
+            menu.addItem(.separator())
+            let items: [(String, Selector)] = [(panel?.isVisible == true ? "收起输入板" : "展开输入板", #selector(togglePanel)), (model?.captureActionLabel ?? "开始收音", #selector(toggleCapture)), ("语音档案", #selector(showArchive)), ("设置…", #selector(showSettings))]
             for (title, selector) in items { let item = NSMenuItem(title: title, action: selector, keyEquivalent: ""); item.target = self; menu.addItem(item) }
             menu.addItem(.separator())
             let quit = NSMenuItem(title: "退出 Saytile", action: #selector(quitApp), keyEquivalent: "q"); quit.target = self; menu.addItem(quit)
@@ -299,8 +335,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc func togglePanel() { if panel?.isVisible == true { panel?.orderOut(nil) } else { showPanel() } }
     func showPanel() {
         guard let model else { return }
+        let firstPresentation = panel == nil
         if panel == nil {
-            let panel = VoicePanel(contentRect: NSRect(x: 0, y: 0, width: 400, height: 550), styleMask: [.titled, .fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
+            let panel = VoicePanel(contentRect: NSRect(origin: .zero, size: WindowPlacement.panelDefaultSize), styleMask: [.titled, .fullSizeContentView, .resizable, .nonactivatingPanel], backing: .buffered, defer: false)
             panel.title = "Saytile · 此刻"
             panel.titleVisibility = .hidden; panel.titlebarAppearsTransparent = true
             panel.standardWindowButton(.closeButton)?.isHidden = true
@@ -309,14 +346,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             panel.isFloatingPanel = true; panel.level = .floating
             panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
             panel.hidesOnDeactivate = false; panel.isReleasedWhenClosed = false
+            panel.becomesKeyOnlyIfNeeded = true; panel.delegate = self
             panel.isMovableByWindowBackground = true
-            panel.contentView = NSHostingView(rootView: InputPanelView(model: model).preferredColorScheme(.light))
+            let content = NSHostingView(rootView: InputPanelView(model: model).preferredColorScheme(.light))
+            // Streaming text must scroll inside the chosen window geometry, not
+            // enlarge the NSPanel through SwiftUI's intrinsic-size propagation.
+            content.sizingOptions = []
+            panel.contentView = content
             self.panel = panel
         }
         let anchor = status?.button.flatMap { button in button.window.map { $0.convertToScreen(button.convert(button.bounds, to: nil)) } }
-        if let screen = status?.button?.window?.screen ?? NSScreen.main ?? NSScreen.screens.first {
+        if firstPresentation, let screen = status?.button?.window?.screen ?? NSScreen.main ?? NSScreen.screens.first {
+            positioningPanel = true
             panel?.setFrame(WindowPlacement.panel(anchor: anchor, visibleFrame: screen.visibleFrame), display: true)
+            positioningPanel = false
         }
+        restorePanel()
         panel?.orderFrontRegardless()
     }
     @objc func showArchive() {
@@ -345,10 +390,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     private func restoreVisibleWindows() {
         let frames = NSScreen.screens.map(\.visibleFrame)
-        for window in [panel, archive, settings].compactMap({ $0 }) {
+        restorePanel()
+        for window in [archive, settings].compactMap({ $0 }) {
             let size = NSSize(width: max(window.frame.width, window.minSize.width), height: max(window.frame.height, window.minSize.height))
             window.setFrame(WindowPlacement.restored(NSRect(origin: window.frame.origin, size: size), visibleFrames: frames), display: true)
         }
+    }
+    private func restorePanel() {
+        guard let panel, !positioningPanel else { return }
+        let frames = NSScreen.screens.map(\.visibleFrame)
+        guard !frames.isEmpty else { return }
+        positioningPanel = true; defer { positioningPanel = false }
+        let frame = WindowPlacement.restoredPanel(panel.frame, visibleFrames: frames)
+        let center = CGPoint(x: frame.midX, y: frame.midY)
+        let screen = frames.first(where: { $0.contains(center) }) ?? frames[0]
+        let limits = WindowPlacement.panelLimits(visibleFrame: screen)
+        panel.minSize = .zero
+        panel.maxSize = limits.maximum; panel.minSize = limits.minimum
+        if panel.frame != frame { panel.setFrame(frame, display: panel.isVisible) }
     }
     private func registerHotKey() {
         if let hotKey { UnregisterEventHotKey(hotKey); self.hotKey = nil }

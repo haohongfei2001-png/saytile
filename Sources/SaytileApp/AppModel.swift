@@ -71,6 +71,40 @@ struct AppConnectionDependencies {
         revokeCloud: { $0.revokeCloudRecognition() })
 }
 
+/// The production actions remain AudioController's existing lifecycle. Native UI
+/// checks inject only this boundary so pressing the real control never opens a mic.
+@MainActor
+struct AppCaptureDependencies {
+    var state: (AudioController) -> CaptureState
+    var start: (AudioController) async -> Void
+    var pause: (AudioController) async -> Void
+    static let live = AppCaptureDependencies(state: { $0.state },
+        start: { await $0.start() }, pause: { await $0.pause() })
+}
+
+struct PanelCapturePresentation: Equatable {
+    let label: String
+    let actionLabel: String
+    let actionSymbolName: String
+    let detail: String?
+
+    init(state: CaptureState, hasStarted: Bool) {
+        switch state {
+        case .paused:
+            label = hasStarted ? "已暂停" : "未开启"
+            actionLabel = hasStarted ? "继续收音" : "开始收音"
+            actionSymbolName = hasStarted ? "play.fill" : "mic.fill"
+            detail = nil
+        case .starting:
+            label = "正在准备"; actionLabel = "取消开启"; actionSymbolName = "xmark"; detail = nil
+        case .listening, .speaking:
+            label = "聆听中"; actionLabel = "暂停收音"; actionSymbolName = "pause.fill"; detail = nil
+        case .interrupted(let reason):
+            label = "需要恢复"; actionLabel = "恢复收音"; actionSymbolName = "play.fill"; detail = reason
+        }
+    }
+}
+
 @MainActor
 final class AppModel: ObservableObject {
     let store: SaytileStore
@@ -79,6 +113,7 @@ final class AppModel: ObservableObject {
     let directory: URL
     private let preferences: UserDefaults
     private let connectionDependencies: AppConnectionDependencies
+    private let captureDependencies: AppCaptureDependencies
     @Published var recent: [DisplayRecording] = []
     @Published var records: [DisplayRecording] = []
     @Published var versions: [DisplayVersion] = []
@@ -178,10 +213,12 @@ final class AppModel: ObservableObject {
     var editorCanEdit: Bool { editorRecordingID != nil && !editorDraftLoading }
     var hasUnpersistedDrafts: Bool { !pendingDraftWrites.isEmpty }
 
-    init(directory: URL, preferences: UserDefaults = .standard, connectionDependencies: AppConnectionDependencies = .live) throws {
+    init(directory: URL, preferences: UserDefaults = .standard, connectionDependencies: AppConnectionDependencies = .live,
+         captureDependencies: AppCaptureDependencies = .live) throws {
         self.directory = directory
         self.preferences = preferences
         self.connectionDependencies = connectionDependencies
+        self.captureDependencies = captureDependencies
         store = try SaytileStore(directory: directory)
         var recognitionConfiguration = RecognitionConfiguration.load(from: preferences)
         let receipt = preferences.data(forKey: Self.connectionReceiptKey).flatMap { try? JSONDecoder().decode(CloudConnectionReport.self, from: $0) }
@@ -234,18 +271,25 @@ final class AppModel: ObservableObject {
         }
     }
     var isListening: Bool {
-        switch audio.state { case .listening, .speaking, .starting: return true; default: return false }
+        switch captureDependencies.state(audio) { case .listening, .speaking, .starting: return true; default: return false }
     }
-    var captureLabel: String {
-        switch audio.state {
-        case .paused: return "已暂停"
-        case .starting: return "正在准备"
-        case .listening: return "持续待命"
-        case .speaking: return "正在听"
-        case .interrupted(let reason): return reason
-        }
+    var panelCapturePresentation: PanelCapturePresentation {
+        PanelCapturePresentation(state: captureDependencies.state(audio), hasStarted: hasStarted)
     }
-    var captureProblem: Bool { if case .interrupted = audio.state { return true }; return false }
+    var panelCaptureLabel: String { panelCapturePresentation.label }
+    var panelCaptureDetail: String? { panelCapturePresentation.detail }
+    var captureActionLabel: String { panelCapturePresentation.actionLabel }
+    var captureActionSymbolName: String { panelCapturePresentation.actionSymbolName }
+    var captureLabel: String { panelCaptureLabel }
+    var captureProblem: Bool { if case .interrupted = captureDependencies.state(audio) { return true }; return false }
+    var panelActivityLabel: String? {
+        let ids = Set(recent.map(\.id))
+        let phases = recognitionPhases.filter { ids.contains($0.key) }.map(\.value)
+        if phases.contains(where: { [.textFusion, .audioReview, .finalASR].contains($0) }) { return "正在修正" }
+        if phases.contains(where: \.isStreaming) || recent.contains(where: { $0.source.recognitionState == .running }) { return "正在识别" }
+        if case .speaking = captureDependencies.state(audio) { return "正在接收讲话" }
+        return nil
+    }
     var saveLabel: String { captureProblem ? "收音已暂停 · 请查看保存状态" : isListening ? "原音独立保存 · 识别不会阻塞收音" : "内容保存在此 Mac，随时可以取用" }
     var microphoneLabel: String {
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
@@ -422,8 +466,9 @@ final class AppModel: ObservableObject {
         Task {
             await recoveryTask?.value
             guard recovered else { notice = "资料库恢复未完成，请先重新打开 Saytile。已有资料会保留。"; return }
-            if isListening { await audio.pause() }
-            else { hasStarted = true; await audio.start() }
+            if isListening { await captureDependencies.pause(audio) }
+            else { hasStarted = true; await captureDependencies.start(audio) }
+            objectWillChange.send()
             if let issue = audio.issue { notice = issue }
         }
     }

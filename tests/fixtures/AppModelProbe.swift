@@ -126,7 +126,20 @@ struct AppModelProbe {
         try require(try await reopened.loadDraft(recordingID: old.id) == "", "exit flush persists an intentionally empty unsaved draft")
         try await reopened.close()
         checks += try await connectionChecks(directory: directory)
+        checks += try await capturePresentationChecks(directory: directory)
         print("APP_MODEL_PROBE_PASS \(checks) checks; no microphone, no external input, no window activation")
+    }
+}
+
+@MainActor
+private final class CaptureControlFixture {
+    var state = CaptureState.paused
+    var starts = 0
+    var pauses = 0
+    var dependencies: AppCaptureDependencies {
+        AppCaptureDependencies(state: { _ in self.state },
+            start: { _ in self.starts += 1; self.state = .listening },
+            pause: { _ in self.pauses += 1; self.state = .paused })
     }
 }
 
@@ -228,6 +241,80 @@ extension AppModelProbe {
             try await Task.sleep(for: .milliseconds(5))
         }
     }
+    @MainActor private static func capturePresentationChecks(directory: URL) async throws -> Int {
+        let suite = "app.saytile.test.capture." + UUID().uuidString
+        let preferences = UserDefaults(suiteName: suite)!
+        defer { preferences.removePersistentDomain(forName: suite) }
+        var configuration = RecognitionConfiguration(); configuration.automaticRecovery = false
+        try configuration.save(to: preferences)
+        let capture = CaptureControlFixture(), connection = ConnectionControlFixture()
+        let model = try AppModel(directory: directory.appendingPathComponent("capture-presentation"), preferences: preferences,
+            connectionDependencies: connection.dependencies, captureDependencies: capture.dependencies)
+        await model.initialLoad()
+        var count = 0
+        func check(_ condition: Bool, _ message: String) throws {
+            guard condition else { throw Failure(message: message) }
+            count += 1; print("PASS " + message)
+        }
+        try check(model.panelCaptureLabel == "未开启" && model.captureActionLabel == "开始收音" &&
+            !model.isListening && model.panelActivityLabel == nil, "first launch distinguishes unopened microphone from user pause")
+        let row = try await model.store.createRecording()
+        _ = try await model.store.saveEdit(recordingID: row.id, text: "已保存的文字😀")
+        try await model.store.finishRecording(id: row.id); await model.refresh()
+        model.toggleCapture()
+        try await until("capture fixture starts") { capture.starts == 1 }
+        try check(model.panelCaptureLabel == "聆听中" && model.captureActionLabel == "暂停收音" && model.hasStarted,
+            "single capture action enters persistent listening without requiring another start")
+        capture.state = .speaking
+        try check(model.panelCaptureLabel == "聆听中" && model.panelActivityLabel == "正在接收讲话",
+            "voice activity keeps listening main state without fabricating ASR progress")
+        model.toggleCapture(); try await until("capture fixture pauses") { capture.pauses == 1 }
+        try check(model.panelCaptureLabel == "已暂停" && model.captureActionLabel == "继续收音" &&
+            model.recent.first?.text == "已保存的文字😀", "pause changes only capture control and preserves current text")
+        model.toggleCapture(); try await until("capture fixture resumes") { capture.starts == 2 }
+        try check(model.panelCaptureLabel == "聆听中" && model.captureActionSymbolName == "pause.fill",
+            "same control resumes continuous capture")
+        capture.state = .interrupted("合成输入设备断开")
+        try check(model.captureProblem && !model.isListening && model.panelCaptureLabel == "需要恢复" &&
+            model.panelCaptureDetail == "合成输入设备断开", "interrupted capture retains actionable cause separately from compact state")
+        model.toggleCapture(); try await until("capture fixture explicit recovery") { capture.starts == 3 }
+        capture.state = .starting
+        try check(model.panelCaptureLabel == "正在准备" && model.captureActionLabel == "取消开启",
+            "permission or startup wait is never presented as an active listening microphone")
+        model.toggleCapture(); try await until("capture fixture cancels startup") { capture.pauses == 2 }
+        try check(model.panelCaptureLabel == "已暂停" && model.panelCaptureDetail == nil,
+            "single capture control cancels pending startup without another stop control")
+
+        let archive = try await model.store.createRecording(createdAt: .distantPast)
+        try await model.store.finishRecording(id: archive.id)
+        let archiveTicket = try await model.store.beginFusionRecognition(recordingID: archive.id)
+        let reviewer = ModelConfiguration(purpose: .textFusion, provider: .openAIResponses, model: "synthetic-review")
+        let archiveRun = try await model.store.beginModelRun(ticket: archiveTicket, configuration: reviewer)
+        await model.refresh()
+        try check(model.recognitionPhases[archive.id] == .textFusion && model.panelActivityLabel == nil,
+            "unrelated archive recovery cannot fabricate activity on current transcript panel")
+        let ticket = try await model.store.beginFusionRecognition(recordingID: row.id)
+        let expert = ModelConfiguration(purpose: .chineseASR, provider: .qwenMessage, model: "synthetic-expert")
+        let expertRun = try await model.store.beginModelRun(ticket: ticket, configuration: expert)
+        await model.refresh()
+        try check(model.panelActivityLabel == "正在识别" && model.panelCaptureLabel == "已暂停",
+            "actual pending transcript work remains independent of paused microphone state")
+        let reviewRun = try await model.store.beginModelRun(ticket: ticket, configuration: reviewer)
+        await model.refresh()
+        try check(model.panelActivityLabel == "正在修正" && model.panelCaptureLabel == "已暂停",
+            "actual current review has a quiet generic substate without model internals")
+        try await model.store.finishModelRun(expertRun); try await model.store.finishModelRun(reviewRun)
+        try await model.store.failRecognition(ticket: ticket, message: "合成识别中断")
+        try await model.store.finishModelRun(archiveRun)
+        try await model.store.failRecognition(ticket: archiveTicket, message: "合成历史任务结束")
+        await model.refresh()
+        try check(model.panelActivityLabel == nil && model.recent.first?.text == "已保存的文字😀" &&
+            model.audio.state == .paused && connection.verificationCalls == 0,
+            "ended recognition clears activity while retaining text; fixture never started real microphone or cloud")
+        await model.prepareForExit()
+        return count
+    }
+
     @MainActor private static func connectionChecks(directory: URL) async throws -> Int {
         var count = 0
         func check(_ condition: Bool, _ message: String) throws {
