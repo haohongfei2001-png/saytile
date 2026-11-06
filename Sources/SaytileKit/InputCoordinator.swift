@@ -99,16 +99,24 @@ public final class NativeInputCoordinator {
     private var inFlightInsertion: (target: InputTargetSnapshot, text: String)?
     private var boundPurpose: InputBindingPurpose = .continuous
     private var confirmedTail: (text: String, start: Int)?
+    private let activationNotificationCenter: NotificationCenter?
     private var activationObserver: NSObjectProtocol?
     private var generation = 0
     public var onBindingInvalidated: (@MainActor () -> Void)?
     public var hasPermission: Bool { access.hasPermission }
 
-    public convenience init(store: SaytileStore) { self.init(store: store, access: AXInputAccess()) }
-    init(store: SaytileStore, access: any InputAccess) {
+    public convenience init(store: SaytileStore) {
+        self.init(store: store, access: AXInputAccess(),
+                  activationNotificationCenter: NSWorkspace.shared.notificationCenter)
+    }
+    // Simulated InputAccess must not observe the user's real desktop. Tests can
+    // supply their own center to exercise the same activation protection.
+    init(store: SaytileStore, access: any InputAccess,
+         activationNotificationCenter: NotificationCenter? = nil) {
         self.store = store
         self.access = access
-        activationObserver = NSWorkspace.shared.notificationCenter.addObserver(
+        self.activationNotificationCenter = activationNotificationCenter
+        activationObserver = activationNotificationCenter?.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
         ) { [weak self] note in
             let pid = (note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication)?.processIdentifier

@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 import Testing
 @testable import SaytileKit
 
@@ -204,6 +205,44 @@ struct InputCoordinatorTests {
         // The final snapshot is unchanged, but the lifecycle event must still expire its session.
         access.onChange?(.focusOrDocument)
         #expect(coordinator.binding == nil)
+    }
+    @Test func injectedWorkspaceActivationExpiresBindingWithoutChangingFakeSnapshot() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.processID = -1 // A synthetic target distinct from any running application.
+        let expectedTarget = access.target
+        let center = NotificationCenter()
+        let coordinator = NativeInputCoordinator(store: store, access: access,
+                                                  activationNotificationCenter: center)
+        try await coordinator.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "目标切换后不派发")
+        let invalidations = AsyncStream<Void>.makeStream()
+        defer { invalidations.continuation.finish() }
+        coordinator.onBindingInvalidated = { invalidations.continuation.yield(()) }
+
+        // Post only to the isolated center, using the production notification and
+        // payload type. No real activation, accessibility action or draft is involved.
+        center.post(name: NSWorkspace.didActivateApplicationNotification, object: nil,
+                    userInfo: [NSWorkspace.applicationUserInfoKey: NSRunningApplication.current])
+        let invalidated = await withTaskGroup(of: Bool.self) { group in
+            group.addTask {
+                for await _ in invalidations.stream { return true }
+                return false
+            }
+            group.addTask {
+                try? await Task.sleep(for: .seconds(2))
+                return false
+            }
+            let observed = await group.next() ?? false
+            group.cancelAll()
+            return observed
+        }
+        #expect(invalidated)
+        #expect(coordinator.binding == nil)
+        #expect(access.target == expectedTarget)
+        #expect(await coordinator.insert(recordingID: record.id, revisionID: revision.id) == .cancelled)
+        #expect(access.attempts.isEmpty)
     }
     @Test func sameURLReusedWebEditorLayoutExpiresBinding() async throws {
         let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
