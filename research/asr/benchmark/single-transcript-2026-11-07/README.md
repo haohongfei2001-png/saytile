@@ -41,7 +41,7 @@ python3 -B -m unittest discover -s "$EVAL" -p 'test_*.py' -v
   --single-expert-baseline
 ```
 
-批量调度可读取 `commands.json` 中 argv，仅替换文档中的占位变量，不使用 `eval`。A–E 不能降级成无 GPT 的旧基线。D 保持 `multilingualASR`，等待原生单专家校验支持它，不通过改角色冒充中文或英文专家。原生导出文件名是运行时 recording UUID，索引器从每个配置/音频的 report 目录发现它：
+批量调度可读取 `commands.json` 中 argv，仅替换文档中的占位变量，不使用 `eval`。A–E 不能降级成无 GPT 的旧基线。D 保持 `multilingualASR`；当前集成原生配置已支持它并有专项测试，不通过改角色冒充中文或英文专家。初始 preflight.json 是 a9cffae 时的历史快照，不能把其中旧技术阻断当作当前状态。原生导出文件名是运行时 recording UUID，索引器从每个配置/音频的 report 目录发现它：
 
 ```sh
 python3 -B "$EVAL/harness.py" index --run-root "$RUN_ROOT" \

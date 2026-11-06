@@ -1,3 +1,5 @@
+> 集成补充：以下是评估工作树基于 a9cffae 的原始核验快照，保留以便追溯。新的核心代码已支持 D 的 multilingualASR + 同一 GPT；`multilingualSingleExpertUsesSameCore` 已在 c31d84b 的完整原生 288 项回归中通过。真正仍阻断 A–E 的是 Saytile 专用凭据/服务配置及对应处理开关缺失；此处不据元数据断言用户没有给出任何费用授权，也不把历史技术缺口当作现有缺口。新候选身份和完整验收见工程 PR 的集成 receipt。
+
 # 本轮本地核验报告
 
 **A–E 云端评估 BLOCKED，性能 NOT_RUN；F NOT_AVAILABLE。没有云端准确率或速度结论。**

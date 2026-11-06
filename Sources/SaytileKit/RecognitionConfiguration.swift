@@ -129,7 +129,7 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
         }
         if allowSingleExpertBaseline {
             guard experts.count == 1, experts[0].purpose.isStreaming else {
-                throw ProviderFailure.configuration("单专家对照必须恰好启用一位中文或英文实时专家，并保留唯一 GPT-6 核心。")
+                throw ProviderFailure.configuration("单专家对照必须恰好启用一个实时 ASR（包括多语言模型），并保留唯一 GPT-6 核心。")
             }
         } else {
             guard experts.count >= 2, experts.count <= 3,

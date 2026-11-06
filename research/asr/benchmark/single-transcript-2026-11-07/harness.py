@@ -128,10 +128,10 @@ def preflight(audio_root, access_path):
         {'code': 'CONFIGURATION_MISSING', 'applies_to': list('ABCDE'), 'status': 'BLOCKED' if access['configuration_present'] is not True else 'PRESENT_NOT_VALIDATED'},
         {'code': 'KEYCHAIN_KEYS_MISSING', 'applies_to': list('ABCDE'), 'status': 'BLOCKED' if access['matching_item_count'] == 0 else 'UNVERIFIED_PER_UUID'},
         {'code': 'CLOUD_DISABLED', 'applies_to': list('ABCDE'), 'status': 'BLOCKED' if access['cloud_enabled'] is not True else 'REQUIRES_SEPARATE_AUTHORIZATION'},
-        {'code': 'PROCESSING_AND_COST_AUTHORIZATION_NOT_GRANTED', 'applies_to': list('ABCDE'), 'status': 'BLOCKED'},
+        {'code': 'PROCESSING_AND_COST_AUTHORIZATION_REQUIRES_VERIFICATION', 'applies_to': list('ABCDE'), 'status': 'NOT_ESTABLISHED_BY_METADATA'},
         {'code': 'QWEN_APPROVED_WORKSPACE_NOT_SUPPLIED', 'applies_to': list('ACE'), 'status': 'BLOCKED'},
         {'code': 'NATIVE_CANDIDATE_NOT_VALIDATED', 'applies_to': list('ABCDE'), 'status': 'NOT_RUN'},
-        {'code': 'D_MULTILINGUAL_SINGLE_EXPERT_VALIDATION_PENDING', 'applies_to': ['D'], 'status': 'BLOCKED_AT_INSPECTED_SOURCE'},
+        {'code': 'D_MULTILINGUAL_SINGLE_EXPERT_RUNTIME_VALIDATION', 'applies_to': ['D'], 'status': 'SEE_NATIVE_ACCEPTANCE_RECEIPT'},
     ]
     return {'schema_version': 1, 'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
             'frozen_plan_sha256': FROZEN_PLAN_SHA, 'manifest_sha256': old['manifest_sha256'],
