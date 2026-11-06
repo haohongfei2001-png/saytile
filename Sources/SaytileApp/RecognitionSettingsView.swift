@@ -22,20 +22,13 @@ struct RecognitionSettingsSection: View {
                 Button(servicesExpanded ? "收起连接设置" : "连接识别服务") { servicesExpanded.toggle() }
                     .accessibilityIdentifier("recognition.configureServices")
             }
-            Picker("输入确认", selection: $model.recognitionConfiguration.inputMode) {
-                ForEach(InputQualityMode.allCases, id: \.self) { Text($0.label).tag($0) }
-            }.pickerStyle(.segmented).accessibilityIdentifier("recognition.inputMode")
-            Text(model.recognitionConfiguration.inputMode == .highestQuality
-                 ? "讲话时持续显示文字；模型共同确认后才输入目标应用。疑难内容保留在板内，等待复核。"
-                 : "优先输入较快的稳定结果。之后的准确版本保存在 Saytile，已输入内容不会被悄悄替换。")
-                .font(.system(size: 11)).foregroundStyle(Palette.muted)
             TextField("当前话题或术语提示（可选）", text: $model.recognitionConfiguration.topicContext, axis: .vertical)
                 .lineLimit(2...4).accessibilityIdentifier("recognition.topicContext")
             if servicesExpanded {
-                Text("中文、英文同时识别，AI 融合与原音复核协助确认，高精度定稿保留为文字版本。密钥仅存于钥匙串，真实连接结果会在识别时显示。")
+                Text("中文与英文专家平等接收完整音频，由唯一 GPT-6 核心持续融合和修正。只做忠实转写，不润色。密钥仅存于钥匙串。")
                     .font(.system(size: 11)).foregroundStyle(Palette.muted)
                 ForEach($model.recognitionConfiguration.models) { $item in
-                    if !item.isOptionalExpert {
+                    if !item.isOptionalExpert && !item.isLegacyReviewModel {
                         ModelConfigurationEditor(configuration: $item, model: model, onCredentialChange: refreshPresence)
                     }
                 }
@@ -87,6 +80,7 @@ struct RecognitionSettingsSection: View {
 
 private extension ModelConfiguration {
     var isOptionalExpert: Bool { provider == .soniox || provider == .meta }
+    var isLegacyReviewModel: Bool { [.audioReview, .finalASR].contains(purpose) }
 }
 
 struct ModelConfigurationEditor: View {
@@ -146,7 +140,7 @@ struct ModelConfigurationEditor: View {
                         selectProvider(provider)
                     }
                 })) {
-                    ForEach(RecognitionPurpose.allCases, id: \.self) { Text($0.label).tag($0) }
+                    ForEach(RecognitionPurpose.allCases.filter { ![.audioReview, .finalASR].contains($0) }, id: \.self) { Text($0.label).tag($0) }
                 }.accessibilityIdentifier(prefix + ".purpose")
                 Picker("服务", selection: Binding(get: { configuration.provider }, set: { provider in selectProvider(provider) })) {
                     ForEach(CloudProvider.allCases.filter { $0.supports(configuration.purpose) }, id: \.self) { Text($0.label).tag($0) }

@@ -118,13 +118,27 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
         guard Set(active.map(\.id)).count == active.count else {
             throw ProviderFailure.configuration("模型配置身份重复，请为每项配置使用独立身份。")
         }
+        let experts = active.filter { $0.purpose.isStreaming }
+        let fusion = active.filter { $0.purpose == .textFusion }
+        let unsupported = active.filter { !$0.purpose.isStreaming && $0.purpose != .textFusion }
+        guard unsupported.isEmpty else {
+            throw ProviderFailure.configuration("V1 仅启用双语音频专家与一个 GPT-6 融合核心；独立音频复听/文件定稿不属于默认识别链。")
+        }
+        guard fusion.count == 1, fusion[0].provider == .openAIResponses, fusion[0].model == "gpt-6-astra" else {
+            throw ProviderFailure.configuration("必须且只能配置一个 GPT-6 Astra 文本融合核心。")
+        }
         if allowSingleExpertBaseline {
-            guard active.count == 1, active[0].purpose.isStreaming else {
-                throw ProviderFailure.configuration("单专家质量基线必须恰好启用一个实时识别专家。")
+            guard experts.count == 1, [.chineseASR, .englishASR].contains(experts[0].purpose) else {
+                throw ProviderFailure.configuration("单专家对照必须恰好启用一位中文或英文实时专家，并保留唯一 GPT-6 核心。")
             }
-        } else if !active.contains(where: { $0.purpose == .chineseASR }) ||
-                    !active.contains(where: { $0.purpose == .englishASR }) {
-            throw ProviderFailure.configuration("并行方案需要中文和英文专家各一个。")
+        } else {
+            guard experts.count >= 2, experts.count <= 3,
+                  experts.filter({ $0.purpose == .chineseASR }).count == 1,
+                  experts.filter({ $0.purpose == .englishASR }).count >= 1,
+                  experts.filter({ $0.purpose == .englishASR }).count <= 2,
+                  experts.filter({ $0.purpose == .multilingualASR }).count <= 1 else {
+                throw ProviderFailure.configuration("默认方案需要一位中文专家、一位英文专家；最多额外增加一位挑战模型。")
+            }
         }
         for item in active {
             try item.validate()
@@ -141,20 +155,38 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
               provider: .qwenMessage, model: "qwen-audio-3.1-asr-flash-message", region: "cn-beijing"),
         .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000002")!, purpose: .englishASR,
               provider: .assemblyAI, model: "universal-3-6-pro"),
-        .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000003")!, purpose: .multilingualASR,
-              provider: .soniox, model: "stt-rt-v6", enabled: false),
         .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000004")!, purpose: .textFusion,
               provider: .openAIResponses, model: "gpt-6-astra"),
-        .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000005")!, purpose: .audioReview,
-              provider: .gemini, model: "gemini-3.8-flash"),
-        .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000006")!, purpose: .finalASR,
-              provider: .elevenLabsFile, model: "scribe_v2"),
+        .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000003")!, purpose: .multilingualASR,
+              provider: .soniox, model: "stt-rt-v6", enabled: false),
         .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000007")!, purpose: .englishASR,
               provider: .meta, model: "muse-voice-transcribe-1.0", enabled: false)
     ] }
     public static func load(from preferences: UserDefaults) -> Self {
         guard let data = preferences.data(forKey: "multiASRConfigurationV1"),
-              let config = try? JSONDecoder().decode(Self.self, from: data) else { return Self() }
+              var config = try? JSONDecoder().decode(Self.self, from: data) else { return Self() }
+        // Migrate the former multi-arbiter/audio-review defaults without deleting Keychain
+        // items. Preserve the stable GPT-6 configuration ID so an existing Key remains usable.
+        config.inputMode = .highestQuality
+        for index in config.models.indices where [.audioReview, .finalASR].contains(config.models[index].purpose) {
+            config.models[index].enabled = false
+            config.models[index].cloudConsent = false
+        }
+        let fusionIndices = config.models.indices.filter { config.models[$0].purpose == .textFusion }
+        if let first = fusionIndices.first {
+            for index in fusionIndices.dropFirst() {
+                config.models[index].enabled = false
+                config.models[index].cloudConsent = false
+            }
+            if config.models[first].provider != .openAIResponses || config.models[first].model != "gpt-6-astra" {
+                config.models[first].provider = .openAIResponses
+                config.models[first].model = "gpt-6-astra"
+                config.models[first].cloudConsent = false
+            }
+        } else {
+            config.models.append(.init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000004")!,
+                purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra"))
+        }
         return config
     }
     public func save(to preferences: UserDefaults) throws {

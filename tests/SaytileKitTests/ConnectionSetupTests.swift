@@ -46,7 +46,7 @@ struct ConnectionSetupTests {
         #expect(throws: (any Error).self) { try request.exportApplied(invalid, hasUnappliedChanges: false, presence: { _ in .saved }) }
         invalid = configuration; invalid.models[0].cloudConsent = false
         #expect(throws: (any Error).self) { try request.exportApplied(invalid, hasUnappliedChanges: false, presence: { _ in .saved }) }
-        invalid = configuration; invalid.models.removeAll { $0.purpose == .audioReview }
+        invalid = configuration; invalid.models.removeAll { $0.purpose == .textFusion }
         #expect(throws: (any Error).self) { try request.exportApplied(invalid, hasUnappliedChanges: false, presence: { _ in .saved }) }
         #expect(!FileManager.default.fileExists(atPath: request.output.path))
     }
