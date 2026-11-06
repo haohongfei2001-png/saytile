@@ -434,10 +434,17 @@ final class AppModel: ObservableObject {
             else { try await self.audio.play(recordingID: item.id) }
         }
     }
-    func eraseAudio(_ item: DisplayRecording) { perform { try await self.store.deleteAudio(recordingID: item.id); await self.refresh() } }
+    func eraseAudio(_ item: DisplayRecording) {
+        perform {
+            try await self.store.deleteAudio(recordingID: item.id)
+            await self.audio.cancelRecognition(recordingID: item.id)
+            await self.refresh()
+        }
+    }
     func deleteRecord(_ item: DisplayRecording) {
         perform {
             try await self.store.deleteRecord(recordingID: item.id)
+            await self.audio.cancelRecognition(recordingID: item.id)
             self.pendingDraftWrites.removeValue(forKey: item.id); self.latestEditorValues.removeValue(forKey: item.id)
             if self.selected?.id == item.id { self.closeDetail() }
             await self.refresh()

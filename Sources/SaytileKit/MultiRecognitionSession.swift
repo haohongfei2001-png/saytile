@@ -24,6 +24,7 @@ struct RecognitionPipelineDependencies: Sendable {
 }
 
 final class MultiRecognitionSession: RecognitionSession, @unchecked Sendable {
+    let recordingID: UUID
     private let completion = RecognitionSessionCompletion()
     private let fanout: RecognitionAudioFanout
     private let coordinator: MultiRecognitionCoordinator
@@ -32,6 +33,7 @@ final class MultiRecognitionSession: RecognitionSession, @unchecked Sendable {
     init(store: SaytileStore, ticket: RecognitionTicket, configuration: RecognitionConfiguration,
          dependencies: RecognitionPipelineDependencies = .live,
          onComplete: @escaping @Sendable () -> Void = {}) {
+        self.recordingID = ticket.recordingID
         let configs = configuration.enabledModels.filter { $0.purpose.isStreaming }
         let coordinator = MultiRecognitionCoordinator(store: store, ticket: ticket, configuration: configuration, dependencies: dependencies)
         self.coordinator = coordinator

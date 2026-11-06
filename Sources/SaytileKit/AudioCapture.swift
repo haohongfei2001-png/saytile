@@ -195,11 +195,11 @@ actor CaptureWorker {
         speech = nil; journal = nil; self.recordingID = nil
     }
     func hasPendingRecognition() -> Bool { speech?.isComplete == false || retired.contains { !$0.isComplete } }
-    func cancelRecognitionAndWait() async {
-        let sessions = retired + (speech.map { [$0] } ?? [])
+    func cancelRecognitionAndWait(recordingID: UUID? = nil) async {
+        let sessions = (retired + (speech.map { [$0] } ?? [])).filter { recordingID == nil || $0.recordingID == recordingID }
         sessions.forEach { $0.cancel() }
         for session in sessions { await session.wait() }
-        retired.removeAll()
+        retired.removeAll { recordingID == nil || $0.recordingID == recordingID }
     }
 
 }
@@ -346,6 +346,17 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         for old in drainingWorkers { await old.cancelRecognitionAndWait() }
         retryTask?.cancel()
         speechStatus = configuration.cloudEnabled ? "中英文并行识别 · " + configuration.inputMode.label : await AppleSpeechService.availability().message
+    }
+    /// Best-effort cancellation of in-flight requests. Already received remote audio
+    /// cannot be recalled; Store's epoch guard also rejects every later callback.
+    public func cancelRecognition(recordingID: UUID) async {
+        await worker?.cancelRecognitionAndWait(recordingID: recordingID)
+        for old in drainingWorkers { await old.cancelRecognitionAndWait(recordingID: recordingID) }
+        if reprocessingID == recordingID {
+            let activeRetry = retryTask
+            activeRetry?.cancel()
+            await activeRetry?.value
+        }
     }
     public func prepareSpeechAssets() async {
         guard !isShuttingDown else { return }

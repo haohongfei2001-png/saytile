@@ -99,10 +99,12 @@ final class RecognitionSessionFactory: @unchecked Sendable {
 }
 
 private final class DeferredRecognitionSession: RecognitionSession, @unchecked Sendable {
+    let recordingID: UUID
     private let completion = RecognitionSessionCompletion()
     private let task: Task<Void, Never>
     var isComplete: Bool { completion.isComplete }
     init(store: SaytileStore, ticket: RecognitionTicket) {
+        recordingID = ticket.recordingID
         let completion = completion
         task = Task {
             try? await store.failRecognition(ticket: ticket, message: "先前模型仍在复核，本段原音已保留并等待恢复。")

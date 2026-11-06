@@ -86,6 +86,7 @@ public protocol StreamingASRProvider: Sendable {
 }
 
 public protocol RecognitionSession: AnyObject, Sendable {
+    var recordingID: UUID { get }
     var isComplete: Bool { get }
     func append(_ data: Data)
     func finish()
