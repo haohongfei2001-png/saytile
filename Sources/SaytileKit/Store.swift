@@ -747,8 +747,10 @@ extension SaytileStore {
             let sessionPrefix = session["stable_text"] ?? ""
             let mode = InputQualityMode(rawValue: session["mode"] ?? "") ?? .highestQuality
             if !proposal.selections.isEmpty {
-                let checked = try PrecisionFusion.validateSelection(spans: proposal.selections, candidates: current,
-                    committedPrefix: sessionPrefix, unresolved: proposal.unresolved,
+                let horizon = current.filter { $0.run.purpose.isStreaming }.map(PrecisionFusion.stableAudioEnd).min() ?? 0
+                let relevant = current.filter { $0.run.purpose.isStreaming || sourceIDs.contains($0.id) || $0.audioEndSeconds + 0.1 >= horizon }
+                let checked = try PrecisionFusion.validateSelection(spans: proposal.selections, candidates: relevant,
+                    committedPrefix: sessionPrefix, unresolved: proposal.selectionRequestedUnresolved ?? proposal.unresolved,
                     needsAudioReview: proposal.needsAudioReview, reasonCode: proposal.reasonCode)
                 guard checked.previewText == proposal.previewText, checked.stableText == proposal.stableText, Set(checked.sourceCandidateIDs) == sourceIDs else { throw FusionError.invalidSelection }
             } else if proposal.stableText != sessionPrefix {

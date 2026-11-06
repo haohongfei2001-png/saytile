@@ -18,12 +18,13 @@ public struct FusionProposal: Codable, Sendable, Equatable {
     public let needsAudioReview: Bool
     public let reasonCode: String
     public let selections: [CandidateSpan]
+    public let selectionRequestedUnresolved: Bool?
     // Only the deterministic engine constructs publishable proposals. Store revalidates sources.
     init(previewText: String, stableText: String, sourceCandidateIDs: [UUID], unresolved: Bool,
-         needsAudioReview: Bool, reasonCode: String, selections: [CandidateSpan] = []) {
+         needsAudioReview: Bool, reasonCode: String, selections: [CandidateSpan] = [], selectionRequestedUnresolved: Bool? = nil) {
         self.previewText = previewText; self.stableText = stableText; self.sourceCandidateIDs = sourceCandidateIDs
         self.unresolved = unresolved; self.needsAudioReview = needsAudioReview; self.reasonCode = reasonCode
-        self.selections = selections
+        self.selections = selections; self.selectionRequestedUnresolved = selectionRequestedUnresolved
     }
 }
 
@@ -148,7 +149,7 @@ public enum PrecisionFusion {
             sourceCandidateIDs: Array(Set(selected.map(\.id))).sorted { $0.uuidString < $1.uuidString },
             unresolved: uncertain || changesCommitted || truncatedSource, needsAudioReview: needsAudioReview || protectedConflict,
             reasonCode: protectedConflict ? "protected-content-needs-audio" : changesCommitted ? "late-correction-preserved" : reasonCode,
-            selections: spans)
+            selections: spans, selectionRequestedUnresolved: unresolved)
     }
 
     public static func validateCandidate(_ candidate: RecognitionCandidate) throws {
@@ -169,6 +170,17 @@ public enum PrecisionFusion {
         }
     }
 
+    static func stableAudioEnd(_ candidate: RecognitionCandidate) -> Double {
+        if candidate.stableUTF16Length == candidate.text.utf16.count { return candidate.audioEndSeconds }
+        guard ["word", "token", "segment"].contains(candidate.timingGranularity), candidate.tokens.map(\.text).joined() == candidate.text else { return candidate.audioStartSeconds }
+        var offset = 0, end = candidate.audioStartSeconds
+        for token in candidate.tokens {
+            offset += token.text.utf16.count
+            if offset > candidate.stableUTF16Length || !token.isFinal { break }
+            end = token.endSeconds
+        }
+        return end
+    }
     static func latestPerRun(_ candidates: [RecognitionCandidate]) -> [RecognitionCandidate] {
         var results: [UUID: RecognitionCandidate] = [:]
         for candidate in candidates where candidate.sequence > (results[candidate.run.id]?.sequence ?? -1) { results[candidate.run.id] = candidate }

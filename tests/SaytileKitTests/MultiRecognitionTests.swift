@@ -299,3 +299,19 @@ private func sample(_ text: String, purpose: RecognitionPurpose = .chineseASR,
     #expect(result.needsAudioReview)
     #expect(result.stableText.isEmpty)
 }
+
+@Test func multiVerifiedPrefixCanPublishWhileAIReportsRemainingTail() async throws {
+    let f = try MultiFixture(); defer { f.clean() }
+    let record = try await f.record()
+    let ticket = try await f.store.beginFusionRecognition(recordingID: record.id)
+    let run = try await f.run(ticket, .chineseASR)
+    let timed = sample("我想去公园", run: run, granularity: "segment", tokens: [
+        RecognitionToken(text: "我想", startSeconds: 0, endSeconds: 0.5, isFinal: true),
+        RecognitionToken(text: "去公园", startSeconds: 0.5, endSeconds: 2, isFinal: true)])
+    try await f.store.appendRecognitionCandidate(timed)
+    let proposal = try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: timed.id, utf16Start: 0, utf16End: 2)], candidates: [timed])
+    let result = try await f.store.publishFusion(ticket: ticket, proposal: proposal)
+    #expect(result.published)
+    #expect(result.deferred)
+    #expect(result.revision?.text == "我想")
+}
