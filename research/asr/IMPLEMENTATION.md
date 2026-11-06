@@ -1,88 +1,38 @@
-# 多模型识别实现与接续规范
+# SingleTranscriptEngine 实现与接续规范
 
-本文件覆盖旧单模型实施要求。正式范围见 [DECISION.md](DECISION.md)，实际已完成与未完成见 [REVISION-2026-11-06.md](REVISION-2026-11-06.md)。
+更新：2026-11-07。
 
-## 不可退化的调用链
+## 唯一数据通路
 
-`AudioCapture → PCMJournal（独立保存）→ 多路有界音频流 → 独立 ModelRun / Candidate → 融合协调器 → 正式版本 / 可派发前缀 → 现有目标绑定与 UTF-16 账本`。
+`CaptureWorker → PCMJournal → 两路完整音频流 → Chinese/English ASR Candidates → SingleTranscriptEngine → GPT-6 Astra evidence selection → 唯一 transcript revision → UTF-16 direct-input ledger`
 
-每个适配器只返回自己的候选；它不能访问输入协调器，也不能写正式 revisions。原 Apple 路径保留兼容入口，新的云端路径必须用候选隔离及融合发布入口。一个逻辑 recording 的 RecognitionTicket 是发布代次，不再代表唯一 ASR。网络、AI 复核、费用记录都不能反向阻塞原音落盘。
+第三个 ASR 作为可选 challenger 加入相同候选流。Apple SpeechAnalyzer 也作为本地 Candidate 来源进入同一 recordingID/audioEpoch/generation，不拥有独立发布权。
 
-## 边界与时钟
+## SingleTranscriptEngine 职责
 
-- 16 kHz / mono / Int16 PCM 作为相同输入；每份音频使用原样本序号定位。
-- 每模型 6 秒未消费缓冲；某路溢出使该路运行失败并可从原音恢复，不能无声丢包后发布“成功”文字，也不停止其他路。
-- journal 每 15 秒轮转，和模型会话分开。云端更长的逻辑段用于保留上下文；资源边界不等于文字稳定等待时间。
-- 每次结束按模型协议在已接纳音频后发送 EOS，再完成各自的收尾；不因结束输入立即关闭接收。Qwen 等待 `task-finished`，AssemblyAI 等待 `Termination`，Soniox 等待 `finished`。Meta 要求 `endStream` 发送成功、正常关闭码 `1000`、所有已观察 turn 都有 `speechComplete`；单个 `transcript.final` 不能证明 turn 或 session 已完成。
-- 每个模型独立 request ID、代次、sequence、错误与 usage。源录音 epoch 和发布代次校验适用于所有迟到结果。
+- 为每个 recording/generation 维护每路最新候选和历史来源。
+- 同一录音完整 PCM 广播给每个启用的 ASR。
+- 对 provider sequence、source range、EOS、语言标签和迟到事件进行验证。
+- 280ms 合并高频候选变化；不是每个 token 请求 GPT。
+- 只有一个 GPT-6 Astra Responses 请求链；请求重叠时 coalesce，不并发启动多个相同快照。
+- GPT 结构化结果只能引用已存候选及 UTF-16 范围。
+- 本地校验数字、金额、时间、单位、否定、重复、术语和真实音频覆盖。
+- 新证据代次变化后，旧 GPT 响应失效。
+- EOS 后等待所有必要专家完成，执行最后一轮融合。
+- 发布唯一 preview/stable/final transcript revision。
 
-## 精确融合
+## GPT API 实现
 
-### 十个阶段的实际实现
+Responses API 支持 `stream: true`。Saytile 应通过 SSE 接收 `response.completed`，使用最终结构化输出作为候选选择；不得将 GPT 文本流中尚未完成的 JSON 直接发布为正式转写。若只拿到 GPT 文本输出而没有原音输入，不得称为 acoustic review。
 
-| 阶段 | 实现与依赖 | 发布边界 |
-|---|---|---|
-| 1. 实时音频分发 | `CaptureWorker` 先写 `PCMJournal`；`RecognitionAudioFanout` 为各专家提供独立 `AsyncStream<Data>`；原生 `URLSessionWebSocketTask` 使用各家协议 | 网络阻塞不阻止落盘；不以丢包维持表面成功 |
-| 2. 音频与文本对齐 | 原始样本时钟、真实 provider token/segment 时间、字素边界与 UTF-16 原文映射 | 没有词时间就保留实际精度；Meta 的处理进度不当作词边界 |
-| 3. 中英及混说判断 | 保存供应商真实 language 标签，候选文本脚本/服务能力约束，并把原始证据提供给 Astra 仲裁 | 不对整句单模型路由；没有另训独立声学 LID 分类器，也不宣称语言判断准确率已测得 |
-| 4. 增量候选合并 | 每模型 sequence/turn 独立替换尾部，`PrecisionFusion` 计算可用共同前缀，协调器持续更新一份预览 | 模型不能同时写正式转写；不按“最长文本”假定最正确 |
-| 5. 分歧检测 | 确定性比较、受保护语义签名、来源/时间范围及稳定前缀约束 | 数字、否定、单位、重复分歧不能靠常识直接消除 |
-| 6. 实时 AI 修正 | OpenAI Responses 严格 schema 选择候选 ID + UTF-16 span；并发收音期间 coalesce 复核，未变化的精确前缀可 rebase | 不接受 LLM 自由生成的正式正文；旧引用不得覆盖新来源 |
-| 7. 统一稳定前缀 | `publishFusion` 核验 epoch、generation、当前候选、对齐与证据；最高质量等待所有已启用实时专家 | provider final 不是发布许可；未知、超时或失败不升级成正确 |
-| 8. 高精度定稿 | Gemini 原生 WAV 盲听、Scribe v2/OpenAI 文件转写并行提供新候选，仍经同一仲裁 | 音频理解输出也会出错，且不得绕过外部账本与用户稿保护 |
-| 9. 迟到结果 | 版本检查、精确来源 rebase、保留更正 archive，结束后完成独立状态与用量记录 | 重启、删除原音、重试代次或配置取消使旧结果失效 |
-| 10. 已插入保护 | `latestDispatchableRevision` 与归档修订分离；既有 UTF-16 账本、目标绑定与待确认投递约束 | 不重复发送、自动覆盖目标文字或自动敲回车 |
+## 候选与正式稿边界
 
-这些是已实现的技术边界。跨模型误差是否互补、融合是否改善四阶段准确率，仍需同音频真人验收，不能由架构本身推导。
+ASR adapter 只能返回自己的 ProviderTranscriptEvent。候选写入 Store 后由 SingleTranscriptEngine 处理。GPT 不能直接写正式 transcript、稳定前缀或外部 ledger。Store 再次验证 ticket、generation、候选身份和 Unicode 范围。
 
-普通共识首先走确定性代码，不必每个 token 都调用大模型。出现意义分歧后调用证据选择接口。AI 返回候选引用，验证 UTF-16/字素边界、音频覆盖、时间顺序、已有稳定前缀和受保护内容；不接受无来源字符串。纯文本无从消歧则调用原音复听，重新作为候选进入同一验证流程。
+## 文字保护
 
-实时仲裁必须可与后续 PCM/其他模型同时继续。过期请求以候选版本校验淘汰或重新裁决；迟到结果不能回滚用户修改或外部派发。完整音频复核有独立版本，不把所有 final revision 都暴露给自动输入。
+Saytile 内部显示文本可在未派发范围内修正。外部应用中已拥有/派发的 UTF-16 范围不可自动覆盖；目标改变时停止派发；用户编辑过的内容受保护。不自动发送或回车。
 
-## BYOK 与调用审计
+## 当前实现边界
 
-`RecognitionConfiguration` 保存服务、模型、地域、上下文、模式及用户填写的费率；不包含 Key。Keychain 按 provider + configuration ID 分隔，改变服务不会把另一家 Key 发给新服务。每个模型独立授权：ASR/复听上传音频，文本仲裁上传候选和必要上下文。
-
-关闭/撤回授权取消当前相关运行与复核；已保存原音继续保留。配置或密钥变更不得悄悄把旧话发给新目标。鉴权、余额和服务未开通错误不能无限自动重试；明确修复配置后才恢复资格。
-
-调用账本至少保留 provider/model/run/recording/时间/状态/request ID/音频秒数/已返回 token 用量。费用只在存在真实账单或明确单价时填入；估算与实际账单区别显示，未知绝不记为 0。不要写 Authorization、Key、签名 URL 或任意供应商报错正文。
-
-## 无凭据验证
-
-用协议 fixture 与隔离原生数据库验证真实风险：候选改写与合法重复、EOS 顺序、独立慢模型、断连、迟到与过期、数字否定保护、混说来源对齐、emoji/组合字符、用户编辑保护、数据库升级/重开、原音删除、稳定范围不重派、最高质量/快速模式差异。不能用这些结果替代实际识别准确率。
-
-既有 Apple/Qwen 和 VAD 结果只作历史证据，不重新下载或扩大数据。云验收直接复用 Mac 既有音频；只回传小 JSON 统计与文本差异，音频/权重留在本机。每个独立实现提交后再继续，不在会话末尾集中保存。
-
-
----
-
-## 2026-11-07 架构收敛补充
-
-### 必须完成的结构调整
-
-当前文档中的多路分发描述仍然代表 PR #4 已有实现，不再意味着所有模型必须始终运行。正式执行计划改为：
-
-1. 将 Apple SpeechAnalyzer 的结果通过统一 Candidate ingress 写入同一个 recording / epoch / generation；禁止独立本地路径直接成为正式发布者。
-2. 增加 RecognitionPolicyEngine，输入包括网络状态、语言标签/脚本、候选分歧、术语命中、音频质量、设备热状态、电源状态、用户模式和 provider 可用性。
-3. 默认只启动一条已选定的多语言实时主路。Soniox v6 是首个挑战基线；主路选型必须由同输入实测最终决定。
-4. 对不确定时间范围才启动专家模型。若 provider 不支持精确片段输入，发送带前后文的窗口，并记录真实 sample range，禁止把整句结果假装成局部证据。
-5. 普通共识由确定性代码处理；文本 LLM 仅在语义风险分歧时调用；音频模型仅在候选文本不能判别时复听。
-6. 完整文件 ASR 从默认自动流程改为按需重识别 / 疑难定稿 / 抽样测量。
-7. 断网后 CaptureWorker 和 PCMJournal 不变；本地 Apple 路径接管可支持的语言，云任务排队；恢复后基于 audio digest 和 generation 幂等补做。
-
-### 统一候选协议新增字段
-
-除既有 Candidate 字段外，增加/明确：
-- `sourceSampleRange`：原始采样时钟的精确覆盖范围；
-- `languageSpans`：token/segment 级语言标签及其来源；
-- `policyDecisionID`：本次模型调度决策；
-- `contextSnapshotID`：实际提供给 provider 的上下文快照；
-- `evidenceClass`：声学候选、文本仲裁、音频复听、格式化结果；
-- `isVolatile` / `isFinal`：区分临时与最终状态；
-- `alignmentPrecision`：word / segment / utterance / none，禁止伪造精度。
-
-### 性能与设备约束
-
-不默认让 M5 24GB 长期开多个本地大模型。Apple SpeechAnalyzer 作为系统托管本地模型优先；Qwen3-ASR 0.6B、WhisperKit、Parakeet 通过独立性能实验准入。记录 RTF、首字延迟、RSS、CPU/GPU、温度、电量、连续运行时长。不得使用 Apple SpeechAnalyzer 的忽略资源限制选项作为默认方案。
-
-详细模块边界、数据流、离线策略和准入门槛见 [最终架构](../architecture/FINAL-ARCHITECTURE.md)。
+本轮核心引擎改造只完成单一 GPT 约束、双专家配置契约、coalesced GPT 更新与 Responses streaming 接收。Apple SpeechAnalyzer Candidate ingress、PCMJournal 任意范围读取、端到端云质量对照及外部真实文本修订仍需后续独立验收。不能把文档架构等同于这些能力全部完成。

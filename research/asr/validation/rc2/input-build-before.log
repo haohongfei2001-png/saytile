@@ -1,0 +1,789 @@
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:672:65: error: cannot find type 'InputQualityMode' in scope
+ 670 | extension SaytileStore {
+ 671 |     /// This logical ticket owns publication. Provider tickets are separate and never accepted by applyRecognition.
+ 672 |     public func beginFusionRecognition(recordingID: UUID, mode: InputQualityMode = .highestQuality) throws -> RecognitionTicket {
+     |                                                                 `- error: cannot find type 'InputQualityMode' in scope
+ 673 |         let record = try requireRecording(recordingID)
+ 674 |         guard record.audioState == .available else { throw StoreError.audioUnavailable }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:687:22: error: cannot find type 'RecognitionPurpose' in scope
+ 685 |     private struct FusionRequirement: Codable {
+ 686 |         let configurationID: UUID
+ 687 |         let purpose: RecognitionPurpose
+     |                      `- error: cannot find type 'RecognitionPurpose' in scope
+ 688 |     }
+ 689 |     /// Freeze identities before any provider attempt starts. The payload contains no credentials.
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:685:20: error: type 'SaytileStore.FusionRequirement' does not conform to protocol 'Decodable'
+ 683 |     }
+ 684 |     public func isRecognitionCurrent(ticket: RecognitionTicket) throws -> Bool { try validTicket(ticket) }
+ 685 |     private struct FusionRequirement: Codable {
+     |                    `- error: type 'SaytileStore.FusionRequirement' does not conform to protocol 'Decodable'
+ 686 |         let configurationID: UUID
+ 687 |         let purpose: RecognitionPurpose
+     |             `- note: cannot automatically synthesize 'Decodable' because 'RecognitionPurpose' does not conform to 'Decodable'
+ 688 |     }
+ 689 |     /// Freeze identities before any provider attempt starts. The payload contains no credentials.
+
+Swift.Decodable.init:2:1: note: protocol requires initializer 'init(from:)' with type 'Decodable'
+1 | protocol Decodable {
+2 | init(from decoder: any Decoder) throws}
+  | `- note: protocol requires initializer 'init(from:)' with type 'Decodable'
+3 | 
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:685:20: error: type 'SaytileStore.FusionRequirement' does not conform to protocol 'Encodable'
+ 683 |     }
+ 684 |     public func isRecognitionCurrent(ticket: RecognitionTicket) throws -> Bool { try validTicket(ticket) }
+ 685 |     private struct FusionRequirement: Codable {
+     |                    `- error: type 'SaytileStore.FusionRequirement' does not conform to protocol 'Encodable'
+ 686 |         let configurationID: UUID
+ 687 |         let purpose: RecognitionPurpose
+     |             `- note: cannot automatically synthesize 'Encodable' because 'RecognitionPurpose' does not conform to 'Encodable'
+ 688 |     }
+ 689 |     /// Freeze identities before any provider attempt starts. The payload contains no credentials.
+
+Swift.Encodable.encode:2:6: note: protocol requires function 'encode(to:)' with type 'Encodable'
+1 | protocol Encodable {
+2 | func encode(to encoder: any Encoder) throws}
+  |      `- note: protocol requires function 'encode(to:)' with type 'Encodable'
+3 | 
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:690:89: error: cannot find type 'ModelConfiguration' in scope
+ 688 |     }
+ 689 |     /// Freeze identities before any provider attempt starts. The payload contains no credentials.
+ 690 |     public func configureFusionRequirements(ticket: RecognitionTicket, configurations: [ModelConfiguration]) throws {
+     |                                                                                         `- error: cannot find type 'ModelConfiguration' in scope
+ 691 |         let enabled = configurations.filter(\.enabled)
+ 692 |         guard Set(enabled.map(\.id)).count == enabled.count,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:719:103: error: cannot find type 'ModelRunTicket' in scope
+ 717 |         return longest
+ 718 |     }
+ 719 |     public func beginModelRun(ticket: RecognitionTicket, configuration: ModelConfiguration) throws -> ModelRunTicket {
+     |                                                                                                       `- error: cannot find type 'ModelRunTicket' in scope
+ 720 |         guard try validTicket(ticket), try db.rows("SELECT id FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first != nil else { throw FusionError.staleGeneration }
+ 721 |         let run = ModelRunTicket(recognitionID: ticket.id, recordingID: ticket.recordingID, audioEpoch: ticket.audioEpoch,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:719:73: error: cannot find type 'ModelConfiguration' in scope
+ 717 |         return longest
+ 718 |     }
+ 719 |     public func beginModelRun(ticket: RecognitionTicket, configuration: ModelConfiguration) throws -> ModelRunTicket {
+     |                                                                         `- error: cannot find type 'ModelConfiguration' in scope
+ 720 |         guard try validTicket(ticket), try db.rows("SELECT id FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first != nil else { throw FusionError.staleGeneration }
+ 721 |         let run = ModelRunTicket(recognitionID: ticket.id, recordingID: ticket.recordingID, audioEpoch: ticket.audioEpoch,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:730:76: error: cannot find type 'RecognitionCandidate' in scope
+ 728 |         return run
+ 729 |     }
+ 730 |     @discardableResult public func appendRecognitionCandidate(_ candidate: RecognitionCandidate) throws -> Bool {
+     |                                                                            `- error: cannot find type 'RecognitionCandidate' in scope
+ 731 |         try PrecisionFusion.validateCandidate(candidate)
+ 732 |         return try db.transaction {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:743:83: error: cannot find type 'RecognitionCandidate' in scope
+ 741 |         }
+ 742 |     }
+ 743 |     public func latestRecognitionCandidates(ticket: RecognitionTicket) throws -> [RecognitionCandidate] {
+     |                                                                                   `- error: cannot find type 'RecognitionCandidate' in scope
+ 744 |         try db.rows("SELECT c.payload FROM recognition_candidates c JOIN model_runs r ON r.id=c.run_id AND r.last_sequence=c.sequence WHERE c.recognition_id=? AND NOT EXISTS(SELECT 1 FROM recognition_candidates newer JOIN model_runs n ON n.id=newer.run_id WHERE n.recognition_id=r.recognition_id AND n.configuration_id=r.configuration_id AND n.rowid>r.rowid) ORDER BY c.created_at,c.rowid", [.text(ticket.id.uuidString)])
+ 745 |             .map { try Self.decodeEvidence(RecognitionCandidate.self, $0["payload"]) }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:747:69: error: cannot find type 'RecognitionCandidate' in scope
+ 745 |             .map { try Self.decodeEvidence(RecognitionCandidate.self, $0["payload"]) }
+ 746 |     }
+ 747 |     public func recognitionCandidates(recordingID: UUID) throws -> [RecognitionCandidate] {
+     |                                                                     `- error: cannot find type 'RecognitionCandidate' in scope
+ 748 |         _ = try requireRecording(recordingID)
+ 749 |         return try db.rows("SELECT payload FROM recognition_candidates WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)])
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:754:80: error: cannot find type 'RecognitionPurpose' in scope
+ 752 |     /// Presentation state comes from actual running attempts, never inferred from
+ 753 |     /// enabled settings. Old generations and completed attempts cannot leave a stale spinner.
+ 754 |     public func activeRecognitionPhases(recordingIDs: [UUID]) throws -> [UUID: RecognitionPurpose] {
+     |                                                                                `- error: cannot find type 'RecognitionPurpose' in scope
+ 755 |         let ids = Array(Set(recordingIDs))
+ 756 |         var phases: [UUID: RecognitionPurpose] = [:]
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:782:57: error: cannot find type 'ModelRunRecord' in scope
+ 780 |     }
+ 781 | 
+ 782 |     public func modelRuns(recordingID: UUID) throws -> [ModelRunRecord] {
+     |                                                         `- error: cannot find type 'ModelRunRecord' in scope
+ 783 |         _ = try requireRecording(recordingID)
+ 784 |         return try db.rows("SELECT * FROM model_runs WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { row in
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:790:39: error: cannot find type 'ModelRunTicket' in scope
+ 788 |     }
+ 789 |     /// One provider failure does not finish/cancel the logical recording or other providers.
+ 790 |     public func finishModelRun(_ run: ModelRunTicket, error: String? = nil, retryable: Bool = true) throws {
+     |                                       `- error: cannot find type 'ModelRunTicket' in scope
+ 791 |         guard try validRun(run) else { return }
+ 792 |         try db.transaction {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:819:97: error: cannot find type 'FusionPublication' in scope
+ 817 |     }
+ 818 |     @discardableResult public func publishFusion(ticket: RecognitionTicket, proposal submitted: FusionProposal,
+ 819 |                                                 audioSubmittedSeconds: Double? = nil) throws -> FusionPublication {
+     |                                                                                                 `- error: cannot find type 'FusionPublication' in scope
+ 820 |         guard audioSubmittedSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true else { throw FusionError.invalidCandidate }
+ 821 |         return try db.transaction {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:818:97: error: cannot find type 'FusionProposal' in scope
+ 816 |         return try db.rows("SELECT v.* FROM revisions v WHERE v.recording_id=? AND v.origin='final' AND NOT EXISTS(SELECT 1 FROM fusion_archives a WHERE a.revision_id=v.id) ORDER BY v.created_at DESC,v.rowid DESC LIMIT 1", [.text(recordingID.uuidString)]).first.map(Self.decodeRevision)
+ 817 |     }
+ 818 |     @discardableResult public func publishFusion(ticket: RecognitionTicket, proposal submitted: FusionProposal,
+     |                                                                                                 `- error: cannot find type 'FusionProposal' in scope
+ 819 |                                                 audioSubmittedSeconds: Double? = nil) throws -> FusionPublication {
+ 820 |         guard audioSubmittedSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true else { throw FusionError.invalidCandidate }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:996:63: error: cannot find type 'FusionDecisionRecord' in scope
+ 994 |         return currentIDs == proof["candidate_ids"]
+ 995 |     }
+ 996 |     public func fusionDecisions(recordingID: UUID) throws -> [FusionDecisionRecord] {
+     |                                                               `- error: cannot find type 'FusionDecisionRecord' in scope
+ 997 |         _ = try requireRecording(recordingID)
+ 998 |         return try db.rows("SELECT payload FROM fusion_decisions WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { try Self.decodeEvidence(FusionDecisionRecord.self, $0["payload"]) }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1000:43: error: cannot find type 'ModelUsageRecord' in scope
+ 998 |         return try db.rows("SELECT payload FROM fusion_decisions WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { try Self.decodeEvidence(FusionDecisionRecord.self, $0["payload"]) }
+ 999 |     }
+1000 |     public func recordModelUsage(_ usage: ModelUsageRecord) throws {
+     |                                           `- error: cannot find type 'ModelUsageRecord' in scope
+1001 |         guard let row = try db.rows("SELECT m.recording_id FROM model_runs m JOIN recordings r ON r.id=m.recording_id WHERE m.id=? AND r.deleted=0", [.text(usage.runID.uuidString)]).first,
+1002 |               usage.audioSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1008:39: error: cannot find type 'ModelRunTicket' in scope
+1006 |         try db.execute("INSERT OR IGNORE INTO model_usage(id,run_id,recording_id,payload,created_at) VALUES(?,?,?,?,?)", [.text(usage.id.uuidString), .text(usage.runID.uuidString), .text(row["recording_id"]!), .text(try Self.encodeEvidence(usage)), .double(usage.createdAt.timeIntervalSince1970)])
+1007 |     }
+1008 |     public func recordModelUsage(run: ModelRunTicket, audioSeconds: Double, inputTokens: Int?, outputTokens: Int?,
+     |                                       `- error: cannot find type 'ModelRunTicket' in scope
+1009 |                                  elapsedSeconds: Double, requestID: String?, estimatedCost: Double?, currency: String?) throws {
+1010 |         guard elapsedSeconds.isFinite, elapsedSeconds >= 0 else { throw FusionError.invalidCandidate }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1015:58: error: cannot find type 'ModelUsageRecord' in scope
+1013 |             currency: currency ?? "USD", elapsedSeconds: elapsedSeconds))
+1014 |     }
+1015 |     public func modelUsage(recordingID: UUID) throws -> [ModelUsageRecord] {
+     |                                                          `- error: cannot find type 'ModelUsageRecord' in scope
+1016 |         _ = try requireRecording(recordingID)
+1017 |         return try db.rows("SELECT payload FROM model_usage WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { try Self.decodeEvidence(ModelUsageRecord.self, $0["payload"]) }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1035:34: error: cannot find type 'ModelRunTicket' in scope
+1033 |         }
+1034 |     }
+1035 |     private func validRun(_ run: ModelRunTicket) throws -> Bool {
+     |                                  `- error: cannot find type 'ModelRunTicket' in scope
+1036 |         let ticket = RecognitionTicket(id: run.recognitionID, recordingID: run.recordingID, audioEpoch: run.audioEpoch)
+1037 |         guard try validTicket(ticket), let row = try db.rows("SELECT payload FROM model_runs WHERE id=? AND recognition_id=? AND state='running'", [.text(run.id.uuidString), .text(run.recognitionID.uuidString)]).first else { return false }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:402:57: error: cannot find 'ModelUsageRecord' in scope
+ 400 |                 // references and a text prefix, so erase that evidence in the same transaction.
+ 401 |                 for row in try db.rows("SELECT id,payload FROM model_usage WHERE recording_id=?", [.text(id.uuidString)]) {
+ 402 |                     let usage = try Self.decodeEvidence(ModelUsageRecord.self, row["payload"])
+     |                                                         `- error: cannot find 'ModelUsageRecord' in scope
+ 403 |                     guard usage.arbitrationResponse != nil else { continue }
+ 404 |                     let metadata = ModelUsageRecord(id: usage.id, runID: usage.runID, requestID: usage.requestID,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:404:36: error: cannot find 'ModelUsageRecord' in scope
+ 402 |                     let usage = try Self.decodeEvidence(ModelUsageRecord.self, row["payload"])
+ 403 |                     guard usage.arbitrationResponse != nil else { continue }
+ 404 |                     let metadata = ModelUsageRecord(id: usage.id, runID: usage.runID, requestID: usage.requestID,
+     |                                    `- error: cannot find 'ModelUsageRecord' in scope
+ 405 |                         audioSeconds: usage.audioSeconds, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
+ 406 |                         estimatedCost: usage.estimatedCost, currency: usage.currency, status: usage.status,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:402:42: error: generic parameter 'T' could not be inferred
+ 400 |                 // references and a text prefix, so erase that evidence in the same transaction.
+ 401 |                 for row in try db.rows("SELECT id,payload FROM model_usage WHERE recording_id=?", [.text(id.uuidString)]) {
+ 402 |                     let usage = try Self.decodeEvidence(ModelUsageRecord.self, row["payload"])
+     |                                          `- error: generic parameter 'T' could not be inferred
+ 403 |                     guard usage.arbitrationResponse != nil else { continue }
+ 404 |                     let metadata = ModelUsageRecord(id: usage.id, runID: usage.runID, requestID: usage.requestID,
+     :
+1065 |         return string
+1066 |     }
+1067 |     private static func decodeEvidence<T: Decodable>(_ type: T.Type, _ string: String?) throws -> T {
+     |                         `- note: in call to function 'decodeEvidence'
+1068 |         guard let data = string?.data(using: .utf8) else { throw FusionError.invalidCandidate }
+1069 |         return try JSONDecoder().decode(type, from: data)
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:691:45: error: cannot infer key path type from context; consider explicitly specifying a root type
+ 689 |     /// Freeze identities before any provider attempt starts. The payload contains no credentials.
+ 690 |     public func configureFusionRequirements(ticket: RecognitionTicket, configurations: [ModelConfiguration]) throws {
+ 691 |         let enabled = configurations.filter(\.enabled)
+     |                                             `- error: cannot infer key path type from context; consider explicitly specifying a root type
+ 692 |         guard Set(enabled.map(\.id)).count == enabled.count,
+ 693 |               enabled.contains(where: { $0.purpose.isStreaming }) else { throw FusionError.invalidSelection }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:692:31: error: cannot infer key path type from context; consider explicitly specifying a root type
+ 690 |     public func configureFusionRequirements(ticket: RecognitionTicket, configurations: [ModelConfiguration]) throws {
+ 691 |         let enabled = configurations.filter(\.enabled)
+ 692 |         guard Set(enabled.map(\.id)).count == enabled.count,
+     |                               `- error: cannot infer key path type from context; consider explicitly specifying a root type
+ 693 |               enabled.contains(where: { $0.purpose.isStreaming }) else { throw FusionError.invalidSelection }
+ 694 |         try db.transaction {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:693:80: error: cannot find 'FusionError' in scope
+ 691 |         let enabled = configurations.filter(\.enabled)
+ 692 |         guard Set(enabled.map(\.id)).count == enabled.count,
+ 693 |               enabled.contains(where: { $0.purpose.isStreaming }) else { throw FusionError.invalidSelection }
+     |                                                                                `- error: cannot find 'FusionError' in scope
+ 694 |         try db.transaction {
+ 695 |             guard try validTicket(ticket),
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:698:156: error: cannot find 'FusionError' in scope
+ 696 |                   try db.rows("SELECT id FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first != nil,
+ 697 |                   try db.rows("SELECT id FROM model_runs WHERE recognition_id=? LIMIT 1", [.text(ticket.id.uuidString)]).isEmpty,
+ 698 |                   try db.rows("SELECT recognition_id FROM fusion_requirements WHERE recognition_id=?", [.text(ticket.id.uuidString)]).isEmpty else { throw FusionError.staleGeneration }
+     |                                                                                                                                                            `- error: cannot find 'FusionError' in scope
+ 699 |             let requirements = enabled.filter { $0.purpose.isStreaming }.map { FusionRequirement(configurationID: $0.id, purpose: $0.purpose) }
+ 700 |             try db.execute("INSERT INTO fusion_requirements(recognition_id,payload) VALUES(?,?)", [.text(ticket.id.uuidString), .text(try Self.encodeEvidence(requirements))])
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:685:20: error: type 'SaytileStore.FusionRequirement' does not conform to protocol 'Decodable'
+ 683 |     }
+ 684 |     public func isRecognitionCurrent(ticket: RecognitionTicket) throws -> Bool { try validTicket(ticket) }
+ 685 |     private struct FusionRequirement: Codable {
+     |                    `- error: type 'SaytileStore.FusionRequirement' does not conform to protocol 'Decodable'
+ 686 |         let configurationID: UUID
+ 687 |         let purpose: RecognitionPurpose
+     |             `- note: cannot automatically synthesize 'Decodable' because 'RecognitionPurpose' does not conform to 'Decodable'
+ 688 |     }
+ 689 |     /// Freeze identities before any provider attempt starts. The payload contains no credentials.
+
+Swift.Decodable.init:2:1: note: protocol requires initializer 'init(from:)' with type 'Decodable'
+1 | protocol Decodable {
+2 | init(from decoder: any Decoder) throws}
+  | `- note: protocol requires initializer 'init(from:)' with type 'Decodable'
+3 | 
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:708:126: error: cannot find 'FusionError' in scope
+ 706 |     public func fusionTerminal(recognitionID: UUID) throws -> (state: String, occurredAt: Date)? {
+ 707 |         guard let row = try db.rows("SELECT state,occurred_at FROM fusion_session_terminals WHERE recognition_id=?", [.text(recognitionID.uuidString)]).first else { return nil }
+ 708 |         guard let state = row["state"], let seconds = row["occurred_at"].flatMap(Double.init), seconds.isFinite else { throw FusionError.invalidCandidate }
+     |                                                                                                                              `- error: cannot find 'FusionError' in scope
+ 709 |         return (state, Date(timeIntervalSince1970: seconds))
+ 710 |     }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:716:37: error: cannot find 'RecognitionUTF16' in scope
+ 714 |         let prefixes = try db.rows("SELECT prefix FROM cursors WHERE recording_id=? AND end_utf16>0", [.text(recordingID.uuidString)]).compactMap { $0["prefix"] }
+ 715 |         let longest = prefixes.max { $0.utf16.count < $1.utf16.count } ?? ""
+ 716 |         guard prefixes.allSatisfy({ RecognitionUTF16.hasExactPrefix(longest, prefix: $0) }) else { throw StoreError.prefixChanged }
+     |                                     `- error: cannot find 'RecognitionUTF16' in scope
+ 717 |         return longest
+ 718 |     }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:720:174: error: cannot find 'FusionError' in scope
+ 718 |     }
+ 719 |     public func beginModelRun(ticket: RecognitionTicket, configuration: ModelConfiguration) throws -> ModelRunTicket {
+ 720 |         guard try validTicket(ticket), try db.rows("SELECT id FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first != nil else { throw FusionError.staleGeneration }
+     |                                                                                                                                                                              `- error: cannot find 'FusionError' in scope
+ 721 |         let run = ModelRunTicket(recognitionID: ticket.id, recordingID: ticket.recordingID, audioEpoch: ticket.audioEpoch,
+ 722 |             configurationID: configuration.id, provider: configuration.provider.rawValue, model: configuration.model, purpose: configuration.purpose)
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:721:19: error: cannot find 'ModelRunTicket' in scope
+ 719 |     public func beginModelRun(ticket: RecognitionTicket, configuration: ModelConfiguration) throws -> ModelRunTicket {
+ 720 |         guard try validTicket(ticket), try db.rows("SELECT id FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first != nil else { throw FusionError.staleGeneration }
+ 721 |         let run = ModelRunTicket(recognitionID: ticket.id, recordingID: ticket.recordingID, audioEpoch: ticket.audioEpoch,
+     |                   `- error: cannot find 'ModelRunTicket' in scope
+ 722 |             configurationID: configuration.id, provider: configuration.provider.rawValue, model: configuration.model, purpose: configuration.purpose)
+ 723 |         try db.transaction {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:731:13: error: cannot find 'PrecisionFusion' in scope
+ 729 |     }
+ 730 |     @discardableResult public func appendRecognitionCandidate(_ candidate: RecognitionCandidate) throws -> Bool {
+ 731 |         try PrecisionFusion.validateCandidate(candidate)
+     |             `- error: cannot find 'PrecisionFusion' in scope
+ 732 |         return try db.transaction {
+ 733 |             let run = candidate.run
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:745:44: error: cannot find 'RecognitionCandidate' in scope
+ 743 |     public func latestRecognitionCandidates(ticket: RecognitionTicket) throws -> [RecognitionCandidate] {
+ 744 |         try db.rows("SELECT c.payload FROM recognition_candidates c JOIN model_runs r ON r.id=c.run_id AND r.last_sequence=c.sequence WHERE c.recognition_id=? AND NOT EXISTS(SELECT 1 FROM recognition_candidates newer JOIN model_runs n ON n.id=newer.run_id WHERE n.recognition_id=r.recognition_id AND n.configuration_id=r.configuration_id AND n.rowid>r.rowid) ORDER BY c.created_at,c.rowid", [.text(ticket.id.uuidString)])
+ 745 |             .map { try Self.decodeEvidence(RecognitionCandidate.self, $0["payload"]) }
+     |                                            `- error: cannot find 'RecognitionCandidate' in scope
+ 746 |     }
+ 747 |     public func recognitionCandidates(recordingID: UUID) throws -> [RecognitionCandidate] {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:750:44: error: cannot find 'RecognitionCandidate' in scope
+ 748 |         _ = try requireRecording(recordingID)
+ 749 |         return try db.rows("SELECT payload FROM recognition_candidates WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)])
+ 750 |             .map { try Self.decodeEvidence(RecognitionCandidate.self, $0["payload"]) }
+     |                                            `- error: cannot find 'RecognitionCandidate' in scope
+ 751 |     }
+ 752 |     /// Presentation state comes from actual running attempts, never inferred from
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:756:28: error: cannot find type 'RecognitionPurpose' in scope
+ 754 |     public func activeRecognitionPhases(recordingIDs: [UUID]) throws -> [UUID: RecognitionPurpose] {
+ 755 |         let ids = Array(Set(recordingIDs))
+ 756 |         var phases: [UUID: RecognitionPurpose] = [:]
+     |                            `- error: cannot find type 'RecognitionPurpose' in scope
+ 757 |         func priority(_ purpose: RecognitionPurpose) -> Int {
+ 758 |             switch purpose { case .finalASR: 4; case .audioReview: 3; case .textFusion: 2; default: 1 }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:757:34: error: cannot find type 'RecognitionPurpose' in scope
+ 755 |         let ids = Array(Set(recordingIDs))
+ 756 |         var phases: [UUID: RecognitionPurpose] = [:]
+ 757 |         func priority(_ purpose: RecognitionPurpose) -> Int {
+     |                                  `- error: cannot find type 'RecognitionPurpose' in scope
+ 758 |             switch purpose { case .finalASR: 4; case .audioReview: 3; case .textFusion: 2; default: 1 }
+ 759 |         }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:773:51: error: cannot find 'ModelRunTicket' in scope
+ 771 |                 """, batch.map { .text($0.uuidString) })
+ 772 |             for row in rows {
+ 773 |                 let run = try Self.decodeEvidence(ModelRunTicket.self, row["payload"])
+     |                                                   `- error: cannot find 'ModelRunTicket' in scope
+ 774 |                 if phases[run.recordingID].map({ priority($0) < priority(run.purpose) }) ?? true {
+ 775 |                     phases[run.recordingID] = run.purpose
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:773:36: error: generic parameter 'T' could not be inferred
+ 771 |                 """, batch.map { .text($0.uuidString) })
+ 772 |             for row in rows {
+ 773 |                 let run = try Self.decodeEvidence(ModelRunTicket.self, row["payload"])
+     |                                    `- error: generic parameter 'T' could not be inferred
+ 774 |                 if phases[run.recordingID].map({ priority($0) < priority(run.purpose) }) ?? true {
+ 775 |                     phases[run.recordingID] = run.purpose
+     :
+1065 |         return string
+1066 |     }
+1067 |     private static func decodeEvidence<T: Decodable>(_ type: T.Type, _ string: String?) throws -> T {
+     |                         `- note: in call to function 'decodeEvidence'
+1068 |         guard let data = string?.data(using: .utf8) else { throw FusionError.invalidCandidate }
+1069 |         return try JSONDecoder().decode(type, from: data)
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:785:52: error: cannot find 'ModelRunState' in scope
+ 783 |         _ = try requireRecording(recordingID)
+ 784 |         return try db.rows("SELECT * FROM model_runs WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { row in
+ 785 |             guard let state = row["state"].flatMap(ModelRunState.init(rawValue:)), let sequence = row["last_sequence"].flatMap(Int64.init) else { throw FusionError.invalidCandidate }
+     |                                                    `- error: cannot find 'ModelRunState' in scope
+ 786 |             return ModelRunRecord(ticket: try Self.decodeEvidence(ModelRunTicket.self, row["payload"]), state: state, lastSequence: sequence, error: row["last_error"], retryable: row["retryable"] == "1")
+ 787 |         }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:785:153: error: cannot find 'FusionError' in scope
+ 783 |         _ = try requireRecording(recordingID)
+ 784 |         return try db.rows("SELECT * FROM model_runs WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { row in
+ 785 |             guard let state = row["state"].flatMap(ModelRunState.init(rawValue:)), let sequence = row["last_sequence"].flatMap(Int64.init) else { throw FusionError.invalidCandidate }
+     |                                                                                                                                                         `- error: cannot find 'FusionError' in scope
+ 786 |             return ModelRunRecord(ticket: try Self.decodeEvidence(ModelRunTicket.self, row["payload"]), state: state, lastSequence: sequence, error: row["last_error"], retryable: row["retryable"] == "1")
+ 787 |         }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:786:20: error: cannot find 'ModelRunRecord' in scope
+ 784 |         return try db.rows("SELECT * FROM model_runs WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { row in
+ 785 |             guard let state = row["state"].flatMap(ModelRunState.init(rawValue:)), let sequence = row["last_sequence"].flatMap(Int64.init) else { throw FusionError.invalidCandidate }
+ 786 |             return ModelRunRecord(ticket: try Self.decodeEvidence(ModelRunTicket.self, row["payload"]), state: state, lastSequence: sequence, error: row["last_error"], retryable: row["retryable"] == "1")
+     |                    `- error: cannot find 'ModelRunRecord' in scope
+ 787 |         }
+ 788 |     }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:786:67: error: cannot find 'ModelRunTicket' in scope
+ 784 |         return try db.rows("SELECT * FROM model_runs WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { row in
+ 785 |             guard let state = row["state"].flatMap(ModelRunState.init(rawValue:)), let sequence = row["last_sequence"].flatMap(Int64.init) else { throw FusionError.invalidCandidate }
+ 786 |             return ModelRunRecord(ticket: try Self.decodeEvidence(ModelRunTicket.self, row["payload"]), state: state, lastSequence: sequence, error: row["last_error"], retryable: row["retryable"] == "1")
+     |                                                                   `- error: cannot find 'ModelRunTicket' in scope
+ 787 |         }
+ 788 |     }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:785:66: error: converting non-escaping value to '(String) throws(E) -> U?' may allow it to escape
+ 783 |         _ = try requireRecording(recordingID)
+ 784 |         return try db.rows("SELECT * FROM model_runs WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { row in
+ 785 |             guard let state = row["state"].flatMap(ModelRunState.init(rawValue:)), let sequence = row["last_sequence"].flatMap(Int64.init) else { throw FusionError.invalidCandidate }
+     |                                                                  `- error: converting non-escaping value to '(String) throws(E) -> U?' may allow it to escape
+ 786 |             return ModelRunRecord(ticket: try Self.decodeEvidence(ModelRunTicket.self, row["payload"]), state: state, lastSequence: sequence, error: row["last_error"], retryable: row["retryable"] == "1")
+ 787 |         }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:785:44: error: generic parameter 'E' could not be inferred
+ 783 |         _ = try requireRecording(recordingID)
+ 784 |         return try db.rows("SELECT * FROM model_runs WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { row in
+ 785 |             guard let state = row["state"].flatMap(ModelRunState.init(rawValue:)), let sequence = row["last_sequence"].flatMap(Int64.init) else { throw FusionError.invalidCandidate }
+     |                                            `- error: generic parameter 'E' could not be inferred
+ 786 |             return ModelRunRecord(ticket: try Self.decodeEvidence(ModelRunTicket.self, row["payload"]), state: state, lastSequence: sequence, error: row["last_error"], retryable: row["retryable"] == "1")
+ 787 |         }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:785:44: error: generic parameter 'U' could not be inferred
+ 783 |         _ = try requireRecording(recordingID)
+ 784 |         return try db.rows("SELECT * FROM model_runs WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { row in
+ 785 |             guard let state = row["state"].flatMap(ModelRunState.init(rawValue:)), let sequence = row["last_sequence"].flatMap(Int64.init) else { throw FusionError.invalidCandidate }
+     |                                            `- error: generic parameter 'U' could not be inferred
+ 786 |             return ModelRunRecord(ticket: try Self.decodeEvidence(ModelRunTicket.self, row["payload"]), state: state, lastSequence: sequence, error: row["last_error"], retryable: row["retryable"] == "1")
+ 787 |         }
+
+Swift.Optional.flatMap:2:13: note: in call to function 'flatMap'
+1 | generic enum Optional {
+2 | public func flatMap<E, U>(_ transform: (Wrapped) throws(E) -> U?) throws(E) -> U? where E : Error, U : ~Copyable}
+  |             `- note: in call to function 'flatMap'
+3 | 
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:820:90: error: cannot find 'FusionError' in scope
+ 818 |     @discardableResult public func publishFusion(ticket: RecognitionTicket, proposal submitted: FusionProposal,
+ 819 |                                                 audioSubmittedSeconds: Double? = nil) throws -> FusionPublication {
+ 820 |         guard audioSubmittedSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true else { throw FusionError.invalidCandidate }
+     |                                                                                          `- error: cannot find 'FusionError' in scope
+ 821 |         return try db.transaction {
+ 822 |             guard try validTicket(ticket), let session = try db.rows("SELECT * FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first else {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:823:24: error: cannot find 'FusionPublication' in scope
+ 821 |         return try db.transaction {
+ 822 |             guard try validTicket(ticket), let session = try db.rows("SELECT * FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first else {
+ 823 |                 return FusionPublication(revision: nil, published: false, deferred: true)
+     |                        `- error: cannot find 'FusionPublication' in scope
+ 824 |             }
+ 825 |             let current = try latestRecognitionCandidates(ticket: ticket)
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:828:84: error: cannot find 'FusionPublication' in scope
+ 826 |             let sourceIDs = Set(submitted.sourceCandidateIDs)
+ 827 |             let sources = current.filter { sourceIDs.contains($0.id) }
+ 828 |             guard !sources.isEmpty, sources.count == sourceIDs.count else { return FusionPublication(revision: nil, published: false, deferred: true) }
+     |                                                                                    `- error: cannot find 'FusionPublication' in scope
+ 829 |             let reservedPrefix = try fusionReservedPrefix(recordingID: ticket.recordingID)
+ 830 |             let mode = InputQualityMode(rawValue: session["mode"] ?? "") ?? .highestQuality
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:830:24: error: cannot find 'InputQualityMode' in scope
+ 828 |             guard !sources.isEmpty, sources.count == sourceIDs.count else { return FusionPublication(revision: nil, published: false, deferred: true) }
+ 829 |             let reservedPrefix = try fusionReservedPrefix(recordingID: ticket.recordingID)
+ 830 |             let mode = InputQualityMode(rawValue: session["mode"] ?? "") ?? .highestQuality
+     |                        `- error: cannot find 'InputQualityMode' in scope
+ 831 |             let requirementPayload = try db.rows("SELECT payload FROM fusion_requirements WHERE recognition_id=?", [.text(ticket.id.uuidString)]).first?["payload"]
+ 832 |             let requirements = try requirementPayload.map { try Self.decodeEvidence([FusionRequirement].self, $0) }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:837:51: error: cannot find 'ModelRunTicket' in scope
+ 835 |             let latestRuns = try db.rows("SELECT r.payload,r.state FROM model_runs r WHERE r.recognition_id=? AND NOT EXISTS(SELECT 1 FROM model_runs n WHERE n.recognition_id=r.recognition_id AND n.configuration_id=r.configuration_id AND n.rowid>r.rowid)", [.text(ticket.id.uuidString)])
+ 836 |             let requiredFailed = try latestRuns.contains { row in
+ 837 |                 let run = try Self.decodeEvidence(ModelRunTicket.self, row["payload"])
+     |                                                   `- error: cannot find 'ModelRunTicket' in scope
+ 838 |                 let required = requirements.map { $0.contains { $0.configurationID == run.configurationID && $0.purpose == run.purpose } } ?? [.chineseASR, .englishASR].contains(run.purpose)
+ 839 |                 return required && !["running", "completed"].contains(row["state"] ?? "")
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:854:63: error: cannot find 'FusionError' in scope
+ 852 |             if !proposal.selections.isEmpty {
+ 853 |                 if let reviewed = proposal.reviewedCandidateIDs {
+ 854 |                     guard reviewed.count <= 4096 else { throw FusionError.invalidSelection }
+     |                                                               `- error: cannot find 'FusionError' in scope
+ 855 |                     for id in Set(reviewed) {
+ 856 |                         guard try db.rows("SELECT id FROM recognition_candidates WHERE id=? AND recognition_id=?", [.text(id.uuidString), .text(ticket.id.uuidString)]).first != nil else { throw FusionError.staleGeneration }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:856:195: error: cannot find 'FusionError' in scope
+ 854 |                     guard reviewed.count <= 4096 else { throw FusionError.invalidSelection }
+ 855 |                     for id in Set(reviewed) {
+ 856 |                         guard try db.rows("SELECT id FROM recognition_candidates WHERE id=? AND recognition_id=?", [.text(id.uuidString), .text(ticket.id.uuidString)]).first != nil else { throw FusionError.staleGeneration }
+     |                                                                                                                                                                                                   `- error: cannot find 'FusionError' in scope
+ 857 |                     }
+ 858 |                 }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:859:81: error: cannot find 'PrecisionFusion' in scope
+ 857 |                     }
+ 858 |                 }
+ 859 |                 let horizon = current.filter { $0.run.purpose.isStreaming }.map(PrecisionFusion.reviewRetirementHorizon).min() ?? 0
+     |                                                                                 `- error: cannot find 'PrecisionFusion' in scope
+ 860 |                 let relevant = current.filter { $0.run.purpose.isStreaming || sourceIDs.contains($0.id) || $0.audioEndSeconds + 0.1 >= horizon }
+ 861 |                 let checked = try PrecisionFusion.validateSelection(spans: proposal.selections, candidates: relevant,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:861:35: error: cannot find 'PrecisionFusion' in scope
+ 859 |                 let horizon = current.filter { $0.run.purpose.isStreaming }.map(PrecisionFusion.reviewRetirementHorizon).min() ?? 0
+ 860 |                 let relevant = current.filter { $0.run.purpose.isStreaming || sourceIDs.contains($0.id) || $0.audioEndSeconds + 0.1 >= horizon }
+ 861 |                 let checked = try PrecisionFusion.validateSelection(spans: proposal.selections, candidates: relevant,
+     |                                   `- error: cannot find 'PrecisionFusion' in scope
+ 862 |                     committedPrefix: reservedPrefix, unresolved: proposal.selectionRequestedUnresolved ?? proposal.unresolved,
+ 863 |                     needsAudioReview: proposal.needsAudioReview, reasonCode: proposal.reasonCode)
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:864:126: error: cannot find 'FusionError' in scope
+ 862 |                     committedPrefix: reservedPrefix, unresolved: proposal.selectionRequestedUnresolved ?? proposal.unresolved,
+ 863 |                     needsAudioReview: proposal.needsAudioReview, reasonCode: proposal.reasonCode)
+ 864 |                 guard checked.previewText == proposal.previewText, Set(checked.sourceCandidateIDs) == sourceIDs else { throw FusionError.invalidSelection }
+     |                                                                                                                              `- error: cannot find 'FusionError' in scope
+ 865 |                 if checked.stableText != proposal.stableText {
+ 866 |                     // A target may reserve more text while a review awaits the store actor.
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:868:28: error: cannot find 'RecognitionUTF16' in scope
+ 866 |                     // A target may reserve more text while a review awaits the store actor.
+ 867 |                     // Reapply that durable constraint; never accept a weaker evidence decision.
+ 868 |                     guard !RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: reservedPrefix) else { throw FusionError.invalidSelection }
+     |                            `- error: cannot find 'RecognitionUTF16' in scope
+ 869 |                     proposal = FusionProposal(previewText: checked.previewText, stableText: checked.stableText,
+ 870 |                         sourceCandidateIDs: checked.sourceCandidateIDs, unresolved: true,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:868:118: error: cannot find 'FusionError' in scope
+ 866 |                     // A target may reserve more text while a review awaits the store actor.
+ 867 |                     // Reapply that durable constraint; never accept a weaker evidence decision.
+ 868 |                     guard !RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: reservedPrefix) else { throw FusionError.invalidSelection }
+     |                                                                                                                      `- error: cannot find 'FusionError' in scope
+ 869 |                     proposal = FusionProposal(previewText: checked.previewText, stableText: checked.stableText,
+ 870 |                         sourceCandidateIDs: checked.sourceCandidateIDs, unresolved: true,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:869:32: error: cannot find 'FusionProposal' in scope
+ 867 |                     // Reapply that durable constraint; never accept a weaker evidence decision.
+ 868 |                     guard !RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: reservedPrefix) else { throw FusionError.invalidSelection }
+ 869 |                     proposal = FusionProposal(previewText: checked.previewText, stableText: checked.stableText,
+     |                                `- error: cannot find 'FusionProposal' in scope
+ 870 |                         sourceCandidateIDs: checked.sourceCandidateIDs, unresolved: true,
+ 871 |                         needsAudioReview: checked.needsAudioReview, reasonCode: checked.reasonCode,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:877:28: error: cannot find 'FusionProposal' in scope
+ 875 |                 // New evidence can increase uncertainty without changing the reserved prefix.
+ 876 |                 // Persist the stricter flags even when the selected stable characters match.
+ 877 |                 proposal = FusionProposal(previewText: proposal.previewText, stableText: proposal.stableText,
+     |                            `- error: cannot find 'FusionProposal' in scope
+ 878 |                     sourceCandidateIDs: proposal.sourceCandidateIDs, unresolved: proposal.unresolved || checked.unresolved,
+ 879 |                     needsAudioReview: proposal.needsAudioReview || checked.needsAudioReview, reasonCode: checked.reasonCode,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:884:109: error: cannot find 'FusionError' in scope
+ 882 |                 if mode == .highestQuality && proposal.stableText != reservedPrefix {
+ 883 |                     let end = try proposal.selections.map { span -> Double in
+ 884 |                         guard let source = sources.first(where: { $0.id == span.candidateID }) else { throw FusionError.invalidSelection }
+     |                                                                                                             `- error: cannot find 'FusionError' in scope
+ 885 |                         return try PrecisionFusion.audioInterval(span: span, candidate: source).end
+ 886 |                     }.max() ?? 0
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:885:36: error: cannot find 'PrecisionFusion' in scope
+ 883 |                     let end = try proposal.selections.map { span -> Double in
+ 884 |                         guard let source = sources.first(where: { $0.id == span.candidateID }) else { throw FusionError.invalidSelection }
+ 885 |                         return try PrecisionFusion.audioInterval(span: span, candidate: source).end
+     |                                    `- error: cannot find 'PrecisionFusion' in scope
+ 886 |                     }.max() ?? 0
+ 887 |                     guard requiredEvidence(in: current, eligible: { $0.stableUTF16Length > 0 && ($0.isComplete || PrecisionFusion.stableAudioEnd($0) + 0.1 >= end) }) else { throw FusionError.insufficientAlignment }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:887:115: error: cannot find 'PrecisionFusion' in scope
+ 885 |                         return try PrecisionFusion.audioInterval(span: span, candidate: source).end
+ 886 |                     }.max() ?? 0
+ 887 |                     guard requiredEvidence(in: current, eligible: { $0.stableUTF16Length > 0 && ($0.isComplete || PrecisionFusion.stableAudioEnd($0) + 0.1 >= end) }) else { throw FusionError.insufficientAlignment }
+     |                                                                                                                   `- error: cannot find 'PrecisionFusion' in scope
+ 888 |                 }
+ 889 |             } else {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:887:180: error: cannot find 'FusionError' in scope
+ 885 |                         return try PrecisionFusion.audioInterval(span: span, candidate: source).end
+ 886 |                     }.max() ?? 0
+ 887 |                     guard requiredEvidence(in: current, eligible: { $0.stableUTF16Length > 0 && ($0.isComplete || PrecisionFusion.stableAudioEnd($0) + 0.1 >= end) }) else { throw FusionError.insufficientAlignment }
+     |                                                                                                                                                                                    `- error: cannot find 'FusionError' in scope
+ 888 |                 }
+ 889 |             } else {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:891:48: error: cannot find 'RecognitionUTF16' in scope
+ 889 |             } else {
+ 890 |                 if proposal.stableText != reservedPrefix {
+ 891 |                     guard sources.allSatisfy({ RecognitionUTF16.hasExactPrefix($0.stableText, prefix: proposal.stableText) }),
+     |                                                `- error: cannot find 'RecognitionUTF16' in scope
+ 892 |                           mode != .highestQuality || requiredFailed || requiredEvidence(in: sources) else { throw FusionError.invalidSelection }
+ 893 |                 }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:892:115: error: cannot find 'FusionError' in scope
+ 890 |                 if proposal.stableText != reservedPrefix {
+ 891 |                     guard sources.allSatisfy({ RecognitionUTF16.hasExactPrefix($0.stableText, prefix: proposal.stableText) }),
+ 892 |                           mode != .highestQuality || requiredFailed || requiredEvidence(in: sources) else { throw FusionError.invalidSelection }
+     |                                                                                                                   `- error: cannot find 'FusionError' in scope
+ 893 |                 }
+ 894 |                 let horizon = current.filter { $0.run.purpose.isStreaming }.map(PrecisionFusion.reviewRetirementHorizon).min() ?? 0
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:894:81: error: cannot find 'PrecisionFusion' in scope
+ 892 |                           mode != .highestQuality || requiredFailed || requiredEvidence(in: sources) else { throw FusionError.invalidSelection }
+ 893 |                 }
+ 894 |                 let horizon = current.filter { $0.run.purpose.isStreaming }.map(PrecisionFusion.reviewRetirementHorizon).min() ?? 0
+     |                                                                                 `- error: cannot find 'PrecisionFusion' in scope
+ 895 |                 let relevant = current.filter { $0.run.purpose.isStreaming || $0.audioEndSeconds + 0.1 >= horizon }
+ 896 |                 var checked = PrecisionFusion.evaluate(candidates: relevant, mode: mode, committedPrefix: reservedPrefix,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:896:31: error: cannot find 'PrecisionFusion' in scope
+ 894 |                 let horizon = current.filter { $0.run.purpose.isStreaming }.map(PrecisionFusion.reviewRetirementHorizon).min() ?? 0
+ 895 |                 let relevant = current.filter { $0.run.purpose.isStreaming || $0.audioEndSeconds + 0.1 >= horizon }
+ 896 |                 var checked = PrecisionFusion.evaluate(candidates: relevant, mode: mode, committedPrefix: reservedPrefix,
+     |                               `- error: cannot find 'PrecisionFusion' in scope
+ 897 |                     requiredPurposes: requirements.map { Set($0.map(\.purpose)) } ?? [.chineseASR, .englishASR],
+ 898 |                     requiredConfigurationIDs: requirements.map { Set($0.map(\.configurationID)) })
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:900:31: error: cannot find 'FusionProposal' in scope
+ 898 |                     requiredConfigurationIDs: requirements.map { Set($0.map(\.configurationID)) })
+ 899 |                 if mode == .highestQuality && requiredFailed {
+ 900 |                     checked = FusionProposal(previewText: checked.previewText, stableText: reservedPrefix,
+     |                               `- error: cannot find 'FusionProposal' in scope
+ 901 |                         sourceCandidateIDs: checked.sourceCandidateIDs, unresolved: true,
+ 902 |                         needsAudioReview: checked.needsAudioReview, reasonCode: "expert-failed-evidence-retained")
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:910:28: error: cannot find 'FusionPublication' in scope
+ 908 |                       checked.previewText.utf16.elementsEqual(proposal.previewText.utf16),
+ 909 |                       Set(checked.sourceCandidateIDs) == sourceIDs else {
+ 910 |                     return FusionPublication(revision: try latestDispatchableRevision(recordingID: ticket.recordingID), published: false, deferred: true)
+     |                            `- error: cannot find 'FusionPublication' in scope
+ 911 |                 }
+ 912 |                 proposal = FusionProposal(previewText: proposal.previewText, stableText: proposal.stableText,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:912:28: error: cannot find 'FusionProposal' in scope
+ 910 |                     return FusionPublication(revision: try latestDispatchableRevision(recordingID: ticket.recordingID), published: false, deferred: true)
+ 911 |                 }
+ 912 |                 proposal = FusionProposal(previewText: proposal.previewText, stableText: proposal.stableText,
+     |                            `- error: cannot find 'FusionProposal' in scope
+ 913 |                     sourceCandidateIDs: proposal.sourceCandidateIDs, unresolved: proposal.unresolved || checked.unresolved,
+ 914 |                     needsAudioReview: proposal.needsAudioReview || checked.needsAudioReview, reasonCode: checked.reasonCode)
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:917:28: error: cannot find 'FusionProposal' in scope
+ 915 |             }
+ 916 |             if mode == .highestQuality && requiredFailed {
+ 917 |                 proposal = FusionProposal(previewText: proposal.previewText, stableText: proposal.stableText,
+     |                            `- error: cannot find 'FusionProposal' in scope
+ 918 |                     sourceCandidateIDs: proposal.sourceCandidateIDs, unresolved: true,
+ 919 |                     needsAudioReview: proposal.needsAudioReview, reasonCode: "expert-failed-evidence-retained",
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:923:199: error: cannot find 'FusionError' in scope
+ 921 |                     reviewedCandidateIDs: proposal.reviewedCandidateIDs)
+ 922 |             }
+ 923 |             guard proposal.previewText.isEmpty || proposal.previewText == reservedPrefix || !proposal.selections.isEmpty || sources.contains(where: { $0.text == proposal.previewText }) else { throw FusionError.invalidSelection }
+     |                                                                                                                                                                                                       `- error: cannot find 'FusionError' in scope
+ 924 |             let old = try latestDispatchableRevision(recordingID: ticket.recordingID)
+ 925 |             let prior = old?.text ?? ""
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:929:24: error: cannot find 'RecognitionUTF16' in scope
+ 927 |             // Published-but-unsent text is revisable. Only durable external cursor prefixes
+ 928 |             // constrain corrections, including prefixes reserved in another target binding.
+ 929 |             let safe = RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: reservedPrefix)
+     |                        `- error: cannot find 'RecognitionUTF16' in scope
+ 930 |             let changesHead = safe && proposal.stableText != prior
+ 931 |             var published: TranscriptRevision?
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:966:28: error: cannot find 'FusionDecisionRecord' in scope
+ 964 |             }
+ 965 |             let deferred = !safe || proposal.unresolved || proposal.needsAudioReview
+ 966 |             let decision = FusionDecisionRecord(id: UUID(), recognitionID: ticket.id, proposal: proposal,
+     |                            `- error: cannot find 'FusionDecisionRecord' in scope
+ 967 |                 revisionID: published?.id ?? archiveID, outcome: published != nil ? "published" : deferred ? "deferred" : "unchanged", createdAt: Date(), audioSubmittedSeconds: audioSubmittedSeconds)
+ 968 |             try db.execute("INSERT INTO fusion_decisions(id,recognition_id,recording_id,payload,created_at) VALUES(?,?,?,?,?)", [.text(decision.id.uuidString), .text(ticket.id.uuidString), .text(ticket.recordingID.uuidString), .text(try Self.encodeEvidence(decision)), .double(decision.createdAt.timeIntervalSince1970)])
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:969:20: error: cannot find 'FusionPublication' in scope
+ 967 |                 revisionID: published?.id ?? archiveID, outcome: published != nil ? "published" : deferred ? "deferred" : "unchanged", createdAt: Date(), audioSubmittedSeconds: audioSubmittedSeconds)
+ 968 |             try db.execute("INSERT INTO fusion_decisions(id,recognition_id,recording_id,payload,created_at) VALUES(?,?,?,?,?)", [.text(decision.id.uuidString), .text(ticket.id.uuidString), .text(ticket.recordingID.uuidString), .text(try Self.encodeEvidence(decision)), .double(decision.createdAt.timeIntervalSince1970)])
+ 969 |             return FusionPublication(revision: head, published: published != nil, deferred: deferred, acceptedProposal: proposal)
+     |                    `- error: cannot find 'FusionPublication' in scope
+ 970 |         }
+ 971 |     }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:987:29: error: cannot find 'InputQualityMode' in scope
+ 985 |         let ticket = RecognitionTicket(id: recognitionID, recordingID: recordingID, audioEpoch: epoch)
+ 986 |         let candidates = try latestRecognitionCandidates(ticket: ticket)
+ 987 |         if proof["mode"] == InputQualityMode.highestQuality.rawValue {
+     |                             `- error: cannot find 'InputQualityMode' in scope
+ 988 |             for candidate in candidates where candidate.run.purpose.isStreaming {
+ 989 |                 let state = try db.rows("SELECT state FROM model_runs WHERE id=?", [.text(candidate.run.id.uuidString)]).first?["state"] ?? ""
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:998:178: error: cannot find 'FusionDecisionRecord' in scope
+ 996 |     public func fusionDecisions(recordingID: UUID) throws -> [FusionDecisionRecord] {
+ 997 |         _ = try requireRecording(recordingID)
+ 998 |         return try db.rows("SELECT payload FROM fusion_decisions WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { try Self.decodeEvidence(FusionDecisionRecord.self, $0["payload"]) }
+     |                                                                                                                                                                                  `- error: cannot find 'FusionDecisionRecord' in scope
+ 999 |     }
+1000 |     public func recordModelUsage(_ usage: ModelUsageRecord) throws {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1005:116: error: cannot find 'FusionError' in scope
+1003 |               usage.estimatedCost.map({ $0.isFinite && $0 >= 0 }) ?? true,
+1004 |               usage.elapsedSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true,
+1005 |               usage.inputTokens.map({ $0 >= 0 }) ?? true, usage.outputTokens.map({ $0 >= 0 }) ?? true else { throw FusionError.invalidCandidate }
+     |                                                                                                                    `- error: cannot find 'FusionError' in scope
+1006 |         try db.execute("INSERT OR IGNORE INTO model_usage(id,run_id,recording_id,payload,created_at) VALUES(?,?,?,?,?)", [.text(usage.id.uuidString), .text(usage.runID.uuidString), .text(row["recording_id"]!), .text(try Self.encodeEvidence(usage)), .double(usage.createdAt.timeIntervalSince1970)])
+1007 |     }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1001:25: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+ 999 |     }
+1000 |     public func recordModelUsage(_ usage: ModelUsageRecord) throws {
+1001 |         guard let row = try db.rows("SELECT m.recording_id FROM model_runs m JOIN recordings r ON r.id=m.recording_id WHERE m.id=? AND r.deleted=0", [.text(usage.runID.uuidString)]).first,
+     |                         `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+1002 |               usage.audioSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true,
+1003 |               usage.estimatedCost.map({ $0.isFinite && $0 >= 0 }) ?? true,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1010:73: error: cannot find 'FusionError' in scope
+1008 |     public func recordModelUsage(run: ModelRunTicket, audioSeconds: Double, inputTokens: Int?, outputTokens: Int?,
+1009 |                                  elapsedSeconds: Double, requestID: String?, estimatedCost: Double?, currency: String?) throws {
+1010 |         guard elapsedSeconds.isFinite, elapsedSeconds >= 0 else { throw FusionError.invalidCandidate }
+     |                                                                         `- error: cannot find 'FusionError' in scope
+1011 |         try recordModelUsage(ModelUsageRecord(runID: run.id, requestID: requestID, audioSeconds: audioSeconds,
+1012 |             inputTokens: inputTokens, outputTokens: outputTokens, estimatedCost: estimatedCost,
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1011:30: error: cannot find 'ModelUsageRecord' in scope
+1009 |                                  elapsedSeconds: Double, requestID: String?, estimatedCost: Double?, currency: String?) throws {
+1010 |         guard elapsedSeconds.isFinite, elapsedSeconds >= 0 else { throw FusionError.invalidCandidate }
+1011 |         try recordModelUsage(ModelUsageRecord(runID: run.id, requestID: requestID, audioSeconds: audioSeconds,
+     |                              `- error: cannot find 'ModelUsageRecord' in scope
+1012 |             inputTokens: inputTokens, outputTokens: outputTokens, estimatedCost: estimatedCost,
+1013 |             currency: currency ?? "USD", elapsedSeconds: elapsedSeconds))
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1017:173: error: cannot find 'ModelUsageRecord' in scope
+1015 |     public func modelUsage(recordingID: UUID) throws -> [ModelUsageRecord] {
+1016 |         _ = try requireRecording(recordingID)
+1017 |         return try db.rows("SELECT payload FROM model_usage WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { try Self.decodeEvidence(ModelUsageRecord.self, $0["payload"]) }
+     |                                                                                                                                                                             `- error: cannot find 'ModelUsageRecord' in scope
+1018 |     }
+1019 |     public func modelCallSummaries(limit: Int = 30) throws -> [String] {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1021:47: error: cannot find 'ModelRunTicket' in scope
+1019 |     public func modelCallSummaries(limit: Int = 30) throws -> [String] {
+1020 |         try db.rows("SELECT r.payload AS run_payload,r.state,r.last_error,u.payload AS usage_payload FROM model_runs r LEFT JOIN model_usage u ON u.run_id=r.id ORDER BY r.created_at DESC,r.rowid DESC LIMIT ?", [.int(Int64(max(1, min(limit, 500))))]).map { row in
+1021 |             let run = try Self.decodeEvidence(ModelRunTicket.self, row["run_payload"])
+     |                                               `- error: cannot find 'ModelRunTicket' in scope
+1022 |             var summary = "\(run.provider) / \(run.model) · \(run.purpose.rawValue) · \(row["state"] ?? "unknown")"
+1023 |             if let payload = row["usage_payload"] {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1024:53: error: cannot find 'ModelUsageRecord' in scope
+1022 |             var summary = "\(run.provider) / \(run.model) · \(run.purpose.rawValue) · \(row["state"] ?? "unknown")"
+1023 |             if let payload = row["usage_payload"] {
+1024 |                 let usage = try Self.decodeEvidence(ModelUsageRecord.self, payload)
+     |                                                     `- error: cannot find 'ModelUsageRecord' in scope
+1025 |                 if let seconds = usage.audioSeconds { summary += String(format: " · %.1fs", seconds) }
+1026 |                 if let input = usage.inputTokens { summary += " · in \(input)" }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1021:32: error: generic parameter 'T' could not be inferred
+1019 |     public func modelCallSummaries(limit: Int = 30) throws -> [String] {
+1020 |         try db.rows("SELECT r.payload AS run_payload,r.state,r.last_error,u.payload AS usage_payload FROM model_runs r LEFT JOIN model_usage u ON u.run_id=r.id ORDER BY r.created_at DESC,r.rowid DESC LIMIT ?", [.int(Int64(max(1, min(limit, 500))))]).map { row in
+1021 |             let run = try Self.decodeEvidence(ModelRunTicket.self, row["run_payload"])
+     |                                `- error: generic parameter 'T' could not be inferred
+1022 |             var summary = "\(run.provider) / \(run.model) · \(run.purpose.rawValue) · \(row["state"] ?? "unknown")"
+1023 |             if let payload = row["usage_payload"] {
+     :
+1065 |         return string
+1066 |     }
+1067 |     private static func decodeEvidence<T: Decodable>(_ type: T.Type, _ string: String?) throws -> T {
+     |                         `- note: in call to function 'decodeEvidence'
+1068 |         guard let data = string?.data(using: .utf8) else { throw FusionError.invalidCandidate }
+1069 |         return try JSONDecoder().decode(type, from: data)
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1038:40: error: cannot find 'ModelRunTicket' in scope
+1036 |         let ticket = RecognitionTicket(id: run.recognitionID, recordingID: run.recordingID, audioEpoch: run.audioEpoch)
+1037 |         guard try validTicket(ticket), let row = try db.rows("SELECT payload FROM model_runs WHERE id=? AND recognition_id=? AND state='running'", [.text(run.id.uuidString), .text(run.recognitionID.uuidString)]).first else { return false }
+1038 |         return try Self.decodeEvidence(ModelRunTicket.self, row["payload"]) == run
+     |                                        `- error: cannot find 'ModelRunTicket' in scope
+1039 |     }
+1040 |     private func invalidateModelRuns(recordingID: UUID, sessionState: String = "cancelled") throws {
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1037:50: warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+1035 |     private func validRun(_ run: ModelRunTicket) throws -> Bool {
+1036 |         let ticket = RecognitionTicket(id: run.recognitionID, recordingID: run.recordingID, audioEpoch: run.audioEpoch)
+1037 |         guard try validTicket(ticket), let row = try db.rows("SELECT payload FROM model_runs WHERE id=? AND recognition_id=? AND state='running'", [.text(run.id.uuidString), .text(run.recognitionID.uuidString)]).first else { return false }
+     |                                                  `- warning: no calls to throwing functions occur within 'try' expression [#UnnecessaryEffectMarker]
+1038 |         return try Self.decodeEvidence(ModelRunTicket.self, row["payload"]) == run
+1039 |     }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1064:77: error: cannot find 'FusionError' in scope
+1062 |     private static func encodeEvidence<T: Encodable>(_ value: T) throws -> String {
+1063 |         let data = try JSONEncoder().encode(value)
+1064 |         guard let string = String(data: data, encoding: .utf8) else { throw FusionError.invalidCandidate }
+     |                                                                             `- error: cannot find 'FusionError' in scope
+1065 |         return string
+1066 |     }
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift:1068:66: error: cannot find 'FusionError' in scope
+1066 |     }
+1067 |     private static func decodeEvidence<T: Decodable>(_ type: T.Type, _ string: String?) throws -> T {
+1068 |         guard let data = string?.data(using: .utf8) else { throw FusionError.invalidCandidate }
+     |                                                                  `- error: cannot find 'FusionError' in scope
+1069 |         return try JSONDecoder().decode(type, from: data)
+1070 |     }
+
+[#UnnecessaryEffectMarker]: <https://docs.swift.org/compiler/documentation/diagnostics/unnecessary-effect-marker>
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/scripts/test-input-native.py", line 150, in <module>
+    run_fixture("AXTextFixture", "AXCoordinatorProbe", "input-native-coordinator.log", "FIXTURE_READY")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/scripts/test-input-native.py", line 34, in run_fixture
+    compile_source(probe_name + ".swift", probe_bin, True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/scripts/test-input-native.py", line 25, in compile_source
+    subprocess.run(["swiftc", "-swift-version", "6", "-parse-as-library", "-I", str(ROOT / "Sources/CSQLite"), *map(str, production if production_sources else []), str(ROOT / "tests/fixtures" / source), "-o", str(binary)], check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['swiftc', '-swift-version', '6', '-parse-as-library', '-I', '/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/CSQLite', '/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Models.swift', '/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/Store.swift', '/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/StoreLock.swift', '/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/StoreSQLite.swift', '/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/InputAccessibility.swift', '/Users/hhf/.codex/worktrees/saytile-fusion-quality/Sources/SaytileKit/InputCoordinator.swift', '/Users/hhf/.codex/worktrees/saytile-fusion-quality/tests/fixtures/AXCoordinatorProbe.swift', '-o', '/tmp/saytile-rc2-input/AXCoordinatorProbe']' returned non-zero exit status 1.

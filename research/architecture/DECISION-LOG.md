@@ -1,41 +1,33 @@
-# Saytile 架构决策日志
+# Saytile 最终架构决策日志（2026-11-07）
 
-## ADR-001：采集与识别解耦（保留）
+## ADR-001 — 两个平等 ASR 专家（取代主模型架构）
 
-原音写入本地 journal 是唯一可靠事实源。ASR 可重复运行，识别失败不能丢音频或阻塞后续采集。
+中文与英文专家地位相同，每条完整音频都接收同一 PCM 流。角色表示质量职责，不是语言限制。任何一方都不能被预设为主模型。
 
-## ADR-002：从互斥本地/云端转为统一候选入口（修改）
+## ADR-002 — 唯一 GPT-6 Astra 核心
 
-Apple SpeechAnalyzer 与云端 MultiRecognitionSession 必须属于同一 recording/generation 模型；两者可按策略并行或回退，不允许两条路径各自直接发布正式文本。
+只允许一个文本融合模型：OpenAI Responses API 的 `gpt-6-astra`。它持续处理候选证据变化，输出候选 span 选择和 unresolved，不自由生成词汇。禁止多仲裁器投票。
 
-## ADR-003：采用自适应混合而非始终全模型并行（新增）
+## ADR-003 — GPT-6 Astra 不支持原生音频
 
-额外模型必须有可测量的边际价值。默认一条主多语言流；疑难/高风险片段调用专家。常驻 Apple 本地 shadow 是否开启由目标机功耗和质量实测决定。
+截至 2026-11-07 官方模型目录标注 GPT-6 Astra Audio not supported。Responses streaming 是文本响应流，不等于实时音频流。GPT-Live-Transcribe、GPT-Transcribe、GPT-Realtime-2.1 是不同模型，只能作为独立 ASR/音频候选，不能冒称 GPT-6 Astra。
 
-## ADR-004：Soniox STT v6 作为混说基线挑战者（新增）
+## ADR-004 — 单一 transcript
 
-官方资料披露句内 code-switch、60+ 语言、逐 token 语言标签；v6 发布于 2026-11-03。此前 v5 benchmark 不得移植。只有同输入 Saytile 评测后才可升级为默认主路。
+用户界面只显示一份持续修订的文字。候选和修订事件保留在内部用于审计、恢复和质量测量。Raw/Formatted/用户稿可在数据层区分，但不得向用户暴露多份稿件或要求选择。
 
-## ADR-005：Qwen/Assembly/Meta 保留为可选专家（修改）
+## ADR-005 — 第三 ASR 需要边际收益
 
-保留已有适配器和 BYOK；不再要求每次都跑全量。按片段时间覆盖、语言/领域和实测互补性调度。
+Soniox v6 可作为 D/E 方案挑战者；仅在同音频测试证明净准确率提升且延迟/可靠性代价可接受后启用。不能预设 Soniox 是主模型。
 
-## ADR-006：LLM 不做声学裁判（强化）
+## ADR-006 — 采集、原音、识别、融合、输入解耦（保留）
 
-文本 LLM 只能在候选间选择或标记 unresolved；不能自由生成未经 ASR/音频证据支持的词。音频模型复听才是声学补充证据。
+PCMJournal 是音频事实源。网络或任一模型失败不能阻塞录音。所有模型只写 Candidate Store；SingleTranscriptEngine 是唯一正式 transcript publisher。
 
-## ADR-007：原文与表达转换分层（新增）
+## ADR-007 — 外部输入账本不可退化（保留）
 
-Raw ASR、证据修订、格式化稿、用户稿分开保存。格式化可 Undo；用户稿永不被后台识别覆盖。
+UTF-16 增量派发、目标绑定、用户修改保护、不自动发送、不自动回车继续有效。已经外部派发的文本不可被后台悄悄重写。
 
-## ADR-008：V1 上下文最小化（新增）
+## ADR-008 — 订阅与 API 计费分离
 
-V1 仅前台 app identity、用户明确选区和用户输入的术语/话题。自动截图/OCR/剪贴板全文延后；必须独立授权和审计。
-
-## ADR-009：个人词汇学习需用户确认（新增）
-
-用户纠错事件可在 V1 记录；只有用户确认的修正可进入 V3 学习。模型自动推断不能改变个人词典。
-
-## ADR-010：不改变生产 main 和 RC1（保留）
-
-本轮仅在 PR #4 后续研究分支修改文档，不合并 PR #4，不替换生产包，不调用收费模型，不读取/上传私人录音。
+ChatGPT Pro 不等于 API credits；API 账单独立。Saytile BYOK 仍需 API Key、API organization 权限与相应账单授权。

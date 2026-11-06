@@ -17,12 +17,28 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 SCRATCH = Path(os.environ.get("SAYTILE_INPUT_SCRATCH", "/tmp/saytile-rc-input"))
 SCRATCH.mkdir(parents=True, exist_ok=True)
-EVIDENCE = ROOT / "evidence/rc"
+EVIDENCE = Path(os.environ.get("SAYTILE_INPUT_EVIDENCE_DIRECTORY", str(ROOT / "evidence/rc")))
 EVIDENCE.mkdir(parents=True, exist_ok=True)
-production = [ROOT / "Sources/SaytileKit/Models.swift", *sorted((ROOT / "Sources/SaytileKit").glob("Store*.swift")), *sorted((ROOT / "Sources/SaytileKit").glob("Input*.swift"))]
+package_flags = None
+
+def production_flags():
+    global package_flags
+    if package_flags is None:
+        command = ["swift", "build", "--product", "SaytileKit", "--scratch-path", str(SCRATCH / "build"), "-Xswiftc", "-enable-testing"]
+        subprocess.run(command, cwd=ROOT, check=True)
+        binary_directory = Path(subprocess.check_output(command + ["--show-bin-path"], cwd=ROOT, text=True).strip())
+        module_map = binary_directory / "../../Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap"
+        if not module_map.exists(): module_map = binary_directory / "CAudio.build/module.modulemap"
+        if not module_map.exists(): raise RuntimeError("CAudio module map missing")
+        package_flags = ["-D", "SAYTILE_PACKAGE_PROBE", "-I", str(binary_directory), "-I", str(binary_directory / "Modules"),
+                         "-Xcc", "-fmodule-map-file=" + str(module_map), "-L", str(binary_directory), "-lSaytileKit", "-lc++"]
+    return package_flags
 
 def compile_source(source, binary, production_sources=False):
-    subprocess.run(["swiftc", "-swift-version", "6", "-parse-as-library", "-I", str(ROOT / "Sources/CSQLite"), *map(str, production if production_sources else []), str(ROOT / "tests/fixtures" / source), "-o", str(binary)], check=True)
+    flags = production_flags() if production_sources else []
+    fixture_helpers = [str(ROOT / "tests/fixtures/AXFixtureActivationAudit.swift")] if production_sources and source.startswith("AX") else []
+    subprocess.run(["swiftc", "-swift-version", "6", "-parse-as-library", "-I", str(ROOT / "Sources/CSQLite"),
+                    *flags, *fixture_helpers, str(ROOT / "tests/fixtures" / source), "-o", str(binary)], cwd=ROOT, check=True)
 
 def lines_to_queue(stream, name, messages):
     for line in stream:
@@ -143,8 +159,11 @@ if __name__ == "__main__":
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--foreground-batch", action="store_true", help="Explicit opt-in; existing AX permission and >=60s keyboard/mouse idle required; aborts on activity")
     mode.add_argument("--compile-foreground-only", action="store_true", help="Compile opt-in fixtures/probe, without running or activating anything")
+    mode.add_argument("--compile-dom-only", action="store_true", help="Compile the package-linked headless DOM probe, without launching any fixture")
     args = parser.parse_args()
-    if args.foreground_batch or args.compile_foreground_only:
+    if args.compile_dom_only:
+        compile_source("InputDOMCoordinatorProbe.swift", SCRATCH / "dom-coordinator-probe", True)
+    elif args.foreground_batch or args.compile_foreground_only:
         foreground_batch(compile_only=args.compile_foreground_only)
     else:
         run_fixture("AXTextFixture", "AXCoordinatorProbe", "input-native-coordinator.log", "FIXTURE_READY")

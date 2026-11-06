@@ -1,4 +1,7 @@
 import AppKit
+#if SAYTILE_PACKAGE_PROBE
+@testable import SaytileKit
+#endif
 
 // This test-only adapter bridges the real coordinator and SQLite ledger to a
 // headless DOM fixture. It is not the macOS AX adapter or browser extension.

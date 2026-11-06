@@ -1,102 +1,43 @@
-# Saytile 最高质量中英文识别 · 正式重裁决
+# 双语言专家 + GPT-6 Astra：正式 ASR 架构裁决
 
-**2026-11-06。本文件替代 `c9eac9b` 的单 Soniox 裁决。工程状态与真实测试边界见 [REVISION-2026-11-06.md](REVISION-2026-11-06.md)。**
+更新：2026-11-07。本文覆盖旧版多专家/多 AI 复核的冲突默认值。
 
-## 1. 裁决原则
+## 默认配置
 
-目标是用户实际看到、确认并输入的内容忠于原音。费用、Token 和模型数量不作为先验限制；新增模型需要独立错误信息或更强的复核能力。中文专家与英文专家指各自承担的主要质量职责，不意味着强制单语言解码。所有实时专家接收同一音频，不按整句主语言路由，不要求用户选语言。
+- 中文专家：Qwen Audio 3.1 Message（基线候选）。
+- 英文专家：AssemblyAI Universal 3.6 Pro（基线候选）。
+- 唯一 AI 核心：GPT-6 Astra / `gpt-6-astra`，OpenAI Responses API。
+- 可选第三 ASR：Soniox STT v6、Meta Muse、其他有实际流式协议的模型；默认关闭，需证明收益。
 
-当前公开证据不能证明任何组合在全部中文、英文、自然混说与数字否定上绝对最强。以下为可实施的首选配置，不能写成已取得真实融合收益的实验结论。
+两个专家完整接收相同音频，不能先按语言切分。中文/英文命名只表示专家职责。两者都应保留完整语言输出能力。
 
-## 2. 首选配置与各自职责
+## GPT-6 能力边界
 
-| 层次 | 选择 | 用途与限制 |
-|---|---|---|
-| 中文实时专家 | Qwen `qwen-audio-3.1-asr-flash-message` | 中文口语、术语及句末修订；原文识别，不开启自动润色或翻译。北京/新加坡 Workspace 与 Key 配对。 |
-| 英文实时专家 | AssemblyAI `universal-3-6-pro` | 成熟 v3 WebSocket，显式 `mode=max_accuracy`；核验 Begin 返回的实际型号和模式。 |
-| 英文强挑战者 | Meta `muse-voice-transcribe-1.0` | 已实现可选实时接入；当前公开语义WER强于Assembly的点估计，但尚无Saytile同条件显著收益证明。必须进入有限同输入验收，可替换或并行。 |
-| 可选第三路混说证据 | Soniox `stt-rt-v6` | token 时间与语言信息、独立混说结果；可并行启用，不作为唯一发布者。是否长期默认加入，以真实边际收益决定。 |
-| AI 文本仲裁 | OpenAI `gpt-6-astra` / Responses | 用证据引用选择候选片段。允许 High/Extra high/Max 与 Standard/Pro；不把纯文本推理当作重新听过音频。 |
-| 原音复听 | Gemini `gemini-3.8-flash` / 原生音频输入 | 对疑难片段盲听，先不提供争议候选作答案暗示；结果成为新的音频候选，仍需本地验证。 |
-| 高精度独立定稿 | ElevenLabs `scribe_v2` | 推荐最高质量配置启用的独立文件转写。文件成绩与实时 Scribe 不互相代替。可选 OpenAI `gpt-transcribe` 文件转写；本轮未实现其独立实时协议。 |
-| 无云授权/无可用云配置 | Apple SpeechAnalyzer | 保留本机可用能力与旧结果，清楚标为备用，不能冒称已启用上述质量配置。 |
+GPT-6 Astra 支持文本输入、Responses API、流式文本输出和长上下文，但官方模型目录明确标注 Audio not supported。它不能直接接收 PCM/音频文件，也不能直接承担实时音频识别。它只能融合 ASR 已产生的候选。
 
-最高质量是输入确认策略的默认值。云上传默认不开始，直至用户完成相应服务的 Key 与音频/候选文字处理授权。这不是默认选择低质量模型的产品裁决，而是实际服务尚未配置的状态。
+OpenAI 独立音频模型包括 `gpt-live-transcribe`（实时转写）、`gpt-transcribe`（文件/已提交 turn 转写）、`gpt-realtime-2.1`（音频输入输出语音模型）。这些模型不是 GPT-6 Astra。除非作为单独 ASR 方案纳入对照，否则不启用。
 
-## 3. 证据如何影响选择
+ChatGPT Pro 与 API 平台独立计费；Pro 订阅不能直接当作 API Key/额度。
 
-- **中文：** Qwen 3.1 官方技术资料包含公开数据集、行业术语与 Message 能力报告，支持将其作为优先测试的中文候选；这仍属厂商实施的评测。其模型族/文件结果不能直接证明 Message 流式在 Saytile 上的错误率；项目页的流式延迟对照还使用 Qwen H100 自部署与豆包 API，并假设网络延迟相当，不能直接移用为两家云端在本机的实测排名。豆包 SeedASR 2.0、Fun-ASR、腾讯、FireRed 等继续作为质量对照，不因为接入便利先排除它们。[Qwen 技术资料](https://qwenaudio.github.io/qwen-audio-3.1-asr/) · [官方 Message 协议](https://help.aliyun.com/zh/model-studio/qwen-asr-message-websocket-api)
-- **英文：** Pipecat 当前表格给 AssemblyAI `universal-3-6-pro` 的 pooled semantic WER 0.80%，Soniox **v5** 1.09%，Scribe v2 Realtime 3.13%。同表Meta `muse-voice-transcribe-1.0`为0.73%，其公开API已确认并实现，不能以不可得排除。两个点估计的0.07个百分点差异并无本项目显著性结论。这是语义 WER 与特定实时语料，不是严格逐字 WER、中文 CER 或全场景冠军。Assembly 现行官方文档确认 3.6 是 streaming 可用型号；旧单 Soniox 结论不能继续忽略这项证据。[Pipecat](https://github.com/pipecat-ai/stt-benchmark) · [Assembly 官方变更](https://www.assemblyai.com/changelog)
-- **版本：** Soniox v6 官方目录现已 active，但公开表格的 v5 分数不能移植到 v6。Qwen 的 Message/Streaming/Filetrans、Assembly 的 streaming/async、Scribe 的 realtime/file 都要按具体接口区分。Deepgram 2026-10-23 的Nova-3 multi已经更新为55语言，不能拿旧10语言版本或榜单general行直接当其新混说成绩；Speechmatics Enhanced/Melia也分别核查。[Soniox 模型](https://docs.soniox.com/stt/models)
-- **融合：** 当前没有 Saytile 同输入双专家、三专家、加 LLM、加原音复听的消融结果。LLM 更强不等于对声学歧义更正确；多模型一致也可能源于相关错误。因此保留来源、拒绝无证据改词，并用有限现有样本验证收益，而不是宣传“模型越多越准确”。
-- **AI 能力边界：** GPT-6 Astra 是文本/图像推理模型，不经由 Responses 假设其可听音频；Gemini 音频理解通过其独立的音频输入接口。Pro/Max 可用于难例，但模型超时不得冻结收音或悄悄把不确定结果视为正确。[OpenAI 模型](https://developers.openai.com/api/docs/models) · [推理模式](https://developers.openai.com/api/docs/guides/reasoning) · [Gemini 音频](https://ai.google.dev/gemini-api/docs/audio?hl=en)
+## GPT 增量策略
 
-## 4. 四种质量分别处理
+- 候选更新按 280ms 窗口合并，不逐 token 调用。
+- 证据快照发生变化时发起唯一 GPT 请求。
+- 请求用 Responses streaming，等待结构化完成事件。
+- GPT 只返回候选 ID 与 UTF-16 spans / unresolved。
+- 若新证据在请求期间到达，旧响应不得覆盖新版本；以候选 generation/version 重新核验。
+- 讲话结束时两个专家完成 EOS 后，再做最后一轮 GPT 复核。
 
-1. **首个可见候选：** 接受最先返回的有效结果用于临时预览，标识尚在识别；不宣布正确或自动外发。每路专家都已同步工作，不是等说完才启动另一路。
-2. **讲话中的修正：** 同一源时间轴上的新候选取代本模型旧尾部；跨模型对齐后更新统一预览。分歧触发 AI 仲裁，候选引用与原文同时保留。
-3. **可输入的稳定前缀：** 由 Saytile 的融合发布器确认。所有必要专家必须覆盖该前缀，不能只凭最先到达的 final。数字、否定、时间单位或术语分歧未解时，前缀停在该位置之前。等待不是固定睡眠，也不因为到达超时自动升级确定性。
-4. **完整音频定稿：** 文件 ASR/原音复听可给出更准确版本。尚未外发的文字可以采用新证据；已外发的内容保持原账本，另存修订版并提示取用，不自动回删、覆盖或重发。
+## 禁止项
 
-不把提供了四种状态误写成四种准确率都已测得。验收要分别保存首显、修正过程、稳定确认、最终文本和相应时间。
+无 Gemini/Scribe/Claude 默认链；无第二 GPT 仲裁器；无多份用户转写稿；不润色、不改写、不总结、不扩写；GPT 未听音时不得宣称音频复听。
 
-## 5. 融合不是润色
+## 官方来源
 
-文本仲裁接口只返回候选 ID 和 UTF-16 选择范围、未解决状态及是否需要复听。它不能自由生成一个新句子。新增词必须首先来自一次真实音频识别/复听候选；任何候选仍可能出错。
-
-只有词级/片段级真实时间证据才能作为该精度的对齐。未提供词时间的接口保留其实际 utterance 精度；绝不把字符位置按时长平均分配后冒充声学对齐。无法安全拼接时保留整段候选并等待音频证据。
-
-跨模型置信度只作为本模型的原始元数据保存；不直接比较数值，不设“0.9 即 90% 正确”的阈值。语言判断综合实际语言标签、文本脚本与源时间范围，单语言专家在不支持语言上的输出不获自动发布权。
-
-对于“我想在 SwiftUI 里面使用 SQLite，再把查询结果发送给 ChatGPT”，融合可以分别引用中文与术语候选，但必须保持它们对应的音频顺序，并确认没有吞掉“不要”、数字或重复。无法验证时不因词库或常识强行凑成这句示例。
-
-## 6. 输入模式
-
-**最高质量：** 并行专家持续运行，预览即时可改；确认条件满足才发布稳定前缀。出现意义分歧则等待证据或保留不确定段，后续独立录音照常保存。不存在“达到某秒数就把候选当正确”的规则。
-
-**快速输入：** 允许较早采用已有可靠的稳定范围；后台继续同一套融合与复核。后到版本保存在 Saytile。两种模式共用原音、候选、版本、代次和外部派发保护。
-
-用户有意重复、口头修正、否定、数字、金额、时间和单位全部属于原始表达。标点格式不可以成为修改语义的借口。用户编辑稿保持选中，不被后台识别抢回。
-
-## 7. 工程完成与质量证明分开
-
-本轮交付目标是正式 Swift 实现、升级兼容、隔离契约测试、原生构建及可审查候选；真实供应商调用仅在已有服务权限、Key 与允许收费的范围内执行。没有凭据时仍必须完成这些可做工作。
-
-实际启用前，只需使用 Mac 上已存在的真人片段进行定向同输入比较：双专家、加混说、加文本仲裁、加复听。以新增/修复错误、关键语义错误、四阶段延迟和外部实际修正量裁决增益；不另建大型排行榜、不搬运 WAV、不要求用户重新当测试员。
-
-
----
-
-# 2026-11-07 架构二次重裁决（优先级高于上文旧默认配置）
-
-上文记录的是 2026-11-06 PR #4 的实现基线。以下内容是 2026-11-07 的新架构决策；发生冲突时以本节及 `research/architecture/FINAL-ARCHITECTURE.md` 为准。
-
-## 新结论：自适应混合，而非全量常开并行
-
-- 首先把 Apple SpeechAnalyzer 和云端 ASR 收敛到同一个 Candidate Store / recording epoch / generation。当前云端 MultiRecognitionSession 与 Apple 本地路径互斥的问题必须修正。
-- 云端主路优先以 Soniox STT v6 做真实混说对照。官方已披露 60+ 语言、句内切换、token 级语言标签；这是选择其进入基准的理由，不是已经证明它优于 Qwen/AssemblyAI 的结论。
-- Qwen Message、AssemblyAI、Meta Muse 保留适配器和 BYOK，转为可选 challenger / specialist。只有语言片段、领域词汇、风险词、主路不确定性或实测收益要求时才调度。
-- Apple SpeechAnalyzer 是统一体系内的本地 baseline / offline fallback。它不再是“云端关闭才存在的另一套产品管线”，但是否始终并行运行由目标机资源实测决定。
-- Qwen3-ASR 0.6B 作为 M5 24GB 的离线模型候选，必须先验证 macOS runtime、RTF、内存和热负载。Qwen 官方 streaming 当前依赖 vLLM，不能把服务端支持等同于本机实时能力。
-- LLM 文本仲裁仅在候选冲突且影响意义时触发，只能选择候选引用或 unresolved；不能创造声学证据。原音复听只在文本候选无法消歧时调用。
-- Scribe v2 / async final ASR 不再作为每条录音默认必跑的固定终点。仅对用户主动请求重识别、疑难片段或抽样质量验证调用。
-- Raw ASR、证据修订、格式化稿、用户编辑稿必须是不同版本层。格式化可撤销，用户编辑稿优先级最高。
-
-## 原有组件裁决
-
-| 组件 | 裁决 |
-|---|---|
-| Qwen Message | 保留；中文专家/challenger，不强制每次常开 |
-| AssemblyAI 3.6 Pro | 保留；英文 challenger，必须与 Meta 和多语言主路同音频比较 |
-| Meta Muse | 保留；可选英文 challenger，未证明边际收益前不默认开启 |
-| Soniox | 升级到 v6 纳入多语言主路挑战；v5 公开成绩不移植到 v6 |
-| Apple SpeechAnalyzer | 从互斥 fallback 改为统一 Candidate ingress 的本地 baseline/offline fallback |
-| GPT-6 Astra | 保留为文本证据仲裁，不是音频模型；仅处理真实分歧 |
-| Gemini | 保留为按需原音复听，优先争议短片段；不默认全段复听 |
-| ElevenLabs Scribe v2 | 保留文件定稿能力，按需运行；不默认每段调用 |
-| SQLite schema 3 / BYOK / Keychain / ModelRun | 保留；扩展候选来源和调度 trace，不重写有效数据契约 |
-| 稳定 UTF-16 ledger / user draft protection | 必须保留，不因新架构回退 |
-
-## 关键证据边界
-
-Soniox v6 的产品能力来自官方 2026-11-03 模型更新；Qwen3-ASR 的本地能力来自官方开源模型资料；Apple 能力来自 WWDC25 / Developer Documentation。以上均不能代替 Saytile 同音频、同硬件、同网络的真实测量。参见竞品研究报告与最终架构文档。
+- https://developers.openai.com/api/docs/models/gpt-6-astra
+- https://developers.openai.com/api/docs/guides/latest-model
+- https://developers.openai.com/api/docs/guides/realtime-transcription
+- https://developers.openai.com/api/docs/models/gpt-live-transcribe
+- https://developers.openai.com/api/docs/models/gpt-transcribe
+- https://developers.openai.com/api/docs/models/gpt-realtime-2.1
+- https://help.openai.com/en/articles/9039756-managing-billing-for-chatgpt-and-the-api-platform

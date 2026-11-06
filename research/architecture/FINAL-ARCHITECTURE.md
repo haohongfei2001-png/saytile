@@ -1,166 +1,94 @@
-# Saytile V1 最终技术架构裁决
+# Saytile 最终架构：双语言专家 + 单一 GPT-6 实时融合
 
-日期：2026-11-07。依据：当前 PR #4 工程、V1 产品设计、Apple/Soniox/Qwen 官方技术资料和竞品研究。
+更新：2026-11-07。**本文件覆盖 PR #5 旧版“多语言主模型 + 按需专家”的冲突决策。**
 
-## 1. 最终结论
+## 1. 正式产品决定
 
-采用 **持久化优先、质量驱动的自适应混合架构**（Durable Capture + Adaptive Hybrid Recognition）。
+Saytile V1 默认由两个平等实时 ASR 专家和唯一 GPT-6 AI 核心组成：
+- 中文专家：完整音频流。
+- 英文专家：同一份完整音频流。
+- GPT-6 Astra：持续接收两路 ASR 的增量候选，负责统一证据判断、融合和纠错。
 
-不是纯云端、纯本地，也不是每段音频始终并行运行全部模型。
+两个 ASR 不按语言裁剪音频，不按整句语言路由，也不被限制为只输出单一语言。用户不选模型、不选语言、不看候选。用户界面只有一份持续更新的 transcript。
 
-### 决策
+第三个 ASR 仅作为可选挑战者，Soniox v6 是优先候选；只有同音频测量证明有净收益才默认启用。模型数量、公开榜单和理论互补不构成收益证据。
 
-1. Capture 与 PCMJournal 永远先于识别，并且完全独立。网络、ASR、LLM、目标应用都不能阻塞采集和落盘。
-2. 默认云端高质量路径采用一条强多语言流式主路作为混说基线（优先将 Soniox STT v6 纳入真实 A/B；不能把官方 v6 新能力当作已经验证）。它提供逐 token 语言标签和 code-switch 支持，适合中英句内切换。
-3. Qwen Message、AssemblyAI、Meta Muse 保留为可选专家/挑战者。按语言片段、领域、主路不确定性、错误类型和实测边际收益调度，不默认每次全部开启。
-4. Apple SpeechAnalyzer 成为统一协调体系中的本地持续基线/离线 fallback，不再与云端互斥。其角色是可用性和离线连续性，不预设其中文准确率优于云端。
-5. 对 M5 24GB，可单独评估 Qwen3-ASR 0.6B 作为可下载的本地增强/离线挑战模型；1.7B 和 ForcedAligner 不直接默认常驻。只有在实测实时因子、内存、热负载和准确率达到门槛后才启用。
-6. 文本 LLM 仅在有意义的候选冲突、上下文纠错或表达格式化时触发。它不能创造声学证据，也不拥有写正式 transcript / dispatch ledger 的权限。
-7. 原音复听使用真正的音频输入模型，优先只截取有争议的短片段并保留上下文边界；全段复听是 fallback，不应每条录音无条件执行。
-8. ASR 与文本转换分离。Raw transcript 是不可被格式化覆盖的原始识别版本；formatted draft 可撤销；user-edited draft 最高优先级。
-9. “稳定前缀”必须是可解释的 evidence state，不是模型 final 或定时器。未解决数字、否定、实体、单位和时间冲突时停止推进。
-10. 直接输入仍遵守当前 UTF-16 范围账本：不自动发送、不回车、不重写全文、不重放不确定投递。
+## 2. GPT-6 API 能力裁决（官方文档核实：2026-11-07）
 
-## 2. A-E 方案比较
+| 能力 | GPT-6 Astra (`gpt-6-astra`) |
+|---|---|
+| API 可用 | 是，Responses API |
+| 文本输入/输出 | 是 |
+| 流式文本输出 | 是 |
+| 原生音频输入 | **否，模型目录标注 Audio not supported** |
+| 实时音频流输入 | **否，不能把 Realtime endpoint 列表误读成该模型支持音频** |
+| 直接听音纠错 | 否；没有真实音频输入，不得宣称 GPT-6 Astra 听过原音 |
+| 上下文窗口 | 官方模型页 1,050,000 tokens |
+| 最大输出 | 官方模型页 128,000 tokens |
 
-| 方案 | 识别质量上限 | 离线 | 延迟/成本 | 复杂度/风险 | 裁决 |
-|---|---|---|---|---|---|
-| A 纯云多模型 | 高，但依赖网络和模型组合；冗余可能相关错误 | 无 | 多请求、高费用 | 网络成为生命线 | 不选 |
-| B 纯本地多模型 | 设备允许范围内；强模型吞吐和热约束未知 | 强 | 无云费用但有设备成本 | 下载、内存、能耗、运行时复杂 | 不选作默认 |
-| C 本地优先、云端补疑难 | 离线连续，但本地先验质量决定首显 | 强 | 本地持续占用，云请求少 | 本地弱结果可能污染用户感知 | 仅作离线策略 |
-| D 本地+云始终并行 | 理论证据多，错误相关性仍存在 | 部分 | 长期耗电/费用/上传量最高 | 无法证明所有请求都带来增益 | 不选 |
-| E 自适应混合 | 按任务选择最有价值的证据，质量/资源可调 | 强（本地能力范围内） | 可控 | 调度器和可观测性要求高 | **选择** |
+GPT-6 Astra 可通过 Responses API 的 `stream: true` 输出文本事件；Saytile 将候选变化按短窗口合并后请求一次结构化 evidence selection。它只选择候选来源的 UTF-16 spans / unresolved，不自由生成转写文字。新证据覆盖范围变化时，允许新一轮请求；旧响应若候选版本已过期则丢弃。
 
-## 3. 统一数据流
+OpenAI 当前有独立语音模型：
+- `gpt-live-transcribe`：低延迟实时转写，支持音频输入和 transcript deltas。
+- `gpt-transcribe`：高准确率文件转写，也可用于已提交的 Realtime turns。
+- `gpt-realtime-2.1` / `gpt-live-1`：音频输入输出的实时语音模型。
 
-```text
-Microphone / CoreAudio
-        |
-        v
-CaptureWorker -----> AudioHealth / device monitor
-        |
-        +-----> PCMJournal (durable local audio; chunk + checksum + fsync policy)
-        |                |
-        |                +-----> Recovery Queue / Retry Scheduler
-        |                |
-        |                +-----> Playback / Export / Delete lifecycle
-        |
-        v
-VAD + Segmenter (non-destructive; source sample clock)
-        |
-        +-----> Apple SpeechAnalyzer (local baseline / offline fallback)
-        |
-        +-----> Recognition Policy Engine <----- Network / thermal / power / language / context
-                        |
-                        +-----> Primary multilingual stream (Soniox v6 A/B baseline)
-                        |
-                        +-----> Optional specialist streams (Qwen / Assembly / Meta)
-                        |
-                        +-----> Targeted final ASR (async/file model when needed)
-                                      |
-                                      v
-                          Candidate Store (immutable source evidence)
-                                      |
-                   +------------------+-------------------+
-                   |                                      |
-                   v                                      v
-           Alignment / LID / Risk                  Context Engine
-           (sample clock, real word times,         (app identity, user selection,
-            token language, confidence local)      explicit terms; opt-in only)
-                   |                                      |
-                   +------------------+-------------------+
-                                      |
-                                      v
-                            Evidence Fusion Coordinator
-                           /                         \
-                  Text arbiter (only conflict)     Audio review (only ambiguity)
-                           \                         /
-                                      |
-                                      v
-                           Transcript Version Store
-                        raw / stable / formatted / user
-                                      |
-                         +------------+-------------+
-                         |                          |
-                         v                          v
-                 Search / Playback             Direct Input
-                                                (existing ledger)
-```
+这些不是 GPT-6 Astra。它们如被加入，只能作为独立 ASR/音频证据候选，不能冒称“GPT-6 原生音频”。本轮 F 配置（GPT-6 Astra 直接听音）判定 **NOT AVAILABLE / NOT RUN**。
 
-## 4. 模块职责与协议
+官方来源：
+- https://developers.openai.com/api/docs/models/gpt-6-astra
+- https://developers.openai.com/api/docs/guides/latest-model
+- https://developers.openai.com/api/docs/guides/realtime-transcription
+- https://developers.openai.com/api/docs/models/gpt-live-transcribe
+- https://developers.openai.com/api/docs/models/gpt-transcribe
+- https://developers.openai.com/api/docs/models/gpt-realtime-2.1
 
-| 模块 | 输入 → 输出 | 持久化 | 约束 |
-|---|---|---|---|
-| CaptureWorker | CoreAudio buffers → canonical sample timeline | 不直接写 transcript | 实时线程不等待网络/磁盘慢操作 |
-| PCMJournal | frames → durable chunks + checksums | 本地文件与 SQLite manifest | 先保存后识别；明确 durable watermark；崩溃恢复校验 |
-| VAD/Segmenter | sample stream → speech regions | segment metadata | 不丢弃静音边界和前后文；重切片不改原音 |
-| Apple adapter | PCM/time → volatile/final local candidate | Candidate Store | 离线能力按 locale/model asset 动态检查 |
-| Cloud adapter | PCM chunks → provider events | Candidate Store / ModelRun | 每服务独立协议、EOS、retry、usage、consent |
-| Policy Engine | network/quality/context/device state → model plan | policy trace | 仅按实测收益开关，不因“可以并行”就并行 |
-| LID/Alignment | candidate + source clock → language/time spans | evidence metadata | 不伪造词级时间；置信度保留原始尺度 |
-| Context Engine | app id + explicit selection/terms → scoped hints | per-record context snapshot | V1 不读屏幕/聊天；敏感字段排除 |
-| Fusion Coordinator | immutable candidates → evidence-backed proposal | decisions/audit | ASR 不写正式稿和派发账本 |
-| Audio Review | selected disputed audio → new candidate | ModelRun/Candidate | 盲听优先；不能将文本 LLM 当听觉模型 |
-| Transcript Store | accepted proposal → version graph | SQLite | raw/formatted/user edit 独立版本 |
-| Direct Input | stable prefix + target binding → UTF-16 ledger | SQLite | 至多一次自动尝试，不承诺跨应用恰好一次 |
-| Recovery | incomplete jobs + journal → resumed work | queue state | 断网不阻塞录音；鉴权失败不无限重试 |
+ChatGPT Pro 订阅与 API 平台分别计费；Pro 不包含可任意用于 Saytile 的 API 请求额度。API 使用需独立组织、Key 和账单。官方说明：https://help.openai.com/en/articles/9039756-managing-billing-for-chatgpt-and-the-api-platform
 
-统一 Candidate 协议至少包含：recordingID、audioEpoch、generation、provider、model、configurationID、requestID、sourceSampleRange、sequence、language spans、text、isFinal、word/segment timing（可选）、raw confidence（可选）、createdAt、failure state、audio digest。供应商原始 payload 只保留经脱敏且有必要的字段。
+## 3. A/B 两个专家平等，不预设主模型
 
-## 5. 语言和混说识别策略
+推荐初始工程基线（不是准确率冠军声明）：
+- 中文：Qwen Audio 3.1 Message。
+- 英文：AssemblyAI Universal 3.6 Pro。
+- GPT 核心：GPT-6 Astra。
 
-不做整句“中文/英文二选一”。先使用主多语言流的 token 语言标签；再以脚本特征、用户提示、声学边界和专家输出做时间片段级判断。中文句子里的英文技术名词通常不应切成独立语言句；需要把同一音频范围的多种候选进行证据比较。
+Qwen、AssemblyAI、Meta Muse、Soniox v6、SeedASR、GPT-Live-Transcribe 等进入可替换对照。Qwen 与 Assembly 的“中文/英文专家”是质量职责，不是输入限制。每条完整音频从开始到结束发给两个专家。
 
-第一层：Soniox v6 或经实测更好的统一多语言模型负责低延迟主流。
-第二层：Qwen/Assembly/Meta 只在特定区间、语言、风险或模型分歧时作为挑战者；当前供应商协议若不能精确发片段，则送含前后文的滑动窗口，并把覆盖范围记录清楚。
-第三层：只有冲突且影响意义时，才调用文本 LLM 选择候选引用；没有足够候选时请求音频模型复听。不能按文本“合理程度”猜词。
-第四层：疑难仍 unresolved，保留备选与原音，不发布争议片段。
+## 4. SingleTranscriptEngine
 
-语言标签可能在 partial 阶段修订；所有路由决定允许撤销。用户不能感知到模型切换操作，也不需手动切换语言。
+SingleTranscriptEngine 是唯一融合与发布协调器，内部保留多份候选，但只向 Store 发布一份 transcript revision：
 
-## 6. 本地与云端策略
+1. 接收同一录音 epoch/generation 的两个 ASR 增量候选。
+2. 校验 sequence、source sample range、语言标签、时间覆盖和候选代次。
+3. 维护每路最新候选及历史证据，不按网络到达顺序覆盖。
+4. 按 280ms 合并窗口 coalesce 高频 partial 事件，避免每 token 调 GPT。
+5. 每次新证据快照变化后，由唯一 GPT-6 Astra 进行结构化选择；只接受候选 ID + UTF-16 span，禁止无来源生成。
+6. 本地验证所选 span、音频覆盖、字符边界、否定/数字/单位/重复等保护签名。
+7. 只将一个 preview/stable revision 写入 Store；旧 GPT 请求在证据版本变化时作废。
+8. 结束讲话后等待两个 ASR EOS/final，执行最后一轮 GPT-6 融合，完成或保留 unresolved 状态。
+9. GPT 失败不停止录音，不把未确认候选自动派发；保留最可信的既有文字和原音，可恢复。
 
-- 正常在线且授权：本地 Apple 轻量基线可持续或按资源预算运行；云端主模型工作。是否常驻本地影子流通过 M5 实测决定，不强制。
-- 网络不可用：PCMJournal 继续；Apple SpeechAnalyzer 在支持的语言/资源条件下接手或继续；云端任务排队等待网络恢复。没有本地可用语言模型时仍保存原音，状态明确为待识别。
-- 网络恢复：对未完成音频按幂等任务补传/重试，校验 recording digest 与授权状态；不重复生成输入动作。
-- 电池/热负载高：暂停非必要本地 shadow 和额外专家，优先保证 capture/journal 与一个识别主路。
-- 质量模式：最高质量只对高风险/疑难范围增加 challenger 与复听；快速模式缩短确认路径，但不降低关键语义保护。
+GPT 不负责语言润色。其指令严格限定为逐字转写证据选择；不翻译、不总结、不扩写、不消除口语重复。标点可作轻量处理，但不能改变词汇或语义。
 
-## 7. M5 24GB 的本地模型准入
+## 5. 唯一用户文字流与外部输入
 
-Apple SpeechAnalyzer 是第一候选，因为系统管理模型资产、异步处理和时间戳，并不意味着它在所有语言上准确率最佳。
+候选、模型名称、raw/final 多版本都留在内部数据库。用户界面只展示一份 transcript。Saytile 自己尚未派发的文字可以被后续 GPT 证据修正。
 
-Qwen3-ASR-0.6B 可作为第二候选。官方公开 streaming 依赖 vLLM；需确认 macOS Apple Silicon 推理后端能否稳定实时流式，不能把官方 Linux/vLLM benchmark 当 Mac 性能。Qwen3-ASR-1.7B、ForcedAligner 0.6B 先按需批量/定稿测试，不常驻。WhisperKit/whisper.cpp/Parakeet 只有在中文+英语混说、热负载和实时因子实测胜出才纳入。
+外部应用输入继续使用既有 UTF-16 ledger：已派发范围有明确所有权；目标变化立即暂停；用户修改过的文字不得被覆盖；不重发整段、不重复插入、不自动发送或回车。
 
-准入门槛：连续 60 分钟无丢帧；RTF p95 < 0.8；启动至首个 provisional < 1.5s；峰值 RSS 增量、CPU/GPU/ANE、温度和电量记录；在现有语料同音频配对下，CER/WER/MER 与关键实体/数字/否定错误至少不劣于 Apple baseline，且具备明确的断网价值。具体阈值为 Saytile 工程门槛，需用设备实测校准。
+## 6. 本地识别与原音恢复
 
-## 8. 上下文与个性化边界
+Apple SpeechAnalyzer 作为统一 Candidate 来源，进入同一 recording/generation/Store。云端专家同时工作时，Apple 可按设备资源策略提供独立证据；不强制多个本地大模型常驻。
 
-V1 最小上下文：
-- 前台应用 bundle ID / app category。
-- 用户主动选中的文本（仅当用户明确开启并授权）。
-- 用户手工添加的本次话题/术语。
-- Saytile 自己已保存的会话内上下文。
+断网时 CaptureWorker 与 PCMJournal 不变，Apple 在支持的语言/资产条件下接管；不能识别的音频保留并排队。恢复后按 audio digest/generation 续识别。
 
-不默认读取屏幕截图、网页 DOM、聊天历史、剪贴板全文或其他应用全部文本。上下文快照与录音关联、可查看和删除，敏感字段默认排除。上下文缺失不得阻塞首显。
+长音频复核必须从 PCMJournal 读取真实 sample range。现有 12 MB fanout 临时缓冲不能继续作为最终音频读取路径；在 PCMJournal 读取接入完成前，不启用基于内存快照的全段复核。GPT-6 Astra 本身不支持音频，因此当前架构不需要 Gemini/Scribe 组成第二条 AI 复听链。
 
-词汇处理：
-- Global dictionary：用户主动添加的术语。
-- Session hints：本次任务临时上下文。
-- Correction events：raw 与用户明确确认的改稿差异。
-- Learned vocabulary：V3 才能从多次明确确认的修正形成，提供查看/撤销。
-- 不把模型猜测、自动格式化或未确认改稿写入词库。
+## 7. 明确不做
 
-## 9. 版本保护和表达修正
-
-每个 recording 保留 raw ASR、evidence-selected transcript、formatted view、user-edited view。所有派发以用户选择的可派发版本为准。Backtrack 仅可修改当前尚未派发区间；如用户说“刚才 SQLite 改成 PostgreSQL”，必须先识别为明确自我修正且确认时间/语义范围，不能误删已经输入目标应用的文字。模糊修正只作为新增文本或待确认事件。
-
-## 10. 可靠性、隐私与验收
-
-- 采集、原音、ASR、融合、文本版本和派发是独立 actor/service。
-- 原音先落盘，识别可重复；候选可丢弃重建，原音不能因候选失败删除。
-- API Key 只在 Keychain；每 provider 单独授权音频/文本/上下文。
-- 本地文件加密与备份策略需单独评估；默认手动删除，提供空间提醒。
-- 断网演练：拔网 30 分钟仍采集、落盘、可回放；网络恢复后任务恢复且不重复输入。
-- 24 小时 soak：无内存增长、队列失控、录音停摆；磁盘满、权限撤销、设备切换、睡眠唤醒分别验证。
-- 真实云服务对照未获用户授权时不运行收费请求。不得把协议测试或 CI 当作识别质量证明。
+- 不设 ASR 主模型等级。
+- 不配置多个 GPT/LLM 仲裁器。
+- 不默认 Gemini、Scribe、Claude 等二次模型链。
+- 不向用户显示多份转写稿或 Raw/Formatted 切换。
+- 不润色、改写、总结或扩写。
+- 不把 GPT-6 Astra 宣称为原生音频模型。

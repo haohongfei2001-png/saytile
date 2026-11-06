@@ -10,13 +10,13 @@ V1 Release Candidate 已完成工程回归，真实讲话与个人环境验收�
 
 [PR #4](https://github.com/haohongfei2001-png/saytile/pull/4) 已按新的最高质量目标改为真实工程实现：中文与英文专家并行、可选混说专家、证据约束 AI 仲裁与原音复听、最高质量/快速确认、独立候选数据库和多服务 BYOK。旧的“唯一 Soniox”裁决已撤销。
 
-本分支候选为 **1.0.0-asr-preview.1**，生产 RC1 仍单独保留。当前选型、已执行验证与云端凭据缺口见 [本轮交付记录](research/asr/REVISION-2026-11-06.md)。不要把无云协议测试当作真实识别质量结果。云端默认等待用户设置服务 Key 和独立处理授权。
+本分支为 **1.0.0-rc.2-candidate.1**，已安装 RC1 继续保留。工程收口和真实云端接通是分别记录的验收项，见 [RC2 状态](docs/V1-RC2-STATUS.md)。当前未取得五项核心凭据及处理/费用授权，尚不能宣布实际接通或进入集中真人验收；不重新开展模型排名研究。可用 [独立连接设置](docs/V1-RC2-CONNECTION-SETUP.md) 保存密钥，不必覆盖 RC1。
 
 ## 构建和运行
 
 ```sh
 scripts/package-beta.sh
-# 输出文件名使用 packaging/VERSION；本分支为多模型工程预览
+# 输出文件名使用 packaging/VERSION；本分支为待云端验收的 RC2 候选
 ```
 
 同步盘可能在 App 目录附加影响签名的 Finder 元数据，请通过 DMG 安装至 Applications 后运行。
@@ -53,15 +53,6 @@ scripts/package-beta.sh
 个人包采用 ad-hoc 签名，尚未进行 Developer ID 公证。合成语音、后台 AX 测试、硬件缓冲统计、实际真人输入和整机功耗是不同验证层，详见测试记录。V2 轻声识别与 V3 个人词库/文字输入法不在本轮范围。
 
 
-## Architecture research and revised roadmap
+## Current recognition architecture (2026-11-07)
 
-The latest independent competitor research and adaptive hybrid architecture decision are documented in:
-
-- [Competitor architecture research](research/competitors/ARCHITECTURE-RESEARCH-2026-11-07.md)
-- [Competitive advantages and gaps](research/competitors/COMPETITIVE-ADVANTAGES.md)
-- [Final V1 architecture](research/architecture/FINAL-ARCHITECTURE.md)
-- [V1/V2/V3 development roadmap](research/architecture/DEVELOPMENT-ROADMAP.md)
-- [Architecture decision log](research/architecture/DECISION-LOG.md)
-- [Current research branch status](research/architecture/PROJECT-STATUS.md)
-
-These are research decisions, not claims that the new architecture is already implemented or that cloud accuracy gains have been measured. See PR #5, stacked on the open ASR implementation PR #4.
+Two equal ASR experts receive the same complete audio, and one GPT-6 Astra core continuously reviews their candidate evidence. The UI presents one transcript. GPT-6 Astra is text-only in the API; it does not directly hear audio. See [the final architecture](research/architecture/FINAL-ARCHITECTURE.md), [API capability decision](research/asr/DECISION.md), and [implementation status](research/architecture/PROJECT-STATUS.md).

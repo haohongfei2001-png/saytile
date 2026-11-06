@@ -1,12 +1,34 @@
-# RC2 产品收口证据
+# RC2 engineering evidence — 2026-11-07
 
-起点：PR4 `1caa46b6d4ad11c27e0cd20624f09e6f39aa8d2c`，main `a352a1c812c33388a1a908f21ecde30da80ad1cd`。2026-11-07当前工作继续现有工程，不做全球选型或模型排名。
+Candidate `1.0.0-rc.2-candidate.1`, clean runtime source `8f2d71b73c8ae1aa421719201a263de20d98fc7f`. Later evidence/test-script commits do not change this runtime. See `delivery-manifest.json` for exact artifact paths and SHA-256. Main and the installed RC1 are unchanged. Cloud provider calls and uploads remain zero.
 
-- `access-preflight.json`：本轮重新执行专用Keychain属性查询，0匹配；无秘密值、提示或上传。
-- `credentials-settings-review.md` / `credentials-tests.log`：实际Security.framework独立服务命名空间的假密钥CRUD及配置测试，不是用户API连接成功。
-- `pipeline-review.md`：生产采集/并行/融合/定稿/输入链路审查，包含配置代次与启动恢复竞态修复；独立合成传输是工程证据，不是真实供应商连接。
-- `upgrade-input-review.md`：真实旧源码/发行包到当前隔离资料升级、进程异常与回退边界；最终包需单独验证并记录源码身份。
-- `cloud-product-smoke-plan.json`：6段46.94秒既有公开人声，五服务核心小范围端到端计划。尚未执行，无模型排行榜。
-- `core-services-disabled.json`：不含秘密；cloudEnabled/逐服务consent均false，不替代用户授权。
+| Evidence | Result and scope |
+| --- | --- |
+| `native-all.log` | 270 Swift Testing cases / 32 suites. Production logic, SQLite, capture journals and injected external transports; not cloud authentication. |
+| `app-model-all.log` | 23 AppModel checks; same AppModel source as candidate. |
+| `credentials-settings-review.md`, `credentials-tests.log`, `pipeline-review.md`, `upgrade-input-review.md`, `connection-setup-review.md` | Scoped engineering reviews and isolated synthetic Security.framework CRUD; not real provider connection. |
+| `capture-ownership-before.log`, `capture-ownership-after.log` | Two P1 cancellation ownership races actually reproduced and repaired; independent reviews retained. |
+| `ui-final-manifest.json`, `ui-controls-final.log` | Clean packaged binary: 15 actual SwiftUI/AppKit scenes; 6 native interaction groups; 16 AXPress, 2 AXSetValue plus 2 owned native field-editor commits. Candidate never activated. One outside foreground transition was recorded without attribution; does not prove foreground stayed fixed. No global keys, microphone or private app contents. |
+| `connection-setup-cli-final.json` | 7 actual packaged executable rejection cases, before Store/window; production root and descendant rejected. |
+| `cloud-probe-cli-final.json` | 4 actual packaged executable isolation cases; no audio imported or network calls. |
+| `install-upgrade-final.json`, `.log` | 8 checks using actual released RC1 DMG and this clean RC2 DMG, disposable installation, synthetic archive; exact audio/version/draft/dispatch retention, old app rejection and explicit preupgrade copy rollback. No production install/database. |
+| `input-regression.json`, `input-regression-review.md` | 9 actual native AX checks, 6 WebKit mutation checks plus unsafe-context/no-send guards, and 20 headless DOM checks. Owned target selection is injected. Background WebKit insertion remains unverified with unchanged DOM; retained once, not replayed. Initial unattributed foreground failure and one attributed followup are retained. |
+| `package-final.log` | Release build, strict ad-hoc signature, disk image checksum. Not Developer ID notarization. |
+| `access-preflight.json` | Saytile-only Keychain metadata returned no matching credentials; no secret value requested, no prompt. |
+| `cloud-product-smoke-plan.json` | Frozen 6 public-human clips / 46.94 seconds and five-service product checks; NOT_RUN pending credentials plus processing and paid-call authorization. |
 
-所有UI交互都只针对本任务的隔离App PID和合成SQLite，不启动麦克风、不操作其他App草稿、不改变前台窗口。真实API授权缺失时，不允许从这些结果推导“中文/英文/AI/原音复核已真实接通”。
+The original failure logs are retained. CI run 42265587630 failed in Swift 6.3.3 IRGen, not a failed native assertion; `compiler-compatibility.md` describes the minimal binding-closure fix. The clean runtime 8f2d71b subsequently passed native run42269235645 and design-contracts run42269235604; ci-runtime-receipt.json retains the workflow/artifact identity. Final evidence-only head checks are published on PR4. Cloud requests remain untested.
+
+## Actual candidate views
+
+All text is synthetic. These are runtime SwiftUI attached to nonactivating native windows, not HTML prototypes. Review actions exercise real native controls; rendering alone does not verify cloud service behavior. The remaining 12 captures are kept locally under `dist/rc2-ui-final` with committed hashes.
+
+![Native settings](images/settings.png)
+
+![Isolated connection setup with unready-export rejection](images/connection-setup.png)
+
+![Actual Store review phase shown on a transcript card](images/panel-ai-review.png)
+
+## Remaining boundary
+
+Qwen, AssemblyAI, Astra, Gemini and Scribe are implemented but no actual account connection or actual audio review is claimed. Real cloud latency/accuracy are NOT_RUN, not zero improvement. Engineered synthetic paths cannot qualify RC2 for final human acceptance. Do not merge PR4 or replace RC1 until the small authorized end-to-end run and resulting fixes pass.
