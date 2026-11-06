@@ -3,8 +3,10 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 configuration="${1:-release}"
 SAYTILE_BUILD_SCRATCH="${SAYTILE_BUILD_SCRATCH:-/tmp/saytile-build}"
-swift build --scratch-path "$SAYTILE_BUILD_SCRATCH" -c "$configuration"
-bin_dir="$(swift build --scratch-path "$SAYTILE_BUILD_SCRATCH" -c "$configuration" --show-bin-path)"
+SAYTILE_BUILD_COMMAND=(swift build --scratch-path "$SAYTILE_BUILD_SCRATCH" -c "$configuration")
+if [[ "${SAYTILE_SWIFT_DISABLE_SANDBOX:-0}" == 1 ]]; then SAYTILE_BUILD_COMMAND+=(--disable-sandbox); fi
+"${SAYTILE_BUILD_COMMAND[@]}"
+bin_dir="$("${SAYTILE_BUILD_COMMAND[@]}" --show-bin-path)"
 app="${SAYTILE_APP_OUTPUT:-$PWD/dist/Saytile.app}"
 SAYTILE_BUILD_STAGE="$(mktemp -d /tmp/saytile-bundle.XXXXXX)"
 trap 'rm -rf "$SAYTILE_BUILD_STAGE"' EXIT

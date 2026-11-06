@@ -10,19 +10,16 @@ final class RecognitionAudioFanout: @unchecked Sendable {
     private var continuations: [UUID: AsyncStream<Data>.Continuation] = [:]
     private var closed = false
     private var failed: Set<UUID> = []
-    private var pcm = Data()
     private var frames: Int64 = 0
-    private var retainedWholeAudio = true
-    private let maximumReviewBytes: Int
     private let onOverflow: @Sendable (UUID) -> Void
-    init(ids: [UUID], queueFrames: Int = 300, maximumReviewBytes: Int = 12_000_000,
+    init(ids: [UUID], queueFrames: Int = 300,
          onOverflow: @escaping @Sendable (UUID) -> Void = { _ in }) {
         var channels: [Channel] = []
         for id in ids {
             let (stream, continuation) = AsyncStream<Data>.makeStream(bufferingPolicy: .bufferingOldest(max(1, queueFrames)))
             channels.append(.init(id: id, audio: stream)); continuations[id] = continuation
         }
-        self.channels = channels; self.maximumReviewBytes = maximumReviewBytes; self.onOverflow = onOverflow
+        self.channels = channels; self.onOverflow = onOverflow
     }
     func append(_ data: Data) {
         guard !data.isEmpty else { return }
@@ -30,8 +27,6 @@ final class RecognitionAudioFanout: @unchecked Sendable {
         lock.withLock {
             guard !closed else { return }
             frames += Int64(data.count / 2)
-            if retainedWholeAudio && pcm.count + data.count <= maximumReviewBytes { pcm.append(data) }
-            else { retainedWholeAudio = false; pcm.removeAll(keepingCapacity: false) }
             for (id, continuation) in continuations where !failed.contains(id) {
                 if case .dropped = continuation.yield(data) {
                     failed.insert(id); continuation.finish(); overflow.append(id)
@@ -49,17 +44,7 @@ final class RecognitionAudioFanout: @unchecked Sendable {
     func didOverflow(_ id: UUID) -> Bool { lock.withLock { failed.contains(id) } }
     var isFinished: Bool { lock.withLock { closed } }
     var duration: Double { lock.withLock { Double(frames) / 16_000 } }
-    var snapshot: Data? { lock.withLock { retainedWholeAudio ? pcm : nil } }
-    /// Taking a bounded, exact sample interval never interpolates a word timestamp.
-    func clip(start: Double, end: Double) -> Data? {
-        lock.withLock {
-            guard retainedWholeAudio, start.isFinite, end.isFinite, start >= 0, end > start else { return nil }
-            let a = Int((start * 16_000).rounded(.down)) * 2
-            let b = min(pcm.count, Int((end * 16_000).rounded(.up)) * 2)
-            guard a >= 0, b > a, a < pcm.count else { return nil }
-            return pcm.subdata(in: a..<b)
-        }
-    }
+
 }
 
 final class RecognitionSessionCompletion: @unchecked Sendable {

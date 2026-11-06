@@ -32,17 +32,7 @@ struct RecognitionSettingsSection: View {
                         ModelConfigurationEditor(configuration: $item, model: model, onCredentialChange: refreshPresence)
                     }
                 }
-                DisclosureGroup("其他识别专家与自定义服务") {
-                    ForEach($model.recognitionConfiguration.models) { $item in
-                        if item.isOptionalExpert {
-                            ModelConfigurationEditor(configuration: $item, model: model, onCredentialChange: refreshPresence)
-                        }
-                    }
-                    Button("添加自定义模型") {
-                        model.recognitionConfiguration.models.append(.init(purpose: .multilingualASR, provider: .soniox, model: "stt-rt-v6", enabled: false))
-                        refreshPresence()
-                    }.accessibilityIdentifier("recognition.addModel")
-                }
+
             }
             Toggle("连接中断后从已保存原音自动恢复", isOn: $model.recognitionConfiguration.automaticRecovery)
                 .accessibilityIdentifier("recognition.automaticRecovery")
@@ -134,28 +124,7 @@ struct ModelConfigurationEditor: View {
             Toggle(configuration.purpose == .textFusion ? "允许此服务处理候选文字与当前话题" : "允许此服务处理语音和必要上下文（含恢复与复核）",
                    isOn: $configuration.cloudConsent).accessibilityIdentifier(prefix + ".consent")
             DisclosureGroup("高级设置") {
-                Picker("职责", selection: Binding(get: { configuration.purpose }, set: { purpose in
-                    configuration.purpose = purpose; configuration.cloudConsent = false
-                    if !configuration.provider.supports(purpose), let provider = CloudProvider.allCases.first(where: { $0.supports(purpose) }) {
-                        selectProvider(provider)
-                    }
-                })) {
-                    ForEach(RecognitionPurpose.allCases.filter { ![.audioReview, .finalASR].contains($0) }, id: \.self) { Text($0.label).tag($0) }
-                }.accessibilityIdentifier(prefix + ".purpose")
-                Picker("服务", selection: Binding(get: { configuration.provider }, set: { provider in selectProvider(provider) })) {
-                    ForEach(CloudProvider.allCases.filter { $0.supports(configuration.purpose) }, id: \.self) { Text($0.label).tag($0) }
-                }.accessibilityIdentifier(prefix + ".provider")
-                TextField("模型 ID", text: $configuration.model).autocorrectionDisabled()
-                    .accessibilityIdentifier(prefix + ".modelID")
                 TextField("此模型的术语提示（可选）", text: $configuration.context, axis: .vertical).lineLimit(1...3)
-                if configuration.purpose == .textFusion {
-                    Picker("推理强度", selection: $configuration.reasoningEffort) {
-                        Text("High").tag("high"); Text("Extra high").tag("xhigh"); Text("Max").tag("max")
-                    }
-                    Picker("推理模式", selection: $configuration.reasoningMode) {
-                        Text("Standard").tag("standard"); Text("Pro · 允许更长复核").tag("pro")
-                    }
-                }
                 DisclosureGroup("可选费用估算") {
                     TextField("币种", text: $configuration.currency)
                     rateField("每音频/会话小时单价", value: $configuration.audioHourRate)

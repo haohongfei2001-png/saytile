@@ -88,8 +88,8 @@ public struct PrecisionReviewClient: Sendable {
     Never invent text, translate, add facts, remove intentional repetition, infer numbers,
     change units, or drop/reverse negation. A more plausible sentence is not stronger evidence.
     Confidence values from different providers are not comparable probabilities.
-    A single-language recognizer can hallucinate during other-language audio: consider role,
-    actual language and time coverage. Unknown or utterance-level timing is not word alignment.
+    Both primary experts receive the same complete bilingual audio. Legacy role names do not
+    imply language restrictions. Consider actual language and time coverage. Unknown or utterance-level timing is not word alignment.
     Combine complementary Chinese/English evidence when real aligned token boundaries allow it;
     do not mechanically pick one complete recognizer sentence. The boundaries list only makes
     Unicode slicing safe: it does NOT establish acoustic alignment. alignedTokens supplies the
@@ -169,13 +169,23 @@ public struct PrecisionReviewClient: Sendable {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = configuration.reasoningMode == "pro" ? 300 : 120
         let began = Date()
-        let (bytes, response) = try await URLSession.shared.bytes(for: request)
+        let settings = URLSessionConfiguration.ephemeral
+        settings.timeoutIntervalForResource = request.timeoutInterval
+        let session = URLSession(configuration: settings)
+        defer { session.invalidateAndCancel() }
+        let (bytes, response) = try await session.bytes(for: request)
         try Task.checkCancellation()
         guard let http = response as? HTTPURLResponse else { throw ProviderFailure.connection }
         guard (200..<300).contains(http.statusCode) else { throw ProviderFailure.http(http.statusCode) }
         var completed: [String: Any]?
-        for try await line in bytes.lines {
+        var lineBytes = Data(), totalBytes = 0
+        for try await byte in bytes {
             try Task.checkCancellation()
+            totalBytes += 1
+            guard totalBytes <= 16_000_000, lineBytes.count <= 8_000_000 else { throw ProviderFailure.incomplete }
+            if byte != 10 { lineBytes.append(byte); continue }
+            let line = String(decoding: lineBytes, as: UTF8.self).trimmingCharacters(in: .newlines)
+            lineBytes.removeAll(keepingCapacity: true)
             guard line.hasPrefix("data: ") else { continue }
             let payload = String(line.dropFirst(6))
             if payload == "[DONE]" { break }
@@ -185,7 +195,7 @@ public struct PrecisionReviewClient: Sendable {
                 completed = event["response"] as? [String: Any]
                 break
             }
-            if event["type"] as? String == "response.failed" || event["type"] as? String == "error" {
+            if ["response.failed", "response.incomplete", "error"].contains(event["type"] as? String ?? "") {
                 throw ProviderFailure.incomplete
             }
         }

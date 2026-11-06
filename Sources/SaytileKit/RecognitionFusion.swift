@@ -215,8 +215,13 @@ public enum PrecisionFusion {
                   abs(now.audioStartSeconds - old.audioStartSeconds) < 0.001,
                   let oldPrefix = RecognitionUTF16.slice(old.text, start: 0, end: span.utf16End),
                   RecognitionUTF16.hasExactPrefix(now.text, prefix: oldPrefix) else { throw FusionError.staleGeneration }
-            horizon = max(horizon, try audioInterval(span: span, candidate: old).end)
-            rebased.append(CandidateSpan(candidateID: now.id, utf16Start: span.utf16Start, utf16End: span.utf16End))
+            let oldInterval = try audioInterval(span: span, candidate: old)
+            let currentSpan = CandidateSpan(candidateID: now.id, utf16Start: span.utf16Start, utf16End: span.utf16End)
+            let newInterval = try audioInterval(span: currentSpan, candidate: now)
+            guard abs(oldInterval.start - newInterval.start) < 0.001,
+                  abs(oldInterval.end - newInterval.end) < 0.001 else { throw FusionError.staleGeneration }
+            horizon = max(horizon, oldInterval.end)
+            rebased.append(currentSpan)
         }
         for old in previousCandidates where old.run.purpose != .textFusion {
             guard let now = current[old.run.id], now.run == old.run, now.sequence >= old.sequence,

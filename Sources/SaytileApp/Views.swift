@@ -234,19 +234,6 @@ struct RecordDetailView: View {
                 Button("带到输入板") { model.stageInPanel(item) }.disabled(item.text.isEmpty || model.editorDraft != item.text).help("先保存修改，再将这段表达带到输入板")
             }.buttonStyle(QuietButton())
             Divider()
-            Text("历史版本").font(.system(size: 12, weight: .medium))
-            ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    ForEach(model.versions) { version in
-                        Button { model.updateEditorDraft(version.text) } label: {
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text(version.label).font(.system(size: 10)).foregroundStyle(Palette.muted)
-                                Text(version.text).font(.system(size: 12)).lineLimit(4)
-                            }.frame(maxWidth: .infinity, alignment: .leading)
-                        }.buttonStyle(.plain)
-                    }
-                }
-            }.frame(maxHeight: 180)
             Spacer(minLength: 0)
             Button("仅删除原音…") { deletingAudio = true }.disabled(item.source.audioState == .deleted || item.source.audioState == .deletePending || item.isRecording)
             Button("删除整条记录…", role: .destructive) { deletingRecord = true }.disabled(item.isRecording)

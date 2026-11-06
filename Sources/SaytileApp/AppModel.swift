@@ -211,13 +211,8 @@ final class AppModel: ObservableObject {
     var accessibilityLabel: String { input.hasPermission ? "已允许" : "尚未允许 · 可正常复制" }
     @Published private(set) var recognitionPhases: [UUID: RecognitionPurpose] = [:]
     func recognitionPhaseLabel(for item: DisplayRecording) -> String {
-        guard item.source.recognitionState == .running, let phase = recognitionPhases[item.id] else { return item.stateLabel }
-        switch phase {
-        case .finalASR: return "正在高精度定稿"
-        case .audioReview: return "正在复听原音"
-        case .textFusion: return "正在核对文字"
-        case .chineseASR, .englishASR, .multilingualASR: return item.isRecording ? "正在记录 · 并行识别" : "正在识别"
-        }
+        guard item.source.recognitionState == .running else { return item.stateLabel }
+        return item.isRecording ? "正在记录" : "正在核对文字"
     }
     var engineLabel: String { audio.speechStatus }
     func hasCredential(_ item: ModelConfiguration) -> Bool {

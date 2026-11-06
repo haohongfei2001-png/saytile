@@ -45,7 +45,7 @@ struct CloudCredentialTests {
 
 @Suite("Recognition setup configuration")
 struct RecognitionSetupTests {
-    @Test func defaultsIncludeCoreFiveAndKeepOptionalExpertsOffAndConsentOff() throws {
+    @Test func defaultsIncludeTwoExpertsAndOneCoreAndKeepOptionalExpertsOffAndConsentOff() throws {
         let config = RecognitionConfiguration()
         #expect(!config.cloudEnabled)
         #expect(config.inputMode == .highestQuality)
@@ -79,7 +79,8 @@ struct RecognitionSetupTests {
         original.topicContext = "synthetic-topic"
         original.models[1].cloudConsent = true
         try original.save(to: preferences)
-        #expect(RecognitionConfiguration.load(from: preferences).inputMode == .highestQuality)
+        original.inputMode = .highestQuality // legacy fast mode is intentionally migrated
+        #expect(RecognitionConfiguration.load(from: preferences) == original)
         #expect(RecognitionConfiguration.load(from: preferences).models.map(\.id) == original.models.map(\.id))
         let json = try #require(preferences.data(forKey: "multiASRConfigurationV1"))
         let object = try #require(JSONSerialization.jsonObject(with: json) as? [String: Any])

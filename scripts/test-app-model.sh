@@ -5,6 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 SAYTILE_MODEL_SCRATCH="${SAYTILE_MODEL_SCRATCH:-/tmp/saytile-rc-model}"
 SAYTILE_MODEL_COMMAND=(swift build --scratch-path "$SAYTILE_MODEL_SCRATCH")
+if [[ "${SAYTILE_SWIFT_DISABLE_SANDBOX:-0}" == 1 ]]; then SAYTILE_MODEL_COMMAND+=(--disable-sandbox); fi
 if [[ -n "${SAYTILE_MODEL_BUILD_SYSTEM:-}" ]]; then SAYTILE_MODEL_COMMAND+=(--build-system "$SAYTILE_MODEL_BUILD_SYSTEM"); fi
 "${SAYTILE_MODEL_COMMAND[@]}"
 SAYTILE_MODEL_BIN_DIR="$("${SAYTILE_MODEL_COMMAND[@]}" --show-bin-path)"

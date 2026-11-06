@@ -7,6 +7,7 @@ actor SingleTranscriptEngine {
     private let ticket: RecognitionTicket
     private let configuration: RecognitionConfiguration
     private let dependencies: RecognitionPipelineDependencies
+    private let reviewClient: GPTReviewSession?
     private var audio: RecognitionAudioFanout?
     private var latest: [UUID: RecognitionCandidate] = [:]
     private var sequences: [UUID: Int64] = [:]
@@ -18,8 +19,8 @@ actor SingleTranscriptEngine {
     private var requestIDs: [UUID: String] = [:]
     // Only durable external reservations are immutable, never merely displayed/stable text.
     private var committedPrefix = ""
-    private var completedReviewAudioDigests: [UUID: String] = [:]
     private var cancelled = false
+    private var finalReviewAccepted = false
     private var ending = false
     private var evidenceVersion: UInt64 = 0
     private var reviewTask: Task<Void, Never>?
@@ -31,13 +32,25 @@ actor SingleTranscriptEngine {
     private let began = Date()
     init(store: SaytileStore, ticket: RecognitionTicket, configuration: RecognitionConfiguration,
          dependencies: RecognitionPipelineDependencies) {
-        self.store = store; self.ticket = ticket; self.configuration = configuration; self.dependencies = dependencies
+        self.store = store; self.ticket = ticket; self.configuration = configuration
+        let client = dependencies.makeReviewClient?()
+        self.reviewClient = client
+        var scoped = dependencies
+        if let client {
+            scoped.arbitrate = { try await client.review(evidence: $0, prefix: $1, context: $2, configuration: $3, credential: $4) }
+        }
+        self.dependencies = scoped
     }
     func attach(_ audio: RecognitionAudioFanout) async throws {
         try await store.configureFusionRequirements(ticket: ticket, configurations: configuration.enabledModels)
         self.audio = audio
     }
-    func cancel() { cancelled = true; reviewTask?.cancel(); reviewTask = nil }
+    func cancel() async { cancelled = true; reviewTask?.cancel(); reviewTask = nil; await reviewClient?.cancel() }
+    /// On-demand acoustic evidence access uses durable journal samples, never a lifetime buffer.
+    func audioEvidence(startFrame: Int64, frameCount: Int) async throws -> Data {
+        try await assertCurrent()
+        return try await store.readPCMRange(ticket: ticket, startFrame: startFrame, frameCount: frameCount)
+    }
     func audioOverflow(configurationID: UUID) { overflowed.insert(configurationID) }
     private var requiredPurposes: Set<RecognitionPurpose> {
         Set(configuration.enabledModels.filter { $0.purpose.isStreaming }.map(\.purpose))
@@ -178,7 +191,7 @@ actor SingleTranscriptEngine {
     }
     private func scheduleLiveReview() {
         guard !ending, !cancelled, reviewTask == nil,
-              configuration.enabledModels.filter({ $0.purpose == .textFusion }).count == 1 else { return }
+              configuration.enabledModels.filter({ $0.purpose == .textFusion && reviewEligible($0, finalAttempt: false) }).count == 1 else { return }
         let candidates = activeEvidence()
         let present = Set(candidates.filter { !$0.text.isEmpty }.map { $0.run.configurationID })
         guard requiredConfigurationIDs.isSubset(of: present),
@@ -253,22 +266,17 @@ actor SingleTranscriptEngine {
             return nil
         }
     }
-    private func performTextReview(candidates: [RecognitionCandidate], version: UInt64) async {
+    private func performTextReview(candidates: [RecognitionCandidate], version: UInt64, finalAttempt: Bool = false) async {
         let configured = configuration.enabledModels.filter { $0.purpose == .textFusion }
         guard configured.count == 1 else { return }
-        let items = configured.filter { reviewEligible($0, finalAttempt: ending) }
+        let items = configured.filter { reviewEligible($0, finalAttempt: finalAttempt) }
         guard items.count == 1 else { return }
         let present = Set(candidates.filter { !$0.text.isEmpty }.map { $0.run.configurationID })
         guard requiredConfigurationIDs.isSubset(of: present) || configuration.inputMode == .fast else { return }
         lastReviewedSignature = signature(candidates)
-        // Every enabled arbiter runs. A failed or dissenting arbiter cannot silently
-        // become an agreement vote in highest-quality mode.
-        let replies = await withTaskGroup(of: TextReviewResult?.self) { group in
-            for item in items { group.addTask { await self.requestTextReview(item, candidates: candidates) } }
-            var result: [TextReviewResult] = []
-            for await reply in group { if let reply { result.append(reply) } }
-            return result.sorted { $0.item.id.uuidString < $1.item.id.uuidString }
-        }
+        // Exactly one review request is in flight for this recording/generation.
+        let reply = await requestTextReview(items[0], candidates: candidates)
+        let replies = reply.map { [$0] } ?? []
         guard !cancelled else { return }
         let current = activeEvidence()
         guard let protectedPrefix = try? await store.fusionReservedPrefix(recordingID: ticket.recordingID) else { return }
@@ -293,9 +301,6 @@ actor SingleTranscriptEngine {
             }
         }
         guard var proposal = checked.first?.1 else {
-            if replies.contains(where: { $0.decision.needsAudioReview }), !ending {
-                await performAcousticReviews(onlyIfNeeded: true)
-            }
             return
         }
         do {
@@ -325,68 +330,12 @@ actor SingleTranscriptEngine {
             if proposal.stableText == committedPrefix || configuration.inputMode == .fast ||
                 selectedEnd <= coverage + 0.1 || ending && current.filter({ $0.run.purpose.isStreaming }).allSatisfy(\.isComplete) {
                 try await publish(proposal)
-            }
-            if checked.contains(where: { $0.1.needsAudioReview || $0.0.decision.needsAudioReview }), !ending {
-                await performAcousticReviews(onlyIfNeeded: true)
+                if finalAttempt, version == evidenceVersion, lastProposal?.unresolved == false,
+                   lastPublishedEvidenceVersion == version, !proposal.needsAudioReview {
+                    finalReviewAccepted = true
+                }
             }
         } catch { /* Current candidate/epoch validation is authoritative; preserve alternatives. */ }
-    }
-    private func performAcousticReviews(onlyIfNeeded: Bool) async {
-        let items = configuration.enabledModels.filter { [.audioReview, .finalASR].contains($0.purpose) && reviewEligible($0, finalAttempt: !onlyIfNeeded) }
-        guard let pcm = audio?.snapshot, !pcm.isEmpty else {
-            for item in items { failures[item.id] = "复核音频暂不可用；本次高精度复核未完成，原音仍可恢复。" }
-            return
-        }
-        // Each acoustic source receives exactly the same bounded PCM snapshot. A completed
-        // review of identical bytes is reusable at EOS; do not bill the same review twice.
-        let digest = SHA256.hash(data: pcm).map { String(format: "%02x", $0) }.joined()
-        await withTaskGroup(of: Void.self) { group in
-            for item in items {
-                if completedReviewAudioDigests[item.id] == digest, latest[item.id]?.isComplete == true { continue }
-                if onlyIfNeeded, let previous = latest[item.id], previous.audioEndSeconds >= Double(pcm.count) / 32_000 - 0.1 { continue }
-                group.addTask { await self.runAcousticReview(item, pcm: pcm, digest: digest) }
-            }
-            await group.waitForAll()
-        }
-    }
-    private func runAcousticReview(_ item: ModelConfiguration, pcm: Data, digest: String) async {
-        var run: ModelRunTicket?
-        let began = Date(), seconds = Double(pcm.count) / 32_000
-        do {
-            try await assertCurrent()
-            let created = try await store.beginModelRun(ticket: ticket, configuration: item); run = created
-            let credential = try secret(for: item)
-            let event: ProviderTranscriptEvent
-            let usage: PrecisionReviewUsage
-            try await assertCurrent()
-            if item.purpose == .audioReview {
-                let (result, measured) = try await dependencies.listen(pcm, item, credential)
-                usage = measured
-                event = .init(text: result.text, stableUTF16Length: result.uncertain ? 0 : result.text.utf16.count,
-                              audioEndSeconds: seconds, timingGranularity: "utterance", isComplete: !result.uncertain,
-                              requestID: measured.requestID)
-            } else {
-                event = try await dependencies.transcribe(pcm, item, credential)
-                usage = .init(requestID: event.requestID, inputTokens: nil, outputTokens: nil, elapsedSeconds: Date().timeIntervalSince(began))
-            }
-            try await assertCurrent()
-            let candidate = RecognitionCandidate(run: created, sequence: 1, event: event)
-            guard try await store.appendRecognitionCandidate(candidate) else { throw FusionError.staleGeneration }
-            latest[item.id] = candidate; evidenceVersion &+= 1
-            if candidate.isComplete { completedReviewAudioDigests[item.id] = digest }
-            failures.removeValue(forKey: item.id); reviewFailures.removeValue(forKey: item.id)
-            reviewRetryAfter.removeValue(forKey: item.id)
-            try await store.finishModelRun(created, error: nil, retryable: true)
-            await logUsage(run: created, configuration: item, seconds: seconds, usage: usage)
-            try await evaluateAndPublish()
-        } catch {
-            await recordReviewFailure(error, item: item)
-            if let run {
-                try? await store.finishModelRun(run, error: MultiRecognitionSession.safeMessage(error), retryable: (error as? ProviderFailure)?.canRetryAutomatically ?? true)
-                await logUsage(run: run, configuration: item, seconds: seconds,
-                    usage: .init(requestID: nil, inputTokens: nil, outputTokens: nil, elapsedSeconds: Date().timeIntervalSince(began)), estimateAllowed: false)
-            }
-        }
     }
     func finalize() async {
         ending = true
@@ -397,16 +346,16 @@ actor SingleTranscriptEngine {
             try? await store.failRecognition(ticket: ticket, message: "识别连接提前结束；当前原音继续保存，停顿后可恢复。")
             return
         }
-        await performAcousticReviews(onlyIfNeeded: false)
         do {
             try await assertCurrent()
             try await evaluateAndPublish()
             let current = activeEvidence()
-            if lastProposal?.unresolved == true { await performTextReview(candidates: current, version: evidenceVersion) }
+            // EOS forces a new review even after identical ASR agreement or a live review.
+            await performTextReview(candidates: current, version: evidenceVersion, finalAttempt: true)
             try await assertCurrent()
             let live = latest.values.filter { $0.run.purpose.isStreaming }
             let missing = !requiredConfigurationIDs.isSubset(of: Set(live.filter(\.isComplete).map { $0.run.configurationID }))
-            if !failures.isEmpty || missing || lastProposal?.unresolved != false {
+            if !finalReviewAccepted || !failures.isEmpty || missing || lastProposal?.unresolved != false {
                 let failed = configuration.enabledModels.compactMap { item in failures[item.id].map { "\(item.purpose.label)：\($0)" } }
                 let reason = failed.isEmpty ? "模型仍存在分歧或证据未齐，已保留全部候选和原音；未确认内容留在 Saytile。" : failed.joined(separator: "；")
                 if failures.isEmpty { try await store.setRecognitionRetryable(ticket: ticket, retryable: false) }
@@ -415,6 +364,7 @@ actor SingleTranscriptEngine {
         } catch {
             try? await store.failRecognition(ticket: ticket, message: MultiRecognitionSession.safeMessage(error))
         }
+        await reviewClient?.cancel()
     }
     private func logUsage(run: ModelRunTicket, configuration item: ModelConfiguration, seconds: Double,
                           usage: PrecisionReviewUsage, estimateAllowed: Bool = true,

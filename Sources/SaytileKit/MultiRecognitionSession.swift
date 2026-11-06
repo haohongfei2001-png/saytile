@@ -7,6 +7,7 @@ struct RecognitionPipelineDependencies: Sendable {
     var transcribe: @Sendable (Data, ModelConfiguration, String) async throws -> ProviderTranscriptEvent
     var arbitrate: @Sendable ([ReviewEvidence], String, String, ModelConfiguration, String) async throws -> (PrecisionReviewDecision, PrecisionReviewUsage)
     var listen: @Sendable (Data, ModelConfiguration, String) async throws -> (AudioReviewTranscript, PrecisionReviewUsage)
+    var makeReviewClient: (@Sendable () -> GPTReviewSession)? = nil
     static let live = RecognitionPipelineDependencies(
         credential: { try CloudCredentialStore.read(configurationID: $0.id, provider: $0.provider) },
         streaming: { provider in
@@ -21,7 +22,8 @@ struct RecognitionPipelineDependencies: Sendable {
         },
         transcribe: { try await FinalASRProvider().transcribe(pcm: $0, configuration: $1, credential: $2) },
         arbitrate: { try await PrecisionReviewClient().arbitrate(evidence: $0, confirmedPrefix: $1, context: $2, configuration: $3, credential: $4) },
-        listen: { try await PrecisionReviewClient().listen(pcm: $0, configuration: $1, credential: $2) })
+        listen: { try await PrecisionReviewClient().listen(pcm: $0, configuration: $1, credential: $2) },
+        makeReviewClient: { GPTReviewSession() })
 }
 
 final class MultiRecognitionSession: RecognitionSession, @unchecked Sendable {

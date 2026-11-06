@@ -4,14 +4,14 @@ import Testing
 
 private actor CaptureCloudProbe {
     var streaming: [CloudProvider: Data] = [:]
+    var acoustic: [RecognitionPurpose: Data] = [:]
     var reviews: [[ReviewEvidence]] = []
-    let failReview: Bool
-    init(failReview: Bool) { self.failReview = failReview }
     func append(_ data: Data, provider: CloudProvider) { streaming[provider, default: Data()].append(data) }
+    func hear(_ data: Data, purpose: RecognitionPurpose) { acoustic[purpose] = data }
     func arbitrate(_ evidence: [ReviewEvidence]) throws -> PrecisionReviewDecision {
         reviews.append(evidence)
-        if failReview { throw ProviderFailure.connection }
-        let source = try #require(evidence.first { $0.role == RecognitionPurpose.chineseASR.rawValue })
+        let source = try #require(evidence.first { $0.role == RecognitionPurpose.audioReview.rawValue }
+            ?? evidence.first { $0.role == RecognitionPurpose.chineseASR.rawValue })
         return .init(selections: [.init(candidateID: source.candidateID, utf16Start: 0, utf16End: source.text.utf16.count)],
                      unresolved: false, needsAudioReview: false, reasonCode: "synthetic-capture-evidence")
     }
@@ -32,14 +32,14 @@ private struct CaptureCloudProvider: StreamingASRProvider {
     }
 }
 
-@Suite("Production capture to dual experts and one GPT-6 core")
+@Suite("Production capture to single-core recognition with isolated transports")
 struct CaptureCloudIntegrationTests {
-    @Test(arguments: [false, true]) func journalAndFiveRolePipelineShareAudioAndPreserveReviewFailure(failReview: Bool) async throws {
+    @Test(arguments: [false, true]) func journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview: Bool) async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-capture-cloud-" + UUID().uuidString)
         let store = try SaytileStore(directory: directory)
         defer { try? FileManager.default.removeItem(at: directory) }
         let binding = try await store.createBinding(label: "isolated capture ledger")
-        let probe = CaptureCloudProbe(failReview: failReview)
+        let probe = CaptureCloudProbe()
         let good = "请不要删除 API 项目。", other = "请不要移除 API 项目。"
         var config = RecognitionConfiguration(); config.cloudEnabled = true; config.inputMode = .highestQuality
         config.models = [
@@ -49,11 +49,13 @@ struct CaptureCloudIntegrationTests {
         ]
         let deps = RecognitionPipelineDependencies(credential: { _ in "synthetic-nonsecret-sentinel" },
             streaming: { CaptureCloudProvider(probe: probe, text: $0 == .qwenMessage ? good : other) },
-            transcribe: { _, _, _ in throw ProviderFailure.configuration("No final ASR in the single-transcript pipeline.") },
+            transcribe: { _, _, _ in throw ProviderFailure.configuration("Secondary file ASR is forbidden in the single-core pipeline.") },
             arbitrate: { evidence, _, _, _, _ in
-                (try await probe.arbitrate(evidence), .init(requestID: "offline", inputTokens: nil, outputTokens: nil, elapsedSeconds: 0))
+                if failReview { throw ProviderFailure.connection }
+                return (try await probe.arbitrate(evidence), .init(requestID: "offline", inputTokens: nil, outputTokens: nil, elapsedSeconds: 0))
             },
-            listen: { _, _, _ in throw ProviderFailure.configuration("No secondary audio reviewer in the single-transcript pipeline.") })
+            listen: { _, _, _ in throw ProviderFailure.configuration("Secondary audio reviewer is forbidden in the single-core pipeline.") }
+            })
         let factory = RecognitionSessionFactory(configuration: config, dependencies: deps)
         let worker = try CaptureWorker(store: store, ring: AudioRing(capacity: 32_000), sampleRate: 16_000,
                                        recognitionFactory: factory, update: { _, _ in }, failed: { _ in })
@@ -71,7 +73,8 @@ struct CaptureCloudIntegrationTests {
         for session in await worker.retired { await session.wait() }
         #expect(await probe.streaming[.qwenMessage] == pcm)
         #expect(await probe.streaming[.assemblyAI] == pcm)
-        #expect(!(await probe.reviews).isEmpty)
+        #expect(await probe.acoustic.isEmpty)
+        if !failReview { #expect(!(await probe.reviews).isEmpty) }
         let chunks = try await store.audioChunks(recordingID: id)
         var stored = Data()
         for chunk in chunks { stored.append(try Data(contentsOf: await store.audioURL(for: chunk)).dropFirst(44)) }

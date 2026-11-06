@@ -99,34 +99,43 @@ final class LiveSpeechSession: RecognitionSession, @unchecked Sendable {
               let converter = AVAudioConverter(from: source, to: format) else { throw AudioFailure.message("无法创建语音格式转换器") }
         let analyzer = SpeechAnalyzer(modules: modules)
         let (inputs, inputContinuation) = AsyncStream<AnalyzerInput>.makeStream(bufferingPolicy: .bufferingOldest(300))
+        let ingress = LocalCandidateIngress(store: store, ticket: ticket)
         let resultTask = Task {
             var accumulator = SpeechResultAccumulator()
+            var audioEnd = 0.0
             var hasText = false
             var lastStable = ""
             var lastDisplayed = ""
             var firstResult = true
             for try await result in transcriber.results {
                 let snapshot = accumulator.apply(start:result.range.start.seconds, end:CMTimeRangeGetEnd(result.range).seconds, text:String(result.text.characters), isFinal:result.isFinal, finalizedThrough: result.resultsFinalizationTime.seconds)
+                audioEnd = max(audioEnd, CMTimeRangeGetEnd(result.range).seconds)
+                if !snapshot.fullText.isEmpty {
+                    try await ingress.receive(.init(text: snapshot.fullText, stableUTF16Length: snapshot.stableText.utf16.count,
+                        audioEndSeconds: audioEnd, timingGranularity: "utterance",
+                        isComplete: false))
+                }
                 if firstResult && !snapshot.fullText.isEmpty {
                     firstResult = false
                     event(.init(kind: "firstText", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
                 }
                 if !snapshot.stableText.isEmpty && snapshot.stableText != lastStable {
-                    _ = try await store.applyRecognition(ticket:ticket,text:snapshot.stableText,isFinal:true)
                     lastStable = snapshot.stableText
                     lastDisplayed = snapshot.stableText
                     hasText = true
                     event(.init(kind: "stableText", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
                 }
                 if !snapshot.fullText.isEmpty && snapshot.fullText != lastDisplayed {
-                    _ = try await store.applyRecognition(ticket:ticket,text:snapshot.fullText,isFinal:false)
                     lastDisplayed = snapshot.fullText
                     hasText = true
                 }
             }
             if !hasText { throw AudioFailure.message("未识别到文字；原音可回听或重试") }
             guard accumulator.snapshot.isCompletelyFinal else { throw AudioFailure.message("部分文字尚未定稿，已保留文字和原音，可稍后重新识别") }
-            try await store.finishRecognition(ticket: ticket)
+            try await ingress.receive(.init(text: accumulator.snapshot.fullText,
+                stableUTF16Length: accumulator.snapshot.stableText.utf16.count,
+                audioEndSeconds: audioEnd, timingGranularity: "utterance", isComplete: true))
+            try await ingress.finish()
             event(.init(kind: "completed", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
         }
         try await withTaskCancellationHandler {
