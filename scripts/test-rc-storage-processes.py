@@ -71,14 +71,14 @@ with tempfile.TemporaryDirectory(prefix='process-fixtures-',dir=SCRATCH) as tmp:
         shutil.copytree(upgrade,backup)  # stopped, disposable fixture only; no production backup is taken
         run('probe','verify',upgrade)
         after=snapshot(upgrade)
-        assert before['schema']==(1 if baseline=='beta' else 2) and after['schema']==3
+        assert before['schema']==(1 if baseline=='beta' else 2) and after['schema']==4
         assert all(after['tables'][name]==rows for name,rows in before['tables'].items())
         assert before['audio']==after['audio']
-        checks.append('actual_'+baseline+'_to_schema3_preserves_all_existing_tables_and_audio')
+        checks.append('actual_'+baseline+'_to_schema4_preserves_all_existing_tables_and_audio')
         if baseline=='rc1':
             rejected=run('rc1-probe','open',upgrade,False)
             assert '资料库来自更新版本' in rejected.stdout and snapshot(upgrade)==after
-            checks.append('released_rc1_refuses_schema3_without_content_change')
+            checks.append('released_rc1_refuses_schema4_without_content_change')
             restored=parent/'explicit-rollback-restore'
             shutil.copytree(backup,restored)
             run('rc1-probe','open',restored)
