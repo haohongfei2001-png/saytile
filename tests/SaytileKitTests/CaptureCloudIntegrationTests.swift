@@ -11,8 +11,7 @@ private actor CaptureCloudProbe {
     func arbitrate(_ evidence: [ReviewEvidence]) throws -> PrecisionReviewDecision {
         reviews.append(evidence)
         if failReview { throw ProviderFailure.connection }
-        let source = try #require(evidence.first { $0.role == RecognitionPurpose.audioReview.rawValue }
-            ?? evidence.first { $0.role == RecognitionPurpose.chineseASR.rawValue })
+        let source = try #require(evidence.first { $0.role == RecognitionPurpose.chineseASR.rawValue })
         return .init(selections: [.init(candidateID: source.candidateID, utf16Start: 0, utf16End: source.text.utf16.count)],
                      unresolved: false, needsAudioReview: false, reasonCode: "synthetic-capture-evidence")
     }
