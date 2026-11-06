@@ -28,7 +28,7 @@ struct RecognitionSettingsSection: View {
                 Text("中文与英文专家平等接收完整音频，由唯一 GPT-6 核心持续融合和修正。只做忠实转写，不润色。密钥仅存于钥匙串。")
                     .font(.system(size: 11)).foregroundStyle(Palette.muted)
                 ForEach($model.recognitionConfiguration.models) { $item in
-                    if !item.isOptionalExpert {
+                    if !item.isOptionalExpert && !item.isLegacyReviewModel {
                         ModelConfigurationEditor(configuration: $item, model: model, onCredentialChange: refreshPresence)
                     }
                 }
@@ -80,6 +80,7 @@ struct RecognitionSettingsSection: View {
 
 private extension ModelConfiguration {
     var isOptionalExpert: Bool { provider == .soniox || provider == .meta }
+    var isLegacyReviewModel: Bool { [.audioReview, .finalASR].contains(purpose) }
 }
 
 struct ModelConfigurationEditor: View {
