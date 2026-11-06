@@ -132,7 +132,7 @@ struct ElevenLabsTranscriptAccumulator {
         if let committedText, committedText != text { throw ProviderFailure.protocolViolation("scribe-timing-mismatch") }
         timedText = text
         let language = object["language_code"] as? String
-        let tokens = try EnglishProviderSupport.words(object["words"], scale: 1, final: true, language: language)
+        let tokens = try EnglishProviderSupport.words(object["words"], transcript: text, scale: 1, final: true, language: language)
         return ProviderTranscriptEvent(text: text, stableUTF16Length: text.utf16.count,
             audioEndSeconds: duration, timingGranularity: tokens.isEmpty ? "utterance" : "word",
             language: language, isComplete: true, requestID: requestID, tokens: tokens)

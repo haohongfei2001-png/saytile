@@ -7,6 +7,9 @@ public struct AssemblyStreamingProvider: StreamingASRProvider {
 
     static func request(configuration: ModelConfiguration, credential: String) throws -> URLRequest {
         try EnglishProviderSupport.validate(configuration, provider: .assemblyAI, credential: credential)
+        guard configuration.context.count <= 1_750 else {
+            throw ProviderFailure.configuration("AssemblyAI 话题提示最多为 1750 个字符。")
+        }
         let host: String
         switch configuration.region {
         case "global": host = "streaming.assemblyai.com"
@@ -18,8 +21,10 @@ public struct AssemblyStreamingProvider: StreamingASRProvider {
         components.scheme = "wss"; components.host = host; components.path = "/v3/ws"
         components.queryItems = [
             .init(name: "speech_model", value: configuration.model),
+            .init(name: "mode", value: "max_accuracy"),
             .init(name: "sample_rate", value: "16000"),
             .init(name: "encoding", value: "pcm_s16le"),
+            .init(name: "include_partial_turns", value: "true"),
             .init(name: "language_detection", value: "true"),
             .init(name: "filter_profanity", value: "false")
         ]
@@ -27,6 +32,16 @@ public struct AssemblyStreamingProvider: StreamingASRProvider {
         var request = URLRequest(url: url); request.timeoutInterval = 30
         request.setValue(credential, forHTTPHeaderField: "Authorization")
         return request
+    }
+
+    static func verifyBegin(_ object: [String: Any], configuration: ModelConfiguration) throws -> String? {
+        guard object["type"] as? String == "Begin",
+              let applied = object["configuration"] as? [String: Any],
+              applied["model"] as? String == configuration.model,
+              applied["mode"] as? String == "max_accuracy" else {
+            throw ProviderFailure.protocolViolation("assembly-applied-model-or-mode")
+        }
+        return object["id"] as? String
     }
 
     public func run(audio: AsyncStream<Data>, configuration: ModelConfiguration, credential: String,
@@ -41,28 +56,27 @@ public struct AssemblyStreamingProvider: StreamingASRProvider {
             try await withTaskCancellationHandler {
                 let hello = try await EnglishProviderSupport.firstMessage(socket)
                 if hello["error"] != nil { throw ProviderFailure.protocolViolation("assembly-start") }
-                guard hello["type"] as? String == "Begin" else { throw ProviderFailure.protocolViolation("assembly-begin") }
-                let requestID = hello["id"] as? String
+                let requestID = try Self.verifyBegin(hello, configuration: configuration)
                 if !configuration.context.isEmpty {
                     let json = try ProviderJSON.string(["type": "UpdateConfiguration", "prompt": configuration.context])
                     try await socket.send(.string(json))
                 }
                 try await withThrowingTaskGroup(of: Void.self) { group in
                     group.addTask {
-                        // Retain a small tail so the last frame is not a sub-50 ms fragment.
+                        // Retain 20 ms so every sent frame fits the documented 20–1000 ms range.
                         var pending = Data()
                         for await chunk in audio {
                             try Task.checkCancellation()
                             guard chunk.count % 2 == 0 else { throw ProviderFailure.protocolViolation("pcm-alignment") }
                             pending.append(chunk)
-                            while pending.count >= 4_800 {
-                                let frame = Data(pending.prefix(3_200)); pending.removeFirst(3_200)
+                            while pending.count >= 2_240 {
+                                let frame = Data(pending.prefix(1_600)); pending.removeFirst(1_600)
                                 try await socket.send(.data(frame)); await progress.sent(frame.count)
                             }
                         }
                         try Task.checkCancellation()
                         if !pending.isEmpty {
-                            guard pending.count >= 1_600 else { throw ProviderFailure.incomplete }
+                            guard pending.count >= 640 else { throw ProviderFailure.incomplete }
                             try await socket.send(.data(pending)); await progress.sent(pending.count)
                         }
                         await progress.endInput()
@@ -105,6 +119,7 @@ struct AssemblyTranscriptAccumulator {
     struct Turn {
         var text: String
         var isFinal: Bool
+        var stableUTF16Length: Int
         var tokens: [ProviderToken]
         var language: String?
     }
@@ -120,26 +135,38 @@ struct AssemblyTranscriptAccumulator {
               let final = object["end_of_turn"] as? Bool else {
             throw ProviderFailure.protocolViolation("assembly-turn")
         }
+        // Pro emits a fully formatted final. Do not prematurely commit an
+        // unformatted end-of-turn message, or make missing flags mean true.
+        let complete = final && object["turn_is_formatted"] as? Bool == true
         let language = object["language_code"] as? String
-        let tokens = try EnglishProviderSupport.words(object["words"], scale: 0.001, final: final, language: language)
-        turns[order] = Turn(text: text, isFinal: final, tokens: tokens, language: language)
+        let tokens = try EnglishProviderSupport.words(object["words"], transcript: text, scale: 0.001, final: complete, language: language)
+        let stable = complete ? text.utf16.count : tokens.prefix(while: \.isFinal).reduce(0) { $0 + $1.text.utf16.count }
+        turns[order] = Turn(text: text, isFinal: complete, stableUTF16Length: stable, tokens: tokens, language: language)
         return event(duration: duration)
     }
 
     func event(duration: Double, complete: Bool = false) -> ProviderTranscriptEvent {
         var text = "", stable = 0, prefixFinal = true, expectedOrder = 0
-        var tokens: [ProviderToken] = [], languages = Set<String>()
+        var tokens: [ProviderToken] = [], languages = Set<String>(), allTextAligned = true
         for order in turns.keys.sorted() {
             guard let turn = turns[order] else { continue }
             if order != expectedOrder { prefixFinal = false }
             expectedOrder = order + 1
+            let priorLength = text.utf16.count
             text = EnglishProviderSupport.join(text, turn.text)
+            let separatorLength = text.utf16.count - priorLength - turn.text.utf16.count
+            if prefixFinal, turn.stableUTF16Length > 0 {
+                stable = priorLength + separatorLength + turn.stableUTF16Length
+            }
             if !turn.isFinal { prefixFinal = false }
-            if prefixFinal { stable = text.utf16.count }
-            tokens.append(contentsOf: turn.tokens)
+            var turnTokens = turn.tokens
+            if !turn.text.isEmpty && turnTokens.isEmpty { allTextAligned = false }
+            if separatorLength > 0, !turnTokens.isEmpty { turnTokens[0].text = " " + turnTokens[0].text }
+            tokens.append(contentsOf: turnTokens)
             if let language = turn.language { languages.insert(language) }
         }
         let end = tokens.map(\.endSeconds).max() ?? duration
+        if !allTextAligned { tokens = [] }
         return ProviderTranscriptEvent(text: text, stableUTF16Length: stable,
             audioEndSeconds: max(0, end), timingGranularity: tokens.isEmpty ? "utterance" : "word",
             language: languages.count == 1 ? languages.first : nil, isComplete: complete,
@@ -193,10 +220,10 @@ enum EnglishProviderSupport {
         return prior + " " + next
     }
 
-    static func words(_ value: Any?, scale: Double, final: Bool, language: String?) throws -> [ProviderToken] {
+    static func words(_ value: Any?, transcript: String, scale: Double, final: Bool, language: String?) throws -> [ProviderToken] {
         guard let value else { return [] }
         guard let words = value as? [[String: Any]] else { throw ProviderFailure.protocolViolation("word-list") }
-        return try words.compactMap { word in
+        let tokens: [ProviderToken] = try words.compactMap { word in
             if let kind = word["type"] as? String, kind != "word" && kind != "spacing" { return nil }
             guard let text = word["text"] as? String,
                   let start = word["start"] as? Double, let end = word["end"] as? Double,
@@ -205,8 +232,39 @@ enum EnglishProviderSupport {
             }
             let confidence = word["confidence"] as? Double
             return ProviderToken(text: text, startSeconds: start * scale, endSeconds: end * scale,
-                isFinal: final, language: (word["language_code"] as? String) ?? language,
+                isFinal: (word["word_is_final"] as? Bool) ?? final,
+                language: (word["language_code"] as? String) ?? language,
                 rawConfidence: confidence?.isFinite == true ? confidence : nil)
         }
+        return align(tokens, to: transcript, utteranceFinal: final) ?? []
+    }
+
+    /// Copy original separators into token text so joining tokens reproduces the
+    /// provider transcript exactly. Timestamps remain the actual spoken word's
+    /// timestamps; punctuation never gains a fabricated acoustic interval.
+    /// A normalization mismatch or an unrepresented spoken word downgrades this
+    /// candidate to utterance timing instead of silently dropping its text.
+    static func align(_ tokens: [ProviderToken], to transcript: String, utteranceFinal: Bool) -> [ProviderToken]? {
+        guard !tokens.isEmpty else { return transcript.isEmpty ? [] : nil }
+        let separators = CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters)
+        var cursor = transcript.startIndex, result: [ProviderToken] = []
+        for token in tokens {
+            guard !token.text.isEmpty,
+                  let range = transcript.range(of: token.text, options: .literal, range: cursor..<transcript.endIndex) else { return nil }
+            let gap = String(transcript[cursor..<range.lowerBound])
+            guard gap.unicodeScalars.allSatisfy({ separators.contains($0) }) else { return nil }
+            var aligned = token
+            aligned.text = gap + String(transcript[range])
+            if !utteranceFinal && !gap.unicodeScalars.allSatisfy({ CharacterSet.whitespacesAndNewlines.contains($0) }) {
+                aligned.isFinal = false
+            }
+            result.append(aligned); cursor = range.upperBound
+        }
+        let tail = String(transcript[cursor...])
+        guard tail.unicodeScalars.allSatisfy({ separators.contains($0) }) else { return nil }
+        result[result.count - 1].text += tail
+        if !utteranceFinal && !tail.isEmpty { result[result.count - 1].isFinal = false }
+        guard result.map(\.text).joined() == transcript else { return nil }
+        return result
     }
 }

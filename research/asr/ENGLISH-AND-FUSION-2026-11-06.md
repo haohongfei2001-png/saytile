@@ -12,7 +12,7 @@ No experiment in this revision establishes that combining these models improves 
 
 | Role | Model | Transport and authentication | Result handling |
 |---|---|---|---|
-| English streaming | `universal-3-6-pro` | `wss://streaming.assemblyai.com/v3/ws`, or `streaming.eu.assemblyai.com`; raw `Authorization` key; explicit `speech_model`, `sample_rate=16000`, `encoding=pcm_s16le` | `Begin`, replace-by-`turn_order` `Turn`, `Termination`; words in milliseconds; preserve provider confidence as uncalibrated evidence. Binary PCM, then `Terminate`. |
+| English streaming | `universal-3-6-pro` | `wss://streaming.assemblyai.com/v3/ws`, or explicit US/EU endpoint; raw `Authorization` key; explicit `speech_model`, `mode=max_accuracy`, `sample_rate=16000`, `encoding=pcm_s16le` | Verify `Begin.configuration.model` and `mode`; replace-by-`turn_order` `Turn`, `Termination`; words in milliseconds. Binary PCM, then `Terminate`. |
 | Optional streaming | `scribe_v2_realtime` | `wss://api.elevenlabs.io/v1/speech-to-text/realtime`; `xi-api-key`; PCM16 at 16 kHz inside JSON/base64 | Partial and committed segment events; delayed committed timestamps must update their segment rather than duplicate text. No non-verbatim rewriting. |
 | Completed-audio reviewer | `scribe_v2` | `POST https://api.elevenlabs.io/v1/speech-to-text`; `xi-api-key`; real multipart with file and model ID | Word timestamps in seconds; disable diarization and audio-event insertion, retain spoken disfluencies. |
 | Completed-audio reviewer | `gpt-transcribe` | `POST https://api.openai.com/v1/audio/transcriptions`; Bearer key; real multipart WAV | Whole-file text; do not invent word timestamps when absent. `stream=true` is output streaming after file submission. |
@@ -32,6 +32,8 @@ An arbitrator selects actual candidate spans, leaves unresolved disagreements ex
 - Independent streaming harness, methodology and current results: https://github.com/pipecat-ai/stt-benchmark
 - AssemblyAI actual WebSocket schema: https://www.assemblyai.com/docs/streaming/api-spec/streaming-websocket
 - AssemblyAI implementation guide: https://www.assemblyai.com/docs/streaming/getting-started/transcribe-streaming-audio
+- AssemblyAI 3.6 Pro accuracy preset: https://www.assemblyai.com/docs/streaming/getting-started/optimizing-accuracy-and-latency
+- AssemblyAI canonical message order and word finality: https://www.assemblyai.com/docs/streaming/message-sequence
 - ElevenLabs streaming schema: https://elevenlabs.io/docs/api-reference/speech-to-text/v-1-speech-to-text-realtime
 - ElevenLabs file schema: https://elevenlabs.io/docs/api-reference/speech-to-text/convert
 - OpenAI completed-file transcription: https://developers.openai.com/api/docs/guides/speech-to-text
@@ -44,6 +46,8 @@ An arbitrator selects actual candidate spans, leaves unresolved disagreements ex
 
 ## Implementation checkpoint
 
-Research checkpoint was saved before coding. `AssemblyStreamingProvider`, `ElevenLabsStreamingProvider` and `FinalASRProvider` now implement the provider-specific requests and responses, with 12 offline protocol fixtures. AssemblyAI retains/replaces numbered turns and only exposes a contiguous finalized candidate prefix. The optional ElevenLabs realtime adapter deliberately uses manual commit at the original recording segment boundary: it displays evolving partials continuously, then handles committed text and delayed timing as one candidate. It is not selected for the fastest stable-prefix delivery.
+Research checkpoint was saved before coding. `AssemblyStreamingProvider`, `ElevenLabsStreamingProvider` and `FinalASRProvider` now implement the provider-specific requests and responses, with 17 offline protocol fixtures. AssemblyAI retains/replaces numbered turns and exposes a contiguous finalized candidate prefix, including a partial turn's explicitly finalized words. A completed Pro turn also requires `turn_is_formatted`. The optional ElevenLabs realtime adapter deliberately uses manual commit at the original recording segment boundary: it displays evolving partials continuously, then handles committed text and delayed timing as one candidate. It is not selected for the fastest stable-prefix delivery.
+
+AssemblyAI's current optimization guide explicitly supports `mode=max_accuracy` on 3.6 Pro, even though parts of the general schema still say “3.5 only.” The implementation requires the server's echoed model and accuracy mode to match. It uses documented 20–1000 ms PCM frames and waits for `Termination`, rather than disconnecting before the final turn. Prompt context is limited to the documented 1750 characters. Word tokens are aligned against the original transcript to preserve separators: token text joins exactly to the original text, while the original word's acoustic interval remains unchanged. A lexical normalization mismatch falls back to utterance timing; it never invents word times or silently drops a word.
 
 Requests require per-model cloud consent, credentials stay in headers, and malformed timestamps are rejected. Neither adapter writes official records or dispatches externally. File review rejects incomplete PCM and oversized windows rather than truncating audio. No paid network call has been performed. Whitespace validation passed; Swift tests await the root agent's macOS build because this research container has no Swift toolchain. Cloud acceptance, billing, regional reachability and accuracy improvements remain unmeasured until an explicitly authorized BYOK run. This note does not claim those tests passed.
