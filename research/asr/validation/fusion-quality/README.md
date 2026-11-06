@@ -27,3 +27,11 @@
 四阶段评分程序与11配置计划在 `../../benchmark/quality-evaluation/`：26项Python测试，全部112×3旧本地结果重新计分但明确legacy；四阶段时间和身份校验由5项Swift诊断测试覆盖。没有人工词时间或语义幻觉标签时明确null，不用自动对齐假冒gold。
 
 当前[裁决](../../../../docs/ASR-FUSION-QUALITY-VERDICT.md)：无法给出“双专家+AI比最强单模型准多少/确认增加多少”的数字。仅支持工程缺陷已复现并修复。逐服务授权、费用与下一步均集中在评估目录，无需用户录音/调试。
+
+## 最终候选与远端
+
+源码提交 `1c907f63585183ad605140630d1ca979694fb2ea`，tree `f6d99665e091c178b04dfee1099f89aa3b2081c0`。它与本机测试提交87395e6的整个源码树完全一致；Git网络TLS失败后经GitHub connector创建树并核对精确SHA，再快速前进PR分支。没有force push；已按服务端原始Git元数据重建并验证commit哈希，把本地分支对齐远端。备份本地原提交保留在codex/fusion-quality-local-source。
+
+该源码macOS26 CI252项/25组、21AppModel、原生窗口合成渲染、构建与隔离启动全部PASS；设计契约CI也PASS。链接和App artifact ID见delivery-manifest.json。只新增26项离线评分的Ubuntu CI步骤，不调用模型、不上传音频。
+
+本机候选sourceDirty=false，版本1.0.0-asr-preview.2，release/signature/smoke PASS。未安装；App及ZIP保留在本持久工作树dist/。第一候选焦点测试PASS；改为远端同树源码身份重打包后一次探针出现frontmost_changed，该次未归因，不能断言用户操作或App抢焦点。随后仅一次附带候选PID归因的3秒复测PASS，候选从未成为前台、其他应用切换为0；所有日志保留，不把未归因记录删掉或作为长期无干扰保证。没有读取其他应用内容。

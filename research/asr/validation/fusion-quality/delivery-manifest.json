@@ -1,0 +1,67 @@
+{
+  "status": "ENGINEERING_VERIFIED_CLOUD_QUALITY_NOT_RUN",
+  "version": "1.0.0-asr-preview.2",
+  "source_revision": "1c907f63585183ad605140630d1ca979694fb2ea",
+  "source_dirty": false,
+  "source_tree": "f6d99665e091c178b04dfee1099f89aa3b2081c0",
+  "local_candidate": "/Users/hhf/.codex/worktrees/saytile-fusion-quality/dist/Saytile-asr-preview.2.app",
+  "local_zip": "/Users/hhf/.codex/worktrees/saytile-fusion-quality/dist/Saytile-1.0.0-asr-preview.2-arm64.zip",
+  "app_binary_sha256": "25004e8ce108e95e70272c18d233eb7ebbe32d19923a9162f7d8be85b61cd798",
+  "zip_sha256": "f97fde3f342cf7b22040f0d22e5deccee3b45afc864f999f68883c13a89f5a9f",
+  "native_tests": {
+    "passed": 252,
+    "suites": 25,
+    "log": "native-final.log"
+  },
+  "app_model_checks": {
+    "passed": 21,
+    "log": "app-model-final.log"
+  },
+  "python_tests": {
+    "passed": 26,
+    "log": "../../benchmark/quality-evaluation/python-tests.log"
+  },
+  "build": "PASS",
+  "strict_signature": "PASS",
+  "isolated_smoke": "PASS",
+  "nonactivating_startup": {
+    "first_candidate": "PASS",
+    "final_metadata_candidate_initial": "FRONTMOST_CHANGED_CAUSE_NOT_ATTRIBUTED",
+    "single_attributed_followup": "PASS_CANDIDATE_NEVER_FRONTMOST_OTHER_TRANSITIONS_ZERO",
+    "logs": [
+      "focus.log",
+      "focus-final-observation.log",
+      "focus-attribution.log"
+    ]
+  },
+  "ci": {
+    "source_revision": "1c907f63585183ad605140630d1ca979694fb2ea",
+    "native": {
+      "run_id": 42241293084,
+      "job_id": 127971948168,
+      "conclusion": "success",
+      "native_tests": 252,
+      "suites": 25,
+      "app_model_checks": 21
+    },
+    "contracts": {
+      "run_id": 42241293137,
+      "conclusion": "success"
+    },
+    "artifact": {
+      "id": 13517315857,
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/42241293084/artifacts/13517315857",
+      "sha256": "9d0516585d6dde987e204ee8692e1e31d6c1a9f7fb20477a74d7fa896303ba58",
+      "expires_at": "2026-11-20T15:19:39Z"
+    }
+  },
+  "installed_rc1_replaced": false,
+  "production_merged": false,
+  "audio_uploads": 0,
+  "paid_cloud_requests": 0,
+  "accuracy_gain_vs_best_single": null,
+  "confirmation_latency_increment_seconds": null,
+  "cloud_quality_status": "NOT_RUN_MISSING_CREDENTIALS_PROCESSING_CONSENT_BUDGET",
+  "local_test_commit": "87395e67b76cf862d9f124e30a645237bea06663",
+  "identical_tested_and_remote_source_tree": "f6d99665e091c178b04dfee1099f89aa3b2081c0"
+}
