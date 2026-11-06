@@ -98,3 +98,9 @@ node scripts/test-input-browser.mjs
 ## macOS 26 最终兼容结论
 
 上文“当前 SQLite 无损”只针对本机 macOS27，不能泛化。云端macOS26随后实际复现REAL转TEXT舍入；`8906a9d`改为typed double/int64读取，测试不变，最终122项/21 AppModel全部通过。具体失败及修复证据见 `V1-TEST-RESULTS.md`。
+
+## 可选真实前台批次（未运行成功）
+
+已复用现有fixtures增加 `SAYTILE_ALLOW_FOREGROUND_INPUT_FIXTURES=1 python3 scripts/test-input-native.py --foreground-batch`，仅明确执行时才允许短暂前台模式；实际解析器前后校验fixture PID，既有权限且空闲至少60秒，否则不激活。30秒硬上限，任何会话输入或外部焦点变化退出且不夺回；正常完成需核对恢复PID，日志不保存字段全文。
+
+本轮唯一一次尝试在激活前因空闲条件未满足退出，故结果是 **NOT_RUN**。已只读确认近期事件年龄，未读键值/坐标、未重试或归因其来源。默认后台模式重新通过9项原生AX和WebKit观察/拒绝检查。此补测没有扩大前台浏览器支持声明。

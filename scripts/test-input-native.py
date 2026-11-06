@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Production coordinator + SQLite + AX against owned invisible fixtures.
 
-Only target selection is injected; real user foreground selection, Saytile's TCC
-identity and visible browser insertion are not certified by this test. No prompts.
+Default tests inject target selection. The optional foreground batch uses the real
+production resolver with a fixture PID guard and aborts before activation if the
+session is busy. Neither mode certifies all third-party browsers or app TCC identity. No prompts.
 """
 from pathlib import Path
+import argparse
 import json
 import os
 import queue
@@ -75,5 +77,75 @@ def run_fixture(fixture_name, probe_name, log_name, ready, web=False):
         except subprocess.TimeoutExpired: fixture.kill(); fixture.wait()
         (EVIDENCE / log_name).write_text("".join(output))
 
-run_fixture("AXTextFixture", "AXCoordinatorProbe", "input-native-coordinator.log", "FIXTURE_READY")
-run_fixture("AXWebFixture", "AXWebCoordinatorProbe", "input-webkit-observer.log", "WEB_FIXTURE_READY", True)
+def foreground_batch(compile_only=False):
+    # These binaries remain prohibited until the probe explicitly passes preflight.
+    for source, include_production in [("AXTextFixture", False), ("AXWebFixture", False), ("AXForegroundBatchProbe", True)]:
+        compile_source(source + ".swift", SCRATCH / source, include_production)
+    if compile_only:
+        print("FOREGROUND_COMPILE_ONLY_PASS; no fixtures or foreground probe executed")
+        return
+    if os.environ.get("SAYTILE_ALLOW_FOREGROUND_INPUT_FIXTURES") != "1":
+        raise SystemExit("NOT_RUN: set SAYTILE_ALLOW_FOREGROUND_INPUT_FIXTURES=1 for the explicit foreground batch")
+    fixtures = {}; messages = queue.Queue(); output = []; probe = None
+    def record(line):
+        output.append(line); print(line, end="", flush=True)
+    try:
+        for kind, name, ready in [("native", "AXTextFixture", "FIXTURE_READY"), ("web", "AXWebFixture", "WEB_FIXTURE_READY")]:
+            fixture = subprocess.Popen([str(SCRATCH / name), "--foreground-armed"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+            fixtures[kind] = fixture
+            threading.Thread(target=lines_to_queue, args=(fixture.stdout, kind, messages), daemon=True).start()
+            deadline = time.monotonic() + 10
+            while True:
+                source, line = messages.get(timeout=max(0.01, deadline - time.monotonic()))
+                record(line)
+                if source == kind and line.strip() == ready: break
+                if time.monotonic() >= deadline: raise RuntimeError("Fixture startup timed out without activation")
+        probe = subprocess.Popen([str(SCRATCH / "AXForegroundBatchProbe"), "--allow-foreground", str(fixtures["native"].pid), str(fixtures["web"].pid)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+        threading.Thread(target=lines_to_queue, args=(probe.stdout, "probe", messages), daemon=True).start()
+        deadline = time.monotonic() + 30
+        pending = None
+        while time.monotonic() < deadline and (probe.poll() is None or not messages.empty()):
+            try: source, line = messages.get(timeout=0.1)
+            except queue.Empty: continue
+            # Never log fixture text; a user could type into the owned field just
+            # before the age monitor aborts. The probe compares only fixed synthetic expectations.
+            if source in fixtures and line.startswith("{"):
+                summary = json.loads(line)
+                record(f"FIXTURE_REPLY {source} command={summary.get('command')} error={bool(summary.get('error'))} value_omitted=true\n")
+            else:
+                record(line)
+            if source == "probe" and line.startswith("FIXTURE_RPC "):
+                request = json.loads(line.removeprefix("FIXTURE_RPC "))
+                kind, command = request["target"], request["command"]
+                if kind not in fixtures or pending is not None: raise RuntimeError("Unexpected fixture IPC")
+                pending = (kind, command)
+                fixtures[kind].stdin.write(json.dumps({"command": command}) + "\n"); fixtures[kind].stdin.flush()
+            elif source in fixtures and line.startswith("{"):
+                response = json.loads(line)
+                if pending == (source, response.get("command")):
+                    if probe.poll() is None:
+                        probe.stdin.write(json.dumps(response) + "\n"); probe.stdin.flush()
+                    pending = None
+        if probe.poll() is None: raise RuntimeError("Foreground batch exceeded 30 seconds; terminating owned fixtures without reactivation")
+        if probe.returncode: raise RuntimeError(f"Foreground batch exit {probe.returncode}; no retry or focus reacquisition")
+    finally:
+        if probe and probe.poll() is None: probe.kill(); probe.wait()
+        # Closing owned fixtures lets macOS choose focus. Never explicitly restore on
+        # activity/foreign focus interruption; the Swift probe restores only safe completion.
+        for fixture in fixtures.values():
+            fixture.terminate()
+            try: fixture.wait(timeout=3)
+            except subprocess.TimeoutExpired: fixture.kill(); fixture.wait()
+        (EVIDENCE / "input-foreground-batch.log").write_text("".join(output))
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--foreground-batch", action="store_true", help="Explicit opt-in; existing AX permission and >=60s keyboard/mouse idle required; aborts on activity")
+    mode.add_argument("--compile-foreground-only", action="store_true", help="Compile opt-in fixtures/probe, without running or activating anything")
+    args = parser.parse_args()
+    if args.foreground_batch or args.compile_foreground_only:
+        foreground_batch(compile_only=args.compile_foreground_only)
+    else:
+        run_fixture("AXTextFixture", "AXCoordinatorProbe", "input-native-coordinator.log", "FIXTURE_READY")
+        run_fixture("AXWebFixture", "AXWebCoordinatorProbe", "input-webkit-observer.log", "WEB_FIXTURE_READY", True)

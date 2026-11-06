@@ -45,5 +45,11 @@
   "product_review": "docs/RC-PRODUCT-REVIEW.md; scope decisions documented, not represented as user-accepted",
   "no_interim_user_action": true,
   "microphone_started_for_delivery": false,
-  "production_database_opened_for_delivery": false
+  "production_database_opened_for_delivery": false,
+  "optional_foreground_attempt": {
+    "status": "NOT_RUN",
+    "reason": "Recent session input did not satisfy idle preflight; exited before activation; no retry",
+    "evidence": "input-foreground-batch.log",
+    "production_code_changed": false
+  }
 }

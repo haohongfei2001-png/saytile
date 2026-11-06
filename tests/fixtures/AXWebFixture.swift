@@ -6,11 +6,14 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
     let window: NSPanel
     let web: WKWebView
     var commandBytes = Data()
-    override init() {
+    let foregroundArmed: Bool
+    private var activated = false
+    init(foregroundArmed: Bool = false) {
+        self.foregroundArmed = foregroundArmed
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .nonPersistent()
         web = WKWebView(frame: NSRect(x: 0, y: 0, width: 640, height: 480), configuration: config)
-        window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 640, height: 480), styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
+        window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 640, height: 480), styleMask: foregroundArmed ? [.titled] : [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
         super.init()
         window.title = "Saytile synthetic web fixture"
         window.alphaValue = 0; window.ignoresMouseEvents = true
@@ -37,6 +40,14 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
             guard let object = try? JSONSerialization.jsonObject(with: line) as? [String: String], let command = object["command"] else { continue }
             let js: String
             switch command {
+            case "activate":
+                guard foregroundArmed, !activated else { continue }
+                activated = true
+                NSApp.setActivationPolicy(.accessory)
+                window.alphaValue = 1; window.ignoresMouseEvents = false
+                window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+                window.makeFirstResponder(web)
+                js = "focusComposer()"
             case "restore": js = "document.querySelectorAll('.extra').forEach(n=>n.remove());document.querySelector('#send').textContent='Send fixture only';history.replaceState({},'', '/chat/one');document.querySelector('h1').textContent='First synthetic chat';document.querySelector('textarea').value='PREFIX|SUFFIX';focusComposer();"
             case "replaceContext": js = "let h=document.querySelector('h1');h.outerHTML=h.outerHTML;"
             case "largeTree": js = "for(let i=0;i<140;i++){let d=document.createElement('div');d.className='extra';d.textContent='Synthetic node '+i;document.body.append(d);}"
@@ -69,7 +80,7 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
 struct AXWebFixture {
     @MainActor static func main() {
         let app = NSApplication.shared; app.setActivationPolicy(.prohibited)
-        let controller = WebFixtureController()
+        let controller = WebFixtureController(foregroundArmed: CommandLine.arguments.contains("--foreground-armed"))
         withExtendedLifetime(controller) { app.run() }
     }
 }
