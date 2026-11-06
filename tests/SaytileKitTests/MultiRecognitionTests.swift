@@ -330,3 +330,17 @@ private func sample(_ text: String, purpose: RecognitionPurpose = .chineseASR,
     await #expect(throws: FusionError.self) { try await f.store.publishFusion(ticket: ticket, proposal: proposal) }
     #expect(try await f.store.latestDispatchableRevision(recordingID: record.id) == nil)
 }
+
+@Test func multiWordTimestampsMapLiteralWordsAcrossProviderSpacing() throws {
+    let candidate = sample("use SwiftUI now", purpose: .englishASR, granularity: "word", tokens: [
+        RecognitionToken(text: "use", startSeconds: 0, endSeconds: 0.4, isFinal: true),
+        RecognitionToken(text: "SwiftUI", startSeconds: 0.4, endSeconds: 1.2, isFinal: true),
+        RecognitionToken(text: "now", startSeconds: 1.2, endSeconds: 2, isFinal: true)])
+    let prefix = try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: candidate.id, utf16Start: 0, utf16End: 12)], candidates: [candidate])
+    #expect(prefix.stableText == "use SwiftUI ")
+    #expect(prefix.unresolved)
+    let unmapped = sample("do not pay", purpose: .englishASR, granularity: "word", tokens: [
+        RecognitionToken(text: "do", startSeconds: 0, endSeconds: 0.4, isFinal: true),
+        RecognitionToken(text: "pay", startSeconds: 1, endSeconds: 2, isFinal: true)])
+    #expect(throws: FusionError.self) { try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: unmapped.id, utf16Start: 0, utf16End: 2)], candidates: [unmapped]) }
+}

@@ -170,14 +170,13 @@ public enum PrecisionFusion {
         }
     }
 
-    static func stableAudioEnd(_ candidate: RecognitionCandidate) -> Double {
+    public static func stableAudioEnd(_ candidate: RecognitionCandidate) -> Double {
         if candidate.stableUTF16Length == candidate.text.utf16.count { return candidate.audioEndSeconds }
-        guard ["word", "token", "segment"].contains(candidate.timingGranularity), candidate.tokens.map(\.text).joined() == candidate.text else { return candidate.audioStartSeconds }
-        var offset = 0, end = candidate.audioStartSeconds
-        for token in candidate.tokens {
-            offset += token.text.utf16.count
-            if offset > candidate.stableUTF16Length || !token.isFinal { break }
-            end = token.endSeconds
+        guard let mapped = try? mappedTokens(candidate) else { return candidate.audioStartSeconds }
+        var end = candidate.audioStartSeconds
+        for item in mapped {
+            if item.end > candidate.stableUTF16Length || !item.token.isFinal { break }
+            end = item.token.endSeconds
         }
         return end
     }
@@ -212,16 +211,34 @@ public enum PrecisionFusion {
         if span.utf16Start == 0, span.utf16End == candidate.text.utf16.count {
             return (candidate.audioStartSeconds, candidate.audioEndSeconds)
         }
-        guard ["word", "token", "segment"].contains(candidate.timingGranularity),
-              candidate.tokens.map(\.text).joined() == candidate.text else { throw FusionError.insufficientAlignment }
-        var offset = 0, start: Double?, end: Double?
-        for token in candidate.tokens {
-            if offset == span.utf16Start { start = token.startSeconds }
-            offset += token.text.utf16.count
-            if offset == span.utf16End { end = token.endSeconds }
+        let mapped = try mappedTokens(candidate)
+        var start: Double?, end: Double?
+        for (index, item) in mapped.enumerated() {
+            let leading = index == 0 ? 0 : mapped[index - 1].end
+            let trailing = index + 1 == mapped.count ? candidate.text.utf16.count : mapped[index + 1].start
+            if span.utf16Start >= leading && span.utf16Start <= item.start { start = item.token.startSeconds }
+            if span.utf16End >= item.end && span.utf16End <= trailing { end = item.token.endSeconds }
         }
-        guard let start, let end else { throw FusionError.insufficientAlignment }
+        guard let start, let end, end >= start else { throw FusionError.insufficientAlignment }
         return (start, end)
+    }
+    /// Locate literal token strings in the actual transcript, allowing only intervening layout.
+    /// This preserves providers whose words omit spaces without inventing any acoustic timing.
+    static func mappedTokens(_ candidate: RecognitionCandidate) throws -> [(token: RecognitionToken, start: Int, end: Int)] {
+        guard ["word", "token", "segment"].contains(candidate.timingGranularity), !candidate.tokens.isEmpty else { throw FusionError.insufficientAlignment }
+        let source = candidate.text as NSString
+        let layout = CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters)
+        var cursor = 0, mapped: [(token: RecognitionToken, start: Int, end: Int)] = []
+        for token in candidate.tokens where !token.text.isEmpty {
+            let range = source.range(of: token.text, options: .literal, range: NSRange(location: cursor, length: source.length - cursor))
+            guard range.location != NSNotFound else { throw FusionError.insufficientAlignment }
+            let gap = source.substring(with: NSRange(location: cursor, length: range.location - cursor))
+            guard gap.unicodeScalars.allSatisfy({ layout.contains($0) }) else { throw FusionError.insufficientAlignment }
+            mapped.append((token, range.location, NSMaxRange(range))); cursor = NSMaxRange(range)
+        }
+        let tail = source.substring(from: cursor)
+        guard !mapped.isEmpty, tail.unicodeScalars.allSatisfy({ layout.contains($0) }) else { throw FusionError.insufficientAlignment }
+        return mapped
     }
     static func corroborated(value: String, candidate: RecognitionCandidate,
                              interval: (start: Double, end: Double), candidates: [RecognitionCandidate]) -> Bool {
