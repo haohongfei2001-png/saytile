@@ -17,7 +17,8 @@ struct EnglishProviderProtocolTests {
         let request = try AssemblyStreamingProvider.request(configuration: configuration, credential: "fixture-key")
         #expect(request.url?.host == "streaming.eu.assemblyai.com")
         #expect(request.value(forHTTPHeaderField: "Authorization") == "fixture-key")
-        let query = try #require(URLComponents(url: #require(request.url), resolvingAgainstBaseURL: false)?.queryItems)
+        let url = try #require(request.url)
+        let query = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)
         #expect(query.first { $0.name == "speech_model" }?.value == "universal-3-6-pro")
         #expect(query.first { $0.name == "sample_rate" }?.value == "16000")
         #expect(!query.contains { $0.name == "token" || $0.name == "language_codes" })
@@ -81,14 +82,16 @@ struct EnglishProviderProtocolTests {
     @Test func elevenRealtimeIsDistinctAndNeverEnablesParaphrasing() throws {
         let request = try ElevenLabsStreamingProvider.request(configuration: config(.elevenLabsRealtime, "scribe_v2_realtime"), credential: "fixture-key")
         #expect(request.value(forHTTPHeaderField: "xi-api-key") == "fixture-key")
-        let query = try #require(URLComponents(url: #require(request.url), resolvingAgainstBaseURL: false)?.queryItems)
+        let url = try #require(request.url)
+        let query = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)
         #expect(query.first { $0.name == "model_id" }?.value == "scribe_v2_realtime")
         #expect(query.first { $0.name == "commit_strategy" }?.value == "manual")
         #expect(query.first { $0.name == "no_verbatim" }?.value == "false")
         #expect(!query.contains { $0.name == "transcript_edit" || $0.name == "language_code" })
         let bytes = Data([0, 128, 255, 127])
         let message = try object(ElevenLabsStreamingProvider.audioMessage(bytes, commit: true))
-        #expect(Data(base64Encoded: #require(message["audio_base_64"] as? String)) == bytes)
+        let encodedAudio = try #require(message["audio_base_64"] as? String)
+        #expect(Data(base64Encoded: encodedAudio) == bytes)
         #expect(message["commit"] as? Bool == true)
     }
 
