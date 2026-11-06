@@ -1,0 +1,47 @@
+# English experts and precision review — 2026-11-06
+
+## Decision and evidence limits
+
+The provisional English streaming expert is **AssemblyAI `universal-3-6-pro`**, alongside the independently selected Chinese expert. The current Pipecat streaming table reports pooled semantic WER 0.80% and median TTFS 307 ms. This is an independent, English streaming benchmark, not proof of best Mandarin, code switching, verbatim transcription, or Saytile end-to-end performance. Its semantic scorer and speech-end-to-final latency must not be relabelled as ordinary WER or first-text latency. Soniox v5's older 1.09% result is not a v6 evaluation. Meta `muse-voice-transcribe-1.0` appears above AssemblyAI at 0.73%, but a benchmark row alone does not establish a mature, publicly accessible BYOK API; it is not selected without that evidence.
+
+Optional completed-audio review uses **ElevenLabs `scribe_v2`**, with **OpenAI `gpt-transcribe`** as another supported independent reviewer. Neither file API's quality nor streamed HTTP output establishes live microphone quality. ElevenLabs `scribe_v2_realtime` is a separate optional streaming adapter, not an alias for Scribe v2 file transcription.
+
+No experiment in this revision establishes that combining these models improves accuracy. Measure first displayed, evolving partial, externally committable, and completed-review output separately on the existing consented Mandarin, English and mixed examples. Preserve the existing Apple and local Qwen evidence; no model or audio was downloaded and no paid request was made for this research.
+
+## Actual API contracts used by adapters
+
+| Role | Model | Transport and authentication | Result handling |
+|---|---|---|---|
+| English streaming | `universal-3-6-pro` | `wss://streaming.assemblyai.com/v3/ws`, or `streaming.eu.assemblyai.com`; raw `Authorization` key; explicit `speech_model`, `sample_rate=16000`, `encoding=pcm_s16le` | `Begin`, replace-by-`turn_order` `Turn`, `Termination`; words in milliseconds; preserve provider confidence as uncalibrated evidence. Binary PCM, then `Terminate`. |
+| Optional streaming | `scribe_v2_realtime` | `wss://api.elevenlabs.io/v1/speech-to-text/realtime`; `xi-api-key`; PCM16 at 16 kHz inside JSON/base64 | Partial and committed segment events; delayed committed timestamps must update their segment rather than duplicate text. No non-verbatim rewriting. |
+| Completed-audio reviewer | `scribe_v2` | `POST https://api.elevenlabs.io/v1/speech-to-text`; `xi-api-key`; real multipart with file and model ID | Word timestamps in seconds; disable diarization and audio-event insertion, retain spoken disfluencies. |
+| Completed-audio reviewer | `gpt-transcribe` | `POST https://api.openai.com/v1/audio/transcriptions`; Bearer key; real multipart WAV | Whole-file text; do not invent word timestamps when absent. `stream=true` is output streaming after file submission. |
+
+Only each provider's own finalized candidate prefix is marked stable here. It is evidence for the fusion coordinator, never permission for a provider to write the official transcript or dispatch to another app. Provider failure must not affect audio journaling. Model IDs are configuration data and must be rechecked when changing services.
+
+## Evidence-constrained AI selection and listening
+
+The integrated text arbitrator is the currently documented **`gpt-6-astra`** through the OpenAI Responses API, with strict structured output. This is a text/image reasoning model, **not a raw-audio listener**. Standard/high reasoning is suitable for evaluating live candidate disagreements; optional pro/max reasoning is a later precision policy, not a realtime latency guarantee. The root implementation independently verifies these model IDs and API parameters.
+
+The integrated audio reviewer is **`gemini-3.8-flash`**, whose official audio guide supports audio input, text output and high thinking. Send only the disputed original audio region plus adequate context and keep its answer as new evidence. Do not assume an unreleased “Pro” version is available. These roles are complementary; model names alone do not prove transcription gains.
+
+An arbitrator selects actual candidate spans, leaves unresolved disagreements explicit, and requests audio review when text cannot distinguish the alternatives. No cross-vendor confidence averaging is justified without calibration. Numbers, units, negation and intentional repetition cannot be repaired from plausibility alone. Even two agreeing models may share the same error; independent audio review and eventual targeted evaluation remain necessary. Later reviews are retained without silently changing already inserted text.
+
+## Sources (checked 2026-11-06)
+
+- Independent streaming harness, methodology and current results: https://github.com/pipecat-ai/stt-benchmark
+- AssemblyAI actual WebSocket schema: https://www.assemblyai.com/docs/streaming/api-spec/streaming-websocket
+- AssemblyAI implementation guide: https://www.assemblyai.com/docs/streaming/getting-started/transcribe-streaming-audio
+- ElevenLabs streaming schema: https://elevenlabs.io/docs/api-reference/speech-to-text/v-1-speech-to-text-realtime
+- ElevenLabs file schema: https://elevenlabs.io/docs/api-reference/speech-to-text/convert
+- OpenAI completed-file transcription: https://developers.openai.com/api/docs/guides/speech-to-text
+- OpenAI live transcription (distinct interface): https://developers.openai.com/api/docs/guides/realtime-transcription
+- OpenAI models: https://developers.openai.com/api/docs/models
+- OpenAI structured output: https://developers.openai.com/api/docs/guides/structured-outputs
+- Google audio input: https://ai.google.dev/gemini-api/docs/audio
+- Soniox current model catalog: https://docs.soniox.com/stt/models
+- Deepgram model catalog: https://developers.deepgram.com/docs/models-languages-overview
+
+## Implementation checkpoint
+
+Research checkpoint saved before coding. Network adapters and protocol fixtures are the next slice. Cloud acceptance, actual billing, regional reachability and accuracy improvements remain unmeasured until an explicitly authorized BYOK run. This note does not claim those tests passed.
