@@ -51,3 +51,17 @@ scripts/package-beta.sh
 - [原型](prototype/index.html)、[历史来源](docs/06-PROVENANCE.md)、[第三方许可](THIRD_PARTY_NOTICES.md)
 
 个人包采用 ad-hoc 签名，尚未进行 Developer ID 公证。合成语音、后台 AX 测试、硬件缓冲统计、实际真人输入和整机功耗是不同验证层，详见测试记录。V2 轻声识别与 V3 个人词库/文字输入法不在本轮范围。
+
+
+## Architecture research and revised roadmap
+
+The latest independent competitor research and adaptive hybrid architecture decision are documented in:
+
+- [Competitor architecture research](research/competitors/ARCHITECTURE-RESEARCH-2026-11-07.md)
+- [Competitive advantages and gaps](research/competitors/COMPETITIVE-ADVANTAGES.md)
+- [Final V1 architecture](research/architecture/FINAL-ARCHITECTURE.md)
+- [V1/V2/V3 development roadmap](research/architecture/DEVELOPMENT-ROADMAP.md)
+- [Architecture decision log](research/architecture/DECISION-LOG.md)
+- [Current research branch status](research/architecture/PROJECT-STATUS.md)
+
+These are research decisions, not claims that the new architecture is already implemented or that cloud accuracy gains have been measured. See PR #5, stacked on the open ASR implementation PR #4.
