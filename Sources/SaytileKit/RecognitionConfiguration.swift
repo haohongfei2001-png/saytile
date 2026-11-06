@@ -155,16 +155,37 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
               provider: .qwenMessage, model: "qwen-audio-3.1-asr-flash-message", region: "cn-beijing"),
         .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000002")!, purpose: .englishASR,
               provider: .assemblyAI, model: "universal-3-6-pro"),
-        .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000003")!, purpose: .textFusion,
+        .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000004")!, purpose: .textFusion,
               provider: .openAIResponses, model: "gpt-6-astra"),
-        .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000004")!, purpose: .multilingualASR,
+        .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000003")!, purpose: .multilingualASR,
               provider: .soniox, model: "stt-rt-v6", enabled: false),
-        .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000005")!, purpose: .englishASR,
+        .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000007")!, purpose: .englishASR,
               provider: .meta, model: "muse-voice-transcribe-1.0", enabled: false)
     ] }}
     public static func load(from preferences: UserDefaults) -> Self {
         guard let data = preferences.data(forKey: "multiASRConfigurationV1"),
-              let config = try? JSONDecoder().decode(Self.self, from: data) else { return Self() }
+              var config = try? JSONDecoder().decode(Self.self, from: data) else { return Self() }
+        // Migrate the former multi-arbiter/audio-review defaults without deleting Keychain
+        // items. Preserve the stable GPT-6 configuration ID so an existing Key remains usable.
+        for index in config.models.indices where [.audioReview, .finalASR].contains(config.models[index].purpose) {
+            config.models[index].enabled = false
+            config.models[index].cloudConsent = false
+        }
+        let fusionIndices = config.models.indices.filter { config.models[$0].purpose == .textFusion }
+        if let first = fusionIndices.first {
+            for index in fusionIndices.dropFirst() {
+                config.models[index].enabled = false
+                config.models[index].cloudConsent = false
+            }
+            if config.models[first].provider != .openAIResponses || config.models[first].model != "gpt-6-astra" {
+                config.models[first].provider = .openAIResponses
+                config.models[first].model = "gpt-6-astra"
+                config.models[first].cloudConsent = false
+            }
+        } else {
+            config.models.append(.init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000004")!,
+                purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra"))
+        }
         return config
     }
     public func save(to preferences: UserDefaults) throws {
