@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import LocalAuthentication
 
 /// Credentials are independent from model settings and never serialized into UserDefaults.
 /// Each configuration has its own Keychain account, including two models at one vendor.
@@ -22,12 +23,14 @@ public enum CloudCredentialStore {
         } else if update != errSecSuccess { throw CloudCredentialError.keychain(update) }
     }
     public static func read(configurationID: UUID, provider: CloudProvider) throws -> String? {
+        let context = LAContext()
+        context.interactionNotAllowed = true
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                   kSecAttrService as String: service,
                                   kSecAttrAccount as String: provider.rawValue + "." + configurationID.uuidString,
                                   kSecReturnData as String: true,
                                   kSecMatchLimit as String: kSecMatchLimitOne,
-                                  kSecUseAuthenticationUI as String: kSecUseAuthenticationUIFail]
+                                  kSecUseAuthenticationContext as String: context]
         var result: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
         if status == errSecItemNotFound { return nil }

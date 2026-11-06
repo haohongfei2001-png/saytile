@@ -41,8 +41,8 @@ struct RecognitionSettingsSection: View {
 private struct ModelConfigurationEditor: View {
     @Binding var configuration: ModelConfiguration
     @ObservedObject var model: AppModel
-    @State private var secret = ""
-    @State private var credentialPresent = false
+    @ViewState private var secret = ""
+    @ViewState private var credentialPresent = false
     var body: some View {
         DisclosureGroup(configuration.purpose.label) {
             Toggle("使用此模型", isOn: $configuration.enabled)

@@ -187,17 +187,7 @@ actor MultiRecognitionCoordinator {
         }.sorted { $0.id.uuidString < $1.id.uuidString }
     }
     private func stableAudioEnd(_ candidate: RecognitionCandidate) -> Double {
-        if candidate.stableUTF16Length == candidate.text.utf16.count { return candidate.audioEndSeconds }
-        if candidate.tokens.map(\.text).joined() == candidate.text {
-            var offset = 0, end = candidate.audioStartSeconds
-            for token in candidate.tokens {
-                offset += token.text.utf16.count
-                if offset > candidate.stableUTF16Length || !token.isFinal { break }
-                end = token.endSeconds
-            }
-            return end
-        }
-        return candidate.audioStartSeconds
+        PrecisionFusion.stableAudioEnd(candidate)
     }
     private func haveRequiredEvidence(_ candidates: [RecognitionCandidate]) -> Bool {
         let available = Set(candidates.filter { $0.stableUTF16Length > 0 }.map { $0.run.configurationID })
@@ -227,7 +217,7 @@ actor MultiRecognitionCoordinator {
         NotificationCenter.default.post(name: .init("SaytileRecognitionUpdated"), object: ticket.recordingID)
         lastProposal = proposal
         if firstPreview == nil, !proposal.previewText.isEmpty { firstPreview = Date() }
-        if result.published, let revision = result.revision, revision.text.hasPrefix(committedPrefix) {
+        if result.published, let revision = result.revision, RecognitionUTF16.hasExactPrefix(revision.text, prefix: committedPrefix) {
             committedPrefix = revision.text
             if firstStable == nil, !committedPrefix.isEmpty { firstStable = Date() }
         }
