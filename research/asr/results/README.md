@@ -7,6 +7,8 @@
 | 生产 VoiceSegmenter 三次实机 probe | [vad-probes](vad-probes/README.md) | 两次 30 秒强制边界和活动短尾已检查；未执行 ASR。 |
 | Whisper 55 条部分输出 | [历史结果](../../asr-2026-11-06/results/whisper-large-v3-int8.jsonl) | 按最新用户方向主动停止；不纳入完整排名。 |
 
+公开证据选择性快照见 [public-evidence-snapshot.json](public-evidence-snapshot.json)，Pipecat 表格已固定到来源提交；它不是新增本地横评。
+
 ## 来源与许可
 
 本研究使用 **CAiRE / HKUST 的 ASCEND** 与 **Google 的 FLEURS** 已公开材料。2026-11-06 核验其官方数据卡：

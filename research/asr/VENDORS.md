@@ -44,6 +44,8 @@
 | **厂商官方技术文档** | 本文第 2、3 节的 Soniox、Qwen、ElevenLabs、OpenAI、豆包文档 | 支持模型 ID、端点、鉴权、音频格式、事件语义和公开功能。多语言/混说功能声明不等于独立实测准确率。 |
 | **厂商营销或转述** | [Soniox benchmarks 页面](https://soniox.com/benchmarks) | 即便引用 Pipecat，仍优先使用 Pipecat 原始仓库及指标定义；不把厂商页面算成新增独立证据。 |
 | **本项目本地记录** | `results/direct/`；恢复的 `../asr-2026-11-06/results/` | Apple、本地 Qwen3-ASR-1.7B、Whisper 的有限结果只说明对应本地运行。不能当作 Soniox、Qwen-Audio 3.1 云端或 OpenAI 现行服务的成绩。 |
-| **工程推断与选型** | `DECISION.md`、`IMPLEMENTATION.md` | 单引擎能减少额外网络、第二遍费用与修订冲突；结合公开质量和协议证据选择 Soniox。保留备用并不等于并行运行。属于明确技术裁决，不伪装成已完成的五家云端实测。 |
+| **工程推断与选型** | `DECISION.md`、`IMPLEMENTATION.md` | 单引擎能减少额外网络等待与修订冲突；结合公开质量和协议证据选择 Soniox。保留备用并不等于并行运行。属于明确技术裁决，不伪装成已完成的五家云端实测。 |
 
 **中英混说证据边界：** [Perle ASR benchmark](https://perle.ai/benchmark/asr/) 与 [ServiceNow code-switching 研究](https://huggingface.co/blog/ServiceNow-AI/code-switching) 的所列混说证据未覆盖普通话，不能用来证明 Mandarin–English 成绩。单语言中文与英文榜也不能合成为未经测量的中英混说准确率。这个缺口应作为对外准确率表述的边界，不能演变为继续扩大研究或推迟本轮选型的理由。
+
+Pipecat 本次核验已固定到提交 [`94f5672`](https://github.com/pipecat-ai/stt-benchmark/blob/94f567299a21f8d617039bc69f137a131f5dedd5/README.md)，并通过 GitHub 原文核对表格。可机读的选择性证据快照见 [public-evidence-snapshot.json](results/public-evidence-snapshot.json)；没有复制整篇第三方文档。
