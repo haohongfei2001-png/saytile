@@ -1,6 +1,8 @@
 import AppKit
 import ApplicationServices
 
+public enum InputBindingPurpose: Sendable { case manual, continuous }
+
 public struct InputBindingInfo: Sendable, Equatable {
     public let id: UUID
     public let label: String
@@ -21,7 +23,7 @@ public enum NativeInputResult: Sendable, Equatable {
 }
 
 public enum NativeInputError: Error, LocalizedError {
-    case permission, noTarget, unsupported, selection, sensitive, targetChanged, pageUnknown, busy
+    case permission, noTarget, unsupported, selection, sensitive, targetChanged, pageUnknown, unobservablePage, busy
     public var errorDescription: String? {
         switch self {
         case .permission: "请在系统设置中允许 Saytile 使用辅助功能；复制无需此权限。"
@@ -31,6 +33,7 @@ public enum NativeInputError: Error, LocalizedError {
         case .sensitive: "密码框和终端不支持自动插入，请使用复制。"
         case .targetChanged: "目标、页面或光标已变化，请重新连接。"
         case .pageUnknown: "无法辨认当前网页，已保留文字；请使用复制。"
+        case .unobservablePage: "此网页没有提供足够的草稿变化信息，连续输入暂不可用；可以明确单次插入或复制。"
         case .busy: "上一项插入尚未完成。"
         }
     }
@@ -50,6 +53,7 @@ struct InputTargetSnapshot: Equatable {
     var isEditable: Bool
     var isSensitive: Bool
     var canSetSelectedText: Bool
+    var pageContextComplete: Bool = true
 
     func checked() throws {
         guard !isSensitive else { throw NativeInputError.sensitive }
@@ -63,6 +67,9 @@ struct InputTargetSnapshot: Equatable {
     }
 }
 
+enum InputTargetChange { case focusOrDocument, contentOrSelection, layout }
+struct InputObservationSupport { let focus: Bool; let content: Bool; let page: Bool }
+
 @MainActor
 protocol InputAccess: AnyObject {
     var hasPermission: Bool { get }
@@ -70,6 +77,14 @@ protocol InputAccess: AnyObject {
     // One external attempt; a timeout is uncertain, never grounds for retry.
     func dispatch(_ text: String, to expected: InputTargetSnapshot) throws -> Bool
     func verify(_ text: String, at before: InputTargetSnapshot) -> InputTargetSnapshot?
+    func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool?
+    func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport
+    func stopObserving()
+}
+extension InputAccess {
+    func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool? { nil }
+    func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport { .init(focus: false, content: false, page: false) }
+    func stopObserving() {}
 }
 
 @MainActor
@@ -79,6 +94,10 @@ public final class NativeInputCoordinator {
     private var target: InputTargetSnapshot?
     public private(set) var binding: InputBindingInfo?
     private var isDispatching = false
+    private var hasIssuedDispatch = false
+    private var inFlightInsertion: (target: InputTargetSnapshot, text: String)?
+    private var boundPurpose: InputBindingPurpose = .continuous
+    private var confirmedTail: (text: String, start: Int)?
     private var activationObserver: NSObjectProtocol?
     private var generation = 0
     public var onBindingInvalidated: (@MainActor () -> Void)?
@@ -104,7 +123,8 @@ public final class NativeInputCoordinator {
         AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary)
     }
 
-    @discardableResult public func bindCurrentTarget() async throws -> InputBindingInfo {
+    @discardableResult public func bindCurrentTarget(purpose: InputBindingPurpose = .continuous) async throws -> InputBindingInfo {
+        try Task.checkCancellation()
         guard !isDispatching else { throw NativeInputError.busy }
         guard hasPermission else { throw NativeInputError.permission }
         let snapshot = try access.snapshot()
@@ -112,14 +132,40 @@ public final class NativeInputCoordinator {
         invalidate()
         let bindGeneration = generation
         let id = try await store.createBinding(label: snapshot.applicationName)
-        guard generation == bindGeneration,
+        guard !Task.isCancelled, generation == bindGeneration,
               let current = try? access.snapshot(), current == snapshot else {
             try? await store.invalidateBinding(id)
             throw NativeInputError.targetChanged
         }
         let info = InputBindingInfo(id: id, label: snapshot.applicationName, boundAt: Date())
         target = snapshot
-        binding = info
+        binding = info; boundPurpose = purpose
+        let support = access.observe(snapshot) { [weak self] change in
+            guard let self, self.binding != nil else { return }
+            switch change {
+            case .focusOrDocument: self.invalidate()
+            case .contentOrSelection:
+                if self.hasIssuedDispatch, let pending = self.inFlightInsertion,
+                   let current = try? self.access.snapshot(), current.sameTarget(as: pending.target),
+                   current.selectionLength == 0,
+                   current.selectionLocation == pending.target.selectionLocation + pending.text.utf16.count,
+                   self.access.matchesText(pending.text, utf16Start: pending.target.selectionLocation, at: current) == true {
+                    // An observed edit is ignored only when it is exactly our expected
+                    // insertion. User selection/content changes during confirmation expire it.
+                    break
+                }
+                self.invalidate()
+            case .layout:
+                // A structural webpage change can reuse its editor and URL.
+                // Until an engine-specific context can distinguish self-layout, stop automatic input.
+                if self.target?.isWeb == true { self.invalidate() }
+            }
+        }
+        if purpose == .continuous, snapshot.isWeb,
+           !(snapshot.pageContextComplete && support.focus && support.content && support.page && access.matchesText("", utf16Start: snapshot.selectionLocation, at: snapshot) == true) {
+            invalidate()
+            throw NativeInputError.unobservablePage
+        }
         return info
     }
 
@@ -128,6 +174,8 @@ public final class NativeInputCoordinator {
         let id = binding?.id
         binding = nil
         target = nil
+        confirmedTail = nil
+        access.stopObserving()
         if let id { Task { try? await store.invalidateBinding(id) } }
         if id != nil { onBindingInvalidated?() }
     }
@@ -150,14 +198,16 @@ public final class NativeInputCoordinator {
     }
 
     private func perform(recordingID: UUID, revisionID: UUID, stableEnd: Int?, startedAt: Date?) async -> NativeInputResult {
+        guard !Task.isCancelled else { return .cancelled }
         guard !isDispatching else { return .failed(NativeInputError.busy.localizedDescription) }
         guard let target, let binding else { return .cancelled }
+        if stableEnd != nil, boundPurpose != .continuous { return .failed(NativeInputError.unobservablePage.localizedDescription) }
         if let startedAt, startedAt <= binding.boundAt { return .noNewText }
         let startGeneration = generation
         do {
             try validate(target)
             isDispatching = true
-            defer { isDispatching = false }
+            defer { isDispatching = false; hasIssuedDispatch = false; inFlightInsertion = nil }
             let reservation: DispatchReservation?
             if let stableEnd {
                 reservation = try await store.reserveDispatch(bindingID: binding.id, recordingID: recordingID,
@@ -170,7 +220,7 @@ public final class NativeInputCoordinator {
             // A record can be deleted while the reservation transaction is awaited.
             // Its removed/cancelled operation must never reach the external application.
             guard try await store.dispatchState(id: reservation.id) == .dispatching else { return .cancelled }
-            guard startGeneration == generation else {
+            guard !Task.isCancelled, startGeneration == generation else {
                 try? await store.completeDispatch(id: reservation.id, state: .cancelled)
                 return .cancelled
             }
@@ -182,18 +232,30 @@ public final class NativeInputCoordinator {
             do {
                 // dispatch returns false only before any external side effect.
                 // Any thrown AX timeout is treated as unverified, never retried.
+                guard !Task.isCancelled else {
+                    try? await store.completeDispatch(id: reservation.id, state: .cancelled)
+                    return .cancelled
+                }
+                inFlightInsertion = (target, reservation.text)
+                hasIssuedDispatch = true
                 let dispatched = try access.dispatch(reservation.text, to: target)
                 if !dispatched {
                     try? await store.completeDispatch(id: reservation.id, state: .cancelled)
                     invalidate()
                     return .cancelled
                 }
-                // Allow paste responders one event-loop turn without spinning or blocking capture.
-                try? await Task.sleep(for: .milliseconds(120))
-                if startGeneration == generation, let after = access.verify(reservation.text, at: target) {
-                    self.target = after
-                    try await store.completeDispatch(id: reservation.id, state: .confirmed)
-                    return .confirmed
+                // Confirm the one attempt over a bounded window. This loop never dispatches again.
+                for delay in [80, 80, 160, 240] {
+                    do { try await Task.sleep(for: .milliseconds(delay)) } catch { break }
+                    guard startGeneration == generation else { break }
+                    if let after = access.verify(reservation.text, at: target) {
+                        self.target = after
+                        let tail = String(reservation.text.suffix(32))
+                        confirmedTail = (tail, target.selectionLocation + reservation.text.utf16.count - tail.utf16.count)
+                        try await store.completeDispatch(id: reservation.id, state: .confirmed)
+                        return .confirmed
+                    }
+                    if let current = try? access.snapshot(), !current.sameTarget(as: target) { break }
                 }
                 try? await store.completeDispatch(id: reservation.id, state: .unverified)
                 // A failed confirmation does not globally freeze independent future speech.
@@ -221,5 +283,8 @@ public final class NativeInputCoordinator {
         let current = try access.snapshot()
         try current.checked()
         guard current == target else { throw NativeInputError.targetChanged }
+        if let confirmedTail, access.matchesText(confirmedTail.text, utf16Start: confirmedTail.start, at: target) != true {
+            throw NativeInputError.targetChanged
+        }
     }
 }

@@ -17,6 +17,7 @@ final class PCMJournal {
     let directory: URL
     let recordingID: UUID
     private let io: IO
+    private let recordingDirectoryDescriptor: Int32
     private var file: FileHandle?
     private(set) var relativePath = ""
     private(set) var frames: Int64 = 0
@@ -26,28 +27,31 @@ final class PCMJournal {
     init(directory: URL, recordingID: UUID, io: IO = .live) throws {
         self.directory = directory; self.recordingID = recordingID
         self.io = io
-        try FileManager.default.createDirectory(at: directory.appendingPathComponent(recordingID.uuidString), withIntermediateDirectories: true)
-        try Self.synchronizeDirectory(directory)
+        let parent = Darwin.open(directory.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW)
+        guard parent >= 0 else { throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno)) }
+        defer { Darwin.close(parent) }
+        if mkdirat(parent, recordingID.uuidString, 0o700) != 0 && errno != EEXIST {
+            throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno))
+        }
+        let owned = openat(parent, recordingID.uuidString, O_RDONLY | O_DIRECTORY | O_NOFOLLOW)
+        guard owned >= 0 else { throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno)) }
+        guard fsync(parent) == 0 else { let code = errno; Darwin.close(owned); throw NSError(domain: NSPOSIXErrorDomain, code: Int(code)) }
+        recordingDirectoryDescriptor = owned
     }
     func openChunk() throws {
-        // A failed rotation must never attribute the previous file's watermark
-        // to the new pathname.
         frames = 0; lastCheckpoint = 0
-        relativePath = "\(recordingID.uuidString)/\(UUID().uuidString).wav"
-        let url = directory.appendingPathComponent(relativePath)
-        guard FileManager.default.createFile(atPath: url.path, contents: Self.header(frames: 0)) else { throw AudioFailure.message("无法创建原音文件") }
-        file = try FileHandle(forUpdating: url)
-        if let file { try io.synchronize(file) }
-        // Persist the directory entry as well as the new file before registering it.
-        try Self.synchronizeDirectory(url.deletingLastPathComponent())
-        try file?.seekToEnd()
+        let filename = UUID().uuidString + ".wav"
+        relativePath = "\(recordingID.uuidString)/\(filename)"
+        let descriptor = openat(recordingDirectoryDescriptor, filename, O_CREAT | O_EXCL | O_RDWR | O_NOFOLLOW, 0o600)
+        guard descriptor >= 0 else { throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno)) }
+        let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
+        file = handle
+        try io.write(handle, Self.header(frames: 0))
+        try io.synchronize(handle)
+        guard fsync(recordingDirectoryDescriptor) == 0 else { throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno)) }
+        try handle.seekToEnd()
     }
-    private static func synchronizeDirectory(_ url: URL) throws {
-        let fd = Darwin.open(url.path, O_RDONLY)
-        guard fd >= 0 else { throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno)) }
-        defer { Darwin.close(fd) }
-        guard fsync(fd) == 0 else { throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno)) }
-    }
+
     func append(_ pcm: Data) throws {
         guard let file else { throw AudioFailure.message("原音文件尚未打开") }
         try io.write(file, pcm); frames += Int64(pcm.count / 2)
@@ -61,7 +65,7 @@ final class PCMJournal {
     }
     func closeChunk() throws { try checkpoint(); try file?.close(); file = nil }
     func abandonOpenHandle() { try? file?.close(); file = nil }
-    deinit { try? file?.close() }
+    deinit { try? file?.close(); Darwin.close(recordingDirectoryDescriptor) }
     static func header(frames: Int64) -> Data {
         var data = Data()
         func text(_ s: String) { data.append(contentsOf: s.utf8) }
@@ -75,6 +79,7 @@ final class PCMJournal {
         let handle = try FileHandle(forUpdating: url); defer { try? handle.close() }
         let size = try handle.seekToEnd()
         guard size >= 44 else { throw AudioFailure.message("原音头不完整") }
+        guard size - 8 <= UInt64(UInt32.max) else { throw AudioFailure.message("原音文件超过 WAV 容量上限，拒绝损坏的文件") }
         let frames = Int64((size - 44) / 2)
         try handle.seek(toOffset: 0)
         let currentHeader = try handle.read(upToCount: 44)

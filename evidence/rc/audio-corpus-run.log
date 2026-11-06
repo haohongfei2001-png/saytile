@@ -1,0 +1,27 @@
+[0/1] Planning build
+Building for debugging...
+[0/2] Write sources
+[1/2] Write swift-version--1AB21518FC5DEDBE.txt
+[3/5] Emitting module SaytileKit
+[4/5] Compiling SaytileKit Store.swift
+[5/5] Compiling SaytileKit AudioCapture.swift
+[6/8] Compiling SaytileKit InputCoordinator.swift
+[7/8] Compiling SaytileKit SpeechRecognition.swift
+[8/8] Compiling SaytileKit AudioDiagnostics.swift
+Build of target: 'SaytileKit' complete! (1.51s)
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+tests/fixtures/AudioCorpusProbe.swift:42:189: warning: converting non-Sendable function value to '@Sendable (SpeechTimingEvent) -> Void' may introduce data races
+40 |             FileHandle.standardError.write(Data("Recognizing synthetic fixture \(item.id)\n".utf8))
+41 |             let timing = TimingCollector()
+42 |             let id = try await AudioDiagnostics.transcribeFixture(url: URL(fileURLWithPath: args[2]).appendingPathComponent(item.id + ".aiff"), store: store, realtime: true, event: timing.append)
+   |                                                                                                                                                                                             `- warning: converting non-Sendable function value to '@Sendable (SpeechTimingEvent) -> Void' may introduce data races
+43 |             let record = try await store.recording(id: id)!
+44 |             let events = timing.snapshot()
+Recognizing synthetic fixture daily
+Recognizing synthetic fixture negation
+Recognizing synthetic fixture numbers
+Recognizing synthetic fixture mixed
+Recognizing synthetic fixture pauses
+Recognizing synthetic fixture tail
+Recognizing synthetic fixture second_voice
+Recognizing synthetic fixture correction

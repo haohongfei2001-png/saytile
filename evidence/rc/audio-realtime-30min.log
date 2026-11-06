@@ -1,0 +1,42 @@
+[0/1] Planning build
+Building for debugging...
+[0/2] Write sources
+[1/2] Write swift-version--1AB21518FC5DEDBE.txt
+[3/15] Compiling SaytileKit Store.swift
+[4/15] Compiling SaytileKit StoreLock.swift
+[5/16] Compiling SaytileKit AudioLifecycle.swift
+[6/16] Compiling SaytileKit AudioPlaybackTimeline.swift
+[7/16] Compiling SaytileKit StoreSQLite.swift
+[8/16] Compiling SaytileKit SpeechResultAccumulator.swift
+[9/16] Compiling SaytileKit SpeechTiming.swift
+[10/16] Compiling SaytileKit InputAccessibility.swift
+[11/16] Compiling SaytileKit InputCoordinator.swift
+[12/16] Compiling SaytileKit WindowPlacement.swift
+[13/16] Emitting module SaytileKit
+[14/16] Compiling SaytileKit SpeechRecognition.swift
+[15/16] Compiling SaytileKit AudioCapture.swift
+[16/16] Compiling SaytileKit AudioDiagnostics.swift
+[17/17] Compiling SaytileKit AudioTapCallbacks.swift
+Build of target: 'SaytileKit' complete! (1.57s)
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+Scope: synthetic realtime ring, converter, VAD, journal, SQLite; ASR disabled; no microphone/speaker
+Data directory: /tmp/saytile-rc-realtime-data.rajnLf
+realtime_seconds=1800.0 produced_frames=39690000 dropped_frames=0 records=60 saved_seconds=1799.9999999999982 audio_bytes=57607876 all_available=true all_finished=true pending_asr=60
+     1800.42 real        15.20 user         7.78 sys
+            22888448  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               11882  page reclaims
+                 135  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                6479  voluntary context switches
+              292787  involuntary context switches
+         58930847938  instructions retired
+         39317928268  cycles elapsed
+            65258240  peak memory footprint

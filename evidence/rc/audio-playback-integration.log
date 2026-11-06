@@ -1,0 +1,35 @@
+Building for debugging...
+[Planning deferred tasks]
+[11 / 63] CAudio
+[49 / 63] CAudio
+/Users/hhf/Documents/GitHub/saytile/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[52 / 77]
+[53 / 77]
+[64 / 77] SaytileKit
+[69 / 81] SaytileKit
+[75 / 87] SaytileKit
+[75 / 87] Saytile-product
+[75 / 87] SaytileKit
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[80 / 87] SaytileKitTests-product
+[89 / 98] Saytile-product
+[91 / 98] SaytileKitTests-product
+[93 / 98] SaytileKitTests-product
+[98 / 101] Saytile-product
+/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[98 / 101] SaytileKitTests-product
+[100 / 104] SaytileKitTests-product
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (5.47秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Silent production AVAudioPlayer integration" started.
+◇ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() started.
+◇ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() started.
+✔ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() passed after 0.396 seconds.
+✔ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() passed after 0.543 seconds.
+✔ Suite "Silent production AVAudioPlayer integration" passed after 0.543 seconds.
+✔ Test run with 2 tests in 1 suite passed after 0.543 seconds.

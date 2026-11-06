@@ -1,0 +1,28 @@
+{
+  "scope": "1800 seconds real wall-clock synthetic input through production bounded C ring, AVAudioConverter, WebRTC VAD, WAV fsync journal and SQLite; no microphone, speakers, UI or ASR inference",
+  "completed": true,
+  "input_seconds": 1800,
+  "input_frames": 39690000,
+  "input_rate_hz": 22050,
+  "dropped_frames": 0,
+  "recordings": 60,
+  "saved_audio_seconds": 1800.0,
+  "all_audio_available": true,
+  "all_recordings_finished": true,
+  "audio_bytes": 57607876,
+  "pending_asr_jobs": 60,
+  "wall_seconds": 1800.42,
+  "user_cpu_seconds": 15.2,
+  "system_cpu_seconds": 7.78,
+  "average_single_core_cpu_percent": 1.2763688472689705,
+  "maximum_rss_bytes": 22888448,
+  "peak_memory_footprint_bytes": 65258240,
+  "probe_sha256": "5c4015e13582cd1eeb0e6f39ec1bf8276ad380ef3084063cb59ebe543ab915ea",
+  "source_scope": "Built at initial RC audio checkpoint before subsequent path hardening/shutdown changes; those later branches have dedicated regression tests. Not proof that the final distributed app ran for 30 minutes.",
+  "not_verified": [
+    "72-hour soak",
+    "hardware microphone continuous speech",
+    "ASR/whole-app power",
+    "physical sleep/lock/device changes"
+  ]
+}

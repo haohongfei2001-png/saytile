@@ -68,3 +68,15 @@ Release DMG 校验通过；只读挂载中的App严格签名验证及启动通�
 重新核对远端 main、PR #1/#2 与两条 CI；当前均一致，发布物仍是 Beta.1。已发现需要工程修复的候选缺陷：锁屏/撤权生命周期、ASR末尾定稿、输入取消及目标变更、draft搜索、并发打开资料库、输入板最新30条静默截断。将在独立合成环境建立复现及回归，不用历史 CI 或原型验证代替。
 
 工作树发现7个未跟踪 ` 2` 副本，保留原状、不提交、不据此推断用户意图。
+
+
+## RC 第一轮工程检查点
+
+- `evidence/rc/native-checkpoint.log`：109 tests / 14 suites PASS。
+- `evidence/rc/app-model.log`：21 checks PASS，含116条当前表达分页和断开设备UID保留。
+- `evidence/rc/ui/run.log`：9张生产SwiftUI窗口渲染、5次真实AXPress；仅fixture PID、前台不变。离屏本进程AX树不展开，已改为透明非激活原生窗口+独立AX客户端；前期本地mouse探针仅模式成功，档案点击未通过，没有冒称全控件通过。
+- 存储：9项真实进程/升级/写入故障；10万记录30万版本，partial写p95 0.14ms，清理时并发写p95 0.24ms。详细输出见RC-STORAGE-WORK。
+- 输入：22单测、9原生后台全链路、WebKit页面变更/能力拒绝、20headless DOM检查。最初WebKit 5/5含延迟通知串扰，经隔离复查发现silentContext失败；根因修复为有界语义身份并重新回归，失败如实保留。详见RC-INPUT-WORK。
+- 音频：30分钟墙钟、39,690,000帧零drop，60段1800秒、57.61MB。只包括ring/转换/VAD/WAV/SQLite，不包括真实麦克风、ASR或整机能耗。中文8条两声音实时TTS语料和Apple识别器对照披露错字，详见RC-AUDIO-WORK。
+
+当前是检查点，不是最终RC签字。签名安装升级、最终CI及交叉审查仍在进行。

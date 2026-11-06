@@ -21,12 +21,24 @@ struct DisplayRecording: Identifiable, Equatable {
         case .running: return "正在识别"
         case .completed: return "文字已保存"
         case .failed: return "识别待恢复"
-        case .cancelled: return "文字已保留"
+        case .cancelled: return text.isEmpty ? "识别已停止" : "文字已保留"
+        }
+    }
+    var emptyTextLabel: String {
+        switch source.audioState {
+        case .deleted: return "原音已删除，这条记录没有文字。"
+        case .deletePending: return "正在清理原音，这条记录没有文字。"
+        case .missing: return "原音暂不可用，尚未生成文字。"
+        case .available:
+            if source.isRecording { return "正在接收讲话…" }
+            if source.recognitionState == .failed { return "原音已保存，文字等待恢复。" }
+            if source.recognitionState == .completed { return "原音已保存，未检测到可识别的文字。" }
+            return "原音已保存，等待识别…"
         }
     }
     var audioLabel: String {
         switch source.audioState {
-        case .available: return source.duration > 0 ? "原音 · \(Int(source.duration)) 秒" : "原音保存中"
+        case .available: return source.duration > 0 ? "原音 · \(max(1, Int(source.duration.rounded()))) 秒" : (source.isRecording ? "原音保存中" : "尚无可回放原音")
         case .deleted: return "原音已删除 · 文字保留"
         case .deletePending: return "原音清理中"
         case .missing: return "原音文件缺失"
@@ -46,6 +58,7 @@ final class AppModel: ObservableObject {
     let audio: AudioController
     let input: NativeInputCoordinator
     let directory: URL
+    private let preferences: UserDefaults
     @Published var recent: [DisplayRecording] = []
     @Published var records: [DisplayRecording] = []
     @Published var versions: [DisplayVersion] = []
@@ -64,25 +77,41 @@ final class AppModel: ObservableObject {
     @Published var cleanupCount = 0
     @Published private(set) var preparingCleanup = false
     @Published private(set) var isInserting = false
-    @Published var deviceID: UInt32 = 0 { didSet { audio.selectedDeviceID = deviceID } }
-    @Published var shortcutChoice = UserDefaults.standard.string(forKey: "shortcutChoice") ?? "option-space" {
-        didSet { UserDefaults.standard.set(shortcutChoice, forKey: "shortcutChoice"); NotificationCenter.default.post(name: .init("SaytileShortcutChanged"), object: nil) }
+    @Published var deviceID: UInt32 = 0 {
+        didSet {
+            guard !initializing, deviceID != UInt32.max else { return }
+            audio.selectedDeviceID = deviceID
+            preferences.set(audio.selectedDeviceUID, forKey: "selectedDeviceUID")
+        }
+    }
+    @Published var shortcutChoice = "option-space" {
+        didSet {
+            guard !initializing else { return }
+            preferences.set(shortcutChoice, forKey: "shortcutChoice")
+            NotificationCenter.default.post(name: .init("SaytileShortcutChanged"), object: nil)
+        }
     }
     @Published var launchAtLogin = false { didSet { setLoginItem() } }
     @Published var hasMore = false
+    @Published private(set) var panelCount = 0
+    @Published private(set) var panelHasMore = false
+    @Published private(set) var loadingPanel = false
     var openPanel: () -> Void = {}
     var hidePanel: () -> Void = {}
     var openArchive: () -> Void = {}
     var openSettings: () -> Void = {}
     private var pageLimit = 100
+    private var panelLimit = 100
     private var timer: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
     private var subscription: AnyCancellable?
-    private var directRevisions: Set<UUID> = []
     private var cleanupIDs: [UUID] = []
     private var refreshOperation: Task<Void, Never>?
+    private var refreshVersion: UInt64 = 0
+    private var completedRefreshVersion: UInt64 = 0
+    private var refreshOperationID = UUID()
     private var initializing = true
-    private var captureWasEnabled = false
+    private var exitPrepared = false
     private var lastStorageRefresh = Date.distantPast
     private var recovered = false
     private var recoveryTask: Task<Void, Never>?
@@ -102,12 +131,16 @@ final class AppModel: ObservableObject {
     var editorCanEdit: Bool { editorRecordingID != nil && !editorDraftLoading }
     var hasUnpersistedDrafts: Bool { !pendingDraftWrites.isEmpty }
 
-    init(directory: URL) throws {
+    init(directory: URL, preferences: UserDefaults = .standard) throws {
         self.directory = directory
+        self.preferences = preferences
         store = try SaytileStore(directory: directory)
         audio = AudioController(store: store)
         input = NativeInputCoordinator(store: store)
         launchAtLogin = SMAppService.mainApp.status == .enabled
+        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? "option-space"
+        audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
+        deviceID = audio.selectedDeviceUID != nil && audio.selectedDeviceID == 0 ? UInt32.max : audio.selectedDeviceID
         initializing = false
         input.onBindingInvalidated = { [weak self] in
             self?.directMode = false
@@ -115,17 +148,27 @@ final class AppModel: ObservableObject {
             self?.notice = "自动输入已暂停，新内容继续保留在 Saytile。"
         }
         subscription = audio.objectWillChange.sink { [weak self] _ in
-            Task { @MainActor [weak self] in self?.objectWillChange.send() }
+            Task { @MainActor [weak self] in guard let self else { return }
+                self.objectWillChange.send()
+                if let uid = self.audio.selectedDeviceUID {
+                    let resolved = self.audio.devices.first(where: { $0.uid == uid })?.id ?? UInt32.max
+                    if self.deviceID != resolved { self.initializing = true; self.deviceID = resolved; self.initializing = false }
+                }
+                if case .interrupted = self.audio.state, self.input.binding != nil { self.input.invalidate() } }
         }
         recoveryTask = Task { [weak self] in
             guard let self else { return }
             do { _ = try await AudioDiagnostics.recoverAudio(store: store); recovered = true }
             catch { notice = "资料恢复尚未完成：\(error.localizedDescription)" }
         }
+        startRefreshTimer()
+    }
+    private func startRefreshTimer() {
+        timer?.cancel()
         timer = Task { [weak self] in
             while !Task.isCancelled {
                 await self?.refresh()
-                try? await Task.sleep(for: .seconds(1))
+                do { try await Task.sleep(for: .seconds(1)) } catch { break }
             }
         }
     }
@@ -142,7 +185,7 @@ final class AppModel: ObservableObject {
         }
     }
     var captureProblem: Bool { if case .interrupted = audio.state { return true }; return false }
-    var saveLabel: String { isListening ? "原音独立保存 · 识别不会阻塞收音" : "内容保存在此 Mac，随时可以取用" }
+    var saveLabel: String { captureProblem ? "收音已暂停 · 请查看保存状态" : isListening ? "原音独立保存 · 识别不会阻塞收音" : "内容保存在此 Mac，随时可以取用" }
     var microphoneLabel: String {
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
         case .authorized: return "已允许"
@@ -152,14 +195,18 @@ final class AppModel: ObservableObject {
     }
     var accessibilityLabel: String { input.hasPermission ? "已允许" : "尚未允许 · 可正常复制" }
     var engineLabel: String { audio.speechStatus }
-    var devices: [DisplayDevice] { [DisplayDevice(id: 0, name: "系统默认输入设备")] + audio.devices.map { DisplayDevice(id: $0.id, name: $0.name) } }
+    var devices: [DisplayDevice] {
+        var choices = [DisplayDevice(id: 0, name: "系统默认输入设备")] + audio.devices.map { DisplayDevice(id: $0.id, name: $0.name) }
+        if deviceID == UInt32.max { choices.append(DisplayDevice(id: UInt32.max, name: "已选择的麦克风未连接")) }
+        return choices
+    }
     var playingID: UUID? { audio.playingID }
     func toggleCapture() {
         Task {
             await recoveryTask?.value
             guard recovered else { notice = "资料库恢复未完成，请先重新打开 Saytile。已有资料会保留。"; return }
-            if isListening { captureWasEnabled = false; await audio.pause() }
-            else { hasStarted = true; captureWasEnabled = true; await audio.start() }
+            if isListening { await audio.pause() }
+            else { hasStarted = true; await audio.start() }
             if let issue = audio.issue { notice = issue }
         }
     }
@@ -169,12 +216,18 @@ final class AppModel: ObservableObject {
     }
     func bindTarget() {
         Task {
-            do { let binding = try await input.bindCurrentTarget(); directMode = true; targetLabel = binding.label; directRevisions.removeAll() }
+            do { let binding = try await input.bindCurrentTarget(); directMode = true; targetLabel = binding.label }
             catch { notice = error.localizedDescription }
         }
     }
     func copy(_ text: String) { input.copy(text); notice = "已复制，可以粘贴到任何应用。" }
+    var panelScopeLabel: String { panelHasMore ? "已载入 \(recent.count) / \(panelCount) 段" : "输入板 \(recent.count) 段" }
     func copyRecent() { copy(recent.map(\.text).filter { !$0.isEmpty }.joined(separator: "\n")) }
+    func loadEarlierPanel() {
+        guard !loadingPanel else { return }
+        panelLimit += 100; refreshVersion &+= 1; loadingPanel = true
+        Task { await refresh(); loadingPanel = false }
+    }
     func insertRecent() {
         guard !isInserting else { return }
         // Freeze immutable revision identifiers at the user's click, before any await.
@@ -186,7 +239,7 @@ final class AppModel: ObservableObject {
         Task {
             defer { isInserting = false }
             do {
-                _ = try await input.bindCurrentTarget()
+                _ = try await input.bindCurrentTarget(purpose: .manual)
                 var frozen: [TranscriptRevision] = []
                 for snapshot in snapshots {
                     frozen.append(try await store.freezeRevision(recordingID: snapshot.recordingID, revisionID: snapshot.revisionID, text: snapshot.text))
@@ -205,18 +258,19 @@ final class AppModel: ObservableObject {
         guard !isInserting else { return }
         panelSessionStartedAt = Date()
         stagedRecordIDs.removeAll()
+        panelLimit = 100; panelCount = 0; panelHasMore = false
         recent = []
         notice = "输入板已清空，全部记录仍在语音档案中。"
     }
     func stageInPanel(_ item: DisplayRecording, showPanel: Bool = true) {
         stagedRecordIDs.insert(item.id)
         if !recent.contains(where: { $0.id == item.id }) { recent.append(item); recent.sort { $0.date < $1.date } }
+        scheduleRefresh()
         if showPanel { openPanel() }
         notice = "已带到输入板，可与本次表达一起复制或插入。"
     }
     func select(_ item: DisplayRecording) {
-        openArchive()
-        Task { await selectForEditing(item) }
+        Task { await selectForEditing(item); openArchive() }
     }
     func prepareEditorIfNeeded(_ item: DisplayRecording) async {
         guard editorRecordingID != item.id, !(editorDraftLoading && selected?.id == item.id) else { return }
@@ -355,23 +409,43 @@ final class AppModel: ObservableObject {
         perform { let count = try await self.store.cleanupAudio(recordingIDs: ids, olderThan: Date.now.addingTimeInterval(-30 * 86400)); self.notice = "已清理 \(count) 条原音，文字和版本全部保留。"; self.lastStorageRefresh = .distantPast; await self.refresh() }
     }
     func prepareForExit() async {
-        await audio.pause(); input.invalidate()
+        guard !exitPrepared else { return }
+        directMode = false; input.invalidate()
+        timer?.cancel(); refreshTask?.cancel()
+        await audio.pause()
         editorDebounce?.cancel()
         _ = await flushEditorDrafts()
         // If saving fails, the delegate keeps this window open and the normal refresh loop alive.
-        if !hasUnpersistedDrafts { timer?.cancel(); refreshTask?.cancel() }
+        if !hasUnpersistedDrafts {
+            exitPrepared = true
+            timer?.cancel(); refreshTask?.cancel()
+            await audio.shutdown()
+            await refreshOperation?.value
+            do { try await store.close() } catch { notice = error.localizedDescription }
+        } else { startRefreshTimer() }
     }
     // All callers await the same in-flight refresh, including startup diagnostics.
     // A timer refresh must not make a user action or initial render return empty early.
     func refresh() async {
-        if let refreshOperation { await refreshOperation.value; return }
+        refreshVersion &+= 1
+        let requestedVersion = refreshVersion
+        if let refreshOperation {
+            let operationID = refreshOperationID
+            await refreshOperation.value
+            if refreshOperationID == operationID { self.refreshOperation = nil }
+            if completedRefreshVersion < requestedVersion { await refresh() }
+            return
+        }
+        let operationID = UUID(); refreshOperationID = operationID
         let operation = Task<Void, Never> { [weak self] in
             guard let self else { return }
             await self.performRefresh()
+            self.completedRefreshVersion = max(self.completedRefreshVersion, requestedVersion)
         }
         refreshOperation = operation
         await operation.value
-        refreshOperation = nil
+        if refreshOperationID == operationID { refreshOperation = nil }
+        if completedRefreshVersion < requestedVersion { await refresh() }
     }
     func initialLoad() async { await refresh() }
     private func performRefresh() async {
@@ -386,18 +460,25 @@ final class AppModel: ObservableObject {
             }
             guard query == requestedQuery, recordFilter == requestedFilter, pageLimit == requestedLimit else { scheduleRefresh(); return }
             hasMore = rows.count > requestedLimit
-            records = Array(rows.prefix(requestedLimit)).map { DisplayRecording(source: $0) }
-            let latest = try await store.listRecordings(query: "", limit: 30, offset: 0)
-            var panelRows = latest.filter { $0.createdAt >= panelSessionStartedAt || stagedRecordIDs.contains($0.id) }
-            for id in stagedRecordIDs where !panelRows.contains(where: { $0.id == id }) {
-                if let row = try await store.recording(id: id) { panelRows.append(row) }
-                else { stagedRecordIDs.remove(id) }
+            let nextRecords = Array(rows.prefix(requestedLimit)).map { DisplayRecording(source: $0) }
+            if records != nextRecords { records = nextRecords }
+            let panelStart = panelSessionStartedAt, panelIDs = Array(stagedRecordIDs), requestedPanelLimit = panelLimit
+            var panelRows: [Recording] = []
+            while panelRows.count < requestedPanelLimit {
+                let batch = try await store.listPanelRecordings(createdSince: panelStart, includingIDs: panelIDs, limit: min(100, requestedPanelLimit - panelRows.count), offset: panelRows.count)
+                panelRows += batch
+                if batch.isEmpty { break }
             }
-            recent = panelRows.sorted { $0.createdAt < $1.createdAt }.map { DisplayRecording(source: $0) }
+            let total = try await store.panelRecordingCount(createdSince: panelStart, includingIDs: panelIDs)
+            if panelStart == panelSessionStartedAt, Set(panelIDs) == stagedRecordIDs, requestedPanelLimit == panelLimit {
+                panelCount = total; panelHasMore = panelRows.count < total
+                let nextRecent = panelRows.reversed().map { DisplayRecording(source: $0) }
+                if recent != nextRecent { recent = nextRecent }
+            }
             if let selection = selected {
                 let refreshedSelection = try await store.recording(id: selection.id).map { DisplayRecording(source: $0) }
                 if selected?.id == selection.id {
-                    selected = refreshedSelection
+                    if selected != refreshedSelection { selected = refreshedSelection }
                     if editorRecordingID == selection.id, !editorWasEdited, let refreshedSelection { editorDraft = refreshedSelection.text }
                     if refreshedSelection?.source.preferredRevisionID != selection.source.preferredRevisionID { await loadVersions(selection.id) }
                 }
@@ -408,10 +489,11 @@ final class AppModel: ObservableObject {
             storageLabel = ByteCountFormatter.string(fromByteCount: summary.audioBytes, countStyle: .file)
             if summary.shouldWarn { notice = "原音空间已达到提醒阈值，或磁盘剩余不足 1 GB。请在设置中查看存储。" }
             }
-            if directMode {
-                for record in latest.reversed() {
-                    guard let revision = try await store.latestFinalRevision(recordingID: record.id), !directRevisions.contains(revision.id) else { continue }
-                    directRevisions.insert(revision.id)
+            if directMode && !isInserting, let binding = input.binding {
+                let candidates = try await store.directInputCandidates(bindingID: binding.id, createdSince: binding.boundAt)
+                for record in candidates {
+                    guard directMode, !isInserting, input.binding?.id == binding.id else { break }
+                    guard let revision = try await store.latestFinalRevision(recordingID: record.id) else { continue }
                     let result = await input.insertStable(recordingID: record.id, revisionID: revision.id, stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
                     switch result { case .failed, .cancelled, .unverified: notice = result.message; default: break }
                 }
@@ -427,11 +509,14 @@ final class AppModel: ObservableObject {
             versions = loaded
         } catch { if selected?.id == id { notice = error.localizedDescription } }
     }
-    private func scheduleRefresh() { refreshTask?.cancel(); refreshTask = Task { try? await Task.sleep(for: .milliseconds(200)); guard !Task.isCancelled else { return }; await refresh() } }
+    private func scheduleRefresh() { refreshVersion &+= 1; refreshTask?.cancel(); refreshTask = Task { try? await Task.sleep(for: .milliseconds(200)); guard !Task.isCancelled else { return }; await refresh() } }
     private func perform(_ operation: @escaping @MainActor () async throws -> Void) { Task { do { try await operation() } catch { notice = error.localizedDescription } } }
     private func setLoginItem() {
         guard !initializing else { return }
         do { if launchAtLogin { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() } }
         catch { notice = "登录启动未能更新：\(error.localizedDescription)" }
+        let status = SMAppService.mainApp.status
+        if status == .requiresApproval { notice = "登录启动需要在系统设置的登录项中允许。收音仍需你主动开启。" }
+        initializing = true; launchAtLogin = status == .enabled; initializing = false
     }
 }

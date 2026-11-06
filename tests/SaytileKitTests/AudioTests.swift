@@ -74,6 +74,7 @@ struct AudioTests {
     @Test func testCheckpointAndInterruptedTailRecovery() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-audio-\(UUID())")
         defer { try? FileManager.default.removeItem(at: directory) }
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let id = UUID(); let journal = try PCMJournal(directory: directory, recordingID: id)
         try journal.openChunk(); try journal.append(Data(repeating: 1, count: 32_000)); try journal.checkpoint()
         let url = directory.appendingPathComponent(journal.relativePath)
@@ -88,6 +89,7 @@ struct AudioTests {
     @Test func testFifteenSecondRotationBoundary() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-audio-\(UUID())")
         defer { try? FileManager.default.removeItem(at: directory) }
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let journal = try PCMJournal(directory: directory, recordingID: UUID()); try journal.openChunk()
         try journal.append(Data(repeating: 0, count: 479_360)); #expect(!journal.needsRotation)
         try journal.append(Data(repeating: 0, count: 640)); #expect(journal.needsRotation)

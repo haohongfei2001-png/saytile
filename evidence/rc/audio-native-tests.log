@@ -1,0 +1,121 @@
+Building for debugging...
+[1 / 13] CAudio
+[2 / 14] SaytileKit
+[8 / 20] SaytileKit
+[14 / 25] SaytileKit
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[19 / 26] Saytile-product
+[28 / 35] Saytile-product
+[28 / 35] SaytileKitTests-product
+[33 / 38] SaytileKitTests-product
+[35 / 38] SaytileKitTests-product
+/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[37 / 41] Saytile-product
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (2.99秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Chunked playback seeking" started.
+◇ Suite "RC store ownership, migrations and archive" started.
+◇ Test storeLateRecognitionCannotResurrectDeletedAudio() started.
+◇ Suite "Input coordinator with isolated SQLite and simulated OS" started.
+◇ Suite "Audio file boundary recovery" started.
+◇ Suite "Audio journal, bounded ring and VAD" started.
+◇ Suite "Capture shutdown tail" started.
+◇ Suite "Real-time tap actor isolation" started.
+◇ Test storeAudioLeaseDefersPhysicalErasure() started.
+◇ Suite "Independent lifecycle stop reasons" started.
+◇ Suite "Capture storage failures" started.
+◇ Test storeAudioDeletionPreservesEveryTextRevision() started.
+◇ Test storeAudioErasurePreservesDraftAndRecordErasureRemovesIt() started.
+◇ Suite "Audio controller shutdown" started.
+◇ Suite "Speech range aggregation" started.
+◇ Test storeMissingAudioStatePreservesTextAndRejectsStaleASR() started.
+◇ Test seeksAcrossOriginalChunkBoundaries() started.
+◇ Test draftSearchAndHistorySurviveAudioErasure() started.
+◇ Test storeRecoveryReconcilesTruncatedDurableAudio() started.
+◇ Test clampsEndAndRejectsInvalidDurations() started.
+◇ Test oversizedSparseWAVIsRejectedBeforeHeaderConversion() started.
+◇ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() started.
+◇ Test recordDirectorySymlinkCannotCreateFileOutsideAudioRoot() started.
+◇ Test testFifteenSecondRotationBoundary() started.
+◇ Test testexistingSpeechNeverAutomaticallyReplayed() started.
+◇ Test testRingKeepsOrderingAndRejectsOverflowWithoutOverwrite() started.
+◇ Test recoveryMarksMissingAudioWithoutDiscardingText() started.
+◇ Test testCheckpointAndInterruptedTailRecovery() started.
+◇ Test countOnlyTapNeverReadsSampleDataAndRunsOffMain() started.
+◇ Test finishFlushesSubVADFrameTailOfActiveSpeech() started.
+◇ Test testSilenceDoesNotCreateRecordings() started.
+◇ Test recoveryRetainsCompleteFramesBeyondPublishedCheckpoint() started.
+◇ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() started.
+◇ Test testRingWrapsAndDownmixesStereo() started.
+◇ Test finishDoesNotSaveStandbySilenceAsSpeech() started.
+◇ Test recordingTapCreatedOnMainActorRunsOnBackgroundThread() started.
+◇ Test wakeDoesNotOverrideLockOrSessionSwitch() started.
+◇ Test lockedAtLaunchCannotCapture() started.
+◇ Test invalidAudioDirectorySealsRecordInsteadOfLeavingItActive() started.
+◇ Test unknownSessionOrUntrustedUnlockCannotResume() started.
+◇ Test failedFinalSyncKeepsOnlyPublishedDurableAudioAndPreservesText() started.
+◇ Test realtimeWriteFailureStopsWorkerAndSealsEmptyRecord() started.
+◇ Test finalPrefixAdvancesWhileTailIsVolatile() started.
+◇ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() started.
+◇ Test finalizationWatermarkStabilizesEarlierVolatileTextWithoutRepeat() started.
+◇ Test revisingRangeReplacesInsteadOfDuplicating() started.
+◇ Test laterFinalDoesNotSkipEarlierVolatileRange() started.
+◇ Test finalizationWatermarkNeverRewindsOrPromotesBeyondCoverage() started.
+◇ Test mergedRangeReplacesAllOverlaps() started.
+◇ Test invalidRangesDoNotLoseValidText() started.
+✔ Test seeksAcrossOriginalChunkBoundaries() passed after 0.021 seconds.
+✔ Test clampsEndAndRejectsInvalidDurations() passed after 0.022 seconds.
+✔ Test testRingKeepsOrderingAndRejectsOverflowWithoutOverwrite() passed after 0.022 seconds.
+✔ Test testFifteenSecondRotationBoundary() passed after 0.022 seconds.
+✔ Test oversizedSparseWAVIsRejectedBeforeHeaderConversion() passed after 0.022 seconds.
+✔ Test recordDirectorySymlinkCannotCreateFileOutsideAudioRoot() passed after 0.022 seconds.
+✔ Test finishFlushesSubVADFrameTailOfActiveSpeech() passed after 0.022 seconds.
+✔ Test testCheckpointAndInterruptedTailRecovery() passed after 0.022 seconds.
+✔ Test testSilenceDoesNotCreateRecordings() passed after 0.022 seconds.
+✔ Test testRingWrapsAndDownmixesStereo() passed after 0.022 seconds.
+✔ Test finishDoesNotSaveStandbySilenceAsSpeech() passed after 0.022 seconds.
+✔ Test wakeDoesNotOverrideLockOrSessionSwitch() passed after 0.022 seconds.
+✔ Test lockedAtLaunchCannotCapture() passed after 0.022 seconds.
+✔ Test storeLateRecognitionCannotResurrectDeletedAudio() passed after 0.022 seconds.
+✔ Test unknownSessionOrUntrustedUnlockCannotResume() passed after 0.022 seconds.
+✔ Test storeRecoveryReconcilesTruncatedDurableAudio() passed after 0.024 seconds.
+✔ Test storeAudioErasurePreservesDraftAndRecordErasureRemovesIt() passed after 0.024 seconds.
+✔ Test storeAudioDeletionPreservesEveryTextRevision() passed after 0.024 seconds.
+✔ Test finalPrefixAdvancesWhileTailIsVolatile() passed after 0.018 seconds.
+✔ Test finalizationWatermarkStabilizesEarlierVolatileTextWithoutRepeat() passed after 0.017 seconds.
+✔ Test revisingRangeReplacesInsteadOfDuplicating() passed after 0.017 seconds.
+✔ Test laterFinalDoesNotSkipEarlierVolatileRange() passed after 0.017 seconds.
+✔ Test mergedRangeReplacesAllOverlaps() passed after 0.017 seconds.
+✔ Test finalizationWatermarkNeverRewindsOrPromotesBeyondCoverage() passed after 0.017 seconds.
+✔ Test invalidRangesDoNotLoseValidText() passed after 0.012 seconds.
+✔ Suite "Chunked playback seeking" passed after 0.025 seconds.
+✔ Suite "Audio file boundary recovery" passed after 0.025 seconds.
+✔ Suite "Capture shutdown tail" passed after 0.025 seconds.
+✔ Suite "Speech range aggregation" passed after 0.025 seconds.
+✔ Test draftSearchAndHistorySurviveAudioErasure() passed after 0.026 seconds.
+✔ Suite "RC store ownership, migrations and archive" passed after 0.026 seconds.
+✔ Test storeAudioLeaseDefersPhysicalErasure() passed after 0.026 seconds.
+✔ Test storeMissingAudioStatePreservesTextAndRejectsStaleASR() passed after 0.026 seconds.
+✔ Test recoveryRetainsCompleteFramesBeyondPublishedCheckpoint() passed after 0.029 seconds.
+✔ Test recoveryMarksMissingAudioWithoutDiscardingText() passed after 0.029 seconds.
+✔ Suite "Audio journal, bounded ring and VAD" passed after 0.030 seconds.
+✔ Test invalidAudioDirectorySealsRecordInsteadOfLeavingItActive() passed after 0.043 seconds.
+✔ Test failedFinalSyncKeepsOnlyPublishedDurableAudioAndPreservesText() passed after 0.043 seconds.
+✔ Test countOnlyTapNeverReadsSampleDataAndRunsOffMain() passed after 0.071 seconds.
+✔ Test recordingTapCreatedOnMainActorRunsOnBackgroundThread() passed after 0.071 seconds.
+✔ Suite "Real-time tap actor isolation" passed after 0.071 seconds.
+✔ Test testexistingSpeechNeverAutomaticallyReplayed() passed after 0.073 seconds.
+✔ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() passed after 0.093 seconds.
+✔ Suite "Independent lifecycle stop reasons" passed after 0.093 seconds.
+✔ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() passed after 0.116 seconds.
+✔ Suite "Audio controller shutdown" passed after 0.122 seconds.
+✔ Test realtimeWriteFailureStopsWorkerAndSealsEmptyRecord() passed after 0.237 seconds.
+✔ Suite "Capture storage failures" passed after 0.237 seconds.
+✔ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() passed after 1.251 seconds.
+✔ Suite "Input coordinator with isolated SQLite and simulated OS" passed after 1.252 seconds.
+✔ Test run with 39 tests in 11 suites passed after 1.252 seconds.

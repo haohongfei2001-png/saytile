@@ -7,19 +7,30 @@ public actor SaytileStore {
     public nonisolated let audioDirectory: URL
     public nonisolated let recovery: StoreRecovery
     private let db: StoreDatabase
+    private let processLock: StoreProcessLock
     private var leases: [UUID: UUID] = [:]
     private static let selection = "SELECT r.*,v.text FROM recordings r LEFT JOIN revisions v ON r.preferred_revision=v.id"
 
     public init(directory: URL) throws {
-        self.directory = directory.standardizedFileURL
-        self.audioDirectory = directory.appendingPathComponent("Audio",isDirectory:true).standardizedFileURL
-        try FileManager.default.createDirectory(at: audioDirectory, withIntermediateDirectories:true)
-        try FileManager.default.setAttributes([.posixPermissions:0o700],ofItemAtPath:directory.path)
-        let database = try StoreDatabase(url:directory.appendingPathComponent("Saytile.sqlite"))
+        let normalized = directory.standardizedFileURL
+        try StorePath.rejectSymbolicLink(normalized)
+        try FileManager.default.createDirectory(at:normalized,withIntermediateDirectories:true)
+        self.directory = normalized.resolvingSymlinksInPath()
+        self.audioDirectory = self.directory.appendingPathComponent("Audio",isDirectory:true)
+        try StorePath.rejectSymbolicLink(audioDirectory)
+        try FileManager.default.createDirectory(at:audioDirectory,withIntermediateDirectories:true)
+        try FileManager.default.setAttributes([.posixPermissions:0o700],ofItemAtPath:self.directory.path)
+        processLock = try StoreProcessLock(directory:self.directory)
+        for name in ["Saytile.sqlite","Saytile.sqlite-wal","Saytile.sqlite-shm"] {
+            try StorePath.rejectSymbolicLink(self.directory.appendingPathComponent(name))
+        }
+        let database = try StoreDatabase(url:self.directory.appendingPathComponent("Saytile.sqlite"))
         db = database
         let version = try database.rows("PRAGMA user_version").first?["user_version"] ?? "0"
-        guard version == "0" || version == "1" else { throw StoreError.database("资料库来自更新版本，请升级 Saytile。") }
-        try database.script(Self.schema)
+        guard version == "0" || version == "1" || version == "2" else { throw StoreError.database("资料库来自更新版本，请升级 Saytile。") }
+        try database.configureForWriting()
+        // DDL, index upgrades and version advancement commit together or roll back together.
+        try database.transaction { try database.script(Self.schema) }
         func count(_ whereClause: String) throws -> Int { Int(try database.rows("SELECT COUNT(*) AS n FROM \(whereClause)").first?["n"] ?? "0") ?? 0 }
         recovery = try StoreRecovery(interruptedRecordings:count("recordings WHERE is_recording=1"),interruptedRecognitions:count("recordings WHERE recognition_state='running'"),unverifiedDispatches:count("dispatches WHERE state='dispatching'"))
         try database.transaction {
@@ -29,6 +40,13 @@ public actor SaytileStore {
             try database.execute("UPDATE dispatches SET state='unverified' WHERE state='dispatching'")
         }
         // Cleanup is resumed by recoverPendingDeletions, before importing any audio.
+    }
+
+    /// Call only after producers and pending draft writes have stopped.
+    public func close() throws {
+        try db.close()
+        leases.removeAll()
+        processLock.close()
     }
 
     public func createRecording(id: UUID = UUID(), createdAt: Date = Date(), sampleRate: Double = 16000) throws -> Recording {
@@ -43,8 +61,30 @@ public actor SaytileStore {
         let filterSQL: String
         switch filter { case .all: filterSQL = ""; case .pinned: filterSQL = " AND r.pinned=1"; case .needsRecovery: filterSQL = " AND r.recognition_state IN('queued','failed') AND r.audio_state='available'" }
         let escaped = query.replacingOccurrences(of:"\\",with:"\\\\").replacingOccurrences(of:"%",with:"\\%").replacingOccurrences(of:"_",with:"\\_")
-        return try db.rows(Self.selection + " WHERE r.deleted=0" + filterSQL + " AND (?='' OR EXISTS (SELECT 1 FROM revisions s WHERE s.recording_id=r.id AND s.text LIKE ? ESCAPE '\\')) ORDER BY r.created_at DESC LIMIT ? OFFSET ?",[.text(query),.text("%" + escaped + "%"),.int(Int64(max(1,min(limit,1000)))),.int(Int64(max(0,offset)))]).map(Self.decodeRecording)
+        return try db.rows(Self.selection + " WHERE r.deleted=0" + filterSQL + " AND (?='' OR EXISTS (SELECT 1 FROM revisions s WHERE s.recording_id=r.id AND s.text LIKE ? ESCAPE '\\') OR EXISTS (SELECT 1 FROM editing_drafts d WHERE d.recording_id=r.id AND d.text LIKE ? ESCAPE '\\')) ORDER BY r.created_at DESC,r.id DESC LIMIT ? OFFSET ?",[.text(query),.text("%" + escaped + "%"),.text("%" + escaped + "%"),.int(Int64(max(1,min(limit,1000)))),.int(Int64(max(0,offset)))]).map(Self.decodeRecording)
     }
+    /// Pages the current listening session plus records explicitly returned to the panel.
+    public func listPanelRecordings(createdSince: Date, includingIDs: [UUID], limit: Int = 100, offset: Int = 0) throws -> [Recording] {
+        let (predicate,values) = try panelPredicate(createdSince:createdSince,includingIDs:includingIDs)
+        return try db.rows(Self.selection + " WHERE " + predicate + " ORDER BY r.created_at DESC,r.id DESC LIMIT ? OFFSET ?",values + [.int(Int64(max(1,min(limit,1000)))),.int(Int64(max(0,offset)))]).map(Self.decodeRecording)
+    }
+    public func panelRecordingCount(createdSince: Date, includingIDs: [UUID]) throws -> Int {
+        let (predicate,values) = try panelPredicate(createdSince:createdSince,includingIDs:includingIDs)
+        return Int(try db.rows("SELECT COUNT(*) AS n FROM recordings r WHERE " + predicate,values).first?["n"] ?? "0") ?? 0
+    }
+    private func panelPredicate(createdSince: Date, includingIDs: [UUID]) throws -> (String,[StoreDatabase.Value]) {
+        let ids = Set(includingIDs)
+        guard ids.count <= 30_000 else { throw StoreError.database("输入板包含过多记录，请分批取用。") }
+        var values: [StoreDatabase.Value] = [.double(createdSince.timeIntervalSince1970)]
+        let included: String
+        if ids.isEmpty { included = "" }
+        else {
+            included = " OR r.id IN(" + Array(repeating:"?",count:ids.count).joined(separator:",") + ")"
+            values += ids.map { .text($0.uuidString) }
+        }
+        return ("r.deleted=0 AND (r.created_at>=?" + included + ")",values)
+    }
+
     /// Capture/storage failure closes the source independently of ASR cancellation.
     /// Only published durable frames justify an available original-audio state.
     public func recordCaptureFailure(recordingID: UUID, message: String) throws {
@@ -113,7 +153,7 @@ public actor SaytileStore {
         return try db.transaction {
             let revision: TranscriptRevision
             if let row = try db.rows("SELECT * FROM revisions WHERE id=?",[.text(revisionID.uuidString)]).first {
-                let existing = Self.decodeRevision(row)
+                let existing = try Self.decodeRevision(row)
                 guard existing.recordingID == recordingID, existing.text == text else { throw StoreError.missingRevision }
                 revision = existing
             } else {
@@ -174,7 +214,7 @@ public actor SaytileStore {
             // An explicit user edit remains selected while later ASR results are preserved as other versions.
             try db.execute("UPDATE recordings SET preferred_revision=? WHERE id=? AND NOT EXISTS(SELECT 1 FROM revisions WHERE id=recordings.preferred_revision AND origin='userEdit')",[.text(revision.id.uuidString),.text(ticket.recordingID.uuidString)])
             // Only unreferenced volatile drafts can be replaced; finals and insertion snapshots remain immutable.
-            try db.execute("DELETE FROM revisions WHERE recording_id=? AND origin='partial' AND attempt=? AND id<>? AND id NOT IN(SELECT revision_id FROM dispatches) AND id NOT IN(SELECT preferred_revision FROM recordings WHERE preferred_revision IS NOT NULL) AND id NOT IN(SELECT base_revision FROM revisions WHERE base_revision IS NOT NULL) AND id NOT IN(SELECT revision_id FROM frozen_revisions)",[.text(ticket.recordingID.uuidString),.text(ticket.id.uuidString),.text(revision.id.uuidString)])
+            try db.execute("DELETE FROM revisions WHERE recording_id=? AND origin='partial' AND attempt=? AND id<>? AND NOT EXISTS(SELECT 1 FROM dispatches d WHERE d.revision_id=revisions.id) AND NOT EXISTS(SELECT 1 FROM recordings r WHERE r.preferred_revision=revisions.id) AND NOT EXISTS(SELECT 1 FROM revisions b WHERE b.base_revision=revisions.id) AND NOT EXISTS(SELECT 1 FROM frozen_revisions f WHERE f.revision_id=revisions.id)",[.text(ticket.recordingID.uuidString),.text(ticket.id.uuidString),.text(revision.id.uuidString)])
             return true
         }
     }
@@ -201,7 +241,7 @@ public actor SaytileStore {
     public func claimRecoveryRecording(now: Date = Date()) throws -> Recording? {
         try db.transaction {
             guard let row = try db.rows(Self.selection + " LEFT JOIN recovery_attempts a ON a.recording_id=r.id WHERE r.deleted=0 AND r.audio_state='available' AND r.is_recording=0 AND r.recognition_state IN('queued','failed') AND COALESCE(a.attempt_count,0)<3 AND COALESCE(a.retry_after,0)<=? ORDER BY COALESCE(a.attempt_count,0),r.created_at LIMIT 1",[.double(now.timeIntervalSince1970)]).first else { return nil }
-            let record = Self.decodeRecording(row)
+            let record = try Self.decodeRecording(row)
             let previous = Int(try db.rows("SELECT attempt_count FROM recovery_attempts WHERE recording_id=?",[.text(record.id.uuidString)]).first?["attempt_count"] ?? "0") ?? 0
             let delays: [Double] = [60,300,1800]
             try db.execute("INSERT INTO recovery_attempts(recording_id,attempt_count,retry_after) VALUES(?,?,?) ON CONFLICT(recording_id) DO UPDATE SET attempt_count=excluded.attempt_count,retry_after=excluded.retry_after",[.text(record.id.uuidString),.int(Int64(previous + 1)),.double(now.timeIntervalSince1970 + delays[min(previous,2)])])
@@ -234,44 +274,70 @@ public actor SaytileStore {
         try beginErasure(recordingID,deleteRecord:true)
         try completeErasure(recordingID)
     }
-    public func recoverPendingDeletions() throws {
-        for row in try db.rows("SELECT recording_id,completed FROM erasures") {
-            guard let id = UUID(uuidString:row["recording_id"]!) else { continue }
-            let residual = try safeAudioURL(id.uuidString)
-            if row["completed"] == "1", FileManager.default.fileExists(atPath:residual.path) {
-                try db.execute("UPDATE erasures SET completed=0 WHERE recording_id=?",[.text(id.uuidString)])
-                try db.execute("UPDATE recordings SET audio_state='deletePending' WHERE id=?",[.text(id.uuidString)])
+    public func recoverPendingDeletions() async throws {
+        var cursor: Int64 = 0
+        while true {
+            let batch = try db.rows("SELECT rowid AS scan_id,recording_id,completed FROM erasures WHERE rowid>? ORDER BY rowid LIMIT 256",[.int(cursor)])
+            guard !batch.isEmpty else { break }
+            for row in batch {
+                cursor = Int64(row["scan_id"]!)!
+                guard let id = UUID(uuidString:row["recording_id"]!) else { continue }
+                if row["completed"] == "1" {
+                    let residual = try safeAudioURL(id.uuidString)
+                    guard FileManager.default.fileExists(atPath:residual.path) else { continue }
+                    try db.transaction {
+                        try db.execute("UPDATE erasures SET completed=0 WHERE recording_id=?",[.text(id.uuidString)])
+                        try db.execute("UPDATE recordings SET audio_state='deletePending' WHERE id=?",[.text(id.uuidString)])
+                    }
+                }
+                try completeErasure(id)
+                await Task.yield()
             }
-            try completeErasure(id)
+            await Task.yield()
         }
     }
     public func cleanupCandidates(olderThan: Date) throws -> [Recording] {
         try db.rows(Self.selection + " WHERE r.deleted=0 AND r.pinned=0 AND r.audio_state='available' AND r.recognition_state='completed' AND r.is_recording=0 AND r.created_at<? ORDER BY r.created_at",[.double(olderThan.timeIntervalSince1970)]).map(Self.decodeRecording).filter { !leases.values.contains($0.id) }
     }
     /// Revalidate the preview at execution time. Newly pinned, active, failed or leased audio stays protected.
-    @discardableResult public func cleanupAudio(recordingIDs: [UUID], olderThan: Date) throws -> Int {
-        let requested = Set(recordingIDs)
-        let eligible = try cleanupCandidates(olderThan:olderThan).filter { requested.contains($0.id) }
+    @discardableResult public func cleanupAudio(recordingIDs: [UUID], olderThan: Date) async throws -> Int {
+        var seen: Set<UUID> = []
         var count = 0
-        for record in eligible {
-            try beginErasure(record.id,deleteRecord:false)
-            try completeErasure(record.id)
+        for id in recordingIDs where seen.insert(id).inserted {
+            try Task.checkCancellation()
+            guard let record = try recording(id:id), !record.isPinned, !record.isRecording,
+                  record.audioState == .available, record.recognitionState == .completed,
+                  record.createdAt < olderThan, !leases.values.contains(id) else { await Task.yield(); continue }
+            try beginErasure(id,deleteRecord:false)
+            try completeErasure(id)
             count += 1
+            // Each physical cleanup is already durable. Let capture checkpoints and edits run.
+            await Task.yield()
         }
         return count
     }
-    public func storageSummary() throws -> StorageSummary {
-        let keys: [URLResourceKey] = [.isRegularFileKey,.fileSizeKey,.isSymbolicLinkKey]
-        var bytes: Int64 = 0
-        if let enumerator = FileManager.default.enumerator(at:audioDirectory,includingPropertiesForKeys:keys) {
-            for case let url as URL in enumerator {
-                let value = try url.resourceValues(forKeys:Set(keys))
-                if value.isRegularFile == true && value.isSymbolicLink != true { bytes += Int64(value.fileSize ?? 0) }
-            }
-        }
+    public func storageSummary() async throws -> StorageSummary {
+        let audioRoot = audioDirectory
+        let scan = Task.detached(priority:.utility) { try Self.audioSize(audioRoot) }
+        let bytes = try await withTaskCancellationHandler { try await scan.value } onCancel: { scan.cancel() }
         let space = try FileManager.default.attributesOfFileSystem(forPath:directory.path)[.systemFreeSize] as? NSNumber
         func count(_ predicate: String) throws -> Int { Int(try db.rows("SELECT COUNT(*) AS n FROM recordings WHERE \(predicate)").first?["n"] ?? "0") ?? 0 }
         return try StorageSummary(audioBytes:bytes,recordingCount:count("deleted=0"),pendingRecognitionCount:count("deleted=0 AND recognition_state IN('queued','running','failed') AND audio_state='available'"),pendingDeletionCount:count("audio_state='deletePending'"),availableDiskBytes:space?.int64Value ?? 0)
+    }
+
+    private nonisolated static func audioSize(_ root: URL) throws -> Int64 {
+        let keys: [URLResourceKey] = [.isRegularFileKey,.fileSizeKey,.isSymbolicLinkKey]
+        var bytes: Int64 = 0
+        if let enumerator = FileManager.default.enumerator(at:root,includingPropertiesForKeys:keys) {
+            for case let url as URL in enumerator {
+                try Task.checkCancellation()
+                do {
+                    let value = try url.resourceValues(forKeys:Set(keys))
+                    if value.isRegularFile == true && value.isSymbolicLink != true { bytes += Int64(value.fileSize ?? 0) }
+                } catch let error as CocoaError where error.code == .fileReadNoSuchFile { continue }
+            }
+        }
+        return bytes
     }
 
     private func requireRecording(_ id: UUID) throws -> Recording {
@@ -284,7 +350,10 @@ public actor SaytileStore {
         try db.execute("INSERT INTO revisions(id,recording_id,text,origin,created_at,attempt,base_revision) VALUES(?,?,?,?,?,?,?)",[.text(revision.id.uuidString),.text(revision.recordingID.uuidString),.text(revision.text),.text(revision.origin.rawValue),.double(revision.createdAt.timeIntervalSince1970),attempt.map{.text($0.uuidString)} ?? .null,base.map{.text($0.uuidString)} ?? .null])
     }
     private func rawChunks(_ id: UUID) throws -> [AudioChunk] {
-        try db.rows("SELECT * FROM chunks WHERE recording_id=? ORDER BY ordinal",[.text(id.uuidString)]).map { AudioChunk(id:UUID(uuidString:$0["id"]!)!,recordingID:id,relativePath:$0["path"]!,frames:Int64($0["frames"]!)!,ordinal:Int($0["ordinal"]!)!) }
+        try db.rows("SELECT * FROM chunks WHERE recording_id=? ORDER BY ordinal",[.text(id.uuidString)]).map { row in
+            guard let chunkID = row["id"].flatMap(UUID.init(uuidString:)),let path = row["path"],let frames = row["frames"].flatMap(Int64.init), frames >= 0,let ordinal = row["ordinal"].flatMap(Int.init),ordinal >= 0 else { throw StoreError.database("原音索引损坏，请保留资料目录以便恢复。") }
+            return AudioChunk(id:chunkID,recordingID:id,relativePath:path,frames:frames,ordinal:ordinal)
+        }
     }
     private func safeAudioURL(_ path: String) throws -> URL {
         guard !path.isEmpty, !path.hasPrefix("/"), !path.split(separator:"/",omittingEmptySubsequences:false).contains(where:{$0 == ".." || $0 == "." || $0.isEmpty}) else { throw StoreError.invalidPath }
@@ -336,12 +405,27 @@ public actor SaytileStore {
             try db.execute("DELETE FROM chunks WHERE recording_id=?",[.text(id.uuidString)])
         }
     }
-    private static func decodeRecording(_ row: [String:String]) -> Recording {
-        Recording(id:UUID(uuidString:row["id"]!)!,createdAt:Date(timeIntervalSince1970:Double(row["created_at"]!)!),text:row["text"] ?? "",preferredRevisionID:row["preferred_revision"].flatMap(UUID.init(uuidString:)),duration:Double(row["total_frames"] ?? "0")! / Double(row["sample_rate"]!)!,isPinned:row["pinned"] == "1",audioState:AudioState(rawValue:row["audio_state"]!)!,recognitionState:RecognitionState(rawValue:row["recognition_state"]!)!,isRecording:row["is_recording"] == "1",lastError:row["last_error"],sampleRate:Double(row["sample_rate"]!)!)
+    private static func decodeRecording(_ row: [String:String]) throws -> Recording {
+        guard let id = row["id"].flatMap(UUID.init(uuidString:)),
+              let createdAt = row["created_at"].flatMap(Double.init), createdAt.isFinite,
+              let sampleRate = row["sample_rate"].flatMap(Double.init), sampleRate.isFinite, sampleRate > 0,
+              let frames = row["total_frames"].flatMap(Int64.init), frames >= 0,
+              let audioState = row["audio_state"].flatMap(AudioState.init(rawValue:)),
+              let recognition = row["recognition_state"].flatMap(RecognitionState.init(rawValue:)) else {
+            throw StoreError.database("记录元数据损坏，请保留资料目录以便恢复。")
+        }
+        return Recording(id:id,createdAt:Date(timeIntervalSince1970:createdAt),text:row["text"] ?? "",preferredRevisionID:row["preferred_revision"].flatMap(UUID.init(uuidString:)),duration:Double(frames) / sampleRate,isPinned:row["pinned"] == "1",audioState:audioState,recognitionState:recognition,isRecording:row["is_recording"] == "1",lastError:row["last_error"],sampleRate:sampleRate)
     }
-    private static func decodeRevision(_ row: [String:String]) -> TranscriptRevision {
-        TranscriptRevision(id:UUID(uuidString:row["id"]!)!,recordingID:UUID(uuidString:row["recording_id"]!)!,text:row["text"]!,origin:RevisionOrigin(rawValue:row["origin"]!)!,createdAt:Date(timeIntervalSince1970:Double(row["created_at"]!)!))
+    private static func decodeRevision(_ row: [String:String]) throws -> TranscriptRevision {
+        guard let id = row["id"].flatMap(UUID.init(uuidString:)),
+              let recordingID = row["recording_id"].flatMap(UUID.init(uuidString:)),
+              let text = row["text"],let origin = row["origin"].flatMap(RevisionOrigin.init(rawValue:)),
+              let createdAt = row["created_at"].flatMap(Double.init),createdAt.isFinite else {
+            throw StoreError.database("文字版本元数据损坏，请保留资料目录以便恢复。")
+        }
+        return TranscriptRevision(id:id,recordingID:recordingID,text:text,origin:origin,createdAt:Date(timeIntervalSince1970:createdAt))
     }
+
 }
 
 extension SaytileStore {
@@ -352,6 +436,23 @@ extension SaytileStore {
     }
     public func invalidateBinding(_ id: UUID) throws {
         try db.execute("UPDATE bindings SET active=0 WHERE id=?",[.text(id.uuidString)])
+    }
+    /// Finds final text not yet reserved for this live binding, including delayed ASR
+    /// outside the panel's most recent page. The selected transcript is unchanged;
+    /// callers still fetch the latest final revision and reserve it before dispatch.
+    public func directInputCandidates(bindingID: UUID, createdSince: Date, limit: Int = 100) throws -> [Recording] {
+        try db.rows(Self.selection + """
+         JOIN bindings b ON b.id=? AND b.active=1
+         JOIN revisions stable ON stable.id=(
+           SELECT latest.id FROM revisions latest
+           WHERE latest.recording_id=r.id AND latest.origin='final'
+           ORDER BY latest.created_at DESC,latest.rowid DESC LIMIT 1
+         )
+         LEFT JOIN cursors cursor ON cursor.binding_id=b.id AND cursor.recording_id=r.id
+         WHERE r.deleted=0 AND r.created_at>=? AND r.created_at>b.created_at
+           AND stable.text<>'' AND (cursor.prefix IS NULL OR stable.text<>cursor.prefix)
+         ORDER BY r.created_at ASC,r.id ASC LIMIT ?
+        """,[.text(bindingID.uuidString),.double(createdSince.timeIntervalSince1970),.int(Int64(max(1,min(limit,1000))))]).map(Self.decodeRecording)
     }
     public func reserveDispatch(bindingID: UUID, recordingID: UUID, revisionID: UUID, stableUTF16End: Int) throws -> DispatchReservation? {
         do {
@@ -445,6 +546,13 @@ extension SaytileStore {
       BEGIN SELECT RAISE(ABORT,'dispatch overlaps prior reservation'); END;
     CREATE INDEX IF NOT EXISTS records_date ON recordings(created_at);
     CREATE INDEX IF NOT EXISTS revision_record ON revisions(recording_id,created_at);
-    PRAGMA user_version=1;
+    CREATE INDEX IF NOT EXISTS revision_latest_final ON revisions(recording_id,created_at DESC) WHERE origin='final';
+    CREATE INDEX IF NOT EXISTS records_live_date ON recordings(deleted,created_at DESC,id DESC);
+    CREATE INDEX IF NOT EXISTS records_preferred ON recordings(preferred_revision);
+    CREATE INDEX IF NOT EXISTS revisions_base ON revisions(base_revision);
+    CREATE INDEX IF NOT EXISTS revisions_attempt ON revisions(recording_id,origin,attempt);
+    CREATE INDEX IF NOT EXISTS dispatch_revision ON dispatches(revision_id);
+    CREATE INDEX IF NOT EXISTS recovery_candidates ON recordings(created_at) WHERE deleted=0 AND audio_state='available' AND is_recording=0 AND recognition_state IN('queued','failed');
+    PRAGMA user_version=2;
     """
 }

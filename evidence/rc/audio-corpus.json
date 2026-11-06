@@ -1,0 +1,290 @@
+[
+  {
+    "audioDuration" : 5.0083125,
+    "expected" : "今天下午三点开会。请提前十分钟到达会议室。",
+    "finalizationAfterInputSeconds" : 0.14338083332404494,
+    "firstTextSeconds" : 1.2112678750418127,
+    "id" : "daily",
+    "missingCriticalPhrases" : [
+
+    ],
+    "normalizedCER" : 0.2631578947368421,
+    "recognitionState" : "completed",
+    "recognized" : "今天下午 3:00开会 ，请提前 10分钟到达会议室。",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.10201512509956956,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.2112678750418127,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 5.570835833437741,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 5.71222195844166,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 5.714216666761786,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Tingting (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 6.6105,
+    "expected" : "请不要自动发送消息。这个按钮不是删除文字，只删除原始录音。",
+    "finalizationAfterInputSeconds" : 0.06202595843933523,
+    "firstTextSeconds" : 1.244779375148937,
+    "id" : "negation",
+    "missingCriticalPhrases" : [
+
+    ],
+    "normalizedCER" : 0,
+    "recognitionState" : "completed",
+    "recognized" : "请不要自动发送消息 ，这个按钮不是删除文字只删除原始录音",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.019051624927669764,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.244779375148937,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 7.4744706666097045,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 7.53331712493673,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 7.53649662504904,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Tingting (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 6.61,
+    "expected" : "订单金额为1234元，数量是15，折扣是8%。",
+    "finalizationAfterInputSeconds" : 0.051454458152875304,
+    "firstTextSeconds" : 1.2361299998592585,
+    "id" : "numbers",
+    "missingCriticalPhrases" : [
+
+    ],
+    "normalizedCER" : 0.05263157894736842,
+    "recognitionState" : "completed",
+    "recognized" : "订单金额为 1234数量是 15折扣是 8%",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.022547374945133924,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.2361299998592585,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 7.392515291692689,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 7.441918583353981,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 7.443969749845564,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Tingting (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 6.174375,
+    "expected" : "这个Mac应用使用Swift和SQLite，支持中文语音输入。",
+    "finalizationAfterInputSeconds" : 0.0506844581104815,
+    "firstTextSeconds" : 1.2240315834060311,
+    "id" : "mixed",
+    "missingCriticalPhrases" : [
+      "Mac"
+    ],
+    "normalizedCER" : 0.20689655172413793,
+    "recognitionState" : "completed",
+    "recognized" : "这个免应用使用 Swift和 SQlight支持中文语音输入。",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.024673874955624342,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.2240315834060311,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 6.86732166679576,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 6.915437833406031,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 6.918006124906242,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Tingting (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 8.049625,
+    "expected" : "第一件事是保存原音。第二件事是整理文字。最后检查历史版本。",
+    "finalizationAfterInputSeconds" : 0.05616658343933523,
+    "firstTextSeconds" : 1.2270257498603314,
+    "id" : "pauses",
+    "missingCriticalPhrases" : [
+      "保存原音"
+    ],
+    "normalizedCER" : 0.038461538461538464,
+    "recognitionState" : "completed",
+    "recognized" : "第一件事是保存原因 ，第二件事是整理文字 ，最后检查历史版本。",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.022444124799221754,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.2270257498603314,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 9.035517749842256,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 9.088073416613042,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 9.091684333281592,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Tingting (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 5.4726875,
+    "expected" : "即使识别失败也要继续收音，原始录音必须完整保留。",
+    "finalizationAfterInputSeconds" : 0.028328333282843232,
+    "firstTextSeconds" : 1.2430788334459066,
+    "id" : "tail",
+    "missingCriticalPhrases" : [
+
+    ],
+    "normalizedCER" : 0,
+    "recognitionState" : "completed",
+    "recognized" : "即使识别失败也要继续收音原始录音必须完整保留",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.02301391656510532,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.2430788334459066,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 6.1052546666469425,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 6.131520499940962,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 6.133582999929786,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Tingting (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 4.7381875,
+    "expected" : "明天上午九点半出发，请带上充电器和笔记本。",
+    "finalizationAfterInputSeconds" : 0.03142170840874314,
+    "firstTextSeconds" : 1.181483875028789,
+    "id" : "second_voice",
+    "missingCriticalPhrases" : [
+      "充电器"
+    ],
+    "normalizedCER" : 0.15789473684210525,
+    "recognitionState" : "completed",
+    "recognized" : "明天上午九点半出发 ，请暂上空电视和笔记本",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.019621249986812472,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.181483875028789,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 5.214679166674614,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 5.244362791767344,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 5.246100875083357,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Eddy (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 6.03925,
+    "expected" : "不是星期三，是星期四。不要取消会议，只需要修改开始时间。",
+    "finalizationAfterInputSeconds" : 0.026228208327665925,
+    "firstTextSeconds" : 1.1862609998788685,
+    "id" : "correction",
+    "missingCriticalPhrases" : [
+      "修改开始时间"
+    ],
+    "normalizedCER" : 0.08333333333333333,
+    "recognitionState" : "completed",
+    "recognized" : "不是星期三是星期四不要取消会议 ，只需要修外开始的时间。",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.02044204156845808,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.1862609998788685,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 6.662413916550577,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 6.685883083380759,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 6.688642124878243,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Eddy (中文（中国大陆）)"
+  }
+]

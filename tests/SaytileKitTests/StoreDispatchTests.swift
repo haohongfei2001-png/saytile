@@ -64,6 +64,7 @@ private struct DispatchFixture {
     let ticket = try await f.store.beginRecognition(recordingID:r.id)
     let revision = try await f.revision(r.id,ticket,"你好")
     let operation = try await f.store.reserveDispatch(bindingID:binding,recordingID:r.id,revisionID:revision,stableUTF16End:2)!
+    try await f.store.close()
     let reopened = try SaytileStore(directory:f.directory)
     #expect(reopened.recovery.unverifiedDispatches == 1)
     #expect(try await reopened.dispatchState(id:operation.id) == .unverified)
@@ -103,4 +104,63 @@ private struct DispatchFixture {
     try await f.store.finishRecording(id:r.id)
     try await f.store.deleteRecord(recordingID:r.id)
     #expect(try await f.store.dispatchState(id:dispatch.id) == nil)
+}
+
+@Test func storeDirectCandidatesDrainBacklogBeyondLatestThirtyWithoutReplay() async throws {
+    let f = try DispatchFixture(); defer { f.clean() }
+    let historical = try await f.store.createRecording(createdAt:Date(timeIntervalSince1970:1))
+    let historicalTicket = try await f.store.beginRecognition(recordingID:historical.id)
+    try await f.store.applyRecognition(ticket:historicalTicket,text:"旧讲话不应发送",isFinal:true)
+    let binding = try await f.store.createBinding(label:"慢识别测试目标")
+    var created: [UUID] = []
+    for index in 0..<65 {
+        let record = try await f.store.createRecording()
+        let ticket = try await f.store.beginRecognition(recordingID:record.id)
+        try await f.store.applyRecognition(ticket:ticket,text:"第\(index)段",isFinal:true)
+        try await f.store.finishRecording(id:record.id)
+        created.append(record.id)
+    }
+    var dispatched: [UUID] = []
+    while true {
+        let page = try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast,limit:20)
+        if page.isEmpty { break }
+        for record in page {
+            let stable = try await f.store.latestFinalRevision(recordingID:record.id)!
+            let operation = try await f.store.reserveDispatch(bindingID:binding,recordingID:record.id,revisionID:stable.id,stableUTF16End:stable.text.utf16.count)!
+            try await f.store.completeDispatch(id:operation.id,state:.unverified)
+            dispatched.append(record.id)
+        }
+    }
+    #expect(dispatched == created)
+    #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast).isEmpty)
+    try await f.store.close()
+    let reopened = try SaytileStore(directory:f.directory)
+    #expect(try await reopened.directInputCandidates(bindingID:binding,createdSince:.distantPast).isEmpty)
+}
+@Test func storeDirectCandidatesIncludeChangedPrefixButSkipDuplicateLatestFinal() async throws {
+    let f = try DispatchFixture(); defer { f.clean() }
+    let binding = try await f.store.createBinding(label:"范围测试")
+    let record = try await f.store.createRecording()
+    let ticket = try await f.store.beginRecognition(recordingID:record.id)
+    try await f.store.applyRecognition(ticket:ticket,text:"你好",isFinal:true)
+    let first = try await f.store.latestFinalRevision(recordingID:record.id)!
+    _ = try await f.store.reserveDispatch(bindingID:binding,recordingID:record.id,revisionID:first.id,stableUTF16End:2)
+    try await f.store.applyRecognition(ticket:ticket,text:"你好",isFinal:true)
+    #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast).isEmpty)
+    try await f.store.applyRecognition(ticket:ticket,text:"你们好",isFinal:true)
+    #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast).map(\.id) == [record.id])
+    let changed = try await f.store.latestFinalRevision(recordingID:record.id)!
+    await #expect(throws:StoreError.self) {
+        try await f.store.reserveDispatch(bindingID:binding,recordingID:record.id,revisionID:changed.id,stableUTF16End:3)
+    }
+    #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast).isEmpty)
+}
+@Test func storeDirectCandidatesIgnoreVolatileAndEmptyFinalText() async throws {
+    let f = try DispatchFixture(); defer { f.clean() }
+    let binding = try await f.store.createBinding(label:"稳定稿测试")
+    let record = try await f.store.createRecording(), ticket = try await f.store.beginRecognition(recordingID:record.id)
+    try await f.store.applyRecognition(ticket:ticket,text:"尚未稳定",isFinal:false)
+    #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast).isEmpty)
+    try await f.store.applyRecognition(ticket:ticket,text:"",isFinal:true)
+    #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast).isEmpty)
 }
