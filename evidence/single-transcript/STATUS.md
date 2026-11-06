@@ -1,17 +1,48 @@
-# Single-transcript engine checkpoint — 2026-11-07
+# Single-transcript engine — 2026-11-07 checkpoint
 
-Branch: `engine/single-transcript-completion-20261107`; base `a9cffae52d544b8a8939fce13d735b5ec1f2bc4f`; `45af670` ancestry verified. No fetch/merge/push/PR mutation. Remote PR5 was already ahead; local base deliberately preserved.
+**Partial implementation delivered; full requested scope is NOT complete.**
 
-Implemented: two full-PCM expert streams and one per-generation GPT WebSocket client; coherent completed-response publication, manifest deltas, response/lane fencing, bounded timeout/buffer, cache-miss replay, same-GPT HTTP fallback on unsupported WebSocket only. Removed second acoustic-review calls from coordinator. ASR preview is immediate; new external stable ranges require GPT selection. Mandatory EOS review, blocked-review scheduling guard, stricter timed rebase. Preserve custom model/credential IDs; migration never enables cloud/consent; multilingual single-expert diagnostics keep GPT. Apple SpeechAnalyzer now publishes through Candidate/Store. Journal exact-sample range reads cross durable physical chunks with 1 MiB request bound; removed 12 MB lifetime buffer. Consumer revision chooser/model routing removed; stored evidence retained.
+- Branch: `engine/single-transcript-completion-20261107`.
+- Base: `a9cffae52d544b8a8939fce13d735b5ec1f2bc4f`; PR4 `45af670` ancestry verified. Remote PR5 had advanced; intentionally not merged.
+- Engine milestone: `59a63f2f77520ae684dd97c65417b90140fab342`.
+- Build-host fixes/candidate source: `41e4aae9911903f4797781c8311fcc59406a2d65`.
+- No push, merge, PR mutation, installed RC1 operation, microphone, user-app activation, production-data access or cloud-model call. Parent's untracked PARENT_REVIEW.md left untouched.
 
-Verification checkpoint: PR5 run 42280700932 failed with 17 issues / 276 tests (private log fetched). Legacy five-service fixtures, missing GPT diagnostic fixtures and obsolete fast-mode expectations were corrected to current requirements; safety assertions retained/replaced by mandatory-review assertions. Local broad run initially had five failing tests / six issues: obsolete setup requirement (fixed), two isolated Security.framework tests denied (`100001`), two silent AVAudioPlayer tests unavailable. No production keys read. Subsequent restricted native run: **280 passed / 0 failed**, 34 suites. Restricted command excludes `CloudCredentialTests|silentPlayerNaturallyFinishesWithoutStartingMicrophone|silentPlayerSeeksAcrossChunksAndReleasesDeletionLease`; excluded gates are NOT passes. Offline scoring **9/9**, evaluation **43/43**. A WebSocket cache-miss regression was caught and fixed; deterministic fake rejects sending on closed sockets. Final identity-change regression/range hardening added after this run and await final run.
+## Implemented and exercised
 
-All logs: `/tmp/saytile-single-20261107-engine/`. Native commands use `--disable-sandbox` only to avoid SwiftPM's nested sandbox error; host filesystem sandbox stays active. No cloud model requests, microphone, browser activation, installed app or production archive access. The 13.44 MB journal test is accelerated synthetic data, not a wall-clock soak.
+Two complete-PCM ASR streams; exactly one per-recording/generation GPT WebSocket transport; latest-evidence coalescing and mandatory EOS review. Immediate ASR preview cannot certify new external ranges before GPT acceptance. Blocked GPT leaves capture/journal intact and cannot poll every 280ms. No second acoustic reviewer is called by the engine.
 
-Remaining: exact external owned-range repair ledger/AX patch path NOT implemented (existing no-replay protection remains; corrections stay local). Optional Apple evidence alongside cloud and network-to-local failover not implemented; capture/journal plus queued recovery remain. Live cloud protocol/latency/accuracy, real native AX patch, microphone, long wall-clock soak, real Keychain and audio playback gates NOT verified. AppModel and ad-hoc candidate packaging pending. No completion claim for the entire requested engine.
+Transport tests cover manifest deltas/invalidation, lineage, lane/response filtering, partial JSON isolation, failed/incomplete responses, cancellation, timeout/buffer limits, credential/configuration cache invalidation and one full-context cache-miss recovery. Unsupported WebSocket fallback uses the same GPT HTTP client. No live-service verification or end-to-end latency claim. [Protocol reference](https://developers.openai.com/api/docs/guides/websocket-mode).
 
-## Milestone 2 — isolated build-host fixes
+Migration preserves configuration IDs and custom models, never enables consent/cloud, and permits multilingual single-expert diagnostics with the same GPT. Apple SpeechAnalyzer now publishes Candidate/Store evidence. Physical PCM range retrieval crosses durable chunks, rejects nondurable tails, and caps each allocation at 1 MiB; no 12 MB lifetime buffer. The 13.44 MB test is accelerated synthetic audio, not a wall-clock soak. User drafts and existing no-replay ledger protections remain. Consumer revision/model-routing controls removed; evidence remains stored.
 
-Engine commit: `59a63f2f77520ae684dd97c65417b90140fab342`. Final native run includes the three configuration/identity tests omitted by the earlier broad file-name exclusion: **284 passed / 0 failed, 35 suites**. Only the four individual Keychain/playback functions listed above are excluded. New transport identity-change, journal boundary and local ingress checks passed. Offline totals remain 9 + 43 passed.
+## Final verification
 
-Debug app compiled; packaging first failed at iconutil despite correct PNG dimensions. Added bounded PNG-to-ICNS fallback; macOS `sips` recognizes its ICNS and 1024px representation. AppModel production code built, but its standalone probe compiler attempted an unwritable default Clang cache; routed that cache into the existing isolated scratch. AppModel probe and signed candidate receipt follow after rerun. These fixes do not change transcript or dispatch semantics.
+| Gate | Result |
+|---|---|
+| Restricted native Swift suite | **284 passed, 0 failed**, 35 suites |
+| Production AppModel isolated probe | **23 checks passed** |
+| Offline scoring / evaluation | **9 / 43 tests passed** |
+| Candidate compilation, ad-hoc signature, ZIP integrity | **PASS**; Debug, not installed/launched |
+| Two isolated Keychain tests | **BLOCKED**: status 100001 in this host |
+| Two silent AVAudioPlayer tests | **BLOCKED**: unable to play in this host |
+| Live cloud, microphone, native external patch, wall-clock soak | **NOT_RUN** |
+
+Final native command: `SAYTILE_TEST_SCRATCH=/tmp/saytile-single-20261107-native SAYTILE_TEST_LOG=/tmp/saytile-single-20261107-engine/native-final-complete.log scripts/test-native.sh --disable-sandbox --skip-build --skip 'createReplaceReadDeleteKeepsAccountProviderAndServiceIsolation|invalidReplacementNeverErasesStoredDummyCredential|silentPlayerNaturallyFinishesWithoutStartingMicrophone|silentPlayerSeeksAcrossChunksAndReleasesDeletionLease'`.
+
+PR5 run 42280700932 had 17 issues / 276 tests. Replaced obsolete five-service/acoustic-review and fast-mode test expectations with single-core and mandatory-review assertions; retained cancellation, deletion, evidence and ledger safety checks. Actual intermediate failures also included cache-miss retry on a closed socket (fixed), test fixture access level (fixed), nested SwiftPM/Clang cache denial (isolated scratch fix), and iconutil rejecting valid-size PNGs (ICNS fallback validated with macOS sips). Full private logs and hashes are indexed in RECEIPT.json; none are committed here.
+
+## Candidate
+
+`/tmp/saytile-single-20261107-candidate/Saytile-1.0.0-engine.single-transcript.1-debug.zip`
+
+SHA-256: `10f6b4abe20baef1d52bda555c4a3d2534cd4d23ea219bb295a0f916787d9423`.
+
+Bundle source is `41e4aae9911903f4797781c8311fcc59406a2d65`, dirty=false. Final evidence-only commit does not require rebuilding it.
+
+## Remaining implementation / next slice
+
+1. Exact external owned-range repair ledger and AX selected-range patch integration are **not implemented**. Corrections remain local; no duplicate append or whole-field replacement was added. Existing fake-input tests are not evidence of native correction support.
+2. Optional Apple evidence alongside cloud and automatic network-to-local failover are **not implemented**; capture/journal and queued recovery remain available. Local ingress is tested with synthetic events, not actual microphone/SpeechAnalyzer recognition.
+3. Legacy standalone acoustic adapter helpers still compile for compatibility/testing, but the coordinator has no call path to them. No claim of complete removal beyond the engine path.
+4. Full native OS gates above and real cloud protocol/quality/latency remain separate acceptance work. Remote CI was not rerun because pushing is prohibited.
