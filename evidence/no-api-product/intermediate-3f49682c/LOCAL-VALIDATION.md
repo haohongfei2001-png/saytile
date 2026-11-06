@@ -1,6 +1,6 @@
-# Frozen-source local acceptance
+# Superseded intermediate-source local acceptance
 
-Runtime source: `3f49682c77c7c80beba3d2075c99ae32c0455c04`. `source-before.json` records the commit/tree and 145 source, script and fixture hashes. `probe-binaries.json` binds the compiled storage, Apple and realtime probes; the native AX summary independently records its source and binary hashes. Subsequent test-only CI timing corrections do not change these runtime inputs. No microphone, speaker playback, real document, production database, API credential, paid endpoint or permission prompt was used; RC1 was preserved.
+Runtime source: `3f49682c77c7c80beba3d2075c99ae32c0455c04`. `source-before.json` records the commit/tree and 145 source, script and fixture hashes. `probe-binaries.json` binds the compiled storage, Apple and realtime probes; the native AX summary independently records its source and binary hashes. Subsequent test-only CI timing corrections did not change these runtime inputs. Runtime was subsequently unfrozen for a cloud authorization boundary defect and the VoiceSegmenter memory retention fix; this directory is historical intermediate evidence, not final-source acceptance. No microphone, speaker playback, real document, production database, API credential, paid endpoint or permission prompt was used; RC1 was preserved.
 
 | Check | Observed outcome | Evidence and limit |
 | --- | --- | --- |
@@ -8,7 +8,7 @@ Runtime source: `3f49682c77c7c80beba3d2075c99ae32c0455c04`. `source-before.json`
 | Recovery / upgrade / rollback | 12 checks PASS | `storage-processes.json`; real child-process SIGKILL, released Beta/RC1 storage source, stopped owned backup, RC1 refuses schema 4, explicit backup restore preserves newer data |
 | Owned native AX | 9 scenarios PASS | `owned-range-summary.json`, `owned-range-probe.log`; real background NSTextView setters, injected exact-owned-PID selector; production foreground resolver NOT_RUN |
 | Actual Apple local speech | 8 / 8 completed through candidate + fusion + dispatchable revision | `apple-corpus.json`; actual installed Apple framework, synthetic files only; recognition errors retained |
-| 30-minute realtime capture | RUNNING; no final verdict yet | `realtime-run.log`, `realtime-resources.jsonl`; actual wall-clock pacing, ASR disabled |
+| 30-minute realtime capture | INTERRUPTED at 904.25 seconds; not a pass | `realtime-run.log`, `realtime-resources.jsonl`; actual wall-clock pacing, ASR disabled |
 
 ## Storage scale
 
@@ -28,4 +28,4 @@ Actual errors remain: `Mac` → `免`, `保存原音` → `保存原因`, `充�
 
 ## Realtime scope
 
-The existing `AudioRealtimeProbe` feeds the production ring/converter/VAD/capture worker/journal/Store at source sample timing for 1800 seconds. Recognition is explicitly disabled. `realtime-resources.jsonl` samples only the known owned process PID every 45 seconds; `realtime-persistence.jsonl` contains read-only numeric snapshots of only its disposable database. No other application or user data is observed. The final runtime, dropped-frame count, saved audio availability and completion status must be assessed after the probe exits.
+The existing `AudioRealtimeProbe` feeds the production ring/converter/VAD/capture worker/journal/Store at source sample timing for 1800 seconds. Recognition is explicitly disabled. `realtime-resources.jsonl` samples only the known owned process PID every 45 seconds; `realtime-persistence.jsonl` contains read-only numeric snapshots of only its disposable database. No other application or user data is observed. The owned probe was stopped with SIGTERM after 904.25 seconds when runtime fixes became necessary. Its maximum resident set was 33,341,440 bytes; this is an interrupted observation, not a 30-minute success. The pending Data slice retained consumed storage (confirmed independently in local-input/voice-buffer-red.json), so RSS alone must not be read as a no-leak verdict. See realtime-stop.json and the preserved resource trend. A complete 1800-second run must use the next frozen runtime.

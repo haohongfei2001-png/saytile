@@ -1,0 +1,404 @@
+Building for debugging...
+[0/39] /tmp/saytile-converter-native/arm64-apple-macosx/debug/SaytilePackageTests.derived/runner.swift
+[1/39] Compiling energy.c
+[1/39] Compiling complex_fft.c
+[2/39] Copying ConnectionSample.pcm
+[4/39] Write sources
+[8/39] Write Saytile-entitlement.plist
+[9/39] Compiling vad_core.c
+[10/39] Compiling get_scaling_square.c
+[11/39] Compiling resample_48khz.c
+[12/39] Compiling downsample_fast.c
+[13/39] Compiling vad_gmm.c
+[14/39] Compiling vad_sp.c
+[15/39] Compiling spl_sqrt_floor.c
+[16/39] Compiling spl_sqrt.c
+[17/39] Compiling vector_scaling_operations.c
+[18/39] Compiling min_max_operations.c
+[19/39] Compiling complex_bit_reverse.c
+[20/39] Compiling spl_inl.c
+[21/39] Compiling webrtc_vad.c
+[22/39] Compiling vad_filterbank.c
+[23/39] Compiling resample_fractional.c
+[24/39] Compiling spl_init.c
+[25/39] Compiling resample_by_2_internal.c
+[26/39] Compiling CAudio VAD.c
+[27/39] Compiling division_operations.c
+[28/39] Compiling cross_correlation.c
+[29/39] Compiling CAudio AudioRing.c
+[30/39] Write swift-version--1AB21518FC5DEDBE.txt
+[31/39] Compiling checks.cc
+[33/76] Compiling SaytileKit CloudConnectionVerification.swift
+[34/76] Compiling SaytileKit CloudCredentials.swift
+[35/76] Compiling SaytileKit ConnectionSetup.swift
+[36/76] Compiling SaytileKit FinalASRProvider.swift
+[37/79] Compiling SaytileKit SpeechResultAccumulator.swift
+[38/79] Compiling SaytileKit SpeechTiming.swift
+[39/79] Compiling SaytileKit Store.swift
+[40/79] Compiling SaytileKit StoreLock.swift
+[41/79] Compiling SaytileKit StoreSQLite.swift
+[42/79] Compiling SaytileKit WindowPlacement.swift
+[43/79] Compiling SaytileKit resource_bundle_accessor.swift
+[44/79] Compiling SaytileKit LocalCandidateIngress.swift
+[45/79] Compiling SaytileKit MetaStreamingProvider.swift
+[46/79] Compiling SaytileKit Models.swift
+[47/79] Compiling SaytileKit MultiRecognitionDiagnostics.swift
+[48/79] Compiling SaytileKit RecognitionCandidates.swift
+[49/79] Compiling SaytileKit RecognitionConfiguration.swift
+[50/79] Compiling SaytileKit RecognitionFailover.swift
+[51/79] Compiling SaytileKit RecognitionFusion.swift
+[52/79] Compiling SaytileKit MultiRecognitionSession.swift
+[53/79] Compiling SaytileKit PrecisionReviewClient.swift
+[54/79] Compiling SaytileKit QwenMessageProvider.swift
+[55/79] Compiling SaytileKit RecognitionAudioFanout.swift
+[56/79] Compiling SaytileKit RecordingCloudAuthorization.swift
+[57/79] Compiling SaytileKit SingleTranscriptEngine.swift
+[58/79] Compiling SaytileKit SonioxStreamingProvider.swift
+[59/79] Compiling SaytileKit SpeechRecognition.swift
+[60/79] Compiling SaytileKit GPTReviewSession.swift
+[61/79] Compiling SaytileKit InputAccessibility.swift
+[62/79] Compiling SaytileKit InputCoordinator.swift
+[63/79] Compiling SaytileKit JournalRangeReader.swift
+[64/79] Compiling SaytileKit ASRProviderProtocol.swift
+[65/79] Compiling SaytileKit AssemblyStreamingProvider.swift
+[66/79] Compiling SaytileKit AudioCapture.swift
+[67/79] Compiling SaytileKit AudioDiagnostics.swift
+[68/79] Emitting module SaytileKit
+[69/79] Compiling SaytileKit AudioJournal.swift
+[70/79] Compiling SaytileKit AudioLifecycle.swift
+[71/79] Compiling SaytileKit AudioPlaybackTimeline.swift
+[72/79] Compiling SaytileKit AudioTapCallbacks.swift
+[72/79] Write Objects.LinkFileList
+[73/79] Archiving libSaytileKit.a
+[75/130] Compiling SaytileKitTests AudioLifecycleTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[76/130] Compiling SaytileKitTests AudioPlaybackTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[77/130] Compiling SaytileKitTests AudioShutdownTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[78/130] Compiling SaytileKitTests AudioStorageFailureTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[79/130] Compiling SaytileKitTests AudioTapTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[80/134] Compiling SaytileKitTests SingleTranscriptEngineTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[81/134] Compiling SaytileKitTests SpeechResultTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[82/134] Compiling SaytileKitTests StorageRecoveryFailureTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[83/134] Compiling SaytileKitTests StoreDispatchTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+error: emit-module command failed with exit code 1 (use -v to see invocation)
+[84/134] Emitting module SaytileKitTests
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[85/134] Compiling SaytileKitTests FusionPublicationTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[86/134] Compiling SaytileKitTests FusionRevisionSafetyTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[87/134] Compiling SaytileKitTests GPTReviewSessionTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[88/134] Compiling SaytileKitTests InputTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[89/134] Compiling SaytileKitTests JournalRangeAndLocalIngressTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[90/134] Compiling SaytileKitTests RecognitionPipelineBoundaryTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[91/134] Compiling SaytileKitTests RecordingCloudAuthorizationTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[92/134] Compiling SaytileKitTests SavedAudioAuthorizationTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[93/134] Compiling SaytileKitTests SavedAudioReplayTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[94/134] Compiling SaytileKitTests ProtocolNetworkIntegrationTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[95/134] Compiling SaytileKitTests RecognitionCoordinatorTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[96/134] Compiling SaytileKitTests RecognitionFactorySafetyTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[97/134] Compiling SaytileKitTests RecognitionPhaseTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[98/134] Compiling SaytileKitTests AudioTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[99/134] Compiling SaytileKitTests CaptureCloudIntegrationTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[100/134] Compiling SaytileKitTests CaptureConverterTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[101/134] Compiling SaytileKitTests CaptureOwnershipTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[102/134] Compiling SaytileKitTests ChineseProviderProtocolTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[103/134] Compiling SaytileKitTests CloudConnectionVerificationTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[104/134] Compiling SaytileKitTests CloudCredentialTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[105/134] Compiling SaytileKitTests ConnectionSetupTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[106/134] Compiling SaytileKitTests CredentialReadRevocationTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[107/134] Compiling SaytileKitTests EnglishProviderProtocolTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[108/134] Compiling SaytileKitTests MetaProviderProtocolTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[109/134] Compiling SaytileKitTests MultiRecognitionDiagnosticsTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[110/134] Compiling SaytileKitTests MultiRecognitionTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[111/134] Compiling SaytileKitTests OfflineFailoverTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[112/134] Compiling SaytileKitTests OwnedRangeRepairTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[113/134] Compiling SaytileKitTests StoreFusionSafetyTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[114/134] Compiling SaytileKitTests StoreRCTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[115/134] Compiling SaytileKitTests StoreTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[116/134] Compiling SaytileKitTests WindowPlacementTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[117/134] Compiling SaytileKitTests ASRProtocolReliabilityTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[118/134] Compiling SaytileKitTests ArbiterEvidenceTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[119/134] Compiling SaytileKitTests ArbitrationAuditTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[120/134] Compiling SaytileKitTests AudioJournalBoundaryTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+[121/134] Compiling SaytileKitTests AudioLifecycleGateTests.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift:2:8: error: no such module 'Testing'
+  1 | import Foundation
+  2 | import Testing
+    |        `- error: no such module 'Testing'
+  3 | @testable import SaytileKit
+  4 | 
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+error: fatalError

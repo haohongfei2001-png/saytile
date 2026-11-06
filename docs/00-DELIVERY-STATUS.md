@@ -1,4 +1,4 @@
-> 当前稳定版仍是 RC1；PR #6 正在完成无 API 产品交付，`3f49682c` 后正在修复补审发现的历史音频权限与内存问题，不合并生产、不替换安装。最新本轮证据见 [V1-DEV-STATUS](V1-DEV-STATUS.md)；下方是只读意义的历史交付记录。
+> 当前稳定版仍是 RC1；PR #6 的 no-api.3 已修复补审发现的音频块漏接，正在准备新运行时完整验收。no-api.2暂缓交付，main/RC1不变。最新状态见 [V1-DEV-STATUS](V1-DEV-STATUS.md)。
 
 > 当前为 V1 RC1，源码 `8906a9d`；最新状态见 [V1-DEV-STATUS.md](V1-DEV-STATUS.md)，验证边界见 [RC清单](V1-RC-ACCEPTANCE.md)。**以下是设计恢复阶段历史快照**，不是当前未完成事项；PR #1/#2 已合并。
 

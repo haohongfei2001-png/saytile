@@ -1,0 +1,50 @@
+{
+  "source_head": "d4b9dbe812b9084f1bf31c1817c7b67095e17fc7",
+  "source_tree": "01f8644b57935f7f9beb9759ad3e8f44dda2ce30",
+  "source_input_digest": "5d32f0a084c0fdbbb9620006fc23e1b1667287235ea5c9718c6ae27921f54096",
+  "source_input_count": 197,
+  "source_unchanged": true,
+  "source_identity_receipts": [
+    "source-identity.before.json",
+    "source-identity.native-before.json",
+    "source-identity.model-dom-after.json",
+    "source-identity.after.json"
+  ],
+  "completed_utc": "2026-11-06T22:03:13.024717+00:00",
+  "app_model_checks": 66,
+  "headless_dom_checks": 20,
+  "native_coordinator_checks": 9,
+  "webkit_observer_checks": "6/6",
+  "webkit_capability_rejections": 2,
+  "webkit_sends": 0,
+  "native_foreground_unchanged": true,
+  "webkit_foreground_unchanged": true,
+  "foreground_resolver_run": false,
+  "browser": "headless Chromium 156.0.8078.4",
+  "playwright": "1.65.0",
+  "browser_executable": "/Users/hhf/Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+  "swift": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+  "failures_this_run": [],
+  "webkit_limitation": "Background AX setter acknowledged without text mutation; marked unverified once, not replayed; no browser insertion success claimed.",
+  "scope": "Production AppModel/coordinator/SQLite with injected connection evidence and isolated target selection or DOM adapter; no visible browser/profile, no user target, no foreground resolver, no real credential reads/provider requests or microphone.",
+  "app_model_runner": "Existing scripts/test-app-model.sh compilation/execution flow, with only working-directory and temporary-output retention changes in app-model-retained-runner.sh; production source and official script untouched.",
+  "binary_hash_timing": "AppModel executable hashed before and after execution with equality; retained DOM/AX executables hashed immediately after their script completed.",
+  "binary_sha256": {
+    "AppModelProbe": "cedd9b9e331675bbecf9046fd8e19dff1259152c7c139682bd5e6d22ddba27b0",
+    "dom-coordinator-probe": "1b91d5ff61b6b34bf7867d8b135f9fad61e1ac9248fffcd9d70c7e4f54ad96e0",
+    "AXTextFixture": "30451bf7fdfd66b283b004b9c9a3a9cbc55274220c243f7e502e4cc04e516005",
+    "AXCoordinatorProbe": "9df6df502baeafed64d30cde6e9a15a28fd23bba71f6a0e62eefd9ac00eb7be6",
+    "AXWebFixture": "7af87d98bb0e655268d6d199ef3449564a45e747386fb14a43ef41e93d91ae13",
+    "AXWebCoordinatorProbe": "51511624186831249aeca2ced34aaba3d99fc5033bc21c35bb7427b175e1bef0"
+  },
+  "log_sha256": {
+    "app-model-build.log": "fe8b482fc84504c3eb5214d247cb50056c27afcbba563409ea274d3e42dea054",
+    "app-model.log": "77763ad4c77043650985ed185e9bdd81cc5fe9a0a82591a64dfe47b642a3902f",
+    "browser-run.log": "a4f014b1ad7da3a608470d152f2ecfde51f7f911e32b33ecd0414d154f36000d",
+    "input-browser-dom.log": "a4f014b1ad7da3a608470d152f2ecfde51f7f911e32b33ecd0414d154f36000d",
+    "input-native-coordinator.log": "d3d3793d8fe4791e7b38979afc3721a8418c0a7f290bd419baafa0cd8d931c3b",
+    "input-webkit-observer.log": "f84e675597a9465bad0ca8cde4e17db212952ec0df934e7831f718d763801cae",
+    "native-run.log": "5ea20b3c10ba960986218ab08d6d18cbee4add9743b8147614501e10463ac2fb"
+  },
+  "runner_sha256": "efb8c329c4d503b0f46e35a89060ec964ba54f9b226ba9dee8cce74ba46c3489"
+}

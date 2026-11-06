@@ -71,20 +71,7 @@ actor CaptureWorker {
                 let n = samples.withUnsafeMutableBufferPointer { st_ring_read(ring.pointer, $0.baseAddress!, UInt32($0.count)) }
                 if n > 0 {
                     lastFramesAt = Date()
-                    let buffer = AVAudioPCMBuffer(pcmFormat: sourceFormat, frameCapacity: n)!
-                    buffer.frameLength = n
-                    samples.withUnsafeBufferPointer { buffer.floatChannelData![0].update(from: $0.baseAddress!, count: Int(n)) }
-                    let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: UInt32(ceil(Double(n) * 16_000 / sampleRate) + 32))!
-                    var supplied = false; var error: NSError?
-                    let status = converter.convert(to: output, error: &error) { _, state in
-                        if supplied { state.pointee = .noDataNow; return nil }
-                        supplied = true; state.pointee = .haveData; return buffer
-                    }
-                    if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
-                    if output.frameLength > 0 {
-                        let pcm = Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)
-                        try await acceptPCM(pcm)
-                    }
+                    for pcm in try convertCapturedSamples(samples, count: n) { try await acceptPCM(pcm) }
                     let energy = samples.prefix(Int(n)).reduce(Float(0)) { $0 + $1 * $1 } / Float(n)
                     update(segmenter.speaking, min(1, sqrt(energy) * 7))
                 }
@@ -94,6 +81,40 @@ actor CaptureWorker {
             }
         } catch is CancellationError { }
         catch { await cleanupCaptureFailure(error); await failed(error.localizedDescription) }
+    }
+    func convertCapturedSamples(_ samples: [Float], count: UInt32) throws -> [Data] {
+        precondition(count > 0 && Int(count) <= samples.count)
+        let buffer = AVAudioPCMBuffer(pcmFormat: sourceFormat, frameCapacity: count)!
+        buffer.frameLength = count
+        samples.withUnsafeBufferPointer { buffer.floatChannelData![0].update(from: $0.baseAddress!, count: Int(count)) }
+        var supplied = false, result: [Data] = []
+        repeat {
+            let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: UInt32(ceil(Double(count) * 16_000 / sampleRate) + 32))!
+            var error: NSError?
+            let status = converter.convert(to: output, error: &error) { _, state in
+                if supplied { state.pointee = .noDataNow; return nil }
+                supplied = true; state.pointee = .haveData; return buffer
+            }
+            if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+            if output.frameLength > 0 { result.append(Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)) }
+            // A smaller output buffer can be filled entirely from the converter's
+            // earlier input. Keep this newly read ring batch until the callback
+            // actually accepts it; otherwise it vanishes without a ring overflow.
+            if !supplied && output.frameLength == 0 { throw AudioFailure.message("收音格式转换未继续处理输入，请恢复录音") }
+        } while !supplied
+        return result
+    }
+    func drainConvertedTail() throws -> [Data] {
+        var result: [Data] = []
+        while true {
+            let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: 4_096)!
+            var error: NSError?
+            let status = converter.convert(to: output, error: &error) { _, state in state.pointee = .endOfStream; return nil }
+            if status == .error { throw error ?? AudioFailure.message("收音尾部转换失败") as NSError }
+            if output.frameLength > 0 { result.append(Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)) }
+            if output.frameLength == 0 || status == .endOfStream { break }
+        }
+        return result
     }
     func acceptPCM(_ pcm: Data) async throws {
         for event in segmenter.accept(pcm) {
@@ -105,14 +126,7 @@ actor CaptureWorker {
         }
     }
     func flushTail() async throws {
-        while true {
-            let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: 4_096)!
-            var error: NSError?
-            let status = converter.convert(to: output, error: &error) { _, state in state.pointee = .endOfStream; return nil }
-            if status == .error { throw error ?? AudioFailure.message("收音尾部转换失败") as NSError }
-            if output.frameLength > 0 { try await acceptPCM(Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)) }
-            if output.frameLength == 0 || status == .endOfStream { break }
-        }
+        for pcm in try drainConvertedTail() { try await acceptPCM(pcm) }
         for event in segmenter.finish() {
             if case let .audio(data) = event { try await append(data) }
             if case .end = event { try await endUtterance() }
