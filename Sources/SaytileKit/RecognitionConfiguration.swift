@@ -98,6 +98,10 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
         for item in active {
             try item.validate()
             guard item.cloudConsent else { throw ProviderFailure.configuration("请先授权\(item.purpose.label)的云端处理。") }
+            if item.provider == .qwenMessage,
+               [item.context, topicContext].filter({ !$0.isEmpty }).joined(separator: "\n").count > 400 {
+                throw ProviderFailure.configuration("Qwen Message 的模型提示与当前话题合计最多 400 字，请缩短后应用。")
+            }
         }
     }
     // IDs survive updates, so an upgrade does not detach existing Keychain credentials.
@@ -109,11 +113,11 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
         .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000003")!, purpose: .multilingualASR,
               provider: .soniox, model: "stt-rt-v6", enabled: false),
         .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000004")!, purpose: .textFusion,
-              provider: .openAIResponses, model: "gpt-6-astra", enabled: false),
+              provider: .openAIResponses, model: "gpt-6-astra"),
         .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000005")!, purpose: .audioReview,
-              provider: .gemini, model: "gemini-3.8-flash", enabled: false),
+              provider: .gemini, model: "gemini-3.8-flash"),
         .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000006")!, purpose: .finalASR,
-              provider: .elevenLabsFile, model: "scribe_v2", enabled: false)
+              provider: .elevenLabsFile, model: "scribe_v2")
     ] }
     public static func load(from preferences: UserDefaults) -> Self {
         guard let data = preferences.data(forKey: "multiASRConfigurationV1"),

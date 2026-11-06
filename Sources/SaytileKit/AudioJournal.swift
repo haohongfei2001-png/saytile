@@ -100,7 +100,12 @@ final class VoiceSegmenter {
     private var speechVotes = 0
     private var silence = 0
     private var activeFrames = 0
-    init() throws { guard let vad = st_vad_create() else { throw AudioFailure.message("VAD 初始化失败") }; self.vad = vad }
+    private let endSilenceFrames: Int
+    private let maximumFrames: Int
+    init(endSilenceFrames: Int = 40, maximumFrames: Int = 1_500) throws {
+        guard let vad = st_vad_create() else { throw AudioFailure.message("VAD 初始化失败") }
+        self.vad = vad; self.endSilenceFrames = max(1, endSilenceFrames); self.maximumFrames = max(1, maximumFrames)
+    }
     deinit { st_vad_destroy(vad) }
     func accept(_ data: Data) -> [Event] {
         pending.append(data); var events: [Event] = []
@@ -114,8 +119,9 @@ final class VoiceSegmenter {
             } else {
                 events.append(.audio(frame)); activeFrames += 1
                 silence = voiced ? 0 : silence + 1
-                // Rotate visual / ASR units at 30s while maintaining uninterrupted capture.
-                if silence >= 40 || activeFrames >= 1_500 {
+                // Journal rotation is separate. Cloud sessions retain longer context;
+                // this boundary controls resource recovery, never text confirmation.
+                if silence >= endSilenceFrames || activeFrames >= maximumFrames {
                     speaking = false; speechVotes = 0; silence = 0; events.append(.end)
                 }
             }

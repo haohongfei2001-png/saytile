@@ -48,7 +48,7 @@ private final class SpeechCompletion: @unchecked Sendable {
     }
 }
 
-final class LiveSpeechSession: @unchecked Sendable {
+final class LiveSpeechSession: RecognitionSession, @unchecked Sendable {
     private let completion = SpeechCompletion()
     var isComplete: Bool { completion.isComplete }
     private let continuation: AsyncStream<Data>.Continuation

@@ -283,11 +283,12 @@ struct SettingsView: View {
                     Picker("输入设备", selection: $model.deviceID) { ForEach(model.devices) { device in Text(device.name).tag(device.id) } }
                     Text("开启后持续接收讲话；关闭输入板不会停止收音。设备断开、休眠和用户会话切换会明确暂停。")
                         .font(.system(size: 11)).foregroundStyle(Palette.muted)
-                    LabeledContent("识别语言", value: "普通话 · 中文")
+                    LabeledContent("识别语言", value: model.recognitionConfiguration.cloudEnabled ? "中文 / English · 自动处理混说" : "普通话 · 本机备用")
                     LabeledContent("识别引擎", value: model.engineLabel)
                     Button("准备中文识别资源", action: model.prepareSpeech)
                     Button(model.isListening ? "暂停收音" : "开启收音", action: model.toggleCapture)
                 }
+                RecognitionSettingsSection(model: model)
                 Section("系统权限") {
                     LabeledContent("麦克风", value: model.microphoneLabel)
                     LabeledContent("辅助功能", value: model.accessibilityLabel)

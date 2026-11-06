@@ -70,6 +70,9 @@ final class AppModel: ObservableObject {
     @Published var recordFilter: RecordingFilter = .all { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var query = "" { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var notice: String?
+    @Published var recognitionConfiguration = RecognitionConfiguration()
+    @Published var recognitionSettingsNotice: String?
+    @Published var modelCallSummary: [String] = []
     @Published var directMode = false
     @Published private(set) var insertionLabels: [UUID: String] = [:]
     @Published var targetLabel = "在目标草稿中放置光标，再绑定"
@@ -106,6 +109,7 @@ final class AppModel: ObservableObject {
     private var timer: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
     private var subscription: AnyCancellable?
+    private var recognitionSubscription: AnyCancellable?
     private var cleanupIDs: [UUID] = []
     private var refreshOperation: Task<Void, Never>?
     private var refreshVersion: UInt64 = 0
@@ -114,6 +118,7 @@ final class AppModel: ObservableObject {
     private var initializing = true
     private var exitPrepared = false
     private var lastStorageRefresh = Date.distantPast
+    private var lastModelCallRefresh = Date.distantPast
     private var recovered = false
     private var recoveryTask: Task<Void, Never>?
     private var panelSessionStartedAt = Date()
@@ -136,7 +141,9 @@ final class AppModel: ObservableObject {
         self.directory = directory
         self.preferences = preferences
         store = try SaytileStore(directory: directory)
-        audio = AudioController(store: store)
+        let recognitionConfiguration = RecognitionConfiguration.load(from: preferences)
+        self.recognitionConfiguration = recognitionConfiguration
+        audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration)
         input = NativeInputCoordinator(store: store)
         launchAtLogin = SMAppService.mainApp.status == .enabled
         shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? "option-space"
@@ -157,6 +164,9 @@ final class AppModel: ObservableObject {
                 }
                 if case .interrupted = self.audio.state, self.input.binding != nil { self.input.invalidate() } }
         }
+        recognitionSubscription = NotificationCenter.default.publisher(for: .init("SaytileRecognitionUpdated"))
+            .throttle(for: .milliseconds(120), scheduler: RunLoop.main, latest: true)
+            .sink { [weak self] _ in Task { @MainActor [weak self] in await self?.refresh() } }
         recoveryTask = Task { [weak self] in
             guard let self else { return }
             do { _ = try await AudioDiagnostics.recoverAudio(store: store); recovered = true }
@@ -196,6 +206,39 @@ final class AppModel: ObservableObject {
     }
     var accessibilityLabel: String { input.hasPermission ? "已允许" : "尚未允许 · 可正常复制" }
     var engineLabel: String { audio.speechStatus }
+    func hasCredential(_ item: ModelConfiguration) -> Bool {
+        CloudCredentialStore.contains(configurationID: item.id, provider: item.provider)
+    }
+    func saveCredential(_ value: String, for item: ModelConfiguration) {
+        do {
+            try CloudCredentialStore.save(value, configurationID: item.id, provider: item.provider)
+            recognitionSettingsNotice = "\(item.purpose.label)的密钥已安全保存。"
+        } catch { recognitionSettingsNotice = error.localizedDescription }
+    }
+    func removeCredential(for item: ModelConfiguration) {
+        do {
+            try CloudCredentialStore.delete(configurationID: item.id, provider: item.provider)
+            recognitionSettingsNotice = "该服务密钥已移除。"
+            Task { await audio.setRecognitionConfiguration(RecognitionConfiguration.load(from: preferences)) }
+        } catch { recognitionSettingsNotice = error.localizedDescription }
+    }
+    func applyRecognitionSettings() {
+        Task {
+            do {
+                try recognitionConfiguration.validateForCloud()
+                if recognitionConfiguration.cloudEnabled {
+                    for item in recognitionConfiguration.enabledModels {
+                        guard hasCredential(item) else { throw ProviderFailure.configuration("请先保存\(item.purpose.label)的 API Key。") }
+                    }
+                }
+                try recognitionConfiguration.save(to: preferences)
+                await audio.setRecognitionConfiguration(recognitionConfiguration)
+                recognitionSettingsNotice = recognitionConfiguration.cloudEnabled
+                    ? "设置已应用。新录音和明确恢复的语音使用这些服务；原音继续独立保存。"
+                    : "已停止云端识别，继续使用本机 Apple 识别。"
+            } catch { recognitionSettingsNotice = error.localizedDescription }
+        }
+    }
     var devices: [DisplayDevice] {
         var choices = [DisplayDevice(id: 0, name: "系统默认输入设备")] + audio.devices.map { DisplayDevice(id: $0.id, name: $0.name) }
         if deviceID == UInt32.max { choices.append(DisplayDevice(id: UInt32.max, name: "已选择的麦克风未连接")) }
@@ -495,6 +538,10 @@ final class AppModel: ObservableObject {
                     if refreshedSelection?.source.preferredRevisionID != selection.source.preferredRevisionID { await loadVersions(selection.id) }
                 }
             }
+            if Date.now.timeIntervalSince(lastModelCallRefresh) > 2 {
+                lastModelCallRefresh = Date.now
+                modelCallSummary = try await store.modelCallSummaries(limit: 30)
+            }
             if Date.now.timeIntervalSince(lastStorageRefresh) > 60 {
             lastStorageRefresh = Date.now
             let summary = try await store.storageSummary()
@@ -509,7 +556,7 @@ final class AppModel: ObservableObject {
                 let candidates = try await store.directInputCandidates(bindingID: binding.id, createdSince: binding.boundAt)
                 for record in candidates {
                     guard directMode, !isInserting, input.binding?.id == binding.id else { break }
-                    guard let revision = try await store.latestFinalRevision(recordingID: record.id) else { continue }
+                    guard let revision = try await store.latestDispatchableRevision(recordingID: record.id) else { continue }
                     let result = await input.insertStable(recordingID: record.id, revisionID: revision.id, stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
                     recordInputResult(result, recordingID: record.id)
                     switch result { case .failed, .cancelled, .unverified, .deferred: notice = result.message; default: break }

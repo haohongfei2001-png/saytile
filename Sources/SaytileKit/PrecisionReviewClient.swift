@@ -11,13 +11,15 @@ public struct ReviewEvidence: Codable, Sendable, Equatable {
     public let audioEndSeconds: Double
     public let timingGranularity: String
     public let language: String?
+    public let tokens: [RecognitionToken]
     public init(candidateID: UUID, provider: String, model: String, role: String, text: String,
                 stableUTF16Length: Int, audioStartSeconds: Double, audioEndSeconds: Double,
-                timingGranularity: String, language: String? = nil) {
+                timingGranularity: String, language: String? = nil, tokens: [RecognitionToken] = []) {
         self.candidateID = candidateID; self.provider = provider; self.model = model; self.role = role
         self.text = text; self.stableUTF16Length = stableUTF16Length
         self.audioStartSeconds = audioStartSeconds; self.audioEndSeconds = audioEndSeconds
         self.timingGranularity = timingGranularity; self.language = language
+        self.tokens = tokens
     }
 }
 public struct ReviewSelection: Codable, Sendable, Equatable {
