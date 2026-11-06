@@ -1,3 +1,9 @@
+# CLI隔离收口检查点 · 2026-11-06
+
+CLI回放隔离补充：诊断模式关闭后台自动识别恢复；等待启动恢复完成再导入。缺少data-directory值时在构造Store之前拒绝，避免落回正式库。真实App四项命令边界已通过；下一步完成最后评分补注与统一CI/候选身份更新。
+
+---
+
 # PR #4 本轮交付状态 · 2026-11-06
 
 已发布源码 `1c907f6`（同树本机87395e6），源码树精确一致；macOS26完整CI与设计契约CI通过。构建未安装的1.0.0-asr-preview.2，签名及隔离启动通过；RC1/main保持原状态。交付清单与候选哈希在 `research/asr/validation/fusion-quality/delivery-manifest.json`。新增26项离线评分进入Ubuntu CI。

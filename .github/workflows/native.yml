@@ -1,10 +1,10 @@
 name: Saytile native
 on:
   pull_request:
-    paths: ['Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/fixtures/AppModelProbe.swift', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'packaging/**', '.github/workflows/native.yml']
+    paths: ['Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/fixtures/AppModelProbe.swift', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
   push:
     branches: [main]
-    paths: ['Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/fixtures/AppModelProbe.swift', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'packaging/**', '.github/workflows/native.yml']
+    paths: ['Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/fixtures/AppModelProbe.swift', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
 permissions:
   contents: read
 concurrency:
@@ -25,6 +25,8 @@ jobs:
       - run: scripts/test-native.sh
       - run: scripts/test-app-model.sh
       - run: scripts/build-app.sh
+      - name: Isolated cloud probe CLI boundaries
+        run: python3 research/asr/validation/fusion-quality/check-probe-isolation.py --app dist/Saytile.app/Contents/MacOS/Saytile --output "$RUNNER_TEMP/probe-isolation.json"
       - name: Native windows with synthetic data
         run: python3 scripts/test-native-ui.py --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui"
       - name: Isolated startup without microphone

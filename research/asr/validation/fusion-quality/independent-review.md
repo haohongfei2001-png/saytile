@@ -26,3 +26,9 @@
 `modelRuns` 的完成/失败可与解码响应关联，表示该模型运行/校验阶段；它**不等价于外部实际送达**。是否成为稳定正文看 fusion decision/head，是否外发仍看 dispatch ledger。provider 文本/token 是适配器解码后的候选证据，未保存完整原始 wire；拒绝响应的解码审计现已实现，但尚无真实服务样本。当前已知上述 P1 已修并核对，整套测试、最终构建及 CI 由父线在统一 source checkpoint 验证。
 
 证据已永久收拢到本目录：FailureReservationProbe.swift、AcousticConflictProbe.swift、failure-*.log、independent-review.log、arbitration-audit-tests.log。临时旧静态产物未嵌入唯一源码SHA；red表示开发期实际观察，不能扩大为某个发行包的测量。当前相同问题的可重跑回归已进入FusionRevisionSafetyTests及StoreFusionSafetyTests，最终统一源码SHA由delivery-manifest.json记录。
+
+**诊断 CLI 隔离补审。** 父线发现启动恢复与显式回放导入可能并行，且空诊断偏好默认允许十秒周期后台 ASR 恢复。当前诊断专用偏好在创建 AppModel 前设置 `automaticRecovery=false`；multi-ASR 入口先 `await initialLoad()`，由 refresh 等待启动恢复结束，再检查空库并导入。本次只读核对了上述调用顺序。
+
+独立审查另发现 P1：原入口只检查是否出现 `--data-directory`，该参数缺值时会回退用户默认资料目录，并在后续拒绝回放前创建 AppModel、启动恢复。现诊断模式或显式带此参数时，均先验证存在非空、非 flag 的目录值；失败退出 64，发生在 Store 构造之前。正常无诊断参数启动仍使用默认资料目录。
+
+父线以实际 App 亲跑 `check-probe-isolation.py` 的四个隔离用例；本审查复读脚本、当前入口与 `cli-probe-isolation.json`，未重复启动 App：无目录、末尾无值、下一参数为 flag 均退出 64；显式独立目录加关闭云配置退出 1，独立 SQLite 中 recordings/model_runs 均为 0。脚本已接入 native CI。该验证没有读取私人数据库以证明“未变化”，没有读取真实语料、查询凭据、启用麦克风或调用云服务；也不构成真实云回放质量验收。

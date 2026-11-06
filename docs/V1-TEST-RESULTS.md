@@ -1,3 +1,9 @@
+# CLI隔离收口检查点 · 2026-11-06
+
+新增实际CLI4项PASS：缺目录、缺目录值、下一参数是flag均exit64；显式独立目录+关闭云配置exit1，records/model_runs均0。脚本check-probe-isolation.py及JSON已保留，已加入native CI。此验证未打开个人库、未读音频、未查凭据或发网络请求；启动恢复并发修复另经代码审查，不伪称实际云回放通过。
+
+---
+
 # PR #4 源码CI与候选交付 · 2026-11-06
 
 远端源码1c907f6与本机252测试使用的87395e6整树同SHA。macOS26 native run42241293084成功（252项/25组、21AppModel、构建、合成原生窗口、隔离启动）；contracts run42241293137成功。sourceDirty=false的未安装preview.2 release/signature/smoke通过。26项离线评分现加入Ubuntu工作流，无云调用。

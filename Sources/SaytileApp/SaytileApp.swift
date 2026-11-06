@@ -40,21 +40,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
             let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--multi-asr-probe", "--render-preview", "--focus-probe", "--ui-review"]
-            if diagnostics.contains(where: CommandLine.arguments.contains), !CommandLine.arguments.contains("--data-directory") {
-                print("DIAGNOSTICS_REQUIRE_EXPLICIT_ISOLATED_DATA_DIRECTORY")
-                Darwin.exit(64)
+            let isDiagnostic = diagnostics.contains(where: CommandLine.arguments.contains)
+            let directoryIndex = CommandLine.arguments.firstIndex(of: "--data-directory")
+            if isDiagnostic || directoryIndex != nil {
+                guard let index = directoryIndex, CommandLine.arguments.count > index + 1,
+                      !CommandLine.arguments[index + 1].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                      !CommandLine.arguments[index + 1].hasPrefix("--") else {
+                    print("DIAGNOSTICS_REQUIRE_EXPLICIT_ISOLATED_DATA_DIRECTORY")
+                    Darwin.exit(64)
+                }
             }
             let directory: URL
-            if let index = CommandLine.arguments.firstIndex(of: "--data-directory"), CommandLine.arguments.count > index + 1 {
+            if let index = directoryIndex {
                 directory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
             } else {
                 directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Saytile", isDirectory: true)
             }
             let preferences: UserDefaults
-            if diagnostics.contains(where: CommandLine.arguments.contains) {
+            if isDiagnostic {
                 let suite = "app.saytile.diagnostics." + UUID().uuidString
                 diagnosticPreferencesSuite = suite
                 preferences = UserDefaults(suiteName: suite)!
+                // A research probe is one explicit attempt. The app's background
+                // recovery must not start a different recognizer on its failed fixture.
+                var diagnosticConfiguration = RecognitionConfiguration()
+                diagnosticConfiguration.automaticRecovery = false
+                try diagnosticConfiguration.save(to: preferences)
             } else { preferences = .standard }
             let model = try AppModel(directory: directory, preferences: preferences)
             self.model = model
@@ -64,6 +75,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             model.openSettings = { [weak self] in self?.showSettings() }
             if let index = CommandLine.arguments.firstIndex(of: "--multi-asr-probe"), CommandLine.arguments.count > index + 1 {
                 Task {
+                    // Finish startup reconciliation before importing this new attempt.
+                    await model.initialLoad()
                     do {
                         guard let configIndex = CommandLine.arguments.firstIndex(of: "--recognition-config"), CommandLine.arguments.count > configIndex + 1,
                               let reportIndex = CommandLine.arguments.firstIndex(of: "--report-dir"), CommandLine.arguments.count > reportIndex + 1 else {
