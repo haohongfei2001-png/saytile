@@ -152,6 +152,9 @@ struct MetaTranscriptAccumulator: Sendable {
     private var activeTurn: Int?
     private var processedSeconds: Double = 0
 
+    // Explicit access avoids relying on memberwise synthesis for private state.
+    init(requestID: String) { self.requestID = requestID }
+
     mutating func accept(_ object: [String: Any]) throws -> ProviderTranscriptEvent? {
         guard let type = object["type"] as? String else { throw ProviderFailure.protocolViolation("meta-event") }
         switch type {

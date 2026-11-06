@@ -126,6 +126,9 @@ struct AssemblyTranscriptAccumulator {
     }
     private var turns: [Int: Turn] = [:]
     let requestID: String?
+    // Keep construction internal across Swift versions; private stored state
+    // otherwise makes the synthesized memberwise initializer private.
+    init(requestID: String?) { self.requestID = requestID }
     var allTurnsFinal: Bool {
         turns.values.allSatisfy(\.isFinal) && turns.keys.sorted() == Array(0..<turns.count)
     }
