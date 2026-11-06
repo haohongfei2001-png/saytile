@@ -1,3 +1,5 @@
+> 最新集成交付见 [DELIVERY.md](DELIVERY.md)。下文是阶段性记录，不是最终能力清单。
+
 # Single-transcript engine — 2026-11-07 checkpoint
 
 **Partial implementation delivered; full requested scope is NOT complete.**

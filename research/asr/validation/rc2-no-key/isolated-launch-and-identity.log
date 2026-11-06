@@ -1,0 +1,35 @@
+explicit_directory_only
+SAYTILE_ISOLATED_LAUNCH cloud_enabled=false automatic_recovery=false shortcut=disabled visible_panel=false hotkey_registered=false
+sandbox_extension_issue_file_to_process failed for /tmp/saytile-isolated-launch/Saytile.app: 1 (Operation not permitted)
+
+conflicting_argument_preferences
+SAYTILE_ISOLATED_LAUNCH cloud_enabled=false automatic_recovery=false shortcut=disabled visible_panel=false hotkey_registered=false
+sandbox_extension_issue_file_to_process failed for /tmp/saytile-isolated-launch/Saytile.app: 1 (Operation not permitted)
+
+wrong_source
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/scripts/test-app-idle.py", line 10, in <module>
+    assert info.get('SaytileSourceRevision')==a.expected_source,'Idle candidate source does not match expected source'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Idle candidate source does not match expected source
+
+wrong_version
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/scripts/test-app-idle.py", line 11, in <module>
+    assert info.get('SaytileReleaseVersion')==a.expected_version,'Idle candidate release does not match expected version'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Idle candidate release does not match expected version
+
+wrong_binary
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/scripts/test-app-idle.py", line 12, in <module>
+    assert binary_sha256==a.expected_binary_sha256,'Idle candidate binary does not match intended DMG executable'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Idle candidate binary does not match intended DMG executable
+
+dirty_source
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/scripts/test-app-idle.py", line 9, in <module>
+    assert info.get('SaytileSourceDirty') is False,'Idle candidate has uncommitted runtime sources'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Idle candidate has uncommitted runtime sources

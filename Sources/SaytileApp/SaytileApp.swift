@@ -73,10 +73,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 } catch { print("CONNECTION_SETUP_REJECTED \(error.localizedDescription)"); Darwin.exit(64) }
             } else { setupRequest = nil }
             let preferences: UserDefaults
-            if isDiagnostic {
+            if isDiagnostic || directoryIndex != nil {
                 let suite = "app.saytile.diagnostics." + UUID().uuidString
                 diagnosticPreferencesSuite = suite
                 preferences = UserDefaults(suiteName: suite)!
+                // Explicit test data also isolates preferences. Override only the
+                // process argument domain, never inspect or alter the user's app
+                // defaults, and prevent a normal held test process showing UI or
+                // registering the user's global shortcut.
+                preferences.setVolatileDomain(["hasLaunched": true, "shortcutChoice": "disabled"], forName: UserDefaults.argumentDomain)
                 // A research probe is one explicit attempt. The app's background
                 // recovery must not start a different recognizer on its failed fixture.
                 var diagnosticConfiguration = RecognitionConfiguration()
@@ -203,9 +208,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 Task { @MainActor in self?.restoreVisibleWindows() }
             }
             // Relaunch never silently resumes the microphone or restores an input binding.
-            if !UserDefaults.standard.bool(forKey: "hasLaunched") {
-                UserDefaults.standard.set(true, forKey: "hasLaunched")
+            if !preferences.bool(forKey: "hasLaunched") {
+                preferences.set(true, forKey: "hasLaunched")
                 showPanel()
+            }
+            if directoryIndex != nil {
+                let configuration = model.appliedRecognitionConfiguration
+                let report = "SAYTILE_ISOLATED_LAUNCH cloud_enabled=\(configuration.cloudEnabled) automatic_recovery=\(configuration.automaticRecovery) shortcut=\(model.shortcutChoice) visible_panel=\(panel?.isVisible == true) hotkey_registered=\(hotKey != nil)\n"
+                FileHandle.standardOutput.write(Data(report.utf8))
             }
         } catch {
             if CommandLine.arguments.contains("--data-directory") {
@@ -240,7 +250,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         return .terminateCancel
     }
     func applicationWillTerminate(_ notification: Notification) {
-        if let suite = diagnosticPreferencesSuite { UserDefaults.standard.removePersistentDomain(forName: suite) }
+        if let suite = diagnosticPreferencesSuite { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
         if diagnosticExitStatus != 0 { Darwin.exit(diagnosticExitStatus) }
     }
     private func configureMainMenu() {

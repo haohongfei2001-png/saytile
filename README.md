@@ -62,3 +62,5 @@ Two equal ASR experts receive the same complete audio, and one GPT-6 Astra core 
 ## SingleTranscriptEngine 最新验收
 
 双平等完整音频专家、一个GPT核心、唯一文字流、离线接替和安全局部修正的[实际交付与限制](evidence/single-transcript-final/README.md)。工程回归通过不等于真人云识别质量通过；生产RC1保持不变。
+
+并发收口记录：[另一工程验收切片](evidence/single-transcript/DELIVERY.md)。最新统一回执以 [single-transcript-final](evidence/single-transcript-final/README.md) 为准，历史包与其真实来源SHA分别保留。
