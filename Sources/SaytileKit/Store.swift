@@ -27,7 +27,7 @@ public actor SaytileStore {
         let database = try StoreDatabase(url:self.directory.appendingPathComponent("Saytile.sqlite"))
         db = database
         let version = try database.rows("PRAGMA user_version").first?["user_version"] ?? "0"
-        guard version == "0" || version == "1" || version == "2" || version == "3" else { throw StoreError.database("资料库来自更新版本，请升级 Saytile。") }
+        guard version == "0" || version == "1" || version == "2" || version == "3" || version == "4" else { throw StoreError.database("资料库来自更新版本，请升级 Saytile。") }
         try database.configureForWriting()
         // DDL, index upgrades and version advancement commit together or roll back together.
         try database.transaction { try database.script(Self.schema) }
@@ -39,6 +39,8 @@ public actor SaytileStore {
             try database.execute("UPDATE model_runs SET state='interrupted' WHERE state='running'")
             try database.execute("UPDATE fusion_sessions SET state='interrupted' WHERE state='running'")
             try database.execute("UPDATE bindings SET active=0")
+            try database.execute("UPDATE owned_input_ranges SET valid=0")
+            try database.execute("UPDATE owned_corrections SET state='unverified' WHERE state='dispatching'")
             try database.execute("UPDATE dispatches SET state='unverified' WHERE state='dispatching'")
         }
         // Cleanup is resumed by recoverPendingDeletions, before importing any audio.
@@ -395,6 +397,9 @@ public actor SaytileStore {
             try db.execute("UPDATE recordings SET audio_state='deletePending',audio_epoch=audio_epoch+1,active_attempt=NULL,recognition_state='cancelled' WHERE id=? AND audio_state<>'deleted'",[.text(id.uuidString)])
             try db.execute("DELETE FROM recovery_attempts WHERE recording_id=?",[.text(id.uuidString)])
             if deleteRecord {
+                try db.execute("DELETE FROM owned_corrections WHERE recording_id=?", [.text(id.uuidString)])
+                try db.execute("DELETE FROM owned_correction_heads WHERE recording_id=?", [.text(id.uuidString)])
+                try db.execute("DELETE FROM owned_input_ranges WHERE recording_id=?", [.text(id.uuidString)])
                 // Keep only operation audit metadata; deleting a record erases its text snapshots as well.
                 // Usage totals remain auditable, but decoded arbiter replies contain transcript
                 // references and a text prefix, so erase that evidence in the same transaction.
@@ -478,6 +483,7 @@ extension SaytileStore {
     }
     public func invalidateBinding(_ id: UUID) throws {
         try db.execute("UPDATE bindings SET active=0 WHERE id=?",[.text(id.uuidString)])
+        try db.execute("UPDATE owned_input_ranges SET valid=0 WHERE binding_id=?", [.text(id.uuidString)])
     }
     /// Finds final text not yet reserved for this live binding, including delayed ASR
     /// outside the panel's most recent page. The selected transcript is unchanged;
@@ -519,6 +525,11 @@ extension SaytileStore {
         """,[.text(bindingID.uuidString),.text(bindingID.uuidString),.double(createdSince.timeIntervalSince1970),.int(Int64(max(1,min(limit,1000))))])
     }
     public func reserveDispatch(bindingID: UUID, recordingID: UUID, revisionID: UUID, stableUTF16End: Int) throws -> DispatchReservation? {
+        if try db.rows("SELECT 1 FROM owned_corrections WHERE binding_id=? AND recording_id=? AND state='confirmed' LIMIT 1",
+                       [.text(bindingID.uuidString), .text(recordingID.uuidString)]).first != nil {
+            return try reserveAfterOwnedCorrection(bindingID: bindingID, recordingID: recordingID,
+                                                  revisionID: revisionID, stableUTF16End: stableUTF16End)
+        }
         do {
             return try db.transaction {
                 guard try db.rows("""
@@ -652,6 +663,21 @@ extension SaytileStore {
       recording_id TEXT NOT NULL REFERENCES recordings(id),sequence INTEGER NOT NULL,payload TEXT NOT NULL,created_at REAL NOT NULL,UNIQUE(run_id,sequence)
     );
     CREATE TRIGGER IF NOT EXISTS candidates_immutable BEFORE UPDATE ON recognition_candidates BEGIN SELECT RAISE(ABORT,'create a new candidate'); END;
+    CREATE TABLE IF NOT EXISTS owned_input_ranges(
+      binding_id TEXT NOT NULL REFERENCES bindings(id),recording_id TEXT NOT NULL REFERENCES recordings(id),
+      target_start INTEGER NOT NULL CHECK(target_start>=0),expected_text TEXT NOT NULL,valid INTEGER NOT NULL,
+      PRIMARY KEY(binding_id,recording_id)
+    );
+    CREATE TABLE IF NOT EXISTS owned_correction_heads(
+      recording_id TEXT PRIMARY KEY REFERENCES recordings(id),revision_id TEXT NOT NULL REFERENCES revisions(id),
+      recognition_id TEXT NOT NULL REFERENCES fusion_sessions(id),candidate_ids TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS owned_corrections(
+      id TEXT PRIMARY KEY,binding_id TEXT NOT NULL REFERENCES bindings(id),recording_id TEXT NOT NULL REFERENCES recordings(id),
+      revision_id TEXT NOT NULL REFERENCES revisions(id),target_start INTEGER NOT NULL,expected_text TEXT NOT NULL,
+      replacement TEXT NOT NULL,state TEXT NOT NULL CHECK(state IN('pending','dispatching','confirmed','unverified','cancelled')),
+      UNIQUE(binding_id,recording_id,revision_id)
+    );
     CREATE TABLE IF NOT EXISTS fusion_dispatch_heads(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),revision_id TEXT NOT NULL REFERENCES revisions(id));
     CREATE TABLE IF NOT EXISTS fusion_archives(revision_id TEXT PRIMARY KEY REFERENCES revisions(id),recording_id TEXT NOT NULL REFERENCES recordings(id),recognition_id TEXT NOT NULL REFERENCES fusion_sessions(id));
     CREATE TABLE IF NOT EXISTS fusion_decisions(id TEXT PRIMARY KEY,recognition_id TEXT NOT NULL REFERENCES fusion_sessions(id),recording_id TEXT NOT NULL REFERENCES recordings(id),payload TEXT NOT NULL,created_at REAL NOT NULL);
@@ -663,7 +689,7 @@ extension SaytileStore {
     CREATE INDEX IF NOT EXISTS candidates_recording ON recognition_candidates(recording_id,created_at);
     CREATE INDEX IF NOT EXISTS decisions_recording ON fusion_decisions(recording_id,created_at);
     CREATE INDEX IF NOT EXISTS usage_recording ON model_usage(recording_id,created_at);
-    PRAGMA user_version=3;
+    PRAGMA user_version=4;
     """
 }
 
@@ -991,11 +1017,33 @@ extension SaytileStore {
                     try pruneFusionPreviews(ticket: ticket, keeping: archive.id)
                 }
             }
+            // An archive is not automatically dispatchable. Revalidate a complete reviewed
+            // selection without the external-prefix pin, then expose ONLY a correction head.
+            try db.execute("DELETE FROM owned_correction_heads WHERE recording_id=?", [.text(ticket.recordingID.uuidString)])
+            var acceptedProposal = proposal
+            if !reservedPrefix.isEmpty, !RecognitionUTF16.hasExactPrefix(proposal.previewText, prefix: reservedPrefix),
+               completeSources, !requiredFailed, !proposal.selections.isEmpty,
+               proposal.selectionRequestedUnresolved == false, !proposal.needsAudioReview,
+               Set(proposal.reviewedCandidateIDs ?? []) == Set(current.map(\.id)),
+               let corrected = try? PrecisionFusion.validateSelection(spans: proposal.selections, candidates: current,
+                   committedPrefix: "", unresolved: false, needsAudioReview: false, reasonCode: "owned-range-reviewed"),
+               !corrected.unresolved, !corrected.needsAudioReview,
+               corrected.stableText.utf8.elementsEqual(proposal.previewText.utf8),
+               let archive = try db.rows("SELECT v.id FROM fusion_archives a JOIN revisions v ON v.id=a.revision_id WHERE a.recording_id=? AND a.recognition_id=? AND v.origin='final' AND v.text=? ORDER BY v.rowid DESC LIMIT 1",
+                   [.text(ticket.recordingID.uuidString), .text(ticket.id.uuidString), .text(corrected.stableText)]).first?["id"] {
+                // Recognition can finish with a reviewed local correction even while its
+                // external replacement is pending. `revision` below remains the append head;
+                // acceptedProposal is the actual complete evidence decision consumed by GPT core.
+                acceptedProposal = corrected
+                try db.execute("INSERT INTO owned_correction_heads(recording_id,revision_id,recognition_id,candidate_ids) VALUES(?,?,?,?)",
+                    [.text(ticket.recordingID.uuidString), .text(archive), .text(ticket.id.uuidString),
+                     .text(try Self.encodeEvidence(current.map { $0.id.uuidString }.sorted()))])
+            }
             let deferred = !safe || proposal.unresolved || proposal.needsAudioReview
             let decision = FusionDecisionRecord(id: UUID(), recognitionID: ticket.id, proposal: proposal,
                 revisionID: published?.id ?? archiveID, outcome: published != nil ? "published" : deferred ? "deferred" : "unchanged", createdAt: Date(), audioSubmittedSeconds: audioSubmittedSeconds)
             try db.execute("INSERT INTO fusion_decisions(id,recognition_id,recording_id,payload,created_at) VALUES(?,?,?,?,?)", [.text(decision.id.uuidString), .text(ticket.id.uuidString), .text(ticket.recordingID.uuidString), .text(try Self.encodeEvidence(decision)), .double(decision.createdAt.timeIntervalSince1970)])
-            return FusionPublication(revision: head, published: published != nil, deferred: deferred, acceptedProposal: proposal)
+            return FusionPublication(revision: head, published: published != nil, deferred: deferred, acceptedProposal: acceptedProposal)
         }
     }
     /// Recheck the exact evidence snapshot in the reservation transaction. A provider callback
@@ -1096,5 +1144,165 @@ extension SaytileStore {
     private static func decodeEvidence<T: Decodable>(_ type: T.Type, _ string: String?) throws -> T {
         guard let data = string?.data(using: .utf8) else { throw FusionError.invalidCandidate }
         return try JSONDecoder().decode(type, from: data)
+    }
+}
+
+extension SaytileStore {
+    /// Called only after a verified insertion and exact before/after text witness. This
+    /// persists offsets for audit, never target identity; runtime ownership is still required.
+    func recordOwnedInsertion(_ reservation: DispatchReservation, bindingID: UUID,
+                              targetStart: Int, text: String) throws -> Bool {
+        try db.transaction {
+            guard try dispatchState(id: reservation.id) == .confirmed,
+                  try db.rows("SELECT 1 FROM bindings WHERE id=? AND active=1", [.text(bindingID.uuidString)]).first != nil,
+                  let prefix = try db.rows("SELECT prefix FROM cursors WHERE binding_id=? AND recording_id=?",
+                      [.text(bindingID.uuidString), .text(reservation.recordingID.uuidString)]).first?["prefix"],
+                  prefix.utf8.elementsEqual(text.utf8),
+                  try db.rows("SELECT 1 FROM dispatches WHERE binding_id=? AND recording_id=? AND state<>'confirmed' LIMIT 1",
+                      [.text(bindingID.uuidString), .text(reservation.recordingID.uuidString)]).isEmpty else { return false }
+            try db.execute("UPDATE owned_input_ranges SET valid=0 WHERE binding_id=?", [.text(bindingID.uuidString)])
+            try db.execute("INSERT INTO owned_input_ranges(binding_id,recording_id,target_start,expected_text,valid) VALUES(?,?,?,?,1) ON CONFLICT(binding_id,recording_id) DO UPDATE SET target_start=excluded.target_start,expected_text=excluded.expected_text,valid=1",
+                [.text(bindingID.uuidString), .text(reservation.recordingID.uuidString), .int(Int64(targetStart)), .text(text)])
+            return true
+        }
+    }
+
+    /// This separate queue includes already delivered records, whose corrected text
+    /// deliberately remains in fusion_archives rather than the append-only head.
+    public func ownedCorrectionCandidates(bindingID: UUID) throws -> [TranscriptRevision] {
+        try db.rows("""
+        SELECT v.* FROM owned_correction_heads h JOIN revisions v ON v.id=h.revision_id
+        JOIN recordings r ON r.id=h.recording_id AND r.deleted=0
+        JOIN bindings b ON b.id=? AND b.active=1
+        JOIN cursors c ON c.binding_id=b.id AND c.recording_id=r.id
+        WHERE c.prefix<>v.text AND NOT EXISTS(
+          SELECT 1 FROM owned_corrections op WHERE op.binding_id=b.id AND op.revision_id=v.id)
+        ORDER BY r.rowid
+        """, [.text(bindingID.uuidString)]).map(Self.decodeRevision)
+    }
+
+    func pendOwnedCorrection(bindingID: UUID, revision: TranscriptRevision) throws {
+        try db.execute("""
+        INSERT OR IGNORE INTO owned_corrections(id,binding_id,recording_id,revision_id,target_start,expected_text,replacement,state)
+        SELECT ?,b.id,h.recording_id,h.revision_id,COALESCE(o.target_start,0),c.prefix,v.text,'pending'
+        FROM owned_correction_heads h JOIN revisions v ON v.id=h.revision_id
+        JOIN bindings b ON b.id=? AND b.active=1
+        JOIN cursors c ON c.binding_id=b.id AND c.recording_id=h.recording_id
+        LEFT JOIN owned_input_ranges o ON o.binding_id=b.id AND o.recording_id=h.recording_id
+        WHERE h.revision_id=?
+        """, [.text(UUID().uuidString), .text(bindingID.uuidString), .text(revision.id.uuidString)])
+    }
+
+    private func ownedCorrectionEvidenceIsCurrent(recordingID: UUID, revisionID: UUID) throws -> Bool {
+        guard let proof = try db.rows("""
+        SELECT h.*,s.audio_epoch FROM owned_correction_heads h JOIN fusion_sessions s ON s.id=h.recognition_id
+        JOIN recordings r ON r.id=h.recording_id AND r.deleted=0 AND r.audio_epoch=s.audio_epoch
+        WHERE h.recording_id=? AND h.revision_id=? AND s.state IN('running','completed')
+          AND s.id=(SELECT id FROM fusion_sessions WHERE recording_id=r.id ORDER BY rowid DESC LIMIT 1)
+          AND NOT EXISTS(SELECT 1 FROM editing_drafts WHERE recording_id=r.id)
+          AND NOT EXISTS(SELECT 1 FROM revisions WHERE id=r.preferred_revision AND origin='userEdit')
+        """, [.text(recordingID.uuidString), .text(revisionID.uuidString)]).first,
+              let id = proof["recognition_id"].flatMap(UUID.init(uuidString:)),
+              let epoch = proof["audio_epoch"].flatMap(Int64.init) else { return false }
+        let current = try latestRecognitionCandidates(ticket: .init(id: id, recordingID: recordingID, audioEpoch: epoch))
+        guard !current.isEmpty, current.allSatisfy(\.isComplete),
+              try Self.encodeEvidence(current.map { $0.id.uuidString }.sorted()) == proof["candidate_ids"] else { return false }
+        for candidate in current {
+            guard try db.rows("SELECT state FROM model_runs WHERE id=?", [.text(candidate.run.id.uuidString)]).first?["state"].map({ ["running", "completed"].contains($0) }) == true else { return false }
+        }
+        return true
+    }
+
+    func reserveOwnedCorrection(bindingID: UUID, revision: TranscriptRevision,
+                                targetStart: Int, expectedText: String) throws -> OwnedCorrectionReservation? {
+        try db.transaction {
+            guard try ownedCorrectionEvidenceIsCurrent(recordingID: revision.recordingID, revisionID: revision.id),
+                  let row = try db.rows("""
+                  SELECT o.expected_text,c.prefix,v.text FROM owned_input_ranges o
+                  JOIN bindings b ON b.id=o.binding_id AND b.active=1
+                  JOIN cursors c ON c.binding_id=o.binding_id AND c.recording_id=o.recording_id
+                  JOIN revisions v ON v.id=? AND v.recording_id=o.recording_id
+                  WHERE o.binding_id=? AND o.recording_id=? AND o.valid=1 AND o.target_start=?
+                  AND NOT EXISTS(SELECT 1 FROM owned_corrections WHERE binding_id=b.id AND revision_id=v.id)
+                  AND NOT EXISTS(SELECT 1 FROM dispatches WHERE binding_id=b.id AND recording_id=o.recording_id AND state<>'confirmed')
+                  AND NOT EXISTS(SELECT 1 FROM cursors later JOIN recordings lr ON lr.id=later.recording_id
+                    JOIN recordings r ON r.id=o.recording_id WHERE later.binding_id=b.id AND later.end_utf16>0 AND lr.rowid>r.rowid)
+                  """, [.text(revision.id.uuidString), .text(bindingID.uuidString), .text(revision.recordingID.uuidString), .int(Int64(targetStart))]).first,
+                  row["expected_text"]?.utf8.elementsEqual(expectedText.utf8) == true,
+                  row["prefix"]?.utf8.elementsEqual(expectedText.utf8) == true,
+                  row["text"]?.utf8.elementsEqual(revision.text.utf8) == true else { return nil }
+            let op = OwnedCorrectionReservation(id: UUID(), bindingID: bindingID, recordingID: revision.recordingID,
+                revisionID: revision.id, targetStart: targetStart, expectedText: expectedText, replacement: revision.text)
+            try db.execute("INSERT INTO owned_corrections(id,binding_id,recording_id,revision_id,target_start,expected_text,replacement,state) VALUES(?,?,?,?,?,?,?,'dispatching')",
+                [.text(op.id.uuidString), .text(bindingID.uuidString), .text(op.recordingID.uuidString), .text(op.revisionID.uuidString),
+                 .int(Int64(targetStart)), .text(expectedText), .text(op.replacement)])
+            // A crash or ambiguous mutation consumes ownership; only confirmed completion restores it.
+            try db.execute("UPDATE owned_input_ranges SET valid=0 WHERE binding_id=? AND recording_id=?", [.text(bindingID.uuidString), .text(op.recordingID.uuidString)])
+            return op
+        }
+    }
+
+    func ownedCorrectionMayExecute(_ op: OwnedCorrectionReservation) throws -> Bool {
+        try ownedCorrectionEvidenceIsCurrent(recordingID: op.recordingID, revisionID: op.revisionID) &&
+        db.rows("SELECT 1 FROM owned_corrections op JOIN bindings b ON b.id=op.binding_id WHERE op.id=? AND op.state='dispatching' AND b.active=1", [.text(op.id.uuidString)]).first != nil
+    }
+
+    func completeOwnedCorrection(_ op: OwnedCorrectionReservation, confirmed: Bool, notAttempted: Bool = false) throws {
+        try db.transaction {
+            guard try ownedCorrectionState(id: op.id) == "dispatching" else { return }
+            if confirmed {
+                // The accepted correction is now the effective delivery head. Keep the
+                // superseded finals archived; never reinterpret an arbitrary preview.
+                if let proof = try db.rows("SELECT recognition_id,candidate_ids FROM owned_correction_heads WHERE recording_id=? AND revision_id=?",
+                    [.text(op.recordingID.uuidString), .text(op.revisionID.uuidString)]).first,
+                   let recognitionID = proof["recognition_id"], let candidateIDs = proof["candidate_ids"] {
+                    try db.execute("INSERT OR IGNORE INTO fusion_archives(revision_id,recording_id,recognition_id) SELECT id,recording_id,? FROM revisions WHERE recording_id=? AND origin='final' AND id<>?",
+                        [.text(recognitionID), .text(op.recordingID.uuidString), .text(op.revisionID.uuidString)])
+                    try db.execute("DELETE FROM fusion_archives WHERE revision_id=?", [.text(op.revisionID.uuidString)])
+                    try db.execute("INSERT INTO fusion_dispatch_heads(recording_id,revision_id) VALUES(?,?) ON CONFLICT(recording_id) DO UPDATE SET revision_id=excluded.revision_id",
+                        [.text(op.recordingID.uuidString), .text(op.revisionID.uuidString)])
+                    try db.execute("INSERT INTO fusion_head_evidence(recording_id,recognition_id,candidate_ids) VALUES(?,?,?) ON CONFLICT(recording_id) DO UPDATE SET recognition_id=excluded.recognition_id,candidate_ids=excluded.candidate_ids",
+                        [.text(op.recordingID.uuidString), .text(recognitionID), .text(candidateIDs)])
+                }
+                // end_utf16 stays the monotone insertion ledger coordinate. Only prefix
+                // tracks the effective transcript; original dispatch ranges/revisions stay intact.
+                try db.execute("UPDATE cursors SET prefix=? WHERE binding_id=? AND recording_id=?",
+                    [.text(op.replacement), .text(op.bindingID.uuidString), .text(op.recordingID.uuidString)])
+                try db.execute("UPDATE owned_input_ranges SET expected_text=?,valid=1 WHERE binding_id=? AND recording_id=?",
+                    [.text(op.replacement), .text(op.bindingID.uuidString), .text(op.recordingID.uuidString)])
+            }
+            try db.execute("UPDATE owned_corrections SET state=? WHERE id=?", [.text(confirmed ? "confirmed" : notAttempted ? "pending" : "unverified"), .text(op.id.uuidString)])
+        }
+    }
+
+    func ownedCorrectionState(id: UUID) throws -> String? {
+        try db.rows("SELECT state FROM owned_corrections WHERE id=?", [.text(id.uuidString)]).first?["state"]
+    }
+
+    /// After a length-changing repair, logical text offsets differ from insertion-ledger
+    /// offsets. Reserve only the new suffix while advancing the original ledger monotonically.
+    private func reserveAfterOwnedCorrection(bindingID: UUID, recordingID: UUID, revisionID: UUID,
+                                             stableUTF16End: Int) throws -> DispatchReservation? {
+        try db.transaction {
+            guard try db.rows("SELECT 1 FROM bindings WHERE id=? AND active=1", [.text(bindingID.uuidString)]).first != nil else { throw StoreError.bindingInvalid }
+            guard let revision = try latestDispatchableRevision(recordingID: recordingID), revision.id == revisionID,
+                  try fusionDispatchEvidenceIsCurrent(recordingID: recordingID, revisionID: revisionID),
+                  let cursor = try db.rows("SELECT end_utf16,prefix FROM cursors WHERE binding_id=? AND recording_id=?", [.text(bindingID.uuidString), .text(recordingID.uuidString)]).first,
+                  let previous = cursor["prefix"], let ledgerStart = cursor["end_utf16"].flatMap(Int.init) else { return nil }
+            let logicalStart = previous.utf16.count
+            guard RecognitionUTF16.hasExactPrefix(revision.text, prefix: previous) else { throw StoreError.lateRecognitionDeferred }
+            if stableUTF16End == logicalStart { return nil }
+            guard try db.rows("SELECT 1 FROM cursors c JOIN recordings r ON r.id=c.recording_id JOIN recordings current ON current.id=? WHERE c.binding_id=? AND c.end_utf16>0 AND r.rowid>current.rowid", [.text(recordingID.uuidString), .text(bindingID.uuidString)]).isEmpty else { throw StoreError.lateRecognitionDeferred }
+            guard let suffix = Self.slice(revision.text, start: logicalStart, end: stableUTF16End), !suffix.isEmpty,
+                  let prefix = Self.slice(revision.text, start: 0, end: stableUTF16End) else { throw StoreError.invalidBoundary }
+            let reservation = DispatchReservation(id: UUID(), recordingID: recordingID, revisionID: revisionID,
+                text: suffix, utf16Start: logicalStart, utf16End: stableUTF16End)
+            let ledgerEnd = ledgerStart + suffix.utf16.count
+            try db.execute("INSERT INTO dispatches(id,binding_id,recording_id,revision_id,start_utf16,end_utf16,text,state,kind) VALUES(?,?,?,?,?,?,?,'dispatching','direct')",
+                [.text(reservation.id.uuidString), .text(bindingID.uuidString), .text(recordingID.uuidString), .text(revisionID.uuidString), .int(Int64(ledgerStart)), .int(Int64(ledgerEnd)), .text(suffix)])
+            try db.execute("UPDATE cursors SET end_utf16=?,prefix=? WHERE binding_id=? AND recording_id=?",
+                [.int(Int64(ledgerEnd)), .text(prefix), .text(bindingID.uuidString), .text(recordingID.uuidString)])
+            return reservation
+        }
     }
 }

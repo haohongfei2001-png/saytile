@@ -10,10 +10,11 @@ public struct InputBindingInfo: Sendable, Equatable {
 }
 
 public enum NativeInputResult: Sendable, Equatable {
-    case confirmed, unverified, noNewText, cancelled, deferred, failed(String)
+    case confirmed, unverified, noNewText, cancelled, deferred, correctionPending, failed(String)
     public var message: String {
         switch self {
         case .confirmed: "已插入"
+        case .correctionPending: "修正版已保留；目标范围无法安全确认，不会自动重试修正。"
         case .unverified: "已尝试插入，请在目标应用核对；不会自动重发"
         case .noNewText: "没有新的稳定文字"
         case .deferred: "较早一段的识别结果已保留在输入板，可手动取用；后续新表达继续输入。"
@@ -81,11 +82,37 @@ protocol InputAccess: AnyObject {
     func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool?
     func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport
     func stopObserving()
+    // Bounded, ephemeral witness; never persisted. Unknown text/boundaries forbid ownership.
+    func textWitness(at expected: InputTargetSnapshot) -> String?
+    func replaceOwned(_ expectedText: String, with replacement: String, start: Int,
+                      witness: String, at expected: InputTargetSnapshot, isCurrent: @MainActor () -> Bool) throws -> Bool
 }
 extension InputAccess {
+    func textWitness(at expected: InputTargetSnapshot) -> String? { nil }
+    func replaceOwned(_ expectedText: String, with replacement: String, start: Int,
+                      witness: String, at expected: InputTargetSnapshot, isCurrent: @MainActor () -> Bool) throws -> Bool { false }
+
     func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool? { nil }
     func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport { .init(focus: false, content: false, page: false) }
     func stopObserving() {}
+}
+
+/// Swift String equality is canonically equivalent, which is too weak for ownership.
+/// Both old and resulting boundaries must be extended-grapheme boundaries in context.
+enum OwnedInputText {
+    static func replacing(_ witness: String, start: Int, expected: String, replacement: String) -> String? {
+        guard start >= 0, start <= witness.utf16.count,
+              expected.utf16.count <= witness.utf16.count - start else { return nil }
+        let end = start + expected.utf16.count
+        guard let before = RecognitionUTF16.slice(witness, start: 0, end: start),
+              let owned = RecognitionUTF16.slice(witness, start: start, end: end),
+              owned.utf8.elementsEqual(expected.utf8),
+              let after = RecognitionUTF16.slice(witness, start: end, end: witness.utf16.count) else { return nil }
+        let result = before + replacement + after
+        guard RecognitionUTF16.slice(result, start: 0, end: start) != nil,
+              RecognitionUTF16.slice(result, start: start, end: start + replacement.utf16.count) != nil else { return nil }
+        return result
+    }
 }
 
 @MainActor
@@ -98,6 +125,16 @@ public final class NativeInputCoordinator {
     private var hasIssuedDispatch = false
     private var inFlightInsertion: (target: InputTargetSnapshot, text: String)?
     private var boundPurpose: InputBindingPurpose = .continuous
+    private struct Ownership {
+        let recordingID: UUID
+        let start: Int
+        var text: String
+        var witness: String
+    }
+    private var owned: Ownership?
+    private var canObserveOwnership = false
+    private var inFlightCorrection: (before: InputTargetSnapshot, selected: InputTargetSnapshot,
+                                     after: InputTargetSnapshot, oldText: String, newText: String)?
     private var confirmedTail: (text: String, start: Int)?
     private let activationNotificationCenter: NotificationCenter?
     private var activationObserver: NSObjectProtocol?
@@ -157,6 +194,10 @@ public final class NativeInputCoordinator {
             switch change {
             case .focusOrDocument: self.invalidate()
             case .contentOrSelection:
+                if let pending = self.inFlightCorrection, let current = try? self.access.snapshot(),
+                   let witness = self.access.textWitness(at: current),
+                   ((current == pending.selected && witness.utf8.elementsEqual(pending.oldText.utf8)) ||
+                    (current == pending.after && witness.utf8.elementsEqual(pending.newText.utf8))) { break }
                 if self.hasIssuedDispatch, let pending = self.inFlightInsertion,
                    let current = try? self.access.snapshot(), current.sameTarget(as: pending.target),
                    current.selectionLength == 0,
@@ -173,6 +214,7 @@ public final class NativeInputCoordinator {
                 if self.target?.isWeb == true { self.invalidate() }
             }
         }
+        canObserveOwnership = support.focus && support.content && (!snapshot.isWeb || support.page && snapshot.pageContextComplete)
         if purpose == .continuous, snapshot.isWeb,
            !(snapshot.pageContextComplete && support.focus && support.content && support.page && access.matchesText("", utf16Start: snapshot.selectionLocation, at: snapshot) == true) {
             invalidate()
@@ -187,6 +229,8 @@ public final class NativeInputCoordinator {
         binding = nil
         target = nil
         confirmedTail = nil
+        owned = nil
+        canObserveOwnership = false
         access.stopObserving()
         if let id { Task { try? await store.invalidateBinding(id) } }
         if id != nil { onBindingInvalidated?() }
@@ -251,6 +295,13 @@ public final class NativeInputCoordinator {
                     try? await store.completeDispatch(id: reservation.id, state: .cancelled)
                     return .cancelled
                 }
+                let beforeText = canObserveOwnership ? access.textWitness(at: target) : nil
+                let priorOwned = owned
+                guard startGeneration == generation, !Task.isCancelled else {
+                    try? await store.completeDispatch(id: reservation.id, state: .cancelled)
+                    return .cancelled
+                }
+                owned = nil // Any unconfirmed or noncontiguous attempt consumes prior ownership.
                 inFlightInsertion = (target, reservation.text)
                 hasIssuedDispatch = true
                 let dispatched = try access.dispatch(reservation.text, to: target)
@@ -268,6 +319,26 @@ public final class NativeInputCoordinator {
                         let tail = String(reservation.text.suffix(32))
                         confirmedTail = (tail, target.selectionLocation + reservation.text.utf16.count - tail.utf16.count)
                         try await store.completeDispatch(id: reservation.id, state: .confirmed)
+                        if stableEnd != nil, startGeneration == generation, let beforeText,
+                           let afterText = access.textWitness(at: after),
+                           let expectedAfter = OwnedInputText.replacing(beforeText, start: target.selectionLocation,
+                               expected: "", replacement: reservation.text),
+                           afterText.utf8.elementsEqual(expectedAfter.utf8) {
+                            let candidate: Ownership?
+                            if reservation.utf16Start == 0 {
+                                candidate = Ownership(recordingID: recordingID, start: target.selectionLocation,
+                                                      text: reservation.text, witness: afterText)
+                            } else if let priorOwned, priorOwned.recordingID == recordingID,
+                                      priorOwned.start + priorOwned.text.utf16.count == target.selectionLocation,
+                                      priorOwned.witness.utf8.elementsEqual(beforeText.utf8) {
+                                candidate = Ownership(recordingID: recordingID, start: priorOwned.start,
+                                    text: priorOwned.text + reservation.text, witness: afterText)
+                            } else { candidate = nil }
+                            if let candidate, try await store.recordOwnedInsertion(reservation, bindingID: binding.id,
+                                targetStart: candidate.start, text: candidate.text), startGeneration == generation {
+                                owned = candidate
+                            }
+                        }
                         return .confirmed
                     }
                     if let current = try? access.snapshot(), !current.sameTarget(as: target) { break }
@@ -297,11 +368,82 @@ public final class NativeInputCoordinator {
         }
     }
 
+    /// Direct-mode correction of a Store-approved archive, never a local draft/preview.
+    public func repairOwned(revision: TranscriptRevision) async -> NativeInputResult {
+        guard !isDispatching, !Task.isCancelled, let binding, let target else { return .correctionPending }
+        let startGeneration = generation
+        guard let owned, owned.recordingID == revision.recordingID, canObserveOwnership,
+              target.selectionLength == 0, target.selectionLocation == owned.start + owned.text.utf16.count,
+              let replacementWitness = OwnedInputText.replacing(owned.witness, start: owned.start,
+                  expected: owned.text, replacement: revision.text) else {
+            try? await store.pendOwnedCorrection(bindingID: binding.id, revision: revision)
+            return .correctionPending
+        }
+        if owned.text.utf8.elementsEqual(revision.text.utf8) { return .noNewText }
+        isDispatching = true
+        defer { isDispatching = false; inFlightCorrection = nil }
+        var operation: OwnedCorrectionReservation?
+        do {
+            try validate(target)
+            guard let op = try await store.reserveOwnedCorrection(bindingID: binding.id, revision: revision,
+                targetStart: owned.start, expectedText: owned.text) else {
+                try? await store.pendOwnedCorrection(bindingID: binding.id, revision: revision)
+                return .correctionPending
+            }
+            operation = op
+            guard try await store.ownedCorrectionMayExecute(op), !Task.isCancelled,
+                  startGeneration == generation else { throw NativeInputError.targetChanged }
+            try validate(target)
+            var selected = target
+            selected.selectionLocation = owned.start; selected.selectionLength = owned.text.utf16.count
+            var after = target
+            after.selectionLocation = owned.start + revision.text.utf16.count
+            inFlightCorrection = (target, selected, after, owned.witness, replacementWitness)
+            self.owned = nil
+            guard try access.replaceOwned(owned.text, with: revision.text, start: owned.start,
+                witness: owned.witness, at: target, isCurrent: {
+                    self.generation == startGeneration && self.binding?.id == binding.id && !Task.isCancelled
+                }) else {
+                try await store.completeOwnedCorrection(op, confirmed: false, notAttempted: true)
+                return .correctionPending
+            }
+            // One write, bounded confirmation only. Never a second mutation on uncertainty.
+            for delay in [40, 80, 160] {
+                try await Task.sleep(for: .milliseconds(delay))
+                guard startGeneration == generation else { break }
+                if let current = try? access.snapshot(), current == after,
+                   let witness = access.textWitness(at: current), witness.utf8.elementsEqual(replacementWitness.utf8) {
+                    try await store.completeOwnedCorrection(op, confirmed: true)
+                    guard startGeneration == generation else { return .correctionPending }
+                    self.target = after
+                    self.owned = Ownership(recordingID: revision.recordingID, start: owned.start,
+                                           text: revision.text, witness: witness)
+                    let tail = String(revision.text.suffix(32))
+                    confirmedTail = (tail, after.selectionLocation - tail.utf16.count)
+                    return .confirmed
+                }
+            }
+            try await store.completeOwnedCorrection(op, confirmed: false)
+            invalidate()
+            return .correctionPending
+        } catch {
+            if let operation { try? await store.completeOwnedCorrection(operation, confirmed: false) }
+            else { try? await store.pendOwnedCorrection(bindingID: binding.id, revision: revision) }
+            invalidate()
+            return .correctionPending
+        }
+    }
+
     private func validate(_ target: InputTargetSnapshot) throws {
         guard hasPermission else { throw NativeInputError.permission }
         let current = try access.snapshot()
         try current.checked()
         guard current == target else { throw NativeInputError.targetChanged }
+        if let owned {
+            guard let witness = access.textWitness(at: target), witness.utf8.elementsEqual(owned.witness.utf8) else {
+                throw NativeInputError.targetChanged
+            }
+        }
         if let confirmedTail, access.matchesText(confirmedTail.text, utf16Start: confirmedTail.start, at: target) != true {
             throw NativeInputError.targetChanged
         }

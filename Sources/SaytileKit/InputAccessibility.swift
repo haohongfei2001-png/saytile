@@ -9,7 +9,7 @@ struct AXInputSelection {
     let element: AXUIElement
 }
 
-/// Narrow AX adapter: never reads or replaces the entire target value, never activates an app,
+/// Narrow AX adapter: never replaces the entire target value, never activates an app,
 /// and never generates Return. Page identifiers stay in memory and are not sent to storage.
 @MainActor
 final class AXInputAccess: InputAccess {
@@ -137,7 +137,56 @@ final class AXInputAccess: InputAccess {
         var output: CFTypeRef?
         guard AXUIElementCopyParameterizedAttributeValue(element, kAXStringForRangeParameterizedAttribute as CFString,
                                                          value, &output) == .success, let inserted = output as? String else { return nil }
-        return inserted == text
+        return inserted.utf8.elementsEqual(text.utf8)
+    }
+
+    /// Bounded runtime witness includes surrounding text so insertion/replacement can
+    /// prove grapheme boundaries and preserve the user's prefix and suffix. Never stored.
+    func textWitness(at expected: InputTargetSnapshot) -> String? {
+        guard let current = try? snapshot(), current == expected, !current.isSensitive,
+              let element = currentElement,
+              let count = attribute(element, kAXNumberOfCharactersAttribute) as? NSNumber,
+              count.intValue >= 0, count.intValue <= 65_536 else { return nil }
+        var range = CFRange(location: 0, length: count.intValue)
+        guard let value = AXValueCreate(.cfRange, &range) else { return nil }
+        var output: CFTypeRef?
+        guard AXUIElementCopyParameterizedAttributeValue(element, kAXStringForRangeParameterizedAttribute as CFString,
+                value, &output) == .success, let text = output as? String, text.utf16.count == range.length,
+              (try? snapshot()) == expected else { return nil }
+        return text
+    }
+
+    func replaceOwned(_ expectedText: String, with replacement: String, start: Int,
+                      witness: String, at expected: InputTargetSnapshot, isCurrent: @MainActor () -> Bool) throws -> Bool {
+        try expected.checked()
+        guard isCurrent(), !expectedText.isEmpty, expected.selectionLocation == start + expectedText.utf16.count,
+              expected.canSetSelectedText, (try? snapshot()) == expected,
+              let element = currentElement, let selection = currentSelection,
+              let updated = OwnedInputText.replacing(witness, start: start, expected: expectedText, replacement: replacement),
+              updated.utf16.count <= 65_536,
+              let currentText = textWitness(at: expected), currentText.utf8.elementsEqual(witness.utf8) else { return false }
+        var rangeSettable = DarwinBoolean(false), textSettable = DarwinBoolean(false)
+        guard AXUIElementIsAttributeSettable(element, kAXSelectedTextRangeAttribute as CFString, &rangeSettable) == .success,
+              AXUIElementIsAttributeSettable(element, kAXSelectedTextAttribute as CFString, &textSettable) == .success,
+              rangeSettable.boolValue, textSettable.boolValue,
+              focusStillMatches(selection, expected: expected), isCurrent() else { return false }
+        var range = CFRange(location: start, length: expectedText.utf16.count)
+        guard let value = AXValueCreate(.cfRange, &range) else { return false }
+        // The first side effect follows Store reservation. Neither failure nor timeout
+        // is retried. There is no clipboard, key-event or AXValue replacement fallback.
+        let selected = AXUIElementSetAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, value)
+        guard selected == .success else { throw AXDispatchFailure(code: selected.rawValue) }
+        var selectedSnapshot = expected
+        selectedSnapshot.selectionLocation = start; selectedSnapshot.selectionLength = expectedText.utf16.count
+        guard (try? snapshot()) == selectedSnapshot,
+              let immediateText = textWitness(at: selectedSnapshot), immediateText.utf8.elementsEqual(witness.utf8),
+              let latest = try? selectionProvider(), latest.application.processIdentifier == expected.processID,
+              CFEqual(latest.window, selection.window), CFEqual(latest.element, element),
+              let immediateRange = selectedRange(element), immediateRange.location == range.location,
+              immediateRange.length == range.length, isCurrent() else { throw NativeInputError.targetChanged }
+        let result = AXUIElementSetAttributeValue(element, kAXSelectedTextAttribute as CFString, replacement as CFString)
+        guard result == .success else { throw AXDispatchFailure(code: result.rawValue) }
+        return true
     }
 
     func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport {

@@ -326,6 +326,7 @@ final class AppModel: ObservableObject {
         switch result {
         case .confirmed: insertionLabels[recordingID] = "已插入目标草稿"
         case .unverified: insertionLabels[recordingID] = "插入未确认 · 不会自动重发"
+        case .correctionPending: insertionLabels[recordingID] = "修正版待处理 · 未自动重试"
         case .deferred: insertionLabels[recordingID] = "较早段的迟到文字 · 保留在此处供取用"
         case .cancelled: insertionLabels[recordingID] = "目标已变化 · 文字留在此处"
         case .failed: insertionLabels[recordingID] = "未能插入 · 可复制取用"
@@ -583,6 +584,10 @@ final class AppModel: ObservableObject {
             if recognitionPhases != currentPhases { recognitionPhases = currentPhases }
             insertionLabels = insertionLabels.filter { visibleIDs.contains($0.key) }
             if directMode && !isInserting, let binding = input.binding {
+                for correction in try await store.ownedCorrectionCandidates(bindingID: binding.id) {
+                    guard directMode, !isInserting, input.binding?.id == binding.id else { break }
+                    recordInputResult(await input.repairOwned(revision: correction), recordingID: correction.recordingID)
+                }
                 let deferred = try await store.deferredDirectInputRecordings(bindingID: binding.id, createdSince: binding.boundAt, limit: 1000)
                 for id in deferred where visibleIDs.contains(id) { recordInputResult(.deferred, recordingID: id) }
                 let candidates = try await store.directInputCandidates(bindingID: binding.id, createdSince: binding.boundAt)
