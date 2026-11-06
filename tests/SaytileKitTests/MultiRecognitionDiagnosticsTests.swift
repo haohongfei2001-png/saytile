@@ -13,7 +13,6 @@ struct MultiRecognitionDiagnosticsTests {
             .init(purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra")
         ]
         #expect(throws: ProviderFailure.self) { try config.validateForCloud(allowSingleExpertBaseline: true) }
-        config.models.append(.init(purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra", cloudConsent: true))
         config.models[0].cloudConsent = true
         config.models[1].cloudConsent = true
         try config.validateForCloud(allowSingleExpertBaseline: true)
