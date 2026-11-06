@@ -100,7 +100,7 @@ private actor CoordinatorReviewProbe {
             throw CoordinatorFixtureFailure.unexpectedDependency
         }
         return .init(selections: [.init(candidateID: selected.candidateID, utf16Start: 0, utf16End: selected.text.utf16.count + (invalidSelection ? 1 : 0))],
-                     unresolved: acoustic == nil, needsAudioReview: acoustic == nil, reasonCode: "offline-evidence-selection")
+                     unresolved: false, needsAudioReview: false, reasonCode: "offline-evidence-selection")
     }
 }
 
@@ -119,7 +119,7 @@ private final class CoordinatorHarness: Sendable {
     let review: CoordinatorReviewProbe
 
     init(mode: InputQualityMode, chinese: CoordinatorProviderControl, english: CoordinatorProviderControl,
-         initialPCM: Data, reviewText: String? = nil, reviewRelease: CoordinatorGate? = nil, invalidReviewSelection: Bool = false) async throws {
+         initialPCM: Data, reviewText: String? = nil, reviewRelease: CoordinatorGate? = nil, invalidReviewSelection: Bool = false, blockedReview: Bool = false) async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-coordinator-" + UUID().uuidString)
         let store = try SaytileStore(directory: directory)
         let binding = try await store.createBinding(label: "Offline coordinator fixture")
@@ -138,12 +138,8 @@ private final class CoordinatorHarness: Sendable {
             .init(purpose: .englishASR, provider: .assemblyAI, model: "universal-3-6-pro", cloudConsent: true)
         ]
         let review = CoordinatorReviewProbe(invalidSelection: invalidReviewSelection)
-        if reviewText != nil {
-            config.models += [
-                .init(purpose: .textFusion, provider: .openAIResponses, model: "offline-text-review", cloudConsent: true),
-                .init(purpose: .audioReview, provider: .gemini, model: "offline-audio-review", cloudConsent: true)
-            ]
-        }
+        config.models.append(.init(purpose: .textFusion, provider: .openAIResponses,
+                                   model: "gpt-6-astra", cloudConsent: true))
         let dependencies = RecognitionPipelineDependencies(
             // A non-secret sentinel satisfies configuration validation. Never read Keychain.
             credential: { _ in "offline-fixture-not-an-api-key" },
@@ -157,6 +153,8 @@ private final class CoordinatorHarness: Sendable {
             transcribe: { _, _, _ in throw CoordinatorFixtureFailure.unexpectedDependency },
             arbitrate: { evidence, _, _, _, _ in
                 let decision = try await review.arbitrate(evidence)
+                if blockedReview { throw ProviderFailure.authorization }
+                if let reviewRelease { try await reviewRelease.wait() }
                 return (decision, .init(requestID: "offline-text", inputTokens: nil, outputTokens: nil, elapsedSeconds: 0))
             },
             listen: { data, _, _ in
@@ -205,10 +203,10 @@ private final class CoordinatorHarness: Sendable {
 
 private func withCoordinatorHarness(mode: InputQualityMode = .highestQuality,
                                     chinese: CoordinatorProviderControl, english: CoordinatorProviderControl,
-                                    initialPCM: Data, reviewText: String? = nil, reviewRelease: CoordinatorGate? = nil, invalidReviewSelection: Bool = false,
+                                    initialPCM: Data, reviewText: String? = nil, reviewRelease: CoordinatorGate? = nil, invalidReviewSelection: Bool = false, blockedReview: Bool = false,
                                     body: (CoordinatorHarness) async throws -> Void) async throws {
     let harness = try await CoordinatorHarness(mode: mode, chinese: chinese, english: english,
-                                              initialPCM: initialPCM, reviewText: reviewText, reviewRelease: reviewRelease, invalidReviewSelection: invalidReviewSelection)
+                                              initialPCM: initialPCM, reviewText: reviewText, reviewRelease: reviewRelease, invalidReviewSelection: invalidReviewSelection, blockedReview: blockedReview)
     do { try await body(harness) }
     catch { reviewRelease?.open(); await harness.cleanup(); throw error }
     reviewRelease?.open()
@@ -346,7 +344,7 @@ struct RecognitionCoordinatorTests {
     }
 
     @Test(arguments: [false, true])
-    func highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous: Bool) async throws {
+    func mandatoryFinalGPTReviewWaitsEvenWhenExpertsAgree(simultaneous: Bool) async throws {
         let pcm = firstPCM + secondPCM, gate = CoordinatorGate()
         let original = "我想买苹果。", corrected = "我想买梨子。"
         let chinese = CoordinatorProviderControl(text: original)
@@ -358,12 +356,13 @@ struct RecognitionCoordinatorTests {
             chinese.release.open()
             if !simultaneous { try await chinese.callbackEnded.wait() }
             english.release.open()
-            try await coordinatorEventually { await h.review.listened.count == 1 }
-            #expect(await h.review.arbitrationCalls == 0)
-            #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID)?.text == original)
+            try await coordinatorEventually { await h.review.arbitrationCalls == 1 }
+            #expect(await h.review.listened.isEmpty)
+            #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID) == nil)
+            #expect(try await h.store.recording(id: h.recordingID)?.text == original)
             gate.open()
             try await h.wait()
-            #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID)?.text == corrected)
+            #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID)?.text == original)
             #expect(try await h.store.recording(id: h.recordingID)?.recognitionState == .completed)
             #expect(try await h.store.revisions(recordingID: h.recordingID).contains { $0.text == original })
             let responses = try await h.store.modelUsage(recordingID: h.recordingID).compactMap(\.arbitrationResponse)
@@ -393,14 +392,14 @@ struct RecognitionCoordinatorTests {
             // The common literal prefix remains legitimate evidence; the rejected
             // out-of-range selection must not publish either disputed amount.
             let stable = try await h.store.latestDispatchableRevision(recordingID: h.recordingID)
-            #expect(stable?.text == "支付")
+            #expect(stable == nil) // invalid GPT evidence cannot certify even the common prefix
             #expect(try await h.store.fusionDecisions(recordingID: h.recordingID).allSatisfy { $0.proposal.selections.isEmpty })
             #expect(try await h.store.recording(id: h.recordingID)?.recognitionState == .failed)
         }
     }
 
     @Test(arguments: [false, true])
-    func acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore: Bool) async throws {
+    func finalReviewRunsAgainAfterLiveReview(appendMore: Bool) async throws {
         let first = firstPCM, second = secondPCM
         let chinese = CoordinatorProviderControl(text: "我想买苹果。", liveText: "我想买苹果。")
         let english = CoordinatorProviderControl(text: "我想买梨子。", liveText: "我想买梨子。")
@@ -409,7 +408,7 @@ struct RecognitionCoordinatorTests {
             h.session.append(first)
             try await chinese.liveEmitted.wait(); try await english.liveEmitted.wait()
             try await coordinatorEventually {
-                try await h.store.recognitionCandidates(recordingID: h.recordingID).contains { $0.run.purpose == .audioReview && $0.isComplete }
+                await h.review.arbitrationCalls >= 1
             }
             if appendMore {
                 try await h.persist(first + second)
@@ -419,52 +418,48 @@ struct RecognitionCoordinatorTests {
             chinese.release.open(); english.release.open()
             try await h.wait()
             let listened = await h.review.listened
-            #expect(listened.count == (appendMore ? 2 : 1))
-            #expect(listened.first == first)
-            #expect(listened.last == (appendMore ? first + second : first))
+            #expect(listened.isEmpty)
+            #expect(await h.review.arbitrationCalls >= 2)
             #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID)?.text == "我想买梨子。")
         }
     }
 
-    @Test func fastDispatchKeepsLateAcousticCorrectionInternal() async throws {
-        let pcm = firstPCM + secondPCM
-        let original = "支付15元。", corrected = "支付50元。"
-        let chinese = CoordinatorProviderControl(text: original)
-        let english = CoordinatorProviderControl(text: corrected)
+    @Test func legacyFastModeCannotBypassMandatoryGPTReview() async throws {
+        let pcm = firstPCM + secondPCM, gate = CoordinatorGate()
+        let chinese = CoordinatorProviderControl(text: "支付15元。")
+        let english = CoordinatorProviderControl(text: "支付15元。")
         try await withCoordinatorHarness(mode: .fast, chinese: chinese, english: english,
-                                         initialPCM: pcm, reviewText: corrected) { h in
+                                         initialPCM: pcm, reviewRelease: gate) { h in
             h.session.append(pcm)
             try await h.endRecording()
-            try await chinese.audioEnded.wait(); try await english.audioEnded.wait()
-            chinese.release.open()
-            try await chinese.callbackEnded.wait()
-            let firstValue = try await h.store.latestDispatchableRevision(recordingID: h.recordingID)
-            let first = try #require(firstValue)
-            #expect(first.text == original)
-            let reservationValue = try await h.store.reserveDispatch(bindingID: h.bindingID, recordingID: h.recordingID,
-                                                                     revisionID: first.id, stableUTF16End: original.utf16.count)
-            let reservation = try #require(reservationValue)
-            try await h.store.completeDispatch(id: reservation.id, state: .unverified)
-            english.release.open()
+            chinese.release.open(); english.release.open()
+            try await coordinatorEventually { await h.review.arbitrationCalls == 1 }
+            #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID) == nil)
+            #expect(try await h.store.recording(id: h.recordingID)?.text == chinese.text)
+            gate.open()
             try await h.wait()
-            let head = try await h.store.latestDispatchableRevision(recordingID: h.recordingID)
-            #expect(head?.id == first.id)
-            #expect(head?.text == original)
-            let revisions = try await h.store.revisions(recordingID: h.recordingID)
-            let alternate = try #require(revisions.first { $0.text == corrected })
-            #expect(alternate.id != first.id)
-            #expect(try await h.store.dispatchState(id: reservation.id) == .unverified)
-            #expect(try await h.store.reserveDispatch(bindingID: h.bindingID, recordingID: h.recordingID,
-                                                     revisionID: first.id, stableUTF16End: original.utf16.count) == nil)
-            await #expect(throws: StoreError.self) {
-                try await h.store.reserveDispatch(bindingID: h.bindingID, recordingID: h.recordingID,
-                                                  revisionID: alternate.id, stableUTF16End: corrected.utf16.count)
-            }
-            #expect(await h.review.arbitrationCalls > 0)
-            let listened = await h.review.listened
-            #expect(!listened.isEmpty)
-            #expect(listened.allSatisfy { $0 == pcm })
-            #expect(try await h.store.recognitionCandidates(recordingID: h.recordingID).contains { $0.run.purpose == .audioReview && $0.text == corrected })
+            #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID)?.text == chinese.text)
         }
     }
+
+    @Test func blockedGPTDoesNotSpinOrCertifyAgreeingExperts() async throws {
+        let chinese = CoordinatorProviderControl(text: "不要删", liveText: "不要删")
+        let english = CoordinatorProviderControl(text: "不要删", liveText: "不要删")
+        try await withCoordinatorHarness(chinese: chinese, english: english,
+            initialPCM: firstPCM, blockedReview: true) { h in
+            h.session.append(firstPCM)
+            try await coordinatorEventually { await h.review.arbitrationCalls == 1 }
+            try await Task.sleep(for: .milliseconds(900))
+            #expect(await h.review.arbitrationCalls == 1)
+            #expect(try await h.store.recording(id: h.recordingID)?.isRecording == true)
+            try await h.endRecording()
+            chinese.release.open(); english.release.open()
+            try await h.wait()
+            #expect(try await h.store.recording(id: h.recordingID)?.recognitionState == .failed)
+            #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID) == nil)
+            #expect(await h.review.arbitrationCalls == 1) // Authorization failure forbids automatic retry, including EOS.
+            #expect(try await h.store.recognitionCandidates(recordingID: h.recordingID).count == 4)
+        }
+    }
+
 }

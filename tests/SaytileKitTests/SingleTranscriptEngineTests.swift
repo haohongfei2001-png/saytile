@@ -75,4 +75,31 @@ struct SingleTranscriptEngineTests {
         #expect(migrated.inputMode == .highestQuality)
     }
 
+    @Test func multilingualSingleExpertUsesSameCore() throws {
+        var value = configured()
+        for index in value.models.indices where value.models[index].purpose.isStreaming {
+            value.models[index].enabled = value.models[index].provider == .soniox
+        }
+        try value.validateForCloud(allowSingleExpertBaseline: true)
+    }
+
+    @Test func migrationIsIdempotentAndNeverReplacesCustomModelOrGrantsConsent() throws {
+        let suite = "com.saytile.tests.single-transcript." + UUID().uuidString
+        let preferences = try #require(UserDefaults(suiteName: suite))
+        defer { preferences.removePersistentDomain(forName: suite) }
+        var old = configured()
+        let index = try #require(old.models.firstIndex { $0.purpose == .textFusion })
+        old.models[index].model = "user-custom-model"
+        let id = old.models[index].id
+        try old.save(to: preferences)
+        let migrated = RecognitionConfiguration.load(from: preferences)
+        #expect(!migrated.cloudEnabled)
+        #expect(migrated.models[index].model == "user-custom-model")
+        #expect(migrated.models[index].id == id)
+        #expect(!migrated.models[index].cloudConsent)
+        #expect(!migrated.models[index].enabled)
+        try migrated.save(to: preferences)
+        #expect(RecognitionConfiguration.load(from: preferences) == migrated)
+    }
+
 }

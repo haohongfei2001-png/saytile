@@ -681,10 +681,29 @@ extension SaytileStore {
             return ticket
         }
     }
+    /// Upgrade a local recognition ticket into the same evidence/publication tables.
+    /// No provider configuration or cloud credential is involved.
+    func beginLocalCandidateRun(ticket: RecognitionTicket) throws -> ModelRunTicket {
+        try db.transaction {
+            guard try validTicket(ticket),
+                  try db.rows("SELECT id FROM fusion_sessions WHERE id=?", [.text(ticket.id.uuidString)]).isEmpty else { throw FusionError.staleGeneration }
+            try db.execute("INSERT INTO fusion_sessions(id,recording_id,audio_epoch,mode,state,created_at) VALUES(?,?,?,?,'running',?)",
+                [.text(ticket.id.uuidString), .text(ticket.recordingID.uuidString), .int(ticket.audioEpoch), .text(InputQualityMode.highestQuality.rawValue), .double(Date().timeIntervalSince1970)])
+            let configurationID = UUID(uuidString: "A71E0001-0000-4000-8000-000000000008")!
+            let requirements = [FusionRequirement(configurationID: configurationID, purpose: .multilingualASR)]
+            try db.execute("INSERT INTO fusion_requirements(recognition_id,payload) VALUES(?,?)", [.text(ticket.id.uuidString), .text(try Self.encodeEvidence(requirements))])
+            let run = ModelRunTicket(recognitionID: ticket.id, recordingID: ticket.recordingID, audioEpoch: ticket.audioEpoch,
+                configurationID: configurationID, provider: "apple-speech-analyzer", model: "system-installed", purpose: .multilingualASR)
+            try db.execute("INSERT INTO model_runs(id,recognition_id,recording_id,audio_epoch,configuration_id,payload,state,last_sequence,retryable,created_at) VALUES(?,?,?,?,?,?,'running',-1,1,?)",
+                [.text(run.id.uuidString), .text(ticket.id.uuidString), .text(ticket.recordingID.uuidString), .int(ticket.audioEpoch), .text(configurationID.uuidString), .text(try Self.encodeEvidence(run)), .double(Date().timeIntervalSince1970)])
+            return run
+        }
+    }
     public func isRecognitionCurrent(ticket: RecognitionTicket) throws -> Bool { try validTicket(ticket) }
     private struct FusionRequirement: Codable {
         let configurationID: UUID
         let purpose: RecognitionPurpose
+        var requiresGPTReview: Bool? = nil
     }
     /// Freeze identities before any provider attempt starts. The payload contains no credentials.
     public func configureFusionRequirements(ticket: RecognitionTicket, configurations: [ModelConfiguration]) throws {
@@ -696,7 +715,8 @@ extension SaytileStore {
                   try db.rows("SELECT id FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first != nil,
                   try db.rows("SELECT id FROM model_runs WHERE recognition_id=? LIMIT 1", [.text(ticket.id.uuidString)]).isEmpty,
                   try db.rows("SELECT recognition_id FROM fusion_requirements WHERE recognition_id=?", [.text(ticket.id.uuidString)]).isEmpty else { throw FusionError.staleGeneration }
-            let requirements = enabled.filter { $0.purpose.isStreaming }.map { FusionRequirement(configurationID: $0.id, purpose: $0.purpose) }
+            let requiresGPT = enabled.contains { $0.purpose == .textFusion }
+            let requirements = enabled.filter { $0.purpose.isStreaming }.map { FusionRequirement(configurationID: $0.id, purpose: $0.purpose, requiresGPTReview: requiresGPT) }
             try db.execute("INSERT INTO fusion_requirements(recognition_id,payload) VALUES(?,?)", [.text(ticket.id.uuidString), .text(try Self.encodeEvidence(requirements))])
         }
     }
@@ -923,6 +943,15 @@ extension SaytileStore {
             guard proposal.previewText.isEmpty || proposal.previewText == reservedPrefix || !proposal.selections.isEmpty || sources.contains(where: { $0.text == proposal.previewText }) else { throw FusionError.invalidSelection }
             let old = try latestDispatchableRevision(recordingID: ticket.recordingID)
             let prior = old?.text ?? ""
+            if requirements?.contains(where: { $0.requiresGPTReview == true }) == true, proposal.selections.isEmpty {
+                // ASR agreement is immediate visible evidence, not GPT-reviewed delivery.
+                // Retain only an already reviewed unchanged prefix (or an external reservation).
+                let retained = RecognitionUTF16.commonPrefix([prior, proposal.stableText])
+                let stable = RecognitionUTF16.hasExactPrefix(retained, prefix: reservedPrefix) ? retained : reservedPrefix
+                proposal = FusionProposal(previewText: proposal.previewText, stableText: stable,
+                    sourceCandidateIDs: proposal.sourceCandidateIDs, unresolved: true,
+                    needsAudioReview: proposal.needsAudioReview, reasonCode: "awaiting-gpt-evidence-review")
+            }
             let completeSources = sources.allSatisfy(\.isComplete) && (mode == .fast || requiredEvidence(in: current, eligible: { $0.isComplete }))
             // Published-but-unsent text is revisable. Only durable external cursor prefixes
             // constrain corrections, including prefixes reserved in another target binding.

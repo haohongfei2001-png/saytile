@@ -45,11 +45,11 @@ struct CloudCredentialTests {
 
 @Suite("Recognition setup configuration")
 struct RecognitionSetupTests {
-    @Test func defaultsIncludeCoreFiveAndKeepOptionalExpertsOffAndConsentOff() throws {
+    @Test func defaultsIncludeTwoExpertsAndOneCoreAndKeepOptionalExpertsOffAndConsentOff() throws {
         let config = RecognitionConfiguration()
         #expect(!config.cloudEnabled)
         #expect(config.inputMode == .highestQuality)
-        #expect(Set(config.enabledModels.map(\.provider)) == [.qwenMessage, .assemblyAI, .openAIResponses, .gemini, .elevenLabsFile])
+        #expect(Set(config.enabledModels.map(\.provider)) == [.qwenMessage, .assemblyAI, .openAIResponses])
         #expect(config.models.allSatisfy { !$0.cloudConsent })
         #expect(config.models.filter { $0.provider == .soniox || $0.provider == .meta }.allSatisfy { !$0.enabled })
         #expect(Set(config.models.map(\.id)).count == config.models.count)
@@ -79,6 +79,7 @@ struct RecognitionSetupTests {
         original.topicContext = "synthetic-topic"
         original.models[1].cloudConsent = true
         try original.save(to: preferences)
+        original.inputMode = .highestQuality // legacy fast mode is intentionally migrated
         #expect(RecognitionConfiguration.load(from: preferences) == original)
         let json = try #require(preferences.data(forKey: "multiASRConfigurationV1"))
         let object = try #require(JSONSerialization.jsonObject(with: json) as? [String: Any])

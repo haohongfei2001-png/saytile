@@ -32,9 +32,9 @@ private struct CaptureCloudProvider: StreamingASRProvider {
     }
 }
 
-@Suite("Production capture to five-role recognition with isolated transports")
+@Suite("Production capture to single-core recognition with isolated transports")
 struct CaptureCloudIntegrationTests {
-    @Test(arguments: [false, true]) func journalAndFiveRolePipelineShareAudioAndPreserveReviewFailure(failReview: Bool) async throws {
+    @Test(arguments: [false, true]) func journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview: Bool) async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-capture-cloud-" + UUID().uuidString)
         let store = try SaytileStore(directory: directory)
         defer { try? FileManager.default.removeItem(at: directory) }
@@ -45,9 +45,7 @@ struct CaptureCloudIntegrationTests {
         config.models = [
             .init(purpose: .chineseASR, provider: .qwenMessage, model: "qwen-audio-3.1-asr-flash-message", cloudConsent: true, region: "cn-beijing", workspaceID: "isolated"),
             .init(purpose: .englishASR, provider: .assemblyAI, model: "universal-3-6-pro", cloudConsent: true),
-            .init(purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra", cloudConsent: true),
-            .init(purpose: .audioReview, provider: .gemini, model: "gemini-3.8-flash", cloudConsent: true),
-            .init(purpose: .finalASR, provider: .elevenLabsFile, model: "scribe_v2", cloudConsent: true)
+            .init(purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra", cloudConsent: true)
         ]
         let deps = RecognitionPipelineDependencies(credential: { _ in "synthetic-nonsecret-sentinel" },
             streaming: { CaptureCloudProvider(probe: probe, text: $0 == .qwenMessage ? good : other) },
@@ -57,7 +55,8 @@ struct CaptureCloudIntegrationTests {
                              timingGranularity: "utterance", isComplete: true)
             },
             arbitrate: { evidence, _, _, _, _ in
-                (try await probe.arbitrate(evidence), .init(requestID: "offline", inputTokens: nil, outputTokens: nil, elapsedSeconds: 0))
+                if failReview { throw ProviderFailure.connection }
+                return (try await probe.arbitrate(evidence), .init(requestID: "offline", inputTokens: nil, outputTokens: nil, elapsedSeconds: 0))
             },
             listen: { pcm, _, _ in
                 await probe.hear(pcm, purpose: .audioReview)
@@ -81,9 +80,8 @@ struct CaptureCloudIntegrationTests {
         for session in await worker.retired { await session.wait() }
         #expect(await probe.streaming[.qwenMessage] == pcm)
         #expect(await probe.streaming[.assemblyAI] == pcm)
-        #expect(await probe.acoustic[.audioReview] == pcm)
-        #expect(await probe.acoustic[.finalASR] == pcm)
-        #expect(!(await probe.reviews).isEmpty)
+        #expect(await probe.acoustic.isEmpty)
+        if !failReview { #expect(!(await probe.reviews).isEmpty) }
         let chunks = try await store.audioChunks(recordingID: id)
         var stored = Data()
         for chunk in chunks { stored.append(try Data(contentsOf: await store.audioURL(for: chunk)).dropFirst(44)) }

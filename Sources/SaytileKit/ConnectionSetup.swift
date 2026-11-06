@@ -37,9 +37,9 @@ public struct ConnectionSetupRequest: Sendable {
         }
         try configuration.validateForCloud()
         let required: [(RecognitionPurpose, CloudProvider)] = [(.chineseASR, .qwenMessage), (.englishASR, .assemblyAI),
-            (.textFusion, .openAIResponses), (.audioReview, .gemini), (.finalASR, .elevenLabsFile)]
+            (.textFusion, .openAIResponses)]
         guard required.allSatisfy({ role, provider in configuration.enabledModels.contains { $0.purpose == role && $0.provider == provider } }) else {
-            throw ProviderFailure.configuration("请准备中文、英文、AI 融合、原音复核与高精度定稿五项核心服务。")
+            throw ProviderFailure.configuration("请准备两位音频专家与一个 GPT-6 Astra 融合核心。")
         }
         for item in configuration.enabledModels {
             switch presence(item) {

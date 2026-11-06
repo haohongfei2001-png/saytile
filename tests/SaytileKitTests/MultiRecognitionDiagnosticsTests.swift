@@ -10,6 +10,7 @@ struct MultiRecognitionDiagnosticsTests {
         config.cloudEnabled = true
         config.models = [.init(purpose: .englishASR, provider: .assemblyAI, model: "universal-3-6-pro")]
         #expect(throws: ProviderFailure.self) { try config.validateForCloud(allowSingleExpertBaseline: true) }
+        config.models.append(.init(purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra", cloudConsent: true))
         config.models[0].cloudConsent = true
         try config.validateForCloud(allowSingleExpertBaseline: true)
         #expect(throws: ProviderFailure.self) { try config.validateForCloud() }
@@ -106,7 +107,8 @@ struct MultiRecognitionDiagnosticsTests {
         configuration.models = [
             .init(purpose: .chineseASR, provider: .qwenMessage, model: "qwen-audio-3.1-asr-flash-message",
                   region: "cn-beijing", workspaceID: "offline-fixture"),
-            .init(purpose: .englishASR, provider: .assemblyAI, model: "universal-3-6-pro")
+            .init(purpose: .englishASR, provider: .assemblyAI, model: "universal-3-6-pro"),
+            .init(purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra")
         ]
         await #expect(throws: ProviderFailure.self) {
             try await MultiRecognitionDiagnostics.transcribeFixture(url: invalid, store: store, configuration: configuration)
