@@ -1,3 +1,5 @@
+> 以下为 PR4 candidate.2 的历史接续记录，不是当前运行时。PR6 最新统一源码、安装包及验证边界见 [无API交付](V1-NO-API-DELIVERY.md)。不沿用旧包、旧SHA或下方验证计数。
+
 # RC2 candidate.2 接续记录 · 2026-11-07
 
 工作树 `/Users/hhf/.codex/worktrees/saytile-fusion-quality`，本地 codex/fusion-quality，远端 research/asr-quality-2026-11-06，PR4。本轮明确只做无需密钥工作；不要调用模型、读取其他项目凭据、操作个人数据、合并或覆盖 RC1。先核对实时远端 head/CI，别把本记录的 SHA 当未来当前值。

@@ -1,4 +1,4 @@
-> 当前稳定版仍是 RC1；PR #6 的 no-api.3 已修复补审发现的音频块漏接，正在准备新运行时完整验收。no-api.2暂缓交付，main/RC1不变。最新状态见 [V1-DEV-STATUS](V1-DEV-STATUS.md)。
+> 稳定版仍为RC1；PR6 no-api.3完成基线工程验证，新增紧凑输入板目标继续实施，整体尚未结束。[最新交付与边界](V1-NO-API-DELIVERY.md)。main/RC1不变。
 
 > 当前为 V1 RC1，源码 `8906a9d`；最新状态见 [V1-DEV-STATUS.md](V1-DEV-STATUS.md)，验证边界见 [RC清单](V1-RC-ACCEPTANCE.md)。**以下是设计恢复阶段历史快照**，不是当前未完成事项；PR #1/#2 已合并。
 

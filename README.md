@@ -1,4 +1,4 @@
-> 当前开发候选：`1.0.0-rc.2-no-api.3`，唯一接续 [PR #6](https://github.com/haohongfei2001-png/saytile/pull/6)。双平等专家 + 唯一 GPT 文字流、原生受控连接向导正在完成统一交付；当前进度见 [V1-DEV-STATUS](docs/V1-DEV-STATUS.md)。main/已安装 RC1 未改，尚未进行真实云端和准确率验收。
+> 当前PR6已验证工程基线为`1.0.0-rc.2-no-api.3`；真实云端LIVE_CONNECTION_PENDING。同期新增的[紧凑输入板目标](docs/SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md)正在接续，尚未实装；[基线源码、包及证据](docs/V1-NO-API-DELIVERY.md)。main/已安装RC1未改，不宣称新视觉或生产完成。
 
 # Saytile
 
@@ -6,7 +6,7 @@
 
 Saytile 是 macOS 原生语音输入与表达工作台。开启后持续待命，自然讲话即可分段记录、识别中文，并独立保存原音。文字可以编辑、搜索、回听、重新识别、复制，或追加到明确选择的应用草稿。
 
-V1 Release Candidate 已完成工程回归，真实讲话与个人环境验收仍明确保留，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
+已发布版本仍为 RC1，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。本分支的 RC2 候选及证据见 [无 API 交付](docs/V1-NO-API-DELIVERY.md)；真实云端、讲话质量与个人环境验收仍明确保留。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
 
 ## 最高质量中英文识别候选
 
