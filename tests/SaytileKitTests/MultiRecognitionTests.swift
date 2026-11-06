@@ -309,9 +309,24 @@ private func sample(_ text: String, purpose: RecognitionPurpose = .chineseASR,
         RecognitionToken(text: "我想", startSeconds: 0, endSeconds: 0.5, isFinal: true),
         RecognitionToken(text: "去公园", startSeconds: 0.5, endSeconds: 2, isFinal: true)])
     try await f.store.appendRecognitionCandidate(timed)
-    let proposal = try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: timed.id, utf16Start: 0, utf16End: 2)], candidates: [timed])
+    let english = try await f.run(ticket, .englishASR)
+    let corroborating = sample("我想去公园", run: english)
+    try await f.store.appendRecognitionCandidate(corroborating)
+    let proposal = try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: timed.id, utf16Start: 0, utf16End: 2)], candidates: [timed, corroborating])
     let result = try await f.store.publishFusion(ticket: ticket, proposal: proposal)
     #expect(result.published)
     #expect(result.deferred)
     #expect(result.revision?.text == "我想")
+}
+
+@Test func multiStoreDoesNotLetAIBypassAbsentRequiredExpert() async throws {
+    let f = try MultiFixture(); defer { f.clean() }
+    let record = try await f.record()
+    let ticket = try await f.store.beginFusionRecognition(recordingID: record.id)
+    let run = try await f.run(ticket, .chineseASR)
+    let only = sample("只有中文先到", run: run)
+    try await f.store.appendRecognitionCandidate(only)
+    let proposal = try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: only.id, utf16Start: 0, utf16End: only.text.utf16.count)], candidates: [only])
+    await #expect(throws: FusionError.self) { try await f.store.publishFusion(ticket: ticket, proposal: proposal) }
+    #expect(try await f.store.latestDispatchableRevision(recordingID: record.id) == nil)
 }

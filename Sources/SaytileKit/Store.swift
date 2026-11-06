@@ -753,6 +753,16 @@ extension SaytileStore {
                     committedPrefix: sessionPrefix, unresolved: proposal.selectionRequestedUnresolved ?? proposal.unresolved,
                     needsAudioReview: proposal.needsAudioReview, reasonCode: proposal.reasonCode)
                 guard checked.previewText == proposal.previewText, checked.stableText == proposal.stableText, Set(checked.sourceCandidateIDs) == sourceIDs else { throw FusionError.invalidSelection }
+                if mode == .highestQuality && proposal.stableText != sessionPrefix {
+                    let required: [RecognitionPurpose] = [.chineseASR, .englishASR]
+                    let end = try proposal.selections.map { span -> Double in
+                        guard let source = sources.first(where: { $0.id == span.candidateID }) else { throw FusionError.invalidSelection }
+                        return try PrecisionFusion.audioInterval(span: span, candidate: source).end
+                    }.max() ?? 0
+                    guard required.allSatisfy({ purpose in
+                        current.contains { $0.run.purpose == purpose && $0.stableUTF16Length > 0 && ($0.isComplete || PrecisionFusion.stableAudioEnd($0) + 0.1 >= end) }
+                    }) else { throw FusionError.insufficientAlignment }
+                }
             } else if proposal.stableText != sessionPrefix {
                 guard !sources.isEmpty, RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: sessionPrefix),
                       sources.allSatisfy({ RecognitionUTF16.hasExactPrefix($0.stableText, prefix: proposal.stableText) }),
