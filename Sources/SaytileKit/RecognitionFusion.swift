@@ -166,7 +166,12 @@ public enum PrecisionFusion {
                                        currentCandidates: [RecognitionCandidate], committedPrefix: String = "",
                                        unresolved: Bool = false, needsAudioReview: Bool = false,
                                        reasonCode: String = "evidence-selection") throws -> FusionProposal {
-        guard !spans.isEmpty else { throw FusionError.invalidSelection }
+        if spans.isEmpty {
+            // A model may legitimately abstain instead of guessing. It publishes no new text.
+            return FusionProposal(previewText: "", stableText: committedPrefix, sourceCandidateIDs: [],
+                unresolved: true, needsAudioReview: needsAudioReview, reasonCode: reasonCode,
+                selections: [], selectionRequestedUnresolved: true, reviewedCandidateIDs: previousCandidates.map(\.id))
+        }
         let previous = Dictionary(previousCandidates.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         let current = Dictionary(latestPerRun(currentCandidates).map { ($0.run.id, $0) }, uniquingKeysWith: { a, _ in a })
         let previousRuns = Set(previousCandidates.filter { $0.run.purpose != .textFusion }.map { $0.run.id })

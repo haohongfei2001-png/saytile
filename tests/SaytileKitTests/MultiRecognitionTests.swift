@@ -427,3 +427,14 @@ private func appendEvidence(_ old: RecognitionCandidate, text: String, end: Doub
     let decisions = try await f.store.fusionDecisions(recordingID: record.id)
     #expect(Set(decisions.last?.proposal.reviewedCandidateIDs ?? []) == Set(original.map(\.id)))
 }
+
+@Test func multiEmptyReviewSelectionIsAnAbstentionNotFabricatedText() throws {
+    let current = [sample("候选")]
+    let result = try PrecisionFusion.rebaseSelection(spans: [], previousCandidates: current,
+        currentCandidates: current, committedPrefix: "已确认", unresolved: true, needsAudioReview: true)
+    #expect(result.stableText == "已确认")
+    #expect(result.previewText.isEmpty)
+    #expect(result.sourceCandidateIDs.isEmpty)
+    #expect(result.unresolved)
+    #expect(result.needsAudioReview)
+}
