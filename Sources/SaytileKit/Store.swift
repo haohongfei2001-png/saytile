@@ -396,6 +396,7 @@ public actor SaytileStore {
             try db.execute("DELETE FROM recovery_attempts WHERE recording_id=?",[.text(id.uuidString)])
             if deleteRecord {
                 // Keep only operation audit metadata; deleting a record erases its text snapshots as well.
+                try db.execute("UPDATE fusion_sessions SET stable_text='' WHERE recording_id=?", [.text(id.uuidString)])
                 try db.execute("DELETE FROM fusion_dispatch_heads WHERE recording_id=?", [.text(id.uuidString)])
                 try db.execute("DELETE FROM fusion_archives WHERE recording_id=?", [.text(id.uuidString)])
                 try db.execute("DELETE FROM fusion_decisions WHERE recording_id=?", [.text(id.uuidString)])
@@ -745,7 +746,7 @@ extension SaytileStore {
                 let checked = try PrecisionFusion.validateSelection(spans: proposal.selections, candidates: current,
                     committedPrefix: sessionPrefix, unresolved: proposal.unresolved,
                     needsAudioReview: proposal.needsAudioReview, reasonCode: proposal.reasonCode)
-                guard checked.previewText == proposal.previewText, checked.stableText == proposal.stableText else { throw FusionError.invalidSelection }
+                guard checked.previewText == proposal.previewText, checked.stableText == proposal.stableText, Set(checked.sourceCandidateIDs) == sourceIDs else { throw FusionError.invalidSelection }
             } else if proposal.stableText != sessionPrefix {
                 guard !sources.isEmpty, proposal.stableText.hasPrefix(sessionPrefix),
                       sources.allSatisfy({ $0.stableText.hasPrefix(proposal.stableText) }),
@@ -797,6 +798,7 @@ extension SaytileStore {
         guard let row = try db.rows("SELECT recording_id FROM model_runs WHERE id=?", [.text(usage.runID.uuidString)]).first,
               usage.audioSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true,
               usage.estimatedCost.map({ $0.isFinite && $0 >= 0 }) ?? true,
+              usage.elapsedSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true,
               usage.inputTokens.map({ $0 >= 0 }) ?? true, usage.outputTokens.map({ $0 >= 0 }) ?? true else { throw FusionError.invalidCandidate }
         try db.execute("INSERT OR IGNORE INTO model_usage(id,run_id,recording_id,payload,created_at) VALUES(?,?,?,?,?)", [.text(usage.id.uuidString), .text(usage.runID.uuidString), .text(row["recording_id"]!), .text(try Self.encodeEvidence(usage)), .double(usage.createdAt.timeIntervalSince1970)])
     }
