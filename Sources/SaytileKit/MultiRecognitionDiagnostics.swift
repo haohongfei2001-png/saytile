@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 @preconcurrency import AVFoundation
 
 /// Explicit, local-fixture quality probes. No microphone, target binding, dispatch or
@@ -6,14 +7,17 @@ import Foundation
 public enum MultiRecognitionDiagnostics {
     @discardableResult
     public static func transcribeFixture(url: URL, store: SaytileStore,
-                                         configuration: RecognitionConfiguration) async throws -> UUID {
+                                         configuration: RecognitionConfiguration,
+                                         allowSingleExpertBaseline: Bool = false) async throws -> UUID {
         // Reject before reading a fixture, creating a record, looking up credentials,
         // or constructing any live provider. validateForCloud alone permits disabled cloud.
         guard configuration.cloudEnabled else {
             throw ProviderFailure.configuration("多模型回放需要显式启用云端识别，并授权每个启用模型。")
         }
-        try configuration.validateForCloud()
+        try configuration.validateForCloud(allowSingleExpertBaseline: allowSingleExpertBaseline)
         let file = try validatedFixture(url)
+        let source = try fixtureIdentity(url: url, frameCount: file.length)
+        let configurationIdentity = try identity(configuration: configuration, singleExpertBaseline: allowSingleExpertBaseline)
         var credentials: [UUID: String] = [:]
         for model in configuration.enabledModels {
             guard let key = try CloudCredentialStore.read(configurationID: model.id, provider: model.provider), !key.isEmpty else {
@@ -29,7 +33,10 @@ public enum MultiRecognitionDiagnostics {
         var replay = ReplayMetadata(recordingID: recordingID, recognitionID: ticket.id,
                                     mode: configuration.inputMode, frameCount: file.length,
                                     replayStartedAt: Date(), firstAudioSubmittedAt: nil,
-                                    lastAudioSubmittedAt: nil, sessionEndedAt: nil)
+                                    lastAudioSubmittedAt: nil, sessionEndedAt: nil,
+                                    source: source, configuration: configuration,
+                                    configurationIdentity: configurationIdentity,
+                                    sourceRevision: Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String)
         do { try encode(replay).write(to: metadataURL, options: .atomic) }
         catch {
             try? await store.failRecognition(ticket: ticket, message: "无法保存回放时间记录，原音已保存；尚未启动模型。")
@@ -39,7 +46,8 @@ public enum MultiRecognitionDiagnostics {
         var dependencies = RecognitionPipelineDependencies.live
         dependencies.credential = { approvedCredentials[$0.id] }
         let session = MultiRecognitionSession(store: store, ticket: ticket, configuration: configuration,
-                                               dependencies: dependencies)
+                                               dependencies: dependencies,
+                                               allowSingleExpertBaseline: allowSingleExpertBaseline)
         do {
             try await withTaskCancellationHandler {
                 let clock = ContinuousClock(), origin = clock.now
@@ -99,6 +107,26 @@ public enum MultiRecognitionDiagnostics {
         let replay = try? decoder().decode(ReplayMetadata.self, from: Data(contentsOf: metadataURL))
         let selectedCandidates = candidates.filter { replay == nil || $0.run.recognitionID == replay?.recognitionID }
         let selectedDecisions = decisions.filter { replay == nil || $0.recognitionID == replay?.recognitionID }
+        let terminal: (state: String, occurredAt: Date)?
+        let logicalState: String?
+        if let recognitionID = replay?.recognitionID {
+            terminal = try await store.fusionTerminal(recognitionID: recognitionID)
+            logicalState = try await store.fusionSessionState(recognitionID: recognitionID)
+        } else { terminal = nil; logicalState = nil }
+        // A complete provider candidate and a stopped replay do not prove a completed
+        // logical recognition. Persisted terminal state supplies its own real clock.
+        let completedAt = terminal?.state == "completed" ? terminal?.occurredAt : nil
+        let selectedID = selectedDecisions.reversed().compactMap(\.revisionID).first
+        let selectedRevision = revisions.first { $0.id == selectedID }
+        let finalization = replay.map { metadata in
+            TraceFinalization(recognitionID: metadata.recognitionID, state: logicalState,
+                              completedAt: completedAt, selectedRevisionID: selectedRevision?.id,
+                              selectedText: selectedRevision?.text,
+                              dispatchEligible: selectedRevision != nil && selectedRevision?.id == dispatchable?.id,
+                              dispatchableRevisionID: dispatchable?.id, dispatchableText: dispatchable?.text,
+                              lastDecisionID: selectedDecisions.last?.id,
+                              resolved: selectedDecisions.last.map { !$0.proposal.unresolved })
+        }
         let firstCandidate = selectedCandidates.filter { !$0.text.isEmpty }.map(\.createdAt).min()
         let firstPreview = selectedDecisions.filter { !$0.proposal.previewText.isEmpty }.map(\.createdAt).min()
         let publications = selectedDecisions.filter { $0.outcome == "published" && !$0.proposal.stableText.isEmpty }
@@ -113,21 +141,26 @@ public enum MultiRecognitionDiagnostics {
             firstStablePublishedAt: firstStable, firstCompleteCandidateAt: firstProviderFinal,
             lastCompleteCandidateAt: lastProviderFinal, lastStablePublishedAt: publications.map(\.createdAt).max(),
             logicalSessionEndedAt: replay?.sessionEndedAt,
-            logicalRecognitionCompletedAt: record.recognitionState == .completed ? replay?.sessionEndedAt : nil,
+            logicalRecognitionCompletedAt: completedAt,
             firstCandidateSeconds: elapsed(firstCandidate, since: origin),
             firstPreviewSeconds: elapsed(firstPreview, since: origin),
             firstStableSeconds: elapsed(firstStable, since: origin),
             firstCompleteCandidateSeconds: elapsed(firstProviderFinal, since: origin),
             lastCompleteCandidateSeconds: elapsed(lastProviderFinal, since: origin),
             sessionElapsedSeconds: elapsed(replay?.sessionEndedAt, since: origin))
-        let trace = Trace(schemaVersion: 1, exportedAt: Date(), timestampEncoding: "unix-epoch-milliseconds",
+        let trace = Trace(schemaVersion: 2, exportedAt: Date(), timestampEncoding: "unix-epoch-milliseconds",
                           recording: TraceRecording(record), replay: replay, timing: timing,
+                          source: replay?.source, configuration: replay?.configuration,
+                          configurationIdentity: replay?.configurationIdentity, sourceRevision: replay?.sourceRevision,
+                          finalization: finalization,
                           candidates: candidates, fusionDecisions: decisions, modelRuns: runs, modelUsage: usage,
                           revisions: revisions.map(TraceRevision.init), dispatchableRevision: dispatchable.map(TraceRevision.init),
                           accuracyMeasurement: "not-measured-no-reference-transcript",
                           notes: [
                             "All candidate/model generations are exported; replay timing selects the recorded logical recognition ID when available.",
                             "Preview times measure persisted fusion decisions, not UI rendering; stable publication is eligibility, not external insertion.",
+                            "Source identity hashes the entire original WAV. Configuration identity hashes its encoded non-credential snapshot; single-expert baselines are explicitly labeled.",
+                            "audioSubmittedSeconds is an input frontier, not a word's acoustic endpoint or a time-aligned reference annotation.",
                             "A provider's complete candidate is not the unified final result. Completion is reported separately from session termination.",
                             "No CER/WER/MER, reference alignment, quality improvement or microphone latency was measured.",
                             "Missing timestamps, token counts, actual charges or calibrated confidence remain unavailable; no zero is substituted.",
@@ -136,6 +169,23 @@ public enum MultiRecognitionDiagnostics {
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         try encode(trace).write(to: url, options: .atomic)
         return url
+    }
+
+    /// Bounded streaming hash of an explicitly supplied fixture; never reads a
+    /// microphone, user archive, credentials, or a path inferred from the machine.
+    static func fixtureIdentity(url: URL, frameCount: Int64) throws -> TraceSource {
+        let handle = try FileHandle(forReadingFrom: url)
+        defer { try? handle.close() }
+        var hasher = SHA256()
+        while let data = try handle.read(upToCount: 64 * 1024), !data.isEmpty { hasher.update(data: data) }
+        return TraceSource(fixtureID: url.deletingPathExtension().lastPathComponent,
+                           audioSHA256: hasher.finalize().map { String(format: "%02x", $0) }.joined(),
+                           sampleRate: 16_000, frameCount: frameCount)
+    }
+    static func identity(configuration: RecognitionConfiguration, singleExpertBaseline: Bool) throws -> TraceConfigurationIdentity {
+        let data = try encode(configuration)
+        return TraceConfigurationIdentity(sha256: SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined(),
+                                          evaluationMode: singleExpertBaseline ? "single-expert-baseline" : "multi-expert-fusion")
     }
 
     private static func validatedFixture(_ url: URL) throws -> AVAudioFile {
@@ -220,7 +270,7 @@ public enum MultiRecognitionDiagnostics {
         return value.isFinite && value >= 0 ? value : nil
     }
 
-    private struct ReplayMetadata: Codable {
+    struct ReplayMetadata: Codable {
         var recordingID: UUID
         var recognitionID: UUID
         var mode: InputQualityMode
@@ -229,6 +279,32 @@ public enum MultiRecognitionDiagnostics {
         var firstAudioSubmittedAt: Date?
         var lastAudioSubmittedAt: Date?
         var sessionEndedAt: Date?
+        var source: TraceSource? = nil
+        var configuration: RecognitionConfiguration? = nil
+        var configurationIdentity: TraceConfigurationIdentity? = nil
+        var sourceRevision: String? = nil
+    }
+    struct TraceSource: Codable {
+        var fixtureID: String
+        var audioSHA256: String
+        var sampleRate: Double
+        var frameCount: Int64
+    }
+    struct TraceConfigurationIdentity: Codable {
+        var sha256: String
+        var evaluationMode: String
+    }
+    private struct TraceFinalization: Encodable {
+        var recognitionID: UUID
+        var state: String?
+        var completedAt: Date?
+        var selectedRevisionID: UUID?
+        var selectedText: String?
+        var dispatchEligible: Bool
+        var dispatchableRevisionID: UUID?
+        var dispatchableText: String?
+        var lastDecisionID: UUID?
+        var resolved: Bool?
     }
     private struct Trace: Encodable {
         var schemaVersion: Int
@@ -237,6 +313,11 @@ public enum MultiRecognitionDiagnostics {
         var recording: TraceRecording
         var replay: ReplayMetadata?
         var timing: TraceTiming
+        var source: TraceSource?
+        var configuration: RecognitionConfiguration?
+        var configurationIdentity: TraceConfigurationIdentity?
+        var sourceRevision: String?
+        var finalization: TraceFinalization?
         var candidates: [RecognitionCandidate]
         var fusionDecisions: [FusionDecisionRecord]
         var modelRuns: [ModelRunRecord]

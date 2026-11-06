@@ -396,8 +396,20 @@ public actor SaytileStore {
             try db.execute("DELETE FROM recovery_attempts WHERE recording_id=?",[.text(id.uuidString)])
             if deleteRecord {
                 // Keep only operation audit metadata; deleting a record erases its text snapshots as well.
+                // Usage totals remain auditable, but decoded arbiter replies contain transcript
+                // references and a text prefix, so erase that evidence in the same transaction.
+                for row in try db.rows("SELECT id,payload FROM model_usage WHERE recording_id=?", [.text(id.uuidString)]) {
+                    let usage = try Self.decodeEvidence(ModelUsageRecord.self, row["payload"])
+                    guard usage.arbitrationResponse != nil else { continue }
+                    let metadata = ModelUsageRecord(id: usage.id, runID: usage.runID, requestID: usage.requestID,
+                        audioSeconds: usage.audioSeconds, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
+                        estimatedCost: usage.estimatedCost, currency: usage.currency, status: usage.status,
+                        elapsedSeconds: usage.elapsedSeconds, createdAt: usage.createdAt)
+                    try db.execute("UPDATE model_usage SET payload=? WHERE id=?", [.text(try Self.encodeEvidence(metadata)), .text(usage.id.uuidString)])
+                }
                 try db.execute("UPDATE fusion_sessions SET stable_text='' WHERE recording_id=?", [.text(id.uuidString)])
                 try db.execute("DELETE FROM fusion_dispatch_heads WHERE recording_id=?", [.text(id.uuidString)])
+                try db.execute("DELETE FROM fusion_head_evidence WHERE recording_id=?", [.text(id.uuidString)])
                 try db.execute("DELETE FROM fusion_archives WHERE recording_id=?", [.text(id.uuidString)])
                 try db.execute("DELETE FROM fusion_decisions WHERE recording_id=?", [.text(id.uuidString)])
                 try db.execute("DELETE FROM recognition_candidates WHERE recording_id=?", [.text(id.uuidString)])
@@ -517,13 +529,14 @@ extension SaytileStore {
                   AND r.created_at>=b.created_at
                 """,[.text(recordingID.uuidString),.text(bindingID.uuidString)]).first != nil else { throw StoreError.bindingInvalid }
                 guard let revision = try db.rows("SELECT text,origin FROM revisions WHERE id=? AND recording_id=?",[.text(revisionID.uuidString),.text(recordingID.uuidString)]).first else { throw StoreError.missingRevision }
-                guard try db.rows("SELECT revision_id FROM fusion_archives WHERE revision_id=?", [.text(revisionID.uuidString)]).isEmpty else { throw StoreError.lateRecognitionDeferred }
                 let text = revision["text"]!
                 let cursor = try db.rows("SELECT end_utf16,prefix FROM cursors WHERE binding_id=? AND recording_id=?",[.text(bindingID.uuidString),.text(recordingID.uuidString)]).first
                 let start = Int(cursor?["end_utf16"] ?? "0")!
                 let prefix = Self.slice(text,start:0,end:start)
                 // Duplicate callbacks remain a no-op, even after a later record advanced.
                 if stableUTF16End == start, prefix == (cursor?["prefix"] ?? "") { return nil }
+                guard try db.rows("SELECT revision_id FROM fusion_archives WHERE revision_id=?", [.text(revisionID.uuidString)]).isEmpty else { throw StoreError.lateRecognitionDeferred }
+                guard try fusionDispatchEvidenceIsCurrent(recordingID: recordingID, revisionID: revisionID) else { return nil }
                 let advanced = try db.rows("""
                 SELECT 1 FROM cursors progress
                 JOIN recordings prior ON prior.id=progress.recording_id
@@ -626,6 +639,9 @@ extension SaytileStore {
       id TEXT PRIMARY KEY,recording_id TEXT NOT NULL REFERENCES recordings(id),audio_epoch INTEGER NOT NULL,
       mode TEXT NOT NULL,state TEXT NOT NULL,stable_text TEXT NOT NULL DEFAULT '',created_at REAL NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS fusion_requirements(recognition_id TEXT PRIMARY KEY REFERENCES fusion_sessions(id) ON DELETE CASCADE,payload TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS fusion_session_terminals(recognition_id TEXT PRIMARY KEY REFERENCES fusion_sessions(id) ON DELETE CASCADE,state TEXT NOT NULL,occurred_at REAL NOT NULL);
+    CREATE TABLE IF NOT EXISTS fusion_head_evidence(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),recognition_id TEXT NOT NULL REFERENCES fusion_sessions(id),candidate_ids TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS model_runs(
       id TEXT PRIMARY KEY,recognition_id TEXT NOT NULL REFERENCES fusion_sessions(id),recording_id TEXT NOT NULL REFERENCES recordings(id),
       audio_epoch INTEGER NOT NULL,configuration_id TEXT NOT NULL,payload TEXT NOT NULL,state TEXT NOT NULL,
@@ -666,6 +682,40 @@ extension SaytileStore {
         }
     }
     public func isRecognitionCurrent(ticket: RecognitionTicket) throws -> Bool { try validTicket(ticket) }
+    private struct FusionRequirement: Codable {
+        let configurationID: UUID
+        let purpose: RecognitionPurpose
+    }
+    /// Freeze identities before any provider attempt starts. The payload contains no credentials.
+    public func configureFusionRequirements(ticket: RecognitionTicket, configurations: [ModelConfiguration]) throws {
+        let enabled = configurations.filter(\.enabled)
+        guard Set(enabled.map(\.id)).count == enabled.count,
+              enabled.contains(where: { $0.purpose.isStreaming }) else { throw FusionError.invalidSelection }
+        try db.transaction {
+            guard try validTicket(ticket),
+                  try db.rows("SELECT id FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first != nil,
+                  try db.rows("SELECT id FROM model_runs WHERE recognition_id=? LIMIT 1", [.text(ticket.id.uuidString)]).isEmpty,
+                  try db.rows("SELECT recognition_id FROM fusion_requirements WHERE recognition_id=?", [.text(ticket.id.uuidString)]).isEmpty else { throw FusionError.staleGeneration }
+            let requirements = enabled.filter { $0.purpose.isStreaming }.map { FusionRequirement(configurationID: $0.id, purpose: $0.purpose) }
+            try db.execute("INSERT INTO fusion_requirements(recognition_id,payload) VALUES(?,?)", [.text(ticket.id.uuidString), .text(try Self.encodeEvidence(requirements))])
+        }
+    }
+    public func fusionSessionState(recognitionID: UUID) throws -> String? {
+        try db.rows("SELECT state FROM fusion_sessions WHERE id=?", [.text(recognitionID.uuidString)]).first?["state"]
+    }
+    public func fusionTerminal(recognitionID: UUID) throws -> (state: String, occurredAt: Date)? {
+        guard let row = try db.rows("SELECT state,occurred_at FROM fusion_session_terminals WHERE recognition_id=?", [.text(recognitionID.uuidString)]).first else { return nil }
+        guard let state = row["state"], let seconds = row["occurred_at"].flatMap(Double.init), seconds.isFinite else { throw FusionError.invalidCandidate }
+        return (state, Date(timeIntervalSince1970: seconds))
+    }
+    /// External reservations, including unverified delivery, are the immutable text boundary.
+    public func fusionReservedPrefix(recordingID: UUID) throws -> String {
+        _ = try requireRecording(recordingID)
+        let prefixes = try db.rows("SELECT prefix FROM cursors WHERE recording_id=? AND end_utf16>0", [.text(recordingID.uuidString)]).compactMap { $0["prefix"] }
+        let longest = prefixes.max { $0.utf16.count < $1.utf16.count } ?? ""
+        guard prefixes.allSatisfy({ RecognitionUTF16.hasExactPrefix(longest, prefix: $0) }) else { throw StoreError.prefixChanged }
+        return longest
+    }
     public func beginModelRun(ticket: RecognitionTicket, configuration: ModelConfiguration) throws -> ModelRunTicket {
         guard try validTicket(ticket), try db.rows("SELECT id FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first != nil else { throw FusionError.staleGeneration }
         let run = ModelRunTicket(recognitionID: ticket.id, recordingID: ticket.recordingID, audioEpoch: ticket.audioEpoch,
@@ -735,17 +785,40 @@ extension SaytileStore {
         _ = try requireRecording(recordingID)
         return try db.rows("SELECT v.* FROM revisions v WHERE v.recording_id=? AND v.origin='final' AND NOT EXISTS(SELECT 1 FROM fusion_archives a WHERE a.revision_id=v.id) ORDER BY v.created_at DESC,v.rowid DESC LIMIT 1", [.text(recordingID.uuidString)]).first.map(Self.decodeRevision)
     }
-    @discardableResult public func publishFusion(ticket: RecognitionTicket, proposal: FusionProposal) throws -> FusionPublication {
-        try db.transaction {
+    @discardableResult public func publishFusion(ticket: RecognitionTicket, proposal submitted: FusionProposal,
+                                                audioSubmittedSeconds: Double? = nil) throws -> FusionPublication {
+        guard audioSubmittedSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true else { throw FusionError.invalidCandidate }
+        return try db.transaction {
             guard try validTicket(ticket), let session = try db.rows("SELECT * FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first else {
                 return FusionPublication(revision: nil, published: false, deferred: true)
             }
             let current = try latestRecognitionCandidates(ticket: ticket)
-            let sourceIDs = Set(proposal.sourceCandidateIDs)
+            let sourceIDs = Set(submitted.sourceCandidateIDs)
             let sources = current.filter { sourceIDs.contains($0.id) }
-            guard sources.count == sourceIDs.count else { return FusionPublication(revision: nil, published: false, deferred: true) }
-            let sessionPrefix = session["stable_text"] ?? ""
+            guard !sources.isEmpty, sources.count == sourceIDs.count else { return FusionPublication(revision: nil, published: false, deferred: true) }
+            let reservedPrefix = try fusionReservedPrefix(recordingID: ticket.recordingID)
             let mode = InputQualityMode(rawValue: session["mode"] ?? "") ?? .highestQuality
+            let requirementPayload = try db.rows("SELECT payload FROM fusion_requirements WHERE recognition_id=?", [.text(ticket.id.uuidString)]).first?["payload"]
+            let requirements = try requirementPayload.map { try Self.decodeEvidence([FusionRequirement].self, $0) }
+            let runRows = try db.rows("SELECT id,state FROM model_runs WHERE recognition_id=?", [.text(ticket.id.uuidString)])
+            let usableRuns = Set(runRows.filter { ["running", "completed"].contains($0["state"] ?? "") }.compactMap { $0["id"] })
+            let latestRuns = try db.rows("SELECT r.payload,r.state FROM model_runs r WHERE r.recognition_id=? AND NOT EXISTS(SELECT 1 FROM model_runs n WHERE n.recognition_id=r.recognition_id AND n.configuration_id=r.configuration_id AND n.rowid>r.rowid)", [.text(ticket.id.uuidString)])
+            let requiredFailed = try latestRuns.contains { row in
+                let run = try Self.decodeEvidence(ModelRunTicket.self, row["payload"])
+                let required = requirements.map { $0.contains { $0.configurationID == run.configurationID && $0.purpose == run.purpose } } ?? [.chineseASR, .englishASR].contains(run.purpose)
+                return required && !["running", "completed"].contains(row["state"] ?? "")
+            }
+            func requiredEvidence(in candidates: [RecognitionCandidate], eligible: (RecognitionCandidate) -> Bool = { _ in true }) -> Bool {
+                if let requirements {
+                    return requirements.allSatisfy { required in
+                        candidates.contains { $0.run.configurationID == required.configurationID && $0.run.purpose == required.purpose && usableRuns.contains($0.run.id.uuidString) && eligible($0) }
+                    }
+                }
+                return [RecognitionPurpose.chineseASR, .englishASR].allSatisfy { purpose in
+                    candidates.contains { $0.run.purpose == purpose && usableRuns.contains($0.run.id.uuidString) && eligible($0) }
+                }
+            }
+            var proposal = submitted
             if !proposal.selections.isEmpty {
                 if let reviewed = proposal.reviewedCandidateIDs {
                     guard reviewed.count <= 4096 else { throw FusionError.invalidSelection }
@@ -756,54 +829,98 @@ extension SaytileStore {
                 let horizon = current.filter { $0.run.purpose.isStreaming }.map(PrecisionFusion.reviewRetirementHorizon).min() ?? 0
                 let relevant = current.filter { $0.run.purpose.isStreaming || sourceIDs.contains($0.id) || $0.audioEndSeconds + 0.1 >= horizon }
                 let checked = try PrecisionFusion.validateSelection(spans: proposal.selections, candidates: relevant,
-                    committedPrefix: sessionPrefix, unresolved: proposal.selectionRequestedUnresolved ?? proposal.unresolved,
+                    committedPrefix: reservedPrefix, unresolved: proposal.selectionRequestedUnresolved ?? proposal.unresolved,
                     needsAudioReview: proposal.needsAudioReview, reasonCode: proposal.reasonCode)
-                guard checked.previewText == proposal.previewText, checked.stableText == proposal.stableText, Set(checked.sourceCandidateIDs) == sourceIDs else { throw FusionError.invalidSelection }
-                if mode == .highestQuality && proposal.stableText != sessionPrefix {
-                    let required: [RecognitionPurpose] = [.chineseASR, .englishASR]
+                guard checked.previewText == proposal.previewText, Set(checked.sourceCandidateIDs) == sourceIDs else { throw FusionError.invalidSelection }
+                if checked.stableText != proposal.stableText {
+                    // A target may reserve more text while a review awaits the store actor.
+                    // Reapply that durable constraint; never accept a weaker evidence decision.
+                    guard !RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: reservedPrefix) else { throw FusionError.invalidSelection }
+                    proposal = FusionProposal(previewText: checked.previewText, stableText: checked.stableText,
+                        sourceCandidateIDs: checked.sourceCandidateIDs, unresolved: true,
+                        needsAudioReview: checked.needsAudioReview, reasonCode: checked.reasonCode,
+                        selections: checked.selections, selectionRequestedUnresolved: checked.selectionRequestedUnresolved,
+                        reviewedCandidateIDs: submitted.reviewedCandidateIDs)
+                }
+                // New evidence can increase uncertainty without changing the reserved prefix.
+                // Persist the stricter flags even when the selected stable characters match.
+                proposal = FusionProposal(previewText: proposal.previewText, stableText: proposal.stableText,
+                    sourceCandidateIDs: proposal.sourceCandidateIDs, unresolved: proposal.unresolved || checked.unresolved,
+                    needsAudioReview: proposal.needsAudioReview || checked.needsAudioReview, reasonCode: checked.reasonCode,
+                    selections: proposal.selections, selectionRequestedUnresolved: proposal.selectionRequestedUnresolved,
+                    reviewedCandidateIDs: proposal.reviewedCandidateIDs)
+                if mode == .highestQuality && proposal.stableText != reservedPrefix {
                     let end = try proposal.selections.map { span -> Double in
                         guard let source = sources.first(where: { $0.id == span.candidateID }) else { throw FusionError.invalidSelection }
                         return try PrecisionFusion.audioInterval(span: span, candidate: source).end
                     }.max() ?? 0
-                    guard required.allSatisfy({ purpose in
-                        current.contains { $0.run.purpose == purpose && $0.stableUTF16Length > 0 && ($0.isComplete || PrecisionFusion.stableAudioEnd($0) + 0.1 >= end) }
-                    }) else { throw FusionError.insufficientAlignment }
+                    guard requiredEvidence(in: current, eligible: { $0.stableUTF16Length > 0 && ($0.isComplete || PrecisionFusion.stableAudioEnd($0) + 0.1 >= end) }) else { throw FusionError.insufficientAlignment }
                 }
-            } else if proposal.stableText != sessionPrefix {
-                guard !sources.isEmpty, RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: sessionPrefix),
-                      sources.allSatisfy({ RecognitionUTF16.hasExactPrefix($0.stableText, prefix: proposal.stableText) }),
-                      mode != .highestQuality || Set(sources.map { $0.run.purpose }).isSuperset(of: [.chineseASR, .englishASR]) else { throw FusionError.invalidSelection }
+            } else {
+                if proposal.stableText != reservedPrefix {
+                    guard sources.allSatisfy({ RecognitionUTF16.hasExactPrefix($0.stableText, prefix: proposal.stableText) }),
+                          mode != .highestQuality || requiredFailed || requiredEvidence(in: sources) else { throw FusionError.invalidSelection }
+                }
+                let horizon = current.filter { $0.run.purpose.isStreaming }.map(PrecisionFusion.reviewRetirementHorizon).min() ?? 0
+                let relevant = current.filter { $0.run.purpose.isStreaming || $0.audioEndSeconds + 0.1 >= horizon }
+                var checked = PrecisionFusion.evaluate(candidates: relevant, mode: mode, committedPrefix: reservedPrefix,
+                    requiredPurposes: requirements.map { Set($0.map(\.purpose)) } ?? [.chineseASR, .englishASR],
+                    requiredConfigurationIDs: requirements.map { Set($0.map(\.configurationID)) })
+                if mode == .highestQuality && requiredFailed {
+                    checked = FusionProposal(previewText: checked.previewText, stableText: reservedPrefix,
+                        sourceCandidateIDs: checked.sourceCandidateIDs, unresolved: true,
+                        needsAudioReview: checked.needsAudioReview, reasonCode: "expert-failed-evidence-retained")
+                }
+                // A new acoustic source may have arrived after this proposal was computed,
+                // while every old source ID still exists. Re-evaluate the full current set.
+                // A stale callback is deferred, not blamed on its streaming provider.
+                guard checked.stableText.utf16.elementsEqual(proposal.stableText.utf16),
+                      checked.previewText.utf16.elementsEqual(proposal.previewText.utf16),
+                      Set(checked.sourceCandidateIDs) == sourceIDs else {
+                    return FusionPublication(revision: try latestDispatchableRevision(recordingID: ticket.recordingID), published: false, deferred: true)
+                }
+                proposal = FusionProposal(previewText: proposal.previewText, stableText: proposal.stableText,
+                    sourceCandidateIDs: proposal.sourceCandidateIDs, unresolved: proposal.unresolved || checked.unresolved,
+                    needsAudioReview: proposal.needsAudioReview || checked.needsAudioReview, reasonCode: checked.reasonCode)
             }
-            // Preview must also be evidence, including when the stable prefix cannot advance.
-            guard proposal.previewText.isEmpty || proposal.previewText == sessionPrefix || !proposal.selections.isEmpty || sources.contains(where: { $0.text == proposal.previewText }) else { throw FusionError.invalidSelection }
+            if mode == .highestQuality && requiredFailed {
+                proposal = FusionProposal(previewText: proposal.previewText, stableText: proposal.stableText,
+                    sourceCandidateIDs: proposal.sourceCandidateIDs, unresolved: true,
+                    needsAudioReview: proposal.needsAudioReview, reasonCode: "expert-failed-evidence-retained",
+                    selections: proposal.selections, selectionRequestedUnresolved: proposal.selectionRequestedUnresolved,
+                    reviewedCandidateIDs: proposal.reviewedCandidateIDs)
+            }
+            guard proposal.previewText.isEmpty || proposal.previewText == reservedPrefix || !proposal.selections.isEmpty || sources.contains(where: { $0.text == proposal.previewText }) else { throw FusionError.invalidSelection }
             let old = try latestDispatchableRevision(recordingID: ticket.recordingID)
             let prior = old?.text ?? ""
-            let cursors = try db.rows("SELECT prefix FROM cursors WHERE recording_id=? AND end_utf16>0", [.text(ticket.recordingID.uuidString)]).compactMap { $0["prefix"] }
-            let growsSession = RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: sessionPrefix)
-            let requiredPresent = mode == .fast || Set(current.filter { $0.run.purpose.isStreaming }.map { $0.run.purpose }).isSuperset(of: [.chineseASR, .englishASR])
-            let completeSources = !sources.isEmpty && sources.allSatisfy(\.isComplete) && requiredPresent
-            let previousAttempt = try old.flatMap { revision in
-                try db.rows("SELECT attempt FROM revisions WHERE id=?", [.text(revision.id.uuidString)]).first?["attempt"]
-            }
-            // A new complete generation may correct a never-reserved version. Once any target
-            // owns a UTF-16 cursor, that immutable external prefix remains protected.
-            let replacesUnsentGeneration = cursors.isEmpty && previousAttempt != ticket.id.uuidString && completeSources
-            let growsPublished = RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: prior) || replacesUnsentGeneration
-            let growsCursors = cursors.allSatisfy { RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: $0) }
-            let safe = growsSession && growsPublished && growsCursors
-            let shouldPublish = safe && !proposal.stableText.isEmpty && proposal.stableText != prior
+            let completeSources = sources.allSatisfy(\.isComplete) && (mode == .fast || requiredEvidence(in: current, eligible: { $0.isComplete }))
+            // Published-but-unsent text is revisable. Only durable external cursor prefixes
+            // constrain corrections, including prefixes reserved in another target binding.
+            let safe = RecognitionUTF16.hasExactPrefix(proposal.stableText, prefix: reservedPrefix)
+            let changesHead = safe && proposal.stableText != prior
             var published: TranscriptRevision?
-            if shouldPublish {
-                let revision = TranscriptRevision(id: UUID(), recordingID: ticket.recordingID, text: proposal.stableText, origin: .final, createdAt: Date())
-                try insertRevision(revision, attempt: ticket.id, base: old?.id)
-                try db.execute("INSERT INTO fusion_dispatch_heads(recording_id,revision_id) VALUES(?,?) ON CONFLICT(recording_id) DO UPDATE SET revision_id=excluded.revision_id", [.text(ticket.recordingID.uuidString), .text(revision.id.uuidString)])
+            if changesHead {
+                // Revoke every previous automatic final, not merely the most recent one: an
+                // empty common prefix must not expose an even older final as a fallback.
+                try db.execute("INSERT OR IGNORE INTO fusion_archives(revision_id,recording_id,recognition_id) SELECT id,recording_id,? FROM revisions WHERE recording_id=? AND origin='final'", [.text(ticket.id.uuidString), .text(ticket.recordingID.uuidString)])
+                try db.execute("DELETE FROM fusion_dispatch_heads WHERE recording_id=?", [.text(ticket.recordingID.uuidString)])
+                try db.execute("DELETE FROM fusion_head_evidence WHERE recording_id=?", [.text(ticket.recordingID.uuidString)])
                 try db.execute("UPDATE fusion_sessions SET stable_text=? WHERE id=?", [.text(proposal.stableText), .text(ticket.id.uuidString)])
-                published = revision
-                try selectAutomaticRevision(revision)
+                if !proposal.stableText.isEmpty {
+                    let revision = TranscriptRevision(id: UUID(), recordingID: ticket.recordingID, text: proposal.stableText, origin: .final, createdAt: Date())
+                    try insertRevision(revision, attempt: ticket.id, base: old?.id)
+                    try db.execute("INSERT INTO fusion_dispatch_heads(recording_id,revision_id) VALUES(?,?)", [.text(ticket.recordingID.uuidString), .text(revision.id.uuidString)])
+                    published = revision
+                    try selectAutomaticRevision(revision)
+                }
             }
-            // Preserve the best complete alternate without making it eligible for external insertion.
+            let head = published ?? (changesHead ? nil : old)
+            if safe, let head, head.text.utf16.elementsEqual(proposal.stableText.utf16) {
+                try db.execute("INSERT INTO fusion_dispatch_heads(recording_id,revision_id) VALUES(?,?) ON CONFLICT(recording_id) DO UPDATE SET revision_id=excluded.revision_id", [.text(ticket.recordingID.uuidString), .text(head.id.uuidString)])
+                try db.execute("INSERT INTO fusion_head_evidence(recording_id,recognition_id,candidate_ids) VALUES(?,?,?) ON CONFLICT(recording_id) DO UPDATE SET recognition_id=excluded.recognition_id,candidate_ids=excluded.candidate_ids", [.text(ticket.recordingID.uuidString), .text(ticket.id.uuidString), .text(try Self.encodeEvidence(current.map { $0.id.uuidString }.sorted()))])
+            }
             var archiveID: UUID?
-            if !proposal.previewText.isEmpty, proposal.previewText != (published?.text ?? prior) {
+            if !proposal.previewText.isEmpty, proposal.previewText != (head?.text ?? "") {
                 let previous = try db.rows("SELECT v.text,v.origin FROM fusion_archives a JOIN revisions v ON v.id=a.revision_id WHERE a.recording_id=? ORDER BY v.created_at DESC,v.rowid DESC LIMIT 1", [.text(ticket.recordingID.uuidString)]).first
                 if previous?["text"] != proposal.previewText || completeSources && previous?["origin"] == "partial" {
                     let archive = TranscriptRevision(id: UUID(), recordingID: ticket.recordingID, text: proposal.previewText,
@@ -817,17 +934,41 @@ extension SaytileStore {
             }
             let deferred = !safe || proposal.unresolved || proposal.needsAudioReview
             let decision = FusionDecisionRecord(id: UUID(), recognitionID: ticket.id, proposal: proposal,
-                revisionID: published?.id ?? archiveID, outcome: shouldPublish ? "published" : deferred ? "deferred" : "unchanged", createdAt: Date())
+                revisionID: published?.id ?? archiveID, outcome: published != nil ? "published" : deferred ? "deferred" : "unchanged", createdAt: Date(), audioSubmittedSeconds: audioSubmittedSeconds)
             try db.execute("INSERT INTO fusion_decisions(id,recognition_id,recording_id,payload,created_at) VALUES(?,?,?,?,?)", [.text(decision.id.uuidString), .text(ticket.id.uuidString), .text(ticket.recordingID.uuidString), .text(try Self.encodeEvidence(decision)), .double(decision.createdAt.timeIntervalSince1970)])
-            return FusionPublication(revision: published ?? old, published: shouldPublish, deferred: deferred)
+            return FusionPublication(revision: head, published: published != nil, deferred: deferred, acceptedProposal: proposal)
         }
+    }
+    /// Recheck the exact evidence snapshot in the reservation transaction. A provider callback
+    /// can arrive after publication but before the coordinator evaluates its new candidate.
+    private func fusionDispatchEvidenceIsCurrent(recordingID: UUID, revisionID: UUID) throws -> Bool {
+        let managed = try db.rows("""
+        SELECT 1 FROM revisions v JOIN fusion_sessions s ON s.id=v.attempt WHERE v.id=?
+        UNION ALL SELECT 1 FROM fusion_dispatch_heads WHERE recording_id=? AND revision_id=?
+        UNION ALL SELECT 1 FROM recordings r JOIN fusion_sessions s ON s.id=r.active_attempt WHERE r.id=? LIMIT 1
+        """, [.text(revisionID.uuidString), .text(recordingID.uuidString), .text(revisionID.uuidString), .text(recordingID.uuidString)])
+        guard !managed.isEmpty else { return true }
+        guard let proof = try db.rows("SELECT e.recognition_id,e.candidate_ids,s.audio_epoch,s.mode FROM fusion_head_evidence e JOIN fusion_dispatch_heads h ON h.recording_id=e.recording_id AND h.revision_id=? JOIN fusion_sessions s ON s.id=e.recognition_id WHERE e.recording_id=?", [.text(revisionID.uuidString), .text(recordingID.uuidString)]).first,
+              let recognitionID = proof["recognition_id"].flatMap(UUID.init(uuidString:)),
+              let epoch = proof["audio_epoch"].flatMap(Int64.init),
+              try db.rows("SELECT id FROM fusion_sessions WHERE recording_id=? ORDER BY rowid DESC LIMIT 1", [.text(recordingID.uuidString)]).first?["id"] == recognitionID.uuidString else { return false }
+        let ticket = RecognitionTicket(id: recognitionID, recordingID: recordingID, audioEpoch: epoch)
+        let candidates = try latestRecognitionCandidates(ticket: ticket)
+        if proof["mode"] == InputQualityMode.highestQuality.rawValue {
+            for candidate in candidates where candidate.run.purpose.isStreaming {
+                let state = try db.rows("SELECT state FROM model_runs WHERE id=?", [.text(candidate.run.id.uuidString)]).first?["state"] ?? ""
+                guard ["running", "completed"].contains(state) else { return false }
+            }
+        }
+        let currentIDs = try Self.encodeEvidence(candidates.map { $0.id.uuidString }.sorted())
+        return currentIDs == proof["candidate_ids"]
     }
     public func fusionDecisions(recordingID: UUID) throws -> [FusionDecisionRecord] {
         _ = try requireRecording(recordingID)
         return try db.rows("SELECT payload FROM fusion_decisions WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { try Self.decodeEvidence(FusionDecisionRecord.self, $0["payload"]) }
     }
     public func recordModelUsage(_ usage: ModelUsageRecord) throws {
-        guard let row = try db.rows("SELECT recording_id FROM model_runs WHERE id=?", [.text(usage.runID.uuidString)]).first,
+        guard let row = try db.rows("SELECT m.recording_id FROM model_runs m JOIN recordings r ON r.id=m.recording_id WHERE m.id=? AND r.deleted=0", [.text(usage.runID.uuidString)]).first,
               usage.audioSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true,
               usage.estimatedCost.map({ $0.isFinite && $0 >= 0 }) ?? true,
               usage.elapsedSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true,
@@ -868,6 +1009,7 @@ extension SaytileStore {
     }
     private func invalidateModelRuns(recordingID: UUID, sessionState: String = "cancelled") throws {
         try db.execute("UPDATE model_runs SET state='cancelled' WHERE recording_id=? AND state='running'", [.text(recordingID.uuidString)])
+        try db.execute("INSERT OR IGNORE INTO fusion_session_terminals(recognition_id,state,occurred_at) SELECT id,?,? FROM fusion_sessions WHERE recording_id=? AND state='running'", [.text(sessionState), .double(Date().timeIntervalSince1970), .text(recordingID.uuidString)])
         try db.execute("UPDATE fusion_sessions SET state=? WHERE recording_id=? AND state='running'", [.text(sessionState), .text(recordingID.uuidString)])
     }
     private func pruneFusionPreviews(ticket: RecognitionTicket, keeping id: UUID) throws {

@@ -80,6 +80,16 @@ public struct ModelRunRecord: Codable, Sendable, Equatable, Identifiable {
     public let retryable: Bool
 }
 
+/// The decoded model response is audit evidence, not validated text or raw HTTP.
+public struct ArbitrationResponseEvidence: Codable, Sendable, Equatable {
+    public let candidateIDs: [UUID]
+    public let confirmedPrefix: String
+    public let decision: PrecisionReviewDecision
+    public init(candidateIDs: [UUID], confirmedPrefix: String, decision: PrecisionReviewDecision) {
+        self.candidateIDs = candidateIDs; self.confirmedPrefix = confirmedPrefix; self.decision = decision
+    }
+}
+
 /// Values may be unknown; zero is not substituted for unreported billing data.
 public struct ModelUsageRecord: Codable, Sendable, Equatable, Identifiable {
     public let id: UUID
@@ -92,13 +102,17 @@ public struct ModelUsageRecord: Codable, Sendable, Equatable, Identifiable {
     public let currency: String
     public let status: String
     public let elapsedSeconds: Double?
+    /// Missing in older payloads; Codable decodes the absent optional as nil.
+    public let arbitrationResponse: ArbitrationResponseEvidence?
     public let createdAt: Date
     public init(id: UUID = UUID(), runID: UUID, requestID: String? = nil, audioSeconds: Double? = nil,
                 inputTokens: Int? = nil, outputTokens: Int? = nil, estimatedCost: Double? = nil,
-                currency: String = "USD", status: String = "completed", elapsedSeconds: Double? = nil, createdAt: Date = Date()) {
+                currency: String = "USD", status: String = "completed", elapsedSeconds: Double? = nil,
+                arbitrationResponse: ArbitrationResponseEvidence? = nil, createdAt: Date = Date()) {
         self.id = id; self.runID = runID; self.requestID = requestID; self.audioSeconds = audioSeconds
         self.inputTokens = inputTokens; self.outputTokens = outputTokens; self.estimatedCost = estimatedCost
         self.currency = currency; self.status = status; self.elapsedSeconds = elapsedSeconds; self.createdAt = createdAt
+        self.arbitrationResponse = arbitrationResponse
     }
 }
 

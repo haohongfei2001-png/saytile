@@ -91,12 +91,18 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
     public var automaticRecovery = true
     public init() { models = Self.recommendedModels }
     public var enabledModels: [ModelConfiguration] { models.filter(\.enabled) }
-    public func validateForCloud() throws {
+    public func validateForCloud(allowSingleExpertBaseline: Bool = false) throws {
         guard cloudEnabled else { return }
         let active = enabledModels
-        guard Set(active.map(\.id)).count == active.count,
-              active.contains(where: { $0.purpose == .chineseASR }),
-              active.contains(where: { $0.purpose == .englishASR }) else {
+        guard Set(active.map(\.id)).count == active.count else {
+            throw ProviderFailure.configuration("模型配置身份重复，请为每项配置使用独立身份。")
+        }
+        if allowSingleExpertBaseline {
+            guard active.count == 1, active[0].purpose.isStreaming else {
+                throw ProviderFailure.configuration("单专家质量基线必须恰好启用一个实时识别专家。")
+            }
+        } else if !active.contains(where: { $0.purpose == .chineseASR }) ||
+                    !active.contains(where: { $0.purpose == .englishASR }) {
             throw ProviderFailure.configuration("并行方案需要中文和英文专家各一个。")
         }
         for item in active {

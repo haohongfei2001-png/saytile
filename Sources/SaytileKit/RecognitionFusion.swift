@@ -33,6 +33,7 @@ public struct FusionPublication: Sendable, Equatable {
     public let revision: TranscriptRevision?
     public let published: Bool
     public let deferred: Bool
+    public var acceptedProposal: FusionProposal? = nil
 }
 public struct FusionDecisionRecord: Codable, Sendable, Equatable, Identifiable {
     public let id: UUID

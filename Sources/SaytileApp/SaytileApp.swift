@@ -75,7 +75,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         let configuration = try JSONDecoder().decode(RecognitionConfiguration.self,
                             from: Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[configIndex + 1])))
                         let id = try await MultiRecognitionDiagnostics.transcribeFixture(
-                            url: URL(fileURLWithPath: CommandLine.arguments[index + 1]), store: model.store, configuration: configuration)
+                            url: URL(fileURLWithPath: CommandLine.arguments[index + 1]), store: model.store, configuration: configuration,
+                            allowSingleExpertBaseline: CommandLine.arguments.contains("--single-expert-baseline"))
                         let report = URL(fileURLWithPath: CommandLine.arguments[reportIndex + 1], isDirectory: true)
                         try FileManager.default.createDirectory(at: report, withIntermediateDirectories: true)
                         try await MultiRecognitionDiagnostics.exportTrace(store: model.store, recordingID: id,

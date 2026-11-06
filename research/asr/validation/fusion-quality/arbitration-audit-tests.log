@@ -1,0 +1,63 @@
+Building for debugging...
+[Pre-planning 1 / 155]
+[Planning deferred tasks]
+[5 / 27] SaytileKit
+[9 / 31] SaytileKit
+[19 / 39] Saytile-product
+[19 / 37] SaytileKit
+[19 / 37] Saytile-product
+[25 / 44] Saytile-product
+[26 / 44] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[31 / 44] Saytile-product
+[39 / 55] SaytileKitTests-product
+[40 / 55] SaytileKitTests-product
+[42 / 55] SaytileKitTests-product
+[43 / 55] Saytile-product
+[45 / 54] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[49 / 55] SaytileKitTests-product
+[51 / 56] SaytileKitTests-product
+[52 / 56] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (7.60秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Arbiter evidence and blind acoustic review" started.
+◇ Suite "Decoded arbitration response audit" started.
+◇ Test malformedSourceIdentityAndUnicodeEvidenceFailBeforeRequest() started.
+◇ Test arbiterConfidenceCannotOverrideNumberOrNegationDisagreement() started.
+◇ Test externalPrefixIsAConstraintAndNeverAnAcousticVote() started.
+◇ Test completeProvenanceAndAllTokensReachArbiter() started.
+◇ Test blindAudioReviewUsesOnlyFixedInstructionsAndExactPCM() started.
+◇ Test uncertainAudioAndHiddenReasoningRemainDistinct() started.
+◇ Test blindAudioRequestRejectsConsentPurposeCredentialAndRegionMismatch() started.
+◇ Test oldUsagePayloadWithoutAuditStillDecodes() started.
+◇ Test utteranceUnicodeBoundariesNeverBecomeInventedWordTimes() started.
+◇ Test abstentionAndRefusalCannotMasqueradeAsConfirmedText() started.
+◇ Test wholeRecordDeletionErasesResponseAndBlocksLateAuditResurrection() started.
+◇ Test deletingOnlyAudioPreservesDecodedResponseAndUsage() started.
+◇ Test actualTimedChineseEnglishPartsCanComposeOneUtterance() started.
+◇ Test finalASRRejectsWordTimesOutsideActualUploadedAudio() started.
+◇ Test rejectedResponseAndRequestSnapshotSurviveRestartWithoutPublishing() started.
+✔ Test oldUsagePayloadWithoutAuditStillDecodes() passed after 0.001 seconds.
+✔ Test blindAudioRequestRejectsConsentPurposeCredentialAndRegionMismatch() passed after 0.001 seconds.
+✔ Test malformedSourceIdentityAndUnicodeEvidenceFailBeforeRequest() passed after 0.001 seconds.
+✔ Test uncertainAudioAndHiddenReasoningRemainDistinct() passed after 0.001 seconds.
+✔ Test abstentionAndRefusalCannotMasqueradeAsConfirmedText() passed after 0.001 seconds.
+✔ Test finalASRRejectsWordTimesOutsideActualUploadedAudio() passed after 0.001 seconds.
+✔ Test blindAudioReviewUsesOnlyFixedInstructionsAndExactPCM() passed after 0.003 seconds.
+✔ Test externalPrefixIsAConstraintAndNeverAnAcousticVote() passed after 0.004 seconds.
+✔ Test actualTimedChineseEnglishPartsCanComposeOneUtterance() passed after 0.004 seconds.
+✔ Test utteranceUnicodeBoundariesNeverBecomeInventedWordTimes() passed after 0.006 seconds.
+✔ Test arbiterConfidenceCannotOverrideNumberOrNegationDisagreement() passed after 0.006 seconds.
+✔ Test completeProvenanceAndAllTokensReachArbiter() passed after 0.010 seconds.
+✔ Suite "Arbiter evidence and blind acoustic review" passed after 0.010 seconds.
+✔ Test deletingOnlyAudioPreservesDecodedResponseAndUsage() passed after 0.020 seconds.
+✔ Test rejectedResponseAndRequestSnapshotSurviveRestartWithoutPublishing() passed after 0.023 seconds.
+✔ Test wholeRecordDeletionErasesResponseAndBlocksLateAuditResurrection() passed after 0.024 seconds.
+✔ Suite "Decoded arbitration response audit" passed after 0.024 seconds.
+✔ Test run with 15 tests in 2 suites passed after 0.024 seconds.
