@@ -1,3 +1,7 @@
+> **2026-11-06 RC 收口进行中。当前发布物仍为 Beta.1，不建议开始真人验收。**
+> 基线：远端 main `a371864cc9d4285701e670c457b7d9fabad41251`，PR #1/#2 均已合并，原生/设计 CI success。工作分支 `codex/v1-rc`。详见 [RC 工作清单](RC-QUALITY-PLAN.md)。
+> 并行推进：音频/ASR/生命周期、输入安全、存储恢复/升级；主线负责原生 UI/AppModel、安装及最终交叉审查。系统权限、真实讲话和主观体验暂不要求用户参与。
+
 # V1 开发状态
 
 更新：2026-11-06。正式仓库 `haohongfei2001-png/saytile`。PR #1 已核验合并，原生工程来源 [PR #2](https://github.com/haohongfei2001-png/saytile/pull/2)。当前版本 **1.0.0-beta.1 个人 Beta**，应用源码提交 `4c4430426050553a7df573053ff4cc582e45b3fa`。
@@ -28,7 +32,7 @@
 - 72项原生测试、16项AppModel检查；最终远端原生CI与设计契约CI均通过。证据、来源SHA及校验和见 `evidence/native/release-manifest.json`。
 - 同步工作目录会在App目录重新附加Finder元数据，因此正式交付使用DMG及个人Applications安装位置；未关闭系统安全设置或改变同步设置。
 
-全部已授权工程工作已完成。剩余为个人签名的首次系统确认及用户实际讲话/目标应用验收，不宣称这些已替用户完成。
+以上是 Beta.1 历史交付事实，不代表 V1 工程质量收口。用户已要求继续至 Release Candidate；下列未验项目由工程继续自主处理，不转嫁为临时用户测试。
 
 ## 已知验收边界
 
