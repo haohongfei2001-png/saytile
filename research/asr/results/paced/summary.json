@@ -1,0 +1,23 @@
+{
+  "engine": "Apple SpeechAnalyzer / SpeechTranscriber",
+  "locale": "zh-CN",
+  "count": 12,
+  "result_sha256": "1a7e17bffd7dbe7542d33ae25bd561da0913a911b076bb62fc2fbce2753fa807",
+  "first_readable_from_replay_start": {
+    "n": 12,
+    "median_seconds": 1.207789312582463,
+    "p95_nearest_rank_seconds": 1.2859242500271648,
+    "min_seconds": 1.1912871666718274,
+    "max_seconds": 1.2859242500271648
+  },
+  "stable_after_input_eof": {
+    "n": 12,
+    "median_seconds": 0.11898604175075889,
+    "p95_nearest_rank_seconds": 0.26159866666421294,
+    "min_seconds": 0.07658166671171784,
+    "max_seconds": 0.26159866666421294
+  },
+  "errors": 0,
+  "not_completely_final": 0,
+  "boundary": "Paced prerecorded files in 100ms batches. Bypasses production WebRTC VAD, CaptureWorker, microphone and target dispatch. Warm local engine; not a cloud or end-to-end latency result. n=12 is too small for a population P95 claim."
+}

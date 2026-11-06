@@ -1,37 +1,9 @@
-# Saytile ASR research — resumed 2026-11-06
+# ASR 研究阶段检查点 — 2026-11-06
 
-## Scope and baseline
+生产基线 a352a1c，RC1 未修改；研究分支 research/asr-quality-2026-11-06，PR #4。
 
-- Production base verified against origin/main: `a352a1c812c33388a1a908f21ecde30da80ad1cd` (RC1 / merged PR #3).
-- Independent branch: `research/asr-quality-2026-11-06`.
-- RC1 production source, installed application, personal recordings and databases are not modified.
-- Goal: matched human-audio direct-ASR vs actual-production-VAD evaluation, bounded cloud comparisons when already authorized credentials exist, and evidence-based implementation decision.
+用户最新方向已取消扩展公共横评。已保存：112 条真人 × 3 配置共 336 条直接结果；12 条 Apple paced 回放；生产源码审计；Mac 三次 VoiceSegmenter probe（原片段、79 秒跨两次强制边界、活动尾部），三例均无样本遗漏或重叠。Whisper 主动停止于 55 条。原音与权重均未提交。
 
-## Recovered, not recreated
+证据见 results/README.md、results/LOCAL_EVIDENCE.md、results/vad-probes/README.md 与 PRODUCTION_AUDIT.md。最新官方接口与公开证据层级见 VENDORS.md。没有云服务密钥或云调用，不把这些本地结果冒充云端成绩。
 
-- Prior working tree: `/workspace/scratch/ecf2608272fb/saytile-research`.
-- Prior local checkpoint `ef2730b` and uncommitted research files survive.
-- `research/asr-2026-11-06/` is preserved as the original research record.
-- 134 WAV files exist at `.test-data/asr/audio/`; manifests and metadata are recovered. Integrity and licensing are being independently checked.
-- Prior Whisper output currently contains 15 successful rows; it is incomplete, not a completed benchmark. Failed PyAV decoding attempts are retained separately.
-- Connected Mac research directory exists at `~/.codex/saytile-asr-research-20261106`; Qwen3-ASR-1.7B BF16 MLX weights and Python environment survive.
-- A partial base64 transfer file exists on Mac. It is not used to claim a completed corpus transfer, and that transport method is discontinued.
-
-## Evidence status
-
-- Cloud model comparisons: NOT RUN. No ASR keys present in this process environment; checking narrowly scoped existing authorized configurations without exposing secrets.
-- Apple direct and production-VAD matched evaluation: NOT YET RUN in this resumed session.
-- Real-time latency: NOT YET MEASURED. Offline processing time is not first-word latency.
-- Global best-engine claim: NOT ESTABLISHED.
-
-## Work in progress
-
-1. Verify original corpus files, selection, licenses, hashes, and scoring.
-2. Recover Mac execution environment and download source archives directly on Mac, with pinned revisions and hashes.
-3. Run original Apple baseline, language-selected diagnostic, Qwen local reference and Whisper on matched samples.
-4. Replay the actual production VAD/splitter; compare transcription and boundary losses.
-5. Run bounded existing cloud services if credentials are available; record blocked providers explicitly.
-6. Measure paced latency and decide whether a second recognition stage has demonstrated benefit.
-7. Persist each completed phase, implementation contracts, limitations, and PR.
-
-All audio remains outside Git. No new paid service is opened. No binary audio is transported through chat/tool text.
+已收敛的选型为 Soniox stt-rt-v6 单实时引擎，Apple 保留离线备用，不默认二次定稿。DECISION 与 Codex IMPLEMENTATION 完整说明正在完成最后一致性检查，将在下一阶段提交；不得因此提前替换 RC1。

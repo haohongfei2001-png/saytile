@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-06",
+  "scope": "整理已完成的112条真人录音、3组直接识别配置；不包含新增测试",
+  "sources": {
+    "run_metadata": "research/asr/results/direct/run.json",
+    "frozen_manifest": "research/asr-2026-11-06/corpus/manifest.json",
+    "corpus_sources": "research/asr-2026-11-06/corpus/sources.json",
+    "scorer": "research/asr-2026-11-06/scripts/score.py",
+    "full_manifest_sha256": "5a5d9809f016f4119c6e3e9d48ce8b62aecae8bb9a5ab050a73c9cb627f5407f",
+    "original_112_subset_manifest_sha256": "528fe5f064cf2ce1b89ac411c839099ba9f6751ae918735df50bc1cc263a6f9b"
+  },
+  "corpus": {
+    "frozen_total": 134,
+    "original_human_clips": 112,
+    "primary_clips": 96,
+    "primary_clips_per_language": {"zh": 32, "en": 32, "mixed": 32},
+    "challenge_clips": 16,
+    "derived_or_synthetic_controls": 22,
+    "derived_breakdown": {"robustness": 18, "constructed_continuity": 2, "negative_control": 2},
+    "physical_audit": {"files_present": 134, "sha256_matches": 134, "audio_metadata_matches": 134},
+    "audio_format": {"sample_rate_hz": 16000, "channels": 1, "pcm_bits": 16},
+    "license_record_status": "沿用旧sources.json；归档哈希已核验，本阶段未另行复核官方许可页面"
+  },
+  "scoring": {
+    "group": "primary",
+    "metrics": {"zh": "CER", "en": "WER", "mixed": "MER"},
+    "aggregation": "micro: (substitutions + deletions + insertions) / reference_units",
+    "normalization": "既有score.py：NFKC、大小写及标点规范化；不作繁简、数字写法、英文缩写或语义等价转换",
+    "comparison_basis": "相同冻结主样本；16条challenge结果保留但未合并排名",
+    "audit_method": "既有评分复算与记录ID/audio_sha256核验；未实现第二套独立评分器"
+  },
+  "runs": [
+    {
+      "id": "apple-direct-fixed-zh",
+      "results_file": "apple-direct-fixed-zh.jsonl",
+      "results_sha256_from_run_json": "873dadbbd54d06590cb08e55b5a4dc7329cd555b3dd08ba4ab3212cf4a786c4b",
+      "engine": "apple-speechtranscriber",
+      "language_policy": "zh-CN for every clip",
+      "integrity": {"records": 112, "unique_ids": 112, "errors": 0, "audio_hash_mismatch_or_missing": 0, "unknown_ids": 0},
+      "not_completely_final": 1,
+      "not_completely_final_ids": ["fleurs-en-9833173223298420094"],
+      "finality_note": "该primary/en记录的text仅比stable_text多末尾句号；不改变既有标点规范化分数，但不应称为全部完整final",
+      "primary": {
+        "zh": {"clips": 32, "reference_units": 1041, "substitutions": 77, "deletions": 39, "insertions": 4, "errors": 120, "error_rate": 0.11527377521613832},
+        "en": {"clips": 32, "reference_units": 644, "substitutions": 325, "deletions": 148, "insertions": 7, "errors": 480, "error_rate": 0.7453416149068323},
+        "mixed": {"clips": 32, "reference_units": 508, "substitutions": 76, "deletions": 38, "insertions": 8, "errors": 122, "error_rate": 0.24015748031496062}
+      }
+    },
+    {
+      "id": "apple-direct-oracle-locale",
+      "results_file": "apple-direct-oracle-locale.jsonl",
+      "results_sha256_from_run_json": "80e08bf6ff8b1319d34f9bc654e4d880708a118f4bc172b9988a0df6a52ba0b3",
+      "engine": "apple-speechtranscriber",
+      "language_policy": "英文样本按真值选英文locale；不代表自动语言路由能力",
+      "integrity": {"records": 112, "unique_ids": 112, "errors": 0, "audio_hash_mismatch_or_missing": 0, "unknown_ids": 0},
+      "not_completely_final": 0,
+      "primary": {
+        "zh": {"clips": 32, "reference_units": 1041, "substitutions": 77, "deletions": 39, "insertions": 4, "errors": 120, "error_rate": 0.11527377521613832},
+        "en": {"clips": 32, "reference_units": 644, "substitutions": 43, "deletions": 12, "insertions": 6, "errors": 61, "error_rate": 0.09472049689440994},
+        "mixed": {"clips": 32, "reference_units": 508, "substitutions": 76, "deletions": 38, "insertions": 8, "errors": 122, "error_rate": 0.24015748031496062}
+      }
+    },
+    {
+      "id": "qwen-direct",
+      "results_file": "qwen-direct.jsonl",
+      "results_sha256_from_run_json": "8f6d1c694da21ec1ab094c9d237b55ac5f251d55a76cb684b9f2b9e7bdf1fbb5",
+      "engine": "qwen3-asr-1.7b-mlx-bf16",
+      "model": "mlx-community/Qwen3-ASR-1.7B-bf16",
+      "model_revision": "e1f6c266914abc5a46e8756e02580f834a6cf8a7",
+      "weights_sha256": "2f080a3b769ae469aeaaa2dcb9e13a94141e54c9e6d5a7aa63392e0dc5a51789",
+      "mlx_audio_version": "0.6.4",
+      "mlx_version": "0.32.4",
+      "language_policy": "auto; local MLX inference; temperature=0; VAD=false; no hotwords or system prompt",
+      "hosted_model_claim": "不是托管Qwen Audio 3.1 message/streaming，不能向其外推本分数",
+      "integrity": {"records": 112, "unique_ids": 112, "errors": 0, "audio_hash_mismatch_or_missing": 0, "unknown_ids": 0},
+      "not_completely_final_from_run_json": 0,
+      "finality_note": "离线整段生成结果；此计数不证明具备流式final语义",
+      "primary": {
+        "zh": {"clips": 32, "reference_units": 1041, "substitutions": 34, "deletions": 36, "insertions": 1, "errors": 71, "error_rate": 0.06820365033621517},
+        "en": {"clips": 32, "reference_units": 644, "substitutions": 23, "deletions": 10, "insertions": 3, "errors": 36, "error_rate": 0.055900621118012424},
+        "mixed": {"clips": 32, "reference_units": 508, "substitutions": 34, "deletions": 19, "insertions": 8, "errors": 61, "error_rate": 0.12007874015748031}
+      }
+    }
+  ],
+  "total_run_records": 336,
+  "latency_class": "offline_file_processing_not_realtime",
+  "realtime_latency_conclusion": null,
+  "paced12": {"local_results_available_at_review": false, "remote_mac_accessed_for_this_summary": false},
+  "limitations": [
+    "每语言仅32条primary，来源与朗读/对话风格不完全对称，不构成普遍准确率或全球最优证明",
+    "沿用上游reference，未完成全量人工听审；严格文本差异不全等于语义错误",
+    "未经过Saytile生产VAD、麦克风与外部输入派发路径；文件处理事件时间不能冒充实时首字/定稿延迟",
+    "准确率任务可能并发，耗时不能直接作为服务延迟比较",
+    "旧关键实体评分是子串命中且标注稀少，不支持可靠数字、否定或术语排名",
+    "插入错误不自动等同已人工确认的幻觉；本次未汇总实体或幻觉发生率"
+  ],
+  "whisper": {
+    "results_file": "research/asr-2026-11-06/results/whisper-large-v3-int8.jsonl",
+    "preserved_records_at_user_directed_stop": 55,
+    "status": "按用户最新要求主动停止；不是模型故障",
+    "included_in_cross_engine_ranking": false,
+    "historical_decode_attempt": "更早metadata_errors参数不兼容是基础设施失败，不能与主动停止或模型识别错误混同"
+  }
+}

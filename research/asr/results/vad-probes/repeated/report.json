@@ -1,0 +1,55 @@
+{
+  "active_tail_requested" : false,
+  "active_tail_trigger_observed" : false,
+  "derived_fixture" : true,
+  "fed_pcm_sha256" : "958589be9c11789fb306a1469cb1cd34be810850d237bf2dc9c127277f2ac285",
+  "fed_samples" : 1264000,
+  "finish_audio_bytes" : 0,
+  "forced_rotations" : 2,
+  "input_path" : "\/Users\/hhf\/.codex\/saytile-asr-research-20261106\/audio\/ascend-01047.wav",
+  "input_wav_sha256" : "a39c0a82c2d9582f8c59d1b3a31b3e8d7a49f5c6daa01b0fbfd3db616b102205",
+  "omitted_samples" : 0,
+  "original_pcm_sha256" : "0c25a76a43500a30272015fa036a8bfa321cb48f6b5f5eccb52723e9c30d6326",
+  "overlap_samples" : 0,
+  "repeat_count" : 10,
+  "scope" : "unchanged production VoiceSegmenter only; no ASR, capture hardware, or input resampler",
+  "segments" : [
+    {
+      "end_reason" : "forced_rotation",
+      "exact_input_range_match" : true,
+      "file" : "segment-000.wav",
+      "frames" : 480960,
+      "index" : 0,
+      "pcm_sha256" : "61993232d03162caf56ff7c132f486c2bf8278da7ed6792cf985af2964eec980",
+      "post_begin_frames" : 1500,
+      "seconds" : 30.059999999999999,
+      "source_end_sample" : 480960,
+      "source_start_sample" : 0
+    },
+    {
+      "end_reason" : "forced_rotation",
+      "exact_input_range_match" : true,
+      "file" : "segment-001.wav",
+      "frames" : 480960,
+      "index" : 1,
+      "pcm_sha256" : "6287f6a50f3964bbda64a17dc7ec8608cf009375365ef3d7652593c666865dd5",
+      "post_begin_frames" : 1500,
+      "seconds" : 30.059999999999999,
+      "source_end_sample" : 961920,
+      "source_start_sample" : 480960
+    },
+    {
+      "end_reason" : "input_finish",
+      "exact_input_range_match" : true,
+      "file" : "segment-002.wav",
+      "frames" : 302080,
+      "index" : 2,
+      "pcm_sha256" : "29da47bb40223e4006d27cb24b631b1594d866892aa442d070a86d690cadfaca",
+      "post_begin_frames" : 941,
+      "seconds" : 18.879999999999999,
+      "source_end_sample" : 1264000,
+      "source_start_sample" : 961920
+    }
+  ],
+  "speaking_at_finish" : true
+}
