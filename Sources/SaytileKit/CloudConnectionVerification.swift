@@ -152,7 +152,8 @@ public enum CloudConnectionVerifier {
     /// Endpoint/account identity only: topic, prices and the on/off switch do not re-authenticate an account.
     public static func fingerprint(_ configuration: RecognitionConfiguration) -> String {
         let rows = configuration.enabledModels.sorted { $0.id.uuidString < $1.id.uuidString }.map {
-            [$0.id.uuidString, $0.provider.rawValue, $0.purpose.rawValue, $0.model, $0.region, $0.workspaceID, String($0.cloudConsent)]
+            [$0.id.uuidString, $0.provider.rawValue, $0.purpose.rawValue, $0.model, $0.region, $0.workspaceID,
+             String($0.cloudConsent), $0.credentialGeneration?.uuidString ?? "legacy-credential"]
         }
         let bytes = (try? JSONEncoder().encode(rows)) ?? Data()
         return SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()

@@ -61,6 +61,7 @@ struct CaptureCloudIntegrationTests {
                                        recognitionFactory: factory, update: { _, _ in }, failed: { _ in })
         try await worker.beginUtterance()
         let id = try #require(await worker.recordingID)
+        #expect(try await store.permitsAutomaticCloudRecovery(recordingID: id, configuration: config))
         let pcm = Data((0..<6_400).map { UInt8($0 % 251) })
         try await worker.append(pcm)
         let deadline = ContinuousClock.now.advanced(by: .seconds(5))

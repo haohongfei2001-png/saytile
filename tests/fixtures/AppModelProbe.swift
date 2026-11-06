@@ -150,16 +150,19 @@ private final class ConnectionControlFixture {
     var revocations = 0
     var saveCalls = 0
     var deleteCalls = 0
+    var mutationObservedCloudRuntime = false
     var dependencies: AppConnectionDependencies {
         AppConnectionDependencies(
             presence: { self.keys.contains($0.id) ? .saved : .missing },
             save: { value, item in
                 self.saveCalls += 1
+                self.mutationObservedCloudRuntime = self.mutationObservedCloudRuntime || self.runtimeCloud
                 guard !self.failSave, value == "simulator-fixture-credential" else { throw ProviderFailure.authorization }
                 self.keys.insert(item.id)
             },
             delete: { item in
                 self.deleteCalls += 1
+                self.mutationObservedCloudRuntime = self.mutationObservedCloudRuntime || self.runtimeCloud
                 guard !self.failDelete else { throw ProviderFailure.permission }
                 self.keys.remove(item.id)
             },
@@ -258,10 +261,32 @@ extension AppModelProbe {
         fixture.failSave = true
         try check(!model.saveCredential("simulator-fixture-credential", for: first) && !model.hasCredential(first),
                   "failed credential save does not claim saved or connected")
+        try check(model.recognitionConfiguration.models.first(where: { $0.id == first.id })?.credentialGeneration == nil,
+                  "failed credential save cannot change the account authorization generation")
         fixture.failSave = false
         for item in configuration.enabledModels {
             try check(model.saveCredential("simulator-fixture-credential", for: item), "fixture credential saved without Keychain access for " + item.provider.rawValue)
+            let generation = model.recognitionConfiguration.models.first(where: { $0.id == item.id })?.credentialGeneration
+            try check(generation != nil && model.appliedRecognitionConfiguration.models.first(where: { $0.id == item.id })?.credentialGeneration == generation &&
+                        RecognitionConfiguration.load(from: preferences).models.first(where: { $0.id == item.id })?.credentialGeneration == generation,
+                      "successful credential save persists a new opaque account generation in draft and runtime configuration for " + item.provider.rawValue)
         }
+        let savedGeneration = model.recognitionConfiguration.models.first(where: { $0.id == first.id })?.credentialGeneration
+        try check(model.saveCredential("simulator-fixture-credential", for: first) &&
+                    model.recognitionConfiguration.models.first(where: { $0.id == first.id })?.credentialGeneration != savedGeneration,
+                  "replacing a saved key rotates authorization even when the synthetic value is unchanged")
+        var staleItem = first; staleItem.id = UUID()
+        try check(!model.saveCredential("simulator-fixture-credential", for: staleItem) && !model.removeCredential(for: staleItem),
+                  "stale UI credential actions cannot mutate an untracked account identity")
+        staleItem = first; staleItem.provider = .meta
+        try check(!model.saveCredential("simulator-fixture-credential", for: staleItem) && !model.removeCredential(for: staleItem),
+                  "a stale provider editor cannot change another credential namespace")
+        let disabled = configuration.models.first(where: { !$0.enabled })!
+        try check(model.saveCredential("simulator-fixture-credential", for: disabled) &&
+                    model.recognitionConfiguration.models.first(where: { $0.id == disabled.id })?.credentialGeneration != nil &&
+                    RecognitionConfiguration.load(from: preferences).models.first(where: { $0.id == disabled.id })?.credentialGeneration ==
+                        model.recognitionConfiguration.models.first(where: { $0.id == disabled.id })?.credentialGeneration,
+                  "disabled services persist credential identity even when absent from connection fingerprints")
         try await until("local configuration drain") { !model.applyingRecognitionSettings }
         model.connectionCheckAuthorized = true; model.checkRecognitionConnections()
         try await until("simulated verification entry") { fixture.verificationContinuation != nil }
@@ -293,9 +318,19 @@ extension AppModelProbe {
                     preferences.data(forKey: "cloudConnectionReceipt.v1") != nil,
                   "TEST_ONLY live-shaped injected receipt exercises success-to-enable branch; no cloud call")
         fixture.failDelete = true
-        try check(!model.removeCredential(for: first) && model.hasCredential(first) && model.connectionVerified,
-                  "failed credential removal preserves the prior receipt and key metadata")
+        let beforeDeleteGeneration = model.recognitionConfiguration.models.first(where: { $0.id == first.id })?.credentialGeneration
+        try check(!model.removeCredential(for: first) && model.hasCredential(first) && !model.connectionVerified && !fixture.runtimeCloud,
+                  "failed credential removal preserves key metadata but keeps runtime local and receipt revoked")
+        try check(model.recognitionConfiguration.models.first(where: { $0.id == first.id })?.credentialGeneration == beforeDeleteGeneration,
+                  "failed credential removal preserves its authorization generation")
+        try check(!fixture.mutationObservedCloudRuntime,
+                  "cloud runtime is synchronously revoked before any credential mutation can expose another account")
         fixture.failDelete = false
+        try await until("failed credential removal local drain") { !model.applyingRecognitionSettings }
+        model.connectionCheckAuthorized = true; model.checkRecognitionConnections()
+        try await until("test-only reconnection after failed mutation") { fixture.verificationContinuation != nil }
+        try fixture.finish(.verified, live: true, completed: true)
+        try await until("reconnected test-only receipt applied") { !model.checkingConnection && !model.applyingRecognitionSettings }
         model.recognitionConfiguration.cloudEnabled = false; model.applyRecognitionSettings()
         try await until("explicit local mode applied") { !model.applyingRecognitionSettings }
         fixture.holdCloudApply = true
@@ -306,6 +341,10 @@ extension AppModelProbe {
         try check(model.removeCredential(for: first) && !fixture.runtimeCloud && !model.connectionVerified &&
                     !model.appliedRecognitionConfiguration.cloudEnabled && preferences.data(forKey: "cloudConnectionReceipt.v1") == nil,
                   "credential revocation synchronously stops an unpublished in-flight cloud apply")
+        let deletedGeneration = model.recognitionConfiguration.models.first(where: { $0.id == first.id })?.credentialGeneration
+        try check(deletedGeneration != nil && deletedGeneration != beforeDeleteGeneration &&
+                    RecognitionConfiguration.load(from: preferences).models.first(where: { $0.id == first.id })?.credentialGeneration == deletedGeneration,
+                  "successful key deletion durably changes account identity before any later connection")
         fixture.releaseApply(); fixture.holdCloudApply = false
         try await until("revoked apply drained") { !model.applyingRecognitionSettings }
         try check(!fixture.runtimeCloud && !model.appliedRecognitionConfiguration.cloudEnabled &&

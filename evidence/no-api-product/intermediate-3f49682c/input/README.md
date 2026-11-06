@@ -1,0 +1,12 @@
+# Final frozen-source input regression
+
+Runtime `3f49682c77c7c80beba3d2075c99ae32c0455c04`; source tree `44a2c0277b3b86a5a54bfc2ddb492584de477f4c`. The before/after identity receipts at `../app-model-input-identity.{before,after}.json` match exactly across 121 tracked runtime/fixture inputs. No production source changed during testing.
+
+- `../app-model.log`: **55 AppModel checks pass**, including the isolated connection lifecycle. The TEST_ONLY receipt admission branch remains controller evidence, not live-cloud verification.
+- `input-browser-dom.log`: **20 checks pass** using production Swift coordinator and SQLite with a test-only DOM adapter in headless Chromium 156.0.8078.4. Tests cover textarea/contenteditable UTF-16 insertion, stable-range deduplication, no replacement of selected text, page/composer/focus changes and no automatic sending. This does not certify native browser accessibility.
+- `input-native-coordinator.log`: **9 checks pass** using real AX against an invisible owned native text fixture and injected target selection. Existing prefix/suffix and selected ranges are preserved; cancellation and notifications invalidate unsafe work. No foreground resolver was run.
+- `input-webkit-observer.log`: **6/6 context observer/semantic checks pass**, plus bounded-tree/blank-context rejection and zero sends. The background WKWebView acknowledges AX writing without changing DOM text; Saytile marks this single attempt **unverified**, does not replay, and no successful browser insertion is claimed. Both native and WKWebView runs report unchanged foreground and no fixture activation.
+
+`receipt.json` records executable hashes, log hashes, runtime versions and boundaries. The DOM runner initially found no default Playwright 1254 executable, before any test executed. `browser-missing-executable.log` and the empty `browser-startup-empty.log` preserve that environment-only failure. The existing cached 1248 headless shell was then selected through the script's supported `SAYTILE_CHROMIUM_EXECUTABLE`, with no download, visible browser or user profile.
+
+Commands use `SAYTILE_MODEL_SCRATCH=/tmp/saytile-final-3f49682-model`, `SAYTILE_INPUT_SCRATCH=/tmp/saytile-final-3f49682-input`, final evidence output paths, existing Playwright `/tmp/saytile-rc-input/browser-tools`, `scripts/test-app-model.sh`, `scripts/test-input-browser.mjs`, and default `scripts/test-input-native.py`. Owned-range correction has a separate final receipt from the other agent and was not rerun here.

@@ -1,0 +1,37 @@
+{
+  "source_head": "3f49682c77c7c80beba3d2075c99ae32c0455c04",
+  "source_tree": "44a2c0277b3b86a5a54bfc2ddb492584de477f4c",
+  "source_input_digest": "cbcbd90c86dc74187fe428ea7b667e220659414c692435f0bc6c564ebcf7bada",
+  "source_unchanged": true,
+  "app_model_checks": 55,
+  "headless_dom_checks": 20,
+  "native_coordinator_checks": 9,
+  "webkit_observer_checks": "6/6",
+  "webkit_capability_rejections": 2,
+  "webkit_sends": 0,
+  "native_foreground_unchanged": true,
+  "webkit_foreground_unchanged": true,
+  "foreground_resolver_run": false,
+  "browser": "headless Chromium 156.0.8078.4",
+  "playwright": "1.65.0",
+  "browser_executable": "/Users/hhf/Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+  "startup_limitation": "Default Playwright executable1254 absent; startup failed before DOM tests. Existing1248 headless executable used via documented script env; no source/dependency change.",
+  "webkit_limitation": "Background AX setter acknowledged without text mutation; unverified, not replayed; no browser insertion success claimed.",
+  "scope": "Production coordinator+SQLite with isolated target selection/DOM adapter; no visible browser/profile, no user target, no foreground resolver, no real credentials, no microphone.",
+  "binary_sha256": {
+    "dom-coordinator-probe": "9f4f359501d2c2dcc7824f8fd4869427e1bc15f1a6ab182a69870394de04d192",
+    "AXTextFixture": "30451bf7fdfd66b283b004b9c9a3a9cbc55274220c243f7e502e4cc04e516005",
+    "AXCoordinatorProbe": "f8801340031c8fd0960141d28dee10f687ea48414ee19bdb2806e4cb336dc93e",
+    "AXWebFixture": "7af87d98bb0e655268d6d199ef3449564a45e747386fb14a43ef41e93d91ae13",
+    "AXWebCoordinatorProbe": "b82146f2273f31a668891fe4e2818d028e14f49c5807b400ed3d12dbfcb23dc8"
+  },
+  "log_sha256": {
+    "browser-missing-executable.log": "d26b617ee61c77d4f0b4434a0aa7d76428aacc733a1f9fa4060435e8ec8d573d",
+    "browser-run.log": "a4f014b1ad7da3a608470d152f2ecfde51f7f911e32b33ecd0414d154f36000d",
+    "browser-startup-empty.log": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "input-browser-dom.log": "a4f014b1ad7da3a608470d152f2ecfde51f7f911e32b33ecd0414d154f36000d",
+    "input-native-coordinator.log": "d3d3793d8fe4791e7b38979afc3721a8418c0a7f290bd419baafa0cd8d931c3b",
+    "input-webkit-observer.log": "568109f993dcd783356d48d3ed3b2b14b9dca21a213e599e52074bfbd58f40ec",
+    "native-run.log": "e5678c129caaf9f6b744ab818998a49943a21bfdac0fa49ec2361ba7fa2fe6cb"
+  }
+}

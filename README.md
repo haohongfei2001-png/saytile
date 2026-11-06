@@ -1,4 +1,4 @@
-> 当前开发候选：`1.0.0-rc.2-no-api.1`，唯一接续 [PR #6](https://github.com/haohongfei2001-png/saytile/pull/6)。双平等专家 + 唯一 GPT 文字流、原生受控连接向导正在完成统一交付；当前进度见 [V1-DEV-STATUS](docs/V1-DEV-STATUS.md)。main/已安装 RC1 未改，尚未进行真实云端和准确率验收。
+> 当前开发候选：`1.0.0-rc.2-no-api.2`，唯一接续 [PR #6](https://github.com/haohongfei2001-png/saytile/pull/6)。双平等专家 + 唯一 GPT 文字流、原生受控连接向导正在完成统一交付；当前进度见 [V1-DEV-STATUS](docs/V1-DEV-STATUS.md)。main/已安装 RC1 未改，尚未进行真实云端和准确率验收。
 
 # Saytile
 

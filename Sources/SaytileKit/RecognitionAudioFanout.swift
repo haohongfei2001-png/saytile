@@ -69,6 +69,12 @@ final class RecognitionSessionFactory: @unchecked Sendable {
     struct Snapshot: Sendable {
         let configuration: RecognitionConfiguration
         fileprivate let generation: UInt64
+        /// Restrict this exact settings generation without observing newer cloud consent.
+        var localOnly: Self {
+            var restricted = configuration
+            restricted.cloudEnabled = false
+            return Self(configuration: restricted, generation: generation)
+        }
     }
     private let lock = NSLock()
     private var value: RecognitionConfiguration
@@ -84,6 +90,7 @@ final class RecognitionSessionFactory: @unchecked Sendable {
     var snapshot: Snapshot { lock.withLock { Snapshot(configuration: value, generation: generation) } }
     var configuration: RecognitionConfiguration { snapshot.configuration }
     var usesCloud: Bool { configuration.cloudEnabled }
+    func localAvailability() async -> SpeechAvailability { await local.availability() }
     func update(_ config: RecognitionConfiguration) {
         lock.withLock {
             // Fence old work before a caller can observe/admit the new snapshot.
@@ -102,7 +109,7 @@ final class RecognitionSessionFactory: @unchecked Sendable {
                     message: "识别设置已更新，本段原音继续保存，等待使用新设置恢复。")
             }
             let config = accepted.configuration
-            guard config.cloudEnabled else { return LiveSpeechSession(store: store, ticket: ticket) }
+            guard config.cloudEnabled else { return local.make(store, ticket) }
             guard active < 8 else { return DeferredRecognitionSession(store: store, ticket: ticket) }
             active += 1
             let (cloud, probe) = epoch.admitCloud()

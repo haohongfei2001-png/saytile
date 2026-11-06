@@ -227,7 +227,9 @@ struct RecordDetailView: View {
             }
             HStack {
                 Button(model.playingID == item.id ? "停止" : "回听") { model.play(item) }.disabled(!item.hasAudio)
-                Button("重新识别") { model.retry(item) }.disabled(!item.hasAudio || item.isRecording)
+                Button(model.appliedRecognitionConfiguration.cloudEnabled ? "用云端重新识别" : "本机重新识别") { model.retry(item) }
+                    .help(model.appliedRecognitionConfiguration.cloudEnabled ? "仅将这段原音交给当前已授权的服务重新识别" : "仅在这台 Mac 上处理这段原音")
+                    .disabled(!item.hasAudio || item.isRecording)
                 Button("复制") { model.copy(model.editorDraft) }
             }.buttonStyle(QuietButton())
             HStack {

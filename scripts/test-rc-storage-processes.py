@@ -36,7 +36,8 @@ def snapshot(directory):
     with sqlite3.connect(directory/'Saytile.sqlite') as db:
         tables = [row[0] for row in db.execute("select name from sqlite_master where type='table' order by name")]
         data = {name: db.execute('select * from "'+name+'" order by rowid').fetchall() for name in tables}
-        return {'schema': db.execute('pragma user_version').fetchone()[0], 'tables': data,
+        columns = {name: [row[1] for row in db.execute('pragma table_info("'+name+'")')] for name in tables}
+        return {'schema': db.execute('pragma user_version').fetchone()[0], 'tables': data, 'columns': columns,
                 'audio': {str(p.relative_to(directory)):hashlib.sha256(p.read_bytes()).hexdigest()
                           for p in sorted((directory/'Audio').rglob('*')) if p.is_file()}}
 
@@ -71,14 +72,19 @@ with tempfile.TemporaryDirectory(prefix='process-fixtures-',dir=SCRATCH) as tmp:
         shutil.copytree(upgrade,backup)  # stopped, disposable fixture only; no production backup is taken
         run('probe','verify',upgrade)
         after=snapshot(upgrade)
-        assert before['schema']==(1 if baseline=='beta' else 2) and after['schema']==4
-        assert all(after['tables'][name]==rows for name,rows in before['tables'].items())
+        assert before['schema']==(1 if baseline=='beta' else 2) and after['schema']==5
+        # Schema 5 adds a recording upload-consent table. Compare every old
+        # column/row exactly while allowing explicit schema additions.
+        for name,rows in before['tables'].items():
+            indices=[after['columns'][name].index(column) for column in before['columns'][name]]
+            assert [tuple(row[index] for index in indices) for row in after['tables'][name]] == rows
+        assert after['tables']['recording_cloud_authorizations'] == [], 'Legacy audio must not gain cloud upload authorization'
         assert before['audio']==after['audio']
-        checks.append('actual_'+baseline+'_to_schema4_preserves_all_existing_tables_and_audio')
+        checks.append('actual_'+baseline+'_to_schema5_preserves_all_existing_columns_rows_and_audio')
         if baseline=='rc1':
             rejected=run('rc1-probe','open',upgrade,False)
             assert '资料库来自更新版本' in rejected.stdout and snapshot(upgrade)==after
-            checks.append('released_rc1_refuses_schema4_without_content_change')
+            checks.append('released_rc1_refuses_schema5_without_content_change')
             restored=parent/'explicit-rollback-restore'
             shutil.copytree(backup,restored)
             run('rc1-probe','open',restored)

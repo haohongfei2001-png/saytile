@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "checks": [
+    "seeded_using_actual_released_baseline_storage_source",
+    "released_app_installed_signed_and_started_on_seeded_data",
+    "candidate_upgrade_preserves_records_versions_drafts_dispatches_and_audio",
+    "released_rc1_app_refuses_new_schema_without_changing_content",
+    "explicit_preupgrade_snapshot_restores_rc1_without_overwriting_candidate_data",
+    "three_normal_restarts_preserve_data_and_uncertain_dispatch",
+    "second_packaged_process_rejected_without_modal_prompt",
+    "restart_after_forced_process_exit_retains_upgrade_data"
+  ],
+  "count": 8,
+  "startup_timings": [
+    {
+      "previous_startup_seconds": 0.559
+    },
+    {
+      "candidate_startup_seconds": 0.443
+    },
+    {
+      "rc_restart_seconds": 0.226
+    },
+    {
+      "rc_restart_seconds": 0.292
+    },
+    {
+      "rc_restart_seconds": 0.237
+    }
+  ],
+  "source_revision": "3f49682c77c7c80beba3d2075c99ae32c0455c04",
+  "release_version": "1.0.0-rc.2-no-api.1",
+  "binary_sha256": "c66cc6951a6bd01987ffdcdc6c665583b6d576ad405a8ca3537f242f42fa5476",
+  "expected_source_revision": "3f49682c77c7c80beba3d2075c99ae32c0455c04",
+  "expected_release_version": "1.0.0-rc.2-no-api.1",
+  "expected_binary_sha256": "c66cc6951a6bd01987ffdcdc6c665583b6d576ad405a8ca3537f242f42fa5476",
+  "held_candidate_preferences_isolated": true,
+  "baseline_ref": "v1.0.0-rc.1",
+  "baseline_app_source_revision": "8906a9dc4b2ec186f634bb2c829d8eb0c1700679",
+  "baseline_app_release_version": "1.0.0-rc.1",
+  "baseline_binary_sha256": "18e6e5ad445547a2179d32bf0d4b9589c73d3e45060f9978f8588605f32f3656",
+  "baseline_revision": "a352a1c812c33388a1a908f21ecde30da80ad1cd",
+  "previous_dmg_sha256": "fb001a8ad0c107570acc6d263e590e49eb5bb9827d617e30c72cbaa4c247ed2a",
+  "dmg_sha256": "1b82f7f63269ad7cf28b2d3763e7f6e85b855334b3856c0fe7afe487a3b10361",
+  "scope": "Readonly DMG signature, explicit candidate source/version/binary identity, independent installation, actual released app and candidate startup/upgrade, exact synthetic content/audio comparison, explicit copy rollback and duplicate-instance rejection; held candidate has ephemeral preferences with no cloud/recovery/shortcut/window; no real user database or microphone"
+}

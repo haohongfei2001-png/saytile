@@ -268,22 +268,55 @@ final class AppModel: ObservableObject {
         connectionDependencies.presence(item)
     }
     @discardableResult func saveCredential(_ value: String, for item: ModelConfiguration) -> Bool {
-        guard !preparingForExit, !exitPrepared else { return false }
+        guard canChangeCredential(item) else { return false }
+        guard !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            recognitionSettingsNotice = CloudCredentialError.empty.localizedDescription; return false
+        }
+        // Fence concurrent readers before the Keychain can expose a new account.
+        // Even a failed mutation stays local until an explicit connection check.
+        invalidateConnectionVerification()
         do {
             try connectionDependencies.save(value, item)
-            invalidateConnectionVerification()
+            rotateCredentialGeneration(for: item)
             recognitionSettingsNotice = "\(item.purpose.label)的密钥已安全保存。"
             return true
         } catch { recognitionSettingsNotice = error.localizedDescription; return false }
     }
     @discardableResult func removeCredential(for item: ModelConfiguration) -> Bool {
-        guard !preparingForExit, !exitPrepared else { return false }
+        guard canChangeCredential(item) else { return false }
+        invalidateConnectionVerification()
         do {
             try connectionDependencies.delete(item)
-            invalidateConnectionVerification()
+            rotateCredentialGeneration(for: item)
             recognitionSettingsNotice = "该服务密钥已移除。"
             return true
         } catch { recognitionSettingsNotice = error.localizedDescription; return false }
+    }
+    private func canChangeCredential(_ item: ModelConfiguration) -> Bool {
+        guard !preparingForExit, !exitPrepared else { return false }
+        guard recognitionConfiguration.models.contains(where: { $0.id == item.id && $0.provider == item.provider }),
+              appliedRecognitionConfiguration.models.contains(where: { $0.id == item.id }) else {
+            recognitionSettingsNotice = "服务设置已更新，请重新打开该服务的密钥设置。"
+            return false
+        }
+        return true
+    }
+    private func rotateCredentialGeneration(for item: ModelConfiguration) {
+        let generation = UUID()
+        // Persist via the applied local snapshot before the draft's observer can
+        // save it. Otherwise restarting could restore the previous account scope.
+        for index in appliedRecognitionConfiguration.models.indices where appliedRecognitionConfiguration.models[index].id == item.id {
+            appliedRecognitionConfiguration.models[index].credentialGeneration = generation
+        }
+        let previousFingerprint = CloudConnectionVerifier.fingerprint(recognitionConfiguration)
+        for index in recognitionConfiguration.models.indices where recognitionConfiguration.models[index].id == item.id {
+            recognitionConfiguration.models[index].credentialGeneration = generation
+        }
+        // Disabled services are absent from the receipt fingerprint but still need
+        // durable generations, and must supersede the pending pre-mutation apply.
+        if previousFingerprint == CloudConnectionVerifier.fingerprint(recognitionConfiguration) {
+            invalidateConnectionVerification()
+        }
     }
     func applyRecognitionSettings() {
         guard !preparingForExit, !exitPrepared, !applyingRecognitionSettings, !checkingConnection else { return }
@@ -568,7 +601,10 @@ final class AppModel: ObservableObject {
         await refresh(); await loadVersions(item.id)
     }
     func pin(_ item: DisplayRecording) { perform { try await self.store.setPinned(recordingID: item.id, pinned: !item.pinned); await self.refresh() } }
-    func retry(_ item: DisplayRecording) { Task { await audio.retry(recordingID: item.id); await refresh() } }
+    func retry(_ item: DisplayRecording) {
+        let shownConfiguration = appliedRecognitionConfiguration
+        Task { await audio.retry(recordingID: item.id, expectedConfiguration: shownConfiguration); await refresh() }
+    }
     func play(_ item: DisplayRecording) {
         perform {
             if self.audio.playingID == item.id { self.audio.stopPlayback() }

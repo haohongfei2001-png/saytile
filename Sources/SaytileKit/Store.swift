@@ -27,7 +27,7 @@ public actor SaytileStore {
         let database = try StoreDatabase(url:self.directory.appendingPathComponent("Saytile.sqlite"))
         db = database
         let version = try database.rows("PRAGMA user_version").first?["user_version"] ?? "0"
-        guard version == "0" || version == "1" || version == "2" || version == "3" || version == "4" else { throw StoreError.database("资料库来自更新版本，请升级 Saytile。") }
+        guard version == "0" || version == "1" || version == "2" || version == "3" || version == "4" || version == "5" else { throw StoreError.database("资料库来自更新版本，请升级 Saytile。") }
         try database.configureForWriting()
         // DDL, index upgrades and version advancement commit together or roll back together.
         try database.transaction { try database.script(Self.schema) }
@@ -60,6 +60,33 @@ public actor SaytileStore {
     }
     public func recording(id: UUID) throws -> Recording? {
         try db.rows(Self.selection + " WHERE r.id=? AND r.deleted=0",[.text(id.uuidString)]).first.map(Self.decodeRecording)
+    }
+
+    /// Call for newly captured cloud-authorized audio or an explicit saved-audio
+    /// cloud retry. Never infer permission from current credentials or old runs.
+    public func authorizeCloudRecovery(recordingID: UUID, configuration: RecognitionConfiguration) throws {
+        guard try requireRecording(recordingID).audioState == .available else { throw StoreError.audioUnavailable }
+        let scopes = try RecordingCloudAuthorizationScope.required(for: configuration)
+        let keys = try scopes.map { try $0.storageKey }
+        try db.transaction {
+            for key in keys {
+                try db.execute("INSERT OR IGNORE INTO recording_cloud_authorizations(recording_id,scope,authorized_at) VALUES(?,?,?)",
+                    [.text(recordingID.uuidString), .text(key), .double(Date().timeIntervalSince1970)])
+            }
+        }
+    }
+
+    /// Existing/legacy recordings have no rows and remain local. All currently
+    /// active destinations must be covered; a subset or reordering is harmless.
+    public func permitsAutomaticCloudRecovery(recordingID: UUID, configuration: RecognitionConfiguration) throws -> Bool {
+        guard try requireRecording(recordingID).audioState == .available else { return false }
+        let scopes: Set<RecordingCloudAuthorizationScope>
+        do { scopes = try RecordingCloudAuthorizationScope.required(for: configuration) }
+        catch { return false }
+        let required = try Set(scopes.map { try $0.storageKey })
+        let authorized = Set(try db.rows("SELECT scope FROM recording_cloud_authorizations WHERE recording_id=?",
+            [.text(recordingID.uuidString)]).compactMap { $0["scope"] })
+        return !required.isEmpty && required.isSubset(of: authorized)
     }
     public func listRecordings(query: String = "", limit: Int = 200, offset: Int = 0, filter: RecordingFilter = .all) throws -> [Recording] {
         let filterSQL: String
@@ -420,6 +447,7 @@ public actor SaytileStore {
             try db.execute("UPDATE recordings SET audio_state='deletePending',audio_epoch=audio_epoch+1,active_attempt=NULL,recognition_state='cancelled' WHERE id=? AND audio_state<>'deleted'",[.text(id.uuidString)])
             try db.execute("DELETE FROM recovery_attempts WHERE recording_id=?",[.text(id.uuidString)])
             if deleteRecord {
+                try db.execute("DELETE FROM recording_cloud_authorizations WHERE recording_id=?", [.text(id.uuidString)])
                 try db.execute("DELETE FROM owned_corrections WHERE recording_id=?", [.text(id.uuidString)])
                 try db.execute("DELETE FROM owned_correction_heads WHERE recording_id=?", [.text(id.uuidString)])
                 try db.execute("DELETE FROM owned_input_ranges WHERE recording_id=?", [.text(id.uuidString)])
@@ -659,6 +687,10 @@ extension SaytileStore {
     CREATE TABLE IF NOT EXISTS editing_drafts(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),text TEXT NOT NULL,updated_at REAL NOT NULL);
     CREATE TABLE IF NOT EXISTS frozen_revisions(revision_id TEXT PRIMARY KEY REFERENCES revisions(id));
     CREATE TABLE IF NOT EXISTS recovery_attempts(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),attempt_count INTEGER NOT NULL CHECK(attempt_count>=0),retry_after REAL NOT NULL);
+    CREATE TABLE IF NOT EXISTS recording_cloud_authorizations(
+      recording_id TEXT NOT NULL REFERENCES recordings(id) ON DELETE CASCADE,
+      scope TEXT NOT NULL,authorized_at REAL NOT NULL,PRIMARY KEY(recording_id,scope)
+    );
     CREATE TABLE IF NOT EXISTS erasures(recording_id TEXT PRIMARY KEY,created_at REAL NOT NULL,completed INTEGER NOT NULL DEFAULT 0);
     CREATE TABLE IF NOT EXISTS bindings(id TEXT PRIMARY KEY,label TEXT NOT NULL,active INTEGER NOT NULL,created_at REAL NOT NULL);
     CREATE TABLE IF NOT EXISTS binding_boundaries(binding_id TEXT PRIMARY KEY REFERENCES bindings(id),recording_rowid INTEGER NOT NULL);
@@ -729,7 +761,7 @@ extension SaytileStore {
     CREATE INDEX IF NOT EXISTS candidates_recording ON recognition_candidates(recording_id,created_at);
     CREATE INDEX IF NOT EXISTS decisions_recording ON fusion_decisions(recording_id,created_at);
     CREATE INDEX IF NOT EXISTS usage_recording ON model_usage(recording_id,created_at);
-    PRAGMA user_version=4;
+    PRAGMA user_version=5;
     """
 }
 

@@ -38,6 +38,8 @@ struct RecognitionSettingsSection: View {
             Toggle("连接中断后从已保存原音自动恢复", isOn: $model.recognitionConfiguration.automaticRecovery)
                 .accessibilityIdentifier("recognition.automaticRecovery")
                 .disabled(!allowsAutomaticRecovery)
+            Text("以前仅在本机处理的原音仍在本机恢复。更换服务、地区或密钥不会自动上传旧档案；需要时可在档案中选择用云端重新识别。")
+                .font(.system(size: 11)).foregroundStyle(Palette.muted)
             Text("每项服务独立授权。启用后，语音或必要候选文字将交给所选服务处理，费用由你的服务商账户承担。")
                 .font(.system(size: 11)).foregroundStyle(Palette.muted)
             Button(model.applyingRecognitionSettings ? "正在应用…" : "保存并应用识别设置", action: model.applyRecognitionSettings)

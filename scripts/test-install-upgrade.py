@@ -21,7 +21,8 @@ def run(args, expected=0, timeout=60):
 
 def snapshot(directory):
     with sqlite3.connect(directory/'Saytile.sqlite') as db:
-        return {'records':db.execute('select id,preferred_revision,pinned,audio_state,is_recording from recordings order by id').fetchall(),'versions':db.execute('select id,recording_id,text from revisions order by id').fetchall(),'drafts':db.execute('select recording_id,text from editing_drafts').fetchall(),'dispatches':db.execute('select id,state,text from dispatches').fetchall(),'integrity':db.execute('pragma quick_check').fetchone()[0],'schema':db.execute('pragma user_version').fetchone()[0], 'audio':{str(x.relative_to(directory)):hashlib.sha256(x.read_bytes()).hexdigest() for x in (directory/'Audio').rglob('*') if x.is_file()}}
+        cloud_authorizations = db.execute('select * from recording_cloud_authorizations order by recording_id').fetchall() if db.execute("select 1 from sqlite_master where type='table' and name='recording_cloud_authorizations'").fetchone() else None
+        return {'records':db.execute('select id,preferred_revision,pinned,audio_state,is_recording from recordings order by id').fetchall(),'versions':db.execute('select id,recording_id,text from revisions order by id').fetchall(),'drafts':db.execute('select recording_id,text from editing_drafts').fetchall(),'dispatches':db.execute('select id,state,text from dispatches').fetchall(),'integrity':db.execute('pragma quick_check').fetchone()[0],'schema':db.execute('pragma user_version').fetchone()[0], 'cloud_authorizations':cloud_authorizations, 'audio':{str(x.relative_to(directory)):hashlib.sha256(x.read_bytes()).hexdigest() for x in (directory/'Audio').rglob('*') if x.is_file()}}
 
 def app_start(app,data):
     start=time.monotonic(); r=run([app/'Contents/MacOS/Saytile','--data-directory',data,'--smoke-test'],timeout=30)
@@ -66,7 +67,8 @@ with tempfile.TemporaryDirectory(prefix='saytile-install-upgrade-') as temp:
             backup=temp/'pre-upgrade-data';shutil.copytree(data,backup)
             checks.append('released_app_installed_signed_and_started_on_seeded_data')
         else:
-            after=snapshot(data);assert before['schema']==expected_schema and after['schema']==4
+            after=snapshot(data);assert before['schema']==expected_schema and after['schema']==5
+            assert after['cloud_authorizations'] == [], 'Upgrade must not authorize existing audio for upload'
             assert all(after[k]==before[k] for k in ('records','versions','drafts','dispatches','audio'))
             assert after['integrity']=='ok';checks.append('candidate_upgrade_preserves_records_versions_drafts_dispatches_and_audio')
     if expected_schema==2:

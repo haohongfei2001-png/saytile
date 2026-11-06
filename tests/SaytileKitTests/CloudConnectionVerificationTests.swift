@@ -11,6 +11,8 @@ private final class ConnectionCheckProbe: @unchecked Sendable {
     private var contexts: [String] = []
     private var snapshots: [CloudConnectionReport] = []
     private var fallbacks = 0
+    private var firstStart: ContinuousClock.Instant?
+    private var lastStop: ContinuousClock.Instant?
     var readCount: Int { lock.withLock { reads } }
     var startCount: Int { lock.withLock { starts.count } }
     var stoppedCount: Int { lock.withLock { stopped.count } }
@@ -25,9 +27,14 @@ private final class ConnectionCheckProbe: @unchecked Sendable {
     var observedContexts: [String] { lock.withLock { contexts } }
     var reports: [CloudConnectionReport] { lock.withLock { snapshots } }
     var fallbackCount: Int { lock.withLock { fallbacks } }
+    var providerTiming: (firstStart: ContinuousClock.Instant?, lastStop: ContinuousClock.Instant?) {
+        lock.withLock { (firstStart, lastStop) }
+    }
     func read() { lock.withLock { reads += 1 } }
-    func start(_ item: ModelConfiguration) { lock.withLock { starts.append(item.provider); contexts.append(item.context) } }
-    func stop(_ provider: CloudProvider) { lock.withLock { stopped.append(provider) } }
+    func start(_ item: ModelConfiguration) {
+        lock.withLock { if firstStart == nil { firstStart = .now }; starts.append(item.provider); contexts.append(item.context) }
+    }
+    func stop(_ provider: CloudProvider) { lock.withLock { stopped.append(provider); lastStop = .now } }
     func sent(_ data: Data) { lock.withLock { bodies.append(data) } }
     func update(_ report: CloudConnectionReport) { lock.withLock { snapshots.append(report) } }
     func fallback(_ context: String, item: ModelConfiguration) {
@@ -225,7 +232,7 @@ struct CloudConnectionVerificationTests {
         var sameAccount = config
         sameAccount.cloudEnabled = true; sameAccount.topicContext = "new local topic"; sameAccount.automaticRecovery = false
         #expect(report.matches(sameAccount))
-        for field in ["id", "model", "region", "workspace", "consent", "enabled"] {
+        for field in ["id", "model", "region", "workspace", "consent", "enabled", "credential"] {
             var changed = config
             switch field {
             case "id": changed.models[0].id = UUID()
@@ -233,6 +240,7 @@ struct CloudConnectionVerificationTests {
             case "region": changed.models[0].region = "ap-southeast-1"
             case "workspace": changed.models[0].workspaceID = "other-owned-workspace"
             case "consent": changed.models[0].cloudConsent = false
+            case "credential": changed.models[0].credentialGeneration = UUID()
             default: changed.models[0].enabled = false
             }
             #expect(!report.matches(changed))
@@ -308,6 +316,10 @@ struct CloudConnectionVerificationTests {
     }
 
     @Test func deadlineAndExplicitCancellationEndOwnedProviders() async throws {
+        func seconds(_ duration: Duration) -> Double {
+            let parts = duration.components
+            return Double(parts.seconds) + Double(parts.attoseconds) / 1e18
+        }
         for explicit in [false, true] {
             let probe = ConnectionCheckProbe(), config = configuration(), client = transport(probe, silent: true)
             let began = ContinuousClock.now
@@ -315,9 +327,15 @@ struct CloudConnectionVerificationTests {
                 try await CloudConnectionVerifier.run(configuration: config, authorized: true, pcm: Data(repeating: 0, count: 640),
                     transport: client, deadline: explicit ? .seconds(2) : .milliseconds(40), paced: false, progress: { probe.update($0) })
             }
+            defer { task.cancel() }
+            var cancelRequestedAt: ContinuousClock.Instant?
             if explicit {
-                while probe.startCount < 2 && began.duration(to: .now) < .seconds(2) { try await Task.sleep(for: .milliseconds(2)) }
+                // SQLite creation and runner scheduling precede the production
+                // watchdog. They are setup, not cancellation latency.
+                while probe.startCount < 2 && began.duration(to: .now) < .seconds(10) { try await Task.sleep(for: .milliseconds(2)) }
                 #expect(probe.startCount == 2)
+                #expect(probe.stoppedCount == 0)
+                cancelRequestedAt = .now
                 task.cancel()
                 await #expect(throws: CancellationError.self) { try await task.value }
             } else {
@@ -328,7 +346,11 @@ struct CloudConnectionVerificationTests {
                 #expect(report.elapsedSeconds >= 0.040)
                 #expect(report.services.contains { $0.code == "cancelled" })
             }
-            #expect(began.duration(to: .now) < .seconds(2))
+            let timing = probe.providerTiming
+            let firstStarted = try #require(timing.firstStart), lastStopped = try #require(timing.lastStop)
+            let stopAnchor = cancelRequestedAt ?? firstStarted
+            #expect(stopAnchor.duration(to: lastStopped) >= .zero)
+            #expect(stopAnchor.duration(to: lastStopped) < .seconds(2))
             // A watchdog may cancel before the second provider starts. The owner
             // must drain every provider that did start, not start extra work just
             // to satisfy an expected total of two.
@@ -338,7 +360,7 @@ struct CloudConnectionVerificationTests {
             try await Task.sleep(for: .milliseconds(50))
             let settled = probe.lifecycle
             #expect(settled.started == ended.started && settled.stopped == ended.stopped && settled.active == 0 && settled.balanced)
-            print("CONNECTION_LIFECYCLE mode=\(explicit ? "explicit-cancel" : "deadline") started=\(settled.started) stopped=\(settled.stopped) active=\(settled.active) per_provider_balanced=\(settled.balanced)")
+            print("CONNECTION_LIFECYCLE mode=\(explicit ? "explicit-cancel" : "deadline") started=\(settled.started) stopped=\(settled.stopped) active=\(settled.active) per_provider_balanced=\(settled.balanced) setup_seconds=\(seconds(began.duration(to: firstStarted))) stop_anchor=\(explicit ? "cancel-request" : "first-provider-start") stop_seconds=\(seconds(stopAnchor.duration(to: lastStopped))) total_seconds=\(seconds(began.duration(to: .now)))")
         }
     }
 }

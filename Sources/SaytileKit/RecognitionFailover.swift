@@ -155,7 +155,14 @@ final class FailoverRecognitionSession: RecognitionSession, @unchecked Sendable 
         }
         var scoped = dependencies
         scoped.credential = { item in
-            do { try epoch.check(); return try dependencies.credential(item) }
+            do {
+                try epoch.check()
+                let credential = try dependencies.credential(item)
+                // Keychain reads may already be in flight when settings revoke
+                // this epoch. Never hand a newly replaced key to old work.
+                try epoch.check()
+                return credential
+            }
             catch { report(error); throw error }
         }
         scoped.streaming = { provider in

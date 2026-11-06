@@ -61,7 +61,9 @@ import Darwin
             } catch StoreError.bindingInvalid { print("PASS old binding invalid") }
             let db = try StoreDatabase(url:root.appendingPathComponent("Saytile.sqlite"))
             try check(try db.rows("PRAGMA quick_check").first?["quick_check"] == "ok","SQLite integrity")
-            try check(try db.rows("PRAGMA user_version").first?["user_version"] == "4","schema upgrade committed")
+            try check(try db.rows("PRAGMA user_version").first?["user_version"] == "5","schema upgrade committed")
+            try check(try db.rows("SELECT COUNT(*) AS n FROM recording_cloud_authorizations").first?["n"] == "0",
+                      "local and legacy recordings have no implicit cloud upload grants")
         case "verify-delete":
             try await store.recoverPendingDeletions()
             let saved = try readReceipt(root),id = UUID(uuidString:saved["record"]!)!

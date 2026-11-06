@@ -4,7 +4,7 @@ cd "$(dirname "$0")/.."
 SAYTILE_STORAGE_SCRATCH="${SAYTILE_STORAGE_SCRATCH:-/tmp/saytile-rc-storage}"
 SAYTILE_STORAGE_OUTPUT="${SAYTILE_STORAGE_OUTPUT:-evidence/no-api-product/storage-scale}"
 mkdir -p "$SAYTILE_STORAGE_SCRATCH" "$SAYTILE_STORAGE_OUTPUT"
-# Compile the same complete package as the app; schema 4 is not a standalone
+# Compile the same complete package as the app; schema 5 is not a standalone
 # four-file Store any more. Match test-rc-storage-processes.py's static-library path.
 swift build --product SaytileKit --scratch-path "$SAYTILE_STORAGE_SCRATCH/build" -Xswiftc -enable-testing
 SAYTILE_STORAGE_BIN="$(swift build --product SaytileKit --scratch-path "$SAYTILE_STORAGE_SCRATCH/build" -Xswiftc -enable-testing --show-bin-path)"

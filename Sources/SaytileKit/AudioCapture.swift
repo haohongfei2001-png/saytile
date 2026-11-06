@@ -119,6 +119,9 @@ actor CaptureWorker {
         }
     }
     func beginUtterance() async throws {
+        // A settings change during journal creation must not grant new destinations
+        // to audio that began under a local-only or older consent configuration.
+        let snapshot = recognitionFactory.snapshot
         let record = try await store.createRecording()
         recordingID = record.id
         do {
@@ -132,8 +135,10 @@ actor CaptureWorker {
         // Recognition setup cannot terminate the independent recorder.
         do {
             guard recognitionEnabled else { return }
-            let snapshot = recognitionFactory.snapshot
             let config = snapshot.configuration
+            if config.cloudEnabled {
+                try await store.authorizeCloudRecovery(recordingID: record.id, configuration: config)
+            }
             let ticket = try await (config.cloudEnabled
                 ? store.beginFusionRecognition(recordingID: record.id, mode: config.inputMode)
                 : store.beginRecognition(recordingID: record.id))
@@ -270,9 +275,13 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     private var startupRecoveryReady: Bool
     private var meterTask: Task<Void, Never>?
     private var meterContinuation: AsyncStream<(Bool, Float)>.Continuation?
-    public init(store: SaytileStore, recognitionConfiguration: RecognitionConfiguration = RecognitionConfiguration(), startupRecoveryReady: Bool = true) {
+    public convenience init(store: SaytileStore, recognitionConfiguration: RecognitionConfiguration = RecognitionConfiguration(), startupRecoveryReady: Bool = true) {
+        self.init(store: store, recognitionFactory: RecognitionSessionFactory(configuration: recognitionConfiguration),
+                  startupRecoveryReady: startupRecoveryReady)
+    }
+    init(store: SaytileStore, recognitionFactory: RecognitionSessionFactory, startupRecoveryReady: Bool = true) {
         self.startupRecoveryReady = startupRecoveryReady
-        self.store = store; self.recognitionFactory = RecognitionSessionFactory(configuration: recognitionConfiguration)
+        self.store = store; self.recognitionFactory = recognitionFactory
         super.init(); refreshDevices()
         let center = NSWorkspace.shared.notificationCenter
         observers.append(center.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
@@ -626,9 +635,25 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         startupRecoveryReady && !isShuttingDown && lifecycleGate.permitsCapture && playingID == nil && retryTask == nil &&
         (state == .paused || (state == .listening && Date().timeIntervalSince(lastVoiceAt) >= 5))
     }
-    public func retry(recordingID: UUID, isAutomatic: Bool = false) async {
+    public func retry(recordingID: UUID, isAutomatic: Bool = false,
+                      expectedConfiguration: RecognitionConfiguration? = nil) async {
         guard !isShuttingDown else { return }
-        if !isAutomatic { try? await store.resetRecognitionRetry(recordingID: recordingID) }
+        // Capture the explicit action's destinations before any suspension. An
+        // automatic job can only reuse persisted per-recording authorization.
+        let currentSnapshot = recognitionFactory.snapshot
+        // The UI captures its applied configuration at the click. A queued task
+        // cannot silently acquire different cloud destinations before it starts.
+        let requestedSnapshot = expectedConfiguration == nil || expectedConfiguration == currentSnapshot.configuration
+            ? currentSnapshot : currentSnapshot.localOnly
+        if !isAutomatic {
+            do {
+                if requestedSnapshot.configuration.cloudEnabled {
+                    try await store.authorizeCloudRecovery(recordingID: recordingID, configuration: requestedSnapshot.configuration)
+                }
+                try await store.resetRecognitionRetry(recordingID: recordingID)
+            } catch { issue = error.localizedDescription; return }
+        }
+        guard !isShuttingDown else { return }
         if state == .speaking || state == .starting {
             try? await store.queueRecognition(recordingID: recordingID)
             if isAutomatic { try? await store.releaseRecoveryClaim(recordingID: recordingID) }
@@ -642,13 +667,26 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             var lease: UUID?
             var session: (any RecognitionSession)?
             do {
+                try Task.checkCancellation()
+                let authorized = try await store.permitsAutomaticCloudRecovery(recordingID: recordingID,
+                    configuration: requestedSnapshot.configuration)
+                let snapshot = authorized ? requestedSnapshot : requestedSnapshot.localOnly
+                let config = snapshot.configuration
+                if isAutomatic && !config.cloudEnabled {
+                    let availability = await recognitionFactory.localAvailability()
+                    try Task.checkCancellation()
+                    guard availability.installed else {
+                        try await store.releaseRecoveryClaim(recordingID: recordingID)
+                        return
+                    }
+                }
+                try Task.checkCancellation()
                 lease = try await store.acquireAudioLease(recordingID: recordingID)
                 let chunks = try await store.audioChunks(recordingID: recordingID)
-                let snapshot = recognitionFactory.snapshot
-                let config = snapshot.configuration
                 let ticket = try await (config.cloudEnabled
                     ? store.beginFusionRecognition(recordingID: recordingID, mode: config.inputMode)
                     : store.beginRecognition(recordingID: recordingID))
+                try Task.checkCancellation()
                 let activeSession = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot)
                 session = activeSession
                 for chunk in chunks {

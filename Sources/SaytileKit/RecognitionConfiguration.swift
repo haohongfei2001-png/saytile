@@ -56,6 +56,10 @@ public struct ModelConfiguration: Identifiable, Codable, Sendable, Equatable {
     public var model: String
     public var enabled: Bool
     public var cloudConsent: Bool
+    /// Opaque account-authorization identity. Never derived from credential bytes.
+    /// Legacy configurations decode missing values as nil; successful key changes
+    /// rotate this value so saved audio cannot silently move to another account.
+    public var credentialGeneration: UUID?
     public var region: String
     public var workspaceID: String
     public var context: String
@@ -69,9 +73,10 @@ public struct ModelConfiguration: Identifiable, Codable, Sendable, Equatable {
                 enabled: Bool = true, cloudConsent: Bool = false, region: String = "global",
                 workspaceID: String = "", context: String = "", audioHourRate: Double? = nil,
                 inputMillionTokenRate: Double? = nil, outputMillionTokenRate: Double? = nil, currency: String = "USD",
-                reasoningEffort: String = "high", reasoningMode: String = "standard") {
+                reasoningEffort: String = "high", reasoningMode: String = "standard", credentialGeneration: UUID? = nil) {
         self.id = id; self.purpose = purpose; self.provider = provider; self.model = model
         self.enabled = enabled; self.cloudConsent = cloudConsent; self.region = region
+        self.credentialGeneration = credentialGeneration
         self.workspaceID = workspaceID; self.context = context; self.audioHourRate = audioHourRate
         self.inputMillionTokenRate = inputMillionTokenRate; self.outputMillionTokenRate = outputMillionTokenRate; self.currency = currency
         self.reasoningEffort = reasoningEffort; self.reasoningMode = reasoningMode
