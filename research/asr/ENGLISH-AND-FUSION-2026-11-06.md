@@ -2,7 +2,7 @@
 
 ## Decision and evidence limits
 
-The provisional English streaming expert is **AssemblyAI `universal-3-6-pro`**, alongside the independently selected Chinese expert. The current Pipecat streaming table reports pooled semantic WER 0.80% and median TTFS 307 ms. This is an independent, English streaming benchmark, not proof of best Mandarin, code switching, verbatim transcription, or Saytile end-to-end performance. Its semantic scorer and speech-end-to-final latency must not be relabelled as ordinary WER or first-text latency. Soniox v5's older 1.09% result is not a v6 evaluation. Meta `muse-voice-transcribe-1.0` appears above AssemblyAI at 0.73%, but a benchmark row alone does not establish a mature, publicly accessible BYOK API; it is not selected without that evidence.
+The provisional English streaming expert is **AssemblyAI `universal-3-6-pro`**, alongside the independently selected Chinese expert. The current Pipecat streaming table reports pooled semantic WER 0.80% and median TTFS 307 ms. This is an independent, English streaming benchmark, not proof of best Mandarin, code switching, verbatim transcription, or Saytile end-to-end performance. Its semantic scorer and speech-end-to-final latency must not be relabelled as ordinary WER or first-text latency. Soniox v5's older 1.09% result is not a v6 evaluation. Meta `muse-voice-transcribe-1.0` appears above AssemblyAI at 0.73%. The subsequent official API check confirmed a public BYOK streaming endpoint and an actual Pipecat adapter; excluding it as unavailable would be wrong. It is now an implemented, optional English expert and a required challenger in the next paired evaluation. The 0.07 percentage-point semantic-WER difference does not establish statistical significance or better Mandarin/code-switching input. AssemblyAI remains the provisional default, not an absolute quality winner.
 
 Optional completed-audio review uses **ElevenLabs `scribe_v2`**, with **OpenAI `gpt-transcribe`** as another supported independent reviewer. Neither file API's quality nor streamed HTTP output establishes live microphone quality. ElevenLabs `scribe_v2_realtime` is a separate streaming service, not an alias for Scribe v2 file transcription. It remains a research candidate; the incomplete realtime adapter was removed after the protocol audit below.
 
@@ -13,11 +13,22 @@ No experiment in this revision establishes that combining these models improves 
 | Role | Model | Transport and authentication | Result handling |
 |---|---|---|---|
 | English streaming | `universal-3-6-pro` | `wss://streaming.assemblyai.com/v3/ws`, or explicit US/EU endpoint; raw `Authorization` key; explicit `speech_model`, `mode=max_accuracy`, `sample_rate=16000`, `encoding=pcm_s16le` | Verify `Begin.configuration.model` and `mode`; replace-by-`turn_order` `Turn`, `Termination`; words in milliseconds. Binary PCM, then `Terminate`. |
+| Optional English challenger | `muse-voice-transcribe-1.0` | `wss://api.meta.ai/v1/asr/realtime`; credentials in first-frame `authorization.accessToken`, not HTTP headers; `PCM_16KHZ`, `ENDPOINTING`, cumulative partials | No-type session acknowledgement; lifecycle keyed by `turnId`, partial belongs to latest speech start; `endStream` then normal close and every completed turn. Processing-progress turn times only. |
 | Researched; not shipped | `scribe_v2_realtime` | `wss://api.elevenlabs.io/v1/speech-to-text/realtime`; `xi-api-key`; PCM16 at 16 kHz inside JSON/base64 | Partial and committed segment events; delayed committed timestamps must update their segment rather than duplicate text. No non-verbatim rewriting. |
 | Completed-audio reviewer | `scribe_v2` | `POST https://api.elevenlabs.io/v1/speech-to-text`; `xi-api-key`; real multipart with file and model ID | Word timestamps in seconds; disable diarization and audio-event insertion, retain spoken disfluencies. |
 | Completed-audio reviewer | `gpt-transcribe` | `POST https://api.openai.com/v1/audio/transcriptions`; Bearer key; real multipart WAV | Whole-file text; do not invent word timestamps when absent. `stream=true` is output streaming after file submission. |
 
 Only each provider's own finalized candidate prefix is marked stable here. It is evidence for the fusion coordinator, never permission for a provider to write the official transcript or dispatch to another app. Provider failure must not affect audio journaling. Model IDs are configuration data and must be rechecked when changing services.
+
+## Meta Muse availability and integration
+
+Meta's official release announced Muse Voice Transcribe on 2026-09-03, and its current docs describe key creation in the Model API dashboard, a live WebSocket endpoint, a completed-file endpoint, 25 languages including Mandarin and English, code switching, and vocabulary hints. Pipecat has a real implementation using this model and endpoint. It is an available paid/BYOK candidate, not merely a leaderboard name.
+
+Saytile's optional adapter uses the same persisted 16 kHz PCM as the other experts, streams 20 ms frames at approximately real-time speed even during recovery, and permits both languages without forcing one. Its protocol differs materially from the other vendors: authentication is inside the first JSON frame; the acknowledgement has no event type; completed turns can arrive after a newer turn starts; only normal server close after a successful `endStream` and completion of all observed turns can finalize the session. No audio or messages follow `endStream`.
+
+The schema explicitly describes `audioProcessedMs` as progress rather than precise acoustic boundaries. Saytile therefore records `turn-progress` evidence without fabricated word timing, confidence or language labels. Whole-candidate arbitration remains available, while word-level cross-model splicing cannot rely on those coarse times. General topic prose remains available to the fusion model; the Meta adapter does not silently reinterpret it as native keywords.
+
+Enable Meta as an additional challenger or replace the provisional English expert through advanced configuration after supplying a key and cloud-processing consent. Promote it to the default if paired same-audio tests establish better first/evolving/stable/final output, including numbers, negation, terminology, repetitions and mixed language, without unacceptable stable-input regressions. None of those Saytile-specific cloud comparisons has yet been run.
 
 ## Evidence-constrained AI selection and listening
 
@@ -34,6 +45,11 @@ An arbitrator selects actual candidate spans, leaves unresolved disagreements ex
 - AssemblyAI implementation guide: https://www.assemblyai.com/docs/streaming/getting-started/transcribe-streaming-audio
 - AssemblyAI 3.6 Pro accuracy preset: https://www.assemblyai.com/docs/streaming/getting-started/optimizing-accuracy-and-latency
 - AssemblyAI canonical message order and word finality: https://www.assemblyai.com/docs/streaming/message-sequence
+- Meta official model/API availability: https://dev.meta.ai/resources/blog/meet-muse-voice-transcribe-streaming-speech-to-text
+- Meta streaming guide: https://dev.meta.ai/docs/speech-to-text
+- Meta exact wire schema: https://dev.meta.ai/docs/api-reference/voice/schemas
+- Meta endpoint and close codes: https://dev.meta.ai/docs/api-reference/voice/realtime
+- Pipecat Meta adapter source: https://reference-server.pipecat.ai/en/latest/_modules/pipecat/services/meta/stt.html
 - ElevenLabs streaming schema: https://elevenlabs.io/docs/api-reference/speech-to-text/v-1-speech-to-text-realtime
 - ElevenLabs commit behavior: https://elevenlabs.io/docs/eleven-api/guides/how-to/speech-to-text/realtime/transcripts-and-commit-strategies
 - ElevenLabs file schema: https://elevenlabs.io/docs/api-reference/speech-to-text/convert
@@ -47,7 +63,7 @@ An arbitrator selects actual candidate spans, leaves unresolved disagreements ex
 
 ## Implementation checkpoint
 
-Research checkpoint was saved before coding. `AssemblyStreamingProvider` and `FinalASRProvider` now implement provider-specific requests and responses, with 16 offline protocol fixtures. AssemblyAI retains/replaces numbered turns and exposes a contiguous finalized candidate prefix, including a partial turn's explicitly finalized words. A completed Pro turn also requires `turn_is_formatted`.
+Research checkpoint was saved before coding. `AssemblyStreamingProvider`, `MetaStreamingProvider` and `FinalASRProvider` now implement provider-specific requests and responses, with 16 English-provider and 8 Meta-provider offline protocol fixtures. AssemblyAI retains/replaces numbered turns and exposes a contiguous finalized candidate prefix, including a partial turn's explicitly finalized words. A completed Pro turn also requires `turn_is_formatted`.
 
 **ElevenLabs realtime is not supported in this revision.** Its official commit guide documents automatic commits after approximately 36 seconds even in manual mode, while Saytile's cloud recording can remain open for 300 seconds. A segment commit cannot be treated as whole-session completion. The first adapter's single-commit assumption would reject valid longer sessions; interpreting a late automatic commit as the final manual commit would risk truncation. That adapter and its dedicated tests were removed, its persisted enum remains decode-compatible but cannot be selected or started, and Scribe v2 file review remains available. This is an adapter completeness finding, not evidence that ElevenLabs has inferior ASR quality. A future implementation needs independently verified multiple-commit association and unambiguous final-drain handling before it is offered again.
 

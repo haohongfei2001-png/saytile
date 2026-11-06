@@ -11,15 +11,16 @@ public enum RecognitionPurpose: String, Codable, Sendable, CaseIterable {
     public var isStreaming: Bool { [.chineseASR, .englishASR, .multilingualASR].contains(self) }
 }
 public enum CloudProvider: String, Codable, Sendable, CaseIterable {
-    case qwenMessage, assemblyAI, soniox, elevenLabsRealtime, elevenLabsFile, openAITranscription, openAIResponses, gemini
+    case qwenMessage, assemblyAI, soniox, meta, elevenLabsRealtime, elevenLabsFile, openAITranscription, openAIResponses, gemini
     public var label: String {
         switch self {
         case .qwenMessage: "阿里云 Qwen Message"; case .assemblyAI: "AssemblyAI Streaming"; case .soniox: "Soniox"
+        case .meta: "Meta Muse Voice"
         case .elevenLabsRealtime: "ElevenLabs Realtime"; case .elevenLabsFile: "ElevenLabs 文件识别"
         case .openAITranscription: "OpenAI 转写"; case .openAIResponses: "OpenAI Responses"; case .gemini: "Google Gemini 音频"
         }
     }
-    public var isStreaming: Bool { [.qwenMessage, .assemblyAI, .soniox].contains(self) }
+    public var isStreaming: Bool { [.qwenMessage, .assemblyAI, .soniox, .meta].contains(self) }
     public func supports(_ purpose: RecognitionPurpose) -> Bool {
         // Retain the persisted enum value, but do not offer an adapter whose
         // automatic segment commits cannot establish whole-session completion.
@@ -120,7 +121,9 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
         .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000005")!, purpose: .audioReview,
               provider: .gemini, model: "gemini-3.8-flash"),
         .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000006")!, purpose: .finalASR,
-              provider: .elevenLabsFile, model: "scribe_v2")
+              provider: .elevenLabsFile, model: "scribe_v2"),
+        .init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000007")!, purpose: .englishASR,
+              provider: .meta, model: "muse-voice-transcribe-1.0", enabled: false)
     ] }
     public static func load(from preferences: UserDefaults) -> Self {
         guard let data = preferences.data(forKey: "multiASRConfigurationV1"),
