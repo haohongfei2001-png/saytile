@@ -1,3 +1,5 @@
+> **最新 RC1：源码 `8906a9d` 在 macOS 26 上 122 项原生测试、21 项 AppModel、构建/原生渲染/启动通过；最终 DMG 安装升级 6 组、9 图/5 次 AXPress、合成中文与安装后启动通过。下文保留完整历史与失败，不将旧计数作为最新。**
+
 # V1 验证记录
 
 ## 2026-11-06 · 基线
@@ -98,3 +100,14 @@ Release DMG 校验通过；只读挂载中的App严格签名验证及启动通�
 `8b22e24` 在本机macOS27通过，但云端macOS26.6.2的系统SQLite对REAL→TEXT转换发生舍入，122项套件中精度/时间用例出现69项断言失败。此时才有明确跨版本证据；不能把先前macOS27的4096样本无损结论推广到旧系统。
 
 已将StoreSQLite按SQLITE_FLOAT/INTEGER分别使用sqlite3_column_double/int64读取，再交Swift无损表示，UTF8文本路径保留，测试未放宽。现有6项精度/边界/NUL测试PASS，最终修复head仍必须通过macOS26 CI。原错误见 `evidence/rc/ci-sqlite-precision-failure.log`，本地修复回归见 `storage-real-precision-fix.log`。
+
+## RC1 最终发行验证 · 2026-11-06
+
+- 源码 `8906a9dc4b2ec186f634bb2c829d8eb0c1700679`，sourceDirty=false。[macOS 26 native CI](https://github.com/haohongfei2001-png/saytile/actions/runs/42196920566/job/127822389253) 122 tests / 15 suites、21 AppModel、构建、9图、启动全部 PASS；[设计契约 CI](https://github.com/haohongfei2001-png/saytile/actions/runs/42196920610/job/127822388691) PASS。摘录 `evidence/rc/ci-final-summary.log`。这已验证旧系统 SQLite 根因修复，测试未放宽。
+- 最终 DMG SHA256：`fb001a8ad0c107570acc6d263e590e49eb5bb9827d617e30c72cbaa4c247ed2a`。只读镜像签名、独立安装、实际 Beta App 打开合成旧库→RC App 升级、三次重启、重复进程拒绝、强制退出恢复共6组 PASS。版本/草稿/固定/不确定派发及原音保留；RC启动0.530秒，三次重启0.161/0.162/0.164秒，仅为当前独立数据样本。
+- 最终包生产 SwiftUI 9图与真实 AXPress 5次 PASS，作用域为透明非激活窗口与 fixture PID；输入板、档案筛选和保存实际执行，前台不变。紧凑详情及设置已再次视觉检查；不是 HTML。
+- 最终包读取既有自编中文 TTS，ASR completed、error=none，含“请不要自动发送”和末尾“保留原始录音”；标点/数字展示与原文不同，原样输出保留在 `packaged-speech.log`。系统框架输出非致命 sandbox_extension 警告，识别和启动流程实际成功，未隐去日志。没有采集麦克风。
+- 最终包启动焦点探针 PASS，退出0、frontmost_unchanged=true。已更新 `~/Applications/Saytile.app` 并保留旧包备份；严格签名和独立库 smoke PASS，未打开正式库、未自动收音。详情 `installed.json`、`installed-smoke.log`。
+- 最终二进制/DMG/CI/证据归属集中在 `evidence/rc/release-manifest.json`。30分钟管线与5分钟待命仍准确归属较早工程检查点，没有被改写为最终包72小时验证。
+
+上述通过不覆盖真人发音/噪声、完整用户前台浏览器插入、物理睡眠/锁屏/设备断开/TCC更改、多显示器/Spaces和整机能耗；剩余范围见最终验收文件。无临时用户操作要求。

@@ -94,3 +94,7 @@ node scripts/test-input-browser.mjs
 确认并修复的资格边界缺陷是：运行时在数据库建立绑定之后另取一次更晚时间，再以 Date 的 `<=` 排除记录，不能正确表达同一时钟刻度中的先后创建关系。现在绑定开始时的同一个 Date 同时传入 Store 与 InputBindingInfo；运行时仅按相同 Unix 精度作 `<` 预筛，数据库事务捕获录音 rowid 起点，排除绑定前旧记录并允许同时间戳的新记录。跨段顺序也改为实际创建 rowid，不依赖 UUID 字典序。
 
 新增确定性协调器测试，实际持久化 Recording.createdAt 与绑定时间完全相等，仍按新 row 资格成功输入；没有增加 sleep 或伪造调用方 startedAt。最终 **122 项全量测试通过，含 25 项输入测试**，见 `evidence/rc/input-full-final.log`。此前 WebKit/前台覆盖边界仍未改变。
+
+## macOS 26 最终兼容结论
+
+上文“当前 SQLite 无损”只针对本机 macOS27，不能泛化。云端macOS26随后实际复现REAL转TEXT舍入；`8906a9d`改为typed double/int64读取，测试不变，最终122项/21 AppModel全部通过。具体失败及修复证据见 `V1-TEST-RESULTS.md`。
