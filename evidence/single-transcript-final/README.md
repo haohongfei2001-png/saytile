@@ -1,3 +1,15 @@
+# 最新整合补充（优先于下方88c8e89历史切片）
+
+运行时 `3cd8ebcbc94e7536ea8d4ccfd4474b72e9fd2b46` 已保留 PR4 79601ce / PR5 4fa637a 的最新删除失败隔离及独立测试偏好修复。Mac完整测试 **329/329（39 suites、无skip）**，AppModel **25/25**，评分 **43＋20**、设计契约通过；运行前后SHA一致。新运行时的原生UI **15视图/6组控件**均通过，无窗口激活、麦克风、外部前台变化。
+
+真实AX校验不能只写全绿：新运行时首轮在初始插入后触发通用 `forbidden full-value/key/paste/payload attempt`，当时未记录各项计数，**无法归因**；日志与失败summary原样保留。增加细分计数、未改变生产源码或放宽断言后，新独立fixture复核 **5/5** 通过，所有可见计数为0。复测证明该次真实AX成功，不证明首次信号已被根治。目标选择仍为注入的精确测试PID，ChatGPT/Codex真实目标未验，原生外部输入发布门槛仍保持关闭。见 `native-reconciled-first-failure.*`、`owned-native-console.log`、`owned-native.json`。
+
+最新两项CI均SUCCESS：native [42289851047](https://github.com/haohongfei2001-png/saytile/actions/runs/42289851047)，design [42289851010](https://github.com/haohongfei2001-png/saytile/actions/runs/42289851010)。最新Release候选见 [artifact 13539572392](https://github.com/haohongfei2001-png/saytile/actions/runs/42289851047/artifacts/13539572392)，App ZIP SHA256 `9ed2465811d982f5eab214fa4393235cdd36dcfe91a1f8cfe041badec6f01715`。实际内嵌临时合并SHA `5da0b18fb100a05f838fd3d133dff3e42fea625b`，tree与3cd8ebc一致、dirty=false、arm64、可执行权限保留；ad-hoc签名、未公证/未安装。
+
+最新源码与候选身份以 `RECEIPT.json` 为准。下方88c8e89及它的CI、ZIP哈希仅为此前通过的精确历史切片，不冒充新运行时。真实A–E评测仍NOT_RUN，F不可用；生产main/RC1未变。
+
+---
+
 # SingleTranscriptEngine 核心工程验收与候选交付
 
 更新：2026-11-07。**核心源码已实现并通过工程验收；真实云端识别准确率、目标应用兼容性与长时能耗仍未验收。** 本报告优先于目录中 earlier checkpoint，不把测试替身当云结果。
