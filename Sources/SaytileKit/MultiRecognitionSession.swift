@@ -14,7 +14,7 @@ struct RecognitionPipelineDependencies: Sendable {
             case .qwenMessage: return QwenMessageProvider()
             case .assemblyAI: return AssemblyStreamingProvider()
             case .soniox: return SonioxStreamingProvider()
-            case .elevenLabsRealtime: return ElevenLabsStreamingProvider()
+            case .elevenLabsRealtime: throw ProviderFailure.configuration("本轮未启用 ElevenLabs 实时适配；可使用 Scribe v2 文件复核。")
             default: throw ProviderFailure.configuration("所选服务不是实时识别接口。")
             }
         },

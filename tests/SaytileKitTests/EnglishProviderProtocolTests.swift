@@ -131,49 +131,11 @@ struct EnglishProviderProtocolTests {
         #expect(!state.allTurnsFinal)
     }
 
-    @Test func elevenRealtimeIsDistinctAndNeverEnablesParaphrasing() throws {
-        let request = try ElevenLabsStreamingProvider.request(configuration: config(.elevenLabsRealtime, "scribe_v2_realtime"), credential: "fixture-key")
-        #expect(request.value(forHTTPHeaderField: "xi-api-key") == "fixture-key")
-        let url = try #require(request.url)
-        let query = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)
-        #expect(query.first { $0.name == "model_id" }?.value == "scribe_v2_realtime")
-        #expect(query.first { $0.name == "commit_strategy" }?.value == "manual")
-        #expect(query.first { $0.name == "no_verbatim" }?.value == "false")
-        #expect(!query.contains { $0.name == "transcript_edit" || $0.name == "language_code" })
-        let bytes = Data([0, 128, 255, 127])
-        let message = try object(ElevenLabsStreamingProvider.audioMessage(bytes, commit: true))
-        let encodedAudio = try #require(message["audio_base_64"] as? String)
-        #expect(Data(base64Encoded: encodedAudio) == bytes)
-        #expect(message["commit"] as? Bool == true)
-    }
-
-    @Test func delayedElevenTimestampsReplaceTheCommittedCandidate() throws {
-        var state = ElevenLabsTranscriptAccumulator(requestID: "fixture-session")
-        let partialResult = try state.accept(object(#"{"message_type":"partial_transcript","text":"no no"}"#), duration: 1, inputEnded: false)
-        let partial = try #require(partialResult)
-        #expect(partial.stableUTF16Length == 0)
-        let committedResult = try state.accept(object(#"{"message_type":"committed_transcript","text":"no no"}"#), duration: 1, inputEnded: true)
-        let committed = try #require(committedResult)
-        #expect(!committed.isComplete)
-        let timedResult = try state.accept(object(#"{"message_type":"committed_transcript_with_timestamps","text":"no no","language_code":"en","words":[{"text":"no","start":0.2,"end":0.4,"type":"word"},{"text":"no","start":0.6,"end":0.8,"type":"word"}]}"#), duration: 1, inputEnded: true)
-        let timed = try #require(timedResult)
-        #expect(timed.text == "no no")
-        #expect(timed.tokens.count == 2)
-        #expect(timed.tokens.last?.startSeconds == 0.6)
-        #expect(timed.isComplete)
-        let keepalive = try state.accept(object(#"{"message_type":"partial_transcript","text":""}"#), duration: 1, inputEnded: true)
-        #expect(keepalive == nil)
-    }
-
-    @Test func unexpectedOrContradictoryElevenCommitIsRejected() throws {
-        var state = ElevenLabsTranscriptAccumulator(requestID: nil)
-        #expect(throws: Error.self) {
-            try state.accept(object(#"{"message_type":"committed_transcript","text":"15"}"#), duration: 1, inputEnded: false)
-        }
-        _ = try state.accept(object(#"{"message_type":"committed_transcript","text":"15"}"#), duration: 1, inputEnded: true)
-        #expect(throws: Error.self) {
-            try state.accept(object(#"{"message_type":"committed_transcript_with_timestamps","text":"50","words":[]}"#), duration: 1, inputEnded: true)
-        }
+    @Test func unsupportedRealtimeChoiceIsHiddenAndCannotStart() {
+        #expect(!CloudProvider.elevenLabsRealtime.supports(.englishASR))
+        #expect(!CloudProvider.elevenLabsRealtime.isStreaming)
+        #expect(CloudProvider.elevenLabsFile.supports(.finalASR))
+        #expect(throws: Error.self) { try RecognitionPipelineDependencies.live.streaming(.elevenLabsRealtime) }
     }
 
     @Test func fileRequestsContainBinaryMultipartAndProviderSpecificAuthentication() throws {

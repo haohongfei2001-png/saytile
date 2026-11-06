@@ -19,8 +19,11 @@ public enum CloudProvider: String, Codable, Sendable, CaseIterable {
         case .openAITranscription: "OpenAI 转写"; case .openAIResponses: "OpenAI Responses"; case .gemini: "Google Gemini 音频"
         }
     }
-    public var isStreaming: Bool { [.qwenMessage, .assemblyAI, .soniox, .elevenLabsRealtime].contains(self) }
+    public var isStreaming: Bool { [.qwenMessage, .assemblyAI, .soniox].contains(self) }
     public func supports(_ purpose: RecognitionPurpose) -> Bool {
+        // Retain the persisted enum value, but do not offer an adapter whose
+        // automatic segment commits cannot establish whole-session completion.
+        if self == .elevenLabsRealtime { return false }
         if purpose.isStreaming { return isStreaming }
         if purpose == .textFusion { return self == .openAIResponses }
         if purpose == .audioReview { return self == .gemini }
