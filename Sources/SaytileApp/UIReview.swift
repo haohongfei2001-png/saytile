@@ -330,21 +330,27 @@ extension AppDelegate {
                     try await self.reviewUntil { capture.pauses == 1 && capture.state == .paused }
                     try await self.inspectCapture("继续收音", in: host)
                     try self.captureReview(host, name: "panel-capture-paused", output: output)
+                    try await self.press("panel.capture", in: host)
+                    try await self.reviewUntil { capture.starts == 2 && capture.state == .listening && model.panelCaptureLabel == "聆听中" }
+                    guard model.captureActionLabel == "暂停收音" else { throw ReviewFailure("resuming capture did not restore the pause action") }
+                    print("UI_NATIVE_CAPTURE_ACK paused_to_listening starts=2; actual capture button, injected microphone boundary")
+                    try await self.press("panel.capture", in: host)
+                    try await self.reviewUntil { capture.pauses == 2 && capture.state == .paused }
                     capture.state = .starting; model.objectWillChange.send()
                     try await Task.sleep(for: .milliseconds(100))
                     try await self.inspectCapture("取消开启", in: host)
                     try self.captureReview(host, name: "panel-capture-starting", output: output)
                     try await self.press("panel.capture", in: host)
-                    try await self.reviewUntil { capture.pauses == 2 && capture.state == .paused }
+                    try await self.reviewUntil { capture.pauses == 3 && capture.state == .paused }
                     capture.state = .interrupted("合成设备暂不可用，原音与文字仍保留。")
                     model.objectWillChange.send()
                     try await Task.sleep(for: .milliseconds(100))
                     try await self.inspectCapture("恢复收音", in: host)
                     try self.captureReview(host, name: "panel-capture-interrupted", output: output)
                     try await self.press("panel.capture", in: host)
-                    try await self.reviewUntil { capture.starts == 2 && capture.state == .listening }
+                    try await self.reviewUntil { capture.starts == 3 && capture.state == .listening }
                     try await self.press("panel.capture", in: host)
-                    try await self.reviewUntil { capture.pauses == 3 && capture.state == .paused }
+                    try await self.reviewUntil { capture.pauses == 4 && capture.state == .paused }
                     guard model.audio.state == .paused else { throw ReviewFailure("fixture capture reached the actual audio controller") }
                     print("UI_CONTROL_PASS one 34–38pt capture button: start, pause, resume, cancel preparation and recovery; injected actions, no microphone")
                 }
