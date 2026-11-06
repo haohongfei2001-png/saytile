@@ -1,0 +1,83 @@
+{
+  "status": "NOT_RUN_REQUIRES_CREDENTIALS_PROCESSING_AND_PAID_CALL_AUTHORIZATION",
+  "purpose": "Small product connectivity and end-to-end verification; no rankings or matrix benchmark",
+  "source_manifest": "research/asr-2026-11-06/corpus/manifest.json",
+  "core_services": [
+    "qwenMessage",
+    "assemblyAI",
+    "openAIResponses",
+    "gemini",
+    "elevenLabsFile"
+  ],
+  "optional_services_not_required": [
+    "soniox",
+    "meta"
+  ],
+  "unique_audio_seconds": 46.94,
+  "planned_initial_replays": 6,
+  "automatic_retries": 0,
+  "clips": [
+    {
+      "id": "fleurs-zh-11355960588560603456",
+      "language": "zh",
+      "duration_seconds": 7.5,
+      "audio_sha256": "03bab3facb988e59691648e8bd873b2bcf5103dba5c9c6f5bec31601b81913d6",
+      "reference": "氢离子是失去了电子的质子（因为氢原子由一个质子和一个电子组成）。"
+    },
+    {
+      "id": "fleurs-zh-10026684690566417990",
+      "language": "zh",
+      "duration_seconds": 10.38,
+      "audio_sha256": "5214e16584b6498ddbd22f321738c0f62b19117ab1880b21e405fba983986b6a",
+      "reference": "“这并不是告别。这是一个篇章的结束，也是新篇章的开始。”"
+    },
+    {
+      "id": "fleurs-en-11260391063812418810",
+      "language": "en",
+      "duration_seconds": 9.12,
+      "audio_sha256": "e03e80cb45111d0fc53a3f64126ffa57975eab52652f7fe9ad55c17256d57af4",
+      "reference": "Last week, METI announced that Apple had informed it of 34 additional overheating incidents, which the company called \"non-serious.\""
+    },
+    {
+      "id": "fleurs-en-4498640649175127270",
+      "language": "en",
+      "duration_seconds": 10.56,
+      "audio_sha256": "edc7e456568a8fdef62cffeac6b31268db3c5b729b7659ca876ef43c2b2be082",
+      "reference": "He was reportedly aged in his 20s. In a statement, Bieber said \"[w]hile I was not present nor directly involved with this tragic accident, my thoughts and prayers are with the family of the victim.\""
+    },
+    {
+      "id": "ascend-00304",
+      "language": "mixed",
+      "duration_seconds": 7.26,
+      "audio_sha256": "6ceb8bdcecd14a8006447c3cabde6bc97936b028fa622ff63f371d87649b1225",
+      "reference": "就是这些dialogue system它其实是有任务去完成的就不是像是一般的chitchat"
+    },
+    {
+      "id": "ascend-01133",
+      "language": "mixed",
+      "duration_seconds": 2.12,
+      "audio_sha256": "25236797e34a41a7ae1f73beae4e11aac67771a19705d0a530f18a8eb0c1ebf4",
+      "reference": "也不是也不完全是ai"
+    }
+  ],
+  "required_observations": [
+    "both experts receive samePCM",
+    "decoded candidates reach actual fusion",
+    "at least one evidence-backed Astra review",
+    "at least one Gemini audio request with acknowledged result",
+    "Scribe result retained as correct generation/version",
+    "preview and stable publication distinct",
+    "reserved stable UTF16 is once-only in isolated inputfixture",
+    "service failure preserves original and text"
+  ],
+  "dynamic_review_call_count": null,
+  "billing_tokens": null,
+  "budget_proposal_usd": 30,
+  "budget_is_approved": false,
+  "notes": [
+    "No credentials, audio bytes or active consent in this plan.",
+    "Same-source required for all runs; preserve failures before repair/retest.",
+    "If natural candidates need no arbitration/review, lack of that call is NOT_RUN, never PASS; do not inject fabricated provider output to claim real connectivity.",
+    "Engineer can select one additional already-registered public sample if required; remain within approved small-smoke scope and budget."
+  ]
+}

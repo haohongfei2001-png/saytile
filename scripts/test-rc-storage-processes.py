@@ -1,23 +1,44 @@
 #!/usr/bin/env python3
 """Real child-process termination and actual beta-source upgrade, isolated under /tmp."""
-import json, os, pathlib, signal, subprocess, tempfile, time
+import argparse, hashlib, json, os, pathlib, shutil, signal, sqlite3, subprocess, tempfile, time
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-SCRATCH = pathlib.Path('/tmp/saytile-rc-storage')
+parser = argparse.ArgumentParser()
+parser.add_argument('--output', type=pathlib.Path, default=ROOT/'research/asr/validation/rc2/storage-processes.json')
+args = parser.parse_args()
+SCRATCH = pathlib.Path(os.environ.get('SAYTILE_STORAGE_SCRATCH', '/tmp/saytile-rc2-storage'))
 SCRATCH.mkdir(exist_ok=True)
-(ROOT/'evidence/rc').mkdir(exist_ok=True)
-BETA = SCRATCH / 'beta'
-BETA.mkdir(exist_ok=True)
-for name in ('Models.swift', 'Store.swift', 'StoreSQLite.swift'):
-    (BETA/name).write_bytes(subprocess.check_output(['git','show',f'v1.0.0-beta.1:Sources/SaytileKit/{name}'],cwd=ROOT))
+args.output.parent.mkdir(parents=True, exist_ok=True)
 base = ['swiftc','-O','-swift-version','6','-parse-as-library','-I','Sources/CSQLite']
 fixture = 'tests/fixtures/StoreProcessProbe.swift'
-subprocess.run(base + [f'Sources/SaytileKit/{n}.swift' for n in ('Models','Store','StoreSQLite','StoreLock')] + [fixture,'-o',str(SCRATCH/'probe')],cwd=ROOT,check=True)
-subprocess.run(base + [str(BETA/n) for n in ('Models.swift','Store.swift','StoreSQLite.swift')] + [fixture,'-o',str(SCRATCH/'beta-probe')],cwd=ROOT,check=True)
+build = ['swift','build','--product','SaytileKit','--scratch-path',str(SCRATCH/'build'),'-Xswiftc','-enable-testing']
+subprocess.run(build,cwd=ROOT,check=True)
+bin_dir = pathlib.Path(subprocess.check_output(build+['--show-bin-path'],cwd=ROOT,text=True).strip())
+module_map = bin_dir/'../../Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap'
+if not module_map.exists(): module_map = bin_dir/'CAudio.build/module.modulemap'
+assert module_map.exists()
+subprocess.run(base+['-D','SAYTILE_PACKAGE_PROBE','-I',str(bin_dir),'-I',str(bin_dir/'Modules'),
+    '-Xcc','-fmodule-map-file='+str(module_map),'-L',str(bin_dir),'-lSaytileKit','-lc++',fixture,'-o',str(SCRATCH/'probe')],cwd=ROOT,check=True)
+for label, revision, names in [
+    ('beta','v1.0.0-beta.1',('Models','Store','StoreSQLite')),
+    ('rc1','v1.0.0-rc.1',('Models','Store','StoreSQLite','StoreLock')),
+]:
+    source = SCRATCH/label; source.mkdir(exist_ok=True)
+    for name in names:
+        (source/(name+'.swift')).write_bytes(subprocess.check_output(['git','show',f'{revision}:Sources/SaytileKit/{name}.swift'],cwd=ROOT))
+    subprocess.run(base+[str(source/(n+'.swift')) for n in names]+[fixture,'-o',str(SCRATCH/(label+'-probe'))],cwd=ROOT,check=True)
 checks=[]
 def run(binary,mode,directory,good=True):
     p=subprocess.run([str(SCRATCH/binary),mode,str(directory)],text=True,capture_output=True)
     if (p.returncode == 0) != good: raise RuntimeError(f'{mode}: {p.returncode}\n{p.stdout}\n{p.stderr}')
     print(p.stdout,end=''); return p
+
+def snapshot(directory):
+    with sqlite3.connect(directory/'Saytile.sqlite') as db:
+        tables = [row[0] for row in db.execute("select name from sqlite_master where type='table' order by name")]
+        data = {name: db.execute('select * from "'+name+'" order by rowid').fetchall() for name in tables}
+        return {'schema': db.execute('pragma user_version').fetchone()[0], 'tables': data,
+                'audio': {str(p.relative_to(directory)):hashlib.sha256(p.read_bytes()).hexdigest()
+                          for p in sorted((directory/'Audio').rglob('*')) if p.is_file()}}
 
 def killed(mode,directory,marker,check_lock=False):
     proc=subprocess.Popen([str(SCRATCH/'probe'),mode,str(directory)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
@@ -41,9 +62,28 @@ def killed(mode,directory,marker,check_lock=False):
 with tempfile.TemporaryDirectory(prefix='process-fixtures-',dir=SCRATCH) as tmp:
     parent=pathlib.Path(tmp)
     run('probe','disk-fault',parent/'disk-fault');checks.append('real_kernel_write_failure_is_atomic_and_recoverable')
-    upgrade=parent/'upgrade'
-    run('beta-probe','seed-beta',upgrade)
-    run('probe','verify',upgrade); checks.append('actual_beta_1_to_rc_2_upgrade_preserves_all_layers')
+    for baseline in ['beta','rc1']:
+        upgrade=parent/(baseline+'-upgrade')
+        run(baseline+'-probe','seed-beta',upgrade)
+        run(baseline+'-probe','open',upgrade)  # let the released store finish crash recovery
+        before=snapshot(upgrade)
+        backup=parent/(baseline+'-pre-upgrade-copy')
+        shutil.copytree(upgrade,backup)  # stopped, disposable fixture only; no production backup is taken
+        run('probe','verify',upgrade)
+        after=snapshot(upgrade)
+        assert before['schema']==(1 if baseline=='beta' else 2) and after['schema']==3
+        assert all(after['tables'][name]==rows for name,rows in before['tables'].items())
+        assert before['audio']==after['audio']
+        checks.append('actual_'+baseline+'_to_schema3_preserves_all_existing_tables_and_audio')
+        if baseline=='rc1':
+            rejected=run('rc1-probe','open',upgrade,False)
+            assert '资料库来自更新版本' in rejected.stdout and snapshot(upgrade)==after
+            checks.append('released_rc1_refuses_schema3_without_content_change')
+            restored=parent/'explicit-rollback-restore'
+            shutil.copytree(backup,restored)
+            run('rc1-probe','open',restored)
+            assert snapshot(restored)==before and snapshot(upgrade)==after
+            checks.append('explicit_preupgrade_copy_opens_in_rc1_while_rc2_data_is_preserved')
     crash=parent/'crash'
     killed('crash-seed',crash,'receipt.json',True)
     run('probe','verify',crash);checks.append('wal_durable_data_and_nonreplay_after_sigkill')
@@ -51,6 +91,6 @@ with tempfile.TemporaryDirectory(prefix='process-fixtures-',dir=SCRATCH) as tmp:
     run('probe','verify',crash);checks.append('uncommitted_transaction_rolled_back_after_sigkill')
     killed('crash-delete',crash,'delete-ready')
     run('probe','verify-delete',crash);checks.append('erasure_intent_survives_sigkill_without_losing_text')
-report={'scope':'Real SIGKILL subprocess and compiled v1.0.0-beta.1 storage-source upgrade; synthetic private fixture data only','checks':checks,'passed':len(checks),'status':'PASS','baseline':subprocess.check_output(['git','rev-parse','v1.0.0-beta.1'],cwd=ROOT,text=True).strip()}
-(ROOT/'evidence/rc/storage-processes.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+report={'scope':'Real SIGKILL subprocess; compiled released Beta/RC1 storage-source upgrade and explicit preupgrade-copy rollback; synthetic temporary data only','checks':checks,'passed':len(checks),'status':'PASS','baseline_revisions':{tag:subprocess.check_output(['git','rev-parse',tag],cwd=ROOT,text=True).strip() for tag in ['v1.0.0-beta.1','v1.0.0-rc.1']},'probe_sha256':hashlib.sha256((SCRATCH/'probe').read_bytes()).hexdigest(),'source_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'source_dirty':bool(subprocess.check_output(['git','status','--porcelain','--','Sources','tests/fixtures/StoreProcessProbe.swift'],cwd=ROOT,text=True).strip())}
+args.output.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 print('RC_STORAGE_PROCESS_PASS',len(checks),'checks')

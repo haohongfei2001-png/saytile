@@ -1,0 +1,83 @@
+Building for debugging...
+[Planning deferred tasks]
+[14 / 75] CAudio
+[52 / 75] CAudio
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[64 / 86] SaytileKit
+[70 / 88] Saytile-product
+[71 / 96] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[76 / 96] SaytileKitTests-product
+[86 / 107] SaytileKitTests-product
+[87 / 107] SaytileKitTests-product
+[91 / 107]
+[94 / 107] Saytile-product
+[96 / 107] Saytile-product
+[99 / 107] Saytile-product
+[99 / 107] SaytileKitTests-product
+[99 / 107] Saytile-product
+[99 / 107] SaytileKitTests-product
+[99 / 107] Saytile-product
+[102 / 107] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[103 / 107] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (9.22秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Audio controller shutdown" started.
+◇ Suite "Production capture to five-role recognition with isolated transports" started.
+◇ Suite "Real coordinator with isolated persistence and controlled providers" started.
+◇ Suite "Recognition settings generation admission" started.
+◇ Suite "Independent lifecycle stop reasons" started.
+◇ Test audioDeletionInvalidatesEpochBeforeLateCallbacks() started.
+◇ Test rejectedArbitrationRetainsDecodedResponseWithoutPublishingIt() started.
+◇ Test highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) started.
+◇ Test acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) started.
+◇ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() started.
+◇ Test failedExpertDoesNotStopOtherAudioOrDestroyOriginal() started.
+◇ Test lockedAtLaunchCannotCapture() started.
+◇ Test journalAndFiveRolePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test identicalAudioWaitsForBothExpertsBeforeQualityPublication() started.
+◇ Test cancellationRejectsInFlightCallbacksWithoutErasingAudio() started.
+◇ Test wakeDoesNotOverrideLockOrSessionSwitch() started.
+◇ Test alignmentOnlyEvidenceChangeCanRetryWhileDuplicateCallbacksCoalesce() started.
+◇ Test fastDispatchKeepsLateAcousticCorrectionInternal() started.
+◇ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() started.
+◇ Test case passing 1 argument appendMore → false to acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) started.
+◇ Test settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) started.
+◇ Test case passing 1 argument appendMore → true to acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) started.
+◇ Test case passing 1 argument simultaneous → false to highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) started.
+◇ Test sameConfigurationUpdateAlsoInvalidatesPendingAdmission() started.
+◇ Test unknownSessionOrUntrustedUnlockCannotResume() started.
+◇ Test case passing 1 argument failReview → false to journalAndFiveRolePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test case passing 1 argument simultaneous → true to highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) started.
+◇ Test case passing 1 argument failReview → true to journalAndFiveRolePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test case passing 1 argument initialCloud → false to settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) started.
+◇ Test case passing 1 argument initialCloud → true to settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) started.
+✔ Test lockedAtLaunchCannotCapture() passed after 0.025 seconds.
+✔ Test wakeDoesNotOverrideLockOrSessionSwitch() passed after 0.026 seconds.
+✔ Test alignmentOnlyEvidenceChangeCanRetryWhileDuplicateCallbacksCoalesce() passed after 0.026 seconds.
+✔ Test unknownSessionOrUntrustedUnlockCannotResume() passed after 0.026 seconds.
+✔ Test sameConfigurationUpdateAlsoInvalidatesPendingAdmission() passed after 0.037 seconds.
+✔ Test settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) with 2 test cases passed after 0.039 seconds.
+✔ Suite "Recognition settings generation admission" passed after 0.040 seconds.
+✔ Test audioDeletionInvalidatesEpochBeforeLateCallbacks() passed after 0.048 seconds.
+✔ Test cancellationRejectsInFlightCallbacksWithoutErasingAudio() passed after 0.048 seconds.
+✔ Test identicalAudioWaitsForBothExpertsBeforeQualityPublication() passed after 0.056 seconds.
+✔ Test failedExpertDoesNotStopOtherAudioOrDestroyOriginal() passed after 0.063 seconds.
+✔ Test rejectedArbitrationRetainsDecodedResponseWithoutPublishingIt() passed after 0.066 seconds.
+✔ Test highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) with 2 test cases passed after 0.078 seconds.
+✔ Test fastDispatchKeepsLateAcousticCorrectionInternal() passed after 0.094 seconds.
+✔ Test journalAndFiveRolePipelineShareAudioAndPreserveReviewFailure(failReview:) with 2 test cases passed after 0.097 seconds.
+✔ Suite "Production capture to five-role recognition with isolated transports" passed after 0.098 seconds.
+✔ Test acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) with 2 test cases passed after 0.104 seconds.
+✔ Suite "Real coordinator with isolated persistence and controlled providers" passed after 0.104 seconds.
+✔ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() passed after 0.150 seconds.
+✔ Suite "Independent lifecycle stop reasons" passed after 0.150 seconds.
+✔ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() passed after 0.159 seconds.
+✔ Suite "Audio controller shutdown" passed after 0.159 seconds.
+✔ Test run with 17 tests in 5 suites passed after 0.159 seconds.

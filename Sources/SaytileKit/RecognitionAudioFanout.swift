@@ -81,20 +81,38 @@ final class RecognitionSessionCompletion: @unchecked Sendable {
 /// experts. Capacity exhaustion queues the saved recording instead of cancelling
 /// an older accepted job or stopping capture.
 final class RecognitionSessionFactory: @unchecked Sendable {
+    struct Snapshot: Sendable {
+        let configuration: RecognitionConfiguration
+        fileprivate let generation: UInt64
+    }
     private let lock = NSLock()
     private var value: RecognitionConfiguration
+    private var generation: UInt64 = 0
     private var active = 0
-    init(configuration: RecognitionConfiguration = RecognitionConfiguration()) { value = configuration }
-    var configuration: RecognitionConfiguration { lock.withLock { value } }
+    private let dependencies: RecognitionPipelineDependencies
+    init(configuration: RecognitionConfiguration = RecognitionConfiguration(), dependencies: RecognitionPipelineDependencies = .live) {
+        value = configuration; self.dependencies = dependencies
+    }
+    var snapshot: Snapshot { lock.withLock { Snapshot(configuration: value, generation: generation) } }
+    var configuration: RecognitionConfiguration { snapshot.configuration }
     var usesCloud: Bool { configuration.cloudEnabled }
-    func update(_ config: RecognitionConfiguration) { lock.withLock { value = config } }
-    func make(store: SaytileStore, ticket: RecognitionTicket) -> any RecognitionSession {
-        let config = configuration
-        guard config.cloudEnabled else { return LiveSpeechSession(store: store, ticket: ticket) }
-        let admitted = lock.withLock { if active >= 8 { return false }; active += 1; return true }
-        guard admitted else { return DeferredRecognitionSession(store: store, ticket: ticket) }
-        return MultiRecognitionSession(store: store, ticket: ticket, configuration: config) { [weak self] in
-            self?.lock.withLock { self?.active -= 1 }
+    func update(_ config: RecognitionConfiguration) { lock.withLock { value = config; generation &+= 1 } }
+    func make(store: SaytileStore, ticket: RecognitionTicket, snapshot requested: Snapshot? = nil) -> any RecognitionSession {
+        // Ticket creation awaits Store. A settings/revocation change in that gap
+        // must not mix generations or revive a cancelled cloud configuration.
+        lock.withLock {
+            let accepted = requested ?? Snapshot(configuration: value, generation: generation)
+            guard accepted.generation == generation else {
+                return DeferredRecognitionSession(store: store, ticket: ticket,
+                    message: "识别设置已更新，本段原音继续保存，等待使用新设置恢复。")
+            }
+            let config = accepted.configuration
+            guard config.cloudEnabled else { return LiveSpeechSession(store: store, ticket: ticket) }
+            guard active < 8 else { return DeferredRecognitionSession(store: store, ticket: ticket) }
+            active += 1
+            return MultiRecognitionSession(store: store, ticket: ticket, configuration: config, dependencies: dependencies) { [weak self] in
+                self?.lock.withLock { self?.active -= 1 }
+            }
         }
     }
 }
@@ -104,11 +122,11 @@ private final class DeferredRecognitionSession: RecognitionSession, @unchecked S
     private let completion = RecognitionSessionCompletion()
     private let task: Task<Void, Never>
     var isComplete: Bool { completion.isComplete }
-    init(store: SaytileStore, ticket: RecognitionTicket) {
+    init(store: SaytileStore, ticket: RecognitionTicket, message: String = "先前模型仍在复核，本段原音已保留并等待恢复。") {
         recordingID = ticket.recordingID
         let completion = completion
         task = Task {
-            try? await store.failRecognition(ticket: ticket, message: "先前模型仍在复核，本段原音已保留并等待恢复。")
+            try? await store.failRecognition(ticket: ticket, message: message)
             completion.finish()
         }
     }

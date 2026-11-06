@@ -21,6 +21,20 @@ public enum CloudProvider: String, Codable, Sendable, CaseIterable {
         }
     }
     public var isStreaming: Bool { [.qwenMessage, .assemblyAI, .soniox, .meta].contains(self) }
+    public var defaultModel: String {
+        switch self {
+        case .qwenMessage: "qwen-audio-3.1-asr-flash-message"
+        case .assemblyAI: "universal-3-6-pro"
+        case .soniox: "stt-rt-v6"
+        case .meta: "muse-voice-transcribe-1.0"
+        case .openAIResponses: "gpt-6-astra"
+        case .gemini: "gemini-3.8-flash"
+        case .elevenLabsFile: "scribe_v2"
+        case .openAITranscription: "gpt-transcribe"
+        case .elevenLabsRealtime: ""
+        }
+    }
+
     public func supports(_ purpose: RecognitionPurpose) -> Bool {
         // Retain the persisted enum value, but do not offer an adapter whose
         // automatic segment commits cannot establish whole-session completion.
@@ -61,6 +75,13 @@ public struct ModelConfiguration: Identifiable, Codable, Sendable, Equatable {
         self.workspaceID = workspaceID; self.context = context; self.audioHourRate = audioHourRate
         self.inputMillionTokenRate = inputMillionTokenRate; self.outputMillionTokenRate = outputMillionTokenRate; self.currency = currency
         self.reasoningEffort = reasoningEffort; self.reasoningMode = reasoningMode
+    }
+    public mutating func resetForProviderChange() {
+        cloudConsent = false
+        model = provider.defaultModel
+        region = provider == .qwenMessage ? "cn-beijing" : "global"
+        workspaceID = ""
+        audioHourRate = nil; inputMillionTokenRate = nil; outputMillionTokenRate = nil
     }
     public func validate() throws {
         guard provider.supports(purpose), !model.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,

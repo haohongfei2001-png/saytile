@@ -1,0 +1,14 @@
+UI_CAPTURE panel-empty 400x550 foreground_unchanged=true
+NATIVE_UI_AXPRESS 直接输入 fixture_pid=22340 foreground_unchanged=true
+NATIVE_UI_AXPRESS 自由记录 fixture_pid=22340 foreground_unchanged=true
+UI_CONTROL_PASS mode buttons through native control events
+UI_CAPTURE panel-content 400x550 foreground_unchanged=true
+UI_CAPTURE panel-compact 400x440 foreground_unchanged=true
+NATIVE_UI_AXPRESS 已收藏 fixture_pid=22340 foreground_unchanged=true
+NATIVE_UI_AXPRESS 全部记录 fixture_pid=22340 foreground_unchanged=true
+UI_CONTROL_PASS archive filters through native control events and SQLite
+UI_CAPTURE archive 1040x720 foreground_unchanged=true
+NATIVE_UI_AXPRESS 保存修改 fixture_pid=22340 foreground_unchanged=true
+UI_CONTROL_PASS native Save action commits immutable edit
+UI_REVIEW_FAILED UI review changed the foreground application
+

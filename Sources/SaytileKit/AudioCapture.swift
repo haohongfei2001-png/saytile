@@ -132,11 +132,12 @@ actor CaptureWorker {
         // Recognition setup cannot terminate the independent recorder.
         do {
             guard recognitionEnabled else { return }
-            let config = recognitionFactory.configuration
+            let snapshot = recognitionFactory.snapshot
+            let config = snapshot.configuration
             let ticket = try await (config.cloudEnabled
                 ? store.beginFusionRecognition(recordingID: record.id, mode: config.inputMode)
                 : store.beginRecognition(recordingID: record.id))
-            speech = recognitionFactory.make(store: store, ticket: ticket)
+            speech = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot)
         } catch { speech = nil }
     }
     func append(_ data: Data) async throws {
@@ -197,9 +198,12 @@ actor CaptureWorker {
     func hasPendingRecognition() -> Bool { speech?.isComplete == false || retired.contains { !$0.isComplete } }
     func cancelRecognitionAndWait(recordingID: UUID? = nil) async {
         let sessions = (retired + (speech.map { [$0] } ?? [])).filter { recordingID == nil || $0.recordingID == recordingID }
+        let cancelledIDs = Set(sessions.map { ObjectIdentifier($0) })
         sessions.forEach { $0.cancel() }
         for session in sessions { await session.wait() }
-        retired.removeAll { recordingID == nil || $0.recordingID == recordingID }
+        // The worker is reentrant while awaiting providers. Newly retired jobs
+        // still belong to us and must remain cancellable by the next revocation.
+        retired.removeAll { cancelledIDs.contains(ObjectIdentifier($0)) }
     }
 
 }
@@ -263,9 +267,11 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     private var retryTask: Task<Void, Never>?
     private var lastVoiceAt = Date.distantPast
     private var recoveryTask: Task<Void, Never>?
+    private var startupRecoveryReady: Bool
     private var meterTask: Task<Void, Never>?
     private var meterContinuation: AsyncStream<(Bool, Float)>.Continuation?
-    public init(store: SaytileStore, recognitionConfiguration: RecognitionConfiguration = RecognitionConfiguration()) {
+    public init(store: SaytileStore, recognitionConfiguration: RecognitionConfiguration = RecognitionConfiguration(), startupRecoveryReady: Bool = true) {
+        self.startupRecoveryReady = startupRecoveryReady
         self.store = store; self.recognitionFactory = RecognitionSessionFactory(configuration: recognitionConfiguration)
         super.init(); refreshDevices()
         let center = NSWorkspace.shared.notificationCenter
@@ -338,6 +344,11 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 await self.retry(recordingID: candidate.id, isAutomatic: true)
             }
         }
+    }
+    /// Internal injection keeps lifecycle tests off microphones and user hardware.
+    convenience init(store: SaytileStore, initialWorker: CaptureWorker) {
+        self.init(store: store, startupRecoveryReady: false)
+        worker = initialWorker
     }
     public func setRecognitionConfiguration(_ configuration: RecognitionConfiguration) async {
         recognitionFactory.update(configuration)
@@ -453,14 +464,20 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         engine?.stop(); engine?.inputNode.removeTap(onBus: 0); engine = nil
         let old = worker; worker = nil; ring = nil; level = 0
         meterContinuation?.finish(); meterContinuation = nil; meterTask?.cancel(); meterTask = nil
-        let task = Task<Void, Never> { await old?.stop() }
+        // Keep ownership before the first suspension: revocation must find jobs
+        // even while this worker is draining/resynchronizing its final audio.
+        if let old { drainingWorkers.append(old) }
+        let task = Task<Void, Never> {
+            await old?.stop()
+            var pending: [CaptureWorker] = []
+            for candidate in drainingWorkers where await candidate.hasPendingRecognition() { pending.append(candidate) }
+            drainingWorkers = pending
+            // Waiters may start a new capture only after all stop bookkeeping,
+            // not merely after old.stop() while the pruning await is suspended.
+            stopTask = nil
+        }
         stopTask = task
         await task.value
-        if let old, await old.hasPendingRecognition() { drainingWorkers.append(old) }
-        var pending: [CaptureWorker] = []
-        for candidate in drainingWorkers where await candidate.hasPendingRecognition() { pending.append(candidate) }
-        drainingWorkers = pending
-        stopTask = nil
     }
     private func suspend(reason: String) async {
         guard !interruption else { return }; interruption = true; defer { interruption = false }
@@ -586,8 +603,10 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             issue = message; stopPlayback()
         }
     }
+    /// Repair/import must finish before background recognition can claim saved audio.
+    public func completeStartupRecovery() { startupRecoveryReady = true }
     private var canRecoverInBackground: Bool {
-        !isShuttingDown && lifecycleGate.permitsCapture && playingID == nil && retryTask == nil &&
+        startupRecoveryReady && !isShuttingDown && lifecycleGate.permitsCapture && playingID == nil && retryTask == nil &&
         (state == .paused || (state == .listening && Date().timeIntervalSince(lastVoiceAt) >= 5))
     }
     public func retry(recordingID: UUID, isAutomatic: Bool = false) async {
@@ -608,11 +627,12 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             do {
                 lease = try await store.acquireAudioLease(recordingID: recordingID)
                 let chunks = try await store.audioChunks(recordingID: recordingID)
-                let config = recognitionFactory.configuration
+                let snapshot = recognitionFactory.snapshot
+                let config = snapshot.configuration
                 let ticket = try await (config.cloudEnabled
                     ? store.beginFusionRecognition(recordingID: recordingID, mode: config.inputMode)
                     : store.beginRecognition(recordingID: recordingID))
-                let activeSession = recognitionFactory.make(store: store, ticket: ticket)
+                let activeSession = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot)
                 session = activeSession
                 for chunk in chunks {
                     try Task.checkCancellation()

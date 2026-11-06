@@ -413,3 +413,70 @@ private func sampleTarget() -> InputTargetSnapshot {
 private func testDirectory() -> URL {
     FileManager.default.temporaryDirectory.appendingPathComponent("Saytile-input-tests-" + UUID().uuidString)
 }
+
+extension InputCoordinatorTests {
+    private func fusionPair(store: SaytileStore, ticket: RecognitionTicket, text: String) async throws -> [RecognitionCandidate] {
+        var result: [RecognitionCandidate] = []
+        for purpose in [RecognitionPurpose.chineseASR, .englishASR] {
+            let run = try await store.beginModelRun(ticket: ticket, configuration: .init(purpose: purpose,
+                provider: purpose == .chineseASR ? .qwenMessage : .assemblyAI, model: "isolated-input-fixture"))
+            let candidate = RecognitionCandidate(run: run, sequence: 0, text: text,
+                stableUTF16Length: text.utf16.count, audioEndSeconds: 1, isComplete: true)
+            _ = try await store.appendRecognitionCandidate(candidate)
+            result.append(candidate)
+        }
+        return result
+    }
+
+    @Test func productionFusionPublicationReachesIncrementalCoordinatorOnce() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        let record = try await store.createRecording(), ticket = try await store.beginFusionRecognition(recordingID: record.id)
+        let original = "不要改成 50 mg。😀"
+        let first = try await fusionPair(store: store, ticket: ticket, text: original)
+        let publication = try await store.publishFusion(ticket: ticket, proposal: PrecisionFusion.evaluate(candidates: first, mode: .highestQuality))
+        let head = try #require(publication.revision)
+        #expect(await coordinator.insertStable(recordingID: record.id, revisionID: head.id,
+            stableUTF16End: original.utf16.count, recordingStartedAt: record.createdAt) == .confirmed)
+        #expect(await coordinator.insertStable(recordingID: record.id, revisionID: head.id,
+            stableUTF16End: original.utf16.count, recordingStartedAt: record.createdAt) == .noNewText)
+        let updatedText = original + " 再说一次。"
+        let newer = first.map { RecognitionCandidate(run: $0.run, sequence: 1, text: updatedText,
+            stableUTF16Length: updatedText.utf16.count, audioEndSeconds: 2, isComplete: true) }
+        for candidate in newer { _ = try await store.appendRecognitionCandidate(candidate) }
+        let revised = try await store.publishFusion(ticket: ticket, proposal: PrecisionFusion.evaluate(
+            candidates: newer, mode: .highestQuality, committedPrefix: original))
+        let newHead = try #require(revised.revision)
+        #expect(await coordinator.insertStable(recordingID: record.id, revisionID: newHead.id,
+            stableUTF16End: updatedText.utf16.count, recordingStartedAt: record.createdAt) == .confirmed)
+        #expect(access.attempts == [original, " 再说一次。"])
+        #expect(try await store.fusionReservedPrefix(recordingID: record.id) == updatedText)
+        try await store.close()
+    }
+
+    @Test func failedFusionExpertPreventsStaleExternalAttemptWithoutBlockingNextSpeech() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        let record = try await store.createRecording(), ticket = try await store.beginFusionRecognition(recordingID: record.id)
+        let candidates = try await fusionPair(store: store, ticket: ticket, text: "等待核对的文字")
+        let proposal = try await store.publishFusion(ticket: ticket, proposal: PrecisionFusion.evaluate(candidates: candidates, mode: .highestQuality))
+        let head = try #require(proposal.revision)
+        try await store.finishModelRun(candidates[0].run, error: "isolated timeout")
+        #expect(await coordinator.insertStable(recordingID: record.id, revisionID: head.id,
+            stableUTF16End: head.text.utf16.count, recordingStartedAt: record.createdAt) == .noNewText)
+        #expect(access.attempts.isEmpty)
+        #expect(coordinator.binding != nil)
+        let next = try await store.createRecording(), nextTicket = try await store.beginFusionRecognition(recordingID: next.id)
+        let independent = try await fusionPair(store: store, ticket: nextTicket, text: "后续独立表达")
+        let ready = try await store.publishFusion(ticket: nextTicket, proposal: PrecisionFusion.evaluate(candidates: independent, mode: .highestQuality))
+        let nextHead = try #require(ready.revision)
+        #expect(await coordinator.insertStable(recordingID: next.id, revisionID: nextHead.id,
+            stableUTF16End: nextHead.text.utf16.count, recordingStartedAt: next.createdAt) == .confirmed)
+        #expect(access.attempts == ["后续独立表达"])
+        try await store.close()
+    }
+}

@@ -749,6 +749,36 @@ extension SaytileStore {
         return try db.rows("SELECT payload FROM recognition_candidates WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)])
             .map { try Self.decodeEvidence(RecognitionCandidate.self, $0["payload"]) }
     }
+    /// Presentation state comes from actual running attempts, never inferred from
+    /// enabled settings. Old generations and completed attempts cannot leave a stale spinner.
+    public func activeRecognitionPhases(recordingIDs: [UUID]) throws -> [UUID: RecognitionPurpose] {
+        let ids = Array(Set(recordingIDs))
+        var phases: [UUID: RecognitionPurpose] = [:]
+        func priority(_ purpose: RecognitionPurpose) -> Int {
+            switch purpose { case .finalASR: 4; case .audioReview: 3; case .textFusion: 2; default: 1 }
+        }
+        // Keep bind counts bounded for both system SQLite and large archive pages.
+        for offset in stride(from: 0, to: ids.count, by: 500) {
+            let batch = Array(ids[offset..<min(offset + 500, ids.count)])
+            let placeholders = Array(repeating: "?", count: batch.count).joined(separator: ",")
+            let rows = try db.rows("""
+                SELECT m.payload FROM model_runs m
+                JOIN recordings r ON r.id=m.recording_id AND r.active_attempt=m.recognition_id
+                JOIN fusion_sessions s ON s.id=m.recognition_id AND s.recording_id=r.id
+                WHERE r.deleted=0 AND r.recognition_state='running' AND s.state='running'
+                  AND m.state='running' AND m.audio_epoch=r.audio_epoch AND s.audio_epoch=r.audio_epoch
+                  AND r.id IN(\(placeholders)) ORDER BY m.rowid
+                """, batch.map { .text($0.uuidString) })
+            for row in rows {
+                let run = try Self.decodeEvidence(ModelRunTicket.self, row["payload"])
+                if phases[run.recordingID].map({ priority($0) < priority(run.purpose) }) ?? true {
+                    phases[run.recordingID] = run.purpose
+                }
+            }
+        }
+        return phases
+    }
+
     public func modelRuns(recordingID: UUID) throws -> [ModelRunRecord] {
         _ = try requireRecording(recordingID)
         return try db.rows("SELECT * FROM model_runs WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { row in

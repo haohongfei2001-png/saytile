@@ -1,0 +1,42 @@
+Building for debugging...
+[Pre-planning 1 / 155]
+[Planning deferred tasks]
+[1 / 11] CAudio
+[5 / 26] SaytileKit
+[7 / 28] SaytileKit
+[12 / 29] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[18 / 31] Saytile-product
+[29 / 42] SaytileKitTests-product
+[29 / 42] Saytile-product
+[31 / 44] Saytile-product
+[31 / 44] SaytileKitTests-product
+[36 / 44] Saytile-product
+[38 / 44] Saytile-product/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[38 / 44] SaytileKitTests-product
+[40 / 44] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (4.79秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Capture session ownership across suspension" started.
+◇ Test cancellationOnlyRemovesCapturedSessionsNotNewlyRetiredOnes() started.
+◇ Test revocationCancelsAlreadyAdmittedSessionWhileCaptureStopIsSuspended() started.
+✘ Test cancellationOnlyRemovesCapturedSessionsNotNewlyRetiredOnes() recorded an issue at CaptureOwnershipTests.swift:75:9: Expectation failed: await worker.retired.contains { $0 === next }
+↳ await worker.retired.contains { $0 === next } → <not evaluated>
+✘ Test cancellationOnlyRemovesCapturedSessionsNotNewlyRetiredOnes() recorded an issue at CaptureOwnershipTests.swift:77:9: Expectation failed: next.cancelCount == 1
+↳ next.cancelCount == 1 → false
+↳   next.cancelCount → 0
+✘ Test cancellationOnlyRemovesCapturedSessionsNotNewlyRetiredOnes() failed after 0.021 seconds with 2 issues.
+✘ Test revocationCancelsAlreadyAdmittedSessionWhileCaptureStopIsSuspended() recorded an issue at CaptureOwnershipTests.swift:53:9: Expectation failed: session.cancelCount == 1
+↳ session.cancelCount == 1 → false
+↳   session.cancelCount → 0
+✘ Test revocationCancelsAlreadyAdmittedSessionWhileCaptureStopIsSuspended() failed after 0.111 seconds with 1 issue.
+✘ Suite "Capture session ownership across suspension" failed after 0.111 seconds with 3 issues.
+✘ Test run with 2 tests in 1 suite failed after 0.111 seconds with 3 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)
