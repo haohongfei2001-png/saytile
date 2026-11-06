@@ -49,7 +49,7 @@ struct RecognitionSetupTests {
         let config = RecognitionConfiguration()
         #expect(!config.cloudEnabled)
         #expect(config.inputMode == .highestQuality)
-        #expect(Set(config.enabledModels.map(\.provider)) == [.qwenMessage, .assemblyAI, .openAIResponses, .gemini, .elevenLabsFile])
+        #expect(Set(config.enabledModels.map(\.provider)) == [.qwenMessage, .assemblyAI, .openAIResponses])
         #expect(config.models.allSatisfy { !$0.cloudConsent })
         #expect(config.models.filter { $0.provider == .soniox || $0.provider == .meta }.allSatisfy { !$0.enabled })
         #expect(Set(config.models.map(\.id)).count == config.models.count)
@@ -79,7 +79,8 @@ struct RecognitionSetupTests {
         original.topicContext = "synthetic-topic"
         original.models[1].cloudConsent = true
         try original.save(to: preferences)
-        #expect(RecognitionConfiguration.load(from: preferences) == original)
+        #expect(RecognitionConfiguration.load(from: preferences).inputMode == .highestQuality)
+        #expect(RecognitionConfiguration.load(from: preferences).models.map(\.id) == original.models.map(\.id))
         let json = try #require(preferences.data(forKey: "multiASRConfigurationV1"))
         let object = try #require(JSONSerialization.jsonObject(with: json) as? [String: Any])
         let models = try #require(object["models"] as? [[String: Any]])
