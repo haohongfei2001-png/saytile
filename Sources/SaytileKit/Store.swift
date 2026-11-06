@@ -27,7 +27,7 @@ public actor SaytileStore {
         let database = try StoreDatabase(url:self.directory.appendingPathComponent("Saytile.sqlite"))
         db = database
         let version = try database.rows("PRAGMA user_version").first?["user_version"] ?? "0"
-        guard version == "0" || version == "1" || version == "2" else { throw StoreError.database("资料库来自更新版本，请升级 Saytile。") }
+        guard version == "0" || version == "1" || version == "2" || version == "3" else { throw StoreError.database("资料库来自更新版本，请升级 Saytile。") }
         try database.configureForWriting()
         // DDL, index upgrades and version advancement commit together or roll back together.
         try database.transaction { try database.script(Self.schema) }
@@ -36,6 +36,8 @@ public actor SaytileStore {
         try database.transaction {
             try database.execute("UPDATE recordings SET is_recording=0,last_error='上次录音意外中断，已保存的原音可以恢复。' WHERE is_recording=1")
             try database.execute("UPDATE recordings SET recognition_state='queued',active_attempt=NULL WHERE recognition_state='running'")
+            try database.execute("UPDATE model_runs SET state='interrupted' WHERE state='running'")
+            try database.execute("UPDATE fusion_sessions SET state='interrupted' WHERE state='running'")
             try database.execute("UPDATE bindings SET active=0")
             try database.execute("UPDATE dispatches SET state='unverified' WHERE state='dispatching'")
         }
@@ -89,6 +91,7 @@ public actor SaytileStore {
     /// Only published durable frames justify an available original-audio state.
     public func recordCaptureFailure(recordingID: UUID, message: String) throws {
         _ = try requireRecording(recordingID)
+        try invalidateModelRuns(recordingID: recordingID)
         try db.execute("UPDATE recordings SET is_recording=0,active_attempt=NULL,recognition_state='failed',last_error=?,audio_state=CASE WHEN audio_state='available' AND NOT EXISTS(SELECT 1 FROM chunks WHERE recording_id=recordings.id AND frames>0) THEN 'missing' ELSE audio_state END WHERE id=?",[.text(message),.text(recordingID.uuidString)])
     }
     public func finishRecording(id: UUID) throws {
@@ -129,6 +132,7 @@ public actor SaytileStore {
         let record = try requireRecording(recordingID)
         guard !record.isRecording else { throw StoreError.recordingActive }
         guard record.audioState == .available else { return }
+        try invalidateModelRuns(recordingID: recordingID)
         try db.execute("UPDATE recordings SET audio_state='missing',active_attempt=NULL,audio_epoch=audio_epoch+1,recognition_state='failed',last_error=? WHERE id=?",[.text(message),.text(recordingID.uuidString)])
     }
     public func audioChunks(recordingID: UUID) throws -> [AudioChunk] {
@@ -203,12 +207,15 @@ public actor SaytileStore {
         guard record.audioState == .available else { throw StoreError.audioUnavailable }
         let epoch = Int64(try db.rows("SELECT audio_epoch FROM recordings WHERE id=?",[.text(recordingID.uuidString)])[0]["audio_epoch"]!)!
         let ticket = RecognitionTicket(id:UUID(),recordingID:recordingID,audioEpoch:epoch)
-        try db.execute("UPDATE recordings SET active_attempt=?,recognition_state='running',last_error=NULL WHERE id=?",[.text(ticket.id.uuidString),.text(recordingID.uuidString)])
+        try db.transaction {
+            try invalidateModelRuns(recordingID: recordingID)
+            try db.execute("UPDATE recordings SET active_attempt=?,recognition_state='running',last_error=NULL WHERE id=?",[.text(ticket.id.uuidString),.text(recordingID.uuidString)])
+        }
         return ticket
     }
     @discardableResult public func applyRecognition(ticket: RecognitionTicket, text: String, isFinal: Bool) throws -> Bool {
         try db.transaction {
-            guard try validTicket(ticket) else { return false }
+            guard try validTicket(ticket), try db.rows("SELECT id FROM fusion_sessions WHERE id=?", [.text(ticket.id.uuidString)]).isEmpty else { return false }
             let revision = TranscriptRevision(id:UUID(),recordingID:ticket.recordingID,text:text,origin:isFinal ? .final:.partial,createdAt:Date())
             try insertRevision(revision,attempt:ticket.id,base:nil)
             // An explicit user edit remains selected while later ASR results are preserved as other versions.
@@ -221,16 +228,25 @@ public actor SaytileStore {
     /// End only after the recognizer's final result stream has drained.
     public func finishRecognition(ticket: RecognitionTicket) throws {
         guard try validTicket(ticket) else { return }
-        try db.execute("UPDATE recordings SET recognition_state='completed',active_attempt=NULL,last_error=NULL WHERE id=?",[.text(ticket.recordingID.uuidString)])
+        try db.transaction {
+            try invalidateModelRuns(recordingID: ticket.recordingID, sessionState: "completed")
+            try db.execute("UPDATE recordings SET recognition_state='completed',active_attempt=NULL,last_error=NULL WHERE id=?",[.text(ticket.recordingID.uuidString)])
+        }
     }
     public func failRecognition(ticket: RecognitionTicket, message: String) throws {
         guard try validTicket(ticket) else { return }
-        try db.execute("UPDATE recordings SET recognition_state='failed',active_attempt=NULL,last_error=? WHERE id=?",[.text(message),.text(ticket.recordingID.uuidString)])
+        try db.transaction {
+            try invalidateModelRuns(recordingID: ticket.recordingID, sessionState: "failed")
+            try db.execute("UPDATE recordings SET recognition_state='failed',active_attempt=NULL,last_error=? WHERE id=?",[.text(message),.text(ticket.recordingID.uuidString)])
+        }
     }
     public func queueRecognition(recordingID: UUID) throws {
         let record = try requireRecording(recordingID)
         guard record.audioState == .available else { throw StoreError.audioUnavailable }
-        try db.execute("UPDATE recordings SET recognition_state='queued',active_attempt=NULL WHERE id=?",[.text(recordingID.uuidString)])
+        try db.transaction {
+            try invalidateModelRuns(recordingID: recordingID)
+            try db.execute("UPDATE recordings SET recognition_state='queued',active_attempt=NULL WHERE id=?",[.text(recordingID.uuidString)])
+        }
     }
     public func pendingRecordings(limit: Int = 100) throws -> [Recording] {
         try db.rows(Self.selection + " WHERE r.deleted=0 AND r.audio_state='available' AND r.is_recording=0 AND r.recognition_state IN('queued','failed') ORDER BY r.created_at LIMIT ?",[.int(Int64(max(1,min(1000,limit))))]).map(Self.decodeRecording)
@@ -240,7 +256,7 @@ public actor SaytileStore {
     /// Claims are taken transactionally, at most three automatically per recording.
     public func claimRecoveryRecording(now: Date = Date()) throws -> Recording? {
         try db.transaction {
-            guard let row = try db.rows(Self.selection + " LEFT JOIN recovery_attempts a ON a.recording_id=r.id WHERE r.deleted=0 AND r.audio_state='available' AND r.is_recording=0 AND r.recognition_state IN('queued','failed') AND COALESCE(a.attempt_count,0)<3 AND COALESCE(a.retry_after,0)<=? ORDER BY COALESCE(a.attempt_count,0),r.created_at LIMIT 1",[.double(now.timeIntervalSince1970)]).first else { return nil }
+            guard let row = try db.rows(Self.selection + " LEFT JOIN recovery_attempts a ON a.recording_id=r.id WHERE r.deleted=0 AND r.audio_state='available' AND r.is_recording=0 AND r.recognition_state IN('queued','failed') AND NOT EXISTS(SELECT 1 FROM recognition_retry_blocks block WHERE block.recording_id=r.id) AND COALESCE(a.attempt_count,0)<3 AND COALESCE(a.retry_after,0)<=? ORDER BY COALESCE(a.attempt_count,0),r.created_at LIMIT 1",[.double(now.timeIntervalSince1970)]).first else { return nil }
             let record = try Self.decodeRecording(row)
             let previous = Int(try db.rows("SELECT attempt_count FROM recovery_attempts WHERE recording_id=?",[.text(record.id.uuidString)]).first?["attempt_count"] ?? "0") ?? 0
             let delays: [Double] = [60,300,1800]
@@ -374,11 +390,16 @@ public actor SaytileStore {
     }
     private func beginErasure(_ id: UUID, deleteRecord: Bool) throws {
         try db.transaction {
+            try invalidateModelRuns(recordingID: id)
             try db.execute("INSERT OR IGNORE INTO erasures(recording_id,created_at,completed) VALUES(?,?,0)",[.text(id.uuidString),.double(Date().timeIntervalSince1970)])
             try db.execute("UPDATE recordings SET audio_state='deletePending',audio_epoch=audio_epoch+1,active_attempt=NULL,recognition_state='cancelled' WHERE id=? AND audio_state<>'deleted'",[.text(id.uuidString)])
             try db.execute("DELETE FROM recovery_attempts WHERE recording_id=?",[.text(id.uuidString)])
             if deleteRecord {
                 // Keep only operation audit metadata; deleting a record erases its text snapshots as well.
+                try db.execute("DELETE FROM fusion_dispatch_heads WHERE recording_id=?", [.text(id.uuidString)])
+                try db.execute("DELETE FROM fusion_archives WHERE recording_id=?", [.text(id.uuidString)])
+                try db.execute("DELETE FROM fusion_decisions WHERE recording_id=?", [.text(id.uuidString)])
+                try db.execute("DELETE FROM recognition_candidates WHERE recording_id=?", [.text(id.uuidString)])
                 try db.execute("UPDATE recordings SET deleted=1,preferred_revision=NULL WHERE id=?",[.text(id.uuidString)])
                 try db.execute("DELETE FROM editing_drafts WHERE recording_id=?",[.text(id.uuidString)])
                 // Keep a text-free ordering tombstone for active bindings. Removing it
@@ -468,6 +489,7 @@ extension SaytileStore {
          JOIN revisions stable ON stable.id=(
            SELECT latest.id FROM revisions latest
            WHERE latest.recording_id=r.id AND latest.origin='final'
+             AND NOT EXISTS(SELECT 1 FROM fusion_archives archive WHERE archive.revision_id=latest.id)
            ORDER BY latest.created_at DESC,latest.rowid DESC LIMIT 1
          )
          LEFT JOIN cursors cursor ON cursor.binding_id=b.id AND cursor.recording_id=r.id
@@ -494,6 +516,7 @@ extension SaytileStore {
                   AND r.created_at>=b.created_at
                 """,[.text(recordingID.uuidString),.text(bindingID.uuidString)]).first != nil else { throw StoreError.bindingInvalid }
                 guard let revision = try db.rows("SELECT text,origin FROM revisions WHERE id=? AND recording_id=?",[.text(revisionID.uuidString),.text(recordingID.uuidString)]).first else { throw StoreError.missingRevision }
+                guard try db.rows("SELECT revision_id FROM fusion_archives WHERE revision_id=?", [.text(revisionID.uuidString)]).isEmpty else { throw StoreError.lateRecognitionDeferred }
                 let text = revision["text"]!
                 let cursor = try db.rows("SELECT end_utf16,prefix FROM cursors WHERE binding_id=? AND recording_id=?",[.text(bindingID.uuidString),.text(recordingID.uuidString)]).first
                 let start = Int(cursor?["end_utf16"] ?? "0")!
@@ -598,6 +621,239 @@ extension SaytileStore {
     CREATE INDEX IF NOT EXISTS revisions_attempt ON revisions(recording_id,origin,attempt);
     CREATE INDEX IF NOT EXISTS dispatch_revision ON dispatches(revision_id);
     CREATE INDEX IF NOT EXISTS recovery_candidates ON recordings(created_at) WHERE deleted=0 AND audio_state='available' AND is_recording=0 AND recognition_state IN('queued','failed');
-    PRAGMA user_version=2;
+    CREATE TABLE IF NOT EXISTS fusion_sessions(
+      id TEXT PRIMARY KEY,recording_id TEXT NOT NULL REFERENCES recordings(id),audio_epoch INTEGER NOT NULL,
+      mode TEXT NOT NULL,state TEXT NOT NULL,stable_text TEXT NOT NULL DEFAULT '',created_at REAL NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS model_runs(
+      id TEXT PRIMARY KEY,recognition_id TEXT NOT NULL REFERENCES fusion_sessions(id),recording_id TEXT NOT NULL REFERENCES recordings(id),
+      audio_epoch INTEGER NOT NULL,configuration_id TEXT NOT NULL,payload TEXT NOT NULL,state TEXT NOT NULL,
+      last_sequence INTEGER NOT NULL DEFAULT -1,retryable INTEGER NOT NULL DEFAULT 1,last_error TEXT,created_at REAL NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS recognition_candidates(
+      id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES model_runs(id),recognition_id TEXT NOT NULL REFERENCES fusion_sessions(id),
+      recording_id TEXT NOT NULL REFERENCES recordings(id),sequence INTEGER NOT NULL,payload TEXT NOT NULL,created_at REAL NOT NULL,UNIQUE(run_id,sequence)
+    );
+    CREATE TRIGGER IF NOT EXISTS candidates_immutable BEFORE UPDATE ON recognition_candidates BEGIN SELECT RAISE(ABORT,'create a new candidate'); END;
+    CREATE TABLE IF NOT EXISTS fusion_dispatch_heads(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),revision_id TEXT NOT NULL REFERENCES revisions(id));
+    CREATE TABLE IF NOT EXISTS fusion_archives(revision_id TEXT PRIMARY KEY REFERENCES revisions(id),recording_id TEXT NOT NULL REFERENCES recordings(id),recognition_id TEXT NOT NULL REFERENCES fusion_sessions(id));
+    CREATE TABLE IF NOT EXISTS fusion_decisions(id TEXT PRIMARY KEY,recognition_id TEXT NOT NULL REFERENCES fusion_sessions(id),recording_id TEXT NOT NULL REFERENCES recordings(id),payload TEXT NOT NULL,created_at REAL NOT NULL);
+    CREATE TABLE IF NOT EXISTS model_usage(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES model_runs(id),recording_id TEXT NOT NULL REFERENCES recordings(id),payload TEXT NOT NULL,created_at REAL NOT NULL);
+    CREATE TABLE IF NOT EXISTS recognition_retry_blocks(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),reason TEXT NOT NULL);
+    CREATE INDEX IF NOT EXISTS model_runs_recording ON model_runs(recording_id,created_at);
+    CREATE INDEX IF NOT EXISTS candidates_session ON recognition_candidates(recognition_id,run_id,sequence);
+    CREATE INDEX IF NOT EXISTS candidates_recording ON recognition_candidates(recording_id,created_at);
+    CREATE INDEX IF NOT EXISTS decisions_recording ON fusion_decisions(recording_id,created_at);
+    CREATE INDEX IF NOT EXISTS usage_recording ON model_usage(recording_id,created_at);
+    PRAGMA user_version=3;
     """
+}
+
+extension SaytileStore {
+    /// This logical ticket owns publication. Provider tickets are separate and never accepted by applyRecognition.
+    public func beginFusionRecognition(recordingID: UUID, mode: InputQualityMode = .highestQuality) throws -> RecognitionTicket {
+        let record = try requireRecording(recordingID)
+        guard record.audioState == .available else { throw StoreError.audioUnavailable }
+        return try db.transaction {
+            try invalidateModelRuns(recordingID: recordingID)
+            let epoch = Int64(try db.rows("SELECT audio_epoch FROM recordings WHERE id=?", [.text(recordingID.uuidString)])[0]["audio_epoch"]!)!
+            let ticket = RecognitionTicket(id: UUID(), recordingID: recordingID, audioEpoch: epoch)
+            try db.execute("UPDATE recordings SET active_attempt=?,recognition_state='running',last_error=NULL WHERE id=?", [.text(ticket.id.uuidString), .text(recordingID.uuidString)])
+            try db.execute("INSERT INTO fusion_sessions(id,recording_id,audio_epoch,mode,state,created_at) VALUES(?,?,?,?,'running',?)", [.text(ticket.id.uuidString), .text(recordingID.uuidString), .int(epoch), .text(mode.rawValue), .double(Date().timeIntervalSince1970)])
+            return ticket
+        }
+    }
+    public func isRecognitionCurrent(ticket: RecognitionTicket) throws -> Bool { try validTicket(ticket) }
+    public func beginModelRun(ticket: RecognitionTicket, configuration: ModelConfiguration) throws -> ModelRunTicket {
+        guard try validTicket(ticket), try db.rows("SELECT id FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first != nil else { throw FusionError.staleGeneration }
+        let run = ModelRunTicket(recognitionID: ticket.id, recordingID: ticket.recordingID, audioEpoch: ticket.audioEpoch,
+            configurationID: configuration.id, provider: configuration.provider.rawValue, model: configuration.model, purpose: configuration.purpose)
+        try db.execute("INSERT INTO model_runs(id,recognition_id,recording_id,audio_epoch,configuration_id,payload,state,last_sequence,retryable,created_at) VALUES(?,?,?,?,?,?,'running',-1,1,?)",
+            [.text(run.id.uuidString), .text(ticket.id.uuidString), .text(ticket.recordingID.uuidString), .int(ticket.audioEpoch), .text(configuration.id.uuidString), .text(try Self.encodeEvidence(run)), .double(Date().timeIntervalSince1970)])
+        return run
+    }
+    @discardableResult public func appendRecognitionCandidate(_ candidate: RecognitionCandidate) throws -> Bool {
+        try PrecisionFusion.validateCandidate(candidate)
+        return try db.transaction {
+            let run = candidate.run
+            guard try validRun(run), let previous = try db.rows("SELECT last_sequence FROM model_runs WHERE id=?", [.text(run.id.uuidString)]).first,
+                  candidate.sequence > (Int64(previous["last_sequence"] ?? "-1") ?? -1),
+                  try db.rows("SELECT id FROM recognition_candidates WHERE id=?", [.text(candidate.id.uuidString)]).isEmpty else { return false }
+            try db.execute("INSERT INTO recognition_candidates(id,run_id,recognition_id,recording_id,sequence,payload,created_at) VALUES(?,?,?,?,?,?,?)",
+                [.text(candidate.id.uuidString), .text(run.id.uuidString), .text(run.recognitionID.uuidString), .text(run.recordingID.uuidString), .int(candidate.sequence), .text(try Self.encodeEvidence(candidate)), .double(candidate.createdAt.timeIntervalSince1970)])
+            try db.execute("UPDATE model_runs SET last_sequence=? WHERE id=?", [.int(candidate.sequence), .text(run.id.uuidString)])
+            return true
+        }
+    }
+    public func latestRecognitionCandidates(ticket: RecognitionTicket) throws -> [RecognitionCandidate] {
+        try db.rows("SELECT c.payload FROM recognition_candidates c JOIN model_runs r ON r.id=c.run_id AND r.last_sequence=c.sequence WHERE c.recognition_id=? ORDER BY c.created_at,c.rowid", [.text(ticket.id.uuidString)])
+            .map { try Self.decodeEvidence(RecognitionCandidate.self, $0["payload"]) }
+    }
+    public func recognitionCandidates(recordingID: UUID) throws -> [RecognitionCandidate] {
+        _ = try requireRecording(recordingID)
+        return try db.rows("SELECT payload FROM recognition_candidates WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)])
+            .map { try Self.decodeEvidence(RecognitionCandidate.self, $0["payload"]) }
+    }
+    public func modelRuns(recordingID: UUID) throws -> [ModelRunRecord] {
+        _ = try requireRecording(recordingID)
+        return try db.rows("SELECT * FROM model_runs WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { row in
+            guard let state = row["state"].flatMap(ModelRunState.init(rawValue:)), let sequence = row["last_sequence"].flatMap(Int64.init) else { throw FusionError.invalidCandidate }
+            return ModelRunRecord(ticket: try Self.decodeEvidence(ModelRunTicket.self, row["payload"]), state: state, lastSequence: sequence, error: row["last_error"], retryable: row["retryable"] == "1")
+        }
+    }
+    /// One provider failure does not finish/cancel the logical recording or other providers.
+    public func finishModelRun(_ run: ModelRunTicket, error: String? = nil, retryable: Bool = true) throws {
+        guard try validRun(run) else { return }
+        try db.transaction {
+            try db.execute("UPDATE model_runs SET state=?,last_error=?,retryable=? WHERE id=?",
+                [.text(error == nil ? "completed" : "failed"), error.map { .text(Self.safeModelError($0)) } ?? .null, .int(retryable ? 1 : 0), .text(run.id.uuidString)])
+            if error != nil && !retryable {
+                try db.execute("INSERT OR REPLACE INTO recognition_retry_blocks(recording_id,reason) VALUES(?,'provider-action-required')", [.text(run.recordingID.uuidString)])
+            }
+        }
+    }
+    public func setRecognitionRetryable(ticket: RecognitionTicket, retryable: Bool) throws {
+        guard try validTicket(ticket) else { return }
+        if retryable { try db.execute("DELETE FROM recognition_retry_blocks WHERE recording_id=?", [.text(ticket.recordingID.uuidString)]) }
+        else { try db.execute("INSERT OR REPLACE INTO recognition_retry_blocks(recording_id,reason) VALUES(?,'provider-action-required')", [.text(ticket.recordingID.uuidString)]) }
+    }
+    /// Explicit user retry/configuration changes can reset a blocked/expired automatic retry budget.
+    public func resetRecognitionRetry(recordingID: UUID) throws {
+        _ = try requireRecording(recordingID)
+        try db.transaction {
+            try db.execute("DELETE FROM recognition_retry_blocks WHERE recording_id=?", [.text(recordingID.uuidString)])
+            try db.execute("DELETE FROM recovery_attempts WHERE recording_id=?", [.text(recordingID.uuidString)])
+        }
+    }
+    /// The stable publication stream is independent of best-version archives and selected user drafts.
+    public func latestDispatchableRevision(recordingID: UUID) throws -> TranscriptRevision? {
+        _ = try requireRecording(recordingID)
+        return try db.rows("SELECT v.* FROM revisions v WHERE v.recording_id=? AND v.origin='final' AND NOT EXISTS(SELECT 1 FROM fusion_archives a WHERE a.revision_id=v.id) ORDER BY v.created_at DESC,v.rowid DESC LIMIT 1", [.text(recordingID.uuidString)]).first.map(Self.decodeRevision)
+    }
+    @discardableResult public func publishFusion(ticket: RecognitionTicket, proposal: FusionProposal) throws -> FusionPublication {
+        try db.transaction {
+            guard try validTicket(ticket), let session = try db.rows("SELECT * FROM fusion_sessions WHERE id=? AND state='running'", [.text(ticket.id.uuidString)]).first else {
+                return FusionPublication(revision: nil, published: false, deferred: true)
+            }
+            let current = try latestRecognitionCandidates(ticket: ticket)
+            let sourceIDs = Set(proposal.sourceCandidateIDs)
+            let sources = current.filter { sourceIDs.contains($0.id) }
+            guard sources.count == sourceIDs.count else { return FusionPublication(revision: nil, published: false, deferred: true) }
+            let sessionPrefix = session["stable_text"] ?? ""
+            let mode = InputQualityMode(rawValue: session["mode"] ?? "") ?? .highestQuality
+            if !proposal.selections.isEmpty {
+                let checked = try PrecisionFusion.validateSelection(spans: proposal.selections, candidates: current,
+                    committedPrefix: sessionPrefix, unresolved: proposal.unresolved,
+                    needsAudioReview: proposal.needsAudioReview, reasonCode: proposal.reasonCode)
+                guard checked.previewText == proposal.previewText, checked.stableText == proposal.stableText else { throw FusionError.invalidSelection }
+            } else if proposal.stableText != sessionPrefix {
+                guard !sources.isEmpty, proposal.stableText.hasPrefix(sessionPrefix),
+                      sources.allSatisfy({ $0.stableText.hasPrefix(proposal.stableText) }),
+                      mode != .highestQuality || Set(sources.map { $0.run.purpose }).isSuperset(of: [.chineseASR, .englishASR]) else { throw FusionError.invalidSelection }
+            }
+            // Preview must also be evidence, including when the stable prefix cannot advance.
+            guard proposal.previewText.isEmpty || proposal.previewText == sessionPrefix || !proposal.selections.isEmpty || sources.contains(where: { $0.text == proposal.previewText }) else { throw FusionError.invalidSelection }
+            let old = try latestDispatchableRevision(recordingID: ticket.recordingID)
+            let prior = old?.text ?? ""
+            let cursors = try db.rows("SELECT prefix FROM cursors WHERE recording_id=? AND end_utf16>0", [.text(ticket.recordingID.uuidString)]).compactMap { $0["prefix"] }
+            let growsSession = proposal.stableText.hasPrefix(sessionPrefix)
+            let growsPublished = proposal.stableText.hasPrefix(prior)
+            let growsCursors = cursors.allSatisfy { proposal.stableText.hasPrefix($0) }
+            let safe = growsSession && growsPublished && growsCursors
+            let shouldPublish = safe && !proposal.stableText.isEmpty && proposal.stableText != prior
+            var published: TranscriptRevision?
+            if shouldPublish {
+                let revision = TranscriptRevision(id: UUID(), recordingID: ticket.recordingID, text: proposal.stableText, origin: .final, createdAt: Date())
+                try insertRevision(revision, attempt: ticket.id, base: old?.id)
+                try db.execute("INSERT INTO fusion_dispatch_heads(recording_id,revision_id) VALUES(?,?) ON CONFLICT(recording_id) DO UPDATE SET revision_id=excluded.revision_id", [.text(ticket.recordingID.uuidString), .text(revision.id.uuidString)])
+                try db.execute("UPDATE fusion_sessions SET stable_text=? WHERE id=?", [.text(proposal.stableText), .text(ticket.id.uuidString)])
+                published = revision
+                try selectAutomaticRevision(revision)
+            }
+            // Preserve the best complete alternate without making it eligible for external insertion.
+            var archiveID: UUID?
+            if !proposal.previewText.isEmpty, proposal.previewText != (published?.text ?? prior) {
+                let previous = try db.rows("SELECT v.text FROM fusion_archives a JOIN revisions v ON v.id=a.revision_id WHERE a.recording_id=? ORDER BY v.created_at DESC,v.rowid DESC LIMIT 1", [.text(ticket.recordingID.uuidString)]).first?["text"]
+                if previous != proposal.previewText {
+                    let archive = TranscriptRevision(id: UUID(), recordingID: ticket.recordingID, text: proposal.previewText, origin: .final, createdAt: Date())
+                    try insertRevision(archive, attempt: ticket.id, base: old?.id)
+                    try db.execute("INSERT INTO fusion_archives(revision_id,recording_id,recognition_id) VALUES(?,?,?)", [.text(archive.id.uuidString), .text(ticket.recordingID.uuidString), .text(ticket.id.uuidString)])
+                    try selectAutomaticRevision(archive)
+                    archiveID = archive.id
+                }
+            }
+            let deferred = !safe || proposal.unresolved || proposal.needsAudioReview
+            let decision = FusionDecisionRecord(id: UUID(), recognitionID: ticket.id, proposal: proposal,
+                revisionID: published?.id ?? archiveID, outcome: shouldPublish ? "published" : deferred ? "deferred" : "unchanged", createdAt: Date())
+            try db.execute("INSERT INTO fusion_decisions(id,recognition_id,recording_id,payload,created_at) VALUES(?,?,?,?,?)", [.text(decision.id.uuidString), .text(ticket.id.uuidString), .text(ticket.recordingID.uuidString), .text(try Self.encodeEvidence(decision)), .double(decision.createdAt.timeIntervalSince1970)])
+            return FusionPublication(revision: published ?? old, published: shouldPublish, deferred: deferred)
+        }
+    }
+    public func fusionDecisions(recordingID: UUID) throws -> [FusionDecisionRecord] {
+        _ = try requireRecording(recordingID)
+        return try db.rows("SELECT payload FROM fusion_decisions WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { try Self.decodeEvidence(FusionDecisionRecord.self, $0["payload"]) }
+    }
+    public func recordModelUsage(_ usage: ModelUsageRecord) throws {
+        guard let row = try db.rows("SELECT recording_id FROM model_runs WHERE id=?", [.text(usage.runID.uuidString)]).first,
+              usage.audioSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true,
+              usage.estimatedCost.map({ $0.isFinite && $0 >= 0 }) ?? true,
+              usage.inputTokens.map({ $0 >= 0 }) ?? true, usage.outputTokens.map({ $0 >= 0 }) ?? true else { throw FusionError.invalidCandidate }
+        try db.execute("INSERT OR IGNORE INTO model_usage(id,run_id,recording_id,payload,created_at) VALUES(?,?,?,?,?)", [.text(usage.id.uuidString), .text(usage.runID.uuidString), .text(row["recording_id"]!), .text(try Self.encodeEvidence(usage)), .double(usage.createdAt.timeIntervalSince1970)])
+    }
+    public func recordModelUsage(run: ModelRunTicket, audioSeconds: Double, inputTokens: Int?, outputTokens: Int?,
+                                 elapsedSeconds: Double, requestID: String?, estimatedCost: Double?, currency: String?) throws {
+        guard elapsedSeconds.isFinite, elapsedSeconds >= 0 else { throw FusionError.invalidCandidate }
+        try recordModelUsage(ModelUsageRecord(runID: run.id, requestID: requestID, audioSeconds: audioSeconds,
+            inputTokens: inputTokens, outputTokens: outputTokens, estimatedCost: estimatedCost,
+            currency: currency ?? "USD", elapsedSeconds: elapsedSeconds))
+    }
+    public func modelUsage(recordingID: UUID) throws -> [ModelUsageRecord] {
+        _ = try requireRecording(recordingID)
+        return try db.rows("SELECT payload FROM model_usage WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { try Self.decodeEvidence(ModelUsageRecord.self, $0["payload"]) }
+    }
+    public func modelCallSummaries(limit: Int = 30) throws -> [String] {
+        try db.rows("SELECT r.payload AS run_payload,r.state,r.last_error,u.payload AS usage_payload FROM model_runs r LEFT JOIN model_usage u ON u.run_id=r.id ORDER BY r.created_at DESC,r.rowid DESC LIMIT ?", [.int(Int64(max(1, min(limit, 500))))]).map { row in
+            let run = try Self.decodeEvidence(ModelRunTicket.self, row["run_payload"])
+            var summary = "\(run.provider) / \(run.model) · \(run.purpose.rawValue) · \(row["state"] ?? "unknown")"
+            if let payload = row["usage_payload"] {
+                let usage = try Self.decodeEvidence(ModelUsageRecord.self, payload)
+                if let seconds = usage.audioSeconds { summary += String(format: " · %.1fs", seconds) }
+                if let input = usage.inputTokens { summary += " · in \(input)" }
+                if let output = usage.outputTokens { summary += " · out \(output)" }
+                if let cost = usage.estimatedCost { summary += String(format: " · ≈ %.6f %@", cost, usage.currency) }
+                else { summary += " · 费用未报告" }
+            }
+            if let error = row["last_error"] { summary += " · " + error }
+            return summary
+        }
+    }
+    private func validRun(_ run: ModelRunTicket) throws -> Bool {
+        let ticket = RecognitionTicket(id: run.recognitionID, recordingID: run.recordingID, audioEpoch: run.audioEpoch)
+        guard try validTicket(ticket), let row = try db.rows("SELECT payload FROM model_runs WHERE id=? AND recognition_id=? AND state='running'", [.text(run.id.uuidString), .text(run.recognitionID.uuidString)]).first else { return false }
+        return try Self.decodeEvidence(ModelRunTicket.self, row["payload"]) == run
+    }
+    private func invalidateModelRuns(recordingID: UUID, sessionState: String = "cancelled") throws {
+        try db.execute("UPDATE model_runs SET state='cancelled' WHERE recording_id=? AND state='running'", [.text(recordingID.uuidString)])
+        try db.execute("UPDATE fusion_sessions SET state=? WHERE recording_id=? AND state='running'", [.text(sessionState), .text(recordingID.uuidString)])
+    }
+    private func selectAutomaticRevision(_ revision: TranscriptRevision) throws {
+        try db.execute("UPDATE recordings SET preferred_revision=? WHERE id=? AND NOT EXISTS(SELECT 1 FROM revisions WHERE id=recordings.preferred_revision AND origin='userEdit') AND NOT EXISTS(SELECT 1 FROM editing_drafts WHERE recording_id=recordings.id)", [.text(revision.id.uuidString), .text(revision.recordingID.uuidString)])
+    }
+    private static func safeModelError(_ message: String) -> String {
+        let lower = message.lowercased()
+        if lower.contains("auth") || lower.contains("401") || lower.contains("403") || message.contains("授权") { return "provider-authorization" }
+        if lower.contains("quota") || lower.contains("429") || lower.contains("402") || message.contains("额度") { return "provider-quota" }
+        if lower.contains("config") || message.contains("配置") { return "provider-configuration" }
+        if lower.contains("cancel") || message.contains("取消") { return "provider-cancelled" }
+        return "provider-failure"
+    }
+    private static func encodeEvidence<T: Encodable>(_ value: T) throws -> String {
+        let data = try JSONEncoder().encode(value)
+        guard let string = String(data: data, encoding: .utf8) else { throw FusionError.invalidCandidate }
+        return string
+    }
+    private static func decodeEvidence<T: Decodable>(_ type: T.Type, _ string: String?) throws -> T {
+        guard let data = string?.data(using: .utf8) else { throw FusionError.invalidCandidate }
+        return try JSONDecoder().decode(type, from: data)
+    }
 }
