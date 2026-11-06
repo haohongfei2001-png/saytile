@@ -157,7 +157,7 @@ private final class CoordinatorHarness: Sendable {
                 if let reviewRelease { try await reviewRelease.wait() }
                 return (decision, .init(requestID: "offline-text", inputTokens: nil, outputTokens: nil, elapsedSeconds: 0))
             },
-            listen: { _, _, _ in throw ProviderFailure.configuration("Secondary audio reviewer is forbidden in the single-core pipeline.") }
+            listen: { _, _, _ in throw ProviderFailure.configuration("Secondary audio reviewer is forbidden in the single-core pipeline.")
             })
         let ticket = try await store.beginFusionRecognition(recordingID: recording.id, mode: mode)
         let completed = CoordinatorGate()

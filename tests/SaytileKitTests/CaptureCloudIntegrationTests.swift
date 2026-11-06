@@ -54,7 +54,7 @@ struct CaptureCloudIntegrationTests {
                 if failReview { throw ProviderFailure.connection }
                 return (try await probe.arbitrate(evidence), .init(requestID: "offline", inputTokens: nil, outputTokens: nil, elapsedSeconds: 0))
             },
-            listen: { _, _, _ in throw ProviderFailure.configuration("Secondary audio reviewer is forbidden in the single-core pipeline.") }
+            listen: { _, _, _ in throw ProviderFailure.configuration("Secondary audio reviewer is forbidden in the single-core pipeline.")
             })
         let factory = RecognitionSessionFactory(configuration: config, dependencies: deps)
         let worker = try CaptureWorker(store: store, ring: AudioRing(capacity: 32_000), sampleRate: 16_000,
