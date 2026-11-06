@@ -47,10 +47,13 @@ struct ChineseProviderProtocolTests {
 
     @Test func qwenRevisionReplacesSentenceAndPreservesUTF16Evidence() throws {
         var codec = QwenMessageCodec(taskID: taskID)
-        #expect(try codec.consume(envelope("task-started")) == nil)
-        let first = try #require(codec.consume(envelope("result-generated", sentence: sentence(1, "我想用水", false))))
+        let started = try codec.consume(envelope("task-started"))
+        #expect(started == nil)
+        let firstValue = try codec.consume(envelope("result-generated", sentence: sentence(1, "我想用水", false)))
+        let first = try #require(firstValue)
         #expect(first.stableUTF16Length == 0)
-        let settled = try #require(codec.consume(envelope("result-generated", sentence: sentence(1, "我想用 SwiftUI😀。", true))))
+        let settledValue = try codec.consume(envelope("result-generated", sentence: sentence(1, "我想用 SwiftUI😀。", true)))
+        let settled = try #require(settledValue)
         #expect(settled.text == "我想用 SwiftUI😀。")
         #expect(settled.stableUTF16Length == settled.text.utf16.count)
         #expect(settled.timingGranularity == "segment")
@@ -58,12 +61,14 @@ struct ChineseProviderProtocolTests {
         #expect(settled.tokens.first?.startSeconds == 0.1)
         #expect(settled.tokens.first?.endSeconds == 1)
         #expect(settled.tokens.map(\.text).joined() == settled.text)
-        let second = try #require(codec.consume(envelope("result-generated", sentence: sentence(2, " 再查询 SQLite。", false, start: 1100, end: 2000))))
+        let secondValue = try codec.consume(envelope("result-generated", sentence: sentence(2, " 再查询 SQLite。", false, start: 1100, end: 2000)))
+        let second = try #require(secondValue)
         #expect(second.text == "我想用 SwiftUI😀。 再查询 SQLite。")
         #expect(second.stableUTF16Length == settled.text.utf16.count)
         #expect(second.tokens.map(\.text).joined() == second.text)
         _ = try codec.consume(envelope("result-generated", sentence: sentence(2, " 再查询 SQLite。", true, start: 1100, end: 2000)))
-        let done = try #require(codec.consume(envelope("task-finished")))
+        let doneValue = try codec.consume(envelope("task-finished"))
+        let done = try #require(doneValue)
         #expect(done.isComplete)
         #expect(done.stableUTF16Length == done.text.utf16.count)
         #expect(done.tokens.allSatisfy { $0.rawConfidence == nil && $0.language == nil })
@@ -74,12 +79,15 @@ struct ChineseProviderProtocolTests {
         _ = try codec.consume(envelope("task-started"))
         var current = sentence(1, "不是十五。", true)
         current["stash"] = ["sentence_id": 2, "text": "是五十", "begin_time": 1100, "current_time": 1800]
-        let event = try #require(codec.consume(envelope("result-generated", sentence: current)))
+        let eventValue = try codec.consume(envelope("result-generated", sentence: current))
+        let event = try #require(eventValue)
         #expect(event.text == "不是十五。是五十")
         #expect(event.tokens.last?.endSeconds == 1.8)
         #expect(event.stableUTF16Length == "不是十五。".utf16.count)
-        #expect(try codec.consume(envelope("result-generated", sentence: ["heartbeat": true])) == nil)
-        let revised = try #require(codec.consume(envelope("result-generated", sentence: sentence(2, "是五十，不是十五。", true, start: 1100, end: 2300))))
+        let heartbeat = try codec.consume(envelope("result-generated", sentence: ["heartbeat": true]))
+        #expect(heartbeat == nil)
+        let revisedValue = try codec.consume(envelope("result-generated", sentence: sentence(2, "是五十，不是十五。", true, start: 1100, end: 2300)))
+        let revised = try #require(revisedValue)
         #expect(revised.text == "不是十五。是五十，不是十五。")
         #expect(revised.tokens.map(\.text).joined() == revised.text)
     }
@@ -87,14 +95,16 @@ struct ChineseProviderProtocolTests {
     @Test func qwenCumulativeWindowStartsAtZeroAfterLeadingSilence() throws {
         var codec = QwenMessageCodec(taskID: taskID)
         _ = try codec.consume(envelope("task-started"))
-        let partial = try #require(codec.consume(envelope("result-generated", sentence:
-            sentence(1, "不要", false, start: 1450, end: 1750))))
+        let partialValue = try codec.consume(envelope("result-generated", sentence:
+            sentence(1, "不要", false, start: 1450, end: 1750)))
+        let partial = try #require(partialValue)
         #expect(partial.audioStartSeconds == 0)
         #expect(partial.tokens.first?.startSeconds == 1.45)
         #expect(partial.tokens.first?.endSeconds == 1.75)
         _ = try codec.consume(envelope("result-generated", sentence:
             sentence(1, "不要删。", true, start: 1450, end: 2100)))
-        let complete = try #require(codec.consume(envelope("task-finished")))
+        let completeValue = try codec.consume(envelope("task-finished"))
+        let complete = try #require(completeValue)
         #expect(complete.audioStartSeconds == 0)
         #expect(complete.audioEndSeconds == 2.1)
         #expect(complete.tokens.first?.startSeconds == 1.45)
@@ -104,8 +114,9 @@ struct ChineseProviderProtocolTests {
     @Test func qwenMissingPartialTimeDoesNotFabricateWordAlignment() throws {
         var codec = QwenMessageCodec(taskID: taskID)
         _ = try codec.consume(envelope("task-started"))
-        let value = try #require(codec.consume(envelope("result-generated", sentence:
-            ["sentence_id": 1, "text": "ChatGPT", "sentence_end": false, "begin_time": 100, "end_time": NSNull()])))
+        let valueValue = try codec.consume(envelope("result-generated", sentence:
+            ["sentence_id": 1, "text": "ChatGPT", "sentence_end": false, "begin_time": 100, "end_time": NSNull()]))
+        let value = try #require(valueValue)
         #expect(value.text == "ChatGPT")
         #expect(value.tokens.isEmpty)
         #expect(value.timingGranularity == "utterance")
@@ -141,31 +152,37 @@ struct ChineseProviderProtocolTests {
 
     @Test func sonioxAppendsFinalsButReplacesNonfinalTail() throws {
         var codec = SonioxStreamingCodec(referenceID: taskID)
-        let first = try #require(codec.consume(["tokens": [token("我用 ", true), token("swift", false, language: "en")]]))
+        let firstValue = try codec.consume(["tokens": [token("我用 ", true), token("swift", false, language: "en")]])
+        let first = try #require(firstValue)
         #expect(first.text == "我用 swift")
         #expect(first.stableUTF16Length == "我用 ".utf16.count)
-        let next = try #require(codec.consume(["tokens": [token("SwiftUI😀", false, start: 220, end: 700, language: "en")]]))
+        let nextValue = try codec.consume(["tokens": [token("SwiftUI😀", false, start: 220, end: 700, language: "en")]])
+        let next = try #require(nextValue)
         #expect(next.text == "我用 SwiftUI😀")
         #expect(next.language == "mixed")
         #expect(next.tokens.map(\.text).joined() == next.text)
-        let final = try #require(codec.consume(["tokens": [token("SwiftUI😀", true, start: 220, end: 700, language: "en"),
+        let finalValue = try codec.consume(["tokens": [token("SwiftUI😀", true, start: 220, end: 700, language: "en"),
                                                                             ["text": "<end>", "is_final": true]],
-                                                "total_audio_proc_ms": 800]))
+                                                "total_audio_proc_ms": 800])
+        let final = try #require(finalValue)
         #expect(final.text == "我用 SwiftUI😀")
         #expect(final.stableUTF16Length == final.text.utf16.count)
         #expect(final.timingGranularity == "token")
         #expect(final.tokens.last?.rawConfidence == 0.91)
         #expect(final.audioEndSeconds == 0.8)
-        let done = try #require(codec.consume(["tokens": [], "finished": true]))
+        let doneValue = try codec.consume(["tokens": [], "finished": true])
+        let done = try #require(doneValue)
         #expect(done.isComplete)
         #expect(done.text == final.text)
     }
 
     @Test func sonioxControlTokensAndMissingTimeCannotBecomeSpokenEvidence() throws {
         var codec = SonioxStreamingCodec(referenceID: taskID)
-        let result = try #require(codec.consume(["tokens": [token("停。", true), ["text": "<fin>"], ["text": "<end>"]]]))
+        let resultValue = try codec.consume(["tokens": [token("停。", true), ["text": "<fin>"], ["text": "<end>"]]])
+        let result = try #require(resultValue)
         #expect(result.text == "停。")
-        let noTime = try #require(codec.consume(["tokens": [["text": " 好", "is_final": false]], "total_audio_proc_ms": 1200]))
+        let noTimeValue = try codec.consume(["tokens": [["text": " 好", "is_final": false]], "total_audio_proc_ms": 1200])
+        let noTime = try #require(noTimeValue)
         #expect(noTime.text == "停。 好")
         #expect(noTime.tokens.isEmpty)
         #expect(noTime.timingGranularity == "utterance")
@@ -175,13 +192,15 @@ struct ChineseProviderProtocolTests {
 
     @Test func sonioxCumulativeWindowStartsAtZeroAfterLeadingSilence() throws {
         var codec = SonioxStreamingCodec(referenceID: taskID)
-        let partial = try #require(codec.consume(["tokens": [token("我用", false, start: 1450, end: 1750)]]))
+        let partialValue = try codec.consume(["tokens": [token("我用", false, start: 1450, end: 1750)]])
+        let partial = try #require(partialValue)
         #expect(partial.audioStartSeconds == 0)
         #expect(partial.tokens.first?.startSeconds == 1.45)
         #expect(partial.tokens.first?.endSeconds == 1.75)
         _ = try codec.consume(["tokens": [token("我用 ", true, start: 1450, end: 1750),
                                          token("SwiftUI", true, start: 1900, end: 2400, language: "en")]])
-        let complete = try #require(codec.consume(["tokens": [], "finished": true, "total_audio_proc_ms": 2800]))
+        let completeValue = try codec.consume(["tokens": [], "finished": true, "total_audio_proc_ms": 2800])
+        let complete = try #require(completeValue)
         #expect(complete.audioStartSeconds == 0)
         #expect(complete.audioEndSeconds == 2.8)
         #expect(complete.tokens.first?.startSeconds == 1.45)
