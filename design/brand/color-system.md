@@ -12,7 +12,7 @@ Date: 2026-11-07 · Candidate values are design proposals, not sampled values fr
 | 05 Vermilion / Mineral | #C94E3B | #25292A | #F2F0EA | Crafted, confident, tactile | Can feel heritage/editorial rather than contemporary software |
 
 ## Recommended direction: 01 Persimmon / Porcelain
-Primary brand accent: `#E9654B` (RGB 233, 101, 75; HSL 11.6°, 78.4%, 60.4%).
+Primary brand accent: `#E9654B` (RGB 233, 101, 75; HSL 9.9°, 78.2%, 60.4%).
 Display P3 starting point: sRGB source color converted through a color-managed asset pipeline; do not simply reuse the hex as an unverified P3 tuple.
 Ink: `#24272B`; warm surface: `#F7F4EF`; quiet surface: `#EFEBE5`; secondary text: `#74736F`; divider: `#E4DED6`.
 
