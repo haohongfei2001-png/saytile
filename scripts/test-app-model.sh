@@ -17,7 +17,7 @@ fi
 [[ -f "$SAYTILE_MODEL_MODULE_MAP" ]] || { printf 'CAudio module map missing\n' >&2; exit 1; }
 SAYTILE_MODEL_TEMP="$(mktemp -d /tmp/saytile-model-probe.XXXXXX)"
 trap 'rm -rf "$SAYTILE_MODEL_TEMP"' EXIT
-swiftc -swift-version 6 -parse-as-library \
+swiftc -swift-version 6 -parse-as-library -module-cache-path "$SAYTILE_MODEL_SCRATCH/probe-module-cache" \
   -I "$SAYTILE_MODEL_BIN_DIR" -I "$SAYTILE_MODEL_BIN_DIR/Modules" -I Sources/CSQLite \
   -Xcc "-fmodule-map-file=$SAYTILE_MODEL_MODULE_MAP" \
   -L "$SAYTILE_MODEL_BIN_DIR" -lSaytileKit -lc++ \

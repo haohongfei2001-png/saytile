@@ -9,3 +9,9 @@ Verification checkpoint: PR5 run 42280700932 failed with 17 issues / 276 tests (
 All logs: `/tmp/saytile-single-20261107-engine/`. Native commands use `--disable-sandbox` only to avoid SwiftPM's nested sandbox error; host filesystem sandbox stays active. No cloud model requests, microphone, browser activation, installed app or production archive access. The 13.44 MB journal test is accelerated synthetic data, not a wall-clock soak.
 
 Remaining: exact external owned-range repair ledger/AX patch path NOT implemented (existing no-replay protection remains; corrections stay local). Optional Apple evidence alongside cloud and network-to-local failover not implemented; capture/journal plus queued recovery remain. Live cloud protocol/latency/accuracy, real native AX patch, microphone, long wall-clock soak, real Keychain and audio playback gates NOT verified. AppModel and ad-hoc candidate packaging pending. No completion claim for the entire requested engine.
+
+## Milestone 2 — isolated build-host fixes
+
+Engine commit: `59a63f2f77520ae684dd97c65417b90140fab342`. Final native run includes the three configuration/identity tests omitted by the earlier broad file-name exclusion: **284 passed / 0 failed, 35 suites**. Only the four individual Keychain/playback functions listed above are excluded. New transport identity-change, journal boundary and local ingress checks passed. Offline totals remain 9 + 43 passed.
+
+Debug app compiled; packaging first failed at iconutil despite correct PNG dimensions. Added bounded PNG-to-ICNS fallback; macOS `sips` recognizes its ICNS and 1024px representation. AppModel production code built, but its standalone probe compiler attempted an unwritable default Clang cache; routed that cache into the existing isolated scratch. AppModel probe and signed candidate receipt follow after rerun. These fixes do not change transcript or dispatch semantics.
