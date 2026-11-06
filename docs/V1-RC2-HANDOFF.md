@@ -1,3 +1,13 @@
+# 本轮无密钥收口接续 · 2026-11-07
+
+基于 45af670，用户明确继续无需密钥的工作。新修复与全部红/绿证据集中在 research/asr/validation/rc2-no-key；最终 283 native / 34 suites、25 AppModel 通过，所有模块冻结，独立复审进行中。版本 candidate.2；下一步提交运行时、干净打包、原生 UI/CLI/实际 RC1 DMG 升级与回退、包待命资源及新 CI。旧 candidate.1 DMG 保留。不要读私人资料、调用云 API、合并或覆盖 RC1。
+
+主要修复：AppModel 刷新共用原始请求版本；review 取消等待所有权直到清理完成；原音恢复按错误类型区分丢失与可重试，状态变更原子、每条路径失败隔离；首次授权待定保护；重放按 PCM 时长；tap 通道和采样率校验。test-only watchdog 1 秒/观察窗 3 秒，生产 480 秒不变。120 秒合成资源快照早于最终 rate guard，不能当最终包或实际麦克风证据。
+
+以下旧检查点保留来源，最终交付后更新顶部。
+
+---
+
 # RC2 工程接续记录
 
 2026-11-07。当前任务是交付现有核心五服务，不做新模型排名。正式工作树 `/Users/hhf/.codex/worktrees/saytile-fusion-quality`，分支 `codex/fusion-quality`，远端 PR4 `research/asr-quality-2026-11-06`。先读取最新 PR/head/CI；main a352a1c 和已安装 RC1 不改动。canonical checkout 的 28 个预存同步副本不操作。

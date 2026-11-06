@@ -119,7 +119,9 @@ private final class CoordinatorHarness: Sendable {
     let review: CoordinatorReviewProbe
 
     init(mode: InputQualityMode, chinese: CoordinatorProviderControl, english: CoordinatorProviderControl,
-         initialPCM: Data, reviewText: String? = nil, reviewRelease: CoordinatorGate? = nil, invalidReviewSelection: Bool = false) async throws {
+         initialPCM: Data, reviewText: String? = nil, reviewRelease: CoordinatorGate? = nil, invalidReviewSelection: Bool = false,
+         arbitrationRelease: CoordinatorGate? = nil, finalizing: CoordinatorGate? = nil, finalizationTimeout: Duration = .seconds(480),
+         ignoreArbitrationCancellation: Bool = false, arbitrationCancelled: CoordinatorGate? = nil) async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-coordinator-" + UUID().uuidString)
         let store = try SaytileStore(directory: directory)
         let binding = try await store.createBinding(label: "Offline coordinator fixture")
@@ -157,6 +159,12 @@ private final class CoordinatorHarness: Sendable {
             transcribe: { _, _, _ in throw CoordinatorFixtureFailure.unexpectedDependency },
             arbitrate: { evidence, _, _, _, _ in
                 let decision = try await review.arbitrate(evidence)
+                if let arbitrationRelease {
+                    try await withTaskCancellationHandler {
+                        if ignoreArbitrationCancellation { try await arbitrationRelease.waitIgnoringCancellation() }
+                        else { try await arbitrationRelease.wait() }
+                    } onCancel: { arbitrationCancelled?.open() }
+                }
                 return (decision, .init(requestID: "offline-text", inputTokens: nil, outputTokens: nil, elapsedSeconds: 0))
             },
             listen: { data, _, _ in
@@ -165,14 +173,14 @@ private final class CoordinatorHarness: Sendable {
                 if let reviewRelease { try await reviewRelease.wait() }
                 return (.init(text: reviewText, uncertain: false),
                         .init(requestID: "offline-audio", inputTokens: nil, outputTokens: nil, elapsedSeconds: 0))
-            })
+            }, finalizationStarted: { finalizing?.open() })
         let ticket = try await store.beginFusionRecognition(recordingID: recording.id, mode: mode)
         let completed = CoordinatorGate()
         self.directory = directory; self.store = store; self.recordingID = recording.id
         self.bindingID = binding; self.ticket = ticket; self.file = file; self.relativePath = path
         self.completed = completed; self.chinese = chinese; self.english = english; self.review = review
         self.session = MultiRecognitionSession(store: store, ticket: ticket, configuration: config,
-                                               dependencies: dependencies, onComplete: { completed.open() })
+                                               dependencies: dependencies, finalizationTimeout: finalizationTimeout, onComplete: { completed.open() })
     }
     private static func writePCM(_ pcm: Data, to file: URL) throws {
         let contents = PCMJournal.header(frames: Int64(pcm.count / 2)) + pcm
@@ -206,12 +214,16 @@ private final class CoordinatorHarness: Sendable {
 private func withCoordinatorHarness(mode: InputQualityMode = .highestQuality,
                                     chinese: CoordinatorProviderControl, english: CoordinatorProviderControl,
                                     initialPCM: Data, reviewText: String? = nil, reviewRelease: CoordinatorGate? = nil, invalidReviewSelection: Bool = false,
+                                    arbitrationRelease: CoordinatorGate? = nil, finalizing: CoordinatorGate? = nil, finalizationTimeout: Duration = .seconds(480),
+                                    ignoreArbitrationCancellation: Bool = false, arbitrationCancelled: CoordinatorGate? = nil,
                                     body: (CoordinatorHarness) async throws -> Void) async throws {
     let harness = try await CoordinatorHarness(mode: mode, chinese: chinese, english: english,
-                                              initialPCM: initialPCM, reviewText: reviewText, reviewRelease: reviewRelease, invalidReviewSelection: invalidReviewSelection)
+                                              initialPCM: initialPCM, reviewText: reviewText, reviewRelease: reviewRelease, invalidReviewSelection: invalidReviewSelection,
+                                              arbitrationRelease: arbitrationRelease, finalizing: finalizing, finalizationTimeout: finalizationTimeout,
+                                              ignoreArbitrationCancellation: ignoreArbitrationCancellation, arbitrationCancelled: arbitrationCancelled)
     do { try await body(harness) }
-    catch { reviewRelease?.open(); await harness.cleanup(); throw error }
-    reviewRelease?.open()
+    catch { reviewRelease?.open(); arbitrationRelease?.open(); await harness.cleanup(); throw error }
+    reviewRelease?.open(); arbitrationRelease?.open()
     await harness.cleanup()
 }
 
@@ -342,6 +354,69 @@ struct RecognitionCoordinatorTests {
             #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID) == nil)
             #expect(try Data(contentsOf: h.file) == PCMJournal.header(frames: Int64(pcm.count / 2)) + pcm)
             #expect(try await h.store.recording(id: h.recordingID)?.audioState == .available)
+        }
+    }
+
+    @Test func cancellationWaitsForIndependentLiveReviewToExit() async throws {
+        let pcm = firstPCM + secondPCM
+        let reviewRelease = CoordinatorGate(), reviewCancelled = CoordinatorGate()
+        let chinese = CoordinatorProviderControl(text: "支付15元。", liveText: "支付15元。")
+        let english = CoordinatorProviderControl(text: "支付50元。", liveText: "支付50元。")
+        try await withCoordinatorHarness(chinese: chinese, english: english, initialPCM: pcm,
+            reviewText: english.text, arbitrationRelease: reviewRelease,
+            ignoreArbitrationCancellation: true, arbitrationCancelled: reviewCancelled) { h in
+            h.session.append(pcm)
+            try await coordinatorEventually { await h.review.arbitrationCalls == 1 }
+            h.session.cancel()
+            try await reviewCancelled.wait()
+            // A transport's cancellation callback can still be unwinding. Session
+            // completion must not release capacity/ownership before that work exits.
+            for _ in 0..<20 { try await Task.sleep(for: .milliseconds(5)) }
+            let finishedBeforeReviewExited = h.session.isComplete
+            #expect(!finishedBeforeReviewExited, "The cancelled independent review still belongs to this session")
+            reviewRelease.open()
+            try await h.wait()
+            #expect(try await h.store.recording(id: h.recordingID)?.recognitionState == .failed)
+            #expect(try await h.store.modelRuns(recordingID: h.recordingID).allSatisfy { $0.state != .running })
+            #expect(try await h.store.recognitionCandidates(recordingID: h.recordingID).allSatisfy { $0.run.purpose.isStreaming })
+            #expect(try Data(contentsOf: h.file) == PCMJournal.header(frames: Int64(pcm.count / 2)) + pcm)
+        }
+    }
+
+    @Test(arguments: [false, true])
+    func cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog: Bool) async throws {
+        let pcm = firstPCM + secondPCM
+        let reviewRelease = CoordinatorGate(), finalizing = CoordinatorGate()
+        let chinese = CoordinatorProviderControl(text: "支付15元。", liveText: "支付15元。")
+        let english = CoordinatorProviderControl(text: "支付50元。", liveText: "支付50元。")
+        try await withCoordinatorHarness(chinese: chinese, english: english, initialPCM: pcm,
+            reviewText: english.text, arbitrationRelease: reviewRelease, finalizing: finalizing,
+            finalizationTimeout: watchdog ? .seconds(1) : .seconds(480)) { h in
+            h.session.append(pcm)
+            try await coordinatorEventually { await h.review.arbitrationCalls == 1 }
+            try await h.endRecording()
+            chinese.release.open(); english.release.open()
+            try await finalizing.wait()
+            // The provider group has completed, while the independently scheduled live
+            // review remains blocked. Cancellation must still own and terminate it.
+            #expect(try await h.store.modelRuns(recordingID: h.recordingID)
+                .filter { $0.ticket.purpose.isStreaming }.allSatisfy { $0.state == .completed })
+            let stableBeforeCancellation = try await h.store.latestDispatchableRevision(recordingID: h.recordingID)?.text
+            if !watchdog { h.session.cancel() }
+            // Bound the red case independently of the session's broken watchdog;
+            // cleanup cancels/releases the controlled dependency even on failure.
+            for _ in 0..<600 where !h.session.isComplete {
+                try await Task.sleep(for: .milliseconds(5))
+            }
+            let finished = h.session.isComplete
+            #expect(finished, "Cancellation must stop the live review awaited by finalization")
+            if !finished { h.session.cancel() }
+            try await h.wait()
+            #expect(try await h.store.recording(id: h.recordingID)?.recognitionState == .failed)
+            #expect(try await h.store.modelRuns(recordingID: h.recordingID).allSatisfy { $0.state != .running })
+            #expect(try await h.store.recognitionCandidates(recordingID: h.recordingID).count >= 2)
+            #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID)?.text == stableBeforeCancellation)
+            #expect(try Data(contentsOf: h.file) == PCMJournal.header(frames: Int64(pcm.count / 2)) + pcm)
         }
     }
 

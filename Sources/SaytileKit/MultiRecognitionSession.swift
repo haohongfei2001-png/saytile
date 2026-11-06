@@ -8,6 +8,7 @@ struct RecognitionPipelineDependencies: Sendable {
     var transcribe: @Sendable (Data, ModelConfiguration, String) async throws -> ProviderTranscriptEvent
     var arbitrate: @Sendable ([ReviewEvidence], String, String, ModelConfiguration, String) async throws -> (PrecisionReviewDecision, PrecisionReviewUsage)
     var listen: @Sendable (Data, ModelConfiguration, String) async throws -> (AudioReviewTranscript, PrecisionReviewUsage)
+    var finalizationStarted: @Sendable () -> Void = {}
     static let live = RecognitionPipelineDependencies(
         credential: { try CloudCredentialStore.read(configurationID: $0.id, provider: $0.provider) },
         streaming: { provider in
@@ -31,12 +32,15 @@ final class MultiRecognitionSession: RecognitionSession, @unchecked Sendable {
     private let fanout: RecognitionAudioFanout
     private let coordinator: MultiRecognitionCoordinator
     private let task: Task<Void, Never>
+    private let finalizationTimeout: Duration
     var isComplete: Bool { completion.isComplete }
     init(store: SaytileStore, ticket: RecognitionTicket, configuration: RecognitionConfiguration,
          dependencies: RecognitionPipelineDependencies = .live,
          allowSingleExpertBaseline: Bool = false,
+         finalizationTimeout: Duration = .seconds(480),
          onComplete: @escaping @Sendable () -> Void = {}) {
         self.recordingID = ticket.recordingID
+        self.finalizationTimeout = finalizationTimeout
         let configs = configuration.enabledModels.filter { $0.purpose.isStreaming }
         let coordinator = MultiRecognitionCoordinator(store: store, ticket: ticket, configuration: configuration, dependencies: dependencies)
         self.coordinator = coordinator
@@ -51,7 +55,7 @@ final class MultiRecognitionSession: RecognitionSession, @unchecked Sendable {
                 try configuration.validateForCloud(allowSingleExpertBaseline: allowSingleExpertBaseline)
                 try await coordinator.attach(fanout)
                 try Task.checkCancellation()
-                await withTaskCancellationHandler {
+                try await withTaskCancellationHandler {
                     await withTaskGroup(of: Void.self) { group in
                         for (index, item) in configs.enumerated() {
                             let stream = fanout.channels[index].audio
@@ -59,12 +63,15 @@ final class MultiRecognitionSession: RecognitionSession, @unchecked Sendable {
                         }
                         await group.waitForAll()
                     }
+                    try Task.checkCancellation()
+                    // Live review is an independently scheduled task. Keep its
+                    // finalization wait inside the same cancellation ownership.
+                    await coordinator.finalize()
+                    try Task.checkCancellation()
                 } onCancel: {
                     fanout.finish()
                     Task { await coordinator.cancel() }
                 }
-                try Task.checkCancellation()
-                await coordinator.finalize()
             } catch {
                 await coordinator.cancel()
                 try? await store.failRecognition(ticket: ticket, message: error is CancellationError ? "识别已暂停，原音和候选已保留。" : Self.safeMessage(error))
@@ -74,10 +81,10 @@ final class MultiRecognitionSession: RecognitionSession, @unchecked Sendable {
     func append(_ data: Data) { fanout.append(data) }
     func finish() {
         fanout.finish()
-        let task = task
+        let task = task, timeout = finalizationTimeout
         completion.watch(Task {
             // A liveness deadline never turns incomplete evidence into stable text.
-            do { try await Task.sleep(for: .seconds(480)) } catch { return }
+            do { try await Task.sleep(for: timeout) } catch { return }
             task.cancel()
         })
     }
@@ -126,7 +133,14 @@ actor MultiRecognitionCoordinator {
         try await store.configureFusionRequirements(ticket: ticket, configurations: configuration.enabledModels)
         self.audio = audio
     }
-    func cancel() { cancelled = true; reviewTask?.cancel(); reviewTask = nil }
+    func cancel() async {
+        cancelled = true
+        // Retain ownership until the independent live review actually exits. An
+        // overlapping cancellation must await the same task, not see an empty slot.
+        let drainingReview = reviewTask
+        drainingReview?.cancel()
+        await drainingReview?.value
+    }
     func audioOverflow(configurationID: UUID) { overflowed.insert(configurationID) }
     private var requiredPurposes: Set<RecognitionPurpose> {
         Set(configuration.enabledModels.filter { $0.purpose.isStreaming }.map(\.purpose))
@@ -476,6 +490,7 @@ actor MultiRecognitionCoordinator {
     }
     func finalize() async {
         ending = true
+        dependencies.finalizationStarted()
         await reviewTask?.value
         reviewTask = nil
         guard !cancelled else { return }

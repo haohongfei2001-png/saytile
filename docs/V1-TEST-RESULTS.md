@@ -1,3 +1,17 @@
+# RC2 无密钥完整回归 · 2026-11-07
+
+最终集成源码：**283 tests / 34 suites PASS**（`rc2-no-key/native-all.log`），**25 AppModel checks PASS**（`app-model-final.log`）。专项 63 / 53 / 21 项与全量重叠，不相加。首轮红测、编译重叠中止和后续绿测均保留，不以重跑删除失败证据。
+
+- 真实独立文件/SQLite：0400 WAV、000 记录目录、最后一步 SQL abort 和 chunk reconciliation abort；失败事务回滚，原音及用户稿保留，其他记录继续恢复，权限恢复并重启后幂等修复。有效只读 WAV 无需写权限。
+- 并发：最终化中显式取消与 watchdog 均取消并等待独立复核退出；Store 不残留运行状态，不发布取消后候选，既有文字/原音保留。生产 deadline 仍 480 秒，不声称强制终止不配合取消的代码。
+- 生命周期/喂音：首次授权待定仅在 starting 时保留；锁屏/会话状态在等待后重查；保存音频按实际 PCM 时长回放；拒绝通道和采样率不匹配的 tap 数据并记录中断。未实际操作系统权限或物理设备。
+- 刷新：40 并发请求实际读库次数由 40 降到 2，用户编辑稿与退出边界通过。
+- 120 秒真实墙钟合成采集：1,920,000 source frames、0 ring drops、40 records available/finished、119.92 秒 VAD 原音、3,839,200 字节；user+sys CPU 1.43 秒、最大 RSS 21,626,880 字节。来源快照见 manifest，早于最后采样率 guard。ASR 关闭，不能证明真实收音/云端/72 小时/整机能耗。
+
+详见 [本轮证据索引](../research/asr/validation/rc2-no-key/README.md)。干净包与新 CI 待随后记录，不复用旧包结果作为新包通过。真实云端仍 NOT_RUN。
+
+---
+
 # RC2 干净候选交付检查点 · 2026-11-07
 
 最终干净包：15 张真实原生视图、6 组实际控件交互 PASS（16 AXPress、2 AXSetValue + 2 原生编辑器提交），7 项连接设置 CLI、4 项回放隔离 CLI、8 项实际 RC1 DMG 升级/回退 PASS。候选从未激活；测试期间记录 1 次外部前台转换，未归因，不声称全程前台不变。270 项原生 / 32 组与 23 项 AppModel、43 项离线评分是各自层次，不合并计数或冒充云端实测。完整 [证据索引](../research/asr/validation/rc2/README.md)。

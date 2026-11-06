@@ -1,0 +1,30 @@
+Building for debugging...
+[1 / 10]
+[2 / 11] SaytileKit
+[6 / 15] SaytileKit
+[7 / 16] SaytileKit
+[11 / 17] SaytileKit
+[13 / 19] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[16 / 19] SaytileKitTests-product
+[20 / 23] SaytileKitTests-product
+[26 / 28] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[30 / 34] Saytile-product
+[33 / 35] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[34 / 35] Saytile-product
+Build complete! (4.59秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Storage failure state remains recoverable" started.
+◇ Test inaccessibleRecordingDirectoryDoesNotBlockIndependentRecovery() started.
+✘ Test inaccessibleRecordingDirectoryDoesNotBlockIndependentRecovery() recorded an issue at StorageRecoveryFailureTests.swift:98:6: Caught error: .invalidPath
+✘ Test inaccessibleRecordingDirectoryDoesNotBlockIndependentRecovery() failed after 0.019 seconds with 1 issue.
+✘ Suite "Storage failure state remains recoverable" failed after 0.019 seconds with 1 issue.
+✘ Test run with 1 test in 1 suite failed after 0.019 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

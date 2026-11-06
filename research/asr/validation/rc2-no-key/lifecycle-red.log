@@ -1,0 +1,111 @@
+Building for debugging...
+[Planning deferred tasks]
+[38 / 117]
+[70 / 128]
+[96 / 128] CAudio
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[97 / 128] SaytileKit
+[108 / 267]
+[117 / 267]
+[124 / 267]
+[125 / 267]
+[132 / 267]
+[136 / 267]
+[142 / 267]
+[147 / 267]
+[148 / 267]
+[162 / 267]
+[164 / 267]
+[171 / 267]
+[174 / 267]
+[175 / 267]
+[182 / 267]
+[184 / 267]
+[190 / 267]
+[191 / 267]
+[194 / 267]
+[196 / 267]
+[208 / 267]
+[210 / 267]
+[214 / 267]
+[219 / 267]
+[222 / 267]
+[223 / 267]
+[224 / 267]
+[225 / 267]
+[236 / 267] SaytileKit
+[237 / 267] SaytileKit
+[247 / 268] SaytileKit
+[247 / 268] Saytile-product
+[250 / 279] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[256 / 280] SaytileKitTests-product
+[257 / 295]
+[260 / 295]
+[270 / 295] SaytileKitTests-product
+[276 / 295]
+[279 / 295] Saytile-product
+[279 / 295] SaytileKitTests-product
+[281 / 295] SaytileKitTests-product
+[282 / 295] SaytileKitTests-product
+[284 / 295] Saytile-product
+[285 / 295] SaytileKitTests-product
+[285 / 295] Saytile-product
+[285 / 295] SaytileKitTests-product
+[285 / 295] Saytile-product
+[287 / 295] Saytile-product/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[289 / 295] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[291 / 295] SaytileKitTests-product
+Build complete! (25.27秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Saved audio real-time replay" started.
+◇ Suite "Independent lifecycle stop reasons" started.
+◇ Test shortFinalBlockUsesItsOwnDurationAndCancellationStopsBeforeNextBlock() started.
+◇ Test fiveMinuteRecordingDoesNotOverrunHealthyRealtimeConsumer() started.
+◇ Test permissionResetWhileCapturingStillRequiresSuspension() started.
+◇ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() started.
+◇ Test initialPermissionPromptDoesNotCancelPendingStart() started.
+◇ Test unknownSessionOrUntrustedUnlockCannotResume() started.
+◇ Test wakeDoesNotOverrideLockOrSessionSwitch() started.
+◇ Test lockedAtLaunchCannotCapture() started.
+✔ Test lockedAtLaunchCannotCapture() passed after 0.001 seconds.
+✔ Test permissionResetWhileCapturingStillRequiresSuspension() passed after 0.001 seconds.
+✔ Test wakeDoesNotOverrideLockOrSessionSwitch() passed after 0.001 seconds.
+✔ Test unknownSessionOrUntrustedUnlockCannotResume() passed after 0.001 seconds.
+✘ Test initialPermissionPromptDoesNotCancelPendingStart() recorded an issue at AudioLifecycleGateTests.swift:11:9: Expectation failed: !AudioLifecycleGate.requiresPermissionSuspension(state: .starting, authorization: .notDetermined)
+↳ !AudioLifecycleGate.requiresPermissionSuspension(state: .starting, authorization: .notDetermined) → true
+↳   AudioLifecycleGate.requiresPermissionSuspension(state: .starting, authorization: .notDetermined) → false
+↳     .notDetermined → AVAuthorizationStatus(rawValue: 0)
+✘ Test initialPermissionPromptDoesNotCancelPendingStart() failed after 0.001 seconds with 1 issue.
+✘ Test shortFinalBlockUsesItsOwnDurationAndCancellationStopsBeforeNextBlock() recorded an issue at SavedAudioReplayTests.swift:50:9: Expectation failed: abs(consumer.result.elapsed - Double(7_634) / 32_000) < 0.000_001
+↳ abs(consumer.result.elapsed - Double(7_634) / 32_000) < 0.000_001 → false
+↳   abs(consumer.result.elapsed - Double(7_634) / 32_000) → 0.0385625
+↳   0.000_001 → 1e-06
+✘ Test shortFinalBlockUsesItsOwnDurationAndCancellationStopsBeforeNextBlock() failed after 0.001 seconds with 1 issue.
+✘ Test fiveMinuteRecordingDoesNotOverrunHealthyRealtimeConsumer() recorded an issue at SavedAudioReplayTests.swift:38:9: Expectation failed: abs(result.elapsed - 300) < 0.000_001
+↳ abs(result.elapsed - 300) < 0.000_001 → false
+↳   abs(result.elapsed - 300) → 150.00000000000423
+↳   0.000_001 → 1e-06
+✘ Test fiveMinuteRecordingDoesNotOverrunHealthyRealtimeConsumer() recorded an issue at SavedAudioReplayTests.swift:41:9: Expectation failed: result.maximumQueued <= 6_400
+↳ // The production fanout holds 300 chunks. One source block ahead is enough;
+↳ // growing past that bound would reject a healthy 1x provider on long audio.
+↳ result.maximumQueued <= 6_400 → false
+↳   result.maximumQueued → 4803200
+↳   6_400 → 6400
+✘ Test fiveMinuteRecordingDoesNotOverrunHealthyRealtimeConsumer() recorded an issue at SavedAudioReplayTests.swift:42:9: Expectation failed: result.maximumQueued < 300 * 6_400
+↳ result.maximumQueued < 300 * 6_400 → false
+↳   result.maximumQueued → 4803200
+↳   300 * 6_400 → 1920000
+✘ Test fiveMinuteRecordingDoesNotOverrunHealthyRealtimeConsumer() failed after 0.009 seconds with 3 issues.
+✘ Suite "Saved audio real-time replay" failed after 0.010 seconds with 4 issues.
+✔ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() passed after 0.050 seconds.
+✘ Suite "Independent lifecycle stop reasons" failed after 0.050 seconds with 1 issue.
+✘ Test run with 8 tests in 2 suites failed after 0.050 seconds with 5 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

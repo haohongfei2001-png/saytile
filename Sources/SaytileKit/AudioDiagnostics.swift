@@ -48,16 +48,25 @@ public enum AudioDiagnostics {
                     continue
                 }
                 for chunk in chunks {
-                    let url = try await store.audioURL(for: chunk)
-                    guard FileManager.default.fileExists(atPath: url.path) else {
-                        try await store.markAudioMissing(recordingID: record.id, message: "部分原音文件缺失，文字已保留")
-                        break
-                    }
                     do {
+                        // Keep ownership/path validation before opening the file, but
+                        // isolate a single inaccessible recording from healthy ones.
+                        let url = try await store.audioURL(for: chunk)
                         let frames = try PCMJournal.repair(url)
                         if frames != chunk.frames { try await store.reconcileAudioChunk(recordingID: record.id, path: chunk.relativePath, actualFrames: frames); count += 1 }
-                    } catch {
+                    } catch let error as PCMJournal.RepairFailure {
                         try await store.markAudioMissing(recordingID: record.id, message: "原音文件不完整，文字已保留：\(error.localizedDescription)")
+                        break
+                    } catch let error as CocoaError where error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile {
+                        // A false fileExists result can also mean access was denied.
+                        // Only an explicit missing-file error proves absence.
+                        try await store.markAudioMissing(recordingID: record.id, message: "部分原音文件缺失，文字已保留")
+                        break
+                    } catch {
+                        // Permission, disk-space and SQLite failures can be transient.
+                        // Do not permanently hide a file that is still owned and present.
+                        try await store.recordAudioRecoveryFailure(recordingID: record.id,
+                            message: "原音恢复暂未完成，文件和文字已保留：\(error.localizedDescription)")
                         break
                     }
                 }

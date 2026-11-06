@@ -75,15 +75,27 @@ final class PCMJournal {
         u32(16_000); u32(32_000); u16(2); u16(16); text("data"); u32(UInt32(frames * 2))
         return data
     }
+    enum RepairFailure: LocalizedError {
+        case incompleteHeader, fileTooLarge
+        var errorDescription: String? {
+            switch self {
+            case .incompleteHeader: "原音头不完整"
+            case .fileTooLarge: "原音文件超过 WAV 容量上限，拒绝损坏的文件"
+            }
+        }
+    }
     static func repair(_ url: URL) throws -> Int64 {
-        let handle = try FileHandle(forUpdating: url); defer { try? handle.close() }
-        let size = try handle.seekToEnd()
-        guard size >= 44 else { throw AudioFailure.message("原音头不完整") }
-        guard size - 8 <= UInt64(UInt32.max) else { throw AudioFailure.message("原音文件超过 WAV 容量上限，拒绝损坏的文件") }
+        // An intact file needs only read permission. Request write access only
+        // when a recovered crash tail or stale header actually requires repair.
+        let reader = try FileHandle(forReadingFrom: url); defer { try? reader.close() }
+        let size = try reader.seekToEnd()
+        guard size >= 44 else { throw RepairFailure.incompleteHeader }
+        guard size - 8 <= UInt64(UInt32.max) else { throw RepairFailure.fileTooLarge }
         let frames = Int64((size - 44) / 2)
-        try handle.seek(toOffset: 0)
-        let currentHeader = try handle.read(upToCount: 44)
+        try reader.seek(toOffset: 0)
+        let currentHeader = try reader.read(upToCount: 44)
         if size == UInt64(44 + frames * 2), currentHeader == header(frames: frames) { return frames }
+        let handle = try FileHandle(forUpdating: url); defer { try? handle.close() }
         try handle.truncate(atOffset: UInt64(44 + frames * 2))
         try handle.seek(toOffset: 0); try handle.write(contentsOf: header(frames: frames)); try handle.synchronize()
         return frames

@@ -1,0 +1,77 @@
+Building for debugging...
+[1 / 1]
+[2 / 11] SaytileKit
+[4 / 13] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[12 / 13] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (1.24秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Capture storage failures" started.
+◇ Suite "Audio controller shutdown" started.
+◇ Suite "Production capture to five-role recognition with isolated transports" started.
+◇ Suite "Independent lifecycle stop reasons" started.
+◇ Suite "Real-time tap actor isolation" started.
+◇ Suite "Capture session ownership across suspension" started.
+◇ Test realtimeWriteFailureStopsWorkerAndSealsEmptyRecord() started.
+◇ Suite "Capture shutdown tail" started.
+◇ Suite "Saved audio real-time replay" started.
+◇ Test wakeDoesNotOverrideLockOrSessionSwitch() started.
+◇ Test invalidAudioDirectorySealsRecordInsteadOfLeavingItActive() started.
+◇ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() started.
+◇ Test journalAndFiveRolePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test failedFinalSyncKeepsOnlyPublishedDurableAudioAndPreservesText() started.
+◇ Test recordingTapCreatedOnMainActorRunsOnBackgroundThread() started.
+◇ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() started.
+◇ Test recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt(expected:actual:) started.
+◇ Test lockedAtLaunchCannotCapture() started.
+◇ Test cancellationOnlyRemovesCapturedSessionsNotNewlyRetiredOnes() started.
+◇ Test initialPermissionPromptDoesNotCancelPendingStart() started.
+◇ Test permissionResetWhileCapturingStillRequiresSuspension() started.
+◇ Test revocationCancelsAlreadyAdmittedSessionWhileCaptureStopIsSuspended() started.
+◇ Test finishDoesNotSaveStandbySilenceAsSpeech() started.
+◇ Test recordingTapRejectsChangedSampleRateBeforeOldConverterReadsIt() started.
+◇ Test unknownSessionOrUntrustedUnlockCannotResume() started.
+◇ Test shortFinalBlockUsesItsOwnDurationAndCancellationStopsBeforeNextBlock() started.
+◇ Test countOnlyTapNeverReadsSampleDataAndRunsOffMain() started.
+◇ Test finishFlushesSubVADFrameTailOfActiveSpeech() started.
+◇ Test fiveMinuteRecordingDoesNotOverrunHealthyRealtimeConsumer() started.
+◇ Test case passing 1 argument failReview → true to journalAndFiveRolePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test case passing 2 arguments expected → 1, actual → 2 to recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt(expected:actual:) started.
+◇ Test case passing 2 arguments expected → 2, actual → 1 to recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt(expected:actual:) started.
+◇ Test case passing 1 argument failReview → false to journalAndFiveRolePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+✔ Test wakeDoesNotOverrideLockOrSessionSwitch() passed after 0.001 seconds.
+✔ Test lockedAtLaunchCannotCapture() passed after 0.001 seconds.
+✔ Test initialPermissionPromptDoesNotCancelPendingStart() passed after 0.001 seconds.
+✔ Test permissionResetWhileCapturingStillRequiresSuspension() passed after 0.001 seconds.
+✔ Test finishDoesNotSaveStandbySilenceAsSpeech() passed after 0.001 seconds.
+✔ Test recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt(expected:actual:) with 2 test cases passed after 0.001 seconds.
+✔ Test unknownSessionOrUntrustedUnlockCannotResume() passed after 0.001 seconds.
+✔ Test recordingTapRejectsChangedSampleRateBeforeOldConverterReadsIt() passed after 0.001 seconds.
+✔ Test finishFlushesSubVADFrameTailOfActiveSpeech() passed after 0.001 seconds.
+✔ Suite "Capture shutdown tail" passed after 0.001 seconds.
+✔ Test shortFinalBlockUsesItsOwnDurationAndCancellationStopsBeforeNextBlock() passed after 0.002 seconds.
+✔ Test fiveMinuteRecordingDoesNotOverrunHealthyRealtimeConsumer() passed after 0.011 seconds.
+✔ Suite "Saved audio real-time replay" passed after 0.011 seconds.
+✔ Test invalidAudioDirectorySealsRecordInsteadOfLeavingItActive() passed after 0.022 seconds.
+✔ Test cancellationOnlyRemovesCapturedSessionsNotNewlyRetiredOnes() passed after 0.023 seconds.
+✔ Test failedFinalSyncKeepsOnlyPublishedDurableAudioAndPreservesText() passed after 0.023 seconds.
+✔ Test journalAndFiveRolePipelineShareAudioAndPreserveReviewFailure(failReview:) with 2 test cases passed after 0.047 seconds.
+✔ Suite "Production capture to five-role recognition with isolated transports" passed after 0.048 seconds.
+✔ Test recordingTapCreatedOnMainActorRunsOnBackgroundThread() passed after 0.106 seconds.
+✔ Test countOnlyTapNeverReadsSampleDataAndRunsOffMain() passed after 0.107 seconds.
+✔ Suite "Real-time tap actor isolation" passed after 0.108 seconds.
+✔ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() passed after 0.127 seconds.
+✔ Suite "Independent lifecycle stop reasons" passed after 0.127 seconds.
+✔ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() passed after 0.154 seconds.
+✔ Suite "Audio controller shutdown" passed after 0.154 seconds.
+✔ Test revocationCancelsAlreadyAdmittedSessionWhileCaptureStopIsSuspended() passed after 0.156 seconds.
+✔ Suite "Capture session ownership across suspension" passed after 0.156 seconds.
+✔ Test realtimeWriteFailureStopsWorkerAndSealsEmptyRecord() passed after 0.224 seconds.
+✔ Suite "Capture storage failures" passed after 0.224 seconds.
+✔ Test run with 21 tests in 8 suites passed after 0.224 seconds.

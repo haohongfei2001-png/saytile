@@ -35,6 +35,14 @@ struct AppModelProbe {
         let second = Task { await model.initialLoad() }
         await first.value; await second.value
         try require(model.records.count == 2, "coalesced initial load waits for populated archive")
+        let initialPasses = model.refreshReadPasses
+        await withTaskGroup(of: Void.self) { group in
+            for _ in 0..<40 { group.addTask { await model.refresh() } }
+            await group.waitForAll()
+        }
+        let coalescedPasses = model.refreshReadPasses - initialPasses
+        print("REFRESH_BURST callers=40 database_passes=\(coalescedPasses)"); fflush(nil)
+        try require(coalescedPasses < 10 && model.records.count == 2, "overlapping refresh callers share database work without losing archive contents")
         try require(model.recent.isEmpty, "historical records do not enter current insertion panel")
         let oldRow = model.records.first { $0.id == old.id }!
         model.stageInPanel(oldRow, showPanel: false)
@@ -110,6 +118,9 @@ struct AppModelProbe {
         try require(model.recognitionPhases[phaseRecord.id] == nil && model.recognitionPhaseLabel(for: failedPhaseItem) == "识别待恢复", "completed review phase disappears when logical recognition fails")
         model.updateEditorDraft("")
         await model.prepareForExit()
+        let closedPasses = model.refreshReadPasses
+        await model.refresh()
+        try require(model.refreshReadPasses == closedPasses, "late refresh requests do not query the closed store after exit preparation")
         try await model.store.close()
         let reopened = try SaytileStore(directory: directory)
         try require(try await reopened.loadDraft(recordingID: old.id) == "", "exit flush persists an intentionally empty unsaved draft")

@@ -67,7 +67,7 @@ actor CaptureWorker {
         var lastFramesAt = Date()
         do {
             while !Task.isCancelled {
-                if st_ring_dropped(ring.pointer) > 0 { throw AudioFailure.message("收音缓冲溢出，已保留此前原音；请恢复录音") }
+                if st_ring_dropped(ring.pointer) > 0 { throw AudioFailure.message("收音数据不连续，已保留此前原音；请确认麦克风后恢复录音") }
                 let n = samples.withUnsafeMutableBufferPointer { st_ring_read(ring.pointer, $0.baseAddress!, UInt32($0.count)) }
                 if n > 0 {
                     lastFramesAt = Date()
@@ -317,7 +317,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 self.lifecycleGate.refresh(AudioSessionSnapshot.current())
                 if self.state.isRunning && !self.lifecycleGate.permitsCapture {
                     await self.suspend(reason: self.lifecycleGate.reason)
-                } else if self.state.isRunning && AVCaptureDevice.authorizationStatus(for: .audio) != .authorized {
+                } else if AudioLifecycleGate.requiresPermissionSuspension(state: self.state, authorization: AVCaptureDevice.authorizationStatus(for: .audio)) {
                     self.requestedRunning = false
                     await self.suspend(reason: "麦克风权限已撤回，请在系统设置恢复权限后重新开启")
                 } else if !previouslyAllowed && self.lifecycleGate.permitsCapture && self.requestedRunning {
@@ -395,6 +395,10 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         var allowed = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
         if requestPermission && AVCaptureDevice.authorizationStatus(for: .audio) == .notDetermined { allowed = await AVCaptureDevice.requestAccess(for: .audio) }
         guard generation == startGeneration, requestedRunning, state == .starting else { return }
+        lifecycleGate.refresh(AudioSessionSnapshot.current())
+        guard lifecycleGate.permitsCapture else {
+            state = .interrupted(lifecycleGate.reason); issue = lifecycleGate.reason; return
+        }
         guard allowed else { state = .interrupted("需要麦克风权限"); issue = "请在系统设置 → 隐私与安全性 → 麦克风中允许 Saytile"; return }
         var startingEngine: AVAudioEngine?
         var tapInstalled = false
@@ -436,7 +440,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 meterContinuation.yield((speaking, level))
             }, failed: { [weak self] message in Task { @MainActor in await self?.suspend(reason: message) } })
             let channelCount = format.channelCount
-            input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.recording(ring: ring, channels: channelCount))
+            input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.recording(ring: ring, channels: channelCount, sampleRate: format.sampleRate))
             tapInstalled = true
             engine.prepare(); try engine.start()
             self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
@@ -638,10 +642,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                     try Task.checkCancellation()
                     let handle = try FileHandle(forReadingFrom: try await store.audioURL(for: chunk))
                     defer { try? handle.close() }
-                    try handle.seek(toOffset: 44)
-                    while let data = try handle.read(upToCount: 6_400), !data.isEmpty {
-                        activeSession.append(data); try await Task.sleep(for: .milliseconds(100))
-                    }
+                    try await SavedAudioReplay.feed(handle: handle, append: { activeSession.append($0) })
                     try handle.close()
                 }
                 activeSession.finish()
@@ -683,4 +684,18 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         shutdownTask = task; await task.value
     }
 
+}
+
+/// Saved mono Int16 16 kHz audio follows its source duration. Feeding faster can
+/// overflow a healthy real-time provider's bounded queue during long recoveries.
+enum SavedAudioReplay {
+    static func feed(handle: FileHandle, append: @Sendable (Data) -> Void,
+                     pause: @Sendable (Double) async throws -> Void = { try await Task.sleep(for: .seconds($0)) }) async throws {
+        try handle.seek(toOffset: 44)
+        while let data = try handle.read(upToCount: 6_400), !data.isEmpty {
+            try Task.checkCancellation()
+            append(data)
+            try await pause(Double(data.count) / 32_000)
+        }
+    }
 }
