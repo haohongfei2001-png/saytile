@@ -27,7 +27,8 @@ public struct FinalASRProvider: Sendable {
             throw ProviderFailure.configuration("当前文件识别适配器仅支持 global 端点。")
         }
         // 12 MB is a per-review allocation bound, not a cost or model-quality policy.
-        // Larger recordings are reviewed in audio-aligned windows by the caller.
+        // Normal capture uses at most 300 seconds per logical recording. Oversized
+        // imported audio is rejected explicitly until a windowed review is implemented.
         guard pcm.count >= 3_200, pcm.count <= 12_000_000, pcm.count % 2 == 0 else {
             throw ProviderFailure.configuration("复核音频须为 100 毫秒至 12 MB 的完整 PCM16 片段；长录音请分段复核。")
         }

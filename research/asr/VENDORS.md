@@ -58,6 +58,11 @@
 
 豆包SeedASR2.0优化双向流式与句末非流式复核，使用语音产品专用资源/鉴权，不能把方舟聊天权限当成语音权限。它仍是中文最重要的替代挑战者之一；当前证据没有形成与Qwen Message同条件的独立中文混说结论。详细资源和官方链接见[中文专题](CHINESE-AND-MIXED-2026-11-06.md)。Fun-ASR、FireRed、Deepgram、Speechmatics与Google等也按具体版本和真实流式证据保留，不为了增加API个数全部默认运行。
 
+### 最新其他候选的版本核查
+
+- **Deepgram：** [2026-10-23官方变更](https://developers.deepgram.com/changelog/2026/10/23)将`nova-3&language=multi`更新为55语言，batch/streaming同名接口均支持切换与逐词语言信息；旧10语言型号可用version固定。Flux仍有独立v2流式协议及对话轮次目标。不能把Pipecat的`nova-3-general`旧行解释成新multi已败给首选，也不能凭官方相对WER宣传宣布它胜出。本轮列入成熟混说替代，未默认实现所有供应商。
+- **Speechmatics：** [当前型号文档](https://docs.speechmatics.com/speech-to-text/models)将Enhanced、Standard、Melia 1、Oak 1列为batch/realtime可用；Enhanced仍是其最高精度定位，Melia为自动多语言，Oak针对医疗。Melia实时有partial/final和词时间，但客户端需要显式ForceEndOfUtterance，不能复制旧自动端点参数。[普通话英文语言包](https://docs.speechmatics.com/speech-to-text/languages)是另一成熟路径。没有其当前版本与首选在相同普通话混说上的独立证据，所以保留候选，避免拿‘更新’当‘一定更准’。
+
 ## 5. 最小实际裁决
 
 复用Mac现有真人片段，保留四阶段文本与时间，定向比较双专家、替换Meta、加Soniox、加文本仲裁、加原音复听。主要看关键语义错误、术语正确率、中英混说错误、反复修正及实际外部输入错误；不要只比较最终一份文本。没有获得授权服务凭据与真实输出前，首选配置是可执行的工程默认，质量排名仍明确未封榜。

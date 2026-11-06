@@ -14,6 +14,7 @@
 |---|---|---|
 | 中文实时专家 | Qwen `qwen-audio-3.1-asr-flash-message` | 中文口语、术语及句末修订；原文识别，不开启自动润色或翻译。北京/新加坡 Workspace 与 Key 配对。 |
 | 英文实时专家 | AssemblyAI `universal-3-6-pro` | 成熟 v3 WebSocket，支持英语与混合语言证据；显式选择模型并核验 Begin 返回实际型号。 |
+| 英文强挑战者 | Meta `muse-voice-transcribe-1.0` | 已实现可选实时接入；当前公开语义WER强于Assembly的点估计，但尚无Saytile同条件显著收益证明。必须进入有限同输入验收，可替换或并行。 |
 | 可选第三路混说证据 | Soniox `stt-rt-v6` | token 时间与语言信息、独立混说结果；可并行启用，不作为唯一发布者。是否长期默认加入，以真实边际收益决定。 |
 | AI 文本仲裁 | OpenAI `gpt-6-astra` / Responses | 用证据引用选择候选片段。允许 High/Extra high/Max 与 Standard/Pro；不把纯文本推理当作重新听过音频。 |
 | 原音复听 | Gemini `gemini-3.8-flash` / 原生音频输入 | 对疑难片段盲听，先不提供争议候选作答案暗示；结果成为新的音频候选，仍需本地验证。 |
@@ -25,8 +26,8 @@
 ## 3. 证据如何影响选择
 
 - **中文：** Qwen 3.1 官方技术资料包含公开数据集与统一 API 对照，证明它是值得优先接入的中文候选；这仍属厂商实施的评测。其模型族/文件结果不能直接证明 Message 流式在 Saytile 上的错误率。豆包 SeedASR 2.0、Fun-ASR、腾讯、FireRed 等继续作为质量对照，不因为接入便利先排除它们。[Qwen 技术资料](https://qwenaudio.github.io/qwen-audio-3.1-asr/) · [官方 Message 协议](https://help.aliyun.com/zh/model-studio/qwen-asr-message-websocket-api)
-- **英文：** Pipecat 当前表格给 AssemblyAI `universal-3-6-pro` 的 pooled semantic WER 0.80%，Soniox **v5** 1.09%，Scribe v2 Realtime 3.13%。这是语义 WER 与特定实时语料，不是严格逐字 WER、中文 CER 或全场景冠军。Assembly 现行官方文档确认 3.6 是 streaming 可用型号；旧单 Soniox 结论不能继续忽略这项证据。[Pipecat](https://github.com/pipecat-ai/stt-benchmark) · [Assembly 官方变更](https://www.assemblyai.com/changelog)
-- **版本：** Soniox v6 官方目录现已 active，但公开表格的 v5 分数不能移植到 v6。Qwen 的 Message/Streaming/Filetrans、Assembly 的 streaming/async、Scribe 的 realtime/file 都要按具体接口区分。[Soniox 模型](https://docs.soniox.com/stt/models)
+- **英文：** Pipecat 当前表格给 AssemblyAI `universal-3-6-pro` 的 pooled semantic WER 0.80%，Soniox **v5** 1.09%，Scribe v2 Realtime 3.13%。同表Meta `muse-voice-transcribe-1.0`为0.73%，其公开API已确认并实现，不能以不可得排除。两个点估计的0.07个百分点差异并无本项目显著性结论。这是语义 WER 与特定实时语料，不是严格逐字 WER、中文 CER 或全场景冠军。Assembly 现行官方文档确认 3.6 是 streaming 可用型号；旧单 Soniox 结论不能继续忽略这项证据。[Pipecat](https://github.com/pipecat-ai/stt-benchmark) · [Assembly 官方变更](https://www.assemblyai.com/changelog)
+- **版本：** Soniox v6 官方目录现已 active，但公开表格的 v5 分数不能移植到 v6。Qwen 的 Message/Streaming/Filetrans、Assembly 的 streaming/async、Scribe 的 realtime/file 都要按具体接口区分。Deepgram 2026-10-23 的Nova-3 multi已经更新为55语言，不能拿旧10语言版本或榜单general行直接当其新混说成绩；Speechmatics Enhanced/Melia也分别核查。[Soniox 模型](https://docs.soniox.com/stt/models)
 - **融合：** 当前没有 Saytile 同输入双专家、三专家、加 LLM、加原音复听的消融结果。LLM 更强不等于对声学歧义更正确；多模型一致也可能源于相关错误。因此保留来源、拒绝无证据改词，并用有限现有样本验证收益，而不是宣传“模型越多越准确”。
 - **AI 能力边界：** GPT-6 Astra 是文本/图像推理模型，不经由 Responses 假设其可听音频；Gemini 音频理解通过其独立的音频输入接口。Pro/Max 可用于难例，但模型超时不得冻结收音或悄悄把不确定结果视为正确。[OpenAI 模型](https://developers.openai.com/api/docs/models) · [推理模式](https://developers.openai.com/api/docs/guides/reasoning) · [Gemini 音频](https://ai.google.dev/gemini-api/docs/audio?hl=en)
 

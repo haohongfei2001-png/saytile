@@ -1,0 +1,36 @@
+{
+  "scope": "Synthetic design and DOM validation, not native product acceptance",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.39",
+  "python": "3.12.14",
+  "runs": [
+    {
+      "name": "inherited_pcm_sqlite",
+      "exit_code": 0,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "archive/recovery-source/handoff/reliability_lab.py"
+      ],
+      "output": "evidence/inherited-reliability.json"
+    },
+    {
+      "name": "reconstructed_contracts",
+      "exit_code": 0,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "tests/test_recovery_contracts.py"
+      ],
+      "output": "evidence/rebuilt-contracts.log"
+    },
+    {
+      "name": "swift",
+      "result": "NOT_RUN",
+      "reason": "swiftc unavailable"
+    },
+    {
+      "name": "prototype_dom",
+      "result": "NOT_RUN",
+      "reason": "--ui not supplied"
+    }
+  ],
+  "success": true
+}
