@@ -402,3 +402,28 @@ private func appendEvidence(_ old: RecognitionCandidate, text: String, end: Doub
     #expect(result.needsAudioReview)
     #expect(result.stableText.isEmpty)
 }
+
+@Test func multiRebasedSelectionPublishesCurrentIDsAndRetainsOriginalReviewAudit() async throws {
+    let f = try MultiFixture(); defer { f.clean() }
+    let record = try await f.record()
+    let ticket = try await f.store.beginFusionRecognition(recordingID: record.id)
+    let zh = try await f.run(ticket, .chineseASR), en = try await f.run(ticket, .englishASR)
+    let originalTokens = [RecognitionToken(text: "我想在", startSeconds: 0, endSeconds: 0.5, isFinal: true),
+                          RecognitionToken(text: "SwiftUI", startSeconds: 0.5, endSeconds: 1, isFinal: true)]
+    let original = [sample("我想在SwiftUI", run: zh, end: 1, granularity: "word", tokens: originalTokens),
+                    sample("我想在SwiftUI", run: en, end: 1, granularity: "word", tokens: originalTokens)]
+    for candidate in original { try await f.store.appendRecognitionCandidate(candidate) }
+    let spans = [CandidateSpan(candidateID: original[0].id, utf16Start: 0, utf16End: original[0].text.utf16.count)]
+    let originalProposal = try PrecisionFusion.validateSelection(spans: spans, candidates: original)
+    let tokens = originalTokens + [RecognitionToken(text: "调用两次", startSeconds: 1, endSeconds: 2, isFinal: true)]
+    let current = original.map { appendEvidence($0, text: $0.text + "调用两次", end: 2, tokens: tokens) }
+    for candidate in current { try await f.store.appendRecognitionCandidate(candidate) }
+    let stale = try await f.store.publishFusion(ticket: ticket, proposal: originalProposal)
+    #expect(!stale.published)
+    let rebased = try PrecisionFusion.rebaseSelection(spans: spans, previousCandidates: original, currentCandidates: current)
+    let publication = try await f.store.publishFusion(ticket: ticket, proposal: rebased)
+    #expect(publication.published)
+    #expect(publication.revision?.text == "我想在SwiftUI")
+    let decisions = try await f.store.fusionDecisions(recordingID: record.id)
+    #expect(Set(decisions.last?.proposal.reviewedCandidateIDs ?? []) == Set(original.map(\.id)))
+}
