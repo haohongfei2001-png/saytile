@@ -15,7 +15,7 @@ extension AppDelegate {
             let examples = [
                 "周五的产品讨论，先把重点记下来。保持表达自然，停顿之后还可以继续。",
                 "这周想留一点时间，把散落的想法整理成一页清晰的计划。不要自动发送，确认之后再决定。",
-                "API、Swift 与中文可以放在同一段表达里。测试 emoji 😀，保留所有修改版本。"
+                "API、Swift 与中文可以放在同一段表达里。测试 emoji 😀，只显示一份持续修正的文字。"
             ]
             for (index, text) in examples.enumerated() {
                 let row = try await model.store.createRecording(createdAt: Date().addingTimeInterval(Double(index)))
@@ -64,12 +64,13 @@ extension AppDelegate {
             await model.refresh()
             if let row = model.records.first(where: { $0.source.audioState == .available }) {
                 let ticket = try await model.store.beginFusionRecognition(recordingID: row.id)
-                let review = ModelConfiguration(purpose: .audioReview, provider: .gemini, model: "synthetic-ui-only")
+                let review = ModelConfiguration(purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra")
                 let run = try await model.store.beginModelRun(ticket: ticket, configuration: review)
                 await model.refresh()
                 guard let active = model.recent.first(where: { $0.id == row.id }),
-                      model.recognitionPhaseLabel(for: active) == "正在复听原音" else {
-                    throw ReviewFailure("current review phase did not reach production transcript card")
+                      model.recognitionPhaseLabel(for: active) == "正在核对文字",
+                      active.text == row.text, model.recent.filter({ $0.id == row.id }).count == 1 else {
+                    throw ReviewFailure("single transcript or generic processing state was not retained")
                 }
                 try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 400, height: 550), name: "panel-ai-review", output: output)
                 try await model.store.finishModelRun(run, error: "合成复核连接中断", retryable: true)
@@ -80,7 +81,7 @@ extension AppDelegate {
                     throw ReviewFailure("failed review changed existing text or retained stale running phase")
                 }
                 try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 400, height: 550), name: "panel-ai-recovery", output: output)
-                print("UI_STATE_PASS current review and failure reach production cards; synthetic Store runs, no providers")
+                print("UI_STATE_PASS one transcript survives single-core processing and failure; synthetic Store runs, no providers")
             }
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 740), name: "settings", output: output)
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 560, height: 570), name: "settings-compact", output: output)
@@ -100,10 +101,9 @@ extension AppDelegate {
                     throw ReviewFailure("unconfigured cloud settings were applied or failure was hidden")
                 }
                 try await self.press("recognition.cloudEnabled", in: host)
-                try await self.press("快速输入", in: host)
-                guard model.recognitionConfiguration.inputMode == .fast else { throw ReviewFailure("native mode segment did not select fast input") }
-                try await self.press("最高质量", in: host)
-                guard model.recognitionConfiguration.inputMode == .highestQuality else { throw ReviewFailure("native mode segment did not restore quality input") }
+                guard model.recognitionConfiguration.inputMode == .highestQuality else {
+                    throw ReviewFailure("single transcript settings did not keep the fixed quality policy")
+                }
                 try await self.setValue("合成界面测试话题", for: "recognition.topicContext", in: host)
                 guard model.recognitionConfiguration.topicContext == "合成界面测试话题" else { throw ReviewFailure("native topic field did not update draft") }
                 try await self.press("recognition.apply", in: host)
@@ -115,7 +115,7 @@ extension AppDelegate {
                       !model.appliedRecognitionConfiguration.cloudEnabled, !model.hasUnappliedRecognitionSettings else {
                     throw ReviewFailure("native settings apply did not commit isolated local configuration")
                 }
-                print("UI_CONTROL_PASS recognition settings: draft authorization, validation, mode, text edit and apply through native controls")
+                print("UI_CONTROL_PASS recognition settings: draft authorization, validation, fixed quality policy, text edit and apply through native controls")
             }
             try await reviewWindow(Form { RecognitionSettingsSection(model: model, initiallyExpanded: true) }.formStyle(.grouped), size: CGSize(width: 650, height: 840), name: "ai-services", output: output)
             if !model.recognitionConfiguration.models.isEmpty {
