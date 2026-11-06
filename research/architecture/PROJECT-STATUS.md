@@ -19,3 +19,6 @@
 - Apple SpeechAnalyzer 统一 Candidate ingress 未实现。
 - PCMJournal 任意 sample range 读取尚未接入音频复核；当前不启用额外音频复听模型。
 - 真实外部输入的动态修正验收未完成。
+
+
+Validation gate: CI for the synchronized PR #5 head is pending; do not treat source edits as compiled or tests as passed until the PR checks complete.
