@@ -1,0 +1,45 @@
+{
+  "checked_at_utc": "2026-11-06",
+  "kind": "selected_external_evidence_not_a_new_benchmark",
+  "pipecat": {
+    "repository": "https://github.com/pipecat-ai/stt-benchmark",
+    "commit": "94f567299a21f8d617039bc69f137a131f5dedd5",
+    "readme": "https://github.com/pipecat-ai/stt-benchmark/blob/94f567299a21f8d617039bc69f137a131f5dedd5/README.md",
+    "dataset": "pipecat-ai/smart-turn-data-v3.1-train",
+    "samples": 1000,
+    "soniox_model": "stt-rt-v5",
+    "pooled_semantic_wer_percent": 1.09,
+    "transcript_return_percent": 99.8,
+    "ttfs_median_ms": 260,
+    "ttfs_p95_ms": 305,
+    "caveats": [
+      "Semantic LLM-scored WER, not strict verbatim WER/CER.",
+      "TTFS is speech-end to final segment, not first text.",
+      "Model v5, not selected v6.",
+      "No Mandarin-English/key-entity category claim.",
+      "Open community benchmark; small score differences may not be statistically meaningful."
+    ]
+  },
+  "verli": {
+    "url": "https://verli.app/blog/per-language-speech-to-text-accuracy",
+    "published": "2026-07-19",
+    "source_type": "third_party_commercial_transcription_app",
+    "data": "200 FLEURS read-speech samples per language",
+    "chinese_cer_percent": {
+      "ElevenLabs_Scribe": 4.17,
+      "OpenAI_GPT4o_Transcribe": 4.46,
+      "Soniox": 4.71
+    },
+    "caveats": [
+      "Labels are those reported in the article; do not relabel scores with current model IDs.",
+      "Not natural Mandarin-English code switching.",
+      "Coverage and errors must be read together; no significance claim from small rank differences."
+    ]
+  },
+  "soniox": {
+    "models_url": "https://docs.soniox.com/stt/models",
+    "selected_model": "stt-rt-v6",
+    "release_date": "2026-11-03",
+    "measured_by_this_project": false
+  }
+}

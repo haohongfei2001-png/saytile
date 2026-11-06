@@ -1,0 +1,45 @@
+{
+  "source_revision": "f2ecf3ad84a0e5302ff0266bde3a72e9f3ba5163",
+  "source_dirty": false,
+  "release_version": "1.0.0-asr-preview.1",
+  "mac_binary_sha256": "7c22c639e760738fa86f12b5a01ee30a7e10f3a66e110105694eb0789325fb53",
+  "mac_dmg": {
+    "filename": "Saytile-1.0.0-asr-preview.1-arm64.dmg",
+    "size_bytes": 1751212,
+    "sha256": "b0fccdfa5f293a09ff197bc832125e3409fce88a4361fe6eecbf8aaef7406c08",
+    "verified_with": "hdiutil verify",
+    "installed_to_production": false
+  },
+  "github": {
+    "native_run_id": 42228489112,
+    "native_conclusion": "success",
+    "contracts_run_id": 42228489455,
+    "contracts_conclusion": "success",
+    "artifact": {
+      "id": 13507371027,
+      "name": "Saytile-native-candidate",
+      "size_in_bytes": 1306433,
+      "url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/artifacts/13507371027",
+      "archive_download_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/artifacts/13507371027/zip",
+      "expired": false,
+      "created_at": "2026-11-06T13:51:39Z",
+      "expires_at": "2026-11-20T13:51:38Z",
+      "updated_at": "2026-11-06T13:51:39Z",
+      "digest": "sha256:d5f411252f247c653ee6eefc960c8270dc4483adf380be0235c34a4ab1218751",
+      "workflow_run": {
+        "id": 42228489112,
+        "repository_id": 1447272629,
+        "head_repository_id": 1447272629,
+        "head_branch": "research/asr-quality-2026-11-06",
+        "head_sha": "f2ecf3ad84a0e5302ff0266bde3a72e9f3ba5163"
+      }
+    },
+    "source_note": "GitHub pull_request checkout can embed its synthetic merge SHA; the Mac package above embeds the exact named source revision."
+  },
+  "limitations": [
+    "No paid cloud ASR, language-model or audio-review calls were made.",
+    "Cloud accuracy and latency are unmeasured.",
+    "Native UI rendering passed; AX control-click validation was not run.",
+    "This is a preview candidate, not a production release."
+  ]
+}

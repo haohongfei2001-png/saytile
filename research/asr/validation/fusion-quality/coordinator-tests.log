@@ -1,0 +1,91 @@
+Building for debugging...
+[Pre-planning 1 / 155]
+[Planning deferred tasks]
+[1 / 62]
+[32 / 73]
+[54 / 73] CAudio
+[59 / 73] CAudio
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[70 / 212]
+[75 / 212]
+[85 / 212]
+[87 / 212]
+[88 / 212]
+[94 / 212]
+[97 / 212]
+[105 / 212]
+[108 / 212]
+[110 / 212]
+[111 / 212]
+[125 / 212]
+[126 / 212]
+[131 / 212]
+[136 / 212]
+[137 / 212]
+[138 / 212]
+[145 / 212]
+[147 / 212]
+[152 / 212]
+[153 / 212]
+[154 / 212]
+[157 / 212]
+[159 / 212]
+[170 / 212]
+[172 / 212]
+[173 / 212]
+[177 / 212]
+[182 / 212]
+[185 / 212]
+[186 / 212]
+[187 / 212]
+[188 / 212]
+[199 / 212] SaytileKit
+[204 / 216] Saytile-product
+[206 / 226]
+[207 / 226] SaytileKit
+[209 / 226] SaytileKit/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[212 / 227] SaytileKitTests-product
+[213 / 242]
+[216 / 242]
+[226 / 242] SaytileKitTests-product
+[227 / 242] SaytileKitTests-product
+[231 / 245] SaytileKitTests-product
+[235 / 245] Saytile-product
+[237 / 245] Saytile-product
+[239 / 245] Saytile-product
+[239 / 245] SaytileKitTests-product
+[239 / 245] Saytile-product
+[241 / 245] Saytile-product/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[241 / 245] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[243 / 245] SaytileKitTests-product
+[247 / 247] Saytile-product
+Build complete! (30.86秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Real coordinator with isolated persistence and controlled providers" started.
+◇ Test identicalAudioWaitsForBothExpertsBeforeQualityPublication() started.
+◇ Test cancellationRejectsInFlightCallbacksWithoutErasingAudio() started.
+◇ Test highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) started.
+◇ Test audioDeletionInvalidatesEpochBeforeLateCallbacks() started.
+◇ Test failedExpertDoesNotStopOtherAudioOrDestroyOriginal() started.
+◇ Test acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) started.
+◇ Test fastDispatchKeepsLateAcousticCorrectionInternal() started.
+◇ Test case passing 1 argument simultaneous → false to highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) started.
+◇ Test case passing 1 argument appendMore → false to acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) started.
+◇ Test case passing 1 argument appendMore → true to acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) started.
+◇ Test case passing 1 argument simultaneous → true to highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) started.
+✔ Test audioDeletionInvalidatesEpochBeforeLateCallbacks() passed after 0.033 seconds.
+✔ Test cancellationRejectsInFlightCallbacksWithoutErasingAudio() passed after 0.033 seconds.
+✔ Test identicalAudioWaitsForBothExpertsBeforeQualityPublication() passed after 0.044 seconds.
+✔ Test failedExpertDoesNotStopOtherAudioOrDestroyOriginal() passed after 0.047 seconds.
+✔ Test fastDispatchKeepsLateAcousticCorrectionInternal() passed after 0.055 seconds.
+✔ Test highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) with 2 test cases passed after 0.057 seconds.
+✔ Test acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) with 2 test cases passed after 0.068 seconds.
+✔ Suite "Real coordinator with isolated persistence and controlled providers" passed after 0.068 seconds.
+✔ Test run with 7 tests in 1 suite passed after 0.068 seconds.

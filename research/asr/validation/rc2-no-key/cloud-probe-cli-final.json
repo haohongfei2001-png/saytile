@@ -1,0 +1,30 @@
+{
+  "cases": [
+    {
+      "case": "missing_directory",
+      "exit": 64,
+      "result": "PASS_BEFORE_STORE_CONSTRUCTION"
+    },
+    {
+      "case": "missing_value",
+      "exit": 64,
+      "result": "PASS_BEFORE_STORE_CONSTRUCTION"
+    },
+    {
+      "case": "flag_as_value",
+      "exit": 64,
+      "result": "PASS_BEFORE_STORE_CONSTRUCTION"
+    },
+    {
+      "case": "explicit_isolated_directory_cloud_disabled",
+      "exit": 1,
+      "recordings": 0,
+      "model_runs": 0,
+      "result": "PASS_NO_FIXTURE_IMPORTED_NO_PROVIDER_STARTED"
+    }
+  ],
+  "microphone_started": false,
+  "cloud_calls": 0,
+  "private_database_accessed": false,
+  "scope_note": "Directory guards are before Store construction; no user store was inspected to check absence of changes."
+}

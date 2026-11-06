@@ -35,6 +35,14 @@ struct AppModelProbe {
         let second = Task { await model.initialLoad() }
         await first.value; await second.value
         try require(model.records.count == 2, "coalesced initial load waits for populated archive")
+        let initialPasses = model.refreshReadPasses
+        await withTaskGroup(of: Void.self) { group in
+            for _ in 0..<40 { group.addTask { await model.refresh() } }
+            await group.waitForAll()
+        }
+        let coalescedPasses = model.refreshReadPasses - initialPasses
+        print("REFRESH_BURST callers=40 database_passes=\(coalescedPasses)"); fflush(nil)
+        try require(coalescedPasses < 10 && model.records.count == 2, "overlapping refresh callers share database work without losing archive contents")
         try require(model.recent.isEmpty, "historical records do not enter current insertion panel")
         let oldRow = model.records.first { $0.id == old.id }!
         model.stageInPanel(oldRow, showPanel: false)
@@ -93,8 +101,26 @@ struct AppModelProbe {
         while model.loadingPanel { try await Task.sleep(for: .milliseconds(10)) }
         try require(model.recent.count == 116 && !model.panelHasMore, "earlier current-session expressions remain available for batch reuse")
         try require(model.recent.contains(where: { $0.id == new.id }), "earliest current-session expression survives prolonged input")
+        // UI phase labels come from the same current-generation Store run state as production.
+        let phaseRecord = try await model.store.createRecording(createdAt: Date().addingTimeInterval(60))
+        try await model.store.finishRecording(id: phaseRecord.id)
+        let phaseTicket = try await model.store.beginFusionRecognition(recordingID: phaseRecord.id, mode: .highestQuality)
+        let phaseConfig = ModelConfiguration(purpose: .textFusion, provider: .openAIResponses, model: "synthetic-phase", cloudConsent: true)
+        try await model.store.configureFusionRequirements(ticket: phaseTicket, configurations: [phaseConfig, .init(purpose: .chineseASR, provider: .qwenMessage, model: "synthetic-expert")])
+        let phaseRun = try await model.store.beginModelRun(ticket: phaseTicket, configuration: phaseConfig)
+        await model.refresh()
+        guard let phaseItem = model.recent.first(where: { $0.id == phaseRecord.id }) else { throw Failure(message: "phase fixture not visible") }
+        try require(model.recognitionPhaseLabel(for: phaseItem) == "正在核对文字", "production model exposes active text review without fabricated progress")
+        try await model.store.finishModelRun(phaseRun)
+        try await model.store.failRecognition(ticket: phaseTicket, message: "synthetic preserved failure")
+        await model.refresh()
+        guard let failedPhaseItem = model.recent.first(where: { $0.id == phaseRecord.id }) else { throw Failure(message: "failed phase fixture not visible") }
+        try require(model.recognitionPhases[phaseRecord.id] == nil && model.recognitionPhaseLabel(for: failedPhaseItem) == "识别待恢复", "completed review phase disappears when logical recognition fails")
         model.updateEditorDraft("")
         await model.prepareForExit()
+        let closedPasses = model.refreshReadPasses
+        await model.refresh()
+        try require(model.refreshReadPasses == closedPasses, "late refresh requests do not query the closed store after exit preparation")
         try await model.store.close()
         let reopened = try SaytileStore(directory: directory)
         try require(try await reopened.loadDraft(recordingID: old.id) == "", "exit flush persists an intentionally empty unsaved draft")

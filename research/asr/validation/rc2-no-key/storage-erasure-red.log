@@ -1,0 +1,24 @@
+Building for debugging...
+[1 / 1]
+[2 / 8] SaytileKitTests-product
+[5 / 11] SaytileKitTests-product
+[9 / 13] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[11 / 13] SaytileKitTests-product
+Build complete! (2.12秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Storage failure state remains recoverable" started.
+◇ Test inaccessiblePendingDeletionDoesNotBlockStartupOrIndependentRecords() started.
+◇ Test pendingDeletionDatabaseFailureStillStopsStartupAndCanRetry() started.
+✔ Test pendingDeletionDatabaseFailureStillStopsStartupAndCanRetry() passed after 0.021 seconds.
+✘ Test inaccessiblePendingDeletionDoesNotBlockStartupOrIndependentRecords() recorded an issue at StorageRecoveryFailureTests.swift:136:6: Caught error: Error Domain=NSCocoaErrorDomain Code=513 "“EEEEFAA1-52A9-443F-B815-C29A3E3DE6C7” couldn’t be removed because you don’t have permission to access it." UserInfo={NSUserStringVariant=(
+    Remove
+), NSFilePath=/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-erasure-isolation-493EFF40-F1F8-4467-94F0-049690D26737/Audio/EEEEFAA1-52A9-443F-B815-C29A3E3DE6C7, NSURL=file:///var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-erasure-isolation-493EFF40-F1F8-4467-94F0-049690D26737/Audio/EEEEFAA1-52A9-443F-B815-C29A3E3DE6C7, NSUnderlyingError=0x7504d18000 {Error Domain=NSPOSIXErrorDomain Code=13 "Permission denied"}}
+✘ Test inaccessiblePendingDeletionDoesNotBlockStartupOrIndependentRecords() failed after 0.024 seconds with 1 issue.
+✘ Suite "Storage failure state remains recoverable" failed after 0.024 seconds with 1 issue.
+✘ Test run with 2 tests in 1 suite failed after 0.024 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

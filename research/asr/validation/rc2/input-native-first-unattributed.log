@@ -1,0 +1,67 @@
+Building for debugging...
+[Planning deferred tasks]
+[24 / 81]
+[35 / 82] SaytileKit
+[55 / 92]
+[66 / 92] CAudio
+[82 / 92] CAudio
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[83 / 92] SaytileKit
+[93 / 231]
+[98 / 231]
+[103 / 231]
+[109 / 231]
+[111 / 231]
+[117 / 231]
+[119 / 231]
+[122 / 231]
+[128 / 231]
+[131 / 231]
+[133 / 231]
+[134 / 231]
+[146 / 231]
+[149 / 231]
+[151 / 231]
+[155 / 231]
+[159 / 231]
+[160 / 231]
+[161 / 231]
+[168 / 231]
+[170 / 231]
+[176 / 231]
+[177 / 231]
+[179 / 231]
+[180 / 231]
+[182 / 231]
+[194 / 231]
+[195 / 231]
+[196 / 231]
+[200 / 231]
+[205 / 231]
+[208 / 231]
+[209 / 231]
+[210 / 231]
+[211 / 231]
+[222 / 231] SaytileKit
+[223 / 231] SaytileKit
+[228 / 231] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (23.84秒)
+FIXTURE_READY
+PASS production coordinator + SQLite reservation + real AX insertion confirms
+PASS preserves synthetic prefix and suffix
+PASS same stable range is not inserted twice
+PASS next stable suffix inserts after actual UTF16 caret
+PASS no duplicate prefix or whole-field replacement
+PASS real AX selection notification invalidates binding before next operation
+PASS real selected range prevents replacement
+PASS cancelled production insertion has no external attempt
+Swift/ErrorType.swift:254: Fatal error: Error raised at top level: AXCoordinatorProbe.AXCoordinatorProbe.Failure(description: "fixture and insertion never change foreground application")
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/scripts/test-input-native.py", line 168, in <module>
+    run_fixture("AXTextFixture", "AXCoordinatorProbe", "input-native-coordinator.log", "FIXTURE_READY")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hhf/.codex/worktrees/saytile-fusion-quality/scripts/test-input-native.py", line 74, in run_fixture
+    if probe.returncode: raise RuntimeError(f"Probe exit {probe.returncode}; no permission prompts or focus escalation attempted")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Probe exit -5; no permission prompts or focus escalation attempted

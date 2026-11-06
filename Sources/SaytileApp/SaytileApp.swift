@@ -21,12 +21,13 @@ final class VoicePanel: NSPanel {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var model: AppModel?
     private var status: NSStatusItem?
     private var panel: VoicePanel?
     private var archive: NSWindow?
     private var settings: NSWindow?
+    private var connectionSetupWindow: NSWindow?
     private var hotKey: EventHotKeyRef?
     private var eventHandler: EventHandlerRef?
     private var shortcutObserver: NSObjectProtocol?
@@ -34,26 +35,106 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusTimer: Timer?
     private var terminating = false
     private var shutdownStarted = false
+    private var diagnosticPreferencesSuite: String?
+    private var diagnosticExitStatus: Int32 = 0
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
-            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--render-preview", "--focus-probe", "--ui-review"]
-            if diagnostics.contains(where: CommandLine.arguments.contains), !CommandLine.arguments.contains("--data-directory") {
-                print("DIAGNOSTICS_REQUIRE_EXPLICIT_ISOLATED_DATA_DIRECTORY")
-                Darwin.exit(64)
+            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--multi-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--connection-setup"]
+            let isDiagnostic = diagnostics.contains(where: CommandLine.arguments.contains)
+            let directoryIndex = CommandLine.arguments.firstIndex(of: "--data-directory")
+            if isDiagnostic || directoryIndex != nil {
+                guard let index = directoryIndex, CommandLine.arguments.count > index + 1,
+                      !CommandLine.arguments[index + 1].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                      !CommandLine.arguments[index + 1].hasPrefix("--") else {
+                    print("DIAGNOSTICS_REQUIRE_EXPLICIT_ISOLATED_DATA_DIRECTORY")
+                    Darwin.exit(64)
+                }
             }
             let directory: URL
-            if let index = CommandLine.arguments.firstIndex(of: "--data-directory"), CommandLine.arguments.count > index + 1 {
+            if let index = directoryIndex {
                 directory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
             } else {
                 directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Saytile", isDirectory: true)
             }
-            let model = try AppModel(directory: directory)
+            let setupRequest: ConnectionSetupRequest?
+            if CommandLine.arguments.contains("--connection-setup") {
+                guard !diagnostics.filter({ $0 != "--connection-setup" }).contains(where: CommandLine.arguments.contains),
+                      let index = CommandLine.arguments.firstIndex(of: "--connection-output"),
+                      CommandLine.arguments.count > index + 1,
+                      CommandLine.arguments[index + 1].hasPrefix("/"),
+                      directoryIndex.map({ CommandLine.arguments[$0 + 1].hasPrefix("/") }) == true else {
+                    print("CONNECTION_SETUP_REQUIRES_ISOLATED_DIRECTORY_AND_OUTPUT")
+                    Darwin.exit(64)
+                }
+                do {
+                    setupRequest = try ConnectionSetupRequest(directory: directory,
+                        output: URL(fileURLWithPath: CommandLine.arguments[index + 1]))
+                } catch { print("CONNECTION_SETUP_REJECTED \(error.localizedDescription)"); Darwin.exit(64) }
+            } else { setupRequest = nil }
+            let preferences: UserDefaults
+            if isDiagnostic || directoryIndex != nil {
+                let suite = "app.saytile.diagnostics." + UUID().uuidString
+                diagnosticPreferencesSuite = suite
+                preferences = UserDefaults(suiteName: suite)!
+                // Explicit test data also isolates preferences. Override only the
+                // process argument domain, never inspect or alter the user's app
+                // defaults, and prevent a normal held test process showing UI or
+                // registering the user's global shortcut.
+                preferences.setVolatileDomain(["hasLaunched": true, "shortcutChoice": "disabled"], forName: UserDefaults.argumentDomain)
+                // A research probe is one explicit attempt. The app's background
+                // recovery must not start a different recognizer on its failed fixture.
+                var diagnosticConfiguration = RecognitionConfiguration()
+                diagnosticConfiguration.automaticRecovery = false
+                try diagnosticConfiguration.save(to: preferences)
+            } else { preferences = .standard }
+            let model = try AppModel(directory: directory, preferences: preferences)
             self.model = model
+            if let setupRequest {
+                configureMainMenu()
+                let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 680, height: 800),
+                                      styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
+                window.title = "Saytile · 连接识别服务"
+                window.isReleasedWhenClosed = false; window.delegate = self
+                window.contentView = NSHostingView(rootView: ConnectionSetupView(model: model, request: setupRequest) { NSApp.terminate(nil) })
+                connectionSetupWindow = window
+                window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate()
+                return
+            }
             model.openPanel = { [weak self] in self?.showPanel() }
             model.hidePanel = { [weak self] in self?.panel?.orderOut(nil) }
             model.openArchive = { [weak self] in self?.showArchive() }
             model.openSettings = { [weak self] in self?.showSettings() }
+            if let index = CommandLine.arguments.firstIndex(of: "--multi-asr-probe"), CommandLine.arguments.count > index + 1 {
+                Task {
+                    // Finish startup reconciliation before importing this new attempt.
+                    await model.initialLoad()
+                    do {
+                        guard let configIndex = CommandLine.arguments.firstIndex(of: "--recognition-config"), CommandLine.arguments.count > configIndex + 1,
+                              let reportIndex = CommandLine.arguments.firstIndex(of: "--report-dir"), CommandLine.arguments.count > reportIndex + 1 else {
+                            throw AudioFailure.message("定向回放需要显式 --recognition-config 和 --report-dir。")
+                        }
+                        guard try await model.store.listRecordings(limit: 1).isEmpty else {
+                            throw AudioFailure.message("定向回放须使用空的独立资料目录。")
+                        }
+                        let configuration = try JSONDecoder().decode(RecognitionConfiguration.self,
+                            from: Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[configIndex + 1])))
+                        let id = try await MultiRecognitionDiagnostics.transcribeFixture(
+                            url: URL(fileURLWithPath: CommandLine.arguments[index + 1]), store: model.store, configuration: configuration,
+                            allowSingleExpertBaseline: CommandLine.arguments.contains("--single-expert-baseline"))
+                        let report = URL(fileURLWithPath: CommandLine.arguments[reportIndex + 1], isDirectory: true)
+                        try FileManager.default.createDirectory(at: report, withIntermediateDirectories: true)
+                        try await MultiRecognitionDiagnostics.exportTrace(store: model.store, recordingID: id,
+                            to: report.appendingPathComponent(id.uuidString + ".json"))
+                        let state = try await model.store.recording(id: id)?.recognitionState.rawValue ?? "unknown"
+                        print("MULTI_ASR_PROBE_RECORDED recording=\(id) state=\(state); accuracy requires reference scoring")
+                        if state != "completed" { self.diagnosticExitStatus = 2 }
+                    } catch { self.diagnosticExitStatus = 1; print("MULTI_ASR_PROBE_FAILED \(error.localizedDescription)") }
+                    await model.prepareForExit()
+                    NSApp.terminate(nil)
+                }
+                return
+            }
             if CommandLine.arguments.contains("--device-probe") {
                 Task {
                     do { let result = try await AudioDiagnostics.probeInputDevice(seconds: 5); print("DEVICE_PROBE \(result)") }
@@ -106,7 +187,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if let index = CommandLine.arguments.firstIndex(of: "--ui-review"), CommandLine.arguments.count > index + 1 {
                 guard CommandLine.arguments.contains("--data-directory") else { print("UI_REVIEW_REQUIRES_ISOLATED_DIRECTORY"); NSApp.terminate(nil); return }
                 let output = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
-                Task { await runUIReview(model: model, output: output); await model.prepareForExit(); NSApp.terminate(nil) }
+                Task { diagnosticExitStatus = await runUIReview(model: model, output: output) ? 0 : 1; await model.prepareForExit(); NSApp.terminate(nil) }
                 return
             }
             configureMainMenu()
@@ -127,9 +208,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 Task { @MainActor in self?.restoreVisibleWindows() }
             }
             // Relaunch never silently resumes the microphone or restores an input binding.
-            if !UserDefaults.standard.bool(forKey: "hasLaunched") {
-                UserDefaults.standard.set(true, forKey: "hasLaunched")
+            if !preferences.bool(forKey: "hasLaunched") {
+                preferences.set(true, forKey: "hasLaunched")
                 showPanel()
+            }
+            if directoryIndex != nil {
+                let configuration = model.appliedRecognitionConfiguration
+                let report = "SAYTILE_ISOLATED_LAUNCH cloud_enabled=\(configuration.cloudEnabled) automatic_recovery=\(configuration.automaticRecovery) shortcut=\(model.shortcutChoice) visible_panel=\(panel?.isVisible == true) hotkey_registered=\(hotKey != nil)\n"
+                FileHandle.standardOutput.write(Data(report.utf8))
             }
         } catch {
             if CommandLine.arguments.contains("--data-directory") {
@@ -143,6 +229,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             alert.runModal()
             NSApp.terminate(nil)
         }
+    }
+    func windowWillClose(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === connectionSetupWindow { NSApp.terminate(nil) }
     }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if terminating { return .terminateNow }
@@ -159,6 +248,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             DispatchQueue.main.async { NSApp.terminate(nil) }
         }
         return .terminateCancel
+    }
+    func applicationWillTerminate(_ notification: Notification) {
+        if let suite = diagnosticPreferencesSuite { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
+        if diagnosticExitStatus != 0 { Darwin.exit(diagnosticExitStatus) }
     }
     private func configureMainMenu() {
         let main = NSMenu()

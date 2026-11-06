@@ -1,0 +1,138 @@
+{
+  "clips": 24,
+  "unique_audio_seconds": 152.320125,
+  "configuration_runs_planned": 264,
+  "services": [
+    {
+      "provider": "qwenMessage",
+      "model": "qwen-audio-3.1-asr-flash-message",
+      "configuration_ids": [
+        "A_qwen_cloud",
+        "C_dual",
+        "D_dual_soniox",
+        "E_dual_soniox_ai",
+        "F_dual_soniox_ai_audio",
+        "G_dual_soniox_ai_audio_file",
+        "H_dual_ai",
+        "N_qwen_meta"
+      ],
+      "fixture_exposures": 192,
+      "streaming_sessions": 192,
+      "streaming_audio_seconds": 1218.561,
+      "review_fixture_exposures": 0,
+      "one_full_audio_pass_seconds_for_review_exposures": 0,
+      "dynamic_review_calls": null,
+      "review_input_tokens": null,
+      "review_output_tokens": null
+    },
+    {
+      "provider": "assemblyAI",
+      "model": "universal-3-6-pro",
+      "configuration_ids": [
+        "B_assembly",
+        "C_dual",
+        "D_dual_soniox",
+        "E_dual_soniox_ai",
+        "F_dual_soniox_ai_audio",
+        "G_dual_soniox_ai_audio_file",
+        "H_dual_ai"
+      ],
+      "fixture_exposures": 168,
+      "streaming_sessions": 168,
+      "streaming_audio_seconds": 1066.240875,
+      "review_fixture_exposures": 0,
+      "one_full_audio_pass_seconds_for_review_exposures": 0,
+      "dynamic_review_calls": null,
+      "review_input_tokens": null,
+      "review_output_tokens": null
+    },
+    {
+      "provider": "soniox",
+      "model": "stt-rt-v6",
+      "configuration_ids": [
+        "D_dual_soniox",
+        "E_dual_soniox_ai",
+        "F_dual_soniox_ai_audio",
+        "G_dual_soniox_ai_audio_file",
+        "S_soniox_alone"
+      ],
+      "fixture_exposures": 120,
+      "streaming_sessions": 120,
+      "streaming_audio_seconds": 761.6006249999999,
+      "review_fixture_exposures": 0,
+      "one_full_audio_pass_seconds_for_review_exposures": 0,
+      "dynamic_review_calls": null,
+      "review_input_tokens": null,
+      "review_output_tokens": null
+    },
+    {
+      "provider": "openAIResponses",
+      "model": "gpt-6-astra",
+      "configuration_ids": [
+        "E_dual_soniox_ai",
+        "F_dual_soniox_ai_audio",
+        "G_dual_soniox_ai_audio_file",
+        "H_dual_ai"
+      ],
+      "fixture_exposures": 96,
+      "streaming_sessions": 0,
+      "streaming_audio_seconds": 0,
+      "review_fixture_exposures": 96,
+      "one_full_audio_pass_seconds_for_review_exposures": 0,
+      "dynamic_review_calls": null,
+      "review_input_tokens": null,
+      "review_output_tokens": null
+    },
+    {
+      "provider": "gemini",
+      "model": "gemini-3.8-flash",
+      "configuration_ids": [
+        "F_dual_soniox_ai_audio",
+        "G_dual_soniox_ai_audio_file"
+      ],
+      "fixture_exposures": 48,
+      "streaming_sessions": 0,
+      "streaming_audio_seconds": 0,
+      "review_fixture_exposures": 48,
+      "one_full_audio_pass_seconds_for_review_exposures": 304.64025,
+      "dynamic_review_calls": null,
+      "review_input_tokens": null,
+      "review_output_tokens": null
+    },
+    {
+      "provider": "elevenLabsFile",
+      "model": "scribe_v2",
+      "configuration_ids": [
+        "G_dual_soniox_ai_audio_file"
+      ],
+      "fixture_exposures": 24,
+      "streaming_sessions": 0,
+      "streaming_audio_seconds": 0,
+      "review_fixture_exposures": 24,
+      "one_full_audio_pass_seconds_for_review_exposures": 152.320125,
+      "dynamic_review_calls": null,
+      "review_input_tokens": null,
+      "review_output_tokens": null
+    },
+    {
+      "provider": "meta",
+      "model": "muse-voice-transcribe-1.0",
+      "configuration_ids": [
+        "M_meta_alone",
+        "N_qwen_meta"
+      ],
+      "fixture_exposures": 48,
+      "streaming_sessions": 48,
+      "streaming_audio_seconds": 304.64025,
+      "review_fixture_exposures": 0,
+      "one_full_audio_pass_seconds_for_review_exposures": 0,
+      "dynamic_review_calls": null,
+      "review_input_tokens": null,
+      "review_output_tokens": null
+    }
+  ],
+  "total_streaming_sessions": 528,
+  "dynamic_review_call_count": null,
+  "status": "PLANNED_NOT_AUTHORIZED_OR_RUN",
+  "note": "Review/file ASR can run on multiple PCM snapshots. One full pass is a costing unit, not a call budget or total. Costs/tokens/retries remain unknown until explicit caps and service prices are supplied."
+}

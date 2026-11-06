@@ -1,0 +1,59 @@
+{
+  "version": "1.0.0-rc.2-candidate.2",
+  "source_revision": "7320228955cec7bb4d24ff19700f37d1ef0ddbc3",
+  "source_tree": "f8ff0373acd80a2c7b4508381b9c899402e473ac",
+  "source_dirty": false,
+  "app_path": "/Users/hhf/.codex/worktrees/saytile-fusion-quality/dist/Saytile.app",
+  "dmg_path": "/Users/hhf/.codex/worktrees/saytile-fusion-quality/dist/Saytile-1.0.0-rc.2-candidate.2-arm64.dmg",
+  "binary_sha256": "d109e06018ae231f2a1a55c82d38505937298172c929fc7df07d86b374e382f9",
+  "dmg_sha256": "a218c4c98d8eabb8b7ed5b844bb822fc3332bded4dbffd380e5dcafd9aa5c97c",
+  "signature": "strict ad-hoc verified in readonly DMG and copied App",
+  "installed_over_rc1": false,
+  "package_instructions": "RC2 candidate.2; no replacement now; future stopped full-directory backup and explicit rollback",
+  "status": "NO_KEY_ENGINEERING_VERIFIED_CLOUD_NOT_RUN",
+  "notarized": false,
+  "verification": {
+    "native": "286 tests / 34 suites",
+    "app_model": "25 checks",
+    "native_ui": "15 scenes / 6 groups / 16 AXPress + 2 AXSetValue + 2 native field-editor commits; no candidate activation, zero outside foreground transitions observed",
+    "connection_cli": 7,
+    "cloud_probe_cli": 4,
+    "actual_rc1_dmg_upgrade": 8,
+    "idle": "120.042 seconds, final packaged App, isolated preferences/database, no microphone/ASR; 1.07 user + 0.21 sys CPU seconds, maximum RSS 105725952 bytes; not energy/long-term stability"
+  },
+  "cloud": {
+    "calls": 0,
+    "uploads": 0,
+    "actual_connection": "NOT_RUN",
+    "quality_gain_and_confirmation_latency": "NOT_RUN"
+  },
+  "installed_rc1": {
+    "version": "1.0.0-rc.1",
+    "source_revision": "8906a9dc4b2ec186f634bb2c829d8eb0c1700679",
+    "binary_sha256": "18e6e5ad445547a2179d32bf0d4b9589c73d3e45060f9978f8588605f32f3656",
+    "method": "Read only bundle metadata and executable hash; no personal database opened"
+  },
+  "preserved_previous_candidate": {
+    "dmg": "dist/Saytile-1.0.0-rc.2-candidate.1-arm64.dmg",
+    "dmg_sha256": "59c047531fa1fc81a940fc03b1c086f7d6b818ed14861adee15e73b92ef11988",
+    "app_moved_from_default_build_output_to": "dist/Saytile-rc2-candidate.1.app"
+  },
+  "unchanged_input_scope": "Prior 9 native AX / 20 headless DOM and 6 WebKit mutation guards are previous-source evidence. Runtime dispatch code unchanged; final full suite reruns coordinator contracts. Background WebKit actual write remains UNVERIFIED_DOM_UNCHANGED, no replay.",
+  "limits": [
+    "No real vendor connection or recognition accuracy comparison",
+    "No physical permission prompts, microphone, lock/sleep/hot-unplug or multi-display acceptance",
+    "No 72-hour stability or whole-machine power result",
+    "Ad-hoc signing; no Developer ID notarization",
+    "No merge or installed RC1 replacement before actual cloud/product gate"
+  ],
+  "runtime_ci": {
+    "native": 42287027227,
+    "contracts": 42287027237,
+    "status": "success",
+    "swift": "6.3.3",
+    "native_tests": 286,
+    "app_model_checks": 25,
+    "artifact": 13537518918,
+    "artifact_is_separate_from_local_dmg": true
+  }
+}

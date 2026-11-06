@@ -1,0 +1,60 @@
+{
+  "source_revision": "f2ecf3ad84a0e5302ff0266bde3a72e9f3ba5163",
+  "source_dirty": false,
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "swift": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+  "paid_cloud_calls": 0,
+  "cloud_accuracy_measured": false,
+  "ax_control_clicks_tested": false,
+  "steps": [
+    {
+      "name": "native-operation",
+      "exit_code": 0,
+      "log": "accepted-native-operation.log"
+    },
+    {
+      "name": "app-model-operation",
+      "exit_code": 0,
+      "log": "accepted-app-model-operation.log"
+    },
+    {
+      "name": "release-build",
+      "exit_code": 0,
+      "log": "accepted-release-build.log"
+    },
+    {
+      "name": "ui-render",
+      "exit_code": 0,
+      "log": "accepted-ui-render.log"
+    },
+    {
+      "name": "startup-smoke",
+      "exit_code": 0,
+      "log": "accepted-startup-smoke.log"
+    },
+    {
+      "name": "package",
+      "exit_code": 0,
+      "log": "accepted-package.log"
+    }
+  ],
+  "bundle": {
+    "SaytileSourceRevision": "f2ecf3ad84a0e5302ff0266bde3a72e9f3ba5163",
+    "SaytileSourceDirty": false,
+    "SaytileReleaseVersion": "1.0.0-asr-preview.1",
+    "CFBundleVersion": "75"
+  },
+  "binary_sha256": "7c22c639e760738fa86f12b5a01ee30a7e10f3a66e110105694eb0789325fb53",
+  "dmg": {
+    "filename": "Saytile-1.0.0-asr-preview.1-arm64.dmg",
+    "bytes": 1751212,
+    "sha256": "b0fccdfa5f293a09ff197bc832125e3409fce88a4361fe6eecbf8aaef7406c08",
+    "installed_to_production": false
+  },
+  "native_test_count": 204,
+  "native_suite_count": 21,
+  "app_model_checks": 21,
+  "ui_capture_count": 11,
+  "production_revision_unchanged": "a352a1c812c33388a1a908f21ecde30da80ad1cd",
+  "success": true
+}

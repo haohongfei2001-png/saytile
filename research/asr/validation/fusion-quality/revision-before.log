@@ -1,0 +1,81 @@
+Building for debugging...
+[Pre-planning 1 / 155]
+[Planning deferred tasks]
+[38 / 117]
+[63 / 127] CAudio
+[70 / 128]
+[88 / 128] CAudio
+[96 / 128] CAudio
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[97 / 128] SaytileKit
+[107 / 267]
+[112 / 267]
+[122 / 267]
+[125 / 267]
+[131 / 267]
+[134 / 267]
+[142 / 267]
+[147 / 267]
+[148 / 267]
+[162 / 267]
+[163 / 267]
+[168 / 267]
+[173 / 267]
+[174 / 267]
+[175 / 267]
+[182 / 267]
+[184 / 267]
+[189 / 267]
+[190 / 267]
+[191 / 267]
+[194 / 267]
+[196 / 267]
+[208 / 267]
+[209 / 267]
+[213 / 267]
+[214 / 267]
+[219 / 267]
+[222 / 267]
+[223 / 267]
+[224 / 267]
+[225 / 267]
+[235 / 267] SaytileKit
+[237 / 267] SaytileKit
+[246 / 267] SaytileKitTests-product
+[247 / 268] SaytileKit
+[247 / 268] Saytile-product
+[249 / 278] SaytileKit
+[250 / 278] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[256 / 279] SaytileKitTests-product
+[257 / 294]
+[260 / 294]
+[269 / 294] SaytileKitTests-product
+[271 / 294] SaytileKitTests-product
+[276 / 294] SaytileKitTests-product
+[282 / 294] Saytile-product
+[283 / 294] SaytileKitTests-product
+[284 / 294] SaytileKitTests-product
+[284 / 294] Saytile-product
+[284 / 294] SaytileKitTests-product
+[286 / 294] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[286 / 294] SaytileKitTests-product
+[290 / 294] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[292 / 294] Saytile-product
+Build complete! (38.11秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test fusionRevisionCanCorrectOnlyUnreservedSuffixAndPreservesDraft() started.
+◇ Test fusionRevisionFinalReviewCanCorrectSameGenerationBeforeAnyDispatch() started.
+✘ Test fusionRevisionCanCorrectOnlyUnreservedSuffixAndPreservesDraft() recorded an issue at FusionRevisionSafetyTests.swift:52:2: Caught error: .invalidSelection
+✘ Test fusionRevisionCanCorrectOnlyUnreservedSuffixAndPreservesDraft() failed after 0.021 seconds with 1 issue.
+✘ Test fusionRevisionFinalReviewCanCorrectSameGenerationBeforeAnyDispatch() recorded an issue at FusionRevisionSafetyTests.swift:38:2: Caught error: .invalidSelection
+✘ Test fusionRevisionFinalReviewCanCorrectSameGenerationBeforeAnyDispatch() failed after 0.022 seconds with 1 issue.
+✘ Test run with 2 tests in 0 suites failed after 0.022 seconds with 2 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

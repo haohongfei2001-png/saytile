@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 2,
+  "timestampEncoding": "unix-epoch-milliseconds",
+  "source": {"fixtureID": "synthetic-only", "audioSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "sampleRate": 16000, "frameCount": 32000},
+  "configurationIdentity": {"sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "evaluationMode": "multi-expert-fusion"},
+  "configuration": {"inputMode": "highestQuality", "models": [
+    {"provider": "qwenMessage", "model": "qwen-audio-3.1-asr-flash-message", "purpose": "chineseASR"},
+    {"provider": "assemblyAI", "model": "universal-3-6-pro", "purpose": "englishASR"}
+  ]},
+  "recording": {"id": "record", "recognitionState": "completed"},
+  "replay": {"recognitionID": "generation-2", "replayStartedAt": 100000, "firstAudioSubmittedAt": 100020, "lastAudioSubmittedAt": 102000, "sessionEndedAt": 102500},
+  "finalization": {"recognitionID": "generation-2", "state": "completed", "completedAt": 102400, "selectedRevisionID": "final-2", "selectedText": "不要 delete 10 kg", "resolved": true, "dispatchEligible": true},
+  "fusionDecisions": [
+    {"id": "old", "recognitionID": "generation-1", "createdAt": 90000, "outcome": "published", "proposal": {"previewText": "old text", "stableText": "old text"}},
+    {"id": "preview", "recognitionID": "generation-2", "createdAt": 100300, "outcome": "unchanged", "proposal": {"previewText": "不要", "stableText": ""}},
+    {"id": "correction", "recognitionID": "generation-2", "createdAt": 101500, "outcome": "unchanged", "proposal": {"previewText": "不要 delete 10 kg", "stableText": ""}},
+    {"id": "publication", "recognitionID": "generation-2", "createdAt": 102300, "outcome": "published", "revisionID": "final-2", "proposal": {"previewText": "不要 delete 10 kg", "stableText": "不要 delete 10 kg"}}
+  ],
+  "revisions": [{"id": "final-2", "origin": "final", "text": "不要 delete 10 kg", "createdAt": 102300}],
+  "modelRuns": [
+    {"ticket": {"id": "old-run", "recognitionID": "generation-1", "provider": "qwenMessage", "model": "old"}, "state": "failed"},
+    {"ticket": {"id": "run-q", "recognitionID": "generation-2", "provider": "qwenMessage", "model": "qwen-audio-3.1-asr-flash-message"}, "state": "completed"},
+    {"ticket": {"id": "run-a", "recognitionID": "generation-2", "provider": "assemblyAI", "model": "universal-3-6-pro"}, "state": "completed"}
+  ]
+}

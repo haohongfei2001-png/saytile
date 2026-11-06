@@ -75,15 +75,27 @@ final class PCMJournal {
         u32(16_000); u32(32_000); u16(2); u16(16); text("data"); u32(UInt32(frames * 2))
         return data
     }
+    enum RepairFailure: LocalizedError {
+        case incompleteHeader, fileTooLarge
+        var errorDescription: String? {
+            switch self {
+            case .incompleteHeader: "原音头不完整"
+            case .fileTooLarge: "原音文件超过 WAV 容量上限，拒绝损坏的文件"
+            }
+        }
+    }
     static func repair(_ url: URL) throws -> Int64 {
-        let handle = try FileHandle(forUpdating: url); defer { try? handle.close() }
-        let size = try handle.seekToEnd()
-        guard size >= 44 else { throw AudioFailure.message("原音头不完整") }
-        guard size - 8 <= UInt64(UInt32.max) else { throw AudioFailure.message("原音文件超过 WAV 容量上限，拒绝损坏的文件") }
+        // An intact file needs only read permission. Request write access only
+        // when a recovered crash tail or stale header actually requires repair.
+        let reader = try FileHandle(forReadingFrom: url); defer { try? reader.close() }
+        let size = try reader.seekToEnd()
+        guard size >= 44 else { throw RepairFailure.incompleteHeader }
+        guard size - 8 <= UInt64(UInt32.max) else { throw RepairFailure.fileTooLarge }
         let frames = Int64((size - 44) / 2)
-        try handle.seek(toOffset: 0)
-        let currentHeader = try handle.read(upToCount: 44)
+        try reader.seek(toOffset: 0)
+        let currentHeader = try reader.read(upToCount: 44)
         if size == UInt64(44 + frames * 2), currentHeader == header(frames: frames) { return frames }
+        let handle = try FileHandle(forUpdating: url); defer { try? handle.close() }
         try handle.truncate(atOffset: UInt64(44 + frames * 2))
         try handle.seek(toOffset: 0); try handle.write(contentsOf: header(frames: frames)); try handle.synchronize()
         return frames
@@ -100,7 +112,12 @@ final class VoiceSegmenter {
     private var speechVotes = 0
     private var silence = 0
     private var activeFrames = 0
-    init() throws { guard let vad = st_vad_create() else { throw AudioFailure.message("VAD 初始化失败") }; self.vad = vad }
+    private let endSilenceFrames: Int
+    private let maximumFrames: Int
+    init(endSilenceFrames: Int = 40, maximumFrames: Int = 1_500) throws {
+        guard let vad = st_vad_create() else { throw AudioFailure.message("VAD 初始化失败") }
+        self.vad = vad; self.endSilenceFrames = max(1, endSilenceFrames); self.maximumFrames = max(1, maximumFrames)
+    }
     deinit { st_vad_destroy(vad) }
     func accept(_ data: Data) -> [Event] {
         pending.append(data); var events: [Event] = []
@@ -114,8 +131,9 @@ final class VoiceSegmenter {
             } else {
                 events.append(.audio(frame)); activeFrames += 1
                 silence = voiced ? 0 : silence + 1
-                // Rotate visual / ASR units at 30s while maintaining uninterrupted capture.
-                if silence >= 40 || activeFrames >= 1_500 {
+                // Journal rotation is separate. Cloud sessions retain longer context;
+                // this boundary controls resource recovery, never text confirmation.
+                if silence >= endSilenceFrames || activeFrames >= maximumFrames {
                     speaking = false; speechVotes = 0; silence = 0; events.append(.end)
                 }
             }

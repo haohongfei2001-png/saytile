@@ -1,0 +1,29 @@
+{
+  "id": "ascend-01047",
+  "audio": "ascend-01047.wav",
+  "audio_sha256": "a39c0a82c2d9582f8c59d1b3a31b3e8d7a49f5c6daa01b0fbfd3db616b102205",
+  "sample_rate": 16000,
+  "frames": 126400,
+  "duration_seconds": 7.9,
+  "reference": "第二个呢它的测试也很很复杂就是说你在测试的时候你只能simulate这个scenario",
+  "source_reference_raw": "第二个呢它的测试也很很复杂就是说你在测试的时候你只能simulate这个scenario",
+  "source_dataset": "ascend",
+  "source_row_id": "01047",
+  "source_audio_filename": "ses3_spk3_L18977_851.360_7.900.wav",
+  "source_revision": "737e9800ae31be9932ba8464c80366559bd28424",
+  "license": "CC-BY-SA-4.0",
+  "language": "mixed",
+  "group": "primary",
+  "human_voice": true,
+  "synthetic_perturbation": false,
+  "speaker": "3",
+  "topic": "technology",
+  "critical": [],
+  "probe_transforms": {
+    "original": "unchanged PCM",
+    "repeated": "repeat existing PCM 10 times; 79 seconds; control-flow derivative, not natural accuracy corpus",
+    "tail": "first VAD trigger followed by 43 PCM samples, then finish()"
+  },
+  "exported_audio_and_logs_location": "/Users/hhf/.codex/saytile-asr-research-20261106/vad-probes",
+  "input_audio_location": "/Users/hhf/.codex/saytile-asr-research-20261106/audio/ascend-01047.wav"
+}

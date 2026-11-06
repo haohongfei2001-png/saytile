@@ -1,0 +1,40 @@
+{
+  "status": "CANDIDATE_ENGINEERING_VERIFIED_CLOUD_NOT_RUN",
+  "version": "1.0.0-rc.2-candidate.1",
+  "source_revision": "8f2d71b73c8ae1aa421719201a263de20d98fc7f",
+  "source_tree": "96eaaedf6c78e401458625ae20814c0f317ff0cd",
+  "source_dirty": false,
+  "app_path": "/Users/hhf/.codex/worktrees/saytile-fusion-quality/dist/Saytile.app",
+  "dmg_path": "/Users/hhf/.codex/worktrees/saytile-fusion-quality/dist/Saytile-1.0.0-rc.2-candidate.1-arm64.dmg",
+  "binary_sha256": "4f9f48f45d0c2d624d82bc2bec61ebf2be0396266ea816b4bae0f951d337a143",
+  "dmg_sha256": "59c047531fa1fc81a940fc03b1c086f7d6b818ed14861adee15e73b92ef11988",
+  "signature": "ad-hoc; codesign --verify --strict passed on packaged and copied App",
+  "notarized": false,
+  "installed_over_rc1": false,
+  "ui_images": "dist/rc2-ui-final (local synthetic captures; hashes committed in ui-final-manifest.json)",
+  "automated_evidence": {
+    "native": "270 tests / 32 suites",
+    "app_model": "23 checks at same AppModel source",
+    "ui": "15 scenes, 6 groups, 16 AXPress + 2 AXSetValue + 2 native editor commits",
+    "setup_cli": 7,
+    "cloud_probe_cli": 4,
+    "actual_rc1_dmg_upgrade_checks": 8,
+    "native_input": "9 owned-background native AX checks; production coordinator/SQLite with target selector injection",
+    "headless_input": "20 production coordinator/SQLite + DOM adapter checks; not native AX",
+    "webkit_input": "6 mutation checks and no-send protection passed; background insertion UNVERIFIED_DOM_UNCHANGED"
+  },
+  "cloud": {
+    "provider_calls": 0,
+    "audio_uploads": 0,
+    "actual_connection": "NOT_RUN",
+    "quality_and_latency": "NOT_RUN",
+    "reason": "No Saytile credentials, explicit corpus processing and paid-call authorization"
+  },
+  "release_gate": "Do not merge PR4 or replace RC1 before actual cloud/product conditions are met.",
+  "installed_rc1_observation": {
+    "version": "1.0.0-rc.1",
+    "source_revision": "8906a9dc4b2ec186f634bb2c829d8eb0c1700679",
+    "binary_sha256": "18e6e5ad445547a2179d32bf0d4b9589c73d3e45060f9978f8588605f32f3656",
+    "method": "Read only installed bundle metadata and executable hash; no user database opened"
+  }
+}

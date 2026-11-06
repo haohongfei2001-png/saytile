@@ -1,0 +1,58 @@
+Building for debugging...
+[Planning 29 / 155]
+[Planning deferred tasks]
+[14 / 75] CAudio
+[49 / 75] CAudio
+[52 / 75] SaytileKit
+[63 / 86] CAudio
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[64 / 86] CAudio
+[68 / 86] SaytileKitTests-product
+[68 / 86] Saytile-product
+[72 / 93] Saytile-product
+[75 / 93] Saytile-product
+[75 / 93] SaytileKit
+[75 / 93] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[80 / 93] SaytileKitTests-product
+[80 / 93] Saytile-product
+[90 / 104] SaytileKitTests-product
+[91 / 104] SaytileKitTests-product
+[92 / 104] Saytile-product
+[94 / 103] SaytileKitTests-product
+[98 / 104] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[98 / 104] SaytileKitTests-product
+[100 / 104] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (8.02秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Real coordinator with isolated persistence and controlled providers" started.
+◇ Test failedExpertDoesNotStopOtherAudioOrDestroyOriginal() started.
+◇ Test fastDispatchKeepsLateAcousticCorrectionInternal() started.
+◇ Test acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) started.
+◇ Test audioDeletionInvalidatesEpochBeforeLateCallbacks() started.
+◇ Test highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) started.
+◇ Test rejectedArbitrationRetainsDecodedResponseWithoutPublishingIt() started.
+◇ Test identicalAudioWaitsForBothExpertsBeforeQualityPublication() started.
+◇ Test alignmentOnlyEvidenceChangeCanRetryWhileDuplicateCallbacksCoalesce() started.
+◇ Test cancellationRejectsInFlightCallbacksWithoutErasingAudio() started.
+◇ Test case passing 1 argument appendMore → false to acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) started.
+◇ Test case passing 1 argument simultaneous → false to highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) started.
+◇ Test case passing 1 argument appendMore → true to acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) started.
+◇ Test case passing 1 argument simultaneous → true to highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) started.
+✔ Test alignmentOnlyEvidenceChangeCanRetryWhileDuplicateCallbacksCoalesce() passed after 0.024 seconds.
+✔ Test audioDeletionInvalidatesEpochBeforeLateCallbacks() passed after 0.040 seconds.
+✔ Test cancellationRejectsInFlightCallbacksWithoutErasingAudio() passed after 0.040 seconds.
+✔ Test rejectedArbitrationRetainsDecodedResponseWithoutPublishingIt() passed after 0.047 seconds.
+✔ Test identicalAudioWaitsForBothExpertsBeforeQualityPublication() passed after 0.051 seconds.
+✔ Test failedExpertDoesNotStopOtherAudioOrDestroyOriginal() passed after 0.052 seconds.
+✔ Test highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) with 2 test cases passed after 0.062 seconds.
+✔ Test fastDispatchKeepsLateAcousticCorrectionInternal() passed after 0.064 seconds.
+✔ Test acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) with 2 test cases passed after 0.073 seconds.
+✔ Suite "Real coordinator with isolated persistence and controlled providers" passed after 0.073 seconds.
+✔ Test run with 9 tests in 1 suite passed after 0.073 seconds.

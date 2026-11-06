@@ -70,6 +70,12 @@ final class AppModel: ObservableObject {
     @Published var recordFilter: RecordingFilter = .all { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var query = "" { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var notice: String?
+    @Published var recognitionConfiguration = RecognitionConfiguration()
+    @Published private(set) var appliedRecognitionConfiguration = RecognitionConfiguration()
+    @Published private(set) var applyingRecognitionSettings = false
+    var hasUnappliedRecognitionSettings: Bool { recognitionConfiguration != appliedRecognitionConfiguration }
+    @Published var recognitionSettingsNotice: String?
+    @Published var modelCallSummary: [String] = []
     @Published var directMode = false
     @Published private(set) var insertionLabels: [UUID: String] = [:]
     @Published var targetLabel = "在目标草稿中放置光标，再绑定"
@@ -106,14 +112,18 @@ final class AppModel: ObservableObject {
     private var timer: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
     private var subscription: AnyCancellable?
+    private var recognitionSubscription: AnyCancellable?
     private var cleanupIDs: [UUID] = []
     private var refreshOperation: Task<Void, Never>?
     private var refreshVersion: UInt64 = 0
     private var completedRefreshVersion: UInt64 = 0
     private var refreshOperationID = UUID()
+    // Counts actual database refresh passes, not callers, for bounded-work diagnostics.
+    private(set) var refreshReadPasses: UInt64 = 0
     private var initializing = true
     private var exitPrepared = false
     private var lastStorageRefresh = Date.distantPast
+    private var lastModelCallRefresh = Date.distantPast
     private var recovered = false
     private var recoveryTask: Task<Void, Never>?
     private var panelSessionStartedAt = Date()
@@ -136,7 +146,10 @@ final class AppModel: ObservableObject {
         self.directory = directory
         self.preferences = preferences
         store = try SaytileStore(directory: directory)
-        audio = AudioController(store: store)
+        let recognitionConfiguration = RecognitionConfiguration.load(from: preferences)
+        self.recognitionConfiguration = recognitionConfiguration
+        self.appliedRecognitionConfiguration = recognitionConfiguration
+        audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration, startupRecoveryReady: false)
         input = NativeInputCoordinator(store: store)
         launchAtLogin = SMAppService.mainApp.status == .enabled
         shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? "option-space"
@@ -157,9 +170,12 @@ final class AppModel: ObservableObject {
                 }
                 if case .interrupted = self.audio.state, self.input.binding != nil { self.input.invalidate() } }
         }
+        recognitionSubscription = NotificationCenter.default.publisher(for: .init("SaytileRecognitionUpdated"))
+            .throttle(for: .milliseconds(120), scheduler: RunLoop.main, latest: true)
+            .sink { [weak self] _ in Task { @MainActor [weak self] in await self?.refresh() } }
         recoveryTask = Task { [weak self] in
             guard let self else { return }
-            do { _ = try await AudioDiagnostics.recoverAudio(store: store); recovered = true }
+            do { _ = try await AudioDiagnostics.recoverAudio(store: store); recovered = true; audio.completeStartupRecovery() }
             catch { notice = "资料恢复尚未完成：\(error.localizedDescription)" }
         }
         startRefreshTimer()
@@ -195,7 +211,64 @@ final class AppModel: ObservableObject {
         }
     }
     var accessibilityLabel: String { input.hasPermission ? "已允许" : "尚未允许 · 可正常复制" }
+    @Published private(set) var recognitionPhases: [UUID: RecognitionPurpose] = [:]
+    func recognitionPhaseLabel(for item: DisplayRecording) -> String {
+        guard item.source.recognitionState == .running, let phase = recognitionPhases[item.id] else { return item.stateLabel }
+        switch phase {
+        case .finalASR: return "正在高精度定稿"
+        case .audioReview: return "正在复听原音"
+        case .textFusion: return "正在核对文字"
+        case .chineseASR, .englishASR, .multilingualASR: return item.isRecording ? "正在记录 · 并行识别" : "正在识别"
+        }
+    }
     var engineLabel: String { audio.speechStatus }
+    func hasCredential(_ item: ModelConfiguration) -> Bool {
+        CloudCredentialStore.contains(configurationID: item.id, provider: item.provider)
+    }
+    func credentialPresence(_ item: ModelConfiguration) -> CloudCredentialPresence {
+        CloudCredentialStore.presence(configurationID: item.id, provider: item.provider)
+    }
+    @discardableResult func saveCredential(_ value: String, for item: ModelConfiguration) -> Bool {
+        do {
+            try CloudCredentialStore.save(value, configurationID: item.id, provider: item.provider)
+            recognitionSettingsNotice = "\(item.purpose.label)的密钥已安全保存。"
+            return true
+        } catch { recognitionSettingsNotice = error.localizedDescription; return false }
+    }
+    @discardableResult func removeCredential(for item: ModelConfiguration) -> Bool {
+        do {
+            try CloudCredentialStore.delete(configurationID: item.id, provider: item.provider)
+            recognitionSettingsNotice = "该服务密钥已移除。"
+            Task { await audio.setRecognitionConfiguration(RecognitionConfiguration.load(from: preferences)) }
+            return true
+        } catch { recognitionSettingsNotice = error.localizedDescription; return false }
+    }
+    func applyRecognitionSettings() {
+        guard !applyingRecognitionSettings else { return }
+        let candidate = recognitionConfiguration
+        applyingRecognitionSettings = true
+        Task {
+            defer { applyingRecognitionSettings = false }
+            do {
+                try candidate.validateForCloud()
+                if candidate.cloudEnabled {
+                    for item in candidate.enabledModels {
+                        switch credentialPresence(item) {
+                        case .saved: break
+                        case .missing: throw ProviderFailure.configuration("请先保存\(item.purpose.label)的 API Key。")
+                        case .unavailable(let status): throw CloudCredentialError.keychain(status)
+                        }
+                    }
+                }
+                try candidate.save(to: preferences)
+                await audio.setRecognitionConfiguration(candidate)
+                appliedRecognitionConfiguration = candidate
+                recognitionSettingsNotice = candidate.cloudEnabled
+                    ? "设置已应用。采集与原音保存继续独立运行。"
+                    : "已停止云端识别，继续使用本机 Apple 识别。"
+            } catch { recognitionSettingsNotice = error.localizedDescription }
+        }
+    }
     var devices: [DisplayDevice] {
         var choices = [DisplayDevice(id: 0, name: "系统默认输入设备")] + audio.devices.map { DisplayDevice(id: $0.id, name: $0.name) }
         if deviceID == UInt32.max { choices.append(DisplayDevice(id: UInt32.max, name: "已选择的麦克风未连接")) }
@@ -391,10 +464,17 @@ final class AppModel: ObservableObject {
             else { try await self.audio.play(recordingID: item.id) }
         }
     }
-    func eraseAudio(_ item: DisplayRecording) { perform { try await self.store.deleteAudio(recordingID: item.id); await self.refresh() } }
+    func eraseAudio(_ item: DisplayRecording) {
+        perform {
+            try await self.store.deleteAudio(recordingID: item.id)
+            await self.audio.cancelRecognition(recordingID: item.id)
+            await self.refresh()
+        }
+    }
     func deleteRecord(_ item: DisplayRecording) {
         perform {
             try await self.store.deleteRecord(recordingID: item.id)
+            await self.audio.cancelRecognition(recordingID: item.id)
             self.pendingDraftWrites.removeValue(forKey: item.id); self.latestEditorValues.removeValue(forKey: item.id)
             if self.selected?.id == item.id { self.closeDetail() }
             await self.refresh()
@@ -439,28 +519,34 @@ final class AppModel: ObservableObject {
     // All callers await the same in-flight refresh, including startup diagnostics.
     // A timer refresh must not make a user action or initial render return empty early.
     func refresh() async {
+        guard !exitPrepared else { return }
         refreshVersion &+= 1
         let requestedVersion = refreshVersion
-        if let refreshOperation {
-            let operationID = refreshOperationID
-            await refreshOperation.value
+        while !exitPrepared, completedRefreshVersion < requestedVersion {
+            let operation: Task<Void, Never>
+            let operationID: UUID
+            if let pending = refreshOperation {
+                operation = pending; operationID = refreshOperationID
+            } else {
+                operationID = UUID(); refreshOperationID = operationID
+                // One pass covers all requests that arrived before it started.
+                // A waiting caller retains its original version; recursively calling
+                // refresh here would invent another request and serialize the burst.
+                let coveredVersion = refreshVersion
+                operation = Task<Void, Never> { [weak self] in
+                    guard let self else { return }
+                    await self.performRefresh()
+                    self.completedRefreshVersion = max(self.completedRefreshVersion, coveredVersion)
+                }
+                refreshOperation = operation
+            }
+            await operation.value
             if refreshOperationID == operationID { self.refreshOperation = nil }
-            if completedRefreshVersion < requestedVersion { await refresh() }
-            return
         }
-        let operationID = UUID(); refreshOperationID = operationID
-        let operation = Task<Void, Never> { [weak self] in
-            guard let self else { return }
-            await self.performRefresh()
-            self.completedRefreshVersion = max(self.completedRefreshVersion, requestedVersion)
-        }
-        refreshOperation = operation
-        await operation.value
-        if refreshOperationID == operationID { refreshOperation = nil }
-        if completedRefreshVersion < requestedVersion { await refresh() }
     }
     func initialLoad() async { await refresh() }
     private func performRefresh() async {
+        refreshReadPasses &+= 1
         let requestedQuery = query, requestedFilter = recordFilter, requestedLimit = pageLimit
         do {
             await recoveryTask?.value
@@ -495,6 +581,10 @@ final class AppModel: ObservableObject {
                     if refreshedSelection?.source.preferredRevisionID != selection.source.preferredRevisionID { await loadVersions(selection.id) }
                 }
             }
+            if Date.now.timeIntervalSince(lastModelCallRefresh) > 2 {
+                lastModelCallRefresh = Date.now
+                modelCallSummary = try await store.modelCallSummaries(limit: 30)
+            }
             if Date.now.timeIntervalSince(lastStorageRefresh) > 60 {
             lastStorageRefresh = Date.now
             let summary = try await store.storageSummary()
@@ -502,6 +592,8 @@ final class AppModel: ObservableObject {
             if summary.shouldWarn { notice = "原音空间已达到提醒阈值，或磁盘剩余不足 1 GB。请在设置中查看存储。" }
             }
             let visibleIDs = Set(records.map(\.id) + recent.map(\.id))
+            let currentPhases = try await store.activeRecognitionPhases(recordingIDs: Array(visibleIDs))
+            if recognitionPhases != currentPhases { recognitionPhases = currentPhases }
             insertionLabels = insertionLabels.filter { visibleIDs.contains($0.key) }
             if directMode && !isInserting, let binding = input.binding {
                 let deferred = try await store.deferredDirectInputRecordings(bindingID: binding.id, createdSince: binding.boundAt, limit: 1000)
@@ -509,7 +601,7 @@ final class AppModel: ObservableObject {
                 let candidates = try await store.directInputCandidates(bindingID: binding.id, createdSince: binding.boundAt)
                 for record in candidates {
                     guard directMode, !isInserting, input.binding?.id == binding.id else { break }
-                    guard let revision = try await store.latestFinalRevision(recordingID: record.id) else { continue }
+                    guard let revision = try await store.latestDispatchableRevision(recordingID: record.id) else { continue }
                     let result = await input.insertStable(recordingID: record.id, revisionID: revision.id, stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
                     recordInputResult(result, recordingID: record.id)
                     switch result { case .failed, .cancelled, .unverified, .deferred: notice = result.message; default: break }

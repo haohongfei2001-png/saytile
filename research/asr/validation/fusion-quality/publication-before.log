@@ -1,0 +1,104 @@
+Building for debugging...
+[Pre-planning 1 / 155]
+[Planning deferred tasks]
+[38 / 117]
+[49 / 118] CAudio
+[70 / 128]
+[91 / 128] CAudio
+[96 / 128] CAudio
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[97 / 128] SaytileKit
+[107 / 267]
+[113 / 267]
+[122 / 267]
+[124 / 267]
+[125 / 267]
+[131 / 267]
+[134 / 267]
+[142 / 267]
+[145 / 267]
+[147 / 267]
+[148 / 267]
+[162 / 267]
+[163 / 267]
+[165 / 267]
+[172 / 267]
+[173 / 267]
+[174 / 267]
+[175 / 267]
+[182 / 267]
+[183 / 267]
+[184 / 267]
+[189 / 267]
+[190 / 267]
+[191 / 267]
+[193 / 267]
+[194 / 267]
+[196 / 267]
+[207 / 267]
+[209 / 267]
+[214 / 267]
+[219 / 267]
+[222 / 267]
+[223 / 267]
+[224 / 267]
+[225 / 267]
+[236 / 267] SaytileKit
+[237 / 267] SaytileKit
+[247 / 268] SaytileKit
+[247 / 268] Saytile-product
+[250 / 278]
+[250 / 278] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[256 / 279] SaytileKitTests-product
+[257 / 294]
+[260 / 294]
+[270 / 294] SaytileKitTests-product
+[271 / 294] SaytileKitTests-product
+[276 / 294]
+[281 / 294] Saytile-product
+[283 / 294] Saytile-product
+[284 / 294] Saytile-product
+[284 / 294] SaytileKitTests-product
+[284 / 294] Saytile-product
+[286 / 294] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[290 / 294] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[292 / 294] Saytile-product
+Build complete! (33.27秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Evidence-constrained fusion publication" started.
+◇ Test completeShortReviewDoesNotDeclareLongerLiveUtteranceResolved() started.
+◇ Test longerSilentCoverageDoesNotInventAnUnresolvedTextTail() started.
+◇ Test wholeUtteranceSelectionStillCannotResolveUnsupportedNegation() started.
+◇ Test utteranceOnlyAllowsWholeSelectionButNeverCharacterSplicing() started.
+◇ Test emptyCommonPrefixWaitsThenWholeSentenceSelectionActuallyPublishes() started.
+✔ Test utteranceOnlyAllowsWholeSelectionButNeverCharacterSplicing() passed after 0.004 seconds.
+✔ Test wholeUtteranceSelectionStillCannotResolveUnsupportedNegation() passed after 0.003 seconds.
+✔ Test longerSilentCoverageDoesNotInventAnUnresolvedTextTail() passed after 0.004 seconds.
+✘ Test completeShortReviewDoesNotDeclareLongerLiveUtteranceResolved() recorded an issue at FusionPublicationTests.swift:97:9: Expectation failed: proposal.unresolved
+↳ proposal.unresolved → false
+↳   proposal → FusionProposal(previewText: "去公园", stableText: "去公园", sourceCandidateIDs: [8CBD9B46-1C0F-4808-8C67-D3C7DB4DB4B2], unresolved: false, needsAudioReview: false, reasonCode: "evidence-selection", selections: [SaytileKit.CandidateSpan(candidateID: 8CBD9B46-1C0F-4808-8C67-D3C7DB4DB4B2, utf16Start: 0, utf16End: 3)], selectionRequestedUnresolved: Optional(false), reviewedCandidateIDs: Optional([A0DEAD9A-4F01-4C19-96F9-D8E92A03226A, 100F199C-4416-4B37-9A7A-3521564C794E, 8CBD9B46-1C0F-4808-8C67-D3C7DB4DB4B2]))
+↳     previewText → "去公园"
+↳     stableText → "去公园"
+↳     sourceCandidateIDs → [8CBD9B46-1C0F-4808-8C67-D3C7DB4DB4B2]
+↳     unresolved → false
+↳     needsAudioReview → false
+↳     reasonCode → "evidence-selection"
+↳     selections → [SaytileKit.CandidateSpan(candidateID: 8CBD9B46-1C0F-4808-8C67-D3C7DB4DB4B2, utf16Start: 0, utf16End: 3)]
+↳     selectionRequestedUnresolved → false
+↳       some → false
+↳     reviewedCandidateIDs → [A0DEAD9A-4F01-4C19-96F9-D8E92A03226A, 100F199C-4416-4B37-9A7A-3521564C794E, 8CBD9B46-1C0F-4808-8C67-D3C7DB4DB4B2]
+↳       some → [A0DEAD9A-4F01-4C19-96F9-D8E92A03226A, 100F199C-4416-4B37-9A7A-3521564C794E, 8CBD9B46-1C0F-4808-8C67-D3C7DB4DB4B2]
+↳   unresolved → false
+✘ Test completeShortReviewDoesNotDeclareLongerLiveUtteranceResolved() failed after 0.006 seconds with 1 issue.
+✔ Test emptyCommonPrefixWaitsThenWholeSentenceSelectionActuallyPublishes() passed after 0.021 seconds.
+✘ Suite "Evidence-constrained fusion publication" failed after 0.021 seconds with 1 issue.
+✘ Test run with 5 tests in 1 suite failed after 0.021 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

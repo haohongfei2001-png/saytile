@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "checks": [
+    "seeded_using_actual_released_baseline_storage_source",
+    "released_app_installed_signed_and_started_on_seeded_data",
+    "candidate_upgrade_preserves_records_versions_drafts_dispatches_and_audio",
+    "released_rc1_app_refuses_new_schema_without_changing_content",
+    "explicit_preupgrade_snapshot_restores_rc1_without_overwriting_candidate_data",
+    "three_normal_restarts_preserve_data_and_uncertain_dispatch",
+    "second_packaged_process_rejected_without_modal_prompt",
+    "restart_after_forced_process_exit_retains_upgrade_data"
+  ],
+  "count": 8,
+  "startup_timings": [
+    {
+      "previous_startup_seconds": 0.611
+    },
+    {
+      "candidate_startup_seconds": 0.575
+    },
+    {
+      "rc_restart_seconds": 0.253
+    },
+    {
+      "rc_restart_seconds": 0.226
+    },
+    {
+      "rc_restart_seconds": 0.27
+    }
+  ],
+  "source_revision": "8f2d71b73c8ae1aa421719201a263de20d98fc7f",
+  "release_version": "1.0.0-rc.2-candidate.1",
+  "baseline_ref": "v1.0.0-rc.1",
+  "baseline_app_source_revision": "8906a9dc4b2ec186f634bb2c829d8eb0c1700679",
+  "baseline_app_release_version": "1.0.0-rc.1",
+  "baseline_revision": "a352a1c812c33388a1a908f21ecde30da80ad1cd",
+  "dmg_sha256": "59c047531fa1fc81a940fc03b1c086f7d6b818ed14861adee15e73b92ef11988",
+  "scope": "Readonly DMG signature, independent installation, actual released app and candidate startup/upgrade, exact synthetic content/audio comparison, explicit copy rollback and duplicate-instance rejection; no real user database or microphone"
+}

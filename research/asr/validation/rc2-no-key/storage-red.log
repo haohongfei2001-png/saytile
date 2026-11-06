@@ -1,0 +1,102 @@
+Building for debugging...
+[Pre-planning 1 / 155]
+[Planning deferred tasks]
+[38 / 117]
+[49 / 118] CAudio
+[70 / 128]
+[89 / 128] CAudio
+[96 / 128] CAudio
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[97 / 128] SaytileKit
+[107 / 267]
+[112 / 267]
+[122 / 267]
+[125 / 267]
+[131 / 267]
+[134 / 267]
+[137 / 267]
+[142 / 267]
+[147 / 267]
+[148 / 267]
+[160 / 267]
+[163 / 267]
+[168 / 267]
+[173 / 267]
+[174 / 267]
+[175 / 267]
+[182 / 267]
+[184 / 267]
+[190 / 267]
+[191 / 267]
+[193 / 267]
+[195 / 267]
+[196 / 267]
+[207 / 267]
+[210 / 267]
+[214 / 267]
+[219 / 267]
+[222 / 267]
+[223 / 267]
+[224 / 267]
+[225 / 267]
+[236 / 267] SaytileKit
+[237 / 267] SaytileKit
+[247 / 268] SaytileKit
+[250 / 279] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[256 / 280] SaytileKitTests-product
+[257 / 295]
+[270 / 295] SaytileKitTests-product
+[272 / 295] SaytileKitTests-product
+[276 / 295]
+[279 / 295] Saytile-product
+[281 / 295] Saytile-product
+[283 / 295] Saytile-product
+[285 / 295] Saytile-product
+[285 / 295] AllIncludingTests
+[285 / 295] Saytile-product
+[285 / 295] SaytileKitTests-product
+[285 / 295] Saytile-product
+[287 / 295] Saytile-product/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[289 / 295] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[291 / 295] SaytileKitTests-product
+Build complete! (25.82秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Storage failure state remains recoverable" started.
+◇ Test recordingAndRunTerminalChangesRollbackTogether(markMissing:) started.
+◇ Test transientHeaderRepairFailureDoesNotPermanentlyDiscardReadableOriginal() started.
+◇ Test intactReadOnlyAudioNeedsNoRepairWritePermission() started.
+◇ Test case passing 1 argument markMissing → true to recordingAndRunTerminalChangesRollbackTogether(markMissing:) started.
+◇ Test case passing 1 argument markMissing → false to recordingAndRunTerminalChangesRollbackTogether(markMissing:) started.
+✘ Test intactReadOnlyAudioNeedsNoRepairWritePermission() recorded an issue at StorageRecoveryFailureTests.swift:61:6: Caught error: Error Domain=NSCocoaErrorDomain Code=513 "You don’t have permission to save the file “synthetic.wav” in the folder “saytile-readonly-wav-898F7E06-3610-4860-A46B-5F3B8C45745D”." UserInfo={NSFilePath=/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-readonly-wav-898F7E06-3610-4860-A46B-5F3B8C45745D/synthetic.wav, NSUnderlyingError=0x78c4c8c000 {Error Domain=NSPOSIXErrorDomain Code=13 "Permission denied"}}
+✘ Test intactReadOnlyAudioNeedsNoRepairWritePermission() failed after 0.007 seconds with 1 issue.
+✘ Test recordingAndRunTerminalChangesRollbackTogether(markMissing:) recorded an issue with 1 argument markMissing → false at StorageRecoveryFailureTests.swift:23:9: Expectation failed: try fault.rows("SELECT state FROM model_runs WHERE id=?", [.text(run.id.uuidString)]).first?["state"] == "running"
+↳ try fault.rows("SELECT state FROM model_runs WHERE id=?", [.text(run.id.uuidString)]).first?["state"] == "running" → <not evaluated>
+✘ Test recordingAndRunTerminalChangesRollbackTogether(markMissing:) recorded an issue with 1 argument markMissing → true at StorageRecoveryFailureTests.swift:23:9: Expectation failed: try fault.rows("SELECT state FROM model_runs WHERE id=?", [.text(run.id.uuidString)]).first?["state"] == "running"
+↳ try fault.rows("SELECT state FROM model_runs WHERE id=?", [.text(run.id.uuidString)]).first?["state"] == "running" → <not evaluated>
+✘ Test recordingAndRunTerminalChangesRollbackTogether(markMissing:) recorded an issue with 1 argument markMissing → false at StorageRecoveryFailureTests.swift:24:9: Expectation failed: try fault.rows("SELECT state FROM fusion_sessions WHERE id=?", [.text(ticket.id.uuidString)]).first?["state"] == "running"
+↳ try fault.rows("SELECT state FROM fusion_sessions WHERE id=?", [.text(ticket.id.uuidString)]).first?["state"] == "running" → <not evaluated>
+✘ Test recordingAndRunTerminalChangesRollbackTogether(markMissing:) recorded an issue with 1 argument markMissing → true at StorageRecoveryFailureTests.swift:24:9: Expectation failed: try fault.rows("SELECT state FROM fusion_sessions WHERE id=?", [.text(ticket.id.uuidString)]).first?["state"] == "running"
+↳ try fault.rows("SELECT state FROM fusion_sessions WHERE id=?", [.text(ticket.id.uuidString)]).first?["state"] == "running" → <not evaluated>
+✘ Test recordingAndRunTerminalChangesRollbackTogether(markMissing:) recorded an issue with 1 argument markMissing → false at StorageRecoveryFailureTests.swift:25:9: Expectation failed: try await store.fusionTerminal(recognitionID: ticket.id) == nil
+↳ try await store.fusionTerminal(recognitionID: ticket.id) == nil → <not evaluated>
+✘ Test recordingAndRunTerminalChangesRollbackTogether(markMissing:) recorded an issue with 1 argument markMissing → true at StorageRecoveryFailureTests.swift:25:9: Expectation failed: try await store.fusionTerminal(recognitionID: ticket.id) == nil
+↳ try await store.fusionTerminal(recognitionID: ticket.id) == nil → <not evaluated>
+✘ Test transientHeaderRepairFailureDoesNotPermanentlyDiscardReadableOriginal() recorded an issue at StorageRecoveryFailureTests.swift:53:9: Expectation failed: try await store.recording(id: record.id)?.audioState == .available
+↳ try await store.recording(id: record.id)?.audioState == .available → <not evaluated>
+✘ Test transientHeaderRepairFailureDoesNotPermanentlyDiscardReadableOriginal() recorded an issue at StorageRecoveryFailureTests.swift:55:9: Expectation failed: try await AudioDiagnostics.recoverAudio(store: store) == 1
+↳ try await AudioDiagnostics.recoverAudio(store: store) == 1 → <not evaluated>
+✘ Test transientHeaderRepairFailureDoesNotPermanentlyDiscardReadableOriginal() recorded an issue at StorageRecoveryFailureTests.swift:56:9: Expectation failed: try await store.audioChunks(recordingID: record.id).first?.frames == 320
+↳ try await store.audioChunks(recordingID: record.id).first?.frames == 320 → <not evaluated>
+✘ Test recordingAndRunTerminalChangesRollbackTogether(markMissing:) with 2 test cases failed after 0.028 seconds with 6 issues.
+✘ Test transientHeaderRepairFailureDoesNotPermanentlyDiscardReadableOriginal() failed after 0.029 seconds with 3 issues.
+✘ Suite "Storage failure state remains recoverable" failed after 0.029 seconds with 10 issues.
+✘ Test run with 3 tests in 1 suite failed after 0.029 seconds with 10 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)
