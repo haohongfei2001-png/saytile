@@ -31,3 +31,19 @@ scripts/test-native.sh --filter 'StorageRecoveryFailureTests|AudioStorageFailure
 ## Limits
 
 This is a real native filesystem/SQLite test with independent synthetic fixtures, not a microphone/cloud or power-loss hardware test. File permissions and SQLite failure triggers were exercised; the user volume was not filled. Cloud correctness, real speech accuracy and physical device lifecycle remain separate evidence. A still-failing filesystem/database is reported as an error; the fix preserves original ownership for a later startup retry rather than claiming recovery succeeded.
+
+## Follow-up: deletion recovery isolation (after checkpoint `a602236`)
+
+The final combined-code review identified another startup blocker: `recoverAudio` first awaits `recoverPendingDeletions`, whose first inaccessible directory used to abort all recovery. An actual Store test persisted two deletion intents under leases, closed the owner, removed search permission from the first record directory, then called the same recovery entrypoint used by AppModel. The original code threw Cocoa 513 before the second deletion and a healthy recording could complete. No visible AppModel window was launched for this test.
+
+The fix isolates only filesystem/path errors per deletion, retaining `deletePending` plus `erasures.completed=0` and an accurate error. It keeps existing path validation, refuses audio leases and recognition for the blocked item, and continues independent deletions and audio repair. Both deletion existence checks now use `lstat`: only ENOENT means absent, never EACCES. Real SQLite errors and root-directory synchronization failures still propagate. The failure-state update is itself transactional. A successful retry clears only its own deletion-recovery error prefix; unrelated historical errors remain intact.
+
+- [storage-erasure-red.log](storage-erasure-red.log): 2 tests, 1 failure from real child-directory permissions; the SQLite interruption propagation case already passed before this fix.
+- [storage-erasure-status-red.log](storage-erasure-status-red.log): 1 test, 1 failure confirming the stale deletion-error message remained after successful retry, before adding the selective clear.
+- [storage-erasure-green.log](storage-erasure-green.log): **66 tests / 6 suites passed** on the final follow-up. This supersedes the prior 63-test subset for the changed storage paths.
+- New deletion tests verify blocked original bytes and edited text, inaccessible child and Audio parent directories, pending and completed-with-residual erasure states, no false completion, no recognition/lease eligibility, successful healthy-record repair, permission restoration + close/reopen retry, deletion idempotence, accurate cleared error, and preserved unrelated historical error.
+- A real SQLite trigger aborting deletion completion still throws through startup; its transaction leaves the intent pending. After removing the fault and reopening, the deletion completes. This is synthetic SQL failure injection, not a real full-disk hardware event.
+
+Final command uses the same filter above and `SAYTILE_TEST_LOG=/tmp/saytile-nokey-storage-erasure-final.log`.
+
+Read-only cross-module review also checked finalization cancellation ownership, saved-audio pacing/cancellation, lifecycle permission admission, and AppModel refresh coalescing/exit gating. No additional concrete P0/P1 was identified in those changed paths. The parent owns full integration counts, package verification and cloud limitations; these focused tests do not establish real cloud recognition or permission-dialog/device behavior.

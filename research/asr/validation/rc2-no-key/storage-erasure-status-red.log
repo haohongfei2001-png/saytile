@@ -1,0 +1,21 @@
+Building for debugging...
+[1 / 1]
+[2 / 8] SaytileKitTests-product
+[4 / 10] SaytileKitTests-product
+[7 / 11] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[9 / 11] SaytileKitTests-product
+Build complete! (2.32秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Storage failure state remains recoverable" started.
+◇ Test inaccessiblePendingDeletionDoesNotBlockStartupOrIndependentRecords() started.
+✘ Test inaccessiblePendingDeletionDoesNotBlockStartupOrIndependentRecords() recorded an issue at StorageRecoveryFailureTests.swift:177:9: Expectation failed: try await retried.recording(id: blocked.id)?.lastError == nil
+↳ try await retried.recording(id: blocked.id)?.lastError == nil → <not evaluated>
+✘ Test inaccessiblePendingDeletionDoesNotBlockStartupOrIndependentRecords() failed after 0.024 seconds with 1 issue.
+✘ Suite "Storage failure state remains recoverable" failed after 0.025 seconds with 1 issue.
+✘ Test run with 1 test in 1 suite failed after 0.025 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

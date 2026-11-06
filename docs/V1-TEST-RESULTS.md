@@ -1,3 +1,11 @@
+# RC2 无密钥补审回归 · 2026-11-07
+
+**286 tests / 34 suites PASS、25 AppModel checks PASS**，完整最终源码集成日志为 `research/asr/validation/rc2-no-key/native-final.log` 和 `app-model-delivery.log`。待删目录专项为 66 项 / 6 组，与全量重叠。真实 000 目录、已完成删除后的残留、SQLite 事务中断及恢复错误清理均已验证；取消/恢复交叉路径由另一负责人独立只读复审，未发现新的具体 P0/P1。
+
+测试隔离修正：过去 `--data-directory` 普通持有进程仅隔离数据库，可能使用标准偏好；旧升级/待命记录不能被扩张为偏好已隔离。现已修复正式启动分支，新的持有进程须证明云关闭、后台识别恢复关闭、无快捷键与首次窗口。旧包没有因此重新计为通过，后续 clean candidate.2 包结果单独记录。包内 RC1 旧安装指引已修正为 RC2 候选与完整副本回退说明。
+
+---
+
 # RC2 无密钥完整回归 · 2026-11-07
 
 最终集成源码：**283 tests / 34 suites PASS**（`rc2-no-key/native-all.log`），**25 AppModel checks PASS**（`app-model-final.log`）。专项 63 / 53 / 21 项与全量重叠，不相加。首轮红测、编译重叠中止和后续绿测均保留，不以重跑删除失败证据。

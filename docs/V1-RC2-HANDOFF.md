@@ -1,3 +1,11 @@
+# RC2 无密钥运行时补审 · 2026-11-07
+
+第一检查点 a602236 已推 PR4，design CI42285691854成功，native42285691835仍排队（不冒称通过）。随后修复待删目录阻断/误判删除、恢复错误清理及显式数据目录偏好隔离。286 native / 34 suites、25 AppModel通过，完整证据在rc2-no-key；candidate.2干净包、实际UI/CLI/upgrade8/idle120s待构建验证。用户本轮没有操作；不调用云、不合并、不覆盖RC1。继续核对实际最新远端，避免历史SHA漂移。
+
+安装与待命脚本新增必填 --expected-source / --expected-version / --expected-binary-sha256，必须从最终只读DMG里的App校验并提取；升级脚本实际读RC1 DMG，不将tag与App源码SHA错误强等同。候选包说明已改为当前不安装及未来停机完整副本回退，schema3不可由RC1直接降级。下一步提交全部冻结源码后打包，测试后只补证据，不反复重建相同运行时。
+
+---
+
 # 本轮无密钥收口接续 · 2026-11-07
 
 基于 45af670，用户明确继续无需密钥的工作。新修复与全部红/绿证据集中在 research/asr/validation/rc2-no-key；最终 283 native / 34 suites、25 AppModel 通过，所有模块冻结，独立复审进行中。版本 candidate.2；下一步提交运行时、干净打包、原生 UI/CLI/实际 RC1 DMG 升级与回退、包待命资源及新 CI。旧 candidate.1 DMG 保留。不要读私人资料、调用云 API、合并或覆盖 RC1。
