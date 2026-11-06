@@ -1,0 +1,60 @@
+Building for debugging...
+[Planning deferred tasks]
+[1 / 60]
+[26 / 61] CAudio
+[49 / 61] CAudio
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[61 / 72] SaytileKit
+[66 / 77] Saytile-product
+[71 / 85] Saytile-product
+[73 / 85] Saytile-product
+[74 / 85] Saytile-product
+[74 / 85] SaytileKit
+[74 / 85] Saytile-product
+[74 / 85] SaytileKit
+[74 / 85] Saytile-product
+[74 / 85] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[79 / 86] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[91 / 97] SaytileKitTests-product
+[91 / 98] SaytileKitTests-product
+[93 / 98] Saytile-product
+[96 / 99] SaytileKitTests-product
+[98 / 102] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-fusion-quality/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (8.65秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Real coordinator with isolated persistence and controlled providers" started.
+◇ Test cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) started.
+◇ Test alignmentOnlyEvidenceChangeCanRetryWhileDuplicateCallbacksCoalesce() started.
+◇ Test cancellationRejectsInFlightCallbacksWithoutErasingAudio() started.
+◇ Test audioDeletionInvalidatesEpochBeforeLateCallbacks() started.
+◇ Test rejectedArbitrationRetainsDecodedResponseWithoutPublishingIt() started.
+◇ Test fastDispatchKeepsLateAcousticCorrectionInternal() started.
+◇ Test failedExpertDoesNotStopOtherAudioOrDestroyOriginal() started.
+◇ Test highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) started.
+◇ Test acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) started.
+◇ Test identicalAudioWaitsForBothExpertsBeforeQualityPublication() started.
+◇ Test case passing 1 argument appendMore → false to acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) started.
+◇ Test case passing 1 argument watchdog → false to cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) started.
+◇ Test case passing 1 argument watchdog → true to cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) started.
+◇ Test case passing 1 argument simultaneous → false to highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) started.
+◇ Test case passing 1 argument appendMore → true to acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) started.
+◇ Test case passing 1 argument simultaneous → true to highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) started.
+✔ Test alignmentOnlyEvidenceChangeCanRetryWhileDuplicateCallbacksCoalesce() passed after 0.027 seconds.
+✔ Test cancellationRejectsInFlightCallbacksWithoutErasingAudio() passed after 0.042 seconds.
+✔ Test audioDeletionInvalidatesEpochBeforeLateCallbacks() passed after 0.042 seconds.
+✔ Test rejectedArbitrationRetainsDecodedResponseWithoutPublishingIt() passed after 0.047 seconds.
+✔ Test identicalAudioWaitsForBothExpertsBeforeQualityPublication() passed after 0.055 seconds.
+✔ Test failedExpertDoesNotStopOtherAudioOrDestroyOriginal() passed after 0.056 seconds.
+✔ Test highestQualityAcousticReviewCorrectsUndispatchedAgreement(simultaneous:) with 2 test cases passed after 0.067 seconds.
+✔ Test fastDispatchKeepsLateAcousticCorrectionInternal() passed after 0.068 seconds.
+✔ Test acousticReviewReusesIdenticalPCMButRechecksNewAudio(appendMore:) with 2 test cases passed after 0.078 seconds.
+✔ Test cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) with 2 test cases passed after 0.197 seconds.
+✔ Suite "Real coordinator with isolated persistence and controlled providers" passed after 0.197 seconds.
+✔ Test run with 10 tests in 1 suite passed after 0.197 seconds.

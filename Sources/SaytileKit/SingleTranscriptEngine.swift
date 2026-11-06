@@ -45,8 +45,17 @@ actor SingleTranscriptEngine {
         try await store.configureFusionRequirements(ticket: ticket, configurations: configuration.enabledModels)
         self.audio = audio
     }
-    func cancel() async { cancelled = true; reviewTask?.cancel(); reviewTask = nil; await reviewClient?.cancel() }
-    /// On-demand acoustic evidence access uses durable journal samples, never a lifetime buffer.
+    func cancel() async {
+        cancelled = true
+        // Keep the task owned across all cancellation callers until it exits.
+        let drainingReview = reviewTask
+        drainingReview?.cancel()
+        // Close the persistent transport before awaiting its consumer. Otherwise
+        // a receive that needs socket closure could deadlock the drain.
+        await reviewClient?.cancel()
+        await drainingReview?.value
+    }
+    /// On-demand acoustic evidence uses durable samples, never a lifetime buffer.
     func audioEvidence(startFrame: Int64, frameCount: Int) async throws -> Data {
         try await assertCurrent()
         return try await store.readPCMRange(ticket: ticket, startFrame: startFrame, frameCount: frameCount)
@@ -339,6 +348,7 @@ actor SingleTranscriptEngine {
     }
     func finalize() async {
         ending = true
+        dependencies.finalizationStarted()
         await reviewTask?.value
         reviewTask = nil
         guard !cancelled else { return }

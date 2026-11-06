@@ -1,0 +1,82 @@
+Building for debugging...
+[0/26] Write sources
+[1/26] Write swift-version--1AB21518FC5DEDBE.txt
+[2/26] Compiling complex_fft.c
+[3/26] Compiling downsample_fast.c
+[4/26] Compiling vad_sp.c
+[5/26] Compiling cross_correlation.c
+[6/26] Compiling complex_bit_reverse.c
+[7/26] Compiling spl_sqrt_floor.c
+[8/26] Compiling vad_filterbank.c
+[9/26] Compiling vad_gmm.c
+[10/26] Compiling division_operations.c
+[11/26] Compiling vad_core.c
+[12/26] Compiling vector_scaling_operations.c
+[13/26] Compiling spl_inl.c
+[14/26] Compiling spl_sqrt.c
+[15/26] Compiling spl_init.c
+[16/26] Compiling resample_fractional.c
+[17/26] Compiling webrtc_vad.c
+[18/26] Compiling resample_by_2_internal.c
+[19/26] Compiling CAudio AudioRing.c
+[20/26] Compiling resample_48khz.c
+[21/26] Compiling get_scaling_square.c
+[22/26] Compiling min_max_operations.c
+[23/26] Compiling energy.c
+[24/26] Compiling CAudio VAD.c
+[25/26] Compiling checks.cc
+[27/55] Compiling SaytileKit RecognitionAudioFanout.swift
+[28/55] Compiling SaytileKit RecognitionCandidates.swift
+[29/55] Compiling SaytileKit RecognitionConfiguration.swift
+[30/58] Emitting module SaytileKit
+[31/58] Compiling SaytileKit AudioJournal.swift
+[32/58] Compiling SaytileKit AudioLifecycle.swift
+[33/58] Compiling SaytileKit AudioPlaybackTimeline.swift
+[34/58] Compiling SaytileKit AudioTapCallbacks.swift
+[35/58] Compiling SaytileKit CloudCredentials.swift
+[36/58] Compiling SaytileKit ConnectionSetup.swift
+[37/58] Compiling SaytileKit MetaStreamingProvider.swift
+[38/58] Compiling SaytileKit Models.swift
+[39/58] Compiling SaytileKit MultiRecognitionDiagnostics.swift
+[40/58] Compiling SaytileKit StoreLock.swift
+[41/58] Compiling SaytileKit StoreSQLite.swift
+[42/58] Compiling SaytileKit WindowPlacement.swift
+[43/58] Compiling SaytileKit RecognitionFusion.swift
+[44/58] Compiling SaytileKit SonioxStreamingProvider.swift
+[45/58] Compiling SaytileKit SpeechRecognition.swift
+[46/58] Compiling SaytileKit SpeechResultAccumulator.swift
+[47/58] Compiling SaytileKit SpeechTiming.swift
+[48/58] Compiling SaytileKit Store.swift
+[49/58] Compiling SaytileKit FinalASRProvider.swift
+[50/58] Compiling SaytileKit InputAccessibility.swift
+[51/58] Compiling SaytileKit InputCoordinator.swift
+[52/58] Compiling SaytileKit MultiRecognitionSession.swift
+[53/58] Compiling SaytileKit PrecisionReviewClient.swift
+[54/58] Compiling SaytileKit QwenMessageProvider.swift
+[55/58] Compiling SaytileKit ASRProviderProtocol.swift
+[56/58] Compiling SaytileKit AssemblyStreamingProvider.swift
+[57/58] Compiling SaytileKit AudioCapture.swift
+[58/58] Compiling SaytileKit AudioDiagnostics.swift
+Build of target: 'SaytileKit' complete! (27.74s)
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+Scope: synthetic realtime ring, converter, VAD, journal, SQLite; ASR disabled; no microphone/speaker
+Data directory: /tmp/saytile-rc-realtime-data.Qbd6JI
+realtime_seconds=120.0 produced_frames=1920000 dropped_frames=0 records=40 saved_seconds=119.92 audio_bytes=3839200 all_available=true all_finished=true pending_asr=40
+      120.43 real         0.84 user         0.59 sys
+            21626880  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                2306  page reclaims
+                  29  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                 542  voluntary context switches
+               17712  involuntary context switches
+          3452270633  instructions retired
+          2856697860  cycles elapsed
+            10355408  peak memory footprint

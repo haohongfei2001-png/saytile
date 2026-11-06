@@ -93,8 +93,10 @@ public actor SaytileStore {
     /// Only published durable frames justify an available original-audio state.
     public func recordCaptureFailure(recordingID: UUID, message: String) throws {
         _ = try requireRecording(recordingID)
-        try invalidateModelRuns(recordingID: recordingID)
-        try db.execute("UPDATE recordings SET is_recording=0,active_attempt=NULL,recognition_state='failed',last_error=?,audio_state=CASE WHEN audio_state='available' AND NOT EXISTS(SELECT 1 FROM chunks WHERE recording_id=recordings.id AND frames>0) THEN 'missing' ELSE audio_state END WHERE id=?",[.text(message),.text(recordingID.uuidString)])
+        try db.transaction {
+            try invalidateModelRuns(recordingID: recordingID)
+            try db.execute("UPDATE recordings SET is_recording=0,active_attempt=NULL,recognition_state='failed',last_error=?,audio_state=CASE WHEN audio_state='available' AND NOT EXISTS(SELECT 1 FROM chunks WHERE recording_id=recordings.id AND frames>0) THEN 'missing' ELSE audio_state END WHERE id=?",[.text(message),.text(recordingID.uuidString)])
+        }
     }
     public func finishRecording(id: UUID) throws {
         _ = try requireRecording(id)
@@ -134,8 +136,21 @@ public actor SaytileStore {
         let record = try requireRecording(recordingID)
         guard !record.isRecording else { throw StoreError.recordingActive }
         guard record.audioState == .available else { return }
-        try invalidateModelRuns(recordingID: recordingID)
-        try db.execute("UPDATE recordings SET audio_state='missing',active_attempt=NULL,audio_epoch=audio_epoch+1,recognition_state='failed',last_error=? WHERE id=?",[.text(message),.text(recordingID.uuidString)])
+        try db.transaction {
+            try invalidateModelRuns(recordingID: recordingID)
+            try db.execute("UPDATE recordings SET audio_state='missing',active_attempt=NULL,audio_epoch=audio_epoch+1,recognition_state='failed',last_error=? WHERE id=?",[.text(message),.text(recordingID.uuidString)])
+        }
+    }
+    /// A transient repair/index write failure is not proof that the original is
+    /// missing. Preserve ownership and coverage so a later startup can retry it.
+    public func recordAudioRecoveryFailure(recordingID: UUID, message: String) throws {
+        let record = try requireRecording(recordingID)
+        guard !record.isRecording else { throw StoreError.recordingActive }
+        guard record.audioState == .available else { return }
+        try db.transaction {
+            try invalidateModelRuns(recordingID: recordingID)
+            try db.execute("UPDATE recordings SET active_attempt=NULL,recognition_state='failed',last_error=? WHERE id=?", [.text(message), .text(recordingID.uuidString)])
+        }
     }
     public func audioChunks(recordingID: UUID) throws -> [AudioChunk] {
         let record = try requireRecording(recordingID)

@@ -1,0 +1,30 @@
+2026-11-07 04:20:57.448 probe[70583:31636335] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-07 04:20:57.449 probe[70583:31636335] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-07 04:20:57.452 probe[70583:31636335] Failure on line 688 in function id scheduleApplicationNotification(LSNotificationCode, NSWorkspaceNotificationCenter *): noErr == _LSModifyNotification(notificationID, 1, &code, 0, NULL, NULL, NULL)
+PASS missing remembered microphone never silently selects system default
+PASS explicit default device choice clears remembered hardware UID
+PASS coalesced initial load waits for populated archive
+REFRESH_BURST callers=40 database_passes=2
+PASS overlapping refresh callers share database work without losing archive contents
+PASS historical records do not enter current insertion panel
+PASS only explicit historical reuse enters panel
+PASS clearing panel preserves archive
+PASS new speech enters current session
+PASS archive pinned filter reaches store
+PASS archive search reaches store without mixing pages
+PASS cleanup preview waits for candidates and protects unrecognized audio
+PASS switching records flushes pending draft without waiting for debounce
+PASS switching records does not show another record's draft
+PASS returning to record restores durable unsaved draft
+PASS periodic refresh does not reset unsaved editor text
+PASS save modification creates selected immutable version
+PASS successful version save clears old editor draft
+PASS typing during version commit is retained as version or newer draft
+PASS panel exposes total and pagination instead of silently truncating after thirty
+PASS earlier current-session expressions remain available for batch reuse
+PASS earliest current-session expression survives prolonged input
+PASS production model exposes active text review without fabricated progress
+PASS completed review phase disappears when logical recognition fails
+PASS late refresh requests do not query the closed store after exit preparation
+PASS exit flush persists an intentionally empty unsaved draft
+APP_MODEL_PROBE_PASS 25 checks; no microphone, no external input, no window activation

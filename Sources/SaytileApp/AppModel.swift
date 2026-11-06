@@ -118,6 +118,8 @@ final class AppModel: ObservableObject {
     private var refreshVersion: UInt64 = 0
     private var completedRefreshVersion: UInt64 = 0
     private var refreshOperationID = UUID()
+    // Counts actual database refresh passes, not callers, for bounded-work diagnostics.
+    private(set) var refreshReadPasses: UInt64 = 0
     private var initializing = true
     private var exitPrepared = false
     private var lastStorageRefresh = Date.distantPast
@@ -513,28 +515,34 @@ final class AppModel: ObservableObject {
     // All callers await the same in-flight refresh, including startup diagnostics.
     // A timer refresh must not make a user action or initial render return empty early.
     func refresh() async {
+        guard !exitPrepared else { return }
         refreshVersion &+= 1
         let requestedVersion = refreshVersion
-        if let refreshOperation {
-            let operationID = refreshOperationID
-            await refreshOperation.value
+        while !exitPrepared, completedRefreshVersion < requestedVersion {
+            let operation: Task<Void, Never>
+            let operationID: UUID
+            if let pending = refreshOperation {
+                operation = pending; operationID = refreshOperationID
+            } else {
+                operationID = UUID(); refreshOperationID = operationID
+                // One pass covers all requests that arrived before it started.
+                // A waiting caller retains its original version; recursively calling
+                // refresh here would invent another request and serialize the burst.
+                let coveredVersion = refreshVersion
+                operation = Task<Void, Never> { [weak self] in
+                    guard let self else { return }
+                    await self.performRefresh()
+                    self.completedRefreshVersion = max(self.completedRefreshVersion, coveredVersion)
+                }
+                refreshOperation = operation
+            }
+            await operation.value
             if refreshOperationID == operationID { self.refreshOperation = nil }
-            if completedRefreshVersion < requestedVersion { await refresh() }
-            return
         }
-        let operationID = UUID(); refreshOperationID = operationID
-        let operation = Task<Void, Never> { [weak self] in
-            guard let self else { return }
-            await self.performRefresh()
-            self.completedRefreshVersion = max(self.completedRefreshVersion, requestedVersion)
-        }
-        refreshOperation = operation
-        await operation.value
-        if refreshOperationID == operationID { refreshOperation = nil }
-        if completedRefreshVersion < requestedVersion { await refresh() }
     }
     func initialLoad() async { await refresh() }
     private func performRefresh() async {
+        refreshReadPasses &+= 1
         let requestedQuery = query, requestedFilter = recordFilter, requestedLimit = pageLimit
         do {
             await recoveryTask?.value
