@@ -110,4 +110,4 @@ Release DMG 校验通过；只读挂载中的App严格签名验证及启动通�
 - 最终包启动焦点探针 PASS，退出0、frontmost_unchanged=true。已更新 `~/Applications/Saytile.app` 并保留旧包备份；严格签名和独立库 smoke PASS，未打开正式库、未自动收音。详情 `installed.json`、`installed-smoke.log`。
 - 最终二进制/DMG/CI/证据归属集中在 `evidence/rc/release-manifest.json`。30分钟管线与5分钟待命仍准确归属较早工程检查点，没有被改写为最终包72小时验证。
 
-上述通过不覆盖真人发音/噪声、完整用户前台浏览器插入、物理睡眠/锁屏/设备断开/TCC更改、多显示器/Spaces和整机能耗；剩余范围见最终验收文件。无临时用户操作要求。
+上述通过不覆盖真人发音/噪声、完整用户前台浏览器插入、物理睡眠/锁屏/设备断开/TCC更改、多显示器/Spaces和整机能耗；剩余范围见最终验收文件。无临时用户操作要求。最终独立文案审查另收紧 README 的“检测到页面变化”措辞，不改变代码/安装包，不新增测试计数。

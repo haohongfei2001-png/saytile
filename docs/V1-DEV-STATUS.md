@@ -24,6 +24,6 @@
 
 真人识别质量、完整前台浏览器插入、物理锁屏/睡眠/拔设备/撤权、多显示器/Spaces、72 小时与整机功耗未实际验收。后台 WebKit AX 写入未确认时停止且不重发，不写成成功。个人 ad-hoc 包未 Developer ID 公证。全部 AX 语义相同的隐藏网页路由没有通用可证明身份，不宣称泛网页零错投。
 
-重大产品取舍见 [独立产品审查](RC-PRODUCT-REVIEW.md)，尚未声称用户接受。最少且可延后的真人事项见 [最终清单](V1-RC-ACCEPTANCE.md)。本轮不要求用户承担临时测试。
+重大产品取舍见 [独立产品审查](RC-PRODUCT-REVIEW.md)，尚未声称用户接受。最终独立文案复核已将 README 的页面暂停表述限定为“检测到变化”，并直接披露泛网页边界。最少且可延后的真人事项见 [最终清单](V1-RC-ACCEPTANCE.md)。本轮不要求用户承担临时测试。
 
 可接续依据：`evidence/rc/release-manifest.json`、[完整测试与失败记录](V1-TEST-RESULTS.md)、[工程清单](RC-QUALITY-PLAN.md)。历史 Beta 成果保留在 Git 历史、`evidence/native` 和测试记录；7 个未知 ` 2` 同步副本保持原状，未纳入提交。下一轮仅按明确剩余范围处理，不重复恢复设计或重做 V1。
