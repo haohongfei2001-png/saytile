@@ -446,3 +446,15 @@ private func appendEvidence(_ old: RecognitionCandidate, text: String, end: Doub
     #expect(PrecisionFusion.evaluate(candidates: [candidate], mode: .fast).stableText == "使用 SwiftUI")
     #expect(throws: FusionError.self) { try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: candidate.id, utf16Start: 0, utf16End: 2)], candidates: [candidate]) }
 }
+
+@Test func multiMetaReviewRetirementDoesNotGrantAcousticCoverage() throws {
+    let run = ModelRunTicket(recognitionID: sampleRecognitionID, recordingID: sampleRecordingID,
+        audioEpoch: 1, configurationID: UUID(), provider: "meta", model: "fixture", purpose: .englishASR)
+    let candidate = RecognitionCandidate(run: run, sequence: 1, text: "hello 新片段", stableUTF16Length: 5,
+        audioEndSeconds: 1.7, timingGranularity: "turn-progress", tokens: [
+            RecognitionToken(text: "hello", startSeconds: 0, endSeconds: 0.8, isFinal: true),
+            RecognitionToken(text: "新片段", startSeconds: 1, endSeconds: 1.7, isFinal: false)])
+    #expect(PrecisionFusion.reviewRetirementHorizon(candidate) == 0.8)
+    #expect(PrecisionFusion.stableAudioEnd(candidate) == 0)
+    #expect(throws: FusionError.self) { try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: candidate.id, utf16Start: 0, utf16End: 5)], candidates: [candidate]) }
+}

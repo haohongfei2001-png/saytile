@@ -239,6 +239,29 @@ public enum PrecisionFusion {
         }
     }
 
+    /// Scheduling only: older re-listening snapshots can retire after completed turns advance.
+    /// Meta reports processing-progress times, not acoustic boundaries. This value MUST NOT be
+    /// used for word splicing, stable publication coverage, or forced alignment.
+    public static func reviewRetirementHorizon(_ candidate: RecognitionCandidate) -> Double {
+        guard candidate.run.provider == "meta", candidate.timingGranularity == "turn-progress" else {
+            return stableAudioEnd(candidate)
+        }
+        guard (try? validateCandidate(candidate)) != nil else { return candidate.audioStartSeconds }
+        let stable = candidate.stableText as NSString
+        let layout = CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters)
+        var cursor = 0, progress = candidate.audioStartSeconds
+        for token in candidate.tokens {
+            guard token.isFinal else { break }
+            guard !token.text.isEmpty else { continue }
+            let range = stable.range(of: token.text, options: .literal, range: NSRange(location: cursor, length: stable.length - cursor))
+            guard range.location != NSNotFound else { break }
+            let gap = stable.substring(with: NSRange(location: cursor, length: range.location - cursor))
+            guard gap.unicodeScalars.allSatisfy({ layout.contains($0) }) else { break }
+            progress = max(progress, token.endSeconds); cursor = NSMaxRange(range)
+        }
+        return progress
+    }
+
     public static func stableAudioEnd(_ candidate: RecognitionCandidate) -> Double {
         if candidate.stableUTF16Length == candidate.text.utf16.count { return candidate.audioEndSeconds }
         guard let mapped = try? mappedTokens(candidate) else { return candidate.audioStartSeconds }
