@@ -108,8 +108,10 @@ struct SonioxStreamingCodec: ChineseASRFrameDecoder {
         let tokens = pieces.compactMap(\.token)
         let fullyTimed = tokens.count == pieces.count
         let languages = Set(tokens.compactMap(\.language))
+        // Whole-stream candidates share recording origin zero with the other experts;
+        // retain any leading silence exclusively in the original token timestamps.
         return .init(text: text, stableUTF16Length: final.reduce(0) { $0 + $1.text.utf16.count },
-                     audioStartSeconds: tokens.map(\.startSeconds).min() ?? 0,
+                     audioStartSeconds: 0,
                      audioEndSeconds: max(processedSeconds, tokens.map(\.endSeconds).max() ?? 0),
                      timingGranularity: fullyTimed ? "token" : "utterance",
                      language: languages.count == 1 ? languages.first : (languages.count > 1 ? "mixed" : nil),

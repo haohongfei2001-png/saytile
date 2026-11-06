@@ -84,6 +84,23 @@ struct ChineseProviderProtocolTests {
         #expect(revised.tokens.map(\.text).joined() == revised.text)
     }
 
+    @Test func qwenCumulativeWindowStartsAtZeroAfterLeadingSilence() throws {
+        var codec = QwenMessageCodec(taskID: taskID)
+        _ = try codec.consume(envelope("task-started"))
+        let partial = try #require(codec.consume(envelope("result-generated", sentence:
+            sentence(1, "不要", false, start: 1450, end: 1750))))
+        #expect(partial.audioStartSeconds == 0)
+        #expect(partial.tokens.first?.startSeconds == 1.45)
+        #expect(partial.tokens.first?.endSeconds == 1.75)
+        _ = try codec.consume(envelope("result-generated", sentence:
+            sentence(1, "不要删。", true, start: 1450, end: 2100)))
+        let complete = try #require(codec.consume(envelope("task-finished")))
+        #expect(complete.audioStartSeconds == 0)
+        #expect(complete.audioEndSeconds == 2.1)
+        #expect(complete.tokens.first?.startSeconds == 1.45)
+        #expect(complete.tokens.map(\.text).joined() == complete.text)
+    }
+
     @Test func qwenMissingPartialTimeDoesNotFabricateWordAlignment() throws {
         var codec = QwenMessageCodec(taskID: taskID)
         _ = try codec.consume(envelope("task-started"))
@@ -154,6 +171,22 @@ struct ChineseProviderProtocolTests {
         #expect(noTime.timingGranularity == "utterance")
         #expect(noTime.audioEndSeconds == 1.2)
         #expect(throws: Error.self) { try codec.consume(["tokens": [], "finished": true]) }
+    }
+
+    @Test func sonioxCumulativeWindowStartsAtZeroAfterLeadingSilence() throws {
+        var codec = SonioxStreamingCodec(referenceID: taskID)
+        let partial = try #require(codec.consume(["tokens": [token("我用", false, start: 1450, end: 1750)]]))
+        #expect(partial.audioStartSeconds == 0)
+        #expect(partial.tokens.first?.startSeconds == 1.45)
+        #expect(partial.tokens.first?.endSeconds == 1.75)
+        _ = try codec.consume(["tokens": [token("我用 ", true, start: 1450, end: 1750),
+                                         token("SwiftUI", true, start: 1900, end: 2400, language: "en")]])
+        let complete = try #require(codec.consume(["tokens": [], "finished": true, "total_audio_proc_ms": 2800]))
+        #expect(complete.audioStartSeconds == 0)
+        #expect(complete.audioEndSeconds == 2.8)
+        #expect(complete.tokens.first?.startSeconds == 1.45)
+        #expect(complete.tokens.last?.startSeconds == 1.9)
+        #expect(complete.tokens.map(\.text).joined() == complete.text)
     }
 
     @Test func providerErrorsAreRedactedAndUntranslated() throws {

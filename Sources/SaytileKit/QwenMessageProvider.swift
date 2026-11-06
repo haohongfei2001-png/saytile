@@ -170,8 +170,10 @@ struct QwenMessageCodec: ChineseASRFrameDecoder {
         }
         // Exact segment strings retain provider punctuation/spacing. No character-based
         // interpolation, fabricated word boundaries, confidence or language labels.
+        // This is the cumulative recording window, including leading silence. Speech
+        // onset belongs in the segment tokens, not in the candidate window's origin.
         return .init(text: text, stableUTF16Length: stable,
-                     audioStartSeconds: ordered.compactMap { $0.value.start }.min() ?? 0,
+                     audioStartSeconds: 0,
                      audioEndSeconds: ordered.compactMap { $0.value.end }.max() ?? 0,
                      timingGranularity: fullyTimed ? "segment" : "utterance",
                      isComplete: isComplete, requestID: taskID, tokens: fullyTimed ? tokens : [])
