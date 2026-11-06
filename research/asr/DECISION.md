@@ -63,3 +63,40 @@
 本轮交付目标是正式 Swift 实现、升级兼容、隔离契约测试、原生构建及可审查候选；真实供应商调用仅在已有服务权限、Key 与允许收费的范围内执行。没有凭据时仍必须完成这些可做工作。
 
 实际启用前，只需使用 Mac 上已存在的真人片段进行定向同输入比较：双专家、加混说、加文本仲裁、加复听。以新增/修复错误、关键语义错误、四阶段延迟和外部实际修正量裁决增益；不另建大型排行榜、不搬运 WAV、不要求用户重新当测试员。
+
+
+---
+
+# 2026-11-07 架构二次重裁决（优先级高于上文旧默认配置）
+
+上文记录的是 2026-11-06 PR #4 的实现基线。以下内容是 2026-11-07 的新架构决策；发生冲突时以本节及 `research/architecture/FINAL-ARCHITECTURE.md` 为准。
+
+## 新结论：自适应混合，而非全量常开并行
+
+- 首先把 Apple SpeechAnalyzer 和云端 ASR 收敛到同一个 Candidate Store / recording epoch / generation。当前云端 MultiRecognitionSession 与 Apple 本地路径互斥的问题必须修正。
+- 云端主路优先以 Soniox STT v6 做真实混说对照。官方已披露 60+ 语言、句内切换、token 级语言标签；这是选择其进入基准的理由，不是已经证明它优于 Qwen/AssemblyAI 的结论。
+- Qwen Message、AssemblyAI、Meta Muse 保留适配器和 BYOK，转为可选 challenger / specialist。只有语言片段、领域词汇、风险词、主路不确定性或实测收益要求时才调度。
+- Apple SpeechAnalyzer 是统一体系内的本地 baseline / offline fallback。它不再是“云端关闭才存在的另一套产品管线”，但是否始终并行运行由目标机资源实测决定。
+- Qwen3-ASR 0.6B 作为 M5 24GB 的离线模型候选，必须先验证 macOS runtime、RTF、内存和热负载。Qwen 官方 streaming 当前依赖 vLLM，不能把服务端支持等同于本机实时能力。
+- LLM 文本仲裁仅在候选冲突且影响意义时触发，只能选择候选引用或 unresolved；不能创造声学证据。原音复听只在文本候选无法消歧时调用。
+- Scribe v2 / async final ASR 不再作为每条录音默认必跑的固定终点。仅对用户主动请求重识别、疑难片段或抽样质量验证调用。
+- Raw ASR、证据修订、格式化稿、用户编辑稿必须是不同版本层。格式化可撤销，用户编辑稿优先级最高。
+
+## 原有组件裁决
+
+| 组件 | 裁决 |
+|---|---|
+| Qwen Message | 保留；中文专家/challenger，不强制每次常开 |
+| AssemblyAI 3.6 Pro | 保留；英文 challenger，必须与 Meta 和多语言主路同音频比较 |
+| Meta Muse | 保留；可选英文 challenger，未证明边际收益前不默认开启 |
+| Soniox | 升级到 v6 纳入多语言主路挑战；v5 公开成绩不移植到 v6 |
+| Apple SpeechAnalyzer | 从互斥 fallback 改为统一 Candidate ingress 的本地 baseline/offline fallback |
+| GPT-6 Astra | 保留为文本证据仲裁，不是音频模型；仅处理真实分歧 |
+| Gemini | 保留为按需原音复听，优先争议短片段；不默认全段复听 |
+| ElevenLabs Scribe v2 | 保留文件定稿能力，按需运行；不默认每段调用 |
+| SQLite schema 3 / BYOK / Keychain / ModelRun | 保留；扩展候选来源和调度 trace，不重写有效数据契约 |
+| 稳定 UTF-16 ledger / user draft protection | 必须保留，不因新架构回退 |
+
+## 关键证据边界
+
+Soniox v6 的产品能力来自官方 2026-11-03 模型更新；Qwen3-ASR 的本地能力来自官方开源模型资料；Apple 能力来自 WWDC25 / Developer Documentation。以上均不能代替 Saytile 同音频、同硬件、同网络的真实测量。参见竞品研究报告与最终架构文档。

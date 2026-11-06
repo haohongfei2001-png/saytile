@@ -52,3 +52,37 @@
 用协议 fixture 与隔离原生数据库验证真实风险：候选改写与合法重复、EOS 顺序、独立慢模型、断连、迟到与过期、数字否定保护、混说来源对齐、emoji/组合字符、用户编辑保护、数据库升级/重开、原音删除、稳定范围不重派、最高质量/快速模式差异。不能用这些结果替代实际识别准确率。
 
 既有 Apple/Qwen 和 VAD 结果只作历史证据，不重新下载或扩大数据。云验收直接复用 Mac 既有音频；只回传小 JSON 统计与文本差异，音频/权重留在本机。每个独立实现提交后再继续，不在会话末尾集中保存。
+
+
+---
+
+## 2026-11-07 架构收敛补充
+
+### 必须完成的结构调整
+
+当前文档中的多路分发描述仍然代表 PR #4 已有实现，不再意味着所有模型必须始终运行。正式执行计划改为：
+
+1. 将 Apple SpeechAnalyzer 的结果通过统一 Candidate ingress 写入同一个 recording / epoch / generation；禁止独立本地路径直接成为正式发布者。
+2. 增加 RecognitionPolicyEngine，输入包括网络状态、语言标签/脚本、候选分歧、术语命中、音频质量、设备热状态、电源状态、用户模式和 provider 可用性。
+3. 默认只启动一条已选定的多语言实时主路。Soniox v6 是首个挑战基线；主路选型必须由同输入实测最终决定。
+4. 对不确定时间范围才启动专家模型。若 provider 不支持精确片段输入，发送带前后文的窗口，并记录真实 sample range，禁止把整句结果假装成局部证据。
+5. 普通共识由确定性代码处理；文本 LLM 仅在语义风险分歧时调用；音频模型仅在候选文本不能判别时复听。
+6. 完整文件 ASR 从默认自动流程改为按需重识别 / 疑难定稿 / 抽样测量。
+7. 断网后 CaptureWorker 和 PCMJournal 不变；本地 Apple 路径接管可支持的语言，云任务排队；恢复后基于 audio digest 和 generation 幂等补做。
+
+### 统一候选协议新增字段
+
+除既有 Candidate 字段外，增加/明确：
+- `sourceSampleRange`：原始采样时钟的精确覆盖范围；
+- `languageSpans`：token/segment 级语言标签及其来源；
+- `policyDecisionID`：本次模型调度决策；
+- `contextSnapshotID`：实际提供给 provider 的上下文快照；
+- `evidenceClass`：声学候选、文本仲裁、音频复听、格式化结果；
+- `isVolatile` / `isFinal`：区分临时与最终状态；
+- `alignmentPrecision`：word / segment / utterance / none，禁止伪造精度。
+
+### 性能与设备约束
+
+不默认让 M5 24GB 长期开多个本地大模型。Apple SpeechAnalyzer 作为系统托管本地模型优先；Qwen3-ASR 0.6B、WhisperKit、Parakeet 通过独立性能实验准入。记录 RTF、首字延迟、RSS、CPU/GPU、温度、电量、连续运行时长。不得使用 Apple SpeechAnalyzer 的忽略资源限制选项作为默认方案。
+
+详细模块边界、数据流、离线策略和准入门槛见 [最终架构](../architecture/FINAL-ARCHITECTURE.md)。
