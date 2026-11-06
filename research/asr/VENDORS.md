@@ -1,51 +1,63 @@
-# ASR 最终方案：供应商与证据附录
+# 服务与证据附录 · 最高质量重裁决
 
-核验日期：**2026-11-06**。本文支持 `DECISION.md` 与 `IMPLEMENTATION.md`，记录选型边界、当前接口事实和公开证据；不继续建设公共 benchmark，不新增云端调用。
+核验日期：2026-11-06。此文件替代旧单引擎供应商附录；旧版可在 `c9eac9b` 查看。当前可执行实现与未验证边界以 [REVISION](REVISION-2026-11-06.md) 为准。
 
-## 1. 固定方案与候选边界
+## 1. 角色与当前选择
 
-| 角色 | 引擎 | 本轮决策 |
+| 角色 | 模型与接口 | 裁决 |
 |---|---|---|
-| 唯一默认云端实时引擎 | **Soniox `stt-rt-v6`** | 中文、英文、中英混说走同一个实时会话；不按语言切换供应商，不默认二次 ASR。 |
-| 离线与云端故障备用 | **Apple SpeechAnalyzer / SpeechTranscriber** | 保留本地可用性；结果按实际引擎标记，不冒充云端结果。 |
-| 唯一地区替代候选 | **Qwen `qwen-audio-3.1-asr-flash-message`** | 仅当实际大陆网络条件无法支撑 Soniox 时再考虑替换云端供应商；本轮不并行接入，不自动双跑。 |
-| 未来手动重转写候选 | **ElevenLabs `scribe_v2`** | 尚未选型；仅保留未来用户主动重转写的可能性，不进入默认流水线。 |
+| 中文实时专家 | Qwen `qwen-audio-3.1-asr-flash-message` | 暂定默认；显式启用 intermediate results，关闭润色、翻译、去口癖。中文能力依据与流式协议分开。 |
+| 英文实时专家 | AssemblyAI `universal-3-6-pro` / v3 WebSocket / `max_accuracy` | 暂定默认；真实partial、词时间及型号回声验证。不能写成全球英文冠军。 |
+| 英文强挑战者 | Meta `muse-voice-transcribe-1.0` / realtime | 当前独立榜表现很强，官方API已开放。作为已支持的可选专家，同输入验收时必须比较；可替换或并行加入。 |
+| 混说第三路 | Soniox `stt-rt-v6` | 可选并行，保存原始词时间、语言与confidence；不再拥有唯一发布权。 |
+| 文本仲裁 | OpenAI `gpt-6-astra` / Responses | 默认精确融合，允许high/xhigh/max与standard/pro；返回候选引用，不能自由润色。 |
+| 原音复听 | Gemini `gemini-3.8-flash` / generateContent音频输入 | 默认启用的复核角色；盲听后生成新的声学候选，仍需本地验证。 |
+| 独立文件复核 | ElevenLabs `scribe_v2` | 默认高精度定稿；可换OpenAI `gpt-transcribe`。文件性能不冒充实时性能。 |
+| 本机备用 | Apple SpeechAnalyzer | 未完成云授权时保留；失败后原音可恢复。旧实测不重跑。 |
 
-这是综合公开质量证据、实时协议、混说能力和工程复杂度作出的**技术选择**，不宣称 Soniox 在所有中文或英文榜单第一。Soniox `stt-async-v6` 虽然存在，但不因此增加第二遍默认识别。原音独立保存、文字版本、稳定 UTF-16 增量派发、防重复和目标保护均继续保留。
+服务Key与处理授权没有完成前，任何推荐模型都不会自动上传。价格不决定上述首选；新增源是否默认长期运行，以同输入的互补错误与最终实际收益决定。
 
-## 2. Soniox：必须遵守的当前协议
+## 2. 证据层级与数值边界
 
-- **模型版本：** `stt-rt-v6` 于 **2026-11-03** 发布；Pipecat 已公开的相关实测行是 **`stt-rt-v5`**。旧版第三方结果支持产品系列的选择，不能改写为 v6 已获同样成绩。[官方模型目录](https://docs.soniox.com/stt/models)
-- **端点与鉴权：** `wss://stt-rt.soniox.com/transcribe-websocket`。在 WebSocket **Upgrade 请求头**发送 `Authorization: Bearer <key>`；新实现不把 `api_key` 放进首个 JSON 配置。连接打开后仍需处理服务端鉴权错误帧，不能将握手成功当作鉴权完成。[鉴权文档](https://docs.soniox.com/authentication/websocket-authentication)
-- **音频与语言：** 首个文本消息配置 `model: "stt-rt-v6"`、`language_hints: ["zh", "en"]`。音频使用二进制帧；原始 PCM 必须声明真实格式、`sample_rate` 和 `num_channels`，与 Saytile 保存的音频时钟对应。语言提示不是先做中文/英文分流的理由。[WebSocket API](https://docs.soniox.com/api-reference/stt/websocket-api)
-- **稳定派发：** `is_final: true` 的 token 才进入稳定前缀；未 final 的尾部只更新预览。供应商 final 不代替 Saytile 的录音代次、源音频范围、UTF-16 游标及目标绑定校验。[WebSocket API：Response](https://docs.soniox.com/api-reference/stt/websocket-api#response)
-- **结束协议：必须发送空文本帧 `""`**，Swift 对应 `.string("")`。空二进制帧只是空音频块，**不会结束流**。发送后继续读取最终响应与 `finished`，不要立即取消连接。[WebSocket API：Ending the stream](https://docs.soniox.com/api-reference/stt/websocket-api#ending-the-stream)
-- **密钥：** 个人自带 key 由 Keychain 保存；发行版不内置共享长期密钥。面向用户的托管服务使用短期凭据或受控后端。当前官方鉴权文档支持临时 key；不需要为本次技术裁决开通账户或收费服务。[鉴权文档](https://docs.soniox.com/authentication/websocket-authentication)
+**独立实时证据：** [Pipecat原始仓库](https://github.com/pipecat-ai/stt-benchmark)当前页面使用1,000条smart-turn样本，pooled semantic WER为Meta 0.73%、Assembly 3.6 Pro 0.80%、Soniox **v5** 1.09%、Deepgram Nova-3 1.37%、旧OpenAI GPT-4o Transcribe 2.95%、Scribe v2 Realtime 3.13%。这是该样本集与其语义评分法的结果，不能外推为严格逐字听写、普通话、代码名或混说成绩。语义评分可忽略填充、格式及部分等义差异，而Saytile必须保留用户有意重复。Meta与Assembly的0.07个百分点差异没有在这里给出显著性结论。TTFS是停声至final，不是首字。
 
-现有 Pipecat 流式集成及其公开可运行评测说明 Soniox 已有第三方框架接入路径；这不等同于 Saytile 的 Swift 集成已验收。正式实现采用原生 `URLSessionWebSocketTask` 时，按上述**当前**协议实现，不机械复制旧 SDK 示例。
+**中文厂商研究：** [Qwen3.1技术页](https://qwenaudio.github.io/qwen-audio-3.1-asr/)给出其新模型族、公开数据集与API对照。页面保留历史3.0数据，必须检查表头版本。厂商实施的评测可以支持优先接入，但不证明Message流式、用户口音和中文/英文专家融合后的冠军。AISHELL朗读表现也不等于自然产品术语混说。
 
-## 3. 其他供应商：保留准确名称，不扩展实现范围
+**旧商业应用比较：** [Verli分语言比较](https://verli.app/blog/per-language-speech-to-text-accuracy)是较早版本、每语种200条FLEURS的应用测量；不覆盖最新Qwen、SeedASR或自然中英混说。旧文件成绩仅保留为历史线索。
 
-| 供应商 | 本次核验的官方模型 / 接口 | 对本方案的意义 |
-|---|---|---|
-| Qwen | `qwen-audio-3.1-asr-flash-message`（语音输入、句末修订）；`…-streaming`（连续识别）；`…-filetrans`（文件）。[模型总览](https://help.aliyun.cn/zh/model-studio/asr-model) · [Message API](https://help.aliyun.com/en/model-studio/qwen-asr-message-websocket-api) | Message 的内部修订可能省去自建双引擎，但可修订中间稿不能直接当不可变前缀。仅保留大陆网络条件不满足时的替代候选；已有聊天权限不代表 ASR 权限。 |
-| ElevenLabs | 文件 `scribe_v2`，实时 `scribe_v2_realtime`；`xi-api-key` 鉴权。实时 `partial_transcript` 可变，`committed_transcript` 才稳定。[文件 API](https://elevenlabs.io/docs/api-reference/speech-to-text/convert) · [实时 API](https://elevenlabs.io/docs/api-reference/speech-to-text/v-1-speech-to-text-realtime) | 只保留 `scribe_v2` 为未来手动重转写候选；不开启默认二次识别，也不把 `transcript_edit` 改写当原始 ASR。 |
-| OpenAI | `gpt-live-transcribe` 用于实时，`gpt-transcribe` 用于文件/提交音频段；Bearer API key。文件 `POST /v1/audio/transcriptions`。[转写指南](https://developers.openai.com/api/docs/guides/speech-to-text) · [实时指南](https://developers.openai.com/api/docs/guides/realtime-transcription) | 本轮不接入。ChatGPT Pro 不等于 API 权限。文件 SSE 不等于麦克风实时首字。 |
-| 豆包 | 流式 2.0 `doubao-seed-asr-2.0`，资源 `volc.seedasr.sauc.duration`；文件 2.0 资源 `volc.seedasr.auc`。新控制台 `X-Api-Key`，旧控制台 App ID + Access Token。[官方方案](https://console.volcengine.com/ark/region%3Acn-beijing/docs/agent-plan-personal-voice-model) · [文件 API](https://docs.volcengine.com/docs/doubao-voice/large-model-recording-file-recognition-standard-version-api?lang=en) | 本轮不接入。模型名称、计费资源 ID 与鉴权字段不能混用；方舟聊天权限不能替代语音产品权限。 |
+**厂商接口事实：** 官方文档用于确认端点、鉴权、事件、输入格式和可用型号，不能作为独立准确率实验。Soniox v6的新版本事实不能继承v5分数；Scribe file与realtime、Assembly async与streaming也必须分开。
 
-## 4. 来源、证据级别与可推出的结论
+**本项目证据：** 已有Apple/本地Qwen结果和本轮无云fixture各有独立边界，均不构成最新云模型质量排名。
 
-所有 URL 的核验日期均为 2026-11-06；动态榜单后续可能更新。以下数字记录本次核验快照，不能把不同版本页面的数值拼成一次实验。
+## 3. 主要接口与精确语义
 
-| 级别 | 来源 | 本次采用的证据与限制 |
-|---|---|---|
-| **独立第三方、可运行评测** | [Pipecat STT benchmark](https://github.com/pipecat-ai/stt-benchmark)；[TTFS 定义](https://github.com/pipecat-ai/stt-benchmark/blob/main/docs/measuring-ttfs.md) | 1,000 个 smart-turn 样本；Soniox **v5** 的 pooled semantic WER 为 **1.09%**，TTFS 中位数 **260 ms**、P95 **305 ms**。semantic WER 经 LLM 语义评分并忽略部分填充/复述及格式差异，不能当逐字 WER，更不能当中文 CER。**TTFS 是停声至最终转写到达，不是首字延迟。** 它不证明 v6 或普通话混说的相同成绩。 |
-| **第三方商业应用公开测量** | [Verli 分语言比较，2026-07-19](https://verli.app/blog/per-language-speech-to-text-accuracy) | 每语言 200 条 FLEURS 朗读样本。报告中的中文 CER：Scribe **4.17%**、gpt-4o-transcribe **4.46%**、Soniox **4.71%**；须连同成功覆盖率解释，不能只按错误率排序。版本早于当前选型，且未包括 Qwen 与自然中英混说。支持“Soniox 中文可竞争”，不支持“中文冠军”。 |
-| **厂商官方技术文档** | 本文第 2、3 节的 Soniox、Qwen、ElevenLabs、OpenAI、豆包文档 | 支持模型 ID、端点、鉴权、音频格式、事件语义和公开功能。多语言/混说功能声明不等于独立实测准确率。 |
-| **厂商营销或转述** | [Soniox benchmarks 页面](https://soniox.com/benchmarks) | 即便引用 Pipecat，仍优先使用 Pipecat 原始仓库及指标定义；不把厂商页面算成新增独立证据。 |
-| **本项目本地记录** | `results/direct/`；恢复的 `../asr-2026-11-06/results/` | Apple、本地 Qwen3-ASR-1.7B、Whisper 的有限结果只说明对应本地运行。不能当作 Soniox、Qwen-Audio 3.1 云端或 OpenAI 现行服务的成绩。 |
-| **工程推断与选型** | `DECISION.md`、`IMPLEMENTATION.md` | 单引擎能减少额外网络等待与修订冲突；结合公开质量和协议证据选择 Soniox。保留备用并不等于并行运行。属于明确技术裁决，不伪装成已完成的五家云端实测。 |
+### Qwen Message
 
-**中英混说证据边界：** [Perle ASR benchmark](https://perle.ai/benchmark/asr/) 与 [ServiceNow code-switching 研究](https://huggingface.co/blog/ServiceNow-AI/code-switching) 的所列混说证据未覆盖普通话，不能用来证明 Mandarin–English 成绩。单语言中文与英文榜也不能合成为未经测量的中英混说准确率。这个缺口应作为对外准确率表述的边界，不能演变为继续扩大研究或推迟本轮选型的理由。
+[WebSocket文档](https://help.aliyun.com/zh/model-studio/qwen-asr-message-websocket-api)；[Server events](https://help.aliyun.com/en/model-studio/qwen-asr-message-server-events)。使用Workspace所属北京/新加坡端点、Bearer认证、16kHz mono PCM。等待task-started，按sentence_id更新文本，finish-task后继续读至task-finished。启用intermediate_result_enabled；不把中间稿当不可变前缀。final有真实words时保留词边界；缺失或无法逐字对应时降为真实句级边界。不得按字数推算时间。当前模型提示与话题合计400字；超限明确报配置错误。
 
-Pipecat 本次核验已固定到提交 [`94f5672`](https://github.com/pipecat-ai/stt-benchmark/blob/94f567299a21f8d617039bc69f137a131f5dedd5/README.md)，并通过 GitHub 原文核对表格。可机读的选择性证据快照见 [public-evidence-snapshot.json](results/public-evidence-snapshot.json)；没有复制整篇第三方文档。
+### AssemblyAI
+
+[完整消息顺序](https://www.assemblyai.com/docs/streaming/message-sequence)；[准确率与延迟模式](https://www.assemblyai.com/docs/streaming/getting-started/optimizing-accuracy-and-latency)。v3端点使用原生Authorization key，显式speech_model、max_accuracy与partial turns。Begin必须返回期望型号与模式，否则拒绝静默降级。保留words[].word_is_final连续真值与真实词时间；格式化不匹配时降级对齐。Terminate排在所有音频后，再排空Termination。计费时长按连接而非只有语音；费用显示为用户费率估算，不假称供应商实际账单。
+
+### Meta Muse
+
+[官方Speech-to-text](https://dev.meta.ai/docs/speech-to-text)；[2026-09-03发布](https://dev.meta.ai/resources/blog/meet-muse-voice-transcribe-streaming-speech-to-text)；[Voice schemas](https://dev.meta.ai/docs/api-reference/voice/schemas)。官方支持25语言及code-switching，含普通话和英文。WS握手首帧使用authorization.accessToken，不能假设HTTP Authorization生效。ENDPOINTING按turnId保存完成事件，partial归最新speechStart；turn编号不当排序含义。只有turn/progress级信息，没有词时戳或confidence，不能冒充精确词证据。此能力限制影响可验证拼词路径，不是否认其独立英文质量证据；授权验收须实测它作为完整候选、主专家或额外源的收益。
+
+### Soniox
+
+[模型目录](https://docs.soniox.com/stt/models)；[WebSocket](https://docs.soniox.com/api-reference/stt/websocket-api)；[鉴权](https://docs.soniox.com/authentication/websocket-authentication)。v6于2026-11-03发布。Bearer Upgrade认证，binary PCM；语言提示zh/en不限制自然切换；final token累积，non-final尾部替换。结束是空**文本**帧，再等待finished。原始confidence不跨模型比较。
+
+### 复核与融合
+
+- [ElevenLabs文件API](https://elevenlabs.io/docs/api-reference/speech-to-text/convert)：`scribe_v2`，xi-api-key，原音文件、真实词时间。Realtime已研究但本轮不开放选择：其manual仍有自动分段，现有未验真的终止处理不能保证长录音完整，不能带着已知截断风险交付。
+- [OpenAI转写](https://developers.openai.com/api/docs/guides/speech-to-text)：`gpt-transcribe`文件输入；文件响应stream不等于持续麦克风实时。另有`gpt-live-transcribe`，本轮未实现对应实时协议。
+- [OpenAI模型](https://developers.openai.com/api/docs/models)与[推理](https://developers.openai.com/api/docs/guides/reasoning)：Astra承担文本证据推理，不宣称它通过当前Responses听取原音。
+- [Gemini音频](https://ai.google.dev/gemini-api/docs/audio?hl=en)：原生音频输入独立接口。原音盲听不直接收到争议文字暗示；返回不确定状态，不能以大模型自信覆盖音频证据。
+
+## 4. 仍需比较的成熟候选
+
+豆包SeedASR2.0优化双向流式与句末非流式复核，使用语音产品专用资源/鉴权，不能把方舟聊天权限当成语音权限。它仍是中文最重要的替代挑战者之一；当前证据没有形成与Qwen Message同条件的独立中文混说结论。详细资源和官方链接见[中文专题](CHINESE-AND-MIXED-2026-11-06.md)。Fun-ASR、FireRed、Deepgram、Speechmatics与Google等也按具体版本和真实流式证据保留，不为了增加API个数全部默认运行。
+
+## 5. 最小实际裁决
+
+复用Mac现有真人片段，保留四阶段文本与时间，定向比较双专家、替换Meta、加Soniox、加文本仲裁、加原音复听。主要看关键语义错误、术语正确率、中英混说错误、反复修正及实际外部输入错误；不要只比较最终一份文本。没有获得授权服务凭据与真实输出前，首选配置是可执行的工程默认，质量排名仍明确未封榜。

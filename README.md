@@ -6,11 +6,17 @@ Saytile 是 macOS 原生语音输入与表达工作台。开启后持续待命�
 
 V1 Release Candidate 已完成工程回归，真实讲话与个人环境验收仍明确保留，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
 
+## 最高质量中英文识别候选
+
+[PR #4](https://github.com/haohongfei2001-png/saytile/pull/4) 已按新的最高质量目标改为真实工程实现：中文与英文专家并行、可选混说专家、证据约束 AI 仲裁与原音复听、最高质量/快速确认、独立候选数据库和多服务 BYOK。旧的“唯一 Soniox”裁决已撤销。
+
+本分支候选为 **1.0.0-asr-preview.1**，生产 RC1 仍单独保留。当前选型、已执行验证与云端凭据缺口见 [本轮交付记录](research/asr/REVISION-2026-11-06.md)。不要把无云协议测试当作真实识别质量结果。云端默认等待用户设置服务 Key 和独立处理授权。
+
 ## 构建和运行
 
 ```sh
 scripts/package-beta.sh
-# 打开 dist/Saytile-1.0.0-rc.1-arm64.dmg 安装
+# 输出文件名使用 packaging/VERSION；本分支为多模型工程预览
 ```
 
 同步盘可能在 App 目录附加影响签名的 Finder 元数据，请通过 DMG 安装至 Applications 后运行。
