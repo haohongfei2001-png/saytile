@@ -123,6 +123,57 @@ struct ChineseProviderProtocolTests {
         #expect(throws: Error.self) { try codec.consume(envelope("task-finished")) }
     }
 
+    @Test func qwenRealWordsPreserveTermBoundariesAndExactSentenceLayout() throws {
+        var codec = QwenMessageCodec(taskID: taskID)
+        _ = try codec.consume(envelope("task-started"))
+        var current = sentence(1, "我在 SwiftUI 里用 SQLite。", true, start: 120, end: 1600)
+        current["words"] = [
+            ["text": "我在", "punctuation": "", "begin_time": 120, "end_time": 300],
+            ["text": "SwiftUI", "punctuation": "", "begin_time": 350, "end_time": 650],
+            ["text": "里用", "punctuation": "", "begin_time": 700, "end_time": 950],
+            ["text": "SQLite", "punctuation": "。", "begin_time": 1000, "end_time": 1600]
+        ]
+        let resultValue = try codec.consume(envelope("result-generated", sentence: current))
+        let result = try #require(resultValue)
+        #expect(result.timingGranularity == "word")
+        #expect(result.audioStartSeconds == 0)
+        #expect(result.tokens.map(\.text) == ["我在", " SwiftUI", " 里用", " SQLite。"])
+        #expect(result.tokens.map(\.text).joined() == result.text)
+        #expect(result.tokens.map(\.startSeconds) == [0.12, 0.35, 0.7, 1])
+        #expect(result.tokens.map(\.endSeconds) == [0.3, 0.65, 0.95, 1.6])
+        #expect(result.tokens.allSatisfy(\.isFinal))
+        let mixedValue = try codec.consume(envelope("result-generated", sentence:
+            sentence(2, "然后继续。", false, start: 1700, end: 2200)))
+        let mixed = try #require(mixedValue)
+        #expect(mixed.timingGranularity == "segment")
+        #expect(mixed.tokens.count == 5)
+        #expect(Array(mixed.tokens.prefix(4)) == result.tokens)
+        #expect(mixed.tokens.map(\.text).joined() == mixed.text)
+    }
+
+    @Test func qwenMisalignedOrInvalidWordsFallBackWithoutDroppingNegation() throws {
+        let variants: [[[String: Any]]] = [
+            [["text": "不要改50元", "punctuation": "。", "begin_time": 120, "end_time": 1700]],
+            [["text": "不要改15元", "punctuation": "。", "begin_time": 120, "end_time": 1900]],
+            [["text": "改15元", "punctuation": "。", "begin_time": 520, "end_time": 1700]],
+            [["text": "不要改15元", "punctuation": "。", "begin_time": 120]]
+        ]
+        for words in variants {
+            var codec = QwenMessageCodec(taskID: taskID)
+            _ = try codec.consume(envelope("task-started"))
+            var current = sentence(1, "不要改15元。", true, start: 120, end: 1700)
+            current["words"] = words
+            let resultValue = try codec.consume(envelope("result-generated", sentence: current))
+            let result = try #require(resultValue)
+            #expect(result.text == "不要改15元。")
+            #expect(result.timingGranularity == "segment")
+            #expect(result.tokens.count == 1)
+            #expect(result.tokens.first?.text == result.text)
+            #expect(result.tokens.first?.startSeconds == 0.12)
+            #expect(result.tokens.first?.endSeconds == 1.7)
+        }
+    }
+
     @Test func qwenRejectsWrongGenerationAndIncompleteFinal() throws {
         var codec = QwenMessageCodec(taskID: taskID)
         #expect(throws: Error.self) { try codec.consume(["header": ["event": "task-started", "task_id": "stale-task"]]) }

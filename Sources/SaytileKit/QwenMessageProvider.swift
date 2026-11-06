@@ -34,6 +34,7 @@ struct QwenMessageCodec: ChineseASRFrameDecoder {
         var start: Double?
         var end: Double?
         var isFinal: Bool
+        var words: [ProviderToken]?
     }
     let taskID: String
     private(set) var hasStarted = false
@@ -148,14 +149,57 @@ struct QwenMessageCodec: ChineseASRFrameDecoder {
             throw ProviderFailure.protocolViolation("qwen_final_timing")
         }
         // Every update replaces the same sentence; partial revisions are never appended.
-        segments[id] = Segment(text: text, start: start, end: end, isFinal: final)
+        segments[id] = Segment(text: text, start: start, end: end, isFinal: final,
+                               words: Self.alignedWords(sentence["words"], text: text,
+                                                        start: start, end: end, isFinal: final))
         return id
+    }
+
+    /// Preserve only provider-supplied word times. Spaces omitted by the word objects
+    /// stay attached to the following literal word, without acquiring invented times.
+    /// Any omitted spoken text, invalid timestamp or punctuation mismatch falls back
+    /// to the true sentence interval instead of manufacturing a finer alignment.
+    private static func alignedWords(_ raw: Any?, text: String, start: Double?, end: Double?,
+                                     isFinal: Bool) -> [ProviderToken]? {
+        guard let words = raw as? [[String: Any]], !words.isEmpty else { return nil }
+        let source = text as NSString
+        var cursor = 0, previousStart: Double = -1
+        var result: [ProviderToken] = []
+        for word in words {
+            guard let literal = word["text"] as? String, !literal.isEmpty,
+                  let wordStart = ChineseASRWebSocket.seconds(word["begin_time"]),
+                  let wordEnd = ChineseASRWebSocket.seconds(word["end_time"]),
+                  wordEnd >= wordStart, wordStart >= previousStart,
+                  start.map({ wordStart >= $0 }) ?? true,
+                  end.map({ wordEnd <= $0 }) ?? true else { return nil }
+            let punctuation: String
+            if let value = word["punctuation"] {
+                guard let value = value as? String else { return nil }
+                punctuation = value
+            } else { punctuation = "" }
+            let value = literal + punctuation
+            let range = source.range(of: value, options: .literal,
+                                     range: NSRange(location: cursor, length: source.length - cursor))
+            guard range.location != NSNotFound else { return nil }
+            let gap = source.substring(with: NSRange(location: cursor, length: range.location - cursor))
+            guard gap.unicodeScalars.allSatisfy({ CharacterSet.whitespacesAndNewlines.contains($0) }) else { return nil }
+            let boundary = NSMaxRange(range)
+            let exactText = source.substring(with: NSRange(location: cursor, length: boundary - cursor))
+            result.append(.init(text: exactText, startSeconds: wordStart, endSeconds: wordEnd, isFinal: isFinal))
+            cursor = boundary
+            previousStart = wordStart
+        }
+        let trailing = source.substring(from: cursor)
+        guard trailing.unicodeScalars.allSatisfy({ CharacterSet.whitespacesAndNewlines.contains($0) }) else { return nil }
+        if !trailing.isEmpty { result[result.count - 1].text += trailing }
+        guard Array(result.map(\.text).joined().utf16) == Array(text.utf16) else { return nil }
+        return result
     }
 
     private func snapshot() -> ProviderTranscriptEvent {
         let ordered = segments.sorted { $0.key < $1.key }
         var text = "", stable = 0, stableOpen = true, previousID: Int?
-        var tokens: [ProviderToken] = [], fullyTimed = true
+        var tokens: [ProviderToken] = [], fullyTimed = true, hasSentenceTokens = false
         for (id, segment) in ordered {
             if let previousID, id != previousID + 1 { stableOpen = false }
             previousID = id
@@ -163,19 +207,22 @@ struct QwenMessageCodec: ChineseASRFrameDecoder {
             if !segment.isFinal { stableOpen = false }
             if stableOpen { stable += segment.text.utf16.count }
             guard !segment.text.isEmpty else { continue }
-            if let start = segment.start, let end = segment.end {
+            if let words = segment.words {
+                tokens.append(contentsOf: words)
+            } else if let start = segment.start, let end = segment.end {
+                hasSentenceTokens = true
                 tokens.append(.init(text: segment.text, startSeconds: start, endSeconds: end,
                                     isFinal: segment.isFinal))
             } else { fullyTimed = false }
         }
-        // Exact segment strings retain provider punctuation/spacing. No character-based
-        // interpolation, fabricated word boundaries, confidence or language labels.
+        // Mixed word/sentence evidence is conservatively labelled segment while still
+        // retaining every genuine word boundary. No text-length-based interpolation.
         // This is the cumulative recording window, including leading silence. Speech
         // onset belongs in the segment tokens, not in the candidate window's origin.
         return .init(text: text, stableUTF16Length: stable,
                      audioStartSeconds: 0,
                      audioEndSeconds: ordered.compactMap { $0.value.end }.max() ?? 0,
-                     timingGranularity: fullyTimed ? "segment" : "utterance",
+                     timingGranularity: fullyTimed ? (hasSentenceTokens || tokens.isEmpty ? "segment" : "word") : "utterance",
                      isComplete: isComplete, requestID: taskID, tokens: fullyTimed ? tokens : [])
     }
 }

@@ -8,7 +8,7 @@
 
 这是一组可以立即进行 BYOK 接入与质量验证的架构基线，不能描述为“已证实 Qwen 在所有真实中文输入上最准确”。没有找到足够可靠的当前版本、相同音频、相同延迟预算、严格中文 CER / 混合 MER 的独立三方比较，能够完成这种绝对排名。
 
-选择 Qwen Message 的理由是：官方提供适合听写的专门模型、真正双向输入、可开启的讲话中候选、句级修订与结束标识、上下文和术语能力、北京与新加坡服务。这些能力可与独立英文专家共同工作，而不是先把整句判成中文后只送一个模型。该理由属于产品/工程适配判断；准确率领先仍须用 Saytile 已保存的真实输入音频检验。
+选择 Qwen Message 的理由是：官方提供适合听写的专门模型、真正双向输入、可开启的讲话中候选、句级修订与结束标识、真实词级时间、上下文和术语能力、北京与新加坡服务。这些能力可与独立英文专家共同工作，而不是先把整句判成中文后只送一个模型。该理由属于产品/工程适配判断；准确率领先仍须用 Saytile 已保存的真实输入音频检验。
 
 Soniox v6 有 token 时间、语言标识和持续 final / non-final 协议，适合充当中英混说证据来源。它不再具有单一主模型地位，协议容易接入也不构成质量获胜证据。官方模型页标明 v6 于 2026-11-03 发布；旧 v5 的独立成绩不能自动归给 v6。
 
@@ -67,9 +67,9 @@ Pipecat 快照的 semantic WER 与 LLM 语义容错不能替代严格字词错�
 
 ### 候选、时间与上下文
 
-Message `result-generated` 包含按 `sentence_id` 识别的句子；`sentence_end` 表示供应商句末结果。`stash` 可附下一句的临时内容，heartbeat 不构成转写。`begin_time/end_time`、stash `current_time` 与 words 的时间均按毫秒解释。没有凭字符数推导任何词级对齐，也没有填造语言标签或置信度。累计候选的 `audioStartSeconds` 固定为同一条录音的零点，片头静音之后的真实语音起点保留在 segment tokens 中；不能把首个语音时间误当成整个累计候选的窗口起点。
+Message `result-generated` 包含按 `sentence_id` 识别的句子；`sentence_end` 表示供应商句末结果。`stash` 可附下一句的临时内容，heartbeat 不构成转写。`begin_time/end_time`、stash `current_time` 与 words 的时间均按毫秒解释。没有凭字符数推导任何词级对齐，也没有填造语言标签或置信度。累计候选的 `audioStartSeconds` 固定为同一条录音的零点，片头静音之后的真实语音起点保留在 word/segment tokens 中；不能把首个语音时间误当成整个累计候选的窗口起点。
 
-实现将句文本原样作为 segment token，保留原标点/空格，并保证 tokens 拼接等于整个候选；如果临时句缺少真实结束时间，保留可见文本但降为无对齐的 utterance 证据。`task-finished` 时仍有非空未 final 句子会报 incomplete，不能伪造完整定稿。
+实现优先保留官方 `sentence.words` 中实际返回的 `begin_time/end_time/text/punctuation`，把原句中的空格附着到相邻词而不改动真实词时间，保证 tokens 拼接与原句 UTF-16 一致。词文本不匹配、遗漏原句内容、词时间无效或超出句时间时，退回原句及其真实 segment 时间。不能因为 words 漏了“不”或把“15”写成“50”，就同步改坏 sentence.text。全部有效词对齐时标为 `word`；存在句级降级时保留其他句子的真实词边界并保守标为 `segment`。如果临时句缺少任何真实结束时间，保留可见文本但降为无对齐的 `utterance` 证据。`task-finished` 时仍有非空未 final 句子会报 incomplete，不能伪造完整定稿。
 
 请求打开 `intermediate_result_enabled`，关闭 `disfluency_removal_enabled`，开启 `keep_dialect` 以减少把原话改写成标准表达的意图。中英提示同时提供，不按整句主语言硬路由。
 
@@ -77,6 +77,7 @@ Message `result-generated` 包含按 `sentence_id` 识别的句子；`sentence_e
 
 - https://help.aliyun.com/en/model-studio/qwen-asr-message-client-events
 - https://help.aliyun.com/en/model-studio/qwen-asr-message-server-events
+- QwenCloud 正式总览亦列出 Message 及词时间能力：https://docs.qwencloud.com/developer-guides/speech/asr-realtime
 - 连续 streaming 的独立协议：https://help.aliyun.com/en/model-studio/qwen-audio-asr-streaming-client-events
 - https://help.aliyun.com/en/model-studio/qwen-audio-asr-streaming-server-events
 
@@ -126,6 +127,6 @@ RTC 集成文档明确区分流式模式和优化双向模式：优化模式在�
 
 连接或一次写入的等待上限为 20 秒；EOS 之后最多等待 45 秒完成 drain。它们是故障检测预算，**不是最高质量模式的稳定文本等待策略**。长语音不会按固定语句秒数强行提交；供应商 final 也不直接触发外部派发。取消会关闭 socket 以解除挂起读取；任何错误均交回统一协调器，原音保存不归 provider 控制。
 
-11 个协议 fixture 覆盖：Qwen 地域和就绪契约、明确 partial 开关、同句更新、UTF-16 emoji、下一句 stash、heartbeat、缺时间降级、错误代次、不完整 final、Soniox 增量规则与语言、控制标记、header auth、非翻译、错误脱敏，以及两个供应商在片头静音情况下的累计窗口与真实语音起点。这些 fixture 不产生服务费用。
+13 个协议 fixture 覆盖：Qwen 地域和就绪契约、明确 partial 开关、同句更新、UTF-16 emoji、下一句 stash、heartbeat、缺时间降级、错误代次、不完整 final、Soniox 增量规则与语言、控制标记、header auth、非翻译、错误脱敏，两个供应商在片头静音情况下的累计窗口与真实语音起点，以及 Qwen 真实词边界/标点空格保留、错词和无效时间的句级降级。这些 fixture 不产生服务费用。
 
 本容器没有 Swift 编译器；编译和 fixture 运行交给 root 的 Mac 验证，不把静态检查称为“测试通过”。下一项准确率证据应是用户授权的少量真实音频：否定词、金额/单位、重复表达、中文带 SwiftUI/SQLite/ChatGPT、低 SNR 与自然切换，并分别记录首字、中间修订、可派发稳定结果和完整复核四个阶段。未经这一步，不发布“最高准确率已经验证”的表述。
