@@ -95,8 +95,8 @@ struct EnglishProviderProtocolTests {
     @Test func assemblyPartialUsesOnlyContiguousFinalWordsAndPreservesSeparators() throws {
         var state = AssemblyTranscriptAccumulator(requestID: nil)
         let event = try state.accept(object(#"{"turn_order":0,"transcript":"I do not pay 15.","end_of_turn":false,"words":[{"text":"I","start":0,"end":100,"word_is_final":true},{"text":"do","start":100,"end":200,"word_is_final":true},{"text":"not","start":200,"end":300,"word_is_final":false},{"text":"pay","start":300,"end":400,"word_is_final":true},{"text":"15.","start":400,"end":500,"word_is_final":true}]}"#), duration: 1)
-        #expect(event.tokens.map(\.text).joined() == event.text)
-        #expect(event.tokens[1].text == " do")
+        #expect(event.tokens.map(\.text) == ["I", "do", "not", "pay", "15."])
+        #expect(event.tokens[1].text == "do")
         #expect(event.stableUTF16Length == "I do".utf16.count)
         #expect(event.tokens[1].startSeconds == 0.1)
         #expect(!state.allTurnsFinal)
@@ -119,7 +119,7 @@ struct EnglishProviderProtocolTests {
         var state = AssemblyTranscriptAccumulator(requestID: nil)
         let event = try state.accept(object(#"{"turn_order":0,"transcript":"Pay $15.","end_of_turn":true,"turn_is_formatted":true,"words":[{"text":"Pay","start":0,"end":200},{"text":"fifteen","start":200,"end":600}]}"#), duration: 1)
         #expect(event.text == "Pay $15.")
-        #expect(event.tokens.isEmpty)
+        #expect(event.tokens.map(\.text) == ["Pay", "fifteen"])
         #expect(event.timingGranularity == "utterance")
         #expect(event.stableUTF16Length == event.text.utf16.count)
     }
@@ -208,5 +208,15 @@ struct EnglishProviderProtocolTests {
         #expect(throws: Error.self) { try FinalASRProvider.request(pcm: Data([1]), configuration: configuration, credential: "fixture-key") }
         #expect(throws: Error.self) { try FinalASRProvider.request(pcm: Data(repeating: 0, count: 3_201), configuration: configuration, credential: "fixture-key") }
         #expect(throws: Error.self) { try FinalASRProvider.request(pcm: Data(repeating: 0, count: 3_200), configuration: configuration, credential: "fixture-key", boundary: "bad\r\nheader") }
+    }
+
+    @Test func invalidModelOrRequestErrorsAreSanitizedAndNotRetried() {
+        for status in [400, 404, 422] {
+            let failure = ProviderFailure.http(status)
+            #expect(!failure.canRetryAutomatically)
+            if case .configuration = failure {} else { Issue.record("Invalid request status must be configuration failure") }
+            #expect(failure.errorDescription?.contains("http") == false)
+        }
+        #expect(ProviderFailure.http(503).canRetryAutomatically)
     }
 }

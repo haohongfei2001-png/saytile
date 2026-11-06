@@ -120,6 +120,7 @@ struct AssemblyTranscriptAccumulator {
         var text: String
         var isFinal: Bool
         var stableUTF16Length: Int
+        var hasWordAlignment: Bool
         var tokens: [ProviderToken]
         var language: String?
     }
@@ -139,9 +140,13 @@ struct AssemblyTranscriptAccumulator {
         // unformatted end-of-turn message, or make missing flags mean true.
         let complete = final && object["turn_is_formatted"] as? Bool == true
         let language = object["language_code"] as? String
-        let tokens = try EnglishProviderSupport.words(object["words"], transcript: text, scale: 0.001, final: complete, language: language)
-        let stable = complete ? text.utf16.count : tokens.prefix(while: \.isFinal).reduce(0) { $0 + $1.text.utf16.count }
-        turns[order] = Turn(text: text, isFinal: complete, stableUTF16Length: stable, tokens: tokens, language: language)
+        let tokens = try EnglishProviderSupport.words(object["words"], scale: 0.001, final: complete, language: language)
+        // Use an internal text map for UTF-16 stability, but persist original
+        // word text and timing. Fusion owns the single cross-provider span map.
+        let mapped = EnglishProviderSupport.align(tokens, to: text, utteranceFinal: complete)
+        let stable = complete ? text.utf16.count : (mapped?.prefix(while: \.isFinal).reduce(0) { $0 + $1.text.utf16.count } ?? 0)
+        turns[order] = Turn(text: text, isFinal: complete, stableUTF16Length: stable,
+            hasWordAlignment: mapped != nil, tokens: tokens, language: language)
         return event(duration: duration)
     }
 
@@ -159,16 +164,13 @@ struct AssemblyTranscriptAccumulator {
                 stable = priorLength + separatorLength + turn.stableUTF16Length
             }
             if !turn.isFinal { prefixFinal = false }
-            var turnTokens = turn.tokens
-            if !turn.text.isEmpty && turnTokens.isEmpty { allTextAligned = false }
-            if separatorLength > 0, !turnTokens.isEmpty { turnTokens[0].text = " " + turnTokens[0].text }
-            tokens.append(contentsOf: turnTokens)
+            allTextAligned = allTextAligned && turn.hasWordAlignment
+            tokens.append(contentsOf: turn.tokens)
             if let language = turn.language { languages.insert(language) }
         }
         let end = tokens.map(\.endSeconds).max() ?? duration
-        if !allTextAligned { tokens = [] }
         return ProviderTranscriptEvent(text: text, stableUTF16Length: stable,
-            audioEndSeconds: max(0, end), timingGranularity: tokens.isEmpty ? "utterance" : "word",
+            audioEndSeconds: max(0, end), timingGranularity: tokens.isEmpty || !allTextAligned ? "utterance" : "word",
             language: languages.count == 1 ? languages.first : nil, isComplete: complete,
             requestID: requestID, tokens: tokens)
     }
@@ -220,7 +222,7 @@ enum EnglishProviderSupport {
         return prior + " " + next
     }
 
-    static func words(_ value: Any?, transcript: String, scale: Double, final: Bool, language: String?) throws -> [ProviderToken] {
+    static func words(_ value: Any?, scale: Double, final: Bool, language: String?) throws -> [ProviderToken] {
         guard let value else { return [] }
         guard let words = value as? [[String: Any]] else { throw ProviderFailure.protocolViolation("word-list") }
         let tokens: [ProviderToken] = try words.compactMap { word in
@@ -236,12 +238,12 @@ enum EnglishProviderSupport {
                 language: (word["language_code"] as? String) ?? language,
                 rawConfidence: confidence?.isFinite == true ? confidence : nil)
         }
-        return align(tokens, to: transcript, utteranceFinal: final) ?? []
+        return tokens
     }
 
-    /// Copy original separators into token text so joining tokens reproduces the
-    /// provider transcript exactly. Timestamps remain the actual spoken word's
-    /// timestamps; punctuation never gains a fabricated acoustic interval.
+    /// Temporary text map used only to calculate stable UTF-16 positions. Copy
+    /// original separators locally without modifying persisted raw word tokens.
+    /// Timestamps remain the actual spoken word's timestamps.
     /// A normalization mismatch or an unrepresented spoken word downgrades this
     /// candidate to utterance timing instead of silently dropping its text.
     static func align(_ tokens: [ProviderToken], to transcript: String, utteranceFinal: Bool) -> [ProviderToken]? {

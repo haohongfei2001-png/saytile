@@ -76,9 +76,10 @@ public struct FinalASRProvider: Sendable {
         let languages = object["languages"] as? [[String: Any]]
         let singleLanguage = languages?.count == 1 ? languages?.first?["code"] as? String : nil
         let language = (object["language_code"] as? String) ?? (object["language"] as? String) ?? singleLanguage
-        let words = try EnglishProviderSupport.words(object["words"], transcript: text, scale: 1, final: true, language: language)
+        let words = try EnglishProviderSupport.words(object["words"], scale: 1, final: true, language: language)
+        let aligned = EnglishProviderSupport.align(words, to: text, utteranceFinal: true) != nil
         return ProviderTranscriptEvent(text: text, stableUTF16Length: text.utf16.count,
-            audioEndSeconds: duration, timingGranularity: words.isEmpty ? "utterance" : "word",
+            audioEndSeconds: duration, timingGranularity: words.isEmpty || !aligned ? "utterance" : "word",
             language: language, isComplete: true, requestID: requestID, tokens: words)
     }
 }

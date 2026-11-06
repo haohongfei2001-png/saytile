@@ -54,7 +54,12 @@ public enum ProviderFailure: LocalizedError, Sendable {
     }
     /// Never include arbitrary provider error bodies, URLs or Authorization in diagnostics.
     public static func http(_ code: Int) -> ProviderFailure {
-        switch code { case 401, 403: .authorization; case 402, 429: .quota; default: .connection }
+        switch code {
+        case 400, 404, 422: .configuration("服务型号、接口或请求参数不受支持；请检查此模型的配置。")
+        case 401, 403: .authorization
+        case 402, 429: .quota
+        default: .connection
+        }
     }
 }
 

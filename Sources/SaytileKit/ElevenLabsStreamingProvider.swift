@@ -132,9 +132,10 @@ struct ElevenLabsTranscriptAccumulator {
         if let committedText, committedText != text { throw ProviderFailure.protocolViolation("scribe-timing-mismatch") }
         timedText = text
         let language = object["language_code"] as? String
-        let tokens = try EnglishProviderSupport.words(object["words"], transcript: text, scale: 1, final: true, language: language)
+        let tokens = try EnglishProviderSupport.words(object["words"], scale: 1, final: true, language: language)
+        let aligned = EnglishProviderSupport.align(tokens, to: text, utteranceFinal: true) != nil
         return ProviderTranscriptEvent(text: text, stableUTF16Length: text.utf16.count,
-            audioEndSeconds: duration, timingGranularity: tokens.isEmpty ? "utterance" : "word",
+            audioEndSeconds: duration, timingGranularity: tokens.isEmpty || !aligned ? "utterance" : "word",
             language: language, isComplete: true, requestID: requestID, tokens: tokens)
     }
 }
