@@ -58,3 +58,7 @@ scripts/package-beta.sh
 ## Current recognition architecture (2026-11-07)
 
 Two equal ASR experts receive the same complete audio, and one GPT-6 Astra core continuously reviews their candidate evidence. The UI presents one transcript. GPT-6 Astra is text-only in the API; it does not directly hear audio. See [the final architecture](research/architecture/FINAL-ARCHITECTURE.md), [API capability decision](research/asr/DECISION.md), and [implementation status](research/architecture/PROJECT-STATUS.md).
+
+## SingleTranscriptEngine 最新验收
+
+双平等完整音频专家、一个GPT核心、唯一文字流、离线接替和安全局部修正的[实际交付与限制](evidence/single-transcript-final/README.md)。工程回归通过不等于真人云识别质量通过；生产RC1保持不变。
