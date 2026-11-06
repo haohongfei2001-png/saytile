@@ -52,7 +52,7 @@ struct RecognitionSettingsSection: View {
                 Text(note).font(.system(size: 12)).foregroundStyle(Palette.muted)
                     .accessibilityIdentifier("recognition.notice")
             }
-            DisclosureGroup("最近模型调用与用量") {
+            DisclosureGroup("服务用量记录") {
                 if model.modelCallSummary.isEmpty { Text("尚无模型调用。未返回账单金额时显示未知，不记为零费用。").font(.system(size: 11)).foregroundStyle(Palette.muted) }
                 ForEach(Array(model.modelCallSummary.enumerated()), id: \.offset) { _, line in
                     Text(line).font(.system(size: 11)).textSelection(.enabled)
@@ -91,7 +91,6 @@ struct ModelConfigurationEditor: View {
     }
     var body: some View {
         DisclosureGroup(isExpanded: $expanded) {
-            Toggle("使用此模型", isOn: $configuration.enabled).accessibilityIdentifier(prefix + ".enabled")
             if configuration.provider == .qwenMessage {
                 Picker("地域", selection: Binding(get: { configuration.region }, set: {
                     configuration.region = $0; configuration.cloudConsent = false

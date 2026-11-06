@@ -114,7 +114,7 @@ struct TranscriptCard: View {
                 Text(item.date, format: .dateTime.hour().minute()).font(.system(size: 10, weight: .medium)).monospacedDigit()
                 if item.pinned { Image(systemName: "pin.fill").font(.system(size: 10)) }
                 Spacer()
-                Text(model.recognitionPhaseLabel(for: item)).font(.system(size: 10))
+                Text(item.stateLabel).font(.system(size: 10))
             }.foregroundStyle(Palette.muted)
             Text(item.text.isEmpty ? item.emptyTextLabel : item.text)
                 .font(.system(size: compact ? 14 : 15)).lineSpacing(6).textSelection(.enabled)
@@ -124,7 +124,7 @@ struct TranscriptCard: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             if !compact, !model.query.isEmpty, !item.text.localizedCaseInsensitiveContains(model.query) {
-                Text("匹配来自历史版本或已保留的编辑草稿").font(.system(size: 10)).foregroundStyle(Palette.green)
+                Text("匹配到已保存的文字").font(.system(size: 10)).foregroundStyle(Palette.green)
             }
             HStack(spacing: 14) {
                 Label(item.audioLabel, systemImage: item.hasAudio ? "waveform" : "text.alignleft").font(.system(size: 10))
@@ -169,7 +169,7 @@ struct ArchiveView: View {
                 }
                 HStack {
                     Image(systemName: "magnifyingglass").foregroundStyle(Palette.muted)
-                    TextField("搜索当前文字与历史版本", text: $model.query).textFieldStyle(.plain)
+                    TextField("搜索语音记录", text: $model.query).textFieldStyle(.plain)
                     if !model.query.isEmpty { Button { model.query = "" } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.plain) }
                 }.padding(12).background(.white, in: RoundedRectangle(cornerRadius: 9))
                 if let notice = model.notice { Text(notice).font(.system(size: 12)).foregroundStyle(Palette.amber) }
@@ -247,7 +247,7 @@ struct RecordDetailView: View {
             .confirmationDialog("仅删除原音？文字和全部修改稿仍会保留。", isPresented: $deletingAudio, titleVisibility: .visible) {
                 Button("删除原音，保留文字", role: .destructive) { model.eraseAudio(item) }
             }
-            .confirmationDialog("删除这条记录的全部文字、版本和原音？此操作无法撤销。", isPresented: $deletingRecord, titleVisibility: .visible) {
+            .confirmationDialog("删除这条记录的文字和原音？此操作无法撤销。", isPresented: $deletingRecord, titleVisibility: .visible) {
                 Button("删除整条记录", role: .destructive) { model.deleteRecord(item) }
             }
     }
@@ -304,7 +304,7 @@ struct SettingsView: View {
                 }
             }.formStyle(.grouped)
         }.padding(24).frame(minWidth: 560, idealWidth: 650, maxWidth: .infinity, minHeight: 570, idealHeight: 740, maxHeight: .infinity).background(Palette.paper).foregroundStyle(Palette.ink)
-            .confirmationDialog("清理 \(model.cleanupCount) 条已识别、未收藏且超过 30 天的原音？全部文字和版本会保留。", isPresented: $cleanup, titleVisibility: .visible) {
+            .confirmationDialog("清理 \(model.cleanupCount) 条已识别、未收藏且超过 30 天的原音？已保存的文字会保留。", isPresented: $cleanup, titleVisibility: .visible) {
                 Button("清理这些原音", role: .destructive, action: model.performCleanup).disabled(model.cleanupCount == 0)
             }
     }

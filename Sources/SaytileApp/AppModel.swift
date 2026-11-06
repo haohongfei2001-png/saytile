@@ -66,7 +66,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var editorDraft = ""
     @Published private(set) var editorDraftLoading = false
     @Published private(set) var savingEditorChanges = false
-    @Published private(set) var editorDraftStatus = "草稿自动保留，保存修改创建版本"
+    @Published private(set) var editorDraftStatus = "修改会自动暂存，保存后更新这段文字"
     @Published var recordFilter: RecordingFilter = .all { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var query = "" { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var notice: String?
@@ -371,7 +371,7 @@ final class AppModel: ObservableObject {
             editorDraft = draft ?? current.text
             editorWasEdited = draft != nil
             editorRecordingID = item.id; editorDraftLoading = false
-            editorDraftStatus = pendingDraftWrites[item.id] == nil ? "草稿自动保留，保存修改创建版本" : "草稿尚未写入磁盘，请保留此窗口"
+            editorDraftStatus = pendingDraftWrites[item.id] == nil ? "修改会自动暂存，保存后更新这段文字" : "草稿尚未写入磁盘，请保留此窗口"
             await loadVersions(item.id)
         } catch {
             if editorSelectionGeneration == generation { editorDraftStatus = "草稿读取失败，请重新选择记录"; notice = error.localizedDescription; editorDraftLoading = false }
@@ -442,7 +442,7 @@ final class AppModel: ObservableObject {
             _ = try await store.saveEdit(recordingID: item.id, text: text)
             if latestEditorValues[item.id]?.sequence == sequence {
                 pendingDraftWrites.removeValue(forKey: item.id)
-                if editorRecordingID == item.id { editorWasEdited = false; editorDraftStatus = "修改已保存为新版本" }
+                if editorRecordingID == item.id { editorWasEdited = false; editorDraftStatus = "修改已保存" }
             } else if let newer = latestEditorValues[item.id] {
                 // Typing while a version is committed remains a separate unsaved draft.
                 pendingDraftWrites[item.id] = newer
@@ -494,7 +494,7 @@ final class AppModel: ObservableObject {
     }
     func performCleanup() {
         let ids = cleanupIDs
-        perform { let count = try await self.store.cleanupAudio(recordingIDs: ids, olderThan: Date.now.addingTimeInterval(-30 * 86400)); self.notice = "已清理 \(count) 条原音，文字和版本全部保留。"; self.lastStorageRefresh = .distantPast; await self.refresh() }
+        perform { let count = try await self.store.cleanupAudio(recordingIDs: ids, olderThan: Date.now.addingTimeInterval(-30 * 86400)); self.notice = "已清理 \(count) 条原音，已保存的文字全部保留。"; self.lastStorageRefresh = .distantPast; await self.refresh() }
     }
     func prepareForExit() async {
         guard !exitPrepared else { return }
