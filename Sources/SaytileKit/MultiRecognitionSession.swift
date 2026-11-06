@@ -188,7 +188,7 @@ actor MultiRecognitionCoordinator {
         let live = latest.values.filter { $0.run.purpose.isStreaming }
         // Completed review of an earlier prefix remains archived but must not cap all
         // subsequent live agreement or masquerade as coverage of later audio.
-        let horizon = live.map(stableAudioEnd).min() ?? 0
+        let horizon = live.map(PrecisionFusion.reviewRetirementHorizon).min() ?? 0
         return latest.values.filter { item in
             item.run.purpose != .textFusion && (item.run.purpose.isStreaming || item.audioEndSeconds + 0.1 >= horizon)
         }.sorted { $0.id.uuidString < $1.id.uuidString }
@@ -333,7 +333,7 @@ actor MultiRecognitionCoordinator {
                 // The network call may have succeeded while its evidence became stale.
                 // Record the rejected decision, rather than claiming a successful fusion.
                 try? await store.finishModelRun(reply.run, error: MultiRecognitionSession.safeMessage(error), retryable: true)
-                if case FusionError.staleGeneration = error { /* New audio superseded evidence. */ }
+                if let fusionError = error as? FusionError, case .staleGeneration = fusionError { /* New audio superseded evidence. */ }
                 else { await recordReviewFailure(error, item: reply.item) }
             }
         }
@@ -464,8 +464,9 @@ actor MultiRecognitionCoordinator {
            let output = usage.outputTokens, let outputRate = item.outputMillionTokenRate {
             estimate = (estimate ?? 0) + Double(input) / 1_000_000 * rate + Double(output) / 1_000_000 * outputRate
         }
-        try? await store.recordModelUsage(run: run, audioSeconds: seconds, inputTokens: usage.inputTokens,
-            outputTokens: usage.outputTokens, elapsedSeconds: usage.elapsedSeconds, requestID: usage.requestID,
-            estimatedCost: estimate, currency: item.currency)
+        try? await store.recordModelUsage(ModelUsageRecord(runID: run.id, requestID: usage.requestID,
+            audioSeconds: seconds, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
+            estimatedCost: estimate, currency: item.currency,
+            status: estimateAllowed ? "response-received" : "failed-usage-unknown", elapsedSeconds: usage.elapsedSeconds))
     }
 }

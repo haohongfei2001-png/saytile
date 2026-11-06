@@ -3,6 +3,8 @@ import SaytileKit
 
 struct RecognitionSettingsSection: View {
     @ObservedObject var model: AppModel
+    var initiallyExpanded = false
+    @ViewState private var servicesExpanded = false
     var body: some View {
         Section("AI 识别") {
             Toggle("启用高质量云端识别", isOn: $model.recognitionConfiguration.cloudEnabled)
@@ -15,7 +17,7 @@ struct RecognitionSettingsSection: View {
                 .font(.system(size: 11)).foregroundStyle(Palette.muted)
             TextField("当前话题或术语提示（可选）", text: $model.recognitionConfiguration.topicContext, axis: .vertical)
                 .lineLimit(2...4)
-            DisclosureGroup("服务与 API Key") {
+            DisclosureGroup("服务与 API Key", isExpanded: $servicesExpanded) {
                 ForEach($model.recognitionConfiguration.models) { $item in
                     ModelConfigurationEditor(configuration: $item, model: model)
                 }
@@ -27,6 +29,8 @@ struct RecognitionSettingsSection: View {
             Text("每项服务独立授权。启用后，将语音或必要候选文字交给所选服务处理，费用由你的服务商账户承担。账户权限、地域和余量由各服务商决定。")
                 .font(.system(size: 11)).foregroundStyle(Palette.muted)
             Button("保存并应用识别设置", action: model.applyRecognitionSettings)
+            Text("修改在保存并应用后生效；移除密钥会立即停止相关云端运行。")
+                .font(.system(size: 11)).foregroundStyle(Palette.muted)
             if let note = model.recognitionSettingsNotice { Text(note).font(.system(size: 12)).foregroundStyle(Palette.muted) }
             DisclosureGroup("最近模型调用与用量") {
                 if model.modelCallSummary.isEmpty { Text("尚无模型调用。未返回账单金额时显示未知，不记为零费用。").font(.system(size: 11)).foregroundStyle(Palette.muted) }
@@ -34,17 +38,19 @@ struct RecognitionSettingsSection: View {
                     Text(line).font(.system(size: 11)).textSelection(.enabled)
                 }
             }
-        }
+        }.task { servicesExpanded = initiallyExpanded }
     }
 }
 
-private struct ModelConfigurationEditor: View {
+struct ModelConfigurationEditor: View {
     @Binding var configuration: ModelConfiguration
     @ObservedObject var model: AppModel
+    var initiallyExpanded = false
     @ViewState private var secret = ""
     @ViewState private var credentialPresent = false
+    @ViewState private var expanded = false
     var body: some View {
-        DisclosureGroup(configuration.purpose.label) {
+        DisclosureGroup(configuration.purpose.label + " · " + configuration.provider.label, isExpanded: $expanded) {
             Toggle("使用此模型", isOn: $configuration.enabled)
             Picker("职责", selection: $configuration.purpose) {
                 ForEach(RecognitionPurpose.allCases, id: \.self) { Text($0.label).tag($0) }
@@ -62,11 +68,16 @@ private struct ModelConfigurationEditor: View {
                 configuration.model = ""
             }
             TextField("模型 ID", text: $configuration.model).autocorrectionDisabled()
+            TextField("此模型的术语提示（可选）", text: $configuration.context, axis: .vertical).lineLimit(1...3)
             if configuration.provider == .qwenMessage {
                 Picker("地域", selection: $configuration.region) {
                     Text("北京").tag("cn-beijing"); Text("新加坡").tag("ap-southeast-1")
                 }
                 TextField("Workspace ID", text: $configuration.workspaceID).autocorrectionDisabled()
+            } else if configuration.provider == .assemblyAI {
+                Picker("地域", selection: $configuration.region) {
+                    Text("全球").tag("global"); Text("欧盟").tag("eu")
+                }
             }
             HStack {
                 SecureField(credentialPresent ? "密钥已保存，填写可替换" : "此服务的 API Key", text: $secret)
@@ -95,7 +106,7 @@ private struct ModelConfigurationEditor: View {
                 rateField("每百万输出 Token 单价", value: $configuration.outputMillionTokenRate)
                 Text("按填写单价估算；优惠、最低计费和真实账单可能不同。不填写时费用显示未知。").font(.system(size: 11)).foregroundStyle(Palette.muted)
             }
-        }.task { credentialPresent = model.hasCredential(configuration) }
+        }.task { credentialPresent = model.hasCredential(configuration); expanded = initiallyExpanded }
     }
     private func rateField(_ title: String, value: Binding<Double?>) -> some View {
         TextField(title, text: Binding(get: { value.wrappedValue.map { String($0) } ?? "" },

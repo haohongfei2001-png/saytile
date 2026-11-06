@@ -34,10 +34,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusTimer: Timer?
     private var terminating = false
     private var shutdownStarted = false
+    private var diagnosticPreferencesSuite: String?
+    private var diagnosticExitStatus: Int32 = 0
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
-            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--render-preview", "--focus-probe", "--ui-review"]
+            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--multi-asr-probe", "--render-preview", "--focus-probe", "--ui-review"]
             if diagnostics.contains(where: CommandLine.arguments.contains), !CommandLine.arguments.contains("--data-directory") {
                 print("DIAGNOSTICS_REQUIRE_EXPLICIT_ISOLATED_DATA_DIRECTORY")
                 Darwin.exit(64)
@@ -48,12 +50,45 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Saytile", isDirectory: true)
             }
-            let model = try AppModel(directory: directory)
+            let preferences: UserDefaults
+            if diagnostics.contains(where: CommandLine.arguments.contains) {
+                let suite = "app.saytile.diagnostics." + UUID().uuidString
+                diagnosticPreferencesSuite = suite
+                preferences = UserDefaults(suiteName: suite)!
+            } else { preferences = .standard }
+            let model = try AppModel(directory: directory, preferences: preferences)
             self.model = model
             model.openPanel = { [weak self] in self?.showPanel() }
             model.hidePanel = { [weak self] in self?.panel?.orderOut(nil) }
             model.openArchive = { [weak self] in self?.showArchive() }
             model.openSettings = { [weak self] in self?.showSettings() }
+            if let index = CommandLine.arguments.firstIndex(of: "--multi-asr-probe"), CommandLine.arguments.count > index + 1 {
+                Task {
+                    do {
+                        guard let configIndex = CommandLine.arguments.firstIndex(of: "--recognition-config"), CommandLine.arguments.count > configIndex + 1,
+                              let reportIndex = CommandLine.arguments.firstIndex(of: "--report-dir"), CommandLine.arguments.count > reportIndex + 1 else {
+                            throw AudioFailure.message("定向回放需要显式 --recognition-config 和 --report-dir。")
+                        }
+                        guard try await model.store.listRecordings(limit: 1).isEmpty else {
+                            throw AudioFailure.message("定向回放须使用空的独立资料目录。")
+                        }
+                        let configuration = try JSONDecoder().decode(RecognitionConfiguration.self,
+                            from: Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[configIndex + 1])))
+                        let id = try await MultiRecognitionDiagnostics.transcribeFixture(
+                            url: URL(fileURLWithPath: CommandLine.arguments[index + 1]), store: model.store, configuration: configuration)
+                        let report = URL(fileURLWithPath: CommandLine.arguments[reportIndex + 1], isDirectory: true)
+                        try FileManager.default.createDirectory(at: report, withIntermediateDirectories: true)
+                        try await MultiRecognitionDiagnostics.exportTrace(store: model.store, recordingID: id,
+                            to: report.appendingPathComponent(id.uuidString + ".json"))
+                        let state = try await model.store.recording(id: id)?.recognitionState.rawValue ?? "unknown"
+                        print("MULTI_ASR_PROBE_RECORDED recording=\(id) state=\(state); accuracy requires reference scoring")
+                        if state != "completed" { self.diagnosticExitStatus = 2 }
+                    } catch { self.diagnosticExitStatus = 1; print("MULTI_ASR_PROBE_FAILED \(error.localizedDescription)") }
+                    await model.prepareForExit()
+                    NSApp.terminate(nil)
+                }
+                return
+            }
             if CommandLine.arguments.contains("--device-probe") {
                 Task {
                     do { let result = try await AudioDiagnostics.probeInputDevice(seconds: 5); print("DEVICE_PROBE \(result)") }
@@ -159,6 +194,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             DispatchQueue.main.async { NSApp.terminate(nil) }
         }
         return .terminateCancel
+    }
+    func applicationWillTerminate(_ notification: Notification) {
+        if let suite = diagnosticPreferencesSuite { UserDefaults.standard.removePersistentDomain(forName: suite) }
+        if diagnosticExitStatus != 0 { Darwin.exit(diagnosticExitStatus) }
     }
     private func configureMainMenu() {
         let main = NSMenu()

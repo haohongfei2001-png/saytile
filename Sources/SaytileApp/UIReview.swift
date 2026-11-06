@@ -63,8 +63,16 @@ extension AppDelegate {
             model.query = ""; model.notice = nil
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 740), name: "settings", output: output)
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 560, height: 570), name: "settings-compact", output: output)
+            try await reviewWindow(Form { RecognitionSettingsSection(model: model, initiallyExpanded: true) }.formStyle(.grouped), size: CGSize(width: 650, height: 840), name: "ai-services", output: output)
+            if !model.recognitionConfiguration.models.isEmpty {
+                try await reviewWindow(Form {
+                    Section("中文专家设置") {
+                        ModelConfigurationEditor(configuration: Binding(get: { model.recognitionConfiguration.models[0] }, set: { model.recognitionConfiguration.models[0] = $0 }), model: model, initiallyExpanded: true)
+                    }
+                }.formStyle(.grouped), size: CGSize(width: 650, height: 740), name: "ai-chinese-keychain", output: output)
+            }
             if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil { print("UI_CONTROLS_NOT_RUN remote AX helper not configured; rendering only") }
-            print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; 9 captures; synthetic data; no activation/microphone")
+            print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; 11 captures; synthetic data; no activation/microphone")
         } catch { print("UI_REVIEW_FAILED \(error.localizedDescription)") }
     }
 
