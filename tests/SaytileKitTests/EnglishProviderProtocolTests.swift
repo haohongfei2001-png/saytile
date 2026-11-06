@@ -1,0 +1,157 @@
+import Foundation
+import Testing
+@testable import SaytileKit
+
+@Suite("English provider wire contracts; no cloud calls")
+struct EnglishProviderProtocolTests {
+    private func config(_ provider: CloudProvider, _ model: String, purpose: RecognitionPurpose = .englishASR) -> ModelConfiguration {
+        ModelConfiguration(purpose: purpose, provider: provider, model: model, cloudConsent: true)
+    }
+    private func object(_ json: String) throws -> [String: Any] {
+        try #require(JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any])
+    }
+
+    @Test func assemblyUsesExplicitStreamingModelAndHeaderAuthentication() throws {
+        var configuration = config(.assemblyAI, "universal-3-6-pro")
+        configuration.region = "eu"
+        let request = try AssemblyStreamingProvider.request(configuration: configuration, credential: "fixture-key")
+        #expect(request.url?.host == "streaming.eu.assemblyai.com")
+        #expect(request.value(forHTTPHeaderField: "Authorization") == "fixture-key")
+        let query = try #require(URLComponents(url: #require(request.url), resolvingAgainstBaseURL: false)?.queryItems)
+        #expect(query.first { $0.name == "speech_model" }?.value == "universal-3-6-pro")
+        #expect(query.first { $0.name == "sample_rate" }?.value == "16000")
+        #expect(!query.contains { $0.name == "token" || $0.name == "language_codes" })
+        #expect(!request.url!.absoluteString.contains("fixture-key"))
+    }
+
+    @Test func cloudPermissionAndCredentialValidationHappenBeforeNetworking() {
+        var configuration = config(.assemblyAI, "universal-3-6-pro")
+        configuration.cloudConsent = false
+        #expect(throws: Error.self) { try AssemblyStreamingProvider.request(configuration: configuration, credential: "key") }
+        configuration.cloudConsent = true
+        #expect(throws: Error.self) { try AssemblyStreamingProvider.request(configuration: configuration, credential: "key\r\nInjected: x") }
+        configuration.region = "unverified-region"
+        #expect(throws: Error.self) { try AssemblyStreamingProvider.request(configuration: configuration, credential: "key") }
+    }
+
+    @Test func assemblyReplacesTurnAndPreservesNegationNumbersUnicodeAndRawConfidence() throws {
+        var state = AssemblyTranscriptAccumulator(requestID: "fixture-session")
+        let partial = try state.accept(object(#"{"turn_order":0,"transcript":"Pay 50 😀","end_of_turn":false,"words":[{"text":"Pay","start":0,"end":500,"confidence":0.7}]}"#), duration: 2)
+        #expect(partial.stableUTF16Length == 0)
+        #expect(partial.tokens.first?.isFinal == false)
+        let revised = try state.accept(object(#"{"turn_order":0,"transcript":"Do not pay 15 😀","end_of_turn":true,"language_code":"en","words":[{"text":"not","start":500,"end":750,"confidence":0.91}]}"#), duration: 2)
+        #expect(revised.text == "Do not pay 15 😀")
+        #expect(revised.stableUTF16Length == revised.text.utf16.count)
+        #expect(revised.tokens.first?.startSeconds == 0.5)
+        #expect(revised.tokens.first?.endSeconds == 0.75)
+        #expect(revised.tokens.first?.rawConfidence == 0.91)
+        #expect(!revised.isComplete)
+        #expect(revised.requestID == "fixture-session")
+    }
+
+    @Test func intentionalRepeatedTurnsAreNotDeduplicated() throws {
+        var state = AssemblyTranscriptAccumulator(requestID: nil)
+        _ = try state.accept(object(#"{"turn_order":0,"transcript":"yes","end_of_turn":true}"#), duration: 1)
+        let event = try state.accept(object(#"{"turn_order":1,"transcript":"yes","end_of_turn":true}"#), duration: 2)
+        #expect(event.text == "yes yes")
+        #expect(event.stableUTF16Length == 7)
+    }
+
+    @Test func missingOrUnfinishedEarlierTurnBlocksStablePrefix() throws {
+        var state = AssemblyTranscriptAccumulator(requestID: nil)
+        let missing = try state.accept(object(#"{"turn_order":1,"transcript":"second","end_of_turn":true}"#), duration: 2)
+        #expect(missing.stableUTF16Length == 0)
+        #expect(!state.allTurnsFinal)
+        let partial = try state.accept(object(#"{"turn_order":0,"transcript":"first","end_of_turn":false}"#), duration: 2)
+        #expect(partial.text == "first second")
+        #expect(partial.stableUTF16Length == 0)
+        #expect(!state.allTurnsFinal)
+        let final = try state.accept(object(#"{"turn_order":0,"transcript":"first","end_of_turn":true}"#), duration: 2)
+        #expect(final.stableUTF16Length == final.text.utf16.count)
+        #expect(state.allTurnsFinal)
+    }
+
+    @Test func malformedWordTimesAreNeverInvented() throws {
+        var state = AssemblyTranscriptAccumulator(requestID: nil)
+        #expect(throws: Error.self) {
+            try state.accept(object(#"{"turn_order":0,"transcript":"no","end_of_turn":true,"words":[{"text":"no","start":900,"end":200}]}"#), duration: 1)
+        }
+    }
+
+    @Test func elevenRealtimeIsDistinctAndNeverEnablesParaphrasing() throws {
+        let request = try ElevenLabsStreamingProvider.request(configuration: config(.elevenLabsRealtime, "scribe_v2_realtime"), credential: "fixture-key")
+        #expect(request.value(forHTTPHeaderField: "xi-api-key") == "fixture-key")
+        let query = try #require(URLComponents(url: #require(request.url), resolvingAgainstBaseURL: false)?.queryItems)
+        #expect(query.first { $0.name == "model_id" }?.value == "scribe_v2_realtime")
+        #expect(query.first { $0.name == "commit_strategy" }?.value == "manual")
+        #expect(query.first { $0.name == "no_verbatim" }?.value == "false")
+        #expect(!query.contains { $0.name == "transcript_edit" || $0.name == "language_code" })
+        let bytes = Data([0, 128, 255, 127])
+        let message = try object(ElevenLabsStreamingProvider.audioMessage(bytes, commit: true))
+        #expect(Data(base64Encoded: #require(message["audio_base_64"] as? String)) == bytes)
+        #expect(message["commit"] as? Bool == true)
+    }
+
+    @Test func delayedElevenTimestampsReplaceTheCommittedCandidate() throws {
+        var state = ElevenLabsTranscriptAccumulator(requestID: "fixture-session")
+        let partial = try #require(state.accept(object(#"{"message_type":"partial_transcript","text":"no no"}"#), duration: 1, inputEnded: false))
+        #expect(partial.stableUTF16Length == 0)
+        let committed = try #require(state.accept(object(#"{"message_type":"committed_transcript","text":"no no"}"#), duration: 1, inputEnded: true))
+        #expect(!committed.isComplete)
+        let timed = try #require(state.accept(object(#"{"message_type":"committed_transcript_with_timestamps","text":"no no","language_code":"en","words":[{"text":"no","start":0.2,"end":0.4,"type":"word"},{"text":"no","start":0.6,"end":0.8,"type":"word"}]}"#), duration: 1, inputEnded: true))
+        #expect(timed.text == "no no")
+        #expect(timed.tokens.count == 2)
+        #expect(timed.tokens.last?.startSeconds == 0.6)
+        #expect(timed.isComplete)
+        #expect(try state.accept(object(#"{"message_type":"partial_transcript","text":""}"#), duration: 1, inputEnded: true) == nil)
+    }
+
+    @Test func unexpectedOrContradictoryElevenCommitIsRejected() throws {
+        var state = ElevenLabsTranscriptAccumulator(requestID: nil)
+        #expect(throws: Error.self) {
+            try state.accept(object(#"{"message_type":"committed_transcript","text":"15"}"#), duration: 1, inputEnded: false)
+        }
+        _ = try state.accept(object(#"{"message_type":"committed_transcript","text":"15"}"#), duration: 1, inputEnded: true)
+        #expect(throws: Error.self) {
+            try state.accept(object(#"{"message_type":"committed_transcript_with_timestamps","text":"50","words":[]}"#), duration: 1, inputEnded: true)
+        }
+    }
+
+    @Test func fileRequestsContainBinaryMultipartAndProviderSpecificAuthentication() throws {
+        let pcm = Data(repeating: 0x7f, count: 3_200)
+        let eleven = try FinalASRProvider.request(pcm: pcm, configuration: config(.elevenLabsFile, "scribe_v2", purpose: .finalASR), credential: "fixture-key", boundary: "test-boundary")
+        #expect(eleven.url?.absoluteString == "https://api.elevenlabs.io/v1/speech-to-text")
+        #expect(eleven.value(forHTTPHeaderField: "xi-api-key") == "fixture-key")
+        let elevenBody = try #require(eleven.httpBody)
+        #expect(elevenBody.range(of: pcm) != nil)
+        #expect(elevenBody.range(of: Data("pcm_s16le_16".utf8)) != nil)
+        #expect(elevenBody.range(of: Data("\r\n--test-boundary--\r\n".utf8)) != nil)
+        #expect(elevenBody.range(of: Data("transcript_edit".utf8)) == nil)
+        let openAI = try FinalASRProvider.request(pcm: pcm, configuration: config(.openAITranscription, "gpt-transcribe", purpose: .finalASR), credential: "fixture-key", boundary: "test-boundary")
+        #expect(openAI.value(forHTTPHeaderField: "Authorization") == "Bearer fixture-key")
+        let openAIBody = try #require(openAI.httpBody)
+        #expect(openAIBody.range(of: PCMJournal.header(frames: 1_600) + pcm) != nil)
+        #expect(openAIBody.range(of: Data("name=\"model\"\r\n\r\ngpt-transcribe\r\n".utf8)) != nil)
+        #expect(openAIBody.range(of: Data("language".utf8)) == nil)
+    }
+
+    @Test func fileResultsKeepWordsInSecondsAndDoNotFabricateConfidence() throws {
+        let eleven = try FinalASRProvider.parse(Data(#"{"text":"Do not pay 15.","language_code":"eng","words":[{"text":"not","start":0.3,"end":0.5,"type":"word","logprob":-0.01}]}"#.utf8), provider: .elevenLabsFile, duration: 2, requestID: "file-id")
+        #expect(eleven.tokens.first?.startSeconds == 0.3)
+        #expect(eleven.tokens.first?.rawConfidence == nil)
+        #expect(eleven.isComplete)
+        let openAI = try FinalASRProvider.parse(Data(#"{"text":"我想使用 SQLite 😀","languages":[{"code":"zh"},{"code":"en"}]}"#.utf8), provider: .openAITranscription, duration: 2, requestID: nil)
+        #expect(openAI.tokens.isEmpty)
+        #expect(openAI.timingGranularity == "utterance")
+        #expect(openAI.language == nil)
+        #expect(openAI.stableUTF16Length == openAI.text.utf16.count)
+        #expect(openAI.text == "我想使用 SQLite 😀")
+    }
+
+    @Test func badPCMCannotSilentlyBecomeAnAudioRequest() {
+        let configuration = config(.openAITranscription, "gpt-transcribe", purpose: .finalASR)
+        #expect(throws: Error.self) { try FinalASRProvider.request(pcm: Data([1]), configuration: configuration, credential: "fixture-key") }
+        #expect(throws: Error.self) { try FinalASRProvider.request(pcm: Data(repeating: 0, count: 3_201), configuration: configuration, credential: "fixture-key") }
+        #expect(throws: Error.self) { try FinalASRProvider.request(pcm: Data(repeating: 0, count: 3_200), configuration: configuration, credential: "fixture-key", boundary: "bad\r\nheader") }
+    }
+}
