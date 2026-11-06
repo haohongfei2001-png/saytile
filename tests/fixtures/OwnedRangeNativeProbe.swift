@@ -106,9 +106,13 @@ import ApplicationServices
             let attempts = value["textAttempts"] as? [[String: Any]] ?? []
             try require(attempts.compactMap { $0["text"] as? String } == texts, "selected-text attempts mismatch")
             try require((value["rangeAttempts"] as? [[String: Int]])?.count == ranges, "selected-range attempts mismatch")
-            for field in [value, other] {
-                try require(field["fullValueAttempts"] as? Int == 0 && field["keyEvents"] as? Int == 0 &&
-                    field["pasteAttempts"] as? Int == 0 && field["unexpectedPayload"] as? Bool == false,
+            for (index, field) in [value, other].enumerated() {
+                let full = field["fullValueAttempts"] as? Int ?? -1
+                let keys = field["keyEvents"] as? Int ?? -1
+                let pastes = field["pasteAttempts"] as? Int ?? -1
+                let unexpected = field["unexpectedPayload"] as? Bool ?? true
+                emit("AX_SAFETY_STATE field=\(index) full_value=\(full) key_events=\(keys) paste=\(pastes) unexpected_payload=\(unexpected)")
+                try require(full == 0 && keys == 0 && pastes == 0 && !unexpected,
                     "forbidden full-value/key/paste/payload attempt")
             }
             try require((other["textAttempts"] as? [[String: Any]])?.isEmpty == true &&
