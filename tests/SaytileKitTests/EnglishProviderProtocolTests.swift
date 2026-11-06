@@ -149,16 +149,20 @@ struct EnglishProviderProtocolTests {
 
     @Test func delayedElevenTimestampsReplaceTheCommittedCandidate() throws {
         var state = ElevenLabsTranscriptAccumulator(requestID: "fixture-session")
-        let partial = try #require(state.accept(object(#"{"message_type":"partial_transcript","text":"no no"}"#), duration: 1, inputEnded: false))
+        let partialResult = try state.accept(object(#"{"message_type":"partial_transcript","text":"no no"}"#), duration: 1, inputEnded: false)
+        let partial = try #require(partialResult)
         #expect(partial.stableUTF16Length == 0)
-        let committed = try #require(state.accept(object(#"{"message_type":"committed_transcript","text":"no no"}"#), duration: 1, inputEnded: true))
+        let committedResult = try state.accept(object(#"{"message_type":"committed_transcript","text":"no no"}"#), duration: 1, inputEnded: true)
+        let committed = try #require(committedResult)
         #expect(!committed.isComplete)
-        let timed = try #require(state.accept(object(#"{"message_type":"committed_transcript_with_timestamps","text":"no no","language_code":"en","words":[{"text":"no","start":0.2,"end":0.4,"type":"word"},{"text":"no","start":0.6,"end":0.8,"type":"word"}]}"#), duration: 1, inputEnded: true))
+        let timedResult = try state.accept(object(#"{"message_type":"committed_transcript_with_timestamps","text":"no no","language_code":"en","words":[{"text":"no","start":0.2,"end":0.4,"type":"word"},{"text":"no","start":0.6,"end":0.8,"type":"word"}]}"#), duration: 1, inputEnded: true)
+        let timed = try #require(timedResult)
         #expect(timed.text == "no no")
         #expect(timed.tokens.count == 2)
         #expect(timed.tokens.last?.startSeconds == 0.6)
         #expect(timed.isComplete)
-        #expect(try state.accept(object(#"{"message_type":"partial_transcript","text":""}"#), duration: 1, inputEnded: true) == nil)
+        let keepalive = try state.accept(object(#"{"message_type":"partial_transcript","text":""}"#), duration: 1, inputEnded: true)
+        #expect(keepalive == nil)
     }
 
     @Test func unexpectedOrContradictoryElevenCommitIsRejected() throws {
@@ -182,12 +186,15 @@ struct EnglishProviderProtocolTests {
         #expect(elevenBody.range(of: Data("pcm_s16le_16".utf8)) != nil)
         #expect(elevenBody.range(of: Data("\r\n--test-boundary--\r\n".utf8)) != nil)
         #expect(elevenBody.range(of: Data("transcript_edit".utf8)) == nil)
-        let openAI = try FinalASRProvider.request(pcm: pcm, configuration: config(.openAITranscription, "gpt-transcribe", purpose: .finalASR), credential: "fixture-key", boundary: "test-boundary")
+        var openAIConfig = config(.openAITranscription, "gpt-transcribe", purpose: .finalASR)
+        openAIConfig.context = "SwiftUI 与 SQLite 的原文听写"
+        let openAI = try FinalASRProvider.request(pcm: pcm, configuration: openAIConfig, credential: "fixture-key", boundary: "test-boundary")
         #expect(openAI.value(forHTTPHeaderField: "Authorization") == "Bearer fixture-key")
         let openAIBody = try #require(openAI.httpBody)
         #expect(openAIBody.range(of: PCMJournal.header(frames: 1_600) + pcm) != nil)
         #expect(openAIBody.range(of: Data("name=\"model\"\r\n\r\ngpt-transcribe\r\n".utf8)) != nil)
         #expect(openAIBody.range(of: Data("language".utf8)) == nil)
+        #expect(openAIBody.range(of: Data("name=\"prompt\"\r\n\r\nSwiftUI 与 SQLite 的原文听写\r\n".utf8)) != nil)
     }
 
     @Test func fileResultsKeepWordsInSecondsAndDoNotFabricateConfidence() throws {

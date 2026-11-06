@@ -50,7 +50,7 @@ public struct ElevenLabsStreamingProvider: StreamingASRProvider {
                             pending.append(chunk)
                             while pending.count >= 3_200 {
                                 let frame = Data(pending.prefix(3_200)); pending.removeFirst(3_200)
-                                try await socket.send(.string(try Self.audioMessage(frame, commit: false)))
+                                try await EnglishProviderSupport.send(.string(try Self.audioMessage(frame, commit: false)), to: socket)
                                 await progress.sent(frame.count)
                             }
                         }
@@ -60,7 +60,7 @@ public struct ElevenLabsStreamingProvider: StreamingASRProvider {
                         }
                         // No second audio writer can interleave this final frame/commit.
                         await progress.sent(pending.count); await progress.endInput()
-                        try await socket.send(.string(try Self.audioMessage(pending, commit: true)))
+                        try await EnglishProviderSupport.send(.string(try Self.audioMessage(pending, commit: true)), to: socket)
                         try await Task.sleep(for: .seconds(45))
                         socket.cancel(with: .goingAway, reason: nil)
                         throw ProviderFailure.incomplete

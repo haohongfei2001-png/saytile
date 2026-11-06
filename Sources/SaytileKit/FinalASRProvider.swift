@@ -53,7 +53,8 @@ public struct FinalASRProvider: Sendable {
         } else {
             endpoint = "https://api.openai.com/v1/audio/transcriptions"
             field("model", configuration.model)
-            field("response_format", "json")
+            // The current gpt-transcribe workflow returns JSON by default.
+            if !configuration.context.isEmpty { field("prompt", configuration.context) }
             file = PCMJournal.header(frames: Int64(pcm.count / 2)) + pcm
             filename = "audio.wav"; contentType = "audio/wav"
         }

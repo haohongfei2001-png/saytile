@@ -59,7 +59,7 @@ public struct AssemblyStreamingProvider: StreamingASRProvider {
                 let requestID = try Self.verifyBegin(hello, configuration: configuration)
                 if !configuration.context.isEmpty {
                     let json = try ProviderJSON.string(["type": "UpdateConfiguration", "prompt": configuration.context])
-                    try await socket.send(.string(json))
+                    try await EnglishProviderSupport.send(.string(json), to: socket)
                 }
                 try await withThrowingTaskGroup(of: Void.self) { group in
                     group.addTask {
@@ -71,16 +71,16 @@ public struct AssemblyStreamingProvider: StreamingASRProvider {
                             pending.append(chunk)
                             while pending.count >= 2_240 {
                                 let frame = Data(pending.prefix(1_600)); pending.removeFirst(1_600)
-                                try await socket.send(.data(frame)); await progress.sent(frame.count)
+                                try await EnglishProviderSupport.send(.data(frame), to: socket); await progress.sent(frame.count)
                             }
                         }
                         try Task.checkCancellation()
                         if !pending.isEmpty {
                             guard pending.count >= 640 else { throw ProviderFailure.incomplete }
-                            try await socket.send(.data(pending)); await progress.sent(pending.count)
+                            try await EnglishProviderSupport.send(.data(pending), to: socket); await progress.sent(pending.count)
                         }
                         await progress.endInput()
-                        try await socket.send(.string("{\"type\":\"Terminate\"}"))
+                        try await EnglishProviderSupport.send(.string("{\"type\":\"Terminate\"}"), to: socket)
                         try await Task.sleep(for: .seconds(45))
                         socket.cancel(with: .goingAway, reason: nil)
                         throw ProviderFailure.incomplete
@@ -202,6 +202,15 @@ enum EnglishProviderSupport {
         }
         defer { deadline.cancel() }
         return try ProviderJSON.object(try await socket.receive())
+    }
+
+    static func send(_ message: URLSessionWebSocketTask.Message, to socket: URLSessionWebSocketTask) async throws {
+        let deadline = Task {
+            try await Task.sleep(for: .seconds(25))
+            socket.cancel(with: .goingAway, reason: nil)
+        }
+        defer { deadline.cancel() }
+        try await socket.send(message)
     }
 
     static func failure(_ error: Error, socket: URLSessionWebSocketTask? = nil) -> ProviderFailure {
