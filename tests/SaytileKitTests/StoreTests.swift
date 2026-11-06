@@ -28,6 +28,7 @@ private struct Fixture {
 @Test func storePersistsAcrossReopen() async throws {
     let f = try Fixture(); defer { f.clean() }
     let r = try await f.record()
+    try await f.store.close()
     let reopened = try SaytileStore(directory:f.directory)
     let loaded = try await reopened.recording(id:r.id)
     #expect(loaded?.text == "你好，世界")
@@ -113,6 +114,7 @@ private struct Fixture {
     let r = try await f.record()
     _ = try await f.store.acquireAudioLease(recordingID:r.id)
     try await f.store.deleteAudio(recordingID:r.id)
+    try await f.store.close()
     let recovered = try SaytileStore(directory:f.directory)
     try await recovered.recoverPendingDeletions()
     #expect(try await recovered.recording(id:r.id)?.audioState == .deleted)
@@ -179,6 +181,7 @@ private struct Fixture {
     let f = try Fixture(); defer { f.clean() }
     let r = try await f.store.createRecording()
     let ticket = try await f.store.beginRecognition(recordingID:r.id)
+    try await f.store.close()
     let reopened = try SaytileStore(directory:f.directory)
     #expect(reopened.recovery.interruptedRecordings == 1)
     #expect(reopened.recovery.interruptedRecognitions == 1)
@@ -207,6 +210,7 @@ private struct Fixture {
     let residual = f.store.audioDirectory.appendingPathComponent(r.id.uuidString + "/resurrected.wav")
     try FileManager.default.createDirectory(at:residual.deletingLastPathComponent(),withIntermediateDirectories:true)
     try Data([0,1,2,3]).write(to:residual)
+    try await f.store.close()
     let reopened = try SaytileStore(directory:f.directory)
     try await reopened.recoverPendingDeletions()
     #expect(!FileManager.default.fileExists(atPath:residual.path))
@@ -290,6 +294,7 @@ private struct Fixture {
     let now = Date(timeIntervalSince1970:10_000)
     #expect(try await f.store.claimRecoveryRecording(now:now)?.id == r.id)
     #expect(try await f.store.claimRecoveryRecording(now:now) == nil)
+    try await f.store.close()
     let reopened = try SaytileStore(directory:f.directory)
     #expect(try await reopened.claimRecoveryRecording(now:now.addingTimeInterval(61))?.id == r.id)
     #expect(try await reopened.claimRecoveryRecording(now:now.addingTimeInterval(362))?.id == r.id)
@@ -338,6 +343,7 @@ private struct Fixture {
     let f = try Fixture(); defer { f.clean() }
     let r = try await f.record(text:"原来的文字")
     try await f.store.saveDraft(recordingID:r.id,text:"未保存的修改")
+    try await f.store.close()
     let reopened = try SaytileStore(directory:f.directory)
     #expect(try await reopened.loadDraft(recordingID:r.id) == "未保存的修改")
     #expect(try await reopened.recording(id:r.id)?.text == "原来的文字")
@@ -368,6 +374,7 @@ private struct Fixture {
     let f = try Fixture(); defer { f.clean() }
     let r = try await f.store.createRecording()
     try await f.store.saveEdit(recordingID:r.id,text:"已有文字")
+    try await f.store.close()
     let reopened = try SaytileStore(directory:f.directory)
     _ = try await AudioDiagnostics.recoverAudio(store:reopened)
     #expect(try await reopened.recording(id:r.id)?.audioState == .missing)

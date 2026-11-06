@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import Carbon
+import Darwin
 import SaytileKit
 
 @main
@@ -29,12 +30,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hotKey: EventHotKeyRef?
     private var eventHandler: EventHandlerRef?
     private var shortcutObserver: NSObjectProtocol?
+    private var screenObserver: NSObjectProtocol?
     private var statusTimer: Timer?
     private var terminating = false
     private var shutdownStarted = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
+            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--render-preview", "--focus-probe", "--ui-review"]
+            if diagnostics.contains(where: CommandLine.arguments.contains), !CommandLine.arguments.contains("--data-directory") {
+                print("DIAGNOSTICS_REQUIRE_EXPLICIT_ISOLATED_DATA_DIRECTORY")
+                Darwin.exit(64)
+            }
             let directory: URL
             if let index = CommandLine.arguments.firstIndex(of: "--data-directory"), CommandLine.arguments.count > index + 1 {
                 directory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
@@ -96,6 +103,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 }
                 return
             }
+            if let index = CommandLine.arguments.firstIndex(of: "--ui-review"), CommandLine.arguments.count > index + 1 {
+                guard CommandLine.arguments.contains("--data-directory") else { print("UI_REVIEW_REQUIRES_ISOLATED_DIRECTORY"); NSApp.terminate(nil); return }
+                let output = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
+                Task { await runUIReview(model: model, output: output); await model.prepareForExit(); NSApp.terminate(nil) }
+                return
+            }
             configureMainMenu()
             configureStatusItem()
             registerHotKey()
@@ -110,12 +123,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 Task { try? await Task.sleep(for: .seconds(3)); await model.prepareForExit(); print("FOCUS_PROBE_FINISHED"); NSApp.terminate(nil) }
                 return
             }
+            screenObserver = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.restoreVisibleWindows() }
+            }
             // Relaunch never silently resumes the microphone or restores an input binding.
             if !UserDefaults.standard.bool(forKey: "hasLaunched") {
                 UserDefaults.standard.set(true, forKey: "hasLaunched")
                 showPanel()
             }
         } catch {
+            if CommandLine.arguments.contains("--data-directory") {
+                print("SAYTILE_STARTUP_FAILED \(error.localizedDescription)")
+                Darwin.exit(1)
+            }
             let alert = NSAlert()
             alert.messageText = "Saytile 暂时无法打开资料库"
             alert.informativeText = "已有资料不会被重置。\n\(error.localizedDescription)"
@@ -194,11 +214,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             panel.contentView = NSHostingView(rootView: InputPanelView(model: model).preferredColorScheme(.light))
             self.panel = panel
         }
-        if let button = status?.button, let window = button.window {
-            let rect = window.convertToScreen(button.convert(button.bounds, to: nil))
-            let screen = window.screen?.visibleFrame ?? NSScreen.main!.visibleFrame
-            panel?.setFrameOrigin(NSPoint(x: max(screen.minX, min(rect.maxX - 400, screen.maxX - 400)), y: rect.minY - 562))
-        } else { panel?.center() }
+        let anchor = status?.button.flatMap { button in button.window.map { $0.convertToScreen(button.convert(button.bounds, to: nil)) } }
+        if let screen = status?.button?.window?.screen ?? NSScreen.main ?? NSScreen.screens.first {
+            panel?.setFrame(WindowPlacement.panel(anchor: anchor, visibleFrame: screen.visibleFrame), display: true)
+        }
         panel?.orderFrontRegardless()
     }
     @objc func showArchive() {
@@ -207,12 +226,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             archive = makeWindow(title: "Saytile · 语音档案", width: 1040, height: 720, view: ArchiveView(model: model).preferredColorScheme(.light))
             archive?.minSize = NSSize(width: 800, height: 570)
         }
+        archive?.minSize = NSSize(width: model.selected == nil ? 760 : 1040, height: 570)
+        restoreVisibleWindows()
         NSApp.activate(ignoringOtherApps: true); archive?.makeKeyAndOrderFront(nil)
     }
     @objc func showSettings() {
         guard let model else { return }
         model.audio.refreshDevices()
         if settings == nil { settings = makeWindow(title: "Saytile · 设置", width: 650, height: 740, view: SettingsView(model: model).preferredColorScheme(.light)) }
+        settings?.minSize = NSSize(width: 560, height: 570)
+        restoreVisibleWindows()
         NSApp.activate(ignoringOtherApps: true); settings?.makeKeyAndOrderFront(nil)
     }
     private func makeWindow<V: View>(title: String, width: CGFloat, height: CGFloat, view: V) -> NSWindow {
@@ -220,6 +243,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.title = title; window.isReleasedWhenClosed = false
         window.contentView = NSHostingView(rootView: view); window.center()
         return window
+    }
+    private func restoreVisibleWindows() {
+        let frames = NSScreen.screens.map(\.visibleFrame)
+        for window in [panel, archive, settings].compactMap({ $0 }) {
+            let size = NSSize(width: max(window.frame.width, window.minSize.width), height: max(window.frame.height, window.minSize.height))
+            window.setFrame(WindowPlacement.restored(NSRect(origin: window.frame.origin, size: size), visibleFrames: frames), display: true)
+        }
     }
     private func registerHotKey() {
         if let hotKey { UnregisterEventHotKey(hotKey); self.hotKey = nil }

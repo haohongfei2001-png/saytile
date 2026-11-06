@@ -1,4 +1,4 @@
-> 最新原生工程状态见 [V1-DEV-STATUS.md](V1-DEV-STATUS.md)。下文保留设计恢复交付的历史记录；PR #1 已于本轮合并。
+> 当前为 V1 RC1，源码 `8906a9d`；最新状态见 [V1-DEV-STATUS.md](V1-DEV-STATUS.md)，验证边界见 [RC清单](V1-RC-ACCEPTANCE.md)。**以下是设计恢复阶段历史快照**，不是当前未完成事项；PR #1/#2 已合并。
 
 # 交付状态 · 2026-11-06
 

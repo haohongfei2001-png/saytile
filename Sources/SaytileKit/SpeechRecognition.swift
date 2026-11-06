@@ -22,39 +22,72 @@ public enum AppleSpeechService {
         guard let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "zh-CN")) else { throw AudioFailure.message("Apple Speech 不支持中文") }
         let transcriber = SpeechTranscriber(locale: locale, preset: .progressiveTranscription)
         _ = try await AssetInventory.reserve(locale: locale)
-        if let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) { try await request.downloadAndInstall() }
+        if let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
+            try await withTaskCancellationHandler { try await request.downloadAndInstall() }
+            onCancel: { request.progress.cancel() }
+        }
     }
 }
 
 /// Input is bounded independently of capture. Slow / failed ASR never owns the recorder queue.
+private final class SpeechCompletion: @unchecked Sendable {
+    private let lock = NSLock()
+    private var completed = false
+    private var failure: String?
+    private var watchdog: Task<Void, Never>?
+    var isComplete: Bool { lock.lock(); defer { lock.unlock() }; return completed }
+    var failureMessage: String? { lock.lock(); defer { lock.unlock() }; return failure }
+    func recordFailure(_ message: String) { lock.lock(); failure = message; lock.unlock() }
+    func installWatchdog(_ task: Task<Void, Never>) {
+        lock.lock(); let finished = completed; if !finished { watchdog = task }; lock.unlock()
+        if finished { task.cancel() }
+    }
+    func finish() {
+        lock.lock(); completed = true; let timer = watchdog; watchdog = nil; lock.unlock()
+        timer?.cancel()
+    }
+}
+
 final class LiveSpeechSession: @unchecked Sendable {
+    private let completion = SpeechCompletion()
+    var isComplete: Bool { completion.isComplete }
     private let continuation: AsyncStream<Data>.Continuation
     private let task: Task<Void, Never>
     private let ticket: RecognitionTicket
     private let store: SaytileStore
-    init(store: SaytileStore, ticket: RecognitionTicket) {
-        self.store = store; self.ticket = ticket
+    private let event: @Sendable (SpeechTimingEvent) -> Void
+    private let started = ProcessInfo.processInfo.systemUptime
+    init(store: SaytileStore, ticket: RecognitionTicket, event: @escaping @Sendable (SpeechTimingEvent) -> Void = { _ in }) {
+        self.store = store; self.ticket = ticket; self.event = event
+        let began = started
         let (stream, continuation) = AsyncStream<Data>.makeStream(bufferingPolicy: .bufferingOldest(300))
         self.continuation = continuation
+        let completion = completion
         self.task = Task {
-            do { try await Self.recognize(stream: stream, store: store, ticket: ticket) }
-            catch { try? await store.failRecognition(ticket: ticket, message: error.localizedDescription) }
+            defer { completion.finish() }
+            do { try await Self.recognize(stream: stream, store: store, ticket: ticket, started: began, event: event) }
+            catch { try? await store.failRecognition(ticket: ticket, message: completion.failureMessage ?? error.localizedDescription) }
         }
     }
     func append(_ data: Data) {
         if case .dropped = continuation.yield(data) {
+            completion.recordFailure("识别处理跟不上，原音已保留，可稍后重新识别")
             continuation.finish(); task.cancel()
-            Task { try? await store.failRecognition(ticket: ticket, message: "识别处理跟不上，原音已保留，可稍后重新识别") }
         }
     }
     func finish() {
         continuation.finish()
+        event(.init(kind: "inputFinished", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
         let active = task
-        Task { try? await Task.sleep(for: .seconds(20)); active.cancel() }
+        let watchdog = Task {
+            do { try await Task.sleep(for: .seconds(20)) } catch { return }
+            active.cancel()
+        }
+        completion.installWatchdog(watchdog)
     }
     func cancel() { continuation.finish(); task.cancel() }
     func wait() async { await task.value }
-    private static func recognize(stream: AsyncStream<Data>, store: SaytileStore, ticket: RecognitionTicket) async throws {
+    private static func recognize(stream: AsyncStream<Data>, store: SaytileStore, ticket: RecognitionTicket, started: Double, event: @escaping @Sendable (SpeechTimingEvent) -> Void) async throws {
         guard SpeechTranscriber.isAvailable, let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "zh-CN")) else { throw AudioFailure.message("此设备的 Apple 中文识别不可用；原音已保存") }
         let transcriber = SpeechTranscriber(locale: locale, preset: .progressiveTranscription)
         let detector = SpeechDetector()
@@ -70,13 +103,19 @@ final class LiveSpeechSession: @unchecked Sendable {
             var hasText = false
             var lastStable = ""
             var lastDisplayed = ""
+            var firstResult = true
             for try await result in transcriber.results {
-                let snapshot = accumulator.apply(start:result.range.start.seconds, end:CMTimeRangeGetEnd(result.range).seconds, text:String(result.text.characters), isFinal:result.isFinal)
+                let snapshot = accumulator.apply(start:result.range.start.seconds, end:CMTimeRangeGetEnd(result.range).seconds, text:String(result.text.characters), isFinal:result.isFinal, finalizedThrough: result.resultsFinalizationTime.seconds)
+                if firstResult && !snapshot.fullText.isEmpty {
+                    firstResult = false
+                    event(.init(kind: "firstText", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
+                }
                 if !snapshot.stableText.isEmpty && snapshot.stableText != lastStable {
                     _ = try await store.applyRecognition(ticket:ticket,text:snapshot.stableText,isFinal:true)
                     lastStable = snapshot.stableText
                     lastDisplayed = snapshot.stableText
                     hasText = true
+                    event(.init(kind: "stableText", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
                 }
                 if !snapshot.fullText.isEmpty && snapshot.fullText != lastDisplayed {
                     _ = try await store.applyRecognition(ticket:ticket,text:snapshot.fullText,isFinal:false)
@@ -87,10 +126,12 @@ final class LiveSpeechSession: @unchecked Sendable {
             if !hasText { throw AudioFailure.message("未识别到文字；原音可回听或重试") }
             guard accumulator.snapshot.isCompletelyFinal else { throw AudioFailure.message("部分文字尚未定稿，已保留文字和原音，可稍后重新识别") }
             try await store.finishRecognition(ticket: ticket)
+            event(.init(kind: "completed", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
         }
         try await withTaskCancellationHandler {
         do {
             try await analyzer.prepareToAnalyze(in: format)
+            event(.init(kind: "prepared", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
             try await analyzer.start(inputSequence: inputs)
             for await data in stream {
                 try Task.checkCancellation()
@@ -107,6 +148,16 @@ final class LiveSpeechSession: @unchecked Sendable {
                 }
                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
                 if output.frameLength > 0, case .dropped = inputContinuation.yield(AnalyzerInput(buffer: output)) { throw AudioFailure.message("识别音频队列已满；可从原音重试") }
+            }
+            // Finish the resampler too. Closing the AsyncStream without draining
+            // the converter drops its filter tail, particularly on short utterances.
+            while true {
+                guard let output = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 4_096) else { break }
+                var error: NSError?
+                let status = converter.convert(to: output, error: &error) { _, state in state.pointee = .endOfStream; return nil }
+                if status == .error { throw error ?? AudioFailure.message("识别尾部音频转换失败") as NSError }
+                if output.frameLength > 0, case .dropped = inputContinuation.yield(AnalyzerInput(buffer: output)) { throw AudioFailure.message("识别队列未能保存尾部；原音可重新识别") }
+                if output.frameLength == 0 || status == .endOfStream { break }
             }
             inputContinuation.finish()
             try await analyzer.finalizeAndFinishThroughEndOfInput()

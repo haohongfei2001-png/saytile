@@ -3,7 +3,7 @@ import Foundation
 
 /// Offline fixture import used by acceptance tests. Never opens a microphone or external application.
 public enum AudioDiagnostics {
-    @discardableResult public static func transcribeFixture(url: URL, store: SaytileStore) async throws -> UUID {
+    @discardableResult public static func transcribeFixture(url: URL, store: SaytileStore, realtime: Bool = false, event: @escaping @Sendable (SpeechTimingEvent) -> Void = { _ in }) async throws -> UUID {
         let file = try AVAudioFile(forReading: url)
         let target = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16_000, channels: 1, interleaved: false)!
         guard let converter = AVAudioConverter(from: file.processingFormat, to: target) else { throw AudioFailure.message("无法转换测试音频") }
@@ -12,7 +12,7 @@ public enum AudioDiagnostics {
         try journal.openChunk()
         try await store.registerAudioChunk(recordingID: record.id, relativePath: journal.relativePath, frames: 0)
         let ticket = try await store.beginRecognition(recordingID: record.id)
-        let session = LiveSpeechSession(store: store, ticket: ticket)
+        let session = LiveSpeechSession(store: store, ticket: ticket, event: event)
         while file.framePosition < file.length {
             let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: 1_024)!
             try file.read(into: buffer)
@@ -28,7 +28,7 @@ public enum AudioDiagnostics {
             if journal.needsCheckpoint { try journal.checkpoint(); try await store.registerAudioChunk(recordingID: record.id, relativePath: journal.relativePath, frames: journal.frames) }
             session.append(pcm)
             if journal.needsRotation { try journal.closeChunk(); try journal.openChunk(); try await store.registerAudioChunk(recordingID: record.id, relativePath: journal.relativePath, frames: 0) }
-            try await Task.sleep(for: .milliseconds(30))
+            try await Task.sleep(for: .seconds(realtime ? Double(buffer.frameLength) / file.processingFormat.sampleRate : 0.03))
         }
         try journal.closeChunk(); try await store.registerAudioChunk(recordingID: record.id, relativePath: journal.relativePath, frames: journal.frames)
         try await store.finishRecording(id: record.id); session.finish(); await session.wait()

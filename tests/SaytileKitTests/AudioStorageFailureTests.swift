@@ -8,7 +8,7 @@ private final class SyncFault: @unchecked Sendable {
     var checkpoints = 0
     func synchronize(_ handle: FileHandle) throws {
         if try handle.offset() == 44 {
-            lock.lock(); checkpoints += 1; let reject = checkpoints > 1; lock.unlock()
+            lock.lock(); checkpoints += 1; let reject = checkpoints > 2; lock.unlock()
             if reject { throw NSError(domain: NSPOSIXErrorDomain, code: Int(ENOSPC)) }
         }
         try handle.synchronize()

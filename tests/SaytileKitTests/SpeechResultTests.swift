@@ -3,6 +3,24 @@ import Testing
 
 @Suite("Speech range aggregation")
 struct SpeechResultTests {
+    @Test func finalizationWatermarkStabilizesEarlierVolatileTextWithoutRepeat() {
+        var aggregate = SpeechResultAccumulator()
+        aggregate.apply(start: 0, end: 1, text: "第一句", isFinal: false)
+        let result = aggregate.apply(start: 1, end: 2, text: "继续", isFinal: false, finalizedThrough: 1)
+        #expect(result.stableText == "第一句")
+        #expect(result.fullText == "第一句继续")
+        #expect(!result.isCompletelyFinal)
+        #expect(aggregate.advanceFinalization(through: 2).isCompletelyFinal)
+    }
+    @Test func finalizationWatermarkNeverRewindsOrPromotesBeyondCoverage() {
+        var aggregate = SpeechResultAccumulator()
+        aggregate.apply(start: 0, end: 2, text: "完整范围", isFinal: false)
+        #expect(aggregate.advanceFinalization(through: 1).stableText.isEmpty)
+        #expect(aggregate.advanceFinalization(through: .nan).stableText.isEmpty)
+        let final = aggregate.advanceFinalization(through: 2)
+        #expect(final.isCompletelyFinal)
+        #expect(aggregate.advanceFinalization(through: 0) == final)
+    }
     @Test func finalPrefixAdvancesWhileTailIsVolatile() {
         var aggregate = SpeechResultAccumulator()
         aggregate.apply(start:0,end:1,text:"你好",isFinal:true)

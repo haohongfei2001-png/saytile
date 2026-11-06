@@ -11,7 +11,8 @@ SAYTILE_TEST_FLAGS=()
 if [[ -f "$SAYTILE_TEST_PLUGIN" ]]; then
   SAYTILE_TEST_FLAGS=(-Xswiftc -load-plugin-library -Xswiftc "$SAYTILE_TEST_PLUGIN")
 fi
-mkdir -p evidence
+SAYTILE_TEST_LOG="${SAYTILE_TEST_LOG:-evidence/native-tests.log}"
+mkdir -p "$(dirname "$SAYTILE_TEST_LOG")"
 # Default Swift Build supplies Testing.framework and the correct test runner.
 # Do not force --build-system native: it omits framework discovery in CLT 6.4.
-swift test --scratch-path "$SAYTILE_TEST_SCRATCH" "${SAYTILE_TEST_FLAGS[@]}" "$@" 2>&1 | tee evidence/native-tests.log
+swift test --scratch-path "$SAYTILE_TEST_SCRATCH" "${SAYTILE_TEST_FLAGS[@]}" "$@" 2>&1 | tee "$SAYTILE_TEST_LOG"

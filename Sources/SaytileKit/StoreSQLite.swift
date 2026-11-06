@@ -8,9 +8,16 @@ final class StoreDatabase: @unchecked Sendable {
         let result = sqlite3_open_v2(url.path, &handle, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX, nil)
         guard result == SQLITE_OK else { throw StoreError.database("无法打开 SQLite (\(result))") }
         sqlite3_busy_timeout(handle, 5000)
+    }
+    func configureForWriting() throws {
         try execute("PRAGMA journal_mode=WAL")
         try execute("PRAGMA synchronous=FULL")
         try execute("PRAGMA foreign_keys=ON")
+    }
+    func close() throws {
+        guard let connection = handle else { return }
+        guard sqlite3_close(connection) == SQLITE_OK else { throw error() }
+        handle = nil
     }
     deinit { sqlite3_close(handle) }
     enum Value { case text(String), int(Int64), double(Double), null }
@@ -21,6 +28,7 @@ final class StoreDatabase: @unchecked Sendable {
         guard code == SQLITE_DONE || code == SQLITE_ROW else { throw error() }
     }
     func script(_ sql: String) throws {
+        guard handle != nil else { throw StoreError.database("资料库已关闭") }
         guard sqlite3_exec(handle, sql, nil, nil, nil) == SQLITE_OK else { throw error() }
     }
     func rows(_ sql: String, _ values: [Value] = []) throws -> [[String:String]] {
@@ -32,10 +40,22 @@ final class StoreDatabase: @unchecked Sendable {
             if code == SQLITE_DONE { return result }
             guard code == SQLITE_ROW else { throw error() }
             var row: [String:String] = [:]
-            for index in 0..<sqlite3_column_count(statement) where sqlite3_column_type(statement,index) != SQLITE_NULL {
-                let length = Int(sqlite3_column_bytes(statement,index))
-                let bytes = sqlite3_column_text(statement,index)!
-                row[String(cString:sqlite3_column_name(statement,index))] = String(decoding:UnsafeBufferPointer(start:bytes,count:length),as:UTF8.self)
+            for index in 0..<sqlite3_column_count(statement) {
+                let name = String(cString:sqlite3_column_name(statement,index))
+                switch sqlite3_column_type(statement,index) {
+                case SQLITE_NULL:
+                    continue
+                case SQLITE_INTEGER:
+                    row[name] = String(sqlite3_column_int64(statement,index))
+                case SQLITE_FLOAT:
+                    // Older SQLite text conversion rounds REAL values to 15 digits.
+                    // Swift's Double description preserves the exact stored value.
+                    row[name] = String(sqlite3_column_double(statement,index))
+                default:
+                    let length = Int(sqlite3_column_bytes(statement,index))
+                    let bytes = sqlite3_column_text(statement,index)!
+                    row[name] = String(decoding:UnsafeBufferPointer(start:bytes,count:length),as:UTF8.self)
+                }
             }
             result.append(row)
         }
@@ -47,6 +67,7 @@ final class StoreDatabase: @unchecked Sendable {
     }
     private func error() -> StoreError { .database(handle.map { String(cString:sqlite3_errmsg($0)) } ?? "连接关闭") }
     private func prepare(_ sql: String, _ values: [Value]) throws -> OpaquePointer {
+        guard handle != nil else { throw StoreError.database("资料库已关闭") }
         var statement: OpaquePointer?
         guard sqlite3_prepare_v2(handle,sql,-1,&statement,nil) == SQLITE_OK, let statement else { throw error() }
         for (offset,value) in values.enumerated() {

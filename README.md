@@ -4,13 +4,13 @@
 
 Saytile 是 macOS 原生语音输入与表达工作台。开启后持续待命，自然讲话即可分段记录、识别中文，并独立保存原音。文字可以编辑、搜索、回听、重新识别、复制，或追加到明确选择的应用草稿。
 
-V1 个人 Beta 已构建并验证，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
+V1 Release Candidate 已完成工程回归，真实讲话与个人环境验收仍明确保留，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
 
 ## 构建和运行
 
 ```sh
 scripts/package-beta.sh
-# 打开 dist/Saytile-1.0.0-beta.1-arm64.dmg 安装
+# 打开 dist/Saytile-1.0.0-rc.1-arm64.dmg 安装
 ```
 
 同步盘可能在 App 目录附加影响签名的 Finder 元数据，请通过 DMG 安装至 Applications 后运行。
@@ -30,12 +30,13 @@ scripts/package-beta.sh
 
 点击菜单栏或按 ⌥ 空格打开输入板。第一次点击开启收音后，后续讲话自动采集；关闭输入板继续待命，暂停随时可用。档案支持搜索全部文字版本、编辑草稿自动暂存、收藏、回听和重新识别。
 
-复制无需辅助功能。跨应用插入需要本人允许辅助功能；目标应用、页面或光标改变会暂停自动输入。Saytile 不发送消息，不按新识别版本重复插入全文，不重试不确定投递。输入板只包含本次表达及明确带回的历史内容。
+复制无需辅助功能。跨应用插入需要本人允许辅助功能；检测到目标应用、页面或光标变化时会暂停自动输入。并非所有网页都提供可区分的页面身份；完整前台浏览器插入及隐藏路由的支持边界见 RC 验证清单，不承诺泛网页兼容。Saytile 不发送消息，不按新识别版本重复插入全文，不重试不确定投递。输入板只包含本次表达及明确带回的历史内容。
 
 原音默认保留到手动删除；仅删除原音会保留文字及修改版本。10 GB 是提醒阈值，不是自动删除许可。资料位于 `~/Library/Application Support/Saytile`。
 
 ## 交付与验证
 
+- [RC 验证与最终清单](docs/V1-RC-ACCEPTANCE.md)
 - [安装说明](docs/V1-INSTALL.md)
 - [实时开发状态](docs/V1-DEV-STATUS.md)
 - [实际测试记录及限制](docs/V1-TEST-RESULTS.md)

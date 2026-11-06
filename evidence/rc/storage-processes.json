@@ -1,0 +1,17 @@
+{
+  "scope": "Real SIGKILL subprocess and compiled v1.0.0-beta.1 storage-source upgrade; synthetic private fixture data only",
+  "checks": [
+    "real_kernel_write_failure_is_atomic_and_recoverable",
+    "actual_beta_1_to_rc_2_upgrade_preserves_all_layers",
+    "second_process_rejected_without_mutating_live_store",
+    "crash-seed_sigkill",
+    "wal_durable_data_and_nonreplay_after_sigkill",
+    "crash-transaction_sigkill",
+    "uncommitted_transaction_rolled_back_after_sigkill",
+    "crash-delete_sigkill",
+    "erasure_intent_survives_sigkill_without_losing_text"
+  ],
+  "passed": 9,
+  "status": "PASS",
+  "baseline": "a371864cc9d4285701e670c457b7d9fabad41251"
+}

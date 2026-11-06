@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "checks": [
+    "seeded_using_actual_released_beta_storage_source",
+    "beta_app_installed_signed_and_started_on_seeded_data",
+    "rc_app_upgrade_preserves_records_versions_drafts_dispatches",
+    "three_normal_restarts_preserve_data_and_uncertain_dispatch",
+    "second_packaged_process_rejected_without_modal_prompt",
+    "restart_after_forced_process_exit_retains_upgrade_data"
+  ],
+  "count": 6,
+  "startup_timings": [
+    {
+      "beta_startup_seconds": 0.498
+    },
+    {
+      "rc_startup_seconds": 0.53
+    },
+    {
+      "rc_restart_seconds": 0.161
+    },
+    {
+      "rc_restart_seconds": 0.162
+    },
+    {
+      "rc_restart_seconds": 0.164
+    }
+  ],
+  "source_revision": "8906a9dc4b2ec186f634bb2c829d8eb0c1700679",
+  "release_version": "1.0.0-rc.1",
+  "dmg_sha256": "fb001a8ad0c107570acc6d263e590e49eb5bb9827d617e30c72cbaa4c247ed2a",
+  "scope": "Readonly DMG signature, independent installation, actual Beta app and RC app startup/upgrade, immutable synthetic content comparison, duplicate-instance rejection; no real user database or microphone"
+}

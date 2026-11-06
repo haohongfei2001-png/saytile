@@ -1,0 +1,81 @@
+Building for debugging...
+[1 / 62]
+[12 / 63] CAudio
+[39 / 63] CAudio
+[59 / 74] SaytileKit
+[60 / 74] CAudio
+/Users/hhf/Documents/GitHub/saytile/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[61 / 74] SaytileKit
+[66 / 78] SaytileKit
+[66 / 78] Saytile-product
+[72 / 84] Saytile-product
+[72 / 84] SaytileKit
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[77 / 85] SaytileKitTests-product
+[87 / 96] SaytileKitTests-product
+[88 / 96] SaytileKitTests-product
+[90 / 96] SaytileKitTests-product
+/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[95 / 99] Saytile-product
+[95 / 99] SaytileKitTests-product
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[97 / 99] SaytileKitTests-product
+Build complete! (4.48秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Input identity and safety" started.
+◇ Suite "Input coordinator with isolated SQLite and simulated OS" started.
+◇ Test testunidentifiableWebPageRejected() started.
+◇ Test userSelectionDuringConfirmationStopsBinding() started.
+◇ Test testpasswordsTerminalsAndEmbeddedTerminalBlocked() started.
+◇ Test testcursorMovementMakesBindingStale() started.
+◇ Test testnoSelectedReplacement() started.
+◇ Test lostLocalReadCapabilityStopsNextAppend() started.
+◇ Test testreusedEditorDoesNotMakeSamePage() started.
+◇ Test ownInsertionNotificationKeepsContinuousBinding() started.
+◇ Test testtimeoutIsUncertainAndNeverRetried() started.
+◇ Test testchangedPageStopsBeforeDispatch() started.
+◇ Test lateTailCannotBeAppendedAfterAnotherRecording() started.
+◇ Test mutationOfConfirmedTailStopsNextAppend() started.
+◇ Test lateEarlierRecordingIsDeferredWithoutBlockingNextSpeech() started.
+◇ Test cancellationBeforeStartDoesNotWrite() started.
+◇ Test unobservableWebOnlyAllowsExplicitManualInsertion() started.
+◇ Test incompleteSemanticContextRejectsContinuousButKeepsManual() started.
+◇ Test testunavailablePermissionHasNoPromptOrSideEffect() started.
+◇ Test focusAwayAndBackExpiresBinding() started.
+◇ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() started.
+◇ Test slowAcknowledgementIsConfirmedWithoutResending() started.
+◇ Test cancellationDuringReservationNeverReachesAX() started.
+◇ Test sameURLReusedWebEditorLayoutExpiresBinding() started.
+◇ Test testexistingSpeechNeverAutomaticallyReplayed() started.
+◇ Test teststableSuffixOnlyOnce() started.
+✔ Test testreusedEditorDoesNotMakeSamePage() passed after 0.001 seconds.
+✔ Test testpasswordsTerminalsAndEmbeddedTerminalBlocked() passed after 0.001 seconds.
+✔ Test testcursorMovementMakesBindingStale() passed after 0.001 seconds.
+✔ Test testnoSelectedReplacement() passed after 0.001 seconds.
+✔ Test testunidentifiableWebPageRejected() passed after 0.001 seconds.
+✔ Suite "Input identity and safety" passed after 0.001 seconds.
+✔ Test testunavailablePermissionHasNoPromptOrSideEffect() passed after 0.027 seconds.
+✔ Test focusAwayAndBackExpiresBinding() passed after 0.049 seconds.
+✔ Test sameURLReusedWebEditorLayoutExpiresBinding() passed after 0.049 seconds.
+✔ Test incompleteSemanticContextRejectsContinuousButKeepsManual() passed after 0.050 seconds.
+✔ Test testchangedPageStopsBeforeDispatch() passed after 0.052 seconds.
+✔ Test testexistingSpeechNeverAutomaticallyReplayed() passed after 0.057 seconds.
+✔ Test cancellationBeforeStartDoesNotWrite() passed after 0.060 seconds.
+✔ Test testtimeoutIsUncertainAndNeverRetried() passed after 0.060 seconds.
+✔ Test cancellationDuringReservationNeverReachesAX() passed after 0.062 seconds.
+✔ Test lostLocalReadCapabilityStopsNextAppend() passed after 0.147 seconds.
+✔ Test ownInsertionNotificationKeepsContinuousBinding() passed after 0.151 seconds.
+✔ Test mutationOfConfirmedTailStopsNextAppend() passed after 0.151 seconds.
+✔ Test userSelectionDuringConfirmationStopsBinding() passed after 0.154 seconds.
+✔ Test unobservableWebOnlyAllowsExplicitManualInsertion() passed after 0.156 seconds.
+✔ Test lateEarlierRecordingIsDeferredWithoutBlockingNextSpeech() passed after 0.245 seconds.
+✔ Test teststableSuffixOnlyOnce() passed after 0.247 seconds.
+✔ Test lateTailCannotBeAppendedAfterAnotherRecording() passed after 0.341 seconds.
+✔ Test slowAcknowledgementIsConfirmedWithoutResending() passed after 0.398 seconds.
+✔ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() passed after 1.231 seconds.
+✔ Suite "Input coordinator with isolated SQLite and simulated OS" passed after 1.231 seconds.
+✔ Test run with 24 tests in 2 suites passed after 1.231 seconds.

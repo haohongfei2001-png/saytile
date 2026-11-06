@@ -22,7 +22,15 @@ struct AppModelProbe {
         let other = try await seed.createRecording(createdAt: Date(timeIntervalSince1970: 1000))
         try await seed.saveEdit(recordingID: other.id, text: "历史测试乙")
         try await seed.finishRecording(id: other.id)
-        let model = try AppModel(directory: directory)
+        try await seed.close()
+        let preferenceSuite = "app.saytile.test." + UUID().uuidString
+        let preferences = UserDefaults(suiteName: preferenceSuite)!
+        defer { preferences.removePersistentDomain(forName: preferenceSuite) }
+        preferences.set("synthetic-disconnected-microphone", forKey: "selectedDeviceUID")
+        let model = try AppModel(directory: directory, preferences: preferences)
+        try require(model.deviceID == UInt32.max && model.audio.selectedDeviceUID == "synthetic-disconnected-microphone", "missing remembered microphone never silently selects system default")
+        model.deviceID = 0
+        try require(model.audio.selectedDeviceUID == nil && preferences.string(forKey: "selectedDeviceUID") == nil, "explicit default device choice clears remembered hardware UID")
         let first = Task { await model.initialLoad() }
         let second = Task { await model.initialLoad() }
         await first.value; await second.value
@@ -73,8 +81,21 @@ struct AppModelProbe {
         let savedText = try await model.store.recording(id: old.id)?.text
         let savedDraft = try await model.store.loadDraft(recordingID: old.id)
         try require(savedText == "版本保存期间的新输入" || savedDraft == "版本保存期间的新输入", "typing during version commit is retained as version or newer draft")
+        // More than thirty new records must not silently disappear from the input panel.
+        for index in 0..<115 {
+            let row = try await model.store.createRecording(createdAt: Date().addingTimeInterval(Double(index) / 100))
+            _ = try await model.store.saveEdit(recordingID: row.id, text: "连续表达第\(index)段")
+            try await model.store.finishRecording(id: row.id)
+        }
+        await model.refresh()
+        try require(model.panelCount == 116 && model.recent.count == 100 && model.panelHasMore, "panel exposes total and pagination instead of silently truncating after thirty")
+        model.loadEarlierPanel()
+        while model.loadingPanel { try await Task.sleep(for: .milliseconds(10)) }
+        try require(model.recent.count == 116 && !model.panelHasMore, "earlier current-session expressions remain available for batch reuse")
+        try require(model.recent.contains(where: { $0.id == new.id }), "earliest current-session expression survives prolonged input")
         model.updateEditorDraft("")
         await model.prepareForExit()
+        try await model.store.close()
         let reopened = try SaytileStore(directory: directory)
         try require(try await reopened.loadDraft(recordingID: old.id) == "", "exit flush persists an intentionally empty unsaved draft")
         print("APP_MODEL_PROBE_PASS \(checks) checks; no microphone, no external input, no window activation")

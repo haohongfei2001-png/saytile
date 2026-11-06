@@ -1,3 +1,5 @@
+> **最新 RC1：源码 `8906a9d` 在 macOS 26 上 122 项原生测试、21 项 AppModel、构建/原生渲染/启动通过；最终 DMG 安装升级 6 组、9 图/5 次 AXPress、合成中文与安装后启动通过。下文保留完整历史与失败，不将旧计数作为最新。**
+
 # V1 验证记录
 
 ## 2026-11-06 · 基线
@@ -61,3 +63,59 @@ PR #2 的本机 Swift 6.4 编译与 Release 包验证通过，但远端 Xcode 26
 源码 `4c4430426050553a7df573053ff4cc582e45b3fa`：远端原生CI及设计契约CI全部通过，Swift6.3.3 Binding兼容修复已由实际CI证明。
 
 Release DMG 校验通过；只读挂载中的App严格签名验证及启动通过；已安装到 `~/Applications/Saytile.app`，安装后再次签名和独立库启动通过。`evidence/native/release-manifest.json` 记录最终校验和、来源、验证和边界。同步工作目录会重新附加FinderInfo，使目录中的App副本严格签名失效；已改用校验完好的只读镜像和非同步Applications安装位置交付，没有修改系统安全或同步设置。
+
+
+## 2026-11-06 · RC 收口启动
+
+重新核对远端 main、PR #1/#2 与两条 CI；当前均一致，发布物仍是 Beta.1。已发现需要工程修复的候选缺陷：锁屏/撤权生命周期、ASR末尾定稿、输入取消及目标变更、draft搜索、并发打开资料库、输入板最新30条静默截断。将在独立合成环境建立复现及回归，不用历史 CI 或原型验证代替。
+
+工作树发现7个未跟踪 ` 2` 副本，保留原状、不提交、不据此推断用户意图。
+
+
+## RC 第一轮工程检查点
+
+- `evidence/rc/native-checkpoint.log`：109 tests / 14 suites PASS。
+- `evidence/rc/app-model.log`：21 checks PASS，含116条当前表达分页和断开设备UID保留。
+- `evidence/rc/ui/run.log`：9张生产SwiftUI窗口渲染、5次真实AXPress；仅fixture PID、前台不变。离屏本进程AX树不展开，已改为透明非激活原生窗口+独立AX客户端；前期本地mouse探针仅模式成功，档案点击未通过，没有冒称全控件通过。
+- 存储：9项真实进程/升级/写入故障；10万记录30万版本，partial写p95 0.14ms，清理时并发写p95 0.24ms。详细输出见RC-STORAGE-WORK。
+- 输入：22单测、9原生后台全链路、WebKit页面变更/能力拒绝、20headless DOM检查。最初WebKit 5/5含延迟通知串扰，经隔离复查发现silentContext失败；根因修复为有界语义身份并重新回归，失败如实保留。详见RC-INPUT-WORK。
+- 音频：30分钟墙钟、39,690,000帧零drop，60段1800秒、57.61MB。只包括ring/转换/VAD/WAV/SQLite，不包括真实麦克风、ASR或整机能耗。中文8条两声音实时TTS语料和Apple识别器对照披露错字，详见RC-AUDIO-WORK。
+
+当前是检查点，不是最终RC签字。签名安装升级、最终CI及交叉审查仍在进行。
+
+
+## RC 最终根因与回归
+
+1. 独立审查复现跨段倒序B→A：现在以创建序号作为绑定起点和最高派发水位；旧段迟到全文/尾部独立deferred，不重放，不阻塞C，删除B也不使水位倒退。
+2. 一次118项全套出现4个新时序用例失败（保留native-timestamp-failure.log），专项及两次诊断没有复现。**未将SQLite精度猜测当结论**：4096个Double实测无损。改以同事务rowid区分绑定前后相同时间戳，统一boundAt与Unix时间比较，新增确定性新旧同tick回归；最终122项全部通过（input-full-final.log）。没有新增sleep或放宽旧内容边界。
+3. 首轮云端111项native PASS，后续AppModel入口因SwiftPM和SwiftBuild模块目录不同而失败。修复明确静态库产物与两种模块布局，保留ci-layout-failure.log；本地经典SwiftPM与CLT均21checks PASS。
+4. 实际打包App在a780aaa检查点待命300.03秒：user2.16s+sys0.43s，平均0.86%单核；maxRSS80.15MB，最终RSS约55.84MB。原始time口径和每5秒样本均保留（app-idle.json/log）。仅空隔离库、菜单栏/刷新，没有麦克风、ASR或整机功耗，不冒称最终发布SHA或72小时。
+5. 音频真实AVAudioPlayer另有2项零PCM集成：跨块seek、自然结束、stop/shutdown/租约与删除保文，未采麦或有声外放。
+
+最终发行验收将补充精确源码SHA、DMG散列、只读挂载签名、Beta App→RC App安装升级、正常重启及重复实例拒绝。
+
+
+## macOS 26 兼容修复 · 最终CI揭示
+
+`8b22e24` 在本机macOS27通过，但云端macOS26.6.2的系统SQLite对REAL→TEXT转换发生舍入，122项套件中精度/时间用例出现69项断言失败。此时才有明确跨版本证据；不能把先前macOS27的4096样本无损结论推广到旧系统。
+
+已将StoreSQLite按SQLITE_FLOAT/INTEGER分别使用sqlite3_column_double/int64读取，再交Swift无损表示，UTF8文本路径保留，测试未放宽。现有6项精度/边界/NUL测试PASS，最终修复head仍必须通过macOS26 CI。原错误见 `evidence/rc/ci-sqlite-precision-failure.log`，本地修复回归见 `storage-real-precision-fix.log`。
+
+## RC1 最终发行验证 · 2026-11-06
+
+- 源码 `8906a9dc4b2ec186f634bb2c829d8eb0c1700679`，sourceDirty=false。[macOS 26 native CI](https://github.com/haohongfei2001-png/saytile/actions/runs/42196920566/job/127822389253) 122 tests / 15 suites、21 AppModel、构建、9图、启动全部 PASS；[设计契约 CI](https://github.com/haohongfei2001-png/saytile/actions/runs/42196920610/job/127822388691) PASS。摘录 `evidence/rc/ci-final-summary.log`。这已验证旧系统 SQLite 根因修复，测试未放宽。
+- 最终 DMG SHA256：`fb001a8ad0c107570acc6d263e590e49eb5bb9827d617e30c72cbaa4c247ed2a`。只读镜像签名、独立安装、实际 Beta App 打开合成旧库→RC App 升级、三次重启、重复进程拒绝、强制退出恢复共6组 PASS。版本/草稿/固定/不确定派发及原音保留；RC启动0.530秒，三次重启0.161/0.162/0.164秒，仅为当前独立数据样本。
+- 最终包生产 SwiftUI 9图与真实 AXPress 5次 PASS，作用域为透明非激活窗口与 fixture PID；输入板、档案筛选和保存实际执行，前台不变。紧凑详情及设置已再次视觉检查；不是 HTML。
+- 最终包读取既有自编中文 TTS，ASR completed、error=none，含“请不要自动发送”和末尾“保留原始录音”；标点/数字展示与原文不同，原样输出保留在 `packaged-speech.log`。系统框架输出非致命 sandbox_extension 警告，识别和启动流程实际成功，未隐去日志。没有采集麦克风。
+- 最终包启动焦点探针 PASS，退出0、frontmost_unchanged=true。已更新 `~/Applications/Saytile.app` 并保留旧包备份；严格签名和独立库 smoke PASS，未打开正式库、未自动收音。详情 `installed.json`、`installed-smoke.log`。
+- 最终二进制/DMG/CI/证据归属集中在 `evidence/rc/release-manifest.json`。30分钟管线与5分钟待命仍准确归属较早工程检查点，没有被改写为最终包72小时验证。
+
+上述通过不覆盖真人发音/噪声、完整用户前台浏览器插入、物理睡眠/锁屏/设备断开/TCC更改、多显示器/Spaces和整机能耗；剩余范围见最终验收文件。无临时用户操作要求。最终独立文案审查另收紧 README 的“检测到页面变化”措辞，不改变代码/安装包，不新增测试计数。
+
+## 最终前台隔离尝试与后台回归
+
+复用原有 NSTextView/WKWebView fixtures，增加可选短批次：真实 `AXInputAccess.frontmostSelection()` 前后仅加 fixture PID guard，不伪造 AX 对象；已有 AX 权限、只读键鼠事件年龄检查、30秒上限、用户操作/切走立即退出且不夺回焦点；日志不输出字段全文。编译、Python语法和diff检查通过。
+
+一次执行在任何激活前以 `NOT_RUN` 退出（`evidence/rc/input-foreground-batch.log`）：空闲条件未满足。随后只读年龄诊断见最近keyDown/keyUp约1.27/1.18秒、鼠标约41秒；未发生的tablet事件年龄为系统uptime，排除检测实现误将它们当零的猜测。没有读取键值/坐标，不能归因事件来源；未重试前台模式。不能将编译或这次安全退出计为实际前台插入通过。
+
+修改后的默认后台路径已重新执行：原生生产协调器+SQLite+真实AX 9项通过；WebKit 6类变化、无语义/截断拒绝与无发送通过，后台写入仍未确认且不重发。证据文件原样更新，不增加逻辑套件计数。生产源码和已验证DMG均未改变。

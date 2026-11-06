@@ -1,0 +1,40 @@
+Building for debugging...
+[1 / 2] SaytileKit-product
+[2 / 14] SaytileKit
+[6 / 18] SaytileKit
+[10 / 21] SaytileKit
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[12 / 21] SaytileKit
+[15 / 22] Saytile-product
+[23 / 30] Saytile-product
+[23 / 30] SaytileKitTests-product
+[28 / 33] SaytileKitTests-product
+[28 / 33] Saytile-product
+[30 / 35] Saytile-product
+[30 / 35] SaytileKitTests-product
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[34 / 38] SaytileKitTests-product
+/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (3.26秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Input coordinator with isolated SQLite and simulated OS" started.
+◇ Test storeEqualTimestampOrderingUsesCreationSequenceForCandidateAndReservation() started.
+◇ Test storeBindingSequenceDistinguishesOldAndNewRecordingsAtSameTimestamp() started.
+◇ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() started.
+◇ Test storePreservesEmbeddedNULInEditedText() started.
+◇ Suite "RC store ownership, migrations and archive" started.
+◇ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() started.
+◇ Test sqliteNumericRoundTripsPreserveFullPrecision() started.
+✔ Test sqliteNumericRoundTripsPreserveFullPrecision() passed after 0.004 seconds.
+✔ Test storeEqualTimestampOrderingUsesCreationSequenceForCandidateAndReservation() passed after 0.009 seconds.
+✔ Test storePreservesEmbeddedNULInEditedText() passed after 0.009 seconds.
+✔ Test storeBindingSequenceDistinguishesOldAndNewRecordingsAtSameTimestamp() passed after 0.010 seconds.
+✔ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() passed after 0.012 seconds.
+✔ Suite "RC store ownership, migrations and archive" passed after 0.012 seconds.
+✔ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() passed after 0.096 seconds.
+✔ Suite "Input coordinator with isolated SQLite and simulated OS" passed after 0.096 seconds.
+✔ Test run with 6 tests in 2 suites passed after 0.096 seconds.

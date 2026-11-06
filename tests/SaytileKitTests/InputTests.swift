@@ -43,15 +43,28 @@ private final class FakeInputAccess: InputAccess {
     var attempts: [String] = []
     var confirms = true
     var throwsAfterAttempt = false
-    func snapshot() throws -> InputTargetSnapshot { target }
+    var confirmationsToDelay = 0
+    var localTextMatches: Bool? = true
+    var afterDispatch: (@MainActor () -> Void)?
+    var observedSupport = InputObservationSupport(focus: true, content: true, page: true)
+    var onChange: (@MainActor (InputTargetChange) -> Void)?
+    var onSnapshot: (@MainActor () -> Void)?
+    func snapshot() throws -> InputTargetSnapshot { onSnapshot?(); return target }
+    func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool? { localTextMatches }
+    func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport { self.onChange = onChange; return observedSupport }
+    func stopObserving() { onChange = nil }
     func dispatch(_ text: String, to expected: InputTargetSnapshot) throws -> Bool {
         guard target == expected else { return false }
         attempts.append(text)
         target.selectionLocation += text.utf16.count
+        afterDispatch?()
         if throwsAfterAttempt { throw NativeInputError.unsupported }
         return true
     }
-    func verify(_ text: String, at before: InputTargetSnapshot) -> InputTargetSnapshot? { confirms ? target : nil }
+    func verify(_ text: String, at before: InputTargetSnapshot) -> InputTargetSnapshot? {
+        if confirmationsToDelay > 0 { confirmationsToDelay -= 1; return nil }
+        return confirms ? target : nil
+    }
 }
 
 @Suite("Input coordinator with isolated SQLite and simulated OS")
@@ -147,6 +160,205 @@ struct InputCoordinatorTests {
         } catch { #expect(error is NativeInputError) }
         #expect(access.attempts.isEmpty)
     }
+    @Test func cancellationBeforeStartDoesNotWrite() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "不要派发")
+        let task = Task { await coordinator.insert(recordingID: record.id, revisionID: revision.id) }
+        task.cancel()
+        #expect(await task.value == .cancelled)
+        #expect(access.attempts.isEmpty)
+    }
+    @Test func cancellationDuringReservationNeverReachesAX() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "仍不派发")
+        var task: Task<NativeInputResult, Never>?
+        access.onSnapshot = { task?.cancel() }
+        task = Task { await coordinator.insert(recordingID: record.id, revisionID: revision.id) }
+        #expect(await task!.value == .cancelled)
+        #expect(access.attempts.isEmpty)
+    }
+    @Test func slowAcknowledgementIsConfirmedWithoutResending() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        access.confirmationsToDelay = 2
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "只尝试一次")
+        #expect(await coordinator.insert(recordingID: record.id, revisionID: revision.id) == .confirmed)
+        #expect(access.attempts == ["只尝试一次"])
+    }
+    @Test func focusAwayAndBackExpiresBinding() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        // The final snapshot is unchanged, but the lifecycle event must still expire its session.
+        access.onChange?(.focusOrDocument)
+        #expect(coordinator.binding == nil)
+    }
+    @Test func sameURLReusedWebEditorLayoutExpiresBinding() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        access.onChange?(.layout)
+        #expect(coordinator.binding == nil)
+    }
+    @Test func unobservableWebOnlyAllowsExplicitManualInsertion() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true
+        access.observedSupport = .init(focus: true, content: true, page: false)
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        do { try await coordinator.bindCurrentTarget(); Issue.record("Expected unsupported page lifecycle") } catch { #expect(error is NativeInputError) }
+        try await coordinator.bindCurrentTarget(purpose: .manual)
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "明确单次")
+        #expect(await coordinator.insert(recordingID: record.id, revisionID: revision.id) == .confirmed)
+        #expect(access.attempts == ["明确单次"])
+    }
+    @Test func incompleteSemanticContextRejectsContinuousButKeepsManual() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true; access.target.pageContextComplete = false
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        do { try await coordinator.bindCurrentTarget(); Issue.record("Expected incomplete context refusal") }
+        catch { #expect(error is NativeInputError) }
+        #expect(coordinator.binding == nil)
+        try await coordinator.bindCurrentTarget(purpose: .manual)
+        #expect(coordinator.binding != nil)
+    }
+    @Test func userSelectionDuringConfirmationStopsBinding() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "一次插入")
+        access.afterDispatch = { access.target.selectionLength = 1; access.onChange?(.contentOrSelection) }
+        #expect(await coordinator.insert(recordingID: record.id, revisionID: revision.id) == .unverified)
+        #expect(coordinator.binding == nil)
+        #expect(access.attempts == ["一次插入"])
+    }
+    @Test func ownInsertionNotificationKeepsContinuousBinding() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "自身通知")
+        access.afterDispatch = { access.onChange?(.contentOrSelection) }
+        #expect(await coordinator.insert(recordingID: record.id, revisionID: revision.id) == .confirmed)
+        #expect(coordinator.binding != nil)
+    }
+    @Test func lostLocalReadCapabilityStopsNextAppend() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "已确认")
+        #expect(await coordinator.insert(recordingID: record.id, revisionID: revision.id) == .confirmed)
+        access.localTextMatches = nil
+        _ = await coordinator.insert(recordingID: record.id, revisionID: revision.id)
+        #expect(access.attempts.count == 1)
+        #expect(coordinator.binding == nil)
+    }
+    @Test func newRecordingAtExactBindingTimestampUsesCreationBoundary() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        let binding = try await coordinator.bindCurrentTarget()
+        // Persist an actual new recording on the same clock tick, then use its decoded
+        // createdAt. No fake startedAt override or scheduling sleep is involved.
+        let record = try await store.createRecording(createdAt: binding.boundAt)
+        #expect(record.createdAt.timeIntervalSince1970 == binding.boundAt.timeIntervalSince1970)
+        let ticket = try await store.beginRecognition(recordingID: record.id)
+        try await store.applyRecognition(ticket: ticket, text: "同一时刻的新表达", isFinal: true)
+        let revision = try #require(await store.latestFinalRevision(recordingID: record.id))
+        let result = await coordinator.insertStable(recordingID: record.id, revisionID: revision.id, stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
+        #expect(result == .confirmed)
+        #expect(access.attempts == ["同一时刻的新表达"])
+    }
+    @Test func lateEarlierRecordingIsDeferredWithoutBlockingNextSpeech() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        let binding = try await coordinator.bindCurrentTarget()
+        let first = try await store.createRecording()
+        let second = try await store.createRecording()
+        let third = try await store.createRecording()
+        let a = try await store.beginRecognition(recordingID: first.id)
+        let b = try await store.beginRecognition(recordingID: second.id)
+        let c = try await store.beginRecognition(recordingID: third.id)
+        try await store.applyRecognition(ticket: b, text: "后说先到。", isFinal: true)
+        let bFinal = try #require(await store.latestFinalRevision(recordingID: second.id))
+        #expect(await coordinator.insertStable(recordingID: second.id, revisionID: bFinal.id, stableUTF16End: bFinal.text.utf16.count, recordingStartedAt: second.createdAt) == .confirmed)
+        try await store.applyRecognition(ticket: a, text: "先说迟到。", isFinal: true)
+        let aFinal = try #require(await store.latestFinalRevision(recordingID: first.id))
+        let aResult = await coordinator.insertStable(recordingID: first.id, revisionID: aFinal.id, stableUTF16End: aFinal.text.utf16.count, recordingStartedAt: first.createdAt)
+        if aResult != .deferred { print("ORDER_BOUNDARY decoded=\(first.createdAt.timeIntervalSince1970) binding=\(binding.boundAt.timeIntervalSince1970) delta_us=\(first.createdAt.timeIntervalSince(binding.boundAt) * 1_000_000) decodedRef=\(first.createdAt.timeIntervalSinceReferenceDate) bindingRef=\(binding.boundAt.timeIntervalSinceReferenceDate) result=\(aResult)") }
+        #expect(aResult == .deferred)
+        #expect(coordinator.binding?.id == binding.id)
+        #expect(try await store.recording(id: first.id)?.text == "先说迟到。")
+        try await store.applyRecognition(ticket: c, text: "新的一段。", isFinal: true)
+        let cFinal = try #require(await store.latestFinalRevision(recordingID: third.id))
+        #expect(await coordinator.insertStable(recordingID: third.id, revisionID: cFinal.id, stableUTF16End: cFinal.text.utf16.count, recordingStartedAt: third.createdAt) == .confirmed)
+        #expect(access.attempts == ["后说先到。", "新的一段。"])
+    }
+    @Test func lateTailCannotBeAppendedAfterAnotherRecording() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        let binding = try await coordinator.bindCurrentTarget()
+        let first = try await store.createRecording()
+        let second = try await store.createRecording()
+        let third = try await store.createRecording()
+        let a = try await store.beginRecognition(recordingID: first.id)
+        let b = try await store.beginRecognition(recordingID: second.id)
+        let c = try await store.beginRecognition(recordingID: third.id)
+        try await store.applyRecognition(ticket: a, text: "首段前缀", isFinal: true)
+        let aPrefix = try #require(await store.latestFinalRevision(recordingID: first.id))
+        let prefixResult = await coordinator.insertStable(recordingID: first.id, revisionID: aPrefix.id, stableUTF16End: aPrefix.text.utf16.count, recordingStartedAt: first.createdAt)
+        if prefixResult != .confirmed { print("ORDER_BOUNDARY decoded=\(first.createdAt.timeIntervalSince1970) binding=\(binding.boundAt.timeIntervalSince1970) delta_us=\(first.createdAt.timeIntervalSince(binding.boundAt) * 1_000_000) decodedRef=\(first.createdAt.timeIntervalSinceReferenceDate) bindingRef=\(binding.boundAt.timeIntervalSinceReferenceDate) result=\(prefixResult)") }
+        #expect(prefixResult == .confirmed)
+        try await store.applyRecognition(ticket: b, text: "第二段。", isFinal: true)
+        let bFinal = try #require(await store.latestFinalRevision(recordingID: second.id))
+        #expect(await coordinator.insertStable(recordingID: second.id, revisionID: bFinal.id, stableUTF16End: bFinal.text.utf16.count, recordingStartedAt: second.createdAt) == .confirmed)
+        try await store.applyRecognition(ticket: a, text: "首段前缀，迟到尾部。", isFinal: true)
+        let aFull = try #require(await store.latestFinalRevision(recordingID: first.id))
+        let tailResult = await coordinator.insertStable(recordingID: first.id, revisionID: aFull.id, stableUTF16End: aFull.text.utf16.count, recordingStartedAt: first.createdAt)
+        #expect(tailResult == .deferred)
+        #expect(coordinator.binding?.id == binding.id)
+        try await store.applyRecognition(ticket: c, text: "第三段。", isFinal: true)
+        let cFinal = try #require(await store.latestFinalRevision(recordingID: third.id))
+        #expect(await coordinator.insertStable(recordingID: third.id, revisionID: cFinal.id, stableUTF16End: cFinal.text.utf16.count, recordingStartedAt: third.createdAt) == .confirmed)
+        #expect(access.attempts == ["首段前缀", "第二段。", "第三段。"])
+    }
+    @Test func mutationOfConfirmedTailStopsNextAppend() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "已插入")
+        #expect(await coordinator.insert(recordingID: record.id, revisionID: revision.id) == .confirmed)
+        access.localTextMatches = false
+        _ = await coordinator.insert(recordingID: record.id, revisionID: revision.id)
+        #expect(access.attempts == ["已插入"])
+        #expect(coordinator.binding == nil)
+    }
+
 }
 
 private func sampleTarget() -> InputTargetSnapshot {

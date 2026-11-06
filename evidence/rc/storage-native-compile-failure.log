@@ -1,0 +1,56 @@
+Building for debugging...
+[Planning deferred tasks]
+[38 / 117]
+[69 / 128]
+[90 / 128]
+[96 / 128] CAudio
+/Users/hhf/Documents/GitHub/saytile/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[97 / 128] SaytileKit
+[109 / 264]
+[122 / 264]
+[125 / 264]
+[131 / 264]
+[134 / 264]
+[142 / 264]
+[147 / 264]
+[148 / 264]
+[161 / 264]
+[163 / 264]
+[170 / 264]
+[173 / 264]
+[174 / 264]
+[181 / 264]
+[183 / 264]
+[189 / 264]
+[190 / 264]
+[193 / 264]
+[195 / 264]
+[206 / 264]
+[207 / 264]
+[211 / 264]
+[216 / 264]
+[219 / 264]
+[220 / 264]
+[221 / 264]
+[222 / 264]
+[233 / 264] SaytileKit
+[244 / 265] SaytileKit
+[244 / 265] Saytile-product
+[247 / 274] SaytileKit
+error: SwiftCompile normal arm64 /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/InputAccessibility.swift failed with a nonzero exit code. Command line:     cd /Users/hhf/Documents/GitHub
+    builtin-SwiftPerFileCompile InputAccessibility.swift
+/Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/InputAccessibility.swift:233:58: error: sending 'relay' risks causing data races [#RegionIsolation::SendingRisksDataRace]
+231 |                 switch name {
+232 |                 case kAXValueChangedNotification, kAXSelectedTextChangedNotification: relay.handler(.contentOrSelection)
+233 |                 case kAXLayoutChangedNotification: relay.handler(.layout)
+    |                                                          |- error: sending 'relay' risks causing data races [#RegionIsolation::SendingRisksDataRace]
+    |                                                          `- note: 'relay' is captured by a main actor-isolated closure. main actor-isolated uses in closure may race against code in the current isolation context
+234 |                 default: relay.handler(.focusOrDocument)
+235 |                 }
+
+[#RegionIsolation]: <https://docs.swift.org/compiler/documentation/diagnostics/region-isolation>
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+Failed frontend command:
+/Library/Developer/CommandLineTools/usr/bin/swift-frontend -frontend -c /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/AudioCapture.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/AudioDiagnostics.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/AudioJournal.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/AudioLifecycle.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/AudioPlaybackTimeline.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/AudioTapCallbacks.swift -primary-file /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/InputAccessibility.swift -primary-file /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/InputCoordinator.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/Models.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/SpeechRecognition.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/SpeechResultAccumulator.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/SpeechTiming.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/Store.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/StoreLock.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/StoreSQLite.swift /Users/hhf/Documents/GitHub/saytile/Sources/SaytileKit/WindowPlacement.swift -emit-dependencies-path /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/InputAccessibility.d -emit-const-values-path /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/InputAccessibility.swiftconstvalues -emit-reference-dependencies-path /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/InputAccessibility.swiftdeps -serialize-diagnostics-path /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/InputAccessibility.dia -emit-dependencies-path /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/InputCoordinator.d -emit-const-values-path /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/InputCoordinator.swiftconstvalues -emit-reference-dependencies-path /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/InputCoordinator.swiftdeps -serialize-diagnostics-path /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/InputCoordinator.dia -target arm64-apple-macos26.0 -disable-cross-import-overlay-search -swift-module-cross-import Darwin /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/usr/include/Darwin.swiftcrossimport/xlocale.swiftoverlay -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libObservationMacros.dylib\#\#ObservationMacros -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#\#SwiftMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/SaytileKit-dependencies-1.json -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk -I /tmp/saytile-rc-storage/native/out/Products/Debug -Isystem /Library/Developer/CommandLineTools/Developer/usr/lib -F /tmp/saytile-rc-storage/native/out/Products/Debug/PackageFrameworks -F /tmp/saytile-rc-storage/native/out/Products/Debug -F /Library/Developer/CommandLineTools/Library/Developer/Frameworks -F /Library/Developer/CommandLineTools/Developer/Library/Frameworks -module-cache-path /tmp/saytile-rc-storage/native/out/Intermediates.noindex/SwiftExplicitPrecompiledModules -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=5 -swift-version 6 -Onone -D SWIFT_PACKAGE -D DEBUG -D SWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE -D Xcode -serialize-debugging-options -enable-experimental-feature DebugDescriptionMacro -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /tmp/saytile-rc-storage/native/out/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/hhf/Documents/GitHub -enable-anonymous-context-mangled-names -file-compilation-dir /Users/hhf/Documents/GitHub -Xcc -fmodule-map-file\=/tmp/saytile-rc-storage/native/out/Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap -Xcc -fmodule-map-file\=/Users/hhf/Documents/GitHub/saytile/Sources/CSQLite/module.modulemap -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /tmp/saytile-rc-storage/native/out/SDKStatCaches.noindex/macosx27.0-26A425-1aa54e4a50e311dbd51de5aafe7eca3dffd68ff603bdaacc80b00cb8898de72d.sdkstatcache -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -Xcc -I/Users/hhf/Documents/GitHub/saytile/Sources/CAudio/include -Xcc -I/tmp/saytile-rc-storage/native/out/Products/Debug/include -Xcc -I/tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/DerivedSources-normal/arm64 -Xcc -I/tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/DerivedSources/arm64 -Xcc -I/tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -no-auto-bridging-header-chaining -module-name SaytileKit -package-name saytile -const-gather-protocols-file /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/SaytileKit_const_extract_protocols.json -disable-clang-spi -clang-target arm64-apple-macos27.0 -target-sdk-version 27.0 -target-sdk-name macosx27.0 -in-process-plugin-server-path /Library/Developer/CommandLineTools/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -parse-as-library -o /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/InputAccessibility.o -o /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/InputCoordinator.o -debug-module-path /tmp/saytile-rc-storage/native/out/Intermediates.noindex/Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/SaytileKit.swiftmodule -index-unit-output-path /Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/InputAccessibility.o -index-unit-output-path /Saytile.build/Debug/SaytileKit-t.build/Objects-normal/arm64/InputCoordinator.o -index-store-path /tmp/saytile-rc-storage/native/out -index-system-modules
+error: Build failed
+error: fatalError

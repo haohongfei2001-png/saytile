@@ -1,0 +1,159 @@
+{
+  "scope": "Eight authored synthetic TTS samples, two installed voices; not human Mandarin acceptance",
+  "engineering_target": "Presentation-normalized aggregate CER approximately <= 0.10; negation semantics checked separately. This is an engineering target, not user acceptance.",
+  "normalization": "NFKC/case/whitespace/punctuation/symbol stripping, standard Chinese integers and hour/half-hour presentation; applied only to metrics on both sides; raw CER retained",
+  "latency_definition": "SpeechTranscriber input is paced at source buffer duration using real wall-clock sleeps. firstText measured from session creation; finalizationAfterInput measures after all fixture buffers were fed, not last spoken phoneme or VAD stop latency. Dictation comparison is batch-file quality only; latency is not comparable.",
+  "speech_transcriber": {
+    "raw_cer": 0.22815533980582525,
+    "presentation_normalized_cer": 0.06989247311827956,
+    "cases": [
+      {
+        "id": "daily",
+        "raw_cer": 0.47619047619047616,
+        "presentation_normalized_cer": 0.0,
+        "normalized_reference": "今天下午300开会请提前10分钟到达会议室",
+        "normalized_hypothesis": "今天下午300开会请提前10分钟到达会议室"
+      },
+      {
+        "id": "negation",
+        "raw_cer": 0.13793103448275862,
+        "presentation_normalized_cer": 0.0,
+        "normalized_reference": "请不要自动发送消息这个按钮不是删除文字只删除原始录音",
+        "normalized_hypothesis": "请不要自动发送消息这个按钮不是删除文字只删除原始录音"
+      },
+      {
+        "id": "numbers",
+        "raw_cer": 0.30434782608695654,
+        "presentation_normalized_cer": 0.05263157894736842,
+        "normalized_reference": "订单金额为1234元数量是15折扣是8",
+        "normalized_hypothesis": "订单金额为1234数量是15折扣是8"
+      },
+      {
+        "id": "mixed",
+        "raw_cer": 0.2903225806451613,
+        "presentation_normalized_cer": 0.20689655172413793,
+        "normalized_reference": "这个mac应用使用swift和sqlite支持中文语音输入",
+        "normalized_hypothesis": "这个免应用使用swift和sqlight支持中文语音输入"
+      },
+      {
+        "id": "pauses",
+        "raw_cer": 0.1724137931034483,
+        "presentation_normalized_cer": 0.038461538461538464,
+        "normalized_reference": "第1件事是保存原音第2件事是整理文字最后检查历史版本",
+        "normalized_hypothesis": "第1件事是保存原因第2件事是整理文字最后检查历史版本"
+      },
+      {
+        "id": "tail",
+        "raw_cer": 0.08333333333333333,
+        "presentation_normalized_cer": 0.0,
+        "normalized_reference": "即使识别失败也要继续收音原始录音必须完整保留",
+        "normalized_hypothesis": "即使识别失败也要继续收音原始录音必须完整保留"
+      },
+      {
+        "id": "second_voice",
+        "raw_cer": 0.23809523809523808,
+        "presentation_normalized_cer": 0.15789473684210525,
+        "normalized_reference": "明天上午930出发请带上充电器和笔记本",
+        "normalized_hypothesis": "明天上午930出发请暂上空电视和笔记本"
+      },
+      {
+        "id": "correction",
+        "raw_cer": 0.17857142857142858,
+        "presentation_normalized_cer": 0.08333333333333333,
+        "normalized_reference": "不是星期3是星期4不要取消会议只需要修改开始时间",
+        "normalized_hypothesis": "不是星期3是星期4不要取消会议只需要修外开始的时间"
+      }
+    ]
+  },
+  "dictation_transcriber": {
+    "raw_cer": 0.1941747572815534,
+    "presentation_normalized_cer": 0.06451612903225806,
+    "cases": [
+      {
+        "id": "daily",
+        "raw_cer": 0.38095238095238093,
+        "presentation_normalized_cer": 0.0,
+        "normalized_reference": "今天下午300开会请提前10分钟到达会议室",
+        "normalized_hypothesis": "今天下午300开会请提前10分钟到达会议室"
+      },
+      {
+        "id": "negation",
+        "raw_cer": 0.06896551724137931,
+        "presentation_normalized_cer": 0.0,
+        "normalized_reference": "请不要自动发送消息这个按钮不是删除文字只删除原始录音",
+        "normalized_hypothesis": "请不要自动发送消息这个按钮不是删除文字只删除原始录音"
+      },
+      {
+        "id": "numbers",
+        "raw_cer": 0.13043478260869565,
+        "presentation_normalized_cer": 0.05263157894736842,
+        "normalized_reference": "订单金额为1234元数量是15折扣是8",
+        "normalized_hypothesis": "订单金额为1234数量是15折扣是8"
+      },
+      {
+        "id": "mixed",
+        "raw_cer": 0.41935483870967744,
+        "presentation_normalized_cer": 0.27586206896551724,
+        "normalized_reference": "这个mac应用使用swift和sqlite支持中文语音输入",
+        "normalized_hypothesis": "这个免费应用使用sweet和sqlight支持中文语音输入"
+      },
+      {
+        "id": "pauses",
+        "raw_cer": 0.13793103448275862,
+        "presentation_normalized_cer": 0.038461538461538464,
+        "normalized_reference": "第1件事是保存原音第2件事是整理文字最后检查历史版本",
+        "normalized_hypothesis": "第1件事是保存原因第2件事是整理文字最后检查历史版本"
+      },
+      {
+        "id": "tail",
+        "raw_cer": 0.041666666666666664,
+        "presentation_normalized_cer": 0.0,
+        "normalized_reference": "即使识别失败也要继续收音原始录音必须完整保留",
+        "normalized_hypothesis": "即使识别失败也要继续收音原始录音必须完整保留"
+      },
+      {
+        "id": "second_voice",
+        "raw_cer": 0.23809523809523808,
+        "presentation_normalized_cer": 0.0,
+        "normalized_reference": "明天上午930出发请带上充电器和笔记本",
+        "normalized_hypothesis": "明天上午930出发请带上充电器和笔记本"
+      },
+      {
+        "id": "correction",
+        "raw_cer": 0.14285714285714285,
+        "presentation_normalized_cer": 0.08333333333333333,
+        "normalized_reference": "不是星期3是星期4不要取消会议只需要修改开始时间",
+        "normalized_hypothesis": "不是星期3是星期4不要取消会议只需要意外开始时间"
+      }
+    ]
+  },
+  "negation_cases": [
+    {
+      "id": "negation",
+      "expected": "请不要自动发送消息。这个按钮不是删除文字，只删除原始录音。",
+      "recognized": "请不要自动发送消息 ，这个按钮不是删除文字只删除原始录音",
+      "missingCriticalPhrases": []
+    },
+    {
+      "id": "correction",
+      "expected": "不是星期三，是星期四。不要取消会议，只需要修改开始时间。",
+      "recognized": "不是星期三是星期四不要取消会议 ，只需要修外开始的时间。",
+      "missingCriticalPhrases": [
+        "修改开始时间"
+      ]
+    }
+  ],
+  "first_text_seconds_range": [
+    1.181483875028789,
+    1.244779375148937
+  ],
+  "finalization_after_input_seconds_range": [
+    0.026228208327665925,
+    0.14338083332404494
+  ],
+  "limitations": [
+    "Mixed English/Chinese TTS pronunciation has not been independently human-audited",
+    "Homophones and some content words remain imperfect in both engines",
+    "No personal vocabulary, transcript-specific replacement, cloud upload, or paid API used"
+  ]
+}
