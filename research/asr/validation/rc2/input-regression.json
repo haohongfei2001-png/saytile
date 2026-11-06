@@ -1,0 +1,46 @@
+{
+  "source_revision": "8f2d71b73c8ae1aa421719201a263de20d98fc7f",
+  "runtime_kit_unchanged_from_head": true,
+  "binary_sha256": {
+    "AXTextFixture": "30451bf7fdfd66b283b004b9c9a3a9cbc55274220c243f7e502e4cc04e516005",
+    "AXCoordinatorProbe": "40ed6a60330cfe5e622282b9ed3ad9d0873fc6fb582cdc551c2a3760b94be1a3",
+    "AXWebFixture": "7af87d98bb0e655268d6d199ef3449564a45e747386fb14a43ef41e93d91ae13",
+    "AXWebCoordinatorProbe": "95f4cebac972fe3f96a28a16589c32be8d3668ed9d42d325006753cbebf482bc",
+    "dom-coordinator-probe": "5afb0591abed1774e53a8f9fc60567323b69a7cf01a454f935f1bd924920ace0",
+    "libSaytileKit.a": "472968a81569c7dc3461cba3afe6cb4afd0fd025f0274dff6b4fe503ce42746b"
+  },
+  "native_ax": {
+    "passed": 9,
+    "target_selector": "injected_owned_background_fixture",
+    "owned_activation_observed": false,
+    "outside_activation_events": 0,
+    "first_run": "FAILED_UNATTRIBUTED_FOREGROUND_CHANGE_PRESERVED",
+    "attributed_followups": 1
+  },
+  "webkit_ax": {
+    "observer_checks_passed": 6,
+    "observer_checks_total": 6,
+    "unsafe_context_rejections": [
+      "largeTree",
+      "blankContext"
+    ],
+    "insert_result": "UNVERIFIED_DOM_UNCHANGED",
+    "auto_sends": 0,
+    "owned_activation_observed": false,
+    "outside_activation_events": 0
+  },
+  "headless_dom": {
+    "passed": 20,
+    "browser": "HEADLESS_BROWSER 156.0.8078.4",
+    "adapter": "production_coordinator_with_test_only_DOM_access_not_native_AX",
+    "runtime": "existing_cached_chromium_headless_shell_1248"
+  },
+  "foreground_batch_run": false,
+  "permissions_requested": false,
+  "private_profiles_used": false,
+  "limitations": [
+    "No real foreground resolver or third-party application compatibility claim.",
+    "Background WebKit insertion did not work; one uncertain attempt was retained without retry.",
+    "An initial global foreground comparison failed with no attribution; not erased or blamed on user."
+  ]
+}

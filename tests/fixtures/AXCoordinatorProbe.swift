@@ -1,7 +1,10 @@
 import AppKit
+#if SAYTILE_PACKAGE_PROBE
+@testable import SaytileKit
+#endif
 import ApplicationServices
 
-// Compile with the production Store/Input sources. The only injected boundary is
+// Link the production SaytileKit package. The only injected boundary is
 // selecting the supplied background fixture instead of the user's foreground app.
 @main
 struct AXCoordinatorProbe {
@@ -12,6 +15,7 @@ struct AXCoordinatorProbe {
               let app = NSRunningApplication(processIdentifier: pid) else { exit(2) }
         guard AXIsProcessTrusted() else { print("NO_ACCESSIBILITY_PERMISSION_NO_PROMPT"); exit(5) }
         let frontmost = NSWorkspace.shared.frontmostApplication?.processIdentifier
+        let activationAudit = FixtureActivationAudit(fixturePID: pid)
         guard frontmost != pid else { throw Failure(description: "Fixture unexpectedly owns foreground") }
         func attribute(_ element: AXUIElement, _ name: String) -> CFTypeRef? {
             var result: CFTypeRef?
@@ -67,7 +71,9 @@ struct AXCoordinatorProbe {
         cancelled.cancel()
         try expect(await cancelled.value == .cancelled, "cancelled production insertion has no external attempt")
         coordinator.invalidate()
-        try expect(NSWorkspace.shared.frontmostApplication?.processIdentifier == frontmost, "fixture and insertion never change foreground application")
+        let activation = activationAudit.finish()
+        print("NATIVE_AX_FOREGROUND_OBSERVATION unchanged=\(NSWorkspace.shared.frontmostApplication?.processIdentifier == frontmost) owned_activated=\(activation.ownedActivated) outside_activation_events=\(activation.outsideActivations); no cause inferred for outside transitions")
+        try expect(!activation.ownedActivated, "owned fixture and probe never activate")
         print("RC_AX_COORDINATOR_PASS \(checks) checks; background target selection injected; no production foreground or browser claim")
     }
 }

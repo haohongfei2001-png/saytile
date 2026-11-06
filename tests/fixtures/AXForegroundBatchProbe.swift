@@ -1,4 +1,7 @@
 import AppKit
+#if SAYTILE_PACKAGE_PROBE
+@testable import SaytileKit
+#endif
 import ApplicationServices
 import Darwin
 

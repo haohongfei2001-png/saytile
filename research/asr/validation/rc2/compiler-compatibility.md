@@ -9,3 +9,5 @@ The provider Picker was passing the actor-isolated instance method `selectProvid
 Validation performed here: `swift build --scratch-path /tmp/saytile-rc2-pipeline --product Saytile` succeeds on installed Swift6.4; log `compiler-compatibility-local-build.log`. `git diff --check` passes. No full tests were rerun by this reviewer and no visible application/window was opened.
 
 **Swift6.3.3 resolution remains subject to the next authoritative CI build.** The stack trace identifies the relevant thunk and motivates this workaround; the local6.4 build alone does not prove the older compiler is fixed. Root owns the source checkpoint and next CI verification. No compiler pin, CI downgrade, validation bypass or toolchain installation was introduced.
+
+Runtime 8f2d71b CI run42269235645 subsequently completed successfully, including native tests, AppModel, release build, both CLI guards, rendering and startup. The prior Swift6.3.3 IRGen crash is resolved on the actual CI runner. See ci-runtime-receipt.json; cloud connectivity remains untested.

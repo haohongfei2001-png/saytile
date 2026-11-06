@@ -4,7 +4,7 @@
 
 第一批修复已提交 0b1f61a：准入/恢复/两项取消所有权 P1、Keychain 和设置快照、Store 阶段、升级与派发集成。第二批包含真实 UI 操作、独立连接配置、生产目录子树拒绝、Swift 6.3.3 方法引用崩溃规避、270 原生用例。全部来源与前后失败日志在 research/asr/validation/rc2。
 
-下一步：提交后从干净源码构建 1.0.0-rc.2-candidate.1 App/DMG；严格签名、实际原生 15 场景/6 组控件、7 CLI 拒绝、8 RC1→RC2 安装/升级/显式回退检查；补最终 artifact source/hash 和 CI receipt。0b1f61 CI native42265587630 失败于编译器IRGen；新 head CI 必须确认闭包改写结果，不能重用旧通过记录。仅文档证据变化可引用最后运行时源码，不循环重打包。
+已完成：从干净源码 8f2d71b 构建 1.0.0-rc.2-candidate.1 App/DMG；严格签名、实际原生 15 场景/6 组控件、7 CLI 拒绝、8 RC1→RC2 安装/升级/显式回退检查，均通过；精确哈希在 delivery-manifest.json。隔离输入已完成 9 native AX / 20 DOM，WebKit 6 mutations 与不自动发送通过但实际后台插入 unverified；所有初始失败保留。运行时 8f2d71b native42269235645 / contracts42269235604 全部成功；下一步确认最终证据提交的 PR CI 并更新 PR 描述；不重建同一运行时来追逐文档提交 SHA。0b1f61 CI native42265587630 失败于编译器IRGen；新 head CI 必须确认闭包改写结果，不能重用旧通过记录。仅文档证据变化可引用最后运行时源码，不循环重打包。
 
 真实凭据仍缺失。只查询了 Saytile Keychain 元数据、0项，禁止到其他项目或私人文件寻找秘密。本轮新授权范围为 5 家核心 API、公开 6 段46.94秒及必要补例、建议 USD30 停止线（不是已批准/价格保证）。见 V1-RC2-USER-ACTIONS 与 CONNECTION-SETUP。没有调用或上传；不合并、不安装覆盖RC1、不称已具备最终真人验收条件。
 
