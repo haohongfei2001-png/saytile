@@ -1,0 +1,14 @@
+CI excerpt: macOS 26.6.2; commit 8b22e24185a549ffdd01460792cd60ebc62f554a
+https://github.com/haohongfei2001-png/saytile/actions/runs/42196163831/job/127819822910
+2026-11-06T09:36:27.7965350Z ✘ Test sqliteNumericRoundTripsPreserveFullPrecision() recorded an issue at StoreRCTests.swift:20:13: Expectation failed: (decoded.bitPattern → 4745311188043687621) == (original.bitPattern → 4745311188043687607)
+2026-11-06T09:36:27.7966880Z ✘ Test sqliteNumericRoundTripsPreserveFullPrecision() recorded an issue at StoreRCTests.swift:20:13: Expectation failed: (decoded.bitPattern → 4745311188043687621) == (original.bitPattern → 4745311188043687608)
+2026-11-06T09:36:27.7968440Z ✘ Test sqliteNumericRoundTripsPreserveFullPrecision() recorded an issue at StoreRCTests.swift:20:13: Expectation failed: (decoded.bitPattern → 4745311188043687621) == (original.bitPattern → 4745311188043687609)
+2026-11-06T09:36:27.7970510Z ✘ Test sqliteNumericRoundTripsPreserveFullPrecision() recorded an issue at StoreRCTests.swift:20:13: Expectation failed: (decoded.bitPattern → 4745311188043687621) == (original.bitPattern → 4745311188043687610)
+2026-11-06T09:36:27.8109390Z ✘ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() recorded an issue at StoreRCTests.swift:37:9: Expectation failed: (first.createdAt → 2026-11-06 08:00:00 +0000) == (firstDate → 2026-11-06 08:00:00 +0000)
+2026-11-06T09:36:27.8111700Z ✘ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() recorded an issue at StoreRCTests.swift:38:9: Expectation failed: (second.createdAt → 2026-11-06 08:00:00 +0000) == (secondDate → 2026-11-06 08:00:00 +0000)
+2026-11-06T09:36:27.8114010Z ✘ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() recorded an issue at StoreRCTests.swift:42:9: Expectation failed: try await reopened.recording(id:firstID)?.createdAt == firstDate
+2026-11-06T09:36:27.8116880Z ✘ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() recorded an issue at StoreRCTests.swift:43:9: Expectation failed: try await reopened.recording(id:secondID)?.createdAt == secondDate
+2026-11-06T09:36:27.8222040Z ✘ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() recorded an issue at InputTests.swift:285:9: Expectation failed: (record.createdAt.timeIntervalSince1970 → 1793957786.07972) == (binding.boundAt.timeIntervalSince1970 → 1793957786.079723)
+2026-11-06T09:36:27.8229140Z ✘ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() recorded an issue at InputTests.swift:290:9: Expectation failed: (result → .noNewText) == .confirmed
+2026-11-06T09:36:27.8230740Z ✘ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() recorded an issue at InputTests.swift:291:9: Expectation failed: (access.attempts → []) == ["同一时刻的新表达"]
+2026-11-06T09:36:27.8245090Z ✘ Test run with 122 tests in 15 suites failed after 2.297 seconds with 69 issues.

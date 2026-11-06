@@ -40,10 +40,22 @@ final class StoreDatabase: @unchecked Sendable {
             if code == SQLITE_DONE { return result }
             guard code == SQLITE_ROW else { throw error() }
             var row: [String:String] = [:]
-            for index in 0..<sqlite3_column_count(statement) where sqlite3_column_type(statement,index) != SQLITE_NULL {
-                let length = Int(sqlite3_column_bytes(statement,index))
-                let bytes = sqlite3_column_text(statement,index)!
-                row[String(cString:sqlite3_column_name(statement,index))] = String(decoding:UnsafeBufferPointer(start:bytes,count:length),as:UTF8.self)
+            for index in 0..<sqlite3_column_count(statement) {
+                let name = String(cString:sqlite3_column_name(statement,index))
+                switch sqlite3_column_type(statement,index) {
+                case SQLITE_NULL:
+                    continue
+                case SQLITE_INTEGER:
+                    row[name] = String(sqlite3_column_int64(statement,index))
+                case SQLITE_FLOAT:
+                    // Older SQLite text conversion rounds REAL values to 15 digits.
+                    // Swift's Double description preserves the exact stored value.
+                    row[name] = String(sqlite3_column_double(statement,index))
+                default:
+                    let length = Int(sqlite3_column_bytes(statement,index))
+                    let bytes = sqlite3_column_text(statement,index)!
+                    row[name] = String(decoding:UnsafeBufferPointer(start:bytes,count:length),as:UTF8.self)
+                }
             }
             result.append(row)
         }

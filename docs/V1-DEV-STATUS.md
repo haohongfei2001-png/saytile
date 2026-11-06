@@ -1,3 +1,5 @@
+> 最新：云端macOS26实际发现SQLite数值文本舍入，已做类型化读取修复，未放宽测试；等待新head CI。安装升级6项已通过上一工程候选，最终包将随源码更新后重验。
+
 ## RC 最终工程候选检查点 · 2026-11-06
 
 - 最新完整原生套件：**122 tests PASS**。生产AppModel21 checks已通过；经典SwiftPM与CLT SwiftBuild入口均已验证。

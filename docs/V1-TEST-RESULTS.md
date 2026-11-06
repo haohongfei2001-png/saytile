@@ -91,3 +91,10 @@ Release DMG 校验通过；只读挂载中的App严格签名验证及启动通�
 5. 音频真实AVAudioPlayer另有2项零PCM集成：跨块seek、自然结束、stop/shutdown/租约与删除保文，未采麦或有声外放。
 
 最终发行验收将补充精确源码SHA、DMG散列、只读挂载签名、Beta App→RC App安装升级、正常重启及重复实例拒绝。
+
+
+## macOS 26 兼容修复 · 最终CI揭示
+
+`8b22e24` 在本机macOS27通过，但云端macOS26.6.2的系统SQLite对REAL→TEXT转换发生舍入，122项套件中精度/时间用例出现69项断言失败。此时才有明确跨版本证据；不能把先前macOS27的4096样本无损结论推广到旧系统。
+
+已将StoreSQLite按SQLITE_FLOAT/INTEGER分别使用sqlite3_column_double/int64读取，再交Swift无损表示，UTF8文本路径保留，测试未放宽。现有6项精度/边界/NUL测试PASS，最终修复head仍必须通过macOS26 CI。原错误见 `evidence/rc/ci-sqlite-precision-failure.log`，本地修复回归见 `storage-real-precision-fix.log`。
