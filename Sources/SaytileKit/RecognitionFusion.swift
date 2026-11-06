@@ -264,7 +264,7 @@ public enum PrecisionFusion {
     static func roleSupports(text: String, run: ModelRunTicket) -> Bool {
         // Expert is a routing responsibility, not a monolingual claim. The registered adapters
         // currently support Chinese/English. Unknown future adapters get conservative role limits.
-        let bilingualProviders: Set<String> = ["qwenMessage", "assemblyAI", "soniox", "elevenLabsRealtime", "elevenLabsFile", "openAITranscription", "gemini"]
+        let bilingualProviders: Set<String> = ["qwenMessage", "assemblyAI", "soniox", "elevenLabsRealtime", "elevenLabsFile", "openAITranscription", "gemini", "meta"]
         if run.purpose != .textFusion && bilingualProviders.contains(run.provider) { return true }
         let purpose = run.purpose
         let hasHan = text.unicodeScalars.contains { (0x3400...0x9fff).contains($0.value) || (0x20000...0x3134f).contains($0.value) }

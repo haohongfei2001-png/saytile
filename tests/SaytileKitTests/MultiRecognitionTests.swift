@@ -438,3 +438,11 @@ private func appendEvidence(_ old: RecognitionCandidate, text: String, end: Doub
     #expect(result.unresolved)
     #expect(result.needsAudioReview)
 }
+
+@Test func multiMetaExpertKeepsBilingualCapabilityWithoutInventingWordTiming() throws {
+    let run = ModelRunTicket(recognitionID: sampleRecognitionID, recordingID: sampleRecordingID,
+        audioEpoch: 1, configurationID: UUID(), provider: "meta", model: "fixture", purpose: .englishASR)
+    let candidate = sample("使用 SwiftUI", run: run, granularity: "turn-progress")
+    #expect(PrecisionFusion.evaluate(candidates: [candidate], mode: .fast).stableText == "使用 SwiftUI")
+    #expect(throws: FusionError.self) { try PrecisionFusion.validateSelection(spans: [CandidateSpan(candidateID: candidate.id, utf16Start: 0, utf16End: 2)], candidates: [candidate]) }
+}
