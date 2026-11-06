@@ -153,7 +153,7 @@ public struct PrecisionReviewClient: Sendable {
             "store": false, "instructions": instructions,
             "reasoning": ["effort": configuration.reasoningEffort, "mode": configuration.reasoningMode],
             "input": [["role": "user", "content": try ProviderJSON.string(userData)]],
-            "text": ["format": ["type": "json_schema", "name": "speech_evidence_selection", "strict": true, "schema": schema]]])
+            "text": ["format": ["type": "json_schema", "name": "speech_evidence_selection", "strict": true, "schema": schema]], "stream": true])
     }
     public func arbitrate(evidence: [ReviewEvidence], confirmedPrefix: String, context: String,
                           configuration: ModelConfiguration, credential: String) async throws -> (PrecisionReviewDecision, PrecisionReviewUsage) {
@@ -169,14 +169,31 @@ public struct PrecisionReviewClient: Sendable {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = configuration.reasoningMode == "pro" ? 300 : 120
         let began = Date()
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (bytes, response) = try await URLSession.shared.bytes(for: request)
         try Task.checkCancellation()
         guard let http = response as? HTTPURLResponse else { throw ProviderFailure.connection }
         guard (200..<300).contains(http.statusCode) else { throw ProviderFailure.http(http.statusCode) }
+        var completed: [String: Any]?
+        for try await line in bytes.lines {
+            try Task.checkCancellation()
+            guard line.hasPrefix("data: ") else { continue }
+            let payload = String(line.dropFirst(6))
+            if payload == "[DONE]" { break }
+            guard let data = payload.data(using: .utf8),
+                  let event = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { continue }
+            if event["type"] as? String == "response.completed" {
+                completed = event["response"] as? [String: Any]
+                break
+            }
+            if event["type"] as? String == "response.failed" || event["type"] as? String == "error" {
+                throw ProviderFailure.incomplete
+            }
+        }
+        try Task.checkCancellation()
+        guard let completed, let data = try? JSONSerialization.data(withJSONObject: completed) else {
+            throw ProviderFailure.incomplete
+        }
         let (decision, inputTokens, outputTokens) = try Self.decodeResponse(data)
-        // Return usage and needsAudioReview even when the proposed span later fails
-        // local validation. The coordinator records the billed attempt, checks its
-        // current evidence, and can still schedule acoustic review after abstention.
         return (decision, .init(requestID: http.value(forHTTPHeaderField: "x-request-id"), inputTokens: inputTokens,
                                 outputTokens: outputTokens, elapsedSeconds: Date().timeIntervalSince(began)))
     }
