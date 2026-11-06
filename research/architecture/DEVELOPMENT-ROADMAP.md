@@ -1,54 +1,16 @@
-# Saytile 双专家 + GPT-6 核心引擎开发路线
+# V1 核心引擎收口路线
 
-更新：2026-11-07。新路线覆盖旧版自适应单主模型路线。
+2026-11-07。用户明确架构：双平等完整音频专家 + 唯一 GPT 核心；单一忠实文字流。最高质量是目标，不是已经测得的结论。
 
-## Stage 1 — 架构与分支收敛（P0）
+| 阶段 | 当前基线 | 改造/依赖 | 客观验收 |
+|---|---|---|---|
+| P0 分支与契约 | PR4 45af670已为PR5 a9cffae祖先；native CI失败 | PR5文档消除主模型、多稿、多AI冲突；独立工程PR叠加 | 祖先检查/无遗漏，main/RC1不变 |
+| P0 单一核心 | 候选/Store/账本已在；仅重命名不够 | 同PCM双专家、一个GPT、coalescing/fencing/EOS、原生配置迁移 | native/AppModel通过，迟到/blocked/最终评审回归 |
+| P0 GPT会话 | SSE有实现，持久会话未验 | Responses WebSocket可替换transport、重连权威上下文、取消 | 协议测试与真实API验证分别标注，无partial JSON发布 |
+| P0 统一离线/原音 | Apple与云互斥、内存复核12MB | Apple Candidate ingress、journal range/durable watermark | 断网保音、本地候选同Store、跨块与超12MB测试 |
+| P0 安全外部修正 | 仅追加派发 | 精确UTF-16所有权+局部比较/替换，原生AX适配 | 用户改动/焦点/页面变化不覆盖，无重复/发送；不支持时pending |
+| P0 单份用户文字 | 尚有阶段/版本UI | 一份持续稿、隐藏内部证据，简化连接 | 原生UI与AppModel，不删除审计或用户稿 |
+| P0 真实质量 | 112音频/336历史；缺少Saytile云配置 | 24条 A-E+F不可用，按需扩112 | 同输入同参考，关键错误与阶段延迟，未跑不假分数 |
+| P0 候选交付 | 生产RC1保护 | 原生构建/隔离启动、版本/hash、升级/恢复与长时测试 | 来源SHA可复现；合成压力非24h实测；未经批准不安装合并 |
 
-- 同步 PR #5 base 至 PR #4 最新 HEAD；保留 RC2 最新修复与验收记录。
-- 固定双平等专家 + 一个 GPT-6 Astra 的配置契约。
-- 移除 Gemini audioReview、Scribe finalASR 作为默认链路；保留旧枚举/数据库兼容，不再启用。
-- 将 MultiRecognitionCoordinator 收敛为 SingleTranscriptEngine；旧类型名只做内部兼容过渡。
-- GPT 调用改为 Responses streaming，短窗口合并事件，旧证据结果丢弃。
-- 用户 UI 移除多模型仲裁与识别模式选择，默认唯一 transcript。
-
-验收：默认恰好两路实时 ASR + 一个 GPT-6；配置不允许多个 GPT 核心；两路收到相同 PCM block；GPT 结构化输出只能引用候选。
-
-## Stage 2 — 模型对照（P0）
-
-复用 112 条现有语音、336 条 Apple/Qwen 历史结果，第一轮 24 条代表性样本。音频只在 Mac 本地；未经明确授权不上传云服务。
-
-| 配置 | 对照 |
-|---|---|
-| A | 中文专家 + GPT-6 |
-| B | 英文专家 + GPT-6 |
-| C | 中文 + 英文专家 + GPT-6 |
-| D | Soniox v6 + GPT-6 |
-| E | 中文 + 英文 + Soniox v6 + GPT-6 |
-| F | GPT-6 Astra 原生音频 + ASR 证据 |
-
-F 由于 GPT-6 Astra 官方 API 明确 Audio not supported，标记 NOT AVAILABLE，不伪造执行。可另行比较 GPT-Live-Transcribe / GPT-Realtime 作为独立音频模型，但不能把它们称为 GPT-6。
-
-指标：中文 CER、英文 WER、中英混说 MER、术语、数字/金额/时间/否定错误、首次可见文字延迟、讲话中修正收益、结束后最终修正延迟、GPT 新增错误率、最终派发正确率。所有配置按同一音频配对，按中文/英文/混说分层。24 条接近时扩展至 112 条。
-
-依赖：已有音频与参考文本、相应服务 Key、模型账户权限、明确音频处理授权和费用授权。缺少任何服务授权时，只完成已授权的子集并报告缺口，不阻塞架构开发。
-
-## Stage 3 — SingleTranscriptEngine 核心实现（P0）
-
-- 两路完整音频并发，不作预切分。
-- Apple SpeechAnalyzer Candidate ingress。
-- 单一 GPT-6 Responses streaming reviewer。
-- 280ms coalescing、evidence version、generation fencing。
-- 唯一 transcript preview/stable/final revision。
-- EOS 后最终 GPT 复核。
-- 用户编辑和 UTF-16 外部输入账本保护。
-- 断网保留 PCMJournal，云端恢复幂等续识别。
-
-## Stage 4 — 质量和长期运行验收（P0）
-
-自动测试：专家乱序/重复/迟到、GPT 迟到、GPT 新证据版本、否定数字保护、混说回归、用户编辑保护、目标窗口变化、外部重复输入、断网/恢复、长时间录音、磁盘空间、睡眠唤醒、权限撤销、PCMJournal 恢复。
-
-真实质量验收与 CI 分开：必须报告真实云调用结果、参考文本审校、费用、首显/稳定/完成 p50/p95 和关键错误。无云数据不作质量领先声明。
-
-## Stage 5 — 发布收敛（P0）
-
-Developer ID 签名/公证、升级/回滚、隐私/权限说明、默认关闭云端、独立 Keychain、每服务授权、调用与费用账本。生产 main/RC1 仅在用户明确批准后变更。
+V2保持轻声与共享工位声学；V3保持授权个人词汇/语言适应及系统输入法。V1不添加屏幕采集、外部资料索引、云同步、Agent、自动发送或逐句润色。

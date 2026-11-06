@@ -1,38 +1,23 @@
-# SingleTranscriptEngine 实现与接续规范
+# SingleTranscriptEngine 实施契约
 
-更新：2026-11-07。
+更新：2026-11-07。目标架构不等于已经验证的源码；真实交付以独立工程 PR 的测试和候选身份记录为准。
 
-## 唯一数据通路
+## 实施切片
 
-`CaptureWorker → PCMJournal → 两路完整音频流 → Chinese/English ASR Candidates → SingleTranscriptEngine → GPT-6 Astra evidence selection → 唯一 transcript revision → UTF-16 direct-input ledger`
+1. 修复 PR #5 原生回归。默认两个完整音频专家+一个 GPT，保留原配置 UUID/Keychain 身份；迁移不静默替换自定义模型、不自动授权或开启云端。诊断 A/B/D 可用单个 ASR+相同 GPT；生产 C/E 仍严格双专家。
+2. 真实单一融合 actor：同 PCM、独立队列、版本检查、短窗合并、一个在途请求、有界重试、EOS 强制最终 GPT 评审。保留未确认现文但不假定为已确认外发。
+3. 每录音/代次 GPT WebSocket transport：缓存/上下文恢复、lane/response 过滤、取消、超时、授权失效、输入/输出大小上限。HTTP SSE 降级也只能使用同一个 GPT；未完成 JSON 永不发布。
+4. Apple 作为本地 Candidate ingress，复用 Store 验证/发布。离线本地可用或原音排队，不因网络失败中断 journal。
+5. journal range reader：以原样本索引跨 chunk 读取已落盘范围；拒绝空洞、损坏、删除、旧 epoch 和未持久化尾部，禁止无限内存快照。
+6. 外部精确范围所有权与局部修正：校验目标、范围、预期文本及用户编辑，事务记录预留与确认；能力不足保持 pending，不整框改写、不重发。
+7. UI 收敛到一份文字；内部历史不可删除，但不向用户展示模型阶段、候选及多稿选择。只保留必要的连接/权限/故障提示。
 
-第三个 ASR 作为可选 challenger 加入相同候选流。Apple SpeechAnalyzer 也作为本地 Candidate 来源进入同一 recordingID/audioEpoch/generation，不拥有独立发布权。
+## 验收
 
-## SingleTranscriptEngine 职责
+既有真实 Swift 原生测试 + AppModel + Python 评分继续运行；新增乱序、同音频、迟到 GPT、收尾一致仍评审、blocked/backoff 不空转、用户稿、负数/金额/单位/否定/重复、中英混说、UTF-16/emoji、断网/恢复、跨块 >12MB、范围编辑/目标变更等回归。不得用删除测试或取消安全约束让 CI 变绿；过时默认值测试变更必须说明理由。
 
-- 为每个 recording/generation 维护每路最新候选和历史来源。
-- 同一录音完整 PCM 广播给每个启用的 ASR。
-- 对 provider sequence、source range、EOS、语言标签和迟到事件进行验证。
-- 280ms 合并高频候选变化；不是每个 token 请求 GPT。
-- 只有一个 GPT-6 Astra Responses 请求链；请求重叠时 coalesce，不并发启动多个相同快照。
-- GPT 结构化结果只能引用已存候选及 UTF-16 范围。
-- 本地校验数字、金额、时间、单位、否定、重复、术语和真实音频覆盖。
-- 新证据代次变化后，旧 GPT 响应失效。
-- EOS 后等待所有必要专家完成，执行最后一轮融合。
-- 发布唯一 preview/stable/final transcript revision。
+构建候选保留独立数据根目录与版本，不能安装覆盖 RC1。实机合成/协议 fixture 与真人云识别、真实应用编辑、长时墙钟功耗分别报告。
 
-## GPT API 实现
+## 先前不足（a9cffae）
 
-Responses API 支持 `stream: true`。Saytile 应通过 SSE 接收 `response.completed`，使用最终结构化输出作为候选选择；不得将 GPT 文本流中尚未完成的 JSON 直接发布为正式转写。若只拿到 GPT 文本输出而没有原音输入，不得称为 acoustic review。
-
-## 候选与正式稿边界
-
-ASR adapter 只能返回自己的 ProviderTranscriptEvent。候选写入 Store 后由 SingleTranscriptEngine 处理。GPT 不能直接写正式 transcript、稳定前缀或外部 ledger。Store 再次验证 ticket、generation、候选身份和 Unicode 范围。
-
-## 文字保护
-
-Saytile 内部显示文本可在未派发范围内修正。外部应用中已拥有/派发的 UTF-16 范围不可自动覆盖；目标改变时停止派发；用户编辑过的内容受保护。不自动发送或回车。
-
-## 当前实现边界
-
-本轮核心引擎改造只完成单一 GPT 约束、双专家配置契约、coalesced GPT 更新与 Responses streaming 接收。Apple SpeechAnalyzer Candidate ingress、PCMJournal 任意范围读取、端到端云质量对照及外部真实文本修订仍需后续独立验收。不能把文档架构等同于这些能力全部完成。
+PR #5 有新文件/配置和 SSE 代码，但 native CI 的276测试出现17 issues；Apple ingress、journal range和外部修正未交付，不能称引擎完成。后续独立工程 PR 修复，保护 main/RC1。

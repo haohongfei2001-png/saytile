@@ -1,3 +1,5 @@
+> 历史快照，不是现行产品契约。最新双平等专家、唯一GPT、单一忠实文字流及安全局部修正规则以 research/architecture/FINAL-ARCHITECTURE.md 为准；旧主模型、多稿和多AI默认链已撤销。
+
 # 原生工程接续
 
 ## 当前可以开始什么

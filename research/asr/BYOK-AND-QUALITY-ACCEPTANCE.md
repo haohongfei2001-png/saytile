@@ -1,32 +1,17 @@
-# 双专家 + GPT-6 BYOK 与质量验收
+# 双专家 + GPT：连接与真实质量验收
 
-## 用户需要配置的云服务
+默认只有三个服务连接：中文专家、英文专家、OpenAI GPT 核心。默认云开关关闭，逐服务授权关闭，Key 只存 Keychain。Soniox 等第三 ASR 是工程对照，不是普通用户必须选择的设置。旧 Gemini/Scribe 设置仅兼容数据，不再启用多 AI 默认链。
 
-V1 默认只需要三项服务：
-1. 中文实时 ASR Key（当前 Qwen Message）。
-2. 英文实时 ASR Key（当前 AssemblyAI）。
-3. OpenAI API Key（GPT-6 Astra 文本融合）。
+配置存在、Key 元数据存在、鉴权成功、处理授权和质量通过是五个不同状态。无凭据时保留原音/离线能力，继续工程测试，不默认上传。不要读取或显示 Key 内容。
 
-每个 Key 单独保存在 macOS Keychain；不得写入 UserDefaults、SQLite、日志或源码。语音上传与候选文本处理分别明确授权。GPT-6 Astra 接收 ASR 候选文本和必要上下文，不接收原音。
+## 收费与能力
 
-Soniox v6 / Meta 作为可选第三 ASR challenger；未证明收益前关闭。Gemini audioReview、ElevenLabs Scribe finalASR 不再作为默认服务，也不应要求用户为默认 V1 配置这些 Key。
+GPT-6 Astra Responses 只处理候选文本，没有音频输入。F 为 NOT_AVAILABLE。ChatGPT 和 API 账单独立；符合条件的订阅可能附促销 API credits，但必须关联 API 组织并核实余额，不能当作无限 API 使用。不开新账户、不买套餐；未知费用不是0。
 
-## API 能力与订阅
+## A-E真实对照
 
-- `gpt-6-astra`：Responses API 文本模型，支持流式响应，不支持 Audio input。
-- `gpt-live-transcribe`：独立实时语音转写模型。
-- `gpt-transcribe`：独立文件/已提交音频转写模型。
-- `gpt-realtime-2.1`：独立音频输入输出模型。
-- ChatGPT Pro 订阅与 API 平台分别计费；Pro 不自动提供可用于 Saytile 的 API Key 或 API 额度。
+使用既有冻结24条：A中文+GPT、B英文+GPT、C双专家+GPT、D Soniox+GPT、E双专家+Soniox+GPT。每个配置只有同一GPT核心。保留源SHA、音频hash、参考hash、模型/参数、代次、完整失败与用量账本。禁止把合成输出、gold、旧336条或本地Qwen结果冒充真实云转写。
 
-## A-F 对照
+分别报告首显、讲话中修正、最终稿及外部实际输入；CER/WER/MER、术语和数字/金额/时间/否定错误、GPT修复及新引入错误、同音频配对延迟。缺失阶段/未执行用 null/NOT_RUN，不能填0。表面数字形式匹配不自动等于语义正确。
 
-A 中文专家 + GPT-6；B 英文专家 + GPT-6；C 双专家 + GPT-6；D Soniox v6 + GPT-6；E 双专家 + Soniox v6 + GPT-6；F GPT-6 Astra 原生音频 + ASR。F 官方能力不支持，标记 NOT AVAILABLE。
-
-首轮 24 条同音频配对，必要时扩展至 112 条。复用已有 336 条 Apple/Qwen 结果，不下载大语料、不上传私人录音到未授权服务。
-
-指标：CER/WER/MER、技术术语、数字/金额/时间/否定、首次可见延迟、讲话中修正收益、EOS 后修正延迟、GPT 新错误率、最终派发正确率。按中文/英文/混说分层。
-
-## 授权与费用
-
-不擅自开新账户、不购买订阅。真实云调用只在 Key、服务权限、音频/文本处理授权和费用授权均具备后运行。记录 request ID、音频秒数、token 用量和真实/估算费用；未知不记为零。
+本轮 metadata-only preflight：专用Keychain无匹配项、无生产云配置。A-E未运行，不要求用户录音、标注或调试。执行器与候选准备好后，凭据和用户云处理授权是实际外部条件。
