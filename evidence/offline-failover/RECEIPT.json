@@ -1,0 +1,27 @@
+{
+  "base": "59a63f2f77520ae684dd97c65417b90140fab342",
+  "branch": "engine/offline-failover-20261107",
+  "scratch": "/tmp/saytile-offline-20261107-build",
+  "validation": "SYNTHETIC_ONLY",
+  "source_sha256": {
+    "Sources/SaytileKit/RecognitionFailover.swift": "12d5ee3ed22cfc395178dd9446df70c05ca747d219051a62e8d1ba21fe46532c",
+    "Sources/SaytileKit/RecognitionAudioFanout.swift": "007d1ed7f56a6947900386c74450f0dddd30ea198961c0122f3060e8365c9fda",
+    "Sources/SaytileKit/LocalCandidateIngress.swift": "877b84bd402895a0772d1779e5da67beff8bf4fde8d3591802feb8e6eecdc29a",
+    "tests/SaytileKitTests/OfflineFailoverTests.swift": "4d8fc7da9df35527d8b69bd47d304df1b229584d41b4a9fcfa22e20ddf87bb42"
+  },
+  "commands": [
+    "SAYTILE_TEST_SCRATCH=/tmp/saytile-offline-20261107-build SAYTILE_TEST_LOG=evidence/offline-failover/scoped-tests.log scripts/test-native.sh --disable-sandbox --filter 'OfflineFailoverTests|RecognitionFactorySafetyTests|CaptureOwnershipTests|JournalRangeAndLocalIngressTests|CaptureCloudIntegrationTests|RecognitionCoordinatorTests|RecognitionPipelineBoundaryTests|AudioLifecycleTests|AudioLifecycleGateTests|AudioJournalBoundaryTests|AudioStorageFailureTests|FusionPublicationTests|FusionRevisionSafetyTests|StoreFusionSafetyTests|storeDispatch|storeAudioDeletion|storeLateRecognition|storeNewAttempt|storeRecoveryRetries|storeRecoveryQueue|storeInterruptedCapture|storeDeletingRecord|storeFrozen|storeUnsavedEditing'"
+  ],
+  "prohibited_operations_executed": false,
+  "real_device_and_quality": "NOT_RUN",
+  "remote_operations": "NOT_RUN",
+  "result": {
+    "scoped_native_tests": 79,
+    "suites": 13,
+    "status": "PASS",
+    "build": "Full SaytileKit and Saytile executable compiled and linked; app not launched",
+    "new_failover_tests": 7,
+    "new_failover_parameterized_cases": 10,
+    "log_sha256": "6c804981a8cbd95ae3653eb675d0e9cda48ffd8d9b07c1ef0258d7e2f8bbdfdb"
+  }
+}

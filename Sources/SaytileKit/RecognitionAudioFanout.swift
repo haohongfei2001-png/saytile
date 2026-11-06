@@ -75,13 +75,23 @@ final class RecognitionSessionFactory: @unchecked Sendable {
     private var generation: UInt64 = 0
     private var active = 0
     private let dependencies: RecognitionPipelineDependencies
-    init(configuration: RecognitionConfiguration = RecognitionConfiguration(), dependencies: RecognitionPipelineDependencies = .live) {
-        value = configuration; self.dependencies = dependencies
+    private let local: LocalFailoverDependencies
+    private var epoch: RecognitionFailoverEpoch
+    init(configuration: RecognitionConfiguration = RecognitionConfiguration(), dependencies: RecognitionPipelineDependencies = .live, local: LocalFailoverDependencies = .live) {
+        value = configuration; self.dependencies = dependencies; self.local = local
+        epoch = RecognitionFailoverEpoch(now: local.now)
     }
     var snapshot: Snapshot { lock.withLock { Snapshot(configuration: value, generation: generation) } }
     var configuration: RecognitionConfiguration { snapshot.configuration }
     var usesCloud: Bool { configuration.cloudEnabled }
-    func update(_ config: RecognitionConfiguration) { lock.withLock { value = config; generation &+= 1 } }
+    func update(_ config: RecognitionConfiguration) {
+        lock.withLock {
+            // Fence old work before a caller can observe/admit the new snapshot.
+            epoch.invalidate()
+            value = config; generation &+= 1
+            epoch = RecognitionFailoverEpoch(now: local.now)
+        }
+    }
     func make(store: SaytileStore, ticket: RecognitionTicket, snapshot requested: Snapshot? = nil) -> any RecognitionSession {
         // Ticket creation awaits Store. A settings/revocation change in that gap
         // must not mix generations or revive a cancelled cloud configuration.
@@ -95,7 +105,9 @@ final class RecognitionSessionFactory: @unchecked Sendable {
             guard config.cloudEnabled else { return LiveSpeechSession(store: store, ticket: ticket) }
             guard active < 8 else { return DeferredRecognitionSession(store: store, ticket: ticket) }
             active += 1
-            return MultiRecognitionSession(store: store, ticket: ticket, configuration: config, dependencies: dependencies) { [weak self] in
+            let (cloud, probe) = epoch.admitCloud()
+            return FailoverRecognitionSession(store: store, ticket: ticket, configuration: config,
+                dependencies: dependencies, local: local, epoch: epoch, cloud: cloud, probe: probe) { [weak self] in
                 self?.lock.withLock { self?.active -= 1 }
             }
         }

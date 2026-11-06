@@ -19,12 +19,26 @@ actor LocalCandidateIngress {
         let prefix = try await store.fusionReservedPrefix(recordingID: ticket.recordingID)
         let proposal = PrecisionFusion.evaluate(candidates: [candidate], mode: .highestQuality,
             committedPrefix: prefix, requiredPurposes: [.multilingualASR], requiredConfigurationIDs: [run.configurationID])
-        _ = try await store.publishFusion(ticket: ticket, proposal: proposal)
+        let publication = try await store.publishFusion(ticket: ticket, proposal: proposal)
+        complete = event.isComplete && !publication.deferred
         NotificationCenter.default.post(name: .init("SaytileRecognitionUpdated"), object: ticket.recordingID)
     }
     func finish() async throws {
         guard let run, complete else { throw ProviderFailure.incomplete }
         try await store.finishModelRun(run, error: nil, retryable: true)
         try await store.finishRecognition(ticket: ticket)
+    }
+}
+
+extension SaytileStore {
+    /// Generation check and mutation share the Store actor turn, so a settings
+    /// update while waiting for Store cannot queue over a newer admitted ticket.
+    func beginLocalFailover(recordingID: UUID, epoch: RecognitionFailoverEpoch) throws -> RecognitionTicket {
+        try epoch.check()
+        return try beginRecognition(recordingID: recordingID)
+    }
+    func queueLocalFailover(recordingID: UUID, epoch: RecognitionFailoverEpoch) throws {
+        try epoch.check()
+        try queueRecognition(recordingID: recordingID)
     }
 }
