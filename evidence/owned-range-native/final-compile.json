@@ -1,0 +1,18 @@
+{
+  "compile_final_probe": "PASS",
+  "warnings_as_errors": true,
+  "compile_exit_code": 0,
+  "native_ax": "BLOCKED",
+  "native_scenarios_executed": 0,
+  "reason": "AX_PERMISSION_UNAVAILABLE_NO_PROMPT; no fixture launched, no prompt, no permission escalation",
+  "final_probe_native_execution": "NOT_RUN; no repeat of known unavailable AX preflight",
+  "production_sources_unchanged_since_full_build": true,
+  "final_probe_sha256": "cb6e2096a707f73d48b615dd7d73ec9edc89b5b2566a069d0fb36756cfb57668",
+  "final_probe_binary_sha256": "95e5a72b6a753c7c5256c030f74035f08a613f2cfc4b82afec77c3ab55e0c579",
+  "final_compile_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "swift": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+  "macos": "27.0",
+  "host_target": "arm64-apple-macosx27.0.0",
+  "run_directory": "/private/tmp/saytile-owned-range-native-2kp334uo",
+  "note": "Final probe uses a MainActor selection holder and classifies unavailable fixture registration/snapshot as BLOCKED; recompiled against the just-built unchanged production library. Original full-run summary preserves its original source hashes."
+}

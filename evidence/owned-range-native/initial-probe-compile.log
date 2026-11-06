@@ -1,0 +1,20 @@
+/Users/hhf/.codex/saytile-single-transcript-20261107/native-probe-repo/tests/fixtures/OwnedRangeNativeProbe.swift:160:59: warning: 'useAlternate' mutated after capture by sendable closure
+ 62 |             blocked("OWN_FIXTURE_TEXT_AREAS_UNAVAILABLE")
+ 63 |         }
+ 64 |         var useAlternate = false
+    |             `- note: variable defined here
+ 65 |         let access = AXInputAccess(selectionProvider: {
+    |                                                       `- note: variable captured by sendable closure
+ 66 |             guard !application.isTerminated,
+ 67 |                   application.executableURL?.resolvingSymlinksInPath() == executable else { throw NativeInputError.targetChanged }
+ 68 |             let field = useAlternate ? alternate : primary
+    |                         `- note: capturing use
+ 69 |             var owner: pid_t = 0, settable = DarwinBoolean(false)
+ 70 |             guard AXUIElementGetPid(field, &owner) == .success, owner == pid,
+    :
+158 |             if scenario == "manual-edit" { _ = try rpc("manual-edit") }
+159 |             if scenario == "selection-change" { _ = try rpc("select") }
+160 |             if scenario == "target-change" { useAlternate = true }
+    |                                                           `- warning: 'useAlternate' mutated after capture by sendable closure
+161 |             if scenario == "setter-refusal" { _ = try rpc("reject-replacement") }
+162 |             if scenario == "manual-edit" || scenario == "selection-change" {
