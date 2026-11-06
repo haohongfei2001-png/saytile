@@ -1,3 +1,5 @@
+> 已验证的875f66f检查点。后续并行上游安全修复与engine.single-transcript.2候选另行验收，不能将以下旧包身份/计数套用到新源码。
+
 # Saytile 双专家单一文字流：核心工程候选交付
 
 **ENGINE_CANDIDATE_VALIDATED / LIVE_ACCEPTANCE_PENDING。** 代码、构建和隔离工程验收已交付；不是已测得最高识别准确率或可直接替换RC1的正式版本。

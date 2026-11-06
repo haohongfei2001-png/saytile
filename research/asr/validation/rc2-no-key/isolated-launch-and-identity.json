@@ -1,0 +1,38 @@
+{
+  "scope": "New isolated directory ordinary launch using actual development App; no UI interaction, microphone, provider call or private preference inspection. Fake bundle negative identity guards never launch fake executable. Not final clean package acceptance.",
+  "app_source_revision": "a602236ea48f7140b57c46e916bae4c5d43f5cd9",
+  "app_source_dirty": true,
+  "app_release_version": "1.0.0-rc.2-candidate.2",
+  "binary_sha256": "9689718662c46bf8f34ddd10b498157c266c6d252bb7ef49090383ee71c89dfb",
+  "count": 6,
+  "checks": [
+    {
+      "case": "explicit_directory_only",
+      "status": "PASS",
+      "receipt": "SAYTILE_ISOLATED_LAUNCH cloud_enabled=false automatic_recovery=false shortcut=disabled visible_panel=false hotkey_registered=false",
+      "termination": "intentional SIGTERM after 1 second"
+    },
+    {
+      "case": "conflicting_argument_preferences",
+      "status": "PASS",
+      "receipt": "SAYTILE_ISOLATED_LAUNCH cloud_enabled=false automatic_recovery=false shortcut=disabled visible_panel=false hotkey_registered=false",
+      "termination": "intentional SIGTERM after 1 second"
+    },
+    {
+      "case": "wrong_source",
+      "status": "PASS_REJECTED_BEFORE_LAUNCH"
+    },
+    {
+      "case": "wrong_version",
+      "status": "PASS_REJECTED_BEFORE_LAUNCH"
+    },
+    {
+      "case": "wrong_binary",
+      "status": "PASS_REJECTED_BEFORE_LAUNCH"
+    },
+    {
+      "case": "dirty_source",
+      "status": "PASS_REJECTED_BEFORE_LAUNCH"
+    }
+  ]
+}
