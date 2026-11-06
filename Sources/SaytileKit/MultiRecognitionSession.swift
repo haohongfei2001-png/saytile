@@ -9,6 +9,8 @@ struct RecognitionPipelineDependencies: Sendable {
     var listen: @Sendable (Data, ModelConfiguration, String) async throws -> (AudioReviewTranscript, PrecisionReviewUsage)
     var makeReviewClient: (@Sendable () -> GPTReviewSession)? = nil
     var finalizationStarted: @Sendable () -> Void = {}
+    /// Bounded connection checks reserve an EOS review; normal recognition has no cap.
+    var maximumLiveReviews: Int? = nil
     static let live = RecognitionPipelineDependencies(
         credential: { try CloudCredentialStore.read(configurationID: $0.id, provider: $0.provider) },
         streaming: { provider in

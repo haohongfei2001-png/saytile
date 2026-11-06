@@ -11,7 +11,7 @@ struct ConnectionSetupView: View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("连接最高质量识别").font(.system(size: 23, weight: .semibold))
-                Text("在这里保存密钥并选择服务授权。此窗口不会录音、上传音频或发起模型请求，也不会替换现有 Saytile。")
+                Text("在这里保存密钥并选择服务授权。此窗口不会录音；仅在你明确授权连接检查后，发送内置合成语音和候选文字。现有 Saytile 不受影响。")
                     .font(.system(size: 12)).foregroundStyle(.secondary)
             }.frame(maxWidth: .infinity, alignment: .leading).padding(24)
             Form {
@@ -27,7 +27,7 @@ struct ConnectionSetupView: View {
                     do {
                         try request.exportApplied(model.appliedRecognitionConfiguration,
                             hasUnappliedChanges: model.hasUnappliedRecognitionSettings)
-                        print("CONNECTION_SETUP_SAVED nonsecret_configuration_only; no provider requests")
+                        print("CONNECTION_SETUP_SAVED nonsecret_configuration_only; verification shown in settings")
                         finish()
                     } catch { notice = error.localizedDescription }
                 }.buttonStyle(.borderedProminent)

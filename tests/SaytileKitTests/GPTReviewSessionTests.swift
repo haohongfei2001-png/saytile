@@ -24,13 +24,13 @@ private final class ReviewSocketFixture: GPTReviewSocket, @unchecked Sendable {
             if behavior == .missSecond && sent.count == 2 {
                 try add(["type": "error", "stream_id": lane, "error": ["code": "previous_response_not_found"]]); return
             }
-            try add(["type": "response.created", "stream_id": lane, "response": ["id": id]])
+            try add(["type": "response.created", "stream_id": lane, "response": ["id": id, "model": "gpt-6-astra"]])
             try add(["type": "response.output_text.delta", "stream_id": lane, "response_id": id, "delta": "{invalid partial JSON"])
             try add(["type": "response.completed", "stream_id": "other-lane", "response": ["id": "wrong"]])
             if behavior == .oversized { events.append(Data(repeating: 32, count: 8_000_001)); return }
             let decision = PrecisionReviewDecision(selections: [.init(candidateID: candidateID, utf16Start: 0, utf16End: 2)], unresolved: false, needsAudioReview: false, reasonCode: "fixture")
             let text = String(decoding: try JSONEncoder().encode(decision), as: UTF8.self)
-            let response: [String: Any] = ["id": id, "status": "completed", "output": [["type": "message", "status": "completed", "content": [["type": "output_text", "text": text]]]]]
+            let response: [String: Any] = ["id": id, "model": "gpt-6-astra", "status": "completed", "output": [["type": "message", "status": "completed", "content": [["type": "output_text", "text": text]]]]]
             if behavior == .wrongIdentity {
                 try add(["type": "response.completed", "stream_id": lane, "response": ["id": "old-response", "status": "completed"]])
             }

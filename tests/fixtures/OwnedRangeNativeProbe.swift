@@ -67,7 +67,9 @@ import ApplicationServices
         let choice = SelectionChoice()
         let access = AXInputAccess(selectionProvider: {
             guard !application.isTerminated,
-                  application.executableURL?.resolvingSymlinksInPath() == executable else { throw NativeInputError.targetChanged }
+                  application.executableURL?.resolvingSymlinksInPath() == executable,
+                  let currentWindows = attribute(root, kAXWindowsAttribute) as? [AXUIElement],
+                  currentWindows.contains(where: { CFEqual($0, window) }) else { throw NativeInputError.targetChanged }
             let field = choice.alternate ? alternate : primary
             var owner: pid_t = 0, settable = DarwinBoolean(false)
             guard AXUIElementGetPid(field, &owner) == .success, owner == pid,
@@ -120,14 +122,18 @@ import ApplicationServices
             try require(NSPasteboard.general.changeCount == pasteboardGeneration, "clipboard generation changed; no cause inferred")
         }
 
-        for scenario in ["repair-and-continue", "manual-edit", "selection-change", "target-change", "setter-refusal"] {
+        let scenarios = ["repair-and-continue", "shorter-repair-and-continue", "manual-edit", "selection-change",
+                         "target-change", "setter-refusal", "focus-change", "restart-before-repair", "window-closed"]
+        for scenario in scenarios {
+            let original = scenario == "shorter-repair-and-continue" ? Self.corrected : Self.original
+            let corrected = scenario == "shorter-repair-and-continue" ? Self.original : Self.corrected
             choice.alternate = false
             _ = try rpc("reset")
             // Flush notifications from the fixture's local setup before creating a new binding.
             try await Task.sleep(for: .milliseconds(100))
             let directory = scratch.appendingPathComponent("store-" + scenario)
-            let store = try SaytileStore(directory: directory)
-            let coordinator = NativeInputCoordinator(store: store, access: access)
+            var store = try SaytileStore(directory: directory)
+            var coordinator = NativeInputCoordinator(store: store, access: access)
             let binding = try await coordinator.bindCurrentTarget()
             let record = try await store.createRecording()
             let ticket = try await store.beginFusionRecognition(recordingID: record.id)
@@ -160,17 +166,36 @@ import ApplicationServices
             guard let correction = try await store.ownedCorrectionCandidates(bindingID: binding.id).first else {
                 throw Failure(message: "Store-approved correction missing")
             }
-            let db = try StoreDatabase(url: directory.appendingPathComponent("Saytile.sqlite"))
+            var db = try StoreDatabase(url: directory.appendingPathComponent("Saytile.sqlite"))
             try require(try db.rows("SELECT valid FROM owned_input_ranges").first?["valid"] == "1", "real insertion did not establish ownership")
             if scenario == "manual-edit" { _ = try rpc("manual-edit") }
             if scenario == "selection-change" { _ = try rpc("select") }
             if scenario == "target-change" { choice.alternate = true }
             if scenario == "setter-refusal" { _ = try rpc("reject-replacement") }
-            if scenario == "manual-edit" || scenario == "selection-change" {
+            if scenario == "focus-change" { _ = try rpc("focus-alternate") }
+            if scenario == "window-closed" { _ = try rpc("close-window") }
+            if scenario == "restart-before-repair" {
+                // Persist the exact pre-write state, reopen the real database, then
+                // prove that a new coordinator cannot replay the uncertain operation.
+                guard let operation = try await store.reserveOwnedCorrection(bindingID: binding.id,
+                    revision: correction, targetStart: prefix.utf16.count, expectedText: original) else {
+                    throw Failure(message: "restart reservation missing")
+                }
+                coordinator.invalidate(); try db.close(); try await store.close()
+                store = try SaytileStore(directory: directory)
+                db = try StoreDatabase(url: directory.appendingPathComponent("Saytile.sqlite"))
+                coordinator = NativeInputCoordinator(store: store, access: access)
+                try require(try await store.ownedCorrectionState(id: operation.id) == "unverified",
+                            "restart must preserve uncertainty without replay")
+                let newBinding = try await coordinator.bindCurrentTarget()
+                try require(try await store.ownedCorrectionCandidates(bindingID: newBinding.id).isEmpty,
+                            "new binding cannot recover old correction ownership")
+            }
+            if ["manual-edit", "selection-change", "focus-change", "window-closed"].contains(scenario) {
                 try await Task.sleep(for: .milliseconds(100))
             }
             let result = await coordinator.repairOwned(revision: correction)
-            let successful = scenario == "repair-and-continue"
+            let successful = scenario == "repair-and-continue" || scenario == "shorter-repair-and-continue"
             try require(result == (successful ? .confirmed : .correctionPending), "unexpected repair result: " + scenario)
             let attempted = successful || scenario == "setter-refusal"
             let expected = prefix + (successful ? corrected : scenario == "manual-edit" ? "99😀" : original) + suffix
@@ -225,6 +250,6 @@ import ApplicationServices
         let activation = audit.finish()
         try require(!activation.ownedActivated, "owned fixture or probe activated")
         emit("PASS safety no_full_value=true no_clipboard_change=true no_key_return_send=true no_owned_activation=true")
-        emit("OWNED_RANGE_NATIVE_PASS scenarios=5 target_selection_injected=true production_foreground_resolver=NOT_RUN")
+        emit("OWNED_RANGE_NATIVE_PASS scenarios=\(scenarios.count) target_selection_injected=true production_foreground_resolver=NOT_RUN")
     }
 }

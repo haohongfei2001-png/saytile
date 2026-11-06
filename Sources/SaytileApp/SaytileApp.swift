@@ -163,7 +163,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             if CommandLine.arguments.contains("--smoke-test") {
                 Task {
                     await model.initialLoad()
-                    print("SAYTILE_SMOKE_OK records=\(model.records.count) microphone=\(model.microphoneLabel)")
+                    do {
+                        let sample = try CloudConnectionVerifier.bundledSample()
+                        print("SAYTILE_SMOKE_OK records=\(model.records.count) microphone=\(model.microphoneLabel) bundled_sample_bytes=\(sample.count)")
+                    } catch {
+                        print("SAYTILE_SMOKE_FAILED bundled_connection_sample")
+                        await model.prepareForExit(); exit(1)
+                    }
                     await model.prepareForExit()
                     NSApp.terminate(nil)
                 }

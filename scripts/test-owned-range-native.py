@@ -35,7 +35,7 @@ def run(args):
                "scratch": str(scratch), "execution_context": args.execution_context,
                "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                "scope": "production coordinator + Store + AXInputAccess; injected own fixture selection",
-               "scenarios_planned": 5, "scenarios_passed": [],
+               "scenarios_planned": 9, "scenarios_passed": [],
                "tcc_prompt": False, "foreground_resolver": "NOT_RUN"}
     children = []
     log = (scratch / "probe.log").open("w")
@@ -79,6 +79,12 @@ def run(args):
                  "tests/fixtures/AXFixtureActivationAudit.swift", "scripts/test-owned-range-native.py"]
         paths += [str(p.relative_to(ROOT)) for p in sorted((ROOT / "Sources").rglob("*")) if p.is_file()]
         summary["source_sha256"] = {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in paths}
+        def verify_sources_unchanged():
+            changed = [p for p, digest in summary["source_sha256"].items()
+                       if not (ROOT / p).exists() or hashlib.sha256((ROOT / p).read_bytes()).hexdigest() != digest]
+            summary["source_changed_during_run"] = changed
+            if changed:
+                raise RuntimeError("source changed during acceptance; rerun only after source freeze")
         command(["swiftc", "-swift-version", "6", "-parse-as-library",
                  str(ROOT / "tests/fixtures/OwnedRangeNativeTextFixture.swift"),
                  "-module-cache-path", str(scratch / "clang-cache"),
@@ -118,6 +124,9 @@ def run(args):
                  str(ROOT / "tests/fixtures/AXFixtureActivationAudit.swift"),
                  str(ROOT / "tests/fixtures/OwnedRangeNativeProbe.swift"), "-o", str(probe)], "compile-probe.log")
         summary["compile"] = "PASS"
+        summary["binary_sha256"] = {str(p.relative_to(scratch)): hashlib.sha256(p.read_bytes()).hexdigest()
+                                    for p in [probe, scratch / "OwnedRangeNativeTextFixture", binary / "libSaytileKit.a"]}
+        verify_sources_unchanged()
         if args.compile_only:
             summary["status"] = "COMPILE_ONLY_PASS"
             record("COMPILE_ONLY_PASS native_AX=NOT_RUN")
@@ -152,7 +161,7 @@ def run(args):
         record(f"FIXTURE_READY exact_spawned_pid={fixture.pid} nonce_verified=true")
         worker = spawn([str(probe), str(fixture.pid), nonce, str(scratch)], "probe")
         deadline, pending, passed, eof = time.monotonic() + 45, None, False, False
-        allowed = {"reset", "state", "manual-edit", "select", "reject-replacement"}
+        allowed = {"reset", "state", "manual-edit", "select", "reject-replacement", "focus-alternate", "close-window"}
         while time.monotonic() < deadline and not eof:
             try:
                 source, line = messages.get(timeout=0.1)
@@ -188,8 +197,9 @@ def run(args):
         code = worker.wait(timeout=3)
         if code == 5:
             raise Blocked("REAL_AX_UNAVAILABLE; see probe.log")
-        if code != 0 or not passed or pending is not None:
+        if code != 0 or not passed or pending is not None or len(summary["scenarios_passed"]) != summary["scenarios_planned"]:
             raise RuntimeError(f"probe failed exit={code}; no mutation retry")
+        verify_sources_unchanged()
         summary["native_ax"] = "PASS"
         summary["status"] = "PASS"
         return 0

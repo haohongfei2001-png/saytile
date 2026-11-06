@@ -1,5 +1,15 @@
 import Foundation
 
+private extension ProviderFailure {
+    var canTriggerLocalFailover: Bool {
+        if !canRetryAutomatically { return true }
+        switch self {
+        case .connection, .rateLimited: return true
+        default: return false
+        }
+    }
+}
+
 /// Runtime-only routing. Never writes cloudEnabled, consent, credentials or preferences.
 /// One next-segment probe after each backoff; three failed probes exhaust this generation.
 final class RecognitionFailoverEpoch: @unchecked Sendable {
@@ -24,15 +34,19 @@ final class RecognitionFailoverEpoch: @unchecked Sendable {
     func failed(_ failure: ProviderFailure, probe id: UUID?) {
         lock.withLock {
             guard valid else { return }
-            switch failure {
-            case .authorization, .quota, .configuration: blocked = true
-            case .connection:
+            if !failure.canRetryAutomatically {
+                blocked = true
+            } else if failure.canTriggerLocalFailover {
                 // Coalesce failures from concurrent pre-outage sessions.
                 if failures == 0 || (id != nil && id == probe) {
                     failures += 1
-                    retryAt = now().addingTimeInterval([5.0, 15, 60, 60][min(failures - 1, 3)])
+                    retryAt = now().addingTimeInterval(max(failure.minimumRetryDelay,
+                        [5.0, 15, 60, 60][min(failures - 1, 3)]))
                 }
-            default: return
+                // A concurrent rate limit must never shorten an existing circuit delay.
+                retryAt = max(retryAt, now().addingTimeInterval(failure.minimumRetryDelay))
+            } else {
+                return
             }
             if id == probe { probe = nil }
         }
@@ -134,10 +148,10 @@ final class FailoverRecognitionSession: RecognitionSession, @unchecked Sendable 
             if let value = error as? ProviderFailure { failure = value }
             else if let value = error as? URLError, value.code != .cancelled { failure = .connection }
             else { return }
-            switch failure {
-            case .connection, .authorization, .quota, .configuration: signal.yield(.failure(failure))
-            default: break // Cancellation, missing finals and protocol errors are not network restoration signals.
+            if failure.canTriggerLocalFailover {
+                signal.yield(.failure(failure))
             }
+            // Cancellation and missing finals do not justify restarting recognition.
         }
         var scoped = dependencies
         scoped.credential = { item in

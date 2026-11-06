@@ -267,7 +267,8 @@ struct OfflineFailoverTests {
         try await f.cleanup()
     }
 
-    @Test(arguments: [ProviderFailure.authorization, .quota])
+    @Test(arguments: [ProviderFailure.authorization, .permission, .regionMismatch, .quota,
+                      .configuration("synthetic"), .protocolViolation("synthetic")])
     func nonNetworkFailureStopsAutomaticCloudAttempts(reason: ProviderFailure) async throws {
         let f = try OfflineFixture()
         await f.probe.setFailure(reason)
@@ -282,6 +283,29 @@ struct OfflineFailoverTests {
         #expect(await f.probe.localStarts == 2)
         #expect(try await f.store.recording(id: id)?.recognitionState == .completed)
         #expect(f.factory.configuration == f.config)
+        try await f.cleanup()
+    }
+
+    @Test func rateLimitUsesLocalThenWaitsAtLeastServerBackoffBeforeNextCloudProbe() async throws {
+        let f = try OfflineFixture()
+        await f.probe.setFailure(.rateLimited)
+        try await f.worker.beginUtterance()
+        let first = try #require(await f.worker.recordingID)
+        try await f.worker.append(Data(repeating: 8, count: 640)); try await f.worker.endUtterance(); await f.drain()
+        #expect(await f.probe.localStarts == 1)
+        #expect(try await f.store.recording(id: first)?.recognitionState == .completed)
+        let starts = await f.probe.cloudStarts
+        f.clock.advance(59)
+        try await f.worker.beginUtterance()
+        try await f.worker.append(Data(repeating: 9, count: 640)); try await f.worker.endUtterance(); await f.drain()
+        #expect(await f.probe.cloudStarts == starts)
+        #expect(await f.probe.localStarts == 2)
+        await f.probe.setFailure(nil); f.clock.advance(2)
+        try await f.worker.beginUtterance()
+        let next = try #require(await f.worker.recordingID)
+        try await f.worker.append(Data(repeating: 10, count: 640)); try await f.worker.endUtterance(); await f.drain()
+        #expect(await f.probe.cloudStarts == starts + 2)
+        #expect(try await f.store.recording(id: next)?.recognitionState == .completed)
         try await f.cleanup()
     }
 
@@ -324,12 +348,18 @@ struct OfflineFailoverTests {
             bounded.failed(.connection, probe: admission.1)
         }
         clock.advance(10_000); #expect(!bounded.admitCloud().0)
-        for reason in [ProviderFailure.authorization, .quota, .configuration("synthetic")] {
+        for reason in [ProviderFailure.authorization, .permission, .regionMismatch, .quota,
+                       .configuration("synthetic"), .protocolViolation("synthetic")] {
             let blocked = RecognitionFailoverEpoch(now: { clock.now() })
             blocked.failed(reason, probe: nil); clock.advance(10_000)
             #expect(!blocked.admitCloud().0)
         }
         let cancelled = RecognitionFailoverEpoch(now: { clock.now() })
         cancelled.failed(.cancelled, probe: nil); #expect(cancelled.admitCloud().0)
+        let limited = RecognitionFailoverEpoch(now: { clock.now() })
+        limited.failed(.connection, probe: nil)
+        limited.failed(.rateLimited, probe: nil)
+        clock.advance(59); #expect(!limited.admitCloud().0)
+        clock.advance(2); #expect(limited.admitCloud().0)
     }
 }

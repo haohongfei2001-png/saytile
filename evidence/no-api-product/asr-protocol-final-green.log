@@ -1,0 +1,144 @@
+Building for debugging...
+[1 / 1]
+[2 / 17] SaytileKit
+[13 / 28] SaytileKit
+[14 / 28] SaytileKit
+[20 / 29] SaytileKit
+[21 / 31] SaytileKit
+[28 / 38] Saytile-product
+[28 / 38] SaytileKit
+[29 / 40] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[34 / 42] Saytile-product
+[43 / 53] SaytileKitTests-product
+[44 / 53] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:318:123: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+311 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+312 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+313 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+314 |             // A cancelled older check must fully close its sockets before another starts.
+315 |             await previous?.value
+316 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+317 |             do {
+318 |                 let report = try await CloudConnectionVerifier.verify(configuration: candidate, authorized: true) { [weak self] report in
+    |                                                                                                                           |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                                                           `- note: explicitly assign the capture list item to silence
+319 |                     Task { @MainActor [weak self] in
+320 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[45 / 53] SaytileKitTests-product
+[46 / 53] Saytile-product
+[47 / 53] SaytileKitTests-product
+[49 / 53] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[51 / 54] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[53 / 57] SaytileKitTests-product
+Build complete! (6.63秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "English provider wire contracts; no cloud calls" started.
+◇ Suite "Chinese and multilingual provider wire contracts" started.
+◇ Suite "ASR protocol lifecycle and sanitized diagnosis" started.
+◇ Test unsupportedRealtimeChoiceIsHiddenAndCannotStart() started.
+◇ Test qwenRejectsWrongGenerationAndIncompleteFinal() started.
+◇ Test sonioxCumulativeWindowStartsAtZeroAfterLeadingSilence() started.
+◇ Test sonioxAppendsFinalsButReplacesNonfinalTail() started.
+◇ Test sonioxUsesHeaderAuthRawPCMAndNonrestrictiveLanguageHints() started.
+◇ Test qwenMissingPartialTimeDoesNotFabricateWordAlignment() started.
+◇ Test qwenStashAndHeartbeatAreNotDuplicateSentences() started.
+◇ Test providerErrorsAreRedactedAndUntranslated() started.
+◇ Test qwenMisalignedOrInvalidWordsFallBackWithoutDroppingNegation() started.
+◇ Test qwenRequestUsesRegionalWorkspaceAndExplicitPartials() started.
+◇ Test unformattedFinalDoesNotClaimFormattedTurnCompletion() started.
+◇ Test qwenCumulativeWindowStartsAtZeroAfterLeadingSilence() started.
+◇ Test cloudPermissionAndCredentialValidationHappenBeforeNetworking() started.
+◇ Test missingOrUnfinishedEarlierTurnBlocksStablePrefix() started.
+◇ Test badPCMCannotSilentlyBecomeAnAudioRequest() started.
+◇ Test assemblyPartialUsesOnlyContiguousFinalWordsAndPreservesSeparators() started.
+◇ Test punctuationIsCopiedFromTranscriptWithoutInventingAudioTime() started.
+◇ Test intentionalRepeatedTurnsAreNotDeduplicated() started.
+◇ Test fileResultsKeepWordsInSecondsAndDoNotFabricateConfidence() started.
+◇ Test malformedWordTimesAreNeverInvented() started.
+◇ Test sonioxControlTokensAndMissingTimeCannotBecomeSpokenEvidence() started.
+◇ Test assemblyChecksTheServersAppliedModelAndAccuracyMode() started.
+◇ Test qwenRealWordsPreserveTermBoundariesAndExactSentenceLayout() started.
+◇ Test invalidModelOrRequestErrorsAreSanitizedAndNotRetried() started.
+◇ Test assemblyReplacesTurnAndPreservesNegationNumbersUnicodeAndRawConfidence() started.
+◇ Test qwenRevisionReplacesSentenceAndPreservesUTF16Evidence() started.
+◇ Test assemblyUsesExplicitStreamingModelAndHeaderAuthentication() started.
+◇ Test unmatchedFormattedWordsDowngradeTimingWithoutLosingText() started.
+◇ Test fileRequestsContainBinaryMultipartAndProviderSpecificAuthentication() started.
+◇ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+◇ Test qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+◇ Test invalidJSONAlwaysHasSafeProtocolDiagnosis() started.
+◇ Test loopbackEndpointCannotExportCredentialsOrOverrideOfficialModelQuery() started.
+◇ Test beginCannotConfirmAnUnidentifiedAssemblySession() started.
+◇ Test assemblyFinalCannotRegressToLatePartialOrConflictingFinal() started.
+◇ Test qwenZeroIdentifierIsOnlyValidForAHeartbeat() started.
+◇ Test qwenConsentMustBePresentAtTheProductionNetworkBoundary() started.
+◇ Test qwenFinalCannotRegressToLatePartialOrConflictingFinal() started.
+◇ Test qwenMissingSentenceCannotClaimStableOrCompletedText() started.
+✔ Test unsupportedRealtimeChoiceIsHiddenAndCannotStart() passed after 0.001 seconds.
+✔ Test qwenStashAndHeartbeatAreNotDuplicateSentences() passed after 0.001 seconds.
+✔ Test qwenRejectsWrongGenerationAndIncompleteFinal() passed after 0.001 seconds.
+✔ Test sonioxCumulativeWindowStartsAtZeroAfterLeadingSilence() passed after 0.001 seconds.
+✔ Test qwenMisalignedOrInvalidWordsFallBackWithoutDroppingNegation() passed after 0.001 seconds.
+✔ Test qwenMissingPartialTimeDoesNotFabricateWordAlignment() passed after 0.001 seconds.
+✔ Test sonioxAppendsFinalsButReplacesNonfinalTail() passed after 0.001 seconds.
+✔ Test qwenCumulativeWindowStartsAtZeroAfterLeadingSilence() passed after 0.001 seconds.
+✔ Test providerErrorsAreRedactedAndUntranslated() passed after 0.001 seconds.
+✔ Test missingOrUnfinishedEarlierTurnBlocksStablePrefix() passed after 0.001 seconds.
+✔ Test punctuationIsCopiedFromTranscriptWithoutInventingAudioTime() passed after 0.001 seconds.
+✔ Test intentionalRepeatedTurnsAreNotDeduplicated() passed after 0.001 seconds.
+✔ Test unformattedFinalDoesNotClaimFormattedTurnCompletion() passed after 0.001 seconds.
+✔ Test assemblyPartialUsesOnlyContiguousFinalWordsAndPreservesSeparators() passed after 0.001 seconds.
+✔ Test cloudPermissionAndCredentialValidationHappenBeforeNetworking() passed after 0.001 seconds.
+◇ Test case passing 2 arguments code → "AccessDenied", expected → "permission_denied" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+◇ Test case passing 2 arguments code → "InvalidWorkspace", expected → "region_workspace_mismatch" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: Insufficient funds", expected → "quota_exhausted" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+◇ Test case passing 2 arguments code → "InvalidApiKey", expected → "authorization_failed" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: Invalid API key", expected → "authorization_failed" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+◇ Test case passing 2 arguments code → "Throttling", expected → "rate_limited" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: Too many concurrent sessions", expected → "rate_limited" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+✔ Test invalidModelOrRequestErrorsAreSanitizedAndNotRetried() passed after 0.001 seconds.
+◇ Test case passing 2 arguments code → "Arrearage", expected → "quota_exhausted" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+✔ Test sonioxControlTokensAndMissingTimeCannotBecomeSpokenEvidence() passed after 0.001 seconds.
+◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: API key is disabled", expected → "permission_denied" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+◇ Test case passing 2 arguments code → "InvalidParameter", expected → "invalid_configuration" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: No metronome account found", expected → "quota_exhausted" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+✔ Test malformedWordTimesAreNeverInvented() passed after 0.001 seconds.
+◇ Test case passing 3 arguments code → 3005, message → "Session Cancelled: An error occurred", expected → "connection_failed" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+◇ Test case passing 3 arguments code → 3008, message → "Session Expired: Maximum session duration exceeded", expected → "connection_failed" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+◇ Test case passing 3 arguments code → 3007, message → "Input duration violation: 10 ms. Expected between 20 and 1000 ms", expected → "protocol_incompatible" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+✔ Test fileResultsKeepWordsInSecondsAndDoNotFabricateConfidence() passed after 0.001 seconds.
+✔ Test assemblyChecksTheServersAppliedModelAndAccuracyMode() passed after 0.001 seconds.
+✔ Test badPCMCannotSilentlyBecomeAnAudioRequest() passed after 0.001 seconds.
+✔ Test qwenRealWordsPreserveTermBoundariesAndExactSentenceLayout() passed after 0.001 seconds.
+✔ Test assemblyReplacesTurnAndPreservesNegationNumbersUnicodeAndRawConfidence() passed after 0.001 seconds.
+✔ Test unmatchedFormattedWordsDowngradeTimingWithoutLosingText() passed after 0.001 seconds.
+✔ Test qwenRevisionReplacesSentenceAndPreservesUTF16Evidence() passed after 0.001 seconds.
+✔ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) with 8 test cases passed after 0.001 seconds.
+✔ Test qwenTaskFailuresRetainSafeCategories(code:expected:) with 6 test cases passed after 0.001 seconds.
+✔ Test invalidJSONAlwaysHasSafeProtocolDiagnosis() passed after 0.001 seconds.
+✔ Test qwenZeroIdentifierIsOnlyValidForAHeartbeat() passed after 0.001 seconds.
+✔ Test assemblyFinalCannotRegressToLatePartialOrConflictingFinal() passed after 0.001 seconds.
+✔ Test qwenFinalCannotRegressToLatePartialOrConflictingFinal() passed after 0.001 seconds.
+✔ Test qwenMissingSentenceCannotClaimStableOrCompletedText() passed after 0.001 seconds.
+✔ Test beginCannotConfirmAnUnidentifiedAssemblySession() passed after 0.001 seconds.
+✔ Test qwenConsentMustBePresentAtTheProductionNetworkBoundary() passed after 0.001 seconds.
+✔ Test assemblyUsesExplicitStreamingModelAndHeaderAuthentication() passed after 0.002 seconds.
+✔ Test loopbackEndpointCannotExportCredentialsOrOverrideOfficialModelQuery() passed after 0.001 seconds.
+✔ Suite "ASR protocol lifecycle and sanitized diagnosis" passed after 0.002 seconds.
+✔ Test fileRequestsContainBinaryMultipartAndProviderSpecificAuthentication() passed after 0.002 seconds.
+✔ Suite "English provider wire contracts; no cloud calls" passed after 0.003 seconds.
+✔ Test sonioxUsesHeaderAuthRawPCMAndNonrestrictiveLanguageHints() passed after 0.003 seconds.
+✔ Test qwenRequestUsesRegionalWorkspaceAndExplicitPartials() passed after 0.003 seconds.
+✔ Suite "Chinese and multilingual provider wire contracts" passed after 0.003 seconds.
+✔ Test run with 39 tests in 3 suites passed after 0.003 seconds.

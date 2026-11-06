@@ -350,13 +350,26 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         self.init(store: store, startupRecoveryReady: false)
         worker = initialWorker
     }
+    private var recognitionSettingsGeneration: UInt64 = 0
+    /// Revoke future cloud sessions synchronously, before awaiting cancellation of old work.
+    public func revokeCloudRecognition() {
+        recognitionSettingsGeneration &+= 1
+        var local = recognitionFactory.configuration; local.cloudEnabled = false
+        recognitionFactory.update(local)
+        retryTask?.cancel()
+        speechStatus = "云端已停用 · 本机识别"
+    }
     public func setRecognitionConfiguration(_ configuration: RecognitionConfiguration) async {
+        recognitionSettingsGeneration &+= 1
+        let generation = recognitionSettingsGeneration
         recognitionFactory.update(configuration)
-        // Revocation takes effect immediately, including closed-input review tasks.
         await worker?.cancelRecognitionAndWait()
         for old in drainingWorkers { await old.cancelRecognitionAndWait() }
+        guard generation == recognitionSettingsGeneration else { return }
         retryTask?.cancel()
-        speechStatus = configuration.cloudEnabled ? "中英文并行识别 · " + configuration.inputMode.label : await AppleSpeechService.availability().message
+        let message = configuration.cloudEnabled ? "中英文并行识别 · " + configuration.inputMode.label : await AppleSpeechService.availability().message
+        guard generation == recognitionSettingsGeneration else { return }
+        speechStatus = message
     }
     /// Best-effort cancellation of in-flight requests. Already received remote audio
     /// cannot be recalled; Store's epoch guard also rejects every later callback.

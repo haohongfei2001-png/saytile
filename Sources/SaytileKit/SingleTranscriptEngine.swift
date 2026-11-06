@@ -198,7 +198,9 @@ actor SingleTranscriptEngine {
         if result.published, let revision = result.revision, firstStable == nil, !revision.text.isEmpty { firstStable = Date() }
         committedPrefix = try await store.fusionReservedPrefix(recordingID: ticket.recordingID)
     }
+    private var liveReviewCount = 0
     private func scheduleLiveReview() {
+        if let limit = dependencies.maximumLiveReviews, liveReviewCount >= limit { return }
         guard !ending, !cancelled, reviewTask == nil,
               configuration.enabledModels.filter({ $0.purpose == .textFusion && reviewEligible($0, finalAttempt: false) }).count == 1 else { return }
         let candidates = activeEvidence()
@@ -217,6 +219,8 @@ actor SingleTranscriptEngine {
         let present = Set(candidates.filter { !$0.text.isEmpty }.map { $0.run.configurationID })
         guard requiredConfigurationIDs.isSubset(of: present),
               signature(candidates) != lastReviewedSignature else { return }
+        if let limit = dependencies.maximumLiveReviews, liveReviewCount >= limit { return }
+        liveReviewCount += 1
         await performTextReview(candidates: candidates, version: evidenceVersion)
     }
     private func reviewDidFinish() {

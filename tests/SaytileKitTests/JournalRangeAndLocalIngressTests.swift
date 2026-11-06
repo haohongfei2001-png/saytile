@@ -4,6 +4,40 @@ import Testing
 
 @Suite("Journal range and local candidate integration")
 struct JournalRangeAndLocalIngressTests {
+    @Test(arguments: ["truncated-header", "wrong-format", "truncated-payload", "symlink", "stale-generation"])
+    func rejectsChangedFilesAndRetiredTickets(reason: String) async throws {
+        let directory = URL(fileURLWithPath: "/tmp/saytile-local-range-" + UUID().uuidString)
+        let store = try SaytileStore(directory: directory)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let record = try await store.createRecording()
+        let ticket = try await store.beginRecognition(recordingID: record.id)
+        let journal = try PCMJournal(directory: store.audioDirectory, recordingID: record.id)
+        try journal.openChunk()
+        let pcm = Data(repeating: 42, count: 640)
+        try journal.append(pcm); try journal.closeChunk()
+        try await store.registerAudioChunk(recordingID: record.id, relativePath: journal.relativePath, frames: journal.durableFrames)
+        let chunk = try #require(await store.audioChunks(recordingID: record.id).first)
+        let url = try await store.audioURL(for: chunk)
+        var bytes = try Data(contentsOf: url)
+        switch reason {
+        case "truncated-header": try bytes.prefix(20).write(to: url)
+        case "wrong-format": bytes[20] = 3; try bytes.write(to: url)
+        case "truncated-payload": try bytes.dropLast(2).write(to: url)
+        case "symlink":
+            let outside = directory.appendingPathComponent("owned-nonaudio-fixture.bin")
+            try bytes.write(to: outside)
+            try FileManager.default.removeItem(at: url)
+            try FileManager.default.createSymbolicLink(at: url, withDestinationURL: outside)
+        default:
+            let replacement = try await store.beginRecognition(recordingID: record.id)
+            #expect(try await store.readPCMRange(ticket: replacement, startFrame: 0, frameCount: 320) == pcm)
+        }
+        await #expect(throws: (any Error).self) {
+            try await store.readPCMRange(ticket: ticket, startFrame: 0, frameCount: 320)
+        }
+        try await store.close()
+    }
+
     @Test func exactDurableRangeCrossesChunksAfterTwelveMBWithoutLifetimeBuffer() async throws {
         let directory = URL(fileURLWithPath: "/tmp/saytile-single-20261107-journal-" + UUID().uuidString)
         let store = try SaytileStore(directory: directory)

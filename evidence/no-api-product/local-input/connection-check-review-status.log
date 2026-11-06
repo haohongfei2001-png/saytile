@@ -1,0 +1,83 @@
+Building for debugging...
+[2 / 5] SaytileKit
+[3 / 6] SaytileKit
+[12 / 15] SaytileKit
+[17 / 20] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[20 / 22] SaytileKitTests-product
+[30 / 32] SaytileKitTests-product
+[36 / 37] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[40 / 44] Saytile-product
+[42 / 46] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:349:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+341 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+342 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+343 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+344 |             // A cancelled older check must fully close its sockets before another starts.
+345 |             await previous?.value
+    :
+347 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+348 |             do {
+349 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+350 |                     Task { @MainActor [weak self] in
+351 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[43 / 46] Saytile-product
+[48 / 51] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[50 / 51] Saytile-product
+Build complete! (6.49秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Connection authorization, bounded cost and truthful evidence; no network or Keychain" started.
+◇ Test rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test identityChangesInvalidateButOfflineSwitchAndLocalTopicDoNot() started.
+◇ Test emptyOrIncompleteReportNeverAuthorizesCloud() started.
+◇ Test stalePartialReviewDoesNotInvalidateLaterAcceptedFinal() started.
+◇ Test arbitraryUnderlyingErrorDoesNotLeakItsDescriptionIntoReports() started.
+◇ Test fastPartialReviewsCannotConsumeFinalConfirmationBudget() started.
+◇ Test oneProviderFailureDoesNotEraseHealthyProviderStatus() started.
+◇ Test deadlineAndExplicitCancellationEndOwnedProviders() started.
+◇ Test missingCredentialFailsOnlyThatServiceWithoutConnectingOthers() started.
+◇ Test completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) started.
+◇ Test case passing 1 argument reason → "odd-audio" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test case passing 1 argument reason → "empty-audio" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test case passing 1 argument reason → "unauthorized" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test atomicBudgetAllowsExactlySixEvenWhenContended() started.
+◇ Test case passing 1 argument reason → "no-consent" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test case passing 1 argument reason → "oversized-audio" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test alreadyCancelledAttemptDoesNotReadCredentials() started.
+◇ Test case passing 1 argument unsupportedSocket → false to completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) started.
+◇ Test case passing 1 argument unsupportedSocket → true to completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) started.
+✔ Test rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) with 5 test cases passed after 0.001 seconds.
+✔ Test emptyOrIncompleteReportNeverAuthorizesCloud() passed after 0.001 seconds.
+✔ Test atomicBudgetAllowsExactlySixEvenWhenContended() passed after 0.001 seconds.
+✔ Test missingCredentialFailsOnlyThatServiceWithoutConnectingOthers() passed after 0.001 seconds.
+✔ Test alreadyCancelledAttemptDoesNotReadCredentials() passed after 0.001 seconds.
+✔ Test identityChangesInvalidateButOfflineSwitchAndLocalTopicDoNot() passed after 0.001 seconds.
+✔ Test arbitraryUnderlyingErrorDoesNotLeakItsDescriptionIntoReports() passed after 0.001 seconds.
+✔ Test oneProviderFailureDoesNotEraseHealthyProviderStatus() passed after 0.029 seconds.
+✔ Test deadlineAndExplicitCancellationEndOwnedProviders() passed after 0.077 seconds.
+✘ Test completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) recorded an issue with 1 argument unsupportedSocket → true at CloudConnectionVerificationTests.swift:251:9: Expectation failed: unsupportedSocket ? probe.fallbackCount == probe.requests.count && probe.fallbackCount > 0 : probe.fallbackCount == 0
+↳ unsupportedSocket ? probe.fallbackCount == probe.requests.count && probe.fallbackCount > 0 : probe.fallbackCount == 0 → <not evaluated>
+✘ Test completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) with 2 test cases failed after 0.345 seconds with 1 issue.
+✘ Test stalePartialReviewDoesNotInvalidateLaterAcceptedFinal() recorded an issue at CloudConnectionVerificationTests.swift:287:9: Expectation failed: report.services.first { $0.provider == .openAIResponses }?.state == .verified
+↳ report.services.first { $0.provider == .openAIResponses }?.state == .verified → false
+↳   report.services.first { $0.provider == .openAIResponses }?.state → .failed
+↳     some → .failed
+↳     some → .verified
+✘ Test stalePartialReviewDoesNotInvalidateLaterAcceptedFinal() failed after 0.802 seconds with 1 issue.
+✔ Test fastPartialReviewsCannotConsumeFinalConfirmationBudget() passed after 2.997 seconds.
+✘ Suite "Connection authorization, bounded cost and truthful evidence; no network or Keychain" failed after 2.998 seconds with 2 issues.
+✘ Test run with 12 tests in 1 suite failed after 2.998 seconds with 2 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

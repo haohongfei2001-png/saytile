@@ -52,6 +52,25 @@ struct DisplayVersion: Identifiable {
 }
 struct DisplayDevice: Identifiable { let id: UInt32; let name: String }
 
+/// Narrow injection for the actual settings controller. Fixtures never need the
+/// production credential namespace or a second implementation of the UI workflow.
+@MainActor
+struct AppConnectionDependencies {
+    var presence: (ModelConfiguration) -> CloudCredentialPresence
+    var save: (String, ModelConfiguration) throws -> Void
+    var delete: (ModelConfiguration) throws -> Void
+    var verify: (RecognitionConfiguration, @escaping @Sendable (CloudConnectionReport) -> Void) async throws -> CloudConnectionReport
+    var applyConfiguration: (AudioController, RecognitionConfiguration) async -> Void
+    var revokeCloud: (AudioController) -> Void
+    static let live = AppConnectionDependencies(
+        presence: { CloudCredentialStore.presence(configurationID: $0.id, provider: $0.provider) },
+        save: { try CloudCredentialStore.save($0, configurationID: $1.id, provider: $1.provider) },
+        delete: { try CloudCredentialStore.delete(configurationID: $0.id, provider: $0.provider) },
+        verify: { try await CloudConnectionVerifier.verify(configuration: $0, authorized: true, progress: $1) },
+        applyConfiguration: { await $0.setRecognitionConfiguration($1) },
+        revokeCloud: { $0.revokeCloudRecognition() })
+}
+
 @MainActor
 final class AppModel: ObservableObject {
     let store: SaytileStore
@@ -59,6 +78,7 @@ final class AppModel: ObservableObject {
     let input: NativeInputCoordinator
     let directory: URL
     private let preferences: UserDefaults
+    private let connectionDependencies: AppConnectionDependencies
     @Published var recent: [DisplayRecording] = []
     @Published var records: [DisplayRecording] = []
     @Published var versions: [DisplayVersion] = []
@@ -70,7 +90,21 @@ final class AppModel: ObservableObject {
     @Published var recordFilter: RecordingFilter = .all { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var query = "" { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var notice: String?
-    @Published var recognitionConfiguration = RecognitionConfiguration()
+    @Published var recognitionConfiguration = RecognitionConfiguration() {
+        didSet {
+            guard !initializing, CloudConnectionVerifier.fingerprint(oldValue) != CloudConnectionVerifier.fingerprint(recognitionConfiguration) else { return }
+            invalidateConnectionVerification()
+        }
+    }
+    @Published private(set) var connectionReport: CloudConnectionReport?
+    @Published private(set) var checkingConnection = false
+    @Published var connectionCheckAuthorized = false
+    private var connectionCheckTask: Task<Void, Never>?
+    private var connectionCheckID: UUID?
+    private var recognitionApplyTask: Task<Void, Never>?
+    private var recognitionApplyID = UUID()
+    private static let connectionReceiptKey = "cloudConnectionReceipt.v1"
+    var connectionVerified: Bool { connectionReport?.canEnableCloud == true && connectionReport?.matches(recognitionConfiguration) == true }
     @Published private(set) var appliedRecognitionConfiguration = RecognitionConfiguration()
     @Published private(set) var applyingRecognitionSettings = false
     var hasUnappliedRecognitionSettings: Bool { recognitionConfiguration != appliedRecognitionConfiguration }
@@ -122,6 +156,8 @@ final class AppModel: ObservableObject {
     private(set) var refreshReadPasses: UInt64 = 0
     private var initializing = true
     private var exitPrepared = false
+    private var preparingForExit = false
+    private var exitWaiters: [CheckedContinuation<Void, Never>] = []
     private var lastStorageRefresh = Date.distantPast
     private var lastModelCallRefresh = Date.distantPast
     private var recovered = false
@@ -142,11 +178,19 @@ final class AppModel: ObservableObject {
     var editorCanEdit: Bool { editorRecordingID != nil && !editorDraftLoading }
     var hasUnpersistedDrafts: Bool { !pendingDraftWrites.isEmpty }
 
-    init(directory: URL, preferences: UserDefaults = .standard) throws {
+    init(directory: URL, preferences: UserDefaults = .standard, connectionDependencies: AppConnectionDependencies = .live) throws {
         self.directory = directory
         self.preferences = preferences
+        self.connectionDependencies = connectionDependencies
         store = try SaytileStore(directory: directory)
-        let recognitionConfiguration = RecognitionConfiguration.load(from: preferences)
+        var recognitionConfiguration = RecognitionConfiguration.load(from: preferences)
+        let receipt = preferences.data(forKey: Self.connectionReceiptKey).flatMap { try? JSONDecoder().decode(CloudConnectionReport.self, from: $0) }
+        connectionReport = receipt
+        if recognitionConfiguration.cloudEnabled && !(receipt?.canEnableCloud == true && receipt?.matches(recognitionConfiguration) == true) {
+            recognitionConfiguration.cloudEnabled = false
+            try recognitionConfiguration.save(to: preferences)
+            recognitionSettingsNotice = "云端连接尚未验证，暂用本机识别。可在设置中完成一次连接检查。"
+        }
         self.recognitionConfiguration = recognitionConfiguration
         self.appliedRecognitionConfiguration = recognitionConfiguration
         audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration, startupRecoveryReady: false)
@@ -218,50 +262,121 @@ final class AppModel: ObservableObject {
     }
     var engineLabel: String { audio.speechStatus }
     func hasCredential(_ item: ModelConfiguration) -> Bool {
-        CloudCredentialStore.contains(configurationID: item.id, provider: item.provider)
+        credentialPresence(item).isSaved
     }
     func credentialPresence(_ item: ModelConfiguration) -> CloudCredentialPresence {
-        CloudCredentialStore.presence(configurationID: item.id, provider: item.provider)
+        connectionDependencies.presence(item)
     }
     @discardableResult func saveCredential(_ value: String, for item: ModelConfiguration) -> Bool {
+        guard !preparingForExit, !exitPrepared else { return false }
         do {
-            try CloudCredentialStore.save(value, configurationID: item.id, provider: item.provider)
+            try connectionDependencies.save(value, item)
+            invalidateConnectionVerification()
             recognitionSettingsNotice = "\(item.purpose.label)的密钥已安全保存。"
             return true
         } catch { recognitionSettingsNotice = error.localizedDescription; return false }
     }
     @discardableResult func removeCredential(for item: ModelConfiguration) -> Bool {
+        guard !preparingForExit, !exitPrepared else { return false }
         do {
-            try CloudCredentialStore.delete(configurationID: item.id, provider: item.provider)
+            try connectionDependencies.delete(item)
+            invalidateConnectionVerification()
             recognitionSettingsNotice = "该服务密钥已移除。"
-            Task { await audio.setRecognitionConfiguration(RecognitionConfiguration.load(from: preferences)) }
             return true
         } catch { recognitionSettingsNotice = error.localizedDescription; return false }
     }
     func applyRecognitionSettings() {
-        guard !applyingRecognitionSettings else { return }
+        guard !preparingForExit, !exitPrepared, !applyingRecognitionSettings, !checkingConnection else { return }
         let candidate = recognitionConfiguration
-        applyingRecognitionSettings = true
-        Task {
-            defer { applyingRecognitionSettings = false }
-            do {
-                try candidate.validateForCloud()
-                if candidate.cloudEnabled {
-                    for item in candidate.enabledModels {
-                        switch credentialPresence(item) {
-                        case .saved: break
-                        case .missing: throw ProviderFailure.configuration("请先保存\(item.purpose.label)的 API Key。")
-                        case .unavailable(let status): throw CloudCredentialError.keychain(status)
-                        }
+        do {
+            try candidate.validateForCloud()
+            if candidate.cloudEnabled {
+                guard connectionVerified else { throw ProviderFailure.configuration("请先完成连接检查，再启用云端识别。本机识别可以继续使用。") }
+                for item in candidate.enabledModels {
+                    switch credentialPresence(item) {
+                    case .saved: break
+                    case .missing: throw ProviderFailure.configuration("请先保存\(item.purpose.label)的 API Key。")
+                    case .unavailable(let status): throw CloudCredentialError.keychain(status)
                     }
                 }
-                try candidate.save(to: preferences)
-                await audio.setRecognitionConfiguration(candidate)
-                appliedRecognitionConfiguration = candidate
-                recognitionSettingsNotice = candidate.cloudEnabled
-                    ? "设置已应用。采集与原音保存继续独立运行。"
-                    : "已停止云端识别，继续使用本机 Apple 识别。"
-            } catch { recognitionSettingsNotice = error.localizedDescription }
+            }
+            try candidate.save(to: preferences)
+            scheduleRecognitionConfiguration(candidate, showNotice: true)
+        } catch { recognitionSettingsNotice = error.localizedDescription }
+    }
+    private func scheduleRecognitionConfiguration(_ candidate: RecognitionConfiguration, showNotice: Bool) {
+        guard !preparingForExit, !exitPrepared else { return }
+        recognitionApplyTask?.cancel()
+        let previous = recognitionApplyTask
+        let generation = UUID(); recognitionApplyID = generation; applyingRecognitionSettings = true
+        recognitionApplyTask = Task {
+            await previous?.value
+            guard recognitionApplyID == generation, !Task.isCancelled else { return }
+            await connectionDependencies.applyConfiguration(audio, candidate)
+            guard recognitionApplyID == generation, !Task.isCancelled else { return }
+            appliedRecognitionConfiguration = candidate; applyingRecognitionSettings = false
+            if showNotice {
+                recognitionSettingsNotice = candidate.cloudEnabled ? "设置已应用。采集与原音保存继续独立运行。" : "已停止云端识别，继续使用本机 Apple 识别。"
+            }
+        }
+    }
+    /// Credential or endpoint changes revoke the previous connection receipt immediately.
+    private func invalidateConnectionVerification() {
+        connectionCheckID = nil; connectionCheckTask?.cancel()
+        connectionReport = nil; checkingConnection = false; connectionCheckAuthorized = false
+        preferences.removeObject(forKey: Self.connectionReceiptKey)
+        // Also revoke a not-yet-published in-flight cloud apply.
+        connectionDependencies.revokeCloud(audio)
+        var local = appliedRecognitionConfiguration; local.cloudEnabled = false
+        appliedRecognitionConfiguration = local
+        try? local.save(to: preferences)
+        scheduleRecognitionConfiguration(local, showNotice: false)
+        recognitionConfiguration.cloudEnabled = false
+    }
+    func cancelConnectionCheck() {
+        connectionCheckID = nil; connectionCheckTask?.cancel()
+        checkingConnection = false; connectionCheckAuthorized = false
+        if var report = connectionReport {
+            for index in report.services.indices where ![.verified, .failed, .cancelled].contains(report.services[index].state) {
+                report.services[index].state = .cancelled
+                report.services[index].code = "cancelled"
+                report.services[index].message = "连接检查已停止。"
+            }
+            connectionReport = report
+        }
+        recognitionSettingsNotice = "连接检查已停止。本机识别可以继续使用；已发出的请求可能由服务商计费。"
+    }
+    func checkRecognitionConnections() {
+        guard !preparingForExit, !exitPrepared, connectionCheckAuthorized, !checkingConnection, !applyingRecognitionSettings else { return }
+        let candidate = recognitionConfiguration
+        let previous = connectionCheckTask
+        invalidateConnectionVerification()
+        let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+        recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+        connectionCheckTask = Task {
+            // A cancelled older check must fully close its sockets before another starts.
+            await previous?.value
+            await recognitionApplyTask?.value
+            guard connectionCheckID == generation, !Task.isCancelled else { return }
+            do {
+                let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+                    Task { @MainActor [weak self] in
+                        guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+                        self.connectionReport = report
+                    }
+                }
+                guard connectionCheckID == generation, !Task.isCancelled else { return }
+                connectionReport = report; checkingConnection = false; connectionCheckAuthorized = false
+                if report.canEnableCloud && report.matches(recognitionConfiguration) {
+                    preferences.set(try JSONEncoder().encode(report), forKey: Self.connectionReceiptKey)
+                    recognitionConfiguration.cloudEnabled = true
+                    applyRecognitionSettings()
+                } else { recognitionSettingsNotice = report.message ?? "连接尚未完整通过，请查看各项服务状态。" }
+            } catch {
+                guard connectionCheckID == generation else { return }
+                checkingConnection = false; connectionCheckAuthorized = false
+                recognitionSettingsNotice = error is CancellationError ? "连接检查已停止。" : MultiConnectionMessage.safe(error)
+            }
         }
     }
     var devices: [DisplayDevice] {
@@ -498,7 +613,18 @@ final class AppModel: ObservableObject {
     }
     func prepareForExit() async {
         guard !exitPrepared else { return }
+        if preparingForExit { await withCheckedContinuation { exitWaiters.append($0) }; return }
+        preparingForExit = true
+        defer {
+            preparingForExit = false
+            let waiters = exitWaiters; exitWaiters.removeAll()
+            for waiter in waiters { waiter.resume() }
+        }
         directMode = false; input.invalidate()
+        cancelConnectionCheck()
+        recognitionApplyID = UUID(); recognitionApplyTask?.cancel(); connectionDependencies.revokeCloud(audio)
+        await connectionCheckTask?.value; connectionCheckTask = nil
+        await recognitionApplyTask?.value; recognitionApplyTask = nil; applyingRecognitionSettings = false
         timer?.cancel(); refreshTask?.cancel()
         await audio.pause()
         editorDebounce?.cancel()
@@ -627,5 +753,13 @@ final class AppModel: ObservableObject {
         let status = SMAppService.mainApp.status
         if status == .requiresApproval { notice = "登录启动需要在系统设置的登录项中允许。收音仍需你主动开启。" }
         initializing = true; launchAtLogin = status == .enabled; initializing = false
+    }
+}
+
+private enum MultiConnectionMessage {
+    static func safe(_ error: Error) -> String {
+        if let known = error as? ProviderFailure { return known.localizedDescription }
+        if let known = error as? CloudCredentialError { return known.localizedDescription }
+        return "连接检查未完成，请稍后重试。本机识别可以继续使用。"
     }
 }

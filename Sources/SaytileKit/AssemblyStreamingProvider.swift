@@ -3,7 +3,17 @@ import Foundation
 /// AssemblyAI v3 sends mutable, numbered turns. A provider-final turn is evidence,
 /// not an instruction to publish or insert text in another application.
 public struct AssemblyStreamingProvider: StreamingASRProvider {
-    public init() {}
+    private let testEndpoint: URL?
+    private let timeoutOverride: TimeInterval?
+    private let onReady: @Sendable () -> Void
+    public init(onReady: @escaping @Sendable () -> Void = {}) {
+        testEndpoint = nil; timeoutOverride = nil; self.onReady = onReady
+    }
+    init(testEndpoint: URL, timeout: TimeInterval = 1, onReady: @escaping @Sendable () -> Void = {}) throws {
+        self.testEndpoint = try ProviderTestEndpoint.validate(testEndpoint, schemes: ["ws", "wss"])
+        guard timeout.isFinite, timeout > 0 else { throw ProviderFailure.configuration("协议测试超时须为正数。") }
+        timeoutOverride = timeout; self.onReady = onReady
+    }
 
     static func request(configuration: ModelConfiguration, credential: String) throws -> URLRequest {
         try EnglishProviderSupport.validate(configuration, provider: .assemblyAI, credential: credential)
@@ -34,19 +44,44 @@ public struct AssemblyStreamingProvider: StreamingASRProvider {
         return request
     }
 
+    static func serviceFailure(_ object: [String: Any]) -> ProviderFailure {
+        // The service sends Error before closing. A 1008 close alone cannot
+        // distinguish an invalid key, exhausted balance and the session rate limit.
+        // Never expose its arbitrary error text (it can contain request contents).
+        guard object["type"] as? String == "Error", let code = object["error_code"] as? Int,
+              let message = object["error"] as? String else { return .protocolViolation("assembly-error") }
+        switch code {
+        case 1008:
+            let reason = message.lowercased()
+            if reason.contains("too many concurrent sessions") { return .rateLimited }
+            if reason.contains("insufficient funds") || reason.contains("no metronome account found") { return .quota }
+            if reason.contains("invalid api key") || reason.contains("signature has expired") ||
+                reason.contains("missing authorization") || reason.contains("no authorization") { return .authorization }
+            // Unknown policy failures must not cause repeated cloud probes.
+            return .permission
+        case 1011, 3005, 3008: return .connection
+        case 3006:
+            return message.lowercased().contains("inactivity") ? .connection : .protocolViolation("assembly-message")
+        case 3007: return .protocolViolation("assembly-audio-duration-or-rate")
+        default: return .protocolViolation("assembly-error-code")
+        }
+    }
+
     static func verifyBegin(_ object: [String: Any], configuration: ModelConfiguration) throws -> String? {
         guard object["type"] as? String == "Begin",
+              let identifier = object["id"] as? String, !identifier.isEmpty,
               let applied = object["configuration"] as? [String: Any],
               applied["model"] as? String == configuration.model,
               applied["mode"] as? String == "max_accuracy" else {
             throw ProviderFailure.protocolViolation("assembly-applied-model-or-mode")
         }
-        return object["id"] as? String
+        return identifier
     }
 
     public func run(audio: AsyncStream<Data>, configuration: ModelConfiguration, credential: String,
                     emit: @escaping @Sendable (ProviderTranscriptEvent) async throws -> Void) async throws {
-        let request = try Self.request(configuration: configuration, credential: credential)
+        var request = try Self.request(configuration: configuration, credential: credential)
+        if let testEndpoint { request = try ProviderTestEndpoint.applying(testEndpoint, to: request) }
         let session = URLSession(configuration: .ephemeral)
         let socket = session.webSocketTask(with: request)
         let progress = EnglishAudioProgress()
@@ -54,12 +89,14 @@ public struct AssemblyStreamingProvider: StreamingASRProvider {
         defer { socket.cancel(with: .normalClosure, reason: nil); session.invalidateAndCancel() }
         do {
             try await withTaskCancellationHandler {
-                let hello = try await EnglishProviderSupport.firstMessage(socket)
-                if hello["error"] != nil { throw ProviderFailure.protocolViolation("assembly-start") }
+                let hello = try await EnglishProviderSupport.firstMessage(socket, timeout: timeoutOverride ?? 25)
+                if hello["type"] as? String == "Error" || hello["error"] != nil { throw Self.serviceFailure(hello) }
                 let requestID = try Self.verifyBegin(hello, configuration: configuration)
+                try Task.checkCancellation()
+                onReady()
                 if !configuration.context.isEmpty {
                     let json = try ProviderJSON.string(["type": "UpdateConfiguration", "prompt": configuration.context])
-                    try await EnglishProviderSupport.send(.string(json), to: socket)
+                    try await EnglishProviderSupport.send(.string(json), to: socket, timeout: timeoutOverride ?? 25)
                 }
                 try await withThrowingTaskGroup(of: Void.self) { group in
                     group.addTask {
@@ -71,17 +108,17 @@ public struct AssemblyStreamingProvider: StreamingASRProvider {
                             pending.append(chunk)
                             while pending.count >= 2_240 {
                                 let frame = Data(pending.prefix(1_600)); pending.removeFirst(1_600)
-                                try await EnglishProviderSupport.send(.data(frame), to: socket); await progress.sent(frame.count)
+                                try await EnglishProviderSupport.send(.data(frame), to: socket, timeout: timeoutOverride ?? 25); await progress.sent(frame.count)
                             }
                         }
                         try Task.checkCancellation()
                         if !pending.isEmpty {
                             guard pending.count >= 640 else { throw ProviderFailure.incomplete }
-                            try await EnglishProviderSupport.send(.data(pending), to: socket); await progress.sent(pending.count)
+                            try await EnglishProviderSupport.send(.data(pending), to: socket, timeout: timeoutOverride ?? 25); await progress.sent(pending.count)
                         }
                         await progress.endInput()
-                        try await EnglishProviderSupport.send(.string("{\"type\":\"Terminate\"}"), to: socket)
-                        try await Task.sleep(for: .seconds(45))
+                        try await EnglishProviderSupport.send(.string("{\"type\":\"Terminate\"}"), to: socket, timeout: timeoutOverride ?? 25)
+                        try await Task.sleep(for: .seconds(timeoutOverride ?? 45))
                         socket.cancel(with: .goingAway, reason: nil)
                         throw ProviderFailure.incomplete
                     }
@@ -90,7 +127,7 @@ public struct AssemblyStreamingProvider: StreamingASRProvider {
                         while true {
                             try Task.checkCancellation()
                             let object = try ProviderJSON.object(try await socket.receive())
-                            if object["error"] != nil { throw ProviderFailure.protocolViolation("assembly-error") }
+                            if object["type"] as? String == "Error" || object["error"] != nil { throw Self.serviceFailure(object) }
                             switch object["type"] as? String {
                             case "Turn":
                                 let event = try transcript.accept(object, duration: await progress.duration)
@@ -142,6 +179,12 @@ struct AssemblyTranscriptAccumulator {
         // Pro emits a fully formatted final. Do not prematurely commit an
         // unformatted end-of-turn message, or make missing flags mean true.
         let complete = final && object["turn_is_formatted"] as? Bool == true
+        if let prior = turns[order], prior.isFinal {
+            // Repeated/stale messages are idempotent. A changed final is a protocol
+            // conflict, never permission to rewrite an already confirmed range.
+            guard !complete || prior.text == text else { throw ProviderFailure.protocolViolation("assembly-conflicting-final") }
+            return event(duration: duration)
+        }
         let language = object["language_code"] as? String
         let tokens = try EnglishProviderSupport.words(object["words"], scale: 0.001, final: complete, language: language)
         // Use an internal text map for UTF-16 stability, but persist original
@@ -198,18 +241,18 @@ enum EnglishProviderSupport {
         }
     }
 
-    static func firstMessage(_ socket: URLSessionWebSocketTask) async throws -> [String: Any] {
+    static func firstMessage(_ socket: URLSessionWebSocketTask, timeout: TimeInterval = 25) async throws -> [String: Any] {
         let deadline = Task {
-            try await Task.sleep(for: .seconds(25))
+            try await Task.sleep(for: .seconds(timeout))
             socket.cancel(with: .goingAway, reason: nil)
         }
         defer { deadline.cancel() }
         return try ProviderJSON.object(try await socket.receive())
     }
 
-    static func send(_ message: URLSessionWebSocketTask.Message, to socket: URLSessionWebSocketTask) async throws {
+    static func send(_ message: URLSessionWebSocketTask.Message, to socket: URLSessionWebSocketTask, timeout: TimeInterval = 25) async throws {
         let deadline = Task {
-            try await Task.sleep(for: .seconds(25))
+            try await Task.sleep(for: .seconds(timeout))
             socket.cancel(with: .goingAway, reason: nil)
         }
         defer { deadline.cancel() }

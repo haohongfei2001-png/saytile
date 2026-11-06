@@ -86,9 +86,15 @@ extension AppDelegate {
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 740), name: "settings", output: output)
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 560, height: 570), name: "settings-compact", output: output)
             try await reviewWindow(Form { RecognitionSettingsSection(model: model) }.formStyle(.grouped), size: CGSize(width: 650, height: 840), name: "ai-controls", output: output) { host in
-                try await self.press("recognition.cloudEnabled", in: host)
-                guard model.recognitionConfiguration.cloudEnabled, !model.appliedRecognitionConfiguration.cloudEnabled else {
-                    throw ReviewFailure("cloud draft toggle changed applied authorization")
+                guard !model.connectionVerified, !model.recognitionConfiguration.cloudEnabled else {
+                    throw ReviewFailure("unconfigured cloud connection was enabled")
+                }
+                try await self.press("recognition.configureServices", in: host)
+                guard !model.connectionCheckAuthorized else { throw ReviewFailure("cost authorization was preselected") }
+                try await self.press("connection.authorizeCheck", in: host)
+                guard model.connectionCheckAuthorized, !model.checkingConnection,
+                      !model.appliedRecognitionConfiguration.cloudEnabled else {
+                    throw ReviewFailure("cost consent started a connection or enabled cloud without prepared services")
                 }
                 model.recognitionSettingsNotice = nil
                 try await self.press("recognition.apply", in: host)
@@ -96,13 +102,8 @@ extension AppDelegate {
                     if !model.applyingRecognitionSettings, model.recognitionSettingsNotice != nil { break }
                     try await Task.sleep(for: .milliseconds(20))
                 }
-                guard !model.appliedRecognitionConfiguration.cloudEnabled,
-                      model.recognitionSettingsNotice != nil, model.hasUnappliedRecognitionSettings else {
-                    throw ReviewFailure("unconfigured cloud settings were applied or failure was hidden")
-                }
-                try await self.press("recognition.cloudEnabled", in: host)
-                guard model.recognitionConfiguration.inputMode == .highestQuality else {
-                    throw ReviewFailure("single transcript settings did not keep the fixed quality policy")
+                guard !model.appliedRecognitionConfiguration.cloudEnabled, model.recognitionSettingsNotice != nil else {
+                    throw ReviewFailure("unconfigured settings enabled cloud")
                 }
                 try await self.setValue("合成界面测试话题", for: "recognition.topicContext", in: host)
                 guard model.recognitionConfiguration.topicContext == "合成界面测试话题" else { throw ReviewFailure("native topic field did not update draft") }
@@ -115,7 +116,7 @@ extension AppDelegate {
                       !model.appliedRecognitionConfiguration.cloudEnabled, !model.hasUnappliedRecognitionSettings else {
                     throw ReviewFailure("native settings apply did not commit isolated local configuration")
                 }
-                print("UI_CONTROL_PASS recognition settings: draft authorization, validation, fixed quality policy, text edit and apply through native controls")
+                print("UI_CONTROL_PASS recognition settings: unverified cloud disabled, explicit cost authorization, offline apply and native text edit")
             }
             try await reviewWindow(Form { RecognitionSettingsSection(model: model, initiallyExpanded: true) }.formStyle(.grouped), size: CGSize(width: 650, height: 840), name: "ai-services", output: output)
             if !model.recognitionConfiguration.models.isEmpty {

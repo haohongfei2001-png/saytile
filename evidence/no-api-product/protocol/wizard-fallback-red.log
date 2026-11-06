@@ -1,0 +1,173 @@
+Building for debugging...
+[Pre-planning 1 / 184]
+[Planning deferred tasks]
+[2 / 71]
+[34 / 82]
+[60 / 82] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[61 / 82] SaytileKit
+[71 / 221]
+[76 / 221]
+[86 / 221]
+[89 / 221]
+[95 / 221]
+[98 / 221]
+[106 / 221]
+[111 / 221]
+[112 / 221]
+[126 / 221]
+[127 / 221]
+[132 / 221]
+[137 / 221]
+[138 / 221]
+[139 / 221]
+[146 / 221]
+[148 / 221]
+[154 / 221]
+[155 / 221]
+[157 / 221]
+[159 / 221]
+[160 / 221]
+[173 / 221]
+[174 / 221]
+[178 / 221]
+[183 / 221]
+[186 / 221]
+[187 / 221]
+[188 / 221]
+[189 / 221]
+[200 / 221] SaytileKit
+[206 / 224] SaytileKit
+[206 / 224] Saytile-product
+[209 / 235] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[214 / 235] SaytileKitTests-product
+[215 / 250]
+[218 / 250]
+[228 / 250] SaytileKitTests-product
+[229 / 250] Saytile-product
+[230 / 250] SaytileKitTests-product
+[236 / 249] SaytileKitTests-product
+[238 / 249] Saytile-product
+[239 / 249] Saytile-product
+[240 / 249] Saytile-product
+[241 / 249] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:328:123: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+320 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+321 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+322 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+323 |             // A cancelled older check must fully close its sockets before another starts.
+324 |             await previous?.value
+    :
+326 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+327 |             do {
+328 |                 let report = try await CloudConnectionVerifier.verify(configuration: candidate, authorized: true) { [weak self] report in
+    |                                                                                                                           |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                                                           `- note: explicitly assign the capture list item to silence
+329 |                     Task { @MainActor [weak self] in
+330 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[242 / 249] Saytile-product
+[242 / 249] SaytileKitTests-product
+[242 / 249] Saytile-product
+[244 / 249] Saytile-product/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[246 / 252] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[248 / 252] SaytileKitTests-product
+Build complete! (25.84秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Real URLSession loopback protocol integration" started.
+◇ Test GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test invalidConnectionCheckBudgetFailsBeforeOpeningSocket(cap:) started.
+◇ Test unsupportedGPTWebSocketUsesSameModelProductionHTTPStreamingClient() started.
+◇ Test HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+◇ Test repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+◇ Test persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+◇ Test actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) started.
+◇ Test productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS(fault:) started.
+◇ Test case passing 1 argument fault → "auth" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test twoProductionASRClientsReceiveIdenticalWholePCMAndEOS() started.
+◇ Test networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 1 argument fault → "rate_limit" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test case passing 1 argument fault → "quota" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test cancellingActualGPTSocketClosesPeerBeforeAnyFinalSelection() started.
+◇ Test case passing 1 argument cap → 0 to invalidConnectionCheckBudgetFailsBeforeOpeningSocket(cap:) started.
+◇ Test case passing 1 argument fault → "malformed" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test case passing 1 argument cap → 128001 to invalidConnectionCheckBudgetFailsBeforeOpeningSocket(cap:) started.
+◇ Test case passing 1 argument fault → "invalid_schema" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test case passing 1 argument fault → "wrong_model" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test case passing 1 argument fault → "timeout" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test case passing 1 argument fault → "server_error" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test case passing 1 argument fault → "quota" to HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+◇ Test case passing 1 argument fault → "auth" to HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+◇ Test case passing 1 argument fault → "server_error" to HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+◇ Test case passing 1 argument fault → "malformed" to HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+◇ Test case passing 1 argument fault → "old_events" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+◇ Test case passing 1 argument fault → "rate_limit" to HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+◇ Test case passing 1 argument fault → "cache_miss" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+◇ Test case passing 1 argument fault → "normal" to actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) started.
+◇ Test case passing 1 argument fault → "normal" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+◇ Test case passing 1 argument fault → "reconnect" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+◇ Test case passing 1 argument fault → "normal" to productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS(fault:) started.
+◇ Test case passing 1 argument fault → "unbacked_selection" to productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS(fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "duplicate" to repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+◇ Test case passing 1 argument fault → "limit" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+◇ Test case passing 1 argument fault → "unsupported" to actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "delay" to repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "auth" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 1 argument fault → "churn" to actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "quota" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "duplicate" to repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "delay" to repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "disconnect" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "malformed" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "missing_final" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "timeout" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "server_error" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "auth" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "quota" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "disconnect" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "malformed" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "missing_final" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "timeout" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "server_error" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+✔ Test invalidConnectionCheckBudgetFailsBeforeOpeningSocket(cap:) with 2 test cases passed after 0.021 seconds.
+✔ Test HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) with 5 test cases passed after 0.031 seconds.
+✔ Test persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) with 5 test cases passed after 0.052 seconds.
+✔ Test unsupportedGPTWebSocketUsesSameModelProductionHTTPStreamingClient() passed after 0.068 seconds.
+✔ Test cancellingActualGPTSocketClosesPeerBeforeAnyFinalSelection() passed after 0.085 seconds.
+✔ Test twoProductionASRClientsReceiveIdenticalWholePCMAndEOS() passed after 0.101 seconds.
+✔ Test GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) with 8 test cases passed after 0.235 seconds.
+✔ Test repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) with 4 test cases passed after 0.398 seconds.
+✔ Test networkFailuresCannotBecomeFinalTranscripts(service:fault:) with 14 test cases passed after 0.667 seconds.
+✘ Test productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS(fault:) recorded an issue with 1 argument fault → "unbacked_selection" at ProtocolNetworkIntegrationTests.swift:290:9: Expectation failed: try await store.latestDispatchableRevision(recordingID: record.id)?.text == final.text
+↳ try await store.latestDispatchableRevision(recordingID: record.id)?.text == final.text → <not evaluated>
+PROTOCOL_ENGINE case=DB31D66E-4362-42E6-9D58-E68DEE3F97CA visible_revisions=3 gpt_requests=4 final_state=failed scope=SIMULATED_PROTOCOL_NOT_LIVE_CLOUD
+PROTOCOL_ENGINE case=E4D45EEF-125D-4758-BFA8-4175D9987C05 visible_revisions=3 gpt_requests=4 final_state=completed scope=SIMULATED_PROTOCOL_NOT_LIVE_CLOUD
+✘ Test productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS(fault:) with 2 test cases failed after 1.357 seconds with 1 issue.
+PROTOCOL_WIZARD case=40A891D8-1D0C-4201-B60B-9AFD167BE8A0 scenario=churn pipeline_completed=false wire_gpt_requests=6 readiness=NO_API_ENGINEERING_READY
+PROTOCOL_WIZARD case=F363602B-F999-4036-8392-365DE55C8990 scenario=normal pipeline_completed=true wire_gpt_requests=4 readiness=NO_API_ENGINEERING_READY
+✘ Test actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) recorded an issue with 1 argument fault → "unsupported" at ProtocolNetworkIntegrationTests.swift:243:9: Expectation failed: report.pipelineCompleted == (fault != "churn")
+↳ report.pipelineCompleted == (fault != "churn") → false
+↳   report.pipelineCompleted → false
+↳   (fault != "churn") → true
+✘ Test actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) recorded an issue with 1 argument fault → "unsupported" at ProtocolNetworkIntegrationTests.swift:244:31: Expectation failed: report.services.count == 3 && report.services.allSatisfy { $0.state == .verified }
+↳ report.services.count == 3 && report.services.allSatisfy { $0.state == .verified } → false
+↳   report.services.count == 3 → true
+↳   report.services.allSatisfy { $0.state == .verified } → false
+PROTOCOL_WIZARD case=9767E5EB-4093-4DFE-AD8D-126C66F97007 scenario=unsupported pipeline_completed=false wire_gpt_requests=3 readiness=NO_API_ENGINEERING_READY
+✘ Test actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) with 3 test cases failed after 6.974 seconds with 2 issues.
+✘ Suite "Real URLSession loopback protocol integration" failed after 6.974 seconds with 3 issues.
+↳ /// Explicit opt-in: ordinary unit runs never launch a peer or use network credentials.
+↳ /// scripts/test-protocol-simulator.sh supplies the loopback server for this suite.
+✘ Test run with 11 tests in 1 suite failed after 6.974 seconds with 3 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

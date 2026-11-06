@@ -1,0 +1,100 @@
+Building for debugging...
+[0/26] Write sources
+[1/26] Write swift-version--1AB21518FC5DEDBE.txt
+[2/26] Compiling resample_by_2_internal.c
+[3/26] Compiling cross_correlation.c
+[4/26] Compiling resample_fractional.c
+[5/26] Compiling resample_48khz.c
+[6/26] Compiling vad_sp.c
+[7/26] Compiling vad_gmm.c
+[8/26] Compiling complex_fft.c
+[9/26] Compiling complex_bit_reverse.c
+[10/26] Compiling vad_filterbank.c
+[11/26] Compiling webrtc_vad.c
+[12/26] Compiling division_operations.c
+[13/26] Compiling vad_core.c
+[14/26] Compiling spl_sqrt_floor.c
+[15/26] Compiling CAudio VAD.c
+[16/26] Compiling vector_scaling_operations.c
+[17/26] Compiling spl_inl.c
+[18/26] Compiling spl_sqrt.c
+[18/26] Compiling spl_init.c
+[20/26] Compiling min_max_operations.c
+[21/26] Compiling get_scaling_square.c
+[22/26] Compiling energy.c
+[23/26] Compiling downsample_fast.c
+[24/26] Compiling CAudio AudioRing.c
+[25/26] Compiling checks.cc
+[27/60] Compiling SaytileKit CloudCredentials.swift
+[28/60] Compiling SaytileKit ConnectionSetup.swift
+[29/60] Compiling SaytileKit FinalASRProvider.swift
+[30/60] Compiling SaytileKit GPTReviewSession.swift
+[31/63] Compiling SaytileKit StoreLock.swift
+[32/63] Compiling SaytileKit StoreSQLite.swift
+[33/63] Compiling SaytileKit WindowPlacement.swift
+[34/63] Compiling SaytileKit SpeechResultAccumulator.swift
+[35/63] Compiling SaytileKit SpeechTiming.swift
+[36/63] Compiling SaytileKit Store.swift
+[37/63] Compiling SaytileKit SingleTranscriptEngine.swift
+[38/63] Compiling SaytileKit SonioxStreamingProvider.swift
+[39/63] Compiling SaytileKit SpeechRecognition.swift
+[40/63] Compiling SaytileKit RecognitionConfiguration.swift
+[41/63] Compiling SaytileKit RecognitionFailover.swift
+[42/63] Compiling SaytileKit RecognitionFusion.swift
+[43/63] Compiling SaytileKit MetaStreamingProvider.swift
+[44/63] Compiling SaytileKit Models.swift
+[45/63] Compiling SaytileKit MultiRecognitionDiagnostics.swift
+[46/63] Compiling SaytileKit MultiRecognitionSession.swift
+[47/63] Emitting module SaytileKit
+[48/63] Compiling SaytileKit PrecisionReviewClient.swift
+[49/63] Compiling SaytileKit QwenMessageProvider.swift
+[50/63] Compiling SaytileKit RecognitionAudioFanout.swift
+[51/63] Compiling SaytileKit RecognitionCandidates.swift
+[52/63] Compiling SaytileKit InputAccessibility.swift
+[53/63] Compiling SaytileKit InputCoordinator.swift
+[54/63] Compiling SaytileKit JournalRangeReader.swift
+[55/63] Compiling SaytileKit LocalCandidateIngress.swift
+[56/63] Compiling SaytileKit AudioJournal.swift
+[57/63] Compiling SaytileKit AudioLifecycle.swift
+[58/63] Compiling SaytileKit AudioPlaybackTimeline.swift
+[59/63] Compiling SaytileKit AudioTapCallbacks.swift
+[60/63] Compiling SaytileKit ASRProviderProtocol.swift
+[61/63] Compiling SaytileKit AssemblyStreamingProvider.swift
+[62/63] Compiling SaytileKit AudioCapture.swift
+[63/63] Compiling SaytileKit AudioDiagnostics.swift
+Build of target: 'SaytileKit' complete! (30.03s)
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+tests/fixtures/AudioCorpusProbe.swift:58:110: error: call to actor-isolated instance method 'fusionDecisions(recordingID:)' in a synchronous main actor-isolated context [#ActorIsolatedCall]
+56 |             let candidates = try await store.recognitionCandidates(recordingID: id)
+57 |             let providers = Array(Set(candidates.map { $0.run.provider })).sorted()
+58 |             let unified = !candidates.isEmpty && providers == ["apple-speech-analyzer"] && !(try await store.fusionDecisions(recordingID: id)).isEmpty
+   |                                                                                                              `- error: call to actor-isolated instance method 'fusionDecisions(recordingID:)' in a synchronous main actor-isolated context [#ActorIsolatedCall]
+59 |             let dispatchable = try await store.latestDispatchableRevision(recordingID: id)
+60 |             let events = timing.snapshot()
+
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileKit/Store.swift:1113:17: note: calls to instance method 'fusionDecisions(recordingID:)' from outside of its actor context are implicitly asynchronous
+1111 |         return currentIDs == proof["candidate_ids"]
+1112 |     }
+1113 |     public func fusionDecisions(recordingID: UUID) throws -> [FusionDecisionRecord] {
+     |                 `- note: calls to instance method 'fusionDecisions(recordingID:)' from outside of its actor context are implicitly asynchronous
+1114 |         _ = try requireRecording(recordingID)
+1115 |         return try db.rows("SELECT payload FROM fusion_decisions WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { try Self.decodeEvidence(FusionDecisionRecord.self, $0["payload"]) }
+
+tests/fixtures/AudioCorpusProbe.swift:58:89: error: operator can throw but expression is not marked with 'try'
+56 |             let candidates = try await store.recognitionCandidates(recordingID: id)
+57 |             let providers = Array(Set(candidates.map { $0.run.provider })).sorted()
+58 |             let unified = !candidates.isEmpty && providers == ["apple-speech-analyzer"] && !(try await store.fusionDecisions(recordingID: id)).isEmpty
+   |                                                                                         |  `- note: call is to 'rethrows' function, but argument function can throw
+   |                                                                                         `- error: operator can throw but expression is not marked with 'try'
+59 |             let dispatchable = try await store.latestDispatchableRevision(recordingID: id)
+60 |             let events = timing.snapshot()
+
+tests/fixtures/AudioCorpusProbe.swift:58:98: error: 'await' in an autoclosure that does not support concurrency
+56 |             let candidates = try await store.recognitionCandidates(recordingID: id)
+57 |             let providers = Array(Set(candidates.map { $0.run.provider })).sorted()
+58 |             let unified = !candidates.isEmpty && providers == ["apple-speech-analyzer"] && !(try await store.fusionDecisions(recordingID: id)).isEmpty
+   |                                                                                                  `- error: 'await' in an autoclosure that does not support concurrency
+59 |             let dispatchable = try await store.latestDispatchableRevision(recordingID: id)
+60 |             let events = timing.snapshot()
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>

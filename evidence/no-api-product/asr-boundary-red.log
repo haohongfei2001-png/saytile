@@ -1,0 +1,31 @@
+Building for debugging...
+[2 / 6] SaytileKitTests-product
+[5 / 9] SaytileKitTests-product
+[11 / 13] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (2.24秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "ASR protocol lifecycle and sanitized diagnosis" started.
+◇ Test qwenConsentMustBePresentAtTheProductionNetworkBoundary() started.
+◇ Test beginCannotConfirmAnUnidentifiedAssemblySession() started.
+✘ Test beginCannotConfirmAnUnidentifiedAssemblySession() recorded an issue at ASRProtocolReliabilityTests.swift:107:13: Expectation failed: an error was expected but none was thrown and "nil" was returned
+↳ ProviderFailure.self → <not evaluated>
+↳   ProviderFailure → <not evaluated>
+↳   self → <not evaluated>
+✘ Test beginCannotConfirmAnUnidentifiedAssemblySession() recorded an issue at ASRProtocolReliabilityTests.swift:107:13: Expectation failed: an error was expected but none was thrown and "Optional("")" was returned
+↳ ProviderFailure.self → <not evaluated>
+↳   ProviderFailure → <not evaluated>
+↳   self → <not evaluated>
+✘ Test beginCannotConfirmAnUnidentifiedAssemblySession() failed after 0.001 seconds with 2 issues.
+✘ Test qwenConsentMustBePresentAtTheProductionNetworkBoundary() recorded an issue at ASRProtocolReliabilityTests.swift:95:9: Expectation failed: an error was expected but none was thrown and "wss://fixture-workspace.cn-beijing.maas.aliyuncs.com/api-ws/v1/inference" was returned
+↳ ProviderFailure.self → <not evaluated>
+↳   ProviderFailure → <not evaluated>
+↳   self → <not evaluated>
+✘ Test qwenConsentMustBePresentAtTheProductionNetworkBoundary() failed after 0.002 seconds with 1 issue.
+✘ Suite "ASR protocol lifecycle and sanitized diagnosis" failed after 0.002 seconds with 3 issues.
+✘ Test run with 2 tests in 1 suite failed after 0.002 seconds with 3 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

@@ -17,6 +17,7 @@ swift scripts/make-icon.swift "$SAYTILE_BUILD_STAGE/Saytile.iconset"
 if ! iconutil -c icns "$SAYTILE_BUILD_STAGE/Saytile.iconset" -o "$bundle/Contents/Resources/Saytile.icns"; then
   python3 scripts/encode-iconset.py "$SAYTILE_BUILD_STAGE/Saytile.iconset" "$bundle/Contents/Resources/Saytile.icns"
 fi
+cp Sources/SaytileKit/Resources/ConnectionSample.pcm "$bundle/Contents/Resources/ConnectionSample.pcm"
 cp THIRD_PARTY_NOTICES.md "$bundle/Contents/Resources/THIRD_PARTY_NOTICES.md"
 cp Sources/CAudio/WEBRTC-LICENSE.txt "$bundle/Contents/Resources/WEBRTC-LICENSE.txt"
 cp packaging/Info.plist "$bundle/Contents/Info.plist"

@@ -69,6 +69,7 @@ final class OwnedRangeFixtureController {
             view.fullValueAttempts = 0; view.keyEvents = 0; view.pasteAttempts = 0
             view.rejectReplacement = false; view.unexpectedPayload = false
         }
+        window.makeFirstResponder(primary)
     }
     func consume(_ bytes: Data) {
         commandBytes.append(bytes)
@@ -86,6 +87,8 @@ final class OwnedRangeFixtureController {
                 primary.setSelectedRange(caret); primary.didChangeText()
             case "select": primary.setSelectedRange(NSRange(location: 0, length: 2))
             case "reject-replacement": primary.rejectReplacement = true
+            case "focus-alternate": window.makeFirstResponder(alternate)
+            case "close-window": window.close()
             case "state": break
             default: exit(3)
             }
