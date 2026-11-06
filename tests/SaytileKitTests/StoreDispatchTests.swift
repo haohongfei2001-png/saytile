@@ -164,3 +164,137 @@ private struct DispatchFixture {
     try await f.store.applyRecognition(ticket:ticket,text:"",isFinal:true)
     #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast).isEmpty)
 }
+
+@Test func storeDelayedEarlierSpeechIsDeferredWithoutBlockingLaterSpeech() async throws {
+    let f = try DispatchFixture(); defer { f.clean() }
+    let binding = try await f.store.createBinding(label:"顺序测试")
+    let a = try await f.store.createRecording(), aTicket = try await f.store.beginRecognition(recordingID:a.id)
+    try await f.store.applyRecognition(ticket:aTicket,text:"较早讲话草稿",isFinal:false)
+    let b = try await f.store.createRecording(), bTicket = try await f.store.beginRecognition(recordingID:b.id)
+    try await f.store.applyRecognition(ticket:bTicket,text:"先识别完成的B",isFinal:true)
+    let bFinal = try await f.store.latestFinalRevision(recordingID:b.id)!
+    let bOperation = try await f.store.reserveDispatch(bindingID:binding,recordingID:b.id,revisionID:bFinal.id,stableUTF16End:bFinal.text.utf16.count)!
+    try await f.store.completeDispatch(id:bOperation.id,state:.confirmed)
+    try await f.store.applyRecognition(ticket:aTicket,text:"较早讲话的迟到结果",isFinal:true)
+    let aFinal = try await f.store.latestFinalRevision(recordingID:a.id)!
+    #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast).isEmpty)
+    do {
+        _ = try await f.store.reserveDispatch(bindingID:binding,recordingID:a.id,revisionID:aFinal.id,stableUTF16End:aFinal.text.utf16.count)
+        Issue.record("Earlier speech must remain available for manual reuse")
+    } catch StoreError.lateRecognitionDeferred {}
+    #expect(try await f.store.recording(id:a.id)?.text == aFinal.text)
+    #expect(try await f.store.deferredDirectInputRecordings(bindingID:binding,createdSince:.distantPast) == [a.id])
+    let c = try await f.store.createRecording(), cTicket = try await f.store.beginRecognition(recordingID:c.id)
+    try await f.store.applyRecognition(ticket:cTicket,text:"C继续正常输入",isFinal:true)
+    let cFinal = try await f.store.latestFinalRevision(recordingID:c.id)!
+    #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast).map(\.id) == [c.id])
+    #expect(try await f.store.reserveDispatch(bindingID:binding,recordingID:c.id,revisionID:cFinal.id,stableUTF16End:cFinal.text.utf16.count) != nil)
+}
+@Test func storeEarlierTailCannotFollowLaterReservationEvenWhenDeliveryUnverified() async throws {
+    let f = try DispatchFixture(); defer { f.clean() }
+    let binding = try await f.store.createBinding(label:"尾部顺序测试")
+    let a = try await f.store.createRecording(), aTicket = try await f.store.beginRecognition(recordingID:a.id)
+    let aFirst = try await f.revision(a.id,aTicket,"你好")
+    let first = try await f.store.reserveDispatch(bindingID:binding,recordingID:a.id,revisionID:aFirst,stableUTF16End:2)!
+    try await f.store.completeDispatch(id:first.id,state:.failed)
+    let b = try await f.store.createRecording(), bTicket = try await f.store.beginRecognition(recordingID:b.id)
+    let bFinal = try await f.revision(b.id,bTicket,"B")
+    let later = try await f.store.reserveDispatch(bindingID:binding,recordingID:b.id,revisionID:bFinal,stableUTF16End:1)!
+    try await f.store.completeDispatch(id:later.id,state:.unverified)
+    #expect(try await f.store.deferredDirectInputRecordings(bindingID:binding,createdSince:.distantPast).isEmpty)
+    // Exactly the previous reservation is still a harmless duplicate.
+    #expect(try await f.store.reserveDispatch(bindingID:binding,recordingID:a.id,revisionID:aFirst,stableUTF16End:2) == nil)
+    let tail = try await f.revision(a.id,aTicket,"你好，这是A迟到的尾部")
+    do {
+        _ = try await f.store.reserveDispatch(bindingID:binding,recordingID:a.id,revisionID:tail,stableUTF16End:"你好，这是A迟到的尾部".utf16.count)
+        Issue.record("A tail must not be appended after B")
+    } catch StoreError.lateRecognitionDeferred {}
+    let c = try await f.store.createRecording(), cTicket = try await f.store.beginRecognition(recordingID:c.id)
+    let cFinal = try await f.revision(c.id,cTicket,"C")
+    #expect(try await f.store.reserveDispatch(bindingID:binding,recordingID:c.id,revisionID:cFinal,stableUTF16End:1) != nil)
+}
+@Test func storeDeletedLaterRecordKeepsTextFreeOrderingWatermark() async throws {
+    let f = try DispatchFixture(); defer { f.clean() }
+    let binding = try await f.store.createBinding(label:"删除顺序测试")
+    let a = try await f.store.createRecording(), aTicket = try await f.store.beginRecognition(recordingID:a.id)
+    let b = try await f.store.createRecording(), bTicket = try await f.store.beginRecognition(recordingID:b.id)
+    let bVersion = try await f.revision(b.id,bTicket,"将删除的正文")
+    _ = try await f.store.reserveDispatch(bindingID:binding,recordingID:b.id,revisionID:bVersion,stableUTF16End:6)
+    try await f.store.finishRecording(id:b.id)
+    try await f.store.deleteRecord(recordingID:b.id)
+    try await f.store.applyRecognition(ticket:aTicket,text:"A迟到",isFinal:true)
+    #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast).isEmpty)
+    let aVersion = try await f.store.latestFinalRevision(recordingID:a.id)!
+    do {
+        _ = try await f.store.reserveDispatch(bindingID:binding,recordingID:a.id,revisionID:aVersion.id,stableUTF16End:3)
+        Issue.record("Deleting B must not rewind this binding")
+    } catch StoreError.lateRecognitionDeferred {}
+    let raw = try StoreDatabase(url:f.directory.appendingPathComponent("Saytile.sqlite"))
+    #expect(try raw.rows("SELECT prefix FROM cursors WHERE recording_id=?",[.text(b.id.uuidString)]).first?["prefix"] == "")
+    #expect(try raw.rows("SELECT text FROM revisions WHERE recording_id=?",[.text(b.id.uuidString)]).isEmpty)
+    #expect(try raw.rows("SELECT text FROM dispatches WHERE recording_id=?",[.text(b.id.uuidString)]).isEmpty)
+}
+@Test func storeEqualTimestampOrderingUsesCreationSequenceForCandidateAndReservation() async throws {
+    let f = try DispatchFixture(); defer { f.clean() }
+    let binding = try await f.store.createBinding(label:"同时间顺序测试")
+    let date = Date().addingTimeInterval(1)
+    let high = try await f.store.createRecording(id:UUID(uuidString:"FFFFFFFF-FFFF-4FFF-8FFF-FFFFFFFFFFFF")!,createdAt:date)
+    let low = try await f.store.createRecording(id:UUID(uuidString:"00000000-0000-4000-8000-000000000001")!,createdAt:date)
+    for record in [high,low] {
+        let ticket = try await f.store.beginRecognition(recordingID:record.id)
+        try await f.store.applyRecognition(ticket:ticket,text:"稳定稿",isFinal:true)
+    }
+    #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast).map(\.id) == [high.id,low.id])
+    let lowVersion = try await f.store.latestFinalRevision(recordingID:low.id)!
+    _ = try await f.store.reserveDispatch(bindingID:binding,recordingID:low.id,revisionID:lowVersion.id,stableUTF16End:3)
+    #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:.distantPast).isEmpty)
+    let highVersion = try await f.store.latestFinalRevision(recordingID:high.id)!
+    do {
+        _ = try await f.store.reserveDispatch(bindingID:binding,recordingID:high.id,revisionID:highVersion.id,stableUTF16End:3)
+        Issue.record("Equal-time earlier recording must be deferred regardless of UUID ordering")
+    } catch StoreError.lateRecognitionDeferred {}
+}
+
+@Test func storeBindingSequenceDistinguishesOldAndNewRecordingsAtSameTimestamp() async throws {
+    let f = try DispatchFixture(); defer { f.clean() }
+    let date = Date(timeIntervalSince1970:1_793_952_000.1234567)
+    let old = try await f.store.createRecording(createdAt:date)
+    let binding = try await f.store.createBinding(label:"同时间绑定边界",createdAt:date)
+    let new = try await f.store.createRecording(createdAt:date)
+    // A capture that started before binding but only registers afterward is old too.
+    let delayedOld = try await f.store.createRecording(createdAt:date.addingTimeInterval(-1))
+    for record in [old,new,delayedOld] {
+        let ticket = try await f.store.beginRecognition(recordingID:record.id)
+        try await f.store.applyRecognition(ticket:ticket,text:"稳定稿",isFinal:true)
+    }
+    #expect(try await f.store.directInputCandidates(bindingID:binding,createdSince:date).map(\.id) == [new.id])
+    for record in [old,delayedOld] {
+        let revision = try await f.store.latestFinalRevision(recordingID:record.id)!
+        do {
+            _ = try await f.store.reserveDispatch(bindingID:binding,recordingID:record.id,revisionID:revision.id,stableUTF16End:3)
+            Issue.record("Only speech created after the binding boundary may be dispatched")
+        } catch StoreError.bindingInvalid {}
+    }
+    let revision = try await f.store.latestFinalRevision(recordingID:new.id)!
+    let dispatch = try await f.store.reserveDispatch(bindingID:binding,recordingID:new.id,revisionID:revision.id,stableUTF16End:3)
+    #expect(dispatch?.text == "稳定稿")
+    #expect(try await f.store.reserveDispatch(bindingID:binding,recordingID:new.id,revisionID:revision.id,stableUTF16End:3) == nil)
+}
+
+@Test func storeDeferredStatusOnlyMarksUndispatchedEarlierFinalSuffix() async throws {
+    let f = try DispatchFixture(); defer { f.clean() }
+    let binding = try await f.store.createBinding(label:"迟到状态测试")
+    let a = try await f.store.createRecording(), aTicket = try await f.store.beginRecognition(recordingID:a.id)
+    try await f.store.applyRecognition(ticket:aTicket,text:"完整A",isFinal:true)
+    let aFirst = try await f.store.latestFinalRevision(recordingID:a.id)!
+    _ = try await f.store.reserveDispatch(bindingID:binding,recordingID:a.id,revisionID:aFirst.id,stableUTF16End:3)
+    let b = try await f.store.createRecording(), bTicket = try await f.store.beginRecognition(recordingID:b.id)
+    try await f.store.applyRecognition(ticket:bTicket,text:"完整B",isFinal:true)
+    let bFinal = try await f.store.latestFinalRevision(recordingID:b.id)!
+    _ = try await f.store.reserveDispatch(bindingID:binding,recordingID:b.id,revisionID:bFinal.id,stableUTF16End:3)
+    #expect(try await f.store.deferredDirectInputRecordings(bindingID:binding,createdSince:.distantPast).isEmpty)
+    try await f.store.applyRecognition(ticket:aTicket,text:"完整A，还有迟到部分",isFinal:true)
+    #expect(try await f.store.deferredDirectInputRecordings(bindingID:binding,createdSince:.distantPast) == [a.id])
+    try await f.store.invalidateBinding(binding)
+    #expect(try await f.store.deferredDirectInputRecordings(bindingID:binding,createdSince:.distantPast).isEmpty)
+}

@@ -74,3 +74,23 @@ node scripts/test-input-browser.mjs
 ## 父线独立审查
 
 已报告并由父线处理：直接输入只遍历最新 30 条导致旧积压漏派；busy 前记 revision 导致零派发被永久跳过；退出排空音频前应先撤销输入绑定。已查看 8 张真实 NSHostingView 截图；未见重大视觉缺陷，具体建议为搜索无结果文案与最小高度/长错误情况下详情可滚动。输入子任务未修改父线 AppModel、Views 或 AppDelegate。
+
+## a780aaa 发行独立审查与顺序修复
+
+只读检查 `build-app.sh`、`package-beta.sh`、native CI、AppModel 退出/刷新路径、UIReview 与支持边界。脚本 `bash -n` 通过；现有 bundle 的 `otool -L` 只引用系统库，没有遗漏临时构建目录的动态库。构建临时 stage、签名复验、CI 渲染与本机 AX 控制分层没有发现新增发布阻断。未改动未知 ` 2` 副本。
+
+发现并实际复现一项 P1：A 先说但 final 迟到，B 后说先 final；跨两次候选查询会派发成 B→A。真实生产 Store/SQLite 的独立反例见 `evidence/rc/input-order-before-fix.log`，没有操作外部编辑器。
+
+修复由存储代理与输入代理协同完成：同一 binding 的自动输入只沿录音顺序向前；更早段的迟到全文/尾部保留在本地，可明确取用；不在后段末尾插入，也不阻塞后续新段。coordinator 将 `StoreError.lateRecognitionDeferred` 映射为 `.deferred`，保持绑定，不进行 AX 尝试。增加 A/B/C 与 A-prefix/B/A-tail/C 两项真实 Store 协调器回归，使用各 Recording 实际 createdAt；最终 **24 项输入测试通过**。
+
+迟到段若已被候选 SQL 排除，不会触发 coordinator 的 deferred 消息；其界面提示由父线接入，不能只依赖这条结果消息。此前 WebKit 原生插入及完全不可区分隐藏路由的验证边界仍有效，没有因本次顺序修复而改变。
+
+## 全量并发测试发现的时间资格边界
+
+父线首次全量 118 项出现 A/B/C 首段未派发的 4 个期望失败，原失败日志保留。加入实际 result 与 decoded/binding 时间差诊断后，显式 Date 和恢复原 default 参数调用的两次全量分别 118/120 通过；没有获得原失败的具体时间差，不能将偶然通过当作根因解释。
+
+已排除“当前 SQLite 文本转换只能保留 15 位导致读回丢精度”的假设：使用 a780aaa 原数据库适配器的微秒样本往返均为零差，见 `input-time-precision-diagnostic.log`；存储代理另验证 4096 个连续 Double 值。Foundation 原生 reference-date 与 Unix-epoch Double 可有小于一微秒的转换差异。
+
+确认并修复的资格边界缺陷是：运行时在数据库建立绑定之后另取一次更晚时间，再以 Date 的 `<=` 排除记录，不能正确表达同一时钟刻度中的先后创建关系。现在绑定开始时的同一个 Date 同时传入 Store 与 InputBindingInfo；运行时仅按相同 Unix 精度作 `<` 预筛，数据库事务捕获录音 rowid 起点，排除绑定前旧记录并允许同时间戳的新记录。跨段顺序也改为实际创建 rowid，不依赖 UUID 字典序。
+
+新增确定性协调器测试，实际持久化 Recording.createdAt 与绑定时间完全相等，仍按新 row 资格成功输入；没有增加 sleep 或伪造调用方 startedAt。最终 **122 项全量测试通过，含 25 项输入测试**，见 `evidence/rc/input-full-final.log`。此前 WebKit/前台覆盖边界仍未改变。

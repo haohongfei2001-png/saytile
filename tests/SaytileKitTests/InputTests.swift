@@ -274,6 +274,77 @@ struct InputCoordinatorTests {
         #expect(access.attempts.count == 1)
         #expect(coordinator.binding == nil)
     }
+    @Test func newRecordingAtExactBindingTimestampUsesCreationBoundary() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        let binding = try await coordinator.bindCurrentTarget()
+        // Persist an actual new recording on the same clock tick, then use its decoded
+        // createdAt. No fake startedAt override or scheduling sleep is involved.
+        let record = try await store.createRecording(createdAt: binding.boundAt)
+        #expect(record.createdAt.timeIntervalSince1970 == binding.boundAt.timeIntervalSince1970)
+        let ticket = try await store.beginRecognition(recordingID: record.id)
+        try await store.applyRecognition(ticket: ticket, text: "同一时刻的新表达", isFinal: true)
+        let revision = try #require(await store.latestFinalRevision(recordingID: record.id))
+        let result = await coordinator.insertStable(recordingID: record.id, revisionID: revision.id, stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
+        #expect(result == .confirmed)
+        #expect(access.attempts == ["同一时刻的新表达"])
+    }
+    @Test func lateEarlierRecordingIsDeferredWithoutBlockingNextSpeech() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        let binding = try await coordinator.bindCurrentTarget()
+        let first = try await store.createRecording()
+        let second = try await store.createRecording()
+        let third = try await store.createRecording()
+        let a = try await store.beginRecognition(recordingID: first.id)
+        let b = try await store.beginRecognition(recordingID: second.id)
+        let c = try await store.beginRecognition(recordingID: third.id)
+        try await store.applyRecognition(ticket: b, text: "后说先到。", isFinal: true)
+        let bFinal = try #require(await store.latestFinalRevision(recordingID: second.id))
+        #expect(await coordinator.insertStable(recordingID: second.id, revisionID: bFinal.id, stableUTF16End: bFinal.text.utf16.count, recordingStartedAt: second.createdAt) == .confirmed)
+        try await store.applyRecognition(ticket: a, text: "先说迟到。", isFinal: true)
+        let aFinal = try #require(await store.latestFinalRevision(recordingID: first.id))
+        let aResult = await coordinator.insertStable(recordingID: first.id, revisionID: aFinal.id, stableUTF16End: aFinal.text.utf16.count, recordingStartedAt: first.createdAt)
+        if aResult != .deferred { print("ORDER_BOUNDARY decoded=\(first.createdAt.timeIntervalSince1970) binding=\(binding.boundAt.timeIntervalSince1970) delta_us=\(first.createdAt.timeIntervalSince(binding.boundAt) * 1_000_000) decodedRef=\(first.createdAt.timeIntervalSinceReferenceDate) bindingRef=\(binding.boundAt.timeIntervalSinceReferenceDate) result=\(aResult)") }
+        #expect(aResult == .deferred)
+        #expect(coordinator.binding?.id == binding.id)
+        #expect(try await store.recording(id: first.id)?.text == "先说迟到。")
+        try await store.applyRecognition(ticket: c, text: "新的一段。", isFinal: true)
+        let cFinal = try #require(await store.latestFinalRevision(recordingID: third.id))
+        #expect(await coordinator.insertStable(recordingID: third.id, revisionID: cFinal.id, stableUTF16End: cFinal.text.utf16.count, recordingStartedAt: third.createdAt) == .confirmed)
+        #expect(access.attempts == ["后说先到。", "新的一段。"])
+    }
+    @Test func lateTailCannotBeAppendedAfterAnotherRecording() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        let binding = try await coordinator.bindCurrentTarget()
+        let first = try await store.createRecording()
+        let second = try await store.createRecording()
+        let third = try await store.createRecording()
+        let a = try await store.beginRecognition(recordingID: first.id)
+        let b = try await store.beginRecognition(recordingID: second.id)
+        let c = try await store.beginRecognition(recordingID: third.id)
+        try await store.applyRecognition(ticket: a, text: "首段前缀", isFinal: true)
+        let aPrefix = try #require(await store.latestFinalRevision(recordingID: first.id))
+        let prefixResult = await coordinator.insertStable(recordingID: first.id, revisionID: aPrefix.id, stableUTF16End: aPrefix.text.utf16.count, recordingStartedAt: first.createdAt)
+        if prefixResult != .confirmed { print("ORDER_BOUNDARY decoded=\(first.createdAt.timeIntervalSince1970) binding=\(binding.boundAt.timeIntervalSince1970) delta_us=\(first.createdAt.timeIntervalSince(binding.boundAt) * 1_000_000) decodedRef=\(first.createdAt.timeIntervalSinceReferenceDate) bindingRef=\(binding.boundAt.timeIntervalSinceReferenceDate) result=\(prefixResult)") }
+        #expect(prefixResult == .confirmed)
+        try await store.applyRecognition(ticket: b, text: "第二段。", isFinal: true)
+        let bFinal = try #require(await store.latestFinalRevision(recordingID: second.id))
+        #expect(await coordinator.insertStable(recordingID: second.id, revisionID: bFinal.id, stableUTF16End: bFinal.text.utf16.count, recordingStartedAt: second.createdAt) == .confirmed)
+        try await store.applyRecognition(ticket: a, text: "首段前缀，迟到尾部。", isFinal: true)
+        let aFull = try #require(await store.latestFinalRevision(recordingID: first.id))
+        let tailResult = await coordinator.insertStable(recordingID: first.id, revisionID: aFull.id, stableUTF16End: aFull.text.utf16.count, recordingStartedAt: first.createdAt)
+        #expect(tailResult == .deferred)
+        #expect(coordinator.binding?.id == binding.id)
+        try await store.applyRecognition(ticket: c, text: "第三段。", isFinal: true)
+        let cFinal = try #require(await store.latestFinalRevision(recordingID: third.id))
+        #expect(await coordinator.insertStable(recordingID: third.id, revisionID: cFinal.id, stableUTF16End: cFinal.text.utf16.count, recordingStartedAt: third.createdAt) == .confirmed)
+        #expect(access.attempts == ["首段前缀", "第二段。", "第三段。"])
+    }
     @Test func mutationOfConfirmedTailStopsNextAppend() async throws {
         let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
         let store = try SaytileStore(directory: directory), access = FakeInputAccess()

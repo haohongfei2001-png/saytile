@@ -71,6 +71,7 @@ final class AppModel: ObservableObject {
     @Published var query = "" { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var notice: String?
     @Published var directMode = false
+    @Published private(set) var insertionLabels: [UUID: String] = [:]
     @Published var targetLabel = "在目标草稿中放置光标，再绑定"
     @Published var hasStarted = false
     @Published var storageLabel = "计算中…"
@@ -247,11 +248,22 @@ final class AppModel: ObservableObject {
                 for snapshot in frozen {
                     let result = await input.insert(recordingID: snapshot.recordingID, revisionID: snapshot.id)
                     notice = result.message
+                    recordInputResult(result, recordingID: snapshot.recordingID)
                     // A batch is a single user action. Do not continue sending following records
                     // after an uncertain/failed attempt; a new action can explicitly reuse them.
                     guard result == .confirmed else { return }
                 }
             } catch { notice = error.localizedDescription }
+        }
+    }
+    private func recordInputResult(_ result: NativeInputResult, recordingID: UUID) {
+        switch result {
+        case .confirmed: insertionLabels[recordingID] = "已插入目标草稿"
+        case .unverified: insertionLabels[recordingID] = "插入未确认 · 不会自动重发"
+        case .deferred: insertionLabels[recordingID] = "较早段的迟到文字 · 保留在此处供取用"
+        case .cancelled: insertionLabels[recordingID] = "目标已变化 · 文字留在此处"
+        case .failed: insertionLabels[recordingID] = "未能插入 · 可复制取用"
+        case .noNewText: break
         }
     }
     func clearPanel() {
@@ -489,13 +501,18 @@ final class AppModel: ObservableObject {
             storageLabel = ByteCountFormatter.string(fromByteCount: summary.audioBytes, countStyle: .file)
             if summary.shouldWarn { notice = "原音空间已达到提醒阈值，或磁盘剩余不足 1 GB。请在设置中查看存储。" }
             }
+            let visibleIDs = Set(records.map(\.id) + recent.map(\.id))
+            insertionLabels = insertionLabels.filter { visibleIDs.contains($0.key) }
             if directMode && !isInserting, let binding = input.binding {
+                let deferred = try await store.deferredDirectInputRecordings(bindingID: binding.id, createdSince: binding.boundAt, limit: 1000)
+                for id in deferred where visibleIDs.contains(id) { recordInputResult(.deferred, recordingID: id) }
                 let candidates = try await store.directInputCandidates(bindingID: binding.id, createdSince: binding.boundAt)
                 for record in candidates {
                     guard directMode, !isInserting, input.binding?.id == binding.id else { break }
                     guard let revision = try await store.latestFinalRevision(recordingID: record.id) else { continue }
                     let result = await input.insertStable(recordingID: record.id, revisionID: revision.id, stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
-                    switch result { case .failed, .cancelled, .unverified: notice = result.message; default: break }
+                    recordInputResult(result, recordingID: record.id)
+                    switch result { case .failed, .cancelled, .unverified, .deferred: notice = result.message; default: break }
                 }
             }
         } catch { notice = error.localizedDescription }

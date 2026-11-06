@@ -1,13 +1,13 @@
 {
   "scope": "Synthetic design and DOM validation, not native product acceptance",
-  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
-  "python": "3.13.5",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "python": "3.14.7",
   "runs": [
     {
       "name": "inherited_pcm_sqlite",
       "exit_code": 0,
       "command": [
-        "/opt/pyvenv/bin/python",
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
         "archive/recovery-source/handoff/reliability_lab.py"
       ],
       "output": "evidence/inherited-reliability.json"
@@ -16,7 +16,7 @@
       "name": "reconstructed_contracts",
       "exit_code": 0,
       "command": [
-        "/opt/pyvenv/bin/python",
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
         "tests/test_recovery_contracts.py"
       ],
       "output": "evidence/rebuilt-contracts.log"
@@ -43,7 +43,7 @@
         "contracts/Contracts.swift",
         "tests/SwiftSmoke.swift",
         "-o",
-        "/tmp/saytile-swift-p03rdawv/unicode-smoke"
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-swift-szqsnrzw/unicode-smoke"
       ],
       "output": "evidence/swift-smoke-build.log"
     },
@@ -51,7 +51,7 @@
       "name": "swift_unicode_smoke",
       "exit_code": 0,
       "command": [
-        "/tmp/saytile-swift-p03rdawv/unicode-smoke"
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-swift-szqsnrzw/unicode-smoke"
       ],
       "output": "evidence/swift-smoke.log"
     },

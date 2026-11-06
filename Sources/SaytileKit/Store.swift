@@ -381,7 +381,9 @@ public actor SaytileStore {
                 // Keep only operation audit metadata; deleting a record erases its text snapshots as well.
                 try db.execute("UPDATE recordings SET deleted=1,preferred_revision=NULL WHERE id=?",[.text(id.uuidString)])
                 try db.execute("DELETE FROM editing_drafts WHERE recording_id=?",[.text(id.uuidString)])
-                try db.execute("DELETE FROM cursors WHERE recording_id=?",[.text(id.uuidString)])
+                // Keep a text-free ordering tombstone for active bindings. Removing it
+                // would allow earlier delayed recognition to follow a deleted later record.
+                try db.execute("UPDATE cursors SET prefix='' WHERE recording_id=?",[.text(id.uuidString)])
                 try db.execute("DELETE FROM dispatches WHERE recording_id=?",[.text(id.uuidString)])
                 try db.execute("DELETE FROM frozen_revisions WHERE revision_id IN(SELECT id FROM revisions WHERE recording_id=?)",[.text(id.uuidString)])
                 try db.execute("DELETE FROM revisions WHERE recording_id=?",[.text(id.uuidString)])
@@ -429,10 +431,16 @@ public actor SaytileStore {
 }
 
 extension SaytileStore {
-    public func createBinding(label: String) throws -> UUID {
-        let id = UUID()
-        try db.execute("INSERT INTO bindings(id,label,active,created_at) VALUES(?,?,1,?)",[.text(id.uuidString),.text(label),.double(Date().timeIntervalSince1970)])
-        return id
+    public func createBinding(label: String, createdAt: Date = Date()) throws -> UUID {
+        try db.transaction {
+            let id = UUID()
+            try db.execute("INSERT INTO bindings(id,label,active,created_at) VALUES(?,?,1,?)",[.text(id.uuidString),.text(label),.double(createdAt.timeIntervalSince1970)])
+            // Recording rows are retained as tombstones on deletion. Their rowids
+            // therefore establish creation order even when the clock has one tick
+            // for both the binding and the next recording.
+            try db.execute("INSERT INTO binding_boundaries(binding_id,recording_rowid) SELECT ?,COALESCE(MAX(rowid),0) FROM recordings",[.text(id.uuidString)])
+            return id
+        }
     }
     public func invalidateBinding(_ id: UUID) throws {
         try db.execute("UPDATE bindings SET active=0 WHERE id=?",[.text(id.uuidString)])
@@ -441,30 +449,66 @@ extension SaytileStore {
     /// outside the panel's most recent page. The selected transcript is unchanged;
     /// callers still fetch the latest final revision and reserve it before dispatch.
     public func directInputCandidates(bindingID: UUID, createdSince: Date, limit: Int = 100) throws -> [Recording] {
-        try db.rows(Self.selection + """
+        try directInputRows(bindingID:bindingID,createdSince:createdSince,limit:limit,deferred:false).map(Self.decodeRecording)
+    }
+    /// Earlier finalized text that cannot be appended without reordering the target.
+    /// Already-reserved complete prefixes are excluded, so completed earlier speech
+    /// is not incorrectly marked as deferred.
+    public func deferredDirectInputRecordings(bindingID: UUID, createdSince: Date, limit: Int = 100) throws -> [UUID] {
+        try directInputRows(bindingID:bindingID,createdSince:createdSince,limit:limit,deferred:true).compactMap { $0["id"].flatMap(UUID.init(uuidString:)) }
+    }
+    private func directInputRows(bindingID: UUID, createdSince: Date, limit: Int, deferred: Bool) throws -> [[String:String]] {
+        let projection = deferred ? "SELECT r.id FROM recordings r" : Self.selection
+        let orderPredicate = deferred
+            ? "watermark.sequence IS NOT NULL AND r.rowid<watermark.sequence"
+            : "watermark.sequence IS NULL OR r.rowid>=watermark.sequence"
+        return try db.rows(projection + """
          JOIN bindings b ON b.id=? AND b.active=1
+         JOIN binding_boundaries boundary ON boundary.binding_id=b.id
          JOIN revisions stable ON stable.id=(
            SELECT latest.id FROM revisions latest
            WHERE latest.recording_id=r.id AND latest.origin='final'
            ORDER BY latest.created_at DESC,latest.rowid DESC LIMIT 1
          )
          LEFT JOIN cursors cursor ON cursor.binding_id=b.id AND cursor.recording_id=r.id
-         WHERE r.deleted=0 AND r.created_at>=? AND r.created_at>b.created_at
+         LEFT JOIN (
+           SELECT MAX(prior.rowid) AS sequence FROM cursors progress
+           JOIN recordings prior ON prior.id=progress.recording_id
+           WHERE progress.binding_id=? AND progress.end_utf16>0
+         ) watermark ON 1=1
+         WHERE r.deleted=0 AND r.rowid>boundary.recording_rowid
+           AND r.created_at>=? AND r.created_at>=b.created_at
            AND stable.text<>'' AND (cursor.prefix IS NULL OR stable.text<>cursor.prefix)
-         ORDER BY r.created_at ASC,r.id ASC LIMIT ?
-        """,[.text(bindingID.uuidString),.double(createdSince.timeIntervalSince1970),.int(Int64(max(1,min(limit,1000))))]).map(Self.decodeRecording)
+           AND (\(orderPredicate))
+         ORDER BY r.rowid ASC LIMIT ?
+        """,[.text(bindingID.uuidString),.text(bindingID.uuidString),.double(createdSince.timeIntervalSince1970),.int(Int64(max(1,min(limit,1000))))])
     }
     public func reserveDispatch(bindingID: UUID, recordingID: UUID, revisionID: UUID, stableUTF16End: Int) throws -> DispatchReservation? {
         do {
             return try db.transaction {
-                guard let binding = try db.rows("SELECT active,created_at FROM bindings WHERE id=?",[.text(bindingID.uuidString)]).first,binding["active"] == "1" else { throw StoreError.bindingInvalid }
-                let record = try requireRecording(recordingID)
-                guard record.createdAt.timeIntervalSince1970 >= Double(binding["created_at"]!)! else { throw StoreError.bindingInvalid }
+                guard try db.rows("""
+                SELECT 1 FROM bindings b
+                JOIN binding_boundaries boundary ON boundary.binding_id=b.id
+                JOIN recordings r ON r.id=? AND r.deleted=0
+                WHERE b.id=? AND b.active=1 AND r.rowid>boundary.recording_rowid
+                  AND r.created_at>=b.created_at
+                """,[.text(recordingID.uuidString),.text(bindingID.uuidString)]).first != nil else { throw StoreError.bindingInvalid }
                 guard let revision = try db.rows("SELECT text,origin FROM revisions WHERE id=? AND recording_id=?",[.text(revisionID.uuidString),.text(recordingID.uuidString)]).first else { throw StoreError.missingRevision }
                 let text = revision["text"]!
                 let cursor = try db.rows("SELECT end_utf16,prefix FROM cursors WHERE binding_id=? AND recording_id=?",[.text(bindingID.uuidString),.text(recordingID.uuidString)]).first
                 let start = Int(cursor?["end_utf16"] ?? "0")!
-                guard let prefix = Self.slice(text,start:0,end:start),prefix == (cursor?["prefix"] ?? "") else { throw StoreError.prefixChanged }
+                let prefix = Self.slice(text,start:0,end:start)
+                // Duplicate callbacks remain a no-op, even after a later record advanced.
+                if stableUTF16End == start, prefix == (cursor?["prefix"] ?? "") { return nil }
+                let advanced = try db.rows("""
+                SELECT 1 FROM cursors progress
+                JOIN recordings prior ON prior.id=progress.recording_id
+                JOIN recordings current ON current.id=?
+                WHERE progress.binding_id=? AND progress.end_utf16>0
+                  AND prior.rowid>current.rowid LIMIT 1
+                """,[.text(recordingID.uuidString),.text(bindingID.uuidString)]).first != nil
+                guard !advanced else { throw StoreError.lateRecognitionDeferred }
+                guard let prefix, prefix == (cursor?["prefix"] ?? "") else { throw StoreError.prefixChanged }
                 guard stableUTF16End >= start, let suffix = Self.slice(text,start:start,end:stableUTF16End),let newPrefix = Self.slice(text,start:0,end:stableUTF16End) else { throw StoreError.invalidBoundary }
                 guard stableUTF16End > start else { return nil }
                 let reservation = DispatchReservation(id:UUID(),recordingID:recordingID,revisionID:revisionID,text:suffix,utf16Start:start,utf16End:stableUTF16End)
@@ -529,6 +573,7 @@ extension SaytileStore {
     CREATE TABLE IF NOT EXISTS recovery_attempts(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),attempt_count INTEGER NOT NULL CHECK(attempt_count>=0),retry_after REAL NOT NULL);
     CREATE TABLE IF NOT EXISTS erasures(recording_id TEXT PRIMARY KEY,created_at REAL NOT NULL,completed INTEGER NOT NULL DEFAULT 0);
     CREATE TABLE IF NOT EXISTS bindings(id TEXT PRIMARY KEY,label TEXT NOT NULL,active INTEGER NOT NULL,created_at REAL NOT NULL);
+    CREATE TABLE IF NOT EXISTS binding_boundaries(binding_id TEXT PRIMARY KEY REFERENCES bindings(id),recording_rowid INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS cursors(
       binding_id TEXT NOT NULL REFERENCES bindings(id),recording_id TEXT NOT NULL REFERENCES recordings(id),
       end_utf16 INTEGER NOT NULL CHECK(end_utf16>=0),prefix TEXT NOT NULL,PRIMARY KEY(binding_id,recording_id)

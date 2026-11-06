@@ -119,6 +119,10 @@ struct TranscriptCard: View {
             Text(item.text.isEmpty ? item.emptyTextLabel : item.text)
                 .font(.system(size: compact ? 14 : 15)).lineSpacing(6).textSelection(.enabled)
                 .foregroundStyle(item.text.isEmpty ? Palette.muted : Palette.ink).frame(maxWidth: .infinity, alignment: .leading)
+            if let inputLabel = model.insertionLabels[item.id] {
+                Label(inputLabel, systemImage: "arrow.up.forward.app").font(.system(size: 10)).foregroundStyle(Palette.muted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             if !compact, !model.query.isEmpty, !item.text.localizedCaseInsensitiveContains(model.query) {
                 Text("匹配来自历史版本或已保留的编辑草稿").font(.system(size: 10)).foregroundStyle(Palette.green)
             }

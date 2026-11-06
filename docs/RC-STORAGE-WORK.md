@@ -15,7 +15,7 @@
 
 ## 已完成验证
 
-- `SAYTILE_TEST_SCRATCH=/tmp/saytile-rc-storage/native SAYTILE_TEST_LOG=evidence/rc/storage-native-tests.log scripts/test-native.sh --filter 'Store|store'`：最新 56 项筛选测试通过（含新增直接输入队列及音频关闭后 Store 访问测试）。
+- `SAYTILE_TEST_SCRATCH=/tmp/saytile-rc-storage/native SAYTILE_TEST_LOG=evidence/rc/storage-native-tests.log scripts/test-native.sh --filter 'Store|store'`：前轮 61 项筛选测试通过。最新绑定创建顺序修复及精度回归已纳入输入负责人的统一全量运行，122 项、15 个 suite 全部通过，见 `evidence/rc/input-full-final.log`；没有重复构建同一源码。
 - `python3 scripts/test-rc-storage-processes.py`：9 项真实子进程场景通过。覆盖内核文件大小限制引发 SQLite 写失败、错误写事务不留下部分版本、解除限制后继续写入；第二进程拒绝打开；SIGKILL 后持久 WAL 恢复；未提交事务回滚；删除意图恢复；旧绑定失效且未确认派发不重放。
 - 升级测试从正式 `v1.0.0-beta.1` tag 提取实际 `Models/Store/StoreSQLite` 源码，编译独立旧版写入器，创建含原音、识别版本、修改稿、草稿、收藏及派发记录的 schema 1 库，再由当前 RC 源码打开。不是用新 schema 冒充旧版。
 - Native 测试额外覆盖 SQLite `max_page_count` 触发 FULL、升级 DDL 失败回滚、未来版本数据库内容和 journal 模式不变、损坏字段返回错误、同实例关闭后拒绝写入、135 段当前记录与历史显式复用分页。
@@ -39,9 +39,27 @@
 
 ## 延迟识别的直接输入候选
 
-新增 `directInputCandidates(bindingID:createdSince:limit:)`，按绑定后的最旧新讲话优先查询每条最新 final 文本，排除空 final、无稳定稿、非活跃绑定及与已预留游标前缀相同的文字。前缀修订仍返回候选，由既有 `reserveDispatch` 拒绝并使绑定失效；未确认、失败及已尝试的相同范围不自动重放。
+新增 `directInputCandidates(bindingID:createdSince:limit:)`，按绑定后的最旧新讲话优先查询每条最新 final 文本，排除空 final、无稳定稿、非活跃绑定及与已预留游标前缀相同的文字。当前未被更晚段越过的前缀修订仍返回候选，由既有 `reserveDispatch` 拒绝并使绑定失效；未确认、失败及已尝试的相同范围不自动重放。
 
 65 条新讲话以每批 20 条排空的原生回归测试通过，证明延迟 ASR 不受输入板最新 30 条限制；另覆盖重复 final 排除、前缀改写、重启绑定失效及易变尾部排除。`revision_latest_final` 部分索引支持此查询，不改变用户选中的文字版本。AppModel 接入由父任务完成。
+
+## 跨段单调输入顺序修复
+
+独立审查发现：较早讲话 A 的最终结果或后续稳定尾部可能晚于已经输入的 B，到达时不能再追加到 B 后面。现在候选 SQL 与 `reserveDispatch` 的同一预留事务都检查此绑定已经预留的最高记录创建序号 `recordings.rowid`，包括失败或未确认操作；较早的新文字保留供手动取用，抛出独立 `lateRecognitionDeferred`，不使绑定失效，也不阻塞后续 C。完全相同的旧回调仍返回 nil。同时间记录依真实创建顺序处理，不依随机 UUID 排序。
+
+`deferredDirectInputRecordings` 提供可显示的迟到记录 ID，排除已经完整预留的相同前缀；正常已输入的 A 不会被误标。整条删除会擦除 cursor 正文、文字版本、草稿及派发正文，保留无正文的顺序墓碑，防止删除 B 后绑定顺序回退。
+
+存储回归覆盖：A 草稿→B→A 迟到→C，A 失败→B 未确认→A 尾部，重复回调，删除 B 后水位保留，同时间创建顺序，以及迟到状态只标记尚未输入的新范围。输入负责人另有端到端协调器测试；父任务负责 UI 状态接入。
+
+## 绑定时钟边界复核
+
+全量 118 项测试曾出现首段直接输入资格失败，保留 `evidence/rc/native-timestamp-failure.log`。初始怀疑 SQLite 数字转字符串精度，但当前系统 SQLite 3.54.0 对连续 4096 个 epoch Double 位模式实测全部精确往返（`evidence/rc/storage-time-precision.log`），旧版源码的独立样本同样精确；不得把该猜测记为已证实根因。诊断重跑未复现此前随机失败。
+
+确定性发现：原先候选的严格时间 `>` 会排除绑定后创建、但与绑定具有相同时间戳的新记录；仅改为 `>=` 又无法拒绝绑定前的同时间旧记录。新增 schema 2 附加表 `binding_boundaries`，在创建绑定事务内记录已有记录的最高 rowid。候选与最终预留都要求记录创建序号超过这个起点，并以 `>=` 检查共同的绑定时间。原音与文字保存不受资格排除影响。已开始于绑定前、后登记的采集仍由时间约束排除。
+
+`createBinding(label:createdAt:)` 允许协调器使用同一时间值记录绑定及显示状态。新增新/旧同时间边界、反向 UUID 创建顺序、微秒记录重开顺序及 SQLite REAL/INTEGER 精确往返测试。生产 SQLite 读回实现没有因未经证实的精度假设而修改。
+
+音频负责人独立复核了事务起点、同时间边界、最终预留和删除后的顺序墓碑，未发现可复现 P1。共用绑定时间的 Input 接入完成后，最终全量 122 项通过；随后核对最新 Store 的真实进程与实际 Beta 源码升级 9 项场景全部通过。原失败日志继续保留，不能将这次确定性边界修复冒称为已复现随机失败的完整因果证明。
 
 ## 跨子系统审查交接
 

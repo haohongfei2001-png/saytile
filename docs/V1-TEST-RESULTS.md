@@ -80,3 +80,14 @@ Release DMG 校验通过；只读挂载中的App严格签名验证及启动通�
 - 音频：30分钟墙钟、39,690,000帧零drop，60段1800秒、57.61MB。只包括ring/转换/VAD/WAV/SQLite，不包括真实麦克风、ASR或整机能耗。中文8条两声音实时TTS语料和Apple识别器对照披露错字，详见RC-AUDIO-WORK。
 
 当前是检查点，不是最终RC签字。签名安装升级、最终CI及交叉审查仍在进行。
+
+
+## RC 最终根因与回归
+
+1. 独立审查复现跨段倒序B→A：现在以创建序号作为绑定起点和最高派发水位；旧段迟到全文/尾部独立deferred，不重放，不阻塞C，删除B也不使水位倒退。
+2. 一次118项全套出现4个新时序用例失败（保留native-timestamp-failure.log），专项及两次诊断没有复现。**未将SQLite精度猜测当结论**：4096个Double实测无损。改以同事务rowid区分绑定前后相同时间戳，统一boundAt与Unix时间比较，新增确定性新旧同tick回归；最终122项全部通过（input-full-final.log）。没有新增sleep或放宽旧内容边界。
+3. 首轮云端111项native PASS，后续AppModel入口因SwiftPM和SwiftBuild模块目录不同而失败。修复明确静态库产物与两种模块布局，保留ci-layout-failure.log；本地经典SwiftPM与CLT均21checks PASS。
+4. 实际打包App在a780aaa检查点待命300.03秒：user2.16s+sys0.43s，平均0.86%单核；maxRSS80.15MB，最终RSS约55.84MB。原始time口径和每5秒样本均保留（app-idle.json/log）。仅空隔离库、菜单栏/刷新，没有麦克风、ASR或整机功耗，不冒称最终发布SHA或72小时。
+5. 音频真实AVAudioPlayer另有2项零PCM集成：跨块seek、自然结束、stop/shutdown/租约与删除保文，未采麦或有声外放。
+
+最终发行验收将补充精确源码SHA、DMG散列、只读挂载签名、Beta App→RC App安装升级、正常重启及重复实例拒绝。

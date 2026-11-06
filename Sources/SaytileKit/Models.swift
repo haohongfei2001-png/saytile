@@ -61,7 +61,7 @@ public struct StoreRecovery: Sendable {
 }
 public enum StoreError: LocalizedError, Sendable {
     case database(String), missingRecording, missingRevision, audioUnavailable, recordingActive, audioInUse
-    case invalidPath, invalidFrames, invalidBoundary, bindingInvalid, prefixChanged
+    case invalidPath, invalidFrames, invalidBoundary, bindingInvalid, prefixChanged, lateRecognitionDeferred
     public var errorDescription: String? {
         switch self {
         case .database(let message): return "资料库暂时不可用：\(message)"
@@ -74,6 +74,7 @@ public enum StoreError: LocalizedError, Sendable {
         case .invalidFrames: return "音频长度无效。"
         case .invalidBoundary: return "文字边界无效。"
         case .bindingInvalid: return "输入目标已改变，请重新选择目标。"
+        case .lateRecognitionDeferred: return "较早讲话的识别结果已保留在 Saytile，请手动取用以保持草稿顺序。"
         case .prefixChanged: return "已输入的文字发生修订，后续文字保留在输入板。"
         }
     }

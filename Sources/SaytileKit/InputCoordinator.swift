@@ -10,12 +10,13 @@ public struct InputBindingInfo: Sendable, Equatable {
 }
 
 public enum NativeInputResult: Sendable, Equatable {
-    case confirmed, unverified, noNewText, cancelled, failed(String)
+    case confirmed, unverified, noNewText, cancelled, deferred, failed(String)
     public var message: String {
         switch self {
         case .confirmed: "已插入"
         case .unverified: "已尝试插入，请在目标应用核对；不会自动重发"
         case .noNewText: "没有新的稳定文字"
+        case .deferred: "较早一段的识别结果已保留在输入板，可手动取用；后续新表达继续输入。"
         case .cancelled: "目标已变化，文字保留在 Saytile"
         case .failed(let reason): reason
         }
@@ -131,13 +132,16 @@ public final class NativeInputCoordinator {
         try snapshot.checked()
         invalidate()
         let bindGeneration = generation
-        let id = try await store.createBinding(label: snapshot.applicationName)
+        // One timestamp is shared by the runtime and SQLite boundary. The store also
+        // captures a creation-sequence boundary, so equal clock ticks cannot admit history.
+        let boundAt = Date()
+        let id = try await store.createBinding(label: snapshot.applicationName, createdAt: boundAt)
         guard !Task.isCancelled, generation == bindGeneration,
               let current = try? access.snapshot(), current == snapshot else {
             try? await store.invalidateBinding(id)
             throw NativeInputError.targetChanged
         }
-        let info = InputBindingInfo(id: id, label: snapshot.applicationName, boundAt: Date())
+        let info = InputBindingInfo(id: id, label: snapshot.applicationName, boundAt: boundAt)
         target = snapshot
         binding = info; boundPurpose = purpose
         let support = access.observe(snapshot) { [weak self] change in
@@ -202,7 +206,10 @@ public final class NativeInputCoordinator {
         guard !isDispatching else { return .failed(NativeInputError.busy.localizedDescription) }
         guard let target, let binding else { return .cancelled }
         if stableEnd != nil, boundPurpose != .continuous { return .failed(NativeInputError.unobservablePage.localizedDescription) }
-        if let startedAt, startedAt <= binding.boundAt { return .noNewText }
+        // Dates loaded from SQLite are represented as Unix-epoch Double values.
+        // Compare in that same precision; equal ticks are decided by the store's
+        // recording-creation boundary, not an unreliable strict wall-clock ordering.
+        if let startedAt, startedAt.timeIntervalSince1970 < binding.boundAt.timeIntervalSince1970 { return .noNewText }
         let startGeneration = generation
         do {
             try validate(target)
@@ -272,6 +279,10 @@ public final class NativeInputCoordinator {
                 invalidate()
                 return .unverified
             }
+        } catch StoreError.lateRecognitionDeferred {
+            // A later recording has already reserved input. Keep this late text local,
+            // without expiring the live target or blocking independent future speech.
+            return .deferred
         } catch {
             invalidate()
             return .failed(error.localizedDescription)

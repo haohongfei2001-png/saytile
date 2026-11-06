@@ -6,6 +6,42 @@ private func rcDirectory() -> URL { FileManager.default.temporaryDirectory.appen
 
 @Suite("RC store ownership, migrations and archive")
 struct StoreRCTests {
+    @Test func sqliteNumericRoundTripsPreserveFullPrecision() throws {
+        let root = rcDirectory(); defer { try? FileManager.default.removeItem(at:root) }
+        try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true)
+        let db = try StoreDatabase(url:root.appendingPathComponent("precision.sqlite"))
+        let first = 1_793_952_000.1234567
+        // Include adjacent representable epoch values, not just rounded decimal
+        // timestamps. Dispatch eligibility must not round a new utterance backward.
+        for step in 0..<64 {
+            let original = Double(bitPattern:first.bitPattern + UInt64(step))
+            let row = try #require(db.rows("SELECT ? AS value",[.double(original)]).first)
+            let decoded = try #require(row["value"].flatMap(Double.init))
+            #expect(decoded.bitPattern == original.bitPattern)
+        }
+        for original in [Int64.min, Int64.max, 9_007_199_254_740_993] {
+            let row = try #require(db.rows("SELECT ? AS value",[.int(original)]).first)
+            #expect(row["value"].flatMap(Int64.init) == original)
+        }
+    }
+    @Test func microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() async throws {
+        let root = rcDirectory(); defer { try? FileManager.default.removeItem(at:root) }
+        let store = try SaytileStore(directory:root)
+        let firstDate = Date(timeIntervalSince1970:1_793_952_000.123451)
+        let secondDate = Date(timeIntervalSince1970:1_793_952_000.123452)
+        // Reverse identity ordering so truncating both dates to one value is visible.
+        let firstID = UUID(uuidString:"FFFFFFFF-FFFF-4FFF-8FFF-FFFFFFFFFFFF")!
+        let secondID = UUID(uuidString:"00000000-0000-4000-8000-000000000001")!
+        let first = try await store.createRecording(id:firstID,createdAt:firstDate)
+        let second = try await store.createRecording(id:secondID,createdAt:secondDate)
+        #expect(first.createdAt == firstDate)
+        #expect(second.createdAt == secondDate)
+        #expect(try await store.listRecordings().map(\.id) == [secondID,firstID])
+        try await store.close()
+        let reopened = try SaytileStore(directory:root)
+        #expect(try await reopened.recording(id:firstID)?.createdAt == firstDate)
+        #expect(try await reopened.recording(id:secondID)?.createdAt == secondDate)
+    }
     @Test func secondOwnerCannotInvalidateActiveRecording() async throws {
         let root = rcDirectory(); defer { try? FileManager.default.removeItem(at:root) }
         let owner = try SaytileStore(directory:root)

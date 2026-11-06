@@ -54,3 +54,7 @@ SpeechTranscriber：原样 CER **22.82%**；仅评价指标中统一数字/时�
 结构化证据 `audio-realtime-30min.json` 与原始time输出 `.log`；探针二进制SHA256已记录。此为不含ASR/UI/整机功耗的合成管线长稳；非真人/麦克风、非72小时，亦不冒称最后发布App本身运行了30分钟。
 
 独立存储代理复核音频路径加固、UID失联和shutdown未发现P1；其发现的播放A→B丢失原收音恢复意图已修复，替换播放准备失败也保留恢复意图，并仍受用户pause/generation约束。
+
+## 实际静音播放器集成
+
+追加 **2/2** 生产 `AVAudioPlayer` 集成通过（独立 `AudioPlayerIntegrationTests`，0.543秒），见 `evidence/rc/audio-playback-integration.log`。测试创建纯零PCM WAV并调用 `AudioController.play`：跨块/反向seek、自然结束、stop与shutdown、播放期间原音删除的租约延期及文字保留。没有采集麦克风、没有有声外放，也没有自动启动收音。此为实际播放器验证，和前述纯timeline测试分别记录；此前39项集中测试与本次2项独立运行，未冒称已经重跑聚合41项。

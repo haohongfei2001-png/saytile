@@ -1,178 +1,151 @@
 Building for debugging...
-[Planning deferred tasks]
-[4 / 74]
-[36 / 85]
-[62 / 85] CAudio
-/Users/hhf/Documents/GitHub/saytile/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
-[63 / 119]
-[75 / 224]
-[88 / 224]
-[91 / 224]
-[97 / 224]
-[100 / 224]
-[108 / 224]
-[110 / 224]
-[113 / 224]
-[114 / 224]
-[128 / 224]
-[130 / 224]
-[134 / 224]
-[140 / 224]
-[141 / 224]
-[148 / 224]
-[150 / 224]
-[156 / 224]
-[157 / 224]
-[159 / 224]
-[161 / 224]
-[162 / 224]
-[175 / 224]
-[176 / 224]
-[180 / 224]
-[185 / 224]
-[188 / 224]
-[189 / 224]
-[190 / 224]
-[191 / 224]
-[202 / 224] SaytileKit
-[209 / 227] Saytile-product
-[212 / 236] SaytileKit
+[2 / 14] SaytileKit
+[4 / 16] SaytileKit
+[9 / 20] SaytileKit
+[10 / 21] SaytileKit
 /Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
-[217 / 236] SaytileKitTests-product
-[218 / 249]
-[229 / 249] SaytileKitTests-product
-[230 / 249] SaytileKitTests-product
-[234 / 249] SaytileKitTests-product
-[242 / 249] Saytile-product
-/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
-/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
-[243 / 249]
-[245 / 248] Saytile-product
-[247 / 248] Saytile-product/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+[15 / 22] Saytile-product
+[20 / 27] Saytile-product
+[20 / 27] SaytileKitTests-product
+[27 / 30] Saytile-product/Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
 /Users/hhf/Documents/GitHub/saytile/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
 
-Build complete! (20.06秒)
+[27 / 30] SaytileKitTests-product
+[29 / 33] SaytileKitTests-product
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (3.16秒)
 ◇ Test run started.
 ↳ Testing Library Version: 2084
 ↳ Target Platform: arm64e-apple-macos14.0
-◇ Suite "Owned store path boundaries" started.
-◇ Test storeMissingAudioStatePreservesTextAndRejectsStaleASR() started.
-◇ Suite "Audio controller shutdown" started.
-◇ Suite "RC store ownership, migrations and archive" started.
-◇ Test storeRecognitionPreservesSelectedUserEdit() started.
-◇ Test storeDeletingRecordAlsoDeletesDispatchTextSnapshots() started.
 ◇ Suite "Display geometry" started.
-◇ Test storeDispatchRestartInvalidatesTargetAndDoesNotReplay() started.
-◇ Test storeFiltersBeforePagination() started.
-◇ Test storeRecoveryQueueDoesNotStarveBeyondOldestHundred() started.
-◇ Test storePersistsAcrossReopen() started.
-◇ Test storeRecordDeletionRemovesTextAndSearch() started.
-◇ Test storeRejectsSymlinkEscape() started.
-◇ Test storeChunkUpdatesAreMonotonic() started.
-◇ Test storeDirectCandidatesDrainBacklogBeyondLatestThirtyWithoutReplay() started.
-◇ Test storeCleanupProtectsPinnedFailedAndActive() started.
-◇ Test storeDispatchUnverifiedDoesNotBlockIndependentSegment() started.
-◇ Test storeDirectCandidatesIgnoreVolatileAndEmptyFinalText() started.
-◇ Test storeRecoveryReconcilesTruncatedDurableAudio() started.
-◇ Test storeRejectsTraversalAndOtherRecordingOwnership() started.
-◇ Test storeDispatchRejectsPrefixRewriteAndInvalidatesBinding() started.
-◇ Test storeUnsavedEditingDraftPersistsAcrossRestartSeparatelyFromTranscript() started.
-◇ Test storeAudioDeletionPreservesEveryTextRevision() started.
+◇ Suite "Owned store path boundaries" started.
 ◇ Test storeDispatchUTF16RejectsSurrogateAndGraphemeSplit() started.
-◇ Test storeFrozenClickSnapshotSurvivesPartialPruningWithoutChangingPreferred() started.
-◇ Test storePreservesEmbeddedNULInEditedText() started.
-◇ Test storePendingErasureResumesAfterCrash() started.
-◇ Test storeAudioLeaseDefersPhysicalErasure() started.
-◇ Test storePartialDraftCountIsBoundedAndFinalImmutable() started.
-◇ Test storeLateRecognitionCannotResurrectDeletedAudio() started.
-◇ Test storeInterruptedCaptureAndASRRecover() started.
-◇ Test storeYieldingRecoveryToCaptureDoesNotConsumeRetryBudget() started.
-◇ Test storeCompletedTombstoneCleansResidualFilesOnRecovery() started.
-◇ Test storeMultipleFinalRangesCompleteOnlyAfterDrain() started.
-◇ Test storeDeletionRemovesUnregisteredCrashTail() started.
-◇ Test storeRecoveryMarksInterruptedBeforeFirstChunkAsMissing() started.
-◇ Test storeDispatchOnlyNewStableSuffixAndNeverDuplicate() started.
-◇ Test storeStorageSummaryUsesActualFiles() started.
-◇ Test storeAudioErasurePreservesDraftAndRecordErasureRemovesIt() started.
-◇ Test storeNewAttemptRejectsOldCallback() started.
-◇ Test storeCleanupRevalidatesPreview() started.
-◇ Test storeEmptyDraftAndExplicitDiscardRemainDistinct() started.
-◇ Test storeLatestStableRevisionSurvivesVolatileUpdate() started.
-◇ Test storeFreezesClickTextAfterItsVolatileSourceWasPruned() started.
-◇ Test storeManualInsertionIsExplicitNewOperationEachTime() started.
-◇ Test storeRecoveryRetriesAreBoundedAndSurviveRestart() started.
-◇ Test storeLiveDeletionIsRejected() started.
 ◇ Test storeSearchEscapesLikeAndBindsSQL() started.
+◇ Test storeDispatchOnlyNewStableSuffixAndNeverDuplicate() started.
+◇ Suite "Audio controller shutdown" started.
+◇ Test storeLateRecognitionCannotResurrectDeletedAudio() started.
+◇ Test storeManualInsertionIsExplicitNewOperationEachTime() started.
+◇ Test storeChunkUpdatesAreMonotonic() started.
+◇ Suite "RC store ownership, migrations and archive" started.
+◇ Test storeEarlierTailCannotFollowLaterReservationEvenWhenDeliveryUnverified() started.
+◇ Test storeDeletingRecordAlsoDeletesDispatchTextSnapshots() started.
+◇ Test storeRejectsTraversalAndOtherRecordingOwnership() started.
+◇ Test storeUnsavedEditingDraftPersistsAcrossRestartSeparatelyFromTranscript() started.
+◇ Test storeCleanupRevalidatesPreview() started.
+◇ Test storeFiltersBeforePagination() started.
+◇ Test storeInterruptedCaptureAndASRRecover() started.
+◇ Test storeMultipleFinalRangesCompleteOnlyAfterDrain() started.
+◇ Test storeRecoveryMarksInterruptedBeforeFirstChunkAsMissing() started.
 ◇ Test storeDirectCandidatesIncludeChangedPrefixButSkipDuplicateLatestFinal() started.
+◇ Test storeAudioLeaseDefersPhysicalErasure() started.
+◇ Test storeCleanupProtectsPinnedFailedAndActive() started.
+◇ Test storeEqualTimestampOrderingUsesStableIdentityForCandidateAndReservation() started.
+◇ Test storeRecoveryReconcilesTruncatedDurableAudio() started.
+◇ Test storeDirectCandidatesDrainBacklogBeyondLatestThirtyWithoutReplay() started.
+◇ Test storePreservesEmbeddedNULInEditedText() started.
+◇ Test storePersistsAcrossReopen() started.
+◇ Test storeEmptyDraftAndExplicitDiscardRemainDistinct() started.
+◇ Test storeDirectCandidatesIgnoreVolatileAndEmptyFinalText() started.
+◇ Test storeLiveDeletionIsRejected() started.
+◇ Test storeDeletionRemovesUnregisteredCrashTail() started.
+◇ Test storeCompletedTombstoneCleansResidualFilesOnRecovery() started.
+◇ Test storeDeletedLaterRecordKeepsTextFreeOrderingWatermark() started.
+◇ Test storeAudioErasurePreservesDraftAndRecordErasureRemovesIt() started.
+◇ Test storeDispatchRestartInvalidatesTargetAndDoesNotReplay() started.
+◇ Test storeLatestStableRevisionSurvivesVolatileUpdate() started.
+◇ Test storeRecoveryRetriesAreBoundedAndSurviveRestart() started.
+◇ Test storeDelayedEarlierSpeechIsDeferredWithoutBlockingLaterSpeech() started.
+◇ Test storeAudioDeletionPreservesEveryTextRevision() started.
+◇ Test storeStorageSummaryUsesActualFiles() started.
+◇ Test storeYieldingRecoveryToCaptureDoesNotConsumeRetryBudget() started.
+◇ Test storeDispatchRejectsPrefixRewriteAndInvalidatesBinding() started.
+◇ Test storeFreezesClickTextAfterItsVolatileSourceWasPruned() started.
+◇ Test storeRecoveryQueueDoesNotStarveBeyondOldestHundred() started.
+◇ Test storeDispatchUnverifiedDoesNotBlockIndependentSegment() started.
+◇ Test storeFrozenClickSnapshotSurvivesPartialPruningWithoutChangingPreferred() started.
+◇ Test storeMissingAudioStatePreservesTextAndRejectsStaleASR() started.
+◇ Test storePartialDraftCountIsBoundedAndFinalImmutable() started.
+◇ Test storeRecognitionPreservesSelectedUserEdit() started.
+◇ Test storeRejectsSymlinkEscape() started.
+◇ Test storeRecordDeletionRemovesTextAndSearch() started.
+◇ Test storePendingErasureResumesAfterCrash() started.
+◇ Test storeNewAttemptRejectsOldCallback() started.
+◇ Test storeDeferredStatusOnlyMarksUndispatchedEarlierFinalSuffix() started.
 ◇ Test databaseSymlinkIsRejectedWithoutModifyingExternalFile() started.
 ◇ Test audioRootSymlinkIsRejectedWithoutTouchingDestination() started.
-◇ Test panelIncludesAllSessionPagesAndExplicitHistoryOnlyOnce() started.
-◇ Test failedMigrationRollsBackAllDDLAndKeepsVersion() started.
-◇ Test secondOwnerCannotInvalidateActiveRecording() started.
-◇ Test draftSearchAndHistorySurviveAudioErasure() started.
-◇ Test sqliteFullRollsBackWholeTransaction() started.
 ◇ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() started.
-◇ Test corruptRowReturnsErrorInsteadOfCrashing() started.
-◇ Test futureDatabaseRefusedWithoutChangingJournalOrBytes() started.
 ◇ Test disconnectedDisplayRestoresToRemainingScreen() started.
-✔ Test storeRejectsSymlinkEscape() passed after 0.116 seconds.
-✔ Test storeDeletingRecordAlsoDeletesDispatchTextSnapshots() passed after 0.116 seconds.
-✔ Test storeRecognitionPreservesSelectedUserEdit() passed after 0.116 seconds.
-✔ Test storeMissingAudioStatePreservesTextAndRejectsStaleASR() passed after 0.116 seconds.
-✔ Test storeRecordDeletionRemovesTextAndSearch() passed after 0.116 seconds.
-✔ Test storeFiltersBeforePagination() passed after 0.116 seconds.
-✔ Test storeDispatchRestartInvalidatesTargetAndDoesNotReplay() passed after 0.116 seconds.
-✔ Test storePersistsAcrossReopen() passed after 0.116 seconds.
-✔ Test storeChunkUpdatesAreMonotonic() passed after 0.116 seconds.
-✔ Test storeDirectCandidatesIgnoreVolatileAndEmptyFinalText() passed after 0.116 seconds.
-✔ Test storeRejectsTraversalAndOtherRecordingOwnership() passed after 0.116 seconds.
-✔ Test storeDispatchUnverifiedDoesNotBlockIndependentSegment() passed after 0.116 seconds.
-✔ Test storeRecoveryReconcilesTruncatedDurableAudio() passed after 0.116 seconds.
-✔ Test storeCleanupProtectsPinnedFailedAndActive() passed after 0.116 seconds.
-✔ Test storeDispatchRejectsPrefixRewriteAndInvalidatesBinding() passed after 0.116 seconds.
-✔ Test storeAudioDeletionPreservesEveryTextRevision() passed after 0.116 seconds.
-✔ Test storeFrozenClickSnapshotSurvivesPartialPruningWithoutChangingPreferred() passed after 0.117 seconds.
-✔ Test storePreservesEmbeddedNULInEditedText() passed after 0.122 seconds.
-✔ Test storeAudioLeaseDefersPhysicalErasure() passed after 0.122 seconds.
-✔ Test storeLateRecognitionCannotResurrectDeletedAudio() passed after 0.122 seconds.
-✔ Test storeDispatchUTF16RejectsSurrogateAndGraphemeSplit() passed after 0.127 seconds.
-✔ Test storeUnsavedEditingDraftPersistsAcrossRestartSeparatelyFromTranscript() passed after 0.135 seconds.
-✔ Test storeYieldingRecoveryToCaptureDoesNotConsumeRetryBudget() passed after 0.135 seconds.
-✔ Test storeMultipleFinalRangesCompleteOnlyAfterDrain() passed after 0.135 seconds.
-✔ Test storeInterruptedCaptureAndASRRecover() passed after 0.135 seconds.
-✔ Test storeDeletionRemovesUnregisteredCrashTail() passed after 0.135 seconds.
-✔ Test storeDispatchOnlyNewStableSuffixAndNeverDuplicate() passed after 0.135 seconds.
-✔ Test storeRecoveryMarksInterruptedBeforeFirstChunkAsMissing() passed after 0.138 seconds.
-✔ Test storeAudioErasurePreservesDraftAndRecordErasureRemovesIt() passed after 0.138 seconds.
-✔ Test storeNewAttemptRejectsOldCallback() passed after 0.138 seconds.
-✔ Test storeManualInsertionIsExplicitNewOperationEachTime() passed after 0.138 seconds.
-✔ Test storeEmptyDraftAndExplicitDiscardRemainDistinct() passed after 0.138 seconds.
-✔ Test storeLatestStableRevisionSurvivesVolatileUpdate() passed after 0.138 seconds.
-✔ Test storeLiveDeletionIsRejected() passed after 0.138 seconds.
-✔ Test storeFreezesClickTextAfterItsVolatileSourceWasPruned() passed after 0.138 seconds.
-✔ Test audioRootSymlinkIsRejectedWithoutTouchingDestination() passed after 0.071 seconds.
-✔ Test storeRecoveryRetriesAreBoundedAndSurviveRestart() passed after 0.138 seconds.
-✔ Test storeDirectCandidatesIncludeChangedPrefixButSkipDuplicateLatestFinal() passed after 0.138 seconds.
-✔ Test databaseSymlinkIsRejectedWithoutModifyingExternalFile() passed after 0.087 seconds.
-✔ Test failedMigrationRollsBackAllDDLAndKeepsVersion() passed after 0.071 seconds.
-✔ Test sqliteFullRollsBackWholeTransaction() passed after 0.057 seconds.
-✔ Test disconnectedDisplayRestoresToRemainingScreen() passed after 0.040 seconds.
-✔ Test storeSearchEscapesLikeAndBindsSQL() passed after 0.138 seconds.
-✔ Test storeStorageSummaryUsesActualFiles() passed after 0.138 seconds.
-✔ Suite "Owned store path boundaries" passed after 0.139 seconds.
-✔ Suite "Display geometry" passed after 0.142 seconds.
-✔ Test storeCleanupRevalidatesPreview() passed after 0.141 seconds.
-✔ Test futureDatabaseRefusedWithoutChangingJournalOrBytes() passed after 0.060 seconds.
-✔ Test storePendingErasureResumesAfterCrash() passed after 0.143 seconds.
-✔ Test secondOwnerCannotInvalidateActiveRecording() passed after 0.074 seconds.
-✔ Test storeCompletedTombstoneCleansResidualFilesOnRecovery() passed after 0.145 seconds.
-✔ Test draftSearchAndHistorySurviveAudioErasure() passed after 0.073 seconds.
-✔ Test corruptRowReturnsErrorInsteadOfCrashing() passed after 0.065 seconds.
-✔ Test storePartialDraftCountIsBoundedAndFinalImmutable() passed after 0.151 seconds.
-✔ Test storeRecoveryQueueDoesNotStarveBeyondOldestHundred() passed after 0.165 seconds.
-✔ Test panelIncludesAllSessionPagesAndExplicitHistoryOnlyOnce() passed after 0.107 seconds.
-✔ Suite "RC store ownership, migrations and archive" passed after 0.175 seconds.
-✔ Test storeDirectCandidatesDrainBacklogBeyondLatestThirtyWithoutReplay() passed after 0.200 seconds.
-✔ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() passed after 0.158 seconds.
-✔ Suite "Audio controller shutdown" passed after 0.240 seconds.
-✔ Test run with 56 tests in 4 suites passed after 0.240 seconds.
+◇ Test secondOwnerCannotInvalidateActiveRecording() started.
+◇ Test sqliteFullRollsBackWholeTransaction() started.
+◇ Test draftSearchAndHistorySurviveAudioErasure() started.
+◇ Test corruptRowReturnsErrorInsteadOfCrashing() started.
+◇ Test failedMigrationRollsBackAllDDLAndKeepsVersion() started.
+◇ Test panelIncludesAllSessionPagesAndExplicitHistoryOnlyOnce() started.
+◇ Test futureDatabaseRefusedWithoutChangingJournalOrBytes() started.
+✔ Test storeManualInsertionIsExplicitNewOperationEachTime() passed after 0.108 seconds.
+✔ Test storeDeletingRecordAlsoDeletesDispatchTextSnapshots() passed after 0.108 seconds.
+✔ Test storeDispatchOnlyNewStableSuffixAndNeverDuplicate() passed after 0.108 seconds.
+✔ Test storeRejectsTraversalAndOtherRecordingOwnership() passed after 0.108 seconds.
+✔ Test storeChunkUpdatesAreMonotonic() passed after 0.108 seconds.
+✔ Test storeLateRecognitionCannotResurrectDeletedAudio() passed after 0.108 seconds.
+✔ Test storeSearchEscapesLikeAndBindsSQL() passed after 0.109 seconds.
+✔ Test storeEarlierTailCannotFollowLaterReservationEvenWhenDeliveryUnverified() passed after 0.108 seconds.
+✔ Test storeUnsavedEditingDraftPersistsAcrossRestartSeparatelyFromTranscript() passed after 0.108 seconds.
+✔ Test storeMultipleFinalRangesCompleteOnlyAfterDrain() passed after 0.108 seconds.
+✔ Test storeDirectCandidatesIncludeChangedPrefixButSkipDuplicateLatestFinal() passed after 0.109 seconds.
+✔ Test storeInterruptedCaptureAndASRRecover() passed after 0.113 seconds.
+✔ Test storeEqualTimestampOrderingUsesStableIdentityForCandidateAndReservation() passed after 0.113 seconds.
+✔ Test storeRecoveryMarksInterruptedBeforeFirstChunkAsMissing() passed after 0.113 seconds.
+✔ Test storeAudioLeaseDefersPhysicalErasure() passed after 0.113 seconds.
+✔ Test storeFiltersBeforePagination() passed after 0.113 seconds.
+✔ Test storeDispatchUTF16RejectsSurrogateAndGraphemeSplit() passed after 0.114 seconds.
+✔ Test storeRecoveryReconcilesTruncatedDurableAudio() passed after 0.113 seconds.
+✔ Test storeLiveDeletionIsRejected() passed after 0.113 seconds.
+✔ Test storeCleanupProtectsPinnedFailedAndActive() passed after 0.114 seconds.
+✔ Test storeDirectCandidatesIgnoreVolatileAndEmptyFinalText() passed after 0.114 seconds.
+✔ Test storePreservesEmbeddedNULInEditedText() passed after 0.114 seconds.
+✔ Test storeEmptyDraftAndExplicitDiscardRemainDistinct() passed after 0.114 seconds.
+✔ Test storePersistsAcrossReopen() passed after 0.114 seconds.
+✔ Test storeDeletedLaterRecordKeepsTextFreeOrderingWatermark() passed after 0.114 seconds.
+✔ Test storeAudioErasurePreservesDraftAndRecordErasureRemovesIt() passed after 0.114 seconds.
+✔ Test storeLatestStableRevisionSurvivesVolatileUpdate() passed after 0.114 seconds.
+✔ Test storeDispatchRestartInvalidatesTargetAndDoesNotReplay() passed after 0.114 seconds.
+✔ Test storeDeletionRemovesUnregisteredCrashTail() passed after 0.114 seconds.
+✔ Test storeAudioDeletionPreservesEveryTextRevision() passed after 0.114 seconds.
+✔ Test storeRecoveryRetriesAreBoundedAndSurviveRestart() passed after 0.114 seconds.
+✔ Test storeDelayedEarlierSpeechIsDeferredWithoutBlockingLaterSpeech() passed after 0.114 seconds.
+✔ Test storeYieldingRecoveryToCaptureDoesNotConsumeRetryBudget() passed after 0.114 seconds.
+✔ Test storeDispatchRejectsPrefixRewriteAndInvalidatesBinding() passed after 0.114 seconds.
+✔ Test storeFreezesClickTextAfterItsVolatileSourceWasPruned() passed after 0.115 seconds.
+✔ Test storeFrozenClickSnapshotSurvivesPartialPruningWithoutChangingPreferred() passed after 0.124 seconds.
+✔ Test storeRejectsSymlinkEscape() passed after 0.124 seconds.
+✔ Test storeDispatchUnverifiedDoesNotBlockIndependentSegment() passed after 0.129 seconds.
+✔ Test storeMissingAudioStatePreservesTextAndRejectsStaleASR() passed after 0.132 seconds.
+✔ Test databaseSymlinkIsRejectedWithoutModifyingExternalFile() passed after 0.091 seconds.
+✔ Test storeRecognitionPreservesSelectedUserEdit() passed after 0.132 seconds.
+✔ Test disconnectedDisplayRestoresToRemainingScreen() passed after 0.063 seconds.
+✔ Test audioRootSymlinkIsRejectedWithoutTouchingDestination() passed after 0.091 seconds.
+✔ Test storeStorageSummaryUsesActualFiles() passed after 0.132 seconds.
+✔ Test storeRecordDeletionRemovesTextAndSearch() passed after 0.132 seconds.
+✔ Test storeNewAttemptRejectsOldCallback() passed after 0.132 seconds.
+✔ Test storeDeferredStatusOnlyMarksUndispatchedEarlierFinalSuffix() passed after 0.132 seconds.
+✔ Test sqliteFullRollsBackWholeTransaction() passed after 0.030 seconds.
+✔ Test storeCleanupRevalidatesPreview() passed after 0.133 seconds.
+✔ Suite "Owned store path boundaries" passed after 0.133 seconds.
+✔ Suite "Display geometry" passed after 0.133 seconds.
+✔ Test corruptRowReturnsErrorInsteadOfCrashing() passed after 0.031 seconds.
+✔ Test failedMigrationRollsBackAllDDLAndKeepsVersion() passed after 0.031 seconds.
+✔ Test futureDatabaseRefusedWithoutChangingJournalOrBytes() passed after 0.028 seconds.
+✔ Test storeCompletedTombstoneCleansResidualFilesOnRecovery() passed after 0.136 seconds.
+✔ Test storePendingErasureResumesAfterCrash() passed after 0.136 seconds.
+✔ Test secondOwnerCannotInvalidateActiveRecording() passed after 0.037 seconds.
+✔ Test draftSearchAndHistorySurviveAudioErasure() passed after 0.035 seconds.
+✔ Test storePartialDraftCountIsBoundedAndFinalImmutable() passed after 0.174 seconds.
+✔ Test panelIncludesAllSessionPagesAndExplicitHistoryOnlyOnce() passed after 0.088 seconds.
+✔ Suite "RC store ownership, migrations and archive" passed after 0.195 seconds.
+✔ Test storeRecoveryQueueDoesNotStarveBeyondOldestHundred() passed after 0.210 seconds.
+✔ Test storeDirectCandidatesDrainBacklogBeyondLatestThirtyWithoutReplay() passed after 0.236 seconds.
+✔ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() passed after 0.189 seconds.
+✔ Suite "Audio controller shutdown" passed after 0.258 seconds.
+✔ Test run with 61 tests in 4 suites passed after 0.258 seconds.
