@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: dc26fe3c59ba55994d29e99ada8d2f0b49ad9886
+          ref: 0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0
           persist-credentials: false
       - name: Check the hosted GUI and run the existing owned-target batch
         shell: bash
