@@ -1,6 +1,6 @@
 # Developer ID distribution for the verified Saytile candidate
 
-`developer-id.py` promotes a copy of the pinned no-api.9 candidate for future authorized distribution. The source revision is `dc26fe3c59ba55994d29e99ada8d2f0b49ad9886`. The package, bundle identifier, release version, executable hash, arm64 architecture, resource contents and original code signature are checked before signing. The expected input DMG SHA-256 is `0bd16e511f3a1cf65a3618443ef3c498ca517786aa4ad07a0226451a0c2b449d`. [Candidate and recorded checksums](../deliverables/no-api.9/README.md)
+`developer-id.py` promotes a copy of the pinned no-api.9.1 candidate for future authorized distribution. The source revision is `0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0`. The package, bundle identifier, release version, executable hash, arm64 architecture, resource contents and original code signature are checked before signing. The expected input DMG SHA-256 is `9d157becfa40e214b579036b03a178cffa85c96c6f0a54923809bd8110938339`. [Candidate and recorded checksums](../deliverables/no-api.9.1/README.md)
 
 **Current verification covers offline preflight.** The existing candidate is ad hoc signed. Developer ID signing, Apple notarization, ticket stapling and public distribution remain pending an authorized publisher with the appropriate Apple account. This process addresses macOS distribution. Live cloud connection, speech quality and final product acceptance retain their existing status. [Installation and acceptance scope](../docs/V1-INSTALL.md)
 

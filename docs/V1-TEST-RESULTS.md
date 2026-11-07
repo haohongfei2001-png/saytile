@@ -1,16 +1,13 @@
-# V1 验证结果 · no-api.9
+# V1 测试结果 · no-api.9.1
 
-> **设备修补候选 no-api.9.1**　冻结基线 no-api.9 在真实 Mac 的显式输入设备路径复现 P1：将选中设备设到 AVAudioEngine 后，旧图格式不一定与硬件一致，安装 tap 可因格式不匹配直接中止进程。no-api.9.1 只修此项。明确选定的设备通过绑定 UID 的系统 Audio Queue 向原有环形缓冲提供协商后的单声道 Float32，VAD、ASR、Store 和文字投递沿用原代码。默认设备继续使用原来的采集路径。基线和旧证据保留；新包和最终源码需分别完成实测。
+当前设备修补候选来自[运行源码 `0a0cdeca`](https://github.com/haohongfei2001-png/saytile/commit/0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0)。[固定安装包](../deliverables/no-api.9.1/Saytile-1.0.0-rc.2-no-api.9.1-arm64.dmg) · [完整实机报告](../evidence/no-api9.1/README.md) · [逐项机器验收](../evidence/no-api9.1/snapshots/package/machine.json)。
 
+基线 no-api.9 的显式设备装配路径在同款计数探针中触发 AVFAudio 格式异常，直接中止进程。修补版明确选麦时按 UID 打开系统输入队列，继续使用原有音频日志和识别工作线程。设备移除会中断采集，必须明确选择可用设备才会恢复。
 
-no-api.9 · 独立托管 Mac 前台输入检查。PASS 9 / FAIL 5 / BLOCKED 7。[本轮机器结果](../evidence/no-api9/machine-freeze/snapshots/hosted/machine.json)。
+本阶段 11 项 PASS，3 项 FAIL，7 项 BLOCKED。正常 TextEdit 前台投递已实测；WKWebView 投递未确认，目标改变后没有重试或发送。受控睡眠后暂停标签仍旧是 P2。普通 Gatekeeper 执行拒绝；本包仅为 ad-hoc 工程候选。
 
-冻结 no-api.9 的补充实机验收见[机器报告](../evidence/no-api9/machine-freeze/README.md)。本机物理输入计数和隔离升级已执行，72 小时观察进行中。当前无需用户录音、操作窗口或提供密钥。
+三家真实云服务、真人准确率、相比最强单模型的收益与确认延迟均待凭据与授权。实际系统睡眠与第二支独立物理麦克风保留各自状态。标准公开分发需要发行方 Developer ID 签名和公证。
 
-**`NO_API_ENGINEERING_READY` · `LIVE_CONNECTION_PENDING`**。[运行源码 `dc26fe3c`](https://github.com/haohongfei2001-png/saytile/commit/dc26fe3c59ba55994d29e99ada8d2f0b49ad9886)，源树 `f138f6733a642a2e53da22b3647aaf5744cb308b`。 [候选 DMG](https://raw.githubusercontent.com/haohongfei2001-png/saytile/0aa51620c63612246395d8f2a83e1eb96c9e94c4/deliverables/no-api.9/Saytile-1.0.0-rc.2-no-api.9-arm64.dmg) · [校验和](../deliverables/no-api.9/SHA256SUMS.txt) · [最终证据清单](../evidence/no-api9/final/delivery-manifest.json) · [公开下载回读](../evidence/no-api9/final/public-download.json)。
+72 小时实时时钟的计划终点为北京时间 2026-11-10 19:54；终态以实际收据为准。
 
-393 个原生函数、48 套件、513 个展开场景；AppModel 104 项。50 个 localhost 网络案例包含在这些检查内，未作真实云调用。 成品输入板 45 次 AXPress、10 次菜单选择及 11 次双控件几何测量。Apple 合成语音 8/8；Gatekeeper 拒绝普通公开分发。合成信号按实时时钟运行 1,800.41 秒；60 段、179 个 WAV，28,800,000 帧。和独立转换参考逐字节一致，差异 0，ring 丢帧 0，上传授权 0，23/23 项通过。采集进程 RSS 15,632–17,568 KiB，进程 CPU 时间占单核墙钟 1.55%；此项关闭麦克风和 ASR。
-
-[完整交付、实测与边界](V1-NO-API-DELIVERY.md) · [上一阶段记录](https://github.com/haohongfei2001-png/saytile/blob/dc26fe3c59ba55994d29e99ada8d2f0b49ad9886/docs/V1-TEST-RESULTS.md)。未取得真实账户与上传授权，真实服务调用为零。双专家加 GPT 相比最强单模型的准确率改善、改善场景及附加确认延迟均未知；真实协议、真实转写、质量及生产发行状态均未通过。
-
-补充实机验收复现了一个 P2 状态显示问题。已暂停的 AudioController 在受控睡眠、唤醒通知后仍显示“Mac 已睡眠”，录音数为零。未改动冻结源码。[实测](../evidence/no-api9/machine-freeze/paused-wake.json)
+[原冻结版记录](https://github.com/haohongfei2001-png/saytile/blob/45256e38fb2d52d1c583965bb259d3c27edafc79/docs/V1-NO-API-DELIVERY.md) · [安装与数据回退](V1-INSTALL.md)。

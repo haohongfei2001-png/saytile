@@ -16,12 +16,12 @@ from pathlib import Path
 
 
 HERE = Path(__file__).resolve().parent
-VERSION = '1.0.0-rc.2-no-api.9'
-SOURCE = 'dc26fe3c59ba55994d29e99ada8d2f0b49ad9886'
-DMG_HASH = '0bd16e511f3a1cf65a3618443ef3c498ca517786aa4ad07a0226451a0c2b449d'
-EXE_HASH = 'cb3b7a38dae90fccd323b57ee746baedbfcb43b457e0b30dbdcbaedffd35ed00'
+VERSION = '1.0.0-rc.2-no-api.9.1'
+SOURCE = '0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0'
+DMG_HASH = '9d157becfa40e214b579036b03a178cffa85c96c6f0a54923809bd8110938339'
+EXE_HASH = 'f39fe41040605a5d66e96b1984c8681e083763993c00e6cb8bb2f974c4e417bf'
 APP_ID = 'app.saytile.mac'
-CANDIDATE = HERE.parent / 'deliverables/no-api.9' / f'Saytile-{VERSION}-arm64.dmg'
+CANDIDATE = HERE.parent / 'deliverables/no-api.9.1' / f'Saytile-{VERSION}-arm64.dmg'
 ENTITLEMENTS = HERE / 'audio-input.plist'
 EXPECTED_ENTITLEMENTS = {'com.apple.security.device.audio-input': True}
 
@@ -154,7 +154,7 @@ def submit(args):
         '经用户选择升级后，将本磁盘中的 Saytile.app 拖入 Applications。原候选、源码、安装与恢复说明：\n'
         f'https://github.com/haohongfei2001-png/saytile/blob/{SOURCE}/docs/V1-INSTALL.md\n'
         f'https://github.com/haohongfei2001-png/saytile/tree/{SOURCE}\n'
-        'https://github.com/haohongfei2001-png/saytile/tree/0aa51620c63612246395d8f2a83e1eb96c9e94c4/deliverables/no-api.9\n')
+        'https://github.com/haohongfei2001-png/saytile/tree/engine/single-transcript-integrated-20261107/deliverables/no-api.9.1\n')
     image = args.work / 'staged.dmg'
     run('/usr/bin/hdiutil', 'create', '-volname', f'Saytile {VERSION}', '-srcfolder', stage, '-format', 'UDZO', image)
     run('/usr/bin/codesign', '--sign', args.identity, '--timestamp', '-i', APP_ID + '.distribution', image)

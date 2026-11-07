@@ -1,18 +1,15 @@
-# 用户事项 · no-api.9
+# 用户事项 · no-api.9.1
 
-设备修补的本机验收由工程方执行。目前无需更换 RC1、录音或提交密钥。正式分发和真实云服务仍待各自授权。
+当前设备修补候选来自[运行源码 `0a0cdeca`](https://github.com/haohongfei2001-png/saytile/commit/0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0)。[固定安装包](../deliverables/no-api.9.1/Saytile-1.0.0-rc.2-no-api.9.1-arm64.dmg) · [完整实机报告](../evidence/no-api9.1/README.md) · [逐项机器验收](../evidence/no-api9.1/snapshots/package/machine.json)。
 
+基线 no-api.9 的显式设备装配路径在同款计数探针中触发 AVFAudio 格式异常，直接中止进程。修补版明确选麦时按 UID 打开系统输入队列，继续使用原有音频日志和识别工作线程。设备移除会中断采集，必须明确选择可用设备才会恢复。
 
-no-api.9 · 独立托管 Mac 前台输入检查。PASS 9 / FAIL 5 / BLOCKED 7。[本轮机器结果](../evidence/no-api9/machine-freeze/snapshots/hosted/machine.json)。
+本阶段 11 项 PASS，3 项 FAIL，7 项 BLOCKED。正常 TextEdit 前台投递已实测；WKWebView 投递未确认，目标改变后没有重试或发送。受控睡眠后暂停标签仍旧是 P2。普通 Gatekeeper 执行拒绝；本包仅为 ad-hoc 工程候选。
 
-冻结 no-api.9 的补充实机验收见[机器报告](../evidence/no-api9/machine-freeze/README.md)。本机物理输入计数和隔离升级已执行，72 小时观察进行中。当前无需用户录音、操作窗口或提供密钥。
+本轮无需用户录音、调试或提供日志。将来选择启用云端时，在「AI 识别 → 连接识别服务」填写 Qwen 凭据／地域／Workspace、AssemblyAI 和 OpenAI 凭据，并分别授权合成样本上传和费用。使用麦克风或跨应用直接输入时才授予相应系统权限。
 
-**`NO_API_ENGINEERING_READY` · `LIVE_CONNECTION_PENDING`**。[运行源码 `dc26fe3c`](https://github.com/haohongfei2001-png/saytile/commit/dc26fe3c59ba55994d29e99ada8d2f0b49ad9886)，源树 `f138f6733a642a2e53da22b3647aaf5744cb308b`。 [候选 DMG](https://raw.githubusercontent.com/haohongfei2001-png/saytile/0aa51620c63612246395d8f2a83e1eb96c9e94c4/deliverables/no-api.9/Saytile-1.0.0-rc.2-no-api.9-arm64.dmg) · [校验和](../deliverables/no-api.9/SHA256SUMS.txt) · [最终证据清单](../evidence/no-api9/final/delivery-manifest.json) · [公开下载回读](../evidence/no-api9/final/public-download.json)。
+三家真实云服务、真人准确率、相比最强单模型的收益与确认延迟均待凭据与授权。实际系统睡眠与第二支独立物理麦克风保留各自状态。标准公开分发需要发行方 Developer ID 签名和公证。
 
-目前无需安装、录音、点击测试、提供日志或替换 RC1。
+72 小时实时时钟的计划终点为北京时间 2026-11-10 19:54；终态以实际收据为准。
 
-以后选择启用云端时，只在“设置 → AI 识别 → 连接识别服务”输入 Qwen Key／地域／Workspace、AssemblyAI Key、具备 GPT-6 Astra 权限的 OpenAI Key，逐项允许对应数据处理，再确认内置合成语音检查和费用。不要把密钥发给开发人员或粘贴到 GitHub。检查成功才启用；本机功能不依赖云服务。
-
-正式使用麦克风收音才需要麦克风许可；跨应用连续输入才需要辅助功能许可，复制不需要。Apple 中文资源可在原生设置中准备。普通公开发行还须由发行方完成 Developer ID 签名、公证，不需要用户放宽安全策略。
-
-[完整交付、实测与边界](V1-NO-API-DELIVERY.md) · [上一阶段记录](https://github.com/haohongfei2001-png/saytile/blob/dc26fe3c59ba55994d29e99ada8d2f0b49ad9886/docs/V1-USER-ACTIONS.md)。未取得真实账户与上传授权，真实服务调用为零。双专家加 GPT 相比最强单模型的准确率改善、改善场景及附加确认延迟均未知；真实协议、真实转写、质量及生产发行状态均未通过。
+[原冻结版记录](https://github.com/haohongfei2001-png/saytile/blob/45256e38fb2d52d1c583965bb259d3c27edafc79/docs/V1-NO-API-DELIVERY.md) · [安装与数据回退](V1-INSTALL.md)。
