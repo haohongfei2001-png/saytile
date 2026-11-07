@@ -8,14 +8,15 @@ import ApplicationServices
         NSApplication.shared.setActivationPolicy(.prohibited)
         guard CommandLine.arguments.count >= 3, let pid = Int32(CommandLine.arguments[1]),
               NSRunningApplication(processIdentifier: pid) != nil else {
-            print("USAGE fixturePID label [windowTitle] [set-value value | select-menu item]"); exit(64)
+            print("USAGE fixturePID label [windowTitle] [set-value value | select-menu item | select-context-menu item]"); exit(64)
         }
         guard AXIsProcessTrusted() else { print("NOT_RUN accessibility permission unavailable; no prompt"); exit(5) }
         let before = NSWorkspace.shared.frontmostApplication?.processIdentifier
         guard before != pid else { print("REFUSED fixture is frontmost"); exit(6) }
         let label = CommandLine.arguments[2], title = CommandLine.arguments.count > 3 ? CommandLine.arguments[3] : nil
         let setValue = CommandLine.arguments.count == 6 && CommandLine.arguments[4] == "set-value" ? CommandLine.arguments[5] : nil
-        let menuItem = CommandLine.arguments.count == 6 && CommandLine.arguments[4] == "select-menu" ? CommandLine.arguments[5] : nil
+        let contextMenu = CommandLine.arguments.count == 6 && CommandLine.arguments[4] == "select-context-menu"
+        let menuItem = CommandLine.arguments.count == 6 && (CommandLine.arguments[4] == "select-menu" || contextMenu) ? CommandLine.arguments[5] : nil
         let inspect = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect"
         let inspectPanel = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect-panel"
         guard CommandLine.arguments.count <= 4 || setValue != nil || menuItem != nil || inspect || inspectPanel else { print("FAIL invalid control action"); exit(64) }
@@ -33,7 +34,7 @@ import ApplicationServices
             var queue = windows, visited = Set<CFHashCode>(), tree = [String]()
             var inspectedControls = [[String: Any]]()
             var panelControls = [[String: Any]](), staticStateText = [String](), obsoleteStateIDs = [String]()
-            let stateText = Set(["未开启", "待命", "待命中", "聆听中", "正在识别", "正在接收讲话", "正在核对文字", "正在修正", "已暂停", "正在准备", "需要恢复"])
+            let stateText = Set(["未开启", "暂停", "待命", "待命中", "聆听中", "正在识别", "正在接收讲话", "正在核对文字", "正在修正", "已暂停", "正在准备", "需要恢复"])
             let captureActions = Set(["开始收音", "暂停收音", "继续收音", "取消开启", "恢复收音"])
             let deadline = ProcessInfo.processInfo.systemUptime + 1
             while !queue.isEmpty, visited.count < 1000, ProcessInfo.processInfo.systemUptime < deadline {
@@ -50,7 +51,9 @@ import ApplicationServices
                         staticStateText.append(contentsOf: (names + [content]).filter { stateText.contains($0) })
                     }
                     if ["panel.status", "panel.activity"].contains(identifier) { obsoleteStateIDs.append(identifier) }
-                    if canPress, identifier.hasPrefix("panel.") || names.contains(where: { captureActions.contains($0) }) {
+                    // Inspect every pressable element, including an accidental
+                    // third button without a panel.* identifier.
+                    if canPress {
                         guard let sizeValue = value(node, kAXSizeAttribute), CFGetTypeID(sizeValue) == AXValueGetTypeID(),
                               let pointValue = value(node, kAXPositionAttribute), CFGetTypeID(pointValue) == AXValueGetTypeID() else {
                             print("FAIL native panel control geometry unavailable"); exit(1)
@@ -89,9 +92,10 @@ import ApplicationServices
                         // until selection. A second owned connection inspects only
                         // this fixture process while that action is outstanding.
                         let target = OwnedAXElement(node)
+                        let openingAction = contextMenu ? kAXShowMenuAction : kAXPressAction
                         let opening = Task.detached {
                             AXUIElementSetMessagingTimeout(target.value, 5.0)
-                            return AXUIElementPerformAction(target.value, kAXPressAction as CFString).rawValue
+                            return AXUIElementPerformAction(target.value, openingAction as CFString).rawValue
                         }
                         var selected = false
                         for _ in 0..<30 {
@@ -122,7 +126,7 @@ import ApplicationServices
                             print("FAIL native menu item unavailable: \(menuItem), open=\(opened)"); exit(1)
                         }
                         guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("FAIL menu changed foreground"); exit(6) }
-                        print("NATIVE_UI_MENU_SELECT \(menuItem) menu=\(label) fixture_pid=\(pid) foreground_unchanged=true"); exit(0)
+                        print("NATIVE_UI_MENU_SELECT \(menuItem) menu=\(label) open_action=\(openingAction) fixture_pid=\(pid) foreground_unchanged=true"); exit(0)
                     }
                     let result: AXError
                     if let setValue {
@@ -146,8 +150,19 @@ import ApplicationServices
             if inspectPanel {
                 guard windows.count == 1, queue.isEmpty, !panelControls.isEmpty else { print("FAIL incomplete native panel inspection"); exit(1) }
                 guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED foreground changed during inspection"); exit(6) }
+                guard let window = windows.first,
+                      let positionValue = value(window, kAXPositionAttribute), CFGetTypeID(positionValue) == AXValueGetTypeID(),
+                      let sizeValue = value(window, kAXSizeAttribute), CFGetTypeID(sizeValue) == AXValueGetTypeID() else {
+                    print("FAIL native panel window geometry unavailable"); exit(1)
+                }
+                var position = CGPoint.zero, size = CGSize.zero
+                guard AXValueGetValue(unsafeDowncast(positionValue, to: AXValue.self), .cgPoint, &position),
+                      AXValueGetValue(unsafeDowncast(sizeValue, to: AXValue.self), .cgSize, &size) else {
+                    print("FAIL native panel window geometry invalid"); exit(1)
+                }
                 let detail: [String: Any] = ["controls": panelControls, "static_state_text": staticStateText,
-                    "obsolete_state_identifiers": obsoleteStateIDs, "visited_nodes": visited.count]
+                    "obsolete_state_identifiers": obsoleteStateIDs, "visited_nodes": visited.count,
+                    "window": ["x": position.x, "y": position.y, "width": size.width, "height": size.height]]
                 let data = try! JSONSerialization.data(withJSONObject: detail, options: [.sortedKeys])
                 print("NATIVE_UI_PANEL_INSPECT " + String(decoding: data, as: UTF8.self)); exit(0)
             }

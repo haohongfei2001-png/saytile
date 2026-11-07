@@ -10,17 +10,10 @@ struct InputPanelView: View {
     @FocusState private var captureFocused: Bool
 
     private var transcript: String { model.recent.map(\.text).filter { !$0.isEmpty }.joined(separator: "\n") }
+    private var canCopy: Bool { !transcript.isEmpty || !selectedText.isEmpty }
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 6) {
-                captureControl
-                Spacer(minLength: 4)
-                moreMenu
-            }
-            .font(.system(size: 11)).foregroundStyle(Palette.muted)
-            .frame(height: 34).padding(.horizontal, 10).padding(.top, 5)
-
             if model.directMode {
                 Label(model.targetLabel, systemImage: "arrow.up.forward.app")
                     .font(.system(size: 10)).foregroundStyle(Palette.muted)
@@ -33,10 +26,6 @@ struct InputPanelView: View {
                     Image(systemName: "exclamationmark.circle")
                     Text(message).lineLimit(2).fixedSize(horizontal: false, vertical: true).help(message)
                     Spacer(minLength: 0)
-                    if model.panelCaptureDetail == nil {
-                        Button { model.notice = nil } label: { Image(systemName: "xmark").frame(width: 22, height: 22) }
-                            .buttonStyle(.plain).accessibilityLabel("关闭提示").accessibilityIdentifier("panel.dismissNotice")
-                    }
                 }.font(.system(size: 11)).foregroundStyle(Palette.amber)
                     .padding(.horizontal, 14).padding(.vertical, 5).accessibilityIdentifier("panel.notice")
             }
@@ -52,32 +41,28 @@ struct InputPanelView: View {
                 }
                 .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            HStack(spacing: 7) {
-                Button { if selectedText.isEmpty { model.copyRecent() } else { model.copy(selectedText) } } label: {
-                    Image(systemName: "doc.on.doc").font(.system(size: 12)).frame(width: 28, height: 30)
-                        .contentShape(Rectangle())
-                }.buttonStyle(.plain).disabled(transcript.isEmpty && selectedText.isEmpty)
-                    .help(selectedText.isEmpty ? "复制当前文字" : "复制所选文字")
-                    .accessibilityLabel(selectedText.isEmpty ? "复制当前文字" : "复制所选文字")
-                    .accessibilityIdentifier("panel.copy")
-                Button {
-                    if let item = model.recent.last { model.select(item) }
-                } label: {
-                    Image(systemName: "square.and.pencil").font(.system(size: 12))
-                        .frame(width: 28, height: 30).contentShape(Rectangle())
-                }.buttonStyle(.plain).disabled(model.recent.isEmpty)
-                    .help("在档案中编辑最近一段")
-                    .accessibilityLabel("编辑最近一段").accessibilityIdentifier("panel.edit")
-                if !followsLatest {
-                    Button { latestRequest += 1 } label: {
-                        Label("回到最新", systemImage: "arrow.down").font(.system(size: 10))
-                            .padding(.horizontal, 7).frame(height: 28)
-                            .background(Palette.soft.opacity(0.65), in: Capsule())
-                    }.buttonStyle(.plain).accessibilityIdentifier("panel.latest")
+            HStack {
+                Button(action: copyTranscript) {
+                    Image(systemName: "doc.on.doc").font(.system(size: 12))
+                        .frame(width: 34, height: 30).contentShape(Rectangle())
+                        .foregroundStyle(Palette.accent.opacity(canCopy ? 1 : 0.5))
+                        .background(.white.opacity(0.3), in: RoundedRectangle(cornerRadius: 10))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(.white.opacity(0.45), lineWidth: 0.75))
                 }
-                Spacer(minLength: 4)
-            }.foregroundStyle(Palette.accent).padding(.horizontal, 11).padding(.top, 4).padding(.bottom, 8)
+                .buttonStyle(.plain)
+                // Keep the menu host enabled for an empty panel. The copy action
+                // itself is a no-op without text; archive/settings remain reachable.
+                .contextMenu { panelActions }
+                .help(canCopy ? "复制文字；右键打开编辑与更多操作" : "右键打开档案、设置与更多操作")
+                .accessibilityLabel(selectedText.isEmpty ? "复制当前文字" : "复制所选文字")
+                .accessibilityHint("右键或打开上下文菜单可编辑、回到最新、查看档案和设置")
+                .accessibilityIdentifier("panel.copy")
+                Spacer(minLength: 8)
+                captureControl
+            }
+            .padding(.horizontal, 12).padding(.top, 6).padding(.bottom, 10)
         }
+        .padding(.top, 10)
         .background(Palette.paper.opacity(0.82))
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
@@ -86,29 +71,35 @@ struct InputPanelView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    private func copyTranscript() {
+        guard canCopy else { return }
+        if selectedText.isEmpty { model.copyRecent() } else { model.copy(selectedText) }
+    }
+
     private var captureControl: some View {
         let presentation = model.panelCapturePresentation
         return Button(action: model.toggleCapture) {
             Group {
                 if let level = presentation.liveVoiceLevel {
-                    // Meter values come from this capture session. Waiting for
-                    // a recognizer never fabricates a moving audio waveform.
+                    // Only the current capture session's measured voice activity
+                    // drives the meter; a pending transcript never fabricates it.
                     HStack(spacing: 2.5) {
-                        ForEach(0..<3) { index in
-                            Capsule().frame(width: 2.5, height: 4 + 9 * min(1, max(0, level)) * [0.65, 1, 0.8][index])
+                        ForEach(0..<5) { index in
+                            Capsule().frame(width: 2.5, height: 4 + 11 * min(1, max(0, level)) * [0.4, 0.75, 1, 0.6, 0.35][index])
                         }
-                    }.frame(width: 16, height: 16)
+                    }.frame(width: 24, height: 18)
                 } else {
                     Image(systemName: presentation.symbolName).font(.system(size: 13, weight: .medium))
-                        .frame(width: 16, height: 16)
+                        .frame(width: 24, height: 18)
                 }
             }
             .foregroundStyle(model.captureProblem ? Palette.amber : Palette.accent)
-            .frame(width: 34, height: 34)
-            .background(Palette.accent.opacity(model.isListening ? 0.12 : 0.06), in: RoundedRectangle(cornerRadius: 11))
-            .contentShape(Rectangle())
+            .frame(width: 78, height: 30)
+            .background(Palette.accent.opacity(model.isListening ? 0.12 : 0.06), in: Capsule())
+            .overlay(Capsule().stroke(.white.opacity(0.45), lineWidth: 0.75))
+            .contentShape(Capsule())
         }.buttonStyle(CaptureButtonStyle())
-            .overlay(RoundedRectangle(cornerRadius: 11).stroke(Palette.accent.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
+            .overlay(Capsule().stroke(Palette.accent.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
             .onHover { captureHovered = $0 }.focused($captureFocused)
             .help(presentation.accessibilityLabel)
             .accessibilityLabel(presentation.accessibilityLabel)
@@ -122,33 +113,39 @@ struct InputPanelView: View {
         }
     }
 
-    private var moreMenu: some View {
-        Menu {
-            Button("语音档案…", action: model.openArchive).accessibilityIdentifier("panel.more.archive")
-            Button("设置…", action: model.openSettings).accessibilityIdentifier("panel.more.settings")
-            Divider()
-            Button { model.setDirect(false) } label: {
-                Label("自由记录", systemImage: model.directMode ? "circle" : "checkmark")
-            }.accessibilityIdentifier("panel.more.free")
-            Button { model.setDirect(true) } label: {
-                Label("直接输入", systemImage: model.directMode ? "checkmark" : "circle")
-            }.accessibilityIdentifier("panel.more.direct")
-            Button("绑定当前草稿", action: model.bindTarget).accessibilityIdentifier("panel.more.bind")
-            Button(model.isInserting ? "正在插入…" : "插入当前文字", action: model.insertRecent)
-                .disabled(model.isInserting || transcript.isEmpty).accessibilityIdentifier("panel.more.insert")
-            Divider()
-            if model.panelHasMore {
-                Button(model.loadingPanel ? "正在载入…" : "载入更早表达（已载入 \(model.recent.count) / \(model.panelCount) 段）", action: model.loadEarlierPanel)
-                    .disabled(model.loadingPanel).accessibilityIdentifier("panel.more.earlier")
-            }
-            Text(model.saveLabel)
-            Button("清空输入板（保留档案）") { model.clearPanel(); latestRequest += 1 }
-                .disabled(model.isInserting || model.recent.isEmpty).accessibilityIdentifier("panel.more.clear")
-            Button("收起输入板", action: model.hidePanel).accessibilityIdentifier("panel.more.hide")
-        } label: {
-            Image(systemName: "ellipsis").font(.system(size: 12)).frame(width: 28, height: 28).contentShape(Rectangle())
-        }.menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
-            .help("更多操作").accessibilityLabel("更多操作").accessibilityIdentifier("panel.more")
+    @ViewBuilder private var panelActions: some View {
+        Button(selectedText.isEmpty ? "复制当前文字" : "复制所选文字", action: copyTranscript)
+            .disabled(!canCopy).accessibilityIdentifier("panel.more.copy")
+        Button("在档案中编辑最近一段") {
+            if let item = model.recent.last { model.select(item) }
+        }.disabled(model.recent.isEmpty).accessibilityIdentifier("panel.edit")
+        Button("回到最新") { latestRequest += 1 }
+            .disabled(followsLatest).accessibilityIdentifier("panel.latest")
+        Divider()
+        Button("语音档案…", action: model.openArchive).accessibilityIdentifier("panel.more.archive")
+        Button("设置…", action: model.openSettings).accessibilityIdentifier("panel.more.settings")
+        Divider()
+        Button { model.setDirect(false) } label: {
+            Label("自由记录", systemImage: model.directMode ? "circle" : "checkmark")
+        }.accessibilityIdentifier("panel.more.free")
+        Button { model.setDirect(true) } label: {
+            Label("直接输入", systemImage: model.directMode ? "checkmark" : "circle")
+        }.accessibilityIdentifier("panel.more.direct")
+        Button("绑定当前草稿", action: model.bindTarget).accessibilityIdentifier("panel.more.bind")
+        Button(model.isInserting ? "正在插入…" : "插入当前文字", action: model.insertRecent)
+            .disabled(model.isInserting || transcript.isEmpty).accessibilityIdentifier("panel.more.insert")
+        Divider()
+        if model.panelHasMore {
+            Button(model.loadingPanel ? "正在载入…" : "载入更早表达（已载入 \(model.recent.count) / \(model.panelCount) 段）", action: model.loadEarlierPanel)
+                .disabled(model.loadingPanel).accessibilityIdentifier("panel.more.earlier")
+        }
+        Text(model.saveLabel)
+        Button("清空输入板（保留档案）") { model.clearPanel(); latestRequest += 1 }
+            .disabled(model.isInserting || model.recent.isEmpty).accessibilityIdentifier("panel.more.clear")
+        if model.notice != nil, model.panelCaptureDetail == nil {
+            Button("关闭提示") { model.notice = nil }.accessibilityIdentifier("panel.dismissNotice")
+        }
+        Button("收起输入板", action: model.hidePanel).accessibilityIdentifier("panel.more.hide")
     }
 }
 

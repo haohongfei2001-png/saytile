@@ -154,7 +154,7 @@ extension AppDelegate {
             try await reviewFirstConnection(output: output)
             try await reviewCompactPanel(output: output)
             if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil { print("UI_CONTROLS_NOT_RUN remote AX helper not configured; rendering only") }
-            let captures = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil ? 22 : 36
+            let captures = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil ? 27 : 36
             print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; \(captures) captures; synthetic data; no activation/microphone")
             return true
         } catch { print("UI_REVIEW_FAILED \(error.localizedDescription)"); return false }
@@ -169,7 +169,7 @@ extension AppDelegate {
         _ = try await performControl(label, in: root)
     }
     @MainActor private func selectMenu(_ item: String, in root: NSView) async throws {
-        _ = try await performControl("panel.more", in: root, arguments: ["select-menu", item])
+        _ = try await performControl("panel.copy", in: root, arguments: ["select-context-menu", item])
     }
     @MainActor private func setValue(_ value: String, for label: String, in root: NSView, secure: Bool = false) async throws {
         _ = try await performControl(label, in: root, arguments: ["set-value", value])
@@ -314,26 +314,27 @@ extension AppDelegate {
         }
         let captures = controls.filter { $0["identifier"] as? String == "panel.capture" }
         let captureActions = controls.filter { $0["capture_action"] as? Bool == true }
-        let edits = controls.filter { $0["identifier"] as? String == "panel.edit" }
         let copies = controls.filter { $0["identifier"] as? String == "panel.copy" }
-        let menus = controls.filter { $0["identifier"] as? String == "panel.more" }
-        guard captures.count == 1, captureActions.count == 1, edits.count == 1, copies.count == 1, menus.count == 1,
-              let capture = captures.first, let edit = edits.first, let copy = copies.first, let menu = menus.first,
+        guard controls.count == 2, captures.count == 1, captureActions.count == 1, copies.count == 1,
+              let capture = captures.first, let copy = copies.first,
+              let window = detail["window"] as? [String: Any],
+              let windowY = window["y"] as? Double, let windowHeight = window["height"] as? Double,
               capture["role"] as? String == "AXButton",
               let width = capture["width"] as? Double, let height = capture["height"] as? Double,
-              (34...38).contains(width), (34...38).contains(height),
+              (78...82).contains(width), (30...34).contains(height),
               (capture["names"] as? [String])?.contains(label) == true,
               capture["value"] as? String == state,
-              edit["enabled"] as? Bool == hasText, copy["enabled"] as? Bool == hasText,
-              let captureY = capture["y"] as? Double, let editY = edit["y"] as? Double,
-              let copyY = copy["y"] as? Double, let menuY = menu["y"] as? Double,
-              let menuHeight = menu["height"] as? Double,
-              abs(captureY + height / 2 - menuY - menuHeight / 2) < 2,
-              editY - captureY > host.bounds.height * 0.5,
-              abs(editY - copyY) < 2 else {
-            throw ReviewFailure("panel must have one top capture action with correct accessible state, and separate bottom copy/edit actions")
+              capture["enabled"] as? Bool == true, copy["enabled"] as? Bool == true,
+              let captureX = capture["x"] as? Double, let copyX = copy["x"] as? Double,
+              let captureY = capture["y"] as? Double, let copyY = copy["y"] as? Double,
+              let copyHeight = copy["height"] as? Double,
+              captureX > copyX + 100,
+              abs(captureY + height / 2 - copyY - copyHeight / 2) < 2,
+              (6...18).contains(windowY + windowHeight - captureY - height),
+              (6...18).contains(windowY + windowHeight - copyY - copyHeight) else {
+            throw ReviewFailure("panel must contain exactly bottom-left copy and bottom-right voice capsule, with correct accessible state and an enabled empty-panel menu host")
         }
-        print("UI_SINGLE_CONTROL_PASS state=\(state) visible_state_labels=0 capture_hit_areas=1 capture_at_top=true bottom_capture_buttons=0 edit_enabled=\(hasText)")
+        print("UI_BOTTOM_CONTROLS_PASS state=\(state) visible_state_labels=0 total_buttons=2 capture_at_bottom=true copy_at_bottom=true has_text=\(hasText)")
     }
 
     @MainActor private func compactTranscript(in host: NSView) throws -> CompactTranscriptScrollView {
@@ -361,10 +362,19 @@ extension AppDelegate {
             connectionDependencies: connection.dependencies, captureDependencies: capture.dependencies)
         await model.initialLoad()
         let hasControls = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil
+        var emptyPanelSettings = 0
+        model.openSettings = { emptyPanelSettings += 1 }
         do {
             try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
                 name: "panel-capture-initial", output: output) { host in
-                try await self.inspectCapture("开始收音", state: "未开启", in: host)
+                try await self.inspectCapture("开始收音", state: "暂停", in: host)
+                try await self.press("panel.copy", in: host)
+                guard capture.starts == 0, capture.pauses == 0, model.notice == nil else {
+                    throw ReviewFailure("empty copy changed capture or produced a notice")
+                }
+                try await self.selectMenu("设置…", in: host)
+                try await self.reviewUntil { emptyPanelSettings == 1 }
+                print("UI_EMPTY_PANEL_MENU_PASS empty copy is a no-op; its real context menu still opens settings")
             }
             if hasControls {
                 try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
@@ -387,9 +397,10 @@ extension AppDelegate {
                     let review = try await model.store.beginModelRun(ticket: ticket, configuration: reviewer)
                     capture.state = .listening; capture.level = 0
                     await model.refresh(); model.objectWillChange.send()
-                    try await self.reviewUntil { model.panelCapturePresentation.state == .recognizing }
-                    guard model.panelCapturePresentation.liveVoiceLevel == nil else { throw ReviewFailure("review wait fabricated a live waveform") }
-                    try await self.inspectCapture("暂停收音", state: "正在识别", hasText: true, in: host)
+                    try await self.reviewUntil { model.panelCapturePresentation.state == .standby }
+                    guard model.panelCapturePresentation.liveVoiceLevel == nil,
+                          model.panelActivityLabel == "正在修正" else { throw ReviewFailure("VAD end must show standby while background review remains active") }
+                    try await self.inspectCapture("暂停收音", state: "待命", hasText: true, in: host)
                     try self.captureReview(host, name: "panel-capture-review", output: output)
                     try await model.store.finishModelRun(review)
                     try await model.store.finishRecognition(ticket: ticket)
@@ -403,7 +414,7 @@ extension AppDelegate {
                     try self.captureReview(host, name: "panel-capture-returned-standby", output: output)
                     try await self.press("panel.capture", in: host)
                     try await self.reviewUntil { capture.pauses == 1 && capture.state == .paused }
-                    try await self.inspectCapture("继续收音", state: "已暂停", hasText: true, in: host)
+                    try await self.inspectCapture("继续收音", state: "暂停", hasText: true, in: host)
                     try self.captureReview(host, name: "panel-capture-paused", output: output)
                     try await self.press("panel.capture", in: host)
                     try await self.reviewUntil { capture.starts == 2 && capture.state == .listening && model.panelCapturePresentation.state == .standby }
@@ -428,8 +439,67 @@ extension AppDelegate {
                     try await self.press("panel.capture", in: host)
                     try await self.reviewUntil { capture.pauses == 4 && capture.state == .paused }
                     guard model.audio.state == .paused else { throw ReviewFailure("fixture capture reached the actual audio controller") }
-                    print("UI_CONTROL_PASS one top 34–38pt capture button without visible state labels: start, speech, review, automatic standby, pause, resume, cancel and recovery; injected audio boundary, no microphone")
+                    print("UI_CONTROL_PASS exactly two bottom buttons, 78–82pt voice capsule: start, speech, standby during review, pause, resume, cancel and recovery; injected audio boundary, no microphone")
                 }
+            } else {
+                // Render the real SwiftUI view in CI without AX permission. Only
+                // the capture boundary is synthetic; no physical click is claimed.
+                model.toggleCapture()
+                try await reviewUntil { capture.starts == 1 && capture.state == .listening }
+                try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
+                    name: "panel-capture-listening", output: output, validation: { _ in
+                    guard model.panelCapturePresentation.state == .standby,
+                          model.panelCapturePresentation.symbolName == "circle.fill" else {
+                        throw ReviewFailure("synthetic listening did not produce standby")
+                    }
+                })
+                let current = try await model.store.createRecording()
+                _ = try await model.store.saveEdit(recordingID: current.id, text: "我想让文字自然出现。说完这一句，它会安静地等我继续开口。")
+                capture.state = .speaking; capture.level = 0.35
+                await model.refresh(); model.objectWillChange.send()
+                try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
+                    name: "panel-capture-speaking", output: output, validation: { _ in
+                    guard model.panelCapturePresentation.state == .recognizing,
+                          model.panelCapturePresentation.liveVoiceLevel != nil else {
+                        throw ReviewFailure("synthetic speech lost its explicitly injected level")
+                    }
+                })
+                try await model.store.finishRecording(id: current.id)
+                let ticket = try await model.store.beginFusionRecognition(recordingID: current.id)
+                let reviewer = ModelConfiguration(purpose: .textFusion, provider: .openAIResponses, model: "synthetic-review")
+                let review = try await model.store.beginModelRun(ticket: ticket, configuration: reviewer)
+                capture.state = .listening; capture.level = 0
+                await model.refresh(); model.objectWillChange.send()
+                try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
+                    name: "panel-capture-review", output: output, validation: { _ in
+                    guard model.panelCapturePresentation.state == .standby,
+                          model.panelCapturePresentation.liveVoiceLevel == nil,
+                          model.panelActivityLabel == "正在修正" else {
+                        throw ReviewFailure("synthetic VAD end must show standby before background review finishes")
+                    }
+                })
+                try await model.store.finishModelRun(review)
+                try await model.store.finishRecognition(ticket: ticket)
+                await model.refresh()
+                try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
+                    name: "panel-capture-returned-standby", output: output, validation: { _ in
+                    guard model.panelCapturePresentation.state == .standby, capture.state == .listening,
+                          capture.starts == 1, capture.pauses == 0,
+                          model.recent.first(where: { $0.id == current.id })?.text == "我想让文字自然出现。说完这一句，它会安静地等我继续开口。" else {
+                        throw ReviewFailure("synthetic finalization changed capture or the retained user text")
+                    }
+                })
+                model.toggleCapture()
+                try await reviewUntil { capture.pauses == 1 && capture.state == .paused }
+                try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
+                    name: "panel-capture-paused", output: output, validation: { _ in
+                    guard model.panelCapturePresentation.state == .paused,
+                          model.panelCapturePresentation.symbolName == "play.fill",
+                          model.audio.state == .paused else {
+                        throw ReviewFailure("synthetic pause must retain the play icon without opening actual audio")
+                    }
+                })
+                print("UI_SYNTHETIC_CAPTURE_STATES_PASS paused, standby, speech, standby during review and retained final text; injected capture, no AX control actions or microphone")
             }
             model.clearPanel(); model.notice = nil
             let text = (0..<70).map { "第\($0 + 1)行：保留完整表达和原有否定词，不要支付15元。Swift API cafe\u{301} 😀。" }.joined(separator: "\n")
@@ -465,7 +535,7 @@ extension AppDelegate {
                     throw ReviewFailure("live revision replaced selected text or stole its viewport")
                 }
                 try self.captureReview(host, name: "panel-selection-held", output: output)
-                if hasControls { try await self.press("panel.latest", in: host) } else { scroll.jumpToLatest() }
+                if hasControls { try await self.selectMenu("panel.latest", in: host) } else { scroll.jumpToLatest() }
                 try await self.reviewUntil { scroll.transcriptView.string == updated && scroll.isFollowingLatest }
                 guard scroll.transcriptView.selectedRange().length == 0,
                       scroll.documentVisibleRect.maxY >= scroll.transcriptView.bounds.maxY - 5 else { throw ReviewFailure("latest action did not apply pending text and reach the tail") }
@@ -493,7 +563,7 @@ extension AppDelegate {
                 guard !scroll.isFollowingLatest, afterCharacter == beforeCharacter + prefix.utf16.count else {
                     throw ReviewFailure("earlier text revision changed the visible reading anchor")
                 }
-                if hasControls { try await self.press("panel.latest", in: host) } else { scroll.jumpToLatest() }
+                if hasControls { try await self.selectMenu("panel.latest", in: host) } else { scroll.jumpToLatest() }
                 try await self.reviewUntil { scroll.isFollowingLatest }
                 let nearBottom = NSPoint(x: 0, y: scroll.contentView.bounds.origin.y - 2)
                 scroll.contentView.scroll(to: nearBottom); scroll.reflectScrolledClipView(scroll.contentView)
@@ -516,13 +586,13 @@ extension AppDelegate {
                 }
                 print("UI_NATIVE_NEAR_BOTTOM_PASS two-point upward scroll retains position; explicitly reaching the bottom resumes following")
                 print("UI_NATIVE_TEXT_PASS actual read-only NSTextView selection, Store-driven updates, manual scroll retention and explicit latest; no focus or key events")
-                if hasControls { print("UI_CONTROL_PASS native latest button resumes one continuous transcript after selection and scrolling") }
+                if hasControls { print("UI_CONTROL_PASS native latest context-menu action resumes one continuous transcript after selection and scrolling") }
             }, interaction: { host in
-                try await self.inspectCapture("继续收音", state: "已暂停", hasText: true, in: host)
-                try await self.press("panel.edit", in: host)
+                try await self.inspectCapture("继续收音", state: "暂停", hasText: true, in: host)
+                try await self.selectMenu("panel.edit", in: host)
                 try await self.reviewUntil { archives == 1 && model.selected?.id == row.id && !model.editorDraftLoading }
-                guard model.editorDraft.contains("用户上滚阅读") else { throw ReviewFailure("bottom edit did not open the existing saved transcript editor") }
-                print("UI_CONTROL_PASS bottom edit reaches existing archive editor with latest saved text; no second transcript or writeback path")
+                guard model.editorDraft.contains("用户上滚阅读") else { throw ReviewFailure("context-menu edit did not open the existing saved transcript editor") }
+                print("UI_CONTROL_PASS context-menu edit reaches existing archive editor with latest saved text; no second transcript or writeback path")
                 model.closeDetail()
                 try await self.selectMenu("语音档案…", in: host)
                 try await self.reviewUntil { archives == 2 }

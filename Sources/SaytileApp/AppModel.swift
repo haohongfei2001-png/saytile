@@ -83,10 +83,10 @@ struct AppCaptureDependencies {
         start: { await $0.start() }, pause: { await $0.pause() })
 }
 
-/// Four ordinary states plus explicit preparation/failure exceptions. These values
+/// Three ordinary states plus explicit preparation/failure exceptions. These values
 /// describe one control; their labels are accessibility/settings text, not a header.
 enum PanelCaptureVisualState: Equatable {
-    case unopened, standby, recognizing, paused, starting, recoveryNeeded
+    case standby, recognizing, paused, starting, recoveryNeeded
 }
 
 struct PanelCapturePresentation: Equatable {
@@ -102,24 +102,25 @@ struct PanelCapturePresentation: Equatable {
     var accessibilityLabel: String { actionLabel }
     var accessibilityValue: String { detail.map { label + "，" + $0 } ?? label }
 
-    init(state capture: CaptureState, hasStarted: Bool, currentRecognitionActive: Bool = false,
-         measuredLevel: Float? = nil) {
+    init(state capture: CaptureState, hasStarted: Bool, measuredLevel: Float? = nil) {
         if case .speaking = capture, let measuredLevel, measuredLevel.isFinite, measuredLevel >= 0 {
             liveVoiceLevel = Double(min(1, measuredLevel))
         } else { liveVoiceLevel = nil }
         switch capture {
         case .paused:
-            state = hasStarted ? .paused : .unopened
-            label = hasStarted ? "已暂停" : "未开启"
+            state = .paused
+            label = "暂停"
             actionLabel = hasStarted ? "继续收音" : "开始收音"
-            actionSymbolName = hasStarted ? "play.fill" : "mic.fill"
-            symbolName = hasStarted ? "pause.fill" : "mic"
+            actionSymbolName = "play.fill"
+            symbolName = "play.fill"
             detail = nil
         case .starting:
             state = .starting; label = "正在准备"; actionLabel = "取消开启"
             actionSymbolName = "xmark"; symbolName = "xmark"; detail = nil
         case .listening, .speaking:
-            let active = capture == .speaking || currentRecognitionActive
+            // Follow current voice activity, independently of earlier ASR/fusion
+            // work. A finished utterance returns to standby while text settles.
+            let active = capture == .speaking
             state = active ? .recognizing : .standby
             label = active ? "正在识别" : "待命"
             actionLabel = "暂停收音"; actionSymbolName = "pause.fill"
@@ -313,7 +314,7 @@ final class AppModel: ObservableObject {
     }
     var panelCapturePresentation: PanelCapturePresentation {
         PanelCapturePresentation(state: captureDependencies.state(audio), hasStarted: hasStarted,
-            currentRecognitionActive: panelActivityLabel != nil, measuredLevel: captureDependencies.level(audio))
+            measuredLevel: captureDependencies.level(audio))
     }
     var panelCaptureLabel: String { panelCapturePresentation.label }
     var panelCaptureDetail: String? { panelCapturePresentation.detail }

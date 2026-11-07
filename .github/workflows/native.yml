@@ -32,6 +32,14 @@ jobs:
         run: python3 scripts/test-connection-setup.py --app dist/Saytile.app --output "$RUNNER_TEMP/connection-setup-isolation.json"
       - name: Native windows with synthetic data
         run: python3 scripts/test-native-ui.py --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui"
+      - name: Preserve native panel screenshots and review manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Saytile-native-ui-review
+          path: ${{ runner.temp }}/saytile-ui
+          if-no-files-found: warn
+          retention-days: 14
       - name: Isolated startup without microphone
         run: dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/saytile-smoke" --smoke-test
       - name: Preserve app bundle permissions
