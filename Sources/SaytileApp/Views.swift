@@ -80,20 +80,7 @@ struct InputPanelView: View {
     private var captureControl: some View {
         let presentation = model.panelCapturePresentation
         return Button(action: model.toggleCapture) {
-            Group {
-                if let level = presentation.liveVoiceLevel {
-                    // Only the current capture session's measured voice activity
-                    // drives the meter; a pending transcript never fabricates it.
-                    HStack(spacing: 2.5) {
-                        ForEach(0..<5) { index in
-                            Capsule().frame(width: 2.5, height: 4 + 11 * min(1, max(0, level)) * [0.4, 0.75, 1, 0.6, 0.35][index])
-                        }
-                    }.frame(width: 24, height: 18)
-                } else {
-                    Image(systemName: presentation.symbolName).font(.system(size: 13, weight: .medium))
-                        .frame(width: 24, height: 18)
-                }
-            }
+            VoiceCaptureGlyph(presentation: presentation)
             .foregroundStyle(model.captureProblem ? Palette.amber : Palette.accent)
             .frame(width: 78, height: 30)
             .background(Palette.accent.opacity(model.isListening ? 0.12 : 0.06), in: Capsule())

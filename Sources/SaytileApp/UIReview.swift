@@ -154,6 +154,7 @@ extension AppDelegate {
             }
             try await reviewFirstConnection(output: output)
             try await reviewCompactPanel(output: output)
+            try reviewVoiceGlyph(output: output)
             if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil { print("UI_CONTROLS_NOT_RUN remote AX helper not configured; rendering only") }
             let captures = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil ? 27 : 37
             print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; \(captures) captures; synthetic data; no activation/microphone")
