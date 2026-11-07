@@ -1,4 +1,4 @@
-> PR6：1067f1ad / no-api.4完成同源码工程基线与30分钟逐样本验证；no-api.5按最新唯一紫蓝单按钮规范继续收口，整体尚未NO_API_ENGINEERING_READY，真实云端LIVE_CONNECTION_PENDING。[实际交付与限制](docs/V1-NO-API-DELIVERY.md)。不以旧界面或历史测试冒充最新目标完成。
+> PR #6 最新界面续接：底部「复制＋语音」两个常驻按钮，暂停/待命/正在识别三个日常状态，VAD确认声音结束即回待命，后台定稿继续。见[本轮修改与验证](docs/V1-COMPACT-PANEL-RESUMPTION.md)。1067f1ad / no-api.4的完整工程基线与30分钟逐样本结果仍为历史基线；整体尚未NO_API_ENGINEERING_READY，真实云端LIVE_CONNECTION_PENDING。[实际交付与限制](docs/V1-NO-API-DELIVERY.md)。
 
 # Saytile
 
@@ -67,4 +67,4 @@ Two equal ASR experts receive the same complete audio, and one GPT-6 Astra core 
 
 ## 当前唯一批准的 V1 界面目标
 
-Saytile V1 的唯一正式 UI 目标见 [唯一界面设计规范](docs/SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md)。主面板无 Logo/字标，采用用户确认的紫蓝色半透明文字工作台。此前冲突的品牌与界面探索均已舍弃；历史原型仅供追溯，不得作为当前设计依据。
+Saytile V1 的唯一正式 UI 目标见 [唯一界面设计规范](docs/SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md)。主面板无 Logo/字标和顶部操作栏；连续文字下方只有左侧复制与右侧语音胶囊。暂停（含首次未开）为播放三角，待命为圆点，真实讲话为波形；声音结束后回到待命，不等待后台识别定稿。编辑和其他操作仍可通过菜单及既有入口使用。此前冲突的品牌与界面探索均已舍弃；历史原型仅供追溯。
