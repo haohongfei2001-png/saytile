@@ -2,6 +2,10 @@
 
 当前正式工程仍为 **PR #6**。`1.0.0-rc.2-no-api.4` 的冻结工程基线已完成本机全套验证；随后收到的唯一批准界面及单按钮精修正在 `no-api.5` 接续。**当前整体尚未授予 `NO_API_ENGINEERING_READY`，真实云端为 `LIVE_CONNECTION_PENDING`。** 不授予 LIVE_PROTOCOL_VERIFIED、LIVE_TRANSCRIPTION_VERIFIED、QUALITY_VERIFIED 或 PRODUCTION_READY。
 
+## 当前收口状态
+
+新界面首次冻结 `702a24b9767826275f650c70f7e118365601a2a8`。原生控件36图/45次AXPress、选区/手动阅读、原音/档案、实际安装升级/回退均通过。391项本机Swift测试有一项静音回听进度固定时刻取样失败；单次受控实验验证实际播放器随后发布正进度。保留[该次包及原始证据](../evidence/no-api-product/final-no-api5/HOLD.md)，另以修正后的真实事件断言冻结最终整合源码。CI通过不代替该本机问题。
+
 ## 已完成的冻结工程基线
 
 源码 **`1067f1ad5c5c29c698f346651c965db2169625eb`**，tree `1c59b5e95f92dd34b19d4fb390549724071114a6`。以下结果全部来自该源码，不能当作后续新界面的最终验证；[完整身份与分层证据](../evidence/no-api-product/final-no-api4-r2/delivery-manifest.json)、[独立审查](../evidence/no-api-product/final-no-api4-r2/DELIVERY-AUDIT.md)。

@@ -22,6 +22,7 @@ struct AudioPlaybackTests {
     }
 }
 
+import Combine
 import Foundation
 
 @Suite("Silent production AVAudioPlayer integration")
@@ -39,11 +40,26 @@ struct AudioPlayerIntegrationTests {
         try await store.finishRecording(id: record.id)
         _ = try await store.saveEdit(recordingID: record.id, text: "静音回听测试文字")
         let controller = AudioController(store: store)
+        var firstProgress: (instant: ContinuousClock.Instant, position: Double)?
+        let observation = controller.$playbackPosition.first(where: { $0 > 0 }).sink { position in
+            firstProgress = (.now, position)
+        }
+        defer { observation.cancel() }
         try await controller.play(recordingID: record.id)
         #expect(controller.playingID == record.id)
         #expect(abs(controller.playbackDuration - 1.6) < 0.0001)
-        try await Task.sleep(for: .milliseconds(180))
+        let start = ContinuousClock.now
+        let deadline = start.advanced(by: .seconds(2))
+        while firstProgress == nil, controller.playingID == record.id, ContinuousClock.now < deadline {
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        let receivedInTime = firstProgress.map { $0.instant <= deadline } == true
+        #expect(receivedInTime, "The player must publish real positive progress within two seconds")
+        #expect(controller.playingID == record.id, "Playback must still be active before seeking")
         #expect(controller.playbackPosition > 0)
+        if let firstProgress {
+            print("PLAYBACK_FIRST_PROGRESS position=\(firstProgress.position) after_play=\(start.duration(to: firstProgress.instant))")
+        }
         controller.seekPlayback(to: 1.15)
         #expect(abs(controller.playbackPosition - 1.15) < 0.0001)
         controller.seekPlayback(to: 0.1)

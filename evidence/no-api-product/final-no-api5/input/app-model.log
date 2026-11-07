@@ -1,0 +1,100 @@
+PASS missing remembered microphone never silently selects system default
+PASS explicit default device choice clears remembered hardware UID
+PASS coalesced initial load waits for populated archive
+REFRESH_BURST callers=40 database_passes=2
+PASS overlapping refresh callers share database work without losing archive contents
+PASS historical records do not enter current insertion panel
+PASS only explicit historical reuse enters panel
+PASS clearing panel preserves archive
+PASS new speech enters current session
+PASS archive pinned filter reaches store
+PASS archive search reaches store without mixing pages
+PASS cleanup preview waits for candidates and protects unrecognized audio
+PASS switching records flushes pending draft without waiting for debounce
+PASS switching records does not show another record's draft
+PASS returning to record restores durable unsaved draft
+PASS periodic refresh does not reset unsaved editor text
+PASS save modification creates selected immutable version
+PASS successful version save clears old editor draft
+PASS typing during version commit is retained as version or newer draft
+PASS panel exposes total and pagination instead of silently truncating after thirty
+PASS earlier current-session expressions remain available for batch reuse
+PASS earliest current-session expression survives prolonged input
+PASS production model exposes active text review without fabricated progress
+PASS completed review phase disappears when logical recognition fails
+PASS late refresh requests do not query the closed store after exit preparation
+PASS exit flush persists an intentionally empty unsaved draft
+PASS CONNECTION missing keys are shown through metadata-only injected presence
+PASS CONNECTION no upload authorization means no verification invocation
+PASS CONNECTION unverified settings cannot enable cloud recognition
+PASS CONNECTION authorized check with missing keys fails before any mocked provider starts
+PASS CONNECTION failed credential save does not claim saved or connected
+PASS CONNECTION failed credential save cannot change the account authorization generation
+PASS CONNECTION fixture credential saved without Keychain access for qwenMessage
+PASS CONNECTION successful credential save persists a new opaque account generation in draft and runtime configuration for qwenMessage
+PASS CONNECTION fixture credential saved without Keychain access for assemblyAI
+PASS CONNECTION successful credential save persists a new opaque account generation in draft and runtime configuration for assemblyAI
+PASS CONNECTION fixture credential saved without Keychain access for openAIResponses
+PASS CONNECTION successful credential save persists a new opaque account generation in draft and runtime configuration for openAIResponses
+PASS CONNECTION replacing a saved key rotates authorization even when the synthetic value is unchanged
+PASS CONNECTION stale UI credential actions cannot mutate an untracked account identity
+PASS CONNECTION a stale provider editor cannot change another credential namespace
+PASS CONNECTION disabled services persist credential identity even when absent from connection fingerprints
+PASS CONNECTION check remains active while actual controller awaits backend
+PASS CONNECTION three accepted accounts are not final connection success
+PASS CONNECTION visible partial progress does not enable cloud
+PASS CONNECTION simulated completed report remains NO_API_ENGINEERING_READY and cannot persist a live receipt
+PASS CONNECTION service failures remain visible and retain local recognition
+PASS CONNECTION TEST_ONLY live-shaped injected receipt exercises success-to-enable branch; no cloud call
+PASS CONNECTION failed credential removal preserves key metadata but keeps runtime local and receipt revoked
+PASS CONNECTION failed credential removal preserves its authorization generation
+PASS CONNECTION cloud runtime is synchronously revoked before any credential mutation can expose another account
+PASS CONNECTION fixture holds first cloud apply before its visible applied snapshot
+PASS CONNECTION credential revocation synchronously stops an unpublished in-flight cloud apply
+PASS CONNECTION successful key deletion durably changes account identity before any later connection
+PASS CONNECTION late completion of revoked apply cannot restore cloud state or persisted settings
+PASS CONNECTION cancelled check resolves every unfinished service card to a stopped state
+PASS CONNECTION replacement check waits for cancelled predecessor cleanup and ignores late progress
+PASS CONNECTION cancelled successful response cannot enable cloud or overlap a replacement check
+PASS CONNECTION cancelling preserves verified and failed service outcomes while stopping the remaining service
+PASS CONNECTION credential removal invalidates an active check and every late response
+PASS CONNECTION exit waits until an outstanding connection task has closed
+PASS CONNECTION exit ignores cancelled success and finishes with no active cloud task
+PASS CONNECTION closed model rejects late connection actions instead of opening new tasks
+PASS CONNECTION closed model rejects stale credential mutations
+PASS CONNECTION exit revokes cloud immediately and both exit callers await the same pending apply
+PASS CONNECTION credential changes are rejected while exit is waiting for cleanup
+PASS CONNECTION late apply completion cannot publish cloud settings during exit
+CONNECTION_EVIDENCE_SCOPE injected controller workflow only; no Keychain, provider sockets, microphone or live verification
+PASS unopened state has a distinct static symbol and accessible start action
+PASS desktop entry defaults off in an isolated preference domain
+PASS explicit desktop entry setting persists and notifies window owner
+PASS saved desktop entry choice reloads without sending a spurious setting change
+PASS turning desktop entry off persists and sends one change notification
+PASS successful start is quiet standby even when the raw meter contains ambient energy
+PASS VAD speech uses the single recognition state and only its measured amplitude
+PASS real meter changes propagate without a timer or fabricated oscillator
+PASS absent or invalid amplitude never becomes a manufactured speech level
+PASS absent or invalid amplitude never becomes a manufactured speech level
+PASS absent or invalid amplitude never becomes a manufactured speech level
+PASS absent or invalid amplitude never becomes a manufactured speech level
+PASS finite speech amplitude is clamped to the documented display range
+PASS ending speech without pending current work immediately removes voice dynamics
+PASS current post-speech fusion remains a static recognition shape without fake audio motion
+PASS active user pause wins over pending recognition and preserves all existing text
+PASS resuming starts quiet standby while a previous session's fusion may still run
+PASS even explicitly reused historical fusion cannot create current voice activity
+PASS the actual latest open captured record drives current activity independently of archive content
+PASS sealed current audio stays statically recognizing while queued for ASR without a standby flicker
+PASS current ASR after voice ends remains recognition without inferred amplitude
+PASS clearing panel text does not hide actual ongoing capture-session recognition
+PASS current ASR and fusion share one recognition control without another status state
+PASS current recognition completion automatically returns to quiet standby without stopping capture
+PASS later re-recognition of a settled record cannot reanimate the voice control
+PASS a new captured record advances activity beyond the settled previous record
+PASS deleting newest recording cannot fall back to an older running history task
+PASS interruption is actionable and never pretends to be standby or measured voice
+PASS startup wait remains an explicit cancellable exception without recognition animation
+PASS the same control cancels startup into a distinguishable static pause
+PASS all presentation and preference checks avoid the actual microphone and provider network
+APP_MODEL_PROBE_PASS 97 checks; no microphone, no external input, no window activation

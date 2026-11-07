@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": [
+    "remove_only_disposable_candidate_keeps_all_database_rows_and_original_audio",
+    "reinstall_identical_signed_candidate_opens_preserved_data"
+  ],
+  "source_revision": "702a24b9767826275f650c70f7e118365601a2a8",
+  "binary_sha256": "7049fd0517296bb25a36b4c3d5739c17e87e3d380e806eecdcb3d4a31d691b08",
+  "probe_sha256": "a79194303c79b318fe57e700ee59e92ee0387586273da153c34ca7984622d243",
+  "scope": "Owned temporary app/data only; no production directory, credential mutation, microphone, cloud call, or system security bypass"
+}

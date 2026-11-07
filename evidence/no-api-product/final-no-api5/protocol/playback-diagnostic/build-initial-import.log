@@ -1,0 +1,7 @@
+evidence/no-api-product/final-no-api5/protocol/playback-diagnostic/PlaybackDiagnostic.swift:17:27: error: cannot find 'PCMJournal' in scope
+15 |         let store = try SaytileStore(directory: root)
+16 |         let record = try await store.createRecording()
+17 |         let journal = try PCMJournal(directory: store.audioDirectory, recordingID: record.id)
+   |                           `- error: cannot find 'PCMJournal' in scope
+18 |         for frames in [16_000, 9_600] {
+19 |             try journal.openChunk()
