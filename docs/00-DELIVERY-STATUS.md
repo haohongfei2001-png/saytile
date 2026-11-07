@@ -1,59 +1,9 @@
-> **no-api.8 · 原稿校准候选**：最新用户上传的 1536×1024 JPEG 现有独立[来源与度量](V1-ORIGINAL-REFERENCE-FIDELITY.md)。上一版 no-api.7 已独立完成原生检查和 1,800.44 秒音频比对，但其卡片近似稿被否决，只保留为工程历史。新版本以原稿尺寸、正文、灰色双框复制图形和语音胶囊为准，将在新冻结版本执行验收；真实云端仍未连接。
+> 版本说明：本页所述无密钥包固定在 69b90939。PR #6 之后的中性透光材质不包含在这份包中，不能用其结果代替后续外观收口。
 
-<!-- no-api7-current:begin -->
-# Saytile 当前交付状态
+# Saytile 交付状态 · no-api.8
 
-**无密钥短项已通过，长跑结论待定 · LIVE_CONNECTION_PENDING**。[运行源码 `4b97bd89`](https://github.com/haohongfei2001-png/saytile/commit/4b97bd89b258fea29a0be61d4bd4c23cb5ab428c)，tree `4aac670d6edfcce0c12ed22fa3cd5c68e66061b9`。
+**无密钥短项已通过；本版 30 分钟长跑待定 · `LIVE_CONNECTION_PENDING`**。[运行源码 `69b90939`](https://github.com/haohongfei2001-png/saytile/commit/69b90939fd688b35448f976950e96db0ce5b602a)，源树 `06f1ac6982591bce64c98bd93e26eb0ccba0cfd8`。 [候选 DMG](../deliverables/no-api.8/Saytile-1.0.0-rc.2-no-api.8-arm64.dmg) · [校验和](../deliverables/no-api.8/SHA256SUMS.txt)。
 
-[正式包与完整分层记录](V1-NO-API-DELIVERY.md) · [安装与回退](V1-INSTALL.md)
+稳定公开发布仍为 RC1。最新工程交付为 no-api.8 原稿候选；no-api.6 和 no-api.7 各自的合成测试和包单独归档。
 
-截至本检查点，30 分钟完整采集与独立逐帧比较尚无终态结论。本版的短项和独立 PCM 参考已经完成。[本版长期验证](../evidence/no-api7/local/)
-
-真实云端请求为零。真人中文 CER、英文 WER、混合 MER，双专家加 AI 相对最强单模型的增益、适用场景及新增稳定确认延迟均未知。当前未进入集中真人验收。 RC1 仍是稳定版。[当前用户事项](V1-USER-ACTIONS.md)
-
-## 以往版本记录
-
-以下日期、状态与待办保留为当时快照。本版结论以上方记录为准。
-<!-- no-api7-current:end -->
-
-> 当前工程：PR #6 按用户续接截图修正为底部两个按钮、三个日常状态、VAD结束回待命；本轮实际验证及边界见[续接交付记录](V1-COMPACT-PANEL-RESUMPTION.md)。no-api.4及no-api.5为已验证的历史工程基线，旧顶部布局的测试不算no-api.6新布局通过。[完整交付状态](V1-NO-API-DELIVERY.md)。
-
-> 当前为 V1 RC1，源码 `8906a9d`；最新状态见 [V1-DEV-STATUS.md](V1-DEV-STATUS.md)，验证边界见 [RC清单](V1-RC-ACCEPTANCE.md)。**以下是设计恢复阶段历史快照**，不是当前未完成事项；PR #1/#2 已合并。
-
-# 交付状态 · 2026-11-06
-
-## 已实际完成
-
-- 从恢复包读取并保存原始报告、七场景 HTML 原型、SQL、Swift 接口、测试脚本和来源索引。
-- 按已知截图约束重建两项未交付修订：音频独立删除；稳定前缀增量派发。
-- 完成 `contracts/schema.sql`（设计 schema v2）、`Contracts.swift`、可运行 SQLite/文件参考模型及测试。
-- 原型统一为 Saytile；区分删除原音/删除记录；保留修改历史；加明确确认和演示重置；加入重复 revision 与前缀改写场景。
-- 识别设置不再强制本地路线。默认原音保留至手动删除，启用期限整理须确认。
-- 完成产品、技术、验收与工程接续文档；保留原件哈希和差异来源。
-
-## 实际测试
-
-| 范围 | 结果 | 不代表什么 |
-|---|---|---|
-| 继承 PCM/SQLite 合成实验 | 10/10 | 不代表 APFS 掉电恢复 |
-| 新增删除/派发/UTF-16 数据契约 | 37/37 | 不代表真正的 macOS 插入适配器 |
-| Chromium DOM 交互 | 48/48 | 不代表 Safari 或原生 App |
-| Swift 6 接口类型检查 | 通过 | 不代表实现了接口 |
-| Swift Foundation Unicode 边界断言 | 8/8（含 macOS 修复） | 不代表 AX 实际输入 |
-
-浏览器采用 `set_content` 注入实际 HTML，因为执行环境禁止 file/http 导航。localStorage 在测试中使用明确的内存替身验证序列化与恢复；真实数据库重开/删除恢复由 SQLite 测试覆盖。未把替身写成真实磁盘耐久测试。
-
-## 尚未完成
-
-- 真实 macOS 录音、中文 ASR、ALAC 压缩、外部输入、设备/休眠行为和能耗。
-- 共享音频块中存活片段的生产级重写。当前参考模型采用保守延期清理，状态明确为未完成；不会误删其他记录。
-- 原 Pro 最后一轮文件的原件级恢复。那轮所称 12 项新增和 33 项浏览器检查无法复核，本轮不沿用其计数。
-## 远端发布与 CI（2026-11-06）
-
-- 正式仓库：`haohongfei2001-png/saytile`；公开状态由用户明确授权。
-- 已将完整 67 文件设计交付提交到 `recovery/v1-design-20261106`。
-- [PR #1](https://github.com/haohongfei2001-png/saytile/pull/1) 已创建并保持开放，**尚未合并到 main**；main 的原始提交为 `090ecd14`。
-- GitHub Actions：`swift-contracts` 与 `data-and-prototype` 已在修复 UTF-16 边界问题后双双通过。相关检查仅覆盖 Swift 契约、合成数据、浏览器原型，不代表原生 Mac App 验收。
-- 本次在真实 macOS 修复了 Foundation 在 UTF-16 代理对位置上的转换差异，新增组合字符边界断言。根目录 SHA256 清单已同步更新。
-
-`scripts/publish_to_github.sh` 是历史准备脚本，不要在已有 PR 上再次运行。新的工程接续应直接使用现有 PR 或基于最新 main 新开功能分支。
+[完整交付、实测与边界](V1-NO-API-DELIVERY.md) · [上一阶段记录](https://github.com/haohongfei2001-png/saytile/blob/69b90939fd688b35448f976950e96db0ce5b602a/docs/00-DELIVERY-STATUS.md)。未取得真实账户与上传授权，真实服务调用为零。双专家加 GPT 相比最强单模型的准确率改善、改善场景及附加确认延迟均未知；不授予 LIVE_PROTOCOL_VERIFIED、LIVE_TRANSCRIPTION_VERIFIED、QUALITY_VERIFIED 或 PRODUCTION_READY。

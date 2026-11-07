@@ -1,21 +1,11 @@
-> **no-api.8 · 原稿校准候选**：最新用户上传的 1536×1024 JPEG 现有独立[来源与度量](V1-ORIGINAL-REFERENCE-FIDELITY.md)。上一版 no-api.7 已独立完成原生检查和 1,800.44 秒音频比对，但其卡片近似稿被否决，只保留为工程历史。新版本以原稿尺寸、正文、灰色双框复制图形和语音胶囊为准，将在新冻结版本执行验收；真实云端仍未连接。
+# 用户事项 · no-api.8
 
-# Saytile V1 RC2 · 用户事项
+**无密钥短项已通过；本版 30 分钟长跑待定 · `LIVE_CONNECTION_PENDING`**。[运行源码 `69b90939`](https://github.com/haohongfei2001-png/saytile/commit/69b90939fd688b35448f976950e96db0ce5b602a)，源树 `06f1ac6982591bce64c98bd93e26eb0ccba0cfd8`。 [候选 DMG](../deliverables/no-api.8/Saytile-1.0.0-rc.2-no-api.8-arm64.dmg) · [校验和](../deliverables/no-api.8/SHA256SUMS.txt)。
 
-<!-- no-api7-current:begin -->
-## 本版无需用户参与测试
+目前无需安装、录音、点击测试、提供日志或替换 RC1。
 
-**无密钥短项已通过，长跑结论待定 · LIVE_CONNECTION_PENDING**。当前候选 [运行源码 `4b97bd89`](https://github.com/haohongfei2001-png/saytile/commit/4b97bd89b258fea29a0be61d4bd4c23cb5ab428c)。无需用户录音、点击排障、提供日志或替换 RC1。真实账户尚未接通，此后只需在应用内一次性设置凭据与授权。当前包仅在明确选择使用云端时发送符合授权范围的资料。[候选包、验证与限制](V1-NO-API-DELIVERY.md)
-<!-- no-api7-current:end -->
+以后选择启用云端时，只在“设置 → AI 识别 → 连接识别服务”输入 Qwen Key／地域／Workspace、AssemblyAI Key、具备 GPT-6 Astra 权限的 OpenAI Key，逐项允许对应数据处理，再确认内置合成语音检查和费用。不要把密钥发给开发人员或粘贴到 GitHub。检查成功才启用；本机功能不依赖云服务。
 
-目前无需安装、录音、点击测试、提交日志、购买服务或替换 RC1。无密钥工程验证由开发方在独立的资料库、音频样本和自有输入窗口中执行。当前发布状态及实测边界见[工程交付](V1-NO-API-DELIVERY.md)。
+正式使用麦克风收音才需要麦克风许可；跨应用连续输入才需要辅助功能许可，复制不需要。Apple 中文资源可在原生设置中准备。普通公开发行还须由发行方完成 Developer ID 签名、公证，不需要用户放宽安全策略。
 
-**以后选择启用云端时，只在 Saytile 的“设置 → AI 识别 → 连接识别服务”操作一次：**
-
-1. 输入支持 Qwen 实时模型的 Key、账户地域和 Workspace；再输入 AssemblyAI Key，以及有 GPT-6 Astra 模型访问权的 OpenAI Key。保存到系统 Keychain，不贴到聊天、日志或 GitHub。
-2. 分别允许三项服务处理对应数据，再决定是否授权内置连接检查及其费用。只检查自带的 **6.272 秒合成样本**，不打开麦克风，不上传历史或私人原音。联网阶段最长 90 秒，最多两路语音连接、六次 GPT 请求，每次输出上限 4096 tokens；实际费用以服务账户为准，可取消。
-3. 程序检查鉴权、模型可用性、同音频双专家、候选融合与定稿。三项通过后自动启用，无需终端或重新安装；部分失败保留已保存内容及本机能力，并显示服务、地域、配额、协议或网络等原因。连接成功不代表真人准确率已经验证。
-
-**仅在正式使用相应功能时**：真实收音需要 macOS 麦克风许可；向其他应用连续输入才需要辅助功能，普通复制不需要。如果此 Mac 缺少 Apple 中文识别资源，原生设置提供“准备中文识别资源”；原音保存不依赖识别成功。个人候选为 ad-hoc 签名、未 Apple 公证，不关闭 Gatekeeper，不绕过系统授权。现阶段不邀请真人验收。
-
-GitHub Releases 的稳定版本仍是 RC1，PR 中有独立的 no-api.7 候选。真正获准升级时请按[安装与回退](V1-INSTALL.md)备份整个已退出的资料目录。旧版不能原地打开新 schema。往期开发检查点见[上一版事项记录](https://github.com/haohongfei2001-png/saytile/blob/1c8184330573a3e1a87a65838bae19fef434db23/docs/V1-USER-ACTIONS.md)。
+[完整交付、实测与边界](V1-NO-API-DELIVERY.md) · [上一阶段记录](https://github.com/haohongfei2001-png/saytile/blob/69b90939fd688b35448f976950e96db0ce5b602a/docs/V1-USER-ACTIONS.md)。未取得真实账户与上传授权，真实服务调用为零。双专家加 GPT 相比最强单模型的准确率改善、改善场景及附加确认延迟均未知；不授予 LIVE_PROTOCOL_VERIFIED、LIVE_TRANSCRIPTION_VERIFIED、QUALITY_VERIFIED 或 PRODUCTION_READY。

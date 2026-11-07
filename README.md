@@ -1,24 +1,19 @@
-> **唯一批准的视觉设计原图**：[Saytile 原版设计全图](design/approved/Saytile-original-visual-reference-20261107.jpeg) · [原图与变更边界](design/approved/README.md)。应用外观必须以此图为唯一标准，只有用户指定的语音按钮交互与必要动效可以修改。原图已按附件原始字节入库，不能拿工程预览或近似色板替代。
+> 版本说明：本页所述无密钥包固定在 69b90939。PR #6 之后的中性透光材质不包含在这份包中，不能用其结果代替后续外观收口。
 
-> **no-api.8 · 原稿校准候选**：最新用户上传的 1536×1024 JPEG 现有独立[来源与度量](docs/V1-ORIGINAL-REFERENCE-FIDELITY.md)。上一版 no-api.7 已独立完成原生检查和 1,800.44 秒音频比对，但其卡片近似稿被否决，只保留为工程历史。新版本以原稿尺寸、正文、灰色双框复制图形和语音胶囊为准，将在新冻结版本执行验收；真实云端仍未连接。
-
+<!-- no-api8-current:begin -->
 # Saytile
 
-<!-- no-api7-current:begin -->
-## 当前候选 · Saytile V1 RC2 no-api.7
+**无密钥短项已通过；本版 30 分钟长跑待定 · `LIVE_CONNECTION_PENDING`**。自然开口，随时取用。菜单栏持续待命，原音独立保留；有 Apple 中文资源即可无 Key 进行本机识别。 [当前版本、下载和验证](docs/V1-NO-API-DELIVERY.md)。普通公开分发待签名与公证；云服务未实连。
+<!-- no-api8-current:end -->
 
-**无密钥短项已通过，长跑结论待定 · LIVE_CONNECTION_PENDING**。本版为 Apple Silicon / macOS 26+ 的个人候选，稳定 RC1 保留。输入板使用浅紫蓝玻璃、左侧复制和右侧语音胶囊。VAD 确认讲话结束会回到待命，上一段定稿仍能继续。
+> **唯一批准的视觉设计原图**：[Saytile 原版设计全图](design/approved/Saytile-original-visual-reference-20261107.jpeg) · [原图与变更边界](design/approved/README.md)。应用外观必须以此图为唯一标准，只有用户指定的语音按钮交互与必要动效可以修改。原图已按附件原始字节入库，不能拿工程预览或近似色板替代。
 
-[当前 DMG](deliverables/no-api.7/Saytile-1.0.0-rc.2-no-api.7-arm64.dmg) · [安装与核对 SHA-256](deliverables/no-api.7/) · [实际交付、数据和限制](docs/V1-NO-API-DELIVERY.md) · [客户授权事项](docs/V1-USER-ACTIONS.md)
-
-真实云端尚无账户实连或人工质量数据。本轮不要求用户试录、调试或提供日志。
-<!-- no-api7-current:end -->
 
 **自然开口，随时取用。**
 
 Saytile 是 macOS 原生语音输入与表达工作台。开启后持续待命，自然讲话即可分段记录、识别中文，并独立保存原音。文字可以编辑、搜索、回听、重新识别、复制，或追加到明确选择的应用草稿。
 
-GitHub Releases 的稳定版本为 RC1，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。本分支的 no-api.7 候选及证据见 [无 API 交付](docs/V1-NO-API-DELIVERY.md)；真实云端、讲话质量与个人环境验收仍明确保留。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
+GitHub Releases 的稳定版本为 RC1，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。本分支的 no-api.8 候选及证据见 [无 API 交付](docs/V1-NO-API-DELIVERY.md)；真实云端、讲话质量与个人环境验收仍明确保留。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
 
 ## 最高质量中英文识别候选
 

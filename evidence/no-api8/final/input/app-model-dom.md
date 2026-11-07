@@ -1,0 +1,5 @@
+# Release AppModel and browser verification
+
+The AppModel probe passed 104 checks in an isolated store. It linked the fresh SaytileKit library built from `69b90939fd688b35448f976950e96db0ce5b602a`, tree `06f1ac6982591bce64c98bd93e26eb0ccba0cfd8`. The probe used injected capture and connection actions. `app-model-identity.json` records the source, executable, library and log hashes.
+
+The production Swift coordinator, UTF-16 range handling and SQLite reservations passed 20 checks in a fresh headless Chromium context on loopback. The textarea and contenteditable cases covered suffix-only insertion, duplicate suppression, selected text, navigation, focus loss and zero sends. Target discovery and field editing used the isolated DOM adapter. The Chromium and Swift probe binaries matched their before/after hashes. `browser-identity.json`, `dom-binary-identity.json` and `input-browser-dom.log` preserve the observed identities and per-case outcomes. Native Accessibility input has a separate receipt.

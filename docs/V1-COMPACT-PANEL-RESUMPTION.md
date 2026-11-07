@@ -1,20 +1,12 @@
+> 版本说明：本页所述无密钥包固定在 69b90939。PR #6 之后的中性透光材质不包含在这份包中，不能用其结果代替后续外观收口。
+
+<!-- no-api8-current:begin -->
+# 输入板工程续接
+
+**无密钥短项已通过；本版 30 分钟长跑待定 · `LIVE_CONNECTION_PENDING`**。最新原稿的 344×234 pt 卡片、408×298 pt 真实窗口、字体和两个控件已在实际包内核对。原有图像、CI 和用户认可始终区分。 [当前版本、下载和验证](V1-NO-API-DELIVERY.md)。普通公开分发待签名与公证；云服务未实连。
+<!-- no-api8-current:end -->
+
 # PR #6｜紧凑语音面板中断任务续接
-
-<!-- no-api7-current:begin -->
-## no-api.7 成品核对
-
-**无密钥短项已通过，长跑结论待定 · LIVE_CONNECTION_PENDING**。[运行源码 `4b97bd89`](https://github.com/haohongfei2001-png/saytile/commit/4b97bd89b258fea29a0be61d4bd4c23cb5ab428c)，tree `4aac670d6edfcce0c12ed22fa3cd5c68e66061b9`。
-
-[正式包与完整分层记录](V1-NO-API-DELIVERY.md) · [安装与回退](V1-INSTALL.md)
-
-上游 `a53b183` 将主板恢复为浅紫蓝玻璃外观，并调整局部间距和强调色。实际 DMG 中的 340 × 240 和 320 × 200 面板、选区与长文均已检视。右侧胶囊为 78 × 30 pt，距底边 13 pt。截图证实渐变和轮廓，真实桌面模糊、用户审美与原图逐像素一致性尚未验证。[实际成品](../evidence/no-api7/final/ui/REVIEW.md)
-
-截至本检查点，30 分钟完整采集与独立逐帧比较尚无终态结论。本版的短项和独立 PCM 参考已经完成。[本版长期验证](../evidence/no-api7/local/)
-
-## 先前设计与工程记录
-
-以下各轮截图、CI、源码及当时提出的下一步均按对应日期保留。
-<!-- no-api7-current:end -->
 
 ## 补充：按用户原图纠正原生玻璃外观 · 2026-11-07
 

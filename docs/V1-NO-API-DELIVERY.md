@@ -1,40 +1,31 @@
-> **no-api.8 · 原稿校准候选**：最新用户上传的 1536×1024 JPEG 现有独立[来源与度量](V1-ORIGINAL-REFERENCE-FIDELITY.md)。上一版 no-api.7 已独立完成原生检查和 1,800.44 秒音频比对，但其卡片近似稿被否决，只保留为工程历史。新版本以原稿尺寸、正文、灰色双框复制图形和语音胶囊为准，将在新冻结版本执行验收；真实云端仍未连接。
+> **工程基准 69b90939，当前保留为可追溯安装包。** PR #6 在这份源码之上另有针对真实壁纸的中性透光材质变更；本页的数据属于固定源码，不用于断言后续材质已验收。
 
-# Saytile V1 RC2 · no-api.7 无密钥工程交付
+# Saytile V1 RC2 · no-api.8 无密钥工程交付
 
-**无密钥短项已通过，长跑结论待定 · LIVE_CONNECTION_PENDING**。[运行源码 `4b97bd89`](https://github.com/haohongfei2001-png/saytile/commit/4b97bd89b258fea29a0be61d4bd4c23cb5ab428c)，tree `4aac670d6edfcce0c12ed22fa3cd5c68e66061b9`。 适用于 Apple Silicon、macOS 26 或更新版本。RC1 继续作为稳定版本。个人候选采用 ad-hoc 签名，已验证挂载与解包 App 签名，尚未 Developer ID 公证。本检查点记录已校验的候选 DMG。公网下载回读结果在最终报告中单列。
+**无密钥短项已通过；本版 30 分钟长跑待定 · `LIVE_CONNECTION_PENDING`**。针对 Apple Silicon / macOS 26+ 的独立工程候选；现有安装与 GitHub 稳定发布仍为 RC1。[正式 PR #6](https://github.com/haohongfei2001-png/saytile/pull/6) 保持草稿，不修改 main。
 
-[候选 DMG](../deliverables/no-api.7/Saytile-1.0.0-rc.2-no-api.7-arm64.dmg) · [SHA-256 清单](../deliverables/no-api.7/SHA256SUMS.txt) · [安装、备份与回退](V1-INSTALL.md) · [以后启用服务](V1-USER-ACTIONS.md) · [PR #6](https://github.com/haohongfei2001-png/saytile/pull/6)
+[运行源码 `69b90939`](https://github.com/haohongfei2001-png/saytile/commit/69b90939fd688b35448f976950e96db0ce5b602a)，源树 `06f1ac6982591bce64c98bd93e26eb0ccba0cfd8`。 [候选 DMG](../deliverables/no-api.8/Saytile-1.0.0-rc.2-no-api.8-arm64.dmg) · [校验和](../deliverables/no-api.8/SHA256SUMS.txt)。DMG：2,558,024 字节，SHA-256 `c639ec375974b1a507041b6372724a42f119df802ce386ce11539674ada8cd6a`；包内可执行文件 SHA-256 `4b23cfba9b84da2538c449940d4694355c19d87a4aa66032b08e1893f9a9a2f7`。
 
-DMG SHA-256 为 `0e2a2851d69687631fbbf4b8b5c2bd4fff750125cb0c798dcf67188f50c58f19`，解包 App 可执行文件为 `7f0dc84ecfd084f65d0700103648fa3be2f098d133a1873bfe5b20d3690c2b92`。本轮使用独立资料库，保留已安装 RC1。[包身份](../evidence/no-api7/final/package-identity.json)
+**安装边界。** 严格签名校验通过；本机启用的 Gatekeeper 对同一个 App 返回 rejected（退出码 3），因此不是可以承诺普通互联网下载后直接打开的公开发行版。[系统原始结果](../evidence/no-api8/final/gatekeeper.json)。发行方须取得可用于此产品的 Developer ID 签名、公证；不修改系统策略，不要求用户协助绕过。 [安装、升级备份和回退](V1-INSTALL.md)。
 
-## 本版可用范围
+## 本版实际运行
 
-- 无 Key 可启动、持续保存原音。机器已准备 Apple 中文资源时可识别、搜索、回听、编辑与复制。仅删除原音时保留文字及修改版本。识别、音频保存与安全投递分别记录。
-- 输入板底部只有复制与语音胶囊。未开启和暂停时显示右向三角，待命显示圆点，有效讲话显示随音量变化的五根圆头竖条。VAD 结束即回待命，上一段定稿仍能写回原段。正文与复制按钮的上下文菜单保留编辑、档案、回到最新与明确绑定。
-- 此版恢复面板局部紫蓝渐变、圆角与间距。正式包空板三处 sRGB 从旧版的 (250,250,253) 变为 (225,223,250)、(223,224,251)、(219,224,250)。边角透明，三个内部 PNG 取样点均已合成为不透明。真实壁纸透射、系统实屏动效和用户视觉判断未验证。[实际截图与数据](../evidence/no-api7/final/ui/REVIEW.md)
-- 当前正式契约为 Qwen Audio 3.1 Message、AssemblyAI Universal 3.6 Pro 平等处理整段音频，唯一 GPT-6 Astra 接收候选文字以融合和定稿。首次设置支持 Keychain、按服务授权与内置合成语音检查。在线收音、融合和定稿在真实账户上的运行状态仍待验证。[云端证据边界](../evidence/no-api7/final/cloud-quality-boundary.json)
+| 链路 | 可复核的结果 |
+| --- | --- |
+| 独立保存与本机识别 | DMG 内 App 不用 Key、不开麦，实际将合成中文识别为文字，保存 160,310 字节 WAV，档案状态 completed/available。[包内 App 的实际结果](../evidence/no-api8/final/apple/signed-app.json)。本机 Apple 另完成 8/8 段合成音频（48.703 秒），逐条 CER 0–26.32%；首字中位 1.147 秒，讲话结束到定稿中位 0.048 秒。漏识 Mac、保存原音、充电器、修改开始时间。[逐条参考、输出和时间](../evidence/no-api8/final/apple/) |
+| 三家协议与单一文字流 | 393 个原生函数、48 套件、513 个展开场景；AppModel 104 项。50 个 localhost 网络案例包含在这些检查内，未作真实云调用。 两个平等 ASR 正式客户端的 WS 都收到相同的 32,198 字节 PCM；GPT-6 Astra 持久会话消费文本证据，验证三次可见修订、EOS、旧回调、断线恢复、同模型 HTTP fallback 与无依据修正拒绝。上一段等待两路 final 时新段能先保存。[协议测试与 CI](../evidence/no-api8/final/protocol/) |
+| 原生连接与凭据 | 设置收集 Qwen Key、地域／Workspace、AssemblyAI 和 OpenAI Key，不要求用户写代码或 URL。真实系统 Keychain 用随机服务名与虚拟值测试读／写／删除；向导注入另行核对保存、缺项、部分成功、撤权、取消、上限与拒绝。CLI 守卫 17+7。假凭据成功不代表账户已连接。[控制器记录](../evidence/no-api8/final/input/app-model.log) |
+| 原稿与原生面板 | GitHub 的[原稿测量记录](V1-ORIGINAL-REFERENCE-FIDELITY.md)对应上传的 1536×1024 JPEG，SHA-256 `58be88a019cf0241b1c540f799d0944ed294e650b8c119923a434a6e4889a7c5`。真实新窗口 408×298 pt，内有 344×234 pt 卡片及 32 pt 透明投影外圈，默认非激活。灰色双框复制 42×33.5 pt、语音胶囊 92.5×33.5 pt；底边 18 pt。[原图坐标与度量](../design/approved/original-reference-20261107.measurements.json)。原稿示例按原来分行呈现，产品实时文本自然排版，19.5 pt 正文、26 pt 行高；讲话有五根随有效声音变化的圆头竖条，VAD 结束立即回待命。37 张控件图／45 次 AXPress／10 次菜单操作；纯渲染 27 张，另各有 3 张同一生产窗口的原稿三态图。[实机图与交互](../evidence/no-api8/final/ui/REVIEW.md) · [原稿尺寸、图形及 PNG 测量](../evidence/no-api8/final/ui/reference-measurements.json)。[完整上传原稿](../design/approved/Saytile-original-visual-reference-20261107.jpeg)已逐字节核对并直接比较，不宣称逐像素复刻、实屏壁纸效果或用户审美认可。 |
+| 外部输入安全 | 隔离 AppKit 实测普通 AX 9、目标改字保护 5、UTF-16 所有权修正 9；无头 DOM 20。WKWebView 上下文 6、能力拒绝 2；其后台 setter 接受了请求，DOM 实际没有变化，记为未确认且未重放，发送 0 次。未碰私人草稿，未把任意前台网站列为支持。[输入记录](../evidence/no-api8/final/input/NATIVE-INPUT.md) |
+| 历史、存储与异常恢复 | 实际强杀、写入失败、迁移和备份回退 12 项；保存失败不抹去已留存内容。10 万记录／30 万版本，修订写入 p95 0.168 ms、100 个搜索匹配 140.692 ms。[恢复与规模](../evidence/no-api8/local/)。删除原音保留文字、版本与用户修改。 |
+| 安装、启动和资源 | 实际 RC1 → 候选升级／回退 8 项，卸载重装 2 项。隔离资料库保留原音、草稿与未确认投递；非激活启动未抢焦点或打开麦克风。空闲 300.02 秒，暖态 RSS 66,560–69,104 KiB。[安装](../evidence/no-api8/final/install-upgrade.json) · [后台](../evidence/no-api8/final/app-idle.json)。 |
 
-## 同一运行源码的实际验证
+已启动本版唯一的 1,800 秒实时时钟采集。运行中计数不代表通过，不借用 .6/.7 的成绩。 [独立参考、探针和完整采集记录](../evidence/no-api8/local/)。
 
-| 项目 | 实际结果 |
-|---|---|
-| 原生套件与协议 | 本机 Swift 392 个测试函数 / 48 套件 / 512 个展开场景，AppModel 104 项。 包含协议 12 个测试函数、52 个场景，其中 50 个经正式 URLSession 与 localhost HTTP/WS 对端交互，协议违例为零。以上计数存在包含关系。[原始记录](../evidence/no-api7/final/protocol/) |
-| 首次连接和命令入口 | 隔离账户注入覆盖成功、失败、取消和撤权。命令边界 17+7 项。首次向导上的通过状态为 TEST_ONLY，尚无真实账户收据。[控制器与设置](../evidence/no-api7/final/input/app-model-dom.md) |
-| 输入安全 | headless DOM 20 项，原生 AX 9 项，目标在 setter 后变化 5 项，范围修正 9 种。WKWebView 上下文 6 项、能力拒绝 2 项，发送零次。其后台 AX setter 确认收到请求，DOM 未变化，投递保留未确认且不重放。[原生输入](../evidence/no-api7/final/input/NATIVE-INPUT.md) · [范围修正](../evidence/no-api7/final/owned-range/) |
-| 正式包原生 UI | 控件模式 37 图、45 次 AXPress、10 次菜单选择、11 次双控件检查及 6 次字段编辑（含 3 个安全字段）。纯渲染 27 图。两种模式各 71 个独立的中性图形参数采样。采样无法测量显示帧率、真实中断时序或新材质。[原生界面](../evidence/no-api7/final/ui/REVIEW.md) |
-| Apple 中文合成识别 | 准备系统语言资源后完成 8/8 段，共 48.703 秒，逐条标准化 CER 为 0–26.32%。首显中位 1.199 秒，结束到定稿中位 0.051 秒。四处遗漏涉及 Mac、保存原音、充电器、修改开始时间。[原文、输出与口径](../evidence/no-api7/final/apple/) |
-| 保存、恢复和规模 | VAD 首段保存 49,920 帧，在两个受控专家等待 final 时下一段已被接收，旧结果写回原段。12 项存储进程、异常、迁移、备份及恢复验证通过。100,000 条记录和 300,000 个版本下，部分写入 p95 0.165 ms，搜索 100 个结果耗时 133.163 ms。[本机记录](../evidence/no-api7/local/) |
-| 安装、启动和空闲 | 已发布 RC1 到本包的 8 项安装升级检查，另有 2 项卸载重装检查。启动检查使用独立资料库并观察前台，未激活用户窗口。实际 App 空闲 300.036 秒，暖态 RSS 66,272–79,072 KiB。整机电耗与长期真人环境未测。[安装与升级](../evidence/no-api7/final/install-upgrade.json) · [未激活启动](../evidence/no-api7/final/startup-focus.log) · [空闲](../evidence/no-api7/final/app-idle.json) |
+## 真实服务状态
 
-截至本检查点，30 分钟完整采集与独立逐帧比较尚无终态结论。本版的短项和独立 PCM 参考已经完成。[本版长期验证](../evidence/no-api7/local/)
+未取得真实账户与上传授权，真实服务调用为零。双专家加 GPT 相比最强单模型的准确率改善、改善场景及附加确认延迟均未知；不授予 LIVE_PROTOCOL_VERIFIED、LIVE_TRANSCRIPTION_VERIFIED、QUALITY_VERIFIED 或 PRODUCTION_READY。 [四阶段质量和延迟的未测字段](../evidence/no-api8/final/cloud-quality-boundary.json)。GPT 处理候选文字，不接收原音；Soniox 可选且默认关闭。
 
-冻结源码的[设计 CI](https://github.com/haohongfei2001-png/saytile/actions/runs/42333550200)通过，[原生 CI](https://github.com/haohongfei2001-png/saytile/actions/runs/42333550192)完成 Swift 和协议测试后在 AppModel 阶段取消，其后构建与 UI 跳过。仅改文档的 `54b4c40f` 对应的[原生 CI](https://github.com/haohongfei2001-png/saytile/actions/runs/42333775516)和[设计 CI](https://github.com/haohongfei2001-png/saytile/actions/runs/42333775472)均通过。其运行输入与冻结源码相同，完整 Git tree 不同。[CI 身份比较](../evidence/no-api7/final/protocol/docs-successor-ci/comparison.json)
+以后若选择启用，在“设置 → AI 识别 → 连接识别服务”保存三个账户并逐项授权。内置检查只发 6.272 秒合成样本，联网阶段最长 90 秒，最多两路语音连接及六次 GPT 请求、每次最多 4096 输出 tokens，可取消。失败留在本机模式，原音独立保留。通过检查不能证明真人准确率。[一次性授权及硬件边界](V1-USER-ACTIONS.md)。
 
-## 尚待验证
-
-真实云端请求为零。真人中文 CER、英文 WER、混合 MER，双专家加 AI 相对最强单模型的增益、适用场景及新增稳定确认延迟均未知。当前未进入集中真人验收。 云端故障、真实模型访问权限、音频上传与费用授权须在一次受控实连中验证。禁止用离线合成 CER 或最终文字更通顺推算云端改善。[各阶段质量状态](../evidence/no-api7/final/cloud-quality-boundary.json)
-
-真实麦克风、物理设备拔插、锁屏/睡眠、真实多屏组合、任意第三方前台编辑器及长时间真人使用仍有未覆盖项。图像仅证明工程包的实际绘制与操作。仓库记录了指定参考图的身份和后续截图，但未取得原始 PNG 字节作逐像素比对。[参考来源](../evidence/no-api7/final/reference-source.json) · [独立审查](../evidence/no-api7/final/INDEPENDENT-REVIEW.md)
-
-[no-api.6 的归档交付记录](https://github.com/haohongfei2001-png/saytile/blob/98ee61ad16ab9a5d7376846c70a89654667ddca7/docs/V1-NO-API-DELIVERY.md)与[原有安装包](../deliverables/no-api.6/)保留。 [旧 no-api.5 基线](../evidence/no-api-product/final-no-api5-r2/BASELINE.md)。这些记录仅供追溯。
+物理麦克风、真实锁屏/睡眠/设备拔插、多显示器、任意第三方输入框和 24–72 小时能耗未在此候选上实测。当前不邀请真人验收。[独立审查](../evidence/no-api8/final/INDEPENDENT-REVIEW.md)。[内部 b42 过渡构建](../evidence/no-api8/intermediate-b42/README.md)、[9c4 独立过渡记录](../evidence/no-api8/intermediate-9c4/README.md)与[旧版 no-api.7 数据](../evidence/no-api7/README.md) 保留独立 SHA 和原包；渐变近似稿被后到原稿取代，旧通过项不计入本版。

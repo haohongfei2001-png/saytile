@@ -1,0 +1,5 @@
+# Internal integration 9c4f35fc
+
+The visual geometry including the 32-point shadow perimeter was verified in the signed 9c4f35fc candidate. Its 393 Swift functions, 513 expanded cases, AppModel 104, native input, Apple local speech, 8 upgrade checks, 2 reinstall checks and exact native/design CI passed. This version was superseded by the final reference-color and caret change; its package was not published as the no-api.8 public download.
+
+The single wall-clock run was intentionally stopped at 794.04 seconds, after 18 observations. No 30-minute PASS or final waveform comparison is claimed. [Real interruption](capture-interruption.json) · [Internal binary identity](internal-package.json) · [Raw verification records](intermediate-receipts.tar.gz) (140 entries, SHA-256 `bed364ca3aa17be8e7acea0b9d17870ec20ad6d8e64f99336200761a96fb35cc`). All text receipts and three-state images of the superseded production-window geometry are included; ordinary image hashes remain in their own manifests. No original recording, private draft or live credential was used.
