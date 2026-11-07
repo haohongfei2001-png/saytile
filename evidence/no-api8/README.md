@@ -8,3 +8,5 @@
 - [原生输入、所有权及 WK 未确认边界](final/input/NATIVE-INPUT.md)。
 - [安装升级](final/install-upgrade.json)、[卸载重装](final/uninstall-reinstall.json)、[Gatekeeper 拒绝普通公开分发](final/gatekeeper.json)。
 - [本次实时合成音频与存储证据](local/)；[独立审查](final/INDEPENDENT-REVIEW.md)。此前两个过渡构建 [b42](intermediate-b42/) 和 [9c4](intermediate-9c4/) 各自保留，没有把中止的运行计为通过。
+
+固定色彩基准的实时时钟长跑已结束：1,800.43 秒、60 段、179 个 WAV；全部 28,800,000 帧与独立参考逐字节相同，丢帧和上传授权均为零。[阶段终态清单](final/delivery-manifest.json) · [本阶段不可变下载回读](final/public-download.json)。这些结果保留在 69b90939 的名下，不替代 no-api.9 的独立验收。

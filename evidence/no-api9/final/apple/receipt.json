@@ -1,0 +1,41 @@
+{
+  "runtime": "dc26fe3c59ba55994d29e99ada8d2f0b49ad9886",
+  "tree": "f138f6733a642a2e53da22b3647aaf5744cb308b",
+  "manifest": {
+    "path": "tests/fixtures/MandarinCorpus.json",
+    "sha256": "31430af5e1363a51da6c793f70dcc34b752d88195f990e9de6cc1960be8e2e6c"
+  },
+  "fixture_directory": "/tmp/saytile-noapi9-apple-dc26fe3c59ba-_hoexlcy/audio",
+  "generated_synthetic_audio": {
+    "correction.aiff": "e67349c124409100d6cca8b9ed677f9309f9cbe8d8cf5a6d9614fac2ce557106",
+    "daily.aiff": "ea39d7d4c6adf64b9cb9ca59dbeb1277fad737cf6df0cfaeca9d7a482d91656a",
+    "mixed.aiff": "05dcb5c15d3b7f7d0f3abbdf273e53665bf9e70e4117928fe081a5e537e275cc",
+    "negation.aiff": "722bed84f758206055c623713987e84c1c8da706dd3f91d45c5370d782af6406",
+    "numbers.aiff": "e7cfafd2f4e609be58a07a1bf38605b1a3339410cdb07a1d4f4f232f999879c7",
+    "pauses.aiff": "d852e4ea934c7307efded4a7fba6cfbb8570a92d8079fb5684fe3e07dd4b1063",
+    "second_voice.aiff": "91e72a68f1d0a1666ecdaa800327a685b13a605395fc02e942a9fb83bacf8d00",
+    "tail.aiff": "d2369416b1fef78be9bfacb105ea0591fa21765512641f643f7a378587544343"
+  },
+  "microphone_opened": false,
+  "real_provider_requests": 0,
+  "probe_source_sha256": "89db34402c29d8ab25067aca027b550929f7d3ada23688ab95a054f0642807a5",
+  "probe_binary": "/tmp/saytile-frozen-noapi9-dc26fe3c59ba-apple",
+  "binary_sha256_before": "dbbdf88410da89d725314cbbd84dfed1e73eb9f8a902299ffc614a8dfb6591a6",
+  "static_library_sha256": "97798f24609d10d1d79871cf305be7ca7fb6775a8a034b96c369c73bfe5f50c7",
+  "command": [
+    "/tmp/saytile-frozen-noapi9-dc26fe3c59ba-apple",
+    "tests/fixtures/MandarinCorpus.json",
+    "/tmp/saytile-noapi9-apple-dc26fe3c59ba-_hoexlcy/audio",
+    "/tmp/saytile-noapi9-apple-dc26fe3c59ba-_hoexlcy/store",
+    "--prepare-speech"
+  ],
+  "process_deadline_seconds": 300,
+  "prepare_deadline_seconds": 180,
+  "status": "finished",
+  "started_at_unix": 1794027241.249145,
+  "exit": 0,
+  "finished_at_unix": 1794027296.284687,
+  "binary_sha256_after": "dbbdf88410da89d725314cbbd84dfed1e73eb9f8a902299ffc614a8dfb6591a6",
+  "probe_binary_unchanged": true,
+  "synthetic_input_unchanged": true
+}

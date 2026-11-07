@@ -1,12 +1,8 @@
-> **no-api.9 工程接续：** 最新中性玻璃让后方环境提供色调，仅保留紫色语音图标与光标。[完整批准原稿](design/approved/Saytile-original-visual-reference-20261107.jpeg) · [当前交付状态](docs/V1-NO-API-DELIVERY.md)。之前的固定色彩包仅供溯源，不替换 RC1。
-
-> 版本说明：本页所述无密钥包固定在 69b90939。PR #6 之后的中性透光材质不包含在这份包中，不能用其结果代替后续外观收口。
-
-<!-- no-api8-current:begin -->
+<!-- no-api9-current:begin -->
 # Saytile
 
-**无密钥短项已通过；本版 30 分钟长跑待定 · `LIVE_CONNECTION_PENDING`**。自然开口，随时取用。菜单栏持续待命，原音独立保留；有 Apple 中文资源即可无 Key 进行本机识别。 [当前版本、下载和验证](docs/V1-NO-API-DELIVERY.md)。普通公开分发待签名与公证；云服务未实连。
-<!-- no-api8-current:end -->
+**无密钥短项已通过；本版 30 分钟长跑进行中 · `LIVE_CONNECTION_PENDING`**。自然开口，随时取用。菜单栏持续待命，原音独立保留；有 Apple 中文资源即可无 Key 进行本机识别。 [当前版本、下载和验证](docs/V1-NO-API-DELIVERY.md)。普通公开分发待签名与公证；云服务未实连。
+<!-- no-api9-current:end -->
 
 > **唯一批准的视觉设计原图**：[Saytile 原版设计全图](design/approved/Saytile-original-visual-reference-20261107.jpeg) · [原图与变更边界](design/approved/README.md)。应用外观必须以此图为唯一标准，只有用户指定的语音按钮交互与必要动效可以修改。原图已按附件原始字节入库，不能拿工程预览或近似色板替代。
 
@@ -15,7 +11,7 @@
 
 Saytile 是 macOS 原生语音输入与表达工作台。开启后持续待命，自然讲话即可分段记录、识别中文，并独立保存原音。文字可以编辑、搜索、回听、重新识别、复制，或追加到明确选择的应用草稿。
 
-GitHub Releases 的稳定版本为 RC1，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。本分支的 no-api.8 候选及证据见 [无 API 交付](docs/V1-NO-API-DELIVERY.md)；真实云端、讲话质量与个人环境验收仍明确保留。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
+GitHub Releases 的稳定版本为 RC1，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。本分支的 no-api.9 候选及证据见 [无 API 交付](docs/V1-NO-API-DELIVERY.md)；真实云端、讲话质量与个人环境验收仍明确保留。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
 
 ## 最高质量中英文识别候选
 

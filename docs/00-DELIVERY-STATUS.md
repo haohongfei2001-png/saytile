@@ -1,11 +1,7 @@
-> **no-api.9 · 中性透光材质**。唯一视觉依据是[已入库的完整原图](../design/approved/Saytile-original-visual-reference-20261107.jpeg)；原图蓝紫色来自卡片后方，面板及按钮本身为中性白色玻璃。单独给安装包版本，保留 no-api.8 固定色彩基准。正在准备本版的实际窗口合成和整合源码验证，真实云端仍未接通。
+# Saytile 交付状态 · no-api.9
 
-> 版本说明：本页所述无密钥包固定在 69b90939。PR #6 之后的中性透光材质不包含在这份包中，不能用其结果代替后续外观收口。
+**无密钥短项已通过；本版 30 分钟长跑进行中 · `LIVE_CONNECTION_PENDING`**。[运行源码 `dc26fe3c`](https://github.com/haohongfei2001-png/saytile/commit/dc26fe3c59ba55994d29e99ada8d2f0b49ad9886)，源树 `f138f6733a642a2e53da22b3647aaf5744cb308b`。 [候选 DMG](../deliverables/no-api.9/Saytile-1.0.0-rc.2-no-api.9-arm64.dmg) · [校验和](../deliverables/no-api.9/SHA256SUMS.txt)。
 
-# Saytile 交付状态 · no-api.8
+稳定公开发布仍为 RC1。最新工程交付为 no-api.9 原稿候选；no-api.6、no-api.7、固定色彩 no-api.8 的测试和包各自归档。
 
-**无密钥短项已通过；本版 30 分钟长跑待定 · `LIVE_CONNECTION_PENDING`**。[运行源码 `69b90939`](https://github.com/haohongfei2001-png/saytile/commit/69b90939fd688b35448f976950e96db0ce5b602a)，源树 `06f1ac6982591bce64c98bd93e26eb0ccba0cfd8`。 [候选 DMG](../deliverables/no-api.8/Saytile-1.0.0-rc.2-no-api.8-arm64.dmg) · [校验和](../deliverables/no-api.8/SHA256SUMS.txt)。
-
-稳定公开发布仍为 RC1。最新工程交付为 no-api.8 原稿候选；no-api.6 和 no-api.7 各自的合成测试和包单独归档。
-
-[完整交付、实测与边界](V1-NO-API-DELIVERY.md) · [上一阶段记录](https://github.com/haohongfei2001-png/saytile/blob/69b90939fd688b35448f976950e96db0ce5b602a/docs/00-DELIVERY-STATUS.md)。未取得真实账户与上传授权，真实服务调用为零。双专家加 GPT 相比最强单模型的准确率改善、改善场景及附加确认延迟均未知；不授予 LIVE_PROTOCOL_VERIFIED、LIVE_TRANSCRIPTION_VERIFIED、QUALITY_VERIFIED 或 PRODUCTION_READY。
+[完整交付、实测与边界](V1-NO-API-DELIVERY.md) · [上一阶段记录](https://github.com/haohongfei2001-png/saytile/blob/dc26fe3c59ba55994d29e99ada8d2f0b49ad9886/docs/00-DELIVERY-STATUS.md)。未取得真实账户与上传授权，真实服务调用为零。双专家加 GPT 相比最强单模型的准确率改善、改善场景及附加确认延迟均未知；真实协议、真实转写、质量及生产发行状态均未通过。
