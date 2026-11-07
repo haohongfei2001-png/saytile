@@ -1,3 +1,6 @@
+> [!WARNING]
+> **历史恢复资料，非当前视觉设计依据。** 本文保留 2026-11-06 的产品/技术恢复内容及历史原型说明。本文中旧界面截图、旧配色、旧布局和旧品牌表达均已被用户于 2026-11-07 明确选定的唯一界面目标取代。当前唯一视觉依据是 [Saytile V1 唯一正式界面目标](SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md) 及 `design/approved/saytile-approved-ui-preview-2026-11-07.jpg`。不得从本历史文档恢复旧 UI 方案。
+
 # Saytile · V1 产品与技术设计
 
 恢复修订版 · 2026-11-06

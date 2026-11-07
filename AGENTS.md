@@ -16,3 +16,7 @@
 14. 2026-11-06 最新用户指令覆盖旧研究的单引擎限制：最高质量中英文并行识别、候选隔离、证据约束 AI 融合、BYOK 属于本次 V1 识别升级。`c9eac9b` 的唯一 Soniox 裁决为历史方案；以 `research/asr/REVISION-2026-11-06.md` 及本轮更新的裁决为准。不要把旧文档的“不做多引擎”当现行限制，也不要宣称未经真实云测的准确率收益。
 
 15. 2026-11-07最新用户决定优先：双平等完整音频专家+唯一GPT-6核心、单份忠实文字流；无主模型/语言预切/润色/多AI默认链。外部已派发内容只在精确所有权及未被用户修改证明下可局部修正，否则pending。看 research/architecture/FINAL-ARCHITECTURE.md；旧配置及候选身份不得静默换Key或授权。
+
+16. **2026-11-07 唯一批准 UI 目标（最高优先级）**：Saytile V1 主界面唯一视觉依据是 `docs/SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md` 及其引用的 `design/approved/saytile-approved-ui-preview-2026-11-07.jpg`。原始用户选定资产为 ChatGPT Library 文件 `Saytile语音输入工作台概念界面.png`（2026-11-06 23:05 UTC）。不得重新设计、替换或混合其他方案。主面板无 Saytile Logo/字标/产品名；采用原图紫蓝渐变、半透明浅色面板、单一连续文字流、轻量状态、复制/编辑和唯一暂停/恢复按钮。右侧聆听/修正/暂停卡片是状态示例，不是同时常驻的多个卡片。右下角小语音图标是轻量入口，不是第二个文字面板。
+17. **已舍弃的视觉方案**：PR #7 `brand/identity-exploration-20261107` 的 Sentence Fold、珊瑚橙/瓷白配色、Logo/App Icon/字标/菜单栏图形和品牌展示页均为 `SUPERSEDED / NOT APPROVED`；PR #7 已关闭，不得 cherry-pick、合并或复用。PR #8 只保留竞品视觉研究用途，不是设计提案或 UI 权威。旧 `prototype/index.html` 与 `docs/Saytile-V1-Design-Revision.*` 仅为历史恢复资料，视觉部分已被唯一目标取代。保留这些历史资料作为审计证据，不将其误当现行设计。
+18. **实现状态必须如实表达**：PR #6 当前绿色主题及旧版 SwiftUI 视图尚未完全匹配唯一批准图；它们是待实现的工程状态，不是获批视觉方案。禁止声称已实现或验收通过，直到原生界面按唯一目标完成截图比对和交互验收。
