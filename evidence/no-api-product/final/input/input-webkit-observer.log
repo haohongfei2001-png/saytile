@@ -1,0 +1,51 @@
+WEB_FIXTURE_READY
+WEB_AX_CAPABILITY isWeb=true pageIdentity=true focus=true content=true page=true contextComplete=true selectedTextSettable=true caret=7 localRange=Optional(true)
+WEB_INSERT_RESULT unverified
+WEB_ACTUAL_TEXT Optional("PREFIX|SUFFIX")
+LIMIT background WKWebView AX setter acknowledged but value unchanged; marked unverified once
+FIXTURE_COMMAND restore
+{"command":"restore","value":"","error":""}
+FIXTURE_COMMAND sameURL
+{"command":"sameURL","value":"","error":""}
+PASS real WKWebView AX invalidates binding after sameURL
+FIXTURE_COMMAND restore
+{"command":"restore","value":"","error":""}
+FIXTURE_COMMAND silentContext
+{"command":"silentContext","value":"Different synthetic chat with identical empty composer","error":""}
+PASS final semantic revalidation rejects silentContext before dispatch despite missing AX event
+FIXTURE_COMMAND restore
+{"command":"restore","value":"","error":""}
+FIXTURE_COMMAND replaceContext
+{"command":"replaceContext","value":"<h1>First synthetic chat<\/h1>","error":""}
+PASS real WKWebView AX invalidates binding after replaceContext
+FIXTURE_COMMAND restore
+{"command":"restore","value":"","error":""}
+FIXTURE_COMMAND newURL
+{"command":"newURL","value":"","error":""}
+PASS real WKWebView AX invalidates binding after newURL
+FIXTURE_COMMAND restore
+{"command":"restore","value":"","error":""}
+FIXTURE_COMMAND replaceEditor
+{"command":"replaceEditor","value":"","error":""}
+PASS real WKWebView AX invalidates binding after replaceEditor
+FIXTURE_COMMAND restore
+{"command":"restore","value":"","error":""}
+FIXTURE_COMMAND select
+{"command":"select","value":"","error":""}
+PASS real WKWebView AX invalidates binding after select
+FIXTURE_COMMAND restore
+{"command":"restore","value":"","error":""}
+FIXTURE_COMMAND largeTree
+{"command":"largeTree","value":"","error":""}
+PASS automatic binding rejects largeTree; explicit manual binding remains available
+FIXTURE_COMMAND restore
+{"command":"restore","value":"","error":""}
+FIXTURE_COMMAND blankContext
+{"command":"blankContext","value":"","error":""}
+PASS automatic binding rejects blankContext; explicit manual binding remains available
+FIXTURE_COMMAND state
+{"command":"state","value":"{\"text\":\"PREFIX|SUFFIX\",\"sends\":0,\"url\":\"https:\/\/saytile-fixture.invalid\/chat\/one\"}","error":""}
+WEB_AX_FOREGROUND_OBSERVATION unchanged=true owned_activated=false outside_activation_events=0; no cause inferred for outside transitions
+WEB_AX_PROBE_COMPLETE observerChecks=6/6 continuousAvailable=true; invisible isolated WKWebView, injected selection only, no foreground insertion claim
+{"command":"state","value":"{\"text\":\"PREFIX|SUFFIX\",\"sends\":0,\"url\":\"https:\/\/saytile-fixture.invalid\/chat\/one\"}","error":""}
+PASS real WKWebView fixture never sends

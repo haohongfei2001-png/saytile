@@ -51,7 +51,7 @@ struct AXWebCoordinatorProbe {
         let result = continuousAvailable ? await coordinator.insertStable(recordingID: record.id, revisionID: revision.id, stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt) : await coordinator.insert(recordingID: record.id, revisionID: revision.id)
         print("WEB_INSERT_RESULT \(result)"); fflush(nil)
         let actualText = get(try findEditor(), kAXValueAttribute) as? String
-        print("WEB_ACTUAL_TEXT \(String(describing: actualText))"); fflush(nil)
+        print("WEB_ACTUAL_TEXT unchanged_fixture=\(actualText == "PREFIX|SUFFIX") expected_inserted=\(actualText == "PREFIX|网页😀SUFFIX") utf16_length=\(actualText?.utf16.count ?? -1)"); fflush(nil)
         // A background-only WKWebView may acknowledge AXSelectedText without changing
         // its DOM value. Preserve the failed-attempt evidence; never activate it or resend.
         if actualText == "PREFIX|网页😀SUFFIX", result == .confirmed {

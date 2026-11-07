@@ -1,0 +1,8 @@
+{
+  "source": "dc26fe3c59ba55994d29e99ada8d2f0b49ad9886",
+  "mach_timebase_numer": 125,
+  "mach_timebase_denom": 3,
+  "raw_cpu": "The running v1 observer copies ri_user_time and ri_system_time directly; its user_ns and system_ns field names are incorrect. Treat them as raw Mach time units. Convert using numer/denom. The corrected observer uses _ticks. ps cumulative CPU is measured independently.",
+  "energy": "ri_energy_nj is process CPU energy measured by the kernel. Not whole-Mac energy.",
+  "apple_source": "https://github.com/apple-oss-distributions/xnu/blob/main/doc/observability/recount.md"
+}

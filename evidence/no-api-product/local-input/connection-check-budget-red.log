@@ -1,0 +1,56 @@
+Building for debugging...
+[1 / 6]
+[2 / 7] SaytileKit
+[3 / 8] SaytileKit
+[9 / 13] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[12 / 14] SaytileKitTests-product
+[14 / 16] SaytileKitTests-product
+[20 / 21] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[24 / 25] Saytile-product/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (3.30秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Connection authorization, bounded cost and truthful evidence; no network or Keychain" started.
+◇ Test atomicBudgetAllowsExactlySixEvenWhenContended() started.
+◇ Test oneProviderFailureDoesNotEraseHealthyProviderStatus() started.
+◇ Test arbitraryUnderlyingErrorDoesNotLeakItsDescriptionIntoReports() started.
+◇ Test identityChangesInvalidateButOfflineSwitchAndLocalTopicDoNot() started.
+◇ Test fastPartialReviewsCannotConsumeFinalConfirmationBudget() started.
+◇ Test deadlineAndExplicitCancellationEndOwnedProviders() started.
+◇ Test emptyOrIncompleteReportNeverAuthorizesCloud() started.
+◇ Test rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test missingCredentialFailsOnlyThatServiceWithoutConnectingOthers() started.
+◇ Test alreadyCancelledAttemptDoesNotReadCredentials() started.
+◇ Test completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) started.
+◇ Test case passing 1 argument reason → "unauthorized" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test case passing 1 argument reason → "no-consent" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test case passing 1 argument reason → "empty-audio" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test case passing 1 argument reason → "odd-audio" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test case passing 1 argument reason → "oversized-audio" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test case passing 1 argument unsupportedSocket → false to completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) started.
+◇ Test case passing 1 argument unsupportedSocket → true to completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) started.
+✔ Test rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) with 5 test cases passed after 0.001 seconds.
+✔ Test emptyOrIncompleteReportNeverAuthorizesCloud() passed after 0.001 seconds.
+✔ Test atomicBudgetAllowsExactlySixEvenWhenContended() passed after 0.001 seconds.
+✔ Test alreadyCancelledAttemptDoesNotReadCredentials() passed after 0.001 seconds.
+✔ Test identityChangesInvalidateButOfflineSwitchAndLocalTopicDoNot() passed after 0.001 seconds.
+✔ Test missingCredentialFailsOnlyThatServiceWithoutConnectingOthers() passed after 0.001 seconds.
+✔ Test arbitraryUnderlyingErrorDoesNotLeakItsDescriptionIntoReports() passed after 0.001 seconds.
+✔ Test oneProviderFailureDoesNotEraseHealthyProviderStatus() passed after 0.026 seconds.
+✔ Test deadlineAndExplicitCancellationEndOwnedProviders() passed after 0.066 seconds.
+✔ Test completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) with 2 test cases passed after 0.350 seconds.
+✘ Test fastPartialReviewsCannotConsumeFinalConfirmationBudget() recorded an issue at CloudConnectionVerificationTests.swift:271:9: Expectation failed: report.pipelineCompleted && report.services.allSatisfy { $0.state == .verified }
+↳ report.pipelineCompleted && report.services.allSatisfy { $0.state == .verified } → false
+↳   report.pipelineCompleted → false
+↳   report.services.allSatisfy { $0.state == .verified } → <not evaluated>
+✘ Test fastPartialReviewsCannotConsumeFinalConfirmationBudget() failed after 2.948 seconds with 1 issue.
+✘ Suite "Connection authorization, bounded cost and truthful evidence; no network or Keychain" failed after 2.948 seconds with 1 issue.
+✘ Test run with 11 tests in 1 suite failed after 2.948 seconds with 1 issue.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

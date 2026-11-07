@@ -1,0 +1,47 @@
+Building for debugging...
+[Computing dependencies]
+[2 / 7] SaytileKitTests-product
+[4 / 9] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[9 / 10] SaytileKitTests-product
+Build complete! (2.21秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Connection authorization, bounded cost and truthful evidence; no network or Keychain" started.
+◇ Test emptyOrIncompleteReportNeverAuthorizesCloud() started.
+◇ Test alreadyCancelledAttemptDoesNotReadCredentials() started.
+◇ Test arbitraryUnderlyingErrorDoesNotLeakItsDescriptionIntoReports() started.
+◇ Test atomicBudgetAllowsExactlySixEvenWhenContended() started.
+◇ Test deadlineAndExplicitCancellationEndOwnedProviders() started.
+◇ Test rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test fastPartialReviewsCannotConsumeFinalConfirmationBudget(withRetrySeries:) started.
+◇ Test oneProviderFailureDoesNotEraseHealthyProviderStatus() started.
+◇ Test stalePartialReviewDoesNotInvalidateLaterAcceptedFinal() started.
+◇ Test completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) started.
+◇ Test missingCredentialFailsOnlyThatServiceWithoutConnectingOthers() started.
+◇ Test case passing 1 argument reason → "unauthorized" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test case passing 1 argument reason → "no-consent" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test case passing 1 argument reason → "odd-audio" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test identityChangesInvalidateButOfflineSwitchAndLocalTopicDoNot() started.
+◇ Test case passing 1 argument reason → "empty-audio" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test case passing 1 argument reason → "oversized-audio" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+◇ Test case passing 1 argument withRetrySeries → false to fastPartialReviewsCannotConsumeFinalConfirmationBudget(withRetrySeries:) started.
+◇ Test case passing 1 argument withRetrySeries → true to fastPartialReviewsCannotConsumeFinalConfirmationBudget(withRetrySeries:) started.
+◇ Test case passing 1 argument unsupportedSocket → false to completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) started.
+◇ Test case passing 1 argument unsupportedSocket → true to completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) started.
+✔ Test rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) with 5 test cases passed after 0.001 seconds.
+✔ Test emptyOrIncompleteReportNeverAuthorizesCloud() passed after 0.001 seconds.
+✔ Test missingCredentialFailsOnlyThatServiceWithoutConnectingOthers() passed after 0.001 seconds.
+✔ Test atomicBudgetAllowsExactlySixEvenWhenContended() passed after 0.001 seconds.
+✔ Test arbitraryUnderlyingErrorDoesNotLeakItsDescriptionIntoReports() passed after 0.001 seconds.
+✔ Test alreadyCancelledAttemptDoesNotReadCredentials() passed after 0.001 seconds.
+✔ Test identityChangesInvalidateButOfflineSwitchAndLocalTopicDoNot() passed after 0.001 seconds.
+✔ Test oneProviderFailureDoesNotEraseHealthyProviderStatus() passed after 0.022 seconds.
+✔ Test deadlineAndExplicitCancellationEndOwnedProviders() passed after 0.072 seconds.
+✔ Test completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) with 2 test cases passed after 0.330 seconds.
+✔ Test stalePartialReviewDoesNotInvalidateLaterAcceptedFinal() passed after 0.794 seconds.
+✔ Test fastPartialReviewsCannotConsumeFinalConfirmationBudget(withRetrySeries:) with 2 test cases passed after 2.973 seconds.
+✔ Suite "Connection authorization, bounded cost and truthful evidence; no network or Keychain" passed after 2.973 seconds.
+✔ Test run with 12 tests in 1 suite passed after 2.973 seconds.

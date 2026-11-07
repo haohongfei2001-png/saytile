@@ -2,8 +2,22 @@ import AppKit
 import WebKit
 
 @MainActor
+final class WebFixturePanel: NSPanel {
+    var keyboardAllowed = false
+    var keyboardEvents = 0
+    override var canBecomeKey: Bool { keyboardAllowed }
+    override var canBecomeMain: Bool { keyboardAllowed }
+    override func sendEvent(_ event: NSEvent) {
+        if !keyboardAllowed, [.keyDown, .keyUp, .flagsChanged].contains(event.type) {
+            keyboardEvents += 1; return
+        }
+        super.sendEvent(event)
+    }
+}
+
+@MainActor
 final class WebFixtureController: NSObject, WKNavigationDelegate {
-    let window: NSPanel
+    let window: WebFixturePanel
     let web: WKWebView
     var commandBytes = Data()
     let foregroundArmed: Bool
@@ -13,7 +27,7 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .nonPersistent()
         web = WKWebView(frame: NSRect(x: 0, y: 0, width: 640, height: 480), configuration: config)
-        window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 640, height: 480), styleMask: foregroundArmed ? [.titled] : [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
+        window = WebFixturePanel(contentRect: NSRect(x: 0, y: 0, width: 640, height: 480), styleMask: foregroundArmed ? [.titled] : [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
         super.init()
         window.title = "Saytile synthetic web fixture"
         window.alphaValue = 0; window.ignoresMouseEvents = true
@@ -29,8 +43,11 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
     }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         _ = webView.accessibilityChildren()
-        webView.evaluateJavaScript("focusComposer()") { _, error in
-            FileHandle.standardOutput.write(Data((error == nil ? "WEB_FIXTURE_READY\n" : "WEB_FIXTURE_ERROR\n").utf8))
+        webView.evaluateJavaScript("focusComposer();document.querySelector('textarea').value==='PREFIX|SUFFIX'&&document.querySelector('textarea').selectionStart===7&&document.querySelector('textarea').selectionEnd===7") { [self] value, error in
+            guard error == nil, value as? Bool == true, !window.isKeyWindow, !window.isMainWindow, window.keyboardEvents == 0 else {
+                FileHandle.standardOutput.write(Data("WEB_FIXTURE_ISOLATION_FAILED\n".utf8)); return
+            }
+            FileHandle.standardOutput.write(Data("WEB_FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0\nWEB_FIXTURE_READY\n".utf8))
         }
     }
     func consume(_ bytes: Data) {
@@ -43,6 +60,7 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
             case "activate":
                 guard foregroundArmed, !activated else { continue }
                 activated = true
+                window.keyboardAllowed = true
                 NSApp.setActivationPolicy(.accessory)
                 window.alphaValue = 1; window.ignoresMouseEvents = false
                 window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
@@ -57,11 +75,12 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
             case "newURL": js = "history.pushState({},'', '/chat/two');document.querySelector('h1').textContent='Second synthetic chat';document.querySelector('textarea').value='';focusComposer();"
             case "replaceEditor": js = "document.querySelector('textarea').outerHTML='<textarea id=\"composer\" aria-label=\"Synthetic composer\"></textarea>';focusComposer();"
             case "select": js = "document.querySelector('textarea').setSelectionRange(0,6);"
-            case "state": js = "JSON.stringify({text:document.querySelector('textarea').value,sends:window.sends,url:location.href})"
+            case "state": js = "(()=>{let t=document.querySelector('textarea').value;let known=['','PREFIX|SUFFIX','PREFIX|你好😀SUFFIX','PREFIX|你好😀，接着说SUFFIX','PREFIX|网页😀SUFFIX'].includes(t);return JSON.stringify({text:known?t:'UNEXPECTED_TEXT_OMITTED',knownSyntheticText:known,utf16Length:t.length,sends:window.sends,url:location.href});})()"
             default: continue
             }
-            web.evaluateJavaScript(js) { value, error in
-                let response: [String: Any] = ["command": command, "value": value.map { String(describing: $0) } ?? "", "error": error?.localizedDescription ?? ""]
+            web.evaluateJavaScript(js) { [self] value, error in
+                let response: [String: Any] = ["command": command, "value": value.map { String(describing: $0) } ?? "", "error": error?.localizedDescription ?? "",
+                    "keyWindow": window.isKeyWindow, "mainWindow": window.isMainWindow, "keyboardEvents": window.keyboardEvents]
                 if let data = try? JSONSerialization.data(withJSONObject: response) { FileHandle.standardOutput.write(data + Data([10])) }
             }
         }

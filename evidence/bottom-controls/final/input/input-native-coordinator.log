@@ -1,0 +1,22 @@
+FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0 background=true
+FIXTURE_READY
+PASS production coordinator + SQLite reservation + real AX insertion confirms
+PASS preserves synthetic prefix and suffix
+PASS same stable range is not inserted twice
+PASS next stable suffix inserts after actual UTF16 caret
+PASS no duplicate prefix or whole-field replacement
+PASS real AX selection notification invalidates binding before next operation
+PASS real selected range prevents replacement
+PASS cancelled production insertion has no external attempt
+NATIVE_AX_FOREGROUND_OBSERVATION unchanged=true owned_activated=false outside_activation_events=0; no cause inferred for outside transitions
+PASS owned fixture and probe never activate
+RC_AX_COORDINATOR_PASS 9 checks; background target selection injected; no production foreground or browser claim
+PASS post-setter external target change remains unverified and invalidates binding
+PASS one production AX insertion and one separately counted target edit preserve surrounding text
+PASS uncertain insertion ledger is durable with no owned range
+PASS explicit repeat is refused without a second dispatch or target rewrite
+PASS external target-change scenario never activates an owned process
+TARGET_MUTATION_PASS 5 checks; production_dispatches=1 external_mutations=1 no_replay=true
+{"command":"state","error":"","value":"{\"knownSyntheticText\":true,\"utf16Length\":24,\"keyWindow\":false,\"mainWindow\":false,\"text\":\"PREFIX|新句 你好😀，接着说SUFFIX\",\"keyboardEvents\":0,\"sends\":0}"}
+PASS owned fixture keyboard isolation key=false main=false keyboard_events=0
+PASS real native fixture never sends

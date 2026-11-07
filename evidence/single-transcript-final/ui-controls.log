@@ -1,0 +1,39 @@
+UI_CAPTURE panel-empty 400x550 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS 直接输入 fixture_pid=79290 foreground_unchanged=true
+NATIVE_UI_AXPRESS 自由记录 fixture_pid=79290 foreground_unchanged=true
+UI_CONTROL_PASS mode buttons through native control events
+UI_CAPTURE panel-content 400x550 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE panel-compact 400x440 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS 已收藏 fixture_pid=79290 foreground_unchanged=true
+NATIVE_UI_AXPRESS 全部记录 fixture_pid=79290 foreground_unchanged=true
+UI_CONTROL_PASS archive filters through native control events and SQLite
+UI_CAPTURE archive 1040x720 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS 保存修改 fixture_pid=79290 foreground_unchanged=true
+UI_CONTROL_PASS native Save action commits immutable edit
+UI_CAPTURE archive-detail 1120x720 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE archive-detail-compact 1120x570 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE archive-no-results 1040x720 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE panel-ai-review 400x550 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE panel-ai-recovery 400x550 foreground_unchanged=true candidate_activated=false
+UI_STATE_PASS one transcript survives single-core processing and failure; synthetic Store runs, no providers
+UI_CAPTURE settings 650x740 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE settings-compact 560x570 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS recognition.cloudEnabled fixture_pid=79290 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.apply fixture_pid=79290 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.cloudEnabled fixture_pid=79290 foreground_unchanged=true
+NATIVE_UI_AXSETVALUE recognition.topicContext fixture_pid=79290 foreground_unchanged=true
+NATIVE_UI_FIELD_EDIT recognition.topicContext via owned NSTextView delegate; no global key events
+NATIVE_UI_AXPRESS recognition.apply fixture_pid=79290 foreground_unchanged=true
+UI_CONTROL_PASS recognition settings: draft authorization, validation, fixed quality policy, text edit and apply through native controls
+UI_CAPTURE ai-controls 650x840 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE ai-services 650x840 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXSETVALUE recognition.model.a71e0001-0000-4000-8000-000000000001.workspace fixture_pid=79290 foreground_unchanged=true
+NATIVE_UI_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000001.workspace via owned NSTextView delegate; no global key events
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.consent fixture_pid=79290 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.consent fixture_pid=79290 foreground_unchanged=true
+UI_CONTROL_PASS fixed dual-expert setup: workspace and per-service consent; no model toggle, key read or cloud request
+UI_CAPTURE ai-chinese-keychain 650x740 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS connectionSetup.finish fixture_pid=79290 foreground_unchanged=true
+UI_CONTROL_PASS isolated setup rejects unfinished configuration through native Finish action; no export or provider request
+UI_CAPTURE connection-setup 650x840 foreground_unchanged=true candidate_activated=false
+UI_REVIEW_PASS native SwiftUI attached to AppKit windows; 15 captures; synthetic data; no activation/microphone

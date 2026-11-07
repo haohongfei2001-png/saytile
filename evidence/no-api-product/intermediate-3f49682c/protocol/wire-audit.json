@@ -1,0 +1,5001 @@
+{
+  "scope": "SIMULATED_PROTOCOL_NOT_LIVE_CLOUD",
+  "cases": {
+    "E47700D6-882E-421C-A3C5-E573DFFB80E9": {
+      "connections": [
+        {
+          "provider": "assembly",
+          "pcm_bytes": 32000,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600
+          ],
+          "eos": true,
+          "closed": true,
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        },
+        {
+          "provider": "qwen",
+          "pcm_bytes": 32000,
+          "blocks": [
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200
+          ],
+          "eos": true,
+          "closed": true,
+          "task_id": "EB3668AC-C254-4053-A5B5-36C6D83641A1",
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "assembly.connected",
+          "milliseconds": 47172.86
+        },
+        {
+          "event": "qwen.connected",
+          "milliseconds": 47173.531
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 47199.992,
+          "text": "请支付15元。",
+          "pcm_bytes": 1600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 47200.024,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 8000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 47200.05,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "assembly.eos",
+          "milliseconds": 47200.112,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.final",
+          "milliseconds": 47200.129,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 47200.364,
+          "text": "请支付50元。",
+          "pcm_bytes": 3200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 47200.499,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 9600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 47200.6,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "qwen.eos",
+          "milliseconds": 47201.032,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.final",
+          "milliseconds": 47201.091,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 47203.301,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 47203.478,
+          "pcm_bytes": 32000
+        }
+      ]
+    },
+    "C5FD0E24-9872-4FF4-861F-923D2A5727E7": {
+      "connections": [
+        {
+          "provider": "assembly",
+          "pcm_bytes": 32198,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1798
+          ],
+          "eos": true,
+          "closed": true,
+          "sha256": "9de43b98a018a565fd4150b1bf9995da654921cb224bb49c045cc3f848f01b28"
+        },
+        {
+          "provider": "qwen",
+          "pcm_bytes": 32198,
+          "blocks": [
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            640,
+            198
+          ],
+          "eos": true,
+          "closed": true,
+          "task_id": "8064C992-21C7-4523-BCC7-F1730D9DE7C2",
+          "sha256": "9de43b98a018a565fd4150b1bf9995da654921cb224bb49c045cc3f848f01b28"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "assembly.connected",
+          "milliseconds": 47268.621
+        },
+        {
+          "event": "qwen.connected",
+          "milliseconds": 47268.899
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 47269.816,
+          "text": "请支付50元。",
+          "pcm_bytes": 640
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 47331.103,
+          "text": "请支付15元。",
+          "pcm_bytes": 1600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 47520.49,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 8320
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 47540.635,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 8000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 47771.063,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 47792.365,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "qwen.eos",
+          "milliseconds": 48343.323,
+          "pcm_bytes": 32198
+        },
+        {
+          "event": "qwen.final",
+          "milliseconds": 48343.38,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 32198
+        },
+        {
+          "event": "assembly.eos",
+          "milliseconds": 48343.476,
+          "pcm_bytes": 32198
+        },
+        {
+          "event": "assembly.final",
+          "milliseconds": 48344.058,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 32198
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 48344.381,
+          "pcm_bytes": 32198
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 48344.645,
+          "pcm_bytes": 32198
+        }
+      ]
+    },
+    "BD9F2F08-2388-48DD-A2E4-2FA867911364": {
+      "connections": [
+        {
+          "provider": "qwen",
+          "pcm_bytes": 32000,
+          "blocks": [
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200
+          ],
+          "eos": true,
+          "closed": true,
+          "task_id": "132471C0-B5EB-4036-8C2F-6674F071A969",
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "qwen.connected",
+          "milliseconds": 48392.256
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 48393.095,
+          "text": "请支付50元。",
+          "pcm_bytes": 3200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 48393.257,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 9600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 48393.477,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "qwen.eos",
+          "milliseconds": 48394.013,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.final",
+          "milliseconds": 48394.083,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 48394.469,
+          "pcm_bytes": 32000
+        }
+      ]
+    },
+    "5A676599-281B-4289-AE60-B34651AC93B2": {
+      "connections": [
+        {
+          "provider": "qwen",
+          "pcm_bytes": 32000,
+          "blocks": [
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200
+          ],
+          "eos": true,
+          "closed": true,
+          "task_id": "BCA22E9C-C52D-4268-B7C2-41B4F7658B37",
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "qwen.connected",
+          "milliseconds": 48398.326
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 48519.867,
+          "text": "请支付50元。",
+          "pcm_bytes": 3200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 48640.282,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 9600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 48760.815,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "qwen.eos",
+          "milliseconds": 48760.885,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.final",
+          "milliseconds": 48760.919,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 48761.693,
+          "pcm_bytes": 32000
+        }
+      ]
+    },
+    "3836C616-10BA-4052-975C-50C2115FC699": {
+      "connections": [
+        {
+          "provider": "assembly",
+          "pcm_bytes": 32000,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600
+          ],
+          "eos": true,
+          "closed": true,
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "assembly.connected",
+          "milliseconds": 48765.694
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 48766.298,
+          "text": "请支付15元。",
+          "pcm_bytes": 1600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 48766.585,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 8000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 48766.97,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "assembly.eos",
+          "milliseconds": 48767.695,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.final",
+          "milliseconds": 48767.756,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 48768.128,
+          "pcm_bytes": 32000
+        }
+      ]
+    },
+    "BF04B90F-BF43-4741-A7B3-38D2DC813CCD": {
+      "connections": [
+        {
+          "provider": "assembly",
+          "pcm_bytes": 32000,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600
+          ],
+          "eos": true,
+          "closed": true,
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "assembly.connected",
+          "milliseconds": 48772.158
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 48901.072,
+          "text": "请支付15元。",
+          "pcm_bytes": 1600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 49022.3,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 8000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 49143.551,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "assembly.eos",
+          "milliseconds": 49143.618,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.final",
+          "milliseconds": 49143.655,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 49144.376,
+          "pcm_bytes": 32000
+        }
+      ]
+    },
+    "B20DE913-DCFC-459B-9243-B2C54056B2C4": {
+      "connections": [],
+      "gpt_requests": [],
+      "violations": [],
+      "events": []
+    },
+    "A6B5B0E9-E8B7-4868-8B2E-594B6E8424F8": {
+      "connections": [
+        {
+          "provider": "qwen",
+          "pcm_bytes": 0,
+          "blocks": [],
+          "eos": false,
+          "closed": true,
+          "task_id": "C49E4869-2D09-4593-8CD8-09FE72DE797A",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "qwen.connected",
+          "milliseconds": 49160.574
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 49161.41,
+          "pcm_bytes": 0
+        }
+      ]
+    },
+    "76D64F7B-0E42-4C9F-83EF-282CCE8406E3": {
+      "connections": [
+        {
+          "provider": "qwen",
+          "pcm_bytes": 6400,
+          "blocks": [
+            3200,
+            3200
+          ],
+          "eos": false,
+          "closed": true,
+          "task_id": "6DE1D3E5-4B83-4F9D-AC93-EA8663AEA801",
+          "sha256": "617d13dca74fffcb136e6fc0bacf47ad1237c0896728a5acda8375d889c0458d"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "qwen.connected",
+          "milliseconds": 49167.401
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 49168.248,
+          "text": "请支付50元。",
+          "pcm_bytes": 3200
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 49168.45,
+          "pcm_bytes": 6400
+        }
+      ]
+    },
+    "F31AB9F4-DF38-4051-91E0-481C86B34142": {
+      "connections": [
+        {
+          "provider": "qwen",
+          "pcm_bytes": 9600,
+          "blocks": [
+            3200,
+            3200,
+            3200
+          ],
+          "eos": false,
+          "closed": true,
+          "task_id": "506C2468-DD5D-4FAD-8B78-4A80ED887A37",
+          "sha256": "98bc2190ae15c4d61a0db802d625683b75b424f61b47fa026a7a8ceb173a1f74"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "qwen.connected",
+          "milliseconds": 49175.023
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 49176.073,
+          "pcm_bytes": 9600
+        }
+      ]
+    },
+    "720A1029-EE99-4E34-9DEB-6A04E01297A0": {
+      "connections": [
+        {
+          "provider": "qwen",
+          "pcm_bytes": 32000,
+          "blocks": [
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200
+          ],
+          "eos": true,
+          "closed": true,
+          "task_id": "4903C82C-D306-472E-A402-438FD4CE319D",
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "qwen.connected",
+          "milliseconds": 49182.117
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 49183.638,
+          "text": "请支付50元。",
+          "pcm_bytes": 3200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 49183.822,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 9600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 49184.112,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "qwen.eos",
+          "milliseconds": 49184.571,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 49184.921,
+          "pcm_bytes": 32000
+        }
+      ]
+    },
+    "ED2DB8BE-CE8E-4ADC-AB28-AEE4C9937758": {
+      "connections": [
+        {
+          "provider": "qwen",
+          "pcm_bytes": 32000,
+          "blocks": [
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200
+          ],
+          "eos": true,
+          "closed": true,
+          "task_id": "41F31E25-9338-41B9-A698-D7F365BDEF01",
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "qwen.connected",
+          "milliseconds": 49190.789
+        },
+        {
+          "event": "qwen.eos",
+          "milliseconds": 49192.413,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 49800.921,
+          "pcm_bytes": 32000
+        }
+      ]
+    },
+    "9DD04FCA-CF5A-4810-AA88-C388A9A58662": {
+      "connections": [],
+      "gpt_requests": [],
+      "violations": [],
+      "events": []
+    },
+    "66A0CD4E-EA37-4662-BAA4-27B502FFD040": {
+      "connections": [],
+      "gpt_requests": [],
+      "violations": [],
+      "events": []
+    },
+    "2E8F07D6-6C09-472F-991D-95E971D705A9": {
+      "connections": [
+        {
+          "provider": "assembly",
+          "pcm_bytes": 0,
+          "blocks": [],
+          "eos": false,
+          "closed": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "assembly.connected",
+          "milliseconds": 49819.999
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 49820.775,
+          "pcm_bytes": 0
+        }
+      ]
+    },
+    "9A70D74B-8C67-43EE-B8E7-D98523B03694": {
+      "connections": [
+        {
+          "provider": "assembly",
+          "pcm_bytes": 6400,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600
+          ],
+          "eos": false,
+          "closed": true,
+          "sha256": "617d13dca74fffcb136e6fc0bacf47ad1237c0896728a5acda8375d889c0458d"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "assembly.connected",
+          "milliseconds": 49826.25
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 49826.958,
+          "text": "请支付15元。",
+          "pcm_bytes": 1600
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 49827.308,
+          "pcm_bytes": 6400
+        }
+      ]
+    },
+    "B81F0B16-AEC6-4FAD-9E97-406D71E7ED92": {
+      "connections": [
+        {
+          "provider": "assembly",
+          "pcm_bytes": 6400,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600
+          ],
+          "eos": false,
+          "closed": true,
+          "sha256": "617d13dca74fffcb136e6fc0bacf47ad1237c0896728a5acda8375d889c0458d"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "assembly.connected",
+          "milliseconds": 49833.738
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 49834.613,
+          "pcm_bytes": 6400
+        }
+      ]
+    },
+    "A6699B4E-4BD1-41FE-8A7E-24F3E8D60BB2": {
+      "connections": [
+        {
+          "provider": "assembly",
+          "pcm_bytes": 32000,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600
+          ],
+          "eos": true,
+          "closed": true,
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "assembly.connected",
+          "milliseconds": 49840.856
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 49841.496,
+          "text": "请支付15元。",
+          "pcm_bytes": 1600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 49841.709,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 8000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 49842.058,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "assembly.eos",
+          "milliseconds": 49842.76,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 49843.051,
+          "pcm_bytes": 32000
+        }
+      ]
+    },
+    "C0F679C0-8AB1-41B2-A7CC-0AB502224450": {
+      "connections": [
+        {
+          "provider": "assembly",
+          "pcm_bytes": 32000,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600
+          ],
+          "eos": true,
+          "closed": true,
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        }
+      ],
+      "gpt_requests": [],
+      "violations": [],
+      "events": [
+        {
+          "event": "assembly.connected",
+          "milliseconds": 49848.904
+        },
+        {
+          "event": "assembly.eos",
+          "milliseconds": 49850.813,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 50463.591,
+          "pcm_bytes": 32000
+        }
+      ]
+    },
+    "4C0FB9C0-6AFF-4BF5-8B4D-0FFE48876DE2": {
+      "connections": [],
+      "gpt_requests": [],
+      "violations": [],
+      "events": []
+    },
+    "BAA22409-8055-4BFC-9F22-973B0DABACEC": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "9F584D83-6BE6-448B-918E-36BC91D8FC5B",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "9F584D83-6BE6-448B-918E-36BC91D8FC5B",
+          "previous_response_id": "resp_1_1",
+          "reset": false,
+          "candidate_count": 0,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "9F584D83-6BE6-448B-918E-36BC91D8FC5B",
+          "previous_response_id": "resp_1_2",
+          "reset": false,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50472.108,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50472.701,
+          "request": 1
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50473.946,
+          "response_id": "resp_1_1"
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50474.856,
+          "request": 2
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50474.995,
+          "response_id": "resp_1_2"
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50476.185,
+          "request": 3
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50476.321,
+          "response_id": "resp_1_3"
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50476.826,
+          "connection": 1
+        }
+      ]
+    },
+    "A280636A-4361-4B0E-8140-0E279B45484B": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "F03D8DC5-CC62-41C7-B188-FF1224EF4D92",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "F03D8DC5-CC62-41C7-B188-FF1224EF4D92",
+          "previous_response_id": "resp_1_1",
+          "reset": false,
+          "candidate_count": 0,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "F03D8DC5-CC62-41C7-B188-FF1224EF4D92",
+          "previous_response_id": "resp_1_2",
+          "reset": false,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50480.604,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50481.119,
+          "request": 1
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50481.312,
+          "response_id": "resp_1_1"
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50482.177,
+          "request": 2
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50482.341,
+          "response_id": "resp_1_2"
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50483.479,
+          "request": 3
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50483.649,
+          "response_id": "resp_1_3"
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50484.22,
+          "connection": 1
+        }
+      ]
+    },
+    "FF3D8207-EDCE-4F0F-881F-4AF8A541A60D": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "4459FECE-0D51-4A61-8364-108FA5355396",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "4459FECE-0D51-4A61-8364-108FA5355396",
+          "previous_response_id": "resp_1_1",
+          "reset": false,
+          "candidate_count": 0,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "4459FECE-0D51-4A61-8364-108FA5355396",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "4459FECE-0D51-4A61-8364-108FA5355396",
+          "previous_response_id": "resp_1_3",
+          "reset": false,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50487.117,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50487.615,
+          "request": 1
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50487.789,
+          "response_id": "resp_1_1"
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50488.58,
+          "request": 2
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50489.34,
+          "request": 3
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50489.448,
+          "response_id": "resp_1_3"
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50490.47,
+          "request": 4
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50490.589,
+          "response_id": "resp_1_4"
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50491.016,
+          "connection": 1
+        }
+      ]
+    },
+    "76FC091A-3485-4820-90B4-38B4FEA3E4BA": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        },
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "1DED89FF-7B90-4C0D-AE1C-14C8CE73F35E",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "1DED89FF-7B90-4C0D-AE1C-14C8CE73F35E",
+          "previous_response_id": "resp_1_1",
+          "reset": false,
+          "candidate_count": 0,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 2,
+          "stream_id": "1DED89FF-7B90-4C0D-AE1C-14C8CE73F35E",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 2,
+          "stream_id": "1DED89FF-7B90-4C0D-AE1C-14C8CE73F35E",
+          "previous_response_id": "resp_2_3",
+          "reset": false,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50494.227,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50494.903,
+          "request": 1
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50495.094,
+          "response_id": "resp_1_1"
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50496.199,
+          "request": 2
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50496.721,
+          "connection": 1
+        },
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50498.912,
+          "connection": 2
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50499.448,
+          "request": 3
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50499.63,
+          "response_id": "resp_2_3"
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50500.888,
+          "request": 4
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50501.022,
+          "response_id": "resp_2_4"
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50501.555,
+          "connection": 2
+        }
+      ]
+    },
+    "A38A5D57-8690-4BF5-8836-B103C3F9BD91": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        },
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "CB2B893D-FC3F-45E2-B684-542409E0382E",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "CB2B893D-FC3F-45E2-B684-542409E0382E",
+          "previous_response_id": "resp_1_1",
+          "reset": false,
+          "candidate_count": 0,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 2,
+          "stream_id": "CB2B893D-FC3F-45E2-B684-542409E0382E",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 2,
+          "stream_id": "CB2B893D-FC3F-45E2-B684-542409E0382E",
+          "previous_response_id": "resp_2_3",
+          "reset": false,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50504.833,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50505.402,
+          "request": 1
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50505.587,
+          "response_id": "resp_1_1"
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50506.413,
+          "request": 2
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50506.679,
+          "connection": 1
+        },
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50508.082,
+          "connection": 2
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50508.619,
+          "request": 3
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50508.79,
+          "response_id": "resp_2_3"
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50509.984,
+          "request": 4
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50510.099,
+          "response_id": "resp_2_4"
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50510.534,
+          "connection": 2
+        }
+      ]
+    },
+    "A23F7B0B-31A7-4814-AFC7-1DB9C67B029A": {
+      "connections": [],
+      "gpt_requests": [
+        {
+          "transport": "http",
+          "candidate_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "http",
+          "candidate_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.websocket_unsupported",
+          "milliseconds": 50514.041
+        }
+      ],
+      "unsupported_upgrades": 1
+    },
+    "ECCED666-557F-4395-AFFC-886572BAE3D5": {
+      "connections": [],
+      "gpt_requests": [],
+      "violations": [],
+      "events": []
+    },
+    "BEFDDBC9-6144-4B49-BF5E-00C808AE0CD4": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "210E3F37-5B7F-490D-9371-7D5E85FD749E",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50593.086,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50593.662,
+          "request": 1
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50594.063,
+          "connection": 1
+        }
+      ]
+    },
+    "ED052883-1C91-4992-84E7-76EB73A50675": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "34AC3114-BCD3-4663-9C3A-7C1E43F5B459",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50597.456,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50598.04,
+          "request": 1
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50598.65,
+          "connection": 1
+        }
+      ]
+    },
+    "D64B184E-34BB-4BAA-835F-56B585DBECC0": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "1C34E37E-1E57-42F9-92C8-95330493A54F",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50603.107,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50603.84,
+          "request": 1
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50604.291,
+          "connection": 1
+        }
+      ]
+    },
+    "55496453-9C15-4545-9F8B-3A23AEAEE57D": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "2806EA82-D86A-43F4-BC0D-468AAA15E1C4",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50607.523,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50608.1,
+          "request": 1
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50608.275,
+          "response_id": "resp_1_1"
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50608.871,
+          "connection": 1
+        }
+      ]
+    },
+    "91488AE5-796C-42B3-BE02-8D503F207E12": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "CA0F7BD2-877C-4B06-8676-3EB1225C5EBA",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50612.176,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50612.724,
+          "request": 1
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 50612.919,
+          "response_id": "resp_1_1"
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50613.297,
+          "connection": 1
+        }
+      ]
+    },
+    "DA9A8E4D-69B9-4D8C-ABE2-B9F4471C8E7D": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "695594BE-143D-407E-BA60-C659A3B1D776",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50615.959,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50616.502,
+          "request": 1
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50818.982,
+          "connection": 1
+        }
+      ]
+    },
+    "72F6FE1B-6C13-4BA3-A95F-F24317E12065": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "2E5B4F66-6931-4EC3-95E9-9277B36EAABE",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50822.56,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50823.208,
+          "request": 1
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50823.586,
+          "connection": 1
+        }
+      ]
+    },
+    "6C443E7A-6543-4D09-8B21-3379477642B2": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "BB88A185-26F5-4D3B-8B2A-6211004FC31A",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50826.715,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50827.369,
+          "request": 1
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50827.907,
+          "connection": 1
+        }
+      ]
+    },
+    "9AA5664F-1C93-4EC8-A32C-6E6B64086296": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "0E97FE2C-D629-40F8-86B5-AFCFC85E33DD",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50831.972,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50832.471,
+          "request": 1
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50832.972,
+          "connection": 1
+        }
+      ]
+    },
+    "94E5BCE1-71BA-4D47-B1C1-12D2FBB7A41A": {
+      "connections": [],
+      "gpt_requests": [],
+      "violations": [],
+      "events": []
+    },
+    "40CD9559-681F-4700-B7ED-F561E3C38652": {
+      "connections": [],
+      "gpt_requests": [],
+      "violations": [],
+      "events": []
+    },
+    "00D156D1-84A1-4173-A51B-19A4DE3E38A8": {
+      "connections": [],
+      "gpt_requests": [],
+      "violations": [],
+      "events": []
+    },
+    "5E7D1C12-CFE0-41EE-BE8B-C921CEE52168": {
+      "connections": [],
+      "gpt_requests": [],
+      "violations": [],
+      "events": []
+    },
+    "ADDD866B-98CE-432E-AE50-7E0D97FB6373": {
+      "connections": [],
+      "gpt_requests": [
+        {
+          "transport": "http",
+          "candidate_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": []
+    },
+    "851D3B98-C343-4A2C-BD76-9599A3E4806F": {
+      "connections": [],
+      "gpt_requests": [
+        {
+          "transport": "http",
+          "candidate_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": []
+    },
+    "46AEC8ED-DCDA-4E8A-9CAE-5CACA32D6016": {
+      "connections": [],
+      "gpt_requests": [
+        {
+          "transport": "http",
+          "candidate_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": []
+    },
+    "5C371634-F7FC-4455-A34E-AD392CF47AED": {
+      "connections": [
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "9E57EAC4-553A-44AE-B6A9-2E6CC61527F4",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 1,
+          "manifest_count": 1,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "gpt.connected",
+          "milliseconds": 50912.575,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 50913.096,
+          "request": 1
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 50927.413,
+          "connection": 1
+        }
+      ]
+    },
+    "12F37D7E-65C8-40CD-B11D-1CE63EFFFF37": {
+      "connections": [
+        {
+          "provider": "qwen",
+          "pcm_bytes": 200706,
+          "blocks": [
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            2306
+          ],
+          "eos": true,
+          "closed": true,
+          "task_id": "E6DB316C-D145-4C37-93E4-78B5FF07D282",
+          "sha256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a"
+        },
+        {
+          "provider": "assembly",
+          "pcm_bytes": 200706,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            706
+          ],
+          "eos": true,
+          "closed": true,
+          "sha256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a"
+        },
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "02083151-F9BB-4D95-891C-04CE2C4EEC60",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "02083151-F9BB-4D95-891C-04CE2C4EEC60",
+          "previous_response_id": "resp_1_1",
+          "reset": false,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "qwen.connected",
+          "milliseconds": 50984.213
+        },
+        {
+          "event": "assembly.connected",
+          "milliseconds": 50984.37
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 50985.037,
+          "text": "请支付50元。",
+          "pcm_bytes": 3200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 50985.146,
+          "text": "请支付15元。",
+          "pcm_bytes": 1600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 51189.644,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 9600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 51189.826,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 8000
+        },
+        {
+          "event": "gpt.connected",
+          "milliseconds": 51271.325,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 51271.957,
+          "request": 1
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 51272.143,
+          "response_id": "resp_1_1"
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 51400.919,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 51506.768,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "qwen.eos",
+          "milliseconds": 57532.091,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "qwen.final",
+          "milliseconds": 57532.155,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.eos",
+          "milliseconds": 57532.221,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.final",
+          "milliseconds": 57532.249,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 57538.034,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 57539.293,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 57544.523,
+          "request": 2
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 57544.654,
+          "response_id": "resp_1_2"
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 57551.942,
+          "connection": 1
+        }
+      ]
+    },
+    "E60365E5-F154-495E-A049-8D6416D7ECFA": {
+      "connections": [
+        {
+          "provider": "qwen",
+          "pcm_bytes": 200706,
+          "blocks": [
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            2306
+          ],
+          "eos": true,
+          "closed": true,
+          "task_id": "540F2BCA-F112-4F08-BCF5-FB87C47D304B",
+          "sha256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a"
+        },
+        {
+          "provider": "assembly",
+          "pcm_bytes": 200706,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            706
+          ],
+          "eos": true,
+          "closed": true,
+          "sha256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a"
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "http",
+          "candidate_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "http",
+          "candidate_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "qwen.connected",
+          "milliseconds": 57563.944
+        },
+        {
+          "event": "assembly.connected",
+          "milliseconds": 57564.387
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 57564.876,
+          "text": "请支付15元。",
+          "pcm_bytes": 1600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 57564.966,
+          "text": "请支付50元。",
+          "pcm_bytes": 3200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 57768.078,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 9600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 57768.184,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 8000
+        },
+        {
+          "event": "gpt.websocket_unsupported",
+          "milliseconds": 57860.172
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 57980.866,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 58084.326,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "qwen.eos",
+          "milliseconds": 64069.324,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "qwen.final",
+          "milliseconds": 64069.396,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.eos",
+          "milliseconds": 64069.47,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.final",
+          "milliseconds": 64069.513,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 64078.592,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 64081.039,
+          "pcm_bytes": 200706
+        }
+      ],
+      "unsupported_upgrades": 1
+    },
+    "60C87845-80FE-4E09-9117-4E97974117DD": {
+      "connections": [
+        {
+          "provider": "assembly",
+          "pcm_bytes": 200706,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            706
+          ],
+          "eos": true,
+          "closed": true,
+          "sha256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a"
+        },
+        {
+          "provider": "qwen",
+          "pcm_bytes": 200706,
+          "blocks": [
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            2306
+          ],
+          "eos": true,
+          "closed": true,
+          "task_id": "95FDAC58-1D1C-44A1-8E21-16F9444DF14D",
+          "sha256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a"
+        },
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "E95FDA6C-28BD-4777-85BF-0F276FCB98F1",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "E95FDA6C-28BD-4777-85BF-0F276FCB98F1",
+          "previous_response_id": "resp_1_1",
+          "reset": false,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "assembly.connected",
+          "milliseconds": 64150.059
+        },
+        {
+          "event": "qwen.connected",
+          "milliseconds": 64150.329
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64151.049,
+          "text": "请支付15元。 继续1",
+          "pcm_bytes": 1600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 64151.256,
+          "text": "请支付50元。 继续2",
+          "pcm_bytes": 3200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64252.694,
+          "text": "请支付15元。 继续2",
+          "pcm_bytes": 3200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 64252.837,
+          "text": "请支付50元。 继续4",
+          "pcm_bytes": 6400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64252.938,
+          "text": "请支付15元。 继续3",
+          "pcm_bytes": 4800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 64354.078,
+          "text": "请不要支付15元。 继续6",
+          "pcm_bytes": 9600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64354.211,
+          "text": "请支付15元。 继续4",
+          "pcm_bytes": 6400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64354.248,
+          "text": "请不要支付15元。 继续5",
+          "pcm_bytes": 8000
+        },
+        {
+          "event": "gpt.connected",
+          "milliseconds": 64443.062,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 64443.957,
+          "request": 1
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 64444.155,
+          "response_id": "resp_1_1"
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64457.544,
+          "text": "请不要支付15元。 继续6",
+          "pcm_bytes": 9600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 64457.678,
+          "text": "请不要支付15元。 继续8",
+          "pcm_bytes": 12800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64457.792,
+          "text": "请不要支付15元。 继续7",
+          "pcm_bytes": 11200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64561.932,
+          "text": "请不要支付15元。 继续8",
+          "pcm_bytes": 12800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 64562.06,
+          "text": "请不要支付15元，send the report。 继续10",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64562.235,
+          "text": "请不要支付15元。 继续9",
+          "pcm_bytes": 14400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64664.811,
+          "text": "请不要支付15元，send the report。 继续10",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 64664.952,
+          "text": "请不要支付15元，send the report。 继续12",
+          "pcm_bytes": 19200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64665.047,
+          "text": "请不要支付15元，send the report。 继续11",
+          "pcm_bytes": 17600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64771.518,
+          "text": "请不要支付15元，send the report。 继续12",
+          "pcm_bytes": 19200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 64771.65,
+          "text": "请不要支付15元，send the report。 继续14",
+          "pcm_bytes": 22400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64771.793,
+          "text": "请不要支付15元，send the report。 继续13",
+          "pcm_bytes": 20800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64878.333,
+          "text": "请不要支付15元，send the report。 继续14",
+          "pcm_bytes": 22400
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 64878.637,
+          "text": "请不要支付15元，send the report。 继续16",
+          "pcm_bytes": 25600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64878.795,
+          "text": "请不要支付15元，send the report。 继续15",
+          "pcm_bytes": 24000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 64984.384,
+          "text": "请不要支付15元，send the report。 继续18",
+          "pcm_bytes": 28800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64984.491,
+          "text": "请不要支付15元，send the report。 继续16",
+          "pcm_bytes": 25600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 64984.594,
+          "text": "请不要支付15元，send the report。 继续17",
+          "pcm_bytes": 27200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65087.823,
+          "text": "请不要支付15元，send the report。 继续18",
+          "pcm_bytes": 28800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 65087.951,
+          "text": "请不要支付15元，send the report。 继续20",
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65088.22,
+          "text": "请不要支付15元，send the report。 继续19",
+          "pcm_bytes": 30400
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 65190.134,
+          "text": "请不要支付15元，send the report。 继续22",
+          "pcm_bytes": 35200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65190.265,
+          "text": "请不要支付15元，send the report。 继续20",
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65190.498,
+          "text": "请不要支付15元，send the report。 继续21",
+          "pcm_bytes": 33600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65296.018,
+          "text": "请不要支付15元，send the report。 继续22",
+          "pcm_bytes": 35200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 65296.154,
+          "text": "请不要支付15元，send the report。 继续24",
+          "pcm_bytes": 38400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65296.375,
+          "text": "请不要支付15元，send the report。 继续23",
+          "pcm_bytes": 36800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 65398.084,
+          "text": "请不要支付15元，send the report。 继续26",
+          "pcm_bytes": 41600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65398.211,
+          "text": "请不要支付15元，send the report。 继续24",
+          "pcm_bytes": 38400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65398.316,
+          "text": "请不要支付15元，send the report。 继续25",
+          "pcm_bytes": 40000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 65503.595,
+          "text": "请不要支付15元，send the report。 继续28",
+          "pcm_bytes": 44800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65503.814,
+          "text": "请不要支付15元，send the report。 继续26",
+          "pcm_bytes": 41600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65504.023,
+          "text": "请不要支付15元，send the report。 继续27",
+          "pcm_bytes": 43200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65609.064,
+          "text": "请不要支付15元，send the report。 继续28",
+          "pcm_bytes": 44800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 65609.256,
+          "text": "请不要支付15元，send the report。 继续30",
+          "pcm_bytes": 48000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65609.374,
+          "text": "请不要支付15元，send the report。 继续29",
+          "pcm_bytes": 46400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65712.599,
+          "text": "请不要支付15元，send the report。 继续30",
+          "pcm_bytes": 48000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65712.628,
+          "text": "请不要支付15元，send the report。 继续31",
+          "pcm_bytes": 49600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 65712.657,
+          "text": "请不要支付15元，send the report。 继续32",
+          "pcm_bytes": 51200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65817.753,
+          "text": "请不要支付15元，send the report。 继续32",
+          "pcm_bytes": 51200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 65817.899,
+          "text": "请不要支付15元，send the report。 继续34",
+          "pcm_bytes": 54400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65818.04,
+          "text": "请不要支付15元，send the report。 继续33",
+          "pcm_bytes": 52800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65919.451,
+          "text": "请不要支付15元，send the report。 继续34",
+          "pcm_bytes": 54400
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 65919.582,
+          "text": "请不要支付15元，send the report。 继续36",
+          "pcm_bytes": 57600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 65919.759,
+          "text": "请不要支付15元，send the report。 继续35",
+          "pcm_bytes": 56000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66022.436,
+          "text": "请不要支付15元，send the report。 继续36",
+          "pcm_bytes": 57600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66022.525,
+          "text": "请不要支付15元，send the report。 继续37",
+          "pcm_bytes": 59200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 66022.593,
+          "text": "请不要支付15元，send the report。 继续38",
+          "pcm_bytes": 60800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 66125.044,
+          "text": "请不要支付15元，send the report。 继续40",
+          "pcm_bytes": 64000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66125.15,
+          "text": "请不要支付15元，send the report。 继续38",
+          "pcm_bytes": 60800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66125.222,
+          "text": "请不要支付15元，send the report。 继续39",
+          "pcm_bytes": 62400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66225.4,
+          "text": "请不要支付15元，send the report。 继续40",
+          "pcm_bytes": 64000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 66225.59,
+          "text": "请不要支付15元，send the report。 继续42",
+          "pcm_bytes": 67200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66225.777,
+          "text": "请不要支付15元，send the report。 继续41",
+          "pcm_bytes": 65600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66335.471,
+          "text": "请不要支付15元，send the report。 继续42",
+          "pcm_bytes": 67200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66335.511,
+          "text": "请不要支付15元，send the report。 继续43",
+          "pcm_bytes": 68800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 66335.559,
+          "text": "请不要支付15元，send the report。 继续44",
+          "pcm_bytes": 70400
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 66434.79,
+          "text": "请不要支付15元，send the report。 继续46",
+          "pcm_bytes": 73600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66434.868,
+          "text": "请不要支付15元，send the report。 继续44",
+          "pcm_bytes": 70400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66434.997,
+          "text": "请不要支付15元，send the report。 继续45",
+          "pcm_bytes": 72000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66537.817,
+          "text": "请不要支付15元，send the report。 继续46",
+          "pcm_bytes": 73600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 66538.0,
+          "text": "请不要支付15元，send the report。 继续48",
+          "pcm_bytes": 76800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66538.262,
+          "text": "请不要支付15元，send the report。 继续47",
+          "pcm_bytes": 75200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66643.944,
+          "text": "请不要支付15元，send the report。 继续48",
+          "pcm_bytes": 76800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 66644.383,
+          "text": "请不要支付15元，send the report。 继续50",
+          "pcm_bytes": 80000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66644.422,
+          "text": "请不要支付15元，send the report。 继续49",
+          "pcm_bytes": 78400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66749.381,
+          "text": "请不要支付15元，send the report。 继续50",
+          "pcm_bytes": 80000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 66749.547,
+          "text": "请不要支付15元，send the report。 继续52",
+          "pcm_bytes": 83200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66749.747,
+          "text": "请不要支付15元，send the report。 继续51",
+          "pcm_bytes": 81600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66849.802,
+          "text": "请不要支付15元，send the report。 继续52",
+          "pcm_bytes": 83200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 66849.991,
+          "text": "请不要支付15元，send the report。 继续54",
+          "pcm_bytes": 86400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66850.216,
+          "text": "请不要支付15元，send the report。 继续53",
+          "pcm_bytes": 84800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66952.253,
+          "text": "请不要支付15元，send the report。 继续54",
+          "pcm_bytes": 86400
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 66952.413,
+          "text": "请不要支付15元，send the report。 继续56",
+          "pcm_bytes": 89600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 66952.69,
+          "text": "请不要支付15元，send the report。 继续55",
+          "pcm_bytes": 88000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 67052.502,
+          "text": "请不要支付15元，send the report。 继续58",
+          "pcm_bytes": 92800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67052.673,
+          "text": "请不要支付15元，send the report。 继续56",
+          "pcm_bytes": 89600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67052.814,
+          "text": "请不要支付15元，send the report。 继续57",
+          "pcm_bytes": 91200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67155.161,
+          "text": "请不要支付15元，send the report。 继续58",
+          "pcm_bytes": 92800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 67155.249,
+          "text": "请不要支付15元，send the report。 继续60",
+          "pcm_bytes": 96000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67155.326,
+          "text": "请不要支付15元，send the report。 继续59",
+          "pcm_bytes": 94400
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 67258.965,
+          "text": "请不要支付15元，send the report。 继续62",
+          "pcm_bytes": 99200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67259.042,
+          "text": "请不要支付15元，send the report。 继续60",
+          "pcm_bytes": 96000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67259.078,
+          "text": "请不要支付15元，send the report。 继续61",
+          "pcm_bytes": 97600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67358.835,
+          "text": "请不要支付15元，send the report。 继续62",
+          "pcm_bytes": 99200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 67358.916,
+          "text": "请不要支付15元，send the report。 继续64",
+          "pcm_bytes": 102400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67359.038,
+          "text": "请不要支付15元，send the report。 继续63",
+          "pcm_bytes": 100800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67460.528,
+          "text": "请不要支付15元，send the report。 继续64",
+          "pcm_bytes": 102400
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 67460.608,
+          "text": "请不要支付15元，send the report。 继续66",
+          "pcm_bytes": 105600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67460.744,
+          "text": "请不要支付15元，send the report。 继续65",
+          "pcm_bytes": 104000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 67561.006,
+          "text": "请不要支付15元，send the report。 继续68",
+          "pcm_bytes": 108800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67561.151,
+          "text": "请不要支付15元，send the report。 继续66",
+          "pcm_bytes": 105600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67561.187,
+          "text": "请不要支付15元，send the report。 继续67",
+          "pcm_bytes": 107200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67661.916,
+          "text": "请不要支付15元，send the report。 继续68",
+          "pcm_bytes": 108800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 67662.069,
+          "text": "请不要支付15元，send the report。 继续70",
+          "pcm_bytes": 112000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67662.165,
+          "text": "请不要支付15元，send the report。 继续69",
+          "pcm_bytes": 110400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67768.683,
+          "text": "请不要支付15元，send the report。 继续70",
+          "pcm_bytes": 112000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 67768.809,
+          "text": "请不要支付15元，send the report。 继续72",
+          "pcm_bytes": 115200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67768.877,
+          "text": "请不要支付15元，send the report。 继续71",
+          "pcm_bytes": 113600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 67875.452,
+          "text": "请不要支付15元，send the report。 继续74",
+          "pcm_bytes": 118400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67875.613,
+          "text": "请不要支付15元，send the report。 继续72",
+          "pcm_bytes": 115200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67875.718,
+          "text": "请不要支付15元，send the report。 继续73",
+          "pcm_bytes": 116800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 67982.13,
+          "text": "请不要支付15元，send the report。 继续76",
+          "pcm_bytes": 121600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67982.229,
+          "text": "请不要支付15元，send the report。 继续74",
+          "pcm_bytes": 118400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 67982.356,
+          "text": "请不要支付15元，send the report。 继续75",
+          "pcm_bytes": 120000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68082.177,
+          "text": "请不要支付15元，send the report。 继续76",
+          "pcm_bytes": 121600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 68082.338,
+          "text": "请不要支付15元，send the report。 继续78",
+          "pcm_bytes": 124800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68082.44,
+          "text": "请不要支付15元，send the report。 继续77",
+          "pcm_bytes": 123200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 68185.539,
+          "text": "请不要支付15元，send the report。 继续80",
+          "pcm_bytes": 128000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68185.624,
+          "text": "请不要支付15元，send the report。 继续78",
+          "pcm_bytes": 124800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68185.724,
+          "text": "请不要支付15元，send the report。 继续79",
+          "pcm_bytes": 126400
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 68287.539,
+          "text": "请不要支付15元，send the report。 继续82",
+          "pcm_bytes": 131200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68287.659,
+          "text": "请不要支付15元，send the report。 继续80",
+          "pcm_bytes": 128000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68287.759,
+          "text": "请不要支付15元，send the report。 继续81",
+          "pcm_bytes": 129600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68394.035,
+          "text": "请不要支付15元，send the report。 继续82",
+          "pcm_bytes": 131200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 68394.158,
+          "text": "请不要支付15元，send the report。 继续84",
+          "pcm_bytes": 134400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68394.335,
+          "text": "请不要支付15元，send the report。 继续83",
+          "pcm_bytes": 132800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68494.672,
+          "text": "请不要支付15元，send the report。 继续84",
+          "pcm_bytes": 134400
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 68494.885,
+          "text": "请不要支付15元，send the report。 继续86",
+          "pcm_bytes": 137600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68495.059,
+          "text": "请不要支付15元，send the report。 继续85",
+          "pcm_bytes": 136000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68599.005,
+          "text": "请不要支付15元，send the report。 继续86",
+          "pcm_bytes": 137600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 68599.187,
+          "text": "请不要支付15元，send the report。 继续88",
+          "pcm_bytes": 140800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68599.404,
+          "text": "请不要支付15元，send the report。 继续87",
+          "pcm_bytes": 139200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68704.412,
+          "text": "请不要支付15元，send the report。 继续88",
+          "pcm_bytes": 140800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 68704.581,
+          "text": "请不要支付15元，send the report。 继续90",
+          "pcm_bytes": 144000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68704.861,
+          "text": "请不要支付15元，send the report。 继续89",
+          "pcm_bytes": 142400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68811.142,
+          "text": "请不要支付15元，send the report。 继续90",
+          "pcm_bytes": 144000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 68811.268,
+          "text": "请不要支付15元，send the report。 继续92",
+          "pcm_bytes": 147200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68811.379,
+          "text": "请不要支付15元，send the report。 继续91",
+          "pcm_bytes": 145600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 68916.694,
+          "text": "请不要支付15元，send the report。 继续94",
+          "pcm_bytes": 150400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68916.829,
+          "text": "请不要支付15元，send the report。 继续92",
+          "pcm_bytes": 147200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 68916.922,
+          "text": "请不要支付15元，send the report。 继续93",
+          "pcm_bytes": 148800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 69023.174,
+          "text": "请不要支付15元，send the report。 继续96",
+          "pcm_bytes": 153600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69023.282,
+          "text": "请不要支付15元，send the report。 继续94",
+          "pcm_bytes": 150400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69023.39,
+          "text": "请不要支付15元，send the report。 继续95",
+          "pcm_bytes": 152000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 69125.18,
+          "text": "请不要支付15元，send the report。 继续98",
+          "pcm_bytes": 156800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69125.329,
+          "text": "请不要支付15元，send the report。 继续96",
+          "pcm_bytes": 153600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69125.427,
+          "text": "请不要支付15元，send the report。 继续97",
+          "pcm_bytes": 155200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69233.771,
+          "text": "请不要支付15元，send the report。 继续98",
+          "pcm_bytes": 156800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69233.839,
+          "text": "请不要支付15元，send the report。 继续99",
+          "pcm_bytes": 158400
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 69233.959,
+          "text": "请不要支付15元，send the report。 继续100",
+          "pcm_bytes": 160000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69336.347,
+          "text": "请不要支付15元，send the report。 继续100",
+          "pcm_bytes": 160000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 69336.508,
+          "text": "请不要支付15元，send the report。 继续102",
+          "pcm_bytes": 163200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69336.702,
+          "text": "请不要支付15元，send the report。 继续101",
+          "pcm_bytes": 161600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69441.868,
+          "text": "请不要支付15元，send the report。 继续102",
+          "pcm_bytes": 163200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 69442.039,
+          "text": "请不要支付15元，send the report。 继续104",
+          "pcm_bytes": 166400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69442.214,
+          "text": "请不要支付15元，send the report。 继续103",
+          "pcm_bytes": 164800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 69543.51,
+          "text": "请不要支付15元，send the report。 继续106",
+          "pcm_bytes": 169600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69543.629,
+          "text": "请不要支付15元，send the report。 继续104",
+          "pcm_bytes": 166400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69543.795,
+          "text": "请不要支付15元，send the report。 继续105",
+          "pcm_bytes": 168000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69655.445,
+          "text": "请不要支付15元，send the report。 继续106",
+          "pcm_bytes": 169600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69655.495,
+          "text": "请不要支付15元，send the report。 继续107",
+          "pcm_bytes": 171200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 69655.541,
+          "text": "请不要支付15元，send the report。 继续108",
+          "pcm_bytes": 172800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 69752.559,
+          "text": "请不要支付15元，send the report。 继续110",
+          "pcm_bytes": 176000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69752.657,
+          "text": "请不要支付15元，send the report。 继续108",
+          "pcm_bytes": 172800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69752.844,
+          "text": "请不要支付15元，send the report。 继续109",
+          "pcm_bytes": 174400
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 69853.113,
+          "text": "请不要支付15元，send the report。 继续112",
+          "pcm_bytes": 179200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69853.214,
+          "text": "请不要支付15元，send the report。 继续110",
+          "pcm_bytes": 176000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69853.356,
+          "text": "请不要支付15元，send the report。 继续111",
+          "pcm_bytes": 177600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69960.77,
+          "text": "请不要支付15元，send the report。 继续112",
+          "pcm_bytes": 179200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 69960.812,
+          "text": "请不要支付15元，send the report。 继续113",
+          "pcm_bytes": 180800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 69960.862,
+          "text": "请不要支付15元，send the report。 继续114",
+          "pcm_bytes": 182400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70058.921,
+          "text": "请不要支付15元，send the report。 继续114",
+          "pcm_bytes": 182400
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 70059.05,
+          "text": "请不要支付15元，send the report。 继续116",
+          "pcm_bytes": 185600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70059.289,
+          "text": "请不要支付15元，send the report。 继续115",
+          "pcm_bytes": 184000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 70159.11,
+          "text": "请不要支付15元，send the report。 继续118",
+          "pcm_bytes": 188800
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70159.213,
+          "text": "请不要支付15元，send the report。 继续116",
+          "pcm_bytes": 185600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70159.241,
+          "text": "请不要支付15元，send the report。 继续117",
+          "pcm_bytes": 187200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70265.853,
+          "text": "请不要支付15元，send the report。 继续118",
+          "pcm_bytes": 188800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 70265.942,
+          "text": "请不要支付15元，send the report。 继续120",
+          "pcm_bytes": 192000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70266.054,
+          "text": "请不要支付15元，send the report。 继续119",
+          "pcm_bytes": 190400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70370.05,
+          "text": "请不要支付15元，send the report。 继续120",
+          "pcm_bytes": 192000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70370.09,
+          "text": "请不要支付15元，send the report。 继续121",
+          "pcm_bytes": 193600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 70370.14,
+          "text": "请不要支付15元，send the report。 继续122",
+          "pcm_bytes": 195200
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 70469.942,
+          "text": "请不要支付15元，send the report。 继续124",
+          "pcm_bytes": 198400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70470.061,
+          "text": "请不要支付15元，send the report。 继续122",
+          "pcm_bytes": 195200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70470.104,
+          "text": "请不要支付15元，send the report。 继续123",
+          "pcm_bytes": 196800
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 70570.206,
+          "text": "请不要支付15元，send the report。 继续125",
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70570.301,
+          "text": "请不要支付15元，send the report。 继续124",
+          "pcm_bytes": 198400
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70570.333,
+          "text": "请不要支付15元，send the report。 继续125",
+          "pcm_bytes": 200000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70670.595,
+          "text": "请不要支付15元，send the report。 继续125",
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "qwen.eos",
+          "milliseconds": 70670.664,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "qwen.final",
+          "milliseconds": 70670.699,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.eos",
+          "milliseconds": 70670.939,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.final",
+          "milliseconds": 70671.011,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 70682.0,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 70684.171,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 70688.66,
+          "request": 2
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 70688.838,
+          "response_id": "resp_1_2"
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 70696.099,
+          "connection": 1
+        }
+      ]
+    },
+    "846E8740-E452-45F3-B36C-27149B71DF83": {
+      "connections": [
+        {
+          "provider": "assembly",
+          "pcm_bytes": 200706,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            706
+          ],
+          "eos": true,
+          "closed": true,
+          "sha256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a"
+        },
+        {
+          "provider": "qwen",
+          "pcm_bytes": 200706,
+          "blocks": [
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            2306
+          ],
+          "eos": true,
+          "closed": true,
+          "task_id": "AA315815-0993-4695-AAC4-E425F165ABDA",
+          "sha256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a"
+        },
+        {
+          "provider": "gpt",
+          "closed": true
+        },
+        {
+          "provider": "gpt",
+          "closed": true
+        },
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "6FC5440B-4611-4558-877F-0EAA3009C05C",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 2,
+          "stream_id": "6FC5440B-4611-4558-877F-0EAA3009C05C",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 2,
+          "stream_id": "6FC5440B-4611-4558-877F-0EAA3009C05C",
+          "previous_response_id": "resp_2_2",
+          "reset": false,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 3,
+          "stream_id": "6FC5440B-4611-4558-877F-0EAA3009C05C",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "assembly.connected",
+          "milliseconds": 70720.97
+        },
+        {
+          "event": "qwen.connected",
+          "milliseconds": 70721.359
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70722.495,
+          "text": "请支付15元。",
+          "pcm_bytes": 1600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 70723.241,
+          "text": "请支付50元。",
+          "pcm_bytes": 3200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 70928.311,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 8000
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 70928.396,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 9600
+        },
+        {
+          "event": "gpt.connected",
+          "milliseconds": 71045.83,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 71056.51,
+          "request": 1
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 71066.359,
+          "connection": 1
+        },
+        {
+          "event": "gpt.connected",
+          "milliseconds": 71073.624,
+          "connection": 2
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 71085.069,
+          "request": 2
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 71085.38,
+          "response_id": "resp_2_2"
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 71135.992,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 71244.698,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "qwen.eos",
+          "milliseconds": 77257.782,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "qwen.final",
+          "milliseconds": 77257.831,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.eos",
+          "milliseconds": 77257.929,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.final",
+          "milliseconds": 77257.979,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 77263.568,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 77264.58,
+          "pcm_bytes": 200706
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 77267.828,
+          "request": 3
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 77267.981,
+          "connection": 2
+        },
+        {
+          "event": "gpt.connected",
+          "milliseconds": 77269.439,
+          "connection": 3
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 77269.952,
+          "request": 4
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 77270.167,
+          "response_id": "resp_3_4"
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 77275.15,
+          "connection": 3
+        }
+      ]
+    },
+    "F3EEBB61-A6FE-488E-BD88-9ECB782395D8": {
+      "connections": [
+        {
+          "provider": "assembly",
+          "pcm_bytes": 32000,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600
+          ],
+          "eos": true,
+          "closed": true,
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        },
+        {
+          "provider": "qwen",
+          "pcm_bytes": 32000,
+          "blocks": [
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200
+          ],
+          "eos": true,
+          "closed": true,
+          "task_id": "8DEC6DFB-A3A8-458C-9370-B0EED5AD40E2",
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        },
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "15DF4CAC-B7D4-4290-8798-6703D2D3B228",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "15DF4CAC-B7D4-4290-8798-6703D2D3B228",
+          "previous_response_id": "resp_1_1",
+          "reset": false,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "15DF4CAC-B7D4-4290-8798-6703D2D3B228",
+          "previous_response_id": "resp_1_2",
+          "reset": false,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "15DF4CAC-B7D4-4290-8798-6703D2D3B228",
+          "previous_response_id": "resp_1_3",
+          "reset": false,
+          "candidate_count": 0,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "assembly.connected",
+          "milliseconds": 77290.403
+        },
+        {
+          "event": "qwen.connected",
+          "milliseconds": 77290.582
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 77296.31,
+          "text": "请支付50元。",
+          "pcm_bytes": 3200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 77296.42,
+          "text": "请支付15元。",
+          "pcm_bytes": 1600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 77499.914,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 9600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 77500.051,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 8000
+        },
+        {
+          "event": "gpt.connected",
+          "milliseconds": 77595.941,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 77596.527,
+          "request": 1
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 77596.728,
+          "response_id": "resp_1_1"
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 77700.067,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 77797.918,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 77988.471,
+          "request": 2
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 77988.618,
+          "response_id": "resp_1_2"
+        },
+        {
+          "event": "qwen.eos",
+          "milliseconds": 78290.019,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.final",
+          "milliseconds": 78290.064,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.eos",
+          "milliseconds": 78290.134,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.final",
+          "milliseconds": 78290.177,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 78295.332,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 78296.43,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 78583.036,
+          "request": 3
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 78583.141,
+          "response_id": "resp_1_3"
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 78589.345,
+          "request": 4
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 78589.431,
+          "response_id": "resp_1_4"
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 78593.254,
+          "connection": 1
+        }
+      ]
+    },
+    "A2A7770D-AE85-4191-A925-7294C4BEBC26": {
+      "connections": [
+        {
+          "provider": "qwen",
+          "pcm_bytes": 32000,
+          "blocks": [
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200,
+            3200
+          ],
+          "eos": true,
+          "closed": true,
+          "task_id": "368BA913-22BE-413A-8520-BA9649160BE8",
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        },
+        {
+          "provider": "assembly",
+          "pcm_bytes": 32000,
+          "blocks": [
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600,
+            1600
+          ],
+          "eos": true,
+          "closed": true,
+          "sha256": "b791531a2893f27525e88ceaabf7e3b65e0ef7fc6945be796a10239a3d0a959c"
+        },
+        {
+          "provider": "gpt",
+          "closed": true
+        }
+      ],
+      "gpt_requests": [
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "099A6D63-1130-412F-80AE-D77723E95BB7",
+          "previous_response_id": null,
+          "reset": true,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "099A6D63-1130-412F-80AE-D77723E95BB7",
+          "previous_response_id": "resp_1_1",
+          "reset": false,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "099A6D63-1130-412F-80AE-D77723E95BB7",
+          "previous_response_id": "resp_1_2",
+          "reset": false,
+          "candidate_count": 2,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        },
+        {
+          "transport": "websocket",
+          "connection": 1,
+          "stream_id": "099A6D63-1130-412F-80AE-D77723E95BB7",
+          "previous_response_id": "resp_1_3",
+          "reset": false,
+          "candidate_count": 0,
+          "manifest_count": 2,
+          "model": "gpt-6-astra",
+          "max_output_tokens": 4096
+        }
+      ],
+      "violations": [],
+      "events": [
+        {
+          "event": "qwen.connected",
+          "milliseconds": 78609.832
+        },
+        {
+          "event": "assembly.connected",
+          "milliseconds": 78609.952
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 78614.4,
+          "text": "请支付50元。",
+          "pcm_bytes": 3200
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 78614.508,
+          "text": "请支付15元。",
+          "pcm_bytes": 1600
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 78809.28,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 9600
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 78809.378,
+          "text": "请不要支付15元。",
+          "pcm_bytes": 8000
+        },
+        {
+          "event": "gpt.connected",
+          "milliseconds": 78902.21,
+          "connection": 1
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 78902.705,
+          "request": 1
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 78902.885,
+          "response_id": "resp_1_1"
+        },
+        {
+          "event": "qwen.partial",
+          "milliseconds": 79006.245,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "assembly.partial",
+          "milliseconds": 79107.247,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 16000
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 79303.235,
+          "request": 2
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 79303.385,
+          "response_id": "resp_1_2"
+        },
+        {
+          "event": "assembly.eos",
+          "milliseconds": 79595.24,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.final",
+          "milliseconds": 79595.284,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.eos",
+          "milliseconds": 79595.311,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.final",
+          "milliseconds": 79595.329,
+          "text": "请不要支付15元，send the report。",
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "qwen.closed",
+          "milliseconds": 79601.36,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "assembly.closed",
+          "milliseconds": 79602.48,
+          "pcm_bytes": 32000
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 79893.148,
+          "request": 3
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 79893.263,
+          "response_id": "resp_1_3"
+        },
+        {
+          "event": "gpt.request",
+          "milliseconds": 79896.295,
+          "request": 4
+        },
+        {
+          "event": "gpt.completed",
+          "milliseconds": 79896.478,
+          "response_id": "resp_1_4"
+        },
+        {
+          "event": "gpt.closed",
+          "milliseconds": 79897.346,
+          "connection": 1
+        }
+      ]
+    }
+  }
+}

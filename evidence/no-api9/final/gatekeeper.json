@@ -1,0 +1,40 @@
+{
+  "utc": "2026-11-07T04:53:25.509887+00:00",
+  "source_revision": "dc26fe3c59ba55994d29e99ada8d2f0b49ad9886",
+  "binary_sha256": "cb3b7a38dae90fccd323b57ee746baedbfcb43b457e0b30dbdcbaedffd35ed00",
+  "dmg_sha256": "0bd16e511f3a1cf65a3618443ef3c498ca517786aa4ad07a0226451a0c2b449d",
+  "system_assessment": {
+    "command": [
+      "/usr/sbin/spctl",
+      "--status"
+    ],
+    "exit": 0,
+    "stdout": "assessments enabled",
+    "stderr": ""
+  },
+  "code_integrity": {
+    "command": [
+      "/usr/bin/codesign",
+      "--verify",
+      "--strict",
+      "/Users/hhf/.codex/worktrees/saytile-rc2-neutral/dist/rc2-no-api.9/Saytile.app"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "executable_assessment": {
+    "command": [
+      "/usr/sbin/spctl",
+      "--assess",
+      "--type",
+      "execute",
+      "-vv",
+      "/Users/hhf/.codex/worktrees/saytile-rc2-neutral/dist/rc2-no-api.9/Saytile.app"
+    ],
+    "exit": 3,
+    "stdout": "",
+    "stderr": "/Users/hhf/.codex/worktrees/saytile-rc2-neutral/dist/rc2-no-api.9/Saytile.app: rejected"
+  },
+  "scope": "Read-only Gatekeeper assessment of the exact extracted candidate. No launch via Finder, no quarantine edits, no policy change, no production install. A valid ad-hoc code signature is distinct from authorization to distribute on ordinary Macs."
+}

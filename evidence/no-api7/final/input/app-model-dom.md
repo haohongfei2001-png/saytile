@@ -1,0 +1,5 @@
+# no-api.7 AppModel and headless browser checks
+
+The current AppModel passed 104 checks using an isolated store and injected capture and connection actions. The probe linked the static library built by the fresh full Swift run for `4b97bd89b258fea29a0be61d4bd4c23cb5ab428c`, tree `4aac670d6edfcce0c12ed22fa3cd5c68e66061b9`. `app-model-identity.json` records the source, static library, executable and raw result hashes.
+
+Production Swift coordination, UTF-16 range handling and SQLite reservations passed 20 headless Chromium checks covering textareas and contenteditable targets. The fixture exercised duplicate suppression, suffix-only insertion, selected-text protection, context replacement, navigation and loss of focus. DOM target discovery and editing used the isolated test adapter. The browser launched a fresh context on loopback with no user profile. The browser and the observed Swift probe retained their pre-run hashes. `browser-identity.json`, `dom-binary-identity.json` and `input-browser-dom.log` preserve identities and individual outcomes. Native Accessibility input has its own receipts.

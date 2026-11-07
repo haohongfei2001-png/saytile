@@ -1,0 +1,26 @@
+/Users/hhf/.codex/saytile-single-transcript-20261107/native-probe-repo/Sources/SaytileKit/AudioCapture.swift:413:45: warning: 'audioUnit' was deprecated in macOS 27.0: Deprecated in favor of withAudioUnit [#DeprecatedDeclaration]
+411 |             if resolvedDevice != 0 {
+412 |                 var id = resolvedDevice
+413 |                 guard let audioUnit = input.audioUnit else { throw AudioFailure.message("所选麦克风的音频单元不可用") }
+    |                                             `- warning: 'audioUnit' was deprecated in macOS 27.0: Deprecated in favor of withAudioUnit [#DeprecatedDeclaration]
+414 |                 let result = AudioUnitSetProperty(audioUnit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0, &id, UInt32(MemoryLayout.size(ofValue: id)))
+415 |                 guard result == noErr else { throw AudioFailure.message("所选麦克风不可用，请重新选择") }
+
+/Users/hhf/.codex/saytile-single-transcript-20261107/native-probe-repo/Sources/SaytileKit/AudioCapture.swift:439:19: warning: 'installTap(onBus:bufferSize:format:block:)' was deprecated in macOS 27.0 [#DeprecatedDeclaration]
+437 |             }, failed: { [weak self] message in Task { @MainActor in await self?.suspend(reason: message) } })
+438 |             let channelCount = format.channelCount
+439 |             input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.recording(ring: ring, channels: channelCount))
+    |                   `- warning: 'installTap(onBus:bufferSize:format:block:)' was deprecated in macOS 27.0 [#DeprecatedDeclaration]
+440 |             tapInstalled = true
+441 |             engine.prepare(); try engine.start()
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+/Users/hhf/.codex/saytile-single-transcript-20261107/native-probe-repo/Sources/SaytileKit/AudioDiagnostics.swift:112:15: warning: 'installTap(onBus:bufferSize:format:block:)' was deprecated in macOS 27.0 [#DeprecatedDeclaration]
+110 |         let counter = try AudioProbeCounter()
+111 |         let engine = AVAudioEngine(); let input = engine.inputNode; let format = input.outputFormat(forBus: 0)
+112 |         input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.counting(counter: counter))
+    |               `- warning: 'installTap(onBus:bufferSize:format:block:)' was deprecated in macOS 27.0 [#DeprecatedDeclaration]
+113 |         defer { engine.stop(); input.removeTap(onBus: 0) }
+114 |         try engine.start(); try await Task.sleep(for: .seconds(min(10, max(1, seconds))))
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>

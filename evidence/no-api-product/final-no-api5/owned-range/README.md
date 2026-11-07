@@ -1,0 +1,5 @@
+# Owned-range native inputs
+
+All 9 scenarios passed on `702a24b9767826275f650c70f7e118365601a2a8`. The runner used actual AppKit accessibility setters against its own non-key, non-main fixture and validated the fixture PID, nonce and synthetic text. The retained summary reports unchanged production and test inputs. The native probe, fixture and linked production library had the same hashes before and after execution. [Scenario results](summary.json) · [Binary identities](binary-identities.json) · [Probe log](probe.log)
+
+The focus-change scenario uses the owned window's actual first responder and verified AX identifier through the existing target-selection seam. The production coordinator rejects the changed target on its final snapshot. Production foreground resolution and general foreground focus notifications remain unverified. The runner reported no whole-field writes, clipboard changes, key/Return/send events, replay or owned activation. Its existing AX trust check passed without a prompt, and its fixture processes exited.

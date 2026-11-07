@@ -1,0 +1,58 @@
+Building for production...
+[Planning deferred tasks]
+[15 / 25] CAudio
+[39 / 71] CAudio
+[62 / 71] CAudio
+/Users/hhf/.codex/worktrees/saytile-release-candidate/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[63 / 71] SaytileKit
+[66 / 74] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-release-candidate/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[73 / 78] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-release-candidate/Sources/SaytileApp/AppModel.swift:469:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+461 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+462 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+463 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+464 |             // A cancelled older check must fully close its sockets before another starts.
+465 |             await previous?.value
+    :
+467 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+468 |             do {
+469 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#Implic[75 / 79] Saytile-product
+itStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+470 |                     Task { @MainActor [weak self] in
+471 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+/Users/hhf/.codex/worktrees/saytile-release-candidate/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-release-candidate/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[77 / 79] Saytile-product
+[78 / 79] Saytile-product
+Build complete! (25.95秒)
+/tmp/saytile-bundle.gUqMN2/Saytile.app: replacing existing signature
+/tmp/saytile-bundle.gUqMN2/Saytile.app/Contents/Info.plist: OK
+Built /tmp/saytile-package.lWRTJp/Saytile.app
+created: /Users/hhf/.codex/worktrees/saytile-release-candidate/dist/Saytile-1.0.0-rc.2-no-api.8-arm64.dmghdiutil: WARNING: 'hdiutil create -volname -format ...' is deprecated. Please use 'diskutil image create from/blank --volumeName --format ...' instead.
+
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $6B395864
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $4960FE35
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $0538C082
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $0176E7F0
+正在检查“（Apple_Free：5）”的校验和…
+                      （Apple_Free：5）：已验证CRC32 $00000000
+正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $0538C082
+正在检查“GPT Header（Backup GPT Header：7）”的校验和…
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $7932FAD4
+已验证CRC32 $4EAA15BC
+hdiutil: verify: checksum of "dist/Saytile-1.0.0-rc.2-no-api.8-arm64.dmg" is VALID
+Packaged dist/Saytile-1.0.0-rc.2-no-api.8-arm64.dmg

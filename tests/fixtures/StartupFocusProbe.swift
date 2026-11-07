@@ -20,6 +20,10 @@ import Foundation
         let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
         print(output, terminator: "")
         print("STARTUP_FOCUS_PROBE exit=\(child.terminationStatus) frontmost_unchanged=\(!changed && before == after) no_external_app_content_accessed=true")
-        if child.terminationStatus != 0 || changed || before != after { exit(1) }
+        let entryVerified = output.contains("FOCUS_ENTRY_GEOMETRY valid=true visible=true transparent=true key=false main=false")
+            && output.contains("FOCUS_ENTRY_HIDDEN_WITH_PANEL true")
+        let captureUntouched = output.contains("FOCUS_CAPTURE_UNTOUCHED true")
+        print("STARTUP_ENTRY_PROBE verified=\(entryVerified) capture_not_started=\(captureUntouched)")
+        if child.terminationStatus != 0 || changed || before != after || !entryVerified || !captureUntouched { exit(1) }
     }
 }

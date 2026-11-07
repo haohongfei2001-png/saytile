@@ -1,0 +1,959 @@
+2026-11-06T21:17:53.5045640Z ◇ Test run started.
+2026-11-06T21:17:53.5050540Z ↳ Testing Library Version: 1902
+2026-11-06T21:17:53.5054220Z ↳ Target Platform: arm64e-apple-macos14.0
+2026-11-06T21:17:53.5055130Z ◇ Suite "Persistent single GPT transport, deterministic no-network protocol" started.
+2026-11-06T21:17:53.5057040Z ◇ Suite "Journal range and local candidate integration" started.
+2026-11-06T21:17:53.5057960Z ◇ Suite "Real coordinator with isolated persistence and controlled providers" started.
+2026-11-06T21:17:53.5058590Z ◇ Suite "Speech range aggregation" started.
+2026-11-06T21:17:53.5059080Z ◇ Suite "Input identity and safety" started.
+2026-11-06T21:17:53.5059430Z ◇ Suite "Display geometry" started.
+2026-11-06T21:17:53.5060130Z ◇ Suite "Owned range correction production path with synthetic OS and SQLite" started.
+2026-11-06T21:17:53.5060810Z ◇ Suite "Input coordinator with isolated SQLite and simulated OS" started.
+2026-11-06T21:17:53.5061450Z ◇ Suite "ASR protocol lifecycle and sanitized diagnosis" started.
+2026-11-06T21:17:53.5061990Z ◇ Suite "Real-time tap actor isolation" started.
+2026-11-06T21:17:53.5062330Z ◇ Suite "Capture shutdown tail" started.
+2026-11-06T21:17:53.5064210Z ◇ Suite "Explicit local multi-ASR probe boundaries" started.
+2026-11-06T21:17:53.5065420Z ◇ Suite "English provider wire contracts; no cloud calls" started.
+2026-11-06T21:17:53.5066590Z ◇ Suite "Audio controller shutdown" started.
+2026-11-06T21:17:53.5067110Z ◇ Suite "Storage failure state remains recoverable" started.
+2026-11-06T21:17:53.5067720Z ◇ Suite "RC store ownership, migrations and archive" started.
+2026-11-06T21:17:53.5068170Z ◇ Suite "Recognition setup configuration" started.
+2026-11-06T21:17:53.5069310Z ◇ Suite "Connection authorization, bounded cost and truthful evidence; no network or Keychain" started.
+2026-11-06T21:17:53.5076210Z ◇ Suite "Real URLSession loopback protocol integration" started.
+2026-11-06T21:17:53.5077400Z ◇ Suite "Chunked playback seeking" started.
+2026-11-06T21:17:53.5077940Z ◇ Suite "Fusion store authority and measurement" started.
+2026-11-06T21:17:53.5081340Z ◇ Suite "Single transcript engine configuration" started.
+2026-11-06T21:17:53.5081840Z ◇ Suite "Owned store path boundaries" started.
+2026-11-06T21:17:53.5085730Z ◇ Suite "Evidence-constrained fusion publication" started.
+2026-11-06T21:17:53.5086280Z ◇ Suite "Independent lifecycle stop reasons" started.
+2026-11-06T21:17:53.5087260Z ◇ Suite "Chinese and multilingual provider wire contracts" started.
+2026-11-06T21:17:53.5087910Z ◇ Suite "Isolated connection setup without provider requests" started.
+2026-11-06T21:17:53.5091990Z ◇ Suite "Audio file boundary recovery" started.
+2026-11-06T21:17:53.5094870Z ◇ Suite "Isolated real Keychain credentials" started.
+2026-11-06T21:17:53.5097250Z ◇ Suite "Decoded arbitration response audit" started.
+2026-11-06T21:17:53.5109710Z ◇ Suite "Arbiter evidence and blind acoustic review" started.
+2026-11-06T21:17:53.5113440Z ◇ Suite "Silent production AVAudioPlayer integration" started.
+2026-11-06T21:17:53.5115200Z ◇ Suite "Capture storage failures" started.
+2026-11-06T21:17:53.5115640Z ◇ Suite "Actual current-generation recognition presentation" started.
+2026-11-06T21:17:53.5116150Z ◇ Suite "Saved audio real-time replay" started.
+2026-11-06T21:17:53.5116530Z ◇ Suite "Audio journal, bounded ring and VAD" started.
+2026-11-06T21:17:53.5117020Z ◇ Suite "Parallel audio and precision review boundaries" started.
+2026-11-06T21:17:53.5117640Z ◇ Suite "Production capture to single-core recognition with isolated transports" started.
+2026-11-06T21:17:53.5118390Z ◇ Suite "Capture session ownership across suspension" started.
+2026-11-06T21:17:53.5118950Z ◇ Suite "Automatic cloud outage to durable Apple candidate failover" started.
+2026-11-06T21:17:53.5119830Z ◇ Suite "Meta Muse actual streaming protocol; no cloud calls" started.
+2026-11-06T21:17:53.5120780Z ◇ Test multiLLMCannotGenerateSpliceUnknownTimingOrRemoveProtectedContent() started.
+2026-11-06T21:17:53.5121610Z ◇ Test fusionRevisionChangedEvidenceWaitsWithoutConsumingCursorThenResumes() started.
+2026-11-06T21:17:53.5125700Z ◇ Suite "Recognition settings generation admission" started.
+2026-11-06T21:17:53.5126910Z ◇ Test multiRealTokenAlignmentCanCombineChineseAndEnglishEvidence() started.
+2026-11-06T21:17:53.5128700Z ◇ Test multiLateCorrectionIsArchivedWithoutRedispatchAndRetryKeepsOldCursor() started.
+2026-11-06T21:17:53.5129600Z ◇ Test storeManualInsertionIsExplicitNewOperationEachTime() started.
+2026-11-06T21:17:53.5130330Z ◇ Test storeFreezesClickTextAfterItsVolatileSourceWasPruned() started.
+2026-11-06T21:17:53.5130870Z ◇ Test storeNewAttemptRejectsOldCallback() started.
+2026-11-06T21:17:53.5131320Z ◇ Test storeRejectsSymlinkEscape() started.
+2026-11-06T21:17:53.5132240Z ◇ Test storeEqualTimestampOrderingUsesCreationSequenceForCandidateAndReservation() started.
+2026-11-06T21:17:53.5133110Z ◇ Test multiProtectedSignaturesRecognizeFullWidthAmountsAndKeepSelectedSpelling() started.
+2026-11-06T21:17:53.5133940Z ◇ Test storePendingErasureResumesAfterCrash() started.
+2026-11-06T21:17:53.5134490Z ◇ Test storeUnsavedEditingDraftPersistsAcrossRestartSeparatelyFromTranscript() started.
+2026-11-06T21:17:53.5135360Z ◇ Test storeDirectCandidatesDrainBacklogBeyondLatestThirtyWithoutReplay() started.
+2026-11-06T21:17:53.5139040Z ◇ Test storeBindingSequenceDistinguishesOldAndNewRecordingsAtSameTimestamp() started.
+2026-11-06T21:17:53.5139850Z ◇ Test fusionRevisionCanCorrectOnlyUnreservedSuffixAndPreservesDraft() started.
+2026-11-06T21:17:53.5141780Z ◇ Test multiProtectedSignaturesRecognizeCurlyNegationWithoutRewritingSources() started.
+2026-11-06T21:17:53.5144300Z ◇ Test fusionRevisionReservationArrivingDuringReviewKeepsExternalPrefixImmutable() started.
+2026-11-06T21:17:53.5145360Z ◇ Test storeEarlierTailCannotFollowLaterReservationEvenWhenDeliveryUnverified() started.
+2026-11-06T21:17:53.5146200Z ◇ Test storeInterruptedCaptureAndASRRecover() started.
+2026-11-06T21:17:53.5146700Z ◇ Test storeDispatchUTF16RejectsSurrogateAndGraphemeSplit() started.
+2026-11-06T21:17:53.5147690Z ◇ Test storeDeletingRecordAlsoDeletesDispatchTextSnapshots() started.
+2026-11-06T21:17:53.5149230Z ◇ Test storeRecoveryReconcilesTruncatedDurableAudio() started.
+2026-11-06T21:17:53.5152890Z ◇ Test multiRebasedSelectionPublishesCurrentIDsAndRetainsOriginalReviewAudit() started.
+2026-11-06T21:17:53.5153810Z ◇ Test multiMetaExpertKeepsBilingualCapabilityWithoutInventingWordTiming() started.
+2026-11-06T21:17:53.5154520Z ◇ Test storeCleanupRevalidatesPreview() started.
+2026-11-06T21:17:53.5157680Z ◇ Test fusionRevisionMatchingLegacyHeadAdoptsFusionEvidenceFreshness() started.
+2026-11-06T21:17:53.5158310Z ◇ Test multiCandidatesAreIsolatedAndLegacyCannotPublishFusionTicket() started.
+2026-11-06T21:17:53.5159110Z ◇ Test fusionRevisionLaterEmptyAgreementRevokesEveryUnreservedFinal() started.
+2026-11-06T21:17:53.5162940Z ◇ Test storeAudioDeletionPreservesEveryTextRevision() started.
+2026-11-06T21:17:53.5164640Z ◇ Test fusionRevisionNewAcousticConflictCannotMakeOldAgreementFresh() started.
+2026-11-06T21:17:53.5165240Z ◇ Test multiMetaReviewRetirementDoesNotGrantAcousticCoverage() started.
+2026-11-06T21:17:53.5166220Z ◇ Test storeStorageSummaryUsesActualFiles() started.
+2026-11-06T21:17:53.5166820Z ◇ Test multiUncertainAudioReviewCannotResolveProtectedConflict() started.
+2026-11-06T21:17:53.5167340Z ◇ Test storeChunkUpdatesAreMonotonic() started.
+2026-11-06T21:17:53.5168300Z ◇ Test storeRecoveryRetriesAreBoundedAndSurviveRestart() started.
+2026-11-06T21:17:53.5168830Z ◇ Test multiEmptyReviewSelectionIsAnAbstentionNotFabricatedText() started.
+2026-11-06T21:17:53.5169370Z ◇ Test storeDispatchRestartInvalidatesTargetAndDoesNotReplay() started.
+2026-11-06T21:17:53.5170200Z ◇ Test storeLiveDeletionIsRejected() started.
+2026-11-06T21:17:53.5170920Z ◇ Test multiRunSequenceGenerationAndForgedIdentityAreRejected() started.
+2026-11-06T21:17:53.5171530Z ◇ Test multiStoreDoesNotLetAIBypassAbsentRequiredExpert() started.
+2026-11-06T21:17:53.5172280Z ◇ Test fusionRevisionSupersededUnreservedFinalCannotStillBeDispatched() started.
+2026-11-06T21:17:53.5175760Z ◇ Test storeRecoveryMarksInterruptedBeforeFirstChunkAsMissing() started.
+2026-11-06T21:17:53.5181040Z ◇ Test storeDirectCandidatesIgnoreVolatileAndEmptyFinalText() started.
+2026-11-06T21:17:53.5186280Z ◇ Test storeYieldingRecoveryToCaptureDoesNotConsumeRetryBudget() started.
+2026-11-06T21:17:53.5190220Z ◇ Test storeAudioErasurePreservesDraftAndRecordErasureRemovesIt() started.
+2026-11-06T21:17:53.5191090Z ◇ Test multiTextSelectionPreservesIntentionalRepetitionAndSignalsOmittedTail() started.
+2026-11-06T21:17:53.5191680Z ◇ Test storeLatestStableRevisionSurvivesVolatileUpdate() started.
+2026-11-06T21:17:53.5201290Z ◇ Test multiVolatilePreviewsRemainBoundedButCandidatesAreAuditable() started.
+2026-11-06T21:17:53.5210500Z ◇ Test multiProviderFinalDoesNotOutraceRequiredExpertOrDisagreement() started.
+2026-11-06T21:17:53.5226130Z ◇ Test storeDeletionRemovesUnregisteredCrashTail() started.
+2026-11-06T21:17:53.5226680Z ◇ Test storePersistsAcrossReopen() started.
+2026-11-06T21:17:53.5227250Z ◇ Test multiSuccessiveReviewRunsKeepHistoricalEvidenceWithoutCappingLatest() started.
+2026-11-06T21:17:53.5227990Z ◇ Test storeDispatchRejectsPrefixRewriteAndInvalidatesBinding() started.
+2026-11-06T21:17:53.5228850Z ◇ Test storeDeletedLaterRecordKeepsTextFreeOrderingWatermark() started.
+2026-11-06T21:17:53.5230340Z ◇ Test storeDirectCandidatesIncludeChangedPrefixButSkipDuplicateLatestFinal() started.
+2026-11-06T21:17:53.5231210Z ◇ Test multiAudioEpochDeletionPreservesCandidateAndPublicationHistory() started.
+2026-11-06T21:17:53.5237380Z ◇ Test storeRejectsTraversalAndOtherRecordingOwnership() started.
+2026-11-06T21:17:53.5246890Z ◇ Test fusionRevisionSelectedPrefixRetainsNewlyUnresolvedTailAtStoreBoundary() started.
+2026-11-06T21:17:53.5252630Z ◇ Test fusionRevisionLongestCompatibleBindingPrefixProtectsEveryTarget() started.
+2026-11-06T21:17:53.5256660Z ◇ Test storePartialDraftCountIsBoundedAndFinalImmutable() started.
+2026-11-06T21:17:53.5257980Z ◇ Test storeRecognitionPreservesSelectedUserEdit() started.
+2026-11-06T21:17:53.5258810Z ◇ Test multiOlderReviewCannotPinTheGrowingLivePreview() started.
+2026-11-06T21:17:53.5280470Z ◇ Test multiRebaseRejectsChangedSelectedWordChangedAlternativeAndRestartedRun() started.
+2026-11-06T21:17:53.5285670Z ◇ Test storeDeferredStatusOnlyMarksUndispatchedEarlierFinalSuffix() started.
+2026-11-06T21:17:53.5286450Z ◇ Test multiNewGenerationMayCorrectUnsentCompleteVersion() started.
+2026-11-06T21:17:53.5287260Z ◇ Test multiRestartRetainsEvidenceAndInvalidatesOldCallbacks() started.
+2026-11-06T21:17:53.5290830Z ◇ Test storeAudioLeaseDefersPhysicalErasure() started.
+2026-11-06T21:17:53.5295120Z ◇ Test storeEmptyDraftAndExplicitDiscardRemainDistinct() started.
+2026-11-06T21:17:53.5305990Z ◇ Test storeFiltersBeforePagination() started.
+2026-11-06T21:17:53.5306660Z ◇ Test storeDelayedEarlierSpeechIsDeferredWithoutBlockingLaterSpeech() started.
+2026-11-06T21:17:53.5313840Z ◇ Test multiWordTimestampsMapLiteralWordsAcrossProviderSpacing() started.
+2026-11-06T21:17:53.5315600Z ◇ Test storeCompletedTombstoneCleansResidualFilesOnRecovery() started.
+2026-11-06T21:17:53.5316650Z ◇ Test multiRebaseRejectsNewAcousticSourceAndUnalignedGrowingSelection() started.
+2026-11-06T21:17:53.5343590Z ◇ Test multiRebaseAllowsNewIDsWithIdenticalEvidence() started.
+2026-11-06T21:17:53.5345400Z ◇ Test storeMissingAudioStatePreservesTextAndRejectsStaleASR() started.
+2026-11-06T21:17:53.5349560Z ◇ Test storeDispatchOnlyNewStableSuffixAndNeverDuplicate() started.
+2026-11-06T21:17:53.5352940Z ◇ Test storeDispatchUnverifiedDoesNotBlockIndependentSegment() started.
+2026-11-06T21:17:53.5353670Z ◇ Test multiUTF16UsesGraphemesAndDoesNotCommitPartialNumbers() started.
+2026-11-06T21:17:53.5354410Z ◇ Test multiUncertainAndEmptyAudioReviewsDoNotOverrideUsablePreviewOrLoseUncertainty() started.
+2026-11-06T21:17:53.5355360Z ◇ Test multiRebaseAcceptsUntouchedTimedPrefixWhileNewCriticalTailArrives() started.
+2026-11-06T21:17:53.5356100Z ◇ Test multiVerifiedPrefixCanPublishWhileAIReportsRemainingTail() started.
+2026-11-06T21:17:53.5356730Z ◇ Test storePreservesEmbeddedNULInEditedText() started.
+2026-11-06T21:17:53.5357390Z ◇ Test multiCriticalNumericPrefixStillConflictsWithLongerNumber() started.
+2026-11-06T21:17:53.5361140Z ◇ Test fusionRevisionSameProposalAfterRetiredReviewRefreshesEvidenceWithoutNewText() started.
+2026-11-06T21:17:53.5362400Z ◇ Test storeRecoveryQueueDoesNotStarveBeyondOldestHundred() started.
+2026-11-06T21:17:53.5363170Z ◇ Test fusionRevisionFinalReviewCanCorrectSameGenerationBeforeAnyDispatch() started.
+2026-11-06T21:17:53.5363890Z ◇ Test storeCleanupProtectsPinnedFailedAndActive() started.
+2026-11-06T21:17:53.5364380Z ◇ Test storeSearchEscapesLikeAndBindsSQL() started.
+2026-11-06T21:17:53.5364980Z ◇ Test storeMultipleFinalRangesCompleteOnlyAfterDrain() started.
+2026-11-06T21:17:53.5366370Z ◇ Test storeRecordDeletionRemovesTextAndSearch() started.
+2026-11-06T21:17:53.5367080Z ◇ Test multiUserEditAndUnsavedDraftRemainSelected() started.
+2026-11-06T21:17:53.5367860Z ◇ Test storeFrozenClickSnapshotSurvivesPartialPruningWithoutChangingPreferred() started.
+2026-11-06T21:17:53.5368870Z ◇ Test storeLateRecognitionCannotResurrectDeletedAudio() started.
+2026-11-06T21:17:53.5369550Z ◇ Test cacheMissReplaysFullAuthoritativeManifestOnce() started.
+2026-11-06T21:17:53.5370510Z ◇ Test explicitCancelPreventsFutureRequests() started.
+2026-11-06T21:17:53.5371040Z ◇ Test oldResponseIdentityIsIgnored() started.
+2026-11-06T21:17:53.5371770Z ◇ Test terminalFailuresAndBufferLimitCannotPublish(behavior:) started.
+2026-11-06T21:17:53.5373220Z ◇ Test unsupportedSocketFallsBackOnlyToSameConfiguredGPT() started.
+2026-11-06T21:17:53.5374740Z ◇ Test persistentLaneUsesLineageAndManifestDeltasNeverPartialJSON() started.
+2026-11-06T21:17:53.5378520Z ◇ Test timeoutClosesSocketAndDoesNotUseFallback() started.
+2026-11-06T21:17:53.5379410Z ◇ Test credentialAndConfigurationChangesInvalidateConnectionCache() started.
+2026-11-06T21:17:53.5381140Z ◇ Test multiNonRetryableProviderDoesNotStopOtherRunAndUsagePersists() started.
+2026-11-06T21:17:53.5383520Z ◇ Test rejectsChangedFilesAndRetiredTickets(reason:) started.
+2026-11-06T21:17:53.5392180Z ◇ Test offlineEvidenceUsesCandidatePublicationAndProtectsUserDraft() started.
+2026-11-06T21:17:53.5394160Z ◇ Test exactDurableRangeCrossesChunksAfterTwelveMBWithoutLifetimeBuffer() started.
+2026-11-06T21:17:53.5395780Z ◇ Test legacyFastModeCannotBypassMandatoryGPTReview() started.
+2026-11-06T21:17:53.5396510Z ◇ Test blockedGPTDoesNotSpinOrCertifyAgreeingExperts() started.
+2026-11-06T21:17:53.5397250Z ◇ Test rejectedArbitrationRetainsDecodedResponseWithoutPublishingIt() started.
+2026-11-06T21:17:53.5397890Z ◇ Test mandatoryFinalGPTReviewWaitsEvenWhenExpertsAgree(simultaneous:) started.
+2026-11-06T21:17:53.5403390Z ◇ Test alignmentOnlyEvidenceChangeCanRetryWhileDuplicateCallbacksCoalesce() started.
+2026-11-06T21:17:53.5404510Z ◇ Test failedExpertDoesNotStopOtherAudioOrDestroyOriginal() started.
+2026-11-06T21:17:53.5406770Z ◇ Test cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) started.
+2026-11-06T21:17:53.5407590Z ◇ Test cancellationWaitsForIndependentLiveReviewToExit() started.
+2026-11-06T21:17:53.5408770Z ◇ Test finalReviewRunsAgainAfterLiveReview(appendMore:) started.
+2026-11-06T21:17:53.5411030Z ◇ Test identicalAudioWaitsForBothExpertsBeforeQualityPublication() started.
+2026-11-06T21:17:53.5412430Z ◇ Test audioDeletionInvalidatesEpochBeforeLateCallbacks() started.
+2026-11-06T21:17:53.5413510Z ◇ Test cancellationRejectsInFlightCallbacksWithoutErasingAudio() started.
+2026-11-06T21:17:53.5414220Z ◇ Test finalizationWatermarkStabilizesEarlierVolatileTextWithoutRepeat() started.
+2026-11-06T21:17:53.5415270Z ◇ Test laterFinalDoesNotSkipEarlierVolatileRange() started.
+2026-11-06T21:17:53.5415740Z ◇ Test invalidRangesDoNotLoseValidText() started.
+2026-11-06T21:17:53.5424650Z ◇ Test finalizationWatermarkNeverRewindsOrPromotesBeyondCoverage() started.
+2026-11-06T21:17:53.5426130Z ◇ Test revisingRangeReplacesInsteadOfDuplicating() started.
+2026-11-06T21:17:53.5426660Z ◇ Test mergedRangeReplacesAllOverlaps() started.
+2026-11-06T21:17:53.5427480Z ◇ Test finalPrefixAdvancesWhileTailIsVolatile() started.
+2026-11-06T21:17:53.5428110Z ◇ Test panelFitsOffsetAndCompactDisplays() started.
+2026-11-06T21:17:53.5428740Z ◇ Test keepsWindowOnDisplayWithLargestOverlap() started.
+2026-11-06T21:17:53.5429400Z ◇ Test disconnectedDisplayRestoresToRemainingScreen() started.
+2026-11-06T21:17:53.5433170Z ◇ Test testnoSelectedReplacement() started.
+2026-11-06T21:17:53.5440120Z ◇ Test testunidentifiableWebPageRejected() started.
+2026-11-06T21:17:53.5441260Z ◇ Test testpasswordsTerminalsAndEmbeddedTerminalBlocked() started.
+2026-11-06T21:17:53.5447990Z ◇ Test testreusedEditorDoesNotMakeSamePage() started.
+2026-11-06T21:17:53.5449000Z ◇ Test testcursorMovementMakesBindingStale() started.
+2026-11-06T21:17:53.5453500Z ◇ Test testtimeoutIsUncertainAndNeverRetried() started.
+2026-11-06T21:17:53.5454240Z ◇ Test sameURLReusedWebEditorLayoutExpiresBinding() started.
+2026-11-06T21:17:53.5454970Z ◇ Test injectedWorkspaceActivationExpiresBindingWithoutChangingFakeSnapshot() started.
+2026-11-06T21:17:53.5455580Z ◇ Test lostLocalReadCapabilityStopsNextAppend() started.
+2026-11-06T21:17:53.5456340Z ◇ Test slowAcknowledgementIsConfirmedWithoutResending() started.
+2026-11-06T21:17:53.5460290Z ◇ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() started.
+2026-11-06T21:17:53.5497650Z ◇ Test failedFusionExpertPreventsStaleExternalAttemptWithoutBlockingNextSpeech() started.
+2026-11-06T21:17:53.5500230Z ◇ Test lateEarlierRecordingIsDeferredWithoutBlockingNextSpeech() started.
+2026-11-06T21:17:53.5520230Z ◇ Test v3MigrationPreservesLedgerAndInvalidatesOnlyRuntimeOwnership() started.
+2026-11-06T21:17:53.5521310Z ◇ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() started.
+2026-11-06T21:17:53.5522140Z ◇ Test userSelectionDuringConfirmationStopsBinding() started.
+2026-11-06T21:17:53.5522770Z ◇ Test cancellationBeforeStartDoesNotWrite() started.
+2026-11-06T21:17:53.5523350Z ◇ Test unobservableWebOnlyAllowsExplicitManualInsertion() started.
+2026-11-06T21:17:53.5529930Z ◇ Test mutationOfConfirmedTailStopsNextAppend() started.
+2026-11-06T21:17:53.5603500Z ◇ Test cancellationDuringReservationNeverReachesAX() started.
+2026-11-06T21:17:53.5607030Z ◇ Test teststableSuffixOnlyOnce() started.
+2026-11-06T21:17:53.5607780Z ◇ Test cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+2026-11-06T21:17:53.5609920Z ◇ Test testchangedPageStopsBeforeDispatch() started.
+2026-11-06T21:17:53.5610500Z ◇ Test testunavailablePermissionHasNoPromptOrSideEffect() started.
+2026-11-06T21:17:53.5610970Z ◇ Test productionFusionPublicationReachesIncrementalCoordinatorOnce() started.
+2026-11-06T21:17:53.5611560Z ◇ Test lateTailCannotBeAppendedAfterAnotherRecording() started.
+2026-11-06T21:17:53.5612440Z ◇ Test incompleteSemanticContextRejectsContinuousButKeepsManual() started.
+2026-11-06T21:17:53.5613700Z ◇ Test ownInsertionNotificationKeepsContinuousBinding() started.
+2026-11-06T21:17:53.5616190Z ◇ Test focusAwayAndBackExpiresBinding() started.
+2026-11-06T21:17:53.5619600Z ◇ Test durableReservationPrecedesSelectedRangeAndInvalidationPreventsTextSetter() started.
+2026-11-06T21:17:53.5620350Z ◇ Test crashAfterReservationIsUnverifiedAndCannotReserveAgain() started.
+2026-11-06T21:17:53.5621850Z ◇ Test testexistingSpeechNeverAutomaticallyReplayed() started.
+2026-11-06T21:17:53.5623270Z ◇ Test unconfirmedInitialInsertionCannotCreateOwnershipAndDoesNotBlockNewRecord() started.
+2026-11-06T21:17:53.5628470Z ◇ Test incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+2026-11-06T21:17:53.5631160Z ◇ Test realGPTCoreFinalizationPublishesActionableCorrectionFromFakeProviders() started.
+2026-11-06T21:17:53.5633340Z ◇ Test localRecoveryAfterShorteningRepairKeepsEffectivePrefixAndAddsOnlySuffix() started.
+2026-11-06T21:17:53.5635760Z ◇ Test uncertainReplacementConsumedOnceAndRestartCannotReplay() started.
+2026-11-06T21:17:53.5665480Z ◇ Test lengthChangingRepairPreservesUserPrefixSuffixAndAppendsOnlyNewSuffix() started.
+2026-11-06T21:17:53.5666410Z ◇ Test laterInsertionDefersEarlierCorrectionWithoutGlobalBlock() started.
+2026-11-06T21:17:53.5667090Z ◇ Test deleteAudioKeepsCorrectionHistoryButDeleteRecordErasesIt() started.
+2026-11-06T21:17:53.5667710Z ◇ Test shorterRepairKeepsInsertionLedgerMonotone() started.
+2026-11-06T21:17:53.5668150Z ◇ Test changedTargetNeverMutated(change:) started.
+2026-11-06T21:17:53.5669480Z ◇ Test contextualGraphemeBoundariesAndByteIdentityAreMandatory() started.
+2026-11-06T21:17:53.5670020Z ◇ Test userEditAndUndoStillInvalidatesOwnership() started.
+2026-11-06T21:17:53.5671170Z ◇ Test unsupportedReplacementPendingDoesNotBlockIndependentRecord() started.
+2026-11-06T21:17:53.5671910Z ◇ Test newerEvidenceRevokesStaleCorrectionEvenBeforePublication() started.
+2026-11-06T21:17:53.5672380Z ◇ Test invalidJSONAlwaysHasSafeProtocolDiagnosis() started.
+2026-11-06T21:17:53.5677330Z ◇ Test assemblyFinalCannotRegressToLatePartialOrConflictingFinal() started.
+2026-11-06T21:17:53.5678100Z ◇ Test qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+2026-11-06T21:17:53.5678670Z ◇ Test qwenFinalCannotRegressToLatePartialOrConflictingFinal() started.
+2026-11-06T21:17:53.5679670Z ◇ Test beginCannotConfirmAnUnidentifiedAssemblySession() started.
+2026-11-06T21:17:53.5680620Z ◇ Test qwenMissingSentenceCannotClaimStableOrCompletedText() started.
+2026-11-06T21:17:53.5681740Z ◇ Test qwenConsentMustBePresentAtTheProductionNetworkBoundary() started.
+2026-11-06T21:17:53.5682750Z ◇ Test loopbackEndpointCannotExportCredentialsOrOverrideOfficialModelQuery() started.
+2026-11-06T21:17:53.5683440Z ◇ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+2026-11-06T21:17:53.5684030Z ◇ Test qwenZeroIdentifierIsOnlyValidForAHeartbeat() started.
+2026-11-06T21:17:53.5684670Z ◇ Test recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt(expected:actual:) started.
+2026-11-06T21:17:53.5685830Z ◇ Test recordingTapRejectsChangedSampleRateBeforeOldConverterReadsIt() started.
+2026-11-06T21:17:53.5686770Z ◇ Test finishDoesNotSaveStandbySilenceAsSpeech() started.
+2026-11-06T21:17:53.5687140Z ◇ Test finishFlushesSubVADFrameTailOfActiveSpeech() started.
+2026-11-06T21:17:53.5687630Z ◇ Test countOnlyTapNeverReadsSampleDataAndRunsOffMain() started.
+2026-11-06T21:17:53.5688240Z ◇ Test recordingTapCreatedOnMainActorRunsOnBackgroundThread() started.
+2026-11-06T21:17:53.5690250Z ◇ Test singleExpertBaselineIsExplicitAndCannotBypassConsentOrRoleValidation() started.
+2026-11-06T21:17:53.5691320Z ◇ Test rejectsDisabledCloudMissingConsentAndInvalidWAVWithoutCreatingRecords() started.
+2026-11-06T21:17:53.5692450Z ◇ Test exportingEmptyRecordCannotInventLatencyAccuracyOrUsage() started.
+2026-11-06T21:17:53.5693070Z ◇ Test sourceHashCoversEntireDeclaredFixtureAndModeIsNotDisguised() started.
+2026-11-06T21:17:53.5693830Z ◇ Test exportsPersistedGenerationTerminalAndExactConfigurationWithoutInventingSessionCompletion() started.
+2026-11-06T21:17:53.5697360Z ◇ Test invalidModelOrRequestErrorsAreSanitizedAndNotRetried() started.
+2026-11-06T21:17:53.5697980Z ◇ Test unsupportedRealtimeChoiceIsHiddenAndCannotStart() started.
+2026-11-06T21:17:53.5698420Z ◇ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() started.
+2026-11-06T21:17:53.5698890Z ◇ Test missingOrUnfinishedEarlierTurnBlocksStablePrefix() started.
+2026-11-06T21:17:53.5699450Z ◇ Test assemblyChecksTheServersAppliedModelAndAccuracyMode() started.
+2026-11-06T21:17:53.5701020Z ◇ Test unmatchedFormattedWordsDowngradeTimingWithoutLosingText() started.
+2026-11-06T21:17:53.5702770Z ◇ Test badPCMCannotSilentlyBecomeAnAudioRequest() started.
+2026-11-06T21:17:53.5704350Z ◇ Test assemblyReplacesTurnAndPreservesNegationNumbersUnicodeAndRawConfidence() started.
+2026-11-06T21:17:53.5705680Z ◇ Test intentionalRepeatedTurnsAreNotDeduplicated() started.
+2026-11-06T21:17:53.5708140Z ◇ Test cloudPermissionAndCredentialValidationHappenBeforeNetworking() started.
+2026-11-06T21:17:53.5709880Z ◇ Test fileRequestsContainBinaryMultipartAndProviderSpecificAuthentication() started.
+2026-11-06T21:17:53.5712310Z ◇ Test punctuationIsCopiedFromTranscriptWithoutInventingAudioTime() started.
+2026-11-06T21:17:53.5714150Z ◇ Test assemblyUsesExplicitStreamingModelAndHeaderAuthentication() started.
+2026-11-06T21:17:53.5716340Z ◇ Test fileResultsKeepWordsInSecondsAndDoNotFabricateConfidence() started.
+2026-11-06T21:17:53.5717280Z ◇ Test intactReadOnlyAudioNeedsNoRepairWritePermission() started.
+2026-11-06T21:17:53.5723280Z ◇ Test malformedWordTimesAreNeverInvented() started.
+2026-11-06T21:17:53.5724920Z ◇ Test transientHeaderRepairFailureDoesNotPermanentlyDiscardReadableOriginal() started.
+2026-11-06T21:17:53.5725870Z ◇ Test interruptedIndexUpdateKeepsOriginalAndRetriesAfterReopen() started.
+2026-11-06T21:17:53.5727700Z ◇ Test inaccessiblePendingDeletionDoesNotBlockStartupOrIndependentRecords() started.
+2026-11-06T21:17:53.5728420Z ◇ Test inaccessibleRecordingDirectoryDoesNotBlockIndependentRecovery() started.
+2026-11-06T21:17:53.5731770Z ◇ Test pendingDeletionDatabaseFailureStillStopsStartupAndCanRetry() started.
+2026-11-06T21:17:53.5732450Z ◇ Test recordingAndRunTerminalChangesRollbackTogether(markMissing:) started.
+2026-11-06T21:17:53.5733680Z ◇ Test inaccessibleAudioParentNeverCertifiesPendingOrResidualErasure(completed:) started.
+2026-11-06T21:17:53.5734530Z ◇ Test unformattedFinalDoesNotClaimFormattedTurnCompletion() started.
+2026-11-06T21:17:53.5735350Z ◇ Test assemblyPartialUsesOnlyContiguousFinalWordsAndPreservesSeparators() started.
+2026-11-06T21:17:53.5736030Z ◇ Test secondOwnerCannotInvalidateActiveRecording() started.
+2026-11-06T21:17:53.5736910Z ◇ Test sqliteFullRollsBackWholeTransaction() started.
+2026-11-06T21:17:53.5737500Z ◇ Test panelIncludesAllSessionPagesAndExplicitHistoryOnlyOnce() started.
+2026-11-06T21:17:53.5738070Z ◇ Test futureDatabaseRefusedWithoutChangingJournalOrBytes() started.
+2026-11-06T21:17:53.5738670Z ◇ Test failedMigrationRollsBackAllDDLAndKeepsVersion() started.
+2026-11-06T21:17:53.5740560Z ◇ Test draftSearchAndHistorySurviveAudioErasure() started.
+2026-11-06T21:17:53.5742000Z ◇ Test corruptRowReturnsErrorInsteadOfCrashing() started.
+2026-11-06T21:17:53.5742840Z ◇ Test sqliteNumericRoundTripsPreserveFullPrecision() started.
+2026-11-06T21:17:53.5745040Z ◇ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() started.
+2026-11-06T21:17:53.5745920Z ◇ Test defaultsIncludeTwoExpertsAndOneCoreAndKeepOptionalExpertsOffAndConsentOff() started.
+2026-11-06T21:17:53.5748050Z ◇ Test settingsRoundTripRetainsStableIDsAndNeverContainsCredentialBytes() started.
+2026-11-06T21:17:53.5749240Z ◇ Test providerChangeKeepsCredentialIdentityButResetsAuthorizationRegionAndCharges() started.
+2026-11-06T21:17:53.5750060Z ◇ Test arbitraryUnderlyingErrorDoesNotLeakItsDescriptionIntoReports() started.
+2026-11-06T21:17:53.5750630Z ◇ Test emptyOrIncompleteReportNeverAuthorizesCloud() started.
+2026-11-06T21:17:53.5751560Z ◇ Test rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+2026-11-06T21:17:53.5754310Z ◇ Test deadlineAndExplicitCancellationEndOwnedProviders() started.
+2026-11-06T21:17:53.5756020Z ◇ Test fastPartialReviewsCannotConsumeFinalConfirmationBudget(withRetrySeries:) started.
+2026-11-06T21:17:53.5757050Z ◇ Test oneProviderFailureDoesNotEraseHealthyProviderStatus() started.
+2026-11-06T21:17:53.5757910Z ◇ Test completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) started.
+2026-11-06T21:17:53.5759350Z ◇ Test missingCredentialFailsOnlyThatServiceWithoutConnectingOthers() started.
+2026-11-06T21:17:53.5760190Z ◇ Test identityChangesInvalidateButOfflineSwitchAndLocalTopicDoNot() started.
+2026-11-06T21:17:53.5763470Z ◇ Test atomicBudgetAllowsExactlySixEvenWhenContended() started.
+2026-11-06T21:17:53.5765370Z ◇ Test alreadyCancelledAttemptDoesNotReadCredentials() started.
+2026-11-06T21:17:53.5767010Z ◇ Test twoProductionASRClientsReceiveIdenticalWholePCMAndEOS() started.
+2026-11-06T21:17:53.5768860Z ◇ Test HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+2026-11-06T21:17:53.5770290Z ◇ Test cancellingActualGPTSocketClosesPeerBeforeAnyFinalSelection() started.
+2026-11-06T21:17:53.5772350Z ◇ Test stalePartialReviewDoesNotInvalidateLaterAcceptedFinal() started.
+2026-11-06T21:17:53.5775770Z ◇ Test productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS(fault:) started.
+2026-11-06T21:17:53.5776930Z ◇ Test unsupportedGPTWebSocketUsesSameModelProductionHTTPStreamingClient() started.
+2026-11-06T21:17:53.5777620Z ◇ Test networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.5784510Z ◇ Test repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+2026-11-06T21:17:53.5787340Z ◇ Test GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+2026-11-06T21:17:53.5788320Z ◇ Test persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+2026-11-06T21:17:53.5789540Z ◇ Test invalidConnectionCheckBudgetFailsBeforeOpeningSocket(cap:) started.
+2026-11-06T21:17:53.5790650Z ◇ Test actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) started.
+2026-11-06T21:17:53.5791490Z ◇ Test configuredSamePurposeExpertCannotBeSilentlyOmittedByAgreementOrSelection() started.
+2026-11-06T21:17:53.5792550Z ◇ Test submittedAudioProgressIsMeasuredMetadataAndRejectsNonfiniteValues() started.
+2026-11-06T21:17:53.5794070Z ◇ Test failedRequiredRunCannotKeepItsOldAgreementDispatchableOrBlockSafeRetraction() started.
+2026-11-06T21:17:53.5795100Z ◇ Test requirementsAreFrozenBeforeProviderAttemptsAndCannotBeDowngraded() started.
+2026-11-06T21:17:53.5796330Z ◇ Test actualTerminalTimeIsGenerationSpecificDurableAndNeverBackfilledFromRestart() started.
+2026-11-06T21:17:53.5797140Z ◇ Test clampsEndAndRejectsInvalidDurations() started.
+2026-11-06T21:17:53.5797810Z ◇ Test explicitSingleExpertDiagnosticUsesItsActualIdentityWithoutFakeSecondRole() started.
+2026-11-06T21:17:53.5799530Z ◇ Test seeksAcrossOriginalChunkBoundaries() started.
+2026-11-06T21:17:53.5800900Z ◇ Test defaultsAreTwoEqualExpertsAndExactlyOneGPT6Core() started.
+2026-11-06T21:17:53.5802250Z ◇ Test multilingualSingleExpertUsesSameCore() started.
+2026-11-06T21:17:53.5803470Z ◇ Test legacySettingsMigrationDisablesSecondStageModelsAndKeepsGPTIdentity() started.
+2026-11-06T21:17:53.5804230Z ◇ Test singleExpertAblationStillRequiresTheSameGPTCore() started.
+2026-11-06T21:17:53.5804950Z ◇ Test thirdASRIsAllowedAsAnEvidenceSource() started.
+2026-11-06T21:17:53.5805730Z ◇ Test migrationIsIdempotentAndNeverReplacesCustomModelOrGrantsConsent() started.
+2026-11-06T21:17:53.5806960Z ◇ Test legacySeparateAudioAndFinalModelsCannotJoinTheDefaultChain() started.
+2026-11-06T21:17:53.5807590Z ◇ Test exactlyOneGPTCoreIsMandatory() started.
+2026-11-06T21:17:53.5808180Z ◇ Test audioRootSymlinkIsRejectedWithoutTouchingDestination() started.
+2026-11-06T21:17:53.5808920Z ◇ Test databaseSymlinkIsRejectedWithoutModifyingExternalFile() started.
+2026-11-06T21:17:53.5809620Z ◇ Test missingSecondExpertWithTheSamePurposeCannotCountAsFullCoverage() started.
+2026-11-06T21:17:53.5810800Z ◇ Test requiredExpertFromAnotherGenerationCannotSatisfyEvidenceCoverage() started.
+2026-11-06T21:17:53.5811620Z ◇ Test absentRequiredExpertNeverErasesAnAlreadyDispatchedPrefix() started.
+2026-11-06T21:17:53.5812190Z ◇ Test lockedAtLaunchCannotCapture() started.
+2026-11-06T21:17:53.5812780Z ◇ Test completeShortReviewDoesNotDeclareLongerLiveUtteranceResolved() started.
+2026-11-06T21:17:53.5813570Z ◇ Test utteranceOnlyAllowsWholeSelectionButNeverCharacterSplicing() started.
+2026-11-06T21:17:53.5814200Z ◇ Test wakeDoesNotOverrideLockOrSessionSwitch() started.
+2026-11-06T21:17:53.5814780Z ◇ Test permissionResetWhileCapturingStillRequiresSuspension() started.
+2026-11-06T21:17:53.5817410Z ◇ Test wholeUtteranceSelectionStillCannotResolveUnsupportedNegation() started.
+2026-11-06T21:17:53.5818390Z ◇ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() started.
+2026-11-06T21:17:53.5819830Z ◇ Test unknownSessionOrUntrustedUnlockCannotResume() started.
+2026-11-06T21:17:53.5822400Z ◇ Test longerSilentCoverageDoesNotInventAnUnresolvedTextTail() started.
+2026-11-06T21:17:53.5823440Z ◇ Test fullyStableMetaTurnStillCannotTurnProcessingProgressIntoAcousticCoverage() started.
+2026-11-06T21:17:53.5824740Z ◇ Test initialPermissionPromptDoesNotCancelPendingStart() started.
+2026-11-06T21:17:53.5825510Z ◇ Test emptyCommonPrefixWaitsThenWholeSentenceSelectionActuallyPublishes() started.
+2026-11-06T21:17:53.5826390Z ◇ Test sonioxControlTokensAndMissingTimeCannotBecomeSpokenEvidence() started.
+2026-11-06T21:17:53.5828010Z ◇ Test qwenMissingPartialTimeDoesNotFabricateWordAlignment() started.
+2026-11-06T21:17:53.5829210Z ◇ Test sonioxAppendsFinalsButReplacesNonfinalTail() started.
+2026-11-06T21:17:53.5831940Z ◇ Test qwenStashAndHeartbeatAreNotDuplicateSentences() started.
+2026-11-06T21:17:53.5845810Z ◇ Test qwenCumulativeWindowStartsAtZeroAfterLeadingSilence() started.
+2026-11-06T21:17:53.5846440Z ◇ Test sonioxCumulativeWindowStartsAtZeroAfterLeadingSilence() started.
+2026-11-06T21:17:53.5848040Z ◇ Test qwenRealWordsPreserveTermBoundariesAndExactSentenceLayout() started.
+2026-11-06T21:17:53.5850830Z ◇ Test qwenRevisionReplacesSentenceAndPreservesUTF16Evidence() started.
+2026-11-06T21:17:53.5854360Z ◇ Test qwenRejectsWrongGenerationAndIncompleteFinal() started.
+2026-11-06T21:17:53.5855740Z ◇ Test providerErrorsAreRedactedAndUntranslated() started.
+2026-11-06T21:17:53.5856980Z ◇ Test qwenMisalignedOrInvalidWordsFallBackWithoutDroppingNegation() started.
+2026-11-06T21:17:53.5858400Z ◇ Test sonioxUsesHeaderAuthRawPCMAndNonrestrictiveLanguageHints() started.
+2026-11-06T21:17:53.5859770Z ◇ Test qwenRequestUsesRegionalWorkspaceAndExplicitPartials() started.
+2026-11-06T21:17:53.5861880Z ◇ Test productionTreeIsRejectedWithoutTouchingIt() started.
+2026-11-06T21:17:53.5863140Z ◇ Test unappliedMissingConsentMissingKeysAndWrongCoreCannotExport() started.
+2026-11-06T21:17:53.5864680Z ◇ Test existingDataAndExternalOutputAreRejectedBeforeStore() started.
+2026-11-06T21:17:53.5866390Z ◇ Test syntheticMetadataExportsAppliedConfigurationOnceWithoutSecretValues() started.
+2026-11-06T21:17:53.5868020Z ◇ Test recordDirectorySymlinkCannotCreateFileOutsideAudioRoot() started.
+2026-11-06T21:17:53.5869720Z ◇ Test oversizedSparseWAVIsRejectedBeforeHeaderConversion() started.
+2026-11-06T21:17:53.5870310Z ◇ Test invalidReplacementNeverErasesStoredDummyCredential() started.
+2026-11-06T21:17:53.5871200Z ◇ Test createReplaceReadDeleteKeepsAccountProviderAndServiceIsolation() started.
+2026-11-06T21:17:53.5872050Z ◇ Test rejectedResponseAndRequestSnapshotSurviveRestartWithoutPublishing() started.
+2026-11-06T21:17:53.5872790Z ◇ Test wholeRecordDeletionErasesResponseAndBlocksLateAuditResurrection() started.
+2026-11-06T21:17:53.5873340Z ◇ Test oldUsagePayloadWithoutAuditStillDecodes() started.
+2026-11-06T21:17:53.5875850Z ◇ Test deletingOnlyAudioPreservesDecodedResponseAndUsage() started.
+2026-11-06T21:17:53.5876550Z ◇ Test abstentionAndRefusalCannotMasqueradeAsConfirmedText() started.
+2026-11-06T21:17:53.5877330Z ◇ Test externalPrefixIsAConstraintAndNeverAnAcousticVote() started.
+2026-11-06T21:17:53.5878860Z ◇ Test blindAudioRequestRejectsConsentPurposeCredentialAndRegionMismatch() started.
+2026-11-06T21:17:53.5879520Z ◇ Test completeProvenanceAndAllTokensReachArbiter() started.
+2026-11-06T21:17:53.5880060Z ◇ Test blindAudioReviewUsesOnlyFixedInstructionsAndExactPCM() started.
+2026-11-06T21:17:53.5880650Z ◇ Test finalASRRejectsWordTimesOutsideActualUploadedAudio() started.
+2026-11-06T21:17:53.5881150Z ◇ Test uncertainAudioAndHiddenReasoningRemainDistinct() started.
+2026-11-06T21:17:53.5881940Z ◇ Test arbiterConfidenceCannotOverrideNumberOrNegationDisagreement() started.
+2026-11-06T21:17:53.5882740Z ◇ Test malformedSourceIdentityAndUnicodeEvidenceFailBeforeRequest() started.
+2026-11-06T21:17:53.5883310Z ◇ Test actualTimedChineseEnglishPartsCanComposeOneUtterance() started.
+2026-11-06T21:17:53.5885640Z ◇ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() started.
+2026-11-06T21:17:53.5886240Z ◇ Test utteranceUnicodeBoundariesNeverBecomeInventedWordTimes() started.
+2026-11-06T21:17:53.5886780Z ◇ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() started.
+2026-11-06T21:17:53.5887590Z ◇ Test failedFinalSyncKeepsOnlyPublishedDurableAudioAndPreservesText() started.
+2026-11-06T21:17:53.5888230Z ◇ Test invalidAudioDirectorySealsRecordInsteadOfLeavingItActive() started.
+2026-11-06T21:17:53.5889410Z ◇ Test realtimeWriteFailureStopsWorkerAndSealsEmptyRecord() started.
+2026-11-06T21:17:53.5889870Z ◇ Test runningReviewPriorityClearsAsAttemptsFinish() started.
+2026-11-06T21:17:53.5890380Z ◇ Test staleGenerationsRestartAndUnrequestedRecordsNeverSupplyPhase() started.
+2026-11-06T21:17:53.5891070Z ◇ Test fiveMinuteRecordingDoesNotOverrunHealthyRealtimeConsumer() started.
+2026-11-06T21:17:53.5891620Z ◇ Test shortFinalBlockUsesItsOwnDurationAndCancellationStopsBeforeNextBlock() started.
+2026-11-06T21:17:53.5892180Z ◇ Test testRingWrapsAndDownmixesStereo() started.
+2026-11-06T21:17:53.5892520Z ◇ Test testFifteenSecondRotationBoundary() started.
+2026-11-06T21:17:53.5892910Z ◇ Test testSilenceDoesNotCreateRecordings() started.
+2026-11-06T21:17:53.5893350Z ◇ Test testRingKeepsOrderingAndRejectsOverflowWithoutOverwrite() started.
+2026-11-06T21:17:53.5893820Z ◇ Test testCheckpointAndInterruptedTailRecovery() started.
+2026-11-06T21:17:53.5894230Z ◇ Test recoveryMarksMissingAudioWithoutDiscardingText() started.
+2026-11-06T21:17:53.5894720Z ◇ Test recoveryRetainsCompleteFramesBeyondPublishedCheckpoint() started.
+2026-11-06T21:17:53.5895230Z ◇ Test incompleteOrRefusedLLMResponseCannotBecomeDecision() started.
+2026-11-06T21:17:53.5895640Z ◇ Test slowExpertCannotDropOtherExpertsAudio() started.
+2026-11-06T21:17:53.5896170Z ◇ Test spokenPromptInjectionRemainsDataAndUnicodeOffsetsAreExplicit() started.
+2026-11-06T21:17:53.5896980Z ◇ Test fanoutHasNoLifetimeAudioBufferAndFinishRejectsNewAudio() started.
+2026-11-06T21:17:53.5897790Z ◇ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+2026-11-06T21:17:53.5898970Z ◇ Test cancellationOnlyRemovesCapturedSessionsNotNewlyRetiredOnes() started.
+2026-11-06T21:17:53.5899600Z ◇ Test revocationCancelsAlreadyAdmittedSessionWhileCaptureStopIsSuspended() started.
+2026-11-06T21:17:53.5918300Z ◇ Test missingBoundaryInvalidTimeAndUnknownTurnAreNotInvented() started.
+2026-11-06T21:17:53.5918870Z ◇ Test errorDetailsRemainSanitizedAndConfigurationIsExplicit() started.
+2026-11-06T21:17:53.5919590Z ◇ Test lateEarlierCompletionDoesNotStealLatestTurnPartials() started.
+2026-11-06T21:17:53.5920310Z ◇ Test recommendationIsOptionalAndDoesNotReplaceTheDefaultExpert() started.
+2026-11-06T21:17:53.5922500Z ◇ Test acknowledgementHasNoTypeAndRequiresARealSessionID() started.
+2026-11-06T21:17:53.5923160Z ◇ Test partialsReplaceAndSpeechEndDoesNotFinalize() started.
+2026-11-06T21:17:53.5923570Z ◇ Test authenticationUsesFirstFrameAndSharedPCMEncoding() started.
+2026-11-06T21:17:53.5924090Z ◇ Test onlyEOSEveryCompletedTurnAndNormalCloseCanCompleteSession() started.
+2026-11-06T21:17:53.5925120Z ◇ Test recoveryPreservesExternalReservationWithoutRepeatingStableText(state:) started.
+2026-11-06T21:17:53.5925820Z ◇ Test circuitCoalescesFailuresBoundsProbesAndSeparatesAuthorization() started.
+2026-11-06T21:17:53.5926500Z ◇ Test liveFailureFollowsDurableTailThenRestoresDualCloudOnNextSegment() started.
+2026-11-06T21:17:53.5927170Z ◇ Test rateLimitUsesLocalThenWaitsAtLeastServerBackoffBeforeNextCloudProbe() started.
+2026-11-06T21:17:53.5927770Z ◇ Test nonNetworkFailureStopsAutomaticCloudAttempts(reason:) started.
+2026-11-06T21:17:53.5928360Z ◇ Test unavailableAppleQueuesAndNextRecordingIsLocalWithoutAToggle(supported:) started.
+2026-11-06T21:17:53.5929010Z ◇ Test revocationDuringAvailabilityFencesHandoverAndDropsOldOwners() started.
+2026-11-06T21:17:53.5929520Z ◇ Test localFinalConflictingWithExternalPrefixCannotClaimCompletion() started.
+2026-11-06T21:17:53.5930650Z ◇ Test case passing 1 argument behavior → .fail to terminalFailuresAndBufferLimitCannotPublish(behavior:) started.
+2026-11-06T21:17:53.5932100Z ◇ Test case passing 1 argument behavior → .incomplete to terminalFailuresAndBufferLimitCannotPublish(behavior:) started.
+2026-11-06T21:17:53.5933360Z ◇ Test case passing 1 argument behavior → .oversized to terminalFailuresAndBufferLimitCannotPublish(behavior:) started.
+2026-11-06T21:17:53.5934030Z ◇ Test settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) started.
+2026-11-06T21:17:53.5934660Z ◇ Test sameConfigurationUpdateAlsoInvalidatesPendingAdmission() started.
+2026-11-06T21:17:53.5935270Z ◇ Test case passing 1 argument reason → "truncated-header" to rejectsChangedFilesAndRetiredTickets(reason:) started.
+2026-11-06T21:17:53.5936340Z ◇ Test case passing 1 argument reason → "wrong-format" to rejectsChangedFilesAndRetiredTickets(reason:) started.
+2026-11-06T21:17:53.5937190Z ◇ Test case passing 1 argument reason → "truncated-payload" to rejectsChangedFilesAndRetiredTickets(reason:) started.
+2026-11-06T21:17:53.5939180Z ◇ Test case passing 1 argument reason → "symlink" to rejectsChangedFilesAndRetiredTickets(reason:) started.
+2026-11-06T21:17:53.5939970Z ◇ Test case passing 1 argument reason → "stale-generation" to rejectsChangedFilesAndRetiredTickets(reason:) started.
+2026-11-06T21:17:53.5943290Z ✔ Test multiLLMCannotGenerateSpliceUnknownTimingOrRemoveProtectedContent() passed after 1.689 seconds.
+2026-11-06T21:17:53.5946570Z ✔ Test multiRealTokenAlignmentCanCombineChineseAndEnglishEvidence() passed after 1.689 seconds.
+2026-11-06T21:17:53.5947240Z ✔ Test storeManualInsertionIsExplicitNewOperationEachTime() passed after 1.689 seconds.
+2026-11-06T21:17:53.5958490Z ◇ Test case passing 1 argument simultaneous → false to mandatoryFinalGPTReviewWaitsEvenWhenExpertsAgree(simultaneous:) started.
+2026-11-06T21:17:53.5959650Z ◇ Test case passing 1 argument simultaneous → true to mandatoryFinalGPTReviewWaitsEvenWhenExpertsAgree(simultaneous:) started.
+2026-11-06T21:17:53.5961040Z ✔ Test fusionRevisionChangedEvidenceWaitsWithoutConsumingCursorThenResumes() passed after 1.756 seconds.
+2026-11-06T21:17:53.5962230Z ◇ Test case passing 1 argument watchdog → false to cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) started.
+2026-11-06T21:17:53.5992020Z ◇ Test case passing 1 argument watchdog → true to cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) started.
+2026-11-06T21:17:53.5996890Z ◇ Test case passing 1 argument appendMore → false to finalReviewRunsAgainAfterLiveReview(appendMore:) started.
+2026-11-06T21:17:53.5997850Z ◇ Test case passing 1 argument appendMore → true to finalReviewRunsAgainAfterLiveReview(appendMore:) started.
+2026-11-06T21:17:53.6001150Z ✔ Test storeFreezesClickTextAfterItsVolatileSourceWasPruned() passed after 1.842 seconds.
+2026-11-06T21:17:53.6006150Z ✔ Test storeNewAttemptRejectsOldCallback() passed after 1.842 seconds.
+2026-11-06T21:17:53.6008450Z ✔ Test multiLateCorrectionIsArchivedWithoutRedispatchAndRetryKeepsOldCursor() passed after 1.842 seconds.
+2026-11-06T21:17:53.6010330Z ✔ Test storeRejectsSymlinkEscape() passed after 1.842 seconds.
+2026-11-06T21:17:53.6014980Z ✔ Test multiProtectedSignaturesRecognizeFullWidthAmountsAndKeepSelectedSpelling() passed after 1.842 seconds.
+2026-11-06T21:17:53.6026190Z ✔ Test storeEqualTimestampOrderingUsesCreationSequenceForCandidateAndReservation() passed after 1.844 seconds.
+2026-11-06T21:17:53.6043650Z ✔ Test storeBindingSequenceDistinguishesOldAndNewRecordingsAtSameTimestamp() passed after 1.844 seconds.
+2026-11-06T21:17:53.6044440Z ✔ Test storeUnsavedEditingDraftPersistsAcrossRestartSeparatelyFromTranscript() passed after 1.844 seconds.
+2026-11-06T21:17:53.6045280Z ✔ Test multiProtectedSignaturesRecognizeCurlyNegationWithoutRewritingSources() passed after 1.844 seconds.
+2026-11-06T21:17:53.6046910Z ◇ Test case passing 1 argument state → "queued" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+2026-11-06T21:17:53.6049610Z ◇ Test case passing 1 argument state → "failedSession" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+2026-11-06T21:17:53.6056570Z ◇ Test case passing 1 argument state → "newGeneration" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+2026-11-06T21:17:53.6061720Z ◇ Test case passing 1 argument mode → "raw" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+2026-11-06T21:17:53.6063910Z ◇ Test case passing 1 argument state → "failedExpert" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+2026-11-06T21:17:53.6065930Z ◇ Test case passing 1 argument mode → "partial" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+2026-11-06T21:17:53.6067580Z ◇ Test case passing 1 argument mode → "draft" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+2026-11-06T21:17:53.6069180Z ◇ Test case passing 1 argument mode → "edit" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+2026-11-06T21:17:53.6070920Z ◇ Test case passing 1 argument mode → "unresolved" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+2026-11-06T21:17:53.6125270Z ◇ Test case passing 1 argument mode → "unobservable" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+2026-11-06T21:17:53.6126280Z ◇ Test case passing 1 argument mode → "unreadable" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+2026-11-06T21:17:53.6175970Z ✔ Test fusionRevisionCanCorrectOnlyUnreservedSuffixAndPreservesDraft() passed after 1.852 seconds.
+2026-11-06T21:17:53.6203070Z ◇ Test case passing 1 argument change → "ownedEdit" to changedTargetNeverMutated(change:) started.
+2026-11-06T21:17:53.6212220Z ◇ Test case passing 1 argument change → "prefixEdit" to changedTargetNeverMutated(change:) started.
+2026-11-06T21:17:53.6215260Z ◇ Test case passing 1 argument change → "suffixEdit" to changedTargetNeverMutated(change:) started.
+2026-11-06T21:17:53.6216820Z ◇ Test case passing 1 argument change → "focus" to changedTargetNeverMutated(change:) started.
+2026-11-06T21:17:53.6218230Z ◇ Test case passing 1 argument change → "page" to changedTargetNeverMutated(change:) started.
+2026-11-06T21:17:53.6219730Z ◇ Test case passing 1 argument change → "control" to changedTargetNeverMutated(change:) started.
+2026-11-06T21:17:53.6224960Z ◇ Test case passing 1 argument change → "selection" to changedTargetNeverMutated(change:) started.
+2026-11-06T21:17:53.6241310Z ◇ Test case passing 1 argument change → "caret" to changedTargetNeverMutated(change:) started.
+2026-11-06T21:17:53.6244200Z ◇ Test case passing 1 argument change → "canonical" to changedTargetNeverMutated(change:) started.
+2026-11-06T21:17:53.6246710Z ◇ Test case passing 2 arguments code → "InvalidApiKey", expected → "authorization_failed" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+2026-11-06T21:17:53.6247720Z ◇ Test case passing 2 arguments code → "AccessDenied", expected → "permission_denied" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+2026-11-06T21:17:53.6249660Z ◇ Test case passing 2 arguments code → "InvalidWorkspace", expected → "region_workspace_mismatch" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+2026-11-06T21:17:53.6260650Z ◇ Test case passing 2 arguments code → "Throttling", expected → "rate_limited" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+2026-11-06T21:17:53.6262260Z ◇ Test case passing 2 arguments code → "Arrearage", expected → "quota_exhausted" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+2026-11-06T21:17:53.6264570Z ◇ Test case passing 2 arguments code → "InvalidParameter", expected → "invalid_configuration" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+2026-11-06T21:17:53.6277710Z ◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: Invalid API key", expected → "authorization_failed" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+2026-11-06T21:17:53.6282710Z ◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: Insufficient funds", expected → "quota_exhausted" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+2026-11-06T21:17:53.6284590Z ◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: Too many concurrent sessions", expected → "rate_limited" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+2026-11-06T21:17:53.6286130Z ◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: API key is disabled", expected → "permission_denied" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+2026-11-06T21:17:53.6288360Z ◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: No metronome account found", expected → "quota_exhausted" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+2026-11-06T21:17:53.6291000Z ◇ Test case passing 3 arguments code → 3005, message → "Session Cancelled: An error occurred", expected → "connection_failed" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+2026-11-06T21:17:53.6292760Z ◇ Test case passing 3 arguments code → 3008, message → "Session Expired: Maximum session duration exceeded", expected → "connection_failed" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+2026-11-06T21:17:53.6296490Z ◇ Test case passing 3 arguments code → 3007, message → "Input duration violation: 10 ms. Expected between 20 and 1000 ms", expected → "protocol_incompatible" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+2026-11-06T21:17:53.6299560Z ✔ Test fusionRevisionReservationArrivingDuringReviewKeepsExternalPrefixImmutable() passed after 1.862 seconds.
+2026-11-06T21:17:53.6301800Z ✔ Test storeEarlierTailCannotFollowLaterReservationEvenWhenDeliveryUnverified() passed after 1.862 seconds.
+2026-11-06T21:17:53.6304030Z ◇ Test case passing 2 arguments expected → 1, actual → 2 to recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt(expected:actual:) started.
+2026-11-06T21:17:53.6306490Z ◇ Test case passing 2 arguments expected → 2, actual → 1 to recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt(expected:actual:) started.
+2026-11-06T21:17:53.6309640Z ✔ Test storeInterruptedCaptureAndASRRecover() passed after 1.884 seconds.
+2026-11-06T21:17:53.6310320Z ✔ Test storeDeletingRecordAlsoDeletesDispatchTextSnapshots() passed after 1.884 seconds.
+2026-11-06T21:17:53.6320760Z ✔ Test storeDispatchUTF16RejectsSurrogateAndGraphemeSplit() passed after 1.885 seconds.
+2026-11-06T21:17:53.6321550Z ✔ Test multiRebasedSelectionPublishesCurrentIDsAndRetainsOriginalReviewAudit() passed after 1.884 seconds.
+2026-11-06T21:17:53.6322280Z ✔ Test multiMetaExpertKeepsBilingualCapabilityWithoutInventingWordTiming() passed after 1.884 seconds.
+2026-11-06T21:17:53.6325310Z ✔ Test storeRecoveryReconcilesTruncatedDurableAudio() passed after 1.937 seconds.
+2026-11-06T21:17:53.6328430Z ◇ Test case passing 1 argument markMissing → false to recordingAndRunTerminalChangesRollbackTogether(markMissing:) started.
+2026-11-06T21:17:53.6330800Z ◇ Test case passing 1 argument markMissing → true to recordingAndRunTerminalChangesRollbackTogether(markMissing:) started.
+2026-11-06T21:17:53.6333030Z ◇ Test case passing 1 argument completed → false to inaccessibleAudioParentNeverCertifiesPendingOrResidualErasure(completed:) started.
+2026-11-06T21:17:53.6336600Z ◇ Test case passing 1 argument completed → true to inaccessibleAudioParentNeverCertifiesPendingOrResidualErasure(completed:) started.
+2026-11-06T21:17:53.6338960Z ✔ Test multiCandidatesAreIsolatedAndLegacyCannotPublishFusionTicket() passed after 2.139 seconds.
+2026-11-06T21:17:53.6340790Z ✔ Test fusionRevisionMatchingLegacyHeadAdoptsFusionEvidenceFreshness() passed after 2.184 seconds.
+2026-11-06T21:17:53.6342440Z ✔ Test storeAudioDeletionPreservesEveryTextRevision() passed after 2.297 seconds.
+2026-11-06T21:17:53.6344090Z ✔ Test fusionRevisionLaterEmptyAgreementRevokesEveryUnreservedFinal() passed after 2.297 seconds.
+2026-11-06T21:17:53.6347140Z ✔ Test multiMetaReviewRetirementDoesNotGrantAcousticCoverage() passed after 2.297 seconds.
+2026-11-06T21:17:53.6349130Z ✔ Test multiUncertainAudioReviewCannotResolveProtectedConflict() passed after 2.306 seconds.
+2026-11-06T21:17:53.6350970Z ✔ Test fusionRevisionNewAcousticConflictCannotMakeOldAgreementFresh() passed after 2.315 seconds.
+2026-11-06T21:17:53.6352620Z ✔ Test storeRecoveryRetriesAreBoundedAndSurviveRestart() passed after 2.315 seconds.
+2026-11-06T21:17:53.6356080Z ✔ Test multiEmptyReviewSelectionIsAnAbstentionNotFabricatedText() passed after 2.315 seconds.
+2026-11-06T21:17:53.6360750Z ◇ Test case passing 1 argument reason → "unauthorized" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+2026-11-06T21:17:53.6362340Z ◇ Test case passing 1 argument reason → "no-consent" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+2026-11-06T21:17:53.6363530Z ◇ Test case passing 1 argument reason → "empty-audio" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+2026-11-06T21:17:53.6364610Z ◇ Test case passing 1 argument reason → "odd-audio" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+2026-11-06T21:17:53.6366500Z ◇ Test case passing 1 argument reason → "oversized-audio" to rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) started.
+2026-11-06T21:17:53.6368240Z ◇ Test case passing 1 argument withRetrySeries → false to fastPartialReviewsCannotConsumeFinalConfirmationBudget(withRetrySeries:) started.
+2026-11-06T21:17:53.6369690Z ◇ Test case passing 1 argument withRetrySeries → true to fastPartialReviewsCannotConsumeFinalConfirmationBudget(withRetrySeries:) started.
+2026-11-06T21:17:53.6370940Z ◇ Test case passing 1 argument unsupportedSocket → false to completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) started.
+2026-11-06T21:17:53.6372760Z ◇ Test case passing 1 argument unsupportedSocket → true to completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) started.
+2026-11-06T21:17:53.6374200Z ◇ Test case passing 1 argument fault → "quota" to HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+2026-11-06T21:17:53.6375030Z ◇ Test case passing 1 argument fault → "rate_limit" to HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+2026-11-06T21:17:53.6375710Z ◇ Test case passing 1 argument fault → "auth" to HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+2026-11-06T21:17:53.6383510Z ◇ Test case passing 1 argument fault → "server_error" to HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+2026-11-06T21:17:53.6386840Z ◇ Test case passing 1 argument fault → "malformed" to HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+2026-11-06T21:17:53.6388720Z ◇ Test case passing 1 argument fault → "stream_quota" to HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+2026-11-06T21:17:53.6391460Z ◇ Test case passing 1 argument fault → "failed_rate" to HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) started.
+2026-11-06T21:17:53.6393900Z ◇ Test case passing 1 argument fault → "normal" to productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS(fault:) started.
+2026-11-06T21:17:53.6397630Z ◇ Test case passing 1 argument fault → "unbacked_selection" to productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS(fault:) started.
+2026-11-06T21:17:53.6398640Z ◇ Test case passing 2 arguments service → "qwen", fault → "auth" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6399540Z ◇ Test case passing 2 arguments service → "qwen", fault → "quota" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6400540Z ◇ Test case passing 2 arguments service → "qwen", fault → "disconnect" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6401380Z ◇ Test case passing 2 arguments service → "qwen", fault → "malformed" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6402230Z ◇ Test case passing 2 arguments service → "qwen", fault → "missing_final" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6403090Z ◇ Test case passing 2 arguments service → "qwen", fault → "timeout" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6403900Z ◇ Test case passing 2 arguments service → "qwen", fault → "server_error" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6404720Z ◇ Test case passing 2 arguments service → "assembly", fault → "auth" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6405570Z ◇ Test case passing 2 arguments service → "assembly", fault → "quota" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6406490Z ◇ Test case passing 2 arguments service → "assembly", fault → "disconnect" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6407360Z ◇ Test case passing 2 arguments service → "assembly", fault → "malformed" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6408520Z ◇ Test case passing 2 arguments service → "assembly", fault → "missing_final" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6412800Z ◇ Test case passing 2 arguments service → "assembly", fault → "timeout" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6416540Z ◇ Test case passing 2 arguments service → "assembly", fault → "server_error" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+2026-11-06T21:17:53.6417660Z ◇ Test case passing 2 arguments service → "qwen", fault → "duplicate" to repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+2026-11-06T21:17:53.6419130Z ◇ Test case passing 2 arguments service → "qwen", fault → "delay" to repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+2026-11-06T21:17:53.6422770Z ◇ Test case passing 2 arguments service → "assembly", fault → "duplicate" to repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+2026-11-06T21:17:53.6425910Z ◇ Test case passing 2 arguments service → "assembly", fault → "delay" to repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+2026-11-06T21:17:53.6428160Z ◇ Test case passing 1 argument fault → "auth" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+2026-11-06T21:17:53.6430160Z ◇ Test case passing 1 argument fault → "quota" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+2026-11-06T21:17:53.6432160Z ◇ Test case passing 1 argument fault → "rate_limit" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+2026-11-06T21:17:53.6434340Z ◇ Test case passing 1 argument fault → "invalid_schema" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+2026-11-06T21:17:53.6454160Z ◇ Test case passing 1 argument fault → "malformed" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+2026-11-06T21:17:53.6455170Z ◇ Test case passing 1 argument fault → "wrong_model" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+2026-11-06T21:17:53.6455910Z ◇ Test case passing 1 argument fault → "timeout" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+2026-11-06T21:17:53.6456670Z ◇ Test case passing 1 argument fault → "server_error" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+2026-11-06T21:17:53.6457430Z ◇ Test case passing 1 argument fault → "stream_quota" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+2026-11-06T21:17:53.6462420Z ◇ Test case passing 1 argument fault → "failed_rate" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+2026-11-06T21:17:53.6467390Z ◇ Test case passing 1 argument fault → "normal" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+2026-11-06T21:17:53.6468240Z ◇ Test case passing 1 argument fault → "old_events" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+2026-11-06T21:17:53.6469000Z ◇ Test case passing 1 argument fault → "cache_miss" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+2026-11-06T21:17:53.6469850Z ◇ Test case passing 1 argument fault → "reconnect" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+2026-11-06T21:17:53.6470590Z ◇ Test case passing 1 argument fault → "limit" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+2026-11-06T21:17:53.6471310Z ◇ Test case passing 1 argument cap → 0 to invalidConnectionCheckBudgetFailsBeforeOpeningSocket(cap:) started.
+2026-11-06T21:17:53.6473360Z ◇ Test case passing 1 argument cap → 128001 to invalidConnectionCheckBudgetFailsBeforeOpeningSocket(cap:) started.
+2026-11-06T21:17:53.6474420Z ◇ Test case passing 1 argument fault → "normal" to actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) started.
+2026-11-06T21:17:53.6475640Z ◇ Test case passing 1 argument fault → "unsupported" to actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) started.
+2026-11-06T21:17:53.6476640Z ◇ Test case passing 1 argument fault → "churn" to actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) started.
+2026-11-06T21:17:53.6477540Z ◇ Test case passing 1 argument fault → "each_reconnect" to actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) started.
+2026-11-06T21:17:53.6478150Z ✔ Test storeChunkUpdatesAreMonotonic() passed after 2.913 seconds.
+2026-11-06T21:17:53.6479020Z ✔ Test storeLiveDeletionIsRejected() passed after 3.014 seconds.
+2026-11-06T21:17:53.6479610Z ✔ Test storeDispatchRestartInvalidatesTargetAndDoesNotReplay() passed after 3.084 seconds.
+2026-11-06T21:17:53.6480200Z ✔ Test multiRunSequenceGenerationAndForgedIdentityAreRejected() passed after 3.084 seconds.
+2026-11-06T21:17:53.6480990Z ✔ Test multiStoreDoesNotLetAIBypassAbsentRequiredExpert() passed after 3.084 seconds.
+2026-11-06T21:17:53.6482490Z ✔ Test storeDirectCandidatesDrainBacklogBeyondLatestThirtyWithoutReplay() passed after 3.093 seconds.
+2026-11-06T21:17:53.6483320Z ✔ Test fusionRevisionSupersededUnreservedFinalCannotStillBeDispatched() passed after 3.090 seconds.
+2026-11-06T21:17:53.6484030Z ✔ Test storeRecoveryMarksInterruptedBeforeFirstChunkAsMissing() passed after 3.090 seconds.
+2026-11-06T21:17:53.6484610Z ✔ Test storeDirectCandidatesIgnoreVolatileAndEmptyFinalText() passed after 3.127 seconds.
+2026-11-06T21:17:53.6485870Z ✔ Test multiTextSelectionPreservesIntentionalRepetitionAndSignalsOmittedTail() passed after 3.135 seconds.
+2026-11-06T21:17:53.6493470Z ✔ Test storeYieldingRecoveryToCaptureDoesNotConsumeRetryBudget() passed after 3.135 seconds.
+2026-11-06T21:17:53.6499460Z ✔ Test storeAudioErasurePreservesDraftAndRecordErasureRemovesIt() passed after 3.135 seconds.
+2026-11-06T21:17:53.6521020Z ✔ Test storeLatestStableRevisionSurvivesVolatileUpdate() passed after 3.135 seconds.
+2026-11-06T21:17:53.6528720Z ✔ Test multiProviderFinalDoesNotOutraceRequiredExpertOrDisagreement() passed after 3.135 seconds.
+2026-11-06T21:17:53.6529930Z ✔ Test storeDeletionRemovesUnregisteredCrashTail() passed after 3.135 seconds.
+2026-11-06T21:17:53.6530450Z ✔ Test storePersistsAcrossReopen() passed after 3.135 seconds.
+2026-11-06T21:17:53.6531040Z ✔ Test multiSuccessiveReviewRunsKeepHistoricalEvidenceWithoutCappingLatest() passed after 3.135 seconds.
+2026-11-06T21:17:53.6531730Z ✔ Test storeDispatchRejectsPrefixRewriteAndInvalidatesBinding() passed after 3.140 seconds.
+2026-11-06T21:17:53.6532300Z ✔ Test storeDeletedLaterRecordKeepsTextFreeOrderingWatermark() passed after 3.140 seconds.
+2026-11-06T21:17:53.6533630Z ✔ Test multiVolatilePreviewsRemainBoundedButCandidatesAreAuditable() passed after 3.140 seconds.
+2026-11-06T21:17:53.6535160Z ✔ Test storeDirectCandidatesIncludeChangedPrefixButSkipDuplicateLatestFinal() passed after 3.144 seconds.
+2026-11-06T21:17:53.6535860Z ✔ Test storeRejectsTraversalAndOtherRecordingOwnership() passed after 3.152 seconds.
+2026-11-06T21:17:53.6536650Z ✔ Test multiAudioEpochDeletionPreservesCandidateAndPublicationHistory() passed after 3.157 seconds.
+2026-11-06T21:17:53.6537600Z ✔ Test fusionRevisionSelectedPrefixRetainsNewlyUnresolvedTailAtStoreBoundary() passed after 3.157 seconds.
+2026-11-06T21:17:53.6538500Z ✔ Test fusionRevisionLongestCompatibleBindingPrefixProtectsEveryTarget() passed after 3.157 seconds.
+2026-11-06T21:17:53.6539160Z ✔ Test storeRecognitionPreservesSelectedUserEdit() passed after 3.157 seconds.
+2026-11-06T21:17:53.6541690Z ✔ Test multiRebaseRejectsChangedSelectedWordChangedAlternativeAndRestartedRun() passed after 3.157 seconds.
+2026-11-06T21:17:53.6542390Z ✔ Test multiOlderReviewCannotPinTheGrowingLivePreview() passed after 3.157 seconds.
+2026-11-06T21:17:53.6543060Z ✔ Test storeDeferredStatusOnlyMarksUndispatchedEarlierFinalSuffix() passed after 3.157 seconds.
+2026-11-06T21:17:53.6543840Z ✔ Test multiNewGenerationMayCorrectUnsentCompleteVersion() passed after 3.157 seconds.
+2026-11-06T21:17:53.6544650Z ✔ Test storeAudioLeaseDefersPhysicalErasure() passed after 3.157 seconds.
+2026-11-06T21:17:53.6545340Z ✔ Test multiRestartRetainsEvidenceAndInvalidatesOldCallbacks() passed after 3.157 seconds.
+2026-11-06T21:17:53.6546100Z ✔ Test storePartialDraftCountIsBoundedAndFinalImmutable() passed after 3.157 seconds.
+2026-11-06T21:17:53.6546700Z ✔ Test multiWordTimestampsMapLiteralWordsAcrossProviderSpacing() passed after 3.157 seconds.
+2026-11-06T21:17:53.6547260Z ✔ Test storeEmptyDraftAndExplicitDiscardRemainDistinct() passed after 3.157 seconds.
+2026-11-06T21:17:53.6547850Z ✔ Test storeDelayedEarlierSpeechIsDeferredWithoutBlockingLaterSpeech() passed after 3.157 seconds.
+2026-11-06T21:17:53.6548510Z ✔ Test multiRebaseRejectsNewAcousticSourceAndUnalignedGrowingSelection() passed after 3.404 seconds.
+2026-11-06T21:17:53.6549040Z ✔ Test storeFiltersBeforePagination() passed after 3.445 seconds.
+2026-11-06T21:17:53.6549650Z ✔ Test multiRebaseAllowsNewIDsWithIdenticalEvidence() passed after 3.444 seconds.
+2026-11-06T21:17:53.6550200Z ✔ Test storeDispatchOnlyNewStableSuffixAndNeverDuplicate() passed after 3.445 seconds.
+2026-11-06T21:17:53.6550780Z ✔ Test storeMissingAudioStatePreservesTextAndRejectsStaleASR() passed after 3.454 seconds.
+2026-11-06T21:17:53.6551420Z ✔ Test multiUTF16UsesGraphemesAndDoesNotCommitPartialNumbers() passed after 3.473 seconds.
+2026-11-06T21:17:53.6552120Z ✔ Test multiRebaseAcceptsUntouchedTimedPrefixWhileNewCriticalTailArrives() passed after 3.473 seconds.
+2026-11-06T21:17:53.6552990Z ✔ Test multiUncertainAndEmptyAudioReviewsDoNotOverrideUsablePreviewOrLoseUncertainty() passed after 3.538 seconds.
+2026-11-06T21:17:53.6553880Z ✔ Test storeDispatchUnverifiedDoesNotBlockIndependentSegment() passed after 3.539 seconds.
+2026-11-06T21:17:53.6587770Z ✔ Test multiCriticalNumericPrefixStillConflictsWithLongerNumber() passed after 3.539 seconds.
+2026-11-06T21:17:53.6588580Z ✔ Test storePreservesEmbeddedNULInEditedText() passed after 3.570 seconds.
+2026-11-06T21:17:53.6589130Z ✔ Test multiVerifiedPrefixCanPublishWhileAIReportsRemainingTail() passed after 3.594 seconds.
+2026-11-06T21:17:53.6589840Z ✔ Test fusionRevisionSameProposalAfterRetiredReviewRefreshesEvidenceWithoutNewText() passed after 3.596 seconds.
+2026-11-06T21:17:53.6590670Z ✔ Test fusionRevisionFinalReviewCanCorrectSameGenerationBeforeAnyDispatch() passed after 3.596 seconds.
+2026-11-06T21:17:53.6591470Z ◇ Test case passing 1 argument failReview → false to journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+2026-11-06T21:17:53.6592330Z ◇ Test case passing 1 argument failReview → true to journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+2026-11-06T21:17:53.6592990Z ✔ Test storeCleanupProtectsPinnedFailedAndActive() passed after 3.611 seconds.
+2026-11-06T21:17:53.6593460Z ✔ Test storeRecordDeletionRemovesTextAndSearch() passed after 3.611 seconds.
+2026-11-06T21:17:53.6593920Z ✔ Test storeSearchEscapesLikeAndBindsSQL() passed after 3.612 seconds.
+2026-11-06T21:17:53.6594560Z ◇ Test case passing 1 argument state → .confirmed to recoveryPreservesExternalReservationWithoutRepeatingStableText(state:) started.
+2026-11-06T21:17:53.6598540Z ◇ Test case passing 1 argument state → .unverified to recoveryPreservesExternalReservationWithoutRepeatingStableText(state:) started.
+2026-11-06T21:17:53.6599230Z ✔ Test storeMultipleFinalRangesCompleteOnlyAfterDrain() passed after 3.635 seconds.
+2026-11-06T21:17:53.6599860Z ◇ Test case passing 1 argument reason → .authorization to nonNetworkFailureStopsAutomaticCloudAttempts(reason:) started.
+2026-11-06T21:17:53.6600720Z ◇ Test case passing 1 argument reason → .permission to nonNetworkFailureStopsAutomaticCloudAttempts(reason:) started.
+2026-11-06T21:17:53.6601550Z ◇ Test case passing 1 argument reason → .regionMismatch to nonNetworkFailureStopsAutomaticCloudAttempts(reason:) started.
+2026-11-06T21:17:53.6602380Z ◇ Test case passing 1 argument reason → .quota to nonNetworkFailureStopsAutomaticCloudAttempts(reason:) started.
+2026-11-06T21:17:53.6603570Z ◇ Test case passing 1 argument reason → .configuration("synthetic") to nonNetworkFailureStopsAutomaticCloudAttempts(reason:) started.
+2026-11-06T21:17:53.6604430Z ◇ Test case passing 1 argument reason → .protocolViolation("synthetic") to nonNetworkFailureStopsAutomaticCloudAttempts(reason:) started.
+2026-11-06T21:17:53.6605500Z ◇ Test case passing 1 argument supported → false to unavailableAppleQueuesAndNextRecordingIsLocalWithoutAToggle(supported:) started.
+2026-11-06T21:17:53.6606450Z ◇ Test case passing 1 argument supported → true to unavailableAppleQueuesAndNextRecordingIsLocalWithoutAToggle(supported:) started.
+2026-11-06T21:17:53.6607240Z ✔ Test storeLateRecognitionCannotResurrectDeletedAudio() passed after 3.678 seconds.
+2026-11-06T21:17:53.6608480Z ✔ Test multiUserEditAndUnsavedDraftRemainSelected() passed after 3.678 seconds.
+2026-11-06T21:17:53.6610100Z ✔ Test storeFrozenClickSnapshotSurvivesPartialPruningWithoutChangingPreferred() passed after 3.678 seconds.
+2026-11-06T21:17:53.6611120Z ◇ Test case passing 1 argument initialCloud → false to settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) started.
+2026-11-06T21:17:53.6615810Z ◇ Test case passing 1 argument initialCloud → true to settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) started.
+2026-11-06T21:17:53.6616640Z ✔ Test rejectsChangedFilesAndRetiredTickets(reason:) with 5 test cases passed after 3.700 seconds.
+2026-11-06T21:17:53.6617240Z ✔ Test multiNonRetryableProviderDoesNotStopOtherRunAndUsagePersists() passed after 3.702 seconds.
+2026-11-06T21:17:53.6617970Z ✔ Test offlineEvidenceUsesCandidatePublicationAndProtectsUserDraft() passed after 3.700 seconds.
+2026-11-06T21:17:53.6618660Z ✔ Test storeRecoveryQueueDoesNotStarveBeyondOldestHundred() passed after 3.704 seconds.
+2026-11-06T21:17:53.6620950Z ✔ Test alignmentOnlyEvidenceChangeCanRetryWhileDuplicateCallbacksCoalesce() passed after 3.645 seconds.
+2026-11-06T21:17:53.6667500Z ✔ Test exactDurableRangeCrossesChunksAfterTwelveMBWithoutLifetimeBuffer() passed after 3.707 seconds.
+2026-11-06T21:17:53.6668640Z ✔ Test finalizationWatermarkStabilizesEarlierVolatileTextWithoutRepeat() passed after 3.610 seconds.
+2026-11-06T21:17:53.6670400Z ✔ Test laterFinalDoesNotSkipEarlierVolatileRange() passed after 3.610 seconds.
+2026-11-06T21:17:53.6674130Z ✔ Test invalidRangesDoNotLoseValidText() passed after 3.610 seconds.
+2026-11-06T21:17:53.6674870Z ✔ Test finalizationWatermarkNeverRewindsOrPromotesBeyondCoverage() passed after 3.610 seconds.
+2026-11-06T21:17:53.6675450Z ✔ Test revisingRangeReplacesInsteadOfDuplicating() passed after 3.610 seconds.
+2026-11-06T21:17:53.6675910Z ✔ Test mergedRangeReplacesAllOverlaps() passed after 3.610 seconds.
+2026-11-06T21:17:53.6676360Z ✔ Test finalPrefixAdvancesWhileTailIsVolatile() passed after 3.610 seconds.
+2026-11-06T21:17:53.6676830Z ✔ Test panelFitsOffsetAndCompactDisplays() passed after 3.599 seconds.
+2026-11-06T21:17:53.6677290Z ✔ Test keepsWindowOnDisplayWithLargestOverlap() passed after 3.599 seconds.
+2026-11-06T21:17:53.6677830Z ✔ Test disconnectedDisplayRestoresToRemainingScreen() passed after 3.599 seconds.
+2026-11-06T21:17:53.6678280Z ✔ Test testnoSelectedReplacement() passed after 3.598 seconds.
+2026-11-06T21:17:53.6678780Z ✔ Test testunidentifiableWebPageRejected() passed after 3.586 seconds.
+2026-11-06T21:17:53.6679350Z ✔ Test testpasswordsTerminalsAndEmbeddedTerminalBlocked() passed after 3.586 seconds.
+2026-11-06T21:17:53.6679930Z ✔ Test testreusedEditorDoesNotMakeSamePage() passed after 3.585 seconds.
+2026-11-06T21:17:53.6680370Z ✔ Test testcursorMovementMakesBindingStale() passed after 3.585 seconds.
+2026-11-06T21:17:53.6680880Z ✔ Test assemblyFinalCannotRegressToLatePartialOrConflictingFinal() passed after 3.486 seconds.
+2026-11-06T21:17:53.6681590Z ✔ Test invalidJSONAlwaysHasSafeProtocolDiagnosis() passed after 3.486 seconds.
+2026-11-06T21:17:53.6685360Z ✔ Test qwenFinalCannotRegressToLatePartialOrConflictingFinal() passed after 3.486 seconds.
+2026-11-06T21:17:53.6686080Z ✔ Test beginCannotConfirmAnUnidentifiedAssemblySession() passed after 3.486 seconds.
+2026-11-06T21:17:53.6686850Z ✔ Test qwenMissingSentenceCannotClaimStableOrCompletedText() passed after 3.485 seconds.
+2026-11-06T21:17:53.6687570Z ✔ Test loopbackEndpointCannotExportCredentialsOrOverrideOfficialModelQuery() passed after 3.485 seconds.
+2026-11-06T21:17:53.6688330Z ✔ Test qwenTaskFailuresRetainSafeCategories(code:expected:) with 6 test cases passed after 3.486 seconds.
+2026-11-06T21:17:53.6688930Z ✔ Test qwenConsentMustBePresentAtTheProductionNetworkBoundary() passed after 3.485 seconds.
+2026-11-06T21:17:53.6689660Z ✔ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) with 8 test cases passed after 3.485 seconds.
+2026-11-06T21:17:53.6690650Z ✔ Test qwenZeroIdentifierIsOnlyValidForAHeartbeat() passed after 3.485 seconds.
+2026-11-06T21:17:53.6691600Z ✔ Test recordingTapRejectsChangedSampleRateBeforeOldConverterReadsIt() passed after 3.443 seconds.
+2026-11-06T21:17:53.6692480Z ✔ Test recordingTapRejectsChangedChannelLayoutUntilEngineIsRebuilt(expected:actual:) with 2 test cases passed after 3.444 seconds.
+2026-11-06T21:17:53.6693320Z ✔ Test singleExpertBaselineIsExplicitAndCannotBypassConsentOrRoleValidation() passed after 3.327 seconds.
+2026-11-06T21:17:53.6693910Z ✔ Test finishDoesNotSaveStandbySilenceAsSpeech() passed after 3.443 seconds.
+2026-11-06T21:17:53.6694380Z ✔ Test finishFlushesSubVADFrameTailOfActiveSpeech() passed after 3.418 seconds.
+2026-11-06T21:17:53.6694930Z ✔ Test sourceHashCoversEntireDeclaredFixtureAndModeIsNotDisguised() passed after 3.327 seconds.
+2026-11-06T21:17:53.6696320Z ✔ Test rejectsDisabledCloudMissingConsentAndInvalidWAVWithoutCreatingRecords() passed after 3.327 seconds.
+2026-11-06T21:17:53.6697370Z ✔ Test invalidModelOrRequestErrorsAreSanitizedAndNotRetried() passed after 3.327 seconds.
+2026-11-06T21:17:53.6697960Z ✔ Test unsupportedRealtimeChoiceIsHiddenAndCannotStart() passed after 3.315 seconds.
+2026-11-06T21:17:53.6698490Z ✔ Test missingOrUnfinishedEarlierTurnBlocksStablePrefix() passed after 3.315 seconds.
+2026-11-06T21:17:53.6699070Z ✔ Test assemblyChecksTheServersAppliedModelAndAccuracyMode() passed after 3.315 seconds.
+2026-11-06T21:17:53.6699760Z ✔ Test unmatchedFormattedWordsDowngradeTimingWithoutLosingText() passed after 3.315 seconds.
+2026-11-06T21:17:53.6700280Z ✔ Test badPCMCannotSilentlyBecomeAnAudioRequest() passed after 3.315 seconds.
+2026-11-06T21:17:53.6700980Z ✔ Test exportingEmptyRecordCannotInventLatencyAccuracyOrUsage() passed after 3.328 seconds.
+2026-11-06T21:17:53.6701730Z ✔ Test assemblyReplacesTurnAndPreservesNegationNumbersUnicodeAndRawConfidence() passed after 3.315 seconds.
+2026-11-06T21:17:53.6702360Z ✔ Test intentionalRepeatedTurnsAreNotDeduplicated() passed after 3.315 seconds.
+2026-11-06T21:17:53.6702920Z ✔ Test cloudPermissionAndCredentialValidationHappenBeforeNetworking() passed after 3.314 seconds.
+2026-11-06T21:17:53.6703550Z ✔ Test punctuationIsCopiedFromTranscriptWithoutInventingAudioTime() passed after 3.314 seconds.
+2026-11-06T21:17:53.6704510Z ✔ Test assemblyUsesExplicitStreamingModelAndHeaderAuthentication() passed after 3.314 seconds.
+2026-11-06T21:17:53.6705200Z ✔ Test fileResultsKeepWordsInSecondsAndDoNotFabricateConfidence() passed after 3.314 seconds.
+2026-11-06T21:17:53.6705940Z ✔ Test fileRequestsContainBinaryMultipartAndProviderSpecificAuthentication() passed after 3.314 seconds.
+2026-11-06T21:17:53.6706500Z ✔ Test malformedWordTimesAreNeverInvented() passed after 3.314 seconds.
+2026-11-06T21:17:53.6727480Z ✔ Test intactReadOnlyAudioNeedsNoRepairWritePermission() passed after 3.314 seconds.
+2026-11-06T21:17:53.6728520Z ✔ Test exportsPersistedGenerationTerminalAndExactConfigurationWithoutInventingSessionCompletion() passed after 3.328 seconds.
+2026-11-06T21:17:53.6729260Z ✔ Test interruptedIndexUpdateKeepsOriginalAndRetriesAfterReopen() passed after 3.314 seconds.
+2026-11-06T21:17:53.6729960Z ✔ Test transientHeaderRepairFailureDoesNotPermanentlyDiscardReadableOriginal() passed after 3.314 seconds.
+2026-11-06T21:17:53.6731260Z ✔ Test inaccessibleRecordingDirectoryDoesNotBlockIndependentRecovery() passed after 3.315 seconds.
+2026-11-06T21:17:53.6731970Z ✔ Test recordingAndRunTerminalChangesRollbackTogether(markMissing:) with 2 test cases passed after 3.315 seconds.
+2026-11-06T21:17:53.6732630Z ✔ Test unformattedFinalDoesNotClaimFormattedTurnCompletion() passed after 3.260 seconds.
+2026-11-06T21:17:53.6733260Z ✔ Test assemblyPartialUsesOnlyContiguousFinalWordsAndPreservesSeparators() passed after 3.259 seconds.
+2026-11-06T21:17:53.6733820Z ✔ Test sqliteFullRollsBackWholeTransaction() passed after 3.260 seconds.
+2026-11-06T21:17:53.6734380Z ✔ Test secondOwnerCannotInvalidateActiveRecording() passed after 3.260 seconds.
+2026-11-06T21:17:53.6734900Z ✔ Test futureDatabaseRefusedWithoutChangingJournalOrBytes() passed after 3.256 seconds.
+2026-11-06T21:17:53.6735440Z ✔ Test failedMigrationRollsBackAllDDLAndKeepsVersion() passed after 3.256 seconds.
+2026-11-06T21:17:53.6736170Z ✔ Test corruptRowReturnsErrorInsteadOfCrashing() passed after 3.256 seconds.
+2026-11-06T21:17:53.6736680Z ✔ Test sqliteNumericRoundTripsPreserveFullPrecision() passed after 3.256 seconds.
+2026-11-06T21:17:53.6737260Z ✔ Test draftSearchAndHistorySurviveAudioErasure() passed after 3.256 seconds.
+2026-11-06T21:17:53.6737920Z ✔ Test defaultsIncludeTwoExpertsAndOneCoreAndKeepOptionalExpertsOffAndConsentOff() passed after 3.198 seconds.
+2026-11-06T21:17:53.6738760Z ✔ Test settingsRoundTripRetainsStableIDsAndNeverContainsCredentialBytes() passed after 3.198 seconds.
+2026-11-06T21:17:53.6739600Z ✔ Test providerChangeKeepsCredentialIdentityButResetsAuthorizationRegionAndCharges() passed after 3.198 seconds.
+2026-11-06T21:17:53.6741290Z ✔ Test storeStorageSummaryUsesActualFiles() passed after 3.721 seconds.
+2026-11-06T21:17:53.6741950Z ✔ Test arbitraryUnderlyingErrorDoesNotLeakItsDescriptionIntoReports() passed after 3.147 seconds.
+2026-11-06T21:17:53.6742660Z ✔ Test emptyOrIncompleteReportNeverAuthorizesCloud() passed after 3.147 seconds.
+2026-11-06T21:17:53.6747070Z ✔ Test rejectsBeforeReadingCredentialsOrStartingNetwork(reason:) with 5 test cases passed after 3.147 seconds.
+2026-11-06T21:17:53.6747960Z ✔ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() passed after 3.256 seconds.
+2026-11-06T21:17:53.6748690Z ✔ Test panelIncludesAllSessionPagesAndExplicitHistoryOnlyOnce() passed after 3.262 seconds.
+2026-11-06T21:17:53.6750180Z ✔ Test missingCredentialFailsOnlyThatServiceWithoutConnectingOthers() passed after 3.149 seconds.
+2026-11-06T21:17:53.6801420Z ✔ Test identityChangesInvalidateButOfflineSwitchAndLocalTopicDoNot() passed after 3.149 seconds.
+2026-11-06T21:17:53.6808550Z ✔ Test invalidConnectionCheckBudgetFailsBeforeOpeningSocket(cap:) with 2 test cases passed after 3.157 seconds.
+2026-11-06T21:17:53.6809690Z ✔ Test submittedAudioProgressIsMeasuredMetadataAndRejectsNonfiniteValues() passed after 3.160 seconds.
+2026-11-06T21:17:53.6820190Z ✔ Test failedRequiredRunCannotKeepItsOldAgreementDispatchableOrBlockSafeRetraction() passed after 3.161 seconds.
+2026-11-06T21:17:53.6823520Z ✔ Test requirementsAreFrozenBeforeProviderAttemptsAndCannotBeDowngraded() passed after 3.145 seconds.
+2026-11-06T21:17:53.6828000Z ✔ Test clampsEndAndRejectsInvalidDurations() passed after 3.145 seconds.
+2026-11-06T21:17:53.6829240Z ✔ Test configuredSamePurposeExpertCannotBeSilentlyOmittedByAgreementOrSelection() passed after 3.162 seconds.
+2026-11-06T21:17:53.6841810Z ✔ Test seeksAcrossOriginalChunkBoundaries() passed after 3.145 seconds.
+2026-11-06T21:17:53.6842490Z ✔ Test defaultsAreTwoEqualExpertsAndExactlyOneGPT6Core() passed after 3.145 seconds.
+2026-11-06T21:17:53.6843080Z ✔ Test multilingualSingleExpertUsesSameCore() passed after 3.144 seconds.
+2026-11-06T21:17:53.6847030Z ✔ Test explicitSingleExpertDiagnosticUsesItsActualIdentityWithoutFakeSecondRole() passed after 3.145 seconds.
+2026-11-06T21:17:53.6848980Z ✔ Test singleExpertAblationStillRequiresTheSameGPTCore() passed after 3.144 seconds.
+2026-11-06T21:17:53.6851520Z ✔ Test thirdASRIsAllowedAsAnEvidenceSource() passed after 3.144 seconds.
+2026-11-06T21:17:53.6854380Z ✔ Test legacySettingsMigrationDisablesSecondStageModelsAndKeepsGPTIdentity() passed after 3.144 seconds.
+2026-11-06T21:17:53.6855140Z ✔ Test legacySeparateAudioAndFinalModelsCannotJoinTheDefaultChain() passed after 3.144 seconds.
+2026-11-06T21:17:53.6855710Z ✔ Test exactlyOneGPTCoreIsMandatory() passed after 3.144 seconds.
+2026-11-06T21:17:53.6856270Z ✔ Test audioRootSymlinkIsRejectedWithoutTouchingDestination() passed after 3.081 seconds.
+2026-11-06T21:17:53.6861820Z ✔ Test actualTerminalTimeIsGenerationSpecificDurableAndNeverBackfilledFromRestart() passed after 3.146 seconds.
+2026-11-06T21:17:53.6862650Z ✔ Test requiredExpertFromAnotherGenerationCannotSatisfyEvidenceCoverage() passed after 3.026 seconds.
+2026-11-06T21:17:53.6863380Z ✔ Test absentRequiredExpertNeverErasesAnAlreadyDispatchedPrefix() passed after 3.026 seconds.
+2026-11-06T21:17:53.6864180Z ✔ Test lockedAtLaunchCannotCapture() passed after 3.026 seconds.
+2026-11-06T21:17:53.6864740Z ✔ Test databaseSymlinkIsRejectedWithoutModifyingExternalFile() passed after 3.081 seconds.
+2026-11-06T21:17:53.6865410Z ✔ Test migrationIsIdempotentAndNeverReplacesCustomModelOrGrantsConsent() passed after 3.146 seconds.
+2026-11-06T21:17:53.6866160Z ✔ Test completeShortReviewDoesNotDeclareLongerLiveUtteranceResolved() passed after 3.027 seconds.
+2026-11-06T21:17:53.6866820Z ✔ Test wakeDoesNotOverrideLockOrSessionSwitch() passed after 3.027 seconds.
+2026-11-06T21:17:53.6867340Z ✔ Test permissionResetWhileCapturingStillRequiresSuspension() passed after 3.027 seconds.
+2026-11-06T21:17:53.6868010Z ✔ Test missingSecondExpertWithTheSamePurposeCannotCountAsFullCoverage() passed after 3.028 seconds.
+2026-11-06T21:18:03.1625090Z ✔ Test unknownSessionOrUntrustedUnlockCannotResume() passed after 3.027 seconds.
+2026-11-06T21:18:03.1736120Z ✔ Test utteranceOnlyAllowsWholeSelectionButNeverCharacterSplicing() passed after 3.028 seconds.
+2026-11-06T21:18:03.1748100Z ✔ Test initialPermissionPromptDoesNotCancelPendingStart() passed after 3.013 seconds.
+2026-11-06T21:18:03.1752990Z ✔ Test longerSilentCoverageDoesNotInventAnUnresolvedTextTail() passed after 3.014 seconds.
+2026-11-06T21:18:03.1767260Z ✔ Test wholeUtteranceSelectionStillCannotResolveUnsupportedNegation() passed after 3.027 seconds.
+2026-11-06T21:18:03.1768770Z ✔ Test fullyStableMetaTurnStillCannotTurnProcessingProgressIntoAcousticCoverage() passed after 3.014 seconds.
+2026-11-06T21:18:03.1769950Z ✔ Test qwenMissingPartialTimeDoesNotFabricateWordAlignment() passed after 2.892 seconds.
+2026-11-06T21:18:03.1774680Z ✔ Test qwenStashAndHeartbeatAreNotDuplicateSentences() passed after 2.891 seconds.
+2026-11-06T21:18:03.1777280Z ✔ Test sonioxControlTokensAndMissingTimeCannotBecomeSpokenEvidence() passed after 2.892 seconds.
+2026-11-06T21:18:03.1780940Z ✔ Test sonioxAppendsFinalsButReplacesNonfinalTail() passed after 2.892 seconds.
+2026-11-06T21:18:03.1787120Z ✔ Test qwenCumulativeWindowStartsAtZeroAfterLeadingSilence() passed after 2.891 seconds.
+2026-11-06T21:18:03.1788620Z ✔ Test sonioxCumulativeWindowStartsAtZeroAfterLeadingSilence() passed after 2.891 seconds.
+2026-11-06T21:18:03.1789760Z ✔ Test qwenRealWordsPreserveTermBoundariesAndExactSentenceLayout() passed after 2.891 seconds.
+2026-11-06T21:18:03.1790840Z ✔ Test qwenRevisionReplacesSentenceAndPreservesUTF16Evidence() passed after 2.891 seconds.
+2026-11-06T21:18:03.1791700Z ✔ Test providerErrorsAreRedactedAndUntranslated() passed after 2.890 seconds.
+2026-11-06T21:18:03.1792610Z ✔ Test qwenMisalignedOrInvalidWordsFallBackWithoutDroppingNegation() passed after 2.890 seconds.
+2026-11-06T21:18:03.1795510Z ✔ Test qwenRejectsWrongGenerationAndIncompleteFinal() passed after 2.890 seconds.
+2026-11-06T21:18:03.1798080Z ✔ Test sonioxUsesHeaderAuthRawPCMAndNonrestrictiveLanguageHints() passed after 2.890 seconds.
+2026-11-06T21:18:03.1799240Z ✔ Test qwenRequestUsesRegionalWorkspaceAndExplicitPartials() passed after 2.890 seconds.
+2026-11-06T21:18:03.1800130Z ✔ Test productionTreeIsRejectedWithoutTouchingIt() passed after 2.832 seconds.
+2026-11-06T21:18:03.1803900Z ✔ Test existingDataAndExternalOutputAreRejectedBeforeStore() passed after 2.832 seconds.
+2026-11-06T21:18:03.1815030Z ✔ Test unappliedMissingConsentMissingKeysAndWrongCoreCannotExport() passed after 2.832 seconds.
+2026-11-06T21:18:03.1846860Z ✔ Test syntheticMetadataExportsAppliedConfigurationOnceWithoutSecretValues() passed after 2.810 seconds.
+2026-11-06T21:18:03.1849830Z ✔ Test oversizedSparseWAVIsRejectedBeforeHeaderConversion() passed after 2.802 seconds.
+2026-11-06T21:18:03.1855720Z ✔ Test recordDirectorySymlinkCannotCreateFileOutsideAudioRoot() passed after 2.810 seconds.
+2026-11-06T21:18:03.1859980Z ✔ Test emptyCommonPrefixWaitsThenWholeSentenceSelectionActuallyPublishes() passed after 3.014 seconds.
+2026-11-06T21:18:03.1866930Z ✔ Test rejectedResponseAndRequestSnapshotSurviveRestartWithoutPublishing() passed after 2.583 seconds.
+2026-11-06T21:18:03.1871630Z ✔ Test wholeRecordDeletionErasesResponseAndBlocksLateAuditResurrection() passed after 2.583 seconds.
+2026-11-06T21:18:03.1872790Z ✔ Test oldUsagePayloadWithoutAuditStillDecodes() passed after 2.582 seconds.
+2026-11-06T21:18:03.1874400Z ✔ Test deletingOnlyAudioPreservesDecodedResponseAndUsage() passed after 2.582 seconds.
+2026-11-06T21:18:03.1879310Z ✔ Test abstentionAndRefusalCannotMasqueradeAsConfirmedText() passed after 2.553 seconds.
+2026-11-06T21:18:03.1882380Z ✔ Test externalPrefixIsAConstraintAndNeverAnAcousticVote() passed after 2.546 seconds.
+2026-11-06T21:18:03.1885590Z ✔ Test blindAudioRequestRejectsConsentPurposeCredentialAndRegionMismatch() passed after 2.546 seconds.
+2026-11-06T21:18:03.1889660Z ✔ Test invalidReplacementNeverErasesStoredDummyCredential() passed after 2.583 seconds.
+2026-11-06T21:18:03.1891540Z ✔ Test blindAudioReviewUsesOnlyFixedInstructionsAndExactPCM() passed after 2.545 seconds.
+2026-11-06T21:18:03.1894820Z ✔ Test finalASRRejectsWordTimesOutsideActualUploadedAudio() passed after 2.545 seconds.
+2026-11-06T21:18:03.1896680Z ✔ Test uncertainAudioAndHiddenReasoningRemainDistinct() passed after 2.545 seconds.
+2026-11-06T21:18:03.1898520Z ✔ Test arbiterConfidenceCannotOverrideNumberOrNegationDisagreement() passed after 2.545 seconds.
+2026-11-06T21:18:03.1900570Z ✔ Test malformedSourceIdentityAndUnicodeEvidenceFailBeforeRequest() passed after 2.545 seconds.
+2026-11-06T21:18:03.1902690Z ✔ Test actualTimedChineseEnglishPartsCanComposeOneUtterance() passed after 2.545 seconds.
+2026-11-06T21:18:03.1904510Z ✔ Test utteranceUnicodeBoundariesNeverBecomeInventedWordTimes() passed after 2.546 seconds.
+2026-11-06T21:18:03.1908450Z ✔ Test completeProvenanceAndAllTokensReachArbiter() passed after 2.547 seconds.
+2026-11-06T21:18:03.1912120Z ✔ Test invalidAudioDirectorySealsRecordInsteadOfLeavingItActive() passed after 2.536 seconds.
+2026-11-06T21:18:03.1914410Z ✔ Test failedFinalSyncKeepsOnlyPublishedDurableAudioAndPreservesText() passed after 2.537 seconds.
+2026-11-06T21:18:03.1916020Z ✔ Test createReplaceReadDeleteKeepsAccountProviderAndServiceIsolation() passed after 2.585 seconds.
+2026-11-06T21:18:03.1916720Z ✔ Test runningReviewPriorityClearsAsAttemptsFinish() passed after 2.526 seconds.
+2026-11-06T21:18:03.1917700Z ✔ Test shortFinalBlockUsesItsOwnDurationAndCancellationStopsBeforeNextBlock() passed after 2.525 seconds.
+2026-11-06T21:18:03.1918430Z ✔ Test testRingWrapsAndDownmixesStereo() passed after 2.503 seconds.
+2026-11-06T21:18:03.1918960Z ✔ Test fiveMinuteRecordingDoesNotOverrunHealthyRealtimeConsumer() passed after 2.526 seconds.
+2026-11-06T21:18:03.1919560Z ✔ Test testFifteenSecondRotationBoundary() passed after 2.503 seconds.
+2026-11-06T21:18:03.1920500Z ✔ Test testRingKeepsOrderingAndRejectsOverflowWithoutOverwrite() passed after 2.503 seconds.
+2026-11-06T21:18:03.1921410Z ✔ Test testCheckpointAndInterruptedTailRecovery() passed after 2.503 seconds.
+2026-11-06T21:18:03.1922020Z ✔ Test testSilenceDoesNotCreateRecordings() passed after 2.504 seconds.
+2026-11-06T21:18:03.1923060Z ✔ Test staleGenerationsRestartAndUnrequestedRecordsNeverSupplyPhase() passed after 2.526 seconds.
+2026-11-06T21:18:03.1924450Z ✔ Test incompleteOrRefusedLLMResponseCannotBecomeDecision() passed after 2.475 seconds.
+2026-11-06T21:18:03.1925610Z ✔ Test slowExpertCannotDropOtherExpertsAudio() passed after 2.475 seconds.
+2026-11-06T21:18:03.1926760Z ✔ Test spokenPromptInjectionRemainsDataAndUnicodeOffsetsAreExplicit() passed after 2.475 seconds.
+2026-11-06T21:18:03.1927560Z ✔ Test fanoutHasNoLifetimeAudioBufferAndFinishRejectsNewAudio() passed after 2.474 seconds.
+2026-11-06T21:18:03.1928160Z ✔ Test recoveryMarksMissingAudioWithoutDiscardingText() passed after 2.504 seconds.
+2026-11-06T21:18:03.1929190Z ✔ Test recoveryRetainsCompleteFramesBeyondPublishedCheckpoint() passed after 2.504 seconds.
+2026-11-06T21:18:03.1929910Z ✔ Test missingBoundaryInvalidTimeAndUnknownTurnAreNotInvented() passed after 2.362 seconds.
+2026-11-06T21:18:03.1931370Z ✔ Test errorDetailsRemainSanitizedAndConfigurationIsExplicit() passed after 2.362 seconds.
+2026-11-06T21:18:03.1932480Z ✔ Test lateEarlierCompletionDoesNotStealLatestTurnPartials() passed after 2.360 seconds.
+2026-11-06T21:18:03.1933270Z ✔ Test recommendationIsOptionalAndDoesNotReplaceTheDefaultExpert() passed after 2.359 seconds.
+2026-11-06T21:18:03.1934560Z ✔ Test acknowledgementHasNoTypeAndRequiresARealSessionID() passed after 2.359 seconds.
+2026-11-06T21:18:03.1935250Z ✔ Test partialsReplaceAndSpeechEndDoesNotFinalize() passed after 2.359 seconds.
+2026-11-06T21:18:03.1935970Z ✔ Test authenticationUsesFirstFrameAndSharedPCMEncoding() passed after 2.359 seconds.
+2026-11-06T21:18:03.1936710Z ✔ Test onlyEOSEveryCompletedTurnAndNormalCloseCanCompleteSession() passed after 2.358 seconds.
+2026-11-06T21:18:03.1937790Z ✔ Test circuitCoalescesFailuresBoundsProbesAndSeparatesAuthorization() passed after 2.359 seconds.
+2026-11-06T21:18:03.1938670Z ✔ Test localFinalConflictingWithExternalPrefixCannotClaimCompletion() passed after 2.348 seconds.
+2026-11-06T21:18:03.1939370Z ✔ Test storeCleanupRevalidatesPreview() passed after 3.771 seconds.
+2026-11-06T21:18:03.1940050Z ✔ Test testunavailablePermissionHasNoPromptOrSideEffect() passed after 3.581 seconds.
+2026-11-06T21:18:03.1941510Z ✘ Test HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) recorded an issue with 1 argument fault → "rate_limit" at ProtocolNetworkIntegrationTests.swift:193:13: Expectation failed: ((error as? ProviderFailure)?.diagnosticCode → nil) == (expected[fault] → "rate_limited")
+2026-11-06T21:18:03.1945280Z ✘ Test HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) recorded an issue with 1 argument fault → "server_error" at ProtocolNetworkIntegrationTests.swift:193:13: Expectation failed: ((error as? ProviderFailure)?.diagnosticCode → nil) == (expected[fault] → "connection_failed")
+2026-11-06T21:18:03.1947120Z ✘ Test HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) recorded an issue with 1 argument fault → "stream_quota" at ProtocolNetworkIntegrationTests.swift:193:13: Expectation failed: ((error as? ProviderFailure)?.diagnosticCode → nil) == (expected[fault] → "quota_exhausted")
+2026-11-06T21:18:03.1950830Z ✘ Test HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) recorded an issue with 1 argument fault → "quota" at ProtocolNetworkIntegrationTests.swift:193:13: Expectation failed: ((error as? ProviderFailure)?.diagnosticCode → nil) == (expected[fault] → "quota_exhausted")
+2026-11-06T21:18:03.1953000Z ✘ Test HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) recorded an issue with 1 argument fault → "failed_rate" at ProtocolNetworkIntegrationTests.swift:193:13: Expectation failed: ((error as? ProviderFailure)?.diagnosticCode → nil) == (expected[fault] → "rate_limited")
+2026-11-06T21:18:03.1956270Z ✘ Test HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) recorded an issue with 1 argument fault → "auth" at ProtocolNetworkIntegrationTests.swift:193:13: Expectation failed: ((error as? ProviderFailure)?.diagnosticCode → nil) == (expected[fault] → "authorization_failed")
+2026-11-06T21:18:03.1958170Z ✘ Test HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) recorded an issue with 1 argument fault → "malformed" at ProtocolNetworkIntegrationTests.swift:193:13: Expectation failed: ((error as? ProviderFailure)?.diagnosticCode → nil) == (expected[fault] → "protocol_incompatible")
+2026-11-06T21:18:03.1960150Z ✔ Suite "Journal range and local candidate integration" passed after 3.796 seconds.
+2026-11-06T21:18:03.1960970Z ✔ Suite "Speech range aggregation" passed after 3.798 seconds.
+2026-11-06T21:18:03.1961560Z ✔ Suite "Display geometry" passed after 3.798 seconds.
+2026-11-06T21:18:03.1962160Z ✔ Suite "Input identity and safety" passed after 3.798 seconds.
+2026-11-06T21:18:03.1962820Z ✔ Suite "ASR protocol lifecycle and sanitized diagnosis" passed after 3.798 seconds.
+2026-11-06T21:18:03.1963470Z ✔ Suite "Explicit local multi-ASR probe boundaries" passed after 3.798 seconds.
+2026-11-06T21:18:03.1964190Z ✔ Suite "Capture shutdown tail" passed after 3.799 seconds.
+2026-11-06T21:18:03.1965500Z ✔ Suite "English provider wire contracts; no cloud calls" passed after 3.799 seconds.
+2026-11-06T21:18:03.1966260Z ✔ Test sameURLReusedWebEditorLayoutExpiresBinding() passed after 3.625 seconds.
+2026-11-06T21:18:03.1966900Z ✔ Suite "RC store ownership, migrations and archive" passed after 3.805 seconds.
+2026-11-06T21:18:03.1967550Z ✔ Suite "Recognition setup configuration" passed after 3.807 seconds.
+2026-11-06T21:18:03.1968170Z ✔ Test atomicBudgetAllowsExactlySixEvenWhenContended() passed after 3.229 seconds.
+2026-11-06T21:18:03.1969250Z ✔ Test alreadyCancelledAttemptDoesNotReadCredentials() passed after 3.229 seconds.
+2026-11-06T21:18:03.1969850Z ✔ Test focusAwayAndBackExpiresBinding() passed after 3.614 seconds.
+2026-11-06T21:18:03.1970780Z ✘ Test HTTPErrorPayloadProducesSafeSpecificDiagnostic(fault:) with 7 test cases failed after 3.237 seconds with 7 issues.
+2026-11-06T21:18:03.1971550Z ✔ Suite "Fusion store authority and measurement" passed after 3.817 seconds.
+2026-11-06T21:18:03.1972580Z ✔ Suite "Chunked playback seeking" passed after 3.818 seconds.
+2026-11-06T21:18:03.1973290Z ✔ Suite "Single transcript engine configuration" passed after 3.818 seconds.
+2026-11-06T21:18:03.1973870Z ✔ Suite "Owned store path boundaries" passed after 3.819 seconds.
+2026-11-06T21:18:03.1974660Z ✔ Suite "Evidence-constrained fusion publication" passed after 3.819 seconds.
+2026-11-06T21:18:03.1975310Z ✔ Suite "Chinese and multilingual provider wire contracts" passed after 3.819 seconds.
+2026-11-06T21:18:03.1975880Z ✔ Suite "Audio file boundary recovery" passed after 3.820 seconds.
+2026-11-06T21:18:03.1976390Z ✔ Suite "Decoded arbitration response audit" passed after 3.819 seconds.
+2026-11-06T21:18:03.1977090Z ✔ Suite "Arbiter evidence and blind acoustic review" passed after 3.819 seconds.
+2026-11-06T21:18:03.1977700Z ✔ Suite "Isolated real Keychain credentials" passed after 3.819 seconds.
+2026-11-06T21:18:03.1978360Z ✔ Suite "Actual current-generation recognition presentation" passed after 3.819 seconds.
+2026-11-06T21:18:03.1979200Z ✔ Suite "Saved audio real-time replay" passed after 3.819 seconds.
+2026-11-06T21:18:03.1979900Z ✔ Suite "Isolated connection setup without provider requests" passed after 3.819 seconds.
+2026-11-06T21:18:03.1980590Z ✔ Suite "Audio journal, bounded ring and VAD" passed after 3.820 seconds.
+2026-11-06T21:18:03.1981240Z ✔ Suite "Parallel audio and precision review boundaries" passed after 3.820 seconds.
+2026-11-06T21:18:03.1981920Z ✔ Suite "Meta Muse actual streaming protocol; no cloud calls" passed after 3.820 seconds.
+2026-11-06T21:18:03.1983120Z ✔ Test settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) with 2 test cases passed after 2.343 seconds.
+2026-11-06T21:18:03.1984210Z ✔ Test sameConfigurationUpdateAlsoInvalidatesPendingAdmission() passed after 2.343 seconds.
+2026-11-06T21:18:03.1985010Z ✔ Test storePendingErasureResumesAfterCrash() passed after 3.853 seconds.
+2026-11-06T21:18:03.1985680Z ✔ Test incompleteSemanticContextRejectsContinuousButKeepsManual() passed after 3.664 seconds.
+2026-11-06T21:18:03.1986540Z ✔ Test contextualGraphemeBoundariesAndByteIdentityAreMandatory() passed after 3.642 seconds.
+2026-11-06T21:18:03.1987880Z ✔ Test countOnlyTapNeverReadsSampleDataAndRunsOffMain() passed after 3.574 seconds.
+2026-11-06T21:18:03.1989420Z ✔ Test recordingTapCreatedOnMainActorRunsOnBackgroundThread() passed after 3.574 seconds.
+2026-11-06T21:18:03.1990470Z ✔ Test realtimeWriteFailureStopsWorkerAndSealsEmptyRecord() passed after 2.662 seconds.
+2026-11-06T21:18:03.1991110Z ✔ Test oldResponseIdentityIsIgnored() passed after 3.877 seconds.
+2026-11-06T21:18:03.1991800Z ✔ Test terminalFailuresAndBufferLimitCannotPublish(behavior:) with 3 test cases passed after 3.877 seconds.
+2026-11-06T21:18:03.1992690Z ✔ Test unsupportedSocketFallsBackOnlyToSameConfiguredGPT() passed after 3.877 seconds.
+2026-11-06T21:18:03.1993520Z ✔ Test storeCompletedTombstoneCleansResidualFilesOnRecovery() passed after 3.881 seconds.
+2026-11-06T21:18:03.1994350Z ✔ Test pendingDeletionDatabaseFailureStillStopsStartupAndCanRetry() passed after 3.496 seconds.
+2026-11-06T21:18:03.1995320Z ✔ Test testchangedPageStopsBeforeDispatch() passed after 3.725 seconds.
+2026-11-06T21:18:03.1995950Z ✔ Test testexistingSpeechNeverAutomaticallyReplayed() passed after 3.733 seconds.
+2026-11-06T21:18:03.1996680Z ✔ Suite "Recognition settings generation admission" passed after 3.961 seconds.
+2026-11-06T21:18:03.1997280Z ✔ Test cancellationOnlyRemovesCapturedSessionsNotNewlyRetiredOnes() passed after 2.565 seconds.
+2026-11-06T21:18:03.1998270Z ✔ Test cancellationBeforeStartDoesNotWrite() passed after 3.799 seconds.
+2026-11-06T21:18:03.1998960Z ✔ Suite "Real-time tap actor isolation" passed after 4.012 seconds.
+2026-11-06T21:18:03.1999460Z ✔ Suite "Capture storage failures" passed after 4.018 seconds.
+2026-11-06T21:18:03.2000230Z ✔ Test timeoutClosesSocketAndDoesNotUseFallback() passed after 4.013 seconds.
+2026-11-06T21:18:03.2001140Z ✔ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() passed after 3.618 seconds.
+2026-11-06T21:18:03.2002270Z ✔ Test testtimeoutIsUncertainAndNeverRetried() passed after 3.878 seconds.
+2026-11-06T21:18:03.2003430Z ✔ Test injectedWorkspaceActivationExpiresBindingWithoutChangingFakeSnapshot() passed after 3.890 seconds.
+2026-11-06T21:18:03.2004210Z ✔ Test persistentLaneUsesLineageAndManifestDeltasNeverPartialJSON() passed after 4.087 seconds.
+2026-11-06T21:18:03.2004980Z ✔ Test explicitCancelPreventsFutureRequests() passed after 4.094 seconds.
+2026-11-06T21:18:03.2005720Z ✔ Test inaccessibleAudioParentNeverCertifiesPendingOrResidualErasure(completed:) with 2 test cases passed after 3.707 seconds.
+2026-11-06T21:18:03.2006680Z ✔ Suite "Audio controller shutdown" passed after 4.115 seconds.
+2026-11-06T21:18:03.2007240Z ✔ Test cancellationDuringReservationNeverReachesAX() passed after 3.929 seconds.
+2026-11-06T21:18:03.2007950Z ✔ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() passed after 3.400 seconds.
+2026-11-06T21:18:03.2009060Z ✘ Test deadlineAndExplicitCancellationEndOwnedProviders() recorded an issue at CloudConnectionVerificationTests.swift:321:13: Expectation failed: (probe.stoppedCount → 1) == 2
+2026-11-06T21:18:03.2010240Z ✔ Test audioDeletionInvalidatesEpochBeforeLateCallbacks() passed after 4.126 seconds.
+2026-11-06T21:18:03.2011020Z ✔ Test cancellationRejectsInFlightCallbacksWithoutErasingAudio() passed after 4.126 seconds.
+2026-11-06T21:18:03.2011690Z ✔ Suite "Independent lifecycle stop reasons" passed after 4.198 seconds.
+2026-11-06T21:18:03.2013110Z ✔ Test GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) with 10 test cases passed after 3.614 seconds.
+2026-11-06T21:18:03.2014160Z ✔ Test cancellingActualGPTSocketClosesPeerBeforeAnyFinalSelection() passed after 3.627 seconds.
+2026-11-06T21:18:03.2015310Z ✔ Test cacheMissReplaysFullAuthoritativeManifestOnce() passed after 4.205 seconds.
+2026-11-06T21:18:03.2016110Z ✔ Test credentialAndConfigurationChangesInvalidateConnectionCache() passed after 4.204 seconds.
+2026-11-06T21:18:03.2016990Z ✔ Test inaccessiblePendingDeletionDoesNotBlockStartupOrIndependentRecords() passed after 3.834 seconds.
+2026-11-06T21:18:03.2017980Z ✔ Suite "Persistent single GPT transport, deterministic no-network protocol" passed after 4.262 seconds.
+2026-11-06T21:18:03.2019190Z ✔ Test unsupportedGPTWebSocketUsesSameModelProductionHTTPStreamingClient() passed after 3.700 seconds.
+2026-11-06T21:18:03.2019820Z ✔ Suite "Storage failure state remains recoverable" passed after 4.319 seconds.
+2026-11-06T21:18:03.2020560Z ✔ Test revocationDuringAvailabilityFencesHandoverAndDropsOldOwners() passed after 2.971 seconds.
+2026-11-06T21:18:03.2021190Z ✔ Test failedExpertDoesNotStopOtherAudioOrDestroyOriginal() passed after 4.554 seconds.
+2026-11-06T21:18:03.2022010Z ✔ Test unavailableAppleQueuesAndNextRecordingIsLocalWithoutAToggle(supported:) with 2 test cases passed after 3.334 seconds.
+2026-11-06T21:18:03.2022850Z ✘ Test deadlineAndExplicitCancellationEndOwnedProviders() failed after 4.214 seconds with 1 issue.
+2026-11-06T21:18:03.2023550Z ✔ Test oneProviderFailureDoesNotEraseHealthyProviderStatus() passed after 4.255 seconds.
+2026-11-06T21:18:03.2024640Z ✔ Test identicalAudioWaitsForBothExpertsBeforeQualityPublication() passed after 5.055 seconds.
+2026-11-06T21:18:03.2025320Z ✔ Test unobservableWebOnlyAllowsExplicitManualInsertion() passed after 5.043 seconds.
+2026-11-06T21:18:03.2026230Z ✔ Test recoveryPreservesExternalReservationWithoutRepeatingStableText(state:) with 2 test cases passed after 3.846 seconds.
+2026-11-06T21:18:03.2026940Z ✔ Test lostLocalReadCapabilityStopsNextAppend() passed after 5.131 seconds.
+2026-11-06T21:18:03.2027840Z ✔ Test userSelectionDuringConfirmationStopsBinding() passed after 5.113 seconds.
+2026-11-06T21:18:03.2028630Z ✔ Test ownInsertionNotificationKeepsContinuousBinding() passed after 5.114 seconds.
+2026-11-06T21:18:03.2029600Z ✔ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() passed after 5.118 seconds.
+2026-11-06T21:18:03.2030390Z ✔ Test mutationOfConfirmedTailStopsNextAppend() passed after 5.118 seconds.
+2026-11-06T21:18:03.2031210Z ✔ Test nonNetworkFailureStopsAutomaticCloudAttempts(reason:) with 6 test cases passed after 3.901 seconds.
+2026-11-06T21:18:03.2032160Z ✔ Test rejectedArbitrationRetainsDecodedResponseWithoutPublishingIt() passed after 5.269 seconds.
+2026-11-06T21:18:03.2033050Z ✔ Test legacyFastModeCannotBypassMandatoryGPTReview() passed after 5.270 seconds.
+2026-11-06T21:18:03.2074440Z ✔ Test mandatoryFinalGPTReviewWaitsEvenWhenExpertsAgree(simultaneous:) with 2 test cases passed after 5.271 seconds.
+2026-11-06T21:18:03.2075530Z ✔ Test revocationCancelsAlreadyAdmittedSessionWhileCaptureStopIsSuspended() passed after 4.120 seconds.
+2026-11-06T21:18:03.2076400Z ✔ Test completeSyntheticPipelineRemainsNonLiveAndDoesNotExportSecrets(unsupportedSocket:) with 2 test cases passed after 4.956 seconds.
+2026-11-06T21:18:03.2077060Z ✔ Suite "Capture session ownership across suspension" passed after 5.536 seconds.
+2026-11-06T21:18:03.2077670Z ✔ Test persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) with 5 test cases passed after 5.025 seconds.
+2026-11-06T21:18:03.2078450Z ✔ Test stalePartialReviewDoesNotInvalidateLaterAcceptedFinal() passed after 5.045 seconds.
+2026-11-06T21:18:03.2079580Z ✔ Test teststableSuffixOnlyOnce() passed after 5.635 seconds.
+2026-11-06T21:18:03.2080160Z ✔ Test v3MigrationPreservesLedgerAndInvalidatesOnlyRuntimeOwnership() passed after 5.705 seconds.
+2026-11-06T21:18:03.2080970Z ✔ Test slowAcknowledgementIsConfirmedWithoutResending() passed after 5.757 seconds.
+2026-11-06T21:18:03.2083130Z ✔ Test lateEarlierRecordingIsDeferredWithoutBlockingNextSpeech() passed after 5.759 seconds.
+2026-11-06T21:18:03.2097350Z ✘ Test productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS(fault:) recorded an issue with 1 argument fault → "normal" at ProtocolNetworkIntegrationTests.swift:288:9: Expectation failed: displayed.contains { $0.contains("请支付") }
+2026-11-06T21:18:03.2099700Z ✘ Test productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS(fault:) recorded an issue with 1 argument fault → "unbacked_selection" at ProtocolNetworkIntegrationTests.swift:288:9: Expectation failed: displayed.contains { $0.contains("请支付") }
+2026-11-06T21:18:03.2100920Z ✔ Test userEditAndUndoStillInvalidatesOwnership() passed after 6.365 seconds.
+2026-11-06T21:18:03.2101680Z ✔ Test failedFusionExpertPreventsStaleExternalAttemptWithoutBlockingNextSpeech() passed after 6.426 seconds.
+2026-11-06T21:18:03.2102340Z ✔ Test changedTargetNeverMutated(change:) with 9 test cases passed after 6.378 seconds.
+2026-11-06T21:18:03.2103090Z ✔ Test durableReservationPrecedesSelectedRangeAndInvalidationPreventsTextSetter() passed after 6.444 seconds.
+2026-11-06T21:18:03.2105840Z ✔ Test finalReviewRunsAgainAfterLiveReview(appendMore:) with 2 test cases passed after 6.572 seconds.
+2026-11-06T21:18:03.2107850Z ✔ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) with 2 test cases passed after 5.296 seconds.
+2026-11-06T21:18:03.2108960Z ✔ Test cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) with 4 test cases passed after 6.484 seconds.
+2026-11-06T21:18:03.2110930Z ✔ Test rateLimitUsesLocalThenWaitsAtLeastServerBackoffBeforeNextCloudProbe() passed after 5.279 seconds.
+2026-11-06T21:18:03.2112040Z ✔ Test incompleteOrUnownedEvidenceCannotRepair(mode:) with 7 test cases passed after 6.484 seconds.
+2026-11-06T21:18:03.2113390Z ✔ Test cancellationDuringLiveReviewFinalizationClosesDurableAttempt(watchdog:) with 2 test cases passed after 6.621 seconds.
+2026-11-06T21:18:03.2114760Z ✔ Suite "Production capture to single-core recognition with isolated transports" passed after 6.692 seconds.
+2026-11-06T21:18:03.2116220Z ✔ Test crashAfterReservationIsUnverifiedAndCannotReserveAgain() passed after 6.498 seconds.
+2026-11-06T21:18:03.2117410Z ✔ Test productionFusionPublicationReachesIncrementalCoordinatorOnce() passed after 6.504 seconds.
+2026-11-06T21:18:03.2118770Z ✔ Test newerEvidenceRevokesStaleCorrectionEvenBeforePublication() passed after 6.470 seconds.
+2026-11-06T21:18:03.2120150Z ✔ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() passed after 5.492 seconds.
+2026-11-06T21:18:03.2121630Z ✔ Test lateTailCannotBeAppendedAfterAnotherRecording() passed after 6.515 seconds.
+2026-11-06T21:18:03.2122410Z ✔ Test uncertainReplacementConsumedOnceAndRestartCannotReplay() passed after 6.512 seconds.
+2026-11-06T21:18:03.2123190Z ✔ Test blockedGPTDoesNotSpinOrCertifyAgreeingExperts() passed after 6.695 seconds.
+2026-11-06T21:18:03.2124480Z ✔ Test deleteAudioKeepsCorrectionHistoryButDeleteRecordErasesIt() passed after 6.599 seconds.
+2026-11-06T21:18:03.2125540Z ✔ Test repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) with 4 test cases passed after 6.209 seconds.
+2026-11-06T21:18:03.2126760Z ✔ Test cancellationWaitsForIndependentLiveReviewToExit() passed after 6.782 seconds.
+2026-11-06T21:18:03.2127920Z ✔ Suite "Real coordinator with isolated persistence and controlled providers" passed after 6.856 seconds.
+2026-11-06T21:18:03.2129040Z ✔ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() passed after 5.644 seconds.
+2026-11-06T21:18:03.2130150Z ✔ Suite "Silent production AVAudioPlayer integration" passed after 6.854 seconds.
+2026-11-06T21:18:03.2132290Z ✔ Test twoProductionASRClientsReceiveIdenticalWholePCMAndEOS() passed after 6.298 seconds.
+2026-11-06T21:18:03.2133530Z ✔ Test unsupportedReplacementPendingDoesNotBlockIndependentRecord() passed after 6.653 seconds.
+2026-11-06T21:18:03.2134660Z ✔ Test shorterRepairKeepsInsertionLedgerMonotone() passed after 6.654 seconds.
+2026-11-06T21:18:03.2135630Z ✔ Test lengthChangingRepairPreservesUserPrefixSuffixAndAppendsOnlyNewSuffix() passed after 6.721 seconds.
+2026-11-06T21:18:03.2136680Z ✔ Test laterInsertionDefersEarlierCorrectionWithoutGlobalBlock() passed after 6.721 seconds.
+2026-11-06T21:18:03.2137860Z ✔ Test localRecoveryAfterShorteningRepairKeepsEffectivePrefixAndAddsOnlySuffix() passed after 6.722 seconds.
+2026-11-06T21:18:03.2139160Z ✔ Test unconfirmedInitialInsertionCannotCreateOwnershipAndDoesNotBlockNewRecord() passed after 6.729 seconds.
+2026-11-06T21:18:03.2141790Z PROTOCOL_ENGINE case=009D7BFE-1D7E-45AC-9C63-C4BFA629C504 visible_revisions=2 gpt_requests=4 final_state=failed scope=SIMULATED_PROTOCOL_NOT_LIVE_CLOUD
+2026-11-06T21:18:03.2143510Z ✔ Test realGPTCoreFinalizationPublishesActionableCorrectionFromFakeProviders() passed after 6.842 seconds.
+2026-11-06T21:18:03.2144880Z ✔ Suite "Owned range correction production path with synthetic OS and SQLite" passed after 7.040 seconds.
+2026-11-06T21:18:03.2146270Z PROTOCOL_ENGINE case=B5D48B34-1F34-4025-ABAA-8ED9719A5D38 visible_revisions=2 gpt_requests=4 final_state=completed scope=SIMULATED_PROTOCOL_NOT_LIVE_CLOUD
+2026-11-06T21:18:03.2147520Z ✘ Test productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS(fault:) with 2 test cases failed after 6.470 seconds with 2 issues.
+2026-11-06T21:18:03.2148800Z ✔ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() passed after 7.150 seconds.
+2026-11-06T21:18:03.2149590Z ✔ Suite "Input coordinator with isolated SQLite and simulated OS" passed after 7.326 seconds.
+2026-11-06T21:18:03.2150560Z ✔ Test networkFailuresCannotBecomeFinalTranscripts(service:fault:) with 14 test cases passed after 6.746 seconds.
+2026-11-06T21:18:03.2151640Z ✔ Test liveFailureFollowsDurableTailThenRestoresDualCloudOnNextSegment() passed after 6.434 seconds.
+2026-11-06T21:18:03.2152460Z ✔ Suite "Automatic cloud outage to durable Apple candidate failover" passed after 7.835 seconds.
+2026-11-06T21:18:03.2153370Z ✔ Test fastPartialReviewsCannotConsumeFinalConfirmationBudget(withRetrySeries:) with 2 test cases passed after 7.671 seconds.
+2026-11-06T21:18:03.2154360Z ✘ Suite "Connection authorization, bounded cost and truthful evidence; no network or Keychain" failed after 8.250 seconds with 1 issue.
+2026-11-06T21:18:03.2155180Z PROTOCOL_WIZARD case=F34B693F-F025-41C7-B89F-58076DA211E8 scenario=normal pipeline_completed=true wire_gpt_requests=2 readiness=NO_API_ENGINEERING_READY
+2026-11-06T21:18:03.2156090Z PROTOCOL_WIZARD case=8956DC26-CA56-4922-AE0F-38CC3C559F4F scenario=each_reconnect pipeline_completed=true wire_gpt_requests=4 readiness=NO_API_ENGINEERING_READY
+2026-11-06T21:18:03.2157230Z PROTOCOL_WIZARD case=8B836FEB-C53A-457E-8E15-D8CB8BA7871F scenario=churn pipeline_completed=true wire_gpt_requests=2 readiness=NO_API_ENGINEERING_READY
+2026-11-06T21:18:03.2158290Z PROTOCOL_WIZARD case=C2137470-5A5F-4426-B659-5F872D768BED scenario=unsupported pipeline_completed=true wire_gpt_requests=2 readiness=NO_API_ENGINEERING_READY
+2026-11-06T21:18:03.2159390Z ✔ Test actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:) with 4 test cases passed after 12.691 seconds.
+2026-11-06T21:18:03.2160240Z ✘ Suite "Real URLSession loopback protocol integration" failed after 13.280 seconds with 9 issues.
+2026-11-06T21:18:03.2160960Z ↳ /// Explicit opt-in: ordinary unit runs never launch a peer or use network credentials.
+2026-11-06T21:18:03.2161520Z ↳ /// scripts/test-protocol-simulator.sh supplies the loopback server for this suite.
+2026-11-06T21:18:03.2162280Z ✘ Test run with 364 tests in 42 suites failed after 13.282 seconds with 10 issues.

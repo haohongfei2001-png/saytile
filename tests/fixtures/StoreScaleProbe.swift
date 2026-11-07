@@ -1,14 +1,19 @@
 import Foundation
 import Darwin
+@testable import SaytileKit
 
 @main struct StoreScaleProbe {
     static func main() async { do {try await run()} catch {print("SCALE_ERROR \(error)");exit(1)} }
     static func run() async throws {
+        guard CommandLine.arguments.count == 3, let count = Int(CommandLine.arguments[2]), count >= 1_000 else {
+            throw StoreError.database("Usage: isolated-directory count (at least 1000)")
+        }
         let root = URL(fileURLWithPath:CommandLine.arguments[1])
-        let count = Int(CommandLine.arguments[2]) ?? 100_000
         let store = try SaytileStore(directory:root)
         let seed = try StoreDatabase(url:root.appendingPathComponent("Saytile.sqlite"))
         try seed.configureForWriting()
+        let schema = Int(try seed.rows("PRAGMA user_version").first?["user_version"] ?? "0") ?? 0
+        guard schema == 5 else { throw StoreError.database("Scale probe requires current schema 5") }
         let begin = Date()
         FileHandle.standardError.write(Data("PHASE seed\n".utf8))
         try seed.transaction {
@@ -55,7 +60,7 @@ import Darwin
         }
         let deleted = try await cleanupTask.value
         responsive.sort()
-        let stats:[String:Any] = ["recordings":count,"revisions":count*3,"seed_seconds":seedSeconds,"partial_writes":samples.count,"partial_write_p50_ms":samples[samples.count/2],"partial_write_p95_ms":samples[Int(Double(samples.count)*0.95)],"partial_write_max_ms":samples.last!,"search_ms":searchMS,"search_matches":matches.count,"last_page_ms":pageMS,"last_page_count":page.count,"recovery_claim_ms":recoveryMS,"recovery_found":pending != nil,"cleanup_count":deleted,"concurrent_write_p95_ms":responsive[95],"concurrent_write_max_ms":responsive.last!,"scope":"Synthetic archive with actual Store queries and SQLite FULL writes; excludes audio and UI"]
+        let stats:[String:Any] = ["schema":schema,"recordings":count,"revisions":count*3,"seed_seconds":seedSeconds,"partial_writes":samples.count,"partial_write_p50_ms":samples[samples.count/2],"partial_write_p95_ms":samples[Int(Double(samples.count)*0.95)],"partial_write_max_ms":samples.last!,"search_ms":searchMS,"search_matches":matches.count,"last_page_ms":pageMS,"last_page_count":page.count,"recovery_claim_ms":recoveryMS,"recovery_found":pending != nil,"cleanup_count":deleted,"concurrent_write_p95_ms":responsive[95],"concurrent_write_max_ms":responsive.last!,"scope":"Synthetic metadata archive with actual Store queries and SQLite FULL writes; cleanup tests metadata scheduling only, excludes audio files and UI"]
         print(String(data:try JSONSerialization.data(withJSONObject:stats,options:[.prettyPrinted,.sortedKeys]),encoding:.utf8)!)
         guard matches.count == count/1000,page.count == 100,pending != nil,samples.last! < 1000 else { throw StoreError.database("规模验证不满足基本响应要求") }
         try await store.close()

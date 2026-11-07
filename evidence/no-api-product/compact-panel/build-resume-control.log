@@ -1,0 +1,29 @@
+Building for production...
+[2 / 5] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:439:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+431 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+432 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+433 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+434 |             // A cancelled older check must fully close its sockets before another starts.
+435 |             await previous?.value
+    :
+437 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+438 |             do {
+439 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitS[3 / 6] Saytile-product
+trongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+440 |                     Task { @MainActor [weak self] in
+441 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[5 / 6] Saytile-product
+[6 / 6] Saytile-product
+Build complete! (9.42秒)
+/tmp/saytile-bundle.Jo3qFT/Saytile.app: replacing existing signature
+/tmp/saytile-bundle.Jo3qFT/Saytile.app/Contents/Info.plist: OK
+Built /tmp/saytile-compact-preview/Saytile.app

@@ -1,0 +1,86 @@
+{
+  "status": "ENGINE_CANDIDATE_VALIDATED_LIVE_ACCEPTANCE_PENDING",
+  "runtime_source": "875f66fef52c10eac0e927512c9bb726f43d8e4c",
+  "ci_merge_source": "38c98a13bf04deb9ed9e4057788019a2cecb70c3",
+  "identical_git_tree": "a2f94d97e81424ceec283fd111389a0634fee0b0",
+  "pr5_base": "fbe9349b4799883c117f61d5afc7c62ab5c82936",
+  "main_unchanged": "a352a1c812c33388a1a908f21ecde30da80ad1cd",
+  "local_native": {
+    "source": "d361f1eaa915af15eaaf4097912bcc878afe29a7",
+    "passed": 313,
+    "suites": 37,
+    "skipped": 0,
+    "note": "875f66f changes only standalone upgrade/crash fixtures and their evidence, not native target source/tests; same313 also passed exact875f66f CI merge tree."
+  },
+  "app_model_checks": 23,
+  "python_paired_tests": 20,
+  "python_existing_scoring_tests": 43,
+  "storage_process_checks": 12,
+  "packaged_upgrade_checks": 8,
+  "cloud_probe_isolation_cases": 4,
+  "connection_setup_checks": 7,
+  "ui": {
+    "captures": 15,
+    "rendering": "PASS",
+    "controls_requested": false,
+    "candidate_activated": false,
+    "outside_foreground_observations": 1,
+    "note": "One outside focus transition recorded without attribution; no native target AX patch acceptance claimed."
+  },
+  "ci": {
+    "native": {
+      "id": 42286973119,
+      "conclusion": "success"
+    },
+    "contracts": {
+      "id": 42286973120,
+      "conclusion": "success"
+    }
+  },
+  "candidate": {
+    "version": "1.0.0-engine.single-transcript.1",
+    "signing": "ad-hoc; not Developer ID notarized",
+    "installed_to_production": false,
+    "ci_artifact_id": 13538281787,
+    "ci_archive_sha256": "789fc423112998599c8518bee81b723cd3d4dbbb18f01221fa7b0ee422d71a3c",
+    "ci_inner_app_zip_sha256": "0d6e374fbeb303137a56d08afee250bc92aad6517db4431365678b713019f001",
+    "local_release_zip_sha256": "30435f268b93e1e9839d6dbdfaf750551811e87f9c34a7ac4251ce220de08b76",
+    "local_dmg_sha256": "1005cf0ad834f8b36ff97c1a9f56d432dd1a204e66d8373a7343a0e6c69d97bd",
+    "ci_artifact_expires_at": "2026-11-20T20:20:34Z",
+    "ci_artifact_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/42286973119/artifacts/13538281787"
+  },
+  "live_quality": {
+    "A": "NOT_RUN",
+    "B": "NOT_RUN",
+    "C": "NOT_RUN",
+    "D": "NOT_RUN",
+    "E": "NOT_RUN",
+    "F": "NOT_AVAILABLE",
+    "cloud_test_requests": 0,
+    "audio_uploaded": false,
+    "accuracy": null,
+    "latency": null,
+    "blocking_conditions": "Saytile-specific credentials/configuration absent and cloud processing not enabled; no claim about API keys in other apps."
+  },
+  "remaining_acceptance": [
+    "Real cloud API handshake/auth/latency and paired24/112 quality",
+    "Real Apple SpeechAnalyzer/microphone recognition on target audio",
+    "Real target-app AX selected-range repair compatibility",
+    "Long wall-clock continuous capture/energy/thermal soak"
+  ],
+  "scope_limits": [
+    "Owned repair supports only latest still-owned record at exact unchanged caret; cannot relocate arbitrary older ranges.",
+    "AX is not a cross-process compare-and-swap; immediate pre/post checks and no retries on uncertain outcomes.",
+    "Automatic fallback is triggered by observed ASR failure; GPT-only failure retains original recovery behavior, not an Apple failover trigger.",
+    "Online re-probe occurs at a later segment after bounded backoff; no paid service auto-enrollment.",
+    "13.44MB journal test is accelerated synthetic data, not24h wall-clock proof."
+  ],
+  "private_log_hashes": {
+    "native-final-all-console.log": "08f02ae6e52507b70d1c3fe331d42f50f38cfe7edcb0ed90af60843d389f4062",
+    "final-checks/appmodel.log": "33379b108aa794aff28e831ebd822758da787d5253b428e2bcfe8159fc93d29c",
+    "final-checks/storage.log": "fa36253d34bfd27254a770f66c0389d3e64c7667e25035f08550eb89a642f064",
+    "final-checks/package.log": "6d653a1db0c1db96f8e7ccff44122559ecf6108bf9d0a4e85443104c176f6236",
+    "final-checks/ui.log": "8e7a575390e55ff195e59ba0f68993331405b582c140246d687173a2dc60ed5e",
+    "final-checks/install-upgrade-console.log": "87f227050d938dc2403a5ee7ed048b6ce890c282430489814a559f47a1f5ba4d"
+  }
+}

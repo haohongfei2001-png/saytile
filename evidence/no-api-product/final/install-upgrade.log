@@ -1,0 +1,96 @@
+
+
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $09F07C96
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $183379C3
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $2CE55DF4
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $F1768104
+正在检查“（Apple_Free：5）”的校验和…
+                      （Apple_Free：5）：已验证CRC32 $00000000
+正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $2CE55DF4
+正在检查“GPT Header（Backup GPT Header：7）”的校验和…
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $AC95DF30
+已验证CRC32 $CC7BA68C
+hdiutil: verify: checksum of "/Users/hhf/Documents/GitHub/saytile/dist/Saytile-1.0.0-rc.1-arm64.dmg" is VALID
+
+预计CRC32 $CC7BA68C
+/dev/disk4          	GUID_partition_scheme          	
+/dev/disk4s1        	Apple_APFS                     	
+/dev/disk7          	EF57347C-0000-11AA-AA11-0030654	
+/dev/disk7s1        	41504653-0000-11AA-AA11-0030654	/private/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-install-upgrade-8m4qe9ul/mount
+hdiutil: WARNING: 'hdiutil attach -readonly -nobrowse -mountpoint ...' is deprecated. Please use 'diskutil image attach --readOnly --mountOptions nobrowse --mountPoint ...' instead.
+
+
+
+
+"disk4" ejected.
+hdiutil: WARNING: 'hdiutil detach ...' is deprecated. Please use 'diskutil eject ...' instead.
+
+SAYTILE_SMOKE_OK records=1 microphone=已允许
+sandbox_extension_issue_file_to_process failed for /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-install-upgrade-8m4qe9ul/Applications/Saytile.app: 1 (Operation not permitted)
+
+
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $DDFEE981
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $9C399C1A
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $D83C6FFB
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $E033F47A
+正在检查“（Apple_Free：5）”的校验和…
+                      （Apple_Free：5）：已验证CRC32 $00000000
+正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $D83C6FFB
+正在检查“GPT Header（Backup GPT Header：7）”的校验和…
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $91375E10
+已验证CRC32 $C2002A71
+hdiutil: verify: checksum of "/Users/hhf/.codex/worktrees/saytile-no-api-product/dist/Saytile-1.0.0-rc.2-no-api.3-arm64.dmg" is VALID
+
+预计CRC32 $C2002A71
+/dev/disk4          	GUID_partition_scheme          	
+/dev/disk4s1        	Apple_APFS                     	
+/dev/disk7          	EF57347C-0000-11AA-AA11-0030654	
+/dev/disk7s1        	41504653-0000-11AA-AA11-0030654	/private/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-install-upgrade-8m4qe9ul/mount
+hdiutil: WARNING: 'hdiutil attach -readonly -nobrowse -mountpoint ...' is deprecated. Please use 'diskutil image attach --readOnly --mountOptions nobrowse --mountPoint ...' instead.
+
+
+
+
+"disk4" ejected.
+hdiutil: WARNING: 'hdiutil detach ...' is deprecated. Please use 'diskutil eject ...' instead.
+
+SAYTILE_SMOKE_OK records=1 microphone=已允许 bundled_sample_bytes=200706
+sandbox_extension_issue_file_to_process failed for /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-install-upgrade-8m4qe9ul/Applications/Saytile.app: 1 (Operation not permitted)
+
+SAYTILE_STARTUP_FAILED 资料库暂时不可用：资料库来自更新版本，请升级 Saytile。
+sandbox_extension_issue_file_to_process failed for /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-install-upgrade-8m4qe9ul/previous-app/Saytile.app: 1 (Operation not permitted)
+
+SAYTILE_SMOKE_OK records=1 microphone=已允许
+sandbox_extension_issue_file_to_process failed for /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-install-upgrade-8m4qe9ul/previous-app/Saytile.app: 1 (Operation not permitted)
+
+SAYTILE_SMOKE_OK records=1 microphone=已允许 bundled_sample_bytes=200706
+sandbox_extension_issue_file_to_process failed for /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-install-upgrade-8m4qe9ul/Applications/Saytile.app: 1 (Operation not permitted)
+
+SAYTILE_SMOKE_OK records=1 microphone=已允许 bundled_sample_bytes=200706
+sandbox_extension_issue_file_to_process failed for /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-install-upgrade-8m4qe9ul/Applications/Saytile.app: 1 (Operation not permitted)
+
+SAYTILE_SMOKE_OK records=1 microphone=已允许 bundled_sample_bytes=200706
+sandbox_extension_issue_file_to_process failed for /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-install-upgrade-8m4qe9ul/Applications/Saytile.app: 1 (Operation not permitted)
+
+SAYTILE_STARTUP_FAILED 资料库暂时不可用：这份资料已由另一个 Saytile 实例打开。请关闭另一个实例后重试。
+sandbox_extension_issue_file_to_process failed for /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-install-upgrade-8m4qe9ul/Applications/Saytile.app: 1 (Operation not permitted)
+
+SAYTILE_ISOLATED_LAUNCH cloud_enabled=false automatic_recovery=false shortcut=disabled visible_panel=false hotkey_registered=false
+sandbox_extension_issue_file_to_process failed for /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-install-upgrade-8m4qe9ul/Applications/Saytile.app: 1 (Operation not permitted)
+
+SAYTILE_SMOKE_OK records=1 microphone=已允许 bundled_sample_bytes=200706
+sandbox_extension_issue_file_to_process failed for /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-install-upgrade-8m4qe9ul/Applications/Saytile.app: 1 (Operation not permitted)

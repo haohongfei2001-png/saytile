@@ -1,0 +1,82 @@
+Building for debugging...
+[Planning 125 / 184]
+[Starting]
+[52 / 132]
+[83 / 143]
+[105 / 143]
+[110 / 143] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[111 / 143] SaytileKit
+[123 / 282]
+[136 / 282]
+[139 / 282]
+[145 / 282]
+[148 / 282]
+[156 / 282]
+[158 / 282]
+[161 / 282]
+[162 / 282]
+[176 / 282]
+[178 / 282]
+[182 / 282]
+[187 / 282]
+[188 / 282]
+[189 / 282]
+[196 / 282]
+[198 / 282]
+[203 / 282]
+[204 / 282]
+[205 / 282]
+[207 / 282]
+[210 / 282]
+[222 / 282]
+[223 / 282]
+[228 / 282]
+[233 / 282]
+[236 / 282]
+[237 / 282]
+[238 / 282]
+[239 / 282]
+[250 / 282] SaytileKit
+[251 / 282] SaytileKit
+[261 / 283] Saytile-product
+[264 / 294] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[271 / 295] SaytileKitTests-product
+[272 / 310]
+[275 / 310]
+[285 / 310] SaytileKitTests-product
+[286 / 310] SaytileKitTests-product
+[287 / 310] SaytileKitTests-product
+[291 / 310]
+[294 / 310] Saytile-product
+[295 / 310] Saytile-product
+[297 / 310] Saytile-product
+error: SwiftCompile normal arm64 /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/CloudConnectionVerificationTests.swift failed with a nonzero exit code. Command line:     cd /Users/hhf/.codex/worktrees
+    builtin-SwiftPerFileCompile CloudConnectionVerificationTests.swift
+error: SwiftCompile normal arm64 /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/CloudCredentialTests.swift failed with a nonzero exit code. Command line:     cd /Users/hhf/.codex/worktrees
+    builtin-SwiftPerFileCompile CloudCredentialTests.swift
+error: SwiftCompile normal arm64 /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ConnectionSetupTests.swift failed with a nonzero exit code. Command line:     cd /Users/hhf/.codex/worktrees
+    builtin-SwiftPerFileCompile ConnectionSetupTests.swift
+error: SwiftCompile normal arm64 /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/EnglishProviderProtocolTests.swift failed with a nonzero exit code. Command line:     cd /Users/hhf/.codex/worktrees
+    builtin-SwiftPerFileCompile EnglishProviderProtocolTests.swift
+macro expansion #expect:2:3: error: call can throw, but it is not marked with 'try' and the error is not handled
+`- /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/CloudConnectionVerificationTests.swift:217:62: note: expanded code originates here
+215 |         #expect(report.transcript == "不要发送 send later" && report.readiness == .noAPIEngineeringReady && !report.canEnableCloud)
+216 |         #expect(!config.cloudEnabled && config.topicContext == "PRIVATE_TOPIC_SENTINEL")
+217 |         #expect(probe.observedContexts.allSatisfy(\.isEmpty))
+    |         |- note: in expansion of macro 'expect' here
+    |         `- note: in expansion of macro 'expect' here
+    +--- macro expansion #expect ---------------------------------------
+    |1 | Testing.__checkFunctionCall(probe.observedContexts.self,calling: {
+    |2 |   $0.allSatisfy($1)
+    |  |   |             `- note: call is to 'rethrows' function, but argument function can throw
+    |  |   `- error: call can throw, but it is not marked with 'try' and the error is not handled
+    |3 | },\.isEmpty,expression: .__fromFunctionCall(.__fromSyntaxNode("probe.observedContexts"),"allSatisfy",(nil,.__fromSyntaxNode(#"\.isEmpty"#))),comments: [],isRequired: false,sourceLocation: Testing.SourceLocation.__here()).__expected()
+    +-------------------------------------------------------------------
+218 |         #expect(report.reviewRequests == probe.requests.count + probe.fallbackCount && (1...6).contains(report.reviewRequests))
+219 |         #expect(unsupportedSocket ? probe.fallbackCount == 1 : probe.fallbackCount == 0)
+Failed frontend command:
+/Library/Developer/CommandLineTools/usr/bin/swift-frontend -frontend -c /tmp/saytile-connection-check-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/DerivedSources/test_entry_point.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ASRProtocolReliabilityTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ArbiterEvidenceTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ArbitrationAuditTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/AudioJournalBoundaryTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/AudioLifecycleGateTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/AudioLifecycleTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/AudioPlaybackTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/AudioShutdownTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/AudioStorageFailureTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/AudioTapTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/AudioTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/CaptureCloudIntegrationTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/CaptureOwnershipTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ChineseProviderProtocolTests.swift -primary-file /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/CloudConnectionVerificationTests.swift -primary-file /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/CloudCredentialTests.swift -primary-file /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ConnectionSetupTests.swift -primary-file /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/EnglishProviderProtocolTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/FusionPublicationTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/FusionRevisionSafetyTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/GPTReviewSessionTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/InputTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/JournalRangeAndLocalIngressTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/MetaProviderProtocolTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/MultiRecognitionDiagnosticsTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/MultiRecognitionTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/OfflineFailoverTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/OwnedRangeRepairTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/ProtocolNetworkIntegrationTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/RecognitionCoordinatorTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/RecognitionFactorySafetyTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/RecognitionPhaseTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/RecognitionPipelineBoundaryTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/SavedAudioReplayTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/SingleTranscriptEngineTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/SpeechResultTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/StorageRecoveryFailureTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/StoreDispatchTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/StoreFusionSafetyTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/StoreRCTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/StoreTests.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/tests/SaytileKitTests/WindowPlacementTests.swift -supplementary-output-file-map /tmp/saytile-connection-check-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/supplementaryOutputs-14 -target arm64-apple-macos26.0 -module-can-import-version Testing 2084 0 -disable-cross-import-overlay-search -swift-module-cross-import Darwin /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/usr/include/Darwin.swiftcrossimport/xlocale.swiftoverlay -swift-module-cross-import Testing /Library/Developer/CommandLineTools/Library/Developer/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/AppKit.swiftoverlay -swift-module-cross-import Testing /Library/Developer/CommandLineTools/Library/Developer/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/CoreGraphics.swiftoverlay -swift-module-cross-import Testing /Library/Developer/CommandLineTools/Library/Developer/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/CoreImage.swiftoverlay -swift-module-cross-import Testing /Library/Developer/CommandLineTools/Library/Developer/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/CoreTransferable.swiftoverlay -swift-module-cross-import Testing /Library/Developer/CommandLineTools/Library/Developer/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/Foundation.swiftoverlay -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libObservationMacros.dylib\#\#ObservationMacros -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#\#SwiftMacros -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib\#\#TestingMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /tmp/saytile-connection-check-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/SaytileKitTests-dependencies-1.json -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk -I /tmp/saytile-connection-check-tests/out/Products/Debug -Isystem /Library/Developer/CommandLineTools/Developer/usr/lib -F /tmp/saytile-connection-check-tests/out/Products/Debug/PackageFrameworks -F /tmp/saytile-connection-check-tests/out/Products/Debug -F /Library/Developer/CommandLineTools/Library/Developer/Frameworks -F /Library/Developer/CommandLineTools/Developer/Library/Frameworks -module-cache-path /tmp/saytile-connection-check-tests/out/Intermediates.noindex/SwiftExplicitPrecompiledModules -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=5 -swift-version 6 -Onone -D SWIFT_PACKAGE -D DEBUG -D Xcode -serialize-debugging-options -enable-experimental-feature DebugDescriptionMacro -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /tmp/saytile-connection-check-tests/out/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/hhf/.codex/worktrees -enable-anonymous-context-mangled-names -file-compilation-dir /Users/hhf/.codex/worktrees -Xcc -fmodule-map-file\=/tmp/saytile-connection-check-tests/out/Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap -Xcc -fmodule-map-file\=/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/CSQLite/module.modulemap -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /tmp/saytile-connection-check-tests/out/SDKStatCaches.noindex/macosx27.0-26A425-a0facfad118c1a7a18f0aad9463f6549ffd68ff603bdaacc80b00cb8898de72d.sdkstatcache -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -Xcc -I/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/CAudio/include -Xcc -I/tmp/saytile-connection-check-tests/out/Products/Debug/include -Xcc -I/tmp/saytile-connection-check-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/DerivedSources-normal/arm64 -Xcc -I/tmp/saytile-connection-check-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/DerivedSources/arm64 -Xcc -I/tmp/saytile-connection-check-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -no-auto-bridging-header-chaining -module-name SaytileKitTests -package-name saytile_no_api_product -const-gather-protocols-file /tmp/saytile-connection-check-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/SaytileKitTests_const_extract_protocols.json -disable-clang-spi -clang-target arm64-apple-macos27.0 -target-sdk-version 27.0 -target-sdk-name macosx27.0 -in-process-plugin-server-path /Library/Developer/CommandLineTools/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -parse-as-library -o /tmp/saytile-connection-check-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/CloudConnectionVerificationTests.o -o /tmp/saytile-connection-check-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/CloudCredentialTests.o -o /tmp/saytile-connection-check-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/ConnectionSetupTests.o -o /tmp/saytile-connection-check-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/EnglishProviderProtocolTests.o -debug-module-path /tmp/saytile-connection-check-tests/out/Intermediates.noindex/Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/SaytileKitTests.swiftmodule -index-unit-output-path /Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/CloudConnectionVerificationTests.o -index-unit-output-path /Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/CloudCredentialTests.o -index-unit-output-path /Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/ConnectionSetupTests.o -index-unit-output-path /Saytile.build/Debug/SaytileKitTests-p.build/Objects-normal/arm64/EnglishProviderProtocolTests.o -index-store-path /tmp/saytile-connection-check-tests/out -index-system-modules
+error: Build failed
+error: fatalError

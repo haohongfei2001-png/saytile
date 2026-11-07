@@ -1,0 +1,94 @@
+Building for debugging...
+[2 / 62]
+[37 / 63] CAudio
+[50 / 63] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[51 / 63] SaytileKit
+[62 / 74] SaytileKit
+[66 / 76] SaytileKit
+[66 / 76] Saytile-product
+[69 / 84] Saytile-product
+[72 / 84] Saytile-product
+[74 / 84] Saytile-product
+[75 / 86] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[80 / 88] Saytile-product
+[80 / 88] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:362:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+354 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+355 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+356 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+357 |             // A cancelled older check must fully close its sockets before another starts.
+358 |             await previous?.value
+    :
+360 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+361 |             do {
+362 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+363 |                     Task { @MainActor [weak self] in
+364 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[90 / 99] SaytileKitTests-product
+[91 / 99] SaytileKitTests-product
+[94 / 100] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[96 / 100] Saytile-product
+[98 / 102] SaytileKitTests-product
+[100 / 102] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (11.54秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Arbiter evidence and blind acoustic review" started.
+◇ Suite "Persistent single GPT transport, deterministic no-network protocol" started.
+◇ Test finalASRRejectsWordTimesOutsideActualUploadedAudio() started.
+◇ Test externalPrefixIsAConstraintAndNeverAnAcousticVote() started.
+◇ Test utteranceUnicodeBoundariesNeverBecomeInventedWordTimes() started.
+◇ Test arbiterConfidenceCannotOverrideNumberOrNegationDisagreement() started.
+◇ Test malformedSourceIdentityAndUnicodeEvidenceFailBeforeRequest() started.
+◇ Test credentialAndConfigurationChangesInvalidateConnectionCache() started.
+◇ Test abstentionAndRefusalCannotMasqueradeAsConfirmedText() started.
+◇ Test uncertainAudioAndHiddenReasoningRemainDistinct() started.
+◇ Test cacheMissReplaysFullAuthoritativeManifestOnce() started.
+◇ Test blindAudioRequestRejectsConsentPurposeCredentialAndRegionMismatch() started.
+◇ Test unsupportedSocketFallsBackOnlyToSameConfiguredGPT() started.
+◇ Test blindAudioReviewUsesOnlyFixedInstructionsAndExactPCM() started.
+◇ Test persistentLaneUsesLineageAndManifestDeltasNeverPartialJSON() started.
+◇ Test terminalFailuresAndBufferLimitCannotPublish(behavior:) started.
+◇ Test oldResponseIdentityIsIgnored() started.
+◇ Test actualTimedChineseEnglishPartsCanComposeOneUtterance() started.
+◇ Test explicitCancelPreventsFutureRequests() started.
+◇ Test timeoutClosesSocketAndDoesNotUseFallback() started.
+◇ Test completeProvenanceAndAllTokensReachArbiter() started.
+◇ Test case passing 1 argument behavior → .fail to terminalFailuresAndBufferLimitCannotPublish(behavior:) started.
+◇ Test case passing 1 argument behavior → .incomplete to terminalFailuresAndBufferLimitCannotPublish(behavior:) started.
+◇ Test case passing 1 argument behavior → .oversized to terminalFailuresAndBufferLimitCannotPublish(behavior:) started.
+✔ Test blindAudioRequestRejectsConsentPurposeCredentialAndRegionMismatch() passed after 0.004 seconds.
+✔ Test abstentionAndRefusalCannotMasqueradeAsConfirmedText() passed after 0.004 seconds.
+✔ Test finalASRRejectsWordTimesOutsideActualUploadedAudio() passed after 0.004 seconds.
+✔ Test malformedSourceIdentityAndUnicodeEvidenceFailBeforeRequest() passed after 0.004 seconds.
+✔ Test uncertainAudioAndHiddenReasoningRemainDistinct() passed after 0.004 seconds.
+✔ Test blindAudioReviewUsesOnlyFixedInstructionsAndExactPCM() passed after 0.004 seconds.
+✔ Test externalPrefixIsAConstraintAndNeverAnAcousticVote() passed after 0.004 seconds.
+✔ Test actualTimedChineseEnglishPartsCanComposeOneUtterance() passed after 0.004 seconds.
+✔ Test unsupportedSocketFallsBackOnlyToSameConfiguredGPT() passed after 0.004 seconds.
+✔ Test oldResponseIdentityIsIgnored() passed after 0.004 seconds.
+✔ Test utteranceUnicodeBoundariesNeverBecomeInventedWordTimes() passed after 0.005 seconds.
+✔ Test persistentLaneUsesLineageAndManifestDeltasNeverPartialJSON() passed after 0.005 seconds.
+✔ Test cacheMissReplaysFullAuthoritativeManifestOnce() passed after 0.005 seconds.
+✔ Test terminalFailuresAndBufferLimitCannotPublish(behavior:) with 3 test cases passed after 0.005 seconds.
+✔ Test arbiterConfidenceCannotOverrideNumberOrNegationDisagreement() passed after 0.005 seconds.
+✔ Test credentialAndConfigurationChangesInvalidateConnectionCache() passed after 0.006 seconds.
+✔ Test explicitCancelPreventsFutureRequests() passed after 0.006 seconds.
+✔ Test completeProvenanceAndAllTokensReachArbiter() passed after 0.012 seconds.
+✔ Suite "Arbiter evidence and blind acoustic review" passed after 0.012 seconds.
+✔ Test timeoutClosesSocketAndDoesNotUseFallback() passed after 0.025 seconds.
+✔ Suite "Persistent single GPT transport, deterministic no-network protocol" passed after 0.025 seconds.
+✔ Test run with 19 tests in 2 suites passed after 0.025 seconds.

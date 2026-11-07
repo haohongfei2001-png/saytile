@@ -1,0 +1,21 @@
+{
+  "base_commit": "2bd7d8aa82fa41adcd4cd3db4c34376053ad655a",
+  "source_dirty": true,
+  "native_test_functions": 1,
+  "native_suites": 1,
+  "test_source_sha256": "a1937b1820ab12081ddf75e9993cc3f46299d0b3a8e4e37be0665cf3d1add7c3",
+  "production_input_sha256": {
+    "Sources/SaytileKit/AudioCapture.swift": "f4cd10b9d587085ab9f26b4b00188282156a5bb4be54b1528cbcf5516a922019",
+    "Sources/SaytileKit/AudioJournal.swift": "589b5797ed46ce3826507ed1128bd184107e643d9f346139af361d31fe3d6465",
+    "Sources/SaytileKit/MultiRecognitionSession.swift": "9247be96315b6d6c5035b67d6367157a68cc72f680712bf64af06c85cf38803b",
+    "Sources/SaytileKit/SingleTranscriptEngine.swift": "e667924bacab84da0af94492e63c7f4c8f91bee6f22f6f155a0645fa68e5eae8",
+    "Sources/SaytileKit/RecognitionAudioFanout.swift": "7ad6ac1051c939d2a2f999357dc7d09b128ca1e4377ff97371ab9942facccab1"
+  },
+  "bundled_synthetic_sample_sha256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+  "voiced_input": "first second of bundled 16 kHz Int16 PCM, converted to Float for the real ring twice; 48,000 zero frames separating the speaking periods",
+  "first_saved_wav_frames": 49920,
+  "old_expert_finals_held": 2,
+  "ring_dropped_frames": 0,
+  "native_log_sha256": "0d65262e27e717c5d53875191686f87a89faf197c88589c9ddabf2b649db58da",
+  "scope": "real CaptureWorker, converter, WebRTC VAD, journal, ring, SQLite, production recognition factory/coordinator; controlled ASR/GPT responses; no microphone or Internet provider call"
+}

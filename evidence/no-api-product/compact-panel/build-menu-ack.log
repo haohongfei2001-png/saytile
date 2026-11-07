@@ -1,0 +1,68 @@
+Building for production...
+[Planning deferred tasks]
+[37 / 98]
+[66 / 108] CAudio
+[83 / 109] CAudio
+[95 / 109] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[96 / 109] SaytileKit
+[109 / 237]
+[122 / 237]
+[125 / 237]
+[131 / 237]
+[134 / 237]
+[142 / 237]
+[144 / 237]
+[147 / 237]
+[148 / 237]
+[160 / 237]
+[163 / 237]
+[168 / 237]
+[173 / 237]
+[174 / 237]
+[175 / 237]
+[181 / 237]
+[183 / 237]
+[189 / 237]
+[190 / 237]
+[193 / 237]
+[195 / 237]
+[208 / 237]
+[209 / 237]
+[213 / 237]
+[218 / 237]
+[221 / 237]
+[222 / 237]
+[223 / 237]
+[224 / 237]
+[225 / 237] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[233 / 238] Saytile-product
+[237 / 242]
+[238 / 242] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:439:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+431 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+432 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+433 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+434 |             // A cancelled older check must fully close its sockets before another starts.
+435 |             await previous?.value
+    :
+437 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+438 |             do {
+439 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+440 |                     Task { @MainActor [weak self] in
+441 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[240 / 242] Saytile-product
+[241 / 242] Saytile-product
+Build complete! (39.76秒)
+/tmp/saytile-bundle.NWrKio/Saytile.app: replacing existing signature
+/tmp/saytile-bundle.NWrKio/Saytile.app/Contents/Info.plist: OK
+Built /tmp/saytile-compact-preview/Saytile.app

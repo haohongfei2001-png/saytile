@@ -1,0 +1,52 @@
+{
+  "source_head": "ef2f8f84f377197350e6384f79af12a9b56272fd",
+  "source_tree": "126d4e2b2c24ea82f016708c03f9567cb297afab",
+  "source_input_digest": "29caf78c71f1273b8957f71326f350a4f6efe3a889b82e87d48433edb207b2f8",
+  "source_input_count": 198,
+  "source_unchanged": true,
+  "source_identity_receipts": [
+    "source-identity.before.json",
+    "source-identity.after.json"
+  ],
+  "completed_utc": "2026-11-06T22:54:08.611818+00:00",
+  "app_model_checks": 66,
+  "headless_dom_checks": 20,
+  "native_coordinator_checks": 9,
+  "webkit_observer_checks": "6/6",
+  "webkit_capability_rejections": 2,
+  "webkit_sends": 0,
+  "native_foreground_unchanged": true,
+  "webkit_foreground_unchanged": true,
+  "foreground_resolver_run": false,
+  "browser": "headless Chromium 156.0.8078.4",
+  "playwright": "1.65.0",
+  "browser_executable": "/Users/hhf/Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+  "swift": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+  "failures_this_run": [],
+  "webkit_limitation": "Background AX setter acknowledged without text mutation; marked unverified once, not replayed; no browser insertion success claimed.",
+  "scope": "Production AppModel/coordinator/SQLite with injected connection evidence and isolated target selection or DOM adapter; no visible browser/profile, no user target, no foreground resolver, no real credential reads/provider requests or microphone.",
+  "app_model_runner": "Unchanged official compilation/execution flow with only explicit working-directory, temporary-output retention and hash observations in the evidence runner.",
+  "binary_hash_timing": "AppModel, DOM and all four AX/WK executables hashed immediately before execution and after completion; all unchanged. Evidence observers wrap only child creation and do not alter fixture or product arguments.",
+  "binary_sha256": {
+    "AppModelProbe": "bb31f0933564e468ecff8ec0787e7cca28e58b970287fedea5e3ae3ee7f3f46c",
+    "AXTextFixture": "30451bf7fdfd66b283b004b9c9a3a9cbc55274220c243f7e502e4cc04e516005",
+    "AXCoordinatorProbe": "20831ef5aa613de9e71a7b615b5d630eb5c06504657a8b132e91fe93509662bf",
+    "AXWebFixture": "7af87d98bb0e655268d6d199ef3449564a45e747386fb14a43ef41e93d91ae13",
+    "AXWebCoordinatorProbe": "14bb25a8066e4406316502cf48346b24085c8fdedbc4d1bb20e7611a2699a2a9",
+    "dom-coordinator-probe": "47cb830aa75086dbea580e06cb92e6279958c824d7237daaa860dd27794b7e1d"
+  },
+  "log_sha256": {
+    "app-model-build.log": "9b3042e4d6cde7a9b96ed57caaf417ddfc98c7ea48ed3042777e9b52d336cdb4",
+    "app-model.log": "77763ad4c77043650985ed185e9bdd81cc5fe9a0a82591a64dfe47b642a3902f",
+    "browser-run.log": "a4f014b1ad7da3a608470d152f2ecfde51f7f911e32b33ecd0414d154f36000d",
+    "input-browser-dom.log": "a4f014b1ad7da3a608470d152f2ecfde51f7f911e32b33ecd0414d154f36000d",
+    "input-native-coordinator.log": "d3d3793d8fe4791e7b38979afc3721a8418c0a7f290bd419baafa0cd8d931c3b",
+    "input-webkit-observer.log": "18723aab5561d39cfc3e111488e68d787335fa464d7d340ae62e9dee4df276c4",
+    "native-run.log": "97497a9d17124ce70c72206435791cec76b2f44829989cf20cdc8d86f61f9d0f"
+  },
+  "evidence_runner_sha256": {
+    "app-model-retained-runner.sh": "6e959674e5ef6c40a70f7687311ee89f79547c08731e052b06d9b8ee486d79a0",
+    "native-observed-runner.py": "674b0bb61597349c688302882f24aab77f3d00c5966e06aeca2a971b5ede6c35",
+    "dom-observer.cjs": "b86c2f62bd9313957d3195a6600ad2277a98308c8c2fc9c425c70ba8b51f3fa6"
+  }
+}

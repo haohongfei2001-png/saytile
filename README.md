@@ -1,16 +1,22 @@
 # Saytile
 
+Apple Silicon / macOS 26+。显式选麦的 P1 修复已进入 no-api.9.1。已有源代码、可下载 DMG 及按 PASS、FAIL、BLOCKED 区分的[实机验收](evidence/no-api9.1/README.md)。正式公开安装和真实云端识别仍待各自条件。
+<!-- frozen-machine-current:end -->
+
+> **唯一批准的视觉设计原图**：[Saytile 原版设计全图](design/approved/Saytile-original-visual-reference-20261107.jpeg) · [原图与变更边界](design/approved/README.md)。应用外观必须以此图为唯一标准，只有用户指定的语音按钮交互与必要动效可以修改。原图已按附件原始字节入库，不能拿工程预览或近似色板替代。
+
+
 **自然开口，随时取用。**
 
 Saytile 是 macOS 原生语音输入与表达工作台。开启后持续待命，自然讲话即可分段记录、识别中文，并独立保存原音。文字可以编辑、搜索、回听、重新识别、复制，或追加到明确选择的应用草稿。
 
-V1 Release Candidate 已完成工程回归，真实讲话与个人环境验收仍明确保留，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
+GitHub Releases 的稳定版本为 RC1，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。本分支的 no-api.9.1 候选及证据见 [无 API 交付](docs/V1-NO-API-DELIVERY.md)；真实云端、讲话质量与个人环境验收仍明确保留。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
 
 ## 最高质量中英文识别候选
 
 当前契约是两个平等完整音频 ASR 专家、唯一 GPT-6 Astra 文本核心和单份忠实文字流；Apple 本地识别进入统一候选入口。不得恢复五模型默认链、润色或第二评审器。见 [最终架构](research/architecture/FINAL-ARCHITECTURE.md)。
 
-本分支同步 PR #4 的恢复、生命周期与取消所有权修复，同时保留 PR #5 的新产品契约。包装版本继承上游候选标识，不代表本轮已安装、发布或完成原生验收。独立 PR #6 承接运行时集成；真实云端、设备和外部输入验收仍未完成，参见 [工程状态](research/architecture/PROJECT-STATUS.md)。
+本分支保留 PR #4 的可靠性修复、PR #5 的产品契约和 PR #6 的单核心引擎。没有 API Key 时可使用 Apple 本地中文识别；云端凭据在原生设置里填写，由一次明确授权的内置合成语音检查验证接收、融合和定稿，全部通过后自动启用。无需修改JSON或终端联调；真实连接与准确率状态严格分开。参见 [安装与连接](docs/V1-INSTALL.md)。
 
 ## 构建和运行
 
@@ -24,7 +30,7 @@ scripts/package-beta.sh
 现有 Command Line Tools 即可构建，不要求安装完整 Xcode。App 使用系统框架和已固定提交的 WebRTC VAD，构建不下载语音模型。首次开启时准备 Apple 中文语言资源；识别失败仍保留原音。
 
 ```sh
-scripts/test-native.sh
+SAYTILE_SIM_FULL_SUITE=1 scripts/test-protocol-simulator.sh
 scripts/test-app-model.sh
 python3 scripts/verify.py
 scripts/package-beta.sh
@@ -42,7 +48,8 @@ scripts/package-beta.sh
 
 ## 交付与验证
 
-- [RC 验证与最终清单](docs/V1-RC-ACCEPTANCE.md)
+- [当前 RC2 工程验收与限制](docs/V1-NO-API-DELIVERY.md)
+- [RC1 验证清单（历史）](docs/V1-RC-ACCEPTANCE.md)
 - [安装说明](docs/V1-INSTALL.md)
 - [实时开发状态](docs/V1-DEV-STATUS.md)
 - [实际测试记录及限制](docs/V1-TEST-RESULTS.md)
@@ -56,3 +63,13 @@ scripts/package-beta.sh
 ## Current recognition architecture (2026-11-07)
 
 Two equal ASR experts receive the same complete audio, and one GPT-6 Astra core continuously reviews their candidate evidence. The UI presents one transcript. GPT-6 Astra is text-only in the API; it does not directly hear audio. See [the final architecture](research/architecture/FINAL-ARCHITECTURE.md), [API capability decision](research/asr/DECISION.md), and [implementation status](research/architecture/PROJECT-STATUS.md).
+
+## SingleTranscriptEngine 最新验收
+
+双平等完整音频专家、一个GPT核心、唯一文字流、离线接替和安全局部修正的[早期引擎验证记录](evidence/single-transcript-final/README.md)。工程回归通过不等于真人云识别质量通过；生产RC1保持不变。
+
+并发收口记录：[另一工程验收切片](evidence/single-transcript/DELIVERY.md)。最新统一回执以 [single-transcript-final](evidence/single-transcript-final/README.md) 为准，历史包与其真实来源SHA分别保留。
+
+## 当前唯一批准的 V1 界面目标
+
+Saytile V1 的唯一正式 UI 目标见 [唯一界面设计规范](docs/SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md)。主面板无 Logo/字标和顶部操作栏；连续文字下方只有左侧复制与右侧语音胶囊。暂停（含首次未开）为播放三角，待命为圆点，真实讲话为波形；声音结束后回到待命，不等待后台识别定稿。编辑和其他操作仍可通过菜单及既有入口使用。此前冲突的品牌与界面探索均已舍弃；历史原型仅供追溯。

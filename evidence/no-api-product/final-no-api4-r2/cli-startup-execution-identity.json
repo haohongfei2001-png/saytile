@@ -1,0 +1,38 @@
+{
+  "recorded_utc": "2026-11-07T00:35:53.533511+00:00",
+  "source_revision": "1067f1ad5c5c29c698f346651c965db2169625eb",
+  "source_dirty": false,
+  "binary_path": "/Users/hhf/.codex/worktrees/saytile-no-api-product/dist/rc2-no-api.4/Saytile.app/Contents/MacOS/Saytile",
+  "binary_sha256_before_from_package_extraction": "a8b4e9bbe14028fe8630ee1e100f65f4903b9c9830790ad452e0dad25f657b45",
+  "binary_sha256_after_checks": "a8b4e9bbe14028fe8630ee1e100f65f4903b9c9830790ad452e0dad25f657b45",
+  "metadata_source_revision": "1067f1ad5c5c29c698f346651c965db2169625eb",
+  "commands": [
+    {
+      "kind": "cloud-probe-cli",
+      "argv": [
+        "python3",
+        "research/asr/validation/fusion-quality/check-probe-isolation.py",
+        "--app",
+        "/Users/hhf/.codex/worktrees/saytile-no-api-product/dist/rc2-no-api.4/Saytile.app/Contents/MacOS/Saytile",
+        "--output",
+        "evidence/no-api-product/final-no-api4-r2/cloud-probe-cli.json"
+      ],
+      "result": "CLI_PROBE_ISOLATION_PASS 4",
+      "log_sha256": "9272a06a30031512140058dee9aaab9b09c3192cf9bf3255874a683286576125",
+      "report_sha256": "75e89e247a3d0b37f65419667e2897c9de12ae2b775c7f56e4cb9a4195d97fc4"
+    },
+    {
+      "kind": "startup-focus",
+      "argv": [
+        "/tmp/saytile-final-1067-focus/probe",
+        "/Users/hhf/.codex/worktrees/saytile-no-api-product/dist/rc2-no-api.4/Saytile.app/Contents/MacOS/Saytile",
+        "/tmp/saytile-final-1067-focus/data"
+      ],
+      "result": "exit=0 frontmost_unchanged=true panel_key=false panel_main=false",
+      "log_sha256": "69c59d4e5325576c8c444dbc33bb7cc38cfad210fed930fbcd9c45376a8804f2",
+      "probe_sha256_after_execution": "77a9ff45111110c7e55f0864a1f0ab9feae3d4609d8d537d659b2597f5eeb0a7",
+      "probe_source_sha256": "9f526cf1902e6a07f9a9147135bd88fc6675d51fe258360c6e091d691ffda515"
+    }
+  ],
+  "scope": "Exact commands are recorded from the executed tool invocations. App hash was sampled during readonly DMG extraction before these commands and again after them, not at every individual subprocess boundary. Startup helper hash sampled after execution; its source is included in frozen before/after manifests. No tests rerun to create this identity receipt."
+}

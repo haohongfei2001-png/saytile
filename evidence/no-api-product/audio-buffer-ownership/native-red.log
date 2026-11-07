@@ -1,0 +1,118 @@
+Building for debugging...
+[Pre-planning 172 / 184]
+[Planning deferred tasks]
+[52 / 132]
+[71 / 141]
+[84 / 143]
+[110 / 143] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[111 / 143] CAudio
+[111 / 143] SaytileKit
+[121 / 282]
+[131 / 282]
+[138 / 282]
+[139 / 282]
+[146 / 282]
+[150 / 282]
+[156 / 282]
+[161 / 282]
+[162 / 282]
+[177 / 282]
+[179 / 282]
+[187 / 282]
+[188 / 282]
+[189 / 282]
+[196 / 282]
+[198 / 282]
+[204 / 282]
+[205 / 282]
+[207 / 282]
+[208 / 282]
+[210 / 282]
+[223 / 282]
+[224 / 282]
+[228 / 282]
+[233 / 282]
+[236 / 282]
+[237 / 282]
+[238 / 282]
+[239 / 282]
+[250 / 282] SaytileKit
+[251 / 282] SaytileKit
+[261 / 283] SaytileKit
+[261 / 283] Saytile-product
+[264 / 294] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[271 / 295] SaytileKitTests-product
+[272 / 310]
+[275 / 310]
+[285 / 310] SaytileKitTests-product
+[286 / 310] Saytile-product
+[287 / 310] SaytileKitTests-product
+[294 / 310] SaytileKitTests-product
+[296 / 310] Saytile-product
+[297 / 310] Saytile-product
+[299 / 310] Saytile-product
+[300 / 310] AllIncludingTests
+[300 / 310] SaytileKitTests-product
+[300 / 310] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:395:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+387 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+388 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+389 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+390 |             // A cancelled older check must fully close its sockets before another starts.
+391 |             await previous?.value
+    :
+393 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+394 |             do {
+395 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+396 |                     Task { @MainActor [weak self] in
+397 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[302 / 310] Saytile-product
+[304 / 310] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[306 / 310] SaytileKitTests-product
+Build complete! (27.65秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Capture converter input ownership" started.
+◇ Test varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) started.
+◇ Test case passing 1 argument sampleRate → 22050.0 to varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) started.
+◇ Test case passing 1 argument sampleRate → 44100.0 to varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) started.
+◇ Test case passing 1 argument sampleRate → 48000.0 to varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) started.
+◇ Test case passing 1 argument sampleRate → 16000.0 to varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) started.
+CAPTURE_CONVERTER rate=16000.0 source_frames=44124 reference_frames=44124 actual_frames=44124 waveform_equal=true
+CAPTURE_CONVERTER rate=22050.0 source_frames=60809 reference_frames=44125 actual_frames=41153 waveform_equal=false
+✘ Test varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) recorded an issue with 1 argument sampleRate → 22050.0 at CaptureConverterTests.swift:35:9: Expectation failed: actual.count == reference.count
+↳ Every source batch must actually reach the converter before being retired
+↳ actual.count == reference.count → false
+↳   actual.count → 82306
+↳   reference.count → 88250
+✘ Test varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) recorded an issue with 1 argument sampleRate → 22050.0 at CaptureConverterTests.swift:36:9: Expectation failed: actual == reference
+↳ Full beginning, middle and end waveform must match the contiguous reference; no padding
+↳ actual == reference → false
+↳   actual → 82306 bytes
+↳     count → 82306
+↳     pointer → 0x000000755489c000
+↳       pointerValue → 503929487360
+↳   reference → 88250 bytes
+↳     count → 88250
+↳     pointer → 0x0000007554854000
+↳       pointerValue → 503929192448
+CAPTURE_CONVERTER rate=44100.0 source_frames=121618 reference_frames=44124 actual_frames=44124 waveform_equal=true
+CAPTURE_CONVERTER rate=48000.0 source_frames=132373 reference_frames=44124 actual_frames=44124 waveform_equal=true
+✘ Test varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) with 4 test cases failed after 0.032 seconds with 2 issues.
+✘ Suite "Capture converter input ownership" failed after 0.032 seconds with 2 issues.
+✘ Test run with 1 test in 1 suite failed after 0.033 seconds with 2 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

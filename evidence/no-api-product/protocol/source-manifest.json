@@ -1,0 +1,36 @@
+{
+  "scope": "SIMULATED_PROTOCOL_NOT_LIVE_CLOUD",
+  "source_base": "3cd8ebcbc94e7536ea8d4ccfd4474b72e9fd2b46",
+  "repository_parent_at_capture": "6aec57be880eb513e04204de860d147edc828390",
+  "working_tree_changes_included": true,
+  "platform": "macOS arm64",
+  "test_functions": 11,
+  "parameter_scenarios": 51,
+  "network_cases": 49,
+  "protocol_violations": 0,
+  "gpt_regression_test_functions": 19,
+  "source_sha256": {
+    "Sources/SaytileKit/GPTReviewSession.swift": "3f553cb9fff303ee62aa69d1eda12f7f2c45a1007d1ddbb3c6f20a8d6b762fee",
+    "Sources/SaytileKit/PrecisionReviewClient.swift": "369ddd034144e7180a979ee2be9aa430f5204b311eeb102b5ec3273e1125f880",
+    "Sources/SaytileKit/ASRProviderProtocol.swift": "5dbd53a09d47d7884a85c507f63c293674b3c3d2480d66e2baee6ab16231ee3f",
+    "Sources/SaytileKit/QwenMessageProvider.swift": "4ba058a12c469737cd512906f05fe3e5146a8d19e10cecee56a59d1f32b7dd30",
+    "Sources/SaytileKit/AssemblyStreamingProvider.swift": "7dce71aecd4fbea133a2f80f18bcd0118e53c7dcc71a0d1a92b608517f43cdf3",
+    "Sources/SaytileKit/SingleTranscriptEngine.swift": "e667924bacab84da0af94492e63c7f4c8f91bee6f22f6f155a0645fa68e5eae8",
+    "Sources/SaytileKit/MultiRecognitionSession.swift": "9247be96315b6d6c5035b67d6367157a68cc72f680712bf64af06c85cf38803b",
+    "Sources/SaytileKit/CloudConnectionVerification.swift": "87051c26712d1c4a89003f6a4f11f120eeafbc9ad94fdb1bfb76dfe81df0d8c1",
+    "tests/SaytileKitTests/ProtocolNetworkIntegrationTests.swift": "a7a82d7792565de65bbf1b77df5aed33fe97d8ba5d729219632fe24bad1d22ef",
+    "tests/SaytileKitTests/GPTReviewSessionTests.swift": "26f2cca9aca6d591b0e27c8fcf05c7d2ec88390270c1b42bf76245284aa77b11",
+    "tests/fixtures/protocol-simulator/server.py": "d75ab371e8d2df0df61542b0fb4b9d0f924090f6fce826482e08b0055c4e0ec7",
+    "tests/fixtures/protocol-simulator/requirements.txt": "9ff2177e763edd4e9724ffbd5a78794aa24e8492245e2f9e2b3f521fdf956b74",
+    "scripts/test-protocol-simulator.sh": "ccd97d7b1afac25e46bf0fad234e2e96ceeba1cda5c002df32bce594aec6d64c"
+  },
+  "artifact_sha256": {
+    "evidence/no-api-product/protocol/native-network.log": "e2365e51f34e0153944aa018af1109300506db5b8191549dd9360a5be2883fb0",
+    "evidence/no-api-product/protocol/wire-audit.json": "7e26fc88340703675e171255c8e8262a323732e7e7f584bebccfd1ce0372d8e7",
+    "evidence/no-api-product/protocol/network-first-red.log": "3f4fcc88f3a2e9f1d112e4d3b3b9c8a4f477eb7b5130d207025eb7f898c7b3c8",
+    "evidence/no-api-product/protocol/wizard-fallback-red.log": "dfb5511adef61d1a747068b989269dc6655a0c95ed0ebc35b7765a6c4b1f6b37",
+    "evidence/no-api-product/protocol/stream-errors-red.log": "2ea4286ac8728d356b951f566c15102822ba2706da28f320d2ad41988fcad07b",
+    "evidence/no-api-product/protocol/gpt-regression.log": "4f5c22190cb19ae5cb0aa70c16903592b1cf0a87f64beb4c3612a51fa6d0e277",
+    "evidence/no-api-product/protocol/server.log": "5ad97bbdfec2ba2e0ea422f78908200515232a4913300a8627cf059f2065d18e"
+  }
+}

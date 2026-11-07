@@ -1,0 +1,48 @@
+{
+  "binary_sha256": "e858862625c7c7996bed2df0c9851b607359ad55ac03fcc846fb891b48aefd90",
+  "source_revision": "a6849128e12e88560daa52fce48f6f2d805a88aa",
+  "source_dirty": false,
+  "packaged_bundle": true,
+  "passed": 7,
+  "checks": [
+    {
+      "case": "missing_directory",
+      "exit": 64,
+      "result": "PASS_BEFORE_STORE_OR_WINDOW"
+    },
+    {
+      "case": "missing_output",
+      "exit": 64,
+      "result": "PASS_BEFORE_STORE_OR_WINDOW"
+    },
+    {
+      "case": "output_outside_isolated_directory",
+      "exit": 64,
+      "result": "PASS_BEFORE_STORE_OR_WINDOW"
+    },
+    {
+      "case": "existing_data_directory",
+      "exit": 64,
+      "result": "PASS_BEFORE_STORE_OR_WINDOW"
+    },
+    {
+      "case": "production_root",
+      "exit": 64,
+      "result": "PASS_BEFORE_STORE_OR_WINDOW"
+    },
+    {
+      "case": "production_subdirectory",
+      "exit": 64,
+      "result": "PASS_BEFORE_STORE_OR_WINDOW"
+    },
+    {
+      "case": "conflicting_probe",
+      "exit": 64,
+      "result": "PASS_BEFORE_STORE_OR_WINDOW"
+    }
+  ],
+  "window_opened": false,
+  "microphone_started": false,
+  "credential_values_read": false,
+  "provider_requests": 0
+}

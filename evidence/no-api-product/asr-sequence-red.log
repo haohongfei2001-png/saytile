@@ -1,0 +1,52 @@
+Building for debugging...
+[Computing dependencies]
+[13 / 74] CAudio
+[50 / 74] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[62 / 85] SaytileKit
+[67 / 87] Saytile-product
+[70 / 95] Saytile-product
+[71 / 95] Saytile-product
+[75 / 95] Saytile-product
+[76 / 95] SaytileKit
+[76 / 95] Saytile-product
+[76 / 95] SaytileKit
+[76 / 95] Saytile-product
+[77 / 95] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[81 / 95] SaytileKitTests-product
+[91 / 106] SaytileKitTests-product
+[92 / 106] SaytileKitTests-product
+[98 / 105] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[98 / 105] Saytile-product
+[100 / 106] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[102 / 106] SaytileKitTests-product
+Build complete! (13.39秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "ASR protocol lifecycle and sanitized diagnosis" started.
+◇ Test qwenZeroIdentifierIsOnlyValidForAHeartbeat() started.
+◇ Test qwenMissingSentenceCannotClaimStableOrCompletedText() started.
+✘ Test qwenZeroIdentifierIsOnlyValidForAHeartbeat() recorded an issue at ASRProtocolReliabilityTests.swift:133:9: Expectation failed: an error was expected but none was thrown and "Optional(SaytileKit.ProviderTranscriptEvent(text: "不要支付15元。", stableUTF16Length: 8, audioStartSeconds: 0.0, audioEndSeconds: 0.5, timingGranularity: "segment", language: nil, isComplete: false, requestID: Optional("fixture"), tokens: [SaytileKit.ProviderToken(text: "不要支付15元。", startSeconds: 0.0, endSeconds: 0.5, isFinal: true, language: nil, rawConfidence: nil)]))" was returned
+↳ ProviderFailure.self → <not evaluated>
+↳   ProviderFailure → <not evaluated>
+↳   self → <not evaluated>
+✘ Test qwenZeroIdentifierIsOnlyValidForAHeartbeat() failed after 0.001 seconds with 1 issue.
+✘ Test qwenMissingSentenceCannotClaimStableOrCompletedText() recorded an issue at ASRProtocolReliabilityTests.swift:120:9: Expectation failed: gap.stableUTF16Length == 0
+↳ gap.stableUTF16Length == 0 → false
+↳   gap.stableUTF16Length → 6
+✘ Test qwenMissingSentenceCannotClaimStableOrCompletedText() recorded an issue at ASRProtocolReliabilityTests.swift:121:9: Expectation failed: an error was expected but none was thrown and "Optional(SaytileKit.ProviderTranscriptEvent(text: "支付15元。", stableUTF16Length: 6, audioStartSeconds: 0.0, audioEndSeconds: 0.5, timingGranularity: "segment", language: nil, isComplete: true, requestID: Optional("fixture"), tokens: [SaytileKit.ProviderToken(text: "支付15元。", startSeconds: 0.0, endSeconds: 0.5, isFinal: true, language: nil, rawConfidence: nil)]))" was returned
+↳ ProviderFailure.self → <not evaluated>
+↳   ProviderFailure → <not evaluated>
+↳   self → <not evaluated>
+✘ Test qwenMissingSentenceCannotClaimStableOrCompletedText() recorded an issue at ASRProtocolReliabilityTests.swift:114:6: Caught error: .protocolViolation("qwen_envelope")
+✘ Test qwenMissingSentenceCannotClaimStableOrCompletedText() failed after 0.001 seconds with 3 issues.
+✘ Suite "ASR protocol lifecycle and sanitized diagnosis" failed after 0.001 seconds with 4 issues.
+✘ Test run with 2 tests in 1 suite failed after 0.001 seconds with 4 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

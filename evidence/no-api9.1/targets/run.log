@@ -1,0 +1,126 @@
+Building for debugging...
+[Planning deferred tasks]
+[37 / 96]
+[61 / 105] CAudio
+[70 / 107]
+[91 / 107] CAudio
+[96 / 107] CAudio
+[102 / 135] SaytileKit
+[112 / 274]
+[124 / 274]
+[134 / 274]
+[141 / 274]
+[145 / 274]
+[149 / 274]
+[150 / 274]
+[157 / 274]
+[159 / 274]
+/Users/hhf/.codex/worktrees/saytile-noapi9-device-fix/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[163 / 274]
+[166 / 274]
+[171 / 274]
+[174 / 274]
+[176 / 274]
+[177 / 274]
+[187 / 274]
+[191 / 274]
+[193 / 274]
+[197 / 274]
+[202 / 274]
+[203 / 274]
+[204 / 274]
+[211 / 274]
+[213 / 274]
+[218 / 274]
+[219 / 274]
+[220 / 274]
+[223 / 274]
+[225 / 274]
+[237 / 274]
+[238 / 274]
+[239 / 274]
+[243 / 274]
+[248 / 274]
+[251 / 274]
+[252 / 274]
+[253 / 274]
+[254 / 274]
+[265 / 274] SaytileKit
+[271 / 274] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-noapi9-device-fix/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (30.43秒)
+FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0 background=true
+FIXTURE_READY
+PASS production coordinator + SQLite reservation + real AX insertion confirms
+PASS preserves synthetic prefix and suffix
+PASS same stable range is not inserted twice
+PASS next stable suffix inserts after actual UTF16 caret
+PASS no duplicate prefix or whole-field replacement
+PASS real AX selection notification invalidates binding before next operation
+PASS real selected range prevents replacement
+PASS cancelled production insertion has no external attempt
+NATIVE_AX_FOREGROUND_OBSERVATION unchanged=true owned_activated=false outside_activation_events=0; no cause inferred for outside transitions
+PASS owned fixture and probe never activate
+RC_AX_COORDINATOR_PASS 9 checks; background target selection injected; no production foreground or browser claim
+PASS post-setter external target change remains unverified and invalidates binding
+PASS one production AX insertion and one separately counted target edit preserve surrounding text
+PASS uncertain insertion ledger is durable with no owned range
+PASS explicit repeat is refused without a second dispatch or target rewrite
+PASS external target-change scenario never activates an owned process
+TARGET_MUTATION_PASS 5 checks; production_dispatches=1 external_mutations=1 no_replay=true
+{"command":"state","error":"","value":"{\"sends\":0,\"utf16Length\":24,\"keyWindow\":false,\"keyboardEvents\":0,\"mainWindow\":false,\"text\":\"PREFIX|新句 你好😀，接着说SUFFIX\",\"knownSyntheticText\":true}"}
+PASS owned fixture keyboard isolation key=false main=false keyboard_events=0
+PASS real native fixture never sends
+WEB_FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0
+WEB_FIXTURE_READY
+WEB_AX_CAPABILITY isWeb=true pageIdentity=true focus=true content=true page=true contextComplete=true selectedTextSettable=true caret=7 localRange=Optional(true)
+WEB_INSERT_RESULT unverified
+WEB_ACTUAL_TEXT unchanged_fixture=true expected_inserted=false utf16_length=13
+LIMIT background WKWebView AX setter acknowledged but value unchanged; marked unverified once
+FIXTURE_COMMAND restore
+{"command":"restore","mainWindow":false,"value":"","error":"","keyWindow":false,"keyboardEvents":0}
+FIXTURE_COMMAND sameURL
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"sameURL","value":""}
+PASS real WKWebView AX invalidates binding after sameURL
+FIXTURE_COMMAND restore
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"restore","value":""}
+FIXTURE_COMMAND silentContext
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"silentContext","value":"Different synthetic chat with identical empty composer"}
+PASS final semantic revalidation rejects silentContext before dispatch despite missing AX event
+FIXTURE_COMMAND restore
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"restore","value":""}
+FIXTURE_COMMAND replaceContext
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"replaceContext","value":"<h1>First synthetic chat<\/h1>"}
+PASS final semantic revalidation rejects replaceContext before dispatch despite missing AX event
+FIXTURE_COMMAND restore
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"restore","value":""}
+FIXTURE_COMMAND newURL
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"newURL","value":""}
+PASS real WKWebView AX invalidates binding after newURL
+FIXTURE_COMMAND restore
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"restore","value":""}
+FIXTURE_COMMAND replaceEditor
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"replaceEditor","value":""}
+PASS real WKWebView AX invalidates binding after replaceEditor
+FIXTURE_COMMAND restore
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"restore","value":""}
+FIXTURE_COMMAND select
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"select","value":""}
+PASS real WKWebView AX invalidates binding after select
+FIXTURE_COMMAND restore
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"restore","value":""}
+FIXTURE_COMMAND largeTree
+{"mainWindow":false,"keyboardEvents":0,"error":"","keyWindow":false,"command":"largeTree","value":""}
+PASS automatic binding rejects largeTree; explicit manual binding remains available
+FIXTURE_COMMAND restore
+{"value":"","mainWindow":false,"error":"","keyboardEvents":0,"command":"restore","keyWindow":false}
+FIXTURE_COMMAND blankContext
+{"value":"","mainWindow":false,"error":"","keyboardEvents":0,"command":"blankContext","keyWindow":false}
+PASS automatic binding rejects blankContext; explicit manual binding remains available
+FIXTURE_COMMAND state
+{"value":"{\"text\":\"PREFIX|SUFFIX\",\"knownSyntheticText\":true,\"utf16Length\":13,\"sends\":0,\"url\":\"https:\/\/saytile-fixture.invalid\/chat\/one\"}","mainWindow":false,"error":"","keyboardEvents":0,"command":"state","keyWindow":false}
+WEB_AX_FOREGROUND_OBSERVATION unchanged=true owned_activated=false outside_activation_events=0; no cause inferred for outside transitions
+WEB_AX_PROBE_COMPLETE observerChecks=6/6 continuousAvailable=true; invisible isolated WKWebView, injected selection only, no foreground insertion claim
+{"value":"{\"text\":\"PREFIX|SUFFIX\",\"knownSyntheticText\":true,\"utf16Length\":13,\"sends\":0,\"url\":\"https:\/\/saytile-fixture.invalid\/chat\/one\"}","mainWindow":false,"error":"","keyboardEvents":0,"command":"state","keyWindow":false}
+PASS owned fixture keyboard isolation key=false main=false keyboard_events=0
+PASS real WKWebView fixture never sends

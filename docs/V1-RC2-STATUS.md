@@ -1,3 +1,5 @@
+> 以下为 PR4 candidate.2 的历史交付记录。PR6 当前固定为双完整音频ASR + 唯一GPT，不再启用五角色链；最新无API候选/证据以 [V1-DEV-STATUS](V1-DEV-STATUS.md) 为准，不能沿用下方旧计数。
+
 # Saytile V1 RC2 候选状态
 
 2026-11-07。当前 **1.0.0-rc.2-candidate.2** 已完成本轮无需密钥的可靠性修复与独立包验证，运行时源码 `7320228955cec7bb4d24ff19700f37d1ef0ddbc3`，`sourceDirty=false`。PR4 保持未合并，main、已安装 RC1 和个人数据不变。当前不需要用户操作。

@@ -1,0 +1,115 @@
+SCRATCH /private/tmp/saytile-owned-range-native-tmg7apz3
+FIXTURE_READY exact_spawned_pid=50126 nonce_verified=true
+FIXTURE_RPC reset
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+PASS repair-and-continue real_AX=true exact_fixture_PID=true text_attempts=3 correction_range_attempts=1 no_replay=true
+FIXTURE_RPC reset
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+PASS shorter-repair-and-continue real_AX=true exact_fixture_PID=true text_attempts=3 correction_range_attempts=1 no_replay=true
+FIXTURE_RPC reset
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC manual-edit
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+PASS manual-edit real_AX=true exact_fixture_PID=true text_attempts=1 correction_range_attempts=0 no_replay=true
+FIXTURE_RPC reset
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC select
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+PASS selection-change real_AX=true exact_fixture_PID=true text_attempts=1 correction_range_attempts=0 no_replay=true
+FIXTURE_RPC reset
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+PASS target-change real_AX=true exact_fixture_PID=true text_attempts=1 correction_range_attempts=0 no_replay=true
+FIXTURE_RPC reset
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC reject-replacement
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+PASS setter-refusal real_AX=true exact_fixture_PID=true text_attempts=2 correction_range_attempts=1 no_replay=true
+FIXTURE_RPC reset
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC focus-alternate
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+PASS focus-change real_AX=true exact_fixture_PID=true text_attempts=1 correction_range_attempts=0 no_replay=true
+FIXTURE_RPC reset
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+PASS restart-before-repair real_AX=true exact_fixture_PID=true text_attempts=1 correction_range_attempts=0 no_replay=true
+FIXTURE_RPC reset
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC close-window
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+FIXTURE_RPC state
+AX_SAFETY_STATE field=0 full_value=0 key_events=0 paste=0 unexpected_payload=false
+AX_SAFETY_STATE field=1 full_value=0 key_events=0 paste=0 unexpected_payload=false
+PASS window-closed real_AX=true exact_fixture_PID=true text_attempts=1 correction_range_attempts=0 no_replay=true
+PASS safety no_full_value=true no_clipboard_change=true no_key_return_send=true no_owned_activation=true
+OWNED_RANGE_NATIVE_PASS scenarios=9 target_selection_injected=true production_foreground_resolver=NOT_RUN
+EVIDENCE /private/tmp/saytile-owned-range-native-tmg7apz3/summary.json

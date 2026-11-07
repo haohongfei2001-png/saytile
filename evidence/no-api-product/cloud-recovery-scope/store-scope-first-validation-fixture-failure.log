@@ -1,0 +1,215 @@
+Building for debugging...
+[Planning deferred tasks]
+[8 / 79]
+[40 / 90]
+[66 / 90] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[77 / 233]
+[87 / 233]
+[94 / 233]
+[95 / 233]
+[102 / 233]
+[106 / 233]
+[112 / 233]
+[117 / 233]
+[118 / 233]
+[132 / 233]
+[134 / 233]
+[141 / 233]
+[144 / 233]
+[145 / 233]
+[152 / 233]
+[154 / 233]
+[160 / 233]
+[161 / 233]
+[164 / 233]
+[166 / 233]
+[178 / 233]
+[179 / 233]
+[184 / 233]
+[189 / 233]
+[192 / 233]
+[193 / 233]
+[194 / 233]
+[195 / 233]
+[206 / 233] SaytileKit
+[212 / 231] SaytileKitTests-product
+[214 / 242]
+[215 / 242] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[217 / 242] SaytileKit
+[220 / 241] SaytileKitTests-product
+[221 / 256]
+[224 / 256]
+[233 / 256]
+[234 / 256] SaytileKitTests-product
+[236 / 256] SaytileKitTests-product
+[236 / 256] Saytile-product
+[238 / 255] Saytile-product
+[242 / 255] Saytile-product
+[243 / 256] SaytileKitTests-product
+[245 / 256] SaytileKitTests-product
+[247 / 256] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:362:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+354 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+355 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+356 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+357 |             // A cancelled older check must fully close its sockets before another starts.
+358 |             await previous?.value
+    :
+360 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+361 |             do {
+362 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+363 |                     Task { @MainActor [weak self] in
+364 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[248 / 256] SaytileKitTests-product
+[248 / 256] Saytile-product
+[250 / 256] Saytile-product/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[250 / 256] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[252 / 256] SaytileKitTests-product
+Build complete! (30.14秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "RC store ownership, migrations and archive" started.
+◇ Suite "Owned store path boundaries" started.
+◇ Suite "Saved audio cloud authorization scopes" started.
+◇ Test sqliteNumericRoundTripsPreserveFullPrecision() started.
+◇ Test secondOwnerCannotInvalidateActiveRecording() started.
+◇ Suite "Owned range correction production path with synthetic OS and SQLite" started.
+◇ Test failedMigrationRollsBackAllDDLAndKeepsVersion() started.
+◇ Test draftSearchAndHistorySurviveAudioErasure() started.
+◇ Test futureDatabaseRefusedWithoutChangingJournalOrBytes() started.
+◇ Test panelIncludesAllSessionPagesAndExplicitHistoryOnlyOnce() started.
+◇ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() started.
+◇ Test audioRootSymlinkIsRejectedWithoutTouchingDestination() started.
+◇ Test corruptRowReturnsErrorInsteadOfCrashing() started.
+◇ Test sqliteFullRollsBackWholeTransaction() started.
+◇ Test databaseSymlinkIsRejectedWithoutModifyingExternalFile() started.
+◇ Test schemaFourUpgradeLeavesExistingLocalAudioUnauthorized() started.
+◇ Test invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test grantTransactionRollsBackAndDatabaseFailureIsNotReportedAsPermission() started.
+◇ Test audioErasureKeepsMetadataButRecordErasureRemovesAuthorization() started.
+◇ Test explicitScopeSurvivesRestartWithoutGrantingOtherRecordings() started.
+◇ Test changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test subsetAndNonDestinationChangesDoNotRequireAnotherGrant() started.
+◇ Test physicalRecordDeletionCascadesAndMalformedScopeFailsClosed() started.
+◇ Test unconfirmedInitialInsertionCannotCreateOwnershipAndDoesNotBlockNewRecord() started.
+◇ Test contextualGraphemeBoundariesAndByteIdentityAreMandatory() started.
+◇ Test laterInsertionDefersEarlierCorrectionWithoutGlobalBlock() started.
+◇ Test userEditAndUndoStillInvalidatesOwnership() started.
+◇ Test newerEvidenceRevokesStaleCorrectionEvenBeforePublication() started.
+◇ Test cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test deleteAudioKeepsCorrectionHistoryButDeleteRecordErasesIt() started.
+◇ Test durableReservationPrecedesSelectedRangeAndInvalidationPreventsTextSetter() started.
+◇ Test lengthChangingRepairPreservesUserPrefixSuffixAndAppendsOnlyNewSuffix() started.
+◇ Test realGPTCoreFinalizationPublishesActionableCorrectionFromFakeProviders() started.
+◇ Test localRecoveryAfterShorteningRepairKeepsEffectivePrefixAndAddsOnlySuffix() started.
+◇ Test changedTargetNeverMutated(change:) started.
+◇ Test uncertainReplacementConsumedOnceAndRestartCannotReplay() started.
+◇ Test v3MigrationPreservesLedgerAndInvalidatesOnlyRuntimeOwnership() started.
+◇ Test shorterRepairKeepsInsertionLedgerMonotone() started.
+◇ Test crashAfterReservationIsUnverifiedAndCannotReserveAgain() started.
+◇ Test unsupportedReplacementPendingDoesNotBlockIndependentRecord() started.
+◇ Test incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument change → "disabled" to invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test case passing 1 argument change → "empty" to invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test case passing 1 argument change → "noAudio" to invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test case passing 1 argument change → "consent" to invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test case passing 1 argument change → "identity" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "provider" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "model" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "invalidModel" to invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test case passing 1 argument change → "region" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+✘ Test invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) recorded an issue with 1 argument change → "consent" at RecordingCloudAuthorizationTests.swift:145:15: Expectation failed: an error was expected but none was thrown
+↳ ProviderFailure.self → <not evaluated>
+✘ Test invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) recorded an issue with 1 argument change → "consent" at RecordingCloudAuthorizationTests.swift:148:9: Expectation failed: try await !fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: configuration)
+↳ try await !fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: configuration) → <not evaluated>
+✘ Test invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) recorded an issue with 1 argument change → "consent" at RecordingCloudAuthorizationTests.swift:150:9: Expectation failed: try inspect.rows("SELECT * FROM recording_cloud_authorizations").isEmpty
+↳ try inspect.rows("SELECT * FROM recording_cloud_authorizations").isEmpty → <not evaluated>
+◇ Test case passing 1 argument change → "workspace" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "duplicateIdentity" to invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test case passing 1 argument change → "purpose" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+✘ Test invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) recorded an issue with 1 argument change → "invalidModel" at RecordingCloudAuthorizationTests.swift:145:15: Expectation failed: an error was expected but none was thrown
+↳ ProviderFailure.self → <not evaluated>
+✘ Test invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) recorded an issue with 1 argument change → "invalidModel" at RecordingCloudAuthorizationTests.swift:148:9: Expectation failed: try await !fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: configuration)
+↳ try await !fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: configuration) → <not evaluated>
+◇ Test case passing 1 argument change → "fusionRegion" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+✘ Test invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) recorded an issue with 1 argument change → "invalidModel" at RecordingCloudAuthorizationTests.swift:150:9: Expectation failed: try inspect.rows("SELECT * FROM recording_cloud_authorizations").isEmpty
+↳ try inspect.rows("SELECT * FROM recording_cloud_authorizations").isEmpty → <not evaluated>
+◇ Test case passing 1 argument change → "fusionModel" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "credentialGeneration" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument state → "queued" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test case passing 1 argument state → "failedExpert" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test case passing 1 argument state → "failedSession" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test case passing 1 argument state → "newGeneration" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test case passing 1 argument change → "ownedEdit" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "prefixEdit" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "suffixEdit" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "focus" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "page" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "control" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "selection" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "caret" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "canonical" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument mode → "raw" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "partial" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "unresolved" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "draft" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "edit" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "unobservable" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "unreadable" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+✔ Test audioRootSymlinkIsRejectedWithoutTouchingDestination() passed after 0.105 seconds.
+✔ Test sqliteNumericRoundTripsPreserveFullPrecision() passed after 0.105 seconds.
+✔ Test failedMigrationRollsBackAllDDLAndKeepsVersion() passed after 0.105 seconds.
+✔ Test databaseSymlinkIsRejectedWithoutModifyingExternalFile() passed after 0.105 seconds.
+✔ Test futureDatabaseRefusedWithoutChangingJournalOrBytes() passed after 0.105 seconds.
+✔ Test sqliteFullRollsBackWholeTransaction() passed after 0.105 seconds.
+✔ Test corruptRowReturnsErrorInsteadOfCrashing() passed after 0.105 seconds.
+✔ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() passed after 0.105 seconds.
+✔ Test draftSearchAndHistorySurviveAudioErasure() passed after 0.105 seconds.
+✔ Test secondOwnerCannotInvalidateActiveRecording() passed after 0.105 seconds.
+✔ Test grantTransactionRollsBackAndDatabaseFailureIsNotReportedAsPermission() passed after 0.105 seconds.
+✔ Test schemaFourUpgradeLeavesExistingLocalAudioUnauthorized() passed after 0.105 seconds.
+✘ Test invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) with 6 test cases failed after 0.105 seconds with 6 issues.
+✔ Test audioErasureKeepsMetadataButRecordErasureRemovesAuthorization() passed after 0.105 seconds.
+✔ Test explicitScopeSurvivesRestartWithoutGrantingOtherRecordings() passed after 0.105 seconds.
+✔ Suite "Owned store path boundaries" passed after 0.106 seconds.
+✔ Test subsetAndNonDestinationChangesDoNotRequireAnotherGrant() passed after 0.118 seconds.
+✔ Test changedDestinationCannotInheritSavedAudioPermission(change:) with 9 test cases passed after 0.118 seconds.
+✔ Test physicalRecordDeletionCascadesAndMalformedScopeFailsClosed() passed after 0.120 seconds.
+✘ Suite "Saved audio cloud authorization scopes" failed after 0.120 seconds with 6 issues.
+✔ Test panelIncludesAllSessionPagesAndExplicitHistoryOnlyOnce() passed after 0.124 seconds.
+✔ Suite "RC store ownership, migrations and archive" passed after 0.124 seconds.
+✔ Test contextualGraphemeBoundariesAndByteIdentityAreMandatory() passed after 0.209 seconds.
+✔ Test v3MigrationPreservesLedgerAndInvalidatesOnlyRuntimeOwnership() passed after 0.435 seconds.
+✔ Test userEditAndUndoStillInvalidatesOwnership() passed after 0.435 seconds.
+✔ Test changedTargetNeverMutated(change:) with 9 test cases passed after 0.452 seconds.
+✔ Test cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) with 4 test cases passed after 0.456 seconds.
+✔ Test durableReservationPrecedesSelectedRangeAndInvalidationPreventsTextSetter() passed after 0.458 seconds.
+✔ Test newerEvidenceRevokesStaleCorrectionEvenBeforePublication() passed after 0.461 seconds.
+✔ Test incompleteOrUnownedEvidenceCannotRepair(mode:) with 7 test cases passed after 0.463 seconds.
+✔ Test crashAfterReservationIsUnverifiedAndCannotReserveAgain() passed after 0.465 seconds.
+✔ Test uncertainReplacementConsumedOnceAndRestartCannotReplay() passed after 0.465 seconds.
+✔ Test deleteAudioKeepsCorrectionHistoryButDeleteRecordErasesIt() passed after 0.485 seconds.
+✔ Test unsupportedReplacementPendingDoesNotBlockIndependentRecord() passed after 0.551 seconds.
+✔ Test shorterRepairKeepsInsertionLedgerMonotone() passed after 0.576 seconds.
+✔ Test localRecoveryAfterShorteningRepairKeepsEffectivePrefixAndAddsOnlySuffix() passed after 0.577 seconds.
+✔ Test lengthChangingRepairPreservesUserPrefixSuffixAndAppendsOnlyNewSuffix() passed after 0.577 seconds.
+✔ Test laterInsertionDefersEarlierCorrectionWithoutGlobalBlock() passed after 0.615 seconds.
+✔ Test unconfirmedInitialInsertionCannotCreateOwnershipAndDoesNotBlockNewRecord() passed after 0.955 seconds.
+✔ Test realGPTCoreFinalizationPublishesActionableCorrectionFromFakeProviders() passed after 0.967 seconds.
+✔ Suite "Owned range correction production path with synthetic OS and SQLite" passed after 0.968 seconds.
+✘ Test run with 37 tests in 4 suites failed after 0.968 seconds with 6 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

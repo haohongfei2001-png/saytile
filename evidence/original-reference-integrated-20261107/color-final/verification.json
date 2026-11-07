@@ -1,0 +1,24 @@
+{
+  "published_runtime_commit": "69b90939fd688b35448f976950e96db0ce5b602a",
+  "tested_source_before_docs_only_rebase": "23bb6ac97141d29e6e4563542944a48f456804f6",
+  "runtime_and_ui_test_inputs_identical": true,
+  "compared_paths": [
+    "Sources",
+    "Package.swift",
+    "scripts/build-app.sh",
+    "scripts/test-native-ui.py",
+    "tests/fixtures/NativeUIControlProbe.swift"
+  ],
+  "source_dirty_at_test": false,
+  "native_ui_passed": true,
+  "binary_sha256": "4ee3169404e9f29f66010d09f0656538aa596da671ff0fa84252607cb146962e",
+  "native_ax_press": 45,
+  "native_menu_select": 10,
+  "bottom_control_checks": 11,
+  "images": {
+    "reference-standby.png": "809bbd8fdc3eb51fc1c8dd61ee8a6def59fa81558edfd217f801441010b2015f",
+    "reference-recognizing.png": "ee566c0041a237f1843e2af0b355406a32d6ef1fbf5c92a46f23eb4bfcd77e7e",
+    "reference-paused.png": "f17283740551574d5cf96055d220ee6cb6484da7d7a70e79ed7c263842a5077a"
+  },
+  "scope": "Final native macOS production panel and controls with synthetic capture dependencies. No microphone, network ASR, bitmap text or visual acceptance claim."
+}

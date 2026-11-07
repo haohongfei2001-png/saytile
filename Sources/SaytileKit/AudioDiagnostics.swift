@@ -1,4 +1,5 @@
 import Foundation
+import CoreAudio
 @preconcurrency import AVFoundation
 
 /// Offline fixture import used by acceptance tests. Never opens a microphone or external application.
@@ -114,15 +115,29 @@ final class AudioProbeCounter: @unchecked Sendable {
 
 extension AudioDiagnostics {
     /// Uses existing microphone authorization only. Counts buffers without reading, storing or recognizing samples.
-    @MainActor public static func probeInputDevice(seconds: Double = 5) async throws -> String {
+    @MainActor public static func probeInputDevice(seconds: Double = 5, devices: [AudioInputDevice] = []) async throws -> String {
         guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else { return "NOT_RUN microphone permission not already authorized" }
         let counter = try AudioProbeCounter()
         let engine = AVAudioEngine(); let input = engine.inputNode; let format = input.outputFormat(forBus: 0)
         input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.counting(counter: counter))
-        defer { engine.stop(); input.removeTap(onBus: 0) }
-        try engine.start(); try await Task.sleep(for: .seconds(min(10, max(1, seconds))))
+        do {
+            defer { engine.stop(); input.removeTap(onBus: 0) }
+            try engine.start(); try await Task.sleep(for: .seconds(min(10, max(1, seconds))))
+        }
         engine.stop()
-        return "hardware_buffers=\(st_probe_buffers(counter.pointer)) hardware_frames=\(st_probe_frames(counter.pointer)) sample_rate=\(format.sampleRate) channels=\(format.channelCount) no_samples_read_saved_or_recognized=true"
+        let summary = "hardware_buffers=\(st_probe_buffers(counter.pointer)) hardware_frames=\(st_probe_frames(counter.pointer)) sample_rate=\(format.sampleRate) channels=\(format.channelCount) no_samples_read_saved_or_recognized=true"
+        guard !devices.isEmpty else { return summary }
+        var address = AudioObjectPropertyAddress(mSelector: kAudioHardwarePropertyDefaultInputDevice, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
+        var deviceID: AudioDeviceID = 0
+        var size = UInt32(MemoryLayout.size(ofValue: deviceID))
+        guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &address, 0, nil, &size, &deviceID) == noErr,
+              let device = devices.first(where: { $0.id == deviceID }) else { throw AudioFailure.message("找不到当前测试输入") }
+        let pinned = try PinnedAudioInput(device: device)
+        defer { pinned.stop() }
+        try pinned.start(ring: nil)
+        try await Task.sleep(for: .seconds(min(10, max(1, seconds))))
+        try pinned.checkProgress()
+        return summary + " pinned_frames=\(pinned.frames) pinned_rate=\(pinned.sampleRate)"
     }
     /// A real-time producer feeding the same bounded C ring, AVAudioConverter, VAD and journal used by the mic.
     /// All samples originate in the explicitly provided synthetic file; no audio output or input device is opened.

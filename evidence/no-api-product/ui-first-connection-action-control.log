@@ -1,0 +1,59 @@
+/Users/hhf/.codex/worktrees/saytile-no-api-product/tests/fixtures/NativeUIControlProbe.swift:46:36: warning: 'unsafeBitCast' from 'AnyObject' to 'AXUIElement' can be replaced with 'unsafeDowncast'
+44 |                     for _ in 0..<4 {
+45 |                         guard let raw = value(ancestor, kAXParentAttribute), CFGetTypeID(raw) == AXUIElementGetTypeID() else { break }
+46 |                         ancestor = unsafeBitCast(raw, to: AXUIElement.self)
+   |                                    `- warning: 'unsafeBitCast' from 'AnyObject' to 'AXUIElement' can be replaced with 'unsafeDowncast'
+47 |                         let ancestorRole = value(ancestor, kAXRoleAttribute) as? String
+48 |                         if ancestorRole == kAXWindowRole || ancestorRole == kAXApplicationRole { break }
+UI_CAPTURE panel-empty 400x550 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS 直接输入 fixture_pid=1769 foreground_unchanged=true
+NATIVE_UI_AXPRESS 自由记录 fixture_pid=1769 foreground_unchanged=true
+UI_CONTROL_PASS mode buttons through native control events
+UI_CAPTURE panel-content 400x550 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE panel-compact 400x440 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS 已收藏 fixture_pid=1769 foreground_unchanged=true
+NATIVE_UI_AXPRESS 全部记录 fixture_pid=1769 foreground_unchanged=true
+UI_CONTROL_PASS archive filters through native control events and SQLite
+UI_CAPTURE archive 1040x720 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS 保存修改 fixture_pid=1769 foreground_unchanged=true
+UI_CONTROL_PASS native Save action commits immutable edit
+UI_CAPTURE archive-detail 1120x720 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE archive-detail-compact 1120x570 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE archive-no-results 1040x720 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE panel-ai-review 400x550 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE panel-ai-recovery 400x550 foreground_unchanged=true candidate_activated=false
+UI_STATE_PASS one transcript survives single-core processing and failure; synthetic Store runs, no providers
+UI_CAPTURE settings 650x740 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE settings-compact 560x570 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS recognition.configureServices fixture_pid=1769 foreground_unchanged=true
+NATIVE_UI_AXPRESS connection.authorizeCheck fixture_pid=1769 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.apply fixture_pid=1769 foreground_unchanged=true
+NATIVE_UI_AXSETVALUE recognition.topicContext fixture_pid=1769 foreground_unchanged=true
+NATIVE_UI_FIELD_EDIT recognition.topicContext via owned NSTextView delegate; no global key events
+NATIVE_UI_AXPRESS recognition.apply fixture_pid=1769 foreground_unchanged=true
+UI_CONTROL_PASS recognition settings: unverified cloud disabled, explicit cost authorization, offline apply and native text edit
+UI_CAPTURE ai-controls 650x840 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE ai-services 650x840 foreground_unchanged=true candidate_activated=false
+FAIL accessible fixture control not found: recognition.model.a71e0001-0000-4000-8000-000000000001.workspace; 20 nodes
+AXWindow Saytile UI Review ai-chinese-keychain
+AXGroup 
+AXStaticText 
+AXScrollArea 
+AXHeading 中文专家设置
+AXGroup 
+AXDisclosureTriangle 中文识别 · 阿里云 Qwen Message、待添加密钥 | recognition.model.a71e0001-0000-4000-8000-000000000001.header
+AXStaticText 
+AXPopUpButton recognition.model.a71e0001-0000-4000-8000-000000000001.region
+AXStaticText 
+AXButton recognition.model.a71e0001-0000-4000-8000-000000000001.workspace
+AXStaticText 
+AXButton recognition.model.a71e0001-0000-4000-8000-000000000001.secret
+AXButton 保存密钥 | recognition.model.a71e0001-0000-4000-8000-000000000001.saveKey
+AXButton 待添加密钥
+AXStaticText 
+AXCheckBox recognition.model.a71e0001-0000-4000-8000-000000000001.consent
+AXDisclosureTriangle 高级设置
+AXStaticText recognition.model.a71e0001-0000-4000-8000-000000000001.header
+AXStaticText
+UI_REVIEW_FAILED Remote native AX action failed for recognition.model.a71e0001-0000-4000-8000-000000000001.workspace, code=1
+

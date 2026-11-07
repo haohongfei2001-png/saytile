@@ -4,7 +4,7 @@ public enum RecognitionPurpose: String, Codable, Sendable, CaseIterable {
     case chineseASR, englishASR, multilingualASR, textFusion, audioReview, finalASR
     public var label: String {
         switch self {
-        case .chineseASR: "中文专家"; case .englishASR: "英文专家"; case .multilingualASR: "中英混合复核"
+        case .chineseASR: "音频专家 A"; case .englishASR: "音频专家 B"; case .multilingualASR: "可选音频专家"
         case .textFusion: "AI 精确融合"; case .audioReview: "疑难原音复听"; case .finalASR: "高精度定稿"
         }
     }
@@ -56,6 +56,10 @@ public struct ModelConfiguration: Identifiable, Codable, Sendable, Equatable {
     public var model: String
     public var enabled: Bool
     public var cloudConsent: Bool
+    /// Opaque account-authorization identity. Never derived from credential bytes.
+    /// Legacy configurations decode missing values as nil; successful key changes
+    /// rotate this value so saved audio cannot silently move to another account.
+    public var credentialGeneration: UUID?
     public var region: String
     public var workspaceID: String
     public var context: String
@@ -69,9 +73,10 @@ public struct ModelConfiguration: Identifiable, Codable, Sendable, Equatable {
                 enabled: Bool = true, cloudConsent: Bool = false, region: String = "global",
                 workspaceID: String = "", context: String = "", audioHourRate: Double? = nil,
                 inputMillionTokenRate: Double? = nil, outputMillionTokenRate: Double? = nil, currency: String = "USD",
-                reasoningEffort: String = "high", reasoningMode: String = "standard") {
+                reasoningEffort: String = "high", reasoningMode: String = "standard", credentialGeneration: UUID? = nil) {
         self.id = id; self.purpose = purpose; self.provider = provider; self.model = model
         self.enabled = enabled; self.cloudConsent = cloudConsent; self.region = region
+        self.credentialGeneration = credentialGeneration
         self.workspaceID = workspaceID; self.context = context; self.audioHourRate = audioHourRate
         self.inputMillionTokenRate = inputMillionTokenRate; self.outputMillionTokenRate = outputMillionTokenRate; self.currency = currency
         self.reasoningEffort = reasoningEffort; self.reasoningMode = reasoningMode
@@ -128,8 +133,8 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
             throw ProviderFailure.configuration("必须且只能配置一个 GPT-6 Astra 文本融合核心。")
         }
         if allowSingleExpertBaseline {
-            guard experts.count == 1, [.chineseASR, .englishASR].contains(experts[0].purpose) else {
-                throw ProviderFailure.configuration("单专家对照必须恰好启用一位中文或英文实时专家，并保留唯一 GPT-6 核心。")
+            guard experts.count == 1, experts[0].purpose.isStreaming else {
+                throw ProviderFailure.configuration("单专家对照必须恰好启用一个实时 ASR（包括多语言模型），并保留唯一 GPT-6 核心。")
             }
         } else {
             guard experts.count >= 2, experts.count <= 3,
@@ -172,21 +177,16 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
             config.models[index].enabled = false
             config.models[index].cloudConsent = false
         }
+        // Keep custom provider/model/ID metadata intact. Unsupported legacy choices need
+        // explicit reconfiguration; migration must never silently replace a custom model.
         let fusionIndices = config.models.indices.filter { config.models[$0].purpose == .textFusion }
-        if let first = fusionIndices.first {
-            for index in fusionIndices.dropFirst() {
-                config.models[index].enabled = false
-                config.models[index].cloudConsent = false
-            }
-            if config.models[first].provider != .openAIResponses || config.models[first].model != "gpt-6-astra" {
-                config.models[first].provider = .openAIResponses
-                config.models[first].model = "gpt-6-astra"
-                config.models[first].cloudConsent = false
-            }
-        } else {
-            config.models.append(.init(id: UUID(uuidString: "A71E0001-0000-4000-8000-000000000004")!,
-                purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra"))
+        let chosen = fusionIndices.first { config.models[$0].enabled &&
+            config.models[$0].provider == .openAIResponses && config.models[$0].model == "gpt-6-astra" }
+        for index in fusionIndices where index != chosen {
+            config.models[index].enabled = false
+            config.models[index].cloudConsent = false
         }
+        if chosen == nil { config.cloudEnabled = false }
         return config
     }
     public func save(to preferences: UserDefaults) throws {

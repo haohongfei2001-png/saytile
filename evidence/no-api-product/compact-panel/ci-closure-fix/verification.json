@@ -1,0 +1,52 @@
+{
+  "render-only": {
+    "passed": true,
+    "controls_requested": false,
+    "source_revision": "a6849128e12e88560daa52fce48f6f2d805a88aa",
+    "source_dirty": true,
+    "binary_sha256": "adfb53ca8dc3b5d01559c172178c1d5fb1aaaa17260fb88e5137680ee0a71d41",
+    "outside_foreground_observations": 0,
+    "native_ax_press": 0,
+    "native_menu_select": 0,
+    "native_control_inspections": 0,
+    "capture_resume_acknowledgements": 0,
+    "native_text_checks": 1,
+    "native_unicode_checks": 1,
+    "native_ax_set_value": 0,
+    "native_field_edits": 0,
+    "native_secure_field_edits": 0,
+    "control_groups": 0,
+    "scope": "Production SwiftUI and NSTextView in transparent nonactivating AppKit windows; fixture PID only; synthetic data; native selection/scroll checks use owned AppKit controls and Store updates; capture actions and first-connection credentials/verification are injected; TEST_ONLY live-shaped receipt is controller evidence only; first-connection and compact-panel fixtures use no Keychain; preceding settings render performs scoped metadata presence only, no credential reads; no provider/network/microphone/global keys/clipboard write/external target; candidate activation rejected; outside foreground transitions recorded without causal claims",
+    "image_count": 20
+  },
+  "controls": {
+    "passed": true,
+    "controls_requested": true,
+    "source_revision": "a6849128e12e88560daa52fce48f6f2d805a88aa",
+    "source_dirty": true,
+    "binary_sha256": "adfb53ca8dc3b5d01559c172178c1d5fb1aaaa17260fb88e5137680ee0a71d41",
+    "outside_foreground_observations": 0,
+    "native_ax_press": 41,
+    "native_menu_select": 6,
+    "native_control_inspections": 5,
+    "capture_resume_acknowledgements": 1,
+    "native_text_checks": 1,
+    "native_unicode_checks": 1,
+    "native_ax_set_value": 6,
+    "native_field_edits": 6,
+    "native_secure_field_edits": 3,
+    "control_groups": 12,
+    "scope": "Production SwiftUI and NSTextView in transparent nonactivating AppKit windows; fixture PID only; synthetic data; native selection/scroll checks use owned AppKit controls and Store updates; capture actions and first-connection credentials/verification are injected; TEST_ONLY live-shaped receipt is controller evidence only; first-connection and compact-panel fixtures use no Keychain; preceding settings render performs scoped metadata presence only, no credential reads; no provider/network/microphone/global keys/clipboard write/external target; candidate activation rejected; outside foreground transitions recorded without causal claims",
+    "image_count": 31
+  },
+  "source_revision": "a6849128e12e88560daa52fce48f6f2d805a88aa",
+  "scope": "dirty preview after a684; UIReview closure dispatch fix only; not final candidate CI proof",
+  "source_sha256": {
+    "Sources/SaytileApp/UIReview.swift": "47a43db802a36d7cba4c5bea3887b9756e939727548c030a7bbebd7a2aff89fd",
+    "scripts/test-native-ui.py": "7ff9079db16cb0a0cadb39bee9217bb1b58c66556d4ee674d4c6ab6d939df661",
+    "tests/fixtures/NativeUIControlProbe.swift": "07eb6a66ba8ef29cb46dafffc08222daa59d3840f0841950f754a89d0a9a2385"
+  },
+  "changed_ui_source": [
+    "Sources/SaytileApp/UIReview.swift"
+  ]
+}

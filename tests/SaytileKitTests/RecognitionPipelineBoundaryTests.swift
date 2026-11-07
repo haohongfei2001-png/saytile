@@ -17,24 +17,18 @@ struct RecognitionPipelineBoundaryTests {
         #expect(receivedSecond == second)
         #expect(!fanout.didOverflow(fast))
         #expect(fanout.didOverflow(slow))
-        #expect(fanout.snapshot == first + second)
+        #expect(fanout.duration == Double(first.count + second.count) / 32_000)
         fanout.finish()
         let terminal = await iterator.next()
         #expect(terminal == nil)
     }
-    @Test func reviewOverflowIsExplicitAndNeverReturnsTruncatedAudio() {
-        let fanout = RecognitionAudioFanout(ids: [], maximumReviewBytes: 4)
-        fanout.append(Data([1, 0, 2, 0])); fanout.append(Data([3, 0]))
-        #expect(fanout.snapshot == nil)
-        #expect(fanout.duration == 3.0 / 16_000)
-        #expect(fanout.clip(start: 0, end: 1) == nil)
-    }
-    @Test func sampleClipsKeepExactSourceOrderAndFinishRejectsNewAudio() {
+    @Test func fanoutHasNoLifetimeAudioBufferAndFinishRejectsNewAudio() {
         let fanout = RecognitionAudioFanout(ids: [])
-        fanout.append(Data([1, 0, 2, 0, 3, 0]))
-        #expect(fanout.clip(start: 1.0 / 16_000, end: 3.0 / 16_000) == Data([2, 0, 3, 0]))
-        fanout.finish(); fanout.append(Data([4, 0]))
-        #expect(fanout.snapshot == Data([1, 0, 2, 0, 3, 0]))
+        let block = Data(repeating: 7, count: 32_000)
+        for _ in 0..<400 { fanout.append(block) }
+        #expect(fanout.duration == 400)
+        fanout.finish(); fanout.append(block)
+        #expect(fanout.duration == 400)
     }
     @Test func incompleteOrRefusedLLMResponseCannotBecomeDecision() throws {
         let incomplete = Data(#"{"status":"incomplete","output":[{"type":"message","content":[{"type":"output_text","text":"{}"}]}]}"#.utf8)

@@ -1,0 +1,96 @@
+Building for debugging...
+[Planning 30 / 184]
+[Starting]
+[3 / 15] SaytileKit
+[5 / 16] SaytileKit
+[10 / 17] Saytile-product
+[11 / 26] SaytileKitTests-product
+[21 / 37] SaytileKitTests-product
+[24 / 37] SaytileKitTests-product
+[25 / 39] SaytileKitTests-product
+[25 / 39]
+[29 / 39] Saytile-product
+[31 / 39] Saytile-product
+[32 / 39] Saytile-product
+[34 / 39] Saytile-product
+[34 / 39] SaytileKitTests-product
+[34 / 39] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:395:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+387 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+388 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+389 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+390 |             // A cancelled older check must fully close its sockets before another starts.
+391 |             await previous?.value
+    :
+393 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+394 |             do {
+395 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+396 |                     Task { @MainActor [weak self] in
+397 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[36 / 39] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[36 / 39] Saytile-product
+[36 / 39] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[38 / 39] SaytileKitTests-product
+Build complete! (8.45秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Production capture to single-core recognition with isolated transports" started.
+◇ Suite "Capture storage failures" started.
+◇ Suite "Capture session ownership across suspension" started.
+◇ Suite "Capture converter input ownership" started.
+◇ Suite "Audio journal, bounded ring and VAD" started.
+◇ Test failedFinalSyncKeepsOnlyPublishedDurableAudioAndPreservesText() started.
+◇ Test realtimeWriteFailureStopsWorkerAndSealsEmptyRecord() started.
+◇ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test cancellationOnlyRemovesCapturedSessionsNotNewlyRetiredOnes() started.
+◇ Test recoveryMarksMissingAudioWithoutDiscardingText() started.
+◇ Test revocationCancelsAlreadyAdmittedSessionWhileCaptureStopIsSuspended() started.
+◇ Test varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) started.
+◇ Test recoveryRetainsCompleteFramesBeyondPublishedCheckpoint() started.
+◇ Test invalidAudioDirectorySealsRecordInsteadOfLeavingItActive() started.
+◇ Test testRingWrapsAndDownmixesStereo() started.
+◇ Test testRingKeepsOrderingAndRejectsOverflowWithoutOverwrite() started.
+◇ Test testCheckpointAndInterruptedTailRecovery() started.
+◇ Test case passing 1 argument failReview → false to journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test case passing 1 argument failReview → true to journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test testFifteenSecondRotationBoundary() started.
+◇ Test case passing 1 argument sampleRate → 16000.0 to varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) started.
+◇ Test testSilenceDoesNotCreateRecordings() started.
+◇ Test case passing 1 argument sampleRate → 22050.0 to varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) started.
+◇ Test case passing 1 argument sampleRate → 44100.0 to varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) started.
+◇ Test case passing 1 argument sampleRate → 48000.0 to varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) started.
+CAPTURE_CONVERTER rate=22050.0 source_frames=60809 reference_frames=44125 actual_frames=44125 waveform_equal=true
+CAPTURE_CONVERTER rate=16000.0 source_frames=44124 reference_frames=44124 actual_frames=44124 waveform_equal=true
+✔ Test testRingWrapsAndDownmixesStereo() passed after 0.037 seconds.
+✔ Test testRingKeepsOrderingAndRejectsOverflowWithoutOverwrite() passed after 0.037 seconds.
+✔ Test testCheckpointAndInterruptedTailRecovery() passed after 0.037 seconds.
+✔ Test testFifteenSecondRotationBoundary() passed after 0.037 seconds.
+✔ Test recoveryMarksMissingAudioWithoutDiscardingText() passed after 0.037 seconds.
+✔ Test recoveryRetainsCompleteFramesBeyondPublishedCheckpoint() passed after 0.038 seconds.
+✔ Test testSilenceDoesNotCreateRecordings() passed after 0.041 seconds.
+✔ Suite "Audio journal, bounded ring and VAD" passed after 0.041 seconds.
+✔ Test cancellationOnlyRemovesCapturedSessionsNotNewlyRetiredOnes() passed after 0.047 seconds.
+✔ Test invalidAudioDirectorySealsRecordInsteadOfLeavingItActive() passed after 0.047 seconds.
+✔ Test failedFinalSyncKeepsOnlyPublishedDurableAudioAndPreservesText() passed after 0.047 seconds.
+CAPTURE_CONVERTER rate=44100.0 source_frames=121618 reference_frames=44124 actual_frames=44124 waveform_equal=true
+CAPTURE_CONVERTER rate=48000.0 source_frames=132373 reference_frames=44124 actual_frames=44124 waveform_equal=true
+✔ Test varyingRingBatchSizesPreserveCompleteWaveform(sampleRate:) with 4 test cases passed after 0.053 seconds.
+✔ Suite "Capture converter input ownership" passed after 0.053 seconds.
+✔ Test revocationCancelsAlreadyAdmittedSessionWhileCaptureStopIsSuspended() passed after 0.204 seconds.
+✔ Suite "Capture session ownership across suspension" passed after 0.204 seconds.
+✔ Test realtimeWriteFailureStopsWorkerAndSealsEmptyRecord() passed after 0.232 seconds.
+✔ Suite "Capture storage failures" passed after 0.233 seconds.
+✔ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) with 2 test cases passed after 0.345 seconds.
+✔ Suite "Production capture to single-core recognition with isolated transports" passed after 0.345 seconds.
+✔ Test run with 14 tests in 5 suites passed after 0.345 seconds.

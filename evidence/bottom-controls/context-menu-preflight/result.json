@@ -1,0 +1,66 @@
+{
+  "started": "2026-11-07T02:22:00.516749+00:00",
+  "fixture_pid": 68890,
+  "nonce": "d2f101aa0183431b97c0ba4b8216b246",
+  "fixture_events": [
+    {
+      "actions": 0,
+      "activated": false,
+      "alpha": 0,
+      "canKey": false,
+      "canMain": false,
+      "event": "ready",
+      "foregroundUnchanged": true,
+      "key": false,
+      "keyboardEvents": 0,
+      "main": false,
+      "menuRequests": 0,
+      "nonce": "d2f101aa0183431b97c0ba4b8216b246",
+      "pid": 68890
+    },
+    {
+      "actions": 1,
+      "activated": false,
+      "alpha": 0,
+      "canKey": false,
+      "canMain": false,
+      "event": "realMenuItemAction",
+      "foregroundUnchanged": true,
+      "key": false,
+      "keyboardEvents": 0,
+      "main": false,
+      "menuRequests": 1,
+      "nonce": "d2f101aa0183431b97c0ba4b8216b246",
+      "pid": 68890
+    },
+    {
+      "actions": 1,
+      "activated": false,
+      "alpha": 0,
+      "canKey": false,
+      "canMain": false,
+      "event": "finished",
+      "foregroundUnchanged": true,
+      "key": false,
+      "keyboardEvents": 0,
+      "main": false,
+      "menuRequests": 1,
+      "nonce": "d2f101aa0183431b97c0ba4b8216b246",
+      "pid": 68890
+    }
+  ],
+  "probe_exit": 0,
+  "probe_stdout": "OWNED_TRANSCRIPT_ACTIONS [\"AXShowMenu\"]\nOWNED_MENU_ITEM_AXPRESS 0\nAX_CONTEXT_MENU_RESULT show_code=0 item_selected=true foreground_unchanged=true",
+  "probe_stderr": "",
+  "outcome": "OWNED_AX_SHOW_MENU_AND_AXPRESS_VERIFIED",
+  "fixture_exit": 0,
+  "fixture_stderr": "",
+  "finished": "2026-11-07T02:22:02.080474+00:00",
+  "identities": {
+    "Fixture.swift": "4a416151357c6732c1eda7be6430ee7eca20ce02f0750956d5a20f3edeeaab1f",
+    "Probe.swift": "69af7557f647eaee5ec324a99836a622cd3d96eb866591655c9b30afb3c69fdb",
+    "fixture": "2484b905ecd968d1cfc40acd3c8977f85499244265305871ae7ac3aa00dcfe36",
+    "probe": "ea4c6d3c7332e92751e3be782e0196c8d9ea8d04a0acf8cddde4e5518bb6af7f",
+    "run.py": "c326104d1449481465480f7273c457ffc1dda518662fcac2f546346d8587889f"
+  }
+}

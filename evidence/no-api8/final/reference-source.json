@@ -1,0 +1,69 @@
+{
+  "source_revision": "69b90939fd688b35448f976950e96db0ce5b602a",
+  "authority_commit": "69b90939fd688b35448f976950e96db0ce5b602a",
+  "recorded_measurements": "design/approved/original-reference-20261107.measurements.json",
+  "measurements_file_sha256": "2563a3cff43ec918377f1284d113cc62cd29b62534fa291ad44b9e839ee20f7a",
+  "upstream_original": {
+    "authority": "Sole approved visual source: design/approved/Saytile-original-visual-reference-20261107.jpeg (exact user-provided JPEG bytes)",
+    "source_sha256": "58be88a019cf0241b1c540f799d0944ed294e650b8c119923a434a6e4889a7c5",
+    "source_image_pixels": [
+      1536,
+      1024
+    ],
+    "reference_pixels_per_native_point": 2,
+    "main_card_source_xywh": [
+      130,
+      250,
+      688,
+      468
+    ],
+    "main_card_points": [
+      344,
+      234
+    ],
+    "card_radius_points": 28,
+    "body_font": "PingFangSC-Regular",
+    "body_font_points": 19.5,
+    "line_height_points": 26,
+    "text_optical_leading_points": 22,
+    "copy_source_xywh": [
+      171,
+      616,
+      84,
+      67
+    ],
+    "voice_source_xywh": [
+      605,
+      616,
+      185,
+      67
+    ],
+    "copy_points": [
+      42,
+      33.5
+    ],
+    "voice_points": [
+      92.5,
+      33.5
+    ],
+    "footer_leading_points": 20.5,
+    "footer_trailing_points": 14,
+    "footer_bottom_points": 18,
+    "transparent_shadow_perimeter_points": 32,
+    "native_window_points": [
+      408,
+      298
+    ],
+    "states": [
+      "paused/right-facing triangle",
+      "standby/still dot",
+      "recognizing/five live-amplitude vertical bars"
+    ],
+    "text_fixture": "The native reference fixture preserves the visible five line breaks from the supplied illustration. Production does not hard-code text or line breaks.",
+    "acceptance": "Geometry and pixel comparisons are evidence; no test authorizes a claim of literal pixel identity or user approval.",
+    "source_path": "design/approved/Saytile-original-visual-reference-20261107.jpeg"
+  },
+  "original_source_path": "design/approved/Saytile-original-visual-reference-20261107.jpeg",
+  "verified_original_sha256": "58be88a019cf0241b1c540f799d0944ed294e650b8c119923a434a6e4889a7c5",
+  "scope": "Verified and inspected exact original JPEG committed under 870e1f6, not an older lossless PNG. Direct same-scale comparison against the signed package is preserved under ui/. No private desktop was inspected."
+}

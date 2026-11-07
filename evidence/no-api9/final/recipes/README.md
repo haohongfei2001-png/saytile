@@ -1,0 +1,1 @@
+Exact verification helpers for the candidate; absolute paths refer to disposable fixtures or read-only RC1 metadata on the verification Mac, not to customer setup. The ordinary native connection workflow is in [user actions](../../../../docs/V1-USER-ACTIONS.md).

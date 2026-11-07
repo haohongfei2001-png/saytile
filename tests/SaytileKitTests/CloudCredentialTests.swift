@@ -45,7 +45,7 @@ struct CloudCredentialTests {
 
 @Suite("Recognition setup configuration")
 struct RecognitionSetupTests {
-    @Test func defaultsIncludeCoreFiveAndKeepOptionalExpertsOffAndConsentOff() throws {
+    @Test func defaultsIncludeTwoExpertsAndOneCoreAndKeepOptionalExpertsOffAndConsentOff() throws {
         let config = RecognitionConfiguration()
         #expect(!config.cloudEnabled)
         #expect(config.inputMode == .highestQuality)
@@ -78,12 +78,26 @@ struct RecognitionSetupTests {
         original.inputMode = .fast
         original.topicContext = "synthetic-topic"
         original.models[1].cloudConsent = true
+        original.models[1].credentialGeneration = UUID()
         try original.save(to: preferences)
-        #expect(RecognitionConfiguration.load(from: preferences).inputMode == .highestQuality)
+        original.inputMode = .highestQuality // legacy fast mode is intentionally migrated
+        #expect(RecognitionConfiguration.load(from: preferences) == original)
         #expect(RecognitionConfiguration.load(from: preferences).models.map(\.id) == original.models.map(\.id))
         let json = try #require(preferences.data(forKey: "multiASRConfigurationV1"))
         let object = try #require(JSONSerialization.jsonObject(with: json) as? [String: Any])
         let models = try #require(object["models"] as? [[String: Any]])
         #expect(models.allSatisfy { $0["apiKey"] == nil && $0["secret"] == nil && $0["credential"] == nil })
+    }
+
+    @Test func legacyConfigurationWithoutCredentialGenerationDecodesWithoutInventingAccountAuthorization() throws {
+        let original = RecognitionConfiguration()
+        var object = try #require(JSONSerialization.jsonObject(with: JSONEncoder().encode(original)) as? [String: Any])
+        var models = try #require(object["models"] as? [[String: Any]])
+        for index in models.indices { models[index].removeValue(forKey: "credentialGeneration") }
+        object["models"] = models
+        let decoded = try JSONDecoder().decode(RecognitionConfiguration.self, from: JSONSerialization.data(withJSONObject: object))
+        #expect(decoded.models.map(\.id) == original.models.map(\.id))
+        #expect(decoded.models.allSatisfy { $0.credentialGeneration == nil })
+        #expect(!decoded.cloudEnabled)
     }
 }

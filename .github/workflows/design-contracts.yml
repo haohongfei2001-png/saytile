@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Verify exact bytes of the sole approved visual reference
+        run: echo '58be88a019cf0241b1c540f799d0944ed294e650b8c119923a434a6e4889a7c5  design/approved/Saytile-original-visual-reference-20261107.jpeg' | sha256sum --check --status
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

@@ -9,7 +9,21 @@ import tempfile
 
 
 def check(app):
+    if not __debug__:
+        raise RuntimeError('Run isolation checks without Python optimization; assertions are required')
     rows = []
+    # Refuse to run production-path rejection cases against an older unguarded
+    # executable. This inspects only the candidate binary, never an archive.
+    binary = app.read_bytes()
+    if any(marker not in binary for marker in [b'DIAGNOSTICS_REJECTED_DATA_DIRECTORY',
+                                               b'DIAGNOSTICS_REQUIRE_SEPARATE_DATA_DIRECTORY_ARGUMENT']):
+        raise RuntimeError('Candidate lacks early directory guard; no process was launched')
+    result = subprocess.run([str(app), '--data-directory=/synthetic/explicit-directory'],
+                            capture_output=True, text=True, timeout=15)
+    if result.returncode != 64 or 'DIAGNOSTICS_REQUIRE_SEPARATE_DATA_DIRECTORY_ARGUMENT' not in result.stdout:
+        raise RuntimeError('Unsupported directory spelling was not rejected')
+    rows.append({'case': 'equals_directory_syntax_rejected', 'exit': 64,
+                 'result': 'PASS_BEFORE_STORE_CONSTRUCTION'})
     for name, args in [
         ('missing_directory', ['--multi-asr-probe', '/synthetic/absent.wav']),
         ('missing_value', ['--multi-asr-probe', '/synthetic/absent.wav', '--data-directory']),
@@ -19,6 +33,28 @@ def check(app):
         assert result.returncode == 64, (name, result.returncode, result.stdout, result.stderr)
         assert 'DIAGNOSTICS_REQUIRE_EXPLICIT_ISOLATED_DATA_DIRECTORY' in result.stdout
         rows.append({'case': name, 'exit': result.returncode, 'result': 'PASS_BEFORE_STORE_CONSTRUCTION'})
+    production = Path.home() / 'Library/Application Support/Saytile'
+    modes = [('--smoke-test', []), ('--device-probe', []), ('--audio-probe', ['/synthetic/absent.wav']),
+             ('--multi-asr-probe', ['/synthetic/absent.wav']), ('--render-preview', []),
+             ('--focus-probe', []), ('--ui-review', ['/synthetic/no-output']),
+             ('--connection-setup', []), ('explicit_directory', [])]
+    for mode, operands in modes:
+        arguments = [] if mode == 'explicit_directory' else [mode, *operands]
+        result = subprocess.run([str(app), '--data-directory', str(production), *arguments],
+                                capture_output=True, text=True, timeout=15)
+        assert result.returncode == 64 and 'DIAGNOSTICS_REJECTED_DATA_DIRECTORY' in result.stdout, mode
+        rows.append({'case': 'production_rejected_' + mode.removeprefix('--'), 'exit': 64,
+                     'result': 'PASS_BEFORE_STORE_CONSTRUCTION'})
+    with tempfile.TemporaryDirectory(prefix='saytile-production-alias-probe-') as temporary:
+        alias = Path(temporary) / 'alias'
+        alias.symlink_to(production, target_is_directory=True)
+        for name, directory in [('production_child', production / 'Audio' / 'no-api-test-must-not-exist'),
+                                ('production_case_alias', production.with_name('sAyTiLe')),
+                                ('production_parent_alias', alias / 'never-created-fixture-leaf')]:
+            result = subprocess.run([str(app), '--data-directory', str(directory), '--smoke-test'],
+                                    capture_output=True, text=True, timeout=15)
+            assert result.returncode == 64 and 'DIAGNOSTICS_REJECTED_DATA_DIRECTORY' in result.stdout, name
+            rows.append({'case': name, 'exit': 64, 'result': 'PASS_BEFORE_STORE_CONSTRUCTION'})
     repository = Path(__file__).resolve().parents[4]
     configuration = repository / 'research/asr/benchmark/quality-evaluation/prepared-24/configurations/C_dual.json'
     config = json.loads(configuration.read_text())
@@ -50,4 +86,4 @@ if __name__ == '__main__':
     result = check(args.app.resolve())
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + '\n')
-    print('CLI_PROBE_ISOLATION_PASS 4 cases; no microphone, corpus read, credentials or network calls')
+    print(f"CLI_PROBE_ISOLATION_PASS {len(result['cases'])} cases; no microphone, corpus read, credentials or network calls")

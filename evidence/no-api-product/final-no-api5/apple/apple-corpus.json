@@ -1,0 +1,338 @@
+[
+  {
+    "audioDuration" : 5.0083125,
+    "dispatchableUTF16Length" : 27,
+    "expected" : "今天下午三点开会。请提前十分钟到达会议室。",
+    "finalizationAfterInputSeconds" : 0.09924970823340118,
+    "firstTextSeconds" : 1.2101448331959546,
+    "id" : "daily",
+    "localCandidateCount" : 26,
+    "localProviders" : [
+      "apple-speech-analyzer"
+    ],
+    "localUnifiedEvidence" : true,
+    "missingCriticalPhrases" : [
+
+    ],
+    "normalizedCER" : 0.2631578947368421,
+    "recognitionState" : "completed",
+    "recognized" : "今天下午 3:00开会 ，请提前 10分钟到达会议室。",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.10320112481713295,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.2101448331959546,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 5.514722291612998,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 5.6094453749246895,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 5.613971999846399,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Tingting (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 6.6105,
+    "dispatchableUTF16Length" : 28,
+    "expected" : "请不要自动发送消息。这个按钮不是删除文字，只删除原始录音。",
+    "finalizationAfterInputSeconds" : 0.041982208378612995,
+    "firstTextSeconds" : 1.2075525000691414,
+    "id" : "negation",
+    "localCandidateCount" : 29,
+    "localProviders" : [
+      "apple-speech-analyzer"
+    ],
+    "localUnifiedEvidence" : true,
+    "missingCriticalPhrases" : [
+
+    ],
+    "normalizedCER" : 0,
+    "recognitionState" : "completed",
+    "recognized" : "请不要自动发送消息 ，这个按钮不是删除文字只删除原始录音",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.03590304171666503,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.2075525000691414,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 7.369998541660607,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 7.408460541628301,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 7.41198075003922,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Tingting (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 6.61,
+    "dispatchableUTF16Length" : 22,
+    "expected" : "订单金额为1234元，数量是15，折扣是8%。",
+    "finalizationAfterInputSeconds" : 0.05241362494416535,
+    "firstTextSeconds" : 1.2299097499344498,
+    "id" : "numbers",
+    "localCandidateCount" : 21,
+    "localProviders" : [
+      "apple-speech-analyzer"
+    ],
+    "localUnifiedEvidence" : true,
+    "missingCriticalPhrases" : [
+
+    ],
+    "normalizedCER" : 0.05263157894736842,
+    "recognitionState" : "completed",
+    "recognized" : "订单金额为 1234数量是 15折扣是 8%",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.024798208381980658,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.2299097499344498,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 7.439215708291158,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 7.489440874895081,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 7.491629333235323,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Tingting (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 6.174375,
+    "dispatchableUTF16Length" : 31,
+    "expected" : "这个Mac应用使用Swift和SQLite，支持中文语音输入。",
+    "finalizationAfterInputSeconds" : 0.05502379173412919,
+    "firstTextSeconds" : 1.2036967084277421,
+    "id" : "mixed",
+    "localCandidateCount" : 29,
+    "localProviders" : [
+      "apple-speech-analyzer"
+    ],
+    "localUnifiedEvidence" : true,
+    "missingCriticalPhrases" : [
+      "Mac"
+    ],
+    "normalizedCER" : 0.20689655172413793,
+    "recognitionState" : "completed",
+    "recognized" : "这个免应用使用 Swift和 SQlight支持中文语音输入。",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.03625787515193224,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.2036967084277421,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 6.877853041747585,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 6.926693916786462,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 6.932876833481714,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Tingting (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 8.049625,
+    "dispatchableUTF16Length" : 31,
+    "expected" : "第一件事是保存原音。第二件事是整理文字。最后检查历史版本。",
+    "finalizationAfterInputSeconds" : 0.03926133317872882,
+    "firstTextSeconds" : 1.2060414168518037,
+    "id" : "pauses",
+    "localCandidateCount" : 31,
+    "localProviders" : [
+      "apple-speech-analyzer"
+    ],
+    "localUnifiedEvidence" : true,
+    "missingCriticalPhrases" : [
+      "保存原音"
+    ],
+    "normalizedCER" : 0.038461538461538464,
+    "recognitionState" : "completed",
+    "recognized" : "第一件事是保存原因 ，第二件事是整理文字 ，最后检查历史版本。",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.0399873333517462,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.2060414168518037,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 8.944795041810721,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 8.980277833528817,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 8.98405637498945,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Tingting (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 5.4726875,
+    "dispatchableUTF16Length" : 22,
+    "expected" : "即使识别失败也要继续收音，原始录音必须完整保留。",
+    "finalizationAfterInputSeconds" : 0.033484041690826416,
+    "firstTextSeconds" : 1.2312004584819078,
+    "id" : "tail",
+    "localCandidateCount" : 25,
+    "localProviders" : [
+      "apple-speech-analyzer"
+    ],
+    "localUnifiedEvidence" : true,
+    "missingCriticalPhrases" : [
+
+    ],
+    "normalizedCER" : 0,
+    "recognitionState" : "completed",
+    "recognized" : "即使识别失败也要继续收音原始录音必须完整保留",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.02824475010856986,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.2312004584819078,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 6.110133375041187,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 6.140980125172064,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 6.143617416732013,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Tingting (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 4.7381875,
+    "dispatchableUTF16Length" : 21,
+    "expected" : "明天上午九点半出发，请带上充电器和笔记本。",
+    "finalizationAfterInputSeconds" : 0.05132924998179078,
+    "firstTextSeconds" : 1.1911883333232254,
+    "id" : "second_voice",
+    "localCandidateCount" : 22,
+    "localProviders" : [
+      "apple-speech-analyzer"
+    ],
+    "localUnifiedEvidence" : true,
+    "missingCriticalPhrases" : [
+      "充电器"
+    ],
+    "normalizedCER" : 0.15789473684210525,
+    "recognitionState" : "completed",
+    "recognized" : "明天上午九点半出发 ，请暂上空电视和笔记本",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.023963249986991286,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.1911883333232254,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 5.202511166688055,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 5.250058208359405,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 5.253840416669846,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Eddy (中文（中国大陆）)"
+  },
+  {
+    "audioDuration" : 6.03925,
+    "dispatchableUTF16Length" : 28,
+    "expected" : "不是星期三，是星期四。不要取消会议，只需要修改开始时间。",
+    "finalizationAfterInputSeconds" : 0.029726083390414715,
+    "firstTextSeconds" : 1.2213513334281743,
+    "id" : "correction",
+    "localCandidateCount" : 30,
+    "localProviders" : [
+      "apple-speech-analyzer"
+    ],
+    "localUnifiedEvidence" : true,
+    "missingCriticalPhrases" : [
+      "修改开始时间"
+    ],
+    "normalizedCER" : 0.08333333333333333,
+    "recognitionState" : "completed",
+    "recognized" : "不是星期三是星期四不要取消会议 ，只需要修外开始的时间。",
+    "timings" : [
+      {
+        "elapsedSeconds" : 0.0316753750666976,
+        "kind" : "prepared"
+      },
+      {
+        "elapsedSeconds" : 1.2213513334281743,
+        "kind" : "firstText"
+      },
+      {
+        "elapsedSeconds" : 6.809413749957457,
+        "kind" : "inputFinished"
+      },
+      {
+        "elapsedSeconds" : 6.836146208457649,
+        "kind" : "stableText"
+      },
+      {
+        "elapsedSeconds" : 6.839139833347872,
+        "kind" : "completed"
+      }
+    ],
+    "voice" : "Eddy (中文（中国大陆）)"
+  }
+]

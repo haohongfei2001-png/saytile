@@ -1,0 +1,53 @@
+{
+  "runtime": "455143310222c2c03c4a4888e5df5552c3af4131",
+  "tree": "87015ba6c1cb2b38c5a868a2fed1b86b9eaac683",
+  "status": "PASS_LOCAL_ENGINEERING_WITH_RECOGNITION_ERRORS",
+  "cases": 8,
+  "completed": 8,
+  "total_audio_seconds": 48.702937500000004,
+  "normalized_cer_min": 0,
+  "normalized_cer_max": 0.2631578947368421,
+  "critical_phrase_misses": {
+    "mixed": [
+      "Mac"
+    ],
+    "pauses": [
+      "保存原音"
+    ],
+    "second_voice": [
+      "充电器"
+    ],
+    "correction": [
+      "修改开始时间"
+    ]
+  },
+  "first_text_seconds": {
+    "min": 1.1715455832891166,
+    "median": 1.2019892915850505,
+    "max": 1.224854291882366
+  },
+  "finalization_after_input_seconds": {
+    "min": 0.04074120847508311,
+    "median": 0.053615770768374205,
+    "max": 0.09121233318001032
+  },
+  "local_candidate_count_range": [
+    21,
+    31
+  ],
+  "all_have_dispatchable_revision": true,
+  "preparation_calls": 1,
+  "asset_status_before": "supported",
+  "asset_status_after": "installed",
+  "source_sha256": {
+    "Sources/SaytileKit/SpeechRecognition.swift": "28a0a10dbd28d1461271243ff9c22c7baf0cd557953f55ac6287076351078592",
+    "tests/fixtures/AudioCorpusProbe.swift": "89db34402c29d8ab25067aca027b550929f7d3ada23688ab95a054f0642807a5",
+    "tests/fixtures/MandarinCorpus.json": "31430af5e1363a51da6c793f70dcc34b752d88195f990e9de6cc1960be8e2e6c"
+  },
+  "results_sha256": {
+    "apple-corpus.json": "cffab2f223d823fef6d775011dcc5ff5b259612228abe029bf445324204be078",
+    "asset-preparation.json": "847f963c4d08ed64dcda3f10e2c3055e7b9e43fb68269c1c0d3cf80756361f52",
+    "receipt.json": "4d40b880135ac50037c0bec53e57611274efcf8ed6aefeb6c1143b39a10757ee",
+    "probe-source-identity.json": "a8ff550feeccb66f997ea13127b9e9206a9eefb93e3906014b9ff2059e7e2578"
+  }
+}

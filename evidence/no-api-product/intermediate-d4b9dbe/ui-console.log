@@ -1,0 +1,83 @@
+UI_CAPTURE panel-empty 400x550 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS 直接输入 fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS 自由记录 fixture_pid=19215 foreground_unchanged=true
+UI_CONTROL_PASS mode buttons through native control events
+UI_CAPTURE panel-content 400x550 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE panel-compact 400x440 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS 已收藏 fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS 全部记录 fixture_pid=19215 foreground_unchanged=true
+UI_CONTROL_PASS archive filters through native control events and SQLite
+UI_CAPTURE archive 1040x720 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS 保存修改 fixture_pid=19215 foreground_unchanged=true
+UI_CONTROL_PASS native Save action commits immutable edit
+UI_CAPTURE archive-detail 1120x720 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE archive-detail-compact 1120x570 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE archive-no-results 1040x720 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE panel-ai-review 400x550 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE panel-ai-recovery 400x550 foreground_unchanged=true candidate_activated=false
+UI_STATE_PASS one transcript survives single-core processing and failure; synthetic Store runs, no providers
+UI_CAPTURE settings 650x740 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE settings-compact 560x570 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS recognition.configureServices fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS connection.authorizeCheck fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.apply fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXSETVALUE recognition.topicContext fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_FIELD_EDIT recognition.topicContext via owned NSTextView delegate; no global key events
+NATIVE_UI_AXPRESS recognition.apply fixture_pid=19215 foreground_unchanged=true
+UI_CONTROL_PASS recognition settings: unverified cloud disabled, explicit cost authorization, offline apply and native text edit
+UI_CAPTURE ai-controls 650x840 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE ai-services 650x840 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXSETVALUE recognition.model.a71e0001-0000-4000-8000-000000000001.workspace fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000001.workspace via owned NSTextView delegate; no global key events
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.consent fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.consent fixture_pid=19215 foreground_unchanged=true
+UI_CONTROL_PASS fixed dual-expert setup: workspace and per-service consent; no model toggle, key read or cloud request
+UI_CAPTURE ai-chinese-keychain 650x740 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS connectionSetup.finish fixture_pid=19215 foreground_unchanged=true
+UI_CONTROL_PASS isolated setup rejects unfinished configuration through native Finish action; no export or provider request
+UI_CAPTURE connection-setup 650x840 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE connection-first-empty 650x840 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS recognition.configureServices fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.header fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXSETVALUE recognition.model.a71e0001-0000-4000-8000-000000000001.workspace fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000001.workspace via owned NSTextView delegate; no global key events
+NATIVE_UI_AXSETVALUE recognition.model.a71e0001-0000-4000-8000-000000000001.secret fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000001.secret via owned NSTextView delegate; no global key events
+NATIVE_UI_SECURE_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000001.secret fixture credential only; value omitted
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.saveKey fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.consent fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.header fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000002.header fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXSETVALUE recognition.model.a71e0001-0000-4000-8000-000000000002.secret fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000002.secret via owned NSTextView delegate; no global key events
+NATIVE_UI_SECURE_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000002.secret fixture credential only; value omitted
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000002.saveKey fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000002.consent fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000002.header fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000004.header fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXSETVALUE recognition.model.a71e0001-0000-4000-8000-000000000004.secret fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000004.secret via owned NSTextView delegate; no global key events
+NATIVE_UI_SECURE_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000004.secret fixture credential only; value omitted
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000004.saveKey fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000004.consent fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000004.header fixture_pid=19215 foreground_unchanged=true
+UI_STATE_CAPTURE connection-first-ready after native secure fields/save/consent; no network
+NATIVE_UI_AXPRESS connection.checkCosts fixture_pid=19215 foreground_unchanged=true
+UI_STATE_CAPTURE connection-first-costs after native disclosure action
+NATIVE_UI_AXPRESS connection.checkCosts fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS connection.authorizeCheck fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS connection.startCheck fixture_pid=19215 foreground_unchanged=true
+UI_CONTROL_PASS first connection via native Workspace/three secure fields/save/consent/cost/start; TEST_ONLY injected receipt, no live verification
+UI_CAPTURE connection-first-success 650x840 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS connection.authorizeCheck fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS connection.startCheck fixture_pid=19215 foreground_unchanged=true
+UI_CONTROL_PASS native retry displays isolated service failure and keeps cloud disabled
+UI_CAPTURE connection-first-failure 650x840 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS connection.authorizeCheck fixture_pid=19215 foreground_unchanged=true
+NATIVE_UI_AXPRESS connection.startCheck fixture_pid=19215 foreground_unchanged=true
+UI_STATE_CAPTURE connection-first-progress from injected backend progress through actual AppModel
+NATIVE_UI_AXPRESS connection.cancelCheck fixture_pid=19215 foreground_unchanged=true
+UI_CONTROL_PASS native cancel closes injected verification and settles all service cards
+UI_CAPTURE connection-first-cancelled 650x840 foreground_unchanged=true candidate_activated=false
+UI_REVIEW_PASS native SwiftUI attached to AppKit windows; 22 captures; synthetic data; no activation/microphone
+

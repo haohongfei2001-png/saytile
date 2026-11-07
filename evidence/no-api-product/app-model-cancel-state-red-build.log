@@ -1,0 +1,131 @@
+Building for debugging...
+[Planning deferred tasks]
+[2 / 57]
+[35 / 68]
+[60 / 68] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[61 / 201]
+[76 / 207]
+[86 / 207]
+[89 / 207]
+[96 / 207]
+[100 / 207]
+[106 / 207]
+[111 / 207]
+[112 / 207]
+[126 / 207]
+[128 / 207]
+[137 / 207]
+[138 / 207]
+[139 / 207]
+[146 / 207]
+[148 / 207]
+[154 / 207]
+[155 / 207]
+[157 / 207]
+[159 / 207]
+[160 / 207]
+[171 / 207]
+[173 / 207]
+[174 / 207]
+[178 / 207]
+[183 / 207]
+[186 / 207]
+[187 / 207]
+[188 / 207]
+[189 / 207]
+[200 / 207] SaytileKit
+[205 / 211] SaytileKit
+[205 / 211] Saytile-product
+[208 / 222] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[211 / 223]
+[219 / 223] Saytile-product
+[220 / 223] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:349:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+341 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+342 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+343 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+344 |             // A cancelled older check must fully close its sockets before another starts.
+345 |             await previous?.value
+    :
+347 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+348 |             do {
+349 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+350 |                     Task { @MainActor [weak self] in
+351 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[222 / 223] Saytile-product
+Build complete! (25.27秒)
+Sources/SaytileApp/AppModel.swift:349:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+341 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+342 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+343 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+344 |             // A cancelled older check must fully close its sockets before another starts.
+345 |             await previous?.value
+    :
+347 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+348 |             do {
+349 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+350 |                     Task { @MainActor [weak self] in
+351 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+PASS missing remembered microphone never silently selects system default
+PASS explicit default device choice clears remembered hardware UID
+PASS coalesced initial load waits for populated archive
+REFRESH_BURST callers=40 database_passes=2
+PASS overlapping refresh callers share database work without losing archive contents
+PASS historical records do not enter current insertion panel
+PASS only explicit historical reuse enters panel
+PASS clearing panel preserves archive
+PASS new speech enters current session
+PASS archive pinned filter reaches store
+PASS archive search reaches store without mixing pages
+PASS cleanup preview waits for candidates and protects unrecognized audio
+PASS switching records flushes pending draft without waiting for debounce
+PASS switching records does not show another record's draft
+PASS returning to record restores durable unsaved draft
+PASS periodic refresh does not reset unsaved editor text
+PASS save modification creates selected immutable version
+PASS successful version save clears old editor draft
+PASS typing during version commit is retained as version or newer draft
+PASS panel exposes total and pagination instead of silently truncating after thirty
+PASS earlier current-session expressions remain available for batch reuse
+PASS earliest current-session expression survives prolonged input
+PASS production model exposes active text review without fabricated progress
+PASS completed review phase disappears when logical recognition fails
+PASS late refresh requests do not query the closed store after exit preparation
+PASS exit flush persists an intentionally empty unsaved draft
+PASS CONNECTION missing keys are shown through metadata-only injected presence
+PASS CONNECTION no upload authorization means no verification invocation
+PASS CONNECTION unverified settings cannot enable cloud recognition
+PASS CONNECTION authorized check with missing keys fails before any mocked provider starts
+PASS CONNECTION failed credential save does not claim saved or connected
+PASS CONNECTION fixture credential saved without Keychain access for qwenMessage
+PASS CONNECTION fixture credential saved without Keychain access for assemblyAI
+PASS CONNECTION fixture credential saved without Keychain access for openAIResponses
+PASS CONNECTION check remains active while actual controller awaits backend
+PASS CONNECTION three accepted accounts are not final connection success
+PASS CONNECTION visible partial progress does not enable cloud
+PASS CONNECTION simulated completed report remains NO_API_ENGINEERING_READY and cannot persist a live receipt
+PASS CONNECTION service failures remain visible and retain local recognition
+PASS CONNECTION TEST_ONLY live-shaped injected receipt exercises success-to-enable branch; no cloud call
+PASS CONNECTION failed credential removal preserves the prior receipt and key metadata
+PASS CONNECTION fixture holds first cloud apply before its visible applied snapshot
+PASS CONNECTION credential revocation synchronously stops an unpublished in-flight cloud apply
+PASS CONNECTION late completion of revoked apply cannot restore cloud state or persisted settings
+Swift/ErrorType.swift:254: Fatal error: Error raised at top level: probe.AppModelProbe.Failure(message: "cancelled check resolves every unfinished service card to a stopped state")
+scripts/test-app-model.sh: line 28: 95500 Trace/BPT trap: 5       "$SAYTILE_MODEL_TEMP/probe" 2>&1
+     95501 Done                    | tee "$SAYTILE_MODEL_LOG"

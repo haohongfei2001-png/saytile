@@ -1,0 +1,493 @@
+﻿2026-11-06T22:49:38.2116898Z Current runner version: '2.338.2'
+2026-11-06T22:49:38.2141469Z ##[group]Runner Image Provisioner
+2026-11-06T22:49:38.2142498Z Hosted Compute Agent
+2026-11-06T22:49:38.2143482Z Version: 20261028.624
+2026-11-06T22:49:38.2144144Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-06T22:49:38.2144946Z Build Date: 2026-10-28T21:51:42Z
+2026-11-06T22:49:38.2145648Z Worker ID: {0d773257-79a2-4916-b9be-e8e5354d8f47}
+2026-11-06T22:49:38.2146365Z Region: eastus
+2026-11-06T22:49:38.2147122Z Cloud: Azure
+2026-11-06T22:49:38.2147671Z ##[endgroup]
+2026-11-06T22:49:38.2149802Z ##[group]Operating System
+2026-11-06T22:49:38.2150508Z Ubuntu
+2026-11-06T22:49:38.2151047Z 24.04.5
+2026-11-06T22:49:38.2151701Z LTS
+2026-11-06T22:49:38.2152227Z ##[endgroup]
+2026-11-06T22:49:38.2153312Z ##[group]Runner Image
+2026-11-06T22:49:38.2154004Z Image: ubuntu-24.04
+2026-11-06T22:49:38.2154583Z Version: 20261101.360.1
+2026-11-06T22:49:38.2155960Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-06T22:49:38.2157585Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+2026-11-06T22:49:38.2158586Z ##[endgroup]
+2026-11-06T22:49:38.2159847Z ##[group]GITHUB_TOKEN Permissions
+2026-11-06T22:49:38.2162089Z Contents: read
+2026-11-06T22:49:38.2163088Z Metadata: read
+2026-11-06T22:49:38.2163798Z ##[endgroup]
+2026-11-06T22:49:38.2165922Z Secret source: Actions
+2026-11-06T22:49:38.2167041Z Cache mode: write
+2026-11-06T22:49:38.2168006Z Prepare workflow directory
+2026-11-06T22:49:38.2503602Z Prepare all required actions
+2026-11-06T22:49:38.2552045Z Getting action download info
+2026-11-06T22:49:38.4707952Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-06T22:49:38.5999374Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-11-06T22:49:38.7845791Z Complete job name: data-and-prototype
+2026-11-06T22:49:38.8762589Z ##[group]Run actions/checkout@v4
+2026-11-06T22:49:38.8763562Z with:
+2026-11-06T22:49:38.8764053Z   repository: haohongfei2001-png/saytile
+2026-11-06T22:49:38.8767802Z   token: ***
+2026-11-06T22:49:38.8768258Z   ssh-strict: true
+2026-11-06T22:49:38.8768726Z   ssh-user: git
+2026-11-06T22:49:38.8769185Z   persist-credentials: true
+2026-11-06T22:49:38.8769690Z   clean: true
+2026-11-06T22:49:38.8770147Z   sparse-checkout-cone-mode: true
+2026-11-06T22:49:38.8770676Z   fetch-depth: 1
+2026-11-06T22:49:38.8771121Z   fetch-tags: false
+2026-11-06T22:49:38.8771576Z   show-progress: true
+2026-11-06T22:49:38.8772035Z   lfs: false
+2026-11-06T22:49:38.8772643Z   submodules: false
+2026-11-06T22:49:38.8773121Z   set-safe-directory: true
+2026-11-06T22:49:38.8773651Z   allow-unsafe-pr-checkout: false
+2026-11-06T22:49:38.8774437Z ##[endgroup]
+2026-11-06T22:49:39.2457800Z Syncing repository: haohongfei2001-png/saytile
+2026-11-06T22:49:39.2462306Z ##[group]Getting Git version info
+2026-11-06T22:49:39.2463994Z Working directory is '/home/runner/work/saytile/saytile'
+2026-11-06T22:49:39.2466436Z [command]/usr/bin/git version
+2026-11-06T22:49:39.2665028Z git version 2.56.0
+2026-11-06T22:49:39.2671180Z ##[endgroup]
+2026-11-06T22:49:39.2687820Z Temporarily overriding HOME='/home/runner/work/_temp/5aa21b7f-f102-4de4-b377-ad0259c5051c' before making global git config changes
+2026-11-06T22:49:39.2691014Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-06T22:49:39.2693505Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/saytile/saytile
+2026-11-06T22:49:39.2761733Z Deleting the contents of '/home/runner/work/saytile/saytile'
+2026-11-06T22:49:39.2767027Z ##[group]Initializing the repository
+2026-11-06T22:49:39.2773251Z [command]/usr/bin/git init /home/runner/work/saytile/saytile
+2026-11-06T22:49:39.2929088Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-06T22:49:39.2931158Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-06T22:49:39.2933655Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-06T22:49:39.2935180Z hint: call:
+2026-11-06T22:49:39.2935889Z hint:
+2026-11-06T22:49:39.2936922Z hint: 	git config --global init.defaultBranch <name>
+2026-11-06T22:49:39.2938122Z hint:
+2026-11-06T22:49:39.2939214Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-06T22:49:39.2941001Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-06T22:49:39.2942696Z hint:
+2026-11-06T22:49:39.2943284Z hint: 	git branch -m <name>
+2026-11-06T22:49:39.2943899Z hint:
+2026-11-06T22:49:39.2944615Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-06T22:49:39.2946713Z Initialized empty Git repository in /home/runner/work/saytile/saytile/.git/
+2026-11-06T22:49:39.2967364Z [command]/usr/bin/git remote add origin https://github.com/haohongfei2001-png/saytile
+2026-11-06T22:49:39.3039731Z ##[endgroup]
+2026-11-06T22:49:39.3041987Z ##[group]Disabling automatic garbage collection
+2026-11-06T22:49:39.3044489Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-06T22:49:39.3093028Z ##[endgroup]
+2026-11-06T22:49:39.3095347Z ##[group]Setting up auth
+2026-11-06T22:49:39.3103102Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-06T22:49:39.3181856Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-06T22:49:39.3693985Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-06T22:49:39.3742595Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-06T22:49:39.3992031Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-06T22:49:39.4039735Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-06T22:49:39.4283316Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-06T22:49:39.4389943Z ##[endgroup]
+2026-11-06T22:49:39.4390987Z ##[group]Fetching the repository
+2026-11-06T22:49:39.4408070Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +760f8741193e2a6c60e42629560eb9fa7c5aa0fc:refs/remotes/pull/6/merge
+2026-11-06T22:49:40.9721217Z From https://github.com/haohongfei2001-png/saytile
+2026-11-06T22:49:40.9725339Z  * [new ref]         760f8741193e2a6c60e42629560eb9fa7c5aa0fc -> pull/6/merge
+2026-11-06T22:49:40.9753186Z ##[endgroup]
+2026-11-06T22:49:40.9755503Z ##[group]Determining the checkout info
+2026-11-06T22:49:40.9757911Z ##[endgroup]
+2026-11-06T22:49:40.9759582Z [command]/usr/bin/git sparse-checkout disable
+2026-11-06T22:49:40.9837532Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-06T22:49:40.9884957Z ##[group]Checking out the ref
+2026-11-06T22:49:40.9888185Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/6/merge
+2026-11-06T22:49:41.1253311Z Note: switching to 'refs/remotes/pull/6/merge'.
+2026-11-06T22:49:41.1254571Z 
+2026-11-06T22:49:41.1255780Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-06T22:49:41.1258614Z changes and commit them, and you can discard any commits you make in this
+2026-11-06T22:49:41.1261315Z state without impacting any branches by switching back to a branch.
+2026-11-06T22:49:41.1263112Z 
+2026-11-06T22:49:41.1264285Z If you want to create a new branch to retain commits you create, you may
+2026-11-06T22:49:41.1266748Z do so (now or later) by using -c with the switch command. Example:
+2026-11-06T22:49:41.1268195Z 
+2026-11-06T22:49:41.1268896Z   git switch -c <new-branch-name>
+2026-11-06T22:49:41.1270354Z 
+2026-11-06T22:49:41.1271025Z Or undo this operation with:
+2026-11-06T22:49:41.1271812Z 
+2026-11-06T22:49:41.1272554Z   git switch -
+2026-11-06T22:49:41.1273228Z 
+2026-11-06T22:49:41.1274454Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-06T22:49:41.1275924Z 
+2026-11-06T22:49:41.1277456Z HEAD is now at 760f874 Merge ef2f8f84f377197350e6384f79af12a9b56272fd into 4fa637a47ce869b7c7aade0ea7c0c121162e10ee
+2026-11-06T22:49:41.1282651Z ##[endgroup]
+2026-11-06T22:49:41.1333654Z [command]/usr/bin/git log -1 --format=%H
+2026-11-06T22:49:41.1367321Z 760f8741193e2a6c60e42629560eb9fa7c5aa0fc
+2026-11-06T22:49:41.1914899Z ##[group]Run actions/setup-python@v5
+2026-11-06T22:49:41.1916176Z with:
+2026-11-06T22:49:41.1992859Z   python-version: 3.12
+2026-11-06T22:49:41.1994778Z   check-latest: false
+2026-11-06T22:49:41.2009456Z   token: ***
+2026-11-06T22:49:41.2010486Z   update-environment: true
+2026-11-06T22:49:41.2011637Z   allow-prereleases: false
+2026-11-06T22:49:41.2013137Z   freethreaded: false
+2026-11-06T22:49:41.2014168Z ##[endgroup]
+2026-11-06T22:49:41.3467544Z ##[group]Installed versions
+2026-11-06T22:49:41.3612036Z (node:2319) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-06T22:49:41.3616897Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-06T22:49:41.3618896Z Successfully set up CPython (3.12.16)
+2026-11-06T22:49:41.3620859Z ##[endgroup]
+2026-11-06T22:49:41.3840447Z ##[group]Run python -m pip install -r tests/requirements.txt
+2026-11-06T22:49:41.3843676Z [36;1mpython -m pip install -r tests/requirements.txt[0m
+2026-11-06T22:49:41.3906720Z shell: /usr/bin/bash -e {0}
+2026-11-06T22:49:41.3907879Z env:
+2026-11-06T22:49:41.3909378Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:49:41.3911616Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-06T22:49:41.3914102Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:49:41.3916910Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:49:41.3919688Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:49:41.3922681Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-06T22:49:41.3925097Z ##[endgroup]
+2026-11-06T22:49:42.7612912Z Collecting playwright==1.57.0 (from -r tests/requirements.txt (line 1))
+2026-11-06T22:49:42.8272249Z   Downloading playwright-1.57.0-py3-none-manylinux1_x86_64.whl.metadata (3.5 kB)
+2026-11-06T22:49:42.8730909Z Collecting pyee<14,>=13 (from playwright==1.57.0->-r tests/requirements.txt (line 1))
+2026-11-06T22:49:42.8837380Z   Downloading pyee-13.0.1-py3-none-any.whl.metadata (3.0 kB)
+2026-11-06T22:49:43.1083976Z Collecting greenlet<4.0.0,>=3.1.1 (from playwright==1.57.0->-r tests/requirements.txt (line 1))
+2026-11-06T22:49:43.1175868Z   Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+2026-11-06T22:49:43.1632798Z Collecting typing-extensions (from pyee<14,>=13->playwright==1.57.0->-r tests/requirements.txt (line 1))
+2026-11-06T22:49:43.1725290Z   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+2026-11-06T22:49:43.1865868Z Downloading playwright-1.57.0-py3-none-manylinux1_x86_64.whl (46.0 MB)
+2026-11-06T22:49:43.4485593Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 46.0/46.0 MB 191.9 MB/s  0:00:00
+2026-11-06T22:49:43.4591929Z Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (621 kB)
+2026-11-06T22:49:43.4660581Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 621.4/621.4 kB 87.4 MB/s  0:00:00
+2026-11-06T22:49:43.4749294Z Downloading pyee-13.0.1-py3-none-any.whl (15 kB)
+2026-11-06T22:49:43.4865128Z Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+2026-11-06T22:49:43.5795221Z Installing collected packages: typing-extensions, greenlet, pyee, playwright
+2026-11-06T22:49:44.4201167Z 
+2026-11-06T22:49:44.4213847Z Successfully installed greenlet-3.5.6 playwright-1.57.0 pyee-13.0.1 typing-extensions-4.16.0
+2026-11-06T22:49:44.4221824Z 
+2026-11-06T22:49:44.4222158Z [notice] A new release of pip is available: 26.2.2 -> 26.3
+2026-11-06T22:49:44.4223093Z [notice] To update, run: pip install --upgrade pip
+2026-11-06T22:49:44.4811015Z ##[group]Run python -m playwright install --with-deps chromium
+2026-11-06T22:49:44.4811525Z [36;1mpython -m playwright install --with-deps chromium[0m
+2026-11-06T22:49:44.4832837Z shell: /usr/bin/bash -e {0}
+2026-11-06T22:49:44.4833080Z env:
+2026-11-06T22:49:44.4833345Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:49:44.4833793Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-06T22:49:44.4834230Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:49:44.4834657Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:49:44.4835035Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:49:44.4835446Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-06T22:49:44.4835788Z ##[endgroup]
+2026-11-06T22:49:44.7982069Z Installing dependencies...
+2026-11-06T22:49:44.8053279Z Switching to root user to install dependencies...
+2026-11-06T22:49:44.8860596Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-06T22:49:44.9197790Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-11-06T22:49:44.9215048Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-11-06T22:49:44.9233409Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-11-06T22:49:44.9285784Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-11-06T22:49:44.9300611Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-11-06T22:49:45.0839522Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [743 kB]
+2026-11-06T22:49:45.1014350Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [675 kB]
+2026-11-06T22:49:45.1399192Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1425 kB]
+2026-11-06T22:49:45.1479492Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [313 kB]
+2026-11-06T22:49:45.1505084Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1708 kB]
+2026-11-06T22:49:45.1593337Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [343 kB]
+2026-11-06T22:49:45.1624282Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1840 kB]
+2026-11-06T22:49:45.1710514Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [420 kB]
+2026-11-06T22:49:45.1741786Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [50.7 kB]
+2026-11-06T22:49:45.1763736Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+2026-11-06T22:49:45.2488199Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1157 kB]
+2026-11-06T22:49:45.2555596Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [234 kB]
+2026-11-06T22:49:45.3014651Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1228 kB]
+2026-11-06T22:49:45.3085173Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [248 kB]
+2026-11-06T22:49:45.3109251Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1721 kB]
+2026-11-06T22:49:45.3198469Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [394 kB]
+2026-11-06T22:49:45.3229177Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [45.4 kB]
+2026-11-06T22:49:45.3238736Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+2026-11-06T22:49:48.6712952Z Fetched 13.0 MB in 1s (9827 kB/s)
+2026-11-06T22:49:49.8536361Z Reading package lists...
+2026-11-06T22:49:49.8869840Z Reading package lists...
+2026-11-06T22:49:50.1275812Z Building dependency tree...
+2026-11-06T22:49:50.1283993Z Reading state information...
+2026-11-06T22:49:50.3079875Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+2026-11-06T22:49:50.3080560Z libasound2t64 set to manually installed.
+2026-11-06T22:49:50.3081214Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-11-06T22:49:50.3081895Z libatk-bridge2.0-0t64 set to manually installed.
+2026-11-06T22:49:50.3083270Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+2026-11-06T22:49:50.3083934Z libatk1.0-0t64 set to manually installed.
+2026-11-06T22:49:50.3084569Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-11-06T22:49:50.3085244Z libatspi2.0-0t64 set to manually installed.
+2026-11-06T22:49:50.3085847Z libcairo2 is already the newest version (1.18.0-3build1).
+2026-11-06T22:49:50.3086512Z libcairo2 set to manually installed.
+2026-11-06T22:49:50.3087234Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+2026-11-06T22:49:50.3087986Z libcups2t64 set to manually installed.
+2026-11-06T22:49:50.3088676Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+2026-11-06T22:49:50.3089253Z libdbus-1-3 set to manually installed.
+2026-11-06T22:49:50.3089920Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+2026-11-06T22:49:50.3090577Z libdrm2 set to manually installed.
+2026-11-06T22:49:50.3091108Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+2026-11-06T22:49:50.3091534Z libgbm1 set to manually installed.
+2026-11-06T22:49:50.3091945Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.10).
+2026-11-06T22:49:50.3093295Z libglib2.0-0t64 set to manually installed.
+2026-11-06T22:49:50.3093806Z libnspr4 is already the newest version (2:4.35-1.1build1).
+2026-11-06T22:49:50.3094230Z libnspr4 set to manually installed.
+2026-11-06T22:49:50.3094564Z libnss3 is already the newest version (2:3.98-1ubuntu0.3).
+2026-11-06T22:49:50.3094901Z libnss3 set to manually installed.
+2026-11-06T22:49:50.3095249Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+2026-11-06T22:49:50.3095632Z libpango-1.0-0 set to manually installed.
+2026-11-06T22:49:50.3095969Z libx11-6 is already the newest version (2:1.8.7-1ubuntu0.1).
+2026-11-06T22:49:50.3096306Z libx11-6 set to manually installed.
+2026-11-06T22:49:50.3096685Z libxcb1 is already the newest version (1.15-1ubuntu2).
+2026-11-06T22:49:50.3097002Z libxcb1 set to manually installed.
+2026-11-06T22:49:50.3097332Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+2026-11-06T22:49:50.3097693Z libxcomposite1 set to manually installed.
+2026-11-06T22:49:50.3098036Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+2026-11-06T22:49:50.3098371Z libxdamage1 set to manually installed.
+2026-11-06T22:49:50.3098711Z libxext6 is already the newest version (2:1.3.4-1build2).
+2026-11-06T22:49:50.3099047Z libxext6 set to manually installed.
+2026-11-06T22:49:50.3099372Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+2026-11-06T22:49:50.3099712Z libxfixes3 set to manually installed.
+2026-11-06T22:49:50.3100045Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+2026-11-06T22:49:50.3100394Z libxkbcommon0 set to manually installed.
+2026-11-06T22:49:50.3100721Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+2026-11-06T22:49:50.3101059Z libxrandr2 set to manually installed.
+2026-11-06T22:49:50.3101376Z xvfb is already the newest version (2:21.1.12-1ubuntu1.9).
+2026-11-06T22:49:50.3101825Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+2026-11-06T22:49:50.3102554Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+2026-11-06T22:49:50.3103010Z libfontconfig1 set to manually installed.
+2026-11-06T22:49:50.3103373Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.2).
+2026-11-06T22:49:50.3104038Z libfreetype6 set to manually installed.
+2026-11-06T22:49:50.3104378Z fonts-liberation is already the newest version (1:2.1.5-3).
+2026-11-06T22:49:50.3104735Z fonts-liberation set to manually installed.
+2026-11-06T22:49:50.3105213Z The following additional packages will be installed:
+2026-11-06T22:49:50.3105555Z   xfonts-encodings xfonts-utils
+2026-11-06T22:49:50.3105821Z Recommended packages:
+2026-11-06T22:49:50.3106071Z   fonts-ipafont-mincho fonts-tlwg-loma
+2026-11-06T22:49:50.3319138Z The following NEW packages will be installed:
+2026-11-06T22:49:50.3332841Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+2026-11-06T22:49:50.3334070Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+2026-11-06T22:49:50.3334903Z   xfonts-utils
+2026-11-06T22:49:50.3549168Z 0 upgraded, 9 newly installed, 0 to remove and 27 not upgraded.
+2026-11-06T22:49:50.3549870Z Need to get 21.1 MB of archives.
+2026-11-06T22:49:50.3550499Z After this operation, 79.5 MB of additional disk space will be used.
+2026-11-06T22:49:50.3551198Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-06T22:49:50.4070017Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+2026-11-06T22:49:50.4401481Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+2026-11-06T22:49:50.4886872Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+2026-11-06T22:49:50.5032216Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+2026-11-06T22:49:50.5346731Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+2026-11-06T22:49:50.5909710Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+2026-11-06T22:49:50.6104442Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+2026-11-06T22:49:50.6255973Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+2026-11-06T22:49:50.6428887Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+2026-11-06T22:49:50.9370264Z Fetched 21.1 MB in 0s (69.7 MB/s)
+2026-11-06T22:49:50.9634701Z Selecting previously unselected package fonts-ipafont-gothic.
+2026-11-06T22:49:50.9997986Z (Reading database ... 
+2026-11-06T22:49:50.9998350Z (Reading database ... 5%
+2026-11-06T22:49:50.9998629Z (Reading database ... 10%
+2026-11-06T22:49:50.9998896Z (Reading database ... 15%
+2026-11-06T22:49:50.9999154Z (Reading database ... 20%
+2026-11-06T22:49:50.9999405Z (Reading database ... 25%
+2026-11-06T22:49:50.9999888Z (Reading database ... 30%
+2026-11-06T22:49:51.0000294Z (Reading database ... 35%
+2026-11-06T22:49:51.0000707Z (Reading database ... 40%
+2026-11-06T22:49:51.0000963Z (Reading database ... 45%
+2026-11-06T22:49:51.0001242Z (Reading database ... 50%
+2026-11-06T22:49:51.0065013Z (Reading database ... 55%
+2026-11-06T22:49:51.1780653Z (Reading database ... 60%
+2026-11-06T22:49:51.3298839Z (Reading database ... 65%
+2026-11-06T22:49:51.5751757Z (Reading database ... 70%
+2026-11-06T22:49:51.7547639Z (Reading database ... 75%
+2026-11-06T22:49:51.8794762Z (Reading database ... 80%
+2026-11-06T22:49:52.0859724Z (Reading database ... 85%
+2026-11-06T22:49:52.2418634Z (Reading database ... 90%
+2026-11-06T22:49:52.4058571Z (Reading database ... 95%
+2026-11-06T22:49:52.4059168Z (Reading database ... 100%
+2026-11-06T22:49:52.4059640Z (Reading database ... 215960 files and directories currently installed.)
+2026-11-06T22:49:52.4104025Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+2026-11-06T22:49:52.4210507Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-11-06T22:49:52.6663698Z Selecting previously unselected package fonts-freefont-ttf.
+2026-11-06T22:49:52.6808361Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+2026-11-06T22:49:52.6817324Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-11-06T22:49:52.7682961Z Selecting previously unselected package fonts-tlwg-loma-otf.
+2026-11-06T22:49:52.7826099Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+2026-11-06T22:49:52.7837237Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-11-06T22:49:52.8081831Z Selecting previously unselected package fonts-unifont.
+2026-11-06T22:49:52.8225323Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+2026-11-06T22:49:52.8234757Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+2026-11-06T22:49:52.9348037Z Selecting previously unselected package fonts-wqy-zenhei.
+2026-11-06T22:49:52.9489834Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+2026-11-06T22:49:52.9603818Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+2026-11-06T22:49:53.4441388Z Selecting previously unselected package xfonts-encodings.
+2026-11-06T22:49:53.4583943Z Preparing to unpack .../5-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+2026-11-06T22:49:53.4593067Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-11-06T22:49:53.4919362Z Selecting previously unselected package xfonts-utils.
+2026-11-06T22:49:53.5064062Z Preparing to unpack .../6-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+2026-11-06T22:49:53.5074642Z Unpacking xfonts-utils (1:7.7+6build3) ...
+2026-11-06T22:49:53.5535797Z Selecting previously unselected package xfonts-cyrillic.
+2026-11-06T22:49:53.5679336Z Preparing to unpack .../7-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+2026-11-06T22:49:53.5688578Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-11-06T22:49:53.6066716Z Selecting previously unselected package xfonts-scalable.
+2026-11-06T22:49:53.6209225Z Preparing to unpack .../8-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+2026-11-06T22:49:53.6219348Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+2026-11-06T22:49:53.6689986Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+2026-11-06T22:49:53.6815232Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-11-06T22:49:53.6843924Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-11-06T22:49:53.6867651Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-11-06T22:49:53.6887402Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-11-06T22:49:53.6958978Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+2026-11-06T22:49:53.6977720Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+2026-11-06T22:49:53.7002725Z Setting up xfonts-utils (1:7.7+6build3) ...
+2026-11-06T22:49:53.7047847Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-11-06T22:49:53.7376851Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+2026-11-06T22:49:53.7668729Z Processing triggers for man-db (2.12.0-4build2) ...
+2026-11-06T22:49:53.7693445Z Not building database; man-db/auto-update is not 'true'.
+2026-11-06T22:49:53.7712723Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+2026-11-06T22:49:54.5792828Z 
+2026-11-06T22:49:54.5793800Z Running kernel seems to be up-to-date.
+2026-11-06T22:49:54.5794348Z 
+2026-11-06T22:49:54.5794613Z No services need to be restarted.
+2026-11-06T22:49:54.5795107Z 
+2026-11-06T22:49:54.5795374Z No containers need to be restarted.
+2026-11-06T22:49:54.5795833Z 
+2026-11-06T22:49:54.5796134Z No user sessions are running outdated binaries.
+2026-11-06T22:49:54.5796682Z 
+2026-11-06T22:49:54.5797185Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-11-06T22:49:55.5627542Z Downloading Chromium 143.0.7499.4 (playwright build v1200) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1200/chromium-linux.zip
+2026-11-06T22:49:55.6610817Z (node:2970) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-06T22:49:55.6613236Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-06T22:49:55.7320840Z |                                                                                |   0% of 164.7 MiB
+2026-11-06T22:49:55.9817757Z |■■■■■■■■                                                                        |  10% of 164.7 MiB
+2026-11-06T22:49:56.1219616Z |■■■■■■■■■■■■■■■■                                                                |  20% of 164.7 MiB
+2026-11-06T22:49:56.2110633Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 164.7 MiB
+2026-11-06T22:49:56.2786468Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 164.7 MiB
+2026-11-06T22:49:56.3354923Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 164.7 MiB
+2026-11-06T22:49:56.3883070Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 164.7 MiB
+2026-11-06T22:49:56.4417012Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 164.7 MiB
+2026-11-06T22:49:56.4958163Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 164.7 MiB
+2026-11-06T22:49:56.5533824Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 164.7 MiB
+2026-11-06T22:49:56.6179771Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 164.7 MiB
+2026-11-06T22:49:59.0215179Z Chromium 143.0.7499.4 (playwright build v1200) downloaded to /home/runner/.cache/ms-playwright/chromium-1200
+2026-11-06T22:49:59.0219042Z Downloading FFMPEG playwright build v1011 from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1011/ffmpeg-linux.zip
+2026-11-06T22:49:59.1237730Z (node:2982) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-06T22:49:59.1239631Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-06T22:49:59.1738933Z |                                                                                |   0% of 2.3 MiB
+2026-11-06T22:49:59.1775505Z |■■■■■■■■                                                                        |  10% of 2.3 MiB
+2026-11-06T22:49:59.1808941Z |■■■■■■■■■■■■■■■■                                                                |  20% of 2.3 MiB
+2026-11-06T22:49:59.1830507Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.3 MiB
+2026-11-06T22:49:59.1854173Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.3 MiB
+2026-11-06T22:49:59.1879719Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.3 MiB
+2026-11-06T22:49:59.1894925Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.3 MiB
+2026-11-06T22:49:59.1930888Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.3 MiB
+2026-11-06T22:49:59.1938217Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.3 MiB
+2026-11-06T22:49:59.1950012Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.3 MiB
+2026-11-06T22:49:59.1959169Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.3 MiB
+2026-11-06T22:49:59.2530852Z FFMPEG playwright build v1011 downloaded to /home/runner/.cache/ms-playwright/ffmpeg-1011
+2026-11-06T22:49:59.2535074Z Downloading Chromium Headless Shell 143.0.7499.4 (playwright build v1200) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1200/chromium-headless-shell-linux.zip
+2026-11-06T22:49:59.3555842Z (node:2993) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-06T22:49:59.3558169Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-06T22:49:59.4153345Z |                                                                                |   0% of 109.7 MiB
+2026-11-06T22:49:59.5199158Z |■■■■■■■■                                                                        |  10% of 109.7 MiB
+2026-11-06T22:49:59.5788922Z |■■■■■■■■■■■■■■■■                                                                |  20% of 109.7 MiB
+2026-11-06T22:49:59.6285529Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 109.7 MiB
+2026-11-06T22:49:59.6910581Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 109.7 MiB
+2026-11-06T22:49:59.7458757Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 109.7 MiB
+2026-11-06T22:49:59.7907352Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 109.7 MiB
+2026-11-06T22:49:59.8297932Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 109.7 MiB
+2026-11-06T22:49:59.8757061Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 109.7 MiB
+2026-11-06T22:49:59.9229507Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 109.7 MiB
+2026-11-06T22:49:59.9573066Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 109.7 MiB
+2026-11-06T22:50:01.8308054Z Chromium Headless Shell 143.0.7499.4 (playwright build v1200) downloaded to /home/runner/.cache/ms-playwright/chromium_headless_shell-1200
+2026-11-06T22:50:01.8561025Z ##[group]Run python -m unittest discover -s research/asr/benchmark/quality-evaluation -p 'test_*.py' -v
+2026-11-06T22:50:01.8562598Z [36;1mpython -m unittest discover -s research/asr/benchmark/quality-evaluation -p 'test_*.py' -v[0m
+2026-11-06T22:50:01.8590319Z shell: /usr/bin/bash -e {0}
+2026-11-06T22:50:01.8590714Z env:
+2026-11-06T22:50:01.8591141Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:50:01.8591890Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-06T22:50:01.8592846Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:50:01.8593507Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:50:01.8594171Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:50:01.8594838Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-06T22:50:01.8595389Z ##[endgroup]
+2026-11-06T22:50:02.0419443Z test_all_explicit_digit_expressions_are_covered_without_reselecting_clips (test_evaluate.CorpusTests.test_all_explicit_digit_expressions_are_covered_without_reselecting_clips) ... ok
+2026-11-06T22:50:02.0548419Z test_annotation_receipts_and_denominators_reject_fabricated_coverage (test_evaluate.CorpusTests.test_annotation_receipts_and_denominators_reject_fabricated_coverage) ... ok
+2026-11-06T22:50:02.4901854Z test_cloud_unrun_metrics_are_null_and_legacy_results_all_accounted (test_evaluate.CorpusTests.test_cloud_unrun_metrics_are_null_and_legacy_results_all_accounted) ... ok
+2026-11-06T22:50:02.5293051Z test_duplicate_trace_attempts_rejected (test_evaluate.CorpusTests.test_duplicate_trace_attempts_rejected) ... ok
+2026-11-06T22:50:02.9594313Z test_frozen_unit_overlay_is_loaded_into_evaluation_and_cannot_change_silently (test_evaluate.CorpusTests.test_frozen_unit_overlay_is_loaded_into_evaluation_and_cannot_change_silently) ... ok
+2026-11-06T22:50:02.9971920Z test_local_qwen_cannot_be_claimed_as_hosted_qwen (test_evaluate.CorpusTests.test_local_qwen_cannot_be_claimed_as_hosted_qwen) ... ok
+2026-11-06T22:50:03.0624948Z test_nested_deterministic_language_balanced_panels (test_evaluate.CorpusTests.test_nested_deterministic_language_balanced_panels) ... ok
+2026-11-06T22:50:03.0662285Z test_number_negation_alias_expansion_requires_new_review (test_evaluate.CorpusTests.test_number_negation_alias_expansion_requires_new_review) ... ok
+2026-11-06T22:50:03.1461900Z test_prepare_only_configs_are_disabled_and_use_isolated_cli_paths (test_evaluate.CorpusTests.test_prepare_only_configs_are_disabled_and_use_isolated_cli_paths) ... ok
+2026-11-06T22:50:03.1586703Z test_reference_supplement_has_exact_occurrences_and_preserves_originals (test_evaluate.CorpusTests.test_reference_supplement_has_exact_occurrences_and_preserves_originals) ... ok
+2026-11-06T22:50:03.1653144Z test_reviewed_numbers_and_negations_catch_changed_values_and_polarity (test_evaluate.CorpusTests.test_reviewed_numbers_and_negations_catch_changed_values_and_polarity) ... ok
+2026-11-06T22:50:03.1700068Z test_counts_match_inherited_alignment_exhaustively (test_evaluate.MetricTests.test_counts_match_inherited_alignment_exhaustively) ... ok
+2026-11-06T22:50:03.1702211Z test_critical_occurrence_counts_preserve_real_repeats_and_expose_extras (test_evaluate.MetricTests.test_critical_occurrence_counts_preserve_real_repeats_and_expose_extras) ... ok
+2026-11-06T22:50:03.1704667Z test_critical_requires_token_boundaries_and_reference_truth (test_evaluate.MetricTests.test_critical_requires_token_boundaries_and_reference_truth) ... ok
+2026-11-06T22:50:03.1707714Z test_deletion_replaced_by_wrong_word_is_not_repaired (test_evaluate.MetricTests.test_deletion_replaced_by_wrong_word_is_not_repaired) ... ok
+2026-11-06T22:50:03.1713123Z test_equal_mer_can_hide_a_repair_and_new_error (test_evaluate.MetricTests.test_equal_mer_can_hide_a_repair_and_new_error) ... ok
+2026-11-06T22:50:03.1717307Z test_genuine_repetition_not_penalized_as_excess (test_evaluate.MetricTests.test_genuine_repetition_not_penalized_as_excess) ... ok
+2026-11-06T22:50:03.1723468Z test_number_negation_and_filler_not_rewritten (test_evaluate.MetricTests.test_number_negation_and_filler_not_rewritten) ... ok
+2026-11-06T22:50:03.1725321Z test_reviewed_unit_aliases_preserve_occurrence_counts (test_evaluate.MetricTests.test_reviewed_unit_aliases_preserve_occurrence_counts) ... ok
+2026-11-06T22:50:03.1732969Z test_reviewed_unit_forms_accept_symbols_without_rewriting_numbers_or_lexical_scores (test_evaluate.MetricTests.test_reviewed_unit_forms_accept_symbols_without_rewriting_numbers_or_lexical_scores) ... ok
+2026-11-06T22:50:03.1739220Z test_unit_symbols_are_not_reduced_to_unrelated_letters (test_evaluate.MetricTests.test_unit_symbols_are_not_reduced_to_unrelated_letters) ... ok
+2026-11-06T22:50:03.1741651Z test_audio_and_configuration_identity_fail_closed (test_evaluate.TraceTests.test_audio_and_configuration_identity_fail_closed) ... ok
+2026-11-06T22:50:03.1758291Z test_complete_early_hypothesis_errors_are_scored_against_whole_gold (test_evaluate.TraceTests.test_complete_early_hypothesis_errors_are_scored_against_whole_gold) ... ok
+2026-11-06T22:50:03.1784635Z test_explicit_timed_gold_scope_allows_stage_accuracy (test_evaluate.TraceTests.test_explicit_timed_gold_scope_allows_stage_accuracy) ... ok
+2026-11-06T22:50:03.1799237Z test_failure_not_dropped_from_final_omissions (test_evaluate.TraceTests.test_failure_not_dropped_from_final_omissions) ... ok
+2026-11-06T22:50:03.1818947Z test_final_from_an_old_generation_or_user_edit_not_scored (test_evaluate.TraceTests.test_final_from_an_old_generation_or_user_edit_not_scored) ... ok
+2026-11-06T22:50:03.1859157Z test_foreign_terminal_state_never_supplies_current_failure_or_final_latency (test_evaluate.TraceTests.test_foreign_terminal_state_never_supplies_current_failure_or_final_latency) ... ok
+2026-11-06T22:50:03.1873854Z test_generation_filter_and_persisted_not_ui_latency (test_evaluate.TraceTests.test_generation_filter_and_persisted_not_ui_latency) ... ok
+2026-11-06T22:50:03.1905150Z test_mislabeled_baseline_and_reasoning_change_are_not_pooled (test_evaluate.TraceTests.test_mislabeled_baseline_and_reasoning_change_are_not_pooled) ... ok
+2026-11-06T22:50:03.1906905Z test_missing_latency_is_null_not_zero (test_evaluate.TraceTests.test_missing_latency_is_null_not_zero) ... ok
+2026-11-06T22:50:03.1942905Z test_missing_or_changed_source_revision_prevents_cloud_pair (test_evaluate.TraceTests.test_missing_or_changed_source_revision_prevents_cloud_pair) ... ok
+2026-11-06T22:50:03.1963329Z test_no_stable_prefix_count_only_ended_verified_sessions (test_evaluate.TraceTests.test_no_stable_prefix_count_only_ended_verified_sessions) ... ok
+2026-11-06T22:50:03.1980073Z test_paired_different_scopes_not_compared (test_evaluate.TraceTests.test_paired_different_scopes_not_compared) ... ok
+2026-11-06T22:50:03.2006289Z test_partial_has_no_fabricated_accuracy_without_timed_gold (test_evaluate.TraceTests.test_partial_has_no_fabricated_accuracy_without_timed_gold) ... ok
+2026-11-06T22:50:03.2017746Z test_post_eos_whole_candidate_scores_early_stage_without_claiming_final (test_evaluate.TraceTests.test_post_eos_whole_candidate_scores_early_stage_without_claiming_final) ... ok
+2026-11-06T22:50:03.2028861Z test_provider_complete_is_not_logical_final (test_evaluate.TraceTests.test_provider_complete_is_not_logical_final) ... ok
+2026-11-06T22:50:03.2056960Z test_shared_provider_parameter_changes_break_single_variable_pair (test_evaluate.TraceTests.test_shared_provider_parameter_changes_break_single_variable_pair) ... ok
+2026-11-06T22:50:03.2076495Z test_uncertain_or_inconsistent_final_not_certified (test_evaluate.TraceTests.test_uncertain_or_inconsistent_final_not_certified) ... ok
+2026-11-06T22:50:03.2259829Z test_whole_candidate_scope_rejects_partial_foreign_or_temporally_unavailable_evidence (test_evaluate.TraceTests.test_whole_candidate_scope_rejects_partial_foreign_or_temporally_unavailable_evidence) ... ok
+2026-11-06T22:50:03.2263309Z test_missing_latency_is_not_zero_and_does_not_need_timed_accuracy (test_latency.PairedLatencyTests.test_missing_latency_is_not_zero_and_does_not_need_timed_accuracy) ... ok
+2026-11-06T22:50:03.2265385Z test_nonfinite_and_absent_events_stay_unmeasured (test_latency.PairedLatencyTests.test_nonfinite_and_absent_events_stay_unmeasured) ... ok
+2026-11-06T22:50:03.2267300Z test_pair_first_then_quantile_not_difference_of_aggregate_medians (test_latency.PairedLatencyTests.test_pair_first_then_quantile_not_difference_of_aggregate_medians) ... ok
+2026-11-06T22:50:03.2269561Z test_source_audio_parameters_and_unverified_or_missing_traces_excluded (test_latency.PairedLatencyTests.test_source_audio_parameters_and_unverified_or_missing_traces_excluded) ... ok
+2026-11-06T22:50:03.2270674Z 
+2026-11-06T22:50:03.2270910Z ----------------------------------------------------------------------
+2026-11-06T22:50:03.2271463Z Ran 43 tests in 1.229s
+2026-11-06T22:50:03.2271670Z 
+2026-11-06T22:50:03.2271794Z OK
+2026-11-06T22:50:03.2404574Z ##[group]Run python scripts/verify.py --ui
+2026-11-06T22:50:03.2404949Z [36;1mpython scripts/verify.py --ui[0m
+2026-11-06T22:50:03.2426214Z shell: /usr/bin/bash -e {0}
+2026-11-06T22:50:03.2426463Z env:
+2026-11-06T22:50:03.2426726Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:50:03.2427169Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-06T22:50:03.2427624Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:50:03.2428028Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:50:03.2428434Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-06T22:50:03.2428827Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-06T22:50:03.2429155Z ##[endgroup]
+2026-11-06T22:51:00.1378619Z inherited_pcm_sqlite PASS
+2026-11-06T22:51:00.1379106Z reconstructed_contracts PASS
+2026-11-06T22:51:00.1379498Z swift6_typecheck PASS
+2026-11-06T22:51:00.1379915Z swift_smoke_build PASS
+2026-11-06T22:51:00.1380260Z swift_unicode_smoke PASS
+2026-11-06T22:51:00.1380708Z prototype_dom PASS
+2026-11-06T22:51:00.1550410Z Post job cleanup.
+2026-11-06T22:51:00.2816031Z (node:3239) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-06T22:51:00.2817006Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-06T22:51:00.3011687Z Post job cleanup.
+2026-11-06T22:51:00.3985516Z [command]/usr/bin/git version
+2026-11-06T22:51:00.4031288Z git version 2.56.0
+2026-11-06T22:51:00.4073439Z Temporarily overriding HOME='/home/runner/work/_temp/0ea00269-a8bf-4ae8-953f-3df274dc7bd4' before making global git config changes
+2026-11-06T22:51:00.4075211Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-06T22:51:00.4079551Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/saytile/saytile
+2026-11-06T22:51:00.4123747Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-06T22:51:00.4173466Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-06T22:51:00.4435110Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-06T22:51:00.4483952Z http.https://github.com/.extraheader
+2026-11-06T22:51:00.4499601Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-06T22:51:00.4572074Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-06T22:51:00.4924404Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-06T22:51:00.4968049Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-06T22:51:00.5415112Z Cleaning up orphan processes
+2026-11-06T22:51:00.5873003Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

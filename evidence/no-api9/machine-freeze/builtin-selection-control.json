@@ -1,0 +1,31 @@
+{
+  "source": "dc26fe3c59ba55994d29e99ada8d2f0b49ad9886",
+  "library_sha256": "97798f24609d10d1d79871cf305be7ca7fb6775a8a034b96c369c73bfe5f50c7",
+  "probe_sha256": "0ce1685d6fc55750acfccff6f5235c1508c36626877ab63ba6337cf16a76bb60",
+  "probe_source_sha256": "cb114b1957ff2d6382569924c987ea09db9b67d3485b7cf347c1502827518311",
+  "utc": "2026-11-07T11:29:20.929718+00:00",
+  "exit": -6,
+  "output": [
+    "ROUTE default-before verified_device=true frames=235200 rate=48000.0"
+  ],
+  "diagnostic": [
+    "*** Terminating app due to uncaught exception 'com.apple.coreaudio.avfaudio', reason: 'Failed to create tap due to format mismatch, <AVAudioFormat 0x76270b4fa0:  1 ch,  48000 Hz, Float32>'",
+    "*** First throw call stack:",
+    "(",
+    "\t0   CoreFoundation                      0x00000001851268c0 __exceptionPreprocess + 176",
+    "\t1   libobjc.A.dylib                     0x0000000184b8460c objc_exception_throw + 88",
+    "\t2   CoreFoundation                      0x00000001851267b0 +[NSException exceptionWithName:reason:userInfo:] + 0",
+    "\t3   AVFAudio                            0x00000002201e7e2c _ZN18AVAudioEngineGraph16InstallTapOnNodeEP11AVAudioNodemjP13AVAudioFormatU13block_pointerFvP16AVAudioPCMBufferP11AVAudioTimeEPP7NSError + 600",
+    "\t4   AVFAudio                            0x00000002201f35b0 -[AVAudioNode installTapOnBus:bufferSize:format:error:block:] + 456",
+    "\t5   probe                               0x000000010022a600 $s5probe5count_5labels6UInt64Vs6UInt32V_SStYaKFTY0_ + 1328",
+    "\t6   probe                               0x000000010022ba81 $s5probe5ProbeV4mainyyYaFZTQ1_ + 1",
+    "\t7   probe                               0x000000010022c355 $s5probe5ProbeV5$mainyyYaFZTQ0_ + 1",
+    "\t8   probe                               0x000000010022c485 async_MainTQ0_ + 1",
+    "\t9   probe                               0x000000010022c5c1 $sIetH_yts5Error_pIegHrzo_TRTQ0_ + 1",
+    "\t10  probe                               0x000000010022c6dd $sIetH_yts5Error_pIegHrzo_TRTATQ0_ + 1",
+    "\t11  libswift_Concurrency.dylib          0x00000002b18f2d41 _ZL23completeTaskWithClosurePN5swift12AsyncContextEPNS_10SwiftErrorE + 1",
+    ")",
+    "libc++abi: terminating due to uncaught exception of type NSException"
+  ],
+  "wav_count": 0
+}

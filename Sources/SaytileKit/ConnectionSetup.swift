@@ -7,12 +7,8 @@ public struct ConnectionSetupRequest: Sendable {
     public init(directory: URL, output: URL) throws {
         let root = directory.standardizedFileURL
         let destination = output.standardizedFileURL
-        let production = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Saytile", isDirectory: true).resolvingSymlinksInPath()
-        let canonicalRoot = root.resolvingSymlinksInPath().path
-        guard canonicalRoot != production.path,
-              !canonicalRoot.hasPrefix(production.path + "/"),
-              destination.deletingLastPathComponent() == root,
+        try DiagnosticDirectory.validate(directory: directory)
+        guard destination.deletingLastPathComponent() == root,
               destination.pathExtension == "json" else {
             throw ProviderFailure.configuration("连接设置需要全新的独立目录，配置文件须为该目录内的 JSON 文件。")
         }
@@ -39,7 +35,7 @@ public struct ConnectionSetupRequest: Sendable {
         let required: [(RecognitionPurpose, CloudProvider)] = [(.chineseASR, .qwenMessage), (.englishASR, .assemblyAI),
             (.textFusion, .openAIResponses)]
         guard required.allSatisfy({ role, provider in configuration.enabledModels.contains { $0.purpose == role && $0.provider == provider } }) else {
-            throw ProviderFailure.configuration("请准备中文专家、英文专家和唯一 GPT-6 融合核心三项服务。")
+            throw ProviderFailure.configuration("请准备两位音频专家与一个 GPT-6 Astra 融合核心。")
         }
         for item in configuration.enabledModels {
             switch presence(item) {

@@ -1,0 +1,28 @@
+{
+  "status": "INTENTIONALLY_STOPPED_FOR_SUPERSEDING_VISUAL_FIX",
+  "unix_requested": 1794024723.950911,
+  "source_revision": "b42bca49cf472205c605f9a50342ea43a4220275",
+  "superseding_revision": "9c4f35fccb24ddc56f9dd9335ff772d423e5093d",
+  "requested_by": "root",
+  "owned_probe": {
+    "pid": 47229,
+    "binary": "/tmp/saytile-no-api8-b42bca49cf47-realtime/realtime-probe",
+    "binary_sha256": "24bf1bba7d81b8d292ffd11b3fa65a9b05f25f01271d2155c515779a0e0ac7d5",
+    "unix_observed": 1794024239.478153
+  },
+  "signal": "SIGTERM",
+  "last_persistence_observation": {
+    "unix": 1794024689.640139,
+    "owned_directory": "/tmp/saytile-rc-realtime-data.9SQOBb",
+    "recordings": 15,
+    "chunks": 44,
+    "frames": 7197440,
+    "upload_grants": 0
+  },
+  "last_resource_observation": {
+    "unix": 1794024689.635818,
+    "elapsed_observation_seconds": 450.1559561667964,
+    "ps": "47229 07:31  16384   1.7 /tmp/saytile-no-api8-b42bca49cf47-realtime/realtime-probe /Users/hhf/.codex/worktrees/saytile-noapi8-original/evidence/no-api-product/intermediate-d4b9dbe/local/realtime-synthetic-source.aiff 1800 /tmp/saytile-rc-realtime-data.9SQOBb"
+  },
+  "reason": "A newer implemented PR6 visual fix supersedes this unpublished runtime. Preserve this partial capture and run the complete verification for the new freeze. The full-waveform assessor is not applied to this interrupted stream."
+}

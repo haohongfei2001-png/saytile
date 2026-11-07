@@ -1,0 +1,256 @@
+Building for debugging...
+[Planning deferred tasks]
+[38 / 117]
+[66 / 127] CAudio
+[83 / 128] CAudio
+[96 / 128] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[97 / 128] SaytileKit
+[109 / 267]
+[122 / 267]
+[125 / 267]
+[131 / 267]
+[134 / 267]
+[142 / 267]
+[144 / 267]
+[147 / 267]
+[148 / 267]
+[162 / 267]
+[164 / 267]
+[171 / 267]
+[173 / 267]
+[174 / 267]
+[175 / 267]
+[182 / 267]
+[184 / 267]
+[189 / 267]
+[190 / 267]
+[191 / 267]
+[194 / 267]
+[196 / 267]
+[208 / 267]
+[209 / 267]
+[210 / 267]
+[214 / 267]
+[219 / 267]
+[222 / 267]
+[223 / 267]
+[224 / 267]
+[225 / 267]
+[236 / 267] SaytileKit
+[237 / 267] SaytileKit
+[247 / 268] SaytileKit
+[247 / 268] Saytile-product
+[249 / 279]
+[250 / 279] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[256 / 280] SaytileKitTests-product
+[257 / 295]
+[260 / 295]
+[269 / 295] SaytileKitTests-product
+[272 / 295] Saytile-product
+[279 / 295] SaytileKitTests-product
+[281 / 295] Saytile-product
+[284 / 295] Saytile-product
+[285 / 295] Saytile-product
+[285 / 295] SaytileKitTests-product
+[285 / 295] Saytile-product
+[287 / 295] SaytileKitTests-product
+[287 / 295] Saytile-product/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[289 / 295] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[291 / 295] SaytileKitTests-product
+[292 / 295]
+Build complete! (37.39秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "ASR protocol lifecycle and sanitized diagnosis" started.
+◇ Test assemblyFinalCannotRegressToLatePartialOrConflictingFinal() started.
+◇ Test qwenFinalCannotRegressToLatePartialOrConflictingFinal() started.
+◇ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+◇ Test loopbackEndpointCannotExportCredentialsOrOverrideOfficialModelQuery() started.
+◇ Test qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+◇ Test invalidJSONAlwaysHasSafeProtocolDiagnosis() started.
+◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: Invalid API key", expected → "authorization_failed" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+✘ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) recorded an issue with 3 arguments code → 1008, message → "Unauthorized Connection: Invalid API key", expected → "authorization_failed" at ASRProtocolReliabilityTests.swift:31:9: Expectation failed: failure.diagnosticCode == expected
+↳ failure.diagnosticCode == expected → false
+↳   failure.diagnosticCode → "protocol_incompatible"
+↳   expected → "authorization_failed"
+◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: Insufficient funds", expected → "quota_exhausted" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+✘ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) recorded an issue with 3 arguments code → 1008, message → "Unauthorized Connection: Insufficient funds", expected → "quota_exhausted" at ASRProtocolReliabilityTests.swift:31:9: Expectation failed: failure.diagnosticCode == expected
+↳ failure.diagnosticCode == expected → false
+↳   failure.diagnosticCode → "protocol_incompatible"
+↳   expected → "quota_exhausted"
+◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: Too many concurrent sessions", expected → "rate_limited" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+✘ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) recorded an issue with 3 arguments code → 1008, message → "Unauthorized Connection: Too many concurrent sessions", expected → "rate_limited" at ASRProtocolReliabilityTests.swift:31:9: Expectation failed: failure.diagnosticCode == expected
+↳ failure.diagnosticCode == expected → false
+↳   failure.diagnosticCode → "protocol_incompatible"
+↳   expected → "rate_limited"
+✘ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) recorded an issue with 3 arguments code → 1008, message → "Unauthorized Connection: Too many concurrent sessions", expected → "rate_limited" at ASRProtocolReliabilityTests.swift:34:13: Expectation failed: failure.canRetryAutomatically
+↳ failure.canRetryAutomatically → false
+↳   failure → .protocolViolation("assembly-error")
+↳     protocolViolation → "assembly-error"
+↳   canRetryAutomatically → false
+◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: API key is disabled", expected → "permission_denied" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+✘ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) recorded an issue with 3 arguments code → 1008, message → "Unauthorized Connection: API key is disabled", expected → "permission_denied" at ASRProtocolReliabilityTests.swift:31:9: Expectation failed: failure.diagnosticCode == expected
+↳ failure.diagnosticCode == expected → false
+↳   failure.diagnosticCode → "protocol_incompatible"
+↳   expected → "permission_denied"
+◇ Test case passing 3 arguments code → 1008, message → "Unauthorized Connection: No metronome account found", expected → "quota_exhausted" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+✘ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) recorded an issue with 3 arguments code → 1008, message → "Unauthorized Connection: No metronome account found", expected → "quota_exhausted" at ASRProtocolReliabilityTests.swift:31:9: Expectation failed: failure.diagnosticCode == expected
+↳ failure.diagnosticCode == expected → false
+↳   failure.diagnosticCode → "protocol_incompatible"
+↳   expected → "quota_exhausted"
+◇ Test case passing 3 arguments code → 3005, message → "Session Cancelled: An error occurred", expected → "connection_failed" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+✘ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) recorded an issue with 3 arguments code → 3005, message → "Session Cancelled: An error occurred", expected → "connection_failed" at ASRProtocolReliabilityTests.swift:31:9: Expectation failed: failure.diagnosticCode == expected
+↳ failure.diagnosticCode == expected → false
+↳   failure.diagnosticCode → "protocol_incompatible"
+↳   expected → "connection_failed"
+✘ Test assemblyFinalCannotRegressToLatePartialOrConflictingFinal() recorded an issue at ASRProtocolReliabilityTests.swift:61:9: Expectation failed: late == approved
+↳ late == approved → false
+↳   late → ProviderTranscriptEvent(text: "Pay 50", stableUTF16Length: 0, audioStartSeconds: 0.0, audioEndSeconds: 1.0, timingGranularity: "utterance", language: nil, isComplete: false, requestID: Optional("fixture"), tokens: [])
+↳     text → "Pay 50"
+↳     stableUTF16Length → 0
+↳     audioStartSeconds → 0.0
+↳     audioEndSeconds → 1.0
+↳     timingGranularity → "utterance"
+↳     language → nil
+↳     isComplete → false
+↳     requestID → "fixture"
+↳       some → "fixture"
+↳     tokens → []
+↳   approved → ProviderTranscriptEvent(text: "Do not pay 15 😀", stableUTF16Length: 16, audioStartSeconds: 0.0, audioEndSeconds: 1.0, timingGranularity: "utterance", language: nil, isComplete: false, requestID: Optional("fixture"), tokens: [])
+↳     text → "Do not pay 15 😀"
+↳     stableUTF16Length → 16
+↳     audioStartSeconds → 0.0
+↳     audioEndSeconds → 1.0
+↳     timingGranularity → "utterance"
+↳     language → nil
+↳     isComplete → false
+↳     requestID → "fixture"
+↳       some → "fixture"
+↳     tokens → []
+◇ Test case passing 3 arguments code → 3008, message → "Session Expired: Maximum session duration exceeded", expected → "connection_failed" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+✘ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) recorded an issue with 3 arguments code → 3008, message → "Session Expired: Maximum session duration exceeded", expected → "connection_failed" at ASRProtocolReliabilityTests.swift:31:9: Expectation failed: failure.diagnosticCode == expected
+↳ failure.diagnosticCode == expected → false
+↳   failure.diagnosticCode → "protocol_incompatible"
+↳   expected → "connection_failed"
+◇ Test case passing 3 arguments code → 3007, message → "Input duration violation: 10 ms. Expected between 20 and 1000 ms", expected → "protocol_incompatible" to assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) started.
+✘ Test qwenFinalCannotRegressToLatePartialOrConflictingFinal() recorded an issue at ASRProtocolReliabilityTests.swift:73:9: Expectation failed: late == approved
+↳ late == approved → false
+↳   late → ProviderTranscriptEvent(text: "支付50元", stableUTF16Length: 0, audioStartSeconds: 0.0, audioEndSeconds: 0.5, timingGranularity: "segment", language: nil, isComplete: false, requestID: Optional("fixture"), tokens: [SaytileKit.ProviderToken(text: "支付50元", startSeconds: 0.0, endSeconds: 0.5, isFinal: false, language: nil, rawConfidence: nil)])
+↳     some → ProviderTranscriptEvent(text: "支付50元", stableUTF16Length: 0, audioStartSeconds: 0.0, audioEndSeconds: 0.5, timingGranularity: "segment", language: nil, isComplete: false, requestID: Optional("fixture"), tokens: [SaytileKit.ProviderToken(text: "支付50元", startSeconds: 0.0, endSeconds: 0.5, isFinal: false, language: nil, rawConfidence: nil)])
+↳       text → "支付50元"
+↳       stableUTF16Length → 0
+↳       audioStartSeconds → 0.0
+↳       audioEndSeconds → 0.5
+↳       timingGranularity → "segment"
+↳       language → nil
+↳       isComplete → false
+↳       requestID → "fixture"
+↳         some → "fixture"
+↳       tokens → [SaytileKit.ProviderToken(text: "支付50元", startSeconds: 0.0, endSeconds: 0.5, isFinal: false, language: nil, rawConfidence: nil)]
+↳   approved → ProviderTranscriptEvent(text: "不要付15元😀", stableUTF16Length: 8, audioStartSeconds: 0.0, audioEndSeconds: 0.5, timingGranularity: "segment", language: nil, isComplete: false, requestID: Optional("fixture"), tokens: [SaytileKit.ProviderToken(text: "不要付15元😀", startSeconds: 0.0, endSeconds: 0.5, isFinal: true, language: nil, rawConfidence: nil)])
+↳     some → ProviderTranscriptEvent(text: "不要付15元😀", stableUTF16Length: 8, audioStartSeconds: 0.0, audioEndSeconds: 0.5, timingGranularity: "segment", language: nil, isComplete: false, requestID: Optional("fixture"), tokens: [SaytileKit.ProviderToken(text: "不要付15元😀", startSeconds: 0.0, endSeconds: 0.5, isFinal: true, language: nil, rawConfidence: nil)])
+↳       text → "不要付15元😀"
+↳       stableUTF16Length → 8
+↳       audioStartSeconds → 0.0
+↳       audioEndSeconds → 0.5
+↳       timingGranularity → "segment"
+↳       language → nil
+↳       isComplete → false
+↳       requestID → "fixture"
+↳         some → "fixture"
+↳       tokens → [SaytileKit.ProviderToken(text: "不要付15元😀", startSeconds: 0.0, endSeconds: 0.5, isFinal: true, language: nil, rawConfidence: nil)]
+✘ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) recorded an issue with 3 arguments code → 1008, message → "Unauthorized Connection: Too many concurrent sessions", expected → "rate_limited" at ASRProtocolReliabilityTests.swift:35:13: Expectation failed: failure.minimumRetryDelay >= 60
+↳ failure.minimumRetryDelay >= 60 → false
+↳   failure.minimumRetryDelay → 0.0
+↳   60 → 60.0
+✘ Test assemblyFinalCannotRegressToLatePartialOrConflictingFinal() recorded an issue at ASRProtocolReliabilityTests.swift:62:9: Expectation failed: codec.allTurnsFinal
+↳ codec.allTurnsFinal → false
+↳   codec → AssemblyTranscriptAccumulator(turns: [0: SaytileKit.AssemblyTranscriptAccumulator.Turn(text: "Pay 50", isFinal: false, stableUTF16Length: 0, hasWordAlignment: false, tokens: [], language: nil)], requestID: Optional("fixture"))
+↳     turns → [0: SaytileKit.AssemblyTranscriptAccumulator.Turn(text: "Pay 50", isFinal: false, stableUTF16Length: 0, hasWordAlignment: false, tokens: [], language: nil)]
+↳     requestID → "fixture"
+↳       some → "fixture"
+↳   allTurnsFinal → false
+◇ Test case passing 2 arguments code → "InvalidApiKey", expected → "authorization_failed" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+✘ Test assemblyFinalCannotRegressToLatePartialOrConflictingFinal() recorded an issue at ASRProtocolReliabilityTests.swift:64:9: Expectation failed: an error was expected but none was thrown and "ProviderTranscriptEvent(text: "Pay 50", stableUTF16Length: 6, audioStartSeconds: 0.0, audioEndSeconds: 1.0, timingGranularity: "utterance", language: nil, isComplete: false, requestID: Optional("fixture"), tokens: [])" was returned
+↳ ProviderFailure.self → <not evaluated>
+↳   ProviderFailure → <not evaluated>
+↳   self → <not evaluated>
+◇ Test case passing 2 arguments code → "AccessDenied", expected → "permission_denied" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+✘ Test qwenTaskFailuresRetainSafeCategories(code:expected:) recorded an issue with 2 arguments code → "AccessDenied", expected → "permission_denied" at ASRProtocolReliabilityTests.swift:51:13: Expectation failed: (error as? ProviderFailure)?.diagnosticCode == expected
+↳ (error as? ProviderFailure)?.diagnosticCode == expected → false
+↳   (error as? ProviderFailure)?.diagnosticCode → "authorization_failed"
+↳     some → "authorization_failed"
+↳   expected → "permission_denied"
+◇ Test case passing 2 arguments code → "InvalidWorkspace", expected → "region_workspace_mismatch" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+✘ Test qwenTaskFailuresRetainSafeCategories(code:expected:) recorded an issue with 2 arguments code → "InvalidWorkspace", expected → "region_workspace_mismatch" at ASRProtocolReliabilityTests.swift:51:13: Expectation failed: (error as? ProviderFailure)?.diagnosticCode == expected
+↳ (error as? ProviderFailure)?.diagnosticCode == expected → false
+↳   (error as? ProviderFailure)?.diagnosticCode → "connection_failed"
+↳     some → "connection_failed"
+↳   expected → "region_workspace_mismatch"
+◇ Test case passing 2 arguments code → "Throttling", expected → "rate_limited" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+✘ Test qwenTaskFailuresRetainSafeCategories(code:expected:) recorded an issue with 2 arguments code → "Throttling", expected → "rate_limited" at ASRProtocolReliabilityTests.swift:51:13: Expectation failed: (error as? ProviderFailure)?.diagnosticCode == expected
+↳ (error as? ProviderFailure)?.diagnosticCode == expected → false
+↳   (error as? ProviderFailure)?.diagnosticCode → "connection_failed"
+↳     some → "connection_failed"
+↳   expected → "rate_limited"
+◇ Test case passing 2 arguments code → "Arrearage", expected → "quota_exhausted" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+◇ Test case passing 2 arguments code → "InvalidParameter", expected → "invalid_configuration" to qwenTaskFailuresRetainSafeCategories(code:expected:) started.
+✘ Test qwenTaskFailuresRetainSafeCategories(code:expected:) recorded an issue with 2 arguments code → "InvalidParameter", expected → "invalid_configuration" at ASRProtocolReliabilityTests.swift:51:13: Expectation failed: (error as? ProviderFailure)?.diagnosticCode == expected
+↳ (error as? ProviderFailure)?.diagnosticCode == expected → false
+↳   (error as? ProviderFailure)?.diagnosticCode → "connection_failed"
+↳     some → "connection_failed"
+↳   expected → "invalid_configuration"
+✘ Test invalidJSONAlwaysHasSafeProtocolDiagnosis() recorded an issue at ASRProtocolReliabilityTests.swift:87:13: Expectation failed: (error as? ProviderFailure)?.diagnosticCode == "protocol_incompatible"
+↳ (error as? ProviderFailure)?.diagnosticCode == "protocol_incompatible" → false
+↳   (error as? ProviderFailure)?.diagnosticCode → nil
+↳     some → "protocol_incompatible"
+✘ Test assemblyServiceFailuresAreActionableWithoutRawErrorOutput(code:message:expected:) with 8 test cases failed after 0.005 seconds with 9 issues.
+✘ Test qwenTaskFailuresRetainSafeCategories(code:expected:) with 6 test cases failed after 0.005 seconds with 4 issues.
+✘ Test qwenFinalCannotRegressToLatePartialOrConflictingFinal() recorded an issue at ASRProtocolReliabilityTests.swift:74:9: Expectation failed: an error was expected but none was thrown and "Optional(SaytileKit.ProviderTranscriptEvent(text: "支付50元", stableUTF16Length: 5, audioStartSeconds: 0.0, audioEndSeconds: 0.5, timingGranularity: "segment", language: nil, isComplete: false, requestID: Optional("fixture"), tokens: [SaytileKit.ProviderToken(text: "支付50元", startSeconds: 0.0, endSeconds: 0.5, isFinal: true, language: nil, rawConfidence: nil)]))" was returned
+↳ ProviderFailure.self → <not evaluated>
+↳   ProviderFailure → <not evaluated>
+↳   self → <not evaluated>
+✘ Test qwenFinalCannotRegressToLatePartialOrConflictingFinal() recorded an issue at ASRProtocolReliabilityTests.swift:78:9: Expectation failed: done.text == approved?.text
+↳ done.text == approved?.text → false
+↳   done.text → "支付50元"
+↳   approved?.text → "不要付15元😀"
+↳     some → "不要付15元😀"
+✘ Test qwenFinalCannotRegressToLatePartialOrConflictingFinal() failed after 0.007 seconds with 3 issues.
+✘ Test assemblyFinalCannotRegressToLatePartialOrConflictingFinal() recorded an issue at ASRProtocolReliabilityTests.swift:65:9: Expectation failed: codec.event(duration: 1) == approved
+↳ codec.event(duration: 1) == approved → false
+↳   codec.event(duration: 1) → ProviderTranscriptEvent(text: "Pay 50", stableUTF16Length: 6, audioStartSeconds: 0.0, audioEndSeconds: 1.0, timingGranularity: "utterance", language: nil, isComplete: false, requestID: Optional("fixture"), tokens: [])
+↳     text → "Pay 50"
+↳     stableUTF16Length → 6
+↳     audioStartSeconds → 0.0
+↳     audioEndSeconds → 1.0
+↳     timingGranularity → "utterance"
+↳     language → nil
+↳     isComplete → false
+↳     requestID → "fixture"
+↳       some → "fixture"
+↳     tokens → []
+↳   approved → ProviderTranscriptEvent(text: "Do not pay 15 😀", stableUTF16Length: 16, audioStartSeconds: 0.0, audioEndSeconds: 1.0, timingGranularity: "utterance", language: nil, isComplete: false, requestID: Optional("fixture"), tokens: [])
+↳     text → "Do not pay 15 😀"
+↳     stableUTF16Length → 16
+↳     audioStartSeconds → 0.0
+↳     audioEndSeconds → 1.0
+↳     timingGranularity → "utterance"
+↳     language → nil
+↳     isComplete → false
+↳     requestID → "fixture"
+↳       some → "fixture"
+↳     tokens → []
+✘ Test assemblyFinalCannotRegressToLatePartialOrConflictingFinal() failed after 0.007 seconds with 4 issues.
+✔ Test loopbackEndpointCannotExportCredentialsOrOverrideOfficialModelQuery() passed after 0.025 seconds.
+✘ Test invalidJSONAlwaysHasSafeProtocolDiagnosis() failed after 0.026 seconds with 1 issue.
+✘ Suite "ASR protocol lifecycle and sanitized diagnosis" failed after 0.026 seconds with 21 issues.
+✘ Test run with 6 tests in 1 suite failed after 0.026 seconds with 21 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)
