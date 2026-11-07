@@ -29,9 +29,7 @@ enum ReferencePanelStyle {
 private struct ReferenceGlassBackdrop: NSViewRepresentable {
     func makeNSView(context: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
-        // Aqua popover blur is a neutral light glass material. Wallpaper hues
-        // may show through; the panel itself does not own a violet/blue tint.
-        view.material = .popover
+        view.material = .hudWindow
         view.blendingMode = .behindWindow
         view.state = .active
         view.appearance = NSAppearance(named: .aqua)
@@ -45,24 +43,29 @@ struct ReferencePanelSurface: View {
     private var shape: RoundedRectangle { RoundedRectangle(cornerRadius: ReferencePanelStyle.radius, style: .continuous) }
     var body: some View {
         ZStack {
-            // Behind-window AppKit material supplies the blur. A neutral,
-            // translucent white wash supplies legibility without painting a
-            // fixed blue/purple background over the user's desktop.
+            // Keep native behind-window blur separate from the paint, avoiding
+            // SwiftUI Material's version-dependent vibrancy tint on the surface.
             ReferenceGlassBackdrop()
-            shape.fill(.white.opacity(reduceTransparency ? 1 : 0.46))
-                .overlay {
-                    shape.fill(LinearGradient(stops: [
-                        .init(color: .white.opacity(0.23), location: 0),
-                        .init(color: .white.opacity(0.05), location: 0.38),
-                        .init(color: .white.opacity(0), location: 1)
-                    ], startPoint: .top, endPoint: .bottom))
-                }
-                .overlay {
-                    shape.strokeBorder(
-                        LinearGradient(colors: [.white.opacity(0.91), .white.opacity(0.24)],
-                                       startPoint: .topLeading, endPoint: .bottomTrailing),
-                        lineWidth: 0.65)
-                }
+            shape.fill(LinearGradient(stops: [
+                .init(color: Color(.sRGB, red: 221 / 255.0, green: 214 / 255.0, blue: 253 / 255.0, opacity: 1), location: 0),
+                .init(color: Color(.sRGB, red: 211 / 255.0, green: 215 / 255.0, blue: 253 / 255.0, opacity: 1), location: 0.50),
+                .init(color: Color(.sRGB, red: 189 / 255.0, green: 202 / 255.0, blue: 253 / 255.0, opacity: 1), location: 1)
+            ], startPoint: .leading, endPoint: .trailing))
+            .opacity(reduceTransparency ? 1 : 0.985)
+            .overlay {
+                shape.fill(LinearGradient(stops: [
+                    .init(color: .white.opacity(0.04), location: 0),
+                    .init(color: .white.opacity(0), location: 0.18),
+                    .init(color: .white.opacity(0), location: 0.82),
+                    .init(color: .white.opacity(0.08), location: 1)
+                ], startPoint: .top, endPoint: .bottom))
+            }
+            .overlay {
+                shape.fill(RadialGradient(colors: [.white.opacity(0.16), .white.opacity(0)], center: UnitPoint(x: 0.08, y: 0), startRadius: 0, endRadius: 110))
+            }
+            .overlay {
+                shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.9), .white.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 0.65)
+            }
         }
         .clipShape(shape)
         .allowsHitTesting(false)
@@ -77,19 +80,18 @@ struct ReferenceControlSurface: View {
     private var radius: CGFloat { copy ? 13 : ReferencePanelStyle.controlHeight / 2 }
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
-        // Both controls are neutral translucent white glass, not tinted
-        // lavender buttons. Only the voice glyph and live caret carry violet.
-        shape.fill(LinearGradient(colors: copy
-            ? [.white.opacity(0.82), .white.opacity(0.57)]
-            : [.white.opacity(0.79), .white.opacity(0.53)],
-            startPoint: .top, endPoint: .bottom))
-            .overlay {
-                shape.strokeBorder(
-                    LinearGradient(colors: [.white.opacity(0.95), .white.opacity(0.35)],
-                                   startPoint: .top, endPoint: .bottom),
-                    lineWidth: 0.7)
-            }
-            .shadow(color: .black.opacity(0.15), radius: 4.5, x: 0, y: -3)
+        // An opaque sampled highlight ensures the shadow is not attenuated twice.
+        shape.fill(LinearGradient(colors: copy ? [
+                Color(.sRGB, red: 231 / 255.0, green: 227 / 255.0, blue: 253 / 255.0, opacity: 1),
+                Color(.sRGB, red: 225 / 255.0, green: 222 / 255.0, blue: 252 / 255.0, opacity: 1)
+            ] : [
+                Color(.sRGB, red: 213 / 255.0, green: 219 / 255.0, blue: 254 / 255.0, opacity: 1),
+                Color(.sRGB, red: 197 / 255.0, green: 208 / 255.0, blue: 254 / 255.0, opacity: 1)
+            ], startPoint: .topLeading, endPoint: .bottomTrailing))
+                .overlay {
+                    shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.9), .white.opacity(0.18)], startPoint: .top, endPoint: .bottom), lineWidth: 0.65)
+                }
+            .shadow(color: Color(red: 0.35, green: 0.35, blue: 0.70).opacity(0.20), radius: 4.5, x: 0, y: -4)
             .accessibilityHidden(true)
     }
 }
@@ -117,8 +119,8 @@ struct InputPanelWindowView: View {
     @ObservedObject var model: AppModel
     var body: some View {
         InputPanelView(model: model)
-            .shadow(color: .black.opacity(0.17), radius: 12, x: 0, y: -11)
-            .shadow(color: .black.opacity(0.06), radius: 2.5, x: 0, y: -2)
+            .shadow(color: Color(red: 0.20, green: 0.23, blue: 0.69).opacity(0.27), radius: 12, x: 0, y: -11)
+            .shadow(color: Color(red: 0.32, green: 0.27, blue: 0.64).opacity(0.10), radius: 2.5, x: 0, y: -2)
             .padding(ReferencePanelStyle.shadowInset)
     }
 }
