@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 base=Path(__file__).resolve().parent
 phase=sys.argv[1]
-assert phase in ('package','public','2h','72h','interrupted')
+assert phase in ('package','public','2h','repeat-start','2h-verified','72h','interrupted')
 snap=base/'snapshots'/phase
 snap.mkdir(parents=True,exist_ok=False)
 def load(path): return json.loads(path.read_text())
@@ -67,6 +67,14 @@ dlog=(base/'protocol/driver.log').read_text()
 row('原生、AppModel 和协议回归','PASS' if '393 tests in 48 suites passed' in dlog and 'WIRE_AUDIT cases=50 protocol_violations=0' in dlog and 'APP_MODEL_PROBE_PASS 104' in (base/'app/app-model.log').read_text() else 'FAIL','393 个原生测试函数，104 项 AppModel 检查，50 个本机协议用例。',['protocol/driver.log','protocol/wire-audit.json','app/app-model.log'])
 active=data('sustained/active/start.json');assert active['source']==source
 ar=load(snap/'speech-result.json') if (snap/'speech-result.json').exists() else None
+repeat=base/'sustained/active-repeat'
+if ar and ar.get('unchanged') is False:
+    row('首次两小时试验的档案指纹','FAIL','首次运行正常退出，80 段均定稿、原音有效、零丢帧；同一 Swift 构建目录被存储验证重用，试验后静态库指纹改变，原始 FAIL 保留。复测单独构建并核对实际执行文件、静态库、输入语料和源码。',['sustained/active/provenance-diagnosis.json','snapshots/2h/speech-result.json'])
+    if repeat.is_dir():
+        snapfile('sustained/active-repeat/samples.jsonl','repeat-resources.jsonl')
+        snapfile('sustained/active-repeat/result.json','repeat-result.json')
+        snapfile('sustained/active-repeat/observations.json.gz','repeat-observations.json.gz')
+    ar=load(snap/'repeat-result.json') if (snap/'repeat-result.json').exists() else None
 row('两小时真实本地识别负载',ar['status'] if ar else 'BLOCKED',f"实际 {ar['elapsed']:.2f} 秒，{ar.get('completed')} 笔定稿、{ar.get('drops')} 丢帧。" if ar else '每三分钟输入两个固定合成句子，同一进程持续采集、保存、Apple 定稿，等待两小时实时时钟。',['sustained/active/start.json','snapshots/'+phase])
 iv=data('sustained/soak/interval.json');assert iv['source']==source and iv['binary_sha256']==binary
 rs=lines(snap/'idle-samples.jsonl');energy=lines(snap/'process-resource.jsonl')

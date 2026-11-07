@@ -68,12 +68,18 @@ def checkpoint(phase):
             print(phase,'publication requires attention:',str(last),flush=True)
 if __name__=='__main__':
     if len(sys.argv)==2:
-        if sys.argv[1] not in ('public','2h','72h','interrupted'):raise SystemExit('unknown phase')
+        if sys.argv[1] not in ('public','2h','repeat-start','2h-verified','72h','interrupted'):raise SystemExit('unknown phase')
         checkpoint(sys.argv[1]);raise SystemExit
     due=datetime.datetime.fromisoformat(iv['due_utc']).timestamp()
     start=datetime.datetime.fromisoformat(active['start_utc']).timestamp()
-    wait_for('sustained/active/result.json',start+9000)
-    checkpoint('2h')
+    if not (base/'snapshots/2h/machine.json').exists():
+        wait_for('sustained/active/result.json',start+9000)
+        checkpoint('2h')
+    retry=base/'sustained/active-repeat/start.json'
+    if retry.is_file() and not (base/'snapshots/2h-verified/machine.json').exists():
+        issued=datetime.datetime.fromisoformat(json.loads(retry.read_text())['start_utc']).timestamp()
+        wait_for('sustained/active-repeat/result.json',issued+9000)
+        checkpoint('2h-verified')
     terminal=wait_for('sustained/soak/result.json',due+600)
     outcome=json.loads((base/'sustained/soak/result.json').read_text())['status'] if terminal else 'BLOCKED'
     checkpoint('72h' if outcome=='PASS' else 'interrupted')
