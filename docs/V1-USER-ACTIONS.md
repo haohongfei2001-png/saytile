@@ -1,5 +1,8 @@
 # 用户事项 · no-api.9
 
+设备修补的本机验收由工程方执行。目前无需更换 RC1、录音或提交密钥。正式分发和真实云服务仍待各自授权。
+
+
 no-api.9 · 独立托管 Mac 前台输入检查。PASS 9 / FAIL 5 / BLOCKED 7。[本轮机器结果](../evidence/no-api9/machine-freeze/snapshots/hosted/machine.json)。
 
 冻结 no-api.9 的补充实机验收见[机器报告](../evidence/no-api9/machine-freeze/README.md)。本机物理输入计数和隔离升级已执行，72 小时观察进行中。当前无需用户录音、操作窗口或提供密钥。

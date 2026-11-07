@@ -1,5 +1,8 @@
 # Saytile V1 RC2 · no-api.9 无密钥工程交付
 
+> **设备修补候选 no-api.9.1**　冻结基线 no-api.9 在真实 Mac 的显式输入设备路径复现 P1：将选中设备设到 AVAudioEngine 后，旧图格式不一定与硬件一致，安装 tap 可因格式不匹配直接中止进程。no-api.9.1 只修此项。明确选定的设备通过绑定 UID 的系统 Audio Queue 向原有环形缓冲提供协商后的单声道 Float32，VAD、ASR、Store 和文字投递沿用原代码。默认设备继续使用原来的采集路径。基线和旧证据保留；新包和最终源码需分别完成实测。
+
+
 **`NO_API_ENGINEERING_READY` · `LIVE_CONNECTION_PENDING`**。针对 Apple Silicon / macOS 26+ 的独立工程候选；现有安装与 GitHub 稳定发布仍为 RC1。[正式 PR #6](https://github.com/haohongfei2001-png/saytile/pull/6) 保持草稿，不修改 main。
 
 [运行源码 `dc26fe3c`](https://github.com/haohongfei2001-png/saytile/commit/dc26fe3c59ba55994d29e99ada8d2f0b49ad9886)，源树 `f138f6733a642a2e53da22b3647aaf5744cb308b`。 [候选 DMG](https://raw.githubusercontent.com/haohongfei2001-png/saytile/0aa51620c63612246395d8f2a83e1eb96c9e94c4/deliverables/no-api.9/Saytile-1.0.0-rc.2-no-api.9-arm64.dmg) · [校验和](../deliverables/no-api.9/SHA256SUMS.txt) · [最终证据清单](../evidence/no-api9/final/delivery-manifest.json) · [公开下载回读](../evidence/no-api9/final/public-download.json)。DMG：2,556,244 字节，SHA-256 `0bd16e511f3a1cf65a3618443ef3c498ca517786aa4ad07a0226451a0c2b449d`；包内可执行文件 SHA-256 `cb3b7a38dae90fccd323b57ee746baedbfcb43b457e0b30dbdcbaedffd35ed00`。

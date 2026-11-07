@@ -158,7 +158,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             }
             if CommandLine.arguments.contains("--device-probe") {
                 Task {
-                    do { let result = try await AudioDiagnostics.probeInputDevice(seconds: 5); print("DEVICE_PROBE \(result)") }
+                    do { let result = try await AudioDiagnostics.probeInputDevice(seconds: 5, devices: model.audio.devices); print("DEVICE_PROBE \(result)") }
                     catch { print("DEVICE_PROBE_ERROR \(error.localizedDescription)") }
                     await model.prepareForExit()
                     NSApp.terminate(nil)

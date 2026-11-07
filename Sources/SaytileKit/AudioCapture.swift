@@ -256,6 +256,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     @Published public private(set) var reprocessingID: UUID?
     private let store: SaytileStore
     private let recognitionFactory: RecognitionSessionFactory
+    private var pinnedInput: PinnedAudioInput?
     private var engine: AVAudioEngine?
     private var worker: CaptureWorker?
     private var stopTask: Task<Void, Never>?
@@ -343,6 +344,9 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 } else if AudioLifecycleGate.requiresPermissionSuspension(state: self.state, authorization: AVCaptureDevice.authorizationStatus(for: .audio)) {
                     self.requestedRunning = false
                     await self.suspend(reason: "麦克风权限已撤回，请在系统设置恢复权限后重新开启")
+                } else if let pinned = self.pinnedInput, self.state.isRunning {
+                    do { try pinned.checkProgress() }
+                    catch { await self.suspend(reason: error.localizedDescription); self.refreshDevices() }
                 } else if !previouslyAllowed && self.lifecycleGate.permitsCapture && self.requestedRunning {
                     await self.start(requestPermission: false)
                 }
@@ -440,23 +444,26 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         var tapInstalled = false
         do {
             refreshDevices()
-            let resolvedDevice: UInt32
+            let selected: AudioInputDevice?
             if let uid = selectedDeviceUID {
                 guard let device = devices.first(where: { $0.uid == uid }) else { throw AudioFailure.message("所选麦克风未连接，请连接设备或明确选择另一个麦克风") }
-                resolvedDevice = device.id
-            } else { resolvedDevice = selectedDeviceID }
-            let engine = AVAudioEngine()
-            startingEngine = engine
-            let input = engine.inputNode
-            if resolvedDevice != 0 {
-                var id = resolvedDevice
-                guard let audioUnit = input.audioUnit else { throw AudioFailure.message("所选麦克风的音频单元不可用") }
-                let result = AudioUnitSetProperty(audioUnit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0, &id, UInt32(MemoryLayout.size(ofValue: id)))
-                guard result == noErr else { throw AudioFailure.message("所选麦克风不可用，请重新选择") }
+                selected = device
+            } else if selectedDeviceID != 0 {
+                guard let device = devices.first(where: { $0.id == selectedDeviceID }) else { throw AudioFailure.message("所选麦克风未连接") }
+                selected = device
+            } else {
+                selected = nil
             }
-            let format = input.outputFormat(forBus: 0)
-            guard format.sampleRate > 0, format.channelCount > 0, format.commonFormat == .pcmFormatFloat32, !format.isInterleaved else { throw AudioFailure.message("麦克风格式不受支持") }
-            let ring = try AudioRing(capacity: UInt32(format.sampleRate * 4))
+            let pinned = try selected.map(PinnedAudioInput.init)
+            let engine = pinned == nil ? AVAudioEngine() : nil
+            startingEngine = engine
+            let input = engine?.inputNode
+            let format = input?.outputFormat(forBus: 0)
+            if let format {
+                guard format.sampleRate > 0, format.channelCount > 0, format.commonFormat == .pcmFormatFloat32, !format.isInterleaved else { throw AudioFailure.message("麦克风格式不受支持") }
+            }
+            guard let sampleRate = pinned?.sampleRate ?? format?.sampleRate else { throw AudioFailure.message("没有可用的麦克风") }
+            let ring = try AudioRing(capacity: UInt32(sampleRate * 4))
             let (meter, meterContinuation) = AsyncStream<(Bool, Float)>.makeStream(bufferingPolicy: .bufferingNewest(1))
             self.meterContinuation = meterContinuation
             meterTask = Task { [weak self] in
@@ -472,13 +479,22 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                     }
                 }
             }
-            let worker = try CaptureWorker(store: store, ring: ring, sampleRate: format.sampleRate, recognitionFactory: recognitionFactory, update: { speaking, level in
+            let worker = try CaptureWorker(store: store, ring: ring, sampleRate: sampleRate, recognitionFactory: recognitionFactory, update: { speaking, level in
                 meterContinuation.yield((speaking, level))
             }, failed: { [weak self] message in Task { @MainActor in await self?.suspend(reason: message) } })
-            let channelCount = format.channelCount
-            input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.recording(ring: ring, channels: channelCount, sampleRate: format.sampleRate))
-            tapInstalled = true
-            engine.prepare(); try engine.start()
+            if let pinned {
+                pinnedInput = pinned
+                try pinned.start(ring: ring)
+                while pinned.frames == 0 {
+                    try await Task.sleep(for: .milliseconds(20))
+                    guard generation == startGeneration, requestedRunning, state == .starting else { return }
+                    try pinned.checkProgress()
+                }
+            } else if let engine, let input, let format {
+                input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.recording(ring: ring, channels: format.channelCount, sampleRate: format.sampleRate))
+                tapInstalled = true
+                engine.prepare(); try engine.start()
+            }
             self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
             await worker.start()
             if !automaticAssetAttempted && !recognitionFactory.usesCloud {
@@ -491,6 +507,8 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 }
             }
         } catch {
+            guard generation == startGeneration else { return }
+            pinnedInput?.stop(); pinnedInput = nil
             startingEngine?.stop()
             if tapInstalled { startingEngine?.inputNode.removeTap(onBus: 0) }
             meterContinuation?.finish(); meterContinuation = nil
@@ -501,6 +519,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     public func pause() async { startGeneration &+= 1; playbackGeneration &+= 1; requestedRunning = false; playbackResume = false; state = .paused; await stopCapture() }
     private func stopCapture() async {
         if let stopTask { await stopTask.value; return }
+        pinnedInput?.stop(); pinnedInput = nil
         engine?.stop(); engine?.inputNode.removeTap(onBus: 0); engine = nil
         let old = worker; worker = nil; ring = nil; level = 0
         meterContinuation?.finish(); meterContinuation = nil; meterTask?.cancel(); meterTask = nil

@@ -1,4 +1,7 @@
 <!-- no-api9-current:begin -->
+
+> **设备修补候选 no-api.9.1**　冻结基线 no-api.9 在真实 Mac 的显式输入设备路径复现 P1：将选中设备设到 AVAudioEngine 后，旧图格式不一定与硬件一致，安装 tap 可因格式不匹配直接中止进程。no-api.9.1 只修此项。明确选定的设备通过绑定 UID 的系统 Audio Queue 向原有环形缓冲提供协商后的单声道 Float32，VAD、ASR、Store 和文字投递沿用原代码。默认设备继续使用原来的采集路径。基线和旧证据保留；新包和最终源码需分别完成实测。
+
 # Saytile
 
 **`NO_API_ENGINEERING_READY` · `LIVE_CONNECTION_PENDING`**。自然开口，随时取用。菜单栏持续待命，原音独立保留；有 Apple 中文资源即可无 Key 进行本机识别。 [当前版本、下载和验证](docs/V1-NO-API-DELIVERY.md)。普通公开分发待签名与公证；云服务未实连。

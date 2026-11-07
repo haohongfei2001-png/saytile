@@ -1,5 +1,8 @@
 # V1 验证结果 · no-api.9
 
+> **设备修补候选 no-api.9.1**　冻结基线 no-api.9 在真实 Mac 的显式输入设备路径复现 P1：将选中设备设到 AVAudioEngine 后，旧图格式不一定与硬件一致，安装 tap 可因格式不匹配直接中止进程。no-api.9.1 只修此项。明确选定的设备通过绑定 UID 的系统 Audio Queue 向原有环形缓冲提供协商后的单声道 Float32，VAD、ASR、Store 和文字投递沿用原代码。默认设备继续使用原来的采集路径。基线和旧证据保留；新包和最终源码需分别完成实测。
+
+
 no-api.9 · 独立托管 Mac 前台输入检查。PASS 9 / FAIL 5 / BLOCKED 7。[本轮机器结果](../evidence/no-api9/machine-freeze/snapshots/hosted/machine.json)。
 
 冻结 no-api.9 的补充实机验收见[机器报告](../evidence/no-api9/machine-freeze/README.md)。本机物理输入计数和隔离升级已执行，72 小时观察进行中。当前无需用户录音、操作窗口或提供密钥。
