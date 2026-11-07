@@ -22,7 +22,7 @@ struct VoiceCaptureGlyph: View {
                    value: presentation.state)
         .animation(reduceMotion ? nil : .easeOut(duration: 0.07),
                    value: presentation.liveVoiceLevel)
-        .frame(width: 27, height: 20.25)
+        .frame(width: 28, height: 24)
         .accessibilityHidden(true)
     }
 }
@@ -48,7 +48,7 @@ struct VoiceCaptureGlyphShape: Shape {
         let scale = min(rect.width / 24, rect.height / 18)
         let center = CGPoint(x: rect.midX, y: rect.midY)
         let barWidth = 2.5
-        let heights = [0.4, 0.75, 1.0, 0.6, 0.35].map { 4 + 11 * amplitude * $0 }
+        let heights = [0.13, 0.60, 1.0, 0.64, 0.14].map { 4 + 13 * amplitude * $0 }
         var result = Path()
 
         // The center has a fixed vertex order in every state. The triangle is

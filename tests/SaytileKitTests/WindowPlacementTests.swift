@@ -4,13 +4,20 @@ import Testing
 
 @Suite("Display geometry")
 struct WindowPlacementTests {
+    @Test func referenceCardGeometryExcludesTransparentShadowMargin() {
+        let size = WindowPlacement.panelDefaultSize
+        let inset = WindowPlacement.panelShadowInset
+        #expect(size.width - 2 * inset == 344)
+        #expect(size.height - 2 * inset == 234)
+        #expect(WindowPlacement.panelContentDefaultSize == CGSize(width: 344, height: 234))
+    }
+
     @Test func panelFitsOffsetAndCompactDisplays() {
         for screen in [CGRect(x: 0, y: 0, width: 1440, height: 875), CGRect(x: -1920, y: 180, width: 1920, height: 1040), CGRect(x: 1440, y: -400, width: 800, height: 500)] {
             for anchor in [CGRect(x: screen.maxX - 30, y: screen.maxY, width: 24, height: 24), CGRect(x: screen.minX + 2, y: screen.maxY, width: 24, height: 24)] {
                 let frame = WindowPlacement.panel(anchor: anchor, visibleFrame: screen)
                 #expect(screen.contains(frame))
-                // The uploaded reference main card is 690x469px at 2x.
-                #expect(frame.size == CGSize(width: 345, height: 234))
+                #expect(frame.size == CGSize(width: 408, height: 298))
             }
         }
     }
@@ -18,11 +25,11 @@ struct WindowPlacementTests {
     @Test func compactResizeLimitsBoundLargeContentAndSmallDragRequests() {
         let screen = CGRect(x: 0, y: 25, width: 1440, height: 850)
         let limits = WindowPlacement.panelLimits(visibleFrame: screen)
-        #expect(limits.minimum == CGSize(width: 320, height: 200))
-        #expect(limits.maximum == CGSize(width: 360, height: 480))
+        #expect(limits.minimum == CGSize(width: 384, height: 264))
+        #expect(limits.maximum == CGSize(width: 424, height: 544))
         #expect(WindowPlacement.panelSize(CGSize(width: 10, height: 20), visibleFrame: screen) == limits.minimum)
         #expect(WindowPlacement.panelSize(CGSize(width: 900, height: 20_000), visibleFrame: screen) == limits.maximum)
-        #expect(WindowPlacement.panelSize(CGSize(width: 350, height: 410), visibleFrame: screen) == CGSize(width: 350, height: 410))
+        #expect(WindowPlacement.panelSize(CGSize(width: 414, height: 474), visibleFrame: screen) == CGSize(width: 414, height: 474))
     }
 
     @Test func constrainedVisibleFrameTakesPrecedenceOverNormalMinimum() {
@@ -46,7 +53,7 @@ struct WindowPlacementTests {
 
     @Test func reopeningKeepsUserPositionAndResizeWithinBounds() {
         let screen = CGRect(x: -1440, y: 120, width: 1440, height: 875)
-        let moved = CGRect(x: -900, y: 240, width: 350, height: 410)
+        let moved = CGRect(x: -900, y: 240, width: 414, height: 474)
         #expect(WindowPlacement.restoredPanel(moved, visibleFrames: [screen]) == moved)
         #expect(WindowPlacement.restoredPanel(moved, visibleFrames: []) == moved)
     }
@@ -54,7 +61,7 @@ struct WindowPlacementTests {
     @Test func disconnectedPanelUsesNearestRemainingDisplayRegardlessOfArrayOrder() {
         let left = CGRect(x: -1440, y: 0, width: 1440, height: 900)
         let right = CGRect(x: 0, y: 0, width: 1440, height: 900)
-        let disconnected = CGRect(x: 3000, y: 200, width: 350, height: 410)
+        let disconnected = CGRect(x: 3000, y: 200, width: 414, height: 474)
         let restored = WindowPlacement.restoredPanel(disconnected, visibleFrames: [left, right])
         #expect(right.insetBy(dx: 8, dy: 8).contains(restored))
         #expect(restored.size == disconnected.size)
@@ -63,8 +70,8 @@ struct WindowPlacementTests {
 
     @Test func legacyOversizedPanelRestoresWithinNewCompactBounds() {
         let screen = CGRect(x: 0, y: 40, width: 1280, height: 700)
-        let restored = WindowPlacement.restoredPanel(CGRect(x: 1000, y: -300, width: 400, height: 550), visibleFrames: [screen])
-        #expect(restored.size == CGSize(width: 360, height: 480))
+        let restored = WindowPlacement.restoredPanel(CGRect(x: 1000, y: -300, width: 464, height: 614), visibleFrames: [screen])
+        #expect(restored.size == CGSize(width: 424, height: 544))
         #expect(screen.insetBy(dx: 8, dy: 8).contains(restored))
     }
 

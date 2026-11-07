@@ -3,9 +3,13 @@ import CoreGraphics
 
 /// Window geometry uses visible frames, including displays with negative origins and menu bars.
 public enum WindowPlacement {
-    public static let panelDefaultSize = CGSize(width: 345, height: 234)
-    public static let panelMinimumSize = CGSize(width: 320, height: 200)
-    public static let panelMaximumSize = CGSize(width: 360, height: 480)
+    // Card body is 344 x 234 points, measured at 1/2 the supplied 688 x 468px.
+    // The transparent 32pt perimeter contains the production shadow.
+    public static let panelShadowInset: CGFloat = 32
+    public static let panelContentDefaultSize = CGSize(width: 344, height: 234)
+    public static let panelDefaultSize = CGSize(width: 408, height: 298)
+    public static let panelMinimumSize = CGSize(width: 384, height: 264)
+    public static let panelMaximumSize = CGSize(width: 424, height: 544)
 
     /// Logical points, never physical pixels. Very small visible areas take
     /// precedence over the normal minimum, so no edge or resize handle is lost.

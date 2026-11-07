@@ -31,9 +31,8 @@ struct InputPanelView: View {
             }
 
             CompactTranscriptView(text: transcript, latestRequest: latestRequest,
-                showsLiveCaret: model.panelCapturePresentation.state == .recognizing,
                 onFollowChange: { followsLatest = $0 }, onSelectionChange: { selectedText = $0 },
-                fillContextMenu: fillContextMenu)
+                fillContextMenu: fillContextMenu, showsLiveCaret: model.panelCapturePresentation.state == .recognizing)
                 .overlay(alignment: .topLeading) {
                     if transcript.isEmpty {
                         Text(model.isListening ? "开口，文字会出现在这里。" : "从一句话开始。")
@@ -41,16 +40,18 @@ struct InputPanelView: View {
                             .padding(.top, 6).padding(.horizontal, 2).allowsHitTesting(false)
                     }
                 }
-                .padding(.horizontal, ReferencePanelStyle.horizontalInset).frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.leading, ReferencePanelStyle.textInset - 2)
+                // Preserve full-width Chinese punctuation. The final punctuation
+                // cell may extend into the trailing optical whitespace.
+                .padding(.trailing, 8).frame(maxWidth: .infinity, maxHeight: .infinity)
 
             HStack {
                 Button(action: copyTranscript) {
-                    ReferenceCopyMark().stroke(style: StrokeStyle(lineWidth: 1.65, lineCap: .round, lineJoin: .round))
+                    ReferenceCopyMark().stroke(ReferencePanelStyle.copyInk.opacity(canCopy ? 1 : 0.5), style: StrokeStyle(lineWidth: 1.65, lineCap: .round, lineJoin: .round))
                         .frame(width: 16, height: 16)
-                        .foregroundStyle(ReferencePanelStyle.copyInk.opacity(canCopy ? 1 : 0.5))
-                        .frame(width: ReferencePanelStyle.copySize.width, height: ReferencePanelStyle.copySize.height)
-                        .contentShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
-                        .background(ReferenceControlSurface(radius: 13))
+                        .frame(width: ReferencePanelStyle.copyWidth, height: ReferencePanelStyle.controlHeight)
+                        .background { ReferenceControlSurface(copy: true) }
+                        .contentShape(RoundedRectangle(cornerRadius: 13))
                 }
                 .buttonStyle(.plain)
                 // Keep the menu host enabled for an empty panel. The copy action
@@ -63,11 +64,13 @@ struct InputPanelView: View {
                 Spacer(minLength: 8)
                 captureControl
             }
-            .padding(.horizontal, ReferencePanelStyle.horizontalInset).padding(.top, 6).padding(.bottom, ReferencePanelStyle.bottomInset)
+            .padding(.leading, ReferencePanelStyle.footerLeading)
+            .padding(.trailing, ReferencePanelStyle.footerTrailing)
+            .padding(.top, 6).padding(.bottom, ReferencePanelStyle.footerBottom)
         }
-        .padding(.top, 10)
-        .background(ReferencePanelSurface())
-        .clipShape(RoundedRectangle(cornerRadius: ReferencePanelStyle.corner, style: .continuous))
+        .padding(.top, 10.5)
+        .background { ReferencePanelSurface() }
+        .clipShape(RoundedRectangle(cornerRadius: ReferencePanelStyle.radius, style: .continuous))
         .foregroundStyle(Palette.ink)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -81,9 +84,9 @@ struct InputPanelView: View {
         let presentation = model.panelCapturePresentation
         return Button(action: model.toggleCapture) {
             VoiceCaptureGlyph(presentation: presentation)
-            .foregroundStyle(model.captureProblem ? Palette.amber : ReferencePanelStyle.violet)
-            .frame(width: ReferencePanelStyle.voiceSize.width, height: ReferencePanelStyle.voiceSize.height)
-            .background(ReferenceControlSurface(radius: 17))
+            .foregroundStyle(model.captureProblem ? AnyShapeStyle(Palette.amber) : AnyShapeStyle(ReferencePanelStyle.glyph))
+            .frame(width: ReferencePanelStyle.voiceWidth, height: ReferencePanelStyle.controlHeight)
+            .background { ReferenceControlSurface() }
             .contentShape(Capsule())
         }.buttonStyle(CaptureButtonStyle())
             .overlay(Capsule().stroke(ReferencePanelStyle.violet.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))

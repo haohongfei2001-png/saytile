@@ -381,7 +381,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         guard let model else { return }
         let firstPresentation = panel == nil
         if panel == nil {
-            let panel = VoicePanel(contentRect: NSRect(origin: .zero, size: WindowPlacement.panelDefaultSize), styleMask: [.titled, .fullSizeContentView, .resizable, .nonactivatingPanel], backing: .buffered, defer: false)
+            let panel = VoicePanel(contentRect: NSRect(origin: .zero, size: WindowPlacement.panelDefaultSize), styleMask: [.borderless, .resizable, .nonactivatingPanel], backing: .buffered, defer: false)
             panel.title = "Saytile · 此刻"
             panel.titleVisibility = .hidden; panel.titlebarAppearsTransparent = true
             panel.standardWindowButton(.closeButton)?.isHidden = true
@@ -390,10 +390,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             panel.isFloatingPanel = true; panel.level = .floating
             panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
             panel.hidesOnDeactivate = false; panel.isReleasedWhenClosed = false
-            panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = true
+            panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = false
             panel.becomesKeyOnlyIfNeeded = true; panel.delegate = self
             panel.isMovableByWindowBackground = true
-            let content = NSHostingView(rootView: InputPanelView(model: model).preferredColorScheme(.light))
+            let content = NSHostingView(rootView: InputPanelWindowView(model: model).preferredColorScheme(.light))
             // Streaming text must scroll inside the chosen window geometry, not
             // enlarge the NSPanel through SwiftUI's intrinsic-size propagation.
             content.sizingOptions = []

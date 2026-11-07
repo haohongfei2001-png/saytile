@@ -79,11 +79,10 @@ extension AppDelegate {
             _ = try glyphGeometry(shape, in: area)
             // Neutral specimen for the production path and fixed capsule size.
             // Use packaged panel captures, not these geometry frames, to review glass and tint.
-            let content = shape.foregroundStyle(Palette.accent)
-                .frame(width: 24, height: 18)
-                .frame(width: 78, height: 30)
-                .background(Palette.accent.opacity(0.12 - 0.06 * frame.paused), in: Capsule())
-                .overlay(Capsule().stroke(.white.opacity(0.45), lineWidth: 0.75))
+            let content = shape.foregroundStyle(ReferencePanelStyle.glyph)
+                .frame(width: 28, height: 24)
+                .frame(width: ReferencePanelStyle.voiceWidth, height: ReferencePanelStyle.controlHeight)
+                .background { ReferenceControlSurface() }
                 .environment(\.colorScheme, .light)
             let renderer = ImageRenderer(content: content)
             renderer.scale = 3
@@ -95,7 +94,7 @@ extension AppDelegate {
         }
         let manifest = VoiceGlyphReviewManifest(
             scope: "Production SwiftUI glyph paths; synthetic amplitude and sampled morph parameters; a neutral preview tint, not the final panel surface. No microphone, AX action, measured animation timing or user visual approval. Offscreen ImageRenderer creates no windows.",
-            width_points: 78, height_points: 30, scale: 3, frames: frames)
+            width_points: Double(ReferencePanelStyle.voiceWidth), height_points: Double(ReferencePanelStyle.controlHeight), scale: 3, frames: frames)
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         try encoder.encode(manifest).write(to: directory.appendingPathComponent("manifest.json"))
         print("UI_VOICE_GLYPH_PASS finite bounded morphs; right-facing triangle, stable dot, five real-level-dependent bar paths; \(frames.count) synthetic offscreen frames")
@@ -141,8 +140,8 @@ private struct VoiceGlyphReviewFrame: Encodable {
 
 private struct VoiceGlyphReviewManifest: Encodable {
     let scope: String
-    let width_points: Int
-    let height_points: Int
+    let width_points: Double
+    let height_points: Double
     let scale: Int
     let frames: [VoiceGlyphReviewFrame]
 }
