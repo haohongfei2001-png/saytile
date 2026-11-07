@@ -1,7 +1,7 @@
 <!-- no-api9-current:begin -->
 # Saytile
 
-**无密钥短项已通过；本版 30 分钟长跑进行中 · `LIVE_CONNECTION_PENDING`**。自然开口，随时取用。菜单栏持续待命，原音独立保留；有 Apple 中文资源即可无 Key 进行本机识别。 [当前版本、下载和验证](docs/V1-NO-API-DELIVERY.md)。普通公开分发待签名与公证；云服务未实连。
+**`NO_API_ENGINEERING_READY` · `LIVE_CONNECTION_PENDING`**。自然开口，随时取用。菜单栏持续待命，原音独立保留；有 Apple 中文资源即可无 Key 进行本机识别。 [当前版本、下载和验证](docs/V1-NO-API-DELIVERY.md)。普通公开分发待签名与公证；云服务未实连。
 <!-- no-api9-current:end -->
 
 > **唯一批准的视觉设计原图**：[Saytile 原版设计全图](design/approved/Saytile-original-visual-reference-20261107.jpeg) · [原图与变更边界](design/approved/README.md)。应用外观必须以此图为唯一标准，只有用户指定的语音按钮交互与必要动效可以修改。原图已按附件原始字节入库，不能拿工程预览或近似色板替代。

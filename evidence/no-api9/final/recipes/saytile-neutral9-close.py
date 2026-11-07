@@ -163,6 +163,7 @@ assert git("rev-parse",sha+":"+jpeg_rel)==git("rev-parse","870e1f64c4adc26209931
 assert git("hash-object",jpeg_rel)==git("rev-parse",sha+":"+jpeg_rel)
 direct = read("ui/original-comparison.json")
 assert direct["original_sha256"]==digest(approved_jpeg)
+assert direct["material_fidelity_from_unmatched_RGB"].startswith("NOT_APPLICABLE")
 assert direct["source_revision"]==sha and direct["package_tree"]==tree and direct["binary_sha256"]==binary
 assert direct["original_commit"]=="870e1f64c4adc26209931bcc8e83562421b5c46f" and direct["original_path"]==jpeg_rel
 assert direct["reference_rect_px"]==approval["main_card_source_xywh"] and direct["capture_rect_px"]==[64,64,688,468]
@@ -174,7 +175,7 @@ assert root/direct["contact_sheet"]["file"]==out/"ui/original-comparison-pair.pn
 # The comparison compares current capture bytes after transforming both images
 # to the same color space. Its measured errors are retained, without assigning
 # a perceptual acceptance threshold.
-assert direct["patches"] and direct["geometry"] and direct["opaque_interior"]
+assert direct["patches"] and direct["geometry"] and direct["controlled_backdrop_evidence"]=="../../compositor/README.md"
 references.update(["ui/compare-original.py","ui/original-comparison-pair.png"])
 # The neutral .9 source changes the material goal. A previous tinted surface's
 # calibration summary is not a current output. Use this exact build's direct
@@ -208,7 +209,7 @@ for folder,mode_name in [("ui","controls"),("ui-render-only","render_only")]:
         cap=measured_images[name]["capture"]
         assert [cap["width_points"],cap["height_points"]]==approval["native_window_points"]
         assert [cap["width_pixels"],cap["height_pixels"]]==[816,596]
-        assert measured_images[name]["painted_card_alpha200_center_scan_edges"]==[64,64,752,532]
+        assert measured_images[name]["alpha200_center_scan_bounds"]==[64,64,752,532]
         reference_hashes[folder][name]=actual_hash
         references.add(folder+"/approved-reference/"+name)
     references.add(folder+"/run.log")
@@ -274,6 +275,14 @@ assert (short["status"],short["source_revision"],short["tree"],short["source_cha
 assert len(short["checks"])==8 and all(v is True for v in short["checks"].values())
 assert (storage["status"],storage["passed"],storage["source_revision"],storage["source_dirty"]) == ("PASS",12,sha,False)
 assert (scale["recordings"],scale["revisions"],scale["partial_writes"],scale["search_matches"]) == (100000,300000,200,100)
+apple_live=read("local-vad-apple/summary.json")
+apple_live_id=read("local-vad-apple/identity.json")
+assert apple_live["source_revision"]==apple_live_id["source_revision"]==sha and apple_live["tree"]==apple_live_id["tree"]==tree
+assert apple_live_id["source_unchanged"] and apple_live_id["library_hash_unchanged"] and apple_live_id["probe_hash_unchanged"] and apple_live_id["exit"]==0
+assert apple_live["raw_report_sha256"]==digest(out/"local-vad-apple/raw-report.json") and apple_live_id["probe_source_sha256"]==digest(out/"local-vad-apple/LocalVADAppleProbe.swift")
+assert all(v is True for v in apple_live["checks"].values()) and len(apple_live["checks"])==18 and len(apple_live["records"])==2
+assert len(set(r["recording_id"] for r in apple_live["records"]))==2 and all(r["final_text"] and r["observed_while_open_texts"]>0 and r["last_error"] is None and all(c["frames"]>0 for c in r["chunks"]) for r in apple_live["records"])
+references.update(["local-vad-apple/raw-report.json","local-vad-apple/README.md","local-vad-apple/run.py","local-vad-apple/run.log","local-vad-apple/LocalVADAppleProbe.swift","connection-contract.md"])
 compositor=compositor_evidence()
 pending = ["../local/realtime-assessment.json","../local/post-run-identities.json","source-after.json","preservation-after.json","public-download.json"]
 missing = [f for f in pending if not (out / f).is_file()]
@@ -315,7 +324,7 @@ if subprocess.run(["git","cat-file","-e",pub["publication_commit"]+"^{commit}"],
 states = {"NO_API_ENGINEERING_READY":True,"LIVE_CONNECTION_PENDING":True,"LIVE_PROTOCOL_VERIFIED":False,
           "LIVE_TRANSCRIPTION_VERIFIED":False,"QUALITY_VERIFIED":False,"PRODUCTION_READY":False}
 manifest = {
-    "states":states,"role":"Personal no-api.9 macOS engineering candidate calibrated to the exact approved JPEG checked into this release. Live cloud acceptance pending.",
+    "states":states,"role":"Personal no-api.9 macOS engineering candidate with the approved reference geometry and neutral behind-window material. Live cloud acceptance pending.",
     "tested_source":sha,"runtime_tree":tree,"release_version":version,"binary_sha256":binary,
     "dmg_sha256":dmg,"dmg_bytes":pack["dmg_bytes"],"public_download":pub,"delivery_paths":paths,
     "source_inputs_before_and_after":len(before["source_sha256"]),"production_main_or_rc1_replaced":False,
@@ -325,8 +334,8 @@ manifest = {
     "ci":{"exact_source":{"head":sha,"checkout":ci["checkout_merge_sha"],"checkout_tree":ci["checkout_tree"],"native":conclusions["Saytile native"],"design":conclusions["Saytile design contracts"],"swift_functions":ci["native_functions"],"wire_cases":50,"ui_captures":ci["ui_captures"],"ci_ax_controls":ci["ci_ui_controls"],"step_outcomes":steps},"publication_checkpoint_if_recorded":publication_ci},
     "ui":{"real_ax_press":45,"actual_menu_selections":10,"control_images":37,"render_only_images":27,"control_groups":15,"glyph_frames_per_mode":71,"outside_foreground_transitions":0,"scope":"Routine content-host images and control interactions retain their own coverage. Each additional three-image reference set uses the production InputPanelWindowView outer geometry. Synthetic captures do not certify every display, wallpaper, focus context or appearance."},
     "original_reference":{"reported_uploaded_jpeg_sha256":approval["source_sha256"],"measurements_path":"design/approved/original-reference-20261107.measurements.json","measurements_sha256":digest(approval_path),"repository_original_jpeg":jpeg_rel,"exact_original_jpeg_verified":True,"original_jpeg_bytes":approved_jpeg.stat().st_size,"native_card_points":approval["main_card_points"],"outer_window_points":approval["native_window_points"],"shadow_perimeter_points":32,"copy_points":approval["copy_points"],"voice_points":approval["voice_points"],"reference_images_per_mode":3,"reference_images_sha256":reference_hashes,"native_text_font_and_viewport_checks_per_mode":3,"measured_font_pt":19.5,"normal_font_fallback":"The view requests PingFangSC-Regular and falls back to system font at 19.5 pt if unavailable. The diagnostic verifies the size and viewport on this Mac; a forced missing-font scenario was not run.","actual_ax_footer_inspections":len(controls),"measurement_receipt":"ui/reference-measurements.json","original_srgb_comparison":"ui/original-comparison.json","visual_user_acceptance_verified":False},
-    "input":inp,"headless_dom_checks":20,"apple":apple,"signed_packaged_apple":signed,
-    "local_fallback_scope":"The current production Apple file route transcribed isolated synthetic fixtures, including one launched from the extracted signed application. This local result measures the file-fed route; ordinary live microphone speech and real external account failure mid-speech remain unmeasured.",
+    "input":inp,"headless_dom_checks":20,"local_vad_apple":apple_live,"apple":apple,"signed_packaged_apple":signed,
+    "local_fallback_scope":"The current production Apple file route transcribed isolated synthetic fixtures, including one launched from the extracted signed application. The separate default capture worker also recognized and archived two paced synthetic utterances on one real ring through VAD, PCMJournal and on-device Apple with in-recording revisions. Ordinary live microphone speech and real external account failure mid-speech remain unmeasured.",
     "install":{"upgrade_checks":upgrade["count"],"reinstall_checks":len(reinstall["checks"]),"candidate_version":version,"rc1_source":upgrade["baseline_app_source_revision"],"rc1_rollback":"Use the explicit pre-upgrade copy, preserving candidate data."},
     "public_mac_distribution":{"code_integrity":"verified","gatekeeper_assessment":"rejected","notarized":False,"policy_modified":False},"signed_app_idle_seconds":idle["wall_seconds"],
     "long_capture":{k:long[k] for k in ("actual_wallclock_seconds","recordings","closed_wav_chunks_verified","saved_frames","reference_sha256","different_sample_frames","upload_grants","resource_samples","sampled_rss_kib_min","sampled_rss_kib_max","cpu_seconds_per_wallclock_percent")},
@@ -335,7 +344,7 @@ manifest = {
         "Apple speech evidence covers eight synthetic Mandarin fixtures and one separate signed-app fixture. Four expected phrases were missing in the corpus.",
         "Physical microphone, arbitrary foreground apps, physical sleep/hot-plug, multiple displays and 24–72-hour energy remain unverified.",
         "Foreground input resolution was not exercised. A background WK setter acknowledged the request without changing the DOM. That dispatch remained unverified and was not replayed.",
-        "The exact approved JPEG is present in the frozen tree and its SHA-256 is verified. Render comparison and geometry apply to this Mac and tested scale. Pixel-perfect parity, user visual acceptance and arbitrary wallpaper or display appearance remain unverified.",
+        "The exact approved JPEG is present in the frozen tree and its SHA-256 is verified. The original blue/purple setting and the offscreen neutral render have different backgrounds. Their raw RGB differences cannot grade material fidelity. Controlled two-window color transmission is measured separately. Physical wallpaper blur, pixel-perfect parity and user visual acceptance remain unverified.",
         "The personal arm64 build carries an ad-hoc signature. Strict code verification passed, but enabled Gatekeeper rejected the exact candidate (spctl exit 3). Ordinary distribution requires authorized Developer ID signing and notarization; no policy was bypassed."
     ],
     "evidence_sha256":{f:digest(out/f) for f in sorted(references)}

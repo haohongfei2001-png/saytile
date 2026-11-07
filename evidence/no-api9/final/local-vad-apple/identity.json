@@ -1,0 +1,56 @@
+{
+  "build_argv": [
+    "swiftc",
+    "-swift-version",
+    "6",
+    "-parse-as-library",
+    "-module-cache-path",
+    "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-vad-apple-dc26fe3c59ba-l2arnh4x/module-cache",
+    "-I",
+    "/tmp/saytile-frozen-noapi9-dc26fe3c59ba-native/out/Products/Debug",
+    "-I",
+    "/tmp/saytile-frozen-noapi9-dc26fe3c59ba-native/out/Products/Debug/Modules",
+    "-I",
+    "/Users/hhf/.codex/worktrees/saytile-rc2-neutral/Sources/CSQLite",
+    "-Xcc",
+    "-fmodule-map-file=/private/tmp/saytile-frozen-noapi9-dc26fe3c59ba-native/out/Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap",
+    "-L",
+    "/tmp/saytile-frozen-noapi9-dc26fe3c59ba-native/out/Products/Debug",
+    "-lSaytileKit",
+    "-lc++",
+    "/Users/hhf/.codex/worktrees/saytile-rc2-neutral/evidence/no-api9/final/local-vad-apple/LocalVADAppleProbe.swift",
+    "-o",
+    "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-vad-apple-dc26fe3c59ba-l2arnh4x/probe"
+  ],
+  "capture_input": "Only generated MandarinCorpus daily and tail AIFF. Initial 0.25 s silence, 1.6 s gap, 1.6 s tail. Float PCM from AVAudioFile is paced by absolute 20 ms deadlines into CAudio ring. No microphone or audio output.",
+  "exit": 0,
+  "finished": "2026-11-07T05:12:26.186788+00:00",
+  "input_after": {
+    "daily.aiff": "ea39d7d4c6adf64b9cb9ca59dbeb1277fad737cf6df0cfaeca9d7a482d91656a",
+    "tail.aiff": "d2369416b1fef78be9bfacb105ea0591fa21765512641f643f7a378587544343"
+  },
+  "input_before": {
+    "daily.aiff": "ea39d7d4c6adf64b9cb9ca59dbeb1277fad737cf6df0cfaeca9d7a482d91656a",
+    "tail.aiff": "d2369416b1fef78be9bfacb105ea0591fa21765512641f643f7a378587544343"
+  },
+  "library_hash_unchanged": true,
+  "library_sha256": "97798f24609d10d1d79871cf305be7ca7fb6775a8a034b96c369c73bfe5f50c7",
+  "probe_argv": [
+    "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-vad-apple-dc26fe3c59ba-l2arnh4x/probe",
+    "/tmp/saytile-noapi9-apple-dc26fe3c59ba-_hoexlcy/audio/daily.aiff",
+    "/tmp/saytile-noapi9-apple-dc26fe3c59ba-_hoexlcy/audio/tail.aiff",
+    "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-vad-apple-dc26fe3c59ba-l2arnh4x/owned-store",
+    "/Users/hhf/.codex/worktrees/saytile-rc2-neutral/evidence/no-api9/final/local-vad-apple/raw-report.json"
+  ],
+  "probe_hash_unchanged": true,
+  "probe_sha256": "2993e66712693cca48c5490ac36d14fe900ad2cd24ad89ecd926995e8c026c47",
+  "probe_source_sha256": "fad717ab784ec6f60b8e64732c36cf35a9a9f7cc25080559c9eb6d7d79e2ba1f",
+  "recognition": "Default CaptureWorker with no recognition factory argument. Uses production VoiceSegmenter, PCMJournal, actual AppleSpeechService/Apple session and durable Store.",
+  "scratch": "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-vad-apple-dc26fe3c59ba-l2arnh4x",
+  "source_revision": "dc26fe3c59ba55994d29e99ada8d2f0b49ad9886",
+  "source_unchanged": true,
+  "started": "2026-11-07T05:12:10.499499+00:00",
+  "store_directory": "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-vad-apple-dc26fe3c59ba-l2arnh4x/owned-store",
+  "tree": "f138f6733a642a2e53da22b3647aaf5744cb308b",
+  "wall_seconds": 15.686799457995221
+}

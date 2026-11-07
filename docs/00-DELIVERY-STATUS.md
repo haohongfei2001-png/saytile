@@ -1,6 +1,6 @@
 # Saytile 交付状态 · no-api.9
 
-**无密钥短项已通过；本版 30 分钟长跑进行中 · `LIVE_CONNECTION_PENDING`**。[运行源码 `dc26fe3c`](https://github.com/haohongfei2001-png/saytile/commit/dc26fe3c59ba55994d29e99ada8d2f0b49ad9886)，源树 `f138f6733a642a2e53da22b3647aaf5744cb308b`。 [候选 DMG](../deliverables/no-api.9/Saytile-1.0.0-rc.2-no-api.9-arm64.dmg) · [校验和](../deliverables/no-api.9/SHA256SUMS.txt)。
+**`NO_API_ENGINEERING_READY` · `LIVE_CONNECTION_PENDING`**。[运行源码 `dc26fe3c`](https://github.com/haohongfei2001-png/saytile/commit/dc26fe3c59ba55994d29e99ada8d2f0b49ad9886)，源树 `f138f6733a642a2e53da22b3647aaf5744cb308b`。 [候选 DMG](https://raw.githubusercontent.com/haohongfei2001-png/saytile/0aa51620c63612246395d8f2a83e1eb96c9e94c4/deliverables/no-api.9/Saytile-1.0.0-rc.2-no-api.9-arm64.dmg) · [校验和](../deliverables/no-api.9/SHA256SUMS.txt) · [最终证据清单](../evidence/no-api9/final/delivery-manifest.json) · [公开下载回读](../evidence/no-api9/final/public-download.json)。
 
 稳定公开发布仍为 RC1。最新工程交付为 no-api.9 原稿候选；no-api.6、no-api.7、固定色彩 no-api.8 的测试和包各自归档。
 

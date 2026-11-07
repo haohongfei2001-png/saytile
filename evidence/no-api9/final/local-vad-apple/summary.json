@@ -1,0 +1,75 @@
+{
+  "checks": {
+    "1_real_apple_final": true,
+    "1_real_apple_progressive_evidence": true,
+    "1_valid_saved_wav": true,
+    "1_visible_partial_while_recording": true,
+    "2_real_apple_final": true,
+    "2_real_apple_progressive_evidence": true,
+    "2_valid_saved_wav": true,
+    "2_visible_partial_while_recording": true,
+    "default_cloud_disabled": true,
+    "distinct_text_on_correct_recordings": true,
+    "known_synthetic_inputs_unchanged": true,
+    "no_capture_errors": true,
+    "no_microphone": true,
+    "no_ring_drops": true,
+    "no_upload_grants": true,
+    "sqlite_ok": true,
+    "two_distinct_records": true,
+    "two_vad_onsets_and_offsets": true
+  },
+  "feed_wall_seconds": 13.923546334030107,
+  "input_frames": 307212,
+  "raw_report_sha256": "d15456d5a1df3b27a0bf402426ab719111cc5b91c9086809027d14887d221aae",
+  "recognition_asset_setup_calls": 1,
+  "recognition_asset_status_before": "需要下载 Apple 中文识别资源",
+  "recognition_asset_status_during": "中文识别已就绪 · 在设备上处理",
+  "records": [
+    {
+      "candidate_count": 25,
+      "chunks": [
+        {
+          "bytes": 191404,
+          "channels": 1,
+          "frames": 95680,
+          "rate_hz": 16000,
+          "relative_path": "854232F3-B446-4829-A6B3-B5EC4B24E4F5/0B4F0492-9C65-4EEB-8F65-71C81D2602BE.wav",
+          "sample_bytes": 2,
+          "sha256": "0d9fb67995c6352587767dbd600d501b496475724af3a132aff71f446fb5d492"
+        }
+      ],
+      "final_s": 6.201499541988596,
+      "final_text": "今天下午 3:00开会 ，请提前 10分钟到达会议室",
+      "first_nonempty_open_s": 1.2006910420022905,
+      "last_error": null,
+      "observed_while_open_texts": 6,
+      "recording_id": "854232F3-B446-4829-A6B3-B5EC4B24E4F5"
+    },
+    {
+      "candidate_count": 25,
+      "chunks": [
+        {
+          "bytes": 226604,
+          "channels": 1,
+          "frames": 113280,
+          "rate_hz": 16000,
+          "relative_path": "A880A310-598E-4892-82D8-05CC918D2D1D/64F22682-774E-4DEA-94AC-D9C1521A914C.wav",
+          "sample_bytes": 2,
+          "sha256": "31f1380b02fc6bf7beccf46af0f7008bdd2b6d6e190a5a7a1ef47593c8f2842d"
+        }
+      ],
+      "final_s": 13.201726667117327,
+      "final_text": "即使识别失败也要继续收音 ，原始录音必须完整保留",
+      "first_nonempty_open_s": 8.109835334122181,
+      "last_error": null,
+      "observed_while_open_texts": 8,
+      "recording_id": "A880A310-598E-4892-82D8-05CC918D2D1D"
+    }
+  ],
+  "scope": "Short same-worker synthetic local engineering integration. Not a natural-speech accuracy benchmark, model comparison, physical input or cloud proof.",
+  "source_revision": "dc26fe3c59ba55994d29e99ada8d2f0b49ad9886",
+  "source_sample_rate": 22050,
+  "status": "PASS",
+  "tree": "f138f6733a642a2e53da22b3647aaf5744cb308b"
+}
