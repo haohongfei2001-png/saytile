@@ -1,0 +1,33 @@
+Building for debugging...
+[Planning 112 / 155]
+[Finalizing plan]
+[5 / 9] Saytile-product
+[8 / 12] Saytile-product
+[9 / 12] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/AppModel.swift:468:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+460 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+461 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+462 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+463 |             // A cancelled older check must fully close its sockets before another starts.
+464 |             await previous?.value
+    :
+466 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+467 |             do {
+468 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+469 |                     Task { @MainActor [weak self] in
+470 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[10 / 13] Saytile-product
+[11 / 14] Saytile-product
+[13 / 14] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (4.53秒)
+/tmp/saytile-bundle.vhTKw1/Saytile.app: replacing existing signature
+/tmp/saytile-bundle.vhTKw1/Saytile.app/Contents/Info.plist: OK
+Built /tmp/saytile-bottom-preview/Saytile.app

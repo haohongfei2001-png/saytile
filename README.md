@@ -1,4 +1,4 @@
-> PR #6 最新界面续接：底部「复制＋语音」两个常驻按钮，暂停/待命/正在识别三个日常状态，VAD确认声音结束即回待命，后台定稿继续。见[本轮修改与验证](docs/V1-COMPACT-PANEL-RESUMPTION.md)。1067f1ad / no-api.4的完整工程基线与30分钟逐样本结果仍为历史基线；整体尚未NO_API_ENGINEERING_READY，真实云端LIVE_CONNECTION_PENDING。[实际交付与限制](docs/V1-NO-API-DELIVERY.md)。
+> PR #6 最新界面续接：底部「复制＋语音」两个常驻按钮，暂停/待命/正在识别三个日常状态，VAD确认声音结束即回待命，后台定稿继续。见[本轮修改与验证](docs/V1-COMPACT-PANEL-RESUMPTION.md)。当前候选为 no-api.6，原 no-api.4 / .5 结果仅用于历史追溯。真实云端 LIVE_CONNECTION_PENDING。[实际交付与限制](docs/V1-NO-API-DELIVERY.md)。
 
 # Saytile
 

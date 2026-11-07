@@ -7,6 +7,7 @@ struct CompactTranscriptView: NSViewRepresentable {
     var latestRequest = 0
     var onFollowChange: (Bool) -> Void = { _ in }
     var onSelectionChange: (String) -> Void = { _ in }
+    var fillContextMenu: (@MainActor (NSMenu) -> Void)? = nil
 
     func makeNSView(context: Context) -> CompactTranscriptScrollView {
         CompactTranscriptScrollView(frame: .zero)
@@ -14,6 +15,7 @@ struct CompactTranscriptView: NSViewRepresentable {
     func updateNSView(_ view: CompactTranscriptScrollView, context: Context) {
         view.onFollowChange = onFollowChange
         view.onSelectionChange = onSelectionChange
+        view.transcriptView.fillContextMenu = fillContextMenu
         view.updateTranscript(text)
         view.consumeLatestRequest(latestRequest)
     }
@@ -252,11 +254,44 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
 }
 
 @MainActor
-final class CompactTranscriptTextView: NSTextView {
+final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
+    private let transcriptMenu = NSMenu(title: "文字操作")
+    var fillContextMenu: (@MainActor (NSMenu) -> Void)? {
+        didSet {
+            if fillContextMenu != nil, menu !== transcriptMenu {
+                transcriptMenu.autoenablesItems = false
+                transcriptMenu.delegate = self
+                menu = transcriptMenu
+            } else if fillContextMenu == nil, menu === transcriptMenu { menu = nil }
+        }
+    }
+    override func menu(for event: NSEvent) -> NSMenu? {
+        fillContextMenu != nil ? transcriptMenu : super.menu(for: event)
+    }
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        guard menu === transcriptMenu, let fillContextMenu else { return }
+        menu.removeAllItems()
+        fillContextMenu(menu)
+    }
     var onSelectionTracking: (Bool) -> Void = { _ in }
     override func mouseDown(with event: NSEvent) {
         onSelectionTracking(true)
         super.mouseDown(with: event)
         onSelectionTracking(false)
     }
+}
+
+/// Each menu owns its action items until AppKit finishes dispatch. No global
+/// key equivalents or focus changes are required to invoke these commands.
+@MainActor
+final class TranscriptMenuItem: NSMenuItem {
+    private let invoke: @MainActor () -> Void
+    init(title: String, identifier: String, action: @escaping @MainActor () -> Void) {
+        invoke = action
+        super.init(title: title, action: #selector(performCommand), keyEquivalent: "")
+        self.identifier = .init(identifier); setAccessibilityIdentifier(identifier)
+        target = self
+    }
+    required init(coder: NSCoder) { fatalError("TranscriptMenuItem is created programmatically") }
+    @objc private func performCommand() { invoke() }
 }

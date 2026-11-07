@@ -31,7 +31,8 @@ struct InputPanelView: View {
             }
 
             CompactTranscriptView(text: transcript, latestRequest: latestRequest,
-                onFollowChange: { followsLatest = $0 }, onSelectionChange: { selectedText = $0 })
+                onFollowChange: { followsLatest = $0 }, onSelectionChange: { selectedText = $0 },
+                fillContextMenu: fillContextMenu)
                 .overlay(alignment: .topLeading) {
                     if transcript.isEmpty {
                         Text(model.isListening ? "开口，文字会出现在这里。" : "从一句话开始。")
@@ -113,40 +114,79 @@ struct InputPanelView: View {
         }
     }
 
-    @ViewBuilder private var panelActions: some View {
-        Button(selectedText.isEmpty ? "复制当前文字" : "复制所选文字", action: copyTranscript)
-            .disabled(!canCopy).accessibilityIdentifier("panel.more.copy")
-        Button("在档案中编辑最近一段") {
-            if let item = model.recent.last { model.select(item) }
-        }.disabled(model.recent.isEmpty).accessibilityIdentifier("panel.edit")
-        Button("回到最新") { latestRequest += 1 }
-            .disabled(followsLatest).accessibilityIdentifier("panel.latest")
-        Divider()
-        Button("语音档案…", action: model.openArchive).accessibilityIdentifier("panel.more.archive")
-        Button("设置…", action: model.openSettings).accessibilityIdentifier("panel.more.settings")
-        Divider()
-        Button { model.setDirect(false) } label: {
-            Label("自由记录", systemImage: model.directMode ? "circle" : "checkmark")
-        }.accessibilityIdentifier("panel.more.free")
-        Button { model.setDirect(true) } label: {
-            Label("直接输入", systemImage: model.directMode ? "checkmark" : "circle")
-        }.accessibilityIdentifier("panel.more.direct")
-        Button("绑定当前草稿", action: model.bindTarget).accessibilityIdentifier("panel.more.bind")
-        Button(model.isInserting ? "正在插入…" : "插入当前文字", action: model.insertRecent)
-            .disabled(model.isInserting || transcript.isEmpty).accessibilityIdentifier("panel.more.insert")
-        Divider()
-        if model.panelHasMore {
-            Button(model.loadingPanel ? "正在载入…" : "载入更早表达（已载入 \(model.recent.count) / \(model.panelCount) 段）", action: model.loadEarlierPanel)
-                .disabled(model.loadingPanel).accessibilityIdentifier("panel.more.earlier")
+    /// Both contextual surfaces expose the same commands and eligibility.
+    /// The AppKit text view also supports the system Show Menu action.
+    private struct PanelCommand: Identifiable {
+        let id: String
+        let title: String
+        var enabled = true
+        var checked = false
+        var action: (@MainActor () -> Void)?
+        var copyID: String {
+            switch id {
+            case "edit", "latest": "panel." + id
+            case "dismiss": "panel.dismissNotice"
+            default: "panel.more." + id
+            }
         }
-        Text(model.saveLabel)
-        Button("清空输入板（保留档案）") { model.clearPanel(); latestRequest += 1 }
-            .disabled(model.isInserting || model.recent.isEmpty).accessibilityIdentifier("panel.more.clear")
-        if model.notice != nil, model.panelCaptureDetail == nil {
-            Button("关闭提示") { model.notice = nil }.accessibilityIdentifier("panel.dismissNotice")
-        }
-        Button("收起输入板", action: model.hidePanel).accessibilityIdentifier("panel.more.hide")
     }
+    private var commandGroups: [[PanelCommand]] {
+        var groups: [[PanelCommand]] = [
+            [.init(id: "copy", title: selectedText.isEmpty ? "复制当前文字" : "复制所选文字", enabled: canCopy, action: { copyTranscript() }),
+             .init(id: "edit", title: "在档案中编辑最近一段", enabled: model.recent.last != nil, action: { if let item = model.recent.last { model.select(item) } }),
+             .init(id: "latest", title: "回到最新", enabled: !followsLatest, action: { latestRequest += 1 })],
+            [.init(id: "archive", title: "语音档案…", action: { model.openArchive() }),
+             .init(id: "settings", title: "设置…", action: { model.openSettings() })],
+            [.init(id: "free", title: "自由记录", checked: !model.directMode, action: { model.setDirect(false) }),
+             .init(id: "direct", title: "直接输入", checked: model.directMode, action: { model.setDirect(true) }),
+             .init(id: "bind", title: "绑定当前草稿", action: { model.bindTarget() }),
+             .init(id: "insert", title: model.isInserting ? "正在插入…" : "插入当前文字", enabled: !model.isInserting && !transcript.isEmpty, action: { model.insertRecent() })]
+        ]
+        var last: [PanelCommand] = []
+        if model.panelHasMore {
+            last.append(.init(id: "earlier", title: model.loadingPanel ? "正在载入…" : "载入更早表达（已载入 \(model.recent.count) / \(model.panelCount) 段）", enabled: !model.loadingPanel, action: { model.loadEarlierPanel() }))
+        }
+        last.append(.init(id: "save", title: model.saveLabel, enabled: false))
+        last.append(.init(id: "clear", title: "清空输入板（保留档案）", enabled: !model.isInserting && !model.recent.isEmpty, action: { model.clearPanel(); latestRequest += 1 }))
+        if model.notice != nil, model.panelCaptureDetail == nil {
+            last.append(.init(id: "dismiss", title: "关闭提示", action: { model.notice = nil }))
+        }
+        last.append(.init(id: "hide", title: "收起输入板", action: { model.hidePanel() }))
+        groups.append(last)
+        return groups
+    }
+
+    @ViewBuilder private var panelActions: some View {
+        let groups = commandGroups
+        ForEach(groups.indices, id: \.self) { i in
+            if i != 0 { Divider() }
+            ForEach(groups[i]) { command in
+                if let action = command.action {
+                    Button(action: action) {
+                        if command.checked { Label(command.title, systemImage: "checkmark") }
+                        else { Text(command.title) }
+                    }.disabled(!command.enabled).accessibilityIdentifier(command.copyID)
+                } else { Text(command.title) }
+            }
+        }
+    }
+    private func fillContextMenu(_ menu: NSMenu) {
+        for (i, commands) in commandGroups.enumerated() {
+            if i != 0 { menu.addItem(.separator()) }
+            for command in commands {
+                let item: NSMenuItem
+                if let action = command.action {
+                    item = TranscriptMenuItem(title: command.title, identifier: "panel.menu." + command.id, action: action)
+                } else {
+                    item = NSMenuItem(title: command.title, action: nil, keyEquivalent: "")
+                }
+                item.isEnabled = command.enabled
+                item.state = command.checked ? .on : .off
+                menu.addItem(item)
+            }
+        }
+    }
+
 }
 
 struct TranscriptCard: View {

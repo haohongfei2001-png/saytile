@@ -1,4 +1,4 @@
-> 当前工程：PR #6 按用户续接截图修正为底部两个按钮、三个日常状态、VAD结束回待命；本轮实际验证及边界见[续接交付记录](V1-COMPACT-PANEL-RESUMPTION.md)。no-api.4为已验证的历史工程基线，旧顶部布局的测试不算新布局通过。[完整交付状态](V1-NO-API-DELIVERY.md)。
+> 当前工程：PR #6 按用户续接截图修正为底部两个按钮、三个日常状态、VAD结束回待命；本轮实际验证及边界见[续接交付记录](V1-COMPACT-PANEL-RESUMPTION.md)。no-api.4及no-api.5为已验证的历史工程基线，旧顶部布局的测试不算no-api.6新布局通过。[完整交付状态](V1-NO-API-DELIVERY.md)。
 
 > 当前为 V1 RC1，源码 `8906a9d`；最新状态见 [V1-DEV-STATUS.md](V1-DEV-STATUS.md)，验证边界见 [RC清单](V1-RC-ACCEPTANCE.md)。**以下是设计恢复阶段历史快照**，不是当前未完成事项；PR #1/#2 已合并。
 

@@ -141,6 +141,8 @@ final class AppModel: ObservableObject {
     private let preferences: UserDefaults
     private let connectionDependencies: AppConnectionDependencies
     private let captureDependencies: AppCaptureDependencies
+    private let copyPasteboard: NSPasteboard?
+    private var copyFeedback: Task<Void, Never>?
     @Published var recent: [DisplayRecording] = []
     @Published var records: [DisplayRecording] = []
     @Published var versions: [DisplayVersion] = []
@@ -232,10 +234,6 @@ final class AppModel: ObservableObject {
     private var recovered = false
     private var recoveryTask: Task<Void, Never>?
     private var panelSessionStartedAt = Date()
-    private var captureSessionStartedAt: Date?
-    private var latestCaptureIdentity: (id: UUID, createdAt: Date)?
-    @Published private(set) var currentCaptureRecording: Recording?
-    @Published private(set) var currentCaptureRecordingSettled = false
     private var stagedRecordIDs: Set<UUID> = []
     private struct DraftWrite: Equatable { let sequence: UInt64; let text: String }
     private var editorRecordingID: UUID?
@@ -252,11 +250,12 @@ final class AppModel: ObservableObject {
     var hasUnpersistedDrafts: Bool { !pendingDraftWrites.isEmpty }
 
     init(directory: URL, preferences: UserDefaults = .standard, connectionDependencies: AppConnectionDependencies = .live,
-         captureDependencies: AppCaptureDependencies = .live) throws {
+         captureDependencies: AppCaptureDependencies = .live, copyPasteboard: NSPasteboard? = nil) throws {
         self.directory = directory
         self.preferences = preferences
         self.connectionDependencies = connectionDependencies
         self.captureDependencies = captureDependencies
+        self.copyPasteboard = copyPasteboard
         store = try SaytileStore(directory: directory)
         var recognitionConfiguration = RecognitionConfiguration.load(from: preferences)
         let receipt = preferences.data(forKey: Self.connectionReceiptKey).flatMap { try? JSONDecoder().decode(CloudConnectionReport.self, from: $0) }
@@ -322,15 +321,6 @@ final class AppModel: ObservableObject {
     var captureActionSymbolName: String { panelCapturePresentation.actionSymbolName }
     var captureLabel: String { panelCaptureLabel }
     var captureProblem: Bool { if case .interrupted = captureDependencies.state(audio) { return true }; return false }
-    var panelActivityLabel: String? {
-        if case .speaking = captureDependencies.state(audio) { return "正在接收讲话" }
-        guard let current = currentCaptureRecording, !currentCaptureRecordingSettled else { return nil }
-        if current.isRecording { return "正在接收讲话" }
-        guard [.queued, .running].contains(current.recognitionState) else { return nil }
-        if let phase = recognitionPhases[current.id], [.textFusion, .audioReview, .finalASR].contains(phase) { return "正在修正" }
-        return "正在识别"
-    }
-
     var saveLabel: String { captureProblem ? "收音已暂停 · 请查看保存状态" : isListening ? "原音独立保存 · 识别不会阻塞收音" : "内容保存在此 Mac，随时可以取用" }
     var microphoneLabel: String {
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
@@ -340,7 +330,6 @@ final class AppModel: ObservableObject {
         }
     }
     var accessibilityLabel: String { input.hasPermission ? "已允许" : "尚未允许 · 可正常复制" }
-    @Published private(set) var recognitionPhases: [UUID: RecognitionPurpose] = [:]
     func recognitionPhaseLabel(for item: DisplayRecording) -> String {
         guard item.source.recognitionState == .running else { return item.stateLabel }
         return item.isRecording ? "正在记录" : "正在核对文字"
@@ -507,14 +496,14 @@ final class AppModel: ObservableObject {
         Task {
             await recoveryTask?.value
             guard recovered else { notice = "资料库恢复未完成，请先重新打开 Saytile。已有资料会保留。"; return }
-            if isListening { await captureDependencies.pause(audio) }
-            else {
-                // A new user-started capture session cannot inherit activity from
-                // archive recovery or a previous paused session's recognition queue.
-                captureSessionStartedAt = Date()
-                latestCaptureIdentity = nil; currentCaptureRecording = nil
-                currentCaptureRecordingSettled = false
-                hasStarted = true; await captureDependencies.start(audio)
+            let prior = captureDependencies.state(audio)
+            if prior.isRunning {
+                if prior == .listening || prior == .speaking { hasStarted = true }
+                await captureDependencies.pause(audio)
+            } else {
+                await captureDependencies.start(audio)
+                let result = captureDependencies.state(audio)
+                if result == .listening || result == .speaking { hasStarted = true }
             }
             objectWillChange.send()
             if let issue = audio.issue { notice = issue }
@@ -530,7 +519,20 @@ final class AppModel: ObservableObject {
             catch { notice = error.localizedDescription }
         }
     }
-    func copy(_ text: String) { input.copy(text); notice = "已复制，可以粘贴到任何应用。" }
+    func copy(_ text: String) {
+        guard !text.isEmpty else { return }
+        copyFeedback?.cancel()
+        if input.copy(text, to: copyPasteboard ?? .general) {
+            let success = "已复制，可以粘贴到任何应用。"
+            notice = success
+            copyFeedback = Task { [weak self] in
+                do { try await Task.sleep(for: .seconds(2)) } catch { return }
+                if self?.notice == success { self?.notice = nil }
+            }
+        } else {
+            notice = "未能写入剪贴板，请再试一次。"
+        }
+    }
     var panelScopeLabel: String { panelHasMore ? "已载入 \(recent.count) / \(panelCount) 段" : "输入板 \(recent.count) 段" }
     func copyRecent() { copy(recent.map(\.text).filter { !$0.isEmpty }.joined(separator: "\n")) }
     func loadEarlierPanel() {
@@ -796,30 +798,6 @@ final class AppModel: ObservableObject {
         }
     }
     func initialLoad() async { await refresh() }
-    private func refreshCurrentCaptureRecording() async throws {
-        guard let start = captureSessionStartedAt else { return }
-        // This query follows capture chronology, not panel visibility, archive
-        // filters or explicitly reused records. One row keeps background work bounded.
-        let latest = try await store.listPanelRecordings(createdSince: start, includingIDs: [], limit: 1).first
-        guard start == captureSessionStartedAt else { return }
-        guard let latest else { currentCaptureRecording = nil; currentCaptureRecordingSettled = true; return }
-        if let previous = latestCaptureIdentity {
-            guard latest.id == previous.id || latest.createdAt > previous.createdAt else {
-                currentCaptureRecording = nil; currentCaptureRecordingSettled = true; return
-            }
-        }
-        if latest.id != latestCaptureIdentity?.id {
-            latestCaptureIdentity = (latest.id, latest.createdAt)
-            currentCaptureRecordingSettled = false
-        }
-        // Terminal current work stays quiet if the user later re-recognizes this
-        // archived audio. A new captured record is the only way to advance the scope.
-        if !latest.isRecording, [.completed, .failed, .cancelled].contains(latest.recognitionState) {
-            currentCaptureRecordingSettled = true
-        }
-        if currentCaptureRecording != latest { currentCaptureRecording = latest }
-    }
-
     private func performRefresh() async {
         refreshReadPasses &+= 1
         let requestedQuery = query, requestedFilter = recordFilter, requestedLimit = pageLimit
@@ -866,10 +844,7 @@ final class AppModel: ObservableObject {
             storageLabel = ByteCountFormatter.string(fromByteCount: summary.audioBytes, countStyle: .file)
             if summary.shouldWarn { notice = "原音空间已达到提醒阈值，或磁盘剩余不足 1 GB。请在设置中查看存储。" }
             }
-            try await refreshCurrentCaptureRecording()
-            let visibleIDs = Set(records.map(\.id) + recent.map(\.id) + [currentCaptureRecording?.id].compactMap { $0 })
-            let currentPhases = try await store.activeRecognitionPhases(recordingIDs: Array(visibleIDs))
-            if recognitionPhases != currentPhases { recognitionPhases = currentPhases }
+            let visibleIDs = Set(records.map(\.id) + recent.map(\.id))
             insertionLabels = insertionLabels.filter { visibleIDs.contains($0.key) }
             if directMode && !isInserting, let binding = input.binding {
                 for correction in try await store.ownedCorrectionCandidates(bindingID: binding.id) {

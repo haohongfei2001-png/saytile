@@ -226,8 +226,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             entryObserver = NotificationCenter.default.addObserver(forName: .init("SaytileFloatingEntryChanged"), object: nil, queue: .main) { [weak self] _ in
                 Task { @MainActor in self?.updateFloatingEntry() }
             }
-            statusSubscription = model.audio.$state.combineLatest(model.$hasStarted,
-                model.$currentCaptureRecording, model.$currentCaptureRecordingSettled).sink { [weak self] _ in
+            statusSubscription = model.audio.$state.combineLatest(model.$hasStarted).sink { [weak self] _ in
                 // Published values emit before assignment. Read the derived
                 // product state on the next main-actor turn, not a polling timer.
                 Task { @MainActor in self?.updateStatus() }
@@ -357,7 +356,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc private func statusClicked() {
         if NSApp.currentEvent?.type == .rightMouseUp {
             let menu = NSMenu()
-            let state = NSMenuItem(title: model?.panelCaptureLabel ?? "未开启", action: nil, keyEquivalent: "")
+            let state = NSMenuItem(title: model?.panelCaptureLabel ?? "暂停", action: nil, keyEquivalent: "")
             state.isEnabled = false; menu.addItem(state)
             if let detail = model?.panelCaptureDetail {
                 let reason = NSMenuItem(title: detail, action: nil, keyEquivalent: "")

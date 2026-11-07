@@ -237,8 +237,12 @@ public final class NativeInputCoordinator {
     }
 
     public func copy(_ text: String) {
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(text, forType: .string)
+        copy(text, to: .general)
+    }
+
+    @discardableResult public func copy(_ text: String, to pasteboard: NSPasteboard) -> Bool {
+        pasteboard.clearContents()
+        return pasteboard.setString(text, forType: .string)
     }
 
     /// Explicit manual reuse still requires an existing live target. It never activates another app.

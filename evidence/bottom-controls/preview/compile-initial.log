@@ -1,0 +1,89 @@
+Building for debugging...
+[Planning deferred tasks]
+[41 / 104]
+[52 / 114]
+[68 / 114] CAudio
+[79 / 115] CAudio
+[89 / 115] CAudio
+[94 / 115]
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[100 / 115] SaytileKit
+[107 / 254]
+[112 / 254]
+[119 / 254]
+[124 / 254]
+[126 / 254]
+[128 / 254]
+[133 / 254]
+[135 / 254]
+[137 / 254]
+[140 / 254]
+[145 / 254]
+[147 / 254]
+[150 / 254]
+[151 / 254]
+[156 / 254]
+[162 / 254]
+[166 / 254]
+[168 / 254]
+[171 / 254]
+[175 / 254]
+[177 / 254]
+[178 / 254]
+[185 / 254]
+[187 / 254]
+[191 / 254]
+[192 / 254]
+[194 / 254]
+[197 / 254]
+[198 / 254]
+[199 / 254]
+[206 / 254]
+[208 / 254]
+[212 / 254]
+[216 / 254]
+[217 / 254]
+[222 / 254]
+[225 / 254]
+[226 / 254]
+[227 / 254]
+[228 / 254]
+[233 / 254] SaytileKit
+[235 / 254] SaytileKit
+[241 / 254] SaytileKit
+[244 / 254] SaytileKit
+[245 / 254] SaytileKit
+[245 / 254] Saytile-product
+[248 / 255] Saytile-product
+[251 / 268] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[253 / 268]
+[258 / 268] Saytile-product
+error: SwiftCompile normal arm64 /Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/Views.swift failed with a nonzero exit code. Command line:     cd /Users/hhf/.codex/worktrees
+    builtin-SwiftPerFileCompile Views.swift
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/Views.swift:120:53: error: converting non-Sendable function value to '@MainActor @Sendable () -> Void' may introduce data races
+118 |         command("回到最新", "latest", enabled: !followsLatest) { latestRequest += 1 }
+119 |         menu.addItem(.separator())
+120 |         command("语音档案…", "archive", model.openArchive)
+    |                                           `- error: converting non-Sendable function value to '@MainActor @Sendable () -> Void' may introduce data races
+121 |         command("设置…", "settings", model.openSettings)
+122 |         menu.addItem(.separator())
+
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/Views.swift:121:48: error: converting non-Sendable function value to '@MainActor @Sendable () -> Void' may introduce data races
+119 |         menu.addItem(.separator())
+120 |         command("语音档案…", "archive", model.openArchive)
+121 |         command("设置…", "settings", model.openSettings)
+    |                                          `- error: converting non-Sendable function value to '@MainActor @Sendable () -> Void' may introduce data races
+122 |         menu.addItem(.separator())
+123 |         command("自由记录", "free", checked: !model.directMode) { model.setDirect(false) }
+
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/Views.swift:136:50: error: converting non-Sendable function value to '@MainActor @Sendable () -> Void' may introduce data races
+134 |             model.clearPanel(); latestRequest += 1
+135 |         }
+136 |         command("收起输入板", "hide", model.hidePanel)
+    |                                        `- error: converting non-Sendable function value to '@MainActor @Sendable () -> Void' may introduce data races
+137 |     }
+138 | 
+Failed frontend command:
+/Library/Developer/CommandLineTools/usr/bin/swift-frontend -frontend -c /Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/AppModel.swift /Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/CompactTranscriptView.swift /Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/ConnectionSetupView.swift /Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/RecognitionSettingsView.swift /Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/SaytileApp.swift /Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/Theme.swift /Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/UIReview.swift -primary-file /Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/Views.swift /Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/VoiceEntryView.swift -emit-dependencies-path /tmp/saytile-bottom-preview-build/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/Views.d -emit-const-values-path /tmp/saytile-bottom-preview-build/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/Views.swiftconstvalues -emit-reference-dependencies-path /tmp/saytile-bottom-preview-build/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/Views.swiftdeps -serialize-diagnostics-path /tmp/saytile-bottom-preview-build/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/Views.dia -target arm64-apple-macos26.0 -disable-cross-import-overlay-search -swift-module-cross-import Darwin /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/usr/include/Darwin.swiftcrossimport/xlocale.swiftoverlay -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libObservationMacros.dylib\#\#ObservationMacros -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#\#SwiftMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /tmp/saytile-bottom-preview-build/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/SaytileApp-dependencies-1.json -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk -I /tmp/saytile-bottom-preview-build/out/Products/Debug -Isystem /Library/Developer/CommandLineTools/Developer/usr/lib -F /tmp/saytile-bottom-preview-build/out/Products/Debug/PackageFrameworks -F /tmp/saytile-bottom-preview-build/out/Products/Debug -F /Library/Developer/CommandLineTools/Library/Developer/Frameworks -F /Library/Developer/CommandLineTools/Developer/Library/Frameworks -module-cache-path /tmp/saytile-bottom-preview-build/out/Intermediates.noindex/SwiftExplicitPrecompiledModules -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=5 -swift-version 6 -Onone -D SWIFT_PACKAGE -D DEBUG -D Xcode -serialize-debugging-options -enable-experimental-feature DebugDescriptionMacro -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /tmp/saytile-bottom-preview-build/out/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/hhf/.codex/worktrees -enable-anonymous-context-mangled-names -file-compilation-dir /Users/hhf/.codex/worktrees -Xcc -fmodule-map-file\=/tmp/saytile-bottom-preview-build/out/Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap -Xcc -fmodule-map-file\=/Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/CSQLite/module.modulemap -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /tmp/saytile-bottom-preview-build/out/SDKStatCaches.noindex/macosx27.0-26A425-a0facfad118c1a7a18f0aad9463f6549ffd68ff603bdaacc80b00cb8898de72d.sdkstatcache -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -Xcc -I/Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/CAudio/include -Xcc -I/tmp/saytile-bottom-preview-build/out/Products/Debug/include -Xcc -I/tmp/saytile-bottom-preview-build/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/DerivedSources-normal/arm64 -Xcc -I/tmp/saytile-bottom-preview-build/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/DerivedSources/arm64 -Xcc -I/tmp/saytile-bottom-preview-build/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -no-auto-bridging-header-chaining -module-name SaytileApp -package-name saytile_bottom_controls -const-gather-protocols-file /tmp/saytile-bottom-preview-build/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/Saytile_const_extract_protocols.json -disable-clang-spi -clang-target arm64-apple-macos27.0 -target-sdk-version 27.0 -target-sdk-name macosx27.0 -in-process-plugin-server-path /Library/Developer/CommandLineTools/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -parse-as-library -o /tmp/saytile-bottom-preview-build/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/Views.o -debug-module-path /tmp/saytile-bottom-preview-build/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/SaytileApp.swiftmodule -index-unit-output-path /Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/Views.o -index-store-path /tmp/saytile-bottom-preview-build/out -index-system-modules
+error: Build failed

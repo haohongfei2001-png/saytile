@@ -1,3 +1,7 @@
+> **冻结前预览**：真实 Mac App 37 张截图、45 个 AXPress、10 次菜单选择、11 次底部双控件检查通过；AppModel 104 项、生产采集 VAD 与受控延迟定稿专项通过。原生操作确实执行，无前台激活；采集界面依赖注入，未使用麦克风或真实服务商。两个预览中的误判均在[预览证据](../evidence/bottom-controls/preview/)保留。最终同 SHA 结果单列。
+
+> **底部面板接续 · 2026-11-07：** 底部控件的预检：真实独立 AppKit 文本窗口使用 AXShowMenu / AXPress 打开并选择菜单；生产 AppModel 到独立 NSPasteboard 的两种 Unicode 复制逐 UTF-16 相同，均未启动或暂停采集。见[原生菜单](../evidence/bottom-controls/context-menu-preflight/)及[独立粘贴板](../evidence/bottom-controls/copy-preflight/)。仅属于工程预检，非最终候选包验收。
+
 > PR #6 当前：4df87ad4基线的完整本机原生391函数/511场景、97 AppModel、50 localhost网络case、安装8+2及1800.54秒逐帧保存均通过；全部28,800,000帧与参考相同。此证据不能充作新版底部控件/三态验收。 [已闭合的4df工程基线](../evidence/no-api-product/final-no-api5-r2/BASELINE.md)。
 
 # 当前分层结果 · 2026-11-07

@@ -1,0 +1,56 @@
+Building for debugging...
+[Pre-planning 1 / 184]
+[Planning deferred tasks]
+[18 / 46] SaytileKit
+[29 / 57] SaytileKit
+[36 / 58] SaytileKit
+[44 / 70] SaytileKitTests-product
+[45 / 85]
+[48 / 85]
+[58 / 85] SaytileKitTests-product
+[59 / 85] SaytileKitTests-product
+[60 / 85]
+[65 / 85] SaytileKitTests-product
+[67 / 85] Saytile-product
+[68 / 85] Saytile-product
+[70 / 85] SaytileKitTests-product
+[74 / 85] Saytile-product
+[75 / 85] SaytileKitTests-product
+[75 / 85] Saytile-product
+[75 / 85] SaytileKitTests-product
+[75 / 85] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Sources/SaytileApp/AppModel.swift:468:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+460 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+461 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+462 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+463 |             // A cancelled older check must fully close its sockets before another starts.
+464 |             await previous?.value
+    :
+466 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+467 |             do {
+468 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+469 |                     Task { @MainActor [weak self] in
+470 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[77 / 85] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[79 / 85] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-bottom-controls/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[81 / 85] SaytileKitTests-product
+Build complete! (15.24秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Capture VAD activity during independent recognition finalization" started.
+◇ Test speechEndsAndRestartsWhileFirstExpertFinalsAreHeld() started.
+VAD_FINALIZATION first_wav_frames=49920 first_eos_held=2 quiet_before_final=true next_speech_before_final=true old_final_on_original_id=true new_speech_active=true
+✔ Test speechEndsAndRestartsWhileFirstExpertFinalsAreHeld() passed after 1.023 seconds.
+✔ Suite "Capture VAD activity during independent recognition finalization" passed after 1.023 seconds.
+✔ Test run with 1 test in 1 suite passed after 1.023 seconds.

@@ -2,13 +2,17 @@
 
 > **2026-11-07 最新 UI 续接**：底部左复制、右语音两个常驻按钮；暂停/待命/正在识别三个日常状态；VAD确认讲话结束就回待命，不等待识别定稿。具体修改、当前CI与截图核验见 [续接交付记录](V1-COMPACT-PANEL-RESUMPTION.md)。下文冻结源码的测试与截图是其各自版本的历史证据，不等同于最新布局验收。
 
-当前正式工程仍为 **PR #6**。`1.0.0-rc.2-no-api.4` 的冻结工程基线已完成本机全套验证；随后收到的唯一批准界面及单按钮精修正在 `no-api.5` 接续。**当前整体尚未授予 `NO_API_ENGINEERING_READY`，真实云端为 `LIVE_CONNECTION_PENDING`。** 不授予 LIVE_PROTOCOL_VERIFIED、LIVE_TRANSCRIPTION_VERIFIED、QUALITY_VERIFIED 或 PRODUCTION_READY。
+当前正式工程为 **PR #6**；新候选版本为 **1.0.0-rc.2-no-api.6**。现有稳定 RC1、生产 main 和用户资料保持不变。真实云端为 `LIVE_CONNECTION_PENDING`。无凭据条件下不能计算双专家＋GPT 相对最强单模型的准确率增益或附加确认延迟。
 
-## 当前收口状态
+## 当前候选
 
-新界面首次冻结 `702a24b9767826275f650c70f7e118365601a2a8`。原生控件36图/45次AXPress、选区/手动阅读、原音/档案、实际安装升级/回退均通过。391项本机Swift测试有一项静音回听进度固定时刻取样失败；单次受控实验验证实际播放器随后发布正进度。保留[该次包及原始证据](../evidence/no-api-product/final-no-api5/HOLD.md)，另以修正后的真实事件断言冻结最终整合源码。CI通过不代替该本机问题。
+研发在上游底部控件实现 `9d2d2346` 及其 [CI 原生截图](../evidence/approved-ui/bottom-controls-20261107/README.md) 上继续。两个入口共用一套上下文命令；实际采集状态由本段 VAD 决定。当前 Mac 的[分层结果](../evidence/bottom-controls/README.md)区分开发预检、实际系统操作和冻结候选，不能混用。
 
-## 已完成的冻结工程基线
+## 历史版本
+
+旧顶部布局的最后一次完整工程基线为 `4df87ad4` / no-api.5；[源码、长跑、UI 和历史 DMG 证据](../evidence/no-api-product/final-no-api5-r2/BASELINE.md)。此前 `702a24b9` 因一个定时器取样的回听断言在本机失败而保留；见[原次记录](../evidence/no-api-product/final-no-api5/HOLD.md)。这些结果不转记为底部面板的验收。
+
+## 更早的 no-api.4 工程基线
 
 源码 **`1067f1ad5c5c29c698f346651c965db2169625eb`**，tree `1c59b5e95f92dd34b19d4fb390549724071114a6`。以下结果全部来自该源码，不能当作后续新界面的最终验证；[完整身份与分层证据](../evidence/no-api-product/final-no-api4-r2/delivery-manifest.json)、[独立审查](../evidence/no-api-product/final-no-api4-r2/DELIVERY-AUDIT.md)。
 
