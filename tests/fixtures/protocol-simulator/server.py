@@ -167,7 +167,8 @@ def response_object(identifier, manifest):
     resolved = bool(candidates) and all(c.get("isComplete") for c in candidates) and len({c["text"] for c in candidates}) == 1
     selection = [{"candidateID": selected["candidateID"], "utf16Start": 0, "utf16End": utf16_length(selected["text"])}] if selected and selected["text"] else []
     decision = {"selections": selection, "unresolved": not resolved, "needsAudioReview": False, "reasonCode": "protocol-fixture-evidence"}
-    return {"id": identifier, "model": MODEL, "status": "completed", "output": [{"type": "message", "status": "completed", "content": [{"type": "output_text", "text": json.dumps(decision, ensure_ascii=False)}]}], "usage": {"input_tokens": len(candidates) * 10, "output_tokens": 12}}
+    return {"id": identifier, "model": MODEL, "status": "completed", "output": [{"type": "message", "status": "completed", "content": [{"type": "output_text", "text": json.dumps(decision, ensure_ascii=False)}]}], "usage": {"input_tokens": len(candidates) * 10, "output_tokens": 12,
+        "input_tokens_details": {"cached_tokens": 3}, "output_tokens_details": {"reasoning_tokens": 5}}}
 
 
 def streamed_failure(fault, identifier):

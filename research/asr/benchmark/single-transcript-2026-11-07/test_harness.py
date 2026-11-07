@@ -13,7 +13,7 @@ import harness as h
 def specimen():
     spec = h.configurations()[0]
     item = {'id': 'synthetic-unit-only', 'reference': '不要 delete 10 kg', 'audio_sha256': 'a' * 64,
-            'frames': 32000, 'sample_rate': 16000, 'language': 'mixed', 'group': 'unit-test',
+            'frames': 160000, 'sample_rate': 16000, 'language': 'mixed', 'group': 'unit-test',
             'critical': [{'type': 'negation', 'text': '不要'}, {'type': 'number', 'text': '10'},
                          {'type': 'term', 'text': 'delete'}, {'type': 'unit', 'text': 'kg'}]}
     config = h.config_template(spec)
@@ -30,14 +30,15 @@ def specimen():
     raw_run, gpt_run = ticket(config['models'][0], 'raw-run'), ticket(config['models'][1], 'gpt-run')
     text = '不要 delete 100 kg'  # Deliberately wrong, never the gold by construction.
     candidate = {'id': 'candidate', 'run': raw_run, 'sequence': 1, 'text': text,
-                 'isComplete': True, 'audioStartSeconds': 0, 'audioEndSeconds': 2, 'createdAt': 3100}
+                 'isComplete': True, 'audioStartSeconds': 0, 'audioEndSeconds': 8, 'createdAt': 3100}
     trace = {'schemaVersion': 2, 'sourceRevision': 'c' * 40, 'timestampEncoding': 'unix-epoch-milliseconds',
-        'source': {'fixtureID': item['id'], 'audioSHA256': item['audio_sha256'], 'sampleRate': 16000, 'frameCount': 32000},
+        'source': {'fixtureID': item['id'], 'audioSHA256': item['audio_sha256'], 'sampleRate': 16000, 'frameCount': 160000},
         'configuration': config,
-        'configurationIdentity': {'sha256': 'b' * 64, 'evaluationMode': 'single-expert-baseline'},
+        'configurationIdentity': {'sha256': 'b' * 64, 'evaluationMode': 'single-asr-plus-gpt6'},
         'recording': {'id': 'recording'},
         'replay': {'recognitionID': 'generation', 'replayStartedAt': 1000, 'firstAudioSubmittedAt': 1020,
-                   'lastAudioSubmittedAt': 3000, 'sessionEndedAt': 3500},
+                   'lastAudioSubmittedAt': 3000, 'sessionEndedAt': 3500,
+                   'framesSubmitted': 160000, 'inputEOF': True, 'inputEOFAt': 3000},
         'candidates': [candidate], 'revisions': [{'id': 'final', 'origin': 'final', 'text': text}],
         'finalization': {'recognitionID': 'generation', 'state': 'completed', 'resolved': True,
                          'selectedRevisionID': 'final', 'selectedText': text, 'completedAt': 3400},
@@ -57,10 +58,39 @@ def scored(trace=None):
     return h.enrich(h.validate_trace(spec, item, trace, 'c' * 40, trace['configuration']), trace, item)
 
 
+class CompletenessContractTests(unittest.TestCase):
+    def test_full_pcm_with_two_seconds_trailing_silence_is_complete(self):
+        _, item, trace = specimen()
+        candidate = trace['candidates'][0]
+        self.assertEqual(item['frames'] / item['sample_rate'], 10)
+        self.assertEqual(candidate['audioEndSeconds'], 8)
+        self.assertTrue(h.complete(candidate, item, trace['replay'], 'completed'))
+
+    def test_half_second_tail_silence_and_millisecond_rounding_are_valid(self):
+        _, item, trace = specimen()
+        candidate = copy.deepcopy(trace['candidates'][0])
+        candidate['audioEndSeconds'] = 9.4999
+        self.assertTrue(h.complete(candidate, item, trace['replay'], 'completed'))
+
+    def test_missing_pcm_eof_or_provider_terminal_never_counts_complete(self):
+        _, item, trace = specimen()
+        candidate = trace['candidates'][0]
+        replay = copy.deepcopy(trace['replay'])
+        replay['framesSubmitted'] -= 1
+        self.assertFalse(h.complete(candidate, item, replay, 'completed'))
+        replay = copy.deepcopy(trace['replay']); replay['inputEOF'] = False
+        self.assertFalse(h.complete(candidate, item, replay, 'completed'))
+        self.assertFalse(h.complete(candidate, item, trace['replay'], 'running'))
+
+    def test_eof_and_session_clock_order_is_required(self):
+        _, item, trace = specimen()
+        replay = copy.deepcopy(trace['replay']); replay['inputEOFAt'] = 3600
+        self.assertFalse(h.complete(trace['candidates'][0], item, replay, 'completed'))
+
+
 class PreparationTests(unittest.TestCase):
     def test_shapes_same_core_and_original_uuids(self):
-        shapes = ['chineseASR', 'englishASR', 'chineseASR englishASR', 'multilingualASR',
-                  'chineseASR englishASR multilingualASR']
+        shapes = ['chineseASR', 'englishASR', 'multilingualASR']
         cores = []
         for spec, shape in zip(h.configurations(), shapes):
             template = h.config_template(spec)
@@ -85,7 +115,7 @@ class PreparationTests(unittest.TestCase):
     def test_prepare_no_authorization_no_gold_no_execution(self):
         with tempfile.TemporaryDirectory(dir=h.HERE) as directory, patch.object(h.subprocess, 'check_output', side_effect=AssertionError('No invocation')):
             plan = h.prepare(directory, '${NATIVE_APP}')
-            self.assertEqual(len(plan['commands']), 120)
+            self.assertEqual(len(plan['commands']), 72)
             self.assertEqual(plan['F']['status'], 'NOT_AVAILABLE')
             for path in (Path(directory) / 'configurations').glob('*.json'):
                 config = json.loads(path.read_text())
@@ -101,7 +131,7 @@ class PreparationTests(unittest.TestCase):
                 self.assertNotIn(items[ident]['reference'], json.dumps(commands, ensure_ascii=False))
             for command in plan['commands']:
                 self.assertFalse(command['execution_authorized'])
-                self.assertEqual('--single-expert-baseline' in command['argv'], command['configuration_id'] in 'ABD')
+                self.assertNotIn('--single-expert-baseline', command['argv'])
 
     def test_changed_preparation_not_overwritten(self):
         with tempfile.TemporaryDirectory(dir=h.HERE) as directory:
@@ -128,7 +158,7 @@ class PreparationTests(unittest.TestCase):
 class ScoringTests(unittest.TestCase):
     def test_not_run_is_null_not_perfect_score(self):
         report = h.score()
-        self.assertEqual(len(report['rows']), 120)
+        self.assertEqual(len(report['rows']), 72)
         for config in report['configurations'].values():
             self.assertEqual(config['summary']['observed_utterances'], 0)
             for stage in config['summary']['stages'].values():

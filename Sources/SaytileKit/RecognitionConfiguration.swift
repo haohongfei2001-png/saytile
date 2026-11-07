@@ -1,11 +1,66 @@
 import Foundation
 
+
+public enum LanguagePreference: String, Codable, Sendable, CaseIterable {
+    case auto, chinese, english, chineseEnglishMixed
+    public var label: String {
+        switch self { case .auto: "自动"; case .chinese: "中文"; case .english: "English"; case .chineseEnglishMixed: "中英混说" }
+    }
+}
+
+/// Small persisted usage profile. Provider language tags are observations, not user text.
+public enum LanguageProfile {
+    private static let historyKey = "saytile.language-profile.v1"
+    public static func record(_ tag: String, defaults: UserDefaults = .standard) {
+        let normalized = normalize(tag)
+        guard normalized != "unknown" else { return }
+        var values = defaults.stringArray(forKey: historyKey) ?? []
+        values.append(normalized); defaults.set(Array(values.suffix(20)), forKey: historyKey)
+    }
+    public static func resolve(_ preference: LanguagePreference, locale: Locale = .current) -> LanguagePreference {
+        resolve(preference, locale: locale, history: UserDefaults.standard.stringArray(forKey: historyKey) ?? [])
+    }
+    static func resolve(_ preference: LanguagePreference, locale: Locale, history: [String]) -> LanguagePreference {
+        if preference != .auto { return preference }
+        let observed = history.suffix(12).map(normalize)
+        let zh = observed.filter { $0 == "zh" }.count
+        let en = observed.filter { $0 == "en" }.count
+        let mixed = observed.filter { $0 == "mixed" }.count
+        if mixed >= 2 || zh >= 3 && en >= 3 && Double(min(zh, en)) / Double(max(zh, en)) >= 0.35 { return .chineseEnglishMixed }
+        if zh >= 3 && zh > en { return .chinese }
+        if en >= 3 && en > zh { return .english }
+        // Locale is a weak first-run prior; observed usage takes precedence above.
+        let code = locale.language.languageCode?.identifier.lowercased() ?? ""
+        if code == "zh" { return .chinese }
+        if code == "en" { return .english }
+        return .auto
+    }
+    private static func normalize(_ tag: String) -> String {
+        let value = tag.lowercased()
+        if value.contains("mixed") || value.contains("code-switch") { return "mixed" }
+        if value.hasPrefix("zh") || value.contains("chinese") { return "zh" }
+        if value.hasPrefix("en") || value.contains("english") { return "en" }
+        return "unknown"
+    }
+}
+
+public enum ASRModelRegistry {
+    public static func purpose(for preference: LanguagePreference) -> RecognitionPurpose? {
+        switch preference { case .chinese: .chineseASR; case .english: .englishASR
+        case .chineseEnglishMixed: .multilingualASR; case .auto: nil }
+    }
+    public static func provider(for preference: LanguagePreference) -> CloudProvider? {
+        switch preference { case .chinese: .qwenMessage; case .english: .assemblyAI
+        case .chineseEnglishMixed: .soniox; case .auto: nil }
+    }
+}
+
 public enum RecognitionPurpose: String, Codable, Sendable, CaseIterable {
     case chineseASR, englishASR, multilingualASR, textFusion, audioReview, finalASR
     public var label: String {
         switch self {
-        case .chineseASR: "音频专家 A"; case .englishASR: "音频专家 B"; case .multilingualASR: "可选音频专家"
-        case .textFusion: "AI 精确融合"; case .audioReview: "疑难原音复听"; case .finalASR: "高精度定稿"
+        case .chineseASR: "中文识别"; case .englishASR: "English recognition"; case .multilingualASR: "中英混说识别"
+        case .textFusion: "GPT-6 AI 核心"; case .audioReview: "疑难原音复听"; case .finalASR: "高精度定稿"
         }
     }
     public var isStreaming: Bool { [.chineseASR, .englishASR, .multilingualASR].contains(self) }
@@ -112,14 +167,34 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
     public var cloudEnabled = false
     public var inputMode: InputQualityMode = .highestQuality
     public var models: [ModelConfiguration] = []
+    public var languagePreference: LanguagePreference? = .auto
     /// Session context is deliberately local and explicit; no background document scraping.
     public var topicContext = ""
     public var automaticRecovery = true
     public init() { models = Self.recommendedModels }
     public var enabledModels: [ModelConfiguration] { models.filter(\.enabled) }
-    public func validateForCloud(allowSingleExpertBaseline: Bool = false) throws {
+    public var resolvedLanguage: LanguagePreference { LanguageProfile.resolve(languagePreference ?? .auto) }
+    public var selectedASRModel: ModelConfiguration? {
+        guard let provider = ASRModelRegistry.provider(for: resolvedLanguage),
+              let purpose = ASRModelRegistry.purpose(for: resolvedLanguage) else { return nil }
+        return models.first { $0.provider == provider && $0.purpose == purpose }
+    }
+    public var activeModels: [ModelConfiguration] {
+        enabledModels.filter { $0.purpose == .textFusion } + (selectedASRModel.map { [$0] } ?? [])
+    }
+    public func resolvedForCurrentLanguage() throws -> Self {
+        guard let selectedASRModel else { throw ProviderFailure.configuration("自动语言尚未形成可靠选择；当前录音使用 Apple 本地识别，原音保留。") }
+        var value = self
+        value.models = models.map { item in
+            var copy = item
+            if copy.purpose.isStreaming { copy.enabled = copy.id == selectedASRModel.id }
+            return copy
+        }
+        return value
+    }
+    public func validateForCloud() throws {
         guard cloudEnabled else { return }
-        let active = enabledModels
+        let active = activeModels
         guard Set(active.map(\.id)).count == active.count else {
             throw ProviderFailure.configuration("模型配置身份重复，请为每项配置使用独立身份。")
         }
@@ -127,23 +202,13 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
         let fusion = active.filter { $0.purpose == .textFusion }
         let unsupported = active.filter { !$0.purpose.isStreaming && $0.purpose != .textFusion }
         guard unsupported.isEmpty else {
-            throw ProviderFailure.configuration("V1 仅启用双语音频专家与一个 GPT-6 融合核心；独立音频复听/文件定稿不属于默认识别链。")
+            throw ProviderFailure.configuration("V1 仅启用一个语言 ASR 专家与唯一 GPT-6 AI 核心；独立音频复听/文件定稿不属于默认识别链。")
         }
         guard fusion.count == 1, fusion[0].provider == .openAIResponses, fusion[0].model == "gpt-6-astra" else {
             throw ProviderFailure.configuration("必须且只能配置一个 GPT-6 Astra 文本融合核心。")
         }
-        if allowSingleExpertBaseline {
-            guard experts.count == 1, experts[0].purpose.isStreaming else {
-                throw ProviderFailure.configuration("单专家对照必须恰好启用一个实时 ASR（包括多语言模型），并保留唯一 GPT-6 核心。")
-            }
-        } else {
-            guard experts.count >= 2, experts.count <= 3,
-                  experts.filter({ $0.purpose == .chineseASR }).count == 1,
-                  experts.filter({ $0.purpose == .englishASR }).count >= 1,
-                  experts.filter({ $0.purpose == .englishASR }).count <= 2,
-                  experts.filter({ $0.purpose == .multilingualASR }).count <= 1 else {
-                throw ProviderFailure.configuration("默认方案需要一位中文专家、一位英文专家；最多额外增加一位挑战模型。")
-            }
+        guard experts.count == 1, experts[0].purpose.isStreaming else {
+            throw ProviderFailure.configuration("每段录音必须且只能选择一个语言 ASR 专家，并保留唯一 GPT-6 AI 核心。")
         }
         for item in active {
             try item.validate()
@@ -173,6 +238,7 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
         // Migrate the former multi-arbiter/audio-review defaults without deleting Keychain
         // items. Preserve the stable GPT-6 configuration ID so an existing Key remains usable.
         config.inputMode = .highestQuality
+        if config.languagePreference == nil { config.languagePreference = .auto }
         for index in config.models.indices where [.audioReview, .finalASR].contains(config.models[index].purpose) {
             config.models[index].enabled = false
             config.models[index].cloudConsent = false

@@ -13,9 +13,9 @@
 11. 原型、Python 参考模型、Swift 接口、原生 App 是不同交付层。不能用 DOM/SQLite/编译成功替代真实 macOS 验收。
 12. 用户已同意本次资料进入现有公开仓库，不再把 Private 设置当阻断；仍不得提交凭证、个人录音、浏览器资料或私密环境变量。
 13. 本轮 V1 设计恢复已推送至公开仓库的 recovery/v1-design-20261106 分支，并创建 PR #1。新工作先核对远端 PR 和 CI，不重复创建恢复 PR，也不覆盖 main。
-14. 2026-11-06 最新用户指令覆盖旧研究的单引擎限制：最高质量中英文并行识别、候选隔离、证据约束 AI 融合、BYOK 属于本次 V1 识别升级。`c9eac9b` 的唯一 Soniox 裁决为历史方案；以 `research/asr/REVISION-2026-11-06.md` 及本轮更新的裁决为准。不要把旧文档的“不做多引擎”当现行限制，也不要宣称未经真实云测的准确率收益。
+14. 历史双 ASR 并行方案已由 2026-11-07 用户决定正式废止；只保留为审计证据，不得继续作为实现/实验默认。
 
-15. 2026-11-07最新用户决定优先：双平等完整音频专家+唯一GPT-6核心、单份忠实文字流；无主模型/语言预切/润色/多AI默认链。外部已派发内容只在精确所有权及未被用户修改证明下可局部修正，否则pending。看 research/architecture/FINAL-ARCHITECTURE.md；旧配置及候选身份不得静默换Key或授权。
+15. **2026-11-07 最新架构（最高优先级）**：One ASR Expert + One GPT-6 AI Core + SingleTranscriptEngine。每个 recordingID/audioEpoch 只选一个 ASR；Auto/中文/English/中英混说由 LanguageProfile/Registry 决定。Qwen 中文、AssemblyAI 英文、Soniox 混说只是待真实对照候选，不宣称最优。Apple SpeechAnalyzer 仅本地/故障接替。GPT-6 只处理文字候选，不能声称听过原音；不翻译、润色、总结或无证据补词。原音持久化、Keychain、SQLite、UTF-16 输入账本和用户修改保护不重写。见 research/architecture/FINAL-ARCHITECTURE.md、research/asr/DECISION.md。配置变化只作用于下一段，不得中途并发或切换 ASR。
 
 16. **2026-11-07 唯一批准 UI 目标（最高优先级）**：唯一规范是 `docs/SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md`。紫蓝玻璃视觉继承用户选定的 `Saytile语音输入工作台概念界面.png`（原记录2026-11-06 23:05 UTC）；最新续接截图 `IMG_4388.jpeg` 对控件和状态的修订以第19条为准。主面板无 Logo/字标/产品名，只有一份连续文字；底部左复制、右语音胶囊。编辑与其他能力通过上下文菜单或现有应用入口保留，不增加常驻按钮。右侧暂停/待命/正在识别三张小面板是状态示例，不是同时常驻的窗口。截图右下圆形分享箭头属于ChatGPT外部操作层，不是产品控件。
 17. **已舍弃的视觉方案**：PR #7 `brand/identity-exploration-20261107` 的 Sentence Fold、珊瑚橙/瓷白配色、Logo/App Icon/字标/菜单栏图形和品牌展示页均为 `SUPERSEDED / NOT APPROVED`；PR #7 已关闭，不得 cherry-pick、合并或复用。PR #8 只保留竞品视觉研究用途，不是设计提案或 UI 权威。旧 `prototype/index.html` 与 `docs/Saytile-V1-Design-Revision.*` 仅为历史恢复资料，视觉部分已被唯一目标取代。保留这些历史资料作为审计证据，不将其误当现行设计。

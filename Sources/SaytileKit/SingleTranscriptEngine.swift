@@ -2,6 +2,15 @@ import Foundation
 import CryptoKit
 
 /// The only cloud component that publishes transcript revisions. Providers never see Store.
+enum GPTReviewRetryPolicy {
+    static func isEligible(blocked: Bool, failures: Int, retryAfter: Date, now: Date = Date()) -> Bool {
+        !blocked && failures < 3 && retryAfter <= now
+    }
+    static func retryDelay(failures: Int, providerMinimum: TimeInterval) -> TimeInterval {
+        max(min(30, pow(2, Double(max(1, failures)))), providerMinimum)
+    }
+}
+
 actor SingleTranscriptEngine {
     private let store: SaytileStore
     private let ticket: RecognitionTicket
@@ -33,7 +42,8 @@ actor SingleTranscriptEngine {
     init(store: SaytileStore, ticket: RecognitionTicket, configuration: RecognitionConfiguration,
          dependencies: RecognitionPipelineDependencies) {
         self.store = store; self.ticket = ticket; self.configuration = configuration
-        let client = dependencies.makeReviewClient?()
+        let observer = ReviewFailureObserver(dependencies.reviewFailure)
+        let client = dependencies.makeReviewClientWithFailure?(observer) ?? dependencies.makeReviewClient?()
         self.reviewClient = client
         var scoped = dependencies
         if let client {
@@ -122,6 +132,12 @@ actor SingleTranscriptEngine {
         guard !overflowed.contains(run.configurationID), audio?.didOverflow(run.configurationID) != true else { throw ProviderFailure.incomplete }
         let sequence = (sequences[run.id] ?? 0) + 1; sequences[run.id] = sequence
         let candidate = RecognitionCandidate(run: run, sequence: sequence, event: event)
+        if candidate.isComplete {
+            let hasHan = candidate.text.range(of: "[\u{4E00}-\u{9FFF}]", options: .regularExpression) != nil
+            let hasLatin = candidate.text.range(of: "[A-Za-z]", options: .regularExpression) != nil
+            if hasHan && hasLatin { LanguageProfile.record("mixed") }
+            else if let language = candidate.language { LanguageProfile.record(language) }
+        }
         guard try await store.appendRecognitionCandidate(candidate) else { throw FusionError.staleGeneration }
         if let requestID = event.requestID { requestIDs[run.id] = requestID }
         latest[run.configurationID] = candidate
@@ -202,7 +218,7 @@ actor SingleTranscriptEngine {
     private func scheduleLiveReview() {
         if let limit = dependencies.maximumLiveReviews, liveReviewCount >= limit { return }
         guard !ending, !cancelled, reviewTask == nil,
-              configuration.enabledModels.filter({ $0.purpose == .textFusion && reviewEligible($0, finalAttempt: false) }).count == 1 else { return }
+              configuration.enabledModels.filter({ $0.purpose == .textFusion && reviewEligible($0) }).count == 1 else { return }
         let candidates = activeEvidence()
         let present = Set(candidates.filter { !$0.text.isEmpty }.map { $0.run.configurationID })
         guard requiredConfigurationIDs.isSubset(of: present),
@@ -228,10 +244,10 @@ actor SingleTranscriptEngine {
         // Coalesce all changes during a request into one current-evidence request.
         if !ending && !cancelled { scheduleLiveReview() }
     }
-    private func reviewEligible(_ item: ModelConfiguration, finalAttempt: Bool) -> Bool {
-        guard !blockedConfigurations.contains(item.id) else { return false }
-        if finalAttempt { return true }
-        return (reviewFailures[item.id] ?? 0) < 3 && (reviewRetryAfter[item.id] ?? .distantPast) <= Date()
+    private func reviewEligible(_ item: ModelConfiguration) -> Bool {
+        // Live and EOS review share one circuit-breaker policy; EOS never bypasses Retry-After.
+        GPTReviewRetryPolicy.isEligible(blocked: blockedConfigurations.contains(item.id),
+            failures: reviewFailures[item.id] ?? 0, retryAfter: reviewRetryAfter[item.id] ?? .distantPast)
     }
     private func recordReviewFailure(_ error: Error, item: ModelConfiguration) async {
         failures[item.id] = MultiRecognitionSession.safeMessage(error)
@@ -242,7 +258,8 @@ actor SingleTranscriptEngine {
         } else {
             let count = (reviewFailures[item.id] ?? 0) + 1
             reviewFailures[item.id] = count
-            reviewRetryAfter[item.id] = Date().addingTimeInterval(min(30, pow(2, Double(count))))
+            let providerMinimum = (error as? ProviderFailure)?.minimumRetryDelay ?? 0
+            reviewRetryAfter[item.id] = Date().addingTimeInterval(GPTReviewRetryPolicy.retryDelay(failures: count, providerMinimum: providerMinimum))
         }
     }
     private struct TextReviewResult: Sendable {
@@ -253,6 +270,7 @@ actor SingleTranscriptEngine {
     private func requestTextReview(_ item: ModelConfiguration, candidates: [RecognitionCandidate]) async -> TextReviewResult? {
         var run: ModelRunTicket?
         let started = Date()
+        var usageRecorded = false
         do {
             try await assertCurrent()
             let created = try await store.beginModelRun(ticket: ticket, configuration: item); run = created
@@ -265,6 +283,7 @@ actor SingleTranscriptEngine {
                 configuration.topicContext, item, credential)
             await logUsage(run: created, configuration: item, seconds: 0, usage: usage,
                 arbitrationResponse: .init(candidateIDs: candidates.map(\.id), confirmedPrefix: requestPrefix, decision: decision))
+            usageRecorded = true
             try await assertCurrent()
             failures.removeValue(forKey: item.id); reviewFailures.removeValue(forKey: item.id)
             reviewRetryAfter.removeValue(forKey: item.id)
@@ -282,7 +301,7 @@ actor SingleTranscriptEngine {
     private func performTextReview(candidates: [RecognitionCandidate], version: UInt64, finalAttempt: Bool = false) async {
         let configured = configuration.enabledModels.filter { $0.purpose == .textFusion }
         guard configured.count == 1 else { return }
-        let items = configured.filter { reviewEligible($0, finalAttempt: finalAttempt) }
+        let items = configured.filter { reviewEligible($0) }
         guard items.count == 1 else { return }
         let present = Set(candidates.filter { !$0.text.isEmpty }.map { $0.run.configurationID })
         guard requiredConfigurationIDs.isSubset(of: present) || configuration.inputMode == .fast else { return }
@@ -389,10 +408,14 @@ actor SingleTranscriptEngine {
         if estimateAllowed, let rate = item.audioHourRate, seconds > 0 { estimate = billedSeconds / 3600 * rate }
         if estimateAllowed, let input = usage.inputTokens, let rate = item.inputMillionTokenRate,
            let output = usage.outputTokens, let outputRate = item.outputMillionTokenRate {
-            estimate = (estimate ?? 0) + Double(input) / 1_000_000 * rate + Double(output) / 1_000_000 * outputRate
+            // Cached input has a distinct tariff. Without an explicitly configured cached rate,
+            // do not label the uncached-rate calculation as a reliable cost estimate.
+            if let cached = usage.cachedInputTokens, cached > 0 { estimate = nil }
+            else { estimate = (estimate ?? 0) + Double(input) / 1_000_000 * rate + Double(output) / 1_000_000 * outputRate }
         }
         try? await store.recordModelUsage(ModelUsageRecord(runID: run.id, requestID: usage.requestID,
             audioSeconds: seconds, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
+            cachedInputTokens: usage.cachedInputTokens, reasoningTokens: usage.reasoningTokens,
             estimatedCost: estimate, currency: item.currency,
             status: estimateAllowed ? "response-received" : "failed-usage-unknown", elapsedSeconds: usage.elapsedSeconds,
             arbitrationResponse: arbitrationResponse))

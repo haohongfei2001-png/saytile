@@ -7,7 +7,7 @@
       "name": "inherited_pcm_sqlite",
       "exit_code": 0,
       "command": [
-        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/private/tmp/saytile-playwright-venv/bin/python3",
         "archive/recovery-source/handoff/reliability_lab.py"
       ],
       "output": "evidence/inherited-reliability.json"
@@ -16,7 +16,7 @@
       "name": "reconstructed_contracts",
       "exit_code": 0,
       "command": [
-        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/private/tmp/saytile-playwright-venv/bin/python3",
         "tests/test_recovery_contracts.py"
       ],
       "output": "evidence/rebuilt-contracts.log"
@@ -43,7 +43,7 @@
         "contracts/Contracts.swift",
         "tests/SwiftSmoke.swift",
         "-o",
-        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-swift-szqsnrzw/unicode-smoke"
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-swift-rppdrb6w/unicode-smoke"
       ],
       "output": "evidence/swift-smoke-build.log"
     },
@@ -51,14 +51,18 @@
       "name": "swift_unicode_smoke",
       "exit_code": 0,
       "command": [
-        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-swift-szqsnrzw/unicode-smoke"
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-swift-rppdrb6w/unicode-smoke"
       ],
       "output": "evidence/swift-smoke.log"
     },
     {
       "name": "prototype_dom",
-      "result": "NOT_RUN",
-      "reason": "--ui not supplied"
+      "exit_code": 0,
+      "command": [
+        "/private/tmp/saytile-playwright-venv/bin/python3",
+        "tests/prototype_checks.py"
+      ],
+      "output": "evidence/prototype-checks.log"
     }
   ],
   "success": true

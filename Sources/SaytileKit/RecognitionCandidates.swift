@@ -98,6 +98,8 @@ public struct ModelUsageRecord: Codable, Sendable, Equatable, Identifiable {
     public let audioSeconds: Double?
     public let inputTokens: Int?
     public let outputTokens: Int?
+    public let cachedInputTokens: Int?
+    public let reasoningTokens: Int?
     public let estimatedCost: Double?
     public let currency: String
     public let status: String
@@ -106,11 +108,14 @@ public struct ModelUsageRecord: Codable, Sendable, Equatable, Identifiable {
     public let arbitrationResponse: ArbitrationResponseEvidence?
     public let createdAt: Date
     public init(id: UUID = UUID(), runID: UUID, requestID: String? = nil, audioSeconds: Double? = nil,
-                inputTokens: Int? = nil, outputTokens: Int? = nil, estimatedCost: Double? = nil,
+                inputTokens: Int? = nil, outputTokens: Int? = nil, cachedInputTokens: Int? = nil,
+                reasoningTokens: Int? = nil, estimatedCost: Double? = nil,
                 currency: String = "USD", status: String = "completed", elapsedSeconds: Double? = nil,
                 arbitrationResponse: ArbitrationResponseEvidence? = nil, createdAt: Date = Date()) {
         self.id = id; self.runID = runID; self.requestID = requestID; self.audioSeconds = audioSeconds
-        self.inputTokens = inputTokens; self.outputTokens = outputTokens; self.estimatedCost = estimatedCost
+        self.inputTokens = inputTokens; self.outputTokens = outputTokens
+        self.cachedInputTokens = cachedInputTokens; self.reasoningTokens = reasoningTokens
+        self.estimatedCost = estimatedCost
         self.currency = currency; self.status = status; self.elapsedSeconds = elapsedSeconds; self.createdAt = createdAt
         self.arbitrationResponse = arbitrationResponse
     }

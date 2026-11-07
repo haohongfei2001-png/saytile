@@ -1,13 +1,16 @@
-# 架构决策记录：2026-11-07最新用户决定
+# 架构决策记录
 
-1. 两个ASR平等，完整同音频，从头到尾；撤销预设主模型与语言切分路由。
-2. 一个GPT-6 Astra核心持续参与和EOS最终评审；撤销多LLM/Gemini/Scribe默认链。
-3. Astra官方不支持音频；F不可用；文本推理不是声学证据。
-4. 用户只有一份忠实转写，口语/重复/否定保留；候选和版本只在内部留证。
-5. Soniox/Meta等为可替换挑战者，须同输入证明边际收益；初始Qwen/Assembly不是冠军声明。
-6. 采集、journal、识别、发布、外部派发解耦；Apple进入统一候选入口。
-7. 已派发范围不是无条件永远冻结：在仍可证明所有权、预期文本未变且目标一致时允许精确局部修正。否则pending，禁止整框覆盖、重复插入、自动发送/回车。
-8. 配置迁移保留UUID和Keychain，不擅改自定义型号或提升授权；只隐藏退休链路，保留历史。
-9. GPT WebSocket lane与lineage不同；store=false缓存断线消失，需要重放权威上下文，不将持久连接等同无限记忆。
-10. ChatGPT/API分别计费；订阅促销API额度可能存在，但不能代替账户、Key与授权核验。
-11. PR5 a9cffae不是通过验收的引擎；本轮独立工程PR负责原生修复。main/RC1不动，云测试缺凭据按NOT_RUN交付。
+## 2026-11-07：单 ASR 专家 + 唯一 GPT-6 AI 核心（当前有效）
+
+1. 正式废止两个或更多 ASR 同时接收同一录音的生产默认路径。每个 recordingID/audioEpoch 固定一个 ASR provider/model。
+2. 语言偏好：Auto（默认）、Chinese、English、Chinese-English Mixed。显式偏好优先；Auto 使用近期语言观察与 macOS locale 先验；不能可靠判断时走 Apple 本地能力/保留原音，不盲选云模型。
+3. 初始候选映射：Qwen 中文、AssemblyAI 英文、Soniox 混说；没有真实 24 条对照结果前不宣称任何模型最优。
+4. 唯一 GPT-6 Astra 文本核心。无原生音频输入；不得把 GPT 的常识补全当声学证据。只允许忠实、来源可验证的 span 选择。
+5. Apple SpeechAnalyzer 是本地与云故障接替，不是并行专家。
+6. 原音、文字、用户修改稿和外部派发账本独立；不因 GPT/ASR 失败丢失，未确认外部结果不重放。
+7. 配置迁移保留 provider/model/UUID/Keychain 授权身份；不静默换 Key、不自动提升 consent。
+8. GPT 运行期错误进入统一 failover；429 最低 60 秒约束同样适用于 EOS。
+9. 24 条冻结语音只比较 A Qwen+GPT、B AssemblyAI+GPT、C Soniox+GPT；共 72 次完整流程，未授权时 NOT_RUN。
+10. 生产 main、RC1 和 no-api.9.1 不被本分支修改；签名/公证与真实云验收分别判定。
+
+历史双专家决策仅作为此前版本记录，不再是当前实现目标。

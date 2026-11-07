@@ -10,6 +10,8 @@ import argparse
 import json
 import os
 import queue
+import signal
+import shutil
 import subprocess
 import threading
 import time
@@ -126,7 +128,10 @@ def foreground_batch(compile_only=False):
                 record(line)
                 if source == kind and line.strip() == ready: break
                 if time.monotonic() >= deadline: raise RuntimeError("Fixture startup timed out without activation")
+        probe_started = time.time()
+        record(f"PHASE probe_launch native_pid={fixtures['native'].pid} web_pid={fixtures['web'].pid}; synthetic_targets_only=true\n")
         probe = subprocess.Popen([str(SCRATCH / "AXForegroundBatchProbe"), "--allow-foreground", str(fixtures["native"].pid), str(fixtures["web"].pid)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+        record(f"PROBE_STARTED pid={probe.pid} executable=AXForegroundBatchProbe\n")
         threading.Thread(target=lines_to_queue, args=(probe.stdout, "probe", messages), daemon=True).start()
         deadline = time.monotonic() + 30
         pending = None
@@ -153,7 +158,21 @@ def foreground_batch(compile_only=False):
                         probe.stdin.write(json.dumps(response) + "\n"); probe.stdin.flush()
                     pending = None
         if probe.poll() is None: raise RuntimeError("Foreground batch exceeded 30 seconds; terminating owned fixtures without reactivation")
-        if probe.returncode: raise RuntimeError(f"Foreground batch exit {probe.returncode}; no retry or focus reacquisition")
+        if probe.returncode:
+            code = probe.returncode
+            signal_name = signal.Signals(-code).name if code < 0 else "none"
+            record(f"PROBE_EXIT returncode={code} signal={signal_name}\n")
+            reports = sorted([*Path.home().joinpath("Library/Logs/DiagnosticReports").glob("AXForegroundBatchProbe*.crash"),
+                              *Path.home().joinpath("Library/Logs/DiagnosticReports").glob("AXForegroundBatchProbe*.ips")],
+                             key=lambda path: path.stat().st_mtime if path.exists() else 0)
+            recent = [path for path in reports if path.exists() and path.stat().st_mtime >= probe_started - 2]
+            if recent:
+                report = recent[-1]
+                destination = EVIDENCE / ("foreground-crash-report" + report.suffix)
+                shutil.copy2(report, destination)
+                record(f"CRASH_REPORT_PRESERVED path={destination.name}\n")
+            raise RuntimeError(f"Foreground batch exit {code} signal={signal_name}; no retry or focus reacquisition")
+        record("PROBE_EXIT returncode=0 signal=none\n")
     finally:
         if probe and probe.poll() is None: probe.kill(); probe.wait()
         # Closing owned fixtures lets macOS choose focus. Never explicitly restore on

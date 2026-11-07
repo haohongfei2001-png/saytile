@@ -66,9 +66,9 @@ def configurations():
         'G': dict(provider='openAIResponses', model='gpt-6-astra', purpose='textFusion',
                   reasoningEffort='high', reasoningMode='standard')}
     return [{'id': ident, 'models': [copy.deepcopy(models[x]) for x in codes],
-             'input_mode': 'highestQuality', 'topicContext': '', 'execution': 'multi_trace',
-             'evaluation_mode': 'single-expert-baseline' if ident in 'ABD' else 'multi-expert-fusion'}
-            for ident, codes in [('A', 'QG'), ('B', 'AG'), ('C', 'QAG'), ('D', 'SG'), ('E', 'QASG')]]
+             'input_mode': 'highestQuality', 'topicContext': '', 'execution': 'single_asr_trace',
+             'evaluation_mode': 'single-asr-plus-gpt6'}
+            for ident, codes in [('A', 'QG'), ('B', 'AG'), ('C', 'SG')]]
 
 
 def reference_hash(item):
@@ -118,20 +118,19 @@ def preflight(audio_root, access_path):
                  and all(r['status'] == 'VERIFIED' for r in originals))
         historical.append({'id': config['id'], 'path': config['results_path'], 'sha256': ev.checksum(path),
                            'records': len(records), 'status': 'VERIFIED_HISTORICAL' if valid else 'BLOCKED',
-                           'locale_policy': config.get('locale_policy'), 'cloud_A_E_records': 0})
+                           'locale_policy': config.get('locale_policy'), 'cloud_A_C_records': 0})
     raw_access = ev.load_json(access_path)  # Supplied metadata only; never query keys/settings.
     fields = ('configuration_present', 'cloud_enabled', 'enabled_services', 'matching_item_count',
               'metadata_query_status', 'secret_values_requested', 'permission_prompt_allowed',
               'paid_requests', 'audio_uploaded')
     access = {k: raw_access.get(k) for k in fields}
     blockers = [
-        {'code': 'CONFIGURATION_MISSING', 'applies_to': list('ABCDE'), 'status': 'BLOCKED' if access['configuration_present'] is not True else 'PRESENT_NOT_VALIDATED'},
-        {'code': 'KEYCHAIN_KEYS_MISSING', 'applies_to': list('ABCDE'), 'status': 'BLOCKED' if access['matching_item_count'] == 0 else 'UNVERIFIED_PER_UUID'},
-        {'code': 'CLOUD_DISABLED', 'applies_to': list('ABCDE'), 'status': 'BLOCKED' if access['cloud_enabled'] is not True else 'REQUIRES_SEPARATE_AUTHORIZATION'},
-        {'code': 'PROCESSING_AND_COST_AUTHORIZATION_REQUIRES_VERIFICATION', 'applies_to': list('ABCDE'), 'status': 'NOT_ESTABLISHED_BY_METADATA'},
-        {'code': 'QWEN_APPROVED_WORKSPACE_NOT_SUPPLIED', 'applies_to': list('ACE'), 'status': 'BLOCKED'},
-        {'code': 'NATIVE_CANDIDATE_NOT_VALIDATED', 'applies_to': list('ABCDE'), 'status': 'NOT_RUN'},
-        {'code': 'D_MULTILINGUAL_SINGLE_EXPERT_RUNTIME_VALIDATION', 'applies_to': ['D'], 'status': 'SEE_NATIVE_ACCEPTANCE_RECEIPT'},
+        {'code': 'CONFIGURATION_MISSING', 'applies_to': list('ABC'), 'status': 'BLOCKED' if access['configuration_present'] is not True else 'PRESENT_NOT_VALIDATED'},
+        {'code': 'KEYCHAIN_KEYS_MISSING', 'applies_to': list('ABC'), 'status': 'BLOCKED' if access['matching_item_count'] == 0 else 'UNVERIFIED_PER_UUID'},
+        {'code': 'CLOUD_DISABLED', 'applies_to': list('ABC'), 'status': 'BLOCKED' if access['cloud_enabled'] is not True else 'REQUIRES_SEPARATE_AUTHORIZATION'},
+        {'code': 'PROCESSING_AND_COST_AUTHORIZATION_REQUIRES_VERIFICATION', 'applies_to': list('ABC'), 'status': 'NOT_ESTABLISHED_BY_METADATA'},
+        {'code': 'QWEN_APPROVED_WORKSPACE_NOT_SUPPLIED', 'applies_to': ['A'], 'status': 'BLOCKED'},
+        {'code': 'NATIVE_CANDIDATE_NOT_VALIDATED', 'applies_to': list('ABC'), 'status': 'NOT_RUN'},
     ]
     return {'schema_version': 1, 'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
             'frozen_plan_sha256': FROZEN_PLAN_SHA, 'manifest_sha256': old['manifest_sha256'],
@@ -159,23 +158,21 @@ def prepare(out, app):
     configs = configurations()
     for spec in configs:
         write(out / 'configurations' / (spec['id'] + '.json'), config_template(spec))
-    # Rotate configuration order per clip; every expert still receives the complete same WAV/PCM.
+    # Rotate the three single-ASR configurations per frozen clip.
     for i, ident in enumerate(ids):
-        for spec in configs[i % 5:] + configs[:i % 5]:
+        for spec in configs[i % len(configs):] + configs[:i % len(configs)]:
             key = spec['id']
-            argv = [app, '--multi-asr-probe', '${AUDIO_ROOT}/' + items[ident]['audio'],
+            argv = [app, '--single-asr-probe', '${AUDIO_ROOT}/' + items[ident]['audio'],
                     '--recognition-config', '${RUN_ROOT}/configurations/' + key + '.json',
                     '--data-directory', '${RUN_ROOT}/isolated-data/' + key + '/' + ident,
                     '--report-dir', '${RUN_ROOT}/reports/' + key + '/' + ident]
-            if key in 'ABD':
-                argv.append('--single-expert-baseline')
             commands.append({'configuration_id': key, 'fixture_id': ident, 'argv': argv,
                              'audio_sha256': items[ident]['audio_sha256'], 'reference_sha256': reference_hash(items[ident]),
                              'status': 'NOT_RUN', 'execution_authorized': False})
     plan = {'schema_version': 1, 'status': 'PREPARE_ONLY', 'frozen_plan_sha256': FROZEN_PLAN_SHA,
             'manifest_sha256': old['manifest_sha256'], 'reference_annotations': old['reference_annotations'],
             'ids': ids, 'configurations': configs, 'F': UNAVAILABLE_F, 'commands': commands,
-            'audio_policy': 'identical_full_pcm_to_every_expert_no_language_routing',
+            'audio_policy': 'one_selected_asr_receives_complete_pcm_per_recording',
             'fusion_policy': 'one_identical_GPT6_text_core_verbatim_evidence_only',
             'dynamic_gpt_call_count': None, 'planned_native_sessions': len(commands)}
     write(out / 'commands.json', plan)
@@ -185,8 +182,8 @@ def prepare(out, app):
 def missing_row(spec, item):
     return {'fixture_id': item['id'], 'configuration_id': spec['id'], 'audio_sha256': item['audio_sha256'],
             'reference_sha256': reference_hash(item), 'language': item['language'], 'group': item['group'],
-            'execution': 'multi_trace', 'identity': 'NOT_RUN', 'status': 'NOT_RUN', 'source_revision': None,
-            'stages': {s: ev.unavailable('No recorded native trace.') for s in ev.STAGES},
+            'execution': 'single_asr_trace', 'identity': 'NOT_RUN', 'status': 'NOT_RUN', 'source_revision': None,
+            'stages': {s: ev.unavailable('No recorded single-ASR native trace.') for s in ev.STAGES},
             'raw_asr': [], 'gpt_reviews': [], 'gpt_error_pairs': [], 'latencies': {}, 'revisions': [],
             'stable_formation': {'status': 'NOT_RUN', 'formed': None}, 'service_runs': []}
 
@@ -225,11 +222,18 @@ def validate_trace(spec, item, trace, source_commit, exact_config):
     return row
 
 
-def complete(candidate, item, eof):
+def complete(candidate, item, replay, run_state):
+    """Prove full input delivery and provider termination; acoustic word end is not EOF."""
+    submitted = replay.get('framesSubmitted')
+    eof_at = replay.get('inputEOFAt')
+    ended = replay.get('sessionEndedAt')
     return (candidate.get('isComplete') is True and candidate.get('audioStartSeconds') == 0
             and ev.finite(candidate.get('audioEndSeconds'))
-            and abs(candidate['audioEndSeconds'] - item['frames'] / item['sample_rate']) <= 1 / item['sample_rate']
-            and ev.finite(eof) and ev.finite(candidate.get('createdAt')) and candidate['createdAt'] >= eof)
+            and isinstance(submitted, int) and submitted == item['frames']
+            and replay.get('inputEOF') is True and ev.finite(eof_at)
+            and ev.finite(ended) and ended >= eof_at
+            and ev.finite(candidate.get('createdAt')) and candidate['createdAt'] <= ended
+            and run_state == 'completed')
 
 
 def enrich(row, trace, item):
@@ -242,16 +246,17 @@ def enrich(row, trace, item):
         return (run.get('recognitionID') == generation and run.get('recordingID') == recording
                 and bool(model) and all(run.get(k) == model[k] for k in ('provider', 'model', 'purpose')))
     candidates = {x['id']: x for x in trace.get('candidates', []) if current(x['run']) and x['run']['purpose'] != 'textFusion'}
-    eof = trace['replay'].get('lastAudioSubmittedAt')
+    replay = trace['replay']
+    runs = {x['ticket']['id']: x for x in trace.get('modelRuns', []) if current(x['ticket'])}
     row['raw_asr'] = []
     for candidate in sorted(candidates.values(), key=lambda c: (c.get('createdAt', 0), c['id'])):
-        full = complete(candidate, item, eof)
+        run_state = runs.get(candidate['run']['id'], {}).get('state')
+        full = complete(candidate, item, replay, run_state)
         row['raw_asr'].append({'candidate_id': candidate['id'], 'run': candidate['run'],
             'sequence': candidate.get('sequence'), 'is_complete': candidate.get('isComplete'),
             **ev.observation(item, candidate['text'], 'raw_asr', candidate.get('createdAt'),
                              item['reference'] if full else None, 'complete_reference' if full else None)})
     row['revisions'] = [x for x in trace.get('fusionDecisions', []) if x.get('recognitionID') == generation]
-    runs = {x['ticket']['id']: x for x in trace.get('modelRuns', []) if current(x['ticket'])}
     row['service_runs'] = [{'run_id': r['ticket']['id'], 'provider': r['ticket']['provider'],
                             'model': r['ticket']['model'], 'state': r['state'], 'error': r.get('error')}
                            for r in runs.values()]
@@ -276,7 +281,7 @@ def enrich(row, trace, item):
             if (candidate and candidate['id'] in evidence.get('candidateIDs', [])
                     and span.get('utf16Start') == 0
                     and span.get('utf16End') == len(candidate['text'].encode('utf-16-le')) // 2
-                    and complete(candidate, item, eof) and ev.finite(usage.get('createdAt'))
+                    and complete(candidate, item, replay, runs.get(candidate['run']['id'], {}).get('state')) and ev.finite(usage.get('createdAt'))
                     and candidate['createdAt'] <= usage['createdAt']):
                 entry.update(ev.observation(item, candidate['text'], 'gpt_selection', usage['createdAt'],
                                             item['reference'], 'complete_reference'))
@@ -309,7 +314,7 @@ def index_traces(run_root, output, source_commit):
             # Index stays local. Output paths never appear in the scored public report.
             entries.append({'configuration_id': spec['id'], 'fixture_id': ident, 'trace_path': str(path.resolve()),
                             'trace_sha256': ev.checksum(path), 'reference_sha256': reference_hash(items[ident]),
-                            'provenance': 'native_multi_asr_probe', 'exact_configuration': exact})
+                            'provenance': 'native_single_asr_probe', 'exact_configuration': exact})
     index = {'schema_version': 1, 'source_commit': source_commit, 'records': entries}
     write(output, index)
     return index
@@ -321,7 +326,7 @@ def score(index=None):
     records = index['records']
     indexed = {(r['configuration_id'], r['fixture_id']): r for r in records}
     require(len(indexed) == len(records), 'Duplicate attempt identities.')
-    require(set(indexed) <= {(c, i) for c in 'ABCDE' for i in ids}, 'Unknown panel or configuration.')
+    require(set(indexed) <= {(c, i) for c in 'ABC' for i in ids}, 'Unknown panel or configuration.')
     rows = {}
     for spec in configurations():
         rows[spec['id']] = []
@@ -330,7 +335,7 @@ def score(index=None):
             record = indexed.get((spec['id'], ident))
             row = missing_row(spec, item)
             if record:
-                require(record['provenance'] == 'native_multi_asr_probe', 'Synthetic/gold output cannot enter results.')
+                require(record['provenance'] == 'native_single_asr_probe', 'Synthetic/gold output cannot enter results.')
                 require(record['reference_sha256'] == reference_hash(item), 'Reference pair identity mismatch.')
                 require(ev.checksum(record['trace_path']) == record['trace_sha256'], 'Raw trace receipt mismatch.')
                 trace = ev.load_json(record['trace_path'])
@@ -340,7 +345,7 @@ def score(index=None):
         require(len({r['configuration_canonical_sha256'] for r in rows[spec['id']]
                      if r.get('configuration_canonical_sha256')}) <= 1, 'Configuration changed across clips.')
     comparisons = [ev.compare(rows, {'baseline': a, 'candidate': b}) for a, b in
-                   [('A', 'C'), ('B', 'C'), ('C', 'D'), ('C', 'E'), ('D', 'E')]]
+                   [('A', 'B'), ('A', 'C'), ('B', 'C')]]
     return {'schema_version': 1, 'status': 'RECORDED_EVIDENCE' if records else 'NOT_RUN',
             'evaluator_source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
             'evaluator_files_sha256': {p.name: ev.checksum(p) for p in (Path(__file__), QUALITY / 'evaluate.py', QUALITY / 'metrics.py')},
@@ -384,7 +389,7 @@ def main():
             value['rows_omitted'] = True
             value['stage_observations'] = {c: {
                 'raw_asr_revisions': sum(len(r['raw_asr']) for r in value['rows'] if r['configuration_id'] == c),
-                'gpt_reviews': sum(len(r['gpt_reviews']) for r in value['rows'] if r['configuration_id'] == c)} for c in 'ABCDE'}
+                'gpt_reviews': sum(len(r['gpt_reviews']) for r in value['rows'] if r['configuration_id'] == c)} for c in 'ABC'}
             value.pop('rows'); value.pop('comparisons')
         write(args.output, value)
     print(json.dumps({'command': args.command, 'status': value.get('status', value.get('cloud_status', 'INDEXED'))}))

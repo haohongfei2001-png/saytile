@@ -1,23 +1,21 @@
-# SingleTranscriptEngine 实施契约
+# SingleTranscriptEngine 实施状态与契约
 
-更新：2026-11-07。目标架构不等于已经验证的源码；真实交付以独立工程 PR 的测试和候选身份记录为准。
+更新：2026-11-07。当前实现目标为单 ASR + GPT-6；此前双 ASR fanout 不再作为生产路径。
 
-## 实施切片
+## 当前代码切片
 
-1. 修复 PR #5 原生回归。默认两个完整音频专家+一个 GPT，保留原配置 UUID/Keychain 身份；迁移不静默替换自定义模型、不自动授权或开启云端。诊断 A/B/D 可用单个 ASR+相同 GPT；生产 C/E 仍严格双专家。
-2. 真实单一融合 actor：同 PCM、独立队列、版本检查、短窗合并、一个在途请求、有界重试、EOS 强制最终 GPT 评审。保留未确认现文但不假定为已确认外发。
-3. 每录音/代次 GPT WebSocket transport：缓存/上下文恢复、lane/response 过滤、取消、超时、授权失效、输入/输出大小上限。HTTP SSE 降级也只能使用同一个 GPT；未完成 JSON 永不发布。
-4. Apple 作为本地 Candidate ingress，复用 Store 验证/发布。离线本地可用或原音排队，不因网络失败中断 journal。
-5. journal range reader：以原样本索引跨 chunk 读取已落盘范围；拒绝空洞、损坏、删除、旧 epoch 和未持久化尾部，禁止无限内存快照。
-6. 外部精确范围所有权与局部修正：校验目标、范围、预期文本及用户编辑，事务记录预留与确认；能力不足保持 pending，不整框改写、不重发。
-7. UI 收敛到一份文字；内部历史不可删除，但不向用户展示模型阶段、候选及多稿选择。只保留必要的连接/权限/故障提示。
+1. `LanguagePreference`、`LanguageProfile`、`ASRModelRegistry` 提供 Auto/中文/English/中英混说选择。Auto 使用近期语言标签记录与 macOS locale；未知语言不强行启动云 ASR。
+2. `RecognitionConfiguration.activeModels` 只暴露选中的一项 streaming ASR 与唯一 GPT-6。`MultiRecognitionSession` 创建 fanout 时只建立该 ASR 通道，并将选定配置固定在当前 generation。
+3. `SingleTranscriptEngine` 继续作为唯一发布者。GPT review 仅使用 ASR 候选来源 span；没有证据的词不得发布。
+4. Apple 本地识别仍独立于云端路径，在无云选择/云故障时使用原音恢复，不作为并行云专家。
+5. 持久 GPT review 失败进入统一 failover；authorization/permission/quota 阻断配置，connection/429 退避；EOS 不绕过 60 秒限流保护。
+6. `RecognitionFusion.protectedSignature` 补充英文基数/序数/小数及金额表达的比较归一化，不改原始 span/文字。
+7. benchmark 完整性使用发送帧数、input EOF、EOF 时间、session 终止时间和 provider run completed；词尾时间仅作声学对齐。
 
-## 验收
+## 验收边界
 
-既有真实 Swift 原生测试 + AppModel + Python 评分继续运行；新增乱序、同音频、迟到 GPT、收尾一致仍评审、blocked/backoff 不空转、用户稿、负数/金额/单位/否定/重复、中英混说、UTF-16/emoji、断网/恢复、跨块 >12MB、范围编辑/目标变更等回归。不得用删除测试或取消安全约束让 CI 变绿；过时默认值测试变更必须说明理由。
-
-构建候选保留独立数据根目录与版本，不能安装覆盖 RC1。实机合成/协议 fixture 与真人云识别、真实应用编辑、长时墙钟功耗分别报告。
-
-## 先前不足（a9cffae）
-
-PR #5 有新文件/配置和 SSE 代码，但 native CI 的276测试出现17 issues；Apple ingress、journal range和外部修正未交付，不能称引擎完成。后续独立工程 PR 修复，保护 main/RC1。
+- 本轮 Python harness：24 条冻结 panel、A/B/C 三配置、72 次流程准备；无凭据时 NOT_RUN。
+- 离线 harness 回归覆盖尾部静音、PCM 少发、缺 EOF、run 未完成和时序异常。
+- 真实供应商连接、语言质量排名、GPT 新增错误、真实费用和端到端延迟必须等待用户提供 Key、模型权限与单独授权。
+- `swift build`：当前连接 Mac 上 SaytileKit 与 Saytile-product 构建通过。`swift test`：BLOCKED，设备只有 Command Line Tools，缺少完整 Xcode/TestingMacros plugin；不得将构建通过当作测试通过。
+- 前台 probe -5、真实 ChatGPT/Codex 输入、Developer ID/公证仍单独验收。

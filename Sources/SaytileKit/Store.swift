@@ -1151,7 +1151,8 @@ extension SaytileStore {
               usage.audioSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true,
               usage.estimatedCost.map({ $0.isFinite && $0 >= 0 }) ?? true,
               usage.elapsedSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true,
-              usage.inputTokens.map({ $0 >= 0 }) ?? true, usage.outputTokens.map({ $0 >= 0 }) ?? true else { throw FusionError.invalidCandidate }
+              usage.inputTokens.map({ $0 >= 0 }) ?? true, usage.outputTokens.map({ $0 >= 0 }) ?? true,
+              usage.cachedInputTokens.map({ $0 >= 0 }) ?? true, usage.reasoningTokens.map({ $0 >= 0 }) ?? true else { throw FusionError.invalidCandidate }
         try db.execute("INSERT OR IGNORE INTO model_usage(id,run_id,recording_id,payload,created_at) VALUES(?,?,?,?,?)", [.text(usage.id.uuidString), .text(usage.runID.uuidString), .text(row["recording_id"]!), .text(try Self.encodeEvidence(usage)), .double(usage.createdAt.timeIntervalSince1970)])
     }
     public func recordModelUsage(run: ModelRunTicket, audioSeconds: Double, inputTokens: Int?, outputTokens: Int?,
@@ -1174,6 +1175,8 @@ extension SaytileStore {
                 if let seconds = usage.audioSeconds { summary += String(format: " · %.1fs", seconds) }
                 if let input = usage.inputTokens { summary += " · in \(input)" }
                 if let output = usage.outputTokens { summary += " · out \(output)" }
+                if let cached = usage.cachedInputTokens { summary += " · cached-in \(cached)" }
+                if let reasoning = usage.reasoningTokens { summary += " · reasoning \(reasoning)" }
                 if let cost = usage.estimatedCost { summary += String(format: " · ≈ %.6f %@", cost, usage.currency) }
                 else { summary += " · 费用未报告" }
             }

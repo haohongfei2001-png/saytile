@@ -7,12 +7,17 @@ struct RecognitionSettingsSection: View {
     var allowsAutomaticRecovery = true
     @ViewState private var servicesExpanded = false
     @ViewState private var credentialStates: [UUID: CloudCredentialPresence] = [:]
-    private var active: [ModelConfiguration] { model.recognitionConfiguration.enabledModels }
+    private var active: [ModelConfiguration] { model.recognitionConfiguration.activeModels }
     private var preparedCount: Int {
         active.filter { $0.cloudConsent && credentialStates[$0.id] == .saved && (try? $0.validate()) != nil }.count
     }
     var body: some View {
         Section("AI 识别") {
+            Picker("识别语言", selection: Binding(get: { model.recognitionConfiguration.languagePreference ?? .auto }, set: { model.recognitionConfiguration.languagePreference = $0 })) {
+                ForEach(LanguagePreference.allCases, id: \.self) { preference in
+                    Text(preference.label).tag(preference)
+                }
+            }.accessibilityIdentifier("recognition.languagePreference")
             Toggle("启用高质量云端识别", isOn: $model.recognitionConfiguration.cloudEnabled)
                 .disabled(!model.connectionVerified || model.checkingConnection)
                 .accessibilityIdentifier("recognition.cloudEnabled")
@@ -26,14 +31,14 @@ struct RecognitionSettingsSection: View {
             TextField("当前话题或术语提示（可选）", text: $model.recognitionConfiguration.topicContext, axis: .vertical)
                 .lineLimit(2...4).accessibilityIdentifier("recognition.topicContext")
             if servicesExpanded {
-                Text("连接三项服务，即可边说边显示、自动核对文字。中文与英文服务都接收完整语音，AI 只处理候选文字。密钥仅存于钥匙串。")
+                Text("每段录音只使用一项 ASR 服务，按语言偏好自动选择；GPT-6 只处理候选文字。密钥仅存于钥匙串。")
                     .font(.system(size: 11)).foregroundStyle(Palette.muted)
                 ForEach($model.recognitionConfiguration.models) { $item in
-                    if !item.isOptionalExpert && !item.isLegacyReviewModel {
+                    if active.contains(where: { $0.id == item.id }) {
                         ModelConfigurationEditor(configuration: $item, model: model, onCredentialChange: refreshPresence)
                     }
                 }
-                ConnectionCheckPanel(model: model, ready: preparedCount == 3 && active.count == 3)
+                ConnectionCheckPanel(model: model, ready: preparedCount == 2 && active.count == 2)
             }
             Toggle("连接中断后从已保存原音自动恢复", isOn: $model.recognitionConfiguration.automaticRecovery)
                 .accessibilityIdentifier("recognition.automaticRecovery")
@@ -92,7 +97,7 @@ struct ModelConfigurationEditor: View {
     }
     private var prefix: String { "recognition.model." + configuration.id.uuidString.lowercased() }
     private var status: String {
-        if !configuration.enabled { return "已停用" }
+        if !model.recognitionConfiguration.activeModels.contains(where: { $0.id == configuration.id }) { return "待选择" }
         if credentialPresence != .saved { return credentialPresence.label }
         if !configuration.cloudConsent { return "待授权" }
         if (try? configuration.validate()) == nil { return "待完善设置" }
@@ -104,7 +109,7 @@ struct ModelConfigurationEditor: View {
                 HStack {
                     Image(systemName: expanded ? "chevron.down" : "chevron.right")
                         .font(.system(size: 10, weight: .semibold)).foregroundStyle(Palette.muted)
-                    Text(connectionRoleLabel(configuration.provider) + " · " + configuration.provider.label)
+                    Text(configuration.purpose == .textFusion ? "GPT-6 AI 核心" : configuration.purpose.label)
                     Spacer()
                     Text(status).font(.system(size: 11)).foregroundStyle(Palette.muted)
                 }.contentShape(Rectangle())
@@ -175,7 +180,8 @@ private func connectionRoleLabel(_ provider: CloudProvider) -> String {
     switch provider {
     case .qwenMessage: "中文识别"
     case .assemblyAI: "英文识别"
-    case .openAIResponses: "文字融合"
+    case .soniox: "中英混说识别"
+    case .openAIResponses: "GPT-6 AI 核心"
     default: provider.label
     }
 }
@@ -189,7 +195,7 @@ private struct ConnectionCheckPanel: View {
             Label(model.connectionVerified ? "已接通，可以使用" : "最后一步 · 自动检查连接",
                   systemImage: model.connectionVerified ? "checkmark.circle.fill" : "network")
                 .font(.system(size: 13, weight: .semibold))
-            Text("不需要你录音。保存三项密钥并授权后，Saytile 会用内置合成语音检查接收、融合和定稿。全部通过后自动启用；检查期间可以继续使用本机识别。")
+            Text("不需要你录音。保存当前语言的一项 ASR 密钥和 GPT-6 密钥并授权后，Saytile 会用内置合成语音检查接收、AI 辅助和定稿。全部通过后自动启用；检查期间可以继续使用本机识别。")
                 .font(.system(size: 11)).foregroundStyle(Palette.muted)
             if let report = model.connectionReport {
                 ForEach(report.services) { service in

@@ -134,6 +134,7 @@ private final class ConnectionCheckSocket: GPTReviewSocket, @unchecked Sendable 
 struct CloudConnectionVerificationTests {
     private func configuration() -> RecognitionConfiguration {
         var value = RecognitionConfiguration()
+        value.languagePreference = .chinese
         value.topicContext = "PRIVATE_TOPIC_SENTINEL"
         for index in value.models.indices where value.models[index].enabled {
             value.models[index].cloudConsent = true
@@ -190,11 +191,11 @@ struct CloudConnectionVerificationTests {
     @Test func missingCredentialFailsOnlyThatServiceWithoutConnectingOthers() async throws {
         let probe = ConnectionCheckProbe(), config = configuration()
         var client = transport(probe)
-        client.credential = { item in probe.read(); return item.provider == .assemblyAI ? nil : "NOT_A_REAL_KEY_SENTINEL" }
+        client.credential = { item in probe.read(); return item.provider == .qwenMessage ? nil : "NOT_A_REAL_KEY_SENTINEL" }
         let report = try await CloudConnectionVerifier.run(configuration: config, authorized: true, pcm: Data(repeating: 0, count: 640),
             transport: client, paced: false, progress: { probe.update($0) })
-        #expect(report.services.first { $0.provider == .assemblyAI }?.code == "authorization_failed")
-        #expect(report.services.filter { $0.provider != .assemblyAI }.allSatisfy { $0.state == .waiting })
+        #expect(report.services.first { $0.provider == .qwenMessage }?.code == "authorization_failed")
+        #expect(report.services.filter { $0.provider != .qwenMessage }.allSatisfy { $0.state == .waiting })
         #expect(probe.startCount == 0 && probe.requests.isEmpty && !report.canEnableCloud)
     }
 
@@ -218,7 +219,7 @@ struct CloudConnectionVerificationTests {
         #expect(report.readiness == .liveConnectionPending && !report.canEnableCloud)
         report.pipelineCompleted = true
         #expect(!report.canEnableCloud)
-        report.services = config.enabledModels.map { .init(id: $0.id, provider: $0.provider, state: .verified) }
+        report.services = config.activeModels.map { .init(id: $0.id, provider: $0.provider, state: .verified) }
         #expect(!report.canEnableCloud) // A completed flag with no transcription is not usable evidence.
         report.transcript = "owned synthetic result"
         #expect(report.readiness == .liveTranscriptionVerified && report.canEnableCloud)
@@ -281,13 +282,14 @@ struct CloudConnectionVerificationTests {
         }
     }
 
-    @Test func oneProviderFailureDoesNotEraseHealthyProviderStatus() async throws {
+    @Test func selectedASRFailureDoesNotStartAnUnselectedProvider() async throws {
         let probe = ConnectionCheckProbe()
         let report = try await CloudConnectionVerifier.run(configuration: configuration(), authorized: true, pcm: Data(repeating: 0, count: 6400),
             transport: transport(probe, failing: .qwenMessage), paced: false, progress: { probe.update($0) })
         #expect(report.services.first { $0.provider == .qwenMessage }?.code == "permission_denied")
-        #expect(report.services.first { $0.provider == .assemblyAI }?.state == .verified)
-        #expect(!report.canEnableCloud)
+        #expect(report.services.filter { $0.provider.isStreaming }.count == 1)
+        #expect(!report.services.contains { $0.provider == .assemblyAI })
+        #expect(probe.startCount == 1 && !report.canEnableCloud)
     }
 
     @Test(arguments: [false, true])
@@ -332,8 +334,8 @@ struct CloudConnectionVerificationTests {
             if explicit {
                 // SQLite creation and runner scheduling precede the production
                 // watchdog. They are setup, not cancellation latency.
-                while probe.startCount < 2 && began.duration(to: .now) < .seconds(10) { try await Task.sleep(for: .milliseconds(2)) }
-                #expect(probe.startCount == 2)
+                while probe.startCount < 1 && began.duration(to: .now) < .seconds(10) { try await Task.sleep(for: .milliseconds(2)) }
+                #expect(probe.startCount == 1)
                 #expect(probe.stoppedCount == 0)
                 cancelRequestedAt = .now
                 task.cancel()
@@ -355,7 +357,7 @@ struct CloudConnectionVerificationTests {
             // must drain every provider that did start, not start extra work just
             // to satisfy an expected total of two.
             let ended = probe.lifecycle
-            #expect((1...2).contains(ended.started))
+            #expect(ended.started == 1)
             #expect(ended.stopped == ended.started && ended.active == 0 && ended.balanced)
             try await Task.sleep(for: .milliseconds(50))
             let settled = probe.lifecycle

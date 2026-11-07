@@ -69,7 +69,7 @@ struct RecordingCloudAuthorizationTests {
         #expect(try await fixture.store.permitsAutomaticCloudRecovery(recordingID: cloud.id, configuration: configuration))
         #expect(try await !fixture.store.permitsAutomaticCloudRecovery(recordingID: local.id, configuration: configuration))
         let inspect = try fixture.inspect()
-        #expect(try inspect.rows("SELECT * FROM recording_cloud_authorizations").count == configuration.enabledModels.count)
+        #expect(try inspect.rows("SELECT * FROM recording_cloud_authorizations").count == configuration.activeModels.count)
         try inspect.close(); try await fixture.store.close()
         let reopened = try SaytileStore(directory: fixture.directory)
         #expect(try await reopened.permitsAutomaticCloudRecovery(recordingID: cloud.id, configuration: configuration))
@@ -189,7 +189,7 @@ struct RecordingCloudAuthorizationTests {
         #expect(try await fixture.store.recording(id: record.id)?.text == "删除原音仍保留文字")
         #expect(try await !fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: configuration))
         let inspect = try fixture.inspect()
-        #expect(try inspect.rows("SELECT * FROM recording_cloud_authorizations").count == configuration.enabledModels.count)
+        #expect(try inspect.rows("SELECT * FROM recording_cloud_authorizations").count == configuration.activeModels.count)
         await #expect(throws: StoreError.self) {
             try await fixture.store.authorizeCloudRecovery(recordingID: record.id, configuration: configuration)
         }

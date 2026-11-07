@@ -1,17 +1,15 @@
-# 双专家 + GPT：连接与真实质量验收
+# 单 ASR + GPT-6：BYOK 与真实质量验收
 
-默认只有三个服务连接：中文专家、英文专家、OpenAI GPT 核心。默认云开关关闭，逐服务授权关闭，Key 只存 Keychain。Soniox 等第三 ASR 是工程对照，不是普通用户必须选择的设置。旧 Gemini/Scribe 设置仅兼容数据，不再启用多 AI 默认链。
+用户设置仅提供语言偏好：Auto、中文、English、中英混说。应用按 LanguageProfile/Registry 选择一项 ASR；用户不需要选择模型。当前候选：Qwen（中文）、AssemblyAI（英文）、Soniox（混说），均未获质量冠军。GPT-6 Astra 是唯一 AI 核心。Apple 是本地/故障接替。
 
-配置存在、Key 元数据存在、鉴权成功、处理授权和质量通过是五个不同状态。无凭据时保留原音/离线能力，继续工程测试，不默认上传。不要读取或显示 Key 内容。
+每段录音只上传给一个 ASR。连接检查只检查当前语言所选 ASR 与 GPT-6 两项服务；Qwen 额外需要匹配地域的 Workspace ID。Key 只存 Keychain。配置/Key 变更不得静默改变旧录音授权。
 
-## 收费与能力
+## 真实质量实验
 
-GPT-6 Astra Responses 只处理候选文本，没有音频输入。F 为 NOT_AVAILABLE。ChatGPT 和 API 账单独立；符合条件的订阅可能附促销 API credits，但必须关联 API 组织并核实余额，不能当作无限 API 使用。不开新账户、不买套餐；未知费用不是0。
+冻结 24 条：A Qwen+GPT、B AssemblyAI+GPT、C Soniox+GPT，最多 72 次流程。每次一个 ASR，完整音频；GPT 配置、上下文规则和评分一致。记录 ASR raw、GPT final、GPT 新增/修复错误、中文 CER、英文 WER、混说 MER、数字/金额/时间/否定/术语关键错误、首字和最终确认延迟、请求与 usage/cost。
 
-## A-E真实对照
+当前无 API Key：A/B/C 全部 NOT_RUN。历史 Apple 与本地 MLX Qwen 结果不冒充云端结果。未执行指标必须为 null/NOT_RUN，不能填 0 或推断排名。
 
-使用既有冻结24条：A中文+GPT、B英文+GPT、C双专家+GPT、D Soniox+GPT、E双专家+Soniox+GPT。每个配置只有同一GPT核心。保留源SHA、音频hash、参考hash、模型/参数、代次、完整失败与用量账本。禁止把合成输出、gold、旧336条或本地Qwen结果冒充真实云转写。
+## 连接与生产状态
 
-分别报告首显、讲话中修正、最终稿及外部实际输入；CER/WER/MER、术语和数字/金额/时间/否定错误、GPT修复及新引入错误、同音频配对延迟。缺失阶段/未执行用 null/NOT_RUN，不能填0。表面数字形式匹配不自动等于语义正确。
-
-本轮 metadata-only preflight：专用Keychain无匹配项、无生产云配置。A-E未运行，不要求用户录音、标注或调试。执行器与候选准备好后，凭据和用户云处理授权是实际外部条件。
+配置存在、Keychain 凭据存在、真实鉴权、模型权限、用户数据处理授权、实时转写、质量通过、普通发行是独立状态。首次连接检查使用内置合成语音，不用麦克风/历史录音；没有单独授权不发收费请求。Gatekeeper、公证、签名与长期稳定性分别验收。

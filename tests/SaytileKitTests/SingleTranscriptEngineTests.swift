@@ -14,17 +14,15 @@ struct SingleTranscriptEngineTests {
         return value
     }
 
-    @Test func defaultsAreTwoEqualExpertsAndExactlyOneGPT6Core() throws {
+    @Test func defaultsResolveExactlyOneLanguageASRAndOneGPT6Core() throws {
         let value = configured()
-        let experts = value.enabledModels.filter { $0.purpose.isStreaming }
-        let cores = value.enabledModels.filter { $0.purpose == .textFusion }
-        #expect(experts.count == 2)
-        #expect(experts.filter { $0.purpose == .chineseASR }.count == 1)
-        #expect(experts.filter { $0.purpose == .englishASR }.count == 1)
+        let activeASR = value.activeModels.filter { $0.purpose.isStreaming }
+        let cores = value.activeModels.filter { $0.purpose == .textFusion }
+        #expect(activeASR.count == 1)
         #expect(cores.count == 1)
         #expect(cores[0].provider == .openAIResponses)
         #expect(cores[0].model == "gpt-6-astra")
-        #expect(!value.enabledModels.contains { [.audioReview, .finalASR].contains($0.purpose) })
+        #expect(!value.activeModels.contains { [.audioReview, .finalASR].contains($0.purpose) })
         try value.validateForCloud()
     }
 
@@ -36,20 +34,51 @@ struct SingleTranscriptEngineTests {
         #expect(throws: ProviderFailure.self) { try value.validateForCloud() }
     }
 
-    @Test func thirdASRIsAllowedAsAnEvidenceSource() throws {
+    @Test func languagePreferenceSelectsOneASRWithoutExposingParallelProviders() throws {
         var value = configured()
-        let index = try #require(value.models.firstIndex { $0.provider == .soniox })
-        value.models[index].enabled = true
-        value.models[index].cloudConsent = true
+        value.languagePreference = .chineseEnglishMixed
+        let selected = try #require(value.selectedASRModel)
+        #expect(selected.provider == .soniox)
+        #expect(value.activeModels.filter { $0.purpose.isStreaming }.count == 1)
         try value.validateForCloud()
+        let runtime = try value.resolvedForCurrentLanguage()
+        #expect(runtime.enabledModels.filter { $0.purpose.isStreaming }.count == 1)
+        #expect(runtime.enabledModels.first { $0.purpose.isStreaming }?.provider == .soniox)
     }
 
-    @Test func singleExpertAblationStillRequiresTheSameGPTCore() throws {
-        var value = configured()
-        let index = try #require(value.models.firstIndex { $0.purpose == .englishASR })
-        value.models[index].enabled = false
-        try value.validateForCloud(allowSingleExpertBaseline: true)
-        #expect(throws: ProviderFailure.self) { try value.validateForCloud() }
+    @Test func eosReviewCannotBypassGPT429RetryAfterOrConfigurationBlock() {
+        let now = Date(timeIntervalSince1970: 1_000)
+        let retryAfter = now.addingTimeInterval(60)
+        #expect(!GPTReviewRetryPolicy.isEligible(blocked: false, failures: 1, retryAfter: retryAfter, now: now))
+        #expect(GPTReviewRetryPolicy.isEligible(blocked: false, failures: 1, retryAfter: retryAfter, now: now.addingTimeInterval(60.1)))
+        #expect(!GPTReviewRetryPolicy.isEligible(blocked: true, failures: 0, retryAfter: .distantPast, now: now))
+        #expect(GPTReviewRetryPolicy.retryDelay(failures: 1, providerMinimum: 60) == 60)
+        #expect(GPTReviewRetryPolicy.retryDelay(failures: 2, providerMinimum: 0) == 4)
+    }
+
+    @Test func modelUsageRetainsCachedAndReasoningTokenBreakdown() throws {
+        let record = ModelUsageRecord(runID: UUID(), inputTokens: 100, outputTokens: 20,
+                                      cachedInputTokens: 30, reasoningTokens: 8, estimatedCost: nil)
+        let decoded = try JSONDecoder().decode(ModelUsageRecord.self, from: JSONEncoder().encode(record))
+        #expect(decoded.inputTokens == 100 && decoded.outputTokens == 20)
+        #expect(decoded.cachedInputTokens == 30 && decoded.reasoningTokens == 8)
+        #expect(decoded.estimatedCost == nil)
+    }
+
+    @Test func languageProfilePrefersObservedUsageOverLocaleAndDetectsMixedSpeech() {
+        #expect(LanguageProfile.resolve(.auto, locale: Locale(identifier: "zh-Hant"), history: ["en", "en", "en"]) == .english)
+        #expect(LanguageProfile.resolve(.auto, locale: Locale(identifier: "en"), history: ["zh", "zh", "zh"]) == .chinese)
+        #expect(LanguageProfile.resolve(.auto, locale: Locale(identifier: "zh"), history: ["mixed", "mixed"]) == .chineseEnglishMixed)
+        #expect(LanguageProfile.resolve(.chineseEnglishMixed, locale: Locale(identifier: "en"), history: []) == .chineseEnglishMixed)
+        #expect(ASRModelRegistry.provider(for: .chinese) == .qwenMessage)
+        #expect(ASRModelRegistry.provider(for: .english) == .assemblyAI)
+        #expect(ASRModelRegistry.provider(for: .chineseEnglishMixed) == .soniox)
+    }
+
+    @Test func englishPreferenceSelectsAssemblyAndKeepsTheSameGPTCore() throws {
+        var value = configured(); value.languagePreference = .english
+        #expect(value.selectedASRModel?.provider == .assemblyAI)
+        try value.validateForCloud()
     }
 
     @Test func legacySeparateAudioAndFinalModelsCannotJoinTheDefaultChain() throws {
@@ -77,10 +106,8 @@ struct SingleTranscriptEngineTests {
 
     @Test func multilingualSingleExpertUsesSameCore() throws {
         var value = configured()
-        for index in value.models.indices where value.models[index].purpose.isStreaming {
-            value.models[index].enabled = value.models[index].provider == .soniox
-        }
-        try value.validateForCloud(allowSingleExpertBaseline: true)
+        value.languagePreference = .chineseEnglishMixed
+        try value.validateForCloud()
     }
 
     @Test func migrationIsIdempotentAndNeverReplacesCustomModelOrGrantsConsent() throws {

@@ -26,9 +26,10 @@ private struct ProtocolPeer: Sendable {
         #expect((response as? HTTPURLResponse)?.statusCode == 200)
         return try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
     }
-    func reviewClient(fault: String = "normal", timeout: Duration = .seconds(2), onReady: @escaping @Sendable () -> Void = {}) -> GPTReviewSession {
+    func reviewClient(fault: String = "normal", timeout: Duration = .seconds(2), onReady: @escaping @Sendable () -> Void = {},
+                      onFailure: @escaping @Sendable (Error) -> Void = { _ in }) -> GPTReviewSession {
         let websocket = url("responses", fault: fault), http = url("responses", fault: fault, websocket: false)
-        return GPTReviewSession(timeout: timeout, maximumOutputTokens: 4096, onReady: onReady,
+        return GPTReviewSession(timeout: timeout, maximumOutputTokens: 4096, onReady: onReady, onFailure: onFailure,
             factory: { try NativeGPTReviewSocket(credential: $0, testEndpoint: websocket, timeout: 2) },
             fallback: { try await PrecisionReviewClient(testEndpoint: http, timeout: 2, maximumOutputTokens: 4096)
                 .arbitrate(evidence: $0, confirmedPrefix: $1, context: $2, configuration: $3, credential: $4) })
@@ -37,6 +38,12 @@ private struct ProtocolPeer: Sendable {
 private actor NetworkEvents {
     var values: [ProviderTranscriptEvent] = []
     func append(_ value: ProviderTranscriptEvent) { values.append(value) }
+}
+private final class FailureCapture: @unchecked Sendable {
+    private let lock = NSLock()
+    private var stored: ProviderFailure?
+    func set(_ error: Error) { lock.withLock { stored = error as? ProviderFailure } }
+    var value: ProviderFailure? { lock.withLock { stored } }
 }
 private final class ReadyCounter: @unchecked Sendable {
     private let lock = NSLock()
@@ -50,7 +57,7 @@ private final class ReadyCounter: @unchecked Sendable {
 @Suite("Real URLSession loopback protocol integration", .serialized, .enabled(if: protocolSimulationEnabled))
 struct ProtocolNetworkIntegrationTests {
     private func configuration() -> RecognitionConfiguration {
-        var value = RecognitionConfiguration(); value.cloudEnabled = true
+        var value = RecognitionConfiguration(); value.cloudEnabled = true; value.languagePreference = .chinese
         for index in value.models.indices {
             value.models[index].cloudConsent = true
             if value.models[index].provider == .qwenMessage { value.models[index].workspaceID = "synthetic-workspace" }
@@ -80,35 +87,31 @@ struct ProtocolNetworkIntegrationTests {
         try await provider.run(audio: input(pcm), configuration: value, credential: simulatorCredential) { await events.append($0) }
     }
 
-    @Test func twoProductionASRClientsReceiveIdenticalWholePCMAndEOS() async throws {
-        let peer = try ProtocolPeer(), chinese = NetworkEvents(), english = NetworkEvents()
-        async let a: Void = runASR("qwen", peer: peer, events: chinese)
-        async let b: Void = runASR("assembly", peer: peer, events: english)
-        try await a; try await b
-        for values in [await chinese.values, await english.values] {
-            #expect(values.contains { !$0.isComplete && $0.text.contains("支付") })
-            #expect(Set(values.map(\.text)).count >= 3)
-            #expect(values.last?.isComplete == true)
-            #expect(values.last?.text == "请不要支付15元，send the report。")
-        }
+    @Test func oneProductionASRClientReceivesTheWholePCMAndEOS() async throws {
+        let peer = try ProtocolPeer(), events = NetworkEvents()
+        try await runASR("qwen", peer: peer, events: events)
+        let values = await events.values
+        #expect(values.contains { !$0.isComplete && $0.text.contains("支付") })
+        #expect(Set(values.map(\.text)).count >= 3)
+        #expect(values.last?.isComplete == true)
+        #expect(values.last?.text == "请不要支付15元，send the report。")
         try await Task.sleep(for: .milliseconds(40))
         let state = try await peer.snapshot()
         let connections = try #require(state["connections"] as? [[String: Any]])
         let hash = SHA256.hash(data: pcm).map { String(format: "%02x", $0) }.joined()
-        #expect(connections.count == 2)
+        #expect(connections.count == 1)
+        #expect(connections[0]["provider"] as? String == "qwen")
         #expect(connections.allSatisfy { $0["pcm_bytes"] as? Int == pcm.count && $0["sha256"] as? String == hash && $0["eos"] as? Bool == true })
         #expect((state["violations"] as? [String])?.isEmpty == true)
     }
 
     @Test func productionTwentyMillisecondFramesAndShortTailKeepExactPCM() async throws {
-        let peer = try ProtocolPeer(), chinese = NetworkEvents(), english = NetworkEvents()
+        let peer = try ProtocolPeer(), chinese = NetworkEvents()
         let bytes = pcm + Data(repeating: 7, count: 198) // 6.1875 ms final tail: no padding.
         let config = configuration()
-        @Sendable func receive(_ service: String, events: NetworkEvents) async throws {
-            let item = config.enabledModels.first { $0.provider == (service == "qwen" ? .qwenMessage : .assemblyAI) }!
-            let provider: any StreamingASRProvider = service == "qwen"
-                ? try QwenMessageProvider(testEndpoint: peer.url(service), timeout: 2)
-                : try AssemblyStreamingProvider(testEndpoint: peer.url(service), timeout: 2)
+        @Sendable func receive(events: NetworkEvents) async throws {
+            let item = config.models.first { $0.provider == .qwenMessage }!
+            let provider: any StreamingASRProvider = try QwenMessageProvider(testEndpoint: peer.url("qwen"), timeout: 2)
             let (stream, continuation) = AsyncStream<Data>.makeStream()
             let producer = Task {
                 defer { continuation.finish() }
@@ -122,20 +125,15 @@ struct ProtocolNetworkIntegrationTests {
             try await provider.run(audio: stream, configuration: item, credential: simulatorCredential) { await events.append($0) }
             try await producer.value
         }
-        async let a: Void = receive("qwen", events: chinese)
-        async let b: Void = receive("assembly", events: english)
-        try await a; try await b
+        try await receive(events: chinese)
         #expect(await chinese.values.last?.isComplete == true)
-        #expect(await english.values.last?.isComplete == true)
         try await Task.sleep(for: .milliseconds(40))
         let state = try await peer.snapshot(), connections = try #require(state["connections"] as? [[String: Any]])
         let hash = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
-        #expect(connections.count == 2)
+        #expect(connections.count == 1)
         #expect(connections.allSatisfy { $0["pcm_bytes"] as? Int == bytes.count && $0["sha256"] as? String == hash && $0["eos"] as? Bool == true })
         let qwen = try #require(connections.first { $0["provider"] as? String == "qwen" })
         #expect(qwen["blocks"] as? [Int] == Array(repeating: 640, count: 50) + [198])
-        let assembly = try #require(connections.first { $0["provider"] as? String == "assembly" })
-        #expect((assembly["blocks"] as? [Int])?.allSatisfy { (640...32_000).contains($0) } == true)
         #expect((state["violations"] as? [String])?.isEmpty == true)
         print("PROTOCOL_PCM case=\(peer.id) input_frames=50x640+198 bytes=\(bytes.count) no_padding=true scope=SIMULATED_PROTOCOL_NOT_LIVE_CLOUD")
     }
@@ -167,8 +165,10 @@ struct ProtocolNetworkIntegrationTests {
         let peer = try ProtocolPeer(), ready = ReadyCounter()
         let client = peer.reviewClient(fault: fault, onReady: ready.mark)
         let first = evidence(text: "请不要支付15元。")
-        let (one, _) = try await client.review(evidence: [first], prefix: "", context: "", configuration: gpt, credential: simulatorCredential)
+        let (one, usage) = try await client.review(evidence: [first], prefix: "", context: "", configuration: gpt, credential: simulatorCredential)
         #expect(one.selections.first?.candidateID == first.candidateID)
+        #expect(usage.inputTokens == 10 && usage.outputTokens == 12)
+        #expect(usage.cachedInputTokens == 3 && usage.reasoningTokens == 5)
         // Unchanged identity is retained from the server's actual connection cache.
         let (two, _) = try await client.review(evidence: [first], prefix: "", context: "", configuration: gpt, credential: simulatorCredential)
         #expect(two.selections.first?.candidateID == first.candidateID)
@@ -191,10 +191,26 @@ struct ProtocolNetworkIntegrationTests {
         #expect((state["violations"] as? [String])?.isEmpty == true)
     }
 
+    @Test(arguments: [("auth", "authorization_failed"), ("rate_limit", "rate_limited")])
+    func persistentGPTClientReportsFailuresToTheUnifiedFailoverObserver(fault: String, expected: String) async throws {
+        let peer = try ProtocolPeer(), capture = FailureCapture()
+        let client = peer.reviewClient(fault: fault, onFailure: capture.set)
+        do {
+            _ = try await client.review(evidence: [evidence(text: "请不要支付15元")], prefix: "", context: "", configuration: gpt, credential: simulatorCredential)
+            Issue.record("Injected GPT fault must fail: \(fault)")
+        } catch {
+            #expect((error as? ProviderFailure)?.diagnosticCode == expected)
+        }
+        #expect(capture.value?.diagnosticCode == expected)
+        if expected == "rate_limited" { #expect(capture.value?.minimumRetryDelay == 60) }
+        await client.cancel()
+    }
+
     @Test func unsupportedGPTWebSocketUsesSameModelProductionHTTPStreamingClient() async throws {
         let peer = try ProtocolPeer(), client = peer.reviewClient(fault: "unsupported"), item = evidence(text: "不要发送😀")
         let (decision, usage) = try await client.review(evidence: [item], prefix: "", context: "", configuration: gpt, credential: simulatorCredential)
         #expect(decision.selections.first?.candidateID == item.candidateID)
+        #expect(usage.cachedInputTokens == 3 && usage.reasoningTokens == 5)
         #expect(decision.selections.first?.utf16End == item.text.utf16.count)
         #expect(usage.requestID?.hasPrefix("resp_http_") == true)
         _ = try await client.review(evidence: [item], prefix: "", context: "", configuration: gpt, credential: simulatorCredential)
@@ -274,9 +290,9 @@ struct ProtocolNetworkIntegrationTests {
         transport.live = false
         transport.credential = { _ in simulatorCredential }
         transport.streaming = { provider, ready in
+            guard provider == .qwenMessage else { throw ProviderFailure.configuration("unexpected unselected ASR") }
             let asrFault = fault == "churn" ? "churn" : "normal"
-            if provider == .qwenMessage { return try QwenMessageProvider(testEndpoint: peer.url("qwen", fault: asrFault), timeout: 3, onReady: ready) }
-            return try AssemblyStreamingProvider(testEndpoint: peer.url("assembly", fault: asrFault), timeout: 3, onReady: ready)
+            return try QwenMessageProvider(testEndpoint: peer.url("qwen", fault: asrFault), timeout: 3, onReady: ready)
         }
         let gptFault = ["unsupported", "each_reconnect"].contains(fault) ? fault : "normal"
         transport.socket = { try NativeGPTReviewSocket(credential: $0, testEndpoint: peer.url("responses", fault: gptFault), timeout: 3) }
@@ -286,7 +302,7 @@ struct ProtocolNetworkIntegrationTests {
         #expect(report.readiness == .noAPIEngineeringReady)
         #expect(!report.live && !report.canEnableCloud)
         #expect(report.pipelineCompleted)
-        #expect(report.services.count == 3 && report.services.allSatisfy { $0.state == .verified })
+        #expect(report.services.count == 2 && report.services.allSatisfy { $0.state == .verified })
         #expect(report.reviewRequests <= ConnectionCheckLimits.maximumReviewRequests)
         let state = try await peer.snapshot(), requests = try #require(state["gpt_requests"] as? [[String: Any]])
         #expect(requests.count <= 6)
@@ -294,15 +310,15 @@ struct ProtocolNetworkIntegrationTests {
         if fault == "unsupported" { #expect(state["unsupported_upgrades"] as? Int == 1) }
         #expect(requests.allSatisfy { $0["max_output_tokens"] as? Int == 4096 })
         let connections = try #require(state["connections"] as? [[String: Any]])
-        let asr = connections.filter { ["qwen", "assembly"].contains($0["provider"] as? String ?? "") }
+        let asr = connections.filter { $0["provider"] as? String == "qwen" }
         let hash = SHA256.hash(data: sample).map { String(format: "%02x", $0) }.joined()
-        #expect(asr.count == 2 && asr.allSatisfy { $0["pcm_bytes"] as? Int == sample.count && $0["sha256"] as? String == hash && $0["eos"] as? Bool == true })
+        #expect(asr.count == 1 && asr.allSatisfy { $0["pcm_bytes"] as? Int == sample.count && $0["sha256"] as? String == hash && $0["eos"] as? Bool == true })
         #expect((state["violations"] as? [String])?.isEmpty == true)
         print("PROTOCOL_WIZARD case=\(peer.id) scenario=\(fault) pipeline_completed=\(report.pipelineCompleted) wire_gpt_requests=\(requests.count) readiness=\(report.readiness.rawValue)")
     }
 
     @Test(arguments: ["normal", "unbacked_selection"])
-    func productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS(fault: String) async throws {
+    func productionSessionPublishesOneChangingTextAndFinalizesAfterSelectedASREOS(fault: String) async throws {
         let peer = try ProtocolPeer(), config = configuration()
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-wire-engine-" + UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -314,11 +330,10 @@ struct ProtocolNetworkIntegrationTests {
         var dependencies = RecognitionPipelineDependencies.live
         dependencies.credential = { _ in simulatorCredential }
         dependencies.streaming = { provider in
-            if provider == .qwenMessage { return try QwenMessageProvider(testEndpoint: peer.url("qwen"), timeout: 2) }
-            if provider == .assemblyAI { return try AssemblyStreamingProvider(testEndpoint: peer.url("assembly"), timeout: 2) }
-            throw ProviderFailure.configuration("unexpected provider in protocol fixture")
+            guard provider == .qwenMessage else { throw ProviderFailure.configuration("unexpected unselected provider in single-ASR fixture") }
+            return try QwenMessageProvider(testEndpoint: peer.url("qwen"), timeout: 2)
         }
-        dependencies.makeReviewClient = { peer.reviewClient(fault: fault) }
+        dependencies.makeReviewClientWithFailure = { observer in peer.reviewClient(fault: fault, onFailure: observer.callback) }
         let session = MultiRecognitionSession(store: store, ticket: ticket, configuration: config, dependencies: dependencies, finalizationTimeout: .seconds(5))
         var displayed = [String]()
         for index in stride(from: 0, to: pcm.count, by: 3200) {

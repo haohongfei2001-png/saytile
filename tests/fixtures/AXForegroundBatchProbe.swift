@@ -30,6 +30,7 @@ private func immediateAbort(_ message: String) -> Never {
         guard idle.isFinite, idle >= 60, let front = NSWorkspace.shared.frontmostApplication else {
             throw BatchFailure(message: "NOT_RUN keyboard/mouse idle must be at least 60 seconds")
         }
+        print("FOREGROUND_STAGE ax_trusted=true idle_checked=true"); fflush(nil)
         originalPID = front.processIdentifier
         lastInputTime = ProcessInfo.processInfo.systemUptime - idle
         let baseline = lastInputTime
@@ -48,6 +49,7 @@ private func immediateAbort(_ message: String) -> Never {
                 immediateAbort("foreground left fixture")
             }
         }
+        print("FOREGROUND_STAGE safety_timer_and_activation_observer_installed"); fflush(nil)
         print("FOREGROUND_PREFLIGHT existing_AX=true idle_seconds=\(Int(idle)); original_pid=\(originalPID); contents_not_read=true"); fflush(nil)
     }
     func check(_ pid: pid_t) throws {
@@ -120,7 +122,9 @@ private func immediateAbort(_ message: String) -> Never {
         }
         var safety: ForegroundSafety?
         do {
+            print("FOREGROUND_STAGE safety_guardrail_init_begin"); fflush(nil)
             let guardrail = try ForegroundSafety(); safety = guardrail
+            print("FOREGROUND_STAGE safety_guardrail_init_complete"); fflush(nil)
             var checks = 0, failures = 0
             func expect(_ condition: Bool, _ message: String) {
                 if condition { checks += 1; print("PASS " + message) }
@@ -128,6 +132,7 @@ private func immediateAbort(_ message: String) -> Never {
                 fflush(nil)
             }
             for (kind, pid) in [("native", nativePID), ("web", webPID)] {
+                print("FOREGROUND_STAGE target=\(kind) pid=\(pid) activate_begin"); fflush(nil)
                 guardrail.expectedPID = pid
                 _ = try command(kind, "activate")
                 // Never retry activation. Wait only for the one requested transition.
@@ -136,9 +141,12 @@ private func immediateAbort(_ message: String) -> Never {
                     try await Task.sleep(for: .milliseconds(20))
                 }
                 try guardrail.check(pid)
+                print("FOREGROUND_STAGE target=\(kind) activated frontmost_pid_verified"); fflush(nil)
                 try await Task.sleep(for: .milliseconds(150))
+                print("FOREGROUND_STAGE target=\(kind) resolver_begin"); fflush(nil)
                 let access = AXInputAccess(selectionProvider: { try guardrail.selectFixture(pid) })
                 let snapshot = try access.snapshot()
+                print("FOREGROUND_STAGE target=\(kind) snapshot_complete can_set=\(snapshot.canSetSelectedText)"); fflush(nil)
                 guard snapshot.canSetSelectedText else { throw BatchFailure(message: "NOT_RUN fixture requires clipboard fallback; clipboard untouched") }
                 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-foreground-store-" + UUID().uuidString)
                 defer { try? FileManager.default.removeItem(at: directory) }
@@ -147,7 +155,9 @@ private func immediateAbort(_ message: String) -> Never {
                 try await input.bindCurrentTarget()
                 let recording = try await store.createRecording()
                 let revision = try await store.saveEdit(recordingID: recording.id, text: "你好😀")
+                print("FOREGROUND_STAGE target=\(kind) first_insert_begin"); fflush(nil)
                 let first = await input.insertStable(recordingID: recording.id, revisionID: revision.id, stableUTF16End: revision.text.utf16.count, recordingStartedAt: recording.createdAt)
+                print("FOREGROUND_STAGE target=\(kind) first_insert_complete result=\(first)"); fflush(nil)
                 print("FOREGROUND_INSERT kind=\(kind) result=\(first)"); fflush(nil)
                 try guardrail.check(pid)
                 let state = try command(kind, "state")

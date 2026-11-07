@@ -32,12 +32,11 @@ public struct ConnectionSetupRequest: Sendable {
             throw ProviderFailure.configuration("请启用最高质量识别；独立连接设置保持自动恢复关闭。")
         }
         try configuration.validateForCloud()
-        let required: [(RecognitionPurpose, CloudProvider)] = [(.chineseASR, .qwenMessage), (.englishASR, .assemblyAI),
-            (.textFusion, .openAIResponses)]
-        guard required.allSatisfy({ role, provider in configuration.enabledModels.contains { $0.purpose == role && $0.provider == provider } }) else {
-            throw ProviderFailure.configuration("请准备两位音频专家与一个 GPT-6 Astra 融合核心。")
+        guard configuration.activeModels.filter({ $0.purpose.isStreaming }).count == 1,
+              configuration.activeModels.contains(where: { $0.purpose == .textFusion && $0.provider == .openAIResponses }) else {
+            throw ProviderFailure.configuration("请准备当前语言的一项 ASR 服务与 GPT-6 Astra AI 核心。")
         }
-        for item in configuration.enabledModels {
+        for item in configuration.activeModels {
             switch presence(item) {
             case .saved: break
             case .missing: throw ProviderFailure.configuration("请先保存\(item.purpose.label)的 API Key。")

@@ -55,7 +55,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 print("DIAGNOSTICS_REQUIRE_SEPARATE_DATA_DIRECTORY_ARGUMENT")
                 Darwin.exit(64)
             }
-            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--multi-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--connection-setup"]
+            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--single-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--connection-setup"]
             let isDiagnostic = diagnostics.contains(where: CommandLine.arguments.contains)
             let directoryIndex = CommandLine.arguments.firstIndex(of: "--data-directory")
             if isDiagnostic || directoryIndex != nil {
@@ -126,7 +126,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             model.hidePanel = { [weak self] in self?.hidePanel() }
             model.openArchive = { [weak self] in self?.showArchive() }
             model.openSettings = { [weak self] in self?.showSettings() }
-            if let index = CommandLine.arguments.firstIndex(of: "--multi-asr-probe"), CommandLine.arguments.count > index + 1 {
+            if let index = CommandLine.arguments.firstIndex(of: "--single-asr-probe"), CommandLine.arguments.count > index + 1 {
                 Task {
                     // Finish startup reconciliation before importing this new attempt.
                     await model.initialLoad()
@@ -141,16 +141,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                         let configuration = try JSONDecoder().decode(RecognitionConfiguration.self,
                             from: Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[configIndex + 1])))
                         let id = try await MultiRecognitionDiagnostics.transcribeFixture(
-                            url: URL(fileURLWithPath: CommandLine.arguments[index + 1]), store: model.store, configuration: configuration,
-                            allowSingleExpertBaseline: CommandLine.arguments.contains("--single-expert-baseline"))
+                            url: URL(fileURLWithPath: CommandLine.arguments[index + 1]), store: model.store, configuration: configuration)
                         let report = URL(fileURLWithPath: CommandLine.arguments[reportIndex + 1], isDirectory: true)
                         try FileManager.default.createDirectory(at: report, withIntermediateDirectories: true)
                         try await MultiRecognitionDiagnostics.exportTrace(store: model.store, recordingID: id,
                             to: report.appendingPathComponent(id.uuidString + ".json"))
                         let state = try await model.store.recording(id: id)?.recognitionState.rawValue ?? "unknown"
-                        print("MULTI_ASR_PROBE_RECORDED recording=\(id) state=\(state); accuracy requires reference scoring")
+                        print("SINGLE_ASR_PROBE_RECORDED recording=\(id) state=\(state); accuracy requires reference scoring")
                         if state != "completed" { self.diagnosticExitStatus = 2 }
-                    } catch { self.diagnosticExitStatus = 1; print("MULTI_ASR_PROBE_FAILED \(error.localizedDescription)") }
+                    } catch { self.diagnosticExitStatus = 1; print("SINGLE_ASR_PROBE_FAILED \(error.localizedDescription)") }
                     await model.prepareForExit()
                     NSApp.terminate(nil)
                 }

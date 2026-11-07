@@ -70,6 +70,8 @@ public struct PrecisionReviewUsage: Sendable, Equatable {
     public var requestID: String?
     public var inputTokens: Int?
     public var outputTokens: Int?
+    public var cachedInputTokens: Int? = nil
+    public var reasoningTokens: Int? = nil
     public var elapsedSeconds: Double
 }
 public struct AudioReviewTranscript: Codable, Sendable, Equatable {
@@ -231,11 +233,12 @@ public struct PrecisionReviewClient: Sendable {
             throw ProviderFailure.incomplete
         }
         guard completed["model"] as? String == configuration.model else { throw ProviderFailure.protocolViolation("gpt-applied-model") }
-        let (decision, inputTokens, outputTokens) = try Self.decodeResponse(data)
+        let (decision, inputTokens, outputTokens, cachedInputTokens, reasoningTokens) = try Self.decodeResponse(data)
         return (decision, .init(requestID: http.value(forHTTPHeaderField: "x-request-id"), inputTokens: inputTokens,
-                                outputTokens: outputTokens, elapsedSeconds: Date().timeIntervalSince(began)))
+                                outputTokens: outputTokens, cachedInputTokens: cachedInputTokens,
+                                reasoningTokens: reasoningTokens, elapsedSeconds: Date().timeIntervalSince(began)))
     }
-    static func decodeResponse(_ data: Data) throws -> (PrecisionReviewDecision, Int?, Int?) {
+    static func decodeResponse(_ data: Data) throws -> (PrecisionReviewDecision, Int?, Int?, Int?, Int?) {
         guard data.count <= 8_000_000, let root = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               root["status"] as? String == "completed", let output = root["output"] as? [[String: Any]] else { throw ProviderFailure.incomplete }
         let messages = output.filter { $0["type"] as? String == "message" }
@@ -250,7 +253,10 @@ public struct PrecisionReviewClient: Sendable {
         catch { throw ProviderFailure.protocolViolation("gpt-structured-output") }
         guard decision.selections.count <= 4096, decision.reasonCode.count <= 400 else { throw ProviderFailure.protocolViolation("selection-size") }
         let usage = root["usage"] as? [String: Any]
-        return (decision, usage?["input_tokens"] as? Int, usage?["output_tokens"] as? Int)
+        let inputDetails = usage?["input_tokens_details"] as? [String: Any]
+        let outputDetails = usage?["output_tokens_details"] as? [String: Any]
+        return (decision, usage?["input_tokens"] as? Int, usage?["output_tokens"] as? Int,
+                inputDetails?["cached_tokens"] as? Int, outputDetails?["reasoning_tokens"] as? Int)
     }
 
     /// Blind re-listening avoids feeding the disputed transcript as an answer suggestion.

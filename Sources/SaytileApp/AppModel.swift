@@ -399,7 +399,7 @@ final class AppModel: ObservableObject {
             try candidate.validateForCloud()
             if candidate.cloudEnabled {
                 guard connectionVerified else { throw ProviderFailure.configuration("请先完成连接检查，再启用云端识别。本机识别可以继续使用。") }
-                for item in candidate.enabledModels {
+                for item in candidate.activeModels {
                     switch credentialPresence(item) {
                     case .saved: break
                     case .missing: throw ProviderFailure.configuration("请先保存\(item.purpose.label)的 API Key。")

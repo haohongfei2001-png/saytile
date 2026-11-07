@@ -185,7 +185,7 @@ private final class ConnectionControlFixture {
             },
             verify: { configuration, progress in
                 self.verificationCalls += 1
-                guard configuration.enabledModels.allSatisfy({ self.keys.contains($0.id) }) else { throw ProviderFailure.authorization }
+                guard configuration.activeModels.allSatisfy({ self.keys.contains($0.id) }) else { throw ProviderFailure.authorization }
                 self.activeVerifications += 1
                 self.maximumActiveVerifications = max(self.maximumActiveVerifications, self.activeVerifications)
                 defer { self.activeVerifications -= 1 }
@@ -206,7 +206,7 @@ private final class ConnectionControlFixture {
     }
     static func report(_ configuration: RecognitionConfiguration, state: ConnectionServiceState,
                        live: Bool, completed: Bool) throws -> CloudConnectionReport {
-        let rows: [[String: Any]] = configuration.enabledModels.map {
+        let rows: [[String: Any]] = configuration.activeModels.map {
             var row: [String: Any] = ["id": $0.id.uuidString, "provider": $0.provider.rawValue, "state": state.rawValue]
             if state == .failed { row["code"] = "quota_exhausted"; row["message"] = "TEST_ONLY synthetic quota failure" }
             return row
@@ -249,7 +249,7 @@ extension AppModelProbe {
         let suite = "app.saytile.test.capture." + UUID().uuidString
         let preferences = UserDefaults(suiteName: suite)!
         defer { preferences.removePersistentDomain(forName: suite) }
-        var configuration = RecognitionConfiguration(); configuration.automaticRecovery = false
+        var configuration = RecognitionConfiguration(); configuration.automaticRecovery = false; configuration.languagePreference = .chinese
         try configuration.save(to: preferences)
         let capture = CaptureControlFixture(), connection = ConnectionControlFixture()
         let model = try AppModel(directory: directory.appendingPathComponent("capture-presentation"), preferences: preferences,
@@ -441,7 +441,7 @@ extension AppModelProbe {
         let suite = "app.saytile.test.connections." + UUID().uuidString
         let preferences = UserDefaults(suiteName: suite)!
         defer { preferences.removePersistentDomain(forName: suite) }
-        var configuration = RecognitionConfiguration(); configuration.automaticRecovery = false
+        var configuration = RecognitionConfiguration(); configuration.automaticRecovery = false; configuration.languagePreference = .chinese
         for index in configuration.models.indices where configuration.models[index].enabled {
             configuration.models[index].cloudConsent = true
             if configuration.models[index].provider == .qwenMessage { configuration.models[index].workspaceID = "fixture-workspace" }
@@ -497,7 +497,7 @@ extension AppModelProbe {
         try check(model.checkingConnection, "check remains active while actual controller awaits backend")
         try fixture.publish(.accountAccepted)
         try await until("account accepted progress") { model.connectionReport?.services.allSatisfy({ $0.state == .accountAccepted }) == true }
-        try check(!model.connectionVerified && model.checkingConnection, "three accepted accounts are not final connection success")
+        try check(!model.connectionVerified && model.checkingConnection, "the two selected services are not final connection success")
         try fixture.publish(.receiving)
         try await until("receiving progress") { model.connectionReport?.services.allSatisfy({ $0.state == .receiving }) == true }
         try check(!model.connectionVerified && !fixture.runtimeCloud, "visible partial progress does not enable cloud")
@@ -558,7 +558,7 @@ extension AppModelProbe {
         try await until("restored fixture credential local drain") { !model.applyingRecognitionSettings }
         model.connectionCheckAuthorized = true; model.checkRecognitionConnections()
         try await until("cancelled check entry") { fixture.verificationContinuation != nil }
-        try await until("cancelled check progress visible") { model.connectionReport?.services.count == 3 }
+        try await until("cancelled check progress visible") { model.connectionReport?.services.count == 2 }
         let callsBeforeReplacement = fixture.verificationCalls
         model.cancelConnectionCheck()
         try check(model.connectionReport?.services.allSatisfy({ $0.state == .cancelled }) == true,
@@ -575,8 +575,8 @@ extension AppModelProbe {
         try fixture.publishMixedTerminalStates()
         try await until("mixed service progress visible") { model.connectionReport?.services.first?.state == .verified }
         model.cancelConnectionCheck()
-        try check(model.connectionReport?.services.map(\.state) == [.verified, .failed, .cancelled],
-                  "cancelling preserves verified and failed service outcomes while stopping the remaining service")
+        try check(model.connectionReport?.services.map(\.state) == [.verified, .failed],
+                  "cancelling preserves the selected ASR and GPT service outcomes")
         _ = model.removeCredential(for: first)
         try fixture.finish(.verified, live: true, completed: true)
         try await until("credential revocation while checking drained") { fixture.activeVerifications == 0 && !model.applyingRecognitionSettings }

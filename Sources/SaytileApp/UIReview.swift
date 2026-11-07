@@ -144,7 +144,7 @@ extension AppDelegate {
                     try await self.press(prefix + ".consent", in: host)
                     guard !model.recognitionConfiguration.models[0].cloudConsent,
                           model.recognitionConfiguration.models[0].enabled else { throw ReviewFailure("native model controls did not restore safe defaults") }
-                    print("UI_CONTROL_PASS fixed dual-expert setup: workspace and per-service consent; no model toggle, key read or cloud request")
+                    print("UI_CONTROL_PASS single selected ASR + GPT setup: workspace and per-service consent; no model toggle, key read or cloud request")
                 }
             }
             let setupRoot = output.appendingPathComponent("connection-setup-" + UUID().uuidString, isDirectory: true)
@@ -815,6 +815,7 @@ extension AppDelegate {
         let fixture = UIConnectionFixture()
         let model = try AppModel(directory: directory, preferences: preferences, connectionDependencies: fixture.dependencies)
         await model.initialLoad()
+        model.recognitionConfiguration.languagePreference = .chinese
         do {
             guard model.records.isEmpty, fixture.saved.isEmpty, !model.connectionVerified,
                   !model.recognitionConfiguration.cloudEnabled else { throw ReviewFailure("first connection fixture was not empty") }
@@ -824,7 +825,7 @@ extension AppDelegate {
                 try await reviewWindow(Form { RecognitionSettingsSection(model: model) }.formStyle(.grouped),
                     size: CGSize(width: 650, height: 840), name: "connection-first-success", output: output) { host in
                     try await self.press("recognition.configureServices", in: host)
-                    for item in model.recognitionConfiguration.enabledModels {
+                    for item in model.recognitionConfiguration.activeModels {
                         let prefix = "recognition.model." + item.id.uuidString.lowercased()
                         try await self.press(prefix + ".header", in: host)
                         if item.provider == .qwenMessage { try await self.setValue("fixture-workspace", for: prefix + ".workspace", in: host) }
@@ -838,7 +839,7 @@ extension AppDelegate {
                         try await self.press(prefix + ".header", in: host)
                     }
                     try await self.reviewUntil { !model.applyingRecognitionSettings }
-                    guard fixture.saved.count == 3, !model.connectionCheckAuthorized, fixture.requests == 0,
+                    guard fixture.saved.count == 2, !model.connectionCheckAuthorized, fixture.requests == 0,
                           model.recognitionConfiguration.models[0].workspaceID == "fixture-workspace" else {
                         throw ReviewFailure("first setup silently connected or did not save native fields")
                     }

@@ -171,9 +171,24 @@ final class FailoverRecognitionSession: RecognitionSession, @unchecked Sendable 
                 return FailureObservedProvider(base: try dependencies.streaming(provider), epoch: epoch, report: report)
             } catch { report(error); throw error }
         }
+        // GPT is part of the live recognition path too. Observe failures from the
+        // persistent Responses client, not only failures while opening ASR streams.
+        scoped.arbitrate = { evidence, prefix, context, item, credential in
+            do {
+                try epoch.check()
+                let result = try await dependencies.arbitrate(evidence, prefix, context, item, credential)
+                try epoch.check()
+                return result
+            } catch {
+                report(error)
+                throw error
+            }
+        }
+        scoped.reviewFailure = report
         // Admission and initial attachment are synchronous: no initial PCM can fall
         // into a Task scheduling gap. Subsequent local input comes from disk only.
-        let initial: (any RecognitionSession)? = cloud ? MultiRecognitionSession(store: store, ticket: ticket,
+        let canSelectCloudASR = configuration.selectedASRModel != nil
+        let initial: (any RecognitionSession)? = cloud && canSelectCloudASR ? MultiRecognitionSession(store: store, ticket: ticket,
             configuration: configuration, dependencies: scoped) : nil
         if let initial { try? owner.install(initial, live: true) }
         epoch.register(owner, id: id)

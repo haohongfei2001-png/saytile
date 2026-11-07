@@ -1,3 +1,5 @@
+> **历史验证记录**：以下“双专家”场景是旧架构的存储/发布安全回归，不是当前 ASR 并行行为。
+
 # 融合协调器与仲裁证据独立审查
 
 2026-11-06，PR #4 工作树。审查 `MultiRecognitionSession.swift`、`PrecisionReviewClient.swift`、`RecognitionFusion.swift` 与 Store 的发布、投递证明、删除和 usage 路径。使用独立 `/tmp/saytile-fusion-input` 构建及合成 SQLite/PCM fixtures；未读取私人录音，未请求凭据、上传或调用真实服务。本报告不证明真实识别准确率、供应商线上延迟或融合增益。

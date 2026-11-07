@@ -7,7 +7,9 @@ struct RecognitionPipelineDependencies: Sendable {
     var transcribe: @Sendable (Data, ModelConfiguration, String) async throws -> ProviderTranscriptEvent
     var arbitrate: @Sendable ([ReviewEvidence], String, String, ModelConfiguration, String) async throws -> (PrecisionReviewDecision, PrecisionReviewUsage)
     var listen: @Sendable (Data, ModelConfiguration, String) async throws -> (AudioReviewTranscript, PrecisionReviewUsage)
+    var reviewFailure: @Sendable (Error) -> Void = { _ in }
     var makeReviewClient: (@Sendable () -> GPTReviewSession)? = nil
+    var makeReviewClientWithFailure: (@Sendable (ReviewFailureObserver) -> GPTReviewSession)? = { GPTReviewSession(onFailure: $0.callback) }
     var finalizationStarted: @Sendable () -> Void = {}
     /// Bounded connection checks reserve an EOS review; normal recognition has no cap.
     var maximumLiveReviews: Int? = nil
@@ -26,7 +28,7 @@ struct RecognitionPipelineDependencies: Sendable {
         transcribe: { try await FinalASRProvider().transcribe(pcm: $0, configuration: $1, credential: $2) },
         arbitrate: { try await PrecisionReviewClient().arbitrate(evidence: $0, confirmedPrefix: $1, context: $2, configuration: $3, credential: $4) },
         listen: { try await PrecisionReviewClient().listen(pcm: $0, configuration: $1, credential: $2) },
-        makeReviewClient: { GPTReviewSession() })
+        makeReviewClientWithFailure: { GPTReviewSession(onFailure: $0.callback) })
 }
 
 final class MultiRecognitionSession: RecognitionSession, @unchecked Sendable {
@@ -39,13 +41,26 @@ final class MultiRecognitionSession: RecognitionSession, @unchecked Sendable {
     var isComplete: Bool { completion.isComplete }
     init(store: SaytileStore, ticket: RecognitionTicket, configuration: RecognitionConfiguration,
          dependencies: RecognitionPipelineDependencies = .live,
-         allowSingleExpertBaseline: Bool = false,
          finalizationTimeout: Duration = .seconds(480),
          onComplete: @escaping @Sendable () -> Void = {}) {
         self.recordingID = ticket.recordingID
         self.finalizationTimeout = finalizationTimeout
-        let configs = configuration.enabledModels.filter { $0.purpose.isStreaming }
-        let coordinator = SingleTranscriptEngine(store: store, ticket: ticket, configuration: configuration, dependencies: dependencies)
+        var runtimeConfiguration = configuration
+        if let selected = configuration.selectedASRModel {
+            runtimeConfiguration.models = configuration.models.map { item in
+                var value = item
+                if value.purpose.isStreaming { value.enabled = value.id == selected.id }
+                return value
+            }
+        } else {
+            runtimeConfiguration.models = configuration.models.map { item in
+                var value = item
+                if value.purpose.isStreaming { value.enabled = false }
+                return value
+            }
+        }
+        let configs = runtimeConfiguration.activeModels.filter { $0.purpose.isStreaming }
+        let coordinator = SingleTranscriptEngine(store: store, ticket: ticket, configuration: runtimeConfiguration, dependencies: dependencies)
         self.coordinator = coordinator
         let fanout = RecognitionAudioFanout(ids: configs.map(\.id)) { id in
             Task { await coordinator.audioOverflow(configurationID: id) }
@@ -55,7 +70,7 @@ final class MultiRecognitionSession: RecognitionSession, @unchecked Sendable {
         task = Task {
             defer { completion.finish(); onComplete() }
             do {
-                try configuration.validateForCloud(allowSingleExpertBaseline: allowSingleExpertBaseline)
+                try runtimeConfiguration.validateForCloud()
                 try await coordinator.attach(fanout)
                 try Task.checkCancellation()
                 try await withTaskCancellationHandler {

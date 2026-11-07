@@ -19,6 +19,12 @@ struct AudioLifecycleGateTests {
         #expect(!AudioLifecycleGate.requiresPermissionSuspension(state: .paused, authorization: .notDetermined))
         #expect(!AudioLifecycleGate.requiresPermissionSuspension(state: .interrupted("fixture"), authorization: .denied))
     }
+    @Test func systemSleepDoesNotReplaceAnIntentionalUserPause() {
+        #expect(!AudioLifecycleGate.shouldSuspendForSystemLifecycle(state: .paused, requestedRunning: false))
+        #expect(!AudioLifecycleGate.shouldSuspendForSystemLifecycle(state: .paused, requestedRunning: true))
+        #expect(AudioLifecycleGate.shouldSuspendForSystemLifecycle(state: .listening, requestedRunning: true))
+        #expect(AudioLifecycleGate.shouldSuspendForSystemLifecycle(state: .interrupted("device"), requestedRunning: true))
+    }
     @Test func lockedAtLaunchCannotCapture() {
         var gate = AudioLifecycleGate(); gate.refresh(locked)
         #expect(!gate.permitsCapture)

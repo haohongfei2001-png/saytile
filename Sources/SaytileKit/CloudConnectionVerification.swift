@@ -45,8 +45,9 @@ public struct CloudConnectionReport: Codable, Sendable, Equatable {
     public var runs: [ModelRunRecord]? = nil
     public var readiness: ProductReadiness {
         guard live else { return .noAPIEngineeringReady }
-        guard services.count == 3, Set(services.map(\.id)).count == 3,
-              Set(services.map(\.provider)) == Set([.qwenMessage, .assemblyAI, .openAIResponses]) else { return .liveConnectionPending }
+        guard services.count == 2, Set(services.map(\.id)).count == 2,
+              services.filter({ $0.provider.isStreaming }).count == 1,
+              services.contains(where: { $0.provider == .openAIResponses }) else { return .liveConnectionPending }
         if pipelineCompleted && !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && services.allSatisfy({ $0.state == .verified }) { return .liveTranscriptionVerified }
         if services.allSatisfy({ $0.state == .verified }) { return .liveProtocolVerified }
         return .liveConnectionPending
@@ -63,7 +64,7 @@ public enum ConnectionCheckLimits {
     public static let maximumDuration: Duration = .seconds(90)
     public static let maximumReviewRequests = 6
     public static let maximumOutputTokens = 4096
-    public static let disclosure = "只上传应用内置的 6.3 秒中英合成语音，不使用麦克风或你的历史内容。最多两路语音连接、6 次 AI 请求，每次最多 4096 输出 Token，联网阶段 90 秒内停止；可随时取消。按标准公开价格，仅 AI 输出的上限估算约 US$1.23，另有输入、缓存及语音费用；实际以账户账单为准，不能保证金额上限。不会自动重试本次检查。"
+    public static let disclosure = "只上传应用内置的 6.3 秒合成语音，不使用麦克风或你的历史内容。每次仅连接一项语言 ASR、最多 6 次 GPT-6 请求，每次最多 4096 输出 Token，联网阶段 90 秒内停止；可随时取消。按标准公开价格，仅 AI 输出的上限估算约 US$1.23，另有输入、缓存及语音费用；实际以账户账单为准，不能保证金额上限。不会自动重试本次检查。"
 }
 
 struct CloudConnectionTransport: Sendable {
@@ -112,7 +113,7 @@ private final class ConnectionProgress: @unchecked Sendable {
     let update: @Sendable (CloudConnectionReport) -> Void
     init(configuration: RecognitionConfiguration, live: Bool, update: @escaping @Sendable (CloudConnectionReport) -> Void) {
         value = .init(configurationFingerprint: CloudConnectionVerifier.fingerprint(configuration), date: Date(), live: live,
-                      services: configuration.enabledModels.map { .init(id: $0.id, provider: $0.provider, state: .waiting) })
+                      services: configuration.activeModels.map { .init(id: $0.id, provider: $0.provider, state: .waiting) })
         self.update = update
     }
     var snapshot: CloudConnectionReport { lock.withLock { value } }
@@ -151,11 +152,13 @@ private struct ObservedConnectionProvider: StreamingASRProvider {
 public enum CloudConnectionVerifier {
     /// Endpoint/account identity only: topic, prices and the on/off switch do not re-authenticate an account.
     public static func fingerprint(_ configuration: RecognitionConfiguration) -> String {
-        let rows = configuration.enabledModels.sorted { $0.id.uuidString < $1.id.uuidString }.map {
+        let rows = configuration.activeModels.sorted { $0.id.uuidString < $1.id.uuidString }.map {
             [$0.id.uuidString, $0.provider.rawValue, $0.purpose.rawValue, $0.model, $0.region, $0.workspaceID,
-             String($0.cloudConsent), $0.credentialGeneration?.uuidString ?? "legacy-credential"]
+             String($0.enabled), String($0.cloudConsent), $0.credentialGeneration?.uuidString ?? "legacy-credential"]
         }
-        let bytes = (try? JSONEncoder().encode(rows)) ?? Data()
+        let canonical = [configuration.languagePreference?.rawValue ?? "auto", configuration.resolvedLanguage.rawValue,
+                         rows.map { $0.joined(separator: "|") }.joined(separator: "\n")].joined(separator: "\n")
+        let bytes = Data(canonical.utf8)
         return SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
     }
     public static func bundledSample() throws -> Data {
@@ -182,10 +185,11 @@ public enum CloudConnectionVerifier {
         guard authorized else { throw ProviderFailure.authorization }
         var check = configuration; check.cloudEnabled = true; check.automaticRecovery = false
         try check.validateForCloud()
-        guard check.enabledModels.count == 3,
-              Set(check.enabledModels.map(\.provider)) == Set([.qwenMessage, .assemblyAI, .openAIResponses]),
+        guard check.activeModels.count == 2,
+              check.activeModels.filter({ $0.purpose.isStreaming }).count == 1,
+              check.activeModels.contains(where: { $0.purpose == .textFusion && $0.provider == .openAIResponses }),
               !pcm.isEmpty, pcm.count.isMultiple(of: 2), Double(pcm.count) / 32000 <= ConnectionCheckLimits.maximumAudioSeconds else {
-            throw ProviderFailure.configuration("请准备中文专家、英文专家和 AI 融合三项连接。")
+            throw ProviderFailure.configuration("请准备当前语言对应的一项 ASR 服务和 GPT-6 AI 核心。")
         }
         // Never upload a user's topic, archive or microphone audio during setup.
         check.topicContext = ""
@@ -194,7 +198,7 @@ public enum CloudConnectionVerifier {
         update(progress.snapshot)
         // Read only the three selected credentials, and never write them into the report/store.
         var credentials: [UUID: String] = [:]
-        for item in check.enabledModels {
+        for item in check.activeModels {
             try Task.checkCancellation()
             do {
                 guard let secret = try transport.credential(item), !secret.isEmpty else { throw ProviderFailure.authorization }
@@ -203,7 +207,7 @@ public enum CloudConnectionVerifier {
         }
         try Task.checkCancellation()
         let savedCredentials = credentials
-        let fusion = check.enabledModels.first { $0.purpose == .textFusion }!
+        let fusion = check.activeModels.first { $0.purpose == .textFusion }!
         let budget = ConnectionRequestBudget()
         let review = GPTReviewSession(timeout: .seconds(30), maximumOutputTokens: ConnectionCheckLimits.maximumOutputTokens,
             onReady: { progress.set(fusion.id, .accountAccepted) },
@@ -214,13 +218,14 @@ public enum CloudConnectionVerifier {
             })
         var dependencies = RecognitionPipelineDependencies.live
         dependencies.credential = { savedCredentials[$0.id] }
-        let selectedModels = check.enabledModels
+        let selectedModels = check.activeModels
         dependencies.streaming = { provider in
             guard let item = selectedModels.first(where: { $0.provider == provider }) else { throw ProviderFailure.authorization }
             let client = try transport.streaming(provider, { progress.set(item.id, .accountAccepted) })
             return ObservedConnectionProvider(underlying: client, progress: progress)
         }
         dependencies.makeReviewClient = nil
+        dependencies.makeReviewClientWithFailure = nil
         dependencies.maximumLiveReviews = 1
         dependencies.arbitrate = { evidence, prefix, context, item, key in
             do {

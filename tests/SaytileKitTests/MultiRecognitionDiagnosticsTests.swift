@@ -3,29 +3,27 @@ import CryptoKit
 import Testing
 @testable import SaytileKit
 
-@Suite("Explicit local multi-ASR probe boundaries")
+@Suite("Explicit local single-ASR probe boundaries")
 struct MultiRecognitionDiagnosticsTests {
-    @Test func singleExpertBaselineIsExplicitAndCannotBypassConsentOrRoleValidation() throws {
+    @Test func selectedASRIsUniqueAndCannotBypassConsentOrRoleValidation() throws {
         var config = RecognitionConfiguration()
         config.cloudEnabled = true
         config.models = [
             .init(purpose: .englishASR, provider: .assemblyAI, model: "universal-3-6-pro"),
             .init(purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra")
         ]
-        #expect(throws: ProviderFailure.self) { try config.validateForCloud(allowSingleExpertBaseline: true) }
+        #expect(throws: ProviderFailure.self) { try config.validateForCloud() }
         config.models[0].cloudConsent = true
         config.models[1].cloudConsent = true
-        try config.validateForCloud(allowSingleExpertBaseline: true)
-        #expect(throws: ProviderFailure.self) { try config.validateForCloud() }
+        try config.validateForCloud()
         config.models.append(.init(purpose: .chineseASR, provider: .qwenMessage, model: "qwen-audio-3.1-asr-flash-message",
                                    cloudConsent: true, region: "cn-beijing", workspaceID: "fixture"))
         try config.validateForCloud()
-        #expect(throws: ProviderFailure.self) { try config.validateForCloud(allowSingleExpertBaseline: true) }
         config.models = [.init(purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra", cloudConsent: true)]
-        #expect(throws: ProviderFailure.self) { try config.validateForCloud(allowSingleExpertBaseline: true) }
+        #expect(throws: ProviderFailure.self) { try config.validateForCloud() }
     }
 
-    @Test func sourceHashCoversEntireDeclaredFixtureAndModeIsNotDisguised() throws {
+    @Test func sourceHashCoversEntireDeclaredFixtureAndSingleASRModeIsExplicit() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-fixture-hash-" + UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
@@ -38,13 +36,13 @@ struct MultiRecognitionDiagnosticsTests {
         #expect(identity.audioSHA256 == SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined())
         var configuration = RecognitionConfiguration()
         configuration.models = [.init(purpose: .englishASR, provider: .meta, model: "muse-voice-transcribe-1.0")]
-        let baseline = try MultiRecognitionDiagnostics.identity(configuration: configuration, singleExpertBaseline: true)
-        let fused = try MultiRecognitionDiagnostics.identity(configuration: configuration, singleExpertBaseline: false)
-        #expect(baseline.evaluationMode == "single-expert-baseline")
-        #expect(fused.evaluationMode == "multi-expert-fusion")
-        #expect(baseline.sha256 == fused.sha256) // Mode is independent evidence, not a changed model snapshot.
+        let baseline = try MultiRecognitionDiagnostics.identity(configuration: configuration)
+        let fused = try MultiRecognitionDiagnostics.identity(configuration: configuration)
+        #expect(baseline.evaluationMode == "single-asr-plus-gpt6")
+        #expect(fused.evaluationMode == "single-asr-plus-gpt6")
+        #expect(baseline.sha256 == fused.sha256)
         configuration.models[0].model = "different-model"
-        #expect(try MultiRecognitionDiagnostics.identity(configuration: configuration, singleExpertBaseline: true).sha256 != baseline.sha256)
+        #expect(try MultiRecognitionDiagnostics.identity(configuration: configuration).sha256 != baseline.sha256)
     }
 
     @Test func exportsPersistedGenerationTerminalAndExactConfigurationWithoutInventingSessionCompletion() async throws {
@@ -77,11 +75,11 @@ struct MultiRecognitionDiagnosticsTests {
             lastAudioSubmittedAt: Date(timeIntervalSince1970: 101), sessionEndedAt: Date(timeIntervalSince1970: 102),
             source: .init(fixtureID: "synthetic-only", audioSHA256: String(repeating: "a", count: 64), sampleRate: 16_000, frameCount: 16_000),
             configuration: configuration,
-            configurationIdentity: try MultiRecognitionDiagnostics.identity(configuration: configuration, singleExpertBaseline: false))
+            configurationIdentity: try MultiRecognitionDiagnostics.identity(configuration: configuration))
         let owned = store.audioDirectory.appendingPathComponent(record.id.uuidString)
         try FileManager.default.createDirectory(at: owned, withIntermediateDirectories: true)
         let encoder = JSONEncoder(); encoder.dateEncodingStrategy = .millisecondsSince1970
-        try encoder.encode(replay).write(to: owned.appendingPathComponent("multi-asr-replay.json"))
+        try encoder.encode(replay).write(to: owned.appendingPathComponent("single-asr-replay.json"))
         // A later live attempt changes record-level state, but not the replayed generation's result.
         _ = try await store.beginFusionRecognition(recordingID: record.id)
         let url = directory.appendingPathComponent("trace.json")
@@ -95,7 +93,7 @@ struct MultiRecognitionDiagnosticsTests {
         #expect(abs(completed - terminal.occurredAt.timeIntervalSince1970 * 1000) < 0.001)
         #expect(completed != 102_000) // Session termination must never masquerade as completion.
         #expect((object["source"] as? [String: Any])?["fixtureID"] as? String == "synthetic-only")
-        #expect((object["configurationIdentity"] as? [String: Any])?["evaluationMode"] as? String == "multi-expert-fusion")
+        #expect((object["configurationIdentity"] as? [String: Any])?["evaluationMode"] as? String == "single-asr-plus-gpt6")
         #expect(object["sourceRevision"] == nil)
         try await store.close()
     }

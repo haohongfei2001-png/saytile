@@ -7,19 +7,18 @@ import CryptoKit
 public enum MultiRecognitionDiagnostics {
     @discardableResult
     public static func transcribeFixture(url: URL, store: SaytileStore,
-                                         configuration: RecognitionConfiguration,
-                                         allowSingleExpertBaseline: Bool = false) async throws -> UUID {
+                                         configuration: RecognitionConfiguration) async throws -> UUID {
         // Reject before reading a fixture, creating a record, looking up credentials,
         // or constructing any live provider. validateForCloud alone permits disabled cloud.
         guard configuration.cloudEnabled else {
             throw ProviderFailure.configuration("多模型回放需要显式启用云端识别，并授权每个启用模型。")
         }
-        try configuration.validateForCloud(allowSingleExpertBaseline: allowSingleExpertBaseline)
+        try configuration.validateForCloud()
         let file = try validatedFixture(url)
         let source = try fixtureIdentity(url: url, frameCount: file.length)
-        let configurationIdentity = try identity(configuration: configuration, singleExpertBaseline: allowSingleExpertBaseline)
+        let configurationIdentity = try identity(configuration: configuration)
         var credentials: [UUID: String] = [:]
-        for model in configuration.enabledModels {
+        for model in configuration.activeModels {
             guard let key = try CloudCredentialStore.read(configurationID: model.id, provider: model.provider), !key.isEmpty else {
                 throw ProviderFailure.configuration("\(model.purpose.label)缺少此配置的 Keychain API Key，尚未启动任何模型。")
             }
@@ -46,8 +45,7 @@ public enum MultiRecognitionDiagnostics {
         var dependencies = RecognitionPipelineDependencies.live
         dependencies.credential = { approvedCredentials[$0.id] }
         let session = MultiRecognitionSession(store: store, ticket: ticket, configuration: configuration,
-                                               dependencies: dependencies,
-                                               allowSingleExpertBaseline: allowSingleExpertBaseline)
+                                               dependencies: dependencies)
         do {
             try await withTaskCancellationHandler {
                 let clock = ContinuousClock(), origin = clock.now
@@ -74,6 +72,10 @@ public enum MultiRecognitionDiagnostics {
                         remaining -= Int64(frame.count)
                     }
                 }
+                replay.framesSubmitted = framesSubmitted
+                replay.inputEOF = framesSubmitted == file.length
+                replay.inputEOFAt = Date()
+                try encode(replay).write(to: metadataURL, options: .atomic)
                 session.finish()
                 await session.wait()
                 try Task.checkCancellation()
@@ -182,10 +184,10 @@ public enum MultiRecognitionDiagnostics {
                            audioSHA256: hasher.finalize().map { String(format: "%02x", $0) }.joined(),
                            sampleRate: 16_000, frameCount: frameCount)
     }
-    static func identity(configuration: RecognitionConfiguration, singleExpertBaseline: Bool) throws -> TraceConfigurationIdentity {
+    static func identity(configuration: RecognitionConfiguration) throws -> TraceConfigurationIdentity {
         let data = try encode(configuration)
         return TraceConfigurationIdentity(sha256: SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined(),
-                                          evaluationMode: singleExpertBaseline ? "single-expert-baseline" : "multi-expert-fusion")
+                                          evaluationMode: "single-asr-plus-gpt6")
     }
 
     private static func validatedFixture(_ url: URL) throws -> AVAudioFile {
@@ -279,6 +281,9 @@ public enum MultiRecognitionDiagnostics {
         var firstAudioSubmittedAt: Date?
         var lastAudioSubmittedAt: Date?
         var sessionEndedAt: Date?
+        var framesSubmitted: Int64? = nil
+        var inputEOF: Bool? = nil
+        var inputEOFAt: Date? = nil
         var source: TraceSource? = nil
         var configuration: RecognitionConfiguration? = nil
         var configurationIdentity: TraceConfigurationIdentity? = nil

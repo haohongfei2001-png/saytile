@@ -46,6 +46,9 @@ struct AudioLifecycleGate: Sendable, Equatable {
         if lockNotification || snapshot?.screenLocked == true { return "屏幕已锁定" }
         return "当前用户会话不可用"
     }
+    static func shouldSuspendForSystemLifecycle(state: CaptureState, requestedRunning: Bool) -> Bool {
+        requestedRunning && state != .paused
+    }
     static func requiresPermissionSuspension(state: CaptureState, authorization: AVAuthorizationStatus) -> Bool {
         // The first system prompt may legitimately remain open longer than the
         // polling interval. Only this pending start may await an undecided result;

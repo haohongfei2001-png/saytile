@@ -80,6 +80,11 @@ final class NativeGPTReviewSocket: GPTReviewSocket, @unchecked Sendable {
     deinit { close() }
 }
 
+struct ReviewFailureObserver: Sendable {
+    let callback: @Sendable (Error) -> Void
+    init(_ callback: @escaping @Sendable (Error) -> Void) { self.callback = callback }
+}
+
 actor GPTReviewSession {
     typealias Factory = @Sendable (String) throws -> any GPTReviewSocket
     typealias Fallback = @Sendable ([ReviewEvidence], String, String, ModelConfiguration, String) async throws -> (PrecisionReviewDecision, PrecisionReviewUsage)
@@ -87,6 +92,7 @@ actor GPTReviewSession {
     private let fallback: Fallback
     private let timeout: Duration
     private let onReady: @Sendable () -> Void
+    private let onFailure: @Sendable (Error) -> Void
     private let maximumOutputTokens: Int?
     private let lane = UUID().uuidString
     private var socket: (any GPTReviewSocket)?
@@ -98,6 +104,7 @@ actor GPTReviewSession {
     private var busy = false
     private var cancelled = false
     init(timeout: Duration = .seconds(120), maximumOutputTokens: Int? = nil, onReady: @escaping @Sendable () -> Void = {},
+         onFailure: @escaping @Sendable (Error) -> Void = { _ in },
          factory: @escaping Factory = { NativeGPTReviewSocket(credential: $0) },
          fallback: Fallback? = nil) {
         self.factory = factory
@@ -105,7 +112,7 @@ actor GPTReviewSession {
             try await PrecisionReviewClient(maximumOutputTokens: maximumOutputTokens).arbitrate(
                 evidence: $0, confirmedPrefix: $1, context: $2, configuration: $3, credential: $4)
         }
-        self.timeout = timeout; self.onReady = onReady; self.maximumOutputTokens = maximumOutputTokens
+        self.timeout = timeout; self.onReady = onReady; self.onFailure = onFailure; self.maximumOutputTokens = maximumOutputTokens
     }
     func cancel() { cancelled = true; reset() }
     private func reset() {
@@ -142,11 +149,13 @@ actor GPTReviewSession {
                     let response = try await Self.exchange(connection, body: body, lane: lane, model: configuration.model, timeout: timeout, onReady: onReady)
                     try Task.checkCancellation()
                     guard !cancelled else { throw CancellationError() }
-                    let (decision, input, output) = try PrecisionReviewClient.decodeResponse(response)
+                    let (decision, input, output, cachedInput, reasoning) = try PrecisionReviewClient.decodeResponse(response)
                     let object = try JSONSerialization.jsonObject(with: response) as? [String: Any]
                     guard let id = object?["id"] as? String, !id.isEmpty else { throw ProviderFailure.incomplete }
                     previousResponseID = id; manifest = Dictionary(uniqueKeysWithValues: evidence.map { ($0.candidateID, $0) }); turns += 1
-                    return (decision, .init(requestID: id, inputTokens: input, outputTokens: output, elapsedSeconds: Date().timeIntervalSince(began)))
+                    return (decision, .init(requestID: id, inputTokens: input, outputTokens: output,
+                                            cachedInputTokens: cachedInput, reasoningTokens: reasoning,
+                                            elapsedSeconds: Date().timeIntervalSince(began)))
                 } catch GPTSocketFailure.cacheMiss where attempt == 0 {
                     previousResponseID = nil; manifest.removeAll(); turns = 0
                 } catch GPTSocketFailure.reconnect where attempt == 0 {
@@ -162,8 +171,16 @@ actor GPTReviewSession {
             reset(); identity = fingerprint; fallbackIdentity = fingerprint
             // Remember unsupported transport for this exact configuration/credential.
             // Repeated failed upgrades must not consume the connection-check budget.
-            return try await reviewViaHTTP(evidence: evidence, prefix: prefix, context: context, configuration: configuration, credential: credential)
-        } catch { reset(); throw error }
+            do {
+                return try await reviewViaHTTP(evidence: evidence, prefix: prefix, context: context, configuration: configuration, credential: credential)
+            } catch { onFailure(Self.failoverFailure(error)); throw error }
+        } catch { reset(); onFailure(Self.failoverFailure(error)); throw error }
+    }
+    private nonisolated static func failoverFailure(_ error: Error) -> Error {
+        if let failure = error as? ProviderFailure { return failure }
+        if error is GPTSocketFailure { return ProviderFailure.connection }
+        if let error = error as? URLError, error.code != .cancelled { return ProviderFailure.connection }
+        return error
     }
     private func reviewViaHTTP(evidence: [ReviewEvidence], prefix: String, context: String,
                                configuration: ModelConfiguration, credential: String) async throws -> (PrecisionReviewDecision, PrecisionReviewUsage) {

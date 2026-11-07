@@ -1,3 +1,5 @@
+> **SUPERSEDED（2026-11-07）**：本目录 11 配置双/多专家消融是历史研究设计，不是当前实验。当前实验仅 A Qwen+GPT、B AssemblyAI+GPT、C Soniox+GPT，见 [single-transcript benchmark](../single-transcript-2026-11-07/README.md)。
+
 # PR #4 离线四阶段质量评估
 
 本目录只读取明确指定的现有 manifest、旧结果和诊断 JSON。评分、选样与准备命令**不读取原音、不调用云服务、不读取 Keychain/UserDefaults、不执行 App**。测试使用独立合成 fixtures。它没有产生新的云端准确率、时延或融合收益结论。

@@ -149,6 +149,16 @@ struct FusionPublicationTests {
         #expect(result.unresolved)
     }
 
+    @Test func englishNumberWordsAndCurrencyAreProtectedWithoutRewritingSourceText() {
+        func signature(_ value: String) -> String { PrecisionFusion.protectedSignature(value) }
+        #expect(signature("fifteen dollars") != signature("fifty dollars"))
+        #expect(signature("thirteen milligrams") != signature("thirty milligrams"))
+        #expect(signature("point five") != signature("five"))
+        #expect(signature("first result") != signature("third result"))
+        #expect(signature("fifteen dollars") == signature("$15"))
+        #expect(signature("$15.50") == signature("15.50 dollars"))
+    }
+
     @Test func fullyStableMetaTurnStillCannotTurnProcessingProgressIntoAcousticCoverage() throws {
         let run = ModelRunTicket(recognitionID: UUID(), recordingID: UUID(), audioEpoch: 1,
             configurationID: UUID(), provider: "meta", model: "authored-fixture", purpose: .englishASR)

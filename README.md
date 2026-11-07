@@ -14,7 +14,7 @@ GitHub Releases 的稳定版本为 RC1，下载见 [Releases](https://github.com
 
 ## 最高质量中英文识别候选
 
-当前契约是两个平等完整音频 ASR 专家、唯一 GPT-6 Astra 文本核心和单份忠实文字流；Apple 本地识别进入统一候选入口。不得恢复五模型默认链、润色或第二评审器。见 [最终架构](research/architecture/FINAL-ARCHITECTURE.md)。
+当前契约是每段录音一个语言 ASR 专家、唯一 GPT-6 Astra 文本核心和单份忠实文字流；Apple 本地识别仅用于离线与故障接替。不得恢复并行 ASR、五模型默认链、润色或第二评审器。见 [最终架构](research/architecture/FINAL-ARCHITECTURE.md)。
 
 本分支保留 PR #4 的可靠性修复、PR #5 的产品契约和 PR #6 的单核心引擎。没有 API Key 时可使用 Apple 本地中文识别；云端凭据在原生设置里填写，由一次明确授权的内置合成语音检查验证接收、融合和定稿，全部通过后自动启用。无需修改JSON或终端联调；真实连接与准确率状态严格分开。参见 [安装与连接](docs/V1-INSTALL.md)。
 

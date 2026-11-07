@@ -300,10 +300,18 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         super.init(); refreshDevices()
         let center = NSWorkspace.shared.notificationCenter
         observers.append(center.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
-            self?.lifecycleGate.sleeping = true; await self?.suspend(reason: "Mac 已睡眠")
+            guard let self else { return }
+            self.lifecycleGate.sleeping = true
+            if AudioLifecycleGate.shouldSuspendForSystemLifecycle(state: self.state, requestedRunning: self.requestedRunning) {
+                await self.suspend(reason: "Mac 已睡眠")
+            }
         } })
         observers.append(center.addObserver(forName: NSWorkspace.sessionDidResignActiveNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
-            self?.lifecycleGate.sessionInactive = true; await self?.suspend(reason: "会话已暂停")
+            guard let self else { return }
+            self.lifecycleGate.sessionInactive = true
+            if AudioLifecycleGate.shouldSuspendForSystemLifecycle(state: self.state, requestedRunning: self.requestedRunning) {
+                await self.suspend(reason: "会话已暂停")
+            }
         } })
         observers.append(center.addObserver(forName: NSWorkspace.sessionDidBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
             guard let self else { return }; self.lifecycleGate.sessionInactive = false; self.lifecycleGate.refresh(AudioSessionSnapshot.current())
@@ -353,7 +361,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             }
         }
         availabilityTask = Task {
-            speechStatus = recognitionFactory.usesCloud ? "中英文并行识别 · " + recognitionFactory.configuration.inputMode.label : await AppleSpeechService.availability().message
+            speechStatus = recognitionFactory.usesCloud ? "单一语言专家识别 · " + recognitionFactory.configuration.inputMode.label : await AppleSpeechService.availability().message
         }
         recoveryTask = Task { [weak self] in
             while !Task.isCancelled {
@@ -394,7 +402,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         for old in drainingWorkers { await old.cancelRecognitionAndWait() }
         guard generation == recognitionSettingsGeneration else { return }
         retryTask?.cancel()
-        let message = configuration.cloudEnabled ? "中英文并行识别 · " + configuration.inputMode.label : await AppleSpeechService.availability().message
+        let message = configuration.cloudEnabled ? "单一语言专家识别 · " + configuration.inputMode.label : await AppleSpeechService.availability().message
         guard generation == recognitionSettingsGeneration else { return }
         speechStatus = message
     }

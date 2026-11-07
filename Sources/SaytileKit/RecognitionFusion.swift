@@ -406,11 +406,41 @@ public enum PrecisionFusion {
         let pattern = #"(?i)(\b[\p{L}]+\b)(?:[\s,，]+\1\b)+|([\x{3400}-\x{9fff}])\2+|[+-]?[0-9]+(?:[.,:/-][0-9]+)*(?:%|％)?|[零〇一二三四五六七八九十百千万亿两]+|不|没|无|未|别|非|否|勿|\b(?:no|not|never|neither|nor|without|cannot|can't|don't|doesn't|didn't|isn't|aren't|wasn't|weren't|won't|wouldn't|shouldn't|couldn't)\b|[¥￥$€£]|\b(?:kg|mg|g|km|cm|mm|ms|usd|rmb|hours?|minutes?|seconds?|percent|dollars?)\b|公斤|千克|毫克|毫升|公里|厘米|毫米|元|万元|亿元|秒|分钟|小时|年|月|日|点"#
         // Comparison only: preserve the exact source, selected ranges and published text.
         // NFKC recognizes full-width numbers; apostrophe variants must not hide a negation.
-        let comparison = text.precomposedStringWithCompatibilityMapping
+        var comparison = text.precomposedStringWithCompatibilityMapping
             .replacingOccurrences(of: "’", with: "'")
             .replacingOccurrences(of: "‘", with: "'")
             .replacingOccurrences(of: "ʼ", with: "'")
             .replacingOccurrences(of: "‛", with: "'")
+        // Normalize only explicit, unambiguous English number words for comparison.
+        // The selected source text and UTF-16 spans are never rewritten.
+        let currency = try? NSRegularExpression(pattern: #"\$([0-9]+(?:\.[0-9]+)?)"#)
+        if let currency {
+            let source = comparison as NSString
+            let matches = currency.matches(in: comparison, range: NSRange(location: 0, length: source.length)).reversed()
+            for match in matches where match.numberOfRanges > 1 {
+                let amount = source.substring(with: match.range(at: 1))
+                comparison = (comparison as NSString).replacingCharacters(in: match.range, with: "\(amount) dollars")
+            }
+        }
+        let numbers: [String: String] = [
+            "zero":"0", "one":"1", "two":"2", "three":"3", "four":"4", "five":"5",
+            "six":"6", "seven":"7", "eight":"8", "nine":"9", "ten":"10", "eleven":"11",
+            "twelve":"12", "thirteen":"13", "fourteen":"14", "fifteen":"15", "sixteen":"16",
+            "seventeen":"17", "eighteen":"18", "nineteen":"19", "twenty":"20", "thirty":"30",
+            "forty":"40", "fifty":"50", "sixty":"60", "seventy":"70", "eighty":"80", "ninety":"90",
+            "first":"ordinal:1", "second":"ordinal:2", "third":"ordinal:3", "fourth":"ordinal:4",
+            "fifth":"ordinal:5", "sixth":"ordinal:6", "seventh":"ordinal:7", "eighth":"ordinal:8",
+            "ninth":"ordinal:9", "tenth":"ordinal:10", "point":"decimal-point"
+        ]
+        if let wordRegex = try? NSRegularExpression(pattern: #"(?i)\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|point|decimal-point)\b"#) {
+            let source = comparison as NSString
+            for match in wordRegex.matches(in: comparison, range: NSRange(location: 0, length: source.length)).reversed() {
+                let word = source.substring(with: match.range).lowercased()
+                if let value = numbers[word] {
+                    comparison = (comparison as NSString).replacingCharacters(in: match.range, with: value)
+                }
+            }
+        }
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return comparison }
         let source = comparison as NSString
         return regex.matches(in: comparison, range: NSRange(location: 0, length: source.length))

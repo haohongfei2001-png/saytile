@@ -1,3 +1,5 @@
+> **当前生产选择**：每段录音只使用一个 ASR。中文初始候选 Qwen Message，英文 AssemblyAI Universal-3.6 Pro，中英混说 Soniox STT v6。模型能力与质量排名分开；当前质量尚未真实测定。当前对照为冻结 24 条 A/B/C 单 ASR+GPT，见 [DECISION.md](DECISION.md)。以下历史供应商比较不构成双 ASR 生产决策。
+
 # 服务与证据附录 · 最高质量重裁决
 
 核验日期：2026-11-06。此文件替代旧单引擎供应商附录；旧版可在 `c9eac9b` 查看。当前可执行实现与未验证边界以 [REVISION](REVISION-2026-11-06.md) 为准。
