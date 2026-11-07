@@ -4,8 +4,6 @@
 >
 > 原始设计资产：ChatGPT Library 中的 `Saytile语音输入工作台概念界面.png`，创建时间 2026-11-06 23:05 UTC。
 >
-> 仓库预览：`design/approved/saytile-approved-ui-preview-2026-11-07.jpg`。
->
 > 本文是 Saytile V1 主界面的唯一视觉与交互设计依据。此前及之后所有与之冲突的界面、Logo、品牌色、布局和组件探索均不再具有设计效力。
 
 ## 1. 最终裁决
