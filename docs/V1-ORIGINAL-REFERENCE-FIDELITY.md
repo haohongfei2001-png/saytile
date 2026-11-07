@@ -1,6 +1,6 @@
 ### Color and control relief correction
 
-The initial same-size CI comparison exposed an oversaturated plate and weak control shadows. The final plate now uses explicit sRGB reference samples (221/214/253 → 211/215/253 → 189/202/253), separate native behind-window blur, and sampled opaque button highlights so shadows are not attenuated twice. Color comparisons must normalize embedded display profiles; AppKit `colorAt` and raw PNG component values are not interchangeable. The reference remains the uploaded image, not the first generated comparison.
+The previous fixed sRGB lavender/periwinkle paint (221/214/253 → 211/215/253 → 189/202/253) incorrectly treated the colored desktop as panel pigment. That was not the approved material. The production fix in commit 341523d uses native behind-window light glass plus a neutral translucent white overlay, neutral white button surfaces and neutral shadows. Only the voice-state glyph and live caret use violet. Historical sampled colors describe the **reference image composite**, not intrinsic panel colors. CI synthetic captures still do not prove the result over a real wallpaper.
 
 ## Integrated reference-sized window correction
 
@@ -29,7 +29,7 @@ Measurements and source identity: [`original-reference-20261107.measurements.jso
 
 | 部位 | 本轮按原图校准 |
 |---|---|
-| 主卡片 | 345×234pt；圆角28pt；左紫右蓝材质、细高光边 |
+| 主卡片 | 345×234pt；圆角28pt；白色微透玻璃、细高光边；原图左紫右蓝属于后方桌面 |
 | 正文 | 19.5pt、26pt 行高；使用 PingFangSC-Regular 校准字宽，不改输入文字 |
 | 文字起点 | 约22pt水平边距，包含原生文字视图自身2pt内边距 |
 | 左下复制 | 42×34pt、灰色重叠圆角方框；不再用紫色折角文档图标 |
