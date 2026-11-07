@@ -11,6 +11,8 @@ struct InputPanelView: View {
 
     private var transcript: String { model.recent.map(\.text).filter { !$0.isEmpty }.joined(separator: "\n") }
     private var canCopy: Bool { !transcript.isEmpty || !selectedText.isEmpty }
+    // Local to the approved compact panel: do not recolor archive or settings.
+    private let panelViolet = Color(red: 0.48, green: 0.30, blue: 0.93)
 
     var body: some View {
         VStack(spacing: 0) {
@@ -40,14 +42,14 @@ struct InputPanelView: View {
                             .padding(.top, 6).padding(.horizontal, 2).allowsHitTesting(false)
                     }
                 }
-                .padding(.horizontal, 12).frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.horizontal, 16).frame(maxWidth: .infinity, maxHeight: .infinity)
 
             HStack {
                 Button(action: copyTranscript) {
                     Image(systemName: "doc.on.doc").font(.system(size: 12))
                         .frame(width: 34, height: 30).contentShape(Rectangle())
-                        .foregroundStyle(Palette.accent.opacity(canCopy ? 1 : 0.5))
-                        .background(.white.opacity(0.3), in: RoundedRectangle(cornerRadius: 10))
+                        .foregroundStyle(panelViolet.opacity(canCopy ? 0.90 : 0.5))
+                        .background(.white.opacity(0.46), in: RoundedRectangle(cornerRadius: 10))
                         .overlay(RoundedRectangle(cornerRadius: 10).stroke(.white.opacity(0.45), lineWidth: 0.75))
                 }
                 .buttonStyle(.plain)
@@ -61,13 +63,40 @@ struct InputPanelView: View {
                 Spacer(minLength: 8)
                 captureControl
             }
-            .padding(.horizontal, 12).padding(.top, 6).padding(.bottom, 10)
+            .padding(.horizontal, 16).padding(.top, 6).padding(.bottom, 13)
         }
         .padding(.top, 10)
-        .background(Palette.paper.opacity(0.82))
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(.white.opacity(0.7), lineWidth: 0.75))
+        // The approved reference is a lavender-to-periwinkle translucent
+        // glass card, not the near-opaque neutral paper of earlier test renders.
+        // Keep material translucency while providing the visible color that
+        // an isolated, wallpaper-free AppKit capture can faithfully show.
+        .background {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 0.80, green: 0.77, blue: 0.98).opacity(0.68),
+                                    Color(red: 0.74, green: 0.80, blue: 0.99).opacity(0.69)
+                                ],
+                                startPoint: .topLeading, endPoint: .bottomTrailing
+                            )
+                        )
+                }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [.white.opacity(0.84), .white.opacity(0.32)],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.9
+                )
+        }
         .foregroundStyle(Palette.ink)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -81,13 +110,14 @@ struct InputPanelView: View {
         let presentation = model.panelCapturePresentation
         return Button(action: model.toggleCapture) {
             VoiceCaptureGlyph(presentation: presentation)
-            .foregroundStyle(model.captureProblem ? Palette.amber : Palette.accent)
+            .foregroundStyle(model.captureProblem ? Palette.amber : panelViolet)
             .frame(width: 78, height: 30)
-            .background(Palette.accent.opacity(model.isListening ? 0.12 : 0.06), in: Capsule())
+            .background(.white.opacity(0.28), in: Capsule())
+            .background(panelViolet.opacity(model.isListening ? 0.10 : 0.05), in: Capsule())
             .overlay(Capsule().stroke(.white.opacity(0.45), lineWidth: 0.75))
             .contentShape(Capsule())
         }.buttonStyle(CaptureButtonStyle())
-            .overlay(Capsule().stroke(Palette.accent.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
+            .overlay(Capsule().stroke(panelViolet.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
             .onHover { captureHovered = $0 }.focused($captureFocused)
             .help(presentation.accessibilityLabel)
             .accessibilityLabel(presentation.accessibilityLabel)
