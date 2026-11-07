@@ -49,6 +49,7 @@ struct ReferencePanelSurface: View {
             // translucent white wash supplies legibility without painting a
             // fixed blue/purple background over the user's desktop.
             ReferenceGlassBackdrop()
+                .opacity(reduceTransparency ? 1 : 0.35)
             shape.fill(.white.opacity(reduceTransparency ? 1 : 0.46))
                 .overlay {
                     shape.fill(LinearGradient(stops: [

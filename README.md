@@ -1,3 +1,5 @@
+> **no-api.9 工程接续：** 最新中性玻璃让后方环境提供色调，仅保留紫色语音图标与光标。[完整批准原稿](design/approved/Saytile-original-visual-reference-20261107.jpeg) · [当前交付状态](docs/V1-NO-API-DELIVERY.md)。之前的固定色彩包仅供溯源，不替换 RC1。
+
 > 版本说明：本页所述无密钥包固定在 69b90939。PR #6 之后的中性透光材质不包含在这份包中，不能用其结果代替后续外观收口。
 
 <!-- no-api8-current:begin -->

@@ -1,3 +1,5 @@
+> **no-api.9 · 中性透光材质**。唯一视觉依据是[已入库的完整原图](../design/approved/Saytile-original-visual-reference-20261107.jpeg)；原图蓝紫色来自卡片后方，面板及按钮本身为中性白色玻璃。单独给安装包版本，保留 no-api.8 固定色彩基准。正在准备本版的实际窗口合成和整合源码验证，真实云端仍未接通。
+
 # 用户事项 · no-api.8
 
 **无密钥短项已通过；本版 30 分钟长跑待定 · `LIVE_CONNECTION_PENDING`**。[运行源码 `69b90939`](https://github.com/haohongfei2001-png/saytile/commit/69b90939fd688b35448f976950e96db0ce5b602a)，源树 `06f1ac6982591bce64c98bd93e26eb0ccba0cfd8`。 [候选 DMG](../deliverables/no-api.8/Saytile-1.0.0-rc.2-no-api.8-arm64.dmg) · [校验和](../deliverables/no-api.8/SHA256SUMS.txt)。

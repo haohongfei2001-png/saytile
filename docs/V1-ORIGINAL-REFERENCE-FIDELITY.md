@@ -1,3 +1,9 @@
+## 中性玻璃的实际底色传递
+
+将已签入的 JPEG 作为唯一视觉依据。蓝紫色是图中玻璃后方的壁纸，不是面板底色。实际中性实现使用系统弹出材质和白色覆盖。对两个仅由测试进程拥有的 WindowServer 窗口作隔离比较时，普通系统材质在切换底色后没有可测色差；透明与半透明白色正对照能正常传色。现在只将底层材质透明度限制为 0.35，文字、按钮与整个窗口的透明度不改。减少透明度时保留实底。
+
+受控底色传递、完整原生界面和直接 JPEG 几何对照分别出具记录；这不是对私人桌面、物理模糊或用户审美认可的证明。先前固定色板的测量仅描述 no-api.8 工程基准。
+
 ### Color and control relief correction
 
 The previous fixed sRGB lavender/periwinkle paint (221/214/253 → 211/215/253 → 189/202/253) incorrectly treated the colored desktop as panel pigment. That was not the approved material. The production fix in commit 341523d uses native behind-window light glass plus a neutral translucent white overlay, neutral white button surfaces and neutral shadows. Only the voice-state glyph and live caret use violet. Historical sampled colors describe the **reference image composite**, not intrinsic panel colors. CI synthetic captures still do not prove the result over a real wallpaper.
