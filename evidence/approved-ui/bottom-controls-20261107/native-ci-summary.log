@@ -1,0 +1,13 @@
+2026-11-07T02:26:23.6072040Z ✔ Test run with 391 tests in 47 suites passed after 45.916 seconds.
+2026-11-07T02:27:23.5883680Z PASS initial capture uses the paused play symbol with an accessible start action
+2026-11-07T02:27:23.6587440Z PASS post-speech fusion continues in the background while the voice control is already in standby
+2026-11-07T02:27:23.6975120Z PASS VAD ending speech returns to standby before the recording is sealed or transcription is finalized
+2026-11-07T02:27:23.6986160Z PASS sealed current audio stays in standby while queued for ASR
+2026-11-07T02:27:23.7022820Z PASS running ASR after voice ends leaves capture in standby without inferred amplitude
+2026-11-07T02:27:23.7105290Z PASS late completion of an older segment cannot reset newer speech to standby
+2026-11-07T02:27:23.7118290Z PASS late failure of an older retry cannot reset newer speech or its measured amplitude
+2026-11-07T02:27:23.7118830Z PASS only the newer speech ending returns the voice control to standby
+2026-11-07T02:27:23.7720100Z APP_MODEL_PROBE_PASS 101 checks; no microphone, no external input, no window activation
+2026-11-07T02:29:08.3826630Z UI_SYNTHETIC_CAPTURE_STATES_PASS paused, standby, speech, standby during review and retained final text; injected capture, no AX control actions or microphone
+2026-11-07T02:29:08.3849880Z UI_CONTROLS_NOT_RUN remote AX helper not configured; rendering only
+2026-11-07T02:29:08.3850590Z UI_REVIEW_PASS native SwiftUI attached to AppKit windows; 27 captures; synthetic data; no activation/microphone

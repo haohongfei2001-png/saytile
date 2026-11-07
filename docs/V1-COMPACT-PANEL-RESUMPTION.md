@@ -27,7 +27,7 @@
 
 ## 验证状态
 
-规范已在提交 `3da2c3f122ea09e10f4d6d14c3f736303633b83e` 持久化；其设计契约CI [42327990777](https://github.com/haohongfei2001-png/saytile/actions/runs/42327990777)通过。本次后续实现已落盘，等待其自身macOS CI，不能把规范提交的旧运行代码检查算作新界面通过。
+规范已在提交 `3da2c3f122ea09e10f4d6d14c3f736303633b83e` 持久化。原生实现与回归提交为 **`9d2d2346b867de67f59d874a656ee56af7e29f95`**，其macOS与设计契约CI均通过。CI实际检出合并提交 `da1a3bb7730647a4e234440cf24a9a088b791778`，已核实与该实现提交拥有完全相同的tree `8b566394102b779e16b17a4965ea001ecc5346fc`；App报告源码无未提交修改。
 
 ### 原生实现与回归变更
 
@@ -38,8 +38,24 @@
 - 默认无AX权限的CI路径新增五张生产SwiftUI合成场景截图，覆盖待命、讲话、后台仍在修正时的待命、完成后仍待命及暂停；不把注入状态与程序化模型动作冒充真实按键或麦克风。
 - CI保留原生截图、运行日志和manifest，便于复核新布局与对应源码。
 
-本地已完成精确diff检查、Python语法检查与独立代码审阅。当前尚未宣称新源码编译、原生截图或AX菜单操作通过；以本次代码提交的实际CI结果与后续记录为准。
+### 实际执行结果
 
-当前执行环境没有macOS/Swift编译器；原生验证使用现有macos-26 CI，并为本轮原生截图与manifest增加可下载证据。每个验证层将按实际结果补记，不沿用旧界面测试计数。
+| 验证层 | 本轮结果 |
+|---|---|
+| macOS原生CI | [42328995554](https://github.com/haohongfei2001-png/saytile/actions/runs/42328995554)通过；391项Swift测试、47个套件 |
+| 生产AppModel | 101项检查通过，包含本轮静音/待命及旧结果与新讲话的竞态回归 |
+| 原生渲染 | 27张生产SwiftUI/AppKit截图通过；真实原生文本选区、Unicode、手动滚动与near-bottom检查保留并通过 |
+| 设计与数据契约 | [42328995530](https://github.com/haohongfei2001-png/saytile/actions/runs/42328995530)通过 |
+| 构建与启动 | 原生App构建、隔离CLI边界及无麦克风启动通过；候选App保存在同次CI artifact |
+| 截图检查 | 已逐张打开暂停、讲话、后台仍在修正时的待命与内容面板PNG，确认无顶部操作行、底部两按钮及三种图形；后台修正与完成后的待命图片哈希相同 |
+| 原生AX菜单/点击 | 本次CI为render-only，未执行；不能把探针源码更新或合成模型动作写成AX实际点击通过 |
+
+本地精确diff、Python语法及独立代码审阅通过。已验证截图ZIP哈希以及manifest中全部27张PNG哈希；四张相关原生图片、原始manifest/UI日志、CI摘要和源码身份已保存在[本轮证据目录](../evidence/approved-ui/bottom-controls-20261107/README.md)。
+
+| 暂停：播放三角 | 讲话：真实幅度波形 | 声音结束、后台修正中：待命圆点 |
+|---|---|---|
+| ![暂停](../evidence/approved-ui/bottom-controls-20261107/panel-capture-paused.png) | ![讲话](../evidence/approved-ui/bottom-controls-20261107/panel-capture-speaking.png) | ![后台修正期间已待命](../evidence/approved-ui/bottom-controls-20261107/panel-capture-review.png) |
+
+本轮原生验证使用macos-26 CI。声音边界为明确注入的合成状态，没有采集真实麦克风；视觉核对针对布局、控件和状态图形，不是原始PNG的像素级复刻或用户最终视觉验收。没有将CI渲染、旧版测试或合成动作冒充真实设备/AX交互通过。
 
 旧no-api.4/no-api.5工程记录仍是各自源码版本的证据。真实麦克风、真实云识别质量、安装与长期运行不在本次面板修订的已测范围内。

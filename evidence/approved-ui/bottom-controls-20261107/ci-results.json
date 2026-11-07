@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "pull_request": "https://github.com/haohongfei2001-png/saytile/pull/6",
+  "runtime_head": "9d2d2346b867de67f59d874a656ee56af7e29f95",
+  "tested_merge": "da1a3bb7730647a4e234440cf24a9a088b791778",
+  "shared_tree": "8b566394102b779e16b17a4965ea001ecc5346fc",
+  "source_dirty": false,
+  "native_run": {
+    "id": 42328995554,
+    "job_id": 128270999226,
+    "conclusion": "success",
+    "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/42328995554"
+  },
+  "design_run": {
+    "id": 42328995530,
+    "job_id": 128270900708,
+    "conclusion": "success",
+    "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/42328995530"
+  },
+  "swift_tests": 391,
+  "swift_suites": 47,
+  "app_model_checks": 101,
+  "native_render_captures": 27,
+  "native_ax_actions_executed": false,
+  "real_microphone": false,
+  "real_provider_calls": false,
+  "screenshots_artifact": {
+    "id": 13556537481,
+    "sha256": "2d6eb0b7069fa6fd84431170db0984da3811d93584e6dd2dec3f7f6561de45c6"
+  },
+  "app_artifact": {
+    "id": 13556307914,
+    "sha256": "8b5d75d51c3a3facadc3dd4a48e4c846149a28c9025f6d7300e0c95453ca58b9"
+  },
+  "binary_sha256": "bd688d655f3d5976fddf306853821797596dca81e65b245a7d2a2a1d3bc6050c",
+  "preserved_images": [
+    "panel-capture-paused.png",
+    "panel-capture-speaking.png",
+    "panel-capture-review.png",
+    "panel-content.png"
+  ],
+  "visual_review": "Root inspected original CI PNGs against the provided screenshot for the two footer controls, absence of top controls, play/waveform/dot symbols, and legible continuous text. Not pixel-perfect original-PNG acceptance."
+}
