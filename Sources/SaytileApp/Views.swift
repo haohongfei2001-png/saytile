@@ -89,7 +89,7 @@ struct InputPanelView: View {
             .background { ReferenceControlSurface() }
             .contentShape(Capsule())
         }.buttonStyle(CaptureButtonStyle())
-            .overlay(Capsule().stroke(ReferencePanelStyle.violet.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
+            .overlay(Capsule().stroke(Color.gray.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
             .onHover { captureHovered = $0 }.focused($captureFocused)
             .help(presentation.accessibilityLabel)
             .accessibilityLabel(presentation.accessibilityLabel)
