@@ -1,3 +1,19 @@
+<!-- no-api7-current:begin -->
+# Saytile 当前交付状态
+
+**无密钥短项已通过，长跑结论待定 · LIVE_CONNECTION_PENDING**。[运行源码 `4b97bd89`](https://github.com/haohongfei2001-png/saytile/commit/4b97bd89b258fea29a0be61d4bd4c23cb5ab428c)，tree `4aac670d6edfcce0c12ed22fa3cd5c68e66061b9`。
+
+[正式包与完整分层记录](V1-NO-API-DELIVERY.md) · [安装与回退](V1-INSTALL.md)
+
+截至本检查点，30 分钟完整采集与独立逐帧比较尚无终态结论。本版的短项和独立 PCM 参考已经完成。[本版长期验证](../evidence/no-api7/local/)
+
+真实云端请求为零。真人中文 CER、英文 WER、混合 MER，双专家加 AI 相对最强单模型的增益、适用场景及新增稳定确认延迟均未知。当前未进入集中真人验收。 RC1 仍是稳定版。[当前用户事项](V1-USER-ACTIONS.md)
+
+## 以往版本记录
+
+以下日期、状态与待办保留为当时快照。本版结论以上方记录为准。
+<!-- no-api7-current:end -->
+
 > 当前工程：PR #6 按用户续接截图修正为底部两个按钮、三个日常状态、VAD结束回待命；本轮实际验证及边界见[续接交付记录](V1-COMPACT-PANEL-RESUMPTION.md)。no-api.4及no-api.5为已验证的历史工程基线，旧顶部布局的测试不算no-api.6新布局通过。[完整交付状态](V1-NO-API-DELIVERY.md)。
 
 > 当前为 V1 RC1，源码 `8906a9d`；最新状态见 [V1-DEV-STATUS.md](V1-DEV-STATUS.md)，验证边界见 [RC清单](V1-RC-ACCEPTANCE.md)。**以下是设计恢复阶段历史快照**，不是当前未完成事项；PR #1/#2 已合并。

@@ -1,4 +1,22 @@
-> **no-api.7 · 2026-11-07**：上游 `a53b183` 恢复批准目标中的薰衣草紫蓝玻璃、间距和局部强调色，采集、归档、云端与安全输入核心未变。本次另给安装包版本，保留已公开 no-api.6 的源码与字节。正在对此次整合源码执行全套验证；旧包成绩不转记为新包。
+<!-- no-api7-current:begin -->
+# V1 RC2 · no-api.7 测试结果
+
+**无密钥短项已通过，长跑结论待定 · LIVE_CONNECTION_PENDING**。[运行源码 `4b97bd89`](https://github.com/haohongfei2001-png/saytile/commit/4b97bd89b258fea29a0be61d4bd4c23cb5ab428c)，tree `4aac670d6edfcce0c12ed22fa3cd5c68e66061b9`。
+
+[正式包与完整分层记录](V1-NO-API-DELIVERY.md) · [安装与回退](V1-INSTALL.md)
+
+- 本机 Swift 392 个测试函数 / 48 套件 / 512 个展开场景，AppModel 104 项。 包含 50 次 localhost 网络案例，真实云端请求为零。[协议收据](../evidence/no-api7/final/protocol/run-after.json)
+- 实际 DMG 打开的控件运行有 37 图、45 次 AXPress 和 10 次菜单选择。独立纯渲染 27 图。Apple 合成识别 8/8，逐条 CER 0–26.32%，四处关键词仍遗漏。[界面](../evidence/no-api7/final/ui/REVIEW.md) · [Apple 结果](../evidence/no-api7/final/apple/)
+- headless DOM 20、原生 AX 9、目标变更保护 5、原生范围修正 9。WK 上下文 6、能力拒绝 2，实际投递未确认，零发送。安装升级 8、独立卸载重装 2、存储异常与迁移 12。[输入](../evidence/no-api7/final/input/NATIVE-INPUT.md) · [安装](../evidence/no-api7/final/install-upgrade.json)
+- 截至本检查点，30 分钟完整采集与独立逐帧比较尚无终态结论。本版的短项和独立 PCM 参考已经完成。[本版长期验证](../evidence/no-api7/local/)
+- 冻结源码的[设计 CI](https://github.com/haohongfei2001-png/saytile/actions/runs/42333550200)通过，[原生 CI](https://github.com/haohongfei2001-png/saytile/actions/runs/42333550192)完成 Swift 和协议测试后在 AppModel 阶段取消，其后构建与 UI 跳过。仅改文档的 `54b4c40f` 对应的[原生 CI](https://github.com/haohongfei2001-png/saytile/actions/runs/42333775516)和[设计 CI](https://github.com/haohongfei2001-png/saytile/actions/runs/42333775472)均通过。其运行输入与冻结源码相同，完整 Git tree 不同。[CI 身份比较](../evidence/no-api7/final/protocol/docs-successor-ci/comparison.json)
+
+真实云端请求为零。真人中文 CER、英文 WER、混合 MER，双专家加 AI 相对最强单模型的增益、适用场景及新增稳定确认延迟均未知。当前未进入集中真人验收。
+
+## 以往版本记录
+
+以下日期、状态与待办保留为当时快照。本版结论以上方记录为准。
+<!-- no-api7-current:end -->
 
 > **PR #6 · no-api.6** 已在源码 `455143310222c2c03c4a4888e5df5552c3af4131` 构建实际 DMG；原生套件 392/48/512、AppModel 104、localhost 三服务及实际 DMG 的 UI、系统输入、Apple 本机识别、升级和回退均已执行。当前快照先保留已结束的短项，长跑不计为通过。在同一冻结 SHA 的实时时钟采集自然退出后才补充整段波形与总状态。[安装包](../deliverables/no-api.6/) · [证据范围](V1-NO-API-DELIVERY.md)。
 

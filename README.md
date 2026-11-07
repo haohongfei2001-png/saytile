@@ -1,12 +1,20 @@
-> PR #6 最新界面续接：底部「复制＋语音」两个常驻按钮，暂停/待命/正在识别三个日常状态，VAD确认声音结束即回待命，后台定稿继续。见[本轮修改与验证](docs/V1-COMPACT-PANEL-RESUMPTION.md)。当前候选为 no-api.6，原 no-api.4 / .5 结果仅用于历史追溯。真实云端 LIVE_CONNECTION_PENDING。[实际交付与限制](docs/V1-NO-API-DELIVERY.md)。
-
 # Saytile
+
+<!-- no-api7-current:begin -->
+## 当前候选 · Saytile V1 RC2 no-api.7
+
+**无密钥短项已通过，长跑结论待定 · LIVE_CONNECTION_PENDING**。本版为 Apple Silicon / macOS 26+ 的个人候选，稳定 RC1 保留。输入板使用浅紫蓝玻璃、左侧复制和右侧语音胶囊。VAD 确认讲话结束会回到待命，上一段定稿仍能继续。
+
+[当前 DMG](deliverables/no-api.7/Saytile-1.0.0-rc.2-no-api.7-arm64.dmg) · [安装与核对 SHA-256](deliverables/no-api.7/) · [实际交付、数据和限制](docs/V1-NO-API-DELIVERY.md) · [客户授权事项](docs/V1-USER-ACTIONS.md)
+
+真实云端尚无账户实连或人工质量数据。本轮不要求用户试录、调试或提供日志。
+<!-- no-api7-current:end -->
 
 **自然开口，随时取用。**
 
 Saytile 是 macOS 原生语音输入与表达工作台。开启后持续待命，自然讲话即可分段记录、识别中文，并独立保存原音。文字可以编辑、搜索、回听、重新识别、复制，或追加到明确选择的应用草稿。
 
-已发布版本仍为 RC1，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。本分支的 RC2 候选及证据见 [无 API 交付](docs/V1-NO-API-DELIVERY.md)；真实云端、讲话质量与个人环境验收仍明确保留。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
+GitHub Releases 的稳定版本为 RC1，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。本分支的 no-api.7 候选及证据见 [无 API 交付](docs/V1-NO-API-DELIVERY.md)；真实云端、讲话质量与个人环境验收仍明确保留。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
 
 ## 最高质量中英文识别候选
 
@@ -44,7 +52,8 @@ scripts/package-beta.sh
 
 ## 交付与验证
 
-- [RC 验证与最终清单](docs/V1-RC-ACCEPTANCE.md)
+- [当前 RC2 工程验收与限制](docs/V1-NO-API-DELIVERY.md)
+- [RC1 验证清单（历史）](docs/V1-RC-ACCEPTANCE.md)
 - [安装说明](docs/V1-INSTALL.md)
 - [实时开发状态](docs/V1-DEV-STATUS.md)
 - [实际测试记录及限制](docs/V1-TEST-RESULTS.md)
@@ -61,7 +70,7 @@ Two equal ASR experts receive the same complete audio, and one GPT-6 Astra core 
 
 ## SingleTranscriptEngine 最新验收
 
-双平等完整音频专家、一个GPT核心、唯一文字流、离线接替和安全局部修正的[实际交付与限制](evidence/single-transcript-final/README.md)。工程回归通过不等于真人云识别质量通过；生产RC1保持不变。
+双平等完整音频专家、一个GPT核心、唯一文字流、离线接替和安全局部修正的[早期引擎验证记录](evidence/single-transcript-final/README.md)。工程回归通过不等于真人云识别质量通过；生产RC1保持不变。
 
 并发收口记录：[另一工程验收切片](evidence/single-transcript/DELIVERY.md)。最新统一回执以 [single-transcript-final](evidence/single-transcript-final/README.md) 为准，历史包与其真实来源SHA分别保留。
 

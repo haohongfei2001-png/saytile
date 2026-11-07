@@ -1,0 +1,9 @@
+# Candidate review
+
+The product diff on top of the previously tested no-api.6 is the compact panel's lavender-blue material, local accents and insets. The package has a distinct release version. Glyph geometry samples now explicitly describe their neutral preview tint; the actual glass is evaluated on the packaged panel. The audio engine, provider evidence validation, direct-input ownership and archive code are identical between these two runtime commits. The new runtime nevertheless has its own full local suite, AppModel, package, native UI and input runs, and a separately executed real-clock synthetic capture.
+
+The [native interface review](ui/REVIEW.md) checks actual package renders and action receipts, including consistent text legibility, independently selectable text, the left copy control, right voice capsule and contextual access. [The independent original-source check](reference-source.json) identifies the approved reference by name but did not recover its original bytes. These are real package observations, not pixel-exact comparison to the unavailable original, user visual approval, measured system animation timing, or wallpaper transmission on real desktops.
+
+The [input review](input/NATIVE-INPUT.md) retains uncertainty where an external setter acknowledged a request without mutating the owned WKWebView. No user draft, authenticated browser, ambient microphone or paid provider was involved. The visible direct-input target is an intentional exception to the default text-first presentation. The copy confirmation uses the existing two-second notice; changing the copy control's design was excluded by the current reference rules.
+
+No new P0/P1 data loss or wrong-target issue was identified in this scoped code and behavior review. Local synthetic quality, including four key omissions, is documented independently. Real-provider performance and uplift over a single model remain unmeasured.

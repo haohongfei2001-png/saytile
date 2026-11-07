@@ -1,0 +1,174 @@
+{
+  "states": {
+    "NO_API_ENGINEERING_READY": false,
+    "LIVE_CONNECTION_PENDING": true,
+    "LIVE_PROTOCOL_VERIFIED": false,
+    "LIVE_TRANSCRIPTION_VERIFIED": false,
+    "QUALITY_VERIFIED": false,
+    "PRODUCTION_READY": false
+  },
+  "role": "Historical 45514331 engineering baseline, superseded by a53b183 lavender-blue glass correction. Not the current visual target.",
+  "tested_source": "455143310222c2c03c4a4888e5df5552c3af4131",
+  "runtime_tree": "87015ba6c1cb2b38c5a868a2fed1b86b9eaac683",
+  "release_version": "1.0.0-rc.2-no-api.6",
+  "binary_sha256": "a19afd08e13e2756b7b0953a17b4c8219afb17247edf7590b9dec2dad827eb52",
+  "dmg_sha256": "157c34adb7a457e2a4449c1b25ff1f7d65821e866d0d9fd08b5c0a3650ff6633",
+  "dmg_bytes": 2534160,
+  "source_inputs_before_and_after": 212,
+  "production_main_or_rc1_replaced": false,
+  "real_provider_calls": 0,
+  "private_audio_uploaded": false,
+  "cloud_quality": {
+    "best_single_model": null,
+    "dual_asr_plus_gpt_gain_over_best_single": null,
+    "relative_confirmation_latency_seconds": null,
+    "conditions_where_gain_is_proved": null,
+    "reason": "No authorized real cloud same-audio comparisons; Apple synthetic cases and loopback fixtures do not measure comparative cloud performance."
+  },
+  "native": {
+    "functions": 392,
+    "suites": 48,
+    "expanded_scenarios": 512,
+    "protocol_functions": 12,
+    "protocol_scenarios": 52,
+    "wire_cases": 50,
+    "skipped": 0,
+    "appmodel_checks": 104
+  },
+  "ui": {
+    "real_ax_press": 45,
+    "actual_menu_selections": 10,
+    "control_images": 37,
+    "render_only_images": 27,
+    "glyph_frames_per_mode": 71,
+    "outside_foreground_transitions": 0
+  },
+  "input": {
+    "fixture_scope": "Own synthetic native/WK fields and selection seam. No personal foreground draft, global key, real microphone or cloud.",
+    "foreground_resolver": "NOT_RUN",
+    "independent_target_mutations": 1,
+    "native_binaries_unchanged": 4,
+    "ordinary_native_checks": 9,
+    "owned_range_binaries_unchanged": 3,
+    "owned_range_scenarios": 9,
+    "production_dispatches_in_mutation_case": 1,
+    "send_events": 0,
+    "source_revision": "455143310222c2c03c4a4888e5df5552c3af4131",
+    "source_tree": "87015ba6c1cb2b38c5a868a2fed1b86b9eaac683",
+    "target_mutation_checks": 5,
+    "tracked_input_count": 207,
+    "tracked_input_digest": "7ab5d47823e389d20db2562d7ddda646735580da773c2dddf758dc47110c7363",
+    "tracked_inputs_unchanged": true,
+    "uncertain_replay": false,
+    "wk_capability_refusals": 2,
+    "wk_context_checks": 6,
+    "wk_dispatch": "unverified"
+  },
+  "apple": {
+    "runtime": "455143310222c2c03c4a4888e5df5552c3af4131",
+    "tree": "87015ba6c1cb2b38c5a868a2fed1b86b9eaac683",
+    "status": "PASS_LOCAL_ENGINEERING_WITH_RECOGNITION_ERRORS",
+    "cases": 8,
+    "completed": 8,
+    "total_audio_seconds": 48.702937500000004,
+    "normalized_cer_min": 0,
+    "normalized_cer_max": 0.2631578947368421,
+    "critical_phrase_misses": {
+      "mixed": [
+        "Mac"
+      ],
+      "pauses": [
+        "保存原音"
+      ],
+      "second_voice": [
+        "充电器"
+      ],
+      "correction": [
+        "修改开始时间"
+      ]
+    },
+    "first_text_seconds": {
+      "min": 1.1715455832891166,
+      "median": 1.2019892915850505,
+      "max": 1.224854291882366
+    },
+    "finalization_after_input_seconds": {
+      "min": 0.04074120847508311,
+      "median": 0.053615770768374205,
+      "max": 0.09121233318001032
+    },
+    "local_candidate_count_range": [
+      21,
+      31
+    ],
+    "all_have_dispatchable_revision": true,
+    "preparation_calls": 1,
+    "asset_status_before": "supported",
+    "asset_status_after": "installed",
+    "source_sha256": {
+      "Sources/SaytileKit/SpeechRecognition.swift": "28a0a10dbd28d1461271243ff9c22c7baf0cd557953f55ac6287076351078592",
+      "tests/fixtures/AudioCorpusProbe.swift": "89db34402c29d8ab25067aca027b550929f7d3ada23688ab95a054f0642807a5",
+      "tests/fixtures/MandarinCorpus.json": "31430af5e1363a51da6c793f70dcc34b752d88195f990e9de6cc1960be8e2e6c"
+    },
+    "results_sha256": {
+      "apple-corpus.json": "cffab2f223d823fef6d775011dcc5ff5b259612228abe029bf445324204be078",
+      "asset-preparation.json": "847f963c4d08ed64dcda3f10e2c3055e7b9e43fb68269c1c0d3cf80756361f52",
+      "receipt.json": "4d40b880135ac50037c0bec53e57611274efcf8ed6aefeb6c1143b39a10757ee",
+      "probe-source-identity.json": "a8ff550feeccb66f997ea13127b9e9206a9eefb93e3906014b9ff2059e7e2578"
+    }
+  },
+  "long_capture": {
+    "actual_wallclock_seconds": 1800.48,
+    "recordings": 60,
+    "closed_wav_chunks_verified": 179,
+    "saved_frames": 28800000,
+    "reference_sha256": "050b5e8b2a4154d34590f79cfb949885cc5195271bc7dd72ff8f4aab27885385",
+    "different_sample_frames": 0,
+    "upload_grants": 0,
+    "resource_samples": 40,
+    "sampled_rss_kib_min": 14176,
+    "sampled_rss_kib_max": 17952,
+    "cpu_seconds_per_wallclock_percent": 1.465164844930241
+  },
+  "limitations": [
+    "Real provider authentication, native-human speech accuracy, best-single comparison and extra confirmation latency unmeasured.",
+    "Physical microphone, arbitrary foreground apps, physical sleep/hot-plug, multiple displays and 24–72-hour energy not certified here.",
+    "Background WK setter acknowledged without changing DOM; no delivery claimed or replayed.",
+    "Original approved PNG bytes not verified, exact colors/user visual acceptance unclaimed; ad-hoc, not notarized."
+  ],
+  "evidence_sha256": {
+    "source-before.json": "0050a9e7b3c8891b01038a65e6e51b6143b439380aaccae2a7c0d4e71c5ccc50",
+    "source-after.json": "d465a63b5a2ab794d6d20973d6b6fc2ebe048b5e09bc2b96d98a068fbb77e45c",
+    "preservation-before.json": "67e49ce762d06109c67bc7b0e7350c5d4ce0b5230c8fa17bf87e7c983225d3c8",
+    "preservation-after.json": "658f5b0a041a129dd0918e05f6f3b77b389c65fb4c91fe5fba2bc5b04cae9663",
+    "package-identity.json": "93b5f43446c0ca56e5258f0565064dd6c78c6486f929f653f2cc68f4f282b650",
+    "delivery-paths.json": "62f901932ecbec2619ffeff6f0d7a96e22cbfb3250e1fba23f75ab3315043c16",
+    "public-download.json": "9a0bcc7fb50e6cf1ab67c153946d5a968baff8dde2041860aeed7d92551c4add",
+    "package-check-linkage.json": "37673e195e83e3768263ab3ebbca594718bf738c5391bbee59733d2445ac2571",
+    "protocol/run-after.json": "588146690b1938ffb976a1677e2e3cbf9cb23b0bd59671c5d4d6272cf1384029",
+    "protocol/ci-snapshot.json": "ba77b50ec9cd419ebf86349f5f6d4a9411bc923240d8c2b5ce2d25ef2ac9175b",
+    "protocol/wire-audit.json": "817f53769ac649fbb3d2411019ea99ff4d048fedaa08365b8a50d5a45c847e69",
+    "input/native-receipt.json": "0c03c831ba7a014525a3875a922ab1a607e1a06048407d84f0f2137bc72a9e53",
+    "input/app-model-identity.json": "981147f472e434dee20c39be59d144e07f871b4566360cf7642addc71e472259",
+    "input/browser-identity.json": "60017b600793319dbe2c36c3ac1e6d5440ce67d5cb08a6c1bcb5231991814e98",
+    "owned-range/summary.json": "f8a526042962e3fce9323a909a08d7c707ea1420079f0169b5e3b68c5ecf30e6",
+    "ui/manifest.json": "c2583c5925d772fb6372b906a7f96dccc937c670daf2fd9fbc3ecea6d6dfada2",
+    "ui-render-only/manifest.json": "75578e9761ce1b50a37fc496ccd05d52bd177eaddb8fc87ff35cee4e6878dbdc",
+    "ui/execution-receipt.json": "ac0a237e2c5a83b0ac42aa632aad6fdf71baa39a3c7214ca4759463b1eae6da1",
+    "ui/voice-glyph-audit.json": "7254cc12e5520475b6a134f7c8bb4a49a568e861009b722c652190da4bdbfc27",
+    "apple/asset-preparation.json": "847f963c4d08ed64dcda3f10e2c3055e7b9e43fb68269c1c0d3cf80756361f52",
+    "apple/apple-summary.json": "4fa7fc168fa6a0cf0840fc7f6d94e7fead8a1b95d3d8538d6e7097a7713e6199",
+    "apple/apple-corpus.json": "cffab2f223d823fef6d775011dcc5ff5b259612228abe029bf445324204be078",
+    "install-upgrade.json": "55be1130abd62d05be21966f3893cf3967a767e8bec30efe65304b05fe3195a4",
+    "uninstall-reinstall.json": "e0ee468eecb7c15956fc3999846610128da729246b749cd3612cc68b868f007a",
+    "cloud-probe-cli.json": "780122d85e45e3eab82f42a3e38fd9e73073e5832cd37e406fc91ff06e83cfed",
+    "connection-setup-cli.json": "c6320594855e5d6c8c89219e1399911516222a01be3af4fbd8606e61f94b053c",
+    "startup-focus.log": "ba0933a67408af6343fce365519520becb43e7ffaff6ae234c3c1af605146eda",
+    "app-idle.json": "e0068b7be36d4a94be26797b0804d62cfc88458603217152029dd6db08a651bc",
+    "../local/storage-processes.json": "c45c5fbe606339bc84fe37d714013e37a82fd2d80e803ec26d5df6347beff812",
+    "../local/storage-scale/storage-scale.json": "74b9fcc65fdb35c05b574f55a7fe7ea403956b7b05018c3b16dfcdd662f3342c",
+    "../local/short-source-after.json": "7e78efaeb1b99baff9dbf7ed9f350e39123ffa31cda926757e3f459ab3fd0fe8",
+    "../local/realtime-assessment.json": "ec9282552c8517bed419ff9f034aad014489a57db34c61908c0f2654d5b28a1b",
+    "../local/post-run-identities.json": "d209302b0aaef26b61996503357f53e0a6fa6572e9c2857c65591a9ca8b0129d"
+  }
+}

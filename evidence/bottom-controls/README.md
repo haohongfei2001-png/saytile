@@ -1,3 +1,5 @@
+> **Superseded source 45514331**: no-api.6 completed its own whole-package acceptance and 1,800.48-second synthetic capture. All 28,800,000 frames matched the independent reference. See [full results](final/delivery-manifest.json). The later lavender glass correction has a separately versioned no-api.7 installer and its own evidence; do not transfer these counts to it.
+
 # Bottom controls, capture activity and isolated interaction
 
 This work continues PR #6 at 2bd7d8a, which preserves the upstream 9d2d2346 UI, its CI results and the approved bottom-controls contract. The earlier no-api.5 installer is historical; it has a different layout.

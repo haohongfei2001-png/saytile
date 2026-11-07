@@ -1,6 +1,10 @@
-> **no-api.7 · 2026-11-07**：上游 `a53b183` 恢复批准目标中的薰衣草紫蓝玻璃、间距和局部强调色，采集、归档、云端与安全输入核心未变。本次另给安装包版本，保留已公开 no-api.6 的源码与字节。正在对此次整合源码执行全套验证；旧包成绩不转记为新包。
-
 # Saytile V1 RC2 · 用户事项
+
+<!-- no-api7-current:begin -->
+## 本版无需用户参与测试
+
+**无密钥短项已通过，长跑结论待定 · LIVE_CONNECTION_PENDING**。当前候选 [运行源码 `4b97bd89`](https://github.com/haohongfei2001-png/saytile/commit/4b97bd89b258fea29a0be61d4bd4c23cb5ab428c)。无需用户录音、点击排障、提供日志或替换 RC1。真实账户尚未接通，此后只需在应用内一次性设置凭据与授权。当前包仅在明确选择使用云端时发送符合授权范围的资料。[候选包、验证与限制](V1-NO-API-DELIVERY.md)
+<!-- no-api7-current:end -->
 
 目前无需安装、录音、点击测试、提交日志、购买服务或替换 RC1。无密钥工程验证由开发方在独立的资料库、音频样本和自有输入窗口中执行。当前发布状态及实测边界见[工程交付](V1-NO-API-DELIVERY.md)。
 
@@ -12,4 +16,4 @@
 
 **仅在正式使用相应功能时**：真实收音需要 macOS 麦克风许可；向其他应用连续输入才需要辅助功能，普通复制不需要。如果此 Mac 缺少 Apple 中文识别资源，原生设置提供“准备中文识别资源”；原音保存不依赖识别成功。个人候选为 ad-hoc 签名、未 Apple 公证，不关闭 Gatekeeper，不绕过系统授权。现阶段不邀请真人验收。
 
-已发布的版本仍是 RC1。真正获准升级时请按[安装与回退](V1-INSTALL.md)备份整个已退出的资料目录。旧版不能原地打开新 schema。往期开发检查点见[上一版事项记录](https://github.com/haohongfei2001-png/saytile/blob/1c8184330573a3e1a87a65838bae19fef434db23/docs/V1-USER-ACTIONS.md)。
+GitHub Releases 的稳定版本仍是 RC1，PR 中有独立的 no-api.7 候选。真正获准升级时请按[安装与回退](V1-INSTALL.md)备份整个已退出的资料目录。旧版不能原地打开新 schema。往期开发检查点见[上一版事项记录](https://github.com/haohongfei2001-png/saytile/blob/1c8184330573a3e1a87a65838bae19fef434db23/docs/V1-USER-ACTIONS.md)。

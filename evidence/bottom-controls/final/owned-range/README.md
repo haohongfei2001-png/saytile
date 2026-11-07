@@ -1,0 +1,5 @@
+# Range repair on macOS
+
+Nine scenarios passed on `455143310222c2c03c4a4888e5df5552c3af4131`. They cover two successful repairs followed by continued input, external editing, selection change, target change, setter refusal, first-responder change, restart, and window closure. The production coordinator, Store and AX access ran against a synthetic native editor. No full-field replacement, key event, Return, send, general pasteboard write, or activation was performed. The three built files and the source inputs retained their hashes. [Summary](summary.json) · [Trace](probe.log) · [Binaries](binary-identities.json)
+
+The responder-change case read the actual fixture window’s first responder through fixture IPC and selected its element by PID and identifier. The final production snapshot refused the changed target. Background AX focus notification delivery and real external-app foreground selection were not certified. The original uncertain outcomes on other runtimes remain preserved. [Preflight](preflight.log) · [Run](run.log)
