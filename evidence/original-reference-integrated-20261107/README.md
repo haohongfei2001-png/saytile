@@ -1,3 +1,15 @@
+## Final source-sampled color correction
+
+**Current runtime: `69b90939fd688b35448f976950e96db0ce5b602a`.** The first comparison below exposed a darker plate and weak button relief; do not use its initial images as the final appearance. Final native images and receipts are in [`color-final/`](color-final/verification.json):
+
+| Paused | Standby | Recognizing |
+|---|---|---|
+| ![Paused](color-final/reference-paused.png) | ![Standby](color-final/reference-standby.png) | ![Recognizing](color-final/reference-recognizing.png) |
+
+The final Mac run again passed 45 AX presses, 10 menu selections and 11 bottom-control checks. AppModel104 checks passed. Source `23bb6ac` was rebased over documentation-only `870e1f6` into `69b9093`; all Sources, Package.swift, packaging build script and UI test inputs were compared unchanged, as recorded in the receipt. The 12 predeclared clean surface samples have mean absolute channel error 1.11/255 and maximum5 after profile normalization; **this is not a full-image similarity or pixel-identity score**. The uploaded JPEG is now committed byte-for-byte as `design/approved/Saytile-original-visual-reference-20261107.jpeg`.
+
+---
+
 # Original-reference native window correction
 
 Runtime: `e5b50d3f2be9c9e746787f03e03bf080bc16039a`. The three images are actual attached SwiftUI/AppKit renders of the shipping `InputPanelWindowView`, not an image-generator mockup or the reference pasted into the app. Transparent outer pixels contain its real rendered shadow. Reference text line breaks are an explicit test fixture; production remains selectable native live text.
