@@ -1,3 +1,5 @@
+> **no-api.8 · 原稿校准候选**：最新用户上传的 1536×1024 JPEG 现有独立[来源与度量](V1-ORIGINAL-REFERENCE-FIDELITY.md)。上一版 no-api.7 已独立完成原生检查和 1,800.44 秒音频比对，但其卡片近似稿被否决，只保留为工程历史。新版本以原稿尺寸、正文、灰色双框复制图形和语音胶囊为准，将在新冻结版本执行验收；真实云端仍未连接。
+
 # Saytile V1 RC2 · no-api.7 无密钥工程交付
 
 **无密钥短项已通过，长跑结论待定 · LIVE_CONNECTION_PENDING**。[运行源码 `4b97bd89`](https://github.com/haohongfei2001-png/saytile/commit/4b97bd89b258fea29a0be61d4bd4c23cb5ab428c)，tree `4aac670d6edfcce0c12ed22fa3cd5c68e66061b9`。 适用于 Apple Silicon、macOS 26 或更新版本。RC1 继续作为稳定版本。个人候选采用 ad-hoc 签名，已验证挂载与解包 App 签名，尚未 Developer ID 公证。本检查点记录已校验的候选 DMG。公网下载回读结果在最终报告中单列。

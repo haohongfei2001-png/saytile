@@ -784,7 +784,7 @@ extension AppDelegate {
                               font.pointSize == ReferencePanelStyle.fontSize else {
                             throw ReviewFailure("reference rendering changed text or lost measured typography")
                         }
-                        print("REFERENCE_STYLE_PASS " + name + " native_text=true font=19.5 card=345x234 radius=28 copy=42x34 voice=92x34")
+                        print("REFERENCE_STYLE_PASS " + name + " native_text=true measured_font=19.5 design_card=345x234 design_radius=28 design_copy=42x34 design_voice=92x34")
                     })
             }
             // Review-only presentation of the same production view. The colored
