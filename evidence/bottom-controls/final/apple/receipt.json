@@ -1,0 +1,39 @@
+{
+  "runtime": "455143310222c2c03c4a4888e5df5552c3af4131",
+  "tree": "87015ba6c1cb2b38c5a868a2fed1b86b9eaac683",
+  "manifest": {
+    "path": "tests/fixtures/MandarinCorpus.json",
+    "sha256": "31430af5e1363a51da6c793f70dcc34b752d88195f990e9de6cc1960be8e2e6c"
+  },
+  "fixture_directory": "/tmp/saytile-noapi6-apple-45514331-99ihbek3/audio",
+  "generated_synthetic_audio": {
+    "correction.aiff": "e67349c124409100d6cca8b9ed677f9309f9cbe8d8cf5a6d9614fac2ce557106",
+    "daily.aiff": "ea39d7d4c6adf64b9cb9ca59dbeb1277fad737cf6df0cfaeca9d7a482d91656a",
+    "mixed.aiff": "05dcb5c15d3b7f7d0f3abbdf273e53665bf9e70e4117928fe081a5e537e275cc",
+    "negation.aiff": "722bed84f758206055c623713987e84c1c8da706dd3f91d45c5370d782af6406",
+    "numbers.aiff": "e7cfafd2f4e609be58a07a1bf38605b1a3339410cdb07a1d4f4f232f999879c7",
+    "pauses.aiff": "d852e4ea934c7307efded4a7fba6cfbb8570a92d8079fb5684fe3e07dd4b1063",
+    "second_voice.aiff": "91e72a68f1d0a1666ecdaa800327a685b13a605395fc02e942a9fb83bacf8d00",
+    "tail.aiff": "d2369416b1fef78be9bfacb105ea0591fa21765512641f643f7a378587544343"
+  },
+  "microphone_opened": false,
+  "real_provider_requests": 0,
+  "probe_source_sha256": "89db34402c29d8ab25067aca027b550929f7d3ada23688ab95a054f0642807a5",
+  "probe_binary": "/tmp/saytile-official-noapi6-apple-45514331",
+  "binary_sha256_before": "96653e6ddbee18e7795393cded8a5b355796a948dd346eca560ab4401c120382",
+  "static_library_sha256": "f30fdf1c69366eed23ae95ac3d6bc39428d772a63975de5a01b336fbc26ea359",
+  "command": [
+    "/tmp/saytile-official-noapi6-apple-45514331",
+    "tests/fixtures/MandarinCorpus.json",
+    "/tmp/saytile-noapi6-apple-45514331-99ihbek3/audio",
+    "/tmp/saytile-noapi6-apple-45514331-99ihbek3/store",
+    "--prepare-speech"
+  ],
+  "process_deadline_seconds": 300,
+  "prepare_deadline_seconds": 180,
+  "status": "finished",
+  "exit": 0,
+  "binary_sha256_after": "96653e6ddbee18e7795393cded8a5b355796a948dd346eca560ab4401c120382",
+  "probe_binary_unchanged": true,
+  "synthetic_input_unchanged": true
+}

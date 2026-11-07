@@ -1,68 +1,35 @@
-# Saytile V1 RC2 无 API 工程交付
+# Saytile V1 RC2 · 无 API 工程交付
 
-> **2026-11-07 最新 UI 续接**：底部左复制、右语音两个常驻按钮；暂停/待命/正在识别三个日常状态；VAD确认讲话结束就回待命，不等待识别定稿。具体修改、当前CI与截图核验见 [续接交付记录](V1-COMPACT-PANEL-RESUMPTION.md)。下文冻结源码的测试与截图是其各自版本的历史证据，不等同于最新布局验收。
+正式开发在 [PR #6](https://github.com/haohongfei2001-png/saytile/pull/6)。当前稳定发布仍为 RC1。本候选为 **1.0.0-rc.2-no-api.6**，适用于 Apple Silicon、macOS 26 或更新版本。它没有替换已安装的 RC1，也没有修改生产资料库。
 
-当前正式工程为 **PR #6**；新候选版本为 **1.0.0-rc.2-no-api.6**。现有稳定 RC1、生产 main 和用户资料保持不变。真实云端为 `LIVE_CONNECTION_PENDING`。无凭据条件下不能计算双专家＋GPT 相对最强单模型的准确率增益或附加确认延迟。
+**候选来源**：[运行源码 `4551433`](https://github.com/haohongfei2001-png/saytile/commit/455143310222c2c03c4a4888e5df5552c3af4131)，tree `87015ba6c1cb2b38c5a868a2fed1b86b9eaac683`。[DMG 与 SHA-256](../deliverables/no-api.6/) · [安装、备份与回退](V1-INSTALL.md) · [以后启用服务的设置步骤](V1-USER-ACTIONS.md)。DMG 挂载原件与解包 App 均通过严格签名验证；为 ad-hoc 签名，未 Developer ID 公证。
 
-## 当前候选
+## 用户现在可使用什么
 
-研发在上游底部控件实现 `9d2d2346` 及其 [CI 原生截图](../evidence/approved-ui/bottom-controls-20261107/README.md) 上继续。两个入口共用一套上下文命令；实际采集状态由本段 VAD 决定。当前 Mac 的[分层结果](../evidence/bottom-controls/README.md)区分开发预检、实际系统操作和冻结候选，不能混用。
+- 无 Key 可启动、保存原音，并在 Apple 中文资源就绪的 Mac 上识别。原音、历史文字、用户编辑稿和输入投递状态分别保存；识别失败可以恢复，删除原音不会顺带删除文字。
+- 输入板底部只有复制和语音按钮。播放三角表示暂停，圆点表示待命，五根圆头小竖条跟随当前讲话的音量。VAD 判定句尾就回到待命，上一段定稿继续写回原段。选择或阅读旧文字时不会被后到的文字挤走。正文与复制按钮右键菜单均可到达编辑、回到最新、档案、设置和明确绑定等操作。
+- 设置向导在本人提供三项凭据、Qwen 地域/Workspace 和相应授权后，自动运行有边界的真实连接检查；只有两个语音服务及 GPT 文本融合、EOS 定稿全部成功，才开启完整云端路径。失败保留本机功能与已存内容。实际云请求本轮为 **零**。
 
-## 历史版本
+## 这个 SHA 实际验证了什么
 
-旧顶部布局的最后一次完整工程基线为 `4df87ad4` / no-api.5；[源码、长跑、UI 和历史 DMG 证据](../evidence/no-api-product/final-no-api5-r2/BASELINE.md)。此前 `702a24b9` 因一个定时器取样的回听断言在本机失败而保留；见[原次记录](../evidence/no-api-product/final-no-api5/HOLD.md)。这些结果不转记为底部面板的验收。
-
-## 更早的 no-api.4 工程基线
-
-源码 **`1067f1ad5c5c29c698f346651c965db2169625eb`**，tree `1c59b5e95f92dd34b19d4fb390549724071114a6`。以下结果全部来自该源码，不能当作后续新界面的最终验证；[完整身份与分层证据](../evidence/no-api-product/final-no-api4-r2/delivery-manifest.json)、[独立审查](../evidence/no-api-product/final-no-api4-r2/DELIVERY-AUDIT.md)。
-
-| 验证层 | 结果与实际范围 |
+| 层级 | 观察结果 |
 |---|---|
-| 完整 Swift | 386 个函数 / 46 套件 / 506 展开场景，零跳过；本机与 CI 分别重复通过，不相加 |
-| 三服务协议 | 上述套件包含 12 函数 / 52 场景，其中 50 个实际 localhost HTTP/WS case、零 peer 违例；另外 2 个非法预算场景在联网前拒绝。正式网络客户端连接协议模拟器，非真实服务商 |
-| AppModel | 78 项通过；实际生产模型与明确注入的系统/网络边界 |
-| 外部输入 | headless DOM20、实际隔离 NSTextView AX9、接收方改字5、owned-range AX9；不重放不确定投递，不自动发送 |
-| WKWebView | 上下文6、能力拒绝2、零发送；后台 setter 认可但 DOM 不变，插入仍 UNVERIFIED，不当作浏览器输入成功 |
-| Apple 本机识别 | 8/8 合成样本完成，总音频48.703秒；CER 0–0.2632，4个关键遗漏原样保留；首显1.1343–1.1809秒，输入结束至完成0.0319–0.0892秒。非真人/云质量结论 |
-| 实际包原生 UI | 控件模式31图、41 AXPress、6菜单动作、5控件检查、6字段提交（3 SecureField）、12组；另20图只渲染。成功向导为 TEST_ONLY，无真实Key或服务 |
-| 数据与恢复 | 12个真实进程检查：SIGKILL、迁移、零隐式云授权、RC1拒开新schema、完整停机副本回退 |
-| 存储规模 | schema5、10万记录/30万版本；partial写p95 0.211ms、搜索100匹配143.866ms，清理期间写p95 0.358ms；仅合成元数据调度，非大量原音删除或界面延迟 |
-| 安装升级 | 真实RC1 DMG到候选的8项检查、卸载重装2项通过；独立合成资料，无生产库读写 |
-| CLI / 启动 | 连接设置7、云探针4；实际非激活主板340×240启动，不抢前台，包和执行命令有身份关联 |
-| 包空闲资源 | 300.03秒，0.34 user+0.18 sys CPU秒，暖态RSS62,512–72,592KiB；无麦克风/ASR，非整机功耗 |
-| 30分钟音频完整性 | **1800.48秒、60段、179个WAV、28,800,000保存帧与独立参考全部逐字节一致，0差异、无缺帧或额外尾帧；23/23最终检查通过**。ring drop0、隐式上传授权0；ASR/麦克风/扬声器关闭 |
-| 音频运行资源 | 40次采样RSS15,136–18,512KiB，14.10 user+8.83 sys CPU秒（约1.274%单核时间）；合成生产保存链，非真人或电池结论 |
-| CI | native42317977017及design42317977018成功，无rerun。merge8eaffdc0与1067不同commit、相同tree，base为PR5；CI只渲染20图，本机另有真实控件证据 |
+| 完整 Swift / 实际 loopback 协议 | 392 个函数、48 套件，含 12 个协议测试函数、52 种协议场景；其中 50 次使用正式 URLSession 客户端和 localhost HTTP/WS 对端，零协议违例。包含同 PCM 双路、持续文字修正、EOS、重连、结构化错误与同模型 HTTP 回退。[原始记录](../evidence/bottom-controls/final/protocol/) |
+| 产品控制器 / 密钥 / 首次向导 | 104 项 AppModel 检查通过；隔离真实 Keychain 测试与注入账户/合成向导测试分别记录。命令入口边界 17+7 项。向导的测试成功状态不等于真实账户已连接。 |
+| 实际 Mac 文字输入 | headless DOM 20，隔离原生 AX 9，目标在 setter 后变化 5，原生所有权 9；WKWebView 上下文 6、能力拒绝 2、零发送。WK setter 返回接受但 DOM 不变，实际投递仍为 **未确认**，不得重放。[输入记录](../evidence/bottom-controls/final/input/) |
+| 实际 DMG 内 App 原生界面 | 控件模式 37 张原生图、45 次 AXPress、10 次上下文菜单选择、11 次双控件几何/状态核查、6 次字段编辑（含 3 个安全字段）；另有 27 张纯渲染图。逐个检查了选区/全文复制、回到最新、档案编辑、向导与暂停恢复。两种模式各自另外渲染 71 帧生产语音图形采样；不是 71 张实际播放时序截图。[控件操作](../evidence/bottom-controls/final/ui/) · [纯渲染](../evidence/bottom-controls/final/ui-render-only/) |
+| Apple 本机中文识别 | 系统初报资源未安装；产品原有准备流程一次后就绪，未移除其他语言。8/8 合成样本识别完成，48.703 秒，逐样本 CER 0–0.2632；首显中位 1.202 秒，结束至定稿中位 0.054 秒。四处关键遗漏：Mac、保存原音、充电器、修改开始时间。[逐条输出与时间](../evidence/bottom-controls/final/apple/) |
+| 原生采集、保存与恢复 | 真实 WebRTC VAD 与 ring：第一段 49,920 帧 WAV 已保存；两个受控专家都在等待 final 时，第二段已经开口并得到独立文字；旧定稿只写回第一段，ring 无丢帧。12 项真实进程/存储检查通过，包含强杀、写失败、迁移以及完整备份回退。 |
+| 安装、启动与后台运行 | 从已发布 RC1 DMG 到实际候选的 8 项检查、卸载重装 2 项、连续重启/单实例锁均通过。合成数据库行、草稿、原音和未确认投递受到保护。340×240 pt 面板启动未抢前台；展开小入口不启动收音。[安装记录](../evidence/bottom-controls/final/install-upgrade.json) |
+| 性能边界 | 10 万条记录、30 万版本：阶段写入 p95 0.152 ms、搜索 100 匹配 121.835 ms。实际 App 无采集空闲 300.02 秒，暖态 RSS 63,520–79,280 KiB；该进程 CPU 0.29 user + 0.14 sys 秒。不是电池、整机能耗或 72 小时结果。 |
+| CI | 同源码的 [macOS 原生](https://github.com/haohongfei2001-png/saytile/actions/runs/42331341272)及[设计契约](https://github.com/haohongfei2001-png/saytile/actions/runs/42331341221)均成功。CI 的纯渲染与本机实际 AX 操作分开，不叠加计数。 |
 
-所有保存PCM与独立参考SHA256均为 `050b5e8b2a4154d34590f79cfb949885cc5195271bc7dd72ff8f4aab27885385`。201项运行时/构建/测试输入前后相同；协议与存储清单另外包含4项工作流/契约，因此为205项，并非源码不一致。[完整波形评估](../evidence/no-api-product/final-no-api4-r2/local/realtime-assessment.json)。
+长跑：使用提交的合成 AIFF，按真实时钟馈入生产 ring/VAD/保存链；结束后将每一帧与独立转换参考比较。运行中的累计帧数不等于通过。见[本轮长期运行证据](../evidence/bottom-controls/local/)。
 
-基线DMG保留于正式项目 `dist/rc2-no-api.4/Saytile-1.0.0-rc.2-no-api.4-arm64.dmg`，SHA256 `0f23176cc091d21946dc6ca5082248b779a8dcf054c9a166a21e50602387c5e0`；实际已验App可执行文件SHA256 `a8b4e9bbe14028fe8630ee1e100f65f4903b9c9830790ad452e0dad25f657b45`。这是旧视觉工程基线，不是最新批准界面的最终候选。Documents中的解包副本反复附加Finder元数据，已隔离为不可交付副本；保留原工作树中严格签名通过的App及完整DMG，不反复清属性冒称永久修复。[路径与副本边界](../evidence/no-api-product/final-no-api4-r2/delivery-paths.json)。
+## 哪些结论不能从这些结果推出
 
-## 本轮继续完成的产品工作
+**云端状态为 `LIVE_CONNECTION_PENDING`。** Qwen Audio 3.1 Message、AssemblyAI Universal 3.6 Pro 平等接收同一音频，唯一 GPT-6 Astra 接收文字候选，不听原音；Soniox 为可选、默认不启用。没有真实账户授权、没有付费调用、没有用私人或真人对话上传验证。与最强单模型相比的准确率增益、准确场景和额外确认延迟均 **未知**，不能写为 0，也不能由协议模拟或 Apple 的合成 CER 推算。未授予 `LIVE_PROTOCOL_VERIFIED`、`LIVE_TRANSCRIPTION_VERIFIED`、`QUALITY_VERIFIED` 或 `PRODUCTION_READY`。
 
-固定架构保持：Qwen Audio3.1 Message 与 AssemblyAI Universal3.6Pro 平等接收同一完整PCM，唯一持久 GPT-6 Astra 文本会话融合证据、修正和EOS定稿；GPT不收音频。Soniox仍默认关闭，不新增模型链或排名研究。
+隔离输入不是任意前台编辑器兼容认证，真实麦克风权限、物理设备拔插、睡眠/唤醒、多显示器实际组合、真人长用及公证均有边界。原图《Saytile语音输入工作台概念界面.png》在 GitHub 有[正式设计来源说明](../design/approved/README.md)和[后续已核布局规范](SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md)；现有 PNG 实机图用于比对布局和状态，不能称为取得原始图像字节、从批准原图采色或用户已接受视觉。复制成功沿用简短提示，直接输入模式保留目标提示。[独立审查](../evidence/bottom-controls/final/INDEPENDENT-REVIEW.md)
 
-已有修复保留：转换器实际领取前不释放输入块、VAD小尾部不保留整段数据、schema5按录音保存目的地与凭据代次、不补授旧录音云权限、用户编辑与UTF-16所有权保护、未确认投递不重放。原音保存不依赖识别或目标输入框。
-
-此前538e2d8的顶部单按钮/四状态规范已由最新用户续接截图覆盖。[现行唯一规范](SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md)要求正文上方无操作栏，底部仅左复制、右语音胶囊；首次未开与主动暂停统一为播放三角，无声待命为圆点，真实讲话为波形。VAD确认讲话结束即回待命，后台识别和修正不再占据主按钮识别态。编辑及其他操作保留在上下文菜单与已有入口中。可选桌面小入口仍只展开同一输入板；用户选区、阅读位置与手工修改仍优先。
-
-独立审查又发现并修复菜单栏提示订阅不全、极小屏入口定位，以及诊断参数可能误开正式资料库的问题。诊断目录现在在AppModel/Store构造前统一拒绝正式根、子树、大小写和符号链接别名；不支持的`--data-directory=…`写法明确拒绝，不能静默回到生产目录。正常无参数产品启动不受影响。新版实际预览通过36图、45次AXPress、10次状态布局检查与非抢焦点启动；诊断CLI17项、连接CLI7项通过。原生文本控件另复现并修复仅上滚2pt后自动跳底，追加内容现在保留阅读位置。以上为冻结前检查；97项AppModel与9项路径专项亦不冒充新SHA最终验收。
-
-精确原图为 ChatGPT Library《Saytile语音输入工作台概念界面.png》（2026-11-06 23:05 UTC）。此前对GitHub分支、PR讨论、Release与历史路径的查找见[原记录](../evidence/approved-ui/reference-availability.json)。本次用户已附包含更新后概念图的截图 `IMG_4388.jpeg`，可核对布局与三态，但没有取得独立原始PNG字节。紫色token并非本轮原图取色，**不宣称像素级复刻**；旧绿色图与已舍弃品牌探索均不作当前依据。
-
-## 云端接入与实际限制
-
-原生设置已有三项SecureField、Qwen地域/Workspace、逐服务处理许可和单次内置合成检查授权。Key只存Saytile专用Keychain。未来用户主动启用时，三家实际服务及正式融合链全部通过才启用云端；格式正确或TEST_ONLY成功不能冒充连通。不要求终端、JSON、录音或手动联调。[首次连接流程](V1-RC2-CONNECTION-SETUP.md)。
-
-检查仅使用内置6.272秒中英合成音频，两个ASR收到完整相同音频，GPT仅收候选文字。联网最长90秒、两个ASR会话、最多6次实际GPT请求，每次最多4096输出Token，重连与HTTP回退共享预算；这是请求上限，不保证账单金额。没有授权不收费调用，不上传历史私人原音。
-
-本轮没有真实云服务请求、付费识别或私人音频上传。实际账户/模型/地域/额度和现网兼容性未验证；**无法量化双专家+GPT相对最强单模型的准确率改善与确认延迟，未知不等于0%。**
-
-其他明确边界：
-
-- 未采集真实麦克风/环境对话；物理拔插、睡眠、锁屏、撤权、真实多屏、24/72小时与整机能耗未执行。逻辑与合成测试不替代这些验收。
-- 生产前台resolver未执行；隔离已知PID的AX不证明任意第三方兼容，WK后台插入仍未确认。
-- 旧AX合并安全断言及a684原始目标变化来源仍UNKNOWN，后续安全fixture成功不倒推历史原因。no-api.2漏音、a684红CI及主动停止的536.05秒运行完整保留，不重新标绿。
-- Apple Silicon / macOS26+，ad-hoc签名，未Developer ID公证。系统打开确认、麦克风与辅助功能授权不能绕过；复制无需辅助功能。
-
-本轮没有合并main或替换已安装RC1。并行设计操作将远端及本地main更新至99cfc1，变化仅7个设计文档/原型提示，Sources树与已安装RC1保持不变；[保护回执](../evidence/no-api-product/final-no-api4-r2/preservation-after.json)明确记录变化，不笼统称所有HEAD未变。当前不要求用户录音、点击临时测试、给日志、填Key或排障。
+上方按钮 no-api.5 的[原始测试、旧 DMG 及完整波形](../evidence/no-api-product/final-no-api5-r2/BASELINE.md)和此前 no-api.4 [冻结记录](../evidence/no-api-product/final-no-api4-r2/delivery-manifest.json)仅用于溯源，不用于给当前版本计数。真实连接和真人验收的最少后续事项见[验收条件](V1-RC2-FINAL-ACCEPTANCE.md)；当前不要求用户参与。

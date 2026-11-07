@@ -1,14 +1,16 @@
 # no-api.6 local verification
 
-The procedures are prepared. Measurements begin after the runtime revision and tree are frozen. This directory uses the committed Tingting synthetic AIFF identified in `input-fixture.json`. Its SHA-256 is `d7deb6ef7c7a6cc330fbb4ee82eb2733f82ee7761634e6df55f650037bf0b751`.
+Frozen runtime `455143310222c2c03c4a4888e5df5552c3af4131`, tree `87015ba6c1cb2b38c5a868a2fed1b86b9eaac683`, passed all eight short-receipt conditions. Its 30-minute capture started on 2026-11-07 at 11:01:38 China Standard Time under PID 2613. The full waveform assessment follows natural exit. The input is the committed Tingting synthetic AIFF identified in `input-fixture.json`, SHA-256 `d7deb6ef7c7a6cc330fbb4ee82eb2733f82ee7761634e6df55f650037bf0b751`.
 
 `run-short-evidence.py` runs the existing VAD allocation, Store process recovery, archive scale and conversion reference checks. It records source, recipe and input hashes before and after the run. The Store check exercises the released Beta and RC1 code, schema migration, SIGKILL recovery and explicit backup restore on disposable fixtures. The scale check uses 100,000 recordings and 300,000 revisions. The independent AVAudioConverter reference consumes 39,690,000 input frames in checked batches and compares its output size to the expected 28,800,000 frames. SwiftPM scratch directories and probe executables use a `/tmp/saytile-no-api6-<revision-prefix>` prefix.
 
-Once the frozen revision and tree have been supplied, the short checks run from the repository root.
+The short checks passed. Store completed 12 process, recovery, migration and rollback checks. VAD processed 66.7 MB with a 245,760-byte peak RSS increase. For 100,000 recordings and 300,000 revisions, the 200 partial writes took 0.152 ms p95, and the expected 100 search matches took 121.835 ms. The reference converter accepted all 4,845 batches and produced 28,800,000 frames, including 1,494 drained tail frames. The reference PCM has SHA-256 `050b5e8b2a4154d34590f79cfb949885cc5195271bc7dd72ff8f4aab27885385`.
+
+The short checks ran from the repository root.
 
 ```sh
-export SAYTILE_FROZEN_SHA='<full frozen Git commit>'
-export SAYTILE_FROZEN_TREE='<full frozen Git tree>'
+export SAYTILE_FROZEN_SHA=455143310222c2c03c4a4888e5df5552c3af4131
+export SAYTILE_FROZEN_TREE=87015ba6c1cb2b38c5a868a2fed1b86b9eaac683
 python3 evidence/bottom-controls/local/run-short-evidence.py
 ```
 

@@ -1,3 +1,5 @@
+> **PR #6 · no-api.6** 已在源码 `455143310222c2c03c4a4888e5df5552c3af4131` 构建实际 DMG；原生套件 392/48/512、AppModel 104、localhost 三服务及实际 DMG 的 UI、系统输入、Apple 本机识别、升级和回退均已执行。当前快照先保留已结束的短项，长跑不计为通过。在同一冻结 SHA 的实时时钟采集自然退出后才补充整段波形与总状态。[安装包](../deliverables/no-api.6/) · [证据范围](V1-NO-API-DELIVERY.md)。
+
 > **冻结前预览**：真实 Mac App 37 张截图、45 个 AXPress、10 次菜单选择、11 次底部双控件检查通过；AppModel 104 项、生产采集 VAD 与受控延迟定稿专项通过。原生操作确实执行，无前台激活；采集界面依赖注入，未使用麦克风或真实服务商。两个预览中的误判均在[预览证据](../evidence/bottom-controls/preview/)保留。最终同 SHA 结果单列。
 
 > **底部面板接续 · 2026-11-07：** 底部控件的预检：真实独立 AppKit 文本窗口使用 AXShowMenu / AXPress 打开并选择菜单；生产 AppModel 到独立 NSPasteboard 的两种 Unicode 复制逐 UTF-16 相同，均未启动或暂停采集。见[原生菜单](../evidence/bottom-controls/context-menu-preflight/)及[独立粘贴板](../evidence/bottom-controls/copy-preflight/)。仅属于工程预检，非最终候选包验收。
