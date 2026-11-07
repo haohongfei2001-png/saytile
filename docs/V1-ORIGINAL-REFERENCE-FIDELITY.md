@@ -7,6 +7,8 @@ The prior `473d6ed` change and its design provenance are retained in history. Th
 - The body uses native selectable PingFang SC Regular 19.5 pt with 26 pt line height. The reference fixture retains the source's visible line breaks; production text is never hard-coded. Trailing punctuation has optical whitespace rather than compressed Chinese punctuation. A noninteractive purple live caret uses the final glyph's ink bounds and disappears during selection or reading earlier text.
 - Three new reference captures use `InputPanelWindowView`, also used by the actual AppDelegate. The standard 27/37 native render/control scenarios and the synthetic glyph geometry checks remain. VAD, ASR, storage, menus and cross-app dispatch are unchanged.
 
+**唯一视觉原图：** [design/approved/Saytile-original-visual-reference-20261107.jpeg](../design/approved/Saytile-original-visual-reference-20261107.jpeg)（用户上传文件原字节，不是工程截图）。本文件所记录的原生几何和渲染证据必须以它作为上位标准；若出现冲突，原图优先。
+
 Measurements and source identity: [`original-reference-20261107.measurements.json`](../design/approved/original-reference-20261107.measurements.json). This record must not be replaced by the dimensions of old gray or flat-gradient engineering captures. No desktop wallpaper is modified. No physical microphone or live cloud call is part of these synthetic UI checks. Literal original-pixel identity and user visual approval are not inferred from passing engineering tests.
 
 ---
@@ -17,7 +19,7 @@ Measurements and source identity: [`original-reference-20261107.measurements.jso
 
 ## 设计依据
 
-本轮依据用户直接上传的完整 1536×1024 JPEG，SHA-256 为 `58be88a019cf0241b1c540f799d0944ed294e650b8c119923a434a6e4889a7c5`。这是本轮可读取的原始上传附件，不冒称取得更早图片的无损 PNG。附件没有私人桌面内容，仍未将其整幅复制发布进仓库。
+本轮依据用户直接上传的完整 1536×1024 JPEG，SHA-256 为 `58be88a019cf0241b1c540f799d0944ed294e650b8c119923a434a6e4889a7c5`。这是本轮可读取的原始上传附件，不冒称取得更早图片的无损 PNG。附件没有私人桌面内容。完整 JPEG 原始字节现已原样存入 [唯一视觉原稿](../design/approved/Saytile-original-visual-reference-20261107.jpeg)，由 SHA-256 `58be88a019cf0241b1c540f799d0944ed294e650b8c119923a434a6e4889a7c5` 校验；它不等于更早的无损设计源文件。
 
 主卡片在图中约为 690×469 像素，按 2× 映射到原生默认 345×234pt。测量存在 JPEG 抗锯齿和图形原稿本身的不确定性；不是对字体源文件或逐像素完全相同的声明。
 
