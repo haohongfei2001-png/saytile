@@ -22,7 +22,7 @@ struct VoiceCaptureGlyph: View {
                    value: presentation.state)
         .animation(reduceMotion ? nil : .easeOut(duration: 0.07),
                    value: presentation.liveVoiceLevel)
-        .frame(width: 24, height: 18)
+        .frame(width: 27, height: 20.25)
         .accessibilityHidden(true)
     }
 }

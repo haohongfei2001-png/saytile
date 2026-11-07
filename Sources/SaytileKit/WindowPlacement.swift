@@ -3,7 +3,7 @@ import CoreGraphics
 
 /// Window geometry uses visible frames, including displays with negative origins and menu bars.
 public enum WindowPlacement {
-    public static let panelDefaultSize = CGSize(width: 340, height: 240)
+    public static let panelDefaultSize = CGSize(width: 345, height: 234)
     public static let panelMinimumSize = CGSize(width: 320, height: 200)
     public static let panelMaximumSize = CGSize(width: 360, height: 480)
 

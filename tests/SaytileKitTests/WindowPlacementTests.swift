@@ -9,7 +9,8 @@ struct WindowPlacementTests {
             for anchor in [CGRect(x: screen.maxX - 30, y: screen.maxY, width: 24, height: 24), CGRect(x: screen.minX + 2, y: screen.maxY, width: 24, height: 24)] {
                 let frame = WindowPlacement.panel(anchor: anchor, visibleFrame: screen)
                 #expect(screen.contains(frame))
-                #expect(frame.size == CGSize(width: 340, height: 240))
+                // The uploaded reference main card is 690x469px at 2x.
+                #expect(frame.size == CGSize(width: 345, height: 234))
             }
         }
     }

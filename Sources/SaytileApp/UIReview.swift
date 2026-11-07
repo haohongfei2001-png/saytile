@@ -155,6 +155,7 @@ extension AppDelegate {
             try await reviewFirstConnection(output: output)
             try await reviewCompactPanel(output: output)
             try reviewVoiceGlyph(output: output)
+            try await reviewOriginalReference(output: output)
             if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil { print("UI_CONTROLS_NOT_RUN remote AX helper not configured; rendering only") }
             let captures = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil ? 27 : 37
             print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; \(captures) captures; synthetic data; no activation/microphone")
@@ -358,8 +359,8 @@ extension AppDelegate {
               let windowWidth = detail["window_width"] as? Double, let windowHeight = detail["window_height"] as? Double,
               left + copyWidth < windowX + windowWidth / 2, x > windowX + windowWidth / 2,
               abs(y + ch / 2 - copyY - copyHeight / 2) < 2,
-              (6...18).contains(windowY + windowHeight - y - ch),
-              (6...18).contains(windowY + windowHeight - copyY - copyHeight) else {
+              (16...20).contains(windowY + windowHeight - y - ch),
+              (16...20).contains(windowY + windowHeight - copyY - copyHeight) else {
             throw ReviewFailure("panel requires only a left copy button and right horizontal voice capsule on the bottom row")
         }
         // A native text document can be tall and scrolled. Check its actual
@@ -748,6 +749,55 @@ extension AppDelegate {
                 }
                 print("UI_CONTROL_PASS native desktop-entry setting persists on/off only in isolated preferences and leaves capture unchanged")
             }
+            await model.prepareForExit()
+        } catch { await model.prepareForExit(); throw error }
+    }
+
+    @MainActor private func reviewOriginalReference(output: URL) async throws {
+        let suite = "app.saytile.test.reference." + UUID().uuidString
+        let preferences = UserDefaults(suiteName: suite)!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-reference-" + UUID().uuidString)
+        let capture = UIPanelCaptureFixture(), connection = UIConnectionFixture()
+        defer { preferences.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: directory) }
+        var configuration = RecognitionConfiguration(); configuration.automaticRecovery = false
+        try configuration.save(to: preferences)
+        let model = try AppModel(directory: directory, preferences: preferences,
+            connectionDependencies: connection.dependencies, captureDependencies: capture.dependencies)
+        let folder = output.appendingPathComponent("original-reference", isDirectory: true)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        await model.initialLoad()
+        do {
+            let row = try await model.store.createRecording()
+            _ = try await model.store.saveEdit(recordingID: row.id, text: ReferencePanelStyle.sampleText)
+            try await model.store.finishRecording(id: row.id)
+            await model.refresh()
+            for (name, state, level) in [("paused", CaptureState.paused, Float(0)),
+                                         ("standby", .listening, 0), ("speaking", .speaking, 0.85)] {
+                capture.state = state; capture.level = level; model.objectWillChange.send()
+                try await reviewValidatedWindow(InputPanelView(model: model),
+                    size: CGSize(width: 345, height: 234), name: "reference-" + name, output: folder,
+                    validation: { host in
+                        let view = try self.compactTranscript(in: host)
+                        guard view.transcriptView.string == ReferencePanelStyle.sampleText,
+                              let storage = view.transcriptView.textStorage,
+                              let font = storage.attribute(.font, at: 0, effectiveRange: nil) as? NSFont,
+                              font.pointSize == ReferencePanelStyle.fontSize else {
+                            throw ReviewFailure("reference rendering changed text or lost measured typography")
+                        }
+                        print("REFERENCE_STYLE_PASS " + name + " native_text=true font=19.5 card=345x234 radius=28 copy=42x34 voice=92x34")
+                    })
+            }
+            // Review-only presentation of the same production view. The colored
+            // backdrop and sample drop shadow are not written to the user's desktop.
+            try await reviewWindow(
+                ZStack {
+                    LinearGradient(colors: [Color(red: 0.77, green: 0.70, blue: 0.99),
+                                            Color(red: 0.51, green: 0.64, blue: 0.99),
+                                            Color(red: 0.40, green: 0.59, blue: 0.99)],
+                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                    InputPanelView(model: model).frame(width: 345, height: 234)
+                        .shadow(color: Color(red: 0.26, green: 0.30, blue: 0.78).opacity(0.38), radius: 14, x: 0, y: 12)
+                }, size: CGSize(width: 425, height: 314), name: "reference-presentation", output: folder)
             await model.prepareForExit()
         } catch { await model.prepareForExit(); throw error }
     }

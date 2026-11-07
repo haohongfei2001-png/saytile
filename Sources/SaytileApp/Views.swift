@@ -11,8 +11,6 @@ struct InputPanelView: View {
 
     private var transcript: String { model.recent.map(\.text).filter { !$0.isEmpty }.joined(separator: "\n") }
     private var canCopy: Bool { !transcript.isEmpty || !selectedText.isEmpty }
-    // Local to the approved compact panel: do not recolor archive or settings.
-    private let panelViolet = Color(red: 0.48, green: 0.30, blue: 0.93)
 
     var body: some View {
         VStack(spacing: 0) {
@@ -33,24 +31,26 @@ struct InputPanelView: View {
             }
 
             CompactTranscriptView(text: transcript, latestRequest: latestRequest,
+                showsLiveCaret: model.panelCapturePresentation.state == .recognizing,
                 onFollowChange: { followsLatest = $0 }, onSelectionChange: { selectedText = $0 },
                 fillContextMenu: fillContextMenu)
                 .overlay(alignment: .topLeading) {
                     if transcript.isEmpty {
                         Text(model.isListening ? "开口，文字会出现在这里。" : "从一句话开始。")
-                            .font(.system(size: 16)).foregroundStyle(Palette.muted.opacity(0.8))
+                            .font(.system(size: ReferencePanelStyle.fontSize)).foregroundStyle(Palette.muted.opacity(0.8))
                             .padding(.top, 6).padding(.horizontal, 2).allowsHitTesting(false)
                     }
                 }
-                .padding(.horizontal, 16).frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.horizontal, ReferencePanelStyle.horizontalInset).frame(maxWidth: .infinity, maxHeight: .infinity)
 
             HStack {
                 Button(action: copyTranscript) {
-                    Image(systemName: "doc.on.doc").font(.system(size: 12))
-                        .frame(width: 34, height: 30).contentShape(Rectangle())
-                        .foregroundStyle(panelViolet.opacity(canCopy ? 0.90 : 0.5))
-                        .background(.white.opacity(0.46), in: RoundedRectangle(cornerRadius: 10))
-                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(.white.opacity(0.45), lineWidth: 0.75))
+                    ReferenceCopyMark().stroke(style: StrokeStyle(lineWidth: 1.65, lineCap: .round, lineJoin: .round))
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(ReferencePanelStyle.copyInk.opacity(canCopy ? 1 : 0.5))
+                        .frame(width: ReferencePanelStyle.copySize.width, height: ReferencePanelStyle.copySize.height)
+                        .contentShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                        .background(ReferenceControlSurface(radius: 13))
                 }
                 .buttonStyle(.plain)
                 // Keep the menu host enabled for an empty panel. The copy action
@@ -63,40 +63,11 @@ struct InputPanelView: View {
                 Spacer(minLength: 8)
                 captureControl
             }
-            .padding(.horizontal, 16).padding(.top, 6).padding(.bottom, 13)
+            .padding(.horizontal, ReferencePanelStyle.horizontalInset).padding(.top, 6).padding(.bottom, ReferencePanelStyle.bottomInset)
         }
         .padding(.top, 10)
-        // The approved reference is a lavender-to-periwinkle translucent
-        // glass card, not the near-opaque neutral paper of earlier test renders.
-        // Keep material translucency while providing the visible color that
-        // an isolated, wallpaper-free AppKit capture can faithfully show.
-        .background {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color(red: 0.80, green: 0.77, blue: 0.98).opacity(0.68),
-                                    Color(red: 0.74, green: 0.80, blue: 0.99).opacity(0.69)
-                                ],
-                                startPoint: .topLeading, endPoint: .bottomTrailing
-                            )
-                        )
-                }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(
-                    LinearGradient(
-                        colors: [.white.opacity(0.84), .white.opacity(0.32)],
-                        startPoint: .topLeading, endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 0.9
-                )
-        }
+        .background(ReferencePanelSurface())
+        .clipShape(RoundedRectangle(cornerRadius: ReferencePanelStyle.corner, style: .continuous))
         .foregroundStyle(Palette.ink)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -110,14 +81,12 @@ struct InputPanelView: View {
         let presentation = model.panelCapturePresentation
         return Button(action: model.toggleCapture) {
             VoiceCaptureGlyph(presentation: presentation)
-            .foregroundStyle(model.captureProblem ? Palette.amber : panelViolet)
-            .frame(width: 78, height: 30)
-            .background(.white.opacity(0.28), in: Capsule())
-            .background(panelViolet.opacity(model.isListening ? 0.10 : 0.05), in: Capsule())
-            .overlay(Capsule().stroke(.white.opacity(0.45), lineWidth: 0.75))
+            .foregroundStyle(model.captureProblem ? Palette.amber : ReferencePanelStyle.violet)
+            .frame(width: ReferencePanelStyle.voiceSize.width, height: ReferencePanelStyle.voiceSize.height)
+            .background(ReferenceControlSurface(radius: 17))
             .contentShape(Capsule())
         }.buttonStyle(CaptureButtonStyle())
-            .overlay(Capsule().stroke(panelViolet.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
+            .overlay(Capsule().stroke(ReferencePanelStyle.violet.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
             .onHover { captureHovered = $0 }.focused($captureFocused)
             .help(presentation.accessibilityLabel)
             .accessibilityLabel(presentation.accessibilityLabel)

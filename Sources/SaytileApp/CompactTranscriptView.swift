@@ -5,6 +5,7 @@ import SwiftUI
 struct CompactTranscriptView: NSViewRepresentable {
     let text: String
     var latestRequest = 0
+    var showsLiveCaret = false
     var onFollowChange: (Bool) -> Void = { _ in }
     var onSelectionChange: (String) -> Void = { _ in }
     var fillContextMenu: (@MainActor (NSMenu) -> Void)? = nil
@@ -16,6 +17,7 @@ struct CompactTranscriptView: NSViewRepresentable {
         view.onFollowChange = onFollowChange
         view.onSelectionChange = onSelectionChange
         view.transcriptView.fillContextMenu = fillContextMenu
+        view.transcriptView.showsLiveCaret = showsLiveCaret
         view.updateTranscript(text)
         view.consumeLatestRequest(latestRequest)
     }
@@ -144,9 +146,12 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
 
     private var attributes: [NSAttributedString.Key: Any] {
         let paragraph = NSMutableParagraphStyle()
-        paragraph.lineSpacing = 4
+        paragraph.minimumLineHeight = ReferencePanelStyle.lineHeight
+        paragraph.maximumLineHeight = ReferencePanelStyle.lineHeight
         paragraph.paragraphSpacing = 6
-        return [.font: NSFont.systemFont(ofSize: 16), .foregroundColor: NSColor.labelColor, .paragraphStyle: paragraph]
+        return [.font: NSFont(name: "PingFangSC-Regular", size: ReferencePanelStyle.fontSize) ?? NSFont.systemFont(ofSize: ReferencePanelStyle.fontSize),
+                .foregroundColor: NSColor(srgbRed: 0.025, green: 0.025, blue: 0.04, alpha: 1),
+                .paragraphStyle: paragraph]
     }
 
     private struct ReadingAnchor {
@@ -256,6 +261,24 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
 @MainActor
 final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
     private let transcriptMenu = NSMenu(title: "文字操作")
+    /// A noninteractive live-text marker. It neither edits the string nor
+    /// makes the text view first responder; selection always takes precedence.
+    var showsLiveCaret = false { didSet { if oldValue != showsLiveCaret { needsDisplay = true } } }
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        guard showsLiveCaret, selectedRange().length == 0, !string.isEmpty,
+              let layout = layoutManager, let container = textContainer,
+              layout.numberOfGlyphs > 0 else { return }
+        let glyph = layout.numberOfGlyphs - 1
+        let bounds = layout.boundingRect(forGlyphRange: NSRange(location: glyph, length: 1), in: container)
+        let line = layout.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil)
+        let x = min(bounds.maxX + textContainerOrigin.x + 3, self.bounds.width - 3)
+        let y = line.minY + textContainerOrigin.y + 3
+        let marker = NSRect(x: x, y: y, width: 2.5, height: 19)
+        guard visibleRect.contains(marker) else { return }
+        NSColor(srgbRed: 0.48, green: 0.23, blue: 0.99, alpha: 1).setFill()
+        NSBezierPath(roundedRect: marker, xRadius: 1.25, yRadius: 1.25).fill()
+    }
     var fillContextMenu: (@MainActor (NSMenu) -> Void)? {
         didSet {
             if fillContextMenu != nil, menu !== transcriptMenu {
