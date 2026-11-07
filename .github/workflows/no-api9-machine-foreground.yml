@@ -53,14 +53,35 @@ jobs:
           print('test fixture SHA256', hashlib.sha256(p.read_bytes()).hexdigest())
           PYTHON
           git diff --exit-code -- Sources scripts packaging
-          if python3 scripts/test-input-native.py --foreground-batch > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/run.log" 2>&1; then
-            echo 'PASS: both test-owned foreground editors and no-send checks completed.' | tee -a "$receipt"
-          elif grep -Eq 'NOT_RUN|FOREGROUND_ABORT' "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/run.log" "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/input-foreground-batch.log" 2>/dev/null; then
-            echo 'BLOCKED: foreground fixture prerequisite or activation guard; see trace.' | tee -a "$receipt"
+          git fetch --quiet --no-tags --depth=1 origin "$GITHUB_SHA"
+          git show "$GITHUB_SHA:evidence/no-api9/machine-freeze/HostedTextEdit.swift" > "$RUNNER_TEMP/HostedTextEdit.swift"
+          python3 - <<'PYTHON'
+          import os,runpy,subprocess,pathlib
+          helpers=runpy.run_path('scripts/test-input-native.py')
+          t=pathlib.Path(os.environ['RUNNER_TEMP'])
+          subprocess.run(['swiftc','-swift-version','6','-parse-as-library','-I','Sources/CSQLite',*helpers['production_flags'](),str(t/'HostedTextEdit.swift'),'-o',str(t/'owned-textedit')],check=True)
+          PYTHON
+          if SAYTILE_HOSTED_TARGETS=1 "$RUNNER_TEMP/owned-textedit" > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/textedit.txt" 2>&1; then
+            echo 'PASS TextEdit on owned document.' | tee -a "$receipt"
           else
-            echo 'FAIL: see foreground fixture trace.' | tee -a "$receipt"
-            exit 1
+            echo 'FAIL TextEdit owned-document acceptance.' | tee -a "$receipt"
           fi
+          python3 - <<'PYTHON'
+          from pathlib import Path
+          p=Path('tests/fixtures/AXForegroundBatchProbe.swift')
+          s=p.read_text()
+          old='for (kind, pid) in [("native", nativePID), ("web", webPID)]'
+          assert s.count(old)==1
+          p.write_text(s.replace(old,'for (kind, pid) in [("web", webPID)]'))
+          PYTHON
+          if python3 scripts/test-input-native.py --foreground-batch > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/run.log" 2>&1; then
+            echo 'PASS WKWebView.' | tee -a "$receipt"
+          elif grep -Eq 'NOT_RUN|FOREGROUND_ABORT' "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/run.log" "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/input-foreground-batch.log" 2>/dev/null; then
+            echo 'BLOCKED WKWebView: see trace.' | tee -a "$receipt"
+          else
+            echo 'FAIL WKWebView: see foreground trace.' | tee -a "$receipt"
+          fi
+          ! grep -q '^FAIL' "$receipt"
       - name: Collect crash reason for our test process only
         if: always()
         shell: bash
