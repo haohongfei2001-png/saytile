@@ -1,3 +1,5 @@
+> 最新原图尺寸与真实窗口投影：主卡片 344×234 pt；外侧 32 pt 透明投影区不属于内容卡片。复制 42×33.5 pt，语音胶囊 92.5×33.5 pt，正文 19.5 pt / 行高 26 pt。以 [原图测量记录](../design/approved/original-reference-20261107.measurements.json) 与 [原生还原记录](V1-ORIGINAL-REFERENCE-FIDELITY.md) 为准，不再凭类似色调判定还原。
+
 # Saytile V1｜唯一正式界面目标
 
 > **APPROVED · 2026-11-07 最新交互修订：底部两个按钮、三个日常状态、声音结束即回待命。**

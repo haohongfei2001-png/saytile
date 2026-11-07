@@ -1,3 +1,16 @@
+## Integrated reference-sized window correction
+
+The prior `473d6ed` change and its design provenance are retained in history. This follow-on integrates the measured reference with the **actual shipping window**, not a separate presentation-only mockup:
+
+- The card is 344 × 234 pt (688 × 468 reference pixels); its transparent 32 pt perimeter carries the native SwiftUI shadow. The outer NSPanel is therefore 408 × 298 pt, not a larger content card. It is borderless and nonactivating, with no added title bar or double system shadow.
+- The footer has the source image's asymmetric optical insets: 20.5 pt leading, 14 pt trailing, 18 pt bottom. Copy is 42 × 33.5 pt; voice is 92.5 × 33.5 pt. The gray overlapping-square mark is retained, not recolored purple.
+- The body uses native selectable PingFang SC Regular 19.5 pt with 26 pt line height. The reference fixture retains the source's visible line breaks; production text is never hard-coded. Trailing punctuation has optical whitespace rather than compressed Chinese punctuation. A noninteractive purple live caret uses the final glyph's ink bounds and disappears during selection or reading earlier text.
+- Three new reference captures use `InputPanelWindowView`, also used by the actual AppDelegate. The standard 27/37 native render/control scenarios and the synthetic glyph geometry checks remain. VAD, ASR, storage, menus and cross-app dispatch are unchanged.
+
+Measurements and source identity: [`original-reference-20261107.measurements.json`](../design/approved/original-reference-20261107.measurements.json). This record must not be replaced by the dimensions of old gray or flat-gradient engineering captures. No desktop wallpaper is modified. No physical microphone or live cloud call is part of these synthetic UI checks. Literal original-pixel identity and user visual approval are not inferred from passing engineering tests.
+
+---
+
 # 原版视觉还原：以用户新上传图为准
 
 用户再次否决此前“灰白卡片”和“给灰白卡片加紫色渐变”的近似实现。它们不是批准设计。原稿必须保留，不允许以原生实现方便或测试通过为由更换外观。

@@ -1,0 +1,42 @@
+test_active_audio_lease_delays_physical_cleanup (__main__.Contracts.test_active_audio_lease_delays_physical_cleanup) ... ok
+test_active_utterance_requires_sealing_before_delete (__main__.Contracts.test_active_utterance_requires_sealing_before_delete) ... ok
+test_audio_delete_cancels_jobs_and_rejects_late_callback (__main__.Contracts.test_audio_delete_cancels_jobs_and_rejects_late_callback) ... ok
+test_audio_delete_does_not_advance_content_generation (__main__.Contracts.test_audio_delete_does_not_advance_content_generation) ... ok
+test_audio_delete_does_not_cancel_other_utterance (__main__.Contracts.test_audio_delete_does_not_cancel_other_utterance) ... ok
+test_audio_delete_keeps_all_text_versions_and_preference (__main__.Contracts.test_audio_delete_keeps_all_text_versions_and_preference) ... ok
+test_audio_delete_keeps_search_and_copy_content (__main__.Contracts.test_audio_delete_keeps_search_and_copy_content) ... ok
+test_audio_deletion_does_not_prevent_text_insertion (__main__.Contracts.test_audio_deletion_does_not_prevent_text_insertion) ... ok
+test_changed_prefix_pauses_without_dispatch (__main__.Contracts.test_changed_prefix_pauses_without_dispatch) ... ok
+test_cleanup_after_unlink_before_commit_is_retryable (__main__.Contracts.test_cleanup_after_unlink_before_commit_is_retryable) ... ok
+test_cursor_cannot_rewind_by_sql (__main__.Contracts.test_cursor_cannot_rewind_by_sql) ... ok
+test_delete_intent_survives_restart_before_unlink (__main__.Contracts.test_delete_intent_survives_restart_before_unlink) ... ok
+test_explicit_rebind_has_new_identity (__main__.Contracts.test_explicit_rebind_has_new_identity) ... ok
+test_first_dispatch_and_incremental_suffix (__main__.Contracts.test_first_dispatch_and_incremental_suffix) ... ok
+test_foreign_keys_and_schema_version (__main__.Contracts.test_foreign_keys_and_schema_version) ... ok
+test_invalid_utf16_boundary_rolls_back (__main__.Contracts.test_invalid_utf16_boundary_rolls_back) ... ok
+test_new_revision_same_prefix_does_not_repeat (__main__.Contracts.test_new_revision_same_prefix_does_not_repeat) ... ok
+test_orphan_recovery_subtracts_audio_tombstone_not_text (__main__.Contracts.test_orphan_recovery_subtracts_audio_tombstone_not_text) ... ok
+test_out_of_range_and_negative_offsets_rejected (__main__.Contracts.test_out_of_range_and_negative_offsets_rejected) ... ok
+test_repeated_audio_deletion_is_idempotent (__main__.Contracts.test_repeated_audio_deletion_is_idempotent) ... ok
+test_restart_cancels_prepared_operations (__main__.Contracts.test_restart_cancels_prepared_operations) ... ok
+test_restart_marks_uncertain_and_invalidates_binding (__main__.Contracts.test_restart_marks_uncertain_and_invalidates_binding) ... ok
+test_restart_releases_dead_process_audio_leases (__main__.Contracts.test_restart_releases_dead_process_audio_leases) ... ok
+test_retention_allows_completed_unpinned_audio (__main__.Contracts.test_retention_allows_completed_unpinned_audio) ... ok
+test_retention_protects_pending_or_failed_asr (__main__.Contracts.test_retention_protects_pending_or_failed_asr) ... ok
+test_retention_protects_pinned_audio (__main__.Contracts.test_retention_protects_pinned_audio) ... ok
+test_search_treats_like_wildcards_as_literals (__main__.Contracts.test_search_treats_like_wildcards_as_literals) ... ok
+test_shared_chunk_cleanup_when_all_references_deleted (__main__.Contracts.test_shared_chunk_cleanup_when_all_references_deleted) ... ok
+test_shared_chunk_defers_and_preserves_other_audio (__main__.Contracts.test_shared_chunk_defers_and_preserves_other_audio) ... ok
+test_stable_range_cannot_shrink (__main__.Contracts.test_stable_range_cannot_shrink) ... ok
+test_stale_generation_not_recovered (__main__.Contracts.test_stale_generation_not_recovered) ... ok
+test_text_revision_is_immutable_after_dispatch (__main__.Contracts.test_text_revision_is_immutable_after_dispatch) ... ok
+test_uncertain_dispatch_does_not_block_next_utterance (__main__.Contracts.test_uncertain_dispatch_does_not_block_next_utterance) ... ok
+test_unlink_path_cannot_escape_audio_root (__main__.Contracts.test_unlink_path_cannot_escape_audio_root) ... ok
+test_user_can_explicitly_delete_pinned_audio (__main__.Contracts.test_user_can_explicitly_delete_pinned_audio) ... ok
+test_utf16_chinese_and_nonbmp_emoji (__main__.Contracts.test_utf16_chinese_and_nonbmp_emoji) ... ok
+test_volatile_suffix_not_sent (__main__.Contracts.test_volatile_suffix_not_sent) ... ok
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.881s
+
+OK
