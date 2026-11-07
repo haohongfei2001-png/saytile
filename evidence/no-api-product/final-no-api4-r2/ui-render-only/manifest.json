@@ -1,0 +1,114 @@
+{
+  "passed": true,
+  "controls_requested": false,
+  "source_revision": "1067f1ad5c5c29c698f346651c965db2169625eb",
+  "source_dirty": false,
+  "binary_sha256": "a8b4e9bbe14028fe8630ee1e100f65f4903b9c9830790ad452e0dad25f657b45",
+  "images": {
+    "ai-chinese-keychain.png": "94301ced3fe5797e8bc5f11f0d0f82cca77ed3628cd15dd8606e1f27e24573be",
+    "ai-controls.png": "a575d241cff95533ceff5a462dd032950ed4db3f2e82652346deed936aed5893",
+    "ai-services.png": "d3d5eb625da989adba090653443fa3cafa7e872f0d82f77c831dde555ba15963",
+    "archive-detail-compact.png": "852aee693445e7241361028636613dbd07872a56254ad69206baffe548919f01",
+    "archive-detail.png": "6c992117f4c1d6c811745b0220a2897a47b2031f6894aa35562a24ff8931671d",
+    "archive-no-results.png": "db601a21e175253a7ef2de8fdc564598c4bf450421be8945caa451a2d3280fa9",
+    "archive.png": "868ea6bce4900a525f80c7098da91cc7e174dbd6685af0dd82ea74902bd6124a",
+    "connection-first-empty.png": "12f4f01a00cfc189a3f4174e0b5d8e06d606bc5e32f11b8b23e983a5dcee8601",
+    "connection-setup.png": "432693e126fc76127f4e893d604bbf6ae4689e8a79cb5665b9b36e4687ba2e69",
+    "panel-ai-recovery.png": "620ba222f3ca6dcf92dcdc0e0fd12e451c59421eefac622cc3e932c9a3efbeef",
+    "panel-ai-review.png": "2ea4e6a258f742267cf2bcf5f4e9eb4c3c7bac292aa41e86706c027c501a5d81",
+    "panel-capture-initial.png": "6910e764e4e10894ac666c46808917993d0a5deb73f18911069777e71dc1e467",
+    "panel-compact.png": "b9e9688f94802c8944b6568276531a483a230986f0e87dfaf922dc909070f46d",
+    "panel-content.png": "6b4b5309d5c81848e5daae356f105d827b59b1e02c1aa62a162f65f53e756c02",
+    "panel-empty.png": "6910e764e4e10894ac666c46808917993d0a5deb73f18911069777e71dc1e467",
+    "panel-latest.png": "d6b093df481e42fd3f94dc96a69d119be8f1bc5825b04d8c534e07d53bd6a7d3",
+    "panel-long-text.png": "289c2a2291a0ea19c5176f30847efee283b0f415f20917147ab789b67a9efe16",
+    "panel-selection-held.png": "541c38dcf4b71ab2b472e88d3227630cae5cad2eb788b9851cbc4079e1e338a5",
+    "settings-compact.png": "4bc40376852c69c3def914ec3f703e06f9eacd34506cfb12ee76b35e353ba0b8",
+    "settings.png": "912b28caf7ebfa35c95a61b736fc7575cfd124ec1efd0b12f70d2a181dc44b0c"
+  },
+  "panel_dimensions": {
+    "panel-empty.png": {
+      "height_pixels": 480,
+      "height_points": 240,
+      "name": "panel-empty",
+      "width_pixels": 680,
+      "width_points": 340
+    },
+    "panel-content.png": {
+      "height_pixels": 480,
+      "height_points": 240,
+      "name": "panel-content",
+      "width_pixels": 680,
+      "width_points": 340
+    },
+    "panel-compact.png": {
+      "height_pixels": 400,
+      "height_points": 200,
+      "name": "panel-compact",
+      "width_pixels": 640,
+      "width_points": 320
+    },
+    "panel-ai-review.png": {
+      "height_pixels": 520,
+      "height_points": 260,
+      "name": "panel-ai-review",
+      "width_pixels": 720,
+      "width_points": 360
+    },
+    "panel-ai-recovery.png": {
+      "height_pixels": 520,
+      "height_points": 260,
+      "name": "panel-ai-recovery",
+      "width_pixels": 720,
+      "width_points": 360
+    },
+    "panel-capture-initial.png": {
+      "height_pixels": 480,
+      "height_points": 240,
+      "name": "panel-capture-initial",
+      "width_pixels": 680,
+      "width_points": 340
+    },
+    "panel-selection-held.png": {
+      "height_pixels": 960,
+      "height_points": 480,
+      "name": "panel-selection-held",
+      "width_pixels": 720,
+      "width_points": 360
+    },
+    "panel-latest.png": {
+      "height_pixels": 960,
+      "height_points": 480,
+      "name": "panel-latest",
+      "width_pixels": 720,
+      "width_points": 360
+    },
+    "panel-long-text.png": {
+      "height_pixels": 960,
+      "height_points": 480,
+      "name": "panel-long-text",
+      "width_pixels": 720,
+      "width_points": 360
+    }
+  },
+  "keyboard_isolation_checks": {
+    "before-validation": 18,
+    "after-validation": 18,
+    "after-interaction": 18,
+    "capture": 20,
+    "before-field-edit": 0,
+    "after-field-edit": 0
+  },
+  "outside_foreground_observations": 0,
+  "native_ax_press": 0,
+  "native_menu_select": 0,
+  "native_control_inspections": 0,
+  "capture_resume_acknowledgements": 0,
+  "native_text_checks": 1,
+  "native_unicode_checks": 1,
+  "native_ax_set_value": 0,
+  "native_field_edits": 0,
+  "native_secure_field_edits": 0,
+  "control_groups": 0,
+  "scope": "Production SwiftUI and NSTextView in transparent nonactivating AppKit windows that cannot become key/main; actual key/main state checked around validation, controls, capture and field edits; fixture PID only; synthetic data; native selection/scroll checks use owned AppKit controls and Store updates; capture actions and first-connection credentials/verification are injected; TEST_ONLY live-shaped receipt is controller evidence only; first-connection and compact-panel fixtures use no Keychain; preceding settings render performs scoped metadata presence only, no credential reads; no provider/network/microphone/global keys/clipboard write/external target; candidate activation rejected; outside foreground transitions recorded without causal claims"
+}

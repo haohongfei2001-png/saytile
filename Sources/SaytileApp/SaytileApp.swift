@@ -21,17 +21,24 @@ final class VoicePanel: NSPanel {
     override var canBecomeMain: Bool { false }
 }
 
+final class VoiceEntryPanel: NSPanel {
+    override var canBecomeKey: Bool { false }
+    override var canBecomeMain: Bool { false }
+}
+
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var model: AppModel?
     private var status: NSStatusItem?
     private var panel: VoicePanel?
+    private var voiceEntry: VoiceEntryPanel?
     private var archive: NSWindow?
     private var settings: NSWindow?
     private var connectionSetupWindow: NSWindow?
     private var hotKey: EventHotKeyRef?
     private var eventHandler: EventHandlerRef?
     private var shortcutObserver: NSObjectProtocol?
+    private var entryObserver: NSObjectProtocol?
     private var screenObserver: NSObjectProtocol?
     private var statusSubscription: AnyCancellable?
     private var positioningPanel = false
@@ -42,6 +49,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
+            // An unsupported explicit-directory spelling must never fall back
+            // to a normal launch against the user's default archive.
+            guard !CommandLine.arguments.contains(where: { $0.hasPrefix("--data-directory=") }) else {
+                print("DIAGNOSTICS_REQUIRE_SEPARATE_DATA_DIRECTORY_ARGUMENT")
+                Darwin.exit(64)
+            }
             let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--multi-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--connection-setup"]
             let isDiagnostic = diagnostics.contains(where: CommandLine.arguments.contains)
             let directoryIndex = CommandLine.arguments.firstIndex(of: "--data-directory")
@@ -58,6 +71,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 directory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
             } else {
                 directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Saytile", isDirectory: true)
+            }
+            if isDiagnostic || directoryIndex != nil {
+                // Reject production aliases before AppModel/Store can migrate or
+                // recover anything. A late "empty fixture" check is too late.
+                do { try DiagnosticDirectory.validate(directory: directory) }
+                catch { print("DIAGNOSTICS_REJECTED_DATA_DIRECTORY"); Darwin.exit(64) }
             }
             let setupRequest: ConnectionSetupRequest?
             if CommandLine.arguments.contains("--connection-setup") {
@@ -83,7 +102,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 // process argument domain, never inspect or alter the user's app
                 // defaults, and prevent a normal held test process showing UI or
                 // registering the user's global shortcut.
-                preferences.setVolatileDomain(["hasLaunched": true, "shortcutChoice": "disabled"], forName: UserDefaults.argumentDomain)
+                preferences.setVolatileDomain(["hasLaunched": true, "shortcutChoice": "disabled", "floatingEntryEnabled": false], forName: UserDefaults.argumentDomain)
                 // A research probe is one explicit attempt. The app's background
                 // recovery must not start a different recognizer on its failed fixture.
                 var diagnosticConfiguration = RecognitionConfiguration()
@@ -104,7 +123,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 return
             }
             model.openPanel = { [weak self] in self?.showPanel() }
-            model.hidePanel = { [weak self] in self?.panel?.orderOut(nil) }
+            model.hidePanel = { [weak self] in self?.hidePanel() }
             model.openArchive = { [weak self] in self?.showArchive() }
             model.openSettings = { [weak self] in self?.showSettings() }
             if let index = CommandLine.arguments.firstIndex(of: "--multi-asr-probe"), CommandLine.arguments.count > index + 1 {
@@ -204,19 +223,40 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             shortcutObserver = NotificationCenter.default.addObserver(forName: .init("SaytileShortcutChanged"), object: nil, queue: .main) { [weak self] _ in
                 Task { @MainActor in self?.registerHotKey() }
             }
-            statusSubscription = model.audio.$state.combineLatest(model.$hasStarted).sink { [weak self] _ in
+            entryObserver = NotificationCenter.default.addObserver(forName: .init("SaytileFloatingEntryChanged"), object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.updateFloatingEntry() }
+            }
+            statusSubscription = model.audio.$state.combineLatest(model.$hasStarted,
+                model.$currentCaptureRecording, model.$currentCaptureRecordingSettled).sink { [weak self] _ in
                 // Published values emit before assignment. Read the derived
                 // product state on the next main-actor turn, not a polling timer.
                 Task { @MainActor in self?.updateStatus() }
             }
             if CommandLine.arguments.contains("--focus-probe") {
+                // Exercise the actual optional window under the same isolated
+                // startup. It is transparent and cannot accept keyboard focus.
+                model.floatingEntryEnabled = true
+                updateFloatingEntry(forIsolatedProbe: true)
+                if let entry = voiceEntry {
+                    let valid = entry.frame.size == NSSize(width: 42, height: 42)
+                        && !entry.canBecomeKey && !entry.canBecomeMain
+                        && !entry.isKeyWindow && !entry.isMainWindow
+                        && entry.styleMask.contains(.nonactivatingPanel) && entry.alphaValue == 0
+                    print("FOCUS_ENTRY_GEOMETRY valid=\(valid) visible=\(entry.isVisible) transparent=\(entry.alphaValue == 0) key=\(entry.isKeyWindow) main=\(entry.isMainWindow)")
+                    if !valid { diagnosticExitStatus = 1 }
+                } else { diagnosticExitStatus = 1; print("FOCUS_ENTRY_GEOMETRY missing=true") }
                 showPanel()
+                print("FOCUS_ENTRY_HIDDEN_WITH_PANEL \(voiceEntry?.isVisible == false)")
+                if voiceEntry?.isVisible != false { diagnosticExitStatus = 1 }
                 if let panel {
                     print("FOCUS_PANEL_GEOMETRY width=\(panel.frame.width) height=\(panel.frame.height) min_width=\(panel.minSize.width) min_height=\(panel.minSize.height) max_width=\(panel.maxSize.width) max_height=\(panel.maxSize.height) resizable=\(panel.styleMask.contains(.resizable)) nonactivating=\(panel.styleMask.contains(.nonactivatingPanel)) joins_spaces=\(panel.collectionBehavior.contains(.canJoinAllSpaces)) panel_key=\(panel.isKeyWindow) panel_main=\(panel.isMainWindow)")
                 }
                 Task {
                     try? await Task.sleep(for: .seconds(3))
                     print("FOCUS_PANEL_END panel_key=\(panel?.isKeyWindow == true) panel_main=\(panel?.isMainWindow == true)")
+                    let captureUntouched = model.audio.state == .paused && !model.hasStarted
+                    print("FOCUS_CAPTURE_UNTOUCHED \(captureUntouched)")
+                    if !captureUntouched { diagnosticExitStatus = 1 }
                     await model.prepareForExit(); print("FOCUS_PROBE_FINISHED"); NSApp.terminate(nil)
                 }
                 return
@@ -229,6 +269,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 preferences.set(true, forKey: "hasLaunched")
                 showPanel()
             }
+            updateFloatingEntry()
             if directoryIndex != nil {
                 let configuration = model.appliedRecognitionConfiguration
                 let report = "SAYTILE_ISOLATED_LAUNCH cloud_enabled=\(configuration.cloudEnabled) automatic_recovery=\(configuration.automaticRecovery) shortcut=\(model.shortcutChoice) visible_panel=\(panel?.isVisible == true) hotkey_registered=\(hotKey != nil)\n"
@@ -252,7 +293,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         guard sender === panel else { return true }
-        sender.orderOut(nil)
+        hidePanel()
         return false // Closing the floating surface never changes capture state.
     }
     func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
@@ -332,7 +373,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     @objc private func toggleCapture() { model?.toggleCapture() }
     @objc private func quitApp() { NSApp.terminate(nil) }
-    @objc func togglePanel() { if panel?.isVisible == true { panel?.orderOut(nil) } else { showPanel() } }
+    @objc func togglePanel() { if panel?.isVisible == true { hidePanel() } else { showPanel() } }
+    private func hidePanel() {
+        panel?.orderOut(nil)
+        updateFloatingEntry()
+    }
     func showPanel() {
         guard let model else { return }
         let firstPresentation = panel == nil
@@ -346,6 +391,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             panel.isFloatingPanel = true; panel.level = .floating
             panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
             panel.hidesOnDeactivate = false; panel.isReleasedWhenClosed = false
+            panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = true
             panel.becomesKeyOnlyIfNeeded = true; panel.delegate = self
             panel.isMovableByWindowBackground = true
             let content = NSHostingView(rootView: InputPanelView(model: model).preferredColorScheme(.light))
@@ -362,7 +408,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             positioningPanel = false
         }
         restorePanel()
+        voiceEntry?.orderOut(nil)
         panel?.orderFrontRegardless()
+    }
+    private func updateFloatingEntry(forIsolatedProbe: Bool = false) {
+        guard let model, model.floatingEntryEnabled, diagnosticPreferencesSuite == nil || forIsolatedProbe,
+              panel?.isVisible != true else { voiceEntry?.orderOut(nil); return }
+        if voiceEntry == nil {
+            let entry = VoiceEntryPanel(contentRect: NSRect(x: 0, y: 0, width: 42, height: 42),
+                styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+            entry.title = "Saytile · 语音入口"
+            entry.isFloatingPanel = true; entry.level = .floating
+            entry.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+            entry.isOpaque = false; entry.backgroundColor = .clear; entry.hasShadow = true
+            if forIsolatedProbe { entry.alphaValue = 0; entry.ignoresMouseEvents = true }
+            entry.hidesOnDeactivate = false; entry.isReleasedWhenClosed = false
+            let content = NSHostingView(rootView: VoiceEntryView(model: model, open: { [weak self] in self?.showPanel() }).preferredColorScheme(.light))
+            content.sizingOptions = []
+            entry.contentView = content
+            voiceEntry = entry
+        }
+        if let screen = panel?.screen ?? NSScreen.main ?? NSScreen.screens.first {
+            let area = screen.visibleFrame
+            let requested = NSRect(x: area.maxX - 58, y: area.minY + 16, width: 42, height: 42)
+            voiceEntry?.setFrame(WindowPlacement.restored(requested, visibleFrames: [area]), display: false)
+        }
+        voiceEntry?.orderFrontRegardless()
     }
     @objc func showArchive() {
         guard let model else { return }
@@ -391,6 +462,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private func restoreVisibleWindows() {
         let frames = NSScreen.screens.map(\.visibleFrame)
         restorePanel()
+        updateFloatingEntry()
         for window in [archive, settings].compactMap({ $0 }) {
             let size = NSSize(width: max(window.frame.width, window.minSize.width), height: max(window.frame.height, window.minSize.height))
             window.setFrame(WindowPlacement.restored(NSRect(origin: window.frame.origin, size: size), visibleFrames: frames), display: true)

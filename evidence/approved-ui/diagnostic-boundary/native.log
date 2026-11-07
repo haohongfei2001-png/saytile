@@ -1,0 +1,117 @@
+Building for debugging...
+[Pre-planning 1 / 184]
+[Planning deferred tasks]
+[52 / 132]
+[63 / 133] CAudio
+[84 / 143]
+[105 / 143] CAudio
+[110 / 143] CAudio
+/Users/hhf/.codex/worktrees/saytile-approved-ui/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[111 / 143] SaytileKit
+[121 / 282]
+[126 / 282]
+[136 / 282]
+[139 / 282]
+[145 / 282]
+[148 / 282]
+[156 / 282]
+[161 / 282]
+[162 / 282]
+[174 / 282]
+[177 / 282]
+[182 / 282]
+[187 / 282]
+[188 / 282]
+[189 / 282]
+[196 / 282]
+[198 / 282]
+[204 / 282]
+[205 / 282]
+[207 / 282]
+[209 / 282]
+[210 / 282]
+[220 / 282]
+[223 / 282]
+[224 / 282]
+[228 / 282]
+[233 / 282]
+[236 / 282]
+[237 / 282]
+[238 / 282]
+[239 / 282]
+[250 / 282] SaytileKit
+[251 / 282] SaytileKit
+[261 / 283]
+[261 / 283] Saytile-product
+[264 / 296] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-approved-ui/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[271 / 297] SaytileKitTests-product
+[272 / 312]
+[275 / 312]
+[285 / 312] SaytileKitTests-product
+[286 / 312] SaytileKitTests-product
+[287 / 312] SaytileKitTests-product
+[292 / 312] SaytileKitTests-product
+[294 / 312] Saytile-product
+[296 / 312] Saytile-product
+[297 / 312] Saytile-product
+[300 / 312] Saytile-product
+[302 / 312] Saytile-product
+[302 / 312] AllIncludingTests
+[302 / 312] SaytileKitTests-product
+[302 / 312] Saytile-product
+[302 / 312] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-approved-ui/Sources/SaytileApp/AppModel.swift:479:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+471 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+472 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+473 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+474 |             // A cancelled older check must fully close its sockets before another starts.
+475 |             await previous?.value
+    :
+477 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+478 |             do {
+479 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+480 |                     Task { @MainActor [weak self] in
+481 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[302 / 312] Saytile-product
+[302 / 312] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-approved-ui/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-approved-ui/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[304 / 312] Saytile-product
+[306 / 312] SaytileKitTests-product
+[308 / 312] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-approved-ui/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-approved-ui/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (31.34秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Isolated connection setup without provider requests" started.
+◇ Suite "Diagnostic directory boundaries before Store initialization" started.
+◇ Test newIndependentPathAndStandardParentAliasAreAcceptedWithoutMutation() started.
+◇ Test parentAliasesAndMissingDescendantsCannotReachSyntheticProduction() started.
+◇ Test productionTreeIsRejectedWithoutTouchingIt() started.
+◇ Test leafAliasesFilesAndInvalidURLsRejectWithPathFreeErrors() started.
+◇ Test unappliedMissingConsentMissingKeysAndWrongCoreCannotExport() started.
+◇ Test existingDataAndExternalOutputAreRejectedBeforeStore() started.
+◇ Test syntheticMetadataExportsAppliedConfigurationOnceWithoutSecretValues() started.
+◇ Test defaultProductionRootDescendantsAndLexicalAliasesRejectWithoutOpeningIt() started.
+◇ Test danglingProductionAliasAndCyclesFailClosedWithoutCreatingTheirTargets() started.
+✔ Test productionTreeIsRejectedWithoutTouchingIt() passed after 0.001 seconds.
+✔ Test defaultProductionRootDescendantsAndLexicalAliasesRejectWithoutOpeningIt() passed after 0.001 seconds.
+✔ Test newIndependentPathAndStandardParentAliasAreAcceptedWithoutMutation() passed after 0.002 seconds.
+✔ Test existingDataAndExternalOutputAreRejectedBeforeStore() passed after 0.002 seconds.
+✔ Test leafAliasesFilesAndInvalidURLsRejectWithPathFreeErrors() passed after 0.002 seconds.
+✔ Test unappliedMissingConsentMissingKeysAndWrongCoreCannotExport() passed after 0.003 seconds.
+✔ Test parentAliasesAndMissingDescendantsCannotReachSyntheticProduction() passed after 0.003 seconds.
+✔ Test danglingProductionAliasAndCyclesFailClosedWithoutCreatingTheirTargets() passed after 0.003 seconds.
+✔ Suite "Diagnostic directory boundaries before Store initialization" passed after 0.003 seconds.
+✔ Test syntheticMetadataExportsAppliedConfigurationOnceWithoutSecretValues() passed after 0.012 seconds.
+✔ Suite "Isolated connection setup without provider requests" passed after 0.013 seconds.
+✔ Test run with 9 tests in 2 suites passed after 0.013 seconds.

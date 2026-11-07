@@ -1,0 +1,11 @@
+# Diagnostic directory boundary repair
+
+Independent review found that most diagnostic CLI flags required an explicit data directory but did not reject the production tree before constructing AppModel. Store initialization can migrate/reconcile data before a later empty-directory check. The issue was established from the call order; no real production directory or archive was opened to reproduce it.
+
+`DiagnosticDirectory.validate(directory:productionDirectory:)` now provides the shared pre-Store boundary. It is read-only: it creates no files, enumerates no directory and opens no archive. Default production root/descendant/case/normalized lexical matches are rejected before path metadata inspection. Other paths are compared after resolving their nearest existing ancestor with lstat/realpath and restoring any not-yet-created suffix. Owned leaf symlinks, unresolved dangling links, cycles, non-directory ancestors and non-file URLs fail closed. Standard parent aliases such as `/tmp` remain usable. All validation errors use static path-free text.
+
+ConnectionSetupRequest reuses this boundary and keeps its existing empty-directory and in-directory JSON-output requirements. Root owns wiring the other CLI paths before AppModel and the independent process-level probe. Normal no-argument production launch does not call this validator.
+
+Focused native run: **9 test functions / 2 suites PASS** (5 boundary tests and 4 existing connection-setup tests). Production-path tests construct only URLs and reject them lexically. Alias, dangling missing-production, cycle, safe-parent and marker-preservation checks use independent temporary fixtures; none creates or inspects the user's real Saytile directory. Safe new paths remain uncreated, while synthetic production marker bytes remain unchanged. No microphone, model network request or Keychain access is involved.
+
+Command: `SAYTILE_TEST_SCRATCH=/tmp/saytile-approved-diagnostic-native SAYTILE_TEST_LOG=evidence/approved-ui/diagnostic-boundary/native.log scripts/test-native.sh --filter 'DiagnosticDirectoryTests|ConnectionSetupTests'`. Full raw output is retained in `native.log`/`driver.log`; this is focused validation, not a full-suite or live-cloud result.

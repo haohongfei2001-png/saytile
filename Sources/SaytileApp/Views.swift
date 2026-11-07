@@ -14,18 +14,12 @@ struct InputPanelView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 6) {
-                Circle().fill(model.captureProblem ? Palette.amber : Palette.green.opacity(model.isListening ? 0.9 : 0.4))
-                    .frame(width: 5, height: 5).accessibilityHidden(true)
-                Text(model.panelCaptureLabel).accessibilityIdentifier("panel.status")
-                if let activity = model.panelActivityLabel {
-                    Text("·").accessibilityHidden(true)
-                    Text(activity).accessibilityIdentifier("panel.activity")
-                }
+                captureControl
                 Spacer(minLength: 4)
                 moreMenu
             }
             .font(.system(size: 11)).foregroundStyle(Palette.muted)
-            .lineLimit(1).frame(height: 28).padding(.horizontal, 13).padding(.top, 5)
+            .frame(height: 34).padding(.horizontal, 10).padding(.top, 5)
 
             if model.directMode {
                 Label(model.targetLabel, systemImage: "arrow.up.forward.app")
@@ -66,6 +60,14 @@ struct InputPanelView: View {
                     .help(selectedText.isEmpty ? "复制当前文字" : "复制所选文字")
                     .accessibilityLabel(selectedText.isEmpty ? "复制当前文字" : "复制所选文字")
                     .accessibilityIdentifier("panel.copy")
+                Button {
+                    if let item = model.recent.last { model.select(item) }
+                } label: {
+                    Image(systemName: "square.and.pencil").font(.system(size: 12))
+                        .frame(width: 28, height: 30).contentShape(Rectangle())
+                }.buttonStyle(.plain).disabled(model.recent.isEmpty)
+                    .help("在档案中编辑最近一段")
+                    .accessibilityLabel("编辑最近一段").accessibilityIdentifier("panel.edit")
                 if !followsLatest {
                     Button { latestRequest += 1 } label: {
                         Label("回到最新", systemImage: "arrow.down").font(.system(size: 10))
@@ -74,20 +76,44 @@ struct InputPanelView: View {
                     }.buttonStyle(.plain).accessibilityIdentifier("panel.latest")
                 }
                 Spacer(minLength: 4)
-                Button(action: model.toggleCapture) {
-                    Image(systemName: model.captureActionSymbolName).font(.system(size: 14, weight: .medium))
-                        .frame(width: 36, height: 36)
-                        .background(Palette.green.opacity(model.isListening ? 0.13 : 0.07), in: Circle())
-                        .contentShape(Circle())
-                }.buttonStyle(CaptureButtonStyle())
-                    .overlay(Circle().stroke(Palette.green.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
-                    .onHover { captureHovered = $0 }.focused($captureFocused)
-                    .help(model.captureActionLabel)
-                    .accessibilityLabel(model.captureActionLabel).accessibilityIdentifier("panel.capture")
-            }.foregroundStyle(Palette.green).padding(.horizontal, 11).padding(.top, 4).padding(.bottom, 8)
+            }.foregroundStyle(Palette.accent).padding(.horizontal, 11).padding(.top, 4).padding(.bottom, 8)
         }
-        .background(Palette.paper).foregroundStyle(Palette.ink)
+        .background(Palette.paper.opacity(0.82))
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(.white.opacity(0.7), lineWidth: 0.75))
+        .foregroundStyle(Palette.ink)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var captureControl: some View {
+        let presentation = model.panelCapturePresentation
+        return Button(action: model.toggleCapture) {
+            Group {
+                if let level = presentation.liveVoiceLevel {
+                    // Meter values come from this capture session. Waiting for
+                    // a recognizer never fabricates a moving audio waveform.
+                    HStack(spacing: 2.5) {
+                        ForEach(0..<3) { index in
+                            Capsule().frame(width: 2.5, height: 4 + 9 * min(1, max(0, level)) * [0.65, 1, 0.8][index])
+                        }
+                    }.frame(width: 16, height: 16)
+                } else {
+                    Image(systemName: presentation.symbolName).font(.system(size: 13, weight: .medium))
+                        .frame(width: 16, height: 16)
+                }
+            }
+            .foregroundStyle(model.captureProblem ? Palette.amber : Palette.accent)
+            .frame(width: 34, height: 34)
+            .background(Palette.accent.opacity(model.isListening ? 0.12 : 0.06), in: RoundedRectangle(cornerRadius: 11))
+            .contentShape(Rectangle())
+        }.buttonStyle(CaptureButtonStyle())
+            .overlay(RoundedRectangle(cornerRadius: 11).stroke(Palette.accent.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
+            .onHover { captureHovered = $0 }.focused($captureFocused)
+            .help(presentation.accessibilityLabel)
+            .accessibilityLabel(presentation.accessibilityLabel)
+            .accessibilityValue(presentation.accessibilityValue)
+            .accessibilityIdentifier("panel.capture")
     }
 
     private struct CaptureButtonStyle: ButtonStyle {
@@ -146,7 +172,7 @@ struct TranscriptCard: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             if !compact, !model.query.isEmpty, !item.text.localizedCaseInsensitiveContains(model.query) {
-                Text("匹配到已保存的文字").font(.system(size: 10)).foregroundStyle(Palette.green)
+                Text("匹配到已保存的文字").font(.system(size: 10)).foregroundStyle(Palette.accent)
             }
             HStack(spacing: 14) {
                 Label(item.audioLabel, systemImage: item.hasAudio ? "waveform" : "text.alignleft").font(.system(size: 10))
@@ -156,7 +182,7 @@ struct TranscriptCard: View {
                 Button { model.select(item) } label: { Image(systemName: "ellipsis") }.help("查看、修改及更多操作").accessibilityLabel("查看和编辑这段表达")
             }.buttonStyle(.plain).font(.system(size: 11)).foregroundStyle(Palette.muted)
         }.padding(14).background(.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.green.opacity(0.09)))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.accent.opacity(0.09)))
     }
 }
 
@@ -322,6 +348,10 @@ struct SettingsView: View {
                 }
                 Section("使用习惯") {
                     Toggle("登录时启动 Saytile", isOn: $model.launchAtLogin)
+                    Toggle("在桌面右下角显示语音入口", isOn: $model.floatingEntryEnabled)
+                        .accessibilityIdentifier("settings.floatingEntry")
+                    Text("收起输入板时保留一个小入口；点击只展开文字，不会开启收音。")
+                        .font(.system(size: 11)).foregroundStyle(Palette.muted)
                     Picker("展开 / 收起输入板", selection: $model.shortcutChoice) {
                         Text("⌥ 空格").tag("option-space")
                         Text("⌃ ⌥ 空格").tag("control-option-space")

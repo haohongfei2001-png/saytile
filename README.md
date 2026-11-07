@@ -1,4 +1,4 @@
-> 当前PR6已验证工程基线为`1.0.0-rc.2-no-api.3`；真实云端LIVE_CONNECTION_PENDING。同期新增的[紧凑输入板目标](docs/SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md)正在接续，尚未实装；[基线源码、包及证据](docs/V1-NO-API-DELIVERY.md)。main/已安装RC1未改，不宣称新视觉或生产完成。
+> PR6：1067f1ad / no-api.4完成同源码工程基线与30分钟逐样本验证；no-api.5按最新唯一紫蓝单按钮规范继续收口，整体尚未NO_API_ENGINEERING_READY，真实云端LIVE_CONNECTION_PENDING。[实际交付与限制](docs/V1-NO-API-DELIVERY.md)。不以旧界面或历史测试冒充最新目标完成。
 
 # Saytile
 

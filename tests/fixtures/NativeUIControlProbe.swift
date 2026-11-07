@@ -17,7 +17,8 @@ import ApplicationServices
         let setValue = CommandLine.arguments.count == 6 && CommandLine.arguments[4] == "set-value" ? CommandLine.arguments[5] : nil
         let menuItem = CommandLine.arguments.count == 6 && CommandLine.arguments[4] == "select-menu" ? CommandLine.arguments[5] : nil
         let inspect = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect"
-        guard CommandLine.arguments.count <= 4 || setValue != nil || menuItem != nil || inspect else { print("FAIL invalid control action"); exit(64) }
+        let inspectPanel = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect-panel"
+        guard CommandLine.arguments.count <= 4 || setValue != nil || menuItem != nil || inspect || inspectPanel else { print("FAIL invalid control action"); exit(64) }
         let root = AXUIElementCreateApplication(pid)
         func value(_ element: AXUIElement, _ name: String) -> CFTypeRef? {
             AXUIElementSetMessagingTimeout(element, 0.08)
@@ -31,6 +32,9 @@ import ApplicationServices
             }
             var queue = windows, visited = Set<CFHashCode>(), tree = [String]()
             var inspectedControls = [[String: Any]]()
+            var panelControls = [[String: Any]](), staticStateText = [String](), obsoleteStateIDs = [String]()
+            let stateText = Set(["未开启", "待命", "待命中", "聆听中", "正在识别", "正在接收讲话", "正在核对文字", "正在修正", "已暂停", "正在准备", "需要恢复"])
+            let captureActions = Set(["开始收音", "暂停收音", "继续收音", "取消开启", "恢复收音"])
             let deadline = ProcessInfo.processInfo.systemUptime + 1
             while !queue.isEmpty, visited.count < 1000, ProcessInfo.processInfo.systemUptime < deadline {
                 let node = queue.removeFirst(); guard visited.insert(CFHash(node)).inserted else { continue }
@@ -39,6 +43,31 @@ import ApplicationServices
                 tree.append(role + " " + names.joined(separator: " | "))
                 let canPress = [kAXButtonRole, kAXCheckBoxRole, kAXRadioButtonRole, kAXDisclosureTriangleRole, kAXMenuButtonRole, kAXPopUpButtonRole].contains(role)
                 let canSet = [kAXTextFieldRole, kAXTextAreaRole].contains(role)
+                if inspectPanel {
+                    let identifier = value(node, kAXIdentifierAttribute) as? String ?? ""
+                    let content = value(node, kAXValueAttribute) as? String ?? ""
+                    if role == kAXStaticTextRole, (names + [content]).contains(where: { stateText.contains($0) }) {
+                        staticStateText.append(contentsOf: (names + [content]).filter { stateText.contains($0) })
+                    }
+                    if ["panel.status", "panel.activity"].contains(identifier) { obsoleteStateIDs.append(identifier) }
+                    if canPress, identifier.hasPrefix("panel.") || names.contains(where: { captureActions.contains($0) }) {
+                        guard let sizeValue = value(node, kAXSizeAttribute), CFGetTypeID(sizeValue) == AXValueGetTypeID(),
+                              let pointValue = value(node, kAXPositionAttribute), CFGetTypeID(pointValue) == AXValueGetTypeID() else {
+                            print("FAIL native panel control geometry unavailable"); exit(1)
+                        }
+                        var size = CGSize.zero, point = CGPoint.zero
+                        guard AXValueGetValue(unsafeDowncast(sizeValue, to: AXValue.self), .cgSize, &size),
+                              AXValueGetValue(unsafeDowncast(pointValue, to: AXValue.self), .cgPoint, &point) else {
+                            print("FAIL native panel control geometry invalid"); exit(1)
+                        }
+                        panelControls.append(["identifier": identifier, "role": role, "width": size.width,
+                            "height": size.height, "x": point.x, "y": point.y, "names": names, "value": content,
+                            "capture_action": names.contains(where: { captureActions.contains($0) }),
+                            "enabled": (value(node, kAXEnabledAttribute) as? Bool) ?? false])
+                    }
+                    queue += value(node, kAXChildrenAttribute) as? [AXUIElement] ?? []
+                    continue
+                }
                 if names.contains(label), setValue == nil ? canPress : canSet {
                     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED foreground changed before action"); exit(6) }
                     if inspect {
@@ -113,6 +142,14 @@ import ApplicationServices
                     print("NATIVE_UI_\(setValue == nil ? "AXPRESS" : "AXSETVALUE") \(label) fixture_pid=\(pid) foreground_unchanged=true"); exit(0)
                 }
                 queue += value(node, kAXChildrenAttribute) as? [AXUIElement] ?? []
+            }
+            if inspectPanel {
+                guard windows.count == 1, queue.isEmpty, !panelControls.isEmpty else { print("FAIL incomplete native panel inspection"); exit(1) }
+                guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED foreground changed during inspection"); exit(6) }
+                let detail: [String: Any] = ["controls": panelControls, "static_state_text": staticStateText,
+                    "obsolete_state_identifiers": obsoleteStateIDs, "visited_nodes": visited.count]
+                let data = try! JSONSerialization.data(withJSONObject: detail, options: [.sortedKeys])
+                print("NATIVE_UI_PANEL_INSPECT " + String(decoding: data, as: UTF8.self)); exit(0)
             }
             if inspect, !inspectedControls.isEmpty {
                 guard queue.isEmpty, inspectedControls.count == 1 else { print("FAIL incomplete or duplicate native control \(label)"); exit(1) }

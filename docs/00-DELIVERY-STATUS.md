@@ -1,4 +1,4 @@
-> 稳定版仍为RC1；PR6 no-api.3完成基线工程验证，新增紧凑输入板目标继续实施，整体尚未结束。[最新交付与边界](V1-NO-API-DELIVERY.md)。main/RC1不变。
+> 当前工程：PR6 no-api.4冻结基线通过，no-api.5继续实现唯一批准界面与诊断隔离修复；原图比对及新SHA全量验收尚未完成。[最新交付状态](V1-NO-API-DELIVERY.md)。已安装稳定版仍为RC1，本轮未替换。
 
 > 当前为 V1 RC1，源码 `8906a9d`；最新状态见 [V1-DEV-STATUS.md](V1-DEV-STATUS.md)，验证边界见 [RC清单](V1-RC-ACCEPTANCE.md)。**以下是设计恢复阶段历史快照**，不是当前未完成事项；PR #1/#2 已合并。
 

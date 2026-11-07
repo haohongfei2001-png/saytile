@@ -1,0 +1,90 @@
+{
+  "passed": false,
+  "controls_requested": true,
+  "source_revision": "538e2d8dd9274f7c2a5d9e42a2191e4bd625347e",
+  "source_dirty": true,
+  "binary_sha256": "8a41be2497e14b7382ecdd35e3b222a71b255b5fefada364ddfbcdd075ede1d0",
+  "images": {
+    "ai-chinese-keychain.png": "0085e24940853a4887ac9c9ead374b69cdd93c6323018f25bbe2e882482ba97a",
+    "ai-controls.png": "b29e84ee35cf2a6d02466f9260eab209444b01dacb873dd5e16e0da162faebaf",
+    "ai-services.png": "b29e84ee35cf2a6d02466f9260eab209444b01dacb873dd5e16e0da162faebaf",
+    "archive-detail-compact.png": "72f1b45c1e9bd9a870d4c1cb7e60e02f0a02c16eb72e26c6938996ed8ef915ba",
+    "archive-detail.png": "40d8aa12c8787805c9f03dfeda6776c82f051b7b5e3c33ac27d6506e7a72fe1a",
+    "archive-no-results.png": "81607b41603659891d68bc35bfc270a6157e8bb72d35d97c444891c25acbbcf0",
+    "archive.png": "0d7f3649ef2aa15702c294d8f83e99bdbcba3a8a8bd750c359016ecd8fca0e69",
+    "connection-first-cancelled.png": "7b12c76f89e5afbb1c7e4ff65ea51996cb38726e48e7074730516d43ccdf580b",
+    "connection-first-costs.png": "4f669129ecea0447c3dcac75961c21018fbf3b38588969fb6302eec522599b56",
+    "connection-first-empty.png": "a81e5a9b74a814d437ca919ced8a7437083137b44660a3518d3cf8dac7c4083d",
+    "connection-first-failure.png": "777fea20b2fcde025af06076635e8562c6fc37bca290f3ae87c99d3d3c831262",
+    "connection-first-progress.png": "1b07cc23b57b01edbc8cea070fb92c7925c683ea8855976808f3d91f8c5c22e9",
+    "connection-first-ready.png": "27a22ca6f3dc0124288bd9c39fb71f31620137f6da4578a83074757c51a54650",
+    "connection-first-success.png": "bea2ab1eb922e2871fdc1cb2cce419b0f26628c4454312f22384f08631b9ae6a",
+    "connection-setup.png": "d065b467ef6a04598b7449ff3c4019dd72fbb6363b55aa2aa276b9c899ddf27f",
+    "panel-ai-recovery.png": "4f6482566d3806abafe6127942dc923b84848bef423e622beb7535b49b633a61",
+    "panel-ai-review.png": "4f6482566d3806abafe6127942dc923b84848bef423e622beb7535b49b633a61",
+    "panel-compact.png": "efd103affa346cace3c255c54641b84a2314ef87dac055b82a8c52038a75500e",
+    "panel-content.png": "8861cf1921da9992365ce189a803d78f4a03a26fcbe6824fbf93e9a248173f99",
+    "panel-empty.png": "45504be5ae45cdc50bad72ac79e6e2bdc8498278b89ceb7570bacf965a44555b",
+    "settings-compact.png": "b5117fd323168b96dc8949a78ac51eca77d1d98eb0444e46cac50b27d3c3c091",
+    "settings.png": "5ee1d5235e0727f8214461dea72e3265a879fda75132daf07200b3accc8a0ff6"
+  },
+  "panel_dimensions": {
+    "panel-empty.png": {
+      "height_pixels": 480,
+      "height_points": 240,
+      "name": "panel-empty",
+      "width_pixels": 680,
+      "width_points": 340
+    },
+    "panel-content.png": {
+      "height_pixels": 480,
+      "height_points": 240,
+      "name": "panel-content",
+      "width_pixels": 680,
+      "width_points": 340
+    },
+    "panel-compact.png": {
+      "height_pixels": 400,
+      "height_points": 200,
+      "name": "panel-compact",
+      "width_pixels": 640,
+      "width_points": 320
+    },
+    "panel-ai-review.png": {
+      "height_pixels": 520,
+      "height_points": 260,
+      "name": "panel-ai-review",
+      "width_pixels": 720,
+      "width_points": 360
+    },
+    "panel-ai-recovery.png": {
+      "height_pixels": 520,
+      "height_points": 260,
+      "name": "panel-ai-recovery",
+      "width_pixels": 720,
+      "width_points": 360
+    }
+  },
+  "keyboard_isolation_checks": {
+    "before-validation": 20,
+    "after-validation": 20,
+    "after-interaction": 19,
+    "capture": 22,
+    "before-field-edit": 6,
+    "after-field-edit": 6
+  },
+  "outside_foreground_observations": 0,
+  "native_ax_press": 32,
+  "native_menu_select": 2,
+  "native_control_inspections": 0,
+  "native_panel_inspections": 1,
+  "single_top_capture_checks": 0,
+  "capture_resume_acknowledgements": 0,
+  "native_text_checks": 0,
+  "native_unicode_checks": 0,
+  "native_ax_set_value": 6,
+  "native_field_edits": 6,
+  "native_secure_field_edits": 3,
+  "control_groups": 9,
+  "scope": "Production SwiftUI and NSTextView in transparent nonactivating AppKit windows that cannot become key/main; actual key/main state checked around validation, controls, capture and field edits; fixture PID only; synthetic data; native selection/scroll checks use owned AppKit controls and Store updates; whole-panel AX inspections require one top capture action, no visible static state labels or bottom duplicate, and reachable bottom edit; voice entry and preference toggles do not change capture; capture actions and first-connection credentials/verification are injected; TEST_ONLY live-shaped receipt is controller evidence only; first-connection and compact-panel fixtures use no Keychain; preceding settings render performs scoped metadata presence only, no credential reads; no provider/network/microphone/global keys/clipboard write/external target; candidate activation rejected; outside foreground transitions recorded without causal claims"
+}

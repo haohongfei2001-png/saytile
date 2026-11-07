@@ -7,12 +7,8 @@ public struct ConnectionSetupRequest: Sendable {
     public init(directory: URL, output: URL) throws {
         let root = directory.standardizedFileURL
         let destination = output.standardizedFileURL
-        let production = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Saytile", isDirectory: true).resolvingSymlinksInPath()
-        let canonicalRoot = root.resolvingSymlinksInPath().path
-        guard canonicalRoot != production.path,
-              !canonicalRoot.hasPrefix(production.path + "/"),
-              destination.deletingLastPathComponent() == root,
+        try DiagnosticDirectory.validate(directory: directory)
+        guard destination.deletingLastPathComponent() == root,
               destination.pathExtension == "json" else {
             throw ProviderFailure.configuration("连接设置需要全新的独立目录，配置文件须为该目录内的 JSON 文件。")
         }

@@ -132,7 +132,12 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
     }
 
     private var isAtBottom: Bool {
-        documentVisibleRect.maxY >= transcriptView.bounds.maxY - 5
+        // A small deliberate upward scroll is still a reading choice. Only
+        // floating-point rounding at the actual edge may count as the bottom;
+        // a visible near-bottom band would silently resume live following.
+        let bottom = transcriptView.bounds.maxY
+        let rounding = max(1, abs(bottom)) * CGFloat.ulpOfOne * 8
+        return documentVisibleRect.maxY >= bottom - rounding
     }
 
     private var attributes: [NSAttributedString.Key: Any] {

@@ -78,29 +78,55 @@ struct AppCaptureDependencies {
     var state: (AudioController) -> CaptureState
     var start: (AudioController) async -> Void
     var pause: (AudioController) async -> Void
+    var level: (AudioController) -> Float? = { $0.level }
     static let live = AppCaptureDependencies(state: { $0.state },
         start: { await $0.start() }, pause: { await $0.pause() })
 }
 
+/// Four ordinary states plus explicit preparation/failure exceptions. These values
+/// describe one control; their labels are accessibility/settings text, not a header.
+enum PanelCaptureVisualState: Equatable {
+    case unopened, standby, recognizing, paused, starting, recoveryNeeded
+}
+
 struct PanelCapturePresentation: Equatable {
+    let state: PanelCaptureVisualState
     let label: String
     let actionLabel: String
     let actionSymbolName: String
+    let symbolName: String
     let detail: String?
+    /// A measured level only while VAD reports speech. nil means no amplitude
+    /// evidence, including an ASR/fusion wait; never drive a fabricated idle pulse.
+    let liveVoiceLevel: Double?
+    var accessibilityLabel: String { actionLabel }
+    var accessibilityValue: String { detail.map { label + "，" + $0 } ?? label }
 
-    init(state: CaptureState, hasStarted: Bool) {
-        switch state {
+    init(state capture: CaptureState, hasStarted: Bool, currentRecognitionActive: Bool = false,
+         measuredLevel: Float? = nil) {
+        if case .speaking = capture, let measuredLevel, measuredLevel.isFinite, measuredLevel >= 0 {
+            liveVoiceLevel = Double(min(1, measuredLevel))
+        } else { liveVoiceLevel = nil }
+        switch capture {
         case .paused:
+            state = hasStarted ? .paused : .unopened
             label = hasStarted ? "已暂停" : "未开启"
             actionLabel = hasStarted ? "继续收音" : "开始收音"
             actionSymbolName = hasStarted ? "play.fill" : "mic.fill"
+            symbolName = hasStarted ? "pause.fill" : "mic"
             detail = nil
         case .starting:
-            label = "正在准备"; actionLabel = "取消开启"; actionSymbolName = "xmark"; detail = nil
+            state = .starting; label = "正在准备"; actionLabel = "取消开启"
+            actionSymbolName = "xmark"; symbolName = "xmark"; detail = nil
         case .listening, .speaking:
-            label = "聆听中"; actionLabel = "暂停收音"; actionSymbolName = "pause.fill"; detail = nil
+            let active = capture == .speaking || currentRecognitionActive
+            state = active ? .recognizing : .standby
+            label = active ? "正在识别" : "待命"
+            actionLabel = "暂停收音"; actionSymbolName = "pause.fill"
+            symbolName = active ? "waveform" : "circle.fill"; detail = nil
         case .interrupted(let reason):
-            label = "需要恢复"; actionLabel = "恢复收音"; actionSymbolName = "play.fill"; detail = reason
+            state = .recoveryNeeded; label = "需要恢复"; actionLabel = "恢复收音"
+            actionSymbolName = "play.fill"; symbolName = "exclamationmark"; detail = reason
         }
     }
 }
@@ -167,6 +193,13 @@ final class AppModel: ObservableObject {
             NotificationCenter.default.post(name: .init("SaytileShortcutChanged"), object: nil)
         }
     }
+    @Published var floatingEntryEnabled = false {
+        didSet {
+            guard !initializing, floatingEntryEnabled != oldValue else { return }
+            preferences.set(floatingEntryEnabled, forKey: "floatingEntryEnabled")
+            NotificationCenter.default.post(name: .init("SaytileFloatingEntryChanged"), object: nil)
+        }
+    }
     @Published var launchAtLogin = false { didSet { setLoginItem() } }
     @Published var hasMore = false
     @Published private(set) var panelCount = 0
@@ -198,6 +231,10 @@ final class AppModel: ObservableObject {
     private var recovered = false
     private var recoveryTask: Task<Void, Never>?
     private var panelSessionStartedAt = Date()
+    private var captureSessionStartedAt: Date?
+    private var latestCaptureIdentity: (id: UUID, createdAt: Date)?
+    @Published private(set) var currentCaptureRecording: Recording?
+    @Published private(set) var currentCaptureRecordingSettled = false
     private var stagedRecordIDs: Set<UUID> = []
     private struct DraftWrite: Equatable { let sequence: UInt64; let text: String }
     private var editorRecordingID: UUID?
@@ -232,6 +269,7 @@ final class AppModel: ObservableObject {
         self.appliedRecognitionConfiguration = recognitionConfiguration
         audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration, startupRecoveryReady: false)
         input = NativeInputCoordinator(store: store)
+        floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
         launchAtLogin = SMAppService.mainApp.status == .enabled
         shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? "option-space"
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
@@ -274,7 +312,8 @@ final class AppModel: ObservableObject {
         switch captureDependencies.state(audio) { case .listening, .speaking, .starting: return true; default: return false }
     }
     var panelCapturePresentation: PanelCapturePresentation {
-        PanelCapturePresentation(state: captureDependencies.state(audio), hasStarted: hasStarted)
+        PanelCapturePresentation(state: captureDependencies.state(audio), hasStarted: hasStarted,
+            currentRecognitionActive: panelActivityLabel != nil, measuredLevel: captureDependencies.level(audio))
     }
     var panelCaptureLabel: String { panelCapturePresentation.label }
     var panelCaptureDetail: String? { panelCapturePresentation.detail }
@@ -283,13 +322,14 @@ final class AppModel: ObservableObject {
     var captureLabel: String { panelCaptureLabel }
     var captureProblem: Bool { if case .interrupted = captureDependencies.state(audio) { return true }; return false }
     var panelActivityLabel: String? {
-        let ids = Set(recent.map(\.id))
-        let phases = recognitionPhases.filter { ids.contains($0.key) }.map(\.value)
-        if phases.contains(where: { [.textFusion, .audioReview, .finalASR].contains($0) }) { return "正在修正" }
-        if phases.contains(where: \.isStreaming) || recent.contains(where: { $0.source.recognitionState == .running }) { return "正在识别" }
         if case .speaking = captureDependencies.state(audio) { return "正在接收讲话" }
-        return nil
+        guard let current = currentCaptureRecording, !currentCaptureRecordingSettled else { return nil }
+        if current.isRecording { return "正在接收讲话" }
+        guard [.queued, .running].contains(current.recognitionState) else { return nil }
+        if let phase = recognitionPhases[current.id], [.textFusion, .audioReview, .finalASR].contains(phase) { return "正在修正" }
+        return "正在识别"
     }
+
     var saveLabel: String { captureProblem ? "收音已暂停 · 请查看保存状态" : isListening ? "原音独立保存 · 识别不会阻塞收音" : "内容保存在此 Mac，随时可以取用" }
     var microphoneLabel: String {
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
@@ -467,7 +507,14 @@ final class AppModel: ObservableObject {
             await recoveryTask?.value
             guard recovered else { notice = "资料库恢复未完成，请先重新打开 Saytile。已有资料会保留。"; return }
             if isListening { await captureDependencies.pause(audio) }
-            else { hasStarted = true; await captureDependencies.start(audio) }
+            else {
+                // A new user-started capture session cannot inherit activity from
+                // archive recovery or a previous paused session's recognition queue.
+                captureSessionStartedAt = Date()
+                latestCaptureIdentity = nil; currentCaptureRecording = nil
+                currentCaptureRecordingSettled = false
+                hasStarted = true; await captureDependencies.start(audio)
+            }
             objectWillChange.send()
             if let issue = audio.issue { notice = issue }
         }
@@ -748,6 +795,30 @@ final class AppModel: ObservableObject {
         }
     }
     func initialLoad() async { await refresh() }
+    private func refreshCurrentCaptureRecording() async throws {
+        guard let start = captureSessionStartedAt else { return }
+        // This query follows capture chronology, not panel visibility, archive
+        // filters or explicitly reused records. One row keeps background work bounded.
+        let latest = try await store.listPanelRecordings(createdSince: start, includingIDs: [], limit: 1).first
+        guard start == captureSessionStartedAt else { return }
+        guard let latest else { currentCaptureRecording = nil; currentCaptureRecordingSettled = true; return }
+        if let previous = latestCaptureIdentity {
+            guard latest.id == previous.id || latest.createdAt > previous.createdAt else {
+                currentCaptureRecording = nil; currentCaptureRecordingSettled = true; return
+            }
+        }
+        if latest.id != latestCaptureIdentity?.id {
+            latestCaptureIdentity = (latest.id, latest.createdAt)
+            currentCaptureRecordingSettled = false
+        }
+        // Terminal current work stays quiet if the user later re-recognizes this
+        // archived audio. A new captured record is the only way to advance the scope.
+        if !latest.isRecording, [.completed, .failed, .cancelled].contains(latest.recognitionState) {
+            currentCaptureRecordingSettled = true
+        }
+        if currentCaptureRecording != latest { currentCaptureRecording = latest }
+    }
+
     private func performRefresh() async {
         refreshReadPasses &+= 1
         let requestedQuery = query, requestedFilter = recordFilter, requestedLimit = pageLimit
@@ -794,7 +865,8 @@ final class AppModel: ObservableObject {
             storageLabel = ByteCountFormatter.string(fromByteCount: summary.audioBytes, countStyle: .file)
             if summary.shouldWarn { notice = "原音空间已达到提醒阈值，或磁盘剩余不足 1 GB。请在设置中查看存储。" }
             }
-            let visibleIDs = Set(records.map(\.id) + recent.map(\.id))
+            try await refreshCurrentCaptureRecording()
+            let visibleIDs = Set(records.map(\.id) + recent.map(\.id) + [currentCaptureRecording?.id].compactMap { $0 })
             let currentPhases = try await store.activeRecognitionPhases(recordingIDs: Array(visibleIDs))
             if recognitionPhases != currentPhases { recognitionPhases = currentPhases }
             insertionLabels = insertionLabels.filter { visibleIDs.contains($0.key) }

@@ -1,0 +1,91 @@
+Building for debugging...
+[0/27] Write sources
+[1/27] Copying ConnectionSample.pcm
+[2/27] Write swift-version--1AB21518FC5DEDBE.txt
+[3/27] Compiling spl_sqrt_floor.c
+[4/27] Compiling downsample_fast.c
+[5/27] Compiling get_scaling_square.c
+[6/27] Compiling cross_correlation.c
+[7/27] Compiling resample_48khz.c
+[8/27] Compiling vad_gmm.c
+[9/27] Compiling min_max_operations.c
+[10/27] Compiling vad_filterbank.c
+[11/27] Compiling vector_scaling_operations.c
+[12/27] Compiling webrtc_vad.c
+[13/27] Compiling vad_core.c
+[14/27] Compiling spl_sqrt.c
+[15/27] Compiling spl_inl.c
+[16/27] Compiling energy.c
+[17/27] Compiling division_operations.c
+[18/27] Compiling resample_fractional.c
+[19/27] Compiling spl_init.c
+[20/27] Compiling resample_by_2_internal.c
+[21/27] Compiling vad_sp.c
+[22/27] Compiling complex_fft.c
+[23/27] Compiling complex_bit_reverse.c
+[24/27] Compiling CAudio VAD.c
+[25/27] Compiling CAudio AudioRing.c
+[26/27] Compiling checks.cc
+[28/64] Compiling SaytileKit RecognitionCandidates.swift
+[29/64] Compiling SaytileKit RecognitionConfiguration.swift
+[30/64] Compiling SaytileKit RecognitionFailover.swift
+[31/64] Compiling SaytileKit RecognitionFusion.swift
+[32/67] Compiling SaytileKit SpeechResultAccumulator.swift
+[33/67] Compiling SaytileKit SpeechTiming.swift
+[34/67] Compiling SaytileKit Store.swift
+[35/67] Compiling SaytileKit StoreLock.swift
+[36/67] Compiling SaytileKit MultiRecognitionSession.swift
+[37/67] Compiling SaytileKit PrecisionReviewClient.swift
+[38/67] Compiling SaytileKit QwenMessageProvider.swift
+[39/67] Compiling SaytileKit RecognitionAudioFanout.swift
+[40/67] Compiling SaytileKit StoreSQLite.swift
+[41/67] Compiling SaytileKit WindowPlacement.swift
+[42/67] Compiling SaytileKit resource_bundle_accessor.swift
+[43/67] Emitting module SaytileKit
+[44/67] Compiling SaytileKit CloudConnectionVerification.swift
+[45/67] Compiling SaytileKit CloudCredentials.swift
+[46/67] Compiling SaytileKit ConnectionSetup.swift
+[47/67] Compiling SaytileKit FinalASRProvider.swift
+[48/67] Compiling SaytileKit LocalCandidateIngress.swift
+[49/67] Compiling SaytileKit MetaStreamingProvider.swift
+[50/67] Compiling SaytileKit Models.swift
+[51/67] Compiling SaytileKit MultiRecognitionDiagnostics.swift
+[52/67] Compiling SaytileKit RecordingCloudAuthorization.swift
+[53/67] Compiling SaytileKit SingleTranscriptEngine.swift
+[54/67] Compiling SaytileKit SonioxStreamingProvider.swift
+[55/67] Compiling SaytileKit SpeechRecognition.swift
+[56/67] Compiling SaytileKit GPTReviewSession.swift
+[57/67] Compiling SaytileKit InputAccessibility.swift
+[58/67] Compiling SaytileKit InputCoordinator.swift
+[59/67] Compiling SaytileKit JournalRangeReader.swift
+[60/67] Compiling SaytileKit AudioJournal.swift
+[61/67] Compiling SaytileKit AudioLifecycle.swift
+[62/67] Compiling SaytileKit AudioPlaybackTimeline.swift
+[63/67] Compiling SaytileKit AudioTapCallbacks.swift
+[64/67] Compiling SaytileKit ASRProviderProtocol.swift
+[65/67] Compiling SaytileKit AssemblyStreamingProvider.swift
+[66/67] Compiling SaytileKit AudioCapture.swift
+[67/67] Compiling SaytileKit AudioDiagnostics.swift
+Build of target: 'SaytileKit' complete! (32.20s)
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+Scope: synthetic realtime ring, converter, VAD, journal, SQLite; ASR disabled; no microphone/speaker
+Data directory: /tmp/saytile-rc-realtime-data.CDr1Vw
+realtime_seconds=1800.0 produced_frames=39690000 dropped_frames=0 records=60 saved_seconds=1799.9999999999977 audio_bytes=57607876 all_available=true all_finished=true pending_asr=60
+     1800.48 real        14.10 user         8.83 sys
+            18989056  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               11777  page reclaims
+                  57  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                6514  voluntary context switches
+              349976  involuntary context switches
+         64936997052  instructions retired
+         53545002218  cycles elapsed
+             7111376  peak memory footprint

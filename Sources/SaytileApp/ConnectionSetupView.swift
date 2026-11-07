@@ -35,6 +35,6 @@ struct ConnectionSetupView: View {
                     .accessibilityIdentifier("connectionSetup.finish")
             }.padding(20)
         }.frame(minWidth: 600, minHeight: 640)
-            .foregroundStyle(Palette.ink).tint(Palette.green).background(Palette.paper)
+            .foregroundStyle(Palette.ink).tint(Palette.accent).background(Palette.paper)
     }
 }
