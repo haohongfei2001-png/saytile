@@ -1,0 +1,17 @@
+{
+  "source": "dc26fe3c59ba55994d29e99ada8d2f0b49ad9886",
+  "library_sha256": "97798f24609d10d1d79871cf305be7ca7fb6775a8a034b96c369c73bfe5f50c7",
+  "probe_sha256": "de080a8debfa94b1021e89431a639a921ca11f034e141f0255fd970ecd9bd3db",
+  "probe_source_sha256": "5cc436e5abf8a46a25866060d6ccd3883906f3dd3c0ed7516616fbe494003a8c",
+  "utc": "2026-11-07T11:22:32.678880+00:00",
+  "exit": 2,
+  "output": [
+    "ROUTE physical-A verified_device=true frames=0 rate=48000.0",
+    "HAL aggregate input metadata bytes=192000",
+    "ROUTE private-aggregate-B verified_device=true frames=0 rate=24000.0",
+    "ROUTE physical-A-return verified_device=true frames=0 rate=48000.0",
+    "PASS system default unchanged; selected removed private route refused before capture; no stored audio",
+    "ROUTE_PROBE_INCOMPLETE CheckError(message: \"physical route start or return returned no frames\")"
+  ],
+  "wav_count": 0
+}

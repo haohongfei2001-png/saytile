@@ -1,0 +1,155 @@
+{
+  "source": "dc26fe3c59ba55994d29e99ada8d2f0b49ad9886",
+  "source_tree": "f138f6733a642a2e53da22b3647aaf5744cb308b",
+  "binary_sha256": "cb3b7a38dae90fccd323b57ee746baedbfcb43b457e0b30dbdcbaedffd35ed00",
+  "dmg_sha256": "0bd16e511f3a1cf65a3618443ef3c498ca517786aa4ad07a0226451a0c2b449d",
+  "version": "1.0.0-rc.2-no-api.9",
+  "host": "Apple Silicon, macOS 27.0 (26A428)",
+  "stamp": "hosted",
+  "utc": "2026-11-07T11:42:29.278885+00:00",
+  "results": [
+    {
+      "case": "内建麦克风 / 打包 App",
+      "status": "PASS",
+      "detail": "48 kHz，50 个缓冲、240,000 帧。仅计数，隔离 Store 零录音。"
+    },
+    {
+      "case": "进程私有 Core Audio 路由切换和移除",
+      "status": "PASS",
+      "detail": "A→私有双工聚合 B→A 各自读取帧计数，移除 B 后产品拒绝回落到默认输入。初次只含输入的聚合 B 零帧，原始记录单独保存。采集计数由冻结库回调完成，选路与丢失检查使用产品 AudioController。"
+    },
+    {
+      "case": "显式选择内建输入的 tap 装配",
+      "status": "FAIL",
+      "detail": "五秒默认路由计数有帧；随后显式绑定同一内建设备，以读取的 48 kHz 格式装配冻结版本同款 tap。AVFAudio 格式不匹配使计数进程两次 SIGABRT。P1 需根治。此为无内容的硬件复现。"
+    },
+    {
+      "case": "第二支独立物理麦克风 / 热拔插",
+      "status": "BLOCKED",
+      "detail": "本机只报告一个物理输入。聚合路由与 A 共享转换器。"
+    },
+    {
+      "case": "受控睡眠/唤醒通知",
+      "status": "PASS",
+      "detail": "真实 AudioController 收到进程内通知，进入“Mac 已睡眠”，唤醒重新检查缺席设备，显式暂停不重开。内核时间单独保存。"
+    },
+    {
+      "case": "手动暂停后睡眠 / 唤醒的状态显示",
+      "status": "FAIL",
+      "detail": "受控真实通知复现：初始暂停，唤醒后仍显示“Mac 已睡眠”。没有开麦、写录音或丢失已有文字。限定为 P2 状态显示，按本轮范围保留。"
+    },
+    {
+      "case": "内核睡眠与唤醒期间的驻留、缺席设备恢复",
+      "status": "BLOCKED",
+      "detail": "有内核时间佐证的观察对 0。独立被动观察器使用不存在的明确 UID。宿主目前无免交互的定时唤醒权限。"
+    },
+    {
+      "case": "睡眠中断后恢复真实语音内容",
+      "status": "BLOCKED",
+      "detail": "共享物理环境没有隔离声源，测试没有保存环境声音。"
+    },
+    {
+      "case": "AppKit 范围所有权、换目标、用户改字、重启",
+      "status": "PASS",
+      "detail": "真实后台 NSTextView 的 9 个基础项、5 个改字项，加 9 个范围修订场景。"
+    },
+    {
+      "case": "后台 WKWebView 的不确定投递保护",
+      "status": "PASS",
+      "detail": "后台 setter 应答但 DOM 未变。账本未确认，未重放，发送数为零。"
+    },
+    {
+      "case": "后台 WKWebView 的实际文字投递",
+      "status": "FAIL",
+      "detail": "此目标未收到预期插入。产品安全拒绝把它记作成功。"
+    },
+    {
+      "case": "隔离前台目标的完整生产选择路径",
+      "status": "PASS",
+      "detail": "真实 TextEdit 在独立托管 Mac 上通过前后缀、emoji、稳定增量、去重及改选区安全保护。前台 WKWebView 另列。"
+    },
+    {
+      "case": "前台 WKWebView 投递",
+      "status": "FAIL",
+      "detail": "正式 resolver 到达自有网页编辑器，实际插入未确认；未达到该目标的投递要求。"
+    },
+    {
+      "case": "前台 WKWebView 换目标 / 自动发送保护",
+      "status": "PASS",
+      "detail": "silentContext 更换页面后拒绝旧投递，发送计数为零。"
+    },
+    {
+      "case": "独立安装、升级和回退",
+      "status": "PASS",
+      "detail": "重新下载公开 RC1 DMG 并核验指纹。实际临时安装、升级、回退、崩溃重启和三次重开均保留测试档案；未读取用户的已安装 RC1。"
+    },
+    {
+      "case": "卸载重装保留数据",
+      "status": "PASS",
+      "detail": "同一源码和安装包的既有独立实测，两项。"
+    },
+    {
+      "case": "普通 Gatekeeper 执行",
+      "status": "FAIL",
+      "detail": "严格 codesign 校验通过；启用的 Gatekeeper 返回 rejected，退出码 3。Developer ID 签名及公证需要发行身份。"
+    },
+    {
+      "case": "72 小时驻留和资源占用",
+      "status": "BLOCKED",
+      "detail": "最近采样 0.78 小时，共 48 点；RSS 22,592–79,616 KiB。预计到期 2026-11-10 18:54:51（北京时间）。"
+    },
+    {
+      "case": "两小时真实本地 VAD / ASR 间歇负载",
+      "status": "BLOCKED",
+      "detail": "两个已验证合成句子每三分钟重放一组，通过同一默认 worker 处理；等待完整 2 小时终态。"
+    },
+    {
+      "case": "整机功耗归因",
+      "status": "BLOCKED",
+      "detail": "powermetrics 在当前权限下拒绝运行。已采集 macOS 的单进程 CPU、物理内存、能量计数和空闲唤醒；不能据此推算整机耗电。"
+    },
+    {
+      "case": "真实云服务与识别质量",
+      "status": "BLOCKED",
+      "detail": "Qwen、AssemblyAI、GPT-6 Astra 的真实账户连接、真人音频准确率、相对最强单模型收益及额外确认延迟仍待独立授权。"
+    }
+  ],
+  "counts": {
+    "PASS": 9,
+    "FAIL": 5,
+    "BLOCKED": 7
+  },
+  "soak_completed": false,
+  "real_provider_calls": 0,
+  "runtime_changed": false,
+  "references": {
+    "controlled-wake.jsonl": "813a811cf0daecb1cdf44804884ef9cbe186853b87a18bc4a7c2506f0c7edf84",
+    "counter-units.json": "720d3e5c1f9b00ece4f1f162fe20e8ae3d521f04aadf8969ba6e3778dc2e4954",
+    "installation.json": "bc97ecc6537c445382662f24d5f87a2f3721203c7c86303049761bb20beec4ac",
+    "microphone.json": "76cbc600e5824a88d281cb8c9b51cc2fc9bfe53008563dce056e798354aabcb8",
+    "paused-wake.json": "3c39f520bccd89617fd6648235800343e56b9e6b9baf193d53ea7da1252216bc",
+    "policy.json": "d504a049fdce284f7bcc4ef174835904901f06a32162cc1bbe9f77357e5d34a7",
+    "private-route-initial.json": "653ca764ecc336bba4469b53158b7272c1a1487eb5893c3a25c83ee75a37aa03",
+    "private-route.json": "e30797615c96fc89bd4bb8467dc4b7096a0167c5d5045cb3af7a8b2501281f50",
+    "snapshots/hosted/launch.log": "926ad5b6f83a5ff4201e524bc3dd20d710ded2d4f20c9b4662ad564a4da70ebc",
+    "snapshots/hosted/passive-wake.jsonl": "bfe2ee2f2032331f69802006fcab4337d92250568c6da44b17730a062dd8bc28",
+    "snapshots/hosted/process-resource-normalized.json": "0e2aaf9ebd47353c90469931f039c1624465fc50259f3fe3a3e7e977971a5151",
+    "snapshots/hosted/process-resource.jsonl": "d1f4b7dd40255c283b823deab99874efe076577fb0c77fc65914428e78d3a0e8",
+    "snapshots/hosted/samples.jsonl": "0f20245fe70d865ac8a4c56c8ec24361d14ed9e73b89a259e50418578ccc5fc9",
+    "target-input/input-native-coordinator.log": "bbe998576a3fd79b4ddb05855393926f5de1fee920edf13248704d27a5ee3a00",
+    "target-input/input-webkit-observer.log": "133d2c04b0d462ea4a2c57fd685c507c2e1079e3f6f356d5edd97f0888ab5fc9",
+    "target-input/owned-summary.json": "cf9878229a81e9d8a5b8e25fe09f4ae0708f2b5f014be94a54863624e18ee910",
+    "wake-identity.json": "fdb5f6686c92258dbf904f6b3672be251913bc1813c551e2ab16de3e071e35d5"
+  },
+  "soak_observation": {
+    "points": 48,
+    "elapsed_wall_seconds": 2821.28,
+    "largest_sampling_gap_seconds": 60.05,
+    "max_footprint_bytes": 19153880,
+    "last_energy_nj": 4572669850,
+    "first_energy_nj": 1083888587,
+    "earliest_energy_sample_unix": 1794049351,
+    "latest_energy_sample_unix": 1794051691,
+    "scope": "Kernel per-process counters. The samples measure this PID, not total power or the Apple recognizer service."
+  }
+}

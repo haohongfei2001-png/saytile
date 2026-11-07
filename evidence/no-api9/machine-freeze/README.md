@@ -1,26 +1,31 @@
 # no-api.9 实机验收
 
-检查点 `start`，生成于 2026-11-07 19:06:53（北京时间）。
+检查点 `hosted`，生成于 2026-11-07 19:42:29（北京时间）。
 
-冻结源码 `dc26fe3c59ba55994d29e99ada8d2f0b49ad9886`，安装包 SHA-256 `0bd16e511f3a1cf65a3618443ef3c498ca517786aa4ad07a0226451a0c2b449d`。[固定 DMG](https://raw.githubusercontent.com/haohongfei2001-png/saytile/0aa51620c63612246395d8f2a83e1eb96c9e94c4/deliverables/no-api.9/Saytile-1.0.0-rc.2-no-api.9-arm64.dmg) · [机器结果与收据指纹](snapshots/start/machine.json)。
+冻结源码 `dc26fe3c59ba55994d29e99ada8d2f0b49ad9886`，安装包 SHA-256 `0bd16e511f3a1cf65a3618443ef3c498ca517786aa4ad07a0226451a0c2b449d`。[固定 DMG](https://raw.githubusercontent.com/haohongfei2001-png/saytile/0aa51620c63612246395d8f2a83e1eb96c9e94c4/deliverables/no-api.9/Saytile-1.0.0-rc.2-no-api.9-arm64.dmg) · [机器结果与收据指纹](snapshots/hosted/machine.json)。
 
 | 项目 | 结果 | 实测范围 |
 | --- | --- | --- |
 | 内建麦克风 / 打包 App | **PASS** | 48 kHz，50 个缓冲、240,000 帧。仅计数，隔离 Store 零录音。 |
 | 进程私有 Core Audio 路由切换和移除 | **PASS** | A→私有双工聚合 B→A 各自读取帧计数，移除 B 后产品拒绝回落到默认输入。初次只含输入的聚合 B 零帧，原始记录单独保存。采集计数由冻结库回调完成，选路与丢失检查使用产品 AudioController。 |
+| 显式选择内建输入的 tap 装配 | **FAIL** | 五秒默认路由计数有帧；随后显式绑定同一内建设备，以读取的 48 kHz 格式装配冻结版本同款 tap。AVFAudio 格式不匹配使计数进程两次 SIGABRT。P1 需根治。此为无内容的硬件复现。 |
 | 第二支独立物理麦克风 / 热拔插 | **BLOCKED** | 本机只报告一个物理输入。聚合路由与 A 共享转换器。 |
 | 受控睡眠/唤醒通知 | **PASS** | 真实 AudioController 收到进程内通知，进入“Mac 已睡眠”，唤醒重新检查缺席设备，显式暂停不重开。内核时间单独保存。 |
+| 手动暂停后睡眠 / 唤醒的状态显示 | **FAIL** | 受控真实通知复现：初始暂停，唤醒后仍显示“Mac 已睡眠”。没有开麦、写录音或丢失已有文字。限定为 P2 状态显示，按本轮范围保留。 |
 | 内核睡眠与唤醒期间的驻留、缺席设备恢复 | **BLOCKED** | 有内核时间佐证的观察对 0。独立被动观察器使用不存在的明确 UID。宿主目前无免交互的定时唤醒权限。 |
 | 睡眠中断后恢复真实语音内容 | **BLOCKED** | 共享物理环境没有隔离声源，测试没有保存环境声音。 |
 | AppKit 范围所有权、换目标、用户改字、重启 | **PASS** | 真实后台 NSTextView 的 9 个基础项、5 个改字项，加 9 个范围修订场景。 |
 | 后台 WKWebView 的不确定投递保护 | **PASS** | 后台 setter 应答但 DOM 未变。账本未确认，未重放，发送数为零。 |
 | 后台 WKWebView 的实际文字投递 | **FAIL** | 此目标未收到预期插入。产品安全拒绝把它记作成功。 |
-| 隔离前台目标的完整生产选择路径 | **BLOCKED** | 等待独立 GitHub macOS runner；共享用户当前窗口不作为目标。 |
+| 隔离前台目标的完整生产选择路径 | **PASS** | 真实 TextEdit 在独立托管 Mac 上通过前后缀、emoji、稳定增量、去重及改选区安全保护。前台 WKWebView 另列。 |
+| 前台 WKWebView 投递 | **FAIL** | 正式 resolver 到达自有网页编辑器，实际插入未确认；未达到该目标的投递要求。 |
+| 前台 WKWebView 换目标 / 自动发送保护 | **PASS** | silentContext 更换页面后拒绝旧投递，发送计数为零。 |
 | 独立安装、升级和回退 | **PASS** | 重新下载公开 RC1 DMG 并核验指纹。实际临时安装、升级、回退、崩溃重启和三次重开均保留测试档案；未读取用户的已安装 RC1。 |
 | 卸载重装保留数据 | **PASS** | 同一源码和安装包的既有独立实测，两项。 |
 | 普通 Gatekeeper 执行 | **FAIL** | 严格 codesign 校验通过；启用的 Gatekeeper 返回 rejected，退出码 3。Developer ID 签名及公证需要发行身份。 |
-| 72 小时驻留和资源占用 | **BLOCKED** | 最近采样 0.20 小时，共 13 点；RSS 60,640–79,616 KiB。预计到期 2026-11-10 18:54:51（北京时间）。 |
+| 72 小时驻留和资源占用 | **BLOCKED** | 最近采样 0.78 小时，共 48 点；RSS 22,592–79,616 KiB。预计到期 2026-11-10 18:54:51（北京时间）。 |
+| 两小时真实本地 VAD / ASR 间歇负载 | **BLOCKED** | 两个已验证合成句子每三分钟重放一组，通过同一默认 worker 处理；等待完整 2 小时终态。 |
 | 整机功耗归因 | **BLOCKED** | powermetrics 在当前权限下拒绝运行。已采集 macOS 的单进程 CPU、物理内存、能量计数和空闲唤醒；不能据此推算整机耗电。 |
 | 真实云服务与识别质量 | **BLOCKED** | Qwen、AssemblyAI、GPT-6 Astra 的真实账户连接、真人音频准确率、相对最强单模型收益及额外确认延迟仍待独立授权。 |
 
-本轮未复现导致数据丢失、重复发送或错投的 P0/P1。普通发行和云端验收条件仍未满足。
+需要跟进的 FAIL 和尚欠前提的 BLOCKED 项均列在表中。实测原始输入均为合成夹具或不读取声音样本的硬件计数。

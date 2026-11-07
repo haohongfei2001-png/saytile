@@ -62,6 +62,7 @@ def add(case,status,detail):
     rows.append(dict(case=case,status=status,detail=detail))
 add('内建麦克风 / 打包 App', 'PASS' if mic['exit']==0 and mic['recordings']==mic['wavs']==0 and any('hardware_frames=240000' in x for x in mic['output']) else 'FAIL','48 kHz，50 个缓冲、240,000 帧。仅计数，隔离 Store 零录音。')
 add('进程私有 Core Audio 路由切换和移除','PASS' if 'PASS aggregate input backend' in route['output'] and route['wav_count']==0 else 'FAIL','A→私有双工聚合 B→A 各自读取帧计数，移除 B 后产品拒绝回落到默认输入。初次只含输入的聚合 B 零帧，原始记录单独保存。采集计数由冻结库回调完成，选路与丢失检查使用产品 AudioController。')
+add('显式选择内建输入的 tap 装配','FAIL','五秒默认路由计数有帧；随后显式绑定同一内建设备，以读取的 48 kHz 格式装配冻结版本同款 tap。AVFAudio 格式不匹配使计数进程两次 SIGABRT。P1 需根治。此为无内容的硬件复现。')
 add('第二支独立物理麦克风 / 热拔插','BLOCKED','本机只报告一个物理输入。聚合路由与 A 共享转换器。')
 add('受控睡眠/唤醒通知','PASS','真实 AudioController 收到进程内通知，进入“Mac 已睡眠”，唤醒重新检查缺席设备，显式暂停不重开。内核时间单独保存。')
 paused=fixed('paused-wake.json')
@@ -73,6 +74,9 @@ add('AppKit 范围所有权、换目标、用户改字、重启','PASS' if 'RC_A
 add('后台 WKWebView 的不确定投递保护','PASS' if 'WEB_INSERT_RESULT unverified' in web and 'PASS real WKWebView fixture never sends' in web else 'FAIL','后台 setter 应答但 DOM 未变。账本未确认，未重放，发送数为零。')
 add('后台 WKWebView 的实际文字投递','FAIL' if 'unchanged_fixture=true expected_inserted=false' in web else 'BLOCKED','此目标未收到预期插入。产品安全拒绝把它记作成功。')
 add('隔离前台目标的完整生产选择路径',hosted['status'] if hosted else 'BLOCKED',hosted['detail'] if hosted else '等待独立 GitHub macOS runner；共享用户当前窗口不作为目标。')
+if hosted:
+    add('前台 WKWebView 投递',hosted['foreground_wk_dispatch'],'正式 resolver 到达自有网页编辑器，实际插入未确认；未达到该目标的投递要求。')
+    add('前台 WKWebView 换目标 / 自动发送保护',hosted['foreground_wk_safety'],'silentContext 更换页面后拒绝旧投递，发送计数为零。')
 add('独立安装、升级和回退','PASS' if ins['status']=='PASS' and ins['count']==8 else 'FAIL','重新下载公开 RC1 DMG 并核验指纹。实际临时安装、升级、回退、崩溃重启和三次重开均保留测试档案；未读取用户的已安装 RC1。')
 add('卸载重装保留数据','PASS' if len(read(here.parent/'final/uninstall-reinstall.json')['checks'])==2 else 'FAIL','同一源码和安装包的既有独立实测，两项。')
 add('普通 Gatekeeper 执行','FAIL' if policy['gatekeeper']['exit']!=0 else 'PASS','严格 codesign 校验通过；启用的 Gatekeeper 返回 rejected，退出码 3。Developer ID 签名及公证需要发行身份。')

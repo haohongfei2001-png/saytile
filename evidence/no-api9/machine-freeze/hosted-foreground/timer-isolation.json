@@ -1,0 +1,18 @@
+{
+  "source": "dc26fe3c59ba55994d29e99ada8d2f0b49ad9886",
+  "scope": "No foreground activation. Test fixture timer only; lowered the idle age only in this isolated reproducer.",
+  "results": [
+    {
+      "corrected": false,
+      "exit": -5,
+      "stdout": "",
+      "matched_stack": []
+    },
+    {
+      "corrected": true,
+      "exit": 0,
+      "stdout": "FOREGROUND_PREFLIGHT existing_AX=true idle_seconds=307; original_pid=30899; contents_not_read=true\nTIMER_SURVIVED\n",
+      "matched_stack": []
+    }
+  ]
+}

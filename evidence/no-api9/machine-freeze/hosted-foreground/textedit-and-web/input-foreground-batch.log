@@ -1,0 +1,23 @@
+FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0 background=false
+FIXTURE_READY
+WEB_FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0
+WEB_FIXTURE_READY
+FOREGROUND_PREFLIGHT existing_AX=true idle_seconds=747; original_pid=342; contents_not_read=true
+FIXTURE_RPC {"target":"web","command":"activate"}
+FIXTURE_REPLY web command=activate error=False value_omitted=true
+FOREGROUND_INSERT kind=web result=unverified
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FAIL web real foreground insertion and local confirmation
+FIXTURE_RPC {"target":"web","command":"restore"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"silentContext"}
+FIXTURE_REPLY web command=silentContext error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+PASS web target mutation rejects stale insertion
+PASS web no Return or send
+FOREGROUND_RESTORED original_pid=342; confirmed_by_PID_only=true
+FOREGROUND_BATCH_COMPLETE checks=2 failures=1; production frontmost resolver + fixture PID guard; not a third-party browser claim
