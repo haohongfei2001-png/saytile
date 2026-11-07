@@ -26,19 +26,32 @@ enum ReferencePanelStyle {
 
 /// A surface, not a reference-image backdrop: selectable native text and actual
 /// controls are rendered above it. The source image is never used at runtime.
+private struct ReferenceGlassBackdrop: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = .hudWindow
+        view.blendingMode = .behindWindow
+        view.state = .active
+        view.appearance = NSAppearance(named: .aqua)
+        return view
+    }
+    func updateNSView(_ view: NSVisualEffectView, context: Context) {}
+}
+
 struct ReferencePanelSurface: View {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     private var shape: RoundedRectangle { RoundedRectangle(cornerRadius: ReferencePanelStyle.radius, style: .continuous) }
     var body: some View {
-        shape.fill(.ultraThinMaterial)
-            .overlay {
-                shape.fill(LinearGradient(stops: [
-                    .init(color: Color(red: 0.830, green: 0.800, blue: 0.995), location: 0),
-                    .init(color: Color(red: 0.760, green: 0.792, blue: 0.995), location: 0.50),
-                    .init(color: Color(red: 0.644, green: 0.735, blue: 0.995), location: 1)
-                ], startPoint: .leading, endPoint: .trailing))
-                .opacity(reduceTransparency ? 1 : 0.94)
-            }
+        ZStack {
+            // Keep native behind-window blur separate from the paint, avoiding
+            // SwiftUI Material's version-dependent vibrancy tint on the surface.
+            ReferenceGlassBackdrop()
+            shape.fill(LinearGradient(stops: [
+                .init(color: Color(.sRGB, red: 221 / 255.0, green: 214 / 255.0, blue: 253 / 255.0, opacity: 1), location: 0),
+                .init(color: Color(.sRGB, red: 211 / 255.0, green: 215 / 255.0, blue: 253 / 255.0, opacity: 1), location: 0.50),
+                .init(color: Color(.sRGB, red: 189 / 255.0, green: 202 / 255.0, blue: 253 / 255.0, opacity: 1), location: 1)
+            ], startPoint: .leading, endPoint: .trailing))
+            .opacity(reduceTransparency ? 1 : 0.985)
             .overlay {
                 shape.fill(LinearGradient(stops: [
                     .init(color: .white.opacity(0.04), location: 0),
@@ -53,7 +66,10 @@ struct ReferencePanelSurface: View {
             .overlay {
                 shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.9), .white.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 0.65)
             }
-            .accessibilityHidden(true)
+        }
+        .clipShape(shape)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 
@@ -64,12 +80,18 @@ struct ReferenceControlSurface: View {
     private var radius: CGFloat { copy ? 13 : ReferencePanelStyle.controlHeight / 2 }
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
-        shape.fill(LinearGradient(colors: [.white.opacity(copy ? 0.36 : 0.28), .white.opacity(0.13)], startPoint: .topLeading, endPoint: .bottomTrailing))
-            .overlay {
-                shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.9), .white.opacity(0.18)], startPoint: .top, endPoint: .bottom), lineWidth: 0.65)
-            }
-            .shadow(color: Color(red: 0.35, green: 0.33, blue: 0.70).opacity(0.30), radius: 4.5, x: 0, y: -4)
-            .shadow(color: .white.opacity(0.14), radius: 1.5, x: 0, y: 1)
+        // An opaque sampled highlight ensures the shadow is not attenuated twice.
+        shape.fill(LinearGradient(colors: copy ? [
+                Color(.sRGB, red: 231 / 255.0, green: 227 / 255.0, blue: 253 / 255.0, opacity: 1),
+                Color(.sRGB, red: 225 / 255.0, green: 222 / 255.0, blue: 252 / 255.0, opacity: 1)
+            ] : [
+                Color(.sRGB, red: 213 / 255.0, green: 219 / 255.0, blue: 254 / 255.0, opacity: 1),
+                Color(.sRGB, red: 197 / 255.0, green: 208 / 255.0, blue: 254 / 255.0, opacity: 1)
+            ], startPoint: .topLeading, endPoint: .bottomTrailing))
+                .overlay {
+                    shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.9), .white.opacity(0.18)], startPoint: .top, endPoint: .bottom), lineWidth: 0.65)
+                }
+            .shadow(color: Color(red: 0.35, green: 0.35, blue: 0.70).opacity(0.20), radius: 4.5, x: 0, y: -4)
             .accessibilityHidden(true)
     }
 }

@@ -1,3 +1,7 @@
+### Color and control relief correction
+
+The initial same-size CI comparison exposed an oversaturated plate and weak control shadows. The final plate now uses explicit sRGB reference samples (221/214/253 → 211/215/253 → 189/202/253), separate native behind-window blur, and sampled opaque button highlights so shadows are not attenuated twice. Color comparisons must normalize embedded display profiles; AppKit `colorAt` and raw PNG component values are not interchangeable. The reference remains the uploaded image, not the first generated comparison.
+
 ## Integrated reference-sized window correction
 
 The prior `473d6ed` change and its design provenance are retained in history. This follow-on integrates the measured reference with the **actual shipping window**, not a separate presentation-only mockup:

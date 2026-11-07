@@ -276,7 +276,7 @@ final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
         let font = textStorage?.attribute(.font, at: max(0, string.utf16.count - 1), effectiveRange: nil) as? NSFont
         let ink = font?.boundingRect(forGlyph: manager.glyph(at: end))
         let inkEnd = ink.map { line.minX + manager.location(forGlyphAt: end).x + $0.maxX } ?? glyph.maxX
-        let rect = CGRect(x: origin.x + inkEnd + 6,
+        let rect = CGRect(x: origin.x + inkEnd + 9,
                           y: origin.y + line.minY + 3, width: 2.5, height: 19)
         guard rect.maxX < bounds.maxX - 1 else { return }
         NSColor(srgbRed: 0.55, green: 0.23, blue: 0.98, alpha: 1).setFill()
