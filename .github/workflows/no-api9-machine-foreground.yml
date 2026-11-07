@@ -1,7 +1,7 @@
 name: Frozen no-api.9 foreground acceptance
 on:
   push:
-    branches: ['engine/single-transcript-integrated-20261107']
+    branches: ['engine/single-transcript-integrated-20261107','codex/no-api9-ax-host-check']
     paths:
       - '.github/workflows/no-api9-machine-foreground.yml'
       - 'evidence/no-api9/machine-freeze/foreground-request.json'
@@ -27,6 +27,21 @@ jobs:
           receipt="$SAYTILE_INPUT_EVIDENCE_DIRECTORY/status.txt"
           git rev-parse HEAD > "$receipt"
           sw_vers >> "$receipt"
+          cat > "$RUNNER_TEMP/preflight.swift" <<'SWIFT'
+          import ApplicationServices
+          import Foundation
+          FileHandle.standardOutput.write(Data("checking existing AX trust\n".utf8))
+          let allowed = AXIsProcessTrusted()
+          FileHandle.standardOutput.write(Data((allowed ? "AX_TRUSTED\n" : "AX_UNTRUSTED\n").utf8))
+          SWIFT
+          swiftc "$RUNNER_TEMP/preflight.swift" -o "$RUNNER_TEMP/ax-preflight"
+          if ! "$RUNNER_TEMP/ax-preflight" > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/trust.txt" 2>&1; then
+            echo 'BLOCKED: hosted process failed while querying existing AX trust.' | tee -a "$receipt"
+            exit 0
+          elif grep -qx AX_UNTRUSTED "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/trust.txt"; then
+            echo 'BLOCKED: pre-existing hosted AX trust unavailable, no prompt or policy change.' | tee -a "$receipt"
+            exit 0
+          fi
           if python3 scripts/test-input-native.py --foreground-batch > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/run.log" 2>&1; then
             echo 'PASS: both test-owned foreground editors and no-send checks completed.' | tee -a "$receipt"
           elif grep -Eq 'NOT_RUN|FOREGROUND_ABORT' "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/run.log" "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/input-foreground-batch.log" 2>/dev/null; then
@@ -35,6 +50,25 @@ jobs:
             echo 'FAIL: see foreground fixture trace.' | tee -a "$receipt"
             exit 1
           fi
+      - name: Collect crash reason for our test process only
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PYTHON'
+          import json, pathlib, os
+          reports = pathlib.Path.home() / 'Library/Logs/DiagnosticReports'
+          out = pathlib.Path(os.environ['RUNNER_TEMP']) / 'foreground-evidence'
+          for name in ('AXForegroundBatchProbe', 'ax-preflight'):
+              files = sorted(reports.glob(name+'*.ips'))
+              if not files: continue
+              raw = files[-1].read_text()
+              _, i = json.JSONDecoder().raw_decode(raw)
+              record = json.loads(raw[i:]) if raw[i:].strip() else json.loads(raw)
+              libs = record.get('usedImages', [])
+              frames = next((t.get('frames', []) for t in record.get('threads', []) if t.get('triggered')), [])
+              fields = {'process':name,'exception':record.get('exception'),'termination':record.get('termination'),'frames':[{'symbol':f.get('symbol'),'library':libs[f['imageIndex']].get('name')} for f in frames[:10] if f.get('imageIndex',-1) in range(len(libs))]}
+              (out/(name+'-cause.json')).write_text(json.dumps(fields,indent=2))
+          PYTHON
       - uses: actions/upload-artifact@v4
         if: always()
         with:
