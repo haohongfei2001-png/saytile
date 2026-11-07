@@ -77,8 +77,8 @@ extension AppDelegate {
         for frame in frames {
             let shape = VoiceCaptureGlyphShape(paused: frame.paused, speaking: frame.speaking, level: frame.level)
             _ = try glyphGeometry(shape, in: area)
-            // This mirrors only the existing capsule's paint and fixed size. The
-            // production glyph geometry is reused; there is no new panel design.
+            // Neutral specimen for the production path and fixed capsule size.
+            // Use packaged panel captures, not these geometry frames, to review glass and tint.
             let content = shape.foregroundStyle(Palette.accent)
                 .frame(width: 24, height: 18)
                 .frame(width: 78, height: 30)
@@ -94,7 +94,7 @@ extension AppDelegate {
             try png.write(to: directory.appendingPathComponent(frame.filename))
         }
         let manifest = VoiceGlyphReviewManifest(
-            scope: "Production SwiftUI glyph paths; synthetic amplitude and sampled morph parameters; no microphone, AX action, real-time animation timing or full-panel design approval. Offscreen ImageRenderer creates no windows.",
+            scope: "Production SwiftUI glyph paths; synthetic amplitude and sampled morph parameters; a neutral preview tint, not the final panel surface. No microphone, AX action, measured animation timing or user visual approval. Offscreen ImageRenderer creates no windows.",
             width_points: 78, height_points: 30, scale: 3, frames: frames)
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         try encoder.encode(manifest).write(to: directory.appendingPathComponent("manifest.json"))
