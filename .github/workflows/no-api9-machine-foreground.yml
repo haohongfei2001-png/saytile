@@ -1,7 +1,7 @@
 name: Frozen no-api.9 foreground acceptance
 on:
   push:
-    branches: ['engine/single-transcript-integrated-20261107','codex/no-api9-ax-host-check']
+    branches: ['codex/no-api9-ax-host-check']
     paths:
       - '.github/workflows/no-api9-machine-foreground.yml'
       - 'evidence/no-api9/machine-freeze/foreground-request.json'
@@ -42,6 +42,17 @@ jobs:
             echo 'BLOCKED: pre-existing hosted AX trust unavailable, no prompt or policy change.' | tee -a "$receipt"
             exit 0
           fi
+          # Correct the reproduced executor trap in the test timer only.
+          python3 - <<'PYTHON'
+          from pathlib import Path
+          import hashlib
+          p=Path('tests/fixtures/AXForegroundBatchProbe.swift')
+          s=p.read_text()
+          assert s.count('timer.setEventHandler {')==1
+          p.write_text(s.replace('timer.setEventHandler {','timer.setEventHandler { @Sendable in'))
+          print('test fixture SHA256', hashlib.sha256(p.read_bytes()).hexdigest())
+          PYTHON
+          git diff --exit-code -- Sources scripts packaging
           if python3 scripts/test-input-native.py --foreground-batch > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/run.log" 2>&1; then
             echo 'PASS: both test-owned foreground editors and no-send checks completed.' | tee -a "$receipt"
           elif grep -Eq 'NOT_RUN|FOREGROUND_ABORT' "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/run.log" "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/input-foreground-batch.log" 2>/dev/null; then
