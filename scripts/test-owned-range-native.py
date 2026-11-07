@@ -144,6 +144,10 @@ def run(args):
             value = json.loads(line)
             if value.get("pid") != fixture.pid or value.get("nonce") != nonce or value.get("command") != command_name:
                 raise RuntimeError("fixture IPC identity/command mismatch")
+            if value.get("keyWindow") is not False or value.get("mainWindow") is not False or value.get("keyboardEvents") != 0:
+                raise RuntimeError("Background fixture keyboard isolation failed; no keyboard characters recorded")
+            if not all(value.get(field, {}).get("knownSyntheticText") is True for field in ["primary", "alternate"]):
+                raise RuntimeError("Unexpected fixture text; omitted from evidence")
             return value
 
         deadline = time.monotonic() + 10

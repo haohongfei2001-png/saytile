@@ -172,7 +172,17 @@ import ApplicationServices
             if scenario == "selection-change" { _ = try rpc("select") }
             if scenario == "target-change" { choice.alternate = true }
             if scenario == "setter-refusal" { _ = try rpc("reject-replacement") }
-            if scenario == "focus-change" { _ = try rpc("focus-alternate") }
+            if scenario == "focus-change" {
+                let response = try rpc("focus-alternate")
+                try require(response["firstResponder"] as? String == "alternate" &&
+                    response["firstResponderIdentifier"] as? String == "owned-range-\(nonce)-1" &&
+                    attribute(alternate, kAXIdentifierAttribute) as? String == response["firstResponderIdentifier"] as? String,
+                    "owned window first responder did not change to the verified AX element")
+                // This background panel deliberately cannot take keyboard focus. Reflect
+                // its real first responder in the injected target selector; do not claim
+                // a foreground focus notification or fabricate a coordinator callback.
+                choice.alternate = true
+            }
             if scenario == "window-closed" { _ = try rpc("close-window") }
             if scenario == "restart-before-repair" {
                 // Persist the exact pre-write state, reopen the real database, then

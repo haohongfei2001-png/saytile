@@ -1,0 +1,13 @@
+# a6849128 intermediate input and local evidence
+
+This run is **not a final acceptance pass**. Runtime `a6849128e12e88560daa52fce48f6f2d805a88aa` was superseded before final delivery. Before/after snapshots bind 201 source inputs with an identical digest; observed probe/browser binaries were unchanged. Runtime sources were not changed by these tests.
+
+- AppModel: 78 checks passed; headless DOM: 20 checks passed, production coordinator through the existing test DOM adapter.
+- Ordinary native AX: the original first strict insertion assertion failed (process exit -5). Original diagnostics did not print the return enum and their defer removed the isolated database. These facts remain unresolved; new diagnostic success cannot replace the original failure.
+- A bounded new-target, in-memory-only diagnostic reproduced `unverified`: exactly one production dispatch, two expected caret=11 notifications, then a separate content/selection event with caret=12 before verification. The SQLite audit records one unverified dispatch, inactive binding and no owned range. No automatic replay occurred. A separate earlier diagnostic target already contained unexpected extra characters before binding; their source is unknown. Activation identity stayed unchanged, which alone does not establish complete keyboard/window isolation.
+- Post-result field/scalar reads and bounded settled-state observations did not reproduce the terminal mutation. The owned diagnostic text view reported automatic spelling/replacement/completion/smart insertion enabled, but no evidence proves that these settings caused the original failure.
+- WKWebView: 6 observer checks plus 2 capability rejections passed, sends=0. The actual insertion remained **unverified** because AX acknowledged the setter but the DOM did not change. This is no successful browser insertion claim.
+- Installed Apple Speech: all 8 synthetic cases completed with candidate, unified and dispatchable revisions. CER ranged 0–0.2632 and four cases retained missing critical phrases; see `../apple/apple-corpus.json`. No microphone, cloud request or speech-asset preparation occurred.
+- Owned-range was not rerun after the parent suspended this runtime. Historical foreground resolver `UNKNOWN` / unverified application capability boundaries remain unchanged.
+
+Evidence-only runners retain/observe executed probe hashes while reusing the repository test scripts. Diagnostic source files are separate copies, not product changes or replacement acceptance criteria. Original `native-run.log`, `input-native-coordinator.log` and before/after binary hashes remain intact.

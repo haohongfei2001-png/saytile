@@ -185,13 +185,18 @@ extension AppDelegate {
             queue += view.subviews
         }
         guard matching.count == 1, let field = matching.first, let window = root.window,
-              field.window === window, window.makeFirstResponder(field),
+              field.window === window else {
+            throw ReviewFailure("unique native field unavailable for \(label)")
+        }
+        try checkKeyboardIsolation(window, phase: "before-field-edit")
+        guard window.makeFirstResponder(field),
               let editor = window.fieldEditor(false, for: field) as? NSTextView else {
             throw ReviewFailure("unique native field editor unavailable for \(label)")
         }
         editor.insertText(value, replacementRange: NSRange(location: 0, length: editor.string.utf16.count))
         _ = window.makeFirstResponder(root)
         try await Task.sleep(for: .milliseconds(80))
+        try checkKeyboardIsolation(window, phase: "after-field-edit")
         print("NATIVE_UI_FIELD_EDIT \(label) via owned NSTextView delegate; no global key events")
         if secure { print("NATIVE_UI_SECURE_FIELD_EDIT \(label) fixture credential only; value omitted") }
     }
@@ -214,6 +219,13 @@ extension AppDelegate {
         return result.1
     }
     @MainActor private func reviewWindow<V: View>(_ content: V, size: CGSize, name: String, output: URL,
+        interaction: (@MainActor (NSView) async throws -> Void)? = nil) async throws {
+        // Keep legacy trailing closures unambiguously control-only. Rendering checks use
+        // a distinct entry point so an optional closure cannot bind to validation.
+        try await reviewValidatedWindow(content, size: size, name: name, output: output,
+                                        validation: nil, interaction: interaction)
+    }
+    @MainActor private func reviewValidatedWindow<V: View>(_ content: V, size: CGSize, name: String, output: URL,
         validation: (@MainActor (NSView) async throws -> Void)? = nil,
         interaction: (@MainActor (NSView) async throws -> Void)? = nil) async throws {
         let before = NSWorkspace.shared.frontmostApplication?.processIdentifier
@@ -225,7 +237,7 @@ extension AppDelegate {
             }
         }
         defer { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
-        let panel = NSPanel(contentRect: CGRect(origin: CGPoint(x: 0, y: 0), size: size),
+        let panel = ReviewPanel(contentRect: CGRect(origin: CGPoint(x: 0, y: 0), size: size),
                             styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.title = "Saytile UI Review " + name
         panel.alphaValue = 0
@@ -246,8 +258,11 @@ extension AppDelegate {
                 throw ReviewFailure("compact panel exceeded its requested native geometry")
             }
         }
+        try checkKeyboardIsolation(panel, phase: "before-validation")
         if let validation { try await validation(host); host.layoutSubtreeIfNeeded() }
+        try checkKeyboardIsolation(panel, phase: "after-validation")
         if let interaction, ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil { try await interaction(host); try await Task.sleep(for: .milliseconds(100)); host.layoutSubtreeIfNeeded() }
+        try checkKeyboardIsolation(panel, phase: "after-interaction")
         try captureReview(host, name: name, output: output)
         let after = NSWorkspace.shared.frontmostApplication?.processIdentifier
         guard !activations.candidateActivated, after != ownPID else {
@@ -259,7 +274,17 @@ extension AppDelegate {
         print("UI_CAPTURE \(name) \(Int(host.bounds.width))x\(Int(host.bounds.height)) foreground_unchanged=\(before == after) candidate_activated=false")
     }
 
+    @MainActor private func checkKeyboardIsolation(_ window: NSWindow, phase: String) throws {
+        guard window is ReviewPanel, !window.canBecomeKey, !window.canBecomeMain,
+              !window.isKeyWindow, !window.isMainWindow else {
+            throw ReviewFailure("native review window violated keyboard isolation during \(phase)")
+        }
+        print("UI_KEYBOARD_ISOLATION \(phase) can_become_key=false can_become_main=false is_key=false is_main=false")
+    }
+
     @MainActor private func captureReview(_ host: NSView, name: String, output: URL) throws {
+        guard let window = host.window else { throw ReviewFailure("native capture window unavailable") }
+        try checkKeyboardIsolation(window, phase: "capture")
         host.layoutSubtreeIfNeeded()
         guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw CocoaError(.fileWriteUnknown) }
         host.cacheDisplay(in: host.bounds, to: bitmap)
@@ -361,7 +386,7 @@ extension AppDelegate {
             try await model.store.finishRecording(id: row.id); await model.refresh()
             var archives = 0, settings = 0, hides = 0
             model.openArchive = { archives += 1 }; model.openSettings = { settings += 1 }; model.hidePanel = { hides += 1 }
-            try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 360, height: 480),
+            try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 360, height: 480),
                 name: "panel-long-text", output: output, validation: { host in
                 let scroll = try self.compactTranscript(in: host)
                 try await self.reviewUntil { scroll.transcriptView.string.utf16.elementsEqual(text.utf16) }
@@ -517,6 +542,13 @@ extension AppDelegate {
             await model.prepareForExit()
         } catch { await model.prepareForExit(); throw error }
     }
+}
+
+/// Test windows cannot acquire keyboard focus, even when their owned field editor
+/// is exercised programmatically. The consumer's actual VoicePanel is unchanged.
+@MainActor private final class ReviewPanel: NSPanel {
+    override var canBecomeKey: Bool { false }
+    override var canBecomeMain: Bool { false }
 }
 
 @MainActor private final class UIPanelCaptureFixture {

@@ -1,0 +1,31 @@
+Building for debugging...
+Build complete! (0.20秒)
+FIXTURE_READY
+DIAGNOSTIC_STORE /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-rc-input-store-031FB56D-F346-4C0A-A284-BF651C01BFDC
+DIAGNOSTIC_DISPATCH_BEGIN
+DIAGNOSTIC_DISPATCH_RETURN
+DIAGNOSTIC_EVENT phase=await-confirmation change=contentOrSelection snapshot=Optional(SaytileKit.InputTargetSnapshot(processID: 69232, applicationID: "", applicationName: "AXTextFixture", windowID: 71DF7B4B-4DC6-4045-A51E-ACB2C2B01A9A, elementID: E03A416F-3441-4104-A6EE-78613EA4640D, pageIdentity: Optional("\u{1F}Saytile isolated AX fixture"), selectionLocation: 11, selectionLength: 0, isWeb: false, isEditable: true, isSensitive: false, canSetSelectedText: true, pageContextComplete: true))
+DIAGNOSTIC_EVENT phase=await-confirmation change=contentOrSelection snapshot=Optional(SaytileKit.InputTargetSnapshot(processID: 69232, applicationID: "", applicationName: "AXTextFixture", windowID: 71DF7B4B-4DC6-4045-A51E-ACB2C2B01A9A, elementID: E03A416F-3441-4104-A6EE-78613EA4640D, pageIdentity: Optional("\u{1F}Saytile isolated AX fixture"), selectionLocation: 11, selectionLength: 0, isWeb: false, isEditable: true, isSensitive: false, canSetSelectedText: true, pageContextComplete: true))
+DIAGNOSTIC_VERIFY result=Optional(SaytileKit.InputTargetSnapshot(processID: 69232, applicationID: "", applicationName: "AXTextFixture", windowID: 71DF7B4B-4DC6-4045-A51E-ACB2C2B01A9A, elementID: E03A416F-3441-4104-A6EE-78613EA4640D, pageIdentity: Optional("\u{1F}Saytile isolated AX fixture"), selectionLocation: 11, selectionLength: 0, isWeb: false, isEditable: true, isSensitive: false, canSetSelectedText: true, pageContextComplete: true))
+DIAGNOSTIC_RESULT confirmed binding=Optional(SaytileKit.InputBindingInfo(id: 9B3811DD-94D7-4400-B178-F33F2D27C28E, label: "AXTextFixture", boundAt: 2026-11-07 00:02:11 +0000))
+PASS production coordinator + SQLite reservation + real AX insertion confirms
+PASS preserves synthetic prefix and suffix
+PASS same stable range is not inserted twice
+DIAGNOSTIC_DISPATCH_BEGIN
+DIAGNOSTIC_DISPATCH_RETURN
+DIAGNOSTIC_EVENT phase=await-confirmation change=contentOrSelection snapshot=Optional(SaytileKit.InputTargetSnapshot(processID: 69232, applicationID: "", applicationName: "AXTextFixture", windowID: 71DF7B4B-4DC6-4045-A51E-ACB2C2B01A9A, elementID: E03A416F-3441-4104-A6EE-78613EA4640D, pageIdentity: Optional("\u{1F}Saytile isolated AX fixture"), selectionLocation: 15, selectionLength: 0, isWeb: false, isEditable: true, isSensitive: false, canSetSelectedText: true, pageContextComplete: true))
+DIAGNOSTIC_EVENT phase=await-confirmation change=contentOrSelection snapshot=Optional(SaytileKit.InputTargetSnapshot(processID: 69232, applicationID: "", applicationName: "AXTextFixture", windowID: 71DF7B4B-4DC6-4045-A51E-ACB2C2B01A9A, elementID: E03A416F-3441-4104-A6EE-78613EA4640D, pageIdentity: Optional("\u{1F}Saytile isolated AX fixture"), selectionLocation: 15, selectionLength: 0, isWeb: false, isEditable: true, isSensitive: false, canSetSelectedText: true, pageContextComplete: true))
+DIAGNOSTIC_VERIFY result=Optional(SaytileKit.InputTargetSnapshot(processID: 69232, applicationID: "", applicationName: "AXTextFixture", windowID: 71DF7B4B-4DC6-4045-A51E-ACB2C2B01A9A, elementID: E03A416F-3441-4104-A6EE-78613EA4640D, pageIdentity: Optional("\u{1F}Saytile isolated AX fixture"), selectionLocation: 15, selectionLength: 0, isWeb: false, isEditable: true, isSensitive: false, canSetSelectedText: true, pageContextComplete: true))
+PASS next stable suffix inserts after actual UTF16 caret
+PASS no duplicate prefix or whole-field replacement
+DIAGNOSTIC_EVENT phase=await-confirmation change=contentOrSelection snapshot=Optional(SaytileKit.InputTargetSnapshot(processID: 69232, applicationID: "", applicationName: "AXTextFixture", windowID: 71DF7B4B-4DC6-4045-A51E-ACB2C2B01A9A, elementID: E03A416F-3441-4104-A6EE-78613EA4640D, pageIdentity: Optional("\u{1F}Saytile isolated AX fixture"), selectionLocation: 0, selectionLength: 6, isWeb: false, isEditable: true, isSensitive: false, canSetSelectedText: true, pageContextComplete: true))
+DIAGNOSTIC_INVALIDATED phase=await-confirmation
+PASS real AX selection notification invalidates binding before next operation
+PASS real selected range prevents replacement
+PASS cancelled production insertion has no external attempt
+DIAGNOSTIC_INVALIDATED phase=observing
+NATIVE_AX_FOREGROUND_OBSERVATION unchanged=true owned_activated=false outside_activation_events=0; no cause inferred for outside transitions
+PASS owned fixture and probe never activate
+RC_AX_COORDINATOR_PASS 9 checks; background target selection injected; no production foreground or browser claim
+
+DIAGNOSTIC_EXIT 0

@@ -57,11 +57,16 @@ def run_fixture(fixture_name, probe_name, log_name, ready, web=False):
     probe = None
     try:
         deadline = time.monotonic() + 10
+        startup_isolated = False
         while time.monotonic() < deadline:
             name, line = messages.get(timeout=max(0.01, deadline-time.monotonic()))
             record(line)
+            if "ISOLATION_FAILED" in line: raise RuntimeError("Owned fixture startup isolation failed")
+            if "FIXTURE_ISOLATION " in line:
+                startup_isolated = all(value in line for value in ["initial_expected=true", "key=false", "main=false", "keyboard_events=0"])
             if line.strip() == ready: break
         else: raise RuntimeError("Fixture startup timed out")
+        if not startup_isolated: raise RuntimeError("Owned fixture did not establish startup keyboard isolation")
         probe = subprocess.Popen([str(probe_bin), str(fixture.pid)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
         threading.Thread(target=lines_to_queue, args=(probe.stdout, "probe", messages), daemon=True).start()
         deadline = time.monotonic() + 30
@@ -73,19 +78,24 @@ def run_fixture(fixture_name, probe_name, log_name, ready, web=False):
                 fixture.stdin.write(json.dumps({"command": line.strip().split(" ", 1)[1]}) + "\n"); fixture.stdin.flush()
         if probe.poll() is None: raise RuntimeError("Probe timed out")
         if probe.returncode: raise RuntimeError(f"Probe exit {probe.returncode}; no permission prompts or focus escalation attempted")
-        if web:
-            fixture.stdin.write('{"command":"state"}\n'); fixture.stdin.flush()
-            deadline=time.monotonic()+3
-            while time.monotonic()<deadline:
-                name,line=messages.get(timeout=max(0.01,deadline-time.monotonic()))
-                record(line)
-                if name=="fixture" and line.startswith('{'):
-                    state=json.loads(line)
-                    if state.get("command")=="state":
-                        assert json.loads(state["value"])["sends"] == 0, "Web fixture sent a message"
-                        record("PASS real WKWebView fixture never sends\n")
-                        break
-            else: raise RuntimeError("Missing web state")
+        fixture.stdin.write('{"command":"state"}\n'); fixture.stdin.flush()
+        deadline=time.monotonic()+3
+        while time.monotonic()<deadline:
+            name,line=messages.get(timeout=max(0.01,deadline-time.monotonic()))
+            record(line)
+            if name=="fixture" and line.startswith('{'):
+                state=json.loads(line)
+                if state.get("command")=="state":
+                    value = json.loads(state["value"])
+                    isolation = state if web else value
+                    assert value["sends"] == 0, "Owned fixture sent a message"
+                    assert value["knownSyntheticText"] is True, "Unexpected owned fixture text; omitted from evidence"
+                    assert isolation["keyWindow"] is False and isolation["mainWindow"] is False, "Background fixture became key/main"
+                    assert isolation["keyboardEvents"] == 0, "Background fixture received keyboard events; characters were not read"
+                    record("PASS owned fixture keyboard isolation key=false main=false keyboard_events=0\n")
+                    record("PASS real WKWebView fixture never sends\n" if web else "PASS real native fixture never sends\n")
+                    break
+        else: raise RuntimeError("Missing web state")
     finally:
         if probe and probe.poll() is None: probe.kill(); probe.wait()
         fixture.terminate()

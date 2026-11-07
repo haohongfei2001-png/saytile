@@ -1,5 +1,16 @@
 import AppKit
 
+@MainActor
+final class OwnedRangeFixturePanel: NSPanel {
+    var keyboardEvents = 0
+    override var canBecomeKey: Bool { false }
+    override var canBecomeMain: Bool { false }
+    override func sendEvent(_ event: NSEvent) {
+        if [.keyDown, .keyUp, .flagsChanged].contains(event.type) { keyboardEvents += 1; return }
+        super.sendEvent(event)
+    }
+}
+
 // Instrument the receiving native NSTextView, not Saytile's production AX adapter.
 // Super implements the successful AX setters. No synthetic AX implementation.
 @MainActor
@@ -35,20 +46,31 @@ final class OwnedRangeTextView: NSTextView {
 
 @MainActor
 final class OwnedRangeFixtureController {
-    let window: NSPanel
+    let window: OwnedRangeFixturePanel
     let primary = OwnedRangeTextView(frame: NSRect(x: 0, y: 0, width: 320, height: 90))
     let alternate = OwnedRangeTextView(frame: NSRect(x: 0, y: 90, width: 320, height: 90))
     let nonce: String
     var commandBytes = Data()
     init(nonce: String) {
         self.nonce = nonce
-        window = NSPanel(contentRect: NSRect(x: -20_000, y: -20_000, width: 320, height: 180),
+        window = OwnedRangeFixturePanel(contentRect: NSRect(x: -20_000, y: -20_000, width: 320, height: 180),
                          styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
         window.title = "Saytile owned-range " + nonce
+        window.alphaValue = 0; window.ignoresMouseEvents = true
         window.isReleasedWhenClosed = false
         let container = NSView(frame: NSRect(x: 0, y: 0, width: 320, height: 180))
         for (index, view) in [primary, alternate].enumerated() {
             view.isEditable = true; view.isSelectable = true
+            view.isAutomaticSpellingCorrectionEnabled = false
+            view.isAutomaticTextReplacementEnabled = false
+            view.isAutomaticTextCompletionEnabled = false
+            view.isAutomaticQuoteSubstitutionEnabled = false
+            view.isAutomaticDashSubstitutionEnabled = false
+            view.isAutomaticLinkDetectionEnabled = false
+            view.isAutomaticDataDetectionEnabled = false
+            view.isContinuousSpellCheckingEnabled = false
+            view.isGrammarCheckingEnabled = false
+            view.smartInsertDeleteEnabled = false
             view.setAccessibilityIdentifier("owned-range-\(nonce)-\(index)")
             container.addSubview(view)
         }
@@ -96,7 +118,10 @@ final class OwnedRangeFixtureController {
         }
     }
     func state(_ view: OwnedRangeTextView) -> [String: Any] {
-        ["text": view.string, "location": view.selectedRange().location, "length": view.selectedRange().length,
+        let known = ["", "50😀", "500👩🏽‍💻", "99😀", "50😀，后续。", "500👩🏽‍💻，后续。"]
+            .contains(where: { view.string.utf8.elementsEqual(("用户前缀😀｜" + $0 + "用户后缀🚀").utf8) })
+        return ["text": known ? view.string : "UNEXPECTED_TEXT_OMITTED", "knownSyntheticText": known,
+         "utf16Length": view.string.utf16.count, "location": view.selectedRange().location, "length": view.selectedRange().length,
          "textAttempts": view.textAttempts, "rangeAttempts": view.rangeAttempts,
          "fullValueAttempts": view.fullValueAttempts, "keyEvents": view.keyEvents,
          "pasteAttempts": view.pasteAttempts, "unexpectedPayload": view.unexpectedPayload]
@@ -104,6 +129,9 @@ final class OwnedRangeFixtureController {
     func reply(_ command: String) {
         let result: [String: Any] = ["command": command, "nonce": nonce,
             "pid": ProcessInfo.processInfo.processIdentifier,
+            "keyWindow": window.isKeyWindow, "mainWindow": window.isMainWindow, "keyboardEvents": window.keyboardEvents,
+            "firstResponder": window.firstResponder === primary ? "primary" : window.firstResponder === alternate ? "alternate" : "none",
+            "firstResponderIdentifier": (window.firstResponder as? NSView)?.accessibilityIdentifier() ?? "none",
             "primary": state(primary), "alternate": state(alternate)]
         let bytes = try! JSONSerialization.data(withJSONObject: result, options: [.sortedKeys])
         FileHandle.standardOutput.write(bytes + Data([10]))
@@ -116,6 +144,10 @@ final class OwnedRangeFixtureController {
         let app = NSApplication.shared
         app.setActivationPolicy(.prohibited)
         let controller = OwnedRangeFixtureController(nonce: CommandLine.arguments[1])
+        guard !controller.window.isKeyWindow, !controller.window.isMainWindow, controller.window.keyboardEvents == 0,
+              [controller.primary, controller.alternate].allSatisfy({ $0.string == "用户前缀😀｜用户后缀🚀" && $0.selectedRange() == NSRange(location: "用户前缀😀｜".utf16.count, length: 0) }) else {
+            print("FIXTURE_ISOLATION_FAILED"); exit(3)
+        }
         controller.reply("ready")
         withExtendedLifetime(controller) { app.run() }
     }
