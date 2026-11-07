@@ -1,7 +1,10 @@
 name: Frozen no-api.9 foreground acceptance
 on:
-  pull_request:
-    paths: ['evidence/no-api9/machine-freeze/foreground-request.json']
+  push:
+    branches: ['engine/single-transcript-integrated-20261107']
+    paths:
+      - '.github/workflows/no-api9-machine-foreground.yml'
+      - 'evidence/no-api9/machine-freeze/foreground-request.json'
 permissions:
   contents: read
 jobs:

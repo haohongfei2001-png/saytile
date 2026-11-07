@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
         if (proc_pid_rusage(pid, RUSAGE_INFO_V6, (rusage_info_t *)&info)) break;
         if (start_id && start_id != info.ri_proc_start_abstime) return 2;
         start_id = info.ri_proc_start_abstime;
-        printf("{\"unix\":%lld,\"start_abstime\":%llu,\"user_ns\":%llu,\"system_ns\":%llu,\"footprint_bytes\":%llu,\"peak_footprint_bytes\":%llu,\"disk_written_bytes\":%llu,\"reported_energy_nj\":%llu,\"idle_wakeups\":%llu}\n",
+        printf("{\"unix\":%lld,\"start_abstime\":%llu,\"user_ticks\":%llu,\"system_ticks\":%llu,\"footprint_bytes\":%llu,\"peak_footprint_bytes\":%llu,\"disk_written_bytes\":%llu,\"reported_energy_nj\":%llu,\"idle_wakeups\":%llu}\n",
                (long long)time(NULL), info.ri_proc_start_abstime, info.ri_user_time, info.ri_system_time,
                info.ri_phys_footprint, info.ri_lifetime_max_phys_footprint, info.ri_diskio_byteswritten, info.ri_energy_nj, info.ri_pkg_idle_wkups);
         fflush(stdout);
