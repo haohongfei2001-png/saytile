@@ -1,0 +1,102 @@
+{
+  "states": {
+    "NO_API_ENGINEERING_READY": false,
+    "LIVE_CONNECTION_PENDING": true,
+    "LIVE_PROTOCOL_VERIFIED": false,
+    "LIVE_TRANSCRIPTION_VERIFIED": false,
+    "QUALITY_VERIFIED": false,
+    "PRODUCTION_READY": false
+  },
+  "source_revision": "4df87ad4dd7ff94da2027f0c978ca5c5cb1d7292",
+  "runtime_tree": "ce2a3fed6a27a96ed4dca80abeac307793d4e705",
+  "version": "1.0.0-rc.2-no-api.5",
+  "source_inputs_before_and_after": 204,
+  "sources_unchanged": true,
+  "delivery_paths": {
+    "app": "/Users/hhf/.codex/worktrees/saytile-approved-ui/dist/rc2-no-api.5-r2/Saytile.app",
+    "portable_dmg": "/Users/hhf/Documents/GitHub/saytile/dist/rc2-no-api.5/Saytile-1.0.0-rc.2-no-api.5-arm64.dmg",
+    "pr_dmg_path": "deliverables/no-api.5/Saytile-1.0.0-rc.2-no-api.5-arm64.dmg",
+    "binary_sha256": "41ba0072154ceb060cd3499478e5b446fc76687b526dd4ea739108bf8917d8ef",
+    "dmg_sha256": "27b190cc73c72fff744067f7e97af0e238ab9546cc8e09e2039d0e3f18f84bcd",
+    "rc1_replaced": false,
+    "note": "Candidate copied only to version-specific destinations. Strictly verified extracted App remains at its original worktree path. The DMG contains the complete App; no unpacked App was written to the Documents checkout or Applications."
+  },
+  "real_cloud_requests": 0,
+  "cloud_quality": {
+    "best_single_model": null,
+    "dual_expert_plus_gpt_accuracy_gain": null,
+    "added_stable_confirmation_latency_ms": null,
+    "real_CER": null,
+    "real_WER": null,
+    "real_MER": null,
+    "interpretation": "No real account or human-speech comparison occurred. Null means unknown, not zero benefit."
+  },
+  "microphone_captured": false,
+  "private_audio_or_drafts_used": false,
+  "source_and_ci": "GitHub PR6, draft, base PR5. Runtime CI joined the same tree. Delivery evidence child does not change tested source, fixtures or packaging.",
+  "layers": {
+    "full Swift": "391 functions / 47 suites / 511 expanded scenarios, 0 skips",
+    "localhost protocol": "50 actual network cases with real clients, 0 peer violations; included in full suite",
+    "input": "AppModel97; DOM20, native AX9 + recipient mutation5, owned9, WK contexts6/refusals2/sends0. Background web insertion unverified, production foreground resolver not run.",
+    "local ASR": "8 synthetic cases completed, CER 0–0.2631579, four critical omissions. No natural-speech or comparative cloud quality claim.",
+    "packaged UI": "36 interactive captures/45 AXPress/6 menus/10 state inspections/6 edits incl3 secure; 22 render-only. Fixture success is TEST_ONLY. Actual focus/entry and selection/near-bottom verified.",
+    "storage and install": "process12, 100k rows/300k revisions, CLI17+7, install8/reinstall2",
+    "endurance": {
+      "wall_seconds": 1800.54,
+      "recordings": 60,
+      "wav_chunks": 179,
+      "saved_frames": 28800000,
+      "different_sample_frames": 0,
+      "pcm_sha256": "050b5e8b2a4154d34590f79cfb949885cc5195271bc7dd72ff8f4aab27885385",
+      "conditions": 23,
+      "ring_loss": "0",
+      "upload_grants": 0
+    },
+    "idle_seconds": 300.04
+  },
+  "unchanged_preservation_fields": [
+    "canonical_head",
+    "canonical_tracked_diff",
+    "installed_source",
+    "installed_binary_sha256",
+    "rc1_dmg_sha256"
+  ],
+  "remaining": "4df panel is superseded; verified runtime evidence must not be treated as acceptance of the new UI. Approved original image bytes unavailable for exact sampling/comparison. Real account protocols, natural-speech quality and extra confirmation latency unknown. No foreground/TCC/physical sleep/hotplug/multi-monitor/24–72 h energy/notarization certification.",
+  "evidence_sha256": {
+    "source-before.json": "27bb71172beb1f83e36cd4ce01fe6d5876956bc1558833be7db920e914954330",
+    "source-after.json": "6824e50a7c051026ce999f8d3d0384562c467a97edf1487959d6b80b75a4486c",
+    "preservation-before.json": "8d4bafd3aad8a8171508cd0085bfc1ffefbe4b72a514aaee9d3268286d7047a6",
+    "preservation-after.json": "775af6b83104d83baba23ee1a66fbe0a45141b00c0179693049bcf060852de51",
+    "package-identity.json": "506edb396810043e9b9ae3dc8a29d4260c325a96f8c1f93010448e3d636c3da6",
+    "package-check-linkage.json": "f02b1f89fab745b2eb7117e3fdef46b15bdad0aef72b007860c356f1d228ff71",
+    "delivery-paths.json": "c8b0cf6991c9a2bdc9a07263c1d1a86aba90804cd48e59965b65535773c0462a",
+    "protocol/run-after.json": "ac07f95a6fa8ca3f8be9a1f201fb99aab392111bd31ed0ef8d79a05bfa46cd3d",
+    "protocol/ci-snapshot.json": "4f047290d83adc0a739ecb46906c9bc884c4f766feb18824695440c130aecdea",
+    "input/receipt.json": "3caf786a6ae30c097d247d5be823b07c88be73bb08bc9fd26c65e399d271c9a4",
+    "apple/receipt.json": "f66ea041d487f4bf752d5be0492888b9d3b2e82674702f0f8b2e9c12618240cd",
+    "apple/apple-summary.json": "7b0709d9ea46a7cb127ee2fe5a4e9f30b1eff559c2494b1c7aa88c7d4feaa78a",
+    "owned-range/summary.json": "80222c844d1af9e5ee2bd1bfe24e256eee58519e59d30aa100798b6598784e61",
+    "ui/manifest.json": "f811859a459479d323b0bf8ce5e405ee12f1d89d5d2d62e72342b6affe7967c8",
+    "ui-render-only/manifest.json": "c74934a3cb80747a8734b52ebd7ef12a62fd538024ba9d6a9272b590fc88dd1e",
+    "startup-focus.log": "ba0933a67408af6343fce365519520becb43e7ffaff6ae234c3c1af605146eda",
+    "install-upgrade.json": "fc3a69be2c32746f5626e5a90fe1a5a354c071a5ef5c7d046ea2bf63143e8be8",
+    "uninstall-reinstall.json": "d9baa95e6c263cf6d4bac1c2ede9576f78b502683f4fe5a807821fd0a60d0e45",
+    "cloud-probe-cli.json": "780122d85e45e3eab82f42a3e38fd9e73073e5832cd37e406fc91ff06e83cfed",
+    "connection-setup-cli.json": "63fbb951bd5f869298a4a74d38791b7201f7fa9c9cd59631263058f6ebde275a",
+    "app-idle.json": "2c24f82571033b3ea29fecedb0f020ff32039158a72bac4d396cfad593078ec8",
+    "local/storage-processes.json": "0d05dae595bbf1fb1b357f75945464940ebb74abe9850157f2ffbfeb7f670dc1",
+    "local/storage-scale/storage-scale.json": "f27e830397c8994d2deb56be8fcb9f3b98103f0ff577c6b5b3847e4f0d41e729",
+    "local/voice-buffer.json": "394383c3ff91389f920a4388af0bb99aa1b6da7041eb4bf3d8e3cc82dad3d6ae",
+    "local/realtime-assessment.json": "1b05587f1a656ca7cfa1b877bc93d1ed1e84a773d71bef92ad73aabc2d2b77a1",
+    "local/post-run-identities.json": "88e6000e8f7e8f8ace46ce600fef972ab71a40f54da5ec6429b61d6e393190dd",
+    "local/source-after.json": "8b019367382d95ea5e78f05af82e62d6d54c3a9f2e61be239cc2825ea91850bf",
+    "SHORT-AUDIT.md": "715e2cb4897a100d112a1aeedf02c8214375245df580a447ec2fd1faeb138c01"
+  },
+  "scope": "Completed 4df87ad4 no-api.5 engineering baseline; its top control and four-state presentation were superseded during acceptance by 3da2c3f. This is not the currently approved interface or final V1 readiness.",
+  "superseding_spec": {
+    "revision": "3da2c3f122ea09e10f4d6d14c3f736303633b83e",
+    "reference_screenshot": "IMG_4388.jpeg",
+    "screenshot_digest_from_spec": "98e2e63b1c06c46d02ff049687f24f00653fa6fdba7c52b77fe8794a0886e11d",
+    "rule": "No top bar. Exactly bottom-left copy and bottom-right voice capsule. Three daily states; VAD speech end returns to standby without waiting for ASR/GPT. Screenshot is not the original PNG."
+  }
+}

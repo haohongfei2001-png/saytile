@@ -1,0 +1,145 @@
+Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_protocol.py", line 577, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_app.py", line 563, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hhf/.codex/worktrees/saytile-approved-ui/tests/fixtures/protocol-simulator/server.py", line 106, in asr
+    await ws.send_str("{bad-json"); continue
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_ws.py", line 488, in send_str
+    await self._writer.send_frame(
+        data.encode("utf-8"), WSMsgType.TEXT, compress=compress
+    )
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/_websocket/writer.py", line 90, in send_frame
+    self._send_compressed_frame_sync(message, opcode, compress)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/_websocket/writer.py", line 213, in _send_compressed_frame_sync
+    self._write_websocket_frame(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        (
+        ^
+    ...<8 lines>...
+        0x40,
+        ^^^^^
+    )
+    ^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/_websocket/writer.py", line 158, in _write_websocket_frame
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_protocol.py", line 577, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_app.py", line 563, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hhf/.codex/worktrees/saytile-approved-ui/tests/fixtures/protocol-simulator/server.py", line 210, in responses
+    await response.write_eof(); audit(s, "gpt.http_completed")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_response.py", line 587, in write_eof
+    await self._payload_writer.write_eof(data)
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/http_writer.py", line 323, in write_eof
+    self._write(b"0\r\n\r\n")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/http_writer.py", line 103, in _write
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_protocol.py", line 577, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_app.py", line 563, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hhf/.codex/worktrees/saytile-approved-ui/tests/fixtures/protocol-simulator/server.py", line 210, in responses
+    await response.write_eof(); audit(s, "gpt.http_completed")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_response.py", line 587, in write_eof
+    await self._payload_writer.write_eof(data)
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/http_writer.py", line 323, in write_eof
+    self._write(b"0\r\n\r\n")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/http_writer.py", line 103, in _write
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_protocol.py", line 577, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_app.py", line 563, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hhf/.codex/worktrees/saytile-approved-ui/tests/fixtures/protocol-simulator/server.py", line 210, in responses
+    await response.write_eof(); audit(s, "gpt.http_completed")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_response.py", line 587, in write_eof
+    await self._payload_writer.write_eof(data)
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/http_writer.py", line 323, in write_eof
+    self._write(b"0\r\n\r\n")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/http_writer.py", line 103, in _write
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_protocol.py", line 577, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_app.py", line 563, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hhf/.codex/worktrees/saytile-approved-ui/tests/fixtures/protocol-simulator/server.py", line 210, in responses
+    await response.write_eof(); audit(s, "gpt.http_completed")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_response.py", line 587, in write_eof
+    await self._payload_writer.write_eof(data)
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/http_writer.py", line 323, in write_eof
+    self._write(b"0\r\n\r\n")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/http_writer.py", line 103, in _write
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_protocol.py", line 577, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_app.py", line 563, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hhf/.codex/worktrees/saytile-approved-ui/tests/fixtures/protocol-simulator/server.py", line 210, in responses
+    await response.write_eof(); audit(s, "gpt.http_completed")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_response.py", line 587, in write_eof
+    await self._payload_writer.write_eof(data)
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/http_writer.py", line 323, in write_eof
+    self._write(b"0\r\n\r\n")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/http_writer.py", line 103, in _write
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_protocol.py", line 577, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_app.py", line 563, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hhf/.codex/worktrees/saytile-approved-ui/tests/fixtures/protocol-simulator/server.py", line 210, in responses
+    await response.write_eof(); audit(s, "gpt.http_completed")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/web_response.py", line 587, in write_eof
+    await self._payload_writer.write_eof(data)
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/http_writer.py", line 323, in write_eof
+    self._write(b"0\r\n\r\n")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-no-api-protocol-venv/lib/python3.14/site-packages/aiohttp/http_writer.py", line 103, in _write
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport

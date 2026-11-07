@@ -1,3 +1,5 @@
+> PR #6 当前：4df87ad4基线的完整本机原生391函数/511场景、97 AppModel、50 localhost网络case、安装8+2及1800.54秒逐帧保存均通过；全部28,800,000帧与参考相同。此证据不能充作新版底部控件/三态验收。 [已闭合的4df工程基线](../evidence/no-api-product/final-no-api5-r2/BASELINE.md)。
+
 # 当前分层结果 · 2026-11-07
 
 702a24b9 首次集成：[不交付原因和原始结果](../evidence/no-api-product/final-no-api5/HOLD.md)。391函数/47套件，1项静音回听固定180ms采样失败，三服务协议12函数/52场景通过。本机97 AppModel、输入DOM20/原生9+受控改字5/owned9、Apple合成8、原生控件36图/45 AXPress、安装升级8与卸载重装2通过。两条远端CI通过，不覆盖本机失败；原始红灯保留。
