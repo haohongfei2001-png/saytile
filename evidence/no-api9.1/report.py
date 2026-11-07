@@ -1,11 +1,11 @@
 """Summarize only inspections and process results observed on the frozen .9.1 source."""
 from pathlib import Path
-import hashlib,json,datetime,sys,shutil,subprocess
+import hashlib,json,datetime,sys,shutil,subprocess,statistics,ctypes
 from zoneinfo import ZoneInfo
 
 base=Path(__file__).resolve().parent
 phase=sys.argv[1]
-assert phase in ('package','2h','72h','interrupted')
+assert phase in ('package','public','2h','72h','interrupted')
 snap=base/'snapshots'/phase
 snap.mkdir(parents=True,exist_ok=False)
 def load(path): return json.loads(path.read_text())
@@ -76,6 +76,19 @@ row('72 小时实际 App 驻留和进程资源',ir['status'] if ir else 'BLOCKED
 row('整机功耗归因','BLOCKED','仅取得当前测试 PID 的内核能量、CPU、唤醒和物理内存计数，整机 powermetrics 需要管理员权限。',['snapshots/'+phase+'/process-resource.jsonl'])
 row('真实云端认证、转写、质量收益及确认延迟','BLOCKED','真实调用为零。三项有效账户、相应模型权限和处理/费用授权、同一经许可的人声材料仍是前提。',[])
 summary={'source':source,'tree':m['tree'],'version':m['version'],'binary_sha256':binary,'dmg_sha256':m['dmg_sha256'],'stamp':phase,'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'host':'macOS 27.0 (26A428), Apple Silicon','checks':entries,'status_counts':{k:sum(r['status']==k for r in entries) for k in ('PASS','FAIL','BLOCKED')},'real_cloud_calls':0,'production_ready':False,'producer_clock_complete':bool(ir and ar),'max_sample_gap':max_gap,'raw_files':{}}
+class MachTimebase(ctypes.Structure):
+    _fields_=[('numer',ctypes.c_uint32),('denom',ctypes.c_uint32)]
+tb=MachTimebase()
+assert ctypes.CDLL('/usr/lib/libSystem.B.dylib').mach_timebase_info(ctypes.byref(tb))==0
+if len(energy)>=2:
+    start,end=energy[0],energy[-1]
+    seconds=end['unix']-start['unix']
+    if seconds>0:
+        cpu_ticks=(end['user_ticks']+end['system_ticks'])-(start['user_ticks']+start['system_ticks'])
+        summary['kernel_process_usage']={'observation_seconds':seconds,'samples':len(energy),'source_pid':iv['pid'],'same_start_abstime':len({r['start_abstime'] for r in energy})==1,'timebase_numer':tb.numer,'timebase_denom':tb.denom,
+            'cpu_percent_one_core':cpu_ticks*tb.numer/tb.denom/1e9/seconds*100,'mean_cpu_energy_mW':(end['reported_energy_nj']-start['reported_energy_nj'])/seconds/1e6,
+            'footprint_max_bytes':max(r['footprint_bytes'] for r in energy),'footprint_first_decile_median_bytes':statistics.median(r['footprint_bytes'] for r in energy[:max(1,len(energy)//10)]),'footprint_last_decile_median_bytes':statistics.median(r['footprint_bytes'] for r in energy[-max(1,len(energy)//10):]),
+            'scope':'App process only. CPU energy attributed by the kernel; excludes system ASR services and other devices.'}
 for r in entries:
     for name in r['evidence']:
         f=base/name
@@ -86,6 +99,9 @@ for f in snap.iterdir():
 download=data('app/public.json')['url'] if (base/'app/public.json').exists() else '../../'+m['repo_dmg']
 doc=['# Saytile no-api.9.1 实机验收','','冻结源码 `'+source+'`。DMG SHA-256 `'+m['dmg_sha256']+'`。[下载候选]('+download+') · [机器结果与收据指纹](snapshots/'+phase+'/machine.json)。','','基线 no-api.9 显式选定内建麦克风时，计数探针复现了与产品相同的 AVAudioEngine 装配顺序导致的 SIGABRT。修补版只更改显式选定输入的硬件采集，默认设备和后续识别、存储、直接输入逻辑继承冻结基线。[修复提交](https://github.com/haohongfei2001-png/saytile/commit/'+source+')。','','| 项目 | 判定 | 实测与边界 |','| --- | --- | --- |']
 doc += ['| '+r['case']+' | **'+r['status']+'** | '+r['detail']+' |' for r in entries]
+usage=summary.get('kernel_process_usage')
+if usage:
+    doc+=['',f"在 {usage['observation_seconds']/3600:.2f} 小时内，这个暂停驻留进程的 CPU 时间占单核墙钟 {usage['cpu_percent_one_core']:.3f}%，内核归因的平均 CPU 能量折算为 {usage['mean_cpu_energy_mW']:.3f} mW。物理内存占用的首、末十分位区间中位数分别为 {usage['footprint_first_decile_median_bytes']/1048576:.1f}、{usage['footprint_last_decile_median_bytes']/1048576:.1f} MiB。整机功耗单独列为 BLOCKED。"]
 doc+=['','真实云端待验证事项包括 Qwen 地域及 Workspace、AssemblyAI 模型权限、GPT-6 Astra 接收候选和结束定稿、同音频四阶段准确率及额外确认延迟。未进行付费调用或上传私人录音。','']
 (base/'README.md').write_text('\n'.join(doc))
 print(phase,summary['status_counts'])
