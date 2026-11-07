@@ -45,3 +45,7 @@ scripts/package-beta.sh
 - [原型](prototype/index.html)、[历史来源](docs/06-PROVENANCE.md)、[第三方许可](THIRD_PARTY_NOTICES.md)
 
 个人包采用 ad-hoc 签名，尚未进行 Developer ID 公证。合成语音、后台 AX 测试、硬件缓冲统计、实际真人输入和整机功耗是不同验证层，详见测试记录。V2 轻声识别与 V3 个人词库/文字输入法不在本轮范围。
+
+## 唯一批准的 V1 界面目标（2026-11-07）
+
+Saytile V1 的唯一视觉目标是用户选定的紫蓝色、无品牌字标、单一连续文字流界面。完整规范见 [唯一界面设计规范](docs/SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md)。原始参考图保存在 ChatGPT Library：`Saytile语音输入工作台概念界面.png`（2026-11-06 23:05 UTC）。旧绿色原型仅供历史追溯，不得作为当前设计依据。
