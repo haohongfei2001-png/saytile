@@ -1,4 +1,5 @@
 """Measure 72 hours of the extracted application at idle using a new private test store."""
+from contextlib import closing
 import datetime
 import hashlib
 import json
@@ -29,7 +30,7 @@ def save(file, data):
     tmp.write_text(json.dumps(data,indent=2)+'\n')
     tmp.replace(out/file)
 def rowcount(store):
-    with sqlite3.connect((store/'Saytile.sqlite').resolve().as_uri()+'?mode=ro',uri=True) as db:
+    with closing(sqlite3.connect((store/'Saytile.sqlite').resolve().as_uri()+'?mode=ro',uri=True)) as db:
         return db.execute('select count(*) from recordings').fetchone()[0]
 with tempfile.TemporaryDirectory(prefix='saytile-machine-idle-') as td:
     store = Path(td)/'data'
@@ -53,7 +54,7 @@ with tempfile.TemporaryDirectory(prefix='saytile-machine-idle-') as td:
             samples.append(row)
             if now >= deadline: break
             time.sleep(min(60,deadline-now))
-        with sqlite3.connect((store/'Saytile.sqlite').resolve().as_uri()+'?mode=ro',uri=True) as db:
+        with closing(sqlite3.connect((store/'Saytile.sqlite').resolve().as_uri()+'?mode=ro',uri=True)) as db:
             assert db.execute('pragma integrity_check').fetchone()[0]=='ok'
         save('result.json',{**identity,'status':'PASS','scope':'Same paused process survived the 72-hour wall interval; resource distribution descriptive.', 'start_utc':utc(started),'end_utc':utc(now),'samples':len(samples),'wall_seconds':now-started,'max_rss_kib':max(r['rss_kib'] for r in samples),'last':samples[-1]})
     except BaseException as exc:

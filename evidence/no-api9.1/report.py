@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 base=Path(__file__).resolve().parent
 phase=sys.argv[1]
-assert phase in ('package','public','2h','repeat-start','2h-verified','72h','interrupted','repeat-interrupted')
+assert phase in ('package','public','2h','repeat-start','2h-verified','72h','interrupted','repeat-interrupted','fd-start','fd-interrupted')
 snap=base/'snapshots'/phase
 snap.mkdir(parents=True,exist_ok=False)
 def load(path): return json.loads(path.read_text())
@@ -38,8 +38,12 @@ c=lines(base/'sustained/controlled-wake.jsonl')
 row('受控睡眠和唤醒通知','PASS' if any('Mac 已睡眠' in s['controller_state'] for s in c) and c[-1]['controller_state']=='paused' else 'FAIL','生产 AudioController 转入中断，唤醒后重新检查明确的缺席设备，手动暂停时保持关闭。',['sustained/controlled-wake.jsonl','sustained/wake-identity.json'])
 paused=data('sustained/paused-wake.json'); assert paused['source_revision']==source
 row('暂停状态经历睡眠、唤醒后显示','PASS' if paused['pause_label_preserved'] else 'FAIL','P2：原本暂停时，受控唤醒后仍显示“Mac 已睡眠”，没有开麦或新增录音。',['sustained/paused-wake.json'])
-repeat_idle = phase in ('72h', 'repeat-interrupted') and (base / 'sustained/idle-repeat/soak/interval.json').is_file()
-idle_root = 'sustained/idle-repeat' if repeat_idle else 'sustained'
+idle_root = 'sustained'
+if phase in ('72h','fd-start','fd-interrupted') and (base/'sustained/idle-fd-fixed/soak/interval.json').exists():
+    idle_root = 'sustained/idle-fd-fixed'
+elif phase in ('72h','repeat-interrupted'):
+    idle_root = 'sustained/idle-repeat'
+repeat_idle = idle_root != 'sustained'
 for file, name in [('passive-wake.jsonl', 'passive-wake.jsonl'), ('soak/samples.jsonl', 'idle-samples.jsonl'),
                    ('process-resource.jsonl', 'process-resource.jsonl'), ('soak/result.json', 'idle-result.json')]:
     snapfile(idle_root + '/' + file, name)
@@ -116,6 +120,13 @@ if interruption_file.exists():
     row('首轮驻留观察中断', 'BLOCKED',
         f"同一 PID 最后一次记录为 {first['last_observed']['wall_seconds']/3600:.2f} 小时，共 {first['observed_samples']} 次。未取得退出原因或终态收据。独立测试库完整性 {first['isolated_database_integrity']}，录音 {first['isolated_recordings']}。复测独立计时。",
         ['sustained/soak/interruption.json','sustained/soak/interval.json'])
+if idle_root == 'sustained/idle-fd-fixed':
+    failed_observer = data('snapshots/repeat-interrupted/idle-result.json')
+    fd_check = data('sustained/idle-repeat/fd-reproduction.json')
+    assert failed_observer['source'] == fd_check['source'] == source and 'Errno 24' in failed_observer['cause']
+    row('第二轮驻留采样器文件描述符', 'FAIL',
+        f"采样器在 {failed_observer['elapsed_wall_seconds']/3600:.2f} 小时报 Errno 24 并主动终止当时仍在运行的候选。只读 SQLite 连接未逐次关闭；隔离重现在文件限额 64 时第 61 次采样失败。修正后 5,000 次采样全过，最多 4 个描述符。此次运行时间单独保留。",
+        ['snapshots/repeat-interrupted/idle-result.json', 'sustained/idle-repeat/fd-reproduction.json'])
 if ir and ir['status'] == 'PASS':
     assert ir['source'] == source and ir['binary_sha256'] == binary
     assert ir['samples'] == len(rs) and ir['wall_seconds'] >= 72 * 3600 and duration >= 72 * 3600

@@ -1,0 +1,16 @@
+{
+  "old": {
+    "completed": 60,
+    "peak_open": 64,
+    "error": "OSError(24, 'Too many open files')"
+  },
+  "fixed": {
+    "completed": 5000,
+    "peak_open": 4,
+    "error": null
+  },
+  "scope": "FD limit 64; isolated empty SQLite. Same rowcount extracted from the observer; repeated 5000 times, without sleeping. This tests only the measuring process.",
+  "python": "3.14.7",
+  "source": "0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0",
+  "old_observer_revision": "9ac8f9a8bc7fa2d431f1ff861617bcb6436667d0"
+}

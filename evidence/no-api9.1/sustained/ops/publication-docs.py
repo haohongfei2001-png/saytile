@@ -12,10 +12,14 @@ for name,title in [('docs/V1-NO-API-DELIVERY.md','Saytile V1 无密钥交付'),(
     body+="三家真实云服务、真人准确率、相比最强单模型的收益与确认延迟均待凭据与授权。实际系统睡眠与第二支独立物理麦克风保留各自状态。标准公开分发需要发行方 Developer ID 签名和公证。\n\n"
     if phase in ['package','public','2h','repeat-start','2h-verified']:
         body+='72 小时实时时钟的计划终点为北京时间 2026-11-10 19:54；终态以实际收据为准。\n\n'
-    if phase in ['interrupted','72h','repeat-interrupted']:
+    if phase in ['interrupted','72h','repeat-interrupted','fd-start','fd-interrupted']:
         end=json.loads((e/'sustained/idle-repeat/soak/interval.json').read_text())['due_utc']
         body+="首轮驻留取得 22.32 小时、1,340 次真实采样和两对内核睡醒记录。观察中断，未取得退出原因。复测时间独立，状态见同一源码的逐项机器验收。\n\n"
         if phase=='interrupted':body+=f"复测预定结束 {end}（UTC）。\n\n"
+    if phase in ['72h','fd-start','fd-interrupted']:
+        last=json.loads((e/'sustained/idle-fd-fixed/soak/interval.json').read_text())
+        body+="第二轮在 3.05 小时后因采样脚本未关闭只读 SQLite 连接而中止；修正后在同样的 64 文件限额下完成 5,000 次采样。连续驻留再次从零计时，应用源码与安装包均保持冻结。\n\n"
+        if phase=='fd-start':body+=f"本轮预定结束 {last['due_utc']}（UTC）。\n\n"
     body+=f"[原冻结版记录]({repo}/blob/45256e38fb2d52d1c583965bb259d3c27edafc79/docs/V1-NO-API-DELIVERY.md) · [安装与数据回退](V1-INSTALL.md)。\n"
     Path(name).write_text(body)
 read=Path('README.md');s=read.read_text();token='<!-- frozen-machine-current:end -->'

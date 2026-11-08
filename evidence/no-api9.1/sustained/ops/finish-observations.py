@@ -68,7 +68,7 @@ def checkpoint(phase):
             print(phase,'publication requires attention:',str(last),flush=True)
 if __name__=='__main__':
     if len(sys.argv)==2:
-        if sys.argv[1] not in ('public','2h','repeat-start','2h-verified','72h','interrupted','repeat-interrupted'):raise SystemExit('unknown phase')
+        if sys.argv[1] not in ('public','2h','repeat-start','2h-verified','72h','interrupted','repeat-interrupted','fd-start','fd-interrupted'):raise SystemExit('unknown phase')
         checkpoint(sys.argv[1]);raise SystemExit
     due=datetime.datetime.fromisoformat(iv['due_utc']).timestamp()
     start=datetime.datetime.fromisoformat(active['start_utc']).timestamp()

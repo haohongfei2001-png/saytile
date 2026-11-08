@@ -1,6 +1,6 @@
 # Saytile no-api.9.1 实机验收
 
-冻结源码 `0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0`。DMG SHA-256 `9d157becfa40e214b579036b03a178cffa85c96c6f0a54923809bd8110938339`。[下载候选](https://raw.githubusercontent.com/haohongfei2001-png/saytile/5ff88cb3ccf7c6ff4afb2f95360f5798d0be3632/deliverables/no-api.9.1/Saytile-1.0.0-rc.2-no-api.9.1-arm64.dmg) · [机器结果与收据指纹](snapshots/repeat-interrupted/machine.json)。
+冻结源码 `0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0`。DMG SHA-256 `9d157becfa40e214b579036b03a178cffa85c96c6f0a54923809bd8110938339`。[下载候选](https://raw.githubusercontent.com/haohongfei2001-png/saytile/5ff88cb3ccf7c6ff4afb2f95360f5798d0be3632/deliverables/no-api.9.1/Saytile-1.0.0-rc.2-no-api.9.1-arm64.dmg) · [机器结果与收据指纹](snapshots/fd-start/machine.json)。
 
 基线 no-api.9 显式选定内建麦克风时，计数探针复现了与产品相同的 AVAudioEngine 装配顺序导致的 SIGABRT。修补版只更改显式选定输入的硬件采集，默认设备和后续识别、存储、直接输入逻辑继承冻结基线。[修复提交](https://github.com/haohongfei2001-png/saytile/commit/0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0)。
 
@@ -27,10 +27,9 @@
 | 首次两小时试验的档案指纹 | **FAIL** | 首次运行正常退出，80 段均定稿、原音有效、零丢帧；同一 Swift 构建目录被存储验证重用，试验后静态库指纹改变，原始 FAIL 保留。复测单独构建并核对实际执行文件、静态库、输入语料和源码。 |
 | 两小时真实本地识别负载 | **PASS** | 实际 7200.58 秒，80 笔定稿、0 丢帧。 |
 | 首轮驻留观察中断 | **BLOCKED** | 同一 PID 最后一次记录为 22.32 小时，共 1340 次。未取得退出原因或终态收据。独立测试库完整性 ok，录音 0。复测独立计时。 |
-| 72 小时实际 App 驻留和进程资源 | **BLOCKED** | 3.04 小时，183 次采样，RSS 21,856–79,376 KiB，最大采样间隔 60.3 秒。到期 2026-11-11 19:23:51。 |
+| 第二轮驻留采样器文件描述符 | **FAIL** | 采样器在 3.05 小时报 Errno 24 并主动终止当时仍在运行的候选。只读 SQLite 连接未逐次关闭；隔离重现在文件限额 64 时第 61 次采样失败。修正后 5,000 次采样全过，最多 4 个描述符。此次运行时间单独保留。 |
+| 72 小时实际 App 驻留和进程资源 | **BLOCKED** | 0.00 小时，1 次采样，RSS 76,352–76,352 KiB，最大采样间隔 0.0 秒。到期 2026-11-12 07:28:28。 |
 | 整机功耗归因 | **BLOCKED** | 仅取得当前测试 PID 的内核能量、CPU、唤醒和物理内存计数，整机 powermetrics 需要管理员权限。 |
 | 真实云端认证、转写、质量收益及确认延迟 | **BLOCKED** | 真实调用为零。三项有效账户、相应模型权限和处理/费用授权、同一经许可的人声材料仍是前提。 |
-
-在 3.05 小时内，这个暂停驻留进程的 CPU 时间占单核墙钟 0.238%，内核归因的平均 CPU 能量折算为 0.560 mW。物理内存占用的首、末十分位区间中位数分别为 18.6、19.1 MiB。整机功耗单独列为 BLOCKED。
 
 真实云端待验证事项包括 Qwen 地域及 Workspace、AssemblyAI 模型权限、GPT-6 Astra 接收候选和结束定稿、同音频四阶段准确率及额外确认延迟。未进行付费调用或上传私人录音。

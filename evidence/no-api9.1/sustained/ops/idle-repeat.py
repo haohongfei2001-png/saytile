@@ -10,7 +10,10 @@ import time
 
 sustained = Path(__file__).resolve().parents[1]
 root = sustained.parents[2]
-out = sustained / 'idle-repeat'
+observation = sys.argv[2] if len(sys.argv) == 3 else 'idle-repeat'
+if observation not in ('idle-repeat', 'idle-fd-fixed'):
+    raise ValueError('Unknown observation directory')
+out = sustained / observation
 identity = json.loads((sustained.parent / 'app/identity.json').read_text())
 wake = Path(sys.argv[1]).resolve()
 expected_wake = json.loads((sustained / 'wake-identity.json').read_text())['probe_sha256']
@@ -40,6 +43,7 @@ def main():
         (out / 'observers.json').write_text(json.dumps({
             'source': manifest['source'], 'pid': manifest['pid'],
             'wake_probe_sha256': expected_wake,
+            'soak_script_sha256': hashlib.sha256((sustained / 'soak.py').read_bytes()).hexdigest(),
             'resource_observer_sha256': hashlib.sha256(resource.read_bytes()).hexdigest(),
             'duration_seconds': 72 * 3600, 'scope': 'Fresh uninterrupted run, no credited time from the previous PID.'
         }, indent=2) + '\n')
@@ -60,7 +64,7 @@ def main():
             'soak': status, 'resource': kernel_status, 'wake': wake_status,
             'source': manifest['source'], 'end_utc': datetime.datetime.now(datetime.timezone.utc).isoformat()
         }, indent=2) + '\n')
-        phase = '72h' if not any((status, kernel_status, wake_status)) else 'repeat-interrupted'
+        phase = '72h' if not any((status, kernel_status, wake_status)) else ('fd-interrupted' if observation == 'idle-fd-fixed' else 'repeat-interrupted')
         subprocess.run([sys.executable, sustained / 'ops/finish-observations.py', phase], cwd=root, check=True)
 
 if __name__ == '__main__':
