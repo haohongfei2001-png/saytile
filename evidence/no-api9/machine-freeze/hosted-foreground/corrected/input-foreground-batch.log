@@ -1,0 +1,11 @@
+FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0 background=false
+FIXTURE_READY
+WEB_FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0
+WEB_FIXTURE_READY
+FOREGROUND_PREFLIGHT existing_AX=true idle_seconds=189; original_pid=484; contents_not_read=true
+FIXTURE_RPC {"target":"native","command":"activate"}
+FIXTURE_REPLY native command=activate error=False value_omitted=true
+2026-11-07 11:26:06.073 AXWebFixture[2985:13011] NSSpellServer dataFromGeneratingCandidatesForSelectedRange timed out, index is 0
+FOREGROUND_BATCH_STOP unsupported
+2026-11-07 11:26:06.668 AXWebFixture[2985:13011] NSSpellServer dataFromGeneratingCandidatesForSelectedRange timed out, index is 0
+FOREGROUND_RESTORED original_pid=484; confirmed_by_PID_only=true

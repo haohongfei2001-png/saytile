@@ -1,0 +1,61 @@
+{
+  "scope": "Design experiment: Linux synthetic PCM and SQLite only",
+  "native_audio_asr_input_energy_measured": false,
+  "sample_rate": 16000,
+  "recovered_frames_per_crash": 48000,
+  "fixture_sha256": "b832507f8983815916417494552ee7e854bb0fcab9f62f3861cd4c1874bd70fe",
+  "passed": 10,
+  "total": 10,
+  "checks": [
+    {
+      "name": "crash_recovery_orphan",
+      "result": "PASS",
+      "detail": "Recovered 48,000 generated PCM frames; odd trailing byte removed when present."
+    },
+    {
+      "name": "crash_recovery_torn_tail",
+      "result": "PASS",
+      "detail": "Recovered 48,000 generated PCM frames; odd trailing byte removed when present."
+    },
+    {
+      "name": "schema_executes",
+      "result": "PASS",
+      "detail": "Proposed SQL schema executes with foreign keys enabled."
+    },
+    {
+      "name": "job_idempotency",
+      "result": "PASS",
+      "detail": "Re-enqueueing one source/model revision produces one job."
+    },
+    {
+      "name": "repeated_speech_is_not_deduplicated",
+      "result": "PASS",
+      "detail": "Equal words in two utterances remain two separate audio records."
+    },
+    {
+      "name": "user_edit_survives_late_asr",
+      "result": "PASS",
+      "detail": "Later recognition version does not replace the user-selected edit."
+    },
+    {
+      "name": "stale_attempt_ignored",
+      "result": "PASS",
+      "detail": "A cancelled/replaced worker cannot commit its delayed completion."
+    },
+    {
+      "name": "delete_generation_blocks_resurrection",
+      "result": "PASS",
+      "detail": "A completion from a prior content generation cannot recreate erased history."
+    },
+    {
+      "name": "uncertain_insert_does_not_replay_or_block_next",
+      "result": "PASS",
+      "detail": "After restart, uncertain paste is not replayed; another insertion stays independently eligible."
+    },
+    {
+      "name": "chinese_short_query_fallback",
+      "result": "PASS",
+      "detail": "Three-character trigram query and two-character LIKE fallback both return the record."
+    }
+  ]
+}

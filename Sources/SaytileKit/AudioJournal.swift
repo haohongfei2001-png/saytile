@@ -138,6 +138,10 @@ final class VoiceSegmenter {
                 }
             }
         }
+        // Data.removeFirst advances a slice without releasing its consumed
+        // allocation. Keep only the incomplete 20 ms frame, not the lifetime
+        // PCM prefix. The raw-byte initializer guarantees an independent copy.
+        pending = pending.withUnsafeBytes { Data($0) }
         return events
     }
     func finish() -> [Event] {

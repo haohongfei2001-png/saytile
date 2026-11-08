@@ -1,0 +1,109 @@
+name: Frozen no-api.9 foreground acceptance
+on:
+  push:
+    branches: ['codex/no-api9-ax-host-check']
+    paths:
+      - '.github/workflows/no-api9-machine-foreground.yml'
+      - 'evidence/no-api9/machine-freeze/foreground-request.json'
+permissions:
+  contents: read
+jobs:
+  owned-editors:
+    runs-on: macos-26
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0
+          persist-credentials: false
+      - name: Check the hosted GUI and run the existing owned-target batch
+        shell: bash
+        run: |
+          set -euo pipefail
+          export SAYTILE_ALLOW_FOREGROUND_INPUT_FIXTURES=1
+          export SAYTILE_INPUT_SCRATCH="$RUNNER_TEMP/foreground-build"
+          export SAYTILE_INPUT_EVIDENCE_DIRECTORY="$RUNNER_TEMP/foreground-evidence"
+          mkdir -p "$SAYTILE_INPUT_EVIDENCE_DIRECTORY"
+          receipt="$SAYTILE_INPUT_EVIDENCE_DIRECTORY/status.txt"
+          git rev-parse HEAD > "$receipt"
+          sw_vers >> "$receipt"
+          cat > "$RUNNER_TEMP/preflight.swift" <<'SWIFT'
+          import ApplicationServices
+          import Foundation
+          FileHandle.standardOutput.write(Data("checking existing AX trust\n".utf8))
+          let allowed = AXIsProcessTrusted()
+          FileHandle.standardOutput.write(Data((allowed ? "AX_TRUSTED\n" : "AX_UNTRUSTED\n").utf8))
+          SWIFT
+          swiftc "$RUNNER_TEMP/preflight.swift" -o "$RUNNER_TEMP/ax-preflight"
+          if ! "$RUNNER_TEMP/ax-preflight" > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/trust.txt" 2>&1; then
+            echo 'BLOCKED: hosted process failed while querying existing AX trust.' | tee -a "$receipt"
+            exit 0
+          elif grep -qx AX_UNTRUSTED "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/trust.txt"; then
+            echo 'BLOCKED: pre-existing hosted AX trust unavailable, no prompt or policy change.' | tee -a "$receipt"
+            exit 0
+          fi
+          # Correct the reproduced executor trap in the test timer only.
+          python3 - <<'PYTHON'
+          from pathlib import Path
+          import hashlib
+          p=Path('tests/fixtures/AXForegroundBatchProbe.swift')
+          s=p.read_text()
+          assert s.count('timer.setEventHandler {')==1
+          p.write_text(s.replace('timer.setEventHandler {','timer.setEventHandler { @Sendable in'))
+          print('test fixture SHA256', hashlib.sha256(p.read_bytes()).hexdigest())
+          PYTHON
+          git diff --exit-code -- Sources scripts packaging
+          git fetch --quiet --no-tags --depth=1 origin "$GITHUB_SHA"
+          git show "$GITHUB_SHA:evidence/no-api9/machine-freeze/HostedTextEdit.swift" > "$RUNNER_TEMP/HostedTextEdit.swift"
+          python3 - <<'PYTHON'
+          import os,runpy,subprocess,pathlib
+          helpers=runpy.run_path('scripts/test-input-native.py')
+          t=pathlib.Path(os.environ['RUNNER_TEMP'])
+          subprocess.run(['swiftc','-swift-version','6','-parse-as-library','-I','Sources/CSQLite',*helpers['production_flags'](),str(t/'HostedTextEdit.swift'),'-o',str(t/'owned-textedit')],check=True)
+          PYTHON
+          if SAYTILE_HOSTED_TARGETS=1 "$RUNNER_TEMP/owned-textedit" > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/textedit.txt" 2>&1; then
+            echo 'PASS TextEdit on owned document.' | tee -a "$receipt"
+          else
+            echo 'FAIL TextEdit owned-document acceptance.' | tee -a "$receipt"
+          fi
+          python3 - <<'PYTHON'
+          from pathlib import Path
+          p=Path('tests/fixtures/AXForegroundBatchProbe.swift')
+          s=p.read_text()
+          old='for (kind, pid) in [("native", nativePID), ("web", webPID)]'
+          assert s.count(old)==1
+          p.write_text(s.replace(old,'for (kind, pid) in [("web", webPID)]'))
+          PYTHON
+          if python3 scripts/test-input-native.py --foreground-batch > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/run.log" 2>&1; then
+            echo 'PASS WKWebView.' | tee -a "$receipt"
+          elif grep -Eq 'NOT_RUN|FOREGROUND_ABORT' "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/run.log" "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/input-foreground-batch.log" 2>/dev/null; then
+            echo 'BLOCKED WKWebView: see trace.' | tee -a "$receipt"
+          else
+            echo 'FAIL WKWebView: see foreground trace.' | tee -a "$receipt"
+          fi
+          ! grep -q '^FAIL' "$receipt"
+      - name: Collect crash reason for our test process only
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PYTHON'
+          import json, pathlib, os
+          reports = pathlib.Path.home() / 'Library/Logs/DiagnosticReports'
+          out = pathlib.Path(os.environ['RUNNER_TEMP']) / 'foreground-evidence'
+          for name in ('AXForegroundBatchProbe', 'ax-preflight'):
+              files = sorted(reports.glob(name+'*.ips'))
+              if not files: continue
+              raw = files[-1].read_text()
+              _, i = json.JSONDecoder().raw_decode(raw)
+              record = json.loads(raw[i:]) if raw[i:].strip() else json.loads(raw)
+              libs = record.get('usedImages', [])
+              frames = next((t.get('frames', []) for t in record.get('threads', []) if t.get('triggered')), [])
+              fields = {'process':name,'exception':record.get('exception'),'termination':record.get('termination'),'frames':[{'symbol':f.get('symbol'),'library':libs[f['imageIndex']].get('name')} for f in frames[:10] if f.get('imageIndex',-1) in range(len(libs))]}
+              (out/(name+'-cause.json')).write_text(json.dumps(fields,indent=2))
+          PYTHON
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frozen-foreground-receipt
+          path: ${{ runner.temp }}/foreground-evidence
+          if-no-files-found: error

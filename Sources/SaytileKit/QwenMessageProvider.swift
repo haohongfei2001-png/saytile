@@ -4,27 +4,41 @@ import CoreFoundation
 /// Qwen Message is an actual duplex PCM service. Intermediate results are explicitly
 /// enabled: the model's default message-oriented response is not a live-text contract.
 public struct QwenMessageProvider: StreamingASRProvider {
-    public init() {}
+    private let testEndpoint: URL?
+    private let timeoutOverride: TimeInterval?
+    private let onReady: @Sendable () -> Void
+    public init(onReady: @escaping @Sendable () -> Void = {}) {
+        testEndpoint = nil; timeoutOverride = nil; self.onReady = onReady
+    }
+    init(testEndpoint: URL, timeout: TimeInterval = 1, onReady: @escaping @Sendable () -> Void = {}) throws {
+        self.testEndpoint = try ProviderTestEndpoint.validate(testEndpoint, schemes: ["ws", "wss"])
+        guard timeout.isFinite, timeout > 0 else { throw ProviderFailure.configuration("协议测试超时须为正数。") }
+        timeoutOverride = timeout; self.onReady = onReady
+    }
 
     public func run(audio: AsyncStream<Data>, configuration: ModelConfiguration, credential: String,
                     emit: @escaping @Sendable (ProviderTranscriptEvent) async throws -> Void) async throws {
         let taskID = UUID().uuidString
-        let request = try QwenMessageCodec.request(configuration: configuration, credential: credential)
+        var request = try QwenMessageCodec.request(configuration: configuration, credential: credential)
+        if let testEndpoint { request = try ProviderTestEndpoint.applying(testEndpoint, to: request) }
         let start = try QwenMessageCodec.startMessage(configuration: configuration, taskID: taskID)
         let finish = try QwenMessageCodec.finishMessage(taskID: taskID)
         let session = ChineseASRWebSocket.makeSession()
         let socket = session.webSocketTask(with: request)
         defer { socket.cancel(with: .goingAway, reason: nil); session.invalidateAndCancel() }
-        try await withTaskCancellationHandler {
+        do { try await withTaskCancellationHandler {
             socket.resume()
-            try await ChineseASRWebSocket.send(.string(start), to: socket)
+            try await ChineseASRWebSocket.send(.string(start), to: socket, timeout: timeoutOverride ?? 20)
             var codec = QwenMessageCodec(taskID: taskID)
-            let first = try await ChineseASRWebSocket.receive(from: socket, timeout: 20)
+            let first = try await ChineseASRWebSocket.receive(from: socket, timeout: timeoutOverride ?? 20)
             _ = try codec.consume(ProviderJSON.object(first))
             guard codec.hasStarted else { throw ProviderFailure.protocolViolation("qwen_ready") }
+            try Task.checkCancellation()
+            onReady()
             try await ChineseASRWebSocket.stream(audio: audio, socket: socket, endMessage: finish,
-                                                decoder: codec, emit: emit)
+                                                decoder: codec, writeTimeout: timeoutOverride ?? 20, drainTimeout: timeoutOverride ?? 45, emit: emit)
         } onCancel: { socket.cancel(with: .goingAway, reason: nil) }
+        } catch { throw EnglishProviderSupport.failure(error, socket: socket) }
     }
 }
 
@@ -47,6 +61,9 @@ struct QwenMessageCodec: ChineseASRFrameDecoder {
         guard configuration.provider == .qwenMessage,
               configuration.model == "qwen-audio-3.1-asr-flash-message" else {
             throw ProviderFailure.configuration("此适配器支持 qwen-audio-3.1-asr-flash-message；其他 Qwen 协议需要独立适配器。")
+        }
+        guard configuration.cloudConsent else {
+            throw ProviderFailure.configuration("请先授权 Qwen 处理音频。")
         }
         try ChineseASRWebSocket.validateCredential(credential)
         guard let url = URL(string: "wss://\(configuration.workspaceID).\(configuration.region).maas.aliyuncs.com/api-ws/v1/inference") else {
@@ -92,11 +109,21 @@ struct QwenMessageCodec: ChineseASRFrameDecoder {
         }
         if event == "task-failed" {
             let code = (header["error_code"] as? String ?? "").lowercased()
-            if code.contains("auth") || code.contains("apikey") || code.contains("accessdenied") || code.contains("forbidden") {
+            if code.contains("workspace") || code.contains("region") { throw ProviderFailure.regionMismatch }
+            if code.contains("auth") || code.contains("apikey") {
                 throw ProviderFailure.authorization
             }
-            if code.contains("quota") || code.contains("limit") || code.contains("balance") || code.contains("arrear") {
+            if code.contains("accessdenied") || code.contains("forbidden") || code.contains("permission") {
+                throw ProviderFailure.permission
+            }
+            if code.contains("throttl") || code.contains("ratelimit") || code.contains("rate_limit") {
+                throw ProviderFailure.rateLimited
+            }
+            if code.contains("quota") || code.contains("balance") || code.contains("arrear") {
                 throw ProviderFailure.quota
+            }
+            if code.contains("invalidparameter") || code.contains("modelnotfound") || code.contains("unsupported") {
+                throw ProviderFailure.configuration("Qwen 模型或请求参数不受支持；请检查模型配置。")
             }
             // Do not surface error_message, which may contain credentials or user audio text.
             throw ProviderFailure.connection
@@ -122,7 +149,8 @@ struct QwenMessageCodec: ChineseASRFrameDecoder {
             }
             return snapshot()
         case "task-finished":
-            guard hasStarted, segments.values.allSatisfy({ $0.text.isEmpty || $0.isFinal }) else {
+            guard hasStarted, segments.values.allSatisfy({ $0.text.isEmpty || $0.isFinal }),
+                  segments.keys.sorted() == Array(1..<(segments.count + 1)) else {
                 throw ProviderFailure.incomplete
             }
             isComplete = true
@@ -133,11 +161,15 @@ struct QwenMessageCodec: ChineseASRFrameDecoder {
     }
 
     private mutating func update(_ sentence: [String: Any], finalKey: String?) throws -> Int {
-        guard let id = sentence["sentence_id"] as? Int, id >= 0,
-              let text = sentence["text"] as? String else {
+        guard let id = sentence["sentence_id"] as? Int, id > 0, id < 100_000,
+              let text = sentence["text"] as? String, text.utf16.count <= 1_000_000 else {
             throw ProviderFailure.protocolViolation("qwen_segment")
         }
         let final = finalKey.flatMap { sentence[$0] as? Bool } ?? false
+        if let prior = segments[id], prior.isFinal {
+            guard !final || prior.text == text else { throw ProviderFailure.protocolViolation("qwen_conflicting_final") }
+            return id
+        }
         let start = ChineseASRWebSocket.seconds(sentence["begin_time"])
         var end = ChineseASRWebSocket.seconds(sentence["end_time"])
             ?? ChineseASRWebSocket.seconds(sentence["current_time"])
@@ -198,11 +230,11 @@ struct QwenMessageCodec: ChineseASRFrameDecoder {
 
     private func snapshot() -> ProviderTranscriptEvent {
         let ordered = segments.sorted { $0.key < $1.key }
-        var text = "", stable = 0, stableOpen = true, previousID: Int?
+        var text = "", stable = 0, stableOpen = true, expectedID = 1
         var tokens: [ProviderToken] = [], fullyTimed = true, hasSentenceTokens = false
         for (id, segment) in ordered {
-            if let previousID, id != previousID + 1 { stableOpen = false }
-            previousID = id
+            if id != expectedID { stableOpen = false }
+            expectedID = id + 1
             text += segment.text
             if !segment.isFinal { stableOpen = false }
             if stableOpen { stable += segment.text.utf16.count }
@@ -254,11 +286,11 @@ enum ChineseASRWebSocket {
         let time = value.doubleValue / 1000
         return time.isFinite && time >= 0 ? time : nil
     }
-    static func send(_ message: URLSessionWebSocketTask.Message, to socket: URLSessionWebSocketTask) async throws {
+    static func send(_ message: URLSessionWebSocketTask.Message, to socket: URLSessionWebSocketTask, timeout: TimeInterval = 20) async throws {
         try await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask { try await socket.send(message) }
             group.addTask {
-                try await Task.sleep(for: .seconds(20))
+                try await Task.sleep(for: .seconds(timeout))
                 socket.cancel(with: .goingAway, reason: nil)
                 throw ProviderFailure.connection
             }
@@ -281,6 +313,7 @@ enum ChineseASRWebSocket {
     }
     static func stream<D: ChineseASRFrameDecoder>(audio: AsyncStream<Data>, socket: URLSessionWebSocketTask,
                                                  endMessage: String, decoder: D,
+                                                 writeTimeout: TimeInterval = 20, drainTimeout: TimeInterval = 45,
                                                  emit: @escaping @Sendable (ProviderTranscriptEvent) async throws -> Void) async throws {
         let endState = EndState()
         try await withThrowingTaskGroup(of: Bool.self) { group in
@@ -288,12 +321,12 @@ enum ChineseASRWebSocket {
                 for await frame in audio {
                     try Task.checkCancellation()
                     guard frame.count.isMultiple(of: 2) else { throw ProviderFailure.protocolViolation("pcm_alignment") }
-                    if !frame.isEmpty { try await send(.data(frame), to: socket) }
+                    if !frame.isEmpty { try await send(.data(frame), to: socket, timeout: writeTimeout) }
                 }
                 try Task.checkCancellation()
                 await endState.request()
                 // EOS shares the sole audio writer and cannot overtake a queued PCM frame.
-                try await send(.string(endMessage), to: socket)
+                try await send(.string(endMessage), to: socket, timeout: writeTimeout)
                 return false
             }
             group.addTask {
@@ -320,7 +353,7 @@ enum ChineseASRWebSocket {
                 // Only starts when all audio and EOS were sent. Active speech has no
                 // fixed utterance deadline; finalization has a bounded drain window.
                 group.addTask {
-                    try await Task.sleep(for: .seconds(45))
+                    try await Task.sleep(for: .seconds(drainTimeout))
                     socket.cancel(with: .goingAway, reason: nil)
                     throw ProviderFailure.incomplete
                 }

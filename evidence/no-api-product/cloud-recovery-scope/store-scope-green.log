@@ -1,0 +1,129 @@
+Building for debugging...
+[1 / 1]
+[2 / 7] SaytileKitTests-product
+[4 / 9] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[9 / 13] SaytileKitTests-product
+Build complete! (2.06秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "RC store ownership, migrations and archive" started.
+◇ Suite "Saved audio cloud authorization scopes" started.
+◇ Suite "Owned store path boundaries" started.
+◇ Suite "Owned range correction production path with synthetic OS and SQLite" started.
+◇ Test secondOwnerCannotInvalidateActiveRecording() started.
+◇ Test corruptRowReturnsErrorInsteadOfCrashing() started.
+◇ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() started.
+◇ Test sqliteFullRollsBackWholeTransaction() started.
+◇ Test panelIncludesAllSessionPagesAndExplicitHistoryOnlyOnce() started.
+◇ Test failedMigrationRollsBackAllDDLAndKeepsVersion() started.
+◇ Test schemaFourUpgradeLeavesExistingLocalAudioUnauthorized() started.
+◇ Test sqliteNumericRoundTripsPreserveFullPrecision() started.
+◇ Test futureDatabaseRefusedWithoutChangingJournalOrBytes() started.
+◇ Test draftSearchAndHistorySurviveAudioErasure() started.
+◇ Test explicitScopeSurvivesRestartWithoutGrantingOtherRecordings() started.
+◇ Test grantTransactionRollsBackAndDatabaseFailureIsNotReportedAsPermission() started.
+◇ Test changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test audioErasureKeepsMetadataButRecordErasureRemovesAuthorization() started.
+◇ Test physicalRecordDeletionCascadesAndMalformedScopeFailsClosed() started.
+◇ Test invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test audioRootSymlinkIsRejectedWithoutTouchingDestination() started.
+◇ Test shorterRepairKeepsInsertionLedgerMonotone() started.
+◇ Test unsupportedReplacementPendingDoesNotBlockIndependentRecord() started.
+◇ Test crashAfterReservationIsUnverifiedAndCannotReserveAgain() started.
+◇ Test databaseSymlinkIsRejectedWithoutModifyingExternalFile() started.
+◇ Test subsetAndNonDestinationChangesDoNotRequireAnotherGrant() started.
+◇ Test userEditAndUndoStillInvalidatesOwnership() started.
+◇ Test incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test realGPTCoreFinalizationPublishesActionableCorrectionFromFakeProviders() started.
+◇ Test v3MigrationPreservesLedgerAndInvalidatesOnlyRuntimeOwnership() started.
+◇ Test uncertainReplacementConsumedOnceAndRestartCannotReplay() started.
+◇ Test contextualGraphemeBoundariesAndByteIdentityAreMandatory() started.
+◇ Test durableReservationPrecedesSelectedRangeAndInvalidationPreventsTextSetter() started.
+◇ Test localRecoveryAfterShorteningRepairKeepsEffectivePrefixAndAddsOnlySuffix() started.
+◇ Test newerEvidenceRevokesStaleCorrectionEvenBeforePublication() started.
+◇ Test unconfirmedInitialInsertionCannotCreateOwnershipAndDoesNotBlockNewRecord() started.
+◇ Test laterInsertionDefersEarlierCorrectionWithoutGlobalBlock() started.
+◇ Test changedTargetNeverMutated(change:) started.
+◇ Test deleteAudioKeepsCorrectionHistoryButDeleteRecordErasesIt() started.
+◇ Test lengthChangingRepairPreservesUserPrefixSuffixAndAppendsOnlyNewSuffix() started.
+◇ Test case passing 1 argument change → "identity" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "disabled" to invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test case passing 1 argument change → "empty" to invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test case passing 1 argument change → "provider" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "noAudio" to invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test case passing 1 argument change → "consent" to invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test case passing 1 argument change → "model" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "invalidModel" to invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test case passing 1 argument change → "region" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "duplicateIdentity" to invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) started.
+◇ Test case passing 1 argument change → "workspace" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "purpose" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "fusionRegion" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "fusionModel" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument change → "credentialGeneration" to changedDestinationCannotInheritSavedAudioPermission(change:) started.
+◇ Test case passing 1 argument mode → "raw" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument state → "queued" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test case passing 1 argument mode → "partial" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument state → "failedExpert" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test case passing 1 argument mode → "unresolved" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument state → "failedSession" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test case passing 1 argument mode → "draft" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "edit" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument state → "newGeneration" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test case passing 1 argument mode → "unobservable" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "unreadable" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+✔ Test sqliteNumericRoundTripsPreserveFullPrecision() passed after 0.101 seconds.
+✔ Test futureDatabaseRefusedWithoutChangingJournalOrBytes() passed after 0.101 seconds.
+◇ Test case passing 1 argument change → "ownedEdit" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "prefixEdit" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "suffixEdit" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "focus" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "page" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "control" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "selection" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "caret" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "canonical" to changedTargetNeverMutated(change:) started.
+✔ Test sqliteFullRollsBackWholeTransaction() passed after 0.101 seconds.
+✔ Test corruptRowReturnsErrorInsteadOfCrashing() passed after 0.101 seconds.
+✔ Test secondOwnerCannotInvalidateActiveRecording() passed after 0.101 seconds.
+✔ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() passed after 0.101 seconds.
+✔ Test grantTransactionRollsBackAndDatabaseFailureIsNotReportedAsPermission() passed after 0.101 seconds.
+✔ Test explicitScopeSurvivesRestartWithoutGrantingOtherRecordings() passed after 0.101 seconds.
+✔ Test draftSearchAndHistorySurviveAudioErasure() passed after 0.101 seconds.
+✔ Test audioRootSymlinkIsRejectedWithoutTouchingDestination() passed after 0.101 seconds.
+✔ Test failedMigrationRollsBackAllDDLAndKeepsVersion() passed after 0.101 seconds.
+✔ Test audioErasureKeepsMetadataButRecordErasureRemovesAuthorization() passed after 0.101 seconds.
+✔ Test schemaFourUpgradeLeavesExistingLocalAudioUnauthorized() passed after 0.102 seconds.
+✔ Test physicalRecordDeletionCascadesAndMalformedScopeFailsClosed() passed after 0.101 seconds.
+✔ Test databaseSymlinkIsRejectedWithoutModifyingExternalFile() passed after 0.101 seconds.
+✔ Suite "Owned store path boundaries" passed after 0.102 seconds.
+✔ Test invalidOrUnconsentedConfigurationNeverGrantsPartialPermission(change:) with 6 test cases passed after 0.105 seconds.
+✔ Test changedDestinationCannotInheritSavedAudioPermission(change:) with 9 test cases passed after 0.123 seconds.
+✔ Test subsetAndNonDestinationChangesDoNotRequireAnotherGrant() passed after 0.123 seconds.
+✔ Suite "Saved audio cloud authorization scopes" passed after 0.123 seconds.
+✔ Test panelIncludesAllSessionPagesAndExplicitHistoryOnlyOnce() passed after 0.132 seconds.
+✔ Suite "RC store ownership, migrations and archive" passed after 0.132 seconds.
+✔ Test contextualGraphemeBoundariesAndByteIdentityAreMandatory() passed after 0.234 seconds.
+✔ Test v3MigrationPreservesLedgerAndInvalidatesOnlyRuntimeOwnership() passed after 0.436 seconds.
+✔ Test userEditAndUndoStillInvalidatesOwnership() passed after 0.438 seconds.
+✔ Test changedTargetNeverMutated(change:) with 9 test cases passed after 0.420 seconds.
+✔ Test durableReservationPrecedesSelectedRangeAndInvalidationPreventsTextSetter() passed after 0.453 seconds.
+✔ Test cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) with 4 test cases passed after 0.458 seconds.
+✔ Test newerEvidenceRevokesStaleCorrectionEvenBeforePublication() passed after 0.431 seconds.
+✔ Test incompleteOrUnownedEvidenceCannotRepair(mode:) with 7 test cases passed after 0.461 seconds.
+✔ Test crashAfterReservationIsUnverifiedAndCannotReserveAgain() passed after 0.463 seconds.
+✔ Test uncertainReplacementConsumedOnceAndRestartCannotReplay() passed after 0.463 seconds.
+✔ Test deleteAudioKeepsCorrectionHistoryButDeleteRecordErasesIt() passed after 0.453 seconds.
+✔ Test unsupportedReplacementPendingDoesNotBlockIndependentRecord() passed after 0.546 seconds.
+✔ Test shorterRepairKeepsInsertionLedgerMonotone() passed after 0.565 seconds.
+✔ Test lengthChangingRepairPreservesUserPrefixSuffixAndAppendsOnlyNewSuffix() passed after 0.541 seconds.
+✔ Test localRecoveryAfterShorteningRepairKeepsEffectivePrefixAndAddsOnlySuffix() passed after 0.572 seconds.
+✔ Test laterInsertionDefersEarlierCorrectionWithoutGlobalBlock() passed after 0.581 seconds.
+✔ Test unconfirmedInitialInsertionCannotCreateOwnershipAndDoesNotBlockNewRecord() passed after 0.945 seconds.
+✔ Test realGPTCoreFinalizationPublishesActionableCorrectionFromFakeProviders() passed after 0.988 seconds.
+✔ Suite "Owned range correction production path with synthetic OS and SQLite" passed after 0.988 seconds.
+✔ Test run with 37 tests in 4 suites passed after 0.988 seconds.

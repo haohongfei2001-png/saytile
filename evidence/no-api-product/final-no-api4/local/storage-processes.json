@@ -1,0 +1,26 @@
+{
+  "scope": "Real SIGKILL subprocess; compiled released Beta/RC1 storage-source upgrade and explicit preupgrade-copy rollback; synthetic temporary data only",
+  "checks": [
+    "real_kernel_write_failure_is_atomic_and_recoverable",
+    "actual_beta_to_schema5_preserves_all_existing_columns_rows_and_audio",
+    "actual_rc1_to_schema5_preserves_all_existing_columns_rows_and_audio",
+    "released_rc1_refuses_schema5_without_content_change",
+    "explicit_preupgrade_copy_opens_in_rc1_while_rc2_data_is_preserved",
+    "second_process_rejected_without_mutating_live_store",
+    "crash-seed_sigkill",
+    "wal_durable_data_and_nonreplay_after_sigkill",
+    "crash-transaction_sigkill",
+    "uncommitted_transaction_rolled_back_after_sigkill",
+    "crash-delete_sigkill",
+    "erasure_intent_survives_sigkill_without_losing_text"
+  ],
+  "passed": 12,
+  "status": "PASS",
+  "baseline_revisions": {
+    "v1.0.0-beta.1": "a371864cc9d4285701e670c457b7d9fabad41251",
+    "v1.0.0-rc.1": "a352a1c812c33388a1a908f21ecde30da80ad1cd"
+  },
+  "probe_sha256": "f704c4abc8788f37701abb37620f4f440f2b910a54942aa2bbc626bc1f3bc39e",
+  "source_revision": "a6849128e12e88560daa52fce48f6f2d805a88aa",
+  "source_dirty": false
+}

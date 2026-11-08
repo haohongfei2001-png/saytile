@@ -1,0 +1,225 @@
+{
+  "head": "a6849128e12e88560daa52fce48f6f2d805a88aa",
+  "tree": "5ab4abea901e1d880abadbe4b4b673ca939f076d",
+  "checkout_merge_sha": "8f3b3122d3c205a8b33f1e330fdc15649e521e0b",
+  "checkout_tree": "5ab4abea901e1d880abadbe4b4b673ca939f076d",
+  "merge_parents": [
+    {
+      "sha": "4fa637a47ce869b7c7aade0ea7c0c121162e10ee",
+      "role": "PR5 base branch, not main"
+    },
+    {
+      "sha": "a6849128e12e88560daa52fce48f6f2d805a88aa",
+      "role": "PR6 head"
+    }
+  ],
+  "runs": {
+    "workflow_runs": [
+      {
+        "id": 42314923515,
+        "name": "Saytile design contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 94,
+        "jobs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/42314923515/jobs",
+        "logs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/42314923515/logs",
+        "workflow_id": 408543631
+      },
+      {
+        "id": 42314923680,
+        "name": "Saytile native",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_number": 68,
+        "jobs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/42314923680/jobs",
+        "logs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/42314923680/logs",
+        "workflow_id": 408681640
+      }
+    ]
+  },
+  "design_jobs": {
+    "jobs": [
+      {
+        "id": 128225077936,
+        "name": "data-and-prototype",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 42314923515,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run python -m pip install -r tests/requirements.txt",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run python -m playwright install --with-deps chromium",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Offline ASR quality metrics and provenance",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run python scripts/verify.py --ui",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          }
+        ]
+      }
+    ]
+  },
+  "native_jobs": {
+    "jobs": [
+      {
+        "id": 128225162243,
+        "name": "native",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_id": 42314923680,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run swift --version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Inherited Swift contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Real localhost provider protocols (no API keys)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run scripts/test-app-model.sh",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run scripts/build-app.sh",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Isolated cloud probe CLI boundaries",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Isolated connection setup CLI boundaries",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Native windows with synthetic data",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 10
+          },
+          {
+            "name": "Isolated startup without microphone",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 11
+          },
+          {
+            "name": "Preserve app bundle permissions",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 13
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27
+          }
+        ]
+      }
+    ]
+  },
+  "native_functions": 386,
+  "native_suites": 46,
+  "local_expanded_scenarios": 506,
+  "app_model_checks": 78,
+  "ci_ui_controls": "NOT_RUN; render-only CI path does not provision an AX helper",
+  "failure": "Render-only first interaction trailing closure bound to unconditional validation; UI_REVIEW_FAILED Native UI control helper not configured",
+  "reruns": 0
+}

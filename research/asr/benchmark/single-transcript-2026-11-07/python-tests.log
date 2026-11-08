@@ -1,0 +1,25 @@
+test_audio_integrity_actual_pcm_and_hash (test_harness.PreparationTests.test_audio_integrity_actual_pcm_and_hash) ... ok
+test_changed_preparation_not_overwritten (test_harness.PreparationTests.test_changed_preparation_not_overwritten) ... ok
+test_frozen_ids_hashes_and_no_reselection (test_harness.PreparationTests.test_frozen_ids_hashes_and_no_reselection) ... ok
+test_prepare_no_authorization_no_gold_no_execution (test_harness.PreparationTests.test_prepare_no_authorization_no_gold_no_execution) ... ok
+test_shapes_same_core_and_original_uuids (test_harness.PreparationTests.test_shapes_same_core_and_original_uuids) ... ok
+test_configuration_drift_across_clips_rejected (test_harness.ScoringTests.test_configuration_drift_across_clips_rejected) ... ok
+test_duplicate_event_and_gold_provenance_rejected (test_harness.ScoringTests.test_duplicate_event_and_gold_provenance_rejected) ... ok
+test_duplicate_unknown_or_synthetic_index_rejected (test_harness.ScoringTests.test_duplicate_unknown_or_synthetic_index_rejected) ... ok
+test_exact_snapshot_mismatch_and_missing_latency (test_harness.ScoringTests.test_exact_snapshot_mismatch_and_missing_latency) ... ok
+test_failure_preserved_not_counted_as_observed_gpt (test_harness.ScoringTests.test_failure_preserved_not_counted_as_observed_gpt) ... ok
+test_foreign_generation_is_not_a_raw_or_gpt_revision (test_harness.ScoringTests.test_foreign_generation_is_not_a_raw_or_gpt_revision) ... ok
+test_identity_mismatches_rejected (test_harness.ScoringTests.test_identity_mismatches_rejected) ... ok
+test_index_generation_does_not_synthesize_missing_exports (test_harness.ScoringTests.test_index_generation_does_not_synthesize_missing_exports) ... ok
+test_multiple_exports_are_not_best_of_selected (test_harness.ScoringTests.test_multiple_exports_are_not_best_of_selected) ... ok
+test_native_export_index_scoring_and_receipt_tamper (test_harness.ScoringTests.test_native_export_index_scoring_and_receipt_tamper) ... ok
+test_not_run_is_null_not_perfect_score (test_harness.ScoringTests.test_not_run_is_null_not_perfect_score) ... ok
+test_pair_source_audio_and_parameters_are_checked (test_harness.ScoringTests.test_pair_source_audio_and_parameters_are_checked) ... ok
+test_partial_and_missing_gpt_response_never_use_whole_gold (test_harness.ScoringTests.test_partial_and_missing_gpt_response_never_use_whole_gold) ... ok
+test_recorded_wrong_output_not_replaced_with_gold (test_harness.ScoringTests.test_recorded_wrong_output_not_replaced_with_gold) ... ok
+test_repaired_and_introduced_errors_both_visible (test_harness.ScoringTests.test_repaired_and_introduced_errors_both_visible) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.099s
+
+OK

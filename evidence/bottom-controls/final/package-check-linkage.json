@@ -1,0 +1,50 @@
+{
+  "source_revision": "455143310222c2c03c4a4888e5df5552c3af4131",
+  "source_dirty": false,
+  "executable_sha256": "a19afd08e13e2756b7b0953a17b4c8219afb17247edf7590b9dec2dad827eb52",
+  "dmg_sha256": "157c34adb7a457e2a4449c1b25ff1f7d65821e866d0d9fd08b5c0a3650ff6633",
+  "checks": {
+    "cloud-probe-cli": {
+      "report_sha256": "780122d85e45e3eab82f42a3e38fd9e73073e5832cd37e406fc91ff06e83cfed",
+      "scope": "See the specified report.",
+      "number": 17
+    },
+    "connection-setup-cli": {
+      "report_sha256": "c6320594855e5d6c8c89219e1399911516222a01be3af4fbd8606e61f94b053c",
+      "scope": "See the specified report.",
+      "number": 7
+    },
+    "install-upgrade": {
+      "report_sha256": "55be1130abd62d05be21966f3893cf3967a767e8bec30efe65304b05fe3195a4",
+      "scope": "Readonly DMG signature, explicit candidate source/version/binary identity, independent installation, actual released app and candidate startup/upgrade, exact synthetic content/audio comparison, explicit copy rollback and duplicate-instance rejection; held candidate has ephemeral preferences with no cloud/recovery/shortcut/window; no real user database or microphone",
+      "number": 8
+    },
+    "uninstall-reinstall": {
+      "report_sha256": "e0ee468eecb7c15956fc3999846610128da729246b749cd3612cc68b868f007a",
+      "scope": "Owned temporary app/data only; no production directory, credential mutation, microphone, cloud call, or system security bypass",
+      "number": null
+    },
+    "app-idle": {
+      "report_sha256": "e0068b7be36d4a94be26797b0804d62cfc88458603217152029dd6db08a651bc",
+      "scope": "Packaged app idle, menu-bar state observers and AppModel refresh, empty isolated database and ephemeral preferences, no microphone, no ASR, no windows or global shortcut; ends by intentional SIGTERM",
+      "number": null
+    },
+    "ui/manifest": {
+      "report_sha256": "c2583c5925d772fb6372b906a7f96dccc937c670daf2fd9fbc3ecea6d6dfada2",
+      "scope": "Production SwiftUI and NSTextView in transparent nonactivating AppKit windows that cannot become key/main; actual key/main state checked around validation, controls, capture and field edits; fixture PID only; synthetic data; native selection/scroll checks use owned AppKit controls and Store updates; whole-panel AX inspections enumerate every pressable control and require exactly bottom-left copy and bottom-right voice capsule, no visible static state labels; native copy-host menu opens empty-panel settings; transcript-host AXShowMenu menus cover edit, latest, modes, bind/insert availability and navigation; render-only mode captures all three ordinary states and standby while background review remains active; voice entry and preference toggles do not change capture; capture actions and first-connection credentials/verification are injected; TEST_ONLY live-shaped receipt is controller evidence only; first-connection and compact-panel fixtures use no Keychain; preceding settings render performs scoped metadata presence only, no credential reads; only a unique private pasteboard is written for selected/full copy; no provider/network/microphone/global keys/general clipboard access/external target; candidate activation rejected; outside foreground transitions recorded without causal claims",
+      "number": true
+    },
+    "ui-render-only/manifest": {
+      "report_sha256": "75578e9761ce1b50a37fc496ccd05d52bd177eaddb8fc87ff35cee4e6878dbdc",
+      "scope": "Production SwiftUI and NSTextView in transparent nonactivating AppKit windows that cannot become key/main; actual key/main state checked around validation, controls, capture and field edits; fixture PID only; synthetic data; native selection/scroll checks use owned AppKit controls and Store updates; whole-panel AX inspections enumerate every pressable control and require exactly bottom-left copy and bottom-right voice capsule, no visible static state labels; native copy-host menu opens empty-panel settings; transcript-host AXShowMenu menus cover edit, latest, modes, bind/insert availability and navigation; render-only mode captures all three ordinary states and standby while background review remains active; voice entry and preference toggles do not change capture; capture actions and first-connection credentials/verification are injected; TEST_ONLY live-shaped receipt is controller evidence only; first-connection and compact-panel fixtures use no Keychain; preceding settings render performs scoped metadata presence only, no credential reads; only a unique private pasteboard is written for selected/full copy; no provider/network/microphone/global keys/general clipboard access/external target; candidate activation rejected; outside foreground transitions recorded without causal claims",
+      "number": true
+    },
+    "startup-focus.log": {
+      "report_sha256": "ba0933a67408af6343fce365519520becb43e7ffaff6ae234c3c1af605146eda"
+    },
+    "startup-focus-identities.txt": {
+      "report_sha256": "6b9fa06f0d2af8e140f41367032132a0d34f97c665c48b1b5d4aa1103886de2c"
+    }
+  },
+  "note": "Binary hashed after extraction and after these package checks. CLI and startup use the extracted executable; install uses the same verified DMG and explicitly matches the installed executable. Independent synthetic data only."
+}

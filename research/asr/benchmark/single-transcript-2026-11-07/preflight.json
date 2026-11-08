@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "source_commit": "a9cffae52d544b8a8939fce13d735b5ec1f2bc4f",
+  "frozen_plan_sha256": "cd2ea2725258f899756e343a6647ed1f3ac41d070a97796476a91369c8458943",
+  "manifest_sha256": "5a5d9809f016f4119c6e3e9d48ce8b62aecae8bb9a5ab050a73c9cb627f5407f",
+  "reference_annotations": {
+    "path": "research/asr/benchmark/quality-evaluation/unit-annotations.json",
+    "sha256": "328ffe7cf01ef77b19d845dbb7766693d6ca0b98e907f2bb7a58a5557b440b85",
+    "overlay_id": "reference-critical-v3-reviewed-numbers-negations-2026-11-07",
+    "reviewed_originals": 112,
+    "annotations_added": 68,
+    "annotations_added_by_type": {
+      "unit": 8,
+      "number": 34,
+      "negation": 26
+    },
+    "reference_occurrences_added_by_type": {
+      "negation": 28,
+      "number": 36,
+      "unit": 10
+    },
+    "reference_occurrences_added": 74
+  },
+  "access_preflight_sha256": "7a8bdfb8cb5d30e6b3aed5411725c0d08352855d829c7901700613f923f7bfa0",
+  "access_metadata": {
+    "configuration_present": false,
+    "cloud_enabled": false,
+    "enabled_services": [],
+    "matching_item_count": 0,
+    "metadata_query_status": -25300,
+    "secret_values_requested": false,
+    "permission_prompt_allowed": false,
+    "paid_requests": 0,
+    "audio_uploaded": false
+  },
+  "cloud_status": "BLOCKED",
+  "cloud_performance": null,
+  "blockers": [
+    {
+      "code": "CONFIGURATION_MISSING",
+      "applies_to": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "status": "BLOCKED"
+    },
+    {
+      "code": "KEYCHAIN_KEYS_MISSING",
+      "applies_to": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "status": "BLOCKED"
+    },
+    {
+      "code": "CLOUD_DISABLED",
+      "applies_to": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "status": "BLOCKED"
+    },
+    {
+      "code": "PROCESSING_AND_COST_AUTHORIZATION_NOT_GRANTED",
+      "applies_to": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "status": "BLOCKED"
+    },
+    {
+      "code": "QWEN_APPROVED_WORKSPACE_NOT_SUPPLIED",
+      "applies_to": [
+        "A",
+        "C",
+        "E"
+      ],
+      "status": "BLOCKED"
+    },
+    {
+      "code": "NATIVE_CANDIDATE_NOT_VALIDATED",
+      "applies_to": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "code": "D_MULTILINGUAL_SINGLE_EXPERT_VALIDATION_PENDING",
+      "applies_to": [
+        "D"
+      ],
+      "status": "BLOCKED_AT_INSPECTED_SOURCE"
+    }
+  ],
+  "F": {
+    "status": "NOT_AVAILABLE",
+    "metrics": null,
+    "reason": "Product contract: gpt-6-astra official native audio input is not supported."
+  },
+  "corpus": {
+    "manifest_rows": 134,
+    "on_disk_manifest_samples": 112,
+    "verified_originals": 112,
+    "absent_manifest_samples": [
+      "ascend-01059--gain-minus20db",
+      "ascend-01059--white-noise-15db",
+      "ascend-01059--tempo-1.2",
+      "ascend-00123--gain-minus20db",
+      "ascend-00123--white-noise-15db",
+      "ascend-00123--tempo-1.2",
+      "ascend-00792--gain-minus20db",
+      "ascend-00792--white-noise-15db",
+      "ascend-00792--tempo-1.2",
+      "ascend-00355--gain-minus20db",
+      "ascend-00355--white-noise-15db",
+      "ascend-00355--tempo-1.2",
+      "ascend-01047--gain-minus20db",
+      "ascend-01047--white-noise-15db",
+      "ascend-01047--tempo-1.2",
+      "ascend-01109--gain-minus20db",
+      "ascend-01109--white-noise-15db",
+      "ascend-01109--tempo-1.2",
+      "continuous-concatenation-mixed",
+      "continuous-concatenation-zh",
+      "negative-control-silence",
+      "negative-control-quiet-noise"
+    ],
+    "on_disk_wav_files": 112,
+    "panel_count": 24,
+    "panel_verified": 24,
+    "panel_language_counts": {
+      "zh": 8,
+      "en": 8,
+      "mixed": 8
+    }
+  },
+  "historical": [
+    {
+      "id": "legacy_apple_fixed_zh",
+      "path": "research/asr/results/direct/apple-direct-fixed-zh.jsonl",
+      "sha256": "873dadbbd54d06590cb08e55b5a4dc7329cd555b3dd08ba4ab3212cf4a786c4b",
+      "records": 112,
+      "status": "VERIFIED_HISTORICAL",
+      "locale_policy": "fixed_zh-CN",
+      "cloud_A_E_records": 0
+    },
+    {
+      "id": "legacy_apple_oracle_locale",
+      "path": "research/asr/results/direct/apple-direct-oracle-locale.jsonl",
+      "sha256": "80e08bf6ff8b1319d34f9bc654e4d880708a118f4bc172b9988a0df6a52ba0b3",
+      "records": 112,
+      "status": "VERIFIED_HISTORICAL",
+      "locale_policy": "known_reference_language_oracle_not_production_routing",
+      "cloud_A_E_records": 0
+    },
+    {
+      "id": "legacy_qwen_mlx_1_7b_bf16",
+      "path": "research/asr/results/direct/qwen-direct.jsonl",
+      "sha256": "8f6d1c694da21ec1ab094c9d237b55ac5f251d55a76cb684b9f2b9e7bdf1fbb5",
+      "records": 112,
+      "status": "VERIFIED_HISTORICAL",
+      "locale_policy": null,
+      "cloud_A_E_records": 0
+    }
+  ],
+  "historical_verified_records": 336,
+  "local_only": true,
+  "remote_state": "NOT_RUN_LOCAL_ONLY_INSTRUCTION",
+  "limitations": [
+    "Historical oracle locale is not automatic mixed-language routing.",
+    "Qwen Message and AssemblyAI are engineering candidates, not winners.",
+    "Metadata is a receipt at inspection time, not current permission or per-provider validation."
+  ],
+  "audio_integrity_receipt": {
+    "file": "preflight-audio-integrity.json",
+    "sha256": "0f966d74e9bae88c880a58b6f20cb539ec594ddb98d9101ab80c98a7f3480d2b"
+  }
+}

@@ -1,0 +1,135 @@
+Building for debugging...
+[Planning deferred tasks]
+[38 / 117]
+[70 / 128]
+[91 / 128]
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[97 / 128] SaytileKit
+[107 / 267]
+[112 / 267]
+[122 / 267]
+[125 / 267]
+[131 / 267]
+[134 / 267]
+[142 / 267]
+[144 / 267]
+[147 / 267]
+[148 / 267]
+[162 / 267]
+[163 / 267]
+[168 / 267]
+[173 / 267]
+[174 / 267]
+[175 / 267]
+[182 / 267]
+[184 / 267]
+[190 / 267]
+[191 / 267]
+[194 / 267]
+[196 / 267]
+[207 / 267]
+[208 / 267]
+[209 / 267]
+[210 / 267]
+[214 / 267]
+[219 / 267]
+[222 / 267]
+[223 / 267]
+[224 / 267]
+[225 / 267]
+[236 / 267] SaytileKit
+[247 / 268] SaytileKit
+[247 / 268] Saytile-product
+[250 / 279] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[256 / 280] SaytileKitTests-product
+[257 / 295]
+[260 / 295]
+[270 / 295] SaytileKitTests-product
+[271 / 295] SaytileKitTests-product
+[271 / 295]
+[273 / 295] Saytile-product
+[280 / 295] Saytile-product
+[281 / 295] Saytile-product
+[282 / 295] Saytile-product
+[284 / 295] Saytile-product
+[285 / 295] Saytile-product
+[285 / 295] SaytileKitTests-product
+[285 / 295] Saytile-product
+[285 / 295] SaytileKitTests-product
+[287 / 295] Saytile-product/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[289 / 295] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[291 / 295] SaytileKitTests-product
+Build complete! (36.82秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Automatic cloud outage to durable Apple candidate failover" started.
+◇ Test rateLimitUsesLocalThenWaitsAtLeastServerBackoffBeforeNextCloudProbe() started.
+◇ Test localFinalConflictingWithExternalPrefixCannotClaimCompletion() started.
+◇ Test nonNetworkFailureStopsAutomaticCloudAttempts(reason:) started.
+◇ Test unavailableAppleQueuesAndNextRecordingIsLocalWithoutAToggle(supported:) started.
+◇ Test circuitCoalescesFailuresBoundsProbesAndSeparatesAuthorization() started.
+◇ Test recoveryPreservesExternalReservationWithoutRepeatingStableText(state:) started.
+◇ Test liveFailureFollowsDurableTailThenRestoresDualCloudOnNextSegment() started.
+◇ Test revocationDuringAvailabilityFencesHandoverAndDropsOldOwners() started.
+◇ Test case passing 1 argument reason → .permission to nonNetworkFailureStopsAutomaticCloudAttempts(reason:) started.
+◇ Test case passing 1 argument reason → .quota to nonNetworkFailureStopsAutomaticCloudAttempts(reason:) started.
+◇ Test case passing 1 argument reason → .authorization to nonNetworkFailureStopsAutomaticCloudAttempts(reason:) started.
+◇ Test case passing 1 argument reason → .regionMismatch to nonNetworkFailureStopsAutomaticCloudAttempts(reason:) started.
+◇ Test case passing 1 argument supported → false to unavailableAppleQueuesAndNextRecordingIsLocalWithoutAToggle(supported:) started.
+◇ Test case passing 1 argument state → .confirmed to recoveryPreservesExternalReservationWithoutRepeatingStableText(state:) started.
+✘ Test circuitCoalescesFailuresBoundsProbesAndSeparatesAuthorization() recorded an issue at OfflineFailoverTests.swift:353:13: Expectation failed: !blocked.admitCloud().0
+↳ !blocked.admitCloud().0 → true
+↳   blocked.admitCloud().0 → false
+↳     blocked.admitCloud() → (true, nil)
+↳       .0 → true
+↳       .1 → nil
+↳     0 → true
+✘ Test circuitCoalescesFailuresBoundsProbesAndSeparatesAuthorization() recorded an issue at OfflineFailoverTests.swift:353:13: Expectation failed: !blocked.admitCloud().0
+↳ !blocked.admitCloud().0 → true
+↳   blocked.admitCloud().0 → false
+↳     blocked.admitCloud() → (true, nil)
+↳       .0 → true
+↳       .1 → nil
+↳     0 → true
+◇ Test case passing 1 argument supported → true to unavailableAppleQueuesAndNextRecordingIsLocalWithoutAToggle(supported:) started.
+◇ Test case passing 1 argument state → .unverified to recoveryPreservesExternalReservationWithoutRepeatingStableText(state:) started.
+✘ Test circuitCoalescesFailuresBoundsProbesAndSeparatesAuthorization() failed after 0.031 seconds with 2 issues.
+✘ Test rateLimitUsesLocalThenWaitsAtLeastServerBackoffBeforeNextCloudProbe() recorded an issue at OfflineFailoverTests.swift:294:9: Expectation failed: await f.probe.localStarts == 1
+↳ await f.probe.localStarts == 1 → <not evaluated>
+✘ Test rateLimitUsesLocalThenWaitsAtLeastServerBackoffBeforeNextCloudProbe() recorded an issue at OfflineFailoverTests.swift:295:9: Expectation failed: try await f.store.recording(id: first)?.recognitionState == .completed
+↳ try await f.store.recording(id: first)?.recognitionState == .completed → <not evaluated>
+✔ Test localFinalConflictingWithExternalPrefixCannotClaimCompletion() passed after 0.050 seconds.
+✘ Test rateLimitUsesLocalThenWaitsAtLeastServerBackoffBeforeNextCloudProbe() recorded an issue at OfflineFailoverTests.swift:300:9: Expectation failed: await f.probe.cloudStarts == starts
+↳ await f.probe.cloudStarts == starts → <not evaluated>
+✘ Test rateLimitUsesLocalThenWaitsAtLeastServerBackoffBeforeNextCloudProbe() recorded an issue at OfflineFailoverTests.swift:301:9: Expectation failed: await f.probe.localStarts == 2
+↳ await f.probe.localStarts == 2 → <not evaluated>
+✘ Test nonNetworkFailureStopsAutomaticCloudAttempts(reason:) recorded an issue with 1 argument reason → .permission at OfflineFailoverTests.swift:281:9: Expectation failed: await f.probe.cloudStarts == starts
+↳ await f.probe.cloudStarts == starts → <not evaluated>
+✘ Test nonNetworkFailureStopsAutomaticCloudAttempts(reason:) recorded an issue with 1 argument reason → .permission at OfflineFailoverTests.swift:282:9: Expectation failed: await f.probe.localStarts == 2
+↳ await f.probe.localStarts == 2 → <not evaluated>
+✘ Test nonNetworkFailureStopsAutomaticCloudAttempts(reason:) recorded an issue with 1 argument reason → .permission at OfflineFailoverTests.swift:283:9: Expectation failed: try await f.store.recording(id: id)?.recognitionState == .completed
+↳ try await f.store.recording(id: id)?.recognitionState == .completed → <not evaluated>
+✘ Test nonNetworkFailureStopsAutomaticCloudAttempts(reason:) recorded an issue with 1 argument reason → .regionMismatch at OfflineFailoverTests.swift:281:9: Expectation failed: await f.probe.cloudStarts == starts
+↳ await f.probe.cloudStarts == starts → <not evaluated>
+✘ Test nonNetworkFailureStopsAutomaticCloudAttempts(reason:) recorded an issue with 1 argument reason → .regionMismatch at OfflineFailoverTests.swift:282:9: Expectation failed: await f.probe.localStarts == 2
+↳ await f.probe.localStarts == 2 → <not evaluated>
+✘ Test nonNetworkFailureStopsAutomaticCloudAttempts(reason:) recorded an issue with 1 argument reason → .regionMismatch at OfflineFailoverTests.swift:283:9: Expectation failed: try await f.store.recording(id: id)?.recognitionState == .completed
+↳ try await f.store.recording(id: id)?.recognitionState == .completed → <not evaluated>
+✔ Test revocationDuringAvailabilityFencesHandoverAndDropsOldOwners() passed after 0.052 seconds.
+✔ Test unavailableAppleQueuesAndNextRecordingIsLocalWithoutAToggle(supported:) with 2 test cases passed after 0.102 seconds.
+✘ Test nonNetworkFailureStopsAutomaticCloudAttempts(reason:) with 4 test cases failed after 0.152 seconds with 6 issues.
+✔ Test recoveryPreservesExternalReservationWithoutRepeatingStableText(state:) with 2 test cases passed after 0.154 seconds.
+✘ Test rateLimitUsesLocalThenWaitsAtLeastServerBackoffBeforeNextCloudProbe() recorded an issue at OfflineFailoverTests.swift:306:9: Expectation failed: await f.probe.cloudStarts == starts + 2
+↳ await f.probe.cloudStarts == starts + 2 → <not evaluated>
+✘ Test rateLimitUsesLocalThenWaitsAtLeastServerBackoffBeforeNextCloudProbe() failed after 0.358 seconds with 5 issues.
+✔ Test liveFailureFollowsDurableTailThenRestoresDualCloudOnNextSegment() passed after 1.529 seconds.
+✘ Suite "Automatic cloud outage to durable Apple candidate failover" failed after 1.529 seconds with 13 issues.
+✘ Test run with 8 tests in 1 suite failed after 1.529 seconds with 13 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

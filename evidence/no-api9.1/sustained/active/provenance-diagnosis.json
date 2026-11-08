@@ -1,0 +1,7 @@
+{
+  "source": "0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0",
+  "recorded_archive_before": "b5be3f5a79712ec41a1701318d543840c3012aff9c15a426a0afeb7975dc5f31",
+  "shared_archive_after": "895abf6cdc64f5f1ae43db12ec4e1960a990a53cf85e17ae423d09a4f279ef82",
+  "shared_archive_mtime_utc": "2026-11-07T11:58:37.880176+00:00",
+  "note": "The independent storage verification used a symlink to the same Swift scratch directory after the speech process started. Its build rewrote the archive. The integrity condition failed; the original FAIL is preserved. The retry builds its own archive inside a private temporary directory and checks the executable, library, fixtures and frozen inputs at both ends."
+}

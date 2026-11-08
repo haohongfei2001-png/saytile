@@ -71,20 +71,7 @@ actor CaptureWorker {
                 let n = samples.withUnsafeMutableBufferPointer { st_ring_read(ring.pointer, $0.baseAddress!, UInt32($0.count)) }
                 if n > 0 {
                     lastFramesAt = Date()
-                    let buffer = AVAudioPCMBuffer(pcmFormat: sourceFormat, frameCapacity: n)!
-                    buffer.frameLength = n
-                    samples.withUnsafeBufferPointer { buffer.floatChannelData![0].update(from: $0.baseAddress!, count: Int(n)) }
-                    let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: UInt32(ceil(Double(n) * 16_000 / sampleRate) + 32))!
-                    var supplied = false; var error: NSError?
-                    let status = converter.convert(to: output, error: &error) { _, state in
-                        if supplied { state.pointee = .noDataNow; return nil }
-                        supplied = true; state.pointee = .haveData; return buffer
-                    }
-                    if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
-                    if output.frameLength > 0 {
-                        let pcm = Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)
-                        try await acceptPCM(pcm)
-                    }
+                    for pcm in try convertCapturedSamples(samples, count: n) { try await acceptPCM(pcm) }
                     let energy = samples.prefix(Int(n)).reduce(Float(0)) { $0 + $1 * $1 } / Float(n)
                     update(segmenter.speaking, min(1, sqrt(energy) * 7))
                 }
@@ -94,6 +81,40 @@ actor CaptureWorker {
             }
         } catch is CancellationError { }
         catch { await cleanupCaptureFailure(error); await failed(error.localizedDescription) }
+    }
+    func convertCapturedSamples(_ samples: [Float], count: UInt32) throws -> [Data] {
+        precondition(count > 0 && Int(count) <= samples.count)
+        let buffer = AVAudioPCMBuffer(pcmFormat: sourceFormat, frameCapacity: count)!
+        buffer.frameLength = count
+        samples.withUnsafeBufferPointer { buffer.floatChannelData![0].update(from: $0.baseAddress!, count: Int(count)) }
+        var supplied = false, result: [Data] = []
+        repeat {
+            let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: UInt32(ceil(Double(count) * 16_000 / sampleRate) + 32))!
+            var error: NSError?
+            let status = converter.convert(to: output, error: &error) { _, state in
+                if supplied { state.pointee = .noDataNow; return nil }
+                supplied = true; state.pointee = .haveData; return buffer
+            }
+            if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+            if output.frameLength > 0 { result.append(Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)) }
+            // A smaller output buffer can be filled entirely from the converter's
+            // earlier input. Keep this newly read ring batch until the callback
+            // actually accepts it; otherwise it vanishes without a ring overflow.
+            if !supplied && output.frameLength == 0 { throw AudioFailure.message("收音格式转换未继续处理输入，请恢复录音") }
+        } while !supplied
+        return result
+    }
+    func drainConvertedTail() throws -> [Data] {
+        var result: [Data] = []
+        while true {
+            let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: 4_096)!
+            var error: NSError?
+            let status = converter.convert(to: output, error: &error) { _, state in state.pointee = .endOfStream; return nil }
+            if status == .error { throw error ?? AudioFailure.message("收音尾部转换失败") as NSError }
+            if output.frameLength > 0 { result.append(Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)) }
+            if output.frameLength == 0 || status == .endOfStream { break }
+        }
+        return result
     }
     func acceptPCM(_ pcm: Data) async throws {
         for event in segmenter.accept(pcm) {
@@ -105,20 +126,16 @@ actor CaptureWorker {
         }
     }
     func flushTail() async throws {
-        while true {
-            let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: 4_096)!
-            var error: NSError?
-            let status = converter.convert(to: output, error: &error) { _, state in state.pointee = .endOfStream; return nil }
-            if status == .error { throw error ?? AudioFailure.message("收音尾部转换失败") as NSError }
-            if output.frameLength > 0 { try await acceptPCM(Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)) }
-            if output.frameLength == 0 || status == .endOfStream { break }
-        }
+        for pcm in try drainConvertedTail() { try await acceptPCM(pcm) }
         for event in segmenter.finish() {
             if case let .audio(data) = event { try await append(data) }
             if case .end = event { try await endUtterance() }
         }
     }
     func beginUtterance() async throws {
+        // A settings change during journal creation must not grant new destinations
+        // to audio that began under a local-only or older consent configuration.
+        let snapshot = recognitionFactory.snapshot
         let record = try await store.createRecording()
         recordingID = record.id
         do {
@@ -132,8 +149,10 @@ actor CaptureWorker {
         // Recognition setup cannot terminate the independent recorder.
         do {
             guard recognitionEnabled else { return }
-            let snapshot = recognitionFactory.snapshot
             let config = snapshot.configuration
+            if config.cloudEnabled {
+                try await store.authorizeCloudRecovery(recordingID: record.id, configuration: config)
+            }
             let ticket = try await (config.cloudEnabled
                 ? store.beginFusionRecognition(recordingID: record.id, mode: config.inputMode)
                 : store.beginRecognition(recordingID: record.id))
@@ -237,6 +256,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     @Published public private(set) var reprocessingID: UUID?
     private let store: SaytileStore
     private let recognitionFactory: RecognitionSessionFactory
+    private var pinnedInput: PinnedAudioInput?
     private var engine: AVAudioEngine?
     private var worker: CaptureWorker?
     private var stopTask: Task<Void, Never>?
@@ -270,9 +290,13 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     private var startupRecoveryReady: Bool
     private var meterTask: Task<Void, Never>?
     private var meterContinuation: AsyncStream<(Bool, Float)>.Continuation?
-    public init(store: SaytileStore, recognitionConfiguration: RecognitionConfiguration = RecognitionConfiguration(), startupRecoveryReady: Bool = true) {
+    public convenience init(store: SaytileStore, recognitionConfiguration: RecognitionConfiguration = RecognitionConfiguration(), startupRecoveryReady: Bool = true) {
+        self.init(store: store, recognitionFactory: RecognitionSessionFactory(configuration: recognitionConfiguration),
+                  startupRecoveryReady: startupRecoveryReady)
+    }
+    init(store: SaytileStore, recognitionFactory: RecognitionSessionFactory, startupRecoveryReady: Bool = true) {
         self.startupRecoveryReady = startupRecoveryReady
-        self.store = store; self.recognitionFactory = RecognitionSessionFactory(configuration: recognitionConfiguration)
+        self.store = store; self.recognitionFactory = recognitionFactory
         super.init(); refreshDevices()
         let center = NSWorkspace.shared.notificationCenter
         observers.append(center.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
@@ -320,6 +344,9 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 } else if AudioLifecycleGate.requiresPermissionSuspension(state: self.state, authorization: AVCaptureDevice.authorizationStatus(for: .audio)) {
                     self.requestedRunning = false
                     await self.suspend(reason: "麦克风权限已撤回，请在系统设置恢复权限后重新开启")
+                } else if let pinned = self.pinnedInput, self.state.isRunning {
+                    do { try pinned.checkProgress() }
+                    catch { await self.suspend(reason: error.localizedDescription); self.refreshDevices() }
                 } else if !previouslyAllowed && self.lifecycleGate.permitsCapture && self.requestedRunning {
                     await self.start(requestPermission: false)
                 }
@@ -350,13 +377,26 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         self.init(store: store, startupRecoveryReady: false)
         worker = initialWorker
     }
+    private var recognitionSettingsGeneration: UInt64 = 0
+    /// Revoke future cloud sessions synchronously, before awaiting cancellation of old work.
+    public func revokeCloudRecognition() {
+        recognitionSettingsGeneration &+= 1
+        var local = recognitionFactory.configuration; local.cloudEnabled = false
+        recognitionFactory.update(local)
+        retryTask?.cancel()
+        speechStatus = "云端已停用 · 本机识别"
+    }
     public func setRecognitionConfiguration(_ configuration: RecognitionConfiguration) async {
+        recognitionSettingsGeneration &+= 1
+        let generation = recognitionSettingsGeneration
         recognitionFactory.update(configuration)
-        // Revocation takes effect immediately, including closed-input review tasks.
         await worker?.cancelRecognitionAndWait()
         for old in drainingWorkers { await old.cancelRecognitionAndWait() }
+        guard generation == recognitionSettingsGeneration else { return }
         retryTask?.cancel()
-        speechStatus = configuration.cloudEnabled ? "中英文并行识别 · " + configuration.inputMode.label : await AppleSpeechService.availability().message
+        let message = configuration.cloudEnabled ? "中英文并行识别 · " + configuration.inputMode.label : await AppleSpeechService.availability().message
+        guard generation == recognitionSettingsGeneration else { return }
+        speechStatus = message
     }
     /// Best-effort cancellation of in-flight requests. Already received remote audio
     /// cannot be recalled; Store's epoch guard also rejects every later callback.
@@ -404,23 +444,26 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         var tapInstalled = false
         do {
             refreshDevices()
-            let resolvedDevice: UInt32
+            let selected: AudioInputDevice?
             if let uid = selectedDeviceUID {
                 guard let device = devices.first(where: { $0.uid == uid }) else { throw AudioFailure.message("所选麦克风未连接，请连接设备或明确选择另一个麦克风") }
-                resolvedDevice = device.id
-            } else { resolvedDevice = selectedDeviceID }
-            let engine = AVAudioEngine()
-            startingEngine = engine
-            let input = engine.inputNode
-            if resolvedDevice != 0 {
-                var id = resolvedDevice
-                guard let audioUnit = input.audioUnit else { throw AudioFailure.message("所选麦克风的音频单元不可用") }
-                let result = AudioUnitSetProperty(audioUnit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0, &id, UInt32(MemoryLayout.size(ofValue: id)))
-                guard result == noErr else { throw AudioFailure.message("所选麦克风不可用，请重新选择") }
+                selected = device
+            } else if selectedDeviceID != 0 {
+                guard let device = devices.first(where: { $0.id == selectedDeviceID }) else { throw AudioFailure.message("所选麦克风未连接") }
+                selected = device
+            } else {
+                selected = nil
             }
-            let format = input.outputFormat(forBus: 0)
-            guard format.sampleRate > 0, format.channelCount > 0, format.commonFormat == .pcmFormatFloat32, !format.isInterleaved else { throw AudioFailure.message("麦克风格式不受支持") }
-            let ring = try AudioRing(capacity: UInt32(format.sampleRate * 4))
+            let pinned = try selected.map(PinnedAudioInput.init)
+            let engine = pinned == nil ? AVAudioEngine() : nil
+            startingEngine = engine
+            let input = engine?.inputNode
+            let format = input?.outputFormat(forBus: 0)
+            if let format {
+                guard format.sampleRate > 0, format.channelCount > 0, format.commonFormat == .pcmFormatFloat32, !format.isInterleaved else { throw AudioFailure.message("麦克风格式不受支持") }
+            }
+            guard let sampleRate = pinned?.sampleRate ?? format?.sampleRate else { throw AudioFailure.message("没有可用的麦克风") }
+            let ring = try AudioRing(capacity: UInt32(sampleRate * 4))
             let (meter, meterContinuation) = AsyncStream<(Bool, Float)>.makeStream(bufferingPolicy: .bufferingNewest(1))
             self.meterContinuation = meterContinuation
             meterTask = Task { [weak self] in
@@ -436,13 +479,22 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                     }
                 }
             }
-            let worker = try CaptureWorker(store: store, ring: ring, sampleRate: format.sampleRate, recognitionFactory: recognitionFactory, update: { speaking, level in
+            let worker = try CaptureWorker(store: store, ring: ring, sampleRate: sampleRate, recognitionFactory: recognitionFactory, update: { speaking, level in
                 meterContinuation.yield((speaking, level))
             }, failed: { [weak self] message in Task { @MainActor in await self?.suspend(reason: message) } })
-            let channelCount = format.channelCount
-            input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.recording(ring: ring, channels: channelCount, sampleRate: format.sampleRate))
-            tapInstalled = true
-            engine.prepare(); try engine.start()
+            if let pinned {
+                pinnedInput = pinned
+                try pinned.start(ring: ring)
+                while pinned.frames == 0 {
+                    try await Task.sleep(for: .milliseconds(20))
+                    guard generation == startGeneration, requestedRunning, state == .starting else { return }
+                    try pinned.checkProgress()
+                }
+            } else if let engine, let input, let format {
+                input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.recording(ring: ring, channels: format.channelCount, sampleRate: format.sampleRate))
+                tapInstalled = true
+                engine.prepare(); try engine.start()
+            }
             self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
             await worker.start()
             if !automaticAssetAttempted && !recognitionFactory.usesCloud {
@@ -455,6 +507,8 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 }
             }
         } catch {
+            guard generation == startGeneration else { return }
+            pinnedInput?.stop(); pinnedInput = nil
             startingEngine?.stop()
             if tapInstalled { startingEngine?.inputNode.removeTap(onBus: 0) }
             meterContinuation?.finish(); meterContinuation = nil
@@ -465,6 +519,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     public func pause() async { startGeneration &+= 1; playbackGeneration &+= 1; requestedRunning = false; playbackResume = false; state = .paused; await stopCapture() }
     private func stopCapture() async {
         if let stopTask { await stopTask.value; return }
+        pinnedInput?.stop(); pinnedInput = nil
         engine?.stop(); engine?.inputNode.removeTap(onBus: 0); engine = nil
         let old = worker; worker = nil; ring = nil; level = 0
         meterContinuation?.finish(); meterContinuation = nil; meterTask?.cancel(); meterTask = nil
@@ -613,9 +668,25 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         startupRecoveryReady && !isShuttingDown && lifecycleGate.permitsCapture && playingID == nil && retryTask == nil &&
         (state == .paused || (state == .listening && Date().timeIntervalSince(lastVoiceAt) >= 5))
     }
-    public func retry(recordingID: UUID, isAutomatic: Bool = false) async {
+    public func retry(recordingID: UUID, isAutomatic: Bool = false,
+                      expectedConfiguration: RecognitionConfiguration? = nil) async {
         guard !isShuttingDown else { return }
-        if !isAutomatic { try? await store.resetRecognitionRetry(recordingID: recordingID) }
+        // Capture the explicit action's destinations before any suspension. An
+        // automatic job can only reuse persisted per-recording authorization.
+        let currentSnapshot = recognitionFactory.snapshot
+        // The UI captures its applied configuration at the click. A queued task
+        // cannot silently acquire different cloud destinations before it starts.
+        let requestedSnapshot = expectedConfiguration == nil || expectedConfiguration == currentSnapshot.configuration
+            ? currentSnapshot : currentSnapshot.localOnly
+        if !isAutomatic {
+            do {
+                if requestedSnapshot.configuration.cloudEnabled {
+                    try await store.authorizeCloudRecovery(recordingID: recordingID, configuration: requestedSnapshot.configuration)
+                }
+                try await store.resetRecognitionRetry(recordingID: recordingID)
+            } catch { issue = error.localizedDescription; return }
+        }
+        guard !isShuttingDown else { return }
         if state == .speaking || state == .starting {
             try? await store.queueRecognition(recordingID: recordingID)
             if isAutomatic { try? await store.releaseRecoveryClaim(recordingID: recordingID) }
@@ -629,13 +700,26 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             var lease: UUID?
             var session: (any RecognitionSession)?
             do {
+                try Task.checkCancellation()
+                let authorized = try await store.permitsAutomaticCloudRecovery(recordingID: recordingID,
+                    configuration: requestedSnapshot.configuration)
+                let snapshot = authorized ? requestedSnapshot : requestedSnapshot.localOnly
+                let config = snapshot.configuration
+                if isAutomatic && !config.cloudEnabled {
+                    let availability = await recognitionFactory.localAvailability()
+                    try Task.checkCancellation()
+                    guard availability.installed else {
+                        try await store.releaseRecoveryClaim(recordingID: recordingID)
+                        return
+                    }
+                }
+                try Task.checkCancellation()
                 lease = try await store.acquireAudioLease(recordingID: recordingID)
                 let chunks = try await store.audioChunks(recordingID: recordingID)
-                let snapshot = recognitionFactory.snapshot
-                let config = snapshot.configuration
                 let ticket = try await (config.cloudEnabled
                     ? store.beginFusionRecognition(recordingID: recordingID, mode: config.inputMode)
                     : store.beginRecognition(recordingID: recordingID))
+                try Task.checkCancellation()
                 let activeSession = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot)
                 session = activeSession
                 for chunk in chunks {

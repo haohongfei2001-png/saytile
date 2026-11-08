@@ -1,0 +1,6 @@
+--- committed 341523d ReferencePanelSurface
++++ disposable trial 0.35
+@@ material instance only @@
+             ReferenceGlassBackdrop()
++                .opacity(reduceTransparency ? 1 : 0.35)
+             shape.fill(.white.opacity(reduceTransparency ? 1 : 0.46))

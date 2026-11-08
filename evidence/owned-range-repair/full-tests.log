@@ -1,0 +1,757 @@
+warning: /Users/hhf/Library/org.swift.swiftpm/configuration is not accessible or not writable, disabling user-level cache features.
+warning: /Users/hhf/Library/org.swift.swiftpm/security is not accessible or not writable, disabling user-level cache features.
+warning: /Users/hhf/Library/Caches/org.swift.swiftpm is not accessible or not writable, disabling user-level cache features.
+warning: 'repair-repo': failed storing manifest for 'repair-repo' in cache: attempt to write a readonly database
+Building for debugging...
+[Computing dependencies]
+[11 / 61] CAudio
+[34 / 61] CAudio
+[49 / 61] CAudio
+/Users/hhf/.codex/saytile-single-transcript-20261107/repair-repo/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[61 / 72] SaytileKit
+[61 / 72] CAudio
+[61 / 72] SaytileKit
+[65 / 76] SaytileKit
+[65 / 76] Saytile-product
+[69 / 84] Saytile-product
+[70 / 84] Saytile-product
+[71 / 84] Saytile-product
+[73 / 84] SaytileKit
+[73 / 84] Saytile-product
+[73 / 84] SaytileKit
+/Users/hhf/.codex/saytile-single-transcript-20261107/repair-repo/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[80 / 86] SaytileKitTests-product
+/Users/hhf/.codex/saytile-single-transcript-20261107/repair-repo/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/saytile-single-transcript-20261107/repair-repo/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[91 / 98] Saytile-product
+[92 / 98] Saytile-product
+[95 / 99] SaytileKitTests-product
+/Users/hhf/.codex/saytile-single-transcript-20261107/repair-repo/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/saytile-single-transcript-20261107/repair-repo/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[97 / 99] SaytileKitTests-product
+Build complete! (13.71秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Isolated real Keychain credentials" started.
+◇ Suite "Fusion store authority and measurement" started.
+◇ Suite "Evidence-constrained fusion publication" started.
+◇ Suite "Capture shutdown tail" started.
+◇ Suite "Persistent single GPT transport, deterministic no-network protocol" started.
+◇ Suite "Isolated connection setup without provider requests" started.
+◇ Suite "Display geometry" started.
+◇ Suite "Input identity and safety" started.
+◇ Suite "Capture storage failures" started.
+◇ Suite "English provider wire contracts; no cloud calls" started.
+◇ Suite "Real-time tap actor isolation" started.
+◇ Suite "Independent lifecycle stop reasons" started.
+◇ Suite "Capture session ownership across suspension" started.
+◇ Suite "Owned range correction production path with synthetic OS and SQLite" started.
+◇ Suite "Speech range aggregation" started.
+◇ Suite "Recognition settings generation admission" started.
+◇ Suite "Real coordinator with isolated persistence and controlled providers" started.
+◇ Suite "Chinese and multilingual provider wire contracts" started.
+◇ Suite "Journal range and local candidate integration" started.
+◇ Suite "Audio controller shutdown" started.
+◇ Suite "Audio file boundary recovery" started.
+◇ Suite "Silent production AVAudioPlayer integration" started.
+◇ Suite "Recognition setup configuration" started.
+◇ Suite "Input coordinator with isolated SQLite and simulated OS" started.
+◇ Suite "RC store ownership, migrations and archive" started.
+◇ Suite "Chunked playback seeking" started.
+◇ Suite "Explicit local multi-ASR probe boundaries" started.
+◇ Suite "Decoded arbitration response audit" started.
+◇ Suite "Meta Muse actual streaming protocol; no cloud calls" started.
+◇ Suite "Single transcript engine configuration" started.
+◇ Suite "Actual current-generation recognition presentation" started.
+◇ Suite "Owned store path boundaries" started.
+◇ Suite "Parallel audio and precision review boundaries" started.
+◇ Suite "Production capture to single-core recognition with isolated transports" started.
+◇ Test storeRejectsSymlinkEscape() started.
+◇ Suite "Audio journal, bounded ring and VAD" started.
+◇ Suite "Arbiter evidence and blind acoustic review" started.
+◇ Test storeDispatchUTF16RejectsSurrogateAndGraphemeSplit() started.
+◇ Test multiNewGenerationMayCorrectUnsentCompleteVersion() started.
+◇ Test storeStorageSummaryUsesActualFiles() started.
+◇ Test storeRecordDeletionRemovesTextAndSearch() started.
+◇ Test storeEmptyDraftAndExplicitDiscardRemainDistinct() started.
+◇ Test multiMetaReviewRetirementDoesNotGrantAcousticCoverage() started.
+◇ Test storeNewAttemptRejectsOldCallback() started.
+◇ Test storeDirectCandidatesIncludeChangedPrefixButSkipDuplicateLatestFinal() started.
+◇ Test multiRebaseRejectsNewAcousticSourceAndUnalignedGrowingSelection() started.
+◇ Test fusionRevisionCanCorrectOnlyUnreservedSuffixAndPreservesDraft() started.
+◇ Test fusionRevisionSameProposalAfterRetiredReviewRefreshesEvidenceWithoutNewText() started.
+◇ Test multiCandidatesAreIsolatedAndLegacyCannotPublishFusionTicket() started.
+◇ Test storeAudioLeaseDefersPhysicalErasure() started.
+◇ Test multiOlderReviewCannotPinTheGrowingLivePreview() started.
+◇ Test fusionRevisionMatchingLegacyHeadAdoptsFusionEvidenceFreshness() started.
+◇ Test multiRebasedSelectionPublishesCurrentIDsAndRetainsOriginalReviewAudit() started.
+◇ Test multiProtectedSignaturesRecognizeCurlyNegationWithoutRewritingSources() started.
+◇ Test storeRecoveryRetriesAreBoundedAndSurviveRestart() started.
+◇ Test storeMultipleFinalRangesCompleteOnlyAfterDrain() started.
+◇ Test storeRecognitionPreservesSelectedUserEdit() started.
+◇ Test fusionRevisionChangedEvidenceWaitsWithoutConsumingCursorThenResumes() started.
+◇ Test storeDeletionRemovesUnregisteredCrashTail() started.
+◇ Test multiRebaseRejectsChangedSelectedWordChangedAlternativeAndRestartedRun() started.
+◇ Test storeDeletingRecordAlsoDeletesDispatchTextSnapshots() started.
+◇ Test multiProtectedSignaturesRecognizeFullWidthAmountsAndKeepSelectedSpelling() started.
+◇ Test storeDispatchRejectsPrefixRewriteAndInvalidatesBinding() started.
+◇ Test storeYieldingRecoveryToCaptureDoesNotConsumeRetryBudget() started.
+◇ Test storeEarlierTailCannotFollowLaterReservationEvenWhenDeliveryUnverified() started.
+◇ Test storeDispatchRestartInvalidatesTargetAndDoesNotReplay() started.
+◇ Test storeFreezesClickTextAfterItsVolatileSourceWasPruned() started.
+◇ Test storeFrozenClickSnapshotSurvivesPartialPruningWithoutChangingPreferred() started.
+◇ Test storeDispatchOnlyNewStableSuffixAndNeverDuplicate() started.
+◇ Test storePreservesEmbeddedNULInEditedText() started.
+◇ Test fusionRevisionFinalReviewCanCorrectSameGenerationBeforeAnyDispatch() started.
+◇ Test multiUncertainAudioReviewCannotResolveProtectedConflict() started.
+◇ Test storeCompletedTombstoneCleansResidualFilesOnRecovery() started.
+◇ Test storeBindingSequenceDistinguishesOldAndNewRecordingsAtSameTimestamp() started.
+◇ Test storeAudioDeletionPreservesEveryTextRevision() started.
+◇ Test storeChunkUpdatesAreMonotonic() started.
+◇ Test multiProviderFinalDoesNotOutraceRequiredExpertOrDisagreement() started.
+◇ Test fusionRevisionNewAcousticConflictCannotMakeOldAgreementFresh() started.
+◇ Test storePartialDraftCountIsBoundedAndFinalImmutable() started.
+◇ Test storeLiveDeletionIsRejected() started.
+◇ Test storeRecoveryQueueDoesNotStarveBeyondOldestHundred() started.
+◇ Test multiLateCorrectionIsArchivedWithoutRedispatchAndRetryKeepsOldCursor() started.
+◇ Test multiVerifiedPrefixCanPublishWhileAIReportsRemainingTail() started.
+◇ Test storePersistsAcrossReopen() started.
+◇ Test multiUserEditAndUnsavedDraftRemainSelected() started.
+◇ Test storeAudioErasurePreservesDraftAndRecordErasureRemovesIt() started.
+◇ Test storeMissingAudioStatePreservesTextAndRejectsStaleASR() started.
+◇ Test storeSearchEscapesLikeAndBindsSQL() started.
+◇ Test multiVolatilePreviewsRemainBoundedButCandidatesAreAuditable() started.
+◇ Test storeDelayedEarlierSpeechIsDeferredWithoutBlockingLaterSpeech() started.
+◇ Test storePendingErasureResumesAfterCrash() started.
+◇ Test storeCleanupRevalidatesPreview() started.
+◇ Test multiNonRetryableProviderDoesNotStopOtherRunAndUsagePersists() started.
+◇ Test storeLateRecognitionCannotResurrectDeletedAudio() started.
+◇ Test multiCriticalNumericPrefixStillConflictsWithLongerNumber() started.
+◇ Test fusionRevisionReservationArrivingDuringReviewKeepsExternalPrefixImmutable() started.
+◇ Test multiTextSelectionPreservesIntentionalRepetitionAndSignalsOmittedTail() started.
+◇ Test fusionRevisionLaterEmptyAgreementRevokesEveryUnreservedFinal() started.
+◇ Test multiStoreDoesNotLetAIBypassAbsentRequiredExpert() started.
+◇ Test multiRealTokenAlignmentCanCombineChineseAndEnglishEvidence() started.
+◇ Test storeInterruptedCaptureAndASRRecover() started.
+◇ Test multiAudioEpochDeletionPreservesCandidateAndPublicationHistory() started.
+◇ Test storeDirectCandidatesDrainBacklogBeyondLatestThirtyWithoutReplay() started.
+◇ Test storeManualInsertionIsExplicitNewOperationEachTime() started.
+◇ Test storeRecoveryMarksInterruptedBeforeFirstChunkAsMissing() started.
+◇ Test multiRebaseAllowsNewIDsWithIdenticalEvidence() started.
+◇ Test storeFiltersBeforePagination() started.
+◇ Test multiUncertainAndEmptyAudioReviewsDoNotOverrideUsablePreviewOrLoseUncertainty() started.
+◇ Test multiRunSequenceGenerationAndForgedIdentityAreRejected() started.
+◇ Test multiRebaseAcceptsUntouchedTimedPrefixWhileNewCriticalTailArrives() started.
+◇ Test storeCleanupProtectsPinnedFailedAndActive() started.
+◇ Test multiWordTimestampsMapLiteralWordsAcrossProviderSpacing() started.
+◇ Test storeRejectsTraversalAndOtherRecordingOwnership() started.
+◇ Test storeDeletedLaterRecordKeepsTextFreeOrderingWatermark() started.
+◇ Test storeDeferredStatusOnlyMarksUndispatchedEarlierFinalSuffix() started.
+◇ Test multiSuccessiveReviewRunsKeepHistoricalEvidenceWithoutCappingLatest() started.
+◇ Test storeEqualTimestampOrderingUsesCreationSequenceForCandidateAndReservation() started.
+◇ Test fusionRevisionLongestCompatibleBindingPrefixProtectsEveryTarget() started.
+◇ Test storeUnsavedEditingDraftPersistsAcrossRestartSeparatelyFromTranscript() started.
+◇ Test storeRecoveryReconcilesTruncatedDurableAudio() started.
+◇ Test storeLatestStableRevisionSurvivesVolatileUpdate() started.
+◇ Test storeDirectCandidatesIgnoreVolatileAndEmptyFinalText() started.
+◇ Test multiLLMCannotGenerateSpliceUnknownTimingOrRemoveProtectedContent() started.
+◇ Test multiEmptyReviewSelectionIsAnAbstentionNotFabricatedText() started.
+◇ Test multiMetaExpertKeepsBilingualCapabilityWithoutInventingWordTiming() started.
+◇ Test fusionRevisionSelectedPrefixRetainsNewlyUnresolvedTailAtStoreBoundary() started.
+◇ Test createReplaceReadDeleteKeepsAccountProviderAndServiceIsolation() started.
+◇ Test fusionRevisionSupersededUnreservedFinalCannotStillBeDispatched() started.
+◇ Test actualTerminalTimeIsGenerationSpecificDurableAndNeverBackfilledFromRestart() started.
+◇ Test storeDispatchUnverifiedDoesNotBlockIndependentSegment() started.
+◇ Test explicitSingleExpertDiagnosticUsesItsActualIdentityWithoutFakeSecondRole() started.
+◇ Test multiRestartRetainsEvidenceAndInvalidatesOldCallbacks() started.
+◇ Test failedRequiredRunCannotKeepItsOldAgreementDispatchableOrBlockSafeRetraction() started.
+◇ Test invalidReplacementNeverErasesStoredDummyCredential() started.
+◇ Test requirementsAreFrozenBeforeProviderAttemptsAndCannotBeDowngraded() started.
+◇ Test configuredSamePurposeExpertCannotBeSilentlyOmittedByAgreementOrSelection() started.
+◇ Test multiUTF16UsesGraphemesAndDoesNotCommitPartialNumbers() started.
+◇ Test completeShortReviewDoesNotDeclareLongerLiveUtteranceResolved() started.
+◇ Test requiredExpertFromAnotherGenerationCannotSatisfyEvidenceCoverage() started.
+◇ Test utteranceOnlyAllowsWholeSelectionButNeverCharacterSplicing() started.
+◇ Test submittedAudioProgressIsMeasuredMetadataAndRejectsNonfiniteValues() started.
+◇ Test missingSecondExpertWithTheSamePurposeCannotCountAsFullCoverage() started.
+◇ Test wholeUtteranceSelectionStillCannotResolveUnsupportedNegation() started.
+◇ Test emptyCommonPrefixWaitsThenWholeSentenceSelectionActuallyPublishes() started.
+◇ Test longerSilentCoverageDoesNotInventAnUnresolvedTextTail() started.
+◇ Test absentRequiredExpertNeverErasesAnAlreadyDispatchedPrefix() started.
+◇ Test fullyStableMetaTurnStillCannotTurnProcessingProgressIntoAcousticCoverage() started.
+◇ Test finishDoesNotSaveStandbySilenceAsSpeech() started.
+◇ Test terminalFailuresAndBufferLimitCannotPublish(behavior:) started.
+◇ Test finishFlushesSubVADFrameTailOfActiveSpeech() started.
+◇ Test unsupportedSocketFallsBackOnlyToSameConfiguredGPT() started.
+◇ Test timeoutClosesSocketAndDoesNotUseFallback() started.
+◇ Test oldResponseIdentityIsIgnored() started.
+◇ Test credentialAndConfigurationChangesInvalidateConnectionCache() started.
+◇ Test persistentLaneUsesLineageAndManifestDeltasNeverPartialJSON() started.
+◇ Test explicitCancelPreventsFutureRequests() started.
+◇ Test cacheMissReplaysFullAuthoritativeManifestOnce() started.
+◇ Test existingDataAndExternalOutputAreRejectedBeforeStore() started.
+◇ Test productionTreeIsRejectedWithoutTouchingIt() started.
+◇ Test syntheticMetadataExportsAppliedConfigurationOnceWithoutSecretValues() started.
+◇ Test disconnectedDisplayRestoresToRemainingScreen() started.
+◇ Test panelFitsOffsetAndCompactDisplays() started.
+◇ Test unappliedMissingConsentMissingKeysAndWrongCoreCannotExport() started.
+◇ Test keepsWindowOnDisplayWithLargestOverlap() started.
+◇ Test testnoSelectedReplacement() started.
+◇ Test invalidAudioDirectorySealsRecordInsteadOfLeavingItActive() started.
+◇ Test testcursorMovementMakesBindingStale() started.
+◇ Test realtimeWriteFailureStopsWorkerAndSealsEmptyRecord() started.
+◇ Test testpasswordsTerminalsAndEmbeddedTerminalBlocked() started.
+◇ Test testunidentifiableWebPageRejected() started.
+◇ Test testreusedEditorDoesNotMakeSamePage() started.
+◇ Test failedFinalSyncKeepsOnlyPublishedDurableAudioAndPreservesText() started.
+◇ Test cloudPermissionAndCredentialValidationHappenBeforeNetworking() started.
+◇ Test missingOrUnfinishedEarlierTurnBlocksStablePrefix() started.
+◇ Test countOnlyTapNeverReadsSampleDataAndRunsOffMain() started.
+◇ Test unknownSessionOrUntrustedUnlockCannotResume() started.
+◇ Test assemblyUsesExplicitStreamingModelAndHeaderAuthentication() started.
+◇ Test recordingTapCreatedOnMainActorRunsOnBackgroundThread() started.
+◇ Test lockedAtLaunchCannotCapture() started.
+◇ Test fileResultsKeepWordsInSecondsAndDoNotFabricateConfidence() started.
+◇ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() started.
+◇ Test wakeDoesNotOverrideLockOrSessionSwitch() started.
+◇ Test assemblyReplacesTurnAndPreservesNegationNumbersUnicodeAndRawConfidence() started.
+◇ Test unmatchedFormattedWordsDowngradeTimingWithoutLosingText() started.
+◇ Test badPCMCannotSilentlyBecomeAnAudioRequest() started.
+◇ Test invalidModelOrRequestErrorsAreSanitizedAndNotRetried() started.
+◇ Test fileRequestsContainBinaryMultipartAndProviderSpecificAuthentication() started.
+◇ Test revocationCancelsAlreadyAdmittedSessionWhileCaptureStopIsSuspended() started.
+◇ Test cancellationOnlyRemovesCapturedSessionsNotNewlyRetiredOnes() started.
+◇ Test assemblyChecksTheServersAppliedModelAndAccuracyMode() started.
+◇ Test intentionalRepeatedTurnsAreNotDeduplicated() started.
+◇ Test assemblyPartialUsesOnlyContiguousFinalWordsAndPreservesSeparators() started.
+◇ Test crashAfterReservationIsUnverifiedAndCannotReserveAgain() started.
+◇ Test unformattedFinalDoesNotClaimFormattedTurnCompletion() started.
+◇ Test finalPrefixAdvancesWhileTailIsVolatile() started.
+◇ Test punctuationIsCopiedFromTranscriptWithoutInventingAudioTime() started.
+◇ Test mergedRangeReplacesAllOverlaps() started.
+◇ Test laterInsertionDefersEarlierCorrectionWithoutGlobalBlock() started.
+◇ Test contextualGraphemeBoundariesAndByteIdentityAreMandatory() started.
+◇ Test finalizationWatermarkStabilizesEarlierVolatileTextWithoutRepeat() started.
+◇ Test v3MigrationPreservesLedgerAndInvalidatesOnlyRuntimeOwnership() started.
+◇ Test finalizationWatermarkNeverRewindsOrPromotesBeyondCoverage() started.
+◇ Test laterFinalDoesNotSkipEarlierVolatileRange() started.
+◇ Test shorterRepairKeepsInsertionLedgerMonotone() started.
+◇ Test unsupportedRealtimeChoiceIsHiddenAndCannotStart() started.
+◇ Test newerEvidenceRevokesStaleCorrectionEvenBeforePublication() started.
+◇ Test revisingRangeReplacesInsteadOfDuplicating() started.
+◇ Test malformedWordTimesAreNeverInvented() started.
+◇ Test settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) started.
+◇ Test unconfirmedInitialInsertionCannotCreateOwnershipAndDoesNotBlockNewRecord() started.
+◇ Test invalidRangesDoNotLoseValidText() started.
+◇ Test sameConfigurationUpdateAlsoInvalidatesPendingAdmission() started.
+◇ Test incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test realGPTCoreFinalizationPublishesActionableCorrectionFromFakeProviders() started.
+◇ Test uncertainReplacementConsumedOnceAndRestartCannotReplay() started.
+◇ Test userEditAndUndoStillInvalidatesOwnership() started.
+◇ Test deleteAudioKeepsCorrectionHistoryButDeleteRecordErasesIt() started.
+◇ Test durableReservationPrecedesSelectedRangeAndInvalidationPreventsTextSetter() started.
+◇ Test lengthChangingRepairPreservesUserPrefixSuffixAndAppendsOnlyNewSuffix() started.
+◇ Test unsupportedReplacementPendingDoesNotBlockIndependentRecord() started.
+◇ Test changedTargetNeverMutated(change:) started.
+◇ Test legacyFastModeCannotBypassMandatoryGPTReview() started.
+◇ Test cancellationRejectsInFlightCallbacksWithoutErasingAudio() started.
+◇ Test rejectedArbitrationRetainsDecodedResponseWithoutPublishingIt() started.
+◇ Test failedExpertDoesNotStopOtherAudioOrDestroyOriginal() started.
+◇ Test mandatoryFinalGPTReviewWaitsEvenWhenExpertsAgree(simultaneous:) started.
+◇ Test qwenStashAndHeartbeatAreNotDuplicateSentences() started.
+◇ Test finalReviewRunsAgainAfterLiveReview(appendMore:) started.
+◇ Test sonioxControlTokensAndMissingTimeCannotBecomeSpokenEvidence() started.
+◇ Test qwenRejectsWrongGenerationAndIncompleteFinal() started.
+◇ Test audioDeletionInvalidatesEpochBeforeLateCallbacks() started.
+◇ Test blockedGPTDoesNotSpinOrCertifyAgreeingExperts() started.
+◇ Test identicalAudioWaitsForBothExpertsBeforeQualityPublication() started.
+◇ Test alignmentOnlyEvidenceChangeCanRetryWhileDuplicateCallbacksCoalesce() started.
+◇ Test offlineEvidenceUsesCandidatePublicationAndProtectsUserDraft() started.
+◇ Test qwenRealWordsPreserveTermBoundariesAndExactSentenceLayout() started.
+◇ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() started.
+◇ Test exactDurableRangeCrossesChunksAfterTwelveMBWithoutLifetimeBuffer() started.
+◇ Test qwenCumulativeWindowStartsAtZeroAfterLeadingSilence() started.
+◇ Test providerErrorsAreRedactedAndUntranslated() started.
+◇ Test sonioxCumulativeWindowStartsAtZeroAfterLeadingSilence() started.
+◇ Test sonioxUsesHeaderAuthRawPCMAndNonrestrictiveLanguageHints() started.
+◇ Test qwenMisalignedOrInvalidWordsFallBackWithoutDroppingNegation() started.
+◇ Test qwenRevisionReplacesSentenceAndPreservesUTF16Evidence() started.
+◇ Test qwenRequestUsesRegionalWorkspaceAndExplicitPartials() started.
+◇ Test qwenMissingPartialTimeDoesNotFabricateWordAlignment() started.
+◇ Test sonioxAppendsFinalsButReplacesNonfinalTail() started.
+◇ Test recordDirectorySymlinkCannotCreateFileOutsideAudioRoot() started.
+◇ Test oversizedSparseWAVIsRejectedBeforeHeaderConversion() started.
+◇ Test settingsRoundTripRetainsStableIDsAndNeverContainsCredentialBytes() started.
+◇ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() started.
+◇ Test providerChangeKeepsCredentialIdentityButResetsAuthorizationRegionAndCharges() started.
+◇ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() started.
+◇ Test defaultsIncludeTwoExpertsAndOneCoreAndKeepOptionalExpertsOffAndConsentOff() started.
+◇ Test cancellationDuringReservationNeverReachesAX() started.
+◇ Test draftSearchAndHistorySurviveAudioErasure() started.
+◇ Test focusAwayAndBackExpiresBinding() started.
+◇ Test seeksAcrossOriginalChunkBoundaries() started.
+◇ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() started.
+◇ Test clampsEndAndRejectsInvalidDurations() started.
+◇ Test lostLocalReadCapabilityStopsNextAppend() started.
+◇ Test incompleteSemanticContextRejectsContinuousButKeepsManual() started.
+◇ Test futureDatabaseRefusedWithoutChangingJournalOrBytes() started.
+◇ Test userSelectionDuringConfirmationStopsBinding() started.
+◇ Test corruptRowReturnsErrorInsteadOfCrashing() started.
+◇ Test exportingEmptyRecordCannotInventLatencyAccuracyOrUsage() started.
+◇ Test oldUsagePayloadWithoutAuditStillDecodes() started.
+◇ Test sourceHashCoversEntireDeclaredFixtureAndModeIsNotDisguised() started.
+◇ Test productionFusionPublicationReachesIncrementalCoordinatorOnce() started.
+◇ Test rejectedResponseAndRequestSnapshotSurviveRestartWithoutPublishing() started.
+◇ Test singleExpertBaselineIsExplicitAndCannotBypassConsentOrRoleValidation() started.
+◇ Test testtimeoutIsUncertainAndNeverRetried() started.
+◇ Test sqliteNumericRoundTripsPreserveFullPrecision() started.
+◇ Test wholeRecordDeletionErasesResponseAndBlocksLateAuditResurrection() started.
+◇ Test lateEarlierRecordingIsDeferredWithoutBlockingNextSpeech() started.
+◇ Test deletingOnlyAudioPreservesDecodedResponseAndUsage() started.
+◇ Test rejectsDisabledCloudMissingConsentAndInvalidWAVWithoutCreatingRecords() started.
+◇ Test failedMigrationRollsBackAllDDLAndKeepsVersion() started.
+◇ Test slowAcknowledgementIsConfirmedWithoutResending() started.
+◇ Test exportsPersistedGenerationTerminalAndExactConfigurationWithoutInventingSessionCompletion() started.
+◇ Test secondOwnerCannotInvalidateActiveRecording() started.
+◇ Test mutationOfConfirmedTailStopsNextAppend() started.
+◇ Test panelIncludesAllSessionPagesAndExplicitHistoryOnlyOnce() started.
+◇ Test testchangedPageStopsBeforeDispatch() started.
+◇ Test sqliteFullRollsBackWholeTransaction() started.
+◇ Test unobservableWebOnlyAllowsExplicitManualInsertion() started.
+◇ Test authenticationUsesFirstFrameAndSharedPCMEncoding() started.
+◇ Test recommendationIsOptionalAndDoesNotReplaceTheDefaultExpert() started.
+◇ Test onlyEOSEveryCompletedTurnAndNormalCloseCanCompleteSession() started.
+◇ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() started.
+◇ Test teststableSuffixOnlyOnce() started.
+◇ Test acknowledgementHasNoTypeAndRequiresARealSessionID() started.
+◇ Test testunavailablePermissionHasNoPromptOrSideEffect() started.
+◇ Test partialsReplaceAndSpeechEndDoesNotFinalize() started.
+◇ Test exactlyOneGPTCoreIsMandatory() started.
+◇ Test legacySeparateAudioAndFinalModelsCannotJoinTheDefaultChain() started.
+◇ Test lateEarlierCompletionDoesNotStealLatestTurnPartials() started.
+◇ Test thirdASRIsAllowedAsAnEvidenceSource() started.
+◇ Test sameURLReusedWebEditorLayoutExpiresBinding() started.
+◇ Test cancellationBeforeStartDoesNotWrite() started.
+◇ Test missingBoundaryInvalidTimeAndUnknownTurnAreNotInvented() started.
+◇ Test legacySettingsMigrationDisablesSecondStageModelsAndKeepsGPTIdentity() started.
+◇ Test defaultsAreTwoEqualExpertsAndExactlyOneGPT6Core() started.
+◇ Test testexistingSpeechNeverAutomaticallyReplayed() started.
+◇ Test errorDetailsRemainSanitizedAndConfigurationIsExplicit() started.
+◇ Test multilingualSingleExpertUsesSameCore() started.
+◇ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() started.
+◇ Test migrationIsIdempotentAndNeverReplacesCustomModelOrGrantsConsent() started.
+◇ Test injectedWorkspaceActivationExpiresBindingWithoutChangingFakeSnapshot() started.
+◇ Test singleExpertAblationStillRequiresTheSameGPTCore() started.
+◇ Test failedFusionExpertPreventsStaleExternalAttemptWithoutBlockingNextSpeech() started.
+◇ Test ownInsertionNotificationKeepsContinuousBinding() started.
+◇ Test lateTailCannotBeAppendedAfterAnotherRecording() started.
+◇ Test runningReviewPriorityClearsAsAttemptsFinish() started.
+◇ Test staleGenerationsRestartAndUnrequestedRecordsNeverSupplyPhase() started.
+◇ Test audioRootSymlinkIsRejectedWithoutTouchingDestination() started.
+◇ Test databaseSymlinkIsRejectedWithoutModifyingExternalFile() started.
+◇ Test fanoutHasNoLifetimeAudioBufferAndFinishRejectsNewAudio() started.
+◇ Test spokenPromptInjectionRemainsDataAndUnicodeOffsetsAreExplicit() started.
+◇ Test testSilenceDoesNotCreateRecordings() started.
+◇ Test slowExpertCannotDropOtherExpertsAudio() started.
+◇ Test testRingKeepsOrderingAndRejectsOverflowWithoutOverwrite() started.
+◇ Test recoveryRetainsCompleteFramesBeyondPublishedCheckpoint() started.
+◇ Test incompleteOrRefusedLLMResponseCannotBecomeDecision() started.
+◇ Test recoveryMarksMissingAudioWithoutDiscardingText() started.
+◇ Test testCheckpointAndInterruptedTailRecovery() started.
+◇ Test testFifteenSecondRotationBoundary() started.
+◇ Test testRingWrapsAndDownmixesStereo() started.
+◇ Test completeProvenanceAndAllTokensReachArbiter() started.
+◇ Test blindAudioReviewUsesOnlyFixedInstructionsAndExactPCM() started.
+◇ Test malformedSourceIdentityAndUnicodeEvidenceFailBeforeRequest() started.
+◇ Test abstentionAndRefusalCannotMasqueradeAsConfirmedText() started.
+◇ Test blindAudioRequestRejectsConsentPurposeCredentialAndRegionMismatch() started.
+◇ Test uncertainAudioAndHiddenReasoningRemainDistinct() started.
+◇ Test externalPrefixIsAConstraintAndNeverAnAcousticVote() started.
+◇ Test utteranceUnicodeBoundariesNeverBecomeInventedWordTimes() started.
+◇ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test actualTimedChineseEnglishPartsCanComposeOneUtterance() started.
+◇ Test arbiterConfidenceCannotOverrideNumberOrNegationDisagreement() started.
+◇ Test finalASRRejectsWordTimesOutsideActualUploadedAudio() started.
+◇ Test case passing 1 argument behavior → .fail to terminalFailuresAndBufferLimitCannotPublish(behavior:) started.
+◇ Test case passing 1 argument behavior → .incomplete to terminalFailuresAndBufferLimitCannotPublish(behavior:) started.
+◇ Test case passing 1 argument behavior → .oversized to terminalFailuresAndBufferLimitCannotPublish(behavior:) started.
+✔ Test multiMetaReviewRetirementDoesNotGrantAcousticCoverage() passed after 0.257 seconds.
+✔ Test multiRebaseRejectsNewAcousticSourceAndUnalignedGrowingSelection() passed after 0.257 seconds.
+✔ Test storeRejectsSymlinkEscape() passed after 0.258 seconds.
+✔ Test storeDirectCandidatesIncludeChangedPrefixButSkipDuplicateLatestFinal() passed after 0.258 seconds.
+✔ Test storeEmptyDraftAndExplicitDiscardRemainDistinct() passed after 0.259 seconds.
+✔ Test multiOlderReviewCannotPinTheGrowingLivePreview() passed after 0.259 seconds.
+✔ Test storeNewAttemptRejectsOldCallback() passed after 0.259 seconds.
+✔ Test storeRecordDeletionRemovesTextAndSearch() passed after 0.259 seconds.
+✔ Test fusionRevisionSameProposalAfterRetiredReviewRefreshesEvidenceWithoutNewText() passed after 0.261 seconds.
+✔ Test multiNewGenerationMayCorrectUnsentCompleteVersion() passed after 0.261 seconds.
+✔ Test multiProtectedSignaturesRecognizeCurlyNegationWithoutRewritingSources() passed after 0.261 seconds.
+✔ Test storeAudioLeaseDefersPhysicalErasure() passed after 0.261 seconds.
+✔ Test fusionRevisionCanCorrectOnlyUnreservedSuffixAndPreservesDraft() passed after 0.261 seconds.
+✔ Test multiRebaseRejectsChangedSelectedWordChangedAlternativeAndRestartedRun() passed after 0.261 seconds.
+✔ Test multiCandidatesAreIsolatedAndLegacyCannotPublishFusionTicket() passed after 0.262 seconds.
+✔ Test storeDispatchUTF16RejectsSurrogateAndGraphemeSplit() passed after 0.262 seconds.
+✔ Test multiProtectedSignaturesRecognizeFullWidthAmountsAndKeepSelectedSpelling() passed after 0.262 seconds.
+✔ Test storeMultipleFinalRangesCompleteOnlyAfterDrain() passed after 0.262 seconds.
+✔ Test storeRecoveryRetriesAreBoundedAndSurviveRestart() passed after 0.262 seconds.
+✔ Test storeRecognitionPreservesSelectedUserEdit() passed after 0.263 seconds.
+✔ Test storeDeletionRemovesUnregisteredCrashTail() passed after 0.263 seconds.
+✔ Test multiRebasedSelectionPublishesCurrentIDsAndRetainsOriginalReviewAudit() passed after 0.263 seconds.
+✔ Test storeDeletingRecordAlsoDeletesDispatchTextSnapshots() passed after 0.263 seconds.
+✔ Test fusionRevisionMatchingLegacyHeadAdoptsFusionEvidenceFreshness() passed after 0.264 seconds.
+✔ Test storeDispatchRejectsPrefixRewriteAndInvalidatesBinding() passed after 0.263 seconds.
+✔ Test storeYieldingRecoveryToCaptureDoesNotConsumeRetryBudget() passed after 0.264 seconds.
+✔ Test fusionRevisionChangedEvidenceWaitsWithoutConsumingCursorThenResumes() passed after 0.264 seconds.
+✔ Test multiUncertainAudioReviewCannotResolveProtectedConflict() passed after 0.264 seconds.
+✔ Test storeFrozenClickSnapshotSurvivesPartialPruningWithoutChangingPreferred() passed after 0.264 seconds.
+✔ Test storeEarlierTailCannotFollowLaterReservationEvenWhenDeliveryUnverified() passed after 0.264 seconds.
+✔ Test multiProviderFinalDoesNotOutraceRequiredExpertOrDisagreement() passed after 0.264 seconds.
+✔ Test storeDispatchOnlyNewStableSuffixAndNeverDuplicate() passed after 0.265 seconds.
+✔ Test storePreservesEmbeddedNULInEditedText() passed after 0.265 seconds.
+✔ Test storeFreezesClickTextAfterItsVolatileSourceWasPruned() passed after 0.265 seconds.
+◇ Test case passing 1 argument initialCloud → false to settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) started.
+◇ Test case passing 1 argument initialCloud → true to settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) started.
+◇ Test case passing 1 argument mode → "raw" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "partial" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "unresolved" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "draft" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "edit" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "unobservable" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "unreadable" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument change → "ownedEdit" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "prefixEdit" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "suffixEdit" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "focus" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "page" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "control" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "selection" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "caret" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "canonical" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument simultaneous → false to mandatoryFinalGPTReviewWaitsEvenWhenExpertsAgree(simultaneous:) started.
+◇ Test case passing 1 argument simultaneous → true to mandatoryFinalGPTReviewWaitsEvenWhenExpertsAgree(simultaneous:) started.
+◇ Test case passing 1 argument appendMore → false to finalReviewRunsAgainAfterLiveReview(appendMore:) started.
+◇ Test case passing 1 argument appendMore → true to finalReviewRunsAgainAfterLiveReview(appendMore:) started.
+✔ Test storeAudioDeletionPreservesEveryTextRevision() passed after 0.307 seconds.
+✔ Test storeDispatchRestartInvalidatesTargetAndDoesNotReplay() passed after 0.307 seconds.
+✔ Test storeBindingSequenceDistinguishesOldAndNewRecordingsAtSameTimestamp() passed after 0.307 seconds.
+✔ Test storeChunkUpdatesAreMonotonic() passed after 0.307 seconds.
+✔ Test storeLiveDeletionIsRejected() passed after 0.308 seconds.
+✔ Test fusionRevisionFinalReviewCanCorrectSameGenerationBeforeAnyDispatch() passed after 0.308 seconds.
+✔ Test fusionRevisionNewAcousticConflictCannotMakeOldAgreementFresh() passed after 0.308 seconds.
+✔ Test storeAudioErasurePreservesDraftAndRecordErasureRemovesIt() passed after 0.308 seconds.
+✔ Test multiVerifiedPrefixCanPublishWhileAIReportsRemainingTail() passed after 0.308 seconds.
+✔ Test storeMissingAudioStatePreservesTextAndRejectsStaleASR() passed after 0.308 seconds.
+✔ Test storePersistsAcrossReopen() passed after 0.310 seconds.
+✔ Test storeDelayedEarlierSpeechIsDeferredWithoutBlockingLaterSpeech() passed after 0.310 seconds.
+✔ Test multiLateCorrectionIsArchivedWithoutRedispatchAndRetryKeepsOldCursor() passed after 0.310 seconds.
+✔ Test multiUserEditAndUnsavedDraftRemainSelected() passed after 0.310 seconds.
+✔ Test multiCriticalNumericPrefixStillConflictsWithLongerNumber() passed after 0.310 seconds.
+✔ Test multiTextSelectionPreservesIntentionalRepetitionAndSignalsOmittedTail() passed after 0.315 seconds.
+✔ Test multiRealTokenAlignmentCanCombineChineseAndEnglishEvidence() passed after 0.335 seconds.
+✔ Test storeSearchEscapesLikeAndBindsSQL() passed after 0.335 seconds.
+✔ Test storeLateRecognitionCannotResurrectDeletedAudio() passed after 0.335 seconds.
+✔ Test multiNonRetryableProviderDoesNotStopOtherRunAndUsagePersists() passed after 0.335 seconds.
+✔ Test multiStoreDoesNotLetAIBypassAbsentRequiredExpert() passed after 0.353 seconds.
+✔ Test storeInterruptedCaptureAndASRRecover() passed after 0.357 seconds.
+✔ Test fusionRevisionLaterEmptyAgreementRevokesEveryUnreservedFinal() passed after 0.364 seconds.
+✔ Test multiAudioEpochDeletionPreservesCandidateAndPublicationHistory() passed after 0.364 seconds.
+✔ Test fusionRevisionReservationArrivingDuringReviewKeepsExternalPrefixImmutable() passed after 0.366 seconds.
+✔ Test multiRebaseAllowsNewIDsWithIdenticalEvidence() passed after 0.366 seconds.
+✔ Test multiUncertainAndEmptyAudioReviewsDoNotOverrideUsablePreviewOrLoseUncertainty() passed after 0.366 seconds.
+✔ Test multiRebaseAcceptsUntouchedTimedPrefixWhileNewCriticalTailArrives() passed after 0.366 seconds.
+✔ Test multiWordTimestampsMapLiteralWordsAcrossProviderSpacing() passed after 0.366 seconds.
+✔ Test storeManualInsertionIsExplicitNewOperationEachTime() passed after 0.366 seconds.
+✔ Test storePartialDraftCountIsBoundedAndFinalImmutable() passed after 0.366 seconds.
+✔ Test storeRecoveryMarksInterruptedBeforeFirstChunkAsMissing() passed after 0.367 seconds.
+✔ Test multiVolatilePreviewsRemainBoundedButCandidatesAreAuditable() passed after 0.367 seconds.
+✔ Test storeRejectsTraversalAndOtherRecordingOwnership() passed after 0.367 seconds.
+✔ Test storeFiltersBeforePagination() passed after 0.372 seconds.
+✔ Test multiRunSequenceGenerationAndForgedIdentityAreRejected() passed after 0.373 seconds.
+✔ Test storeDeletedLaterRecordKeepsTextFreeOrderingWatermark() passed after 0.373 seconds.
+✔ Test storeDeferredStatusOnlyMarksUndispatchedEarlierFinalSuffix() passed after 0.373 seconds.
+✔ Test storeCleanupProtectsPinnedFailedAndActive() passed after 0.378 seconds.
+✔ Test multiEmptyReviewSelectionIsAnAbstentionNotFabricatedText() passed after 0.379 seconds.
+✔ Test multiLLMCannotGenerateSpliceUnknownTimingOrRemoveProtectedContent() passed after 0.379 seconds.
+✔ Test multiMetaExpertKeepsBilingualCapabilityWithoutInventingWordTiming() passed after 0.391 seconds.
+✔ Test storeRecoveryReconcilesTruncatedDurableAudio() passed after 0.393 seconds.
+✔ Test multiSuccessiveReviewRunsKeepHistoricalEvidenceWithoutCappingLatest() passed after 0.393 seconds.
+◇ Test case passing 1 argument failReview → false to journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test case passing 1 argument failReview → true to journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+✔ Test storeEqualTimestampOrderingUsesCreationSequenceForCandidateAndReservation() passed after 0.398 seconds.
+✔ Test storeLatestStableRevisionSurvivesVolatileUpdate() passed after 0.400 seconds.
+✔ Test storeDirectCandidatesIgnoreVolatileAndEmptyFinalText() passed after 0.400 seconds.
+✔ Test storeUnsavedEditingDraftPersistsAcrossRestartSeparatelyFromTranscript() passed after 0.400 seconds.
+✔ Test explicitSingleExpertDiagnosticUsesItsActualIdentityWithoutFakeSecondRole() passed after 0.400 seconds.
+✔ Test fusionRevisionLongestCompatibleBindingPrefixProtectsEveryTarget() passed after 0.400 seconds.
+✔ Test storeDispatchUnverifiedDoesNotBlockIndependentSegment() passed after 0.400 seconds.
+✔ Test fusionRevisionSelectedPrefixRetainsNewlyUnresolvedTailAtStoreBoundary() passed after 0.400 seconds.
+✔ Test actualTerminalTimeIsGenerationSpecificDurableAndNeverBackfilledFromRestart() passed after 0.400 seconds.
+✔ Test completeShortReviewDoesNotDeclareLongerLiveUtteranceResolved() passed after 0.400 seconds.
+✔ Test multiUTF16UsesGraphemesAndDoesNotCommitPartialNumbers() passed after 0.400 seconds.
+✔ Test requiredExpertFromAnotherGenerationCannotSatisfyEvidenceCoverage() passed after 0.400 seconds.
+✔ Test fusionRevisionSupersededUnreservedFinalCannotStillBeDispatched() passed after 0.400 seconds.
+✔ Test utteranceOnlyAllowsWholeSelectionButNeverCharacterSplicing() passed after 0.400 seconds.
+✔ Test requirementsAreFrozenBeforeProviderAttemptsAndCannotBeDowngraded() passed after 0.400 seconds.
+✔ Test multiRestartRetainsEvidenceAndInvalidatesOldCallbacks() passed after 0.400 seconds.
+✔ Test wholeUtteranceSelectionStillCannotResolveUnsupportedNegation() passed after 0.400 seconds.
+✔ Test missingSecondExpertWithTheSamePurposeCannotCountAsFullCoverage() passed after 0.400 seconds.
+✔ Test absentRequiredExpertNeverErasesAnAlreadyDispatchedPrefix() passed after 0.400 seconds.
+✔ Test failedRequiredRunCannotKeepItsOldAgreementDispatchableOrBlockSafeRetraction() passed after 0.400 seconds.
+✔ Test finishDoesNotSaveStandbySilenceAsSpeech() passed after 0.400 seconds.
+✔ Test fullyStableMetaTurnStillCannotTurnProcessingProgressIntoAcousticCoverage() passed after 0.400 seconds.
+✔ Test longerSilentCoverageDoesNotInventAnUnresolvedTextTail() passed after 0.400 seconds.
+✔ Test finishFlushesSubVADFrameTailOfActiveSpeech() passed after 0.401 seconds.
+✔ Test submittedAudioProgressIsMeasuredMetadataAndRejectsNonfiniteValues() passed after 0.401 seconds.
+✔ Test disconnectedDisplayRestoresToRemainingScreen() passed after 0.366 seconds.
+✔ Test configuredSamePurposeExpertCannotBeSilentlyOmittedByAgreementOrSelection() passed after 0.401 seconds.
+✔ Test panelFitsOffsetAndCompactDisplays() passed after 0.366 seconds.
+✔ Test keepsWindowOnDisplayWithLargestOverlap() passed after 0.366 seconds.
+✔ Test productionTreeIsRejectedWithoutTouchingIt() passed after 0.367 seconds.
+✔ Test testnoSelectedReplacement() passed after 0.360 seconds.
+✔ Test testcursorMovementMakesBindingStale() passed after 0.360 seconds.
+✔ Test unappliedMissingConsentMissingKeysAndWrongCoreCannotExport() passed after 0.366 seconds.
+✔ Test storeStorageSummaryUsesActualFiles() passed after 0.402 seconds.
+✔ Test testpasswordsTerminalsAndEmbeddedTerminalBlocked() passed after 0.360 seconds.
+✔ Test testunidentifiableWebPageRejected() passed after 0.360 seconds.
+✔ Test testreusedEditorDoesNotMakeSamePage() passed after 0.360 seconds.
+✔ Test existingDataAndExternalOutputAreRejectedBeforeStore() passed after 0.367 seconds.
+✔ Test storeRecoveryQueueDoesNotStarveBeyondOldestHundred() passed after 0.402 seconds.
+✔ Test cloudPermissionAndCredentialValidationHappenBeforeNetworking() passed after 0.350 seconds.
+✔ Test unknownSessionOrUntrustedUnlockCannotResume() passed after 0.346 seconds.
+✔ Test missingOrUnfinishedEarlierTurnBlocksStablePrefix() passed after 0.350 seconds.
+✔ Test lockedAtLaunchCannotCapture() passed after 0.345 seconds.
+✔ Test fileResultsKeepWordsInSecondsAndDoNotFabricateConfidence() passed after 0.345 seconds.
+✔ Test wakeDoesNotOverrideLockOrSessionSwitch() passed after 0.343 seconds.
+✔ Test assemblyUsesExplicitStreamingModelAndHeaderAuthentication() passed after 0.345 seconds.
+✔ Test unmatchedFormattedWordsDowngradeTimingWithoutLosingText() passed after 0.336 seconds.
+✔ Test assemblyReplacesTurnAndPreservesNegationNumbersUnicodeAndRawConfidence() passed after 0.336 seconds.
+✔ Test invalidModelOrRequestErrorsAreSanitizedAndNotRetried() passed after 0.334 seconds.
+✔ Test badPCMCannotSilentlyBecomeAnAudioRequest() passed after 0.336 seconds.
+✔ Test fileRequestsContainBinaryMultipartAndProviderSpecificAuthentication() passed after 0.334 seconds.
+✔ Test assemblyChecksTheServersAppliedModelAndAccuracyMode() passed after 0.333 seconds.
+✔ Test intentionalRepeatedTurnsAreNotDeduplicated() passed after 0.328 seconds.
+✔ Test assemblyPartialUsesOnlyContiguousFinalWordsAndPreservesSeparators() passed after 0.325 seconds.
+✔ Test unformattedFinalDoesNotClaimFormattedTurnCompletion() passed after 0.325 seconds.
+✔ Test finalPrefixAdvancesWhileTailIsVolatile() passed after 0.325 seconds.
+✔ Test punctuationIsCopiedFromTranscriptWithoutInventingAudioTime() passed after 0.325 seconds.
+✔ Test mergedRangeReplacesAllOverlaps() passed after 0.325 seconds.
+✔ Test finalizationWatermarkStabilizesEarlierVolatileTextWithoutRepeat() passed after 0.324 seconds.
+✔ Test finalizationWatermarkNeverRewindsOrPromotesBeyondCoverage() passed after 0.317 seconds.
+✔ Test laterFinalDoesNotSkipEarlierVolatileRange() passed after 0.316 seconds.
+✔ Test unsupportedRealtimeChoiceIsHiddenAndCannotStart() passed after 0.316 seconds.
+✔ Test revisingRangeReplacesInsteadOfDuplicating() passed after 0.314 seconds.
+✔ Test malformedWordTimesAreNeverInvented() passed after 0.314 seconds.
+✔ Test invalidRangesDoNotLoseValidText() passed after 0.314 seconds.
+✔ Test emptyCommonPrefixWaitsThenWholeSentenceSelectionActuallyPublishes() passed after 0.402 seconds.
+✔ Test invalidAudioDirectorySealsRecordInsteadOfLeavingItActive() passed after 0.362 seconds.
+✔ Test failedFinalSyncKeepsOnlyPublishedDurableAudioAndPreservesText() passed after 0.362 seconds.
+✔ Test qwenStashAndHeartbeatAreNotDuplicateSentences() passed after 0.314 seconds.
+✔ Test sonioxControlTokensAndMissingTimeCannotBecomeSpokenEvidence() passed after 0.315 seconds.
+✔ Test qwenRejectsWrongGenerationAndIncompleteFinal() passed after 0.315 seconds.
+✔ Test alignmentOnlyEvidenceChangeCanRetryWhileDuplicateCallbacksCoalesce() passed after 0.315 seconds.
+✔ Test qwenRealWordsPreserveTermBoundariesAndExactSentenceLayout() passed after 0.316 seconds.
+✔ Test qwenCumulativeWindowStartsAtZeroAfterLeadingSilence() passed after 0.308 seconds.
+✔ Test providerErrorsAreRedactedAndUntranslated() passed after 0.307 seconds.
+✔ Test sonioxUsesHeaderAuthRawPCMAndNonrestrictiveLanguageHints() passed after 0.305 seconds.
+✔ Test qwenRevisionReplacesSentenceAndPreservesUTF16Evidence() passed after 0.305 seconds.
+✔ Test qwenMisalignedOrInvalidWordsFallBackWithoutDroppingNegation() passed after 0.305 seconds.
+✔ Test qwenMissingPartialTimeDoesNotFabricateWordAlignment() passed after 0.305 seconds.
+✔ Test sonioxAppendsFinalsButReplacesNonfinalTail() passed after 0.304 seconds.
+✔ Test qwenRequestUsesRegionalWorkspaceAndExplicitPartials() passed after 0.305 seconds.
+✔ Test sonioxCumulativeWindowStartsAtZeroAfterLeadingSilence() passed after 0.305 seconds.
+✔ Test recordDirectorySymlinkCannotCreateFileOutsideAudioRoot() passed after 0.300 seconds.
+✔ Test oversizedSparseWAVIsRejectedBeforeHeaderConversion() passed after 0.300 seconds.
+✔ Test defaultsIncludeTwoExpertsAndOneCoreAndKeepOptionalExpertsOffAndConsentOff() passed after 0.280 seconds.
+✔ Test seeksAcrossOriginalChunkBoundaries() passed after 0.267 seconds.
+✔ Test providerChangeKeepsCredentialIdentityButResetsAuthorizationRegionAndCharges() passed after 0.282 seconds.
+✔ Test clampsEndAndRejectsInvalidDurations() passed after 0.267 seconds.
+✔ Test settingsRoundTripRetainsStableIDsAndNeverContainsCredentialBytes() passed after 0.282 seconds.
+✔ Test futureDatabaseRefusedWithoutChangingJournalOrBytes() passed after 0.265 seconds.
+✔ Test draftSearchAndHistorySurviveAudioErasure() passed after 0.271 seconds.
+✔ Test oldUsagePayloadWithoutAuditStillDecodes() passed after 0.262 seconds.
+✔ Test sourceHashCoversEntireDeclaredFixtureAndModeIsNotDisguised() passed after 0.262 seconds.
+✔ Test offlineEvidenceUsesCandidatePublicationAndProtectsUserDraft() passed after 0.316 seconds.
+✔ Test singleExpertBaselineIsExplicitAndCannotBypassConsentOrRoleValidation() passed after 0.262 seconds.
+✔ Test corruptRowReturnsErrorInsteadOfCrashing() passed after 0.263 seconds.
+✔ Test microsecondRecordingDatesRoundTripAndOrderBeforeIdentity() passed after 0.267 seconds.
+✔ Test exportingEmptyRecordCannotInventLatencyAccuracyOrUsage() passed after 0.262 seconds.
+✔ Test sqliteNumericRoundTripsPreserveFullPrecision() passed after 0.262 seconds.
+✔ Test failedMigrationRollsBackAllDDLAndKeepsVersion() passed after 0.245 seconds.
+✔ Test rejectsDisabledCloudMissingConsentAndInvalidWAVWithoutCreatingRecords() passed after 0.245 seconds.
+✔ Test deletingOnlyAudioPreservesDecodedResponseAndUsage() passed after 0.246 seconds.
+✔ Test wholeRecordDeletionErasesResponseAndBlocksLateAuditResurrection() passed after 0.260 seconds.
+✔ Test rejectedResponseAndRequestSnapshotSurviveRestartWithoutPublishing() passed after 0.262 seconds.
+✔ Test authenticationUsesFirstFrameAndSharedPCMEncoding() passed after 0.231 seconds.
+✔ Test recommendationIsOptionalAndDoesNotReplaceTheDefaultExpert() passed after 0.230 seconds.
+✔ Test onlyEOSEveryCompletedTurnAndNormalCloseCanCompleteSession() passed after 0.225 seconds.
+✔ Test acknowledgementHasNoTypeAndRequiresARealSessionID() passed after 0.225 seconds.
+✔ Test exactlyOneGPTCoreIsMandatory() passed after 0.215 seconds.
+✔ Test partialsReplaceAndSpeechEndDoesNotFinalize() passed after 0.225 seconds.
+✔ Test legacySeparateAudioAndFinalModelsCannotJoinTheDefaultChain() passed after 0.216 seconds.
+✔ Test lateEarlierCompletionDoesNotStealLatestTurnPartials() passed after 0.215 seconds.
+✔ Test thirdASRIsAllowedAsAnEvidenceSource() passed after 0.215 seconds.
+✔ Test missingBoundaryInvalidTimeAndUnknownTurnAreNotInvented() passed after 0.212 seconds.
+✔ Test defaultsAreTwoEqualExpertsAndExactlyOneGPT6Core() passed after 0.212 seconds.
+✔ Test errorDetailsRemainSanitizedAndConfigurationIsExplicit() passed after 0.212 seconds.
+✔ Test legacySettingsMigrationDisablesSecondStageModelsAndKeepsGPTIdentity() passed after 0.212 seconds.
+✔ Test sqliteFullRollsBackWholeTransaction() passed after 0.236 seconds.
+✔ Test multilingualSingleExpertUsesSameCore() passed after 0.212 seconds.
+✔ Test exactDurableRangeCrossesChunksAfterTwelveMBWithoutLifetimeBuffer() passed after 0.309 seconds.
+✔ Test storeDirectCandidatesDrainBacklogBeyondLatestThirtyWithoutReplay() passed after 0.406 seconds.
+✔ Test singleExpertAblationStillRequiresTheSameGPTCore() passed after 0.209 seconds.
+✔ Test migrationIsIdempotentAndNeverReplacesCustomModelOrGrantsConsent() passed after 0.212 seconds.
+✔ Test audioRootSymlinkIsRejectedWithoutTouchingDestination() passed after 0.202 seconds.
+✔ Test fanoutHasNoLifetimeAudioBufferAndFinishRejectsNewAudio() passed after 0.195 seconds.
+✔ Test exportsPersistedGenerationTerminalAndExactConfigurationWithoutInventingSessionCompletion() passed after 0.246 seconds.
+✔ Test databaseSymlinkIsRejectedWithoutModifyingExternalFile() passed after 0.199 seconds.
+✔ Test slowExpertCannotDropOtherExpertsAudio() passed after 0.195 seconds.
+✔ Test testRingKeepsOrderingAndRejectsOverflowWithoutOverwrite() passed after 0.195 seconds.
+✔ Test incompleteOrRefusedLLMResponseCannotBecomeDecision() passed after 0.195 seconds.
+✔ Test spokenPromptInjectionRemainsDataAndUnicodeOffsetsAreExplicit() passed after 0.195 seconds.
+✔ Test testCheckpointAndInterruptedTailRecovery() passed after 0.195 seconds.
+✔ Test testSilenceDoesNotCreateRecordings() passed after 0.195 seconds.
+✔ Test testRingWrapsAndDownmixesStereo() passed after 0.195 seconds.
+✔ Test testFifteenSecondRotationBoundary() passed after 0.195 seconds.
+✔ Test secondOwnerCannotInvalidateActiveRecording() passed after 0.242 seconds.
+✔ Test blindAudioReviewUsesOnlyFixedInstructionsAndExactPCM() passed after 0.195 seconds.
+✔ Test malformedSourceIdentityAndUnicodeEvidenceFailBeforeRequest() passed after 0.195 seconds.
+✔ Test abstentionAndRefusalCannotMasqueradeAsConfirmedText() passed after 0.195 seconds.
+✔ Test blindAudioRequestRejectsConsentPurposeCredentialAndRegionMismatch() passed after 0.195 seconds.
+✔ Test uncertainAudioAndHiddenReasoningRemainDistinct() passed after 0.195 seconds.
+✔ Test externalPrefixIsAConstraintAndNeverAnAcousticVote() passed after 0.195 seconds.
+✔ Test utteranceUnicodeBoundariesNeverBecomeInventedWordTimes() passed after 0.194 seconds.
+✔ Test runningReviewPriorityClearsAsAttemptsFinish() passed after 0.202 seconds.
+✔ Test completeProvenanceAndAllTokensReachArbiter() passed after 0.195 seconds.
+✔ Test staleGenerationsRestartAndUnrequestedRecordsNeverSupplyPhase() passed after 0.202 seconds.
+✔ Test actualTimedChineseEnglishPartsCanComposeOneUtterance() passed after 0.193 seconds.
+✔ Test finalASRRejectsWordTimesOutsideActualUploadedAudio() passed after 0.188 seconds.
+✔ Test recoveryMarksMissingAudioWithoutDiscardingText() passed after 0.196 seconds.
+✔ Test recoveryRetainsCompleteFramesBeyondPublishedCheckpoint() passed after 0.196 seconds.
+✔ Test arbiterConfidenceCannotOverrideNumberOrNegationDisagreement() passed after 0.188 seconds.
+✔ Suite "Fusion store authority and measurement" passed after 0.409 seconds.
+✔ Suite "Evidence-constrained fusion publication" passed after 0.409 seconds.
+✔ Suite "Capture shutdown tail" passed after 0.409 seconds.
+✔ Suite "Display geometry" passed after 0.409 seconds.
+✔ Suite "Input identity and safety" passed after 0.409 seconds.
+✔ Suite "English provider wire contracts; no cloud calls" passed after 0.409 seconds.
+✔ Suite "Chinese and multilingual provider wire contracts" passed after 0.409 seconds.
+✔ Suite "Speech range aggregation" passed after 0.409 seconds.
+✔ Test storeCleanupRevalidatesPreview() passed after 0.408 seconds.
+✔ Test sameConfigurationUpdateAlsoInvalidatesPendingAdmission() passed after 0.319 seconds.
+✔ Suite "Recognition setup configuration" passed after 0.409 seconds.
+✔ Suite "Audio file boundary recovery" passed after 0.409 seconds.
+✔ Suite "Decoded arbitration response audit" passed after 0.409 seconds.
+✔ Suite "Journal range and local candidate integration" passed after 0.409 seconds.
+✔ Suite "Chunked playback seeking" passed after 0.409 seconds.
+✔ Suite "Explicit local multi-ASR probe boundaries" passed after 0.409 seconds.
+✔ Suite "Meta Muse actual streaming protocol; no cloud calls" passed after 0.409 seconds.
+✔ Suite "Owned store path boundaries" passed after 0.409 seconds.
+✔ Suite "Single transcript engine configuration" passed after 0.409 seconds.
+✔ Suite "Parallel audio and precision review boundaries" passed after 0.409 seconds.
+✔ Suite "Audio journal, bounded ring and VAD" passed after 0.409 seconds.
+✔ Suite "Arbiter evidence and blind acoustic review" passed after 0.409 seconds.
+✔ Suite "Actual current-generation recognition presentation" passed after 0.409 seconds.
+✔ Test settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) with 2 test cases passed after 0.320 seconds.
+✔ Test terminalFailuresAndBufferLimitCannotPublish(behavior:) with 3 test cases passed after 0.409 seconds.
+✔ Test oldResponseIdentityIsIgnored() passed after 0.409 seconds.
+✔ Test unsupportedSocketFallsBackOnlyToSameConfiguredGPT() passed after 0.410 seconds.
+✔ Suite "Recognition settings generation admission" passed after 0.414 seconds.
+✔ Test storeCompletedTombstoneCleansResidualFilesOnRecovery() passed after 0.413 seconds.
+✔ Test storePendingErasureResumesAfterCrash() passed after 0.413 seconds.
+✔ Test persistentLaneUsesLineageAndManifestDeltasNeverPartialJSON() passed after 0.413 seconds.
+✔ Test cacheMissReplaysFullAuthoritativeManifestOnce() passed after 0.381 seconds.
+✔ Test explicitCancelPreventsFutureRequests() passed after 0.415 seconds.
+✔ Test cancellationOnlyRemovesCapturedSessionsNotNewlyRetiredOnes() passed after 0.348 seconds.
+✔ Test credentialAndConfigurationChangesInvalidateConnectionCache() passed after 0.415 seconds.
+✔ Test timeoutClosesSocketAndDoesNotUseFallback() passed after 0.423 seconds.
+✔ Suite "Persistent single GPT transport, deterministic no-network protocol" passed after 0.425 seconds.
+✔ Test cancellationRejectsInFlightCallbacksWithoutErasingAudio() passed after 0.343 seconds.
+✔ Test panelIncludesAllSessionPagesAndExplicitHistoryOnlyOnce() passed after 0.265 seconds.
+✔ Suite "RC store ownership, migrations and archive" passed after 0.435 seconds.
+✔ Test audioDeletionInvalidatesEpochBeforeLateCallbacks() passed after 0.345 seconds.
+✔ Test failedExpertDoesNotStopOtherAudioOrDestroyOriginal() passed after 0.353 seconds.
+2026-11-07 04:10:13.960 swiftpm-testing-helper[63849:31595563] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-07 04:10:13.960 swiftpm-testing-helper[63849:31595563] IOPMScheduleUserActivityLevelNotification returned 0
+✘ Test invalidReplacementNeverErasesStoredDummyCredential() recorded an issue at CloudCredentialTests.swift:36:6: Caught error: .keychain(100001)
+✘ Test invalidReplacementNeverErasesStoredDummyCredential() failed after 0.466 seconds with 1 issue.
+✘ Test createReplaceReadDeleteKeepsAccountProviderAndServiceIsolation() recorded an issue at CloudCredentialTests.swift:7:6: Caught error: .keychain(100001)
+✘ Test createReplaceReadDeleteKeepsAccountProviderAndServiceIsolation() failed after 0.481 seconds with 1 issue.
+✘ Suite "Isolated real Keychain credentials" failed after 0.482 seconds with 2 issues.
+✔ Test testunavailablePermissionHasNoPromptOrSideEffect() passed after 0.339 seconds.
+2026-11-07 04:10:14.038 swiftpm-testing-helper[63849:31595563] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-07 04:10:14.038 swiftpm-testing-helper[63849:31595563] IOPMScheduleUserActivityLevelNotification returned 0
+✔ Test countOnlyTapNeverReadsSampleDataAndRunsOffMain() passed after 0.487 seconds.
+✔ Test recordingTapCreatedOnMainActorRunsOnBackgroundThread() passed after 0.486 seconds.
+✔ Suite "Real-time tap actor isolation" passed after 0.544 seconds.
+✔ Test focusAwayAndBackExpiresBinding() passed after 0.406 seconds.
+✔ Test sameURLReusedWebEditorLayoutExpiresBinding() passed after 0.355 seconds.
+2026-11-07 04:10:14.043 swiftpm-testing-helper[63849:31595563] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-07 04:10:14.043 swiftpm-testing-helper[63849:31595563] IOPMScheduleUserActivityLevelNotification returned 0
+✔ Test contextualGraphemeBoundariesAndByteIdentityAreMandatory() passed after 0.471 seconds.
+✔ Test realtimeWriteFailureStopsWorkerAndSealsEmptyRecord() passed after 0.508 seconds.
+✔ Suite "Capture storage failures" passed after 0.550 seconds.
+✔ Test incompleteSemanticContextRejectsContinuousButKeepsManual() passed after 0.413 seconds.
+✔ Test testchangedPageStopsBeforeDispatch() passed after 0.386 seconds.
+✔ Test testexistingSpeechNeverAutomaticallyReplayed() passed after 0.364 seconds.
+✔ Test cancellationBeforeStartDoesNotWrite() passed after 0.370 seconds.
+2026-11-07 04:10:14.061 swiftpm-testing-helper[63849:31595563] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-07 04:10:14.062 swiftpm-testing-helper[63849:31595563] IOPMScheduleUserActivityLevelNotification returned 0
+✔ Test localNotificationBridgeObservesLockAndUnlockWithoutSystemSideEffects() passed after 0.511 seconds.
+✔ Test testtimeoutIsUncertainAndNeverRetried() passed after 0.424 seconds.
+✔ Suite "Independent lifecycle stop reasons" passed after 0.569 seconds.
+✔ Test injectedWorkspaceActivationExpiresBindingWithoutChangingFakeSnapshot() passed after 0.377 seconds.
+✔ Test cancellationDuringReservationNeverReachesAX() passed after 0.447 seconds.
+✔ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() passed after 0.485 seconds.
+✔ Suite "Audio controller shutdown" passed after 0.583 seconds.
+✘ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() recorded an issue at AudioPlaybackTests.swift:61:17: Caught error: .message("无法播放原音")
+✘ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() failed after 0.473 seconds with 1 issue.
+✘ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() recorded an issue at AudioPlaybackTests.swift:29:17: Caught error: .message("无法播放原音")
+✘ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() failed after 0.497 seconds with 1 issue.
+✘ Suite "Silent production AVAudioPlayer integration" failed after 0.621 seconds with 2 issues.
+✔ Test revocationCancelsAlreadyAdmittedSessionWhileCaptureStopIsSuspended() passed after 0.556 seconds.
+✔ Suite "Capture session ownership across suspension" passed after 0.625 seconds.
+✔ Test syntheticMetadataExportsAppliedConfigurationOnceWithoutSecretValues() passed after 0.603 seconds.
+✔ Suite "Isolated connection setup without provider requests" passed after 0.640 seconds.
+✔ Test lostLocalReadCapabilityStopsNextAppend() passed after 0.512 seconds.
+✔ Test mutationOfConfirmedTailStopsNextAppend() passed after 0.487 seconds.
+✔ Test ownInsertionNotificationKeepsContinuousBinding() passed after 0.449 seconds.
+✔ Test userSelectionDuringConfirmationStopsBinding() passed after 0.512 seconds.
+✔ Test unobservableWebOnlyAllowsExplicitManualInsertion() passed after 0.487 seconds.
+✔ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() passed after 0.466 seconds.
+✔ Test rejectedArbitrationRetainsDecodedResponseWithoutPublishingIt() passed after 0.687 seconds.
+✔ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) with 2 test cases passed after 0.566 seconds.
+✔ Suite "Production capture to single-core recognition with isolated transports" passed after 0.779 seconds.
+✔ Test legacyFastModeCannotBypassMandatoryGPTReview() passed after 0.699 seconds.
+✔ Test identicalAudioWaitsForBothExpertsBeforeQualityPublication() passed after 0.712 seconds.
+✔ Test mandatoryFinalGPTReviewWaitsEvenWhenExpertsAgree(simultaneous:) with 2 test cases passed after 0.717 seconds.
+✔ Test failedFusionExpertPreventsStaleExternalAttemptWithoutBlockingNextSpeech() passed after 0.617 seconds.
+✔ Test lateEarlierRecordingIsDeferredWithoutBlockingNextSpeech() passed after 0.705 seconds.
+✔ Test teststableSuffixOnlyOnce() passed after 0.685 seconds.
+✔ Test userEditAndUndoStillInvalidatesOwnership() passed after 0.784 seconds.
+✔ Test v3MigrationPreservesLedgerAndInvalidatesOnlyRuntimeOwnership() passed after 0.801 seconds.
+✔ Test durableReservationPrecedesSelectedRangeAndInvalidationPreventsTextSetter() passed after 0.825 seconds.
+✔ Test incompleteOrUnownedEvidenceCannotRepair(mode:) with 7 test cases passed after 0.827 seconds.
+✔ Test newerEvidenceRevokesStaleCorrectionEvenBeforePublication() passed after 0.832 seconds.
+✔ Test changedTargetNeverMutated(change:) with 9 test cases passed after 0.830 seconds.
+✔ Test crashAfterReservationIsUnverifiedAndCannotReserveAgain() passed after 0.844 seconds.
+✔ Test uncertainReplacementConsumedOnceAndRestartCannotReplay() passed after 0.833 seconds.
+✔ Test deleteAudioKeepsCorrectionHistoryButDeleteRecordErasesIt() passed after 0.841 seconds.
+✔ Test productionFusionPublicationReachesIncrementalCoordinatorOnce() passed after 0.792 seconds.
+✔ Test slowAcknowledgementIsConfirmedWithoutResending() passed after 0.787 seconds.
+✔ Test lateTailCannotBeAppendedAfterAnotherRecording() passed after 0.786 seconds.
+✔ Test unsupportedReplacementPendingDoesNotBlockIndependentRecord() passed after 0.915 seconds.
+✔ Test shorterRepairKeepsInsertionLedgerMonotone() passed after 0.928 seconds.
+✔ Test laterInsertionDefersEarlierCorrectionWithoutGlobalBlock() passed after 0.948 seconds.
+✔ Test lengthChangingRepairPreservesUserPrefixSuffixAndAppendsOnlyNewSuffix() passed after 0.948 seconds.
+✔ Test finalReviewRunsAgainAfterLiveReview(appendMore:) with 2 test cases passed after 0.995 seconds.
+✔ Test unconfirmedInitialInsertionCannotCreateOwnershipAndDoesNotBlockNewRecord() passed after 1.250 seconds.
+✔ Test realGPTCoreFinalizationPublishesActionableCorrectionFromFakeProviders() passed after 1.298 seconds.
+✔ Suite "Owned range correction production path with synthetic OS and SQLite" passed after 1.388 seconds.
+✔ Test blockedGPTDoesNotSpinOrCertifyAgreeingExperts() passed after 1.547 seconds.
+✔ Suite "Real coordinator with isolated persistence and controlled providers" passed after 1.637 seconds.
+✔ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() passed after 1.608 seconds.
+✔ Suite "Input coordinator with isolated SQLite and simulated OS" passed after 1.790 seconds.
+✘ Test run with 304 tests in 36 suites failed after 1.790 seconds with 4 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

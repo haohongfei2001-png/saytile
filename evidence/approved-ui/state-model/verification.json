@@ -1,0 +1,24 @@
+{
+  "head": "538e2d8dd9274f7c2a5d9e42a2191e4bd625347e",
+  "source_dirty": true,
+  "checks_passed": 97,
+  "state_preference_checks": 31,
+  "remaining_existing_checks": 66,
+  "scope": "production AppModel + isolated Store + injected capture state/meter and cloud controller; no microphone, Keychain reads, provider requests, external input or window activation",
+  "source_sha256": {
+    "Sources/SaytileApp/AppModel.swift": "903a8024ed3207ddaa4cbac8eefaa75799dbdc7e02b327f1755f1b29a8891f0f",
+    "tests/fixtures/AppModelProbe.swift": "8b40cd997bc09e2307d09e32476def7cd53aab0356d99353fc9022fc53fc0694"
+  },
+  "binary": {
+    "path": "/tmp/saytile-approved-state-model-probe",
+    "sha256": "26631479e77ca9d7c21285f2fc132ead2f695c06e1e6d10757d0ad7adcfd58d2",
+    "bytes": 6951776
+  },
+  "static_library_unchanged": true,
+  "artifacts_sha256": {
+    "build.log": "a7c7a85f9858f08c67d42e657ece33300d49dec50787399272130b76d6b30f19",
+    "run.log": "01dcabeeebdf9e91f09c7bcb6e4ec41ffd5a708aeb084a8687e1a3ff140a568d",
+    "run-fixture-recording-active.log": "15f5a0bf2d5efc8750fe5403a1f9bec498699b07b0115c73181f19a89fca4be0",
+    "library-identity.json": "9c6f3911f3ada229faa7f730909f9698ab9438bcc6b5da511111db1163edc777"
+  }
+}

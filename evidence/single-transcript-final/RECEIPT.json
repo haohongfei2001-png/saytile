@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-11-06T20:42:40.506132+00:00",
+  "repository": "haohongfei2001-png/saytile",
+  "runtime_source_commit": "3cd8ebcbc94e7536ea8d4ccfd4474b72e9fd2b46",
+  "runtime_tree": "aa0a16b884011bb8414831b3a7affb5ca820c0f1",
+  "acceptance_scripts_commit": "13aafc268266bbfa40151f87d00b79ff6ca8f18f",
+  "ancestry": {
+    "pr4": "79601ceab60ffe4ab7a90942ce33f1b8efa4a73e",
+    "pr5": "4fa637a47ce869b7c7aade0ea7c0c121162e10ee",
+    "main_untouched": "a352a1c812c33388a1a908f21ecde30da80ad1cd"
+  },
+  "native_suite": {
+    "passed": 329,
+    "suites": 39,
+    "failed": 0,
+    "skipped": 0,
+    "source_before": "3cd8ebcbc94e7536ea8d4ccfd4474b72e9fd2b46",
+    "source_after": "3cd8ebcbc94e7536ea8d4ccfd4474b72e9fd2b46"
+  },
+  "app_model": {
+    "passed": 25,
+    "failed": 0
+  },
+  "scoring": {
+    "inherited_passed": 43,
+    "new_paired_passed": 20,
+    "live_ASR_quality": false
+  },
+  "native_ui": {
+    "captures": 15,
+    "control_groups": 6,
+    "AXPress": 12,
+    "AXSetValue": 2,
+    "native_field_edits": 2,
+    "outside_foreground_changes": 0,
+    "source": "3cd8ebcbc94e7536ea8d4ccfd4474b72e9fd2b46",
+    "signature": "ad-hoc debug candidate",
+    "status": "PASS"
+  },
+  "owned_native_AX": {
+    "scenarios_passed": 5,
+    "status": "FIVE_SCENARIOS_PASS_WITH_PRIOR_UNATTRIBUTED_SAFETY_SIGNAL",
+    "target_selection": "injected exact fixture PID",
+    "adapter_and_mutation": "production NativeInputCoordinator / Store / AXInputAccess",
+    "production_foreground_resolver": "NOT_RUN",
+    "real_ChatGPT_Codex_targets": "NOT_RUN",
+    "full_value_replacement": false,
+    "clipboard_change": false,
+    "key_return_send": false,
+    "prior_failed_run": "native-reconciled-first-failure.json",
+    "diagnostic_repeat": "owned-native.json",
+    "release_gate": "HELD: prior generic safety signal is preserved and not causally resolved; real ChatGPT/Codex compatibility also NOT_RUN"
+  },
+  "CI": {
+    "native": {
+      "id": 42289851047,
+      "status": "success"
+    },
+    "design_contracts": {
+      "id": 42289851010,
+      "status": "success"
+    },
+    "head_sha": "3cd8ebcbc94e7536ea8d4ccfd4474b72e9fd2b46",
+    "checkout_merge_sha": "5da0b18fb100a05f838fd3d133dff3e42fea625b",
+    "checkout_tree_matches_head": true
+  },
+  "candidate": {
+    "version": "1.0.0-engine.single-transcript.2",
+    "type": "Release arm64, ad-hoc signed, not notarized or installed",
+    "artifact_id": 13539572392,
+    "artifact_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/42289851047/artifacts/13539572392",
+    "artifact_zip_sha256": "8ace2f5b298e04cc15f54fbcc63d098bf6fdad194041238787e4f517fdf0e6e3",
+    "app_zip_sha256": "9ed2465811d982f5eab214fa4393235cdd36dcfe91a1f8cfe041badec6f01715",
+    "executable_sha256": "2a270dd8903e5be1b159b6dad742d1d1b95b1fa13f4bcaf288d9cc891e11a789",
+    "embedded_source": "5da0b18fb100a05f838fd3d133dff3e42fea625b",
+    "embedded_dirty": false,
+    "archive_integrity": "PASS: ZIP CRC, inner executable 0755, arm64 Mach-O, source tree matches validated head"
+  },
+  "cloud_evaluation": {
+    "A": "NOT_RUN",
+    "B": "NOT_RUN",
+    "C": "NOT_RUN",
+    "D": "NOT_RUN",
+    "E": "NOT_RUN",
+    "F": "NOT_AVAILABLE",
+    "metrics": null,
+    "keychain_metadata_matches": 0,
+    "configuration_present": false,
+    "cloud_enabled": false,
+    "paid_model_requests": 0,
+    "private_audio_uploads": 0,
+    "missing": "Saytile service credentials/configuration and per-service processing switches; not a request for user testing"
+  },
+  "limitations": [
+    "No live vendor authentication/protocol/accuracy/latency result",
+    "No physical microphone continuous speech/end-to-end quality acceptance",
+    "No actual ChatGPT or Codex target-owned-range acceptance",
+    "No 24h/72h wall-clock power/thermal soak",
+    "Apple offline locale currently zh-CN; no claim of equal bilingual offline accuracy",
+    "A third ASR remains optional; Qwen/Assembly pair is engineering baseline not measured winner",
+    "One native fixture safety assertion fired before granular counters existed; diagnostic repeat passed 5/5 but is not proof of root-cause resolution."
+  ],
+  "checksums": {
+    "native.log": "f0c1e123aa60df887f3e45b4fcf8fbf570254afb9d77724f284ab763ceeecba4",
+    "app-model.log": "b09e608473ad583d72594c99f7c6fff23c4f26a64e703d0cb9a457ca34fb0d31",
+    "scoring.log": "35aeeae94a106aa43ff1d6c449781fd2fcf94e6eb1f9ee1a289bd383e9792e46",
+    "paired-scoring.log": "4d76206cd4ef9c5dc29ed139852b50873818faff28e8611232f6b748a0c15213",
+    "contracts.log": "c4feaa880513a5a31f818ca0f2755cd8f7fa07be85c4376c9a8e6612a4594e4b",
+    "ui-controls.log": "8a5b9aa039a8c338a6d0e99b0fe4dfd885d20c1a84c37ca2d2d618b6813b4a05",
+    "owned-native-console.log": "d513f178c402d61b30b0a654cc38260f540f94b6283bd5e785759004a4c00787",
+    "access-preflight.json": "7a8bdfb8cb5d30e6b3aed5411725c0d08352855d829c7901700613f923f7bfa0",
+    "native-reconciled-first-failure.json": "fa5629ebfc9d1185d59481fcbd2f820c54a3dc807e78ce69539ae3568054234c",
+    "ci-native-summary.log": "a7f847487b8d4cb386cf22635549c754d529523dfba388e7cffcffb2e9eaacf6"
+  },
+  "previous_receipt": "RECEIPT-88c8e89.json"
+}

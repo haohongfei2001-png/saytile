@@ -1,0 +1,95 @@
+Building for production...
+[Planning deferred tasks]
+[37 / 98]
+[48 / 99] CAudio
+[69 / 109]
+[79 / 109] CAudio
+[90 / 109]
+[95 / 109] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[96 / 109] SaytileKit
+[107 / 237]
+[112 / 237]
+[122 / 237]
+[123 / 237]
+[125 / 237]
+[131 / 237]
+[134 / 237]
+[142 / 237]
+[147 / 237]
+[148 / 237]
+[160 / 237]
+[163 / 237]
+[168 / 237]
+[173 / 237]
+[174 / 237]
+[175 / 237]
+[181 / 237]
+[183 / 237]
+[188 / 237]
+[189 / 237]
+[190 / 237]
+[193 / 237]
+[195 / 237]
+[206 / 237]
+[207 / 237]
+[212 / 237]
+[213 / 237]
+[216 / 237]
+[218 / 237]
+[221 / 237]
+[222 / 237]
+[223 / 237]
+[224 / 237]
+[225 / 237] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[233 / 238] Saytile-product
+[237 / 242]
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:362:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+354 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+355 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+356 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+357 |             // A cancelled older check must fully close its sockets before another starts.
+358 |             await previous?.value
+    :
+360 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+361 |             do {
+362 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitS[238 / 242] Saytile-product
+trongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+363 |                     Task { @MainActor [weak self] in
+364 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[240 / 242] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[241 / 242] Saytile-product
+Build complete! (73.99秒)
+/tmp/saytile-bundle.GB3krn/Saytile.app: replacing existing signature
+/tmp/saytile-bundle.GB3krn/Saytile.app/Contents/Info.plist: OK
+Built /tmp/saytile-package.t5gmhN/Saytile.app
+created: /Users/hhf/.codex/worktrees/saytile-no-api-product/dist/Saytile-1.0.0-rc.2-no-api.1-arm64.dmghdiutil: WARNING: 'hdiutil create -volname -format ...' is deprecated. Please use 'diskutil image create from/blank --volumeName --format ...' instead.
+
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $C76179F0
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $82517D3B
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $E14F7333
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $113AEF9A
+正在检查“（Apple_Free：5）”的校验和…
+                      （Apple_Free：5）：已验证CRC32 $00000000
+正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $E14F7333
+正在检查“GPT Header（Backup GPT Header：7）”的校验和…
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $E5B1FEBB
+已验证CRC32 $5ED6819F
+hdiutil: verify: checksum of "dist/Saytile-1.0.0-rc.2-no-api.1-arm64.dmg" is VALID
+Packaged dist/Saytile-1.0.0-rc.2-no-api.1-arm64.dmg

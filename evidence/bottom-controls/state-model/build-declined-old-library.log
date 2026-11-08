@@ -1,0 +1,34 @@
+Sources/SaytileApp/AppModel.swift:464:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+456 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+457 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+458 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+459 |             // A cancelled older check must fully close its sockets before another starts.
+460 |             await previous?.value
+    :
+462 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+463 |             do {
+464 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+465 |                     Task { @MainActor [weak self] in
+466 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+Sources/SaytileApp/AppModel.swift:518:48: error: extra argument 'to' in call
+516 |     }
+517 |     func copy(_ text: String) {
+518 |         if input.copy(text, to: copyPasteboard ?? .general) {
+    |                                                `- error: extra argument 'to' in call
+519 |             notice = "已复制，可以粘贴到任何应用。"
+520 |         } else {
+
+Sources/SaytileApp/AppModel.swift:518:18: error: cannot convert value of type '()' to expected condition type 'Bool'
+516 |     }
+517 |     func copy(_ text: String) {
+518 |         if input.copy(text, to: copyPasteboard ?? .general) {
+    |                  `- error: cannot convert value of type '()' to expected condition type 'Bool'
+519 |             notice = "已复制，可以粘贴到任何应用。"
+520 |         } else {
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>

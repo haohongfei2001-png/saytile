@@ -3,8 +3,10 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 configuration="${1:-release}"
 SAYTILE_BUILD_SCRATCH="${SAYTILE_BUILD_SCRATCH:-/tmp/saytile-build}"
-swift build --scratch-path "$SAYTILE_BUILD_SCRATCH" -c "$configuration"
-bin_dir="$(swift build --scratch-path "$SAYTILE_BUILD_SCRATCH" -c "$configuration" --show-bin-path)"
+SAYTILE_BUILD_COMMAND=(swift build --scratch-path "$SAYTILE_BUILD_SCRATCH" -c "$configuration")
+if [[ "${SAYTILE_SWIFT_DISABLE_SANDBOX:-0}" == 1 ]]; then SAYTILE_BUILD_COMMAND+=(--disable-sandbox); fi
+"${SAYTILE_BUILD_COMMAND[@]}"
+bin_dir="$("${SAYTILE_BUILD_COMMAND[@]}" --show-bin-path)"
 app="${SAYTILE_APP_OUTPUT:-$PWD/dist/Saytile.app}"
 SAYTILE_BUILD_STAGE="$(mktemp -d /tmp/saytile-bundle.XXXXXX)"
 trap 'rm -rf "$SAYTILE_BUILD_STAGE"' EXIT
@@ -12,7 +14,10 @@ bundle="$SAYTILE_BUILD_STAGE/Saytile.app"
 mkdir -p "$bundle/Contents/MacOS" "$bundle/Contents/Resources"
 cp "$bin_dir/Saytile" "$bundle/Contents/MacOS/Saytile"
 swift scripts/make-icon.swift "$SAYTILE_BUILD_STAGE/Saytile.iconset"
-iconutil -c icns "$SAYTILE_BUILD_STAGE/Saytile.iconset" -o "$bundle/Contents/Resources/Saytile.icns"
+if ! iconutil -c icns "$SAYTILE_BUILD_STAGE/Saytile.iconset" -o "$bundle/Contents/Resources/Saytile.icns"; then
+  python3 scripts/encode-iconset.py "$SAYTILE_BUILD_STAGE/Saytile.iconset" "$bundle/Contents/Resources/Saytile.icns"
+fi
+cp Sources/SaytileKit/Resources/ConnectionSample.pcm "$bundle/Contents/Resources/ConnectionSample.pcm"
 cp THIRD_PARTY_NOTICES.md "$bundle/Contents/Resources/THIRD_PARTY_NOTICES.md"
 cp Sources/CAudio/WEBRTC-LICENSE.txt "$bundle/Contents/Resources/WEBRTC-LICENSE.txt"
 cp packaging/Info.plist "$bundle/Contents/Info.plist"

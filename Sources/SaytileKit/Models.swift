@@ -79,3 +79,14 @@ public enum StoreError: LocalizedError, Sendable {
         }
     }
 }
+
+/// A replacement has its own at-most-once journal; insertion reservations remain immutable.
+public struct OwnedCorrectionReservation: Sendable {
+    public let id: UUID
+    public let bindingID: UUID
+    public let recordingID: UUID
+    public let revisionID: UUID
+    public let targetStart: Int
+    public let expectedText: String
+    public let replacement: String
+}

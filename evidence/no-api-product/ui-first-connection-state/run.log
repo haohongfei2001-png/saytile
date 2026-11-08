@@ -1,0 +1,80 @@
+UI_CAPTURE panel-empty 400x550 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS 直接输入 fixture_pid=1173 foreground_unchanged=true
+NATIVE_UI_AXPRESS 自由记录 fixture_pid=1173 foreground_unchanged=true
+UI_CONTROL_PASS mode buttons through native control events
+UI_CAPTURE panel-content 400x550 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE panel-compact 400x440 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS 已收藏 fixture_pid=1173 foreground_unchanged=true
+NATIVE_UI_AXPRESS 全部记录 fixture_pid=1173 foreground_unchanged=true
+UI_CONTROL_PASS archive filters through native control events and SQLite
+UI_CAPTURE archive 1040x720 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS 保存修改 fixture_pid=1173 foreground_unchanged=true
+UI_CONTROL_PASS native Save action commits immutable edit
+UI_CAPTURE archive-detail 1120x720 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE archive-detail-compact 1120x570 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE archive-no-results 1040x720 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE panel-ai-review 400x550 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE panel-ai-recovery 400x550 foreground_unchanged=true candidate_activated=false
+UI_STATE_PASS one transcript survives single-core processing and failure; synthetic Store runs, no providers
+UI_CAPTURE settings 650x740 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE settings-compact 560x570 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS recognition.configureServices fixture_pid=1173 foreground_unchanged=true
+NATIVE_UI_AXPRESS connection.authorizeCheck fixture_pid=1173 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.apply fixture_pid=1173 foreground_unchanged=true
+NATIVE_UI_AXSETVALUE recognition.topicContext fixture_pid=1173 foreground_unchanged=true
+NATIVE_UI_FIELD_EDIT recognition.topicContext via owned NSTextView delegate; no global key events
+NATIVE_UI_AXPRESS recognition.apply fixture_pid=1173 foreground_unchanged=true
+UI_CONTROL_PASS recognition settings: unverified cloud disabled, explicit cost authorization, offline apply and native text edit
+UI_CAPTURE ai-controls 650x840 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE ai-services 650x840 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXSETVALUE recognition.model.a71e0001-0000-4000-8000-000000000001.workspace fixture_pid=1173 foreground_unchanged=true
+NATIVE_UI_FIELD_EDIT recognition.model.a71e0001-0000-4000-8000-000000000001.workspace via owned NSTextView delegate; no global key events
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.consent fixture_pid=1173 foreground_unchanged=true
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.consent fixture_pid=1173 foreground_unchanged=true
+UI_CONTROL_PASS fixed dual-expert setup: workspace and per-service consent; no model toggle, key read or cloud request
+UI_CAPTURE ai-chinese-keychain 650x740 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS connectionSetup.finish fixture_pid=1173 foreground_unchanged=true
+UI_CONTROL_PASS isolated setup rejects unfinished configuration through native Finish action; no export or provider request
+UI_CAPTURE connection-setup 650x840 foreground_unchanged=true candidate_activated=false
+UI_CAPTURE connection-first-empty 650x840 foreground_unchanged=true candidate_activated=false
+NATIVE_UI_AXPRESS recognition.configureServices fixture_pid=1173 foreground_unchanged=true
+NATIVE_UI_DISCLOSURE recognition.model.a71e0001-0000-4000-8000-000000000001.header before=0 after=0
+NATIVE_UI_DISCLOSURE_ACTIONS [] value_settable=false
+NATIVE_UI_AXPRESS recognition.model.a71e0001-0000-4000-8000-000000000001.header fixture_pid=1173 foreground_unchanged=true
+FAIL accessible fixture control not found: recognition.model.a71e0001-0000-4000-8000-000000000001.workspace; 35 nodes
+AXWindow Saytile UI Review connection-first-success
+AXGroup 
+AXStaticText 
+AXScrollArea 
+AXHeading AI 识别
+AXGroup 
+AXStaticText 
+AXCheckBox recognition.cloudEnabled
+AXStaticText 
+AXButton 收起连接设置 | recognition.configureServices
+AXStaticText 
+AXTextField recognition.topicContext
+AXStaticText 
+AXDisclosureTriangle 中文识别 · 阿里云 Qwen Message、待添加密钥 | recognition.model.a71e0001-0000-4000-8000-000000000001.header-recognition.model.a71e0001-0000-4000-8000-000000000001.header
+AXDisclosureTriangle 英文识别 · AssemblyAI Streaming、待添加密钥 | recognition.model.a71e0001-0000-4000-8000-000000000002.header-recognition.model.a71e0001-0000-4000-8000-000000000002.header
+AXDisclosureTriangle 文字融合 · OpenAI Responses、待添加密钥 | recognition.model.a71e0001-0000-4000-8000-000000000004.header-recognition.model.a71e0001-0000-4000-8000-000000000004.header
+AXStaticText 
+AXStaticText 
+AXDisclosureTriangle 检查范围与费用
+AXStaticText 
+AXCheckBox connection.authorizeCheck
+AXButton 授权并连接 | connection.startCheck
+AXStaticText 
+AXStaticText 
+AXCheckBox recognition.automaticRecovery
+AXStaticText 
+AXButton 保存并应用识别设置 | recognition.apply
+AXStaticText 
+AXDisclosureTriangle 服务用量记录
+AXStaticText recognition.model.a71e0001-0000-4000-8000-000000000001.header
+AXStaticText recognition.model.a71e0001-0000-4000-8000-000000000001.header
+AXStaticText recognition.model.a71e0001-0000-4000-8000-000000000002.header
+AXStaticText recognition.model.a71e0001-0000-4000-8000-000000000002.header
+AXStaticText recognition.model.a71e0001-0000-4000-8000-000000000004.header
+AXStaticText recognition.model.a71e0001-0000-4000-8000-000000000004.header
+UI_REVIEW_FAILED Remote native AX action failed for recognition.model.a71e0001-0000-4000-8000-000000000001.workspace, code=1

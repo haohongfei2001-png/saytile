@@ -1,0 +1,77 @@
+{
+  "scope": "dirty preview; tests only, no cloud/microphone/private data",
+  "identity_pre_controls": {
+    "source_revision": "a6849128e12e88560daa52fce48f6f2d805a88aa",
+    "source_dirty": true,
+    "scope": "keyboard isolation repair dirty preview; original closure-only preview preserved",
+    "source_sha256": {
+      "Sources/SaytileApp/UIReview.swift": "c22532879f1d8056f7bd473ccce0702ec4e14e467e89f284cd4ba1f5c078432b",
+      "scripts/test-native-ui.py": "7459a56d1e6acc53227d7f9864c02f6f59b8cb201d8e2b516f6ee5420f304e97",
+      "tests/fixtures/NativeUIControlProbe.swift": "07eb6a66ba8ef29cb46dafffc08222daa59d3840f0841950f754a89d0a9a2385"
+    },
+    "binary": {
+      "path": "/tmp/saytile-compact-keyboard-preview/Saytile.app/Contents/MacOS/Saytile",
+      "sha256": "7b99bb46836326700daca7192f4a10288b7fe4437e486ce3d449280fa78279ca",
+      "size": 6298336
+    },
+    "sampling_boundary": "after render-only launch; before native-controls launch"
+  },
+  "results": {
+    "render-only": {
+      "passed": true,
+      "controls_requested": false,
+      "source_revision": "a6849128e12e88560daa52fce48f6f2d805a88aa",
+      "source_dirty": true,
+      "binary_sha256": "7b99bb46836326700daca7192f4a10288b7fe4437e486ce3d449280fa78279ca",
+      "keyboard_isolation_checks": {
+        "before-validation": 18,
+        "after-validation": 18,
+        "after-interaction": 18,
+        "capture": 20,
+        "before-field-edit": 0,
+        "after-field-edit": 0
+      },
+      "outside_foreground_observations": 0,
+      "native_ax_press": 0,
+      "native_menu_select": 0,
+      "native_control_inspections": 0,
+      "capture_resume_acknowledgements": 0,
+      "native_text_checks": 1,
+      "native_unicode_checks": 1,
+      "native_ax_set_value": 0,
+      "native_field_edits": 0,
+      "native_secure_field_edits": 0,
+      "control_groups": 0,
+      "capture_count": 20
+    },
+    "controls": {
+      "passed": true,
+      "controls_requested": true,
+      "source_revision": "a6849128e12e88560daa52fce48f6f2d805a88aa",
+      "source_dirty": true,
+      "binary_sha256": "7b99bb46836326700daca7192f4a10288b7fe4437e486ce3d449280fa78279ca",
+      "keyboard_isolation_checks": {
+        "before-validation": 22,
+        "after-validation": 22,
+        "after-interaction": 22,
+        "capture": 31,
+        "before-field-edit": 6,
+        "after-field-edit": 6
+      },
+      "outside_foreground_observations": 0,
+      "native_ax_press": 41,
+      "native_menu_select": 6,
+      "native_control_inspections": 5,
+      "capture_resume_acknowledgements": 1,
+      "native_text_checks": 1,
+      "native_unicode_checks": 1,
+      "native_ax_set_value": 6,
+      "native_field_edits": 6,
+      "native_secure_field_edits": 3,
+      "control_groups": 12,
+      "capture_count": 31
+    }
+  },
+  "source_unchanged": true,
+  "binary_unchanged": true
+}

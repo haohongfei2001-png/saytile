@@ -14,6 +14,7 @@ struct RecognitionSettingsSection: View {
     var body: some View {
         Section("AI 识别") {
             Toggle("启用高质量云端识别", isOn: $model.recognitionConfiguration.cloudEnabled)
+                .disabled(!model.connectionVerified || model.checkingConnection)
                 .accessibilityIdentifier("recognition.cloudEnabled")
             HStack {
                 Label("已准备 \(preparedCount) / \(active.count) 项服务", systemImage: "checklist")
@@ -25,32 +26,24 @@ struct RecognitionSettingsSection: View {
             TextField("当前话题或术语提示（可选）", text: $model.recognitionConfiguration.topicContext, axis: .vertical)
                 .lineLimit(2...4).accessibilityIdentifier("recognition.topicContext")
             if servicesExpanded {
-                Text("中文与英文专家平等接收完整音频，由唯一 GPT-6 核心持续融合和修正。只做忠实转写，不润色。密钥仅存于钥匙串。")
+                Text("连接三项服务，即可边说边显示、自动核对文字。中文与英文服务都接收完整语音，AI 只处理候选文字。密钥仅存于钥匙串。")
                     .font(.system(size: 11)).foregroundStyle(Palette.muted)
                 ForEach($model.recognitionConfiguration.models) { $item in
                     if !item.isOptionalExpert && !item.isLegacyReviewModel {
                         ModelConfigurationEditor(configuration: $item, model: model, onCredentialChange: refreshPresence)
                     }
                 }
-                DisclosureGroup("其他识别专家与自定义服务") {
-                    ForEach($model.recognitionConfiguration.models) { $item in
-                        if item.isOptionalExpert {
-                            ModelConfigurationEditor(configuration: $item, model: model, onCredentialChange: refreshPresence)
-                        }
-                    }
-                    Button("添加自定义模型") {
-                        model.recognitionConfiguration.models.append(.init(purpose: .multilingualASR, provider: .soniox, model: "stt-rt-v6", enabled: false))
-                        refreshPresence()
-                    }.accessibilityIdentifier("recognition.addModel")
-                }
+                ConnectionCheckPanel(model: model, ready: preparedCount == 3 && active.count == 3)
             }
             Toggle("连接中断后从已保存原音自动恢复", isOn: $model.recognitionConfiguration.automaticRecovery)
                 .accessibilityIdentifier("recognition.automaticRecovery")
                 .disabled(!allowsAutomaticRecovery)
+            Text("以前仅在本机处理的原音仍在本机恢复。更换服务、地区或密钥不会自动上传旧档案；需要时可在档案中选择用云端重新识别。")
+                .font(.system(size: 11)).foregroundStyle(Palette.muted)
             Text("每项服务独立授权。启用后，语音或必要候选文字将交给所选服务处理，费用由你的服务商账户承担。")
                 .font(.system(size: 11)).foregroundStyle(Palette.muted)
             Button(model.applyingRecognitionSettings ? "正在应用…" : "保存并应用识别设置", action: model.applyRecognitionSettings)
-                .disabled(model.applyingRecognitionSettings)
+                .disabled(model.applyingRecognitionSettings || model.checkingConnection)
                 .accessibilityIdentifier("recognition.apply")
             if model.hasUnappliedRecognitionSettings {
                 Text("有尚未应用的修改").font(.system(size: 11, weight: .medium)).foregroundStyle(Palette.muted)
@@ -62,7 +55,7 @@ struct RecognitionSettingsSection: View {
                 Text(note).font(.system(size: 12)).foregroundStyle(Palette.muted)
                     .accessibilityIdentifier("recognition.notice")
             }
-            DisclosureGroup("最近模型调用与用量") {
+            DisclosureGroup("服务用量记录") {
                 if model.modelCallSummary.isEmpty { Text("尚无模型调用。未返回账单金额时显示未知，不记为零费用。").font(.system(size: 11)).foregroundStyle(Palette.muted) }
                 ForEach(Array(model.modelCallSummary.enumerated()), id: \.offset) { _, line in
                     Text(line).font(.system(size: 11)).textSelection(.enabled)
@@ -91,6 +84,12 @@ struct ModelConfigurationEditor: View {
     @ViewState private var secret = ""
     @ViewState private var credentialPresence: CloudCredentialPresence = .missing
     @ViewState private var expanded = false
+    init(configuration: Binding<ModelConfiguration>, model: AppModel, initiallyExpanded: Bool = false,
+         onCredentialChange: @escaping () -> Void = {}) {
+        _configuration = configuration; _model = ObservedObject(wrappedValue: model)
+        self.initiallyExpanded = initiallyExpanded; self.onCredentialChange = onCredentialChange
+        _expanded = ViewState(initialValue: initiallyExpanded)
+    }
     private var prefix: String { "recognition.model." + configuration.id.uuidString.lowercased() }
     private var status: String {
         if !configuration.enabled { return "已停用" }
@@ -100,8 +99,18 @@ struct ModelConfigurationEditor: View {
         return "已准备"
     }
     var body: some View {
-        DisclosureGroup(isExpanded: $expanded) {
-            Toggle("使用此模型", isOn: $configuration.enabled).accessibilityIdentifier(prefix + ".enabled")
+        VStack(alignment: .leading, spacing: 12) {
+            Button { expanded.toggle() } label: {
+                HStack {
+                    Image(systemName: expanded ? "chevron.down" : "chevron.right")
+                        .font(.system(size: 10, weight: .semibold)).foregroundStyle(Palette.muted)
+                    Text(connectionRoleLabel(configuration.provider) + " · " + configuration.provider.label)
+                    Spacer()
+                    Text(status).font(.system(size: 11)).foregroundStyle(Palette.muted)
+                }.contentShape(Rectangle())
+            }.buttonStyle(.plain).accessibilityIdentifier(prefix + ".header")
+                .accessibilityValue(expanded ? "已展开" : "已收起")
+            if expanded {
             if configuration.provider == .qwenMessage {
                 Picker("地域", selection: Binding(get: { configuration.region }, set: {
                     configuration.region = $0; configuration.cloudConsent = false
@@ -134,28 +143,7 @@ struct ModelConfigurationEditor: View {
             Toggle(configuration.purpose == .textFusion ? "允许此服务处理候选文字与当前话题" : "允许此服务处理语音和必要上下文（含恢复与复核）",
                    isOn: $configuration.cloudConsent).accessibilityIdentifier(prefix + ".consent")
             DisclosureGroup("高级设置") {
-                Picker("职责", selection: Binding(get: { configuration.purpose }, set: { purpose in
-                    configuration.purpose = purpose; configuration.cloudConsent = false
-                    if !configuration.provider.supports(purpose), let provider = CloudProvider.allCases.first(where: { $0.supports(purpose) }) {
-                        selectProvider(provider)
-                    }
-                })) {
-                    ForEach(RecognitionPurpose.allCases.filter { ![.audioReview, .finalASR].contains($0) }, id: \.self) { Text($0.label).tag($0) }
-                }.accessibilityIdentifier(prefix + ".purpose")
-                Picker("服务", selection: Binding(get: { configuration.provider }, set: { provider in selectProvider(provider) })) {
-                    ForEach(CloudProvider.allCases.filter { $0.supports(configuration.purpose) }, id: \.self) { Text($0.label).tag($0) }
-                }.accessibilityIdentifier(prefix + ".provider")
-                TextField("模型 ID", text: $configuration.model).autocorrectionDisabled()
-                    .accessibilityIdentifier(prefix + ".modelID")
                 TextField("此模型的术语提示（可选）", text: $configuration.context, axis: .vertical).lineLimit(1...3)
-                if configuration.purpose == .textFusion {
-                    Picker("推理强度", selection: $configuration.reasoningEffort) {
-                        Text("High").tag("high"); Text("Extra high").tag("xhigh"); Text("Max").tag("max")
-                    }
-                    Picker("推理模式", selection: $configuration.reasoningMode) {
-                        Text("Standard").tag("standard"); Text("Pro · 允许更长复核").tag("pro")
-                    }
-                }
                 DisclosureGroup("可选费用估算") {
                     TextField("币种", text: $configuration.currency)
                     rateField("每音频/会话小时单价", value: $configuration.audioHourRate)
@@ -164,14 +152,9 @@ struct ModelConfigurationEditor: View {
                     Text("按填写单价估算；优惠、最低计费和真实账单可能不同。不填写时费用显示未知。").font(.system(size: 11)).foregroundStyle(Palette.muted)
                 }
             }
-        } label: {
-            HStack {
-                Text(configuration.purpose.label + " · " + configuration.provider.label)
-                Spacer()
-                Text(status).font(.system(size: 11)).foregroundStyle(Palette.muted)
             }
         }
-            .task { credentialPresence = model.credentialPresence(configuration); expanded = initiallyExpanded }
+            .task { credentialPresence = model.credentialPresence(configuration) }
     }
     private func selectProvider(_ provider: CloudProvider) {
         configuration.provider = provider
@@ -185,5 +168,78 @@ struct ModelConfigurationEditor: View {
     private func rateField(_ title: String, value: Binding<Double?>) -> some View {
         TextField(title, text: Binding(get: { value.wrappedValue.map { String($0) } ?? "" },
                                       set: { value.wrappedValue = Double($0) })).autocorrectionDisabled()
+    }
+}
+
+private func connectionRoleLabel(_ provider: CloudProvider) -> String {
+    switch provider {
+    case .qwenMessage: "中文识别"
+    case .assemblyAI: "英文识别"
+    case .openAIResponses: "文字融合"
+    default: provider.label
+    }
+}
+
+private struct ConnectionCheckPanel: View {
+    @ObservedObject var model: AppModel
+    let ready: Bool
+    @ViewState private var costsExpanded = false
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label(model.connectionVerified ? "已接通，可以使用" : "最后一步 · 自动检查连接",
+                  systemImage: model.connectionVerified ? "checkmark.circle.fill" : "network")
+                .font(.system(size: 13, weight: .semibold))
+            Text("不需要你录音。保存三项密钥并授权后，Saytile 会用内置合成语音检查接收、融合和定稿。全部通过后自动启用；检查期间可以继续使用本机识别。")
+                .font(.system(size: 11)).foregroundStyle(Palette.muted)
+            if let report = model.connectionReport {
+                ForEach(report.services) { service in
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(connectionRoleLabel(service.provider))
+                            Spacer()
+                            Text(service.state.label).foregroundStyle(service.state == .failed ? Color.orange : Palette.muted)
+                        }.font(.system(size: 12))
+                        if let message = service.message { Text(message).font(.system(size: 11)).foregroundStyle(Palette.muted) }
+                    }.accessibilityIdentifier("connection.check." + service.provider.rawValue)
+                }
+                if !model.checkingConnection && !report.transcript.isEmpty {
+                    DisclosureGroup("查看合成语音检查结果") {
+                        Text(report.transcript).textSelection(.enabled)
+                        Text("这是连接与转写流程验证，尚未代表真实讲话准确率。")
+                            .font(.system(size: 11)).foregroundStyle(Palette.muted)
+                    }
+                }
+            }
+            Button { costsExpanded.toggle() } label: {
+                HStack {
+                    Image(systemName: costsExpanded ? "chevron.down" : "chevron.right").font(.system(size: 10, weight: .semibold))
+                    Text("检查范围与费用")
+                    Spacer()
+                }.contentShape(Rectangle())
+            }.buttonStyle(.plain).accessibilityIdentifier("connection.checkCosts")
+                .accessibilityValue(costsExpanded ? "已展开" : "已收起")
+            if costsExpanded {
+                Text(ConnectionCheckLimits.disclosure).font(.system(size: 11)).foregroundStyle(Palette.muted)
+                Text("语音服务可能按会话或音频 Token 计费；取消会关闭连接，不能撤销服务商已处理的请求。")
+                    .font(.system(size: 11)).foregroundStyle(Palette.muted)
+            }
+            Toggle("同意上传内置合成语音和候选文字，并承担本次检查的服务商费用", isOn: $model.connectionCheckAuthorized)
+                .font(.system(size: 12)).disabled(model.checkingConnection)
+                .accessibilityIdentifier("connection.authorizeCheck")
+            HStack {
+                if model.checkingConnection {
+                    ProgressView().controlSize(.small)
+                    Text("正在检查…").font(.system(size: 12))
+                    Spacer()
+                    Button("停止检查", action: model.cancelConnectionCheck).accessibilityIdentifier("connection.cancelCheck")
+                } else {
+                    Button(model.connectionVerified ? "重新检查连接" : "授权并连接", action: model.checkRecognitionConnections)
+                        .buttonStyle(.borderedProminent)
+                        .disabled(!ready || !model.connectionCheckAuthorized || model.applyingRecognitionSettings)
+                        .accessibilityIdentifier("connection.startCheck")
+                    if !ready { Text("请先保存密钥并完成上方三项授权").font(.system(size: 11)).foregroundStyle(Palette.muted) }
+                }
+            }
+        }.padding(14).background(Palette.paper.opacity(0.7), in: RoundedRectangle(cornerRadius: 12))
     }
 }

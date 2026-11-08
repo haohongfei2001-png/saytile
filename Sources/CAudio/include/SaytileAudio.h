@@ -18,3 +18,12 @@ typedef struct STVAD STVAD;
 STVAD *st_vad_create(void);
 void st_vad_destroy(STVAD *vad);
 int st_vad_process(STVAD *vad, const int16_t *pcm, size_t count);
+
+// Audio Queue pins the input UID without also rebinding the engine's output.
+// st_input_close synchronously ends callbacks before releasing the borrowed ring.
+typedef struct STPinnedInput STPinnedInput;
+STPinnedInput *st_input_open(const char *uid, double *sample_rate, int32_t *error);
+int32_t st_input_start(STPinnedInput *input, STAudioRing *ring);
+uint64_t st_input_frames(STPinnedInput *input);
+int32_t st_input_status(STPinnedInput *input);
+void st_input_close(STPinnedInput *input);

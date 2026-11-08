@@ -1,0 +1,28 @@
+{
+  "status": "INTENTIONALLY_STOPPED_FOR_RELEASE_BOUNDARY",
+  "unix_requested": 1794025728.590183,
+  "source_revision": "9c4f35fccb24ddc56f9dd9335ff772d423e5093d",
+  "superseding_revision": "69b90939fd688b35448f976950e96db0ce5b602a",
+  "requested_by": "root",
+  "owned_probe": {
+    "pid": 57437,
+    "binary": "/tmp/saytile-no-api8-9c4f35fccb24-realtime/realtime-probe",
+    "binary_sha256": "8833e29bae634d07d324b65420646f644657b90a66e0c7a120f5f4c6f1cc0ffc",
+    "unix_observed": 1794024937.2718
+  },
+  "signal": "SIGTERM",
+  "last_persistence_observation": {
+    "unix": 1794025702.498558,
+    "owned_directory": "/tmp/saytile-rc-realtime-data.1qSrOk",
+    "recordings": 26,
+    "chunks": 77,
+    "frames": 12280000,
+    "upload_grants": 0
+  },
+  "last_resource_observation": {
+    "unix": 1794025702.497963,
+    "elapsed_observation_seconds": 765.2316913329996,
+    "ps": "57437 12:48  15680   0.6 /tmp/saytile-no-api8-9c4f35fccb24-realtime/realtime-probe /Users/hhf/.codex/worktrees/saytile-original-final/evidence/no-api-product/intermediate-d4b9dbe/local/realtime-synthetic-source.aiff 1800 /tmp/saytile-rc-realtime-data.1qSrOk"
+  },
+  "reason": "The chosen release boundary includes the committed original visual reference and corrected color/caret behavior. Preserve this earlier partial capture with its own raw results."
+}

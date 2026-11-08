@@ -1,0 +1,175 @@
+warning: /Users/hhf/Library/org.swift.swiftpm/configuration is not accessible or not writable, disabling user-level cache features.
+warning: /Users/hhf/Library/org.swift.swiftpm/security is not accessible or not writable, disabling user-level cache features.
+warning: /Users/hhf/Library/Caches/org.swift.swiftpm is not accessible or not writable, disabling user-level cache features.
+warning: 'repair-repo': failed storing manifest for 'repair-repo' in cache: attempt to write a readonly database
+Building for debugging...
+[2 / 15] SaytileKit
+[4 / 17] SaytileKit
+[8 / 20] Saytile-product
+[9 / 20] SaytileKit
+/Users/hhf/.codex/saytile-single-transcript-20261107/repair-repo/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[15 / 21] SaytileKitTests-product
+/Users/hhf/.codex/saytile-single-transcript-20261107/repair-repo/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/saytile-single-transcript-20261107/repair-repo/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[26 / 33] Saytile-product
+[27 / 33] Saytile-product
+[31 / 35] Saytile-product
+[31 / 35] SaytileKitTests-product
+[33 / 35] SaytileKitTests-product/Users/hhf/.codex/saytile-single-transcript-20261107/repair-repo/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/saytile-single-transcript-20261107/repair-repo/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (8.87秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Test fusionRevisionCanCorrectOnlyUnreservedSuffixAndPreservesDraft() started.
+◇ Suite "Input coordinator with isolated SQLite and simulated OS" started.
+◇ Test fusionRevisionFinalReviewCanCorrectSameGenerationBeforeAnyDispatch() started.
+◇ Test fusionRevisionReservationArrivingDuringReviewKeepsExternalPrefixImmutable() started.
+◇ Suite "Fusion store authority and measurement" started.
+◇ Test storeDispatchOnlyNewStableSuffixAndNeverDuplicate() started.
+◇ Test storeDispatchUnverifiedDoesNotBlockIndependentSegment() started.
+◇ Test fusionRevisionSupersededUnreservedFinalCannotStillBeDispatched() started.
+◇ Test fusionRevisionChangedEvidenceWaitsWithoutConsumingCursorThenResumes() started.
+◇ Test storeDispatchUTF16RejectsSurrogateAndGraphemeSplit() started.
+◇ Suite "Owned range correction production path with synthetic OS and SQLite" started.
+◇ Test storeDispatchRestartInvalidatesTargetAndDoesNotReplay() started.
+◇ Test storeDispatchRejectsPrefixRewriteAndInvalidatesBinding() started.
+◇ Test fusionRevisionSameProposalAfterRetiredReviewRefreshesEvidenceWithoutNewText() started.
+◇ Test fusionRevisionLongestCompatibleBindingPrefixProtectsEveryTarget() started.
+◇ Test fusionRevisionSelectedPrefixRetainsNewlyUnresolvedTailAtStoreBoundary() started.
+◇ Test fusionRevisionLaterEmptyAgreementRevokesEveryUnreservedFinal() started.
+◇ Test fusionRevisionMatchingLegacyHeadAdoptsFusionEvidenceFreshness() started.
+◇ Test fusionRevisionNewAcousticConflictCannotMakeOldAgreementFresh() started.
+◇ Test sameURLReusedWebEditorLayoutExpiresBinding() started.
+◇ Test testunavailablePermissionHasNoPromptOrSideEffect() started.
+◇ Test injectedWorkspaceActivationExpiresBindingWithoutChangingFakeSnapshot() started.
+◇ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() started.
+◇ Test lateTailCannotBeAppendedAfterAnotherRecording() started.
+◇ Test lostLocalReadCapabilityStopsNextAppend() started.
+◇ Test userSelectionDuringConfirmationStopsBinding() started.
+◇ Test testtimeoutIsUncertainAndNeverRetried() started.
+◇ Test cancellationBeforeStartDoesNotWrite() started.
+◇ Test slowAcknowledgementIsConfirmedWithoutResending() started.
+◇ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() started.
+◇ Test mutationOfConfirmedTailStopsNextAppend() started.
+◇ Test focusAwayAndBackExpiresBinding() started.
+◇ Test incompleteSemanticContextRejectsContinuousButKeepsManual() started.
+◇ Test teststableSuffixOnlyOnce() started.
+◇ Test ownInsertionNotificationKeepsContinuousBinding() started.
+◇ Test actualTerminalTimeIsGenerationSpecificDurableAndNeverBackfilledFromRestart() started.
+◇ Test failedRequiredRunCannotKeepItsOldAgreementDispatchableOrBlockSafeRetraction() started.
+◇ Test lateEarlierRecordingIsDeferredWithoutBlockingNextSpeech() started.
+◇ Test testexistingSpeechNeverAutomaticallyReplayed() started.
+◇ Test testchangedPageStopsBeforeDispatch() started.
+◇ Test failedFusionExpertPreventsStaleExternalAttemptWithoutBlockingNextSpeech() started.
+◇ Test unobservableWebOnlyAllowsExplicitManualInsertion() started.
+◇ Test productionFusionPublicationReachesIncrementalCoordinatorOnce() started.
+◇ Test cancellationDuringReservationNeverReachesAX() started.
+◇ Test explicitSingleExpertDiagnosticUsesItsActualIdentityWithoutFakeSecondRole() started.
+◇ Test submittedAudioProgressIsMeasuredMetadataAndRejectsNonfiniteValues() started.
+◇ Test requirementsAreFrozenBeforeProviderAttemptsAndCannotBeDowngraded() started.
+◇ Test configuredSamePurposeExpertCannotBeSilentlyOmittedByAgreementOrSelection() started.
+◇ Test lengthChangingRepairPreservesUserPrefixSuffixAndAppendsOnlyNewSuffix() started.
+◇ Test uncertainReplacementConsumedOnceAndRestartCannotReplay() started.
+◇ Test durableReservationPrecedesSelectedRangeAndInvalidationPreventsTextSetter() started.
+◇ Test unconfirmedInitialInsertionCannotCreateOwnershipAndDoesNotBlockNewRecord() started.
+✔ Test storeDispatchOnlyNewStableSuffixAndNeverDuplicate() passed after 0.054 seconds.
+✔ Test storeDispatchUnverifiedDoesNotBlockIndependentSegment() passed after 0.054 seconds.
+◇ Test shorterRepairKeepsInsertionLedgerMonotone() started.
+◇ Test incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+✔ Test storeDispatchRejectsPrefixRewriteAndInvalidatesBinding() passed after 0.054 seconds.
+◇ Test changedTargetNeverMutated(change:) started.
+◇ Test v3MigrationPreservesLedgerAndInvalidatesOnlyRuntimeOwnership() started.
+◇ Test cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test crashAfterReservationIsUnverifiedAndCannotReserveAgain() started.
+◇ Test laterInsertionDefersEarlierCorrectionWithoutGlobalBlock() started.
+◇ Test realGPTCoreFinalizationPublishesActionableCorrectionFromFakeProviders() started.
+◇ Test deleteAudioKeepsCorrectionHistoryButDeleteRecordErasesIt() started.
+◇ Test userEditAndUndoStillInvalidatesOwnership() started.
+◇ Test unsupportedReplacementPendingDoesNotBlockIndependentRecord() started.
+◇ Test newerEvidenceRevokesStaleCorrectionEvenBeforePublication() started.
+◇ Test contextualGraphemeBoundariesAndByteIdentityAreMandatory() started.
+✔ Test fusionRevisionChangedEvidenceWaitsWithoutConsumingCursorThenResumes() passed after 0.054 seconds.
+✔ Test storeDispatchRestartInvalidatesTargetAndDoesNotReplay() passed after 0.054 seconds.
+✔ Test fusionRevisionFinalReviewCanCorrectSameGenerationBeforeAnyDispatch() passed after 0.068 seconds.
+✔ Test fusionRevisionReservationArrivingDuringReviewKeepsExternalPrefixImmutable() passed after 0.068 seconds.
+✔ Test fusionRevisionSupersededUnreservedFinalCannotStillBeDispatched() passed after 0.068 seconds.
+◇ Test case passing 1 argument mode → "partial" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "unresolved" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "raw" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument change → "ownedEdit" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument mode → "draft" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument mode → "edit" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument change → "prefixEdit" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument mode → "unobservable" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument change → "suffixEdit" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument mode → "unreadable" to incompleteOrUnownedEvidenceCannotRepair(mode:) started.
+◇ Test case passing 1 argument change → "page" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "control" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "selection" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "caret" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument change → "canonical" to changedTargetNeverMutated(change:) started.
+◇ Test case passing 1 argument state → "queued" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test case passing 1 argument state → "failedExpert" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test case passing 1 argument state → "failedSession" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+◇ Test case passing 1 argument state → "newGeneration" to cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) started.
+✔ Test fusionRevisionCanCorrectOnlyUnreservedSuffixAndPreservesDraft() passed after 0.068 seconds.
+✔ Test fusionRevisionSameProposalAfterRetiredReviewRefreshesEvidenceWithoutNewText() passed after 0.068 seconds.
+✔ Test storeDispatchUTF16RejectsSurrogateAndGraphemeSplit() passed after 0.068 seconds.
+✔ Test fusionRevisionSelectedPrefixRetainsNewlyUnresolvedTailAtStoreBoundary() passed after 0.068 seconds.
+◇ Test case passing 1 argument change → "focus" to changedTargetNeverMutated(change:) started.
+✔ Test fusionRevisionLaterEmptyAgreementRevokesEveryUnreservedFinal() passed after 0.069 seconds.
+✔ Test fusionRevisionLongestCompatibleBindingPrefixProtectsEveryTarget() passed after 0.069 seconds.
+✔ Test fusionRevisionMatchingLegacyHeadAdoptsFusionEvidenceFreshness() passed after 0.072 seconds.
+✔ Test explicitSingleExpertDiagnosticUsesItsActualIdentityWithoutFakeSecondRole() passed after 0.030 seconds.
+✔ Test requirementsAreFrozenBeforeProviderAttemptsAndCannotBeDowngraded() passed after 0.030 seconds.
+✔ Test submittedAudioProgressIsMeasuredMetadataAndRejectsNonfiniteValues() passed after 0.033 seconds.
+✔ Test testunavailablePermissionHasNoPromptOrSideEffect() passed after 0.051 seconds.
+✔ Test failedRequiredRunCannotKeepItsOldAgreementDispatchableOrBlockSafeRetraction() passed after 0.036 seconds.
+✔ Test fusionRevisionNewAcousticConflictCannotMakeOldAgreementFresh() passed after 0.083 seconds.
+✔ Test actualTerminalTimeIsGenerationSpecificDurableAndNeverBackfilledFromRestart() passed after 0.037 seconds.
+✔ Test configuredSamePurposeExpertCannotBeSilentlyOmittedByAgreementOrSelection() passed after 0.039 seconds.
+✔ Suite "Fusion store authority and measurement" passed after 0.086 seconds.
+✔ Test sameURLReusedWebEditorLayoutExpiresBinding() passed after 0.209 seconds.
+✔ Test focusAwayAndBackExpiresBinding() passed after 0.193 seconds.
+✔ Test incompleteSemanticContextRejectsContinuousButKeepsManual() passed after 0.201 seconds.
+✔ Test contextualGraphemeBoundariesAndByteIdentityAreMandatory() passed after 0.194 seconds.
+✔ Test testexistingSpeechNeverAutomaticallyReplayed() passed after 0.206 seconds.
+✔ Test testchangedPageStopsBeforeDispatch() passed after 0.206 seconds.
+✔ Test injectedWorkspaceActivationExpiresBindingWithoutChangingFakeSnapshot() passed after 0.230 seconds.
+✔ Test cancellationBeforeStartDoesNotWrite() passed after 0.232 seconds.
+✔ Test testtimeoutIsUncertainAndNeverRetried() passed after 0.236 seconds.
+✔ Test cancellationDuringReservationNeverReachesAX() passed after 0.225 seconds.
+✔ Test mutationOfConfirmedTailStopsNextAppend() passed after 0.303 seconds.
+✔ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() passed after 0.317 seconds.
+✔ Test lostLocalReadCapabilityStopsNextAppend() passed after 0.317 seconds.
+✔ Test userSelectionDuringConfirmationStopsBinding() passed after 0.319 seconds.
+✔ Test unobservableWebOnlyAllowsExplicitManualInsertion() passed after 0.305 seconds.
+✔ Test ownInsertionNotificationKeepsContinuousBinding() passed after 0.306 seconds.
+✔ Test failedFusionExpertPreventsStaleExternalAttemptWithoutBlockingNextSpeech() passed after 0.396 seconds.
+✔ Test lateEarlierRecordingIsDeferredWithoutBlockingNextSpeech() passed after 0.409 seconds.
+✔ Test v3MigrationPreservesLedgerAndInvalidatesOnlyRuntimeOwnership() passed after 0.404 seconds.
+✔ Test teststableSuffixOnlyOnce() passed after 0.425 seconds.
+✔ Test userEditAndUndoStillInvalidatesOwnership() passed after 0.418 seconds.
+✔ Test changedTargetNeverMutated(change:) with 9 test cases passed after 0.424 seconds.
+✔ Test durableReservationPrecedesSelectedRangeAndInvalidationPreventsTextSetter() passed after 0.441 seconds.
+✔ Test cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) with 4 test cases passed after 0.441 seconds.
+✔ Test newerEvidenceRevokesStaleCorrectionEvenBeforePublication() passed after 0.441 seconds.
+✔ Test incompleteOrUnownedEvidenceCannotRepair(mode:) with 7 test cases passed after 0.442 seconds.
+✔ Test crashAfterReservationIsUnverifiedAndCannotReserveAgain() passed after 0.445 seconds.
+✔ Test uncertainReplacementConsumedOnceAndRestartCannotReplay() passed after 0.453 seconds.
+✔ Test deleteAudioKeepsCorrectionHistoryButDeleteRecordErasesIt() passed after 0.466 seconds.
+✔ Test productionFusionPublicationReachesIncrementalCoordinatorOnce() passed after 0.485 seconds.
+✔ Test lateTailCannotBeAppendedAfterAnotherRecording() passed after 0.546 seconds.
+✔ Test unsupportedReplacementPendingDoesNotBlockIndependentRecord() passed after 0.530 seconds.
+✔ Test slowAcknowledgementIsConfirmedWithoutResending() passed after 0.578 seconds.
+✔ Test shorterRepairKeepsInsertionLedgerMonotone() passed after 0.557 seconds.
+✔ Test lengthChangingRepairPreservesUserPrefixSuffixAndAppendsOnlyNewSuffix() passed after 0.565 seconds.
+✔ Test laterInsertionDefersEarlierCorrectionWithoutGlobalBlock() passed after 0.591 seconds.
+✔ Test unconfirmedInitialInsertionCannotCreateOwnershipAndDoesNotBlockNewRecord() passed after 0.937 seconds.
+✔ Test realGPTCoreFinalizationPublishesActionableCorrectionFromFakeProviders() passed after 0.954 seconds.
+✔ Suite "Owned range correction production path with synthetic OS and SQLite" passed after 1.009 seconds.
+✔ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() passed after 1.396 seconds.
+✔ Suite "Input coordinator with isolated SQLite and simulated OS" passed after 1.435 seconds.
+✔ Test run with 62 tests in 3 suites passed after 1.435 seconds.

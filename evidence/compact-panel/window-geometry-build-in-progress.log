@@ -1,0 +1,71 @@
+Building for debugging...
+[Pre-planning 1 / 184]
+[Constructing 106 / 445]
+[52 / 132]
+[83 / 142]
+[84 / 143]
+[105 / 143] CAudio
+[110 / 143] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[111 / 143] SaytileKit
+[121 / 282]
+[127 / 282]
+[137 / 282]
+[139 / 282]
+[145 / 282]
+[148 / 282]
+[151 / 282]
+[156 / 282]
+[161 / 282]
+[162 / 282]
+[174 / 282]
+[176 / 282]
+[178 / 282]
+[184 / 282]
+[187 / 282]
+[188 / 282]
+[189 / 282]
+[196 / 282]
+[198 / 282]
+[204 / 282]
+[205 / 282]
+[207 / 282]
+[209 / 282]
+[210 / 282]
+[222 / 282]
+[223 / 282]
+[228 / 282]
+[233 / 282]
+[236 / 282]
+[237 / 282]
+[238 / 282]
+[239 / 282]
+[250 / 282] SaytileKit
+[251 / 282] SaytileKit
+[261 / 283] SaytileKit
+[261 / 283] Saytile-product
+[264 / 295] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[271 / 296] SaytileKitTests-product
+[272 / 311]
+[275 / 311]
+[285 / 311] SaytileKitTests-product
+[289 / 311] SaytileKitTests-product
+[295 / 311] Saytile-product
+[296 / 311] Saytile-product
+[300 / 311] Saytile-product
+[300 / 311] SaytileKitTests-product
+[301 / 311] SaytileKitTests-product
+error: SwiftCompile normal arm64 /Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/UIReview.swift failed with a nonzero exit code. Command line:     cd /Users/hhf/.codex/worktrees
+    builtin-SwiftPerFileCompile UIReview.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/UIReview.swift:151:23: error: cannot find 'reviewCompactPanel' in scope
+149 |             }
+150 |             try await reviewFirstConnection(output: output)
+151 |             try await reviewCompactPanel(output: output)
+    |                       `- error: cannot find 'reviewCompactPanel' in scope
+152 |             if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil { print("UI_CONTROLS_NOT_RUN remote AX helper not configured; rendering only") }
+153 |             let captures = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil ? 16 : 22
+Failed frontend command:
+/Library/Developer/CommandLineTools/usr/bin/swift-frontend -frontend -c /Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/CompactTranscriptView.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/ConnectionSetupView.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/RecognitionSettingsView.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/SaytileApp.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/Theme.swift -primary-file /Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/UIReview.swift /Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/Views.swift -emit-dependencies-path /tmp/saytile-compact-geometry/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/UIReview.d -emit-const-values-path /tmp/saytile-compact-geometry/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/UIReview.swiftconstvalues -emit-reference-dependencies-path /tmp/saytile-compact-geometry/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/UIReview.swiftdeps -serialize-diagnostics-path /tmp/saytile-compact-geometry/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/UIReview.dia -target arm64-apple-macos26.0 -disable-cross-import-overlay-search -swift-module-cross-import Darwin /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/usr/include/Darwin.swiftcrossimport/xlocale.swiftoverlay -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libObservationMacros.dylib\#\#ObservationMacros -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#\#SwiftMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /tmp/saytile-compact-geometry/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/SaytileApp-dependencies-1.json -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk -I /tmp/saytile-compact-geometry/out/Products/Debug -Isystem /Library/Developer/CommandLineTools/Developer/usr/lib -F /tmp/saytile-compact-geometry/out/Products/Debug/PackageFrameworks -F /tmp/saytile-compact-geometry/out/Products/Debug -F /Library/Developer/CommandLineTools/Library/Developer/Frameworks -F /Library/Developer/CommandLineTools/Developer/Library/Frameworks -module-cache-path /tmp/saytile-compact-geometry/out/Intermediates.noindex/SwiftExplicitPrecompiledModules -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=5 -swift-version 6 -Onone -D SWIFT_PACKAGE -D DEBUG -D Xcode -serialize-debugging-options -enable-experimental-feature DebugDescriptionMacro -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /tmp/saytile-compact-geometry/out/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/hhf/.codex/worktrees -enable-anonymous-context-mangled-names -file-compilation-dir /Users/hhf/.codex/worktrees -Xcc -fmodule-map-file\=/tmp/saytile-compact-geometry/out/Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap -Xcc -fmodule-map-file\=/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/CSQLite/module.modulemap -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /tmp/saytile-compact-geometry/out/SDKStatCaches.noindex/macosx27.0-26A425-a0facfad118c1a7a18f0aad9463f6549ffd68ff603bdaacc80b00cb8898de72d.sdkstatcache -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -Xcc -I/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/CAudio/include -Xcc -I/tmp/saytile-compact-geometry/out/Products/Debug/include -Xcc -I/tmp/saytile-compact-geometry/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/DerivedSources-normal/arm64 -Xcc -I/tmp/saytile-compact-geometry/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/DerivedSources/arm64 -Xcc -I/tmp/saytile-compact-geometry/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -no-auto-bridging-header-chaining -module-name SaytileApp -package-name saytile_no_api_product -const-gather-protocols-file /tmp/saytile-compact-geometry/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/Saytile_const_extract_protocols.json -disable-clang-spi -clang-target arm64-apple-macos27.0 -target-sdk-version 27.0 -target-sdk-name macosx27.0 -in-process-plugin-server-path /Library/Developer/CommandLineTools/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -parse-as-library -o /tmp/saytile-compact-geometry/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/UIReview.o -debug-module-path /tmp/saytile-compact-geometry/out/Intermediates.noindex/Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/SaytileApp.swiftmodule -index-unit-output-path /Saytile.build/Debug/Saytile-p.build/Objects-normal/arm64/UIReview.o -index-store-path /tmp/saytile-compact-geometry/out -index-system-modules
+error: Build failed
+error: fatalError

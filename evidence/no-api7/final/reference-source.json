@@ -1,0 +1,65 @@
+{
+  "scope": "Read-only refresh of the official public repository. Branch trees, release assets and older PR discussion history are documented under evidence/approved-ui. This update checks current PR6 discussion/reviews, open/closed issues, branch and release inventory, and new reachable raster paths since the prior search. The approved layout specification, render captures and a motion GIF are present. No original PNG bytes were obtained. A filename/URL search cannot exclude every renamed image or another GitHub location.",
+  "refreshed_utc": "2026-11-07 03:23:23 UTC",
+  "head": "4b97bd89b258fea29a0be61d4bd4c23cb5ab428c",
+  "sources": {
+    "/issues/6/comments?per_page=100": {
+      "count": 1,
+      "attachment_urls": [],
+      "original_named_items": []
+    },
+    "/pulls/6/comments?per_page=100": {
+      "count": 0,
+      "attachment_urls": [],
+      "original_named_items": []
+    },
+    "/pulls/6/reviews?per_page=100": {
+      "count": 0,
+      "attachment_urls": [],
+      "original_named_items": []
+    },
+    "/issues?state=all&per_page=100": {
+      "count": 8,
+      "attachment_urls": [],
+      "original_named_items": [
+        6252886458,
+        6252606130
+      ],
+      "nonPR": []
+    },
+    "/branches?per_page=100": {
+      "count": 10,
+      "attachment_urls": [],
+      "original_named_items": []
+    },
+    "/releases?per_page=100": {
+      "count": 2,
+      "attachment_urls": [],
+      "original_named_items": []
+    }
+  },
+  "git_inventory": {
+    "added_or_renamed_unique_image_paths_since_prior_search": 620,
+    "matching_filenames": [],
+    "command": [
+      "git",
+      "-c",
+      "core.quotepath=false",
+      "log",
+      "--all",
+      "--name-only",
+      "--format=",
+      "--since=2026-11-07T00:50:00Z",
+      "--diff-filter=ACR",
+      "--",
+      "*.png",
+      "*.jpg",
+      "*.jpeg",
+      "*.webp",
+      "*.gif"
+    ],
+    "design_approved_current_tree": [
+      "design/approved/README.md"
+    ]
+  }
+}

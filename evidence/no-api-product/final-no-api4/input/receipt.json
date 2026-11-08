@@ -1,0 +1,50 @@
+{
+  "status": "INTERMEDIATE_NATIVE_AX_FAILURE_RETAINED",
+  "runtime": "a6849128e12e88560daa52fce48f6f2d805a88aa",
+  "tree": "5ab4abea901e1d880abadbe4b4b673ca939f076d",
+  "source_files": 201,
+  "source_input_digest": "18a972ca0e671e4d9a06e9b127e90b4ba1bb0f5d49f9f686953b3bdd91dc4633",
+  "source_unchanged_through_completed_tests": true,
+  "source_dirty_before": false,
+  "source_dirty_after": false,
+  "app_model": {
+    "status": "PASS",
+    "checks": 78,
+    "binary_unchanged": true
+  },
+  "headless_DOM": {
+    "status": "PASS",
+    "checks": 20,
+    "fresh_context": true,
+    "native_AX_claim": false
+  },
+  "ordinary_native_AX": {
+    "status": "FAIL",
+    "expected_checks": 9,
+    "failed_check": "production coordinator + SQLite reservation + real AX insertion confirms",
+    "original_result_detail": "NOT_RECORDED_BY_ORIGINAL_FIXTURE",
+    "original_db": "removed by original fixture defer; cannot reconstruct",
+    "diagnostic_reproduction": "separate new owned target: unverified after target caret changed11 to12; one dispatch; binding invalidated; no owned range; no retry",
+    "root_cause": "UNRESOLVED; later successful diagnostics do not overwrite original failure",
+    "unexpected_initial_target_mutation": "observed in separate buffered case01 before binding; source unresolved; focus identity observation does not prove keyboard isolation"
+  },
+  "WKWebView": {
+    "observer_checks": 6,
+    "capability_rejections": 2,
+    "sends": 0,
+    "insertion": "unverified: AX setter acknowledged but DOM unchanged; no replay",
+    "scope": "Owned offscreen WKWebView, injected target selection; no foreground browser claim"
+  },
+  "owned_range": {
+    "status": "NOT_RUN_ON_SUPERSEDED_SHA"
+  },
+  "apple": {
+    "status": "PASS",
+    "cases": 8,
+    "receipt": "../apple/receipt.json",
+    "scope": "installed Apple local framework; synthetic speech; not human accuracy evidence"
+  },
+  "production_foreground": "NOT_RUN",
+  "TCC_application_identity": "NOT_CERTIFIED",
+  "utc": "2026-11-07T00:09:41.407452+00:00"
+}

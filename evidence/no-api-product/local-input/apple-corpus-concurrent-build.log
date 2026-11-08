@@ -1,0 +1,75 @@
+[0/1] Planning build
+Building for debugging...
+[0/2] Write sources
+[1/2] Write swift-version--1AB21518FC5DEDBE.txt
+[3/7] Compiling SaytileKit GPTReviewSession.swift
+[4/7] Compiling SaytileKit PrecisionReviewClient.swift
+[5/7] Compiling SaytileKit AssemblyStreamingProvider.swift
+[6/7] Emitting module SaytileKit
+[7/7] Compiling SaytileKit RecognitionFailover.swift
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileKit/RecognitionFailover.swift:29:31: error: referencing operator function '==' on 'Equatable' requires that 'ProviderFailure' conform to 'Equatable'
+ 27 |             if !failure.canRetryAutomatically {
+ 28 |                 blocked = true
+ 29 |             } else if failure == .connection || failure == .rateLimited {
+    |                               |- error: referencing operator function '==' on 'Equatable' requires that 'ProviderFailure' conform to 'Equatable'
+    |                               `- note: binary operator '==' cannot be synthesized for enums with associated values
+ 30 |                 // Coalesce failures from concurrent pre-outage sessions.
+ 31 |                 if failures == 0 || (id != nil && id == probe) {
+
+Swift.Equatable:1:17: note: where 'Self' = 'ProviderFailure'
+1 | public protocol Equatable : ~Copyable, ~Escapable {
+  |                 `- note: where 'Self' = 'ProviderFailure'
+2 |     static func == (lhs: borrowing Self, rhs: borrowing Self) -> Bool
+3 | }
+
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileKit/RecognitionFailover.swift:29:57: error: referencing operator function '==' on 'Equatable' requires that 'ProviderFailure' conform to 'Equatable'
+ 27 |             if !failure.canRetryAutomatically {
+ 28 |                 blocked = true
+ 29 |             } else if failure == .connection || failure == .rateLimited {
+    |                                                         |- error: referencing operator function '==' on 'Equatable' requires that 'ProviderFailure' conform to 'Equatable'
+    |                                                         `- note: binary operator '==' cannot be synthesized for enums with associated values
+ 30 |                 // Coalesce failures from concurrent pre-outage sessions.
+ 31 |                 if failures == 0 || (id != nil && id == probe) {
+
+Swift.Equatable:1:17: note: where 'Self' = 'ProviderFailure'
+1 | public protocol Equatable : ~Copyable, ~Escapable {
+  |                 `- note: where 'Self' = 'ProviderFailure'
+2 |     static func == (lhs: borrowing Self, rhs: borrowing Self) -> Bool
+3 | }
+
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileKit/RecognitionFailover.swift:141:58: error: referencing operator function '==' on 'Equatable' requires that 'ProviderFailure' conform to 'Equatable'
+139 |             else if let value = error as? URLError, value.code != .cancelled { failure = .connection }
+140 |             else { return }
+141 |             if !failure.canRetryAutomatically || failure == .connection || failure == .rateLimited {
+    |                                                          |- error: referencing operator function '==' on 'Equatable' requires that 'ProviderFailure' conform to 'Equatable'
+    |                                                          `- note: binary operator '==' cannot be synthesized for enums with associated values
+142 |                 signal.yield(.failure(failure))
+143 |             }
+
+Swift.Equatable:1:17: note: where 'Self' = 'ProviderFailure'
+1 | public protocol Equatable : ~Copyable, ~Escapable {
+  |                 `- note: where 'Self' = 'ProviderFailure'
+2 |     static func == (lhs: borrowing Self, rhs: borrowing Self) -> Bool
+3 | }
+
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileKit/RecognitionFailover.swift:141:84: error: referencing operator function '==' on 'Equatable' requires that 'ProviderFailure' conform to 'Equatable'
+139 |             else if let value = error as? URLError, value.code != .cancelled { failure = .connection }
+140 |             else { return }
+141 |             if !failure.canRetryAutomatically || failure == .connection || failure == .rateLimited {
+    |                                                                                    |- error: referencing operator function '==' on 'Equatable' requires that 'ProviderFailure' conform to 'Equatable'
+    |                                                                                    `- note: binary operator '==' cannot be synthesized for enums with associated values
+142 |                 signal.yield(.failure(failure))
+143 |             }
+
+Swift.Equatable:1:17: note: where 'Self' = 'ProviderFailure'
+1 | public protocol Equatable : ~Copyable, ~Escapable {
+  |                 `- note: where 'Self' = 'ProviderFailure'
+2 |     static func == (lhs: borrowing Self, rhs: borrowing Self) -> Bool
+3 | }
+[8/13] Compiling SaytileKit MultiRecognitionDiagnostics.swift
+[9/13] Compiling SaytileKit RecognitionAudioFanout.swift
+[10/13] Compiling SaytileKit AudioDiagnostics.swift
+[11/13] Compiling SaytileKit AudioCapture.swift
+[12/13] Compiling SaytileKit MultiRecognitionSession.swift
+[13/13] Compiling SaytileKit SingleTranscriptEngine.swift
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.

@@ -52,6 +52,86 @@ struct DisplayVersion: Identifiable {
 }
 struct DisplayDevice: Identifiable { let id: UInt32; let name: String }
 
+/// Narrow injection for the actual settings controller. Fixtures never need the
+/// production credential namespace or a second implementation of the UI workflow.
+@MainActor
+struct AppConnectionDependencies {
+    var presence: (ModelConfiguration) -> CloudCredentialPresence
+    var save: (String, ModelConfiguration) throws -> Void
+    var delete: (ModelConfiguration) throws -> Void
+    var verify: (RecognitionConfiguration, @escaping @Sendable (CloudConnectionReport) -> Void) async throws -> CloudConnectionReport
+    var applyConfiguration: (AudioController, RecognitionConfiguration) async -> Void
+    var revokeCloud: (AudioController) -> Void
+    static let live = AppConnectionDependencies(
+        presence: { CloudCredentialStore.presence(configurationID: $0.id, provider: $0.provider) },
+        save: { try CloudCredentialStore.save($0, configurationID: $1.id, provider: $1.provider) },
+        delete: { try CloudCredentialStore.delete(configurationID: $0.id, provider: $0.provider) },
+        verify: { try await CloudConnectionVerifier.verify(configuration: $0, authorized: true, progress: $1) },
+        applyConfiguration: { await $0.setRecognitionConfiguration($1) },
+        revokeCloud: { $0.revokeCloudRecognition() })
+}
+
+/// The production actions remain AudioController's existing lifecycle. Native UI
+/// checks inject only this boundary so pressing the real control never opens a mic.
+@MainActor
+struct AppCaptureDependencies {
+    var state: (AudioController) -> CaptureState
+    var start: (AudioController) async -> Void
+    var pause: (AudioController) async -> Void
+    var level: (AudioController) -> Float? = { $0.level }
+    static let live = AppCaptureDependencies(state: { $0.state },
+        start: { await $0.start() }, pause: { await $0.pause() })
+}
+
+/// Three ordinary states plus explicit preparation/failure exceptions. These values
+/// describe one control; their labels are accessibility/settings text, not a header.
+enum PanelCaptureVisualState: Equatable {
+    case standby, recognizing, paused, starting, recoveryNeeded
+}
+
+struct PanelCapturePresentation: Equatable {
+    let state: PanelCaptureVisualState
+    let label: String
+    let actionLabel: String
+    let actionSymbolName: String
+    let symbolName: String
+    let detail: String?
+    /// A measured level only while VAD reports speech. nil means no amplitude
+    /// evidence, including an ASR/fusion wait; never drive a fabricated idle pulse.
+    let liveVoiceLevel: Double?
+    var accessibilityLabel: String { actionLabel }
+    var accessibilityValue: String { detail.map { label + "，" + $0 } ?? label }
+
+    init(state capture: CaptureState, hasStarted: Bool, measuredLevel: Float? = nil) {
+        if case .speaking = capture, let measuredLevel, measuredLevel.isFinite, measuredLevel >= 0 {
+            liveVoiceLevel = Double(min(1, measuredLevel))
+        } else { liveVoiceLevel = nil }
+        switch capture {
+        case .paused:
+            state = .paused
+            label = "暂停"
+            actionLabel = hasStarted ? "继续收音" : "开始收音"
+            actionSymbolName = "play.fill"
+            symbolName = "play.fill"
+            detail = nil
+        case .starting:
+            state = .starting; label = "正在准备"; actionLabel = "取消开启"
+            actionSymbolName = "xmark"; symbolName = "xmark"; detail = nil
+        case .listening, .speaking:
+            // Follow current voice activity, independently of earlier ASR/fusion
+            // work. A finished utterance returns to standby while text settles.
+            let active = capture == .speaking
+            state = active ? .recognizing : .standby
+            label = active ? "正在识别" : "待命"
+            actionLabel = "暂停收音"; actionSymbolName = "pause.fill"
+            symbolName = active ? "waveform" : "circle.fill"; detail = nil
+        case .interrupted(let reason):
+            state = .recoveryNeeded; label = "需要恢复"; actionLabel = "恢复收音"
+            actionSymbolName = "play.fill"; symbolName = "exclamationmark"; detail = reason
+        }
+    }
+}
+
 @MainActor
 final class AppModel: ObservableObject {
     let store: SaytileStore
@@ -59,6 +139,10 @@ final class AppModel: ObservableObject {
     let input: NativeInputCoordinator
     let directory: URL
     private let preferences: UserDefaults
+    private let connectionDependencies: AppConnectionDependencies
+    private let captureDependencies: AppCaptureDependencies
+    private let copyPasteboard: NSPasteboard?
+    private var copyFeedback: Task<Void, Never>?
     @Published var recent: [DisplayRecording] = []
     @Published var records: [DisplayRecording] = []
     @Published var versions: [DisplayVersion] = []
@@ -66,11 +150,25 @@ final class AppModel: ObservableObject {
     @Published private(set) var editorDraft = ""
     @Published private(set) var editorDraftLoading = false
     @Published private(set) var savingEditorChanges = false
-    @Published private(set) var editorDraftStatus = "草稿自动保留，保存修改创建版本"
+    @Published private(set) var editorDraftStatus = "修改会自动暂存，保存后更新这段文字"
     @Published var recordFilter: RecordingFilter = .all { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var query = "" { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var notice: String?
-    @Published var recognitionConfiguration = RecognitionConfiguration()
+    @Published var recognitionConfiguration = RecognitionConfiguration() {
+        didSet {
+            guard !initializing, CloudConnectionVerifier.fingerprint(oldValue) != CloudConnectionVerifier.fingerprint(recognitionConfiguration) else { return }
+            invalidateConnectionVerification()
+        }
+    }
+    @Published private(set) var connectionReport: CloudConnectionReport?
+    @Published private(set) var checkingConnection = false
+    @Published var connectionCheckAuthorized = false
+    private var connectionCheckTask: Task<Void, Never>?
+    private var connectionCheckID: UUID?
+    private var recognitionApplyTask: Task<Void, Never>?
+    private var recognitionApplyID = UUID()
+    private static let connectionReceiptKey = "cloudConnectionReceipt.v1"
+    var connectionVerified: Bool { connectionReport?.canEnableCloud == true && connectionReport?.matches(recognitionConfiguration) == true }
     @Published private(set) var appliedRecognitionConfiguration = RecognitionConfiguration()
     @Published private(set) var applyingRecognitionSettings = false
     var hasUnappliedRecognitionSettings: Bool { recognitionConfiguration != appliedRecognitionConfiguration }
@@ -98,6 +196,13 @@ final class AppModel: ObservableObject {
             NotificationCenter.default.post(name: .init("SaytileShortcutChanged"), object: nil)
         }
     }
+    @Published var floatingEntryEnabled = false {
+        didSet {
+            guard !initializing, floatingEntryEnabled != oldValue else { return }
+            preferences.set(floatingEntryEnabled, forKey: "floatingEntryEnabled")
+            NotificationCenter.default.post(name: .init("SaytileFloatingEntryChanged"), object: nil)
+        }
+    }
     @Published var launchAtLogin = false { didSet { setLoginItem() } }
     @Published var hasMore = false
     @Published private(set) var panelCount = 0
@@ -122,6 +227,8 @@ final class AppModel: ObservableObject {
     private(set) var refreshReadPasses: UInt64 = 0
     private var initializing = true
     private var exitPrepared = false
+    private var preparingForExit = false
+    private var exitWaiters: [CheckedContinuation<Void, Never>] = []
     private var lastStorageRefresh = Date.distantPast
     private var lastModelCallRefresh = Date.distantPast
     private var recovered = false
@@ -142,15 +249,27 @@ final class AppModel: ObservableObject {
     var editorCanEdit: Bool { editorRecordingID != nil && !editorDraftLoading }
     var hasUnpersistedDrafts: Bool { !pendingDraftWrites.isEmpty }
 
-    init(directory: URL, preferences: UserDefaults = .standard) throws {
+    init(directory: URL, preferences: UserDefaults = .standard, connectionDependencies: AppConnectionDependencies = .live,
+         captureDependencies: AppCaptureDependencies = .live, copyPasteboard: NSPasteboard? = nil) throws {
         self.directory = directory
         self.preferences = preferences
+        self.connectionDependencies = connectionDependencies
+        self.captureDependencies = captureDependencies
+        self.copyPasteboard = copyPasteboard
         store = try SaytileStore(directory: directory)
-        let recognitionConfiguration = RecognitionConfiguration.load(from: preferences)
+        var recognitionConfiguration = RecognitionConfiguration.load(from: preferences)
+        let receipt = preferences.data(forKey: Self.connectionReceiptKey).flatMap { try? JSONDecoder().decode(CloudConnectionReport.self, from: $0) }
+        connectionReport = receipt
+        if recognitionConfiguration.cloudEnabled && !(receipt?.canEnableCloud == true && receipt?.matches(recognitionConfiguration) == true) {
+            recognitionConfiguration.cloudEnabled = false
+            try recognitionConfiguration.save(to: preferences)
+            recognitionSettingsNotice = "云端连接尚未验证，暂用本机识别。可在设置中完成一次连接检查。"
+        }
         self.recognitionConfiguration = recognitionConfiguration
         self.appliedRecognitionConfiguration = recognitionConfiguration
         audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration, startupRecoveryReady: false)
         input = NativeInputCoordinator(store: store)
+        floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
         launchAtLogin = SMAppService.mainApp.status == .enabled
         shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? "option-space"
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
@@ -190,18 +309,18 @@ final class AppModel: ObservableObject {
         }
     }
     var isListening: Bool {
-        switch audio.state { case .listening, .speaking, .starting: return true; default: return false }
+        switch captureDependencies.state(audio) { case .listening, .speaking, .starting: return true; default: return false }
     }
-    var captureLabel: String {
-        switch audio.state {
-        case .paused: return "已暂停"
-        case .starting: return "正在准备"
-        case .listening: return "持续待命"
-        case .speaking: return "正在听"
-        case .interrupted(let reason): return reason
-        }
+    var panelCapturePresentation: PanelCapturePresentation {
+        PanelCapturePresentation(state: captureDependencies.state(audio), hasStarted: hasStarted,
+            measuredLevel: captureDependencies.level(audio))
     }
-    var captureProblem: Bool { if case .interrupted = audio.state { return true }; return false }
+    var panelCaptureLabel: String { panelCapturePresentation.label }
+    var panelCaptureDetail: String? { panelCapturePresentation.detail }
+    var captureActionLabel: String { panelCapturePresentation.actionLabel }
+    var captureActionSymbolName: String { panelCapturePresentation.actionSymbolName }
+    var captureLabel: String { panelCaptureLabel }
+    var captureProblem: Bool { if case .interrupted = captureDependencies.state(audio) { return true }; return false }
     var saveLabel: String { captureProblem ? "收音已暂停 · 请查看保存状态" : isListening ? "原音独立保存 · 识别不会阻塞收音" : "内容保存在此 Mac，随时可以取用" }
     var microphoneLabel: String {
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
@@ -211,62 +330,160 @@ final class AppModel: ObservableObject {
         }
     }
     var accessibilityLabel: String { input.hasPermission ? "已允许" : "尚未允许 · 可正常复制" }
-    @Published private(set) var recognitionPhases: [UUID: RecognitionPurpose] = [:]
     func recognitionPhaseLabel(for item: DisplayRecording) -> String {
-        guard item.source.recognitionState == .running, let phase = recognitionPhases[item.id] else { return item.stateLabel }
-        switch phase {
-        case .finalASR: return "正在高精度定稿"
-        case .audioReview: return "正在复听原音"
-        case .textFusion: return "正在核对文字"
-        case .chineseASR, .englishASR, .multilingualASR: return item.isRecording ? "正在记录 · 并行识别" : "正在识别"
-        }
+        guard item.source.recognitionState == .running else { return item.stateLabel }
+        return item.isRecording ? "正在记录" : "正在核对文字"
     }
     var engineLabel: String { audio.speechStatus }
     func hasCredential(_ item: ModelConfiguration) -> Bool {
-        CloudCredentialStore.contains(configurationID: item.id, provider: item.provider)
+        credentialPresence(item).isSaved
     }
     func credentialPresence(_ item: ModelConfiguration) -> CloudCredentialPresence {
-        CloudCredentialStore.presence(configurationID: item.id, provider: item.provider)
+        connectionDependencies.presence(item)
     }
     @discardableResult func saveCredential(_ value: String, for item: ModelConfiguration) -> Bool {
+        guard canChangeCredential(item) else { return false }
+        guard !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            recognitionSettingsNotice = CloudCredentialError.empty.localizedDescription; return false
+        }
+        // Fence concurrent readers before the Keychain can expose a new account.
+        // Even a failed mutation stays local until an explicit connection check.
+        invalidateConnectionVerification()
         do {
-            try CloudCredentialStore.save(value, configurationID: item.id, provider: item.provider)
+            try connectionDependencies.save(value, item)
+            rotateCredentialGeneration(for: item)
             recognitionSettingsNotice = "\(item.purpose.label)的密钥已安全保存。"
             return true
         } catch { recognitionSettingsNotice = error.localizedDescription; return false }
     }
     @discardableResult func removeCredential(for item: ModelConfiguration) -> Bool {
+        guard canChangeCredential(item) else { return false }
+        invalidateConnectionVerification()
         do {
-            try CloudCredentialStore.delete(configurationID: item.id, provider: item.provider)
+            try connectionDependencies.delete(item)
+            rotateCredentialGeneration(for: item)
             recognitionSettingsNotice = "该服务密钥已移除。"
-            Task { await audio.setRecognitionConfiguration(RecognitionConfiguration.load(from: preferences)) }
             return true
         } catch { recognitionSettingsNotice = error.localizedDescription; return false }
     }
+    private func canChangeCredential(_ item: ModelConfiguration) -> Bool {
+        guard !preparingForExit, !exitPrepared else { return false }
+        guard recognitionConfiguration.models.contains(where: { $0.id == item.id && $0.provider == item.provider }),
+              appliedRecognitionConfiguration.models.contains(where: { $0.id == item.id }) else {
+            recognitionSettingsNotice = "服务设置已更新，请重新打开该服务的密钥设置。"
+            return false
+        }
+        return true
+    }
+    private func rotateCredentialGeneration(for item: ModelConfiguration) {
+        let generation = UUID()
+        // Persist via the applied local snapshot before the draft's observer can
+        // save it. Otherwise restarting could restore the previous account scope.
+        for index in appliedRecognitionConfiguration.models.indices where appliedRecognitionConfiguration.models[index].id == item.id {
+            appliedRecognitionConfiguration.models[index].credentialGeneration = generation
+        }
+        let previousFingerprint = CloudConnectionVerifier.fingerprint(recognitionConfiguration)
+        for index in recognitionConfiguration.models.indices where recognitionConfiguration.models[index].id == item.id {
+            recognitionConfiguration.models[index].credentialGeneration = generation
+        }
+        // Disabled services are absent from the receipt fingerprint but still need
+        // durable generations, and must supersede the pending pre-mutation apply.
+        if previousFingerprint == CloudConnectionVerifier.fingerprint(recognitionConfiguration) {
+            invalidateConnectionVerification()
+        }
+    }
     func applyRecognitionSettings() {
-        guard !applyingRecognitionSettings else { return }
+        guard !preparingForExit, !exitPrepared, !applyingRecognitionSettings, !checkingConnection else { return }
         let candidate = recognitionConfiguration
-        applyingRecognitionSettings = true
-        Task {
-            defer { applyingRecognitionSettings = false }
-            do {
-                try candidate.validateForCloud()
-                if candidate.cloudEnabled {
-                    for item in candidate.enabledModels {
-                        switch credentialPresence(item) {
-                        case .saved: break
-                        case .missing: throw ProviderFailure.configuration("请先保存\(item.purpose.label)的 API Key。")
-                        case .unavailable(let status): throw CloudCredentialError.keychain(status)
-                        }
+        do {
+            try candidate.validateForCloud()
+            if candidate.cloudEnabled {
+                guard connectionVerified else { throw ProviderFailure.configuration("请先完成连接检查，再启用云端识别。本机识别可以继续使用。") }
+                for item in candidate.enabledModels {
+                    switch credentialPresence(item) {
+                    case .saved: break
+                    case .missing: throw ProviderFailure.configuration("请先保存\(item.purpose.label)的 API Key。")
+                    case .unavailable(let status): throw CloudCredentialError.keychain(status)
                     }
                 }
-                try candidate.save(to: preferences)
-                await audio.setRecognitionConfiguration(candidate)
-                appliedRecognitionConfiguration = candidate
-                recognitionSettingsNotice = candidate.cloudEnabled
-                    ? "设置已应用。采集与原音保存继续独立运行。"
-                    : "已停止云端识别，继续使用本机 Apple 识别。"
-            } catch { recognitionSettingsNotice = error.localizedDescription }
+            }
+            try candidate.save(to: preferences)
+            scheduleRecognitionConfiguration(candidate, showNotice: true)
+        } catch { recognitionSettingsNotice = error.localizedDescription }
+    }
+    private func scheduleRecognitionConfiguration(_ candidate: RecognitionConfiguration, showNotice: Bool) {
+        guard !preparingForExit, !exitPrepared else { return }
+        recognitionApplyTask?.cancel()
+        let previous = recognitionApplyTask
+        let generation = UUID(); recognitionApplyID = generation; applyingRecognitionSettings = true
+        recognitionApplyTask = Task {
+            await previous?.value
+            guard recognitionApplyID == generation, !Task.isCancelled else { return }
+            await connectionDependencies.applyConfiguration(audio, candidate)
+            guard recognitionApplyID == generation, !Task.isCancelled else { return }
+            appliedRecognitionConfiguration = candidate; applyingRecognitionSettings = false
+            if showNotice {
+                recognitionSettingsNotice = candidate.cloudEnabled ? "设置已应用。采集与原音保存继续独立运行。" : "已停止云端识别，继续使用本机 Apple 识别。"
+            }
+        }
+    }
+    /// Credential or endpoint changes revoke the previous connection receipt immediately.
+    private func invalidateConnectionVerification() {
+        connectionCheckID = nil; connectionCheckTask?.cancel()
+        connectionReport = nil; checkingConnection = false; connectionCheckAuthorized = false
+        preferences.removeObject(forKey: Self.connectionReceiptKey)
+        // Also revoke a not-yet-published in-flight cloud apply.
+        connectionDependencies.revokeCloud(audio)
+        var local = appliedRecognitionConfiguration; local.cloudEnabled = false
+        appliedRecognitionConfiguration = local
+        try? local.save(to: preferences)
+        scheduleRecognitionConfiguration(local, showNotice: false)
+        recognitionConfiguration.cloudEnabled = false
+    }
+    func cancelConnectionCheck() {
+        connectionCheckID = nil; connectionCheckTask?.cancel()
+        checkingConnection = false; connectionCheckAuthorized = false
+        if var report = connectionReport {
+            for index in report.services.indices where ![.verified, .failed, .cancelled].contains(report.services[index].state) {
+                report.services[index].state = .cancelled
+                report.services[index].code = "cancelled"
+                report.services[index].message = "连接检查已停止。"
+            }
+            connectionReport = report
+        }
+        recognitionSettingsNotice = "连接检查已停止。本机识别可以继续使用；已发出的请求可能由服务商计费。"
+    }
+    func checkRecognitionConnections() {
+        guard !preparingForExit, !exitPrepared, connectionCheckAuthorized, !checkingConnection, !applyingRecognitionSettings else { return }
+        let candidate = recognitionConfiguration
+        let previous = connectionCheckTask
+        invalidateConnectionVerification()
+        let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+        recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+        connectionCheckTask = Task {
+            // A cancelled older check must fully close its sockets before another starts.
+            await previous?.value
+            await recognitionApplyTask?.value
+            guard connectionCheckID == generation, !Task.isCancelled else { return }
+            do {
+                let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+                    Task { @MainActor [weak self] in
+                        guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+                        self.connectionReport = report
+                    }
+                }
+                guard connectionCheckID == generation, !Task.isCancelled else { return }
+                connectionReport = report; checkingConnection = false; connectionCheckAuthorized = false
+                if report.canEnableCloud && report.matches(recognitionConfiguration) {
+                    preferences.set(try JSONEncoder().encode(report), forKey: Self.connectionReceiptKey)
+                    recognitionConfiguration.cloudEnabled = true
+                    applyRecognitionSettings()
+                } else { recognitionSettingsNotice = report.message ?? "连接尚未完整通过，请查看各项服务状态。" }
+            } catch {
+                guard connectionCheckID == generation else { return }
+                checkingConnection = false; connectionCheckAuthorized = false
+                recognitionSettingsNotice = error is CancellationError ? "连接检查已停止。" : MultiConnectionMessage.safe(error)
+            }
         }
     }
     var devices: [DisplayDevice] {
@@ -279,8 +496,16 @@ final class AppModel: ObservableObject {
         Task {
             await recoveryTask?.value
             guard recovered else { notice = "资料库恢复未完成，请先重新打开 Saytile。已有资料会保留。"; return }
-            if isListening { await audio.pause() }
-            else { hasStarted = true; await audio.start() }
+            let prior = captureDependencies.state(audio)
+            if prior.isRunning {
+                if prior == .listening || prior == .speaking { hasStarted = true }
+                await captureDependencies.pause(audio)
+            } else {
+                await captureDependencies.start(audio)
+                let result = captureDependencies.state(audio)
+                if result == .listening || result == .speaking { hasStarted = true }
+            }
+            objectWillChange.send()
             if let issue = audio.issue { notice = issue }
         }
     }
@@ -294,7 +519,20 @@ final class AppModel: ObservableObject {
             catch { notice = error.localizedDescription }
         }
     }
-    func copy(_ text: String) { input.copy(text); notice = "已复制，可以粘贴到任何应用。" }
+    func copy(_ text: String) {
+        guard !text.isEmpty else { return }
+        copyFeedback?.cancel()
+        if input.copy(text, to: copyPasteboard ?? .general) {
+            let success = "已复制，可以粘贴到任何应用。"
+            notice = success
+            copyFeedback = Task { [weak self] in
+                do { try await Task.sleep(for: .seconds(2)) } catch { return }
+                if self?.notice == success { self?.notice = nil }
+            }
+        } else {
+            notice = "未能写入剪贴板，请再试一次。"
+        }
+    }
     var panelScopeLabel: String { panelHasMore ? "已载入 \(recent.count) / \(panelCount) 段" : "输入板 \(recent.count) 段" }
     func copyRecent() { copy(recent.map(\.text).filter { !$0.isEmpty }.joined(separator: "\n")) }
     func loadEarlierPanel() {
@@ -333,6 +571,7 @@ final class AppModel: ObservableObject {
         switch result {
         case .confirmed: insertionLabels[recordingID] = "已插入目标草稿"
         case .unverified: insertionLabels[recordingID] = "插入未确认 · 不会自动重发"
+        case .correctionPending: insertionLabels[recordingID] = "修正版待处理 · 未自动重试"
         case .deferred: insertionLabels[recordingID] = "较早段的迟到文字 · 保留在此处供取用"
         case .cancelled: insertionLabels[recordingID] = "目标已变化 · 文字留在此处"
         case .failed: insertionLabels[recordingID] = "未能插入 · 可复制取用"
@@ -375,7 +614,7 @@ final class AppModel: ObservableObject {
             editorDraft = draft ?? current.text
             editorWasEdited = draft != nil
             editorRecordingID = item.id; editorDraftLoading = false
-            editorDraftStatus = pendingDraftWrites[item.id] == nil ? "草稿自动保留，保存修改创建版本" : "草稿尚未写入磁盘，请保留此窗口"
+            editorDraftStatus = pendingDraftWrites[item.id] == nil ? "修改会自动暂存，保存后更新这段文字" : "草稿尚未写入磁盘，请保留此窗口"
             await loadVersions(item.id)
         } catch {
             if editorSelectionGeneration == generation { editorDraftStatus = "草稿读取失败，请重新选择记录"; notice = error.localizedDescription; editorDraftLoading = false }
@@ -446,7 +685,7 @@ final class AppModel: ObservableObject {
             _ = try await store.saveEdit(recordingID: item.id, text: text)
             if latestEditorValues[item.id]?.sequence == sequence {
                 pendingDraftWrites.removeValue(forKey: item.id)
-                if editorRecordingID == item.id { editorWasEdited = false; editorDraftStatus = "修改已保存为新版本" }
+                if editorRecordingID == item.id { editorWasEdited = false; editorDraftStatus = "修改已保存" }
             } else if let newer = latestEditorValues[item.id] {
                 // Typing while a version is committed remains a separate unsaved draft.
                 pendingDraftWrites[item.id] = newer
@@ -457,7 +696,10 @@ final class AppModel: ObservableObject {
         await refresh(); await loadVersions(item.id)
     }
     func pin(_ item: DisplayRecording) { perform { try await self.store.setPinned(recordingID: item.id, pinned: !item.pinned); await self.refresh() } }
-    func retry(_ item: DisplayRecording) { Task { await audio.retry(recordingID: item.id); await refresh() } }
+    func retry(_ item: DisplayRecording) {
+        let shownConfiguration = appliedRecognitionConfiguration
+        Task { await audio.retry(recordingID: item.id, expectedConfiguration: shownConfiguration); await refresh() }
+    }
     func play(_ item: DisplayRecording) {
         perform {
             if self.audio.playingID == item.id { self.audio.stopPlayback() }
@@ -498,11 +740,22 @@ final class AppModel: ObservableObject {
     }
     func performCleanup() {
         let ids = cleanupIDs
-        perform { let count = try await self.store.cleanupAudio(recordingIDs: ids, olderThan: Date.now.addingTimeInterval(-30 * 86400)); self.notice = "已清理 \(count) 条原音，文字和版本全部保留。"; self.lastStorageRefresh = .distantPast; await self.refresh() }
+        perform { let count = try await self.store.cleanupAudio(recordingIDs: ids, olderThan: Date.now.addingTimeInterval(-30 * 86400)); self.notice = "已清理 \(count) 条原音，已保存的文字全部保留。"; self.lastStorageRefresh = .distantPast; await self.refresh() }
     }
     func prepareForExit() async {
         guard !exitPrepared else { return }
+        if preparingForExit { await withCheckedContinuation { exitWaiters.append($0) }; return }
+        preparingForExit = true
+        defer {
+            preparingForExit = false
+            let waiters = exitWaiters; exitWaiters.removeAll()
+            for waiter in waiters { waiter.resume() }
+        }
         directMode = false; input.invalidate()
+        cancelConnectionCheck()
+        recognitionApplyID = UUID(); recognitionApplyTask?.cancel(); connectionDependencies.revokeCloud(audio)
+        await connectionCheckTask?.value; connectionCheckTask = nil
+        await recognitionApplyTask?.value; recognitionApplyTask = nil; applyingRecognitionSettings = false
         timer?.cancel(); refreshTask?.cancel()
         await audio.pause()
         editorDebounce?.cancel()
@@ -592,10 +845,12 @@ final class AppModel: ObservableObject {
             if summary.shouldWarn { notice = "原音空间已达到提醒阈值，或磁盘剩余不足 1 GB。请在设置中查看存储。" }
             }
             let visibleIDs = Set(records.map(\.id) + recent.map(\.id))
-            let currentPhases = try await store.activeRecognitionPhases(recordingIDs: Array(visibleIDs))
-            if recognitionPhases != currentPhases { recognitionPhases = currentPhases }
             insertionLabels = insertionLabels.filter { visibleIDs.contains($0.key) }
             if directMode && !isInserting, let binding = input.binding {
+                for correction in try await store.ownedCorrectionCandidates(bindingID: binding.id) {
+                    guard directMode, !isInserting, input.binding?.id == binding.id else { break }
+                    recordInputResult(await input.repairOwned(revision: correction), recordingID: correction.recordingID)
+                }
                 let deferred = try await store.deferredDirectInputRecordings(bindingID: binding.id, createdSince: binding.boundAt, limit: 1000)
                 for id in deferred where visibleIDs.contains(id) { recordInputResult(.deferred, recordingID: id) }
                 let candidates = try await store.directInputCandidates(bindingID: binding.id, createdSince: binding.boundAt)
@@ -627,5 +882,13 @@ final class AppModel: ObservableObject {
         let status = SMAppService.mainApp.status
         if status == .requiresApproval { notice = "登录启动需要在系统设置的登录项中允许。收音仍需你主动开启。" }
         initializing = true; launchAtLogin = status == .enabled; initializing = false
+    }
+}
+
+private enum MultiConnectionMessage {
+    static func safe(_ error: Error) -> String {
+        if let known = error as? ProviderFailure { return known.localizedDescription }
+        if let known = error as? CloudCredentialError { return known.localizedDescription }
+        return "连接检查未完成，请稍后重试。本机识别可以继续使用。"
     }
 }

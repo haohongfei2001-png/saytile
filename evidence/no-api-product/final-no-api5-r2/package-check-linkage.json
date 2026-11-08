@@ -1,0 +1,58 @@
+{
+  "recorded_utc": "2026-11-07T01:44:13.034077+00:00",
+  "source_revision": "4df87ad4dd7ff94da2027f0c978ca5c5cb1d7292",
+  "source_dirty": false,
+  "binary_path": "/Users/hhf/.codex/worktrees/saytile-approved-ui/dist/rc2-no-api.5-r2/Saytile.app/Contents/MacOS/Saytile",
+  "binary_sha256_at_extraction_and_after_controls": "41ba0072154ceb060cd3499478e5b446fc76687b526dd4ea739108bf8917d8ef",
+  "dmg_sha256": "27b190cc73c72fff744067f7e97af0e238ab9546cc8e09e2039d0e3f18f84bcd",
+  "test_reports": {
+    "cloud-probe-cli.json": "780122d85e45e3eab82f42a3e38fd9e73073e5832cd37e406fc91ff06e83cfed",
+    "cloud-probe-cli.log": "3c0410010925556a588ed3f6a176b274ee83727183cbb028c1fa4e9fe1b8637a",
+    "connection-setup-cli.json": "63fbb951bd5f869298a4a74d38791b7201f7fa9c9cd59631263058f6ebde275a",
+    "connection-setup-cli.log": "153af498596f3e3685e80601badda32322f2c17fda4bfce271aa9812deb39344",
+    "startup-focus.log": "ba0933a67408af6343fce365519520becb43e7ffaff6ae234c3c1af605146eda",
+    "startup-focus-identities.txt": "91d44103d553da069bd1f70bcd9b83d57626f53a63957230d18a14910ee7414a",
+    "install-upgrade.json": "fc3a69be2c32746f5626e5a90fe1a5a354c071a5ef5c7d046ea2bf63143e8be8",
+    "uninstall-reinstall.json": "d9baa95e6c263cf6d4bac1c2ede9576f78b502683f4fe5a807821fd0a60d0e45",
+    "ui/manifest.json": "f811859a459479d323b0bf8ce5e405ee12f1d89d5d2d62e72342b6affe7967c8",
+    "ui-render-only/manifest.json": "c74934a3cb80747a8734b52ebd7ef12a62fd538024ba9d6a9272b590fc88dd1e"
+  },
+  "ui_capture_modes": {
+    "controls": 36,
+    "render_only": 22
+  },
+  "scope": "Verified the same signed released executable extracted from a readonly mounted DMG. These are local GUI, CLI, upgrade and focus observations only. Startup helper and fixture identities are separate. No real cloud endpoint or microphone capture.",
+  "cli_commands": [
+    {
+      "cwd": "/Users/hhf/.codex/worktrees/saytile-approved-ui",
+      "argv": [
+        "python3",
+        "research/asr/validation/fusion-quality/check-probe-isolation.py",
+        "--app",
+        "dist/rc2-no-api.5-r2/Saytile.app/Contents/MacOS/Saytile",
+        "--output",
+        "evidence/no-api-product/final-no-api5-r2/cloud-probe-cli.json"
+      ],
+      "exit": 0,
+      "cases": 17,
+      "log_sha256": "3c0410010925556a588ed3f6a176b274ee83727183cbb028c1fa4e9fe1b8637a",
+      "report_sha256": "780122d85e45e3eab82f42a3e38fd9e73073e5832cd37e406fc91ff06e83cfed"
+    },
+    {
+      "cwd": "/Users/hhf/.codex/worktrees/saytile-approved-ui",
+      "argv": [
+        "python3",
+        "scripts/test-connection-setup.py",
+        "--app",
+        "dist/rc2-no-api.5-r2/Saytile.app",
+        "--output",
+        "evidence/no-api-product/final-no-api5-r2/connection-setup-cli.json"
+      ],
+      "exit": 0,
+      "cases": 7,
+      "log_sha256": "153af498596f3e3685e80601badda32322f2c17fda4bfce271aa9812deb39344",
+      "report_sha256": "63fbb951bd5f869298a4a74d38791b7201f7fa9c9cd59631263058f6ebde275a"
+    }
+  ],
+  "sampling": "DMG extraction before CLI, and the same binary rehashed after CLI/UI, rather than hash sampling at every subprocess. Commands transcribed from the actual invocations."
+}

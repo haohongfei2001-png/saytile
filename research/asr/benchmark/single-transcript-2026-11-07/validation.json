@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "PASSED",
+  "checks": [
+    {
+      "command": "python3 -B -m unittest discover -s research/asr/benchmark/single-transcript-2026-11-07 -p 'test_*.py' -v",
+      "passed": 20,
+      "failed": 0,
+      "exit_code": 0,
+      "log": "python-tests.log"
+    },
+    {
+      "command": "python3 -B -m unittest discover -s research/asr/benchmark/quality-evaluation -p 'test_*.py' -v",
+      "passed": 43,
+      "failed": 0,
+      "exit_code": 0,
+      "evidence": "Observed command output in this local task; no legacy count reused."
+    }
+  ],
+  "total_passed": 63,
+  "files_sha256": {
+    "research/asr/benchmark/single-transcript-2026-11-07/harness.py": "adedf53ae5889929d1cb150d6e89eede386c2c58558cfc1482f1a9a3a4ca3975",
+    "research/asr/benchmark/single-transcript-2026-11-07/test_harness.py": "e9002d55eb220df330020abf6dcad547da636b7331a301818a8c7b738d1a60ee",
+    "research/asr/benchmark/single-transcript-2026-11-07/python-tests.log": "226cd676527ec44e360bedaaf647517874d98c454e069046ada5824df78142cb",
+    "research/asr/benchmark/quality-evaluation/evaluate.py": "6f7b526d4967505bf7fe9063d51e628796c5522c9966d4138c075bbbd1287869",
+    "research/asr/benchmark/quality-evaluation/metrics.py": "a686bd98be8665c92ddd8a70b4e268ae548abc8d2919f8186ded1fe1ca39baab",
+    "research/asr/benchmark/quality-evaluation/test_evaluate.py": "6bf38981c454d4953ce6547c8e034f812aa0789847a91a819a49af1612130345",
+    "research/asr/benchmark/quality-evaluation/test_latency.py": "f5c275b83bb4a7160fd628bb10de0ecd84f2b0fbb0a395140bf0e32d5d8402ef"
+  },
+  "cloud_requests_made_by_harness": 0,
+  "native_candidate_validation": "NOT_RUN"
+}

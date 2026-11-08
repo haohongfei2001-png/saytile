@@ -1,0 +1,67 @@
+Building for debugging...
+[Planning deferred tasks]
+[35 / 94] Saytile_SaytileKit
+[37 / 94]
+[67 / 104] CAudio
+[69 / 105]
+[90 / 105]
+[95 / 105] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[96 / 105] SaytileKit
+[106 / 244]
+[111 / 244]
+[121 / 244]
+[124 / 244]
+[129 / 244]
+[131 / 244]
+[133 / 244]
+[141 / 244]
+[144 / 244]
+[146 / 244]
+[147 / 244]
+[158 / 244]
+[161 / 244]
+[162 / 244]
+[167 / 244]
+[172 / 244]
+[173 / 244]
+[174 / 244]
+[181 / 244]
+[182 / 244]
+[183 / 244]
+[188 / 244]
+[189 / 244]
+[190 / 244]
+[192 / 244]
+[193 / 244]
+[195 / 244]
+[205 / 244]
+[208 / 244]
+[209 / 244]
+[213 / 244]
+[218 / 244]
+[221 / 244]
+[222 / 244]
+[223 / 244]
+[224 / 244]
+[235 / 244] SaytileKit
+[241 / 244] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[243 / 244] SaytileKit
+Build complete! (34.57秒)
+FIXTURE_READY
+Swift/ErrorType.swift:254: Fatal error: Error raised at top level: AXCoordinatorProbe.AXCoordinatorProbe.Failure(description: "production coordinator + SQLite reservation + real AX insertion confirms")
+Traceback (most recent call last):
+  File "/Users/hhf/.codex/worktrees/saytile-no-api-product/evidence/no-api-product/final-no-api4/input/native-observed-runner.py", line 18, in <module>
+    runpy.run_path(str(ROOT/'scripts/test-input-native.py'),run_name='__main__')
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/hhf/.codex/worktrees/saytile-no-api-product/scripts/test-input-native.py", line 169, in <module>
+    run_fixture("AXTextFixture", "AXCoordinatorProbe", "input-native-coordinator.log", "FIXTURE_READY")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/hhf/.codex/worktrees/saytile-no-api-product/scripts/test-input-native.py", line 75, in run_fixture
+    if probe.returncode: raise RuntimeError(f"Probe exit {probe.returncode}; no permission prompts or focus escalation attempted")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Probe exit -5; no permission prompts or focus escalation attempted

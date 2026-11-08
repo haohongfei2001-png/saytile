@@ -1,0 +1,73 @@
+{
+  "candidate": {
+    "result": "OFFLINE_PREFLIGHT_PASS",
+    "source": "0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0",
+    "version": "1.0.0-rc.2-no-api.9.1",
+    "dmg_sha256": "9d157becfa40e214b579036b03a178cffa85c96c6f0a54923809bd8110938339",
+    "executable_sha256": "f39fe41040605a5d66e96b1984c8681e083763993c00e6cb8bb2f974c4e417bf",
+    "resources": 5,
+    "tools": {
+      "notarytool": "/Library/Developer/CommandLineTools/usr/bin/notarytool",
+      "stapler": "/Library/Developer/CommandLineTools/usr/bin/stapler"
+    },
+    "signed_or_submitted": false
+  },
+  "wrong_candidate": "REJECTED",
+  "ad_hoc_identity": "REJECTED",
+  "empty_profile": "REJECTED",
+  "existing_output": "REJECTED",
+  "app_bundle_destination": "REJECTED",
+  "observed_offline_tools": [
+    [
+      "xcrun",
+      "--find"
+    ],
+    [
+      "xcrun",
+      "--find"
+    ],
+    [
+      "hdiutil",
+      "verify"
+    ],
+    [
+      "hdiutil",
+      "attach"
+    ],
+    [
+      "lipo",
+      "-archs"
+    ],
+    [
+      "codesign",
+      "--verify"
+    ],
+    [
+      "ditto",
+      "--norsrc"
+    ],
+    [
+      "lipo",
+      "-archs"
+    ],
+    [
+      "codesign",
+      "--verify"
+    ],
+    [
+      "hdiutil",
+      "detach"
+    ],
+    [
+      "xcrun",
+      "--find"
+    ],
+    [
+      "xcrun",
+      "--find"
+    ]
+  ],
+  "real_signing": "NOT_RUN",
+  "real_notarization": "NOT_RUN",
+  "public_distribution": "PENDING"
+}

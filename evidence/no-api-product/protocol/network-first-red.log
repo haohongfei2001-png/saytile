@@ -1,0 +1,131 @@
+Building for debugging...
+[Planning deferred tasks]
+[38 / 117]
+[56 / 126]
+[70 / 128]
+[91 / 128]
+[96 / 128] CAudio
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[97 / 128] SaytileKit
+[109 / 267]
+[122 / 267]
+[125 / 267]
+[131 / 267]
+[134 / 267]
+[142 / 267]
+[144 / 267]
+[147 / 267]
+[148 / 267]
+[160 / 267]
+[163 / 267]
+[168 / 267]
+[173 / 267]
+[174 / 267]
+[175 / 267]
+[182 / 267]
+[184 / 267]
+[190 / 267]
+[191 / 267]
+[193 / 267]
+[195 / 267]
+[196 / 267]
+[208 / 267]
+[210 / 267]
+[214 / 267]
+[219 / 267]
+[222 / 267]
+[223 / 267]
+[224 / 267]
+[225 / 267]
+[236 / 267] SaytileKit
+[237 / 267] SaytileKit
+[247 / 268] SaytileKit
+[247 / 268] Saytile-product
+[250 / 279] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[256 / 280] SaytileKitTests-product
+[257 / 295]
+[260 / 295]
+[270 / 295] SaytileKitTests-product
+[271 / 295] SaytileKitTests-product
+[273 / 295] SaytileKitTests-product
+[277 / 295] SaytileKitTests-product
+[280 / 295] Saytile-product
+[281 / 295] Saytile-product
+[283 / 295] Saytile-product
+[285 / 295] Saytile-product
+[285 / 295] AllIncludingTests
+[285 / 295] SaytileKitTests-product
+[285 / 295] Saytile-product
+[285 / 295] SaytileKitTests-product
+[285 / 295] Saytile-product
+[287 / 295] Saytile-product/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[289 / 295] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[291 / 295] SaytileKitTests-product
+Build complete! (26.77秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Real URLSession loopback protocol integration" started.
+◇ Test GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+◇ Test productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS() started.
+◇ Test unsupportedGPTWebSocketUsesSameModelProductionHTTPStreamingClient() started.
+◇ Test cancellingActualGPTSocketClosesPeerBeforeAnyFinalSelection() started.
+◇ Test networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 1 argument fault → "normal" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+◇ Test case passing 1 argument fault → "quota" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test case passing 1 argument fault → "old_events" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+◇ Test twoProductionASRClientsReceiveIdenticalWholePCMAndEOS() started.
+◇ Test case passing 1 argument fault → "auth" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+◇ Test case passing 1 argument fault → "rate_limit" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test case passing 1 argument fault → "cache_miss" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+◇ Test case passing 1 argument fault → "malformed" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test case passing 1 argument fault → "reconnect" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+◇ Test case passing 1 argument fault → "limit" to persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) started.
+◇ Test case passing 1 argument fault → "wrong_model" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test case passing 1 argument fault → "timeout" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test case passing 1 argument fault → "server_error" to GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "auth" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "quota" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "disconnect" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "malformed" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "duplicate" to repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "missing_final" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "delay" to repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "timeout" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "duplicate" to repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+◇ Test case passing 2 arguments service → "qwen", fault → "server_error" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "delay" to repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "auth" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "quota" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "disconnect" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "malformed" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "missing_final" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "timeout" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+◇ Test case passing 2 arguments service → "assembly", fault → "server_error" to networkFailuresCannotBecomeFinalTranscripts(service:fault:) started.
+✘ Test persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) recorded an issue with 1 argument fault → "reconnect" at ProtocolNetworkIntegrationTests.swift:125:6: Caught error: Error Domain=NSPOSIXErrorDomain Code=57 "Socket is not connected" UserInfo={NSErrorFailingURLStringKey=ws://127.0.0.1:64812/responses?case=C348BA0A-A3B0-4540-B3DA-B780012768BA&fault=reconnect, NSErrorFailingURLKey=ws://127.0.0.1:64812/responses?case=C348BA0A-A3B0-4540-B3DA-B780012768BA&fault=reconnect}
+✘ Test networkFailuresCannotBecomeFinalTranscripts(service:fault:) recorded an issue with 2 arguments service → "assembly", fault → "quota" at ProtocolNetworkIntegrationTests.swift:116:25: Issue recorded
+↳ Fault must be an explicit failed run: assembly/quota
+✘ Test networkFailuresCannotBecomeFinalTranscripts(service:fault:) recorded an issue with 2 arguments service → "assembly", fault → "quota" at ProtocolNetworkIntegrationTests.swift:122:9: Expectation failed: await events.values.allSatisfy { !$0.isComplete }
+↳ await events.values.allSatisfy { !$0.isComplete } → <not evaluated>
+✘ Test persistentGPTUsesActualEvidenceDeltasAndBoundedRebuild(fault:) with 5 test cases failed after 0.040 seconds with 1 issue.
+✔ Test unsupportedGPTWebSocketUsesSameModelProductionHTTPStreamingClient() passed after 0.067 seconds.
+✔ Test cancellingActualGPTSocketClosesPeerBeforeAnyFinalSelection() passed after 0.084 seconds.
+✔ Test twoProductionASRClientsReceiveIdenticalWholePCMAndEOS() passed after 0.090 seconds.
+✔ Test GPTFailureIsExplicitAndDoesNotFallbackToAnotherModel(fault:) with 7 test cases passed after 0.220 seconds.
+✔ Test repeatedAndDelayedNetworkEventsDoNotDuplicateTranscript(service:fault:) with 4 test cases passed after 0.395 seconds.
+✘ Test networkFailuresCannotBecomeFinalTranscripts(service:fault:) with 14 test cases failed after 0.650 seconds with 2 issues.
+PROTOCOL_ENGINE case=B5424F9C-473B-4513-A620-90234EBB4658 visible_revisions=3 gpt_requests=4 final_state=completed scope=SIMULATED_PROTOCOL_NOT_LIVE_CLOUD
+✔ Test productionSessionPublishesOneChangingTextAndFinalizesAfterBothExpertsEOS() passed after 1.344 seconds.
+✘ Suite "Real URLSession loopback protocol integration" failed after 1.344 seconds with 3 issues.
+↳ /// Explicit opt-in: ordinary unit runs never launch a peer or use network credentials.
+↳ /// scripts/test-protocol-simulator.sh supplies the loopback server for this suite.
+✘ Test run with 8 tests in 1 suite failed after 1.345 seconds with 3 issues.
+Note: Some test targets reported failures:
+  - SaytileKitTests (Swift Testing)

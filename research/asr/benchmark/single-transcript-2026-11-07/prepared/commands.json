@@ -1,0 +1,2535 @@
+{
+  "schema_version": 1,
+  "status": "PREPARE_ONLY",
+  "frozen_plan_sha256": "cd2ea2725258f899756e343a6647ed1f3ac41d070a97796476a91369c8458943",
+  "manifest_sha256": "5a5d9809f016f4119c6e3e9d48ce8b62aecae8bb9a5ab050a73c9cb627f5407f",
+  "reference_annotations": {
+    "path": "research/asr/benchmark/quality-evaluation/unit-annotations.json",
+    "sha256": "328ffe7cf01ef77b19d845dbb7766693d6ca0b98e907f2bb7a58a5557b440b85",
+    "overlay_id": "reference-critical-v3-reviewed-numbers-negations-2026-11-07",
+    "reviewed_originals": 112,
+    "annotations_added": 68,
+    "annotations_added_by_type": {
+      "unit": 8,
+      "number": 34,
+      "negation": 26
+    },
+    "reference_occurrences_added_by_type": {
+      "negation": 28,
+      "number": 36,
+      "unit": 10
+    },
+    "reference_occurrences_added": 74
+  },
+  "ids": [
+    "fleurs-zh-10026684690566417990",
+    "fleurs-en-11260391063812418810",
+    "ascend-01031",
+    "fleurs-zh-4719524538529342597",
+    "fleurs-en-13896470903695476292",
+    "ascend-00982",
+    "fleurs-zh-10056338555786085046",
+    "fleurs-en-11966709226632417907",
+    "ascend-00922",
+    "ascend-00031",
+    "ascend-00040",
+    "ascend-01133",
+    "ascend-00268",
+    "ascend-00355",
+    "ascend-00748",
+    "ascend-00749",
+    "fleurs-en-4498640649175127270",
+    "ascend-00967",
+    "ascend-00893",
+    "fleurs-en-11670188897888947692",
+    "ascend-00331",
+    "ascend-00858",
+    "fleurs-en-17858903836434412568",
+    "ascend-00193"
+  ],
+  "configurations": [
+    {
+      "id": "A",
+      "models": [
+        {
+          "provider": "qwenMessage",
+          "model": "qwen-audio-3.1-asr-flash-message",
+          "purpose": "chineseASR"
+        },
+        {
+          "provider": "openAIResponses",
+          "model": "gpt-6-astra",
+          "purpose": "textFusion",
+          "reasoningEffort": "high",
+          "reasoningMode": "standard"
+        }
+      ],
+      "input_mode": "highestQuality",
+      "topicContext": "",
+      "execution": "multi_trace",
+      "evaluation_mode": "single-expert-baseline"
+    },
+    {
+      "id": "B",
+      "models": [
+        {
+          "provider": "assemblyAI",
+          "model": "universal-3-6-pro",
+          "purpose": "englishASR"
+        },
+        {
+          "provider": "openAIResponses",
+          "model": "gpt-6-astra",
+          "purpose": "textFusion",
+          "reasoningEffort": "high",
+          "reasoningMode": "standard"
+        }
+      ],
+      "input_mode": "highestQuality",
+      "topicContext": "",
+      "execution": "multi_trace",
+      "evaluation_mode": "single-expert-baseline"
+    },
+    {
+      "id": "C",
+      "models": [
+        {
+          "provider": "qwenMessage",
+          "model": "qwen-audio-3.1-asr-flash-message",
+          "purpose": "chineseASR"
+        },
+        {
+          "provider": "assemblyAI",
+          "model": "universal-3-6-pro",
+          "purpose": "englishASR"
+        },
+        {
+          "provider": "openAIResponses",
+          "model": "gpt-6-astra",
+          "purpose": "textFusion",
+          "reasoningEffort": "high",
+          "reasoningMode": "standard"
+        }
+      ],
+      "input_mode": "highestQuality",
+      "topicContext": "",
+      "execution": "multi_trace",
+      "evaluation_mode": "multi-expert-fusion"
+    },
+    {
+      "id": "D",
+      "models": [
+        {
+          "provider": "soniox",
+          "model": "stt-rt-v6",
+          "purpose": "multilingualASR"
+        },
+        {
+          "provider": "openAIResponses",
+          "model": "gpt-6-astra",
+          "purpose": "textFusion",
+          "reasoningEffort": "high",
+          "reasoningMode": "standard"
+        }
+      ],
+      "input_mode": "highestQuality",
+      "topicContext": "",
+      "execution": "multi_trace",
+      "evaluation_mode": "single-expert-baseline"
+    },
+    {
+      "id": "E",
+      "models": [
+        {
+          "provider": "qwenMessage",
+          "model": "qwen-audio-3.1-asr-flash-message",
+          "purpose": "chineseASR"
+        },
+        {
+          "provider": "assemblyAI",
+          "model": "universal-3-6-pro",
+          "purpose": "englishASR"
+        },
+        {
+          "provider": "soniox",
+          "model": "stt-rt-v6",
+          "purpose": "multilingualASR"
+        },
+        {
+          "provider": "openAIResponses",
+          "model": "gpt-6-astra",
+          "purpose": "textFusion",
+          "reasoningEffort": "high",
+          "reasoningMode": "standard"
+        }
+      ],
+      "input_mode": "highestQuality",
+      "topicContext": "",
+      "execution": "multi_trace",
+      "evaluation_mode": "multi-expert-fusion"
+    }
+  ],
+  "F": {
+    "status": "NOT_AVAILABLE",
+    "metrics": null,
+    "reason": "Product contract: gpt-6-astra official native audio input is not supported."
+  },
+  "commands": [
+    {
+      "configuration_id": "A",
+      "fixture_id": "fleurs-zh-10026684690566417990",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-10026684690566417990.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/fleurs-zh-10026684690566417990",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/fleurs-zh-10026684690566417990",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "5214e16584b6498ddbd22f321738c0f62b19117ab1880b21e405fba983986b6a",
+      "reference_sha256": "6f20dd84a6c686c60507428e037063762c5a15bb7e9e9777c1047049b62a9152",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "fleurs-zh-10026684690566417990",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-10026684690566417990.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/fleurs-zh-10026684690566417990",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/fleurs-zh-10026684690566417990",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "5214e16584b6498ddbd22f321738c0f62b19117ab1880b21e405fba983986b6a",
+      "reference_sha256": "6f20dd84a6c686c60507428e037063762c5a15bb7e9e9777c1047049b62a9152",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "fleurs-zh-10026684690566417990",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-10026684690566417990.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/fleurs-zh-10026684690566417990",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/fleurs-zh-10026684690566417990"
+      ],
+      "audio_sha256": "5214e16584b6498ddbd22f321738c0f62b19117ab1880b21e405fba983986b6a",
+      "reference_sha256": "6f20dd84a6c686c60507428e037063762c5a15bb7e9e9777c1047049b62a9152",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "fleurs-zh-10026684690566417990",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-10026684690566417990.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/fleurs-zh-10026684690566417990",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/fleurs-zh-10026684690566417990",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "5214e16584b6498ddbd22f321738c0f62b19117ab1880b21e405fba983986b6a",
+      "reference_sha256": "6f20dd84a6c686c60507428e037063762c5a15bb7e9e9777c1047049b62a9152",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "fleurs-zh-10026684690566417990",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-10026684690566417990.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/fleurs-zh-10026684690566417990",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/fleurs-zh-10026684690566417990"
+      ],
+      "audio_sha256": "5214e16584b6498ddbd22f321738c0f62b19117ab1880b21e405fba983986b6a",
+      "reference_sha256": "6f20dd84a6c686c60507428e037063762c5a15bb7e9e9777c1047049b62a9152",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "fleurs-en-11260391063812418810",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11260391063812418810.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/fleurs-en-11260391063812418810",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/fleurs-en-11260391063812418810",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "e03e80cb45111d0fc53a3f64126ffa57975eab52652f7fe9ad55c17256d57af4",
+      "reference_sha256": "f89bc4947ce0684ce7cabe308ace70da8c00a4b8380c8f25e230fa6e6f6d4c07",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "fleurs-en-11260391063812418810",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11260391063812418810.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/fleurs-en-11260391063812418810",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/fleurs-en-11260391063812418810"
+      ],
+      "audio_sha256": "e03e80cb45111d0fc53a3f64126ffa57975eab52652f7fe9ad55c17256d57af4",
+      "reference_sha256": "f89bc4947ce0684ce7cabe308ace70da8c00a4b8380c8f25e230fa6e6f6d4c07",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "fleurs-en-11260391063812418810",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11260391063812418810.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/fleurs-en-11260391063812418810",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/fleurs-en-11260391063812418810",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "e03e80cb45111d0fc53a3f64126ffa57975eab52652f7fe9ad55c17256d57af4",
+      "reference_sha256": "f89bc4947ce0684ce7cabe308ace70da8c00a4b8380c8f25e230fa6e6f6d4c07",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "fleurs-en-11260391063812418810",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11260391063812418810.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/fleurs-en-11260391063812418810",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/fleurs-en-11260391063812418810"
+      ],
+      "audio_sha256": "e03e80cb45111d0fc53a3f64126ffa57975eab52652f7fe9ad55c17256d57af4",
+      "reference_sha256": "f89bc4947ce0684ce7cabe308ace70da8c00a4b8380c8f25e230fa6e6f6d4c07",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "fleurs-en-11260391063812418810",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11260391063812418810.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/fleurs-en-11260391063812418810",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/fleurs-en-11260391063812418810",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "e03e80cb45111d0fc53a3f64126ffa57975eab52652f7fe9ad55c17256d57af4",
+      "reference_sha256": "f89bc4947ce0684ce7cabe308ace70da8c00a4b8380c8f25e230fa6e6f6d4c07",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-01031",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-01031.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-01031",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-01031"
+      ],
+      "audio_sha256": "9ee4b725e7e7195935a2b53a245e3c5e5fab434b1aa8300080da6f3e533626e7",
+      "reference_sha256": "54af3f45d8b9dec1ff83658e5285bdc851825af40bad28537dbe77141857193f",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-01031",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-01031.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-01031",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-01031",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "9ee4b725e7e7195935a2b53a245e3c5e5fab434b1aa8300080da6f3e533626e7",
+      "reference_sha256": "54af3f45d8b9dec1ff83658e5285bdc851825af40bad28537dbe77141857193f",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-01031",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-01031.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-01031",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-01031"
+      ],
+      "audio_sha256": "9ee4b725e7e7195935a2b53a245e3c5e5fab434b1aa8300080da6f3e533626e7",
+      "reference_sha256": "54af3f45d8b9dec1ff83658e5285bdc851825af40bad28537dbe77141857193f",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-01031",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-01031.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-01031",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-01031",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "9ee4b725e7e7195935a2b53a245e3c5e5fab434b1aa8300080da6f3e533626e7",
+      "reference_sha256": "54af3f45d8b9dec1ff83658e5285bdc851825af40bad28537dbe77141857193f",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-01031",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-01031.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-01031",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-01031",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "9ee4b725e7e7195935a2b53a245e3c5e5fab434b1aa8300080da6f3e533626e7",
+      "reference_sha256": "54af3f45d8b9dec1ff83658e5285bdc851825af40bad28537dbe77141857193f",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "fleurs-zh-4719524538529342597",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-4719524538529342597.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/fleurs-zh-4719524538529342597",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/fleurs-zh-4719524538529342597",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "4d9cd95d4f1d39d0330394058adc231ab5a725c6004b731670c2cfdd420113e5",
+      "reference_sha256": "9b806bb2feb1880d1446c58ee73356b83c408806cc7f91cb00a3487b321ada7d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "fleurs-zh-4719524538529342597",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-4719524538529342597.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/fleurs-zh-4719524538529342597",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/fleurs-zh-4719524538529342597"
+      ],
+      "audio_sha256": "4d9cd95d4f1d39d0330394058adc231ab5a725c6004b731670c2cfdd420113e5",
+      "reference_sha256": "9b806bb2feb1880d1446c58ee73356b83c408806cc7f91cb00a3487b321ada7d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "fleurs-zh-4719524538529342597",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-4719524538529342597.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/fleurs-zh-4719524538529342597",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/fleurs-zh-4719524538529342597",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "4d9cd95d4f1d39d0330394058adc231ab5a725c6004b731670c2cfdd420113e5",
+      "reference_sha256": "9b806bb2feb1880d1446c58ee73356b83c408806cc7f91cb00a3487b321ada7d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "fleurs-zh-4719524538529342597",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-4719524538529342597.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/fleurs-zh-4719524538529342597",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/fleurs-zh-4719524538529342597",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "4d9cd95d4f1d39d0330394058adc231ab5a725c6004b731670c2cfdd420113e5",
+      "reference_sha256": "9b806bb2feb1880d1446c58ee73356b83c408806cc7f91cb00a3487b321ada7d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "fleurs-zh-4719524538529342597",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-4719524538529342597.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/fleurs-zh-4719524538529342597",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/fleurs-zh-4719524538529342597"
+      ],
+      "audio_sha256": "4d9cd95d4f1d39d0330394058adc231ab5a725c6004b731670c2cfdd420113e5",
+      "reference_sha256": "9b806bb2feb1880d1446c58ee73356b83c408806cc7f91cb00a3487b321ada7d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "fleurs-en-13896470903695476292",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-13896470903695476292.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/fleurs-en-13896470903695476292",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/fleurs-en-13896470903695476292"
+      ],
+      "audio_sha256": "c75cc2e7e41cf5b85d8830f89eb59b59556f2dc57f5b90f8b1ba40c9fd65961a",
+      "reference_sha256": "0181ce6503149397f14f5fd7e96ce735ea877897f99105ead20b0aa8d90d9058",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "fleurs-en-13896470903695476292",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-13896470903695476292.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/fleurs-en-13896470903695476292",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/fleurs-en-13896470903695476292",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "c75cc2e7e41cf5b85d8830f89eb59b59556f2dc57f5b90f8b1ba40c9fd65961a",
+      "reference_sha256": "0181ce6503149397f14f5fd7e96ce735ea877897f99105ead20b0aa8d90d9058",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "fleurs-en-13896470903695476292",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-13896470903695476292.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/fleurs-en-13896470903695476292",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/fleurs-en-13896470903695476292",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "c75cc2e7e41cf5b85d8830f89eb59b59556f2dc57f5b90f8b1ba40c9fd65961a",
+      "reference_sha256": "0181ce6503149397f14f5fd7e96ce735ea877897f99105ead20b0aa8d90d9058",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "fleurs-en-13896470903695476292",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-13896470903695476292.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/fleurs-en-13896470903695476292",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/fleurs-en-13896470903695476292"
+      ],
+      "audio_sha256": "c75cc2e7e41cf5b85d8830f89eb59b59556f2dc57f5b90f8b1ba40c9fd65961a",
+      "reference_sha256": "0181ce6503149397f14f5fd7e96ce735ea877897f99105ead20b0aa8d90d9058",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "fleurs-en-13896470903695476292",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-13896470903695476292.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/fleurs-en-13896470903695476292",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/fleurs-en-13896470903695476292",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "c75cc2e7e41cf5b85d8830f89eb59b59556f2dc57f5b90f8b1ba40c9fd65961a",
+      "reference_sha256": "0181ce6503149397f14f5fd7e96ce735ea877897f99105ead20b0aa8d90d9058",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00982",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00982.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00982",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00982",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "be7540e6a7b0d971283a31cd8ec05ae9a93a015c9600aec9866e78f7e5ac0306",
+      "reference_sha256": "507e59fe1b1a8da300f3da14d9ee2d0e99ad2d6f5ea85f7ac5ddadb99cb549ae",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00982",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00982.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00982",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00982",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "be7540e6a7b0d971283a31cd8ec05ae9a93a015c9600aec9866e78f7e5ac0306",
+      "reference_sha256": "507e59fe1b1a8da300f3da14d9ee2d0e99ad2d6f5ea85f7ac5ddadb99cb549ae",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00982",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00982.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00982",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00982"
+      ],
+      "audio_sha256": "be7540e6a7b0d971283a31cd8ec05ae9a93a015c9600aec9866e78f7e5ac0306",
+      "reference_sha256": "507e59fe1b1a8da300f3da14d9ee2d0e99ad2d6f5ea85f7ac5ddadb99cb549ae",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00982",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00982.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00982",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00982",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "be7540e6a7b0d971283a31cd8ec05ae9a93a015c9600aec9866e78f7e5ac0306",
+      "reference_sha256": "507e59fe1b1a8da300f3da14d9ee2d0e99ad2d6f5ea85f7ac5ddadb99cb549ae",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00982",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00982.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00982",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00982"
+      ],
+      "audio_sha256": "be7540e6a7b0d971283a31cd8ec05ae9a93a015c9600aec9866e78f7e5ac0306",
+      "reference_sha256": "507e59fe1b1a8da300f3da14d9ee2d0e99ad2d6f5ea85f7ac5ddadb99cb549ae",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "fleurs-zh-10056338555786085046",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-10056338555786085046.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/fleurs-zh-10056338555786085046",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/fleurs-zh-10056338555786085046",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "e98bd3a78fa3eb617164375180940917a8c8a87ce90b0dbffbfff156a009bf17",
+      "reference_sha256": "bd95475bae2afc2c52e291f47fd50a80ef9cc67ad551fa1fbcb2779e6f962633",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "fleurs-zh-10056338555786085046",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-10056338555786085046.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/fleurs-zh-10056338555786085046",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/fleurs-zh-10056338555786085046"
+      ],
+      "audio_sha256": "e98bd3a78fa3eb617164375180940917a8c8a87ce90b0dbffbfff156a009bf17",
+      "reference_sha256": "bd95475bae2afc2c52e291f47fd50a80ef9cc67ad551fa1fbcb2779e6f962633",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "fleurs-zh-10056338555786085046",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-10056338555786085046.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/fleurs-zh-10056338555786085046",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/fleurs-zh-10056338555786085046",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "e98bd3a78fa3eb617164375180940917a8c8a87ce90b0dbffbfff156a009bf17",
+      "reference_sha256": "bd95475bae2afc2c52e291f47fd50a80ef9cc67ad551fa1fbcb2779e6f962633",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "fleurs-zh-10056338555786085046",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-10056338555786085046.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/fleurs-zh-10056338555786085046",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/fleurs-zh-10056338555786085046"
+      ],
+      "audio_sha256": "e98bd3a78fa3eb617164375180940917a8c8a87ce90b0dbffbfff156a009bf17",
+      "reference_sha256": "bd95475bae2afc2c52e291f47fd50a80ef9cc67ad551fa1fbcb2779e6f962633",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "fleurs-zh-10056338555786085046",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-zh-10056338555786085046.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/fleurs-zh-10056338555786085046",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/fleurs-zh-10056338555786085046",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "e98bd3a78fa3eb617164375180940917a8c8a87ce90b0dbffbfff156a009bf17",
+      "reference_sha256": "bd95475bae2afc2c52e291f47fd50a80ef9cc67ad551fa1fbcb2779e6f962633",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "fleurs-en-11966709226632417907",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11966709226632417907.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/fleurs-en-11966709226632417907",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/fleurs-en-11966709226632417907"
+      ],
+      "audio_sha256": "89f6b140f650f69ee0f1dec21da480b083fc543623e07c39bbb06dd1dfc62181",
+      "reference_sha256": "1c8094471f8c3ee2c580d73c0e80dab185fd260e03b08a96957a2faa79e3f8a3",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "fleurs-en-11966709226632417907",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11966709226632417907.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/fleurs-en-11966709226632417907",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/fleurs-en-11966709226632417907",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "89f6b140f650f69ee0f1dec21da480b083fc543623e07c39bbb06dd1dfc62181",
+      "reference_sha256": "1c8094471f8c3ee2c580d73c0e80dab185fd260e03b08a96957a2faa79e3f8a3",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "fleurs-en-11966709226632417907",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11966709226632417907.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/fleurs-en-11966709226632417907",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/fleurs-en-11966709226632417907"
+      ],
+      "audio_sha256": "89f6b140f650f69ee0f1dec21da480b083fc543623e07c39bbb06dd1dfc62181",
+      "reference_sha256": "1c8094471f8c3ee2c580d73c0e80dab185fd260e03b08a96957a2faa79e3f8a3",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "fleurs-en-11966709226632417907",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11966709226632417907.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/fleurs-en-11966709226632417907",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/fleurs-en-11966709226632417907",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "89f6b140f650f69ee0f1dec21da480b083fc543623e07c39bbb06dd1dfc62181",
+      "reference_sha256": "1c8094471f8c3ee2c580d73c0e80dab185fd260e03b08a96957a2faa79e3f8a3",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "fleurs-en-11966709226632417907",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11966709226632417907.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/fleurs-en-11966709226632417907",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/fleurs-en-11966709226632417907",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "89f6b140f650f69ee0f1dec21da480b083fc543623e07c39bbb06dd1dfc62181",
+      "reference_sha256": "1c8094471f8c3ee2c580d73c0e80dab185fd260e03b08a96957a2faa79e3f8a3",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00922",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00922.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00922",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00922",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "d24fdd1a6f6a752b1cc479ef6b6cd0bbeefec5fdfc50923e3cadfe6c02612ccf",
+      "reference_sha256": "904eae39aca41d4abfe5274531619cca9fbdbf988a40962855f1d0e91a3f09e1",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00922",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00922.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00922",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00922"
+      ],
+      "audio_sha256": "d24fdd1a6f6a752b1cc479ef6b6cd0bbeefec5fdfc50923e3cadfe6c02612ccf",
+      "reference_sha256": "904eae39aca41d4abfe5274531619cca9fbdbf988a40962855f1d0e91a3f09e1",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00922",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00922.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00922",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00922",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "d24fdd1a6f6a752b1cc479ef6b6cd0bbeefec5fdfc50923e3cadfe6c02612ccf",
+      "reference_sha256": "904eae39aca41d4abfe5274531619cca9fbdbf988a40962855f1d0e91a3f09e1",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00922",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00922.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00922",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00922",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "d24fdd1a6f6a752b1cc479ef6b6cd0bbeefec5fdfc50923e3cadfe6c02612ccf",
+      "reference_sha256": "904eae39aca41d4abfe5274531619cca9fbdbf988a40962855f1d0e91a3f09e1",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00922",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00922.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00922",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00922"
+      ],
+      "audio_sha256": "d24fdd1a6f6a752b1cc479ef6b6cd0bbeefec5fdfc50923e3cadfe6c02612ccf",
+      "reference_sha256": "904eae39aca41d4abfe5274531619cca9fbdbf988a40962855f1d0e91a3f09e1",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00031",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00031.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00031",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00031"
+      ],
+      "audio_sha256": "4527ae6a324449b6960e4f3d1385a66e52afa379255bc78bcabecdc38816c2b4",
+      "reference_sha256": "722fd9cdb8b7671cba42090386d2899e0428378fb322bafdbd341f828538c8c4",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00031",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00031.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00031",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00031",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "4527ae6a324449b6960e4f3d1385a66e52afa379255bc78bcabecdc38816c2b4",
+      "reference_sha256": "722fd9cdb8b7671cba42090386d2899e0428378fb322bafdbd341f828538c8c4",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00031",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00031.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00031",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00031",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "4527ae6a324449b6960e4f3d1385a66e52afa379255bc78bcabecdc38816c2b4",
+      "reference_sha256": "722fd9cdb8b7671cba42090386d2899e0428378fb322bafdbd341f828538c8c4",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00031",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00031.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00031",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00031"
+      ],
+      "audio_sha256": "4527ae6a324449b6960e4f3d1385a66e52afa379255bc78bcabecdc38816c2b4",
+      "reference_sha256": "722fd9cdb8b7671cba42090386d2899e0428378fb322bafdbd341f828538c8c4",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00031",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00031.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00031",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00031",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "4527ae6a324449b6960e4f3d1385a66e52afa379255bc78bcabecdc38816c2b4",
+      "reference_sha256": "722fd9cdb8b7671cba42090386d2899e0428378fb322bafdbd341f828538c8c4",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00040",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00040.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00040",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00040",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "0790bc90ef951d3edb3018c42b6fd7f7b5ee2b5988274e2cec9425dfa7e5491d",
+      "reference_sha256": "0bdba744eb68f4a81768bf05ae8932d149fa4cfee184366d08b944bedef73eb0",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00040",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00040.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00040",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00040",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "0790bc90ef951d3edb3018c42b6fd7f7b5ee2b5988274e2cec9425dfa7e5491d",
+      "reference_sha256": "0bdba744eb68f4a81768bf05ae8932d149fa4cfee184366d08b944bedef73eb0",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00040",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00040.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00040",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00040"
+      ],
+      "audio_sha256": "0790bc90ef951d3edb3018c42b6fd7f7b5ee2b5988274e2cec9425dfa7e5491d",
+      "reference_sha256": "0bdba744eb68f4a81768bf05ae8932d149fa4cfee184366d08b944bedef73eb0",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00040",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00040.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00040",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00040",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "0790bc90ef951d3edb3018c42b6fd7f7b5ee2b5988274e2cec9425dfa7e5491d",
+      "reference_sha256": "0bdba744eb68f4a81768bf05ae8932d149fa4cfee184366d08b944bedef73eb0",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00040",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00040.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00040",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00040"
+      ],
+      "audio_sha256": "0790bc90ef951d3edb3018c42b6fd7f7b5ee2b5988274e2cec9425dfa7e5491d",
+      "reference_sha256": "0bdba744eb68f4a81768bf05ae8932d149fa4cfee184366d08b944bedef73eb0",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-01133",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-01133.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-01133",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-01133",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "25236797e34a41a7ae1f73beae4e11aac67771a19705d0a530f18a8eb0c1ebf4",
+      "reference_sha256": "11f570920ee63bf2ea129772275d10c9389ae201277c8ea87eeec10a671ddc8d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-01133",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-01133.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-01133",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-01133"
+      ],
+      "audio_sha256": "25236797e34a41a7ae1f73beae4e11aac67771a19705d0a530f18a8eb0c1ebf4",
+      "reference_sha256": "11f570920ee63bf2ea129772275d10c9389ae201277c8ea87eeec10a671ddc8d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-01133",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-01133.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-01133",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-01133",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "25236797e34a41a7ae1f73beae4e11aac67771a19705d0a530f18a8eb0c1ebf4",
+      "reference_sha256": "11f570920ee63bf2ea129772275d10c9389ae201277c8ea87eeec10a671ddc8d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-01133",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-01133.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-01133",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-01133"
+      ],
+      "audio_sha256": "25236797e34a41a7ae1f73beae4e11aac67771a19705d0a530f18a8eb0c1ebf4",
+      "reference_sha256": "11f570920ee63bf2ea129772275d10c9389ae201277c8ea87eeec10a671ddc8d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-01133",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-01133.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-01133",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-01133",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "25236797e34a41a7ae1f73beae4e11aac67771a19705d0a530f18a8eb0c1ebf4",
+      "reference_sha256": "11f570920ee63bf2ea129772275d10c9389ae201277c8ea87eeec10a671ddc8d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00268",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00268.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00268",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00268"
+      ],
+      "audio_sha256": "bb272c6db4a344a36513989f3f1ddfa3990c0e9df1786fef564895b1b9ccc4fc",
+      "reference_sha256": "da18afde8a80ebfbf21a52a3c28083d9e3394197160f946162631c01d0e1b01d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00268",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00268.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00268",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00268",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "bb272c6db4a344a36513989f3f1ddfa3990c0e9df1786fef564895b1b9ccc4fc",
+      "reference_sha256": "da18afde8a80ebfbf21a52a3c28083d9e3394197160f946162631c01d0e1b01d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00268",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00268.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00268",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00268"
+      ],
+      "audio_sha256": "bb272c6db4a344a36513989f3f1ddfa3990c0e9df1786fef564895b1b9ccc4fc",
+      "reference_sha256": "da18afde8a80ebfbf21a52a3c28083d9e3394197160f946162631c01d0e1b01d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00268",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00268.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00268",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00268",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "bb272c6db4a344a36513989f3f1ddfa3990c0e9df1786fef564895b1b9ccc4fc",
+      "reference_sha256": "da18afde8a80ebfbf21a52a3c28083d9e3394197160f946162631c01d0e1b01d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00268",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00268.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00268",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00268",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "bb272c6db4a344a36513989f3f1ddfa3990c0e9df1786fef564895b1b9ccc4fc",
+      "reference_sha256": "da18afde8a80ebfbf21a52a3c28083d9e3394197160f946162631c01d0e1b01d",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00355",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00355.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00355",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00355",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "0230b15e3f795c77e132c11e5de9589a8a5e2dccba2138b105f76acc86abf457",
+      "reference_sha256": "8e4fb5579927264048ba5123d5d3fe3abe4aa9a9fc2244d5cac0efe79ff7fba2",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00355",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00355.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00355",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00355"
+      ],
+      "audio_sha256": "0230b15e3f795c77e132c11e5de9589a8a5e2dccba2138b105f76acc86abf457",
+      "reference_sha256": "8e4fb5579927264048ba5123d5d3fe3abe4aa9a9fc2244d5cac0efe79ff7fba2",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00355",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00355.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00355",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00355",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "0230b15e3f795c77e132c11e5de9589a8a5e2dccba2138b105f76acc86abf457",
+      "reference_sha256": "8e4fb5579927264048ba5123d5d3fe3abe4aa9a9fc2244d5cac0efe79ff7fba2",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00355",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00355.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00355",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00355",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "0230b15e3f795c77e132c11e5de9589a8a5e2dccba2138b105f76acc86abf457",
+      "reference_sha256": "8e4fb5579927264048ba5123d5d3fe3abe4aa9a9fc2244d5cac0efe79ff7fba2",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00355",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00355.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00355",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00355"
+      ],
+      "audio_sha256": "0230b15e3f795c77e132c11e5de9589a8a5e2dccba2138b105f76acc86abf457",
+      "reference_sha256": "8e4fb5579927264048ba5123d5d3fe3abe4aa9a9fc2244d5cac0efe79ff7fba2",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00748",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00748.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00748",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00748"
+      ],
+      "audio_sha256": "db649e263cad3e365ae184c20151b109ddd3f94083dfdd09982077b86270d39e",
+      "reference_sha256": "9aede3e646d1f0d550f78e0031a782a3837a67c0e52694ae0390b0d7a4f5149b",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00748",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00748.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00748",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00748",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "db649e263cad3e365ae184c20151b109ddd3f94083dfdd09982077b86270d39e",
+      "reference_sha256": "9aede3e646d1f0d550f78e0031a782a3837a67c0e52694ae0390b0d7a4f5149b",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00748",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00748.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00748",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00748",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "db649e263cad3e365ae184c20151b109ddd3f94083dfdd09982077b86270d39e",
+      "reference_sha256": "9aede3e646d1f0d550f78e0031a782a3837a67c0e52694ae0390b0d7a4f5149b",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00748",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00748.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00748",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00748"
+      ],
+      "audio_sha256": "db649e263cad3e365ae184c20151b109ddd3f94083dfdd09982077b86270d39e",
+      "reference_sha256": "9aede3e646d1f0d550f78e0031a782a3837a67c0e52694ae0390b0d7a4f5149b",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00748",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00748.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00748",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00748",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "db649e263cad3e365ae184c20151b109ddd3f94083dfdd09982077b86270d39e",
+      "reference_sha256": "9aede3e646d1f0d550f78e0031a782a3837a67c0e52694ae0390b0d7a4f5149b",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00749",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00749.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00749",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00749",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "4197bd73fcc0bada82dc5fe4db0f1db93fabdde1d64923ffc4cb20da0cf7ea54",
+      "reference_sha256": "cca85fc7c1afe6dd3d2fe42a94e658cb5a01063b9c73e3808f5b33a3d5b2aab1",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00749",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00749.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00749",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00749",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "4197bd73fcc0bada82dc5fe4db0f1db93fabdde1d64923ffc4cb20da0cf7ea54",
+      "reference_sha256": "cca85fc7c1afe6dd3d2fe42a94e658cb5a01063b9c73e3808f5b33a3d5b2aab1",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00749",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00749.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00749",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00749"
+      ],
+      "audio_sha256": "4197bd73fcc0bada82dc5fe4db0f1db93fabdde1d64923ffc4cb20da0cf7ea54",
+      "reference_sha256": "cca85fc7c1afe6dd3d2fe42a94e658cb5a01063b9c73e3808f5b33a3d5b2aab1",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00749",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00749.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00749",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00749",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "4197bd73fcc0bada82dc5fe4db0f1db93fabdde1d64923ffc4cb20da0cf7ea54",
+      "reference_sha256": "cca85fc7c1afe6dd3d2fe42a94e658cb5a01063b9c73e3808f5b33a3d5b2aab1",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00749",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00749.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00749",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00749"
+      ],
+      "audio_sha256": "4197bd73fcc0bada82dc5fe4db0f1db93fabdde1d64923ffc4cb20da0cf7ea54",
+      "reference_sha256": "cca85fc7c1afe6dd3d2fe42a94e658cb5a01063b9c73e3808f5b33a3d5b2aab1",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "fleurs-en-4498640649175127270",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-4498640649175127270.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/fleurs-en-4498640649175127270",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/fleurs-en-4498640649175127270",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "edc7e456568a8fdef62cffeac6b31268db3c5b729b7659ca876ef43c2b2be082",
+      "reference_sha256": "064d18e7ce7a6e09ba5f924917266e6a67e870b1018fc4245ba1718febb3e401",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "fleurs-en-4498640649175127270",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-4498640649175127270.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/fleurs-en-4498640649175127270",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/fleurs-en-4498640649175127270"
+      ],
+      "audio_sha256": "edc7e456568a8fdef62cffeac6b31268db3c5b729b7659ca876ef43c2b2be082",
+      "reference_sha256": "064d18e7ce7a6e09ba5f924917266e6a67e870b1018fc4245ba1718febb3e401",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "fleurs-en-4498640649175127270",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-4498640649175127270.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/fleurs-en-4498640649175127270",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/fleurs-en-4498640649175127270",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "edc7e456568a8fdef62cffeac6b31268db3c5b729b7659ca876ef43c2b2be082",
+      "reference_sha256": "064d18e7ce7a6e09ba5f924917266e6a67e870b1018fc4245ba1718febb3e401",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "fleurs-en-4498640649175127270",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-4498640649175127270.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/fleurs-en-4498640649175127270",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/fleurs-en-4498640649175127270"
+      ],
+      "audio_sha256": "edc7e456568a8fdef62cffeac6b31268db3c5b729b7659ca876ef43c2b2be082",
+      "reference_sha256": "064d18e7ce7a6e09ba5f924917266e6a67e870b1018fc4245ba1718febb3e401",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "fleurs-en-4498640649175127270",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-4498640649175127270.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/fleurs-en-4498640649175127270",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/fleurs-en-4498640649175127270",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "edc7e456568a8fdef62cffeac6b31268db3c5b729b7659ca876ef43c2b2be082",
+      "reference_sha256": "064d18e7ce7a6e09ba5f924917266e6a67e870b1018fc4245ba1718febb3e401",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00967",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00967.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00967",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00967"
+      ],
+      "audio_sha256": "47ce0b92f14e29d3a15df63ece1c7f6b10d109dbb3e737fe847ede47b375f1fd",
+      "reference_sha256": "7684fd3cc9c325462ad8e6ce50527a5237244bba358bb2688b7a6940c9abef8c",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00967",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00967.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00967",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00967",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "47ce0b92f14e29d3a15df63ece1c7f6b10d109dbb3e737fe847ede47b375f1fd",
+      "reference_sha256": "7684fd3cc9c325462ad8e6ce50527a5237244bba358bb2688b7a6940c9abef8c",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00967",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00967.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00967",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00967"
+      ],
+      "audio_sha256": "47ce0b92f14e29d3a15df63ece1c7f6b10d109dbb3e737fe847ede47b375f1fd",
+      "reference_sha256": "7684fd3cc9c325462ad8e6ce50527a5237244bba358bb2688b7a6940c9abef8c",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00967",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00967.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00967",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00967",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "47ce0b92f14e29d3a15df63ece1c7f6b10d109dbb3e737fe847ede47b375f1fd",
+      "reference_sha256": "7684fd3cc9c325462ad8e6ce50527a5237244bba358bb2688b7a6940c9abef8c",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00967",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00967.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00967",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00967",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "47ce0b92f14e29d3a15df63ece1c7f6b10d109dbb3e737fe847ede47b375f1fd",
+      "reference_sha256": "7684fd3cc9c325462ad8e6ce50527a5237244bba358bb2688b7a6940c9abef8c",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00893",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00893.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00893",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00893",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "c78a5be34da8a8e7cd99bd89636a31638db6ed61631080ce28dc72523c1c60fa",
+      "reference_sha256": "c2a822647f4ba3f9edbfb7417068b28ccd452084fcda0fc54561a4b6f5209547",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00893",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00893.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00893",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00893"
+      ],
+      "audio_sha256": "c78a5be34da8a8e7cd99bd89636a31638db6ed61631080ce28dc72523c1c60fa",
+      "reference_sha256": "c2a822647f4ba3f9edbfb7417068b28ccd452084fcda0fc54561a4b6f5209547",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00893",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00893.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00893",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00893",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "c78a5be34da8a8e7cd99bd89636a31638db6ed61631080ce28dc72523c1c60fa",
+      "reference_sha256": "c2a822647f4ba3f9edbfb7417068b28ccd452084fcda0fc54561a4b6f5209547",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00893",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00893.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00893",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00893",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "c78a5be34da8a8e7cd99bd89636a31638db6ed61631080ce28dc72523c1c60fa",
+      "reference_sha256": "c2a822647f4ba3f9edbfb7417068b28ccd452084fcda0fc54561a4b6f5209547",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00893",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00893.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00893",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00893"
+      ],
+      "audio_sha256": "c78a5be34da8a8e7cd99bd89636a31638db6ed61631080ce28dc72523c1c60fa",
+      "reference_sha256": "c2a822647f4ba3f9edbfb7417068b28ccd452084fcda0fc54561a4b6f5209547",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "fleurs-en-11670188897888947692",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11670188897888947692.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/fleurs-en-11670188897888947692",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/fleurs-en-11670188897888947692"
+      ],
+      "audio_sha256": "5b1d4e18bbe55c6ab1b49b80781b7fbd3cda6c885ea2057202893cd3ee78e19b",
+      "reference_sha256": "af0ca3c2f13678e84c1ac43965e0dfefe2e769a6ec61e1d31d4727b1d0a7220b",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "fleurs-en-11670188897888947692",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11670188897888947692.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/fleurs-en-11670188897888947692",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/fleurs-en-11670188897888947692",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "5b1d4e18bbe55c6ab1b49b80781b7fbd3cda6c885ea2057202893cd3ee78e19b",
+      "reference_sha256": "af0ca3c2f13678e84c1ac43965e0dfefe2e769a6ec61e1d31d4727b1d0a7220b",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "fleurs-en-11670188897888947692",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11670188897888947692.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/fleurs-en-11670188897888947692",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/fleurs-en-11670188897888947692",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "5b1d4e18bbe55c6ab1b49b80781b7fbd3cda6c885ea2057202893cd3ee78e19b",
+      "reference_sha256": "af0ca3c2f13678e84c1ac43965e0dfefe2e769a6ec61e1d31d4727b1d0a7220b",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "fleurs-en-11670188897888947692",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11670188897888947692.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/fleurs-en-11670188897888947692",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/fleurs-en-11670188897888947692"
+      ],
+      "audio_sha256": "5b1d4e18bbe55c6ab1b49b80781b7fbd3cda6c885ea2057202893cd3ee78e19b",
+      "reference_sha256": "af0ca3c2f13678e84c1ac43965e0dfefe2e769a6ec61e1d31d4727b1d0a7220b",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "fleurs-en-11670188897888947692",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-11670188897888947692.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/fleurs-en-11670188897888947692",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/fleurs-en-11670188897888947692",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "5b1d4e18bbe55c6ab1b49b80781b7fbd3cda6c885ea2057202893cd3ee78e19b",
+      "reference_sha256": "af0ca3c2f13678e84c1ac43965e0dfefe2e769a6ec61e1d31d4727b1d0a7220b",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00331",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00331.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00331",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00331",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "312268f670e92f94cb7bc83e172c383162f3e9624693204e6ab07caae0877939",
+      "reference_sha256": "11c99ae583c7e1bf51830141e0f422c4db8e82a851afcd328163b7629eb9ffec",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00331",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00331.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00331",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00331",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "312268f670e92f94cb7bc83e172c383162f3e9624693204e6ab07caae0877939",
+      "reference_sha256": "11c99ae583c7e1bf51830141e0f422c4db8e82a851afcd328163b7629eb9ffec",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00331",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00331.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00331",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00331"
+      ],
+      "audio_sha256": "312268f670e92f94cb7bc83e172c383162f3e9624693204e6ab07caae0877939",
+      "reference_sha256": "11c99ae583c7e1bf51830141e0f422c4db8e82a851afcd328163b7629eb9ffec",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00331",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00331.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00331",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00331",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "312268f670e92f94cb7bc83e172c383162f3e9624693204e6ab07caae0877939",
+      "reference_sha256": "11c99ae583c7e1bf51830141e0f422c4db8e82a851afcd328163b7629eb9ffec",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00331",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00331.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00331",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00331"
+      ],
+      "audio_sha256": "312268f670e92f94cb7bc83e172c383162f3e9624693204e6ab07caae0877939",
+      "reference_sha256": "11c99ae583c7e1bf51830141e0f422c4db8e82a851afcd328163b7629eb9ffec",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00858",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00858.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00858",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00858",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "d4288687f85c00e2b5768d7dd258b4df593eb51da7075bd67b980d0ff8eab4b6",
+      "reference_sha256": "0b07c347de77e2dca16c52794fac99ed98af6d33ecf1a2a3e7d6e95f042bd742",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00858",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00858.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00858",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00858"
+      ],
+      "audio_sha256": "d4288687f85c00e2b5768d7dd258b4df593eb51da7075bd67b980d0ff8eab4b6",
+      "reference_sha256": "0b07c347de77e2dca16c52794fac99ed98af6d33ecf1a2a3e7d6e95f042bd742",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00858",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00858.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00858",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00858",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "d4288687f85c00e2b5768d7dd258b4df593eb51da7075bd67b980d0ff8eab4b6",
+      "reference_sha256": "0b07c347de77e2dca16c52794fac99ed98af6d33ecf1a2a3e7d6e95f042bd742",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00858",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00858.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00858",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00858"
+      ],
+      "audio_sha256": "d4288687f85c00e2b5768d7dd258b4df593eb51da7075bd67b980d0ff8eab4b6",
+      "reference_sha256": "0b07c347de77e2dca16c52794fac99ed98af6d33ecf1a2a3e7d6e95f042bd742",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00858",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00858.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00858",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00858",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "d4288687f85c00e2b5768d7dd258b4df593eb51da7075bd67b980d0ff8eab4b6",
+      "reference_sha256": "0b07c347de77e2dca16c52794fac99ed98af6d33ecf1a2a3e7d6e95f042bd742",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "fleurs-en-17858903836434412568",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-17858903836434412568.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/fleurs-en-17858903836434412568",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/fleurs-en-17858903836434412568"
+      ],
+      "audio_sha256": "5de470a3597cf4fb58d710cebc54fc19174c2f0d942c4c06c45126276125f793",
+      "reference_sha256": "6c721bbc47e2665307330b3fc3730485c8e6fbc20d6206ea310b926c282f2f35",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "fleurs-en-17858903836434412568",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-17858903836434412568.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/fleurs-en-17858903836434412568",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/fleurs-en-17858903836434412568",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "5de470a3597cf4fb58d710cebc54fc19174c2f0d942c4c06c45126276125f793",
+      "reference_sha256": "6c721bbc47e2665307330b3fc3730485c8e6fbc20d6206ea310b926c282f2f35",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "fleurs-en-17858903836434412568",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-17858903836434412568.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/fleurs-en-17858903836434412568",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/fleurs-en-17858903836434412568"
+      ],
+      "audio_sha256": "5de470a3597cf4fb58d710cebc54fc19174c2f0d942c4c06c45126276125f793",
+      "reference_sha256": "6c721bbc47e2665307330b3fc3730485c8e6fbc20d6206ea310b926c282f2f35",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "fleurs-en-17858903836434412568",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-17858903836434412568.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/fleurs-en-17858903836434412568",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/fleurs-en-17858903836434412568",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "5de470a3597cf4fb58d710cebc54fc19174c2f0d942c4c06c45126276125f793",
+      "reference_sha256": "6c721bbc47e2665307330b3fc3730485c8e6fbc20d6206ea310b926c282f2f35",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "fleurs-en-17858903836434412568",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/fleurs-en-17858903836434412568.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/fleurs-en-17858903836434412568",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/fleurs-en-17858903836434412568",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "5de470a3597cf4fb58d710cebc54fc19174c2f0d942c4c06c45126276125f793",
+      "reference_sha256": "6c721bbc47e2665307330b3fc3730485c8e6fbc20d6206ea310b926c282f2f35",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "D",
+      "fixture_id": "ascend-00193",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00193.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/D.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/D/ascend-00193",
+        "--report-dir",
+        "${RUN_ROOT}/reports/D/ascend-00193",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "e2df1721a33abfbfeb489784bb8de61a7bcd253c2af8a06a4d0df7d0950d64b4",
+      "reference_sha256": "2c56af5c24a765a653b1744f2cc2f116956edb41e607d674dc0a795ca9ae3cf2",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "E",
+      "fixture_id": "ascend-00193",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00193.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/E.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/E/ascend-00193",
+        "--report-dir",
+        "${RUN_ROOT}/reports/E/ascend-00193"
+      ],
+      "audio_sha256": "e2df1721a33abfbfeb489784bb8de61a7bcd253c2af8a06a4d0df7d0950d64b4",
+      "reference_sha256": "2c56af5c24a765a653b1744f2cc2f116956edb41e607d674dc0a795ca9ae3cf2",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "A",
+      "fixture_id": "ascend-00193",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00193.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/A.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/A/ascend-00193",
+        "--report-dir",
+        "${RUN_ROOT}/reports/A/ascend-00193",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "e2df1721a33abfbfeb489784bb8de61a7bcd253c2af8a06a4d0df7d0950d64b4",
+      "reference_sha256": "2c56af5c24a765a653b1744f2cc2f116956edb41e607d674dc0a795ca9ae3cf2",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "B",
+      "fixture_id": "ascend-00193",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00193.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/B.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/B/ascend-00193",
+        "--report-dir",
+        "${RUN_ROOT}/reports/B/ascend-00193",
+        "--single-expert-baseline"
+      ],
+      "audio_sha256": "e2df1721a33abfbfeb489784bb8de61a7bcd253c2af8a06a4d0df7d0950d64b4",
+      "reference_sha256": "2c56af5c24a765a653b1744f2cc2f116956edb41e607d674dc0a795ca9ae3cf2",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    },
+    {
+      "configuration_id": "C",
+      "fixture_id": "ascend-00193",
+      "argv": [
+        "${NATIVE_APP}",
+        "--multi-asr-probe",
+        "${AUDIO_ROOT}/ascend-00193.wav",
+        "--recognition-config",
+        "${RUN_ROOT}/configurations/C.json",
+        "--data-directory",
+        "${RUN_ROOT}/isolated-data/C/ascend-00193",
+        "--report-dir",
+        "${RUN_ROOT}/reports/C/ascend-00193"
+      ],
+      "audio_sha256": "e2df1721a33abfbfeb489784bb8de61a7bcd253c2af8a06a4d0df7d0950d64b4",
+      "reference_sha256": "2c56af5c24a765a653b1744f2cc2f116956edb41e607d674dc0a795ca9ae3cf2",
+      "status": "NOT_RUN",
+      "execution_authorized": false
+    }
+  ],
+  "audio_policy": "identical_full_pcm_to_every_expert_no_language_routing",
+  "fusion_policy": "one_identical_GPT6_text_core_verbatim_evidence_only",
+  "dynamic_gpt_call_count": null,
+  "planned_native_sessions": 120
+}

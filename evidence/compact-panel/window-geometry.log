@@ -1,0 +1,65 @@
+Building for debugging...
+[1 / 32]
+[5 / 16] Saytile-product
+[16 / 33] SaytileKitTests-product
+[16 / 33] Saytile-product
+[19 / 33] SaytileKitTests-product
+[20 / 35] SaytileKitTests-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:439:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+431 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+432 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+433 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+434 |             // A cancelled older check must fully close its sockets before another starts.
+435 |             await previous?.value
+    :
+437 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+438 |             do {
+439 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+440 |                     Task { @MainActor [weak self] in
+441 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[22 / 35] SaytileKitTests-product
+[23 / 35] SaytileKitTests-product
+[25 / 35] Saytile-product
+[25 / 35] SaytileKitTests-product
+[27 / 35] SaytileKitTests-product
+[27 / 35] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[28 / 35] Saytile-product
+[29 / 35] SaytileKitTests-product
+[31 / 35] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (7.42秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Display geometry" started.
+◇ Test reopeningKeepsUserPositionAndResizeWithinBounds() started.
+◇ Test legacyOversizedPanelRestoresWithinNewCompactBounds() started.
+◇ Test keepsWindowOnDisplayWithLargestOverlap() started.
+◇ Test tinyPositiveVisibleAreaNeverProducesNegativeWindowSize() started.
+◇ Test displayScaleDoesNotMultiplyLogicalPanelSize() started.
+◇ Test compactResizeLimitsBoundLargeContentAndSmallDragRequests() started.
+◇ Test disconnectedDisplayRestoresToRemainingScreen() started.
+◇ Test disconnectedPanelUsesNearestRemainingDisplayRegardlessOfArrayOrder() started.
+◇ Test constrainedVisibleFrameTakesPrecedenceOverNormalMinimum() started.
+◇ Test panelFitsOffsetAndCompactDisplays() started.
+✔ Test disconnectedDisplayRestoresToRemainingScreen() passed after 0.001 seconds.
+✔ Test compactResizeLimitsBoundLargeContentAndSmallDragRequests() passed after 0.001 seconds.
+✔ Test panelFitsOffsetAndCompactDisplays() passed after 0.001 seconds.
+✔ Test disconnectedPanelUsesNearestRemainingDisplayRegardlessOfArrayOrder() passed after 0.001 seconds.
+✔ Test reopeningKeepsUserPositionAndResizeWithinBounds() passed after 0.001 seconds.
+✔ Test displayScaleDoesNotMultiplyLogicalPanelSize() passed after 0.001 seconds.
+✔ Test tinyPositiveVisibleAreaNeverProducesNegativeWindowSize() passed after 0.001 seconds.
+✔ Test constrainedVisibleFrameTakesPrecedenceOverNormalMinimum() passed after 0.001 seconds.
+✔ Test legacyOversizedPanelRestoresWithinNewCompactBounds() passed after 0.001 seconds.
+✔ Test keepsWindowOnDisplayWithLargestOverlap() passed after 0.001 seconds.
+✔ Suite "Display geometry" passed after 0.001 seconds.
+✔ Test run with 10 tests in 1 suite passed after 0.001 seconds.

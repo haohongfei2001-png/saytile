@@ -10,19 +10,16 @@ final class RecognitionAudioFanout: @unchecked Sendable {
     private var continuations: [UUID: AsyncStream<Data>.Continuation] = [:]
     private var closed = false
     private var failed: Set<UUID> = []
-    private var pcm = Data()
     private var frames: Int64 = 0
-    private var retainedWholeAudio = true
-    private let maximumReviewBytes: Int
     private let onOverflow: @Sendable (UUID) -> Void
-    init(ids: [UUID], queueFrames: Int = 300, maximumReviewBytes: Int = 12_000_000,
+    init(ids: [UUID], queueFrames: Int = 300,
          onOverflow: @escaping @Sendable (UUID) -> Void = { _ in }) {
         var channels: [Channel] = []
         for id in ids {
             let (stream, continuation) = AsyncStream<Data>.makeStream(bufferingPolicy: .bufferingOldest(max(1, queueFrames)))
             channels.append(.init(id: id, audio: stream)); continuations[id] = continuation
         }
-        self.channels = channels; self.maximumReviewBytes = maximumReviewBytes; self.onOverflow = onOverflow
+        self.channels = channels; self.onOverflow = onOverflow
     }
     func append(_ data: Data) {
         guard !data.isEmpty else { return }
@@ -30,8 +27,6 @@ final class RecognitionAudioFanout: @unchecked Sendable {
         lock.withLock {
             guard !closed else { return }
             frames += Int64(data.count / 2)
-            if retainedWholeAudio && pcm.count + data.count <= maximumReviewBytes { pcm.append(data) }
-            else { retainedWholeAudio = false; pcm.removeAll(keepingCapacity: false) }
             for (id, continuation) in continuations where !failed.contains(id) {
                 if case .dropped = continuation.yield(data) {
                     failed.insert(id); continuation.finish(); overflow.append(id)
@@ -49,17 +44,7 @@ final class RecognitionAudioFanout: @unchecked Sendable {
     func didOverflow(_ id: UUID) -> Bool { lock.withLock { failed.contains(id) } }
     var isFinished: Bool { lock.withLock { closed } }
     var duration: Double { lock.withLock { Double(frames) / 16_000 } }
-    var snapshot: Data? { lock.withLock { retainedWholeAudio ? pcm : nil } }
-    /// Taking a bounded, exact sample interval never interpolates a word timestamp.
-    func clip(start: Double, end: Double) -> Data? {
-        lock.withLock {
-            guard retainedWholeAudio, start.isFinite, end.isFinite, start >= 0, end > start else { return nil }
-            let a = Int((start * 16_000).rounded(.down)) * 2
-            let b = min(pcm.count, Int((end * 16_000).rounded(.up)) * 2)
-            guard a >= 0, b > a, a < pcm.count else { return nil }
-            return pcm.subdata(in: a..<b)
-        }
-    }
+
 }
 
 final class RecognitionSessionCompletion: @unchecked Sendable {
@@ -84,19 +69,36 @@ final class RecognitionSessionFactory: @unchecked Sendable {
     struct Snapshot: Sendable {
         let configuration: RecognitionConfiguration
         fileprivate let generation: UInt64
+        /// Restrict this exact settings generation without observing newer cloud consent.
+        var localOnly: Self {
+            var restricted = configuration
+            restricted.cloudEnabled = false
+            return Self(configuration: restricted, generation: generation)
+        }
     }
     private let lock = NSLock()
     private var value: RecognitionConfiguration
     private var generation: UInt64 = 0
     private var active = 0
     private let dependencies: RecognitionPipelineDependencies
-    init(configuration: RecognitionConfiguration = RecognitionConfiguration(), dependencies: RecognitionPipelineDependencies = .live) {
-        value = configuration; self.dependencies = dependencies
+    private let local: LocalFailoverDependencies
+    private var epoch: RecognitionFailoverEpoch
+    init(configuration: RecognitionConfiguration = RecognitionConfiguration(), dependencies: RecognitionPipelineDependencies = .live, local: LocalFailoverDependencies = .live) {
+        value = configuration; self.dependencies = dependencies; self.local = local
+        epoch = RecognitionFailoverEpoch(now: local.now)
     }
     var snapshot: Snapshot { lock.withLock { Snapshot(configuration: value, generation: generation) } }
     var configuration: RecognitionConfiguration { snapshot.configuration }
     var usesCloud: Bool { configuration.cloudEnabled }
-    func update(_ config: RecognitionConfiguration) { lock.withLock { value = config; generation &+= 1 } }
+    func localAvailability() async -> SpeechAvailability { await local.availability() }
+    func update(_ config: RecognitionConfiguration) {
+        lock.withLock {
+            // Fence old work before a caller can observe/admit the new snapshot.
+            epoch.invalidate()
+            value = config; generation &+= 1
+            epoch = RecognitionFailoverEpoch(now: local.now)
+        }
+    }
     func make(store: SaytileStore, ticket: RecognitionTicket, snapshot requested: Snapshot? = nil) -> any RecognitionSession {
         // Ticket creation awaits Store. A settings/revocation change in that gap
         // must not mix generations or revive a cancelled cloud configuration.
@@ -107,10 +109,12 @@ final class RecognitionSessionFactory: @unchecked Sendable {
                     message: "识别设置已更新，本段原音继续保存，等待使用新设置恢复。")
             }
             let config = accepted.configuration
-            guard config.cloudEnabled else { return LiveSpeechSession(store: store, ticket: ticket) }
+            guard config.cloudEnabled else { return local.make(store, ticket) }
             guard active < 8 else { return DeferredRecognitionSession(store: store, ticket: ticket) }
             active += 1
-            return MultiRecognitionSession(store: store, ticket: ticket, configuration: config, dependencies: dependencies) { [weak self] in
+            let (cloud, probe) = epoch.admitCloud()
+            return FailoverRecognitionSession(store: store, ticket: ticket, configuration: config,
+                dependencies: dependencies, local: local, epoch: epoch, cloud: cloud, probe: probe) { [weak self] in
                 self?.lock.withLock { self?.active -= 1 }
             }
         }

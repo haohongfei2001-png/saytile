@@ -1,0 +1,250 @@
+{
+  "head": "4df87ad4dd7ff94da2027f0c978ca5c5cb1d7292",
+  "tree": "ce2a3fed6a27a96ed4dca80abeac307793d4e705",
+  "checkout_merge_sha": "9063ab185a180736fd36c9724375249d97eee231",
+  "checkout_tree": "ce2a3fed6a27a96ed4dca80abeac307793d4e705",
+  "same_tree": true,
+  "base": "4fa637a47ce869b7c7aade0ea7c0c121162e10ee (PR5 base branch)",
+  "runs": {
+    "workflow_runs": [
+      {
+        "id": 42325233659,
+        "name": "Saytile design contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 110,
+        "jobs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/42325233659/jobs",
+        "logs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/42325233659/logs",
+        "workflow_id": 408543631
+      },
+      {
+        "id": 42325233633,
+        "name": "Saytile native",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 77,
+        "jobs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/42325233633/jobs",
+        "logs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/42325233633/logs",
+        "workflow_id": 408681640
+      }
+    ]
+  },
+  "jobs": [
+    {
+      "jobs": [
+        {
+          "id": 128258856957,
+          "name": "native",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 42325233633,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run swift --version",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Inherited Swift contracts",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Real localhost provider protocols (no API keys)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run scripts/test-app-model.sh",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run scripts/build-app.sh",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Isolated cloud probe CLI boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Isolated connection setup CLI boundaries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Native windows with synthetic data",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Isolated startup without microphone",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Preserve app bundle permissions",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "jobs": [
+        {
+          "id": 128258857052,
+          "name": "data-and-prototype",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 42325233659,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Run python -m pip install -r tests/requirements.txt",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run python -m playwright install --with-deps chromium",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Offline ASR quality metrics and provenance",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run python scripts/verify.py --ui",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "native_functions": 391,
+  "native_expanded_scenarios": 511,
+  "native_skip_or_not_run": [],
+  "summary_lines": [
+    "PLAYBACK_FIRST_PROGRESS position=0.131875 after_play=0.153896833 seconds",
+    "✔ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() passed after 4.913 seconds.",
+    "✔ Test run with 391 tests in 47 suites passed after 58.252 seconds.",
+    "WIRE_AUDIT cases=50 protocol_violations=0 scope=SIMULATED_PROTOCOL_NOT_LIVE_CLOUD",
+    "APP_MODEL_PROBE_PASS 97 checks; no microphone, no external input, no window activation",
+    "CLI_PROBE_ISOLATION_PASS 17 cases; no microphone, corpus read, credentials or network calls",
+    "CONNECTION_SETUP_CLI_PASS 7 cases",
+    "UI_NATIVE_NEAR_BOTTOM_PASS two-point upward scroll retains position; explicitly reaching the bottom resumes following",
+    "UI_REVIEW_PASS native SwiftUI attached to AppKit windows; 22 captures; synthetic data; no activation/microphone",
+    "SAYTILE_SMOKE_OK records=0 microphone=已允许 bundled_sample_bytes=200706"
+  ],
+  "ui_captures": 22,
+  "keyboard_isolation_checks": {
+    "before-validation": 20,
+    "after-validation": 20,
+    "after-interaction": 20,
+    "capture": 22,
+    "before-field-edit": 0,
+    "after-field-edit": 0
+  },
+  "ci_ui_controls": "NOT_RUN. CI uses the render-only invocation without AX helper.",
+  "ax_press": 0,
+  "outside_foreground_observations": 0,
+  "reruns": 0,
+  "playback_first_progress": {
+    "position_seconds": 0.131875,
+    "after_play_return_seconds": 0.153896833,
+    "within_two_seconds": true
+  },
+  "artifacts_sha256": {
+    "ci-native.log": "48e5d085928e15f30b4eaa7faf82707be4d600513bedb566a27f77f655457397",
+    "ci-design.log": "c25f2e70c0b3038ffb55626514f653fc493570025cdf1c04dc08273a03ab7574",
+    "ci-merge-identity.json": "febc4378088a735e9900c1ef756e4025690ecbc00e1a79cf0f5a3e77d3caeb8f"
+  }
+}

@@ -1,0 +1,1698 @@
+{
+  "schema_version": 1,
+  "status": "NOT_RUN",
+  "evaluator_source_commit": "a9cffae52d544b8a8939fce13d735b5ec1f2bc4f",
+  "evaluator_files_sha256": {
+    "harness.py": "adedf53ae5889929d1cb150d6e89eede386c2c58558cfc1482f1a9a3a4ca3975",
+    "evaluate.py": "6f7b526d4967505bf7fe9063d51e628796c5522c9966d4138c075bbbd1287869",
+    "metrics.py": "a686bd98be8665c92ddd8a70b4e268ae548abc8d2919f8186ded1fe1ca39baab"
+  },
+  "native_source_commit": null,
+  "manifest_sha256": "5a5d9809f016f4119c6e3e9d48ce8b62aecae8bb9a5ab050a73c9cb627f5407f",
+  "reference_annotations": {
+    "path": "research/asr/benchmark/quality-evaluation/unit-annotations.json",
+    "sha256": "328ffe7cf01ef77b19d845dbb7766693d6ca0b98e907f2bb7a58a5557b440b85",
+    "overlay_id": "reference-critical-v3-reviewed-numbers-negations-2026-11-07",
+    "reviewed_originals": 112,
+    "annotations_added": 68,
+    "annotations_added_by_type": {
+      "unit": 8,
+      "number": 34,
+      "negation": 26
+    },
+    "reference_occurrences_added_by_type": {
+      "negation": 28,
+      "number": 36,
+      "unit": 10
+    },
+    "reference_occurrences_added": 74
+  },
+  "F": {
+    "status": "NOT_AVAILABLE",
+    "metrics": null,
+    "reason": "Product contract: gpt-6-astra official native audio input is not supported."
+  },
+  "configurations": {
+    "A": {
+      "specification": {
+        "id": "A",
+        "models": [
+          {
+            "provider": "qwenMessage",
+            "model": "qwen-audio-3.1-asr-flash-message",
+            "purpose": "chineseASR"
+          },
+          {
+            "provider": "openAIResponses",
+            "model": "gpt-6-astra",
+            "purpose": "textFusion",
+            "reasoningEffort": "high",
+            "reasoningMode": "standard"
+          }
+        ],
+        "input_mode": "highestQuality",
+        "topicContext": "",
+        "execution": "multi_trace",
+        "evaluation_mode": "single-expert-baseline"
+      },
+      "summary": {
+        "expected_utterances": 24,
+        "observed_utterances": 0,
+        "not_run": 24,
+        "stages": {
+          "first_preview": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "in_speech_revision": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "stable_prefix": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "final": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          }
+        },
+        "stable_formation": {
+          "eligible_ended_traces": 0,
+          "unable_to_form_count": null,
+          "unable_to_form_rate": null,
+          "complete_final_observed_sessions": 0,
+          "unable_to_form_complete_final_rate": null,
+          "status": "NOT_RUN"
+        },
+        "service": {
+          "runs_started": 0,
+          "runs_terminal": 0,
+          "failures": null,
+          "failure_rate_terminal_attempts": null,
+          "cancelled_or_interrupted": null,
+          "note": "Attempt denominator includes retries separately; report it alongside utterance outcomes."
+        },
+        "latencies": {}
+      }
+    },
+    "B": {
+      "specification": {
+        "id": "B",
+        "models": [
+          {
+            "provider": "assemblyAI",
+            "model": "universal-3-6-pro",
+            "purpose": "englishASR"
+          },
+          {
+            "provider": "openAIResponses",
+            "model": "gpt-6-astra",
+            "purpose": "textFusion",
+            "reasoningEffort": "high",
+            "reasoningMode": "standard"
+          }
+        ],
+        "input_mode": "highestQuality",
+        "topicContext": "",
+        "execution": "multi_trace",
+        "evaluation_mode": "single-expert-baseline"
+      },
+      "summary": {
+        "expected_utterances": 24,
+        "observed_utterances": 0,
+        "not_run": 24,
+        "stages": {
+          "first_preview": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "in_speech_revision": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "stable_prefix": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "final": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          }
+        },
+        "stable_formation": {
+          "eligible_ended_traces": 0,
+          "unable_to_form_count": null,
+          "unable_to_form_rate": null,
+          "complete_final_observed_sessions": 0,
+          "unable_to_form_complete_final_rate": null,
+          "status": "NOT_RUN"
+        },
+        "service": {
+          "runs_started": 0,
+          "runs_terminal": 0,
+          "failures": null,
+          "failure_rate_terminal_attempts": null,
+          "cancelled_or_interrupted": null,
+          "note": "Attempt denominator includes retries separately; report it alongside utterance outcomes."
+        },
+        "latencies": {}
+      }
+    },
+    "C": {
+      "specification": {
+        "id": "C",
+        "models": [
+          {
+            "provider": "qwenMessage",
+            "model": "qwen-audio-3.1-asr-flash-message",
+            "purpose": "chineseASR"
+          },
+          {
+            "provider": "assemblyAI",
+            "model": "universal-3-6-pro",
+            "purpose": "englishASR"
+          },
+          {
+            "provider": "openAIResponses",
+            "model": "gpt-6-astra",
+            "purpose": "textFusion",
+            "reasoningEffort": "high",
+            "reasoningMode": "standard"
+          }
+        ],
+        "input_mode": "highestQuality",
+        "topicContext": "",
+        "execution": "multi_trace",
+        "evaluation_mode": "multi-expert-fusion"
+      },
+      "summary": {
+        "expected_utterances": 24,
+        "observed_utterances": 0,
+        "not_run": 24,
+        "stages": {
+          "first_preview": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "in_speech_revision": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "stable_prefix": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "final": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          }
+        },
+        "stable_formation": {
+          "eligible_ended_traces": 0,
+          "unable_to_form_count": null,
+          "unable_to_form_rate": null,
+          "complete_final_observed_sessions": 0,
+          "unable_to_form_complete_final_rate": null,
+          "status": "NOT_RUN"
+        },
+        "service": {
+          "runs_started": 0,
+          "runs_terminal": 0,
+          "failures": null,
+          "failure_rate_terminal_attempts": null,
+          "cancelled_or_interrupted": null,
+          "note": "Attempt denominator includes retries separately; report it alongside utterance outcomes."
+        },
+        "latencies": {}
+      }
+    },
+    "D": {
+      "specification": {
+        "id": "D",
+        "models": [
+          {
+            "provider": "soniox",
+            "model": "stt-rt-v6",
+            "purpose": "multilingualASR"
+          },
+          {
+            "provider": "openAIResponses",
+            "model": "gpt-6-astra",
+            "purpose": "textFusion",
+            "reasoningEffort": "high",
+            "reasoningMode": "standard"
+          }
+        ],
+        "input_mode": "highestQuality",
+        "topicContext": "",
+        "execution": "multi_trace",
+        "evaluation_mode": "single-expert-baseline"
+      },
+      "summary": {
+        "expected_utterances": 24,
+        "observed_utterances": 0,
+        "not_run": 24,
+        "stages": {
+          "first_preview": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "in_speech_revision": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "stable_prefix": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "final": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          }
+        },
+        "stable_formation": {
+          "eligible_ended_traces": 0,
+          "unable_to_form_count": null,
+          "unable_to_form_rate": null,
+          "complete_final_observed_sessions": 0,
+          "unable_to_form_complete_final_rate": null,
+          "status": "NOT_RUN"
+        },
+        "service": {
+          "runs_started": 0,
+          "runs_terminal": 0,
+          "failures": null,
+          "failure_rate_terminal_attempts": null,
+          "cancelled_or_interrupted": null,
+          "note": "Attempt denominator includes retries separately; report it alongside utterance outcomes."
+        },
+        "latencies": {}
+      }
+    },
+    "E": {
+      "specification": {
+        "id": "E",
+        "models": [
+          {
+            "provider": "qwenMessage",
+            "model": "qwen-audio-3.1-asr-flash-message",
+            "purpose": "chineseASR"
+          },
+          {
+            "provider": "assemblyAI",
+            "model": "universal-3-6-pro",
+            "purpose": "englishASR"
+          },
+          {
+            "provider": "soniox",
+            "model": "stt-rt-v6",
+            "purpose": "multilingualASR"
+          },
+          {
+            "provider": "openAIResponses",
+            "model": "gpt-6-astra",
+            "purpose": "textFusion",
+            "reasoningEffort": "high",
+            "reasoningMode": "standard"
+          }
+        ],
+        "input_mode": "highestQuality",
+        "topicContext": "",
+        "execution": "multi_trace",
+        "evaluation_mode": "multi-expert-fusion"
+      },
+      "summary": {
+        "expected_utterances": 24,
+        "observed_utterances": 0,
+        "not_run": 24,
+        "stages": {
+          "first_preview": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "in_speech_revision": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "stable_prefix": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          },
+          "final": {
+            "observed": 0,
+            "accuracy_scored": 0,
+            "accuracy_not_run": 24,
+            "cer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "wer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "mer": {
+              "status": "NOT_RUN",
+              "reference_units": null,
+              "errors": null,
+              "substitutions": null,
+              "deletions": null,
+              "insertions": null,
+              "micro_error_rate": null
+            },
+            "critical": {
+              "number": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "negation": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "unit": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              },
+              "term": {
+                "status": "NOT_RUN_NO_VALID_ANNOTATIONS",
+                "annotated": 0,
+                "missed": null,
+                "missing_occurrences": null,
+                "excess_occurrences": null,
+                "miss_rate": null
+              }
+            },
+            "excess_repeat_utterances_proxy": null,
+            "semantic_hallucination_rate": null,
+            "semantic_hallucination_status": "NOT_RUN_NO_INDEPENDENT_LABELS"
+          }
+        },
+        "stable_formation": {
+          "eligible_ended_traces": 0,
+          "unable_to_form_count": null,
+          "unable_to_form_rate": null,
+          "complete_final_observed_sessions": 0,
+          "unable_to_form_complete_final_rate": null,
+          "status": "NOT_RUN"
+        },
+        "service": {
+          "runs_started": 0,
+          "runs_terminal": 0,
+          "failures": null,
+          "failure_rate_terminal_attempts": null,
+          "cancelled_or_interrupted": null,
+          "note": "Attempt denominator includes retries separately; report it alongside utterance outcomes."
+        },
+        "latencies": {}
+      }
+    }
+  },
+  "limitations": [
+    "CER/WER/MER and critical expressions reuse the frozen evaluator; surface form is not semantic truth.",
+    "GPT repair/introduction counts are reference-anchored lexical proxies per raw candidate and review; do not sum repeated revisions as independent clips.",
+    "Decoded GPT selection, persisted fusion decision, accepted final and UI rendering are separate stages.",
+    "Partial and multi-span GPT decisions retain evidence but need independently timed scope before accuracy scoring.",
+    "Native configuration hash is retained as a receipt; canonical configuration hash is computed separately.",
+    "No performance ranking or correctness claim follows from fluency; no cloud calls occur during scoring."
+  ],
+  "rows_omitted": true,
+  "stage_observations": {
+    "A": {
+      "raw_asr_revisions": 0,
+      "gpt_reviews": 0
+    },
+    "B": {
+      "raw_asr_revisions": 0,
+      "gpt_reviews": 0
+    },
+    "C": {
+      "raw_asr_revisions": 0,
+      "gpt_reviews": 0
+    },
+    "D": {
+      "raw_asr_revisions": 0,
+      "gpt_reviews": 0
+    },
+    "E": {
+      "raw_asr_revisions": 0,
+      "gpt_reviews": 0
+    }
+  }
+}

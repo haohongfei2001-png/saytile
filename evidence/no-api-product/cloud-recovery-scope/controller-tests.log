@@ -1,0 +1,72 @@
+Building for debugging...
+[1 / 11]
+[2 / 12] SaytileKit
+[6 / 16] SaytileKit
+[7 / 17] SaytileKit
+[11 / 19] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[16 / 20] SaytileKitTests-product
+[27 / 31] SaytileKitTests-product
+[33 / 35] SaytileKitTests-product/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[37 / 41] Saytile-product
+[44 / 48] Saytile-product
+[45 / 48] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Sources/SaytileApp/AppModel.swift:395:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+387 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+388 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+389 |         connectionCheckTask = Task {
+    |                                    |- note: 'self' implicitly strongly captured here
+    |                                    `- note: add 'self' as a capture list item to silence
+390 |             // A cancelled older check must fully close its sockets before another starts.
+391 |             await previous?.value
+    :
+393 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+394 |             do {
+395 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                                                                         `- note: explicitly assign the capture list item to silence
+396 |                     Task { @MainActor [weak self] in
+397 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[47 / 48] Saytile-product/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-no-api-product/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (4.95秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Recognition settings generation admission" started.
+◇ Suite "Production capture to single-core recognition with isolated transports" started.
+◇ Suite "Saved audio cannot inherit later cloud or account permission" started.
+◇ Test sameConfigurationUpdateAlsoInvalidatesPendingAdmission() started.
+◇ Test settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) started.
+◇ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test unavailableLocalResourcesDoNotExhaustLegacyAudioRecovery() started.
+◇ Test automaticRetryUsesPersistedScopeAcrossRestart(origin:) started.
+◇ Test explicitRetryRespectsTheConfigurationShownAtClick(shown:) started.
+◇ Test case passing 1 argument initialCloud → false to settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) started.
+◇ Test case passing 1 argument initialCloud → true to settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) started.
+◇ Test case passing 1 argument shown → "match" to explicitRetryRespectsTheConfigurationShownAtClick(shown:) started.
+◇ Test case passing 1 argument origin → "legacy-local" to automaticRetryUsesPersistedScopeAcrossRestart(origin:) started.
+◇ Test case passing 1 argument failReview → false to journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test case passing 1 argument shown → "local-ui" to explicitRetryRespectsTheConfigurationShownAtClick(shown:) started.
+◇ Test case passing 1 argument shown → "new-account" to explicitRetryRespectsTheConfigurationShownAtClick(shown:) started.
+◇ Test case passing 1 argument origin → "apple-candidate" to automaticRetryUsesPersistedScopeAcrossRestart(origin:) started.
+◇ Test case passing 1 argument origin → "changed-fusion" to automaticRetryUsesPersistedScopeAcrossRestart(origin:) started.
+◇ Test case passing 1 argument failReview → true to journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) started.
+◇ Test case passing 1 argument origin → "authorized-cloud" to automaticRetryUsesPersistedScopeAcrossRestart(origin:) started.
+◇ Test case passing 1 argument origin → "changed-workspace" to automaticRetryUsesPersistedScopeAcrossRestart(origin:) started.
+◇ Test case passing 1 argument origin → "changed-key" to automaticRetryUsesPersistedScopeAcrossRestart(origin:) started.
+✔ Test sameConfigurationUpdateAlsoInvalidatesPendingAdmission() passed after 0.019 seconds.
+✔ Test settingsChangeDuringTicketCreationCannotStartEitherPipeline(initialCloud:) with 2 test cases passed after 0.019 seconds.
+✔ Suite "Recognition settings generation admission" passed after 0.019 seconds.
+✔ Test unavailableLocalResourcesDoNotExhaustLegacyAudioRecovery() passed after 0.165 seconds.
+✔ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) with 2 test cases passed after 0.325 seconds.
+✔ Suite "Production capture to single-core recognition with isolated transports" passed after 0.325 seconds.
+✔ Test explicitRetryRespectsTheConfigurationShownAtClick(shown:) with 3 test cases passed after 0.480 seconds.
+✔ Test automaticRetryUsesPersistedScopeAcrossRestart(origin:) with 6 test cases passed after 0.486 seconds.
+✔ Suite "Saved audio cannot inherit later cloud or account permission" passed after 0.486 seconds.
+✔ Test run with 6 tests in 3 suites passed after 0.486 seconds.

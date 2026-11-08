@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-11-06T20:35:19.259677+00:00",
+  "repository": "haohongfei2001-png/saytile",
+  "runtime_source_commit": "88c8e8927be6ce9041ab2541e07c6d72daff2446",
+  "runtime_tree": "4ace45b660c67006a7aea1bb928d7c719fccce9b",
+  "acceptance_scripts_commit": "4589be6d8536e6a22856c5a8106817ca6c0067de",
+  "ancestry": {
+    "pr4": "a602236ea48f7140b57c46e916bae4c5d43f5cd9",
+    "pr5": "2018c0b02abc20b9575868e32cc2f81c03d833ac",
+    "main_untouched": "a352a1c812c33388a1a908f21ecde30da80ad1cd"
+  },
+  "native_suite": {
+    "passed": 326,
+    "suites": 39,
+    "failed": 0,
+    "skipped": 0,
+    "source_before": "88c8e8927be6ce9041ab2541e07c6d72daff2446",
+    "source_after": "88c8e8927be6ce9041ab2541e07c6d72daff2446"
+  },
+  "app_model": {
+    "passed": 25,
+    "failed": 0
+  },
+  "scoring": {
+    "inherited_passed": 43,
+    "new_paired_passed": 20,
+    "live_ASR_quality": false
+  },
+  "native_ui": {
+    "captures": 15,
+    "control_groups": 6,
+    "AXPress": 12,
+    "AXSetValue": 2,
+    "native_field_edits": 2,
+    "outside_foreground_changes": 0,
+    "source": "88c8e8927be6ce9041ab2541e07c6d72daff2446",
+    "signature": "ad-hoc debug candidate",
+    "status": "PASS"
+  },
+  "owned_native_AX": {
+    "scenarios_passed": 5,
+    "status": "PASS",
+    "target_selection": "injected exact fixture PID",
+    "adapter_and_mutation": "production NativeInputCoordinator / Store / AXInputAccess",
+    "production_foreground_resolver": "NOT_RUN",
+    "real_ChatGPT_Codex_targets": "NOT_RUN",
+    "full_value_replacement": false,
+    "clipboard_change": false,
+    "key_return_send": false
+  },
+  "CI": {
+    "native": {
+      "id": 42287983002,
+      "status": "success"
+    },
+    "design_contracts": {
+      "id": 42287983169,
+      "status": "success"
+    },
+    "head_sha": "88c8e8927be6ce9041ab2541e07c6d72daff2446",
+    "checkout_merge_sha": "f8fe3578c83c0e98f316b172af8b3f4c3dfcef3e",
+    "checkout_tree_matches_head": true
+  },
+  "candidate": {
+    "version": "1.0.0-engine.single-transcript.2",
+    "type": "Release, arm64, ad-hoc signed; not notarized; not installed",
+    "artifact_id": 13538896933,
+    "artifact_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/42287983002/artifacts/13538896933",
+    "artifact_zip_sha256": "1cb3a71bab20af718773dec2bfbac2a4983e8aa6803df528a6bc19aea2303963",
+    "app_zip_sha256": "83bef0041a183eb6a28062bfa745b6c66c03ad7f22b9c9281e8a24367b01a6fd",
+    "executable_sha256": "807c43f35ffb30114909c73957d7400c06acb9062aca50d25b3da7a3614a70fe",
+    "embedded_source": "f8fe3578c83c0e98f316b172af8b3f4c3dfcef3e",
+    "embedded_dirty": false,
+    "archive_integrity": "PASS; inner/outer ZIP verified; executable mode 0755"
+  },
+  "cloud_evaluation": {
+    "A": "NOT_RUN",
+    "B": "NOT_RUN",
+    "C": "NOT_RUN",
+    "D": "NOT_RUN",
+    "E": "NOT_RUN",
+    "F": "NOT_AVAILABLE",
+    "metrics": null,
+    "keychain_metadata_matches": 0,
+    "configuration_present": false,
+    "cloud_enabled": false,
+    "paid_model_requests": 0,
+    "private_audio_uploads": 0,
+    "missing": "Saytile service credentials/configuration and per-service processing switches; not a request for user testing"
+  },
+  "limitations": [
+    "No live vendor authentication/protocol/accuracy/latency result",
+    "No physical microphone continuous speech/end-to-end quality acceptance",
+    "No actual ChatGPT or Codex target-owned-range acceptance",
+    "No 24h/72h wall-clock power/thermal soak",
+    "Apple offline locale currently zh-CN; no claim of equal bilingual offline accuracy",
+    "A third ASR remains optional; Qwen/Assembly pair is engineering baseline not measured winner"
+  ],
+  "checksums": {
+    "native.log": "fbf98f141364332661382adb16e449edb270a2a9a11a775a765b37ca5c426d37",
+    "app-model.log": "b09e608473ad583d72594c99f7c6fff23c4f26a64e703d0cb9a457ca34fb0d31",
+    "scoring.log": "1fdb72c26f984db4a3cf51956ee779d7ac493ab05f605bb29e86c6557d59ae2e",
+    "paired-scoring.log": "14fd4c54a98f0dc75d94637e73c59f6f9d7548395b66d93683cb651d552e0301",
+    "contracts.log": "c4feaa880513a5a31f818ca0f2755cd8f7fa07be85c4376c9a8e6612a4594e4b",
+    "ui-controls.log": "e74eccc173285c5012c50470762f63330ac76197e21d39f464fdae075b5b9d63",
+    "owned-native-console.log": "803e2b3a13533fa163f2e4e9385f2a61376033a9ca3c9e72213751d20694bec4",
+    "access-preflight.json": "7a8bdfb8cb5d30e6b3aed5411725c0d08352855d829c7901700613f923f7bfa0",
+    "ci-native-summary.log": "c4279f5a4b97fe2cd97335cf30cb5436dd208ab1f18bfe6d324434d3fcbef3b9"
+  }
+}

@@ -7,7 +7,7 @@ struct ChineseProviderProtocolTests {
     private let taskID = "fixture-task"
     private var qwen: ModelConfiguration {
         .init(purpose: .chineseASR, provider: .qwenMessage,
-              model: "qwen-audio-3.1-asr-flash-message", region: "cn-beijing", workspaceID: "fixture-workspace")
+              model: "qwen-audio-3.1-asr-flash-message", cloudConsent: true, region: "cn-beijing", workspaceID: "fixture-workspace")
     }
     private func envelope(_ event: String, sentence: [String: Any]? = nil) -> [String: Any] {
         var value: [String: Any] = ["header": ["event": event, "task_id": taskID]]

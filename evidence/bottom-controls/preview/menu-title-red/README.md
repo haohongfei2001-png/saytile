@@ -1,0 +1,3 @@
+# Menu title mismatch
+
+The next interactive run verified both private pasteboard copies, including the exact NFD/emoji selection and the transient feedback. All eleven two-button assertions passed. The long transcript exposed four native AXButtons with AXScrollBar ancestors, each retained in the raw inspection. The edit menu check then failed because the expected label used an abbreviated title. The real menu title is 在档案中编辑最近一段. The replacement check requires the project's stable identifier and exact current title before AXPress. No product menu action or capture behavior was changed for this mismatch.

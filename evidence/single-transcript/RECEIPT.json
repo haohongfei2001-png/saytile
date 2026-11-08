@@ -1,0 +1,65 @@
+{
+  "source_commit": "41e4aae9911903f4797781c8311fcc59406a2d65",
+  "engine_commit": "59a63f2f77520ae684dd97c65417b90140fab342",
+  "version": "1.0.0-engine.single-transcript.1",
+  "configuration": "debug",
+  "signature": "ad-hoc; codesign --verify --deep --strict passed",
+  "artifact": "/tmp/saytile-single-20261107-candidate/Saytile-1.0.0-engine.single-transcript.1-debug.zip",
+  "artifact_sha256": "10f6b4abe20baef1d52bda555c4a3d2534cd4d23ea219bb295a0f916787d9423",
+  "executable_sha256": "3aac888bc686ce627382180067f7fd5bda6d61efe9e733fe71b22c56f75df7a7",
+  "source_dirty_at_build": false,
+  "installed_or_launched": false,
+  "results": {
+    "native_restricted": {
+      "passed": 284,
+      "failed": 0
+    },
+    "appmodel": {
+      "passed": 23,
+      "failed": 0
+    },
+    "offline_scoring": {
+      "passed": 9,
+      "failed": 0
+    },
+    "offline_evaluation": {
+      "passed": 43,
+      "failed": 0
+    }
+  },
+  "native_exclusions": [
+    "createReplaceReadDeleteKeepsAccountProviderAndServiceIsolation",
+    "invalidReplacementNeverErasesStoredDummyCredential",
+    "silentPlayerNaturallyFinishesWithoutStartingMicrophone",
+    "silentPlayerSeeksAcrossChunksAndReleasesDeletionLease"
+  ],
+  "exclusion_evidence": "First broad run: two synthetic-namespace Keychain tests failed with status 100001; two silent AVAudioPlayer tests failed with unable-to-play. These gates remain blocked, never counted as passes.",
+  "protocol_reference": "https://developers.openai.com/api/docs/guides/websocket-mode",
+  "live_cloud": "NOT_RUN; no ASR/LLM request or private audio upload",
+  "logs": {
+    "native-final-complete.log": {
+      "path": "/tmp/saytile-single-20261107-engine/native-final-complete.log",
+      "sha256": "6011329c2b180d59105d091e455d7461db5a2be58ca8a64aa33bd111ab3a7dbf"
+    },
+    "appmodel-final.log": {
+      "path": "/tmp/saytile-single-20261107-engine/appmodel-final.log",
+      "sha256": "b99e3178c3a4a6e224f1732e504819ac70406c4e1187d95f87261aae81a1c6fb"
+    },
+    "offline-scoring.log": {
+      "path": "/tmp/saytile-single-20261107-engine/offline-scoring.log",
+      "sha256": "5f0635b83af38a6c5d516fcb60dc3fa63c9c6ca4854e51a6a29ca33c92ccef16"
+    },
+    "offline-evaluation.log": {
+      "path": "/tmp/saytile-single-20261107-engine/offline-evaluation.log",
+      "sha256": "9eb14e57fd2252cd4ef991e209d5ff1d0aee9bf8897943dbde2e43b03e9a371d"
+    },
+    "candidate-final-build.log": {
+      "path": "/tmp/saytile-single-20261107-engine/candidate-final-build.log",
+      "sha256": "8fbb346de1cd89a4202525f99ebf1f25cf011a373f8200d460a52fe9862a8c9a"
+    },
+    "pr5-native-failed.log": {
+      "path": "/tmp/saytile-single-20261107-engine/pr5-native-failed.log",
+      "sha256": "8c2b1cd74dca5ca4dab348812e24ad94e98acd845d26550c5cb2bbbd085775de"
+    }
+  }
+}

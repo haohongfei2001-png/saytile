@@ -1,0 +1,69 @@
+{
+  "status": "PASS_WITH_EXPLICIT_CAPABILITY_LIMITS",
+  "runtime": "1067f1ad5c5c29c698f346651c965db2169625eb",
+  "tree": "1c59b5e95f92dd34b19d4fb390549724071114a6",
+  "source_files": 201,
+  "source_input_digest": "cff82db959c7f23aca06b214841e2b55c53ac00bf04eaf9b7e52312182c02cf8",
+  "source_unchanged": true,
+  "source_dirty_before": false,
+  "source_dirty_after": false,
+  "AppModel": {
+    "checks": 78,
+    "status": "PASS",
+    "binary_unchanged": true
+  },
+  "headless_DOM": {
+    "checks": 20,
+    "status": "PASS",
+    "headless": true,
+    "fresh_context": true,
+    "native_AX_claim": false,
+    "probe_unchanged": true,
+    "browser_unchanged": true
+  },
+  "ordinary_native_AX": {
+    "original_checks": 9,
+    "target_mutation_checks": 5,
+    "status": "PASS",
+    "production_mutation_scenario_dispatches": 1,
+    "external_fixture_mutations": 1,
+    "mutation_result": "unverified, binding invalidated, no owned range, no replay",
+    "fixture_key_window": false,
+    "fixture_main_window": false,
+    "fixture_keyboard_events": 0,
+    "owned_activated": false,
+    "foreground_unchanged": true,
+    "outside_activation_events": 0,
+    "executed_fixture_probe_hashes_unchanged": true
+  },
+  "WKWebView": {
+    "observer_checks": 6,
+    "capability_rejections": 2,
+    "sends": 0,
+    "insertion": "UNVERIFIED: setter acknowledged but DOM unchanged; no replay",
+    "fixture_key_window": false,
+    "fixture_main_window": false,
+    "fixture_keyboard_events": 0,
+    "owned_activated": false,
+    "foreground_unchanged": true,
+    "outside_activation_events": 0,
+    "scope": "Owned invisible WKWebView, injected target selection; no foreground browser success claim"
+  },
+  "owned_range": {
+    "status": "PASS",
+    "scenarios": 9,
+    "receipt": "../owned-range/summary.json",
+    "focus_case_scope": "Real window firstResponder + AXIdentifier via nonce/PID-checked IPC; final snapshot revalidation; not foreground focus notification"
+  },
+  "Apple": {
+    "status": "PASS",
+    "cases": 8,
+    "receipt": "../apple/receipt.json",
+    "scope": "Installed local Apple framework with synthetic speech; errors retained in corpus JSON"
+  },
+  "production_foreground_resolver": "NOT_RUN; historical UNKNOWN retained",
+  "application_TCC_identity": "NOT_CERTIFIED_BY_FIXTURE",
+  "real_cloud_requests": 0,
+  "historical_a684_failures": "retained separately; no claimed retrospective root cause",
+  "utc": "2026-11-07T00:29:20.053334+00:00"
+}
