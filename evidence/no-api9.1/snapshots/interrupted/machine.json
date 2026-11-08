@@ -1,0 +1,275 @@
+{
+  "source": "0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0",
+  "tree": "7b9a6479c4b3e620e1182bf8f82c831d577acff4",
+  "version": "1.0.0-rc.2-no-api.9.1",
+  "binary_sha256": "f39fe41040605a5d66e96b1984c8681e083763993c00e6cb8bb2f974c4e417bf",
+  "dmg_sha256": "9d157becfa40e214b579036b03a178cffa85c96c6f0a54923809bd8110938339",
+  "stamp": "interrupted",
+  "utc": "2026-11-08T11:25:21.812078+00:00",
+  "host": "macOS 27.0 (26A428), Apple Silicon",
+  "checks": [
+    {
+      "case": "安装包连接内建麦克风",
+      "status": "PASS",
+      "detail": "同一签名 App 的两段五秒硬件计数。DEVICE_PROBE hardware_buffers=50 hardware_frames=240000 sample_rate=48000.0 channels=1 no_samples_read_saved_or_recognized=true pinned_frames=239616 pinned_rate=48000.0。数据库录音与 WAV 均为零。",
+      "evidence": [
+        "hardware/packaged-microphone.json"
+      ]
+    },
+    {
+      "case": "切换并在采集中移除双工聚合设备",
+      "status": "PASS",
+      "detail": "使用真实 Core Audio 私有设备与产品选路代码。移除触发明确中断，恢复内建输入，系统默认输入保持一致。",
+      "evidence": [
+        "hardware/duplex.json"
+      ]
+    },
+    {
+      "case": "切换并在采集中移除纯输入聚合设备",
+      "status": "PASS",
+      "detail": "使用真实 Core Audio 私有设备与产品选路代码。移除触发明确中断，恢复内建输入，系统默认输入保持一致。",
+      "evidence": [
+        "hardware/input-only.json"
+      ]
+    },
+    {
+      "case": "第二支独立物理麦克风拔插",
+      "status": "BLOCKED",
+      "detail": "本次 Mac 只有一支物理输入；两个私有聚合路由均借用该输入。",
+      "evidence": [
+        "hardware/duplex.json",
+        "hardware/input-only.json"
+      ]
+    },
+    {
+      "case": "受控睡眠和唤醒通知",
+      "status": "PASS",
+      "detail": "生产 AudioController 转入中断，唤醒后重新检查明确的缺席设备，手动暂停时保持关闭。",
+      "evidence": [
+        "sustained/controlled-wake.jsonl",
+        "sustained/wake-identity.json"
+      ]
+    },
+    {
+      "case": "暂停状态经历睡眠、唤醒后显示",
+      "status": "FAIL",
+      "detail": "P2：原本暂停时，受控唤醒后仍显示“Mac 已睡眠”，没有开麦或新增录音。",
+      "evidence": [
+        "sustained/paused-wake.json"
+      ]
+    },
+    {
+      "case": "真实系统睡醒时进程存活、保持停采",
+      "status": "PASS",
+      "detail": "共 2 对独立的内核睡醒时间与 Workspace 通知吻合。候选进程在对应唤醒记录中存活；另一个使用生产 AudioController 的观察进程只检查停采状态。",
+      "evidence": [
+        "snapshots/interrupted/passive-wake.jsonl"
+      ]
+    },
+    {
+      "case": "真实唤醒后重新检查指定的缺席输入",
+      "status": "BLOCKED",
+      "detail": "未观察到可重新开麦的登录会话中完成缺席设备检查。锁屏、TCC 与会话许可会影响恢复，受控通知结果另列。",
+      "evidence": [
+        "snapshots/interrupted/passive-wake.jsonl"
+      ]
+    },
+    {
+      "case": "真实睡眠后继续物理语音",
+      "status": "BLOCKED",
+      "detail": "没有隔离物理声源及可安全保存的环境讲话。缺席设备检查不能证明恢复真实讲话。",
+      "evidence": []
+    },
+    {
+      "case": "成品原生操作和非激活启动",
+      "status": "PASS",
+      "detail": "45 次原生按钮操作、10 次菜单选择。UI 过程中观察到 2 次外部前台变化，日志均显示候选未激活；另一次专门的启动检查保持前台不变。",
+      "evidence": [
+        "app/ui/manifest.json",
+        "app/ui/run.log",
+        "app/focus.log",
+        "app/focus-hashes.txt"
+      ]
+    },
+    {
+      "case": "本机 NSTextView 所有权与错投防护",
+      "status": "PASS",
+      "detail": "覆盖稳定范围去重、外部改字、新目标、选区变化、窗口关闭及重启。",
+      "evidence": [
+        "targets/input-native-coordinator.log",
+        "targets/ranges.json"
+      ]
+    },
+    {
+      "case": "生产前台选择 / 真实 TextEdit",
+      "status": "PASS",
+      "detail": "独立托管 Mac 上，仅新开的合成文档。核对首写、emoji、原有前后缀、连续增量、重复修订及选区变化。",
+      "evidence": [
+        "targets/hosted.json",
+        "targets/hosted/textedit.txt"
+      ]
+    },
+    {
+      "case": "前台 WKWebView 实际投递",
+      "status": "FAIL",
+      "detail": "冻结客户端使用真实 WindowServer 前台窗口。FOREGROUND_INSERT kind=web result=unverified",
+      "evidence": [
+        "targets/hosted/input-foreground-batch.log"
+      ]
+    },
+    {
+      "case": "前台 WKWebView 目标变化、发送与重放",
+      "status": "PASS",
+      "detail": "自有 WKWebView，页面身份变化后核对旧投递及发送计数。",
+      "evidence": [
+        "targets/hosted/input-foreground-batch.log"
+      ]
+    },
+    {
+      "case": "隔离安装、升级、回退、卸载重装",
+      "status": "PASS",
+      "detail": "公开 RC1 安装包仅用于临时目录中的模拟用户档案。未读取用户的已安装 RC1 或资料。",
+      "evidence": [
+        "installation/upgrade.json",
+        "installation/uninstall-reinstall.json"
+      ]
+    },
+    {
+      "case": "普通 Gatekeeper 执行",
+      "status": "FAIL",
+      "detail": "严格代码签名校验 exit 0，Gatekeeper 执行评估 exit 3。个人工程包未取得 Developer ID 公证。",
+      "evidence": [
+        "app/distribution-policy.json"
+      ]
+    },
+    {
+      "case": "成品 Apple 本机识别",
+      "status": "PASS",
+      "detail": "包内 App 识别合成中文、保存 WAV 并形成正式文字。",
+      "evidence": [
+        "app/apple.json"
+      ]
+    },
+    {
+      "case": "原生、AppModel 和协议回归",
+      "status": "PASS",
+      "detail": "393 个原生测试函数，104 项 AppModel 检查，50 个本机协议用例。",
+      "evidence": [
+        "protocol/driver.log",
+        "protocol/wire-audit.json",
+        "app/app-model.log"
+      ]
+    },
+    {
+      "case": "首次两小时试验的档案指纹",
+      "status": "FAIL",
+      "detail": "首次运行正常退出，80 段均定稿、原音有效、零丢帧；同一 Swift 构建目录被存储验证重用，试验后静态库指纹改变，原始 FAIL 保留。复测单独构建并核对实际执行文件、静态库、输入语料和源码。",
+      "evidence": [
+        "sustained/active/provenance-diagnosis.json",
+        "snapshots/2h/speech-result.json"
+      ]
+    },
+    {
+      "case": "两小时真实本地识别负载",
+      "status": "PASS",
+      "detail": "实际 7200.58 秒，80 笔定稿、0 丢帧。",
+      "evidence": [
+        "sustained/active/start.json",
+        "snapshots/interrupted"
+      ]
+    },
+    {
+      "case": "首轮驻留观察中断",
+      "status": "BLOCKED",
+      "detail": "同一 PID 最后一次记录为 22.32 小时，共 1340 次。未取得退出原因或终态收据。独立测试库完整性 ok，录音 0。复测独立计时。",
+      "evidence": [
+        "sustained/soak/interruption.json",
+        "sustained/soak/interval.json"
+      ]
+    },
+    {
+      "case": "72 小时实际 App 驻留和进程资源",
+      "status": "BLOCKED",
+      "detail": "22.32 小时，1340 次采样，RSS 17,008–79,456 KiB，最大采样间隔 60.4 秒。到期 2026-11-10 19:54:52。",
+      "evidence": [
+        "sustained/soak/interval.json",
+        "snapshots/interrupted"
+      ]
+    },
+    {
+      "case": "整机功耗归因",
+      "status": "BLOCKED",
+      "detail": "仅取得当前测试 PID 的内核能量、CPU、唤醒和物理内存计数，整机 powermetrics 需要管理员权限。",
+      "evidence": [
+        "snapshots/interrupted/process-resource.jsonl"
+      ]
+    },
+    {
+      "case": "真实云端认证、转写、质量收益及确认延迟",
+      "status": "BLOCKED",
+      "detail": "真实调用为零。三项有效账户、相应模型权限和处理/费用授权、同一经许可的人声材料仍是前提。",
+      "evidence": []
+    }
+  ],
+  "status_counts": {
+    "PASS": 13,
+    "FAIL": 4,
+    "BLOCKED": 7
+  },
+  "real_cloud_calls": 0,
+  "production_ready": false,
+  "producer_clock_complete": false,
+  "max_sample_gap": 60.35999999999876,
+  "raw_files": {
+    "hardware/packaged-microphone.json": "03ff739217fec7ecd0630fbb1b4952c7a7ad1b07720d0d52997fdf894ae5bf4f",
+    "hardware/duplex.json": "03c0c77e0f4c0ec5f272b24916e1e7d3d4c633df68095b51d9c65b8b51d91d95",
+    "hardware/input-only.json": "cde2bd472008980211c967650bdd289980e2d28eb25fb234fa600cab4b1b2c51",
+    "sustained/controlled-wake.jsonl": "87df181c4fd4dd299c8aa6da87931438460185051925036ffcca65d9b11201e8",
+    "sustained/wake-identity.json": "d8bcb1a78b2f7dd8af755783df1d4bd859fa76f79698b2cc9a713de3d662badb",
+    "sustained/paused-wake.json": "0883916eeea5435f00a723758f69e03d1fcee812a610cbe1f2181673cf443419",
+    "snapshots/interrupted/passive-wake.jsonl": "976846fc00ce5840da31c376547eb676f3f300643a2ee4b80283aec8425c3d1f",
+    "app/ui/manifest.json": "aaea663ed3b240a50646ba84b8782745debb5efdcd86b5229d5f6c4c28595ec9",
+    "app/ui/run.log": "d9d200e37bdde59202b0308b5b68fa0ce652639292a9c06cb6978340153be2e0",
+    "app/focus.log": "7892175c724a491f10c5190541152d7c98c80f05640b3ddc4c62f76fc273a0a2",
+    "app/focus-hashes.txt": "2aba6a0126c20657930eee390eacea73e1dd2c2c72432d6b5b774fcf7a780a7a",
+    "targets/input-native-coordinator.log": "db5744b0a036abbaf0ba81fa753bc45775c66dc6f112b6f8e4d1319ccf5f5df9",
+    "targets/ranges.json": "92f495194594d91a25324076612c6c6bf14328e18f1a684229c9542d828fd924",
+    "targets/hosted.json": "a9d9c0268ccf484588ff9256d25ea14edb701b35a05419418c3e7efe260db8c2",
+    "targets/hosted/textedit.txt": "7720d59ec3893cea13fd85cd0d8e118aa237f0fbc5c7c9a1d492c559fb0e46f2",
+    "targets/hosted/input-foreground-batch.log": "1c368ce7d6a244da3096df4696f77bdfcfcb18afccfb3686684795382e4d29d0",
+    "installation/upgrade.json": "e4ebfd974ec6ef86fe252004dd51efe5e2fb5fe633aeb7eb36512d964a362446",
+    "installation/uninstall-reinstall.json": "51dd6fa24095a48a2e2041501ac2ed5340e8a9b623ec650cecad8f17beefbe6c",
+    "app/distribution-policy.json": "276cacb9851f577c69cd6f797d563942eb1f54ed9bfee263cf4494a0aaed5c5f",
+    "app/apple.json": "a9b08bf782d53566c3588fd39e6e9e2e1e859cf3553fad758bd3d9d305412f07",
+    "protocol/driver.log": "9951452425f20fc6d8ae2571efab3a3649a8cf63ff1ba8b4e9347a6501f1a261",
+    "protocol/wire-audit.json": "f5c573b38b8e7a12a1c0c58d1b4995c42ad8637bb8e94438a73fd127d39133c5",
+    "app/app-model.log": "e22ae7c08e852ca70f9f204e12bd3785b925533553c9a379a56b4803ca951bd5",
+    "sustained/active/provenance-diagnosis.json": "3deaf60707e99fdee9c4704e08f431d66bffbdc25a32a8027824aecf64b2064c",
+    "snapshots/2h/speech-result.json": "1cbd1b36c187960950dfcd10e9d027318ee4a96685bbbf65719bb2a8604db97f",
+    "sustained/active/start.json": "849375a71d2880be699f599ffca1a951c5ec9a20c34d30d9f5850dd3e1a5ce6f",
+    "sustained/soak/interruption.json": "1ab53dfc43d2c1efdc88bd2280c31af2b1f537873c0bbed3659e769583e7b0e2",
+    "sustained/soak/interval.json": "50bcc6bfb7f0ca9dacff3db597e3fe522e40201a7b7f720426705cf70dbeb1ee",
+    "snapshots/interrupted/process-resource.jsonl": "29d31ad61dd93500c7452421457a51ac992b734c75fc24b641c6c8b0e9e8cf83",
+    "snapshots/interrupted/idle-samples.jsonl": "8861003a5cbc9e2f0d4781bd5b073303cf8b205c5f6917c47fd4f95f5f8ff604",
+    "snapshots/interrupted/repeat-result.json": "17d97de77144811ae9048488ee279a0ec15c70646a05f0f7284d62de67134501",
+    "snapshots/interrupted/speech-result.json": "1cbd1b36c187960950dfcd10e9d027318ee4a96685bbbf65719bb2a8604db97f",
+    "snapshots/interrupted/speech-resources.jsonl": "6c893897c95fd2674d0156be5d1bc99ff65ede4f5155591006c0efab6f9ad701",
+    "snapshots/interrupted/repeat-observations.json.gz": "16255901dd3dcde79657b1156a87ba69953b53b5142d3f853df4b29006a6a312",
+    "snapshots/interrupted/speech-observations.json.gz": "8b9f1f9da67d5505d04b7f531e27fd2ec8b6ad8af96b15187c87b9dc808271ff",
+    "snapshots/interrupted/repeat-resources.jsonl": "bccc2b69a9416358a285ebb87d24e4d3a82a5b231c132a2fbf75704280544710"
+  },
+  "kernel_process_usage": {
+    "observation_seconds": 80289,
+    "samples": 1339,
+    "source_pid": 49507,
+    "same_start_abstime": true,
+    "timebase_numer": 125,
+    "timebase_denom": 3,
+    "cpu_percent_one_core": 0.11440748478413398,
+    "mean_cpu_energy_mW": 0.4696731152461732,
+    "footprint_max_bytes": 22184920,
+    "footprint_first_decile_median_bytes": 19973080,
+    "footprint_last_decile_median_bytes": 22004696,
+    "scope": "App process only. CPU energy attributed by the kernel; excludes system ASR services and other devices."
+  }
+}
