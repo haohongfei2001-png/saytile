@@ -30,3 +30,7 @@
 2026-11-10 · Gateway now revalidates both the original identity and the lease every five seconds. An already open stream cannot continue using a logged-out user token.
 
 2026-11-10 · Final independent candidate source, signed private DMG, public fail-closed gateway, original design/settings screenshot and public release blockers are collected in docs/SAYTILE-CLOUD-DELIVERY.md.
+
+### 本机实时识别候选
+
+独立分支继承 PR #14 的 RC2、Cloud 和 BYOK。首轮将七个本机后端接到逐段冻结的工厂，共用原音日志与既有时间轴。两个 FluidAudio 模型与 Qwen 1.7B 通过档案重识别入口运行。后台评测及签名窗口验收继续。

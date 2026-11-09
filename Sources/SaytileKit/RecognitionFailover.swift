@@ -107,7 +107,11 @@ struct LocalFailoverDependencies: Sendable {
     var make: @Sendable (SaytileStore, RecognitionTicket) -> any RecognitionSession
     var now: @Sendable () -> Date = { Date() }
     static let live = Self(availability: { await AppleSpeechService.availability() },
-                           make: { LiveSpeechSession(store: $0, ticket: $1) })
+                           make: { AppleLocalASR().open(store: $0, ticket: $1) })
+    static func device(_ id: LocalASRID, service: LocalASRService) -> Self {
+        guard id != .apple else { return .live }
+        return Self(availability: { await service.availability(id) }, make: { NativeLocalASR(model: id, service: service).open(store: $0, ticket: $1) })
+    }
 }
 
 private struct FailureObservedProvider: StreamingASRProvider {

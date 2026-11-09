@@ -136,6 +136,11 @@ struct PanelCapturePresentation: Equatable {
 @MainActor
 final class AppModel: ObservableObject {
     let store: SaytileStore
+    let localModels: LocalASRService
+    @Published private(set) var deviceOnly: Bool
+    @Published private(set) var manualLocalModel: LocalASRID?
+    @Published private(set) var archiveLocalModel: LocalASRID?
+    private var accountRoute: HostedRoute = .byok
     let audio: AudioController
     let input: NativeInputCoordinator
     let directory: URL
@@ -265,6 +270,10 @@ final class AppModel: ObservableObject {
 
     init(directory: URL, preferences: UserDefaults = .standard, connectionDependencies: AppConnectionDependencies = .live,
          captureDependencies: AppCaptureDependencies = .live, copyPasteboard: NSPasteboard? = nil) throws {
+        localModels = LocalASRService(root: directory.appending(path: "LocalModels"))
+        deviceOnly = preferences.bool(forKey: "localASR.deviceOnly")
+        manualLocalModel = preferences.string(forKey: "localASR.manual").flatMap(LocalASRID.init(rawValue:))
+        archiveLocalModel = preferences.string(forKey: "localASR.archive").flatMap(LocalASRID.init(rawValue:))
         self.directory = directory
         hosted = HostedAccount(preferences: preferences, production: preferences === UserDefaults.standard && Bundle.main.bundleIdentifier == "app.saytile.mac")
         self.preferences = preferences
@@ -292,7 +301,13 @@ final class AppModel: ObservableObject {
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
         deviceID = audio.selectedDeviceUID != nil && audio.selectedDeviceID == 0 ? UInt32.max : audio.selectedDeviceID
         initializing = false
-        hosted.bind { [weak self] route, revoke in self?.audio.selectHostedRoute(route, revoke: revoke); self?.objectWillChange.send() }
+        hosted.bind { [weak self] route, revoke in
+            guard let self else { return }
+            accountRoute = route
+            audio.selectHostedRoute(deviceOnly ? .local : route, revoke: revoke)
+            objectWillChange.send()
+        }
+        applyLocalSelection()
         input.onBindingInvalidated = { [weak self] in
             self?.directMode = false
             self?.targetLabel = "目标已改变，请重新绑定草稿"
@@ -351,6 +366,28 @@ final class AppModel: ObservableObject {
     func recognitionPhaseLabel(for item: DisplayRecording) -> String {
         guard item.source.recognitionState == .running else { return item.stateLabel }
         return item.isRecording ? "正在记录" : "正在核对文字"
+    }
+    func selectSource(_ source: String) {
+        deviceOnly = source == "local"
+        preferences.set(deviceOnly, forKey: "localASR.deviceOnly")
+        hosted.select(source == "hosted")
+        audio.selectHostedRoute(deviceOnly ? .local : accountRoute)
+        audio.refreshLocalModelStatus()
+    }
+    func selectLocal(_ model: LocalASRID?, archiveOnly: Bool = false) {
+        if archiveOnly {
+            archiveLocalModel = model
+            preferences.set(model?.rawValue, forKey: "localASR.archive")
+        } else {
+            guard model?.capability != .batch else { return }
+            manualLocalModel = model
+            preferences.set(model?.rawValue, forKey: "localASR.manual")
+        }
+        applyLocalSelection()
+    }
+    func applyLocalSelection() {
+        let live = manualLocalModel ?? .apple
+        audio.selectLocalModels(live: live, archive: archiveLocalModel ?? live, service: localModels)
     }
     var engineLabel: String { audio.speechStatus }
     func hasCredential(_ item: ModelConfiguration) -> Bool {

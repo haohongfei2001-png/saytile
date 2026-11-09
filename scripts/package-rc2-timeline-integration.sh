@@ -5,6 +5,7 @@ cd "$(dirname "$0")/.."
 version=$(cat packaging/VERSION)
 case "$version" in
   *-timeline.integration.*) volume="Saytile RC2 Integration";;
+  *-local-asr.*) volume="Saytile Local ASR Candidate";;
   *-cloud.integration.*) volume="Saytile Cloud Candidate";;
   *) exit 64;;
 esac
@@ -17,6 +18,11 @@ app="$stage/volume/Saytile.app"
 SAYTILE_APP_OUTPUT="$app" scripts/build-app.sh release
 identity=$(security find-identity -v -p codesigning | awk '/Developer ID Application/ {print $2}')
 [[ "$identity" =~ ^[0-9A-Fa-f]{40}$ ]]
+if [[ -d "$app/Contents/Helpers/LocalASR" ]]; then
+  for child in "$app/Contents/Helpers/LocalASR/"{*.dylib,SaytileSherpa,SaytileModelWorker}; do
+    codesign --force --options runtime --timestamp --sign "$identity" "$child"
+  done
+fi
 codesign --force --options runtime --timestamp --entitlements distribution/audio-input.plist --sign "$identity" "$app"
 codesign --verify --strict "$app"
 hdiutil create -quiet -volname "$volume" -srcfolder "$stage/volume" -format UDZO "$stage/integration.dmg"

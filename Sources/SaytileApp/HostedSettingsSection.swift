@@ -3,14 +3,16 @@ import AppKit
 import SaytileKit
 
 struct HostedSettingsSection: View {
+    @ObservedObject var model: AppModel
     @ObservedObject var account: HostedAccount
     @ViewState private var email = ""
     @ViewState private var code = ""
     var body: some View {
         Section("识别服务") {
-            Picker("服务来源", selection: Binding(get:{account.selected},set:{account.select($0)})) {
-                Text("Saytile Cloud").tag(true)
-                Text("自带 API").tag(false)
+            Picker("服务来源", selection: Binding(get:{model.deviceOnly ? "local" : account.selected ? "hosted" : "byok"},set:{model.selectSource($0)})) {
+                Text("本机").tag("local")
+                Text("Saytile Cloud").tag("hosted")
+                Text("自带 API").tag("byok")
             }.pickerStyle(.segmented)
             if account.selected {
                 LabeledContent("账户状态",value:account.status)

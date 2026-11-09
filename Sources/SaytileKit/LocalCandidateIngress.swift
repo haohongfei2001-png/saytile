@@ -5,12 +5,15 @@ import Foundation
 actor LocalCandidateIngress {
     private let store: SaytileStore
     private let ticket: RecognitionTicket
+    private let model: LocalASRID
     private var run: ModelRunTicket?
     private var sequence: Int64 = 0
     private var complete = false
-    init(store: SaytileStore, ticket: RecognitionTicket) { self.store = store; self.ticket = ticket }
+    init(store: SaytileStore, ticket: RecognitionTicket, model: LocalASRID = .apple) {
+        self.store = store; self.ticket = ticket; self.model = model
+    }
     func receive(_ event: ProviderTranscriptEvent) async throws {
-        if run == nil { run = try await store.beginLocalCandidateRun(ticket: ticket) }
+        if run == nil { run = try await store.beginLocalCandidateRun(ticket: ticket, model: model) }
         guard let run else { throw FusionError.staleGeneration }
         sequence += 1
         let candidate = RecognitionCandidate(run: run, sequence: sequence, event: event)

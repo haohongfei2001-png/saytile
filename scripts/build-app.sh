@@ -17,6 +17,16 @@ swift scripts/make-icon.swift "$SAYTILE_BUILD_STAGE/Saytile.iconset"
 if ! iconutil -c icns "$SAYTILE_BUILD_STAGE/Saytile.iconset" -o "$bundle/Contents/Resources/Saytile.icns"; then
   python3 scripts/encode-iconset.py "$SAYTILE_BUILD_STAGE/Saytile.iconset" "$bundle/Contents/Resources/Saytile.icns"
 fi
+cp -R Sources/SaytileKit/Resources/LocalASR "$bundle/Contents/Resources/"
+if [[ "$(cat packaging/VERSION)" == *-local-asr.* ]]; then
+  scripts/build-local-runtime.sh
+  mkdir -p "$bundle/Contents/Helpers/LocalASR"
+  cp .build/local-asr/runtime/{SaytileSherpa,SaytileModelWorker,libonnxruntime.dylib,libsherpa-onnx-c-api.dylib,mlx.metallib} "$bundle/Contents/Helpers/LocalASR/"
+  cp -R .build/local-asr/runtime-licenses "$bundle/Contents/Resources/LocalASRLicenses"
+  for child in "$bundle/Contents/Helpers/LocalASR/"{*.dylib,SaytileSherpa,SaytileModelWorker}; do
+    codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$child"
+  done
+fi
 cp Sources/SaytileKit/Resources/ConnectionSample.pcm "$bundle/Contents/Resources/ConnectionSample.pcm"
 cp THIRD_PARTY_NOTICES.md "$bundle/Contents/Resources/THIRD_PARTY_NOTICES.md"
 cp Sources/CAudio/WEBRTC-LICENSE.txt "$bundle/Contents/Resources/WEBRTC-LICENSE.txt"

@@ -375,13 +375,13 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             }
         }
         availabilityTask = Task {
-            speechStatus = recognitionFactory.usesCloud ? "单一语言专家识别 · " + recognitionFactory.configuration.inputMode.label : await AppleSpeechService.availability().message
+            speechStatus = recognitionFactory.usesCloud ? "单一语言专家识别 · " + recognitionFactory.configuration.inputMode.label : await recognitionFactory.localAvailability().message
         }
         recoveryTask = Task { [weak self] in
             while !Task.isCancelled {
                 do { try await Task.sleep(for: .seconds(10)) } catch { break }
                 guard let self, self.canRecoverInBackground else { continue }
-                let recognitionAvailable = self.recognitionFactory.usesCloud ? true : await AppleSpeechService.availability().installed
+                let recognitionAvailable = self.recognitionFactory.usesCloud ? true : await self.recognitionFactory.localAvailability().installed
                 guard self.recognitionFactory.configuration.automaticRecovery,
                       recognitionAvailable,
                       self.canRecoverInBackground,
@@ -401,6 +401,19 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     }
     private var recognitionSettingsGeneration: UInt64 = 0
     /// Revoke future cloud sessions synchronously, before awaiting cancellation of old work.
+    public func selectLocalModels(live: LocalASRID, archive: LocalASRID, service: LocalASRService) {
+        guard live.capability != .batch else { return }
+        recognitionFactory.selectLocal(live: live, archive: archive, service: service)
+        refreshLocalModelStatus()
+    }
+    public func refreshLocalModelStatus() {
+        availabilityTask?.cancel()
+        availabilityTask = Task {
+            let snapshot = recognitionFactory.snapshot
+            let status = snapshot.configuration.cloudEnabled ? "云端识别" : await recognitionFactory.localAvailability().message
+            if !Task.isCancelled { speechStatus = status }
+        }
+    }
     public func selectHostedRoute(_ route: HostedRoute, revoke: Bool = false) {
         recognitionFactory.select(route, revoke: revoke)
     }
@@ -425,7 +438,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         for old in drainingWorkers { await old.cancelRecognitionAndWait() }
         guard generation == recognitionSettingsGeneration else { return }
         retryTask?.cancel()
-        let message = configuration.cloudEnabled ? "单一语言专家识别 · " + configuration.inputMode.label : await AppleSpeechService.availability().message
+        let message = configuration.cloudEnabled ? "单一语言专家识别 · " + configuration.inputMode.label : await recognitionFactory.localAvailability().message
         guard generation == recognitionSettingsGeneration else { return }
         speechStatus = message
     }
@@ -446,7 +459,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         let task = Task { @MainActor in
             preparingSpeech = true; defer { preparingSpeech = false }
             speechStatus = "正在准备中文识别资源 · 原音继续保存"
-            do { try await AppleSpeechService.prepare(); try Task.checkCancellation(); speechStatus = await AppleSpeechService.availability().message }
+            do { try await AppleSpeechService.prepare(); try Task.checkCancellation(); speechStatus = await recognitionFactory.localAvailability().message }
             catch is CancellationError { }
             catch { if !isShuttingDown { issue = "中文资源下载失败：\(error.localizedDescription)"; speechStatus = issue! } }
         }
@@ -752,7 +765,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                     ? store.beginFusionRecognition(recordingID: recordingID, mode: config.inputMode)
                     : store.beginRecognition(recordingID: recordingID))
                 try Task.checkCancellation()
-                let activeSession = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot)
+                let activeSession = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot, archived: !isAutomatic)
                 session = activeSession
                 for chunk in chunks {
                     try Task.checkCancellation()
