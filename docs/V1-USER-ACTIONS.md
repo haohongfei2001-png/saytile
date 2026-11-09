@@ -26,3 +26,5 @@
 2026-11-10 · No customer testing or real audio needed for these fixes; the free hosted database allocation remains the external prerequisite.
 
 2026-11-10 · Vercel ingress and native consent retests are handled by engineering. No approval needed.
+
+2026-11-10 · No changes to user actions. Gateway can remain live with model calls disabled while waiting for free Supabase capacity.

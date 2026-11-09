@@ -22,7 +22,7 @@ select public.st_grant(:uid,0,now(),:revocation_event,false);
 -- 配额与预算必须由运营根据合同和本次允许的总成本确定；新项目账本预设为关闭。
 update saytile.control set asr_hold=:worst_35s_cost,review_hold=:worst_one_review,
  user_day_micros=:per_user_rolling_24h_cap,budget_micros=:authorized_lifetime_cap,enabled=true where singleton;
--- 立即停止新的消费；在线会话在下一轮权益检查时关闭，不影响 BYOK。
+-- 立即停止新的消费；在线会话每五秒同时复核 Supabase 登录和权益，失效后关闭，不影响 BYOK。
 update saytile.control set enabled=false where singleton;
 select public.st_reconcile(:lease,:operation,:actual_micro_usd,:unique_provider_line);
 ```
@@ -39,6 +39,6 @@ Stripe 适配器默认关闭。商户启用前核验 [独立 macOS 分发](https
 
 ## 复验与回退
 
-运行 `npm ci --prefix cloud && npm test --prefix cloud` 和 `scripts/test-hosted-gateway.sh`。独立 PostgreSQL 多连接测试见 CI。机器测试只用合成数据。正式链路验收需在获得费用/音频授权后以一个授予权益和一个未授予权益的隔离账户执行，统计 20–30 分钟的实际首字/定稿 P50/P95、逐条响应、费用和失败率；与 BYOK 用同一授权音频对照。不得从模拟器推算这些值。
+运行 `npm ci --prefix cloud && npm test --prefix cloud` 和 `scripts/test-hosted-gateway.sh`。独立 PostgreSQL 多连接测试见 CI。`scripts/test-supabase-local.sh` 使用官方 Supabase CLI、隔离本地邮件及数据库演练实际 Auth / PostgREST；从未链接远端项目。机器测试只用合成数据。正式链路验收需在获得费用/音频授权后以一个授予权益和一个未授予权益的隔离账户执行，统计 20–30 分钟的实际首字/定稿 P50/P95、逐条响应、费用和失败率；与 BYOK 用同一授权音频对照。不得从模拟器推算这些值。
 
 回退先关闭数据库开关和收费入口，保留账本；必要时切回 Vercel 前一已验证部署。不要为回退删除表、重置用户或清除 Keychain。Mac 保留配套的本地数据库及原音备份；v6 可回到 PR #13 的 v6 候选，v5 老版需恢复升级前的整套副本。检查签名和来源后在隔离目录演练，禁止对真实历史执行降级。

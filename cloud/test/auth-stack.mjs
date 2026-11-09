@@ -48,8 +48,16 @@ try{
     assert.equal(asrCalls,1);assert.ok(reviewCalls>=1);assert.equal(pcm,3200);
    }finally{await fs.rm(dir,{recursive:true,force:true})}
  }
+ const streamBeforeLogout=new WebSocket(root.replace('http','ws')+'/v1/stream',{headers:headers(next)});
+ await once(streamBeforeLogout,'message');const closed=once(streamBeforeLogout,'close');
+ assert.ok((await auth('logout',{},next.access_token)).ok);
+ const deadline=AbortSignal.timeout(8500);
+ try {const [code]=await Promise.race([closed,new Promise((_,reject)=>deadline.addEventListener('abort',()=>reject(Error('invalidated session still streams')), {once:true}))]);assert.equal(code,1008)}
+ finally{streamBeforeLogout.terminate()}
  await db.rpc('grant',{p_uid:first.user.id,p_ms:0,p_until:new Date().toISOString(),p_event:'revoke-'+randomUUID(),p_active:false});
- assert.equal((await account(next)).active,false);assert.ok((await auth('logout',{},next.access_token)).ok);
+ assert.equal((await db.rpc('account',{p_uid:first.user.id})).active,false);
+ const priorAccess=await fetch(root+'/v1/account',{headers:{authorization:'Bearer '+next.access_token}});
+ assert.equal(priorAccess.status,401);
  const rejected=await auth('token?grant_type=refresh_token',{refresh_token:next.refresh_token});assert.ok([400,401,403].includes(rejected.status));
- console.log(JSON.stringify({status:'PASS',scope:'isolated official Supabase Auth, PostgREST, Postgres and Mailpit',confirmedOTPAccounts:2,apiIdentity:true,manualGrant:true,otherAccountIsolated:true,accountRPCPrivate:true,refresh:true,revocation:true,logoutInvalidatesRefresh:true,realModelCalls:0,nativeMockASR:asrCalls,nativeMockGPT:reviewCalls,unpaidProviderAdmissions:0}));
+ console.log(JSON.stringify({status:'PASS',scope:'isolated official Supabase Auth, PostgREST, Postgres and Mailpit',confirmedOTPAccounts:2,apiIdentity:true,manualGrant:true,otherAccountIsolated:true,accountRPCPrivate:true,refresh:true,revocation:true,logoutInvalidatesRefresh:true,postLogoutAccountHTTP:priorAccess.status,realModelCalls:0,liveRevokedStreamClosed:true,nativeMockASR:asrCalls-1,nativeMockGPT:reviewCalls,unpaidProviderAdmissions:0}));
 }finally{server?.close();await pool.end()}

@@ -26,3 +26,5 @@
 2026-11-10 · Fixed a real Supabase PostgREST safe-update rejection affecting paid audio admission and a missing accessibility identifier on hosted upload consent. Private candidate .2 supersedes .1.
 
 2026-11-10 · Public WebSocket stream returned 404 on a named wildcard rewrite. Use literal v1 routes to preserve the query-free admission contract; local auth, quota and consent logic is unchanged.
+
+2026-11-10 · Gateway now revalidates both the original identity and the lease every five seconds. An already open stream cannot continue using a logged-out user token.

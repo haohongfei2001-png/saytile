@@ -61,13 +61,13 @@ export function gateway({env=process.env,db=platform(env),openASR=qwen,ask=revie
       }
       if(path.pathname!=='/v1/stream'||path.search)throw new Fault('not_found',404);
       if(req.method!=='GET'||req.headers['sec-websocket-version']!=='13'||!/^[-+/0-9A-Za-z]{22}==$/.test(req.headers['sec-websocket-key']||''))throw new Fault('invalid_handshake');
-      const user=await db.user(req.headers);licensed(env,req.headers);const config=providerConfig(env);
+      const identityHeaders={authorization:req.headers.authorization};const user=await db.user(identityHeaders);licensed(env,req.headers);const config=providerConfig(env);
       const id=req.headers['x-saytile-recording'], epoch=Number(req.headers['x-saytile-epoch']);
       if(!uuid(id)||!Number.isSafeInteger(epoch)||epoch<0||req.headers['x-saytile-consent']!=='zh-v1')throw new Fault('invalid_session');
       lease=await db.rpc('reserve',{p_uid:user,p_recording:id,p_epoch:epoch});
       if(socket.destroyed)throw new Fault('disconnected');
       wsServer.handleUpgrade(req,socket,head,ws=>{
-        handed=true; stream(ws,{db,config,id,epoch,lease,user,openASR});
+        handed=true; stream(ws,{db,config,id,epoch,lease,user,openASR,identityHeaders});
       });
     }catch(e){deny(socket,e instanceof Fault?e.status:503)}
     finally {if(lease&&!handed)await db.rpc('settle',{p_lease:lease,p_op:'audio',p_ms:0,p_actual:0,p_units:null}).catch(()=>{})}
@@ -75,7 +75,7 @@ export function gateway({env=process.env,db=platform(env),openASR=qwen,ask=revie
   return server;
 }
 
-function stream(ws,{db,config,id,epoch,lease,user,openASR}) {
+function stream(ws,{db,config,id,epoch,lease,user,openASR,identityHeaders}) {
   let upstream,ready=false,eos=false,closed=false,seq=0,frame=0,bytes=0;
   const segments=new Map(), until=Date.now()+145000;
   const send=data=>{if(ws.readyState===WebSocket.OPEN&&ws.bufferedAmount<262144)ws.send(JSON.stringify(data));else throw new Fault('client_slow')};
@@ -88,8 +88,8 @@ function stream(ws,{db,config,id,epoch,lease,user,openASR}) {
   const deadline=setTimeout(()=>finish(1001),95000);
   let checking=false;
   const check=setInterval(async()=>{if(checking)return;checking=true;try{
-    const ok=await db.rpc('admitted',{p_uid:user,p_lease:lease});if(!ok)finish(1008);
-  } catch{finish(1011)}finally{checking=false}},5000);
+    const [current,ok]=await Promise.all([db.user(identityHeaders),db.rpc('admitted',{p_uid:user,p_lease:lease})]);if(current!==user||!ok)finish(1008);
+  } catch(e){finish(e instanceof Fault&&[401,403].includes(e.status)?1008:1011)}finally{checking=false}},5000);
   ws.on('close',()=>finish());ws.on('error',()=>finish());
   ws.on('message',(data,binary)=>{try{
     if(!ready||closed||eos)throw new Fault('invalid_state');
