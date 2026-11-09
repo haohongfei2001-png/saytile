@@ -5,6 +5,7 @@ grant usage on schema saytile to service_role;
 
 create table saytile.control (
  singleton boolean primary key default true check(singleton), enabled boolean not null default false,
+ user_day_micros bigint not null default 0 check(user_day_micros>=0),
  budget_micros bigint not null default 0 check(budget_micros>=0),
  committed_micros bigint not null default 0 check(committed_micros>=0),
  asr_hold bigint not null default 0 check(asr_hold>=0), review_hold bigint not null default 0 check(review_hold>=0)
@@ -57,6 +58,14 @@ begin
  valid_until=case when excluded.active then greatest(saytile.accounts.valid_until,excluded.valid_until) else excluded.valid_until end,active=excluded.active;
 end $$;
 
+-- Evaluated while the same global reservation row is locked. Unknown charges count at the full hold.
+create index usage_window on saytile.usage(created_at);
+create function saytile.within_daily(p_uid uuid,p_extra bigint,p_limit bigint) returns boolean language sql stable security invoker set search_path='' as $$
+ select coalesce(sum(coalesce(u.actual_micros,u.reserved)),0)+p_extra<=p_limit
+ from saytile.usage u join saytile.sessions s using(lease) where s.uid=p_uid and u.created_at>now()-interval '24 hours'
+$$;
+revoke all on function saytile.within_daily(uuid,bigint,bigint) from public, anon,authenticated;
+grant execute on function saytile.within_daily(uuid,bigint,bigint) to service_role;
 create function public.st_reserve(p_uid uuid,p_recording uuid,p_epoch bigint) returns uuid language plpgsql security invoker set search_path='' as $$
 declare c saytile.control; a saytile.accounts; lid uuid;
 begin
@@ -68,6 +77,7 @@ begin
  if a.remaining_ms<35000 then raise exception 'quota'; end if;
  if (select count(*) from saytile.sessions where uid=p_uid and created_at>now()-interval '1 minute')>=12
  or (select count(*) from saytile.sessions where uid=p_uid and not ended and expires>now())>=2 then raise exception 'rate_limit'; end if;
+ if not saytile.within_daily(p_uid,c.asr_hold+c.review_hold,c.user_day_micros) then raise exception 'quota'; end if;
  if c.committed_micros+c.asr_hold+c.review_hold>c.budget_micros then raise exception 'budget'; end if;
  insert into saytile.sessions(uid,recording,epoch,grant_generation) values(p_uid,p_recording,p_epoch,a.grant_generation) returning lease into lid;
  update saytile.accounts set remaining_ms=remaining_ms-35000 where uid=p_uid;
@@ -84,6 +94,8 @@ begin
  where s.lease=p_lease and s.uid=p_uid and s.expires>now() and s.grant_generation=a.grant_generation and a.active and not a.billing_hold and a.valid_until>now()) then raise exception 'no_entitlement'; end if;
  if p_seq<=0 or exists(select from saytile.usage where lease=p_lease and op=p_seq::text) then raise exception 'already_admitted'; end if;
  if (select count(*) from saytile.usage where lease=p_lease)>=17 then raise exception 'rate_limit'; end if;
+ if (select count(*) from saytile.usage u join saytile.sessions s using(lease) where s.uid=p_uid and u.op<>'audio' and not u.settled and u.created_at>now()-interval '100 seconds')>=2 then raise exception 'rate_limit'; end if;
+ if not saytile.within_daily(p_uid,c.review_hold,c.user_day_micros) then raise exception 'quota'; end if;
  if c.committed_micros+c.review_hold>c.budget_micros then raise exception 'budget'; end if;
  insert into saytile.usage(lease,op,reserved) values(p_lease,p_seq::text,c.review_hold);
  update saytile.control set committed_micros=committed_micros+c.review_hold;

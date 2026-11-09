@@ -21,13 +21,13 @@ select public.st_grant(:uid,:milliseconds,:valid_until,:unique_audit_event,true)
 select public.st_grant(:uid,0,now(),:revocation_event,false);
 -- 配额与预算必须由运营根据合同和本次允许的总成本确定；新项目账本预设为关闭。
 update saytile.control set asr_hold=:worst_35s_cost,review_hold=:worst_one_review,
- budget_micros=:authorized_lifetime_cap,enabled=true where singleton;
+ user_day_micros=:per_user_rolling_24h_cap,budget_micros=:authorized_lifetime_cap,enabled=true where singleton;
 -- 立即停止新的消费；在线会话在下一轮权益检查时关闭，不影响 BYOK。
 update saytile.control set enabled=false where singleton;
 select public.st_reconcile(:lease,:operation,:actual_micro_usd,:unique_provider_line);
 ```
 
-35 秒预留覆盖 Mac 最长 30 秒语段及预卷。每用户最多两个活跃会话、每分钟 12 次录音、每录音最多 16 次文本复核。重复录音不重复接单；复核只接受网关签发的、与账户/租约/文字摘要/稳定范围绑定的候选。网关硬截止 95 秒，早于函数的 180 秒配置；触发超时只影响该段。本机保留 journal，后续新语段独立处理。操作未明确结束、掉线或供应商金额缺失时保留预留，运营根据请求标识对账。超出单笔预留自动熔断；运营应在供应商账户另外设置可用的预算告警和额度约束，不把内部估算作为上游报价保证。变更模型或单价前先关闭开关，重新核算最大输入字节数和 8192 个输出 token（含推理）的费用上界。
+35 秒预留覆盖 Mac 最长 30 秒语段及预卷。每用户最多两个活跃语音会话、两个同时进行的 GPT 请求、每分钟 12 次录音、每录音最多 16 次文本复核。重复录音不重复接单；复核只接受网关签发的、与账户/租约/文字摘要/稳定范围绑定的候选。网关硬截止 95 秒，早于函数的 180 秒配置；触发超时只影响该段。本机保留 journal，后续新语段独立处理。操作未明确结束、掉线或供应商金额缺失时保留预留，运营根据请求标识对账。超出单笔预留自动熔断；运营应在供应商账户另外设置可用的预算告警和额度约束，不把内部估算作为上游报价保证。变更模型或单价前先关闭开关，重新核算最大输入字节数和 8192 个输出 token（含推理）的费用上界。
 
 Stripe 适配器默认关闭。商户启用前核验 [独立 macOS 分发](https://developer.apple.com/macos/distribution/) 和商户所在地规则；不处理银行卡数据。需商户授权后设置 `BILLING_ENABLED=true`、`PUBLIC_ORIGIN=https://saytile-cloud.vercel.app`、Sensitive 的 `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`、固定 `STRIPE_PRICE_ID` 及 `STRIPE_PERIOD_MS`。Checkout 跳回及客户端按钮均不发权益；[签名账单事件](https://docs.stripe.com/billing/subscriptions/webhooks)经金额、SKU、到期和幂等校验后入账。订阅终止撤权，争议/退款冻结待核。首次使用 Stripe test mode 验证完整商户流程，live 模式另行批准。无商户时可使用经审计的手动权益，不创建收费订单。
 

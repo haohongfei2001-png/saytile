@@ -6,7 +6,7 @@ export class Fault extends Error {
 export const uuid = s => typeof s === 'string' && /^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i.test(s);
 export const digest = s => createHash('sha256').update(s).digest('hex');
 
-export function platform(env) {
+export function platform(env, transport = fetch) {
   const url = env.SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL;
   const publicKey = env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const secret = env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
@@ -15,7 +15,7 @@ export function platform(env) {
   const configured = safePublic && publicKey!==secret && url && /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url) && publicKey && secret;
   const request = async (path, options) => {
     if (!configured) throw new Fault('service_unconfigured',503);
-    try { return await fetch(url + path, {...options, redirect:'error', signal:AbortSignal.timeout(5000)}); }
+    try { return await transport(url + path, {...options, redirect:'error', signal:AbortSignal.timeout(5000)}); }
     catch { throw new Fault('service_unavailable',503); }
   };
   return {

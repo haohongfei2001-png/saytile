@@ -14,7 +14,9 @@ import Combine
     @Published public private(set) var validUntil: String?
     private let defaults: UserDefaults
     private let origin: URL?
-    private let keychain = KeychainCredentialStore(service:"com.saytile.hosted.auth.v1")
+    private let keychain: KeychainCredentialStore
+    typealias Request = @Sendable (URL,String?,[String:String]?,String?) async throws -> Data
+    private let request: Request
     private let slot = UUID(uuidString:"5A1711E0-0000-4000-8000-000000000001")!
     private struct Tokens: Codable { let access_token: String; let refresh_token: String; let expires_at: Double }
     private struct Config: Decodable { let url: URL; let publishableKey: String }
@@ -27,11 +29,19 @@ import Combine
     private var generation = UUID()
     private var loaded = false
     private var onRoute: ((HostedRoute,Bool)->Void)?
-    public init(preferences: UserDefaults, production: Bool) {
+    public convenience init(preferences: UserDefaults, production: Bool) {
+        self.init(preferences:preferences, production:production,
+            origin:production ? URL(string:"https://saytile-cloud.vercel.app") : nil,
+            keychain:KeychainCredentialStore(service:"com.saytile.hosted.auth.v1"),
+            request: { try await HostedNetwork.request($0,bearer:$1,payload:$2,key:$3) })
+    }
+    init(preferences: UserDefaults, production: Bool, origin: URL?, keychain: KeychainCredentialStore,
+         request: @escaping Request) {
+        self.keychain=keychain;self.request=request
         defaults = preferences
         selected = preferences.object(forKey:"hosted.selected.v1") as? Bool ?? (production && preferences.data(forKey:"multiASRConfigurationV1") == nil)
         consent = preferences.bool(forKey:"hosted.zh-consent.v1")
-        origin = production ? URL(string:"https://saytile-cloud.vercel.app") : nil
+        self.origin=origin
     }
     public func bind(_ fn: @escaping (HostedRoute,Bool)->Void) {
         onRoute=fn; apply()
@@ -48,7 +58,7 @@ import Combine
     }
     public func select(_ hosted: Bool) {
         guard hosted != selected else { return }
-        generation=UUID();busy=false;selected=hosted;defaults.set(hosted,forKey:"hosted.selected.v1");current=nil;apply()
+        selected=hosted;defaults.set(hosted,forKey:"hosted.selected.v1");current=nil;apply()
         if hosted { Task { await refresh() } }
     }
     public func authorize(_ enabled: Bool) {
@@ -57,7 +67,7 @@ import Combine
     private func project() async throws -> Config {
         if let config { return config }
         guard let origin else { throw ProviderFailure.connection }
-        let data = try await HostedNetwork.request(origin.appending(path:"v1/config"))
+        let data = try await request(origin.appending(path:"v1/config"),nil,nil,nil)
         let c = try JSONDecoder().decode(Config.self,from:data)
         guard c.url.absoluteString.range(of:"^https://[a-z0-9-]+[.]supabase[.]co$",options:.regularExpression) != nil, !c.publishableKey.isEmpty else { throw ProviderFailure.connection }
         config=c;return c
@@ -65,7 +75,7 @@ import Combine
     private func persist(_ record: Saved) throws {
         guard origin != nil else { throw ProviderFailure.permission }
         try keychain.save(String(decoding:try JSONEncoder().encode(record),as:UTF8.self),configurationID:slot,provider:.openAIResponses)
-        saved=record;signedIn=true;loaded=true
+        defaults.removeObject(forKey:"hosted.restore-blocked.v1");saved=record;signedIn=true;loaded=true
     }
     private func perform(_ fn: (UUID) async throws -> Void) async {
         guard selected,!busy,origin != nil else {return};busy=true;let g=generation
@@ -78,18 +88,18 @@ import Combine
     }
     public func sendCode(email:String) async {
         await perform { g in let c=try await project(); guard g==generation else {return}
-            _ = try await HostedNetwork.request(c.url.appending(path:"auth/v1/otp"),payload:["email":email],key:c.publishableKey)
+            _ = try await request(c.url.appending(path:"auth/v1/otp"),nil,["email":email],c.publishableKey)
             if g==generation {status="请查看邮箱中的一次性验证码"} }
     }
     public func verify(email:String,code:String) async {
         await perform { g in let c=try await project(); guard g==generation else {return}
-            let data=try await HostedNetwork.request(c.url.appending(path:"auth/v1/verify"),payload:["email":email,"token":code,"type":"email"],key:c.publishableKey)
+            let data=try await request(c.url.appending(path:"auth/v1/verify"),nil,["email":email,"token":code,"type":"email"],c.publishableKey)
             guard g==generation else {return};try persist(.init(project:c.url,tokens:try JSONDecoder().decode(Tokens.self,from:data)))
             try await account(g) }
     }
     public func refresh() async {
         await perform { g in
-            if !loaded { let raw=try keychain.read(configurationID:slot,provider:.openAIResponses)
+            if !loaded { let raw=defaults.bool(forKey:"hosted.restore-blocked.v1") ? nil : try keychain.read(configurationID:slot,provider:.openAIResponses)
                 if let raw { saved=try JSONDecoder().decode(Saved.self,from:Data(raw.utf8)) }
                 loaded=true;signedIn=saved != nil }
             guard saved != nil else { return };try await account(g) }
@@ -100,11 +110,11 @@ import Combine
         var tokens=record.tokens
         if tokens.expires_at < Date().timeIntervalSince1970+180 {
             let url=c.url.appending(path:"auth/v1/token").appending(queryItems:[URLQueryItem(name:"grant_type",value:"refresh_token")])
-            let data=try await HostedNetwork.request(url,payload:["refresh_token":tokens.refresh_token],key:c.publishableKey)
+            let data=try await request(url,nil,["refresh_token":tokens.refresh_token],c.publishableKey)
             guard g==generation else {return};tokens=try JSONDecoder().decode(Tokens.self,from:data)
             try persist(.init(project:c.url,tokens:tokens))
         }
-        let data=try await HostedNetwork.request(origin.appending(path:"v1/account"),bearer:tokens.access_token)
+        let data=try await request(origin.appending(path:"v1/account"),tokens.access_token,nil,nil)
         guard g==generation else {return}
         let a=try JSONDecoder().decode(Account.self,from:data)
         billingAvailable=a.billing == true;remainingMS=a.remaining_ms;plan=a.plan;validUntil=a.valid_until
@@ -114,17 +124,18 @@ import Combine
     }
     public func signOut() async {
         guard origin != nil else {return}
+        defaults.set(true,forKey:"hosted.restore-blocked.v1")
         let old=saved;generation=UUID();busy=false;current=nil;consent=false;defaults.set(false,forKey:"hosted.zh-consent.v1")
         apply(true);billingAvailable=false;signedIn=false;saved=nil;loaded=true;remainingMS=nil;plan=nil;validUntil=nil;status="已退出 · 本机识别可用"
         do { try keychain.delete(configurationID:slot,provider:.openAIResponses) } catch { status="钥匙串暂不可用；请再次退出以清除本机会话" }
         if let old, let c=try? await project(), old.project==c.url {
-            _ = try? await HostedNetwork.request(c.url.appending(path:"auth/v1/logout"),bearer:old.tokens.access_token,payload:[:],key:c.publishableKey)
+            _ = try? await request(c.url.appending(path:"auth/v1/logout"),old.tokens.access_token,[:],c.publishableKey)
         }
     }
     public func billingURL(portal:Bool) async -> URL? {
         var result:URL?
         await perform { g in guard let origin,let record=saved else {throw ProviderFailure.authorization}
-            let data=try await HostedNetwork.request(origin.appending(path:portal ? "v1/portal":"v1/checkout"),bearer:record.tokens.access_token,payload:[:])
+            let data=try await request(origin.appending(path:portal ? "v1/portal":"v1/checkout"),record.tokens.access_token,[:],nil)
             struct Link: Decodable { let url:URL }
             let url = try JSONDecoder().decode(Link.self,from:data).url
             guard g==generation,url.scheme=="https",url.user==nil,url.password==nil,url.port==nil,["checkout.stripe.com","billing.stripe.com"].contains(url.host) else {throw ProviderFailure.connection}

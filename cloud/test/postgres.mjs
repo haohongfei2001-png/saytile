@@ -7,7 +7,7 @@ try{
  const dir=new URL('../supabase/migrations/',import.meta.url);for(const name of (await readdir(dir)).sort())await q(await readFile(new URL(name,dir),'utf8'));
  const uid=randomUUID(),other=randomUUID();await q('insert into auth.users values ($1),($2)',[uid,other]);
  await q("select public.st_grant($1,350000,now()+interval '1 day','u',true)",[uid]);await q("select public.st_grant($1,350000,now()+interval '1 day','v',true)",[other]);
- await q('update saytile.control set enabled=true, budget_micros=11000000,asr_hold=35000,review_hold=1000000');
+ await q('update saytile.control set enabled=true,user_day_micros=1000000000, budget_micros=11000000,asr_hold=35000,review_hold=1000000');
  const ids=Array.from({length:12},()=>randomUUID());
  const reserve=id=>q('select public.st_reserve($1,$2,1) lease',[uid,id]);
  const a=await Promise.allSettled(ids.map(reserve)), ok=a.filter(x=>x.status==='fulfilled');assert.equal(ok.length,2);

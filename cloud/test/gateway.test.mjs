@@ -32,8 +32,8 @@ test('loopback PCM → paired Qwen events → authenticated evidence → one rev
 });
 test('Stripe signed test invoice routes to server-defined plan; no Stripe network call',async()=>{
  const env={BILLING_ENABLED:'true',PUBLIC_ORIGIN:'https://example.invalid',STRIPE_SECRET_KEY:'sk_test_fixture',STRIPE_WEBHOOK_SECRET:'fixture',STRIPE_PRICE_ID:'fixture_plan',STRIPE_PERIOD_MS:'350000'};
- const entries=[];const p=payments(env,{rpc:(...args)=>entries.push(args)});
+ const entries=[];let status='active';const p=payments(env,{rpc:(...args)=>entries.push(args)},async()=>({customer:'cus_fixture',status,items:{data:[{price:{id:'fixture_plan'}}]}}));
  const payload=JSON.stringify({id:'evt_fixture',type:'invoice.paid',livemode:false,data:{object:{id:'in_fixture',customer:'cus_fixture',status:'paid',amount_paid:100,parent:{subscription_details:{subscription:'sub_fixture'}},lines:{data:[{pricing:{price_details:{price:'fixture_plan'}},quantity:1,amount:100,period:{end:2000000000}}]}}}});
  await assert.rejects(p.webhook(Buffer.from(payload),'invalid'));assert.equal(entries.length,0);
- const sig=Stripe.webhooks.generateTestHeaderString({payload,secret:'fixture'});await p.webhook(Buffer.from(payload),sig);assert.equal(entries[0][1].p_ms,350000);
+ const sig=Stripe.webhooks.generateTestHeaderString({payload,secret:'fixture'});await p.webhook(Buffer.from(payload),sig);assert.equal(entries[0][1].p_ms,350000);status='canceled';await p.webhook(Buffer.from(payload),sig);assert.equal(entries.length,1);
 });

@@ -44,7 +44,7 @@ with tempfile.TemporaryDirectory(prefix='saytile-native-ui-') as temp:
     valid_keyboard_isolation = keyboard_checks['capture'] == len(files) + 3 and keyboard_checks['before-validation'] > 0 \
         and keyboard_checks['before-validation'] == keyboard_checks['after-validation'] == keyboard_checks['after-interaction'] \
         and keyboard_checks['before-field-edit'] == keyboard_checks['after-field-edit'] == (5 if args.controls else 0)
-    passed = passed and len(files) == (37 if args.controls else 27) and valid_geometry and valid_keyboard_isolation and log.count('UI_NATIVE_TEXT_PASS ') == 1 and log.count('UI_NATIVE_UNICODE_PASS ') == 1 and log.count('UI_NATIVE_NEAR_BOTTOM_PASS ') == 1
+    passed = passed and "settings-hosted.png" in files and len(files) == (38 if args.controls else 28) and valid_geometry and valid_keyboard_isolation and log.count('UI_NATIVE_TEXT_PASS ') == 1 and log.count('UI_NATIVE_UNICODE_PASS ') == 1 and log.count('UI_NATIVE_NEAR_BOTTOM_PASS ') == 1
     passed = passed and (args.controls or log.count('UI_SYNTHETIC_CAPTURE_STATES_PASS ') == 1)
     passed = passed and log.count('UI_VOICE_GLYPH_PASS ') == 1
     reference_files = [output / 'approved-reference' / ('reference-' + state + '.png') for state in ('paused', 'standby', 'recognizing')]

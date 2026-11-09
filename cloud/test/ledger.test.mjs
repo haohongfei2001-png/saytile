@@ -21,7 +21,7 @@ test('Postgres grants, isolation, concurrent admission, replay, unresolved cost,
  await assert.rejects(q("select public.st_grant($1,1000000,now(),'x',true)",[a]),/permission denied/);
  await pg.exec('set role service_role');
  await assert.rejects(reserve(a,id),/offline/);
- await pg.exec('update saytile.control set enabled=true,budget_micros=4000000,asr_hold=35000,review_hold=1000000');
+ await pg.exec('update saytile.control set enabled=true,user_day_micros=1000000000,budget_micros=4000000,asr_hold=35000,review_hold=1000000');
  await assert.rejects(reserve(a,id),/no_entitlement/);
  for(let i=0;i<2;i++)await q("select public.st_grant($1,105000,now()+interval '1 day','first',true)",[a]);
  const [{l}]=await reserve(a,id);
@@ -30,6 +30,9 @@ test('Postgres grants, isolation, concurrent admission, replay, unresolved cost,
  await assert.rejects(q('select public.st_review($1,$2,1)',[b,l]),/no_entitlement/);
  await q('select public.st_review($1,$2,1)',[a,l]);await assert.rejects(q('select public.st_review($1,$2,1)',[a,l]),/already_admitted/);
  await assert.rejects(q("select public.st_reconcile($1,'1',0,'bill1')",[l]),/in_progress/);
+ await pg.exec('update saytile.control set user_day_micros=1500000');
+ await assert.rejects(q('select public.st_review($1,$2,2)',[a,l]),/quota/);
+ await pg.exec('update saytile.control set user_day_micros=10000000');
  await q("select public.st_settle($1,'1',NULL,NULL,NULL)",[l]);
  assert.equal(Number((await q('select committed_micros n from saytile.control'))[0].n),1070000);
  await q("select public.st_reconcile($1,'1',100,'bill1')",[l]);

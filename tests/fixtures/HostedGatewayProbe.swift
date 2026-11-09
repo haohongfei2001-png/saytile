@@ -3,6 +3,7 @@ import Foundation
 
 @main struct HostedGatewayProbe {
     static func main() async throws {
+        try await HostedAccountProbe.run()
         let dir = URL(fileURLWithPath:CommandLine.arguments[1])
         let origin = URL(string:"http://127.0.0.1:" + CommandLine.arguments[2])!
         let store = try SaytileStore(directory:dir.appending(path:"AudioFixture"))
