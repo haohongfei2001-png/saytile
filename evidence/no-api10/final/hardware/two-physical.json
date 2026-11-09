@@ -1,0 +1,34 @@
+{
+  "changes_system_default": false,
+  "default_input_unchanged": true,
+  "default_output_unchanged": true,
+  "external_transport": "Bluetooth",
+  "reason": "two independent physical input endpoints selected with the shipping backend",
+  "records": 0,
+  "routes": [
+    {
+      "frames": 96256,
+      "sample_rate": 48000,
+      "stage": "built-in"
+    },
+    {
+      "frames": 49152,
+      "sample_rate": 24000,
+      "stage": "external"
+    },
+    {
+      "frames": 96000,
+      "sample_rate": 48000,
+      "stage": "built-in-return"
+    }
+  ],
+  "samples_read": false,
+  "source": "5639058e6b178027861b18cc0521387487c919d5",
+  "status": "PASS",
+  "upload": false,
+  "wavs": 0,
+  "library_sha256": "e6f6e011d564de2fa108e61933eaae3738d5408874d542dad860dd951b092dbb",
+  "probe_sha256": "c8e23789dd1680e959a69e13670116ce25055bc8ff0e6a11885176564865a2a5",
+  "probe_source_sha256": "425e826f04c75d13634e5cfae0173b4a2489a86db4fc938de0fb409660093991",
+  "utc": "2026-11-09T13:06:29.410344+00:00"
+}

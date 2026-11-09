@@ -1,3 +1,7 @@
+## 物理双设备与前台复查
+
+最终源码在内置和蓝牙麦克风均空闲时完成内置 → 蓝牙 → 内置，分别收到 96,256、49,152、96,000 帧，没有保存采样或改变默认路由。独立启动的 WKWebView、NSTextView 与 TextEdit 在只读确认目标后一次绑定，全部场景通过。[双设备](../evidence/no-api10/final/hardware/two-physical.json) · [前台复查](../evidence/no-api10/final/input/settled-preflight/receipt.json)
+
 ## 隔离系统网络与冷启动焦点
 
 最终源码在专用虚拟 Mac 的实际网络路由中断后，从合成语音建立了新的录音。恢复网络后原音保留，25,259 帧通过校验。真实内核睡眠仍受限。
