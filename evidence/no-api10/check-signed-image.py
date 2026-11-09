@@ -17,7 +17,7 @@ image=next(Path('deliverables/no-api.10').glob('*.dmg'))
 expected=json.loads(Path('evidence/no-api10/final/app/identity.json').read_text())
 def file_hash(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def run(*args,check=True):
-    proc = subprocess.run(args,capture_output=True,text=True,timeout=140)
+    proc = subprocess.run(args,capture_output=True,text=True,timeout=240)
     if check and proc.returncode:
         raise RuntimeError(f'{args[0]} returned {proc.returncode}: '+(proc.stderr or proc.stdout)[-1200:])
     return proc
@@ -48,9 +48,14 @@ signed['isolated_launch']='PASS';save()
 for script,args in [
     ('research/asr/validation/fusion-quality/check-probe-isolation.py',['--app',binary,'--output',root/'cli.json']),
     ('scripts/test-connection-setup.py',['--app',app,'--output',root/'connection.json']),
-    ('scripts/test-native-ui.py',['--app',app,'--output',root/'ui'])]:
+    ('scripts/test-native-ui.py',['--app',app,'--output',root/'ui','--controls'])]:
     run('python3',script,*args)
-signed['isolated_native_controls']='PASS';save()
+controls=json.loads((root/'ui/manifest.json').read_text())
+assert controls['passed'] and controls['controls_requested'] and controls['native_ax_press']>0 and controls['native_secure_field_edits']>0
+signed.update(isolated_native_controls='PASS', native_ax_press=controls['native_ax_press'], native_menu_select=controls['native_menu_select'],
+              native_secure_field_edits=controls['native_secure_field_edits'],native_field_edits=controls['native_field_edits'],
+              keyboard_isolation_checks=controls['keyboard_isolation_checks'])
+save()
 # Evaluate a distinct downloaded-file equivalent only. The assessed copy is never launched.
 quarantined=temp/'downloaded.dmg';shutil.copyfile(image,quarantined)
 run('xattr','-w','com.apple.quarantine',f'0083;{int(time.time()):x};SaytileAcceptance;',quarantined)
