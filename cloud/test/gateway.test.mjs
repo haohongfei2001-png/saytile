@@ -9,7 +9,7 @@ import {platform,Fault} from '../lib/platform.mjs';
 import {payments} from '../lib/payments.mjs';
 test('loopback PCM → paired Qwen events → authenticated evidence → one review; snapshot/replay protected',async t=>{
  const uid=randomUUID(),other=randomUUID(),id=randomUUID(),lease=randomUUID(),candidateID=randomUUID();
- const env={HOSTED_CALLS_ENABLED:'true',QWEN_API_KEY:'fixture',OPENAI_API_KEY:'fixture',QWEN_WORKSPACE_ID:'fixture',QWEN_REGION:'cn-beijing',SUPABASE_URL:'https://fixture.supabase.co',SUPABASE_SECRET_KEY:'fixture',SUPABASE_PUBLISHABLE_KEY:'fixture'};
+ const env={HOSTED_CALLS_ENABLED:'true',QWEN_API_KEY:'fixture',OPENAI_API_KEY:'fixture',QWEN_WORKSPACE_ID:'fixture',QWEN_REGION:'cn-beijing',SUPABASE_URL:'https://fixture.supabase.co',SUPABASE_SECRET_KEY:'fixture',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fixture'};
  let used=false,reviewed=false,asrs=0,ais=0,bytes=0;const settled=[];
  const db={...platform(env),async user(h){if(h.authorization==='Bearer fixture')return uid;if(h.authorization==='Bearer other')return other;throw new Fault('login_required',401)},
  async rpc(fn,b){if(fn==='account')return {active:true,available:true};if(fn==='reserve'){if(b.p_uid!==uid||used)throw new Fault('denied',403);used=true;return lease}if(fn==='review'){if(reviewed)throw new Fault('already_admitted',403);reviewed=true}
@@ -37,4 +37,3 @@ test('Stripe signed test invoice routes to server-defined plan; no Stripe networ
  await assert.rejects(p.webhook(Buffer.from(payload),'invalid'));assert.equal(entries.length,0);
  const sig=Stripe.webhooks.generateTestHeaderString({payload,secret:'fixture'});await p.webhook(Buffer.from(payload),sig);assert.equal(entries[0][1].p_ms,350000);
 });
-

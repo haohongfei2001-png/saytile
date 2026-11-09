@@ -18,3 +18,5 @@
 
 
 2026-11-10 · Saytile Cloud: Supabase selected organization quoted USD 10/month. Free-only creation blocked. No merchant/provider calls approved.
+
+2026-11-10 · Saytile Cloud: Vercel authorization succeeded; no further CLI login needed. Secure project settings and the free-only database blocker are recorded in cloud/README.md.

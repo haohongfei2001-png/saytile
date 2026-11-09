@@ -1,0 +1,44 @@
+name: Saytile Cloud
+on:
+  pull_request:
+    paths: ['cloud/**', 'Sources/**', 'tests/fixtures/HostedGatewayProbe.swift', 'scripts/test-hosted-gateway.sh', '.github/workflows/saytile-cloud.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: saytile-cloud-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  gateway:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    services:
+      pg:
+        image: postgres:17
+        env:
+          POSTGRES_DB: saytile_cloud_test
+          POSTGRES_PASSWORD: fixture
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 2s --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --prefix cloud
+      - run: npm test --prefix cloud
+      - run: node cloud/test/postgres.mjs postgres://postgres:fixture@127.0.0.1:5432/saytile_cloud_test
+  native-gateway:
+    runs-on: macos-26
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --prefix cloud
+      - run: scripts/test-hosted-gateway.sh

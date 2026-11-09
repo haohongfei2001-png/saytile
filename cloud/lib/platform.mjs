@@ -10,7 +10,9 @@ export function platform(env) {
   const url = env.SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL;
   const publicKey = env.SUPABASE_PUBLISHABLE_KEY || env.SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const secret = env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
-  const configured = url && /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url) && publicKey && secret;
+  let safePublic=typeof publicKey==='string' && publicKey.startsWith('sb_publishable_');
+  if(!safePublic && typeof publicKey==='string'){try{safePublic=JSON.parse(Buffer.from(publicKey.split('.')[1],'base64url')).role==='anon'}catch{}}
+  const configured = safePublic && publicKey!==secret && url && /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url) && publicKey && secret;
   const request = async (path, options) => {
     if (!configured) throw new Fault('service_unconfigured',503);
     try { return await fetch(url + path, {...options, redirect:'error', signal:AbortSignal.timeout(5000)}); }
@@ -28,7 +30,7 @@ export function platform(env) {
       return user.id;
     },
     async rpc(fn,params) {
-      const response = await request('/rest/v1/rpc/st_'+fn,{method:'POST',headers:{apikey:secret,authorization:'Bearer '+secret,'content-type':'application/json'},body:JSON.stringify(params)});
+      const response = await request('/rest/v1/rpc/st_'+fn,{method:'POST',headers:{apikey:secret,...(secret.startsWith('sb_secret_')?{}:{authorization:'Bearer '+secret}),'content-type':'application/json'},body:JSON.stringify(params)});
       if (!response.ok) {
         const msg = (await response.json().catch(()=>({}))).message;
         if (['no_entitlement','quota','rate_limit','budget','already_admitted','offline'].includes(msg)) throw new Fault(msg,403);
@@ -43,7 +45,7 @@ export function platform(env) {
     },
     verify(value) {
       if (typeof value!=='string'||value.length>2048) throw new Fault('invalid_evidence');
-      const [body,sig]=value.split('.');
+      const [body,sig,extra]=value.split('.'); if(extra!==undefined)throw new Fault('invalid_evidence');
       if (!sig || !configured) throw new Fault('invalid_evidence');
       const mac=createHmac('sha256',secret).update('saytile.evidence.v1/'+body).digest();
       const provided=Buffer.from(sig,'base64url');

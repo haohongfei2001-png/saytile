@@ -10,6 +10,11 @@ async function rawBody(req,max) {
   return Buffer.concat(chunks);
 }
 const deny=(socket,code)=>{if(!socket.destroyed)socket.end('HTTP/1.1 '+code+' Rejected\r\nConnection: close\r\nContent-Length: 0\r\n\r\n');};
+function licensed(env,headers) {
+  if(env.VERCEL!=='1')return; // Production set by Vercel. Deny unknown geography, even with a valid subscription.
+  const country=headers['x-vercel-ip-country'];
+  if(!/^[A-Z]{2}$/.test(country||'')||country==='CN'||!(env.HOSTED_MARKETS||'').split(',').includes(country))throw new Fault('market_unavailable',403);
+}
 export function gateway({env=process.env,db=platform(env),openASR=qwen,ask=review,billing=payments(env,db)}={}) {
   const wsServer=new WebSocketServer({noServer:true,maxPayload:65540,perMessageDeflate:false});
   const server=http.createServer(async(req,res)=>{
@@ -21,10 +26,14 @@ export function gateway({env=process.env,db=platform(env),openASR=qwen,ask=revie
       if(req.method==='GET'&&path==='/v1/config')return send(200,db.config());
       if(req.method==='POST'&&path==='/v1/stripe') {await billing.webhook(await rawBody(req,131072),req.headers['stripe-signature']);return send(200,{ok:true})}
       const uid=await db.user(req.headers);
-      if(req.method==='GET'&&path==='/v1/account')return send(200,await db.rpc('account',{p_uid:uid}));
+      if(req.method==='GET'&&path==='/v1/account'){
+        const a=await db.rpc('account',{p_uid:uid});let available=a.available;
+        try{licensed(env,req.headers);providerConfig(env)}catch{available=false}
+        return send(200,{...a,available,billing:env.BILLING_ENABLED==='true'});
+      }
       if(req.method==='POST'&&['/v1/checkout','/v1/portal'].includes(path))return send(200,{url:await billing.link(uid,path.endsWith('portal'))});
       if(req.method==='POST'&&path==='/v1/review') {
-        const config=providerConfig(env), b=JSON.parse(await rawBody(req,40000)), p=db.verify(b.proof);
+        licensed(env,req.headers);const config=providerConfig(env), b=JSON.parse(await rawBody(req,40000)), p=db.verify(b.proof);
         if(p.uid!==uid||!uuid(p.lease)||p.until<Date.now()||typeof b.text!=='string'||Buffer.byteLength(b.text)>16384||
            digest(b.text)!==p.sha||!uuid(b.candidateID))throw new Fault('invalid_evidence',403);
         await db.rpc('review',{p_uid:uid,p_lease:p.lease,p_seq:p.seq});
@@ -51,7 +60,8 @@ export function gateway({env=process.env,db=platform(env),openASR=qwen,ask=revie
         });
       }
       if(path.pathname!=='/v1/stream'||path.search)throw new Fault('not_found',404);
-      const user=await db.user(req.headers), config=providerConfig(env);
+      if(req.method!=='GET'||req.headers['sec-websocket-version']!=='13'||!/^[-+/0-9A-Za-z]{22}==$/.test(req.headers['sec-websocket-key']||''))throw new Fault('invalid_handshake');
+      const user=await db.user(req.headers);licensed(env,req.headers);const config=providerConfig(env);
       const id=req.headers['x-saytile-recording'], epoch=Number(req.headers['x-saytile-epoch']);
       if(!uuid(id)||!Number.isSafeInteger(epoch)||epoch<0||req.headers['x-saytile-consent']!=='zh-v1')throw new Fault('invalid_session');
       lease=await db.rpc('reserve',{p_uid:user,p_recording:id,p_epoch:epoch});
@@ -78,7 +88,7 @@ function stream(ws,{db,config,id,epoch,lease,user,openASR}) {
   const deadline=setTimeout(()=>finish(1001),95000);
   let checking=false;
   const check=setInterval(async()=>{if(checking)return;checking=true;try{
-    const a=await db.rpc('account',{p_uid:user});if(!a.active||!a.available)finish(1008);
+    const ok=await db.rpc('admitted',{p_uid:user,p_lease:lease});if(!ok)finish(1008);
   } catch{finish(1011)}finally{checking=false}},5000);
   ws.on('close',()=>finish());ws.on('error',()=>finish());
   ws.on('message',(data,binary)=>{try{
@@ -90,11 +100,16 @@ function stream(ws,{db,config,id,epoch,lease,user,openASR}) {
   try {upstream=openASR(config,id,e=>{
     if(closed)return;
     const kind=e.header?.event;
+    if(kind==='task-failed')throw new Fault('provider_failed');
+    // Never forward vendor headers, diagnostic messages or arbitrary response metadata.
+    e={header:{task_id:id,event:kind},payload:kind==='result-generated'?{output:{sentence:e.payload?.output?.sentence}}:{}};
     if(kind==='task-started'&&!ready){ready=true;send({event:e});return}
     if(!ready||!['result-generated','task-finished'].includes(kind))throw new Fault('provider_failed');
     const sentence=e.payload?.output?.sentence;
     if(kind==='result-generated'&&sentence&&!sentence.heartbeat&&typeof sentence.text==='string' && Number.isInteger(sentence.sentence_id)){
-      segments.set(sentence.sentence_id,{text:sentence.text,done:sentence.sentence_end===true});
+      const prior=segments.get(sentence.sentence_id);
+      if(prior?.done && sentence.sentence_end===true && prior.text!==sentence.text)throw new Fault('conflicting_final');
+      if(!prior?.done)segments.set(sentence.sentence_id,{text:sentence.text,done:sentence.sentence_end===true});
       const stash=sentence.stash;
       if(stash&&Number.isInteger(stash.sentence_id)&&stash.sentence_id>sentence.sentence_id&&typeof stash.text==='string'&&!segments.get(stash.sentence_id)?.done)segments.set(stash.sentence_id,{text:stash.text,done:false});
     }

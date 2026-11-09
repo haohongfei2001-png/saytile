@@ -139,6 +139,7 @@ final class AppModel: ObservableObject {
     let audio: AudioController
     let input: NativeInputCoordinator
     let directory: URL
+    let hosted: HostedAccount
     private let preferences: UserDefaults
     private let connectionDependencies: AppConnectionDependencies
     private let captureDependencies: AppCaptureDependencies
@@ -265,6 +266,7 @@ final class AppModel: ObservableObject {
     init(directory: URL, preferences: UserDefaults = .standard, connectionDependencies: AppConnectionDependencies = .live,
          captureDependencies: AppCaptureDependencies = .live, copyPasteboard: NSPasteboard? = nil) throws {
         self.directory = directory
+        hosted = HostedAccount(preferences: preferences, production: preferences === UserDefaults.standard && Bundle.main.bundleIdentifier == "app.saytile.mac")
         self.preferences = preferences
         self.connectionDependencies = connectionDependencies
         self.captureDependencies = captureDependencies
@@ -290,6 +292,7 @@ final class AppModel: ObservableObject {
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
         deviceID = audio.selectedDeviceUID != nil && audio.selectedDeviceID == 0 ? UInt32.max : audio.selectedDeviceID
         initializing = false
+        hosted.bind { [weak self] route, revoke in self?.audio.selectHostedRoute(route, revoke: revoke); self?.objectWillChange.send() }
         input.onBindingInvalidated = { [weak self] in
             self?.directMode = false
             self?.targetLabel = "目标已改变，请重新绑定草稿"

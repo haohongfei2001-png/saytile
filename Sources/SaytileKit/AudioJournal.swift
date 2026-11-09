@@ -116,13 +116,14 @@ final class VoiceSegmenter {
     private var silence = 0
     private var activeFrames = 0
     private let endSilenceFrames: Int
+    private var activeMaximum = 1500
     private let maximumFrames: Int
     init(endSilenceFrames: Int = 40, maximumFrames: Int = 1_500) throws {
         guard let vad = st_vad_create() else { throw AudioFailure.message("VAD 初始化失败") }
         self.vad = vad; self.endSilenceFrames = max(1, endSilenceFrames); self.maximumFrames = max(1, maximumFrames)
     }
     deinit { st_vad_destroy(vad) }
-    func accept(_ data: Data) -> [Event] {
+    func accept(_ data: Data, nextMaximumFrames: Int? = nil) -> [Event] {
         receivedSamples += Int64(data.count / 2)
         pending.append(data); var events: [Event] = []
         while pending.count >= 640 {
@@ -133,13 +134,13 @@ final class VoiceSegmenter {
                 preRoll.append(frame); if preRoll.count > 50 { preRoll.removeFirst() }
                 if voiced && speechVotes == 0 { possibleStart = frameEnd - 320 }
                 speechVotes = voiced ? speechVotes + 1 : max(0, speechVotes - 1)
-                if speechVotes >= 3 { speaking = true; silence = 0; activeFrames = 0; events.append(.begin(preRoll, sample: possibleStart)); preRoll.removeAll(keepingCapacity: true) }
+                if speechVotes >= 3 { activeMaximum = nextMaximumFrames ?? maximumFrames; speaking = true; silence = 0; activeFrames = 0; events.append(.begin(preRoll, sample: possibleStart)); preRoll.removeAll(keepingCapacity: true) }
             } else {
                 events.append(.audio(frame)); activeFrames += 1
                 silence = voiced ? 0 : silence + 1
                 // Journal rotation is separate. Cloud sessions retain longer context;
                 // this boundary controls resource recovery, never text confirmation.
-                if silence >= endSilenceFrames || activeFrames >= maximumFrames {
+                if silence >= endSilenceFrames || activeFrames >= activeMaximum {
                     events.append(.end(sample: frameEnd - Int64(silence) * 320))
                     speaking = false; speechVotes = 0; silence = 0
                 }

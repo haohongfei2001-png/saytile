@@ -125,7 +125,7 @@ actor CaptureWorker {
     private var lastPCMEnd: Date?
     func acceptPCM(_ pcm: Data, endingAt time: Date = .now) async throws {
         lastPCMEnd = time
-        for event in segmenter.accept(pcm) {
+        for event in segmenter.accept(pcm, nextMaximumFrames: recognitionFactory.isHosted ? 1500 : nil) {
             switch event {
             case let .begin(preRoll, sample):
                 try await beginUtterance(at: time.addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000))
@@ -164,7 +164,7 @@ actor CaptureWorker {
         do {
             guard recognitionEnabled else { return }
             let config = snapshot.configuration
-            if config.cloudEnabled {
+            if config.cloudEnabled && !snapshot.isHosted {
                 try await store.authorizeCloudRecovery(recordingID: record.id, configuration: config)
             }
             let ticket = try await (config.cloudEnabled
@@ -401,6 +401,10 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     }
     private var recognitionSettingsGeneration: UInt64 = 0
     /// Revoke future cloud sessions synchronously, before awaiting cancellation of old work.
+    public func selectHostedRoute(_ route: HostedRoute, revoke: Bool = false) {
+        recognitionFactory.select(route, revoke: revoke)
+    }
+
     public func revokeCloudRecognition() {
         recognitionSettingsGeneration &+= 1
         var local = recognitionFactory.configuration; local.cloudEnabled = false
@@ -700,7 +704,8 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         guard !isShuttingDown else { return }
         // Capture the explicit action's destinations before any suspension. An
         // automatic job can only reuse persisted per-recording authorization.
-        let currentSnapshot = recognitionFactory.snapshot
+        let captured = recognitionFactory.snapshot
+        let currentSnapshot = captured.isHosted ? captured.localOnly : captured
         // The UI captures its applied configuration at the click. A queued task
         // cannot silently acquire different cloud destinations before it starts.
         let requestedSnapshot = expectedConfiguration == nil || expectedConfiguration == currentSnapshot.appliedConfiguration

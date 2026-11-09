@@ -318,8 +318,8 @@ struct RecordDetailView: View {
             }
             HStack {
                 Button(model.playingID == item.id ? "停止" : "回听") { model.play(item) }.disabled(!item.hasAudio)
-                Button(model.appliedRecognitionConfiguration.cloudEnabled ? "用云端重新识别" : "本机重新识别") { model.retry(item) }
-                    .help(model.appliedRecognitionConfiguration.cloudEnabled ? "仅将这段原音交给当前已授权的服务重新识别" : "仅在这台 Mac 上处理这段原音")
+                Button(!model.hosted.selected && model.appliedRecognitionConfiguration.cloudEnabled ? "用云端重新识别" : "本机重新识别") { model.retry(item) }
+                    .help(!model.hosted.selected && model.appliedRecognitionConfiguration.cloudEnabled ? "仅将这段原音交给当前已授权的服务重新识别" : "仅在这台 Mac 上处理这段原音")
                     .disabled(!item.hasAudio || item.isRecording)
                 Button("复制") { model.copy(model.editorDraft) }
             }.buttonStyle(QuietButton())
@@ -358,7 +358,8 @@ struct SettingsView: View {
             HStack { VoiceMark(size: 30); VStack(alignment: .leading) { Text("Saytile").font(.system(size: 23, weight: .semibold)); Text("自然开口，随时取用。 · " + (Bundle.main.object(forInfoDictionaryKey: "SaytileReleaseVersion") as? String ?? "V1 开发版本")).font(.system(size: 11)).foregroundStyle(Palette.muted) } }
             if let notice = model.notice { Text(notice).font(.system(size: 12)).foregroundStyle(Palette.amber).textSelection(.enabled) }
             Form {
-                RecognitionSettingsSection(model: model)
+                HostedSettingsSection(account: model.hosted)
+                if !model.hosted.selected { RecognitionSettingsSection(model: model) }
                 Section("收音与识别") {
                     LabeledContent("当前状态", value: model.captureLabel)
                     if let detail = model.panelCaptureDetail {
@@ -369,7 +370,7 @@ struct SettingsView: View {
                     Picker("输入设备", selection: $model.deviceID) { ForEach(model.devices) { device in Text(device.name).tag(device.id) } }
                     Text("开启后持续接收讲话；关闭输入板不会停止收音。设备断开、休眠和用户会话切换会明确暂停。")
                         .font(.system(size: 11)).foregroundStyle(Palette.muted)
-                    LabeledContent("识别语言", value: model.appliedRecognitionConfiguration.cloudEnabled ? "中文 / English · 自动处理混说" : "普通话 · 本机备用")
+                    LabeledContent("识别语言", value: model.hosted.selected ? "中文 · 托管或本机备用" : model.appliedRecognitionConfiguration.cloudEnabled ? "中文 / English · 自动处理混说" : "普通话 · 本机备用")
                     LabeledContent("识别引擎", value: model.engineLabel)
                     Button("准备中文识别资源", action: model.prepareSpeech)
                     Button(model.captureActionLabel, action: model.toggleCapture)

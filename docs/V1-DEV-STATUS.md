@@ -18,3 +18,5 @@
 
 
 2026-11-10 · Saytile Cloud: Independent cloud candidate: gateway and transactions implemented; native integration follows.
+
+2026-11-10 · Saytile Cloud: Native source selector, Keychain account, per-utterance frozen transport, hosted review and local-only history recovery implemented. Vercel project deployed; Supabase remote still not provisioned.

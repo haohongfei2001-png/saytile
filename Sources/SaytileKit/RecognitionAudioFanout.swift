@@ -67,6 +67,8 @@ final class RecognitionSessionCompletion: @unchecked Sendable {
 /// an older accepted job or stopping capture.
 final class RecognitionSessionFactory: @unchecked Sendable {
     struct Snapshot: Sendable {
+        let route: HostedRoute
+        var isHosted: Bool { route != .byok }
         let configuration: RecognitionConfiguration
         let appliedConfiguration: RecognitionConfiguration
         fileprivate let epoch: RecognitionFailoverEpoch
@@ -75,10 +77,11 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         var localOnly: Self {
             var restricted = configuration
             restricted.cloudEnabled = false
-            return Self(configuration: restricted, appliedConfiguration: appliedConfiguration, epoch: epoch, generation: generation)
+            return Self(route: route, configuration: restricted, appliedConfiguration: appliedConfiguration, epoch: epoch, generation: generation)
         }
     }
     private let lock = NSLock()
+    private var route = HostedRoute.byok
     private var checkedStreamingID: UUID?
     private var value: RecognitionConfiguration
     private var generation: UInt64 = 0
@@ -92,14 +95,30 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         epoch = RecognitionFailoverEpoch(now: local.now)
     }
     private func recordingSnapshot() -> Snapshot {
+        if route != .byok {
+            var config = HostedTransport.configuration
+            if case .connected(let access) = route, access.expiry > Date() {} else { config.cloudEnabled = false }
+            return Snapshot(route:route,configuration:config,appliedConfiguration:value,epoch:epoch,generation:generation)
+        }
         var frozen = value
         frozen.languagePreference = value.resolvedLanguage
         if checkedStreamingID == nil || frozen.selectedASRModel?.id != checkedStreamingID { frozen.cloudEnabled = false }
-        return Snapshot(configuration: frozen, appliedConfiguration: value, epoch: epoch, generation: generation)
+        return Snapshot(route:route,configuration: frozen, appliedConfiguration: value, epoch: epoch, generation: generation)
     }
     var snapshot: Snapshot { lock.withLock { recordingSnapshot() } }
     var configuration: RecognitionConfiguration { lock.withLock { value } }
-    var usesCloud: Bool { configuration.cloudEnabled }
+    var usesCloud: Bool { snapshot.configuration.cloudEnabled }
+    var isHosted: Bool { lock.withLock { route != .byok } }
+    func select(_ new: HostedRoute, revoke: Bool) {
+        lock.withLock {
+            guard new != route || revoke else { return }
+            retired.removeAll { $0.epoch == nil }
+            if revoke {
+                epoch.invalidate(); retired.forEach { $0.epoch?.invalidate() }; retired.removeAll(); generation &+= 1
+            } else { retired.append(Retired(epoch)) }
+            route = new; epoch = RecognitionFailoverEpoch(now:local.now)
+        }
+    }
     func localAvailability() async -> SpeechAvailability { await local.availability() }
     private final class Retired {
         weak var epoch: RecognitionFailoverEpoch?
@@ -137,8 +156,10 @@ final class RecognitionSessionFactory: @unchecked Sendable {
             guard active < 8 else { return DeferredRecognitionSession(store: store, ticket: ticket) }
             active += 1
             let (cloud, probe) = accepted.epoch.admitCloud()
+            var transport = dependencies
+            if case .connected(let access) = accepted.route { transport = HostedTransport(access,ticket).dependencies }
             return FailoverRecognitionSession(store: store, ticket: ticket, configuration: config,
-                dependencies: dependencies, local: local, epoch: accepted.epoch, cloud: cloud, probe: probe) { [weak self] in
+                dependencies: transport, local: local, epoch: accepted.epoch, cloud: cloud, probe: probe) { [weak self] in
                 self?.lock.withLock { self?.active -= 1 }
             }
         }

@@ -28,4 +28,11 @@ begin
 end $$;
 revoke all on function public.st_reconcile(uuid,text,bigint,text),public.st_billing_hold(text,text),public.st_revoke_subscription(text,text,text) from public,anon,authenticated;
 grant execute on function public.st_reconcile(uuid,text,bigint,text),public.st_billing_hold(text,text),public.st_revoke_subscription(text,text,text) to service_role;
+create function public.st_admitted(p_uid uuid,p_lease uuid) returns boolean language sql stable security invoker set search_path='' as $$
+ select exists(select from saytile.sessions s join saytile.accounts a using(uid) cross join saytile.control c
+ where s.lease=p_lease and s.uid=p_uid and not s.ended and s.expires>now() and a.active and a.valid_until>now() and not a.billing_hold
+ and a.grant_generation=s.grant_generation and c.enabled)
+$$;
+revoke all on function public.st_admitted(uuid,uuid) from public,anon,authenticated;
+grant execute on function public.st_admitted(uuid,uuid) to service_role;
 commit;

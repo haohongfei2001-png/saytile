@@ -24,7 +24,7 @@ export function payments(env,db) {
       if(!env.STRIPE_WEBHOOK_SECRET)throw new Fault('billing_unavailable',503);
       let event;
       try {event=stripe.webhooks.constructEvent(raw,signature,env.STRIPE_WEBHOOK_SECRET)}catch{throw new Fault('invalid_signature',401)}
-      if(event.livemode !== env.STRIPE_SECRET_KEY.startsWith('sk_live_'))throw new Fault('billing_environment');
+      if(event.livemode !== /^(sk|rk)_live_/.test(env.STRIPE_SECRET_KEY))throw new Fault('billing_environment');
       const obj=event.data.object;
       if(event.type==='invoice.paid') {
         const sub=obj.parent?.subscription_details?.subscription;
