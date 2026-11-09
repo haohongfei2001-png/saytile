@@ -37,28 +37,33 @@ verify_signature(image,team[1])
 binary=app/'Contents/MacOS/Saytile';info=plistlib.loads((app/'Contents/Info.plist').read_bytes())
 assert info['SaytileSourceRevision']==expected['source'] and info['SaytileSourceDirty'] is False
 assert file_hash(binary)==expected['binary_sha256']
-ent=run('codesign','-d','--entitlements','-',app)
-assert plistlib.loads(ent.stdout.encode())=={'com.apple.security.device.audio-input':True}
+# The shared verifier already requires the exact entitlement plist and Hardened Runtime.
 signed=dict(source=info['SaytileSourceRevision'],dmg_sha256=file_hash(image),binary_sha256=file_hash(binary),
             signature='Developer ID Application',audio_input_entitlement=True)
+def save():
+    (root/'signed-installation.json').write_text(json.dumps(signed,indent=2)+'\n')
+save()
 assert 'SAYTILE_SMOKE_OK' in run(binary,'--data-directory',temp/'smoke','--smoke-test').stdout
-signed['isolated_launch']='PASS'
+signed['isolated_launch']='PASS';save()
 for script,args in [
     ('research/asr/validation/fusion-quality/check-probe-isolation.py',['--app',binary,'--output',root/'cli.json']),
     ('scripts/test-connection-setup.py',['--app',app,'--output',root/'connection.json']),
     ('scripts/test-native-ui.py',['--app',app,'--output',root/'ui'])]:
     run('python3',script,*args)
-signed['isolated_native_controls']='PASS'
+signed['isolated_native_controls']='PASS';save()
 # Evaluate a distinct downloaded-file equivalent only. The assessed copy is never launched.
 quarantined=temp/'downloaded.dmg';shutil.copyfile(image,quarantined)
 run('xattr','-w','com.apple.quarantine',f'0083;{int(time.time()):x};SaytileAcceptance;',quarantined)
 assert file_hash(quarantined)==signed['dmg_sha256']
 dmg_assessment=run('spctl','--assess','--type','open','--context','context:primary-signature','--verbose=4',quarantined,check=False)
-attach(quarantined)
+attached = run('hdiutil','attach','-readonly','-nobrowse','-noautoopen','-mountpoint',mount,quarantined,check=False)
+signed['downloaded_image_mount_exit'] = attached.returncode
 try:
-    a=run('spctl','--assess','--type','execute','--verbose=4',mount/'Saytile.app',check=False)
+    target = mount/'Saytile.app' if attached.returncode==0 else app
+    a=run('spctl','--assess','--type','execute','--verbose=4',target,check=False)
     signed.update(dmg_gatekeeper_exit=dmg_assessment.returncode,app_gatekeeper_exit=a.returncode,
                   app_unnotarized='Unnotarized Developer ID' in (a.stdout+a.stderr),
-                  public_distribution='PASS' if a.returncode==0 and dmg_assessment.returncode==0 else 'BLOCKED')
-finally:run('hdiutil','detach',mount)
-(root/'signed-installation.json').write_text(json.dumps(signed,indent=2)+'\n')
+                  public_distribution='PASS' if a.returncode==0 and dmg_assessment.returncode==0 and attached.returncode==0 else 'BLOCKED')
+finally:
+    if attached.returncode==0:run('hdiutil','detach',mount)
+save()
