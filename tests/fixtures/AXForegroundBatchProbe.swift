@@ -150,8 +150,10 @@ private func immediateAbort(_ message: String) -> Never {
             let binding = try await input.bindCurrentTarget()
             let record = try await store.createRecording()
             let ticket = try await store.beginFusionRecognition(recordingID: record.id)
-            let run = try await store.beginModelRun(ticket: ticket, configuration: .init(
-                purpose: .chineseASR, provider: .qwenMessage, model: "owned-fixture-no-network"))
+            let asr = ModelConfiguration(purpose: .chineseASR, provider: .qwenMessage, model: "owned-fixture-no-network")
+            let reviewer = ModelConfiguration(purpose: .textFusion, provider: .openAIResponses, model: "fixture-text-review")
+            try await store.configureFusionRequirements(ticket: ticket, configurations: [asr, reviewer])
+            let run = try await store.beginModelRun(ticket: ticket, configuration: asr)
             func publish(_ text: String, sequence: Int64) async throws -> FusionPublication {
                 let c = RecognitionCandidate(run: run, sequence: sequence, text: text,
                     stableUTF16Length: text.utf16.count, audioEndSeconds: 1, isComplete: true)

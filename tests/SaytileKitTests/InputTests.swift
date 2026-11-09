@@ -286,6 +286,10 @@ struct InputCoordinatorTests {
         #expect(result == (scenario == "own-edit" ? .confirmed : .unverified))
         #expect((input.binding != nil) == (scenario == "own-edit"))
         #expect(access.attempts == ["你好😀"])
+        if scenario == "own-edit" {
+            access.onChange?(.contentOrSelection)
+            #expect(input.binding == nil) // after return a new edit/undo notification expires ownership
+        }
     }
     @Test func unobservableWebOnlyAllowsExplicitManualInsertion() async throws {
         let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }

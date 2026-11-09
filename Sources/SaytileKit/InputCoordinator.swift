@@ -132,6 +132,7 @@ public final class NativeInputCoordinator {
         var witness: String
     }
     private var owned: Ownership?
+    private var observedEditSequence: UInt64 = 0
     private var canObserveOwnership = false
     private var inFlightCorrection: (before: InputTargetSnapshot, selected: InputTargetSnapshot,
                                      after: InputTargetSnapshot, oldText: String, newText: String)?
@@ -194,6 +195,7 @@ public final class NativeInputCoordinator {
             switch change {
             case .focusOrDocument: self.invalidate()
             case .contentOrSelection:
+                self.observedEditSequence &+= 1
                 if let pending = self.inFlightCorrection, let current = try? self.access.snapshot(),
                    let witness = self.access.textWitness(at: current),
                    ((current == pending.selected && witness.utf8.elementsEqual(pending.oldText.utf8)) ||
@@ -236,6 +238,20 @@ public final class NativeInputCoordinator {
         var expected = pending.target
         expected.selectionLocation += pending.text.utf16.count
         return current == expected && field.utf8.elementsEqual(expectedField.utf8)
+    }
+
+    /// Wait for pending notifications of this one write, while the binding can still
+    /// be revoked. After returning, even an edit followed by Undo expires ownership.
+    private func settledWrite(at target: InputTargetSnapshot, witness: String, generation expectedGeneration: Int) async -> Bool {
+        for _ in 0..<4 {
+            let sequence = observedEditSequence
+            do { try await Task.sleep(for: .milliseconds(220)) } catch { return false }
+            guard generation == expectedGeneration,
+                  (try? access.snapshot()) == target,
+                  access.textWitness(at: target)?.utf8.elementsEqual(witness.utf8) == true else { return false }
+            if observedEditSequence == sequence { return true }
+        }
+        return false
     }
 
     public func invalidate() {
@@ -345,6 +361,9 @@ public final class NativeInputCoordinator {
                     if let after = access.verify(reservation.text, at: target),
                        !needsFullReadback || expectedField.map({ access.textWitness(at: after)?.utf8.elementsEqual($0.utf8) == true }) == true,
                        startGeneration == generation {
+                        if needsFullReadback {
+                            guard let expectedField, await settledWrite(at: after, witness: expectedField, generation: startGeneration) else { break }
+                        }
                         self.target = after
                         let tail = String(reservation.text.suffix(32))
                         confirmedTail = (tail, target.selectionLocation + reservation.text.utf16.count - tail.utf16.count)
@@ -447,6 +466,7 @@ public final class NativeInputCoordinator {
                 guard startGeneration == generation else { break }
                 if let current = try? access.snapshot(), current == after,
                    let witness = access.textWitness(at: current), witness.utf8.elementsEqual(replacementWitness.utf8) {
+                    if current.isWeb, !(await settledWrite(at: after, witness: replacementWitness, generation: startGeneration)) { break }
                     try await store.completeOwnedCorrection(op, confirmed: true)
                     guard startGeneration == generation else { return .correctionPending }
                     self.target = after

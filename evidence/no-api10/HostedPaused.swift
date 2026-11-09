@@ -11,7 +11,7 @@ import Darwin
         await controller.pause()
         let center = NSWorkspace.shared.notificationCenter
         let file = root.appendingPathComponent("power-events.jsonl")
-        @MainActor @Sendable func record(_ name: String) {
+        let record: @MainActor @Sendable (String) -> Void = { name in
             func kernel(_ key: String) -> Double {
                 var stamp = timeval(), size = MemoryLayout<timeval>.size
                 guard sysctlbyname(key, &stamp, &size, nil, 0) == 0 else { return -1 }
