@@ -100,6 +100,17 @@ extension AppDelegate {
             }
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 740), name: "settings", output: output)
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 560, height: 570), name: "settings-compact", output: output)
+            model.hosted.select(true)
+            try await reviewWindow(SettingsView(model: model), size: CGSize(width:650,height:740), name:"settings-hosted", output:output) { host in
+                guard model.hosted.selected, !model.hosted.consent, !model.hosted.signedIn else {throw ReviewFailure("unexpected hosted consent")}
+                if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil {
+                    try await self.press("hosted.upload-consent", in:host)
+                    try await self.reviewUntil { model.hosted.consent }
+                    try await self.press("hosted.upload-consent", in:host)
+                    try await self.reviewUntil { !model.hosted.consent }
+                }
+            }
+            model.hosted.select(false)
             try await reviewWindow(Form { RecognitionSettingsSection(model: model) }.formStyle(.grouped), size: CGSize(width: 650, height: 840), name: "ai-controls", output: output) { host in
                 guard !model.connectionVerified, !model.recognitionConfiguration.cloudEnabled else {
                     throw ReviewFailure("unconfigured cloud connection was enabled")
@@ -169,7 +180,7 @@ extension AppDelegate {
             try FileManager.default.createDirectory(at: referenceOutput, withIntermediateDirectories: true)
             try await reviewApprovedReference(output: referenceOutput)
             if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil { print("UI_CONTROLS_NOT_RUN remote AX helper not configured; rendering only") }
-            let captures = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil ? 27 : 37
+            let captures = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil ? 28 : 38
             print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; \(captures) standard captures plus 3 approved-reference captures; synthetic data; no activation/microphone")
             return true
         } catch { print("UI_REVIEW_FAILED \(error.localizedDescription)"); return false }

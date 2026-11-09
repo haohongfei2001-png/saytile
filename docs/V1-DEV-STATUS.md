@@ -15,3 +15,18 @@
 - 修正原生设置诊断替身对未选模型的凭据要求。实际安全字段、菜单、成功、失败和取消路径已在签名 App 上核验。真实云端保持 NOT_RUN。
 
 [最终交付](V1-NO-API-DELIVERY.md) · [业务源码](../Sources) · [逐项机器收据](../evidence/no-api10/final/)
+
+
+2026-11-10 · Saytile Cloud: Independent cloud candidate: gateway and transactions implemented; native integration follows.
+
+2026-11-10 · Saytile Cloud: Native source selector, Keychain account, per-utterance frozen transport, hosted review and local-only history recovery implemented. Vercel project deployed; Supabase remote still not provisioned.
+
+2026-11-10 · Commercial candidate: active-subscription recheck on delayed invoices, per-account rolling cost cap, two concurrent GPT requests and a local logout fence. Dedicated signed candidate to follow.
+
+2026-11-10 · Fixed a real Supabase PostgREST safe-update rejection affecting paid audio admission and a missing accessibility identifier on hosted upload consent. Private candidate .2 supersedes .1.
+
+2026-11-10 · Public WebSocket stream returned 404 on a named wildcard rewrite. Use literal v1 routes to preserve the query-free admission contract; local auth, quota and consent logic is unchanged.
+
+2026-11-10 · Gateway now revalidates both the original identity and the lease every five seconds. An already open stream cannot continue using a logged-out user token.
+
+2026-11-10 · Final independent candidate source, signed private DMG, public fail-closed gateway, original design/settings screenshot and public release blockers are collected in docs/SAYTILE-CLOUD-DELIVERY.md.

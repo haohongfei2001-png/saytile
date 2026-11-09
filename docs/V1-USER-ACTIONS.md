@@ -15,3 +15,18 @@
 - **真实质量验收**使用得到授权的既有人声音频。服务接通后再测识别误差和确认延迟。
 
 [原生接入步骤与调用上限](V1-RC2-CONNECTION-SETUP.md) · [机器验收](V1-NO-API-DELIVERY.md)
+
+
+2026-11-10 · Saytile Cloud: Supabase selected organization quoted USD 10/month. Free-only creation blocked. No merchant/provider calls approved.
+
+2026-11-10 · Saytile Cloud: Vercel authorization succeeded; no further CLI login needed. Secure project settings and the free-only database blocker are recorded in cloud/README.md.
+
+2026-11-10 · No customer action for the ongoing isolated authentication, packaging and upgrade rehearsals.
+
+2026-11-10 · No customer testing or real audio needed for these fixes; the free hosted database allocation remains the external prerequisite.
+
+2026-11-10 · Vercel ingress and native consent retests are handled by engineering. No approval needed.
+
+2026-11-10 · No changes to user actions. Gateway can remain live with model calls disabled while waiting for free Supabase capacity.
+
+2026-11-10 · No engineering test or recording required from the user. Approved organization must have a zero-increment independent slot before remote Supabase creation. Then owner enters secrets once in the named Vercel project and approves a bounded real usage test. Merchant and notarization authorizations are separate release gates.

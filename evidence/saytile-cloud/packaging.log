@@ -1,0 +1,62 @@
+Building for production...
+[2 / 56]
+[30 / 57] CAudio
+[52 / 57] CAudio
+<checkout>/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+<checkout>/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+[55 / 59] SaytileKit
+<checkout>/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[61 / 64] Saytile-product
+<checkout>/Sources/SaytileApp/AppModel.swift:505:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 497 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+ 498 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+ 499 |         connectionCheckTask = Task {
+     |                                    |- note: 'self' implicitly strongly captured here
+     |                                    `- note: add 'self' as a capture list item to silence
+ 500 |             // A cancelled older check must fully close its sockets before another starts.
+ 501 |             await previous?.value
+     :
+ 503 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+ 504 |             do {
+ 505 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#Implic[62 / 65] Saytile-product
+itStrongCapture]
+     |                                                                                         `- note: explicitly assign the capture list item to silence
+ 506 |                     Task { @MainActor [weak self] in
+ 507 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+<checkout>/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+<checkout>/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[64 / 65] Saytile-product
+[65 / 65] Saytile-product
+Build complete! (26.69秒)
+/tmp/saytile-bundle.44Kfpg/Saytile.app: replacing existing signature
+/tmp/saytile-bundle.44Kfpg/Saytile.app/Contents/Info.plist: OK
+Built /tmp/saytile-rc2-integration.70TK68/volume/Saytile.app
+/tmp/saytile-rc2-integration.70TK68/volume/Saytile.app: replacing existing signature
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $B5730C98
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $2F0F595E
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $A7A35712
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $8B84B687
+正在检查“（Apple_Free：5）”的校验和…
+                      （Apple_Free：5）：已验证CRC32 $00000000
+正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $A7A35712
+正在检查“GPT Header（Backup GPT Header：7）”的校验和…
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $DD86BC14
+已验证CRC32 $DF6F62E8
+hdiutil: verify: checksum of "/tmp/saytile-rc2-integration.70TK68/integration.dmg" is VALID
+dcb9d9b93241653ce192eaeb57662e8f14fd6b3cc11deac9e42389bab6978ed1  <checkout>/dist/Saytile-1.0.0-rc.2-cloud.integration.2-arm64.dmg
