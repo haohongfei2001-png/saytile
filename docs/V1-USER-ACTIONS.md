@@ -15,3 +15,6 @@
 - **真实质量验收**使用得到授权的既有人声音频。服务接通后再测识别误差和确认延迟。
 
 [原生接入步骤与调用上限](V1-RC2-CONNECTION-SETUP.md) · [机器验收](V1-NO-API-DELIVERY.md)
+
+
+2026-11-10 · Saytile Cloud: Supabase selected organization quoted USD 10/month. Free-only creation blocked. No merchant/provider calls approved.

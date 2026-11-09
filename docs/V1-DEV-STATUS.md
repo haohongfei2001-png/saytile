@@ -15,3 +15,6 @@
 - 修正原生设置诊断替身对未选模型的凭据要求。实际安全字段、菜单、成功、失败和取消路径已在签名 App 上核验。真实云端保持 NOT_RUN。
 
 [最终交付](V1-NO-API-DELIVERY.md) · [业务源码](../Sources) · [逐项机器收据](../evidence/no-api10/final/)
+
+
+2026-11-10 · Saytile Cloud: Independent cloud candidate: gateway and transactions implemented; native integration follows.

@@ -1,0 +1,20 @@
+{
+  "name": "saytile-cloud",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "start": "node local.mjs"
+  },
+  "dependencies": {
+    "ws": "8.22.2",
+    "stripe": "23.1.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.16"
+  }
+}
