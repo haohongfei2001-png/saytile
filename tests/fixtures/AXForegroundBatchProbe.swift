@@ -169,6 +169,41 @@ private func immediateAbort(_ message: String) -> Never {
         }
     }
 
+    @MainActor private static func nativeBoundaries(access: AXInputAccess, safety: ForegroundSafety, pid: pid_t) async throws {
+        for scenario in ["ignored-write", "other-window"] {
+            _ = try command("native", "restore")
+            try await Task.sleep(for: .milliseconds(180))
+            try safety.check(pid)
+            let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-foreground-fence-" + UUID().uuidString)
+            defer { try? FileManager.default.removeItem(at: directory) }
+            let store = try SaytileStore(directory: directory)
+            let coordinator = NativeInputCoordinator(store: store, access: access)
+            try await coordinator.bindCurrentTarget()
+            let initial = try access.snapshot()
+            let record = try await store.createRecording()
+            let rev = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+            let before = try command("native", "state")
+            _ = try command("native", scenario == "other-window" ? "otherWindow" : "ignoreNextWrite")
+            if scenario == "other-window" {
+                try await Task.sleep(for: .milliseconds(200))
+                guard try access.snapshot().windowID != initial.windowID else { throw BatchFailure(message: "owned window did not change") }
+            }
+            func attempt() async -> NativeInputResult {
+                await coordinator.insertStable(recordingID: record.id, revisionID: rev.id,
+                    stableUTF16End: rev.text.utf16.count, recordingStartedAt: record.createdAt)
+            }
+            let first = await attempt(), second = await attempt()
+            let after = try command("native", "state")
+            let delta = (after["selectedTextWrites"] as? Int ?? -100) - (before["selectedTextWrites"] as? Int ?? 100)
+            let ignored = scenario == "ignored-write"
+            guard first != .confirmed, (first == .unverified) == ignored, second != .confirmed, second != .unverified,
+                  delta == (ignored ? 1 : 0), after["text"] as? String == "PREFIX|SUFFIX", after["sends"] as? Int == 0,
+                  ignored || after["otherIntact"] as? Bool == true else { throw BatchFailure(message: "native " + scenario + " safety failed") }
+            coordinator.invalidate(); try await store.close()
+            print("PASS foreground native " + scenario + " no replay, no wrong window, zero sends")
+        }
+    }
+
     @MainActor static func main() async {
         NSApplication.shared.setActivationPolicy(.prohibited)
         guard CommandLine.arguments.count == 4, CommandLine.arguments[1] == "--allow-foreground",
@@ -232,10 +267,20 @@ private func immediateAbort(_ message: String) -> Never {
                 }
                 print("FOREGROUND_STAGE target=\(kind) snapshot_complete can_set=\(snapshot.canSetSelectedText)"); fflush(nil)
                 guard snapshot.canSetSelectedText else { throw BatchFailure(message: "NOT_RUN fixture requires clipboard fallback; clipboard untouched") }
+                // The fixture has just activated and moved focus via WindowServer.
+                // Let notifications from that setup drain before the user's binding action.
+                try await Task.sleep(for: .milliseconds(450))
+                let preflight = try access.snapshot()
+                let ownedSelection = try guardrail.selectFixture(pid)
+                var number: CFTypeRef?, initialText: CFTypeRef?
+                let countStatus = AXUIElementCopyAttributeValue(ownedSelection.element, kAXNumberOfCharactersAttribute as CFString, &number)
+                let valueStatus = AXUIElementCopyAttributeValue(ownedSelection.element, kAXValueAttribute as CFString, &initialText)
+                print("OWNED_WITNESS", kind, "count", countStatus.rawValue, number as? Int ?? -1, "valueMatches", valueStatus.rawValue, initialText as? String == "PREFIX|SUFFIX", "rangeMatches", access.textWitness(at: preflight) == "PREFIX|SUFFIX")
                 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-foreground-store-" + UUID().uuidString)
                 defer { try? FileManager.default.removeItem(at: directory) }
                 let store = try SaytileStore(directory: directory)
                 let input = NativeInputCoordinator(store: store, access: access)
+                input.onBindingInvalidated = { print("OWNED_BINDING_INVALIDATED", kind, ProcessInfo.processInfo.systemUptime); fflush(nil) }
                 try await input.bindCurrentTarget()
                 let recording = try await store.createRecording()
                 let revision = try await store.saveEdit(recordingID: recording.id, text: "你好😀")
@@ -245,6 +290,8 @@ private func immediateAbort(_ message: String) -> Never {
                 print("FOREGROUND_INSERT kind=\(kind) result=\(first)"); fflush(nil)
                 try guardrail.check(pid)
                 let state = try command(kind, "state")
+                let observed = try? access.snapshot()
+                print("OWNED_FIRST_STATE", kind, state["text"] as? String ?? "unavailable", "utf16", state["utf16Length"] as? Int ?? -1, "caret", observed?.selectionLocation ?? -1, "range", observed?.selectionLength ?? -1, "attempts", state["selectedTextWrites"] as? Int ?? -1, "bound", input.binding != nil)
                 expect(first == .confirmed && state["text"] as? String == "PREFIX|你好😀SUFFIX", kind + " real foreground insertion and local confirmation")
                 if first == .confirmed {
                     let duplicate = await input.insertStable(recordingID: recording.id, revisionID: revision.id, stableUTF16End: revision.text.utf16.count, recordingStartedAt: recording.createdAt)
@@ -266,6 +313,7 @@ private func immediateAbort(_ message: String) -> Never {
                 expect(after["sends"] as? Int == 0, kind + " no Return or send")
                 input.invalidate(); try await store.close()
                 if kind == "web", first == .confirmed { try await webRepairs(access: access, safety: guardrail, pid: pid) }
+                if kind == "native", first == .confirmed { try await nativeBoundaries(access: access, safety: guardrail, pid: pid) }
                 try guardrail.check(pid)
             }
             let restored = await guardrail.restoreIfSafe()

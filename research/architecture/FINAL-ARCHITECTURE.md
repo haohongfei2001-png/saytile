@@ -18,7 +18,7 @@ Apple SpeechAnalyzer = offline / network-failure fallback, never a parallel clou
 
 ## LanguageProfile 与 Registry
 
-用户语言偏好只有 Auto、中文、English、中英混说。显式偏好优先；Auto 使用近期 ASR 语言观察与 macOS locale 先验。近期中英使用均明显时选混说模型；语言无法可靠判断且没有已验证的多语言模型时，使用 Apple 本地识别/保留原音，不并发启动多个云模型。当前候选映射：中文 Qwen Audio 3.1 Message、英文 AssemblyAI Universal-3.6 Pro、中英混说 Soniox STT v6。它们不是质量冠军，须由冻结 24 条真实对照确定。
+用户语言偏好只有 Auto、中文、English、中英混说。显式偏好优先；Auto 使用近期真实识别的语言观察。系统界面语言不决定录音语言。近期中英使用均明显时选混说模型；语言无法可靠判断且没有已验证的多语言模型时，使用 Apple 本地识别/保留原音，不并发启动多个云模型。当前候选映射：中文 Qwen Audio 3.1 Message、英文 AssemblyAI Universal-3.6 Pro、中英混说 Soniox STT v6。它们不是质量冠军，须由冻结 24 条真实对照确定。
 
 录音启动时将选中的 provider/model/configurationID 固定到该 generation；语言记录只用于下一段。配置及 Keychain UUID 保留，不静默替换 Key、模型或授权。未连接某语言服务时不得借用另一语言模型冒充适配；回退 Apple 或明确不可用。
 

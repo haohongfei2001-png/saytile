@@ -165,6 +165,8 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
     public var inputMode: InputQualityMode = .highestQuality
     public var models: [ModelConfiguration] = []
     public var languagePreference: LanguagePreference? = .auto
+    /// Populated from a successful connection receipt when applying settings.
+    public var checkedASRConfigurationID: UUID?
     /// Session context is deliberately local and explicit; no background document scraping.
     public var topicContext = ""
     public var automaticRecovery = true

@@ -170,15 +170,23 @@ final class AXInputAccess: InputAccess {
     /// prove grapheme boundaries and preserve the user's prefix and suffix. Never stored.
     func textWitness(at expected: InputTargetSnapshot) -> String? {
         guard let current = try? snapshot(), current == expected, !current.isSensitive,
-              let element = currentElement,
+              current.isEditable, let element = currentElement,
               let count = attribute(element, kAXNumberOfCharactersAttribute) as? NSNumber,
-              count.intValue >= 0, count.intValue <= 65_536 else { return nil }
+              (0...65_536).contains(count.intValue) else { return nil }
         var range = CFRange(location: 0, length: count.intValue)
         guard let value = AXValueCreate(.cfRange, &range) else { return nil }
         var output: CFTypeRef?
-        guard AXUIElementCopyParameterizedAttributeValue(element, kAXStringForRangeParameterizedAttribute as CFString,
-                value, &output) == .success, let text = output as? String, text.utf16.count == range.length,
-              (try? snapshot()) == expected else { return nil }
+        let status = AXUIElementCopyParameterizedAttributeValue(element, kAXStringForRangeParameterizedAttribute as CFString,
+                                                                value, &output)
+        let ranged = status == .success ? output as? String : nil
+        let text: String?
+        if let ranged, ranged.utf16.count == range.length {
+            text = ranged
+        } else if current.isWeb {
+            // A bounded plain text control may expose its value but omit the full-range string.
+            text = attribute(element, kAXValueAttribute) as? String
+        } else { text = nil }
+        guard let text, text.utf16.count == range.length, (try? snapshot()) == expected else { return nil }
         return text
     }
 

@@ -43,6 +43,7 @@ public enum MultiRecognitionDiagnostics {
         }
         let approvedCredentials = credentials
         var dependencies = RecognitionPipelineDependencies.live
+        dependencies.observeLanguage = { _ in } // Synthetic checks must not train the usage profile.
         dependencies.credential = { approvedCredentials[$0.id] }
         let session = MultiRecognitionSession(store: store, ticket: ticket, configuration: configuration,
                                                dependencies: dependencies)

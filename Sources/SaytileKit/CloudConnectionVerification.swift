@@ -218,6 +218,7 @@ public enum CloudConnectionVerifier {
                 return try await transport.fallback(evidence, prefix, context, item, key)
             })
         var dependencies = RecognitionPipelineDependencies.live
+        dependencies.observeLanguage = { _ in } // Synthetic checks must not train the usage profile.
         dependencies.credential = { savedCredentials[$0.id] }
         let selectedModels = check.activeModels
         dependencies.streaming = { provider in

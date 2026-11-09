@@ -78,6 +78,7 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         }
     }
     private let lock = NSLock()
+    private var checkedStreamingID: UUID?
     private var value: RecognitionConfiguration
     private var generation: UInt64 = 0
     private var active = 0
@@ -85,13 +86,14 @@ final class RecognitionSessionFactory: @unchecked Sendable {
     private let local: LocalFailoverDependencies
     private var epoch: RecognitionFailoverEpoch
     init(configuration: RecognitionConfiguration = RecognitionConfiguration(), dependencies: RecognitionPipelineDependencies = .live, local: LocalFailoverDependencies = .live) {
+        checkedStreamingID = configuration.cloudEnabled ? (configuration.checkedASRConfigurationID ?? configuration.selectedASRModel?.id) : nil
         value = configuration; self.dependencies = dependencies; self.local = local
         epoch = RecognitionFailoverEpoch(now: local.now)
     }
     private func recordingSnapshot() -> Snapshot {
         var frozen = value
         frozen.languagePreference = value.resolvedLanguage
-        if frozen.selectedASRModel == nil { frozen.cloudEnabled = false }
+        if checkedStreamingID == nil || frozen.selectedASRModel?.id != checkedStreamingID { frozen.cloudEnabled = false }
         return Snapshot(configuration: frozen, appliedConfiguration: value, generation: generation)
     }
     var snapshot: Snapshot { lock.withLock { recordingSnapshot() } }
@@ -102,6 +104,7 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         lock.withLock {
             // Fence old work before a caller can observe/admit the new snapshot.
             epoch.invalidate()
+            checkedStreamingID = config.cloudEnabled ? (config.checkedASRConfigurationID ?? config.selectedASRModel?.id) : nil
             value = config; generation &+= 1
             epoch = RecognitionFailoverEpoch(now: local.now)
         }

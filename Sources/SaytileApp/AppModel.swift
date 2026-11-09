@@ -265,6 +265,7 @@ final class AppModel: ObservableObject {
             try recognitionConfiguration.save(to: preferences)
             recognitionSettingsNotice = "云端连接尚未验证，暂用本机识别。可在设置中完成一次连接检查。"
         }
+        recognitionConfiguration.checkedASRConfigurationID = receipt?.services.first(where: { $0.provider.isStreaming })?.id
         self.recognitionConfiguration = recognitionConfiguration
         self.appliedRecognitionConfiguration = recognitionConfiguration
         audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration, startupRecoveryReady: false)
@@ -394,7 +395,8 @@ final class AppModel: ObservableObject {
     }
     func applyRecognitionSettings() {
         guard !preparingForExit, !exitPrepared, !applyingRecognitionSettings, !checkingConnection else { return }
-        let candidate = recognitionConfiguration
+        var candidate = recognitionConfiguration
+        candidate.checkedASRConfigurationID = connectionReport?.services.first(where: { $0.provider.isStreaming })?.id
         do {
             try candidate.validateForCloud()
             if candidate.cloudEnabled {
@@ -408,6 +410,7 @@ final class AppModel: ObservableObject {
                 }
             }
             try candidate.save(to: preferences)
+            recognitionConfiguration = candidate
             scheduleRecognitionConfiguration(candidate, showNotice: true)
         } catch { recognitionSettingsNotice = error.localizedDescription }
     }

@@ -27,6 +27,22 @@ struct SingleTranscriptEngineTests {
         try value.validateForCloud()
     }
 
+    @Test func recordingSnapshotRequiresTheCheckedProviderEvenWhenAnotherModelHasConsent() throws {
+        var config = configured()
+        config.checkedASRConfigurationID = try #require(config.selectedASRModel).id
+        let factory = RecognitionSessionFactory(configuration: config)
+        let inFlight = factory.snapshot
+        config.languagePreference = .english
+        factory.update(config)
+        #expect(inFlight.configuration.selectedASRModel?.provider == .qwenMessage)
+        #expect(inFlight.configuration.cloudEnabled)
+        #expect(!factory.snapshot.configuration.cloudEnabled)
+        config.checkedASRConfigurationID = try #require(config.selectedASRModel).id
+        factory.update(config)
+        #expect(factory.snapshot.configuration.cloudEnabled)
+        #expect(factory.snapshot.configuration.selectedASRModel?.provider == .assemblyAI)
+    }
+
     @Test func exactlyOneGPTCoreIsMandatory() throws {
         var value = configured()
         var duplicate = try #require(value.models.first { $0.purpose == .textFusion })
