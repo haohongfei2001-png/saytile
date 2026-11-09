@@ -74,7 +74,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             if let index = directoryIndex {
                 directory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
             } else {
-                directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Saytile", isDirectory: true)
+                directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Saytile Timeline Preview", isDirectory: true)
             }
             if isDiagnostic || directoryIndex != nil {
                 // Reject production aliases before AppModel/Store can migrate or
@@ -113,7 +113,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 diagnosticConfiguration.automaticRecovery = false
                 try diagnosticConfiguration.save(to: preferences)
             } else { preferences = .standard }
-            let model = try AppModel(directory: directory, preferences: preferences)
+            let model = try AppModel(directory: directory, preferences: preferences,
+                copyPasteboard: CommandLine.arguments.contains("--ui-review") ? NSPasteboard.withUniqueName() : nil)
             self.model = model
             if let setupRequest {
                 configureMainMenu()

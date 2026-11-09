@@ -69,12 +69,13 @@ final class RecognitionSessionFactory: @unchecked Sendable {
     struct Snapshot: Sendable {
         let configuration: RecognitionConfiguration
         let appliedConfiguration: RecognitionConfiguration
+        fileprivate let epoch: RecognitionFailoverEpoch
         fileprivate let generation: UInt64
         /// Restrict this exact settings generation without observing newer cloud consent.
         var localOnly: Self {
             var restricted = configuration
             restricted.cloudEnabled = false
-            return Self(configuration: restricted, appliedConfiguration: appliedConfiguration, generation: generation)
+            return Self(configuration: restricted, appliedConfiguration: appliedConfiguration, epoch: epoch, generation: generation)
         }
     }
     private let lock = NSLock()
@@ -94,18 +95,31 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         var frozen = value
         frozen.languagePreference = value.resolvedLanguage
         if checkedStreamingID == nil || frozen.selectedASRModel?.id != checkedStreamingID { frozen.cloudEnabled = false }
-        return Snapshot(configuration: frozen, appliedConfiguration: value, generation: generation)
+        return Snapshot(configuration: frozen, appliedConfiguration: value, epoch: epoch, generation: generation)
     }
     var snapshot: Snapshot { lock.withLock { recordingSnapshot() } }
     var configuration: RecognitionConfiguration { lock.withLock { value } }
     var usesCloud: Bool { configuration.cloudEnabled }
     func localAvailability() async -> SpeechAvailability { await local.availability() }
-    func update(_ config: RecognitionConfiguration) {
+    private final class Retired {
+        weak var epoch: RecognitionFailoverEpoch?
+        init(_ epoch: RecognitionFailoverEpoch) { self.epoch = epoch }
+    }
+    private var retired: [Retired] = []
+    func update(_ config: RecognitionConfiguration, nextUtteranceOnly: Bool = false) {
         lock.withLock {
             // Fence old work before a caller can observe/admit the new snapshot.
-            epoch.invalidate()
+            retired.removeAll { $0.epoch == nil }
+            if nextUtteranceOnly {
+                retired.append(Retired(epoch))
+            } else {
+                epoch.invalidate()
+                retired.forEach { $0.epoch?.invalidate() }
+                retired.removeAll()
+                generation &+= 1
+            }
             checkedStreamingID = config.cloudEnabled ? (config.checkedASRConfigurationID ?? config.selectedASRModel?.id) : nil
-            value = config; generation &+= 1
+            value = config
             epoch = RecognitionFailoverEpoch(now: local.now)
         }
     }
@@ -122,9 +136,9 @@ final class RecognitionSessionFactory: @unchecked Sendable {
             guard config.cloudEnabled else { return local.make(store, ticket) }
             guard active < 8 else { return DeferredRecognitionSession(store: store, ticket: ticket) }
             active += 1
-            let (cloud, probe) = epoch.admitCloud()
+            let (cloud, probe) = accepted.epoch.admitCloud()
             return FailoverRecognitionSession(store: store, ticket: ticket, configuration: config,
-                dependencies: dependencies, local: local, epoch: epoch, cloud: cloud, probe: probe) { [weak self] in
+                dependencies: dependencies, local: local, epoch: accepted.epoch, cloud: cloud, probe: probe) { [weak self] in
                 self?.lock.withLock { self?.active -= 1 }
             }
         }

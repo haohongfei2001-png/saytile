@@ -67,7 +67,7 @@ with tempfile.TemporaryDirectory(prefix='saytile-install-upgrade-') as temp:
             backup=temp/'pre-upgrade-data';shutil.copytree(data,backup)
             checks.append('released_app_installed_signed_and_started_on_seeded_data')
         else:
-            after=snapshot(data);assert before['schema']==expected_schema and after['schema']==5
+            after=snapshot(data);assert before['schema']==expected_schema and after['schema']==6
             assert after['cloud_authorizations'] == [], 'Upgrade must not authorize existing audio for upload'
             assert all(after[k]==before[k] for k in ('records','versions','drafts','dispatches','audio'))
             assert after['integrity']=='ok';checks.append('candidate_upgrade_preserves_records_versions_drafts_dispatches_and_audio')

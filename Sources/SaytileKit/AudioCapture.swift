@@ -119,9 +119,9 @@ actor CaptureWorker {
     func acceptPCM(_ pcm: Data) async throws {
         for event in segmenter.accept(pcm) {
             switch event {
-            case let .begin(preRoll): try await beginUtterance(); for frame in preRoll { try await append(frame) }
+            case let .begin(preRoll): try await beginUtterance(at: Date.now.addingTimeInterval(-0.06)); for frame in preRoll { try await append(frame) }
             case let .audio(frame): try await append(frame)
-            case .end: try await endUtterance()
+            case let .end(silence): try await endUtterance(at: Date.now.addingTimeInterval(-silence))
             }
         }
     }
@@ -129,14 +129,14 @@ actor CaptureWorker {
         for pcm in try drainConvertedTail() { try await acceptPCM(pcm) }
         for event in segmenter.finish() {
             if case let .audio(data) = event { try await append(data) }
-            if case .end = event { try await endUtterance() }
+            if case let .end(silence) = event { try await endUtterance(at: Date.now.addingTimeInterval(-silence)) }
         }
     }
-    func beginUtterance() async throws {
+    func beginUtterance(at start: Date = .now) async throws {
         // A settings change during journal creation must not grant new destinations
         // to audio that began under a local-only or older consent configuration.
         let snapshot = recognitionFactory.snapshot
-        let record = try await store.createRecording()
+        let record = try await store.createRecording(createdAt: start)
         recordingID = record.id
         do {
             let journal = try PCMJournal(directory: store.audioDirectory, recordingID: record.id, io: journalIO)
@@ -174,7 +174,7 @@ actor CaptureWorker {
             try await store.registerAudioChunk(recordingID: recordingID, relativePath: journal.relativePath, frames: 0)
         }
     }
-    func endUtterance() async throws {
+    func endUtterance(at end: Date = .now) async throws {
         guard let recordingID else { return }
         guard let journal, journal.isOpen else {
             let error = AudioFailure.message("原音文件未创建，录音已停止")
@@ -183,7 +183,7 @@ actor CaptureWorker {
         do {
         try journal.closeChunk()
         try await store.registerAudioChunk(recordingID: recordingID, relativePath: journal.relativePath, frames: journal.frames)
-        try await store.finishRecording(id: recordingID)
+        try await store.finishRecording(id: recordingID, speechEndedAt: end)
         speech?.finish()
         // Closed-input sessions finish independently. Admission is bounded by the
         // cloud factory, never by cancelling older accepted recognition results.
@@ -393,6 +393,11 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         recognitionFactory.update(local)
         retryTask?.cancel()
         speechStatus = "云端已停用 · 本机识别"
+    }
+    public func setRouteForNextUtterance(_ configuration: RecognitionConfiguration) {
+        recognitionSettingsGeneration &+= 1
+        recognitionFactory.update(configuration, nextUtteranceOnly: true)
+        speechStatus = configuration.cloudEnabled ? "新讲话使用已选语言专家" : "新讲话使用本机识别"
     }
     public func setRecognitionConfiguration(_ configuration: RecognitionConfiguration) async {
         recognitionSettingsGeneration &+= 1

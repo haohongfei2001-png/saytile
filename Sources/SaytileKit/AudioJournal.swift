@@ -104,7 +104,7 @@ final class PCMJournal {
 
 /// WebRTC's mature 20ms VAD, with 1 second pre-roll and 800ms end silence.
 final class VoiceSegmenter {
-    enum Event { case begin([Data]), audio(Data), end }
+    enum Event { case begin([Data]), audio(Data), end(trailingSilence: TimeInterval) }
     private let vad: OpaquePointer
     private var pending = Data()
     private var preRoll: [Data] = []
@@ -134,7 +134,8 @@ final class VoiceSegmenter {
                 // Journal rotation is separate. Cloud sessions retain longer context;
                 // this boundary controls resource recovery, never text confirmation.
                 if silence >= endSilenceFrames || activeFrames >= maximumFrames {
-                    speaking = false; speechVotes = 0; silence = 0; events.append(.end)
+                    events.append(.end(trailingSilence: Double(silence) * 0.02))
+                    speaking = false; speechVotes = 0; silence = 0
                 }
             }
         }
@@ -148,6 +149,7 @@ final class VoiceSegmenter {
         defer { pending.removeAll(); preRoll.removeAll(); speaking = false; speechVotes = 0; silence = 0 }
         guard speaking else { return [] }
         let completeBytes = pending.count - pending.count % 2
-        return completeBytes > 0 ? [.audio(Data(pending.prefix(completeBytes))), .end] : [.end]
+        let ending = Event.end(trailingSilence: Double(silence) * 0.02)
+        return completeBytes > 0 ? [.audio(Data(pending.prefix(completeBytes))), ending] : [ending]
     }
 }

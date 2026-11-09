@@ -3,7 +3,11 @@ import SwiftUI
 
 /// One selectable transcript. Model revisions never make this view first responder.
 struct CompactTranscriptView: NSViewRepresentable {
-    let text: String
+    let document: PanelTimelineDocument
+    let access: PanelTranscriptAccess
+    var onPage: (Bool) -> Void
+    var focusPosition: Int64?
+    var editing = false
     var latestRequest = 0
     var onFollowChange: (Bool) -> Void = { _ in }
     var onSelectionChange: (String) -> Void = { _ in }
@@ -19,7 +23,11 @@ struct CompactTranscriptView: NSViewRepresentable {
         view.onSelectionChange = onSelectionChange
         view.transcriptView.fillContextMenu = fillContextMenu
         view.transcriptView.showsLiveCaret = showsLiveCaret && view.isFollowingLatest
-        view.updateTranscript(text)
+        access.view = view
+        view.onPage = onPage
+        view.editing = editing
+        view.updateDocument(document)
+        view.focus(on: focusPosition)
         view.consumeLatestRequest(latestRequest)
     }
 }
@@ -33,6 +41,31 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
     var onFollowChange: (Bool) -> Void = { _ in }
     var onSelectionChange: (String) -> Void = { _ in }
 
+    private(set) var rendered = PanelTimelineDocument()
+    private var pending = PanelTimelineDocument()
+    var onPage: (Bool) -> Void = { _ in }
+    var editing = false
+    private var focusedPosition: Int64?
+    private var motion: Task<Void, Never>?
+    private var pagingFrom: Int64?
+    var selectionSnapshot: String {
+        let range = transcriptView.selectedRange(), string = transcriptView.string as NSString
+        return NSMaxRange(range) <= string.length ? string.substring(with: range) : ""
+    }
+    func focus(on position: Int64?) {
+        guard let position else { focusedPosition = nil; return }
+        guard focusedPosition != position, let span = rendered.spans.first(where: { $0.entry.position == position }) else { return }
+        focusedPosition = position
+        isFollowingLatest = false
+        transcriptView.scrollRangeToVisible(NSRange(location: span.range.location, length: 1))
+        publishState()
+    }
+    func updateDocument(_ document: PanelTimelineDocument) {
+        if editing || selecting || transcriptView.selectedRange().length > 0 { motion?.cancel() }
+        pending = document
+        latestText = document.text
+        applyLatest()
+    }
     private var changingDocument = false
     private var selecting = false
     private var notificationScheduled = false
@@ -68,7 +101,7 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         transcriptView.onSelectionTracking = { [weak self] tracking in
             guard let self else { return }
             selecting = tracking
-            if tracking { isFollowingLatest = false; publishState() }
+            if tracking { motion?.cancel(); isFollowingLatest = false; publishState() }
             else if transcriptView.selectedRange().length == 0 { applyLatest() }
         }
         documentView = transcriptView
@@ -90,15 +123,6 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         changingDocument = false
     }
 
-    func updateTranscript(_ text: String) {
-        guard !Self.sameText(text, latestText) || !Self.sameText(text, transcriptView.string) else { return }
-        latestText = text
-        // A live revision cannot replace text that someone is currently selecting
-        // or has selected to copy. The complete model continues updating normally.
-        guard !selecting, transcriptView.selectedRange().length == 0 else { publishState(); return }
-        applyLatest()
-    }
-
     func consumeLatestRequest(_ request: Int) {
         guard request != latestRequest else { return }
         latestRequest = request
@@ -117,22 +141,37 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
 
     func textViewDidChangeSelection(_ notification: Notification) {
         guard !changingDocument else { return }
-        if transcriptView.selectedRange().length > 0 { isFollowingLatest = false }
+        if transcriptView.selectedRange().length > 0 { motion?.cancel(); isFollowingLatest = false }
         else if !selecting { applyLatest() }
         publishState()
     }
 
     override func scrollWheel(with event: NSEvent) {
+        motion?.cancel()
         if event.scrollingDeltaY > 0 { isFollowingLatest = false; publishState() }
         super.scrollWheel(with: event)
+        if event.scrollingDeltaY != 0 { requestAdjacentPage(older: event.scrollingDeltaY > 0) }
+    }
+
+    private func requestAdjacentPage(older: Bool) {
+        guard !selecting, !editing, transcriptView.selectedRange().length == 0 else { return }
+        let edge = older ? rendered.firstPosition : rendered.lastPosition
+        guard let edge, pagingFrom != edge,
+              older ? (rendered.older && documentVisibleRect.minY < 32) : (rendered.newer && isAtBottom) else { return }
+        pagingFrom = edge
+        isFollowingLatest = false
+        onPage(older)
     }
 
     @objc private func viewportChanged(_ notification: Notification) {
         guard !changingDocument, !selecting, contentSize == lastLayoutSize else { return }
-        if transcriptView.selectedRange().length == 0, isAtBottom {
+        if !editing, transcriptView.selectedRange().length == 0, isAtBottom, !rendered.newer {
             isFollowingLatest = true
             if hasDeferredUpdate { applyLatest() }
         } else { isFollowingLatest = false }
+        if let event = NSApp.currentEvent, event.type == .leftMouseDragged || event.type == .leftMouseUp {
+            requestAdjacentPage(older: !isAtBottom)
+        }
         publishState()
     }
 
@@ -170,21 +209,57 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
     }
 
     private func applyLatest() {
-        guard !changingDocument, !selecting, transcriptView.selectedRange().length == 0,
-              !Self.sameText(latestText, transcriptView.string), let storage = transcriptView.textStorage else { return }
+        guard !changingDocument, !selecting, !editing, transcriptView.selectedRange().length == 0,
+              pending != rendered || !Self.sameText(latestText, transcriptView.string), let storage = transcriptView.textStorage else { return }
         let old = transcriptView.string as NSString, new = latestText as NSString
         let patch = Self.patch(from: old, to: new)
         let oldCaret = transcriptView.selectedRange().location
         let anchor = isFollowingLatest ? nil : readingAnchor()
         let oldOrigin = contentView.bounds.origin
+        let oldDocument = rendered
+        let anchoredSpan = anchor.flatMap { a in oldDocument.spans.first { NSMaxRange($0.range) > a.character } }
+        let enteringIdle = pending.idle && !rendered.idle && !rendered.spans.isEmpty
+        if oldDocument.firstPosition != pending.firstPosition ||
+            oldDocument.lastPosition != pending.lastPosition { pagingFrom = nil }
+        rendered = pending
+        motion?.cancel()
         changingDocument = true
         storage.replaceCharacters(in: patch.range, with: NSAttributedString(string: patch.replacement, attributes: attributes))
+        if oldDocument.markers != rendered.markers || !rendered.markers.isEmpty {
+            storage.setAttributes(attributes, range: NSRange(location: 0, length: new.length))
+            for marker in rendered.markers {
+                storage.addAttributes([.font: NSFont.systemFont(ofSize: 10), .foregroundColor: NSColor.secondaryLabelColor], range: marker)
+            }
+        }
         let caret = min(new.length, Self.shift(oldCaret, through: patch.range, replacementLength: patch.replacement.utf16.count))
         transcriptView.setSelectedRange(NSRange(location: caret, length: 0))
         ensureDocumentLayout()
-        if isFollowingLatest { scrollToLatest() }
+        if isFollowingLatest {
+            if enteringIdle && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+                let start = oldOrigin.y
+                let end = max(0, transcriptView.bounds.height - contentSize.height)
+                motion = Task { @MainActor [weak self] in
+                    for step in 1...12 {
+                        do { try await Task.sleep(for: .milliseconds(16)) } catch { return }
+                        guard let self, self.isFollowingLatest, !self.editing, !self.selecting,
+                              self.transcriptView.selectedRange().length == 0 else { return }
+                        let progress = CGFloat(step) / 12
+                        self.changingDocument = true
+                        self.scroll(to: NSPoint(x: 0, y: start + (end - start) * progress * (2 - progress)))
+                        self.changingDocument = false
+                    }
+                }
+            } else { scrollToLatest() }
+        }
         else if let anchor, let manager = transcriptView.layoutManager, let container = transcriptView.textContainer, new.length > 0 {
-            let position = min(new.length - 1, Self.shift(anchor.character, through: patch.range, replacementLength: patch.replacement.utf16.count, rightAffinity: true))
+            var adjusted = Self.shift(anchor.character, through: patch.range, replacementLength: patch.replacement.utf16.count, rightAffinity: true)
+            if let previous = anchoredSpan, let next = rendered.spans.first(where: { $0.entry.id == previous.entry.id }),
+               anchor.character >= previous.range.location {
+                let local = Self.patch(from: previous.entry.recording.text as NSString, to: next.entry.recording.text as NSString)
+                adjusted = next.range.location + Self.shift(anchor.character - previous.range.location, through: local.range,
+                    replacementLength: local.replacement.utf16.count, rightAffinity: true)
+            }
+            let position = min(new.length - 1, adjusted)
             let glyph = manager.glyphIndexForCharacter(at: position)
             let rect = manager.boundingRect(forGlyphRange: NSRange(location: glyph, length: 1), in: container)
             scroll(to: NSPoint(x: oldOrigin.x, y: rect.minY + transcriptView.textContainerInset.height + anchor.offset))
@@ -198,7 +273,15 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         transcriptView.setFrameSize(NSSize(width: width, height: max(contentSize.height, transcriptView.frame.height)))
         guard let manager = transcriptView.layoutManager, let container = transcriptView.textContainer else { return }
         manager.ensureLayout(for: container)
-        let height = ceil(manager.usedRect(for: container).maxY + transcriptView.textContainerInset.height * 2)
+        var height = ceil(manager.usedRect(for: container).maxY + transcriptView.textContainerInset.height * 2)
+        if !rendered.text.isEmpty {
+            if rendered.idle || rendered.activeStart == rendered.text.utf16.count {
+                height += contentSize.height
+            } else if let start = rendered.activeStart, start > 0 {
+                let glyph = manager.glyphIndexForCharacter(at: start)
+                height = max(height, manager.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil).minY + contentSize.height)
+            }
+        }
         transcriptView.setFrameSize(NSSize(width: width, height: max(contentSize.height, height)))
     }
     private func scrollToLatest() {
@@ -293,13 +376,15 @@ final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
         }
     }
     override func menu(for event: NSEvent) -> NSMenu? {
-        fillContextMenu != nil ? transcriptMenu : super.menu(for: event)
+        contextCharacter = characterIndexForInsertion(at: convert(event.locationInWindow, from: nil))
+        return fillContextMenu != nil ? transcriptMenu : super.menu(for: event)
     }
     func menuNeedsUpdate(_ menu: NSMenu) {
         guard menu === transcriptMenu, let fillContextMenu else { return }
         menu.removeAllItems()
         fillContextMenu(menu)
     }
+    private(set) var contextCharacter: Int?
     var onSelectionTracking: (Bool) -> Void = { _ in }
     override func mouseDown(with event: NSEvent) {
         onSelectionTracking(true)

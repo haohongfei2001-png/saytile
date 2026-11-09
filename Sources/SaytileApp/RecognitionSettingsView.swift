@@ -18,6 +18,12 @@ struct RecognitionSettingsSection: View {
                     Text(preference.label).tag(preference)
                 }
             }.accessibilityIdentifier("recognition.languagePreference")
+            Picker("语音模型", selection: $model.recognitionConfiguration.manualASRConfigurationID) {
+                Text("按讲话语言选择（候选）").tag(UUID?.none)
+                ForEach(model.recognitionConfiguration.models.filter { $0.purpose.isStreaming && $0.provider.isStreaming && $0.provider.supports($0.purpose) }) { item in
+                    Text(item.provider.label).tag(Optional(item.id))
+                }
+            }.accessibilityIdentifier("recognition.asrOverride")
             Toggle("启用高质量云端识别", isOn: $model.recognitionConfiguration.cloudEnabled)
                 .disabled(!model.connectionVerified || model.checkingConnection)
                 .accessibilityIdentifier("recognition.cloudEnabled")
@@ -31,7 +37,7 @@ struct RecognitionSettingsSection: View {
             TextField("当前话题或术语提示（可选）", text: $model.recognitionConfiguration.topicContext, axis: .vertical)
                 .lineLimit(2...4).accessibilityIdentifier("recognition.topicContext")
             if servicesExpanded {
-                Text("每段录音只使用一项 ASR 服务，按语言偏好自动选择；GPT-6 只处理候选文字。密钥仅存于钥匙串。")
+                Text("每段录音只使用一项 ASR 服务，手动选择优先。GPT-6 只处理候选文字。密钥仅存于钥匙串。")
                     .font(.system(size: 11)).foregroundStyle(Palette.muted)
                 if model.recognitionConfiguration.selectedASRModel == nil {
                     Text("自动模式尚无足够语言记录。可以继续本机识别，或选择讲话语言后连接对应服务。")
