@@ -145,6 +145,28 @@ private func eventually(_ condition: () async throws -> Bool) async throws {
 
 @Suite("Automatic cloud outage to durable Apple candidate failover")
 struct OfflineFailoverTests {
+    @Test func manualASRChangeUsesNewProviderOnlyForTheNextUtterance() async throws {
+        let fixture = try OfflineFixture()
+        let first = Data(repeating: 3, count: 640), second = Data(repeating: 5, count: 640)
+        try await fixture.worker.beginUtterance()
+        try await fixture.worker.append(first)
+        try await eventually { await fixture.probe.cloudBytes[.qwenMessage] == first }
+        var settings = fixture.config
+        let english = try #require(settings.models.first { $0.purpose == .englishASR })
+        settings.manualASRConfigurationID = english.id
+        settings.checkedASRConfigurationID = english.id
+        fixture.factory.update(settings, nextUtteranceOnly: true)
+        try await fixture.worker.append(second)
+        try await fixture.worker.endUtterance(); await fixture.drain()
+        #expect(await fixture.probe.cloudBytes[.qwenMessage] == first + second)
+        #expect(await fixture.probe.cloudStarts == 1)
+        try await fixture.worker.beginUtterance()
+        try await fixture.worker.append(second)
+        try await fixture.worker.endUtterance(); await fixture.drain()
+        #expect(await fixture.probe.cloudBytes[english.provider] == second)
+        #expect(await fixture.probe.cloudStarts == 2)
+        try await fixture.cleanup()
+    }
     @Test func liveFailureFollowsDurableTailThenRestoresSelectedCloudOnNextSegment() async throws {
         let f = try OfflineFixture()
         try await f.worker.beginUtterance()

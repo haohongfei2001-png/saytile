@@ -13,7 +13,7 @@ import Darwin
         let seed = try StoreDatabase(url:root.appendingPathComponent("Saytile.sqlite"))
         try seed.configureForWriting()
         let schema = Int(try seed.rows("PRAGMA user_version").first?["user_version"] ?? "0") ?? 0
-        guard schema == 5 else { throw StoreError.database("Scale probe requires current schema 5") }
+        guard schema == 6 else { throw StoreError.database("Scale probe requires current schema 6") }
         let begin = Date()
         FileHandle.standardError.write(Data("PHASE seed\n".utf8))
         try seed.transaction {

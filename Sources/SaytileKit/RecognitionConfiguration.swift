@@ -165,6 +165,7 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
     public var inputMode: InputQualityMode = .highestQuality
     public var models: [ModelConfiguration] = []
     public var languagePreference: LanguagePreference? = .auto
+    public var manualASRConfigurationID: UUID?
     /// Populated from a successful connection receipt when applying settings.
     public var checkedASRConfigurationID: UUID?
     /// Session context is deliberately local and explicit; no background document scraping.
@@ -174,6 +175,9 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
     public var enabledModels: [ModelConfiguration] { models.filter(\.enabled) }
     public var resolvedLanguage: LanguagePreference { LanguageProfile.resolve(languagePreference ?? .auto) }
     public var selectedASRModel: ModelConfiguration? {
+        if let manualASRConfigurationID {
+            return models.first { $0.id == manualASRConfigurationID && $0.purpose.isStreaming && $0.provider.isStreaming && $0.provider.supports($0.purpose) }
+        }
         let language = resolvedLanguage
         guard let provider = ASRModelRegistry.provider(for: language),
               let purpose = ASRModelRegistry.purpose(for: language) else { return nil }

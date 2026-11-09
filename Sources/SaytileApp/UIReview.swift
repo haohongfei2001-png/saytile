@@ -16,6 +16,10 @@ extension AppDelegate {
                 return true
             }
             await model.initialLoad()
+            if ProcessInfo.processInfo.environment["SAYTILE_TIMELINE_REVIEW"] == "1" {
+                try await reviewTimeline(model: model, output: output)
+                return true
+            }
             guard model.records.isEmpty else { throw NSError(domain: "Saytile.UIReview", code: 2, userInfo: [NSLocalizedDescriptionKey: "UI review requires an empty isolated data directory"]) }
             try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240), name: "panel-empty", output: output)
             let examples = [
@@ -170,6 +174,145 @@ extension AppDelegate {
         } catch { print("UI_REVIEW_FAILED \(error.localizedDescription)"); return false }
     }
 
+    /// Runs only against the disposable seed prepared by test-native-timeline.py.
+    @MainActor private func reviewTimeline(model: AppModel, output: URL) async throws {
+        guard model.timelineTail?.position == 12000, let board = model.copyPasteboard,
+              board.name != NSPasteboard.general.name, !model.directMode, model.audio.state == .paused else {
+            throw ReviewFailure("expected private board, isolated 12000-row timeline and paused capture")
+        }
+        defer { board.releaseGlobally() }
+        model.changeIdleInterval(10)
+        try await reviewUntil { model.timelineIdleSeconds == 10 }
+        let start = Date.now
+        let first = try await model.store.createRecording(createdAt: start)
+        let ticket = try await model.store.beginRecognition(recordingID: first.id)
+        try await model.store.applyRecognition(ticket: ticket, text: "想把这个想法记下来。", isFinal: false)
+        try await model.store.finishRecording(id: first.id, speechEndedAt: start)
+        let second = try await model.store.createRecording(createdAt: start.addingTimeInterval(0.2))
+        let continuation = "嗯，先不发，明天再看。"
+        try await model.store.saveEdit(recordingID: second.id, text: continuation)
+        try await model.store.finishRecording(id: second.id, speechEndedAt: start.addingTimeInterval(0.2))
+        await model.refresh()
+        let initialText = "想把这个想法记下来。"
+        let controls = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil
+        try await reviewValidatedWindow(InputPanelWindowView(model: model), size: WindowPlacement.panelDefaultSize,
+            name: "timeline-history", output: output, validation: { host in
+                let scroll = try self.compactTranscript(in: host)
+                guard scroll.rendered.spans.count == 64,
+                      scroll.rendered.spans.suffix(2).map({ $0.entry.id }) == [first.id,second.id],
+                      scroll.rendered.spans.suffix(2).allSatisfy({ $0.entry.group == model.timelineTail?.group }) else {
+                    throw ReviewFailure("continuous native timeline did not load newest group")
+                }
+                try self.captureReview(host, name: "timeline-live", output: output)
+                if controls {
+                    try await self.press("panel.copy", in: host)
+                    guard board.string(forType: .string) == initialText + "\n" + continuation else { throw ReviewFailure("copy scope was not latest group") }
+                }
+                let changes = board.changeCount
+                try await model.store.applyRecognition(ticket: ticket, text: "想把这段话记下来。", isFinal: true)
+                await model.refresh()
+                try await self.reviewUntil { scroll.rendered.spans.suffix(2).first?.entry.recording.text == "想把这段话记下来。" }
+                guard board.changeCount == changes, scroll.rendered.spans.last?.entry.id == second.id else { throw ReviewFailure("late revision changed clipboard or order") }
+                await model.selectForEditing(DisplayRecording(source: first))
+                model.updateEditorDraft("用户自己决定的写法")
+                try await model.store.applyRecognition(ticket: ticket, text: "迟到的候选版本", isFinal: true)
+                await model.refresh()
+                guard model.editorDraft == "用户自己决定的写法" else { throw ReviewFailure("late ASR rewrote unsaved edit") }
+                model.closeDetail()
+                let beforeIdle = scroll.contentView.bounds.minY
+                // Wait for the actual production timer at the shortest supported interval.
+                if ProcessInfo.processInfo.environment["SAYTILE_RECORD_TIMELINE"] == "1" {
+                    try await self.recordIdleTransition(host, model: model, output: output)
+                } else {
+                    for _ in 0..<140 where !model.timelineIdle { try await Task.sleep(for: .milliseconds(100)) }
+                }
+                try await self.reviewUntil { scroll.rendered.idle && scroll.contentView.bounds.minY > beforeIdle + 20 &&
+                    scroll.documentVisibleRect.maxY >= scroll.transcriptView.bounds.height - 1 }
+                try self.captureReview(host, name: "timeline-idle", output: output)
+                let new = try await model.store.createRecording()
+                try await model.store.saveEdit(recordingID: new.id, text: "再记一句，和之前的想法放在一起。")
+                try await model.store.finishRecording(id: new.id)
+                await model.refresh()
+                try await self.reviewUntil { !scroll.rendered.idle && scroll.rendered.spans.last?.entry.id == new.id }
+                guard model.timelineTail?.group != scroll.rendered.spans.dropLast().last?.entry.group else { throw ReviewFailure("post-idle speech reused previous group") }
+                // Deliver an AppKit wheel event directly to our own scroll view.
+                // No global event, active application, public clipboard or microphone.
+                let oldFirst = scroll.rendered.firstPosition!
+                scroll.contentView.scroll(to: .zero)
+                scroll.reflectScrolledClipView(scroll.contentView)
+                guard let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: 320, wheel2: 0, wheel3: 0),
+                      let event = NSEvent(cgEvent: wheel) else { throw ReviewFailure("no native wheel event") }
+                let began = ContinuousClock.now
+                // A real trackpad gesture can span multiple Cocoa run-loop turns.
+                // The native view must cross the old keyset boundary and retain overlap.
+                for _ in 0..<12 where scroll.rendered.firstPosition == oldFirst {
+                    scroll.scrollWheel(with: event)
+                    try await Task.sleep(for: .milliseconds(20))
+                }
+                try await self.reviewUntil { (scroll.rendered.firstPosition ?? oldFirst) < oldFirst }
+                guard scroll.rendered.spans.count == 64, !scroll.isFollowingLatest,
+                      scroll.rendered.spans.contains(where: { $0.entry.position == oldFirst }) else { throw ReviewFailure("paged native viewport dropped overlap") }
+                print("TIMELINE_NATIVE_PAGE rows=12003 resident=64 wheel_to_paint=\(began.duration(to: .now))")
+                let dateMarkers = scroll.rendered.markers.filter { range in
+                    (scroll.transcriptView.string as NSString).substring(with: range).hasPrefix("2025-01-")
+                }
+                guard dateMarkers.count == 2, let midnight = dateMarkers.last else { throw ReviewFailure("midnight did not introduce local date marker") }
+                scroll.transcriptView.scrollRangeToVisible(midnight)
+                try self.captureReview(host, name: "timeline-midnight", output: output)
+                let span = scroll.rendered.spans[30]
+                scroll.transcriptView.scrollRangeToVisible(span.range)
+                scroll.transcriptView.setSelectedRange(span.range)
+                let anchor = scroll.contentView.bounds.minY
+                let last = try await model.store.createRecording()
+                try await model.store.saveEdit(recordingID: last.id, text: "继续说，也留住刚才选中的文字。")
+                try await model.store.finishRecording(id: last.id)
+                await model.refresh()
+                guard scroll.selectionSnapshot == span.entry.recording.text, abs(anchor - scroll.contentView.bounds.minY) < 1,
+                      !model.recent.contains(where: { $0.id == span.entry.id }) else { throw ReviewFailure("history selection moved or entered insertion list") }
+                if controls {
+                    try await self.press("panel.copy", in: host)
+                    guard board.string(forType: .string) == span.entry.recording.text else { throw ReviewFailure("historical selection copy failed") }
+                }
+                print("TIMELINE_NATIVE_PASS idle_before_y=\(beforeIdle) selected=stable private_board=\(controls) history_isolated=true")
+            })
+        model.followTimeline()
+        await model.refresh()
+        try await reviewValidatedWindow(InputPanelWindowView(model: model), size: WindowPlacement.panelDefaultSize,
+            name: "timeline-reopened", output: output, validation: { host in
+                let scroll = try self.compactTranscript(in: host)
+                guard scroll.isFollowingLatest, scroll.rendered.spans.last?.entry == model.timelineTail,
+                      scroll.rendered.spans.count == 64 else { throw ReviewFailure("reopened window lost live timeline") }
+            })
+    }
+
+    /// Record only this process's real native view during the production idle
+    /// transition. Keep pre-transition frames in a short rolling buffer.
+    @MainActor private func recordIdleTransition(_ host: NSView, model: AppModel, output: URL) async throws {
+        let directory = output.appendingPathComponent("motion-frames")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        var frames: [(time: Double, png: Data)] = []
+        let start = ProcessInfo.processInfo.systemUptime
+        var idleAt: Double?
+        while ProcessInfo.processInfo.systemUptime - start < 16 {
+            guard let window = host.window, window is ReviewPanel, !window.isKeyWindow,
+                  let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw ReviewFailure("native view recording unavailable") }
+            host.cacheDisplay(in: host.bounds, to: bitmap)
+            let time = ProcessInfo.processInfo.systemUptime
+            guard let png = bitmap.representation(using: .png, properties: [:]) else { throw ReviewFailure("native frame unavailable") }
+            frames.append((time, png))
+            if model.timelineIdle && idleAt == nil { idleAt = time }
+            if let idleAt {
+                if time - idleAt > 0.65 { break }
+            } else { frames.removeAll { time - $0.time > 0.5 } }
+            try await Task.sleep(for: .milliseconds(16))
+        }
+        guard idleAt != nil, let first = frames.first else { throw ReviewFailure("idle transition missing from recording") }
+        for (i, frame) in frames.enumerated() {
+            try frame.png.write(to: directory.appendingPathComponent("\(i).png"))
+        }
+        try JSONEncoder().encode(frames.map { $0.time - first.time }).write(to: directory.appendingPathComponent("times.json"))
+    }
+
     private struct ReviewFailure: LocalizedError {
         let message: String
         init(_ message: String) { self.message = message }
@@ -202,9 +345,8 @@ extension AppDelegate {
               board.changeCount > previousCount, capture.starts == starts, capture.pauses == pauses, capture.state == state else {
             throw ReviewFailure("copy changed capture or did not write the exact expected text to the unique pasteboard")
         }
-        // Observe publication and clearance, even if the AX call returns after
-        // the brief feedback has settled. No fixed-time positive sample is needed.
-        try await reviewUntil { receivedSuccess && model.notice == nil }
+        // Panel copy is silent, including while the private pasteboard is written.
+        guard !receivedSuccess else { throw ReviewFailure("panel copy displayed unsolicited success feedback") }
     }
 
     @MainActor private func setValue(_ value: String, for label: String, in root: NSView, secure: Bool = false) async throws {
@@ -331,12 +473,12 @@ extension AppDelegate {
         print("UI_IMAGE_GEOMETRY " + String(decoding: try JSONSerialization.data(withJSONObject: geometry, options: [.sortedKeys]), as: UTF8.self))
     }
 
-    @MainActor private func reviewUntil(_ condition: () -> Bool) async throws {
+    @MainActor private func reviewUntil(line: Int = #line, _ condition: () -> Bool) async throws {
         for _ in 0..<250 {
             if condition() { return }
             try await Task.sleep(for: .milliseconds(20))
         }
-        throw ReviewFailure("native UI controller did not acknowledge the expected state within five seconds")
+        throw ReviewFailure("native UI controller did not acknowledge the expected state at UIReview.swift:\(line) within five seconds")
     }
 
     @MainActor private func inspectCapture(_ label: String, state: String, hasText: Bool = false, in host: NSView) async throws {
@@ -636,6 +778,9 @@ extension AppDelegate {
                 })
                 print("UI_SYNTHETIC_CAPTURE_STATES_PASS paused, standby, speech, standby during review and retained final text; injected capture, no AX control actions or microphone")
             }
+            // The long-text Unicode fixture needs exactly one utterance. Clear is
+            // now visual only; remove only these disposable fixture records.
+            for row in model.records { try await model.store.deleteRecord(recordingID: row.id) }
             model.clearPanel(); model.notice = nil
             let text = (0..<70).map { "第\($0 + 1)行：保留完整表达和原有否定词，不要支付15元。Swift API cafe\u{301} 😀。" }.joined(separator: "\n")
             let row = try await model.store.createRecording()
@@ -646,14 +791,18 @@ extension AppDelegate {
             try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 360, height: 480),
                 name: "panel-long-text", output: output, validation: { host in
                 let scroll = try self.compactTranscript(in: host)
-                try await self.reviewUntil { scroll.transcriptView.string.utf16.elementsEqual(text.utf16) }
+                @MainActor func bodyText() -> String {
+                    guard let range = scroll.rendered.spans.first(where: { $0.entry.id == row.id })?.range else { return "" }
+                    return (scroll.transcriptView.string as NSString).substring(with: range)
+                }
+                try await self.reviewUntil { bodyText().utf16.elementsEqual(text.utf16) }
                 guard !scroll.transcriptView.isEditable, scroll.transcriptView.isSelectable else { throw ReviewFailure("transcript selection contract changed") }
                 let composed = text.precomposedStringWithCanonicalMapping
                 guard composed == text, composed.utf16.count != text.utf16.count else { throw ReviewFailure("Unicode fixture did not differ in UTF-16 representation") }
                 for replacement in [composed, text] {
                     _ = try await model.store.saveEdit(recordingID: row.id, text: replacement); await model.refresh()
-                    try await self.reviewUntil { scroll.transcriptView.string.utf16.elementsEqual(replacement.utf16) }
-                    guard scroll.transcriptView.string.utf16.count == replacement.utf16.count else { throw ReviewFailure("native Unicode replacement retained stale UTF-16 length") }
+                    try await self.reviewUntil { bodyText().utf16.elementsEqual(replacement.utf16) }
+                    guard bodyText().utf16.count == replacement.utf16.count else { throw ReviewFailure("native Unicode replacement retained stale UTF-16 length") }
                 }
                 print("UI_NATIVE_UNICODE_PASS Store-driven NFD to NFC to NFD preserves exact UTF-16 text and length")
                 scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
@@ -665,8 +814,8 @@ extension AppDelegate {
                 let updated = incoming.replacingOccurrences(of: "第1行：保留完整表达", with: "第1行：更新后仍保留完整表达😀")
                     + "\n新增表达：否定、数字和术语必须保持完整。"
                 _ = try await model.store.saveEdit(recordingID: row.id, text: updated); await model.refresh()
-                try await self.reviewUntil { scroll.latestText == updated }
-                guard scroll.hasDeferredUpdate, scroll.transcriptView.string == text,
+                try await self.reviewUntil { scroll.latestText.hasSuffix(updated) }
+                guard scroll.hasDeferredUpdate, bodyText() == text,
                       scroll.transcriptView.selectedRange() == selected,
                       abs(scroll.contentView.bounds.origin.y - origin.y) < 1 else {
                     throw ReviewFailure("live revision replaced selected text or stole its viewport")
@@ -681,7 +830,7 @@ extension AppDelegate {
                     print("UI_PRIVATE_COPY_PASS exact selected NFD/emoji copied to unique pasteboard; feedback settled; capture and held selection preserved")
                 }
                 if hasControls { try await self.selectMenu("latest", title: "回到最新", in: host) } else { scroll.jumpToLatest() }
-                try await self.reviewUntil { scroll.transcriptView.string == updated && scroll.isFollowingLatest }
+                try await self.reviewUntil { bodyText() == updated && scroll.isFollowingLatest }
                 guard scroll.transcriptView.selectedRange().length == 0,
                       scroll.documentVisibleRect.maxY >= scroll.transcriptView.bounds.maxY - 5 else { throw ReviewFailure("latest action did not apply pending text and reach the tail") }
                 try self.captureReview(host, name: "panel-latest", output: output)
@@ -691,10 +840,11 @@ extension AppDelegate {
                 }
                 scroll.contentView.scroll(to: NSPoint(x: 0, y: 120)); scroll.reflectScrolledClipView(scroll.contentView)
                 try await self.reviewUntil { !scroll.isFollowingLatest }
+                try await self.reviewUntil { !scroll.rendered.markers.isEmpty }
                 let readingOrigin = scroll.contentView.bounds.origin
                 let appended = updated + "\n用户上滚阅读时继续接收的新一句。"
                 _ = try await model.store.saveEdit(recordingID: row.id, text: appended); await model.refresh()
-                try await self.reviewUntil { scroll.transcriptView.string == appended }
+                try await self.reviewUntil { bodyText() == appended }
                 guard !scroll.isFollowingLatest, abs(scroll.contentView.bounds.origin.y - readingOrigin.y) < 1 else {
                     throw ReviewFailure("append stole the user's native scroll position")
                 }
@@ -706,7 +856,7 @@ extension AppDelegate {
                 let prefix = "新增的合成开头只调整上方排版，不应改变正在阅读的位置。\n"
                 let prepended = prefix + appended
                 _ = try await model.store.saveEdit(recordingID: row.id, text: prepended); await model.refresh()
-                try await self.reviewUntil { scroll.transcriptView.string == prepended }
+                try await self.reviewUntil { bodyText() == prepended }
                 let afterPoint = NSPoint(x: 0, y: scroll.documentVisibleRect.minY - scroll.transcriptView.textContainerInset.height)
                 let afterCharacter = layout.characterIndexForGlyph(at: layout.glyphIndex(for: afterPoint, in: container))
                 guard !scroll.isFollowingLatest, afterCharacter == beforeCharacter + prefix.utf16.count else {
@@ -717,10 +867,11 @@ extension AppDelegate {
                 let nearBottom = NSPoint(x: 0, y: scroll.contentView.bounds.origin.y - 2)
                 scroll.contentView.scroll(to: nearBottom); scroll.reflectScrolledClipView(scroll.contentView)
                 try await self.reviewUntil { !scroll.isFollowingLatest }
+                try await self.reviewUntil { !scroll.rendered.markers.isEmpty }
                 let readingTail = scroll.contentView.bounds.origin.y
                 let nearTailText = prepended + "\n近底上滚仍应保留阅读位置。"
                 _ = try await model.store.saveEdit(recordingID: row.id, text: nearTailText); await model.refresh()
-                try await self.reviewUntil { scroll.transcriptView.string == nearTailText }
+                try await self.reviewUntil { bodyText() == nearTailText }
                 guard !scroll.isFollowingLatest, abs(scroll.contentView.bounds.origin.y - readingTail) < 0.001 else {
                     throw ReviewFailure("a two-point upward reading scroll silently resumed live following")
                 }
@@ -729,7 +880,7 @@ extension AppDelegate {
                 try await self.reviewUntil { scroll.isFollowingLatest }
                 let resumedText = nearTailText + "\n主动回到底部后继续跟随。"
                 _ = try await model.store.saveEdit(recordingID: row.id, text: resumedText); await model.refresh()
-                try await self.reviewUntil { scroll.transcriptView.string == resumedText && scroll.isFollowingLatest }
+                try await self.reviewUntil { bodyText() == resumedText && scroll.isFollowingLatest }
                 guard abs(scroll.documentVisibleRect.maxY - scroll.transcriptView.bounds.maxY) < 0.001 else {
                     throw ReviewFailure("explicitly returning to the actual bottom did not resume following new text")
                 }
@@ -738,7 +889,7 @@ extension AppDelegate {
                 if hasControls { print("UI_CONTROL_PASS native context-menu latest resumes one continuous transcript after selection and scrolling") }
             }, interaction: { host in
                 try await self.inspectCapture("继续收音", state: "暂停", hasText: true, in: host)
-                try await self.selectMenu("edit", title: "在档案中编辑最近一段", in: host)
+                try await self.selectMenu("edit", title: "在档案中编辑这段文字", in: host)
                 try await self.reviewUntil { archives == 1 && model.selected?.id == row.id && !model.editorDraftLoading }
                 guard model.editorDraft.contains("用户上滚阅读") else { throw ReviewFailure("contextual edit did not open the existing saved transcript editor") }
                 print("UI_CONTROL_PASS contextual edit reaches existing archive editor with latest saved text; no second transcript or writeback path")

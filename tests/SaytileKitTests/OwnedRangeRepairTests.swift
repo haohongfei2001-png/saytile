@@ -408,7 +408,7 @@ extension OwnedRangeRepairTests {
         #expect(try await reopened.revisions(recordingID: f.record.id).contains { $0.id == revision.id })
         #expect(try await reopened.fusionReservedPrefix(recordingID: f.record.id) == "50😀")
         let check = try StoreDatabase(url: f.directory.appendingPathComponent("Saytile.sqlite"))
-        #expect(try check.rows("PRAGMA user_version").first?["user_version"] == "5")
+        #expect(try check.rows("PRAGMA user_version").first?["user_version"] == "6")
         #expect(try check.rows("SELECT state FROM dispatches").first?["state"] == "confirmed")
         #expect(try check.rows("SELECT * FROM owned_input_ranges").isEmpty)
         try check.close(); try await reopened.close(); try FileManager.default.removeItem(at: f.directory)

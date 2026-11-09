@@ -6,7 +6,8 @@ public actor SaytileStore {
     public nonisolated let directory: URL
     public nonisolated let audioDirectory: URL
     public nonisolated let recovery: StoreRecovery
-    private let db: StoreDatabase
+    public nonisolated let initialTimelineIdleSeconds: Int
+    let db: StoreDatabase
     private let processLock: StoreProcessLock
     private var leases: [UUID: UUID] = [:]
     private static let selection = "SELECT r.*,v.text FROM recordings r LEFT JOIN revisions v ON r.preferred_revision=v.id"
@@ -27,10 +28,16 @@ public actor SaytileStore {
         let database = try StoreDatabase(url:self.directory.appendingPathComponent("Saytile.sqlite"))
         db = database
         let version = try database.rows("PRAGMA user_version").first?["user_version"] ?? "0"
-        guard version == "0" || version == "1" || version == "2" || version == "3" || version == "4" || version == "5" else { throw StoreError.database("资料库来自更新版本，请升级 Saytile。") }
+        guard version == "0" || version == "1" || version == "2" || version == "3" || version == "4" || version == "5" || version == "6" else { throw StoreError.database("资料库来自更新版本，请升级 Saytile。") }
         try database.configureForWriting()
         // DDL, index upgrades and version advancement commit together or roll back together.
-        try database.transaction { try database.script(Self.schema) }
+        try database.transaction {
+            try database.script(Self.schema)
+            try database.script(Self.timelineSchema)
+            if version != "6" { try database.script(Self.timelineBackfill) }
+            try database.execute("PRAGMA user_version=6")
+        }
+        initialTimelineIdleSeconds = Int(try database.rows("SELECT idle_seconds FROM timeline_settings WHERE singleton=1").first?["idle_seconds"] ?? "") ?? 120
         func count(_ whereClause: String) throws -> Int { Int(try database.rows("SELECT COUNT(*) AS n FROM \(whereClause)").first?["n"] ?? "0") ?? 0 }
         recovery = try StoreRecovery(interruptedRecordings:count("recordings WHERE is_recording=1"),interruptedRecognitions:count("recordings WHERE recognition_state='running'"),unverifiedDispatches:count("dispatches WHERE state='dispatching'"))
         try database.transaction {
@@ -125,9 +132,14 @@ public actor SaytileStore {
             try db.execute("UPDATE recordings SET is_recording=0,active_attempt=NULL,recognition_state='failed',last_error=?,audio_state=CASE WHEN audio_state='available' AND NOT EXISTS(SELECT 1 FROM chunks WHERE recording_id=recordings.id AND frames>0) THEN 'missing' ELSE audio_state END WHERE id=?",[.text(message),.text(recordingID.uuidString)])
         }
     }
-    public func finishRecording(id: UUID) throws {
+    public func finishRecording(id: UUID, speechEndedAt: Date? = nil) throws {
         _ = try requireRecording(id)
-        try db.execute("UPDATE recordings SET is_recording=0 WHERE id=?",[.text(id.uuidString)])
+        try db.transaction {
+            try db.execute("UPDATE recordings SET is_recording=0 WHERE id=?",[.text(id.uuidString)])
+            if let speechEndedAt {
+                try db.execute("UPDATE transcript_timeline SET ended=MAX(started,?) WHERE recording_id=?", [.double(speechEndedAt.timeIntervalSince1970), .text(id.uuidString)])
+            }
+        }
     }
     /// Call only after the file/header have been synchronized. Repeated checkpoints update this path.
     public func registerAudioChunk(recordingID: UUID, relativePath: String, frames: Int64) throws {
@@ -514,7 +526,7 @@ public actor SaytileStore {
             try db.execute("DELETE FROM chunks WHERE recording_id=?",[.text(id.uuidString)])
         }
     }
-    private static func decodeRecording(_ row: [String:String]) throws -> Recording {
+    static func decodeRecording(_ row: [String:String]) throws -> Recording {
         guard let id = row["id"].flatMap(UUID.init(uuidString:)),
               let createdAt = row["created_at"].flatMap(Double.init), createdAt.isFinite,
               let sampleRate = row["sample_rate"].flatMap(Double.init), sampleRate.isFinite, sampleRate > 0,
@@ -761,7 +773,7 @@ extension SaytileStore {
     CREATE INDEX IF NOT EXISTS candidates_recording ON recognition_candidates(recording_id,created_at);
     CREATE INDEX IF NOT EXISTS decisions_recording ON fusion_decisions(recording_id,created_at);
     CREATE INDEX IF NOT EXISTS usage_recording ON model_usage(recording_id,created_at);
-    PRAGMA user_version=5;
+
     """
 }
 

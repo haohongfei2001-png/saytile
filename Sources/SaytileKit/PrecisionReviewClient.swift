@@ -101,10 +101,10 @@ public struct PrecisionReviewClient: Sendable {
     Never invent text, translate, add facts, remove intentional repetition, infer numbers,
     change units, or drop/reverse negation. A more plausible sentence is not stronger evidence.
     Confidence values from different providers are not comparable probabilities.
-    Both primary experts receive the same complete bilingual audio. Legacy role names do not
-    imply language restrictions. Consider actual language and time coverage. Unknown or utterance-level timing is not word alignment.
-    Combine complementary Chinese/English evidence when real aligned token boundaries allow it;
-    do not mechanically pick one complete recognizer sentence. The boundaries list only makes
+    This recording uses one selected ASR expert. Preserve spoken phrasing, fillers,
+    hesitations and deliberate repetition. Never polish, summarize, complete an idea or
+    reformat speech into editorial prose. Earlier revisions are not independent witnesses.
+    Unknown or utterance-level timing is not word alignment. The boundaries list only makes
     Unicode slicing safe: it does NOT establish acoustic alignment. alignedTokens supplies the
     actual source time and UTF-16 token edges accepted by the local validator. Do not interpolate
     timestamps or split a token. With no alignedTokens, select it whole only if wholeCandidateSelectable is true; otherwise it is context evidence only. Abstain when alignment is unavailable.
