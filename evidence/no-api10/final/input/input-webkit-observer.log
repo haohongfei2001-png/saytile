@@ -5,49 +5,49 @@ WEB_INSERT_RESULT confirmed
 WEB_ACTUAL_TEXT unchanged_fixture=false expected_inserted=true utf16_length=17
 PASS background WKWebView insertion confirmed
 FIXTURE_COMMAND restore
-{"keyWindow":false,"mainWindow":false,"command":"restore","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"restore","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 FIXTURE_COMMAND sameURL
-{"keyWindow":false,"mainWindow":false,"command":"sameURL","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"sameURL","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 PASS real WKWebView AX invalidates binding after sameURL
 FIXTURE_COMMAND restore
-{"keyWindow":false,"mainWindow":false,"command":"restore","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"restore","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 FIXTURE_COMMAND silentContext
-{"keyWindow":false,"mainWindow":false,"command":"silentContext","error":"","value":"Different synthetic chat with identical empty composer","keyboardEvents":0}
+{"error":"","command":"silentContext","value":"Different synthetic chat with identical empty composer","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 PASS final semantic revalidation rejects silentContext before dispatch despite missing AX event
 FIXTURE_COMMAND restore
-{"keyWindow":false,"mainWindow":false,"command":"restore","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"restore","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 FIXTURE_COMMAND replaceContext
-{"keyWindow":false,"mainWindow":false,"command":"replaceContext","error":"","value":"<h1>First synthetic chat<\/h1>","keyboardEvents":0}
+{"error":"","command":"replaceContext","value":"<h1>First synthetic chat<\/h1>","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 PASS final semantic revalidation rejects replaceContext before dispatch despite missing AX event
 FIXTURE_COMMAND restore
-{"keyWindow":false,"mainWindow":false,"command":"restore","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"restore","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 FIXTURE_COMMAND newURL
-{"keyWindow":false,"mainWindow":false,"command":"newURL","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"newURL","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 PASS real WKWebView AX invalidates binding after newURL
 FIXTURE_COMMAND restore
-{"keyWindow":false,"mainWindow":false,"command":"restore","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"restore","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 FIXTURE_COMMAND replaceEditor
-{"keyWindow":false,"mainWindow":false,"command":"replaceEditor","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"replaceEditor","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 PASS real WKWebView AX invalidates binding after replaceEditor
 FIXTURE_COMMAND restore
-{"keyWindow":false,"mainWindow":false,"command":"restore","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"restore","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 FIXTURE_COMMAND select
-{"keyWindow":false,"mainWindow":false,"command":"select","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"select","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 PASS real WKWebView AX invalidates binding after select
 FIXTURE_COMMAND restore
-{"keyWindow":false,"mainWindow":false,"command":"restore","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"restore","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 FIXTURE_COMMAND largeTree
-{"keyWindow":false,"mainWindow":false,"command":"largeTree","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"largeTree","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 PASS automatic binding rejects largeTree; explicit manual binding remains available
 FIXTURE_COMMAND restore
-{"keyWindow":false,"mainWindow":false,"command":"restore","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"restore","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 FIXTURE_COMMAND blankContext
-{"keyWindow":false,"mainWindow":false,"command":"blankContext","error":"","value":"","keyboardEvents":0}
+{"error":"","command":"blankContext","value":"","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 PASS automatic binding rejects blankContext; explicit manual binding remains available
 FIXTURE_COMMAND state
-{"keyWindow":false,"mainWindow":false,"command":"state","error":"","value":"{\"text\":\"PREFIX|SUFFIX\",\"knownSyntheticText\":true,\"utf16Length\":13,\"sends\":0,\"url\":\"https:\/\/saytile-fixture.invalid\/chat\/one\"}","keyboardEvents":0}
+{"error":"","command":"state","value":"{\"text\":\"PREFIX|SUFFIX\",\"knownSyntheticText\":true,\"utf16Length\":13,\"sends\":0,\"url\":\"https:\/\/saytile-fixture.invalid\/chat\/one\"}","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 WEB_AX_FOREGROUND_OBSERVATION unchanged=true owned_activated=false outside_activation_events=0; no cause inferred for outside transitions
 WEB_AX_PROBE_COMPLETE observerChecks=6/6 continuousAvailable=true; invisible isolated WKWebView, injected selection only, no foreground insertion claim
-{"keyWindow":false,"mainWindow":false,"command":"state","error":"","value":"{\"text\":\"PREFIX|SUFFIX\",\"knownSyntheticText\":true,\"utf16Length\":13,\"sends\":0,\"url\":\"https:\/\/saytile-fixture.invalid\/chat\/one\"}","keyboardEvents":0}
+{"error":"","command":"state","value":"{\"text\":\"PREFIX|SUFFIX\",\"knownSyntheticText\":true,\"utf16Length\":13,\"sends\":0,\"url\":\"https:\/\/saytile-fixture.invalid\/chat\/one\"}","mainWindow":false,"keyWindow":false,"keyboardEvents":0}
 PASS owned fixture keyboard isolation key=false main=false keyboard_events=0
 PASS real WKWebView fixture never sends

@@ -40,6 +40,21 @@ struct LabError: Error { let reason: String }
         do {
             await audio.start(requestPermission: false)
             guard audio.state.isRunning else { throw LabError(reason: "selected test input failed to start") }
+            let checkLink = ProcessInfo.processInfo.environment["SAYTILE_VM_LINK_CHECK"] == "1"
+            func signal(_ name: String) throws {
+                try Data().write(to: root.appendingPathComponent(name), options: .atomic)
+            }
+            func waitForSignal(_ name: String) async throws {
+                for _ in 0..<300 {
+                    if FileManager.default.fileExists(atPath: root.appendingPathComponent(name).path) { return }
+                    try await Task.sleep(for: .milliseconds(100))
+                }
+                throw LabError(reason: "hosted link test timed out waiting for " + name)
+            }
+            if checkLink {
+                try signal("input-ready")
+                try await waitForSignal("play")
+            }
             player.scheduleBuffer(signal,at:nil,options:.loops, completionHandler: nil); player.play()
             func recording(excluding previous: UUID? = nil) async throws -> UUID {
                 for _ in 0..<100 {
@@ -49,6 +64,10 @@ struct LabError: Error { let reason: String }
                 throw LabError(reason: "no voice segment on isolated input")
             }
             let first = try await recording()
+            if checkLink {
+                try signal("journal-open")
+                try await waitForSignal("restored")
+            }
             try await Task.sleep(for: .milliseconds(450))
             let center = NSWorkspace.shared.notificationCenter
             center.post(name:NSWorkspace.willSleepNotification,object:nil)

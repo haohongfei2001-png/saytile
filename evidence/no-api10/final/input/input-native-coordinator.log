@@ -17,6 +17,6 @@ PASS uncertain insertion ledger is durable with no owned range
 PASS explicit repeat is refused without a second dispatch or target rewrite
 PASS external target-change scenario never activates an owned process
 TARGET_MUTATION_PASS 5 checks; production_dispatches=1 external_mutations=1 no_replay=true
-{"error":"","value":"{\"otherIntact\":false,\"utf16Length\":24,\"knownSyntheticText\":true,\"keyWindow\":false,\"mainWindow\":false,\"selectedTextWrites\":4,\"keyboardEvents\":0,\"sends\":0,\"text\":\"PREFIX|新句 你好😀，接着说SUFFIX\"}","command":"state"}
+{"command":"state","value":"{\"keyboardEvents\":0,\"selectedTextWrites\":4,\"knownSyntheticText\":true,\"utf16Length\":24,\"mainWindow\":false,\"text\":\"PREFIX|新句 你好😀，接着说SUFFIX\",\"keyWindow\":false,\"sends\":0,\"otherIntact\":false}","error":""}
 PASS owned fixture keyboard isolation key=false main=false keyboard_events=0
 PASS real native fixture never sends

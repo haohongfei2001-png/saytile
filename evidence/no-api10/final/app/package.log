@@ -1,62 +1,117 @@
 Building for production...
-[Using on-disk description]
-[1 / 1]
+[Computing dependencies]
+[Planning deferred tasks]
 [2 / 7] SaytileKit
-<checkout>/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
-274 |         var run: ModelRunTicket?
-275 |         let started = Date()
-276 |         var usageRecorded = false
-    |             `- warning: variable 'usageRecorded' was written to, but never read
-277 |         do {
-278 |             try await assertCurrent()
-[4 / 8] SaytileKit
-<checkout>/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
-[10 / 13] Saytile-product
-[11 / 14] Saytile-product
-<checkout>/Sources/SaytileApp/AppModel.swift:472:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
-464 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
-465 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
-466 |         connectionCheckTask = Task {
-    |                                    |- note: 'self' implicitly strongly captured here
-    |                                    `- note: add 'self' as a capture list item to silence
-467 |             // A cancelled older check must fully close its sockets before another starts.
-468 |             await previous?.value
-    :
-470 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
-471 |             do {
-472 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
-    |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
-    |                                                                                         `- note: explicitly assign the capture list item to silence
-473 |                     Task { @MainActor [weak self] in
-474 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+[3 / 8] SaytileKit
+[4 / 54]
+[14 / 136]
+[15 / 136]
+[16 / 136]
+[19 / 136]
+[23 / 136]
+[28 / 136]
+[29 / 136]
+[31 / 136]
+[32 / 136]
+[36 / 136]
+[37 / 136]
+[38 / 136]
+[39 / 136]
+[40 / 136]
+[42 / 136]
+[43 / 136]
+[44 / 136]
+[49 / 136]
+[51 / 136]
+[52 / 136]
+[54 / 136]
+[55 / 136]
+[65 / 136]
+[67 / 136]
+[69 / 136]
+[70 / 136]
+[71 / 136]
+[74 / 136]
+[75 / 136]
+[78 / 136]
+[80 / 136]
+[81 / 136]
+[82 / 136]
+[88 / 136]
+[89 / 136]
+[90 / 136]
+[95 / 136]
+[96 / 136]
+[97 / 136]
+[99 / 136]
+[102 / 136]
+[113 / 136]
+[114 / 136]
+[115 / 136]
+[116 / 136]
+[120 / 136]
+[123 / 136]
+[125 / 136]
+[128 / 136]
+[129 / 136]
+[130 / 136]
+[131 / 136]
+/Users/hhf/.codex/worktrees/saytile-single-asr-seal/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: [1;33mwarning: [1;39mvariable 'usageRecorded' was written to, but never read[0;0m
+[0;36m274 |[0;0m         var run: ModelRunTicket?
+[0;36m275 |[0;0m         let started = Date()
+[0;36m276 |[0;0m         var usageRecorded = false
+    [0;36m|[0;0m             `- [1;33mwarning: [1;39mvariable 'usageRecorded' was written to, but never read[0;0m
+[0;36m277 |[0;0m         do {
+[0;36m278 |[0;0m             try await assertCurrent()
+[132 / 136] SaytileKit
+/Users/hhf/.codex/worktrees/saytile-single-asr-seal/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[138 / 141] Saytile-product
+[141 / 145]
+[142 / 145] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-single-asr-seal/Sources/SaytileApp/AppModel.swift:472:89: [1;33mwarning: [1;39m'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture\ImplicitStrongCapture]8;;\]
+[0;36m464 |[0;0m         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+[0;36m465 |[0;0m         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+[0;36m466 |[0;0m         connectionCheckTask = Task {
+    [0;36m|[0;0m                                    |- [1;39mnote: [1;39m'self' implicitly strongly captured here[0;0m
+    [0;36m|[0;0m                                    `- [1;39mnote: [1;39madd 'self' as a capture list item to silence[0;0m
+[0;36m467 |[0;0m             // A cancelled older check must fully close its sockets before another starts.
+[0;36m468 |[0;0m             await previous?.value
+    [0;36m:[0;0m
+[0;36m470 |[0;0m             guard connectionCheckID == generation, !Task.isCancelled else { return }
+[0;36m471 |[0;0m             do {
+[0;36m472 |[0;0m                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+    [0;36m|[0;0m                                                                                         |- [1;33mwarning: [1;39m'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture\ImplicitStrongCapture]8;;\]
+    [0;36m|[0;0m                                                                                         `- [1;39mnote: [1;39mexplicitly assign the capture list item to silence[0;0m
+[0;36m473 |[0;0m                     Task { @MainActor [weak self] in
+[0;36m474 |[0;0m                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
 
 [#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
-<checkout>/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
-<checkout>/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
-[13 / 14] Saytile-product
-[14 / 14] Saytile-product
-Build complete! (55.07秒)
-/tmp/saytile-bundle.Nk9vhX/Saytile.app: replacing existing signature
-/tmp/saytile-bundle.Nk9vhX/Saytile.app/Contents/Info.plist: OK
-Built /tmp/saytile-package.jdiV5R/Saytile.app
-created: /tmp/saytile-v110-seal/53f65d3/app/Saytile-1.0.0-rc.2-no-api.10-arm64.dmghdiutil: WARNING: 'hdiutil create -volname -format ...' is deprecated. Please use 'diskutil image create from/blank --volumeName --format ...' instead.
+[144 / 145] Saytile-product
+/Users/hhf/.codex/worktrees/saytile-single-asr-seal/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/.codex/worktrees/saytile-single-asr-seal/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[145 / 145] Saytile-product
+Build complete! (155.47秒)
+/tmp/saytile-bundle.qm2HKY/Saytile.app: replacing existing signature
+/tmp/saytile-bundle.qm2HKY/Saytile.app/Contents/Info.plist: OK
+Built /tmp/saytile-package.d40uTl/Saytile.app
+created: /tmp/saytile-v110-seal/5639058/app/Saytile-1.0.0-rc.2-no-api.10-arm64.dmghdiutil: WARNING: 'hdiutil create -volname -format ...' is deprecated. Please use 'diskutil image create from/blank --volumeName --format ...' instead.
 
 正在检查“Protective Master Boot Record（MBR：0）”的校验和…
 Protective Master Boot Record（MBR：0）：已验证CRC32 $0E1EDAF3
 正在检查“GPT Header（Primary GPT Header：1）”的校验和…
-    GPT Header（Primary GPT Header：1）：已验证CRC32 $04BD4ABB
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $05B41A56
 正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
-GPT Partition Data（Primary GPT Table：已验证CRC32 $B7450B66
+GPT Partition Data（Primary GPT Table：已验证CRC32 $0A3ED67F
 正在检查“（Apple_Free：3）”的校验和…
                       （Apple_Free：3）：已验证CRC32 $00000000
 正在检查“disk image（Apple_APFS：4）”的校验和…
-            disk image（Apple_APFS：4）：已验证CRC32 $42392A72
+            disk image（Apple_APFS：4）：已验证CRC32 $58C17A87
 正在检查“（Apple_Free：5）”的校验和…
                       （Apple_Free：5）：已验证CRC32 $00000000
 正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
-GPT Partition Data（Backup GPT Table：：已验证CRC32 $B7450B66
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $0A3ED67F
 正在检查“GPT Header（Backup GPT Header：7）”的校验和…
-     GPT Header（Backup GPT Header：7）：已验证CRC32 $686EA311
-已验证CRC32 $5107F329
-hdiutil: verify: checksum of "/tmp/saytile-v110-seal/53f65d3/app/Saytile-1.0.0-rc.2-no-api.10-arm64.dmg" is VALID
-Packaged /tmp/saytile-v110-seal/53f65d3/app/Saytile-1.0.0-rc.2-no-api.10-arm64.dmg
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $6967F3FC
+已验证CRC32 $E9840808
+hdiutil: verify: checksum of "/tmp/saytile-v110-seal/5639058/app/Saytile-1.0.0-rc.2-no-api.10-arm64.dmg" is VALID
+Packaged /tmp/saytile-v110-seal/5639058/app/Saytile-1.0.0-rc.2-no-api.10-arm64.dmg
