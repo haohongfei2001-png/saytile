@@ -66,6 +66,8 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         latestText = document.text
         applyLatest()
     }
+    private var lastManagedOrigin: NSPoint?
+    private var wheelDirection: Bool?
     private var changingDocument = false
     private var selecting = false
     private var notificationScheduled = false
@@ -85,7 +87,9 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         transcriptView.isRichText = false
         transcriptView.importsGraphics = false
         transcriptView.drawsBackground = false
-        transcriptView.isVerticallyResizable = true
+        // TextKit lays out glyphs; this scroll view owns document height,
+        // including the empty viewport after the last spoken word.
+        transcriptView.isVerticallyResizable = false
         transcriptView.isHorizontallyResizable = false
         transcriptView.autoresizingMask = [.width]
         transcriptView.minSize = .zero
@@ -126,6 +130,7 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
     func consumeLatestRequest(_ request: Int) {
         guard request != latestRequest else { return }
         latestRequest = request
+        wheelDirection = nil
         jumpToLatest()
     }
 
@@ -148,9 +153,14 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
 
     override func scrollWheel(with event: NSEvent) {
         motion?.cancel()
-        if event.scrollingDeltaY > 0 { isFollowingLatest = false; publishState() }
+        let delta = event.scrollingDeltaY
+        if delta != 0 {
+            wheelDirection = delta > 0
+            if delta > 0 { isFollowingLatest = false; publishState() }
+            requestAdjacentPage(older: delta > 0)
+        }
         super.scrollWheel(with: event)
-        if event.scrollingDeltaY != 0 { requestAdjacentPage(older: event.scrollingDeltaY > 0) }
+        if delta != 0 { requestAdjacentPage(older: delta > 0) }
     }
 
     private func requestAdjacentPage(older: Bool) {
@@ -165,10 +175,14 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
 
     @objc private func viewportChanged(_ notification: Notification) {
         guard !changingDocument, !selecting, contentSize == lastLayoutSize else { return }
+        // AppKit can publish our own bounds change on a later run-loop turn.
+        guard contentView.bounds.origin != lastManagedOrigin else { return }
+        lastManagedOrigin = nil
         if !editing, transcriptView.selectedRange().length == 0, isAtBottom, !rendered.newer {
             isFollowingLatest = true
             if hasDeferredUpdate { applyLatest() }
         } else { isFollowingLatest = false }
+        if let older = wheelDirection { requestAdjacentPage(older: older) }
         if let event = NSApp.currentEvent, event.type == .leftMouseDragged || event.type == .leftMouseUp {
             requestAdjacentPage(older: !isAtBottom)
         }
@@ -295,6 +309,7 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         let maximum = max(0, transcriptView.bounds.height - contentSize.height)
         contentView.scroll(to: NSPoint(x: 0, y: min(maximum, max(0, point.y))))
         reflectScrolledClipView(contentView)
+        lastManagedOrigin = contentView.bounds.origin
     }
 
     private func publishState() {

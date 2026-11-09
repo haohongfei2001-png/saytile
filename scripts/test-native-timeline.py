@@ -15,6 +15,7 @@ p = argparse.ArgumentParser()
 p.add_argument('--app', type=Path, required=True)
 p.add_argument('--output', type=Path, required=True)
 p.add_argument('--controls', action='store_true')
+p.add_argument('--record', action='store_true', help='Record only the isolated native window during idle animation')
 args = p.parse_args()
 app, out = args.app.resolve(), args.output.resolve()
 exe = app / 'Contents/MacOS/Saytile'
@@ -35,6 +36,8 @@ with tempfile.TemporaryDirectory(prefix='saytile-timeline-review-') as raw:
             texts = ['先把今天想说的记下来。', '嗯，这一句还想再琢磨一下。', '有空的时候，再接着往下说。']
             db.execute('INSERT INTO revisions(id,recording_id,text,origin,created_at) VALUES (?,?,?,?,?)', (vid, rid, texts[n % 3], 'userEdit', time))
     env = dict(os.environ, SAYTILE_TIMELINE_REVIEW='1')
+    if args.record:
+        env["SAYTILE_RECORD_TIMELINE"] = "1"
     if args.controls:
         probe = tmp / 'ui-control-probe'
         src = Path(__file__).resolve().parents[1] / 'tests/fixtures/NativeUIControlProbe.swift'
@@ -47,5 +50,10 @@ with tempfile.TemporaryDirectory(prefix='saytile-timeline-review-') as raw:
     names = ['timeline-live','timeline-idle','timeline-history','timeline-midnight','timeline-reopened']
     passed = run.returncode == 0 and 'TIMELINE_NATIVE_PASS' in run.stdout and all((out / (name+'.png')).exists() for name in names)
     receipt = dict(status='PASS' if passed else 'FAIL', source=info['SaytileSourceRevision'], dirty=info['SaytileSourceDirty'], binary_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(), seed_rows=12000, native_ax_copy=args.controls, provider_requests=0, images={n:hashlib.sha256((out / (n+'.png')).read_bytes()).hexdigest() for n in names if (out / (n+'.png')).exists()})
+    if args.record and passed:
+        encoder = Path(__file__).with_name('encode-timeline-recording.swift')
+        movie = out / 'idle-transition.mov'
+        subprocess.run(['swift', str(encoder), str(out / 'motion-frames'), str(movie)], check=True)
+        receipt['native_window_recording_sha256'] = hashlib.sha256(movie.read_bytes()).hexdigest()
     (out / 'receipt.json').write_text(json.dumps(receipt, indent=2)+'\n')
     raise SystemExit(0 if passed else 1)

@@ -221,7 +221,11 @@ extension AppDelegate {
                 model.closeDetail()
                 let beforeIdle = scroll.contentView.bounds.minY
                 // Wait for the actual production timer at the shortest supported interval.
-                for _ in 0..<140 where !model.timelineIdle { try await Task.sleep(for: .milliseconds(100)) }
+                if ProcessInfo.processInfo.environment["SAYTILE_RECORD_TIMELINE"] == "1" {
+                    try await self.recordIdleTransition(host, model: model, output: output)
+                } else {
+                    for _ in 0..<140 where !model.timelineIdle { try await Task.sleep(for: .milliseconds(100)) }
+                }
                 try await self.reviewUntil { scroll.rendered.idle && scroll.contentView.bounds.minY > beforeIdle + 20 &&
                     scroll.documentVisibleRect.maxY >= scroll.transcriptView.bounds.height - 1 }
                 try self.captureReview(host, name: "timeline-idle", output: output)
@@ -233,14 +237,18 @@ extension AppDelegate {
                 guard model.timelineTail?.group != scroll.rendered.spans.dropLast().last?.entry.group else { throw ReviewFailure("post-idle speech reused previous group") }
                 // Deliver an AppKit wheel event directly to our own scroll view.
                 // No global event, active application, public clipboard or microphone.
+                let oldFirst = scroll.rendered.firstPosition!
                 scroll.contentView.scroll(to: .zero)
                 scroll.reflectScrolledClipView(scroll.contentView)
-                try await self.reviewUntil { !scroll.isFollowingLatest }
-                let oldFirst = scroll.rendered.firstPosition!
-                guard let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: 48, wheel2: 0, wheel3: 0),
+                guard let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: 320, wheel2: 0, wheel3: 0),
                       let event = NSEvent(cgEvent: wheel) else { throw ReviewFailure("no native wheel event") }
                 let began = ContinuousClock.now
-                scroll.scrollWheel(with: event)
+                // A real trackpad gesture can span multiple Cocoa run-loop turns.
+                // The native view must cross the old keyset boundary and retain overlap.
+                for _ in 0..<12 where scroll.rendered.firstPosition == oldFirst {
+                    scroll.scrollWheel(with: event)
+                    try await Task.sleep(for: .milliseconds(20))
+                }
                 try await self.reviewUntil { (scroll.rendered.firstPosition ?? oldFirst) < oldFirst }
                 guard scroll.rendered.spans.count == 64, !scroll.isFollowingLatest,
                       scroll.rendered.spans.contains(where: { $0.entry.position == oldFirst }) else { throw ReviewFailure("paged native viewport dropped overlap") }
@@ -275,6 +283,34 @@ extension AppDelegate {
                 guard scroll.isFollowingLatest, scroll.rendered.spans.last?.entry == model.timelineTail,
                       scroll.rendered.spans.count == 64 else { throw ReviewFailure("reopened window lost live timeline") }
             })
+    }
+
+    /// Record only this process's real native view during the production idle
+    /// transition. Keep pre-transition frames in a short rolling buffer.
+    @MainActor private func recordIdleTransition(_ host: NSView, model: AppModel, output: URL) async throws {
+        let directory = output.appendingPathComponent("motion-frames")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        var frames: [(time: Double, png: Data)] = []
+        let start = ProcessInfo.processInfo.systemUptime
+        var idleAt: Double?
+        while ProcessInfo.processInfo.systemUptime - start < 16 {
+            guard let window = host.window, window is ReviewPanel, !window.isKeyWindow,
+                  let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw ReviewFailure("native view recording unavailable") }
+            host.cacheDisplay(in: host.bounds, to: bitmap)
+            let time = ProcessInfo.processInfo.systemUptime
+            guard let png = bitmap.representation(using: .png, properties: [:]) else { throw ReviewFailure("native frame unavailable") }
+            frames.append((time, png))
+            if model.timelineIdle && idleAt == nil { idleAt = time }
+            if let idleAt {
+                if time - idleAt > 0.65 { break }
+            } else { frames.removeAll { time - $0.time > 0.5 } }
+            try await Task.sleep(for: .milliseconds(16))
+        }
+        guard idleAt != nil, let first = frames.first else { throw ReviewFailure("idle transition missing from recording") }
+        for (i, frame) in frames.enumerated() {
+            try frame.png.write(to: directory.appendingPathComponent("\(i).png"))
+        }
+        try JSONEncoder().encode(frames.map { $0.time - first.time }).write(to: directory.appendingPathComponent("times.json"))
     }
 
     private struct ReviewFailure: LocalizedError {
@@ -437,12 +473,12 @@ extension AppDelegate {
         print("UI_IMAGE_GEOMETRY " + String(decoding: try JSONSerialization.data(withJSONObject: geometry, options: [.sortedKeys]), as: UTF8.self))
     }
 
-    @MainActor private func reviewUntil(_ condition: () -> Bool) async throws {
+    @MainActor private func reviewUntil(line: Int = #line, _ condition: () -> Bool) async throws {
         for _ in 0..<250 {
             if condition() { return }
             try await Task.sleep(for: .milliseconds(20))
         }
-        throw ReviewFailure("native UI controller did not acknowledge the expected state within five seconds")
+        throw ReviewFailure("native UI controller did not acknowledge the expected state at UIReview.swift:\(line) within five seconds")
     }
 
     @MainActor private func inspectCapture(_ label: String, state: String, hasText: Bool = false, in host: NSView) async throws {
