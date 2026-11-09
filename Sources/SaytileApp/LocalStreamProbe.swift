@@ -4,7 +4,7 @@ import SaytileKit
 /// Observes only this isolated panel's laid-out NSTextView. No screen capture,
 /// microphone, pasteboard, real archive or external application is used.
 @MainActor enum LocalStreamProbe {
-    struct Frame: Codable { let t: Double; let text: String }
+    struct Frame: Codable { let t: Double; let text: String; let speaking: Bool; let level: Float }
     struct Result: Codable {
         let model: String
         let sha: String?
@@ -32,15 +32,16 @@ import SaytileKit
         model.selectLocal(id, archiveOnly: id.capability == .batch)
         let start = ProcessInfo.processInfo.systemUptime
         let observe = Task { @MainActor () -> ([Frame], Int) in
-            var frames: [Frame] = [], last = "", changes = 0
+            var frames: [Frame] = [], last = "", changes = 0, captured = false
             while !Task.isCancelled {
                 if panel.isVisible, let view = textView(content), !view.isHiddenOrHasHiddenAncestor,
                    let manager = view.transcriptView.layoutManager, manager.numberOfGlyphs > 0 {
                     let string = view.transcriptView.string
                     if !string.isEmpty, last != string {
                         last = string; changes += 1
-                        if changes <= 100 { frames.append(Frame(t: ProcessInfo.processInfo.systemUptime - start, text: string)) }
-                        if changes == 3, let bitmap = content.bitmapImageRepForCachingDisplay(in: content.bounds) {
+                        if changes <= 100 { frames.append(Frame(t: ProcessInfo.processInfo.systemUptime - start, text: string, speaking: model.audio.state == .speaking, level: model.audio.level)) }
+                        if changes >= 3, !captured, model.audio.state == .speaking, let bitmap = content.bitmapImageRepForCachingDisplay(in: content.bounds) {
+                            captured = true
                             content.cacheDisplay(in: content.bounds, to: bitmap)
                             try? bitmap.representation(using: .png, properties: [:])?.write(to: model.directory.appending(path: "partial.png"))
                         }
@@ -77,7 +78,7 @@ import SaytileKit
             total: ProcessInfo.processInfo.systemUptime - start, archive: records.map(\.text), providers: providers.sorted())
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]
         try encoder.encode(receipt).write(to: model.directory.appending(path: "visible.json"), options: .atomic)
-        let early = frames.filter { $0.t < receipt.endOfFile }
+        let early = frames.filter { $0.t < receipt.endOfFile && $0.speaking }
         let expected = id == .apple ? "apple-speech-analyzer" : id.rawValue
         guard (batch ? early.isEmpty : early.count >= 2), providers == [expected], records.contains(where: { !$0.text.isEmpty }) else {
             throw AudioFailure.message("未观察到多次结束前的原生文字更新")

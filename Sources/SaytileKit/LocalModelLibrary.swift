@@ -29,6 +29,8 @@ public enum LocalASRID: String, CaseIterable, Codable, Sendable {
     }
 }
 
+private final class LocalResourceAnchor {}
+
 public struct LocalModelManifest: Decodable, Sendable {
     public struct File: Decodable, Sendable {
         public let path: String
@@ -44,8 +46,19 @@ public struct LocalModelManifest: Decodable, Sendable {
 
     public static func load(_ id: LocalASRID) throws -> Self {
         // Standalone signed applications copy the catalog into Contents/Resources.
-        let url = Bundle.main.url(forResource: id.rawValue, withExtension: "json", subdirectory: "LocalASR")
-            ?? Bundle.module.url(forResource: id.rawValue, withExtension: "json", subdirectory: "LocalASR")
+        var bundles = [Bundle.main]
+        if Bundle.main.bundleURL.pathExtension != "app" {
+            // SwiftPM tests, tools and static-library clients may have the resource
+            // bundle next to either the executable or the test bundle. An absent
+            // optional catalog must be reportable without a Bundle.module trap.
+            let anchor = Bundle(for: LocalResourceAnchor.self)
+            let roots = [Bundle.main.resourceURL, Bundle.main.executableURL?.deletingLastPathComponent(),
+                         anchor.resourceURL, anchor.bundleURL.deletingLastPathComponent()]
+            for root in roots.compactMap({ $0 }) {
+                if let bundle = Bundle(url: root.appending(path: "Saytile_SaytileKit.bundle")) { bundles.append(bundle) }
+            }
+        }
+        let url = bundles.lazy.compactMap { $0.url(forResource: id.rawValue, withExtension: "json", subdirectory: "LocalASR") }.first
         guard let url else { throw AudioFailure.message("当前版本缺少模型清单") }
         let model = try JSONDecoder().decode(Self.self, from: Data(contentsOf: url))
         guard model.id == id, model.revision.range(of: "^[a-f0-9]{40}$", options: .regularExpression) != nil,
