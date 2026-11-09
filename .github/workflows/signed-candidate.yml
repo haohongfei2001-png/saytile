@@ -1,0 +1,23 @@
+name: Signed single ASR disk image
+on:
+  push:
+    branches: ['codex/single-asr-rc2-seal']
+    paths: ['deliverables/no-api.10/*.dmg', '.github/workflows/signed-candidate.yml']
+permissions:
+  contents: read
+jobs:
+  installed:
+    runs-on: macos-26
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Inspect the shipped signature, install privately, exercise native controls, and check normal Gatekeeper
+        run: python3 evidence/no-api10/check-signed-image.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: signed-installation
+          path: ${{ runner.temp }}/signed-package-evidence
+          if-no-files-found: error

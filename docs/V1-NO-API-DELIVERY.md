@@ -6,4 +6,4 @@
 
 截至首批证据提交，完整 Xcode 26.6 已对该 SHA 执行 401 项 Swift Testing，401 项通过、0 项失败、0 项跳过。独占前台的 WKWebView、NSTextView 和 TextEdit 三种目标已通过。原音和数据库异常恢复、两种麦克风路由以及 RC1 和 no-api.9.1 的隔离升级回退已通过。两小时持续采集已启动，结论待该次运行结束。
 
-系统睡眠请求在托管 VirtualMac 返回 71；普通 Gatekeeper 拒绝 ad-hoc 包，Developer ID 分发标记为 BLOCKED。真实服务商连接、云端识别、准确率和确认延迟均为 NOT_RUN。
+系统睡眠请求在托管 VirtualMac 返回 71；最终 DMG 和 App 均已用 Developer ID 正式签名；普通 Gatekeeper 返回 Unnotarized Developer ID，公开分发 BLOCKED。独占 Mac 已经通过专用虚拟麦克风验证讲话中收到睡眠通知时落盘、唤醒后重新采集及手动暂停保持。真实服务商连接、云端识别、准确率和确认延迟均为 NOT_RUN。

@@ -1,5 +1,7 @@
 # V1 开发状态 · no-api.10
 
+已用匹配发行人的 Developer ID 签署最终包。独立测试继续使用冻结源码 53f65d3。
+
 单 ASR、单 GPT 文字路径已固定。Auto 使用已观察的语言记录；证据不足或选择未经连接检查时使用本机识别。前台 AX 已在收到超时报错、实际已写入的 WKWebView 中确认一笔写入，拒绝焦点、窗口或所有权变化后的修改。两小时运行等待终态。
 
 [冻结状态](V1-NO-API-DELIVERY.md) · [机器证据](../evidence/no-api10/final/) · [原生连接说明](V1-RC2-CONNECTION-SETUP.md)
