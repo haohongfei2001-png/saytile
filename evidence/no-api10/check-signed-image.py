@@ -4,6 +4,8 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import re
+import runpy
 import shutil
 import subprocess
 import time
@@ -15,7 +17,10 @@ image=next(Path('deliverables/no-api.10').glob('*.dmg'))
 expected=json.loads(Path('evidence/no-api10/final/app/identity.json').read_text())
 def file_hash(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def run(*args,check=True):
-    return subprocess.run(args,check=check,capture_output=True,text=True,timeout=140)
+    proc = subprocess.run(args,capture_output=True,text=True,timeout=140)
+    if check and proc.returncode:
+        raise RuntimeError(f'{args[0]} returned {proc.returncode}: '+(proc.stderr or proc.stdout)[-1200:])
+    return proc
 assert file_hash(image)==expected['dmg_sha256']
 run('hdiutil','verify',image);run('codesign','--verify','--strict',image)
 mount=temp/'mount';mount.mkdir()
@@ -24,7 +29,11 @@ def attach(dmg):run('hdiutil','attach','-readonly','-nobrowse','-noautoopen','-m
 attach(image)
 try:run('ditto','--norsrc',mount/'Saytile.app',app)
 finally:run('hdiutil','detach',mount)
-run('codesign','--verify','--strict','-R','anchor apple generic and certificate leaf[field.1.2.840.113635.100.6.1.13] exists',app)
+team = re.search(r'(?m)^TeamIdentifier=([A-Z0-9]{10})$',run('codesign','-dvvv',app).stderr)
+assert team, 'expected a Developer ID team'
+verify_signature = runpy.run_path('distribution/developer-id.py')['check_signature']
+verify_signature(app,team[1],app=True)
+verify_signature(image,team[1])
 binary=app/'Contents/MacOS/Saytile';info=plistlib.loads((app/'Contents/Info.plist').read_bytes())
 assert info['SaytileSourceRevision']==expected['source'] and info['SaytileSourceDirty'] is False
 assert file_hash(binary)==expected['binary_sha256']

@@ -2,7 +2,7 @@ name: Signed single ASR disk image
 on:
   push:
     branches: ['codex/single-asr-rc2-seal']
-    paths: ['deliverables/no-api.10/*.dmg', '.github/workflows/signed-candidate.yml']
+    paths: ['deliverables/no-api.10/*.dmg', 'evidence/no-api10/check-signed-image.py', '.github/workflows/signed-candidate.yml']
 permissions:
   contents: read
 jobs:
