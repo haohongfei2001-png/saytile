@@ -1,9 +1,11 @@
 # Saytile
 
+**本设计分支的原生预览**已实现无限连续时间轴。可并排安装，默认以 2 分钟空闲形成新组，并支持随时回看和一键复制。[签名预览、截图、窗口录制和验证报告](docs/V1-CONTINUOUS-TIMELINE.md)
+
 > **最新产品增量决定（2026-11-09）：** [无限语音时间轴、一键复制、未来说话人模式、可选 ASR 及忠实原话](docs/PRODUCT-DECISIONS-2026-11-09.md)。这是后续产品目标，不是 no-api.10 已完成的能力；任何旧“双 ASR 同时运行”描述均已被 [单 ASR 权威架构](research/architecture/FINAL-ARCHITECTURE.md) 取代。
 
 
-Apple Silicon，macOS 26 或以上。本分支最新无 API 工程候选为 `1.0.0-rc.2-no-api.10`，采用每段一个 ASR 和 GPT-6 文本审校。[安装包与机器验收](docs/V1-NO-API-DELIVERY.md)。
+Apple Silicon，macOS 26 或以上。冻结 RC2 无 API 工程候选为 `1.0.0-rc.2-no-api.10`，采用每段一个 ASR 和 GPT-6 文本审校。[安装包与机器验收](docs/V1-NO-API-DELIVERY.md)。
 <!-- frozen-machine-current:end -->
 
 > **唯一批准的视觉设计原图**：[Saytile 原版设计全图](design/approved/Saytile-original-visual-reference-20261107.jpeg) · [原图与变更边界](design/approved/README.md)。应用外观必须以此图为唯一标准，只有用户指定的语音按钮交互与必要动效可以修改。原图已按附件原始字节入库，不能拿工程预览或近似色板替代。

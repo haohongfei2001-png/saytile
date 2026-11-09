@@ -1,0 +1,20 @@
+2026-11-09T16:43:25.0294730Z FOREGROUND_INSERT kind=web result=confirmed
+2026-11-09T16:43:25.0483220Z PASS web real foreground insertion and local confirmation
+2026-11-09T16:43:25.0642300Z PASS web duplicate stable range suppressed
+2026-11-09T16:43:25.5205990Z PASS web UTF16 suffix preserves surrounding text
+2026-11-09T16:43:25.9223330Z PASS web target mutation rejects stale insertion
+2026-11-09T16:43:25.9223770Z PASS web no Return or send
+2026-11-09T16:43:30.5771620Z PASS foreground WKWebView longer exact DOM, intact prefix/suffix, zero sends
+2026-11-09T16:43:30.5772400Z PASS foreground WKWebView shorter exact DOM, intact prefix/suffix, zero sends
+2026-11-09T16:43:30.5772940Z PASS foreground WKWebView manualEdit exact DOM, intact prefix/suffix, zero sends
+2026-11-09T16:43:30.5773520Z PASS foreground WKWebView blur exact DOM, intact prefix/suffix, zero sends
+2026-11-09T16:43:30.5774140Z PASS foreground WKWebView restart exact DOM, intact prefix/suffix, zero sends
+2026-11-09T16:43:31.5230020Z FOREGROUND_INSERT kind=native result=confirmed
+2026-11-09T16:43:31.5290960Z PASS native real foreground insertion and local confirmation
+2026-11-09T16:43:31.5291750Z PASS native duplicate stable range suppressed
+2026-11-09T16:43:31.6966690Z PASS native UTF16 suffix preserves surrounding text
+2026-11-09T16:43:32.0698460Z PASS native target mutation rejects stale insertion
+2026-11-09T16:43:32.0700140Z PASS native no Return or send
+2026-11-09T16:43:33.4812510Z PASS foreground native ignored-write no replay, no wrong window, zero sends
+2026-11-09T16:43:33.4915160Z PASS foreground native other-window no replay, no wrong window, zero sends
+2026-11-09T16:43:33.5101430Z FOREGROUND_BATCH_COMPLETE checks=10 failures=0; production frontmost resolver + fixture PID guard; not a third-party browser claim

@@ -1,0 +1,531 @@
+{
+  "binary_sha256": "45e66981b94812579a9c4952cc9694d64430de9c8dae6c4c0c76ab08868d0bc8",
+  "capture_decode": {
+    "height": 596,
+    "layout": "RGBA8 associated alpha, first decoded row at top",
+    "orientation": 1,
+    "rendering_intent": "relativeColorimetric",
+    "source_icc_sha256": "5e5912f410d7e9b068318d191623c0cb43a511a2f37a06c097ad95c0c12d7391",
+    "source_profile": "embedded non-sRGB profile",
+    "source_space": "unnamed",
+    "target_space": "sRGB",
+    "width": 816
+  },
+  "capture_manifest_sha256": "76b5246670d5e316accaed6939102c2b9bb25ce459c259973c231b579d354fc2",
+  "capture_rect_px": [
+    64,
+    64,
+    688,
+    468
+  ],
+  "capture_run_log_sha256": "2809f9fba89f65973a1a9b155c63153b5504bf88b12184daa29d21630c77d266",
+  "contact_sheet": {
+    "file": "reference-pair.png",
+    "layout": "Original crop left on its illustrated wallpaper, 16px neutral gutter, native offscreen crop right with alpha composited on (237,237,237); no resampling. Backgrounds differ deliberately and cannot score material color.",
+    "sha256": "60e853f906499ee9a014b656bda5e1481d7cdba512939bed0539ec3322e4d804"
+  },
+  "controlled_backdrop_evidence": "../../docs/V1-ORIGINAL-REFERENCE-FIDELITY.md (inherited study of material, not repeated for this preview)",
+  "geometry": {
+    "actual": {
+      "dark_text_line_boxes": [
+        [
+          46,
+          39,
+          617,
+          79
+        ],
+        [
+          47,
+          90,
+          627,
+          129
+        ],
+        [
+          50,
+          143,
+          644,
+          181
+        ],
+        [
+          45,
+          194,
+          550,
+          233
+        ],
+        [
+          46,
+          247,
+          215,
+          283
+        ]
+      ],
+      "gray_copy_components": [
+        {
+          "bounds": [
+            67,
+            383,
+            99,
+            415
+          ],
+          "pixels": 448
+        }
+      ],
+      "trailing_caret_components": [
+        {
+          "bounds": [
+            233,
+            247,
+            238,
+            285
+          ],
+          "pixels": 182
+        }
+      ],
+      "voice_violet_components": [
+        {
+          "bounds": [
+            542,
+            392,
+            548,
+            406
+          ],
+          "pixels": 70
+        },
+        {
+          "bounds": [
+            553,
+            385,
+            559,
+            413
+          ],
+          "pixels": 156
+        },
+        {
+          "bounds": [
+            565,
+            379,
+            571,
+            419
+          ],
+          "pixels": 224
+        },
+        {
+          "bounds": [
+            577,
+            385,
+            583,
+            413
+          ],
+          "pixels": 162
+        },
+        {
+          "bounds": [
+            588,
+            392,
+            594,
+            406
+          ],
+          "pixels": 72
+        }
+      ]
+    },
+    "reference": {
+      "dark_text_line_boxes": [
+        [
+          45,
+          38,
+          612,
+          76
+        ],
+        [
+          46,
+          91,
+          630,
+          127
+        ],
+        [
+          50,
+          144,
+          643,
+          180
+        ],
+        [
+          45,
+          195,
+          557,
+          231
+        ],
+        [
+          46,
+          246,
+          221,
+          280
+        ]
+      ],
+      "gray_copy_components": [
+        {
+          "bounds": [
+            66,
+            382,
+            99,
+            414
+          ],
+          "pixels": 390
+        }
+      ],
+      "trailing_caret_components": [
+        {
+          "bounds": [
+            238,
+            244,
+            244,
+            283
+          ],
+          "pixels": 220
+        }
+      ],
+      "voice_violet_components": [
+        {
+          "bounds": [
+            542,
+            392,
+            548,
+            406
+          ],
+          "pixels": 82
+        },
+        {
+          "bounds": [
+            554,
+            386,
+            560,
+            411
+          ],
+          "pixels": 142
+        },
+        {
+          "bounds": [
+            565,
+            379,
+            572,
+            420
+          ],
+          "pixels": 276
+        },
+        {
+          "bounds": [
+            575,
+            387,
+            583,
+            411
+          ],
+          "pixels": 141
+        },
+        {
+          "bounds": [
+            588,
+            392,
+            595,
+            406
+          ],
+          "pixels": 89
+        }
+      ]
+    }
+  },
+  "limits": "Reference is a JPEG concept image and native PNG is a composited synthetic speaking-state view on one Mac. Pipeline color conversion, JPEG artifacts, text rasterization and instantaneous bar amplitudes affect differences. Static images do not establish motion, wallpaper blur, hearing accuracy or user visual approval.",
+  "material_fidelity_from_unmatched_RGB": "NOT_APPLICABLE. The source JPEG includes blue/violet wallpaper. The neutral native 408x298 offscreen window has no matching wallpaper. Sample values describe these two renderings and cannot score intrinsic glass tint or background transmission.",
+  "native_capture": "controls/reference-recognizing.png",
+  "native_capture_sha256": "e54d1d51e4efdd54a0cfa092f9d2814ad6cc191f6d281ccde2524c72abe567de",
+  "original_commit": "870e1f64c4adc26209931bcc8e83562421b5c46f",
+  "original_decode": {
+    "height": 1024,
+    "layout": "RGBA8 associated alpha, first decoded row at top",
+    "orientation": 1,
+    "rendering_intent": "relativeColorimetric",
+    "source_icc_sha256": "2b3aa1645779a9e634744faf9b01e9102b0c9b88fd6deced7934df86b949af7e",
+    "source_profile": "embedded sRGB",
+    "source_space": "kCGColorSpaceSRGB",
+    "target_space": "sRGB",
+    "width": 1536
+  },
+  "original_path": "design/approved/Saytile-original-visual-reference-20261107.jpeg",
+  "original_sha256": "58be88a019cf0241b1c540f799d0944ed294e650b8c119923a434a6e4889a7c5",
+  "package_identity_sha256": "0aba6c7c4a0ea28f1997e1cb8889ff9eaa5bd14b9e2133c16971fc3a0baa36a4",
+  "package_tree": "7782bb720c9a00f8aea4482982e1f4c974fc6b7d",
+  "patches": {
+    "copy_fill_bottom_right": {
+      "center_px": [
+        110,
+        420
+      ],
+      "native_offscreen": {
+        "Y": 0.83077,
+        "minimum_alpha": 227,
+        "rgb": [
+          235,
+          235,
+          235
+        ]
+      },
+      "reference_composite": {
+        "Y": 0.732416,
+        "minimum_alpha": 255,
+        "rgb": [
+          220,
+          220,
+          251
+        ]
+      }
+    },
+    "copy_fill_top_left": {
+      "center_px": [
+        60,
+        380
+      ],
+      "native_offscreen": {
+        "Y": 0.879622,
+        "minimum_alpha": 238,
+        "rgb": [
+          241,
+          241,
+          241
+        ]
+      },
+      "reference_composite": {
+        "Y": 0.788921,
+        "minimum_alpha": 255,
+        "rgb": [
+          231,
+          227,
+          251
+        ]
+      }
+    },
+    "copy_shadow_below": {
+      "center_px": [
+        82,
+        440
+      ],
+      "native_offscreen": {
+        "Y": 0.617207,
+        "minimum_alpha": 182,
+        "rgb": [
+          206,
+          206,
+          206
+        ]
+      },
+      "reference_composite": {
+        "Y": 0.685254,
+        "minimum_alpha": 255,
+        "rgb": [
+          216,
+          212,
+          248
+        ]
+      }
+    },
+    "surface_lower_left": {
+      "center_px": [
+        90,
+        306
+      ],
+      "native_offscreen": {
+        "Y": 0.723055,
+        "minimum_alpha": 181,
+        "rgb": [
+          221,
+          221,
+          221
+        ]
+      },
+      "reference_composite": {
+        "Y": 0.722312,
+        "minimum_alpha": 255,
+        "rgb": [
+          219,
+          218,
+          252
+        ]
+      }
+    },
+    "surface_lower_middle": {
+      "center_px": [
+        344,
+        306
+      ],
+      "native_offscreen": {
+        "Y": 0.730461,
+        "minimum_alpha": 180,
+        "rgb": [
+          222,
+          222,
+          222
+        ]
+      },
+      "reference_composite": {
+        "Y": 0.694148,
+        "minimum_alpha": 255,
+        "rgb": [
+          211,
+          215,
+          251
+        ]
+      }
+    },
+    "surface_lower_right": {
+      "center_px": [
+        600,
+        306
+      ],
+      "native_offscreen": {
+        "Y": 0.730461,
+        "minimum_alpha": 180,
+        "rgb": [
+          222,
+          222,
+          222
+        ]
+      },
+      "reference_composite": {
+        "Y": 0.644363,
+        "minimum_alpha": 255,
+        "rgb": [
+          197,
+          209,
+          251
+        ]
+      }
+    },
+    "surface_upper_left": {
+      "center_px": [
+        110,
+        17
+      ],
+      "native_offscreen": {
+        "Y": 0.822786,
+        "minimum_alpha": 190,
+        "rgb": [
+          234,
+          234,
+          234
+        ]
+      },
+      "reference_composite": {
+        "Y": 0.733793,
+        "minimum_alpha": 255,
+        "rgb": [
+          223,
+          219,
+          252
+        ]
+      }
+    },
+    "surface_upper_right": {
+      "center_px": [
+        598,
+        17
+      ],
+      "native_offscreen": {
+        "Y": 0.822786,
+        "minimum_alpha": 190,
+        "rgb": [
+          234,
+          234,
+          234
+        ]
+      },
+      "reference_composite": {
+        "Y": 0.633264,
+        "minimum_alpha": 255,
+        "rgb": [
+          196,
+          207,
+          251
+        ]
+      }
+    },
+    "voice_fill_bottom_right": {
+      "center_px": [
+        627,
+        417
+      ],
+      "native_offscreen": {
+        "Y": 0.822786,
+        "minimum_alpha": 227,
+        "rgb": [
+          234,
+          234,
+          234
+        ]
+      },
+      "reference_composite": {
+        "Y": 0.637496,
+        "minimum_alpha": 255,
+        "rgb": [
+          196,
+          208,
+          251
+        ]
+      }
+    },
+    "voice_fill_top_left": {
+      "center_px": [
+        507,
+        379
+      ],
+      "native_offscreen": {
+        "Y": 0.871367,
+        "minimum_alpha": 237,
+        "rgb": [
+          240,
+          240,
+          240
+        ]
+      },
+      "reference_composite": {
+        "Y": 0.694148,
+        "minimum_alpha": 255,
+        "rgb": [
+          210,
+          215,
+          251
+        ]
+      }
+    },
+    "voice_shadow_below": {
+      "center_px": [
+        566,
+        440
+      ],
+      "native_offscreen": {
+        "Y": 0.617207,
+        "minimum_alpha": 182,
+        "rgb": [
+          206,
+          206,
+          206
+        ]
+      },
+      "reference_composite": {
+        "Y": 0.582512,
+        "minimum_alpha": 255,
+        "rgb": [
+          187,
+          199,
+          248
+        ]
+      }
+    }
+  },
+  "pixel_features": "Thresholds approximate bounds of dark text, gray squares and saturated violet ink; no OCR or font identity inference from a threshold.",
+  "reference_rect_px": [
+    130,
+    250,
+    688,
+    468
+  ],
+  "sampling": "Apple ImageIO decode then Core Graphics conversion to sRGB8, relative colorimetric. Top-left unscaled coordinates. Fixed 7x7 patch medians. Relative luminance Y uses linear sRGB D65 (0.2126, 0.7152, 0.0722), unit range. Samples are independent observations of different backgrounds. No cross-background RGB/luminance acceptance score.",
+  "source_revision": "86dbd24dd3e33d3a945301007ddd8dbfa3d0a97c"
+}
