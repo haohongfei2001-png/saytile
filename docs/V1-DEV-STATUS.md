@@ -1,23 +1,5 @@
-# 单 ASR RC2 封版验收
+# V1 开发状态 · no-api.10
 
-独占前台实测证实 WebKit 执行范围写入后返回 AX cannotComplete，正确字段与光标可独立确认。收口在返回前等待这一笔写入的通知稳定，返回后任何编辑/撤销通知都会解除绑定。
+单 ASR、单 GPT 文字路径已固定。Auto 使用已观察的语言记录；证据不足或选择未经连接检查时使用本机识别。前台 AX 已在收到超时报错、实际已写入的 WKWebView 中确认一笔写入，拒绝焦点、窗口或所有权变化后的修改。两小时运行等待终态。
 
-一次 AX 文字写入超时时，仅对同一目标核对完整字段和预期光标。页面布局变化仍会解除绑定。
-
-前台 WKWebView 已复现一次真实写入成功而确认失效。此次修改将待确认编辑和整段可读回字段匹配，并保留目标页面语义指纹和前后文字检查。
-
-整合分支从 `2bd114f526013e6ccb422a26e17f4514e9d63836` 派生。已验证继承显式麦克风修复，只有当前语言选中的一个 ASR 能收到该段音频。冷启动 Auto 使用本地识别，明确选择语言后可配置该候选和 GPT-6。托管 Xcode 26.6 已完成全量测试。本阶段新增录音快照测试，确保选用另一个语言或旧凭据时不能取得前一项 ASR 的授权。真实前台回归继续验证窗口、所有权与重启。
-
-# V1 开发状态 · no-api.9.1
-
-当前设备修补候选来自[运行源码 `0a0cdeca`](https://github.com/haohongfei2001-png/saytile/commit/0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0)。[固定安装包](https://raw.githubusercontent.com/haohongfei2001-png/saytile/5ff88cb3ccf7c6ff4afb2f95360f5798d0be3632/deliverables/no-api.9.1/Saytile-1.0.0-rc.2-no-api.9.1-arm64.dmg) · [完整实机报告](../evidence/no-api9.1/README.md) · [逐项机器验收](../evidence/no-api9.1/snapshots/public/machine.json)。
-
-基线 no-api.9 的显式设备装配路径在同款计数探针中触发 AVFAudio 格式异常，直接中止进程。修补版明确选麦时按 UID 打开系统输入队列，继续使用原有音频日志和识别工作线程。设备移除会中断采集，必须明确选择可用设备才会恢复。
-
-本阶段 11 项 PASS，3 项 FAIL，7 项 BLOCKED。正常 TextEdit 前台投递已实测；WKWebView 投递未确认，目标改变后没有重试或发送。受控睡眠后暂停标签仍旧是 P2。普通 Gatekeeper 执行拒绝；本包仅为 ad-hoc 工程候选。
-
-三家真实云服务、真人准确率、相比最强单模型的收益与确认延迟均待凭据与授权。实际系统睡眠与第二支独立物理麦克风保留各自状态。标准公开分发需要发行方 Developer ID 签名和公证。
-
-72 小时实时时钟的计划终点为北京时间 2026-11-10 19:54；终态以实际收据为准。
-
-[原冻结版记录](https://github.com/haohongfei2001-png/saytile/blob/45256e38fb2d52d1c583965bb259d3c27edafc79/docs/V1-NO-API-DELIVERY.md) · [安装与数据回退](V1-INSTALL.md)。
+[冻结状态](V1-NO-API-DELIVERY.md) · [机器证据](../evidence/no-api10/final/) · [原生连接说明](V1-RC2-CONNECTION-SETUP.md)

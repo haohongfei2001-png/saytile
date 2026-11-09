@@ -1,0 +1,21 @@
+{
+  "source": "53f65d32aff3a7f82ea929591b8202a82aa4ee97",
+  "version": "1.0.0-rc.2-no-api.10",
+  "source_changes": [],
+  "probe_source": "3323fbf36666425df95885c54263cd19921c9a60d4ead289d2667f3b1d9d3df8",
+  "library": "e6f6e011d564de2fa108e61933eaae3738d5408874d542dad860dd951b092dbb",
+  "probe": "a60f31d1d47cd9249ed2b224221bb16bd6ed7e086be7116ba58d495d7c748f64",
+  "utc": "2026-11-09T10:55:11.708388+00:00",
+  "mode": "input-only",
+  "exit": 0,
+  "trace": [
+    "ROUTE physical-A frames 146048 rate 48000.0",
+    "ROUTE private aggregate active before removal 152184 rate 48000.0",
+    "REMOVAL 所选麦克风未提供音频，请确认设备后恢复",
+    "ROUTE physical-A-return frames 145024 rate 48000.0",
+    "PASS system default unchanged; selected removed private route refused before capture; no stored audio",
+    "PASS aggregate input backend"
+  ],
+  "error": "",
+  "wavs": 0
+}

@@ -1,0 +1,175 @@
+FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0 background=false
+FIXTURE_READY
+WEB_FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0
+WEB_FIXTURE_READY
+PHASE probe_launch native_pid=2348 web_pid=2349; synthetic_targets_only=true
+PROBE_STARTED pid=2383 executable=AXForegroundBatchProbe
+FOREGROUND_STAGE safety_guardrail_init_begin
+FOREGROUND_STAGE ax_trusted=true idle_checked=true
+FOREGROUND_STAGE safety_timer_and_activation_observer_installed
+FOREGROUND_PREFLIGHT existing_AX=true idle_seconds=167; original_pid=466; contents_not_read=true
+FOREGROUND_STAGE safety_guardrail_init_complete
+FOREGROUND_STAGE target=web pid=2349 activate_begin
+FIXTURE_RPC {"target":"web","command":"activate"}
+2026-11-09 10:53:25.116 AXWebFixture[2349:11514] NSSpellServer dataFromGeneratingCandidatesForSelectedRange timed out, index is 0
+FIXTURE_REPLY web command=activate error=False value_omitted=true
+FOREGROUND_STAGE target=web activated frontmost_pid_verified
+FOREGROUND_STAGE target=web resolver_begin
+FIXTURE_RPC {"target":"web","command":"focusOwned"}
+FIXTURE_REPLY web command=focusOwned error=False value_omitted=true
+OWNED_WINDOW key=1 main=1
+FOREGROUND_STAGE target=web snapshot_complete can_set=true
+OWNED_WITNESS web count 0 13 valueMatches 0 true rangeMatches true
+FOREGROUND_STAGE target=web first_insert_begin
+OWNED_WRITE error AXTextWriteTimeout()
+OWNED_WRITE elapsed_ms 226
+OWNED_VERIFY true
+OWNED_EVENT contentOrSelection
+OWNED_EVENT contentOrSelection
+OWNED_EVENT contentOrSelection
+OWNED_EVENT contentOrSelection
+FOREGROUND_STAGE target=web first_insert_complete result=confirmed
+FOREGROUND_INSERT kind=web result=confirmed
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+OWNED_FIRST_STATE web PREFIX|你好😀SUFFIX utf16 17 caret 11 range 0 attempts -1 bound true
+OWNED_READBACK web sameTarget true pageComplete true substring true whole true
+PASS web real foreground insertion and local confirmation
+PASS web duplicate stable range suppressed
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 52
+OWNED_EVENT contentOrSelection
+OWNED_EVENT contentOrSelection
+OWNED_EVENT contentOrSelection
+OWNED_VERIFY true
+OWNED_EVENT contentOrSelection
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+PASS web UTF16 suffix preserves surrounding text
+OWNED_BINDING_INVALIDATED web 179.57171766666667
+FIXTURE_RPC {"target":"web","command":"restore"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"silentContext"}
+FIXTURE_REPLY web command=silentContext error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+OWNED_BINDING_INVALIDATED web 180.01693329166667
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+PASS web target mutation rejects stale insertion
+PASS web no Return or send
+FIXTURE_RPC {"target":"web","command":"restore"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"restore"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"restore"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"manualEdit"}
+FIXTURE_REPLY web command=manualEdit error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"restore"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"blur"}
+FIXTURE_REPLY web command=blur error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"restore"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+PASS foreground WKWebView longer exact DOM, intact prefix/suffix, zero sends
+PASS foreground WKWebView shorter exact DOM, intact prefix/suffix, zero sends
+PASS foreground WKWebView manualEdit exact DOM, intact prefix/suffix, zero sends
+PASS foreground WKWebView blur exact DOM, intact prefix/suffix, zero sends
+PASS foreground WKWebView restart exact DOM, intact prefix/suffix, zero sends
+FOREGROUND_STAGE target=native pid=2348 activate_begin
+FIXTURE_RPC {"target":"native","command":"activate"}
+FIXTURE_REPLY native command=activate error=False value_omitted=true
+FOREGROUND_STAGE target=native activated frontmost_pid_verified
+FOREGROUND_STAGE target=native resolver_begin
+FIXTURE_RPC {"target":"native","command":"focusOwned"}
+FIXTURE_REPLY native command=focusOwned error=False value_omitted=true
+OWNED_WINDOW key=unknown main=unknown
+FOREGROUND_STAGE target=native snapshot_complete can_set=true
+OWNED_WITNESS native count 0 13 valueMatches 0 true rangeMatches true
+FOREGROUND_STAGE target=native first_insert_begin
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 137
+OWNED_EVENT contentOrSelection
+OWNED_EVENT contentOrSelection
+OWNED_VERIFY true
+FOREGROUND_STAGE target=native first_insert_complete result=confirmed
+FOREGROUND_INSERT kind=native result=confirmed
+FIXTURE_RPC {"target":"native","command":"state"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+OWNED_FIRST_STATE native PREFIX|你好😀SUFFIX utf16 17 caret 11 range 0 attempts 1 bound true
+OWNED_READBACK native sameTarget true pageComplete true substring true whole true
+PASS native real foreground insertion and local confirmation
+PASS native duplicate stable range suppressed
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 4
+OWNED_EVENT contentOrSelection
+OWNED_EVENT contentOrSelection
+OWNED_VERIFY true
+FIXTURE_RPC {"target":"native","command":"state"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+PASS native UTF16 suffix preserves surrounding text
+OWNED_BINDING_INVALIDATED native 186.30857083333333
+FIXTURE_RPC {"target":"native","command":"restore"}
+FIXTURE_REPLY native command=restore error=False value_omitted=true
+FIXTURE_RPC {"target":"native","command":"select"}
+FIXTURE_REPLY native command=select error=False value_omitted=true
+OWNED_EVENT contentOrSelection
+OWNED_BINDING_INVALIDATED native 186.62631154166667
+FIXTURE_RPC {"target":"native","command":"state"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"native","command":"state"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+PASS native target mutation rejects stale insertion
+PASS native no Return or send
+FIXTURE_RPC {"target":"native","command":"restore"}
+FIXTURE_REPLY native command=restore error=False value_omitted=true
+FIXTURE_RPC {"target":"native","command":"state"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"native","command":"ignoreNextWrite"}
+FIXTURE_REPLY native command=ignoreNextWrite error=False value_omitted=true
+FIXTURE_RPC {"target":"native","command":"state"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"native","command":"restore"}
+FIXTURE_REPLY native command=restore error=False value_omitted=true
+FIXTURE_RPC {"target":"native","command":"state"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"native","command":"otherWindow"}
+FIXTURE_REPLY native command=otherWindow error=False value_omitted=true
+FIXTURE_RPC {"target":"native","command":"state"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+PASS foreground native ignored-write no replay, no wrong window, zero sends
+PASS foreground native other-window no replay, no wrong window, zero sends
+FOREGROUND_RESTORED original_pid=466; confirmed_by_PID_only=true
+FOREGROUND_BATCH_COMPLETE checks=10 failures=0; production frontmost resolver + fixture PID guard; not a third-party browser claim
+PROBE_EXIT returncode=0 signal=none
