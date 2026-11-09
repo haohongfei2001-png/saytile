@@ -45,6 +45,7 @@ private final class FakeInputAccess: InputAccess {
     var fieldWitness: String?
     func textWitness(at expected: InputTargetSnapshot) -> String? { expected == target ? fieldWitness : nil }
     var confirms = true
+    var timesOutAfterTextWrite = false
     var throwsAfterAttempt = false
     var confirmationsToDelay = 0
     var localTextMatches: Bool? = true
@@ -61,6 +62,7 @@ private final class FakeInputAccess: InputAccess {
         attempts.append(text)
         target.selectionLocation += text.utf16.count
         afterDispatch?()
+        if timesOutAfterTextWrite { throw AXTextWriteTimeout() }
         if throwsAfterAttempt { throw NativeInputError.unsupported }
         return true
     }
@@ -260,7 +262,7 @@ struct InputCoordinatorTests {
         #expect(coordinator.binding == nil)
     }
     @Test(arguments: ["own-edit", "changed-prefix", "other-page", "changed-caret"])
-    func webLayoutDuringSingleWriteNeedsExactResult(scenario: String) async throws {
+    func webTimedOutTextWriteNeedsExactReadback(scenario: String) async throws {
         let directory = testDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let store = try SaytileStore(directory: directory)
@@ -268,6 +270,7 @@ struct InputCoordinatorTests {
         access.target.isWeb = true
         access.target.selectionLocation = 2
         access.fieldWitness = "abz"
+        access.timesOutAfterTextWrite = true
         let input = NativeInputCoordinator(store: store, access: access)
         try await input.bindCurrentTarget()
         let record = try await store.createRecording()
@@ -276,7 +279,7 @@ struct InputCoordinatorTests {
             access.fieldWitness = scenario == "changed-prefix" ? "cb你好😀z" : "ab你好😀z"
             if scenario == "other-page" { access.target.pageIdentity = "second synthetic document" }
             if scenario == "changed-caret" { access.target.selectionLocation -= 1 }
-            access.onChange?(.layout)
+            access.onChange?(.contentOrSelection)
         }
         let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
                                               stableUTF16End: 4, recordingStartedAt: record.createdAt)

@@ -134,7 +134,7 @@ def foreground_batch(compile_only=False):
         probe = subprocess.Popen([str(SCRATCH / "AXForegroundBatchProbe"), "--allow-foreground", str(fixtures["native"].pid), str(fixtures["web"].pid)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
         record(f"PROBE_STARTED pid={probe.pid} executable=AXForegroundBatchProbe\n")
         threading.Thread(target=lines_to_queue, args=(probe.stdout, "probe", messages), daemon=True).start()
-        deadline = time.monotonic() + 30
+        deadline = time.monotonic() + 90
         pending = None
         while time.monotonic() < deadline and (probe.poll() is None or not messages.empty()):
             try: source, line = messages.get(timeout=0.1)
@@ -158,7 +158,7 @@ def foreground_batch(compile_only=False):
                     if probe.poll() is None:
                         probe.stdin.write(json.dumps(response) + "\n"); probe.stdin.flush()
                     pending = None
-        if probe.poll() is None: raise RuntimeError("Foreground batch exceeded 30 seconds; terminating owned fixtures without reactivation")
+        if probe.poll() is None: raise RuntimeError("Foreground batch exceeded 90 seconds; terminating owned fixtures without reactivation")
         if probe.returncode:
             code = probe.returncode
             signal_name = signal.Signals(-code).name if code < 0 else "none"

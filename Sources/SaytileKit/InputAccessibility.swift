@@ -97,7 +97,7 @@ final class AXInputAccess: InputAccess {
                 return try replaceWebRange(on: element, start: current.selectionLocation, length: 0, text: text)
             }
             let result = AXUIElementSetAttributeValue(element, kAXSelectedTextAttribute as CFString, text as CFString)
-            guard result == .success else { throw AXDispatchFailure(code: result.rawValue) }
+            try Self.checkTextWrite(result)
             return true
         }
         guard !current.isWeb else { return false }
@@ -120,6 +120,11 @@ final class AXInputAccess: InputAccess {
         return true
     }
 
+    private static func checkTextWrite(_ result: AXError) throws {
+        if result == .cannotComplete { throw AXTextWriteTimeout() }
+        guard result == .success else { throw AXDispatchFailure(code: result.rawValue) }
+    }
+
     private func supportsRangeReplacement(_ element: AXUIElement) -> Bool {
         var names: CFArray?
         return AXUIElementCopyParameterizedAttributeNames(element, &names) == .success &&
@@ -135,7 +140,7 @@ final class AXInputAccess: InputAccess {
         var response: CFTypeRef?
         let result = AXUIElementCopyParameterizedAttributeValue(element, "AXReplaceRangeWithText" as CFString,
                                                                  parameters as CFDictionary, &response)
-        guard result == .success else { throw AXDispatchFailure(code: result.rawValue) }
+        try Self.checkTextWrite(result)
         return true
     }
 
@@ -231,7 +236,7 @@ final class AXInputAccess: InputAccess {
               let immediateRange = selectedRange(element), immediateRange.location == range.location,
               immediateRange.length == range.length, isCurrent() else { throw NativeInputError.targetChanged }
         let result = AXUIElementSetAttributeValue(element, kAXSelectedTextAttribute as CFString, replacement as CFString)
-        guard result == .success else { throw AXDispatchFailure(code: result.rawValue) }
+        try Self.checkTextWrite(result)
         return true
     }
 
@@ -353,6 +358,7 @@ final class AXInputAccess: InputAccess {
     }
 }
 
+struct AXTextWriteTimeout: Error {}
 struct AXDispatchFailure: Error { let code: Int32 }
 
 enum InputSafetyPolicy {

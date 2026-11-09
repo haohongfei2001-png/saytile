@@ -98,6 +98,37 @@ private func immediateAbort(_ message: String) -> Never {
     }
 }
 
+/// Records the OS result for one attempt on the two allowlisted synthetic fields.
+@MainActor private final class FixtureAccessTrace: InputAccess {
+    let base: AXInputAccess
+    init(_ base: AXInputAccess) { self.base = base }
+    var hasPermission: Bool { base.hasPermission }
+    func snapshot() throws -> InputTargetSnapshot { try base.snapshot() }
+    func textWitness(at expected: InputTargetSnapshot) -> String? { base.textWitness(at: expected) }
+    func dispatch(_ text: String, to expected: InputTargetSnapshot) throws -> Bool {
+        let start = ProcessInfo.processInfo.systemUptime
+        defer { print("OWNED_WRITE elapsed_ms", Int(1000 * (ProcessInfo.processInfo.systemUptime - start))); fflush(nil) }
+        do { let issued = try base.dispatch(text, to: expected); print("OWNED_WRITE issued", issued); return issued }
+        catch { print("OWNED_WRITE error", error); throw error }
+    }
+    func verify(_ text: String, at before: InputTargetSnapshot) -> InputTargetSnapshot? {
+        let after = base.verify(text, at: before)
+        print("OWNED_VERIFY", after != nil); fflush(nil)
+        return after
+    }
+    func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool? {
+        base.matchesText(text, utf16Start: utf16Start, at: expected)
+    }
+    func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport {
+        base.observe(expected) { change in print("OWNED_EVENT", change); fflush(nil); onChange(change) }
+    }
+    func stopObserving() { base.stopObserving() }
+    func replaceOwned(_ expectedText: String, with replacement: String, start: Int, witness: String, at expected: InputTargetSnapshot,
+                      isCurrent: @MainActor () -> Bool) throws -> Bool {
+        try base.replaceOwned(expectedText, with: replacement, start: start, witness: witness, at: expected, isCurrent: isCurrent)
+    }
+}
+
 @main struct AXForegroundBatchProbe {
     @MainActor static func command(_ target: String, _ command: String) throws -> [String: Any] {
         let data = try JSONSerialization.data(withJSONObject: ["target": target, "command": command])
@@ -276,17 +307,10 @@ private func immediateAbort(_ message: String) -> Never {
                 let countStatus = AXUIElementCopyAttributeValue(ownedSelection.element, kAXNumberOfCharactersAttribute as CFString, &number)
                 let valueStatus = AXUIElementCopyAttributeValue(ownedSelection.element, kAXValueAttribute as CFString, &initialText)
                 print("OWNED_WITNESS", kind, "count", countStatus.rawValue, number as? Int ?? -1, "valueMatches", valueStatus.rawValue, initialText as? String == "PREFIX|SUFFIX", "rangeMatches", access.textWitness(at: preflight) == "PREFIX|SUFFIX")
-                // A second read-only AX observer identifies the event type on this owned fixture only.
-                let observer = AXInputAccess(selectionProvider: { try guardrail.selectFixture(pid) })
-                let auditStart = try observer.snapshot()
-                _ = observer.observe(auditStart) { change in
-                    print("OWNED_EVENT", kind, change)
-                }
-                defer { observer.stopObserving() }
                 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-foreground-store-" + UUID().uuidString)
                 defer { try? FileManager.default.removeItem(at: directory) }
                 let store = try SaytileStore(directory: directory)
-                let input = NativeInputCoordinator(store: store, access: access)
+                let input = NativeInputCoordinator(store: store, access: FixtureAccessTrace(access))
                 input.onBindingInvalidated = { print("OWNED_BINDING_INVALIDATED", kind, ProcessInfo.processInfo.systemUptime); fflush(nil) }
                 try await input.bindCurrentTarget()
                 let recording = try await store.createRecording()
