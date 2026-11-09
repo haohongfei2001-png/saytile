@@ -1,7 +1,13 @@
 import AppKit
 
+#if SAYTILE_FOREGROUND_FIXTURE
+typealias FixtureWindowBase = NSWindow
+#else
+typealias FixtureWindowBase = NSPanel
+#endif
+
 @MainActor
-final class FixturePanel: NSPanel {
+final class FixturePanel: FixtureWindowBase {
     var keyboardAllowed = false
     var keyboardEvents = 0
     override var canBecomeKey: Bool { keyboardAllowed }
@@ -74,9 +80,12 @@ final class TextFixtureController {
                 activated = true
                 window.keyboardAllowed = true; text.keyboardAllowed = true
                 window.alphaValue = 1; window.ignoresMouseEvents = false
-                NSApp.setActivationPolicy(.accessory)
+                NSApp.setActivationPolicy(.regular)
                 window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
                 window.makeFirstResponder(text)
+            case "focusOwned":
+                guard foregroundArmed, activated, NSApp.isActive else { reply(command, error: "Owned app is not active"); continue }
+                window.makeKeyAndOrderFront(nil); window.makeFirstResponder(text); text.setSelectedRange(NSRange(location: 7, length: 0))
             case "restore": text.string = "PREFIX|SUFFIX"; text.setSelectedRange(NSRange(location: 7, length: 0)); window.makeFirstResponder(text)
             case "select": text.setSelectedRange(NSRange(location: 0, length: 6))
             case "state":

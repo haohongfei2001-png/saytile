@@ -55,6 +55,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 print("DIAGNOSTICS_REQUIRE_SEPARATE_DATA_DIRECTORY_ARGUMENT")
                 Darwin.exit(64)
             }
+            if CommandLine.arguments.contains("--multi-asr-probe") {
+                print("RETIRED_PROBE_USE_SINGLE_ASR_WITH_ISOLATED_DIRECTORY")
+                Darwin.exit(64)
+            }
             let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--single-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--connection-setup"]
             let isDiagnostic = diagnostics.contains(where: CommandLine.arguments.contains)
             let directoryIndex = CommandLine.arguments.firstIndex(of: "--data-directory")

@@ -195,6 +195,9 @@ private func immediateAbort(_ message: String) -> Never {
             }
             for (kind, pid) in [("web", webPID), ("native", nativePID)] {
                 print("FOREGROUND_STAGE target=\(kind) pid=\(pid) activate_begin"); fflush(nil)
+                let ownRoot = AXUIElementCreateApplication(pid)
+                var ownedWindows: CFTypeRef?
+                _ = AXUIElementCopyAttributeValue(ownRoot, kAXWindowsAttribute as CFString, &ownedWindows)
                 guardrail.expectedPID = pid
                 _ = try command(kind, "activate")
                 // Never retry activation. Wait only for the one requested transition.
@@ -207,7 +210,26 @@ private func immediateAbort(_ message: String) -> Never {
                 try await Task.sleep(for: .milliseconds(150))
                 print("FOREGROUND_STAGE target=\(kind) resolver_begin"); fflush(nil)
                 let access = AXInputAccess(selectionProvider: { try guardrail.selectFixture(pid) })
-                let snapshot = try access.snapshot()
+                let focused = try command(kind, "focusOwned")
+                print("OWNED_WINDOW key=\(focused["keyWindow"] ?? "unknown") main=\(focused["mainWindow"] ?? "unknown")")
+                var ready: InputTargetSnapshot?
+                for _ in 0..<40 {
+                    try guardrail.check(pid)
+                    if let candidate = try? access.snapshot(), candidate.isEditable,
+                       candidate.selectionLocation == 7, candidate.selectionLength == 0 { ready = candidate; break }
+                    try await Task.sleep(for: .milliseconds(50))
+                }
+                guard let snapshot = ready else {
+                    for key in [kAXFocusedWindowAttribute, kAXFocusedUIElementAttribute] {
+                        var item: CFTypeRef?, role: CFTypeRef?
+                        let state = AXUIElementCopyAttributeValue(ownRoot, key as CFString, &item)
+                        if let item, CFGetTypeID(item) == AXUIElementGetTypeID() {
+                            _ = AXUIElementCopyAttributeValue(unsafeDowncast(item, to: AXUIElement.self), kAXRoleAttribute as CFString, &role)
+                        }
+                        print("OWNED_FOCUS", key, state.rawValue, role as? String ?? "none")
+                    }
+                    throw BatchFailure(message: "Fixture did not publish its focused editor")
+                }
                 print("FOREGROUND_STAGE target=\(kind) snapshot_complete can_set=\(snapshot.canSetSelectedText)"); fflush(nil)
                 guard snapshot.canSetSelectedText else { throw BatchFailure(message: "NOT_RUN fixture requires clipboard fallback; clipboard untouched") }
                 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-foreground-store-" + UUID().uuidString)

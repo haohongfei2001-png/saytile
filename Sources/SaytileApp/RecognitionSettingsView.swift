@@ -247,7 +247,7 @@ private struct ConnectionCheckPanel: View {
                         .buttonStyle(.borderedProminent)
                         .disabled(!ready || !model.connectionCheckAuthorized || model.applyingRecognitionSettings)
                         .accessibilityIdentifier("connection.startCheck")
-                    if !ready { Text("请先保存密钥并完成上方三项授权").font(.system(size: 11)).foregroundStyle(Palette.muted) }
+                    if !ready { Text("请先选择讲话语言，保存两项服务的密钥并分别授权").font(.system(size: 11)).foregroundStyle(Palette.muted) }
                 }
             }
         }.padding(14).background(Palette.paper.opacity(0.7), in: RoundedRectangle(cornerRadius: 12))

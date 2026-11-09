@@ -1,8 +1,14 @@
 import AppKit
 import WebKit
 
+#if SAYTILE_FOREGROUND_FIXTURE
+typealias FixtureWindowBase = NSWindow
+#else
+typealias FixtureWindowBase = NSPanel
+#endif
+
 @MainActor
-final class WebFixturePanel: NSPanel {
+final class WebFixturePanel: FixtureWindowBase {
     var keyboardAllowed = false
     var keyboardEvents = 0
     override var canBecomeKey: Bool { keyboardAllowed }
@@ -61,10 +67,14 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
                 guard foregroundArmed, !activated else { continue }
                 activated = true
                 window.keyboardAllowed = true
-                NSApp.setActivationPolicy(.accessory)
+                NSApp.setActivationPolicy(.regular)
                 window.alphaValue = 1; window.ignoresMouseEvents = false
                 window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
                 window.makeFirstResponder(web)
+                js = "focusComposer()"
+            case "focusOwned":
+                guard foregroundArmed, activated, NSApp.isActive else { FileHandle.standardOutput.write(Data("{\"command\":\"focusOwned\",\"error\":\"Owned app inactive\"}\n".utf8)); continue }
+                window.makeKeyAndOrderFront(nil); window.makeFirstResponder(web)
                 js = "focusComposer()"
             case "restore": js = "document.querySelectorAll('.extra').forEach(n=>n.remove());document.querySelector('#send').textContent='Send fixture only';history.replaceState({},'', '/chat/one');document.querySelector('h1').textContent='First synthetic chat';document.querySelector('textarea').value='PREFIX|SUFFIX';focusComposer();"
             case "replaceContext": js = "let h=document.querySelector('h1');h.outerHTML=h.outerHTML;"

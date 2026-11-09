@@ -36,8 +36,9 @@ def production_flags():
                          "-Xcc", "-fmodule-map-file=" + str(module_map), "-L", str(binary_directory), "-lSaytileKit", "-lc++"]
     return package_flags
 
-def compile_source(source, binary, production_sources=False):
-    flags = production_flags() if production_sources else []
+def compile_source(source, binary, production_sources=False, foreground=False):
+    flags = list(production_flags()) if production_sources else []
+    if foreground: flags += ["-D", "SAYTILE_FOREGROUND_FIXTURE"]
     fixture_helpers = [str(ROOT / "tests/fixtures/AXFixtureActivationAudit.swift")] if production_sources and source.startswith("AX") else []
     subprocess.run(["swiftc", "-swift-version", "6", "-parse-as-library", "-I", str(ROOT / "Sources/CSQLite"),
                     *flags, *fixture_helpers, str(ROOT / "tests/fixtures" / source), "-o", str(binary)], cwd=ROOT, check=True)
@@ -108,7 +109,7 @@ def run_fixture(fixture_name, probe_name, log_name, ready, web=False):
 def foreground_batch(compile_only=False):
     # These binaries remain prohibited until the probe explicitly passes preflight.
     for source, include_production in [("AXTextFixture", False), ("AXWebFixture", False), ("AXForegroundBatchProbe", True)]:
-        compile_source(source + ".swift", SCRATCH / source, include_production)
+        compile_source(source + ".swift", SCRATCH / source, include_production, foreground=True)
     if compile_only:
         print("FOREGROUND_COMPILE_ONLY_PASS; no fixtures or foreground probe executed")
         return
