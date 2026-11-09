@@ -85,7 +85,7 @@ jobs:
           out = pathlib.Path(os.environ['SAYTILE_INPUT_EVIDENCE_DIRECTORY'])
           exe = pathlib.Path(os.environ['RUNNER_TEMP']) / 'textedit-probe'
           subprocess.run(['swiftc', '-parse-as-library', '-swift-version', '6', '-I', 'Sources/CSQLite',
-                          *p['production_flags'](), 'evidence/no-api9/machine-freeze/HostedTextEdit.swift', '-o', exe], check=True)
+                          *p['production_flags'](), 'tests/fixtures/AXOwnedFieldReady.swift', 'tests/fixtures/AXHostedTextEdit.swift', '-o', exe], check=True)
           with (out / 'textedit.log').open('w') as log:
               subprocess.run([exe], stdout=log, stderr=subprocess.STDOUT, timeout=60, check=True)
           PYTHON

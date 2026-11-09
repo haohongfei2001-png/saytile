@@ -300,9 +300,6 @@ private func immediateAbort(_ message: String) -> Never {
                 }
                 print("FOREGROUND_STAGE target=\(kind) snapshot_complete can_set=\(snapshot.canSetSelectedText)"); fflush(nil)
                 guard snapshot.canSetSelectedText else { throw BatchFailure(message: "NOT_RUN fixture requires clipboard fallback; clipboard untouched") }
-                // The fixture has just activated and moved focus via WindowServer.
-                // Let notifications from that setup drain before the user's binding action.
-                try await Task.sleep(for: .milliseconds(450))
                 let preflight = try access.snapshot()
                 let ownedSelection = try guardrail.selectFixture(pid)
                 var number: CFTypeRef?, initialText: CFTypeRef?
@@ -313,6 +310,7 @@ private func immediateAbort(_ message: String) -> Never {
                 defer { try? FileManager.default.removeItem(at: directory) }
                 let store = try SaytileStore(directory: directory)
                 let input = NativeInputCoordinator(store: store, access: FixtureAccessTrace(access))
+                try await waitForOwnedField(access, original: "PREFIX|SUFFIX", caret: 7, pid: pid)
                 input.onBindingInvalidated = { print("OWNED_BINDING_INVALIDATED", kind, ProcessInfo.processInfo.systemUptime); fflush(nil) }
                 try await input.bindCurrentTarget()
                 let recording = try await store.createRecording()

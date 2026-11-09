@@ -40,6 +40,8 @@ def compile_source(source, binary, production_sources=False, foreground=False):
     flags = list(production_flags()) if production_sources else []
     if foreground: flags += ["-D", "SAYTILE_FOREGROUND_FIXTURE"]
     fixture_helpers = [str(ROOT / "tests/fixtures/AXFixtureActivationAudit.swift")] if production_sources and source.startswith("AX") else []
+    if source == "AXForegroundBatchProbe.swift":
+        fixture_helpers.append(str(ROOT / "tests/fixtures/AXOwnedFieldReady.swift"))
     subprocess.run(["swiftc", "-swift-version", "6", "-parse-as-library", "-I", str(ROOT / "Sources/CSQLite"),
                     *flags, *fixture_helpers, str(ROOT / "tests/fixtures" / source), "-o", str(binary)], cwd=ROOT, check=True)
 

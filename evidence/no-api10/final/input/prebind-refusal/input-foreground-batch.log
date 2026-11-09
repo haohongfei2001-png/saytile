@@ -1,0 +1,24 @@
+FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0 background=false
+FIXTURE_READY
+WEB_FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0
+WEB_FIXTURE_READY
+PHASE probe_launch native_pid=3937 web_pid=3963; synthetic_targets_only=true
+PROBE_STARTED pid=4210 executable=AXForegroundBatchProbe
+FOREGROUND_STAGE safety_guardrail_init_begin
+FOREGROUND_STAGE ax_trusted=true idle_checked=true
+FOREGROUND_STAGE safety_timer_and_activation_observer_installed
+FOREGROUND_PREFLIGHT existing_AX=true idle_seconds=232; original_pid=469; contents_not_read=true
+FOREGROUND_STAGE safety_guardrail_init_complete
+FOREGROUND_STAGE target=web pid=3963 activate_begin
+FIXTURE_RPC {"target":"web","command":"activate"}
+FIXTURE_REPLY web command=activate error=False value_omitted=true
+FOREGROUND_STAGE target=web activated frontmost_pid_verified
+FOREGROUND_STAGE target=web resolver_begin
+FIXTURE_RPC {"target":"web","command":"focusOwned"}
+FIXTURE_REPLY web command=focusOwned error=False value_omitted=true
+OWNED_WINDOW key=1 main=1
+FOREGROUND_STAGE target=web snapshot_complete can_set=true
+OWNED_WITNESS web count 0 13 valueMatches 0 true rangeMatches true
+FOREGROUND_BATCH_STOP targetChanged
+FOREGROUND_RESTORED original_pid=469; confirmed_by_PID_only=true
+PROBE_EXIT returncode=1 signal=none
