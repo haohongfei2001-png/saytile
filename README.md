@@ -1,5 +1,8 @@
 # Saytile
 
+> **最新产品增量决定（2026-11-09）：** [无限语音时间轴、一键复制、未来说话人模式、可选 ASR 及忠实原话](docs/PRODUCT-DECISIONS-2026-11-09.md)。这是后续产品目标，不是 no-api.10 已完成的能力；任何旧“双 ASR 同时运行”描述均已被 [单 ASR 权威架构](research/architecture/FINAL-ARCHITECTURE.md) 取代。
+
+
 Apple Silicon，macOS 26 或以上。本分支最新无 API 工程候选为 `1.0.0-rc.2-no-api.10`，采用每段一个 ASR 和 GPT-6 文本审校。[安装包与机器验收](docs/V1-NO-API-DELIVERY.md)。
 <!-- frozen-machine-current:end -->
 
