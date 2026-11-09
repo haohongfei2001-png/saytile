@@ -7,6 +7,7 @@ import Testing
 struct MultiRecognitionDiagnosticsTests {
     @Test func selectedASRIsUniqueAndCannotBypassConsentOrRoleValidation() throws {
         var config = RecognitionConfiguration()
+        config.languagePreference = .english
         config.cloudEnabled = true
         config.models = [
             .init(purpose: .englishASR, provider: .assemblyAI, model: "universal-3-6-pro"),
@@ -53,6 +54,7 @@ struct MultiRecognitionDiagnosticsTests {
         try await store.finishRecording(id: record.id)
         var configuration = RecognitionConfiguration()
         configuration.cloudEnabled = true
+        configuration.languagePreference = .chinese
         configuration.models = [
             .init(purpose: .chineseASR, provider: .qwenMessage, model: "fixture-qwen", cloudConsent: true, region: "cn-beijing", workspaceID: "fixture"),
             .init(purpose: .englishASR, provider: .assemblyAI, model: "fixture-assembly", cloudConsent: true)
@@ -105,6 +107,7 @@ struct MultiRecognitionDiagnosticsTests {
         let invalid = directory.appendingPathComponent("not-a-wave.wav")
         try Data("This is not an audio fixture".utf8).write(to: invalid)
         var configuration = RecognitionConfiguration()
+        configuration.languagePreference = .chinese
         configuration.models = [
             .init(purpose: .chineseASR, provider: .qwenMessage, model: "qwen-audio-3.1-asr-flash-message",
                   region: "cn-beijing", workspaceID: "offline-fixture"),

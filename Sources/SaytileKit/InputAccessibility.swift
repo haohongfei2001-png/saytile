@@ -81,7 +81,7 @@ final class AXInputAccess: InputAccess {
                                    applicationName: app.localizedName ?? "目标应用", windowID: windowID,
                                    elementID: elementID, pageIdentity: page, selectionLocation: range.location,
                                    selectionLength: range.length, isWeb: isWeb, isEditable: editable,
-                                   isSensitive: sensitive, canSetSelectedText: settable.boolValue, pageContextComplete: contextComplete)
+                                   isSensitive: sensitive, canSetSelectedText: isWeb ? supportsRangeReplacement(element) : settable.boolValue, pageContextComplete: contextComplete)
     }
 
     func dispatch(_ text: String, to expected: InputTargetSnapshot) throws -> Bool {
@@ -90,10 +90,17 @@ final class AXInputAccess: InputAccess {
         try current.checked()
         if current.canSetSelectedText {
             guard focusStillMatches(selection, expected: expected) else { return false }
+            if current.isWeb {
+                guard supportsRangeReplacement(element), let witness = textWitness(at: current),
+                      OwnedInputText.replacing(witness, start: current.selectionLocation, expected: "", replacement: text) != nil,
+                      (try? snapshot()) == current, focusStillMatches(selection, expected: expected) else { return false }
+                return try replaceWebRange(on: element, start: current.selectionLocation, length: 0, text: text)
+            }
             let result = AXUIElementSetAttributeValue(element, kAXSelectedTextAttribute as CFString, text as CFString)
             guard result == .success else { throw AXDispatchFailure(code: result.rawValue) }
             return true
         }
+        guard !current.isWeb else { return false }
         // Deliberate clipboard fallback. Do not inspect private clipboard data to preserve it.
         // Do not restore asynchronously: that could overwrite a newer user copy.
         guard let source = CGEventSource(stateID: .privateState),
@@ -110,6 +117,25 @@ final class AXInputAccess: InputAccess {
         // Process-specific events avoid redirecting a paste to an app activated in the dispatch race.
         down.postToPid(expected.processID)
         up.postToPid(expected.processID)
+        return true
+    }
+
+    private func supportsRangeReplacement(_ element: AXUIElement) -> Bool {
+        var names: CFArray?
+        return AXUIElementCopyParameterizedAttributeNames(element, &names) == .success &&
+            (names as? [String])?.contains("AXReplaceRangeWithText") == true
+    }
+
+    /// Ask the already identified editor to replace only this UTF-16 range. An
+    /// acknowledged write still requires independent readback by the coordinator.
+    private func replaceWebRange(on element: AXUIElement, start: Int, length: Int, text: String) throws -> Bool {
+        var range = CFRange(location: start, length: length)
+        guard let value = AXValueCreate(.cfRange, &range) else { return false }
+        let parameters: [String: Any] = ["AXReplacementRange": value, "AXReplacementText": text]
+        var response: CFTypeRef?
+        let result = AXUIElementCopyParameterizedAttributeValue(element, "AXReplaceRangeWithText" as CFString,
+                                                                 parameters as CFDictionary, &response)
+        guard result == .success else { throw AXDispatchFailure(code: result.rawValue) }
         return true
     }
 
@@ -165,6 +191,12 @@ final class AXInputAccess: InputAccess {
               let updated = OwnedInputText.replacing(witness, start: start, expected: expectedText, replacement: replacement),
               updated.utf16.count <= 65_536,
               let currentText = textWitness(at: expected), currentText.utf8.elementsEqual(witness.utf8) else { return false }
+        if expected.isWeb {
+            guard supportsRangeReplacement(element), (try? snapshot()) == expected,
+                  textWitness(at: expected)?.utf8.elementsEqual(witness.utf8) == true,
+                  focusStillMatches(selection, expected: expected), isCurrent() else { return false }
+            return try replaceWebRange(on: element, start: start, length: expectedText.utf16.count, text: replacement)
+        }
         var rangeSettable = DarwinBoolean(false), textSettable = DarwinBoolean(false)
         guard AXUIElementIsAttributeSettable(element, kAXSelectedTextRangeAttribute as CFString, &rangeSettable) == .success,
               AXUIElementIsAttributeSettable(element, kAXSelectedTextAttribute as CFString, &textSettable) == .success,

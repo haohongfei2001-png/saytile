@@ -1,3 +1,7 @@
+# 单 ASR 工程验收
+
+本轮工程测试无需用户操作。当前云连接和质量均为 NOT_RUN。以后选择一种讲话语言，填写该语言候选与 OpenAI 的凭据，在应用中单独批准服务处理及费用。中文 Qwen 另需正确地域及 Workspace。GPT-6 只接收候选文字。Developer ID 签名和公证属于发行凭据。
+
 # 用户事项 · no-api.9.1
 
 当前设备修补候选来自[运行源码 `0a0cdeca`](https://github.com/haohongfei2001-png/saytile/commit/0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0)。[固定安装包](https://raw.githubusercontent.com/haohongfei2001-png/saytile/5ff88cb3ccf7c6ff4afb2f95360f5798d0be3632/deliverables/no-api.9.1/Saytile-1.0.0-rc.2-no-api.9.1-arm64.dmg) · [完整实机报告](../evidence/no-api9.1/README.md) · [逐项机器验收](../evidence/no-api9.1/snapshots/public/machine.json)。

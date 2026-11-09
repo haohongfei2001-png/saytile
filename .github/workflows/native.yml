@@ -16,7 +16,16 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - run: swift --version
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify complete Xcode and record the actual tested revision
+        run: |
+          set -e
+          xcodebuild -version
+          xcode-select -p
+          swift --version
+          git rev-parse HEAD
+          test -d "$(xcode-select -p)/Platforms/MacOSX.platform"
       - name: Inherited Swift contracts
         run: |
           swiftc -swift-version 6 -typecheck contracts/Contracts.swift
@@ -48,4 +57,25 @@ jobs:
         with:
           name: Saytile-native-candidate
           path: dist/Saytile-native-candidate.zip
+          retention-days: 14
+  foreground:
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exercise real AX on owned windows in this disposable GUI session
+        env:
+          SAYTILE_ALLOW_FOREGROUND_INPUT_FIXTURES: '1'
+          SAYTILE_INPUT_EVIDENCE_DIRECTORY: ${{ runner.temp }}/foreground-receipt
+        run: |
+          mkdir -p "$SAYTILE_INPUT_EVIDENCE_DIRECTORY"
+          git rev-parse HEAD > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/source.txt"
+          python3 scripts/test-input-native.py --foreground-batch
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: single-asr-foreground
+          path: ${{ runner.temp }}/foreground-receipt
           retention-days: 14

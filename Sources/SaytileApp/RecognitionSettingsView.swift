@@ -33,6 +33,10 @@ struct RecognitionSettingsSection: View {
             if servicesExpanded {
                 Text("每段录音只使用一项 ASR 服务，按语言偏好自动选择；GPT-6 只处理候选文字。密钥仅存于钥匙串。")
                     .font(.system(size: 11)).foregroundStyle(Palette.muted)
+                if model.recognitionConfiguration.selectedASRModel == nil {
+                    Text("自动模式尚无足够语言记录。可以继续本机识别，或选择讲话语言后连接对应服务。")
+                        .font(.system(size: 11)).foregroundStyle(Palette.muted)
+                }
                 ForEach($model.recognitionConfiguration.models) { $item in
                     if active.contains(where: { $0.id == item.id }) {
                         ModelConfigurationEditor(configuration: $item, model: model, onCredentialChange: refreshPresence)

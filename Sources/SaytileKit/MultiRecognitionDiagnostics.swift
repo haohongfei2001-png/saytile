@@ -105,7 +105,10 @@ public enum MultiRecognitionDiagnostics {
         let usage = try await store.modelUsage(recordingID: recordingID)
         let revisions = try await store.revisions(recordingID: recordingID)
         let dispatchable = try await store.latestDispatchableRevision(recordingID: recordingID)
-        let metadataURL = store.audioDirectory.appendingPathComponent(recordingID.uuidString).appendingPathComponent("multi-asr-replay.json")
+        let currentURL = try replayMetadataURL(store: store, recordingID: recordingID)
+        let metadataURL = FileManager.default.fileExists(atPath: currentURL.path) ? currentURL :
+            currentURL.deletingLastPathComponent().appendingPathComponent("multi-asr-replay.json")
+        try StorePath.rejectSymbolicLink(metadataURL)
         let replay = try? decoder().decode(ReplayMetadata.self, from: Data(contentsOf: metadataURL))
         let selectedCandidates = candidates.filter { replay == nil || $0.run.recognitionID == replay?.recognitionID }
         let selectedDecisions = decisions.filter { replay == nil || $0.recognitionID == replay?.recognitionID }
@@ -251,7 +254,7 @@ public enum MultiRecognitionDiagnostics {
     private static func replayMetadataURL(store: SaytileStore, recordingID: UUID) throws -> URL {
         let directory = store.audioDirectory.appendingPathComponent(recordingID.uuidString, isDirectory: true)
         try StorePath.rejectSymbolicLink(directory)
-        let url = directory.appendingPathComponent("multi-asr-replay.json")
+        let url = directory.appendingPathComponent("single-asr-replay.json")
         try StorePath.rejectSymbolicLink(url)
         return url
     }

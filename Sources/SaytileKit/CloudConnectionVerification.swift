@@ -183,7 +183,8 @@ public enum CloudConnectionVerifier {
                     paced: Bool = true, progress update: @escaping @Sendable (CloudConnectionReport) -> Void) async throws -> CloudConnectionReport {
         try Task.checkCancellation()
         guard authorized else { throw ProviderFailure.authorization }
-        var check = configuration; check.cloudEnabled = true; check.automaticRecovery = false
+        var check = configuration; check.cloudEnabled = true
+        check.languagePreference = configuration.resolvedLanguage; check.automaticRecovery = false
         try check.validateForCloud()
         guard check.activeModels.count == 2,
               check.activeModels.filter({ $0.purpose.isStreaming }).count == 1,

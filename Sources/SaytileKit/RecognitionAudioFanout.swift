@@ -68,12 +68,13 @@ final class RecognitionSessionCompletion: @unchecked Sendable {
 final class RecognitionSessionFactory: @unchecked Sendable {
     struct Snapshot: Sendable {
         let configuration: RecognitionConfiguration
+        let appliedConfiguration: RecognitionConfiguration
         fileprivate let generation: UInt64
         /// Restrict this exact settings generation without observing newer cloud consent.
         var localOnly: Self {
             var restricted = configuration
             restricted.cloudEnabled = false
-            return Self(configuration: restricted, generation: generation)
+            return Self(configuration: restricted, appliedConfiguration: appliedConfiguration, generation: generation)
         }
     }
     private let lock = NSLock()
@@ -87,8 +88,14 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         value = configuration; self.dependencies = dependencies; self.local = local
         epoch = RecognitionFailoverEpoch(now: local.now)
     }
-    var snapshot: Snapshot { lock.withLock { Snapshot(configuration: value, generation: generation) } }
-    var configuration: RecognitionConfiguration { snapshot.configuration }
+    private func recordingSnapshot() -> Snapshot {
+        var frozen = value
+        frozen.languagePreference = value.resolvedLanguage
+        if frozen.selectedASRModel == nil { frozen.cloudEnabled = false }
+        return Snapshot(configuration: frozen, appliedConfiguration: value, generation: generation)
+    }
+    var snapshot: Snapshot { lock.withLock { recordingSnapshot() } }
+    var configuration: RecognitionConfiguration { lock.withLock { value } }
     var usesCloud: Bool { configuration.cloudEnabled }
     func localAvailability() async -> SpeechAvailability { await local.availability() }
     func update(_ config: RecognitionConfiguration) {
@@ -103,7 +110,7 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         // Ticket creation awaits Store. A settings/revocation change in that gap
         // must not mix generations or revive a cancelled cloud configuration.
         lock.withLock {
-            let accepted = requested ?? Snapshot(configuration: value, generation: generation)
+            let accepted = requested ?? recordingSnapshot()
             guard accepted.generation == generation else {
                 return DeferredRecognitionSession(store: store, ticket: ticket,
                     message: "识别设置已更新，本段原音继续保存，等待使用新设置恢复。")

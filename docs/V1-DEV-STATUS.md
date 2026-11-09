@@ -1,3 +1,7 @@
+# 单 ASR RC2 封版验收
+
+整合分支从 `2bd114f526013e6ccb422a26e17f4514e9d63836` 派生。已验证继承显式麦克风修复，只有当前语言选中的一个 ASR 能收到该段音频。冷启动 Auto 使用本地识别，明确选择语言后可配置该候选和 GPT-6。完整 Xcode 与独立前台窗口收据将在同一源码上生成。
+
 # V1 开发状态 · no-api.9.1
 
 当前设备修补候选来自[运行源码 `0a0cdeca`](https://github.com/haohongfei2001-png/saytile/commit/0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0)。[固定安装包](https://raw.githubusercontent.com/haohongfei2001-png/saytile/5ff88cb3ccf7c6ff4afb2f95360f5798d0be3632/deliverables/no-api.9.1/Saytile-1.0.0-rc.2-no-api.9.1-arm64.dmg) · [完整实机报告](../evidence/no-api9.1/README.md) · [逐项机器验收](../evidence/no-api9.1/snapshots/public/machine.json)。

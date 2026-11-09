@@ -1,3 +1,7 @@
+# 单 ASR 封版验收进行中
+
+原始分支本机 Swift Testing 全量运行发现 399 项测试、47 个问题。隔离 WKWebView 中，AXSelectedText 成功返回却没有写入；同一系统公开的 AXReplaceRangeWithText 真实写入预期中文与 emoji。变更保留写后读回、目标身份和不重放检查，完整 Xcode 与前台场景等待最终源码复测。
+
 # V1 测试结果 · no-api.9.1
 
 当前设备修补候选来自[运行源码 `0a0cdeca`](https://github.com/haohongfei2001-png/saytile/commit/0a0cdecab8eb099e1dc3bb21b4c15ba5c30c93f0)。[固定安装包](https://raw.githubusercontent.com/haohongfei2001-png/saytile/5ff88cb3ccf7c6ff4afb2f95360f5798d0be3632/deliverables/no-api.9.1/Saytile-1.0.0-rc.2-no-api.9.1-arm64.dmg) · [完整实机报告](../evidence/no-api9.1/README.md) · [逐项机器验收](../evidence/no-api9.1/snapshots/public/machine.json)。

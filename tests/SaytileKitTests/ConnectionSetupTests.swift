@@ -11,7 +11,7 @@ struct ConnectionSetupTests {
     }
     private func ready() -> RecognitionConfiguration {
         var result = RecognitionConfiguration()
-        result.cloudEnabled = true; result.automaticRecovery = false
+        result.languagePreference = .chinese; result.cloudEnabled = true; result.automaticRecovery = false
         for index in result.models.indices where result.models[index].enabled {
             result.models[index].cloudConsent = true
             if result.models[index].provider == .qwenMessage { result.models[index].workspaceID = "synthetic-workspace" }

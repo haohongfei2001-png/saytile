@@ -4,6 +4,7 @@ import Testing
 
 private func authorizedConfiguration() -> RecognitionConfiguration {
     var configuration = RecognitionConfiguration()
+    configuration.languagePreference = .chinese
     configuration.cloudEnabled = true
     for index in configuration.models.indices {
         configuration.models[index].cloudConsent = true
@@ -101,8 +102,15 @@ struct RecordingCloudAuthorizationTests {
         #expect(try await !fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: changed))
         #expect(try await fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: original))
         // Only a new explicit authorization can add the changed destination.
-        try await fixture.store.authorizeCloudRecovery(recordingID: record.id, configuration: changed)
-        #expect(try await fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: changed))
+        if ["provider", "purpose", "fusionModel"].contains(change) {
+            await #expect(throws: ProviderFailure.self) {
+                try await fixture.store.authorizeCloudRecovery(recordingID: record.id, configuration: changed)
+            }
+            #expect(try await !fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: changed))
+        } else {
+            try await fixture.store.authorizeCloudRecovery(recordingID: record.id, configuration: changed)
+            #expect(try await fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: changed))
+        }
         try await fixture.store.close()
     }
 
@@ -129,6 +137,8 @@ struct RecordingCloudAuthorizationTests {
         #expect(try await fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: reordered))
         let extra = ModelConfiguration(purpose: .multilingualASR, provider: .soniox, model: "stt-rt-v6", cloudConsent: true)
         reordered.models.append(extra)
+        #expect(try await fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: reordered))
+        reordered.languagePreference = .chineseEnglishMixed
         #expect(try await !fixture.store.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: reordered))
         try await fixture.store.close()
     }

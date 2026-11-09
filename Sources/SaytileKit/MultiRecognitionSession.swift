@@ -9,7 +9,7 @@ struct RecognitionPipelineDependencies: Sendable {
     var listen: @Sendable (Data, ModelConfiguration, String) async throws -> (AudioReviewTranscript, PrecisionReviewUsage)
     var reviewFailure: @Sendable (Error) -> Void = { _ in }
     var makeReviewClient: (@Sendable () -> GPTReviewSession)? = nil
-    var makeReviewClientWithFailure: (@Sendable (ReviewFailureObserver) -> GPTReviewSession)? = { GPTReviewSession(onFailure: $0.callback) }
+    var makeReviewClientWithFailure: (@Sendable (ReviewFailureObserver) -> GPTReviewSession)? = nil
     var finalizationStarted: @Sendable () -> Void = {}
     /// Bounded connection checks reserve an EOS review; normal recognition has no cap.
     var maximumLiveReviews: Int? = nil
@@ -46,7 +46,8 @@ final class MultiRecognitionSession: RecognitionSession, @unchecked Sendable {
         self.recordingID = ticket.recordingID
         self.finalizationTimeout = finalizationTimeout
         var runtimeConfiguration = configuration
-        if let selected = configuration.selectedASRModel {
+        runtimeConfiguration.languagePreference = configuration.resolvedLanguage
+        if let selected = runtimeConfiguration.selectedASRModel {
             runtimeConfiguration.models = configuration.models.map { item in
                 var value = item
                 if value.purpose.isStreaming { value.enabled = value.id == selected.id }

@@ -36,7 +36,7 @@ private func immediateAbort(_ message: String) -> Never {
         let baseline = lastInputTime
         timer = DispatchSource.makeTimerSource(queue: .global(qos: .userInteractive))
         timer.schedule(deadline: .now(), repeating: .milliseconds(20))
-        timer.setEventHandler {
+        timer.setEventHandler { @Sendable in
             if ProcessInfo.processInfo.systemUptime - inputIdleSeconds() > baseline + 0.002 {
                 immediateAbort("keyboard/mouse activity")
             }
@@ -107,6 +107,68 @@ private func immediateAbort(_ message: String) -> Never {
         if command == "state", let value = response["value"] as? String, let state = value.data(using: .utf8) { return (try JSONSerialization.jsonObject(with: state) as? [String: Any]) ?? [:] }
         return response
     }
+    @MainActor private static func webRepairs(access: AXInputAccess, safety: ForegroundSafety, pid: pid_t) async throws {
+        for scenario in ["longer", "shorter", "manualEdit", "blur", "restart"] {
+            try safety.check(pid)
+            _ = try command("web", "restore")
+            try await Task.sleep(for: .milliseconds(200))
+            let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-owned-web-" + UUID().uuidString)
+            defer { try? FileManager.default.removeItem(at: root) }
+            let store = try SaytileStore(directory: root)
+            let input = NativeInputCoordinator(store: store, access: access)
+            let binding = try await input.bindCurrentTarget()
+            let record = try await store.createRecording()
+            let ticket = try await store.beginFusionRecognition(recordingID: record.id)
+            let run = try await store.beginModelRun(ticket: ticket, configuration: .init(
+                purpose: .chineseASR, provider: .qwenMessage, model: "owned-fixture-no-network"))
+            func publish(_ text: String, sequence: Int64) async throws -> FusionPublication {
+                let c = RecognitionCandidate(run: run, sequence: sequence, text: text,
+                    stableUTF16Length: text.utf16.count, audioEndSeconds: 1, isComplete: true)
+                guard try await store.appendRecognitionCandidate(c) else { throw BatchFailure(message: "fixture candidate stale") }
+                let prefix = try await store.fusionReservedPrefix(recordingID: record.id)
+                let proposal = try PrecisionFusion.validateSelection(spans: [.init(candidateID: c.id, utf16Start: 0, utf16End: text.utf16.count)],
+                    candidates: [c], committedPrefix: prefix, unresolved: false)
+                return try await store.publishFusion(ticket: ticket, proposal: proposal)
+            }
+            let original = scenario == "shorter" ? "500👩🏽‍💻" : "50😀"
+            let replacement = scenario == "shorter" ? "50😀" : "500👩🏽‍💻"
+            guard let first = try await publish(original, sequence: 1).revision,
+                  await input.insertStable(recordingID: record.id, revisionID: first.id, stableUTF16End: original.utf16.count,
+                                           recordingStartedAt: record.createdAt) == .confirmed,
+                  try command("web", "state")["text"] as? String == "PREFIX|" + original + "SUFFIX" else {
+                throw BatchFailure(message: "web " + scenario + " first owned range unconfirmed")
+            }
+            _ = try await publish(replacement, sequence: 2)
+            guard let correction = try await store.ownedCorrectionCandidates(bindingID: binding.id).first else {
+                throw BatchFailure(message: "web " + scenario + " no stored correction")
+            }
+            if scenario == "blur" || scenario == "manualEdit" { _ = try command("web", scenario) }
+            let before = try command("web", "state")["text"] as? String
+            let result: NativeInputResult
+            if scenario == "restart" {
+                guard try await store.reserveOwnedCorrection(bindingID: binding.id, revision: correction, targetStart: 7, expectedText: original) != nil else {
+                    throw BatchFailure(message: "could not reserve interrupted correction")
+                }
+                input.invalidate()
+                try await store.close()
+                let reopened = try SaytileStore(directory: root)
+                let restarted = NativeInputCoordinator(store: reopened, access: access)
+                result = await restarted.repairOwned(revision: correction)
+                try await reopened.close()
+            } else {
+                result = await input.repairOwned(revision: correction)
+                input.invalidate()
+                try await store.close()
+            }
+            let after = try command("web", "state")
+            let allowed = scenario == "longer" || scenario == "shorter"
+            let expected = allowed ? "PREFIX|" + replacement + "SUFFIX" : before
+            guard allowed == (result == .confirmed), result != .unverified, after["text"] as? String == expected,
+                  after["sends"] as? Int == 0 else { throw BatchFailure(message: "web " + scenario + " " + String(describing: result)) }
+            print("PASS foreground WKWebView " + scenario + " exact DOM, intact prefix/suffix, zero sends")
+        }
+    }
+
     @MainActor static func main() async {
         NSApplication.shared.setActivationPolicy(.prohibited)
         guard CommandLine.arguments.count == 4, CommandLine.arguments[1] == "--allow-foreground",
@@ -131,7 +193,7 @@ private func immediateAbort(_ message: String) -> Never {
                 else { failures += 1; print("FAIL " + message) }
                 fflush(nil)
             }
-            for (kind, pid) in [("native", nativePID), ("web", webPID)] {
+            for (kind, pid) in [("web", webPID), ("native", nativePID)] {
                 print("FOREGROUND_STAGE target=\(kind) pid=\(pid) activate_begin"); fflush(nil)
                 guardrail.expectedPID = pid
                 _ = try command(kind, "activate")
@@ -181,6 +243,7 @@ private func immediateAbort(_ message: String) -> Never {
                 expect(stale != .confirmed && stale != .unverified && before["text"] as? String == after["text"] as? String && input.binding == nil, kind + " target mutation rejects stale insertion")
                 expect(after["sends"] as? Int == 0, kind + " no Return or send")
                 input.invalidate(); try await store.close()
+                if kind == "web", first == .confirmed { try await webRepairs(access: access, safety: guardrail, pid: pid) }
                 try guardrail.check(pid)
             }
             let restored = await guardrail.restoreIfSafe()

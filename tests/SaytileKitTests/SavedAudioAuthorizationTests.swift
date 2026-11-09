@@ -52,7 +52,7 @@ private final class AuthorizedLocalSession: RecognitionSession, @unchecked Senda
     func wait() async { await task.value }
 }
 private func savedAuthorizationConfig() -> RecognitionConfiguration {
-    var config = RecognitionConfiguration(); config.cloudEnabled = true
+    var config = RecognitionConfiguration(); config.languagePreference = .chinese; config.cloudEnabled = true
     for index in config.models.indices {
         config.models[index].cloudConsent = true
         if config.models[index].provider == .qwenMessage { config.models[index].workspaceID = "isolated-recovery" }
@@ -118,7 +118,7 @@ struct SavedAudioAuthorizationTests {
         await controller.shutdown()
         if origin == "authorized-cloud" {
             #expect(await probe.cloudBytes[.qwenMessage] == pcm)
-            #expect(await probe.cloudBytes[.assemblyAI] == pcm)
+            #expect(await probe.cloudBytes[.assemblyAI] == nil)
             #expect(await probe.localStarts == 0)
         } else {
             #expect(await probe.cloudBytes.isEmpty)
@@ -158,7 +158,7 @@ struct SavedAudioAuthorizationTests {
         #expect(try await !store.permitsAutomaticCloudRecovery(recordingID: ids[1], configuration: config))
         if shown == "match" {
             #expect(await probe.cloudBytes[.qwenMessage] == pcm)
-            #expect(await probe.cloudBytes[.assemblyAI] == pcm)
+            #expect(await probe.cloudBytes[.assemblyAI] == nil)
         } else {
             #expect(await probe.cloudBytes.isEmpty)
             #expect(await probe.localBytes == pcm)
