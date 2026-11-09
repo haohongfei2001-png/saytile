@@ -28,3 +28,5 @@
 2026-11-10 · Vercel ingress and native consent retests are handled by engineering. No approval needed.
 
 2026-11-10 · No changes to user actions. Gateway can remain live with model calls disabled while waiting for free Supabase capacity.
+
+2026-11-10 · No engineering test or recording required from the user. Approved organization must have a zero-increment independent slot before remote Supabase creation. Then owner enters secrets once in the named Vercel project and approves a bounded real usage test. Merchant and notarization authorizations are separate release gates.

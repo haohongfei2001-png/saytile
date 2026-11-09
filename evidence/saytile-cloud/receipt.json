@@ -1,0 +1,80 @@
+{
+  "release": "DRAFT_ONLY_NOT_COMMERCIAL",
+  "pr": "https://github.com/haohongfei2001-png/saytile/pull/14",
+  "base_pr13": "25991e62cab818d41f2e855620114822a46b6b67",
+  "mac_product_sha": "a707a0e34a2161a547de9b5b44e6cea3421d4a20",
+  "gateway_sha": "c8603c2797c21d3dad2bd50d8750412387cb568a",
+  "vercel_project": "haohongfei2001-8529/saytile-cloud",
+  "deployment_id": "dpl_B2EESGhjVEAfuygx7R6M5Lbifvy2",
+  "mac_dmg": {
+    "file": "Saytile-1.0.0-rc.2-cloud.integration.2-arm64.dmg",
+    "sha256": "dcb9d9b93241653ce192eaeb57662e8f14fd6b3cc11deac9e42389bab6978ed1",
+    "bundle": "app.saytile.mac",
+    "signed": "Developer ID Application with hardened runtime and timestamp",
+    "publicly_released": false
+  },
+  "passes": {
+    "signed_mac_install_upgrade_rollback": [
+      "upgrade.json",
+      "pr13-roundtrip.json"
+    ],
+    "gui_with_real_ax": "native-ui.json",
+    "server_and_token_isolation": "bundle-boundary.json",
+    "hosted_websocket_denied_and_liveness": "vercel-sealed.json",
+    "real_websocket_platform_lifetime": "vercel-probe-baseline.json",
+    "vercel_rollback_restore": "vercel-rollback.json",
+    "official_local_supabase_plus_mac_and_mock_models": "official-local-auth.json",
+    "concurrent_postgres": "postgres-concurrency.json",
+    "synthetic_20min_nonfinal": "soak.json",
+    "native_tests": "native-ci.json",
+    "node_tests": "node-tests.txt"
+  },
+  "observed_failures": [
+    {
+      "surface": "Gatekeeper",
+      "status": "FAIL",
+      "reason": "Unnotarized Developer ID"
+    },
+    {
+      "surface": "Hosted GUI input job, 37430b2",
+      "status": "FAIL",
+      "first": "WKWebView rebind refused unobservablePage; TextEdit passed",
+      "retry": "Owned native and WKWebView cases passed; TextEdit refused unsupported",
+      "evidence": [
+        "ci-wk-first-attempt.log",
+        "ci-owned-foreground-retry.log",
+        "ci-textedit-first.log",
+        "ci-textedit-retry.log"
+      ],
+      "unsafe_replay_or_send_observed": false
+    }
+  ],
+  "blocked": {
+    "remote_supabase": {
+      "status": "BLOCKED",
+      "currency": "USD",
+      "quoted_new_monthly_charge": 10,
+      "authorized_new_monthly_charge": 0,
+      "created": false,
+      "existing_projects_modified": false
+    },
+    "commercial_payment": "BLOCKED_MERCHANT_AUTHORIZATION",
+    "public_mac_distribution": "BLOCKED_NOTARIZATION",
+    "market_opening": "BLOCKED_OPERATOR_PRIVACY_AND_REGION_CONFIRMATION"
+  },
+  "not_run": [
+    "operator Qwen ASR",
+    "operator GPT-6 Astra",
+    "real customer audio",
+    "merchant payment",
+    "true ASR accuracy and P50/P95",
+    "actual vendor cost per audio hour",
+    "direct mainland service availability"
+  ],
+  "protected": {
+    "main": "99cfc1feb234af44e7a88b704758fa57d88f5d12",
+    "RC1_tag": "a352a1c812c33388a1a908f21ecde30da80ad1cd",
+    "no_api_10_branch": "492e0aff9baf4bf8dd5fb9d7f331dd5a6bc07a84",
+    "changes_to_protected_refs": false
+  }
+}

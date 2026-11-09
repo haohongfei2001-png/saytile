@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "scope": "paced synthetic localhost only",
+  "durationSeconds": 1218.86,
+  "accounts": 2,
+  "completedSegments": 115,
+  "deliberateDisconnects": 5,
+  "asrs": 120,
+  "ais": 115,
+  "pcmBytes": 74000000,
+  "unsettled": 0,
+  "firstLocalEventMS": {
+    "p50": 103,
+    "p95": 105
+  },
+  "eosToLocalReviewMS": {
+    "p50": 6,
+    "p95": 14
+  },
+  "runtime": "Node.js loopback gateway with PGlite and synthetic providers; not real vendor latency or cost",
+  "source_scope": "Gateway stream from a1556c8; measured before the final daily cap / PostgREST SQL fix. Final cap tested on PostgreSQL and official Supabase independently."
+}

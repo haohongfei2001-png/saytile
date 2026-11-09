@@ -28,3 +28,5 @@
 2026-11-10 · Public WebSocket stream returned 404 on a named wildcard rewrite. Use literal v1 routes to preserve the query-free admission contract; local auth, quota and consent logic is unchanged.
 
 2026-11-10 · Gateway now revalidates both the original identity and the lease every five seconds. An already open stream cannot continue using a logged-out user token.
+
+2026-11-10 · Final independent candidate source, signed private DMG, public fail-closed gateway, original design/settings screenshot and public release blockers are collected in docs/SAYTILE-CLOUD-DELIVERY.md.
