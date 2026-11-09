@@ -29,7 +29,7 @@ private final class CaptureActivityProbe: @unchecked Sendable {
     }
     func release() { lock.withLock { released = true } }
     func observe(_ speaking: Bool, _ level: Float) { lock.withLock { observations.append((speaking, level)) } }
-    var bothFinalsHeld: Bool { lock.withLock { !released && waiting == [.qwenMessage, .assemblyAI] } }
+    var selectedFinalHeld: Bool { lock.withLock { !released && waiting == [.qwenMessage] && starts[.assemblyAI] == nil } }
     var events: [(speaking: Bool, level: Float)] { lock.withLock { observations } }
 }
 
@@ -64,7 +64,7 @@ struct CaptureVADFinalizationTests {
         defer { try? FileManager.default.removeItem(at: root) }
         let store = try SaytileStore(directory: root), ring = try AudioRing(capacity: 131_072)
         let probe = CaptureActivityProbe()
-        var config = RecognitionConfiguration(); config.cloudEnabled = true; config.automaticRecovery = false
+        var config = RecognitionConfiguration(); config.languagePreference = .chinese; config.cloudEnabled = true; config.automaticRecovery = false
         for index in config.models.indices where config.models[index].enabled {
             config.models[index].cloudConsent = true
             if config.models[index].provider == .qwenMessage { config.models[index].workspaceID = "synthetic" }
@@ -100,8 +100,8 @@ struct CaptureVADFinalizationTests {
             let firstID = try #require(await worker.recordingID)
             #expect(probe.events.contains { $0.speaking && $0.level > 0 })
             write([Float](repeating: 0, count: 48_000))
-            try await waitForCapture("VAD end and both pending expert finals") {
-                probe.events.last?.speaking == false && probe.bothFinalsHeld
+            try await waitForCapture("VAD end and selected expert final held") {
+                probe.events.last?.speaking == false && probe.selectedFinalHeld
             }
             let first = try #require(try await store.recording(id: firstID))
             #expect(!first.isRecording && first.recognitionState == .running && first.audioState == .available)
@@ -122,7 +122,7 @@ struct CaptureVADFinalizationTests {
             }
             let secondID = try #require(await worker.recordingID)
             let onset = try #require(probe.events.indices.dropFirst(beforeNext).first(where: { probe.events[$0].speaking }))
-            #expect(probe.bothFinalsHeld)
+            #expect(probe.selectedFinalHeld)
             probe.release()
             try await waitForCapture("old final committed") { try await store.recording(id: firstID)?.recognitionState == .completed }
             let complete = try #require(try await store.recording(id: firstID))
@@ -130,7 +130,7 @@ struct CaptureVADFinalizationTests {
             #expect(complete.text == "第一段定稿" && ongoing.text == "第二段临时文字" && ongoing.isRecording)
             #expect(await worker.recordingID == secondID && probe.events[onset...].allSatisfy(\.speaking))
             #expect(st_ring_dropped(ring.pointer) == 0)
-            print("VAD_FINALIZATION first_wav_frames=\(savedFrames) first_eos_held=2 quiet_before_final=true next_speech_before_final=true old_final_on_original_id=true new_speech_active=true")
+            print("VAD_FINALIZATION first_wav_frames=\(savedFrames) first_eos_held=1 quiet_before_final=true next_speech_before_final=true old_final_on_original_id=true new_speech_active=true")
             await worker.stop()
             try await waitForCapture("second final committed") { try await store.recording(id: secondID)?.recognitionState == .completed }
             #expect(try await store.recording(id: secondID)?.text == "第二段定稿")

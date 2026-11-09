@@ -6,6 +6,7 @@ import Testing
 struct SingleTranscriptEngineTests {
     private func configured() -> RecognitionConfiguration {
         var value = RecognitionConfiguration()
+        value.languagePreference = .chinese
         value.cloudEnabled = true
         for index in value.models.indices {
             value.models[index].cloudConsent = true
@@ -14,7 +15,7 @@ struct SingleTranscriptEngineTests {
         return value
     }
 
-    @Test func defaultsResolveExactlyOneLanguageASRAndOneGPT6Core() throws {
+    @Test func explicitLanguageResolvesExactlyOneASRAndOneGPT6Core() throws {
         let value = configured()
         let activeASR = value.activeModels.filter { $0.purpose.isStreaming }
         let cores = value.activeModels.filter { $0.purpose == .textFusion }
@@ -24,6 +25,22 @@ struct SingleTranscriptEngineTests {
         #expect(cores[0].model == "gpt-6-astra")
         #expect(!value.activeModels.contains { [.audioReview, .finalASR].contains($0.purpose) })
         try value.validateForCloud()
+    }
+
+    @Test func recordingSnapshotRequiresTheCheckedProviderEvenWhenAnotherModelHasConsent() throws {
+        var config = configured()
+        config.checkedASRConfigurationID = try #require(config.selectedASRModel).id
+        let factory = RecognitionSessionFactory(configuration: config)
+        let inFlight = factory.snapshot
+        config.languagePreference = .english
+        factory.update(config)
+        #expect(inFlight.configuration.selectedASRModel?.provider == .qwenMessage)
+        #expect(inFlight.configuration.cloudEnabled)
+        #expect(!factory.snapshot.configuration.cloudEnabled)
+        config.checkedASRConfigurationID = try #require(config.selectedASRModel).id
+        factory.update(config)
+        #expect(factory.snapshot.configuration.cloudEnabled)
+        #expect(factory.snapshot.configuration.selectedASRModel?.provider == .assemblyAI)
     }
 
     @Test func exactlyOneGPTCoreIsMandatory() throws {
@@ -66,6 +83,8 @@ struct SingleTranscriptEngineTests {
     }
 
     @Test func languageProfilePrefersObservedUsageOverLocaleAndDetectsMixedSpeech() {
+        #expect(LanguageProfile.resolve(.auto, locale: Locale(identifier: "en"), history: []) == .auto)
+        #expect(LanguageProfile.resolve(.auto, locale: Locale(identifier: "zh"), history: ["en"]) == .auto)
         #expect(LanguageProfile.resolve(.auto, locale: Locale(identifier: "zh-Hant"), history: ["en", "en", "en"]) == .english)
         #expect(LanguageProfile.resolve(.auto, locale: Locale(identifier: "en"), history: ["zh", "zh", "zh"]) == .chinese)
         #expect(LanguageProfile.resolve(.auto, locale: Locale(identifier: "zh"), history: ["mixed", "mixed"]) == .chineseEnglishMixed)

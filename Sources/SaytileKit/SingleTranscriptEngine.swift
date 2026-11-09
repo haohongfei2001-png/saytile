@@ -36,6 +36,7 @@ actor SingleTranscriptEngine {
     private var lastReviewedSignature = ""
     private var lastProposal: FusionProposal?
     private var lastPublishedEvidenceVersion: UInt64?
+    private var didObserveLanguage = false
     private var firstPreview: Date?
     private var firstStable: Date?
     private let began = Date()
@@ -132,13 +133,15 @@ actor SingleTranscriptEngine {
         guard !overflowed.contains(run.configurationID), audio?.didOverflow(run.configurationID) != true else { throw ProviderFailure.incomplete }
         let sequence = (sequences[run.id] ?? 0) + 1; sequences[run.id] = sequence
         let candidate = RecognitionCandidate(run: run, sequence: sequence, event: event)
-        if candidate.isComplete {
+        guard try await store.appendRecognitionCandidate(candidate) else { throw FusionError.staleGeneration }
+        if candidate.isComplete && !didObserveLanguage {
             let hasHan = candidate.text.range(of: "[\u{4E00}-\u{9FFF}]", options: .regularExpression) != nil
             let hasLatin = candidate.text.range(of: "[A-Za-z]", options: .regularExpression) != nil
-            if hasHan && hasLatin { LanguageProfile.record("mixed") }
-            else if let language = candidate.language { LanguageProfile.record(language) }
+            if let tag = hasHan && hasLatin ? "mixed" : candidate.language {
+                dependencies.observeLanguage(tag)
+                didObserveLanguage = true
+            }
         }
-        guard try await store.appendRecognitionCandidate(candidate) else { throw FusionError.staleGeneration }
         if let requestID = event.requestID { requestIDs[run.id] = requestID }
         latest[run.configurationID] = candidate
         evidenceVersion &+= 1

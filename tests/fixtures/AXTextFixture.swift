@@ -1,7 +1,13 @@
 import AppKit
 
+#if SAYTILE_FOREGROUND_FIXTURE
+typealias FixtureWindowBase = NSWindow
+#else
+typealias FixtureWindowBase = NSPanel
+#endif
+
 @MainActor
-final class FixturePanel: NSPanel {
+final class FixturePanel: FixtureWindowBase {
     var keyboardAllowed = false
     var keyboardEvents = 0
     override var canBecomeKey: Bool { keyboardAllowed }
@@ -17,6 +23,13 @@ final class FixturePanel: NSPanel {
 @MainActor
 final class FixtureTextView: NSTextView {
     var returnEvents = 0
+    var ignoreNextWrite = false
+    var selectedTextWrites = 0
+    override func setAccessibilitySelectedText(_ value: String?) {
+        selectedTextWrites += 1
+        if ignoreNextWrite { ignoreNextWrite = false; return }
+        super.setAccessibilitySelectedText(value)
+    }
     var keyboardEvents = 0
     var keyboardAllowed = false
     override func keyDown(with event: NSEvent) {
@@ -33,6 +46,8 @@ final class TextFixtureController {
     let text: FixtureTextView
     let foregroundArmed: Bool
     private var activated = false
+    private var alternateWindow: NSWindow?
+    private var alternateText: NSTextView?
     private var commandBytes = Data()
     init(foregroundArmed: Bool) {
         self.foregroundArmed = foregroundArmed
@@ -42,7 +57,7 @@ final class TextFixtureController {
         window.alphaValue = 0; window.ignoresMouseEvents = true
         window.isReleasedWhenClosed = false
         text = FixtureTextView(frame: NSRect(x: 0, y: 0, width: 320, height: 180))
-        text.isEditable = true; text.isSelectable = true
+        text.isRichText = false; text.isEditable = true; text.isSelectable = true
         // An insertion fixture must not inherit automatic rewriting behavior.
         text.isAutomaticSpellingCorrectionEnabled = false
         text.isAutomaticTextReplacementEnabled = false
@@ -74,17 +89,29 @@ final class TextFixtureController {
                 activated = true
                 window.keyboardAllowed = true; text.keyboardAllowed = true
                 window.alphaValue = 1; window.ignoresMouseEvents = false
-                NSApp.setActivationPolicy(.accessory)
+                NSApp.setActivationPolicy(.regular)
                 window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
                 window.makeFirstResponder(text)
+            case "focusOwned":
+                guard foregroundArmed, activated, NSApp.isActive else { reply(command, error: "Owned app is not active"); continue }
+                window.makeKeyAndOrderFront(nil); window.makeFirstResponder(text); text.setSelectedRange(NSRange(location: 7, length: 0))
             case "restore": text.string = "PREFIX|SUFFIX"; text.setSelectedRange(NSRange(location: 7, length: 0)); window.makeFirstResponder(text)
+            case "ignoreNextWrite": text.ignoreNextWrite = true
+            case "otherWindow":
+                guard foregroundArmed, activated else { reply(command, error: "not armed"); continue }
+                let other = NSWindow(contentRect: window.frame, styleMask: [.titled], backing: .buffered, defer: false)
+                other.isReleasedWhenClosed = false; other.title = "Second synthetic draft"
+                let editor = NSTextView(frame: NSRect(x: 0, y: 0, width: 320, height: 180))
+                editor.string = "PREFIX|SUFFIX"; editor.setSelectedRange(NSRange(location: 7, length: 0))
+                other.contentView = editor; other.makeKeyAndOrderFront(nil); other.makeFirstResponder(editor)
+                alternateWindow = other; alternateText = editor
             case "select": text.setSelectedRange(NSRange(location: 0, length: 6))
             case "state":
                 let known = ["PREFIX|SUFFIX", "PREFIX|你好😀SUFFIX", "PREFIX|你好😀，接着说SUFFIX", "PREFIX|新句 你好😀，接着说SUFFIX"].contains(text.string)
                 let state: [String: Any] = ["text": known ? text.string : "UNEXPECTED_TEXT_OMITTED",
                     "knownSyntheticText": known, "utf16Length": text.string.utf16.count, "sends": text.returnEvents,
                     "keyWindow": window.isKeyWindow, "mainWindow": window.isMainWindow,
-                    "keyboardEvents": window.keyboardEvents + text.keyboardEvents]
+                    "selectedTextWrites": text.selectedTextWrites, "otherIntact": alternateText?.string == "PREFIX|SUFFIX", "keyboardEvents": window.keyboardEvents + text.keyboardEvents]
                 if let data = try? JSONSerialization.data(withJSONObject: state) { value = String(decoding: data, as: UTF8.self) }
             default: error = "Unknown fixture command"
             }

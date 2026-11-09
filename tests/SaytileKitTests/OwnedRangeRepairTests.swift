@@ -360,6 +360,7 @@ extension OwnedRangeRepairTests {
     @Test func realGPTCoreFinalizationPublishesActionableCorrectionFromFakeProviders() async throws {
         let f = try await OwnedFixture(createRuns: false)
         var configuration = RecognitionConfiguration()
+        configuration.languagePreference = .chinese
         configuration.cloudEnabled = true
         for i in configuration.models.indices {
             configuration.models[i].cloudConsent = true

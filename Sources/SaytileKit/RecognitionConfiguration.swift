@@ -29,10 +29,7 @@ public enum LanguageProfile {
         if mixed >= 2 || zh >= 3 && en >= 3 && Double(min(zh, en)) / Double(max(zh, en)) >= 0.35 { return .chineseEnglishMixed }
         if zh >= 3 && zh > en { return .chinese }
         if en >= 3 && en > zh { return .english }
-        // Locale is a weak first-run prior; observed usage takes precedence above.
-        let code = locale.language.languageCode?.identifier.lowercased() ?? ""
-        if code == "zh" { return .chinese }
-        if code == "en" { return .english }
+        // The interface language is not evidence of the language being spoken.
         return .auto
     }
     private static func normalize(_ tag: String) -> String {
@@ -168,6 +165,8 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
     public var inputMode: InputQualityMode = .highestQuality
     public var models: [ModelConfiguration] = []
     public var languagePreference: LanguagePreference? = .auto
+    /// Populated from a successful connection receipt when applying settings.
+    public var checkedASRConfigurationID: UUID?
     /// Session context is deliberately local and explicit; no background document scraping.
     public var topicContext = ""
     public var automaticRecovery = true
@@ -175,16 +174,18 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
     public var enabledModels: [ModelConfiguration] { models.filter(\.enabled) }
     public var resolvedLanguage: LanguagePreference { LanguageProfile.resolve(languagePreference ?? .auto) }
     public var selectedASRModel: ModelConfiguration? {
-        guard let provider = ASRModelRegistry.provider(for: resolvedLanguage),
-              let purpose = ASRModelRegistry.purpose(for: resolvedLanguage) else { return nil }
+        let language = resolvedLanguage
+        guard let provider = ASRModelRegistry.provider(for: language),
+              let purpose = ASRModelRegistry.purpose(for: language) else { return nil }
         return models.first { $0.provider == provider && $0.purpose == purpose }
     }
     public var activeModels: [ModelConfiguration] {
         enabledModels.filter { $0.purpose == .textFusion } + (selectedASRModel.map { [$0] } ?? [])
     }
     public func resolvedForCurrentLanguage() throws -> Self {
-        guard let selectedASRModel else { throw ProviderFailure.configuration("自动语言尚未形成可靠选择；当前录音使用 Apple 本地识别，原音保留。") }
         var value = self
+        value.languagePreference = resolvedLanguage
+        guard let selectedASRModel = value.selectedASRModel else { throw ProviderFailure.configuration("自动语言尚未形成可靠选择；当前录音使用 Apple 本地识别，原音保留。") }
         value.models = models.map { item in
             var copy = item
             if copy.purpose.isStreaming { copy.enabled = copy.id == selectedASRModel.id }
@@ -194,6 +195,10 @@ public struct RecognitionConfiguration: Codable, Sendable, Equatable {
     }
     public func validateForCloud() throws {
         guard cloudEnabled else { return }
+        guard Set(models.map(\.id)).count == models.count,
+              !enabledModels.contains(where: { $0.purpose == .audioReview || $0.purpose == .finalASR }) else {
+            throw ProviderFailure.configuration("模型身份重复或存在旧的额外复核服务。请检查识别设置。")
+        }
         let active = activeModels
         guard Set(active.map(\.id)).count == active.count else {
             throw ProviderFailure.configuration("模型配置身份重复，请为每项配置使用独立身份。")

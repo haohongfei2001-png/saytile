@@ -403,7 +403,7 @@ public enum PrecisionFusion {
     /// A rejection guard, not a semantic understanding claim. Unknown conflicts still remain
     /// candidates for explicit acoustic review. Preserve the ordered critical tokens verbatim.
     static func protectedSignature(_ text: String) -> String {
-        let pattern = #"(?i)(\b[\p{L}]+\b)(?:[\s,，]+\1\b)+|([\x{3400}-\x{9fff}])\2+|[+-]?[0-9]+(?:[.,:/-][0-9]+)*(?:%|％)?|[零〇一二三四五六七八九十百千万亿两]+|不|没|无|未|别|非|否|勿|\b(?:no|not|never|neither|nor|without|cannot|can't|don't|doesn't|didn't|isn't|aren't|wasn't|weren't|won't|wouldn't|shouldn't|couldn't)\b|[¥￥$€£]|\b(?:kg|mg|g|km|cm|mm|ms|usd|rmb|hours?|minutes?|seconds?|percent|dollars?)\b|公斤|千克|毫克|毫升|公里|厘米|毫米|元|万元|亿元|秒|分钟|小时|年|月|日|点"#
+        let pattern = #"(?i)(\b[\p{L}]+\b)(?:[\s,，]+\1\b)+|([\x{3400}-\x{9fff}])\2+|\bdecimal-point\b|\bordinal:[0-9]+\b|[+-]?[0-9]+(?:[.,:/-][0-9]+)*(?:%|％)?|[零〇一二三四五六七八九十百千万亿两]+|不|没|无|未|别|非|否|勿|\b(?:no|not|never|neither|nor|without|cannot|can't|don't|doesn't|didn't|isn't|aren't|wasn't|weren't|won't|wouldn't|shouldn't|couldn't)\b|[¥￥$€£]|\b(?:kg|mg|g|km|cm|mm|ms|usd|rmb|hours?|minutes?|seconds?|percent|dollars?)\b|公斤|千克|毫克|毫升|公里|厘米|毫米|元|万元|亿元|秒|分钟|小时|年|月|日|点"#
         // Comparison only: preserve the exact source, selected ranges and published text.
         // NFKC recognizes full-width numbers; apostrophe variants must not hide a negation.
         var comparison = text.precomposedStringWithCompatibilityMapping

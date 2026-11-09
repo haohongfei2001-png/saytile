@@ -26,7 +26,11 @@ with tempfile.TemporaryDirectory(prefix='saytile-native-ui-') as temp:
     (output / 'run.log').write_text(log)
     passed = result.returncode == 0 and 'UI_REVIEW_PASS' in log
     if args.controls:
-        passed = passed and log.count('NATIVE_UI_AXPRESS ') == 45 and log.count('NATIVE_UI_MENU_SELECT ') == 10 and log.count('NATIVE_UI_INSPECT ') == 0 and log.count('NATIVE_UI_PANEL_INSPECT ') == 11 and log.count('UI_BOTTOM_CONTROLS_PASS ') == 11 and log.count('NATIVE_UI_AXSETVALUE ') == 6 and log.count('NATIVE_UI_FIELD_EDIT ') == 6 and log.count('NATIVE_UI_SECURE_FIELD_EDIT ') == 3 and log.count('UI_CONTROL_PASS ') == 15 and log.count('UI_NATIVE_CAPTURE_ACK ') == 1 and log.count('UI_EMPTY_PANEL_MENU_PASS ') == 1 and log.count('UI_PRIVATE_COPY_PASS ') == 2 and log.count('UI_VAD_END_PASS ') == 1 and log.count('NATIVE_UI_CONTEXT_ITEMS ') == 10
+        expected_secure = {'recognition.model.a71e0001-0000-4000-8000-000000000001.secret',
+                           'recognition.model.a71e0001-0000-4000-8000-000000000004.secret'}
+        secure_edits = [line.split()[1] for line in log.splitlines() if line.startswith('NATIVE_UI_SECURE_FIELD_EDIT ')]
+        passed = passed and sorted(secure_edits) == sorted(expected_secure)
+        passed = passed and log.count('NATIVE_UI_AXPRESS ') == 41 and log.count('NATIVE_UI_MENU_SELECT ') == 10 and log.count('NATIVE_UI_INSPECT ') == 0 and log.count('NATIVE_UI_PANEL_INSPECT ') == 11 and log.count('UI_BOTTOM_CONTROLS_PASS ') == 11 and log.count('NATIVE_UI_AXSETVALUE ') == 5 and log.count('NATIVE_UI_FIELD_EDIT ') == 5 and log.count('NATIVE_UI_SECURE_FIELD_EDIT ') == 2 and log.count('UI_CONTROL_PASS ') == 15 and log.count('UI_NATIVE_CAPTURE_ACK ') == 1 and log.count('UI_EMPTY_PANEL_MENU_PASS ') == 1 and log.count('UI_PRIVATE_COPY_PASS ') == 2 and log.count('UI_VAD_END_PASS ') == 1 and log.count('NATIVE_UI_CONTEXT_ITEMS ') == 10
     files = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(output.glob('*.png'))}
     geometries = [json.loads(line[len('UI_IMAGE_GEOMETRY '):]) for line in log.splitlines() if line.startswith('UI_IMAGE_GEOMETRY ')]
     panel_dimensions = {item['name'] + '.png': item for item in geometries if item['name'].startswith('panel-')}
@@ -39,7 +43,7 @@ with tempfile.TemporaryDirectory(prefix='saytile-native-ui-') as temp:
                        for phase in ['before-validation', 'after-validation', 'after-interaction', 'capture', 'before-field-edit', 'after-field-edit']}
     valid_keyboard_isolation = keyboard_checks['capture'] == len(files) + 3 and keyboard_checks['before-validation'] > 0 \
         and keyboard_checks['before-validation'] == keyboard_checks['after-validation'] == keyboard_checks['after-interaction'] \
-        and keyboard_checks['before-field-edit'] == keyboard_checks['after-field-edit'] == (6 if args.controls else 0)
+        and keyboard_checks['before-field-edit'] == keyboard_checks['after-field-edit'] == (5 if args.controls else 0)
     passed = passed and len(files) == (37 if args.controls else 27) and valid_geometry and valid_keyboard_isolation and log.count('UI_NATIVE_TEXT_PASS ') == 1 and log.count('UI_NATIVE_UNICODE_PASS ') == 1 and log.count('UI_NATIVE_NEAR_BOTTOM_PASS ') == 1
     passed = passed and (args.controls or log.count('UI_SYNTHETIC_CAPTURE_STATES_PASS ') == 1)
     passed = passed and log.count('UI_VOICE_GLYPH_PASS ') == 1

@@ -1,0 +1,29 @@
+{
+  "source": "5639058e6b178027861b18cc0521387487c919d5",
+  "active": {
+    "seconds": 7201.117938957999,
+    "sample_count": 120,
+    "observed_cpu_seconds": 109.6,
+    "avg_process_cpu_pct": 1.53,
+    "peak_sampled_rss_mib": 38.42,
+    "median_rss_after_first_minute_mib": 32.09
+  },
+  "paused_signed_app": {
+    "seconds": 5400.084248781204,
+    "sample_count": 91,
+    "observed_cpu_seconds": 10.6,
+    "avg_process_cpu_pct": 0.2,
+    "peak_sampled_rss_mib": 75.27,
+    "median_rss_after_first_minute_mib": 34.84
+  },
+  "scope": "Per-process sampled counters. Active = production capture + Apple offline, synthetic real-time source in a linked probe. Paused = actual signed packaged App. Excludes separate OS speech services and whole-machine energy.",
+  "separate_paused_physical_counters": {
+    "seconds": 600.0197710990906,
+    "scope": "Independent 10-minute run of the same signed executable. The initial 90-minute physical counter side file was truncated by a relaunched wrapper after the completed measurement. The original 90-minute RSS and CPU series is intact.",
+    "peak_physical_footprint_mib": 19.94,
+    "physical_samples": 10,
+    "disk_write_delta_bytes": 327680,
+    "observed_process_energy_joules": 0.7127,
+    "idle_wakeup_delta": 160
+  }
+}

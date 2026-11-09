@@ -107,7 +107,7 @@ private struct OfflineFixture {
     init() throws {
         root = URL(fileURLWithPath: "/tmp/saytile-offline-20261107-fixture-" + UUID().uuidString)
         store = try SaytileStore(directory: root)
-        var config = RecognitionConfiguration(); config.cloudEnabled = true
+        var config = RecognitionConfiguration(); config.languagePreference = .chinese; config.cloudEnabled = true
         for index in config.models.indices {
             config.models[index].cloudConsent = true
             if config.models[index].provider == .qwenMessage { config.models[index].workspaceID = "synthetic" }
@@ -145,7 +145,7 @@ private func eventually(_ condition: () async throws -> Bool) async throws {
 
 @Suite("Automatic cloud outage to durable Apple candidate failover")
 struct OfflineFailoverTests {
-    @Test func liveFailureFollowsDurableTailThenRestoresDualCloudOnNextSegment() async throws {
+    @Test func liveFailureFollowsDurableTailThenRestoresSelectedCloudOnNextSegment() async throws {
         let f = try OfflineFixture()
         try await f.worker.beginUtterance()
         let id = try #require(await f.worker.recordingID)
@@ -153,7 +153,7 @@ struct OfflineFailoverTests {
         try await f.worker.append(prefix)
         try await eventually {
             let starts = await f.probe.cloudStarts, streams = await f.probe.cloudBytes.count
-            return starts == 2 && streams == 2
+            return starts == 1 && streams == 1
         }
         await f.probe.setFailure(.connection)
         try await f.worker.append(Data(repeating: 9, count: 640)) // nondurable until next checkpoint
@@ -187,7 +187,7 @@ struct OfflineFailoverTests {
         try await f.worker.beginUtterance()
         let next = try #require(await f.worker.recordingID)
         try await f.worker.append(prefix); try await f.worker.endUtterance(); await f.drain()
-        #expect(await f.probe.cloudStarts == 4)
+        #expect(await f.probe.cloudStarts == 2)
         #expect(await f.probe.localStarts == 1)
         #expect(try await f.store.recording(id: next)?.recognitionState == .completed)
         #expect(f.factory.configuration == f.config)
@@ -304,7 +304,7 @@ struct OfflineFailoverTests {
         try await f.worker.beginUtterance()
         let next = try #require(await f.worker.recordingID)
         try await f.worker.append(Data(repeating: 10, count: 640)); try await f.worker.endUtterance(); await f.drain()
-        #expect(await f.probe.cloudStarts == starts + 2)
+        #expect(await f.probe.cloudStarts == starts + 1)
         #expect(try await f.store.recording(id: next)?.recognitionState == .completed)
         try await f.cleanup()
     }

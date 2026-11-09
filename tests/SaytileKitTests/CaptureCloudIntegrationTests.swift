@@ -41,7 +41,7 @@ struct CaptureCloudIntegrationTests {
         let binding = try await store.createBinding(label: "isolated capture ledger")
         let probe = CaptureCloudProbe()
         let good = "请不要删除 API 项目。", other = "请不要移除 API 项目。"
-        var config = RecognitionConfiguration(); config.cloudEnabled = true; config.inputMode = .highestQuality
+        var config = RecognitionConfiguration(); config.languagePreference = .chinese; config.cloudEnabled = true; config.inputMode = .highestQuality
         config.models = [
             .init(purpose: .chineseASR, provider: .qwenMessage, model: "qwen-audio-3.1-asr-flash-message", cloudConsent: true, region: "cn-beijing", workspaceID: "isolated"),
             .init(purpose: .englishASR, provider: .assemblyAI, model: "universal-3-6-pro", cloudConsent: true),
@@ -56,7 +56,9 @@ struct CaptureCloudIntegrationTests {
             },
             listen: { _, _, _ in throw ProviderFailure.configuration("Secondary audio reviewer is forbidden in the single-core pipeline.")
             })
-        let factory = RecognitionSessionFactory(configuration: config, dependencies: deps)
+        var local = LocalFailoverDependencies.live
+        local.availability = { .init(supported: false, installed: false, message: "fixture: local model unavailable") }
+        let factory = RecognitionSessionFactory(configuration: config, dependencies: deps, local: local)
         let worker = try CaptureWorker(store: store, ring: AudioRing(capacity: 32_000), sampleRate: 16_000,
                                        recognitionFactory: factory, update: { _, _ in }, failed: { _ in })
         try await worker.beginUtterance()
@@ -73,7 +75,7 @@ struct CaptureCloudIntegrationTests {
         try await worker.endUtterance()
         for session in await worker.retired { await session.wait() }
         #expect(await probe.streaming[.qwenMessage] == pcm)
-        #expect(await probe.streaming[.assemblyAI] == pcm)
+        #expect(await probe.streaming[.assemblyAI] == nil)
         #expect(await probe.acoustic.isEmpty)
         if !failReview { #expect(!(await probe.reviews).isEmpty) }
         let chunks = try await store.audioChunks(recordingID: id)
@@ -82,12 +84,15 @@ struct CaptureCloudIntegrationTests {
         #expect(stored == pcm)
         let record = try #require(await store.recording(id: id))
         #expect(!record.text.isEmpty && !record.isRecording)
-        #expect(record.recognitionState == (failReview ? .failed : .completed))
+        #expect(record.recognitionState == (failReview ? .queued : .completed))
         let runs = try await store.modelRuns(recordingID: id)
-        #expect(Set(runs.map { $0.ticket.purpose }) == Set(config.models.map(\.purpose)))
+        #expect(Set(runs.map { $0.ticket.purpose }) == Set(config.activeModels.map(\.purpose)))
         let revisions = try await store.revisions(recordingID: id)
         #expect(!revisions.isEmpty)
-        if !failReview {
+        if failReview {
+            #expect(runs.contains { $0.ticket.purpose == .textFusion && $0.state == .failed })
+            #expect(try await store.latestDispatchableRevision(recordingID: id) == nil)
+        } else {
             let revision = try #require(await store.latestDispatchableRevision(recordingID: id))
             #expect(revision.text == good)
             let dispatch = try await store.reserveDispatch(bindingID: binding, recordingID: id, revisionID: revision.id,

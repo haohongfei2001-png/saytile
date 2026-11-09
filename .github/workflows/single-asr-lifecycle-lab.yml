@@ -1,0 +1,33 @@
+name: Frozen single ASR isolated capture
+on:
+  push:
+    branches: ['codex/single-asr-rc2-seal']
+    paths: ['evidence/no-api10/lifecycle-lab/**', '.github/workflows/single-asr-lifecycle-lab.yml']
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: macos-26
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 5639058e6b178027861b18cc0521387487c919d5
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: qa-tools
+          sparse-checkout: evidence/no-api10/lifecycle-lab
+          persist-credentials: false
+      - name: Check synthetic capture through the selected HAL device and existing privacy grants
+        env:
+          SAYTILE_HOST_TYPE: ${{ runner.environment }}
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+        run: python3 qa-tools/evidence/no-api10/lifecycle-lab/run.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: isolated-synthetic-device
+          path: ${{ runner.temp }}/audio-proof
+          if-no-files-found: error

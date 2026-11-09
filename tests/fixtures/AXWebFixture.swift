@@ -1,8 +1,14 @@
 import AppKit
 import WebKit
 
+#if SAYTILE_FOREGROUND_FIXTURE
+typealias FixtureWindowBase = NSWindow
+#else
+typealias FixtureWindowBase = NSPanel
+#endif
+
 @MainActor
-final class WebFixturePanel: NSPanel {
+final class WebFixturePanel: FixtureWindowBase {
     var keyboardAllowed = false
     var keyboardEvents = 0
     override var canBecomeKey: Bool { keyboardAllowed }
@@ -61,10 +67,14 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
                 guard foregroundArmed, !activated else { continue }
                 activated = true
                 window.keyboardAllowed = true
-                NSApp.setActivationPolicy(.accessory)
+                NSApp.setActivationPolicy(.regular)
                 window.alphaValue = 1; window.ignoresMouseEvents = false
                 window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
                 window.makeFirstResponder(web)
+                js = "focusComposer()"
+            case "focusOwned":
+                guard foregroundArmed, activated, NSApp.isActive else { FileHandle.standardOutput.write(Data("{\"command\":\"focusOwned\",\"error\":\"Owned app inactive\"}\n".utf8)); continue }
+                window.makeKeyAndOrderFront(nil); window.makeFirstResponder(web)
                 js = "focusComposer()"
             case "restore": js = "document.querySelectorAll('.extra').forEach(n=>n.remove());document.querySelector('#send').textContent='Send fixture only';history.replaceState({},'', '/chat/one');document.querySelector('h1').textContent='First synthetic chat';document.querySelector('textarea').value='PREFIX|SUFFIX';focusComposer();"
             case "replaceContext": js = "let h=document.querySelector('h1');h.outerHTML=h.outerHTML;"
@@ -74,8 +84,10 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
             case "sameURL": js = "document.querySelector('h1').textContent='Second synthetic chat';document.querySelector('textarea').value='';focusComposer();"
             case "newURL": js = "history.pushState({},'', '/chat/two');document.querySelector('h1').textContent='Second synthetic chat';document.querySelector('textarea').value='';focusComposer();"
             case "replaceEditor": js = "document.querySelector('textarea').outerHTML='<textarea id=\"composer\" aria-label=\"Synthetic composer\"></textarea>';focusComposer();"
+            case "manualEdit": js = "let t=document.querySelector('textarea');t.value='PREFIX|我的改字SUFFIX';t.setSelectionRange(11,11);"
+            case "blur": js = "document.querySelector('#send').focus();"
             case "select": js = "document.querySelector('textarea').setSelectionRange(0,6);"
-            case "state": js = "(()=>{let t=document.querySelector('textarea').value;let known=['','PREFIX|SUFFIX','PREFIX|你好😀SUFFIX','PREFIX|你好😀，接着说SUFFIX','PREFIX|网页😀SUFFIX'].includes(t);return JSON.stringify({text:known?t:'UNEXPECTED_TEXT_OMITTED',knownSyntheticText:known,utf16Length:t.length,sends:window.sends,url:location.href});})()"
+            case "state": js = "(()=>{let t=document.querySelector('textarea').value;let known=['','PREFIX|SUFFIX','PREFIX|你好😀SUFFIX','PREFIX|你好😀，接着说SUFFIX','PREFIX|网页😀SUFFIX','PREFIX|50😀SUFFIX','PREFIX|500👩🏽‍💻SUFFIX','PREFIX|我的改字SUFFIX'].includes(t);return JSON.stringify({text:known?t:'UNEXPECTED_TEXT_OMITTED',knownSyntheticText:known,utf16Length:t.length,sends:window.sends,url:location.href});})()"
             default: continue
             }
             web.evaluateJavaScript(js) { [self] value, error in

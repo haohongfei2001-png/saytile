@@ -71,7 +71,7 @@ struct CredentialReadRevocationTests {
         try await store.registerAudioChunk(recordingID: record.id, relativePath: journal.relativePath, frames: journal.frames)
         try await store.finishRecording(id: record.id)
         let ticket = try await store.beginFusionRecognition(recordingID: record.id)
-        var configuration = RecognitionConfiguration(); configuration.cloudEnabled = true
+        var configuration = RecognitionConfiguration(); configuration.languagePreference = .chinese; configuration.cloudEnabled = true
         for index in configuration.models.indices {
             configuration.models[index].cloudConsent = true
             if configuration.models[index].provider == .qwenMessage { configuration.models[index].workspaceID = "isolated-read" }

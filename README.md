@@ -1,6 +1,6 @@
 # Saytile
 
-Apple Silicon / macOS 26+。显式选麦的 P1 修复已进入 no-api.9.1。已有源代码、可下载 DMG 及按 PASS、FAIL、BLOCKED 区分的[实机验收](evidence/no-api9.1/README.md)。正式公开安装和真实云端识别仍待各自条件。
+Apple Silicon，macOS 26 或以上。本分支最新无 API 工程候选为 `1.0.0-rc.2-no-api.10`，采用每段一个 ASR 和 GPT-6 文本审校。[安装包与机器验收](docs/V1-NO-API-DELIVERY.md)。
 <!-- frozen-machine-current:end -->
 
 > **唯一批准的视觉设计原图**：[Saytile 原版设计全图](design/approved/Saytile-original-visual-reference-20261107.jpeg) · [原图与变更边界](design/approved/README.md)。应用外观必须以此图为唯一标准，只有用户指定的语音按钮交互与必要动效可以修改。原图已按附件原始字节入库，不能拿工程预览或近似色板替代。
@@ -10,13 +10,13 @@ Apple Silicon / macOS 26+。显式选麦的 P1 修复已进入 no-api.9.1。已�
 
 Saytile 是 macOS 原生语音输入与表达工作台。开启后持续待命，自然讲话即可分段记录、识别中文，并独立保存原音。文字可以编辑、搜索、回听、重新识别、复制，或追加到明确选择的应用草稿。
 
-GitHub Releases 的稳定版本为 RC1，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。本分支的 no-api.9.1 候选及证据见 [无 API 交付](docs/V1-NO-API-DELIVERY.md)；真实云端、讲话质量与个人环境验收仍明确保留。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
+GitHub Releases 的稳定版本为 RC1，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。本分支的 no-api.10 候选及证据见 [无 API 交付](docs/V1-NO-API-DELIVERY.md)；真实云端、讲话质量与个人环境验收仍明确保留。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
 
 ## 最高质量中英文识别候选
 
 当前契约是每段录音一个语言 ASR 专家、唯一 GPT-6 Astra 文本核心和单份忠实文字流；Apple 本地识别仅用于离线与故障接替。不得恢复并行 ASR、五模型默认链、润色或第二评审器。见 [最终架构](research/architecture/FINAL-ARCHITECTURE.md)。
 
-本分支保留 PR #4 的可靠性修复、PR #5 的产品契约和 PR #6 的单核心引擎。没有 API Key 时可使用 Apple 本地中文识别；云端凭据在原生设置里填写，由一次明确授权的内置合成语音检查验证接收、融合和定稿，全部通过后自动启用。无需修改JSON或终端联调；真实连接与准确率状态严格分开。参见 [安装与连接](docs/V1-INSTALL.md)。
+本分支保留 PR #4 的可靠性修复、PR #5 的产品契约和 PR #6 的单核心引擎。没有 API Key 时可使用 Apple 本地中文识别；云端凭据在原生设置里填写，由一次明确授权的内置合成语音检查验证所选 ASR 的接收、GPT 的文字审校和定稿，全部通过后自动启用。无需修改JSON或终端联调；真实连接与准确率状态严格分开。参见 [安装与连接](docs/V1-INSTALL.md)。
 
 ## 构建和运行
 

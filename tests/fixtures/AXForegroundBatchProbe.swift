@@ -36,7 +36,7 @@ private func immediateAbort(_ message: String) -> Never {
         let baseline = lastInputTime
         timer = DispatchSource.makeTimerSource(queue: .global(qos: .userInteractive))
         timer.schedule(deadline: .now(), repeating: .milliseconds(20))
-        timer.setEventHandler {
+        timer.setEventHandler { @Sendable in
             if ProcessInfo.processInfo.systemUptime - inputIdleSeconds() > baseline + 0.002 {
                 immediateAbort("keyboard/mouse activity")
             }
@@ -98,6 +98,37 @@ private func immediateAbort(_ message: String) -> Never {
     }
 }
 
+/// Records the OS result for one attempt on the two allowlisted synthetic fields.
+@MainActor private final class FixtureAccessTrace: InputAccess {
+    let base: AXInputAccess
+    init(_ base: AXInputAccess) { self.base = base }
+    var hasPermission: Bool { base.hasPermission }
+    func snapshot() throws -> InputTargetSnapshot { try base.snapshot() }
+    func textWitness(at expected: InputTargetSnapshot) -> String? { base.textWitness(at: expected) }
+    func dispatch(_ text: String, to expected: InputTargetSnapshot) throws -> Bool {
+        let start = ProcessInfo.processInfo.systemUptime
+        defer { print("OWNED_WRITE elapsed_ms", Int(1000 * (ProcessInfo.processInfo.systemUptime - start))); fflush(nil) }
+        do { let issued = try base.dispatch(text, to: expected); print("OWNED_WRITE issued", issued); return issued }
+        catch { print("OWNED_WRITE error", error); throw error }
+    }
+    func verify(_ text: String, at before: InputTargetSnapshot) -> InputTargetSnapshot? {
+        let after = base.verify(text, at: before)
+        print("OWNED_VERIFY", after != nil); fflush(nil)
+        return after
+    }
+    func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool? {
+        base.matchesText(text, utf16Start: utf16Start, at: expected)
+    }
+    func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport {
+        base.observe(expected) { change in print("OWNED_EVENT", change); fflush(nil); onChange(change) }
+    }
+    func stopObserving() { base.stopObserving() }
+    func replaceOwned(_ expectedText: String, with replacement: String, start: Int, witness: String, at expected: InputTargetSnapshot,
+                      isCurrent: @MainActor () -> Bool) throws -> Bool {
+        try base.replaceOwned(expectedText, with: replacement, start: start, witness: witness, at: expected, isCurrent: isCurrent)
+    }
+}
+
 @main struct AXForegroundBatchProbe {
     @MainActor static func command(_ target: String, _ command: String) throws -> [String: Any] {
         let data = try JSONSerialization.data(withJSONObject: ["target": target, "command": command])
@@ -107,6 +138,105 @@ private func immediateAbort(_ message: String) -> Never {
         if command == "state", let value = response["value"] as? String, let state = value.data(using: .utf8) { return (try JSONSerialization.jsonObject(with: state) as? [String: Any]) ?? [:] }
         return response
     }
+    @MainActor private static func webRepairs(access: AXInputAccess, safety: ForegroundSafety, pid: pid_t) async throws {
+        for scenario in ["longer", "shorter", "manualEdit", "blur", "restart"] {
+            try safety.check(pid)
+            _ = try command("web", "restore")
+            try await Task.sleep(for: .milliseconds(200))
+            let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-owned-web-" + UUID().uuidString)
+            defer { try? FileManager.default.removeItem(at: root) }
+            let store = try SaytileStore(directory: root)
+            let input = NativeInputCoordinator(store: store, access: access)
+            let binding = try await input.bindCurrentTarget()
+            let record = try await store.createRecording()
+            let ticket = try await store.beginFusionRecognition(recordingID: record.id)
+            let asr = ModelConfiguration(purpose: .chineseASR, provider: .qwenMessage, model: "owned-fixture-no-network")
+            let reviewer = ModelConfiguration(purpose: .textFusion, provider: .openAIResponses, model: "fixture-text-review")
+            try await store.configureFusionRequirements(ticket: ticket, configurations: [asr, reviewer])
+            let run = try await store.beginModelRun(ticket: ticket, configuration: asr)
+            func publish(_ text: String, sequence: Int64) async throws -> FusionPublication {
+                let c = RecognitionCandidate(run: run, sequence: sequence, text: text,
+                    stableUTF16Length: text.utf16.count, audioEndSeconds: 1, isComplete: true)
+                guard try await store.appendRecognitionCandidate(c) else { throw BatchFailure(message: "fixture candidate stale") }
+                let prefix = try await store.fusionReservedPrefix(recordingID: record.id)
+                let proposal = try PrecisionFusion.validateSelection(spans: [.init(candidateID: c.id, utf16Start: 0, utf16End: text.utf16.count)],
+                    candidates: [c], committedPrefix: prefix, unresolved: false)
+                return try await store.publishFusion(ticket: ticket, proposal: proposal)
+            }
+            let original = scenario == "shorter" ? "500👩🏽‍💻" : "50😀"
+            let replacement = scenario == "shorter" ? "50😀" : "500👩🏽‍💻"
+            guard let first = try await publish(original, sequence: 1).revision,
+                  await input.insertStable(recordingID: record.id, revisionID: first.id, stableUTF16End: original.utf16.count,
+                                           recordingStartedAt: record.createdAt) == .confirmed,
+                  try command("web", "state")["text"] as? String == "PREFIX|" + original + "SUFFIX" else {
+                throw BatchFailure(message: "web " + scenario + " first owned range unconfirmed")
+            }
+            _ = try await publish(replacement, sequence: 2)
+            guard let correction = try await store.ownedCorrectionCandidates(bindingID: binding.id).first else {
+                throw BatchFailure(message: "web " + scenario + " no stored correction")
+            }
+            if scenario == "blur" || scenario == "manualEdit" { _ = try command("web", scenario) }
+            let before = try command("web", "state")["text"] as? String
+            let result: NativeInputResult
+            if scenario == "restart" {
+                guard try await store.reserveOwnedCorrection(bindingID: binding.id, revision: correction, targetStart: 7, expectedText: original) != nil else {
+                    throw BatchFailure(message: "could not reserve interrupted correction")
+                }
+                input.invalidate()
+                try await store.close()
+                let reopened = try SaytileStore(directory: root)
+                let restarted = NativeInputCoordinator(store: reopened, access: access)
+                result = await restarted.repairOwned(revision: correction)
+                try await reopened.close()
+            } else {
+                result = await input.repairOwned(revision: correction)
+                input.invalidate()
+                try await store.close()
+            }
+            let after = try command("web", "state")
+            let allowed = scenario == "longer" || scenario == "shorter"
+            let expected = allowed ? "PREFIX|" + replacement + "SUFFIX" : before
+            guard allowed == (result == .confirmed), result != .unverified, after["text"] as? String == expected,
+                  after["sends"] as? Int == 0 else { throw BatchFailure(message: "web " + scenario + " " + String(describing: result)) }
+            print("PASS foreground WKWebView " + scenario + " exact DOM, intact prefix/suffix, zero sends")
+        }
+    }
+
+    @MainActor private static func nativeBoundaries(access: AXInputAccess, safety: ForegroundSafety, pid: pid_t) async throws {
+        for scenario in ["ignored-write", "other-window"] {
+            _ = try command("native", "restore")
+            try await Task.sleep(for: .milliseconds(180))
+            try safety.check(pid)
+            let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-foreground-fence-" + UUID().uuidString)
+            defer { try? FileManager.default.removeItem(at: directory) }
+            let store = try SaytileStore(directory: directory)
+            let coordinator = NativeInputCoordinator(store: store, access: access)
+            try await coordinator.bindCurrentTarget()
+            let initial = try access.snapshot()
+            let record = try await store.createRecording()
+            let rev = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+            let before = try command("native", "state")
+            _ = try command("native", scenario == "other-window" ? "otherWindow" : "ignoreNextWrite")
+            if scenario == "other-window" {
+                try await Task.sleep(for: .milliseconds(200))
+                guard try access.snapshot().windowID != initial.windowID else { throw BatchFailure(message: "owned window did not change") }
+            }
+            func attempt() async -> NativeInputResult {
+                await coordinator.insertStable(recordingID: record.id, revisionID: rev.id,
+                    stableUTF16End: rev.text.utf16.count, recordingStartedAt: record.createdAt)
+            }
+            let first = await attempt(), second = await attempt()
+            let after = try command("native", "state")
+            let delta = (after["selectedTextWrites"] as? Int ?? -100) - (before["selectedTextWrites"] as? Int ?? 100)
+            let ignored = scenario == "ignored-write"
+            guard first != .confirmed, (first == .unverified) == ignored, second != .confirmed, second != .unverified,
+                  delta == (ignored ? 1 : 0), after["text"] as? String == "PREFIX|SUFFIX", after["sends"] as? Int == 0,
+                  ignored || after["otherIntact"] as? Bool == true else { throw BatchFailure(message: "native " + scenario + " safety failed") }
+            coordinator.invalidate(); try await store.close()
+            print("PASS foreground native " + scenario + " no replay, no wrong window, zero sends")
+        }
+    }
+
     @MainActor static func main() async {
         NSApplication.shared.setActivationPolicy(.prohibited)
         guard CommandLine.arguments.count == 4, CommandLine.arguments[1] == "--allow-foreground",
@@ -131,8 +261,11 @@ private func immediateAbort(_ message: String) -> Never {
                 else { failures += 1; print("FAIL " + message) }
                 fflush(nil)
             }
-            for (kind, pid) in [("native", nativePID), ("web", webPID)] {
+            for (kind, pid) in [("web", webPID), ("native", nativePID)] {
                 print("FOREGROUND_STAGE target=\(kind) pid=\(pid) activate_begin"); fflush(nil)
+                let ownRoot = AXUIElementCreateApplication(pid)
+                var ownedWindows: CFTypeRef?
+                _ = AXUIElementCopyAttributeValue(ownRoot, kAXWindowsAttribute as CFString, &ownedWindows)
                 guardrail.expectedPID = pid
                 _ = try command(kind, "activate")
                 // Never retry activation. Wait only for the one requested transition.
@@ -145,13 +278,40 @@ private func immediateAbort(_ message: String) -> Never {
                 try await Task.sleep(for: .milliseconds(150))
                 print("FOREGROUND_STAGE target=\(kind) resolver_begin"); fflush(nil)
                 let access = AXInputAccess(selectionProvider: { try guardrail.selectFixture(pid) })
-                let snapshot = try access.snapshot()
+                let focused = try command(kind, "focusOwned")
+                print("OWNED_WINDOW key=\(focused["keyWindow"] ?? "unknown") main=\(focused["mainWindow"] ?? "unknown")")
+                var ready: InputTargetSnapshot?
+                for _ in 0..<40 {
+                    try guardrail.check(pid)
+                    if let candidate = try? access.snapshot(), candidate.isEditable,
+                       candidate.selectionLocation == 7, candidate.selectionLength == 0 { ready = candidate; break }
+                    try await Task.sleep(for: .milliseconds(50))
+                }
+                guard let snapshot = ready else {
+                    for key in [kAXFocusedWindowAttribute, kAXFocusedUIElementAttribute] {
+                        var item: CFTypeRef?, role: CFTypeRef?
+                        let state = AXUIElementCopyAttributeValue(ownRoot, key as CFString, &item)
+                        if let item, CFGetTypeID(item) == AXUIElementGetTypeID() {
+                            _ = AXUIElementCopyAttributeValue(unsafeDowncast(item, to: AXUIElement.self), kAXRoleAttribute as CFString, &role)
+                        }
+                        print("OWNED_FOCUS", key, state.rawValue, role as? String ?? "none")
+                    }
+                    throw BatchFailure(message: "Fixture did not publish its focused editor")
+                }
                 print("FOREGROUND_STAGE target=\(kind) snapshot_complete can_set=\(snapshot.canSetSelectedText)"); fflush(nil)
                 guard snapshot.canSetSelectedText else { throw BatchFailure(message: "NOT_RUN fixture requires clipboard fallback; clipboard untouched") }
+                let preflight = try access.snapshot()
+                let ownedSelection = try guardrail.selectFixture(pid)
+                var number: CFTypeRef?, initialText: CFTypeRef?
+                let countStatus = AXUIElementCopyAttributeValue(ownedSelection.element, kAXNumberOfCharactersAttribute as CFString, &number)
+                let valueStatus = AXUIElementCopyAttributeValue(ownedSelection.element, kAXValueAttribute as CFString, &initialText)
+                print("OWNED_WITNESS", kind, "count", countStatus.rawValue, number as? Int ?? -1, "valueMatches", valueStatus.rawValue, initialText as? String == "PREFIX|SUFFIX", "rangeMatches", access.textWitness(at: preflight) == "PREFIX|SUFFIX")
                 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-foreground-store-" + UUID().uuidString)
                 defer { try? FileManager.default.removeItem(at: directory) }
                 let store = try SaytileStore(directory: directory)
-                let input = NativeInputCoordinator(store: store, access: access)
+                let input = NativeInputCoordinator(store: store, access: FixtureAccessTrace(access))
+                try await waitForOwnedField(access, original: "PREFIX|SUFFIX", caret: 7, pid: pid)
+                input.onBindingInvalidated = { print("OWNED_BINDING_INVALIDATED", kind, ProcessInfo.processInfo.systemUptime); fflush(nil) }
                 try await input.bindCurrentTarget()
                 let recording = try await store.createRecording()
                 let revision = try await store.saveEdit(recordingID: recording.id, text: "你好😀")
@@ -161,6 +321,13 @@ private func immediateAbort(_ message: String) -> Never {
                 print("FOREGROUND_INSERT kind=\(kind) result=\(first)"); fflush(nil)
                 try guardrail.check(pid)
                 let state = try command(kind, "state")
+                let observed = try? access.snapshot()
+                print("OWNED_FIRST_STATE", kind, state["text"] as? String ?? "unavailable", "utf16", state["utf16Length"] as? Int ?? -1, "caret", observed?.selectionLocation ?? -1, "range", observed?.selectionLength ?? -1, "attempts", state["selectedTextWrites"] as? Int ?? -1, "bound", input.binding != nil)
+                if let observed {
+                    print("OWNED_READBACK", kind, "sameTarget", observed.sameTarget(as: preflight),
+                          "pageComplete", observed.pageContextComplete, "substring", access.matchesText("你好😀", utf16Start: 7, at: observed) == true,
+                          "whole", access.textWitness(at: observed) == "PREFIX|你好😀SUFFIX")
+                }
                 expect(first == .confirmed && state["text"] as? String == "PREFIX|你好😀SUFFIX", kind + " real foreground insertion and local confirmation")
                 if first == .confirmed {
                     let duplicate = await input.insertStable(recordingID: recording.id, revisionID: revision.id, stableUTF16End: revision.text.utf16.count, recordingStartedAt: recording.createdAt)
@@ -181,6 +348,8 @@ private func immediateAbort(_ message: String) -> Never {
                 expect(stale != .confirmed && stale != .unverified && before["text"] as? String == after["text"] as? String && input.binding == nil, kind + " target mutation rejects stale insertion")
                 expect(after["sends"] as? Int == 0, kind + " no Return or send")
                 input.invalidate(); try await store.close()
+                if kind == "web", first == .confirmed { try await webRepairs(access: access, safety: guardrail, pid: pid) }
+                if kind == "native", first == .confirmed { try await nativeBoundaries(access: access, safety: guardrail, pid: pid) }
                 try guardrail.check(pid)
             }
             let restored = await guardrail.restoreIfSafe()

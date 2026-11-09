@@ -1,10 +1,10 @@
 name: Saytile native
 on:
   pull_request:
-    paths: ['Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/fixtures/AppModelProbe.swift', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
+    paths: ['Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/AX*.swift', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
   push:
     branches: [main]
-    paths: ['Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/fixtures/AppModelProbe.swift', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
+    paths: ['Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/AX*.swift', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
 permissions:
   contents: read
 concurrency:
@@ -16,7 +16,16 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - run: swift --version
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify complete Xcode and record the actual tested revision
+        run: |
+          set -e
+          xcodebuild -version
+          xcode-select -p
+          swift --version
+          git rev-parse HEAD
+          test -d "$(xcode-select -p)/Platforms/MacOSX.platform"
       - name: Inherited Swift contracts
         run: |
           swiftc -swift-version 6 -typecheck contracts/Contracts.swift
@@ -49,3 +58,54 @@ jobs:
           name: Saytile-native-candidate
           path: dist/Saytile-native-candidate.zip
           retention-days: 14
+  foreground:
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Exercise real AX on owned windows in this disposable GUI session
+        env:
+          SAYTILE_ALLOW_FOREGROUND_INPUT_FIXTURES: '1'
+          SAYTILE_INPUT_EVIDENCE_DIRECTORY: ${{ runner.temp }}/foreground-receipt
+        run: |
+          mkdir -p "$SAYTILE_INPUT_EVIDENCE_DIRECTORY"
+          git rev-parse HEAD > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/source.txt"
+          python3 scripts/test-input-native.py --foreground-batch
+      - name: Exercise TextEdit on a new disposable document
+        if: always()
+        env:
+          SAYTILE_HOSTED_TARGETS: '1'
+          SAYTILE_INPUT_EVIDENCE_DIRECTORY: ${{ runner.temp }}/foreground-receipt
+        run: |
+          python3 - <<'PYTHON'
+          import os, pathlib, runpy, subprocess
+          p = runpy.run_path('scripts/test-input-native.py')
+          out = pathlib.Path(os.environ['SAYTILE_INPUT_EVIDENCE_DIRECTORY'])
+          exe = pathlib.Path(os.environ['RUNNER_TEMP']) / 'textedit-probe'
+          subprocess.run(['swiftc', '-parse-as-library', '-swift-version', '6', '-I', 'Sources/CSQLite',
+                          *p['production_flags'](), 'tests/fixtures/AXOwnedFieldReady.swift', 'tests/fixtures/AXHostedTextEdit.swift', '-o', exe], check=True)
+          with (out / 'textedit.log').open('w') as log:
+              subprocess.run([exe], stdout=log, stderr=subprocess.STDOUT, timeout=60, check=True)
+          PYTHON
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: single-asr-foreground
+          path: ${{ runner.temp }}/foreground-receipt
+          retention-days: 14
+      - name: Check kernel sleep with paused Saytile on the disposable host
+        if: always()
+        env:
+          SAYTILE_HOST_TYPE: ${{ runner.environment }}
+        run: python3 evidence/no-api10/hosted-power.py
+      - name: Preserve sleep preflight and kernel events
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: single-asr-power
+          path: |
+            ${{ runner.temp }}/power-receipt/*.json
+            ${{ runner.temp }}/power-receipt/*.jsonl
+          if-no-files-found: error

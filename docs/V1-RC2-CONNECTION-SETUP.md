@@ -1,10 +1,10 @@
 # RC2 首次连接与离线使用
 
-当前候选使用 Qwen Audio3.1 Message、AssemblyAI Universal3.6Pro 与唯一 GPT-6 Astra 融合核心。无需 API Key 也可使用已安装 Apple 识别资源、原音保存、档案、编辑和复制。当前真实云端状态为 `LIVE_CONNECTION_PENDING`，不是 `PRODUCTION_READY`。
+每段只连接一个语音服务，然后由 GPT-6 Astra 处理候选文字。中文对应 Qwen、英文对应 AssemblyAI、中英混说对应 Soniox。这些是尚待真人语料比较的候选。无需 API Key 也可使用已安装 Apple 识别资源、原音保存、档案、编辑和复制。当前真实云端状态为 `LIVE_CONNECTION_PENDING`，不是 `PRODUCTION_READY`。
 
 ## 用户以后启用云端时
 
-1. 打开 Saytile 原生设置中的识别设置。分别在三个安全输入框保存 API Key；Qwen 选择账户对应地区，并填写 Workspace。密钥进入 Saytile 专用 Keychain，不进入配置文件或日志。
+1. 打开 Saytile 原生设置中的识别设置。先选择讲话语言，然后在「连接识别服务」的两个安全输入框填写所选 ASR 和 OpenAI 的 API Key。使用 Qwen 时选择账户对应地区，并填写 Workspace。Auto 缺少可靠语言记录时使用本机识别。密钥进入 Saytile 专用 Keychain，不进入配置文件或日志。
 2. 对当前语言选择的一项 ASR 与唯一 GPT-6 分别允许必要的音频或候选文字处理。阅读内置连接检查的范围及费用说明，勾选本次检查授权后开始检查。没有单独授权，不调用收费模型。
 3. 等待各服务状态和完整检查结果。账户接受、协议可用及合成语音完成分别呈现；只有所选 ASR 与 GPT-6 两项服务及正式单 ASR 管线完整通过才自动应用云端。部分失败仍保留本机功能，界面解释安全错误类别。可取消检查，已发生的服务商费用无法撤销。
 
@@ -18,4 +18,4 @@
 
 本机 HTTP/WS 模拟器使用正式网络客户端，但不是实际服务商连接。原生向导的成功/失败/取消交互使用明确标注的测试结果，不证明真实账户或识别质量。即使真实连接检查通过，也不自动升级为 `QUALITY_VERIFIED`。
 
-仓库中的 `--connection-setup` 和 `open-rc2-connection-setup.sh` 保留为隔离工程工具；空目录、绝对路径、禁止生产资料树、非秘密配置导出等防护仍适用。它们不是消费者必须经过的流程，旧五服务说明已被本页三服务流程取代。
+仓库中的 `--connection-setup` 和 `open-rc2-connection-setup.sh` 保留为隔离工程工具；空目录、绝对路径、禁止生产资料树、非秘密配置导出等防护仍适用。它们不是消费者必须经过的流程，当前按所选语言只需两项服务。

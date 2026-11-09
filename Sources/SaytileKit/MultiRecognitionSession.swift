@@ -7,9 +7,10 @@ struct RecognitionPipelineDependencies: Sendable {
     var transcribe: @Sendable (Data, ModelConfiguration, String) async throws -> ProviderTranscriptEvent
     var arbitrate: @Sendable ([ReviewEvidence], String, String, ModelConfiguration, String) async throws -> (PrecisionReviewDecision, PrecisionReviewUsage)
     var listen: @Sendable (Data, ModelConfiguration, String) async throws -> (AudioReviewTranscript, PrecisionReviewUsage)
+    var observeLanguage: @Sendable (String) -> Void = { _ in }
     var reviewFailure: @Sendable (Error) -> Void = { _ in }
     var makeReviewClient: (@Sendable () -> GPTReviewSession)? = nil
-    var makeReviewClientWithFailure: (@Sendable (ReviewFailureObserver) -> GPTReviewSession)? = { GPTReviewSession(onFailure: $0.callback) }
+    var makeReviewClientWithFailure: (@Sendable (ReviewFailureObserver) -> GPTReviewSession)? = nil
     var finalizationStarted: @Sendable () -> Void = {}
     /// Bounded connection checks reserve an EOS review; normal recognition has no cap.
     var maximumLiveReviews: Int? = nil
@@ -28,6 +29,7 @@ struct RecognitionPipelineDependencies: Sendable {
         transcribe: { try await FinalASRProvider().transcribe(pcm: $0, configuration: $1, credential: $2) },
         arbitrate: { try await PrecisionReviewClient().arbitrate(evidence: $0, confirmedPrefix: $1, context: $2, configuration: $3, credential: $4) },
         listen: { try await PrecisionReviewClient().listen(pcm: $0, configuration: $1, credential: $2) },
+        observeLanguage: { LanguageProfile.record($0) },
         makeReviewClientWithFailure: { GPTReviewSession(onFailure: $0.callback) })
 }
 
@@ -46,7 +48,8 @@ final class MultiRecognitionSession: RecognitionSession, @unchecked Sendable {
         self.recordingID = ticket.recordingID
         self.finalizationTimeout = finalizationTimeout
         var runtimeConfiguration = configuration
-        if let selected = configuration.selectedASRModel {
+        runtimeConfiguration.languagePreference = configuration.resolvedLanguage
+        if let selected = runtimeConfiguration.selectedASRModel {
             runtimeConfiguration.models = configuration.models.map { item in
                 var value = item
                 if value.purpose.isStreaming { value.enabled = value.id == selected.id }

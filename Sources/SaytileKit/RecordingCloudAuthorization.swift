@@ -31,6 +31,7 @@ struct RecordingCloudAuthorizationScope: Codable, Hashable, Sendable {
     }
 
     static func required(for configuration: RecognitionConfiguration) throws -> Set<Self> {
+        try configuration.validateForCloud()
         let active = configuration.activeModels
         guard configuration.cloudEnabled,
               active.contains(where: { $0.purpose.isStreaming }),

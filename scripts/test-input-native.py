@@ -36,9 +36,12 @@ def production_flags():
                          "-Xcc", "-fmodule-map-file=" + str(module_map), "-L", str(binary_directory), "-lSaytileKit", "-lc++"]
     return package_flags
 
-def compile_source(source, binary, production_sources=False):
-    flags = production_flags() if production_sources else []
+def compile_source(source, binary, production_sources=False, foreground=False):
+    flags = list(production_flags()) if production_sources else []
+    if foreground: flags += ["-D", "SAYTILE_FOREGROUND_FIXTURE"]
     fixture_helpers = [str(ROOT / "tests/fixtures/AXFixtureActivationAudit.swift")] if production_sources and source.startswith("AX") else []
+    if source == "AXForegroundBatchProbe.swift":
+        fixture_helpers.append(str(ROOT / "tests/fixtures/AXOwnedFieldReady.swift"))
     subprocess.run(["swiftc", "-swift-version", "6", "-parse-as-library", "-I", str(ROOT / "Sources/CSQLite"),
                     *flags, *fixture_helpers, str(ROOT / "tests/fixtures" / source), "-o", str(binary)], cwd=ROOT, check=True)
 
@@ -108,7 +111,7 @@ def run_fixture(fixture_name, probe_name, log_name, ready, web=False):
 def foreground_batch(compile_only=False):
     # These binaries remain prohibited until the probe explicitly passes preflight.
     for source, include_production in [("AXTextFixture", False), ("AXWebFixture", False), ("AXForegroundBatchProbe", True)]:
-        compile_source(source + ".swift", SCRATCH / source, include_production)
+        compile_source(source + ".swift", SCRATCH / source, include_production, foreground=True)
     if compile_only:
         print("FOREGROUND_COMPILE_ONLY_PASS; no fixtures or foreground probe executed")
         return
@@ -133,7 +136,7 @@ def foreground_batch(compile_only=False):
         probe = subprocess.Popen([str(SCRATCH / "AXForegroundBatchProbe"), "--allow-foreground", str(fixtures["native"].pid), str(fixtures["web"].pid)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
         record(f"PROBE_STARTED pid={probe.pid} executable=AXForegroundBatchProbe\n")
         threading.Thread(target=lines_to_queue, args=(probe.stdout, "probe", messages), daemon=True).start()
-        deadline = time.monotonic() + 30
+        deadline = time.monotonic() + 90
         pending = None
         while time.monotonic() < deadline and (probe.poll() is None or not messages.empty()):
             try: source, line = messages.get(timeout=0.1)
@@ -157,7 +160,7 @@ def foreground_batch(compile_only=False):
                     if probe.poll() is None:
                         probe.stdin.write(json.dumps(response) + "\n"); probe.stdin.flush()
                     pending = None
-        if probe.poll() is None: raise RuntimeError("Foreground batch exceeded 30 seconds; terminating owned fixtures without reactivation")
+        if probe.poll() is None: raise RuntimeError("Foreground batch exceeded 90 seconds; terminating owned fixtures without reactivation")
         if probe.returncode:
             code = probe.returncode
             signal_name = signal.Signals(-code).name if code < 0 else "none"

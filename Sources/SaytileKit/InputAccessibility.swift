@@ -81,7 +81,7 @@ final class AXInputAccess: InputAccess {
                                    applicationName: app.localizedName ?? "目标应用", windowID: windowID,
                                    elementID: elementID, pageIdentity: page, selectionLocation: range.location,
                                    selectionLength: range.length, isWeb: isWeb, isEditable: editable,
-                                   isSensitive: sensitive, canSetSelectedText: settable.boolValue, pageContextComplete: contextComplete)
+                                   isSensitive: sensitive, canSetSelectedText: isWeb ? supportsRangeReplacement(element) : settable.boolValue, pageContextComplete: contextComplete)
     }
 
     func dispatch(_ text: String, to expected: InputTargetSnapshot) throws -> Bool {
@@ -90,10 +90,17 @@ final class AXInputAccess: InputAccess {
         try current.checked()
         if current.canSetSelectedText {
             guard focusStillMatches(selection, expected: expected) else { return false }
+            if current.isWeb {
+                guard supportsRangeReplacement(element), let witness = textWitness(at: current),
+                      OwnedInputText.replacing(witness, start: current.selectionLocation, expected: "", replacement: text) != nil,
+                      (try? snapshot()) == current, focusStillMatches(selection, expected: expected) else { return false }
+                return try replaceWebRange(on: element, start: current.selectionLocation, length: 0, text: text)
+            }
             let result = AXUIElementSetAttributeValue(element, kAXSelectedTextAttribute as CFString, text as CFString)
-            guard result == .success else { throw AXDispatchFailure(code: result.rawValue) }
+            try Self.checkTextWrite(result)
             return true
         }
+        guard !current.isWeb else { return false }
         // Deliberate clipboard fallback. Do not inspect private clipboard data to preserve it.
         // Do not restore asynchronously: that could overwrite a newer user copy.
         guard let source = CGEventSource(stateID: .privateState),
@@ -110,6 +117,30 @@ final class AXInputAccess: InputAccess {
         // Process-specific events avoid redirecting a paste to an app activated in the dispatch race.
         down.postToPid(expected.processID)
         up.postToPid(expected.processID)
+        return true
+    }
+
+    private static func checkTextWrite(_ result: AXError) throws {
+        if result == .cannotComplete { throw AXTextWriteTimeout() }
+        guard result == .success else { throw AXDispatchFailure(code: result.rawValue) }
+    }
+
+    private func supportsRangeReplacement(_ element: AXUIElement) -> Bool {
+        var names: CFArray?
+        return AXUIElementCopyParameterizedAttributeNames(element, &names) == .success &&
+            (names as? [String])?.contains("AXReplaceRangeWithText") == true
+    }
+
+    /// Ask the already identified editor to replace only this UTF-16 range. An
+    /// acknowledged write still requires independent readback by the coordinator.
+    private func replaceWebRange(on element: AXUIElement, start: Int, length: Int, text: String) throws -> Bool {
+        var range = CFRange(location: start, length: length)
+        guard let value = AXValueCreate(.cfRange, &range) else { return false }
+        let parameters: [String: Any] = ["AXReplacementRange": value, "AXReplacementText": text]
+        var response: CFTypeRef?
+        let result = AXUIElementCopyParameterizedAttributeValue(element, "AXReplaceRangeWithText" as CFString,
+                                                                 parameters as CFDictionary, &response)
+        try Self.checkTextWrite(result)
         return true
     }
 
@@ -132,6 +163,12 @@ final class AXInputAccess: InputAccess {
 
     func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool? {
         guard let current = try? snapshot(), current == expected, let element = currentElement else { return false }
+        if current.isWeb {
+            guard let witness = textWitness(at: current), utf16Start >= 0,
+                  utf16Start <= witness.utf16.count, text.utf16.count <= witness.utf16.count - utf16Start,
+                  let readback = RecognitionUTF16.slice(witness, start: utf16Start, end: utf16Start + text.utf16.count) else { return nil }
+            return readback.utf8.elementsEqual(text.utf8)
+        }
         var range = CFRange(location: utf16Start, length: text.utf16.count)
         guard let value = AXValueCreate(.cfRange, &range) else { return nil }
         var output: CFTypeRef?
@@ -144,15 +181,23 @@ final class AXInputAccess: InputAccess {
     /// prove grapheme boundaries and preserve the user's prefix and suffix. Never stored.
     func textWitness(at expected: InputTargetSnapshot) -> String? {
         guard let current = try? snapshot(), current == expected, !current.isSensitive,
-              let element = currentElement,
+              current.isEditable, let element = currentElement,
               let count = attribute(element, kAXNumberOfCharactersAttribute) as? NSNumber,
-              count.intValue >= 0, count.intValue <= 65_536 else { return nil }
+              (0...65_536).contains(count.intValue) else { return nil }
         var range = CFRange(location: 0, length: count.intValue)
         guard let value = AXValueCreate(.cfRange, &range) else { return nil }
         var output: CFTypeRef?
-        guard AXUIElementCopyParameterizedAttributeValue(element, kAXStringForRangeParameterizedAttribute as CFString,
-                value, &output) == .success, let text = output as? String, text.utf16.count == range.length,
-              (try? snapshot()) == expected else { return nil }
+        let status = AXUIElementCopyParameterizedAttributeValue(element, kAXStringForRangeParameterizedAttribute as CFString,
+                                                                value, &output)
+        let ranged = status == .success ? output as? String : nil
+        let text: String?
+        if let ranged, ranged.utf16.count == range.length {
+            text = ranged
+        } else if current.isWeb {
+            // A bounded plain text control may expose its value but omit the full-range string.
+            text = attribute(element, kAXValueAttribute) as? String
+        } else { text = nil }
+        guard let text, text.utf16.count == range.length, (try? snapshot()) == expected else { return nil }
         return text
     }
 
@@ -165,6 +210,12 @@ final class AXInputAccess: InputAccess {
               let updated = OwnedInputText.replacing(witness, start: start, expected: expectedText, replacement: replacement),
               updated.utf16.count <= 65_536,
               let currentText = textWitness(at: expected), currentText.utf8.elementsEqual(witness.utf8) else { return false }
+        if expected.isWeb {
+            guard supportsRangeReplacement(element), (try? snapshot()) == expected,
+                  textWitness(at: expected)?.utf8.elementsEqual(witness.utf8) == true,
+                  focusStillMatches(selection, expected: expected), isCurrent() else { return false }
+            return try replaceWebRange(on: element, start: start, length: expectedText.utf16.count, text: replacement)
+        }
         var rangeSettable = DarwinBoolean(false), textSettable = DarwinBoolean(false)
         guard AXUIElementIsAttributeSettable(element, kAXSelectedTextRangeAttribute as CFString, &rangeSettable) == .success,
               AXUIElementIsAttributeSettable(element, kAXSelectedTextAttribute as CFString, &textSettable) == .success,
@@ -185,7 +236,7 @@ final class AXInputAccess: InputAccess {
               let immediateRange = selectedRange(element), immediateRange.location == range.location,
               immediateRange.length == range.length, isCurrent() else { throw NativeInputError.targetChanged }
         let result = AXUIElementSetAttributeValue(element, kAXSelectedTextAttribute as CFString, replacement as CFString)
-        guard result == .success else { throw AXDispatchFailure(code: result.rawValue) }
+        try Self.checkTextWrite(result)
         return true
     }
 
@@ -307,6 +358,7 @@ final class AXInputAccess: InputAccess {
     }
 }
 
+struct AXTextWriteTimeout: Error {}
 struct AXDispatchFailure: Error { let code: Int32 }
 
 enum InputSafetyPolicy {

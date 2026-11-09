@@ -684,7 +684,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         let currentSnapshot = recognitionFactory.snapshot
         // The UI captures its applied configuration at the click. A queued task
         // cannot silently acquire different cloud destinations before it starts.
-        let requestedSnapshot = expectedConfiguration == nil || expectedConfiguration == currentSnapshot.configuration
+        let requestedSnapshot = expectedConfiguration == nil || expectedConfiguration == currentSnapshot.appliedConfiguration
             ? currentSnapshot : currentSnapshot.localOnly
         if !isAutomatic {
             do {

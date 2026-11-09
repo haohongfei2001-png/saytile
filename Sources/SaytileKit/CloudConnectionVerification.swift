@@ -183,7 +183,8 @@ public enum CloudConnectionVerifier {
                     paced: Bool = true, progress update: @escaping @Sendable (CloudConnectionReport) -> Void) async throws -> CloudConnectionReport {
         try Task.checkCancellation()
         guard authorized else { throw ProviderFailure.authorization }
-        var check = configuration; check.cloudEnabled = true; check.automaticRecovery = false
+        var check = configuration; check.cloudEnabled = true
+        check.languagePreference = configuration.resolvedLanguage; check.automaticRecovery = false
         try check.validateForCloud()
         guard check.activeModels.count == 2,
               check.activeModels.filter({ $0.purpose.isStreaming }).count == 1,
@@ -217,6 +218,7 @@ public enum CloudConnectionVerifier {
                 return try await transport.fallback(evidence, prefix, context, item, key)
             })
         var dependencies = RecognitionPipelineDependencies.live
+        dependencies.observeLanguage = { _ in } // Synthetic checks must not train the usage profile.
         dependencies.credential = { savedCredentials[$0.id] }
         let selectedModels = check.activeModels
         dependencies.streaming = { provider in

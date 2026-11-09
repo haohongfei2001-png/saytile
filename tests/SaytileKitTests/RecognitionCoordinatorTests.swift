@@ -96,7 +96,7 @@ private actor CoordinatorReviewProbe {
     func arbitrate(_ evidence: [ReviewEvidence]) throws -> PrecisionReviewDecision {
         arbitrationCalls += 1
         let acoustic = evidence.first { $0.role == RecognitionPurpose.audioReview.rawValue }
-        guard let selected = acoustic ?? evidence.first(where: { $0.role == RecognitionPurpose.englishASR.rawValue }) else {
+        guard let selected = acoustic ?? evidence.first(where: { $0.role == RecognitionPurpose.chineseASR.rawValue }) else {
             throw CoordinatorFixtureFailure.unexpectedDependency
         }
         return .init(selections: [.init(candidateID: selected.candidateID, utf16Start: 0, utf16End: selected.text.utf16.count + (invalidSelection ? 1 : 0))],
@@ -132,6 +132,7 @@ private final class CoordinatorHarness: Sendable {
         try Self.writePCM(initialPCM, to: file)
         try await store.registerAudioChunk(recordingID: recording.id, relativePath: path, frames: Int64(initialPCM.count / 2))
         var config = RecognitionConfiguration()
+        config.languagePreference = .chinese
         config.cloudEnabled = true
         config.inputMode = mode
         config.models = [
@@ -248,22 +249,23 @@ struct RecognitionCoordinatorTests {
         #expect(MultiRecognitionCoordinator.reviewSignature([original]) != MultiRecognitionCoordinator.reviewSignature([aligned]))
     }
 
-    @Test func identicalAudioWaitsForBothExpertsBeforeQualityPublication() async throws {
+    @Test func onlySelectedExpertGetsIdenticalAudioAndReviewGatesPublication() async throws {
         let first = firstPCM, second = secondPCM, pcm = first + second
         let chinese = CoordinatorProviderControl(text: "我用 SwiftUI。")
+        let reviewGate = CoordinatorGate()
         let english = CoordinatorProviderControl(text: "我用 SwiftUI。")
-        try await withCoordinatorHarness(chinese: chinese, english: english, initialPCM: pcm) { h in
+        try await withCoordinatorHarness(chinese: chinese, english: english, initialPCM: pcm, reviewRelease: reviewGate) { h in
             h.session.append(first); h.session.append(second)
             try await h.endRecording()
-            try await chinese.audioEnded.wait(); try await english.audioEnded.wait()
+            try await chinese.audioEnded.wait()
             #expect(await chinese.probe.received == pcm)
-            #expect(await english.probe.received == pcm)
+            #expect(await english.probe.received.isEmpty)
             chinese.release.open()
             try await chinese.callbackEnded.wait()
             #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID) == nil)
             #expect(try await h.store.recognitionCandidates(recordingID: h.recordingID).count == 1)
             #expect(!h.session.isComplete)
-            english.release.open()
+            reviewGate.open()
             try await h.wait()
             #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID)?.text == chinese.text)
             #expect(try await h.store.recording(id: h.recordingID)?.recognitionState == .completed)
@@ -271,13 +273,13 @@ struct RecognitionCoordinatorTests {
         }
     }
 
-    @Test func failedExpertDoesNotStopOtherAudioOrDestroyOriginal() async throws {
+    @Test func failedExpertLeavesOriginalAvailableWithoutStartingAnotherProvider() async throws {
         let first = firstPCM, second = secondPCM, pcm = first + second
         let chinese = CoordinatorProviderControl(text: "unused", failAfterFirstFrame: true)
         let english = CoordinatorProviderControl(text: "原音继续保存。")
         try await withCoordinatorHarness(chinese: chinese, english: english, initialPCM: first) { h in
             h.session.append(first)
-            try await chinese.firstFrame.wait(); try await english.firstFrame.wait()
+            try await chinese.firstFrame.wait()
             chinese.release.open()
             try await coordinatorEventually {
                 try await h.store.modelRuns(recordingID: h.recordingID).contains { $0.ticket.purpose == .chineseASR && $0.state == .failed }
@@ -288,19 +290,19 @@ struct RecognitionCoordinatorTests {
             try await h.persist(pcm)
             h.session.append(second)
             try await h.endRecording()
-            try await english.audioEnded.wait()
+            #expect(await english.probe.received.isEmpty)
             english.release.open()
             try await h.wait()
-            #expect(await english.probe.received == pcm)
+            #expect(await english.probe.received.isEmpty)
             #expect(try Data(contentsOf: h.file) == PCMJournal.header(frames: Int64(pcm.count / 2)) + pcm)
             #expect(try await h.store.audioChunks(recordingID: h.recordingID).first?.frames == Int64(pcm.count / 2))
             #expect(try await h.store.recording(id: h.recordingID)?.audioState == .available)
-            #expect(try await h.store.recognitionCandidates(recordingID: h.recordingID).map(\.text) == [english.text])
+            #expect(try await h.store.recognitionCandidates(recordingID: h.recordingID).isEmpty)
             #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID) == nil)
             let runs = try await h.store.modelRuns(recordingID: h.recordingID)
-            #expect(runs.contains { $0.ticket.purpose == .englishASR && $0.state == .completed })
+            #expect(!runs.contains { $0.ticket.purpose == .englishASR })
             #expect(try await h.store.recording(id: h.recordingID)?.recognitionState == .failed)
-            #expect(try await h.store.fusionDecisions(recordingID: h.recordingID).last?.proposal.unresolved == true)
+            #expect(try await h.store.fusionDecisions(recordingID: h.recordingID).allSatisfy { $0.proposal.stableText.isEmpty })
         }
     }
 
@@ -311,15 +313,15 @@ struct RecognitionCoordinatorTests {
         try await withCoordinatorHarness(chinese: chinese, english: english, initialPCM: pcm) { h in
             h.session.append(pcm)
             try await h.endRecording()
-            try await chinese.audioEnded.wait(); try await english.audioEnded.wait()
+            try await chinese.audioEnded.wait()
             try await h.store.deleteAudio(recordingID: h.recordingID)
             #expect(try await !h.store.isRecognitionCurrent(ticket: h.ticket))
             chinese.release.open(); english.release.open()
             try await h.wait()
             #expect(await chinese.probe.callbackAttempts == 1)
-            #expect(await english.probe.callbackAttempts == 1)
+            #expect(await english.probe.callbackAttempts == 0)
             #expect(await chinese.probe.rejectedCallbacks == 1)
-            #expect(await english.probe.rejectedCallbacks == 1)
+            #expect(await english.probe.rejectedCallbacks == 0)
             #expect(try await h.store.recognitionCandidates(recordingID: h.recordingID).isEmpty)
             #expect(try await h.store.revisions(recordingID: h.recordingID).isEmpty)
             #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID) == nil)
@@ -335,12 +337,12 @@ struct RecognitionCoordinatorTests {
         try await withCoordinatorHarness(chinese: chinese, english: english, initialPCM: pcm) { h in
             h.session.append(pcm)
             try await h.endRecording()
-            try await chinese.audioEnded.wait(); try await english.audioEnded.wait()
+            try await chinese.audioEnded.wait()
             h.session.cancel()
             chinese.release.open(); english.release.open()
             try await h.wait()
             #expect(await chinese.probe.callbackAttempts == 1)
-            #expect(await english.probe.callbackAttempts == 1)
+            #expect(await english.probe.callbackAttempts == 0)
             #expect(await chinese.probe.acceptedCallbacks == 0)
             #expect(await english.probe.acceptedCallbacks == 0)
             #expect(try await h.store.recognitionCandidates(recordingID: h.recordingID).isEmpty)
@@ -476,7 +478,7 @@ struct RecognitionCoordinatorTests {
         try await withCoordinatorHarness(chinese: chinese, english: english, initialPCM: first,
                                          reviewText: "我想买梨子。") { h in
             h.session.append(first)
-            try await chinese.liveEmitted.wait(); try await english.liveEmitted.wait()
+            try await chinese.liveEmitted.wait()
             try await coordinatorEventually {
                 await h.review.arbitrationCalls >= 1
             }
@@ -490,7 +492,7 @@ struct RecognitionCoordinatorTests {
             let listened = await h.review.listened
             #expect(listened.isEmpty)
             #expect(await h.review.arbitrationCalls >= 2)
-            #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID)?.text == "我想买梨子。")
+            #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID)?.text == chinese.text)
         }
     }
 
@@ -528,7 +530,7 @@ struct RecognitionCoordinatorTests {
             #expect(try await h.store.recording(id: h.recordingID)?.recognitionState == .failed)
             #expect(try await h.store.latestDispatchableRevision(recordingID: h.recordingID) == nil)
             #expect(await h.review.arbitrationCalls == 1) // Authorization failure forbids automatic retry, including EOS.
-            #expect(try await h.store.recognitionCandidates(recordingID: h.recordingID).count == 4)
+            #expect(try await h.store.recognitionCandidates(recordingID: h.recordingID).map(\.text) == [chinese.text, chinese.text])
         }
     }
 
