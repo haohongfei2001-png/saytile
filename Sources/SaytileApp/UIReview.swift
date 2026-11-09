@@ -854,7 +854,7 @@ extension AppDelegate {
                     try await self.reviewUntil { !model.checkingConnection && !model.applyingRecognitionSettings }
                     guard fixture.requests == 1, model.connectionVerified, model.appliedRecognitionConfiguration.cloudEnabled,
                           model.recognitionConfiguration.cloudEnabled else { throw ReviewFailure("native first connection did not pass the receipt-enable branch") }
-                    print("UI_CONTROL_PASS first connection via native Workspace/three secure fields/save/consent/cost/start; TEST_ONLY injected receipt, no live verification")
+                    print("UI_CONTROL_PASS first connection via native Workspace/two selected secure fields/save/consent/cost/start; TEST_ONLY injected receipt, no live verification")
                 }
                 fixture.outcome = .failure
                 try await reviewWindow(Form { RecognitionSettingsSection(model: model, initiallyExpanded: true) }.formStyle(.grouped),
@@ -920,7 +920,7 @@ extension AppDelegate {
                 guard value == Self.credential else { throw ProviderFailure.authorization }
                 self.saved.insert(item.id)
             }, delete: { self.saved.remove($0.id) }, verify: { configuration, progress in
-                guard configuration.enabledModels.allSatisfy({ self.saved.contains($0.id) && $0.cloudConsent }) else { throw ProviderFailure.authorization }
+                guard configuration.activeModels.allSatisfy({ self.saved.contains($0.id) && $0.cloudConsent }) else { throw ProviderFailure.authorization }
                 self.requests += 1; self.active += 1; defer { self.active -= 1 }
                 progress(try Self.report(configuration, state: .accountAccepted))
                 try await Task.sleep(for: .milliseconds(150))
@@ -932,7 +932,7 @@ extension AppDelegate {
     }
     private static func report(_ configuration: RecognitionConfiguration, state: ConnectionServiceState) throws -> CloudConnectionReport {
         let success = state == .verified
-        let rows: [[String: Any]] = configuration.enabledModels.map {
+        let rows: [[String: Any]] = configuration.activeModels.map {
             var value: [String: Any] = ["id": $0.id.uuidString, "provider": $0.provider.rawValue, "state": state.rawValue]
             if state == .failed { value["code"] = "quota_exhausted"; value["message"] = "测试情形：服务余额不足，请在服务商账户处理后重新检查。" }
             return value
