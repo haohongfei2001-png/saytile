@@ -79,7 +79,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             if isDiagnostic || directoryIndex != nil {
                 // Reject production aliases before AppModel/Store can migrate or
                 // recover anything. A late "empty fixture" check is too late.
-                do { try DiagnosticDirectory.validate(directory: directory) }
+                do {
+                    try DiagnosticDirectory.validate(directory: directory)
+                    let preview = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+                        .appendingPathComponent("Saytile Timeline Preview", isDirectory: true)
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: preview)
+                }
                 catch { print("DIAGNOSTICS_REJECTED_DATA_DIRECTORY"); Darwin.exit(64) }
             }
             let setupRequest: ConnectionSetupRequest?
@@ -291,7 +296,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             NSApp.terminate(nil)
         }
     }
+    func windowDidBecomeKey(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === archive { model?.archiveIsKey = true }
+    }
+    func windowDidResignKey(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === archive { model?.archiveIsKey = false }
+    }
     func windowWillClose(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === archive { model?.closeDetail() }
         if let window = notification.object as? NSWindow, window === connectionSetupWindow { NSApp.terminate(nil) }
     }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
@@ -442,6 +454,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         guard let model else { return }
         if archive == nil {
             archive = makeWindow(title: "Saytile · 语音档案", width: 1040, height: 720, view: ArchiveView(model: model).preferredColorScheme(.light))
+            archive?.delegate = self
             archive?.minSize = NSSize(width: 800, height: 570)
         }
         archive?.minSize = NSSize(width: model.selected == nil ? 760 : 1040, height: 570)

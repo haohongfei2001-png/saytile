@@ -71,7 +71,13 @@ actor CaptureWorker {
                 let n = samples.withUnsafeMutableBufferPointer { st_ring_read(ring.pointer, $0.baseAddress!, UInt32($0.count)) }
                 if n > 0 {
                     lastFramesAt = Date()
-                    for pcm in try convertCapturedSamples(samples, count: n) { try await acceptPCM(pcm) }
+                    let batchEnd = lastFramesAt.addingTimeInterval(-Double(st_ring_pending(ring.pointer)) / sampleRate)
+                    let converted = try convertCapturedSamples(samples, count: n)
+                    var remaining = converted.reduce(0) { $0 + $1.count }
+                    for pcm in converted {
+                        remaining -= pcm.count
+                        try await acceptPCM(pcm, endingAt: batchEnd.addingTimeInterval(-Double(remaining) / 32000))
+                    }
                     let energy = samples.prefix(Int(n)).reduce(Float(0)) { $0 + $1 * $1 } / Float(n)
                     update(segmenter.speaking, min(1, sqrt(energy) * 7))
                 }
@@ -116,20 +122,28 @@ actor CaptureWorker {
         }
         return result
     }
-    func acceptPCM(_ pcm: Data) async throws {
+    private var lastPCMEnd: Date?
+    func acceptPCM(_ pcm: Data, endingAt time: Date = .now) async throws {
+        lastPCMEnd = time
         for event in segmenter.accept(pcm) {
             switch event {
-            case let .begin(preRoll): try await beginUtterance(at: Date.now.addingTimeInterval(-0.06)); for frame in preRoll { try await append(frame) }
+            case let .begin(preRoll, sample):
+                try await beginUtterance(at: time.addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000))
+                for frame in preRoll { try await append(frame) }
             case let .audio(frame): try await append(frame)
-            case let .end(silence): try await endUtterance(at: Date.now.addingTimeInterval(-silence))
+            case let .end(sample): try await endUtterance(at: time.addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000))
             }
         }
     }
     func flushTail() async throws {
-        for pcm in try drainConvertedTail() { try await acceptPCM(pcm) }
+        for pcm in try drainConvertedTail() {
+            try await acceptPCM(pcm, endingAt: (lastPCMEnd ?? .now).addingTimeInterval(Double(pcm.count) / 32000))
+        }
         for event in segmenter.finish() {
             if case let .audio(data) = event { try await append(data) }
-            if case let .end(silence) = event { try await endUtterance(at: Date.now.addingTimeInterval(-silence)) }
+            if case let .end(sample) = event {
+                try await endUtterance(at: (lastPCMEnd ?? .now).addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000))
+            }
         }
     }
     func beginUtterance(at start: Date = .now) async throws {

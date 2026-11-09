@@ -104,11 +104,14 @@ final class PCMJournal {
 
 /// WebRTC's mature 20ms VAD, with 1 second pre-roll and 800ms end silence.
 final class VoiceSegmenter {
-    enum Event { case begin([Data]), audio(Data), end(trailingSilence: TimeInterval) }
+    enum Event { case begin([Data], sample: Int64), audio(Data), end(sample: Int64) }
     private let vad: OpaquePointer
     private var pending = Data()
     private var preRoll: [Data] = []
     private(set) var speaking = false
+    private(set) var receivedSamples: Int64 = 0
+    private var frameEnd: Int64 = 0
+    private var possibleStart: Int64 = 0
     private var speechVotes = 0
     private var silence = 0
     private var activeFrames = 0
@@ -120,21 +123,24 @@ final class VoiceSegmenter {
     }
     deinit { st_vad_destroy(vad) }
     func accept(_ data: Data) -> [Event] {
+        receivedSamples += Int64(data.count / 2)
         pending.append(data); var events: [Event] = []
         while pending.count >= 640 {
             let frame = Data(pending.prefix(640)); pending.removeFirst(640)
+            frameEnd += 320
             let voiced = frame.withUnsafeBytes { st_vad_process(vad, $0.bindMemory(to: Int16.self).baseAddress!, 320) == 1 }
             if !speaking {
                 preRoll.append(frame); if preRoll.count > 50 { preRoll.removeFirst() }
+                if voiced && speechVotes == 0 { possibleStart = frameEnd - 320 }
                 speechVotes = voiced ? speechVotes + 1 : max(0, speechVotes - 1)
-                if speechVotes >= 3 { speaking = true; silence = 0; activeFrames = 0; events.append(.begin(preRoll)); preRoll.removeAll(keepingCapacity: true) }
+                if speechVotes >= 3 { speaking = true; silence = 0; activeFrames = 0; events.append(.begin(preRoll, sample: possibleStart)); preRoll.removeAll(keepingCapacity: true) }
             } else {
                 events.append(.audio(frame)); activeFrames += 1
                 silence = voiced ? 0 : silence + 1
                 // Journal rotation is separate. Cloud sessions retain longer context;
                 // this boundary controls resource recovery, never text confirmation.
                 if silence >= endSilenceFrames || activeFrames >= maximumFrames {
-                    events.append(.end(trailingSilence: Double(silence) * 0.02))
+                    events.append(.end(sample: frameEnd - Int64(silence) * 320))
                     speaking = false; speechVotes = 0; silence = 0
                 }
             }
@@ -149,7 +155,7 @@ final class VoiceSegmenter {
         defer { pending.removeAll(); preRoll.removeAll(); speaking = false; speechVotes = 0; silence = 0 }
         guard speaking else { return [] }
         let completeBytes = pending.count - pending.count % 2
-        let ending = Event.end(trailingSilence: Double(silence) * 0.02)
+        let ending = Event.end(sample: silence == 0 ? receivedSamples : frameEnd - Int64(silence) * 320)
         return completeBytes > 0 ? [.audio(Data(pending.prefix(completeBytes))), ending] : [ending]
     }
 }

@@ -18,7 +18,7 @@ import Darwin
             for event in segmenter.accept(input) {
                 switch event {
                 case .audio(let data): delivered += data.count
-                case .begin(let frames): delivered += frames.reduce(0) { $0 + $1.count }
+                case .begin(let frames, _): delivered += frames.reduce(0) { $0 + $1.count }
                 case .end: break
                 }
             }

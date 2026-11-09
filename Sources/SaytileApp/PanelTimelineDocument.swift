@@ -11,6 +11,7 @@ struct PanelTimelineDocument: Equatable {
     var text = ""
     var spans: [Span] = []
     var markers: [NSRange] = []
+    var copyTail: TimelineEntry?
     var activeStart: Int?
     var idle = false
     var firstPosition: Int64?
@@ -21,6 +22,7 @@ struct PanelTimelineDocument: Equatable {
     init() {}
     init(page: TimelinePage, tail: TimelineEntry?, idle: Bool, reading: Bool) {
         self.idle = idle && !page.hasNewer
+        copyTail = tail
         firstPosition = page.entries.first?.position
         lastPosition = page.entries.last?.position
         older = page.hasOlder
@@ -30,6 +32,10 @@ struct PanelTimelineDocument: Equatable {
         for row in page.entries where !row.recording.text.isEmpty {
             if content.length > 0 { content.append("\n") }
             if group != row.group {
+                if !reading && row.group == tail?.group && content.length > 0 {
+                    // Optical inset above live text must not expose the last glyphs of history.
+                    content.append("\n")
+                }
                 if reading || row.group != tail?.group {
                     let start = content.length
                     let offset = Double(row.groupUTCOffset)

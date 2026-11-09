@@ -154,6 +154,7 @@ final class AppModel: ObservableObject {
     @Published var recent: [DisplayRecording] = []
     @Published var records: [DisplayRecording] = []
     @Published var versions: [DisplayVersion] = []
+    @Published var archiveIsKey = false
     @Published var selected: DisplayRecording?
     @Published private(set) var editorDraft = ""
     @Published private(set) var editorDraftLoading = false
@@ -566,10 +567,36 @@ final class AppModel: ObservableObject {
         setTimelineWindow(.latest)
     }
 
+    private var timelineRead: UInt64 = 0
+    private var observedEnd: Date?
+    private var observedPosition: Int64?
+    private var silenceStarted = ContinuousClock.now
+    private func refreshTimeline(_ window: TimelineWindow) async throws {
+        timelineRead &+= 1
+        let request = timelineRead
+        let page = try await store.timelinePage(window)
+        let tail = window == .latest ? page.entries.last : try await store.timelinePage().entries.last
+        guard window == timelineWindow, request == timelineRead else { return }
+        if timeline != page { timeline = page }
+        if timelineTail != tail { timelineTail = tail }
+        if observedPosition != tail?.position || observedEnd != tail?.speechEnd {
+            observedPosition = tail?.position
+            observedEnd = tail?.speechEnd
+            let elapsed = min(3600, max(0, tail.map { Date.now.timeIntervalSince($0.speechEnd) } ?? 0))
+            silenceStarted = .now - .seconds(elapsed)
+        }
+        let idle = tail.map { $0.position <= hiddenThrough || (!$0.recording.isRecording &&
+            silenceStarted.duration(to: .now) >= .seconds(timelineIdleSeconds)) } ?? false
+        if timelineIdle != idle { timelineIdle = idle }
+    }
+
     private func setTimelineWindow(_ window: TimelineWindow) {
         guard window != timelineWindow else { return }
         timelineWindow = window
-        scheduleRefresh()
+        Task {
+            do { try await refreshTimeline(window) }
+            catch { notice = error.localizedDescription }
+        }
     }
 
     func changeIdleInterval(_ seconds: Int) {
@@ -579,9 +606,9 @@ final class AppModel: ObservableObject {
         }
     }
 
-    func copyTimeline(selection: String, displayed: [Int64: String]) {
+    func copyTimeline(end: TimelineEntry?, selection: String, displayed: [Int64: String]) {
         if !selection.isEmpty { copy(selection, quietly: true); return }
-        guard let end = timelineTail else { return }
+        guard let end else { return }
         do { copy(try store.timelineCopy(group: end.group, through: end.position, displayed: displayed), quietly: true) }
         catch { notice = error.localizedDescription }
     }
@@ -881,16 +908,7 @@ final class AppModel: ObservableObject {
         let requestedQuery = query, requestedFilter = recordFilter, requestedLimit = pageLimit
         do {
             await recoveryTask?.value
-            let window = timelineWindow
-            let page = try await store.timelinePage(window)
-            let tail = window == .latest ? page.entries.last : try await store.timelinePage().entries.last
-            if timelineWindow == window {
-                if timeline != page { timeline = page }
-                if timelineTail != tail { timelineTail = tail }
-                let idle = tail.map { $0.position <= hiddenThrough || (!$0.recording.isRecording &&
-                    Date.now.timeIntervalSince($0.speechEnd) >= Double(timelineIdleSeconds)) } ?? false
-                if timelineIdle != idle { timelineIdle = idle }
-            }
+            try await refreshTimeline(timelineWindow)
             var rows: [Recording] = []
             while rows.count < requestedLimit + 1 {
                 let batch = try await store.listRecordings(query: requestedQuery, limit: min(100, requestedLimit + 1 - rows.count), offset: rows.count, filter: requestedFilter)

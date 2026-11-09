@@ -22,7 +22,7 @@ struct CompactTranscriptView: NSViewRepresentable {
         view.onFollowChange = onFollowChange
         view.onSelectionChange = onSelectionChange
         view.transcriptView.fillContextMenu = fillContextMenu
-        view.transcriptView.showsLiveCaret = showsLiveCaret && view.isFollowingLatest
+        view.transcriptView.showsLiveCaret = showsLiveCaret && view.isFollowingLatest && !document.idle && !editing
         access.view = view
         view.onPage = onPage
         view.editing = editing
@@ -118,7 +118,7 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         let origin = contentView.bounds.origin
         changingDocument = true
         ensureDocumentLayout()
-        if isFollowingLatest, !selecting, transcriptView.selectedRange().length == 0 { scrollToLatest() }
+        if isFollowingLatest, !editing, !selecting, transcriptView.selectedRange().length == 0 { scrollToLatest() }
         else { scroll(to: origin) }
         changingDocument = false
     }

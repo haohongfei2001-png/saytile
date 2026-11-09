@@ -50,12 +50,22 @@ struct AXCoordinatorProbe {
             guard condition else { throw Failure(description: message) }
             checks += 1; print("PASS " + message); fflush(nil)
         }
+        let historical = try await store.createRecording(createdAt: .now.addingTimeInterval(-600))
+        let historicText = try await store.saveEdit(recordingID: historical.id, text: "历史草稿不应出现在外部窗口")
+        try await store.finishRecording(id: historical.id)
         let binding = try await coordinator.bindCurrentTarget()
         let recording = try await store.createRecording(createdAt: binding.boundAt.addingTimeInterval(1))
         let revision1 = try await store.saveEdit(recordingID: recording.id, text: "你好😀")
         let inserted = await coordinator.insertStable(recordingID: recording.id, revisionID: revision1.id, stableUTF16End: 4, recordingStartedAt: recording.createdAt)
         try expect(inserted == .confirmed, "production coordinator + SQLite reservation + real AX insertion confirms")
         try expect(attribute(field, kAXValueAttribute) as? String == "PREFIX|你好😀SUFFIX", "preserves synthetic prefix and suffix")
+        let history = try await store.timelinePage(.ending(at: 1))
+        let candidates = try await store.directInputCandidates(bindingID: binding.id, createdSince: binding.boundAt)
+        let refused = await coordinator.insertStable(recordingID: historical.id, revisionID: historicText.id,
+            stableUTF16End: historicText.text.utf16.count, recordingStartedAt: historical.createdAt)
+        try expect(history.entries.first?.id == historical.id && !candidates.contains(where: { $0.id == historical.id }) &&
+            refused == .noNewText && attribute(field, kAXValueAttribute) as? String == "PREFIX|你好😀SUFFIX",
+            "history paging and explicit old-range replay leave owned external AX field untouched")
         let duplicate = await coordinator.insertStable(recordingID: recording.id, revisionID: revision1.id, stableUTF16End: 4, recordingStartedAt: recording.createdAt)
         try expect(duplicate == .noNewText, "same stable range is not inserted twice")
         let revision2 = try await store.saveEdit(recordingID: recording.id, text: "你好😀，接着说")

@@ -44,7 +44,7 @@ struct InputPanelView: View {
             }
 
             CompactTranscriptView(document: document, access: access, onPage: { model.moveTimeline(older: $0) },
-                focusPosition: model.timelineFocus, editing: model.selected != nil && !followsLatest, latestRequest: latestRequest,
+                focusPosition: model.timelineFocus, editing: model.archiveIsKey && model.selected != nil, latestRequest: latestRequest,
                 onFollowChange: { follows in
                     if followsLatest != follows {
                         followsLatest = follows
@@ -98,7 +98,7 @@ struct InputPanelView: View {
         guard canCopy else { return }
         let view = access.view
         let displayed = Dictionary(uniqueKeysWithValues: (view?.rendered.spans ?? []).map { ($0.entry.position, $0.entry.recording.text) })
-        model.copyTimeline(selection: view?.selectionSnapshot ?? selectedText, displayed: displayed)
+        model.copyTimeline(end: view?.rendered.copyTail, selection: view?.selectionSnapshot ?? selectedText, displayed: displayed)
     }
 
     private var captureControl: some View {
@@ -391,7 +391,7 @@ struct SettingsView: View {
                     Button("在 Finder 中显示资料目录", action: model.revealData)
                 }
                 Section("使用习惯") {
-                    Picker("讲话分组间隔", selection: Binding(get: { model.timelineIdleSeconds }, set: model.changeIdleInterval)) {
+                    Picker("讲话分组间隔", selection: Binding(get: { model.timelineIdleSeconds }, set: { seconds in model.changeIdleInterval(seconds) })) {
                         ForEach([10, 30, 60, 120, 300, 600, 1800, 3600], id: \.self) { seconds in
                             Text(seconds < 60 ? "\(seconds) 秒" : "\(seconds / 60) 分钟").tag(seconds)
                         }

@@ -213,6 +213,12 @@ extension AppDelegate {
                 await model.refresh()
                 try await self.reviewUntil { scroll.rendered.spans.suffix(2).first?.entry.recording.text == "想把这段话记下来。" }
                 guard board.changeCount == changes, scroll.rendered.spans.last?.entry.id == second.id else { throw ReviewFailure("late revision changed clipboard or order") }
+                await model.selectForEditing(DisplayRecording(source: first))
+                model.updateEditorDraft("用户自己决定的写法")
+                try await model.store.applyRecognition(ticket: ticket, text: "迟到的候选版本", isFinal: true)
+                await model.refresh()
+                guard model.editorDraft == "用户自己决定的写法" else { throw ReviewFailure("late ASR rewrote unsaved edit") }
+                model.closeDetail()
                 let beforeIdle = scroll.contentView.bounds.minY
                 // Wait for the actual production timer at the shortest supported interval.
                 for _ in 0..<140 where !model.timelineIdle { try await Task.sleep(for: .milliseconds(100)) }
@@ -239,6 +245,12 @@ extension AppDelegate {
                 guard scroll.rendered.spans.count == 64, !scroll.isFollowingLatest,
                       scroll.rendered.spans.contains(where: { $0.entry.position == oldFirst }) else { throw ReviewFailure("paged native viewport dropped overlap") }
                 print("TIMELINE_NATIVE_PAGE rows=12003 resident=64 wheel_to_paint=\(began.duration(to: .now))")
+                let dateMarkers = scroll.rendered.markers.filter { range in
+                    (scroll.transcriptView.string as NSString).substring(with: range).hasPrefix("2025-01-")
+                }
+                guard dateMarkers.count == 2, let midnight = dateMarkers.last else { throw ReviewFailure("midnight did not introduce local date marker") }
+                scroll.transcriptView.scrollRangeToVisible(midnight)
+                try self.captureReview(host, name: "timeline-midnight", output: output)
                 let span = scroll.rendered.spans[30]
                 scroll.transcriptView.scrollRangeToVisible(span.range)
                 scroll.transcriptView.setSelectedRange(span.range)
@@ -297,8 +309,7 @@ extension AppDelegate {
               board.changeCount > previousCount, capture.starts == starts, capture.pauses == pauses, capture.state == state else {
             throw ReviewFailure("copy changed capture or did not write the exact expected text to the unique pasteboard")
         }
-        // Observe publication and clearance, even if the AX call returns after
-        // the brief feedback has settled. No fixed-time positive sample is needed.
+        // Panel copy is silent, including while the private pasteboard is written.
         guard !receivedSuccess else { throw ReviewFailure("panel copy displayed unsolicited success feedback") }
     }
 
