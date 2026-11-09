@@ -17,7 +17,7 @@ public enum CloudCredentialPresence: Equatable, Sendable {
 /// Credentials never enter preferences or diagnostics. Presence checks request
 /// only item metadata; secret bytes are read solely when a provider needs them.
 public enum CloudCredentialStore {
-    private static let store = KeychainCredentialStore(service: "com.saytile.timeline-preview.byok.v1")
+    private static let store = KeychainCredentialStore(service: "com.saytile.byok.v1")
     public static func save(_ secret: String, configurationID: UUID, provider: CloudProvider) throws {
         try store.save(secret, configurationID: configurationID, provider: provider)
     }

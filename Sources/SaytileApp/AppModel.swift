@@ -606,10 +606,15 @@ final class AppModel: ObservableObject {
         }
     }
 
-    func copyTimeline(end: TimelineEntry?, selection: String, displayed: [Int64: String]) {
+    func copyTimeline(selection: String, displayed: [Int64: String]) {
         if !selection.isEmpty { copy(selection, quietly: true); return }
-        guard let end else { return }
-        do { copy(try store.timelineCopy(group: end.group, through: end.position, displayed: displayed), quietly: true) }
+        guard let end = timelineTail else { return }
+        // The editor can hold a previous page across a new group. The click targets
+        // the live tail while preserving the exact text of any already rendered rows.
+        var snapshot = Dictionary(uniqueKeysWithValues: timeline.entries.map { ($0.position, $0.recording.text) })
+        snapshot[end.position] = end.recording.text
+        snapshot.merge(displayed) { _, rendered in rendered }
+        do { copy(try store.timelineCopy(group: end.group, through: end.position, displayed: snapshot), quietly: true) }
         catch { notice = error.localizedDescription }
     }
 

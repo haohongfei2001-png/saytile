@@ -97,7 +97,7 @@ struct InputPanelView: View {
     private func copyTranscript() {
         guard canCopy else { return }
         let view = access.view
-        model.copyTimeline(end: view?.rendered.copyTail, selection: view?.selectionSnapshot ?? selectedText, displayed: view?.rendered.displayed ?? [:])
+        model.copyTimeline(selection: view?.selectionSnapshot ?? selectedText, displayed: view?.rendered.displayed ?? [:])
     }
 
     private var captureControl: some View {

@@ -43,16 +43,19 @@ extension SaytileStore {
         WHERE prior.position<NEW.position ORDER BY prior.position DESC LIMIT 1),NEW.position)
       WHERE position=NEW.position;
     END;
-    CREATE TRIGGER IF NOT EXISTS timeline_record AFTER INSERT ON recordings BEGIN
+    -- SQLite rounds fractional dates to milliseconds. Classify the containing
+    -- whole second before asking for the local day or UTC offset.
+    DROP TRIGGER IF EXISTS timeline_record;
+    CREATE TRIGGER IF NOT EXISTS timeline_record_civil_second AFTER INSERT ON recordings BEGIN
       INSERT INTO transcript_timeline(recording_id,started,day,utc_offset)
-      VALUES(NEW.id,NEW.created_at,date(NEW.created_at,'unixepoch','localtime'),
-        unixepoch(datetime(NEW.created_at,'unixepoch','localtime'))-unixepoch(NEW.created_at,'unixepoch'));
+      VALUES(NEW.id,NEW.created_at,date(floor(NEW.created_at),'unixepoch','localtime'),
+        unixepoch(datetime(floor(NEW.created_at),'unixepoch','localtime'))-CAST(floor(NEW.created_at) AS INTEGER));
     END;
     """
     static let timelineBackfill = """
     INSERT INTO transcript_timeline(recording_id,started,day,utc_offset)
-    SELECT id,created_at,date(created_at,'unixepoch','localtime'),
-      unixepoch(datetime(created_at,'unixepoch','localtime'))-unixepoch(created_at,'unixepoch')
+    SELECT id,created_at,date(floor(created_at),'unixepoch','localtime'),
+      unixepoch(datetime(floor(created_at),'unixepoch','localtime'))-CAST(floor(created_at) AS INTEGER)
     FROM recordings r WHERE NOT EXISTS(SELECT 1 FROM transcript_timeline t WHERE t.recording_id=r.id)
     ORDER BY created_at,rowid;
     """

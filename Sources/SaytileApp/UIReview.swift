@@ -7,7 +7,8 @@ import SaytileKit
 // Runs only with --ui-review AND an explicitly isolated data directory. All text/audio is synthetic.
 extension AppDelegate {
     @MainActor func runUIReview(model: AppModel, output: URL) async -> Bool {
-        NSApp.setActivationPolicy(.prohibited)
+        let timeline = ProcessInfo.processInfo.environment["SAYTILE_TIMELINE_REVIEW"] == "1"
+        NSApp.setActivationPolicy(timeline ? .accessory : .prohibited)
         do {
             try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
             if ProcessInfo.processInfo.environment["SAYTILE_REFERENCE_ONLY"] == "1" {
@@ -229,10 +230,43 @@ extension AppDelegate {
                 try await self.reviewUntil { scroll.rendered.idle && scroll.contentView.bounds.minY > beforeIdle + 20 &&
                     scroll.documentVisibleRect.maxY >= scroll.transcriptView.bounds.height - 1 }
                 try self.captureReview(host, name: "timeline-idle", output: output)
+                if controls {
+                    let anchor = scroll.contentView.bounds.origin
+                    let state = model.audio.state
+                    let notice = model.notice
+                    let expected = try await model.store.recording(id: first.id)!.text + "\n" + continuation
+                    try await self.press("panel.copy", in: host)
+                    guard board.string(forType: .string) == expected, model.timelineIdle,
+                          scroll.contentView.bounds.origin == anchor, scroll.selectionSnapshot.isEmpty,
+                          model.audio.state == state, model.notice == notice else {
+                        throw ReviewFailure("idle click did not silently snapshot the latest group in place")
+                    }
+                    print("IDLE_COPY_PASS two utterances; blank viewport, capture and notice unchanged")
+                }
+                let idleClipboard = board.changeCount
+                // The archive editor holds its page, as on a nonactivating panel click.
+                await model.selectForEditing(DisplayRecording(source: first))
+                model.archiveIsKey = true
+                model.updateEditorDraft("独立复核的未提交草稿")
+                try await self.reviewUntil { scroll.editing }
                 let new = try await model.store.createRecording()
                 try await model.store.saveEdit(recordingID: new.id, text: "再记一句，和之前的想法放在一起。")
                 try await model.store.finishRecording(id: new.id)
                 await model.refresh()
+                guard board.changeCount == idleClipboard else { throw ReviewFailure("new speech rewrote an idle clipboard snapshot") }
+                if controls {
+                    guard scroll.rendered.idle, scroll.rendered.spans.last?.entry.id == second.id else {
+                        throw ReviewFailure("editor failed to hold the idle reading page")
+                    }
+                    try await self.press("panel.copy", in: host)
+                    guard board.string(forType: .string) == "再记一句，和之前的想法放在一起。",
+                          model.editorDraft == "独立复核的未提交草稿", scroll.rendered.idle else {
+                        throw ReviewFailure("copy on a held blank panel used the previous group")
+                    }
+                    print("HELD_IDLE_COPY_PASS newest group only; editor draft and held viewport intact")
+                }
+                model.archiveIsKey = false
+                model.closeDetail()
                 try await self.reviewUntil { !scroll.rendered.idle && scroll.rendered.spans.last?.entry.id == new.id }
                 guard model.timelineTail?.group != scroll.rendered.spans.dropLast().last?.entry.group else { throw ReviewFailure("post-idle speech reused previous group") }
                 // Deliver an AppKit wheel event directly to our own scroll view.
@@ -418,13 +452,23 @@ extension AppDelegate {
         let panel = ReviewPanel(contentRect: CGRect(origin: CGPoint(x: 0, y: 0), size: size),
                             styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.title = "Saytile UI Review " + name
-        panel.alphaValue = 0
+        // A fully transparent panel may disappear from AXWindows while idle.
+        // Keep the timeline fixture drawable outside every display, without taking focus.
+        let offscreen = name.hasPrefix("timeline-")
+        panel.alphaValue = offscreen ? 1 : 0
         panel.ignoresMouseEvents = true
         panel.isReleasedWhenClosed = false
         panel.hidesOnDeactivate = false
         let host = NSHostingView(rootView: content.preferredColorScheme(.light))
         panel.contentView = host
         panel.setContentSize(size)
+        if offscreen {
+            let right = NSScreen.screens.map { $0.frame.maxX }.max() ?? 0
+            panel.setFrameOrigin(NSPoint(x: right + 64, y: 0))
+            guard NSScreen.screens.allSatisfy({ !$0.frame.intersects(panel.frame) }) else {
+                throw ReviewFailure("timeline fixture intersects a physical display")
+            }
+        }
         panel.makeFirstResponder(host)
         panel.orderBack(nil)
         defer { panel.orderOut(nil); panel.close() }

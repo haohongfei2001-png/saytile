@@ -32,7 +32,7 @@ import Testing
         _ = try await add(490, 491, "修改阈值")
         let rolled = try await add(488, 489, "时钟拨回")
         let midnight = Calendar.current.startOfDay(for: day.addingTimeInterval(86400))
-        let last = try await store.createRecording(createdAt: midnight.addingTimeInterval(-1))
+        let last = try await store.createRecording(createdAt: midnight.addingTimeInterval(-0.0002))
         let next = try await store.createRecording(createdAt: midnight)
         try await store.close()
         let reopened = try SaytileStore(directory: dir)
@@ -53,7 +53,7 @@ import Testing
         try await old.close()
         let fixture = try StoreDatabase(url: dir.appendingPathComponent("Saytile.sqlite"))
         try fixture.script("""
-            DROP TRIGGER timeline_record; DROP TABLE transcript_timeline; DROP TABLE timeline_settings;
+            DROP TRIGGER timeline_record_civil_second; DROP TABLE transcript_timeline; DROP TABLE timeline_settings;
             PRAGMA user_version=5;
             WITH RECURSIVE seq(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM seq WHERE x<12000)
             INSERT INTO recordings(id,created_at,sample_rate,is_recording)
