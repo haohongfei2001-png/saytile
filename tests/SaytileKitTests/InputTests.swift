@@ -42,6 +42,8 @@ private final class FakeInputAccess: InputAccess {
     var hasPermission = true
     var target = sampleTarget()
     var attempts: [String] = []
+    var fieldWitness: String?
+    func textWitness(at expected: InputTargetSnapshot) -> String? { expected == target ? fieldWitness : nil }
     var confirms = true
     var throwsAfterAttempt = false
     var confirmationsToDelay = 0
@@ -256,6 +258,31 @@ struct InputCoordinatorTests {
         try await coordinator.bindCurrentTarget()
         access.onChange?(.layout)
         #expect(coordinator.binding == nil)
+    }
+    @Test(arguments: ["own-edit", "changed-prefix", "other-page", "changed-caret"])
+    func webLayoutDuringSingleWriteNeedsExactResult(scenario: String) async throws {
+        let directory = testDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory)
+        let access = FakeInputAccess()
+        access.target.isWeb = true
+        access.target.selectionLocation = 2
+        access.fieldWitness = "abz"
+        let input = NativeInputCoordinator(store: store, access: access)
+        try await input.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+        access.afterDispatch = {
+            access.fieldWitness = scenario == "changed-prefix" ? "cb你好😀z" : "ab你好😀z"
+            if scenario == "other-page" { access.target.pageIdentity = "second synthetic document" }
+            if scenario == "changed-caret" { access.target.selectionLocation -= 1 }
+            access.onChange?(.layout)
+        }
+        let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
+                                              stableUTF16End: 4, recordingStartedAt: record.createdAt)
+        #expect(result == (scenario == "own-edit" ? .confirmed : .unverified))
+        #expect((input.binding != nil) == (scenario == "own-edit"))
+        #expect(access.attempts == ["你好😀"])
     }
     @Test func unobservableWebOnlyAllowsExplicitManualInsertion() async throws {
         let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }

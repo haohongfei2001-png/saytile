@@ -123,7 +123,7 @@ public final class NativeInputCoordinator {
     public private(set) var binding: InputBindingInfo?
     private var isDispatching = false
     private var hasIssuedDispatch = false
-    private var inFlightInsertion: (target: InputTargetSnapshot, text: String)?
+    private var inFlightInsertion: (target: InputTargetSnapshot, text: String, expectedField: String?)?
     private var boundPurpose: InputBindingPurpose = .continuous
     private struct Ownership {
         let recordingID: UUID
@@ -198,6 +198,10 @@ public final class NativeInputCoordinator {
                    let witness = self.access.textWitness(at: current),
                    ((current == pending.selected && witness.utf8.elementsEqual(pending.oldText.utf8)) ||
                     (current == pending.after && witness.utf8.elementsEqual(pending.newText.utf8))) { break }
+                if self.target?.isWeb == true {
+                    if !self.observedOwnWebEdit() { self.invalidate() }
+                    break
+                }
                 if self.hasIssuedDispatch, let pending = self.inFlightInsertion,
                    let current = try? self.access.snapshot(), current.sameTarget(as: pending.target),
                    current.selectionLength == 0,
@@ -209,9 +213,10 @@ public final class NativeInputCoordinator {
                 }
                 self.invalidate()
             case .layout:
-                // A structural webpage change can reuse its editor and URL.
-                // Until an engine-specific context can distinguish self-layout, stop automatic input.
-                if self.target?.isWeb == true { self.invalidate() }
+                // WebKit may also publish a layout update for an AX edit. Recognize
+                // only the exact result of the one outstanding write on the same
+                // semantic page. A layout outside that write always expires the binding.
+                if self.target?.isWeb == true && !self.observedOwnWebEdit() { self.invalidate() }
             }
         }
         canObserveOwnership = support.focus && support.content && (!snapshot.isWeb || support.page && snapshot.pageContextComplete)
@@ -221,6 +226,18 @@ public final class NativeInputCoordinator {
             throw NativeInputError.unobservablePage
         }
         return info
+    }
+
+    private func observedOwnWebEdit() -> Bool {
+        guard let current = try? access.snapshot(), current.isWeb, current.pageContextComplete,
+              current.selectionLength == 0, let field = access.textWitness(at: current) else { return false }
+        if let pending = inFlightCorrection {
+            return current == pending.after && field.utf8.elementsEqual(pending.newText.utf8)
+        }
+        guard hasIssuedDispatch, let pending = inFlightInsertion, let expectedField = pending.expectedField else { return false }
+        var expected = pending.target
+        expected.selectionLocation += pending.text.utf16.count
+        return current == expected && field.utf8.elementsEqual(expectedField.utf8)
     }
 
     public func invalidate() {
@@ -306,7 +323,10 @@ public final class NativeInputCoordinator {
                     return .cancelled
                 }
                 owned = nil // Any unconfirmed or noncontiguous attempt consumes prior ownership.
-                inFlightInsertion = (target, reservation.text)
+                let expectedField = target.isWeb ? beforeText.flatMap {
+                    OwnedInputText.replacing($0, start: target.selectionLocation, expected: "", replacement: reservation.text)
+                } : nil
+                inFlightInsertion = (target, reservation.text, expectedField)
                 hasIssuedDispatch = true
                 let dispatched = try access.dispatch(reservation.text, to: target)
                 if !dispatched {

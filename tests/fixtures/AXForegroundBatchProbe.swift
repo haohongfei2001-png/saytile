@@ -276,6 +276,13 @@ private func immediateAbort(_ message: String) -> Never {
                 let countStatus = AXUIElementCopyAttributeValue(ownedSelection.element, kAXNumberOfCharactersAttribute as CFString, &number)
                 let valueStatus = AXUIElementCopyAttributeValue(ownedSelection.element, kAXValueAttribute as CFString, &initialText)
                 print("OWNED_WITNESS", kind, "count", countStatus.rawValue, number as? Int ?? -1, "valueMatches", valueStatus.rawValue, initialText as? String == "PREFIX|SUFFIX", "rangeMatches", access.textWitness(at: preflight) == "PREFIX|SUFFIX")
+                // A second read-only AX observer identifies the event type on this owned fixture only.
+                let observer = AXInputAccess(selectionProvider: { try guardrail.selectFixture(pid) })
+                let auditStart = try observer.snapshot()
+                _ = observer.observe(auditStart) { change in
+                    print("OWNED_EVENT", kind, change)
+                }
+                defer { observer.stopObserving() }
                 let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-foreground-store-" + UUID().uuidString)
                 defer { try? FileManager.default.removeItem(at: directory) }
                 let store = try SaytileStore(directory: directory)
@@ -292,6 +299,11 @@ private func immediateAbort(_ message: String) -> Never {
                 let state = try command(kind, "state")
                 let observed = try? access.snapshot()
                 print("OWNED_FIRST_STATE", kind, state["text"] as? String ?? "unavailable", "utf16", state["utf16Length"] as? Int ?? -1, "caret", observed?.selectionLocation ?? -1, "range", observed?.selectionLength ?? -1, "attempts", state["selectedTextWrites"] as? Int ?? -1, "bound", input.binding != nil)
+                if let observed {
+                    print("OWNED_READBACK", kind, "sameTarget", observed.sameTarget(as: preflight),
+                          "pageComplete", observed.pageContextComplete, "substring", access.matchesText("你好😀", utf16Start: 7, at: observed) == true,
+                          "whole", access.textWitness(at: observed) == "PREFIX|你好😀SUFFIX")
+                }
                 expect(first == .confirmed && state["text"] as? String == "PREFIX|你好😀SUFFIX", kind + " real foreground insertion and local confirmation")
                 if first == .confirmed {
                     let duplicate = await input.insertStable(recordingID: recording.id, revisionID: revision.id, stableUTF16End: revision.text.utf16.count, recordingStartedAt: recording.createdAt)
