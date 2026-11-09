@@ -22,3 +22,5 @@
 2026-11-10 · Saytile Cloud: Native source selector, Keychain account, per-utterance frozen transport, hosted review and local-only history recovery implemented. Vercel project deployed; Supabase remote still not provisioned.
 
 2026-11-10 · Commercial candidate: active-subscription recheck on delayed invoices, per-account rolling cost cap, two concurrent GPT requests and a local logout fence. Dedicated signed candidate to follow.
+
+2026-11-10 · Fixed a real Supabase PostgREST safe-update rejection affecting paid audio admission and a missing accessibility identifier on hosted upload consent. Private candidate .2 supersedes .1.

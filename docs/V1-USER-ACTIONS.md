@@ -22,3 +22,5 @@
 2026-11-10 · Saytile Cloud: Vercel authorization succeeded; no further CLI login needed. Secure project settings and the free-only database blocker are recorded in cloud/README.md.
 
 2026-11-10 · No customer action for the ongoing isolated authentication, packaging and upgrade rehearsals.
+
+2026-11-10 · No customer testing or real audio needed for these fixes; the free hosted database allocation remains the external prerequisite.

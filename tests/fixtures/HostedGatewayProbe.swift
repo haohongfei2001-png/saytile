@@ -5,6 +5,11 @@ import Foundation
     static func main() async throws {
         try await HostedAccountProbe.run()
         let dir = URL(fileURLWithPath:CommandLine.arguments[1])
+        let token: String
+        if CommandLine.arguments.last == "--isolated-auth-session" {
+            guard let line=readLine(),line.count<8192,!line.isEmpty else {throw ProviderFailure.authorization}
+            token=line
+        } else {token="native-fixture"}
         let origin = URL(string:"http://127.0.0.1:" + CommandLine.arguments[2])!
         let store = try SaytileStore(directory:dir.appending(path:"AudioFixture"))
         let record = try await store.createRecording()
@@ -15,7 +20,7 @@ import Foundation
         try await store.finishRecording(id:record.id)
         let ticket = try await store.beginFusionRecognition(recordingID:record.id)
         let factory = RecognitionSessionFactory()
-        factory.select(.connected(.init(origin:origin,bearer:"native-fixture",expiry:Date().addingTimeInterval(120))),revoke:false)
+        factory.select(.connected(.init(origin:origin,bearer:token,expiry:Date().addingTimeInterval(120))),revoke:false)
         let snap = factory.snapshot
         factory.select(.byok,revoke:false)
         precondition(snap.isHosted && !factory.snapshot.isHosted && snap.configuration.activeModels.count==2)

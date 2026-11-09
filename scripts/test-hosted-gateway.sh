@@ -10,5 +10,6 @@ bin=$(swift build -c debug --show-bin-path)
 map="$bin/../../Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap"
 [[ -f "$map" ]] || map="$bin/CAudio.build/module.modulemap"
 swiftc -swift-version 6 -parse-as-library -I "$bin" -I "$bin/Modules" -I Sources/CSQLite -Xcc "-fmodule-map-file=$map" -L "$bin" -lSaytileKit -lc++ tests/fixtures/HostedGatewayProbe.swift tests/fixtures/HostedAccountProbe.swift -o "$tmp/probe"
+if [[ -n "${SAYTILE_TEST_PROBE_OUTPUT:-}" ]]; then install -m 700 "$tmp/probe" "$SAYTILE_TEST_PROBE_OUTPUT"; fi
 "$tmp/probe" "$tmp" "$(cat "$tmp/port")"
 python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); assert d["started"]==1 and d["ai"]>=1 and d["bytes"]==3200,d; print(d)' "$tmp/counts.json"

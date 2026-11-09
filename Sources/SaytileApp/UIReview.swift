@@ -104,9 +104,9 @@ extension AppDelegate {
             try await reviewWindow(SettingsView(model: model), size: CGSize(width:650,height:740), name:"settings-hosted", output:output) { host in
                 guard model.hosted.selected, !model.hosted.consent, !model.hosted.signedIn else {throw ReviewFailure("unexpected hosted consent")}
                 if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil {
-                    try await self.press("允许将新讲话交给云端中文识别", in:host)
+                    try await self.press("hosted.upload-consent", in:host)
                     try await self.reviewUntil { model.hosted.consent }
-                    try await self.press("允许将新讲话交给云端中文识别", in:host)
+                    try await self.press("hosted.upload-consent", in:host)
                     try await self.reviewUntil { !model.hosted.consent }
                 }
             }

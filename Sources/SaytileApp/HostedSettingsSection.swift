@@ -15,9 +15,9 @@ struct HostedSettingsSection: View {
             if account.selected {
                 LabeledContent("账户状态",value:account.status)
                 if !account.signedIn {
-                    TextField("电子邮箱",text:$email).textContentType(.emailAddress)
+                    TextField("电子邮箱",text:$email).textContentType(.emailAddress).accessibilityLabel("电子邮箱").accessibilityIdentifier("hosted.email")
                     HStack {
-                        SecureField("邮件验证码",text:$code)
+                        SecureField("邮件验证码",text:$code).accessibilityLabel("邮件验证码").accessibilityIdentifier("hosted.code")
                         Button("获取验证码") {Task {await account.sendCode(email:email)}}.disabled(account.busy || !email.contains("@"))
                         Button("登录") {Task { await account.verify(email:email,code:code);code="" }}.disabled(account.busy || code.isEmpty || email.isEmpty)
                     }
@@ -35,6 +35,7 @@ struct HostedSettingsSection: View {
                     }.disabled(account.busy)
                 }
                 Toggle("允许将新讲话交给云端中文识别",isOn:Binding(get:{account.consent},set:{account.authorize($0)}))
+                    .accessibilityLabel("允许将新讲话交给云端中文识别").accessibilityIdentifier("hosted.upload-consent")
                 Text("开启后，新语音经 Saytile 转交阿里云识别，候选文字交 OpenAI 核对。关闭后使用本机识别。历史原音不会自动上传。")
                     .font(.caption).foregroundStyle(.secondary)
             }

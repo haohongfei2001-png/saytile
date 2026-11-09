@@ -1,7 +1,7 @@
 name: Saytile Cloud
 on:
   pull_request:
-    paths: ['cloud/**', 'Sources/**', 'tests/fixtures/HostedGatewayProbe.swift', 'scripts/test-hosted-gateway.sh', '.github/workflows/saytile-cloud.yml']
+    paths: ['cloud/**', 'Sources/**', 'tests/fixtures/Hosted*Probe.swift', 'scripts/test-supabase-local.sh', 'scripts/test-hosted-gateway.sh', '.github/workflows/saytile-cloud.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -11,7 +11,7 @@ concurrency:
 jobs:
   gateway:
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 14
     services:
       pg:
         image: postgres:17
@@ -30,6 +30,7 @@ jobs:
       - run: npm ci --prefix cloud
       - run: npm test --prefix cloud
       - run: node cloud/test/postgres.mjs postgres://postgres:fixture@127.0.0.1:5432/saytile_cloud_test
+      - run: scripts/test-supabase-local.sh
   native-gateway:
     runs-on: macos-26
     timeout-minutes: 10

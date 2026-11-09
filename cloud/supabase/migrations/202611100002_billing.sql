@@ -23,7 +23,7 @@ begin
  if u.actual_micros is not null then return; end if;
  if not u.settled and exists(select from saytile.sessions where lease=p_lease and expires>now()) then raise exception 'operation_in_progress'; end if;
  update saytile.usage set actual_micros=p_actual,settled=true where lease=p_lease and op=p_op;
- update saytile.control set committed_micros=committed_micros+p_actual-u.reserved,enabled=enabled and p_actual<=u.reserved;
+ update saytile.control set committed_micros=committed_micros+p_actual-u.reserved,enabled=enabled and p_actual<=u.reserved where singleton;
  insert into saytile.audit(external_id,action) values('provider.'||p_reference,'cost_reconciled');
 end $$;
 revoke all on function public.st_reconcile(uuid,text,bigint,text),public.st_billing_hold(text,text),public.st_revoke_subscription(text,text,text) from public,anon,authenticated;

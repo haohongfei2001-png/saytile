@@ -81,7 +81,7 @@ begin
  if c.committed_micros+c.asr_hold+c.review_hold>c.budget_micros then raise exception 'budget'; end if;
  insert into saytile.sessions(uid,recording,epoch,grant_generation) values(p_uid,p_recording,p_epoch,a.grant_generation) returning lease into lid;
  update saytile.accounts set remaining_ms=remaining_ms-35000 where uid=p_uid;
- update saytile.control set committed_micros=committed_micros+c.asr_hold;
+ update saytile.control set committed_micros=committed_micros+c.asr_hold where singleton;
  insert into saytile.usage(lease,op,reserved) values(lid,'audio',c.asr_hold);
  return lid;
 end $$;
@@ -98,7 +98,7 @@ begin
  if not saytile.within_daily(p_uid,c.review_hold,c.user_day_micros) then raise exception 'quota'; end if;
  if c.committed_micros+c.review_hold>c.budget_micros then raise exception 'budget'; end if;
  insert into saytile.usage(lease,op,reserved) values(p_lease,p_seq::text,c.review_hold);
- update saytile.control set committed_micros=committed_micros+c.review_hold;
+ update saytile.control set committed_micros=committed_micros+c.review_hold where singleton;
 end $$;
 
 create function public.st_settle(p_lease uuid,p_op text,p_ms integer,p_actual bigint,p_units jsonb) returns void language plpgsql security invoker set search_path='' as $$
@@ -110,7 +110,7 @@ begin
  if p_ms not between 0 and 35000 or p_actual<0 then raise exception 'invalid_settlement'; end if;
  update saytile.usage set actual_micros=p_actual,units=p_units,settled=true where lease=p_lease and op=p_op;
  if p_actual is not null then
- update saytile.control set committed_micros=committed_micros+p_actual-u.reserved,enabled=enabled and p_actual<=u.reserved;
+ update saytile.control set committed_micros=committed_micros+p_actual-u.reserved,enabled=enabled and p_actual<=u.reserved where singleton;
  end if;
  if p_op='audio' then
  update saytile.sessions set ended=true,milliseconds=coalesce(p_ms,35000) where lease=p_lease returning * into s;
