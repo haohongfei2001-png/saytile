@@ -49,3 +49,8 @@ scripts/package-beta.sh
 ## 唯一批准的 V1 界面目标（2026-11-07）
 
 Saytile V1 的唯一视觉目标是用户选定的紫蓝色、无品牌字标、单一连续文字流界面。完整规范见 [唯一界面设计规范](docs/SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md)。原始参考图保存在 ChatGPT Library：`Saytile语音输入工作台概念界面.png`（2026-11-06 23:05 UTC）。旧绿色原型仅供历史追溯，不得作为当前设计依据。
+
+## 正式 App 图标（2026-11-10）
+
+正式品牌 / App 图标采用用户选定的 **白底紫色 `tile` 声波字标**，见 [唯一图标视觉参考及实施边界](design/approved/app-icon/README.md)。这与上文的**主面板无 Logo**视觉规范分别管理；现有 App 图标生成器和已发布安装包不会因文档变更而自动更新。
+
