@@ -401,6 +401,33 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     }
     private var recognitionSettingsGeneration: UInt64 = 0
     /// Revoke future cloud sessions synchronously, before awaiting cancellation of old work.
+    /// Isolated file ingress for paced native acceptance. Uses the same VAD,
+    /// recorder, recognition factory and store as microphone callbacks.
+    public func replayLocalFixture(_ file: URL) async throws -> Double {
+        guard !recognitionFactory.usesCloud, state == .paused else { throw AudioFailure.message("需要空闲的本机识别环境") }
+        let source = try AVAudioFile(forReading: file, commonFormat: .pcmFormatInt16, interleaved: false)
+        guard source.processingFormat.channelCount == 1, source.processingFormat.sampleRate == 16_000,
+              source.length <= 16_000 * 1_850 else { throw AudioFailure.message("需要 16 kHz 单声道测试语料") }
+        let ring = try AudioRing(capacity: 64_000)
+        let worker = try CaptureWorker(store: store, ring: ring, sampleRate: 16_000,
+            recognitionFactory: recognitionFactory, update: { _, _ in }, failed: { _ in })
+        let clock = ContinuousClock(), began = clock.now
+        let buffer = AVAudioPCMBuffer(pcmFormat: source.processingFormat, frameCapacity: 320)!
+        while source.framePosition < source.length {
+            try source.read(into: buffer, frameCount: 320)
+            let pcm = Data(bytes: buffer.int16ChannelData![0], count: Int(buffer.frameLength) * 2)
+            try await clock.sleep(until: began + .seconds(Double(source.framePosition) / 16_000))
+            try await worker.acceptPCM(pcm)
+        }
+        let eos = ProcessInfo.processInfo.systemUptime
+        try await worker.endUtterance()
+        let limit = clock.now + .seconds(75)
+        while await worker.hasPendingRecognition() {
+            if clock.now > limit { await worker.cancelRecognitionAndWait(); throw AudioFailure.message("识别超时") }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        return eos
+    }
     public func selectLocalModels(live: LocalASRID, archive: LocalASRID, service: LocalASRService) {
         guard live.capability != .batch else { return }
         recognitionFactory.selectLocal(live: live, archive: archive, service: service)

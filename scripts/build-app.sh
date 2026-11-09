@@ -20,10 +20,13 @@ fi
 cp -R Sources/SaytileKit/Resources/LocalASR "$bundle/Contents/Resources/"
 if [[ "$(cat packaging/VERSION)" == *-local-asr.* ]]; then
   scripts/build-local-runtime.sh
-  mkdir -p "$bundle/Contents/Helpers/LocalASR"
-  cp .build/local-asr/runtime/{SaytileSherpa,SaytileModelWorker,libonnxruntime.dylib,libsherpa-onnx-c-api.dylib,mlx.metallib} "$bundle/Contents/Helpers/LocalASR/"
+  mkdir -p "$bundle/Contents/Helpers" "$bundle/Contents/Frameworks"
+  cp .build/local-asr/runtime/{SaytileSherpa,SaytileModelWorker} "$bundle/Contents/Helpers/"
+  cp .build/local-asr/runtime/*.dylib "$bundle/Contents/Frameworks/"
+  cp .build/local-asr/runtime/mlx.metallib "$bundle/Contents/Resources/default.metallib"
+  install_name_tool -add_rpath @executable_path/../Frameworks "$bundle/Contents/Helpers/SaytileSherpa"
   cp -R .build/local-asr/runtime-licenses "$bundle/Contents/Resources/LocalASRLicenses"
-  for child in "$bundle/Contents/Helpers/LocalASR/"{*.dylib,SaytileSherpa,SaytileModelWorker}; do
+  for child in "$bundle/Contents/Frameworks/"*.dylib "$bundle/Contents/Helpers/"{SaytileSherpa,SaytileModelWorker}; do
     codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$child"
   done
 fi

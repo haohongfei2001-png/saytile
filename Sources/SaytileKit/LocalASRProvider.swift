@@ -35,6 +35,10 @@ private final class ModelWorker: @unchecked Sendable {
         input = stdin.fileHandleForWriting
         _ = fcntl(input.fileDescriptor, F_SETNOSIGPIPE, 1)
         process.executableURL = helpers.appending(path: id == .sherpa ? "SaytileSherpa" : "SaytileModelWorker")
+        if let resources = Bundle.main.resourceURL,
+           FileManager.default.fileExists(atPath: resources.appending(path: "default.metallib").path) {
+            process.currentDirectoryURL = resources
+        }
         process.arguments = [id.rawValue, directory.path, String(stride)]
         process.standardInput = stdin
         process.standardOutput = stdout
@@ -49,8 +53,15 @@ private final class ModelWorker: @unchecked Sendable {
             defer { try? source.close() }
             do {
                 var pending = Data()
-                while let part = try source.read(upToCount: 16_384), !part.isEmpty {
-                    pending.append(part)
+                // Darwin FileHandle.read(upToCount:) can wait to fill the requested
+                // length on a live pipe. A short POSIX read surfaces each flushed line.
+                var buffer = [UInt8](repeating: 0, count: 16_384)
+                while true {
+                    let count = buffer.withUnsafeMutableBytes { Darwin.read(source.fileDescriptor, $0.baseAddress, $0.count) }
+                    if count < 0 && errno == EINTR { continue }
+                    if count < 0 { throw POSIXError(.EIO) }
+                    if count == 0 { break }
+                    pending.append(contentsOf: buffer.prefix(count))
                     while let end = pending.firstIndex(of: 10) {
                         let line = pending[..<end]
                         let event = try JSONDecoder().decode(WorkerEvent.self, from: line)
@@ -68,7 +79,7 @@ private final class ModelWorker: @unchecked Sendable {
             let end = min(start + 65_536, data.count)
             var count = UInt32(end - start).littleEndian
             var frame = withUnsafeBytes(of: &count) { Data($0) }
-            frame.append(data[start..<end])
+            frame.append(data[(data.startIndex + start)..<(data.startIndex + end)])
             try input.write(contentsOf: frame)
         }
     }
@@ -88,7 +99,7 @@ public actor LocalASRService {
     private var idle: Task<Void, Never>?
     public init(root: URL, helpers: URL? = nil, chunkFrames: Int = 19_200) {
         library = LocalModelLibrary(root: root)
-        self.helpers = helpers ?? Bundle.main.bundleURL.appending(path: "Contents/Helpers/LocalASR")
+        self.helpers = helpers ?? Bundle.main.bundleURL.appending(path: "Contents/Helpers")
         self.stride = chunkFrames
     }
     public func releaseIdle() {

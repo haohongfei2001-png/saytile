@@ -32,3 +32,5 @@
 2026-11-10 · No engineering test or recording required from the user. Approved organization must have a zero-increment independent slot before remote Supabase creation. Then owner enters secrets once in the named Vercel project and approves a bounded real usage test. Merchant and notarization authorizations are separate release gates.
 
 本机实时识别的工程验收使用固定许可样本，不需要用户录音或提供密钥。模型按需下载，Apple 语言资源由系统管理。
+
+Apple 中文资源已在本机准备，七路样本均由工程自行运行。实际面板、下载器和归档验证不使用私人麦克风。

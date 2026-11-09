@@ -107,6 +107,7 @@ final class LiveSpeechSession: RecognitionSession, @unchecked Sendable {
             var lastStable = ""
             var lastDisplayed = ""
             var firstResult = true
+            var lastPreview = ""
             for try await result in transcriber.results {
                 let snapshot = accumulator.apply(start:result.range.start.seconds, end:CMTimeRangeGetEnd(result.range).seconds, text:String(result.text.characters), isFinal:result.isFinal, finalizedThrough: result.resultsFinalizationTime.seconds)
                 audioEnd = max(audioEnd, CMTimeRangeGetEnd(result.range).seconds)
@@ -114,6 +115,10 @@ final class LiveSpeechSession: RecognitionSession, @unchecked Sendable {
                     try await ingress.receive(.init(text: snapshot.fullText, stableUTF16Length: snapshot.stableText.utf16.count,
                         audioEndSeconds: audioEnd, timingGranularity: "utterance",
                         isComplete: false))
+                }
+                if !snapshot.fullText.isEmpty, lastPreview != snapshot.fullText {
+                    lastPreview = snapshot.fullText
+                    event(.init(kind: "preview", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started, text: lastPreview))
                 }
                 if firstResult && !snapshot.fullText.isEmpty {
                     firstResult = false

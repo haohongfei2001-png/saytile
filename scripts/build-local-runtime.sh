@@ -27,14 +27,16 @@ cp native/LocalASR/.build/release/SaytileModelWorker "$runtime/"
 fetch https://github.com/soniqo/speech-swift/releases/download/v0.0.29/speech-macos-arm64.tar.gz "$cache/speech.tar.gz" ff426a060004dd39b3d00ad014a648747d48cb78b800672aa17221ada2453406
 tar -xzOf "$cache/speech.tar.gz" mlx.metallib > "$runtime/mlx.metallib"
 licenses="$cache/runtime-licenses"
+if [[ -d "$licenses" ]]; then chmod -R u+w "$licenses"; rm -rf "$licenses"; fi
 mkdir -p "$licenses"
-cp "$cache/speech-swift/LICENSE" "$licenses/speech-swift.txt"
-cp "$cache/FluidAudio/LICENSE" "$licenses/FluidAudio.txt"
+cp native/LocalASR/.vendor/SpeechKernels/LICENSE "$licenses/speech-swift.txt"
+cp native/LocalASR/.vendor/FluidAudio/LICENSE "$licenses/FluidAudio.txt"
 for lib in native/LocalASR/.build/checkouts/*; do
   for name in LICENSE LICENSE.txt LICENSE.md; do
     if [[ -f "$lib/$name" ]]; then cp "$lib/$name" "$licenses/$(basename "$lib").txt"; break; fi
   done
 done
-cp -R "$cache/speech-swift/ThirdPartyNotices" "$licenses/speech-components"
+mkdir -p "$licenses/speech-components"
+git -C "$cache/speech-swift" archive a57702e6f523fa36ac5532d2bdc5f35f701a052c ThirdPartyNotices | tar xf - -C "$licenses/speech-components"
 cp -R native/LocalASR/Licenses/. "$licenses/"
 

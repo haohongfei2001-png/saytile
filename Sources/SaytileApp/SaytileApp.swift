@@ -59,7 +59,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 print("RETIRED_PROBE_USE_SINGLE_ASR_WITH_ISOLATED_DIRECTORY")
                 Darwin.exit(64)
             }
-            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--single-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--connection-setup"]
+            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--single-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--local-stream-probe", "--connection-setup"]
             let isDiagnostic = diagnostics.contains(where: CommandLine.arguments.contains)
             let directoryIndex = CommandLine.arguments.firstIndex(of: "--data-directory")
             if isDiagnostic || directoryIndex != nil {
@@ -182,7 +182,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     print("SPEECH_AVAILABILITY \(availability.message)")
                     do {
                         if CommandLine.arguments.contains("--prepare-speech") { try await AppleSpeechService.prepare() }
-                        let id = try await AudioDiagnostics.transcribeFixture(url: fixture, store: model.store)
+                        let paced = CommandLine.arguments.contains("--paced")
+                        let id = try await AudioDiagnostics.transcribeFixture(url: fixture, store: model.store, realtime: paced) { event in
+                            if paced, let data = try? JSONEncoder().encode(event) {
+                                print("LOCAL_TIMING", String(decoding: data, as: UTF8.self))
+                            }
+                        }
                         if let record = try await model.store.recording(id: id) { print("SPEECH_RESULT \(record.recognitionState) \(record.text) error=\(record.lastError ?? "none")") }
                     } catch { print("SPEECH_PROBE_ERROR \(error)") }
                     await model.prepareForExit()
@@ -217,6 +222,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     renderPreview(model: model, path: path)
                     await model.prepareForExit()
                     NSApp.terminate(nil)
+                }
+                return
+            }
+            if let index = CommandLine.arguments.firstIndex(of: "--local-stream-probe") {
+                guard CommandLine.arguments.indices.contains(index + 1), let id = LocalASRID(rawValue: CommandLine.arguments[index + 1]) else { Darwin.exit(64) }
+                showPanel()
+                Task {
+                    do { try await LocalStreamProbe.run(model: model, panel: panel, id: id) }
+                    catch { diagnosticExitStatus = 1; print("LOCAL_STREAM_PROBE_FAILED", error.localizedDescription) }
+                    await model.prepareForExit(); NSApp.terminate(nil)
                 }
                 return
             }
