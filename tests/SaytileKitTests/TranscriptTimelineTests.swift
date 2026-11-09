@@ -26,6 +26,7 @@ import Testing
         #expect(changed.map(\.id) == p.map(\.id))
         #expect(changed[0].recording.text == "保留修改")
         #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, displayed: [p[0].position:"原话"]) == "原话\n接续")
+        #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, displayed: [p[1].position:""]) == "保留修改")
         #expect(try store.timelineCopy(group: p[2].group, through: p[2].position, displayed: [:]) == "新组")
         try await store.setTimelineIdleSeconds(600)
         _ = try await add(490, 491, "修改阈值")

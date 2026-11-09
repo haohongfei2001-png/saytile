@@ -22,7 +22,7 @@ import ApplicationServices
         guard CommandLine.arguments.count <= 4 || setValue != nil || menuItem != nil || inspect || inspectPanel else { print("FAIL invalid control action"); exit(64) }
         let root = AXUIElementCreateApplication(pid)
         func value(_ element: AXUIElement, _ name: String) -> CFTypeRef? {
-            AXUIElementSetMessagingTimeout(element, 0.08)
+            AXUIElementSetMessagingTimeout(element, name == kAXWindowsAttribute || name == kAXTitleAttribute ? 0.7 : 0.2)
             var result: CFTypeRef?
             return AXUIElementCopyAttributeValue(element, name as CFString, &result) == .success ? result : nil
         }
@@ -55,11 +55,24 @@ import ApplicationServices
         func isPanelMenuID(_ id: String) -> Bool {
             id.hasPrefix("panel.menu.") || id.hasPrefix("panel.more.") || ["panel.edit", "panel.latest"].contains(id)
         }
+        let nodeAttributes = [kAXRoleAttribute, kAXTitleAttribute, kAXDescriptionAttribute,
+            kAXHelpAttribute, kAXIdentifierAttribute, kAXChildrenAttribute] as CFArray
+        func inspectNode(_ node: AXUIElement) -> (role: String, names: [String], children: [AXUIElement])? {
+            // A form can re-layout between separate AX IPCs. Get structure and
+            // identity in one observation of this owned node, without field values.
+            AXUIElementSetMessagingTimeout(node, 0.5)
+            var result: CFArray?
+            guard AXUIElementCopyMultipleAttributeValues(node, nodeAttributes, [], &result) == .success,
+                  let properties = result as? [Any], properties.count == 6 else { return nil }
+            return (properties[0] as? String ?? "unknown", properties[1...4].compactMap { $0 as? String },
+                    properties[5] as? [AXUIElement] ?? [])
+        }
         var lastTree = [String]()
         for _ in 0..<10 {
             let windows = (value(root, kAXWindowsAttribute) as? [AXUIElement] ?? []).filter {
                 title == nil || value($0, kAXTitleAttribute) as? String == title
             }
+            var incomplete = false
             var queue = windows, visited = Set<CFHashCode>(), tree = [String]()
             var inspectedControls = [[String: Any]]()
             var panelControls = [[String: Any]](), scrollbarParts = [[String: Any]](), staticStateText = [String](), obsoleteStateIDs = [String]()
@@ -68,8 +81,8 @@ import ApplicationServices
             let deadline = ProcessInfo.processInfo.systemUptime + 1
             while !queue.isEmpty, visited.count < 1000, ProcessInfo.processInfo.systemUptime < deadline {
                 let node = queue.removeFirst(); guard visited.insert(CFHash(node)).inserted else { continue }
-                let role = value(node, kAXRoleAttribute) as? String ?? "unknown"
-                let names = [kAXTitleAttribute, kAXDescriptionAttribute, kAXHelpAttribute, kAXIdentifierAttribute].compactMap { value(node, $0) as? String }
+                guard let observed = inspectNode(node) else { incomplete = true; continue }
+                let role = observed.role, names = observed.names
                 tree.append(role + " " + names.joined(separator: " | "))
                 let canPress = [kAXButtonRole, kAXCheckBoxRole, kAXRadioButtonRole, kAXDisclosureTriangleRole, kAXMenuButtonRole, kAXPopUpButtonRole].contains(role)
                 let canSet = [kAXTextFieldRole, kAXTextAreaRole].contains(role)
@@ -100,7 +113,7 @@ import ApplicationServices
                         if ancestors.contains(kAXScrollBarRole) { scrollbarParts.append(detail) }
                         else { panelControls.append(detail) }
                     }
-                    queue += value(node, kAXChildrenAttribute) as? [AXUIElement] ?? []
+                    queue += observed.children
                     continue
                 }
                 let applicable = menuItem != nil ? (role == kAXTextAreaRole || canPress) : (setValue == nil ? canPress : canSet)
@@ -114,7 +127,7 @@ import ApplicationServices
                         guard AXValueGetValue(unsafeDowncast(sizeValue, to: AXValue.self), .cgSize, &size) else { print("FAIL invalid native control size"); exit(1) }
                         let detail: [String: Any] = ["identifier": label, "role": role, "width": size.width, "height": size.height, "names": names]
                         inspectedControls.append(detail)
-                        queue += value(node, kAXChildrenAttribute) as? [AXUIElement] ?? []
+                        queue += observed.children
                         continue
                     }
                     // SwiftUI may commit state and lay out a form before returning
@@ -195,8 +208,9 @@ import ApplicationServices
                     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("FAIL AXPress changed foreground"); exit(6) }
                     print("NATIVE_UI_\(setValue == nil ? "AXPRESS" : "AXSETVALUE") \(label) fixture_pid=\(pid) foreground_unchanged=true"); exit(0)
                 }
-                queue += value(node, kAXChildrenAttribute) as? [AXUIElement] ?? []
+                queue += observed.children
             }
+            if (inspectPanel || inspect) && incomplete { continue }
             if inspectPanel {
                 guard windows.count == 1, queue.isEmpty, !panelControls.isEmpty else { print("FAIL incomplete native panel inspection"); exit(1) }
                 guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED foreground changed during inspection"); exit(6) }
@@ -212,7 +226,7 @@ import ApplicationServices
                 let data = try! JSONSerialization.data(withJSONObject: inspectedControls[0], options: [.sortedKeys])
                 print("NATIVE_UI_INSPECT " + String(decoding: data, as: UTF8.self)); exit(0)
             }
-            lastTree = tree
+            if tree.count > lastTree.count { lastTree = tree }
             try? await Task.sleep(for: .milliseconds(100))
         }
         print("FAIL accessible fixture control not found: \(label); \(lastTree.count) nodes")

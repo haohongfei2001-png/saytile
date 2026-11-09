@@ -97,8 +97,7 @@ struct InputPanelView: View {
     private func copyTranscript() {
         guard canCopy else { return }
         let view = access.view
-        let displayed = Dictionary(uniqueKeysWithValues: (view?.rendered.spans ?? []).map { ($0.entry.position, $0.entry.recording.text) })
-        model.copyTimeline(end: view?.rendered.copyTail, selection: view?.selectionSnapshot ?? selectedText, displayed: displayed)
+        model.copyTimeline(end: view?.rendered.copyTail, selection: view?.selectionSnapshot ?? selectedText, displayed: view?.rendered.displayed ?? [:])
     }
 
     private var captureControl: some View {

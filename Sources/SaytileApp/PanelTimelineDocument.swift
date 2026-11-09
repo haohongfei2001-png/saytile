@@ -11,6 +11,7 @@ struct PanelTimelineDocument: Equatable {
     var text = ""
     var spans: [Span] = []
     var markers: [NSRange] = []
+    var displayed: [Int64: String] = [:]
     var copyTail: TimelineEntry?
     var activeStart: Int?
     var idle = false
@@ -23,6 +24,9 @@ struct PanelTimelineDocument: Equatable {
     init(page: TimelinePage, tail: TimelineEntry?, idle: Bool, reading: Bool) {
         self.idle = idle && !page.hasNewer
         copyTail = tail
+        // An empty utterance is also a rendered state. Its first ASR callback
+        // may already be committed when the click reaches SQLite.
+        displayed = Dictionary(uniqueKeysWithValues: page.entries.map { ($0.position, $0.recording.text) })
         firstPosition = page.entries.first?.position
         lastPosition = page.entries.last?.position
         older = page.hasOlder
