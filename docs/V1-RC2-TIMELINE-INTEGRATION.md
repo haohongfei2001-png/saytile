@@ -20,6 +20,20 @@
 - v5 → v6 的建表、按已有录制时间回填和提升版本号在同一事务完成。原 recording/revision ID 保留。旧数据没有采集时区时仍只能用迁移地时区还原。回退使用升级前的完整副本。
 - 对照仓库批准 JPEG、签名预览原生对照图与留白截图，五行正文、留白层级、左右两个按钮及语音标记位置相符；原图的紫蓝背景透色与胶囊边缘高光更明显，原生单窗采样为中性灰。签名机制、尺寸或像素阈值均不足以确认不同桌面背景上的主观材质一致性。保留当前样式并将最终美术认可列为待决。[原图](../design/approved/Saytile-original-visual-reference-20261107.jpeg) · [签名原生对照](../evidence/timeline-preview/reference-pair.png)
 
+## 已验证的整合候选
+
+产品源码为 `387dfa13220970aee6c69e3f465f5631fdf8d47d`。工程镜像 `Saytile-1.0.0-rc.2-timeline.integration.1-arm64.dmg` 仅保存在整合工作树的 dist 目录，SHA-256 为 `022a78a5428f5fe806f2d6fa3dbcffed401089e1fe80ec7d36a220496f77acab`。[总收据](../evidence/rc2-timeline-integration/receipt.json)
+
+| 状态 | 最终观测 |
+|---|---|
+| PASS | 真实冻结签名包构建号 219 和候选 234 具有相同正式 Bundle ID、Developer ID 指定要求与音频 entitlement。候选启用 Hardened Runtime 并含可信签名时间戳。|
+| PASS | 两个实际 App 在私有安装位置交替启动。SQLite 从 v5 升至 v6，两个 WAV 散列、四个文字版本、两份草稿、置顶、首选版本和两条已授予范围均相同。新旧应用重开成功，旧版拒绝直接打开 v6，完整 v5 备份可回退。[升级收据](../evidence/rc2-timeline-integration/upgrade.json) |
+| PASS | 两个分别链接真实 v5/v6 库、共用独立测试签名身份的进程，在正式 Keychain 服务用本轮新建的两个随机账户验证写入、读取、清理。旧配置 ID 和指纹可读取；已授权记录保留、仅本机记录及换账户恢复均被拒绝。真实用户密钥和偏好没有参与演练。 |
+| PASS | 从新镜像取出的签名 App 执行四次真实 AXPress，覆盖正常、留白、编辑器保持原页且后台已换组、历史选区。12,003 段时同时排版 64 段，本次跨页到绘制约 23 ms。[原生交互](../evidence/rc2-timeline-integration/native/run.log) · [双向分页查询计划](../evidence/rc2-timeline-integration/sqlite-query-plans.txt) |
+| PASS | 签名候选三态原生窗口重新截图。识别态截图解码成相同 sRGB RGBA 后与 PR #12 签名截图完全一致；该比较只针对两个原生版本。最终美术认可仍待决定。[本次签名窗口](../evidence/rc2-timeline-integration/native/reference-recognizing.png) · [留白截图](../evidence/rc2-timeline-integration/native/timeline-idle.png) |
+| FAIL / BLOCKED | 系统 Gatekeeper 返回 Unnotarized Developer ID。公开下载分发仍缺公证及装订。 |
+| NOT_RUN | 真实服务回包、在线识别质量和最终主观视觉认可。未重复运行冻结版的长稳、物理麦克风和完整生命周期实验。 |
+
 ## 云端协作与发布阻塞
 
 1. 本分支承接时间轴、迁移和正式身份。ASR、GPT-6 的服务适配器、连接检查、凭据格式及派发账本沿用基线。云端验证使用独立工作树、合成或获准样本、隔离数据目录，记录实际安装包源码、二进制和脱敏服务回执。若联调另外产生产品修复，在新的整合提交核对冲突并以新二进制重验受影响路径。

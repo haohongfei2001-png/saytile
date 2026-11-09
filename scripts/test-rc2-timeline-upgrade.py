@@ -44,7 +44,8 @@ def info(app):
 
 def requirement(app):
     run('codesign', '--verify', '--strict', app)
-    return run('codesign', '-dr', '-', app).stderr.split('designated => ')[1].strip()
+    report = run('codesign', '-dr', '-', app)
+    return next(line.removeprefix('designated => ') for line in (report.stdout + report.stderr).splitlines() if line.startswith('designated => '))
 
 
 def probe(source, scratch, exe, identity):
@@ -111,7 +112,7 @@ def rehearse(dmg, expected, scratch):
                 assert plistlib.loads(entitlements) == {'com.apple.security.device.audio-input': True}
             assert not candidate['SaytileSourceDirty'] and candidate['SaytileSourceRevision'] == expected
             assert int(candidate['CFBundleVersion']) > int(prior['CFBundleVersion'])
-            run('codesign','--verify','--strict','-R',req,new)
+            run('codesign','--verify','--strict','-R','='+req,new)
             run('codesign','--verify','--strict',dmg)
             installed = tmp/'Applications/Saytile.app'
             installed.parent.mkdir()

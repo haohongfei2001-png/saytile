@@ -1,0 +1,16 @@
+older
+SEARCH t USING INTEGER PRIMARY KEY (rowid<?)
+SEARCH r USING INDEX sqlite_autoindex_recordings_1 (id=?)
+SEARCH g USING INTEGER PRIMARY KEY (rowid=?)
+SEARCH v USING INDEX sqlite_autoindex_revisions_1 (id=?) LEFT-JOIN
+
+newer
+SEARCH t USING INTEGER PRIMARY KEY (rowid>?)
+SEARCH r USING INDEX sqlite_autoindex_recordings_1 (id=?)
+SEARCH g USING INTEGER PRIMARY KEY (rowid=?)
+SEARCH v USING INDEX sqlite_autoindex_revisions_1 (id=?) LEFT-JOIN
+
+copy
+SEARCH t USING INDEX timeline_by_group (group_start=? AND position<?)
+SEARCH r USING INDEX sqlite_autoindex_recordings_1 (id=?)
+SEARCH v USING INDEX sqlite_autoindex_revisions_1 (id=?) LEFT-JOIN

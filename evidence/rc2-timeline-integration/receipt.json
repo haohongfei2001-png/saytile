@@ -1,0 +1,61 @@
+{
+  "candidate_source": "387dfa13220970aee6c69e3f465f5631fdf8d47d",
+  "package_sha256": "022a78a5428f5fe806f2d6fa3dbcffed401089e1fe80ec7d36a220496f77acab",
+  "executable_sha256": "8e098aeb37763a70039f390ca0aee89f8a422d20f91a9b7ce47be1079cc9b9d4",
+  "local_package": "dist/Saytile-1.0.0-rc.2-timeline.integration.1-arm64.dmg",
+  "scope": "Internal signed engineering candidate, no release or production installation",
+  "checks": [
+    {
+      "status": "PASS",
+      "check": "idle_copy_latest_group_and_held_editor",
+      "evidence": "native/run.log",
+      "synthetic": true,
+      "native_ax_presses": 4,
+      "clipboard": "private"
+    },
+    {
+      "status": "PASS",
+      "check": "v5_v6_upgrade_reopen_rollback_consent_keychain",
+      "evidence": "upgrade.json"
+    },
+    {
+      "status": "PASS",
+      "check": "native_regression_timeline",
+      "targeted_swift_tests": 3,
+      "failed": 0,
+      "evidence": "targeted-swift.log"
+    },
+    {
+      "status": "PASS",
+      "check": "indexed_paging_both_directions_and_copy",
+      "evidence": "sqlite-query-plans.txt"
+    },
+    {
+      "status": "PASS",
+      "check": "signed_reference_capture",
+      "observed": "Decoded sRGB RGBA for recognizing state identical to PR12 signed capture; approved JPEG composited against different background.",
+      "evidence": "native/reference-recognizing.png"
+    },
+    {
+      "status": "FAIL",
+      "check": "Gatekeeper",
+      "evidence": "upgrade.json",
+      "reason": "source=Unnotarized Developer ID"
+    },
+    {
+      "status": "BLOCKED",
+      "check": "public_distribution",
+      "requires": "Apple notarization and stapling, separately authorized release"
+    },
+    {
+      "status": "NOT_RUN",
+      "check": "live_single_asr_gpt6",
+      "reason": "No paid calls, production credentials, private audio or uploads used"
+    },
+    {
+      "status": "NOT_RUN",
+      "check": "final_subjective_art_approval",
+      "reason": "Engineering visual inspection performed; final aesthetic decision outstanding"
+    }
+  ]
+}
