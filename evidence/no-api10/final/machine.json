@@ -1,0 +1,393 @@
+{
+  "additional_trials": [
+    {
+      "id": "cold_foreground_refusal",
+      "status": "FAIL",
+      "evidence": "input/prebind-refusal/receipt.json",
+      "result": "One additional run on identical product code refused binding at startup before the first write. TextEdit also reported unsupported."
+    },
+    {
+      "id": "foreground_with_verified_fixture_readiness",
+      "status": "PASS",
+      "evidence": "input/settled-preflight/receipt.json",
+      "result": "Independent dedicated VM, identical frozen runtime, one initial bind after read-only fixture readiness; all WKWebView, NSTextView and TextEdit assertions passed. No production guard changed."
+    },
+    {
+      "id": "ninety_minute_physical_footprint_sidecar",
+      "status": "BLOCKED",
+      "evidence": "resources.json",
+      "result": "The supplementary counter file was truncated after the completed 90-minute observation. Its RSS/CPU samples are intact. Separate verified 10-minute process counters are retained."
+    }
+  ],
+  "source": "5639058e6b178027861b18cc0521387487c919d5",
+  "source_tree": "00ba6a456d383858b6b371ef2ef423208160c9ad",
+  "version": "1.0.0-rc.2-no-api.10",
+  "product_pr": 10,
+  "artifact_commit": "319041e6d942122b0a42bfa54fcef5a1eb045942",
+  "package": {
+    "source": "5639058e6b178027861b18cc0521387487c919d5",
+    "status": "PASS",
+    "url": "https://raw.githubusercontent.com/haohongfei2001-png/saytile/319041e6d942122b0a42bfa54fcef5a1eb045942/deliverables/no-api.10/Saytile-1.0.0-rc.2-no-api.10-arm64.dmg",
+    "artifact_commit": "319041e6d942122b0a42bfa54fcef5a1eb045942",
+    "bytes": 2617473,
+    "sha256": "62e0054ea9372d149c353ddc0f44f5e341b3a7d68d5b78c1f0c5a9d656e5154f",
+    "utc": "2026-11-09T12:16:47.299101+00:00"
+  },
+  "native_workflow": "https://github.com/haohongfei2001-png/saytile/actions/runs/42613660881",
+  "isolated_capture_workflow": "https://github.com/haohongfei2001-png/saytile/actions/runs/42616492743",
+  "signed_package_workflow": "https://github.com/haohongfei2001-png/saytile/actions/runs/42615594346",
+  "measured_at_utc": "2026-11-09T14:04:20.254067+00:00",
+  "statuses": {
+    "PASS": 25,
+    "BLOCKED": 5,
+    "FAIL": 1,
+    "NOT_RUN": 3
+  },
+  "checks": [
+    {
+      "id": "full_xcode_swift_testing",
+      "status": "PASS",
+      "result": "401 / 401 tests, 48 suites; zero failed, zero skipped, no filter. Xcode 26.6 (17F113).",
+      "evidence": [
+        "tests/xcode.json"
+      ]
+    },
+    {
+      "id": "single_asr_selection_and_auto",
+      "status": "PASS",
+      "result": "Explicit zh/en/mixed candidate routing; new recording freezes one checked ASR. Unknown Auto uses local irrespective of OS locale. Unselected transports receive zero starts/audio. GPT is the only text reviewer. No provider quality ranking.",
+      "evidence": [
+        "tests/xcode-swift-testing.log.gz"
+      ]
+    },
+    {
+      "id": "offline_protocol_and_network_recovery",
+      "status": "PASS",
+      "result": "52 localhost HTTP/WebSocket cases with production clients, zero protocol violations. Includes real peer disconnect; separate worker tests verify durable tail to Apple and selected destination recovery on next segment. No system Wi-Fi switch.",
+      "evidence": [
+        "tests/loopback-wire-audit.json",
+        "tests/xcode-swift-testing.log.gz"
+      ]
+    },
+    {
+      "id": "isolated_real_keychain",
+      "status": "PASS",
+      "result": "Actual macOS Keychain under unique test-only service names, synthetic credential add/read/update/delete and cross-service isolation, plus fail-closed missing/revoked reads. No user credential values accessed.",
+      "evidence": [
+        "tests/xcode-swift-testing.log.gz"
+      ]
+    },
+    {
+      "id": "mac_native_app_model",
+      "status": "PASS",
+      "result": "104 isolated AppModel checks; includes setup/consent, archive and lifecycle handling.",
+      "evidence": [
+        "tests/xcode.json"
+      ]
+    },
+    {
+      "id": "developer_signed_package_native_ui",
+      "status": "PASS",
+      "result": "Independent macOS 26 runner exercised the extracted signed App, isolated CLI, connection setup and native views.",
+      "evidence": [
+        "app/signed-installation.json",
+        "app/connection.json",
+        "app/cli.json",
+        "ui/manifest.json",
+        "ui/local-signed-manifest.json",
+        "ui/run.log"
+      ]
+    },
+    {
+      "id": "foreground_wkwebview",
+      "status": "PASS",
+      "result": "Real WindowServer frontmost WKWebView and OS AX. First write confirmed including OS timeout; suffix and duplicate, longer/shorter UTF-16 ranges with emoji, surrounding text, user edits, blur and restart.",
+      "evidence": [
+        "input/input-foreground-batch.log"
+      ]
+    },
+    {
+      "id": "foreground_native_and_textedit",
+      "status": "PASS",
+      "result": "Isolated NSTextView and separate real TextEdit temporary document. Unicode inserts, suffix, duplicate suppression, other window, no Return/send.",
+      "evidence": [
+        "input/input-foreground-batch.log",
+        "input/textedit.log"
+      ]
+    },
+    {
+      "id": "unknown_dispatch_recovery",
+      "status": "PASS",
+      "result": "A native setter acknowledged but discarded one mutation. Retry did not write again. Restart did not replay a reserved correction. Nine additional real background AX ownership cases.",
+      "evidence": [
+        "input/input-foreground-batch.log",
+        "input/owned-native.json"
+      ]
+    },
+    {
+      "id": "webkit_page_identity",
+      "status": "PASS",
+      "result": "Offscreen genuine WebKit AX changes plus fail-closed oversized/empty context. Injected selection only in this row.",
+      "evidence": [
+        "input/input-webkit-observer.log"
+      ]
+    },
+    {
+      "id": "signed_app_physical_microphone",
+      "status": "PASS",
+      "result": "Physical default and pinned paths in the actual signed app: DEVICE_PROBE hardware_buffers=50 hardware_frames=240000 sample_rate=48000.0 channels=1 no_samples_read_saved_or_recognized=true pinned_frames=240908 pinned_rate=48000.0.",
+      "evidence": [
+        "app/identity.json"
+      ]
+    },
+    {
+      "id": "two_distinct_physical_inputs",
+      "status": "PASS",
+      "result": "two independent physical input endpoints selected with the shipping backend",
+      "evidence": [
+        "hardware/two-physical.json"
+      ]
+    },
+    {
+      "id": "device_switch_and_live_route_removal",
+      "status": "PASS",
+      "result": "Private HAL input-only and duplex aggregate backed by a physical microphone. Remove selected route while streaming, reject stale target, restore physical route; callback counts only.",
+      "evidence": [
+        "hardware/input-only.json",
+        "hardware/duplex.json"
+      ]
+    },
+    {
+      "id": "physical_accessory_unplug_during_active_capture",
+      "status": "BLOCKED",
+      "result": "Route destruction verified with Core Audio. No controlled physical unplug while a real accessory is recording.",
+      "evidence": [
+        "hardware/input-only.json",
+        "hardware/two-physical.json"
+      ]
+    },
+    {
+      "id": "active_capture_sleep_wake_notifications",
+      "status": "PASS",
+      "result": "Real dedicated HAL loopback carried only synthetic speech. Production controller closed the first active segment, preserved the WAV bytes, resumed onto the same device and wrote a second new segment. Manual pause survived sleep+wake.",
+      "evidence": [
+        "lifecycle/hosted-capture.json"
+      ]
+    },
+    {
+      "id": "guest_network_outage_and_restore",
+      "status": "PASS",
+      "result": "Disposable VM Ethernet and kernel route loss during synthetic speech, route restoration and preservation of original audio: 25259. No provider traffic.",
+      "evidence": [
+        "lifecycle/hosted-network.json"
+      ]
+    },
+    {
+      "id": "paused_controller_notifications",
+      "status": "PASS",
+      "result": "Actual NSWorkspace notification observers; missing pinned device is rechecked, intentional pause stays paused.",
+      "evidence": [
+        "lifecycle/controlled.json",
+        "lifecycle/controlled.jsonl"
+      ]
+    },
+    {
+      "id": "real_kernel_sleep_while_paused",
+      "status": "BLOCKED",
+      "result": "Local passive observation plus a hosted scheduled-wake attempt. Host kernel rejected sleep (pmset exit 71); local scope described by the paired-event receipt.",
+      "evidence": [
+        "lifecycle/passive.json",
+        "lifecycle/passive.jsonl",
+        "lifecycle/power.json",
+        "lifecycle/shared-power-preflight.json"
+      ]
+    },
+    {
+      "id": "real_kernel_sleep_during_recording",
+      "status": "BLOCKED",
+      "result": "No private source on a sleep-capable dedicated machine. VM refused system sleep. Active product sleep callbacks are verified separately.",
+      "evidence": [
+        "lifecycle/power.json",
+        "lifecycle/hosted-capture.json",
+        "lifecycle/shared-power-preflight.json"
+      ]
+    },
+    {
+      "id": "microphone_permission_safety",
+      "status": "PASS",
+      "result": "Real isolated helper without a previous grant stayed stopped and persisted zero recordings, without prompting. Permission gate transitions for denied/restricted/authorized states passed in Swift.",
+      "evidence": [
+        "lifecycle/hosted-permission.json",
+        "tests/xcode-swift-testing.log.gz"
+      ]
+    },
+    {
+      "id": "same_identity_system_permission_revoke_regrant",
+      "status": "BLOCKED",
+      "result": "The independent named helper had no existing grant to revoke. Real OS grant restoration requires the consenting identity. No TCC modification on the shared Mac.",
+      "evidence": [
+        "lifecycle/hosted-permission.json"
+      ]
+    },
+    {
+      "id": "durable_storage_failures",
+      "status": "PASS",
+      "result": "12 cases with actual processes, SIGKILL, SQLite/WAL and kernel write failure, retained original/text/draft/dispatch, deletion and copy rollback.",
+      "evidence": [
+        "store/recovery.json"
+      ]
+    },
+    {
+      "id": "long_paced_local_speech",
+      "status": "PASS",
+      "result": "80 final archives, 80 valid WAVs, 80 records with live text, 0 ring drops, 0 worker errors in 7201.12s. Verified synthetic source, no ambient speech.",
+      "evidence": [
+        "speech/result.json",
+        "speech/observations.json.gz",
+        "resources.json"
+      ]
+    },
+    {
+      "id": "continuous_voiced_journal_rotation",
+      "status": "PASS",
+      "result": "Continuously looped a synthetic phrase in real time for 1801.3s through the production capture worker. ASR disabled for this storage-only case. 179 local audio chunks, 60 records crossed journal rotation. Header lengths checked against SQLite and original frame counts. No real microphone.",
+      "evidence": [
+        "continuous/result.json",
+        "continuous/run.log"
+      ]
+    },
+    {
+      "id": "paused_signed_app_endurance",
+      "status": "PASS",
+      "result": "5400.08s in one actual signed paused App with a dedicated store; no recordings or WAVs, SQLite integrity checked.",
+      "evidence": [
+        "signed-idle/result.json",
+        "resources.json"
+      ]
+    },
+    {
+      "id": "install_upgrade_rollback_rc1",
+      "status": "PASS",
+      "result": "8 actual package checks: RC1 migration, original audio/text/draft/uncertain dispatch retention, rollback, restarts and conflict refusal.",
+      "evidence": [
+        "app/upgrade.json"
+      ]
+    },
+    {
+      "id": "install_upgrade_rollback_no_api_9_1",
+      "status": "PASS",
+      "result": "Same-schema upgrade preserved all 26 SQLite tables plus audio. Pre-upgrade copy booted the old version without changing candidate data. No migrated cloud grants.",
+      "evidence": [
+        "app/upgrade-9.1.json"
+      ]
+    },
+    {
+      "id": "developer_id_signed_dmg",
+      "status": "PASS",
+      "result": "Final DMG plus app verified against Apple Developer ID requirement and matching team. Hardened Runtime, audio entitlement and signed timestamp; remote download byte matched.",
+      "evidence": [
+        "app/signing.json",
+        "app/identity.json",
+        "app/remote-download.json"
+      ]
+    },
+    {
+      "id": "gatekeeper_normal_execution",
+      "status": "FAIL",
+      "result": "Local assessment: Saytile.app: rejected\nsource=Unnotarized Developer ID. Independent downloaded-file test recorded separately.",
+      "evidence": [
+        "app/identity.json",
+        "app/signed-installation.json"
+      ]
+    },
+    {
+      "id": "notarized_standard_distribution",
+      "status": "BLOCKED",
+      "result": "Apple notarytool found no Saytile profile; no Apple submission or ticket. Signing and notarization are separate.",
+      "evidence": [
+        "app/notary-availability.json"
+      ]
+    },
+    {
+      "id": "live_asr",
+      "status": "NOT_RUN",
+      "result": "Real selected ASR account / workspace and transcription. Requires authorized provider credentials, audio/text scope and any charges. No production cloud call performed for acceptance.",
+      "evidence": [
+        "tests/loopback-wire-audit.json"
+      ]
+    },
+    {
+      "id": "live_gpt6",
+      "status": "NOT_RUN",
+      "result": "Real GPT-6 text review and actual revisions. Requires authorized provider credentials, audio/text scope and any charges. No production cloud call performed for acceptance.",
+      "evidence": [
+        "tests/loopback-wire-audit.json"
+      ]
+    },
+    {
+      "id": "human_speech_quality_and_latency",
+      "status": "NOT_RUN",
+      "result": "Real speech error rates, model rankings, quality delta and cloud latency. Requires authorized provider credentials, audio/text scope and any charges. No production cloud call performed for acceptance.",
+      "evidence": [
+        "tests/loopback-wire-audit.json"
+      ]
+    },
+    {
+      "id": "physical_capture_without_existing_grant",
+      "status": "PASS",
+      "result": "The separately launched HAL probe observed no pre-existing microphone authorization and returned before capture. No audio saved. The granted run is recorded independently.",
+      "evidence": [
+        "hardware/without-inherited-grant.json"
+      ]
+    }
+  ],
+  "resources": {
+    "source": "5639058e6b178027861b18cc0521387487c919d5",
+    "active": {
+      "seconds": 7201.117938957999,
+      "sample_count": 120,
+      "observed_cpu_seconds": 109.6,
+      "avg_process_cpu_pct": 1.53,
+      "peak_sampled_rss_mib": 38.42,
+      "median_rss_after_first_minute_mib": 32.09
+    },
+    "paused_signed_app": {
+      "seconds": 5400.084248781204,
+      "sample_count": 91,
+      "observed_cpu_seconds": 10.6,
+      "avg_process_cpu_pct": 0.2,
+      "peak_sampled_rss_mib": 75.27,
+      "median_rss_after_first_minute_mib": 34.84
+    },
+    "scope": "Per-process sampled counters. Active = production capture + Apple offline, synthetic real-time source in a linked probe. Paused = actual signed packaged App. Excludes separate OS speech services and whole-machine energy.",
+    "separate_paused_physical_counters": {
+      "seconds": 600.0197710990906,
+      "scope": "Independent 10-minute run of the same signed executable. The initial 90-minute physical counter side file was truncated by a relaunched wrapper after the completed measurement. The original 90-minute RSS and CPU series is intact.",
+      "peak_physical_footprint_mib": 19.94,
+      "physical_samples": 10,
+      "disk_write_delta_bytes": 327680,
+      "observed_process_energy_joules": 0.7127,
+      "idle_wakeup_delta": 160
+    }
+  },
+  "disposition": {
+    "product_source": "FROZEN",
+    "core_engineering": "READY_FOR_AUTHORIZED_API_ACCEPTANCE",
+    "full_no_api_machine_acceptance": "BLOCKED",
+    "standard_distribution": "BLOCKED",
+    "live_cloud": "NOT_RUN"
+  },
+  "protected_refs": {
+    "main": "99cfc1feb234af44e7a88b704758fa57d88f5d12",
+    "rc1_tag": "a352a1c812c33388a1a908f21ecde30da80ad1cd",
+    "no_api_9_1_sha256": "9d157becfa40e214b579036b03a178cffa85c96c6f0a54923809bd8110938339",
+    "no_api_9_1_branch": "e9e5786acfe6b028c01e314251a21bd9e00e76e3"
+  },
+  "host": {
+    "local_macos": "27.0",
+    "local_build": "26A428",
+    "local_arch": "arm64",
+    "hosted_full_xcode": "26.6 (17F113)",
+    "hosted_runner": "macos-26"
+  }
+}

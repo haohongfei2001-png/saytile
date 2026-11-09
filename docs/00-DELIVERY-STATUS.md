@@ -1,5 +1,5 @@
 # Saytile V1 工程交付状态
 
-本分支的产品源码为 `5639058e6b178027861b18cc0521387487c919d5`，发布候选为 no-api.10。最新状态见[无 API 交付](V1-NO-API-DELIVERY.md)和[完整 Xcode 收据](../evidence/no-api10/final/tests/xcode.json)。
+当前工程候选 `1.0.0-rc.2-no-api.10`，源码 `5639058e6b178027861b18cc0521387487c919d5`。核心状态为 `READY_FOR_AUTHORIZED_API_ACCEPTANCE`。完整实机验收与公开分发仍为 BLOCKED。真实云端 NOT_RUN。生产 main、RC1 和 no-api.9.1 保留原版本。
 
-生产 RC1 继续使用既有发布资产。no-api.9.1 的实机结果及其原始范围见[历史机器报告](../evidence/no-api9.1/README.md)。
+[封版报告和唯一安装包](V1-NO-API-DELIVERY.md) · [逐项证据](../evidence/no-api10/final/machine.json) · [授权事项](V1-USER-ACTIONS.md)

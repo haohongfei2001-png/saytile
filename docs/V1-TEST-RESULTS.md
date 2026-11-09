@@ -1,29 +1,7 @@
-## 物理双设备与前台复查
+# no-api.10 最终机器验收
 
-最终源码在内置和蓝牙麦克风均空闲时完成内置 → 蓝牙 → 内置，分别收到 96,256、49,152、96,000 帧，没有保存采样或改变默认路由。独立启动的 WKWebView、NSTextView 与 TextEdit 在只读确认目标后一次绑定，全部场景通过。[双设备](../evidence/no-api10/final/hardware/two-physical.json) · [前台复查](../evidence/no-api10/final/input/settled-preflight/receipt.json)
+冻结源码 `5639058e6b178027861b18cc0521387487c919d5`。结果分为 25 项 PASS、1 项 FAIL、5 项 BLOCKED、3 项 NOT_RUN。这是验收场景分类；其中 Swift Testing 的独立计数为 401 通过、0 失败、0 跳过。
 
-## 隔离系统网络与冷启动焦点
+逐项收据保留测试环境、散列、原始输出及证据路径。补充运行曾在首次派发前安全拒绝，见前台拒绝日志。此前的签名包首次连接测试缺陷及修复过程保存在 PR 历史。
 
-最终源码在专用虚拟 Mac 的实际网络路由中断后，从合成语音建立了新的录音。恢复网络后原音保留，25,259 帧通过校验。真实内核睡眠仍受限。
-
-一次相同产品代码的补充前台运行在首次派发前拒绝绑定；TextEdit 另报 unsupported。原始失败保留在 [prebind-refusal](../evidence/no-api10/final/input/prebind-refusal/receipt.json)。新的验收驱动在请求绑定前只读观察已隔离目标的原文、光标和连续快照，绑定与派发仍只尝试一次。独占虚拟机复测待归档。
-
-## 最终签名包 · 独立 Mac
-
-独立 macOS 从最终 DMG 提取 App，实际执行 41 次 AXPress、10 次菜单选择、5 次字段编辑。两项凭据、失败、重试及取消均通过；带下载隔离属性的镜像和 App 的 Gatekeeper 退出码都是 3。专用网络实验驱动首次编译发生名称遮蔽，已修复并本机编译通过，待独占虚拟机执行。
-
-## no-api.10 冻结包
-
-完整 Xcode 验证了 401/401 项、0 跳过，前台输入、两个安全输入框和原生设置控件、两条版本升级及回退均已在最终源码通过。独立托管安装包验收及长时结果待回收。
-
-## RC2 首次连接的原生控件回归
-
-独立签名包实测复现了诊断替身仍向未选 ASR 检查凭据的问题。正式验证器已经按活动模型取值。本轮把原生设置中的成功、失败与取消测试都绑定到所选 Qwen 和 GPT 两行，并核对两个安全输入框的精确标识。修复后本机实测 41 次 AXPress、10 次菜单选择、5 次字段编辑、15 组控件检查全部通过。最终签名包与全量测试收据在冻结后单独归档。
-
-# V1 验证结果 · no-api.10
-
-最终 Developer ID 包的 RC1 和 no-api.9.1 隔离升级回退通过。已在真实 HAL 驱动上验证活动录音遇到受控睡眠/唤醒时封存并继续新段。
-
-Xcode 全量 401/401，48 个套件，零跳过。AppModel 104 项，环回协议 52 例零违规。已验证的前台输出、设备路线、安装升级及崩溃恢复可在机器证据中逐项核查。
-
-[冻结状态](V1-NO-API-DELIVERY.md) · [机器证据](../evidence/no-api10/final/) · [原生连接说明](V1-RC2-CONNECTION-SETUP.md)
+[无 API 封版报告](V1-NO-API-DELIVERY.md) · [机器 JSON](../evidence/no-api10/final/machine.json) · [完整 Xcode](../evidence/no-api10/final/tests/xcode.json) · [前台历史失败](../evidence/no-api10/final/input/prebind-refusal/receipt.json)
