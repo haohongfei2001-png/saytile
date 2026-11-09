@@ -1,0 +1,158 @@
+{
+  "feature": "Saytile infinite speech timeline",
+  "draft_pr": "https://github.com/haohongfei2001-png/saytile/pull/12",
+  "source": "86dbd24dd3e33d3a945301007ddd8dbfa3d0a97c",
+  "tree": "7782bb720c9a00f8aea4482982e1f4c974fc6b7d",
+  "binary_sha256": "45e66981b94812579a9c4952cc9694d64430de9c8dae6c4c0c76ab08868d0bc8",
+  "dmg_sha256": "b5aef751d8b3db9dd77bc58973b8f44c39e89876fc2e4407e1ffda5a9e406b28",
+  "platform": "Apple Silicon macOS 27.0 (26A428), Swift 6.4",
+  "clock": "Captured render timings reflect one machine and run",
+  "source_ci": "https://github.com/haohongfei2001-png/saytile/actions/runs/42657428417",
+  "protected": {
+    "main": "99cfc1feb234af44e7a88b704758fa57d88f5d12",
+    "rc1": "a352a1c812c33388a1a908f21ecde30da80ad1cd",
+    "rc2_pr10": "492e0aff9baf4bf8dd5fb9d7f331dd5a6bc07a84",
+    "pr11_base": "b542f068db92414b642c86f9ab5ff4d7d3be53da",
+    "frozen_rc2_dmg_sha256": "62e0054ea9372d149c353ddc0f44f5e341b3a7d68d5b78c1f0c5a9d656e5154f"
+  },
+  "results": [
+    {
+      "check": "swift_native_local",
+      "status": "PASS",
+      "observation": "405 tests, zero failures; 52 loopback protocol cases; no live providers",
+      "evidence": "tests/swift.log"
+    },
+    {
+      "check": "app_model",
+      "status": "PASS",
+      "observation": "104 checks",
+      "evidence": "tests/app-model.log"
+    },
+    {
+      "check": "capture_and_append",
+      "status": "PASS",
+      "observation": "40 wall-clock seconds, 2 finished recordings, 0 dropped frames; production converter, VAD and journal; generated audio, ASR disabled",
+      "evidence": "tests/realtime.log"
+    },
+    {
+      "check": "groups_and_clock",
+      "status": "PASS",
+      "observation": "default 120 s; exact boundary, backwards clock and new date",
+      "evidence": "tests/swift.log"
+    },
+    {
+      "check": "dst_and_timezone_change",
+      "status": "PASS",
+      "observation": "two US DST transitions; preserved stored group/day/offset on Asia/Shanghai reopen",
+      "evidence": "calendar.json"
+    },
+    {
+      "check": "late_asr_and_edited_draft",
+      "status": "PASS",
+      "observation": "Original position, saved versions and unsaved manual draft protected. Synthetic recognition callbacks.",
+      "evidence": "timeline/run.log"
+    },
+    {
+      "check": "copy_press",
+      "status": "PASS",
+      "observation": "Real AXPress on native button, private board; newest group or selected UTF-16 range, clipboard unchanged after later revisions",
+      "evidence": "timeline/run.log"
+    },
+    {
+      "check": "multipage_copy",
+      "status": "PASS",
+      "observation": "146 in one group, last 64 resident, 145 rendered nonempty contributions; next group excluded",
+      "evidence": "tests/long-copy.log"
+    },
+    {
+      "check": "native_paging",
+      "status": "PASS",
+      "observation": "One native TextKit instance windowing 64 entries on 12003 recordings; observed wheel to paint 23.77 ms in signed capture",
+      "evidence": "timeline/run.log"
+    },
+    {
+      "check": "scale_and_migration",
+      "status": "PASS",
+      "observation": "12001 v5 records, 188 page reads, 0.357 s for v6 startup and full traversal on this run",
+      "evidence": "tests/swift.log"
+    },
+    {
+      "check": "pause_reopen_history",
+      "status": "PASS",
+      "observation": "Shipped controls, capture boundary injected, selection, explicit latest, and re-created window",
+      "evidence": "controls/manifest.json"
+    },
+    {
+      "check": "signed_window_motion",
+      "status": "PASS",
+      "observation": "29 actual native window frames at recorded times, 816x596; only the synthetic review view was recorded",
+      "evidence": "timeline/idle-transition.mov"
+    },
+    {
+      "check": "native_reference_geometry",
+      "status": "PASS",
+      "observation": "344x234 pt card, 19.5 pt type, five reference lines, two bottom controls; distinct backgrounds",
+      "evidence": "reference.json"
+    },
+    {
+      "check": "input_history_no_replay",
+      "status": "PASS",
+      "observation": "Real AX in owned background fields; pre-binding old range and duplicate both refused, zero sends",
+      "evidence": "tests/input-native-coordinator.log"
+    },
+    {
+      "check": "input_hosted_foreground",
+      "status": "PASS",
+      "observation": "Disposable hosted Mac, production frontmost resolver and owned WKWebView/NSTextView; exact writes and zero sends",
+      "evidence": "tests/hosted-foreground.log"
+    },
+    {
+      "check": "manual_route_changes",
+      "status": "PASS",
+      "observation": "An active simulated stream receives its tail on Qwen; next utterance uses selected English provider, two starts in total",
+      "evidence": "tests/swift.log"
+    },
+    {
+      "check": "signed_dmg_install_upgrade_rollback",
+      "status": "PASS",
+      "observation": "Developer ID, timestamp, hardened runtime; read-only mounts of frozen RC2 and preview; synthetic archive twice reopened and rolled back from backup",
+      "evidence": "install.json"
+    },
+    {
+      "check": "gatekeeper_public_download",
+      "status": "FAIL",
+      "observation": "spctl execute exit 3, Unnotarized Developer ID",
+      "evidence": "install.json"
+    },
+    {
+      "check": "notarized_public_distribution",
+      "status": "BLOCKED",
+      "observation": "Preview not submitted for Apple notarization",
+      "evidence": "install.json"
+    },
+    {
+      "check": "live_cloud_and_language_quality",
+      "status": "NOT_RUN",
+      "observation": "No paid requests, human samples or accuracy rankings",
+      "evidence": null
+    },
+    {
+      "check": "physical_microphone_and_long_real_world_usage",
+      "status": "NOT_RUN",
+      "observation": "Timeline scope uses synthetic speech; no private audio or ambient recording",
+      "evidence": null
+    },
+    {
+      "check": "final_subjective_acceptance",
+      "status": "NOT_RUN",
+      "observation": "Latest active group copy is a product candidate; no user acceptance solicited",
+      "evidence": null
+    },
+    {
+      "check": "hosted_xcode_source_job_129299573887",
+      "status": "BLOCKED",
+      "observation": "GitHub cancelled the queued job after 15 minutes; no runner acquired and zero steps or tests started. Local 405 tests and independent hosted foreground job on this source passed. See Draft PR checks for the subsequent delivery commit.",
+      "evidence": "attempts/source-hosted-capacity.log"
+    }
+  ]
+}

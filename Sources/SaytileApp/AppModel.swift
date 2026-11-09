@@ -62,6 +62,7 @@ struct AppConnectionDependencies {
     var verify: (RecognitionConfiguration, @escaping @Sendable (CloudConnectionReport) -> Void) async throws -> CloudConnectionReport
     var applyConfiguration: (AudioController, RecognitionConfiguration) async -> Void
     var revokeCloud: (AudioController) -> Void
+    var applyNextRoute: (AudioController, RecognitionConfiguration) -> Void = { $0.setRouteForNextUtterance($1) }
     static let live = AppConnectionDependencies(
         presence: { CloudCredentialStore.presence(configurationID: $0.id, provider: $0.provider) },
         save: { try CloudCredentialStore.save($0, configurationID: $1.id, provider: $1.provider) },
@@ -141,11 +142,19 @@ final class AppModel: ObservableObject {
     private let preferences: UserDefaults
     private let connectionDependencies: AppConnectionDependencies
     private let captureDependencies: AppCaptureDependencies
-    private let copyPasteboard: NSPasteboard?
+    let copyPasteboard: NSPasteboard?
     private var copyFeedback: Task<Void, Never>?
+    @Published private(set) var timeline = TimelinePage()
+    @Published private(set) var timelineTail: TimelineEntry?
+    @Published private(set) var timelineIdle = false
+    @Published private(set) var timelineIdleSeconds: Int
+    @Published private(set) var timelineFocus: Int64?
+    private var timelineWindow = TimelineWindow.latest
+    private var hiddenThrough: Int64 = 0
     @Published var recent: [DisplayRecording] = []
     @Published var records: [DisplayRecording] = []
     @Published var versions: [DisplayVersion] = []
+    @Published var archiveIsKey = false
     @Published var selected: DisplayRecording?
     @Published private(set) var editorDraft = ""
     @Published private(set) var editorDraftLoading = false
@@ -157,9 +166,13 @@ final class AppModel: ObservableObject {
     @Published var recognitionConfiguration = RecognitionConfiguration() {
         didSet {
             guard !initializing, CloudConnectionVerifier.fingerprint(oldValue) != CloudConnectionVerifier.fingerprint(recognitionConfiguration) else { return }
-            invalidateConnectionVerification()
+            var rerouted = oldValue
+            rerouted.manualASRConfigurationID = recognitionConfiguration.manualASRConfigurationID
+            rerouted.languagePreference = recognitionConfiguration.languagePreference
+            invalidateConnectionVerification(nextUtteranceOnly: rerouted == recognitionConfiguration)
         }
     }
+    private var changingRoute = false
     @Published private(set) var connectionReport: CloudConnectionReport?
     @Published private(set) var checkingConnection = false
     @Published var connectionCheckAuthorized = false
@@ -257,6 +270,7 @@ final class AppModel: ObservableObject {
         self.captureDependencies = captureDependencies
         self.copyPasteboard = copyPasteboard
         store = try SaytileStore(directory: directory)
+        timelineIdleSeconds = store.initialTimelineIdleSeconds
         var recognitionConfiguration = RecognitionConfiguration.load(from: preferences)
         let receipt = preferences.data(forKey: Self.connectionReceiptKey).flatMap { try? JSONDecoder().decode(CloudConnectionReport.self, from: $0) }
         connectionReport = receipt
@@ -411,7 +425,15 @@ final class AppModel: ObservableObject {
             }
             try candidate.save(to: preferences)
             recognitionConfiguration = candidate
-            scheduleRecognitionConfiguration(candidate, showNotice: true)
+            if changingRoute && candidate.cloudEnabled {
+                connectionDependencies.applyNextRoute(audio, candidate)
+                appliedRecognitionConfiguration = candidate
+                changingRoute = false
+                recognitionSettingsNotice = "已应用，新讲话使用所选模型。"
+            } else {
+                changingRoute = false
+                scheduleRecognitionConfiguration(candidate, showNotice: true)
+            }
         } catch { recognitionSettingsNotice = error.localizedDescription }
     }
     private func scheduleRecognitionConfiguration(_ candidate: RecognitionConfiguration, showNotice: Bool) {
@@ -431,16 +453,24 @@ final class AppModel: ObservableObject {
         }
     }
     /// Credential or endpoint changes revoke the previous connection receipt immediately.
-    private func invalidateConnectionVerification() {
+    private func invalidateConnectionVerification(nextUtteranceOnly: Bool = false) {
+        changingRoute = nextUtteranceOnly
         connectionCheckID = nil; connectionCheckTask?.cancel()
         connectionReport = nil; checkingConnection = false; connectionCheckAuthorized = false
         preferences.removeObject(forKey: Self.connectionReceiptKey)
         // Also revoke a not-yet-published in-flight cloud apply.
-        connectionDependencies.revokeCloud(audio)
         var local = appliedRecognitionConfiguration; local.cloudEnabled = false
+        if nextUtteranceOnly {
+            recognitionApplyID = UUID()
+            recognitionApplyTask?.cancel()
+            applyingRecognitionSettings = false
+            local.languagePreference = recognitionConfiguration.languagePreference
+            local.manualASRConfigurationID = recognitionConfiguration.manualASRConfigurationID
+            connectionDependencies.applyNextRoute(audio, local)
+        } else { connectionDependencies.revokeCloud(audio) }
         appliedRecognitionConfiguration = local
         try? local.save(to: preferences)
-        scheduleRecognitionConfiguration(local, showNotice: false)
+        if !nextUtteranceOnly { scheduleRecognitionConfiguration(local, showNotice: false) }
         recognitionConfiguration.cloudEnabled = false
     }
     func cancelConnectionCheck() {
@@ -460,7 +490,7 @@ final class AppModel: ObservableObject {
         guard !preparingForExit, !exitPrepared, connectionCheckAuthorized, !checkingConnection, !applyingRecognitionSettings else { return }
         let candidate = recognitionConfiguration
         let previous = connectionCheckTask
-        invalidateConnectionVerification()
+        invalidateConnectionVerification(nextUtteranceOnly: changingRoute)
         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
         connectionCheckTask = Task {
@@ -522,10 +552,77 @@ final class AppModel: ObservableObject {
             catch { notice = error.localizedDescription }
         }
     }
-    func copy(_ text: String) {
+    func moveTimeline(older: Bool) {
+        guard !timeline.entries.isEmpty, older ? timeline.hasOlder : timeline.hasNewer else { return }
+        let pivot = timeline.entries[timeline.entries.count / 2].position
+        setTimelineWindow(older ? .ending(at: pivot) : .starting(at: pivot))
+    }
+
+    func pinTimeline() {
+        if timelineWindow == .latest, let last = timeline.entries.last { setTimelineWindow(.ending(at: last.position)) }
+    }
+
+    func followTimeline() {
+        timelineFocus = nil
+        setTimelineWindow(.latest)
+    }
+
+    private var timelineRead: UInt64 = 0
+    private var observedEnd: Date?
+    private var observedPosition: Int64?
+    private var silenceStarted = ContinuousClock.now
+    private func refreshTimeline(_ window: TimelineWindow) async throws {
+        timelineRead &+= 1
+        let request = timelineRead
+        let page = try await store.timelinePage(window)
+        let tail = window == .latest ? page.entries.last : try await store.timelinePage().entries.last
+        guard window == timelineWindow, request == timelineRead else { return }
+        if timeline != page { timeline = page }
+        if timelineTail != tail { timelineTail = tail }
+        if observedPosition != tail?.position || observedEnd != tail?.speechEnd {
+            observedPosition = tail?.position
+            observedEnd = tail?.speechEnd
+            let elapsed = min(3600, max(0, tail.map { Date.now.timeIntervalSince($0.speechEnd) } ?? 0))
+            silenceStarted = .now - .seconds(elapsed)
+        }
+        let idle = tail.map { $0.position <= hiddenThrough || (!$0.recording.isRecording &&
+            silenceStarted.duration(to: .now) >= .seconds(timelineIdleSeconds)) } ?? false
+        if timelineIdle != idle { timelineIdle = idle }
+    }
+
+    private func setTimelineWindow(_ window: TimelineWindow) {
+        guard window != timelineWindow else { return }
+        timelineWindow = window
+        Task {
+            do { try await refreshTimeline(window) }
+            catch { notice = error.localizedDescription }
+        }
+    }
+
+    func changeIdleInterval(_ seconds: Int) {
+        Task {
+            do { try await store.setTimelineIdleSeconds(seconds); timelineIdleSeconds = seconds; await refresh() }
+            catch { notice = error.localizedDescription }
+        }
+    }
+
+    func copyTimeline(selection: String, displayed: [Int64: String]) {
+        if !selection.isEmpty { copy(selection, quietly: true); return }
+        guard let end = timelineTail else { return }
+        // The editor can hold a previous page across a new group. The click targets
+        // the live tail while preserving the exact text of any already rendered rows.
+        var snapshot = Dictionary(uniqueKeysWithValues: timeline.entries.map { ($0.position, $0.recording.text) })
+        snapshot[end.position] = end.recording.text
+        snapshot.merge(displayed) { _, rendered in rendered }
+        do { copy(try store.timelineCopy(group: end.group, through: end.position, displayed: snapshot), quietly: true) }
+        catch { notice = error.localizedDescription }
+    }
+
+    func copy(_ text: String, quietly: Bool = false) {
         guard !text.isEmpty else { return }
         copyFeedback?.cancel()
         if input.copy(text, to: copyPasteboard ?? .general) {
+            if quietly { return }
             let success = "已复制，可以粘贴到任何应用。"
             notice = success
             copyFeedback = Task { [weak self] in
@@ -586,6 +683,8 @@ final class AppModel: ObservableObject {
         panelSessionStartedAt = Date()
         stagedRecordIDs.removeAll()
         panelLimit = 100; panelCount = 0; panelHasMore = false
+        hiddenThrough = timelineTail?.position ?? 0
+        timelineIdle = true
         recent = []
         notice = "输入板已清空，全部记录仍在语音档案中。"
     }
@@ -593,8 +692,16 @@ final class AppModel: ObservableObject {
         stagedRecordIDs.insert(item.id)
         if !recent.contains(where: { $0.id == item.id }) { recent.append(item); recent.sort { $0.date < $1.date } }
         scheduleRefresh()
-        if showPanel { openPanel() }
-        notice = "已带到输入板，可与本次表达一起复制或插入。"
+        if showPanel {
+            openPanel()
+            Task {
+                if let position = try? await store.timelinePosition(of: item.id) {
+                    timelineFocus = position
+                    setTimelineWindow(.starting(at: position))
+                }
+            }
+        }
+        notice = "已在输入板定位这段文字。"
     }
     func select(_ item: DisplayRecording) {
         Task { await selectForEditing(item); openArchive() }
@@ -806,6 +913,7 @@ final class AppModel: ObservableObject {
         let requestedQuery = query, requestedFilter = recordFilter, requestedLimit = pageLimit
         do {
             await recoveryTask?.value
+            try await refreshTimeline(timelineWindow)
             var rows: [Recording] = []
             while rows.count < requestedLimit + 1 {
                 let batch = try await store.listRecordings(query: requestedQuery, limit: min(100, requestedLimit + 1 - rows.count), offset: rows.count, filter: requestedFilter)

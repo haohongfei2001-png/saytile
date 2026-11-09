@@ -51,7 +51,7 @@ struct RecordingCloudAuthorizationTests {
         #expect(try await !upgraded.permitsAutomaticCloudRecovery(recordingID: record.id, configuration: authorizedConfiguration()))
         #expect(try await !upgraded.permitsAutomaticCloudRecovery(recordingID: previousCloudRecord.id, configuration: authorizedConfiguration()))
         let inspect = try StoreDatabase(url: root.appendingPathComponent("Saytile.sqlite"))
-        #expect(try inspect.rows("PRAGMA user_version").first?["user_version"] == "5")
+        #expect(try inspect.rows("PRAGMA user_version").first?["user_version"] == "6")
         #expect(try inspect.rows("SELECT name FROM sqlite_master WHERE type='table' AND name='recording_cloud_authorizations'").count == 1)
         #expect(try inspect.rows("SELECT * FROM recording_cloud_authorizations").isEmpty)
         #expect(try inspect.rows("SELECT * FROM model_runs").count == 2)

@@ -4,13 +4,26 @@ import AppKit
 struct InputPanelView: View {
     @ObservedObject var model: AppModel
     @ViewState private var followsLatest = true
+    @StateObject private var access = PanelTranscriptAccess()
     @ViewState private var selectedText = ""
     @ViewState private var latestRequest = 0
     @ViewState private var captureHovered = false
     @FocusState private var captureFocused: Bool
 
-    private var transcript: String { model.recent.map(\.text).filter { !$0.isEmpty }.joined(separator: "\n") }
-    private var canCopy: Bool { !transcript.isEmpty || !selectedText.isEmpty }
+    private var document: PanelTimelineDocument {
+        PanelTimelineDocument(page: model.timeline, tail: model.timelineTail, idle: model.timelineIdle, reading: !followsLatest)
+    }
+    private var canCopy: Bool { model.timelineTail != nil || !selectedText.isEmpty }
+    private var editTarget: DisplayRecording? {
+        if let view = access.view {
+            let selection = view.transcriptView.selectedRange()
+            let character = selection.length > 0 ? selection.location : view.transcriptView.contextCharacter
+            if let character, let match = view.rendered.spans.first(where: { NSLocationInRange(character, $0.range) }) {
+                return DisplayRecording(source: match.entry.recording)
+            }
+        }
+        return model.timelineTail.map { DisplayRecording(source: $0.recording) }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -30,11 +43,17 @@ struct InputPanelView: View {
                     .padding(.horizontal, 14).padding(.vertical, 5).accessibilityIdentifier("panel.notice")
             }
 
-            CompactTranscriptView(text: transcript, latestRequest: latestRequest,
-                onFollowChange: { followsLatest = $0 }, onSelectionChange: { selectedText = $0 },
+            CompactTranscriptView(document: document, access: access, onPage: { model.moveTimeline(older: $0) },
+                focusPosition: model.timelineFocus, editing: model.archiveIsKey && model.selected != nil, latestRequest: latestRequest,
+                onFollowChange: { follows in
+                    if followsLatest != follows {
+                        followsLatest = follows
+                        if follows { model.followTimeline() } else { model.pinTimeline() }
+                    }
+                }, onSelectionChange: { selectedText = $0 },
                 fillContextMenu: fillContextMenu, showsLiveCaret: model.panelCapturePresentation.state == .recognizing)
                 .overlay(alignment: .topLeading) {
-                    if transcript.isEmpty {
+                    if model.timeline.entries.isEmpty {
                         Text(model.isListening ? "开口，文字会出现在这里。" : "从一句话开始。")
                             .font(.system(size: ReferencePanelStyle.fontSize)).foregroundStyle(Palette.muted.opacity(0.8))
                             .padding(.top, 6).padding(.horizontal, 2).allowsHitTesting(false)
@@ -77,7 +96,8 @@ struct InputPanelView: View {
 
     private func copyTranscript() {
         guard canCopy else { return }
-        if selectedText.isEmpty { model.copyRecent() } else { model.copy(selectedText) }
+        let view = access.view
+        model.copyTimeline(selection: view?.selectionSnapshot ?? selectedText, displayed: view?.rendered.displayed ?? [:])
     }
 
     private var captureControl: some View {
@@ -122,19 +142,16 @@ struct InputPanelView: View {
     private var commandGroups: [[PanelCommand]] {
         var groups: [[PanelCommand]] = [
             [.init(id: "copy", title: selectedText.isEmpty ? "复制当前文字" : "复制所选文字", enabled: canCopy, action: { copyTranscript() }),
-             .init(id: "edit", title: "在档案中编辑最近一段", enabled: model.recent.last != nil, action: { if let item = model.recent.last { model.select(item) } }),
-             .init(id: "latest", title: "回到最新", enabled: !followsLatest, action: { latestRequest += 1 })],
+             .init(id: "edit", title: "在档案中编辑这段文字", enabled: editTarget != nil, action: { if let item = editTarget { model.select(item) } }),
+             .init(id: "latest", title: "回到最新", enabled: !followsLatest, action: { model.followTimeline(); latestRequest += 1 })],
             [.init(id: "archive", title: "语音档案…", action: { model.openArchive() }),
              .init(id: "settings", title: "设置…", action: { model.openSettings() })],
             [.init(id: "free", title: "自由记录", checked: !model.directMode, action: { model.setDirect(false) }),
              .init(id: "direct", title: "直接输入", checked: model.directMode, action: { model.setDirect(true) }),
              .init(id: "bind", title: "绑定当前草稿", action: { model.bindTarget() }),
-             .init(id: "insert", title: model.isInserting ? "正在插入…" : "插入当前文字", enabled: !model.isInserting && !transcript.isEmpty, action: { model.insertRecent() })]
+             .init(id: "insert", title: model.isInserting ? "正在插入…" : "插入当前文字", enabled: !model.isInserting && model.recent.contains(where: { !$0.text.isEmpty }), action: { model.insertRecent() })]
         ]
         var last: [PanelCommand] = []
-        if model.panelHasMore {
-            last.append(.init(id: "earlier", title: model.loadingPanel ? "正在载入…" : "载入更早表达（已载入 \(model.recent.count) / \(model.panelCount) 段）", enabled: !model.loadingPanel, action: { model.loadEarlierPanel() }))
-        }
         last.append(.init(id: "save", title: model.saveLabel, enabled: false))
         last.append(.init(id: "clear", title: "清空输入板（保留档案）", enabled: !model.isInserting && !model.recent.isEmpty, action: { model.clearPanel(); latestRequest += 1 }))
         if model.notice != nil, model.panelCaptureDetail == nil {
@@ -373,6 +390,11 @@ struct SettingsView: View {
                     Button("在 Finder 中显示资料目录", action: model.revealData)
                 }
                 Section("使用习惯") {
+                    Picker("讲话分组间隔", selection: Binding(get: { model.timelineIdleSeconds }, set: { seconds in model.changeIdleInterval(seconds) })) {
+                        ForEach([10, 30, 60, 120, 300, 600, 1800, 3600], id: \.self) { seconds in
+                            Text(seconds < 60 ? "\(seconds) 秒" : "\(seconds / 60) 分钟").tag(seconds)
+                        }
+                    }.accessibilityIdentifier("settings.timelineIdle")
                     Toggle("登录时启动 Saytile", isOn: $model.launchAtLogin)
                     Toggle("在桌面右下角显示语音入口", isOn: $model.floatingEntryEnabled)
                         .accessibilityIdentifier("settings.floatingEntry")

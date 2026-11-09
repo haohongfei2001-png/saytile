@@ -1,0 +1,43 @@
+# RC2 正式身份时间轴整合候选 · 独立复核
+
+此分支从 PR #12 的交付提交 `5d6efb438cf516184f9d1e5f20f4abf9796d601b` 建立。其时间轴源码为 `86dbd24`，产品决定来自 PR #11 `b542f06`，冻结 RC2 分支为 PR #10 `492e0af`，冻结签名包的源码为 `5639058`。候选的正式 Bundle ID 是 `app.saytile.mac`，使用正式档案目录、标准偏好域和 `com.saytile.byok.v1`。预览版资料保持独立。候选只用于隔离整合验证。
+
+## 新发现与修复
+
+| 复核项 | 证据与结论 |
+|---|---|
+| 普通空闲留白 | 原按钮在无选区时复制最新组内各段，用当前文字立即写入；真实 AXPress 后留白位置、收音状态和提示未变。 |
+| 编辑时后台进入下一组 | 原来点击取的是编辑器保持的旧页面末段，实测复制了上一组。改为按点击时最新活动组确定边界，保留已显示文字快照；有选区仍优先复制选区。已用相同合成资料红绿复现。测试在 AppModel 注入档案窗口为 key 的编辑状态，原生面板、AXPress、私有剪贴板、草稿和 SQLite 均真实运行。[失败收据](../evidence/rc2-timeline-integration/pr12-copy-reproduction.log) |
+| 午夜与时钟 | 午夜前 0.2 ms 的讲话被 SQLite 日期函数进位到次日，两段误并为一组。实时触发器和 v5 回填现以讲话时刻所在的整秒判定当地日期与 UTC 偏移，原始讲话时间保留小数。v6 重开时升级旧触发器，既有组的历史民用时刻保持原值。 |
+| AX 测试窗口 | 透明的隔离测试窗口等待空闲后曾从 AXWindows 消失，记录为 0 窗口。时间轴交互探针现使用处于屏幕之外、不可取得焦点的原生面板。生产面板不受影响。[诊断收据](../evidence/rc2-timeline-integration/transparent-fixture.log) |
+
+## 源码复核
+
+- 录音建立时生成单调位置，WebRTC VAD 采样位置决定段的时间，最终文字和用户版本按录音 ID 归位。分组由上一段讲话结束时间和新段开始时间决定，120 秒为默认值。组首的本地日期和 UTC 偏移随组持久化。
+- SQLite 以位置做双向边界查询，每次最多 64 项，视图分页时保留重叠的段。游标、文字选区和正在编辑的草稿可以阻止新结果移动当前视口。仅对当前页保存排版对象。一次复制可能读取一整个活动组，这项成本随所复制的文字量增长。
+- 一次点击取一次快照。新识别只改原段，无自动剪贴板写入。未出首字的全空组点击后保留原剪贴板。无选区复制最新活动组仍为通过工程复核的产品候选。
+- 展示分页与输入派发账本分离。回看不调用主动插入或生成新绑定。自动派发经过绑定边界、稳定范围和去重，未确认结果不重放。沿用 PR #12 独立前台 NSTextView、WKWebView 零发送结果；本轮没有访问用户应用内的文字。[PR #12 托管前台实测](https://github.com/haohongfei2001-png/saytile/actions/runs/42660314229)
+- v5 → v6 的建表、按已有录制时间回填和提升版本号在同一事务完成。原 recording/revision ID 保留。旧数据没有采集时区时仍只能用迁移地时区还原。回退使用升级前的完整副本。
+- 对照仓库批准 JPEG、签名预览原生对照图与留白截图，五行正文、留白层级、左右两个按钮及语音标记位置相符；原图的紫蓝背景透色与胶囊边缘高光更明显，原生单窗采样为中性灰。签名机制、尺寸或像素阈值均不足以确认不同桌面背景上的主观材质一致性。保留当前样式并将最终美术认可列为待决。[原图](../design/approved/Saytile-original-visual-reference-20261107.jpeg) · [签名原生对照](../evidence/timeline-preview/reference-pair.png)
+
+## 已验证的整合候选
+
+产品源码为 `387dfa13220970aee6c69e3f465f5631fdf8d47d`。工程镜像 `Saytile-1.0.0-rc.2-timeline.integration.1-arm64.dmg` 仅保存在整合工作树的 dist 目录，SHA-256 为 `022a78a5428f5fe806f2d6fa3dbcffed401089e1fe80ec7d36a220496f77acab`。[总收据](../evidence/rc2-timeline-integration/receipt.json)
+
+| 状态 | 最终观测 |
+|---|---|
+| PASS | 真实冻结签名包构建号 219 和候选 234 具有相同正式 Bundle ID、Developer ID 指定要求与音频 entitlement。候选启用 Hardened Runtime 并含可信签名时间戳。|
+| PASS | 两个实际 App 在私有安装位置交替启动。SQLite 从 v5 升至 v6，两个 WAV 散列、四个文字版本、两份草稿、置顶、首选版本和两条已授予范围均相同。新旧应用重开成功，旧版拒绝直接打开 v6，完整 v5 备份可回退。[升级收据](../evidence/rc2-timeline-integration/upgrade.json) |
+| PASS | 两个分别链接真实 v5/v6 库、共用独立测试签名身份的进程，在正式 Keychain 服务用本轮新建的两个随机账户验证写入、读取、清理。旧配置 ID 和指纹可读取；已授权记录保留、仅本机记录及换账户恢复均被拒绝。真实用户密钥和偏好没有参与演练。 |
+| PASS | 从新镜像取出的签名 App 执行四次真实 AXPress，覆盖正常、留白、编辑器保持原页且后台已换组、历史选区。12,003 段时同时排版 64 段，本次跨页到绘制约 23 ms。[原生交互](../evidence/rc2-timeline-integration/native/run.log) · [双向分页查询计划](../evidence/rc2-timeline-integration/sqlite-query-plans.txt) |
+| PASS | 签名候选三态原生窗口重新截图。识别态截图解码成相同 sRGB RGBA 后与 PR #12 签名截图完全一致；该比较只针对两个原生版本。最终美术认可仍待决定。[本次签名窗口](../evidence/rc2-timeline-integration/native/reference-recognizing.png) · [留白截图](../evidence/rc2-timeline-integration/native/timeline-idle.png) |
+| FAIL / BLOCKED | 系统 Gatekeeper 返回 Unnotarized Developer ID。公开下载分发仍缺公证及装订。 |
+| NOT_RUN | 真实服务回包、在线识别质量和最终主观视觉认可。未重复运行冻结版的长稳、物理麦克风和完整生命周期实验。 |
+
+## 云端协作与发布阻塞
+
+1. 本分支承接时间轴、迁移和正式身份。ASR、GPT-6 的服务适配器、连接检查、凭据格式及派发账本沿用基线。云端验证使用独立工作树、合成或获准样本、隔离数据目录，记录实际安装包源码、二进制和脱敏服务回执。若联调另外产生产品修复，在新的整合提交核对冲突并以新二进制重验受影响路径。
+2. 真实单 ASR 和 GPT-6 连接、真实候选、服务返回与质量仍待专用凭据和上传、费用授权。工程方执行检查。模拟回执只验证格式、权限和失效语义。
+3. Developer ID 签名与苹果公证分开评估。上线前须获得公证、装订并验证带下载隔离属性的安装。此候选不创建 Release，不合并。正式身份与既有 RC2 相同，工程演练仅在临时 Applications 和完整合成副本进行。
+
+[验收证据目录](../evidence/rc2-timeline-integration/)

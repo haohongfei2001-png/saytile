@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "source_revision": "86dbd24dd3e33d3a945301007ddd8dbfa3d0a97c",
+  "source_dirty": false,
+  "tree": "7782bb720c9a00f8aea4482982e1f4c974fc6b7d",
+  "release": "1.0.0-timeline.preview.1",
+  "bundle": "app.saytile.mac.timeline-preview",
+  "binary_sha256": "45e66981b94812579a9c4952cc9694d64430de9c8dae6c4c0c76ab08868d0bc8",
+  "dmg_sha256": "b5aef751d8b3db9dd77bc58973b8f44c39e89876fc2e4407e1ffda5a9e406b28",
+  "baseline_dmg_sha256": "62e0054ea9372d149c353ddc0f44f5e341b3a7d68d5b78c1f0c5a9d656e5154f",
+  "developer_id": true,
+  "hardened_runtime": true,
+  "timestamp": true,
+  "gatekeeper": {
+    "status": "FAIL",
+    "exit": 3,
+    "result": "source=Unnotarized Developer ID"
+  },
+  "checks": [
+    "DMGs verified and read-only mounted",
+    "private installation and signature validation",
+    "actual RC2 v5 archive startup",
+    "v6 upgrade with byte-identical WAV, revisions, draft, preferred version, pin and cloud scopes",
+    "projection correct",
+    "idempotent second launch",
+    "rollback from separate v5 backup"
+  ]
+}
