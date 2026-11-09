@@ -6,25 +6,27 @@ protocol LocalASRProvider: Sendable {
     func open(store: SaytileStore, ticket: RecognitionTicket) -> any RecognitionSession
 }
 struct AppleLocalASR: LocalASRProvider {
+    var review: LocalTextReview? = nil
     func open(store: SaytileStore, ticket: RecognitionTicket) -> any RecognitionSession {
-        LiveSpeechSession(store: store, ticket: ticket)
+        LiveSpeechSession(store: store, ticket: ticket, review: review)
     }
 }
 struct NativeLocalASR: LocalASRProvider {
     let model: LocalASRID
     let service: LocalASRService
+    var review: LocalTextReview? = nil
     func open(store: SaytileStore, ticket: RecognitionTicket) -> any RecognitionSession {
-        ModelRecognitionSession(model: model, service: service, store: store, ticket: ticket)
+        ModelRecognitionSession(model: model, service: service, store: store, ticket: ticket, review: review)
     }
 }
 
-private struct WorkerEvent: Decodable, Sendable {
+struct WorkerEvent: Decodable, Sendable {
     let kind: String
     let text: String
     let frames: Int
 }
 
-private final class ModelWorker: @unchecked Sendable {
+final class ModelWorker: @unchecked Sendable {
     let id: LocalASRID
     let process = Process()
     let input: FileHandle
@@ -156,6 +158,7 @@ public actor LocalASRService {
                 defer { sender.cancel() }
                 do {
                     var ready = !fresh, lastFrames = 0
+                    var liveText = LocalLiveText(model: id)
                     for try await event in current.events {
                         try Task.checkCancellation()
                         if event.kind == "ready" && !ready { ready = true; continue }
@@ -164,14 +167,13 @@ public actor LocalASRService {
                         }
                         lastFrames = event.frames
                         let final = event.kind == "final"
-                        if !event.text.isEmpty {
-                            try await ingress.receive(.init(text: event.text, stableUTF16Length: final ? event.text.utf16.count : 0,
+                        if !event.text.isEmpty, let stable = liveText.accept(event.text, final: final) {
+                            try await ingress.receive(.init(text: event.text, stableUTF16Length: stable,
                                 audioEndSeconds: Double(event.frames) / 16_000, timingGranularity: "utterance", isComplete: final))
                         }
                         if final {
                             try await sender.value
                             guard !event.text.isEmpty else { throw ProviderFailure.incomplete }
-                            try await ingress.finish()
                             return
                         }
                     }
@@ -182,21 +184,50 @@ public actor LocalASRService {
     }
 }
 
+/// A rolling batch decoder can replace a large prefix on a transient pass.
+/// Keep that pass off the panel until supported by a later hypothesis. The
+/// accepted text always comes verbatim from this model. Only the cache-aware
+/// Nemotron decoder appends irrevocable token IDs during a stream.
+struct LocalLiveText {
+    let model: LocalASRID
+    private(set) var previous = ""
+    private var readingPrefix = ""
+    init(model: LocalASRID) { self.model = model }
+    mutating func accept(_ text: String, final: Bool) -> Int? {
+        if final { return text.utf16.count }
+        let common = RecognitionUTF16.commonPrefix([previous, text])
+        if model == .qwen {
+            guard RecognitionUTF16.hasExactPrefix(text, prefix: readingPrefix) else { return nil }
+            if common.count > 8 {
+                let supported = String(common.dropLast(8))
+                if supported.utf16.count > readingPrefix.utf16.count { readingPrefix = supported }
+            }
+        }
+        previous = text
+        return model == .nemotron ? String(common.dropLast()).utf16.count : 0
+    }
+}
+
 private final class ModelRecognitionSession: RecognitionSession, @unchecked Sendable {
     let recordingID: UUID
     private let state = RecognitionSessionCompletion()
     private let channel: AsyncStream<Data>.Continuation
     private let task: Task<Void, Never>
+    private let timeout: Duration
     var isComplete: Bool { state.isComplete }
-    init(model: LocalASRID, service: LocalASRService, store: SaytileStore, ticket: RecognitionTicket) {
+    init(model: LocalASRID, service: LocalASRService, store: SaytileStore, ticket: RecognitionTicket, review: LocalTextReview?) {
         recordingID = ticket.recordingID
+        timeout = model.capability == .batch ? .seconds(180) : .seconds(60)
         let (audio, sender) = AsyncStream<Data>.makeStream(bufferingPolicy: .bufferingOldest(600))
         channel = sender
         let state = state
         task = Task {
             defer { state.finish() }
-            let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: model)
-            do { try await service.recognize(model, audio: audio, ingress: ingress) }
+            let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: model, review: review)
+            do {
+                try await service.recognize(model, audio: audio, ingress: ingress)
+                try await ingress.finish()
+            }
             catch {
                 try? await store.failRecognition(ticket: ticket, message: "本机识别未完成，原音可重试。\(error.localizedDescription)")
             }
@@ -205,8 +236,8 @@ private final class ModelRecognitionSession: RecognitionSession, @unchecked Send
     func append(_ data: Data) { if case .dropped = channel.yield(data) { cancel() } }
     func finish() {
         channel.finish()
-        let active = task
-        state.watch(Task { do { try await Task.sleep(for: .seconds(60)) } catch { return }; active.cancel() })
+        let active = task, deadline = timeout
+        state.watch(Task { do { try await Task.sleep(for: deadline) } catch { return }; active.cancel() })
     }
     func cancel() { channel.finish(); task.cancel() }
     func wait() async { await task.value }

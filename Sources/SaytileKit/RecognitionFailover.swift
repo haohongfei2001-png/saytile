@@ -108,9 +108,9 @@ struct LocalFailoverDependencies: Sendable {
     var now: @Sendable () -> Date = { Date() }
     static let live = Self(availability: { await AppleSpeechService.availability() },
                            make: { AppleLocalASR().open(store: $0, ticket: $1) })
-    static func device(_ id: LocalASRID, service: LocalASRService) -> Self {
-        guard id != .apple else { return .live }
-        return Self(availability: { await service.availability(id) }, make: { NativeLocalASR(model: id, service: service).open(store: $0, ticket: $1) })
+    static func device(_ id: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil) -> Self {
+        if id == .apple { return Self(availability: { await AppleSpeechService.availability() }, make: { AppleLocalASR(review: review).open(store: $0, ticket: $1) }) }
+        return Self(availability: { await service.availability(id) }, make: { NativeLocalASR(model: id, service: service, review: review).open(store: $0, ticket: $1) })
     }
 }
 

@@ -58,7 +58,7 @@ final class LiveSpeechSession: RecognitionSession, @unchecked Sendable {
     private let store: SaytileStore
     private let event: @Sendable (SpeechTimingEvent) -> Void
     private let started = ProcessInfo.processInfo.systemUptime
-    init(store: SaytileStore, ticket: RecognitionTicket, event: @escaping @Sendable (SpeechTimingEvent) -> Void = { _ in }) {
+    init(store: SaytileStore, ticket: RecognitionTicket, review: LocalTextReview? = nil, event: @escaping @Sendable (SpeechTimingEvent) -> Void = { _ in }) {
         self.store = store; self.ticket = ticket; self.event = event
         let began = started
         let (stream, continuation) = AsyncStream<Data>.makeStream(bufferingPolicy: .bufferingOldest(300))
@@ -66,7 +66,7 @@ final class LiveSpeechSession: RecognitionSession, @unchecked Sendable {
         let completion = completion
         self.task = Task {
             defer { completion.finish() }
-            do { try await Self.recognize(stream: stream, store: store, ticket: ticket, started: began, event: event) }
+            do { try await Self.recognize(stream: stream, store: store, ticket: ticket, started: began, review: review, event: event) }
             catch { try? await store.failRecognition(ticket: ticket, message: completion.failureMessage ?? error.localizedDescription) }
         }
     }
@@ -88,7 +88,7 @@ final class LiveSpeechSession: RecognitionSession, @unchecked Sendable {
     }
     func cancel() { continuation.finish(); task.cancel() }
     func wait() async { await task.value }
-    private static func recognize(stream: AsyncStream<Data>, store: SaytileStore, ticket: RecognitionTicket, started: Double, event: @escaping @Sendable (SpeechTimingEvent) -> Void) async throws {
+    private static func recognize(stream: AsyncStream<Data>, store: SaytileStore, ticket: RecognitionTicket, started: Double, review: LocalTextReview?, event: @escaping @Sendable (SpeechTimingEvent) -> Void) async throws {
         guard SpeechTranscriber.isAvailable, let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "zh-CN")) else { throw AudioFailure.message("此设备的 Apple 中文识别不可用；原音已保存") }
         let transcriber = SpeechTranscriber(locale: locale, preset: .progressiveTranscription)
         let detector = SpeechDetector()
@@ -99,7 +99,7 @@ final class LiveSpeechSession: RecognitionSession, @unchecked Sendable {
               let converter = AVAudioConverter(from: source, to: format) else { throw AudioFailure.message("无法创建语音格式转换器") }
         let analyzer = SpeechAnalyzer(modules: modules)
         let (inputs, inputContinuation) = AsyncStream<AnalyzerInput>.makeStream(bufferingPolicy: .bufferingOldest(300))
-        let ingress = LocalCandidateIngress(store: store, ticket: ticket)
+        let ingress = LocalCandidateIngress(store: store, ticket: ticket, review: review)
         let resultTask = Task {
             var accumulator = SpeechResultAccumulator()
             var audioEnd = 0.0

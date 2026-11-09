@@ -27,11 +27,25 @@ struct LocalModelSettings: View {
                 }
             } else {
                 Text(LocalModelRecommendation.description).font(.callout).foregroundStyle(.secondary)
+                if items[.sherpa]?.installed == false {
+                    if items[.sherpa]?.downloading == true {
+                        Button("暂停下载") { Task { await model.localModels.library.pause(.sherpa) } }
+                    } else {
+                        Button("准备轻量模型（237 MB）") { Task { await model.localModels.library.download(.sherpa) } }
+                    }
+                }
+            }
+            if model.deviceOnly {
+                Toggle("允许 GPT-6 核对新录音的文字", isOn: Binding(get: { model.localTextAllowed }, set: { model.allowLocalText($0) }))
+                    .disabled(!model.localTextAllowed && model.localGPT.map(model.hasCredential) != true)
+                Text("使用自带 API 中的 GPT-6 密钥，只发送本段识别文字。").font(.caption).foregroundStyle(.secondary)
             }
             if let issue { Text(issue).font(.caption).foregroundStyle(.secondary) }
         }.task {
             repeat {
+                let previous = items[.sherpa]?.installed
                 for id in LocalASRID.allCases where id != .apple { items[id] = await model.localModels.library.status(id) }
+                if items[.sherpa]?.installed != previous { await model.refreshLocalRecommendation() }
                 do { try await Task.sleep(for: .seconds(1)) } catch { break }
             } while !Task.isCancelled
         }

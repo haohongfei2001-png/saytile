@@ -6,11 +6,13 @@ actor LocalCandidateIngress {
     private let store: SaytileStore
     private let ticket: RecognitionTicket
     private let model: LocalASRID
+    private let review: LocalTextReview?
+    private var last: RecognitionCandidate?
     private var run: ModelRunTicket?
     private var sequence: Int64 = 0
     private var complete = false
-    init(store: SaytileStore, ticket: RecognitionTicket, model: LocalASRID = .apple) {
-        self.store = store; self.ticket = ticket; self.model = model
+    init(store: SaytileStore, ticket: RecognitionTicket, model: LocalASRID = .apple, review: LocalTextReview? = nil) {
+        self.store = store; self.ticket = ticket; self.model = model; self.review = review
     }
     func receive(_ event: ProviderTranscriptEvent) async throws {
         if run == nil { run = try await store.beginLocalCandidateRun(ticket: ticket, model: model) }
@@ -23,12 +25,14 @@ actor LocalCandidateIngress {
         let proposal = PrecisionFusion.evaluate(candidates: [candidate], mode: .highestQuality,
             committedPrefix: prefix, requiredPurposes: [.multilingualASR], requiredConfigurationIDs: [run.configurationID])
         let publication = try await store.publishFusion(ticket: ticket, proposal: proposal)
+        last = candidate
         complete = event.isComplete && !publication.deferred
         NotificationCenter.default.post(name: .init("SaytileRecognitionUpdated"), object: ticket.recordingID)
     }
     func finish() async throws {
         guard let run, complete else { throw ProviderFailure.incomplete }
         try await store.finishModelRun(run, error: nil, retryable: true)
+        if let review, let last { await review.apply(last, store: store, ticket: ticket) }
         try await store.finishRecognition(ticket: ticket)
     }
 }

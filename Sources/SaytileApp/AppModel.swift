@@ -140,6 +140,9 @@ final class AppModel: ObservableObject {
     @Published private(set) var deviceOnly: Bool
     @Published private(set) var manualLocalModel: LocalASRID?
     @Published private(set) var archiveLocalModel: LocalASRID?
+    @Published private(set) var localTextAllowed: Bool
+    private var localReview: LocalTextReview?
+    private var automaticLocal: LocalASRID = .apple
     private var accountRoute: HostedRoute = .byok
     let audio: AudioController
     let input: NativeInputCoordinator
@@ -271,6 +274,7 @@ final class AppModel: ObservableObject {
     init(directory: URL, preferences: UserDefaults = .standard, connectionDependencies: AppConnectionDependencies = .live,
          captureDependencies: AppCaptureDependencies = .live, copyPasteboard: NSPasteboard? = nil) throws {
         localModels = LocalASRService(root: directory.appending(path: "LocalModels"))
+        localTextAllowed = preferences.bool(forKey: "localASR.textAllowed")
         deviceOnly = preferences.bool(forKey: "localASR.deviceOnly")
         manualLocalModel = preferences.string(forKey: "localASR.manual").flatMap(LocalASRID.init(rawValue:))
         archiveLocalModel = preferences.string(forKey: "localASR.archive").flatMap(LocalASRID.init(rawValue:))
@@ -308,6 +312,7 @@ final class AppModel: ObservableObject {
             objectWillChange.send()
         }
         applyLocalSelection()
+        Task { await refreshLocalRecommendation() }
         input.onBindingInvalidated = { [weak self] in
             self?.directMode = false
             self?.targetLabel = "目标已改变，请重新绑定草稿"
@@ -368,6 +373,7 @@ final class AppModel: ObservableObject {
         return item.isRecording ? "正在记录" : "正在核对文字"
     }
     func selectSource(_ source: String) {
+        if source != "local" && localTextAllowed { allowLocalText(false) }
         deviceOnly = source == "local"
         preferences.set(deviceOnly, forKey: "localASR.deviceOnly")
         hosted.select(source == "hosted")
@@ -385,9 +391,28 @@ final class AppModel: ObservableObject {
         }
         applyLocalSelection()
     }
+    var localGPT: ModelConfiguration? {
+        appliedRecognitionConfiguration.enabledModels.first { $0.purpose == .textFusion && $0.provider == .openAIResponses && $0.model == "gpt-6-astra" }
+    }
+    func allowLocalText(_ enabled: Bool) {
+        localReview?.revoke(); localReview = nil
+        localTextAllowed = enabled && deviceOnly && localGPT.map(hasCredential) == true
+        preferences.set(localTextAllowed, forKey: "localASR.textAllowed")
+        applyLocalSelection()
+    }
+    func refreshLocalRecommendation() async {
+        guard manualLocalModel == nil else { return }
+        let sherpa = await localModels.library.status(.sherpa)
+        let apple = await AppleSpeechService.availability()
+        let pick = LocalModelRecommendation.select(appleInstalled: apple.installed, sherpaInstalled: sherpa.installed)
+        guard manualLocalModel == nil, pick != automaticLocal else { return }
+        automaticLocal = pick
+        applyLocalSelection()
+    }
     func applyLocalSelection() {
-        let live = manualLocalModel ?? .apple
-        audio.selectLocalModels(live: live, archive: archiveLocalModel ?? live, service: localModels)
+        if deviceOnly, localTextAllowed, localReview == nil, let item = localGPT { localReview = LocalTextReview(model: item) }
+        let live = manualLocalModel ?? automaticLocal
+        audio.selectLocalModels(live: live, archive: archiveLocalModel ?? live, service: localModels, review: localReview)
     }
     var engineLabel: String { audio.speechStatus }
     func hasCredential(_ item: ModelConfiguration) -> Bool {
@@ -488,7 +513,7 @@ final class AppModel: ObservableObject {
             guard recognitionApplyID == generation, !Task.isCancelled else { return }
             appliedRecognitionConfiguration = candidate; applyingRecognitionSettings = false
             if showNotice {
-                recognitionSettingsNotice = candidate.cloudEnabled ? "设置已应用。采集与原音保存继续独立运行。" : "已停止云端识别，继续使用本机 Apple 识别。"
+                recognitionSettingsNotice = candidate.cloudEnabled ? "设置已应用。采集与原音保存继续独立运行。" : "已停止云端识别，继续使用本机模型。"
             }
         }
     }
@@ -496,6 +521,7 @@ final class AppModel: ObservableObject {
     private func invalidateConnectionVerification(nextUtteranceOnly: Bool = false) {
         changingRoute = nextUtteranceOnly
         connectionCheckID = nil; connectionCheckTask?.cancel()
+        if localTextAllowed { allowLocalText(false) }
         connectionReport = nil; checkingConnection = false; connectionCheckAuthorized = false
         preferences.removeObject(forKey: Self.connectionReceiptKey)
         // Also revoke a not-yet-published in-flight cloud apply.

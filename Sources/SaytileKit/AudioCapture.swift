@@ -170,7 +170,7 @@ actor CaptureWorker {
             let ticket = try await (config.cloudEnabled
                 ? store.beginFusionRecognition(recordingID: record.id, mode: config.inputMode)
                 : store.beginRecognition(recordingID: record.id))
-            speech = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot)
+            speech = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot, newCapture: true)
         } catch { speech = nil }
     }
     func append(_ data: Data) async throws {
@@ -285,6 +285,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     private var requestedRunning = false
     private var startGeneration: UInt64 = 0
     private var automaticAssetAttempted = false
+    private var selectedLocalID: LocalASRID = .apple
     private var lifecycleGate = AudioLifecycleGate()
     private var lockBridge: AudioLockEventBridge?
     private var lifecycleTask: Task<Void, Never>?
@@ -403,14 +404,14 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     /// Revoke future cloud sessions synchronously, before awaiting cancellation of old work.
     /// Isolated file ingress for paced native acceptance. Uses the same VAD,
     /// recorder, recognition factory and store as microphone callbacks.
-    public func replayLocalFixture(_ file: URL) async throws -> Double {
+    public func replayLocalFixture(_ file: URL, recordOnly: Bool = false) async throws -> Double {
         guard !recognitionFactory.usesCloud, state == .paused else { throw AudioFailure.message("需要空闲的本机识别环境") }
         let source = try AVAudioFile(forReading: file, commonFormat: .pcmFormatInt16, interleaved: false)
         guard source.processingFormat.channelCount == 1, source.processingFormat.sampleRate == 16_000,
               source.length <= 16_000 * 1_850 else { throw AudioFailure.message("需要 16 kHz 单声道测试语料") }
         let ring = try AudioRing(capacity: 64_000)
         let worker = try CaptureWorker(store: store, ring: ring, sampleRate: 16_000,
-            recognitionFactory: recognitionFactory, update: { _, _ in }, failed: { _ in })
+            recognitionEnabled: !recordOnly, recognitionFactory: recognitionFactory, update: { _, _ in }, failed: { _ in })
         let clock = ContinuousClock(), began = clock.now
         let buffer = AVAudioPCMBuffer(pcmFormat: source.processingFormat, frameCapacity: 320)!
         while source.framePosition < source.length {
@@ -428,9 +429,14 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         }
         return eos
     }
-    public func selectLocalModels(live: LocalASRID, archive: LocalASRID, service: LocalASRService) {
+    public func selectLocalModels(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil) {
         guard live.capability != .batch else { return }
-        recognitionFactory.selectLocal(live: live, archive: archive, service: service)
+        if live != selectedLocalID {
+            selectedLocalID = live
+            if live != .apple { automaticAssetTask?.cancel() }
+            Task { await service.releaseIdle() }
+        }
+        recognitionFactory.selectLocal(live: live, archive: archive, service: service, review: review)
         refreshLocalModelStatus()
     }
     public func refreshLocalModelStatus() {
@@ -568,7 +574,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             }
             self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
             await worker.start()
-            if !automaticAssetAttempted && !recognitionFactory.usesCloud {
+            if selectedLocalID == .apple && !automaticAssetAttempted && !recognitionFactory.usesCloud {
                 automaticAssetAttempted = true
                 automaticAssetTask = Task {
                     let availability = await AppleSpeechService.availability()

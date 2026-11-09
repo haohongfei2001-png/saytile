@@ -68,6 +68,7 @@ final class RecognitionSessionCompletion: @unchecked Sendable {
 final class RecognitionSessionFactory: @unchecked Sendable {
     struct Snapshot: Sendable {
         fileprivate let local: LocalFailoverDependencies
+        fileprivate let liveLocal: LocalFailoverDependencies
         fileprivate let archive: LocalFailoverDependencies
         let route: HostedRoute
         var isHosted: Bool { route != .byok }
@@ -79,7 +80,7 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         var localOnly: Self {
             var restricted = configuration
             restricted.cloudEnabled = false
-            return Self(local: local, archive: archive, route: route, configuration: restricted, appliedConfiguration: appliedConfiguration, epoch: epoch, generation: generation)
+            return Self(local: local, liveLocal: local, archive: archive, route: route, configuration: restricted, appliedConfiguration: appliedConfiguration, epoch: epoch, generation: generation)
         }
     }
     private let lock = NSLock()
@@ -89,24 +90,25 @@ final class RecognitionSessionFactory: @unchecked Sendable {
     private var generation: UInt64 = 0
     private var active = 0
     private let dependencies: RecognitionPipelineDependencies
+    private var liveLocal: LocalFailoverDependencies
     private var archive: LocalFailoverDependencies
     private var local: LocalFailoverDependencies
     private var epoch: RecognitionFailoverEpoch
     init(configuration: RecognitionConfiguration = RecognitionConfiguration(), dependencies: RecognitionPipelineDependencies = .live, local: LocalFailoverDependencies = .live) {
         checkedStreamingID = configuration.cloudEnabled ? (configuration.checkedASRConfigurationID ?? configuration.selectedASRModel?.id) : nil
-        value = configuration; self.dependencies = dependencies; self.local = local; self.archive = local
+        value = configuration; self.dependencies = dependencies; self.local = local; self.archive = local; self.liveLocal = local
         epoch = RecognitionFailoverEpoch(now: local.now)
     }
     private func recordingSnapshot() -> Snapshot {
         if route != .byok {
             var config = HostedTransport.configuration
             if case .connected(let access) = route, access.expiry > Date() {} else { config.cloudEnabled = false }
-            return Snapshot(local: local, archive: archive, route:route,configuration:config,appliedConfiguration:value,epoch:epoch,generation:generation)
+            return Snapshot(local: local, liveLocal: liveLocal, archive: archive, route:route,configuration:config,appliedConfiguration:value,epoch:epoch,generation:generation)
         }
         var frozen = value
         frozen.languagePreference = value.resolvedLanguage
         if checkedStreamingID == nil || frozen.selectedASRModel?.id != checkedStreamingID { frozen.cloudEnabled = false }
-        return Snapshot(local: local, archive: archive, route:route,configuration: frozen, appliedConfiguration: value, epoch: epoch, generation: generation)
+        return Snapshot(local: local, liveLocal: liveLocal, archive: archive, route:route,configuration: frozen, appliedConfiguration: value, epoch: epoch, generation: generation)
     }
     var snapshot: Snapshot { lock.withLock { recordingSnapshot() } }
     var configuration: RecognitionConfiguration { lock.withLock { value } }
@@ -123,10 +125,11 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         }
     }
     func localAvailability() async -> SpeechAvailability { await snapshot.local.availability() }
-    func selectLocal(live: LocalASRID, archive: LocalASRID, service: LocalASRService) {
+    func selectLocal(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil) {
         lock.withLock {
             self.local = .device(live, service: service)
             self.archive = .device(archive, service: service)
+            self.liveLocal = .device(live, service: service, review: review)
         }
     }
     private final class Retired {
@@ -151,7 +154,7 @@ final class RecognitionSessionFactory: @unchecked Sendable {
             epoch = RecognitionFailoverEpoch(now: local.now)
         }
     }
-    func make(store: SaytileStore, ticket: RecognitionTicket, snapshot requested: Snapshot? = nil, archived: Bool = false) -> any RecognitionSession {
+    func make(store: SaytileStore, ticket: RecognitionTicket, snapshot requested: Snapshot? = nil, archived: Bool = false, newCapture: Bool = false) -> any RecognitionSession {
         // Ticket creation awaits Store. A settings/revocation change in that gap
         // must not mix generations or revive a cancelled cloud configuration.
         lock.withLock {
@@ -161,7 +164,7 @@ final class RecognitionSessionFactory: @unchecked Sendable {
                     message: "识别设置已更新，本段原音继续保存，等待使用新设置恢复。")
             }
             let config = accepted.configuration
-            guard config.cloudEnabled else { return (archived ? accepted.archive : accepted.local).make(store, ticket) }
+            guard config.cloudEnabled else { return (newCapture ? accepted.liveLocal : archived ? accepted.archive : accepted.local).make(store, ticket) }
             guard active < 8 else { return DeferredRecognitionSession(store: store, ticket: ticket) }
             active += 1
             let (cloud, probe) = accepted.epoch.admitCloud()

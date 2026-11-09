@@ -13,3 +13,21 @@
 - WebRTC VAD：代码位于 `Sources/CAudio/webrtc/`，来自 wiseman/py-webrtcvad 的 vendored WebRTC；完整 BSD 许可及 wrapper MIT 许可见 `Sources/CAudio/WEBRTC-LICENSE.txt`，同时随 App Resources 分发。
 - 引入来源包：`https://codeload.github.com/wiseman/py-webrtcvad/tar.gz/refs/heads/master`（2026-11-06 获取）；SHA-256 `4d585f73cdfac59e3df049745432079d09b896cef7878f4055f96ec43d01d211`。工程直接固定提交全部所需源码，构建不再拉取可变 master。
 - `AudioRing.c`、桥接 VAD 包装器与 Swift 原生模块为 Saytile 本轮实现。
+
+## Local ASR development candidate
+
+The installer contains recognition runtimes and a compiled Metal shader library. Model weights are installed separately from the revision and SHA-256 manifest in the app.
+
+| Component | Source | Version / terms |
+|---|---|---|
+| Apple SpeechAnalyzer | Apple Speech framework, system AssetInventory | macOS system component and Apple-managed Mandarin transcription assets |
+| sherpa-onnx | https://github.com/k2-fsa/sherpa-onnx | v2.0.1 Apache-2.0; ONNX Runtime 1.28.2 MIT and its third-party notices |
+| Streaming Paraformer bilingual INT8 | https://huggingface.co/csukuangfj/sherpa-onnx-streaming-paraformer-bilingual-zh-en | FunASR / k2 export, model card Apache-2.0 |
+| MLX and speech-swift | https://github.com/soniqo/speech-swift | a57702e6, Apache-2.0; mlx-swift 0.31.4 MIT; compiled shader from v0.0.29 |
+| Nemotron 3.5 ASR Streaming 0.6B | https://huggingface.co/aufklarer/Nemotron-3.5-ASR-Streaming-0.6B-MLX-8bit | NVIDIA, converted by aufklarer; OpenMDW-1.1 |
+| Qwen3-ASR 0.6B and 1.7B | https://huggingface.co/aufklarer/Qwen3-ASR-0.6B-MLX-4bit and https://huggingface.co/aufklarer/Qwen3-ASR-1.7B-MLX-4bit | Alibaba Qwen, converted by aufklarer; both Apache-2.0 |
+| FluidAudio | https://github.com/FluidInference/FluidAudio | 653386fa, Apache-2.0 |
+| FluidAudio Paraformer Large INT8 | https://huggingface.co/FluidInference/paraformer-large-zh-coreml | Alibaba FunASR; FluidInference Core ML conversion. The card defers to upstream Paraformer-large terms |
+| FluidAudio SenseVoice Small INT8 | https://huggingface.co/FluidInference/sensevoice-small-coreml | FunAudioLLM / Alibaba, FluidInference conversion; upstream FunASR Model License v1.1, included in LocalASRLicenses. Evaluation candidate; commercial distribution requires review of the upstream terms |
+
+The Mandarin diagnostic audio is from Google FLEURS (CC BY 4.0). The app does not ship the benchmark recordings. The paired manifest preserves the row, reference, attribution, revision and hash.

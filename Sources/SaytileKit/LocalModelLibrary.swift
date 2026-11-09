@@ -71,6 +71,7 @@ public actor LocalModelLibrary {
     private let http: URLSession
     private var jobs: [LocalASRID: Task<Void, Never>] = [:]
     private var errors: [LocalASRID: String] = [:]
+    private var deleting: Set<LocalASRID> = []
     private var verified: [LocalASRID: [Date]] = [:]
     private let fm = FileManager.default
     public init(root: URL, session: URLSession = .shared) { self.root = root; self.http = session }
@@ -100,6 +101,7 @@ public actor LocalModelLibrary {
         let dir = directory(m), current = try stamps(m, dir)
         if verified[m.id] != current {
             for file in m.files where try Self.digest(dir.appending(path: file.path)) != file.sha256 {
+                errors[m.id] = "模型校验失败，请重新下载"
                 throw AudioFailure.message("模型校验失败，请重新下载")
             }
             verified[m.id] = current
@@ -119,7 +121,7 @@ public actor LocalModelLibrary {
                      downloading: jobs[id] != nil, error: errors[id])
     }
     public func download(_ id: LocalASRID) {
-        guard id != .apple, jobs[id] == nil else { return }
+        guard id != .apple, !deleting.contains(id), jobs[id] == nil else { return }
         errors[id] = nil
         jobs[id] = Task {
             do { try await install(try LocalModelManifest.load(id)) }
@@ -133,6 +135,8 @@ public actor LocalModelLibrary {
         await task.value
     }
     public func delete(_ id: LocalASRID) async throws {
+        guard deleting.insert(id).inserted else { return }
+        defer { deleting.remove(id) }
         await pause(id)
         let model = try LocalModelManifest.load(id)
         for path in [directory(model), staging(model)] where fm.fileExists(atPath: path.path) {
@@ -163,6 +167,7 @@ public actor LocalModelLibrary {
         if fm.fileExists(atPath: dir.path) { _ = try fm.replaceItemAt(dir, withItemAt: stage) }
         else { try fm.moveItem(at: stage, to: dir) }
         verified[m.id] = try stamps(m, dir)
+        errors[m.id] = nil
     }
     private func fetch(_ url: URL, to target: URL, bytes: Int64) async throws {
         let out = try FileHandle(forWritingTo: target)

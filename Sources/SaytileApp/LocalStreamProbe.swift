@@ -14,6 +14,7 @@ import SaytileKit
         let endOfFile: Double
         let total: Double
         let archive: [String]
+        let providers: [String]
     }
     static func textView(_ parent: NSView) -> CompactTranscriptScrollView? {
         if let result = parent as? CompactTranscriptScrollView { return result }
@@ -21,14 +22,14 @@ import SaytileKit
         return nil
     }
     static func run(model: AppModel, panel: NSWindow?, id: LocalASRID) async throws {
-        guard let panel, let content = panel.contentView, id.capability != .batch,
+        guard let panel, let content = panel.contentView,
               try await model.store.listRecordings(limit: 1).isEmpty else { throw CocoaError(.fileReadCorruptFile) }
         let source = model.directory.appending(path: "fixture.wav")
         let values = try source.resourceValues(forKeys: [.isSymbolicLinkKey,.isRegularFileKey,.fileSizeKey])
         guard values.isRegularFile == true, values.isSymbolicLink == false, (values.fileSize ?? 0) < 60_000_000 else { throw CocoaError(.fileReadCorruptFile) }
         await model.initialLoad()
         model.selectSource("local")
-        model.selectLocal(id)
+        model.selectLocal(id, archiveOnly: id.capability == .batch)
         let start = ProcessInfo.processInfo.systemUptime
         let observe = Task { @MainActor () -> ([Frame], Int) in
             var frames: [Frame] = [], last = "", changes = 0
@@ -50,17 +51,35 @@ import SaytileKit
             return (frames, changes)
         }
         defer { observe.cancel() }
-        let eos = try await model.audio.replayLocalFixture(source)
+        let batch = id.capability == .batch
+        let eos = try await model.audio.replayLocalFixture(source, recordOnly: batch)
+        if batch {
+            for record in try await model.store.listRecordings(limit: 20) {
+                await model.audio.retry(recordingID: record.id)
+                let limit = ContinuousClock.now + .seconds(190)
+                while try await model.store.recording(id: record.id)?.recognitionState != .completed {
+                    if ContinuousClock.now > limit { throw AudioFailure.message("档案重识别未完成") }
+                    try await Task.sleep(for: .milliseconds(100))
+                }
+            }
+        }
         try await Task.sleep(for: .milliseconds(500))
         observe.cancel()
         let (frames, changes) = await observe.value
         let records = try await model.store.listRecordings(limit: 20)
+        var providers = Set<String>()
+        for r in records {
+            let runs = try await model.store.modelRuns(recordingID: r.id)
+            providers.formUnion(runs.map { $0.ticket.provider })
+        }
         let receipt = Result(model: id.rawValue, sha: Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String,
             sample: source.lastPathComponent, frames: frames, displayedChanges: changes, endOfFile: eos - start,
-            total: ProcessInfo.processInfo.systemUptime - start, archive: records.map(\.text))
+            total: ProcessInfo.processInfo.systemUptime - start, archive: records.map(\.text), providers: providers.sorted())
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]
         try encoder.encode(receipt).write(to: model.directory.appending(path: "visible.json"), options: .atomic)
-        guard frames.filter({ $0.t < receipt.endOfFile }).count >= 2, records.contains(where: { !$0.text.isEmpty }) else {
+        let early = frames.filter { $0.t < receipt.endOfFile }
+        let expected = id == .apple ? "apple-speech-analyzer" : id.rawValue
+        guard (batch ? early.isEmpty : early.count >= 2), providers == [expected], records.contains(where: { !$0.text.isEmpty }) else {
             throw AudioFailure.message("未观察到多次结束前的原生文字更新")
         }
     }
