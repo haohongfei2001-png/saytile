@@ -1,1 +1,50 @@
-{"framework":null,"functions":{"api/gateway.mjs":{"maxDuration":180}},"rewrites":[{"source":"/v1/:path*","destination":"/api/gateway"}]}
+{
+  "framework": null,
+  "functions": {
+    "api/gateway.mjs": {
+      "maxDuration": 180
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/v1/health",
+      "destination": "/api/gateway"
+    },
+    {
+      "source": "/v1/config",
+      "destination": "/api/gateway"
+    },
+    {
+      "source": "/v1/account",
+      "destination": "/api/gateway"
+    },
+    {
+      "source": "/v1/billing-return",
+      "destination": "/api/gateway"
+    },
+    {
+      "source": "/v1/checkout",
+      "destination": "/api/gateway"
+    },
+    {
+      "source": "/v1/portal",
+      "destination": "/api/gateway"
+    },
+    {
+      "source": "/v1/stripe",
+      "destination": "/api/gateway"
+    },
+    {
+      "source": "/v1/review",
+      "destination": "/api/gateway"
+    },
+    {
+      "source": "/v1/stream",
+      "destination": "/api/gateway"
+    },
+    {
+      "source": "/v1/probe",
+      "destination": "/api/gateway"
+    }
+  ]
+}

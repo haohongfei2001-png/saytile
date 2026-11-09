@@ -24,3 +24,5 @@
 2026-11-10 · No customer action for the ongoing isolated authentication, packaging and upgrade rehearsals.
 
 2026-11-10 · No customer testing or real audio needed for these fixes; the free hosted database allocation remains the external prerequisite.
+
+2026-11-10 · Vercel ingress and native consent retests are handled by engineering. No approval needed.
