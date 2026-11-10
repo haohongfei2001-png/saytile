@@ -12,6 +12,7 @@ import SaytileKit
         let frames: [Frame]
         let displayedChanges: Int
         let endOfFile: Double
+        let pipelineSettledAt: Double
         let total: Double
         let archive: [String]
         let providers: [String]
@@ -54,6 +55,7 @@ import SaytileKit
         defer { observe.cancel() }
         let batch = id.capability == .batch
         let eos = try await model.audio.replayLocalFixture(source, recordOnly: batch)
+        let settled = ProcessInfo.processInfo.systemUptime - start
         if batch {
             for record in try await model.store.listRecordings(limit: 20) {
                 await model.audio.retry(recordingID: record.id)
@@ -74,7 +76,7 @@ import SaytileKit
             providers.formUnion(runs.map { $0.ticket.provider })
         }
         let receipt = Result(model: id.rawValue, sha: Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String,
-            sample: source.lastPathComponent, frames: frames, displayedChanges: changes, endOfFile: eos - start,
+            sample: source.lastPathComponent, frames: frames, displayedChanges: changes, endOfFile: eos - start, pipelineSettledAt: settled,
             total: ProcessInfo.processInfo.systemUptime - start, archive: records.map(\.text), providers: providers.sorted())
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]
         try encoder.encode(receipt).write(to: model.directory.appending(path: "visible.json"), options: .atomic)

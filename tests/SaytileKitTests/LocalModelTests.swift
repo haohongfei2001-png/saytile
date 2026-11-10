@@ -5,9 +5,11 @@ import Testing
 @Suite("On-device streaming and model integrity")
 struct LocalModelTests {
     @Test func pinnedCatalogSeparatesBatchFromStreaming() throws {
-        #expect(LocalASRID.allCases.filter { $0.capability == .streaming } == [.apple,.sherpa,.nemotron])
+        #expect(LocalASRID.allCases.filter { $0.capability == .streaming } == [.apple,.sherpa,.nemotron,.zipformer])
+        #expect(LocalASRID.consumer == [.apple,.sherpa,.qwen])
+        #expect(!LocalASRID.consumer.contains(.zipformer))
         #expect(LocalASRID.qwen.capability == .chunked)
-        #expect(Set(LocalASRID.allCases.map(\.evidenceID)).count == 7)
+        #expect(Set(LocalASRID.allCases.map(\.evidenceID)).count == 8)
         for id in LocalASRID.allCases where id != .apple {
             let manifest = try LocalModelManifest.load(id)
             #expect(manifest.size > 0)

@@ -55,7 +55,11 @@ func publish(_ text: String, kind: String, frames: Int) throws {
         }
         try publish("", kind: "ready", frames: 0)
         var stream = try nemo?.createSession(language: "zh")
-        var samples: [Float] = [], prefix = "", last = "", frames = 0, next = stride
+        // Decode a short first window on the same warmed model. After a
+        // revision, request one earlier confirmation; the normal growth cadence
+        // and full final decode stay unchanged.
+        let firstStride = id == "qwen-small" ? min(stride, 12_800) : stride
+        var samples: [Float] = [], prefix = "", last = "", frames = 0, next = firstStride
         while let header = try bytes(4, allowEOF: true) {
             let size = Int(header.withUnsafeBytes { $0.loadUnaligned(as: UInt32.self).littleEndian })
             guard size <= 65_536 && size.isMultiple(of: 2) else { throw WorkerError.invalidFrame }
@@ -79,14 +83,17 @@ func publish(_ text: String, kind: String, frames: Int) throws {
                         prefix += tail
                         samples.removeAll(keepingCapacity: true)
                         next = stride
-                    } else { next = samples.count + stride }
+                    } else {
+                        let rollback = !last.isEmpty && !(update ?? "").hasPrefix(String(last.dropLast(2)))
+                        next = samples.count + (rollback ? firstStride : stride)
+                    }
                 }
             }
             if end {
                 try publish(update ?? last, kind: "final", frames: frames)
                 stream = try nemo?.createSession(language: "zh")
                 samples.removeAll(keepingCapacity: true)
-                prefix = ""; last = ""; next = stride; frames = 0
+                prefix = ""; last = ""; next = firstStride; frames = 0
             } else if let update, !update.isEmpty, update != last, id == "nemotron-metal" || id == "qwen-small" {
                 last = update
                 try publish(update, kind: "partial", frames: frames)

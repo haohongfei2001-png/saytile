@@ -36,7 +36,7 @@ final class ModelWorker: @unchecked Sendable {
         let stdin = Pipe(), stdout = Pipe()
         input = stdin.fileHandleForWriting
         _ = fcntl(input.fileDescriptor, F_SETNOSIGPIPE, 1)
-        process.executableURL = helpers.appending(path: id == .sherpa ? "SaytileSherpa" : "SaytileModelWorker")
+        process.executableURL = helpers.appending(path: id.sherpaRuntime ? "SaytileSherpa" : "SaytileModelWorker")
         if let resources = Bundle.main.resourceURL,
            FileManager.default.fileExists(atPath: resources.appending(path: "default.metallib").path) {
             process.currentDirectoryURL = resources
@@ -121,7 +121,7 @@ public actor LocalASRService {
         if id == .apple { return await AppleSpeechService.availability() }
         let status = await library.status(id)
         let ready = status.installed && FileManager.default.isExecutableFile(atPath:
-            helpers.appending(path: id == .sherpa ? "SaytileSherpa" : "SaytileModelWorker").path)
+            helpers.appending(path: id.sherpaRuntime ? "SaytileSherpa" : "SaytileModelWorker").path)
         return .init(supported: true, installed: ready, message: ready ? id.title : "\(id.title) · 需要准备模型")
     }
     fileprivate func recognize(_ id: LocalASRID, audio: AsyncStream<Data>, ingress: LocalCandidateIngress) async throws {

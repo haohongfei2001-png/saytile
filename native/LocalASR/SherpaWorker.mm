@@ -17,8 +17,13 @@ int main(int argc, char **argv) {
     SherpaOnnxOnlineRecognizerConfig config{};
     config.feat_config.sample_rate = 16000;
     config.feat_config.feature_dim = 80;
-    config.model_config.paraformer.encoder = enc.c_str();
-    config.model_config.paraformer.decoder = dec.c_str();
+    std::string ctc = root + "model.int8.onnx";
+    if (std::string(argv[1]) == "zipformer") {
+        config.model_config.zipformer2_ctc.model = ctc.c_str();
+    } else if (std::string(argv[1]) == "sherpa") {
+        config.model_config.paraformer.encoder = enc.c_str();
+        config.model_config.paraformer.decoder = dec.c_str();
+    } else { return 64; }
     config.model_config.tokens = tok.c_str();
     config.model_config.num_threads = 2;
     config.model_config.provider = "cpu";

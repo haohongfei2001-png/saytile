@@ -14,7 +14,7 @@ struct LocalModelSettings: View {
                 Text("手动选择").tag(true)
             }.pickerStyle(.segmented)
             if manual || model.manualLocalModel != nil || model.archiveLocalModel != nil {
-                ForEach(LocalASRID.allCases, id: \.rawValue) { id in
+                ForEach(LocalASRID.consumer, id: \.rawValue) { id in
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
                             Text(id.title)
@@ -24,6 +24,9 @@ struct LocalModelSettings: View {
                         Text(detail(id)).font(.caption).foregroundStyle(.secondary)
                         if let error = items[id]?.error { Text(error).font(.caption).foregroundStyle(.secondary) }
                     }
+                }
+                ForEach(LocalASRID.allCases.filter { !LocalASRID.consumer.contains($0) && (items[$0]?.bytes ?? 0) > 0 }, id: \.rawValue) { id in
+                    Button("删除已有实验模型 · " + id.title) { Task { do { try await model.localModels.delete(id) } catch { issue = error.localizedDescription } } }
                 }
             } else {
                 Text(LocalModelRecommendation.description).font(.callout).foregroundStyle(.secondary)

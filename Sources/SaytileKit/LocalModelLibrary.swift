@@ -4,9 +4,13 @@ import CryptoKit
 public enum LocalASRCapability: String, Sendable { case streaming, chunked, batch }
 
 public enum LocalASRID: String, CaseIterable, Codable, Sendable {
-    case apple, sherpa, nemotron = "nemotron-metal", qwen = "qwen-small", paraformer, sensevoice, qwenLarge = "qwen-large"
+    case apple, sherpa, nemotron = "nemotron-metal", qwen = "qwen-small", paraformer, sensevoice, qwenLarge = "qwen-large", zipformer
+    /// Append new IDs to preserve persisted evidence UUIDs. Weights without an explicit commercial grant remain research-only.
+    public static let consumer: [Self] = [.apple, .sherpa, .qwen]
+    public var sherpaRuntime: Bool { self == .sherpa || self == .zipformer }
     public var title: String {
         switch self {
+        case .zipformer: "Streaming Zipformer CTC INT8"
         case .apple: "Apple SpeechAnalyzer"
         case .sherpa: "Streaming Paraformer INT8"
         case .nemotron: "Nemotron 3.5 Streaming · Metal"
@@ -18,7 +22,7 @@ public enum LocalASRID: String, CaseIterable, Codable, Sendable {
     }
     public var capability: LocalASRCapability {
         switch self {
-        case .apple, .sherpa, .nemotron: .streaming
+        case .apple, .sherpa, .nemotron, .zipformer: .streaming
         case .qwen: .chunked
         case .paraformer, .sensevoice, .qwenLarge: .batch
         }
