@@ -1,3 +1,7 @@
+## M5 本地中文实时识别候选 .6
+
+工程候选为 `1.0.0-rc.2-local-asr.6`，产品源码 `a55d51a1ff4711340bc63ea5c8ecd927dd2327d3`。安装包 61,646,743 字节。M5 原生实测支持 Apple 默认、Paraformer 轻量备选及 Qwen 手动选择。Zipformer 仅进入研究。发布等待 Apple 公证，研究权重的商用许可尚未确认。 [评测与交付报告](V1-MANDARIN-LOCAL-ASR.md)
+
 ## RC2 连续时间轴整合候选
 
 独立分支继承 PR #12，恢复正式应用、偏好、档案与 Keychain 身份。已修复编辑期间空白面板复制旧组、午夜归日取整两项实测缺陷。发布继续等待真实云端和公证。[独立终审](V1-RC2-TIMELINE-INTEGRATION.md)
@@ -46,3 +50,13 @@
 本机识别候选 local-asr.3 的签名安装包、安装/回退凭据、原生面板及窗口录像已归档到 deliverables/local-asr 与 evidence/local-asr。保留所有冻结版本，待完整成对测量与功耗收据。
 
 本机识别 local-asr.3 工程收口。独立 PR #15 的源码 e7c4ac8 已打包，后续提交仅补证据和测试工具。推荐 Apple 中文实时、sherpa 轻量及 Qwen 0.6B 手动分块。详见 docs/V1-LOCAL-ASR-ACCEPTANCE.md；不改 main、RC1、no-api.10 或上一整合候选。
+
+普通话收口：继承 PR #15，Zipformer 仅开放工程评测，模型权重商用许可未获证实。独立工件与 300+ 语料测量进行中，无需用户授权、录音或付费服务。
+
+PR #16 anchors the Mandarin comparison to application source 178dbbc073613ac3c0ea632e25b74c29ab4ef702. The independent quality fixture feeds identical pinned PCM through either a single full-wave recognition ticket or the real capture worker, VAD, journal and SQLite. Paced window observations use the installed app. The timing and accelerated paths have separate receipts.
+
+On M5 the 0.6B cold path retained Foundation hash buffers and reached 2.35 GiB combined physical footprint. The next candidate bounds their per-read lifetime and the existing MLX allocator cache. Verification and digest rules are unchanged. The timeline acceptance now selects a visible historical line, eliminating an overlapping second programmatic scroll before testing new-utterance selection protection.
+
+PR #16 signed local-asr.5 is bound to aa68eb5. Four 15-clip clean paced native windows, the nine-second isolated Zipformer movie, hash-verified resume, v5/v6 installation, and the 12,000-row selection regression have receipts. Final-sha 440-trial quality replay and half-hour soaks have their own directories.
+
+A real cold download through the configured Mac proxy timed out on the previous 16 MiB request. Local-ASR .6 requests bounded two-MiB immutable ranges, isolates CDN range redirect cache keys, checkpoints a contiguous prefix and validates byte ranges and full SHA before promotion. The independent macOS transfer CI uses the public pinned files and no API credentials. ASR workers, capture, TextKit and the model assets are inherited from aa68eb5.

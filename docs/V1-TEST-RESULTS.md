@@ -1,3 +1,7 @@
+## M5 本地中文实时识别候选 .6
+
+411 个 Swift 测试及 104 项 AppModel 检查通过。四路各完成 440 次模型直通、440 次产品回放及 15 次原速窗口测试。独立 macOS CI 通过三款模型公开冷下载。本机代理下两个整包下载超时。Qwen 在共用机器的半小时测试中取消一段，独占复测 102/102 完成。真实 8 GB 硬件与电池续航待测。 [评测与交付报告](V1-MANDARIN-LOCAL-ASR.md)
+
 ## RC2 连续时间轴整合候选
 
 定向 Swift Testing 3 项通过，含 12,001 条既有分页回归。真实隔离窗口的空闲复制与编辑期间取组红绿复现已完成。最终签名安装演练分别记录媒体、草稿、授权及两项随机 Keychain 测试账户。[机器证据](../evidence/rc2-timeline-integration/)
@@ -42,3 +46,13 @@
 e7c4ac8 · 411/411 Swift Testing，104 项 AppModel，52 个本地协议场景零违反。签名面板四种引擎各 10 段、归档三种各一段；14.94 秒窗口级录像无音轨。坏权重时保留可读 WAV；静音后释放进程；录音中更换模型只影响下一段。
 
 e7c4ac8 实际 70 次授权真人文件推理；40 次本机 AppKit 发言中试验，3 次独立冷档案、三种正式归档路径逐行处理同一组 VAD 片段。30 分钟 102/102 记录、204 WAV、2685 次窗口更新。七路功耗有同机空闲对照。Qwen 0.6B 首字 P95 3.54 秒未达 2 秒目标；极低电平档案可为空或出现额外文字。公开分发、GPU/ANE 独立归因及付费云端状态见 evidence/local-asr/acceptance.json。
+
+普通话收口：继承 PR #15，Zipformer 仅开放工程评测，模型权重商用许可未获证实。独立工件与 300+ 语料测量进行中，无需用户授权、录音或付费服务。
+
+The new reference-blind manifest contains 320 unique public human clips and 20 paired acoustic perturbations. The Apple standalone test client requires its own Speech asset reservation. The independent test executable also requires its SwiftPM model resource bundle. Both fixture prerequisites were reproduced with one pinned WAV before the authoritative runs. Missing resources in exploratory runs are fixture errors.
+
+Candidate .4 passed the local 12,000-row window run and the signed v5/v6 continuity drill. A separate CI run on the fixture-only commit failed the viewport/selection assertion after a second scripted scroll. Both prior outcomes are retained. Published .4 memory values are from simultaneous libproc physical footprints, with idle and active system telemetry separated.
+
+Final-source Xcode CI 42833800155 passed 411 Swift tests. On the same cold waveform Qwen combined process footprint fell from 2,403 MiB to 1,442 MiB. In the signed .5 window Qwen first lexical text was 0.877/0.968 s P50/P95, with multiple reference-bearing updates in all 15 samples. The longest meaningful gap was 5.328 s. The image and the silence-only movie contain only licensed fixture transcription.
+
+The .5 cold-start transfer through the host proxy failed on Zipformer and Qwen despite the earlier successful remote suffix repair. Native per-clip and 440-trial inference results remain valid for installed weights. The separate Qwen sole-inference soak completed all 102 recordings in 1,803 seconds. The earlier concurrent-load cancellation remains recorded.

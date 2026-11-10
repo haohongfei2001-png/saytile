@@ -1,0 +1,42 @@
+{
+  "checkpoint": {
+    "id": "yuekai/icefall-asr-multi-zh-hans-zipformer-large",
+    "revision": "87163dfd71478fe2397af74b841d7b666c90c665",
+    "declared_license": null,
+    "file_count": 959,
+    "license_files": [],
+    "weights": []
+  },
+  "fp32": {
+    "id": "csukuangfj/sherpa-onnx-streaming-zipformer-ctc-zh-2025-06-30",
+    "revision": "2cfe11662e9dc58424f81fd09a1b6796923a8163",
+    "declared_license": null,
+    "file_count": 7,
+    "license_files": [],
+    "weights": [
+      {
+        "path": "model.onnx",
+        "bytes": 621382672,
+        "sha256": "44ca070d4caf18f9d831adfc57ca7cdd44c4060ff0b822fa1926b713cc570d70"
+      }
+    ]
+  },
+  "int8": {
+    "id": "csukuangfj/sherpa-onnx-streaming-zipformer-ctc-zh-int8-2025-06-30",
+    "revision": "f29132af655b91f258800df19c5b5d9b9281a5cd",
+    "declared_license": null,
+    "file_count": 7,
+    "license_files": [],
+    "weights": [
+      {
+        "path": "model.int8.onnx",
+        "bytes": 162290887,
+        "sha256": "24ffdc19ba9aaed5a6a9beaede1e087745217d82425cf4041bca0c696661801e"
+      }
+    ]
+  },
+  "runtime": "sherpa-onnx v2.0.1 Apache-2.0, ONNX Runtime CPUExecutionProvider, arm64, 2 threads, greedy CTC, official online C API",
+  "commercial_distribution": "BLOCKED",
+  "maintainer": "https://github.com/k2-fsa/sherpa-onnx/issues/3918#issuecomment-5754861224",
+  "reason": "Maintainer refers to original checkpoint licensing and links an XL model. The selected Large checkpoint and both exports contain no identified weight license. No weights in DMG."
+}

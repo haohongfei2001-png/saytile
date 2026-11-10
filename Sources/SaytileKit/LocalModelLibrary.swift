@@ -4,9 +4,13 @@ import CryptoKit
 public enum LocalASRCapability: String, Sendable { case streaming, chunked, batch }
 
 public enum LocalASRID: String, CaseIterable, Codable, Sendable {
-    case apple, sherpa, nemotron = "nemotron-metal", qwen = "qwen-small", paraformer, sensevoice, qwenLarge = "qwen-large"
+    case apple, sherpa, nemotron = "nemotron-metal", qwen = "qwen-small", paraformer, sensevoice, qwenLarge = "qwen-large", zipformer
+    /// Append new IDs to preserve persisted evidence UUIDs. Weights without an explicit commercial grant remain research-only.
+    public static let consumer: [Self] = [.apple, .sherpa, .qwen]
+    public var sherpaRuntime: Bool { self == .sherpa || self == .zipformer }
     public var title: String {
         switch self {
+        case .zipformer: "Streaming Zipformer CTC INT8"
         case .apple: "Apple SpeechAnalyzer"
         case .sherpa: "Streaming Paraformer INT8"
         case .nemotron: "Nemotron 3.5 Streaming · Metal"
@@ -18,7 +22,7 @@ public enum LocalASRID: String, CaseIterable, Codable, Sendable {
     }
     public var capability: LocalASRCapability {
         switch self {
-        case .apple, .sherpa, .nemotron: .streaming
+        case .apple, .sherpa, .nemotron, .zipformer: .streaming
         case .qwen: .chunked
         case .paraformer, .sensevoice, .qwenLarge: .batch
         }
@@ -104,9 +108,16 @@ public actor LocalModelLibrary {
         let file = try FileHandle(forReadingFrom: url)
         defer { try? file.close() }
         var sha = SHA256()
-        while let part = try file.read(upToCount: 1024 * 1024), !part.isEmpty {
+        // Foundation's file reads can retain autoreleased NSData until the actor
+        // returns. Bound the read lifetime even when verifying a large model.
+        var hasMore = true
+        while hasMore {
             try Task.checkCancellation()
-            sha.update(data: part)
+            hasMore = try autoreleasepool {
+                guard let part = try file.read(upToCount: 1024 * 1024), !part.isEmpty else { return false }
+                sha.update(data: part)
+                return true
+            }
         }
         return sha.finalize().map { String(format: "%02x", $0) }.joined()
     }
@@ -182,33 +193,106 @@ public actor LocalModelLibrary {
         verified[m.id] = try stamps(m, dir)
         errors[m.id] = nil
     }
+    private final class DownloadPart: Sendable {
+        let offset: Int64
+        let url: URL
+        let wholeFile: Bool
+        init(offset: Int64, url: URL, wholeFile: Bool) {
+            self.offset = offset; self.url = url; self.wholeFile = wholeFile
+        }
+        deinit { try? FileManager.default.removeItem(at: url) }
+    }
+
+    private static func requestPart(_ url: URL, offset: Int64, end: Int64, total: Int64, session: URLSession) async throws -> DownloadPart {
+        // Some CDNs cache the redirect to a signed byte range. Give different
+        // ranges different cache keys while keeping the immutable source revision.
+        for attempt in 0...1 {
+            var parts = URLComponents(url: url, resolvingAgainstBaseURL: false)!
+            parts.queryItems = [URLQueryItem(name: "download", value: "true"),
+                                URLQueryItem(name: "range", value: "\(offset)-\(end)"),
+                                URLQueryItem(name: "attempt", value: String(attempt))]
+            var request = URLRequest(url: parts.url!)
+            request.cachePolicy = .reloadIgnoringLocalCacheData
+            request.setValue("bytes=\(offset)-\(end)", forHTTPHeaderField: "Range")
+            do {
+                let (file, reply) = try await session.download(for: request)
+                do {
+                    try Task.checkCancellation()
+                    guard let response = reply as? HTTPURLResponse else { throw URLError(.badServerResponse) }
+                    let size = Int64(try file.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? -1)
+                    let whole = response.statusCode == 200 && size == total
+                    guard whole || (response.statusCode == 206 && size == end - offset + 1 &&
+                        response.value(forHTTPHeaderField: "Content-Range") == "bytes \(offset)-\(end)/\(total)") else {
+                        throw URLError(.badServerResponse)
+                    }
+                    return DownloadPart(offset: offset, url: file, wholeFile: whole)
+                } catch {
+                    try? FileManager.default.removeItem(at: file)
+                    throw error
+                }
+            } catch {
+                try Task.checkCancellation()
+                guard attempt == 0, let issue = error as? URLError,
+                      [.timedOut, .networkConnectionLost, .cannotConnectToHost].contains(issue.code) else { throw error }
+            }
+        }
+        throw URLError(.timedOut)
+    }
+
     private func fetch(_ url: URL, to target: URL, bytes: Int64) async throws {
         let out = try FileHandle(forWritingTo: target)
         defer { try? out.close() }
         var start = Int64(try out.seekToEnd())
         if start > bytes { try out.truncate(atOffset: 0); start = 0 }
+        let stride: Int64 = 2 * 1024 * 1024
+        var acceptsRanges = false
         while start < bytes {
             try Task.checkCancellation()
-            let end = min(bytes - 1, start + 16 * 1024 * 1024 - 1)
-            var request = URLRequest(url: url)
-            request.setValue("bytes=\(start)-\(end)", forHTTPHeaderField: "Range")
-            request.cachePolicy = .reloadIgnoringLocalCacheData
-            let (tmp, response) = try await http.download(for: request)
-            defer { try? fm.removeItem(at: tmp) }
-            try Task.checkCancellation()
-            guard let http = response as? HTTPURLResponse else { throw URLError(.badServerResponse) }
-            let count = Int64(try tmp.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? -1)
-            if http.statusCode == 200, count == bytes {
-                try out.truncate(atOffset: 0); start = 0
-            } else {
-                guard http.statusCode == 206, count == end - start + 1,
-                      http.value(forHTTPHeaderField: "Content-Range") == "bytes \(start)-\(end)/\(bytes)" else { throw URLError(.badServerResponse) }
+            let offset = start
+            let batchEnd = min(bytes, offset + stride * (acceptsRanges ? 4 : 1))
+            let transport = http
+            try await withThrowingTaskGroup(of: DownloadPart.self) { group in
+                for lower in Swift.stride(from: offset, to: batchEnd, by: Int(stride)) {
+                    let upper = min(bytes, lower + stride) - 1
+                    group.addTask { try await Self.requestPart(url, offset: lower, end: upper, total: bytes, session: transport) }
+                }
+                var staged = [Int64: DownloadPart]()
+                for try await part in group {
+                    try Task.checkCancellation()
+                    if part.wholeFile {
+                        try out.truncate(atOffset: 0)
+                        start = try Self.appendFile(part.url, to: out)
+                        group.cancelAll()
+                        return
+                    }
+                    staged[part.offset] = part
+                    // Only the contiguous prefix is ever checkpointed. A pause
+                    // or a failed sibling leaves that prefix resumable on disk.
+                    while let next = staged.removeValue(forKey: start) {
+                        start += try Self.appendFile(next.url, to: out)
+                    }
+                }
             }
-            let input = try FileHandle(forReadingFrom: tmp)
-            defer { try? input.close() }
-            while let data = try input.read(upToCount: 1024 * 1024), !data.isEmpty { try out.write(contentsOf: data) }
-            try out.synchronize()
-            start += count
+            acceptsRanges = true
         }
     }
+
+    private static func appendFile(_ url: URL, to out: FileHandle) throws -> Int64 {
+        let input = try FileHandle(forReadingFrom: url)
+        defer { try? input.close() }
+        var written: Int64 = 0
+        while true {
+            try Task.checkCancellation()
+            let count = try autoreleasepool { () throws -> Int in
+                guard let chunk = try input.read(upToCount: 256 * 1024), !chunk.isEmpty else { return 0 }
+                try out.write(contentsOf: chunk)
+                return chunk.count
+            }
+            if count == 0 { break }
+            written += Int64(count)
+        }
+        try out.synchronize()
+        return written
+    }
+
 }

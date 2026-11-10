@@ -276,8 +276,8 @@ final class AppModel: ObservableObject {
         localModels = LocalASRService(root: directory.appending(path: "LocalModels"))
         localTextAllowed = preferences.bool(forKey: "localASR.textAllowed")
         deviceOnly = preferences.bool(forKey: "localASR.deviceOnly")
-        manualLocalModel = preferences.string(forKey: "localASR.manual").flatMap(LocalASRID.init(rawValue:))
-        archiveLocalModel = preferences.string(forKey: "localASR.archive").flatMap(LocalASRID.init(rawValue:))
+        manualLocalModel = preferences.string(forKey: "localASR.manual").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
+        archiveLocalModel = preferences.string(forKey: "localASR.archive").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         self.directory = directory
         hosted = HostedAccount(preferences: preferences, production: preferences === UserDefaults.standard && Bundle.main.bundleIdentifier == "app.saytile.mac")
         self.preferences = preferences

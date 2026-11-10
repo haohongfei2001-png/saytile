@@ -304,8 +304,17 @@ extension AppDelegate {
                 guard dateMarkers.count == 2, let midnight = dateMarkers.last else { throw ReviewFailure("midnight did not introduce local date marker") }
                 scroll.transcriptView.scrollRangeToVisible(midnight)
                 try self.captureReview(host, name: "timeline-midnight", output: output)
-                let span = scroll.rendered.spans[30]
-                scroll.transcriptView.scrollRangeToVisible(span.range)
+                // Select a line already on screen. A second asynchronous AppKit scroll
+                // would still be moving the viewport when the history check starts.
+                guard let layout = scroll.transcriptView.layoutManager,
+                      let container = scroll.transcriptView.textContainer,
+                      let span = scroll.rendered.spans.first(where: {
+                          let glyphs = layout.glyphRange(forCharacterRange: $0.range, actualCharacterRange: nil)
+                          var rect = layout.boundingRect(forGlyphRange: glyphs, in: container)
+                          let origin = scroll.transcriptView.textContainerOrigin
+                          rect = rect.offsetBy(dx: origin.x, dy: origin.y)
+                          return scroll.documentVisibleRect.contains(rect)
+                      }) else { throw ReviewFailure("no visible historical line to select") }
                 scroll.transcriptView.setSelectedRange(span.range)
                 let anchor = scroll.contentView.bounds.minY
                 let last = try await model.store.createRecording()

@@ -1,3 +1,7 @@
+## M5 本地中文实时识别候选 .6
+
+本轮无需用户提供 API、录音或排查。公开分发的公证、真实 8 GB 与离电验收由发行和工程人员负责。Zipformer 商用权重权利待上游明确前，保持研究用途。 [评测与交付报告](V1-MANDARIN-LOCAL-ASR.md)
+
 ## RC2 连续时间轴整合候选
 
 本轮工程复核无需用户录音或操作。云端联调仅在专用凭据、上传与计费授权就绪后由联调负责人执行。[整合及发布边界](V1-RC2-TIMELINE-INTEGRATION.md)
@@ -44,3 +48,13 @@ Apple 中文资源已在本机准备，七路样本均由工程自行运行。�
 工程录像仅捕获隔离窗口。无需个人录音、桌面授权或操作；公开安装仍待发行方 Apple 公证。
 
 本轮无需用户操作。下载、出字、模型切换、原音失败保护、升级及隔离录屏已由工程处理。仅将发行方 Apple 公证、未来真实云端凭据/费用授权和可选真人物理麦克风体验保留为独立事项。
+
+普通话收口：继承 PR #15，Zipformer 仅开放工程评测，模型权重商用许可未获证实。独立工件与 300+ 语料测量进行中，无需用户授权、录音或付费服务。
+
+PR #16 local inference uses public licensed fixtures and isolated temporary archives. No user recordings, cloud credentials or manual testing are required for this comparison. Shipping the Zipformer Large weights requires a verifiable license from the rights holder.
+
+The cold-start memory regression and historical-selection check are being verified on isolated engineering fixtures. No user testing is required.
+
+No action is needed for local engineering acceptance. Apple notarization, evidence on a physical 8 GB machine, and commercial rights to Zipformer Large remain separate from local inference. Cloud credential testing remains NOT_RUN for this work.
+
+Cold model download failures are being checked from independent public macOS infrastructure. This requires neither consumer API keys nor any personal voice data.

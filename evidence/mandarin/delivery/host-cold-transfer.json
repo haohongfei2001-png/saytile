@@ -1,0 +1,41 @@
+{
+ "initial_16MiB_zipformer": {
+  "scope": "Configured macOS proxy, previous transport; native request timed out.",
+  "reported_checkpoints": [],
+  "failure": "Swift/ErrorType.swift:254: Fatal error: Error raised at top level: SaytileKit.AudioFailure.message(\"The request timed out.\")",
+  "status": "FAIL"
+ },
+ "initial_16MiB_qwen": {
+  "scope": "Configured macOS proxy, previous transport; native request timed out.",
+  "reported_checkpoints": [],
+  "failure": "Swift/ErrorType.swift:254: Fatal error: Error raised at top level: SaytileKit.AudioFailure.message(\"The network connection was lost.\")",
+  "status": "FAIL"
+ },
+ "bounded_zipformer": {
+  "scope": "Cold test using shared production session. Fixture stops after five minutes without a new contiguous checkpoint.",
+  "reported_checkpoints": [
+   20971520,
+   35651584
+  ],
+  "failure": "Swift/ErrorType.swift:254: Fatal error: Error raised at top level: Error Domain=NSURLErrorDomain Code=-1001 \"(null)\"",
+  "status": "FAIL"
+ },
+ "bounded_qwen": {
+  "scope": "Cold test using shared production session. Fixture stops after five minutes without a new contiguous checkpoint.",
+  "reported_checkpoints": [],
+  "failure": "Swift/ErrorType.swift:254: Fatal error: Error raised at top level: Error Domain=NSURLErrorDomain Code=-1001 \"(null)\"",
+  "status": "FAIL"
+ },
+ "response_headers": {
+  "qwen-small": [
+   "redirect 302 us.aws.cdn.hf.co bytes=0-2097151",
+   "response 206 bytes 0-2097151/708236945 2097152",
+   "first-body 65536"
+  ],
+  "zipformer": [
+   "redirect 302 us.aws.cdn.hf.co bytes=0-2097151",
+   "response 206 bytes 0-2097151/162290887 2097152",
+   "first-body 65536"
+  ]
+ }
+}

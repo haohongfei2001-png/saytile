@@ -1,0 +1,275 @@
+{
+ "apple": {
+  "unique_samples": 420,
+  "reference_units": 10663,
+  "errors": 1269,
+  "unique_pooled_product_cer": 0.11900965957047735,
+  "empty_outputs": 1,
+  "segment_errors": {
+   "RecogRejected": 61,
+   "识别音频队列已满；可从原音重试": 1,
+   "未识别到文字；原音可回听或重试": 1
+  },
+  "example_worst_absolute_errors": [
+   {
+    "id": "fleurs-d8d1713dc5816512",
+    "reference": "现任参议员、阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·柯克纳 (Cristina Fernandez de Kirchner) 昨晚在距离布宜诺斯艾利斯 50 公里（31英里）的拉普拉塔市 (La Plata) 宣布了其总统竞选资格。",
+    "output": "现任议员阿根廷第一夫人克里斯蒂纳菲尔南德斯德克克纳昨晚在距离布伊诺斯爱丽丝 50公里 30英里的拉普拉塔式宣布了其总统竞选资格",
+    "errors": 44,
+    "substitutions": 9,
+    "deletions": 35,
+    "insertions": 0,
+    "reference_units": 96
+   },
+   {
+    "id": "fleurs-da28719dfd9c4da8",
+    "reference": "海地正义与民主研究所 (Haitian Institute for Justice and Democracy) 引用的独立研究表明，是尼泊尔的联合国维和部队在不知情的情况下将这种疾病带到了海地。",
+    "output": "海地正义与民主研究所引用的独立研究表明是尼泊尔的联合国维和部队在不知情的情况下将这种疾病带到了海地。",
+    "errors": 38,
+    "substitutions": 0,
+    "deletions": 38,
+    "insertions": 0,
+    "reference_units": 87
+   },
+   {
+    "id": "fleurs-9988ad0a66f28fe8",
+    "reference": "重返家园的冲击比文化冲击来得更快（蜜月期更短），持续时间更长，也可能更严重。",
+    "output": "",
+    "errors": 33,
+    "substitutions": 0,
+    "deletions": 33,
+    "insertions": 0,
+    "reference_units": 33
+   },
+   {
+    "id": "fleurs-3f613c55d57f95fe",
+    "reference": "在由茅茅运动为争取独立而组织发起的斗争中，该镇的一场和平集会致使大酋长图普阿·塔马塞塞·利罗菲三世（Tupua Tamasese Lealofi III）遇害身亡。",
+    "output": "带有毛毛运动为争取独立而组织发起的斗争中 ，该镇的一场和平棋会致使大酋长图普啊 ，塔马赛赛利罗菲三世遇害身亡。",
+    "errors": 31,
+    "substitutions": 8,
+    "deletions": 23,
+    "insertions": 0,
+    "reference_units": 73
+   },
+   {
+    "id": "fleurs-fd242859bc18ffbb",
+    "reference": "拉卡·辛格 (Lakkha Singh) 还介绍了 chhappan bhog bhajan。歌手 Raju Khandelwal 陪同他身边。",
+    "output": "拉卡辛格还介绍了 Chapen brog hangin歌手 Regiol Handwill陪同他身边。",
+    "errors": 28,
+    "substitutions": 11,
+    "deletions": 15,
+    "insertions": 2,
+    "reference_units": 58
+   }
+  ],
+  "mixed_product_mer": {
+   "reference_units": 1166,
+   "errors": 228,
+   "mer": 0.1955403087478559
+  }
+ },
+ "sherpa": {
+  "unique_samples": 420,
+  "reference_units": 10663,
+  "errors": 1858,
+  "unique_pooled_product_cer": 0.17424739754290539,
+  "empty_outputs": 5,
+  "segment_errors": {
+   "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。": 64,
+   "本机识别未完成，原音可重试。The operation couldn’t be completed. (Swift.CancellationError error 1.)": 5
+  },
+  "example_worst_absolute_errors": [
+   {
+    "id": "fleurs-d8d1713dc5816512",
+    "reference": "现任参议员、阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·柯克纳 (Cristina Fernandez de Kirchner) 昨晚在距离布宜诺斯艾利斯 50 公里（31英里）的拉普拉塔市 (La Plata) 宣布了其总统竞选资格。",
+    "output": "",
+    "errors": 96,
+    "substitutions": 0,
+    "deletions": 96,
+    "insertions": 0,
+    "reference_units": 96
+   },
+   {
+    "id": "fleurs-825f11613c4f2f30",
+    "reference": "娱乐新闻网站TMZ了解到，该名摄影师在Sepulveda大道的另一侧停车，开始拍摄警察的拦截，并在横穿马路后继续拍照，促使进行交通拦截的加州公路巡警两次停下手中工作，命令他回到对面。",
+    "output": "",
+    "errors": 85,
+    "substitutions": 0,
+    "deletions": 85,
+    "insertions": 0,
+    "reference_units": 85
+   },
+   {
+    "id": "fleurs-c6f5c46f9e3daea6",
+    "reference": "然而，这些计划几乎在一夜之间被弃如敝履，在违反《里加和平条约》、《苏联波兰互不侵犯条约》及其他双边及多边国际条约，入侵波兰的东部地区之后，超过 80 万名苏联红军入境，并在白俄罗斯和乌克兰筑起阵地。",
+    "output": "然而这些企划几乎在一夜之间被弃",
+    "errors": 72,
+    "substitutions": 1,
+    "deletions": 71,
+    "insertions": 0,
+    "reference_units": 86
+   },
+   {
+    "id": "fleurs-ced6f3c05e1dfefa",
+    "reference": "其他提名包括最佳影片、最佳导演、最佳摄影、最佳服装设计、最佳电影剪辑、最佳原创配乐、最佳艺术指导、最佳音效剪辑、最佳混音和最佳原创剧本。",
+    "output": "",
+    "errors": 59,
+    "substitutions": 0,
+    "deletions": 59,
+    "insertions": 0,
+    "reference_units": 59
+   },
+   {
+    "id": "fleurs-39fb5bd005525dbf",
+    "reference": "虽然没有人能确定作者是谁，但这个大型羊皮纸文档（尺寸为 29¾ 英寸乘以 24½ 英寸）据称在刚写成的时候是卷起来存放的。",
+    "output": "",
+    "errors": 55,
+    "substitutions": 0,
+    "deletions": 55,
+    "insertions": 0,
+    "reference_units": 55
+   }
+  ],
+  "mixed_product_mer": {
+   "reference_units": 1166,
+   "errors": 221,
+   "mer": 0.1895368782161235
+  }
+ },
+ "qwen-small": {
+  "unique_samples": 420,
+  "reference_units": 10663,
+  "errors": 1662,
+  "unique_pooled_product_cer": 0.1558660789646441,
+  "empty_outputs": 1,
+  "segment_errors": {
+   "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。": 22,
+   "本机识别未完成，原音可重试。The operation couldn’t be completed. (Swift.CancellationError error 1.)": 5
+  },
+  "example_worst_absolute_errors": [
+   {
+    "id": "fleurs-d8d1713dc5816512",
+    "reference": "现任参议员、阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·柯克纳 (Cristina Fernandez de Kirchner) 昨晚在距离布宜诺斯艾利斯 50 公里（31英里）的拉普拉塔市 (La Plata) 宣布了其总统竞选资格。",
+    "output": "嗯。嗯。",
+    "errors": 96,
+    "substitutions": 2,
+    "deletions": 94,
+    "insertions": 0,
+    "reference_units": 96
+   },
+   {
+    "id": "fleurs-76d6a8153b2e6ea4",
+    "reference": "来自美国普林斯顿大学和瑞典乌普萨拉大学的研究人员报告称，由于当地特有的达尔文雀中的勇地雀和外来的仙人掌大嘴地雀之间的繁殖，这个新物种只进化了两代，尽管人们认为这一过程需要更长的时间。",
+    "output": "来自美国普林斯顿大学和。",
+    "errors": 76,
+    "substitutions": 0,
+    "deletions": 76,
+    "insertions": 0,
+    "reference_units": 87
+   },
+   {
+    "id": "fleurs-c6f5c46f9e3daea6",
+    "reference": "然而，这些计划几乎在一夜之间被弃如敝履，在违反《里加和平条约》、《苏联波兰互不侵犯条约》及其他双边及多边国际条约，入侵波兰的东部地区之后，超过 80 万名苏联红军入境，并在白俄罗斯和乌克兰筑起阵地。",
+    "output": "然而，这些计划几乎在一夜。",
+    "errors": 75,
+    "substitutions": 0,
+    "deletions": 75,
+    "insertions": 0,
+    "reference_units": 86
+   },
+   {
+    "id": "fleurs-825f11613c4f2f30",
+    "reference": "娱乐新闻网站TMZ了解到，该名摄影师在Sepulveda大道的另一侧停车，开始拍摄警察的拦截，并在横穿马路后继续拍照，促使进行交通拦截的加州公路巡警两次停下手中工作，命令他回到对面。",
+    "output": "娱乐新闻网站T.M.Z.了解到。",
+    "errors": 73,
+    "substitutions": 0,
+    "deletions": 73,
+    "insertions": 0,
+    "reference_units": 85
+   },
+   {
+    "id": "fleurs-3f46bdea034f311a",
+    "reference": "佩里表示，他会“返回得克萨斯，评估今晚党团会议的结果，明确自己在这次较量中是否有胜算的余地”。但后来他又表示会继续参加竞选，并参加于 1 月 21 日在南卡罗莱纳州举行的初选。",
+    "output": "佩里表示：“他会。”",
+    "errors": 70,
+    "substitutions": 0,
+    "deletions": 70,
+    "insertions": 0,
+    "reference_units": 76
+   }
+  ],
+  "mixed_product_mer": {
+   "reference_units": 1166,
+   "errors": 198,
+   "mer": 0.16981132075471697
+  }
+ },
+ "zipformer": {
+  "unique_samples": 420,
+  "reference_units": 10663,
+  "errors": 2343,
+  "unique_pooled_product_cer": 0.21973178280033762,
+  "empty_outputs": 5,
+  "segment_errors": {
+   "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。": 67,
+   "本机识别未完成，原音可重试。The operation couldn’t be completed. (Swift.CancellationError error 1.)": 5
+  },
+  "example_worst_absolute_errors": [
+   {
+    "id": "fleurs-d8d1713dc5816512",
+    "reference": "现任参议员、阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·柯克纳 (Cristina Fernandez de Kirchner) 昨晚在距离布宜诺斯艾利斯 50 公里（31英里）的拉普拉塔市 (La Plata) 宣布了其总统竞选资格。",
+    "output": "",
+    "errors": 96,
+    "substitutions": 0,
+    "deletions": 96,
+    "insertions": 0,
+    "reference_units": 96
+   },
+   {
+    "id": "fleurs-825f11613c4f2f30",
+    "reference": "娱乐新闻网站TMZ了解到，该名摄影师在Sepulveda大道的另一侧停车，开始拍摄警察的拦截，并在横穿马路后继续拍照，促使进行交通拦截的加州公路巡警两次停下手中工作，命令他回到对面。",
+    "output": "",
+    "errors": 85,
+    "substitutions": 0,
+    "deletions": 85,
+    "insertions": 0,
+    "reference_units": 85
+   },
+   {
+    "id": "fleurs-76d6a8153b2e6ea4",
+    "reference": "来自美国普林斯顿大学和瑞典乌普萨拉大学的研究人员报告称，由于当地特有的达尔文雀中的勇地雀和外来的仙人掌大嘴地雀之间的繁殖，这个新物种只进化了两代，尽管人们认为这一过程需要更长的时间。",
+    "output": "来自美国普林斯顿大学和瑞",
+    "errors": 75,
+    "substitutions": 0,
+    "deletions": 75,
+    "insertions": 0,
+    "reference_units": 87
+   },
+   {
+    "id": "fleurs-c6f5c46f9e3daea6",
+    "reference": "然而，这些计划几乎在一夜之间被弃如敝履，在违反《里加和平条约》、《苏联波兰互不侵犯条约》及其他双边及多边国际条约，入侵波兰的东部地区之后，超过 80 万名苏联红军入境，并在白俄罗斯和乌克兰筑起阵地。",
+    "output": "然而这些企划几乎在一夜之间",
+    "errors": 74,
+    "substitutions": 1,
+    "deletions": 73,
+    "insertions": 0,
+    "reference_units": 86
+   },
+   {
+    "id": "fleurs-3f46bdea034f311a",
+    "reference": "佩里表示，他会“返回得克萨斯，评估今晚党团会议的结果，明确自己在这次较量中是否有胜算的余地”。但后来他又表示会继续参加竞选，并参加于 1 月 21 日在南卡罗莱纳州举行的初选。",
+    "output": "佩里表示他会返回德克萨斯",
+    "errors": 65,
+    "substitutions": 1,
+    "deletions": 64,
+    "insertions": 0,
+    "reference_units": 76
+   }
+  ],
+  "mixed_product_mer": {
+   "reference_units": 1166,
+   "errors": 371,
+   "mer": 0.3181818181818182
+  }
+ }
+}
