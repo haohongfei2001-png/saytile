@@ -14,7 +14,7 @@ def run(args):
     if not args.primary_only:
         items += [i for i in corpus if i.get("source_dataset") == "fleurs-zh" and i["group"] != "primary" and not i["synthetic_perturbation"]]
     manifest = json.loads((manifests / (args.model + ".json")).read_text())
-    binary = args.runtime / ("SaytileSherpa" if args.model == "sherpa" else "SaytileModelWorker")
+    binary = args.runtime.resolve() / ("SaytileSherpa" if args.model == "sherpa" else "SaytileModelWorker")
     directory = args.weights / args.model / manifest["revision"]
     assert all((directory/f["path"]).stat().st_size == f["bytes"] for f in manifest["files"])
     args.output.parent.mkdir(exist_ok=True, parents=True)
@@ -23,7 +23,8 @@ def run(args):
     events = queue.Queue()
     begin = now()
     worker = subprocess.Popen([str(binary),args.model,str(directory.resolve()),str(round(16_000*args.chunk))],
-                              stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                              stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                              cwd=(args.runtime.resolve().parent/"Resources") if (args.runtime.resolve().parent/"Resources/default.metallib").exists() else None)
     def read_output():
         for line in worker.stdout:
             try: events.put((now(), json.loads(line)))

@@ -1,0 +1,53 @@
+{
+  "source": "e7c4ac86231090ef820178d4543db745944af4a4",
+  "model_revision": "8e40c43232a1c5c66c82111efc5820d3accca11b",
+  "fixture_sha256": "2c130c47ae74549ca6b33e06a547e2165e14f665380d29cefe6667fa5602fe47",
+  "corrupt": {
+    "status": "PASS",
+    "records": 1,
+    "recognition": [
+      "failed"
+    ],
+    "audio_available": true,
+    "raw_pcm_frames": 133120,
+    "process_events": [
+      {
+        "t": 0.01,
+        "worker": null
+      }
+    ],
+    "providers": [],
+    "probe_exit": 1
+  },
+  "idle": {
+    "status": "PASS",
+    "records": 2,
+    "recognition": [
+      "completed"
+    ],
+    "audio_available": true,
+    "raw_pcm_frames": 266880,
+    "process_events": [
+      {
+        "t": 0.02,
+        "worker": null
+      },
+      {
+        "t": 2.58,
+        "worker": 1
+      },
+      {
+        "t": 39.68,
+        "worker": null
+      },
+      {
+        "t": 57.56,
+        "worker": 2
+      }
+    ],
+    "providers": [
+      "sherpa"
+    ],
+    "probe_exit": 0
+  }
+}
