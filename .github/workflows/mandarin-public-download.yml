@@ -1,0 +1,20 @@
+name: Mandarin model downloads
+on:
+  push:
+    branches: [codex/mandarin-stream-final]
+    paths:
+      - .github/workflows/mandarin-public-download.yml
+      - Sources/SaytileKit/LocalModelLibrary.swift
+      - scripts/mandarin/check-public-downloads.sh
+      - tests/fixtures/LocalDownloadProbe.swift
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  download:
+    runs-on: macos-26
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cold install, pause, resume, reopen after upgrade and delete
+        run: scripts/mandarin/check-public-downloads.sh sherpa zipformer qwen-small

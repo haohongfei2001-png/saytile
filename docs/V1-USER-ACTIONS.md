@@ -52,3 +52,5 @@ PR #16 local inference uses public licensed fixtures and isolated temporary arch
 The cold-start memory regression and historical-selection check are being verified on isolated engineering fixtures. No user testing is required.
 
 No action is needed for local engineering acceptance. Apple notarization, evidence on a physical 8 GB machine, and commercial rights to Zipformer Large remain separate from local inference. Cloud credential testing remains NOT_RUN for this work.
+
+Cold model download failures are being checked from independent public macOS infrastructure. This requires neither consumer API keys nor any personal voice data.
