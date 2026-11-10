@@ -1,0 +1,574 @@
+{
+  "source": "e7c4ac86231090ef820178d4543db745944af4a4",
+  "cohort": "first two shared FLEURS recordings, paced, fresh process with available system caches; eight seconds idle immediately before each model; numerical power samples every one second",
+  "meter": "macmon 0.11.0; macOS IOReport and system power telemetry; unsigned differences include all host activity, not isolated app wattage or battery-life estimates. Handles with no per-process GPU/ANE counter remain unknown.",
+  "models": {
+    "apple": {
+      "idle_sample_count": 7,
+      "active_sample_count": 21,
+      "idle": {
+        "sys_power": {
+          "mean": 14.06,
+          "p50": 12.8786,
+          "p95": 20.6463,
+          "max": 20.6463
+        },
+        "cpu_power": {
+          "mean": 2.1526,
+          "p50": 2.1304,
+          "p95": 2.3019,
+          "max": 2.3019
+        },
+        "gpu_power": {
+          "mean": 0.0064,
+          "p50": 0.0051,
+          "p95": 0.0116,
+          "max": 0.0116
+        },
+        "ane_power": {
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "cpu_active_ratio": {
+          "mean": 0.2363,
+          "p50": 0.2329,
+          "p95": 0.2575,
+          "max": 0.2575
+        },
+        "gpu_active_ratio": {
+          "mean": 0.0171,
+          "p50": 0.0148,
+          "p95": 0.0293,
+          "max": 0.0293
+        }
+      },
+      "active": {
+        "sys_power": {
+          "mean": 13.393,
+          "p50": 12.9402,
+          "p95": 15.6352,
+          "max": 16.5063
+        },
+        "cpu_power": {
+          "mean": 2.4242,
+          "p50": 2.1794,
+          "p95": 4.5815,
+          "max": 4.8446
+        },
+        "gpu_power": {
+          "mean": 0.0053,
+          "p50": 0.0051,
+          "p95": 0.0055,
+          "max": 0.0074
+        },
+        "ane_power": {
+          "mean": 0.002,
+          "p50": 0.002,
+          "p95": 0.0031,
+          "max": 0.0047
+        },
+        "cpu_active_ratio": {
+          "mean": 0.2456,
+          "p50": 0.2368,
+          "p95": 0.3071,
+          "max": 0.3317
+        },
+        "gpu_active_ratio": {
+          "mean": 0.0153,
+          "p50": 0.0149,
+          "p95": 0.0183,
+          "max": 0.019
+        }
+      },
+      "mean_system_w_difference": -0.667
+    },
+    "sherpa": {
+      "idle_sample_count": 7,
+      "active_sample_count": 20,
+      "idle": {
+        "sys_power": {
+          "mean": 11.4972,
+          "p50": 10.507,
+          "p95": 17.3053,
+          "max": 17.3053
+        },
+        "cpu_power": {
+          "mean": 0.377,
+          "p50": 0.3184,
+          "p95": 0.646,
+          "max": 0.646
+        },
+        "gpu_power": {
+          "mean": 0.0054,
+          "p50": 0.005,
+          "p95": 0.0072,
+          "max": 0.0072
+        },
+        "ane_power": {
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "cpu_active_ratio": {
+          "mean": 0.0696,
+          "p50": 0.0642,
+          "p95": 0.0904,
+          "max": 0.0904
+        },
+        "gpu_active_ratio": {
+          "mean": 0.0158,
+          "p50": 0.0149,
+          "p95": 0.0212,
+          "max": 0.0212
+        }
+      },
+      "active": {
+        "sys_power": {
+          "mean": 11.3381,
+          "p50": 10.714,
+          "p95": 12.5905,
+          "max": 14.1672
+        },
+        "cpu_power": {
+          "mean": 1.0515,
+          "p50": 0.6764,
+          "p95": 1.7672,
+          "max": 2.7116
+        },
+        "gpu_power": {
+          "mean": 0.0051,
+          "p50": 0.005,
+          "p95": 0.005,
+          "max": 0.0074
+        },
+        "ane_power": {
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "cpu_active_ratio": {
+          "mean": 0.1136,
+          "p50": 0.0954,
+          "p95": 0.1704,
+          "max": 0.1821
+        },
+        "gpu_active_ratio": {
+          "mean": 0.0151,
+          "p50": 0.0148,
+          "p95": 0.0151,
+          "max": 0.0204
+        }
+      },
+      "mean_system_w_difference": -0.159
+    },
+    "nemotron-metal": {
+      "idle_sample_count": 7,
+      "active_sample_count": 19,
+      "idle": {
+        "sys_power": {
+          "mean": 13.5629,
+          "p50": 12.7349,
+          "p95": 17.2546,
+          "max": 17.2546
+        },
+        "cpu_power": {
+          "mean": 2.3157,
+          "p50": 2.2863,
+          "p95": 3.7508,
+          "max": 3.7508
+        },
+        "gpu_power": {
+          "mean": 0.0051,
+          "p50": 0.005,
+          "p95": 0.0053,
+          "max": 0.0053
+        },
+        "ane_power": {
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "cpu_active_ratio": {
+          "mean": 0.2753,
+          "p50": 0.2788,
+          "p95": 0.4461,
+          "max": 0.4461
+        },
+        "gpu_active_ratio": {
+          "mean": 0.0156,
+          "p50": 0.0148,
+          "p95": 0.0191,
+          "max": 0.0191
+        }
+      },
+      "active": {
+        "sys_power": {
+          "mean": 13.9298,
+          "p50": 13.6477,
+          "p95": 16.4481,
+          "max": 16.4481
+        },
+        "cpu_power": {
+          "mean": 2.3288,
+          "p50": 2.1828,
+          "p95": 3.5384,
+          "max": 3.5384
+        },
+        "gpu_power": {
+          "mean": 0.308,
+          "p50": 0.3057,
+          "p95": 0.4065,
+          "max": 0.4065
+        },
+        "ane_power": {
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "cpu_active_ratio": {
+          "mean": 0.2468,
+          "p50": 0.2447,
+          "p95": 0.3042,
+          "max": 0.3042
+        },
+        "gpu_active_ratio": {
+          "mean": 0.0996,
+          "p50": 0.0997,
+          "p95": 0.12,
+          "max": 0.12
+        }
+      },
+      "mean_system_w_difference": 0.367
+    },
+    "qwen-small": {
+      "idle_sample_count": 7,
+      "active_sample_count": 20,
+      "idle": {
+        "sys_power": {
+          "mean": 13.2029,
+          "p50": 12.9822,
+          "p95": 14.2206,
+          "max": 14.2206
+        },
+        "cpu_power": {
+          "mean": 2.1773,
+          "p50": 2.1637,
+          "p95": 2.3519,
+          "max": 2.3519
+        },
+        "gpu_power": {
+          "mean": 0.0051,
+          "p50": 0.0051,
+          "p95": 0.0054,
+          "max": 0.0054
+        },
+        "ane_power": {
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "cpu_active_ratio": {
+          "mean": 0.2317,
+          "p50": 0.2287,
+          "p95": 0.2408,
+          "max": 0.2408
+        },
+        "gpu_active_ratio": {
+          "mean": 0.0155,
+          "p50": 0.0146,
+          "p95": 0.0198,
+          "max": 0.0198
+        }
+      },
+      "active": {
+        "sys_power": {
+          "mean": 14.7642,
+          "p50": 14.6849,
+          "p95": 16.6626,
+          "max": 16.9046
+        },
+        "cpu_power": {
+          "mean": 2.4609,
+          "p50": 2.3183,
+          "p95": 4.584,
+          "max": 4.5922
+        },
+        "gpu_power": {
+          "mean": 0.6824,
+          "p50": 0.6772,
+          "p95": 1.2686,
+          "max": 1.9836
+        },
+        "ane_power": {
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "cpu_active_ratio": {
+          "mean": 0.2382,
+          "p50": 0.2501,
+          "p95": 0.3169,
+          "max": 0.3527
+        },
+        "gpu_active_ratio": {
+          "mean": 0.107,
+          "p50": 0.1103,
+          "p95": 0.1714,
+          "max": 0.2428
+        }
+      },
+      "mean_system_w_difference": 1.561
+    },
+    "paraformer": {
+      "idle_sample_count": 7,
+      "active_sample_count": 20,
+      "idle": {
+        "sys_power": {
+          "mean": 14.6017,
+          "p50": 12.8309,
+          "p95": 21.1715,
+          "max": 21.1715
+        },
+        "cpu_power": {
+          "mean": 2.1003,
+          "p50": 2.0562,
+          "p95": 2.3008,
+          "max": 2.3008
+        },
+        "gpu_power": {
+          "mean": 0.0052,
+          "p50": 0.0052,
+          "p95": 0.0054,
+          "max": 0.0054
+        },
+        "ane_power": {
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "cpu_active_ratio": {
+          "mean": 0.233,
+          "p50": 0.2251,
+          "p95": 0.2715,
+          "max": 0.2715
+        },
+        "gpu_active_ratio": {
+          "mean": 0.0149,
+          "p50": 0.0147,
+          "p95": 0.016,
+          "max": 0.016
+        }
+      },
+      "active": {
+        "sys_power": {
+          "mean": 13.5148,
+          "p50": 12.9398,
+          "p95": 15.0464,
+          "max": 16.705
+        },
+        "cpu_power": {
+          "mean": 2.3058,
+          "p50": 2.1267,
+          "p95": 2.8855,
+          "max": 4.015
+        },
+        "gpu_power": {
+          "mean": 0.0057,
+          "p50": 0.0051,
+          "p95": 0.0078,
+          "max": 0.0109
+        },
+        "ane_power": {
+          "mean": 0.0023,
+          "p50": 0.0001,
+          "p95": 0.0064,
+          "max": 0.0376
+        },
+        "cpu_active_ratio": {
+          "mean": 0.2605,
+          "p50": 0.2324,
+          "p95": 0.3181,
+          "max": 0.5589
+        },
+        "gpu_active_ratio": {
+          "mean": 0.0158,
+          "p50": 0.0148,
+          "p95": 0.022,
+          "max": 0.0248
+        }
+      },
+      "mean_system_w_difference": -1.087
+    },
+    "sensevoice": {
+      "idle_sample_count": 7,
+      "active_sample_count": 19,
+      "idle": {
+        "sys_power": {
+          "mean": 13.1834,
+          "p50": 13.174,
+          "p95": 13.3729,
+          "max": 13.3729
+        },
+        "cpu_power": {
+          "mean": 2.178,
+          "p50": 2.1867,
+          "p95": 2.3371,
+          "max": 2.3371
+        },
+        "gpu_power": {
+          "mean": 0.0121,
+          "p50": 0.012,
+          "p95": 0.0195,
+          "max": 0.0195
+        },
+        "ane_power": {
+          "mean": 0.0001,
+          "p50": 0.0001,
+          "p95": 0.0001,
+          "max": 0.0001
+        },
+        "cpu_active_ratio": {
+          "mean": 0.2373,
+          "p50": 0.2411,
+          "p95": 0.2551,
+          "max": 0.2551
+        },
+        "gpu_active_ratio": {
+          "mean": 0.028,
+          "p50": 0.0303,
+          "p95": 0.0309,
+          "max": 0.0309
+        }
+      },
+      "active": {
+        "sys_power": {
+          "mean": 13.1394,
+          "p50": 12.9154,
+          "p95": 14.9119,
+          "max": 14.9119
+        },
+        "cpu_power": {
+          "mean": 2.2574,
+          "p50": 2.1255,
+          "p95": 2.9675,
+          "max": 2.9675
+        },
+        "gpu_power": {
+          "mean": 0.0063,
+          "p50": 0.0051,
+          "p95": 0.0201,
+          "max": 0.0201
+        },
+        "ane_power": {
+          "mean": 0.0036,
+          "p50": 0.0001,
+          "p95": 0.0611,
+          "max": 0.0611
+        },
+        "cpu_active_ratio": {
+          "mean": 0.2382,
+          "p50": 0.2314,
+          "p95": 0.2845,
+          "max": 0.2845
+        },
+        "gpu_active_ratio": {
+          "mean": 0.0161,
+          "p50": 0.0147,
+          "p95": 0.029,
+          "max": 0.029
+        }
+      },
+      "mean_system_w_difference": -0.044
+    },
+    "qwen-large": {
+      "idle_sample_count": 7,
+      "active_sample_count": 21,
+      "idle": {
+        "sys_power": {
+          "mean": 13.2126,
+          "p50": 12.9353,
+          "p95": 14.2877,
+          "max": 14.2877
+        },
+        "cpu_power": {
+          "mean": 2.2409,
+          "p50": 2.1332,
+          "p95": 2.5623,
+          "max": 2.5623
+        },
+        "gpu_power": {
+          "mean": 0.0051,
+          "p50": 0.0051,
+          "p95": 0.0051,
+          "max": 0.0051
+        },
+        "ane_power": {
+          "mean": 0.0001,
+          "p50": 0.0001,
+          "p95": 0.0001,
+          "max": 0.0001
+        },
+        "cpu_active_ratio": {
+          "mean": 0.2421,
+          "p50": 0.2318,
+          "p95": 0.2709,
+          "max": 0.2709
+        },
+        "gpu_active_ratio": {
+          "mean": 0.0146,
+          "p50": 0.0147,
+          "p95": 0.0149,
+          "max": 0.0149
+        }
+      },
+      "active": {
+        "sys_power": {
+          "mean": 13.7225,
+          "p50": 12.9116,
+          "p95": 17.5781,
+          "max": 25.1487
+        },
+        "cpu_power": {
+          "mean": 2.415,
+          "p50": 2.1452,
+          "p95": 4.5252,
+          "max": 4.8399
+        },
+        "gpu_power": {
+          "mean": 0.2738,
+          "p50": 0.0052,
+          "p95": 2.5105,
+          "max": 2.8069
+        },
+        "ane_power": {
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "cpu_active_ratio": {
+          "mean": 0.2451,
+          "p50": 0.2364,
+          "p95": 0.267,
+          "max": 0.3887
+        },
+        "gpu_active_ratio": {
+          "mean": 0.0497,
+          "p50": 0.0149,
+          "p95": 0.2876,
+          "max": 0.3986
+        }
+      },
+      "mean_system_w_difference": 0.51
+    }
+  }
+}

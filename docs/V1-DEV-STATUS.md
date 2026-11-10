@@ -44,3 +44,5 @@
 在 b8d622c 签名面板逐帧复现：Qwen 把“二十九”重写为“29”，读者保护一直拒绝后续同源候选，5.03–17.10 秒不再更新。仅允许两次连续候选对同一有限预览尾部达成一致且保留原话片段时恢复；不改外部稳定前缀、不拼接候选。候选包升至 local-asr.3。
 
 本机识别候选 local-asr.3 的签名安装包、安装/回退凭据、原生面板及窗口录像已归档到 deliverables/local-asr 与 evidence/local-asr。保留所有冻结版本，待完整成对测量与功耗收据。
+
+本机识别 local-asr.3 工程收口。独立 PR #15 的源码 e7c4ac8 已打包，后续提交仅补证据和测试工具。推荐 Apple 中文实时、sherpa 轻量及 Qwen 0.6B 手动分块。详见 docs/V1-LOCAL-ASR-ACCEPTANCE.md；不改 main、RC1、no-api.10 或上一整合候选。

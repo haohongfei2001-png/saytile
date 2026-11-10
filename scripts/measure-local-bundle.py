@@ -33,6 +33,12 @@ def run(cmd,label):
     with (output/(label+".stderr")).open("w") as log:subprocess.run(cmd,stdout=log,stderr=log,check=True)
 for m in ("sherpa","nemotron-metal","qwen-small","paraformer","sensevoice","qwen-large","apple"):
     if a.idle_seconds:
+        # Give any preceding isolated soak/acceptance work time to exit; never
+        # terminate another process or assign its model power to this sample.
+        limit=time.monotonic()+240
+        while any(subprocess.run(["pgrep","-x",n],stdout=subprocess.DEVNULL).returncode==0 for n in ["SaytileSherpa","SaytileModelWorker","SaytileArchiveProbe"]):
+            if time.monotonic()>limit: raise RuntimeError("device busy; refusing ambiguous energy sample")
+            time.sleep(2)
         observed(m+"-idle",lambda:time.sleep(a.idle_seconds))
     if m=="apple":
         cmd=[sys.executable,"scripts/bench-apple-asr.py","--executable",a.app/"Contents/MacOS/Saytile","--paired",output/"sherpa.json","--audio",a.audio,"--output",output/(m+".json")]

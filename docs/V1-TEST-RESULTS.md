@@ -40,3 +40,5 @@
 保留 16.68 秒授权 FLEURS 的实际失败帧 evidence/local-asr/regressions/qwen-reading-freeze-b8d622c.json。增加数字形式永久改变与无关替换的独立回归；Swift 原生构建已过，下一步从新签名 DMG 回放同一语音并重算所有四路显示质量。
 
 e7c4ac8 · 411/411 Swift Testing，104 项 AppModel，52 个本地协议场景零违反。签名面板四种引擎各 10 段、归档三种各一段；14.94 秒窗口级录像无音轨。坏权重时保留可读 WAV；静音后释放进程；录音中更换模型只影响下一段。
+
+e7c4ac8 实际 70 次授权真人文件推理；40 次本机 AppKit 发言中试验，3 次独立冷档案、三种正式归档路径逐行处理同一组 VAD 片段。30 分钟 102/102 记录、204 WAV、2685 次窗口更新。七路功耗有同机空闲对照。Qwen 0.6B 首字 P95 3.54 秒未达 2 秒目标；极低电平档案可为空或出现额外文字。公开分发、GPU/ANE 独立归因及付费云端状态见 evidence/local-asr/acceptance.json。
