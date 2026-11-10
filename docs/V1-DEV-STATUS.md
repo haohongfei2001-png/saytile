@@ -48,3 +48,5 @@
 本机识别 local-asr.3 工程收口。独立 PR #15 的源码 e7c4ac8 已打包，后续提交仅补证据和测试工具。推荐 Apple 中文实时、sherpa 轻量及 Qwen 0.6B 手动分块。详见 docs/V1-LOCAL-ASR-ACCEPTANCE.md；不改 main、RC1、no-api.10 或上一整合候选。
 
 普通话收口：继承 PR #15，Zipformer 仅开放工程评测，模型权重商用许可未获证实。独立工件与 300+ 语料测量进行中，无需用户授权、录音或付费服务。
+
+PR #16 anchors the Mandarin comparison to application source 178dbbc073613ac3c0ea632e25b74c29ab4ef702. The independent quality fixture feeds identical pinned PCM through either a single full-wave recognition ticket or the real capture worker, VAD, journal and SQLite. Paced window observations use the installed app. The timing and accelerated paths have separate receipts.

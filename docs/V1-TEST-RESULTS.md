@@ -44,3 +44,5 @@ e7c4ac8 · 411/411 Swift Testing，104 项 AppModel，52 个本地协议场景�
 e7c4ac8 实际 70 次授权真人文件推理；40 次本机 AppKit 发言中试验，3 次独立冷档案、三种正式归档路径逐行处理同一组 VAD 片段。30 分钟 102/102 记录、204 WAV、2685 次窗口更新。七路功耗有同机空闲对照。Qwen 0.6B 首字 P95 3.54 秒未达 2 秒目标；极低电平档案可为空或出现额外文字。公开分发、GPU/ANE 独立归因及付费云端状态见 evidence/local-asr/acceptance.json。
 
 普通话收口：继承 PR #15，Zipformer 仅开放工程评测，模型权重商用许可未获证实。独立工件与 300+ 语料测量进行中，无需用户授权、录音或付费服务。
+
+The new reference-blind manifest contains 320 unique public human clips and 20 paired acoustic perturbations. The Apple standalone test client requires its own Speech asset reservation. The independent test executable also requires its SwiftPM model resource bundle. Both fixture prerequisites were reproduced with one pinned WAV before the authoritative runs. Missing resources in exploratory runs are fixture errors.
