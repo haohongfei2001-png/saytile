@@ -48,3 +48,5 @@ Apple 中文资源已在本机准备，七路样本均由工程自行运行。�
 普通话收口：继承 PR #15，Zipformer 仅开放工程评测，模型权重商用许可未获证实。独立工件与 300+ 语料测量进行中，无需用户授权、录音或付费服务。
 
 PR #16 local inference uses public licensed fixtures and isolated temporary archives. No user recordings, cloud credentials or manual testing are required for this comparison. Shipping the Zipformer Large weights requires a verifiable license from the rights holder.
+
+The cold-start memory regression and historical-selection check are being verified on isolated engineering fixtures. No user testing is required.

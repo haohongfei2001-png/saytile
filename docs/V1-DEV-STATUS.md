@@ -50,3 +50,5 @@
 普通话收口：继承 PR #15，Zipformer 仅开放工程评测，模型权重商用许可未获证实。独立工件与 300+ 语料测量进行中，无需用户授权、录音或付费服务。
 
 PR #16 anchors the Mandarin comparison to application source 178dbbc073613ac3c0ea632e25b74c29ab4ef702. The independent quality fixture feeds identical pinned PCM through either a single full-wave recognition ticket or the real capture worker, VAD, journal and SQLite. Paced window observations use the installed app. The timing and accelerated paths have separate receipts.
+
+On M5 the 0.6B cold path retained Foundation hash buffers and reached 2.35 GiB combined physical footprint. The next candidate bounds their per-read lifetime and the existing MLX allocator cache. Verification and digest rules are unchanged. The timeline acceptance now selects a visible historical line, eliminating an overlapping second programmatic scroll before testing new-utterance selection protection.

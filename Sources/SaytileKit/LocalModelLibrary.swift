@@ -108,9 +108,16 @@ public actor LocalModelLibrary {
         let file = try FileHandle(forReadingFrom: url)
         defer { try? file.close() }
         var sha = SHA256()
-        while let part = try file.read(upToCount: 1024 * 1024), !part.isEmpty {
+        // Foundation's file reads can retain autoreleased NSData until the actor
+        // returns. Bound the read lifetime even when verifying a large model.
+        var hasMore = true
+        while hasMore {
             try Task.checkCancellation()
-            sha.update(data: part)
+            hasMore = try autoreleasepool {
+                guard let part = try file.read(upToCount: 1024 * 1024), !part.isEmpty else { return false }
+                sha.update(data: part)
+                return true
+            }
         }
         return sha.finalize().map { String(format: "%02x", $0) }.joined()
     }
