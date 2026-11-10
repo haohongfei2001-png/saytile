@@ -1,0 +1,127 @@
+{
+  "product_source": "a55d51a1ff4711340bc63ea5c8ecd927dd2327d3",
+  "dmg": {
+    "sha256": "e7bb836c4d3864a735bc18276a286f515da5851dca041ed3f574c5f4ffefbb5c",
+    "bytes": 61646743
+  },
+  "version": "1.0.0-rc.2-local-asr.6",
+  "hardware": {
+    "macos": "27.0",
+    "build": "26A428",
+    "arm": "arm64",
+    "chip": "Apple M5",
+    "physical_bytes": "25769803776"
+  },
+  "checks": [
+    {
+      "status": "PASS",
+      "scope": "420 distinct references and 20 same-source perturbations, four direct and four archive outputs per trial",
+      "evidence": [
+        "runs",
+        "comparison.json",
+        "quality-verdict.json"
+      ]
+    },
+    {
+      "status": "PASS",
+      "scope": "60 cold signed native windows with paced public speech. Each model produced multiple meaningful updates during all five long samples.",
+      "evidence": [
+        "panels",
+        "zipformer-window.json",
+        "zipformer-window.mp4"
+      ]
+    },
+    {
+      "status": "PASS",
+      "scope": "Exact source native CI. Swift Testing 411 passed, 0 failed. AppModel 104 passed. Native AX and 12,000-record timeline.",
+      "evidence": [
+        "install/ci-excerpts.log",
+        "install/timeline.json",
+        "https://github.com/haohongfei2001-png/saytile/actions/runs/42847955651"
+      ]
+    },
+    {
+      "status": "PASS",
+      "scope": "Developer ID signature, isolated install and migration/rollback",
+      "evidence": [
+        "install/codesign.log",
+        "install/upgrade.json",
+        "build-receipt.json"
+      ]
+    },
+    {
+      "status": "PASS",
+      "scope": "Cold public CDN, three complete SHA-pinned model downloads with pause, resume, reopen and deletion on independent macOS 26 CI",
+      "evidence": [
+        "public-download-ci.json",
+        "public-download-ci.log"
+      ]
+    },
+    {
+      "status": "PASS",
+      "scope": "Real remote suffix resume on this Mac and controlled full 200, ranged 206 and invalid-range rejection",
+      "evidence": [
+        "suffix-download.json",
+        "controlled-transfer.log"
+      ]
+    },
+    {
+      "status": "FAIL",
+      "scope": "Two clean public downloads stalled behind this Mac's configured proxy",
+      "evidence": [
+        "host-cold-transfer.json"
+      ]
+    },
+    {
+      "status": "PASS",
+      "scope": "Model corruption safely rejected, original retained, idle release and next-segment reload",
+      "evidence": [
+        "zipformer-fault.json"
+      ]
+    },
+    {
+      "status": "PASS",
+      "scope": "Previous .5 matching inference, 30-minute Zipformer 102/102 and sole Qwen 102/102",
+      "evidence": [
+        "../final/soak-zipformer.counts.json",
+        "../final/soak-qwen-solo.counts.json",
+        "inference-parity.json"
+      ]
+    },
+    {
+      "status": "FAIL",
+      "scope": "Previous .5 Qwen competing with separate workloads, 101/102 recognized. All 102 originals retained.",
+      "evidence": [
+        "../final/soak-qwen-small.counts.json",
+        "inference-parity.json"
+      ]
+    },
+    {
+      "status": "PASS",
+      "scope": "M5 24 GiB AC machine samples per model. Shared services and system-level power have limited attribution.",
+      "evidence": [
+        "resource",
+        "../final/isolated-power"
+      ]
+    },
+    {
+      "status": "BLOCKED",
+      "scope": "Gatekeeper rejected unnotarized candidate",
+      "evidence": [
+        "install/gatekeeper.log"
+      ]
+    },
+    {
+      "status": "BLOCKED",
+      "scope": "Zipformer upstream Large checkpoint commercial weight rights unconfirmed",
+      "evidence": [
+        "../zipformer-provenance.json"
+      ]
+    },
+    {
+      "status": "NOT_RUN",
+      "scope": "Physical 8 GB Mac, battery endurance, per-app ANE attribution, private live microphone speech and authorized real cloud GPT",
+      "evidence": []
+    }
+  ]
+}

@@ -1,3 +1,7 @@
+## M5 本地中文实时识别候选 .6
+
+工程候选为 `1.0.0-rc.2-local-asr.6`，产品源码 `a55d51a1ff4711340bc63ea5c8ecd927dd2327d3`。安装包 61,646,743 字节。M5 原生实测支持 Apple 默认、Paraformer 轻量备选及 Qwen 手动选择。Zipformer 仅进入研究。发布等待 Apple 公证，研究权重的商用许可尚未确认。 [评测与交付报告](V1-MANDARIN-LOCAL-ASR.md)
+
 ## RC2 连续时间轴整合候选
 
 独立分支继承 PR #12，恢复正式应用、偏好、档案与 Keychain 身份。已修复编辑期间空白面板复制旧组、午夜归日取整两项实测缺陷。发布继续等待真实云端和公证。[独立终审](V1-RC2-TIMELINE-INTEGRATION.md)

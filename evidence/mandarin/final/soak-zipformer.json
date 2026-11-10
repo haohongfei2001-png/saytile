@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "source": "aa68eb5f82a767973ff5dcdc15932cb823e4afd9",
+  "model": "zipformer",
+  "input": "102 copies of FLEURS zh-4719524538529342597 with 1s silence between runs, at 1x wall clock; synthetic routing, actual licensed speech.",
+  "fixture_sha256": "5a431ac247e1f7f4d8334d03f2bfdd3650d86e8fb961e916967fe6018b6d1696",
+  "paced_s": 1803.362,
+  "fixture_duration_s": 1803.36,
+  "native_text_changes": 4836,
+  "expected_utterances": 102,
+  "utterances_complete": 102,
+  "archive_rows": 102,
+  "chunks_independently_read": 204,
+  "wav_bytes": 56782096,
+  "journal_pcm_s": 1774.16,
+  "pcm_hash_manifest_sha256": "6dd870c1dddbeaf0e8c477641f82cadc89890bfc9d301a3074db3beca3b91ca9",
+  "database_integrity": "ok",
+  "foreign_key_errors": 0,
+  "external_dispatches": 0,
+  "process_sample_interval_s": 10,
+  "resources": {
+    "app": {
+      "observations": 179,
+      "first_5min_median_RSS_MiB": 74.2,
+      "last_5min_median_RSS_MiB": 65.0,
+      "peak_RSS_MiB": 85.8,
+      "median_cpu_percent": 13.3
+    },
+    "worker": {
+      "observations": 178,
+      "first_5min_median_RSS_MiB": 190.7,
+      "last_5min_median_RSS_MiB": 190.7,
+      "peak_RSS_MiB": 397.4,
+      "median_cpu_percent": 22.7
+    }
+  },
+  "scope": "One wall-paced 30 minute soak on the stated model. RSS is resident process memory, not total chip memory. No private microphone; overnight, sleep and sustained power per model are not implied."
+}

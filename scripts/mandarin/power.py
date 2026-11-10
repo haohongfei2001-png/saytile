@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import plistlib
+import re
 import shutil
 import signal
 import statistics
@@ -41,7 +42,7 @@ def pressure():
     return {
         "pressure": command("sysctl", "-n", "kern.memorystatus_vm_pressure_level"),
         "swap": command("sysctl", "-n", "vm.swapusage"),
-        "battery": command("pmset", "-g", "batt"),
+        "battery": re.sub(r" \(id=\d+\)", "", command("pmset", "-g", "batt")),
     }
 
 

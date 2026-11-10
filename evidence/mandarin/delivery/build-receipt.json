@@ -1,0 +1,90 @@
+{
+  "app_source": "a55d51a1ff4711340bc63ea5c8ecd927dd2327d3",
+  "bundle_id": "app.saytile.mac",
+  "release": "1.0.0-rc.2-local-asr.6",
+  "platform": {
+    "macos": "27.0",
+    "build": "26A428",
+    "arm": "arm64",
+    "chip": "Apple M5",
+    "physical_bytes": "25769803776"
+  },
+  "dmg": {
+    "sha256": "e7bb836c4d3864a735bc18276a286f515da5851dca041ed3f574c5f4ffefbb5c",
+    "bytes": 61646743
+  },
+  "app_executable": {
+    "sha256": "e2f49f677fb01d5b71d5b8c963e3849751bb82d24ece594f7aa68a23712d7d38",
+    "bytes": 8324496
+  },
+  "bundled_workers": {
+    "SaytileSherpa": {
+      "sha256": "6ea1f84925f2373cc1e2047c494b8165e8147a1f1e4308e9cd714d3e8cdbff8d",
+      "bytes": 72192
+    },
+    "SaytileModelWorker": {
+      "sha256": "528acb5eab7e70f7624d1392422ccba46b2c3fdf2001713d1c58d87fcce2ff7a",
+      "bytes": 39264688
+    }
+  },
+  "quality_harness": {
+    "fixture_source": {
+      "sha256": "6933bcb79f6dd512253909ac536191f618dc40861b7fa56501008f34f0fd747d",
+      "bytes": 4247
+    },
+    "binary": {
+      "sha256": "b76d1541afaa2ceb75d31684fdc4799488e06209068382c5b682213045204552",
+      "bytes": 7234936
+    },
+    "linked_debug_library": {
+      "sha256": "19231c6efd8f16f0904c01284803ddd1f75f5c4e50723a8fd193da09960536e9",
+      "bytes": 9110656
+    }
+  },
+  "fixtures": {
+    "paired.json": {
+      "sha256": "605196e487b3a8a03b206ebe23cb9ba4c86b9c311398d25e8a6dfbe21646d362",
+      "bytes": 120279
+    },
+    "aishell.json": {
+      "sha256": "0d96fc5417c706e37a0d6d46c354933b553577a0ce318c7442db25dfb917887a",
+      "bytes": 38397
+    },
+    "panel-cohort.json": {
+      "sha256": "b9fc425a3916373ef4cd96c517688a6c5168ee351f03ede3c02c0aee1acae166",
+      "bytes": 5686
+    }
+  },
+  "models": {
+    "sherpa": {
+      "revision": "8e40c43232a1c5c66c82111efc5820d3accca11b",
+      "repo": "csukuangfj/sherpa-onnx-streaming-paraformer-bilingual-zh-en",
+      "manifest": {
+        "sha256": "3c5bc301d3abe7d4797abbed59b223b4fe83410ffb3eb8906fdbcfece88aa7e6",
+        "bytes": 655
+      },
+      "total_bytes": 237202501,
+      "license": "apache-2.0"
+    },
+    "zipformer": {
+      "revision": "f29132af655b91f258800df19c5b5d9b9281a5cd",
+      "repo": "csukuangfj/sherpa-onnx-streaming-zipformer-ctc-zh-int8-2025-06-30",
+      "manifest": {
+        "sha256": "83c49dfe3b003f1b3d9356117f1f1b00fc6d9377a1ef400f321562e26c759803",
+        "bytes": 538
+      },
+      "total_bytes": 162311515,
+      "license": "upstream-weights-unconfirmed-research-only"
+    },
+    "qwen-small": {
+      "revision": "bc441bd1e4295c1f42d9879f056049a925b6e013",
+      "repo": "aufklarer/Qwen3-ASR-0.6B-MLX-4bit",
+      "manifest": {
+        "sha256": "a2b9d00644087dff42139996f013c396e468f1948a312893cd5e9e7f805149b8",
+        "bytes": 1094
+      },
+      "total_bytes": 712777119,
+      "license": "apache-2.0"
+    }
+  }
+}
