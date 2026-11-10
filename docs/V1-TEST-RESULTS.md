@@ -28,3 +28,17 @@
 2026-11-10 · Official isolated Supabase reproduced an open stream surviving logout before the fix; afterward the same scenario closes with 1008 and the prior JWT receives 401. The paid native fixture reached 1 mock ASR/1 mock GPT; unpaid admissions remained zero.
 
 2026-11-10 · 405 Swift Testing and 104 AppModel checks passed on the recorded native tree. Isolated Supabase plus native stream, real Vercel routing/rollback, .2 signed migration and v6 roundtrip have machine receipts. One remote AX job produced inconsistent WKWebView/TextEdit refusals; both attempts preserved. No real vendor or merchant traffic.
+
+本机候选第一轮在 M5 和 macOS 27.0 编译主程序及原生辅助进程。十条固定 FLEURS 中文人声已通过 sherpa、Nemotron Metal 和 Qwen 0.6B 辅助进程解码。首轮结果仅覆盖引擎出口。待从签名 App 时间轴测量实际出现时间。
+
+同一段 16.68 秒 FLEURS 人声，修复后 AppKit 文本视图观察到 Apple 33、sherpa 26、Nemotron 48、Qwen 0.6B 14 次文字变化。七种引擎已分别完成十条同源录音。下载器实网暂停在 16,777,216 字节，恢复并校验 237,202,501 字节，重开、删除通过。104 项 AppModel 检查通过。详细机器收据随最终候选补齐。
+
+源代码的主程序 release/debug 均能编译，七种后端的 M5 同语料输出均已入库。新增短管道回传、等长损坏权重、单路证据与离线/撤销复核回归测试，完整 Swift Testing 由本分支 CI 执行。
+
+独立复查发现静态工具未携带资源包时会触发 SwiftPM 的致命错误。现已改为可恢复的资源查询，104 项 AppModel 检查重新通过。原生面板探针改用正式 AudioRing、重采样、VAD 和实测音量路径，收据逐帧记录讲话状态。
+
+保留 16.68 秒授权 FLEURS 的实际失败帧 evidence/local-asr/regressions/qwen-reading-freeze-b8d622c.json。增加数字形式永久改变与无关替换的独立回归；Swift 原生构建已过，下一步从新签名 DMG 回放同一语音并重算所有四路显示质量。
+
+e7c4ac8 · 411/411 Swift Testing，104 项 AppModel，52 个本地协议场景零违反。签名面板四种引擎各 10 段、归档三种各一段；14.94 秒窗口级录像无音轨。坏权重时保留可读 WAV；静音后释放进程；录音中更换模型只影响下一段。
+
+e7c4ac8 实际 70 次授权真人文件推理；40 次本机 AppKit 发言中试验，3 次独立冷档案、三种正式归档路径逐行处理同一组 VAD 片段。30 分钟 102/102 记录、204 WAV、2685 次窗口更新。七路功耗有同机空闲对照。Qwen 0.6B 首字 P95 3.54 秒未达 2 秒目标；极低电平档案可为空或出现额外文字。公开分发、GPU/ANE 独立归因及付费云端状态见 evidence/local-asr/acceptance.json。

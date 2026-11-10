@@ -1,0 +1,2099 @@
+{
+  "source": "e7c4ac86231090ef820178d4543db745944af4a4",
+  "platform": "Apple M5 24 GiB; macOS 27.0 build 26A428; arm64",
+  "metric": "micro CER: repository NFKC/casefold, punctuation-as-space; do not convert numerals, Chinese scripts or foreign names. Sample nearest-rank quantiles. Latencies in seconds.",
+  "cohort": "10 paired FLEURS zh-CN licensed test WAVs; six primary + four annotated clean challenges. No live microphone or private recordings.",
+  "models": {
+    "apple": {
+      "bytes": null,
+      "revision": "26A428",
+      "load_s": 0.07932758331298828,
+      "worker_or_apple_client_peak_rss_mib": 44.8,
+      "process_cpu_percent": {
+        "p50": 1.2,
+        "p95": 5.0
+      },
+      "worker_final_after_eos_s": {
+        "p50": 0.042,
+        "p95": 0.097
+      },
+      "worker_final_cer": {
+        "errors": 39,
+        "substitutions": 31,
+        "deletions": 6,
+        "insertions": 2,
+        "reference_units": 379,
+        "cer": 0.1029
+      },
+      "lexical_anchors": {
+        "negation": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "term": {
+          "found": 5,
+          "tested": 7,
+          "misses": [
+            [
+              "fleurs-zh-16549419822262830660",
+              "罗斯贝数"
+            ],
+            [
+              "fleurs-zh-11355960588560603456",
+              "氢离子"
+            ]
+          ]
+        },
+        "number": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "unit": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "英里"
+            ]
+          ]
+        },
+        "proper_name": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "Malar Balasubramanian"
+            ]
+          ]
+        }
+      },
+      "error_counts_per_clip": [
+        {
+          "id": "fleurs-zh-13737992583400421680",
+          "errors": 1,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-15084084705355118496",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-16549419822262830660",
+          "errors": 3,
+          "substitutions": 3,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 20
+        },
+        {
+          "id": "fleurs-zh-870219628413797707",
+          "errors": 4,
+          "substitutions": 4,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-2361100735374204762",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-4719524538529342597",
+          "errors": 26,
+          "substitutions": 18,
+          "deletions": 6,
+          "insertions": 2,
+          "reference_units": 83
+        },
+        {
+          "id": "fleurs-zh-10056338555786085046",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 31
+        },
+        {
+          "id": "fleurs-zh-11355960588560603456",
+          "errors": 4,
+          "substitutions": 4,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 29
+        },
+        {
+          "id": "fleurs-zh-14521504222934061665",
+          "errors": 1,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 47
+        },
+        {
+          "id": "fleurs-zh-10026684690566417990",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 23
+        }
+      ],
+      "native_panel": {
+        "samples": 10,
+        "paired_archived_cer": {
+          "errors": 46,
+          "substitutions": 33,
+          "deletions": 6,
+          "insertions": 7,
+          "reference_units": 379,
+          "cer": 0.12137
+        },
+        "first_visible_lexical_after_onset_s": {
+          "p50": 0.845,
+          "p95": 1.921
+        },
+        "first_visible_reference_bigram_after_onset_s": {
+          "p50": 1.294,
+          "p95": 2.066
+        },
+        "first_visible_reference_bigram_from_file_start_s": {
+          "p50": 2.595,
+          "p95": 4.721
+        },
+        "sources_with_reference_bigram": 10,
+        "largest_gap_during_active_clip_s": 1.921,
+        "ui_lexical_update_gap_s": {
+          "p50": 0.15,
+          "p95": 0.913
+        },
+        "ui_tail_churn": {
+          "comparisons": 144,
+          "tail_replacements": 6,
+          "characters_retracted": 45
+        },
+        "utterances_ge_10s_with_multiple_reference_bearing_changes": [
+          7,
+          7
+        ],
+        "rows": [
+          {
+            "id": "fleurs-zh-13737992583400421680",
+            "onset_minus55_s": 1.92,
+            "last_sustained_signal_s": 7.84,
+            "eof_s": 10.202,
+            "first_lexical_from_file_s": 2.986,
+            "earliest_reference_bigram_from_file_s": 3.059,
+            "reference_bigram_delay_s": 1.139,
+            "pre_eof_lexical_updates": 14,
+            "pre_eof_reference_bearing_updates": 13,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.066,
+            "archived_cer": {
+              "errors": 1,
+              "substitutions": 1,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 37
+            }
+          },
+          {
+            "id": "fleurs-zh-15084084705355118496",
+            "onset_minus55_s": 1.64,
+            "last_sustained_signal_s": 8.3,
+            "eof_s": 9.662,
+            "first_lexical_from_file_s": 2.485,
+            "earliest_reference_bigram_from_file_s": 2.595,
+            "reference_bigram_delay_s": 0.955,
+            "pre_eof_lexical_updates": 15,
+            "pre_eof_reference_bearing_updates": 14,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.845,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 36
+            }
+          },
+          {
+            "id": "fleurs-zh-16549419822262830660",
+            "onset_minus55_s": 0.52,
+            "last_sustained_signal_s": 4.16,
+            "eof_s": 4.862,
+            "first_lexical_from_file_s": 1.138,
+            "earliest_reference_bigram_from_file_s": 2.197,
+            "reference_bigram_delay_s": 1.677,
+            "pre_eof_lexical_updates": 8,
+            "pre_eof_reference_bearing_updates": 5,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.913,
+            "archived_cer": {
+              "errors": 3,
+              "substitutions": 3,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 20
+            }
+          },
+          {
+            "id": "fleurs-zh-870219628413797707",
+            "onset_minus55_s": 3.04,
+            "last_sustained_signal_s": 11.42,
+            "eof_s": 14.182,
+            "first_lexical_from_file_s": 3.758,
+            "earliest_reference_bigram_from_file_s": 4.721,
+            "reference_bigram_delay_s": 1.681,
+            "pre_eof_lexical_updates": 17,
+            "pre_eof_reference_bearing_updates": 15,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.853,
+            "archived_cer": {
+              "errors": 4,
+              "substitutions": 4,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 37
+            }
+          },
+          {
+            "id": "fleurs-zh-2361100735374204762",
+            "onset_minus55_s": 1.54,
+            "last_sustained_signal_s": 9.54,
+            "eof_s": 11.581,
+            "first_lexical_from_file_s": 2.255,
+            "earliest_reference_bigram_from_file_s": 2.366,
+            "reference_bigram_delay_s": 0.826,
+            "pre_eof_lexical_updates": 18,
+            "pre_eof_reference_bearing_updates": 17,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.389,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 36
+            }
+          },
+          {
+            "id": "fleurs-zh-4719524538529342597",
+            "onset_minus55_s": 0.82,
+            "last_sustained_signal_s": 15.86,
+            "eof_s": 16.682,
+            "first_lexical_from_file_s": 2.109,
+            "earliest_reference_bigram_from_file_s": 2.219,
+            "reference_bigram_delay_s": 1.399,
+            "pre_eof_lexical_updates": 31,
+            "pre_eof_reference_bearing_updates": 30,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.289,
+            "archived_cer": {
+              "errors": 26,
+              "substitutions": 18,
+              "deletions": 6,
+              "insertions": 2,
+              "reference_units": 83
+            }
+          },
+          {
+            "id": "fleurs-zh-10056338555786085046",
+            "onset_minus55_s": 2.66,
+            "last_sustained_signal_s": 9.06,
+            "eof_s": 12.902,
+            "first_lexical_from_file_s": 3.805,
+            "earliest_reference_bigram_from_file_s": 3.954,
+            "reference_bigram_delay_s": 1.294,
+            "pre_eof_lexical_updates": 14,
+            "pre_eof_reference_bearing_updates": 13,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.145,
+            "archived_cer": {
+              "errors": 7,
+              "substitutions": 2,
+              "deletions": 0,
+              "insertions": 5,
+              "reference_units": 31
+            }
+          },
+          {
+            "id": "fleurs-zh-11355960588560603456",
+            "onset_minus55_s": 0.16,
+            "last_sustained_signal_s": 7.06,
+            "eof_s": 7.502,
+            "first_lexical_from_file_s": 2.081,
+            "earliest_reference_bigram_from_file_s": 2.226,
+            "reference_bigram_delay_s": 2.066,
+            "pre_eof_lexical_updates": 12,
+            "pre_eof_reference_bearing_updates": 11,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.921,
+            "archived_cer": {
+              "errors": 4,
+              "substitutions": 4,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 29
+            }
+          },
+          {
+            "id": "fleurs-zh-14521504222934061665",
+            "onset_minus55_s": 1.66,
+            "last_sustained_signal_s": 9.22,
+            "eof_s": 11.162,
+            "first_lexical_from_file_s": 2.102,
+            "earliest_reference_bigram_from_file_s": 3.064,
+            "reference_bigram_delay_s": 1.404,
+            "pre_eof_lexical_updates": 15,
+            "pre_eof_reference_bearing_updates": 14,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.963,
+            "archived_cer": {
+              "errors": 1,
+              "substitutions": 1,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 47
+            }
+          },
+          {
+            "id": "fleurs-zh-10026684690566417990",
+            "onset_minus55_s": 1.98,
+            "last_sustained_signal_s": 7.12,
+            "eof_s": 10.382,
+            "first_lexical_from_file_s": 3.097,
+            "earliest_reference_bigram_from_file_s": 3.207,
+            "reference_bigram_delay_s": 1.227,
+            "pre_eof_lexical_updates": 10,
+            "pre_eof_reference_bearing_updates": 9,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.117,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 23
+            }
+          }
+        ]
+      }
+    },
+    "sherpa": {
+      "bytes": 237202501,
+      "revision": "8e40c43232a1c5c66c82111efc5820d3accca11b",
+      "load_s": 0.364,
+      "worker_or_apple_client_peak_rss_mib": 484.9,
+      "process_cpu_percent": {
+        "p50": 8.9,
+        "p95": 24.4
+      },
+      "worker_final_after_eos_s": {
+        "p50": 0.023,
+        "p95": 0.036
+      },
+      "worker_final_cer": {
+        "errors": 57,
+        "substitutions": 41,
+        "deletions": 6,
+        "insertions": 10,
+        "reference_units": 379,
+        "cer": 0.1504
+      },
+      "lexical_anchors": {
+        "negation": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "term": {
+          "found": 6,
+          "tested": 7,
+          "misses": [
+            [
+              "fleurs-zh-16549419822262830660",
+              "罗斯贝数"
+            ]
+          ]
+        },
+        "number": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "unit": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "英里"
+            ]
+          ]
+        },
+        "proper_name": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "Malar Balasubramanian"
+            ]
+          ]
+        }
+      },
+      "error_counts_per_clip": [
+        {
+          "id": "fleurs-zh-13737992583400421680",
+          "errors": 1,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-15084084705355118496",
+          "errors": 1,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-16549419822262830660",
+          "errors": 7,
+          "substitutions": 7,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 20
+        },
+        {
+          "id": "fleurs-zh-870219628413797707",
+          "errors": 5,
+          "substitutions": 5,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-2361100735374204762",
+          "errors": 1,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-4719524538529342597",
+          "errors": 30,
+          "substitutions": 23,
+          "deletions": 5,
+          "insertions": 2,
+          "reference_units": 83
+        },
+        {
+          "id": "fleurs-zh-10056338555786085046",
+          "errors": 11,
+          "substitutions": 2,
+          "deletions": 1,
+          "insertions": 8,
+          "reference_units": 31
+        },
+        {
+          "id": "fleurs-zh-11355960588560603456",
+          "errors": 1,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 29
+        },
+        {
+          "id": "fleurs-zh-14521504222934061665",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 47
+        },
+        {
+          "id": "fleurs-zh-10026684690566417990",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 23
+        }
+      ],
+      "native_panel": {
+        "samples": 10,
+        "paired_archived_cer": {
+          "errors": 47,
+          "substitutions": 39,
+          "deletions": 5,
+          "insertions": 3,
+          "reference_units": 379,
+          "cer": 0.12401
+        },
+        "first_visible_lexical_after_onset_s": {
+          "p50": 0.801,
+          "p95": 1.159
+        },
+        "first_visible_reference_bigram_after_onset_s": {
+          "p50": 1.082,
+          "p95": 1.43
+        },
+        "first_visible_reference_bigram_from_file_start_s": {
+          "p50": 2.622,
+          "p95": 4.162
+        },
+        "sources_with_reference_bigram": 10,
+        "largest_gap_during_active_clip_s": 1.622,
+        "ui_lexical_update_gap_s": {
+          "p50": 0.592,
+          "p95": 0.643
+        },
+        "ui_tail_churn": {
+          "comparisons": 116,
+          "tail_replacements": 0,
+          "characters_retracted": 0
+        },
+        "utterances_ge_10s_with_multiple_reference_bearing_changes": [
+          7,
+          7
+        ],
+        "rows": [
+          {
+            "id": "fleurs-zh-13737992583400421680",
+            "onset_minus55_s": 1.92,
+            "last_sustained_signal_s": 7.84,
+            "eof_s": 10.201,
+            "first_lexical_from_file_s": 2.811,
+            "earliest_reference_bigram_from_file_s": 2.811,
+            "reference_bigram_delay_s": 0.891,
+            "pre_eof_lexical_updates": 11,
+            "pre_eof_reference_bearing_updates": 11,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.891,
+            "archived_cer": {
+              "errors": 1,
+              "substitutions": 1,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 37
+            }
+          },
+          {
+            "id": "fleurs-zh-15084084705355118496",
+            "onset_minus55_s": 1.64,
+            "last_sustained_signal_s": 8.3,
+            "eof_s": 9.662,
+            "first_lexical_from_file_s": 2.334,
+            "earliest_reference_bigram_from_file_s": 2.921,
+            "reference_bigram_delay_s": 1.281,
+            "pre_eof_lexical_updates": 12,
+            "pre_eof_reference_bearing_updates": 11,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.694,
+            "archived_cer": {
+              "errors": 2,
+              "substitutions": 2,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 36
+            }
+          },
+          {
+            "id": "fleurs-zh-16549419822262830660",
+            "onset_minus55_s": 0.52,
+            "last_sustained_signal_s": 4.16,
+            "eof_s": 4.862,
+            "first_lexical_from_file_s": 1.321,
+            "earliest_reference_bigram_from_file_s": 1.95,
+            "reference_bigram_delay_s": 1.43,
+            "pre_eof_lexical_updates": 6,
+            "pre_eof_reference_bearing_updates": 5,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.801,
+            "archived_cer": {
+              "errors": 7,
+              "substitutions": 7,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 20
+            }
+          },
+          {
+            "id": "fleurs-zh-870219628413797707",
+            "onset_minus55_s": 3.04,
+            "last_sustained_signal_s": 11.42,
+            "eof_s": 14.182,
+            "first_lexical_from_file_s": 3.574,
+            "earliest_reference_bigram_from_file_s": 4.162,
+            "reference_bigram_delay_s": 1.122,
+            "pre_eof_lexical_updates": 15,
+            "pre_eof_reference_bearing_updates": 14,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.652,
+            "archived_cer": {
+              "errors": 5,
+              "substitutions": 5,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 37
+            }
+          },
+          {
+            "id": "fleurs-zh-2361100735374204762",
+            "onset_minus55_s": 1.54,
+            "last_sustained_signal_s": 9.54,
+            "eof_s": 11.581,
+            "first_lexical_from_file_s": 2.031,
+            "earliest_reference_bigram_from_file_s": 2.622,
+            "reference_bigram_delay_s": 1.082,
+            "pre_eof_lexical_updates": 13,
+            "pre_eof_reference_bearing_updates": 12,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.622,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 36
+            }
+          },
+          {
+            "id": "fleurs-zh-4719524538529342597",
+            "onset_minus55_s": 0.82,
+            "last_sustained_signal_s": 15.86,
+            "eof_s": 16.682,
+            "first_lexical_from_file_s": 1.323,
+            "earliest_reference_bigram_from_file_s": 1.913,
+            "reference_bigram_delay_s": 1.093,
+            "pre_eof_lexical_updates": 26,
+            "pre_eof_reference_bearing_updates": 25,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.632,
+            "archived_cer": {
+              "errors": 30,
+              "substitutions": 23,
+              "deletions": 5,
+              "insertions": 2,
+              "reference_units": 83
+            }
+          },
+          {
+            "id": "fleurs-zh-10056338555786085046",
+            "onset_minus55_s": 2.66,
+            "last_sustained_signal_s": 9.06,
+            "eof_s": 12.902,
+            "first_lexical_from_file_s": 3.619,
+            "earliest_reference_bigram_from_file_s": 3.619,
+            "reference_bigram_delay_s": 0.959,
+            "pre_eof_lexical_updates": 11,
+            "pre_eof_reference_bearing_updates": 11,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.959,
+            "archived_cer": {
+              "errors": 1,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 1,
+              "reference_units": 31
+            }
+          },
+          {
+            "id": "fleurs-zh-11355960588560603456",
+            "onset_minus55_s": 0.16,
+            "last_sustained_signal_s": 7.06,
+            "eof_s": 7.502,
+            "first_lexical_from_file_s": 1.319,
+            "earliest_reference_bigram_from_file_s": 1.319,
+            "reference_bigram_delay_s": 1.159,
+            "pre_eof_lexical_updates": 11,
+            "pre_eof_reference_bearing_updates": 11,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.159,
+            "archived_cer": {
+              "errors": 1,
+              "substitutions": 1,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 29
+            }
+          },
+          {
+            "id": "fleurs-zh-14521504222934061665",
+            "onset_minus55_s": 1.66,
+            "last_sustained_signal_s": 9.22,
+            "eof_s": 11.162,
+            "first_lexical_from_file_s": 2.498,
+            "earliest_reference_bigram_from_file_s": 2.498,
+            "reference_bigram_delay_s": 0.838,
+            "pre_eof_lexical_updates": 13,
+            "pre_eof_reference_bearing_updates": 13,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.838,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 47
+            }
+          },
+          {
+            "id": "fleurs-zh-10026684690566417990",
+            "onset_minus55_s": 1.98,
+            "last_sustained_signal_s": 7.12,
+            "eof_s": 10.381,
+            "first_lexical_from_file_s": 2.902,
+            "earliest_reference_bigram_from_file_s": 2.902,
+            "reference_bigram_delay_s": 0.922,
+            "pre_eof_lexical_updates": 8,
+            "pre_eof_reference_bearing_updates": 8,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.17,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 23
+            }
+          }
+        ]
+      }
+    },
+    "nemotron-metal": {
+      "bytes": 768144398,
+      "revision": "5339193d26b1eda4461358c6210f5039e97af213",
+      "load_s": 0.232,
+      "worker_or_apple_client_peak_rss_mib": 818.4,
+      "process_cpu_percent": {
+        "p50": 5.1,
+        "p95": 10.0
+      },
+      "worker_final_after_eos_s": {
+        "p50": 0.019,
+        "p95": 0.026
+      },
+      "worker_final_cer": {
+        "errors": 77,
+        "substitutions": 60,
+        "deletions": 15,
+        "insertions": 2,
+        "reference_units": 379,
+        "cer": 0.20317
+      },
+      "lexical_anchors": {
+        "negation": {
+          "found": 2,
+          "tested": 3,
+          "misses": [
+            [
+              "fleurs-zh-16549419822262830660",
+              "不活跃"
+            ]
+          ]
+        },
+        "term": {
+          "found": 3,
+          "tested": 7,
+          "misses": [
+            [
+              "fleurs-zh-16549419822262830660",
+              "罗斯贝数"
+            ],
+            [
+              "fleurs-zh-11355960588560603456",
+              "氢离子"
+            ],
+            [
+              "fleurs-zh-11355960588560603456",
+              "质子"
+            ],
+            [
+              "fleurs-zh-14521504222934061665",
+              "人工智能"
+            ]
+          ]
+        },
+        "number": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "unit": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "英里"
+            ]
+          ]
+        },
+        "proper_name": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "Malar Balasubramanian"
+            ]
+          ]
+        }
+      },
+      "error_counts_per_clip": [
+        {
+          "id": "fleurs-zh-13737992583400421680",
+          "errors": 3,
+          "substitutions": 3,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-15084084705355118496",
+          "errors": 2,
+          "substitutions": 2,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-16549419822262830660",
+          "errors": 8,
+          "substitutions": 8,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 20
+        },
+        {
+          "id": "fleurs-zh-870219628413797707",
+          "errors": 5,
+          "substitutions": 5,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-2361100735374204762",
+          "errors": 1,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-4719524538529342597",
+          "errors": 43,
+          "substitutions": 27,
+          "deletions": 14,
+          "insertions": 2,
+          "reference_units": 83
+        },
+        {
+          "id": "fleurs-zh-10056338555786085046",
+          "errors": 3,
+          "substitutions": 2,
+          "deletions": 1,
+          "insertions": 0,
+          "reference_units": 31
+        },
+        {
+          "id": "fleurs-zh-11355960588560603456",
+          "errors": 6,
+          "substitutions": 6,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 29
+        },
+        {
+          "id": "fleurs-zh-14521504222934061665",
+          "errors": 5,
+          "substitutions": 5,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 47
+        },
+        {
+          "id": "fleurs-zh-10026684690566417990",
+          "errors": 1,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 23
+        }
+      ],
+      "native_panel": {
+        "samples": 10,
+        "paired_archived_cer": {
+          "errors": 76,
+          "substitutions": 59,
+          "deletions": 15,
+          "insertions": 2,
+          "reference_units": 379,
+          "cer": 0.20053
+        },
+        "first_visible_lexical_after_onset_s": {
+          "p50": 0.676,
+          "p95": 1.195
+        },
+        "first_visible_reference_bigram_after_onset_s": {
+          "p50": 0.978,
+          "p95": 1.524
+        },
+        "first_visible_reference_bigram_from_file_start_s": {
+          "p50": 2.656,
+          "p95": 3.972
+        },
+        "sources_with_reference_bigram": 10,
+        "largest_gap_during_active_clip_s": 1.195,
+        "ui_lexical_update_gap_s": {
+          "p50": 0.33,
+          "p95": 0.629
+        },
+        "ui_tail_churn": {
+          "comparisons": 204,
+          "tail_replacements": 0,
+          "characters_retracted": 0
+        },
+        "utterances_ge_10s_with_multiple_reference_bearing_changes": [
+          7,
+          7
+        ],
+        "rows": [
+          {
+            "id": "fleurs-zh-13737992583400421680",
+            "onset_minus55_s": 1.92,
+            "last_sustained_signal_s": 7.84,
+            "eof_s": 10.202,
+            "first_lexical_from_file_s": 2.754,
+            "earliest_reference_bigram_from_file_s": 2.898,
+            "reference_bigram_delay_s": 0.978,
+            "pre_eof_lexical_updates": 19,
+            "pre_eof_reference_bearing_updates": 18,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.834,
+            "archived_cer": {
+              "errors": 3,
+              "substitutions": 3,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 37
+            }
+          },
+          {
+            "id": "fleurs-zh-15084084705355118496",
+            "onset_minus55_s": 1.64,
+            "last_sustained_signal_s": 8.3,
+            "eof_s": 9.662,
+            "first_lexical_from_file_s": 2.356,
+            "earliest_reference_bigram_from_file_s": 3.056,
+            "reference_bigram_delay_s": 1.416,
+            "pre_eof_lexical_updates": 20,
+            "pre_eof_reference_bearing_updates": 18,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.716,
+            "archived_cer": {
+              "errors": 2,
+              "substitutions": 2,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 36
+            }
+          },
+          {
+            "id": "fleurs-zh-16549419822262830660",
+            "onset_minus55_s": 0.52,
+            "last_sustained_signal_s": 4.16,
+            "eof_s": 4.862,
+            "first_lexical_from_file_s": 1.327,
+            "earliest_reference_bigram_from_file_s": 1.695,
+            "reference_bigram_delay_s": 1.175,
+            "pre_eof_lexical_updates": 11,
+            "pre_eof_reference_bearing_updates": 10,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.807,
+            "archived_cer": {
+              "errors": 8,
+              "substitutions": 8,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 20
+            }
+          },
+          {
+            "id": "fleurs-zh-870219628413797707",
+            "onset_minus55_s": 3.04,
+            "last_sustained_signal_s": 11.42,
+            "eof_s": 14.182,
+            "first_lexical_from_file_s": 3.676,
+            "earliest_reference_bigram_from_file_s": 3.972,
+            "reference_bigram_delay_s": 0.932,
+            "pre_eof_lexical_updates": 24,
+            "pre_eof_reference_bearing_updates": 23,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.7,
+            "archived_cer": {
+              "errors": 5,
+              "substitutions": 5,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 37
+            }
+          },
+          {
+            "id": "fleurs-zh-2361100735374204762",
+            "onset_minus55_s": 1.54,
+            "last_sustained_signal_s": 9.54,
+            "eof_s": 11.582,
+            "first_lexical_from_file_s": 2.133,
+            "earliest_reference_bigram_from_file_s": 2.43,
+            "reference_bigram_delay_s": 0.89,
+            "pre_eof_lexical_updates": 23,
+            "pre_eof_reference_bearing_updates": 22,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.154,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 36
+            }
+          },
+          {
+            "id": "fleurs-zh-4719524538529342597",
+            "onset_minus55_s": 0.82,
+            "last_sustained_signal_s": 15.86,
+            "eof_s": 16.682,
+            "first_lexical_from_file_s": 1.357,
+            "earliest_reference_bigram_from_file_s": 1.982,
+            "reference_bigram_delay_s": 1.162,
+            "pre_eof_lexical_updates": 44,
+            "pre_eof_reference_bearing_updates": 42,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.991,
+            "archived_cer": {
+              "errors": 43,
+              "substitutions": 27,
+              "deletions": 14,
+              "insertions": 2,
+              "reference_units": 83
+            }
+          },
+          {
+            "id": "fleurs-zh-10056338555786085046",
+            "onset_minus55_s": 2.66,
+            "last_sustained_signal_s": 9.06,
+            "eof_s": 12.902,
+            "first_lexical_from_file_s": 3.393,
+            "earliest_reference_bigram_from_file_s": 3.393,
+            "reference_bigram_delay_s": 0.733,
+            "pre_eof_lexical_updates": 18,
+            "pre_eof_reference_bearing_updates": 18,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.733,
+            "archived_cer": {
+              "errors": 2,
+              "substitutions": 1,
+              "deletions": 1,
+              "insertions": 0,
+              "reference_units": 31
+            }
+          },
+          {
+            "id": "fleurs-zh-11355960588560603456",
+            "onset_minus55_s": 0.16,
+            "last_sustained_signal_s": 7.06,
+            "eof_s": 7.502,
+            "first_lexical_from_file_s": 1.355,
+            "earliest_reference_bigram_from_file_s": 1.684,
+            "reference_bigram_delay_s": 1.524,
+            "pre_eof_lexical_updates": 18,
+            "pre_eof_reference_bearing_updates": 17,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.195,
+            "archived_cer": {
+              "errors": 6,
+              "substitutions": 6,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 29
+            }
+          },
+          {
+            "id": "fleurs-zh-14521504222934061665",
+            "onset_minus55_s": 1.66,
+            "last_sustained_signal_s": 9.22,
+            "eof_s": 11.162,
+            "first_lexical_from_file_s": 2.319,
+            "earliest_reference_bigram_from_file_s": 2.942,
+            "reference_bigram_delay_s": 1.282,
+            "pre_eof_lexical_updates": 23,
+            "pre_eof_reference_bearing_updates": 21,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.659,
+            "archived_cer": {
+              "errors": 5,
+              "substitutions": 5,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 47
+            }
+          },
+          {
+            "id": "fleurs-zh-10026684690566417990",
+            "onset_minus55_s": 1.98,
+            "last_sustained_signal_s": 7.12,
+            "eof_s": 10.382,
+            "first_lexical_from_file_s": 2.656,
+            "earliest_reference_bigram_from_file_s": 2.656,
+            "reference_bigram_delay_s": 0.676,
+            "pre_eof_lexical_updates": 14,
+            "pre_eof_reference_bearing_updates": 14,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 0.958,
+            "archived_cer": {
+              "errors": 2,
+              "substitutions": 2,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 23
+            }
+          }
+        ]
+      }
+    },
+    "qwen-small": {
+      "bytes": 712777119,
+      "revision": "bc441bd1e4295c1f42d9879f056049a925b6e013",
+      "load_s": 0.431,
+      "worker_or_apple_client_peak_rss_mib": 816.4,
+      "process_cpu_percent": {
+        "p50": 4.3,
+        "p95": 26.6
+      },
+      "worker_final_after_eos_s": {
+        "p50": 0.194,
+        "p95": 0.388
+      },
+      "worker_final_cer": {
+        "errors": 33,
+        "substitutions": 19,
+        "deletions": 13,
+        "insertions": 1,
+        "reference_units": 379,
+        "cer": 0.08707
+      },
+      "lexical_anchors": {
+        "negation": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "term": {
+          "found": 7,
+          "tested": 7,
+          "misses": []
+        },
+        "number": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "unit": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "英里"
+            ]
+          ]
+        },
+        "proper_name": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "Malar Balasubramanian"
+            ]
+          ]
+        }
+      },
+      "error_counts_per_clip": [
+        {
+          "id": "fleurs-zh-13737992583400421680",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-15084084705355118496",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-16549419822262830660",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 20
+        },
+        {
+          "id": "fleurs-zh-870219628413797707",
+          "errors": 5,
+          "substitutions": 2,
+          "deletions": 3,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-2361100735374204762",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-4719524538529342597",
+          "errors": 28,
+          "substitutions": 17,
+          "deletions": 10,
+          "insertions": 1,
+          "reference_units": 83
+        },
+        {
+          "id": "fleurs-zh-10056338555786085046",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 31
+        },
+        {
+          "id": "fleurs-zh-11355960588560603456",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 29
+        },
+        {
+          "id": "fleurs-zh-14521504222934061665",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 47
+        },
+        {
+          "id": "fleurs-zh-10026684690566417990",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 23
+        }
+      ],
+      "native_panel": {
+        "samples": 10,
+        "paired_archived_cer": {
+          "errors": 34,
+          "substitutions": 21,
+          "deletions": 10,
+          "insertions": 3,
+          "reference_units": 379,
+          "cer": 0.08971
+        },
+        "first_visible_lexical_after_onset_s": {
+          "p50": 0.81,
+          "p95": 3.536
+        },
+        "first_visible_reference_bigram_after_onset_s": {
+          "p50": 1.161,
+          "p95": 3.647
+        },
+        "first_visible_reference_bigram_from_file_start_s": {
+          "p50": 2.902,
+          "p95": 4.467
+        },
+        "sources_with_reference_bigram": 10,
+        "largest_gap_during_active_clip_s": 4.664,
+        "ui_lexical_update_gap_s": {
+          "p50": 1.217,
+          "p95": 1.589
+        },
+        "ui_tail_churn": {
+          "comparisons": 54,
+          "tail_replacements": 19,
+          "characters_retracted": 109
+        },
+        "utterances_ge_10s_with_multiple_reference_bearing_changes": [
+          7,
+          7
+        ],
+        "rows": [
+          {
+            "id": "fleurs-zh-13737992583400421680",
+            "onset_minus55_s": 1.92,
+            "last_sustained_signal_s": 7.84,
+            "eof_s": 10.202,
+            "first_lexical_from_file_s": 2.953,
+            "earliest_reference_bigram_from_file_s": 3.464,
+            "reference_bigram_delay_s": 1.544,
+            "pre_eof_lexical_updates": 6,
+            "pre_eof_reference_bearing_updates": 5,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.363,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 37
+            }
+          },
+          {
+            "id": "fleurs-zh-15084084705355118496",
+            "onset_minus55_s": 1.64,
+            "last_sustained_signal_s": 8.3,
+            "eof_s": 9.662,
+            "first_lexical_from_file_s": 2.354,
+            "earliest_reference_bigram_from_file_s": 2.902,
+            "reference_bigram_delay_s": 1.262,
+            "pre_eof_lexical_updates": 7,
+            "pre_eof_reference_bearing_updates": 6,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.245,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 36
+            }
+          },
+          {
+            "id": "fleurs-zh-16549419822262830660",
+            "onset_minus55_s": 0.52,
+            "last_sustained_signal_s": 4.16,
+            "eof_s": 4.862,
+            "first_lexical_from_file_s": 1.33,
+            "earliest_reference_bigram_from_file_s": 2.548,
+            "reference_bigram_delay_s": 2.028,
+            "pre_eof_lexical_updates": 3,
+            "pre_eof_reference_bearing_updates": 2,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.217,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 20
+            }
+          },
+          {
+            "id": "fleurs-zh-870219628413797707",
+            "onset_minus55_s": 3.04,
+            "last_sustained_signal_s": 11.42,
+            "eof_s": 14.182,
+            "first_lexical_from_file_s": 3.509,
+            "earliest_reference_bigram_from_file_s": 4.173,
+            "reference_bigram_delay_s": 1.133,
+            "pre_eof_lexical_updates": 9,
+            "pre_eof_reference_bearing_updates": 8,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.249,
+            "archived_cer": {
+              "errors": 5,
+              "substitutions": 4,
+              "deletions": 0,
+              "insertions": 1,
+              "reference_units": 37
+            }
+          },
+          {
+            "id": "fleurs-zh-2361100735374204762",
+            "onset_minus55_s": 1.54,
+            "last_sustained_signal_s": 9.54,
+            "eof_s": 11.582,
+            "first_lexical_from_file_s": 1.972,
+            "earliest_reference_bigram_from_file_s": 2.673,
+            "reference_bigram_delay_s": 1.133,
+            "pre_eof_lexical_updates": 8,
+            "pre_eof_reference_bearing_updates": 7,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.589,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 36
+            }
+          },
+          {
+            "id": "fleurs-zh-4719524538529342597",
+            "onset_minus55_s": 0.82,
+            "last_sustained_signal_s": 15.86,
+            "eof_s": 16.691,
+            "first_lexical_from_file_s": 4.356,
+            "earliest_reference_bigram_from_file_s": 4.467,
+            "reference_bigram_delay_s": 3.647,
+            "pre_eof_lexical_updates": 7,
+            "pre_eof_reference_bearing_updates": 6,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 4.664,
+            "archived_cer": {
+              "errors": 28,
+              "substitutions": 17,
+              "deletions": 10,
+              "insertions": 1,
+              "reference_units": 83
+            }
+          },
+          {
+            "id": "fleurs-zh-10056338555786085046",
+            "onset_minus55_s": 2.66,
+            "last_sustained_signal_s": 9.06,
+            "eof_s": 12.902,
+            "first_lexical_from_file_s": 3.362,
+            "earliest_reference_bigram_from_file_s": 3.362,
+            "reference_bigram_delay_s": 0.702,
+            "pre_eof_lexical_updates": 6,
+            "pre_eof_reference_bearing_updates": 6,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.276,
+            "archived_cer": {
+              "errors": 1,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 1,
+              "reference_units": 31
+            }
+          },
+          {
+            "id": "fleurs-zh-11355960588560603456",
+            "onset_minus55_s": 0.16,
+            "last_sustained_signal_s": 7.06,
+            "eof_s": 7.501,
+            "first_lexical_from_file_s": 1.321,
+            "earliest_reference_bigram_from_file_s": 1.321,
+            "reference_bigram_delay_s": 1.161,
+            "pre_eof_lexical_updates": 6,
+            "pre_eof_reference_bearing_updates": 6,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.262,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 29
+            }
+          },
+          {
+            "id": "fleurs-zh-14521504222934061665",
+            "onset_minus55_s": 1.66,
+            "last_sustained_signal_s": 9.22,
+            "eof_s": 11.163,
+            "first_lexical_from_file_s": 2.55,
+            "earliest_reference_bigram_from_file_s": 2.55,
+            "reference_bigram_delay_s": 0.89,
+            "pre_eof_lexical_updates": 7,
+            "pre_eof_reference_bearing_updates": 7,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.25,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 47
+            }
+          },
+          {
+            "id": "fleurs-zh-10026684690566417990",
+            "onset_minus55_s": 1.98,
+            "last_sustained_signal_s": 7.12,
+            "eof_s": 10.382,
+            "first_lexical_from_file_s": 2.916,
+            "earliest_reference_bigram_from_file_s": 3.539,
+            "reference_bigram_delay_s": 1.559,
+            "pre_eof_lexical_updates": 5,
+            "pre_eof_reference_bearing_updates": 4,
+            "pre_onset_lexical_updates": 0,
+            "max_gap_while_audio_continues_s": 1.25,
+            "archived_cer": {
+              "errors": 0,
+              "substitutions": 0,
+              "deletions": 0,
+              "insertions": 0,
+              "reference_units": 23
+            }
+          }
+        ]
+      }
+    },
+    "paraformer": {
+      "bytes": 222136057,
+      "revision": "9b4faaa06e476f38ab4a6e011a4467629df09059",
+      "load_s": 0.169,
+      "worker_or_apple_client_peak_rss_mib": 64.0,
+      "process_cpu_percent": {
+        "p50": 0.0,
+        "p95": 0.6
+      },
+      "worker_final_after_eos_s": {
+        "p50": 0.043,
+        "p95": 0.127
+      },
+      "worker_final_cer": {
+        "errors": 33,
+        "substitutions": 24,
+        "deletions": 6,
+        "insertions": 3,
+        "reference_units": 379,
+        "cer": 0.08707
+      },
+      "lexical_anchors": {
+        "negation": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "term": {
+          "found": 6,
+          "tested": 7,
+          "misses": [
+            [
+              "fleurs-zh-16549419822262830660",
+              "罗斯贝数"
+            ]
+          ]
+        },
+        "number": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "unit": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "英里"
+            ]
+          ]
+        },
+        "proper_name": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "Malar Balasubramanian"
+            ]
+          ]
+        }
+      },
+      "error_counts_per_clip": [
+        {
+          "id": "fleurs-zh-13737992583400421680",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-15084084705355118496",
+          "errors": 1,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-16549419822262830660",
+          "errors": 1,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 20
+        },
+        {
+          "id": "fleurs-zh-870219628413797707",
+          "errors": 4,
+          "substitutions": 4,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-2361100735374204762",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-4719524538529342597",
+          "errors": 26,
+          "substitutions": 18,
+          "deletions": 6,
+          "insertions": 2,
+          "reference_units": 83
+        },
+        {
+          "id": "fleurs-zh-10056338555786085046",
+          "errors": 1,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 1,
+          "reference_units": 31
+        },
+        {
+          "id": "fleurs-zh-11355960588560603456",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 29
+        },
+        {
+          "id": "fleurs-zh-14521504222934061665",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 47
+        },
+        {
+          "id": "fleurs-zh-10026684690566417990",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 23
+        }
+      ],
+      "archive_only": {
+        "native_archive_success": 1,
+        "native_first_archive_after_eos_s": [
+          63.32
+        ]
+      }
+    },
+    "sensevoice": {
+      "bytes": 239913642,
+      "revision": "74bdbe74b2258f25b5400db72f6cbfbef7c74ded",
+      "load_s": 0.128,
+      "worker_or_apple_client_peak_rss_mib": 136.1,
+      "process_cpu_percent": {
+        "p50": 0.0,
+        "p95": 1.0
+      },
+      "worker_final_after_eos_s": {
+        "p50": 0.059,
+        "p95": 0.124
+      },
+      "worker_final_cer": {
+        "errors": 31,
+        "substitutions": 20,
+        "deletions": 8,
+        "insertions": 3,
+        "reference_units": 379,
+        "cer": 0.08179
+      },
+      "lexical_anchors": {
+        "negation": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "term": {
+          "found": 6,
+          "tested": 7,
+          "misses": [
+            [
+              "fleurs-zh-16549419822262830660",
+              "罗斯贝数"
+            ]
+          ]
+        },
+        "number": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "unit": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "英里"
+            ]
+          ]
+        },
+        "proper_name": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "Malar Balasubramanian"
+            ]
+          ]
+        }
+      },
+      "error_counts_per_clip": [
+        {
+          "id": "fleurs-zh-13737992583400421680",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-15084084705355118496",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-16549419822262830660",
+          "errors": 4,
+          "substitutions": 4,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 20
+        },
+        {
+          "id": "fleurs-zh-870219628413797707",
+          "errors": 3,
+          "substitutions": 3,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-2361100735374204762",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-4719524538529342597",
+          "errors": 23,
+          "substitutions": 13,
+          "deletions": 8,
+          "insertions": 2,
+          "reference_units": 83
+        },
+        {
+          "id": "fleurs-zh-10056338555786085046",
+          "errors": 1,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 1,
+          "reference_units": 31
+        },
+        {
+          "id": "fleurs-zh-11355960588560603456",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 29
+        },
+        {
+          "id": "fleurs-zh-14521504222934061665",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 47
+        },
+        {
+          "id": "fleurs-zh-10026684690566417990",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 23
+        }
+      ],
+      "archive_only": {
+        "native_archive_success": 1,
+        "native_first_archive_after_eos_s": [
+          87.455
+        ]
+      }
+    },
+    "qwen-large": {
+      "bytes": 2229873245,
+      "revision": "d4f9fa3bb45489219f0fcbec671c92d9c1a68fb6",
+      "load_s": 0.425,
+      "worker_or_apple_client_peak_rss_mib": 1622.1,
+      "process_cpu_percent": {
+        "p50": 0.1,
+        "p95": 20.9
+      },
+      "worker_final_after_eos_s": {
+        "p50": 0.403,
+        "p95": 2.66
+      },
+      "worker_final_cer": {
+        "errors": 34,
+        "substitutions": 21,
+        "deletions": 11,
+        "insertions": 2,
+        "reference_units": 379,
+        "cer": 0.08971
+      },
+      "lexical_anchors": {
+        "negation": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "term": {
+          "found": 7,
+          "tested": 7,
+          "misses": []
+        },
+        "number": {
+          "found": 3,
+          "tested": 3,
+          "misses": []
+        },
+        "unit": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "英里"
+            ]
+          ]
+        },
+        "proper_name": {
+          "found": 0,
+          "tested": 1,
+          "misses": [
+            [
+              "fleurs-zh-4719524538529342597",
+              "Malar Balasubramanian"
+            ]
+          ]
+        }
+      },
+      "error_counts_per_clip": [
+        {
+          "id": "fleurs-zh-13737992583400421680",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-15084084705355118496",
+          "errors": 1,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-16549419822262830660",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 20
+        },
+        {
+          "id": "fleurs-zh-870219628413797707",
+          "errors": 3,
+          "substitutions": 3,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 37
+        },
+        {
+          "id": "fleurs-zh-2361100735374204762",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        {
+          "id": "fleurs-zh-4719524538529342597",
+          "errors": 30,
+          "substitutions": 17,
+          "deletions": 11,
+          "insertions": 2,
+          "reference_units": 83
+        },
+        {
+          "id": "fleurs-zh-10056338555786085046",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 31
+        },
+        {
+          "id": "fleurs-zh-11355960588560603456",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 29
+        },
+        {
+          "id": "fleurs-zh-14521504222934061665",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 47
+        },
+        {
+          "id": "fleurs-zh-10026684690566417990",
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 23
+        }
+      ],
+      "archive_only": {
+        "native_archive_success": 1,
+        "native_first_archive_after_eos_s": [
+          9.188
+        ]
+      }
+    }
+  },
+  "qwen_0_6b_paired_window_study": {
+    "0.8": {
+      "samples": 6,
+      "first_worker_text_from_file_s": {
+        "p50": 0.906,
+        "p95": 2.469
+      },
+      "worker_gap_s": {
+        "p50": 0.816,
+        "p95": 0.877
+      },
+      "total_pre_eof_updates": 73,
+      "tail_churn": {
+        "comparisons": 65,
+        "tail_replacements": 26,
+        "characters_retracted": 483
+      },
+      "closest_reference_prefix_error_per_output_char": 0.2975,
+      "final_cer": {
+        "errors": 33,
+        "substitutions": 19,
+        "deletions": 13,
+        "insertions": 1,
+        "reference_units": 249,
+        "cer": 0.13253
+      }
+    },
+    "1.2": {
+      "samples": 6,
+      "first_worker_text_from_file_s": {
+        "p50": 1.289,
+        "p95": 3.588
+      },
+      "worker_gap_s": {
+        "p50": 1.211,
+        "p95": 1.351
+      },
+      "total_pre_eof_updates": 48,
+      "tail_churn": {
+        "comparisons": 40,
+        "tail_replacements": 17,
+        "characters_retracted": 196
+      },
+      "closest_reference_prefix_error_per_output_char": 0.2879,
+      "final_cer": {
+        "errors": 33,
+        "substitutions": 19,
+        "deletions": 13,
+        "insertions": 1,
+        "reference_units": 249,
+        "cer": 0.13253
+      }
+    },
+    "2.0": {
+      "samples": 6,
+      "first_worker_text_from_file_s": {
+        "p50": 2.075,
+        "p95": 2.15
+      },
+      "worker_gap_s": {
+        "p50": 2.037,
+        "p95": 2.075
+      },
+      "total_pre_eof_updates": 29,
+      "tail_churn": {
+        "comparisons": 23,
+        "tail_replacements": 12,
+        "characters_retracted": 153
+      },
+      "closest_reference_prefix_error_per_output_char": 0.2778,
+      "final_cer": {
+        "errors": 33,
+        "substitutions": 19,
+        "deletions": 13,
+        "insertions": 1,
+        "reference_units": 249,
+        "cer": 0.13253
+      }
+    }
+  }
+}

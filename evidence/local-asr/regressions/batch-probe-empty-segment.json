@@ -1,0 +1,21 @@
+{
+  "source": "e7c4ac86231090ef820178d4543db745944af4a4",
+  "scope": "signed --local-stream-probe paraformer across concatenated 10 FLEURS clips; a single-file diagnostic does not advance after a terminal failure on one VAD segment",
+  "status": "FAIL",
+  "total_vad_rows": 11,
+  "states_while_waiting": {
+    "completed": 3,
+    "failed": 1,
+    "queued": 7
+  },
+  "failed_record_journal_s": 1.86,
+  "failed_record_nonempty_text": false,
+  "observer_timeout_seconds": 370,
+  "recovery_evidence": "candidate-batch-cohort/: independently actioned per-record normal retries with the same source and real installed workers; failed rows remain counted.",
+  "same_cohort_recapture_extra_segment": {
+    "seconds": 1.86,
+    "pcm_rms_dbfs": -66.47,
+    "pcm_peak_dbfs": -51.72,
+    "scope": "calculated from journal PCM16; no human silence or speech label inferred"
+  }
+}

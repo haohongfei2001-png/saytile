@@ -30,3 +30,17 @@
 2026-11-10 · No changes to user actions. Gateway can remain live with model calls disabled while waiting for free Supabase capacity.
 
 2026-11-10 · No engineering test or recording required from the user. Approved organization must have a zero-increment independent slot before remote Supabase creation. Then owner enters secrets once in the named Vercel project and approves a bounded real usage test. Merchant and notarization authorizations are separate release gates.
+
+本机实时识别的工程验收使用固定许可样本，不需要用户录音或提供密钥。模型按需下载，Apple 语言资源由系统管理。
+
+Apple 中文资源已在本机准备，七路样本均由工程自行运行。实际面板、下载器和归档验证不使用私人麦克风。
+
+本机录音的 GPT-6 文字核对需要用户自带 OpenAI 凭据并显式开启独立文字授权。开发验收使用离线回归替身，真实付费调用未运行。
+
+隔离的主板验收使用公开语料驱动原生音频缓冲，无需麦克风授权。
+
+该预览停滞由工程使用固定真人语料复现并复验，不需要用户协助。
+
+工程录像仅捕获隔离窗口。无需个人录音、桌面授权或操作；公开安装仍待发行方 Apple 公证。
+
+本轮无需用户操作。下载、出字、模型切换、原音失败保护、升级及隔离录屏已由工程处理。仅将发行方 Apple 公证、未来真实云端凭据/费用授权和可选真人物理麦克风体验保留为独立事项。

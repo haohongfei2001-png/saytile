@@ -8,3 +8,5 @@
 
 
 2026-11-10 · 独立商业候选（未发布）：见 [Saytile Cloud 交付与阻塞](SAYTILE-CLOUD-DELIVERY.md)。线上网关存在；付费托管及公开分发尚未开放。
+
+2026-11-10 · 独立本机 ASR 候选 [签名包与 M5 机器验收](V1-LOCAL-ASR-ACCEPTANCE.md)。三种真流式、一种分块、三种归档；仅 Draft PR #15，不取代任何冻结版本。

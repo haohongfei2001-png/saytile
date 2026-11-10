@@ -1,0 +1,165 @@
+{
+  "source": "e7c4ac86231090ef820178d4543db745944af4a4",
+  "base_branch": "codex/saytile-cloud",
+  "base": "080d8ca0cf37b10b3011cb07a13c6fb0c26ab4bc",
+  "draft_pr": "https://github.com/haohongfei2001-png/saytile/pull/15",
+  "signed_candidate": {
+    "filename": "Saytile-1.0.0-rc.2-local-asr.3-arm64.dmg",
+    "bytes": 61598282,
+    "sha256": "51acefcbc14e2536b4b7aaf8f8e0ad13a081d272ebe2a136f4e977c9ce9ad57f",
+    "remote_blob": "6fe17d18ccd647564c4e4affbcf6908625cf5f6c",
+    "source_dirty": false,
+    "identity": "app.saytile.mac",
+    "gatekeeper": "rejected: Unnotarized Developer ID"
+  },
+  "checks": {
+    "signed_native_worker_inference": {
+      "status": "PASS",
+      "meaning": "All seven produced a final result for the same 10 unique recorded Chinese clips. 70/70 direct inference runs.",
+      "evidence": "candidate-engines/"
+    },
+    "native_panel_while_speaking": {
+      "status": "PASS",
+      "meaning": "AppKit laid out multiple reference-bearing updates in all 7 clips >=10s per live-capable engine (28/28). 40/40 panel receipts for 10 clips per engine. Qwen 0.6B is chunked, not a true online decoder.",
+      "evidence": "candidate-panels/"
+    },
+    "chunked_first_visible_p95_goal": {
+      "status": "FAIL",
+      "meaning": "Qwen 0.6B first visible lexical P95 3.54s > 2s. Its P50 was within the 1s target. No adjustment to discard slow starts.",
+      "evidence": "quality.json"
+    },
+    "streaming_first_visible_target": {
+      "status": "PASS",
+      "meaning": "Apple, sherpa and Nemotron first lexical glyph each had P50 <=1s and P95 <=2s on this 10-clip cohort; first reference bigram is stricter and reported separately.",
+      "evidence": "quality.json"
+    },
+    "batch_never_advertised_as_live": {
+      "status": "PASS",
+      "meaning": "Three archive-only families produced exactly zero pre-EOS native updates and returned a retained revision in the one-file native trial.",
+      "evidence": "candidate-archive/"
+    },
+    "full_corpus_archive_no_empty_rows": {
+      "status": "FAIL",
+      "meaning": {
+        "paraformer": {
+          "status": "FAIL",
+          "nonempty": 10,
+          "attempted": 11,
+          "joined_cer": 0.08970976253298153,
+          "failed_rows": [
+            1.86
+          ]
+        },
+        "qwen-large": {
+          "status": "FAIL",
+          "nonempty": 10,
+          "attempted": 11,
+          "joined_cer": 0.09762532981530343,
+          "failed_rows": [
+            1.86
+          ]
+        },
+        "sensevoice": {
+          "status": "PASS",
+          "nonempty": 11,
+          "attempted": 11,
+          "joined_cer": 0.08179419525065963,
+          "failed_rows": []
+        }
+      },
+      "evidence": "candidate-batch-cohort/"
+    },
+    "original_batch_probe_on_extra_vad_row": {
+      "status": "FAIL",
+      "meaning": "A single-file engineering probe waits when a VAD row terminates without text; the additional independent normal archive actions preserve this failure and continue.",
+      "evidence": "regressions/batch-probe-empty-segment.json"
+    },
+    "model_download_pause_resume_integrity": {
+      "status": "PASS",
+      "meaning": "Real HTTPS pause/resume/hash, restart and delete, plus same-size corruption rejected and original audio saved. Download-manager source unchanged from the measured network run.",
+      "evidence": "delivery/model-download.txt; delivery/idle-fault.json"
+    },
+    "model_lifecycle_and_selection": {
+      "status": "PASS",
+      "meaning": "Switched at 5s with on-screen text. One provider per utterance. Real worker exits during idle and reloads for the next utterance.",
+      "evidence": "delivery/model-switch.json; delivery/idle-fault.json"
+    },
+    "long_recording": {
+      "status": "PASS",
+      "meaning": {
+        "paced_seconds": 1803.371,
+        "rows": 102,
+        "readable_wavs": 204,
+        "panel_changes": 2685,
+        "sqlite_integrity": "ok"
+      },
+      "evidence": "delivery/soak-final.json"
+    },
+    "application_replacement_and_rollback": {
+      "status": "PASS",
+      "meaning": "Disposable installation, launch, schema-6 archive, drafts, audio, test Keychain, authorizations and 237202501 bytes of model weights remained intact.",
+      "evidence": "delivery/upgrade-final.json"
+    },
+    "swift_full_xcode": {
+      "status": "PASS",
+      "meaning": {
+        "run": 411,
+        "pass": 411,
+        "fail": 0,
+        "suites": 50
+      },
+      "evidence": "delivery/ci-final.json"
+    },
+    "appmodel_and_protocol_regression": {
+      "status": "PASS",
+      "meaning": {
+        "appmodel": 104,
+        "local_wire_contracts": 52,
+        "violations": 0
+      },
+      "evidence": "delivery/ci-final.json"
+    },
+    "window_recording": {
+      "status": "PASS",
+      "meaning": "14.94 s real per-window H.264, one video track / no audio, no desktop capture.",
+      "evidence": "delivery/live-panel.mp4; delivery/movie.json"
+    },
+    "whole_machine_power_observed": {
+      "status": "PASS",
+      "meaning": "Seven paired session/idle windows with total watts and CPU/GPU/ANE power plus GPU activity. Not app-attributed wattage.",
+      "evidence": "device-power/"
+    },
+    "per_process_gpu_ane_utilization": {
+      "status": "BLOCKED",
+      "meaning": "Per-process GPU/ANE occupancy and Apple shared service memory are not independently exposed by the available counters. Do not report zero as an occupancy measurement.",
+      "evidence": "device-power/summary.json"
+    },
+    "apple_asset_transfer_accounting": {
+      "status": "BLOCKED",
+      "meaning": "Apple manages speech resources. Active package mapping, exact download seconds and bytes for just this app are not observable.",
+      "evidence": "storage.json"
+    },
+    "public_distribution": {
+      "status": "BLOCKED",
+      "meaning": "Developer ID signed and timestamped, not notarized; normal Gatekeeper assessment rejected.",
+      "evidence": "delivery/install-3.txt"
+    },
+    "live_cloud_gpt6_and_paid_asr": {
+      "status": "NOT_RUN",
+      "meaning": "No authorized paid inference invoked. Local system delivers previews and writes audio without any cloud account.",
+      "evidence": "../../docs/V1-LOCAL-ASR-ACCEPTANCE.md"
+    },
+    "physical_microphone_and_overnight": {
+      "status": "NOT_RUN",
+      "meaning": "Paced corpus through production ring/VAD rather than physical transducer or private live conversation. One 30-minute sherpa soak; no new all-model overnight, sleep or battery-life claims.",
+      "evidence": "delivery/soak-final.json"
+    },
+    "sensevoice_commercial_distribution": {
+      "status": "BLOCKED",
+      "meaning": "Evaluation only; retains upstream FunASR model terms. Commercial distribution scope not cleared.",
+      "evidence": "../../THIRD_PARTY_NOTICES.md"
+    }
+  },
+  "paid_inference_calls": 0,
+  "disposition": "INDEPENDENT_ENGINEERING_CANDIDATE_NOT_PUBLIC_RELEASE"
+}

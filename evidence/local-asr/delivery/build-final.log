@@ -1,0 +1,82 @@
+Building for production...
+[Planning deferred tasks]
+[15 / 31]
+[17 / 32] CAudio
+[43 / 80] CAudio
+[65 / 80] CAudio
+[71 / 108] SaytileKit
+[82 / 111]
+[91 / 111]
+[95 / 111]
+[97 / 111]
+$WORKTREE/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+$WORKTREE/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+[99 / 111] SaytileKit
+$WORKTREE/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[106 / 111] Saytile-product
+$WORKTREE/Sources/SaytileApp/AppModel.swift:568:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 560 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+ 561 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+ 562 |         connectionCheckTask = Task {
+     |                                    |- note: 'self' implicitly strongly captured here
+     |                                    `- note: add 'self' as a capture list item to silence
+ 563 |             // A cancelled older check must fully close its sockets before another starts.
+ 564 |             await previous?.value
+     :
+ 566 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+ 567 |             do {
+ 568 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#Im[108 / 112] Saytile-product
+plicitStrongCapture]
+     |                                                                                         `- note: explicitly assign the capture list item to silence
+ 569 |                     Task { @MainActor [weak self] in
+ 570 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+$WORKTREE/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+$WORKTREE/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[110 / 112] Saytile-product
+[111 / 112] Saytile-product
+Build complete! (31.09秒)
+[0/1] Planning build
+Building for production...
+[0/2] Write swift-version--1AB21518FC5DEDBE.txt
+Build of product 'SaytileModelWorker' complete! (3.26s)
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+/tmp/saytile-bundle.3uo0R2/Saytile.app/Contents/Frameworks/libonnxruntime.dylib: replacing existing signature
+/tmp/saytile-bundle.3uo0R2/Saytile.app/Contents/Frameworks/libsherpa-onnx-c-api.dylib: replacing existing signature
+/tmp/saytile-bundle.3uo0R2/Saytile.app/Contents/Helpers/SaytileSherpa: replacing existing signature
+/tmp/saytile-bundle.3uo0R2/Saytile.app/Contents/Helpers/SaytileModelWorker: replacing existing signature
+/tmp/saytile-bundle.3uo0R2/Saytile.app: replacing existing signature
+/tmp/saytile-bundle.3uo0R2/Saytile.app/Contents/Info.plist: OK
+Built /tmp/<isolated-build>/volume/Saytile.app
+/tmp/<isolated-build>/volume/Saytile.app/Contents/Frameworks/libonnxruntime.dylib: replacing existing signature
+/tmp/<isolated-build>/volume/Saytile.app/Contents/Frameworks/libsherpa-onnx-c-api.dylib: replacing existing signature
+/tmp/<isolated-build>/volume/Saytile.app/Contents/Helpers/SaytileSherpa: replacing existing signature
+/tmp/<isolated-build>/volume/Saytile.app/Contents/Helpers/SaytileModelWorker: replacing existing signature
+/tmp/<isolated-build>/volume/Saytile.app: replacing existing signature
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $CAF17476
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $EEE7DC6F
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $12F7004D
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $37BC841C
+正在检查“（Apple_Free：5）”的校验和…
+                      （Apple_Free：5）：已验证CRC32 $00000000
+正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $12F7004D
+正在检查“GPT Header（Backup GPT Header：7）”的校验和…
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $01972651
+已验证CRC32 $4BDAB5CC
+hdiutil: verify: checksum of "/tmp/<isolated-build>/integration.dmg" is VALID
+51acefcbc14e2536b4b7aaf8f8e0ad13a081d272ebe2a136f4e977c9ce9ad57f  $WORKTREE/dist/Saytile-1.0.0-rc.2-local-asr.3-arm64.dmg

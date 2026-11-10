@@ -793,17 +793,18 @@ extension SaytileStore {
     }
     /// Upgrade a local recognition ticket into the same evidence/publication tables.
     /// No provider configuration or cloud credential is involved.
-    func beginLocalCandidateRun(ticket: RecognitionTicket) throws -> ModelRunTicket {
-        try db.transaction {
+    func beginLocalCandidateRun(ticket: RecognitionTicket, model: LocalASRID = .apple) throws -> ModelRunTicket {
+        let version = model == .apple ? "system-installed" : try LocalModelManifest.load(model).revision
+        return try db.transaction {
             guard try validTicket(ticket),
                   try db.rows("SELECT id FROM fusion_sessions WHERE id=?", [.text(ticket.id.uuidString)]).isEmpty else { throw FusionError.staleGeneration }
             try db.execute("INSERT INTO fusion_sessions(id,recording_id,audio_epoch,mode,state,created_at) VALUES(?,?,?,?,'running',?)",
                 [.text(ticket.id.uuidString), .text(ticket.recordingID.uuidString), .int(ticket.audioEpoch), .text(InputQualityMode.highestQuality.rawValue), .double(Date().timeIntervalSince1970)])
-            let configurationID = UUID(uuidString: "A71E0001-0000-4000-8000-000000000008")!
+            let configurationID = model.evidenceID
             let requirements = [FusionRequirement(configurationID: configurationID, purpose: .multilingualASR)]
             try db.execute("INSERT INTO fusion_requirements(recognition_id,payload) VALUES(?,?)", [.text(ticket.id.uuidString), .text(try Self.encodeEvidence(requirements))])
             let run = ModelRunTicket(recognitionID: ticket.id, recordingID: ticket.recordingID, audioEpoch: ticket.audioEpoch,
-                configurationID: configurationID, provider: "apple-speech-analyzer", model: "system-installed", purpose: .multilingualASR)
+                configurationID: configurationID, provider: model == .apple ? "apple-speech-analyzer" : model.rawValue, model: version, purpose: .multilingualASR)
             try db.execute("INSERT INTO model_runs(id,recognition_id,recording_id,audio_epoch,configuration_id,payload,state,last_sequence,retryable,created_at) VALUES(?,?,?,?,?,?,'running',-1,1,?)",
                 [.text(run.id.uuidString), .text(ticket.id.uuidString), .text(ticket.recordingID.uuidString), .int(ticket.audioEpoch), .text(configurationID.uuidString), .text(try Self.encodeEvidence(run)), .double(Date().timeIntervalSince1970)])
             return run

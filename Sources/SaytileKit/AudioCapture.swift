@@ -170,7 +170,7 @@ actor CaptureWorker {
             let ticket = try await (config.cloudEnabled
                 ? store.beginFusionRecognition(recordingID: record.id, mode: config.inputMode)
                 : store.beginRecognition(recordingID: record.id))
-            speech = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot)
+            speech = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot, newCapture: true)
         } catch { speech = nil }
     }
     func append(_ data: Data) async throws {
@@ -285,6 +285,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     private var requestedRunning = false
     private var startGeneration: UInt64 = 0
     private var automaticAssetAttempted = false
+    private var selectedLocalID: LocalASRID = .apple
     private var lifecycleGate = AudioLifecycleGate()
     private var lockBridge: AudioLockEventBridge?
     private var lifecycleTask: Task<Void, Never>?
@@ -375,13 +376,13 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             }
         }
         availabilityTask = Task {
-            speechStatus = recognitionFactory.usesCloud ? "单一语言专家识别 · " + recognitionFactory.configuration.inputMode.label : await AppleSpeechService.availability().message
+            speechStatus = recognitionFactory.usesCloud ? "单一语言专家识别 · " + recognitionFactory.configuration.inputMode.label : await recognitionFactory.localAvailability().message
         }
         recoveryTask = Task { [weak self] in
             while !Task.isCancelled {
                 do { try await Task.sleep(for: .seconds(10)) } catch { break }
                 guard let self, self.canRecoverInBackground else { continue }
-                let recognitionAvailable = self.recognitionFactory.usesCloud ? true : await AppleSpeechService.availability().installed
+                let recognitionAvailable = self.recognitionFactory.usesCloud ? true : await self.recognitionFactory.localAvailability().installed
                 guard self.recognitionFactory.configuration.automaticRecovery,
                       recognitionAvailable,
                       self.canRecoverInBackground,
@@ -401,6 +402,79 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     }
     private var recognitionSettingsGeneration: UInt64 = 0
     /// Revoke future cloud sessions synchronously, before awaiting cancellation of old work.
+    private func beginMeterObservation() -> AsyncStream<(Bool, Float)>.Continuation {
+        let (meter, meterContinuation) = AsyncStream<(Bool, Float)>.makeStream(bufferingPolicy: .bufferingNewest(1))
+        self.meterContinuation = meterContinuation
+        meterTask = Task { [weak self] in
+            var lastMeter = Date.distantPast
+            for await (speaking, level) in meter {
+                guard let self, self.state.isRunning else { continue }
+                if speaking { self.lastVoiceAt = Date(); self.retryTask?.cancel() }
+                let nextState: CaptureState = speaking ? .speaking : .listening
+                if self.state != nextState { self.state = nextState }
+                if Date().timeIntervalSince(lastMeter) >= 0.1 {
+                    if abs(self.level - level) > 0.01 { self.level = level }
+                    lastMeter = Date()
+                }
+            }
+        }
+        return meterContinuation
+    }
+    /// Isolated file ingress for paced native acceptance. Uses the same VAD,
+    /// recorder, recognition factory and store as microphone callbacks.
+    public func replayLocalFixture(_ file: URL, recordOnly: Bool = false) async throws -> Double {
+        guard !recognitionFactory.usesCloud, state == .paused else { throw AudioFailure.message("需要空闲的本机识别环境") }
+        let source = try AVAudioFile(forReading: file, commonFormat: .pcmFormatFloat32, interleaved: false)
+        guard source.processingFormat.channelCount == 1, source.processingFormat.sampleRate == 16_000,
+              source.length <= 16_000 * 1_850 else { throw AudioFailure.message("需要 16 kHz 单声道测试语料") }
+        let ring = try AudioRing(capacity: 64_000)
+        let updates = beginMeterObservation()
+        defer {
+            updates.finish(); meterTask?.cancel(); meterTask = nil; meterContinuation = nil
+            state = .paused; level = 0
+        }
+        let worker = try CaptureWorker(store: store, ring: ring, sampleRate: 16_000,
+            recognitionEnabled: !recordOnly, recognitionFactory: recognitionFactory,
+            update: { updates.yield(($0, $1)) }, failed: { [weak self] message in self?.issue = message })
+        let clock = ContinuousClock(), began = clock.now
+        state = .listening
+        await worker.start()
+        let buffer = AVAudioPCMBuffer(pcmFormat: source.processingFormat, frameCapacity: 320)!
+        do {
+            while source.framePosition < source.length {
+                try source.read(into: buffer, frameCount: 320)
+                try await clock.sleep(until: began + .seconds(Double(source.framePosition) / 16_000))
+                st_ring_write(ring.pointer, buffer.floatChannelData!, 1, buffer.frameLength)
+            }
+        } catch { await worker.stop(); throw error }
+        let eos = ProcessInfo.processInfo.systemUptime
+        await worker.stop()
+        if let issue { throw AudioFailure.message(issue) }
+        let limit = clock.now + .seconds(75)
+        while await worker.hasPendingRecognition() {
+            if clock.now > limit { await worker.cancelRecognitionAndWait(); throw AudioFailure.message("识别超时") }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        return eos
+    }
+    public func selectLocalModels(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil) {
+        guard live.capability != .batch else { return }
+        if live != selectedLocalID {
+            selectedLocalID = live
+            if live != .apple { automaticAssetTask?.cancel() }
+            Task { await service.releaseIdle() }
+        }
+        recognitionFactory.selectLocal(live: live, archive: archive, service: service, review: review)
+        refreshLocalModelStatus()
+    }
+    public func refreshLocalModelStatus() {
+        availabilityTask?.cancel()
+        availabilityTask = Task {
+            let snapshot = recognitionFactory.snapshot
+            let status = snapshot.configuration.cloudEnabled ? "云端识别" : await recognitionFactory.localAvailability().message
+            if !Task.isCancelled { speechStatus = status }
+        }
+    }
     public func selectHostedRoute(_ route: HostedRoute, revoke: Bool = false) {
         recognitionFactory.select(route, revoke: revoke)
     }
@@ -425,7 +499,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         for old in drainingWorkers { await old.cancelRecognitionAndWait() }
         guard generation == recognitionSettingsGeneration else { return }
         retryTask?.cancel()
-        let message = configuration.cloudEnabled ? "单一语言专家识别 · " + configuration.inputMode.label : await AppleSpeechService.availability().message
+        let message = configuration.cloudEnabled ? "单一语言专家识别 · " + configuration.inputMode.label : await recognitionFactory.localAvailability().message
         guard generation == recognitionSettingsGeneration else { return }
         speechStatus = message
     }
@@ -446,7 +520,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         let task = Task { @MainActor in
             preparingSpeech = true; defer { preparingSpeech = false }
             speechStatus = "正在准备中文识别资源 · 原音继续保存"
-            do { try await AppleSpeechService.prepare(); try Task.checkCancellation(); speechStatus = await AppleSpeechService.availability().message }
+            do { try await AppleSpeechService.prepare(); try Task.checkCancellation(); speechStatus = await recognitionFactory.localAvailability().message }
             catch is CancellationError { }
             catch { if !isShuttingDown { issue = "中文资源下载失败：\(error.localizedDescription)"; speechStatus = issue! } }
         }
@@ -495,21 +569,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             }
             guard let sampleRate = pinned?.sampleRate ?? format?.sampleRate else { throw AudioFailure.message("没有可用的麦克风") }
             let ring = try AudioRing(capacity: UInt32(sampleRate * 4))
-            let (meter, meterContinuation) = AsyncStream<(Bool, Float)>.makeStream(bufferingPolicy: .bufferingNewest(1))
-            self.meterContinuation = meterContinuation
-            meterTask = Task { [weak self] in
-                var lastMeter = Date.distantPast
-                for await (speaking, level) in meter {
-                    guard let self, self.state.isRunning else { continue }
-                    if speaking { self.lastVoiceAt = Date(); self.retryTask?.cancel() }
-                    let nextState: CaptureState = speaking ? .speaking : .listening
-                    if self.state != nextState { self.state = nextState }
-                    if Date().timeIntervalSince(lastMeter) >= 0.1 {
-                        if abs(self.level - level) > 0.01 { self.level = level }
-                        lastMeter = Date()
-                    }
-                }
-            }
+            let meterContinuation = beginMeterObservation()
             let worker = try CaptureWorker(store: store, ring: ring, sampleRate: sampleRate, recognitionFactory: recognitionFactory, update: { speaking, level in
                 meterContinuation.yield((speaking, level))
             }, failed: { [weak self] message in Task { @MainActor in await self?.suspend(reason: message) } })
@@ -528,7 +588,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             }
             self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
             await worker.start()
-            if !automaticAssetAttempted && !recognitionFactory.usesCloud {
+            if selectedLocalID == .apple && !automaticAssetAttempted && !recognitionFactory.usesCloud {
                 automaticAssetAttempted = true
                 automaticAssetTask = Task {
                     let availability = await AppleSpeechService.availability()
@@ -752,7 +812,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                     ? store.beginFusionRecognition(recordingID: recordingID, mode: config.inputMode)
                     : store.beginRecognition(recordingID: recordingID))
                 try Task.checkCancellation()
-                let activeSession = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot)
+                let activeSession = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot, archived: !isAutomatic)
                 session = activeSession
                 for chunk in chunks {
                     try Task.checkCancellation()
