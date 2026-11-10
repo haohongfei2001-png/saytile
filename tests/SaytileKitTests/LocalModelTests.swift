@@ -23,6 +23,19 @@ struct LocalModelTests {
         #expect(text.accept("最终原话", final: true) == 4)
         #expect(LocalModelRecommendation.select(appleInstalled: false, sherpaInstalled: true) == .sherpa)
     }
+    @Test func confirmedNumberRenderingCanResumeAPreviewButCannotCreateDispatchEvidence() {
+        var q = LocalLiveText(model: .qwen)
+        for text in ["二十九岁的马拉巴拉。", "二十九岁的马拉巴拉斯巴拉米尼亚。",
+                     "二十九岁的马拉巴拉斯巴拉米尼亚医生在俄。"] {
+            #expect(q.accept(text, final: false) == 0)
+        }
+        #expect(q.accept("29歲的Malala Sabra Miliam一生在俄亥俄州新。", final: false) == nil)
+        #expect(q.accept("29岁的马拉巴拉斯巴拉米亚姆医生在俄亥俄州新近亚提市以北。", final: false) == nil)
+        #expect(q.accept("29岁的马拉巴拉斯巴拉米亚姆医生在俄亥俄州新近亚提市，以北约15公里。", final: false) == 0)
+        let unrelated = "同样的长度不能证明完全不同的识别结果有权替换此前的预览。"
+        #expect(q.accept(unrelated, final: false) == nil)
+        #expect(q.accept(unrelated + "更多", final: false) == nil)
+    }
     @Test func changedSameLengthWeightsCannotBeOpened() async throws {
         let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }

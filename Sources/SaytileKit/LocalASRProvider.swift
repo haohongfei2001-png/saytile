@@ -192,16 +192,37 @@ struct LocalLiveText {
     let model: LocalASRID
     private(set) var previous = ""
     private var readingPrefix = ""
+    private var withheld: String?
     init(model: LocalASRID) { self.model = model }
     mutating func accept(_ text: String, final: Bool) -> Int? {
         if final { return text.utf16.count }
         let common = RecognitionUTF16.commonPrefix([previous, text])
         if model == .qwen {
-            guard RecognitionUTF16.hasExactPrefix(text, prefix: readingPrefix) else { return nil }
-            if common.count > 8 {
+            if !RecognitionUTF16.hasExactPrefix(text, prefix: readingPrefix) {
+                // A decoder may permanently change “二十九岁” to “29岁”. Suppressing
+                // every later hypothesis would freeze the preview until end of speech.
+                // Reconsider only the last 24 visible graphemes, on two consecutive
+                // concordant model passes with an unchanged lexical anchor. Never
+                // splice text or turn this tentative reading into dispatch evidence.
+                let prior = withheld
+                withheld = text
+                guard let prior else { return nil }
+                let supported = RecognitionUTF16.commonPrefix([prior, text])
+                let unchanged = common.count
+                guard previous.count - unchanged <= 24, text.count >= previous.count,
+                      supported.count >= max(unchanged + 4, min(previous.count, 12)) else { return nil }
+                let oldTail = Array(previous.dropFirst(unchanged).prefix(24))
+                let newTail = String(supported.dropFirst(unchanged).prefix(48))
+                guard oldTail.count >= 4, (0...(oldTail.count - 4)).contains(where: { i in
+                    let anchor = oldTail[i..<(i + 4)]
+                    return anchor.allSatisfy { $0.isLetter || $0.isNumber } && newTail.contains(String(anchor))
+                }) else { return nil }
+                readingPrefix = String(supported.dropLast(8))
+            } else if common.count > 8 {
                 let supported = String(common.dropLast(8))
                 if supported.utf16.count > readingPrefix.utf16.count { readingPrefix = supported }
             }
+            withheld = nil
         }
         previous = text
         return model == .nemotron ? String(common.dropLast()).utf16.count : 0
