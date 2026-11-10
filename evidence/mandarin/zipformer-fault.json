@@ -1,0 +1,54 @@
+{
+  "source": "178dbbc073613ac3c0ea632e25b74c29ab4ef702",
+  "model": "zipformer",
+  "model_revision": "f29132af655b91f258800df19c5b5d9b9281a5cd",
+  "fixture_sha256": "2c130c47ae74549ca6b33e06a547e2165e14f665380d29cefe6667fa5602fe47",
+  "corrupt": {
+    "status": "PASS",
+    "records": 1,
+    "recognition": [
+      "failed"
+    ],
+    "audio_available": true,
+    "raw_pcm_frames": 133120,
+    "process_events": [
+      {
+        "t": 0.1,
+        "worker": null
+      }
+    ],
+    "providers": [],
+    "probe_exit": 1
+  },
+  "idle": {
+    "status": "PASS",
+    "records": 2,
+    "recognition": [
+      "completed"
+    ],
+    "audio_available": true,
+    "raw_pcm_frames": 266880,
+    "process_events": [
+      {
+        "t": 0.05,
+        "worker": null
+      },
+      {
+        "t": 3.39,
+        "worker": 1
+      },
+      {
+        "t": 40.94,
+        "worker": null
+      },
+      {
+        "t": 58.62,
+        "worker": 2
+      }
+    ],
+    "providers": [
+      "zipformer"
+    ],
+    "probe_exit": 0
+  }
+}

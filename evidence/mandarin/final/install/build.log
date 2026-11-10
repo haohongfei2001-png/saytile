@@ -1,0 +1,39 @@
+Building for production...
+[1 / 1]
+Build complete! (0.33秒)
+[0/1] Planning build
+Building for production...
+[0/2] Write swift-version--1AB21518FC5DEDBE.txt
+Build of product 'SaytileModelWorker' complete! (1.67s)
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+/tmp/saytile-bundle.70ipum/Saytile.app/Contents/Frameworks/libonnxruntime.dylib: replacing existing signature
+/tmp/saytile-bundle.70ipum/Saytile.app/Contents/Frameworks/libsherpa-onnx-c-api.dylib: replacing existing signature
+/tmp/saytile-bundle.70ipum/Saytile.app/Contents/Helpers/SaytileSherpa: replacing existing signature
+/tmp/saytile-bundle.70ipum/Saytile.app/Contents/Helpers/SaytileModelWorker: replacing existing signature
+/tmp/saytile-bundle.70ipum/Saytile.app: replacing existing signature
+/tmp/saytile-bundle.70ipum/Saytile.app/Contents/Info.plist: OK
+Built /tmp/saytile-rc2-integration.Z2i2O7/volume/Saytile.app
+/tmp/saytile-rc2-integration.Z2i2O7/volume/Saytile.app/Contents/Frameworks/libonnxruntime.dylib: replacing existing signature
+/tmp/saytile-rc2-integration.Z2i2O7/volume/Saytile.app/Contents/Frameworks/libsherpa-onnx-c-api.dylib: replacing existing signature
+/tmp/saytile-rc2-integration.Z2i2O7/volume/Saytile.app/Contents/Helpers/SaytileSherpa: replacing existing signature
+/tmp/saytile-rc2-integration.Z2i2O7/volume/Saytile.app/Contents/Helpers/SaytileModelWorker: replacing existing signature
+/tmp/saytile-rc2-integration.Z2i2O7/volume/Saytile.app: replacing existing signature
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $123BEDA8
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $93A515FA
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $8E4B6729
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $4D040262
+正在检查“（Apple_Free：5）”的校验和…
+                      （Apple_Free：5）：已验证CRC32 $00000000
+正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $8E4B6729
+正在检查“GPT Header（Backup GPT Header：7）”的校验和…
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $322346A0
+已验证CRC32 $6FF8B95C
+hdiutil: verify: checksum of "/tmp/saytile-rc2-integration.Z2i2O7/integration.dmg" is VALID
+8bda62f280eabafbd8fe8fb415aa824ecb8e801474c3f17b6cce48f9c61d1b81  $WORKTREE/dist/Saytile-1.0.0-rc.2-local-asr.5-arm64.dmg

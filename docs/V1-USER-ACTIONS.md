@@ -50,3 +50,5 @@ Apple 中文资源已在本机准备，七路样本均由工程自行运行。�
 PR #16 local inference uses public licensed fixtures and isolated temporary archives. No user recordings, cloud credentials or manual testing are required for this comparison. Shipping the Zipformer Large weights requires a verifiable license from the rights holder.
 
 The cold-start memory regression and historical-selection check are being verified on isolated engineering fixtures. No user testing is required.
+
+No action is needed for local engineering acceptance. Apple notarization, evidence on a physical 8 GB machine, and commercial rights to Zipformer Large remain separate from local inference. Cloud credential testing remains NOT_RUN for this work.

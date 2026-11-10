@@ -52,3 +52,5 @@
 PR #16 anchors the Mandarin comparison to application source 178dbbc073613ac3c0ea632e25b74c29ab4ef702. The independent quality fixture feeds identical pinned PCM through either a single full-wave recognition ticket or the real capture worker, VAD, journal and SQLite. Paced window observations use the installed app. The timing and accelerated paths have separate receipts.
 
 On M5 the 0.6B cold path retained Foundation hash buffers and reached 2.35 GiB combined physical footprint. The next candidate bounds their per-read lifetime and the existing MLX allocator cache. Verification and digest rules are unchanged. The timeline acceptance now selects a visible historical line, eliminating an overlapping second programmatic scroll before testing new-utterance selection protection.
+
+PR #16 signed local-asr.5 is bound to aa68eb5. Four 15-clip clean paced native windows, the nine-second isolated Zipformer movie, hash-verified resume, v5/v6 installation, and the 12,000-row selection regression have receipts. Final-sha 440-trial quality replay and half-hour soaks have their own directories.

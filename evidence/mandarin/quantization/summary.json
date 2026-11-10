@@ -1,0 +1,60 @@
+{
+ "aishell": {
+  "aishell1-test": {
+   "samples": 100,
+   "reference_units": 1465,
+   "fp32_errors": 53,
+   "int8_errors": 50,
+   "int8_better": 4,
+   "int8_worse": 1,
+   "equal_error_count": 95
+  }
+ },
+ "paired": {
+  "ascend-mixed": {
+   "samples": 80,
+   "reference_units": 2004,
+   "fp32_errors": 900,
+   "int8_errors": 900,
+   "int8_better": 4,
+   "int8_worse": 5,
+   "equal_error_count": 71
+  },
+  "ascend-zh": {
+   "samples": 80,
+   "reference_units": 934,
+   "fp32_errors": 78,
+   "int8_errors": 78,
+   "int8_better": 0,
+   "int8_worse": 0,
+   "equal_error_count": 80
+  },
+  "fleurs": {
+   "samples": 160,
+   "reference_units": 6260,
+   "fp32_errors": 771,
+   "int8_errors": 774,
+   "int8_better": 5,
+   "int8_worse": 8,
+   "equal_error_count": 147
+  },
+  "noise15db": {
+   "samples": 10,
+   "reference_units": 361,
+   "fp32_errors": 47,
+   "int8_errors": 47,
+   "int8_better": 0,
+   "int8_worse": 0,
+   "equal_error_count": 10
+  },
+  "quiet": {
+   "samples": 10,
+   "reference_units": 403,
+   "fp32_errors": 57,
+   "int8_errors": 59,
+   "int8_better": 0,
+   "int8_worse": 1,
+   "equal_error_count": 9
+  }
+ }
+}

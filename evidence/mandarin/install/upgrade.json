@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "source": "178dbbc073613ac3c0ea632e25b74c29ab4ef702",
+  "old_source": "5639058e6b178027861b18cc0521387487c919d5",
+  "old_dmg": "62e0054ea9372d149c353ddc0f44f5e341b3a7d68d5b78c1f0c5a9d656e5154f",
+  "candidate_dmg": "31429b40985533802d7774cdc8dc4c62e3c1b93badb0011cc222dd12382b0915",
+  "candidate_executable": "9c2641706fbfc5a855edb389c0f13f42f417db633315151ed139852c8a8c12c8",
+  "bundle_id": "app.saytile.mac",
+  "old_build": "219",
+  "new_build": "250",
+  "matching_developer_id_requirement": true,
+  "hardened_runtime": true,
+  "trusted_timestamp": true,
+  "identical_entitlements": true,
+  "schema": [
+    5,
+    6
+  ],
+  "wav_hashes_preserved": 2,
+  "preserved_versions": 4,
+  "preserved_drafts": 2,
+  "existing_cloud_scopes": 2,
+  "midnight_split": true,
+  "no_new_grants": true,
+  "keychain": "CONTINUITY_PASS model IDs, receipt fingerprint, two Keychain canaries, allowed, local-only and changed-account scopes",
+  "keychain_scope": "Separate v5/v6 probes signed with the same test identity; exact production libraries, random synthetic accounts only. Actual apps separately satisfy the frozen designated requirement.",
+  "restarts": true,
+  "downgrade_refused": true,
+  "backup_rollback": true,
+  "cleanup": true,
+  "gatekeeper": {
+    "status": "FAIL",
+    "reason": "source=Unnotarized Developer ID"
+  },
+  "live_services": "NOT_RUN"
+}
