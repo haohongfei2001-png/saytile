@@ -86,3 +86,5 @@ For this design candidate no personal speech, account, API key or developer test
 The new design experience owns a separate mic permission identity and asks only on a user-initiated start. Do not transfer, reset or change build 269's grants. The visual review uses controlled permission states and an independent, nonactivating window.
 
 No display reconfiguration or testing is requested from the user. The design profile is separate and saved positions are never reset to repair startup.
+
+No user-assisted display movement is needed. The two-screen check uses only the newly created design candidate; its test gesture returns to a natural position for handoff.

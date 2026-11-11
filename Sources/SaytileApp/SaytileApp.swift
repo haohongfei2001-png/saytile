@@ -21,6 +21,7 @@ struct SaytileMain {
 
 final class VoicePanel: NSPanel {
     var didChoosePosition: (() -> Void)?
+    var draggingPlacement = false
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
 }
@@ -321,6 +322,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 if voiceEntry?.isVisible != false { diagnosticExitStatus = 1 }
                 if let panel {
                     print("FOCUS_PANEL_GEOMETRY width=\(panel.frame.width) height=\(panel.frame.height) min_width=\(panel.minSize.width) min_height=\(panel.minSize.height) max_width=\(panel.maxSize.width) max_height=\(panel.maxSize.height) resizable=\(panel.styleMask.contains(.resizable)) nonactivating=\(panel.styleMask.contains(.nonactivatingPanel)) joins_spaces=\(panel.collectionBehavior.contains(.canJoinAllSpaces)) panel_key=\(panel.isKeyWindow) panel_main=\(panel.isMainWindow)")
+                    if let screen = panel.screen {
+                        let visible = screen.visibleFrame
+                        let natural = visible.contains(panel.frame) && ((abs(panel.frame.midX-visible.midX)<2 && abs(panel.frame.midY-visible.midY)<2) || visible.maxY-panel.frame.maxY < 80)
+                        print("FOCUS_COLD_PLACEMENT frame=\(panel.frame) visible=\(visible) natural_center_or_menu=\(natural) shown=\(panel.isVisible)")
+                        if !natural || !panel.isVisible { diagnosticExitStatus = 1 }
+                    } else { diagnosticExitStatus = 1 }
                 }
                 Task {
                     try? await Task.sleep(for: .seconds(3))
@@ -390,7 +397,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if let window = notification.object as? NSWindow, window === panel { restorePanel(); rememberPlacement() }
     }
     func windowDidChangeScreen(_ notification: Notification) {
-        if let window = notification.object as? NSWindow, window === panel { restorePanel() }
+        if let window = notification.object as? VoicePanel, window === panel, !window.draggingPlacement, !window.inLiveResize, NSEvent.pressedMouseButtons == 0 { restorePanel() }
     }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if terminating { return .terminateNow }

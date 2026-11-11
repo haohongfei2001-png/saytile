@@ -84,3 +84,5 @@ Design candidate: initial arm64 SwiftUI build passed. Added persisted-position, 
 Interim native review on M5: 44 AX presses, 15 interaction groups, 38 ordinary renders plus three reference renders and a no-focus-change guard passed. A 45-second synthetic live stream persisted all 992,250 source frames with zero drops (ASR disabled). Real two-window composition exposed a gray cast and reversed shadow; after adjusting these, the controlled screen shows the lighter glass. Exact SHA evidence follows packaging.
 
 Verified two active WindowServer displays on the test Mac (1920 × 1080 and 800 × 1280 logical points; both 2×). Added a regression for the observed invalid first-launch status item anchor. Physical unplug and independent 1× hardware remain separate.
+
+On two 2× WindowServer displays, a real mouse event sequence failed on build 274 at X=8; with the fix the panel crossed X=0, landed at (-604,491) (408×298), survived a process restart at exactly that frame, and moved back. Both sides used the same foreground guard, no external text target, and a paused microphone. Release binary receipts follow.
