@@ -275,7 +275,8 @@ final class AppModel: ObservableObject {
          captureDependencies: AppCaptureDependencies = .live, copyPasteboard: NSPasteboard? = nil) throws {
         localModels = LocalASRService(root: directory.appending(path: "LocalModels"))
         localTextAllowed = preferences.bool(forKey: "localASR.textAllowed")
-        deviceOnly = preferences.bool(forKey: "localASR.deviceOnly")
+        deviceOnly = preferences.object(forKey: "localASR.deviceOnly") as? Bool
+            ?? (preferences.object(forKey: "hosted.selected.v1") == nil && preferences.data(forKey: "multiASRConfigurationV1") == nil)
         manualLocalModel = preferences.string(forKey: "localASR.manual").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         archiveLocalModel = preferences.string(forKey: "localASR.archive").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         self.directory = directory

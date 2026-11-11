@@ -36,7 +36,7 @@ private actor AuthFixture {
             HostedAccount(preferences:prefs,production:true,origin:URL(string:"https://fixture.invalid")!,keychain:store,
                           request:{ try await fixture.respond($0,$1,$2,$3) })
         }
-        let a=make();precondition(a.selected && !a.consent)
+        let a=make();precondition(!a.selected && !a.consent); a.select(true)
         await a.sendCode(email:"synthetic@example.invalid");await a.verify(email:"synthetic@example.invalid",code:"000000")
         guard a.signedIn,a.remainingMS==90000,await fixture.refreshed else {throw ProviderFailure.incomplete}
         let b=make();await b.refresh()
