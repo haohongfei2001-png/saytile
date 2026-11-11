@@ -1,4 +1,7 @@
 import AppKit
+#if canImport(Sparkle)
+import Sparkle
+#endif
 import SwiftUI
 import Combine
 import Carbon
@@ -29,6 +32,9 @@ final class VoiceEntryPanel: NSPanel {
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var model: AppModel?
+    #if canImport(Sparkle)
+    private var updater: SPUStandardUpdaterController?
+    #endif
     private var status: NSStatusItem?
     private var panel: VoicePanel?
     private var voiceEntry: VoiceEntryPanel?
@@ -242,6 +248,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 return
             }
             configureMainMenu()
+            #if canImport(Sparkle)
+            if directoryIndex == nil, Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil,
+               Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") != nil {
+                updater = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+            }
+            #endif
             configureStatusItem()
             registerHotKey()
             shortcutObserver = NotificationCenter.default.addObserver(forName: .init("SaytileShortcutChanged"), object: nil, queue: .main) { [weak self] _ in
@@ -397,6 +409,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             let items: [(String, Selector)] = [(panel?.isVisible == true ? "收起输入板" : "展开输入板", #selector(togglePanel)), (model?.captureActionLabel ?? "开始收音", #selector(toggleCapture)), ("语音档案", #selector(showArchive)), ("设置…", #selector(showSettings))]
             for (title, selector) in items { let item = NSMenuItem(title: title, action: selector, keyEquivalent: ""); item.target = self; menu.addItem(item) }
             menu.addItem(.separator())
+            #if canImport(Sparkle)
+            if let updater {
+                let check = NSMenuItem(title: "检查更新…", action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)), keyEquivalent: "")
+                check.target = updater
+                menu.addItem(check)
+            }
+            #endif
             let quit = NSMenuItem(title: "退出 Saytile", action: #selector(quitApp), keyEquivalent: "q"); quit.target = self; menu.addItem(quit)
             status?.menu = menu; status?.button?.performClick(nil); status?.menu = nil
         } else { togglePanel() }

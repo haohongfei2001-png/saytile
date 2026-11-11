@@ -5,6 +5,7 @@ cd "$(dirname "$0")/.."
 version=$(cat packaging/VERSION)
 case "$version" in
   *-timeline.integration.*) volume="Saytile RC2 Integration";;
+  *-integrated.*) volume="Saytile V1 Candidate";;
   *-local-asr.*) volume="Saytile Local ASR Candidate";;
   *-cloud.integration.*) volume="Saytile Cloud Candidate";;
   *) exit 64;;
@@ -23,8 +24,14 @@ if [[ -x "$app/Contents/Helpers/SaytileSherpa" ]]; then
     codesign --force --options runtime --timestamp --sign "$identity" "$child"
   done
 fi
+framework="$app/Contents/Frameworks/Sparkle.framework"
+if [[ -d "$framework" ]]; then
+  # Sparkle ships signed nested helper apps and XPC services. Preserve their
+  # upstream signatures and sign the containing framework for library validation.
+  codesign --force --options runtime --timestamp --sign "$identity" "$framework"
+fi
 codesign --force --options runtime --timestamp --entitlements distribution/audio-input.plist --sign "$identity" "$app"
-codesign --verify --strict "$app"
+codesign --verify --deep --strict "$app"
 hdiutil create -quiet -volname "$volume" -srcfolder "$stage/volume" -format UDZO "$stage/integration.dmg"
 codesign --force --timestamp --sign "$identity" "$stage/integration.dmg"
 codesign --verify --strict "$stage/integration.dmg"

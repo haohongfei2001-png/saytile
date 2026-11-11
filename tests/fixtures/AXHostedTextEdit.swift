@@ -21,12 +21,26 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
         NSApplication.shared.setActivationPolicy(.prohibited)
         let work=FileManager.default.temporaryDirectory.appendingPathComponent("saytile-textedit-"+UUID().uuidString)
         try FileManager.default.createDirectory(at:work,withIntermediateDirectories:false)
-        let doc=work.appendingPathComponent("Saytile-owned-"+UUID().uuidString+".txt")
-        let original="PREFIX|SUFFIX"
-        try original.write(to:doc,atomically:true,encoding:.utf8)
-        let config=NSWorkspace.OpenConfiguration(); config.activates=true
-        config.createsNewApplicationInstance=true; config.promptsUserIfNeeded=false
-        let app=try await NSWorkspace.shared.open([doc],withApplicationAt:URL(fileURLWithPath:"/System/Applications/TextEdit.app"),configuration:config)
+        let browser = CommandLine.arguments.contains("--chrome")
+        let doc = work.appendingPathComponent("Saytile-owned-" + UUID().uuidString + (browser ? ".html" : ".txt"))
+        let original = "PREFIX|SUFFIX"
+        let config = NSWorkspace.OpenConfiguration()
+        config.activates = true
+        config.createsNewApplicationInstance = true
+        config.promptsUserIfNeeded = false
+        let app: NSRunningApplication
+        if browser {
+            let title = doc.deletingPathExtension().lastPathComponent
+            let html = "<title>\(title)</title><textarea autofocus>PREFIX|SUFFIX</textarea>"
+            try html.write(to: doc, atomically: true, encoding: .utf8)
+            config.arguments = ["--user-data-dir=" + work.appendingPathComponent("profile").path,
+                                "--no-first-run", "--no-default-browser-check", "--disable-sync",
+                                "--force-renderer-accessibility", "--app=" + doc.absoluteString]
+            app = try await NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: "/Applications/Google Chrome.app"), configuration: config)
+        } else {
+            try original.write(to: doc, atomically: true, encoding: .utf8)
+            app = try await NSWorkspace.shared.open([doc], withApplicationAt: URL(fileURLWithPath: "/System/Applications/TextEdit.app"), configuration: config)
+        }
         defer { app.forceTerminate() } // dedicated new process and synthetic document only
         let pid=app.processIdentifier
         func select() throws -> AXInputSelection {
