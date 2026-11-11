@@ -1,0 +1,60 @@
+{
+  "source": "235b29447ed04e0ef8ccf167e1314f756596e747",
+  "model": "qwen-small",
+  "model_revision": "bc441bd1e4295c1f42d9879f056049a925b6e013",
+  "fixture_sha256": "2c130c47ae74549ca6b33e06a547e2165e14f665380d29cefe6667fa5602fe47",
+  "retry": {
+    "status": "PASS",
+    "same_record": true,
+    "original_wav_hashes_unchanged": true,
+    "external_dispatches": 0
+  },
+  "corrupt": {
+    "status": "PASS",
+    "records": 1,
+    "recognition": [
+      "failed"
+    ],
+    "audio_available": true,
+    "raw_pcm_frames": 133120,
+    "process_events": [
+      {
+        "t": 0.01,
+        "worker": null
+      }
+    ],
+    "providers": [],
+    "probe_exit": 1
+  },
+  "idle": {
+    "status": "PASS",
+    "records": 2,
+    "recognition": [
+      "completed"
+    ],
+    "audio_available": true,
+    "raw_pcm_frames": 266880,
+    "process_events": [
+      {
+        "t": 0.02,
+        "worker": null
+      },
+      {
+        "t": 2.63,
+        "worker": 1
+      },
+      {
+        "t": 39.7,
+        "worker": null
+      },
+      {
+        "t": 57.36,
+        "worker": 2
+      }
+    ],
+    "providers": [
+      "qwen-small"
+    ],
+    "probe_exit": 0
+  }
+}

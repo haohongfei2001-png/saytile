@@ -4,6 +4,8 @@ import Foundation
 
 // Only the injected session sees these responses. The regular App uses URLSession.
 private final class WeightFixture: URLProtocol, @unchecked Sendable {
+  static let network = NSLock()
+  nonisolated(unsafe) static var offline = true  // guarded by network
   override class func canInit(with request: URLRequest) -> Bool { true }
   override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
   override func stopLoading() {}
@@ -27,6 +29,9 @@ private final class WeightFixture: URLProtocol, @unchecked Sendable {
       let start = full ? 0 : bounds[0]
       let length = full ? member.bytes : bounds[1] - start + 1
       try handle.seek(toOffset: UInt64(start))
+      if args[2] == "reconnect", start > 0, Self.network.withLock({ Self.offline }) {
+        throw URLError(.notConnectedToInternet)
+      }
       let echoed = (args[2] == "incorrect" && start > 0) ? start + 1 : start
       let reply = HTTPURLResponse(
         url: url, statusCode: full ? 200 : 206, httpVersion: "HTTP/1.1",
@@ -53,7 +58,7 @@ private final class WeightFixture: URLProtocol, @unchecked Sendable {
       path: "saytile-controlled-range-" + UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: root) }
     let mode = CommandLine.arguments[2]
-    guard ["whole", "ranges", "incorrect"].contains(mode) else { exit(64) }
+    guard ["whole", "ranges", "incorrect", "reconnect"].contains(mode) else { exit(64) }
     let configuration = URLSessionConfiguration.ephemeral
     configuration.protocolClasses = [WeightFixture.self]
     let library = LocalModelLibrary(root: root, session: URLSession(configuration: configuration))
@@ -61,6 +66,15 @@ private final class WeightFixture: URLProtocol, @unchecked Sendable {
     await library.download(.zipformer)
     while await library.status(.zipformer).downloading {
       try await Task.sleep(for: .milliseconds(40))
+    }
+    if mode == "reconnect" {
+      let interrupted = await library.status(.zipformer)
+      guard !interrupted.installed, interrupted.error != nil, interrupted.bytes == 2 * 1024 * 1024 else {
+        throw CocoaError(.fileReadCorruptFile)
+      }
+      WeightFixture.network.withLock { WeightFixture.offline = false }
+      await library.download(.zipformer)
+      while await library.status(.zipformer).downloading { try await Task.sleep(for: .milliseconds(40)) }
     }
     let result = await library.status(.zipformer)
     if mode == "incorrect" {

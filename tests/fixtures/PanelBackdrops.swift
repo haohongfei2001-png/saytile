@@ -9,7 +9,7 @@ import ScreenCaptureKit
         guard CGPreflightScreenCaptureAccess(),
               let app = NSRunningApplication(processIdentifier: pid), app.bundleIdentifier == "app.saytile.mac",
               let path = app.bundleURL?.resolvingSymlinksInPath().path,
-              path.hasPrefix("/private/tmp/saytile-local-final."), path.hasSuffix("/Applications/Saytile.app") else { exit(2) }
+              (path.hasPrefix("/private/tmp/saytile-local-final.") || path.hasPrefix("/tmp/saytile-local-final.")), path.hasSuffix("/Applications/Saytile.app") else { exit(2) }
         let dest = URL(fileURLWithPath: CommandLine.arguments[2])
         var target: SCWindow?
         for _ in 0..<40 {

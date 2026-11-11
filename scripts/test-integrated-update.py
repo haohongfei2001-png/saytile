@@ -59,6 +59,13 @@ with tempfile.TemporaryDirectory(prefix="saytile-isolated-update-") as tmp:
     xml = feed / "appcast.xml"
     xml.write_text(f'''<?xml version="1.0"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel><title>Saytile integration</title><item><title>2</title><sparkle:version>2</sparkle:version><sparkle:shortVersionString>1.0.2</sparkle:shortVersionString><enclosure url="{url}update.zip" length="{archive.stat().st_size}" type="application/octet-stream" sparkle:edSignature="{signature}"/></item></channel></rss>''')
     run(sign,"-f",key,xml)
+    data = root / "isolated-archive"
+    run(installed / "Contents/MacOS/Saytile", "--data-directory", data, "--smoke-test")
+    cache = data / "LocalModels" / "fixture-version"
+    cache.mkdir(parents=True, exist_ok=True)
+    canary = cache / "synthetic-model-marker"
+    canary.write_bytes(b"update cache continuity")
+    unchanged = canary.stat().st_mtime_ns
     def check():
         cmd = [args.cli, installed, "--check-immediately", "--grant-automatic-checks", "--verbose"]
         return subprocess.run(cmd,capture_output=True,text=True,timeout=100)
@@ -72,12 +79,15 @@ with tempfile.TemporaryDirectory(prefix="saytile-isolated-update-") as tmp:
     flip()
     rejected = check()
     assert rejected.returncode != 0 and plistlib.loads(plist(installed).read_bytes())['CFBundleVersion'] == '1', rejected
+    assert "4005 (SUSparkleErrorDomain)" in rejected.stderr, rejected.stderr
     flip()
     accepted = check()
     assert accepted.returncode == 0 and plistlib.loads(plist(installed).read_bytes())['CFBundleVersion'] == '2', accepted
     run("codesign","--verify","--deep","--strict",installed)
+    run(installed / "Contents/MacOS/Saytile", "--data-directory", data, "--smoke-test")
+    assert canary.stat().st_mtime_ns == unchanged and canary.read_bytes() == b"update cache continuity"
     current = check()
     assert plistlib.loads(plist(installed).read_bytes())['CFBundleVersion'] == '2'
     assert current.returncode == 4 and "no new update" in current.stderr.lower(), current
     server.shutdown()
-    args.output.write_text(json.dumps(dict(source=info['SaytileSourceRevision'], status="PASS", sparkle="2.10.1", scope="unique fixture bundle ID; re-signed copies; disposable Ed25519 key; loopback only", corrupted_archive_exit=rejected.returncode, valid_update_exit=accepted.returncode, version_before=1, version_after=2, current_version_exit=current.returncode, installed_signature_verified=True),indent=2)+"\n")
+    args.output.write_text(json.dumps(dict(source=info['SaytileSourceRevision'], status="PASS", sparkle="2.10.1", scope="unique fixture bundle ID; re-signed copies; disposable Ed25519 key; loopback only", corrupted_archive_exit=rejected.returncode, valid_update_exit=accepted.returncode, version_before=1, version_after=2, current_version_exit=current.returncode, installed_signature_verified=True, cache_marker_unchanged=True, existing_database_reopened=True),indent=2)+"\n")
