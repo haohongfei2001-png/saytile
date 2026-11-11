@@ -263,6 +263,8 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     @Published public private(set) var playingID: UUID?
     @Published public private(set) var playbackPosition: Double = 0
     @Published public private(set) var playbackDuration: Double = 0
+    @Published public private(set) var preparingAppleSpeech = false
+    @Published public private(set) var appleResourceFailure: String?
     @Published public private(set) var speechStatus = "正在检查识别资源"
     @Published public private(set) var preparingSpeech = false
     @Published public private(set) var reprocessingID: UUID?
@@ -519,12 +521,14 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     public func prepareSpeechAssets() async {
         guard !isShuttingDown else { return }
         if let assetTask { await assetTask.value; return }
+        preparingAppleSpeech = true; appleResourceFailure = nil
+        defer { preparingAppleSpeech = false }
         let task = Task { @MainActor in
             preparingSpeech = true; defer { preparingSpeech = false }
             speechStatus = "正在准备中文识别资源 · 原音继续保存"
             do { try await AppleSpeechService.prepare(); try Task.checkCancellation(); speechStatus = await recognitionFactory.localAvailability().message }
             catch is CancellationError { }
-            catch { if !isShuttingDown { issue = "中文资源下载失败：\(error.localizedDescription)"; speechStatus = issue! } }
+            catch { if !isShuttingDown { appleResourceFailure = error.localizedDescription; issue = "中文资源下载失败：\(error.localizedDescription)"; speechStatus = issue! } }
         }
         assetTask = task; await task.value; assetTask = nil
     }
@@ -604,7 +608,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                     let availability = await AppleSpeechService.availability()
                     if availability.installed { speechStatus = availability.message }
                     else if availability.supported { await prepareSpeechAssets() }
-                    else { speechStatus = availability.message }
+                    else { appleResourceFailure = availability.message; speechStatus = availability.message }
                 }
             }
         } catch {

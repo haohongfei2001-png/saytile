@@ -74,7 +74,7 @@ public struct LocalModelManifest: Decodable, Sendable {
     }
 }
 
-public struct LocalModelStatus: Sendable {
+public struct LocalModelStatus: Sendable, Equatable {
     public let bytes: Int64
     public let total: Int64
     /// Includes a previous, damaged installation while its replacement downloads.

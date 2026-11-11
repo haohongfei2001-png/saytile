@@ -100,7 +100,7 @@ extension AppDelegate {
             }
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 740), name: "settings", output: output)
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 560, height: 570), name: "settings-compact", output: output)
-            model.hosted.select(true)
+            model.selectSource("hosted")
             try await reviewWindow(SettingsView(model: model), size: CGSize(width:650,height:740), name:"settings-hosted", output:output) { host in
                 guard model.hosted.selected, !model.hosted.consent, !model.hosted.signedIn else {throw ReviewFailure("unexpected hosted consent")}
                 if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil {
@@ -110,7 +110,7 @@ extension AppDelegate {
                     try await self.reviewUntil { !model.hosted.consent }
                 }
             }
-            model.hosted.select(false)
+            model.selectSource("local")
             try await reviewWindow(Form { RecognitionSettingsSection(model: model) }.formStyle(.grouped), size: CGSize(width: 650, height: 840), name: "ai-controls", output: output) { host in
                 guard !model.connectionVerified, !model.recognitionConfiguration.cloudEnabled else {
                     throw ReviewFailure("unconfigured cloud connection was enabled")
@@ -990,21 +990,8 @@ extension AppDelegate {
             }
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 840),
                 name: "settings-floating-entry", output: output) { host in
-                // Scroll only this owned Form to its existing preferences section;
-                // no wheel/key event and no separately reconstructed settings view.
-                var pending = [host], scrolls: [NSScrollView] = []
-                while !pending.isEmpty {
-                    let view = pending.removeFirst()
-                    if let scroll = view as? NSScrollView, let document = scroll.documentView,
-                       document.bounds.height > scroll.contentView.bounds.height { scrolls.append(scroll) }
-                    pending += view.subviews
-                }
-                if let scroll = scrolls.max(by: { ($0.documentView?.bounds.height ?? 0) < ($1.documentView?.bounds.height ?? 0) }),
-                   let document = scroll.documentView {
-                    scroll.contentView.scroll(to: NSPoint(x: 0, y: max(0, document.bounds.height - scroll.contentView.bounds.height)))
-                    scroll.reflectScrolledClipView(scroll.contentView)
-                    try await Task.sleep(for: .milliseconds(100))
-                }
+                try await self.press("settings.page.input", in: host)
+                try await Task.sleep(for: .milliseconds(120))
                 guard !model.floatingEntryEnabled, !preferences.bool(forKey: "floatingEntryEnabled") else {
                     throw ReviewFailure("fresh isolated settings unexpectedly enabled the desktop entry")
                 }

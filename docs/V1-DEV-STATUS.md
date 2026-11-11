@@ -82,3 +82,5 @@ On M5 the 0.6B cold path retained Foundation hash buffers and reached 2.35 GiB c
 PR #16 signed local-asr.5 is bound to aa68eb5. Four 15-clip clean paced native windows, the nine-second isolated Zipformer movie, hash-verified resume, v5/v6 installation, and the 12,000-row selection regression have receipts. Final-sha 440-trial quality replay and half-hour soaks have their own directories.
 
 A real cold download through the configured Mac proxy timed out on the previous 16 MiB request. Local-ASR .6 requests bounded two-MiB immutable ranges, isolates CDN range redirect cache keys, checkpoints a contiguous prefix and validates byte ranges and full SHA before promotion. The independent macOS transfer CI uses the public pinned files and no API credentials. ASR workers, capture, TextKit and the model assets are inherited from aa68eb5.
+
+Design candidate: ported the production settings, archive, first-use guidance and per-display panel placement. Build 269 and its profile remain independent. Native window/AX acceptance follows.

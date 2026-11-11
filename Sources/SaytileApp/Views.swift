@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import SaytileKit
 
 struct InputPanelView: View {
     @ObservedObject var model: AppModel
@@ -54,9 +55,15 @@ struct InputPanelView: View {
                 fillContextMenu: fillContextMenu, showsLiveCaret: model.panelCapturePresentation.state == .recognizing)
                 .overlay(alignment: .topLeading) {
                     if model.timeline.entries.isEmpty {
-                        Text(model.isListening ? "开口，文字会出现在这里。" : "从一句话开始。")
-                            .font(.system(size: ReferencePanelStyle.fontSize)).foregroundStyle(Palette.muted.opacity(0.8))
-                            .padding(.top, 6).padding(.horizontal, 2).allowsHitTesting(false)
+                        VStack(alignment: .leading, spacing: 8) {
+                            if !model.completedFirstTranscript {
+                                Text(firstUseTitle).font(.system(size: ReferencePanelStyle.fontSize))
+                                Text(firstUseDetail).font(.system(size: 12)).lineSpacing(3).foregroundStyle(Palette.muted)
+                            } else if model.isListening {
+                                Text("开口，文字会出现在这里。").font(.system(size: ReferencePanelStyle.fontSize))
+                            }
+                        }.foregroundStyle(Palette.ink.opacity(0.8)).padding(.top, 6).padding(.horizontal, 2)
+                            .accessibilityElement(children: .combine).allowsHitTesting(false)
                     }
                 }
                 .padding(.leading, ReferencePanelStyle.textInset - 2)
@@ -92,6 +99,23 @@ struct InputPanelView: View {
         .clipShape(RoundedRectangle(cornerRadius: ReferencePanelStyle.radius, style: .continuous))
         .foregroundStyle(Palette.ink)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var firstUseTitle: String {
+        switch model.panelCapturePresentation.state {
+        case .starting: "正在准备收音…"
+        case .standby, .recognizing: "说一句话试试。"
+        case .recoveryNeeded: "收音已暂停"
+        case .paused: "点右下角，开始说话。"
+        }
+    }
+    private var firstUseDetail: String {
+        if model.captureProblem {
+            return model.microphoneDenied ? "在系统设置允许麦克风，再点右下角重试。" : "处理上方提示后，点右下角继续。"
+        }
+        if model.audio.preparingAppleSpeech { return "正在准备中文资源，已开始的录音会保留。" }
+        if model.audio.appleResourceFailure != nil { return "中文资源尚未就绪。到设置中的本地模型重试，原音会保留。" }
+        return model.isListening ? "点左下角复制文字，再点右侧暂停。" : "讲话时文字会出现在这里。左下角可复制。"
     }
 
     private func copyTranscript() {
@@ -158,6 +182,9 @@ struct InputPanelView: View {
                    enabled: !model.isInserting && model.hasPanelInsertionScope, action: insertTranscript)]
         ]
         var last: [PanelCommand] = []
+        if model.captureProblem && model.microphoneDenied {
+            last.append(.init(id: "microphone", title: "打开麦克风系统设置…", action: { model.openMicrophoneSettings() }))
+        }
         last.append(.init(id: "save", title: model.saveLabel, enabled: false))
         last.append(.init(id: "clear", title: "清空输入板（保留档案）", enabled: !model.isInserting && model.hasPanelInsertionScope, action: { model.clearPanel(); latestRequest += 1 }))
         if model.notice != nil, model.panelCaptureDetail == nil {
@@ -201,98 +228,106 @@ struct InputPanelView: View {
 
 }
 
-struct TranscriptCard: View {
-    let item: DisplayRecording
+struct ArchiveView: View {
     @ObservedObject var model: AppModel
-    var compact = false
+    @FocusState private var searching: Bool
+    private let filters: [(RecordingFilter, String, String)] = [(.all, "全部记录", "tray.full"), (.pinned, "已收藏", "pin"), (.needsRecovery, "待恢复", "arrow.clockwise")]
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text(item.date, format: .dateTime.hour().minute()).font(.system(size: 10, weight: .medium)).monospacedDigit()
-                if item.pinned { Image(systemName: "pin.fill").font(.system(size: 10)) }
-                Spacer()
-                Text(item.stateLabel).font(.system(size: 10))
-            }.foregroundStyle(Palette.muted)
-            Text(item.text.isEmpty ? item.emptyTextLabel : item.text)
-                .font(.system(size: compact ? 14 : 15)).lineSpacing(6).textSelection(.enabled)
-                .foregroundStyle(item.text.isEmpty ? Palette.muted : Palette.ink).frame(maxWidth: .infinity, alignment: .leading)
-            if let inputLabel = model.insertionLabels[item.id] {
-                Label(inputLabel, systemImage: "arrow.up.forward.app").font(.system(size: 10)).foregroundStyle(Palette.muted)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            if !compact, !model.query.isEmpty, !item.text.localizedCaseInsensitiveContains(model.query) {
-                Text("匹配到已保存的文字").font(.system(size: 10)).foregroundStyle(Palette.accent)
-            }
-            HStack(spacing: 14) {
-                Label(item.audioLabel, systemImage: item.hasAudio ? "waveform" : "text.alignleft").font(.system(size: 10))
-                Spacer()
-                Button { model.play(item) } label: { Image(systemName: model.playingID == item.id ? "stop.fill" : "play.fill") }.disabled(!item.hasAudio).help("回听原音").accessibilityLabel(model.playingID == item.id ? "停止回听" : "回听原音")
-                Button { model.copy(item.text) } label: { Image(systemName: "doc.on.doc") }.disabled(item.text.isEmpty).help("复制文字").accessibilityLabel("复制这段文字")
-                Button { model.select(item) } label: { Image(systemName: "ellipsis") }.help("查看、修改及更多操作").accessibilityLabel("查看和编辑这段表达")
-            }.buttonStyle(.plain).font(.system(size: 11)).foregroundStyle(Palette.muted)
-        }.padding(14).background(.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.accent.opacity(0.09)))
+        GeometryReader { geo in
+            let wide = geo.size.width >= 920
+            let rows = model.records
+            HStack(spacing: 0) {
+                if wide {
+                    VStack(alignment: .leading, spacing: 3) {
+                        WorkspaceBrand().padding(.leading, 9).padding(.vertical, 18).padding(.bottom, 7)
+                        ForEach(filters, id: \.1) { filter, title, symbol in
+                            WorkspaceNavRow(title: title, symbol: symbol, selected: model.recordFilter == filter) { model.recordFilter = filter }
+                        }
+                        Spacer()
+                        WorkspaceNavRow(title: "设置与存储", symbol: "gearshape", selected: false, action: model.openStorageSettings)
+                    }.padding(12).frame(width: 160).background(.regularMaterial)
+                    Divider()
+                }
+                if wide || model.selected == nil {
+                    VStack(alignment: .leading, spacing: 13) {
+                        HStack {
+                            Text("语音档案").font(WorkspaceStyle.title).accessibilityAddTraits(.isHeader)
+                            Spacer(); Button("回到输入板", action: model.openPanel)
+                        }
+                        HStack(spacing: 8) {
+                            Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                            TextField("搜索文字、历史版本或草稿", text: $model.query).textFieldStyle(.plain)
+                                .accessibilityLabel("搜索语音记录").focused($searching).onSubmit { Task { await model.refresh() } }
+                            if !model.query.isEmpty { Button { model.query = "" } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.plain).accessibilityLabel("清除搜索") }
+                        }.padding(.horizontal, 10).frame(height: 32).background(WorkspaceStyle.editor, in: RoundedRectangle(cornerRadius: 7))
+                            .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(.quaternary))
+                        if !wide { Picker("显示", selection: $model.recordFilter) { ForEach(filters, id: \.1) { filter, title, _ in Text(title).tag(filter) } }.pickerStyle(.segmented).labelsHidden() }
+                        if let notice = model.notice { Text(notice).font(.callout).foregroundStyle(.secondary).textSelection(.enabled) }
+                        if model.records.isEmpty {
+                            ContentUnavailableView(model.query.isEmpty ? (model.recordFilter == .all ? "还没有记录" : "这里暂时没有记录") : "没有匹配结果",
+                                systemImage: model.query.isEmpty ? "tray" : "magnifyingglass",
+                                description: Text(model.query.isEmpty ? (model.recordFilter == .all ? "从输入板开始收音，文字和原音会保存在这里。" : "符合当前筛选的记录会显示在这里。") : "试试更短的关键词，或清除搜索。"))
+                        } else {
+                            ScrollView {
+                                LazyVStack(alignment: .leading, spacing: 0) {
+                                    ForEach(Array(rows.enumerated()), id: \.element.id) { offset, item in
+                                        if offset == 0 || !Calendar.current.isDate(rows[offset-1].date, inSameDayAs: item.date) {
+                                            Text(item.date, format: .dateTime.year().month().day()).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                                                .padding(.top, 13).padding(.bottom, 7).accessibilityAddTraits(.isHeader)
+                                        }
+                                        ArchiveRow(item: item, model: model)
+                                        Divider()
+                                    }
+                                    if model.hasMore { Button("加载更早记录", action: model.loadMore).padding(.vertical, 12) }
+                                }
+                            }
+                        }
+                    }.padding(22).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                }
+                if let selected = model.selected {
+                    if wide { Divider() }
+                    RecordDetailView(item: selected, model: model).frame(maxWidth: wide ? min(360, geo.size.width * 0.33) : .infinity)
+                        .background(WorkspaceStyle.editor.opacity(0.55))
+                }
+            }.background(WorkspaceStyle.background)
+        }.foregroundStyle(WorkspaceStyle.foreground).tint(WorkspaceStyle.accent)
+            .background(Button("") { if model.selected != nil { model.closeDetail() }; searching = true }.keyboardShortcut("f").hidden().accessibilityHidden(true))
     }
 }
 
-struct ArchiveView: View {
+private struct ArchiveRow: View {
+    let item: DisplayRecording
     @ObservedObject var model: AppModel
-        var body: some View {
-        HStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 24) {
-                HStack(spacing: 10) { VoiceMark(); Text("Saytile").font(.system(size: 20, weight: .semibold)) }.padding(.top, 12)
-                VStack(spacing: 6) {
-                    ForEach([("全部记录", "tray.full"), ("已收藏", "pin"), ("待恢复", "arrow.clockwise")], id: \.0) { name, icon in
-                        Button { model.recordFilter = name == "已收藏" ? .pinned : name == "待恢复" ? .needsRecovery : .all } label: {
-                            Label(name, systemImage: icon).frame(maxWidth: .infinity, alignment: .leading).padding(11)
-                                .background((name == "全部记录" && model.recordFilter == .all || name == "已收藏" && model.recordFilter == .pinned || name == "待恢复" && model.recordFilter == .needsRecovery) ? Palette.soft : .clear, in: RoundedRectangle(cornerRadius: 8))
-                        }.buttonStyle(.plain)
-                    }
-                }
-                Spacer()
-                Text("每一次表达，\n都值得被留下。").font(.system(size: 12)).lineSpacing(7).foregroundStyle(Palette.muted)
-                Divider()
-                Button(action: model.openSettings) { Label("设置与存储", systemImage: "slider.horizontal.3") }.buttonStyle(.plain)
-            }.padding(22).frame(width: 200).background(Palette.canvas.opacity(0.6))
-            Divider()
-            VStack(alignment: .leading, spacing: 20) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("语音档案").font(.system(size: 25, weight: .semibold))
-                        Text("找回思路，接着表达。").font(.system(size: 12)).foregroundStyle(Palette.muted)
-                    }
-                    Spacer()
-                    Button("回到此刻", action: model.openPanel).buttonStyle(QuietButton())
-                }
-                HStack {
-                    Image(systemName: "magnifyingglass").foregroundStyle(Palette.muted)
-                    TextField("搜索语音记录", text: $model.query).textFieldStyle(.plain)
-                    if !model.query.isEmpty { Button { model.query = "" } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.plain) }
-                }.padding(12).background(.white, in: RoundedRectangle(cornerRadius: 9))
-                if let notice = model.notice { Text(notice).font(.system(size: 12)).foregroundStyle(Palette.amber) }
-                ScrollView {
-                    LazyVStack(spacing: 14) {
-                        ForEach(model.records) { item in
-                            TranscriptCard(item: item, model: model)
-                        }
-                        if model.records.isEmpty {
-                            ContentUnavailableView(model.query.isEmpty ? (model.recordFilter == .all ? "还没有记录" : "这里暂时没有记录") : "没有匹配结果", systemImage: model.query.isEmpty ? "waveform" : "magnifyingglass", description: Text(model.query.isEmpty ? "开启自由记录，表达会自动保留在这里。" : "换一个搜索词试试。当前文字、历史版本和编辑草稿都会参与搜索。"))
-                        }
-                        if model.hasMore { Button("加载更早记录", action: model.loadMore).buttonStyle(QuietButton()) }
-                    }
-                }
-            }.padding(30).frame(minWidth: 380)
-            if let selected = model.selected {
-                Divider()
-                RecordDetailView(item: selected, model: model).frame(width: 310)
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Button { model.select(item) } label: {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 6) {
+                        Text(item.date, format: .dateTime.hour().minute()).monospacedDigit()
+                        if item.pinned { Image(systemName: "pin.fill").accessibilityLabel("已收藏") }
+                        Spacer(); Text(item.stateLabel)
+                    }.font(.caption).foregroundStyle(.secondary)
+                    Text(item.text.isEmpty ? item.emptyTextLabel : item.text).font(.system(size: 15)).lineSpacing(3)
+                        .lineLimit(3).frame(maxWidth: .infinity, alignment: .leading)
+                }.contentShape(Rectangle())
+            }.buttonStyle(.plain).help("查看和编辑这段表达")
+            if !model.query.isEmpty && !item.text.localizedCaseInsensitiveContains(model.query) {
+                Text("匹配历史版本或草稿").font(.caption).foregroundStyle(.secondary)
             }
-        }.foregroundStyle(Palette.ink).background(Palette.paper).frame(minWidth: model.selected == nil ? 760 : 1040, minHeight: 570)
+            if let label = model.insertionLabels[item.id] { Label(label, systemImage: "arrow.up.forward.app").font(.caption).foregroundStyle(.secondary) }
+            HStack(spacing: 10) {
+                Text(item.audioLabel).font(.caption).foregroundStyle(.secondary); Spacer()
+                Button { model.play(item) } label: { Image(systemName: model.playingID == item.id ? "stop.fill" : "play.fill").frame(width: 22,height: 22) }.disabled(!item.hasAudio).accessibilityLabel(model.playingID == item.id ? "停止回听" : "回听原音")
+                Button { model.copy(item.text) } label: { Image(systemName: "doc.on.doc").frame(width: 22,height: 22) }.disabled(item.text.isEmpty).accessibilityLabel("复制这段文字")
+            }.buttonStyle(.plain)
+        }.padding(.vertical, 9).padding(.horizontal, 9).background(model.selected?.id == item.id ? WorkspaceStyle.selection : .clear, in: RoundedRectangle(cornerRadius: 8))
     }
 }
 
 struct RecordDetailView: View {
     let item: DisplayRecording
     @ObservedObject var model: AppModel
+    @ViewState private var showVersions = false
     @ViewState private var deletingAudio = false
     @ViewState private var deletingRecord = false
     var body: some View {
@@ -300,18 +335,18 @@ struct RecordDetailView: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("这段表达").font(.system(size: 16, weight: .semibold)); Spacer()
-                Button { model.closeDetail() } label: { Image(systemName: "xmark") }.buttonStyle(.plain)
+                Button { model.closeDetail() } label: { Image(systemName: "xmark") }.buttonStyle(.plain).accessibilityLabel("返回记录列表").keyboardShortcut(.cancelAction)
             }
-            Text(item.date, format: .dateTime.year().month().day().hour().minute()).font(.system(size: 11)).foregroundStyle(Palette.muted)
+            Text(item.date, format: .dateTime.year().month().day().hour().minute()).font(.system(size: 11)).foregroundStyle(.secondary)
             if let error = item.source.displayedError {
                 Text(error).font(.system(size: 11)).foregroundStyle(Palette.amber).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
             }
             TextEditor(text: Binding(get: { model.editorDraft }, set: { newText in model.updateEditorDraft(newText) })).font(.system(size: 14)).scrollContentBackground(.hidden)
-                .padding(8).background(.white, in: RoundedRectangle(cornerRadius: 9)).frame(height: 180).disabled(!model.editorCanEdit)
-            Text(model.editorDraftStatus).font(.system(size: 10)).foregroundStyle(Palette.muted)
+                .padding(8).background(WorkspaceStyle.editor, in: RoundedRectangle(cornerRadius: 8)).overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(.quaternary)).frame(minHeight: 135, idealHeight: 180).accessibilityLabel("编辑这段文字").disabled(!model.editorCanEdit)
+            Text(model.editorDraftStatus).font(.system(size: 10)).foregroundStyle(.secondary)
             HStack {
-                Button(model.savingEditorChanges ? "正在保存…" : "保存修改") { Task { await model.saveEditorChanges() } }.buttonStyle(QuietButton(prominent: true)).disabled(!model.editorCanEdit || model.savingEditorChanges || model.editorDraft == item.text)
-                Button { model.pin(item) } label: { Image(systemName: item.pinned ? "pin.slash" : "pin") }.buttonStyle(QuietButton())
+                Button(model.savingEditorChanges ? "正在保存…" : "保存修改") { Task { await model.saveEditorChanges() } }.keyboardShortcut("s").buttonStyle(QuietButton(prominent: true)).disabled(!model.editorCanEdit || model.savingEditorChanges || model.editorDraft == item.text)
+                Button { model.pin(item) } label: { Image(systemName: item.pinned ? "pin.slash" : "pin") }.buttonStyle(QuietButton()).accessibilityLabel(item.pinned ? "取消收藏" : "收藏这段表达")
             }
             if model.playingID == item.id {
                 VStack(spacing: 6) {
@@ -319,7 +354,7 @@ struct RecordDetailView: View {
                         .accessibilityLabel("原音播放进度")
                     HStack {
                         Text(playbackTime(model.audio.playbackPosition)); Spacer(); Text(playbackTime(model.audio.playbackDuration))
-                    }.font(.system(size: 10)).monospacedDigit().foregroundStyle(Palette.muted)
+                    }.font(.system(size: 10)).monospacedDigit().foregroundStyle(.secondary)
                 }
             }
             HStack {
@@ -333,12 +368,21 @@ struct RecordDetailView: View {
                 Button("带到输入板") { model.stageInPanel(item) }.disabled(item.text.isEmpty || model.editorDraft != item.text).help("先保存修改，再将这段表达带到输入板")
             }.buttonStyle(QuietButton())
             Divider()
-            Spacer(minLength: 0)
+            DisclosureGroup("文字版本（\(model.versions.count)）", isExpanded: $showVersions) {
+                ForEach(model.versions) { version in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(version.label).font(.caption).foregroundStyle(.secondary)
+                        Text(version.text).font(.callout).textSelection(.enabled)
+                        Button("复制此版本") { model.copy(version.text) }.buttonStyle(.link)
+                    }.frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 5)
+                }
+            }
+            Divider()
             Button("仅删除原音…") { deletingAudio = true }.disabled(item.source.audioState == .deleted || item.source.audioState == .deletePending || item.isRecording)
             Button("删除整条记录…", role: .destructive) { deletingRecord = true }.disabled(item.isRecording)
         }.padding(22)
         }
-            .task(id: item.id) { await model.prepareEditorIfNeeded(item) }
+            .task(id: item.id) { showVersions = false; await model.prepareEditorIfNeeded(item) }
             .onDisappear { Task { _ = await model.flushEditorDrafts() } }
             .onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)) { _ in
                 Task { _ = await model.flushEditorDrafts() }
@@ -356,79 +400,3 @@ struct RecordDetailView: View {
     }
 }
 
-struct SettingsView: View {
-    @ObservedObject var model: AppModel
-    @ViewState private var cleanup = false
-    var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            HStack { VoiceMark(size: 30); VStack(alignment: .leading) { Text("Saytile").font(.system(size: 23, weight: .semibold)); Text("自然开口，随时取用。 · " + (Bundle.main.object(forInfoDictionaryKey: "SaytileReleaseVersion") as? String ?? "V1 开发版本")).font(.system(size: 11)).foregroundStyle(Palette.muted) } }
-            if let notice = model.notice { Text(notice).font(.system(size: 12)).foregroundStyle(Palette.amber).textSelection(.enabled) }
-            Form {
-                HostedSettingsSection(model: model, account: model.hosted)
-                LocalModelSettings(model: model)
-                if !model.deviceOnly && !model.hosted.selected { RecognitionSettingsSection(model: model) }
-                Section("收音与识别") {
-                    LabeledContent("当前状态", value: model.captureLabel)
-                    if let detail = model.panelCaptureDetail {
-                        Text(detail).font(.system(size: 11)).foregroundStyle(Palette.amber)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .accessibilityIdentifier("settings.captureDetail")
-                    }
-                    Picker("输入设备", selection: $model.deviceUID) {
-                        ForEach(model.devices) { device in Text(device.name).tag(device.id) }
-                    }
-                    .accessibilityLabel("输入设备")
-                    .accessibilityIdentifier("settings.inputDevice")
-                    Text("开启后持续接收讲话；关闭输入板不会停止收音。设备断开、休眠和用户会话切换会明确暂停。")
-                        .font(.system(size: 11)).foregroundStyle(Palette.muted)
-                    LabeledContent("识别语言", value: model.deviceOnly ? "中文 · 本机处理" : model.hosted.selected ? "中文 · 托管或本机备用" : model.appliedRecognitionConfiguration.cloudEnabled ? "中文 / English · 自动处理混说" : "普通话 · 本机备用")
-                    LabeledContent("识别引擎", value: model.engineLabel)
-                    Button("准备中文识别资源", action: model.prepareSpeech)
-                    Button(model.captureActionLabel, action: model.toggleCapture)
-                }
-                Section("系统权限") {
-                    LabeledContent("麦克风", value: model.microphoneLabel)
-                    LabeledContent("辅助功能", value: model.accessibilityLabel)
-                    Button("允许跨应用插入…", action: model.requestAccessibility)
-                    Text("复制无需辅助功能权限。直接输入只追加到明确绑定的草稿，不会发送消息。")
-                        .font(.system(size: 11)).foregroundStyle(Palette.muted)
-                }
-                Section("原音与存储") {
-                    LabeledContent("已用原音空间", value: model.storageLabel)
-                    LabeledContent("保留策略", value: "保留至手动删除")
-                    Text("达到 10 GB 时提醒。不会自动删除未识别、失败或收藏的原音。")
-                        .font(.system(size: 11)).foregroundStyle(Palette.muted)
-                    Button(model.preparingCleanup ? "正在查找可清理原音…" : "预览清理 30 天前的已识别原音…") { Task { cleanup = await model.previewCleanup() } }.disabled(model.preparingCleanup)
-                    Button("在 Finder 中显示资料目录", action: model.revealData)
-                }
-                Section("使用习惯") {
-                    Picker("讲话分组间隔", selection: Binding(get: { model.timelineIdleSeconds }, set: { seconds in model.changeIdleInterval(seconds) })) {
-                        ForEach([10, 30, 60, 120, 300, 600, 1800, 3600], id: \.self) { seconds in
-                            Text(seconds < 60 ? "\(seconds) 秒" : "\(seconds / 60) 分钟").tag(seconds)
-                        }
-                    }.accessibilityIdentifier("settings.timelineIdle")
-                    Toggle("登录时启动 Saytile", isOn: Binding(get: { model.launchAtLogin }, set: { enabled in model.setLoginItem(enabled) }))
-                        .disabled(!model.canManageLoginItem)
-                    if !model.canManageLoginItem {
-                        Text("此版本请手动启动。").font(.caption).foregroundStyle(.secondary)
-                    }
-                    Toggle("在桌面右下角显示语音入口", isOn: $model.floatingEntryEnabled)
-                        .accessibilityIdentifier("settings.floatingEntry")
-                    Text("收起输入板时保留一个小入口；点击只展开文字，不会开启收音。")
-                        .font(.system(size: 11)).foregroundStyle(Palette.muted)
-                    Picker("展开 / 收起输入板", selection: $model.shortcutChoice) {
-                        Text("⌥ 空格").tag("option-space")
-                        Text("⌃ ⌥ 空格").tag("control-option-space")
-                        Text("⌘ ⇧ 空格").tag("command-shift-space")
-                        Text("关闭快捷键").tag("disabled")
-                    }
-                    Text("快捷键注册失败时会显示提示，菜单栏仍然可用。")
-                        .font(.system(size: 11)).foregroundStyle(Palette.muted)
-                }
-            }.formStyle(.grouped)
-        }.padding(24).frame(minWidth: 560, idealWidth: 650, maxWidth: .infinity, minHeight: 570, idealHeight: 740, maxHeight: .infinity).background(Palette.paper).foregroundStyle(Palette.ink)
-            .confirmationDialog("清理 \(model.cleanupCount) 条已识别、未收藏且超过 30 天的原音？已保存的文字会保留。", isPresented: $cleanup, titleVisibility: .visible) {
-                Button("清理这些原音", role: .destructive, action: model.performCleanup).disabled(model.cleanupCount == 0)
-            }
-    }
-}

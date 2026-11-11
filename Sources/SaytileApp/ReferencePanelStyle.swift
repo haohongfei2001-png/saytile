@@ -120,6 +120,23 @@ struct InputPanelWindowView: View {
         InputPanelView(model: model)
             .shadow(color: .black.opacity(0.17), radius: 12, x: 0, y: -11)
             .shadow(color: .black.opacity(0.06), radius: 2.5, x: 0, y: -2)
+            .overlay(alignment: .top) { PanelDragStrip().frame(height: 10).padding(.horizontal, 28).accessibilityHidden(true) }
             .padding(ReferencePanelStyle.shadowInset)
     }
+}
+
+/// The unused top inset accepts a native window drag without intercepting text selection or either button.
+private struct PanelDragStrip: NSViewRepresentable {
+    final class Handle: NSView {
+        override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+        override var mouseDownCanMoveWindow: Bool { false }
+        override func mouseDown(with event: NSEvent) {
+            guard let panel = window as? VoicePanel else { return }
+            let original = panel.frame
+            panel.performDrag(with: event)
+            if panel.frame != original { panel.didChoosePosition?() }
+        }
+    }
+    func makeNSView(context: Context) -> NSView { Handle() }
+    func updateNSView(_ nsView: NSView, context: Context) {}
 }

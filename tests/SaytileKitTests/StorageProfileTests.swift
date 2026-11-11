@@ -15,3 +15,13 @@ import Testing
         try DiagnosticDirectory.validate(directory: personal.archiveDirectory.appending(path: "LocalModels"), productionDirectory: personal.archiveDirectory)
     }
 }
+
+@Test func designExperienceOwnsADistinctArchiveAndCredentialNamespace() throws {
+    let design = SaytileStorageProfile.designExperience
+    for existing in [SaytileStorageProfile.standard, .personal] {
+        #expect(design.archiveDirectory != existing.archiveDirectory)
+        #expect(design.hostedService != existing.hostedService)
+        #expect(design.byokService != existing.byokService)
+    }
+    #expect(design.archiveDirectory.lastPathComponent == "Saytile Design Experience")
+}

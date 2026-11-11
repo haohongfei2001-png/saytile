@@ -98,3 +98,18 @@ struct WindowPlacementTests {
         #expect(WindowPlacement.restored(frame, visibleFrames: []) == frame)
     }
 }
+
+@Test func preferredPanelSurvivesDisconnectAndChangedScale() throws {
+    let a = CGRect(x: -1600, y: 40, width: 1600, height: 900)
+    let b = CGRect(x: 0, y: 20, width: 1200, height: 760)
+    let frame = CGRect(x: -520, y: 320, width: 416, height: 350)
+    let saved = try #require(SavedPanelPlacement(frame: frame, visibleFrame: a, displayID: "desk"))
+    let persisted = try JSONDecoder().decode(SavedPanelPlacement.self, from: JSONEncoder().encode(saved))
+    #expect(persisted.restored(on: [("built-in", b), ("desk", a)]) == frame)
+    #expect(b.contains(try #require(persisted.restored(on: [("built-in", b)]))))
+    let scaled = CGRect(x: -1100, y: 10, width: 1100, height: 700)
+    let changed = try #require(persisted.restored(on: [("desk", scaled)]))
+    #expect(scaled.contains(changed) && changed.midX > scaled.midX && changed.size == frame.size)
+    #expect(persisted.restored(on: [("desk", a)]) == frame)
+    #expect(persisted.restored(on: []) == nil)
+}

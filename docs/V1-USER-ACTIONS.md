@@ -80,3 +80,5 @@ The cold-start memory regression and historical-selection check are being verifi
 No action is needed for local engineering acceptance. Apple notarization, evidence on a physical 8 GB machine, and commercial rights to Zipformer Large remain separate from local inference. Cloud credential testing remains NOT_RUN for this work.
 
 Cold model download failures are being checked from independent public macOS infrastructure. This requires neither consumer API keys nor any personal voice data.
+
+For this design candidate no personal speech, account, API key or developer tests are requested. Only the new window design and density need aesthetic review.

@@ -71,3 +71,31 @@ public enum WindowPlacement {
                       y: min(max(frame.minY, destination.minY), destination.maxY - size.height), width: size.width, height: size.height)
     }
 }
+
+/// The user's placement is stored against the usable area of the original display.
+/// A temporary fallback never replaces it when the display is disconnected.
+public struct SavedPanelPlacement: Codable, Equatable {
+    public let displayID: String
+    public let frame: CGRect
+    public let visibleFrame: CGRect
+
+    public init?(frame: CGRect, visibleFrame: CGRect, displayID: String) {
+        guard !displayID.isEmpty, Self.valid(frame), Self.valid(visibleFrame) else { return nil }
+        self.frame = frame; self.visibleFrame = visibleFrame; self.displayID = displayID
+    }
+    private static func valid(_ rect: CGRect) -> Bool {
+        [rect.minX, rect.minY, rect.width, rect.height].allSatisfy(\.isFinite) && rect.width > 0 && rect.height > 0
+    }
+    public func restored(on screens: [(id: String, visible: CGRect)]) -> CGRect? {
+        guard Self.valid(frame), Self.valid(visibleFrame), !screens.isEmpty else { return nil }
+        guard let match = screens.first(where: { $0.id == displayID && Self.valid($0.visible) }) else {
+            return WindowPlacement.restoredPanel(frame, visibleFrames: screens.map(\.visible))
+        }
+        let dest = match.visible, size = WindowPlacement.panelSize(frame.size, visibleFrame: dest)
+        func fraction(_ value: CGFloat, _ span: CGFloat) -> CGFloat { span > 0 ? min(1, max(0, value / span)) : 0.5 }
+        let fx = fraction(frame.minX - visibleFrame.minX, visibleFrame.width - frame.width)
+        let fy = fraction(frame.minY - visibleFrame.minY, visibleFrame.height - frame.height)
+        let projected = CGRect(x: dest.minX + fx * (dest.width-size.width), y: dest.minY + fy * (dest.height-size.height), width: size.width, height: size.height)
+        return WindowPlacement.restoredPanel(projected, visibleFrames: [dest])
+    }
+}

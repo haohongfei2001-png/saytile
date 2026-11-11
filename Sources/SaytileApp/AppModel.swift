@@ -80,6 +80,7 @@ struct AppCaptureDependencies {
     var start: (AudioController) async -> Void
     var pause: (AudioController) async -> Void
     var level: (AudioController) -> Float? = { $0.level }
+    var microphoneAuthorization: () -> AVAuthorizationStatus = { AVCaptureDevice.authorizationStatus(for: .audio) }
     static let live = AppCaptureDependencies(state: { $0.state },
         start: { await $0.start() }, pause: { await $0.pause() })
 }
@@ -200,6 +201,7 @@ final class AppModel: ObservableObject {
     @Published var directMode = false
     @Published private(set) var insertionLabels: [UUID: String] = [:]
     @Published var targetLabel = "在目标草稿中放置光标，再绑定"
+    @Published private(set) var completedFirstTranscript = false
     @Published var hasStarted = false
     @Published var storageLabel = "计算中…"
     @Published var cleanupCount = 0
@@ -236,6 +238,8 @@ final class AppModel: ObservableObject {
     var hidePanel: () -> Void = {}
     var openArchive: () -> Void = {}
     var openSettings: () -> Void = {}
+    var openStorageSettings: () -> Void = {}
+    var checkForUpdates: (() -> Void)?
     private var pageLimit = 100
     private var panelLimit = 100
     private var timer: Task<Void, Never>?
@@ -283,8 +287,9 @@ final class AppModel: ObservableObject {
         manualLocalModel = preferences.string(forKey: "localASR.manual").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         archiveLocalModel = preferences.string(forKey: "localASR.archive").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         self.directory = directory
-        hosted = HostedAccount(preferences: preferences, production: normalLaunch && Bundle.main.bundleIdentifier == "app.saytile.mac")
+        hosted = HostedAccount(preferences: preferences, production: normalLaunch && (Bundle.main.bundleIdentifier == "app.saytile.mac" || SaytileStorageProfile.current == .designExperience))
         self.preferences = preferences
+        completedFirstTranscript = preferences.bool(forKey: "firstTranscript.v1")
         self.connectionDependencies = connectionDependencies
         self.captureDependencies = captureDependencies
         self.copyPasteboard = copyPasteboard
@@ -305,7 +310,7 @@ final class AppModel: ObservableObject {
         input = NativeInputCoordinator(store: store)
         floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
         launchAtLogin = canManageLoginItem && SMAppService.mainApp.status == .enabled
-        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? "option-space"
+        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? (SaytileStorageProfile.current == .designExperience ? "disabled" : "option-space")
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
         initializing = false
         hosted.bind { [weak self] route, revoke in
@@ -363,8 +368,12 @@ final class AppModel: ObservableObject {
     var captureLabel: String { panelCaptureLabel }
     var captureProblem: Bool { if case .interrupted = captureDependencies.state(audio) { return true }; return false }
     var saveLabel: String { captureProblem ? "收音已暂停 · 请查看保存状态" : isListening ? "原音独立保存 · 识别不会阻塞收音" : "内容保存在此 Mac，随时可以取用" }
+    var microphoneDenied: Bool { [.denied, .restricted].contains(captureDependencies.microphoneAuthorization()) }
+    func openMicrophoneSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone") { NSWorkspace.shared.open(url) }
+    }
     var microphoneLabel: String {
-        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        switch captureDependencies.microphoneAuthorization() {
         case .authorized: return "已允许"
         case .notDetermined: return "开启收音时请求"
         default: return "未允许，请在系统设置中开启"
@@ -651,6 +660,10 @@ final class AppModel: ObservableObject {
         let tail = window == .latest ? page.entries.last : try await store.timelinePage().entries.last
         guard window == timelineWindow, request == timelineRead else { return }
         if timeline != page { timeline = page }
+        if !completedFirstTranscript, page.entries.contains(where: { !$0.recording.text.isEmpty }) || tail?.recording.text.isEmpty == false {
+            completedFirstTranscript = true
+            preferences.set(true, forKey: "firstTranscript.v1")
+        }
         if timelineTail != tail { timelineTail = tail }
         if observedPosition != tail?.position || observedEnd != tail?.speechEnd {
             observedPosition = tail?.position
