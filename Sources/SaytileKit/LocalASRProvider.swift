@@ -198,7 +198,14 @@ struct LocalLiveText {
         if final { return text.utf16.count }
         let common = RecognitionUTF16.commonPrefix([previous, text])
         if model == .qwen {
-            if !RecognitionUTF16.hasExactPrefix(text, prefix: readingPrefix) {
+            // The zh decoder can change the script of the whole hypothesis mid-utterance.
+            // Compare scripts only for preview ownership. Publish the original model string.
+            let matches = RecognitionUTF16.hasExactPrefix(text, prefix: readingPrefix)
+            if !matches, let reference = readingPrefix.applyingTransform(StringTransform("Traditional-Simplified"), reverse: false),
+               let candidate = text.applyingTransform(StringTransform("Traditional-Simplified"), reverse: false),
+               candidate.hasPrefix(reference), !reference.isEmpty {
+                readingPrefix = String(text.prefix(readingPrefix.count))
+            } else if !matches {
                 // A decoder may permanently change “二十九岁” to “29岁”. Suppressing
                 // every later hypothesis would freeze the preview until end of speech.
                 // Reconsider only the last 24 visible graphemes, on two consecutive
@@ -234,6 +241,8 @@ private final class ModelRecognitionSession: RecognitionSession, @unchecked Send
     private let state = RecognitionSessionCompletion()
     private let channel: AsyncStream<Data>.Continuation
     private let task: Task<Void, Never>
+    private let bufferLock = NSLock()
+    private var pendingPCM = Data()
     private let timeout: Duration
     var isComplete: Bool { state.isComplete }
     init(model: LocalASRID, service: LocalASRService, store: SaytileStore, ticket: RecognitionTicket, review: LocalTextReview?) {
@@ -254,9 +263,32 @@ private final class ModelRecognitionSession: RecognitionSession, @unchecked Send
             }
         }
     }
-    func append(_ data: Data) { if case .dropped = channel.yield(data) { cancel() } }
+    func append(_ data: Data) {
+        // VAD emits short frames. Bound backlog by audio duration instead of
+        // allowing scheduler contention to exhaust hundreds of tiny slots.
+        let overflow = bufferLock.withLock {
+            var offset = data.startIndex
+            while offset < data.endIndex {
+                let count = min(3_200 - pendingPCM.count, data.endIndex - offset)
+                pendingPCM.append(data[offset..<(offset + count)])
+                offset += count
+                if pendingPCM.count == 3_200 {
+                    let result = channel.yield(pendingPCM)
+                    pendingPCM.removeAll(keepingCapacity: true)
+                    if case .dropped = result { return true }
+                }
+            }
+            return false
+        }
+        if overflow { cancel() }
+    }
     func finish() {
-        channel.finish()
+        let overflow = bufferLock.withLock {
+            defer { pendingPCM.removeAll(); channel.finish() }
+            if !pendingPCM.isEmpty, case .dropped = channel.yield(pendingPCM) { return true }
+            return false
+        }
+        if overflow { task.cancel() }
         let active = task, deadline = timeout
         state.watch(Task { do { try await Task.sleep(for: deadline) } catch { return }; active.cancel() })
     }

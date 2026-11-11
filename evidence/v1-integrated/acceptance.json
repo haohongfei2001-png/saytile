@@ -1,0 +1,144 @@
+{
+  "product_source": "235b29447ed04e0ef8ccf167e1314f756596e747",
+  "version": "1.0.0-rc.2-integrated.1",
+  "bundle_id": "app.saytile.mac",
+  "source_dirty": false,
+  "dmg_sha256": "7c5dd932b64ef7a4ffde710df75ab41c062fe76845b70cc007dd3a34a31d51b9",
+  "dmg_bytes": 63471583,
+  "binary_sha256": "2b50dfa2d7c31555f61c93f22928755f3043018fed817b28aa0b99c053a870a8",
+  "host": [
+    "Apple M5",
+    "24 GiB",
+    "macOS 27.0 (26A428)",
+    "arm64"
+  ],
+  "checks": {
+    "signed_dmg_and_installed_app": {
+      "status": "PASS",
+      "evidence": [
+        "signature.log",
+        "build.log"
+      ]
+    },
+    "full_native_ci_413_and_appmodel_108": {
+      "status": "PASS",
+      "evidence": [
+        "native-ci.log"
+      ]
+    },
+    "paired_qwen_and_30_min_contention": {
+      "status": "PASS",
+      "evidence": [
+        "qwen-ab.json",
+        "qwen-shared.json",
+        "compute.log"
+      ]
+    },
+    "corrupt_model_retry_same_record_idle_release_and_reload": {
+      "status": "PASS",
+      "evidence": [
+        "qwen-fault.json"
+      ]
+    },
+    "provider_modes_and_credentials_local_peer_only": {
+      "status": "PASS",
+      "evidence": [
+        "hosted-loopback.log",
+        "native-ci.log"
+      ]
+    },
+    "real_owned_appkit_wkwebview_chrome_textedit": {
+      "status": "PASS",
+      "evidence": [
+        "input"
+      ]
+    },
+    "window_appearance_idle_timeline_copy_and_focus": {
+      "status": "PASS",
+      "evidence": [
+        "backdrops",
+        "apple-window.mp4",
+        "ui/manifest.json",
+        "timeline/receipt.json"
+      ]
+    },
+    "rc1_and_rc2_upgrade_keychain_canaries_and_rollback": {
+      "status": "PASS",
+      "evidence": [
+        "upgrade-rc1.json",
+        "upgrade-v5.json"
+      ]
+    },
+    "process_death_storage_and_audio_buffer": {
+      "status": "PASS",
+      "evidence": [
+        "crash.json",
+        "storage-scale/storage-scale.json",
+        "audio-buffer.json"
+      ]
+    },
+    "owned_hal_lifecycle_and_guest_network_loss": {
+      "status": "PASS",
+      "evidence": [
+        "device/capture.json",
+        "device/network.json"
+      ]
+    },
+    "cold_downloads_hosted_macos_and_interruption_recovery": {
+      "status": "PASS",
+      "evidence": [
+        "download-ci.log",
+        "download-interruption.log"
+      ]
+    },
+    "cold_qwen_download_local_proxy": {
+      "status": "FAIL",
+      "evidence": [
+        "host-cold.log"
+      ]
+    },
+    "isolated_sparkle_update_bad_signature_then_success": {
+      "status": "PASS",
+      "evidence": [
+        "update.json"
+      ]
+    },
+    "idle_and_ac_resource_sampling": {
+      "status": "PASS",
+      "evidence": [
+        "idle.json",
+        "resource"
+      ]
+    },
+    "gatekeeper_public_distribution_before_notarization": {
+      "status": "BLOCKED",
+      "evidence": [
+        "gatekeeper.log"
+      ]
+    },
+    "microphone_revoke_restore_no_existing_fixture_grant": {
+      "status": "BLOCKED",
+      "evidence": [
+        "device/permission.json"
+      ]
+    },
+    "kernel_sleep_disposable_host": {
+      "status": "BLOCKED",
+      "evidence": [
+        "device/kernel-sleep.json"
+      ]
+    },
+    "physical_headset_swap_8gb_battery_endurance_spontaneous_user_speech_and_paid_cloud": {
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  },
+  "ci": {
+    "native_product": "https://github.com/haohongfei2001-png/saytile/actions/runs/43029518922/job/130552876684",
+    "foreground_rehearsal": "https://github.com/haohongfei2001-png/saytile/actions/runs/43035945992/job/130574652542",
+    "foreground_harness": "eec80d77106c5a625a042ffb50fa324641efa29c",
+    "product_sources_identical": true,
+    "device_download": "https://github.com/haohongfei2001-png/saytile/actions/runs/43034128359",
+    "first_browser_harness_result": "Timeout starting app-mode Chrome via LaunchServices. Second fixture had no independent document anchor. Corrected fixtures passed without product changes."
+  }
+}

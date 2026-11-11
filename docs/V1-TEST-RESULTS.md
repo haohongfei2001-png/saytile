@@ -1,3 +1,7 @@
+## V1 统一发行候选
+
+413 项 Swift 测试、108 项 AppModel、102 段 CPU/GPU 竞争运行及真实隔离 Chrome、WKWebView、TextEdit 通过。本机代理的 Qwen 整包下载仍失败。 [本次完整交付](V1-INTEGRATED-CANDIDATE.md)
+
 ## M5 本地中文实时识别候选 .6
 
 411 个 Swift 测试及 104 项 AppModel 检查通过。四路各完成 440 次模型直通、440 次产品回放及 15 次原速窗口测试。独立 macOS CI 通过三款模型公开冷下载。本机代理下两个整包下载超时。Qwen 在共用机器的半小时测试中取消一段，独占复测 102/102 完成。真实 8 GB 硬件与电池续航待测。 [评测与交付报告](V1-MANDARIN-LOCAL-ASR.md)

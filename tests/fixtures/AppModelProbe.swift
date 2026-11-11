@@ -28,6 +28,13 @@ struct AppModelProbe {
         defer { preferences.removePersistentDomain(forName: preferenceSuite) }
         preferences.set("synthetic-disconnected-microphone", forKey: "selectedDeviceUID")
         let model = try AppModel(directory: directory, preferences: preferences)
+        try require(model.deviceOnly && !model.hosted.selected, "fresh install starts offline")
+        model.selectSource("hosted")
+        try require(!model.deviceOnly && model.hosted.selected && !model.hosted.consent, "Cloud selection grants no upload consent")
+        model.selectSource("byok")
+        try require(!model.deviceOnly && !model.hosted.selected, "BYOK can be selected independently")
+        model.selectSource("local")
+        try require(model.deviceOnly && !model.hosted.selected && !model.localTextAllowed, "return to local has no cloud review")
         try require(model.deviceID == UInt32.max && model.audio.selectedDeviceUID == "synthetic-disconnected-microphone", "missing remembered microphone never silently selects system default")
         model.deviceID = 0
         try require(model.audio.selectedDeviceUID == nil && preferences.string(forKey: "selectedDeviceUID") == nil, "explicit default device choice clears remembered hardware UID")

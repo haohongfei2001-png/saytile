@@ -1,0 +1,22 @@
+HEADLESS_BROWSER 157.0.8103.39
+PASS textarea confirms UTF16 insertion through production coordinator
+PASS textarea suppresses duplicate stable range
+PASS textarea appends only suffix and preserves surrounding text
+PASS textarea never sends or retries
+PASS textarea selected text invalidates binding
+PASS textarea never replaces selected text
+PASS textarea rejects stale context after sameURL
+PASS textarea rejects stale context after replace
+PASS textarea rejects stale context after newURL
+PASS textarea rejects stale context after focusAwayBack
+PASS contenteditable confirms UTF16 insertion through production coordinator
+PASS contenteditable suppresses duplicate stable range
+PASS contenteditable appends only suffix and preserves surrounding text
+PASS contenteditable never sends or retries
+PASS contenteditable selected text invalidates binding
+PASS contenteditable never replaces selected text
+PASS contenteditable rejects stale context after sameURL
+PASS contenteditable rejects stale context after replace
+PASS contenteditable rejects stale context after newURL
+PASS contenteditable rejects stale context after focusAwayBack
+DOM_COORDINATOR_PASS 20 checks; Production Swift coordinator + SQLite + test-only DOM adapter; not native AX

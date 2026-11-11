@@ -39,7 +39,7 @@ import Combine
          request: @escaping Request) {
         self.keychain=keychain;self.request=request
         defaults = preferences
-        selected = preferences.object(forKey:"hosted.selected.v1") as? Bool ?? (production && preferences.data(forKey:"multiASRConfigurationV1") == nil)
+        selected = preferences.object(forKey:"hosted.selected.v1") as? Bool ?? false
         consent = preferences.bool(forKey:"hosted.zh-consent.v1")
         self.origin=origin
     }

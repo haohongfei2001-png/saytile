@@ -4,6 +4,12 @@ import Testing
 
 @Suite("On-device streaming and model integrity")
 struct LocalModelTests {
+    @Test func downloadPreservesRoomForRecording() throws {
+        #expect(throws: AudioFailure.self) {
+            try LocalModelLibrary.checkDownloadCapacity(remaining: 100, available: 128_000_099)
+        }
+        try LocalModelLibrary.checkDownloadCapacity(remaining: 100, available: 128_000_100)
+    }
     @Test func pinnedCatalogSeparatesBatchFromStreaming() throws {
         #expect(LocalASRID.allCases.filter { $0.capability == .streaming } == [.apple,.sherpa,.nemotron,.zipformer])
         #expect(LocalASRID.consumer == [.apple,.sherpa,.qwen])
@@ -37,6 +43,14 @@ struct LocalModelTests {
         let unrelated = "同样的长度不能证明完全不同的识别结果有权替换此前的预览。"
         #expect(q.accept(unrelated, final: false) == nil)
         #expect(q.accept(unrelated + "更多", final: false) == nil)
+    }
+    @Test func scriptChangeKeepsVerbatimPreviewAndNoDispatch() {
+        var preview = LocalLiveText(model: .qwen)
+        for text in ["我覺得那這樣的話，就是應該", "我覺得那這樣的話，就是應該customer他", "我觉得那这样的话，就是应该customer他负责"] {
+            #expect(preview.accept(text, final: false) == 0)
+            #expect(preview.previous == text)
+        }
+        #expect(preview.accept("我不觉得那样的话，就是不应该负责", final: false) == nil)
     }
     @Test func changedSameLengthWeightsCannotBeOpened() async throws {
         let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)

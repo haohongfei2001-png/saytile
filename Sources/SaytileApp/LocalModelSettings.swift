@@ -30,6 +30,7 @@ struct LocalModelSettings: View {
                 }
             } else {
                 Text(LocalModelRecommendation.description).font(.callout).foregroundStyle(.secondary)
+                if let error = items[.sherpa]?.error { Text(error).font(.caption).foregroundStyle(.secondary) }
                 if items[.sherpa]?.installed == false {
                     if items[.sherpa]?.downloading == true {
                         Button("暂停下载") { Task { await model.localModels.library.pause(.sherpa) } }

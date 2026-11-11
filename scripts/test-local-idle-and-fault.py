@@ -4,7 +4,8 @@ import argparse, hashlib, json, os, pathlib, plistlib, sqlite3, subprocess, temp
 P=pathlib.Path
 p=argparse.ArgumentParser()
 for n in ("app","weights","audio","output"):p.add_argument("--"+n,type=P,required=True)
-p.add_argument("--model",choices=("sherpa","zipformer"),default="sherpa")
+p.add_argument("--retry-exe", type=P)
+p.add_argument("--model",choices=("sherpa","zipformer","qwen-small"),default="sherpa")
 a=p.parse_args();app=a.app.resolve(); meta=plistlib.loads((app/"Contents/Info.plist").read_bytes());assert not meta["SaytileSourceDirty"]
 model=json.loads(P("Sources/SaytileKit/Resources/LocalASR",a.model+".json").read_text()); exe=app/"Contents/MacOS/Saytile"
 source=a.audio/"fleurs-zh-13737992583400421680.wav"
@@ -12,7 +13,7 @@ assert hashlib.sha256(source.read_bytes()).hexdigest()=="2c130c47ae74549ca6b33e0
 with wave.open(str(source)) as w: signal=w.readframes(w.getnframes())
 out={"source":meta["SaytileSourceRevision"],"model":a.model,"model_revision":model["revision"],"fixture_sha256":hashlib.sha256(source.read_bytes()).hexdigest()}
 for mode in ("corrupt","idle"):
-    with tempfile.TemporaryDirectory(prefix="saytile-local-fault-") as tmp:
+    with tempfile.TemporaryDirectory(prefix="saytile-local-batch-fault-") as tmp:
         root=P(tmp); directory=root/"LocalModels"/a.model/model["revision"];directory.parent.mkdir(parents=True)
         subprocess.run(["cp","-cR",str(a.weights/a.model/model["revision"]),str(directory)],check=True)
         with wave.open(str(root/"fixture.wav"),"wb") as wav:
@@ -28,7 +29,7 @@ for mode in ("corrupt","idle"):
         changes=[];pids=[];prior=None
         while proc.poll() is None:
             if time.monotonic()-start>100:proc.terminate();proc.wait();raise RuntimeError("timed out")
-            matches=subprocess.run(["pgrep","-P",str(proc.pid),"-x","SaytileSherpa"],capture_output=True,text=True).stdout.split()
+            matches=subprocess.run(["pgrep","-P",str(proc.pid),"-x","SaytileModelWorker" if a.model=="qwen-small" else "SaytileSherpa"],capture_output=True,text=True).stdout.split()
             assert len(matches)<=1
             state=matches[0] if matches else ""
             if state!=prior:
@@ -46,6 +47,18 @@ for mode in ("corrupt","idle"):
         if mode=="corrupt":
             assert not pids and proc.returncode!=0 and len(rows)==1 and rows[0][0]=="failed" and rows[0][1]=="available"
             assert set(providers).issubset({a.model}) and db.execute("select count(*) from dispatches").fetchone()[0]==0
+            if a.retry_exe and a.model == "qwen-small":
+                original_id = db.execute("select id from recordings").fetchone()[0]
+                def hashes():
+                    return {f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in (root/"Audio").rglob("*.wav")}
+                before = hashes()
+                source_member = a.weights/a.model/model["revision"]/small["path"]
+                (directory/small["path"]).write_bytes(source_member.read_bytes())
+                subprocess.run([a.retry_exe.resolve(), a.model, root, root/"LocalModels", app, root/"retry.json"], check=True, timeout=100)
+                restored = db.execute("select id,recognition_state,audio_state from recordings").fetchall()
+                assert restored == [(original_id,"completed","available")] and hashes()==before
+                assert db.execute("select count(*) from dispatches").fetchone()[0] == 0
+                out["retry"] = dict(status="PASS", same_record=True, original_wav_hashes_unchanged=True, external_dispatches=0)
         else:
             assert proc.returncode==0 and len(pids)==2 and len(rows)==2 and all(r[0]=="completed" and r[1]=="available" and r[3]==0 for r in rows)
             assert [v["worker"] for v in changes]==[None,1,None,2] or [v["worker"] for v in changes]==[None,1,None,2,None]

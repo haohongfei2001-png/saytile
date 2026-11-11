@@ -72,7 +72,7 @@ with tempfile.TemporaryDirectory(prefix='process-fixtures-',dir=SCRATCH) as tmp:
         shutil.copytree(upgrade,backup)  # stopped, disposable fixture only; no production backup is taken
         run('probe','verify',upgrade)
         after=snapshot(upgrade)
-        assert before['schema']==(1 if baseline=='beta' else 2) and after['schema']==5
+        assert before['schema']==(1 if baseline=='beta' else 2) and after['schema']==6
         # Schema 5 adds a recording upload-consent table. Compare every old
         # column/row exactly while allowing explicit schema additions.
         for name,rows in before['tables'].items():
@@ -80,11 +80,11 @@ with tempfile.TemporaryDirectory(prefix='process-fixtures-',dir=SCRATCH) as tmp:
             assert [tuple(row[index] for index in indices) for row in after['tables'][name]] == rows
         assert after['tables']['recording_cloud_authorizations'] == [], 'Legacy audio must not gain cloud upload authorization'
         assert before['audio']==after['audio']
-        checks.append('actual_'+baseline+'_to_schema5_preserves_all_existing_columns_rows_and_audio')
+        checks.append('actual_'+baseline+'_to_schema6_preserves_all_existing_columns_rows_and_audio')
         if baseline=='rc1':
             rejected=run('rc1-probe','open',upgrade,False)
             assert '资料库来自更新版本' in rejected.stdout and snapshot(upgrade)==after
-            checks.append('released_rc1_refuses_schema5_without_content_change')
+            checks.append('released_rc1_refuses_schema6_without_content_change')
             restored=parent/'explicit-rollback-restore'
             shutil.copytree(backup,restored)
             run('rc1-probe','open',restored)

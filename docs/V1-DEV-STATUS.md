@@ -1,3 +1,7 @@
+## V1 统一发行候选
+
+整合版本 1.0.0-rc.2-integrated.1 已生成 Developer ID 签名 DMG，正式产品源码 235b2944。 [本次完整交付](V1-INTEGRATED-CANDIDATE.md)
+
 ## M5 本地中文实时识别候选 .6
 
 工程候选为 `1.0.0-rc.2-local-asr.6`，产品源码 `a55d51a1ff4711340bc63ea5c8ecd927dd2327d3`。安装包 61,646,743 字节。M5 原生实测支持 Apple 默认、Paraformer 轻量备选及 Qwen 手动选择。Zipformer 仅进入研究。发布等待 Apple 公证，研究权重的商用许可尚未确认。 [评测与交付报告](V1-MANDARIN-LOCAL-ASR.md)

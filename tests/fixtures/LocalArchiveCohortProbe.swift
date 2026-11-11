@@ -21,10 +21,14 @@ import SaytileKit
             guard try await store.listRecordings(limit: 1).isEmpty else { throw CocoaError(.fileWriteFileExists) }
             _ = try await controller.replayLocalFixture(root.appending(path: "fixture.wav"), recordOnly: true)
         } else {
-            guard let id = LocalASRID(rawValue: job), id.capability == .batch else { throw CocoaError(.fileReadCorruptFile) }
+            guard let id = LocalASRID(rawValue: job), (id.capability == .batch || id == .qwen) else { throw CocoaError(.fileReadCorruptFile) }
             controller.selectLocalModels(live: .sherpa, archive: id, service: service)
             let records = try await store.listRecordings(limit: 40)
-            guard records.count >= 10, records.count < 40, records.allSatisfy({ $0.recognitionState == .queued && $0.text.isEmpty }) else { throw CocoaError(.fileReadCorruptFile) }
+            if id == .qwen {
+                guard records.count == 1, records[0].recognitionState == .failed else { throw CocoaError(.fileReadCorruptFile) }
+            } else {
+                guard records.count >= 10, records.count < 40, records.allSatisfy({ $0.recognitionState == .queued && $0.text.isEmpty }) else { throw CocoaError(.fileReadCorruptFile) }
+            }
             var result = [[String: Any]]()
             for r in records.reversed() {
                 let started = ProcessInfo.processInfo.systemUptime

@@ -1,0 +1,18 @@
+PASS web real foreground insertion and local confirmation
+PASS web duplicate stable range suppressed
+PASS web UTF16 suffix preserves surrounding text
+PASS web target mutation rejects stale insertion
+PASS web no Return or send
+PASS foreground WKWebView longer exact DOM, intact prefix/suffix, zero sends
+PASS foreground WKWebView shorter exact DOM, intact prefix/suffix, zero sends
+PASS foreground WKWebView manualEdit exact DOM, intact prefix/suffix, zero sends
+PASS foreground WKWebView blur exact DOM, intact prefix/suffix, zero sends
+PASS foreground WKWebView restart exact DOM, intact prefix/suffix, zero sends
+PASS native real foreground insertion and local confirmation
+PASS native duplicate stable range suppressed
+PASS native UTF16 suffix preserves surrounding text
+PASS native target mutation rejects stale insertion
+PASS native no Return or send
+PASS foreground native ignored-write no replay, no wrong window, zero sends
+PASS foreground native other-window no replay, no wrong window, zero sends
+FOREGROUND_BATCH_COMPLETE checks=10 failures=0; production frontmost resolver + fixture PID guard; not a third-party browser claim

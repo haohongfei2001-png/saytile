@@ -91,7 +91,19 @@ public actor LocalModelLibrary {
     private var deleting: Set<LocalASRID> = []
     private var verified: [LocalASRID: [Date]] = [:]
     private let fm = FileManager.default
-    public init(root: URL, session: URLSession = .shared) { self.root = root; self.http = session }
+    public init(root: URL, session: URLSession? = nil) {
+        self.root = root
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = 25
+        config.timeoutIntervalForResource = 90
+        self.http = session ?? URLSession(configuration: config)
+    }
+    static func checkDownloadCapacity(remaining: Int64, available: Int64) throws {
+        // Reserve room for concurrent temporary ranges and the capture journal.
+        guard available >= remaining + 128_000_000 else {
+            throw AudioFailure.message("磁盘空间不足。请释放空间后继续下载，或选用系统识别。")
+        }
+    }
     func directory(_ m: LocalModelManifest) -> URL {
         root.appending(path: m.id.rawValue).appending(path: m.revision, directoryHint: .isDirectory)
     }
@@ -149,7 +161,11 @@ public actor LocalModelLibrary {
         errors[id] = nil
         jobs[id] = Task {
             do { try await install(try LocalModelManifest.load(id)) }
-            catch { if !Task.isCancelled { errors[id] = error.localizedDescription } }
+            catch {
+                if !Task.isCancelled {
+                    errors[id] = error is URLError ? "模型下载中断。可继续下载，或使用系统识别。" : error.localizedDescription
+                }
+            }
             jobs[id] = nil
         }
     }
@@ -174,6 +190,14 @@ public actor LocalModelLibrary {
         if (try? validated(m)) != nil { return }
         try Task.checkCancellation()
         try fm.createDirectory(at: stage, withIntermediateDirectories: true)
+        let available = try fm.attributesOfFileSystem(forPath: stage.path)[.systemFreeSize] as? NSNumber
+        if let available {
+            let pending = m.files.reduce(Int64(0)) { sum, file in
+                let existing = (try? stage.appending(path: file.path).resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+                return sum + max(0, file.bytes - Int64(existing))
+            }
+            try Self.checkDownloadCapacity(remaining: pending, available: available.int64Value)
+        }
         for f in m.files {
             let target = stage.appending(path: f.path)
             try fm.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
