@@ -82,3 +82,5 @@ The .5 cold-start transfer through the host proxy failed on Zipformer and Qwen d
 Design candidate: initial arm64 SwiftUI build passed. Added persisted-position, isolated profile and first-transcript regressions; signed window captures and final executable are separately verified.
 
 Interim native review on M5: 44 AX presses, 15 interaction groups, 38 ordinary renders plus three reference renders and a no-focus-change guard passed. A 45-second synthetic live stream persisted all 992,250 source frames with zero drops (ASR disabled). Real two-window composition exposed a gray cast and reversed shadow; after adjusting these, the controlled screen shows the lighter glass. Exact SHA evidence follows packaging.
+
+Verified two active WindowServer displays on the test Mac (1920 × 1080 and 800 × 1280 logical points; both 2×). Added a regression for the observed invalid first-launch status item anchor. Physical unplug and independent 1× hardware remain separate.

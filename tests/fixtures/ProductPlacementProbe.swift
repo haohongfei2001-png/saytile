@@ -57,14 +57,18 @@ import ApplicationServices
             guard desktopOwner(at:a)==app.processIdentifier else { throw Problem("Ownership changed before gesture") }
             try event(.leftMouseDown,a); var held=true; var last=a
             defer { if held { try? event(.leftMouseUp,last) } }
-            for i in 1...12 {
-                let t=CGFloat(i)/12; last=CGPoint(x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t)
+            let steps = max(12,Int(ceil(max(abs(dx),abs(dy))/6)))
+            for i in 1...steps {
+                let t=CGFloat(i)/CGFloat(steps); last=CGPoint(x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t)
                 guard window(app) != nil, !app.isTerminated else { throw Problem("Design panel disappeared during drag") }
                 try event(.leftMouseDragged,last); try await Task.sleep(for:.milliseconds(22))
             }
             try event(.leftMouseUp,b); held=false; try await Task.sleep(for:.milliseconds(320))
             let final=try await visible(app)
-            guard abs(final.1.minX-start.minX-dx)<=2, abs(final.1.minY-start.minY-dy)<=2 else { throw Problem("Drag did not produce requested displacement: \(start) -> \(final.1)") };return final.1
+            // AppKit consumes the first motion sample to cross its drag threshold.
+            // Compare direction and useful travel; hide/show and restart below must restore the *exact measured* frame.
+            let mx=final.1.minX-start.minX, my=final.1.minY-start.minY
+            guard mx*dx>0, my*dy>0, abs(mx-dx)<=8, abs(my-dy)<=8, final.1.size==start.size else { throw Problem("Native drag did not follow its path: \(start) -> \(final.1)") };return final.1
         }
         func clickOwnStatus(_ app:NSRunningApplication) throws {
             let ax=AXUIElementCreateApplication(app.processIdentifier)
@@ -92,9 +96,25 @@ import ApplicationServices
         try clickOwnStatus(first); try await Task.sleep(for:.milliseconds(220)); guard window(first)==nil else {throw Problem("Menu failed to hide")}
         try clickOwnStatus(first); let shown=try await visible(first); guard same(shown.1,chosen) else {throw Problem("Hide/show moved panel")}
         print("HIDE_SHOW_RESTORED \(shown.1)"); fflush(nil)
+        let primary = CGDisplayBounds(CGMainDisplayID())
+        let options = NSScreen.screens.map { s in CGRect(x:s.visibleFrame.minX,y:primary.maxY-s.visibleFrame.maxY,width:s.visibleFrame.width,height:s.visibleFrame.height) }
+        let other = options.first { !$0.contains(CGPoint(x:chosen.midX,y:chosen.midY)) && $0.width>chosen.width && $0.height>chosen.height }
+        var beforeRestart=chosen
+        var moveAcross = CGPoint.zero
+        if let other {
+            moveAcross=CGPoint(x:round(other.midX-chosen.midX),y:round(other.midY-chosen.midY))
+            beforeRestart=try await drag(first,chosen,moveAcross.x,moveAcross.y)
+            guard other.contains(beforeRestart) else {throw Problem("Native gesture did not reach second display")}
+            print("SECOND_DISPLAY_CHOSEN \(beforeRestart)"); fflush(nil)
+        }
         try await stop(first); let second=try await launch(), restarted=try await visible(second)
-        guard first.processIdentifier != second.processIdentifier,same(chosen,restarted.1) else {throw Problem("Relaunch lost chosen position")}
-        let final=try await drag(second,restarted.1,-dx,-dy)
+        guard first.processIdentifier != second.processIdentifier,same(beforeRestart,restarted.1) else {throw Problem("Relaunch lost chosen position")}
+        var back=restarted.1
+        if other != nil {
+            back=try await drag(second,restarted.1,-moveAcross.x,-moveAcross.y)
+            guard abs(back.minX-chosen.minX)<=2 && abs(back.minY-chosen.minY)<=2 else {throw Problem("Return from second display changed the initial location")}
+        }
+        let final=try await drag(second,back,-dx,-dy)
         guard same(initial.1,final), NSWorkspace.shared.frontmostApplication?.processIdentifier != second.processIdentifier else {throw Problem("Default not restored or focus stolen")}
         print("PLACEMENT_PASS relaunched=\(restarted.1) restored_for_user=\(final) screens=\(NSScreen.screens.count) foreground_preserved=\(foreground==NSWorkspace.shared.frontmostApplication?.processIdentifier)")
     }

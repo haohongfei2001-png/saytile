@@ -30,8 +30,16 @@ public enum WindowPlacement {
     public static func panel(anchor: CGRect?, visibleFrame: CGRect, preferredSize: CGSize = panelDefaultSize) -> CGRect {
         let inset = panelVisibleArea(visibleFrame)
         let size = panelSize(preferredSize, visibleFrame: visibleFrame)
-        let x = anchor.map { $0.maxX - size.width } ?? inset.midX - size.width / 2
-        let y = anchor.map { $0.minY - size.height - 8 } ?? inset.midY - size.height / 2
+        // A hidden/unlaid-out NSStatusItem can briefly advertise an origin
+        // near (0,0). It is not a menu-bar anchor; clamping it strands a first
+        // window in the bottom corner. Never change a saved user placement.
+        let menuAnchor = anchor.flatMap { rect -> CGRect? in
+            guard !rect.isEmpty, rect.midX >= visibleFrame.minX, rect.midX <= visibleFrame.maxX,
+                  abs(rect.maxY - visibleFrame.maxY) <= max(56, rect.height + 24) else { return nil }
+            return rect
+        }
+        let x = menuAnchor.map { $0.maxX - size.width } ?? inset.midX - size.width / 2
+        let y = menuAnchor.map { $0.minY - size.height - 8 } ?? inset.midY - size.height / 2
         return CGRect(x: min(max(x, inset.minX), inset.maxX - size.width),
                       y: min(max(y, inset.minY), inset.maxY - size.height), width: size.width, height: size.height)
     }

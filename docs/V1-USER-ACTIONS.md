@@ -84,3 +84,5 @@ Cold model download failures are being checked from independent public macOS inf
 For this design candidate no personal speech, account, API key or developer tests are requested. Only the new window design and density need aesthetic review.
 
 The new design experience owns a separate mic permission identity and asks only on a user-initiated start. Do not transfer, reset or change build 269's grants. The visual review uses controlled permission states and an independent, nonactivating window.
+
+No display reconfiguration or testing is requested from the user. The design profile is separate and saved positions are never reset to repair startup.

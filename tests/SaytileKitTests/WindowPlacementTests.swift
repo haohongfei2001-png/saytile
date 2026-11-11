@@ -12,6 +12,14 @@ struct WindowPlacementTests {
         #expect(WindowPlacement.panelContentDefaultSize == CGSize(width: 344, height: 234))
     }
 
+    @Test func unlaidOutMenuAnchorCannotPlaceFreshWindowInBottomCorner() {
+        let display = CGRect(x:0,y:0,width:1920,height:1080)
+        let fallback = WindowPlacement.panel(anchor:nil,visibleFrame:display)
+        #expect(WindowPlacement.panel(anchor:CGRect(x:0,y:0,width:28,height:22),visibleFrame:display) == fallback)
+        #expect(fallback.midX == display.midX && fallback.midY == display.midY)
+        #expect(WindowPlacement.panel(anchor:CGRect(x:1720,y:1056,width:24,height:24),visibleFrame:display) != fallback)
+    }
+
     @Test func panelFitsOffsetAndCompactDisplays() {
         for screen in [CGRect(x: 0, y: 0, width: 1440, height: 875), CGRect(x: -1920, y: 180, width: 1920, height: 1040), CGRect(x: 1440, y: -400, width: 800, height: 500)] {
             for anchor in [CGRect(x: screen.maxX - 30, y: screen.maxY, width: 24, height: 24), CGRect(x: screen.minX + 2, y: screen.maxY, width: 24, height: 24)] {

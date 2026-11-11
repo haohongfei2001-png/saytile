@@ -86,3 +86,5 @@ A real cold download through the configured Mac proxy timed out on the previous 
 Design candidate: ported the production settings, archive, first-use guidance and per-display panel placement. Build 269 and its profile remain independent. Native window/AX acceptance follows.
 
 The composed reference window exposed a shadow above the card and a neutralized center. The exterior shadow now falls below the card without obscuring its glass. Resource retry now requires an installed system asset and clears only its own previous error. Permission recovery and pre-transcript empty records retain the original two controls.
+
+An actual initial launch with an unlaid-out menu-bar item landed in the bottom corner of the 1920 × 1080 screen. Accept a status-item anchor only at the visible display's menu bar; otherwise center the initial panel. Never rewrite saved user placement. The test rig measures actual AppKit drag displacement after its native hysteresis, then requires the observed frame to survive reopen and restart.
