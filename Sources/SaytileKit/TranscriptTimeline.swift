@@ -11,6 +11,23 @@ public struct TimelineEntry: Identifiable, Equatable, Sendable {
     public let speechEnd: Date
 }
 
+public struct TimelineTextSnapshot: Equatable, Sendable {
+    public let position: Int64
+    public let recordingID: UUID
+    public let revisionID: UUID?
+    public let text: String
+
+    public init(_ entry: TimelineEntry) {
+        self.init(position: entry.position, recordingID: entry.id, revisionID: entry.recording.preferredRevisionID, text: entry.recording.text)
+    }
+    fileprivate init(position: Int64, recordingID: UUID, revisionID: UUID?, text: String) {
+        self.position = position
+        self.recordingID = recordingID
+        self.revisionID = revisionID
+        self.text = text
+    }
+}
+
 public enum TimelineWindow: Equatable, Sendable {
     case latest, ending(at: Int64), starting(at: Int64)
 }
@@ -101,16 +118,30 @@ extension SaytileStore {
         return page
     }
 
-    /// A click reads one SQLite snapshot. Already rendered revisions win over a newer
-    /// database revision not yet drawn. Loading earlier pages never grows this query.
-    public nonisolated func timelineCopy(group: Int64, through last: Int64, displayed: [Int64:String]) throws -> String {
+    /// Snapshot the group selected at the click, including segments outside the
+    /// current TextKit page. Reading another group never expands this range.
+    private nonisolated func timelineGroupRows(group: Int64, through last: Int64) throws -> [[String: String]] {
         let reader = try StoreDatabase(url: directory.appendingPathComponent("Saytile.sqlite"), readOnly: true)
-        let rows = try reader.rows("""
-            SELECT t.position,v.text FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id
+        return try reader.rows("""
+            SELECT t.position,r.id,r.preferred_revision,v.text FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id
             LEFT JOIN revisions v ON v.id=r.preferred_revision
             WHERE t.group_start=? AND t.position<=? AND r.deleted=0 ORDER BY t.position
             """, [.int(group), .int(last)])
-        return rows.compactMap { row in
+    }
+
+    public nonisolated func timelineGroupSnapshots(group: Int64, through last: Int64) throws -> [TimelineTextSnapshot] {
+        try timelineGroupRows(group: group, through: last).map { row in
+            guard let position = row["position"].flatMap(Int64.init), let id = row["id"].flatMap(UUID.init(uuidString:)) else {
+                throw StoreError.database("无法读取时间轴位置。")
+            }
+            return TimelineTextSnapshot(position: position, recordingID: id,
+                revisionID: row["preferred_revision"].flatMap(UUID.init(uuidString:)), text: row["text"] ?? "")
+        }
+    }
+
+    /// Already rendered text wins over a newer revision not yet drawn.
+    public nonisolated func timelineCopy(group: Int64, through last: Int64, displayed: [Int64:String]) throws -> String {
+        try timelineGroupRows(group: group, through: last).compactMap { row in
             let text = row["position"].flatMap(Int64.init).flatMap { displayed[$0] } ?? row["text"] ?? ""
             return text.isEmpty ? nil : text
         }.joined(separator: "\n")

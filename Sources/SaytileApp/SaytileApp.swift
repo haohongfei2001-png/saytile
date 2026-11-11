@@ -53,6 +53,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var diagnosticPreferencesSuite: String?
     private var diagnosticExitStatus: Int32 = 0
 
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if diagnosticPreferencesSuite == nil, model != nil { showPanel() }
+        return false
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
             // An unsupported explicit-directory spelling must never fall back
@@ -80,7 +85,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             if let index = directoryIndex {
                 directory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
             } else {
-                directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Saytile", isDirectory: true)
+                directory = SaytileStorageProfile.current.archiveDirectory
+                if SaytileStorageProfile.current == .personal { try DiagnosticDirectory.validate(directory: directory) }
             }
             if isDiagnostic || directoryIndex != nil {
                 // Reject production aliases before AppModel/Store can migrate or
@@ -90,6 +96,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     let preview = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
                         .appendingPathComponent("Saytile Timeline Preview", isDirectory: true)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: preview)
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.personal.archiveDirectory)
                 }
                 catch { print("DIAGNOSTICS_REJECTED_DATA_DIRECTORY"); Darwin.exit(64) }
             }
@@ -123,8 +130,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 var diagnosticConfiguration = RecognitionConfiguration()
                 diagnosticConfiguration.automaticRecovery = false
                 try diagnosticConfiguration.save(to: preferences)
-            } else { preferences = .standard }
-            let model = try AppModel(directory: directory, preferences: preferences,
+            } else { preferences = SaytileStorageProfile.current.preferences }
+            let model = try AppModel(directory: directory, preferences: preferences, normalLaunch: directoryIndex == nil,
                 copyPasteboard: CommandLine.arguments.contains("--ui-review") ? NSPasteboard.withUniqueName() : nil)
             self.model = model
             if let setupRequest {
@@ -249,7 +256,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             }
             configureMainMenu()
             #if canImport(Sparkle)
-            if directoryIndex == nil, Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil,
+            if directoryIndex == nil, SaytileStorageProfile.current == .standard, Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil,
                Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") != nil {
                 updater = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
             }
@@ -300,7 +307,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 Task { @MainActor in self?.restoreVisibleWindows() }
             }
             // Relaunch never silently resumes the microphone or restores an input binding.
-            if !preferences.bool(forKey: "hasLaunched") {
+            if directoryIndex == nil && (SaytileStorageProfile.current == .personal || !preferences.bool(forKey: "hasLaunched")) {
                 preferences.set(true, forKey: "hasLaunched")
                 showPanel()
             }
@@ -381,7 +388,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     private func configureStatusItem() {
         let status = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        status.button?.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "Saytile")
+        status.button?.image = SaytileBrand.paused
         status.button?.target = self
         status.button?.action = #selector(statusClicked)
         status.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
@@ -391,7 +398,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private func updateStatus() {
         guard let model else { return }
         let label = "Saytile · \(model.panelCaptureLabel)"
-        status?.button?.image = NSImage(systemSymbolName: model.captureProblem ? "exclamationmark.circle" : (model.isListening ? "waveform" : "waveform.slash"), accessibilityDescription: label)
+        status?.button?.image = model.captureProblem ? SaytileBrand.problem : (model.isListening ? SaytileBrand.active : SaytileBrand.paused)
+        status?.button?.title = status?.button?.image == nil ? "Saytile" : ""
         status?.button?.toolTip = [label, model.panelCaptureDetail].compactMap { $0 }.joined(separator: " · ")
         status?.button?.setAccessibilityLabel(label)
         status?.button?.setAccessibilityHelp([model.panelCaptureDetail, "单击展开或收起输入板；右键打开收音、档案和设置菜单"].compactMap { $0 }.joined(separator: "。"))

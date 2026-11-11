@@ -92,10 +92,8 @@ final class TextFixtureController {
                 NSApp.setActivationPolicy(.regular)
                 window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
                 window.makeFirstResponder(text)
-            case "focusOwned":
-                guard foregroundArmed, activated, NSApp.isActive else { reply(command, error: "Owned app is not active"); continue }
-                window.makeKeyAndOrderFront(nil); window.makeFirstResponder(text); text.setSelectedRange(NSRange(location: 7, length: 0))
             case "restore": text.string = "PREFIX|SUFFIX"; text.setSelectedRange(NSRange(location: 7, length: 0)); window.makeFirstResponder(text)
+            case "manualEdit": text.string = "PREFIX|我的改字SUFFIX"; text.setSelectedRange(NSRange(location: 11, length: 0))
             case "ignoreNextWrite": text.ignoreNextWrite = true
             case "otherWindow":
                 guard foregroundArmed, activated else { reply(command, error: "not armed"); continue }
@@ -107,7 +105,7 @@ final class TextFixtureController {
                 alternateWindow = other; alternateText = editor
             case "select": text.setSelectedRange(NSRange(location: 0, length: 6))
             case "state":
-                let known = ["PREFIX|SUFFIX", "PREFIX|你好😀SUFFIX", "PREFIX|你好😀，接着说SUFFIX", "PREFIX|新句 你好😀，接着说SUFFIX"].contains(text.string)
+                let known = ["PREFIX|SUFFIX", "PREFIX|你好😀SUFFIX", "PREFIX|你好😀，接着说SUFFIX", "PREFIX|新句 你好😀，接着说SUFFIX", "PREFIX|我的改字SUFFIX"].contains(text.string)
                 let state: [String: Any] = ["text": known ? text.string : "UNEXPECTED_TEXT_OMITTED",
                     "knownSyntheticText": known, "utf16Length": text.string.utf16.count, "sends": text.returnEvents,
                     "keyWindow": window.isKeyWindow, "mainWindow": window.isMainWindow,

@@ -1,3 +1,17 @@
+## PR #18 前台输入
+
+已对照旧运行的两份完整日志及附件，独立复现 WKWebView 写入前取消。本机 AppKit / WKWebView 通过 10 项主断言和 11 项独立边界场景；Chrome 与完整 CI 按最终 PR head 收据核对。 [验收记录](V1-FOREGROUND-RELIABILITY.md)
+
+## V1 夜间体验候选
+
+本机完成 Qwen 全量冷下载并复现设备、文字和下载状态缺陷。最终原生与 CI 结果随候选收据保存。设备断开后重新选择失效编号的回归通过；ChatGPT 访客入口 HTTP 403，未进入草稿。模型专项 12/12 通过，包含较早位置修订、损坏缓存、断点和错误整包。隔离 AppModel 验证通过 120/120。工作树包含全部 PR #10 至 #17 的提交。首轮完整 CLT 422/422 通过；完整 Xcode 的 Swift 6.3.3 在 Views.swift 生成 @isolated(any) 布尔回调时崩溃，改为和其他设置相同的显式闭包后重新整包验证。 [本轮记录](V1-NIGHTLY-EXPERIENCE.md)
+
+## MacBook 内置麦克风 · 个人体验修复
+
+两次拒收、28 次进程观察无输入；四组公开音频讲话中均出字。空闲动画末帧与复制的精确锚点断言分开验证。
+
+在签名体验版重复两次复现内置队列收到全零仍显示待命。公开中文材料的四种受控输入均在句末前更新真实 AppKit 时间轴，非现场讲话证明。 见[验收范围](V1-BUILTIN-MIC.md)。
+
 ## V1 统一发行候选
 
 413 项 Swift 测试、108 项 AppModel、102 段 CPU/GPU 竞争运行及真实隔离 Chrome、WKWebView、TextEdit 通过。本机代理的 Qwen 整包下载仍失败。 [本次完整交付](V1-INTEGRATED-CANDIDATE.md)

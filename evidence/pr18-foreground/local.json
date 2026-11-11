@@ -1,0 +1,70 @@
+{
+  "base": "76adc6875fd365fd8d7f70a1d2a23a520255be6d",
+  "production_sources_tree": "686367164b771ee875e7cee0d4dd218de1930710",
+  "os": "27.0",
+  "machine": "arm64",
+  "historical_jobs": [
+    {
+      "attempt": 1,
+      "job": "130771737246",
+      "log_lines": 1813,
+      "log_sha256": "2943d50cbdfd473d76f9b02f22831d4a87425ba8e5ff92cbcf17e9ec6958da30",
+      "artifact_sha256": "bb577652f776416db26ab1c9589e46cf3cca4c93fdb0143e5057a3da7ebe6692"
+    },
+    {
+      "attempt": 2,
+      "job": "130778634807",
+      "log_lines": 1748,
+      "log_sha256": "e3fcff83f7145b36431f1dc910c9fd887c7fac14a4b1d57c27ece2f67c4693a5",
+      "artifact_sha256": "6a414a54ceef78166a1fd43693106a01c19ac1411fbb36840ab92dca1562af6a"
+    }
+  ],
+  "baseline_wk_reproduction": [
+    "CASE density 0 mode stable",
+    "RESULT confirmed dispatchCalls 1 events 4 bound true original false full true submits 0",
+    "CASE density 40 mode pulse",
+    "RESULT confirmed dispatchCalls 1 events 4 bound true original false full true submits 0",
+    "CASE density 0 mode stall",
+    "READ_THROW 2 unsupported",
+    "RESULT cancelled dispatchCalls 0 events 0 bound false original true full false submits 0",
+    "SETTLED complete true originalSnapshot true witness true",
+    "CASE density 0 mode silentContext",
+    "RESULT cancelled dispatchCalls 0 events 0 bound false original true full false submits 0",
+    "SETTLED complete true originalSnapshot false witness true",
+    "CASE density 0 mode stable",
+    "RESULT confirmed dispatchCalls 1 events 4 bound true original false full true submits 0",
+    "WK_BATCH_COMPLETE"
+  ],
+  "candidate_fixture_sha256": {
+    "AXTextFixture.swift": "e69eed13ae806f42d9efa6e5458408c09b3ca56eee98cddf3f208e81c26ecf65",
+    "AXWebFixture.swift": "e410fa20d2855fa87404815d90b10a4488af5696445a2ad9ef5a6002dc6b419f",
+    "AXForegroundBatchProbe.swift": "90d823b6ac2de68314d8299b0a8206e309df3edbe147c87ee8eccf842aeb2b05",
+    "AXOwnedFieldReady.swift": "ea6730e0823697681527506ed55b3b679f8f57f5ba3b475401d0d82aa7832870"
+  },
+  "local_foreground_checks": [
+    "PASS web real foreground insertion and local confirmation",
+    "PASS web duplicate stable range suppressed",
+    "PASS web UTF16 suffix preserves surrounding text",
+    "PASS web target mutation rejects stale insertion",
+    "PASS web no Return or send",
+    "PASS foreground WKWebView longer exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView shorter exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView manualEdit exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView blur exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView restart exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView silentContext cancelled after reservation; zero writes, original DOM and caret, zero sends",
+    "OWNED_SNAPSHOT_ERROR holdAX unsupported",
+    "PASS foreground WKWebView holdAX cancelled after reservation; zero writes, original DOM and caret, zero sends",
+    "PASS native real foreground insertion and local confirmation",
+    "PASS native duplicate stable range suppressed",
+    "PASS native UTF16 suffix preserves surrounding text",
+    "PASS native target mutation rejects stale insertion",
+    "PASS native no Return or send",
+    "PASS foreground native ignored-write no replay, no wrong window, zero sends",
+    "PASS foreground native manual-edit no replay, no wrong window, zero sends",
+    "PASS foreground native cancel no replay, no wrong window, zero sends",
+    "PASS foreground native other-window no replay, no wrong window, zero sends",
+    "FOREGROUND_BATCH_COMPLETE checks=10 failures=0; production frontmost resolver + fixture PID guard; not a third-party browser claim"
+  ],
+  "local_trace_sha256": "89cc01a2d68ba63f7b293c12d305806958b5fab71e5adc3fdbc2e9197d0e16d9"
+}

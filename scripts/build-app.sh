@@ -18,7 +18,18 @@ trap 'rm -rf "$SAYTILE_BUILD_STAGE"' EXIT
 bundle="$SAYTILE_BUILD_STAGE/Saytile.app"
 mkdir -p "$bundle/Contents/MacOS" "$bundle/Contents/Resources"
 cp "$bin_dir/Saytile" "$bundle/Contents/MacOS/Saytile"
-swift scripts/make-icon.swift "$SAYTILE_BUILD_STAGE/Saytile.iconset"
+# Native derivatives of the approved artwork, not its rectangular presentation canvas.
+icon_source="packaging/brand/SaytilePlate.png"
+cp Sources/SaytileApp/Resources/SaytileBrandMark.png "$bundle/Contents/Resources/"
+mkdir "$SAYTILE_BUILD_STAGE/Saytile.iconset"
+for size in 16 32 128 256 512; do
+  for scale in 1 2; do
+    pixels=$((size * scale))
+    suffix=""
+    if [[ "$scale" == 2 ]]; then suffix="@2x"; fi
+    sips -s format png -z "$pixels" "$pixels" "$icon_source" --out "$SAYTILE_BUILD_STAGE/Saytile.iconset/icon_${size}x${size}${suffix}.png" >/dev/null
+  done
+done
 if ! iconutil -c icns "$SAYTILE_BUILD_STAGE/Saytile.iconset" -o "$bundle/Contents/Resources/Saytile.icns"; then
   python3 scripts/encode-iconset.py "$SAYTILE_BUILD_STAGE/Saytile.iconset" "$bundle/Contents/Resources/Saytile.icns"
 fi
@@ -42,7 +53,7 @@ cp packaging/Info.plist "$bundle/Contents/Info.plist"
 if [[ "$version" == *-integrated.* ]]; then
   ditto .build/sparkle/Sparkle.framework "$bundle/Contents/Frameworks/Sparkle.framework"
   cp .build/sparkle/LICENSE "$bundle/Contents/Resources/SPARKLE-LICENSE.txt"
-  if [[ -n "${SAYTILE_UPDATE_FEED:-}${SAYTILE_UPDATE_PUBLIC_KEY:-}" ]]; then
+  if [[ "${SAYTILE_PERSONAL_EXPERIENCE:-0}" != 1 && -n "${SAYTILE_UPDATE_FEED:-}${SAYTILE_UPDATE_PUBLIC_KEY:-}" ]]; then
     python3 scripts/configure-update-feed.py "$bundle/Contents/Info.plist"
   fi
 fi
@@ -53,6 +64,11 @@ if [[ -n "$(git ls-files --others --exclude-standard Sources packaging)" ]]; the
 /usr/libexec/PlistBuddy -c "Add :SaytileSourceDirty bool $SAYTILE_SOURCE_DIRTY" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :SaytileReleaseVersion string $(cat packaging/VERSION)" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(git rev-list --count HEAD)" "$bundle/Contents/Info.plist"
+if [[ "${SAYTILE_PERSONAL_EXPERIENCE:-0}" == 1 ]]; then
+  /usr/libexec/PlistBuddy -c "Add :SaytilePersonalExperience bool true" "$bundle/Contents/Info.plist"
+  /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Saytile 个人体验" "$bundle/Contents/Info.plist"
+  /usr/libexec/PlistBuddy -c "Set :CFBundleName Saytile 个人体验" "$bundle/Contents/Info.plist"
+fi
 xattr -cr "$bundle"
 codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$bundle"
 codesign --verify --strict "$bundle"

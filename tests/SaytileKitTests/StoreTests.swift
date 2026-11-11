@@ -25,6 +25,22 @@ private struct Fixture {
     }
 }
 
+@Test func refusedSpeechShowsRecoveryOnlyWhileAudioExistsAndKeepsTheOriginalDiagnostic() async throws {
+    let f = try Fixture(); defer { f.clean() }
+    let r = try await f.record()
+    let attempt = try await f.store.beginRecognition(recordingID: r.id)
+    try await f.store.failRecognition(ticket: attempt, message: "RecogRejected")
+    let failed = try #require(try await f.store.recording(id: r.id))
+    #expect(failed.lastError == "RecogRejected")
+    #expect(failed.displayedError == "本地识别未能确认文字。原音已保留，可回听或重新识别。")
+    #expect(failed.text == r.text)
+    try await f.store.deleteAudio(recordingID: r.id)
+    let deleted = try #require(try await f.store.recording(id: r.id))
+    #expect(deleted.lastError == "RecogRejected")
+    #expect(deleted.displayedError == "本地识别未能确认文字。")
+    #expect(deleted.text == r.text)
+}
+
 @Test func storePersistsAcrossReopen() async throws {
     let f = try Fixture(); defer { f.clean() }
     let r = try await f.record()

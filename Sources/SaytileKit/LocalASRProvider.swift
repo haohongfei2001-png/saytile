@@ -96,7 +96,7 @@ public actor LocalASRService {
     private let helpers: URL
     private let stride: Int
     private var waiting: [UUID] = []
-    private var busy = false
+    private var activeModel: LocalASRID?
     private var worker: ModelWorker?
     private var idle: Task<Void, Never>?
     public init(root: URL, helpers: URL? = nil, chunkFrames: Int = 19_200) {
@@ -105,15 +105,16 @@ public actor LocalASRService {
         self.stride = chunkFrames
     }
     public func releaseIdle() {
-        guard !busy else { return }
+        guard activeModel == nil else { return }
         idle?.cancel()
         worker?.stop()
         worker = nil
     }
     public func delete(_ model: LocalASRID) async throws {
+        guard activeModel != model else { throw AudioFailure.message("本段识别结束后可删除模型") }
         if worker?.id == model {
-            guard !busy else { throw AudioFailure.message("本段识别结束后可删除模型") }
-            releaseIdle()
+            worker?.stop()
+            worker = nil
         }
         try await library.delete(model)
     }
@@ -129,12 +130,12 @@ public actor LocalASRService {
         guard waiting.count < 8 else { throw AudioFailure.message("前段识别仍在进行，原音可重新识别") }
         waiting.append(token)
         defer { waiting.removeAll { $0 == token } }
-        while busy || waiting.first != token { try await Task.sleep(for: .milliseconds(20)) }
+        while activeModel != nil || waiting.first != token { try await Task.sleep(for: .milliseconds(20)) }
         try Task.checkCancellation()
-        busy = true
+        activeModel = id
         idle?.cancel()
         defer {
-            busy = false
+            activeModel = nil
             idle = Task { do { try await Task.sleep(for: .seconds(30)) } catch { return }; releaseIdle() }
         }
         do {
@@ -208,22 +209,23 @@ struct LocalLiveText {
             } else if !matches {
                 // A decoder may permanently change “二十九岁” to “29岁”. Suppressing
                 // every later hypothesis would freeze the preview until end of speech.
-                // Reconsider only the last 24 visible graphemes, on two consecutive
-                // concordant model passes with an unchanged lexical anchor. Never
-                // splice text or turn this tentative reading into dispatch evidence.
+                // Require two concordant passes. For a change deep in a long
+                // preview, the rest of the already visible words must still align.
                 let prior = withheld
                 withheld = text
                 guard let prior else { return nil }
                 let supported = RecognitionUTF16.commonPrefix([prior, text])
                 let unchanged = common.count
-                guard previous.count - unchanged <= 24, text.count >= previous.count,
+                guard text.count >= previous.count,
                       supported.count >= max(unchanged + 4, min(previous.count, 12)) else { return nil }
-                let oldTail = Array(previous.dropFirst(unchanged).prefix(24))
-                let newTail = String(supported.dropFirst(unchanged).prefix(48))
-                guard oldTail.count >= 4, (0...(oldTail.count - 4)).contains(where: { i in
-                    let anchor = oldTail[i..<(i + 4)]
-                    return anchor.allSatisfy { $0.isLetter || $0.isNumber } && newTail.contains(String(anchor))
-                }) else { return nil }
+                if previous.count - unchanged <= 24 {
+                    let oldTail = Array(previous.dropFirst(unchanged))
+                    let newTail = String(supported.dropFirst(unchanged).prefix(48))
+                    guard oldTail.count >= 4, (0...(oldTail.count - 4)).contains(where: { i in
+                        let anchor = oldTail[i..<(i + 4)]
+                        return anchor.allSatisfy { $0.isLetter || $0.isNumber } && newTail.contains(String(anchor))
+                    }) else { return nil }
+                } else if !Self.hasLocalizedCorrection(from: previous, to: supported) { return nil }
                 readingPrefix = String(supported.dropLast(8))
             } else if common.count > 8 {
                 let supported = String(common.dropLast(8))
@@ -233,6 +235,27 @@ struct LocalLiveText {
         }
         previous = text
         return model == .nemotron ? String(common.dropLast()).utf16.count : 0
+    }
+
+    private static func hasLocalizedCorrection(from visible: String, to confirmed: String) -> Bool {
+        // Ignore sentence punctuation for alignment only. Preserve digits, signs
+        // and the raw model string used for display. No partial becomes stable.
+        let punctuation = CharacterSet(charactersIn: "，。！？、；：,—!?;:“”「」").union(.whitespacesAndNewlines)
+        func words(_ text: String) -> [Character] {
+            text.filter { !$0.unicodeScalars.allSatisfy(punctuation.contains) }
+        }
+        let old = words(visible), new = words(confirmed)
+        let common = zip(old, new).prefix(while: { $0 == $1 }).count
+        let oldTail = old.dropFirst(common), newTail = new.dropFirst(common)
+        if oldTail.isEmpty { return old.count >= 12 }
+        for removed in 0...min(4, oldTail.count) {
+            let suffix = oldTail.dropFirst(removed)
+            guard suffix.count >= 12 else { break }
+            for inserted in 0...min(4, newTail.count) where newTail.dropFirst(inserted).starts(with: suffix) {
+                return true
+            }
+        }
+        return false
     }
 }
 

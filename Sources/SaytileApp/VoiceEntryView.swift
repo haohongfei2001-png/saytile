@@ -7,9 +7,15 @@ struct VoiceEntryView: View {
 
     var body: some View {
         Button(action: open) {
-            Image(systemName: model.captureProblem ? "exclamationmark" : "waveform")
-                .font(.system(size: 17, weight: .medium))
-                .foregroundStyle(model.captureProblem ? Palette.amber : Palette.accent)
+            Group {
+                if let mark = SaytileBrand.mark {
+                    Image(nsImage: mark)
+                        .renderingMode(model.captureProblem ? .template : .original)
+                        .resizable().interpolation(.high).scaledToFit()
+                        .foregroundStyle(Palette.amber)
+                        .frame(width: 20, height: 22)
+                } else { Text("Saytile").font(.caption2) }
+            }
                 .frame(width: 42, height: 42)
                 .background(Palette.paper.opacity(0.82), in: Circle())
                 .background(.ultraThinMaterial, in: Circle())

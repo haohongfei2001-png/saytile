@@ -77,6 +77,8 @@ public struct LocalModelManifest: Decodable, Sendable {
 public struct LocalModelStatus: Sendable {
     public let bytes: Int64
     public let total: Int64
+    /// Includes a previous, damaged installation while its replacement downloads.
+    public let diskBytes: Int64
     public let installed: Bool
     public let downloading: Bool
     public let error: String?
@@ -89,7 +91,12 @@ public actor LocalModelLibrary {
     private var jobs: [LocalASRID: Task<Void, Never>] = [:]
     private var errors: [LocalASRID: String] = [:]
     private var deleting: Set<LocalASRID> = []
-    private var verified: [LocalASRID: [Date]] = [:]
+    private struct Verification {
+        let revision: String
+        let stamps: [Date]
+        let result: Task<Bool, Error>
+    }
+    private var verification: [LocalASRID: Verification] = [:]
     private let fm = FileManager.default
     public init(root: URL, session: URLSession? = nil) {
         self.root = root
@@ -133,28 +140,59 @@ public actor LocalModelLibrary {
         }
         return sha.finalize().map { String(format: "%02x", $0) }.joined()
     }
-    func validated(_ m: LocalModelManifest) throws -> URL {
+    func validated(_ m: LocalModelManifest) async throws -> URL {
+        guard !deleting.contains(m.id) else { throw CancellationError() }
         let dir = directory(m), current = try stamps(m, dir)
-        if verified[m.id] != current {
-            for file in m.files where try Self.digest(dir.appending(path: file.path)) != file.sha256 {
-                errors[m.id] = "模型校验失败，请重新下载"
-                throw AudioFailure.message("模型校验失败，请重新下载")
+        let result: Task<Bool, Error>
+        if let cached = verification[m.id], cached.revision == m.revision, cached.stamps == current {
+            result = cached.result
+        } else {
+            verification[m.id]?.result.cancel()
+            result = Task.detached(priority: .utility) {
+                for file in m.files where try Self.digest(dir.appending(path: file.path)) != file.sha256 {
+                    return false
+                }
+                return true
             }
-            verified[m.id] = current
+            verification[m.id] = Verification(revision: m.revision, stamps: current, result: result)
         }
+        // Settings, route selection and recognition share the same check. This
+        // also caches failures until the on-disk files change or are removed.
+        guard try await result.value, !deleting.contains(m.id), try stamps(m, dir) == current
+        else { throw AudioFailure.message("模型校验失败，请重新下载") }
         return dir
     }
-    public func status(_ id: LocalASRID) -> LocalModelStatus {
+    public func status(_ id: LocalASRID) async -> LocalModelStatus {
         guard let m = try? LocalModelManifest.load(id) else {
-            return .init(bytes: 0, total: 0, installed: false, downloading: false, error: "模型清单不可用")
+            return .init(bytes: 0, total: 0, diskBytes: 0, installed: false, downloading: false, error: "模型清单不可用")
         }
-        let installed = (try? stamps(m, directory(m))) != nil && errors[id] == nil
-        let bytes = m.files.reduce(Int64(0)) { total, f in
-            let url = staging(m).appending(path: f.path)
-            return total + Int64((try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
+        return await status(m)
+    }
+    func status(_ m: LocalModelManifest) async -> LocalModelStatus {
+        let dir = directory(m), stage = staging(m)
+        let installed = fm.fileExists(atPath: dir.path) ? (try? await validated(m)) != nil : false
+        func fileBytes(in directory: URL) -> Int64 {
+            guard fm.fileExists(atPath: directory.path) else { return 0 }
+            return m.files.reduce(0) { total, file in
+                let info = try? directory.appending(path: file.path).resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])
+                return total + (info?.isRegularFile == true ? Int64(info?.fileSize ?? 0) : 0)
+            }
         }
-        return .init(bytes: installed ? m.size : bytes, total: m.size, installed: installed,
-                     downloading: jobs[id] != nil, error: errors[id])
+        let staged = fileBytes(in: stage)
+        let stored = installed ? m.size : fileBytes(in: dir)
+        let downloading = jobs[m.id] != nil
+        let damaged = !installed && !downloading && !deleting.contains(m.id) && fm.fileExists(atPath: dir.path)
+        return .init(bytes: installed ? m.size : staged, total: m.size, diskBytes: stored + staged,
+                     installed: installed, downloading: downloading,
+                     error: installed ? nil : errors[m.id] ?? (damaged ? "本机模型文件不完整或校验失败，请重新下载" : nil))
+    }
+    /// Historical research models can only be removed from Settings. Listing
+    /// those controls must not start hashing gigabytes of unused weights.
+    public func cachedExperimentalModels() -> [LocalASRID] {
+        LocalASRID.allCases.filter { id in
+            guard !LocalASRID.consumer.contains(id), let m = try? LocalModelManifest.load(id) else { return false }
+            return fm.fileExists(atPath: directory(m).path) || fm.fileExists(atPath: staging(m).path)
+        }
     }
     public func download(_ id: LocalASRID) {
         guard id != .apple, !deleting.contains(id), jobs[id] == nil else { return }
@@ -177,17 +215,17 @@ public actor LocalModelLibrary {
     public func delete(_ id: LocalASRID) async throws {
         guard deleting.insert(id).inserted else { return }
         defer { deleting.remove(id) }
+        verification.removeValue(forKey: id)?.result.cancel()
         await pause(id)
         let model = try LocalModelManifest.load(id)
         for path in [directory(model), staging(model)] where fm.fileExists(atPath: path.path) {
             try fm.removeItem(at: path)
         }
-        verified[id] = nil
         errors[id] = nil
     }
-    private func install(_ m: LocalModelManifest) async throws {
+    func install(_ m: LocalModelManifest) async throws {
         let dir = directory(m), stage = staging(m)
-        if (try? validated(m)) != nil { return }
+        if (try? await validated(m)) != nil { return }
         try Task.checkCancellation()
         try fm.createDirectory(at: stage, withIntermediateDirectories: true)
         let available = try fm.attributesOfFileSystem(forPath: stage.path)[.systemFreeSize] as? NSNumber
@@ -203,18 +241,14 @@ public actor LocalModelLibrary {
             try fm.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
             if !fm.fileExists(atPath: target.path) { guard fm.createFile(atPath: target.path, contents: nil) else { throw CocoaError(.fileWriteUnknown) } }
             let source = URL(string: "https://huggingface.co")!.appending(path: m.repo + "/resolve/" + m.revision + "/" + f.path)
-            try await fetch(source, to: target, bytes: f.bytes)
-            if try Self.digest(target) != f.sha256 {
-                try fm.removeItem(at: target)
-                throw AudioFailure.message("下载校验失败，可重新下载")
-            }
+            try await fetch(source, to: target, file: f)
         }
         try Task.checkCancellation()
         _ = try stamps(m, stage)
         // A failed repair never replaces a working model. Promotion is on the same volume.
         if fm.fileExists(atPath: dir.path) { _ = try fm.replaceItemAt(dir, withItemAt: stage) }
         else { try fm.moveItem(at: stage, to: dir) }
-        verified[m.id] = try stamps(m, dir)
+        verification[m.id] = Verification(revision: m.revision, stamps: try stamps(m, dir), result: Task { true })
         errors[m.id] = nil
     }
     private final class DownloadPart: Sendable {
@@ -263,13 +297,15 @@ public actor LocalModelLibrary {
         throw URLError(.timedOut)
     }
 
-    private func fetch(_ url: URL, to target: URL, bytes: Int64) async throws {
+    private func fetch(_ url: URL, to target: URL, file: LocalModelManifest.File) async throws {
+        let bytes = file.bytes
         let out = try FileHandle(forWritingTo: target)
         defer { try? out.close() }
         var start = Int64(try out.seekToEnd())
         if start > bytes { try out.truncate(atOffset: 0); start = 0 }
         let stride: Int64 = 2 * 1024 * 1024
         var acceptsRanges = false
+        var verifiedWhole = false
         while start < bytes {
             try Task.checkCancellation()
             let offset = start
@@ -284,9 +320,15 @@ public actor LocalModelLibrary {
                 for try await part in group {
                     try Task.checkCancellation()
                     if part.wholeFile {
-                        try out.truncate(atOffset: 0)
-                        start = try Self.appendFile(part.url, to: out)
                         group.cancelAll()
+                        guard try await Self.matches(file, at: part.url) else {
+                            throw AudioFailure.message("下载校验失败，可继续下载")
+                        }
+                        // The existing checkpoint survives a corrupt response, a
+                        // cancellation or a full-volume copy that fails partway.
+                        _ = try fm.replaceItemAt(target, withItemAt: part.url, options: .usingNewMetadataOnly)
+                        start = bytes
+                        verifiedWhole = true
                         return
                     }
                     staged[part.offset] = part
@@ -299,6 +341,15 @@ public actor LocalModelLibrary {
             }
             acceptsRanges = true
         }
+        if !verifiedWhole, try await !Self.matches(file, at: target) {
+            try fm.removeItem(at: target)
+            throw AudioFailure.message("下载校验失败，可重新下载")
+        }
+    }
+
+    private static func matches(_ file: LocalModelManifest.File, at url: URL) async throws -> Bool {
+        let worker = Task.detached(priority: .utility) { try digest(url) == file.sha256 }
+        return try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
     }
 
     private static func appendFile(_ url: URL, to out: FileHandle) throws -> Int64 {

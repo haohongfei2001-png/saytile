@@ -50,7 +50,7 @@ struct DisplayVersion: Identifiable {
     let text: String
     let label: String
 }
-struct DisplayDevice: Identifiable { let id: UInt32; let name: String }
+struct DisplayDevice: Identifiable { let id: String?; let name: String }
 
 /// Narrow injection for the actual settings controller. Fixtures never need the
 /// production credential namespace or a second implementation of the UI workflow.
@@ -172,6 +172,7 @@ final class AppModel: ObservableObject {
     @Published var recordFilter: RecordingFilter = .all { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var query = "" { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var notice: String?
+    private var captureStartIssue: (reason: String, detail: String)?
     @Published var recognitionConfiguration = RecognitionConfiguration() {
         didSet {
             guard !initializing, CloudConnectionVerifier.fingerprint(oldValue) != CloudConnectionVerifier.fingerprint(recognitionConfiguration) else { return }
@@ -204,11 +205,11 @@ final class AppModel: ObservableObject {
     @Published var cleanupCount = 0
     @Published private(set) var preparingCleanup = false
     @Published private(set) var isInserting = false
-    @Published var deviceID: UInt32 = 0 {
-        didSet {
-            guard !initializing, deviceID != UInt32.max else { return }
-            audio.selectedDeviceID = deviceID
-            preferences.set(audio.selectedDeviceUID, forKey: "selectedDeviceUID")
+    var deviceUID: String? {
+        get { audio.selectedDeviceUID }
+        set {
+            audio.selectDevice(uid: newValue)
+            preferences.set(newValue, forKey: "selectedDeviceUID")
         }
     }
     @Published var shortcutChoice = "option-space" {
@@ -225,7 +226,8 @@ final class AppModel: ObservableObject {
             NotificationCenter.default.post(name: .init("SaytileFloatingEntryChanged"), object: nil)
         }
     }
-    @Published var launchAtLogin = false { didSet { setLoginItem() } }
+    let canManageLoginItem: Bool
+    @Published private(set) var launchAtLogin = false
     @Published var hasMore = false
     @Published private(set) var panelCount = 0
     @Published private(set) var panelHasMore = false
@@ -271,8 +273,9 @@ final class AppModel: ObservableObject {
     var editorCanEdit: Bool { editorRecordingID != nil && !editorDraftLoading }
     var hasUnpersistedDrafts: Bool { !pendingDraftWrites.isEmpty }
 
-    init(directory: URL, preferences: UserDefaults = .standard, connectionDependencies: AppConnectionDependencies = .live,
+    init(directory: URL, preferences: UserDefaults = .standard, normalLaunch: Bool = false, connectionDependencies: AppConnectionDependencies = .live,
          captureDependencies: AppCaptureDependencies = .live, copyPasteboard: NSPasteboard? = nil) throws {
+        canManageLoginItem = normalLaunch && SaytileStorageProfile.current == .standard
         localModels = LocalASRService(root: directory.appending(path: "LocalModels"))
         localTextAllowed = preferences.bool(forKey: "localASR.textAllowed")
         deviceOnly = preferences.object(forKey: "localASR.deviceOnly") as? Bool
@@ -280,7 +283,7 @@ final class AppModel: ObservableObject {
         manualLocalModel = preferences.string(forKey: "localASR.manual").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         archiveLocalModel = preferences.string(forKey: "localASR.archive").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         self.directory = directory
-        hosted = HostedAccount(preferences: preferences, production: preferences === UserDefaults.standard && Bundle.main.bundleIdentifier == "app.saytile.mac")
+        hosted = HostedAccount(preferences: preferences, production: normalLaunch && Bundle.main.bundleIdentifier == "app.saytile.mac")
         self.preferences = preferences
         self.connectionDependencies = connectionDependencies
         self.captureDependencies = captureDependencies
@@ -301,10 +304,9 @@ final class AppModel: ObservableObject {
         audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration, startupRecoveryReady: false)
         input = NativeInputCoordinator(store: store)
         floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
-        launchAtLogin = SMAppService.mainApp.status == .enabled
+        launchAtLogin = canManageLoginItem && SMAppService.mainApp.status == .enabled
         shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? "option-space"
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
-        deviceID = audio.selectedDeviceUID != nil && audio.selectedDeviceID == 0 ? UInt32.max : audio.selectedDeviceID
         initializing = false
         hosted.bind { [weak self] route, revoke in
             guard let self else { return }
@@ -322,10 +324,6 @@ final class AppModel: ObservableObject {
         subscription = audio.objectWillChange.sink { [weak self] _ in
             Task { @MainActor [weak self] in guard let self else { return }
                 self.objectWillChange.send()
-                if let uid = self.audio.selectedDeviceUID {
-                    let resolved = self.audio.devices.first(where: { $0.uid == uid })?.id ?? UInt32.max
-                    if self.deviceID != resolved { self.initializing = true; self.deviceID = resolved; self.initializing = false }
-                }
                 if case .interrupted = self.audio.state, self.input.binding != nil { self.input.invalidate() } }
         }
         recognitionSubscription = NotificationCenter.default.publisher(for: .init("SaytileRecognitionUpdated"))
@@ -355,7 +353,11 @@ final class AppModel: ObservableObject {
             measuredLevel: captureDependencies.level(audio))
     }
     var panelCaptureLabel: String { panelCapturePresentation.label }
-    var panelCaptureDetail: String? { panelCapturePresentation.detail }
+    var panelCaptureDetail: String? {
+        guard let reason = panelCapturePresentation.detail else { return nil }
+        if let captureStartIssue, captureStartIssue.reason == reason, audio.issue == captureStartIssue.detail { return captureStartIssue.detail }
+        return reason
+    }
     var captureActionLabel: String { panelCapturePresentation.actionLabel }
     var captureActionSymbolName: String { panelCapturePresentation.actionSymbolName }
     var captureLabel: String { panelCaptureLabel }
@@ -587,8 +589,10 @@ final class AppModel: ObservableObject {
         }
     }
     var devices: [DisplayDevice] {
-        var choices = [DisplayDevice(id: 0, name: "系统默认输入设备")] + audio.devices.map { DisplayDevice(id: $0.id, name: $0.name) }
-        if deviceID == UInt32.max { choices.append(DisplayDevice(id: UInt32.max, name: "已选择的麦克风未连接")) }
+        var choices = [DisplayDevice(id: nil, name: "系统默认输入设备")] + audio.devices.map { DisplayDevice(id: $0.uid, name: $0.name) }
+        if let uid = deviceUID, !choices.contains(where: { $0.id == uid }) {
+            choices.append(DisplayDevice(id: uid, name: "已选择的麦克风未连接"))
+        }
         return choices
     }
     var playingID: UUID? { audio.playingID }
@@ -605,8 +609,10 @@ final class AppModel: ObservableObject {
                 let result = captureDependencies.state(audio)
                 if result == .listening || result == .speaking { hasStarted = true }
             }
+            if case let .interrupted(reason) = captureDependencies.state(audio), let issue = audio.issue {
+                captureStartIssue = (reason, issue)
+            } else { captureStartIssue = nil }
             objectWillChange.send()
-            if let issue = audio.issue { notice = issue }
         }
     }
     func setDirect(_ enabled: Bool) {
@@ -707,23 +713,52 @@ final class AppModel: ObservableObject {
         panelLimit += 100; refreshVersion &+= 1; loadingPanel = true
         Task { await refresh(); loadingPanel = false }
     }
-    func insertRecent() {
-        guard !isInserting else { return }
-        // Freeze immutable revision identifiers at the user's click, before any await.
-        let snapshots = recent.filter { !$0.text.isEmpty }.compactMap { item in
-            item.source.preferredRevisionID.map { (recordingID: item.id, revisionID: $0, text: item.text) }
+    var insertionArchiveEntry: TimelineEntry? {
+        guard let focus = timelineFocus else { return nil }
+        return timeline.entries.first { $0.position == focus && stagedRecordIDs.contains($0.id) }
+    }
+    var hasPanelInsertionScope: Bool {
+        if let archive = insertionArchiveEntry { return !archive.recording.text.isEmpty }
+        return (timelineTail?.position ?? 0) > hiddenThrough
+    }
+    /// Resolve the exact group and immutable revisions at click time. An archive
+    /// explicitly brought to the panel is a single-record reuse action.
+    func panelInsertionSnapshots(rendered: [TimelineEntry] = [], displayed: [Int64: String] = [:]) throws -> [TimelineTextSnapshot] {
+        let candidates: [TimelineTextSnapshot]
+        if let entry = insertionArchiveEntry {
+            candidates = [TimelineTextSnapshot(entry)]
+        } else {
+            guard let tail = timelineTail, tail.position > hiddenThrough else { return [] }
+            candidates = try store.timelineGroupSnapshots(group: tail.group, through: tail.position)
+                .filter { $0.position > hiddenThrough }
         }
-        guard !snapshots.isEmpty else { return }
+        var seen = Dictionary(uniqueKeysWithValues: timeline.entries.map { ($0.position, TimelineTextSnapshot($0)) })
+        if let tail = timelineTail { seen[tail.position] = TimelineTextSnapshot(tail) }
+        for entry in rendered { seen[entry.position] = TimelineTextSnapshot(entry) }
+        return candidates.compactMap { row in
+            let snapshot = seen[row.position] ?? row
+            guard snapshot.revisionID != nil, !snapshot.text.isEmpty, displayed[row.position] != "" else { return nil }
+            return snapshot
+        }
+    }
+    func insertFromPanel(rendered: [TimelineEntry], displayed: [Int64: String]) {
+        guard !isInserting else { return }
+        let snapshots: [TimelineTextSnapshot]
+        do { snapshots = try panelInsertionSnapshots(rendered: rendered, displayed: displayed) }
+        catch { notice = error.localizedDescription; return }
+        guard !snapshots.isEmpty else { notice = "这段还没有可插入的文字。"; return }
         isInserting = true
         Task {
             defer { isInserting = false }
             do {
-                _ = try await input.bindCurrentTarget(purpose: .manual)
+                let binding = try await input.bindCurrentTarget(purpose: .manual)
                 var frozen: [TranscriptRevision] = []
                 for snapshot in snapshots {
-                    frozen.append(try await store.freezeRevision(recordingID: snapshot.recordingID, revisionID: snapshot.revisionID, text: snapshot.text))
+                    guard let revisionID = snapshot.revisionID else { return }
+                    frozen.append(try await store.freezeRevision(recordingID: snapshot.recordingID, revisionID: revisionID, text: snapshot.text))
                 }
                 for snapshot in frozen {
+                    guard input.binding?.id == binding.id else { notice = NativeInputResult.cancelled.message; return }
                     let result = await input.insert(recordingID: snapshot.recordingID, revisionID: snapshot.id)
                     notice = result.message
                     recordInputResult(result, recordingID: snapshot.recordingID)
@@ -899,7 +934,7 @@ final class AppModel: ObservableObject {
             await self.refresh()
         }
     }
-    func prepareSpeech() { Task { await audio.prepareSpeechAssets(); notice = audio.issue ?? audio.speechStatus } }
+    func prepareSpeech() { Task { await audio.prepareSpeechAssets(); notice = audio.speechStatus } }
     func requestAccessibility() { input.requestPermission() }
     func revealData() { NSWorkspace.shared.activateFileViewerSelecting([directory]) }
     func loadMore() { pageLimit += 100; scheduleRefresh() }
@@ -988,7 +1023,8 @@ final class AppModel: ObservableObject {
                 if batch.isEmpty { break }
             }
             guard query == requestedQuery, recordFilter == requestedFilter, pageLimit == requestedLimit else { scheduleRefresh(); return }
-            hasMore = rows.count > requestedLimit
+            let more = rows.count > requestedLimit
+            if hasMore != more { hasMore = more }
             let nextRecords = Array(rows.prefix(requestedLimit)).map { DisplayRecording(source: $0) }
             if records != nextRecords { records = nextRecords }
             let panelStart = panelSessionStartedAt, panelIDs = Array(stagedRecordIDs), requestedPanelLimit = panelLimit
@@ -1000,7 +1036,9 @@ final class AppModel: ObservableObject {
             }
             let total = try await store.panelRecordingCount(createdSince: panelStart, includingIDs: panelIDs)
             if panelStart == panelSessionStartedAt, Set(panelIDs) == stagedRecordIDs, requestedPanelLimit == panelLimit {
-                panelCount = total; panelHasMore = panelRows.count < total
+                if panelCount != total { panelCount = total }
+                let morePanel = panelRows.count < total
+                if panelHasMore != morePanel { panelHasMore = morePanel }
                 let nextRecent = panelRows.reversed().map { DisplayRecording(source: $0) }
                 if recent != nextRecent { recent = nextRecent }
             }
@@ -1008,22 +1046,29 @@ final class AppModel: ObservableObject {
                 let refreshedSelection = try await store.recording(id: selection.id).map { DisplayRecording(source: $0) }
                 if selected?.id == selection.id {
                     if selected != refreshedSelection { selected = refreshedSelection }
-                    if editorRecordingID == selection.id, !editorWasEdited, let refreshedSelection { editorDraft = refreshedSelection.text }
+                    if editorRecordingID == selection.id, !editorWasEdited, let refreshedSelection, editorDraft != refreshedSelection.text {
+                        editorDraft = refreshedSelection.text
+                    }
                     if refreshedSelection?.source.preferredRevisionID != selection.source.preferredRevisionID { await loadVersions(selection.id) }
                 }
             }
             if Date.now.timeIntervalSince(lastModelCallRefresh) > 2 {
                 lastModelCallRefresh = Date.now
-                modelCallSummary = try await store.modelCallSummaries(limit: 30)
+                let summary = try await store.modelCallSummaries(limit: 30)
+                if modelCallSummary != summary { modelCallSummary = summary }
             }
             if Date.now.timeIntervalSince(lastStorageRefresh) > 60 {
-            lastStorageRefresh = Date.now
-            let summary = try await store.storageSummary()
-            storageLabel = ByteCountFormatter.string(fromByteCount: summary.audioBytes, countStyle: .file)
-            if summary.shouldWarn { notice = "原音空间已达到提醒阈值，或磁盘剩余不足 1 GB。请在设置中查看存储。" }
+                lastStorageRefresh = Date.now
+                let summary = try await store.storageSummary()
+                let label = ByteCountFormatter.string(fromByteCount: summary.audioBytes, countStyle: .file)
+                if storageLabel != label { storageLabel = label }
+                let warning = "原音空间已达到提醒阈值，或磁盘剩余不足 1 GB。请在设置中查看存储。"
+                if summary.shouldWarn, notice != warning { notice = warning }
             }
             let visibleIDs = Set(records.map(\.id) + recent.map(\.id))
-            insertionLabels = insertionLabels.filter { visibleIDs.contains($0.key) }
+            if !insertionLabels.keys.allSatisfy(visibleIDs.contains) {
+                insertionLabels = insertionLabels.filter { visibleIDs.contains($0.key) }
+            }
             if directMode && !isInserting, let binding = input.binding {
                 for correction in try await store.ownedCorrectionCandidates(bindingID: binding.id) {
                     guard directMode, !isInserting, input.binding?.id == binding.id else { break }
@@ -1053,13 +1098,13 @@ final class AppModel: ObservableObject {
     }
     private func scheduleRefresh() { refreshVersion &+= 1; refreshTask?.cancel(); refreshTask = Task { try? await Task.sleep(for: .milliseconds(200)); guard !Task.isCancelled else { return }; await refresh() } }
     private func perform(_ operation: @escaping @MainActor () async throws -> Void) { Task { do { try await operation() } catch { notice = error.localizedDescription } } }
-    private func setLoginItem() {
-        guard !initializing else { return }
-        do { if launchAtLogin { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() } }
+    func setLoginItem(_ enabled: Bool) {
+        guard canManageLoginItem else { return }
+        do { if enabled { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() } }
         catch { notice = "登录启动未能更新：\(error.localizedDescription)" }
         let status = SMAppService.mainApp.status
         if status == .requiresApproval { notice = "登录启动需要在系统设置的登录项中允许。收音仍需你主动开启。" }
-        initializing = true; launchAtLogin = status == .enabled; initializing = false
+        launchAtLogin = status == .enabled
     }
 }
 

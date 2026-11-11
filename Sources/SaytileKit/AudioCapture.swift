@@ -247,21 +247,19 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     @Published public private(set) var level: Float = 0
     @Published public var issue: String?
     @Published public private(set) var devices: [AudioInputDevice] = []
-    @Published public var selectedDeviceID: UInt32 = 0 {
-        didSet {
-            if !selectingDeviceUID { selectedDeviceUID = selectedDeviceID == 0 ? nil : devices.first(where: { $0.id == selectedDeviceID })?.uid }
-            guard oldValue != selectedDeviceID, state.isRunning else { return }
-            let generation = startGeneration
-            Task {
-                state = .paused
-                await stopCapture()
-                guard generation == startGeneration, requestedRunning else { return }
-                await start(requestPermission: false)
+    @Published public private(set) var selectedDeviceUID: String?
+    private static let staleDeviceNotice = "设备列表已变化，已保留原有输入选择。请重新选择麦克风。"
+    public var selectedDeviceID: UInt32 {
+        get { devices.first(where: { $0.uid == selectedDeviceUID })?.id ?? 0 }
+        set {
+            if newValue == 0 { selectDevice(uid: nil); return }
+            guard let device = devices.first(where: { $0.id == newValue }) else {
+                issue = Self.staleDeviceNotice
+                return
             }
+            selectDevice(uid: device.uid)
         }
     }
-    @Published public private(set) var selectedDeviceUID: String?
-    private var selectingDeviceUID = false
     @Published public private(set) var playingID: UUID?
     @Published public private(set) var playbackPosition: Double = 0
     @Published public private(set) var playbackDuration: Double = 0
@@ -271,6 +269,8 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     private let store: SaytileStore
     private let recognitionFactory: RecognitionSessionFactory
     private var pinnedInput: PinnedAudioInput?
+    // Set only by a real hardware start. File replay must work even on a closed notebook.
+    private var activeInputIsBuiltIn = false
     private var engine: AVAudioEngine?
     private var worker: CaptureWorker?
     private var stopTask: Task<Void, Never>?
@@ -367,6 +367,8 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 } else if AudioLifecycleGate.requiresPermissionSuspension(state: self.state, authorization: AVCaptureDevice.authorizationStatus(for: .audio)) {
                     self.requestedRunning = false
                     await self.suspend(reason: "麦克风权限已撤回，请在系统设置恢复权限后重新开启")
+                } else if self.state.isRunning && MicrophoneLid.blocks(builtIn: self.activeInputIsBuiltIn) {
+                    await self.suspend(reason: MicrophoneLid.reason)
                 } else if let pinned = self.pinnedInput, self.state.isRunning {
                     do { try pinned.checkProgress() }
                     catch { await self.suspend(reason: error.localizedDescription); self.refreshDevices() }
@@ -553,12 +555,15 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             if let uid = selectedDeviceUID {
                 guard let device = devices.first(where: { $0.uid == uid }) else { throw AudioFailure.message("所选麦克风未连接，请连接设备或明确选择另一个麦克风") }
                 selected = device
-            } else if selectedDeviceID != 0 {
-                guard let device = devices.first(where: { $0.id == selectedDeviceID }) else { throw AudioFailure.message("所选麦克风未连接") }
-                selected = device
             } else {
                 selected = nil
             }
+            let builtIn = MicrophoneLid.isBuiltIn(selected?.id ?? MicrophoneLid.defaultInput)
+            guard !MicrophoneLid.blocks(builtIn: builtIn) else {
+                if requestPermission { requestedRunning = false }
+                throw AudioFailure.message(MicrophoneLid.reason)
+            }
+            activeInputIsBuiltIn = builtIn
             let pinned = try selected.map(PinnedAudioInput.init)
             let engine = pinned == nil ? AVAudioEngine() : nil
             startingEngine = engine
@@ -586,6 +591,11 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 tapInstalled = true
                 engine.prepare(); try engine.start()
             }
+            // An explicit queue may have suspended while waiting for its first buffer.
+            guard !MicrophoneLid.blocks(builtIn: builtIn) else {
+                if requestPermission { requestedRunning = false }
+                throw AudioFailure.message(MicrophoneLid.reason)
+            }
             self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
             await worker.start()
             if selectedLocalID == .apple && !automaticAssetAttempted && !recognitionFactory.usesCloud {
@@ -599,6 +609,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             }
         } catch {
             guard generation == startGeneration else { return }
+            activeInputIsBuiltIn = false
             pinnedInput?.stop(); pinnedInput = nil
             startingEngine?.stop()
             if tapInstalled { startingEngine?.inputNode.removeTap(onBus: 0) }
@@ -610,6 +621,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     public func pause() async { startGeneration &+= 1; playbackGeneration &+= 1; requestedRunning = false; playbackResume = false; state = .paused; await stopCapture() }
     private func stopCapture() async {
         if let stopTask { await stopTask.value; return }
+        activeInputIsBuiltIn = false
         pinnedInput?.stop(); pinnedInput = nil
         engine?.stop(); engine?.inputNode.removeTap(onBus: 0); engine = nil
         let old = worker; worker = nil; ring = nil; level = 0
@@ -657,12 +669,21 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         }
     }
     public func selectDevice(uid: String?) {
-        selectingDeviceUID = true
+        if issue == Self.staleDeviceNotice { issue = nil }
+        guard uid != selectedDeviceUID else { return }
         selectedDeviceUID = uid
-        selectedDeviceID = uid.flatMap { uid in devices.first(where: { $0.uid == uid })?.id } ?? 0
-        selectingDeviceUID = false
-        if uid != nil && selectedDeviceID == 0 && state.isRunning {
-            Task { await suspend(reason: "所选麦克风未连接") }
+        guard state.isRunning else { return }
+        let generation = startGeneration
+        Task {
+            guard generation == startGeneration, requestedRunning, selectedDeviceUID == uid else { return }
+            if uid != nil && selectedDeviceID == 0 {
+                await suspend(reason: "所选麦克风未连接")
+                return
+            }
+            state = .paused
+            await stopCapture()
+            guard generation == startGeneration, requestedRunning else { return }
+            await start(requestPermission: false)
         }
     }
     public func play(recordingID: UUID) async throws {
