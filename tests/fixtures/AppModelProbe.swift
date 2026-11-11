@@ -24,13 +24,16 @@ struct AppModelProbe {
             defer { prefs.removePersistentDomain(forName: name) }
             var authority: AVAuthorizationStatus = .notDetermined
             var session = CaptureState.paused
+            var openedSettings = 0
             let capture = AppCaptureDependencies(state: { _ in session }, start: { _ in session = .starting },
-                pause: { _ in session = .paused }, microphoneAuthorization: { authority })
+                pause: { _ in session = .paused }, microphoneAuthorization: { authority }, openMicrophonePreferences: { openedSettings += 1 })
             let guide = try AppModel(directory: home, preferences: prefs, captureDependencies: capture)
             await guide.initialLoad()
             try require(!guide.isListening && !guide.completedFirstTranscript && guide.deviceOnly && !guide.microphoneDenied, "first launch remains offline, paused, with no permission request")
             authority = .denied; session = .interrupted("麦克风未获授权")
             try require(guide.microphoneDenied && guide.captureProblem && !guide.completedFirstTranscript, "denial preserves the start guide and identifies microphone recovery")
+            guide.toggleCapture()
+            try require(openedSettings == 1 && guide.captureActionLabel == "打开麦克风权限设置" && !guide.isListening, "denied capsule opens recovery directly without a second start request")
             session = .paused; authority = .authorized
             let segment = try await guide.store.createRecording()
             await guide.refresh()

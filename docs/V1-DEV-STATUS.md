@@ -84,3 +84,5 @@ PR #16 signed local-asr.5 is bound to aa68eb5. Four 15-clip clean paced native w
 A real cold download through the configured Mac proxy timed out on the previous 16 MiB request. Local-ASR .6 requests bounded two-MiB immutable ranges, isolates CDN range redirect cache keys, checkpoints a contiguous prefix and validates byte ranges and full SHA before promotion. The independent macOS transfer CI uses the public pinned files and no API credentials. ASR workers, capture, TextKit and the model assets are inherited from aa68eb5.
 
 Design candidate: ported the production settings, archive, first-use guidance and per-display panel placement. Build 269 and its profile remain independent. Native window/AX acceptance follows.
+
+The composed reference window exposed a shadow above the card and a neutralized center. The exterior shadow now falls below the card without obscuring its glass. Resource retry now requires an installed system asset and clears only its own previous error. Permission recovery and pre-transcript empty records retain the original two controls.

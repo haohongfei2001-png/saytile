@@ -49,8 +49,8 @@ struct ReferencePanelSurface: View {
             // translucent white wash supplies legibility without painting a
             // fixed blue/purple background over the user's desktop.
             ReferenceGlassBackdrop()
-                .opacity(reduceTransparency ? 1 : 0.35)
-            shape.fill(.white.opacity(reduceTransparency ? 1 : 0.46))
+                .opacity(reduceTransparency ? 1 : 0.10)
+            shape.fill(.white.opacity(reduceTransparency ? 1 : 0.42))
                 .overlay {
                     shape.fill(LinearGradient(stops: [
                         .init(color: .white.opacity(0.23), location: 0),
@@ -81,8 +81,8 @@ struct ReferenceControlSurface: View {
         // Both controls are neutral translucent white glass, not tinted
         // lavender buttons. Only the voice glyph and live caret carry violet.
         shape.fill(LinearGradient(colors: copy
-            ? [.white.opacity(0.82), .white.opacity(0.57)]
-            : [.white.opacity(0.79), .white.opacity(0.53)],
+            ? [.white.opacity(0.65), .white.opacity(0.36)]
+            : [.white.opacity(0.58), .white.opacity(0.29)],
             startPoint: .top, endPoint: .bottom))
             .overlay {
                 shape.strokeBorder(
@@ -90,7 +90,7 @@ struct ReferenceControlSurface: View {
                                    startPoint: .top, endPoint: .bottom),
                     lineWidth: 0.7)
             }
-            .shadow(color: .black.opacity(0.15), radius: 4.5, x: 0, y: -3)
+            .shadow(color: .black.opacity(0.09), radius: 3.5, x: 0, y: 2.5)
             .accessibilityHidden(true)
     }
 }
@@ -118,10 +118,23 @@ struct InputPanelWindowView: View {
     @ObservedObject var model: AppModel
     var body: some View {
         InputPanelView(model: model)
-            .shadow(color: .black.opacity(0.17), radius: 12, x: 0, y: -11)
-            .shadow(color: .black.opacity(0.06), radius: 2.5, x: 0, y: -2)
             .overlay(alignment: .top) { PanelDragStrip().frame(height: 10).padding(.horizontal, 28).accessibilityHidden(true) }
             .padding(ReferencePanelStyle.shadowInset)
+            .background {
+                // Draw the cast shadow only outside the glass. A dark duplicate
+                // beneath the translucent card neutralizes the actual desktop hue.
+                Canvas { context, size in
+                    let bounds = CGRect(origin: .zero, size: size)
+                    let card = bounds.insetBy(dx: ReferencePanelStyle.shadowInset, dy: ReferencePanelStyle.shadowInset)
+                    let shape = RoundedRectangle(cornerRadius: ReferencePanelStyle.radius, style: .continuous).path(in: card)
+                    var exterior = Path(bounds); exterior.addPath(shape)
+                    context.clip(to: exterior, style: FillStyle(eoFill: true))
+                    context.drawLayer { layer in
+                        layer.addFilter(.shadow(color: .black.opacity(0.26), radius: 10, x: 0, y: 9))
+                        layer.fill(shape, with: .color(.black))
+                    }
+                }.allowsHitTesting(false).accessibilityHidden(true)
+            }
     }
 }
 

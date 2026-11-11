@@ -91,7 +91,9 @@ public struct SavedPanelPlacement: Codable, Equatable {
         guard let match = screens.first(where: { $0.id == displayID && Self.valid($0.visible) }) else {
             return WindowPlacement.restoredPanel(frame, visibleFrames: screens.map(\.visible))
         }
-        let dest = match.visible, size = WindowPlacement.panelSize(frame.size, visibleFrame: dest)
+        let dest = match.visible
+        if dest == visibleFrame { return WindowPlacement.restoredPanel(frame, visibleFrames: [dest]) }
+        let size = WindowPlacement.panelSize(frame.size, visibleFrame: dest)
         func fraction(_ value: CGFloat, _ span: CGFloat) -> CGFloat { span > 0 ? min(1, max(0, value / span)) : 0.5 }
         let fx = fraction(frame.minX - visibleFrame.minX, visibleFrame.width - frame.width)
         let fy = fraction(frame.minY - visibleFrame.minY, visibleFrame.height - frame.height)

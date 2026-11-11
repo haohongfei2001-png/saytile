@@ -8,7 +8,8 @@ import SaytileKit
 extension AppDelegate {
     @MainActor func runUIReview(model: AppModel, output: URL) async -> Bool {
         let timeline = ProcessInfo.processInfo.environment["SAYTILE_TIMELINE_REVIEW"] == "1"
-        NSApp.setActivationPolicy(timeline ? .accessory : .prohibited)
+        let product = ProcessInfo.processInfo.environment["SAYTILE_PRODUCT_WINDOWS"] == "1"
+        NSApp.setActivationPolicy(timeline || product ? .accessory : .prohibited)
         do {
             try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
             if ProcessInfo.processInfo.environment["SAYTILE_REFERENCE_ONLY"] == "1" {
@@ -17,6 +18,7 @@ extension AppDelegate {
                 return true
             }
             await model.initialLoad()
+            if product { try await reviewProductWindows(model: model, output: output); return true }
             if ProcessInfo.processInfo.environment["SAYTILE_TIMELINE_REVIEW"] == "1" {
                 try await reviewTimeline(model: model, output: output)
                 return true
@@ -183,7 +185,7 @@ extension AppDelegate {
             let captures = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil ? 28 : 38
             print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; \(captures) standard captures plus 3 approved-reference captures; synthetic data; no activation/microphone")
             return true
-        } catch { print("UI_REVIEW_FAILED \(error.localizedDescription)"); return false }
+        } catch { print("UI_REVIEW_FAILED \(error.localizedDescription)"); fflush(nil); return false }
     }
 
     /// Runs only against the disposable seed prepared by test-native-timeline.py.
@@ -1097,7 +1099,8 @@ extension AppDelegate {
     override var canBecomeMain: Bool { false }
 }
 
-@MainActor private final class UIPanelCaptureFixture {
+@MainActor final class UIPanelCaptureFixture {
+    var authorization: AVAuthorizationStatus = .authorized
     var state: CaptureState = .paused
     var level: Float = 0
     var starts = 0
@@ -1105,7 +1108,7 @@ extension AppDelegate {
     var dependencies: AppCaptureDependencies {
         AppCaptureDependencies(state: { _ in self.state },
             start: { _ in self.starts += 1; self.state = .listening },
-            pause: { _ in self.pauses += 1; self.state = .paused }, level: { _ in self.level })
+            pause: { _ in self.pauses += 1; self.state = .paused }, level: { _ in self.level }, microphoneAuthorization: { self.authorization })
     }
 }
 

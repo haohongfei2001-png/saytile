@@ -81,6 +81,9 @@ struct AppCaptureDependencies {
     var pause: (AudioController) async -> Void
     var level: (AudioController) -> Float? = { $0.level }
     var microphoneAuthorization: () -> AVAuthorizationStatus = { AVCaptureDevice.authorizationStatus(for: .audio) }
+    var openMicrophonePreferences: () -> Void = {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone") { NSWorkspace.shared.open(url) }
+    }
     static let live = AppCaptureDependencies(state: { $0.state },
         start: { await $0.start() }, pause: { await $0.pause() })
 }
@@ -104,7 +107,7 @@ struct PanelCapturePresentation: Equatable {
     var accessibilityLabel: String { actionLabel }
     var accessibilityValue: String { detail.map { label + "，" + $0 } ?? label }
 
-    init(state capture: CaptureState, hasStarted: Bool, measuredLevel: Float? = nil) {
+    init(state capture: CaptureState, hasStarted: Bool, measuredLevel: Float? = nil, microphoneDenied: Bool = false) {
         if case .speaking = capture, let measuredLevel, measuredLevel.isFinite, measuredLevel >= 0 {
             liveVoiceLevel = Double(min(1, measuredLevel))
         } else { liveVoiceLevel = nil }
@@ -128,7 +131,7 @@ struct PanelCapturePresentation: Equatable {
             actionLabel = "暂停收音"; actionSymbolName = "pause.fill"
             symbolName = active ? "waveform" : "circle.fill"; detail = nil
         case .interrupted(let reason):
-            state = .recoveryNeeded; label = "需要恢复"; actionLabel = "恢复收音"
+            state = .recoveryNeeded; label = "需要恢复"; actionLabel = microphoneDenied ? "打开麦克风权限设置" : "恢复收音"
             actionSymbolName = "play.fill"; symbolName = "exclamationmark"; detail = reason
         }
     }
@@ -355,7 +358,7 @@ final class AppModel: ObservableObject {
     }
     var panelCapturePresentation: PanelCapturePresentation {
         PanelCapturePresentation(state: captureDependencies.state(audio), hasStarted: hasStarted,
-            measuredLevel: captureDependencies.level(audio))
+            measuredLevel: captureDependencies.level(audio), microphoneDenied: captureProblem && microphoneDenied)
     }
     var panelCaptureLabel: String { panelCapturePresentation.label }
     var panelCaptureDetail: String? {
@@ -369,9 +372,7 @@ final class AppModel: ObservableObject {
     var captureProblem: Bool { if case .interrupted = captureDependencies.state(audio) { return true }; return false }
     var saveLabel: String { captureProblem ? "收音已暂停 · 请查看保存状态" : isListening ? "原音独立保存 · 识别不会阻塞收音" : "内容保存在此 Mac，随时可以取用" }
     var microphoneDenied: Bool { [.denied, .restricted].contains(captureDependencies.microphoneAuthorization()) }
-    func openMicrophoneSettings() {
-        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone") { NSWorkspace.shared.open(url) }
-    }
+    func openMicrophoneSettings() { captureDependencies.openMicrophonePreferences() }
     var microphoneLabel: String {
         switch captureDependencies.microphoneAuthorization() {
         case .authorized: return "已允许"
@@ -606,6 +607,7 @@ final class AppModel: ObservableObject {
     }
     var playingID: UUID? { audio.playingID }
     func toggleCapture() {
+        if captureProblem && microphoneDenied { openMicrophoneSettings(); return }
         Task {
             await recoveryTask?.value
             guard recovered else { notice = "资料库恢复未完成，请先重新打开 Saytile。已有资料会保留。"; return }

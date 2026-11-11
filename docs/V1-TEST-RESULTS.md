@@ -80,3 +80,5 @@ Final-source Xcode CI 42833800155 passed 411 Swift tests. On the same cold wavef
 The .5 cold-start transfer through the host proxy failed on Zipformer and Qwen despite the earlier successful remote suffix repair. Native per-clip and 440-trial inference results remain valid for installed weights. The separate Qwen sole-inference soak completed all 102 recordings in 1,803 seconds. The earlier concurrent-load cancellation remains recorded.
 
 Design candidate: initial arm64 SwiftUI build passed. Added persisted-position, isolated profile and first-transcript regressions; signed window captures and final executable are separately verified.
+
+Interim native review on M5: 44 AX presses, 15 interaction groups, 38 ordinary renders plus three reference renders and a no-focus-change guard passed. A 45-second synthetic live stream persisted all 992,250 source frames with zero drops (ASR disabled). Real two-window composition exposed a gray cast and reversed shadow; after adjusting these, the controlled screen shows the lighter glass. Exact SHA evidence follows packaging.

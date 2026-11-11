@@ -54,7 +54,7 @@ struct InputPanelView: View {
                 }, onSelectionChange: { selectedText = $0 },
                 fillContextMenu: fillContextMenu, showsLiveCaret: model.panelCapturePresentation.state == .recognizing)
                 .overlay(alignment: .topLeading) {
-                    if model.timeline.entries.isEmpty {
+                    if model.timeline.entries.isEmpty || !model.completedFirstTranscript && model.timeline.entries.allSatisfy({ $0.recording.text.isEmpty }) {
                         VStack(alignment: .leading, spacing: 8) {
                             if !model.completedFirstTranscript {
                                 Text(firstUseTitle).font(.system(size: ReferencePanelStyle.fontSize))
@@ -111,7 +111,7 @@ struct InputPanelView: View {
     }
     private var firstUseDetail: String {
         if model.captureProblem {
-            return model.microphoneDenied ? "在系统设置允许麦克风，再点右下角重试。" : "处理上方提示后，点右下角继续。"
+            return model.microphoneDenied ? "点右下角打开麦克风设置。允许后，回来继续。" : "处理上方提示后，点右下角继续。"
         }
         if model.audio.preparingAppleSpeech { return "正在准备中文资源，已开始的录音会保留。" }
         if model.audio.appleResourceFailure != nil { return "中文资源尚未就绪。到设置中的本地模型重试，原音会保留。" }

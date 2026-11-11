@@ -82,3 +82,5 @@ No action is needed for local engineering acceptance. Apple notarization, eviden
 Cold model download failures are being checked from independent public macOS infrastructure. This requires neither consumer API keys nor any personal voice data.
 
 For this design candidate no personal speech, account, API key or developer tests are requested. Only the new window design and density need aesthetic review.
+
+The new design experience owns a separate mic permission identity and asks only on a user-initiated start. Do not transfer, reset or change build 269's grants. The visual review uses controlled permission states and an independent, nonactivating window.

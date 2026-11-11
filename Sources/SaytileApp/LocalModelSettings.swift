@@ -45,7 +45,7 @@ struct LocalModelSettings: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Text(id == .sherpa ? "Streaming Paraformer" : id == .qwen ? "Qwen3-ASR 0.6B" : id.title).font(.body.weight(.medium))
-                        Spacer(); if let state = items[id] { Text(state.installed ? "已安装" : state.downloading ? "正在下载" : state.bytes > 0 ? "已暂停" : "未安装").font(.caption).foregroundStyle(.secondary) }
+                        Spacer(); if let state = items[id] { Text(state.installed ? "已安装" : state.downloading ? "正在下载" : state.error != nil ? "需要修复" : state.bytes > 0 ? "已暂停" : "未安装").font(.caption).foregroundStyle(.secondary) }
                     }
                     if let status = items[id] {
                         if status.downloading || status.bytes > 0 && !status.installed {
