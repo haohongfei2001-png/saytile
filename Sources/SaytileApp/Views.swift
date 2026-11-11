@@ -100,6 +100,11 @@ struct InputPanelView: View {
         model.copyTimeline(selection: view?.selectionSnapshot ?? selectedText, displayed: view?.rendered.displayed ?? [:])
     }
 
+    private func insertTranscript() {
+        let document = access.view?.rendered
+        model.insertFromPanel(rendered: document?.spans.map(\.entry) ?? [], displayed: document?.displayed ?? [:])
+    }
+
     private var captureControl: some View {
         let presentation = model.panelCapturePresentation
         return Button(action: model.toggleCapture) {
@@ -149,11 +154,12 @@ struct InputPanelView: View {
             [.init(id: "free", title: "自由记录", checked: !model.directMode, action: { model.setDirect(false) }),
              .init(id: "direct", title: "直接输入", checked: model.directMode, action: { model.setDirect(true) }),
              .init(id: "bind", title: "绑定当前草稿", action: { model.bindTarget() }),
-             .init(id: "insert", title: model.isInserting ? "正在插入…" : "插入当前文字", enabled: !model.isInserting && model.recent.contains(where: { !$0.text.isEmpty }), action: { model.insertRecent() })]
+             .init(id: "insert", title: model.isInserting ? "正在插入…" : (model.insertionArchiveEntry == nil ? "插入最新时间组" : "插入档案定位的这段文字"),
+                   enabled: !model.isInserting && model.hasPanelInsertionScope, action: insertTranscript)]
         ]
         var last: [PanelCommand] = []
         last.append(.init(id: "save", title: model.saveLabel, enabled: false))
-        last.append(.init(id: "clear", title: "清空输入板（保留档案）", enabled: !model.isInserting && !model.recent.isEmpty, action: { model.clearPanel(); latestRequest += 1 }))
+        last.append(.init(id: "clear", title: "清空输入板（保留档案）", enabled: !model.isInserting && model.hasPanelInsertionScope, action: { model.clearPanel(); latestRequest += 1 }))
         if model.notice != nil, model.panelCaptureDetail == nil {
             last.append(.init(id: "dismiss", title: "关闭提示", action: { model.notice = nil }))
         }
@@ -368,7 +374,7 @@ struct SettingsView: View {
                             .fixedSize(horizontal: false, vertical: true)
                             .accessibilityIdentifier("settings.captureDetail")
                     }
-                    Picker("输入设备", selection: $model.deviceID) { ForEach(model.devices) { device in Text(device.name).tag(device.id) } }
+                    Picker("输入设备", selection: $model.deviceUID) { ForEach(model.devices) { device in Text(device.name).tag(device.id) } }
                     Text("开启后持续接收讲话；关闭输入板不会停止收音。设备断开、休眠和用户会话切换会明确暂停。")
                         .font(.system(size: 11)).foregroundStyle(Palette.muted)
                     LabeledContent("识别语言", value: model.deviceOnly ? "中文 · 本机处理" : model.hosted.selected ? "中文 · 托管或本机备用" : model.appliedRecognitionConfiguration.cloudEnabled ? "中文 / English · 自动处理混说" : "普通话 · 本机备用")
@@ -397,7 +403,11 @@ struct SettingsView: View {
                             Text(seconds < 60 ? "\(seconds) 秒" : "\(seconds / 60) 分钟").tag(seconds)
                         }
                     }.accessibilityIdentifier("settings.timelineIdle")
-                    Toggle("登录时启动 Saytile", isOn: $model.launchAtLogin)
+                    Toggle("登录时启动 Saytile", isOn: Binding(get: { model.launchAtLogin }, set: model.setLoginItem))
+                        .disabled(!model.canManageLoginItem)
+                    if !model.canManageLoginItem {
+                        Text("此版本请手动启动。").font(.caption).foregroundStyle(.secondary)
+                    }
                     Toggle("在桌面右下角显示语音入口", isOn: $model.floatingEntryEnabled)
                         .accessibilityIdentifier("settings.floatingEntry")
                     Text("收起输入板时保留一个小入口；点击只展开文字，不会开启收音。")

@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SaytileKit
 
 // Compiled together with the production AppModel.swift, using only isolated synthetic data.
@@ -29,14 +30,22 @@ struct AppModelProbe {
         preferences.set("synthetic-disconnected-microphone", forKey: "selectedDeviceUID")
         let model = try AppModel(directory: directory, preferences: preferences)
         try require(model.deviceOnly && !model.hosted.selected, "fresh install starts offline")
+        model.setLoginItem(true)
+        try require(!model.canManageLoginItem && !model.launchAtLogin,
+                    "an isolated instance cannot change the production login item or display an enabled state")
         model.selectSource("hosted")
         try require(!model.deviceOnly && model.hosted.selected && !model.hosted.consent, "Cloud selection grants no upload consent")
         model.selectSource("byok")
         try require(!model.deviceOnly && !model.hosted.selected, "BYOK can be selected independently")
         model.selectSource("local")
         try require(model.deviceOnly && !model.hosted.selected && !model.localTextAllowed, "return to local has no cloud review")
-        try require(model.deviceID == UInt32.max && model.audio.selectedDeviceUID == "synthetic-disconnected-microphone", "missing remembered microphone never silently selects system default")
-        model.deviceID = 0
+        try require(model.deviceUID == "synthetic-disconnected-microphone" && model.devices.contains(where: { $0.id == model.deviceUID && $0.name.contains("未连接") }),
+                    "missing remembered microphone keeps its own UID in the input picker")
+        model.deviceUID = "another-disconnected-synthetic-uid"
+        try require(model.audio.selectedDeviceUID == "another-disconnected-synthetic-uid" &&
+                    preferences.string(forKey: "selectedDeviceUID") == model.audio.selectedDeviceUID && model.devices.filter({ $0.id == nil }).count == 1,
+                    "selecting an absent device by stable UID never falls back to the default input")
+        model.deviceUID = nil
         try require(model.audio.selectedDeviceUID == nil && preferences.string(forKey: "selectedDeviceUID") == nil, "explicit default device choice clears remembered hardware UID")
         let first = Task { await model.initialLoad() }
         let second = Task { await model.initialLoad() }
@@ -51,12 +60,22 @@ struct AppModelProbe {
         print("REFRESH_BURST callers=40 database_passes=\(coalescedPasses)"); fflush(nil)
         try require(coalescedPasses < 10 && model.records.count == 2, "overlapping refresh callers share database work without losing archive contents")
         try require(model.recent.isEmpty, "historical records do not enter current insertion panel")
+        try require(model.hasPanelInsertionScope && (try model.panelInsertionSnapshots()).map(\.recordingID) == [other.id],
+                    "a fresh app session can manually insert only the last time group from its archive")
         let oldRow = model.records.first { $0.id == old.id }!
-        model.stageInPanel(oldRow, showPanel: false)
+        model.stageInPanel(oldRow)
         await model.refresh()
+        try await until("explicit archive focus") { model.insertionArchiveEntry?.id == old.id }
         try require(model.recent.map(\.id) == [old.id], "only explicit historical reuse enters panel")
+        try require((try model.panelInsertionSnapshots()).map(\.recordingID) == [old.id],
+                    "bringing one archive entry to the panel offers that record alone for manual reuse")
+        model.followTimeline()
+        try require((try model.panelInsertionSnapshots()).map(\.recordingID) == [other.id],
+                    "returning to latest drops the archive-specific insertion scope")
         model.clearPanel(); await model.refresh()
         try require(model.recent.isEmpty && model.records.count == 2, "clearing panel preserves archive")
+        try require(!model.hasPanelInsertionScope && (try model.panelInsertionSnapshots()).isEmpty,
+                    "an explicitly cleared panel cannot manually dispatch the cleared group")
         let new = try await model.store.createRecording()
         try await model.store.saveEdit(recordingID: new.id, text: "本次测试")
         try await model.store.finishRecording(id: new.id)
@@ -108,6 +127,37 @@ struct AppModelProbe {
         while model.loadingPanel { try await Task.sleep(for: .milliseconds(10)) }
         try require(model.recent.count == 116 && !model.panelHasMore, "earlier current-session expressions remain available for batch reuse")
         try require(model.recent.contains(where: { $0.id == new.id }), "earliest current-session expression survives prolonged input")
+        let largeGroup = try model.panelInsertionSnapshots()
+        try require(largeGroup.count == 116 && largeGroup.first?.recordingID == new.id,
+                    "manual group insertion spans multiple virtual pages in capture order")
+        guard let last = model.timelineTail else { throw Failure(message: "missing timeline tail for group insertion") }
+        let newGroupStart = last.speechEnd.addingTimeInterval(121)
+        let nextGroup = try await model.store.createRecording(createdAt: newGroupStart)
+        try await model.store.saveEdit(recordingID: nextGroup.id, text: "最新组唯一内容")
+        try await model.store.finishRecording(id: nextGroup.id, speechEndedAt: newGroupStart)
+        await model.refresh()
+        guard let rendered = model.timelineTail else { throw Failure(message: "new group was not visible") }
+        let backgroundRevision = try await model.store.saveEdit(recordingID: nextGroup.id, text: "较晚才显示的修订")
+        await model.refresh()
+        let beforeRedraw = try model.panelInsertionSnapshots(rendered: [rendered], displayed: [rendered.position: "最新组唯一内容"])
+        try require(beforeRedraw.map(\.recordingID) == [nextGroup.id] && beforeRedraw.first?.text == "最新组唯一内容" &&
+                    beforeRedraw.first?.revisionID != backgroundRevision.id,
+                    "manual click excludes the previous 116 records and freezes the version actually drawn")
+        try require((try model.panelInsertionSnapshots(displayed: [rendered.position: ""])).isEmpty,
+                    "a just-arrived revision cannot be manually sent before its first visible text")
+        var redundant = 0
+        let observers = [
+            model.$hasMore.dropFirst().sink { _ in redundant += 1 },
+            model.$panelCount.dropFirst().sink { _ in redundant += 1 },
+            model.$panelHasMore.dropFirst().sink { _ in redundant += 1 },
+            model.$insertionLabels.dropFirst().sink { _ in redundant += 1 },
+            model.$modelCallSummary.dropFirst().sink { _ in redundant += 1 },
+            model.$editorDraft.dropFirst().sink { _ in redundant += 1 }
+        ]
+        try await Task.sleep(for: .milliseconds(2150))
+        await model.refresh()
+        try require(redundant == 0, "unchanged paused timeline, archive, editor and model status do not publish redundant UI updates")
+        withExtendedLifetime(observers) {}
         // UI phase labels come from the same current-generation Store run state as production.
         let phaseRecord = try await model.store.createRecording(createdAt: Date().addingTimeInterval(60))
         try await model.store.finishRecording(id: phaseRecord.id)
@@ -143,13 +193,14 @@ struct AppModelProbe {
 private final class CaptureControlFixture {
     var state = CaptureState.paused
     var startResult = CaptureState.listening
+    var startIssue: String?
     var starts = 0
     var pauses = 0
     var measuredLevel: Float? = nil
     var floatingChanges = 0
     var dependencies: AppCaptureDependencies {
         AppCaptureDependencies(state: { _ in self.state },
-            start: { _ in self.starts += 1; self.state = self.startResult },
+            start: { audio in self.starts += 1; self.state = self.startResult; audio.issue = self.startIssue },
             pause: { _ in self.pauses += 1; self.state = .paused }, level: { _ in self.measuredLevel })
     }
 }
@@ -435,6 +486,17 @@ extension AppModelProbe {
             "the single control cancels preparation into static pause")
         try check(model.audio.state == .paused && connection.verificationCalls == 0,
             "all presentation and preference checks avoid the actual microphone and provider network")
+        model.notice = "独立资料库提示"
+        capture.startResult = .interrupted("合成麦克风权限不足")
+        capture.startIssue = "合成麦克风权限恢复路径"
+        model.toggleCapture()
+        try await until("capture error detail") { model.panelCaptureDetail == capture.startIssue }
+        try check(model.notice == "独立资料库提示", "an actionable capture interruption preserves an unrelated board notice")
+        capture.startResult = .listening; capture.startIssue = nil
+        model.toggleCapture()
+        try await until("capture recovered without stale notice") { model.panelCapturePresentation.state == .standby }
+        try check(model.panelCaptureDetail == nil && model.notice == "独立资料库提示",
+                  "a successful resume removes the former microphone error and restores the unrelated notice")
         await model.prepareForExit()
         return count
     }

@@ -43,7 +43,9 @@ with tempfile.TemporaryDirectory(prefix='saytile-install-upgrade-') as temp:
     for label,dmg in [('previous',a.previous_dmg),('candidate',a.dmg)]:
         run(['hdiutil','verify',dmg.resolve()]);run(['hdiutil','attach','-readonly','-nobrowse','-mountpoint',mount,dmg.resolve()])
         try:
-            source=mount/'Saytile.app';run(['codesign','--verify','--strict',source])
+            source, = mount.glob('*.app')
+            assert source.name == 'Saytile.app' or (label == 'candidate' and source.name == 'Saytile 个人体验.app' and plistlib.loads((source/'Contents/Info.plist').read_bytes()).get('SaytilePersonalExperience') is True)
+            run(['codesign','--verify','--strict',source])
             if app.exists(): shutil.rmtree(app)
             run(['ditto','--norsrc',source,app]);run(['codesign','--verify','--strict',app])
         finally: run(['hdiutil','detach',mount])

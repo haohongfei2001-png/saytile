@@ -1,0 +1,87 @@
+{
+  "status": "PASS",
+  "measurement": "Replay of real Qwen MLX worker events through release and candidate LocalLiveText; timestamps use consumed PCM frames / 16000.",
+  "baselineSource": "1d5678f510d0c2b88391a08e7a68e173261153ab",
+  "candidateProviderSHA256": "a579acee4cb776bbe513b0db6c2829c901c0bac3fb9400d93d6fc17718e113b8",
+  "partialStableUTF16LengthsAllZero": true,
+  "samples": {
+    "fleurs-9eb2d543a0a36152": {
+      "rawWorkerOutputSHA256": "040b927b8d392829c7bf9146fe7d7a19463f0abf7fa7eb2f869df8b9bc2b8820",
+      "before": {
+        "visibleAtAudioSeconds": [
+          0.8,
+          2.0,
+          3.2,
+          4.0,
+          5.2,
+          6.0,
+          11.0
+        ],
+        "withheldAtAudioSeconds": [
+          6.8,
+          7.6,
+          8.8,
+          10.0
+        ],
+        "longestGapAudioSeconds": 5.0
+      },
+      "after": {
+        "visibleAtAudioSeconds": [
+          0.8,
+          2.0,
+          3.2,
+          4.0,
+          5.2,
+          6.0,
+          7.6,
+          8.8,
+          10.0,
+          11.0
+        ],
+        "withheldAtAudioSeconds": [
+          6.8
+        ],
+        "longestGapAudioSeconds": 1.6
+      }
+    },
+    "ascend-mixed-ff9c42612780330b": {
+      "rawWorkerOutputSHA256": "04f53e01fb55818d543331ada655bbdc42bb4de1d819c7c43b7d9e14fe6fb6e7",
+      "before": {
+        "visibleAtAudioSeconds": [
+          0.8,
+          2.0,
+          3.2,
+          4.4,
+          5.6,
+          6.4,
+          8.0,
+          8.8,
+          10.12
+        ],
+        "withheldAtAudioSeconds": [
+          7.2,
+          10.0
+        ],
+        "longestGapAudioSeconds": 1.6
+      },
+      "after": {
+        "visibleAtAudioSeconds": [
+          0.8,
+          2.0,
+          3.2,
+          4.4,
+          5.6,
+          6.4,
+          8.0,
+          8.8,
+          10.12
+        ],
+        "withheldAtAudioSeconds": [
+          7.2,
+          10.0
+        ],
+        "longestGapAudioSeconds": 1.6
+      }
+    }
+  }
+}

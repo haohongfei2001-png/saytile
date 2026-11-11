@@ -33,7 +33,9 @@ def mount(image, path):
     run('hdiutil', 'verify', image)
     run('hdiutil', 'attach', '-nobrowse', '-readonly', '-mountpoint', path, image)
     try:
-        yield path / 'Saytile.app'
+        app, = path.glob('*.app')
+        assert app.name == 'Saytile.app' or (app.name == 'Saytile 个人体验.app' and info(app).get('SaytilePersonalExperience') is True)
+        yield app
     finally:
         run('hdiutil', 'detach', path)
 
