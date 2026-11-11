@@ -374,7 +374,11 @@ struct SettingsView: View {
                             .fixedSize(horizontal: false, vertical: true)
                             .accessibilityIdentifier("settings.captureDetail")
                     }
-                    Picker("输入设备", selection: $model.deviceUID) { ForEach(model.devices) { device in Text(device.name).tag(device.id) } }
+                    Picker("输入设备", selection: $model.deviceUID) {
+                        ForEach(model.devices) { device in Text(device.name).tag(device.id) }
+                    }
+                    .accessibilityLabel("输入设备")
+                    .accessibilityIdentifier("settings.inputDevice")
                     Text("开启后持续接收讲话；关闭输入板不会停止收音。设备断开、休眠和用户会话切换会明确暂停。")
                         .font(.system(size: 11)).foregroundStyle(Palette.muted)
                     LabeledContent("识别语言", value: model.deviceOnly ? "中文 · 本机处理" : model.hosted.selected ? "中文 · 托管或本机备用" : model.appliedRecognitionConfiguration.cloudEnabled ? "中文 / English · 自动处理混说" : "普通话 · 本机备用")
@@ -403,7 +407,7 @@ struct SettingsView: View {
                             Text(seconds < 60 ? "\(seconds) 秒" : "\(seconds / 60) 分钟").tag(seconds)
                         }
                     }.accessibilityIdentifier("settings.timelineIdle")
-                    Toggle("登录时启动 Saytile", isOn: Binding(get: { model.launchAtLogin }, set: model.setLoginItem))
+                    Toggle("登录时启动 Saytile", isOn: Binding(get: { model.launchAtLogin }, set: { enabled in model.setLoginItem(enabled) }))
                         .disabled(!model.canManageLoginItem)
                     if !model.canManageLoginItem {
                         Text("此版本请手动启动。").font(.caption).foregroundStyle(.secondary)
