@@ -32,10 +32,28 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
         let app: NSRunningApplication
         if browser {
             let title = doc.deletingPathExtension().lastPathComponent
-            let html = "<title>\(title)</title><h1>Saytile isolated document</h1><label for=entry>Draft</label><textarea id=entry autofocus>PREFIX|SUFFIX</textarea>"
+            let html = """
+                <!doctype html><meta charset="utf-8"><title>\(title)</title><h1>Saytile isolated document</h1>
+                <form><label for="entry">Draft</label><textarea id="entry" autofocus>PREFIX|SUFFIX</textarea>
+                <label for="other">Other draft</label><textarea id="other">OTHER</textarea><button>Send fixture only</button></form>
+                <script>
+                window.returnCount = 0; window.submitCount = 0;
+                document.addEventListener('keydown', e => { if (e.key === 'Enter') { window.returnCount++; e.preventDefault(); } });
+                document.querySelector('form').addEventListener('submit', e => { window.submitCount++; e.preventDefault(); });
+                const draft = document.querySelector('#entry');
+                window.sawFirst = false; window.sawAppendAfterFirst = false;
+                draft.addEventListener('input', () => {
+                    if (draft.value === 'PREFIX|你好😀SUFFIX') window.sawFirst = true;
+                    if (window.sawFirst && draft.value === 'PREFIX|你好😀，接着说SUFFIX') window.sawAppendAfterFirst = true;
+                });
+                function start() { draft.setSelectionRange(7,7); }
+                if (document.activeElement === draft) start(); else draft.addEventListener('focus', start, {once:true});
+                </script>
+                """
             try html.write(to: doc, atomically: true, encoding: .utf8)
             config.arguments = ["--user-data-dir=" + work.appendingPathComponent("profile").path,
-                                "--no-first-run", "--no-default-browser-check", "--disable-sync",
+                                "--remote-debugging-address=127.0.0.1", "--remote-debugging-port=0",
+                                "--no-first-run", "--no-default-browser-check", "--disable-sync", "--disable-background-networking",
                                 "--force-renderer-accessibility", "--app=" + doc.absoluteString]
             // LaunchServices can wait forever for Chrome's open-application
             // acknowledgement with an app-mode URL. Track the exact launched PID.
@@ -87,11 +105,43 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
         guard attribute(target.element,kAXValueAttribute) as? String == original else { throw TargetError.mismatch("new document content") }
         var range=CFRange(location:7,length:0)
         let v=AXValueCreate(.cfRange,&range)!
-        guard AXUIElementSetAttributeValue(target.element,kAXSelectedTextRangeAttribute as CFString,v)==AXError.success else { throw TargetError.unsupported("caret") }
+        if !browser, AXUIElementSetAttributeValue(target.element,kAXSelectedTextRangeAttribute as CFString,v) != .success { throw TargetError.unsupported("caret") }
         let access=AXInputAccess(selectionProvider:select)
         guard try access.snapshot().canSetSelectedText else { throw TargetError.unsupported("selected-text setter") }
         let store=try SaytileStore(directory:work.appendingPathComponent("store"))
-        let coordinator=NativeInputCoordinator(store:store,access:access)
+        let trace = FixtureAccessTrace(access)
+        let coordinator = NativeInputCoordinator(store: store, access: trace)
+        coordinator.onBindingInvalidated = { print("OWNED_BINDING_INVALIDATED", trace.stage) }
+        func dom(_ action: String, _ expected: String) throws -> [String: Any] {
+            _ = try select()
+            let tool = Process(), output = Pipe()
+            tool.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+            tool.arguments = ["node", "tests/fixtures/owned-chrome-draft.mjs", work.appendingPathComponent("profile/DevToolsActivePort").path,
+                              doc.absoluteString, action, expected]
+            tool.standardOutput = output
+            try tool.run(); tool.waitUntilExit()
+            let bytes = output.fileHandleForReading.readDataToEndOfFile()
+            guard tool.terminationStatus == 0, let state = try JSONSerialization.jsonObject(with: bytes) as? [String: Any],
+                  state["otherIntact"] as? Bool == true, state["enter"] as? Int == 0, state["submits"] as? Int == 0 else {
+                throw TargetError.mismatch("independent DOM / zero sends")
+            }
+            return state
+        }
+        func checkDOM(_ text: String, caret: Int, otherFocused: Bool = false) throws {
+            guard browser else { return }
+            let state = try dom("state", text)
+            print("OWNED_DOM", trace.stage, "exact", state["exact"] ?? false, "caret", state["start"] ?? -1,
+                  "end", state["end"] ?? -1, "otherFocused", state["otherFocused"] ?? false, "enter=0 submits=0")
+            if trace.stage == "append" {
+                guard state["sawFirst"] as? Bool == true, state["sawAppendAfterFirst"] as? Bool == true else {
+                    throw TargetError.mismatch("DOM did not observe both ordered insertions")
+                }
+            }
+            guard state["exact"] as? Bool == true, state["start"] as? Int == caret, state["end"] as? Int == caret,
+                  state["focused"] as? Bool == !otherFocused, state["otherFocused"] as? Bool == otherFocused else {
+                throw TargetError.mismatch("independent DOM " + trace.stage)
+            }
+        }
         do {
             try await waitForOwnedField(access, original: original, caret: 7, pid: pid)
         } catch {
@@ -107,19 +157,70 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
             await coordinator.insertStable(recordingID:row.id,revisionID:rev.id,stableUTF16End:rev.text.utf16.count,recordingStartedAt:row.createdAt)
         }
         func matches(_ text:String) throws -> Bool { attribute(try select().element,kAXValueAttribute) as? String==text }
-        let first=await insert(r)
-        print("first",first,"target_match",try matches("PREFIX|你好😀SUFFIX"))
-        guard first == .confirmed,try matches("PREFIX|你好😀SUFFIX") else { throw TargetError.mismatch("first insertion") }
-        guard await insert(r) == .noNewText else { throw TargetError.mismatch("duplicate") }
-        let next=try await store.saveEdit(recordingID:row.id,text:"你好😀，接着说")
-        guard await insert(next) == .confirmed,try matches("PREFIX|你好😀，接着说SUFFIX") else { throw TargetError.mismatch("suffix") }
+        let firstField = "PREFIX|你好😀SUFFIX", finalField = "PREFIX|你好😀，接着说SUFFIX"
+        try checkDOM(original, caret: 7)
+        trace.stage = "first"
+        let first = await insert(r), firstMatches = try matches(firstField)
+        print("OWNED_RESULT", trace.stage, first, "AX_exact", firstMatches, "writes", trace.writes)
+        // Keep duplicate + suffix back-to-back. The page records both actual input events.
+        guard first == .confirmed, firstMatches, trace.writes == 1 else { throw TargetError.mismatch("first insertion") }
+        trace.stage = "duplicate"
+        guard await insert(r) == .noNewText, trace.writes == 1 else { throw TargetError.mismatch("duplicate") }
+        let next = try await store.saveEdit(recordingID: row.id, text: "你好😀，接着说")
+        trace.stage = "append"
+        let suffix = await insert(next), suffixMatches = try matches(finalField)
+        print("OWNED_RESULT", trace.stage, suffix, "AX_exact", suffixMatches, "writes", trace.writes)
+        try checkDOM(finalField, caret: 15)
+        guard suffix == .confirmed, suffixMatches, trace.writes == 2 else { throw TargetError.mismatch("suffix") }
         // Edit the selection in the synthetic document while the previous binding is still live.
+        trace.stage = "changed-selection"
         range = CFRange(location:0,length:6)
         let selection=AXValueCreate(.cfRange,&range)!
         guard AXUIElementSetAttributeValue(try select().element,kAXSelectedTextRangeAttribute as CFString,selection) == .success else { throw TargetError.unsupported("change selection") }
         let changed=try await store.saveEdit(recordingID:row.id,text:"你好😀，接着说。")
         let stale=await insert(changed)
-        guard stale != .confirmed && stale != .unverified,try matches("PREFIX|你好😀，接着说SUFFIX") else { throw TargetError.mismatch("target mutation") }
+        guard stale != .confirmed && stale != .unverified, trace.writes == 2, try matches(finalField) else { throw TargetError.mismatch("target mutation") }
+        if browser {
+            let selected = try dom("state", finalField)
+            guard selected["exact"] as? Bool == true, selected["start"] as? Int == 0, selected["end"] as? Int == 6 else {
+                throw TargetError.mismatch("protected selection")
+            }
+            // New scenario, same focused synthetic field. No reactivation or retry of a delivery.
+            coordinator.invalidate()
+            _ = try dom("collapse", finalField)
+            try await waitForOwnedField(access, original: finalField, caret: 15, pid: pid)
+            try await coordinator.bindCurrentTarget()
+            let record = try await store.createRecording()
+            func send(_ text: String) async throws -> NativeInputResult {
+                let revision = try await store.saveEdit(recordingID: record.id, text: text)
+                return await coordinator.insertStable(recordingID: record.id, revisionID: revision.id,
+                    stableUTF16End: text.utf16.count, recordingStartedAt: record.createdAt)
+            }
+            trace.stage = "before-manual-edit"
+            let extraField = "PREFIX|你好😀，接着说好SUFFIX", edited = "EDITED|你好😀，接着说好SUFFIX"
+            guard try await send("好") == .confirmed, trace.writes == 3 else { throw TargetError.mismatch(trace.stage) }
+            try checkDOM(extraField, caret: 16)
+            trace.stage = "manual-edit"
+            _ = try dom("manualEdit", extraField)
+            let rejected = try await send("好呀")
+            guard rejected != .confirmed, rejected != .unverified, trace.writes == 3 else { throw TargetError.mismatch(trace.stage) }
+            try checkDOM(edited, caret: 16)
+            for scenario in ["cancel", "switch-target"] {
+                coordinator.invalidate()
+                try await waitForOwnedField(access, original: edited, caret: 16, pid: pid)
+                try await coordinator.bindCurrentTarget()
+                let fresh = try await store.createRecording()
+                let revision = try await store.saveEdit(recordingID: fresh.id, text: "停")
+                trace.stage = scenario
+                if scenario == "cancel" { coordinator.invalidate() } else { _ = try dom("switchTarget", edited) }
+                let result = await coordinator.insertStable(recordingID: fresh.id, revisionID: revision.id,
+                    stableUTF16End: revision.text.utf16.count, recordingStartedAt: fresh.createdAt)
+                guard result != .confirmed, result != .unverified, trace.writes == 3, coordinator.binding == nil else {
+                    throw TargetError.mismatch(scenario)
+                }
+                try checkDOM(edited, caret: 16, otherFocused: scenario == "switch-target")
+            }
+        }
         coordinator.invalidate();try await store.close()
         print(browser ? "PASS_CHROME" : "PASS_TEXTEDIT", "foreground selected by WindowServer; Unicode insertion, prefix/suffix, deduplication, append and target mutation confirmed")
     }

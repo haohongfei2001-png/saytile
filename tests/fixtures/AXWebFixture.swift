@@ -49,7 +49,10 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
     }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         _ = webView.accessibilityChildren()
-        webView.evaluateJavaScript("focusComposer();document.querySelector('textarea').value==='PREFIX|SUFFIX'&&document.querySelector('textarea').selectionStart===7&&document.querySelector('textarea').selectionEnd===7") { [self] value, error in
+        // Foreground activation owns the sole request for focus. Setting the initial
+        // selection on an unfocused textarea does not require a second activation.
+        let prepare = foregroundArmed ? "document.querySelector('textarea').setSelectionRange(7,7)" : "focusComposer()"
+        webView.evaluateJavaScript(prepare + ";document.querySelector('textarea').value==='PREFIX|SUFFIX'&&document.querySelector('textarea').selectionStart===7&&document.querySelector('textarea').selectionEnd===7") { [self] value, error in
             guard error == nil, value as? Bool == true, !window.isKeyWindow, !window.isMainWindow, window.keyboardEvents == 0 else {
                 FileHandle.standardOutput.write(Data("WEB_FIXTURE_ISOLATION_FAILED\n".utf8)); return
             }
@@ -72,14 +75,20 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
                 window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
                 window.makeFirstResponder(web)
                 js = "focusComposer()"
-            case "focusOwned":
-                guard foregroundArmed, activated, NSApp.isActive else { FileHandle.standardOutput.write(Data("{\"command\":\"focusOwned\",\"error\":\"Owned app inactive\"}\n".utf8)); continue }
-                window.makeKeyAndOrderFront(nil); window.makeFirstResponder(web)
-                js = "focusComposer()"
             case "restore": js = "document.querySelectorAll('.extra').forEach(n=>n.remove());document.querySelector('#send').textContent='Send fixture only';history.replaceState({},'', '/chat/one');document.querySelector('h1').textContent='First synthetic chat';document.querySelector('textarea').value='PREFIX|SUFFIX';focusComposer();"
             case "replaceContext": js = "let h=document.querySelector('h1');h.outerHTML=h.outerHTML;"
             case "largeTree": js = "for(let i=0;i<140;i++){let d=document.createElement('div');d.className='extra';d.textContent='Synthetic node '+i;document.body.append(d);}"
             case "blankContext": js = "document.querySelector('h1').textContent='';document.querySelector('#send').textContent='';"
+            case "holdAX":
+                guard foregroundArmed, activated, NSApp.isActive else { continue }
+                // Only this disposable process stalls. ACK first so the probe performs
+                // its next real AX read while the fixture cannot service the request.
+                let ack = ["command": command, "value": "holding", "error": ""]
+                if let data = try? JSONSerialization.data(withJSONObject: ack) {
+                    FileHandle.standardOutput.write(data + Data([10]))
+                }
+                Thread.sleep(forTimeInterval: 1.5)
+                continue
             case "silentContext": js = "document.querySelector('h1').textContent='Different synthetic chat with identical empty composer';"
             case "sameURL": js = "document.querySelector('h1').textContent='Second synthetic chat';document.querySelector('textarea').value='';focusComposer();"
             case "newURL": js = "history.pushState({},'', '/chat/two');document.querySelector('h1').textContent='Second synthetic chat';document.querySelector('textarea').value='';focusComposer();"
@@ -87,7 +96,7 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
             case "manualEdit": js = "let t=document.querySelector('textarea');t.value='PREFIX|我的改字SUFFIX';t.setSelectionRange(11,11);"
             case "blur": js = "document.querySelector('#send').focus();"
             case "select": js = "document.querySelector('textarea').setSelectionRange(0,6);"
-            case "state": js = "(()=>{let t=document.querySelector('textarea').value;let known=['','PREFIX|SUFFIX','PREFIX|你好😀SUFFIX','PREFIX|你好😀，接着说SUFFIX','PREFIX|网页😀SUFFIX','PREFIX|50😀SUFFIX','PREFIX|500👩🏽‍💻SUFFIX','PREFIX|我的改字SUFFIX'].includes(t);return JSON.stringify({text:known?t:'UNEXPECTED_TEXT_OMITTED',knownSyntheticText:known,utf16Length:t.length,sends:window.sends,url:location.href});})()"
+            case "state": js = "(()=>{let t=document.querySelector('textarea').value;let known=['','PREFIX|SUFFIX','PREFIX|你好😀SUFFIX','PREFIX|你好😀，接着说SUFFIX','PREFIX|网页😀SUFFIX','PREFIX|50😀SUFFIX','PREFIX|500👩🏽‍💻SUFFIX','PREFIX|我的改字SUFFIX'].includes(t);return JSON.stringify({text:known?t:'UNEXPECTED_TEXT_OMITTED',knownSyntheticText:known,utf16Length:t.length,sends:window.sends,selectionStart:document.querySelector('textarea').selectionStart,selectionEnd:document.querySelector('textarea').selectionEnd,url:location.href});})()"
             default: continue
             }
             web.evaluateJavaScript(js) { [self] value, error in

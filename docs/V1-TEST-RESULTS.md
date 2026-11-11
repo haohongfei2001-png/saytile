@@ -1,3 +1,7 @@
+## PR #18 前台输入
+
+已对照旧运行的两份完整日志及附件，独立复现 WKWebView 写入前取消。本机 AppKit / WKWebView 通过 10 项主断言和 11 项独立边界场景；Chrome 与完整 CI 按最终 PR head 收据核对。 [验收记录](V1-FOREGROUND-RELIABILITY.md)
+
 ## V1 夜间体验候选
 
 本机完成 Qwen 全量冷下载并复现设备、文字和下载状态缺陷。最终原生与 CI 结果随候选收据保存。设备断开后重新选择失效编号的回归通过；ChatGPT 访客入口 HTTP 403，未进入草稿。模型专项 12/12 通过，包含较早位置修订、损坏缓存、断点和错误整包。隔离 AppModel 验证通过 120/120。工作树包含全部 PR #10 至 #17 的提交。首轮完整 CLT 422/422 通过；完整 Xcode 的 Swift 6.3.3 在 Views.swift 生成 @isolated(any) 布尔回调时崩溃，改为和其他设置相同的显式闭包后重新整包验证。 [本轮记录](V1-NIGHTLY-EXPERIENCE.md)
