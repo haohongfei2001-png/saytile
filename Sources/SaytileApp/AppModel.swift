@@ -271,7 +271,7 @@ final class AppModel: ObservableObject {
     var editorCanEdit: Bool { editorRecordingID != nil && !editorDraftLoading }
     var hasUnpersistedDrafts: Bool { !pendingDraftWrites.isEmpty }
 
-    init(directory: URL, preferences: UserDefaults = .standard, connectionDependencies: AppConnectionDependencies = .live,
+    init(directory: URL, preferences: UserDefaults = .standard, normalLaunch: Bool = false, connectionDependencies: AppConnectionDependencies = .live,
          captureDependencies: AppCaptureDependencies = .live, copyPasteboard: NSPasteboard? = nil) throws {
         localModels = LocalASRService(root: directory.appending(path: "LocalModels"))
         localTextAllowed = preferences.bool(forKey: "localASR.textAllowed")
@@ -280,7 +280,7 @@ final class AppModel: ObservableObject {
         manualLocalModel = preferences.string(forKey: "localASR.manual").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         archiveLocalModel = preferences.string(forKey: "localASR.archive").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         self.directory = directory
-        hosted = HostedAccount(preferences: preferences, production: preferences === UserDefaults.standard && Bundle.main.bundleIdentifier == "app.saytile.mac")
+        hosted = HostedAccount(preferences: preferences, production: normalLaunch && Bundle.main.bundleIdentifier == "app.saytile.mac")
         self.preferences = preferences
         self.connectionDependencies = connectionDependencies
         self.captureDependencies = captureDependencies
@@ -301,7 +301,7 @@ final class AppModel: ObservableObject {
         audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration, startupRecoveryReady: false)
         input = NativeInputCoordinator(store: store)
         floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
-        launchAtLogin = SMAppService.mainApp.status == .enabled
+        launchAtLogin = normalLaunch && SaytileStorageProfile.current == .standard && SMAppService.mainApp.status == .enabled
         shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? "option-space"
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
         deviceID = audio.selectedDeviceUID != nil && audio.selectedDeviceID == 0 ? UInt32.max : audio.selectedDeviceID
@@ -1054,7 +1054,7 @@ final class AppModel: ObservableObject {
     private func scheduleRefresh() { refreshVersion &+= 1; refreshTask?.cancel(); refreshTask = Task { try? await Task.sleep(for: .milliseconds(200)); guard !Task.isCancelled else { return }; await refresh() } }
     private func perform(_ operation: @escaping @MainActor () async throws -> Void) { Task { do { try await operation() } catch { notice = error.localizedDescription } } }
     private func setLoginItem() {
-        guard !initializing else { return }
+        guard !initializing, SaytileStorageProfile.current == .standard else { return }
         do { if launchAtLogin { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() } }
         catch { notice = "登录启动未能更新：\(error.localizedDescription)" }
         let status = SMAppService.mainApp.status

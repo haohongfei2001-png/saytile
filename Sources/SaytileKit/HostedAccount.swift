@@ -32,7 +32,7 @@ import Combine
     public convenience init(preferences: UserDefaults, production: Bool) {
         self.init(preferences:preferences, production:production,
             origin:production ? URL(string:"https://saytile-cloud.vercel.app") : nil,
-            keychain:KeychainCredentialStore(service:"com.saytile.hosted.auth.v1"),
+            keychain:KeychainCredentialStore(service:SaytileStorageProfile.current.hostedService),
             request: { try await HostedNetwork.request($0,bearer:$1,payload:$2,key:$3) })
     }
     init(preferences: UserDefaults, production: Bool, origin: URL?, keychain: KeychainCredentialStore,

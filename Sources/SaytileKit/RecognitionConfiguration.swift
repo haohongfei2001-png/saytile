@@ -11,14 +11,14 @@ public enum LanguagePreference: String, Codable, Sendable, CaseIterable {
 /// Small persisted usage profile. Provider language tags are observations, not user text.
 public enum LanguageProfile {
     private static let historyKey = "saytile.language-profile.v1"
-    public static func record(_ tag: String, defaults: UserDefaults = .standard) {
+    public static func record(_ tag: String, defaults: UserDefaults? = nil) {
         let normalized = normalize(tag)
-        guard normalized != "unknown" else { return }
+        guard normalized != "unknown", let defaults = defaults ?? SaytileStorageProfile.languagePreferences else { return }
         var values = defaults.stringArray(forKey: historyKey) ?? []
         values.append(normalized); defaults.set(Array(values.suffix(20)), forKey: historyKey)
     }
     public static func resolve(_ preference: LanguagePreference, locale: Locale = .current) -> LanguagePreference {
-        resolve(preference, locale: locale, history: UserDefaults.standard.stringArray(forKey: historyKey) ?? [])
+        resolve(preference, locale: locale, history: SaytileStorageProfile.languagePreferences?.stringArray(forKey: historyKey) ?? [])
     }
     static func resolve(_ preference: LanguagePreference, locale: Locale, history: [String]) -> LanguagePreference {
         if preference != .auto { return preference }
