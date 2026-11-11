@@ -1,0 +1,22 @@
+{
+  "scope": "synthetic stale CoreAudio selection against production SaytileKit; no hardware capture or private data",
+  "before": {
+    "source": "1d5678f510d0c2b88391a08e7a68e173261153ab",
+    "before_selected_uid_preserved": true,
+    "after_uid_missing": true,
+    "after_settings_round_trip_default": true
+  },
+  "after": {
+    "AudioCapture.swift.sha256": "271203747c328efa9da23868bd1861e976086242be1242fed21b28b58e58b25c",
+    "before_selected_uid_preserved": true,
+    "after_uid_missing": false,
+    "after_settings_round_trip_default": false
+  },
+  "nativeSwiftTesting": {
+    "tests": 1,
+    "pass": 1,
+    "fail": 0,
+    "log": "device-selection-native.log",
+    "testFile.sha256": "1fd1cb42769142a9e1ac6656188b7381c74298f21f23f313f798b7ec1e8e1400"
+  }
+}

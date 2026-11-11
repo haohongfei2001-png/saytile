@@ -1,6 +1,6 @@
 ## V1 夜间体验候选
 
-夜间候选继承麦克风修复，统一使用正式身份并保留既有个人资料隔离。 [本轮记录](V1-NIGHTLY-EXPERIENCE.md)
+夜间候选继承麦克风修复，统一使用正式身份并保留既有个人资料隔离。固定输入设备的 UID 已与瞬态 CoreAudio ID 解耦。 [本轮记录](V1-NIGHTLY-EXPERIENCE.md)
 
 ## MacBook 内置麦克风 · 个人体验修复
 

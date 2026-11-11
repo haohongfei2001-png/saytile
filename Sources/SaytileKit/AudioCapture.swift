@@ -247,21 +247,19 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     @Published public private(set) var level: Float = 0
     @Published public var issue: String?
     @Published public private(set) var devices: [AudioInputDevice] = []
-    @Published public var selectedDeviceID: UInt32 = 0 {
-        didSet {
-            if !selectingDeviceUID { selectedDeviceUID = selectedDeviceID == 0 ? nil : devices.first(where: { $0.id == selectedDeviceID })?.uid }
-            guard oldValue != selectedDeviceID, state.isRunning else { return }
-            let generation = startGeneration
-            Task {
-                state = .paused
-                await stopCapture()
-                guard generation == startGeneration, requestedRunning else { return }
-                await start(requestPermission: false)
+    @Published public private(set) var selectedDeviceUID: String?
+    private static let staleDeviceNotice = "设备列表已变化，已保留原有输入选择。请重新选择麦克风。"
+    public var selectedDeviceID: UInt32 {
+        get { devices.first(where: { $0.uid == selectedDeviceUID })?.id ?? 0 }
+        set {
+            if newValue == 0 { selectDevice(uid: nil); return }
+            guard let device = devices.first(where: { $0.id == newValue }) else {
+                issue = Self.staleDeviceNotice
+                return
             }
+            selectDevice(uid: device.uid)
         }
     }
-    @Published public private(set) var selectedDeviceUID: String?
-    private var selectingDeviceUID = false
     @Published public private(set) var playingID: UUID?
     @Published public private(set) var playbackPosition: Double = 0
     @Published public private(set) var playbackDuration: Double = 0
@@ -557,9 +555,6 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             if let uid = selectedDeviceUID {
                 guard let device = devices.first(where: { $0.uid == uid }) else { throw AudioFailure.message("所选麦克风未连接，请连接设备或明确选择另一个麦克风") }
                 selected = device
-            } else if selectedDeviceID != 0 {
-                guard let device = devices.first(where: { $0.id == selectedDeviceID }) else { throw AudioFailure.message("所选麦克风未连接") }
-                selected = device
             } else {
                 selected = nil
             }
@@ -674,12 +669,21 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         }
     }
     public func selectDevice(uid: String?) {
-        selectingDeviceUID = true
+        if issue == Self.staleDeviceNotice { issue = nil }
+        guard uid != selectedDeviceUID else { return }
         selectedDeviceUID = uid
-        selectedDeviceID = uid.flatMap { uid in devices.first(where: { $0.uid == uid })?.id } ?? 0
-        selectingDeviceUID = false
-        if uid != nil && selectedDeviceID == 0 && state.isRunning {
-            Task { await suspend(reason: "所选麦克风未连接") }
+        guard state.isRunning else { return }
+        let generation = startGeneration
+        Task {
+            guard generation == startGeneration, requestedRunning, selectedDeviceUID == uid else { return }
+            if uid != nil && selectedDeviceID == 0 {
+                await suspend(reason: "所选麦克风未连接")
+                return
+            }
+            state = .paused
+            await stopCapture()
+            guard generation == startGeneration, requestedRunning else { return }
+            await start(requestPermission: false)
         }
     }
     public func play(recordingID: UUID) async throws {
