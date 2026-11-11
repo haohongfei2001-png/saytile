@@ -28,6 +28,7 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
         config.activates = true
         config.createsNewApplicationInstance = true
         config.promptsUserIfNeeded = false
+        setbuf(stdout, nil)
         let app: NSRunningApplication
         if browser {
             let title = doc.deletingPathExtension().lastPathComponent
@@ -36,7 +37,28 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
             config.arguments = ["--user-data-dir=" + work.appendingPathComponent("profile").path,
                                 "--no-first-run", "--no-default-browser-check", "--disable-sync",
                                 "--force-renderer-accessibility", "--app=" + doc.absoluteString]
-            app = try await NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: "/Applications/Google Chrome.app"), configuration: config)
+            // LaunchServices can wait forever for Chrome's open-application
+            // acknowledgement with an app-mode URL. Track the exact launched PID.
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+            process.arguments = config.arguments + ["--disable-search-engine-choice-screen"]
+            process.standardOutput = FileHandle.nullDevice
+            process.standardError = FileHandle.nullDevice
+            try process.run()
+            print("Launched disposable Chrome process")
+            var owned: NSRunningApplication?
+            for _ in 0..<120 {
+                if let running = NSRunningApplication(processIdentifier: process.processIdentifier),
+                   running.isFinishedLaunching { owned = running; break }
+                try await Task.sleep(for: .milliseconds(100))
+            }
+            guard let owned else {
+                if process.isRunning { process.terminate() }
+                throw TargetError.unsupported("Chrome did not finish launching")
+            }
+            app = owned
+            _ = app.activate()
+            print("Owned browser process ready")
         } else {
             try original.write(to: doc, atomically: true, encoding: .utf8)
             app = try await NSWorkspace.shared.open([doc], withApplicationAt: URL(fileURLWithPath: "/System/Applications/TextEdit.app"), configuration: config)
@@ -92,6 +114,6 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
         let stale=await insert(changed)
         guard stale != .confirmed && stale != .unverified,try matches("PREFIX|你好😀，接着说SUFFIX") else { throw TargetError.mismatch("target mutation") }
         coordinator.invalidate();try await store.close()
-        print("PASS_TEXTEDIT foreground selected by WindowServer; Unicode insertion, prefix/suffix, deduplication, append and target mutation confirmed")
+        print(browser ? "PASS_CHROME" : "PASS_TEXTEDIT", "foreground selected by WindowServer; Unicode insertion, prefix/suffix, deduplication, append and target mutation confirmed")
     }
 }
