@@ -32,7 +32,7 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
         let app: NSRunningApplication
         if browser {
             let title = doc.deletingPathExtension().lastPathComponent
-            let html = "<title>\(title)</title><textarea autofocus>PREFIX|SUFFIX</textarea>"
+            let html = "<title>\(title)</title><h1>Saytile isolated document</h1><label for=entry>Draft</label><textarea id=entry autofocus>PREFIX|SUFFIX</textarea>"
             try html.write(to: doc, atomically: true, encoding: .utf8)
             config.arguments = ["--user-data-dir=" + work.appendingPathComponent("profile").path,
                                 "--no-first-run", "--no-default-browser-check", "--disable-sync",
@@ -92,7 +92,14 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
         guard try access.snapshot().canSetSelectedText else { throw TargetError.unsupported("selected-text setter") }
         let store=try SaytileStore(directory:work.appendingPathComponent("store"))
         let coordinator=NativeInputCoordinator(store:store,access:access)
-        try await waitForOwnedField(access, original: original, caret: 7, pid: pid)
+        do {
+            try await waitForOwnedField(access, original: original, caret: 7, pid: pid)
+        } catch {
+            let current = try access.snapshot()
+            print("Owned field context complete", current.pageContextComplete, "has identity", current.pageIdentity != nil,
+                  "known caret", current.selectionLocation == 7, "witness matches", access.textWitness(at: current) == original)
+            throw error
+        }
         try await coordinator.bindCurrentTarget()
         let row=try await store.createRecording()
         let r=try await store.saveEdit(recordingID:row.id,text:"你好😀")
