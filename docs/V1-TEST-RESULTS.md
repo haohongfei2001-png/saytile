@@ -1,3 +1,7 @@
+## V1 原生产品界面
+
+已在本机从 build 269 打开独立原生审查窗口，核对原图和品牌文件。 [设计记录](V1-NATIVE-PRODUCT-DESIGN.md)
+
 ## PR #18 前台输入
 
 已对照旧运行的两份完整日志及附件，独立复现 WKWebView 写入前取消。本机 AppKit / WKWebView 通过 10 项主断言和 11 项独立边界场景；Chrome 与完整 CI 按最终 PR head 收据核对。 [验收记录](V1-FOREGROUND-RELIABILITY.md)

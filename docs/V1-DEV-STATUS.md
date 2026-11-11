@@ -1,3 +1,7 @@
+## V1 原生产品界面
+
+已从 PR #18 建立独立原生界面分支，记录 build 269 的审核结果与实现范围。 [设计记录](V1-NATIVE-PRODUCT-DESIGN.md)
+
 ## PR #18 前台输入
 
 前台测试改为一次激活。真实 AX 与独立 DOM 检查首次、追加、人工操作及取消，生产输入源码和个人体验版沿用 build 269。 [验收记录](V1-FOREGROUND-RELIABILITY.md)

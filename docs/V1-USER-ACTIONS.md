@@ -1,3 +1,7 @@
+## V1 原生产品界面
+
+工程验证使用隔离资料。最终设计候选供直接打开与审定。 [设计记录](V1-NATIVE-PRODUCT-DESIGN.md)
+
 ## PR #18 前台输入
 
 此轮仅使用独立草稿、进程和临时 SQLite。无需重装、提供日志或在私人对话中试输入。 [验收记录](V1-FOREGROUND-RELIABILITY.md)
