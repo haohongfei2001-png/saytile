@@ -4,7 +4,7 @@ import argparse, hashlib, json, os, pathlib, plistlib, sqlite3, subprocess, temp
 P=pathlib.Path
 p=argparse.ArgumentParser()
 for n in ("app","weights","audio","output"):p.add_argument("--"+n,type=P,required=True)
-p.add_argument("--model",choices=("sherpa","zipformer"),default="sherpa")
+p.add_argument("--model",choices=("sherpa","zipformer","qwen-small"),default="sherpa")
 a=p.parse_args();app=a.app.resolve(); meta=plistlib.loads((app/"Contents/Info.plist").read_bytes());assert not meta["SaytileSourceDirty"]
 model=json.loads(P("Sources/SaytileKit/Resources/LocalASR",a.model+".json").read_text()); exe=app/"Contents/MacOS/Saytile"
 source=a.audio/"fleurs-zh-13737992583400421680.wav"
@@ -28,7 +28,7 @@ for mode in ("corrupt","idle"):
         changes=[];pids=[];prior=None
         while proc.poll() is None:
             if time.monotonic()-start>100:proc.terminate();proc.wait();raise RuntimeError("timed out")
-            matches=subprocess.run(["pgrep","-P",str(proc.pid),"-x","SaytileSherpa"],capture_output=True,text=True).stdout.split()
+            matches=subprocess.run(["pgrep","-P",str(proc.pid),"-x","SaytileModelWorker" if a.model=="qwen-small" else "SaytileSherpa"],capture_output=True,text=True).stdout.split()
             assert len(matches)<=1
             state=matches[0] if matches else ""
             if state!=prior:

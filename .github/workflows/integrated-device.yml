@@ -1,0 +1,35 @@
+name: Integrated device and download acceptance
+on:
+  push:
+    branches: [codex/v1-integrated-candidate]
+    paths: ['.github/workflows/integrated-device.yml']
+permissions:
+  contents: read
+jobs:
+  isolated-device:
+    runs-on: macos-26
+    timeout-minutes: 25
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+      SAYTILE_LAB_EXPECTED_SOURCE: 235b29447ed04e0ef8ccf167e1314f756596e747
+      SAYTILE_HOST_TYPE: github-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy reviewed lab and select the signed product source
+        run: |
+          cp -R evidence/no-api10/lifecycle-lab "$RUNNER_TEMP/lab"
+          cp tests/fixtures/LocalDownloadProbe.swift "$RUNNER_TEMP/probe.swift"
+          git fetch --depth 1 origin "$SAYTILE_LAB_EXPECTED_SOURCE"
+          git checkout --detach "$SAYTILE_LAB_EXPECTED_SOURCE"
+      - name: Cold downloads using the production transport
+        run: |
+          cp "$RUNNER_TEMP/probe.swift" tests/fixtures/LocalDownloadProbe.swift
+          scripts/mandarin/check-public-downloads.sh sherpa qwen-small
+      - name: Synthetic HAL input and lifecycle
+        if: always()
+        run: python3 "$RUNNER_TEMP/lab/run.py"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integrated-device
+          path: ${{ runner.temp }}/audio-proof

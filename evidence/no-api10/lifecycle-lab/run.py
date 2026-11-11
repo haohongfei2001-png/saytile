@@ -10,7 +10,7 @@ import runpy
 import subprocess
 import time
 
-source='5639058e6b178027861b18cc0521387487c919d5'
+source=os.environ.get('SAYTILE_LAB_EXPECTED_SOURCE','5639058e6b178027861b18cc0521387487c919d5')
 def run(*argv,timeout=120,check=True):
     return subprocess.run(argv,capture_output=True,text=True,timeout=timeout,check=check)
 def save(file,data): file.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')

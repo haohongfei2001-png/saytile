@@ -14,7 +14,7 @@ import SaytileKit
     }
     let session =
       ProcessInfo.processInfo.environment["SAYTILE_TEST_PROXY_PORT"] == nil
-      ? URLSession.shared : URLSession(configuration: config)
+      ? nil : URLSession(configuration: config)
     let library = LocalModelLibrary(root: root, session: session)
     let requested = CommandLine.arguments.dropFirst().first ?? LocalASRID.sherpa.rawValue
     guard let id = LocalASRID(rawValue: requested), [.sherpa, .qwen, .zipformer].contains(id) else {
