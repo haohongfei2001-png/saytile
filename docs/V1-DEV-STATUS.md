@@ -1,3 +1,7 @@
+## MacBook 内置麦克风 · 个人体验修复
+
+内置麦克风合盖断开不再显示待命；不切换输入设备。归档显示清楚的拒识原因，保留原始诊断。 见[验收范围](V1-BUILTIN-MIC.md)。
+
 ## V1 统一发行候选
 
 整合版本 1.0.0-rc.2-integrated.1 已生成 Developer ID 签名 DMG，正式产品源码 235b2944。 [本次完整交付](V1-INTEGRATED-CANDIDATE.md)

@@ -18,6 +18,14 @@ public struct Recording: Identifiable, Sendable, Equatable {
     public let isRecording: Bool
     public let lastError: String?
     public let sampleRate: Double
+
+    /// Keep Apple's original diagnostic in the archive; do not promise replay for deleted audio.
+    public var displayedError: String? {
+        guard lastError == "RecogRejected" else { return lastError }
+        return audioState == .available
+            ? "本地识别未能确认文字。原音已保留，可回听或重新识别。"
+            : "本地识别未能确认文字。"
+    }
 }
 public struct TranscriptRevision: Identifiable, Sendable, Equatable {
     public let id: UUID

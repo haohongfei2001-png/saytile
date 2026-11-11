@@ -297,7 +297,7 @@ struct RecordDetailView: View {
                 Button { model.closeDetail() } label: { Image(systemName: "xmark") }.buttonStyle(.plain)
             }
             Text(item.date, format: .dateTime.year().month().day().hour().minute()).font(.system(size: 11)).foregroundStyle(Palette.muted)
-            if let error = item.source.lastError {
+            if let error = item.source.displayedError {
                 Text(error).font(.system(size: 11)).foregroundStyle(Palette.amber).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
             }
             TextEditor(text: Binding(get: { model.editorDraft }, set: { newText in model.updateEditorDraft(newText) })).font(.system(size: 14)).scrollContentBackground(.hidden)

@@ -1,3 +1,7 @@
+## MacBook 内置麦克风 · 个人体验修复
+
+在签名体验版重复两次复现内置队列收到全零仍显示待命。公开中文材料的四种受控输入均在句末前更新真实 AppKit 时间轴，非现场讲话证明。 见[验收范围](V1-BUILTIN-MIC.md)。
+
 ## V1 统一发行候选
 
 413 项 Swift 测试、108 项 AppModel、102 段 CPU/GPU 竞争运行及真实隔离 Chrome、WKWebView、TextEdit 通过。本机代理的 Qwen 整包下载仍失败。 [本次完整交付](V1-INTEGRATED-CANDIDATE.md)
