@@ -238,8 +238,10 @@ extension AppDelegate {
                 } else {
                     for _ in 0..<140 where !model.timelineIdle { try await Task.sleep(for: .milliseconds(100)) }
                 }
+                // The final easing step can be less than one point. Capture the
+                // anchor only after the clip reaches the actual layout destination.
                 try await self.reviewUntil { scroll.rendered.idle && scroll.contentView.bounds.minY > beforeIdle + 20 &&
-                    scroll.documentVisibleRect.maxY >= scroll.transcriptView.bounds.height - 1 }
+                    scroll.contentView.bounds.minY == max(0, scroll.transcriptView.bounds.height - scroll.contentSize.height) }
                 try self.captureReview(host, name: "timeline-idle", output: output)
                 if controls {
                     let anchor = scroll.contentView.bounds.origin
