@@ -15,4 +15,19 @@ SAYTILE_TEST_LOG="${SAYTILE_TEST_LOG:-evidence/native-tests.log}"
 mkdir -p "$(dirname "$SAYTILE_TEST_LOG")"
 # Default Swift Build supplies Testing.framework and the correct test runner.
 # Do not force --build-system native: it omits framework discovery in CLT 6.4.
-swift test --scratch-path "$SAYTILE_TEST_SCRATCH" "${SAYTILE_TEST_FLAGS[@]}" "$@" 2>&1 | tee "$SAYTILE_TEST_LOG"
+run_tests() {
+  swift test --scratch-path "$SAYTILE_TEST_SCRATCH" ${SAYTILE_TEST_FLAGS[@]+"${SAYTILE_TEST_FLAGS[@]}"} "$@"
+}
+
+if (( $# > 0 )); then
+  # Keep explicit filters/options available for targeted diagnostics.
+  run_tests "$@" 2>&1 | tee "$SAYTILE_TEST_LOG"
+else
+  # Frame sampling and the app's display link run on the same main actor.
+  # Keep unrelated concurrent tests out of the measurement process.
+  frame_suite=LiveTailViewportTests
+  echo "== Isolated native viewport frames ==" | tee "$SAYTILE_TEST_LOG"
+  run_tests --filter "$frame_suite" 2>&1 | tee -a "$SAYTILE_TEST_LOG"
+  echo "== Remaining Swift suites ==" | tee -a "$SAYTILE_TEST_LOG"
+  run_tests --skip-build --skip "$frame_suite" 2>&1 | tee -a "$SAYTILE_TEST_LOG"
+fi
