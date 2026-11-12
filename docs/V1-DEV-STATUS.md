@@ -1,6 +1,6 @@
 ## 当前：Saytile 内测 0.3
 
-本轮改动仅针对识别文字上屏与自然折行。参考 [Gboard 高级语音输入](https://support.google.com/gboard/answer/11197787?hl=en) 的听写时可手动编辑，以及 [Amazon Transcribe 的增量文字说明](https://docs.aws.amazon.com/transcribe/latest/dg/streaming-partial-results.html) 对稳定部分与可修订部分的区分；未接入其服务，亦未对其帧率或中文准确率作比较。
+0.3 已安装于原路径。说话时首批立即显示，仅活动识别稿的真实追加按短帧显示；手选、键入、复制、回读位置及用户手动换行均保留。参考 [Gboard 高级语音输入](https://support.google.com/gboard/answer/11197787?hl=en) 的听写时可手动编辑，以及 [Amazon Transcribe 的增量文字说明](https://docs.aws.amazon.com/transcribe/latest/dg/streaming-partial-results.html) 对稳定部分与可修订部分的区分；未接入其服务，亦未对其帧率或中文准确率作比较。
 
 语音板按一份连续正文显示。空闲、跨日或新讲话不插入空行；普通换行取决于窗宽和用户编辑。
 
