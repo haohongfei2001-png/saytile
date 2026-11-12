@@ -107,6 +107,12 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         transcriptView.delegate = self
         transcriptView.setAccessibilityIdentifier("panel.transcript")
         transcriptView.setAccessibilityLabel("当前转写文字")
+        transcriptView.onPageNavigation = { [weak self] older in
+            guard let self else { return }
+            motion?.cancel()
+            wheelDirection = nil
+            requestAdjacentPage(older: older)
+        }
         transcriptView.onSelectionTracking = { [weak self] tracking in
             guard let self else { return }
             selecting = tracking
@@ -450,6 +456,21 @@ public final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
         menu.removeAllItems()
         fillContextMenu(menu)
     }
+    var onPageNavigation: ((Bool) -> Void)?
+    public override func doCommand(by selector: Selector) {
+        let canPage = selectedRange().length == 0 && !hasMarkedText()
+        super.doCommand(by: selector)
+        guard canPage else { return }
+        switch selector {
+        case #selector(pageUp(_:)), #selector(scrollPageUp(_:)):
+            onPageNavigation?(true)
+        case #selector(pageDown(_:)), #selector(scrollPageDown(_:)):
+            onPageNavigation?(false)
+        default:
+            break
+        }
+    }
+
     public private(set) var contextCharacter: Int?
     var onSelectionTracking: (Bool) -> Void = { _ in }
     public override func mouseDown(with event: NSEvent) {
