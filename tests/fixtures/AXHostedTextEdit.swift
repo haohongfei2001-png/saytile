@@ -9,6 +9,20 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
     guard AXUIElementCopyAttributeValue(node,key as CFString,&result) == .success else { return nil }
     return result
 }
+/// TextEdit can expose a usable editor and filename before LaunchServices
+/// assigns AXDocument. Both must identify the fixture before the first binding.
+func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
+    // Native AXInputAccess snapshots carry AXDocument and AXTitle in this order.
+    guard let identity, let separator = identity.firstIndex(of: "\u{1f}") else { return false }
+    let path = String(identity[..<separator])
+    let title = identity[identity.index(after: separator)...]
+    let url = path.hasPrefix("/") ? URL(fileURLWithPath: path) : URL(string: path)
+    guard !path.isEmpty, let url, url.isFileURL, url.host == nil || url.host == "" || url.host == "localhost",
+          url.resolvingSymlinksInPath().standardizedFileURL.path ==
+            expected.resolvingSymlinksInPath().standardizedFileURL.path else { return false }
+    return title == expected.lastPathComponent || title == expected.deletingPathExtension().lastPathComponent
+}
+
 @main struct HostedTextEdit {
     @MainActor static func main() async {
         do { try await test() }
@@ -143,7 +157,9 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
             }
         }
         do {
-            try await waitForOwnedField(access, original: original, caret: 7, pid: pid)
+            try await waitForOwnedField(access, original: original, caret: 7, pid: pid) { snapshot in
+                browser || matchesTextEditDocument(snapshot.pageIdentity, expected: doc)
+            }
         } catch {
             let current = try access.snapshot()
             print("Owned field context complete", current.pageContextComplete, "has identity", current.pageIdentity != nil,

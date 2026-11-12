@@ -4,7 +4,8 @@ import AppKit
 /// Only reads the disposable window during its single startup transition. Registering
 /// an observer also lets pending WebKit focus, layout and selection events drain.
 @MainActor func waitForOwnedField(_ access: AXInputAccess, original: String,
-                                  caret: Int, pid: Int32) async throws {
+                                  caret: Int, pid: Int32,
+                                  documentReady: (InputTargetSnapshot) -> Bool = { _ in true }) async throws {
     let clock = ContinuousClock(), deadline = clock.now.advanced(by: .seconds(5))
     var initial: InputTargetSnapshot?
     var observedChanges = 0, previousChanges = 0, consecutive = 0
@@ -13,6 +14,7 @@ import AppKit
         if let current = try? access.snapshot(), current.processID == pid,
            current.isEditable, !current.isSensitive, current.canSetSelectedText,
            current.selectionLocation == caret, current.selectionLength == 0,
+           documentReady(current),
            !current.isWeb || (current.pageContextComplete && current.pageIdentity != nil),
            access.textWitness(at: current) == original {
             if let initial {
