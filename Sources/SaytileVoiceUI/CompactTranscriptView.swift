@@ -514,7 +514,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         let oldOrigin = contentView.bounds.origin
         let oldDocument = rendered
         let anchoredSpan = anchor.flatMap { a in oldDocument.spans.first { NSMaxRange($0.range) > a.character } }
-        let preservedWraps = readingWraps(from: oldDocument, to: target, anchor: anchor?.character)
+        let preservedWraps = readingWraps(from: oldDocument, to: target, anchor: anchor?.character, changedAt: patch.range.location)
         var wheelOffset: CGFloat = 0
         if oldDocument.firstPosition != target.firstPosition || oldDocument.lastPosition != target.lastPosition {
             if let edge = pagingFrom, (pageRemainder > 0 && target.firstPosition.map { $0 < edge } == true ||
@@ -563,11 +563,12 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     /// Retain the earliest shared line and the first line still being read: pinning
     /// only a vertical offset would rewrap every line from a different column.
     private func readingWraps(from old: PanelTimelineDocument<Entry>, to next: PanelTimelineDocument<Entry>,
-                              anchor: Int?) -> [Int] {
+                              anchor: Int?, changedAt: Int? = nil) -> [Int] {
         guard let container = transcriptView.textContainer as? ReaderTextContainer else { return [] }
         guard let manager = transcriptView.layoutManager, !old.spans.isEmpty, !next.spans.isEmpty else { return [] }
         let changingHead = old.firstPosition != next.firstPosition
-        guard changingHead || !container.wraps.isEmpty else { return [] }
+        let changesBeforeReader = anchor.map { (changedAt ?? .max) < $0 } ?? false
+        guard changingHead || changesBeforeReader || !container.wraps.isEmpty else { return [] }
         let destinations = Dictionary(uniqueKeysWithValues: next.spans.map { ($0.entry.id, $0) })
         func mapped(_ position: Int) -> Int? {
             guard let span = old.spans.first(where: { NSLocationInRange(position, $0.range) }),
@@ -576,18 +577,19 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
             return newSpan.range.location + position - span.range.location
         }
         var kept = container.wraps.compactMap(mapped)
-        if changingHead, manager.numberOfGlyphs > 0, Self.sameText(old.text, transcriptView.string), let first = old.spans.first(where: { destinations[$0.entry.id] != nil }) {
-            var range = NSRange()
+        guard manager.numberOfGlyphs > 0, Self.sameText(old.text, transcriptView.string) else { return kept }
+        var range = NSRange()
+        if changingHead, let first = old.spans.first(where: { destinations[$0.entry.id] != nil }) {
             let glyph = manager.glyphIndexForCharacter(at: first.range.location)
             _ = manager.lineFragmentRect(forGlyphAt: glyph, effectiveRange: &range)
             let beginning = manager.characterIndexForGlyph(at: range.location)
             if let projected = mapped(beginning) { kept.append(projected) }
             else if NSMaxRange(range) < manager.numberOfGlyphs,
                     let projected = mapped(manager.characterIndexForGlyph(at: NSMaxRange(range))) { kept.append(projected) }
-            if let anchor {
-                _ = manager.lineFragmentRect(forGlyphAt: manager.glyphIndexForCharacter(at: anchor), effectiveRange: &range)
-                if let projected = mapped(manager.characterIndexForGlyph(at: range.location)) { kept.append(projected) }
-            }
+        }
+        if (changingHead || changesBeforeReader), let anchor {
+            _ = manager.lineFragmentRect(forGlyphAt: manager.glyphIndexForCharacter(at: anchor), effectiveRange: &range)
+            if let projected = mapped(manager.characterIndexForGlyph(at: range.location)) { kept.append(projected) }
         }
         return kept
     }
