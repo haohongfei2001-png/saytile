@@ -58,6 +58,7 @@ def capture(host, app, repo, dest, tmp, helper, artwork_width=False):
               "embeddedSourceSHA": info.get("SaytileSourceRevision"),
               "sourceTree": git("rev-parse", (info.get("SaytileSourceRevision") or checkout) + ":Sources"), "signature": "codesign --verify --strict --deep PASS",
               "sourceCheckoutChanges": git("status", "--porcelain", "--", "Sources", "Package.swift"),
+              "speakingFrameAdditionalSettleSeconds": 1.8,
               "exeSHA256": hashlib.sha256(exe.read_bytes()).hexdigest(),
               "scenes": {}}
     with (dest / "run.log").open("w") as log:
@@ -75,6 +76,10 @@ def capture(host, app, repo, dest, tmp, helper, artwork_width=False):
                     time.sleep(.05)
                 else:
                     raise RuntimeError(f"{host} {scene} unavailable (exit {proc.poll()}); see {dest}/run.log")
+                # Keep the initial paused/standby frames. The last frame documents the steady
+                # native surface after AppKit's temporary overlay scroller has faded.
+                if scene == "panel-speaking":
+                    time.sleep(1.8)
                 x, y, w, h = req["glass"]
                 rect = "{{%s,%s},{%s,%s}}" % (x, y, w, h)
                 png = dest / (scene + "-window.png")
