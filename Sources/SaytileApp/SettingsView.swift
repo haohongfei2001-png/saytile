@@ -20,7 +20,7 @@ struct SettingsView: View {
         self.model = model; _page = ViewState(initialValue: initialPage)
     }
     @ViewState private var cleanup = false
-    private var version: String { Bundle.main.object(forInfoDictionaryKey: "SaytileReleaseVersion") as? String ?? "开发版本" }
+    private var version: String { (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String).map { "内测 \($0)" } ?? "开发构建" }
     var body: some View {
         GeometryReader { geo in
             HStack(spacing: 0) {

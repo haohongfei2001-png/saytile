@@ -10,8 +10,9 @@ repo=pathlib.Path(sys.argv[1]);app=pathlib.Path(sys.argv[2])
 if not app.is_absolute() or not app.resolve().is_relative_to((repo/'dist').resolve()):
     raise SystemExit('Provide an absolute candidate app path inside this repository dist/.')
 info=plistlib.loads((app/'Contents/Info.plist').read_bytes())
-if not info.get('SaytileReleaseVersion','').startswith('1.0.0-rc.2') or info.get('SaytileSourceDirty') is not False:
-    raise SystemExit('Use the clean RC2 candidate, not the installed RC1 or a dirty development build.')
+version=(repo/'packaging/VERSION').read_text().strip()
+if info.get('CFBundleIdentifier') != 'app.saytile.mac' or info.get('SaytileReleaseVersion') != version or info.get('SaytileSourceDirty') is not False:
+    raise SystemExit('Use the clean Saytile build matching this checkout.')
 if not (app/'Contents/MacOS/Saytile').is_file(): raise SystemExit('Candidate executable missing.')
 PY
 if [[ -L "$SAYTILE_SETUP_REPOSITORY/dist" ]]; then
@@ -20,7 +21,7 @@ if [[ -L "$SAYTILE_SETUP_REPOSITORY/dist" ]]; then
 fi
 SAYTILE_SETUP_DIRECTORY="$(mktemp -d "$SAYTILE_SETUP_REPOSITORY/dist/connection-setup.XXXXXX")"
 SAYTILE_SETUP_OUTPUT="$SAYTILE_SETUP_DIRECTORY/recognition-config.json"
-printf 'Setup only; RC1 remains installed. Non-secret configuration path: %s\n' "$SAYTILE_SETUP_OUTPUT"
+printf 'Isolated setup only; installed application unchanged. Non-secret configuration path: %s\n' "$SAYTILE_SETUP_OUTPUT"
 "$SAYTILE_SETUP_APP/Contents/MacOS/Saytile" --connection-setup \
   --data-directory "$SAYTILE_SETUP_DIRECTORY" --connection-output "$SAYTILE_SETUP_OUTPUT"
 if [[ -f "$SAYTILE_SETUP_OUTPUT" ]]; then

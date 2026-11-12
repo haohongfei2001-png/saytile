@@ -1,5 +1,7 @@
 # Saytile V1 RC2 工程候选安装说明
 
+当前内测只安装一个 `Saytile.app`（0.0），应用标识为 `app.saytile.mac`。更新时退出已运行的应用并替换同一路径的程序包；保留原有用户资料和授权。以下记录针对历史候选，不是当前安装步骤。
+
 要求：Apple Silicon Mac，macOS 26 或更高。
 
 本包为 `1.0.0-rc.2-no-api.10`，真实云端联调尚未完成。**当前不要覆盖已安装的 RC1，也不需要用户安装或测试。** 工程包采用 Apple Developer ID Application 签名、Hardened Runtime 和可信时间戳，公证尚待发行方提供授权的 Apple notarytool 配置。普通网上分发需由发行方完成签名与公证，不改变系统策略。工程验证在临时位置和合成数据库内进行；包内 App 不是已通过最终验收的正式 RC2。

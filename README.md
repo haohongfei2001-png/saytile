@@ -1,6 +1,6 @@
 # Saytile
 
-**本设计分支的原生预览**已实现无限连续时间轴。可并排安装，默认以 2 分钟空闲形成新组，并支持随时回看和一键复制。[签名预览、截图、窗口录制和验证报告](docs/V1-CONTINUOUS-TIMELINE.md)
+本分支只有一个安装入口：**Saytile.app（内测 0.0）**。更新替换同一应用，沿用原来的语音档案和设置。
 
 > **最新产品增量决定（2026-11-09）：** [无限语音时间轴、一键复制、未来说话人模式、可选 ASR 及忠实原话](docs/PRODUCT-DECISIONS-2026-11-09.md)。这是后续产品目标，不是 no-api.10 已完成的能力；任何旧“双 ASR 同时运行”描述均已被 [单 ASR 权威架构](research/architecture/FINAL-ARCHITECTURE.md) 取代。
 
@@ -15,7 +15,7 @@ Apple Silicon，macOS 26 或以上。冻结 RC2 无 API 工程候选为 `1.0.0-r
 
 Saytile 是 macOS 原生语音输入与表达工作台。开启后持续待命，自然讲话即可分段记录、识别中文，并独立保存原音。文字可以编辑、搜索、回听、重新识别、复制，或追加到明确选择的应用草稿。
 
-GitHub Releases 的稳定版本为 RC1，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。本分支的 no-api.10 候选及证据见 [无 API 交付](docs/V1-NO-API-DELIVERY.md)；真实云端、讲话质量与个人环境验收仍明确保留。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
+运行要求：**Apple Silicon / macOS 26+**。GitHub 上早期的 RC 和预览包是历史记录。当前内测不创建新的公开发行版。
 
 ## 最高质量中英文识别候选
 
