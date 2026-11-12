@@ -1,5 +1,7 @@
 # Saytile V1 工程交付状态
 
+个人内测的唯一入口为 Saytile.app。最新源码、原生体验证据与实际限制见[当前开发状态](V1-DEV-STATUS.md)及[逐版本实测记录](V1-TEST-RESULTS.md)；下述冻结候选记录独立保留。
+
 独立 Draft PR #12 的时间轴预览使用源码 86dbd24。新包与 RC2 并存。[预览交付和机器收据](V1-CONTINUOUS-TIMELINE.md)
 
 冻结 RC2 工程候选 `1.0.0-rc.2-no-api.10`，源码 `5639058e6b178027861b18cc0521387487c919d5`。核心状态为 `READY_FOR_AUTHORIZED_API_ACCEPTANCE`。完整实机验收与公开分发仍为 BLOCKED。真实云端 NOT_RUN。生产 main、RC1 和 no-api.9.1 保留原版本。
