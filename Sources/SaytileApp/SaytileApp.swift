@@ -327,7 +327,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     print("FOCUS_PANEL_GEOMETRY width=\(panel.frame.width) height=\(panel.frame.height) min_width=\(panel.minSize.width) min_height=\(panel.minSize.height) max_width=\(panel.maxSize.width) max_height=\(panel.maxSize.height) resizable=\(panel.styleMask.contains(.resizable)) nonactivating=\(panel.styleMask.contains(.nonactivatingPanel)) joins_spaces=\(panel.collectionBehavior.contains(.canJoinAllSpaces)) panel_key=\(panel.isKeyWindow) panel_main=\(panel.isMainWindow)")
                     if let screen = panel.screen {
                         let visible = screen.visibleFrame
-                        let natural = panel.frame == WindowPlacement.initialPanel(visibleFrame: visible)
+                        // WindowServer snaps a fractional slot to whole logical
+                        // points (e.g. 127.75pt becomes a 128pt NSPanel).
+                        let expected = WindowPlacement.initialPanel(visibleFrame: visible)
+                        let natural = abs(panel.frame.width - expected.width) <= 0.5
+                            && abs(panel.frame.height - expected.height) <= 0.5
+                            && abs(panel.frame.maxX - visible.maxX) <= 0.5
+                            && abs(panel.frame.maxY - visible.maxY) <= 0.5
                         print("FOCUS_COLD_PLACEMENT frame=\(panel.frame) visible=\(visible) upper_right_eighth_width=\(natural) shown=\(panel.isVisible)")
                         if !natural || !panel.isVisible { diagnosticExitStatus = 1 }
                     } else { diagnosticExitStatus = 1 }
