@@ -159,6 +159,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         motion?.cancel()
         let delta = event.scrollingDeltaY
         if delta != 0 {
+            lastManagedOrigin = nil
             wheelDirection = delta > 0
             if delta > 0 { isFollowingLatest = false; publishState() }
             requestAdjacentPage(older: delta > 0)
@@ -173,14 +174,31 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         guard let edge, pagingFrom != edge,
               older ? (rendered.older && documentVisibleRect.minY < 32) : (rendered.newer && isAtBottom) else { return }
         pagingFrom = edge
+        // Consume this wheel event at the boundary it requested. Layout
+        // notifications from the new page cannot request a second page.
+        wheelDirection = nil
         isFollowingLatest = false
         onPage(older)
     }
 
     @objc private func viewportChanged(_ notification: Notification) {
         guard !changingDocument, !selecting, contentSize == lastLayoutSize else { return }
-        // AppKit can publish our own bounds change on a later run-loop turn.
-        guard contentView.bounds.origin != lastManagedOrigin else { return }
+        // AppKit may publish the aligned position on the next layout pass,
+        // after our scroll returned its fractional origin. Only recognize the
+        // adjacent backing-pixel boundary of that particular managed scroll.
+        let origin = contentView.bounds.origin
+        if let last = lastManagedOrigin {
+            if origin == last { return }
+            let scale = window?.backingScaleFactor ?? 1
+            let prior = last.y * scale, current = origin.y * scale
+            let rounding = max(1, abs(current)) * CGFloat.ulpOfOne * 8
+            let tracking = NSEvent.pressedMouseButtons != 0
+            if !tracking, origin.x == last.x, abs(prior - prior.rounded()) > rounding,
+               abs(current - current.rounded()) <= rounding, abs(current - prior) < 1 {
+                lastManagedOrigin = origin
+                return
+            }
+        }
         lastManagedOrigin = nil
         if !editing, transcriptView.selectedRange().length == 0, isAtBottom, !rendered.newer {
             isFollowingLatest = true

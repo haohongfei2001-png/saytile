@@ -271,8 +271,13 @@ extension AppDelegate {
                 }
                 // The final easing step can be less than one point. Capture the
                 // anchor only after the clip reaches the actual layout destination.
-                try await self.reviewUntil { scroll.rendered.idle && scroll.contentView.bounds.minY > beforeIdle + 20 &&
-                    scroll.contentView.bounds.minY == max(0, scroll.transcriptView.bounds.height - scroll.contentSize.height) }
+                do {
+                    try await self.reviewUntil { scroll.rendered.idle && scroll.contentView.bounds.minY > beforeIdle + 20 &&
+                        scroll.contentView.bounds.minY == max(0, scroll.transcriptView.bounds.height - scroll.contentSize.height) }
+                } catch {
+                    print("TIMELINE_IDLE_LAYOUT idle=\(scroll.rendered.idle) before=\(beforeIdle) origin=\(scroll.contentView.bounds.minY) expected=\(scroll.transcriptView.bounds.height - scroll.contentSize.height) visible=\(scroll.contentView.bounds.height) document=\(scroll.transcriptView.bounds.height) follow=\(scroll.isFollowingLatest)")
+                    throw error
+                }
                 try self.captureReview(host, name: "timeline-idle", output: output)
                 if controls {
                     let anchor = scroll.contentView.bounds.origin
@@ -316,6 +321,7 @@ extension AppDelegate {
                 // Deliver an AppKit wheel event directly to our own scroll view.
                 // No global event, active application, public clipboard or microphone.
                 let oldFirst = scroll.rendered.firstPosition!
+                let expectedLast = scroll.rendered.spans[scroll.rendered.spans.count / 2].entry.position
                 scroll.contentView.scroll(to: .zero)
                 scroll.reflectScrolledClipView(scroll.contentView)
                 guard let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: 320, wheel2: 0, wheel3: 0),
@@ -328,13 +334,17 @@ extension AppDelegate {
                     try await Task.sleep(for: .milliseconds(20))
                 }
                 try await self.reviewUntil { (scroll.rendered.firstPosition ?? oldFirst) < oldFirst }
-                guard scroll.rendered.spans.count == 64, !scroll.isFollowingLatest,
+                guard scroll.rendered.spans.count == 64, scroll.rendered.lastPosition == expectedLast,
+                      !scroll.isFollowingLatest,
                       scroll.rendered.spans.contains(where: { $0.entry.position == oldFirst }) else { throw ReviewFailure("paged native viewport dropped overlap") }
                 print("TIMELINE_NATIVE_PAGE rows=12003 resident=64 wheel_to_paint=\(began.duration(to: .now))")
                 let dateMarkers = scroll.rendered.markers.filter { range in
                     (scroll.transcriptView.string as NSString).substring(with: range).hasPrefix("2025-01-")
                 }
-                guard dateMarkers.count == 2, let midnight = dateMarkers.last else { throw ReviewFailure("midnight did not introduce local date marker") }
+                guard dateMarkers.count == 2, let midnight = dateMarkers.last else {
+                    let days = Set(scroll.rendered.spans.map { $0.entry.groupDay }).sorted()
+                    throw ReviewFailure("midnight marker count=\(dateMarkers.count) days=\(days) positions=\(scroll.rendered.firstPosition ?? 0)...\(scroll.rendered.lastPosition ?? 0)")
+                }
                 scroll.transcriptView.scrollRangeToVisible(midnight)
                 try self.captureReview(host, name: "timeline-midnight", output: output)
                 // Select a line already on screen. A second asynchronous AppKit scroll
