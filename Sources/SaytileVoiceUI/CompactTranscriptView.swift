@@ -69,6 +69,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         guard let position else { focusedPosition = nil; return }
         guard focusedPosition != position, let span = rendered.spans.first(where: { $0.entry.position == position }) else { return }
         focusedPosition = position
+        pageRemainder = 0
         isFollowingLatest = false
         transcriptView.scrollRangeToVisible(NSRange(location: span.range.location, length: 1))
         publishState()
@@ -83,7 +84,8 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         applyLatest()
     }
     private var lastManagedOrigin: NSPoint?
-    private var wheelDirection: Bool?
+    // Overflow belongs only to the page edge reached by this wheel gesture.
+    private var pageRemainder: CGFloat = 0
     private var changingDocument = false
     private var selecting = false
     private var notificationScheduled = false
@@ -133,13 +135,13 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         transcriptView.setAccessibilityLabel("当前转写文字")
         transcriptView.onPageNavigation = { [weak self] older in
             guard let self else { return }
-            wheelDirection = nil
+            pageRemainder = 0
             requestAdjacentPage(older: older)
         }
         transcriptView.onSelectionTracking = { [weak self] tracking in
             guard let self else { return }
             selecting = tracking
-            if tracking { isFollowingLatest = false; publishState() }
+            if tracking { pageRemainder = 0; isFollowingLatest = false; publishState() }
             else if transcriptView.selectedRange().length == 0 { applyLatest() }
         }
         documentView = transcriptView
@@ -164,11 +166,11 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     func consumeLatestRequest(_ request: Int) {
         guard request != latestRequest else { return }
         latestRequest = request
-        wheelDirection = nil
         jumpToLatest()
     }
 
     public func jumpToLatest() {
+        pageRemainder = 0
         changingDocument = true
         transcriptView.setSelectedRange(NSRange(location: transcriptView.string.utf16.count, length: 0))
         changingDocument = false
@@ -184,6 +186,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         // visible ranges until the edit commits against the full revision.
         if liveDeadline != nil { cancelLivePresentation() }
         stopTailMotion()
+        pageRemainder = 0
         if let replacementString, !transcriptView.hasMarkedText(),
            Self.sameText(rendered.text, textView.string) {
             intendedEdit = (range, replacementString)
@@ -277,45 +280,53 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         guard !changingDocument else { return }
         if let emptiedRow, transcriptView.selectedRange().location != emptiedRow.caret,
            Self.sameText(rendered.text, transcriptView.string) { self.emptiedRow = nil }
-        if transcriptView.selectedRange().length > 0 { isFollowingLatest = false }
+        if transcriptView.selectedRange().length > 0 {
+            pageRemainder = 0
+            isFollowingLatest = false
+        }
         else if !selecting { applyLatest() }
         publishState()
     }
 
     public override func scrollWheel(with event: NSEvent) {
         let delta = event.scrollingDeltaY
-        if delta != 0 {
-            if delta > 0 || tailLink != nil { isFollowingLatest = false; publishState() }
-            lastManagedOrigin = nil
-            wheelDirection = delta > 0
-            requestAdjacentPage(older: delta > 0)
-        }
-        if !event.hasPreciseScrollingDeltas, event.phase.isEmpty, event.momentumPhase.isEmpty, delta != 0 {
-            // Mechanical wheels report lines, not points. Keep some of the
-            // previous viewport visible even with accelerated mouse deltas.
-            let distance = delta * verticalLineScroll
-            let maximumStep = max(1, contentSize.height / 2)
-            let offset = min(maximumStep, max(-maximumStep, distance))
-            let maximumY = max(0, transcriptView.bounds.height - contentSize.height)
-            let targetY = min(maximumY, max(0, contentView.bounds.minY - offset))
-            contentView.scroll(to: NSPoint(x: contentView.bounds.minX, y: targetY))
+        guard delta != 0 else { super.scrollWheel(with: event); return }
+        if delta > 0 || tailLink != nil { isFollowingLatest = false; publishState() }
+        lastManagedOrigin = nil
+        let older = delta > 0
+        if pageRemainder != 0, older != (pageRemainder > 0) { pageRemainder = 0 }
+        let before = documentVisibleRect.minY
+        let maximumY = max(0, transcriptView.bounds.height - contentSize.height)
+        let distance: CGFloat
+        if !event.hasPreciseScrollingDeltas, event.phase.isEmpty, event.momentumPhase.isEmpty {
+            // Mechanical wheels report lines. Preserve visual overlap on accelerated devices.
+            let limit = max(1, contentSize.height / 2)
+            distance = min(limit, max(-limit, delta * verticalLineScroll))
+            contentView.scroll(to: NSPoint(x: contentView.bounds.minX, y: min(maximumY, max(0, before - distance))))
             reflectScrolledClipView(contentView)
         } else {
-            // Pixel-precise trackpad phases and momentum belong to AppKit.
+            // Precise deltas, including momentum, retain their native trajectory.
+            distance = delta
             super.scrollWheel(with: event)
         }
-        if delta != 0 { requestAdjacentPage(older: delta > 0) }
+        guard !selecting, !editing, transcriptView.selectedRange().length == 0,
+              older ? rendered.older : rendered.newer else { return }
+        let room = max(0, older ? before : maximumY - before)
+        let overflow = max(0, abs(distance) - room)
+        if overflow > 0 {
+            // A slow database read should not replay a screenful of stale input.
+            let limit = max(1, contentSize.height / 2)
+            pageRemainder = min(limit, max(-limit, pageRemainder + (older ? overflow : -overflow)))
+        }
+        requestAdjacentPage(older: older, wheelReachedEdge: overflow > 0)
     }
 
-    private func requestAdjacentPage(older: Bool) {
+    private func requestAdjacentPage(older: Bool, wheelReachedEdge: Bool = false) {
         guard !selecting, !editing, transcriptView.selectedRange().length == 0 else { return }
         let edge = older ? rendered.firstPosition : rendered.lastPosition
-        guard let edge, pagingFrom != edge,
-              older ? (rendered.older && documentVisibleRect.minY < 32) : (rendered.newer && isAtBottom) else { return }
+        guard let edge, pagingFrom != edge, older ? rendered.older : rendered.newer,
+              wheelReachedEdge || (older ? documentVisibleRect.minY < 32 : isAtBottom) else { return }
         pagingFrom = edge
-        // Consume this wheel event at the boundary it requested. Layout
-        // notifications from the new page cannot request a second page.
-        wheelDirection = nil
         isFollowingLatest = false
         onPage(older)
     }
@@ -343,7 +354,6 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
             isFollowingLatest = true
             if hasDeferredUpdate { applyLatest() }
         } else { isFollowingLatest = false }
-        if let older = wheelDirection { requestAdjacentPage(older: older) }
         if let event = NSApp.currentEvent, event.type == .leftMouseDragged || event.type == .leftMouseUp {
             requestAdjacentPage(older: !isAtBottom)
         }
@@ -500,8 +510,15 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         let oldOrigin = contentView.bounds.origin
         let oldDocument = rendered
         let anchoredSpan = anchor.flatMap { a in oldDocument.spans.first { NSMaxRange($0.range) > a.character } }
-        if oldDocument.firstPosition != target.firstPosition ||
-            oldDocument.lastPosition != target.lastPosition { pagingFrom = nil }
+        var wheelOffset: CGFloat = 0
+        if oldDocument.firstPosition != target.firstPosition || oldDocument.lastPosition != target.lastPosition {
+            if let edge = pagingFrom, (pageRemainder > 0 && target.firstPosition.map { $0 < edge } == true ||
+                pageRemainder < 0 && target.lastPosition.map { $0 > edge } == true) {
+                wheelOffset = pageRemainder
+            }
+            pagingFrom = nil
+            pageRemainder = 0
+        }
         rendered = target
         changingDocument = true
         storage.replaceCharacters(in: patch.range, with: NSAttributedString(string: patch.replacement, attributes: attributes))
@@ -529,6 +546,9 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
             let rect = manager.boundingRect(forGlyphRange: NSRange(location: glyph, length: 1), in: container)
             scroll(to: NSPoint(x: oldOrigin.x, y: rect.minY + transcriptView.textContainerInset.height + anchor.offset))
         } else { scroll(to: oldOrigin) }
+        if wheelOffset != 0, !isFollowingLatest {
+            scroll(to: NSPoint(x: oldOrigin.x, y: contentView.bounds.minY - wheelOffset))
+        }
         changingDocument = false
         publishState()
     }

@@ -61,4 +61,58 @@ import Testing
         view.doCommand(by: #selector(NSResponder.scrollPageDown(_:)))
         #expect(requests == [true, false])
     }
+
+    @Test func wheelOverflowIsConsumedOnceByTheRequestedPageAndCancelsOnReversal() async throws {
+        _ = NSApplication.shared
+        let box = NSRect(x: 0, y: 0, width: 182, height: 80)
+        let rows = (1...96).map { Row(position: Int64($0)) }
+        let primary = try #require(NSScreen.screens.first)
+        for (unit, delta, reverse) in [(CGScrollEventUnit.line, Int32(3), false), (.pixel, 8, false), (.line, 3, true)] {
+            let scroll = CompactTranscriptScrollView<Row>(frame: box)
+            let panel = NSPanel(contentRect: box, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+            panel.isReleasedWhenClosed = false
+            panel.contentView = scroll
+            panel.alphaValue = 0.01
+            panel.ignoresMouseEvents = true
+            panel.orderBack(nil)
+            defer { panel.orderOut(nil); panel.close() }
+            func move(_ y: CGFloat) {
+                scroll.contentView.scroll(to: NSPoint(x: 0, y: y))
+                scroll.reflectScrolledClipView(scroll.contentView)
+            }
+            func wheel(_ value: Int32) async throws {
+                let cg = try #require(CGEvent(scrollWheelEvent2Source: nil, units: unit, wheelCount: 1,
+                                              wheel1: value, wheel2: 0, wheel3: 0))
+                let point = panel.convertPoint(toScreen: NSPoint(x: box.midX, y: box.midY))
+                cg.location = NSPoint(x: point.x, y: primary.frame.maxY - point.y)
+                panel.sendEvent(try #require(NSEvent(cgEvent: cg)))
+                // AppKit applies precise device events on the next drawing pass.
+                if unit == .pixel { try await Task.sleep(for: .milliseconds(60)) }
+            }
+            scroll.updateDocument(.init(entries: Array(rows.suffix(64)), older: true))
+            scroll.layoutSubtreeIfNeeded()
+            var requests: [Bool] = []
+            scroll.onPage = { requests.append($0) }
+            move(100)
+            try await wheel(delta)
+            let interior = 100 - scroll.documentVisibleRect.minY
+            #expect(interior > 2 && requests.isEmpty)
+            // A separate programmatic adjustment must not replay the previous wheel direction.
+            move(2)
+            #expect(requests.isEmpty)
+            try await wheel(delta)
+            #expect(requests == [true])
+            #expect(scroll.documentVisibleRect.minY == 0)
+            if reverse { try await wheel(-1) }
+            let edgeOffset = scroll.documentVisibleRect.minY
+            scroll.updateDocument(.init(entries: Array(rows.prefix(64)), newer: true))
+            let span = try #require(scroll.rendered.spans.first { $0.entry.id == rows[32].id })
+            let manager = try #require(scroll.transcriptView.layoutManager)
+            let glyph = manager.glyphIndexForCharacter(at: span.range.location)
+            let lineY = manager.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil).minY
+            let carried = lineY + edgeOffset - scroll.documentVisibleRect.minY
+            #expect(abs(carried - (reverse ? 0 : interior - 2)) <= 0.5)
+            #expect(!scroll.isFollowingLatest && requests == [true])
+        }
+    }
 }
