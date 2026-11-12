@@ -9,8 +9,8 @@ import Testing
         var displayText: String { "测试行 \(position)" }
     }
 
-    @Test(arguments: [NSScroller.Style.overlay, .legacy])
-    func pageKeysLoadAdjacentHistoryOnceAndRespectSelection(style: NSScroller.Style) async throws {
+    @Test(.serialized, arguments: [NSScroller.Style.overlay, .legacy])
+    func pageKeysLoadAdjacentHistoryOnceAndRespectSelection(style: NSScroller.Style) throws {
         _ = NSApplication.shared
         let box = NSRect(x: 0, y: 0, width: 200, height: 90)
         let scroll = CompactTranscriptScrollView<Row>(frame: box)
@@ -34,11 +34,13 @@ import Testing
         scroll.contentView.scroll(to: CGPoint(x: 0, y: (view.bounds.height - scroll.contentSize.height) / 2))
         scroll.reflectScrolledClipView(scroll.contentView)
         let start = scroll.contentView.bounds.minY
-        let wheel = try #require(CGEvent(scrollWheelEvent2Source: nil, units: .pixel,
-                                          wheelCount: 1, wheel1: 25, wheel2: 0, wheel3: 0))
+        let wheel = try #require(CGEvent(scrollWheelEvent2Source: nil, units: .line,
+                                          wheelCount: 1, wheel1: 3, wheel2: 0, wheel3: 0))
         scroll.scrollWheel(with: try #require(NSEvent(cgEvent: wheel)))
-        for _ in 0..<30 where scroll.contentView.bounds.minY >= start {
-            try await Task.sleep(for: .milliseconds(15))
+        // AppKit applies wheel motion on the main run loop after event delivery.
+        let deadline = Date(timeIntervalSinceNow: 1)
+        while scroll.contentView.bounds.minY >= start, Date() < deadline {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.015))
         }
         #expect(start > 32)
         #expect(scroll.contentView.bounds.minY < start, "wheel from \(start) to \(scroll.contentView.bounds.minY)")
