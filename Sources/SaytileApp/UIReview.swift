@@ -670,17 +670,25 @@ extension AppDelegate {
                 let editor = scroll.transcriptView
                 guard editor.isEditable, editor.isSelectable, editor.string.isEmpty,
                       host.window?.makeFirstResponder(editor) == true else { throw ReviewFailure("cannot enter the empty native editor") }
+                editor.commandPasteboard = board
+                func command(_ key: String, modifiers: NSEvent.ModifierFlags = .command) throws {
+                    guard let win = host.window,
+                          let event = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: modifiers,
+                            timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: win.windowNumber, context: nil,
+                            characters: key, charactersIgnoringModifiers: key, isARepeat: false, keyCode: 0),
+                          editor.performKeyEquivalent(with: event) else { throw ReviewFailure("editor did not handle command " + key) }
+                }
                 let caret = NSRange(location: NSNotFound, length: 0)
                 editor.insertText("先写😀再改", replacementRange: caret)
                 try await self.reviewUntil { editor.string == "先写😀再改" }
                 editor.setSelectedRange((editor.string as NSString).range(of: "😀"))
                 board.clearContents()
-                guard editor.writeSelection(to: board, type: .string),
-                      board.string(forType: .string) == "😀" else { throw ReviewFailure("native selection copy split an emoji") }
-                editor.deleteBackward(nil)
-                guard editor.string == "先写再改" else { throw ReviewFailure("delete did not honor the selection") }
-                guard editor.readSelection(from: board, type: .string),
-                      editor.string == "先写😀再改" else { throw ReviewFailure("native paste failed") }
+                try command("c")
+                guard board.string(forType: .string) == "😀" else { throw ReviewFailure("native selection copy split an emoji") }
+                try command("x")
+                guard editor.string == "先写再改" else { throw ReviewFailure("cut did not honor the selection") }
+                try command("v")
+                guard editor.string == "先写😀再改" else { throw ReviewFailure("native paste failed") }
                 editor.setSelectedRange(NSRange(location: (editor.string as NSString).length, length: 0))
                 editor.setMarkedText("zhong", selectedRange: NSRange(location: 5, length: 0), replacementRange: caret)
                 guard editor.hasMarkedText() else { throw ReviewFailure("IME did not mark its provisional text") }
@@ -697,7 +705,7 @@ extension AppDelegate {
                 else { throw ReviewFailure("uncommitted IME text escaped into the archive") }
                 let oldID = saved.id
                 // Deleting all text retains the recording identity and previous edits.
-                editor.selectAll(nil); editor.deleteBackward(nil)
+                try command("a"); editor.deleteBackward(nil)
                 try await self.reviewUntil { editor.string.isEmpty }
                 guard let cleared = try await model.store.recording(id: oldID), cleared.text.isEmpty,
                       try await model.store.revisions(recordingID: oldID).contains(where: { $0.text == expected })
