@@ -1,6 +1,6 @@
 ## 当前：Saytile 内测 0.4
 
-既有 0.3 处理自动跟尾，本轮处理用户主动上下翻阅。说话时首批立即显示，仅活动识别稿的真实追加按短帧显示；手选、键入、复制、回读位置及用户手动换行均保留。参考 [Gboard 高级语音输入](https://support.google.com/gboard/answer/11197787?hl=en) 的听写时可手动编辑，以及 [Amazon Transcribe 的增量文字说明](https://docs.aws.amazon.com/transcribe/latest/dg/streaming-partial-results.html) 对稳定部分与可修订部分的区分；未接入其服务，亦未对其帧率或中文准确率作比较。
+既有 0.3 处理自动跟尾，0.4 已原位安装，修复用户上下翻阅时整行重新折排、滚轮跨页余量和历史空录音导致的翻页空白。详见[实际窗口对照](../evidence/internal-0.4/reader-motion.md)。说话时首批立即显示，仅活动识别稿的真实追加按短帧显示；手选、键入、复制、回读位置及用户手动换行均保留。参考 [Gboard 高级语音输入](https://support.google.com/gboard/answer/11197787?hl=en) 的听写时可手动编辑，以及 [Amazon Transcribe 的增量文字说明](https://docs.aws.amazon.com/transcribe/latest/dg/streaming-partial-results.html) 对稳定部分与可修订部分的区分；未接入其服务，亦未对其帧率或中文准确率作比较。
 
 语音板按一份连续正文显示。空闲、跨日或新讲话不插入空行；普通换行取决于窗宽和用户编辑。
 
