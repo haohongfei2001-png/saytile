@@ -40,6 +40,36 @@ public struct TimelinePage: Equatable, Sendable {
     public init() {}
 }
 
+/// The UI owns a small, independent writer so the next AppKit key can use
+/// committed row identities. Closing the store revokes it before releasing
+/// the process lock, including when a second process opens the same library.
+final class PanelEditConnection: @unchecked Sendable {
+    private let lock = NSLock()
+    private var database: StoreDatabase?
+    private var closed = false
+
+    func use<T>(at url: URL, _ body: (StoreDatabase) throws -> T) throws -> T {
+        try lock.withLock {
+            guard !closed else { throw StoreError.database("资料库已关闭。") }
+            if database == nil {
+                let writer = try StoreDatabase(url: url)
+                try writer.configureForWriting()
+                database = writer
+            }
+            guard let database else { throw StoreError.database("无法打开文字编辑资料库。") }
+            return try body(database)
+        }
+    }
+
+    func close() throws {
+        try lock.withLock {
+            closed = true
+            try database?.close()
+            database = nil
+        }
+    }
+}
+
 extension SaytileStore {
     // Positions follow capture order even after the wall clock moves backwards.
     // A group keeps its first utterance's civil date and offset for its lifetime.
@@ -85,6 +115,23 @@ extension SaytileStore {
         try db.rows("SELECT position FROM transcript_timeline WHERE recording_id=?", [.text(id.uuidString)]).first?["position"].flatMap(Int64.init)
     }
     public func timelinePage(_ window: TimelineWindow = .latest) throws -> TimelinePage {
+        try Self.timelinePage(window, from: db)
+    }
+
+    /// NSTextView needs the new row spans before it can accept the next key.
+    /// Read the exact committed page and tail in the same bounded transaction.
+    @MainActor public func editTimeline(_ edits: [PanelRowEdit], window: TimelineWindow) throws -> (page: TimelinePage, tail: TimelineEntry?) {
+        try panelEditor.use(at: directory.appendingPathComponent("Saytile.sqlite")) { writer in
+            try writer.transaction {
+                try Self.writePanelEdits(edits, to: writer, at: .now)
+                let page = try Self.timelinePage(window, from: writer)
+                let tail = window == .latest ? page.entries.last : try Self.timelinePage(.latest, from: writer).entries.last
+                return (page, tail)
+            }
+        }
+    }
+
+    private static func timelinePage(_ window: TimelineWindow, from db: StoreDatabase) throws -> TimelinePage {
         let direction: String, predicate: String, values: [StoreDatabase.Value]
         switch window {
         case .latest: direction = "DESC"; predicate = ""; values = []

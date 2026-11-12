@@ -29,7 +29,6 @@ final class VoicePanel: NSPanel {
         let visible: CGRect
     }
     private var gesture: Gesture?
-    private weak var transcript: CompactTranscriptTextView?
     private var customCursor = false
 
     override func sendEvent(_ event: NSEvent) {
@@ -102,27 +101,8 @@ final class VoicePanel: NSPanel {
         }
         if cardLeft < ReferencePanelStyle.textInset * scale - 2 { return .move }
 
-        if transcript == nil { transcript = findTranscript(in: contentView) }
-        guard let transcript, let scroller = transcript.enclosingScrollView,
-              transcript.selectedRange().length == 0 else { return nil }
-        let clip = scroller.contentView
-        guard clip.bounds.contains(clip.convert(p, from: nil)) else { return nil }
-        if let bar = scroller.verticalScroller, !bar.isHidden,
-           bar.bounds.contains(bar.convert(p, from: nil)) { return nil }
-        if transcript.string.isEmpty { return .move }
-        guard let manager = transcript.layoutManager, let container = transcript.textContainer else { return nil }
-        let point = transcript.convert(p, from: nil)
-        let textBottom = transcript.textContainerOrigin.y + manager.usedRect(for: container).maxY
-        // Leave entire occupied lines (including their trailing whitespace) to
-        // NSTextView for selection, contextual commands and double/triple-clicks.
-        return point.y > textBottom ? .move : nil
-    }
-
-    private func findTranscript(in view: NSView?) -> CompactTranscriptTextView? {
-        if let text = view as? CompactTranscriptTextView { return text }
-        for child in view?.subviews ?? [] {
-            if let text = findTranscript(in: child) { return text }
-        }
+        // Every point in the transcript, including the blank canvas, accepts a
+        // click to place the insertion point. The gutters above still drag.
         return nil
     }
 
@@ -131,7 +111,7 @@ final class VoicePanel: NSPanel {
             operation.cursor.set()
             customCursor = true
         } else if customCursor {
-            if let transcript, transcript.visibleRect.contains(transcript.convert(point, from: nil)) { NSCursor.iBeam.set() }
+            if let contentView, contentView.hitTest(contentView.convert(point, from: nil)) is CompactTranscriptTextView { NSCursor.iBeam.set() }
             else { NSCursor.arrow.set() }
             customCursor = false
         }

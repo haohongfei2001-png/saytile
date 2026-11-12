@@ -41,7 +41,7 @@ struct DisplayRecording: Identifiable, Equatable {
     var audioLabel: String {
         switch source.audioState {
         case .available: return source.duration > 0 ? "原音 · \(max(1, Int(source.duration.rounded()))) 秒" : (source.isRecording ? "原音保存中" : "尚无可回放原音")
-        case .deleted: return "原音已删除 · 文字保留"
+        case .deleted: return source.duration == 0 ? "仅文字" : "原音已删除 · 文字保留"
         case .deletePending: return "原音清理中"
         case .missing: return "原音文件缺失"
         }
@@ -691,6 +691,22 @@ final class AppModel: ObservableObject {
         Task {
             do { try await store.setTimelineIdleSeconds(seconds); timelineIdleSeconds = seconds; await refresh() }
             catch { notice = error.localizedDescription }
+        }
+    }
+
+    func editPanelRows(_ edits: [PanelRowEdit]) throws {
+        guard !exitPrepared else { throw StoreError.database("资料库正在关闭。") }
+        let createsRow = edits.contains { $0.before == nil }
+        let window = createsRow ? .latest : timelineWindow
+        let snapshot = try store.editTimeline(edits, window: window)
+        timelineRead &+= 1 // Ignore a refresh which started before the edit.
+        timelineWindow = window
+        timeline = snapshot.page
+        timelineTail = snapshot.tail
+        if createsRow { timelineIdle = false }
+        if !completedFirstTranscript {
+            completedFirstTranscript = true
+            preferences.set(true, forKey: "firstTranscript.v1")
         }
     }
 

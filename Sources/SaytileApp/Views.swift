@@ -38,7 +38,15 @@ struct InputPanelView: View {
                 }
             }, focusPosition: model.timelineFocus, editing: model.archiveIsKey && model.selected != nil,
             latestRequest: latestRequest, fillContextMenu: fillContextMenu,
-            target: model.directMode ? model.targetLabel : nil, notice: model.panelCaptureDetail ?? model.notice,
+            applyEdits: { edits in
+                do {
+                    try model.editPanelRows(edits.map { PanelRowEdit(id: $0.id, before: $0.before, after: $0.after) })
+                    return document
+                } catch {
+                    model.notice = error.localizedDescription
+                    throw error
+                }
+            }, target: model.directMode ? model.targetLabel : nil, notice: model.panelCaptureDetail ?? model.notice,
             placeholder: placeholder, placeholderDetail: model.completedFirstTranscript ? nil : firstUseDetail,
             menu: { panelActions })
     }

@@ -8,6 +8,7 @@ public actor SaytileStore {
     public nonisolated let recovery: StoreRecovery
     public nonisolated let initialTimelineIdleSeconds: Int
     let db: StoreDatabase
+    let panelEditor = PanelEditConnection()
     private let processLock: StoreProcessLock
     private var leases: [UUID: UUID] = [:]
     private static let selection = "SELECT r.*,v.text FROM recordings r LEFT JOIN revisions v ON r.preferred_revision=v.id"
@@ -55,6 +56,7 @@ public actor SaytileStore {
 
     /// Call only after producers and pending draft writes have stopped.
     public func close() throws {
+        try panelEditor.close()
         try db.close()
         leases.removeAll()
         processLock.close()

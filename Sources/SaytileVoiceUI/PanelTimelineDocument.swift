@@ -102,3 +102,73 @@ extension PanelTimelineDocument where Entry: GroupedVoiceTranscriptEntry {
         text = content as String
     }
 }
+
+/// Changes to editable transcript rows, expressed against the text the person saw.
+/// A nil baseline identifies a new, text-only row. Hosts commit the batch atomically.
+public struct VoicePanelEdit: Equatable, Sendable {
+    public let id: UUID
+    public let before: String?
+    public let after: String
+
+    public init(id: UUID, before: String?, after: String) {
+        self.id = id
+        self.before = before
+        self.after = after
+    }
+}
+
+extension PanelTimelineDocument {
+    struct Edit {
+        let rows: [VoicePanelEdit]
+        let anchor: UUID
+        let offset: Int
+    }
+
+    /// Time labels and inter-row separators are presentation. Removing a separator
+    /// joins its neighbours while retaining both recording identities and audio.
+    func edit(in range: NSRange, replacement: String, newRow: Bool) -> Edit? {
+        let length = text.utf16.count
+        guard range.location <= length, range.length <= length - range.location else { return nil }
+        if spans.isEmpty || (newRow && range.location == length && range.length == 0) {
+            guard !replacement.isEmpty else { return nil }
+            let id = UUID()
+            return Edit(rows: [.init(id: id, before: nil, after: replacement)],
+                        anchor: id, offset: replacement.utf16.count)
+        }
+        // At a separator the left endpoint belongs to the preceding row;
+        // the right endpoint belongs to the next row if the separator was removed.
+        let firstIndex = spans.lastIndex { $0.range.location <= range.location } ?? 0
+        let first = spans[firstIndex]
+        let end = NSMaxRange(range)
+        let lastIndex = range.length == 0 ? firstIndex :
+            (spans.lastIndex { $0.range.location <= end } ?? firstIndex)
+        let last = spans[lastIndex]
+        let firstText = first.entry.displayText as NSString, lastText = last.entry.displayText as NSString
+        let prefixLength = max(0, min(firstText.length, range.location - first.range.location))
+        let suffixStart = max(0, min(lastText.length, end - last.range.location))
+        let prefix = firstText.substring(to: prefixLength)
+        let suffix = lastText.substring(from: suffixStart)
+        let fragments = replacement.components(separatedBy: "\n")
+        let rowCount = lastIndex - firstIndex + 1
+        var values = Array(repeating: "", count: rowCount)
+        // Keep the untouched tail in its original recording whenever the edit
+        // leaves a line break between the two fragments.
+        let canSplit = fragments.count > 1 && !fragments.contains("") &&
+            !prefix.hasSuffix("\n") && !suffix.hasPrefix("\n")
+        let tailRow = canSplit ? rowCount - 1 : 0
+        if tailRow == 0 {
+            values[0] = prefix + replacement + suffix
+        } else {
+            values[0] = prefix + fragments[0]
+            let middle = min(rowCount - 2, fragments.count - 2)
+            for index in 0..<middle { values[index + 1] = fragments[index + 1] }
+            values[tailRow] = fragments.dropFirst(middle + 1).joined(separator: "\n") + suffix
+        }
+        let rows = zip(spans[firstIndex...lastIndex], values).compactMap { span, value in
+            span.entry.displayText.utf16.elementsEqual(value.utf16) ? nil :
+                VoicePanelEdit(id: span.entry.id, before: span.entry.displayText, after: value)
+        }
+        return Edit(rows: rows, anchor: spans[firstIndex + tailRow].entry.id,
+                    offset: values[tailRow].utf16.count - suffix.utf16.count)
+    }
+}

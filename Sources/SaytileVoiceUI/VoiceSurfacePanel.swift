@@ -33,6 +33,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
     let editing: Bool
     let latestRequest: Int
     let fillContextMenu: (@MainActor (NSMenu) -> Void)?
+    let applyEdits: (@MainActor ([VoicePanelEdit]) throws -> PanelTimelineDocument<Entry>)?
     let onEdit: (@MainActor () -> Void)?
     let target: String?
     let notice: String?
@@ -54,6 +55,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
                 onPage: @escaping (Bool) -> Void = { _ in }, onSelectionChange: @escaping (String) -> Void = { _ in },
                 onFollowChange: @escaping (Bool) -> Void = { _ in }, focusPosition: Int64? = nil, editing: Bool = false,
                 latestRequest: Int = 0, fillContextMenu: (@MainActor (NSMenu) -> Void)? = nil, onEdit: (@MainActor () -> Void)? = nil,
+                applyEdits: (@MainActor ([VoicePanelEdit]) throws -> PanelTimelineDocument<Entry>)? = nil,
                 target: String? = nil, notice: String? = nil, placeholder: String? = nil, placeholderDetail: String? = nil,
                 captureDisabled: Bool = false, @ViewBuilder menu: @escaping () -> MenuItems) {
         self.document = document
@@ -70,6 +72,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
         self.editing = editing
         self.latestRequest = latestRequest
         self.fillContextMenu = fillContextMenu
+        self.applyEdits = applyEdits
         self.onEdit = onEdit
         self.target = target
         self.notice = notice
@@ -105,7 +108,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
             }
             CompactTranscriptView(document: document, access: access, onPage: onPage, focusPosition: focusPosition,
                 editing: editing, latestRequest: latestRequest, onFollowChange: onFollowChange,
-                onSelectionChange: onSelectionChange, fillContextMenu: fillContextMenu, onEdit: onEdit,
+                onSelectionChange: onSelectionChange, fillContextMenu: fillContextMenu, applyEdits: applyEdits, onEdit: onEdit,
                 showsLiveCaret: capture.state == .recognizing, typeScale: metrics.typeScale)
                 .overlay(alignment: .topLeading) {
                     if let placeholder {
