@@ -50,6 +50,41 @@ struct AppModelProbe {
             try require(reopened.completedFirstTranscript && !reopened.isListening, "relaunch retains completion without starting capture")
             await reopened.prepareForExit()
         }
+        do {
+            let suite = "app.saytile.scroll-pages." + UUID().uuidString
+            let prefs = UserDefaults(suiteName: suite)!
+            defer { prefs.removePersistentDomain(forName: suite) }
+            let reader = try AppModel(directory: directory.appendingPathComponent("reading"), preferences: prefs)
+            // Recordings without a transcript remain available in the archive. They
+            // cannot serve as character anchors when the board's backing page advances.
+            for i in 1...160 {
+                let row = try await reader.store.createRecording()
+                if i <= 64 || i > 144 {
+                    try await reader.store.saveEdit(recordingID: row.id, text: "可阅读的文字" + String(i))
+                }
+                try await reader.store.finishRecording(id: row.id)
+            }
+            await reader.refreshRecognition()
+            let latest = reader.panelTimelinePage.entries
+            reader.pinTimeline()
+            reader.moveTimeline(older: true)
+            await reader.refreshRecognition()
+            let older = reader.panelTimelinePage.entries
+            let latestIDs = Set(latest.filter { !$0.recording.text.isEmpty }.map(\.id))
+            let olderIDs = Set(older.filter { !$0.recording.text.isEmpty }.map(\.id))
+            try require(!olderIDs.isEmpty && !olderIDs.isDisjoint(with: latestIDs) && older.first?.position == 1,
+                        "manual paging keeps visible overlap across eighty consecutive untranscribed recordings")
+            let future = try await reader.store.createRecording()
+            try await reader.store.saveEdit(recordingID: future.id, text: "正在说的下一句")
+            await reader.refreshRecognition()
+            try require(reader.panelTimelinePage.entries.map(\.id) == older.map(\.id) && reader.timelineTail?.id == future.id,
+                        "new speech advances the live tail without taking over the pinned history page")
+            reader.followTimeline()
+            await reader.refreshRecognition()
+            try require(reader.panelTimelinePage.entries.last?.id == future.id,
+                        "returning to latest after manual paging reveals the actual newest live row")
+            await reader.prepareForExit()
+        }
         let seed = try SaytileStore(directory: directory)
         let old = try await seed.createRecording(createdAt: .distantPast)
         try await seed.saveEdit(recordingID: old.id, text: "历史测试甲")

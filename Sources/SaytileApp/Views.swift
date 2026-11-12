@@ -74,7 +74,7 @@ struct InputPanelView: View {
     }
 
     private var placeholder: String? {
-        guard model.timeline.entries.isEmpty || !model.completedFirstTranscript && model.timeline.entries.allSatisfy({ $0.recording.text.isEmpty }) else { return nil }
+        guard model.timeline.entries.isEmpty else { return nil }
         return !model.completedFirstTranscript ? firstUseTitle : (model.isListening ? "开口，文字会出现在这里。" : nil)
     }
 

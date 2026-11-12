@@ -119,34 +119,46 @@ extension SaytileStore {
         try Self.timelinePage(window, from: db)
     }
 
+    /// The scrollable board pages through text. Audio-only recordings remain
+    /// available in the archive and the actual capture tail is returned separately.
+    public func panelTimeline(_ window: TimelineWindow) throws -> (page: TimelinePage, tail: TimelineEntry?) {
+        try Self.panelTimeline(window, from: db)
+    }
+
     /// NSTextView needs the new row spans before it can accept the next key.
     /// Read the exact committed page and tail in the same bounded transaction.
     @MainActor public func editTimeline(_ edits: [PanelRowEdit], window: TimelineWindow) throws -> (page: TimelinePage, tail: TimelineEntry?) {
         try panelEditor.use(at: directory.appendingPathComponent("Saytile.sqlite")) { writer in
             try writer.transaction {
                 try Self.writePanelEdits(edits, to: writer, at: .now)
-                let page = try Self.timelinePage(window, from: writer)
-                let tail = window == .latest ? page.entries.last : try Self.timelinePage(.latest, from: writer).entries.last
-                return (page, tail)
+                return try Self.panelTimeline(window, from: writer)
             }
         }
     }
 
-    private static func timelinePage(_ window: TimelineWindow, from db: StoreDatabase) throws -> TimelinePage {
+    private static func panelTimeline(_ window: TimelineWindow, from db: StoreDatabase) throws -> (page: TimelinePage, tail: TimelineEntry?) {
+        let page = try timelinePage(window, from: db, textOnly: true)
+        let tail = try timelinePage(.latest, from: db, limit: 1).entries.last
+        return (page, tail)
+    }
+
+    private static func timelinePage(_ window: TimelineWindow, from db: StoreDatabase,
+                                     textOnly: Bool = false, limit: Int = TimelinePage.capacity) throws -> TimelinePage {
         let direction: String, predicate: String, values: [StoreDatabase.Value]
         switch window {
         case .latest: direction = "DESC"; predicate = ""; values = []
         case .ending(let key): direction = "DESC"; predicate = " AND t.position<=?"; values = [.int(key)]
         case .starting(let key): direction = "ASC"; predicate = " AND t.position>=?"; values = [.int(key)]
         }
+        let textPredicate = textOnly ? " AND v.text<>''" : ""
         let sql = """
         SELECT r.*,v.text,v.origin AS preferred_origin,t.position,t.group_start,g.started AS group_date,g.day,g.utc_offset,
                COALESCE(t.ended,t.started+r.total_frames/r.sample_rate) AS speech_end
         FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id
         JOIN transcript_timeline g ON g.position=t.group_start LEFT JOIN revisions v ON v.id=r.preferred_revision
-        WHERE r.deleted=0
+        WHERE r.deleted=0\(textPredicate)
         """
-        let rows = try db.rows(sql + predicate + " ORDER BY t.position " + direction + " LIMIT ?", values + [.int(Int64(TimelinePage.capacity))])
+        let rows = try db.rows(sql + predicate + " ORDER BY t.position " + direction + " LIMIT ?", values + [.int(Int64(limit))])
         var page = TimelinePage()
         for row in rows {
             guard let position = row["position"].flatMap(Int64.init), let group = row["group_start"].flatMap(Int64.init),
@@ -159,7 +171,10 @@ extension SaytileStore {
                 preferredOrigin: row["preferred_origin"].flatMap(RevisionOrigin.init(rawValue:))))
         }
         if direction == "DESC" { page.entries.reverse() }
-        let neighbors = "SELECT 1 FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id WHERE r.deleted=0 AND t.position"
+        if limit == 1 { return page } // Tail lookup doesn't need navigation flags.
+        let versionJoin = textOnly ? " JOIN revisions v ON v.id=r.preferred_revision" : ""
+        let neighbors = "SELECT 1 FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id" +
+            versionJoin + " WHERE r.deleted=0" + textPredicate + " AND t.position"
         if let first = page.entries.first, let last = page.entries.last {
             page.hasOlder = try !db.rows(neighbors + "<? ORDER BY t.position DESC LIMIT 1", [.int(first.position)]).isEmpty
             page.hasNewer = try !db.rows(neighbors + ">? ORDER BY t.position LIMIT 1", [.int(last.position)]).isEmpty

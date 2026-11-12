@@ -679,10 +679,12 @@ final class AppModel: ObservableObject {
     private var observedPosition: Int64?
     private var silenceStarted = ContinuousClock.now
     private func refreshTimeline(_ window: TimelineWindow) async throws {
+        // A delayed navigation task for a superseded window cannot invalidate a
+        // newer read (including a refresh scheduled by the recognition stream).
+        guard window == timelineWindow else { return }
         timelineRead &+= 1
         let request = timelineRead
-        let page = try await store.timelinePage(window)
-        let tail = window == .latest ? page.entries.last : try await store.timelinePage().entries.last
+        let (page, tail) = try await store.panelTimeline(window)
         guard window == timelineWindow, request == timelineRead else { return }
         if timeline != page { timeline = page }
         if !completedFirstTranscript, page.entries.contains(where: { !$0.recording.text.isEmpty }) || tail?.recording.text.isEmpty == false {
