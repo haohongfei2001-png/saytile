@@ -45,8 +45,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var positioningPanel = false
     private var movingPanel = false
     private var placementDefaults: UserDefaults?
-    // Manual choices survive the geometry upgrade. Save new choices under v3 for rollback compatibility.
-    private let placementKey = "panel.userPlacement.v3"
+    // v4 stores the visible rail. Preserve shadow-expanded v2/v3 records for rollback.
+    private let placementKey = "panel.userPlacement.v4"
     private func displayKey(_ screen: NSScreen) -> String {
         guard let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
               let uuid = CGDisplayCreateUUIDFromDisplayID(number.uint32Value)?.takeRetainedValue() else { return "" }
@@ -54,10 +54,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     private func savedPanelFrame() -> NSRect? {
         let screens = NSScreen.screens.map { (displayKey($0), $0.visibleFrame) }
-        for key in [placementKey, "panel.userPlacement.v2"] {
+        for key in [placementKey, "panel.userPlacement.v3", "panel.userPlacement.v2"] {
             if let data = placementDefaults?.data(forKey: key),
                let saved = try? JSONDecoder().decode(SavedPanelPlacement.self, from: data),
-               let frame = saved.restored(on: screens) { return frame }
+               let placement = key == placementKey ? saved : saved.removingLegacyShadowMargin(),
+               let frame = placement.restored(on: screens) { return frame }
         }
         return nil
     }

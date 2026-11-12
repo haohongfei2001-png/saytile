@@ -86,23 +86,25 @@ import ApplicationServices
             switch handle {
             case .footer:
                 // Blank space between the two existing controls.
-                let scale = min(1, max(0.4, (frame.width-64)/240))
-                let copyRight=frame.minX+32+(20.5+42)*scale
-                let voiceLeft=frame.maxX-32-(14+92.5)*scale
+                let railScale = min(1.5, frame.width/325)
+                let side = 15 * railScale, bottom = min(8 * railScale, frame.height/8)
+                let scale = min(1, max(0.4, (frame.width - 2 * side)/240))
+                let copyRight=frame.minX+side+(20.5+42)*scale
+                let voiceLeft=frame.maxX-side-(14+92.5)*scale
                 guard voiceLeft>copyRight else {throw Problem("No gap between footer controls")}
-                from=CGPoint(x:(copyRight+voiceLeft)/2,y:frame.maxY-32-34*scale)
+                from=CGPoint(x:(copyRight+voiceLeft)/2,y:frame.maxY-bottom-34*scale)
                 expected=frame.offsetBy(dx:dx,dy:dy)
             case .top:
-                from=CGPoint(x:frame.midX,y:frame.minY+40)
+                from=CGPoint(x:frame.midX,y:frame.minY+9)
                 expected=frame.offsetBy(dx:dx,dy:dy)
             case .left:
-                from=CGPoint(x:frame.minX+34,y:frame.midY)
+                from=CGPoint(x:frame.minX+2,y:frame.midY)
                 expected=CGRect(x:frame.minX+dx,y:frame.minY,width:frame.width-dx,height:frame.height)
             case .bottomRight:
-                from=CGPoint(x:frame.maxX-41,y:frame.maxY-41)
+                from=CGPoint(x:frame.maxX-6,y:frame.maxY-6)
                 expected=CGRect(origin:frame.origin,size:CGSize(width:frame.width+dx,height:frame.height+dy))
             case .bottom:
-                from=CGPoint(x:frame.midX,y:frame.maxY-34)
+                from=CGPoint(x:frame.midX,y:frame.maxY-2)
                 expected=CGRect(x:frame.minX,y:frame.minY,width:frame.width,height:frame.height+dy)
             }
             let actual=try await gesture(app,frame:frame,from:from,to:CGPoint(x:from.x+dx,y:from.y+dy))
@@ -146,9 +148,9 @@ import ApplicationServices
                    width:screen.visibleFrame.width, height:screen.visibleFrame.height)
         }
         guard let screen = displays.first else { throw Problem("No primary display") }
-        let glass = initial.1.insetBy(dx:32,dy:32)
+        let glass = initial.1
         let glassWidth = glass.width
-        // WindowServer bounds are rounded to logical points. The shadow ring can extend offscreen.
+        // The complete WindowServer rectangle includes the rail and its inset card.
         guard abs(glassWidth - screen.width * 0.125) <= 1,
               abs(glass.height - screen.height * 0.225) <= 1,
               abs(glass.minY - screen.minY) <= 1, abs(screen.maxX - glass.maxX) <= 1 else {

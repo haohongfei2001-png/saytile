@@ -145,3 +145,67 @@ struct VoicePanelShadow: View {
             .padding(-ReferencePanelStyle.shadowInset)
     }
 }
+
+/// Insets of the first card in the supplied 1672 × 941 desktop composition.
+/// Both hosts measure the outer rail first and place the card inside it.
+public struct VoiceRailMetrics {
+    public let sideInset: CGFloat
+    public let topInset: CGFloat
+    public let bottomInset: CGFloat
+    public let radius: CGFloat
+
+    public init(width: CGFloat) {
+        let scale = min(1.5, max(0, width) / 325)
+        sideInset = 15 * scale
+        topInset = 25 * scale
+        bottomInset = 8 * scale
+        radius = 28 * scale
+    }
+
+    /// AppKit coordinates, with the origin at the lower left.
+    public func cardFrame(in slot: CGRect) -> CGRect {
+        let side = min(sideInset, slot.width / 4)
+        let top = min(topInset, slot.height / 4)
+        let bottom = min(bottomInset, slot.height / 8)
+        return CGRect(x: slot.minX + side, y: slot.minY + bottom,
+                      width: slot.width - 2 * side, height: slot.height - top - bottom)
+    }
+}
+
+/// The same translucent outside edge extends down Nearpane's sidebar and
+/// encloses just the first slot in Saytile.
+public struct VoiceRailGlass: View {
+    public let width: CGFloat
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    public init(width: CGFloat) { self.width = width }
+
+    public var body: some View {
+        let shape = RoundedRectangle(cornerRadius: VoiceRailMetrics(width: width).radius, style: .continuous)
+        ZStack {
+            ReferenceGlassBackdrop().opacity(reduceTransparency ? 1 : 0.12)
+            shape.fill(.white.opacity(reduceTransparency ? 0.94 : 0.20))
+            shape.fill(LinearGradient(colors: [.white.opacity(0.14), .white.opacity(0.025)],
+                                      startPoint: .topLeading, endPoint: .bottomTrailing))
+            shape.strokeBorder(.white.opacity(0.43), lineWidth: 0.75)
+        }
+        .clipShape(shape)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+/// The slot consumes its host allocation, including the rail's margins.
+public struct FramedVoiceSlot<Content: View>: View {
+    private let content: Content
+    public init(@ViewBuilder content: () -> Content) { self.content = content() }
+
+    public var body: some View {
+        GeometryReader { geometry in
+            let slot = CGRect(origin: .zero, size: geometry.size)
+            let card = VoiceRailMetrics(width: slot.width).cardFrame(in: slot)
+            content
+                .frame(width: card.width, height: card.height)
+                .position(x: card.midX, y: slot.height - card.midY)
+        }
+    }
+}

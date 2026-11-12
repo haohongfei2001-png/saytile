@@ -1,15 +1,27 @@
 import Foundation
 import Testing
 @testable import SaytileKit
+import SaytileVoiceUI
 
 @Suite("Display geometry")
 struct WindowPlacementTests {
-    @Test func referenceCardGeometryExcludesTransparentShadowMargin() {
-        let size = WindowPlacement.panelDefaultSize
-        let inset = WindowPlacement.panelShadowInset
-        #expect(size.width - 2 * inset == 344)
-        #expect(size.height - 2 * inset == 234)
-        #expect(WindowPlacement.panelContentDefaultSize == CGSize(width: 344, height: 234))
+    @Test func referenceInnerCardIsInsetInsideTheFullWidthRail() {
+        let slot = CGRect(x: 1347, y: 0, width: 325, height: 175)
+        let metrics = VoiceRailMetrics(width: slot.width)
+        #expect(metrics.cardFrame(in: slot) == CGRect(x: 1362, y: 8, width: 295, height: 142))
+        let tiny = CGRect(x: 10, y: 20, width: 240, height: 2)
+        #expect(tiny.contains(VoiceRailMetrics(width: tiny.width).cardFrame(in: tiny)))
+    }
+
+    @Test func legacyExpandedPlacementMigratesOnceToTheVisibleRail() throws {
+        let screen = CGRect(x: -1200, y: 30, width: 1200, height: 800)
+        let chosen = CGRect(x: -1000, y: 200, width: 305, height: 227)
+        let old = try #require(SavedPanelPlacement(frame: chosen.insetBy(dx: -32, dy: -32),
+                                                  visibleFrame: screen, displayID: "external"))
+        let migrated = try #require(old.removingLegacyShadowMargin())
+        #expect(migrated.frame == chosen)
+        #expect(migrated.restored(on: [("external", screen)]) == chosen)
+        #expect(old.frame.size == CGSize(width: 369, height: 291))
     }
 
     @Test func newPanelMatchesNearpaneVoiceRectAcrossDisplays() {
@@ -18,31 +30,30 @@ struct WindowPlacementTests {
                         CGRect(x: -1920, y: 180, width: 1920, height: 1040),
                         CGRect(x: 0, y: -2000, width: 3024, height: 1920)] {
             let frame = WindowPlacement.initialPanel(visibleFrame: display)
-            let glass = WindowPlacement.panelGlassFrame(frame)
-            #expect(glass.maxX == display.maxX)
-            #expect(glass.maxY == display.maxY)
-            #expect(glass.width == display.width * 0.125)
-            #expect(glass.height == display.height * 0.225)
-            #expect(display.contains(glass))
-            #expect(frame.maxX - display.maxX == WindowPlacement.panelShadowInset)
-            #expect(frame.maxY - display.maxY == WindowPlacement.panelShadowInset)
+            let card = VoiceRailMetrics(width: frame.width).cardFrame(in: frame)
+            #expect(frame.maxX == display.maxX)
+            #expect(frame.maxY == display.maxY)
+            #expect(frame.width == display.width * 0.125)
+            #expect(frame.height == display.height * 0.225)
+            #expect(display.contains(frame))
+            #expect(frame.contains(card) && card.width < frame.width && card.height < frame.height)
         }
     }
 
     @Test func portraitDisplayUsesTheSameFactoryWidthAsTheSidebar() {
         let display = CGRect(x: -800, y: -400, width: 800, height: 1280)
         let frame = WindowPlacement.initialPanel(visibleFrame: display)
-        #expect(WindowPlacement.panelGlassFrame(frame).width == 100)
-        #expect(display.contains(WindowPlacement.panelGlassFrame(frame)))
+        #expect(frame.width == 100)
+        #expect(display.contains(frame))
     }
 
     @Test func panelCanShrinkOrGrowAcrossAvailableScreen() {
         let display = CGRect(x: 0, y: 25, width: 1920, height: 850)
         let limits = WindowPlacement.panelLimits(visibleFrame: display)
         let initial = WindowPlacement.initialPanel(visibleFrame: display)
-        #expect(limits.minimum == CGSize(width: 242, height: 214))
+        #expect(limits.minimum == CGSize(width: 178, height: 150))
         #expect(limits.minimum.width < initial.width)
-        #expect(limits.maximum == CGSize(width: display.width + 64, height: display.height + 64))
+        #expect(limits.maximum == display.size)
         #expect(WindowPlacement.panelSize(CGSize(width: 1, height: 1), visibleFrame: display) == limits.minimum)
         #expect(WindowPlacement.panelSize(CGSize(width: 3200, height: 2000), visibleFrame: display) == limits.maximum)
         let enlarged = CGSize(width: 920, height: 740)
@@ -55,19 +66,19 @@ struct WindowPlacementTests {
         let enlarged = CGRect(x: -1720, y: 140, width: 1510, height: 790)
         let saved = try #require(SavedPanelPlacement(frame: enlarged, visibleFrame: desk, displayID: "external"))
         let fallback = try #require(saved.restored(on: [("portrait", portrait)]))
-        #expect(portrait.contains(WindowPlacement.panelGlassFrame(fallback)))
-        #expect(fallback.width == portrait.width + 64 && fallback.height == enlarged.height)
+        #expect(portrait.contains(fallback))
+        #expect(fallback.width == portrait.width && fallback.height == enlarged.height)
         #expect(saved.restored(on: [("portrait", portrait), ("external", desk)]) == enlarged)
     }
 
     @Test func constrainedVisibleFrameTakesPrecedenceOverNormalMinimum() {
         let screen = CGRect(x: -300, y: -180, width: 220, height: 180)
         let limits = WindowPlacement.panelLimits(visibleFrame: screen)
-        #expect(limits.minimum == CGSize(width: 91.5, height: 104.5))
-        #expect(limits.maximum == CGSize(width: 284, height: 244))
+        #expect(limits.minimum == CGSize(width: 27.5, height: 40.5))
+        #expect(limits.maximum == screen.size)
         let frame = WindowPlacement.initialPanel(visibleFrame: screen)
-        #expect(screen.contains(WindowPlacement.panelGlassFrame(frame)))
-        #expect(screen.contains(WindowPlacement.panelGlassFrame(WindowPlacement.restoredPanel(CGRect(x: 900, y: 900, width: 600, height: 900), visibleFrames: [screen]))))
+        #expect(screen.contains(frame))
+        #expect(screen.contains(WindowPlacement.restoredPanel(CGRect(x: 900, y: 900, width: 600, height: 900), visibleFrames: [screen])))
     }
 
     @Test func savedDockedGlassRemainsEdgeAlignedAfterDisplayRescale() throws {
@@ -76,11 +87,10 @@ struct WindowPlacementTests {
         let frame = WindowPlacement.initialPanel(visibleFrame: old)
         let saved = try #require(SavedPanelPlacement(frame: frame, visibleFrame: old, displayID: "primary"))
         let result = try #require(saved.restored(on: [("primary", fresh)]))
-        let glass = WindowPlacement.panelGlassFrame(result)
-        #expect(glass.maxX == fresh.maxX)
-        #expect(glass.maxY == fresh.maxY)
-        #expect(glass.size == WindowPlacement.panelGlassFrame(frame).size)
-        #expect(fresh.contains(glass))
+        #expect(result.maxX == fresh.maxX)
+        #expect(result.maxY == fresh.maxY)
+        #expect(result.size == frame.size)
+        #expect(fresh.contains(result))
     }
 
     @Test func reopeningKeepsUserPositionAndResizeWithinBounds() {
@@ -95,7 +105,7 @@ struct WindowPlacementTests {
         let right = CGRect(x: 0, y: 0, width: 1440, height: 900)
         let disconnected = CGRect(x: 3000, y: 200, width: 414, height: 474)
         let restored = WindowPlacement.restoredPanel(disconnected, visibleFrames: [left, right])
-        #expect(right.contains(WindowPlacement.panelGlassFrame(restored)))
+        #expect(right.contains(restored))
         #expect(restored.size == disconnected.size)
         #expect(restored == WindowPlacement.restoredPanel(disconnected, visibleFrames: [right, left]))
     }
@@ -104,16 +114,15 @@ struct WindowPlacementTests {
         let screen = CGRect(x: 0, y: 40, width: 1280, height: 700)
         let restored = WindowPlacement.restoredPanel(CGRect(x: 1000, y: -300, width: 464, height: 614), visibleFrames: [screen])
         #expect(restored.size == CGSize(width: 464, height: 614))
-        #expect(screen.contains(WindowPlacement.panelGlassFrame(restored)))
+        #expect(screen.contains(restored))
     }
 
     @Test func tinyPositiveVisibleAreaNeverProducesNegativeWindowSize() {
         let screen = CGRect(x: -5, y: 8, width: 10, height: 8)
         let frame = WindowPlacement.initialPanel(visibleFrame: screen)
-        let glass = WindowPlacement.panelGlassFrame(frame)
-        #expect(glass.width == 10 && abs(glass.height - 1.8) < 0.000_001)
-        #expect(glass.maxX == screen.maxX && glass.maxY == screen.maxY)
-        #expect(screen.contains(glass))
+        #expect(frame.width == 10 && abs(frame.height - 1.8) < 0.000_001)
+        #expect(frame.maxX == screen.maxX && frame.maxY == screen.maxY)
+        #expect(screen.contains(frame))
     }
 
     @Test func disconnectedDisplayRestoresToRemainingScreen() {
@@ -141,8 +150,8 @@ struct WindowPlacementTests {
     let persisted = try JSONDecoder().decode(SavedPanelPlacement.self, from: JSONEncoder().encode(saved))
     #expect(persisted.restored(on: [("built-in", b), ("desk", a)]) == frame)
     let fallback = try #require(persisted.restored(on: [("built-in", b)]))
-    #expect(b.contains(WindowPlacement.panelGlassFrame(fallback)))
-    #expect(WindowPlacement.panelGlassFrame(fallback).minX == b.minX)
+    #expect(b.contains(fallback))
+    #expect(fallback.minX == b.minX)
     #expect(fallback.size == frame.size)
     let scaled = CGRect(x: -1100, y: 10, width: 1100, height: 700)
     let changed = try #require(persisted.restored(on: [("desk", scaled)]))

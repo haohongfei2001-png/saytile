@@ -659,8 +659,8 @@ extension AppDelegate {
                                           ("standby", CaptureState.listening, Float(0)),
                                           ("recognizing", CaptureState.speaking, Float(1))] {
                 capture.state = state; capture.level = level; model.objectWillChange.send()
-                try await reviewValidatedWindow(InputPanelWindowView(model: model),
-                    size: WindowPlacement.panelDefaultSize, name: "reference-" + name, output: output,
+                try await reviewValidatedWindow(InputPanelView(model: model).padding(ReferencePanelStyle.shadowInset),
+                    size: CGSize(width: 408, height: 298), name: "reference-" + name, output: output,
                     validation: { host in
                         let scroll = try self.compactTranscript(in: host)
                         guard scroll.transcriptView.string.utf16.elementsEqual(text.utf16),

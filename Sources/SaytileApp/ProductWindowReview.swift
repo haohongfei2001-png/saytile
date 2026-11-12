@@ -2,6 +2,7 @@ import AppKit
 import SwiftUI
 import AVFAudio
 import SaytileKit
+import SaytileVoiceUI
 
 /// Available only through the existing explicit empty --ui-review data directory.
 /// A separate read-only helper captures only these two windows from WindowServer.
@@ -88,7 +89,7 @@ extension AppDelegate {
             var info: [String:Any] = ["scene":name,"pid":getpid(),"window":window.windowNumber,"backdrop":backdrop.windowNumber,
                 "points":[window.frame.width,window.frame.height],"scale":screen.backingScaleFactor]
             if sharedComparison && panel {
-                let glass = WindowPlacement.panelGlassFrame(window.frame)
+                let glass = VoiceRailMetrics(width: window.frame.width).cardFrame(in: window.frame)
                 info["glass"] = [glass.minX, glass.minY, glass.width, glass.height]
                 info["visible"] = [area.minX, area.minY, area.width, area.height]
             }
@@ -106,7 +107,7 @@ extension AppDelegate {
         model.selectSource("local") // explicit diagnostics carry an inert legacy configuration; use the actual fresh-install source.
         let sz = NSSize(width:780,height:610), panelSize = sharedComparison ? docked.size : WindowPlacement.panelDefaultSize
         try await frame(InputPanelWindowView(model:model),"first-use",panelSize,panel:true)
-        let text = sharedComparison ? "把今天的讨论记下来。\n下午三点继续。" : "我想让 Saytile 成为一个始终待命\n的语音输入工作台，它应该让文字\n自然出现，而不是让按钮打断表达。\n说完这一句，它会安静地等我\n继续开口。"
+        let text = sharedComparison ? "把设计系统的更新内容整理成一份简要的汇报，重点包括组件优化和交互调整。" : "我想让 Saytile 成为一个始终待命\n的语音输入工作台，它应该让文字\n自然出现，而不是让按钮打断表达。\n说完这一句，它会安静地等我\n继续开口。"
         let capture = UIPanelCaptureFixture()
         // Same AppModel and native panel as normal; only microphone/permission states are injected.
         let suite = "app.saytile.test.design."+UUID().uuidString
