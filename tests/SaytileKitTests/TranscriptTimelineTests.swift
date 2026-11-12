@@ -28,6 +28,7 @@ import Testing
         #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, displayed: [p[0].position:"原话"]) == "原话接续")
         #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, displayed: [p[1].position:""]) == "保留修改")
         #expect(try store.timelineCopy(group: p[2].group, through: p[2].position, displayed: [:]) == "新组")
+        #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, after: p[0].position, displayed: [:]) == "接续")
         try await store.setTimelineIdleSeconds(600)
         _ = try await add(490, 491, "修改阈值")
         let rolled = try await add(488, 489, "时钟拨回")

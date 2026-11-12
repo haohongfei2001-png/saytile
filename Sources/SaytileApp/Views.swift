@@ -3,16 +3,34 @@ import SwiftUI
 import AppKit
 import SaytileKit
 
+/// Audio levels and hover state update the window much more often than its text.
+@MainActor private final class PanelDocumentCache: ObservableObject {
+    private var revision: UInt64?
+    private var focus: Int64?
+    private var cached = PanelTimelineDocument()
+
+    func document(for model: AppModel) -> PanelTimelineDocument {
+        if revision != model.timelineRenderRevision || focus != model.timelineFocus {
+            let page = model.panelTimelinePage
+            cached = PanelTimelineDocument(entries: page.entries, older: page.hasOlder, newer: page.hasNewer)
+            revision = model.timelineRenderRevision
+            focus = model.timelineFocus
+        }
+        return cached
+    }
+}
+
 struct InputPanelView: View {
     @ObservedObject var model: AppModel
     @ViewState private var followsLatest = true
     @StateObject private var access = PanelTranscriptAccess()
+    @StateObject private var transcriptCache = PanelDocumentCache()
     @ViewState private var selectedText = ""
     @ViewState private var latestRequest = 0
     private var document: PanelTimelineDocument {
-        PanelTimelineDocument(page: model.timeline, tail: model.timelineTail, idle: model.timelineIdle, reading: !followsLatest)
+        transcriptCache.document(for: model)
     }
-    private var canCopy: Bool { model.timelineTail != nil || !selectedText.isEmpty }
+    private var canCopy: Bool { model.canCopyLatestGroup || !selectedText.isEmpty }
     private var editTarget: DisplayRecording? {
         if let view = access.view {
             let selection = view.transcriptView.selectedRange()

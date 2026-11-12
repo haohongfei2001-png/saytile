@@ -157,13 +157,28 @@ final class AppModel: ObservableObject {
     private let captureDependencies: AppCaptureDependencies
     let copyPasteboard: NSPasteboard?
     private var copyFeedback: Task<Void, Never>?
-    @Published private(set) var timeline = TimelinePage()
+    // Sound level updates redraw the control, but do not invalidate transcript text.
+    private(set) var timelineRenderRevision: UInt64 = 0
+    @Published private(set) var timeline = TimelinePage() {
+        didSet { timelineRenderRevision &+= 1 }
+    }
     @Published private(set) var timelineTail: TimelineEntry?
     @Published private(set) var timelineIdle = false
     @Published private(set) var timelineIdleSeconds: Int
     @Published private(set) var timelineFocus: Int64?
     private var timelineWindow = TimelineWindow.latest
-    private var hiddenThrough: Int64 = 0
+    private var hiddenThrough: Int64 = 0 { didSet { timelineRenderRevision &+= 1 } }
+
+    /// Only an explicit Clear starts an empty board. Opening an archived row
+    /// still shows its surrounding history; a pause never changes this boundary.
+    var panelTimelinePage: TimelinePage {
+        guard hiddenThrough > 0, timelineFocus == nil else { return timeline }
+        guard timeline.entries.first.map({ $0.position <= hiddenThrough }) == true else { return timeline }
+        var page = timeline
+        page.entries.removeAll { $0.position <= hiddenThrough }
+        page.hasOlder = false
+        return page
+    }
     @Published var recent: [DisplayRecording] = []
     @Published var records: [DisplayRecording] = []
     @Published var versions: [DisplayVersion] = []
@@ -257,6 +272,7 @@ final class AppModel: ObservableObject {
     private var recognitionSubscription: AnyCancellable?
     private var cleanupIDs: [UUID] = []
     private var refreshOperation: Task<Void, Never>?
+    private var fullRefreshRequested = false
     private var refreshVersion: UInt64 = 0
     private var completedRefreshVersion: UInt64 = 0
     private var refreshOperationID = UUID()
@@ -342,8 +358,8 @@ final class AppModel: ObservableObject {
                 if case .interrupted = self.audio.state, self.input.binding != nil { self.input.invalidate() } }
         }
         recognitionSubscription = NotificationCenter.default.publisher(for: .init("SaytileRecognitionUpdated"))
-            .throttle(for: .milliseconds(120), scheduler: RunLoop.main, latest: true)
-            .sink { [weak self] _ in Task { @MainActor [weak self] in await self?.refresh() } }
+            .throttle(for: .milliseconds(60), scheduler: DispatchQueue.main, latest: true)
+            .sink { [weak self] _ in Task { @MainActor [weak self] in await self?.refreshRecognition() } }
         recoveryTask = Task { [weak self] in
             guard let self else { return }
             do { _ = try await AudioDiagnostics.recoverAudio(store: store); recovered = true; audio.completeStartupRecovery() }
@@ -717,15 +733,17 @@ final class AppModel: ObservableObject {
         }
     }
 
+    var canCopyLatestGroup: Bool { (timelineTail?.position ?? 0) > hiddenThrough }
+
     func copyTimeline(selection: String, displayed: [Int64: String]) {
         if !selection.isEmpty { copy(selection, quietly: true); return }
-        guard let end = timelineTail else { return }
+        guard let end = timelineTail, canCopyLatestGroup else { return }
         // The editor can hold a previous page across a new group. The click targets
         // the live tail while preserving the exact text of any already rendered rows.
         var snapshot = Dictionary(uniqueKeysWithValues: timeline.entries.map { ($0.position, $0.recording.text) })
         snapshot[end.position] = end.recording.text
         snapshot.merge(displayed) { _, rendered in rendered }
-        do { copy(try store.timelineCopy(group: end.group, through: end.position, displayed: snapshot), quietly: true) }
+        do { copy(try store.timelineCopy(group: end.group, through: end.position, after: hiddenThrough, displayed: snapshot), quietly: true) }
         catch { notice = error.localizedDescription }
     }
 
@@ -745,7 +763,7 @@ final class AppModel: ObservableObject {
         }
     }
     var panelScopeLabel: String { panelHasMore ? "已载入 \(recent.count) / \(panelCount) 段" : "输入板 \(recent.count) 段" }
-    func copyRecent() { copy(recent.map(\.text).filter { !$0.isEmpty }.joined(separator: "\n")) }
+    func copyRecent() { copy(SaytileVoiceUI.VoiceTranscriptFlow.join(recent.map(\.text))) }
     func loadEarlierPanel() {
         guard !loadingPanel else { return }
         panelLimit += 100; refreshVersion &+= 1; loadingPanel = true
@@ -820,6 +838,8 @@ final class AppModel: ObservableObject {
     }
     func clearPanel() {
         guard !isInserting else { return }
+        timelineFocus = nil
+        setTimelineWindow(.latest)
         panelSessionStartedAt = Date()
         stagedRecordIDs.removeAll()
         panelLimit = 100; panelCount = 0; panelHasMore = false
@@ -1021,8 +1041,15 @@ final class AppModel: ObservableObject {
     }
     // All callers await the same in-flight refresh, including startup diagnostics.
     // A timer refresh must not make a user action or initial render return empty early.
-    func refresh() async {
+    func refreshRecognition() async {
+        // The board needs the newest text immediately. Archive and direct-input
+        // consumers retain the full pass when active and on the regular timer.
+        await refresh(transcriptOnly: !archiveIsKey && input.binding == nil)
+    }
+
+    func refresh(transcriptOnly: Bool = false) async {
         guard !exitPrepared else { return }
+        if !transcriptOnly { fullRefreshRequested = true }
         refreshVersion &+= 1
         let requestedVersion = refreshVersion
         while !exitPrepared, completedRefreshVersion < requestedVersion {
@@ -1036,9 +1063,16 @@ final class AppModel: ObservableObject {
                 // A waiting caller retains its original version; recursively calling
                 // refresh here would invent another request and serialize the burst.
                 let coveredVersion = refreshVersion
+                let full = fullRefreshRequested
+                fullRefreshRequested = false
                 operation = Task<Void, Never> { [weak self] in
                     guard let self else { return }
-                    await self.performRefresh()
+                    if full {
+                        await self.performRefresh()
+                    } else {
+                        do { try await self.refreshTimeline(self.timelineWindow) }
+                        catch { self.notice = error.localizedDescription }
+                    }
                     self.completedRefreshVersion = max(self.completedRefreshVersion, coveredVersion)
                 }
                 refreshOperation = operation

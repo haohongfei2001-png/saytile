@@ -167,13 +167,13 @@ extension SaytileStore {
 
     /// Snapshot the group selected at the click, including segments outside the
     /// current TextKit page. Reading another group never expands this range.
-    private nonisolated func timelineGroupRows(group: Int64, through last: Int64) throws -> [[String: String]] {
+    private nonisolated func timelineGroupRows(group: Int64, through last: Int64, after cleared: Int64 = 0) throws -> [[String: String]] {
         let reader = try StoreDatabase(url: directory.appendingPathComponent("Saytile.sqlite"), readOnly: true)
         return try reader.rows("""
             SELECT t.position,r.id,r.preferred_revision,v.text FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id
             LEFT JOIN revisions v ON v.id=r.preferred_revision
-            WHERE t.group_start=? AND t.position<=? AND r.deleted=0 ORDER BY t.position
-            """, [.int(group), .int(last)])
+            WHERE t.group_start=? AND t.position<=? AND t.position>? AND r.deleted=0 ORDER BY t.position
+            """, [.int(group), .int(last), .int(cleared)])
     }
 
     public nonisolated func timelineGroupSnapshots(group: Int64, through last: Int64) throws -> [TimelineTextSnapshot] {
@@ -187,8 +187,8 @@ extension SaytileStore {
     }
 
     /// Already rendered text wins over a newer revision not yet drawn.
-    public nonisolated func timelineCopy(group: Int64, through last: Int64, displayed: [Int64:String]) throws -> String {
-        let fragments: [String] = try timelineGroupRows(group: group, through: last).compactMap { row in
+    public nonisolated func timelineCopy(group: Int64, through last: Int64, after cleared: Int64 = 0, displayed: [Int64:String]) throws -> String {
+        let fragments: [String] = try timelineGroupRows(group: group, through: last, after: cleared).compactMap { row in
             let text = row["position"].flatMap(Int64.init).flatMap { displayed[$0] } ?? row["text"] ?? ""
             return text.isEmpty ? nil : text
         }

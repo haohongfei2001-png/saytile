@@ -40,7 +40,9 @@ struct AppModelProbe {
             try require(!guide.completedFirstTranscript, "a cancelled start or empty saved recording is not first recognition")
             let ticket = try await guide.store.beginRecognition(recordingID: segment.id)
             let accepted = try await guide.store.applyRecognition(ticket: ticket, text: "第一句话", isFinal: false)
-            await guide.refresh()
+            await guide.refreshRecognition()
+            try require(guide.panelTimelinePage.entries.last?.recording.text == "第一句话",
+                        "a partial reaches the board before a full archive refresh")
             try require(accepted && guide.completedFirstTranscript && prefs.bool(forKey: "firstTranscript.v1"), "an actual nonempty stored partial completes first use before end of speech")
             try await guide.store.finishRecording(id: segment.id)
             await guide.prepareForExit()
@@ -106,6 +108,7 @@ struct AppModelProbe {
                     "returning to latest drops the archive-specific insertion scope")
         model.clearPanel(); await model.refresh()
         try require(model.recent.isEmpty && model.records.count == 2, "clearing panel preserves archive")
+        try require(!model.canCopyLatestGroup, "clearing the panel removes its implicit copy target")
         try require(!model.hasPanelInsertionScope && (try model.panelInsertionSnapshots()).isEmpty,
                     "an explicitly cleared panel cannot manually dispatch the cleared group")
         let new = try await model.store.createRecording()
