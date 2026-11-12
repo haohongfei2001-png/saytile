@@ -54,6 +54,13 @@ struct VoiceRailGestureProbe {
         }
         var completions = 0
         panel.didChoosePosition = { completions += 1 }
+        func footerGap(in frame: CGRect) -> CGPoint {
+            let card = VoiceRailMetrics(width: frame.width).cardFrame(in: CGRect(origin: .zero, size: frame.size))
+            let controls = VoicePanelMetrics(width: card.width, inRail: true)
+            let copyEnd = card.minX + controls.footerLeading + controls.copyWidth
+            let voiceStart = card.maxX - ReferencePanelStyle.footerTrailing * controls.scale - controls.voiceWidth
+            return CGPoint(x: (copyEnd + voiceStart) / 2, y: card.minY + controls.footerBottom + controls.controlHeight / 2)
+        }
         func drag(_ name: String, from: CGPoint, delta: CGPoint, expect: CGRect) throws {
             let start = panel.convertPoint(toScreen: from)
             let end = CGPoint(x: start.x + delta.x, y: start.y + delta.y)
@@ -79,8 +86,16 @@ struct VoiceRailGestureProbe {
             guard completions == count + 1, matches(panel.frame, expect), !panel.isKeyWindow else { throw Problem(name + " failed; observed " + String(describing: panel.frame)) }
             print("PASS \(name) frame=\(panel.frame)")
         }
+        // The 1024-point CI desktop has a 128 × 69 factory panel. Its upper
+        // text margin is too narrow to assume a draggable strip above the editor.
+        let compact = CGRect(x: available.midX.rounded() - 64, y: available.midY.rounded() - 34, width: 128, height: 69)
+        panel.setFrame(compact, display: true)
+        guard matches(panel.frame, compact) else { throw Problem("Compact fixture did not start at 128 × 69") }
+        let compactEnd = WindowPlacement.restoredPanel(compact.offsetBy(dx: -32, dy: -16), visibleFrames: [available])
+        try drag("128 × 69 footer gap drag", from: footerGap(in: compact), delta: CGPoint(x: -32, y: -16), expect: compactEnd)
+        panel.applyPlacement(initial, on: available)
         let f = panel.frame
-        try drag("outer gutter drag", from: CGPoint(x: f.width / 2, y: f.height - 9), delta: CGPoint(x: -80, y: -60), expect: f.offsetBy(dx: -80, dy: -60))
+        try drag("factory footer gap drag", from: footerGap(in: f), delta: CGPoint(x: -80, y: -60), expect: f.offsetBy(dx: -80, dy: -60))
         let moved = panel.frame
         try drag("left edge resize", from: CGPoint(x: 2, y: moved.height / 2), delta: CGPoint(x: -45, y: 0),
                  expect: CGRect(x: moved.minX - 45, y: moved.minY, width: moved.width + 45, height: moved.height))
@@ -89,7 +104,7 @@ struct VoiceRailGestureProbe {
                  expect: CGRect(x: wide.minX, y: wide.minY - 30, width: wide.width + 22, height: wide.height + 30))
         func dragGutter(to pointer: CGPoint, on target: NSScreen, name: String) throws {
             let before = panel.frame
-            let gutter = CGPoint(x: before.width / 2, y: before.height - 9)
+            let gutter = footerGap(in: before)
             let start = panel.convertPoint(toScreen: gutter)
             // NSWindow snaps its origin to the display grid. Use whole-point
             // travel so exact end-frame comparisons work at both 1x and 2x.
