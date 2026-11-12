@@ -56,13 +56,14 @@ def main():
             'pageResidualWithin1pt': all(e['maxUnexpectedDY'] is not None and e['maxUnexpectedDY'] <= 1 for e in edges),
             'horizontalMedianWithin1pt': all(e['medianAbsDX'] is not None and e['medianAbsDX'] <= 1 for e in edges),
             'lateOffscreenRevisionsHoldReading': all(e['common'] > 0 and e['maxAbsDY'] <= 1 and e['medianAbsDX'] <= 1 for e in case['lateRevisions']),
+            'globalEndpointsHoldWithin1pt': all(e['common'] > 0 and e['maxAbsDY'] <= 1 and e['medianAbsDX'] <= 1 and e['pageRequests'] == 0 for e in case['globalEnds']),
             'neverTookKey': not case['everKey'],
             'precisePhasesAndMomentumObserved': case['input'] != 'precise' or (
                 {1, 4, 8} <= {e['phase'] for e in case['steps']} and {1, 4, 8} <= {e['momentum'] for e in case['steps']}),
         }
         case['checks'] = checks
         passed &= all(checks.values())
-        print(case['input'], up, 'older pages;', down, 'newer pages; maximum unexpected vertical shift',
+        print(case['profile'], case['input'], up, 'older pages;', down, 'newer pages; maximum unexpected vertical shift',
               round(max((e['maxUnexpectedDY'] or 0 for e in edges), default=0), 2), 'pt;', checks)
     result['status'] = 'PASS' if passed else 'FAIL'
     args.output.write_text(json.dumps(result, ensure_ascii=False, separators=(',', ':')) + '\n')

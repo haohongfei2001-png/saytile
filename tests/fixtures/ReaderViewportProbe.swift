@@ -32,15 +32,19 @@ private struct Visible {
     var step = 0
     let kind: String
     let images: URL?
-    init(_ kind: String, images: URL?) throws {
+    let profile: String
+    init(_ kind: String, profile: String = "dense-zh", images: URL?) throws {
         self.kind = kind
         self.images = images
+        self.profile = profile
         // Deliberately short, distinct rows. Offsets and passage identity are
         // stable across overlapping SQLite-style windows, even after a reflow.
         let syllables = Array("听风海云山湖春秋夜雨星光青松红梅白鹭南北东西丘原江河林田")
         rows = (0..<272).map { i in
             let a = String(syllables[i % syllables.count]), b = String(syllables[(i / syllables.count) % syllables.count])
-            return Row(id: UUID(), position: Int64(i + 1), displayText: i.isMultiple(of: 5) ? a : a + b + (i.isMultiple(of: 3) ? "。" : ""))
+            let mixed = ["Saytile", a + b, "9.5", "，", "试🙂", "A/B", a + b + "。", "🌗", "42%", "AA", "👩🏽‍💻", a + "\n" + b]
+            let text = profile == "mixed-authored" ? mixed[i % mixed.count] : (i.isMultiple(of: 5) ? a : a + b + (i.isMultiple(of: 3) ? "。" : ""))
+            return Row(id: UUID(), position: Int64(i + 1), displayText: text)
         }
         start = rows.count - capacity
         oldestStart = start
@@ -172,14 +176,30 @@ private struct Visible {
             try await apply(delta: 0, precise: true, momentum: 3)
         }
     }
+    func globalEdge(older: Bool) async throws -> [String: Any] {
+        start = older ? 0 : rows.count - capacity
+        pending = nil
+        publish()
+        scroll.jumpToLatest()
+        if older { scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView) }
+        try await Task.sleep(for: .milliseconds(40))
+        let original = snapshot(), oldCount = pageChanges.count
+        for _ in 0..<3 { try await apply(delta: older ? 1 : -1, precise: kind == "precise", phase: kind == "precise" ? 2 : 0) }
+        try await Task.sleep(for: .milliseconds(40))
+        var record = Self.delta(original, snapshot()); record["older"] = older
+        record["pageRequests"] = pageChanges.count - oldCount
+        return record
+    }
     func run() async throws -> [String: Any] {
         defer { window.orderOut(nil); window.close() }
         try await Task.sleep(for: .milliseconds(150))
         guard window.isVisible && !window.isKeyWindow && !snapshot().glyphY.isEmpty else { throw ProbeError.window }
-        try await gesture(1, events: 89); try await gesture(-1, events: 79)
+        try await gesture(1, events: profile == "mixed-authored" ? 210 : 89); try await gesture(-1, events: profile == "mixed-authored" ? 195 : 79)
         try await Task.sleep(for: .milliseconds(80))
         try fulfill()
-        return ["input": kind, "oldestStart": oldestStart, "finalStart": start, "initialStart": rows.count-capacity,
+        let gestureFinalStart = start
+        let limits = [try await globalEdge(older: true), try await globalEdge(older: false)]
+        return ["input": kind, "profile": profile, "globalEnds": limits, "oldestStart": oldestStart, "finalStart": gestureFinalStart, "initialStart": rows.count-capacity,
                 "everKey": everKey, "distinctVisibleFirstRows": seenOrigins.count, "pageChanges": pageChanges, "steps": motions, "lateRevisions": revisions]
     }
 }
@@ -191,7 +211,10 @@ private struct Visible {
             NSApplication.shared.finishLaunching()
             var results = [[String: Any]]()
             let images = CommandLine.arguments.count == 4 ? URL(fileURLWithPath: CommandLine.arguments[3]) : nil
-            for type in ["wheel", "precise"] { results.append(try await Probe(type, images: images).run()) }
+            for profile in ["dense-zh", "mixed-authored"] {
+                for type in ["wheel", "precise"] { results.append(try await Probe(type, profile: profile, images: profile == "dense-zh" ? images : nil).run()) }
+                if images != nil { break } // the extra run captures only the Chinese boundary
+            }
             let report: [String: Any] = ["source": CommandLine.arguments[1], "cases": results]
             try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys]).write(to: URL(fileURLWithPath: CommandLine.arguments[2]))
         } catch { print("reader-motion failure: \(error)"); exit(2) }
