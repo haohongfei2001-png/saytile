@@ -15,16 +15,48 @@ import Testing
         let a = Row(id: UUID(), position: 1, displayText: "甲🙂乙")
         let b = Row(id: UUID(), position: 2, displayText: "丙丁")
         let document = PanelTimelineDocument(entries: [a, b])
-        let edit = try #require(document.edit(in: NSRange(location: 1, length: 5), replacement: "𠮷", newRow: false))
-        #expect(edit.rows == [.init(id: a.id, before: "甲🙂乙", after: "甲𠮷丁"), .init(id: b.id, before: "丙丁", after: "")])
+        let edit = try #require(document.edit(in: NSRange(location: 1, length: 4), replacement: "𠮷", newRow: false))
+        #expect(edit.rows == [.init(id: a.id, before: "甲🙂乙", after: "甲𠮷"), .init(id: b.id, before: "丙丁", after: "丁")])
         #expect(edit.offset == 3)
-        let newline = try #require(document.edit(in: NSRange(location: 4, length: 1), replacement: "", newRow: false))
-        #expect(newline.rows.map(\.after) == ["甲🙂乙丙丁", ""])
-        let single = try #require(document.edit(in: NSRange(location: 5, length: 0), replacement: "我", newRow: false))
+        let newline = try #require(document.edit(in: NSRange(location: 4, length: 0), replacement: "\n", newRow: false))
+        #expect(newline.rows == [.init(id: b.id, before: "丙丁", after: "\n丙丁")])
+        let single = try #require(document.edit(in: NSRange(location: 4, length: 0), replacement: "我", newRow: false))
         #expect(single.rows == [.init(id: b.id, before: "丙丁", after: "我丙丁")])
         let empty = PanelTimelineDocument<Row>()
         let note = try #require(empty.edit(in: .init(location: 0, length: 0), replacement: "手打", newRow: false))
         #expect(note.rows.count == 1 && note.rows[0].before == nil && note.rows[0].after == "手打")
+    }
+
+    @Test func nativeUTF16EditIsExactAcrossWordSpacesAndTouchingRecordingRows() throws {
+        // For each valid UTF-16 range the persisted rows must reconstruct the same
+        // text as AppKit, including explicit whitespace adjacent to auto word gaps.
+        for words in [["我", "说", "话"], ["First", "two", "words"], ["嗯。", "Saytile", "识别"],
+                      ["Hello,", "世界", "OK"], ["é", "中文", "cafe\u{301}"], ["🙂", "🎙️", "继续"],
+                      ["abc", " ", "def"], ["甲", "\n第二行", "尾"]] {
+            let entries = words.enumerated().map { Row(id: UUID(), position: Int64($0.offset), displayText: $0.element) }
+            let document = PanelTimelineDocument(entries: entries)
+            let ns = document.text as NSString
+            let stops = document.text.indices.map { $0.utf16Offset(in: document.text) } + [ns.length]
+            for start in stops {
+                for stop in stops where stop >= start {
+                    for insert in ["X", "中", "", "\n", " A\n中"] {
+                        let range = NSRange(location: start, length: stop - start)
+                        let edit = try #require(document.edit(in: range, replacement: insert, newRow: false))
+                        let rows = entries.map { row in
+                            Row(id: row.id, position: row.position,
+                                displayText: edit.rows.first { $0.id == row.id }?.after ?? row.displayText)
+                        }
+                        let updated = PanelTimelineDocument(entries: rows)
+                        let expected = ns.replacingCharacters(in: range, with: insert)
+                        try #require(updated.text.utf16.elementsEqual(expected.utf16),
+                                     "from \(words) range \(range) replacement [\(insert)] yielded [\(updated.text)]")
+                        if let anchor = updated.spans.first(where: { $0.entry.id == edit.anchor }) {
+                            #expect(anchor.range.location + edit.offset == start + insert.utf16.count)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /// Exercise native responder/selection ownership without activating a test
@@ -80,15 +112,15 @@ import Testing
         let undo = editor.panelUndo
         undo.groupsByEvent = false
         undo.beginUndoGrouping()
-        editor.setSelectedRange(NSRange(location: 1, length: 3))
+        editor.setSelectedRange(NSRange(location: 1, length: 2))
         editor.insertText("🙂", replacementRange: editor.selectedRange())
         undo.endUndoGrouping()
-        #expect(rows.map(\.displayText) == ["前🙂半", ""])
+        #expect(rows.map(\.displayText) == ["前🙂", "半"])
         #expect(editor.string == "前🙂半")
         editor.undoPanelEdit(nil)
-        #expect(rows == original && editor.string == "前半\n后半")
+        #expect(rows == original && editor.string == "前半后半")
         editor.redoPanelEdit(nil)
-        #expect(rows.map(\.displayText) == ["前🙂半", ""])
+        #expect(rows.map(\.displayText) == ["前🙂", "半"])
     }
 
     @MainActor @Test func atomicEditConflictRecoveryAndNoAutomaticDelivery() async throws {

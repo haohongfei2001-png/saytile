@@ -188,9 +188,10 @@ extension SaytileStore {
 
     /// Already rendered text wins over a newer revision not yet drawn.
     public nonisolated func timelineCopy(group: Int64, through last: Int64, displayed: [Int64:String]) throws -> String {
-        try timelineGroupRows(group: group, through: last).compactMap { row in
+        let fragments: [String] = try timelineGroupRows(group: group, through: last).compactMap { row in
             let text = row["position"].flatMap(Int64.init).flatMap { displayed[$0] } ?? row["text"] ?? ""
             return text.isEmpty ? nil : text
-        }.joined(separator: "\n")
+        }
+        return VoiceTranscriptFlow.join(fragments)
     }
 }

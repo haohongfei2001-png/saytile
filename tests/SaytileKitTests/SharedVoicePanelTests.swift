@@ -8,27 +8,32 @@ import SaytileVoiceUI
         let position: Int64
         let group: Int64
         let displayText: String
-        let groupDay = "2026-11-12"
+        var groupDay = "2026-11-12"
         let groupStart = Date(timeIntervalSince1970: 3_600 * 6)
         let groupUTCOffset = 3_600 * 8
     }
 
     @Test func twoHostsCanUseTheSameGroupedTextAndFrozenSelectionRanges() {
         let earlier = Entry(position: 31, group: 31, displayText: "第一段。")
-        let active = Entry(position: 32, group: 32, displayText: "现在 🎙️ 继续。")
+        let active = Entry(position: 32, group: 32, displayText: "现在 🎙️ 继续。", groupDay: "2026-11-13")
         let pending = Entry(position: 33, group: 32, displayText: "")
         let entries = [earlier, active, pending]
         let live = PanelTimelineDocument(entries: entries, tailGroup: 32, idle: false, reading: false)
         let reading = PanelTimelineDocument(entries: entries, tailGroup: 32, idle: true, reading: true, older: true)
-        #expect(live.text == "2026-11-12  14:00\n第一段。\n\n现在 🎙️ 继续。")
+        #expect(live.text == "第一段。现在 🎙️ 继续。")
         #expect(live.displayed[pending.position] == "")
         #expect(live.activeStart == live.spans.last?.range.location)
-        #expect(reading.markers.count == 2)
+        #expect(reading.text == live.text && reading.spans == live.spans && reading.markers.isEmpty)
         #expect(reading.idle && reading.older)
         for span in reading.spans {
             #expect((reading.text as NSString).substring(with: span.range) == span.entry.displayText)
         }
         #expect(PanelTimelineDocument(entries: entries, tailGroup: 32, idle: true, reading: true, newer: true).idle == false)
+    }
+
+    @Test func transcriptBoundariesAreLanguageAwareAndPreserveTypedWhitespace() {
+        #expect(VoiceTranscriptFlow.join(["我", "", "说中文。", "Next", "word,", "and", "最后。"]) == "我说中文。Next word, and最后。")
+        #expect(VoiceTranscriptFlow.join(["no ", "extra", "\n", "spaces", "."]) == "no extra\nspaces.")
     }
 
     @Test func bothFooterControlsFitNarrowGlassAtTheSameScale() {
