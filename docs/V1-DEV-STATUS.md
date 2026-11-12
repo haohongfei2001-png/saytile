@@ -90,3 +90,5 @@ The composed reference window exposed a shadow above the card and a neutralized 
 An actual initial launch with an unlaid-out menu-bar item landed in the bottom corner of the 1920 × 1080 screen. Accept a status-item anchor only at the visible display's menu bar; otherwise center the initial panel. Never rewrite saved user placement. The test rig measures actual AppKit drag displacement after its native hysteresis, then requires the observed frame to survive reopen and restart.
 
 Real two-display dragging reproduced a shared-edge failure even though same-display dragging, menu hide/show and pure geometry passed. The unused top inset now tracks the native gesture in desktop coordinates; the app constrains the panel after release, not midway through a cross-display move. No visual chrome or new action was introduced. Work is isolated from all protected branches and profiles.
+
+Final private design candidate: build 275, product ef21bda1807e9152f41fd8dbc2597cb30e28c9fc. Installed in parallel and left paused. See V1-NATIVE-PRODUCT-ACCEPTANCE.md for native screenshots, live panel video, source-bound tests, geometry fixes and distribution limits.

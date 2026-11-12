@@ -1,0 +1,83 @@
+PRODUCT_SCENE_BEGIN first-use
+PRODUCT_SCENE_LAID_OUT first-use
+WINDOWSERVER_ONLY fixture=first-use sources=2 width=816 height=596
+PRODUCT_WINDOWSERVER first-use
+PRODUCT_SCENE_BEGIN first-denied
+PRODUCT_SCENE_LAID_OUT first-denied
+WINDOWSERVER_ONLY fixture=first-denied sources=2 width=816 height=596
+PRODUCT_WINDOWSERVER first-denied
+PRODUCT_SCENE_BEGIN first-authorized
+PRODUCT_SCENE_LAID_OUT first-authorized
+WINDOWSERVER_ONLY fixture=first-authorized sources=2 width=816 height=596
+PRODUCT_WINDOWSERVER first-authorized
+PRODUCT_SCENE_BEGIN panel-paused
+PRODUCT_SCENE_LAID_OUT panel-paused
+WINDOWSERVER_ONLY fixture=panel-paused sources=2 width=816 height=596
+PRODUCT_WINDOWSERVER panel-paused
+PRODUCT_SCENE_BEGIN panel-standby
+PRODUCT_SCENE_LAID_OUT panel-standby
+WINDOWSERVER_ONLY fixture=panel-standby sources=2 width=816 height=596
+PRODUCT_WINDOWSERVER panel-standby
+PRODUCT_SCENE_BEGIN panel-speaking
+PRODUCT_SCENE_LAID_OUT panel-speaking
+WINDOWSERVER_ONLY fixture=panel-speaking sources=2 width=816 height=596
+PRODUCT_WINDOWSERVER panel-speaking
+PRODUCT_SCENE_BEGIN settings
+PRODUCT_SCENE_LAID_OUT settings
+WINDOWSERVER_ONLY fixture=settings sources=2 width=1560 height=1284
+PRODUCT_WINDOWSERVER settings
+PRODUCT_SCENE_BEGIN models
+PRODUCT_SCENE_LAID_OUT models
+WINDOWSERVER_ONLY fixture=models sources=2 width=1560 height=1284
+PRODUCT_WINDOWSERVER models
+PRODUCT_SCENE_BEGIN models-manual
+PRODUCT_SCENE_LAID_OUT models-manual
+WINDOWSERVER_ONLY fixture=models-manual sources=2 width=1560 height=1284
+PRODUCT_WINDOWSERVER models-manual
+PRODUCT_SCENE_BEGIN models-recovery
+PRODUCT_SCENE_LAID_OUT models-recovery
+WINDOWSERVER_ONLY fixture=models-recovery sources=2 width=1560 height=1284
+PRODUCT_WINDOWSERVER models-recovery
+PRODUCT_SCENE_BEGIN input-compact-dark
+PRODUCT_SCENE_LAID_OUT input-compact-dark
+WINDOWSERVER_ONLY fixture=input-compact-dark sources=2 width=1080 height=1064
+PRODUCT_WINDOWSERVER input-compact-dark
+PRODUCT_SCENE_BEGIN storage
+PRODUCT_SCENE_LAID_OUT storage
+WINDOWSERVER_ONLY fixture=storage sources=2 width=1560 height=1284
+PRODUCT_WINDOWSERVER storage
+PRODUCT_SCENE_BEGIN about
+PRODUCT_SCENE_LAID_OUT about
+WINDOWSERVER_ONLY fixture=about sources=2 width=1560 height=1284
+PRODUCT_WINDOWSERVER about
+PRODUCT_SELECT_HOSTED
+PRODUCT_HOSTED_SELECTED
+PRODUCT_SCENE_BEGIN cloud
+PRODUCT_INSPECT_FORM cloud
+PRODUCT_NATIVE_SCROLL cloud offset=(0.0, 44.0)
+PRODUCT_SCENE_LAID_OUT cloud
+WINDOWSERVER_ONLY fixture=cloud sources=2 width=1560 height=1284
+PRODUCT_WINDOWSERVER cloud
+PRODUCT_SCENE_BEGIN byok
+PRODUCT_INSPECT_FORM byok
+PRODUCT_NATIVE_SCROLL byok offset=(0.0, 286.0)
+PRODUCT_SCENE_LAID_OUT byok
+WINDOWSERVER_ONLY fixture=byok sources=2 width=1560 height=1284
+PRODUCT_WINDOWSERVER byok
+PRODUCT_SCENE_BEGIN archive-empty
+PRODUCT_SCENE_LAID_OUT archive-empty
+WINDOWSERVER_ONLY fixture=archive-empty sources=2 width=1680 height=1184
+PRODUCT_WINDOWSERVER archive-empty
+PRODUCT_SCENE_BEGIN archive
+PRODUCT_SCENE_LAID_OUT archive
+WINDOWSERVER_ONLY fixture=archive sources=2 width=1960 height=1304
+PRODUCT_WINDOWSERVER archive
+PRODUCT_SCENE_BEGIN archive-detail
+PRODUCT_SCENE_LAID_OUT archive-detail
+WINDOWSERVER_ONLY fixture=archive-detail sources=2 width=2100 height=1344
+PRODUCT_WINDOWSERVER archive-detail
+PRODUCT_SCENE_BEGIN archive-detail-compact-dark
+PRODUCT_SCENE_LAID_OUT archive-detail-compact-dark
+WINDOWSERVER_ONLY fixture=archive-detail-compact-dark sources=2 width=1140 height=1084
+PRODUCT_WINDOWSERVER archive-detail-compact-dark
+PRODUCT_WINDOW_REVIEW_PASS single display, isolated source selected; no system authorization changes

@@ -1,0 +1,122 @@
+{
+  "status": "PASS_FOR_PRIVATE_DESIGN_REVIEW",
+  "product_sha": "ef21bda1807e9152f41fd8dbc2597cb30e28c9fc",
+  "bundle_id": "app.saytile.mac.design-experience",
+  "build": "275",
+  "version": "1.0.0-rc.2-integrated.3",
+  "dmg_bytes": 64119505,
+  "dmg_sha256": "ca2c677f9df0d678841eb803e5f40df6a2bbc6f57f5df3952c4591f9a2817c0f",
+  "app_executable_sha256": "246d59c6efbdbd67f908a00004ec01770811eeb712d45d970d7acaa99baa5637",
+  "developer_id_deep_strict": "PASS",
+  "notarization": "NOT_RUN as requested",
+  "gatekeeper": "~/Applications/Saytile 设计体验.app: rejected\nsource=Unnotarized Developer ID\nassessment_exit=3",
+  "swift": {
+    "tests": 426,
+    "pass": 426,
+    "fail": 0,
+    "suites": 53
+  },
+  "app_model": {
+    "pass": 126,
+    "fail": 0
+  },
+  "compositor_native_scenes": 19,
+  "native_control_groups": 15,
+  "native_ax_presses": 44,
+  "scoped_render_images": 38,
+  "timeline_seed": 12000,
+  "real_drag_and_relaunch": "PASS two native screens at 2x",
+  "panel_gap_measures": {
+    "method": "Original crop (66,186,816,596); two pixels per point. Mean absolute RGB byte error in three blank 12x12 glass patches. Exterior gradient is reconstructed, since the reference hides its backdrop. Shadow direction checked in the actual compositor.",
+    "first_iteration": {
+      "rgb": [
+        [
+          224.0,
+          224.5,
+          232.0
+        ],
+        [
+          221.1,
+          223.0,
+          232.0
+        ],
+        [
+          216.8,
+          219.8,
+          229.7
+        ]
+      ],
+      "mean_absolute_rgb_difference": 13.03
+    },
+    "final": {
+      "rgb": [
+        [
+          221.7,
+          218.8,
+          248.0
+        ],
+        [
+          211.0,
+          213.9,
+          249.0
+        ],
+        [
+          201.5,
+          211.0,
+          248.3
+        ]
+      ],
+      "mean_absolute_rgb_difference": 2.31
+    },
+    "reference": [
+      [
+        224.4,
+        218.5,
+        252.3
+      ],
+      [
+        210.8,
+        214.8,
+        252.7
+      ],
+      [
+        198.2,
+        210.0,
+        252.7
+      ]
+    ]
+  },
+  "application_kept_paused": true,
+  "synthetic_offline_apple": {
+    "first_s": 1.1223182501271367,
+    "input_finished_s": 6.560652583371848,
+    "final_s": 6.642094750190154,
+    "pre_eos_previews": 33
+  },
+  "synthetic_journal_regression": "realtime_seconds=45.0 produced_frames=992250 dropped_frames=0 records=2 saved_seconds=45.0 audio_bytes=1440176 all_available=true all_finished=true pending_asr=2",
+  "input_native_regression_pass_lines": 28,
+  "protected": {
+    "same_personal_signature_files": true,
+    "same_selected_formal_personal_file_metadata": true,
+    "actual_private_contents_opened": false
+  },
+  "blocked": [
+    "physical cable disconnect and 1x hardware not exercised",
+    "public Gatekeeper distribution: Unnotarized Developer ID"
+  ],
+  "not_run": [
+    "live human speech or forced system TCC denial",
+    "real cloud/paid verification, checkout, notarization",
+    "final subjective design approval"
+  ],
+  "native_live_speech_window": {
+    "sample": "bundled generated speech, no microphone",
+    "visible_changes": 13,
+    "visible_pre_eos": 11,
+    "first_visible_s": 1.1367005417123437,
+    "input_eos_s": 6.2741044166032225,
+    "single_window_mp4_sha256": "c31335d54661a66a61b0bb72708272db46fecf37af91238be8d211a3527329dc",
+    "video_tracks": 1,
+    "audio_tracks": 0
+  }
+}

@@ -28,14 +28,20 @@ final class RecordingSink: NSObject, SCRecordingOutputDelegate, @unchecked Senda
             else { throw unavailable("invalid fixture PID or duration") }
         guard CGPreflightScreenCaptureAccess() else { throw unavailable("no existing screen recording authorization; no prompt issued") }
         var fixture = false
+        var diagnosis = "PID not registered"
         for _ in 0..<30 {
-            if let app = NSRunningApplication(processIdentifier: pid), app.bundleIdentifier == "app.saytile.mac",
-               let path = app.bundleURL?.resolvingSymlinksInPath().path,
-               (path.hasPrefix("/private/tmp/saytile-local-final.") || path.hasPrefix("/tmp/saytile-local-final.")),
-               path.hasSuffix("/Applications/Saytile.app") { fixture = true; break }
+            if let app = NSRunningApplication(processIdentifier: pid),
+               let path = app.bundleURL?.resolvingSymlinksInPath().path {
+                diagnosis = "owned bundle ID=\(app.bundleIdentifier ?? "missing") executable parent=\(path)"
+                let lab = app.bundleIdentifier == "app.saytile.mac" &&
+                    (path.hasPrefix("/private/tmp/saytile-local-final.") || path.hasPrefix("/tmp/saytile-local-final.")) && path.hasSuffix("/Applications/Saytile.app")
+                let designLab = app.bundleIdentifier == "app.saytile.mac.design-experience" &&
+                    (path.hasPrefix("/private/tmp/saytile-design-film.") || path.hasPrefix("/tmp/saytile-design-film.")) && path.hasSuffix("/Applications/Saytile 设计体验.app")
+                if lab || designLab { fixture = true; break }
+            }
             try await Task.sleep(for: .milliseconds(100))
         }
-        guard fixture else { throw unavailable("PID is not the isolated signed Saytile candidate") }
+        guard fixture else { throw unavailable("PID is not the isolated signed Saytile candidate: "+diagnosis) }
         let url = URL(fileURLWithPath: args[3])
         guard !FileManager.default.fileExists(atPath: url.path) else { throw CocoaError(.fileWriteFileExists) }
         var own: SCWindow?
