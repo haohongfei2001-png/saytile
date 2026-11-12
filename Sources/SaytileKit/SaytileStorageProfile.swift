@@ -1,18 +1,20 @@
 import Foundation
 
 public enum SaytileStorageProfile: Sendable {
-    case standard, personal, designExperience
+    case standard, personal, designExperience, sharedVoicePreview
 
+    public static let sharedVoiceBundleID = "app.saytile.mac.shared-voice-preview"
     public static let designBundleID = "app.saytile.mac.design-experience"
     public static let current: Self = {
+        if Bundle.main.bundleIdentifier == sharedVoiceBundleID { return .sharedVoicePreview }
         if Bundle.main.bundleIdentifier == designBundleID { return .designExperience }
         return Bundle.main.object(forInfoDictionaryKey: "SaytilePersonalExperience") as? Bool == true ? .personal : .standard
     }()
     private var suite: String? {
-        switch self { case .standard: nil; case .personal: "app.saytile.mac.personal"; case .designExperience: Self.designBundleID }
+        switch self { case .standard: nil; case .personal: "app.saytile.mac.personal"; case .designExperience: Self.designBundleID; case .sharedVoicePreview: Self.sharedVoiceBundleID }
     }
     public var archiveDirectory: URL {
-        let folder = switch self { case .standard: "Saytile"; case .personal: "Saytile Personal"; case .designExperience: "Saytile Design Experience" }
+        let folder = switch self { case .standard: "Saytile"; case .personal: "Saytile Personal"; case .designExperience: "Saytile Design Experience"; case .sharedVoicePreview: "Saytile Shared Voice Preview" }
         return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent(folder, isDirectory: true)
     }
     public var preferences: UserDefaults { suite.flatMap(UserDefaults.init(suiteName:)) ?? .standard }

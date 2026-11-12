@@ -10,7 +10,8 @@ public enum WindowPlacement {
     public static let nearpaneVoiceHeightFraction: CGFloat = 0.225
     public static let panelContentDefaultSize = CGSize(width: 344, height: 234)
     public static let panelDefaultSize = CGSize(width: 408, height: 298)
-    // 178pt of glass fits both reference controls and their optical margins.
+    // Preferred minimum for manual resizing on a roomy display. On narrow displays
+    // the shared surface adapts to the actual Nearpane voice allocation.
     public static let panelMinimumSize = CGSize(width: 178 + 64, height: 150 + 64)
 
     /// Product dimensions exclude the invisible 32pt window shadow on each side.
@@ -23,8 +24,13 @@ public enum WindowPlacement {
     public static func panelLimits(visibleFrame: CGRect) -> (minimum: CGSize, maximum: CGSize) {
         let maximum = CGSize(width: max(0, visibleFrame.width) + 2 * panelShadowInset,
                              height: max(0, visibleFrame.height) + 2 * panelShadowInset)
-        return (CGSize(width: min(panelMinimumSize.width, maximum.width),
-                       height: min(panelMinimumSize.height, maximum.height)), maximum)
+        let inset = 2 * panelShadowInset
+        // Nearpane lets a narrow sidebar use its full factory fraction, with a
+        // 20pt floor for its collapsed host chrome. Never exceed the visible area.
+        let width = min(max(0, visibleFrame.width), max(20, visibleFrame.width * nearpaneWidthFraction))
+        let height = min(max(0, visibleFrame.height), max(1, visibleFrame.height * nearpaneVoiceHeightFraction))
+        return (CGSize(width: min(panelMinimumSize.width, width + inset),
+                       height: min(panelMinimumSize.height, height + inset)), maximum)
     }
 
     public static func panelSize(_ requested: CGSize, visibleFrame: CGRect) -> CGSize {

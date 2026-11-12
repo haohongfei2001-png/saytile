@@ -45,8 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var positioningPanel = false
     private var movingPanel = false
     private var placementDefaults: UserDefaults?
-    // The v3 layout resets just the window placement, not recordings or other preferences.
-    // Keep v2 untouched for rollback; remember any later manual placement under v3.
+    // Manual choices survive the geometry upgrade. Save new choices under v3 for rollback compatibility.
     private let placementKey = "panel.userPlacement.v3"
     private func displayKey(_ screen: NSScreen) -> String {
         guard let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
@@ -54,9 +53,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         return CFUUIDCreateString(nil, uuid) as String
     }
     private func savedPanelFrame() -> NSRect? {
-        guard let data = placementDefaults?.data(forKey: placementKey),
-              let saved = try? JSONDecoder().decode(SavedPanelPlacement.self, from: data) else { return nil }
-        return saved.restored(on: NSScreen.screens.map { (displayKey($0), $0.visibleFrame) })
+        let screens = NSScreen.screens.map { (displayKey($0), $0.visibleFrame) }
+        for key in [placementKey, "panel.userPlacement.v2"] {
+            if let data = placementDefaults?.data(forKey: key),
+               let saved = try? JSONDecoder().decode(SavedPanelPlacement.self, from: data),
+               let frame = saved.restored(on: screens) { return frame }
+        }
+        return nil
     }
     private func rememberPlacement() {
         guard !positioningPanel, let panel, let screen = panel.screen,
@@ -103,8 +106,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             } else {
                 directory = SaytileStorageProfile.current.archiveDirectory
                 if SaytileStorageProfile.current != .standard { try DiagnosticDirectory.validate(directory: directory) }
-                if SaytileStorageProfile.current == .designExperience {
+                if SaytileStorageProfile.current == .designExperience || SaytileStorageProfile.current == .sharedVoicePreview {
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.personal.archiveDirectory)
+                }
+                if SaytileStorageProfile.current == .sharedVoicePreview {
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.designExperience.archiveDirectory)
                 }
             }
             if isDiagnostic || directoryIndex != nil {
@@ -115,6 +121,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     let preview = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
                         .appendingPathComponent("Saytile Timeline Preview", isDirectory: true)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: preview)
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.sharedVoicePreview.archiveDirectory)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.designExperience.archiveDirectory)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.personal.archiveDirectory)
                 }
@@ -567,7 +574,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     private func restoreVisibleWindows(applySavedPlacement: Bool = false) {
         let frames = NSScreen.screens.map(\.visibleFrame)
-        if applySavedPlacement, let screen = panel?.screen ?? NSScreen.main {
+        if applySavedPlacement, let screen = NSScreen.screens.first ?? NSScreen.main {
             restorePanel(preferred: savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame))
         } else { restorePanel() }
         updateFloatingEntry()
