@@ -157,7 +157,9 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
         .padding(.top, metrics.topPadding)
         .background { ReferencePanelSurface(radius: metrics.radius) }
         .clipShape(RoundedRectangle(cornerRadius: metrics.radius, style: .continuous))
-        .background { VoicePanelShadow(radius: metrics.radius) }
+        .background {
+            if !insideVoiceRail { VoicePanelShadow(radius: metrics.radius) }
+        }
         .foregroundStyle(ink)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

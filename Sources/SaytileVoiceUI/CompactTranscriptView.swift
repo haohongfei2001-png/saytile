@@ -83,9 +83,10 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         borderType = .noBorder
         drawsBackground = false
         hasVerticalScroller = true
+        verticalScroller = TranscriptScroller()
         hasHorizontalScroller = false
         autohidesScrollers = true
-        scrollerStyle = .overlay
+        scrollerStyle = NSScroller.preferredScrollerStyle
         transcriptView.isEditable = false
         transcriptView.isSelectable = true
         transcriptView.isRichText = false

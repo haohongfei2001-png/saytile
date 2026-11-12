@@ -5,10 +5,20 @@ import SaytileVoiceUI
 
 @Suite("Display geometry")
 struct WindowPlacementTests {
-    @Test func referenceInnerCardIsInsetInsideTheFullWidthRail() {
+    @Test func glassRimIsEvenAndCornersRemainConcentricWhenResized() {
         let slot = CGRect(x: 1347, y: 0, width: 325, height: 175)
         let metrics = VoiceRailMetrics(width: slot.width)
-        #expect(metrics.cardFrame(in: slot) == CGRect(x: 1362, y: 8, width: 295, height: 142))
+        #expect(metrics.cardFrame(in: slot) == slot.insetBy(dx: 10, dy: 10))
+        for width: CGFloat in [100, 178, 240, 325, 560, 1280] {
+            let frame = CGRect(x: 450, y: 22, width: width, height: 175)
+            let outer = VoiceRailMetrics(width: width)
+            let inner = outer.cardFrame(in: frame)
+            let inset = inner.minX - frame.minX
+            #expect(abs(inner.minY - frame.minY - inset) < 0.000_001)
+            #expect(abs(frame.maxY - inner.maxY - inset) < 0.000_001)
+            #expect(abs(frame.maxX - inner.maxX - inset) < 0.000_001)
+            #expect(abs(outer.radius - VoicePanelMetrics(width: inner.width, inRail: true).radius - inset) < 0.000_001)
+        }
         let tiny = CGRect(x: 10, y: 20, width: 240, height: 2)
         #expect(VoiceRailMetrics.factoryHeight(width: 325, visibleHeight: 940) == 173)
         #expect(VoiceRailMetrics.factoryHeight(width: 325, visibleHeight: 400) == 90)

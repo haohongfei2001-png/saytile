@@ -130,13 +130,12 @@ public struct VoicePanelMetrics {
     public let copyMarkSize: CGFloat
 
     public init(width: CGFloat, inRail: Bool = false) {
-        // The artwork measures 325px across the complete rail, with a
-        // 295px card. Scale all of its elements together on either host.
-        let referenceWidth: CGFloat = inRail ? 295 : ReferencePanelStyle.width
+        // Type and controls keep their original scale at the reference outer width.
+        let referenceWidth = inRail ? VoiceRailMetrics.referenceContentWidth : ReferencePanelStyle.width
         let factor = min(inRail ? 1.4 : 1, max(0.4, width / referenceWidth))
         scale = factor
         typeScale = max(0.72, factor)
-        radius = (inRail ? 22 : ReferencePanelStyle.radius) * factor
+        radius = inRail ? VoiceRailMetrics.contentRadius(width: width) : ReferencePanelStyle.radius * factor
         footerLeading = (inRail ? 15 : ReferencePanelStyle.footerLeading) * factor
         footerBottom = (inRail ? 9 : ReferencePanelStyle.footerBottom) * factor
         footerTop = (inRail ? 2 : 6) * factor
@@ -169,33 +168,35 @@ struct VoicePanelShadow: View {
     }
 }
 
-/// Insets of the first card in the supplied 1672 × 941 desktop composition.
-/// Both hosts measure the outer rail first and place the card inside it.
+/// A single even glass rim. Both contours follow the same corner centres.
 public struct VoiceRailMetrics {
+    private static let referenceWidth: CGFloat = 325
+    private static let referenceRim: CGFloat = 10
+    private static let referenceRadius: CGFloat = 28
+    static let referenceContentWidth = referenceWidth - 2 * referenceRim
+
     public let sideInset: CGFloat
-    public let topInset: CGFloat
-    public let bottomInset: CGFloat
+    public var topInset: CGFloat { sideInset }
+    public var bottomInset: CGFloat { sideInset }
     public let radius: CGFloat
 
     public init(width: CGFloat) {
-        let scale = min(1.5, max(0, width) / 325)
-        sideInset = 15 * scale
-        topInset = 25 * scale
-        bottomInset = 8 * scale
-        radius = 28 * scale
+        let scale = min(1.5, max(0, width) / Self.referenceWidth)
+        sideInset = Self.referenceRim * scale
+        radius = Self.referenceRadius * scale
+    }
+
+    static func contentRadius(width: CGFloat) -> CGFloat {
+        (referenceRadius - referenceRim) * min(1.5, max(0, width) / referenceContentWidth)
     }
 
     public static func factoryHeight(width: CGFloat, visibleHeight: CGFloat) -> CGFloat {
         VoiceRailProportions.factoryHeight(width: width, visibleHeight: visibleHeight)
     }
 
-    /// AppKit coordinates, with the origin at the lower left.
     public func cardFrame(in slot: CGRect) -> CGRect {
-        let side = min(sideInset, slot.width / 4)
-        let top = min(topInset, slot.height / 4)
-        let bottom = min(bottomInset, slot.height / 8)
-        return CGRect(x: slot.minX + side, y: slot.minY + bottom,
-                      width: slot.width - 2 * side, height: slot.height - top - bottom)
+        let rim = min(sideInset, min(slot.width, slot.height) / 4)
+        return slot.insetBy(dx: rim, dy: rim)
     }
 }
 
@@ -210,10 +211,9 @@ public struct VoiceRailGlass: View {
         let shape = RoundedRectangle(cornerRadius: VoiceRailMetrics(width: width).radius, style: .continuous)
         ZStack {
             ReferenceGlassBackdrop().opacity(reduceTransparency ? 1 : 0.12)
-            shape.fill(.white.opacity(reduceTransparency ? 0.94 : 0.20))
-            shape.fill(LinearGradient(colors: [.white.opacity(0.14), .white.opacity(0.025)],
-                                      startPoint: .topLeading, endPoint: .bottomTrailing))
-            shape.strokeBorder(.white.opacity(0.43), lineWidth: 0.75)
+            shape.fill(.white.opacity(reduceTransparency ? 0.94 : 0.27))
+            shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.64), .white.opacity(0.32)],
+                                              startPoint: .top, endPoint: .bottom), lineWidth: 0.7)
         }
         .clipShape(shape)
         .allowsHitTesting(false)
