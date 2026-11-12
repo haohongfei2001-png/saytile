@@ -17,14 +17,17 @@ struct SpeechResultAccumulator {
         pieces.removeAll { $0.start < end && $0.end > start }
         pieces.append(Piece(start:start,end:end,text:text,isFinal:isFinal || end <= self.finalizedThrough))
         pieces.sort { $0.start < $1.start }
-        if let finalizedThrough { return advanceFinalization(through: finalizedThrough) }
+        if let finalizedThrough { markFinalized(through: finalizedThrough) }
         return rebuildSnapshot()
     }
     @discardableResult mutating func advanceFinalization(through: Double) -> Snapshot {
-        guard !through.isNaN, through >= finalizedThrough else { return snapshot }
+        markFinalized(through: through)
+        return rebuildSnapshot()
+    }
+    private mutating func markFinalized(through: Double) {
+        guard !through.isNaN, through > finalizedThrough else { return }
         finalizedThrough = through
         for index in pieces.indices where pieces[index].end <= through { pieces[index].isFinal = true }
-        return rebuildSnapshot()
     }
     private mutating func rebuildSnapshot() -> Snapshot {
         let stable = pieces.prefix { $0.isFinal }.map(\.text).joined()

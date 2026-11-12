@@ -102,8 +102,10 @@ final class PCMJournal {
     }
 }
 
-/// WebRTC's mature 20ms VAD, with 1 second pre-roll and 800ms end silence.
+/// WebRTC consumes 20 ms frames. A one-second pre-roll protects speech onset.
 final class VoiceSegmenter {
+    // Keep the active local recognizer through a short thinking pause.
+    static let localPauseFrames = 75
     enum Event { case begin([Data], sample: Int64), audio(Data), end(sample: Int64) }
     private let vad: OpaquePointer
     private var pending = Data()
@@ -118,7 +120,7 @@ final class VoiceSegmenter {
     private let endSilenceFrames: Int
     private var activeMaximum = 1500
     private let maximumFrames: Int
-    init(endSilenceFrames: Int = 40, maximumFrames: Int = 1_500) throws {
+    init(endSilenceFrames: Int = VoiceSegmenter.localPauseFrames, maximumFrames: Int = 1_500) throws {
         guard let vad = st_vad_create() else { throw AudioFailure.message("VAD 初始化失败") }
         self.vad = vad; self.endSilenceFrames = max(1, endSilenceFrames); self.maximumFrames = max(1, maximumFrames)
     }

@@ -21,6 +21,20 @@ struct SpeechResultTests {
         #expect(final.isCompletelyFinal)
         #expect(aggregate.advanceFinalization(through: 0) == final)
     }
+    @Test func validHypothesisIsVisibleEvenWithoutANewerFinalizationTime() {
+        var aggregate = SpeechResultAccumulator()
+        let first = aggregate.apply(start: 0, end: 1, text: "当时", isFinal: false, finalizedThrough: .nan)
+        #expect(first.fullText == "当时")
+        #expect(first.stableText.isEmpty)
+
+        aggregate.advanceFinalization(through: 1)
+        let tail = aggregate.apply(start: 1, end: 2, text: "没听清", isFinal: false, finalizedThrough: 0)
+        #expect(tail.fullText == "当时没听清")
+        #expect(tail.stableText == "当时")
+        let final = aggregate.apply(start: 1, end: 2, text: "没听清。", isFinal: true, finalizedThrough: .nan)
+        #expect(final.fullText == "当时没听清。")
+        #expect(final.isCompletelyFinal)
+    }
     @Test func finalPrefixAdvancesWhileTailIsVolatile() {
         var aggregate = SpeechResultAccumulator()
         aggregate.apply(start:0,end:1,text:"你好",isFinal:true)
