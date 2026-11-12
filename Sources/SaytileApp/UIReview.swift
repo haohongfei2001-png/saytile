@@ -645,7 +645,7 @@ extension AppDelegate {
 
     }
 
-    @MainActor private func compactTranscript(in host: NSView) throws -> CompactTranscriptScrollView {
+    @MainActor func compactTranscript(in host: NSView) throws -> CompactTranscriptScrollView {
         var pending = [host], found: [CompactTranscriptScrollView] = []
         while !pending.isEmpty {
             let view = pending.removeFirst()
@@ -1118,6 +1118,16 @@ extension AppDelegate {
             }
             await model.prepareForExit()
         } catch { await model.prepareForExit(); throw error }
+    }
+
+    @MainActor func pressBorderSetting(model: AppModel, output: URL) async throws {
+        let wasVisible = model.panelBorderVisible
+        try await reviewWindow(SettingsView(model: model, initialPage: .input), size: CGSize(width: 650, height: 700),
+                               name: "settings-panel-border", output: output) { host in
+            try await self.press("settings.panelBorder", in: host)
+            try await self.reviewUntil { model.panelBorderVisible != wasVisible }
+        }
+        guard model.panelBorderVisible != wasVisible else { throw ReviewFailure("Border setting did not change") }
     }
 
     @MainActor private func reviewFirstConnection(output: URL) async throws {

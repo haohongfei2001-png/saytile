@@ -42,6 +42,7 @@ private struct ReferenceGlassBackdrop: NSViewRepresentable {
 
 struct ReferencePanelSurface: View {
     let radius: CGFloat
+    var showsStroke = true
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     private var shape: RoundedRectangle { RoundedRectangle(cornerRadius: radius, style: .continuous) }
     public var body: some View {
@@ -60,10 +61,12 @@ struct ReferencePanelSurface: View {
                     ], startPoint: .top, endPoint: .bottom))
                 }
                 .overlay {
-                    shape.strokeBorder(
-                        LinearGradient(colors: [.white.opacity(0.91), .white.opacity(0.24)],
-                                       startPoint: .topLeading, endPoint: .bottomTrailing),
-                        lineWidth: 0.65)
+                    if showsStroke {
+                        shape.strokeBorder(
+                            LinearGradient(colors: [.white.opacity(0.91), .white.opacity(0.24)],
+                                           startPoint: .topLeading, endPoint: .bottomTrailing),
+                            lineWidth: 0.65)
+                    }
                 }
         }
         .clipShape(shape)
@@ -221,11 +224,20 @@ public struct VoiceRailGlass: View {
     }
 }
 
+private struct SingleGlassSurfaceKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
 private struct InsideVoiceRailKey: EnvironmentKey {
     static let defaultValue = false
 }
 
 extension EnvironmentValues {
+    var singleGlassSurface: Bool {
+        get { self[SingleGlassSurfaceKey.self] }
+        set { self[SingleGlassSurfaceKey.self] = newValue }
+    }
+
     var insideVoiceRail: Bool {
         get { self[InsideVoiceRailKey.self] }
         set { self[InsideVoiceRailKey.self] = newValue }
@@ -235,16 +247,27 @@ extension EnvironmentValues {
 /// The slot consumes its host allocation, including the rail's margins.
 public struct FramedVoiceSlot<Content: View>: View {
     private let content: Content
-    public init(@ViewBuilder content: () -> Content) { self.content = content() }
+    private let showsBorder: Bool
+    public init(showsBorder: Bool = true, @ViewBuilder content: () -> Content) {
+        self.showsBorder = showsBorder
+        self.content = content()
+    }
 
     public var body: some View {
         GeometryReader { geometry in
             let slot = CGRect(origin: .zero, size: geometry.size)
-            let card = VoiceRailMetrics(width: slot.width).cardFrame(in: slot)
+            let metrics = VoiceRailMetrics(width: slot.width)
+            let card = metrics.cardFrame(in: slot)
             content
                 .environment(\.insideVoiceRail, true)
+                .environment(\.singleGlassSurface, !showsBorder)
                 .frame(width: card.width, height: card.height)
                 .position(x: card.midX, y: slot.height - card.midY)
+                .background {
+                    if !showsBorder {
+                        ReferencePanelSurface(radius: metrics.radius, showsStroke: false)
+                    }
+                }
         }
     }
 }

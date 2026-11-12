@@ -43,6 +43,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
     let menu: () -> MenuItems
 
     private typealias ViewState<T> = SwiftUI.State<T>
+    @Environment(\.singleGlassSurface) private var singleGlassSurface
     @Environment(\.insideVoiceRail) private var insideVoiceRail
     @ViewState private var captureHovered = false
     @FocusState private var captureFocused: Bool
@@ -158,7 +159,9 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
             .padding(.top, metrics.footerTop).padding(.bottom, metrics.footerBottom)
         }
         .padding(.top, metrics.topPadding)
-        .background { ReferencePanelSurface(radius: metrics.radius) }
+        .background {
+            if !singleGlassSurface { ReferencePanelSurface(radius: metrics.radius) }
+        }
         .clipShape(RoundedRectangle(cornerRadius: metrics.radius, style: .continuous))
         .background {
             if !insideVoiceRail { VoicePanelShadow(radius: metrics.radius) }

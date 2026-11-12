@@ -224,6 +224,12 @@ final class AppModel: ObservableObject {
             NotificationCenter.default.post(name: .init("SaytileShortcutChanged"), object: nil)
         }
     }
+    @Published var panelBorderVisible = true {
+        didSet {
+            guard !initializing, panelBorderVisible != oldValue else { return }
+            preferences.set(panelBorderVisible, forKey: "panelBorderVisible")
+        }
+    }
     @Published var floatingEntryEnabled = false {
         didSet {
             guard !initializing, floatingEntryEnabled != oldValue else { return }
@@ -311,6 +317,7 @@ final class AppModel: ObservableObject {
         self.appliedRecognitionConfiguration = recognitionConfiguration
         audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration, startupRecoveryReady: false)
         input = NativeInputCoordinator(store: store)
+        panelBorderVisible = preferences.object(forKey: "panelBorderVisible") as? Bool ?? true
         floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
         launchAtLogin = canManageLoginItem && SMAppService.mainApp.status == .enabled
         shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? ([.designExperience, .sharedVoicePreview].contains(SaytileStorageProfile.current) ? "disabled" : "option-space")

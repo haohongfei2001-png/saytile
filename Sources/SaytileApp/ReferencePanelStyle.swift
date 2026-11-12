@@ -8,8 +8,10 @@ struct InputPanelWindowView: View {
     var body: some View {
         GeometryReader { geometry in
             let radius = VoiceRailMetrics(width: geometry.size.width).radius
-            FramedVoiceSlot { InputPanelView(model: model) }
-                .background { VoiceRailGlass(width: geometry.size.width) }
+            FramedVoiceSlot(showsBorder: model.panelBorderVisible) { InputPanelView(model: model) }
+                .background {
+                    if model.panelBorderVisible { VoiceRailGlass(width: geometry.size.width) }
+                }
                 .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
         }
     }

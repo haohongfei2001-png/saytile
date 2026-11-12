@@ -93,6 +93,7 @@ struct SettingsView: View {
             Text("复制无需授权。直接输入只追加到你绑定的草稿。") .font(.callout).foregroundStyle(.secondary)
         }
         Section("输入板") {
+            Toggle("显示边框", isOn: $model.panelBorderVisible).accessibilityIdentifier("settings.panelBorder")
             Picker("讲话分组间隔", selection: Binding(get: { model.timelineIdleSeconds }, set: { model.changeIdleInterval($0) })) {
                 ForEach([10, 30, 60, 120, 300, 600, 1800, 3600], id: \.self) { seconds in
                     Text(seconds < 60 ? "\(seconds) 秒" : "\(seconds / 60) 分钟").tag(seconds)
