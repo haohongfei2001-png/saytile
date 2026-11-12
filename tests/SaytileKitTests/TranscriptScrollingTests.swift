@@ -9,7 +9,8 @@ import Testing
         var displayText: String { "测试行 \(position)" }
     }
 
-    @Test func pageKeysLoadAdjacentHistoryOnceAndRespectSelection() throws {
+    @Test(arguments: [NSScroller.Style.overlay, .legacy])
+    func pageKeysLoadAdjacentHistoryOnceAndRespectSelection(style: NSScroller.Style) throws {
         _ = NSApplication.shared
         let box = NSRect(x: 0, y: 0, width: 200, height: 90)
         let scroll = CompactTranscriptScrollView<Row>(frame: box)
@@ -23,8 +24,20 @@ import Testing
         let entries = (1...80).map { Row(position: Int64($0)) }
         scroll.updateDocument(PanelTimelineDocument(entries: entries, older: true, newer: true))
         scroll.layoutSubtreeIfNeeded()
-        #expect(scroll.verticalScroller is TranscriptScroller)
-        #expect(scroll.verticalScroller?.accessibilityRole() == .scrollBar)
+        scroll.scrollerStyle = style
+        scroll.flashScrollers()
+        scroll.layoutSubtreeIfNeeded()
+        #expect(scroll.documentVisibleRect.height < view.bounds.height)
+        #expect(!scroll.hasVerticalScroller && scroll.verticalScroller == nil)
+        #expect(!scroll.hasHorizontalScroller && scroll.horizontalScroller == nil)
+        #expect(abs(scroll.contentSize.width - scroll.bounds.width) < 0.5)
+        view.scrollRangeToVisible(NSRange(location: view.string.utf16.count / 2, length: 1))
+        let start = scroll.contentView.bounds.minY
+        let wheel = try #require(CGEvent(scrollWheelEvent2Source: nil, units: .pixel,
+                                          wheelCount: 1, wheel1: 25, wheel2: 0, wheel3: 0))
+        scroll.scrollWheel(with: try #require(NSEvent(cgEvent: wheel)))
+        #expect(scroll.contentView.bounds.minY < start)
+        #expect(scroll.verticalScroller == nil)
         view.setSelectedRange(NSRange(location: 0, length: 2))
         view.scrollRangeToVisible(NSRange(location: 0, length: 0))
         view.doCommand(by: #selector(NSResponder.scrollPageUp(_:)))

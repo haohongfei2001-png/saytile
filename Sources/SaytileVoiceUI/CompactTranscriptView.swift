@@ -89,11 +89,8 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         super.init(frame: frameRect)
         borderType = .noBorder
         drawsBackground = false
-        hasVerticalScroller = true
-        verticalScroller = TranscriptScroller()
+        hasVerticalScroller = false
         hasHorizontalScroller = false
-        autohidesScrollers = true
-        scrollerStyle = NSScroller.preferredScrollerStyle
         transcriptView.isEditable = false
         transcriptView.isSelectable = true
         // Undo must carry row identities; AppKit raw UTF-16 inverses alone would
