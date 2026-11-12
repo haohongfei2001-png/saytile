@@ -16,6 +16,7 @@ def main():
     parser.add_argument('--source', required=True)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--expect-pass', action='store_true', help='Exit nonzero unless both wheel and precise paths pass')
+    parser.add_argument('--images', type=Path, help='Separate unmeasured replay saving before/after PNGs of only the first native viewport swap')
     args = parser.parse_args()
     sha = subprocess.check_output(['git', 'rev-parse', '--verify', args.source + '^{commit}'], cwd=ROOT, text=True).strip()
     with tempfile.TemporaryDirectory(prefix='saytile-reader-') as folder:
@@ -29,7 +30,10 @@ def main():
         subprocess.run(['xcrun', 'swiftc', '-swift-version', '6', '-parse-as-library', '-module-cache-path', str(Path(tempfile.gettempdir()) / 'saytile-reader-module-cache'),
                         *map(str,sorted(tmp.glob('*.swift'))), str(ROOT/'tests/fixtures/ReaderViewportProbe.swift'), '-o',str(executable)],check=True)
         args.output.parent.mkdir(exist_ok=True, parents=True)
-        subprocess.run([str(executable), sha, str(args.output.resolve())],check=True)
+        subprocess.run([str(executable), sha, str(args.output.resolve())], check=True)
+        if args.images:
+            args.images.mkdir(exist_ok=True, parents=True)
+            subprocess.run([str(executable), sha, str(tmp / 'capture-only.json'), str(args.images.resolve())], check=True)
     result = json.loads(args.output.read_text())
     # 1 pt tolerates rounding on both 1x and 2x displays. Offsets are measured
     # on identical glyphs, after removing travel originally requested by the user.

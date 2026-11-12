@@ -1,6 +1,8 @@
 import AppKit
 import CoreGraphics
 
+private struct CaptureFailure: Error {}
+
 private struct Row: VoiceTranscriptEntry {
     let id: UUID
     let position: Int64
@@ -29,8 +31,10 @@ private struct Visible {
     var everKey = false
     var step = 0
     let kind: String
-    init(_ kind: String) throws {
+    let images: URL?
+    init(_ kind: String, images: URL?) throws {
         self.kind = kind
+        self.images = images
         // Deliberately short, distinct rows. Offsets and passage identity are
         // stable across overlapping SQLite-style windows, even after a reflow.
         let syllables = Array("听风海云山湖春秋夜雨星光青松红梅白鹭南北东西丘原江河林田")
@@ -96,15 +100,30 @@ private struct Visible {
     static func unexpected(_ a: Visible, _ b: Visible, expected: CGFloat) -> CGFloat? {
         a.glyphY.compactMap { key, y in b.glyphY[key].map { abs($0 - y - expected) } }.max()
     }
-    func fulfill(expectedScreenShift: CGFloat = 0) {
+    func image(_ label: String) throws {
+        guard let images else { return }
+        let editor = scroll.transcriptView, rect = editor.visibleRect
+        guard let bitmap = editor.bitmapImageRepForCachingDisplay(in: rect) else { throw CaptureFailure() }
+        editor.cacheDisplay(in: rect, to: bitmap)
+        guard let image = bitmap.cgImage, let context = CGContext(data: nil, width: image.width, height: image.height,
+                bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else { throw CaptureFailure() }
+        let bounds = CGRect(x: 0, y: 0, width: image.width, height: image.height)
+        context.setFillColor(NSColor.white.cgColor); context.fill(bounds); context.draw(image, in: bounds)
+        guard let opaque = context.makeImage(), let png = NSBitmapImageRep(cgImage: opaque).representation(using: .png, properties: [:]) else { throw CaptureFailure() }
+        try png.write(to: images.appendingPathComponent("reader-" + kind + "-" + label + ".png"))
+    }
+    func fulfill(expectedScreenShift: CGFloat = 0) throws {
         guard let older = pending else { return }
         pending = nil
+        let capture = pageChanges.isEmpty && images != nil
         let before = snapshot(), old = start
+        if capture { try image("before") }
         let pivot = start + min(capacity, rows.count - start) / 2
         start = older ? max(0, pivot + 1 - capacity) : min(rows.count - capacity, pivot)
         guard start != old else { return }
         publish()
         let after = snapshot()
+        if capture { try image("after") }
         var record = Self.delta(before, after)
         record["expectedScreenShift"] = expectedScreenShift
         record["maxUnexpectedDY"] = Self.unexpected(before, after, expected: expectedScreenShift) as Any? ?? NSNull()
@@ -129,7 +148,7 @@ private struct Visible {
         let intended = precise ? e.scrollingDeltaY : min(cap, max(-cap, e.scrollingDeltaY * scroll.verticalLineScroll))
         let consumed = before.origin - beforePage.origin
         let residual = intended >= 0 ? max(0, intended - consumed) : min(0, intended - consumed)
-        fulfill(expectedScreenShift: residual)
+        try fulfill(expectedScreenShift: residual)
         let after = snapshot()
         var m = Self.delta(before, after)
         m["intended"] = intended; m["beforeSwapTravel"] = consumed
@@ -159,7 +178,7 @@ private struct Visible {
         guard window.isVisible && !window.isKeyWindow && !snapshot().glyphY.isEmpty else { throw ProbeError.window }
         try await gesture(1, events: 89); try await gesture(-1, events: 79)
         try await Task.sleep(for: .milliseconds(80))
-        fulfill()
+        try fulfill()
         return ["input": kind, "oldestStart": oldestStart, "finalStart": start, "initialStart": rows.count-capacity,
                 "everKey": everKey, "distinctVisibleFirstRows": seenOrigins.count, "pageChanges": pageChanges, "steps": motions, "lateRevisions": revisions]
     }
@@ -167,11 +186,12 @@ private struct Visible {
 @main private struct ReaderViewportProbe {
     @MainActor static func main() async {
         do {
-            guard CommandLine.arguments.count == 3 else { throw ProbeError.args }
+            guard (3...4).contains(CommandLine.arguments.count) else { throw ProbeError.args }
             NSApplication.shared.setActivationPolicy(.prohibited)
             NSApplication.shared.finishLaunching()
             var results = [[String: Any]]()
-            for type in ["wheel", "precise"] { results.append(try await Probe(type).run()) }
+            let images = CommandLine.arguments.count == 4 ? URL(fileURLWithPath: CommandLine.arguments[3]) : nil
+            for type in ["wheel", "precise"] { results.append(try await Probe(type, images: images).run()) }
             let report: [String: Any] = ["source": CommandLine.arguments[1], "cases": results]
             try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys]).write(to: URL(fileURLWithPath: CommandLine.arguments[2]))
         } catch { print("reader-motion failure: \(error)"); exit(2) }
