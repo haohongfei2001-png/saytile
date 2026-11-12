@@ -10,7 +10,7 @@ import Testing
     }
 
     @Test(arguments: [NSScroller.Style.overlay, .legacy])
-    func pageKeysLoadAdjacentHistoryOnceAndRespectSelection(style: NSScroller.Style) throws {
+    func pageKeysLoadAdjacentHistoryOnceAndRespectSelection(style: NSScroller.Style) async throws {
         _ = NSApplication.shared
         let box = NSRect(x: 0, y: 0, width: 200, height: 90)
         let scroll = CompactTranscriptScrollView<Row>(frame: box)
@@ -31,12 +31,17 @@ import Testing
         #expect(!scroll.hasVerticalScroller && scroll.verticalScroller == nil)
         #expect(!scroll.hasHorizontalScroller && scroll.horizontalScroller == nil)
         #expect(abs(scroll.contentSize.width - scroll.bounds.width) < 0.5)
-        view.scrollRangeToVisible(NSRange(location: view.string.utf16.count / 2, length: 1))
+        scroll.contentView.scroll(to: CGPoint(x: 0, y: (view.bounds.height - scroll.contentSize.height) / 2))
+        scroll.reflectScrolledClipView(scroll.contentView)
         let start = scroll.contentView.bounds.minY
         let wheel = try #require(CGEvent(scrollWheelEvent2Source: nil, units: .pixel,
                                           wheelCount: 1, wheel1: 25, wheel2: 0, wheel3: 0))
         scroll.scrollWheel(with: try #require(NSEvent(cgEvent: wheel)))
-        #expect(scroll.contentView.bounds.minY < start)
+        for _ in 0..<30 where scroll.contentView.bounds.minY >= start {
+            try await Task.sleep(for: .milliseconds(15))
+        }
+        #expect(start > 32)
+        #expect(scroll.contentView.bounds.minY < start, "wheel from \(start) to \(scroll.contentView.bounds.minY)")
         #expect(scroll.verticalScroller == nil)
         view.setSelectedRange(NSRange(location: 0, length: 2))
         view.scrollRangeToVisible(NSRange(location: 0, length: 0))
