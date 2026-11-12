@@ -88,11 +88,13 @@ import ApplicationServices
                 // Blank space between the two existing controls.
                 let railScale = min(1.5, frame.width/325)
                 let side = 15 * railScale, bottom = min(8 * railScale, frame.height/8)
-                let scale = min(1, max(0.4, (frame.width - 2 * side)/240))
-                let copyRight=frame.minX+side+(20.5+42)*scale
-                let voiceLeft=frame.maxX-side-(14+92.5)*scale
+                let card = frame.width - 2 * side
+                let scale = min(1, max(0.4, card/295))
+                let expansion = min(1, max(0, (card-295)/49))
+                let copyRight=frame.minX+side+(60+2.5*expansion)*scale
+                let voiceLeft=frame.maxX-side-(100+6.5*expansion)*scale
                 guard voiceLeft>copyRight else {throw Problem("No gap between footer controls")}
-                from=CGPoint(x:(copyRight+voiceLeft)/2,y:frame.maxY-bottom-34*scale)
+                from=CGPoint(x:(copyRight+voiceLeft)/2,y:frame.maxY-bottom-(26+9*expansion)*scale)
                 expected=frame.offsetBy(dx:dx,dy:dy)
             case .top:
                 from=CGPoint(x:frame.midX,y:frame.minY+9)
@@ -152,7 +154,7 @@ import ApplicationServices
         let glassWidth = glass.width
         // The complete WindowServer rectangle includes the rail and its inset card.
         guard abs(glassWidth - screen.width * 0.125) <= 1,
-              abs(glass.height - screen.height * 0.225) <= 1,
+              abs(glass.height - min(screen.height * 0.225, screen.width * 0.125 * 173 / 325)) <= 1,
               abs(glass.minY - screen.minY) <= 1, abs(screen.maxX - glass.maxX) <= 1 else {
             throw Problem("Initial glass does not match the primary voice region: frame=\(initial.1) visible=\(screen)")
         }

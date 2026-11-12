@@ -4,14 +4,13 @@ import CoreGraphics
 /// Window geometry uses visible frames, including displays with negative origins and menu bars.
 public enum WindowPlacement {
     public static let nearpaneWidthFraction: CGFloat = 0.125
-    public static let nearpaneVoiceHeightFraction: CGFloat = 0.225
     public static let panelDefaultSize = CGSize(width: 344, height: 234)
-    public static let panelMinimumSize = CGSize(width: 178, height: 150)
+    public static let panelMinimumSize = CGSize(width: 178, height: 90)
 
     public static func panelLimits(visibleFrame: CGRect) -> (minimum: CGSize, maximum: CGSize) {
         let maximum = visibleFrame.size
         let width = min(maximum.width, max(20, maximum.width * nearpaneWidthFraction))
-        let height = min(maximum.height, max(1, maximum.height * nearpaneVoiceHeightFraction))
+        let height = min(maximum.height, max(1, VoiceRailProportions.factoryHeight(width: width, visibleHeight: maximum.height)))
         return (CGSize(width: min(panelMinimumSize.width, width),
                        height: min(panelMinimumSize.height, height)), maximum)
     }
@@ -24,8 +23,8 @@ public enum WindowPlacement {
 
     /// Nearpane voice section by itself; not a full-height sidebar or fixed card.
     public static func initialPanel(visibleFrame: CGRect) -> CGRect {
-        let size = panelSize(CGSize(width: visibleFrame.width * nearpaneWidthFraction,
-                                    height: visibleFrame.height * nearpaneVoiceHeightFraction),
+        let width = min(visibleFrame.width, max(20, visibleFrame.width * nearpaneWidthFraction))
+        let size = panelSize(CGSize(width: width, height: VoiceRailProportions.factoryHeight(width: width, visibleHeight: visibleFrame.height)),
                              visibleFrame: visibleFrame)
         // The glass touches the visible desktop's upper-right edge.
         return CGRect(x: visibleFrame.maxX - size.width,

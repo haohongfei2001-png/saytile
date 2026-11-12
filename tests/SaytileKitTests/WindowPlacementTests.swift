@@ -10,6 +10,8 @@ struct WindowPlacementTests {
         let metrics = VoiceRailMetrics(width: slot.width)
         #expect(metrics.cardFrame(in: slot) == CGRect(x: 1362, y: 8, width: 295, height: 142))
         let tiny = CGRect(x: 10, y: 20, width: 240, height: 2)
+        #expect(VoiceRailMetrics.factoryHeight(width: 325, visibleHeight: 940) == 173)
+        #expect(VoiceRailMetrics.factoryHeight(width: 325, visibleHeight: 400) == 90)
         #expect(tiny.contains(VoiceRailMetrics(width: tiny.width).cardFrame(in: tiny)))
     }
 
@@ -34,7 +36,7 @@ struct WindowPlacementTests {
             #expect(frame.maxX == display.maxX)
             #expect(frame.maxY == display.maxY)
             #expect(frame.width == display.width * 0.125)
-            #expect(frame.height == display.height * 0.225)
+            #expect(frame.height == min(display.height * 0.225, frame.width * 173 / 325))
             #expect(display.contains(frame))
             #expect(frame.contains(card) && card.width < frame.width && card.height < frame.height)
         }
@@ -51,8 +53,9 @@ struct WindowPlacementTests {
         let display = CGRect(x: 0, y: 25, width: 1920, height: 850)
         let limits = WindowPlacement.panelLimits(visibleFrame: display)
         let initial = WindowPlacement.initialPanel(visibleFrame: display)
-        #expect(limits.minimum == CGSize(width: 178, height: 150))
+        #expect(limits.minimum == CGSize(width: 178, height: 90))
         #expect(limits.minimum.width < initial.width)
+        #expect(limits.minimum.height < initial.height)
         #expect(limits.maximum == display.size)
         #expect(WindowPlacement.panelSize(CGSize(width: 1, height: 1), visibleFrame: display) == limits.minimum)
         #expect(WindowPlacement.panelSize(CGSize(width: 3200, height: 2000), visibleFrame: display) == limits.maximum)
@@ -74,7 +77,7 @@ struct WindowPlacementTests {
     @Test func constrainedVisibleFrameTakesPrecedenceOverNormalMinimum() {
         let screen = CGRect(x: -300, y: -180, width: 220, height: 180)
         let limits = WindowPlacement.panelLimits(visibleFrame: screen)
-        #expect(limits.minimum == CGSize(width: 27.5, height: 40.5))
+        #expect(limits.minimum == CGSize(width: 27.5, height: 27.5 * 173 / 325))
         #expect(limits.maximum == screen.size)
         let frame = WindowPlacement.initialPanel(visibleFrame: screen)
         #expect(screen.contains(frame))

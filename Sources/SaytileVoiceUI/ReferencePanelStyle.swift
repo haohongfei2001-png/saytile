@@ -119,10 +119,31 @@ struct ReferenceCopyMark: Shape {
 public struct VoicePanelMetrics {
     public let scale: CGFloat
     public let typeScale: CGFloat
-    public var radius: CGFloat { ReferencePanelStyle.radius * scale }
+    public let radius: CGFloat
+    public let footerLeading: CGFloat
+    public let footerBottom: CGFloat
+    public let footerTop: CGFloat
+    public let topPadding: CGFloat
+    public let voiceWidth: CGFloat
+    public let copyWidth: CGFloat
+
     public init(width: CGFloat) {
-        scale = min(1, max(0.4, width / 240))
-        typeScale = max(0.72, scale)
+        // At 295pt the card matches the supplied compact desktop composition.
+        // At the original 344pt design width it retains the original controls.
+        let compact = min(1, max(0.4, width / 295))
+        let expansion = min(1, max(0, (width - 295) / (344 - 295)))
+        func dimension(_ small: CGFloat, _ large: CGFloat) -> CGFloat {
+            (small + (large - small) * expansion) * compact
+        }
+        scale = compact
+        typeScale = max(0.72, compact)
+        radius = dimension(22, ReferencePanelStyle.radius)
+        footerLeading = dimension(15, ReferencePanelStyle.footerLeading)
+        footerBottom = dimension(9, ReferencePanelStyle.footerBottom)
+        footerTop = dimension(2, 6)
+        topPadding = dimension(6, 10.5)
+        voiceWidth = dimension(86, ReferencePanelStyle.voiceWidth)
+        copyWidth = dimension(45, ReferencePanelStyle.copyWidth)
     }
 }
 
@@ -160,6 +181,10 @@ public struct VoiceRailMetrics {
         topInset = 25 * scale
         bottomInset = 8 * scale
         radius = 28 * scale
+    }
+
+    public static func factoryHeight(width: CGFloat, visibleHeight: CGFloat) -> CGFloat {
+        VoiceRailProportions.factoryHeight(width: width, visibleHeight: visibleHeight)
     }
 
     /// AppKit coordinates, with the origin at the lower left.

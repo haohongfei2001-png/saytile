@@ -34,9 +34,9 @@ import SaytileVoiceUI
     @Test func bothFooterControlsFitNarrowGlassAtTheSameScale() {
         for width: CGFloat in [100, 128, 160, 178, 240, 344] {
             let metrics = VoicePanelMetrics(width: width)
-            let footer = ReferencePanelStyle.footerLeading + ReferencePanelStyle.copyWidth + 8
-                + ReferencePanelStyle.voiceWidth + ReferencePanelStyle.footerTrailing
-            #expect(footer * metrics.scale <= width)
+            let footer = metrics.footerLeading + metrics.copyWidth + 8 * metrics.scale
+                + metrics.voiceWidth + ReferencePanelStyle.footerTrailing * metrics.scale
+            #expect(footer <= width)
             #expect(metrics.typeScale * ReferencePanelStyle.fontSize >= 14)
             #expect(metrics.typeScale <= 1)
         }

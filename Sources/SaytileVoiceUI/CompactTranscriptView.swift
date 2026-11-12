@@ -206,6 +206,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     func applyTypeScale(_ scale: CGFloat) {
         guard typeScale != scale else { return }
         typeScale = scale
+        transcriptView.textContainerInset = NSSize(width: 2, height: 6 * scale)
         if let storage = transcriptView.textStorage {
             storage.setAttributes(attributes, range: NSRange(location: 0, length: storage.length))
             styleMarkers(in: storage)
