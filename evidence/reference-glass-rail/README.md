@@ -1,6 +1,6 @@
 # Native comparison with the supplied sidebar artwork
 
-[Default native rail side by side](default-hosts-top.png) · [Complete native windows and reference](reference-and-native.png) · [Effect-artwork width](reference-and-artwork-width.png) · [Measurements](reference-metrics.json) · [WindowServer and Accessibility receipts](comparison.json)
+[Settled default native rail side by side](settled-default-hosts-top.png) · [Initial native capture](default-hosts-top.png) · [Complete native windows and reference](reference-and-native.png) · [Effect-artwork width](reference-and-artwork-width.png) · [Measurements](reference-metrics.json) · [WindowServer and Accessibility receipts](comparison.json)
 
 The original raster is 1672 × 941. The outer sidebar spans approximately x=1347–1672; its first card spans x=1362–1657 and y=54–195. The original SHA-256 is `c15bc20b8bd33e1f99f21638b81234748d1e17f2c3aefea518d9c2989e750ca2`.
 
@@ -20,7 +20,7 @@ The original raster is 1672 × 941. The outer sidebar spans approximately x=1347
 
 Each executable was launched from a temporary development directory, with isolated data and an ad-hoc signature verified with `codesign --verify --strict --deep`. The two exported layers belonged to the launched fixture process. The generated violet-to-blue backdrop, test state and four generated document contents were the external inputs. The actual text editor, button views, trays, menus and compositing came from the native products. Voice input was injected through the pre-existing review seam. Live microphones, recognition quality and user desktops were outside this visual test.
 
-The separately launched Saytile window shows a transient overlay scroll indicator in the speaking-frame capture. The static artwork depicts no overlay indicator. The original artwork and each complete captured window were scaled uniformly to a common width. Visual differences remain in the synthesized documents, native inactive window chrome, source desktop aspect and the illustrated arrangement of workspaces. The measurements do not constitute a subjective visual approval.
+The separately launched Saytile window shows a transient overlay scroll indicator in the speaking-frame capture. A second observation of the same signed binary after 1.8 additional seconds showed the native indicator fading on its own ([receipt](settled-frame.json)). The original artwork and each complete captured window were scaled uniformly to a common width. Visual differences remain in the synthesized documents, native inactive window chrome, source desktop aspect and the illustrated arrangement of workspaces. The measurements do not constitute a subjective visual approval.
 
 ## Reproduce
 
