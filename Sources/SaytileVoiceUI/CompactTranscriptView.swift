@@ -97,6 +97,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
 
     public override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
+        transcriptView.replaceTextContainer(ReaderTextContainer(size: NSSize(width: max(1, frameRect.width), height: .greatestFiniteMagnitude)))
         borderType = .noBorder
         drawsBackground = false
         hasVerticalScroller = false
@@ -154,6 +155,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         super.layout()
         let size = contentSize
         guard !changingDocument, size.width > 0, size.height > 0, size != lastLayoutSize else { return }
+        if lastLayoutSize.width != size.width { (transcriptView.textContainer as? ReaderTextContainer)?.preserve([]) }
         lastLayoutSize = size
         let origin = contentView.bounds.origin
         changingDocument = true
@@ -260,11 +262,13 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         cancelLivePresentation()
         guard let storage = transcriptView.textStorage else { return }
         changingDocument = true
+        let preservedWraps = readingWraps(from: rendered, to: document, anchor: nil)
         rendered = document
         pending = document
         latestText = document.text
         let patch = Self.patch(from: transcriptView.string as NSString, to: document.text as NSString)
         storage.replaceCharacters(in: patch.range, with: patch.replacement)
+        (transcriptView.textContainer as? ReaderTextContainer)?.preserve(preservedWraps)
         storage.setAttributes(attributes, range: NSRange(location: 0, length: storage.length))
         styleMarkers(in: storage)
         transcriptView.typingAttributes = attributes
@@ -371,6 +375,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     private var typeScale: CGFloat = 1
     func applyTypeScale(_ scale: CGFloat) {
         guard typeScale != scale, !transcriptView.hasMarkedText() else { return }
+        (transcriptView.textContainer as? ReaderTextContainer)?.preserve([])
         typeScale = scale
         transcriptView.textContainerInset = NSSize(width: 2, height: 6 * scale)
         if let storage = transcriptView.textStorage {
@@ -509,6 +514,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         let oldOrigin = contentView.bounds.origin
         let oldDocument = rendered
         let anchoredSpan = anchor.flatMap { a in oldDocument.spans.first { NSMaxRange($0.range) > a.character } }
+        let preservedWraps = readingWraps(from: oldDocument, to: target, anchor: anchor?.character)
         var wheelOffset: CGFloat = 0
         if oldDocument.firstPosition != target.firstPosition || oldDocument.lastPosition != target.lastPosition {
             if let edge = pagingFrom, (pageRemainder > 0 && target.firstPosition.map { $0 < edge } == true ||
@@ -521,6 +527,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         rendered = target
         changingDocument = true
         storage.replaceCharacters(in: patch.range, with: NSAttributedString(string: patch.replacement, attributes: attributes))
+        (transcriptView.textContainer as? ReaderTextContainer)?.preserve(preservedWraps)
         if oldDocument.markers != rendered.markers || !rendered.markers.isEmpty {
             storage.setAttributes(attributes, range: NSRange(location: 0, length: new.length))
             styleMarkers(in: storage)
@@ -550,6 +557,39 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         }
         changingDocument = false
         publishState()
+    }
+
+    /// Carry soft line starts by recording identity, never by the old page's global offset.
+    /// Retain the earliest shared line and the first line still being read: pinning
+    /// only a vertical offset would rewrap every line from a different column.
+    private func readingWraps(from old: PanelTimelineDocument<Entry>, to next: PanelTimelineDocument<Entry>,
+                              anchor: Int?) -> [Int] {
+        guard let container = transcriptView.textContainer as? ReaderTextContainer else { return [] }
+        guard let manager = transcriptView.layoutManager, !old.spans.isEmpty, !next.spans.isEmpty else { return [] }
+        let changingHead = old.firstPosition != next.firstPosition
+        guard changingHead || !container.wraps.isEmpty else { return [] }
+        let destinations = Dictionary(uniqueKeysWithValues: next.spans.map { ($0.entry.id, $0) })
+        func mapped(_ position: Int) -> Int? {
+            guard let span = old.spans.first(where: { NSLocationInRange(position, $0.range) }),
+                  let newSpan = destinations[span.entry.id],
+                  Self.sameText(span.entry.displayText, newSpan.entry.displayText) else { return nil }
+            return newSpan.range.location + position - span.range.location
+        }
+        var kept = container.wraps.compactMap(mapped)
+        if changingHead, manager.numberOfGlyphs > 0, Self.sameText(old.text, transcriptView.string), let first = old.spans.first(where: { destinations[$0.entry.id] != nil }) {
+            var range = NSRange()
+            let glyph = manager.glyphIndexForCharacter(at: first.range.location)
+            _ = manager.lineFragmentRect(forGlyphAt: glyph, effectiveRange: &range)
+            let beginning = manager.characterIndexForGlyph(at: range.location)
+            if let projected = mapped(beginning) { kept.append(projected) }
+            else if NSMaxRange(range) < manager.numberOfGlyphs,
+                    let projected = mapped(manager.characterIndexForGlyph(at: NSMaxRange(range))) { kept.append(projected) }
+            if let anchor {
+                _ = manager.lineFragmentRect(forGlyphAt: manager.glyphIndexForCharacter(at: anchor), effectiveRange: &range)
+                if let projected = mapped(manager.characterIndexForGlyph(at: range.location)) { kept.append(projected) }
+            }
+        }
+        return kept
     }
 
     private func ensureDocumentLayout(keepingVisibleOrigin origin: CGFloat? = nil) {
