@@ -42,6 +42,14 @@ public enum WindowPlacement {
                       width: size.width, height: size.height)
     }
 
+    /// The cursor chooses the display even over its Dock or menu bar. Outside all
+    /// display bounds, keep the panel on its current available screen.
+    public static func dragDestination(pointer: CGPoint, currentPanel: CGRect,
+                                       displays: [(frame: CGRect, visible: CGRect)]) -> CGRect? {
+        displays.first { $0.frame.contains(pointer) }?.visible
+            ?? destination(for: currentPanel, visibleFrames: displays.map(\.visible))
+    }
+
     private static func destination(for frame: CGRect, visibleFrames: [CGRect]) -> CGRect? {
         visibleFrames.max { lhs, rhs in
             let a = lhs.intersection(frame), b = rhs.intersection(frame)

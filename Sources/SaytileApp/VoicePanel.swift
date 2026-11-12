@@ -31,6 +31,24 @@ final class VoicePanel: NSPanel {
     private var gesture: Gesture?
     private var customCursor = false
 
+    func cancelPlacementGesture() {
+        guard gesture != nil else { return }
+        gesture = nil
+        customCursor = false
+        NSCursor.arrow.set()
+    }
+
+    func applyPlacement(_ proposed: CGRect, on visible: CGRect) {
+        let bounded = WindowPlacement.restoredPanel(proposed, visibleFrames: [visible])
+        let limits = WindowPlacement.panelLimits(visibleFrame: visible)
+        if maxSize != limits.maximum || minSize != limits.minimum {
+            minSize = .zero
+            maxSize = limits.maximum
+            minSize = limits.minimum
+        }
+        if frame != bounded { setFrame(bounded, display: isVisible) }
+    }
+
     override func sendEvent(_ event: NSEvent) {
         switch event.type {
         case .leftMouseDown:
@@ -47,10 +65,12 @@ final class VoicePanel: NSPanel {
                 let dx = p.x - gesture.pointer.x, dy = p.y - gesture.pointer.y
                 switch gesture.operation {
                 case .move:
-                    // Constrain only on release so the pointer can cross between displays.
-                    setFrameOrigin(CGPoint(x: gesture.frame.minX + dx, y: gesture.frame.minY + dy))
+                    let displays = NSScreen.screens.map { (frame: $0.frame, visible: $0.visibleFrame) }
+                    if let visible = WindowPlacement.dragDestination(pointer: p, currentPanel: frame, displays: displays) {
+                        applyPlacement(gesture.frame.offsetBy(dx: dx, dy: dy), on: visible)
+                    }
                 case .resize(let edge):
-                    setFrame(resizedFrame(gesture, edge: edge, dx: dx, dy: dy), display: true)
+                    applyPlacement(resizedFrame(gesture, edge: edge, dx: dx, dy: dy), on: gesture.visible)
                 }
                 return
             }

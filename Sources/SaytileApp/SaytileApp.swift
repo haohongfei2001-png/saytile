@@ -349,7 +349,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 return
             }
             screenObserver = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor in self?.movingPanel = false; self?.restoreVisibleWindows(applySavedPlacement: true) }
+                Task { @MainActor in
+                    self?.panel?.cancelPlacementGesture()
+                    self?.movingPanel = false
+                    self?.restoreVisibleWindows(applySavedPlacement: true)
+                }
             }
             // Relaunch never silently resumes the microphone or restores an input binding.
             if directoryIndex == nil && (SaytileStorageProfile.current != .standard || !preferences.bool(forKey: "hasLaunched")) {
@@ -397,7 +401,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func windowWillMove(_ notification: Notification) {
         if let window = notification.object as? NSWindow, window === panel, !positioningPanel { movingPanel = true }
     }
+    private func constrainSystemPlacement(_ notification: Notification) {
+        guard let window = notification.object as? VoicePanel, window === panel,
+              !positioningPanel, !window.draggingPlacement,
+              !NSScreen.screens.contains(where: { $0.visibleFrame.contains(window.frame) }) else { return }
+        restorePanel()
+    }
+    func windowDidResize(_ notification: Notification) {
+        constrainSystemPlacement(notification)
+    }
     func windowDidMove(_ notification: Notification) {
+        constrainSystemPlacement(notification)
         guard let window = notification.object as? NSWindow, window === panel, movingPanel, !positioningPanel, panel?.draggingPlacement == false else { return }
         rememberPlacement()
         if NSEvent.pressedMouseButtons == 0 { movingPanel = false }
@@ -598,10 +612,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let frame = WindowPlacement.restoredPanel(preferred ?? panel.frame, visibleFrames: frames)
         let center = CGPoint(x: frame.midX, y: frame.midY)
         let screen = frames.first(where: { $0.contains(center) }) ?? frames[0]
-        let limits = WindowPlacement.panelLimits(visibleFrame: screen)
-        panel.minSize = .zero
-        panel.maxSize = limits.maximum; panel.minSize = limits.minimum
-        if panel.frame != frame { panel.setFrame(frame, display: panel.isVisible) }
+        panel.applyPlacement(frame, on: screen)
     }
     private func registerHotKey() {
         if let hotKey { UnregisterEventHotKey(hotKey); self.hotKey = nil }

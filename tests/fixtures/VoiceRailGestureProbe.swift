@@ -9,7 +9,15 @@ import SaytileVoiceUI
 struct VoiceRailGestureProbe {
     struct Problem: Error { let reason: String; init(_ reason: String) { self.reason = reason } }
 
-    @MainActor static func main() throws {
+    @MainActor static func main() {
+        do { try run() }
+        catch {
+            FileHandle.standardError.write(Data("FAIL \(error)\n".utf8))
+            exit(1)
+        }
+    }
+
+    @MainActor static func run() throws {
         guard CommandLine.arguments.count == 3 else { throw Problem("Expected write|restore and an isolated JSON file") }
         let output = URL(fileURLWithPath: CommandLine.arguments[2])
         let app = NSApplication.shared
@@ -50,12 +58,24 @@ struct VoiceRailGestureProbe {
             let start = panel.convertPoint(toScreen: from)
             let end = CGPoint(x: start.x + delta.x, y: start.y + delta.y)
             let count = completions
-            for (type, point) in [(NSEvent.EventType.leftMouseDown, start), (.leftMouseDragged, end), (.leftMouseUp, end)] {
+            func send(_ type: NSEvent.EventType, at point: CGPoint) throws {
                 guard let event = NSEvent.mouseEvent(with: type, location: panel.convertPoint(fromScreen: point),
                     modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: panel.windowNumber,
                     context: nil, eventNumber: 1, clickCount: 1, pressure: 1) else { throw Problem("Mouse event creation") }
                 panel.sendEvent(event)
             }
+            try send(.leftMouseDown, at: start)
+            for step in 1...8 {
+                let fraction = CGFloat(step) / 8
+                try send(.leftMouseDragged, at: CGPoint(x: start.x + delta.x * fraction, y: start.y + delta.y * fraction))
+                guard NSScreen.screens.contains(where: { $0.visibleFrame.contains(panel.frame) }) else {
+                    throw Problem(name + " escaped during drag at step " + String(step) + ": " + String(describing: panel.frame))
+                }
+            }
+            guard matches(panel.frame, expect), completions == count else {
+                throw Problem("\(name) before mouse-up expected \(expect), got \(panel.frame), completion delta \(completions-count)")
+            }
+            try send(.leftMouseUp, at: end)
             guard completions == count + 1, matches(panel.frame, expect), !panel.isKeyWindow else { throw Problem(name + " failed; observed " + String(describing: panel.frame)) }
             print("PASS \(name) frame=\(panel.frame)")
         }
@@ -67,6 +87,30 @@ struct VoiceRailGestureProbe {
         let wide = panel.frame
         try drag("bottom corner resize", from: CGPoint(x: wide.width - 3, y: 3), delta: CGPoint(x: 22, y: -30),
                  expect: CGRect(x: wide.minX, y: wide.minY - 30, width: wide.width + 22, height: wide.height + 30))
+        func dragGutter(to pointer: CGPoint, on target: NSScreen, name: String) throws {
+            let before = panel.frame
+            let gutter = CGPoint(x: before.width / 2, y: before.height - 9)
+            let start = panel.convertPoint(toScreen: gutter)
+            // NSWindow snaps its origin to the display grid. Use whole-point
+            // travel so exact end-frame comparisons work at both 1x and 2x.
+            let delta = CGPoint(x: (pointer.x - start.x).rounded(), y: (pointer.y - start.y).rounded())
+            let proposed = before.offsetBy(dx: delta.x, dy: delta.y)
+            let expected = WindowPlacement.restoredPanel(proposed, visibleFrames: [target.visibleFrame])
+            try drag(name, from: gutter, delta: delta, expect: expected)
+        }
+        try dragGutter(to: CGPoint(x: screen.frame.minX + 1, y: screen.frame.minY + 1), on: screen, name: "live left and bottom containment")
+        try dragGutter(to: CGPoint(x: screen.frame.maxX - 1, y: screen.frame.maxY - 1), on: screen, name: "live right and top containment")
+        let pinned = panel.frame
+        try drag("extend bottom-left corner to available bounds", from: CGPoint(x: 2, y: 2),
+                 delta: CGPoint(x: -available.width * 2, y: -available.height * 2), expect: available)
+        try drag("shrink from full screen", from: CGPoint(x: 2, y: 2),
+                 delta: CGPoint(x: available.width - pinned.width, y: available.height - pinned.height), expect: pinned)
+        if let other = NSScreen.screens.first(where: { $0.frame != screen.frame }) {
+            try dragGutter(to: CGPoint(x: other.visibleFrame.midX, y: other.visibleFrame.midY), on: other, name: "cross to second display")
+            try dragGutter(to: CGPoint(x: available.midX, y: available.midY), on: screen, name: "return to original display")
+        } else {
+            print("NOT_RUN physical second-display drag (one display connected)")
+        }
         let final = panel.frame
         panel.orderOut(nil); panel.orderFrontRegardless()
         guard matches(panel.frame, final), let saved = SavedPanelPlacement(frame: final, visibleFrame: available, displayID: "primary") else {

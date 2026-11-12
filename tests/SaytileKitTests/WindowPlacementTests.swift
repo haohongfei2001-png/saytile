@@ -106,6 +106,28 @@ struct WindowPlacementTests {
         #expect(fresh.contains(result))
     }
 
+    @Test func draggedPanelFollowsPointerAcrossScreensAndRespectsSystemUI() throws {
+        let left = CGRect(x: -1440, y: -300, width: 1440, height: 900)
+        let right = CGRect(x: 0, y: 0, width: 800, height: 1000)
+        let leftUsable = CGRect(x: -1400, y: -300, width: 1400, height: 875)
+        let rightUsable = CGRect(x: 0, y: 60, width: 800, height: 915)
+        let displays = [(frame: left, visible: leftUsable), (frame: right, visible: rightUsable)]
+        let large = CGRect(x: -1300, y: -200, width: 1100, height: 700)
+        let menu = CGPoint(x: 1, y: 990)
+        let dock = CGPoint(x: 12, y: 10)
+        for pointer in [menu, dock] {
+            let target = try #require(WindowPlacement.dragDestination(pointer: pointer, currentPanel: large, displays: displays))
+            #expect(target == rightUsable)
+            let placed = WindowPlacement.restoredPanel(large, visibleFrames: [target])
+            #expect(rightUsable.contains(placed))
+            #expect(placed.width == rightUsable.width)
+        }
+        let gap = CGPoint(x: 20, y: -25)
+        #expect(WindowPlacement.dragDestination(pointer: gap, currentPanel: large, displays: displays) == leftUsable)
+        #expect(WindowPlacement.dragDestination(pointer: gap, currentPanel: large, displays: [displays[1]]) == rightUsable)
+        #expect(WindowPlacement.dragDestination(pointer: gap, currentPanel: large, displays: []) == nil)
+    }
+
     @Test func reopeningKeepsUserPositionAndResizeWithinBounds() {
         let screen = CGRect(x: -1440, y: 120, width: 1440, height: 875)
         let moved = CGRect(x: -900, y: 240, width: 414, height: 474)
