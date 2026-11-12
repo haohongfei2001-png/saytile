@@ -297,25 +297,24 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         if pageRemainder != 0, older != (pageRemainder > 0) { pageRemainder = 0 }
         let before = documentVisibleRect.minY
         let maximumY = max(0, transcriptView.bounds.height - contentSize.height)
-        let distance: CGFloat
-        if !event.hasPreciseScrollingDeltas, event.phase.isEmpty, event.momentumPhase.isEmpty {
-            // Mechanical wheels report lines. Preserve visual overlap on accelerated devices.
-            let limit = max(1, contentSize.height / 2)
-            distance = min(limit, max(-limit, delta * verticalLineScroll))
+        let canPage = !selecting && !editing && transcriptView.selectedRange().length == 0 &&
+            (older ? rendered.older : rendered.newer)
+        let room = max(0, older ? before : maximumY - before)
+        let mechanical = !event.hasPreciseScrollingDeltas && event.phase.isEmpty && event.momentumPhase.isEmpty
+        let limit = max(1, contentSize.height / 2)
+        let distance = mechanical ? min(limit, max(-limit, delta * verticalLineScroll)) : delta
+        if mechanical || (canPage && abs(distance) > room) {
+            // At a virtual boundary, split the event here. Giving its clipped
+            // excess to AppKit as well would replay it after the page changes.
             contentView.scroll(to: NSPoint(x: contentView.bounds.minX, y: min(maximumY, max(0, before - distance))))
             reflectScrolledClipView(contentView)
         } else {
-            // Precise deltas, including momentum, retain their native trajectory.
-            distance = delta
             super.scrollWheel(with: event)
         }
-        guard !selecting, !editing, transcriptView.selectedRange().length == 0,
-              older ? rendered.older : rendered.newer else { return }
-        let room = max(0, older ? before : maximumY - before)
+        guard canPage else { return }
         let overflow = max(0, abs(distance) - room)
         if overflow > 0 {
             // A slow database read should not replay a screenful of stale input.
-            let limit = max(1, contentSize.height / 2)
             pageRemainder = min(limit, max(-limit, pageRemainder + (older ? overflow : -overflow)))
         }
         requestAdjacentPage(older: older, wheelReachedEdge: overflow > 0)
