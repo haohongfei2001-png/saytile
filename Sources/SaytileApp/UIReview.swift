@@ -345,12 +345,14 @@ extension AppDelegate {
                       let glyphContainer = scroll.transcriptView.textContainer else {
                     throw ReviewFailure("pagination anchor unavailable")
                 }
-                @MainActor func rowViewportY(_ character: Int) -> CGFloat {
+                @MainActor func rowViewportPoint(_ character: Int) -> CGPoint {
                     let glyph = glyphLayout.glyphIndexForCharacter(at: character)
                     let rect = glyphLayout.boundingRect(forGlyphRange: NSRange(location: glyph, length: 1), in: glyphContainer)
-                    return rect.minY + scroll.transcriptView.textContainerOrigin.y - scroll.documentVisibleRect.minY
+                    return CGPoint(x: rect.minX + scroll.transcriptView.textContainerOrigin.x - scroll.documentVisibleRect.minX,
+                                   y: rect.minY + scroll.transcriptView.textContainerOrigin.y - scroll.documentVisibleRect.minY)
                 }
-                let overlapY = rowViewportY(overlap.range.location)
+                let offsets = Array(0..<min(16, overlap.range.length))
+                let beforePage = offsets.map { rowViewportPoint(overlap.range.location + $0) }
                 guard let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: 1, wheel2: 0, wheel3: 0),
                       let event = NSEvent(cgEvent: wheel) else { throw ReviewFailure("no native wheel event") }
                 let began = ContinuousClock.now
@@ -364,10 +366,15 @@ extension AppDelegate {
                 guard let sameRow = scroll.rendered.spans.first(where: { $0.entry.id == overlap.entry.id }) else {
                     throw ReviewFailure("pagination lost the visible row")
                 }
-                let pageOffset = rowViewportY(sameRow.range.location) - overlapY
+                let afterPage = offsets.map { rowViewportPoint(sameRow.range.location + $0) }
+                let pairs = Array(zip(beforePage, afterPage))
+                let sideways = pairs.map { abs($1.x - $0.x) }.max() ?? .infinity
+                let pageOffset = (afterPage.first?.y ?? .infinity) - (beforePage.first?.y ?? 0)
+                let shear = pairs.map { abs(($1.y - $0.y) - pageOffset) }.max() ?? .infinity
+                guard sideways <= 1, shear <= 1 else { throw ReviewFailure("pagination rewrapped visible characters: dx=\(sideways) shear=\(shear)") }
                 // One pixel of requested scrolling, plus backing-pixel alignment.
                 guard abs(pageOffset) <= 2 else { throw ReviewFailure("pagination displaced the reader by \(pageOffset) pt") }
-                print("TIMELINE_PAGE_ANCHOR delta=\(pageOffset) points")
+                print("TIMELINE_PAGE_ANCHOR delta=\(pageOffset) points dx=\(sideways) lineShear=\(shear) characters=\(offsets.count)")
                 print("TIMELINE_NATIVE_PAGE rows=12003 resident=64 wheel_to_paint=\(began.duration(to: .now))")
                 let entries = scroll.rendered.spans
                 guard scroll.rendered.markers.isEmpty,
