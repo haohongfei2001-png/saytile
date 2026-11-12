@@ -233,7 +233,8 @@ private final class CaptureControlFixture {
     var dependencies: AppCaptureDependencies {
         AppCaptureDependencies(state: { _ in self.state },
             start: { audio in self.starts += 1; self.state = self.startResult; audio.issue = self.startIssue },
-            pause: { _ in self.pauses += 1; self.state = .paused }, level: { _ in self.measuredLevel })
+            pause: { _ in self.pauses += 1; self.state = .paused }, level: { _ in self.measuredLevel },
+            microphoneAuthorization: { .authorized }, openMicrophonePreferences: { preconditionFailure("device fixture cannot request system settings") })
     }
 }
 

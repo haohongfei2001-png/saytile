@@ -25,3 +25,12 @@ import Testing
     }
     #expect(design.archiveDirectory.lastPathComponent == "Saytile Design Experience")
 }
+
+@Test func sharedVoicePreviewHasNoExistingArchiveOrCredentialNamespace() {
+    let preview = SaytileStorageProfile.sharedVoicePreview
+    for existing in [SaytileStorageProfile.standard, .personal, .designExperience] {
+        #expect(preview.archiveDirectory != existing.archiveDirectory)
+        #expect(preview.byokService != existing.byokService)
+        #expect(preview.hostedService != existing.hostedService)
+    }
+}

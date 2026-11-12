@@ -1,3 +1,4 @@
+import SaytileVoiceUI
 import AppKit
 import SwiftUI
 import Combine
@@ -91,9 +92,7 @@ struct AppCaptureDependencies {
 
 /// Three ordinary states plus explicit preparation/failure exceptions. These values
 /// describe one control; their labels are accessibility/settings text, not a header.
-enum PanelCaptureVisualState: Equatable {
-    case standby, recognizing, paused, starting, recoveryNeeded
-}
+typealias PanelCaptureVisualState = VoicePanelState
 
 struct PanelCapturePresentation: Equatable {
     let state: PanelCaptureVisualState
@@ -314,7 +313,7 @@ final class AppModel: ObservableObject {
         input = NativeInputCoordinator(store: store)
         floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
         launchAtLogin = canManageLoginItem && SMAppService.mainApp.status == .enabled
-        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? (SaytileStorageProfile.current == .designExperience ? "disabled" : "option-space")
+        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? ([.designExperience, .sharedVoicePreview].contains(SaytileStorageProfile.current) ? "disabled" : "option-space")
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
         initializing = false
         hosted.bind { [weak self] route, revoke in

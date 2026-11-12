@@ -53,7 +53,7 @@ cp packaging/Info.plist "$bundle/Contents/Info.plist"
 if [[ "$version" == *-integrated.* ]]; then
   ditto .build/sparkle/Sparkle.framework "$bundle/Contents/Frameworks/Sparkle.framework"
   cp .build/sparkle/LICENSE "$bundle/Contents/Resources/SPARKLE-LICENSE.txt"
-  if [[ "${SAYTILE_PERSONAL_EXPERIENCE:-0}" != 1 && "${SAYTILE_DESIGN_EXPERIENCE:-0}" != 1 && -n "${SAYTILE_UPDATE_FEED:-}${SAYTILE_UPDATE_PUBLIC_KEY:-}" ]]; then
+  if [[ "${SAYTILE_PERSONAL_EXPERIENCE:-0}" != 1 && "${SAYTILE_DESIGN_EXPERIENCE:-0}" != 1 && "${SAYTILE_SHARED_VOICE_PREVIEW:-0}" != 1 && -n "${SAYTILE_UPDATE_FEED:-}${SAYTILE_UPDATE_PUBLIC_KEY:-}" ]]; then
     python3 scripts/configure-update-feed.py "$bundle/Contents/Info.plist"
   fi
 fi
@@ -64,7 +64,11 @@ if [[ -n "$(git ls-files --others --exclude-standard Sources packaging)" ]]; the
 /usr/libexec/PlistBuddy -c "Add :SaytileSourceDirty bool $SAYTILE_SOURCE_DIRTY" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :SaytileReleaseVersion string $(cat packaging/VERSION)" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(git rev-list --count HEAD)" "$bundle/Contents/Info.plist"
-if [[ "${SAYTILE_DESIGN_EXPERIENCE:-0}" == 1 ]]; then
+if [[ "${SAYTILE_SHARED_VOICE_PREVIEW:-0}" == 1 ]]; then
+  /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier app.saytile.mac.shared-voice-preview" "$bundle/Contents/Info.plist"
+  /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Saytile 语音板体验" "$bundle/Contents/Info.plist"
+  /usr/libexec/PlistBuddy -c "Set :CFBundleName Saytile 语音板体验" "$bundle/Contents/Info.plist"
+elif [[ "${SAYTILE_DESIGN_EXPERIENCE:-0}" == 1 ]]; then
   /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier app.saytile.mac.design-experience" "$bundle/Contents/Info.plist"
   /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Saytile 设计体验" "$bundle/Contents/Info.plist"
   /usr/libexec/PlistBuddy -c "Set :CFBundleName Saytile 设计体验" "$bundle/Contents/Info.plist"

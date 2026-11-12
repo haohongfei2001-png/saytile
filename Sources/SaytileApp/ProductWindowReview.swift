@@ -32,6 +32,8 @@ extension AppDelegate {
             throw Stop(message: "Expected an empty archive and the controlled reference backdrop")
         }
         let request = output.appendingPathComponent("request.json")
+        let sharedComparison = ProcessInfo.processInfo.environment["SAYTILE_SHARED_VOICE_COMPARISON"] == "1"
+        let docked = WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame)
         func frame<V: View>(_ view: V, _ name: String, _ size: CGSize, panel: Bool = false, dark: Bool = false, bottom: Bool = false) async throws {
             if let subset = ProcessInfo.processInfo.environment["SAYTILE_PRODUCT_WINDOW_SUBSET"],
                !subset.split(separator:",").contains(Substring(name)) { return }
@@ -52,7 +54,8 @@ extension AppDelegate {
             let host = NSHostingView(rootView: view.environment(\.colorScheme, dark ? .dark : .light))
             host.sizingOptions = []; window.contentView = host; window.setContentSize(size)
             let area = screen.visibleFrame
-            window.setFrameOrigin(CGPoint(x: floor(area.midX-window.frame.width/2), y: floor(area.midY-window.frame.height/2)))
+            if sharedComparison && panel { window.setFrame(docked, display: false) }
+            else { window.setFrameOrigin(CGPoint(x: floor(area.midX-window.frame.width/2), y: floor(area.midY-window.frame.height/2))) }
             backdrop.setFrame(window.frame, display: false); backdrop.title = "Saytile controlled visual environment"
             let background = NSImageView(); background.image = environment; background.imageScaling = .scaleAxesIndependently
             backdrop.contentView = background; backdrop.isOpaque = true; backdrop.backgroundColor = .white
@@ -82,8 +85,13 @@ extension AppDelegate {
                 throw Stop(message: "Fixture took foreground or keyboard focus")
             }
             print("PRODUCT_SCENE_LAID_OUT "+name); fflush(nil)
-            let info: [String:Any] = ["scene":name,"pid":getpid(),"window":window.windowNumber,"backdrop":backdrop.windowNumber,
+            var info: [String:Any] = ["scene":name,"pid":getpid(),"window":window.windowNumber,"backdrop":backdrop.windowNumber,
                 "points":[window.frame.width,window.frame.height],"scale":screen.backingScaleFactor]
+            if sharedComparison && panel {
+                let glass = WindowPlacement.panelGlassFrame(window.frame)
+                info["glass"] = [glass.minX, glass.minY, glass.width, glass.height]
+                info["visible"] = [area.minX, area.minY, area.width, area.height]
+            }
             try JSONSerialization.data(withJSONObject: info,options:.sortedKeys).write(to: request,options:.atomic)
             let ack = output.appendingPathComponent(name+".done")
             for _ in 0..<180 {
@@ -96,16 +104,18 @@ extension AppDelegate {
             throw Stop(message: "No compositor acknowledgement for "+name)
         }
         model.selectSource("local") // explicit diagnostics carry an inert legacy configuration; use the actual fresh-install source.
-        let sz = NSSize(width:780,height:610), panelSize = WindowPlacement.panelDefaultSize
+        let sz = NSSize(width:780,height:610), panelSize = sharedComparison ? docked.size : WindowPlacement.panelDefaultSize
         try await frame(InputPanelWindowView(model:model),"first-use",panelSize,panel:true)
-        let text = "我想让 Saytile 成为一个始终待命\n的语音输入工作台，它应该让文字\n自然出现，而不是让按钮打断表达。\n说完这一句，它会安静地等我\n继续开口。"
+        let text = sharedComparison ? "把今天的讨论记下来。\n下午三点继续。" : "我想让 Saytile 成为一个始终待命\n的语音输入工作台，它应该让文字\n自然出现，而不是让按钮打断表达。\n说完这一句，它会安静地等我\n继续开口。"
         let capture = UIPanelCaptureFixture()
         // Same AppModel and native panel as normal; only microphone/permission states are injected.
         let suite = "app.saytile.test.design."+UUID().uuidString
         let prefs = UserDefaults(suiteName:suite)!
         defer { prefs.removePersistentDomain(forName:suite) }
         let root = output.appendingPathComponent("capture-fixture-"+UUID().uuidString)
-        let meter = try AppModel(directory:root,preferences:prefs,captureDependencies:capture.dependencies)
+        let reviewBoard = sharedComparison ? NSPasteboard(name: .init("app.saytile.voice-comparison." + String(getpid()))) : nil
+        defer { reviewBoard?.releaseGlobally() }
+        let meter = try AppModel(directory:root,preferences:prefs,captureDependencies:capture.dependencies, copyPasteboard:reviewBoard)
         do {
             await meter.initialLoad(); capture.state = .interrupted("麦克风未获授权"); capture.authorization = .denied
             meter.objectWillChange.send()
@@ -121,6 +131,7 @@ extension AppDelegate {
                 try await frame(InputPanelWindowView(model:meter),"panel-"+name,panelSize,panel:true)
             }
             await meter.prepareForExit()
+            if sharedComparison { return }
         } catch { await meter.prepareForExit(); throw error }
         try await frame(SettingsView(model:model),"settings",sz)
         try await frame(SettingsView(model:model,initialPage:.models),"models",sz)
