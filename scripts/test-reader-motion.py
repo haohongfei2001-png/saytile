@@ -61,6 +61,19 @@ def main():
             'precisePhasesAndMomentumObserved': case['input'] != 'precise' or (
                 {1, 4, 8} <= {e['phase'] for e in case['steps']} and {1, 4, 8} <= {e['momentum'] for e in case['steps']}),
         }
+        if case['input'] == 'wheel':
+            burst = case['mechanicalBurst']
+            changes = burst['singleChanges']
+            three = burst['threeNotchPoints']
+            checks.update({
+                'threeNotchesAtLeastTwoIntermediatePositions': len([v for v in changes if 0.1 < v < three-0.1]) >= 2,
+                'threeNotchTravelWithin1pt': abs(three - burst['singleTravel']) <= 1,
+                'burstCrossesMultipleBoundaries': len(burst['burstSwaps']) >= 2,
+                'rapidDetentsConserveDistanceWithin1pt': abs(burst['burstTravel'] - burst['burstExpected']) <= 1,
+                'burstTwoDimensionalAnchorWithin1pt': burst['burstMissingGlyphs'] == 0 and burst['burstMaxMedianDX'] <= 1 and burst['burstMaxNonrigidDY'] <= 1,
+                'reverseFromLastVisiblePointWithin1pt': abs(burst['reversedTravel'] - three) <= 1 and burst['staleDirectionAfterReversal'] <= 1,
+                'noDriftAfterStop': burst['singleDrift'] <= 0.01 and burst['burstStopDrift'] <= 0.01,
+            })
         case['checks'] = checks
         passed &= all(checks.values())
         print(case['profile'], case['input'], up, 'older pages;', down, 'newer pages; maximum unexpected vertical shift',

@@ -135,16 +135,36 @@ private struct Visible {
         pageChanges.append(record)
         oldestStart = min(oldestStart, start)
     }
-    func apply(delta: Int32, precise: Bool, phase: Int64 = 0, momentum: Int64 = 0) async throws {
-        step += 1
-        let before = snapshot()
+    func dispatch(delta: Int32, precise: Bool, phase: Int64 = 0, momentum: Int64 = 0) throws -> NSEvent {
         guard let cg = CGEvent(scrollWheelEvent2Source: nil, units: precise ? .pixel : .line, wheelCount: 1, wheel1: delta, wheel2: 0, wheel3: 0) else { throw ProbeError.event }
         cg.setIntegerValueField(.scrollWheelEventScrollPhase, value: phase)
         cg.setIntegerValueField(.scrollWheelEventMomentumPhase, value: momentum)
         cg.setIntegerValueField(.scrollWheelEventIsContinuous, value: precise ? 1 : 0)
         guard let e = NSEvent(cgEvent: cg), e.hasPreciseScrollingDeltas == precise else { throw ProbeError.event }
         scroll.scrollWheel(with: e) // point-to-point only; never post system input
-        try await Task.sleep(for: .milliseconds(17))
+        return e
+    }
+    func apply(delta: Int32, precise: Bool, phase: Int64 = 0, momentum: Int64 = 0) async throws {
+        step += 1
+        let before = snapshot()
+        let e = try dispatch(delta: delta, precise: precise, phase: phase, momentum: momentum)
+        // Single-notch endpoint contract. The separate burst probe issues a new
+        // mechanical detent every 18 ms, long before the 90 ms response settles.
+        if precise {
+            try await Task.sleep(for: .milliseconds(17))
+        } else {
+            let cap = max(1, scroll.contentSize.height / 2)
+            let distance = min(cap, max(-cap, e.scrollingDeltaY * scroll.verticalLineScroll))
+            let limit = max(0, scroll.transcriptView.bounds.height - scroll.contentSize.height)
+            let end = min(limit, max(0, before.origin-distance))
+            let deadline = ProcessInfo.processInfo.systemUptime + 0.18
+            repeat {
+                try await Task.sleep(for: .milliseconds(6))
+                // Allow the final sub-pixel remainder to reach a page edge even
+                // when the physical clip can move no further.
+                if abs(scroll.contentView.bounds.minY-end) < 0.001, end > 0, end < limit { break }
+            } while ProcessInfo.processInfo.systemUptime < deadline
+        }
         // The host read reaches the product view on a later turn. Observe the
         // actual same glyph before and after replacement, without wheel travel.
         let beforePage = snapshot()
@@ -176,6 +196,89 @@ private struct Visible {
             try await apply(delta: 0, precise: true, momentum: 3)
         }
     }
+    func continuousWheel() async throws -> [String: Any] {
+        // Measure a fixed, settling wheel movement on an ordinary line, then
+        // continuously traverse pages. Compare actual travel from overlapping
+        // *visible glyphs*, not the clip origin which changes on pagination.
+        let begin = rows.count - capacity
+        start = begin; pending = nil; publish(); scroll.jumpToLatest()
+        let maxY = scroll.transcriptView.bounds.height - scroll.contentSize.height
+        scroll.contentView.scroll(to: .init(x: 0, y: maxY / 2)); scroll.reflectScrolledClipView(scroll.contentView)
+        try await Task.sleep(for: .milliseconds(50))
+        let three = min(scroll.contentSize.height / 2, 3 * scroll.verticalLineScroll)
+        let first = snapshot().origin
+        _ = try dispatch(delta: 3, precise: false)
+        var single = [Double](), last = first
+        let t = ProcessInfo.processInfo.systemUptime
+        while ProcessInfo.processInfo.systemUptime - t < 0.19 {
+            let current = snapshot().origin
+            if abs(current-last) > 0.0001 { single.append(first-current); last = current }
+            try await Task.sleep(for: .milliseconds(5))
+        }
+        let settledSingle = snapshot().origin
+        try await Task.sleep(for: .milliseconds(100))
+        let drift = abs(snapshot().origin - settledSingle)
+        let singleTotal = first - settledSingle
+        // Start on the latest page, well above the lower boundary, with ample
+        // history ahead of an uninterrupted scroll. No global endpoint clips it.
+        scroll.jumpToLatest(); pending = nil
+        var previous = snapshot(), sum = 0.0, maxDX = 0.0, maxSpread = 0.0, misses = 0
+        var pageSteps = [[String:Any]](), frameY = [Double]()
+        func observe(_ next: Visible) {
+            let d = Self.delta(previous, next)
+            if let dy = d["medianDY"] as? CGFloat {
+                sum += dy
+                if abs(dy) > 0.001 { frameY.append(dy) }
+                maxDX = max(maxDX, d["medianAbsDX"] as? CGFloat ?? 0)
+                maxSpread = max(maxSpread, Self.unexpected(previous, next, expected: dy) ?? 0)
+            } else { misses += 1 }
+            previous = next
+        }
+        let count = 18
+        for _ in 0..<count {
+            _ = try dispatch(delta: 3, precise: false)
+            for _ in 0..<3 {
+                try await Task.sleep(for: .milliseconds(6))
+                observe(snapshot())
+                if pending != nil {
+                    let oldCount = pageChanges.count
+                    try fulfill(); observe(snapshot())
+                    if pageChanges.count > oldCount { pageSteps.append(pageChanges.removeLast()) }
+                }
+            }
+        }
+        let finish = ProcessInfo.processInfo.systemUptime + 0.19
+        while ProcessInfo.processInfo.systemUptime < finish {
+            try await Task.sleep(for: .milliseconds(6)); observe(snapshot())
+            if pending != nil {
+                let oldCount = pageChanges.count
+                try fulfill(); observe(snapshot())
+                if pageChanges.count > oldCount { pageSteps.append(pageChanges.removeLast()) }
+            }
+        }
+        let total = sum
+        try await Task.sleep(for: .milliseconds(100)); observe(snapshot())
+        let longDrift = abs(sum-total)
+        // A reversal discards only the unfinished movement in the old direction.
+        // The new notch starts at the last *visible* point and must land 30 pt back.
+        start = begin; pending = nil; publish(); scroll.jumpToLatest()
+        scroll.contentView.scroll(to: .init(x: 0, y: maxY / 2)); scroll.reflectScrolledClipView(scroll.contentView)
+        try await Task.sleep(for: .milliseconds(40))
+        _ = try dispatch(delta: 3, precise: false)
+        try await Task.sleep(for: .milliseconds(25))
+        let reversal = snapshot().origin
+        _ = try dispatch(delta: -3, precise: false)
+        var opposite = 0.0
+        for _ in 0..<32 {
+            try await Task.sleep(for: .milliseconds(5))
+            opposite = max(opposite, reversal - snapshot().origin)
+        }
+        let reversedTotal = snapshot().origin - reversal
+        return ["threeNotchPoints": three, "singleChanges": single, "singleTravel": singleTotal, "singleDrift": drift,
+                "burstDetents": count, "burstTravel": total, "burstExpected": three * Double(count), "burstSwaps": pageSteps,
+                "burstMoves": frameY, "burstMissingGlyphs": misses, "burstMaxMedianDX": maxDX, "burstMaxNonrigidDY": maxSpread,
+                "burstStopDrift": longDrift, "reversedTravel": reversedTotal, "staleDirectionAfterReversal": opposite]
+    }
     func globalEdge(older: Bool) async throws -> [String: Any] {
         start = older ? 0 : rows.count - capacity
         pending = nil
@@ -199,7 +302,8 @@ private struct Visible {
         try fulfill()
         let gestureFinalStart = start
         let limits = [try await globalEdge(older: true), try await globalEdge(older: false)]
-        return ["input": kind, "profile": profile, "globalEnds": limits, "oldestStart": oldestStart, "finalStart": gestureFinalStart, "initialStart": rows.count-capacity,
+        let burst = kind == "wheel" && images == nil ? try await continuousWheel() : [:]
+        return ["input": kind, "profile": profile, "globalEnds": limits, "mechanicalBurst": burst, "oldestStart": oldestStart, "finalStart": gestureFinalStart, "initialStart": rows.count-capacity,
                 "everKey": everKey, "distinctVisibleFirstRows": seenOrigins.count, "pageChanges": pageChanges, "steps": motions, "lateRevisions": revisions]
     }
 }
