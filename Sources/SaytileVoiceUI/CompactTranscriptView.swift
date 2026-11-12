@@ -69,6 +69,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         guard let position else { focusedPosition = nil; return }
         guard focusedPosition != position, let span = rendered.spans.first(where: { $0.entry.position == position }) else { return }
         focusedPosition = position
+        stopWheelMotion()
         pageRemainder = 0
         isFollowingLatest = false
         transcriptView.scrollRangeToVisible(NSRange(location: span.range.location, length: 1))
@@ -92,6 +93,11 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     private var latestRequest = 0
     private var lastLayoutSize = NSSize.zero
     private var measuredHeight: CGFloat = 0
+    private var wheelLink: CADisplayLink?
+    private var applyingWheelStep = false
+    private var wheelRemaining: CGFloat = 0
+    private var wheelLastFrame: CFTimeInterval = 0
+    private var wheelDeadline: CFTimeInterval = 0
     private var tailLink: CADisplayLink?
     private var tailStart: (time: CFTimeInterval, y: CGFloat, destination: CGFloat)?
 
@@ -136,13 +142,14 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         transcriptView.setAccessibilityLabel("当前转写文字")
         transcriptView.onPageNavigation = { [weak self] older in
             guard let self else { return }
+            stopWheelMotion()
             pageRemainder = 0
             requestAdjacentPage(older: older)
         }
         transcriptView.onSelectionTracking = { [weak self] tracking in
             guard let self else { return }
             selecting = tracking
-            if tracking { pageRemainder = 0; isFollowingLatest = false; publishState() }
+            if tracking { stopWheelMotion(); pageRemainder = 0; isFollowingLatest = false; publishState() }
             else if transcriptView.selectedRange().length == 0 { applyLatest() }
         }
         documentView = transcriptView
@@ -172,6 +179,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     }
 
     public func jumpToLatest() {
+        stopWheelMotion()
         pageRemainder = 0
         changingDocument = true
         transcriptView.setSelectedRange(NSRange(location: transcriptView.string.utf16.count, length: 0))
@@ -188,6 +196,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         // visible ranges until the edit commits against the full revision.
         if liveDeadline != nil { cancelLivePresentation() }
         stopTailMotion()
+        stopWheelMotion()
         pageRemainder = 0
         if let replacementString, !transcriptView.hasMarkedText(),
            Self.sameText(rendered.text, textView.string) {
@@ -285,6 +294,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         if let emptiedRow, transcriptView.selectedRange().location != emptiedRow.caret,
            Self.sameText(rendered.text, transcriptView.string) { self.emptiedRow = nil }
         if transcriptView.selectedRange().length > 0 {
+            stopWheelMotion()
             pageRemainder = 0
             isFollowingLatest = false
         }
@@ -293,32 +303,75 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     }
 
     public override func scrollWheel(with event: NSEvent) {
+        let mechanical = !event.hasPreciseScrollingDeltas && event.phase.isEmpty && event.momentumPhase.isEmpty
+        if !mechanical { stopWheelMotion() }
         let delta = event.scrollingDeltaY
         guard delta != 0 else { super.scrollWheel(with: event); return }
         if delta > 0 || tailLink != nil { isFollowingLatest = false; publishState() }
         lastManagedOrigin = nil
-        let older = delta > 0
-        if pageRemainder != 0, older != (pageRemainder > 0) { pageRemainder = 0 }
+        if pageRemainder != 0, (delta > 0) != (pageRemainder > 0) { pageRemainder = 0 }
+        if mechanical {
+            let limit = max(1, contentSize.height / 2)
+            let distance = min(limit, max(-limit, delta * verticalLineScroll))
+            if window?.isVisible == true, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+                if wheelRemaining * distance < 0 { wheelRemaining = 0 }
+                wheelRemaining += distance
+                let now = CACurrentMediaTime()
+                wheelDeadline = now + 0.09
+                if wheelLink == nil {
+                    wheelLastFrame = now
+                    let link = displayLink(target: self, selector: #selector(advanceWheelMotion))
+                    wheelLink = link
+                    link.add(to: .main, forMode: .common)
+                }
+            } else {
+                stopWheelMotion()
+                applyWheelDistance(distance)
+            }
+        } else {
+            applyWheelDistance(delta, preciseEvent: event)
+        }
+    }
+
+    @objc private func advanceWheelMotion() {
+        let now = CACurrentMediaTime()
+        let fraction = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 1 :
+            min(1, (now - wheelLastFrame) / max(0.0001, wheelDeadline - wheelLastFrame))
+        let step = wheelRemaining * fraction
+        wheelLastFrame = now
+        wheelRemaining -= step
+        if fraction == 1 { stopWheelMotion() }
+        applyWheelDistance(step)
+    }
+
+    private func stopWheelMotion() {
+        wheelLink?.invalidate()
+        wheelLink = nil
+        wheelRemaining = 0
+    }
+
+    private func applyWheelDistance(_ distance: CGFloat, preciseEvent: NSEvent? = nil) {
+        guard distance != 0 else { return }
+        let older = distance > 0
         let before = documentVisibleRect.minY
         let maximumY = max(0, transcriptView.bounds.height - contentSize.height)
         let canPage = !selecting && !editing && transcriptView.selectedRange().length == 0 &&
             (older ? rendered.older : rendered.newer)
         let room = max(0, older ? before : maximumY - before)
-        let mechanical = !event.hasPreciseScrollingDeltas && event.phase.isEmpty && event.momentumPhase.isEmpty
-        let limit = max(1, contentSize.height / 2)
-        let distance = mechanical ? min(limit, max(-limit, delta * verticalLineScroll)) : delta
-        if mechanical || (canPage && abs(distance) > room) {
+        if let preciseEvent, !(canPage && abs(distance) > room) {
+            super.scrollWheel(with: preciseEvent)
+        } else {
             // At a virtual boundary, split the event here. Giving its clipped
             // excess to AppKit as well would replay it after the page changes.
-            contentView.scroll(to: NSPoint(x: contentView.bounds.minX, y: min(maximumY, max(0, before - distance))))
-            reflectScrolledClipView(contentView)
-        } else {
-            super.scrollWheel(with: event)
+            applyingWheelStep = true
+            scroll(to: NSPoint(x: 0, y: min(maximumY, max(0, before - distance))))
+            applyingWheelStep = false
         }
         guard canPage else { return }
         let overflow = max(0, abs(distance) - room)
         if overflow > 0 {
             // A slow database read should not replay a screenful of stale input.
+            let limit = max(1, contentSize.height / 2)
             pageRemainder = min(limit, max(-limit, pageRemainder + (older ? overflow : -overflow)))
         }
         requestAdjacentPage(older: older, wheelReachedEdge: overflow > 0)
@@ -353,6 +406,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
             }
         }
         lastManagedOrigin = nil
+        if !applyingWheelStep { stopWheelMotion() }
         if !editing, transcriptView.selectedRange().length == 0, isAtBottom, !rendered.newer {
             isFollowingLatest = true
             if hasDeferredUpdate { applyLatest() }
@@ -656,7 +710,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     }
 
     public override func viewWillMove(toWindow newWindow: NSWindow?) {
-        if window !== newWindow { stopTailMotion() }
+        if window !== newWindow { stopWheelMotion(); stopTailMotion() }
         super.viewWillMove(toWindow: newWindow)
     }
     private func scroll(to point: NSPoint) {

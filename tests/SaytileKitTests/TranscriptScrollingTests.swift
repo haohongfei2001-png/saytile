@@ -9,6 +9,12 @@ import Testing
         var displayText: String { "测试行 \(position)" }
     }
 
+    private func waitForWheel(toReach condition: () -> Bool) async throws {
+        let deadline = ContinuousClock.now + .seconds(2)
+        while !condition(), ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(4)) }
+        #expect(condition())
+    }
+
     @Test(.serialized, arguments: [NSScroller.Style.overlay, .legacy])
     func pageKeysLoadAdjacentHistoryOnceAndRespectSelection(style: NSScroller.Style) async throws {
         _ = NSApplication.shared
@@ -46,6 +52,8 @@ import Testing
         wheel.location = CGPoint(x: point.x, y: primary.frame.maxY - point.y)
         panel.sendEvent(try #require(NSEvent(cgEvent: wheel)))
         #expect(start > 32)
+        let expected = min(3 * scroll.verticalLineScroll, scroll.contentSize.height / 2)
+        try await waitForWheel { abs(scroll.contentView.bounds.minY - (start - expected)) < 0.5 }
         let travel = start - scroll.contentView.bounds.minY
         #expect(travel > 0 && travel <= scroll.contentSize.height / 2 + 1, "wheel moved \(travel) pt")
         #expect(scroll.verticalScroller == nil)
@@ -62,11 +70,51 @@ import Testing
         #expect(requests == [true, false])
     }
 
+    @Test func mechanicalWheelInterpolatesOnlyItsOwnMotion() async throws {
+        _ = NSApplication.shared
+        let box = NSRect(x: 0, y: 0, width: 154.5, height: 65)
+        let scroll = CompactTranscriptScrollView<Row>(frame: box)
+        let panel = NSPanel(contentRect: box, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+        panel.contentView = scroll
+        panel.isReleasedWhenClosed = false
+        panel.ignoresMouseEvents = true
+        panel.alphaValue = 0.01
+        panel.orderBack(nil)
+        defer { panel.orderOut(nil); panel.close() }
+        let rows = (1...64).map { Row(position: Int64($0)) }
+        scroll.updateDocument(.init(entries: rows))
+        scroll.layoutSubtreeIfNeeded()
+        func move(to y: CGFloat) {
+            scroll.contentView.scroll(to: NSPoint(x: 0, y: y))
+            scroll.reflectScrolledClipView(scroll.contentView)
+        }
+        func wheel(_ amount: Int32) throws {
+            let cg = try #require(CGEvent(scrollWheelEvent2Source: nil, units: .line, wheelCount: 1,
+                                          wheel1: amount, wheel2: 0, wheel3: 0))
+            scroll.scrollWheel(with: try #require(NSEvent(cgEvent: cg)))
+        }
+        move(to: 100)
+        try wheel(3)
+        if NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+            #expect(scroll.documentVisibleRect.minY == 70)
+            return
+        }
+        #expect(scroll.documentVisibleRect.minY == 100)
+        try await waitForWheel { scroll.documentVisibleRect.minY < 100 }
+        let firstFrame = scroll.documentVisibleRect.minY
+        #expect(firstFrame > 70)
+        try wheel(-1)
+        try await waitForWheel { abs(scroll.documentVisibleRect.minY - firstFrame - 10) < 0.01 }
+        try wheel(2)
+        move(to: 45)
+        try await Task.sleep(for: .milliseconds(160))
+        #expect(scroll.documentVisibleRect.minY == 45)
+    }
+
     @Test func wheelOverflowIsConsumedOnceByTheRequestedPageAndCancelsOnReversal() async throws {
         _ = NSApplication.shared
         let box = NSRect(x: 0, y: 0, width: 182, height: 80)
         let rows = (1...96).map { Row(position: Int64($0)) }
-        let primary = try #require(NSScreen.screens.first)
         for (unit, delta, reverse) in [(CGScrollEventUnit.line, Int32(3), false), (.pixel, 8, false), (.line, 3, true)] {
             let scroll = CompactTranscriptScrollView<Row>(frame: box)
             let panel = NSPanel(contentRect: box, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
@@ -83,11 +131,13 @@ import Testing
             func wheel(_ value: Int32) async throws {
                 let cg = try #require(CGEvent(scrollWheelEvent2Source: nil, units: unit, wheelCount: 1,
                                               wheel1: value, wheel2: 0, wheel3: 0))
-                let point = panel.convertPoint(toScreen: NSPoint(x: box.midX, y: box.midY))
-                cg.location = NSPoint(x: point.x, y: primary.frame.maxY - point.y)
-                panel.sendEvent(try #require(NSEvent(cgEvent: cg)))
-                // AppKit applies precise device events on the next drawing pass.
-                if unit == .pixel { try await Task.sleep(for: .milliseconds(60)) }
+                // Address the real NSScrollView in this panel directly. Desktop hit
+                // testing can deliver to an unrelated window during concurrent tests.
+                let before = scroll.documentVisibleRect.minY
+                scroll.scrollWheel(with: try #require(NSEvent(cgEvent: cg)))
+                let distance = CGFloat(value) * (unit == .line ? scroll.verticalLineScroll : 1)
+                let target = max(0, min(scroll.transcriptView.bounds.height - scroll.contentSize.height, before - distance))
+                try await waitForWheel { abs(scroll.documentVisibleRect.minY - target) < 0.01 }
             }
             scroll.updateDocument(.init(entries: Array(rows.suffix(64)), older: true))
             scroll.layoutSubtreeIfNeeded()
@@ -110,8 +160,8 @@ import Testing
             let manager = try #require(scroll.transcriptView.layoutManager)
             let glyph = manager.glyphIndexForCharacter(at: span.range.location)
             let lineY = manager.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil).minY
-            let carried = lineY + edgeOffset - scroll.documentVisibleRect.minY
-            #expect(abs(carried - (reverse ? 0 : interior - 2)) <= 0.5)
+            let expected = lineY + edgeOffset - (reverse ? 0 : interior - 2)
+            try await waitForWheel { abs(scroll.documentVisibleRect.minY - expected) <= 0.5 }
             #expect(!scroll.isFollowingLatest && requests == [true])
         }
     }

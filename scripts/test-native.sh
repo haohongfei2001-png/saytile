@@ -25,9 +25,9 @@ if (( $# > 0 )); then
 else
   # Frame sampling and the app's display link run on the same main actor.
   # Keep unrelated concurrent tests out of the measurement process.
-  frame_suite=LiveTailViewportTests
+  frame_suite='LiveTailViewportTests|TranscriptScrollingTests'
   echo "== Isolated native viewport frames ==" | tee "$SAYTILE_TEST_LOG"
-  run_tests --filter "$frame_suite" 2>&1 | tee -a "$SAYTILE_TEST_LOG"
+  run_tests --no-parallel --filter "$frame_suite" 2>&1 | tee -a "$SAYTILE_TEST_LOG"
   echo "== Remaining Swift suites ==" | tee -a "$SAYTILE_TEST_LOG"
   run_tests --skip-build --skip "$frame_suite" 2>&1 | tee -a "$SAYTILE_TEST_LOG"
 fi
