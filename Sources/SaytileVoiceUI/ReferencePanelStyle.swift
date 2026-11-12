@@ -221,8 +221,15 @@ public struct VoiceRailGlass: View {
     }
 }
 
+private struct InsideVoiceRailKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
 extension EnvironmentValues {
-    @Entry var insideVoiceRail = false
+    var insideVoiceRail: Bool {
+        get { self[InsideVoiceRailKey.self] }
+        set { self[InsideVoiceRailKey.self] = newValue }
+    }
 }
 
 /// The slot consumes its host allocation, including the rail's margins.
