@@ -1,13 +1,16 @@
 import SwiftUI
 import SaytileVoiceUI
 
-/// This is the actual shipping window content, also used by the native reference
-/// renderer. Transparent margins keep the card shadow inside the NSWindow instead
-/// of clipping it off or substituting an unrelated system-window shadow.
+/// Standalone host of the first sidebar slot. The NSPanel is exactly the
+/// visible rail footprint; the transcript card and its shadow sit inside it.
 struct InputPanelWindowView: View {
     @ObservedObject var model: AppModel
     var body: some View {
-        InputPanelView(model: model)
-            .padding(ReferencePanelStyle.shadowInset)
+        GeometryReader { geometry in
+            let radius = VoiceRailMetrics(width: geometry.size.width).radius
+            FramedVoiceSlot { InputPanelView(model: model) }
+                .background { VoiceRailGlass(width: geometry.size.width) }
+                .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
+        }
     }
 }

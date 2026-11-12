@@ -379,8 +379,8 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 }
             }
         }
-        availabilityTask = Task {
-            speechStatus = recognitionFactory.usesCloud ? "单一语言专家识别 · " + recognitionFactory.configuration.inputMode.label : await recognitionFactory.localAvailability().message
+        updateAvailability {
+            recognitionFactory.usesCloud ? "单一语言专家识别 · " + recognitionFactory.configuration.inputMode.label : await recognitionFactory.localAvailability().message
         }
         recoveryTask = Task { [weak self] in
             while !Task.isCancelled {
@@ -472,12 +472,20 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         refreshLocalModelStatus()
     }
     public func refreshLocalModelStatus() {
-        availabilityTask?.cancel()
-        availabilityTask = Task {
+        updateAvailability { [recognitionFactory] in
             let snapshot = recognitionFactory.snapshot
-            let status = snapshot.configuration.cloudEnabled ? "云端识别" : await recognitionFactory.localAvailability().message
+            return snapshot.configuration.cloudEnabled ? "云端识别" : await recognitionFactory.localAvailability().message
+        }
+    }
+    @discardableResult
+    func updateAvailability(_ read: @escaping @MainActor () async -> String) -> Task<Void, Never> {
+        availabilityTask?.cancel()
+        let task = Task {
+            let status = await read()
             if !Task.isCancelled { speechStatus = status }
         }
+        availabilityTask = task
+        return task
     }
     public func selectHostedRoute(_ route: HostedRoute, revoke: Bool = false) {
         recognitionFactory.select(route, revoke: revoke)
@@ -531,6 +539,9 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     func prepareSpeechAssets(install: @escaping @MainActor () async throws -> String) async {
         guard !isShuttingDown else { return }
         if let assetTask { await assetTask.value; return }
+        // The system availability read can return after a complete download
+        // and retry. Its older answer no longer owns the visible status.
+        availabilityTask?.cancel()
         let previousIssue = appleResourceFailure.map { "中文资源下载失败：" + $0 }
         preparingAppleSpeech = true; appleResourceFailure = nil
         defer { preparingAppleSpeech = false }

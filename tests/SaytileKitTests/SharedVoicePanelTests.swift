@@ -34,13 +34,25 @@ import SaytileVoiceUI
     @Test func bothFooterControlsFitNarrowGlassAtTheSameScale() {
         for width: CGFloat in [100, 128, 160, 178, 240, 344] {
             let metrics = VoicePanelMetrics(width: width)
-            let footer = ReferencePanelStyle.footerLeading + ReferencePanelStyle.copyWidth + 8
-                + ReferencePanelStyle.voiceWidth + ReferencePanelStyle.footerTrailing
-            #expect(footer * metrics.scale <= width)
+            let footer = metrics.footerLeading + metrics.copyWidth + 8 * metrics.scale
+                + metrics.voiceWidth + ReferencePanelStyle.footerTrailing * metrics.scale
+            #expect(footer <= width)
             #expect(metrics.typeScale * ReferencePanelStyle.fontSize >= 14)
             #expect(metrics.typeScale <= 1)
         }
         #expect(VoicePanelMetrics(width: 344).scale == 1)
+    }
+
+    @Test func artworkScalesTheTextAndBothControlsAtDefaultAndReferenceSidebarWidths() {
+        for outer: CGFloat in [240, 325, 374] {
+            let card = VoiceRailMetrics(width: outer).cardFrame(in: CGRect(x: 0, y: 0, width: outer, height: 300))
+            let metrics = VoicePanelMetrics(width: card.width, inRail: true)
+            let normalized = 325 / outer
+            #expect(abs(metrics.typeScale * normalized - 1) < 0.001)
+            #expect(abs(metrics.copyWidth * normalized - 47) < 0.001)
+            #expect(abs(metrics.voiceWidth * normalized - 86) < 0.001)
+            #expect(abs(metrics.controlHeight * normalized - 36) < 0.001)
+        }
     }
 
     @Test func lateAmplitudeCannotAnimatePausedOrWaitingGlyphs() {

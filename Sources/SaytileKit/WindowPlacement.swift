@@ -3,34 +3,16 @@ import CoreGraphics
 
 /// Window geometry uses visible frames, including displays with negative origins and menu bars.
 public enum WindowPlacement {
-    // The approved 344 × 234pt reference and 32pt shadow ring stay unchanged.
-    // Runtime glass size follows Nearpane (12.5% × 22.5% of the safe desktop).
-    public static let panelShadowInset: CGFloat = 32
     public static let nearpaneWidthFraction: CGFloat = 0.125
-    public static let nearpaneVoiceHeightFraction: CGFloat = 0.225
-    public static let panelContentDefaultSize = CGSize(width: 344, height: 234)
-    public static let panelDefaultSize = CGSize(width: 408, height: 298)
-    // Preferred minimum for manual resizing on a roomy display. On narrow displays
-    // the shared surface adapts to the actual Nearpane voice allocation.
-    public static let panelMinimumSize = CGSize(width: 178 + 64, height: 150 + 64)
+    public static let panelDefaultSize = CGSize(width: 344, height: 234)
+    public static let panelMinimumSize = CGSize(width: 178, height: 90)
 
-    /// Product dimensions exclude the invisible 32pt window shadow on each side.
-    public static func panelGlassFrame(_ windowFrame: CGRect) -> CGRect {
-        windowFrame.insetBy(dx: panelShadowInset, dy: panelShadowInset)
-    }
-
-    /// Constrain the visible glass rather than the transparent NSPanel margin.
-    /// The margin may be clipped beyond a docked screen edge.
     public static func panelLimits(visibleFrame: CGRect) -> (minimum: CGSize, maximum: CGSize) {
-        let maximum = CGSize(width: max(0, visibleFrame.width) + 2 * panelShadowInset,
-                             height: max(0, visibleFrame.height) + 2 * panelShadowInset)
-        let inset = 2 * panelShadowInset
-        // Nearpane lets a narrow sidebar use its full factory fraction, with a
-        // 20pt floor for its collapsed host chrome. Never exceed the visible area.
-        let width = min(max(0, visibleFrame.width), max(20, visibleFrame.width * nearpaneWidthFraction))
-        let height = min(max(0, visibleFrame.height), max(1, visibleFrame.height * nearpaneVoiceHeightFraction))
-        return (CGSize(width: min(panelMinimumSize.width, width + inset),
-                       height: min(panelMinimumSize.height, height + inset)), maximum)
+        let maximum = visibleFrame.size
+        let width = min(maximum.width, max(20, maximum.width * nearpaneWidthFraction))
+        let height = min(maximum.height, max(1, VoiceRailProportions.factoryHeight(width: width, visibleHeight: maximum.height)))
+        return (CGSize(width: min(panelMinimumSize.width, width),
+                       height: min(panelMinimumSize.height, height)), maximum)
     }
 
     public static func panelSize(_ requested: CGSize, visibleFrame: CGRect) -> CGSize {
@@ -41,22 +23,22 @@ public enum WindowPlacement {
 
     /// Nearpane voice section by itself; not a full-height sidebar or fixed card.
     public static func initialPanel(visibleFrame: CGRect) -> CGRect {
-        let size = panelSize(CGSize(width: visibleFrame.width * nearpaneWidthFraction + 2 * panelShadowInset,
-                                    height: visibleFrame.height * nearpaneVoiceHeightFraction + 2 * panelShadowInset),
+        let width = min(visibleFrame.width, max(20, visibleFrame.width * nearpaneWidthFraction))
+        let size = panelSize(CGSize(width: width, height: VoiceRailProportions.factoryHeight(width: width, visibleHeight: visibleFrame.height)),
                              visibleFrame: visibleFrame)
         // The glass touches the visible desktop's upper-right edge.
-        return CGRect(x: visibleFrame.maxX - size.width + panelShadowInset,
-                      y: visibleFrame.maxY - size.height + panelShadowInset,
+        return CGRect(x: visibleFrame.maxX - size.width,
+                      y: visibleFrame.maxY - size.height,
                       width: size.width, height: size.height)
     }
 
     public static func restoredPanel(_ frame: CGRect, visibleFrames: [CGRect]) -> CGRect {
         guard let destination = destination(for: frame, visibleFrames: visibleFrames) else { return frame }
         let size = panelSize(frame.size, visibleFrame: destination)
-        let left = destination.minX - panelShadowInset
-        let bottom = destination.minY - panelShadowInset
-        return CGRect(x: min(max(frame.minX, left), destination.maxX - size.width + panelShadowInset),
-                      y: min(max(frame.minY, bottom), destination.maxY - size.height + panelShadowInset),
+        let left = destination.minX
+        let bottom = destination.minY
+        return CGRect(x: min(max(frame.minX, left), destination.maxX - size.width),
+                      y: min(max(frame.minY, bottom), destination.maxY - size.height),
                       width: size.width, height: size.height)
     }
 
@@ -96,6 +78,12 @@ public struct SavedPanelPlacement: Codable, Equatable {
     private static func valid(_ rect: CGRect) -> Bool {
         [rect.minX, rect.minY, rect.width, rect.height].allSatisfy(\.isFinite) && rect.width > 0 && rect.height > 0
     }
+    /// v2/v3 stored a transparent 32pt ring on every side. Recover the
+    /// previously chosen visible rectangle, including its display identity.
+    public func removingLegacyShadowMargin() -> Self? {
+        guard frame.width > 64, frame.height > 64 else { return nil }
+        return Self(frame: frame.insetBy(dx: 32, dy: 32), visibleFrame: visibleFrame, displayID: displayID)
+    }
     public func restored(on screens: [(id: String, visible: CGRect)]) -> CGRect? {
         guard Self.valid(frame), Self.valid(visibleFrame), !screens.isEmpty else { return nil }
         guard let match = screens.first(where: { $0.id == displayID && Self.valid($0.visible) }) else {
@@ -105,14 +93,10 @@ public struct SavedPanelPlacement: Codable, Equatable {
         if dest == visibleFrame { return WindowPlacement.restoredPanel(frame, visibleFrames: [dest]) }
         let size = WindowPlacement.panelSize(frame.size, visibleFrame: dest)
         func fraction(_ value: CGFloat, _ span: CGFloat) -> CGFloat { span > 0 ? min(1, max(0, value / span)) : 0.5 }
-        // Preserve the visible glass's relative placement across screen changes.
-        let inset = WindowPlacement.panelShadowInset
-        let fx = fraction(frame.minX + inset - visibleFrame.minX,
-                          visibleFrame.width - (frame.width - 2 * inset))
-        let fy = fraction(frame.minY + inset - visibleFrame.minY,
-                          visibleFrame.height - (frame.height - 2 * inset))
-        let projected = CGRect(x: dest.minX - inset + fx * (dest.width - (size.width - 2 * inset)),
-                               y: dest.minY - inset + fy * (dest.height - (size.height - 2 * inset)),
+        let fx = fraction(frame.minX - visibleFrame.minX, visibleFrame.width - frame.width)
+        let fy = fraction(frame.minY - visibleFrame.minY, visibleFrame.height - frame.height)
+        let projected = CGRect(x: dest.minX + fx * (dest.width - size.width),
+                               y: dest.minY + fy * (dest.height - size.height),
                                width: size.width, height: size.height)
         return WindowPlacement.restoredPanel(projected, visibleFrames: [dest])
     }

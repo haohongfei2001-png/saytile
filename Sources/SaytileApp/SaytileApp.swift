@@ -45,8 +45,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var positioningPanel = false
     private var movingPanel = false
     private var placementDefaults: UserDefaults?
-    // Manual choices survive the geometry upgrade. Save new choices under v3 for rollback compatibility.
-    private let placementKey = "panel.userPlacement.v3"
+    // v4 stores the visible rail. Preserve shadow-expanded v2/v3 records for rollback.
+    private let placementKey = "panel.userPlacement.v4"
     private func displayKey(_ screen: NSScreen) -> String {
         guard let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
               let uuid = CGDisplayCreateUUIDFromDisplayID(number.uint32Value)?.takeRetainedValue() else { return "" }
@@ -54,10 +54,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     private func savedPanelFrame() -> NSRect? {
         let screens = NSScreen.screens.map { (displayKey($0), $0.visibleFrame) }
-        for key in [placementKey, "panel.userPlacement.v2"] {
+        for key in [placementKey, "panel.userPlacement.v3", "panel.userPlacement.v2"] {
             if let data = placementDefaults?.data(forKey: key),
                let saved = try? JSONDecoder().decode(SavedPanelPlacement.self, from: data),
-               let frame = saved.restored(on: screens) { return frame }
+               let placement = key == placementKey ? saved : saved.removingLegacyShadowMargin(),
+               let frame = placement.restored(on: screens) { return frame }
         }
         return nil
     }
@@ -326,7 +327,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     print("FOCUS_PANEL_GEOMETRY width=\(panel.frame.width) height=\(panel.frame.height) min_width=\(panel.minSize.width) min_height=\(panel.minSize.height) max_width=\(panel.maxSize.width) max_height=\(panel.maxSize.height) resizable=\(panel.styleMask.contains(.resizable)) nonactivating=\(panel.styleMask.contains(.nonactivatingPanel)) joins_spaces=\(panel.collectionBehavior.contains(.canJoinAllSpaces)) panel_key=\(panel.isKeyWindow) panel_main=\(panel.isMainWindow)")
                     if let screen = panel.screen {
                         let visible = screen.visibleFrame
-                        let natural = panel.frame == WindowPlacement.initialPanel(visibleFrame: visible)
+                        // WindowServer snaps a fractional slot to whole logical
+                        // points (e.g. 127.75pt becomes a 128pt NSPanel).
+                        let expected = WindowPlacement.initialPanel(visibleFrame: visible)
+                        let natural = abs(panel.frame.width - expected.width) <= 0.5
+                            && abs(panel.frame.height - expected.height) <= 0.5
+                            && abs(panel.frame.maxX - visible.maxX) <= 0.5
+                            && abs(panel.frame.maxY - visible.maxY) <= 0.5
                         print("FOCUS_COLD_PLACEMENT frame=\(panel.frame) visible=\(visible) upper_right_eighth_width=\(natural) shown=\(panel.isVisible)")
                         if !natural || !panel.isVisible { diagnosticExitStatus = 1 }
                     } else { diagnosticExitStatus = 1 }

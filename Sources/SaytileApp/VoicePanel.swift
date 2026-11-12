@@ -2,8 +2,8 @@ import SaytileVoiceUI
 import AppKit
 import SaytileKit
 
-/// The NSPanel includes a transparent margin. Its system resize border is too
-/// far from the visible glass to serve as the primary pointer affordance.
+/// Resize at the outer rail, move from its gutters, and leave the inner card’s
+/// controls and occupied transcript lines available to their native views.
 final class VoicePanel: NSPanel {
     var didChoosePosition: (() -> Void)?
     var draggingPlacement: Bool { gesture != nil }
@@ -72,11 +72,13 @@ final class VoicePanel: NSPanel {
     }
 
     private func operation(at p: CGPoint) -> Operation? {
-        let card = CGRect(origin: .zero, size: frame.size).insetBy(dx: WindowPlacement.panelShadowInset, dy: WindowPlacement.panelShadowInset)
-        guard card.insetBy(dx: -7, dy: -7).contains(p) else { return nil }
-        let left = p.x - card.minX, right = card.maxX - p.x
-        let bottom = p.y - card.minY, top = card.maxY - p.y
-        let scale = VoicePanelMetrics(width: card.width).scale
+        let rail = CGRect(origin: .zero, size: frame.size)
+        guard rail.contains(p) else { return nil }
+        let card = VoiceRailMetrics(width: rail.width).cardFrame(in: rail)
+        let left = p.x - rail.minX, right = rail.maxX - p.x
+        let bottom = p.y - rail.minY, top = rail.maxY - p.y
+        let metrics = VoicePanelMetrics(width: card.width, inRail: true)
+        let scale = metrics.scale
         let corner = max(8, 18 * scale)
         if top <= corner && left <= corner { return .resize(.topLeft) }
         if top <= corner && right <= corner { return .resize(.topRight) }
@@ -87,15 +89,18 @@ final class VoicePanel: NSPanel {
         if left <= 7 { return .resize(.left) }
         if right <= 7 { return .resize(.right) }
 
+        guard card.contains(p) else { return .move }
+        let cardLeft = p.x - card.minX, cardRight = card.maxX - p.x
+        let cardBottom = p.y - card.minY, cardTop = card.maxY - p.y
         // The bottom gutter, gap between the controls, and top and left
         // margins move the panel even when every line of the transcript is full.
-        if top <= 10 * scale || bottom < ReferencePanelStyle.footerBottom * scale { return .move }
-        if bottom <= ReferencePanelStyle.footerBottom * scale + ReferencePanelStyle.controlHeight * scale {
-            let gapStart = ReferencePanelStyle.footerLeading * scale + ReferencePanelStyle.copyWidth * scale
-            let gapEnd = ReferencePanelStyle.footerTrailing * scale + ReferencePanelStyle.voiceWidth * scale
-            return left > gapStart && right > gapEnd ? .move : nil
+        if cardTop <= metrics.topPadding || cardBottom < metrics.footerBottom { return .move }
+        if cardBottom <= metrics.footerBottom + metrics.controlHeight {
+            let gapStart = metrics.footerLeading + metrics.copyWidth
+            let gapEnd = ReferencePanelStyle.footerTrailing * scale + metrics.voiceWidth
+            return cardLeft > gapStart && cardRight > gapEnd ? .move : nil
         }
-        if left < ReferencePanelStyle.textInset * scale - 2 { return .move }
+        if cardLeft < ReferencePanelStyle.textInset * scale - 2 { return .move }
 
         if transcript == nil { transcript = findTranscript(in: contentView) }
         guard let transcript, let scroller = transcript.enclosingScrollView,

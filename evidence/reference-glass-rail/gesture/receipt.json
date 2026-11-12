@@ -1,0 +1,84 @@
+{
+  "platform": "macOS 27.0 (26A428), arm64",
+  "swift_testing": {
+    "source": "d3ddafcd4d410fc763ae2a5badfaefa21ceb48fc",
+    "status": "PASS",
+    "tests": 434,
+    "suites": 54,
+    "failures": 0,
+    "runner_result": "✔ Test run with 434 tests in 54 suites passed after 3.954 seconds."
+  },
+  "test_regression": {
+    "before": "51e55053054c8998b507379b26a133bd9f218ddf",
+    "observed": "resourceFailureAndRetryPreservePausedAudioAndItsArchive failed on the speech status after explicit retry. The initial asynchronous availability read could complete later and overwrite the new state.",
+    "after": "ce2d5cfa3f36166850a667063cd51c3ea55c6d25",
+    "reproduction": "Hold a system availability continuation until an explicit installation failure and successful retry have both completed. Return the old unavailable status and await the old task before asserting the new status and retained archive."
+  },
+  "gesture": {
+    "status": "PASS",
+    "tested_source": "51e55053054c8998b507379b26a133bd9f218ddf",
+    "scope": "Real VoicePanel subclass and native AppKit mouse events delivered only to the test window, then a second fixture process reads its placement file.",
+    "system_wide_pointer_events": false,
+    "installed": false,
+    "checks": [
+      "visible outer gutter drag",
+      "horizontal resize at the left edge",
+      "two-axis resize at the lower right corner",
+      "hide and reopen",
+      "restore chosen frame in a second process"
+    ]
+  },
+  "multi_display": {
+    "physical_disconnect_reconnect": "NOT_RUN",
+    "saved_display_migration_and_restore": "PASS (Swift Testing)"
+  },
+  "appkit_window": {
+    "status": "PASS",
+    "source": "d3ddafcd4d410fc763ae2a5badfaefa21ceb48fc",
+    "arm64_binary_sha256": "d068b8d633492ce3fb66b087a4da6d9daf72a798a570efb9151d04b210f68f82",
+    "signature": "ad hoc, verified with codesign --verify --strict",
+    "capture": "--focus-probe, real AppDelegate and VoicePanel, isolated directory",
+    "screen_points": [
+      0,
+      0,
+      1920,
+      1080
+    ],
+    "outer_window_points": [
+      1680,
+      952,
+      240,
+      128
+    ],
+    "became_key": false,
+    "became_main": false,
+    "microphone_started": false
+  },
+  "timeline": {
+    "status": "PASS",
+    "source": "d3ddafcd4d410fc763ae2a5badfaefa21ceb48fc",
+    "seed_rows": 12000,
+    "final_rows": 12003,
+    "resident": 64,
+    "sample_wheel_to_paint_seconds": 0.02224725,
+    "checks": [
+      "idle animation reaches the exact end with reading position protected",
+      "one wheel request advances exactly one overlapping page at its midpoint",
+      "local midnight separates the two dates",
+      "synthetic draft and history survive reopening"
+    ],
+    "observed_failures_before_fix": [
+      "An AppKit backing-pixel alignment (2174.08 to 2174.0) was treated as a manual scroll; the idle animation stopped before its endpoint.",
+      "A wheel event survived its completed page request, and new layout notifications could unintentionally load a second page."
+    ]
+  },
+  "native_ui": {
+    "status": "PASS",
+    "source": "d3ddafcd4d410fc763ae2a5badfaefa21ceb48fc",
+    "standard_scenes": 28,
+    "original_card_scenes": 3,
+    "manual_reading": "Two-point deliberate upward scroll remains pinned; explicit return to the bottom resumes following",
+    "capture_device": "No live microphone; synthetic text and capture states",
+    "keyboard_activation": false
+  }
+}
