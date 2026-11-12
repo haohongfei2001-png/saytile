@@ -626,9 +626,16 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         let destinations = Dictionary(uniqueKeysWithValues: next.spans.map { ($0.entry.id, $0) })
         func mapped(_ position: Int) -> Int? {
             guard let span = old.spans.first(where: { NSLocationInRange(position, $0.range) }),
-                  let newSpan = destinations[span.entry.id],
-                  Self.sameText(span.entry.displayText, newSpan.entry.displayText) else { return nil }
-            return newSpan.range.location + position - span.range.location
+                  let newSpan = destinations[span.entry.id] else { return nil }
+            let local = position - span.range.location
+            if Self.sameText(span.entry.displayText, newSpan.entry.displayText) { return newSpan.range.location + local }
+            // An earlier word within this same long recording can also change.
+            // Carry only boundaries on a surviving character, never into rewritten text.
+            let edit = Self.patch(from: span.entry.displayText as NSString, to: newSpan.entry.displayText as NSString)
+            guard !NSLocationInRange(local, edit.range) else { return nil }
+            let offset = Self.shift(local, through: edit.range, replacementLength: edit.replacement.utf16.count, rightAffinity: true)
+            guard offset < newSpan.range.length else { return nil }
+            return newSpan.range.location + offset
         }
         var kept = container.wraps.compactMap(mapped)
         guard manager.numberOfGlyphs > 0, Self.sameText(old.text, transcriptView.string) else { return kept }
