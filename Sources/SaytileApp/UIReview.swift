@@ -19,6 +19,14 @@ extension AppDelegate {
                 return true
             }
             await model.initialLoad()
+            if ProcessInfo.processInfo.environment["SAYTILE_EDITOR_REVIEW"] == "reopen" {
+                let rows = try await model.store.listRecordings(limit: 4)
+                guard rows.count == 1, let row = rows.first, row.text.isEmpty, row.audioState == .deleted,
+                      try await model.store.revisions(recordingID: row.id).contains(where: { $0.text == "先写😀再改中\n第二行" })
+                else { throw ReviewFailure("restarting lost a committed edit or resurrected deleted text") }
+                print("INLINE_EDITOR_REOPEN_PASS previous revisions and deliberate deletion preserved")
+                return true
+            }
             if ProcessInfo.processInfo.environment["SAYTILE_EDITOR_REVIEW"] == "1" {
                 try await reviewInlineEditing(model: model, output: output)
                 return true
