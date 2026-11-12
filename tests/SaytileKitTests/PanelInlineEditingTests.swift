@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import Testing
 @testable import SaytileKit
@@ -24,6 +25,37 @@ import Testing
         let empty = PanelTimelineDocument<Row>()
         let note = try #require(empty.edit(in: .init(location: 0, length: 0), replacement: "手打", newRow: false))
         #expect(note.rows.count == 1 && note.rows[0].before == nil && note.rows[0].after == "手打")
+    }
+
+    @MainActor @Test func nativeUndoRestoresBothRecordingIdentities() throws {
+        _ = NSApplication.shared
+        var rows = [Row(id: UUID(), position: 1, displayText: "前半"),
+                    Row(id: UUID(), position: 2, displayText: "后半")]
+        let original = rows
+        let view = CompactTranscriptScrollView<Row>(frame: NSRect(x: 0, y: 0, width: 260, height: 140))
+        let editor = view.transcriptView
+        editor.isEditable = true
+        view.applyEdits = { edits in
+            for edit in edits {
+                let index = try #require(rows.firstIndex { $0.id == edit.id })
+                #expect(rows[index].displayText == edit.before)
+                rows[index] = Row(id: edit.id, position: rows[index].position, displayText: edit.after)
+            }
+            return PanelTimelineDocument(entries: rows)
+        }
+        view.updateDocument(.init(entries: rows))
+        let undo = editor.panelUndo
+        undo.groupsByEvent = false
+        undo.beginUndoGrouping()
+        editor.setSelectedRange(NSRange(location: 1, length: 3))
+        editor.insertText("🙂", replacementRange: editor.selectedRange())
+        undo.endUndoGrouping()
+        #expect(rows.map(\.displayText) == ["前🙂半", ""])
+        #expect(editor.string == "前🙂半")
+        editor.undoPanelEdit(nil)
+        #expect(rows == original && editor.string == "前半\n后半")
+        editor.redoPanelEdit(nil)
+        #expect(rows.map(\.displayText) == ["前🙂半", ""])
     }
 
     @MainActor @Test func atomicEditConflictRecoveryAndNoAutomaticDelivery() async throws {

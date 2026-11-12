@@ -522,7 +522,11 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
 @MainActor
 public final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
     let panelUndo = UndoManager()
-    public override var undoManager: UndoManager? { isEditable ? panelUndo : super.undoManager }
+    // NSTextStorage also consults the responder chain during replacements.
+    // Keep raw range inverses out of our row-aware history, including on redo.
+    public override var undoManager: UndoManager? { isEditable ? nil : super.undoManager }
+    @objc(undo:) public func undoPanelEdit(_ sender: Any?) { panelUndo.undo() }
+    @objc(redo:) public func redoPanelEdit(_ sender: Any?) { panelUndo.redo() }
     public override var needsPanelToBecomeKey: Bool { isEditable || super.needsPanelToBecomeKey }
     public override func acceptsFirstMouse(for event: NSEvent?) -> Bool { isEditable || super.acceptsFirstMouse(for: event) }
     /// Plain-text editor commands share one pasteboard, including for isolated
@@ -553,14 +557,14 @@ public final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
         }
         let flags = event.modifierFlags.intersection([.command, .control, .option, .shift])
         let key = event.charactersIgnoringModifiers?.lowercased()
-        if flags == [.command, .shift], key == "z" { panelUndo.redo(); return true }
+        if flags == [.command, .shift], key == "z" { redoPanelEdit(nil); return true }
         guard flags == .command else { return super.performKeyEquivalent(with: event) }
         switch key {
         case "a": selectAll(nil)
         case "c": copy(nil)
         case "x": cut(nil)
         case "v": paste(nil)
-        case "z": panelUndo.undo()
+        case "z": undoPanelEdit(nil)
         default: return super.performKeyEquivalent(with: event)
         }
         return true
