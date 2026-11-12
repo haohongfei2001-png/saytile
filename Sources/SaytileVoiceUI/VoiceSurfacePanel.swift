@@ -42,6 +42,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
     let menu: () -> MenuItems
 
     private typealias ViewState<T> = SwiftUI.State<T>
+    @Environment(\.insideVoiceRail) private var insideVoiceRail
     @ViewState private var captureHovered = false
     @FocusState private var captureFocused: Bool
     private let muted = Color(red: 0.43, green: 0.41, blue: 0.51)
@@ -80,7 +81,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
 
     public var body: some View {
         GeometryReader { frame in
-            content(VoicePanelMetrics(width: frame.size.width))
+            content(VoicePanelMetrics(width: frame.size.width, inRail: insideVoiceRail))
         }
     }
 
@@ -125,8 +126,8 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
                 Button(action: onCopy) {
                     ReferenceCopyMark().stroke(ReferencePanelStyle.copyInk.opacity(canCopy ? 1 : 0.5),
                                                style: StrokeStyle(lineWidth: 1.65 * scale, lineCap: .round, lineJoin: .round))
-                        .frame(width: 16 * scale, height: 16 * scale)
-                        .frame(width: metrics.copyWidth, height: ReferencePanelStyle.controlHeight * scale)
+                        .frame(width: metrics.copyMarkSize, height: metrics.copyMarkSize)
+                        .frame(width: metrics.copyWidth, height: metrics.controlHeight)
                         .background { ReferenceControlSurface(copy: true, scale: scale) }
                         .contentShape(RoundedRectangle(cornerRadius: 13 * scale))
                 }
@@ -139,7 +140,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
                 Button(action: onToggle) {
                     VoiceCaptureGlyph(presentation: capture, scale: scale)
                         .foregroundStyle(capture.state == .recoveryNeeded ? AnyShapeStyle(amber) : AnyShapeStyle(ReferencePanelStyle.glyph))
-                        .frame(width: metrics.voiceWidth, height: ReferencePanelStyle.controlHeight * scale)
+                        .frame(width: metrics.voiceWidth, height: metrics.controlHeight)
                         .background { ReferenceControlSurface(scale: scale) }
                         .contentShape(Capsule())
                 }
@@ -156,7 +157,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
         .padding(.top, metrics.topPadding)
         .background { ReferencePanelSurface(radius: metrics.radius) }
         .clipShape(RoundedRectangle(cornerRadius: metrics.radius, style: .continuous))
-        .background { VoicePanelShadow() }
+        .background { VoicePanelShadow(radius: metrics.radius) }
         .foregroundStyle(ink)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

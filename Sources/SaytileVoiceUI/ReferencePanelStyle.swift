@@ -126,36 +126,38 @@ public struct VoicePanelMetrics {
     public let topPadding: CGFloat
     public let voiceWidth: CGFloat
     public let copyWidth: CGFloat
+    public let controlHeight: CGFloat
+    public let copyMarkSize: CGFloat
 
-    public init(width: CGFloat) {
-        // At 295pt the card matches the supplied compact desktop composition.
-        // At the original 344pt design width it retains the original controls.
-        let compact = min(1, max(0.4, width / 295))
-        let expansion = min(1, max(0, (width - 295) / (344 - 295)))
-        func dimension(_ small: CGFloat, _ large: CGFloat) -> CGFloat {
-            (small + (large - small) * expansion) * compact
-        }
-        scale = compact
-        typeScale = max(0.72, compact)
-        radius = dimension(22, ReferencePanelStyle.radius)
-        footerLeading = dimension(15, ReferencePanelStyle.footerLeading)
-        footerBottom = dimension(9, ReferencePanelStyle.footerBottom)
-        footerTop = dimension(2, 6)
-        topPadding = dimension(6, 10.5)
-        voiceWidth = dimension(86, ReferencePanelStyle.voiceWidth)
-        copyWidth = dimension(45, ReferencePanelStyle.copyWidth)
+    public init(width: CGFloat, inRail: Bool = false) {
+        // The artwork measures 325px across the complete rail, with a
+        // 295px card. Scale all of its elements together on either host.
+        let referenceWidth: CGFloat = inRail ? 295 : ReferencePanelStyle.width
+        let factor = min(inRail ? 1.4 : 1, max(0.4, width / referenceWidth))
+        scale = factor
+        typeScale = max(0.72, factor)
+        radius = (inRail ? 22 : ReferencePanelStyle.radius) * factor
+        footerLeading = (inRail ? 15 : ReferencePanelStyle.footerLeading) * factor
+        footerBottom = (inRail ? 9 : ReferencePanelStyle.footerBottom) * factor
+        footerTop = (inRail ? 2 : 6) * factor
+        topPadding = (inRail ? 6 : 10.5) * factor
+        voiceWidth = (inRail ? 86 : ReferencePanelStyle.voiceWidth) * factor
+        copyWidth = (inRail ? 47 : ReferencePanelStyle.copyWidth) * factor
+        controlHeight = (inRail ? 36 : ReferencePanelStyle.controlHeight) * factor
+        copyMarkSize = (inRail ? 19 : 16) * factor
     }
 }
 
 /// The cast shadow extends beyond the glass, without changing its measured bounds.
 struct VoicePanelShadow: View {
+    let radius: CGFloat
     var body: some View {
             // Draw the cast shadow only outside the glass. A dark duplicate
             // beneath the translucent card neutralizes the actual desktop hue.
             Canvas { context, size in
                 let bounds = CGRect(origin: .zero, size: size)
                 let card = bounds.insetBy(dx: ReferencePanelStyle.shadowInset, dy: ReferencePanelStyle.shadowInset)
-                let shape = RoundedRectangle(cornerRadius: VoicePanelMetrics(width: card.width).radius, style: .continuous).path(in: card)
+                let shape = RoundedRectangle(cornerRadius: radius, style: .continuous).path(in: card)
                 var exterior = Path(bounds); exterior.addPath(shape)
                 context.clip(to: exterior, style: FillStyle(eoFill: true))
                 context.drawLayer { layer in
@@ -219,6 +221,10 @@ public struct VoiceRailGlass: View {
     }
 }
 
+extension EnvironmentValues {
+    @Entry var insideVoiceRail = false
+}
+
 /// The slot consumes its host allocation, including the rail's margins.
 public struct FramedVoiceSlot<Content: View>: View {
     private let content: Content
@@ -229,6 +235,7 @@ public struct FramedVoiceSlot<Content: View>: View {
             let slot = CGRect(origin: .zero, size: geometry.size)
             let card = VoiceRailMetrics(width: slot.width).cardFrame(in: slot)
             content
+                .environment(\.insideVoiceRail, true)
                 .frame(width: card.width, height: card.height)
                 .position(x: card.midX, y: slot.height - card.midY)
         }

@@ -59,7 +59,16 @@ extension AppDelegate {
             else { window.setFrameOrigin(CGPoint(x: floor(area.midX-window.frame.width/2), y: floor(area.midY-window.frame.height/2))) }
             backdrop.setFrame(window.frame, display: false); backdrop.title = "Saytile controlled visual environment"
             let background = NSImageView(); background.image = environment; background.imageScaling = .scaleAxesIndependently
-            backdrop.contentView = background; backdrop.isOpaque = true; backdrop.backgroundColor = .white
+            if sharedComparison && panel {
+                // Give both isolated windows the same coordinates within the generated desktop.
+                let clipping = NSView(frame: NSRect(origin: .zero, size: window.frame.size))
+                clipping.wantsLayer = true; clipping.layer?.masksToBounds = true
+                background.frame = NSRect(x: 0, y: area.minY - window.frame.minY,
+                                          width: window.frame.width, height: area.height)
+                clipping.addSubview(background)
+                backdrop.contentView = clipping
+            } else { backdrop.contentView = background }
+            backdrop.isOpaque = true; backdrop.backgroundColor = .white
             backdrop.orderFrontRegardless(); window.order(.above, relativeTo: backdrop.windowNumber)
             try await Task.sleep(for: .milliseconds(480)); host.layoutSubtreeIfNeeded()
             if bottom {

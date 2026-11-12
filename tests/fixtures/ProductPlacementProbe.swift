@@ -89,12 +89,11 @@ import ApplicationServices
                 let railScale = min(1.5, frame.width/325)
                 let side = 15 * railScale, bottom = min(8 * railScale, frame.height/8)
                 let card = frame.width - 2 * side
-                let scale = min(1, max(0.4, card/295))
-                let expansion = min(1, max(0, (card-295)/49))
-                let copyRight=frame.minX+side+(60+2.5*expansion)*scale
-                let voiceLeft=frame.maxX-side-(100+6.5*expansion)*scale
+                let scale = min(1.4, max(0.4, card/295))
+                let copyRight=frame.minX+side+62*scale
+                let voiceLeft=frame.maxX-side-100*scale
                 guard voiceLeft>copyRight else {throw Problem("No gap between footer controls")}
-                from=CGPoint(x:(copyRight+voiceLeft)/2,y:frame.maxY-bottom-(26+9*expansion)*scale)
+                from=CGPoint(x:(copyRight+voiceLeft)/2,y:frame.maxY-bottom-27*scale)
                 expected=frame.offsetBy(dx:dx,dy:dy)
             case .top:
                 from=CGPoint(x:frame.midX,y:frame.minY+9)

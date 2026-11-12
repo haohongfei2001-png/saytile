@@ -77,7 +77,7 @@ final class VoicePanel: NSPanel {
         let card = VoiceRailMetrics(width: rail.width).cardFrame(in: rail)
         let left = p.x - rail.minX, right = rail.maxX - p.x
         let bottom = p.y - rail.minY, top = rail.maxY - p.y
-        let metrics = VoicePanelMetrics(width: card.width)
+        let metrics = VoicePanelMetrics(width: card.width, inRail: true)
         let scale = metrics.scale
         let corner = max(8, 18 * scale)
         if top <= corner && left <= corner { return .resize(.topLeft) }
@@ -95,7 +95,7 @@ final class VoicePanel: NSPanel {
         // The bottom gutter, gap between the controls, and top and left
         // margins move the panel even when every line of the transcript is full.
         if cardTop <= metrics.topPadding || cardBottom < metrics.footerBottom { return .move }
-        if cardBottom <= metrics.footerBottom + ReferencePanelStyle.controlHeight * scale {
+        if cardBottom <= metrics.footerBottom + metrics.controlHeight {
             let gapStart = metrics.footerLeading + metrics.copyWidth
             let gapEnd = ReferencePanelStyle.footerTrailing * scale + metrics.voiceWidth
             return cardLeft > gapStart && cardRight > gapEnd ? .move : nil
