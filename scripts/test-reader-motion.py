@@ -42,7 +42,15 @@ def main():
         edges = case['pageChanges']
         up = sum(e['older'] for e in edges)
         down = len(edges) - up
+        # AppKit can retain a precise wheel's clamped overflow internally.
+        # After paying that remainder at the page boundary, the next ordinary
+        # gesture must neither lose it nor move it a second time.
+        steps = {s['step']: s for s in case['steps']}
+        next_steps = [steps[e['step'] + 1] for e in edges if e['step'] + 1 in steps]
+        ordinary_next = [s for s in next_steps if s['delta'] and not s['momentum'] and s['medianDY'] is not None]
+        case['nextEventOvershootPt'] = max((abs(s['medianDY'] - s['intended']) for s in ordinary_next), default=0)
         checks = {
+            'nextGestureWithin1ptAfterPage': bool(ordinary_next) and case['nextEventOvershootPt'] <= 1,
             'traversesMultiplePagesBothWays': up >= 3 and down >= 3,
             'sameGlyphsAcrossEverySwap': bool(edges) and all(e['common'] > 0 for e in edges),
             'pageResidualWithin1pt': all(e['maxUnexpectedDY'] is not None and e['maxUnexpectedDY'] <= 1 for e in edges),
