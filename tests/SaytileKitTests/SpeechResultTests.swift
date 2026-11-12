@@ -69,6 +69,30 @@ struct SpeechResultTests {
         #expect(snapshot.fullText == "合并修订")
         #expect(snapshot.stableText == "合并修订")
     }
+    @Test func applePunctuationWhitespacePreservesWordsUserDictationAndStablePrefix() {
+        var aggregate = SpeechResultAccumulator()
+        let text = "USB C 不是不是 ，20 kg ，真的 ？\nNew York, yes!"
+        let expected = "USB C 不是不是，20 kg，真的？\nNew York, yes!"
+        let preview = aggregate.apply(start: 0, end: 1, text: text, isFinal: false)
+        #expect(preview.fullText == expected)
+        #expect(preview.stableText.isEmpty)
+        let final = aggregate.apply(start: 0, end: 1, text: text, isFinal: true)
+        #expect(final.fullText == expected)
+        #expect(final.stableText == expected)
+    }
+    @Test func zeroDurationFinalPunctuationAttachesOnceToItsExactFinalRange() {
+        var aggregate = SpeechResultAccumulator()
+        aggregate.apply(start: 0.72, end: 15.6, text: "当时", isFinal: true)
+        for _ in 0..<2 {
+            let updated = aggregate.apply(start: 15.6, end: 15.6, text: "。", isFinal: true)
+            #expect(updated.fullText == "当时。")
+            #expect(updated.stableText == "当时。")
+        }
+        let expected = aggregate.snapshot
+        #expect(aggregate.apply(start: 15.61, end: 15.61, text: "！", isFinal: true) == expected)
+        #expect(aggregate.apply(start: 15.6, end: 15.6, text: "不", isFinal: true) == expected)
+        #expect(aggregate.apply(start: 15.6, end: 15.6, text: "？", isFinal: false) == expected)
+    }
     @Test func invalidRangesDoNotLoseValidText() {
         var aggregate = SpeechResultAccumulator()
         let original = aggregate.apply(start:0,end:1,text:"你😀",isFinal:true)
