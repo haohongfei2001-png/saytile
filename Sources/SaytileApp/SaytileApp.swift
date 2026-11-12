@@ -45,8 +45,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var positioningPanel = false
     private var movingPanel = false
     private var placementDefaults: UserDefaults?
-    // The compact top-right layout starts once on upgrade. Keep the old layout available to the previous build.
-    private let placementKey = "panel.userPlacement.v2"
+    // The v3 layout resets just the window placement, not recordings or other preferences.
+    // Keep v2 untouched for rollback; remember any later manual placement under v3.
+    private let placementKey = "panel.userPlacement.v3"
     private func displayKey(_ screen: NSScreen) -> String {
         guard let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
               let uuid = CGDisplayCreateUUIDFromDisplayID(number.uint32Value)?.takeRetainedValue() else { return "" }
@@ -500,7 +501,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             panel.contentView = content
             self.panel = panel
         }
-        if firstPresentation, let screen = status?.button?.window?.screen ?? NSScreen.main ?? NSScreen.screens.first {
+        // Match Nearpane primary-screen residency, not the status icon display.
+        if firstPresentation, let screen = NSScreen.screens.first ?? NSScreen.main {
             positioningPanel = true
             panel?.setFrame(savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame), display: true)
             positioningPanel = false
