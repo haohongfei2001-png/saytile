@@ -592,9 +592,25 @@ public final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
     // A read-only trailing voice caret: no editing, focus acquisition, timer or
     // insertion. Selection and reading earlier text suppress it.
     var showsLiveCaret = false { didSet { if oldValue != showsLiveCaret { needsDisplay = true } } }
+    var shouldDrawLiveCaret: Bool {
+        let editingHere = isEditable && window?.isKeyWindow == true && window?.firstResponder === self
+        return showsLiveCaret && !editingHere && selectedRange().length == 0 && !string.isEmpty
+    }
+
+    public override func viewWillMove(toWindow newWindow: NSWindow?) {
+        let center = NotificationCenter.default
+        for name in [NSWindow.didBecomeKeyNotification, NSWindow.didResignKeyNotification] {
+            if let window { center.removeObserver(self, name: name, object: window) }
+            if let newWindow { center.addObserver(self, selector: #selector(refreshCaret), name: name, object: newWindow) }
+        }
+        super.viewWillMove(toWindow: newWindow)
+    }
+
+    @objc private func refreshCaret(_ notification: Notification) { needsDisplay = true }
+
     public override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
-        guard showsLiveCaret, window?.firstResponder !== self, selectedRange().length == 0, !string.isEmpty,
+        guard shouldDrawLiveCaret,
               let manager = layoutManager, let container = textContainer,
               manager.numberOfGlyphs > 0 else { return }
         let end = manager.numberOfGlyphs - 1

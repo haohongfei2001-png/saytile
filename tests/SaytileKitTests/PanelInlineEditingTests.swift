@@ -27,6 +27,39 @@ import Testing
         #expect(note.rows.count == 1 && note.rows[0].before == nil && note.rows[0].after == "手打")
     }
 
+    /// Exercise native responder/selection ownership without activating a test
+    /// window on the user's desktop. Only the WindowServer key flag is supplied.
+    @MainActor private final class FocusPanel: NSPanel {
+        var keyForTest = false
+        override var isKeyWindow: Bool { keyForTest }
+    }
+
+    @MainActor @Test func liveCaretFollowsKeyboardFocusAndSelection() {
+        _ = NSApplication.shared
+        let frame = NSRect(x: 0, y: 0, width: 240, height: 120)
+        let panel = FocusPanel(contentRect: frame, styleMask: [.borderless, .nonactivatingPanel],
+                               backing: .buffered, defer: true)
+        let view = CompactTranscriptScrollView<Row>(frame: frame)
+        panel.contentView = view
+        let editor = view.transcriptView
+        view.updateDocument(.init(entries: [Row(id: UUID(), position: 1, displayText: "正在讲话")]))
+        editor.isEditable = true
+        editor.showsLiveCaret = true
+        #expect(panel.makeFirstResponder(editor))
+        #expect(editor.shouldDrawLiveCaret)
+        panel.keyForTest = true
+        #expect(!editor.shouldDrawLiveCaret)
+        panel.keyForTest = false
+        editor.needsDisplay = false
+        NotificationCenter.default.post(name: NSWindow.didResignKeyNotification, object: panel)
+        #expect(editor.needsDisplay && editor.shouldDrawLiveCaret)
+        editor.setSelectedRange(NSRange(location: 0, length: 1))
+        #expect(!editor.shouldDrawLiveCaret)
+        editor.setSelectedRange(NSRange(location: 1, length: 0))
+        editor.showsLiveCaret = false
+        #expect(!editor.shouldDrawLiveCaret)
+    }
+
     @MainActor @Test func nativeUndoRestoresBothRecordingIdentities() throws {
         _ = NSApplication.shared
         var rows = [Row(id: UUID(), position: 1, displayText: "前半"),
