@@ -9,6 +9,7 @@ public struct TimelineEntry: Identifiable, Equatable, Sendable {
     public let groupDay: String
     public let groupUTCOffset: Int
     public let speechEnd: Date
+    public private(set) var preferredOrigin: RevisionOrigin? = nil
 }
 
 public struct TimelineTextSnapshot: Equatable, Sendable {
@@ -139,7 +140,7 @@ extension SaytileStore {
         case .starting(let key): direction = "ASC"; predicate = " AND t.position>=?"; values = [.int(key)]
         }
         let sql = """
-        SELECT r.*,v.text,t.position,t.group_start,g.started AS group_date,g.day,g.utc_offset,
+        SELECT r.*,v.text,v.origin AS preferred_origin,t.position,t.group_start,g.started AS group_date,g.day,g.utc_offset,
                COALESCE(t.ended,t.started+r.total_frames/r.sample_rate) AS speech_end
         FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id
         JOIN transcript_timeline g ON g.position=t.group_start LEFT JOIN revisions v ON v.id=r.preferred_revision
@@ -154,7 +155,8 @@ extension SaytileStore {
                 throw StoreError.database("无法读取时间轴位置。")
             }
             page.entries.append(TimelineEntry(recording: try Self.decodeRecording(row), position: position, group: group,
-                groupStart: Date(timeIntervalSince1970: first), groupDay: day, groupUTCOffset: offset, speechEnd: Date(timeIntervalSince1970: end)))
+                groupStart: Date(timeIntervalSince1970: first), groupDay: day, groupUTCOffset: offset, speechEnd: Date(timeIntervalSince1970: end),
+                preferredOrigin: row["preferred_origin"].flatMap(RevisionOrigin.init(rawValue:))))
         }
         if direction == "DESC" { page.entries.reverse() }
         let neighbors = "SELECT 1 FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id WHERE r.deleted=0 AND t.position"

@@ -13,6 +13,10 @@ import SaytileKit
         if revision != model.timelineRenderRevision || focus != model.timelineFocus {
             let page = model.panelTimelinePage
             cached = PanelTimelineDocument(entries: page.entries, older: page.hasOlder, newer: page.hasNewer)
+            if !page.hasNewer, model.timelineFocus == nil, let tail = page.entries.last,
+               tail.recording.isRecording, tail.preferredOrigin == .partial {
+                cached.liveTailID = tail.id
+            }
             revision = model.timelineRenderRevision
             focus = model.timelineFocus
         }
@@ -98,6 +102,7 @@ struct InputPanelView: View {
     }
 
     private func insertTranscript() {
+        access.view?.settleLivePresentation()
         let document = access.view?.rendered
         model.insertFromPanel(rendered: document?.spans.map(\.entry) ?? [], displayed: document?.displayed ?? [:])
     }

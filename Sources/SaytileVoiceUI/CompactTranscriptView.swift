@@ -52,6 +52,8 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
 
     public private(set) var rendered = PanelTimelineDocument<Entry>()
     private var pending = PanelTimelineDocument<Entry>()
+    private var liveTick: Task<Void, Never>?
+    private var liveDeadline: TimeInterval?
     var onPage: (Bool) -> Void = { _ in }
     public internal(set) var editing = false
     var applyEdits: (@MainActor ([VoicePanelEdit]) throws -> PanelTimelineDocument<Entry>)?
@@ -72,6 +74,10 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         publishState()
     }
     func updateDocument(_ document: PanelTimelineDocument<Entry>) {
+        // Meter redraws do not consume extra reveal steps. A final revision has a
+        // new identity even if the recognizer confirmed precisely the same words.
+        if liveTick != nil, pending == document, Self.sameText(latestText, document.text) { return }
+        if pending.liveTailID != document.liveTailID { cancelLivePresentation() }
         pending = document
         latestText = document.text
         applyLatest()
@@ -103,7 +109,11 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         transcriptView.isAutomaticQuoteSubstitutionEnabled = false
         transcriptView.typingAttributes = attributes
         transcriptView.compositionFinished = { [weak self] in self?.finishUserInput() }
-        transcriptView.pointerDown = { [weak self] _ in self?.emptiedRow = nil }
+        transcriptView.willAcceptEditingFocus = { [weak self] in self?.settleLivePresentation() }
+        transcriptView.pointerDown = { [weak self] _ in
+            self?.settleLivePresentation()
+            self?.emptiedRow = nil
+        }
         transcriptView.isRichText = false
         transcriptView.importsGraphics = false
         transcriptView.drawsBackground = false
@@ -170,6 +180,9 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
 
     public func textView(_ textView: NSTextView, shouldChangeTextIn range: NSRange, replacementString: String?) -> Bool {
         guard !changingDocument, applyEdits != nil else { return false }
+        // Direct AX edits may arrive without a focus/click callback. Freeze the
+        // visible ranges until the edit commits against the full revision.
+        if liveDeadline != nil { cancelLivePresentation() }
         stopTailMotion()
         if let replacementString, !transcriptView.hasMarkedText(),
            Self.sameText(rendered.text, textView.string) {
@@ -241,6 +254,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     }
 
     private func showEdit(_ document: PanelTimelineDocument<Entry>, caret: Int) {
+        cancelLivePresentation()
         guard let storage = transcriptView.textStorage else { return }
         changingDocument = true
         rendered = document
@@ -387,7 +401,84 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
                              offset: documentVisibleRect.minY - rectangle.minY - transcriptView.textContainerInset.height)
     }
 
-    private func applyLatest() {
+    /// Explicit interaction takes a snapshot of the recognizer's current candidate right away.
+    /// Selections and deferred changes in a pinned/edited document retain their existing ownership.
+    public func settleLivePresentation() {
+        guard liveDeadline != nil else { return }
+        cancelLivePresentation()
+        applyLatest(immediate: true)
+    }
+
+    private func cancelLivePresentation() {
+        liveTick?.cancel()
+        liveTick = nil
+        liveDeadline = nil
+    }
+
+    /// A partial can arrive several syllables at a time. Render the first group on this
+    /// turn, and distribute only a genuine append over at most three more 28 ms ticks.
+    /// Newer candidates inherit the original deadline. Rewrites and finals apply atomically.
+    private func liveFrame(immediate: Bool, patch: (range: NSRange, replacement: String),
+                           oldLength: Int) -> PanelTimelineDocument<Entry> {
+        guard !immediate, window?.isVisible == true, isFollowingLatest, !pending.newer, !pending.idle,
+              !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
+              !NSWorkspace.shared.isVoiceOverEnabled,
+              !(transcriptView.isEditable && window?.isKeyWindow == true && window?.firstResponder === transcriptView),
+              let tail = pending.spans.last, pending.liveTailID == tail.entry.id,
+              tail.entry.position == pending.lastPosition, patch.range == NSRange(location: oldLength, length: 0),
+              oldLength >= tail.range.location - 1, NSMaxRange(tail.range) == latestText.utf16.count,
+              patch.replacement.count >= 2 else {
+            cancelLivePresentation()
+            return pending
+        }
+
+        let now = ProcessInfo.processInfo.systemUptime
+        let interval = 0.028
+        let deadline = liveDeadline ?? now + 3 * interval
+        let remainingTicks = min(3, Int(ceil((deadline - now) / interval)))
+        guard remainingTicks > 0 else {
+            cancelLivePresentation()
+            return pending
+        }
+        let groups = remainingTicks + 1
+        let characters = patch.replacement.count
+        // A separator before a new Latin utterance never consumes the first visible frame.
+        let minimum = max(oldLength < tail.range.location ? 2 : 1, (characters + groups - 1) / groups)
+        var boundary = patch.replacement.index(patch.replacement.startIndex, offsetBy: minimum)
+        // AppKit wraps Latin words as a unit. Do not animate parts of an already
+        // available word onto one line and force them back down on the next tick.
+        while boundary < patch.replacement.endIndex,
+              Self.isWordRun(patch.replacement[patch.replacement.index(before: boundary)]),
+              Self.isWordRun(patch.replacement[boundary]) {
+            patch.replacement.formIndex(after: &boundary)
+        }
+        guard boundary < patch.replacement.endIndex else { cancelLivePresentation(); return pending }
+        let end = oldLength + patch.replacement[..<boundary].utf16.count
+        let visibleRange = NSRange(location: tail.range.location, length: end - tail.range.location)
+        let target = latestText as NSString
+        var frame = pending
+        frame.text = target.substring(to: end)
+        frame.spans[frame.spans.count - 1] = .init(entry: tail.entry, range: visibleRange)
+        frame.displayed[tail.entry.position] = target.substring(with: visibleRange)
+
+        liveDeadline = deadline
+        if liveTick == nil {
+            let delay = min(interval, deadline - now)
+            liveTick = Task { @MainActor [weak self] in
+                do { try await Task.sleep(for: .seconds(delay)) } catch { return }
+                guard let self else { return }
+                liveTick = nil
+                applyLatest()
+            }
+        }
+        return frame
+    }
+
+    private static func isWordRun(_ character: Character) -> Bool {
+        character.isASCII && (character.isLetter || character.isNumber || character == "_")
+    }
+
+    private func applyLatest(immediate: Bool = false) {
         guard !changingDocument, !selecting, !editing,
               !transcriptView.composing, !transcriptView.hasMarkedText(),
               applyEdits == nil || Self.sameText(rendered.text, transcriptView.string),
@@ -395,19 +486,23 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
               pending != rendered || !Self.sameText(latestText, transcriptView.string), let storage = transcriptView.textStorage else { return }
         if rendered.firstPosition == pending.firstPosition, rendered.lastPosition == pending.lastPosition,
            Self.sameText(rendered.text, pending.text), rendered.markers == pending.markers {
+            cancelLivePresentation()
             rendered = pending
             return
         }
-        let old = transcriptView.string as NSString, new = latestText as NSString
-        let patch = Self.patch(from: old, to: new)
+        let old = transcriptView.string as NSString
+        let fullPatch = Self.patch(from: old, to: latestText as NSString)
+        let target = liveFrame(immediate: immediate, patch: fullPatch, oldLength: old.length)
+        let new = target.text as NSString
+        let patch = liveTick == nil ? fullPatch : (range: fullPatch.range, replacement: new.substring(from: old.length))
         let oldCaret = transcriptView.selectedRange().location
         let anchor = isFollowingLatest ? nil : readingAnchor()
         let oldOrigin = contentView.bounds.origin
         let oldDocument = rendered
         let anchoredSpan = anchor.flatMap { a in oldDocument.spans.first { NSMaxRange($0.range) > a.character } }
-        if oldDocument.firstPosition != pending.firstPosition ||
-            oldDocument.lastPosition != pending.lastPosition { pagingFrom = nil }
-        rendered = pending
+        if oldDocument.firstPosition != target.firstPosition ||
+            oldDocument.lastPosition != target.lastPosition { pagingFrom = nil }
+        rendered = target
         changingDocument = true
         storage.replaceCharacters(in: patch.range, with: NSAttributedString(string: patch.replacement, attributes: attributes))
         if oldDocument.markers != rendered.markers || !rendered.markers.isEmpty {
@@ -604,6 +699,12 @@ public final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
         default: return super.performKeyEquivalent(with: event)
         }
         return true
+    }
+
+    var willAcceptEditingFocus: () -> Void = {}
+    public override func becomeFirstResponder() -> Bool {
+        if isEditable { willAcceptEditingFocus() }
+        return super.becomeFirstResponder()
     }
 
     var pointerDown: (NSPoint) -> Void = { _ in }

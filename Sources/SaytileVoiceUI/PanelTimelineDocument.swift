@@ -17,6 +17,8 @@ public struct PanelTimelineDocument<Entry: VoiceTranscriptEntry>: Equatable {
         public init(entry: Entry, range: NSRange) { self.entry = entry; self.range = range }
     }
     public var text = ""
+    /// Only the recording's current ASR partial may be revealed over multiple frames.
+    public var liveTailID: UUID?
     public var spans: [Span] = []
     public var markers: [NSRange] = []
     public var displayed: [Int64: String] = [:]

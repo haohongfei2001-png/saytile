@@ -3,6 +3,23 @@ import Testing
 @testable import SaytileKit
 
 @Suite struct TranscriptTimelineTests {
+    @Test func activeTimelineDistinguishesPartialFinalAndUserSelection() async throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let store = try SaytileStore(directory: dir)
+        let record = try await store.createRecording()
+        let ticket = try await store.beginRecognition(recordingID: record.id)
+        try await store.applyRecognition(ticket: ticket, text: "实时", isFinal: false)
+        let partial = try #require(try await store.timelinePage().entries.last)
+        #expect(partial.recording.isRecording && partial.preferredOrigin == .partial)
+        try await store.applyRecognition(ticket: ticket, text: "实时确认", isFinal: true)
+        let final = try #require(try await store.timelinePage().entries.last)
+        #expect(final.recording.isRecording && final.preferredOrigin == .final)
+        try await store.saveEdit(recordingID: record.id, text: "本人修改")
+        let edit = try #require(try await store.timelinePage().entries.last)
+        #expect(edit.preferredOrigin == .userEdit)
+    }
+
     @Test func speechBoundariesRevisionIdentityAndSnapshot() async throws {
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: dir) }
