@@ -1,3 +1,4 @@
+@preconcurrency import ApplicationServices
 import AppKit
 import ScreenCaptureKit
 
@@ -17,7 +18,7 @@ import ScreenCaptureKit
         guard !box.isEmpty else { throw Failure.bounds }
         let bundle = URL(fileURLWithPath: a[1], isDirectory: true).resolvingSymlinksInPath()
         let ids = a[0] == "Saytile" ? ["app.saytile.mac.design-experience", "app.saytile.mac.shared-voice-preview"] :
-            ["com.holdsnow.nearpane.host", "com.holdsnow.nearpane.alpha", "com.holdsnow.nearpane.shared-voice-preview"]
+            ["com.holdsnow.nearpane.host", "com.holdsnow.nearpane.alpha", "com.holdsnow.nearpane.voice-preview"]
         guard let id = Bundle(url: bundle)?.bundleIdentifier, ids.contains(id),
               let app = NSRunningApplication(processIdentifier: pid), !app.isTerminated,
               app.executableURL?.resolvingSymlinksInPath() == Bundle(url: bundle)?.executableURL?.resolvingSymlinksInPath()
@@ -34,7 +35,10 @@ import ScreenCaptureKit
         let cg = CGRect(x: box.minX, y: screen.frame.maxY - box.maxY, width: box.width, height: box.height)
         let requested = a[0] == "Saytile" ? cg : fg.frame
         guard fg.frame.insetBy(dx: -1,dy: -1).contains(cg), display.frame.insetBy(dx:-1,dy:-1).contains(requested)
-        else { throw Failure.bounds }
+        else {
+            print("WindowServer bounds mismatch: window=\(fg.frame) display=\(display.frame) glass=\(cg) source=\(requested) AppKit=\(screen.frame)")
+            throw Failure.bounds
+        }
         let s = SCStreamConfiguration()
         s.captureResolution = .best
         s.showsCursor = false
@@ -52,12 +56,12 @@ import ScreenCaptureKit
           "contentRelativePoints":region, "sourceCG":[requested.minX, requested.minY, requested.width, requested.height],
           "windowCG":[fg.frame.minX,fg.frame.minY,fg.frame.width,fg.frame.height],
           "backingScale":screen.backingScaleFactor, "screens":NSScreen.screens.count]
-        report["accessibility"] = inspect(pid: pid, host: a[0], captureState: a[7], fixture: a[8])
+        report["accessibility"] = inspect(pid: pid, host: a[0], captureState: a[7], fixture: a[8], glass: cg)
         let dataJSON = try JSONSerialization.data(withJSONObject:report,options:.sortedKeys)
         print(String(decoding:dataJSON,as:UTF8.self))
     }
     /// Target-local readback and press, using the fixture's private pasteboard. No events are posted globally.
-    @MainActor static func inspect(pid: pid_t, host: String, captureState: String, fixture: String) -> [String:Any] {
+    @MainActor static func inspect(pid: pid_t, host: String, captureState: String, fixture: String, glass: CGRect) -> [String:Any] {
         guard AXIsProcessTrusted() else { return ["status":"BLOCKED_AX_AUTHORIZATION"] }
         let root = AXUIElementCreateApplication(pid)
         func value(_ node: AXUIElement, _ name: String) -> CFTypeRef? {
@@ -78,6 +82,26 @@ import ScreenCaptureKit
         let text = "把今天的讨论记下来。\n下午三点继续。"
         var result: [String:Any] = ["status":"PASS","nativeTextMatches":(value(editor,kAXValueAttribute) as? String)?.contains(text) == true,
                                     "voiceAXValue":value(voice,kAXValueAttribute) as? String ?? ""]
+        var frames: [String:[CGFloat]] = [:]
+        for (name, node) in nodes {
+            guard let pv = value(node, kAXPositionAttribute), CFGetTypeID(pv) == AXValueGetTypeID(),
+                  let sv = value(node, kAXSizeAttribute), CFGetTypeID(sv) == AXValueGetTypeID() else { continue }
+            var point = CGPoint.zero, size = CGSize.zero
+            guard AXValueGetValue(unsafeDowncast(pv, to:AXValue.self), .cgPoint, &point),
+                  AXValueGetValue(unsafeDowncast(sv, to:AXValue.self), .cgSize, &size) else { continue }
+            frames[name] = [point.x-glass.minX,point.y-glass.minY,size.width,size.height]
+        }
+        result["framesRelativeToGlassTopLeft"] = frames
+        var atStart = CFRange(location:0, length:1)
+        if let first = AXValueCreate(.cfRange, &atStart) {
+            var attr: CFTypeRef?
+            if AXUIElementCopyParameterizedAttributeValue(editor, kAXAttributedStringForRangeParameterizedAttribute as CFString,
+                first, &attr) == .success, let attr = attr as? NSAttributedString, attr.length > 0,
+               let font = attr.attributes(at:0, effectiveRange:nil)[.init(kAXFontTextAttribute.takeUnretainedValue() as String)] as? [String:Any] {
+                if let n = font[kAXFontSizeKey.takeUnretainedValue() as String] as? NSNumber { result["observedTextPointSize"] = n }
+                if let n = font[kAXFontNameKey.takeUnretainedValue() as String] as? String { result["observedTextFont"] = n }
+            }
+        }
         if captureState == "panel-speaking" {
             let board: NSPasteboard
             if host == "Nearpane" {

@@ -97,22 +97,52 @@ def main():
         for host, app, repo in [("Saytile", c.saytile_app, say), ("Nearpane", c.nearpane_app, near)]:
             report[host] = capture(host, app.resolve(), repo, out / host, tmp, helper)
             (out / "comparison.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+    compare(out, report)
+
+
+def compare(out, report):
+    failures = []
+    wanted = dict(zip(STATES, ("暂停", "待命", "正在识别")))
+    # Tolerances apply only to these identical synthetic scenes on controlled lavender backdrops.
+    report["tolerances"] = {"rgbMeanAbsoluteDifferencePer8BitChannel": 3,
+                            "glassAndAXFramePoints": 0.5}
     report["comparison"] = {}
     for state in STATES:
         rows = [report[n]["scenes"][state] for n in ("Saytile", "Nearpane")]
-        delta = [abs(x-y) for x,y in zip(rows[0]["glassAppKit"], rows[1]["glassAppKit"])]
-        a, b = [Image.open(out/n/(state+".png")).convert("RGB") for n in ("Saytile","Nearpane")]
-        # Compare common pixels one-for-one; report each raster's size and every logical edge discrepancy.
-        w,h=min(a.width,b.width),min(a.height,b.height)
-        diff=ImageChops.difference(a.crop((0,0,w,h)),b.crop((0,0,w,h)))
-        side=Image.new("RGB",(a.width+b.width,max(a.height,b.height))); side.paste(a); side.paste(b,(a.width,0))
-        side.save(out/(state+"-pair.png"))
-        report["comparison"][state]=dict(geometryDeltaPoints=delta, rasterSizes=[a.size,b.size],
-                commonPixelRGBMeanAbsoluteDifference=ImageStat.Stat(diff).mean,
-                commonDifferentPixelFraction=sum(px!=(0,0,0) for px in diff.getdata())/(w*h))
-    (out/"comparison.json").write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n")
-    if any(max(item["geometryDeltaPoints"])>1 for item in report["comparison"].values()):
-        raise SystemExit("Native host geometry differs by more than one logical point; inspect comparison.json")
+        delta = [abs(x - y) for x, y in zip(rows[0]["glassAppKit"], rows[1]["glassAppKit"])]
+        a, b = [Image.open(out / n / (state + ".png")).convert("RGB") for n in ("Saytile", "Nearpane")]
+        w, h = min(a.width, b.width), min(a.height, b.height)
+        diff = ImageChops.difference(a.crop((0, 0, w, h)), b.crop((0, 0, w, h)))
+        mean = ImageStat.Stat(diff).mean
+        red, green, blue = diff.split()
+        histogram = ImageChops.lighter(ImageChops.lighter(red, green), blue).histogram()
+        side = Image.new("RGB", (a.width + b.width, max(a.height, b.height)))
+        side.paste(a)
+        side.paste(b, (a.width, 0))
+        side.save(out / (state + "-pair.png"))
+        report["comparison"][state] = dict(geometryDeltaPoints=delta, rasterSizes=[a.size, b.size],
+                commonPixelRGBMeanAbsoluteDifference=mean, commonDifferentPixelFraction=1-histogram[0]/(w*h),
+                fractionWithAnyChannelDeltaAbove8=sum(histogram[9:])/(w*h))
+        if max(delta) > 0.5 or a.size != b.size:
+            failures.append(f"{state}: glass or raster geometry")
+        if max(mean) > 3:
+            failures.append(f"{state}: controlled-backdrop material mismatch (RGB MAE {mean})")
+        first, second = [row["accessibility"] for row in rows]
+        for host, ax in zip(("Saytile", "Nearpane"), (first, second)):
+            if ax.get("status") != "PASS" or ax.get("voiceAXValue") != wanted[state]:
+                failures.append(f"{host} {state}: AX state, selection or copy")
+        for element in ("panel.transcript", "panel.copy", "panel.capture"):
+            frames = [ax.get("framesRelativeToGlassTopLeft", {}).get(element, []) for ax in (first, second)]
+            if any(len(frame) != 4 for frame in frames) or any(abs(x-y) > 0.5 for x, y in zip(*frames)):
+                failures.append(f"{state}: AX frame {element}")
+        for attr in ("observedTextFont", "observedTextPointSize"):
+            if not first.get(attr) or first[attr] != second.get(attr):
+                failures.append(f"{state}: {attr}")
+    report["result"] = "FAIL" if failures else "PASS"
+    report["failures"] = failures
+    (out / "comparison.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+    if failures:
+        raise SystemExit("\n".join(failures))
 
 
 if __name__ == "__main__":
