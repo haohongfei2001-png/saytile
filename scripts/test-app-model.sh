@@ -20,12 +20,21 @@ trap 'rm -rf "$SAYTILE_MODEL_TEMP"' EXIT
 if [[ -d "$SAYTILE_MODEL_BIN_DIR/Saytile_SaytileKit.bundle" ]]; then
   ditto "$SAYTILE_MODEL_BIN_DIR/Saytile_SaytileKit.bundle" "$SAYTILE_MODEL_TEMP/Saytile_SaytileKit.bundle"
 fi
-swiftc -swift-version 6 -parse-as-library -module-cache-path "$SAYTILE_MODEL_SCRATCH/probe-module-cache" \
+SAYTILE_PROBE_FLAGS=(-swift-version 6 -parse-as-library -module-cache-path "$SAYTILE_MODEL_SCRATCH/probe-module-cache" \
   -I "$SAYTILE_MODEL_BIN_DIR" -I "$SAYTILE_MODEL_BIN_DIR/Modules" -I Sources/CSQLite \
   -Xcc "-fmodule-map-file=$SAYTILE_MODEL_MODULE_MAP" \
-  -L "$SAYTILE_MODEL_BIN_DIR" -lSaytileKit -lSaytileVoiceUI -lc++ \
+  -L "$SAYTILE_MODEL_BIN_DIR" -lSaytileKit -lSaytileVoiceUI -lc++)
+swiftc "${SAYTILE_PROBE_FLAGS[@]}" \
   Sources/SaytileApp/AppModel.swift tests/fixtures/AppModelProbe.swift \
   -o "$SAYTILE_MODEL_TEMP/probe"
 SAYTILE_MODEL_LOG="${SAYTILE_MODEL_LOG:-evidence/native-app-model.log}"
 mkdir -p "$(dirname "$SAYTILE_MODEL_LOG")"
 "$SAYTILE_MODEL_TEMP/probe" 2>&1 | tee "$SAYTILE_MODEL_LOG"
+
+# Exercise the same NSPanel mouse-event handler as the app, without global input.
+# A second process reads only the isolated placement written by the first.
+swiftc "${SAYTILE_PROBE_FLAGS[@]}" Sources/SaytileApp/VoicePanel.swift \
+  tests/fixtures/VoiceRailGestureProbe.swift -o "$SAYTILE_MODEL_TEMP/gesture-probe"
+for phase in write restore; do
+  "$SAYTILE_MODEL_TEMP/gesture-probe" "$phase" "$SAYTILE_MODEL_TEMP/placement.json"
+done
