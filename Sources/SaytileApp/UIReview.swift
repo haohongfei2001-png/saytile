@@ -671,7 +671,7 @@ extension AppDelegate {
                 guard editor.isEditable, editor.isSelectable, editor.string.isEmpty,
                       host.window?.makeFirstResponder(editor) == true else { throw ReviewFailure("cannot enter the empty native editor") }
                 editor.commandPasteboard = board
-                func command(_ key: String, modifiers: NSEvent.ModifierFlags = .command) throws {
+                @MainActor func command(_ key: String, modifiers: NSEvent.ModifierFlags = .command) throws {
                     guard let win = host.window,
                           let event = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: modifiers,
                             timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: win.windowNumber, context: nil,
