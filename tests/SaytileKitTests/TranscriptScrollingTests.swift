@@ -45,14 +45,9 @@ import Testing
         let point = panel.convertPoint(toScreen: CGPoint(x: box.midX, y: box.midY))
         wheel.location = CGPoint(x: point.x, y: primary.frame.maxY - point.y)
         panel.sendEvent(try #require(NSEvent(cgEvent: wheel)))
-        // Yield the main actor so AppKit can finish the native scroll. Pumping a
-        // nested run loop inside a synchronous test can starve deferred delivery.
-        let deadline = ContinuousClock.now + .seconds(1)
-        while scroll.contentView.bounds.minY >= start, ContinuousClock.now < deadline {
-            try await Task.sleep(for: .milliseconds(8))
-        }
         #expect(start > 32)
-        #expect(scroll.contentView.bounds.minY < start, "wheel from \(start) to \(scroll.contentView.bounds.minY)")
+        let travel = start - scroll.contentView.bounds.minY
+        #expect(travel > 0 && travel <= scroll.contentSize.height / 2 + 1, "wheel moved \(travel) pt")
         #expect(scroll.verticalScroller == nil)
         view.setSelectedRange(NSRange(location: 0, length: 2))
         view.scrollRangeToVisible(NSRange(location: 0, length: 0))

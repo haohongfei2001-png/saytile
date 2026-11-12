@@ -54,10 +54,8 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     public internal(set) var editing = false
     var applyEdits: (@MainActor ([VoicePanelEdit]) throws -> PanelTimelineDocument<Entry>)?
     private var intendedEdit: (range: NSRange, replacement: String)?
-    private var createRowFromIdle = false
     private var emptiedRow: (id: UUID, caret: Int)?
     private var focusedPosition: Int64?
-    private var motion: Task<Void, Never>?
     private var pagingFrom: Int64?
     public var selectionSnapshot: String {
         let range = transcriptView.selectedRange(), string = transcriptView.string as NSString
@@ -72,7 +70,6 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         publishState()
     }
     func updateDocument(_ document: PanelTimelineDocument<Entry>) {
-        if editing || selecting || transcriptView.selectedRange().length > 0 { motion?.cancel() }
         pending = document
         latestText = document.text
         applyLatest()
@@ -101,16 +98,11 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         transcriptView.isAutomaticQuoteSubstitutionEnabled = false
         transcriptView.typingAttributes = attributes
         transcriptView.compositionFinished = { [weak self] in self?.finishUserInput() }
-        transcriptView.pointerDown = { [weak self] point in
-            guard let self, let manager = transcriptView.layoutManager, let container = transcriptView.textContainer else { return }
-            emptiedRow = nil
-            createRowFromIdle = rendered.idle && point.y >= manager.usedRect(for: container).maxY + transcriptView.textContainerOrigin.y
-        }
+        transcriptView.pointerDown = { [weak self] _ in self?.emptiedRow = nil }
         transcriptView.isRichText = false
         transcriptView.importsGraphics = false
         transcriptView.drawsBackground = false
-        // TextKit lays out glyphs; this scroll view owns document height,
-        // including the empty viewport after the last spoken word.
+        // The viewport ends at the final line of text, including after a long pause.
         transcriptView.isVerticallyResizable = false
         transcriptView.isHorizontallyResizable = false
         transcriptView.autoresizingMask = [.width]
@@ -126,14 +118,13 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         transcriptView.setAccessibilityLabel("当前转写文字")
         transcriptView.onPageNavigation = { [weak self] older in
             guard let self else { return }
-            motion?.cancel()
             wheelDirection = nil
             requestAdjacentPage(older: older)
         }
         transcriptView.onSelectionTracking = { [weak self] tracking in
             guard let self else { return }
             selecting = tracking
-            if tracking { motion?.cancel(); isFollowingLatest = false; publishState() }
+            if tracking { isFollowingLatest = false; publishState() }
             else if transcriptView.selectedRange().length == 0 { applyLatest() }
         }
         documentView = transcriptView
@@ -178,7 +169,6 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
            Self.sameText(rendered.text, textView.string) {
             intendedEdit = (range, replacementString)
         }
-        motion?.cancel()
         return true
     }
 
@@ -204,7 +194,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
             edit = .init(rows: [.init(id: emptiedRow.id, before: "", after: change.replacement)],
                          anchor: emptiedRow.id, offset: change.replacement.utf16.count)
         } else {
-            edit = rendered.edit(in: change.range, replacement: change.replacement, newRow: createRowFromIdle)
+            edit = rendered.edit(in: change.range, replacement: change.replacement, newRow: false)
         }
         guard let edit else {
             showEdit(rendered, caret: change.range.location)
@@ -216,7 +206,6 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
             let span = document.spans.first { $0.entry.id == edit.anchor }
             let caret = span.map { $0.range.location + min($0.range.length, edit.offset) } ?? change.range.location
             if !edit.rows.isEmpty { registerUndo(edit.rows, caret: change.range.location) }
-            createRowFromIdle = false
             emptiedRow = span == nil && edit.rows.contains(where: { $0.id == edit.anchor && $0.after.isEmpty })
                 ? (edit.anchor, min(caret, document.text.utf16.count)) : nil
             showEdit(document, caret: caret)
@@ -268,13 +257,12 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         guard !changingDocument else { return }
         if let emptiedRow, transcriptView.selectedRange().location != emptiedRow.caret,
            Self.sameText(rendered.text, transcriptView.string) { self.emptiedRow = nil }
-        if transcriptView.selectedRange().length > 0 { motion?.cancel(); isFollowingLatest = false }
+        if transcriptView.selectedRange().length > 0 { isFollowingLatest = false }
         else if !selecting { applyLatest() }
         publishState()
     }
 
     public override func scrollWheel(with event: NSEvent) {
-        motion?.cancel()
         let delta = event.scrollingDeltaY
         if delta != 0 {
             lastManagedOrigin = nil
@@ -282,7 +270,20 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
             if delta > 0 { isFollowingLatest = false; publishState() }
             requestAdjacentPage(older: delta > 0)
         }
-        super.scrollWheel(with: event)
+        if !event.hasPreciseScrollingDeltas, event.phase.isEmpty, event.momentumPhase.isEmpty, delta != 0 {
+            // Mechanical wheels report lines, not points. Keep some of the
+            // previous viewport visible even with accelerated mouse deltas.
+            let distance = delta * verticalLineScroll
+            let maximumStep = max(1, contentSize.height / 2)
+            let offset = min(maximumStep, max(-maximumStep, distance))
+            let maximumY = max(0, transcriptView.bounds.height - contentSize.height)
+            let targetY = min(maximumY, max(0, contentView.bounds.minY - offset))
+            contentView.scroll(to: NSPoint(x: contentView.bounds.minX, y: targetY))
+            reflectScrolledClipView(contentView)
+        } else {
+            // Pixel-precise trackpad phases and momentum belong to AppKit.
+            super.scrollWheel(with: event)
+        }
         if delta != 0 { requestAdjacentPage(older: delta > 0) }
     }
 
@@ -386,6 +387,11 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
               applyEdits == nil || Self.sameText(rendered.text, transcriptView.string),
               transcriptView.selectedRange().length == 0,
               pending != rendered || !Self.sameText(latestText, transcriptView.string), let storage = transcriptView.textStorage else { return }
+        if rendered.firstPosition == pending.firstPosition, rendered.lastPosition == pending.lastPosition,
+           Self.sameText(rendered.text, pending.text), rendered.markers == pending.markers {
+            rendered = pending
+            return
+        }
         let old = transcriptView.string as NSString, new = latestText as NSString
         let patch = Self.patch(from: old, to: new)
         let oldCaret = transcriptView.selectedRange().location
@@ -393,11 +399,9 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         let oldOrigin = contentView.bounds.origin
         let oldDocument = rendered
         let anchoredSpan = anchor.flatMap { a in oldDocument.spans.first { NSMaxRange($0.range) > a.character } }
-        let enteringIdle = pending.idle && !rendered.idle && !rendered.spans.isEmpty
         if oldDocument.firstPosition != pending.firstPosition ||
             oldDocument.lastPosition != pending.lastPosition { pagingFrom = nil }
         rendered = pending
-        motion?.cancel()
         changingDocument = true
         storage.replaceCharacters(in: patch.range, with: NSAttributedString(string: patch.replacement, attributes: attributes))
         if oldDocument.markers != rendered.markers || !rendered.markers.isEmpty {
@@ -407,23 +411,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         let caret = min(new.length, Self.shift(oldCaret, through: patch.range, replacementLength: patch.replacement.utf16.count))
         transcriptView.setSelectedRange(NSRange(location: caret, length: 0))
         ensureDocumentLayout()
-        if isFollowingLatest {
-            if enteringIdle && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
-                let start = oldOrigin.y
-                let end = max(0, transcriptView.bounds.height - contentSize.height)
-                motion = Task { @MainActor [weak self] in
-                    for step in 1...12 {
-                        do { try await Task.sleep(for: .milliseconds(16)) } catch { return }
-                        guard let self, self.isFollowingLatest, !self.editing, !self.selecting,
-                              self.transcriptView.selectedRange().length == 0 else { return }
-                        let progress = CGFloat(step) / 12
-                        self.changingDocument = true
-                        self.scroll(to: NSPoint(x: 0, y: start + (end - start) * progress * (2 - progress)))
-                        self.changingDocument = false
-                    }
-                }
-            } else { scrollToLatest() }
-        }
+        if isFollowingLatest { scrollToLatest() }
         else if let anchor, let manager = transcriptView.layoutManager, let container = transcriptView.textContainer, new.length > 0 {
             var adjusted = Self.shift(anchor.character, through: patch.range, replacementLength: patch.replacement.utf16.count, rightAffinity: true)
             if let previous = anchoredSpan, let next = rendered.spans.first(where: { $0.entry.id == previous.entry.id }),
@@ -443,24 +431,18 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
 
     private func ensureDocumentLayout() {
         let width = max(1, contentSize.width)
-        transcriptView.setFrameSize(NSSize(width: width, height: max(contentSize.height, transcriptView.frame.height)))
+        if transcriptView.frame.width != width {
+            transcriptView.setFrameSize(NSSize(width: width, height: transcriptView.frame.height))
+        }
         guard let manager = transcriptView.layoutManager, let container = transcriptView.textContainer else { return }
         manager.ensureLayout(for: container)
-        var height = ceil(manager.usedRect(for: container).maxY + transcriptView.textContainerInset.height * 2)
-        if !rendered.text.isEmpty, rendered.text.utf16.count == transcriptView.string.utf16.count {
-            if rendered.idle || rendered.activeStart == rendered.text.utf16.count {
-                height += contentSize.height
-            } else if let start = rendered.activeStart, start > 0 {
-                let glyph = manager.glyphIndexForCharacter(at: start)
-                height = max(height, manager.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil).minY + contentSize.height)
-            }
-        }
-        transcriptView.setFrameSize(NSSize(width: width, height: max(contentSize.height, height)))
+        let height = ceil(manager.usedRect(for: container).maxY + transcriptView.textContainerInset.height * 2)
+        let size = NSSize(width: width, height: max(contentSize.height, height))
+        if transcriptView.frame.size != size { transcriptView.setFrameSize(size) }
     }
     private func scrollToLatest() {
         let wasChanging = changingDocument
         changingDocument = true
-        ensureDocumentLayout()
         scroll(to: NSPoint(x: 0, y: max(0, transcriptView.bounds.height - contentSize.height)))
         changingDocument = wasChanging
     }

@@ -261,7 +261,7 @@ extension AppDelegate {
                 try self.captureReview(host, name: "timeline-live", output: output)
                 if controls {
                     try await self.press("panel.copy", in: host)
-                    guard board.string(forType: .string) == initialText + "\n" + continuation else { throw ReviewFailure("copy scope was not latest group") }
+                    guard board.string(forType: .string) == initialText + continuation else { throw ReviewFailure("copy scope was not latest group") }
                 }
                 let changes = board.changeCount
                 try await model.store.applyRecognition(ticket: ticket, text: "想把这段话记下来。", isFinal: true)
@@ -275,34 +275,38 @@ extension AppDelegate {
                 guard model.editorDraft == "用户自己决定的写法" else { throw ReviewFailure("late ASR rewrote unsaved edit") }
                 model.closeDetail()
                 let beforeIdle = scroll.contentView.bounds.minY
+                let textBeforeIdle = scroll.transcriptView.string
+                let heightBeforeIdle = scroll.transcriptView.bounds.height
                 // Wait for the actual production timer at the shortest supported interval.
                 if ProcessInfo.processInfo.environment["SAYTILE_RECORD_TIMELINE"] == "1" {
                     try await self.recordIdleTransition(host, model: model, output: output)
                 } else {
                     for _ in 0..<140 where !model.timelineIdle { try await Task.sleep(for: .milliseconds(100)) }
                 }
-                // The final easing step can be less than one point. Capture the
-                // anchor only after the clip reaches the actual layout destination.
-                do {
-                    try await self.reviewUntil { scroll.rendered.idle && scroll.contentView.bounds.minY > beforeIdle + 20 &&
-                        scroll.contentView.bounds.minY == max(0, scroll.transcriptView.bounds.height - scroll.contentSize.height) }
-                } catch {
-                    print("TIMELINE_IDLE_LAYOUT idle=\(scroll.rendered.idle) before=\(beforeIdle) origin=\(scroll.contentView.bounds.minY) expected=\(scroll.transcriptView.bounds.height - scroll.contentSize.height) visible=\(scroll.contentView.bounds.height) document=\(scroll.transcriptView.bounds.height) follow=\(scroll.isFollowingLatest)")
-                    throw error
+                guard model.timelineIdle else { throw ReviewFailure("production idle interval did not elapse") }
+                // Sample beyond the previous 12 animation frames to detect even a transient hop.
+                for _ in 0..<18 {
+                    try await Task.sleep(for: .milliseconds(16))
+                    guard abs(scroll.contentView.bounds.minY - beforeIdle) < 1,
+                          scroll.transcriptView.bounds.height == heightBeforeIdle,
+                          scroll.transcriptView.string == textBeforeIdle else {
+                        throw ReviewFailure("idle moved the native viewport or changed its text")
+                    }
                 }
+                print("TIMELINE_IDLE_STATIONARY delta=\(scroll.contentView.bounds.minY - beforeIdle) height=\(heightBeforeIdle)")
                 try self.captureReview(host, name: "timeline-idle", output: output)
                 if controls {
                     let anchor = scroll.contentView.bounds.origin
                     let state = model.audio.state
                     let notice = model.notice
-                    let expected = try await model.store.recording(id: first.id)!.text + "\n" + continuation
+                    let expected = try await model.store.recording(id: first.id)!.text + continuation
                     try await self.press("panel.copy", in: host)
                     guard board.string(forType: .string) == expected, model.timelineIdle,
                           scroll.contentView.bounds.origin == anchor, scroll.selectionSnapshot.isEmpty,
                           model.audio.state == state, model.notice == notice else {
                         throw ReviewFailure("idle click did not silently snapshot the latest group in place")
                     }
-                    print("IDLE_COPY_PASS two utterances; blank viewport, capture and notice unchanged")
+                    print("IDLE_COPY_PASS two utterances; stationary viewport, capture and notice unchanged")
                 }
                 let idleClipboard = board.changeCount
                 // The archive editor holds its page, as on a nonactivating panel click.
@@ -316,13 +320,13 @@ extension AppDelegate {
                 await model.refresh()
                 guard board.changeCount == idleClipboard else { throw ReviewFailure("new speech rewrote an idle clipboard snapshot") }
                 if controls {
-                    guard scroll.rendered.idle, scroll.rendered.spans.last?.entry.id == second.id else {
+                    guard scroll.rendered.spans.last?.entry.id == second.id else {
                         throw ReviewFailure("editor failed to hold the idle reading page")
                     }
                     try await self.press("panel.copy", in: host)
                     guard board.string(forType: .string) == "再记一句，和之前的想法放在一起。",
-                          model.editorDraft == "独立复核的未提交草稿", scroll.rendered.idle else {
-                        throw ReviewFailure("copy on a held blank panel used the previous group")
+                          model.editorDraft == "独立复核的未提交草稿", scroll.rendered.spans.last?.entry.id == second.id else {
+                        throw ReviewFailure("copy on a held panel used the previous group")
                     }
                     print("HELD_IDLE_COPY_PASS newest group only; editor draft and held viewport intact")
                 }
@@ -336,28 +340,42 @@ extension AppDelegate {
                 let expectedLast = scroll.rendered.spans[scroll.rendered.spans.count / 2].entry.position
                 scroll.contentView.scroll(to: .zero)
                 scroll.reflectScrolledClipView(scroll.contentView)
-                guard let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: 320, wheel2: 0, wheel3: 0),
+                guard let overlap = scroll.rendered.spans.first,
+                      let glyphLayout = scroll.transcriptView.layoutManager,
+                      let glyphContainer = scroll.transcriptView.textContainer else {
+                    throw ReviewFailure("pagination anchor unavailable")
+                }
+                @MainActor func rowViewportY(_ character: Int) -> CGFloat {
+                    let glyph = glyphLayout.glyphIndexForCharacter(at: character)
+                    let rect = glyphLayout.boundingRect(forGlyphRange: NSRange(location: glyph, length: 1), in: glyphContainer)
+                    return rect.minY + scroll.transcriptView.textContainerOrigin.y - scroll.documentVisibleRect.minY
+                }
+                let overlapY = rowViewportY(overlap.range.location)
+                guard let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: 1, wheel2: 0, wheel3: 0),
                       let event = NSEvent(cgEvent: wheel) else { throw ReviewFailure("no native wheel event") }
                 let began = ContinuousClock.now
                 // A real trackpad gesture can span multiple Cocoa run-loop turns.
                 // The native view must cross the old keyset boundary and retain overlap.
-                for _ in 0..<12 where scroll.rendered.firstPosition == oldFirst {
-                    scroll.scrollWheel(with: event)
-                    try await Task.sleep(for: .milliseconds(20))
-                }
+                scroll.scrollWheel(with: event)
                 try await self.reviewUntil { (scroll.rendered.firstPosition ?? oldFirst) < oldFirst }
                 guard scroll.rendered.spans.count == 64, scroll.rendered.lastPosition == expectedLast,
                       !scroll.isFollowingLatest,
                       scroll.rendered.spans.contains(where: { $0.entry.position == oldFirst }) else { throw ReviewFailure("paged native viewport dropped overlap") }
+                guard let sameRow = scroll.rendered.spans.first(where: { $0.entry.id == overlap.entry.id }) else {
+                    throw ReviewFailure("pagination lost the visible row")
+                }
+                let pageOffset = rowViewportY(sameRow.range.location) - overlapY
+                // One pixel of requested scrolling, plus backing-pixel alignment.
+                guard abs(pageOffset) <= 2 else { throw ReviewFailure("pagination displaced the reader by \(pageOffset) pt") }
+                print("TIMELINE_PAGE_ANCHOR delta=\(pageOffset) points")
                 print("TIMELINE_NATIVE_PAGE rows=12003 resident=64 wheel_to_paint=\(began.duration(to: .now))")
-                let dateMarkers = scroll.rendered.markers.filter { range in
-                    (scroll.transcriptView.string as NSString).substring(with: range).hasPrefix("2025-01-")
+                let entries = scroll.rendered.spans
+                guard scroll.rendered.markers.isEmpty,
+                      let nextDay = entries.indices.dropFirst().first(where: { entries[$0-1].entry.groupDay != entries[$0].entry.groupDay }),
+                      NSMaxRange(entries[nextDay-1].range) == entries[nextDay].range.location else {
+                    throw ReviewFailure("midnight interrupted continuous Chinese text")
                 }
-                guard dateMarkers.count == 2, let midnight = dateMarkers.last else {
-                    let days = Set(scroll.rendered.spans.map { $0.entry.groupDay }).sorted()
-                    throw ReviewFailure("midnight marker count=\(dateMarkers.count) days=\(days) positions=\(scroll.rendered.firstPosition ?? 0)...\(scroll.rendered.lastPosition ?? 0)")
-                }
-                scroll.transcriptView.scrollRangeToVisible(midnight)
+                scroll.transcriptView.scrollRangeToVisible(entries[nextDay].range)
                 try self.captureReview(host, name: "timeline-midnight", output: output)
                 // Select a line already on screen. A second asynchronous AppKit scroll
                 // would still be moving the viewport when the history check starts.
@@ -1015,7 +1033,7 @@ extension AppDelegate {
                 }
                 scroll.contentView.scroll(to: NSPoint(x: 0, y: 120)); scroll.reflectScrolledClipView(scroll.contentView)
                 try await self.reviewUntil { !scroll.isFollowingLatest }
-                try await self.reviewUntil { !scroll.rendered.markers.isEmpty }
+                guard scroll.rendered.markers.isEmpty else { throw ReviewFailure("scrolling inserted labels into the transcript") }
                 let readingOrigin = scroll.contentView.bounds.origin
                 let appended = updated + "\n用户上滚阅读时继续接收的新一句。"
                 _ = try await model.store.saveEdit(recordingID: row.id, text: appended); await model.refresh()
@@ -1042,7 +1060,7 @@ extension AppDelegate {
                 let nearBottom = NSPoint(x: 0, y: scroll.contentView.bounds.origin.y - 2)
                 scroll.contentView.scroll(to: nearBottom); scroll.reflectScrolledClipView(scroll.contentView)
                 try await self.reviewUntil { !scroll.isFollowingLatest }
-                try await self.reviewUntil { !scroll.rendered.markers.isEmpty }
+                guard scroll.rendered.markers.isEmpty else { throw ReviewFailure("scrolling inserted labels into the transcript") }
                 let readingTail = scroll.contentView.bounds.origin.y
                 let nearTailText = prepended + "\n近底上滚仍应保留阅读位置。"
                 _ = try await model.store.saveEdit(recordingID: row.id, text: nearTailText); await model.refresh()
