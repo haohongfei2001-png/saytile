@@ -12,12 +12,27 @@ struct AudioShutdownTests {
         _ = try await store.saveEdit(recordingID: row.id, text: "保留原稿")
         try await store.finishRecording(id: row.id)
         let controller = AudioController(store: store)
+        let (started, start) = AsyncStream<Void>.makeStream()
+        var reply: CheckedContinuation<String, Never>?
+        let stale = controller.updateAvailability {
+            await withCheckedContinuation { continuation in
+                reply = continuation
+                start.yield(())
+                start.finish()
+            }
+        }
+        var observed = started.makeAsyncIterator()
+        _ = await observed.next()
         await controller.prepareSpeechAssets {
             #expect(controller.preparingAppleSpeech)
             throw AudioFailure.message("下载中断")
         }
         #expect(controller.appleResourceFailure == "下载中断" && !controller.preparingAppleSpeech && controller.issue != nil)
         await controller.prepareSpeechAssets { "中文识别已就绪" }
+        // Release the older system read after the explicit preparation succeeds.
+        let pending = try #require(reply)
+        pending.resume(returning: "中文资源尚未安装")
+        await stale.value
         #expect(controller.appleResourceFailure == nil && !controller.preparingAppleSpeech && controller.issue == nil)
         #expect(controller.speechStatus == "中文识别已就绪" && controller.state == .paused)
         #expect(try await store.recording(id: row.id)?.text == "保留原稿")
