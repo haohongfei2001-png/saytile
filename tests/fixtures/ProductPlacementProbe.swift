@@ -11,11 +11,13 @@ import ApplicationServices
     @MainActor static func run() async throws {
         guard (2...3).contains(CommandLine.arguments.count), AXIsProcessTrusted(), CGPreflightPostEventAccess() else { throw Problem("AX or posting permission unavailable") }
         let url = URL(fileURLWithPath:CommandLine.arguments[1],isDirectory:true).standardizedFileURL
-        let id = "app.saytile.mac.design-experience"
+        let allowedBundles = ["Saytile 设计体验.app": "app.saytile.mac.design-experience",
+                              "Saytile 语音板体验.app": "app.saytile.mac.shared-voice-preview"]
+        guard let id = allowedBundles[url.lastPathComponent] else { throw Problem("Expected a named isolated candidate") }
         let expected = CommandLine.arguments.count == 3 ? Int32(CommandLine.arguments[2]) : nil
         if CommandLine.arguments.count == 3, expected == nil {throw Problem("Invalid expected PID")}
         let existing = NSRunningApplication.runningApplications(withBundleIdentifier:id)
-        guard Bundle(url:url)?.bundleIdentifier == id, url.lastPathComponent == "Saytile 设计体验.app",
+        guard Bundle(url:url)?.bundleIdentifier == id,
               expected == nil ? existing.isEmpty : (existing.count==1 && existing[0].processIdentifier==expected && existing[0].bundleURL?.resolvingSymlinksInPath()==url.resolvingSymlinksInPath()) else { throw Problem("Expected only the specified design candidate") }
         NSApplication.shared.setActivationPolicy(.prohibited)
         let originalPointer=CGEvent(source:nil)?.location
@@ -84,19 +86,20 @@ import ApplicationServices
             switch handle {
             case .footer:
                 // Blank space between the two existing controls.
-                let copyRight=frame.minX+32+20.5+42
-                let voiceLeft=frame.maxX-32-14-92.5
+                let scale = min(1, max(0.4, (frame.width-64)/240))
+                let copyRight=frame.minX+32+(20.5+42)*scale
+                let voiceLeft=frame.maxX-32-(14+92.5)*scale
                 guard voiceLeft>copyRight else {throw Problem("No gap between footer controls")}
-                from=CGPoint(x:(copyRight+voiceLeft)/2,y:frame.maxY-66)
+                from=CGPoint(x:(copyRight+voiceLeft)/2,y:frame.maxY-32-34*scale)
                 expected=frame.offsetBy(dx:dx,dy:dy)
             case .top:
-                from=CGPoint(x:frame.midX,y:frame.minY+41)
+                from=CGPoint(x:frame.midX,y:frame.minY+40)
                 expected=frame.offsetBy(dx:dx,dy:dy)
             case .left:
                 from=CGPoint(x:frame.minX+34,y:frame.midY)
                 expected=CGRect(x:frame.minX+dx,y:frame.minY,width:frame.width-dx,height:frame.height)
             case .bottomRight:
-                from=CGPoint(x:frame.maxX-45,y:frame.maxY-45)
+                from=CGPoint(x:frame.maxX-41,y:frame.maxY-41)
                 expected=CGRect(origin:frame.origin,size:CGSize(width:frame.width+dx,height:frame.height+dy))
             case .bottom:
                 from=CGPoint(x:frame.midX,y:frame.maxY-34)
@@ -142,11 +145,14 @@ import ApplicationServices
             CGRect(x:screen.visibleFrame.minX, y:primary.maxY-screen.visibleFrame.maxY,
                    width:screen.visibleFrame.width, height:screen.visibleFrame.height)
         }
-        guard let screen=displays.first(where: {$0.contains(initial.1)}) else {throw Problem("Initial window is outside a usable display")}
-        let glassWidth=initial.1.width-64
-        guard abs(glassWidth-max(178,(screen.width/8).rounded()))<=1,
-              abs(initial.1.minY-screen.minY-8)<=1, abs(screen.maxX-initial.1.maxX-8)<=1 else {
-            throw Problem("Initial floating glass width or top-right placement differs: frame=\(initial.1) visible=\(screen)")
+        guard let screen = displays.first else { throw Problem("No primary display") }
+        let glass = initial.1.insetBy(dx:32,dy:32)
+        let glassWidth = glass.width
+        // WindowServer bounds are rounded to logical points. The shadow ring can extend offscreen.
+        guard abs(glassWidth - screen.width * 0.125) <= 1,
+              abs(glass.height - screen.height * 0.225) <= 1,
+              abs(glass.minY - screen.minY) <= 1, abs(screen.maxX - glass.maxX) <= 1 else {
+            throw Problem("Initial glass does not match the primary voice region: frame=\(initial.1) visible=\(screen)")
         }
         print("DEFAULT_TOP_RIGHT visible=\(screen) frame=\(initial.1) glass_width=\(glassWidth)"); fflush(nil)
         let moved=try await manipulate(first,initial.1,.footer,dx:-72,dy:48)

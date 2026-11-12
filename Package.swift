@@ -11,6 +11,6 @@ let package = Package(
         .target(name: "SaytileKit", dependencies: ["CSQLite", "CAudio"], resources: [.copy("Resources/ConnectionSample.pcm"), .copy("Resources/LocalASR")]),
         .target(name: "SaytileVoiceUI"),
         .executableTarget(name: "SaytileApp", dependencies: ["SaytileKit", "SaytileVoiceUI"], resources: [.copy("Resources/SaytileBrandMark.png")]),
-        .testTarget(name: "SaytileKitTests", dependencies: ["SaytileKit"], path: "tests/SaytileKitTests")
+        .testTarget(name: "SaytileKitTests", dependencies: ["SaytileKit", "SaytileVoiceUI"], path: "tests/SaytileKitTests")
     ]
 )
