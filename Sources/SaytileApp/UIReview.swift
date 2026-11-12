@@ -23,21 +23,28 @@ extension AppDelegate {
                 try await reviewTimeline(model: model, output: output)
                 return true
             }
-            guard model.records.isEmpty else { throw NSError(domain: "Saytile.UIReview", code: 2, userInfo: [NSLocalizedDescriptionKey: "UI review requires an empty isolated data directory"]) }
+            guard try await model.store.listRecordings(limit: 1).isEmpty else { throw NSError(domain: "Saytile.UIReview", code: 2, userInfo: [NSLocalizedDescriptionKey: "UI review requires an empty isolated data directory"]) }
             try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240), name: "panel-empty", output: output)
             let examples = [
                 "周五的产品讨论，先把重点记下来。保持表达自然，停顿之后还可以继续。",
-                "这周想留一点时间，把散落的想法整理成一页清晰的计划。不要自动发送，确认之后再决定。",
+                "这周想留一点时间。\n把散落的想法整理成一页清晰的计划。\n先收下讨论的时间。\n不要自动发送。\n确认之后再决定。",
                 "API、Swift 与中文可以放在同一段表达里。测试 emoji 😀，只显示一份持续修正的文字。"
             ]
             for (index, text) in examples.enumerated() {
                 let row = try await model.store.createRecording(createdAt: Date().addingTimeInterval(Double(index)))
                 _ = try await model.store.saveEdit(recordingID: row.id, text: text)
+                if index == 1 {
+                    try await addSilentReviewAudio(model: model, recordingID: row.id, frames: 80_000)
+                }
                 try await model.store.finishRecording(id: row.id)
                 if index == 1 { try await model.store.setPinned(recordingID: row.id, pinned: true) }
                 if index == 2 { try await model.store.deleteAudio(recordingID: row.id) }
             }
+            let originalOnly = try await model.store.createRecording()
+            try await model.store.finishRecording(id: originalOnly.id)
             await model.refresh()
+            guard model.recordFilter == .transcribed, model.records.count == 3,
+                  model.records.allSatisfy({ !$0.text.isEmpty }) else { throw ReviewFailure("archive did not open on transcribed paragraphs") }
             try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240), name: "panel-content", output: output) { host in
                 try await self.selectMenu("direct", title: "直接输入", in: host)
                 try await self.reviewUntil { model.directMode }
@@ -54,11 +61,32 @@ extension AppDelegate {
                 try await self.press("已收藏", in: host)
                 await model.refresh()
                 guard model.recordFilter == .pinned, model.records.count == 1 else { throw ReviewFailure("native archive filter action failed: filter=\(model.recordFilter), count=\(model.records.count)") }
+                guard let paragraph = model.records.first, paragraph.hasAudio, paragraph.text == examples[1] else {
+                    throw ReviewFailure("missing owned transcript or playback fixture")
+                }
+                _ = try await self.performControl("archive.text.\(paragraph.id)", in: host, arguments: ["read-paragraph", paragraph.text])
+                try await self.press("archive.play.\(paragraph.id)", in: host)
+                try await self.reviewUntil { model.playingID == paragraph.id && model.audio.playbackPosition > 0 }
+                guard abs(model.audio.playbackDuration - 5) < 0.01, model.selected == nil else {
+                    throw ReviewFailure("row playback did not play its own five-second original inline")
+                }
+                try await self.press("archive.play.\(paragraph.id)", in: host)
+                try await self.reviewUntil { model.playingID == nil }
+                print("UI_CONTROL_PASS archive row plays and stops its own original while reading")
                 try await self.press("全部记录", in: host)
                 await model.refresh()
-                guard model.records.count == 3 else { throw ReviewFailure("native archive all-records action failed") }
+                guard model.records.count == 4, model.records.contains(where: { $0.id == originalOnly.id }) else { throw ReviewFailure("native archive all-records action lost original-only record") }
+                try await self.press("全部文字", in: host)
+                await model.refresh()
+                guard model.records.count == 3, let first = model.records.first else { throw ReviewFailure("archive transcript filter did not restore paragraphs") }
+                try await self.press("archive.detail.\(first.id)", in: host)
+                try await self.reviewUntil { model.editorCanEdit && model.selected?.id == first.id }
+                guard model.selected?.id == first.id, model.editorDraft == first.text else { throw ReviewFailure("paragraph editor opened wrong text") }
+                try await self.press("返回记录列表", in: host)
+                guard model.selected == nil else { throw ReviewFailure("paragraph editor did not return to reader") }
                 print("UI_CONTROL_PASS archive filters through native control events and SQLite")
             }
+            try await model.store.deleteRecord(recordingID: originalOnly.id)
             if let row = model.records.first {
                 await model.selectForEditing(row)
                 model.updateEditorDraft(row.text + "\n这是会自动保留的编辑草稿。")

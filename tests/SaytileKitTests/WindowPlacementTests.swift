@@ -12,51 +12,57 @@ struct WindowPlacementTests {
         #expect(WindowPlacement.panelContentDefaultSize == CGSize(width: 344, height: 234))
     }
 
-    @Test func unlaidOutMenuAnchorCannotPlaceFreshWindowInBottomCorner() {
-        let display = CGRect(x:0,y:0,width:1920,height:1080)
-        let fallback = WindowPlacement.panel(anchor:nil,visibleFrame:display)
-        #expect(WindowPlacement.panel(anchor:CGRect(x:0,y:0,width:28,height:22),visibleFrame:display) == fallback)
-        #expect(fallback.midX == display.midX && fallback.midY == display.midY)
-        #expect(WindowPlacement.panel(anchor:CGRect(x:1720,y:1056,width:24,height:24),visibleFrame:display) != fallback)
-    }
-
-    @Test func panelFitsOffsetAndCompactDisplays() {
-        for screen in [CGRect(x: 0, y: 0, width: 1440, height: 875), CGRect(x: -1920, y: 180, width: 1920, height: 1040), CGRect(x: 1440, y: -400, width: 800, height: 500)] {
-            for anchor in [CGRect(x: screen.maxX - 30, y: screen.maxY, width: 24, height: 24), CGRect(x: screen.minX + 2, y: screen.maxY, width: 24, height: 24)] {
-                let frame = WindowPlacement.panel(anchor: anchor, visibleFrame: screen)
-                #expect(screen.contains(frame))
-                #expect(frame.size == CGSize(width: 408, height: 298))
-            }
+    @Test func newPanelFitsAtUpperRightWithOneEighthGlassWidth() {
+        for display in [CGRect(x: 0, y: 0, width: 1440, height: 875),
+                        CGRect(x: -1920, y: 180, width: 1920, height: 1040),
+                        CGRect(x: 0, y: -2000, width: 3024, height: 1920)] {
+            let frame = WindowPlacement.initialPanel(visibleFrame: display)
+            #expect(display.maxX - frame.maxX == 8)
+            #expect(display.maxY - frame.maxY == 8)
+            #expect(frame.width - 2 * WindowPlacement.panelShadowInset == (display.width / 8).rounded())
+            #expect(frame.height == WindowPlacement.panelDefaultSize.height)
         }
     }
 
-    @Test func compactResizeLimitsBoundLargeContentAndSmallDragRequests() {
-        let screen = CGRect(x: 0, y: 25, width: 1440, height: 850)
-        let limits = WindowPlacement.panelLimits(visibleFrame: screen)
-        #expect(limits.minimum == CGSize(width: 384, height: 264))
-        #expect(limits.maximum == CGSize(width: 424, height: 544))
-        #expect(WindowPlacement.panelSize(CGSize(width: 10, height: 20), visibleFrame: screen) == limits.minimum)
-        #expect(WindowPlacement.panelSize(CGSize(width: 900, height: 20_000), visibleFrame: screen) == limits.maximum)
-        #expect(WindowPlacement.panelSize(CGSize(width: 414, height: 474), visibleFrame: screen) == CGSize(width: 414, height: 474))
+    @Test func portraitDisplayLeavesEnoughRoomForBothControls() {
+        let display = CGRect(x: -800, y: -400, width: 800, height: 1280)
+        let frame = WindowPlacement.initialPanel(visibleFrame: display)
+        #expect(frame.width - 2 * WindowPlacement.panelShadowInset == 178)
+        #expect(display.insetBy(dx: 8, dy: 8).contains(frame))
+    }
+
+    @Test func panelCanShrinkOrGrowAcrossAvailableScreen() {
+        let display = CGRect(x: 0, y: 25, width: 1920, height: 850)
+        let limits = WindowPlacement.panelLimits(visibleFrame: display)
+        let initial = WindowPlacement.initialPanel(visibleFrame: display)
+        #expect(limits.minimum == CGSize(width: 242, height: 214))
+        #expect(limits.minimum.width < initial.width)
+        #expect(limits.maximum == display.insetBy(dx: 8, dy: 8).size)
+        #expect(WindowPlacement.panelSize(CGSize(width: 1, height: 1), visibleFrame: display) == limits.minimum)
+        #expect(WindowPlacement.panelSize(CGSize(width: 3200, height: 2000), visibleFrame: display) == limits.maximum)
+        let enlarged = CGSize(width: 920, height: 740)
+        #expect(WindowPlacement.panelSize(enlarged, visibleFrame: display) == enlarged)
+    }
+
+    @Test func temporarilyDisconnectedWidePanelReturnsAtChosenSize() throws {
+        let desk = CGRect(x: -1920, y: 0, width: 1920, height: 1050)
+        let portrait = CGRect(x: 0, y: 0, width: 800, height: 1260)
+        let enlarged = CGRect(x: -1720, y: 140, width: 1510, height: 790)
+        let saved = try #require(SavedPanelPlacement(frame: enlarged, visibleFrame: desk, displayID: "external"))
+        let fallback = try #require(saved.restored(on: [("portrait", portrait)]))
+        #expect(portrait.insetBy(dx: 8, dy: 8).contains(fallback))
+        #expect(fallback.width == 784 && fallback.height == enlarged.height)
+        #expect(saved.restored(on: [("portrait", portrait), ("external", desk)]) == enlarged)
     }
 
     @Test func constrainedVisibleFrameTakesPrecedenceOverNormalMinimum() {
-        let screen = CGRect(x: -300, y: -180, width: 300, height: 180)
+        let screen = CGRect(x: -300, y: -180, width: 220, height: 180)
         let limits = WindowPlacement.panelLimits(visibleFrame: screen)
-        #expect(limits.minimum == CGSize(width: 284, height: 164))
+        #expect(limits.minimum == CGSize(width: 204, height: 164))
         #expect(limits.maximum == limits.minimum)
-        let frame = WindowPlacement.panel(anchor: CGRect(x: -8, y: 0, width: 20, height: 20), visibleFrame: screen)
+        let frame = WindowPlacement.initialPanel(visibleFrame: screen)
         #expect(frame == screen.insetBy(dx: 8, dy: 8))
         #expect(WindowPlacement.restoredPanel(CGRect(x: 900, y: 900, width: 600, height: 900), visibleFrames: [screen]) == frame)
-    }
-
-    @Test func displayScaleDoesNotMultiplyLogicalPanelSize() {
-        // Different macOS scaling choices change logical visible frames, not
-        // the desired point size of the same panel.
-        for size in [CGSize(width: 1280, height: 775), CGSize(width: 1920, height: 1055), CGSize(width: 2560, height: 1415)] {
-            let frame = WindowPlacement.panel(anchor: nil, visibleFrame: CGRect(origin: .zero, size: size))
-            #expect(frame.size == WindowPlacement.panelDefaultSize)
-        }
     }
 
     @Test func reopeningKeepsUserPositionAndResizeWithinBounds() {
@@ -76,16 +82,16 @@ struct WindowPlacementTests {
         #expect(restored == WindowPlacement.restoredPanel(disconnected, visibleFrames: [right, left]))
     }
 
-    @Test func legacyOversizedPanelRestoresWithinNewCompactBounds() {
+    @Test func largeUserPanelRestoresWithoutFormerWidthCap() {
         let screen = CGRect(x: 0, y: 40, width: 1280, height: 700)
         let restored = WindowPlacement.restoredPanel(CGRect(x: 1000, y: -300, width: 464, height: 614), visibleFrames: [screen])
-        #expect(restored.size == CGSize(width: 424, height: 544))
+        #expect(restored.size == CGSize(width: 464, height: 614))
         #expect(screen.insetBy(dx: 8, dy: 8).contains(restored))
     }
 
     @Test func tinyPositiveVisibleAreaNeverProducesNegativeWindowSize() {
         let screen = CGRect(x: -5, y: 8, width: 10, height: 8)
-        let frame = WindowPlacement.panel(anchor: nil, visibleFrame: screen)
+        let frame = WindowPlacement.initialPanel(visibleFrame: screen)
         #expect(frame.width == 1 && frame.height == 1)
         #expect(screen.contains(frame))
     }

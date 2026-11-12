@@ -231,7 +231,7 @@ struct InputPanelView: View {
 struct ArchiveView: View {
     @ObservedObject var model: AppModel
     @FocusState private var searching: Bool
-    private let filters: [(RecordingFilter, String, String)] = [(.all, "全部记录", "tray.full"), (.pinned, "已收藏", "pin"), (.needsRecovery, "待恢复", "arrow.clockwise")]
+    private let filters: [(RecordingFilter, String, String)] = [(.transcribed, "全部文字", "text.alignleft"), (.pinned, "已收藏", "pin"), (.needsRecovery, "待恢复", "arrow.clockwise"), (.all, "全部记录", "tray.full")]
     var body: some View {
         GeometryReader { geo in
             let wide = geo.size.width >= 920
@@ -264,9 +264,9 @@ struct ArchiveView: View {
                         if !wide { Picker("显示", selection: $model.recordFilter) { ForEach(filters, id: \.1) { filter, title, _ in Text(title).tag(filter) } }.pickerStyle(.segmented).labelsHidden() }
                         if let notice = model.notice { Text(notice).font(.callout).foregroundStyle(.secondary).textSelection(.enabled) }
                         if model.records.isEmpty {
-                            ContentUnavailableView(model.query.isEmpty ? (model.recordFilter == .all ? "还没有记录" : "这里暂时没有记录") : "没有匹配结果",
+                            ContentUnavailableView(model.query.isEmpty ? (model.recordFilter == .transcribed ? "还没有转写文字" : "这里暂时没有记录") : "没有匹配结果",
                                 systemImage: model.query.isEmpty ? "tray" : "magnifyingglass",
-                                description: Text(model.query.isEmpty ? (model.recordFilter == .all ? "从输入板开始收音，文字和原音会保存在这里。" : "符合当前筛选的记录会显示在这里。") : "试试更短的关键词，或清除搜索。"))
+                                description: Text(model.query.isEmpty ? (model.recordFilter == .transcribed ? "讲话转成文字后会按日期显示。未转写的原音可在“全部记录”中找到。" : "符合当前筛选的记录会显示在这里。") : "试试更短的关键词，或清除搜索。"))
                         } else {
                             ScrollView {
                                 LazyVStack(alignment: .leading, spacing: 0) {
@@ -299,28 +299,50 @@ private struct ArchiveRow: View {
     let item: DisplayRecording
     @ObservedObject var model: AppModel
     var body: some View {
+        let hasText = !item.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         VStack(alignment: .leading, spacing: 7) {
-            Button { model.select(item) } label: {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 6) {
-                        Text(item.date, format: .dateTime.hour().minute()).monospacedDigit()
-                        if item.pinned { Image(systemName: "pin.fill").accessibilityLabel("已收藏") }
-                        Spacer(); Text(item.stateLabel)
-                    }.font(.caption).foregroundStyle(.secondary)
-                    Text(item.text.isEmpty ? item.emptyTextLabel : item.text).font(.system(size: 15)).lineSpacing(3)
-                        .lineLimit(3).frame(maxWidth: .infinity, alignment: .leading)
-                }.contentShape(Rectangle())
-            }.buttonStyle(.plain).help("查看和编辑这段表达")
+            HStack(spacing: 9) {
+                Text(item.date, format: .dateTime.hour().minute().second())
+                    .monospacedDigit()
+                    .accessibilityIdentifier("archive.time.\(item.id)")
+                if item.pinned { Image(systemName: "pin.fill").accessibilityLabel("已收藏") }
+                if item.hasAudio {
+                    Button { model.play(item) } label: {
+                        Label {
+                            Text(model.playingID == item.id ? "停止" : "回听 · \(max(1, Int(item.source.duration.rounded()))) 秒")
+                        } icon: {
+                            Image(systemName: model.playingID == item.id ? "stop.fill" : "play.fill")
+                        }
+                    }
+                    .accessibilityLabel(model.playingID == item.id ? "停止回听" : "回听原音")
+                    .accessibilityIdentifier("archive.play.\(item.id)")
+                    .help(item.audioLabel)
+                }
+                Spacer()
+                if hasText {
+                    Button { model.copy(item.text) } label: { Image(systemName: "doc.on.doc") }
+                        .accessibilityLabel("复制这段文字").accessibilityIdentifier("archive.copy.\(item.id)").help("复制这段文字")
+                }
+                Button { Task { await model.selectForEditing(item) } } label: { Image(systemName: "square.and.pencil") }
+                    .accessibilityLabel("查看和编辑这段表达").accessibilityIdentifier("archive.detail.\(item.id)").help("查看和编辑这段表达")
+            }.buttonStyle(.borderless).font(.caption).foregroundStyle(.secondary)
+            if !hasText {
+                Text(item.emptyTextLabel).foregroundStyle(.secondary)
+            } else {
+                Text(verbatim: item.text)
+                    .font(.system(size: 16)).lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .textSelection(.enabled)
+                    .accessibilityIdentifier("archive.text.\(item.id)")
+            }
             if !model.query.isEmpty && !item.text.localizedCaseInsensitiveContains(model.query) {
                 Text("匹配历史版本或草稿").font(.caption).foregroundStyle(.secondary)
             }
             if let label = model.insertionLabels[item.id] { Label(label, systemImage: "arrow.up.forward.app").font(.caption).foregroundStyle(.secondary) }
-            HStack(spacing: 10) {
-                Text(item.audioLabel).font(.caption).foregroundStyle(.secondary); Spacer()
-                Button { model.play(item) } label: { Image(systemName: model.playingID == item.id ? "stop.fill" : "play.fill").frame(width: 22,height: 22) }.disabled(!item.hasAudio).accessibilityLabel(model.playingID == item.id ? "停止回听" : "回听原音")
-                Button { model.copy(item.text) } label: { Image(systemName: "doc.on.doc").frame(width: 22,height: 22) }.disabled(item.text.isEmpty).accessibilityLabel("复制这段文字")
-            }.buttonStyle(.plain)
-        }.padding(.vertical, 9).padding(.horizontal, 9).background(model.selected?.id == item.id ? WorkspaceStyle.selection : .clear, in: RoundedRectangle(cornerRadius: 8))
+        }
+        .padding(.vertical, 11).padding(.horizontal, 6)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(model.selected?.id == item.id ? WorkspaceStyle.selection : .clear, in: RoundedRectangle(cornerRadius: 6))
     }
 }
 
@@ -337,7 +359,8 @@ struct RecordDetailView: View {
                 Text("这段表达").font(.system(size: 16, weight: .semibold)); Spacer()
                 Button { model.closeDetail() } label: { Image(systemName: "xmark") }.buttonStyle(.plain).accessibilityLabel("返回记录列表").keyboardShortcut(.cancelAction)
             }
-            Text(item.date, format: .dateTime.year().month().day().hour().minute()).font(.system(size: 11)).foregroundStyle(.secondary)
+            Text(item.date, format: .dateTime.year().month().day().hour().minute().second()).font(.system(size: 11)).foregroundStyle(.secondary)
+            if !item.hasAudio { Text(item.audioLabel).font(.caption).foregroundStyle(.secondary) }
             if let error = item.source.displayedError {
                 Text(error).font(.system(size: 11)).foregroundStyle(Palette.amber).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
             }

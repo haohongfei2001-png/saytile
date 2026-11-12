@@ -31,6 +31,7 @@ struct DisplayRecording: Identifiable, Equatable {
         case .missing: return "原音暂不可用，尚未生成文字。"
         case .available:
             if source.isRecording { return "正在接收讲话…" }
+            if !hasAudio { return "尚无转写文字或可回听的原音。" }
             if source.recognitionState == .failed { return "原音已保存，文字等待恢复。" }
             if source.recognitionState == .completed { return "原音已保存，未检测到可识别的文字。" }
             return "原音已保存，等待识别…"
@@ -173,7 +174,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var editorDraftLoading = false
     @Published private(set) var savingEditorChanges = false
     @Published private(set) var editorDraftStatus = "修改会自动暂存，保存后更新这段文字"
-    @Published var recordFilter: RecordingFilter = .all { didSet { pageLimit = 100; scheduleRefresh() } }
+    @Published var recordFilter: RecordingFilter = .transcribed { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var query = "" { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var notice: String?
     private var captureStartIssue: (reason: String, detail: String)?

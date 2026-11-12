@@ -6,9 +6,28 @@ import SaytileKit
 /// Available only through the existing explicit empty --ui-review data directory.
 /// A separate read-only helper captures only these two windows from WindowServer.
 extension AppDelegate {
+    @MainActor func addSilentReviewAudio(model: AppModel, recordingID: UUID, frames: AVAudioFrameCount) async throws {
+        let path = recordingID.uuidString + "/sample.wav"
+        let url = model.store.audioDirectory.appendingPathComponent(path)
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        guard let format = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16_000, channels: 1, interleaved: true),
+              let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames),
+              let samples = buffer.int16ChannelData else { throw CocoaError(.fileWriteUnknown) }
+        buffer.frameLength = frames
+        samples[0].initialize(repeating: 0, count: Int(frames))
+        do {
+            let file = try AVAudioFile(forWriting: url, settings: format.settings, commonFormat: .pcmFormatInt16, interleaved: true)
+            try file.write(from: buffer)
+        }
+        let handle = try FileHandle(forWritingTo: url)
+        try handle.synchronize()
+        try handle.close()
+        try await model.store.registerAudioChunk(recordingID: recordingID, relativePath: path, frames: Int64(frames))
+    }
+
     @MainActor func reviewProductWindows(model: AppModel, output: URL) async throws {
         struct Stop: LocalizedError { let message: String; var errorDescription: String? { message } }
-        guard model.records.isEmpty, let screen = NSScreen.screens.first,
+        guard try await model.store.listRecordings(limit: 1).isEmpty, let screen = NSScreen.screens.first,
               let environment = NSImage(contentsOf: output.appendingPathComponent("environment.png")) else {
             throw Stop(message: "Expected an empty archive and the controlled reference backdrop")
         }
@@ -135,23 +154,14 @@ extension AppDelegate {
         model.selectSource("local")
         try await frame(ArchiveView(model:model),"archive-empty",.init(width:840,height:560))
         let base = Date()
-        for (i,words) in ["周五的讨论，先把决定留下来。","合同金额是不超过三千元，不是三万元。","上午十点复核版本，然后继续。","今天的想法，等散步回来再补两句。"].enumerated() {
+        for (i,words) in ["周五的讨论，先把决定留下来。","合同金额是不超过三千元，不是三万元。","上午十点复核版本，然后继续。","今天的想法分成两件事。\n先把讨论中确定的时间记下来。\n还要核对上一版里的两处数字。\n把这几行留在一起，下午可以直接接着看。"].enumerated() {
             let row = try await model.store.createRecording(createdAt:base.addingTimeInterval(Double(i-3)*36_000))
             let t = try await model.store.beginRecognition(recordingID:row.id)
             _ = try await model.store.applyRecognition(ticket:t,text:words,isFinal:true)
             try await model.store.finishRecognition(ticket:t)
             // Silent synthetic PCM in the disposable archive only, never an external recording.
             if i == 3 {
-                let name = row.id.uuidString+"/sample.wav"
-                let file = model.store.audioDirectory.appendingPathComponent(name)
-                try FileManager.default.createDirectory(at:file.deletingLastPathComponent(),withIntermediateDirectories:true)
-                guard let fmt = AVAudioFormat(commonFormat:.pcmFormatInt16,sampleRate:16000,channels:1,interleaved:true),
-                      let buffer = AVAudioPCMBuffer(pcmFormat:fmt,frameCapacity:16000) else { throw Stop(message:"PCM fixture format") }
-                buffer.frameLength = 16000
-                buffer.int16ChannelData![0].initialize(repeating:0,count:16000)
-                do { let sound = try AVAudioFile(forWriting:file,settings:fmt.settings,commonFormat:.pcmFormatInt16,interleaved:true); try sound.write(from:buffer) }
-                let handle = try FileHandle(forWritingTo:file); try handle.synchronize(); try handle.close()
-                try await model.store.registerAudioChunk(recordingID:row.id,relativePath:name,frames:16000)
+                try await addSilentReviewAudio(model: model, recordingID: row.id, frames: 16_000)
             }
             try await model.store.finishRecording(id:row.id)
             if i == 3 { _ = try await model.store.saveEdit(recordingID:row.id,text:words+"\n记得带笔。") }

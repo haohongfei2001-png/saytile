@@ -19,13 +19,6 @@ struct SaytileMain {
     }
 }
 
-final class VoicePanel: NSPanel {
-    var didChoosePosition: (() -> Void)?
-    var draggingPlacement = false
-    override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { false }
-}
-
 final class VoiceEntryPanel: NSPanel {
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
@@ -52,7 +45,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var positioningPanel = false
     private var movingPanel = false
     private var placementDefaults: UserDefaults?
-    private let placementKey = "panel.userPlacement.v1"
+    // The compact top-right layout starts once on upgrade. Keep the old layout available to the previous build.
+    private let placementKey = "panel.userPlacement.v2"
     private func displayKey(_ screen: NSScreen) -> String {
         guard let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
               let uuid = CGDisplayCreateUUIDFromDisplayID(number.uint32Value)?.takeRetainedValue() else { return "" }
@@ -324,8 +318,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     print("FOCUS_PANEL_GEOMETRY width=\(panel.frame.width) height=\(panel.frame.height) min_width=\(panel.minSize.width) min_height=\(panel.minSize.height) max_width=\(panel.maxSize.width) max_height=\(panel.maxSize.height) resizable=\(panel.styleMask.contains(.resizable)) nonactivating=\(panel.styleMask.contains(.nonactivatingPanel)) joins_spaces=\(panel.collectionBehavior.contains(.canJoinAllSpaces)) panel_key=\(panel.isKeyWindow) panel_main=\(panel.isMainWindow)")
                     if let screen = panel.screen {
                         let visible = screen.visibleFrame
-                        let natural = visible.contains(panel.frame) && ((abs(panel.frame.midX-visible.midX)<2 && abs(panel.frame.midY-visible.midY)<2) || visible.maxY-panel.frame.maxY < 80)
-                        print("FOCUS_COLD_PLACEMENT frame=\(panel.frame) visible=\(visible) natural_center_or_menu=\(natural) shown=\(panel.isVisible)")
+                        let natural = panel.frame == WindowPlacement.initialPanel(visibleFrame: visible)
+                        print("FOCUS_COLD_PLACEMENT frame=\(panel.frame) visible=\(visible) upper_right_eighth_width=\(natural) shown=\(panel.isVisible)")
                         if !natural || !panel.isVisible { diagnosticExitStatus = 1 }
                     } else { diagnosticExitStatus = 1 }
                 }
@@ -389,7 +383,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if let window = notification.object as? NSWindow, window === panel, !positioningPanel { movingPanel = true }
     }
     func windowDidMove(_ notification: Notification) {
-        guard let window = notification.object as? NSWindow, window === panel, movingPanel, !positioningPanel else { return }
+        guard let window = notification.object as? NSWindow, window === panel, movingPanel, !positioningPanel, panel?.draggingPlacement == false else { return }
         rememberPlacement()
         if NSEvent.pressedMouseButtons == 0 { movingPanel = false }
     }
@@ -494,7 +488,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             panel.hidesOnDeactivate = false; panel.isReleasedWhenClosed = false
             panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = false
             panel.becomesKeyOnlyIfNeeded = true; panel.delegate = self
-            panel.isMovableByWindowBackground = true
+            panel.isMovableByWindowBackground = false
+            panel.acceptsMouseMovedEvents = true
             panel.didChoosePosition = { [weak self] in
                 self?.movingPanel = false; self?.restorePanel(); self?.rememberPlacement()
             }
@@ -505,10 +500,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             panel.contentView = content
             self.panel = panel
         }
-        let anchor = status?.button.flatMap { button in button.window.map { $0.convertToScreen(button.convert(button.bounds, to: nil)) } }
         if firstPresentation, let screen = status?.button?.window?.screen ?? NSScreen.main ?? NSScreen.screens.first {
             positioningPanel = true
-            panel?.setFrame(savedPanelFrame() ?? WindowPlacement.panel(anchor: anchor, visibleFrame: screen.visibleFrame), display: true)
+            panel?.setFrame(savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame), display: true)
             positioningPanel = false
         }
         restorePanel()
@@ -571,7 +565,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     private func restoreVisibleWindows(applySavedPlacement: Bool = false) {
         let frames = NSScreen.screens.map(\.visibleFrame)
-        restorePanel(preferred: applySavedPlacement ? savedPanelFrame() : nil)
+        if applySavedPlacement, let screen = panel?.screen ?? NSScreen.main {
+            restorePanel(preferred: savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame))
+        } else { restorePanel() }
         updateFloatingEntry()
         for window in [archive, settings].compactMap({ $0 }) {
             let size = NSSize(width: max(window.frame.width, window.minSize.width), height: max(window.frame.height, window.minSize.height))

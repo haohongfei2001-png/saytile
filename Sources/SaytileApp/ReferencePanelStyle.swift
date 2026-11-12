@@ -118,7 +118,6 @@ struct InputPanelWindowView: View {
     @ObservedObject var model: AppModel
     var body: some View {
         InputPanelView(model: model)
-            .overlay(alignment: .top) { PanelDragStrip().frame(height: 10).padding(.horizontal, 28).accessibilityHidden(true) }
             .padding(ReferencePanelStyle.shadowInset)
             .background {
                 // Draw the cast shadow only outside the glass. A dark duplicate
@@ -136,36 +135,4 @@ struct InputPanelWindowView: View {
                 }.allowsHitTesting(false).accessibilityHidden(true)
             }
     }
-}
-
-/// The unused top inset accepts a native window drag without intercepting text selection or either button.
-private struct PanelDragStrip: NSViewRepresentable {
-    final class Handle: NSView {
-        override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
-        override var mouseDownCanMoveWindow: Bool { false }
-        private var origin: (window: CGPoint, pointer: CGPoint)?
-        override func mouseDown(with event: NSEvent) {
-            guard let panel = window as? VoicePanel else { return }
-            origin = (panel.frame.origin, panel.convertPoint(toScreen: event.locationInWindow))
-            panel.draggingPlacement = true
-        }
-        override func mouseDragged(with event: NSEvent) {
-            guard let panel = window as? VoicePanel, let origin else { return }
-            let p = panel.convertPoint(toScreen: event.locationInWindow)
-            // Keep the gesture in global desktop coordinates. Constraining the
-            // frame to its former display here prevents crossing the shared edge.
-            panel.setFrameOrigin(NSPoint(x:origin.window.x+p.x-origin.pointer.x, y:origin.window.y+p.y-origin.pointer.y))
-        }
-        override func mouseUp(with event: NSEvent) {
-            guard let panel = window as? VoicePanel, let start = origin else { return }
-            origin = nil; panel.draggingPlacement = false
-            if panel.frame.origin != start.window { panel.didChoosePosition?() }
-        }
-        override func viewWillMove(toWindow newWindow: NSWindow?) {
-            if newWindow == nil { (window as? VoicePanel)?.draggingPlacement = false; origin = nil }
-            super.viewWillMove(toWindow: newWindow)
-        }
-    }
-    func makeNSView(context: Context) -> NSView { Handle() }
-    func updateNSView(_ nsView: NSView, context: Context) {}
 }
