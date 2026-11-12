@@ -10,7 +10,7 @@ struct ConnectionSetupView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("连接最高质量识别").font(.system(size: 23, weight: .semibold))
+                Text("连接识别服务").font(.system(size: 23, weight: .semibold))
                 Text("在这里保存密钥并选择服务授权。此窗口不会录音；仅在你明确授权连接检查后，发送内置合成语音和候选文字。现有 Saytile 不受影响。")
                     .font(.system(size: 12)).foregroundStyle(.secondary)
             }.frame(maxWidth: .infinity, alignment: .leading).padding(24)
@@ -35,6 +35,6 @@ struct ConnectionSetupView: View {
                     .accessibilityIdentifier("connectionSetup.finish")
             }.padding(20)
         }.frame(minWidth: 600, minHeight: 640)
-            .foregroundStyle(Palette.ink).tint(Palette.accent).background(Palette.paper)
+            .foregroundStyle(WorkspaceStyle.foreground).tint(WorkspaceStyle.accent).background(WorkspaceStyle.background)
     }
 }

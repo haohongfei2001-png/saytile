@@ -7,22 +7,27 @@ struct HostedSettingsSection: View {
     @ObservedObject var account: HostedAccount
     @ViewState private var email = ""
     @ViewState private var code = ""
+    @FocusState private var focus: Field?
+    private enum Field { case email, code }
     var body: some View {
         Section("识别服务") {
             Picker("服务来源", selection: Binding(get:{model.deviceOnly ? "local" : account.selected ? "hosted" : "byok"},set:{model.selectSource($0)})) {
                 Text("本机").tag("local")
                 Text("Saytile Cloud").tag("hosted")
                 Text("自带 API").tag("byok")
-            }.pickerStyle(.segmented)
+            }.pickerStyle(.segmented).accessibilityIdentifier("settings.source")
             if account.selected {
                 LabeledContent("账户状态",value:account.status)
                 if !account.signedIn {
-                    TextField("电子邮箱",text:$email).textContentType(.emailAddress).accessibilityLabel("电子邮箱").accessibilityIdentifier("hosted.email")
-                    HStack {
-                        SecureField("邮件验证码",text:$code).accessibilityLabel("邮件验证码").accessibilityIdentifier("hosted.code")
-                        Button("获取验证码") {Task {await account.sendCode(email:email)}}.disabled(account.busy || !email.contains("@"))
-                        Button("登录") {Task { await account.verify(email:email,code:code);code="" }}.disabled(account.busy || code.isEmpty || email.isEmpty)
-                    }
+                    TextField("电子邮箱", text: $email).textContentType(.emailAddress).focused($focus, equals: .email)
+                        .accessibilityLabel("电子邮箱").accessibilityIdentifier("hosted.email")
+                    Button("获取验证码") { Task { await account.sendCode(email: email); focus = .code } }
+                        .disabled(account.busy || !email.contains("@"))
+                    SecureField("邮件验证码", text: $code).textContentType(.oneTimeCode).focused($focus, equals: .code)
+                        .accessibilityLabel("邮件验证码").accessibilityIdentifier("hosted.code")
+                    Button("登录") { Task { await account.verify(email: email, code: code); if account.signedIn { code = "" } } }
+                        .disabled(account.busy || code.isEmpty || email.isEmpty)
+                    if account.busy { ProgressView().controlSize(.small).accessibilityLabel("正在连接账户") }
                 } else {
                     if let plan=account.plan {LabeledContent("套餐",value:plan)}
                     if let ms=account.remainingMS {LabeledContent("可用时长",value:"\(ms / 60000) 分 \(ms % 60000 / 1000) 秒")}

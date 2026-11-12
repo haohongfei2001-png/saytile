@@ -1,30 +1,22 @@
 import Foundation
 
-/// Ordinary launches retain the product bundle ID. The signed experience package
-/// reuses the separate archive and credential services established by build 261.
 public enum SaytileStorageProfile: Sendable {
-    case standard, personal
+    case standard, personal, designExperience
 
-    public static let current: Self = Bundle.main.object(forInfoDictionaryKey: "SaytilePersonalExperience") as? Bool == true ? .personal : .standard
-
+    public static let designBundleID = "app.saytile.mac.design-experience"
+    public static let current: Self = {
+        if Bundle.main.bundleIdentifier == designBundleID { return .designExperience }
+        return Bundle.main.object(forInfoDictionaryKey: "SaytilePersonalExperience") as? Bool == true ? .personal : .standard
+    }()
+    private var suite: String? {
+        switch self { case .standard: nil; case .personal: "app.saytile.mac.personal"; case .designExperience: Self.designBundleID }
+    }
     public var archiveDirectory: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent(self == .personal ? "Saytile Personal" : "Saytile", isDirectory: true)
+        let folder = switch self { case .standard: "Saytile"; case .personal: "Saytile Personal"; case .designExperience: "Saytile Design Experience" }
+        return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent(folder, isDirectory: true)
     }
-
-    public var preferences: UserDefaults {
-        self == .personal ? UserDefaults(suiteName: "app.saytile.mac.personal")! : .standard
-    }
-
-    var byokService: String {
-        self == .personal ? "app.saytile.mac.personal.byok.v1" : "com.saytile.byok.v1"
-    }
-
-    var hostedService: String {
-        self == .personal ? "app.saytile.mac.personal.hosted.auth.v1" : "com.saytile.hosted.auth.v1"
-    }
-
-    static var languagePreferences: UserDefaults? {
-        CommandLine.arguments.contains("--data-directory") ? nil : current.preferences
-    }
+    public var preferences: UserDefaults { suite.flatMap(UserDefaults.init(suiteName:)) ?? .standard }
+    var byokService: String { suite.map { $0 + ".byok.v1" } ?? "com.saytile.byok.v1" }
+    var hostedService: String { suite.map { $0 + ".hosted.auth.v1" } ?? "com.saytile.hosted.auth.v1" }
+    static var languagePreferences: UserDefaults? { CommandLine.arguments.contains("--data-directory") ? nil : current.preferences }
 }

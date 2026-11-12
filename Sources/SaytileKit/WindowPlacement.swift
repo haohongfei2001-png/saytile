@@ -8,15 +8,13 @@ public enum WindowPlacement {
     public static let panelShadowInset: CGFloat = 32
     public static let panelContentDefaultSize = CGSize(width: 344, height: 234)
     public static let panelDefaultSize = CGSize(width: 408, height: 298)
-    public static let panelMinimumSize = CGSize(width: 384, height: 264)
-    public static let panelMaximumSize = CGSize(width: 424, height: 544)
+    // 178pt of glass fits both reference controls and their optical margins.
+    public static let panelMinimumSize = CGSize(width: 178 + 64, height: 150 + 64)
 
     /// Logical points, never physical pixels. Very small visible areas take
     /// precedence over the normal minimum, so no edge or resize handle is lost.
     public static func panelLimits(visibleFrame: CGRect) -> (minimum: CGSize, maximum: CGSize) {
-        let available = panelVisibleArea(visibleFrame).size
-        let maximum = CGSize(width: min(panelMaximumSize.width, available.width),
-                             height: min(panelMaximumSize.height, available.height))
+        let maximum = panelVisibleArea(visibleFrame).size
         return (CGSize(width: min(panelMinimumSize.width, maximum.width),
                        height: min(panelMinimumSize.height, maximum.height)), maximum)
     }
@@ -27,13 +25,13 @@ public enum WindowPlacement {
                       height: min(max(requested.height, limits.minimum.height), limits.maximum.height))
     }
 
-    public static func panel(anchor: CGRect?, visibleFrame: CGRect, preferredSize: CGSize = panelDefaultSize) -> CGRect {
-        let inset = panelVisibleArea(visibleFrame)
-        let size = panelSize(preferredSize, visibleFrame: visibleFrame)
-        let x = anchor.map { $0.maxX - size.width } ?? inset.midX - size.width / 2
-        let y = anchor.map { $0.minY - size.height - 8 } ?? inset.midY - size.height / 2
-        return CGRect(x: min(max(x, inset.minX), inset.maxX - size.width),
-                      y: min(max(y, inset.minY), inset.maxY - size.height), width: size.width, height: size.height)
+    /// The one-eighth measurement applies to the visible glass, excluding its shadow.
+    public static func initialPanel(visibleFrame: CGRect) -> CGRect {
+        let area = panelVisibleArea(visibleFrame)
+        let glassWidth = (visibleFrame.width / 8).rounded()
+        let size = panelSize(CGSize(width: glassWidth + 2 * panelShadowInset,
+                                    height: panelDefaultSize.height), visibleFrame: visibleFrame)
+        return CGRect(x: area.maxX - size.width, y: area.maxY - size.height, width: size.width, height: size.height)
     }
 
     public static func restoredPanel(_ frame: CGRect, visibleFrames: [CGRect]) -> CGRect {
@@ -69,5 +67,35 @@ public enum WindowPlacement {
         let size = CGSize(width: min(frame.width, destination.width), height: min(frame.height, destination.height))
         return CGRect(x: min(max(frame.minX, destination.minX), destination.maxX - size.width),
                       y: min(max(frame.minY, destination.minY), destination.maxY - size.height), width: size.width, height: size.height)
+    }
+}
+
+/// The user's placement is stored against the usable area of the original display.
+/// A temporary fallback never replaces it when the display is disconnected.
+public struct SavedPanelPlacement: Codable, Equatable {
+    public let displayID: String
+    public let frame: CGRect
+    public let visibleFrame: CGRect
+
+    public init?(frame: CGRect, visibleFrame: CGRect, displayID: String) {
+        guard !displayID.isEmpty, Self.valid(frame), Self.valid(visibleFrame) else { return nil }
+        self.frame = frame; self.visibleFrame = visibleFrame; self.displayID = displayID
+    }
+    private static func valid(_ rect: CGRect) -> Bool {
+        [rect.minX, rect.minY, rect.width, rect.height].allSatisfy(\.isFinite) && rect.width > 0 && rect.height > 0
+    }
+    public func restored(on screens: [(id: String, visible: CGRect)]) -> CGRect? {
+        guard Self.valid(frame), Self.valid(visibleFrame), !screens.isEmpty else { return nil }
+        guard let match = screens.first(where: { $0.id == displayID && Self.valid($0.visible) }) else {
+            return WindowPlacement.restoredPanel(frame, visibleFrames: screens.map(\.visible))
+        }
+        let dest = match.visible
+        if dest == visibleFrame { return WindowPlacement.restoredPanel(frame, visibleFrames: [dest]) }
+        let size = WindowPlacement.panelSize(frame.size, visibleFrame: dest)
+        func fraction(_ value: CGFloat, _ span: CGFloat) -> CGFloat { span > 0 ? min(1, max(0, value / span)) : 0.5 }
+        let fx = fraction(frame.minX - visibleFrame.minX, visibleFrame.width - frame.width)
+        let fy = fraction(frame.minY - visibleFrame.minY, visibleFrame.height - frame.height)
+        let projected = CGRect(x: dest.minX + fx * (dest.width-size.width), y: dest.minY + fy * (dest.height-size.height), width: size.width, height: size.height)
+        return WindowPlacement.restoredPanel(projected, visibleFrames: [dest])
     }
 }

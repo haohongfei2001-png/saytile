@@ -15,11 +15,12 @@ import ApplicationServices
         guard before != pid else { print("REFUSED fixture is frontmost"); exit(6) }
         let label = CommandLine.arguments[2], title = CommandLine.arguments.count > 3 ? CommandLine.arguments[3] : nil
         let setValue = CommandLine.arguments.count == 6 && CommandLine.arguments[4] == "set-value" ? CommandLine.arguments[5] : nil
+        let paragraph = CommandLine.arguments.count == 6 && CommandLine.arguments[4] == "read-paragraph" ? CommandLine.arguments[5] : nil
         let menuItem = CommandLine.arguments.count == 7 && CommandLine.arguments[4] == "select-context-menu" ? CommandLine.arguments[5] : nil
         let menuTitle = menuItem == nil ? nil : CommandLine.arguments[6]
         let inspect = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect"
         let inspectPanel = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect-panel"
-        guard CommandLine.arguments.count <= 4 || setValue != nil || menuItem != nil || inspect || inspectPanel else { print("FAIL invalid control action"); exit(64) }
+        guard CommandLine.arguments.count <= 4 || setValue != nil || menuItem != nil || inspect || inspectPanel || paragraph != nil else { print("FAIL invalid control action"); exit(64) }
         let root = AXUIElementCreateApplication(pid)
         func value(_ element: AXUIElement, _ name: String) -> CFTypeRef? {
             AXUIElementSetMessagingTimeout(element, name == kAXWindowsAttribute || name == kAXTitleAttribute ? 0.7 : 0.2)
@@ -116,6 +117,16 @@ import ApplicationServices
                     queue += observed.children
                     continue
                 }
+                if let paragraph, names.contains(label), label.hasPrefix("archive.text.") {
+                    let text = value(node, kAXValueAttribute) as? String
+                    guard (names.contains(paragraph) || text == paragraph),
+                          let geometry = frame(node), geometry.height > 70,
+                          NSWorkspace.shared.frontmostApplication?.processIdentifier == before else {
+                        print("FAIL five-line archive paragraph was missing or clipped"); exit(1)
+                    }
+                    print("NATIVE_ARCHIVE_PARAGRAPH full_text=true height=\(geometry.height)"); exit(0)
+                }
+                if paragraph != nil { queue += observed.children; continue }
                 let applicable = menuItem != nil ? (role == kAXTextAreaRole || canPress) : (setValue == nil ? canPress : canSet)
                 if names.contains(label), applicable {
                     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED foreground changed before action"); exit(6) }

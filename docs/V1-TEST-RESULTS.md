@@ -1,3 +1,7 @@
+## V1 原生产品界面
+
+已在本机从 build 269 打开独立原生审查窗口，核对原图和品牌文件。 [设计记录](V1-NATIVE-PRODUCT-DESIGN.md)
+
 ## PR #18 前台输入
 
 已对照旧运行的两份完整日志及附件，独立复现 WKWebView 写入前取消。本机 AppKit / WKWebView 通过 10 项主断言和 11 项独立边界场景；Chrome 与完整 CI 按最终 PR head 收据核对。 [验收记录](V1-FOREGROUND-RELIABILITY.md)
@@ -74,3 +78,13 @@ Candidate .4 passed the local 12,000-row window run and the signed v5/v6 continu
 Final-source Xcode CI 42833800155 passed 411 Swift tests. On the same cold waveform Qwen combined process footprint fell from 2,403 MiB to 1,442 MiB. In the signed .5 window Qwen first lexical text was 0.877/0.968 s P50/P95, with multiple reference-bearing updates in all 15 samples. The longest meaningful gap was 5.328 s. The image and the silence-only movie contain only licensed fixture transcription.
 
 The .5 cold-start transfer through the host proxy failed on Zipformer and Qwen despite the earlier successful remote suffix repair. Native per-clip and 440-trial inference results remain valid for installed weights. The separate Qwen sole-inference soak completed all 102 recordings in 1,803 seconds. The earlier concurrent-load cancellation remains recorded.
+
+Design candidate: initial arm64 SwiftUI build passed. Added persisted-position, isolated profile and first-transcript regressions; signed window captures and final executable are separately verified.
+
+Interim native review on M5: 44 AX presses, 15 interaction groups, 38 ordinary renders plus three reference renders and a no-focus-change guard passed. A 45-second synthetic live stream persisted all 992,250 source frames with zero drops (ASR disabled). Real two-window composition exposed a gray cast and reversed shadow; after adjusting these, the controlled screen shows the lighter glass. Exact SHA evidence follows packaging.
+
+Verified two active WindowServer displays on the test Mac (1920 × 1080 and 800 × 1280 logical points; both 2×). Added a regression for the observed invalid first-launch status item anchor. Physical unplug and independent 1× hardware remain separate.
+
+On two 2× WindowServer displays, a real mouse event sequence failed on build 274 at X=8; with the fix the panel crossed X=0, landed at (-604,491) (408×298), survived a process restart at exactly that frame, and moved back. Both sides used the same foreground guard, no external text target, and a paused microphone. Release binary receipts follow.
+
+Build 275: PASS 426 Swift, 126 AppModel, 19 compositor scenes, 44 AX presses, 12,000 timeline rows, two real displays with exact restart and a single-window on-device Apple speech movie. See evidence/native-product-design/machine.json. Protected build 269 and formal/personal file metadata unchanged; no private content opened.

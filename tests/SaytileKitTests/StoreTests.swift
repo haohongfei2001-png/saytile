@@ -105,6 +105,27 @@ private struct Fixture {
     try await f.store.selectRevision(recordingID:r.id,revisionID:revisions.first!.id)
     #expect(try await f.store.recording(id:r.id)?.text == "重识别")
 }
+@Test func archivePagesSelectedTranscriptsAndKeepsOriginalOnlyRecordsDiscoverable() async throws {
+    let f = try Fixture(); defer { f.clean() }
+    let day = Date(timeIntervalSince1970: 1_700_000_000)
+    let older = try await f.record(text: "昨天的文字", date: day)
+    let newest = try await f.record(text: "修改前的文字", date: day.addingTimeInterval(86_400))
+    let paragraph = "第一行\n第二行\n第三行\n第四行仍然完整"
+    try await f.store.saveEdit(recordingID: newest.id, text: paragraph)
+    try await f.store.deleteAudio(recordingID: newest.id)
+    let empty = try await f.store.createRecording(createdAt: day.addingTimeInterval(90_000))
+    try await f.store.finishRecording(id: empty.id)
+    try await f.store.saveEdit(recordingID: empty.id, text: " \n　\t")
+    try await f.store.saveDraft(recordingID: empty.id, text: "尚未提交的手稿")
+    let first = try await f.store.listRecordings(limit: 1, filter: .transcribed)
+    #expect(first.map(\.id) == [newest.id])
+    #expect(first.first?.text == paragraph)
+    #expect(try await f.store.listRecordings(limit: 1, offset: 1, filter: .transcribed).map(\.id) == [older.id])
+    #expect(try await f.store.listRecordings(filter: .all).map(\.id) == [empty.id, newest.id, older.id])
+    #expect(try await f.store.listRecordings(query: "手稿", filter: .transcribed).map(\.id) == [empty.id])
+    #expect(try await f.store.listRecordings(query: "修改前", filter: .transcribed).first?.text == paragraph)
+}
+
 @Test func storeSearchEscapesLikeAndBindsSQL() async throws {
     let f = try Fixture(); defer { f.clean() }
     _ = try await f.record(text:"100% _ ' OR 1=1 --")

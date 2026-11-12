@@ -1,3 +1,7 @@
+## V1 原生产品界面
+
+工程验证使用隔离资料。最终设计候选供直接打开与审定。 [设计记录](V1-NATIVE-PRODUCT-DESIGN.md)
+
 ## PR #18 前台输入
 
 此轮仅使用独立草稿、进程和临时 SQLite。无需重装、提供日志或在私人对话中试输入。 [验收记录](V1-FOREGROUND-RELIABILITY.md)
@@ -76,3 +80,13 @@ The cold-start memory regression and historical-selection check are being verifi
 No action is needed for local engineering acceptance. Apple notarization, evidence on a physical 8 GB machine, and commercial rights to Zipformer Large remain separate from local inference. Cloud credential testing remains NOT_RUN for this work.
 
 Cold model download failures are being checked from independent public macOS infrastructure. This requires neither consumer API keys nor any personal voice data.
+
+For this design candidate no personal speech, account, API key or developer tests are requested. Only the new window design and density need aesthetic review.
+
+The new design experience owns a separate mic permission identity and asks only on a user-initiated start. Do not transfer, reset or change build 269's grants. The visual review uses controlled permission states and an independent, nonactivating window.
+
+No display reconfiguration or testing is requested from the user. The design profile is separate and saved positions are never reset to repair startup.
+
+No user-assisted display movement is needed. The two-screen check uses only the newly created design candidate; its test gesture returns to a natural position for handoff.
+
+唯一体验入口是 ~/Applications/Saytile 设计体验.app。初始保持暂停，用户主动开启时可能出现新身份的系统麦克风提示。没有需要代替开发者执行的测试。仅请审定设置与档案的密度，以及真实桌面上的玻璃质感。未公证，不建议转发下载包给其他人。

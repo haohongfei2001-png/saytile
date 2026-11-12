@@ -16,7 +16,10 @@ stage=$(mktemp -d /tmp/saytile-rc2-integration.XXXXXX)
 trap 'rm -rf "$stage"' EXIT
 mkdir -p "$stage/volume" dist
 app="$stage/volume/Saytile.app"
-if [[ "${SAYTILE_PERSONAL_EXPERIENCE:-0}" == 1 ]]; then
+if [[ "${SAYTILE_DESIGN_EXPERIENCE:-0}" == 1 ]]; then
+  app="$stage/volume/Saytile 设计体验.app"
+  volume="Saytile 设计体验"
+elif [[ "${SAYTILE_PERSONAL_EXPERIENCE:-0}" == 1 ]]; then
   app="$stage/volume/Saytile 个人体验.app"
   volume="Saytile 个人体验"
 fi

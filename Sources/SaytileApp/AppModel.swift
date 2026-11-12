@@ -31,6 +31,7 @@ struct DisplayRecording: Identifiable, Equatable {
         case .missing: return "原音暂不可用，尚未生成文字。"
         case .available:
             if source.isRecording { return "正在接收讲话…" }
+            if !hasAudio { return "尚无转写文字或可回听的原音。" }
             if source.recognitionState == .failed { return "原音已保存，文字等待恢复。" }
             if source.recognitionState == .completed { return "原音已保存，未检测到可识别的文字。" }
             return "原音已保存，等待识别…"
@@ -80,6 +81,10 @@ struct AppCaptureDependencies {
     var start: (AudioController) async -> Void
     var pause: (AudioController) async -> Void
     var level: (AudioController) -> Float? = { $0.level }
+    var microphoneAuthorization: () -> AVAuthorizationStatus = { AVCaptureDevice.authorizationStatus(for: .audio) }
+    var openMicrophonePreferences: () -> Void = {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone") { NSWorkspace.shared.open(url) }
+    }
     static let live = AppCaptureDependencies(state: { $0.state },
         start: { await $0.start() }, pause: { await $0.pause() })
 }
@@ -103,7 +108,7 @@ struct PanelCapturePresentation: Equatable {
     var accessibilityLabel: String { actionLabel }
     var accessibilityValue: String { detail.map { label + "，" + $0 } ?? label }
 
-    init(state capture: CaptureState, hasStarted: Bool, measuredLevel: Float? = nil) {
+    init(state capture: CaptureState, hasStarted: Bool, measuredLevel: Float? = nil, microphoneDenied: Bool = false) {
         if case .speaking = capture, let measuredLevel, measuredLevel.isFinite, measuredLevel >= 0 {
             liveVoiceLevel = Double(min(1, measuredLevel))
         } else { liveVoiceLevel = nil }
@@ -127,7 +132,7 @@ struct PanelCapturePresentation: Equatable {
             actionLabel = "暂停收音"; actionSymbolName = "pause.fill"
             symbolName = active ? "waveform" : "circle.fill"; detail = nil
         case .interrupted(let reason):
-            state = .recoveryNeeded; label = "需要恢复"; actionLabel = "恢复收音"
+            state = .recoveryNeeded; label = "需要恢复"; actionLabel = microphoneDenied ? "打开麦克风权限设置" : "恢复收音"
             actionSymbolName = "play.fill"; symbolName = "exclamationmark"; detail = reason
         }
     }
@@ -169,7 +174,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var editorDraftLoading = false
     @Published private(set) var savingEditorChanges = false
     @Published private(set) var editorDraftStatus = "修改会自动暂存，保存后更新这段文字"
-    @Published var recordFilter: RecordingFilter = .all { didSet { pageLimit = 100; scheduleRefresh() } }
+    @Published var recordFilter: RecordingFilter = .transcribed { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var query = "" { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var notice: String?
     private var captureStartIssue: (reason: String, detail: String)?
@@ -200,6 +205,7 @@ final class AppModel: ObservableObject {
     @Published var directMode = false
     @Published private(set) var insertionLabels: [UUID: String] = [:]
     @Published var targetLabel = "在目标草稿中放置光标，再绑定"
+    @Published private(set) var completedFirstTranscript = false
     @Published var hasStarted = false
     @Published var storageLabel = "计算中…"
     @Published var cleanupCount = 0
@@ -236,6 +242,8 @@ final class AppModel: ObservableObject {
     var hidePanel: () -> Void = {}
     var openArchive: () -> Void = {}
     var openSettings: () -> Void = {}
+    var openStorageSettings: () -> Void = {}
+    var checkForUpdates: (() -> Void)?
     private var pageLimit = 100
     private var panelLimit = 100
     private var timer: Task<Void, Never>?
@@ -283,8 +291,9 @@ final class AppModel: ObservableObject {
         manualLocalModel = preferences.string(forKey: "localASR.manual").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         archiveLocalModel = preferences.string(forKey: "localASR.archive").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         self.directory = directory
-        hosted = HostedAccount(preferences: preferences, production: normalLaunch && Bundle.main.bundleIdentifier == "app.saytile.mac")
+        hosted = HostedAccount(preferences: preferences, production: normalLaunch && (Bundle.main.bundleIdentifier == "app.saytile.mac" || SaytileStorageProfile.current == .designExperience))
         self.preferences = preferences
+        completedFirstTranscript = preferences.bool(forKey: "firstTranscript.v1")
         self.connectionDependencies = connectionDependencies
         self.captureDependencies = captureDependencies
         self.copyPasteboard = copyPasteboard
@@ -305,7 +314,7 @@ final class AppModel: ObservableObject {
         input = NativeInputCoordinator(store: store)
         floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
         launchAtLogin = canManageLoginItem && SMAppService.mainApp.status == .enabled
-        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? "option-space"
+        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? (SaytileStorageProfile.current == .designExperience ? "disabled" : "option-space")
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
         initializing = false
         hosted.bind { [weak self] route, revoke in
@@ -350,7 +359,7 @@ final class AppModel: ObservableObject {
     }
     var panelCapturePresentation: PanelCapturePresentation {
         PanelCapturePresentation(state: captureDependencies.state(audio), hasStarted: hasStarted,
-            measuredLevel: captureDependencies.level(audio))
+            measuredLevel: captureDependencies.level(audio), microphoneDenied: captureProblem && microphoneDenied)
     }
     var panelCaptureLabel: String { panelCapturePresentation.label }
     var panelCaptureDetail: String? {
@@ -363,8 +372,10 @@ final class AppModel: ObservableObject {
     var captureLabel: String { panelCaptureLabel }
     var captureProblem: Bool { if case .interrupted = captureDependencies.state(audio) { return true }; return false }
     var saveLabel: String { captureProblem ? "收音已暂停 · 请查看保存状态" : isListening ? "原音独立保存 · 识别不会阻塞收音" : "内容保存在此 Mac，随时可以取用" }
+    var microphoneDenied: Bool { [.denied, .restricted].contains(captureDependencies.microphoneAuthorization()) }
+    func openMicrophoneSettings() { captureDependencies.openMicrophonePreferences() }
     var microphoneLabel: String {
-        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        switch captureDependencies.microphoneAuthorization() {
         case .authorized: return "已允许"
         case .notDetermined: return "开启收音时请求"
         default: return "未允许，请在系统设置中开启"
@@ -597,6 +608,7 @@ final class AppModel: ObservableObject {
     }
     var playingID: UUID? { audio.playingID }
     func toggleCapture() {
+        if captureProblem && microphoneDenied { openMicrophoneSettings(); return }
         Task {
             await recoveryTask?.value
             guard recovered else { notice = "资料库恢复未完成，请先重新打开 Saytile。已有资料会保留。"; return }
@@ -651,6 +663,10 @@ final class AppModel: ObservableObject {
         let tail = window == .latest ? page.entries.last : try await store.timelinePage().entries.last
         guard window == timelineWindow, request == timelineRead else { return }
         if timeline != page { timeline = page }
+        if !completedFirstTranscript, page.entries.contains(where: { !$0.recording.text.isEmpty }) || tail?.recording.text.isEmpty == false {
+            completedFirstTranscript = true
+            preferences.set(true, forKey: "firstTranscript.v1")
+        }
         if timelineTail != tail { timelineTail = tail }
         if observedPosition != tail?.position || observedEnd != tail?.speechEnd {
             observedPosition = tail?.position

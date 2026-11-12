@@ -97,7 +97,15 @@ public actor SaytileStore {
     }
     public func listRecordings(query: String = "", limit: Int = 200, offset: Int = 0, filter: RecordingFilter = .all) throws -> [Recording] {
         let filterSQL: String
-        switch filter { case .all: filterSQL = ""; case .pinned: filterSQL = " AND r.pinned=1"; case .needsRecovery: filterSQL = " AND r.recognition_state IN('queued','failed') AND r.audio_state='available'" }
+        switch filter {
+        case .all: filterSQL = ""
+        case .transcribed:
+            // Browse by the currently selected text. Search can also find a saved draft
+            // or historical revision when there is no text in the current version.
+            filterSQL = query.isEmpty ? " AND trim(v.text,char(9,10,13,32,160,12288))<>''" : ""
+        case .pinned: filterSQL = " AND r.pinned=1"
+        case .needsRecovery: filterSQL = " AND r.recognition_state IN('queued','failed') AND r.audio_state='available'"
+        }
         let escaped = query.replacingOccurrences(of:"\\",with:"\\\\").replacingOccurrences(of:"%",with:"\\%").replacingOccurrences(of:"_",with:"\\_")
         return try db.rows(Self.selection + " WHERE r.deleted=0" + filterSQL + " AND (?='' OR EXISTS (SELECT 1 FROM revisions s WHERE s.recording_id=r.id AND s.text LIKE ? ESCAPE '\\') OR EXISTS (SELECT 1 FROM editing_drafts d WHERE d.recording_id=r.id AND d.text LIKE ? ESCAPE '\\')) ORDER BY r.created_at DESC,r.id DESC LIMIT ? OFFSET ?",[.text(query),.text("%" + escaped + "%"),.text("%" + escaped + "%"),.int(Int64(max(1,min(limit,1000)))),.int(Int64(max(0,offset)))]).map(Self.decodeRecording)
     }

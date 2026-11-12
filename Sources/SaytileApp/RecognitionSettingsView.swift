@@ -37,11 +37,11 @@ struct RecognitionSettingsSection: View {
             TextField("当前话题或术语提示（可选）", text: $model.recognitionConfiguration.topicContext, axis: .vertical)
                 .lineLimit(2...4).accessibilityIdentifier("recognition.topicContext")
             if servicesExpanded {
-                Text("每段录音只使用一项 ASR 服务，手动选择优先。GPT-6 只处理候选文字。密钥仅存于钥匙串。")
-                    .font(.system(size: 11)).foregroundStyle(Palette.muted)
+                Text("每段讲话使用一项语音服务。GPT-6 只核对文字，密钥存入这台 Mac 的钥匙串。")
+                    .font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
                 if model.recognitionConfiguration.selectedASRModel == nil {
                     Text("自动模式尚无足够语言记录。可以继续本机识别，或选择讲话语言后连接对应服务。")
-                        .font(.system(size: 11)).foregroundStyle(Palette.muted)
+                        .font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
                 }
                 ForEach($model.recognitionConfiguration.models) { $item in
                     if active.contains(where: { $0.id == item.id }) {
@@ -54,24 +54,24 @@ struct RecognitionSettingsSection: View {
                 .accessibilityIdentifier("recognition.automaticRecovery")
                 .disabled(!allowsAutomaticRecovery)
             Text("以前仅在本机处理的原音仍在本机恢复。更换服务、地区或密钥不会自动上传旧档案；需要时可在档案中选择用云端重新识别。")
-                .font(.system(size: 11)).foregroundStyle(Palette.muted)
+                .font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
             Text("每项服务独立授权。启用后，语音或必要候选文字将交给所选服务处理，费用由你的服务商账户承担。")
-                .font(.system(size: 11)).foregroundStyle(Palette.muted)
+                .font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
             Button(model.applyingRecognitionSettings ? "正在应用…" : "保存并应用识别设置", action: model.applyRecognitionSettings)
                 .disabled(model.applyingRecognitionSettings || model.checkingConnection)
                 .accessibilityIdentifier("recognition.apply")
             if model.hasUnappliedRecognitionSettings {
-                Text("有尚未应用的修改").font(.system(size: 11, weight: .medium)).foregroundStyle(Palette.muted)
+                Text("有尚未应用的修改").font(.system(size: 11, weight: .medium)).foregroundStyle(WorkspaceStyle.secondary)
                     .accessibilityIdentifier("recognition.unapplied")
             }
             Text("修改在保存并应用后生效；移除密钥会立即停止相关云端运行。")
-                .font(.system(size: 11)).foregroundStyle(Palette.muted)
+                .font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
             if let note = model.recognitionSettingsNotice {
-                Text(note).font(.system(size: 12)).foregroundStyle(Palette.muted)
+                Text(note).font(.system(size: 12)).foregroundStyle(WorkspaceStyle.secondary)
                     .accessibilityIdentifier("recognition.notice")
             }
             DisclosureGroup("服务用量记录") {
-                if model.modelCallSummary.isEmpty { Text("尚无模型调用。未返回账单金额时显示未知，不记为零费用。").font(.system(size: 11)).foregroundStyle(Palette.muted) }
+                if model.modelCallSummary.isEmpty { Text("尚无模型调用。未返回账单金额时显示未知，不记为零费用。").font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary) }
                 ForEach(Array(model.modelCallSummary.enumerated()), id: \.offset) { _, line in
                     Text(line).font(.system(size: 11)).textSelection(.enabled)
                 }
@@ -118,10 +118,10 @@ struct ModelConfigurationEditor: View {
             Button { expanded.toggle() } label: {
                 HStack {
                     Image(systemName: expanded ? "chevron.down" : "chevron.right")
-                        .font(.system(size: 10, weight: .semibold)).foregroundStyle(Palette.muted)
+                        .font(.system(size: 10, weight: .semibold)).foregroundStyle(WorkspaceStyle.secondary)
                     Text(configuration.purpose == .textFusion ? "GPT-6 AI 核心" : configuration.purpose.label)
                     Spacer()
-                    Text(status).font(.system(size: 11)).foregroundStyle(Palette.muted)
+                    Text(status).font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
                 }.contentShape(Rectangle())
             }.buttonStyle(.plain).accessibilityIdentifier(prefix + ".header")
                 .accessibilityValue(expanded ? "已展开" : "已收起")
@@ -154,7 +154,7 @@ struct ModelConfigurationEditor: View {
                         .accessibilityIdentifier(prefix + ".removeKey")
                 }
             }
-            Text(credentialPresence.label).font(.system(size: 11)).foregroundStyle(Palette.muted)
+            Text(credentialPresence.label).font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
             Toggle(configuration.purpose == .textFusion ? "允许此服务处理候选文字与当前话题" : "允许此服务处理语音和必要上下文（含恢复与复核）",
                    isOn: $configuration.cloudConsent).accessibilityIdentifier(prefix + ".consent")
             DisclosureGroup("高级设置") {
@@ -164,7 +164,7 @@ struct ModelConfigurationEditor: View {
                     rateField("每音频/会话小时单价", value: $configuration.audioHourRate)
                     rateField("每百万输入 Token 单价", value: $configuration.inputMillionTokenRate)
                     rateField("每百万输出 Token 单价", value: $configuration.outputMillionTokenRate)
-                    Text("按填写单价估算；优惠、最低计费和真实账单可能不同。不填写时费用显示未知。").font(.system(size: 11)).foregroundStyle(Palette.muted)
+                    Text("按填写单价估算；优惠、最低计费和真实账单可能不同。不填写时费用显示未知。").font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
                 }
             }
             }
@@ -205,24 +205,24 @@ private struct ConnectionCheckPanel: View {
             Label(model.connectionVerified ? "已接通，可以使用" : "最后一步 · 自动检查连接",
                   systemImage: model.connectionVerified ? "checkmark.circle.fill" : "network")
                 .font(.system(size: 13, weight: .semibold))
-            Text("不需要你录音。保存当前语言的一项 ASR 密钥和 GPT-6 密钥并授权后，Saytile 会用内置合成语音检查接收、AI 辅助和定稿。全部通过后自动启用；检查期间可以继续使用本机识别。")
-                .font(.system(size: 11)).foregroundStyle(Palette.muted)
+            Text("保存语音服务和 GPT-6 的密钥后，可用一段内置合成语音检查连接。通过后才启用云端；检查期间可以继续使用本机识别。")
+                .font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
             if let report = model.connectionReport {
                 ForEach(report.services) { service in
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
                             Text(connectionRoleLabel(service.provider))
                             Spacer()
-                            Text(service.state.label).foregroundStyle(service.state == .failed ? Color.orange : Palette.muted)
+                            Text(service.state.label).foregroundStyle(service.state == .failed ? Color.orange : WorkspaceStyle.secondary)
                         }.font(.system(size: 12))
-                        if let message = service.message { Text(message).font(.system(size: 11)).foregroundStyle(Palette.muted) }
+                        if let message = service.message { Text(message).font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary) }
                     }.accessibilityIdentifier("connection.check." + service.provider.rawValue)
                 }
                 if !model.checkingConnection && !report.transcript.isEmpty {
                     DisclosureGroup("查看合成语音检查结果") {
                         Text(report.transcript).textSelection(.enabled)
                         Text("这是连接与转写流程验证，尚未代表真实讲话准确率。")
-                            .font(.system(size: 11)).foregroundStyle(Palette.muted)
+                            .font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
                     }
                 }
             }
@@ -235,9 +235,9 @@ private struct ConnectionCheckPanel: View {
             }.buttonStyle(.plain).accessibilityIdentifier("connection.checkCosts")
                 .accessibilityValue(costsExpanded ? "已展开" : "已收起")
             if costsExpanded {
-                Text(ConnectionCheckLimits.disclosure).font(.system(size: 11)).foregroundStyle(Palette.muted)
+                Text(ConnectionCheckLimits.disclosure).font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
                 Text("语音服务可能按会话或音频 Token 计费；取消会关闭连接，不能撤销服务商已处理的请求。")
-                    .font(.system(size: 11)).foregroundStyle(Palette.muted)
+                    .font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
             }
             Toggle("同意上传内置合成语音和候选文字，并承担本次检查的服务商费用", isOn: $model.connectionCheckAuthorized)
                 .font(.system(size: 12)).disabled(model.checkingConnection)
@@ -253,9 +253,9 @@ private struct ConnectionCheckPanel: View {
                         .buttonStyle(.borderedProminent)
                         .disabled(!ready || !model.connectionCheckAuthorized || model.applyingRecognitionSettings)
                         .accessibilityIdentifier("connection.startCheck")
-                    if !ready { Text("请先选择讲话语言，保存两项服务的密钥并分别授权").font(.system(size: 11)).foregroundStyle(Palette.muted) }
+                    if !ready { Text("请先选择讲话语言，保存两项服务的密钥并分别授权").font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary) }
                 }
             }
-        }.padding(14).background(Palette.paper.opacity(0.7), in: RoundedRectangle(cornerRadius: 12))
+        }.padding(14).background(WorkspaceStyle.background.opacity(0.7), in: RoundedRectangle(cornerRadius: 12))
     }
 }

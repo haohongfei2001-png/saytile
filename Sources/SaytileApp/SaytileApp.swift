@@ -19,11 +19,6 @@ struct SaytileMain {
     }
 }
 
-final class VoicePanel: NSPanel {
-    override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { false }
-}
-
 final class VoiceEntryPanel: NSPanel {
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
@@ -48,6 +43,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var screenObserver: NSObjectProtocol?
     private var statusSubscription: AnyCancellable?
     private var positioningPanel = false
+    private var movingPanel = false
+    private var placementDefaults: UserDefaults?
+    // The compact top-right layout starts once on upgrade. Keep the old layout available to the previous build.
+    private let placementKey = "panel.userPlacement.v2"
+    private func displayKey(_ screen: NSScreen) -> String {
+        guard let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
+              let uuid = CGDisplayCreateUUIDFromDisplayID(number.uint32Value)?.takeRetainedValue() else { return "" }
+        return CFUUIDCreateString(nil, uuid) as String
+    }
+    private func savedPanelFrame() -> NSRect? {
+        guard let data = placementDefaults?.data(forKey: placementKey),
+              let saved = try? JSONDecoder().decode(SavedPanelPlacement.self, from: data) else { return nil }
+        return saved.restored(on: NSScreen.screens.map { (displayKey($0), $0.visibleFrame) })
+    }
+    private func rememberPlacement() {
+        guard !positioningPanel, let panel, let screen = panel.screen,
+              let placement = SavedPanelPlacement(frame: panel.frame, visibleFrame: screen.visibleFrame, displayID: displayKey(screen)),
+              let data = try? JSONEncoder().encode(placement) else { return }
+        placementDefaults?.set(data, forKey: placementKey)
+    }
     private var terminating = false
     private var shutdownStarted = false
     private var diagnosticPreferencesSuite: String?
@@ -86,7 +101,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 directory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
             } else {
                 directory = SaytileStorageProfile.current.archiveDirectory
-                if SaytileStorageProfile.current == .personal { try DiagnosticDirectory.validate(directory: directory) }
+                if SaytileStorageProfile.current != .standard { try DiagnosticDirectory.validate(directory: directory) }
+                if SaytileStorageProfile.current == .designExperience {
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.personal.archiveDirectory)
+                }
             }
             if isDiagnostic || directoryIndex != nil {
                 // Reject production aliases before AppModel/Store can migrate or
@@ -96,6 +114,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     let preview = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
                         .appendingPathComponent("Saytile Timeline Preview", isDirectory: true)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: preview)
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.designExperience.archiveDirectory)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.personal.archiveDirectory)
                 }
                 catch { print("DIAGNOSTICS_REJECTED_DATA_DIRECTORY"); Darwin.exit(64) }
@@ -131,6 +150,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 diagnosticConfiguration.automaticRecovery = false
                 try diagnosticConfiguration.save(to: preferences)
             } else { preferences = SaytileStorageProfile.current.preferences }
+            placementDefaults = preferences
             let model = try AppModel(directory: directory, preferences: preferences, normalLaunch: directoryIndex == nil,
                 copyPasteboard: CommandLine.arguments.contains("--ui-review") ? NSPasteboard.withUniqueName() : nil)
             self.model = model
@@ -149,6 +169,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             model.hidePanel = { [weak self] in self?.hidePanel() }
             model.openArchive = { [weak self] in self?.showArchive() }
             model.openSettings = { [weak self] in self?.showSettings() }
+            model.openStorageSettings = { [weak self] in
+                self?.presentSettings(storage: true)
+            }
             if let index = CommandLine.arguments.firstIndex(of: "--single-asr-probe"), CommandLine.arguments.count > index + 1 {
                 Task {
                     // Finish startup reconciliation before importing this new attempt.
@@ -259,6 +282,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             if directoryIndex == nil, SaytileStorageProfile.current == .standard, Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil,
                Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") != nil {
                 updater = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+                model.checkForUpdates = { [weak self] in self?.updater?.checkForUpdates(nil) }
             }
             #endif
             configureStatusItem()
@@ -292,6 +316,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 if voiceEntry?.isVisible != false { diagnosticExitStatus = 1 }
                 if let panel {
                     print("FOCUS_PANEL_GEOMETRY width=\(panel.frame.width) height=\(panel.frame.height) min_width=\(panel.minSize.width) min_height=\(panel.minSize.height) max_width=\(panel.maxSize.width) max_height=\(panel.maxSize.height) resizable=\(panel.styleMask.contains(.resizable)) nonactivating=\(panel.styleMask.contains(.nonactivatingPanel)) joins_spaces=\(panel.collectionBehavior.contains(.canJoinAllSpaces)) panel_key=\(panel.isKeyWindow) panel_main=\(panel.isMainWindow)")
+                    if let screen = panel.screen {
+                        let visible = screen.visibleFrame
+                        let natural = panel.frame == WindowPlacement.initialPanel(visibleFrame: visible)
+                        print("FOCUS_COLD_PLACEMENT frame=\(panel.frame) visible=\(visible) upper_right_eighth_width=\(natural) shown=\(panel.isVisible)")
+                        if !natural || !panel.isVisible { diagnosticExitStatus = 1 }
+                    } else { diagnosticExitStatus = 1 }
                 }
                 Task {
                     try? await Task.sleep(for: .seconds(3))
@@ -304,10 +334,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 return
             }
             screenObserver = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor in self?.restoreVisibleWindows() }
+                Task { @MainActor in self?.movingPanel = false; self?.restoreVisibleWindows(applySavedPlacement: true) }
             }
             // Relaunch never silently resumes the microphone or restores an input binding.
-            if directoryIndex == nil && (SaytileStorageProfile.current == .personal || !preferences.bool(forKey: "hasLaunched")) {
+            if directoryIndex == nil && (SaytileStorageProfile.current != .standard || !preferences.bool(forKey: "hasLaunched")) {
                 preferences.set(true, forKey: "hasLaunched")
                 showPanel()
             }
@@ -349,11 +379,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         guard sender === panel, let screen = sender.screen ?? NSScreen.main else { return frameSize }
         return WindowPlacement.panelSize(frameSize, visibleFrame: screen.visibleFrame)
     }
+    func windowWillMove(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === panel, !positioningPanel { movingPanel = true }
+    }
+    func windowDidMove(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow, window === panel, movingPanel, !positioningPanel, panel?.draggingPlacement == false else { return }
+        rememberPlacement()
+        if NSEvent.pressedMouseButtons == 0 { movingPanel = false }
+    }
     func windowDidEndLiveResize(_ notification: Notification) {
-        if let window = notification.object as? NSWindow, window === panel { restorePanel() }
+        if let window = notification.object as? NSWindow, window === panel { restorePanel(); rememberPlacement() }
     }
     func windowDidChangeScreen(_ notification: Notification) {
-        if let window = notification.object as? NSWindow, window === panel { restorePanel() }
+        if let window = notification.object as? VoicePanel, window === panel, !window.draggingPlacement, !window.inLiveResize, NSEvent.pressedMouseButtons == 0 { restorePanel() }
     }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if terminating { return .terminateNow }
@@ -450,7 +488,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             panel.hidesOnDeactivate = false; panel.isReleasedWhenClosed = false
             panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = false
             panel.becomesKeyOnlyIfNeeded = true; panel.delegate = self
-            panel.isMovableByWindowBackground = true
+            panel.isMovableByWindowBackground = false
+            panel.acceptsMouseMovedEvents = true
+            panel.didChoosePosition = { [weak self] in
+                self?.movingPanel = false; self?.restorePanel(); self?.rememberPlacement()
+            }
             let content = NSHostingView(rootView: InputPanelWindowView(model: model).preferredColorScheme(.light))
             // Streaming text must scroll inside the chosen window geometry, not
             // enlarge the NSPanel through SwiftUI's intrinsic-size propagation.
@@ -458,10 +500,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             panel.contentView = content
             self.panel = panel
         }
-        let anchor = status?.button.flatMap { button in button.window.map { $0.convertToScreen(button.convert(button.bounds, to: nil)) } }
         if firstPresentation, let screen = status?.button?.window?.screen ?? NSScreen.main ?? NSScreen.screens.first {
             positioningPanel = true
-            panel?.setFrame(WindowPlacement.panel(anchor: anchor, visibleFrame: screen.visibleFrame), display: true)
+            panel?.setFrame(savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame), display: true)
             positioningPanel = false
         }
         restorePanel()
@@ -495,19 +536,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc func showArchive() {
         guard let model else { return }
         if archive == nil {
-            archive = makeWindow(title: "Saytile · 语音档案", width: 1040, height: 720, view: ArchiveView(model: model).preferredColorScheme(.light))
+            archive = makeWindow(title: "Saytile · 语音档案", width: 1000, height: 650, view: ArchiveView(model: model))
             archive?.delegate = self
-            archive?.minSize = NSSize(width: 800, height: 570)
+            archive?.minSize = NSSize(width: 550, height: 460)
         }
-        archive?.minSize = NSSize(width: model.selected == nil ? 760 : 1040, height: 570)
+        archive?.minSize = NSSize(width: 550, height: 460)
         restoreVisibleWindows()
         NSApp.activate(ignoringOtherApps: true); archive?.makeKeyAndOrderFront(nil)
     }
-    @objc func showSettings() {
+    @objc func showSettings() { presentSettings(storage: false) }
+    private func presentSettings(storage: Bool) {
         guard let model else { return }
         model.audio.refreshDevices()
-        if settings == nil { settings = makeWindow(title: "Saytile · 设置", width: 650, height: 740, view: SettingsView(model: model).preferredColorScheme(.light)) }
-        settings?.minSize = NSSize(width: 560, height: 570)
+        if settings == nil {
+            settings = makeWindow(title: "Saytile · 设置", width: 780, height: 610, view: SettingsView(model: model, initialPage: storage ? .storage : .speech))
+        } else if storage {
+            NotificationCenter.default.post(name: .init("SaytileOpenStorageSettings"), object: nil)
+        }
+        settings?.minSize = NSSize(width: 500, height: 450)
         restoreVisibleWindows()
         NSApp.activate(ignoringOtherApps: true); settings?.makeKeyAndOrderFront(nil)
     }
@@ -517,21 +563,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window.contentView = NSHostingView(rootView: view); window.center()
         return window
     }
-    private func restoreVisibleWindows() {
+    private func restoreVisibleWindows(applySavedPlacement: Bool = false) {
         let frames = NSScreen.screens.map(\.visibleFrame)
-        restorePanel()
+        if applySavedPlacement, let screen = panel?.screen ?? NSScreen.main {
+            restorePanel(preferred: savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame))
+        } else { restorePanel() }
         updateFloatingEntry()
         for window in [archive, settings].compactMap({ $0 }) {
             let size = NSSize(width: max(window.frame.width, window.minSize.width), height: max(window.frame.height, window.minSize.height))
             window.setFrame(WindowPlacement.restored(NSRect(origin: window.frame.origin, size: size), visibleFrames: frames), display: true)
         }
     }
-    private func restorePanel() {
+    private func restorePanel(preferred: NSRect? = nil) {
         guard let panel, !positioningPanel else { return }
         let frames = NSScreen.screens.map(\.visibleFrame)
         guard !frames.isEmpty else { return }
         positioningPanel = true; defer { positioningPanel = false }
-        let frame = WindowPlacement.restoredPanel(panel.frame, visibleFrames: frames)
+        let frame = WindowPlacement.restoredPanel(preferred ?? panel.frame, visibleFrames: frames)
         let center = CGPoint(x: frame.midX, y: frame.midY)
         let screen = frames.first(where: { $0.contains(center) }) ?? frames[0]
         let limits = WindowPlacement.panelLimits(visibleFrame: screen)

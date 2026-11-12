@@ -15,16 +15,48 @@ enum Palette {
     static let amber = Color(red: 0.58, green: 0.42, blue: 0.22)
 }
 
-struct VoiceMark: View {
-    var active = false
-    var size: CGFloat = 24
+/// Secondary windows follow system contrast and appearance. The panel has its own measured palette.
+enum WorkspaceStyle {
+    static let foreground = Color(nsColor: .labelColor)
+    static let secondary = Color(nsColor: .secondaryLabelColor)
+    static let background = Color(nsColor: .windowBackgroundColor)
+    static let editor = Color(nsColor: .textBackgroundColor)
+    static let accent = Color(nsColor: NSColor(name: nil) { appearance in
+        appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            ? NSColor(srgbRed: 0.76, green: 0.68, blue: 1, alpha: 1)
+            : NSColor(srgbRed: 0.39, green: 0.26, blue: 0.67, alpha: 1)
+    })
+    static let selection = accent.opacity(0.12)
+    static let title = Font.system(size: 25, weight: .semibold)
+}
+
+struct WorkspaceBrand: View {
     var body: some View {
-        HStack(spacing: size / 7) {
-            ForEach(0..<3) { index in
-                Capsule().fill(Palette.accent.opacity(active ? 1 : 0.55))
-                    .frame(width: size / 6, height: size * [0.65, 1, 0.45][index])
+        HStack(spacing: 9) {
+            if let mark = SaytileBrand.mark {
+                Image(nsImage: mark).resizable().interpolation(.high).aspectRatio(contentMode: .fit)
+                    .frame(width: 28, height: 32).accessibilityHidden(true)
             }
-        }.frame(width: size, height: size).accessibilityHidden(true)
+            Text("Saytile").font(.system(size: 18, weight: .semibold))
+        }.foregroundStyle(WorkspaceStyle.foreground)
+    }
+}
+
+struct WorkspaceNavRow: View {
+    let title: String
+    let symbol: String
+    let selected: Bool
+    let action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 9) {
+                Image(systemName: symbol).frame(width: 19).foregroundStyle(selected ? WorkspaceStyle.accent : .secondary)
+                Text(title).font(.system(size: 13, weight: selected ? .semibold : .regular))
+                Spacer(minLength: 0)
+            }.padding(.horizontal, 10).frame(height: 34)
+                .background(selected ? WorkspaceStyle.selection : .clear, in: RoundedRectangle(cornerRadius: 7))
+                .contentShape(Rectangle())
+        }.buttonStyle(.plain).accessibilityLabel(title).accessibilityAddTraits(selected ? .isSelected : [])
     }
 }
 
@@ -34,8 +66,8 @@ struct QuietButton: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label.font(.system(size: 12, weight: .medium))
             .padding(.horizontal, 13).padding(.vertical, 8)
-            .foregroundStyle(prominent ? .white : Palette.accent)
-            .background(prominent ? Palette.accent : Palette.soft, in: RoundedRectangle(cornerRadius: 8))
+            .foregroundStyle(prominent ? .white : WorkspaceStyle.foreground)
+            .background(prominent ? Palette.accent : WorkspaceStyle.selection, in: RoundedRectangle(cornerRadius: 8))
             .opacity(!isEnabled ? 0.38 : configuration.isPressed ? 0.7 : 1)
     }
 }
