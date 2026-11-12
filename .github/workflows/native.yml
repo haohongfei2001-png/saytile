@@ -40,6 +40,8 @@ jobs:
         run: python3 research/asr/validation/fusion-quality/check-probe-isolation.py --app dist/Saytile.app/Contents/MacOS/Saytile --output "$RUNNER_TEMP/probe-isolation.json"
       - name: Isolated connection setup CLI boundaries
         run: python3 scripts/test-connection-setup.py --app dist/Saytile.app --output "$RUNNER_TEMP/connection-setup-isolation.json"
+      - name: Edit directly in the native panel using a private clipboard
+        run: SAYTILE_EDITOR_REVIEW=1 dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/editor-data" --ui-review "$RUNNER_TEMP/saytile-editor"
       - name: Native windows with synthetic data
         run: python3 scripts/test-native-ui.py --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui"
       - name: Native continuous timeline with 12000 isolated utterances

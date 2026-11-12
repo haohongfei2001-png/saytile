@@ -7,6 +7,8 @@ from PIL import Image, ImageFilter, ImageStat
 parser=argparse.ArgumentParser(); parser.add_argument('--app',type=Path,required=True); parser.add_argument('--output',type=Path,required=True)
 parser.add_argument('--scenes',nargs='+',help='Capture only these scenes; never earns a full PASS')
 a=parser.parse_args(); root=Path(__file__).resolve().parent.parent; out=a.output.resolve(); app=a.app.resolve()
+if any(app.is_relative_to(base.resolve()) for base in (Path('/Applications'), Path.home()/'Applications')):
+    raise SystemExit('Use a staging build, never the installed application.')
 out.mkdir(parents=True,exist_ok=True)
 if any(out.iterdir()): raise SystemExit('Output must be empty')
 original=root/'design/approved/Saytile-original-visual-reference-20261107.jpeg'; im=Image.open(original).convert('RGB')
@@ -24,7 +26,7 @@ bg.save(out/'environment.png')
 scenes=['first-use','first-denied','first-authorized','panel-paused','panel-standby','panel-speaking','settings','models','models-manual','models-recovery','input-compact-dark','storage','about','cloud','byok','archive-empty','archive','archive-detail','archive-detail-compact-dark']
 if a.scenes:
     assert set(a.scenes)<=set(scenes); scenes=[n for n in scenes if n in a.scenes]
-info=plistlib.loads((app/'Contents/Info.plist').read_bytes()); assert info['CFBundleIdentifier']=='app.saytile.mac.design-experience'
+info=plistlib.loads((app/'Contents/Info.plist').read_bytes()); assert info['CFBundleIdentifier']=='app.saytile.mac'
 receipt={'source':info['SaytileSourceRevision'],'source_dirty':info['SaytileSourceDirty'],'binary_sha256':hashlib.sha256((app/'Contents/MacOS/Saytile').read_bytes()).hexdigest(),'reference_sha256':hashlib.sha256(original.read_bytes()).hexdigest(),'scope':'Two named windows of same isolated process; controlled environment sampled from exterior of original; capture/permission states injected, not a physical microphone or an OS permission change.','scenes':{}}
 with tempfile.TemporaryDirectory(prefix='saytile-product-capture-') as td:
     t=Path(td); helper=t/'capture'

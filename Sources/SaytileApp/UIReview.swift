@@ -19,6 +19,10 @@ extension AppDelegate {
                 return true
             }
             await model.initialLoad()
+            if ProcessInfo.processInfo.environment["SAYTILE_EDITOR_REVIEW"] == "1" {
+                try await reviewInlineEditing(model: model, output: output)
+                return true
+            }
             if product { try await reviewProductWindows(model: model, output: output); return true }
             if ProcessInfo.processInfo.environment["SAYTILE_TIMELINE_REVIEW"] == "1" {
                 try await reviewTimeline(model: model, output: output)
@@ -646,6 +650,54 @@ extension AppDelegate {
         return result
     }
 
+    /// Exercise the shipping editor + persistence through a window-local responder.
+    /// Never change the frontmost app or read/write the user's general pasteboard.
+    @MainActor private func reviewInlineEditing(model: AppModel, output: URL) async throws {
+        let board = NSPasteboard(name: .init("app.saytile.test.editor." + UUID().uuidString))
+        defer { board.releaseGlobally() }
+        guard try await model.store.listRecordings(limit: 1).isEmpty else { throw ReviewFailure("editor fixture must be empty") }
+        try await reviewValidatedWindow(InputPanelWindowView(model: model), size: CGSize(width: 320, height: 230),
+            name: "inline-editor", output: output, validation: { host in
+                let scroll = try self.compactTranscript(in: host)
+                let editor = scroll.transcriptView
+                guard editor.isEditable, editor.isSelectable, editor.string.isEmpty,
+                      host.window?.makeFirstResponder(editor) == true else { throw ReviewFailure("cannot enter the empty native editor") }
+                let caret = NSRange(location: NSNotFound, length: 0)
+                editor.insertText("先写😀再改", replacementRange: caret)
+                try await self.reviewUntil { editor.string == "先写😀再改" }
+                editor.setSelectedRange((editor.string as NSString).range(of: "😀"))
+                board.clearContents()
+                guard editor.writeSelection(to: board, type: .string),
+                      board.string(forType: .string) == "😀" else { throw ReviewFailure("native selection copy split an emoji") }
+                editor.deleteBackward(nil)
+                guard editor.string == "先写再改" else { throw ReviewFailure("delete did not honor the selection") }
+                guard editor.readSelection(from: board, type: .string),
+                      editor.string == "先写😀再改" else { throw ReviewFailure("native paste failed") }
+                editor.setSelectedRange(NSRange(location: (editor.string as NSString).length, length: 0))
+                editor.setMarkedText("zhong", selectedRange: NSRange(location: 5, length: 0), replacementRange: caret)
+                guard editor.hasMarkedText() else { throw ReviewFailure("IME did not mark its provisional text") }
+                editor.insertText("中", replacementRange: caret)
+                try await self.reviewUntil { editor.string == "先写😀再改中" && !editor.hasMarkedText() }
+                editor.insertNewline(nil)
+                editor.insertText("第二行", replacementRange: caret)
+                let expected = "先写😀再改中\n第二行"
+                try await self.reviewUntil { editor.string == expected }
+                guard let saved = try await model.store.listRecordings(limit: 8).first,
+                      saved.text == expected, saved.audioState == .deleted, !saved.isRecording,
+                      board.string(forType: .string) == "😀" else { throw ReviewFailure("typing, return or paste did not persist correctly") }
+                guard !(try await model.store.revisions(recordingID: saved.id)).contains(where: { $0.text.contains("zhong") })
+                else { throw ReviewFailure("uncommitted IME text escaped into the archive") }
+                let oldID = saved.id
+                // Deleting all text retains the recording identity and previous edits.
+                editor.selectAll(nil); editor.deleteBackward(nil)
+                try await self.reviewUntil { editor.string.isEmpty }
+                guard let cleared = try await model.store.recording(id: oldID), cleared.text.isEmpty,
+                      try await model.store.revisions(recordingID: oldID).contains(where: { $0.text == expected })
+                else { throw ReviewFailure("delete-all destroyed the archive or previous edits") }
+                print("INLINE_EDITOR_PASS typing, private copy/paste, delete, Chinese IME, newline, archive history")
+            })
+    }
+
     /// Same shipping view and text renderer, on the exact measured card size.
     /// The new reference fixture supplements, never replaces, interaction tests.
     @MainActor private func reviewApprovedReference(output: URL) async throws {
@@ -674,7 +726,7 @@ extension AppDelegate {
                     validation: { host in
                         let scroll = try self.compactTranscript(in: host)
                         guard scroll.transcriptView.string.utf16.elementsEqual(text.utf16),
-                              !scroll.transcriptView.isEditable, scroll.transcriptView.isSelectable,
+                              scroll.transcriptView.isEditable, scroll.transcriptView.isSelectable,
                               model.audio.state == .paused else {
                             throw ReviewFailure("reference scene must use real selectable text without opening the microphone")
                         }
@@ -903,7 +955,7 @@ extension AppDelegate {
                     return (scroll.transcriptView.string as NSString).substring(with: range)
                 }
                 try await self.reviewUntil { bodyText().utf16.elementsEqual(text.utf16) }
-                guard !scroll.transcriptView.isEditable, scroll.transcriptView.isSelectable else { throw ReviewFailure("transcript selection contract changed") }
+                guard scroll.transcriptView.isEditable, scroll.transcriptView.isSelectable else { throw ReviewFailure("transcript selection contract changed") }
                 let composed = text.precomposedStringWithCanonicalMapping
                 guard composed == text, composed.utf16.count != text.utf16.count else { throw ReviewFailure("Unicode fixture did not differ in UTF-16 representation") }
                 for replacement in [composed, text] {
