@@ -17,7 +17,7 @@ import ScreenCaptureKit
         let box = NSRectFromString(a[5])
         guard !box.isEmpty else { throw Failure.bounds }
         let bundle = URL(fileURLWithPath: a[1], isDirectory: true).resolvingSymlinksInPath()
-        let ids = a[0] == "Saytile" ? ["app.saytile.mac.design-experience", "app.saytile.mac.shared-voice-preview"] :
+        let ids = a[0] == "Saytile" ? ["app.saytile.testing.reference-shell.20261113", "app.saytile.mac", "app.saytile.mac.design-experience", "app.saytile.mac.shared-voice-preview"] :
             ["com.holdsnow.nearpane.host", "com.holdsnow.nearpane.alpha", "com.holdsnow.nearpane.voice-preview"]
         guard let id = Bundle(url: bundle)?.bundleIdentifier, ids.contains(id),
               let app = NSRunningApplication(processIdentifier: pid), !app.isTerminated,
@@ -33,11 +33,20 @@ import ScreenCaptureKit
               let display = sc.displays.first(where: { $0.displayID == CGMainDisplayID() })
         else { throw Failure.identity }
         let cg = CGRect(x: box.minX, y: screen.frame.maxY - box.maxY, width: box.width, height: box.height)
-        let requested = a[0] == "Saytile" ? cg : fg.frame
+        let requested = fg.frame
         guard fg.frame.insetBy(dx: -1,dy: -1).contains(cg), display.frame.insetBy(dx:-1,dy:-1).contains(requested)
         else {
             print("WindowServer bounds mismatch: window=\(fg.frame) display=\(display.frame) glass=\(cg) source=\(requested) AppKit=\(screen.frame)")
             throw Failure.bounds
+        }
+        var workspaceCells: Int?
+        if a[0] == "Nearpane", AXIsProcessTrusted() {
+            let deadline = ContinuousClock.now + .seconds(8)
+            repeat {
+                workspaceCells = readWindowPreviewCount(pid)
+                if workspaceCells == 4 { break }
+                try await Task.sleep(for: .milliseconds(100))
+            } while ContinuousClock.now < deadline
         }
         let s = SCStreamConfiguration()
         s.captureResolution = .best
@@ -56,10 +65,28 @@ import ScreenCaptureKit
           "contentRelativePoints":region, "sourceCG":[requested.minX, requested.minY, requested.width, requested.height],
           "windowCG":[fg.frame.minX,fg.frame.minY,fg.frame.width,fg.frame.height],
           "backingScale":screen.backingScaleFactor, "screens":NSScreen.screens.count]
+        if let workspaceCells { report["workspaceThumbnailAXCount"] = workspaceCells }
         report["accessibility"] = inspect(pid: pid, host: a[0], captureState: a[7], fixture: a[8], glass: cg)
         let dataJSON = try JSONSerialization.data(withJSONObject:report,options:.sortedKeys)
         print(String(decoding:dataJSON,as:UTF8.self))
     }
+    /// This identifier is exposed only by rendered real window-image tiles.
+    @MainActor static func readWindowPreviewCount(_ pid: pid_t) -> Int {
+        func attribute(_ node: AXUIElement, _ name: CFString) -> CFTypeRef? {
+            var result: CFTypeRef?
+            guard AXUIElementCopyAttributeValue(node, name, &result) == .success else { return nil }
+            return result
+        }
+        var nodes = attribute(AXUIElementCreateApplication(pid), kAXWindowsAttribute as CFString) as? [AXUIElement] ?? []
+        var seen = Set<CFHashCode>(), count = 0
+        while let node = nodes.popLast(), seen.count < 1500 {
+            guard seen.insert(CFHash(node)).inserted else { continue }
+            if attribute(node, kAXIdentifierAttribute as CFString) as? String == "desktop-window-preview" { count += 1 }
+            nodes += attribute(node, kAXChildrenAttribute as CFString) as? [AXUIElement] ?? []
+        }
+        return count
+    }
+
     /// Target-local readback and press, using the fixture's private pasteboard. No events are posted globally.
     @MainActor static func inspect(pid: pid_t, host: String, captureState: String, fixture: String, glass: CGRect) -> [String:Any] {
         guard AXIsProcessTrusted() else { return ["status":"BLOCKED_AX_AUTHORIZATION"] }
@@ -79,7 +106,7 @@ import ScreenCaptureKit
         guard let copy = nodes["panel.copy"], let voice = nodes["panel.capture"], let editor = nodes["panel.transcript"] else {
             return ["status":"FAIL_MISSING_NATIVE_ELEMENTS","elements":nodes.keys.sorted()]
         }
-        let text = "把今天的讨论记下来。\n下午三点继续。"
+        let text = "把设计系统的更新内容整理成一份简要的汇报，重点包括组件优化和交互调整。"
         var result: [String:Any] = ["status":"PASS","nativeTextMatches":(value(editor,kAXValueAttribute) as? String)?.contains(text) == true,
                                     "voiceAXValue":value(voice,kAXValueAttribute) as? String ?? ""]
         var frames: [String:[CGFloat]] = [:]
@@ -118,13 +145,13 @@ import ScreenCaptureKit
             }
             result["copyGroup"] = pressed(text)
             let actual = (value(editor,kAXValueAttribute) as? String ?? "") as NSString
-            let selection = actual.range(of:"下午")
+            let selection = actual.range(of:"更新")
             if selection.location != NSNotFound {
                 var r = CFRange(location:selection.location,length:selection.length)
                 let selected = AXValueCreate(.cfRange,&r).map {
                     AXUIElementSetAttributeValue(editor,kAXSelectedTextRangeAttribute as CFString,$0) == .success
                 } ?? false
-                result["copySelection"] = selected && pressed("下午")
+                result["copySelection"] = selected && pressed("更新")
             } else { result["copySelection"] = false }
         }
         if result["nativeTextMatches"] as? Bool != true || result["copyGroup"] as? Bool == false || result["copySelection"] as? Bool == false {
