@@ -2,9 +2,9 @@ import AppKit
 import SwiftUI
 
 /// One selectable transcript. Model revisions never make this view first responder.
-struct CompactTranscriptView: NSViewRepresentable {
-    let document: PanelTimelineDocument
-    let access: PanelTranscriptAccess
+struct CompactTranscriptView<Entry: VoiceTranscriptEntry>: NSViewRepresentable {
+    let document: PanelTimelineDocument<Entry>
+    let access: PanelTranscriptAccess<Entry>
     var onPage: (Bool) -> Void
     var focusPosition: Int64?
     var editing = false
@@ -13,19 +13,23 @@ struct CompactTranscriptView: NSViewRepresentable {
     var onSelectionChange: (String) -> Void = { _ in }
     var fillContextMenu: (@MainActor (NSMenu) -> Void)? = nil
 
+    var onEdit: (@MainActor () -> Void)? = nil
     var showsLiveCaret = false
+    var typeScale: CGFloat = 1
 
-    func makeNSView(context: Context) -> CompactTranscriptScrollView {
-        CompactTranscriptScrollView(frame: .zero)
+    func makeNSView(context: Context) -> CompactTranscriptScrollView<Entry> {
+        CompactTranscriptScrollView<Entry>(frame: .zero)
     }
-    func updateNSView(_ view: CompactTranscriptScrollView, context: Context) {
+    func updateNSView(_ view: CompactTranscriptScrollView<Entry>, context: Context) {
         view.onFollowChange = onFollowChange
         view.onSelectionChange = onSelectionChange
         view.transcriptView.fillContextMenu = fillContextMenu
         view.transcriptView.showsLiveCaret = showsLiveCaret && view.isFollowingLatest && !document.idle && !editing
         access.view = view
+        view.transcriptView.onEdit = onEdit
         view.onPage = onPage
         view.editing = editing
+        view.applyTypeScale(typeScale)
         view.updateDocument(document)
         view.focus(on: focusPosition)
         view.consumeLatestRequest(latestRequest)
@@ -33,22 +37,22 @@ struct CompactTranscriptView: NSViewRepresentable {
 }
 
 @MainActor
-final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
-    let transcriptView = CompactTranscriptTextView(frame: .zero)
-    private(set) var isFollowingLatest = true
-    private(set) var latestText = ""
-    var hasDeferredUpdate: Bool { !Self.sameText(transcriptView.string, latestText) }
+public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSScrollView, NSTextViewDelegate {
+    public let transcriptView = CompactTranscriptTextView(frame: .zero)
+    public private(set) var isFollowingLatest = true
+    public private(set) var latestText = ""
+    public var hasDeferredUpdate: Bool { !Self.sameText(transcriptView.string, latestText) }
     var onFollowChange: (Bool) -> Void = { _ in }
     var onSelectionChange: (String) -> Void = { _ in }
 
-    private(set) var rendered = PanelTimelineDocument()
-    private var pending = PanelTimelineDocument()
+    public private(set) var rendered = PanelTimelineDocument<Entry>()
+    private var pending = PanelTimelineDocument<Entry>()
     var onPage: (Bool) -> Void = { _ in }
-    var editing = false
+    public internal(set) var editing = false
     private var focusedPosition: Int64?
     private var motion: Task<Void, Never>?
     private var pagingFrom: Int64?
-    var selectionSnapshot: String {
+    public var selectionSnapshot: String {
         let range = transcriptView.selectedRange(), string = transcriptView.string as NSString
         return NSMaxRange(range) <= string.length ? string.substring(with: range) : ""
     }
@@ -60,7 +64,7 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         transcriptView.scrollRangeToVisible(NSRange(location: span.range.location, length: 1))
         publishState()
     }
-    func updateDocument(_ document: PanelTimelineDocument) {
+    func updateDocument(_ document: PanelTimelineDocument<Entry>) {
         if editing || selecting || transcriptView.selectedRange().length > 0 { motion?.cancel() }
         pending = document
         latestText = document.text
@@ -74,7 +78,7 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
     private var latestRequest = 0
     private var lastLayoutSize = NSSize.zero
 
-    override init(frame frameRect: NSRect) {
+    public override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         borderType = .noBorder
         drawsBackground = false
@@ -112,9 +116,9 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         contentView.postsBoundsChangedNotifications = true
         NotificationCenter.default.addObserver(self, selector: #selector(viewportChanged), name: NSView.boundsDidChangeNotification, object: contentView)
     }
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func layout() {
+    public override func layout() {
         super.layout()
         let size = contentSize
         guard !changingDocument, size.width > 0, size.height > 0, size != lastLayoutSize else { return }
@@ -134,7 +138,7 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         jumpToLatest()
     }
 
-    func jumpToLatest() {
+    public func jumpToLatest() {
         changingDocument = true
         transcriptView.setSelectedRange(NSRange(location: transcriptView.string.utf16.count, length: 0))
         changingDocument = false
@@ -144,14 +148,14 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         publishState()
     }
 
-    func textViewDidChangeSelection(_ notification: Notification) {
+    public func textViewDidChangeSelection(_ notification: Notification) {
         guard !changingDocument else { return }
         if transcriptView.selectedRange().length > 0 { motion?.cancel(); isFollowingLatest = false }
         else if !selecting { applyLatest() }
         publishState()
     }
 
-    override func scrollWheel(with event: NSEvent) {
+    public override func scrollWheel(with event: NSEvent) {
         motion?.cancel()
         let delta = event.scrollingDeltaY
         if delta != 0 {
@@ -198,12 +202,29 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         return documentVisibleRect.maxY >= bottom - rounding
     }
 
+    private var typeScale: CGFloat = 1
+    func applyTypeScale(_ scale: CGFloat) {
+        guard typeScale != scale else { return }
+        typeScale = scale
+        if let storage = transcriptView.textStorage {
+            storage.setAttributes(attributes, range: NSRange(location: 0, length: storage.length))
+            styleMarkers(in: storage)
+        }
+        needsLayout = true
+    }
+
+    private func styleMarkers(in storage: NSTextStorage) {
+        for marker in rendered.markers {
+            storage.addAttributes([.font: NSFont.systemFont(ofSize: 10), .foregroundColor: NSColor.secondaryLabelColor], range: marker)
+        }
+    }
+
     private var attributes: [NSAttributedString.Key: Any] {
         let paragraph = NSMutableParagraphStyle()
-        paragraph.minimumLineHeight = ReferencePanelStyle.lineHeight
-        paragraph.maximumLineHeight = ReferencePanelStyle.lineHeight
+        paragraph.minimumLineHeight = ReferencePanelStyle.lineHeight * typeScale
+        paragraph.maximumLineHeight = ReferencePanelStyle.lineHeight * typeScale
         paragraph.paragraphSpacing = 0
-        let base = NSFont(name: "PingFangSC-Regular", size: ReferencePanelStyle.fontSize) ?? NSFont.systemFont(ofSize: ReferencePanelStyle.fontSize)
+        let base = NSFont(name: "PingFangSC-Regular", size: ReferencePanelStyle.fontSize * typeScale) ?? NSFont.systemFont(ofSize: ReferencePanelStyle.fontSize * typeScale)
         let font = base
         return [.font: font, .foregroundColor: ReferencePanelStyle.ink, .paragraphStyle: paragraph]
     }
@@ -241,9 +262,7 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
         storage.replaceCharacters(in: patch.range, with: NSAttributedString(string: patch.replacement, attributes: attributes))
         if oldDocument.markers != rendered.markers || !rendered.markers.isEmpty {
             storage.setAttributes(attributes, range: NSRange(location: 0, length: new.length))
-            for marker in rendered.markers {
-                storage.addAttributes([.font: NSFont.systemFont(ofSize: 10), .foregroundColor: NSColor.secondaryLabelColor], range: marker)
-            }
+            styleMarkers(in: storage)
         }
         let caret = min(new.length, Self.shift(oldCaret, through: patch.range, replacementLength: patch.replacement.utf16.count))
         transcriptView.setSelectedRange(NSRange(location: caret, length: 0))
@@ -269,7 +288,7 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
             var adjusted = Self.shift(anchor.character, through: patch.range, replacementLength: patch.replacement.utf16.count, rightAffinity: true)
             if let previous = anchoredSpan, let next = rendered.spans.first(where: { $0.entry.id == previous.entry.id }),
                anchor.character >= previous.range.location {
-                let local = Self.patch(from: previous.entry.recording.text as NSString, to: next.entry.recording.text as NSString)
+                let local = Self.patch(from: previous.entry.displayText as NSString, to: next.entry.displayText as NSString)
                 adjusted = next.range.location + Self.shift(anchor.character - previous.range.location, through: local.range,
                     replacementLength: local.replacement.utf16.count, rightAffinity: true)
             }
@@ -358,11 +377,11 @@ final class CompactTranscriptScrollView: NSScrollView, NSTextViewDelegate {
 }
 
 @MainActor
-final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
+public final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
     // A read-only trailing voice caret: no editing, focus acquisition, timer or
     // insertion. Selection and reading earlier text suppress it.
     var showsLiveCaret = false { didSet { if oldValue != showsLiveCaret { needsDisplay = true } } }
-    override func draw(_ dirtyRect: NSRect) {
+    public override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         guard showsLiveCaret, selectedRange().length == 0, !string.isEmpty,
               let manager = layoutManager, let container = textContainer,
@@ -374,12 +393,24 @@ final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
         let font = textStorage?.attribute(.font, at: max(0, string.utf16.count - 1), effectiveRange: nil) as? NSFont
         let ink = font?.boundingRect(forGlyph: manager.glyph(at: end))
         let inkEnd = ink.map { line.minX + manager.location(forGlyphAt: end).x + $0.maxX } ?? glyph.maxX
-        let rect = CGRect(x: origin.x + inkEnd + 9,
-                          y: origin.y + line.minY + 3, width: 2.5, height: 19)
+        let scale = (font?.pointSize ?? ReferencePanelStyle.fontSize) / ReferencePanelStyle.fontSize
+        let rect = CGRect(x: origin.x + inkEnd + 9 * scale,
+                          y: origin.y + line.minY + 3 * scale, width: 2.5 * scale, height: 19 * scale)
         guard rect.maxX < bounds.maxX - 1 else { return }
         NSColor(srgbRed: 0.55, green: 0.23, blue: 0.98, alpha: 1).setFill()
         NSBezierPath(roundedRect: rect, xRadius: 1.25, yRadius: 1.25).fill()
     }
+    var onEdit: (@MainActor () -> Void)?
+    public override func accessibilityPerformPress() -> Bool {
+        guard let onEdit else { return super.accessibilityPerformPress() }
+        onEdit()
+        return true
+    }
+    public override func isAccessibilitySelectorAllowed(_ selector: Selector) -> Bool {
+        if selector == #selector(accessibilityPerformPress), onEdit != nil { return true }
+        return super.isAccessibilitySelectorAllowed(selector)
+    }
+
     private let transcriptMenu = NSMenu(title: "文字操作")
     var fillContextMenu: (@MainActor (NSMenu) -> Void)? {
         didSet {
@@ -390,35 +421,20 @@ final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
             } else if fillContextMenu == nil, menu === transcriptMenu { menu = nil }
         }
     }
-    override func menu(for event: NSEvent) -> NSMenu? {
+    public override func menu(for event: NSEvent) -> NSMenu? {
         contextCharacter = characterIndexForInsertion(at: convert(event.locationInWindow, from: nil))
         return fillContextMenu != nil ? transcriptMenu : super.menu(for: event)
     }
-    func menuNeedsUpdate(_ menu: NSMenu) {
+    public func menuNeedsUpdate(_ menu: NSMenu) {
         guard menu === transcriptMenu, let fillContextMenu else { return }
         menu.removeAllItems()
         fillContextMenu(menu)
     }
-    private(set) var contextCharacter: Int?
+    public private(set) var contextCharacter: Int?
     var onSelectionTracking: (Bool) -> Void = { _ in }
-    override func mouseDown(with event: NSEvent) {
+    public override func mouseDown(with event: NSEvent) {
         onSelectionTracking(true)
         super.mouseDown(with: event)
         onSelectionTracking(false)
     }
-}
-
-/// Each menu owns its action items until AppKit finishes dispatch. No global
-/// key equivalents or focus changes are required to invoke these commands.
-@MainActor
-final class TranscriptMenuItem: NSMenuItem {
-    private let invoke: @MainActor () -> Void
-    init(title: String, identifier: String, action: @escaping @MainActor () -> Void) {
-        invoke = action
-        super.init(title: title, action: #selector(performCommand), keyEquivalent: "")
-        self.identifier = .init(identifier); setAccessibilityIdentifier(identifier)
-        target = self
-    }
-    required init(coder: NSCoder) { fatalError("TranscriptMenuItem is created programmatically") }
-    @objc private func performCommand() { invoke() }
 }

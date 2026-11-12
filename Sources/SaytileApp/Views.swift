@@ -1,3 +1,4 @@
+import SaytileVoiceUI
 import SwiftUI
 import AppKit
 import SaytileKit
@@ -8,9 +9,6 @@ struct InputPanelView: View {
     @StateObject private var access = PanelTranscriptAccess()
     @ViewState private var selectedText = ""
     @ViewState private var latestRequest = 0
-    @ViewState private var captureHovered = false
-    @FocusState private var captureFocused: Bool
-
     private var document: PanelTimelineDocument {
         PanelTimelineDocument(page: model.timeline, tail: model.timelineTail, idle: model.timelineIdle, reading: !followsLatest)
     }
@@ -27,78 +25,27 @@ struct InputPanelView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            if model.directMode {
-                Label(model.targetLabel, systemImage: "arrow.up.forward.app")
-                    .font(.system(size: 10)).foregroundStyle(Palette.muted)
-                    .lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 14).padding(.bottom, 5)
-                    .help(model.targetLabel).accessibilityIdentifier("panel.target")
-            }
-            if let message = model.panelCaptureDetail ?? model.notice {
-                HStack(alignment: .top, spacing: 6) {
-                    Image(systemName: "exclamationmark.circle")
-                    Text(message).lineLimit(2).fixedSize(horizontal: false, vertical: true).help(message)
-                    Spacer(minLength: 0)
-                }.font(.system(size: 11)).foregroundStyle(Palette.amber)
-                    .padding(.horizontal, 14).padding(.vertical, 5).accessibilityIdentifier("panel.notice")
-            }
-
-            CompactTranscriptView(document: document, access: access, onPage: { model.moveTimeline(older: $0) },
-                focusPosition: model.timelineFocus, editing: model.archiveIsKey && model.selected != nil, latestRequest: latestRequest,
-                onFollowChange: { follows in
-                    if followsLatest != follows {
-                        followsLatest = follows
-                        if follows { model.followTimeline() } else { model.pinTimeline() }
-                    }
-                }, onSelectionChange: { selectedText = $0 },
-                fillContextMenu: fillContextMenu, showsLiveCaret: model.panelCapturePresentation.state == .recognizing)
-                .overlay(alignment: .topLeading) {
-                    if model.timeline.entries.isEmpty || !model.completedFirstTranscript && model.timeline.entries.allSatisfy({ $0.recording.text.isEmpty }) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            if !model.completedFirstTranscript {
-                                Text(firstUseTitle).font(.system(size: ReferencePanelStyle.fontSize))
-                                Text(firstUseDetail).font(.system(size: 12)).lineSpacing(3).foregroundStyle(Palette.muted)
-                            } else if model.isListening {
-                                Text("开口，文字会出现在这里。").font(.system(size: ReferencePanelStyle.fontSize))
-                            }
-                        }.foregroundStyle(Palette.ink.opacity(0.8)).padding(.top, 6).padding(.horizontal, 2)
-                            .accessibilityElement(children: .combine).allowsHitTesting(false)
-                    }
+        let presentation = model.panelCapturePresentation
+        let capture = VoicePanelCapture(state: presentation.state, level: presentation.liveVoiceLevel,
+            actionLabel: presentation.accessibilityLabel, accessibilityValue: presentation.accessibilityValue)
+        VoiceSurfacePanel(document: document, access: access, capture: capture, canCopy: canCopy,
+            selectedText: selectedText, onCopy: copyTranscript, onToggle: model.toggleCapture,
+            onPage: { model.moveTimeline(older: $0) }, onSelectionChange: { selectedText = $0 },
+            onFollowChange: { follows in
+                if followsLatest != follows {
+                    followsLatest = follows
+                    if follows { model.followTimeline() } else { model.pinTimeline() }
                 }
-                .padding(.leading, ReferencePanelStyle.textInset - 2)
-                // Preserve full-width Chinese punctuation. The final punctuation
-                // cell may extend into the trailing optical whitespace.
-                .padding(.trailing, 8).frame(maxWidth: .infinity, maxHeight: .infinity)
+            }, focusPosition: model.timelineFocus, editing: model.archiveIsKey && model.selected != nil,
+            latestRequest: latestRequest, fillContextMenu: fillContextMenu,
+            target: model.directMode ? model.targetLabel : nil, notice: model.panelCaptureDetail ?? model.notice,
+            placeholder: placeholder, placeholderDetail: model.completedFirstTranscript ? nil : firstUseDetail,
+            menu: { panelActions })
+    }
 
-            HStack {
-                Button(action: copyTranscript) {
-                    ReferenceCopyMark().stroke(ReferencePanelStyle.copyInk.opacity(canCopy ? 1 : 0.5), style: StrokeStyle(lineWidth: 1.65, lineCap: .round, lineJoin: .round))
-                        .frame(width: 16, height: 16)
-                        .frame(width: ReferencePanelStyle.copyWidth, height: ReferencePanelStyle.controlHeight)
-                        .background { ReferenceControlSurface(copy: true) }
-                        .contentShape(RoundedRectangle(cornerRadius: 13))
-                }
-                .buttonStyle(.plain)
-                // Keep the menu host enabled for an empty panel. The copy action
-                // itself is a no-op without text; archive/settings remain reachable.
-                .contextMenu { panelActions }
-                .help(canCopy ? "复制文字；右键打开编辑与更多操作" : "右键打开档案、设置与更多操作")
-                .accessibilityLabel(selectedText.isEmpty ? "复制当前文字" : "复制所选文字")
-                .accessibilityHint("右键或打开上下文菜单可编辑、回到最新、查看档案和设置")
-                .accessibilityIdentifier("panel.copy")
-                Spacer(minLength: 8)
-                captureControl
-            }
-            .padding(.leading, ReferencePanelStyle.footerLeading)
-            .padding(.trailing, ReferencePanelStyle.footerTrailing)
-            .padding(.top, 6).padding(.bottom, ReferencePanelStyle.footerBottom)
-        }
-        .padding(.top, 10.5)
-        .background { ReferencePanelSurface() }
-        .clipShape(RoundedRectangle(cornerRadius: ReferencePanelStyle.radius, style: .continuous))
-        .foregroundStyle(Palette.ink)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    private var placeholder: String? {
+        guard model.timeline.entries.isEmpty || !model.completedFirstTranscript && model.timeline.entries.allSatisfy({ $0.recording.text.isEmpty }) else { return nil }
+        return !model.completedFirstTranscript ? firstUseTitle : (model.isListening ? "开口，文字会出现在这里。" : nil)
     }
 
     private var firstUseTitle: String {
@@ -127,29 +74,6 @@ struct InputPanelView: View {
     private func insertTranscript() {
         let document = access.view?.rendered
         model.insertFromPanel(rendered: document?.spans.map(\.entry) ?? [], displayed: document?.displayed ?? [:])
-    }
-
-    private var captureControl: some View {
-        let presentation = model.panelCapturePresentation
-        return Button(action: model.toggleCapture) {
-            VoiceCaptureGlyph(presentation: presentation)
-            .foregroundStyle(model.captureProblem ? AnyShapeStyle(Palette.amber) : AnyShapeStyle(ReferencePanelStyle.glyph))
-            .frame(width: ReferencePanelStyle.voiceWidth, height: ReferencePanelStyle.controlHeight)
-            .background { ReferenceControlSurface() }
-            .contentShape(Capsule())
-        }.buttonStyle(CaptureButtonStyle())
-            .overlay(Capsule().stroke(Color.gray.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
-            .onHover { captureHovered = $0 }.focused($captureFocused)
-            .help(presentation.accessibilityLabel)
-            .accessibilityLabel(presentation.accessibilityLabel)
-            .accessibilityValue(presentation.accessibilityValue)
-            .accessibilityIdentifier("panel.capture")
-    }
-
-    private struct CaptureButtonStyle: ButtonStyle {
-        func makeBody(configuration: Configuration) -> some View {
-            configuration.label.opacity(configuration.isPressed ? 0.62 : 1)
-        }
     }
 
     /// Both contextual surfaces expose the same commands and eligibility.

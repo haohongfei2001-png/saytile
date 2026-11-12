@@ -2,11 +2,17 @@ import SwiftUI
 
 /// The existing voice button's glyph only. No panel, color, size or control layout
 /// is defined here. Every bar height comes from the current measured voice level.
-struct VoiceCaptureGlyph: View {
-    let presentation: PanelCapturePresentation
+public struct VoiceCaptureGlyph: View {
+    let presentation: VoicePanelCapture
+    let scale: CGFloat
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    var body: some View {
+    public init(presentation: VoicePanelCapture, scale: CGFloat = 1) {
+        self.presentation = presentation
+        self.scale = scale
+    }
+
+    public var body: some View {
         // Keep one shape identity, including startup and recovery. Until capture
         // succeeds the triangle remains; existing help/error text explains why.
         // This avoids flashing a fourth glyph or claiming that capture is ready.
@@ -14,15 +20,15 @@ struct VoiceCaptureGlyph: View {
         VoiceCaptureGlyphShape(
             paused: paused ? 1 : 0,
             speaking: presentation.state == .recognizing ? 1 : 0,
-            level: presentation.liveVoiceLevel ?? 0)
+            level: presentation.level ?? 0)
         // A new value retargets the current shape; no delayed actions, queued
         // transitions, random oscillators or idle animation. State wins when
         // phase and level change together; level-only updates use the short ease.
         .animation(reduceMotion ? nil : .easeInOut(duration: paused ? 0.12 : 0.16),
                    value: presentation.state)
         .animation(reduceMotion ? nil : .easeOut(duration: 0.07),
-                   value: presentation.liveVoiceLevel)
-        .frame(width: 28, height: 24)
+                   value: presentation.level)
+        .frame(width: 28 * scale, height: 24 * scale)
         .accessibilityHidden(true)
     }
 }
@@ -30,17 +36,20 @@ struct VoiceCaptureGlyph: View {
 /// A single compatible path morphs triangle <-> dot <-> rounded vertical bars.
 /// Both phase weights and the measured amplitude are animatable, so a quick VAD
 /// change or pause starts from the shape currently on screen rather than flashing.
-struct VoiceCaptureGlyphShape: Shape {
+public struct VoiceCaptureGlyphShape: Shape {
+    public init(paused: Double, speaking: Double, level: Double) {
+        self.paused = paused; self.speaking = speaking; self.level = level
+    }
     var paused: Double
     var speaking: Double
     var level: Double
 
-    var animatableData: AnimatablePair<Double, AnimatablePair<Double, Double>> {
+    public var animatableData: AnimatablePair<Double, AnimatablePair<Double, Double>> {
         get { AnimatablePair(paused, AnimatablePair(speaking, level)) }
         set { paused = newValue.first; speaking = newValue.second.first; level = newValue.second.second }
     }
 
-    func path(in rect: CGRect) -> Path {
+    public func path(in rect: CGRect) -> Path {
         let pauseWeight = Self.unit(paused)
         let speechWeight = min(1 - pauseWeight, Self.unit(speaking))
         let dotWeight = 1 - pauseWeight - speechWeight

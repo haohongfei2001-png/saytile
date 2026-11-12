@@ -1,3 +1,4 @@
+import SaytileVoiceUI
 import AppKit
 import SaytileKit
 
@@ -75,10 +76,12 @@ final class VoicePanel: NSPanel {
         guard card.insetBy(dx: -7, dy: -7).contains(p) else { return nil }
         let left = p.x - card.minX, right = card.maxX - p.x
         let bottom = p.y - card.minY, top = card.maxY - p.y
-        if top <= 18 && left <= 18 { return .resize(.topLeft) }
-        if top <= 18 && right <= 18 { return .resize(.topRight) }
-        if bottom <= 18 && left <= 18 { return .resize(.bottomLeft) }
-        if bottom <= 18 && right <= 18 { return .resize(.bottomRight) }
+        let scale = VoicePanelMetrics(width: card.width).scale
+        let corner = max(8, 18 * scale)
+        if top <= corner && left <= corner { return .resize(.topLeft) }
+        if top <= corner && right <= corner { return .resize(.topRight) }
+        if bottom <= corner && left <= corner { return .resize(.bottomLeft) }
+        if bottom <= corner && right <= corner { return .resize(.bottomRight) }
         if top <= 7 { return .resize(.top) }
         if bottom <= 7 { return .resize(.bottom) }
         if left <= 7 { return .resize(.left) }
@@ -86,13 +89,13 @@ final class VoicePanel: NSPanel {
 
         // The bottom gutter, gap between the controls, and top and left
         // margins move the panel even when every line of the transcript is full.
-        if top <= 10 || bottom < ReferencePanelStyle.footerBottom { return .move }
-        if bottom <= ReferencePanelStyle.footerBottom + ReferencePanelStyle.controlHeight {
-            let gapStart = ReferencePanelStyle.footerLeading + ReferencePanelStyle.copyWidth
-            let gapEnd = ReferencePanelStyle.footerTrailing + ReferencePanelStyle.voiceWidth
+        if top <= 10 * scale || bottom < ReferencePanelStyle.footerBottom * scale { return .move }
+        if bottom <= ReferencePanelStyle.footerBottom * scale + ReferencePanelStyle.controlHeight * scale {
+            let gapStart = ReferencePanelStyle.footerLeading * scale + ReferencePanelStyle.copyWidth * scale
+            let gapEnd = ReferencePanelStyle.footerTrailing * scale + ReferencePanelStyle.voiceWidth * scale
             return left > gapStart && right > gapEnd ? .move : nil
         }
-        if left < ReferencePanelStyle.textInset - 2 { return .move }
+        if left < ReferencePanelStyle.textInset * scale - 2 { return .move }
 
         if transcript == nil { transcript = findTranscript(in: contentView) }
         guard let transcript, let scroller = transcript.enclosingScrollView,
