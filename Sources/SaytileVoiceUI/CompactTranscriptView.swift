@@ -42,7 +42,9 @@ struct CompactTranscriptView<Entry: VoiceTranscriptEntry>: NSViewRepresentable {
 @MainActor
 public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSScrollView, NSTextViewDelegate {
     public let transcriptView = CompactTranscriptTextView(frame: .zero)
-    public private(set) var isFollowingLatest = true
+    public private(set) var isFollowingLatest = true {
+        didSet { if !isFollowingLatest { stopTailMotion() } }
+    }
     public private(set) var latestText = ""
     public var hasDeferredUpdate: Bool { !Self.sameText(transcriptView.string, latestText) }
     var onFollowChange: (Bool) -> Void = { _ in }
@@ -81,6 +83,9 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     private var notificationScheduled = false
     private var latestRequest = 0
     private var lastLayoutSize = NSSize.zero
+    private var measuredHeight: CGFloat = 0
+    private var tailLink: CADisplayLink?
+    private var tailStart: (time: CFTimeInterval, y: CGFloat, destination: CGFloat)?
 
     public override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -165,6 +170,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
 
     public func textView(_ textView: NSTextView, shouldChangeTextIn range: NSRange, replacementString: String?) -> Bool {
         guard !changingDocument, applyEdits != nil else { return false }
+        stopTailMotion()
         if let replacementString, !transcriptView.hasMarkedText(),
            Self.sameText(rendered.text, textView.string) {
             intendedEdit = (range, replacementString)
@@ -265,9 +271,9 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     public override func scrollWheel(with event: NSEvent) {
         let delta = event.scrollingDeltaY
         if delta != 0 {
+            if delta > 0 || tailLink != nil { isFollowingLatest = false; publishState() }
             lastManagedOrigin = nil
             wheelDirection = delta > 0
-            if delta > 0 { isFollowingLatest = false; publishState() }
             requestAdjacentPage(older: delta > 0)
         }
         if !event.hasPreciseScrollingDeltas, event.phase.isEmpty, event.momentumPhase.isEmpty, delta != 0 {
@@ -410,8 +416,11 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         }
         let caret = min(new.length, Self.shift(oldCaret, through: patch.range, replacementLength: patch.replacement.utf16.count))
         transcriptView.setSelectedRange(NSRange(location: caret, length: 0))
-        ensureDocumentLayout()
-        if isFollowingLatest { scrollToLatest() }
+        let liveWrap = isFollowingLatest && !oldDocument.text.isEmpty && !rendered.newer &&
+            (transcriptView.shouldDrawLiveCaret || tailLink != nil) && window?.isVisible == true &&
+            !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        ensureDocumentLayout(keepingVisibleOrigin: liveWrap ? oldOrigin.y : nil)
+        if isFollowingLatest { scrollToLatest(animated: liveWrap) }
         else if let anchor, let manager = transcriptView.layoutManager, let container = transcriptView.textContainer, new.length > 0 {
             var adjusted = Self.shift(anchor.character, through: patch.range, replacementLength: patch.replacement.utf16.count, rightAffinity: true)
             if let previous = anchoredSpan, let next = rendered.spans.first(where: { $0.entry.id == previous.entry.id }),
@@ -429,22 +438,70 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         publishState()
     }
 
-    private func ensureDocumentLayout() {
+    private func ensureDocumentLayout(keepingVisibleOrigin origin: CGFloat? = nil) {
         let width = max(1, contentSize.width)
         if transcriptView.frame.width != width {
             transcriptView.setFrameSize(NSSize(width: width, height: transcriptView.frame.height))
         }
         guard let manager = transcriptView.layoutManager, let container = transcriptView.textContainer else { return }
         manager.ensureLayout(for: container)
-        let height = ceil(manager.usedRect(for: container).maxY + transcriptView.textContainerInset.height * 2)
-        let size = NSSize(width: width, height: max(contentSize.height, height))
+        measuredHeight = max(contentSize.height, ceil(manager.usedRect(for: container).maxY + transcriptView.textContainerInset.height * 2))
+        // An unstable last line can unwrap. Let it move back over the same
+        // short interval; shrinking the document first would snap the clip view.
+        let size = NSSize(width: width, height: max(measuredHeight, (origin ?? 0) + contentSize.height))
         if transcriptView.frame.size != size { transcriptView.setFrameSize(size) }
     }
-    private func scrollToLatest() {
+
+    private func scrollToLatest(animated: Bool = false) {
+        let destination = max(0, measuredHeight - contentSize.height)
+        let current = contentView.bounds.minY
+        if animated, abs(destination - current) >= 1 {
+            if tailStart?.destination != destination {
+                tailStart = (CACurrentMediaTime(), current, destination)
+            }
+            if tailLink == nil {
+                let link = displayLink(target: self, selector: #selector(advanceTailMotion))
+                tailLink = link
+                link.add(to: .main, forMode: .common)
+            }
+        } else {
+            stopTailMotion()
+            positionLiveTail(at: destination)
+        }
+    }
+
+    @objc private func advanceTailMotion() {
+        guard let start = tailStart, isFollowingLatest, !editing, !selecting,
+              !transcriptView.hasMarkedText(), transcriptView.selectedRange().length == 0 else {
+            stopTailMotion()
+            return
+        }
+        let progress = min(1, (CACurrentMediaTime() - start.time) / 0.15)
+        let remaining = 1 - progress
+        positionLiveTail(at: start.destination + (start.y - start.destination) * remaining * remaining)
+        if progress == 1 { stopTailMotion() }
+    }
+
+    private func positionLiveTail(at y: CGFloat) {
         let wasChanging = changingDocument
         changingDocument = true
-        scroll(to: NSPoint(x: 0, y: max(0, transcriptView.bounds.height - contentSize.height)))
+        scroll(to: NSPoint(x: 0, y: y))
+        if transcriptView.frame.height > measuredHeight {
+            transcriptView.setFrameSize(NSSize(width: transcriptView.frame.width,
+                height: max(measuredHeight, contentView.bounds.minY + contentSize.height)))
+        }
         changingDocument = wasChanging
+    }
+
+    private func stopTailMotion() {
+        tailLink?.invalidate()
+        tailLink = nil
+        tailStart = nil
+    }
+
+    public override func viewWillMove(toWindow newWindow: NSWindow?) {
+        if window !== newWindow { stopTailMotion() }
+        super.viewWillMove(toWindow: newWindow)
     }
     private func scroll(to point: NSPoint) {
         let maximum = max(0, transcriptView.bounds.height - contentSize.height)
