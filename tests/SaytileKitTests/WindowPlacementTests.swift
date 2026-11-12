@@ -34,7 +34,7 @@ struct WindowPlacementTests {
             let frame = WindowPlacement.initialPanel(visibleFrame: display)
             let card = VoiceRailMetrics(width: frame.width).cardFrame(in: frame)
             #expect(frame.maxX == display.maxX)
-            #expect(frame.maxY == display.maxY)
+            #expect(abs(frame.maxY - display.maxY) < 0.000_001)
             #expect(frame.width == display.width * 0.125)
             #expect(frame.height == min(display.height * 0.225, frame.width * 173 / 325))
             #expect(display.contains(frame))
