@@ -104,7 +104,8 @@ private enum Failure: Error { case arguments, setup, invalidEdit }
         func now() -> Double { (ProcessInfo.processInfo.systemUptime - start) * 1000 }
         var frames = [[String: Any]](), dispatchMS = [Double]()
         var index = 0, previous = "", previousY = scroll.contentView.bounds.minY
-        var changes = 0, largestAddition = 0, maxYStep: CGFloat = 0, elapsedToFirst: Double?
+        var changes = 0, largestAddition = 0, largestNetGrowth = 0, scrollSteps = 0
+        var maxYStep: CGFloat = 0, elapsedToFirst: Double?, firstVisibleTail: Double?
         var maxPollGap = 0.0, previousPoll = 0.0, maxBackwards: CGFloat = 0, evidenceOnly = true
         var everKey = false
         var images = [(Double, CGImage)]()
@@ -141,6 +142,7 @@ private enum Failure: Error { case arguments, setup, invalidEdit }
             if tail != previous || y != previousY {
                 if tail != previous {
                     changes += 1
+                    largestNetGrowth = max(largestNetGrowth, tail.count - previous.count)
                     let common = zip(tail, previous).prefix(while: { $0 == $1 }).count
                     largestAddition = max(largestAddition, tail.count - common)
                     if elapsedToFirst == nil, !tail.isEmpty { elapsedToFirst = now() - (dispatchMS.first ?? tick) }
@@ -152,6 +154,8 @@ private enum Failure: Error { case arguments, setup, invalidEdit }
                     let rect = layout.boundingRect(forGlyphRange: glyph, in: container).offsetBy(dx: editor.textContainerOrigin.x, dy: editor.textContainerOrigin.y)
                     intersects = editor.visibleRect.intersects(rect)
                 }
+                if intersects, firstVisibleTail == nil, !tail.isEmpty { firstVisibleTail = now() - (dispatchMS.first ?? tick) }
+                if y != previousY { scrollSteps += 1 }
                 frames.append(["ms": now(), "sourceCount": index, "text": tail, "offsetY": y, "tailGlyphInClip": intersects])
                 maxYStep = max(maxYStep, abs(y - previousY))
                 maxBackwards = max(maxBackwards, previousY - y)
@@ -191,8 +195,8 @@ private enum Failure: Error { case arguments, setup, invalidEdit }
         try await Task.sleep(for: .milliseconds(100))
         let editPassed = replay.edits.count == 1 && replay.live.displayText == final.text + "再次确认手改" && editor.string == replay.document.text
         return ["name": scenario.name, "sourceEvents": source.count, "events": source.map { ["ms": $0.ms, "text": $0.text, "final": $0.final] as [String: Any] }, "dispatchMS": dispatchMS, "frames": frames,
-                "displayedChanges": changes, "largestReplacementSuffixCharacters": largestAddition, "largestScrollStepPoints": maxYStep, "largestBackwardStepPoints": maxBackwards,
-                "firstSourceToNativeTextMS": elapsedToFirst as Any? ?? NSNull(), "largestSampleGapMS": maxPollGap,
+                "displayedChanges": changes, "largestNetGrowthCharacters": largestNetGrowth, "scrollSteps": scrollSteps, "largestReplacementSuffixCharacters": largestAddition, "largestScrollStepPoints": maxYStep, "largestBackwardStepPoints": maxBackwards,
+                "firstSourceToNativeTextMS": elapsedToFirst as Any? ?? NSNull(), "firstSourceToInClipTailMS": firstVisibleTail as Any? ?? NSNull(), "largestSampleGapMS": maxPollGap,
                 "framePoints": [box.width, box.height], "clipPoints": [scroll.contentSize.width, scroll.contentSize.height], "backingScale": panel.backingScaleFactor,
                 "finalExact": finalMatches, "onlySubmittedPrefixes": evidenceOnly, "selectionProtected": selectionProtected, "readingOriginHeld": readerStable, "copySnapshotHeld": copyStable,
                 "editPersisted": editPassed, "everTookKey": everKey]
