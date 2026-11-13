@@ -4,6 +4,10 @@ import SwiftUI
 
 extension PrivateArchive {
     var readingText: String { draft?.text ?? versions.first(where: { $0.id == head })?.text ?? "" }
+    func match(_ query: String) -> String? {
+        if query.isEmpty || readingText.localizedCaseInsensitiveContains(query) { return readingText }
+        return versions.reversed().first(where: { $0.text.localizedCaseInsensitiveContains(query) })?.text
+    }
 }
 @MainActor final class ReaderModel: NSObject, ObservableObject, AVAudioPlayerDelegate {
     @Published private(set) var rows: [PrivateArchive] = []
@@ -25,14 +29,13 @@ extension PrivateArchive {
         #else
         fixture = false
         #endif
-        if fixture { source = SampleReader() }
-        else {
-            #if SAYTILE_READER_DEVELOPMENT && os(iOS) && !targetEnvironment(simulator)
-            source = ReaderCloud()
-            #else
-            source = nil
-            #endif
-        }
+        #if DEBUG && targetEnvironment(simulator)
+        source = fixture ? SampleReader() : nil
+        #elseif SAYTILE_READER_DEVELOPMENT && os(iOS) && !targetEnvironment(simulator)
+        source = ReaderCloud()
+        #else
+        source = nil
+        #endif
         let root = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
         disk = ReaderDisk(root: root.appendingPathComponent(fixture ? "ReaderFixture" : "SaytileArchive"))
         super.init()
@@ -92,7 +95,7 @@ extension PrivateArchive {
         catch {
             if session == generation {
                 let transient = (error as? CKError).map { [.networkUnavailable, .networkFailure, .serviceUnavailable, .requestRateLimited, .notAuthenticated].contains($0.code) } ?? false
-                status = (error as? ArchiveIssue) == .unavailable || transient ? "等待 iCloud · 可阅读已下载的档案" : "未能更新档案 · 将自动重试"
+                status = (error as? ArchiveIssue) == .unavailable || transient ? (rows.isEmpty ? "等待 iCloud" : "等待 iCloud · 可阅读已下载的档案") : "未能更新档案 · 将自动重试"
             }
         }
     }
@@ -134,7 +137,7 @@ extension PrivateArchive {
             NavigationStack {
                 List {
                     if !model.status.isEmpty { Text(model.status).font(.footnote).foregroundStyle(.secondary) }
-                    ForEach(model.rows.filter { model.query.isEmpty || $0.readingText.localizedCaseInsensitiveContains(model.query) }, id: \.id) { item in
+                    ForEach(model.rows.filter { $0.match(model.query) != nil }, id: \.id) { item in
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Text(Date(timeIntervalSince1970: item.started), format: .dateTime.month().day().hour().minute())
@@ -148,8 +151,14 @@ extension PrivateArchive {
                                     }.buttonStyle(.borderless).accessibilityLabel(title)
                                 }
                             }.font(.caption).foregroundStyle(.secondary)
-                            Text(item.readingText.isEmpty ? "尚未转写" : item.readingText).textSelection(.enabled)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            let shown = item.match(model.query) ?? item.readingText
+                            if shown != item.readingText { Text("历史版本").font(.caption).foregroundStyle(.secondary) }
+                            #if os(iOS)
+                            if shown.isEmpty { Text("尚未转写").foregroundStyle(.secondary) }
+                            else { SelectableTranscript(text: shown).frame(maxWidth: .infinity, alignment: .leading) }
+                            #else
+                            Text(shown.isEmpty ? "尚未转写" : shown).textSelection(.enabled)
+                            #endif
                         }.padding(.vertical, 6)
                     }
                 }.listStyle(.plain).navigationTitle("语音档案").searchable(text: $model.query, prompt: "搜索文字")

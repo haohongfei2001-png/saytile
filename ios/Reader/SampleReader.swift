@@ -1,3 +1,4 @@
+#if DEBUG && targetEnvironment(simulator)
 import Foundation
 
 // Only instantiated by an explicit Debug simulator launch. No CloudKit account.
@@ -29,3 +30,5 @@ struct SampleReader: ReaderSource {
         try wav.write(to: url, options: .atomic); return [url]
     }
 }
+
+#endif
