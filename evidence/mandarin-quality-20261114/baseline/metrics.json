@@ -1671,6 +1671,482 @@
      "rows": 20
     }
    }
+  },
+  "sherpa-product": {
+   "by_manifest": {
+    "paired": {
+     "rows": 340,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 35
+     },
+     "literal_anchors": {
+      "number": {
+       "literal_matched": 149,
+       "reference_occurrences": 210
+      },
+      "negative": {
+       "literal_matched": 98,
+       "reference_occurrences": 103
+      },
+      "latin": {
+       "literal_matched": 112,
+       "reference_occurrences": 249
+      },
+      "date_time": {
+       "literal_matched": 36,
+       "reference_occurrences": 36
+      },
+      "technical_term": {
+       "literal_matched": 6,
+       "reference_occurrences": 7
+      },
+      "money": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 221,
+      "mer": 0.1895368782161235
+     },
+     "groups": {
+      "fleurs": {
+       "errors": 863,
+       "substitutions": 473,
+       "deletions": 292,
+       "insertions": 98,
+       "reference_units": 6260,
+       "cer": 0.13786,
+       "rows": 160
+      },
+      "ALL": {
+       "errors": 1443,
+       "substitutions": 723,
+       "deletions": 569,
+       "insertions": 151,
+       "reference_units": 9962,
+       "cer": 0.14485,
+       "rows": 340
+      },
+      "ascend-zh": {
+       "errors": 90,
+       "substitutions": 39,
+       "deletions": 38,
+       "insertions": 13,
+       "reference_units": 934,
+       "cer": 0.09636,
+       "rows": 80
+      },
+      "ascend-mixed": {
+       "errors": 394,
+       "substitutions": 159,
+       "deletions": 199,
+       "insertions": 36,
+       "reference_units": 2004,
+       "cer": 0.19661,
+       "rows": 80
+      },
+      "quiet": {
+       "errors": 49,
+       "substitutions": 20,
+       "deletions": 27,
+       "insertions": 2,
+       "reference_units": 403,
+       "cer": 0.12159,
+       "rows": 10
+      },
+      "noise15db": {
+       "errors": 47,
+       "substitutions": 32,
+       "deletions": 13,
+       "insertions": 2,
+       "reference_units": 361,
+       "cer": 0.13019,
+       "rows": 10
+      }
+     }
+    },
+    "aishell": {
+     "rows": 100,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "negative": {
+       "literal_matched": 16,
+       "reference_occurrences": 17
+      },
+      "number": {
+       "literal_matched": 44,
+       "reference_occurrences": 48
+      },
+      "technical_term": {
+       "literal_matched": 4,
+       "reference_occurrences": 4
+      },
+      "money": {
+       "literal_matched": 4,
+       "reference_occurrences": 5
+      },
+      "date_time": {
+       "literal_matched": 5,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 0,
+      "errors": 0,
+      "mer": null
+     },
+     "groups": {
+      "aishell1-test": {
+       "errors": 102,
+       "substitutions": 63,
+       "deletions": 34,
+       "insertions": 5,
+       "reference_units": 1465,
+       "cer": 0.06962,
+       "rows": 100
+      },
+      "ALL": {
+       "errors": 102,
+       "substitutions": 63,
+       "deletions": 34,
+       "insertions": 5,
+       "reference_units": 1465,
+       "cer": 0.06962,
+       "rows": 100
+      }
+     }
+    }
+   },
+   "exact_anchor_tokens": {
+    "original_420": {
+     "number": {
+      "reference": 249,
+      "missing": 67,
+      "extra": 76
+     },
+     "negative": {
+      "reference": 112,
+      "missing": 7,
+      "extra": 8
+     },
+     "money": {
+      "reference": 11,
+      "missing": 1,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 41,
+      "missing": 1,
+      "extra": 3
+     },
+     "latin": {
+      "reference": 237,
+      "missing": 143,
+      "extra": 72
+     },
+     "technical_term": {
+      "reference": 11,
+      "missing": 2,
+      "extra": 0
+     }
+    },
+    "derived_20": {
+     "number": {
+      "reference": 9,
+      "missing": 2,
+      "extra": 3
+     },
+     "negative": {
+      "reference": 8,
+      "missing": 0,
+      "extra": 0
+     },
+     "money": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 1,
+      "missing": 0,
+      "extra": 0
+     },
+     "latin": {
+      "reference": 12,
+      "missing": 9,
+      "extra": 3
+     },
+     "technical_term": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     }
+    }
+   },
+   "cohorts": {
+    "original_420": {
+     "errors": 1449,
+     "substitutions": 734,
+     "deletions": 563,
+     "insertions": 152,
+     "reference_units": 10663,
+     "cer": 0.13589,
+     "rows": 420
+    },
+    "derived_20": {
+     "errors": 96,
+     "substitutions": 52,
+     "deletions": 40,
+     "insertions": 4,
+     "reference_units": 764,
+     "cer": 0.12565,
+     "rows": 20
+    }
+   }
+  },
+  "qwen-small-product": {
+   "by_manifest": {
+    "paired": {
+     "rows": 340,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 6
+     },
+     "literal_anchors": {
+      "number": {
+       "literal_matched": 170,
+       "reference_occurrences": 210
+      },
+      "negative": {
+       "literal_matched": 102,
+       "reference_occurrences": 103
+      },
+      "latin": {
+       "literal_matched": 139,
+       "reference_occurrences": 249
+      },
+      "date_time": {
+       "literal_matched": 36,
+       "reference_occurrences": 36
+      },
+      "technical_term": {
+       "literal_matched": 7,
+       "reference_occurrences": 7
+      },
+      "money": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 198,
+      "mer": 0.16981132075471697
+     },
+     "groups": {
+      "fleurs": {
+       "errors": 646,
+       "substitutions": 273,
+       "deletions": 280,
+       "insertions": 93,
+       "reference_units": 6260,
+       "cer": 0.10319,
+       "rows": 160
+      },
+      "ALL": {
+       "errors": 1158,
+       "substitutions": 545,
+       "deletions": 484,
+       "insertions": 129,
+       "reference_units": 9962,
+       "cer": 0.11624,
+       "rows": 340
+      },
+      "ascend-zh": {
+       "errors": 94,
+       "substitutions": 68,
+       "deletions": 14,
+       "insertions": 12,
+       "reference_units": 934,
+       "cer": 0.10064,
+       "rows": 80
+      },
+      "ascend-mixed": {
+       "errors": 353,
+       "substitutions": 175,
+       "deletions": 156,
+       "insertions": 22,
+       "reference_units": 2004,
+       "cer": 0.17615,
+       "rows": 80
+      },
+      "quiet": {
+       "errors": 43,
+       "substitutions": 19,
+       "deletions": 22,
+       "insertions": 2,
+       "reference_units": 403,
+       "cer": 0.1067,
+       "rows": 10
+      },
+      "noise15db": {
+       "errors": 22,
+       "substitutions": 10,
+       "deletions": 12,
+       "insertions": 0,
+       "reference_units": 361,
+       "cer": 0.06094,
+       "rows": 10
+      }
+     }
+    },
+    "aishell": {
+     "rows": 100,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "negative": {
+       "literal_matched": 16,
+       "reference_occurrences": 17
+      },
+      "number": {
+       "literal_matched": 45,
+       "reference_occurrences": 48
+      },
+      "technical_term": {
+       "literal_matched": 4,
+       "reference_occurrences": 4
+      },
+      "money": {
+       "literal_matched": 5,
+       "reference_occurrences": 5
+      },
+      "date_time": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 0,
+      "errors": 0,
+      "mer": null
+     },
+     "groups": {
+      "aishell1-test": {
+       "errors": 57,
+       "substitutions": 33,
+       "deletions": 24,
+       "insertions": 0,
+       "reference_units": 1465,
+       "cer": 0.03891,
+       "rows": 100
+      },
+      "ALL": {
+       "errors": 57,
+       "substitutions": 33,
+       "deletions": 24,
+       "insertions": 0,
+       "reference_units": 1465,
+       "cer": 0.03891,
+       "rows": 100
+      }
+     }
+    }
+   },
+   "exact_anchor_tokens": {
+    "original_420": {
+     "number": {
+      "reference": 249,
+      "missing": 42,
+      "extra": 46
+     },
+     "negative": {
+      "reference": 112,
+      "missing": 3,
+      "extra": 3
+     },
+     "money": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 41,
+      "missing": 0,
+      "extra": 1
+     },
+     "latin": {
+      "reference": 237,
+      "missing": 113,
+      "extra": 34
+     },
+     "technical_term": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 1
+     }
+    },
+    "derived_20": {
+     "number": {
+      "reference": 9,
+      "missing": 2,
+      "extra": 2
+     },
+     "negative": {
+      "reference": 8,
+      "missing": 0,
+      "extra": 0
+     },
+     "money": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 1,
+      "missing": 0,
+      "extra": 0
+     },
+     "latin": {
+      "reference": 12,
+      "missing": 7,
+      "extra": 2
+     },
+     "technical_term": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     }
+    }
+   },
+   "cohorts": {
+    "original_420": {
+     "errors": 1150,
+     "substitutions": 549,
+     "deletions": 474,
+     "insertions": 127,
+     "reference_units": 10663,
+     "cer": 0.10785,
+     "rows": 420
+    },
+    "derived_20": {
+     "errors": 65,
+     "substitutions": 29,
+     "deletions": 34,
+     "insertions": 2,
+     "reference_units": 764,
+     "cer": 0.08508,
+     "rows": 20
+    }
+   }
   }
  },
  "files_sha256": {
@@ -1706,6 +2182,8 @@
   "panels/sherpa-ascend-mixed-ee4e2d5087648134.json": "a037963298dccf20486fba9f7f0fbb36f6ea886542765317efe3c164c6d7e8fb",
   "panels/sherpa-ascend-mixed-7c8bdcb41bb98a40.json": "e735bbce6cacf68d426108a753df2dcaec2d418bb80a9b948134a32d553e3429",
   "panels/sherpa-ascend-mixed-ff9c42612780330b.json": "dd367f4aa9cf5b486ee0460c1935864198147ccc7cd72412c419cb1ef30f6b6e",
+  "runs/paired-sherpa-product.jsonl": "56a1077f3fa8ea005dbe740fe33d47ff6ec0ede8a5c5e92fa9dae6084e01e98f",
+  "runs/aishell-sherpa-product.jsonl": "dc4bca69ad70ab029d1a344194dac4e8e183a06c4423e0f464cdc3637d6835b7",
   "panels/qwen-small-fleurs-1bc3201a9f24a2fe.json": "23bb299d61bc82356ce54d7eb3b6afe28cc9923bbaedaedfb0e238540b8881d3",
   "panels/qwen-small-fleurs-0ebe0fb634f8e4ac.json": "72caffcbbf6ef2a14d1ce675590aa4396e89903dcfd7503010172f85fe067567",
   "panels/qwen-small-fleurs-9eb2d543a0a36152.json": "748d2e1b6d3e2da90494ffcb007c20a6cded023feb9300db9a5575105ff425fb",
@@ -1721,6 +2199,8 @@
   "panels/qwen-small-ascend-mixed-ee4e2d5087648134.json": "eed2264b6f80a937da3f079b67a1fa688fab2f880a31f33db3fecaccb121d178",
   "panels/qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "fde5dd7a3ad64f01c7c9479ffb344803dcc14bbe48f2e1f0e529bf98ee44221b",
   "panels/qwen-small-ascend-mixed-ff9c42612780330b.json": "bacfbf7f48a3b264a7891eb58f8c86fd9bc96afdc5407effa66e1d654756488b",
+  "runs/paired-qwen-small-product.jsonl": "337a8e6bcb497598136f4b7609664102fb71c3fd9ec926d021e068e84bf7dda6",
+  "runs/aishell-qwen-small-product.jsonl": "82cadc756b5fd2bc66d7f9337cabbe6dfe1a6ec9535212353ecbb4a0a55b9957",
   "resources/apple.json": "82151e02f70a09b6f58f049d992ec8628c3150a9213725e19373a642d67618a2"
  },
  "resources": {

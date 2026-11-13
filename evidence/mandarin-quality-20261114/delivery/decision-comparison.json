@@ -296,6 +296,587 @@
      }
     ]
    },
+   "baseline/sherpa/product -> delivery/qwen-small/product": {
+    "rows": 420,
+    "counts": {
+     "improved": 201,
+     "first_errors": 1449,
+     "second_errors": 910,
+     "first_empty": 0,
+     "second_empty": 0,
+     "regressed": 28,
+     "unchanged": 191
+    },
+    "paired": {
+     "difference_pp": -5.055,
+     "paired_clip_bootstrap_95_pp": [
+      -5.93,
+      -4.198
+     ],
+     "improved": 201,
+     "regressed": 28
+    },
+    "by_source": {
+     "aishell1-test": {
+      "difference_pp": -2.799,
+      "paired_clip_bootstrap_95_pp": [
+       -4.212,
+       -1.472
+      ],
+      "improved": 25,
+      "regressed": 3
+     },
+     "ascend-mixed": {
+      "difference_pp": -8.433,
+      "paired_clip_bootstrap_95_pp": [
+       -11.377,
+       -5.483
+      ],
+      "improved": 48,
+      "regressed": 11
+     },
+     "ascend-zh": {
+      "difference_pp": -3.961,
+      "paired_clip_bootstrap_95_pp": [
+       -5.804,
+       -2.26
+      ],
+      "improved": 29,
+      "regressed": 5
+     },
+     "fleurs": {
+      "difference_pp": -4.665,
+      "paired_clip_bootstrap_95_pp": [
+       -5.758,
+       -3.678
+      ],
+      "improved": 99,
+      "regressed": 9
+     }
+    },
+    "largest_gains": [
+     {
+      "id": "fleurs-314e9ad1bb068ed1",
+      "source": "fleurs",
+      "errors_before": 30,
+      "errors_after": 16,
+      "change": -14,
+      "reference_units": 83,
+      "before": "二十九岁的马拉尔巴拉十八年 million 医生在俄亥俄州新兴假提市以北约十五公里的郊区布鲁艾斯被发现他被找到时身穿 t 恤衫和内裤躺在路边的地上看上去服用了大量的药物",
+      "after": "29岁的Malala Sabra Miliam一生在俄亥俄州新近亚提市以北约15公里的郊区布鲁埃斯被发现。他被找到时身穿T恤衫和内裤，躺在路边的地上，看上去服用了大量的药物。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-811af1590c16fc90",
+      "source": "fleurs",
+      "errors_before": 23,
+      "errors_after": 10,
+      "change": -13,
+      "reference_units": 46,
+      "before": "你可以乘坐 bota 单出租租摩托托车览览假马短途途程的的常常当地格是五百钢钢果珐",
+      "after": "你可以乘坐Bodapoda出租的摩托车游览迦格玛。短途车程的正常当地价格是五百刚果法郎。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-ab5121c727bf5e1f",
+      "source": "ascend-mixed",
+      "errors_before": 20,
+      "errors_after": 8,
+      "change": -12,
+      "reference_units": 43,
+      "before": "其实呢班明腾有一个就是呃因为 basketbball 的话主要",
+      "after": "其实呢，Bennington有一个，就是Bennington，因为basketball的话，主要是。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-3ab57220f1f10003",
+      "source": "fleurs",
+      "errors_before": 12,
+      "errors_after": 1,
+      "change": -11,
+      "reference_units": 60,
+      "before": "孔融的羽毛并没有发育良好的主干这成为宇宙但还是有羽毛的其他特征比如宇知和云小只研究人员推断宇宙的进化可能比这些其他特征外",
+      "after": "恐龙的羽毛并没有发育良好的主干。这成为羽轴，但还是有羽毛的其他特征，比如羽枝和羽小枝。研究人员推断，羽轴的进化可能比这些其他特征晚。",
+      "states_before": [
+       "completed",
+       "completed"
+      ],
+      "states_after": [
+       "completed",
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-9255615fddf1a721",
+      "source": "ascend-mixed",
+      "errors_before": 13,
+      "errors_after": 3,
+      "change": -10,
+      "reference_units": 39,
+      "before": "他当时也在那个 hilstarkke 跟跟 king up with migrady",
+      "after": "他当时也在那个Houston Rockies，跟Team Up With McGready。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-15441d70b30403e2",
+      "source": "ascend-mixed",
+      "errors_before": 10,
+      "errors_after": 0,
+      "change": -10,
+      "reference_units": 49,
+      "before": "感觉还不错如 botic 就是 robotics x x with language applic",
+      "after": "感觉还不错。Robotics就是Robotics Mix with Language Application。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-1c918023d679a37e",
+      "source": "fleurs",
+      "errors_before": 9,
+      "errors_after": 0,
+      "change": -9,
+      "reference_units": 52,
+      "before": "自一九六六年以来孙德尔本司一直是野生动物保护区据估计目前该区生活着四百只皇家孟加拉虎和大约三万只梅花鹿",
+      "after": "自1966年以来，孙德尔本斯一直是野生动物保护区。据估计，目前该区生活着400只皇家孟加拉虎和大约3万只梅花鹿。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     }
+    ],
+    "largest_regressions": [
+     {
+      "id": "ascend-mixed-d8b647f19c234a62",
+      "source": "ascend-mixed",
+      "errors_before": 1,
+      "errors_after": 11,
+      "change": 10,
+      "reference_units": 13,
+      "before": "还有 lobron james",
+      "after": "还有劳勃兰詹姆斯。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-ab5fe2a3f741d671",
+      "source": "ascend-mixed",
+      "errors_before": 0,
+      "errors_after": 6,
+      "change": 6,
+      "reference_units": 15,
+      "before": "ok 所以我 come from 福建",
+      "after": "OK，所以我 come from Fujian.",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-6e1758537163745f",
+      "source": "ascend-mixed",
+      "errors_before": 2,
+      "errors_after": 6,
+      "change": 4,
+      "reference_units": 14,
+      "before": "然后每个班会有一个 tut",
+      "after": "然后，每一个班会有一个teacher。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-ebcd4bd0bf7140c4",
+      "source": "ascend-mixed",
+      "errors_before": 5,
+      "errors_after": 9,
+      "change": 4,
+      "reference_units": 28,
+      "before": "然后他可能会 record your personal",
+      "after": "然后他可能会record用personal来。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-0359bdb72fa3b3ee",
+      "source": "fleurs",
+      "errors_before": 4,
+      "errors_after": 7,
+      "change": 3,
+      "reference_units": 30,
+      "before": "山区夏令时晚上十点到十一点之间院子里的犯人们引发了一场火灾",
+      "after": "山区森林是晚上十点到十一点之间，院子里的犯人们引发了一场火灾。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-fd21cc3cb5062bc4",
+      "source": "fleurs",
+      "errors_before": 2,
+      "errors_after": 4,
+      "change": 2,
+      "reference_units": 37,
+      "before": "他指出对主体来说最有效的位置是将图片垂直和水平分为三部分的线的交叉点见示例",
+      "after": "他指出，对主体来说，最有效的位置是将图片垂直和水平分为三部分的线的交叉点，见视力。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-fd242859bc18ffbb",
+      "source": "fleurs",
+      "errors_before": 26,
+      "errors_after": 28,
+      "change": 2,
+      "reference_units": 58,
+      "before": "拉卡辛格还介绍了 chaapan brog h 姐歌手 radio handwell 陪同他身边嗯",
+      "after": "拉卡辛格还介绍了 Chapin, Bog, Henson，歌手 Reggie， Handel陪同他身边。",
+      "states_before": [
+       "failed",
+       "completed",
+       "completed"
+      ],
+      "states_after": [
+       "failed",
+       "completed"
+      ]
+     }
+    ]
+   },
+   "baseline/qwen-small/product -> delivery/qwen-small/product": {
+    "rows": 420,
+    "counts": {
+     "unchanged": 329,
+     "first_errors": 1150,
+     "second_errors": 910,
+     "first_empty": 0,
+     "second_empty": 0,
+     "regressed": 20,
+     "improved": 71
+    },
+    "paired": {
+     "difference_pp": -2.251,
+     "paired_clip_bootstrap_95_pp": [
+      -3.479,
+      -1.288
+     ],
+     "improved": 71,
+     "regressed": 20
+    },
+    "by_source": {
+     "aishell1-test": {
+      "difference_pp": 0.273,
+      "paired_clip_bootstrap_95_pp": [
+       -0.215,
+       0.954
+      ],
+      "improved": 2,
+      "regressed": 2
+     },
+     "ascend-mixed": {
+      "difference_pp": -6.387,
+      "paired_clip_bootstrap_95_pp": [
+       -11.461,
+       -2.229
+      ],
+      "improved": 24,
+      "regressed": 8
+     },
+     "ascend-zh": {
+      "difference_pp": -4.39,
+      "paired_clip_bootstrap_95_pp": [
+       -7.323,
+       -2.081
+      ],
+      "improved": 15,
+      "regressed": 0
+     },
+     "fleurs": {
+      "difference_pp": -1.198,
+      "paired_clip_bootstrap_95_pp": [
+       -2.189,
+       -0.34
+      ],
+      "improved": 30,
+      "regressed": 10
+     }
+    },
+    "largest_gains": [
+     {
+      "id": "ascend-mixed-6185571719fdd11b",
+      "source": "ascend-mixed",
+      "errors_before": 53,
+      "errors_after": 13,
+      "change": -40,
+      "reference_units": 54,
+      "before": "就，他比其他的牧羊人更快、更强，更勇敢。",
+      "after": "He is faster, stronger, and more skillful than other players.",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-ebbb6811b4553b9f",
+      "source": "ascend-mixed",
+      "errors_before": 18,
+      "errors_after": 2,
+      "change": -16,
+      "reference_units": 18,
+      "before": "计算机语言。",
+      "after": "Computer language.",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-da4c3408f1c77660",
+      "source": "ascend-mixed",
+      "errors_before": 15,
+      "errors_after": 1,
+      "change": -14,
+      "reference_units": 46,
+      "before": "所以说，我们很难去判定说，就是说他100%会make this decision。",
+      "after": "所以说我们很难去判定说，就是说他 hundred percent 会 make this decision.",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-314e9ad1bb068ed1",
+      "source": "fleurs",
+      "errors_before": 28,
+      "errors_after": 16,
+      "change": -12,
+      "reference_units": 83,
+      "before": "29岁的马拉巴拉斯巴拉米亚姆医生在俄亥俄州新近亚提市以北约15公里的郊区布鲁埃斯被发现，他被找到时身穿T恤衫和内裤，躺在路边的地上，看上去服用了大量的药物。",
+      "after": "29岁的Malala Sabra Miliam一生在俄亥俄州新近亚提市以北约15公里的郊区布鲁埃斯被发现。他被找到时身穿T恤衫和内裤，躺在路边的地上，看上去服用了大量的药物。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-f8d64a31eb7d864d",
+      "source": "fleurs",
+      "errors_before": 11,
+      "errors_after": 0,
+      "change": -11,
+      "reference_units": 48,
+      "before": "這些理論研究為什麼某些人想要做他們所做的事情，以及他們所處的環境中哪些事情會讓他們做或不做某些事情。",
+      "after": "这些理论研究：为什么某些人想要做他们所做的事情，以及他们所处的环境中哪些事情会让他们做或不做某些事情。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-ab5121c727bf5e1f",
+      "source": "ascend-mixed",
+      "errors_before": 18,
+      "errors_after": 8,
+      "change": -10,
+      "reference_units": 43,
+      "before": "其实呢，蹦兵腾有一个，就是蹦兵腾，因为basket ball的话，主要是。",
+      "after": "其实呢，Bennington有一个，就是Bennington，因为basketball的话，主要是。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-9f273a349b224b83",
+      "source": "fleurs",
+      "errors_before": 10,
+      "errors_after": 1,
+      "change": -9,
+      "reference_units": 31,
+      "before": "對於在聖彼得廣場舉行的葬禮，出席者太多了，因此不可能每個人都進入。",
+      "after": "对于在圣彼得广场举行的葬礼，出席者太多了，因此不可能每个人都进入。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     }
+    ],
+    "largest_regressions": [
+     {
+      "id": "fleurs-39fb5bd005525dbf",
+      "source": "fleurs",
+      "errors_before": 5,
+      "errors_after": 17,
+      "change": 12,
+      "reference_units": 55,
+      "before": "嗯。虽然没有人能确定作者是谁，但这个大型羊皮纸文档尺寸为29英寸乘以24英寸，据称在刚写成的时候是卷起来存放的。",
+      "after": "虽然没有人能确定作者是谁，但这个大型羊皮纸文档尺寸为二十九又四分之三英寸乘以二十四又二分之一英寸，据说在刚写成的时候是卷起来存放的。",
+      "states_before": [
+       "completed",
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-ab5fe2a3f741d671",
+      "source": "ascend-mixed",
+      "errors_before": 0,
+      "errors_after": 6,
+      "change": 6,
+      "reference_units": 15,
+      "before": "OK，所以我come from福建。",
+      "after": "OK，所以我 come from Fujian.",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-6e1758537163745f",
+      "source": "ascend-mixed",
+      "errors_before": 1,
+      "errors_after": 6,
+      "change": 5,
+      "reference_units": 14,
+      "before": "然后，每一个班会有一个 tutor。",
+      "after": "然后，每一个班会有一个teacher。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-f898c0e2fa3b9767",
+      "source": "fleurs",
+      "errors_before": 0,
+      "errors_after": 4,
+      "change": 4,
+      "reference_units": 25,
+      "before": "1990年，由于沙漠的威胁，它被列入了《濒危世界遗产名录》。",
+      "after": "一九九零年，由于沙漠的威胁，它被列入了《濒危世界遗产名录》。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-218120394aeafee2",
+      "source": "ascend-mixed",
+      "errors_before": 2,
+      "errors_after": 6,
+      "change": 4,
+      "reference_units": 13,
+      "before": "会有很多Privacy秀嘛？",
+      "after": "会有很多Privacy issue嘛。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-3510a92fc7dd04f6",
+      "source": "fleurs",
+      "errors_before": 3,
+      "errors_after": 6,
+      "change": 3,
+      "reference_units": 41,
+      "before": "嗯。2002年，哥马贝尼拉贡戈火山的熔岩所摧毁，火山熔岩掩埋了该镇的大部分街道，尤其是镇中心。",
+      "after": "二零零二年，哥马贝尼拉贡戈火山的熔岩所摧毁，火山熔岩掩埋了该镇的大部分街道，尤其是镇中心。",
+      "states_before": [
+       "completed",
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "aishell1-test-c3e5582bcc161ba6",
+      "source": "aishell1-test",
+      "errors_before": 0,
+      "errors_after": 3,
+      "change": 3,
+      "reference_units": 15,
+      "before": "被麒麟区法院判处有期徒刑六个月。",
+      "after": "北旗林区法院判处有期徒刑六个月。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     }
+    ]
+   },
    "candidate/apple/product -> delivery/qwen-small/product": {
     "rows": 420,
     "counts": {
@@ -574,6 +1155,295 @@
       "reference_units": 41,
       "before": "2002年哥马被尼拉贡戈火山的熔岩所摧毁火山熔岩掩埋了该镇的大部分街道，尤其是镇中心",
       "after": "二零零二年，哥马贝尼拉贡戈火山的熔岩所摧毁，火山熔岩掩埋了该镇的大部分街道，尤其是镇中心。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     }
+    ]
+   },
+   "candidate/sherpa/product -> delivery/qwen-small/product": {
+    "rows": 420,
+    "counts": {
+     "improved": 202,
+     "first_errors": 1448,
+     "second_errors": 910,
+     "first_empty": 0,
+     "second_empty": 0,
+     "regressed": 26,
+     "unchanged": 192
+    },
+    "paired": {
+     "difference_pp": -5.045,
+     "paired_clip_bootstrap_95_pp": [
+      -5.886,
+      -4.229
+     ],
+     "improved": 202,
+     "regressed": 26
+    },
+    "by_source": {
+     "aishell1-test": {
+      "difference_pp": -2.799,
+      "paired_clip_bootstrap_95_pp": [
+       -4.212,
+       -1.472
+      ],
+      "improved": 25,
+      "regressed": 3
+     },
+     "ascend-mixed": {
+      "difference_pp": -8.433,
+      "paired_clip_bootstrap_95_pp": [
+       -11.377,
+       -5.483
+      ],
+      "improved": 48,
+      "regressed": 11
+     },
+     "ascend-zh": {
+      "difference_pp": -3.961,
+      "paired_clip_bootstrap_95_pp": [
+       -5.804,
+       -2.26
+      ],
+      "improved": 29,
+      "regressed": 5
+     },
+     "fleurs": {
+      "difference_pp": -4.649,
+      "paired_clip_bootstrap_95_pp": [
+       -5.656,
+       -3.709
+      ],
+      "improved": 100,
+      "regressed": 7
+     }
+    },
+    "largest_gains": [
+     {
+      "id": "fleurs-314e9ad1bb068ed1",
+      "source": "fleurs",
+      "errors_before": 30,
+      "errors_after": 16,
+      "change": -14,
+      "reference_units": 83,
+      "before": "二十九岁的马拉尔巴拉十八年 million 医生在俄亥俄州新兴假提市以北约十五公里的郊区布鲁艾斯被发现他被找到时身穿 t 恤衫和内裤躺在路边的地上看上去服用了大量的药物",
+      "after": "29岁的Malala Sabra Miliam一生在俄亥俄州新近亚提市以北约15公里的郊区布鲁埃斯被发现。他被找到时身穿T恤衫和内裤，躺在路边的地上，看上去服用了大量的药物。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-811af1590c16fc90",
+      "source": "fleurs",
+      "errors_before": 23,
+      "errors_after": 10,
+      "change": -13,
+      "reference_units": 46,
+      "before": "你可以乘坐 bota 单出租租摩托托车览览假马短途途程的的常常当地格是五百钢钢果珐",
+      "after": "你可以乘坐Bodapoda出租的摩托车游览迦格玛。短途车程的正常当地价格是五百刚果法郎。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-ab5121c727bf5e1f",
+      "source": "ascend-mixed",
+      "errors_before": 20,
+      "errors_after": 8,
+      "change": -12,
+      "reference_units": 43,
+      "before": "其实呢班明腾有一个就是呃因为 basketbball 的话主要",
+      "after": "其实呢，Bennington有一个，就是Bennington，因为basketball的话，主要是。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-3ab57220f1f10003",
+      "source": "fleurs",
+      "errors_before": 12,
+      "errors_after": 1,
+      "change": -11,
+      "reference_units": 60,
+      "before": "孔融的羽毛并没有发育良好的主干这成为宇宙但还是有羽毛的其他特征比如宇知和云小只研究人员推断宇宙的进化可能比这些其他特征外",
+      "after": "恐龙的羽毛并没有发育良好的主干。这成为羽轴，但还是有羽毛的其他特征，比如羽枝和羽小枝。研究人员推断，羽轴的进化可能比这些其他特征晚。",
+      "states_before": [
+       "completed",
+       "completed"
+      ],
+      "states_after": [
+       "completed",
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-9255615fddf1a721",
+      "source": "ascend-mixed",
+      "errors_before": 13,
+      "errors_after": 3,
+      "change": -10,
+      "reference_units": 39,
+      "before": "他当时也在那个 hilstarkke 跟跟 king up with migrady",
+      "after": "他当时也在那个Houston Rockies，跟Team Up With McGready。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-15441d70b30403e2",
+      "source": "ascend-mixed",
+      "errors_before": 10,
+      "errors_after": 0,
+      "change": -10,
+      "reference_units": 49,
+      "before": "感觉还不错如 botic 就是 robotics x x with language applic",
+      "after": "感觉还不错。Robotics就是Robotics Mix with Language Application。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-1c918023d679a37e",
+      "source": "fleurs",
+      "errors_before": 9,
+      "errors_after": 0,
+      "change": -9,
+      "reference_units": 52,
+      "before": "自一九六六年以来孙德尔本司一直是野生动物保护区据估计目前该区生活着四百只皇家孟加拉虎和大约三万只梅花鹿",
+      "after": "自1966年以来，孙德尔本斯一直是野生动物保护区。据估计，目前该区生活着400只皇家孟加拉虎和大约3万只梅花鹿。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     }
+    ],
+    "largest_regressions": [
+     {
+      "id": "ascend-mixed-d8b647f19c234a62",
+      "source": "ascend-mixed",
+      "errors_before": 1,
+      "errors_after": 11,
+      "change": 10,
+      "reference_units": 13,
+      "before": "还有 lobron james",
+      "after": "还有劳勃兰詹姆斯。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-ab5fe2a3f741d671",
+      "source": "ascend-mixed",
+      "errors_before": 0,
+      "errors_after": 6,
+      "change": 6,
+      "reference_units": 15,
+      "before": "ok 所以我 come from 福建",
+      "after": "OK，所以我 come from Fujian.",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-6e1758537163745f",
+      "source": "ascend-mixed",
+      "errors_before": 2,
+      "errors_after": 6,
+      "change": 4,
+      "reference_units": 14,
+      "before": "然后每个班会有一个 tut",
+      "after": "然后，每一个班会有一个teacher。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-ebcd4bd0bf7140c4",
+      "source": "ascend-mixed",
+      "errors_before": 5,
+      "errors_after": 9,
+      "change": 4,
+      "reference_units": 28,
+      "before": "然后他可能会 record your personal",
+      "after": "然后他可能会record用personal来。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-0359bdb72fa3b3ee",
+      "source": "fleurs",
+      "errors_before": 4,
+      "errors_after": 7,
+      "change": 3,
+      "reference_units": 30,
+      "before": "山区夏令时晚上十点到十一点之间院子里的犯人们引发了一场火灾",
+      "after": "山区森林是晚上十点到十一点之间，院子里的犯人们引发了一场火灾。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-fd21cc3cb5062bc4",
+      "source": "fleurs",
+      "errors_before": 2,
+      "errors_after": 4,
+      "change": 2,
+      "reference_units": 37,
+      "before": "他指出对主体来说最有效的位置是将图片垂直和水平分为三部分的线的交叉点见示例",
+      "after": "他指出，对主体来说，最有效的位置是将图片垂直和水平分为三部分的线的交叉点，见视力。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "ascend-mixed-f38c0d5f58bcdb94",
+      "source": "ascend-mixed",
+      "errors_before": 3,
+      "errors_after": 5,
+      "change": 2,
+      "reference_units": 6,
+      "before": "然后也学 r 语言",
+      "after": "然后也学日语，也。",
       "states_before": [
        "completed"
       ],
@@ -1671,6 +2541,242 @@
      }
     ]
    },
+   "baseline/sherpa/product -> delivery/qwen-small/product": {
+    "rows": 20,
+    "counts": {
+     "improved": 15,
+     "first_errors": 96,
+     "second_errors": 65,
+     "first_empty": 0,
+     "second_empty": 0,
+     "unchanged": 3,
+     "regressed": 2
+    },
+    "paired": {
+     "difference_pp": -4.058,
+     "paired_clip_bootstrap_95_pp": [
+      -6.571,
+      -1.845
+     ],
+     "improved": 15,
+     "regressed": 2
+    },
+    "by_source": {
+     "noise15db": {
+      "difference_pp": -6.925,
+      "paired_clip_bootstrap_95_pp": [
+       -11.207,
+       -3.252
+      ],
+      "improved": 9,
+      "regressed": 0
+     },
+     "quiet": {
+      "difference_pp": -1.489,
+      "paired_clip_bootstrap_95_pp": [
+       -3.987,
+       0.883
+      ],
+      "improved": 6,
+      "regressed": 2
+     }
+    },
+    "largest_gains": [
+     {
+      "id": "fleurs-3ab57220f1f10003-noise15db",
+      "source": "noise15db",
+      "errors_before": 10,
+      "errors_after": 1,
+      "change": -9,
+      "reference_units": 60,
+      "before": "恐融的羽毛并没有发育良好的主干这成为宇宙但还是有羽毛的其他特征比如预知和云小只研究人员推断一轴的进化可能比这些其他特征外",
+      "after": "恐龙的羽毛并没有发育良好的主干。这成为羽轴，但还是有羽毛的其他特征，比如羽枝和羽小枝。研究人员推断，羽轴的进化可能比这些其他特征晚。",
+      "states_before": [
+       "failed",
+       "completed",
+       "completed"
+      ],
+      "states_after": [
+       "completed",
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-f7ec2d2600c8998d-noise15db",
+      "source": "noise15db",
+      "errors_before": 10,
+      "errors_after": 6,
+      "change": -4,
+      "reference_units": 26,
+      "before": "当天格离你地止时间约十二时许该车辆被脱离事故现场",
+      "after": "当天格林尼治时间约十二时许，该车辆被脱离事故现场。",
+      "states_before": [
+       "failed",
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-a4fd40788cd53f2f-noise15db",
+      "source": "noise15db",
+      "errors_before": 5,
+      "errors_after": 2,
+      "change": -3,
+      "reference_units": 17,
+      "before": "主现代该疾病然后通过文字传染给人类",
+      "after": "猪携带该疾病，然后通过文字传染给人类。",
+      "states_before": [
+       "failed",
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-9aec25da37c51436-quiet",
+      "source": "quiet",
+      "errors_before": 4,
+      "errors_after": 1,
+      "change": -3,
+      "reference_units": 23,
+      "before": "phh 值被测化学品中的氢 ph 中中的 h 离子数量表",
+      "after": "pH值被测化学品中的氢（pH中的H）离子数量表示。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-8429476daf798696-noise15db",
+      "source": "noise15db",
+      "errors_before": 3,
+      "errors_after": 0,
+      "change": -3,
+      "reference_units": 28,
+      "before": "他没有设定削减数额只是表示将根据中国的经济产出来决定服务的",
+      "after": "他没有设定削减数额，只是表示将根据中国的经济产出来决定数额。",
+      "states_before": [
+       "failed",
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-9eb2d543a0a36152-quiet",
+      "source": "quiet",
+      "errors_before": 26,
+      "errors_after": 24,
+      "change": -2,
+      "reference_units": 63,
+      "before": "智力首选登山目的地柯察莫山谷被称为南美洲的优美圣地这里有各式各样的花岗岩大石壁和峭壁",
+      "after": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-914c948388ae30bd-noise15db",
+      "source": "noise15db",
+      "errors_before": 2,
+      "errors_after": 0,
+      "change": -2,
+      "reference_units": 35,
+      "before": "平时你总能在这里听到游客小摊贩的声音孙光交织就像在讲述一个动人的故事",
+      "after": "平时你总能在这里听到游客和小摊贩的声音，声光交织，就像在讲述一个动人的故事。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     }
+    ],
+    "largest_regressions": [
+     {
+      "id": "fleurs-fd21cc3cb5062bc4-quiet",
+      "source": "quiet",
+      "errors_before": 2,
+      "errors_after": 4,
+      "change": 2,
+      "reference_units": 37,
+      "before": "他指出对主体来说最有效的位置是将图片垂直和水平分为三部分的线的交叉点见示例",
+      "after": "他指出：“对主体来说，最有效的位置是将图片垂直和水平分为三部分的线的交叉点，见视力。”",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-79b50932dd998d25-quiet",
+      "source": "quiet",
+      "errors_before": 9,
+      "errors_after": 11,
+      "change": 2,
+      "reference_units": 59,
+      "before": "早年该节目仅在运营已久的互联网广播网站上推进 net radio 上播出推进 net radio 是一个专注于谈话广播的网",
+      "after": "早年，该节目仅在运营已久的互联网广播网站上推及Night Radio上播出。推及Night Radio是一个专注于谈话广播的网站。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     }
+    ]
+   },
+   "baseline/qwen-small/product -> delivery/qwen-small/product": {
+    "rows": 20,
+    "counts": {
+     "unchanged": 20,
+     "first_errors": 65,
+     "second_errors": 65,
+     "first_empty": 0,
+     "second_empty": 0
+    },
+    "paired": {
+     "difference_pp": 0.0,
+     "paired_clip_bootstrap_95_pp": [
+      0.0,
+      0.0
+     ],
+     "improved": 0,
+     "regressed": 0
+    },
+    "by_source": {
+     "noise15db": {
+      "difference_pp": 0.0,
+      "paired_clip_bootstrap_95_pp": [
+       0.0,
+       0.0
+      ],
+      "improved": 0,
+      "regressed": 0
+     },
+     "quiet": {
+      "difference_pp": 0.0,
+      "paired_clip_bootstrap_95_pp": [
+       0.0,
+       0.0
+      ],
+      "improved": 0,
+      "regressed": 0
+     }
+    },
+    "largest_gains": [],
+    "largest_regressions": []
+   },
    "candidate/apple/product -> delivery/qwen-small/product": {
     "rows": 20,
     "counts": {
@@ -1853,6 +2959,197 @@
       "reference_units": 62,
       "before": "有些邮轮在宣传手册上以德国柏林为亮点，正如上面地图看到的那样，柏林并没有靠近大海的地方，而且游船价格并不包括游览这座城市的费用。",
       "after": "有些游轮在宣传手册上以德国柏林为亮点。正如上面地图看到的那样，柏林并没有靠近大海的地方，而且游船价格并不包括游览这座城市的费用。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     }
+    ]
+   },
+   "candidate/sherpa/product -> delivery/qwen-small/product": {
+    "rows": 20,
+    "counts": {
+     "improved": 15,
+     "first_errors": 93,
+     "second_errors": 65,
+     "first_empty": 0,
+     "second_empty": 0,
+     "unchanged": 3,
+     "regressed": 2
+    },
+    "paired": {
+     "difference_pp": -3.665,
+     "paired_clip_bootstrap_95_pp": [
+      -6.218,
+      -1.507
+     ],
+     "improved": 15,
+     "regressed": 2
+    },
+    "by_source": {
+     "noise15db": {
+      "difference_pp": -6.094,
+      "paired_clip_bootstrap_95_pp": [
+       -10.224,
+       -2.679
+      ],
+      "improved": 9,
+      "regressed": 0
+     },
+     "quiet": {
+      "difference_pp": -1.489,
+      "paired_clip_bootstrap_95_pp": [
+       -3.987,
+       0.883
+      ],
+      "improved": 6,
+      "regressed": 2
+     }
+    },
+    "largest_gains": [
+     {
+      "id": "fleurs-3ab57220f1f10003-noise15db",
+      "source": "noise15db",
+      "errors_before": 10,
+      "errors_after": 1,
+      "change": -9,
+      "reference_units": 60,
+      "before": "恐融的羽毛并没有发育良好的主干这成为宇宙但还是有羽毛的其他特征比如预知和云小只研究人员推断一轴的进化可能比这些其他特征外",
+      "after": "恐龙的羽毛并没有发育良好的主干。这成为羽轴，但还是有羽毛的其他特征，比如羽枝和羽小枝。研究人员推断，羽轴的进化可能比这些其他特征晚。",
+      "states_before": [
+       "completed",
+       "completed"
+      ],
+      "states_after": [
+       "completed",
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-f7ec2d2600c8998d-noise15db",
+      "source": "noise15db",
+      "errors_before": 10,
+      "errors_after": 6,
+      "change": -4,
+      "reference_units": 26,
+      "before": "当天格离你地止时间约十二时许该车辆被脱离事故现场",
+      "after": "当天格林尼治时间约十二时许，该车辆被脱离事故现场。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-9aec25da37c51436-quiet",
+      "source": "quiet",
+      "errors_before": 4,
+      "errors_after": 1,
+      "change": -3,
+      "reference_units": 23,
+      "before": "phh 值被测化学品中的氢 ph 中中的 h 离子数量表",
+      "after": "pH值被测化学品中的氢（pH中的H）离子数量表示。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-9eb2d543a0a36152-quiet",
+      "source": "quiet",
+      "errors_before": 26,
+      "errors_after": 24,
+      "change": -2,
+      "reference_units": 63,
+      "before": "智力首选登山目的地柯察莫山谷被称为南美洲的优美圣地这里有各式各样的花岗岩大石壁和峭壁",
+      "after": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-914c948388ae30bd-noise15db",
+      "source": "noise15db",
+      "errors_before": 2,
+      "errors_after": 0,
+      "change": -2,
+      "reference_units": 35,
+      "before": "平时你总能在这里听到游客小摊贩的声音声光交织就像在讲述一个动人的故",
+      "after": "平时你总能在这里听到游客和小摊贩的声音，声光交织，就像在讲述一个动人的故事。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-1aa3e4f8f4a38d99-quiet",
+      "source": "quiet",
+      "errors_before": 5,
+      "errors_after": 3,
+      "change": -2,
+      "reference_units": 51,
+      "before": "上周日本经济产业省 m e t i 宣布苹果公司向该部门通报另外三十四起扩热造成的事故尽管该公司称这些事故并不严",
+      "after": "上周，日本经济产业省（METI）宣布，苹果公司向该部门通报另外三十四起过热造成的事故。尽管该公司称这些事故并不严重。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-8429476daf798696-noise15db",
+      "source": "noise15db",
+      "errors_before": 2,
+      "errors_after": 0,
+      "change": -2,
+      "reference_units": 28,
+      "before": "他没有设定削减数额只是表示将根据中国的经济产出来决定输的",
+      "after": "他没有设定削减数额，只是表示将根据中国的经济产出来决定数额。",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     }
+    ],
+    "largest_regressions": [
+     {
+      "id": "fleurs-fd21cc3cb5062bc4-quiet",
+      "source": "quiet",
+      "errors_before": 2,
+      "errors_after": 4,
+      "change": 2,
+      "reference_units": 37,
+      "before": "他指出对主体来说最有效的位置是将图片垂直和水平分为三部分的线的交叉点见示例",
+      "after": "他指出：“对主体来说，最有效的位置是将图片垂直和水平分为三部分的线的交叉点，见视力。”",
+      "states_before": [
+       "completed"
+      ],
+      "states_after": [
+       "completed"
+      ]
+     },
+     {
+      "id": "fleurs-79b50932dd998d25-quiet",
+      "source": "quiet",
+      "errors_before": 9,
+      "errors_after": 11,
+      "change": 2,
+      "reference_units": 59,
+      "before": "早年该节目仅在运营已久的互联网广播网站上推进 net radio 上播出推进 net radio 是一个专注于谈话广播的网",
+      "after": "早年，该节目仅在运营已久的互联网广播网站上推及Night Radio上播出。推及Night Radio是一个专注于谈话广播的网站。",
       "states_before": [
        "completed"
       ],

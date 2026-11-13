@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 paths = runpy.run_path(str(ROOT / "scripts/mandarin/compare-paths.py"))
 CONTROLS = [
     ("baseline", "apple", "product"),
+    ("baseline", "sherpa", "product"),
     ("baseline", "qwen-small", "product"),
     ("candidate", "apple", "product"),
     ("candidate", "sherpa", "product"),
