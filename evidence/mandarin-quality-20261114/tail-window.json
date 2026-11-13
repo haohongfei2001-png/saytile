@@ -1,0 +1,22 @@
+{
+ "scope": "Deterministic public-language fixture with native VAD measurements; final decoded suffix must be checked in the signed native window. This reference has no valid whole-clip CER because the fourth source sentence is cut mid-utterance.",
+ "sha256": "44f64214de1cdd8e71b16ce87d29376065c7f35520a8533e87f019c72defe7af",
+ "route_source": "d63fb38",
+ "clip_frames": 553280,
+ "segments": [
+  {
+   "firstVoiceSample": 24320,
+   "journalFrames": 520960,
+   "lastVoiceSample": 506240
+  }
+ ],
+ "total_input_s": 34.58,
+ "total_journal_s": 32.56,
+ "captured_public_prefix_s": 30.08,
+ "window_limit_s": 32.0,
+ "last_window_s": 0.5600000000000023,
+ "synthetic_trailing_silence_s": 3,
+ "dependency": "soniqo/speech-swift a57702e6f523fa36ac5532d2bdc5f35f701a052c",
+ "feature_extractor_max_seconds": 1200,
+ "encoder_chunks_cover_entire_mel_input": true
+}
