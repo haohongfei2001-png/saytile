@@ -164,6 +164,7 @@ final class AppModel: ObservableObject {
         didSet { timelineRenderRevision &+= 1 }
     }
     @Published private(set) var timelineTail: TimelineEntry?
+    @Published private var latestTextEntry: TimelineEntry?
     @Published private(set) var timelineIdle = false
     @Published private(set) var timelineIdleSeconds: Int
     @Published private(set) var timelineFocus: Int64?
@@ -289,7 +290,11 @@ final class AppModel: ObservableObject {
     private var recoveryTask: Task<Void, Never>?
     private var panelSessionStartedAt = Date()
     private var stagedRecordIDs: Set<UUID> = []
-    private struct DraftWrite: Equatable { let sequence: UInt64; let text: String }
+    private struct DraftWrite: Equatable {
+        let sequence: UInt64
+        let text: String
+        let removesDraft: Bool
+    }
     private var editorRecordingID: UUID?
     private var editorWasEdited = false
     private var editorSelectionGeneration = UUID()
@@ -714,7 +719,7 @@ final class AppModel: ObservableObject {
         guard window == timelineWindow else { return }
         timelineRead &+= 1
         let request = timelineRead
-        let (page, tail) = try await store.panelTimeline(window)
+        let (page, tail, textTail) = try await store.panelTimeline(window)
         guard window == timelineWindow, request == timelineRead else { return }
         if timeline != page { timeline = page }
         if !completedFirstTranscript, page.entries.contains(where: { !$0.recording.text.isEmpty }) || tail?.recording.text.isEmpty == false {
@@ -722,6 +727,7 @@ final class AppModel: ObservableObject {
             preferences.set(true, forKey: "firstTranscript.v1")
         }
         if timelineTail != tail { timelineTail = tail }
+        if latestTextEntry != textTail { latestTextEntry = textTail }
         if observedPosition != tail?.position || observedEnd != tail?.speechEnd {
             observedPosition = tail?.position
             observedEnd = tail?.speechEnd
@@ -758,6 +764,7 @@ final class AppModel: ObservableObject {
         timelineWindow = window
         timeline = snapshot.page
         timelineTail = snapshot.tail
+        latestTextEntry = snapshot.textTail
         if createsRow { timelineIdle = false }
         if !completedFirstTranscript {
             completedFirstTranscript = true
@@ -765,11 +772,11 @@ final class AppModel: ObservableObject {
         }
     }
 
-    var canCopyLatestGroup: Bool { (timelineTail?.position ?? 0) > hiddenThrough }
+    var canCopyLatestGroup: Bool { (latestTextEntry?.position ?? 0) > hiddenThrough }
 
     func copyTimeline(selection: String, displayed: [Int64: String]) {
         if !selection.isEmpty { copy(selection, quietly: true); return }
-        guard let end = timelineTail, canCopyLatestGroup else { return }
+        guard let end = latestTextEntry, canCopyLatestGroup else { return }
         // The editor can hold a previous page across a new group. The click targets
         // the live tail while preserving the exact text of any already rendered rows.
         var snapshot = Dictionary(uniqueKeysWithValues: timeline.entries.map { ($0.position, $0.recording.text) })
@@ -913,10 +920,15 @@ final class AppModel: ObservableObject {
             guard let current = try await store.recording(id: item.id) else { return }
             guard editorSelectionGeneration == generation, selected?.id == item.id else { return }
             let draft = pendingDraftWrites[item.id]?.text ?? stored
+            selected = DisplayRecording(source: current)
             editorDraft = draft ?? current.text
             editorWasEdited = draft != nil
             editorRecordingID = item.id; editorDraftLoading = false
             editorDraftStatus = pendingDraftWrites[item.id] == nil ? "修改会自动暂存，保存后更新这段文字" : "草稿尚未写入磁盘，请保留此窗口"
+            // Older builds could leave a durable draft after an edit was fully undone.
+            if draft?.utf16.elementsEqual(current.text.utf16) == true, current.preferredRevisionID != nil {
+                updateEditorDraft(current.text)
+            }
             await loadVersions(item.id)
         } catch {
             if editorSelectionGeneration == generation { editorDraftStatus = "草稿读取失败，请重新选择记录"; notice = error.localizedDescription; editorDraftLoading = false }
@@ -928,9 +940,14 @@ final class AppModel: ObservableObject {
         Task { _ = await flushEditorDrafts() }
     }
     func updateEditorDraft(_ text: String) {
-        guard let id = editorRecordingID, !editorDraftLoading else { return }
-        editorDraft = text; editorWasEdited = true; draftSequence &+= 1
-        let write = DraftWrite(sequence: draftSequence, text: text)
+        guard let id = editorRecordingID, selected?.id == id, !editorDraftLoading else { return }
+        // If a version is being saved, even returning to the old spelling is a newer edit.
+        let removesDraft = !committingEditorIDs.contains(id) && selected?.source.preferredRevisionID != nil
+            && selected?.text.utf16.elementsEqual(text.utf16) == true
+        editorDraft = text
+        editorWasEdited = !removesDraft
+        draftSequence &+= 1
+        let write = DraftWrite(sequence: draftSequence, text: text, removesDraft: removesDraft)
         pendingDraftWrites[id] = write; latestEditorValues[id] = write
         editorDraftStatus = "正在保留草稿…"
         editorDebounce?.cancel()
@@ -954,11 +971,15 @@ final class AppModel: ObservableObject {
             guard let self else { return true }
             while let (id, write) = self.pendingDraftWrites.first(where: { !self.committingEditorIDs.contains($0.key) }) {
                 do {
-                    try await self.store.saveDraft(recordingID: id, text: write.text)
+                    if write.removesDraft {
+                        try await self.store.clearDraft(recordingID: id)
+                    } else {
+                        try await self.store.saveDraft(recordingID: id, text: write.text)
+                    }
                     if self.pendingDraftWrites[id] == write { self.pendingDraftWrites.removeValue(forKey: id) }
                     if self.editorRecordingID != id, !self.committingEditorIDs.contains(id), self.pendingDraftWrites[id] == nil { self.latestEditorValues.removeValue(forKey: id) }
                     if self.editorRecordingID == id, self.pendingDraftWrites[id] == nil {
-                        self.editorDraftStatus = "草稿已自动保留，保存修改创建版本"
+                        self.editorDraftStatus = write.removesDraft ? "修改会自动暂存，保存后更新这段文字" : "草稿已自动保留，保存修改创建版本"
                     }
                 } catch StoreError.missingRecording {
                     // A deliberate record deletion also cancels a queued draft write.

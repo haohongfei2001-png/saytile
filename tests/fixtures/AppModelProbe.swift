@@ -85,6 +85,62 @@ struct AppModelProbe {
                         "returning to latest after manual paging reveals the actual newest live row")
             await reader.prepareForExit()
         }
+        do {
+            let suite = "app.saytile.archive-journey." + UUID().uuidString
+            let prefs = UserDefaults(suiteName: suite)!
+            defer { prefs.removePersistentDomain(forName: suite) }
+            let board = NSPasteboard.withUniqueName()
+            defer { board.releaseGlobally() }
+            let app = try AppModel(directory: directory.appendingPathComponent("archive-journey"),
+                                   preferences: prefs, copyPasteboard: board)
+            let start = Date.now.addingTimeInterval(-900)
+            let history = try await app.store.createRecording(createdAt: start.addingTimeInterval(-900))
+            try await app.store.saveEdit(recordingID: history.id, text: "不应复制的上一组")
+            try await app.store.finishRecording(id: history.id)
+            let first = try await app.store.createRecording(createdAt: start)
+            let ticket = try await app.store.beginRecognition(recordingID: first.id)
+            _ = try await app.store.applyRecognition(ticket: ticket, text: "屏幕上的这句话", isFinal: false)
+            try await app.store.finishRecording(id: first.id)
+            let silent = try await app.store.createRecording()
+            await app.refresh()
+            await app.selectForEditing(DisplayRecording(source: try await app.store.recording(id: first.id)!))
+            app.updateEditorDraft("改了一半"); _ = await app.flushEditorDrafts()
+            app.updateEditorDraft("屏幕上的这句话"); _ = await app.flushEditorDrafts()
+            let releasedDraft = try await app.store.loadDraft(recordingID: first.id)
+            app.copy("已有剪贴板", quietly: true)
+            app.copyTimeline(selection: "", displayed: [:])
+            let copied = board.string(forType: .string)
+            print("JOURNEY_REPRO revertedDraftCleared=\(releasedDraft == nil) textGroupCopied=\(copied == "屏幕上的这句话")")
+            fflush(nil)
+            try require(releasedDraft == nil, "undoing every archive edit releases the automatic transcript")
+            try require(app.canCopyLatestGroup && copied == "屏幕上的这句话",
+                        "a new group awaiting its first word leaves the latest visible text group available to copy")
+            _ = try await app.store.applyRecognition(ticket: ticket, text: "迟到的原句定稿", isFinal: true)
+            await app.refresh()
+            try require(app.editorDraft == "迟到的原句定稿" && board.string(forType: .string) == copied,
+                        "after undo, late recognition updates the editor and preserves the clipboard snapshot")
+            app.closeDetail()
+            try await app.store.saveDraft(recordingID: first.id, text: "迟到的原句定稿")
+            await app.selectForEditing(DisplayRecording(source: try await app.store.recording(id: first.id)!))
+            _ = await app.flushEditorDrafts()
+            try require(try await app.store.loadDraft(recordingID: first.id) == nil,
+                        "opening a legacy unchanged draft releases it without creating a revision")
+            app.updateEditorDraft("")
+            _ = await app.flushEditorDrafts()
+            try require(try await app.store.loadDraft(recordingID: first.id) == "",
+                        "deliberately erasing the text keeps a recoverable empty draft")
+            app.clearPanel()
+            await app.refresh()
+            let next = try await app.store.createRecording()
+            await app.refreshRecognition()
+            let changeCount = board.changeCount
+            app.copyTimeline(selection: "", displayed: [:])
+            try require(!app.canCopyLatestGroup && board.changeCount == changeCount,
+                        "a new audio-only row after a clear cannot resurrect old text or replace the clipboard")
+            try await app.store.finishRecording(id: silent.id)
+            try await app.store.finishRecording(id: next.id)
+            await app.prepareForExit()
+        }
         let seed = try SaytileStore(directory: directory)
         let old = try await seed.createRecording(createdAt: .distantPast)
         try await seed.saveEdit(recordingID: old.id, text: "历史测试甲")

@@ -121,13 +121,13 @@ extension SaytileStore {
 
     /// The scrollable board pages through text. Audio-only recordings remain
     /// available in the archive and the actual capture tail is returned separately.
-    public func panelTimeline(_ window: TimelineWindow) throws -> (page: TimelinePage, tail: TimelineEntry?) {
+    public func panelTimeline(_ window: TimelineWindow) throws -> (page: TimelinePage, tail: TimelineEntry?, textTail: TimelineEntry?) {
         try Self.panelTimeline(window, from: db)
     }
 
     /// NSTextView needs the new row spans before it can accept the next key.
     /// Read the exact committed page and tail in the same bounded transaction.
-    @MainActor public func editTimeline(_ edits: [PanelRowEdit], window: TimelineWindow) throws -> (page: TimelinePage, tail: TimelineEntry?) {
+    @MainActor public func editTimeline(_ edits: [PanelRowEdit], window: TimelineWindow) throws -> (page: TimelinePage, tail: TimelineEntry?, textTail: TimelineEntry?) {
         try panelEditor.use(at: directory.appendingPathComponent("Saytile.sqlite")) { writer in
             try writer.transaction {
                 try Self.writePanelEdits(edits, to: writer, at: .now)
@@ -136,10 +136,20 @@ extension SaytileStore {
         }
     }
 
-    private static func panelTimeline(_ window: TimelineWindow, from db: StoreDatabase) throws -> (page: TimelinePage, tail: TimelineEntry?) {
+    private static func panelTimeline(_ window: TimelineWindow, from db: StoreDatabase) throws -> (page: TimelinePage, tail: TimelineEntry?, textTail: TimelineEntry?) {
         let page = try timelinePage(window, from: db, textOnly: true)
         let tail = try timelinePage(.latest, from: db, limit: 1).entries.last
-        return (page, tail)
+        // The capture tail may belong to a new group that has not produced text yet.
+        // Reuse the displayed page unless the reader is paging through older text.
+        let textTail: TimelineEntry?
+        if !page.hasNewer && (window == .latest || !page.entries.isEmpty) {
+            textTail = page.entries.last
+        } else if let tail, !tail.recording.text.isEmpty {
+            textTail = tail
+        } else {
+            textTail = try timelinePage(.latest, from: db, textOnly: true, limit: 1).entries.last
+        }
+        return (page, tail, textTail)
     }
 
     private static func timelinePage(_ window: TimelineWindow, from db: StoreDatabase,
