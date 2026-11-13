@@ -33,10 +33,10 @@ extension SaytileStore {
         }
     }
 
-    private func archiveGeneration(_ id: UUID) throws -> Int64? {
+    func archiveGeneration(_ id: UUID) throws -> Int64? {
         try db.rows("SELECT generation FROM icloud_outbox WHERE id=?", [.text(id.uuidString)]).first?["generation"].flatMap(Int64.init)
     }
-    func applyArchiveText(_ remote: PrivateArchive) throws {
+    func applyArchiveText(_ remote: PrivateArchive) async throws {
         try remote.validate()
         let key = StoreDatabase.Value.text(remote.id.uuidString)
         // Reuse the store's erasure/lease contract. A deleted remote original
@@ -50,7 +50,7 @@ extension SaytileStore {
         // The archive editor also has its own SQLite connection. Check that
         // nothing was edited during file verification *inside* the write txn.
         let generation = try archiveGeneration(remote.id)
-        let local = try exportArchive(remote.id)
+        let local = try await exportArchive(remote.id)
         let merged = try local?.merged(with: remote, baseline: archiveBaseline(remote.id)) ?? remote
         try db.transaction {
             guard try archiveGeneration(remote.id) == generation else { throw ArchiveIssue.stale }
@@ -125,14 +125,13 @@ extension SaytileStore {
 
     /// CKAsset staging URLs are never saved to the database. Publish our own
     /// durable, verified WAV and only then make the group playable.
-    func installArchiveAssets(_ m: PrivateArchive, files: [URL]) throws {
+    func installArchiveAssets(_ m: PrivateArchive, files: [URL]) async throws {
         try m.validate()
         try PrivateArchive.checked(files.count == m.chunks.count && !files.isEmpty)
         let key = StoreDatabase.Value.text(m.id.uuidString)
         guard let work = try db.rows("SELECT manifest FROM icloud_assets WHERE id=?", [key]).first?["manifest"],
               try JSONDecoder().decode(PrivateArchive.self, from: Data(work.utf8)) == m else { throw ArchiveIssue.stale }
-        let old = try exportArchive(m.id)
-        guard let old, !old.audioDeleted, !old.deleted else {
+        guard let old = try recording(id: m.id), [.available,.missing].contains(old.audioState) else {
             try db.execute("DELETE FROM icloud_assets WHERE id=?",[key]); return
         }
         let dir = audioDirectory.appendingPathComponent(m.id.uuidString, isDirectory: true)
@@ -141,6 +140,9 @@ extension SaytileStore {
         let previous = try db.rows("SELECT id,path FROM chunks WHERE recording_id=?", [key])
         var restored: [(PrivateArchive.Chunk, String)] = []
         for (chunk, source) in zip(m.chunks,files) {
+            try Task.checkCancellation()
+            await Task.yield()
+            guard let record = try recording(id: m.id), [.available,.missing].contains(record.audioState) else { throw ArchiveIssue.stale }
             let oldPath = previous.first { $0["id"] == chunk.id.uuidString }?["path"]
             let path = oldPath ?? "\(m.id.uuidString)/\(chunk.id.uuidString).wav"
             let pieces = path.split(separator: "/", omittingEmptySubsequences: false)

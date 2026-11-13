@@ -64,8 +64,9 @@ extension SaytileStore {
             }
         }
     }
-    func exportArchive(_ id: UUID) throws -> PrivateArchive? {
+    func exportArchive(_ id: UUID) async throws -> PrivateArchive? {
         let key: [StoreDatabase.Value] = [.text(id.uuidString)]
+        let generation = try archiveGeneration(id)
         guard let r = try db.rows("""
             SELECT r.*,t.position,t.started,t.ended,t.day,t.utc_offset,g.started AS gs,g.day AS gd,g.utc_offset AS go
             FROM recordings r JOIN transcript_timeline t ON t.recording_id=r.id JOIN transcript_timeline g ON g.position=t.group_start WHERE r.id=?
@@ -81,12 +82,21 @@ extension SaytileStore {
                   let created = row["created_at"].flatMap(Double.init) else { throw ArchiveIssue.invalid }
             return .init(id: id,text: text,origin: origin,created: created,attempt: row["attempt"].flatMap(UUID.init(uuidString:)),base: row["base_revision"].flatMap(UUID.init(uuidString:)))
         }
-        let chunks: [PrivateArchive.Chunk] = try !audioDeleted && r["audio_state"] == "available" ? audioChunks(recordingID: id).map {
-            let bytes = try Data(contentsOf: audioURL(for: $0), options: [.mappedIfSafe])
-            try PrivateArchive.checked($0.frames >= 0 && $0.frames <= (Int64(UInt32.max)-36)/2 &&
-                bytes.count == 44 + $0.frames * 2 && bytes.prefix(44) == PCMJournal.header(frames: $0.frames))
-            return PrivateArchive.Chunk(id: $0.id,frames: $0.frames, ordinal: $0.ordinal,sha256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined())
-        } : []
+        var chunks: [PrivateArchive.Chunk] = []
+        if !audioDeleted && r["audio_state"] == "available" {
+            for c in try audioChunks(recordingID: id) {
+                try Task.checkCancellation()
+                let bytes = try Data(contentsOf: audioURL(for: c), options: [.mappedIfSafe])
+                try PrivateArchive.checked(c.frames >= 0 && c.frames <= (Int64(UInt32.max)-36)/2 &&
+                    bytes.count == 44 + c.frames * 2 && bytes.prefix(44) == PCMJournal.header(frames: c.frames))
+                chunks.append(.init(id: c.id,frames: c.frames,ordinal: c.ordinal,
+                    sha256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()))
+                // Long recordings rotate every 15 seconds. Let capture and editing
+                // use the SQLite actor between bounded chunks.
+                await Task.yield()
+            }
+        }
+        guard try archiveGeneration(id) == generation else { throw ArchiveIssue.stale }
         let draft = try db.rows("""
             SELECT d.text,d.updated_at,b.revision_id FROM editing_drafts d LEFT JOIN archive_draft_bases b USING(recording_id)
             WHERE d.recording_id=?

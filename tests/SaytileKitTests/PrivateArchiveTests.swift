@@ -101,7 +101,9 @@ private struct CloudArchiveFixture {
         #expect(timeline.entries[0].recording.isPinned)
         #expect(try await reopened.loadDraft(recordingID: id1) == "未提交的手工草稿")
         for id in [id1,id2] {
-            #expect(try await first.exportArchive(id) == reopened.exportArchive(id))
+            let verified = try #require(try await reopened.exportArchive(id))
+            #expect(try await first.exportArchive(id) == verified)
+            #expect(verified.chunks.map(\.sha256) == ["260f7d54d110254c7931a0fd0d8c6bcf8dbac9f12747afef6144b624e6a382b9"])
             let chunks = try await reopened.audioChunks(recordingID: id)
             #expect(chunks.count == 1)
             let file = try AVAudioFile(forReading: await reopened.audioURL(for: chunks[0]))
