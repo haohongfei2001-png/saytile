@@ -29,16 +29,34 @@
     if(stateNote)stateNote.textContent=stateMessages[state];
   }));
   const scene=$('#r5-mode-scene');
+  const modeTabs=[...document.querySelectorAll('.r5-mode-switch [data-mode]')];
   const destination={
-    free:{label:'自由记录',title:'留在输入板',copy:'你可以继续编辑、搜索和回听；需要时再复制，或单次插入到草稿。',actions:['编辑','复制','单次插入'],guard:'先完整留下，再由你决定何时取用。'},
+    free:{label:'自由记录',title:'留在输入板',copy:'文字先留在输入板；你可以编辑、复制，或在需要时单次插入到草稿。',actions:['编辑','复制','单次插入'],guard:'先完整留下，再由你决定何时取用。'},
     direct:{label:'已明确绑定目标',title:'追加到当前草稿',copy:'只把之后讲话形成的稳定新文字追加到你选定的草稿。目标或焦点变化时暂停，不发送消息。',actions:['明确选择目标','只追加新文字','变化时暂停'],guard:'目标由你选择；发送始终由你决定。'}
   };
-  document.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',()=>{
-    const mode=button.dataset.mode;if(!destination[mode]||!scene)return;
-    document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-selected',String(b===button)));
-    scene.dataset.mode=mode;$('#r5-destination-label').textContent=destination[mode].label;$('#r5-destination-title').textContent=destination[mode].title;$('#r5-destination-copy').textContent=destination[mode].copy;$('#r5-mode-guard span:last-child').textContent=destination[mode].guard;
-    const actions=$('#r5-destination-actions');actions.replaceChildren(...destination[mode].actions.map(label=>{const el=document.createElement('span');el.textContent=label;return el;}));
-  }));
+  function setMode(mode){
+    if(!destination[mode]||!scene)return;
+    scene.dataset.mode=mode;
+    modeTabs.forEach(b=>{const active=b.dataset.mode===mode;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;});
+    $('#r5-destination-label').textContent=destination[mode].label;
+    $('#r5-destination-title').textContent=destination[mode].title;
+    $('#r5-destination-copy').textContent=destination[mode].copy;
+    $('#r5-mode-guard span:last-child').textContent=destination[mode].guard;
+    const actions=$('#r5-destination-actions');
+    actions.replaceChildren(...destination[mode].actions.map(label=>{const el=document.createElement('span');el.textContent=label;return el;}));
+  }
+  modeTabs.forEach((button,index)=>{
+    button.addEventListener('click',()=>setMode(button.dataset.mode));
+    button.addEventListener('keydown',e=>{
+      let next=index;
+      if(e.key==='ArrowRight')next=(index+1)%modeTabs.length;
+      else if(e.key==='ArrowLeft')next=(index+modeTabs.length-1)%modeTabs.length;
+      else if(e.key==='Home')next=0;
+      else if(e.key==='End')next=modeTabs.length-1;
+      else return;
+      e.preventDefault();modeTabs[next].focus();setMode(modeTabs[next].dataset.mode);
+    });
+  });
   if(!reduced&&'IntersectionObserver'in window){document.documentElement.classList.add('r5-motion');const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-visible');io.unobserve(e.target);}}),{threshold:.12});document.querySelectorAll('.r5-reveal').forEach(el=>io.observe(el));}
   document.addEventListener('visibilitychange',()=>{if(document.hidden)window.SaytileDemo?.pause();});
 })();
