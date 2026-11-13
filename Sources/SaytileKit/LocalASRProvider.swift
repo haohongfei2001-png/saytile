@@ -35,6 +35,7 @@ public struct WorkerDecodeTiming: Codable, Sendable {
     public let endUptime: Double
     public let frames: Int
     public let final: Bool
+    public let changed: Bool?
 }
 
 public struct WorkerEvent: Decodable, Sendable {
@@ -248,6 +249,11 @@ struct LocalLiveText {
                let candidate = text.applyingTransform(StringTransform("Traditional-Simplified"), reverse: false),
                candidate.hasPrefix(reference), !reference.isEmpty {
                 readingPrefix = String(text.prefix(readingPrefix.count))
+            } else if !matches, let mapped = Self.formattedPrefix(readingPrefix, in: text) {
+                // The decoder can restyle an earlier English phrase on every pass
+                // while correctly extending the tail. Compare only the protected
+                // preview prefix. Never synthesize display text or grant dispatch.
+                readingPrefix = mapped
             } else if !matches {
                 // A decoder may permanently change “二十九岁” to “29岁”. Suppressing
                 // every later hypothesis would freeze the preview until end of speech.
@@ -277,6 +283,35 @@ struct LocalLiveText {
         }
         previous = text
         return model == .nemotron ? String(common.dropLast()).utf16.count : 0
+    }
+
+    /// Map common ASR typography to the exact raw end index in the new pass.
+    /// Keep word boundaries, signs, numbers, and lexical changes distinct.
+    private static func formattedPrefix(_ raw: String, in candidate: String) -> String? {
+        guard !raw.isEmpty else { return nil }
+        func latin(_ c: Character?) -> Bool {
+            guard let n = c?.asciiValue else { return false }
+            return (65...90).contains(n) || (97...122).contains(n)
+        }
+        func units(_ text: String) -> [(Character, String.Index)] {
+            var out: [(Character, String.Index)] = []
+            for i in text.indices {
+                let c = text[i], next = text.index(after: i)
+                let before = i == text.startIndex ? nil : text[text.index(before: i)]
+                let after = next == text.endIndex ? nil : text[next]
+                if c == "，", before?.isNumber != true, after?.isNumber != true { continue }
+                let mapped: Character
+                if c == "-", latin(before), latin(after) { mapped = " " }
+                else if latin(c) { mapped = Character(c.lowercased()) }
+                else { mapped = c }
+                out.append((mapped, next))
+            }
+            return out
+        }
+        let prefix = units(raw), update = units(candidate)
+        guard !prefix.isEmpty, update.count >= prefix.count,
+              zip(prefix, update).allSatisfy({ $0.0.0 == $0.1.0 }) else { return nil }
+        return String(candidate[..<update[prefix.count - 1].1])
     }
 
     private static func hasLocalizedCorrection(from visible: String, to confirmed: String) -> Bool {

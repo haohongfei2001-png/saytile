@@ -34,6 +34,27 @@ struct QwenRecoveryTests {
         #expect(preview.previous == original.last)
     }
 
+    @Test func mixedSpeechCanGrowWhileEarlierWordsChangeTypography() {
+        // Consecutive raw hypotheses from the signed native app (ASCEND a0b0e736637c643c).
+        let words = ["对，但是。", "对，但是除了。", "对，但是除了self driving。",
+            "对，但是除了self-driving car，也。", "对，但是除了self-driving car，也有一些。",
+            "对，但是除了self driving car，也有一些比较就。", "对，但是除了self driving car也有一些比较，就是。",
+            "对，但是除了Self Driving Car也有一些比较，就是low。", "对，但是除了self driving car也有一些比较，就是lower lower。",
+            "对，但是除了self-driving car也有一些比较，就是lower low standard。",
+            "对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的。",
+            "对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些。"]
+        var preview = LocalLiveText(model: .qwen)
+        for text in words {
+            #expect(preview.accept(text, final: false) == 0)
+            #expect(preview.previous == text)
+        }
+        let prior = preview.previous
+        for change in ["没有，除了", "对，但是除了SelfDrivingCar不", "对，但是除了Self -5 Driving Car"] {
+            #expect(preview.accept(change + "也有一些比较就是Lower Low Standard的那些。", final: false) == nil)
+        }
+        #expect(preview.previous == prior)
+    }
+
     private func fixture(_ variant: String) throws -> LocalModelManifest {
         let revision = try LocalModelManifest.load(.qwen).revision
         let file = LocalModelManifest.File(path: "weights", bytes: 3,
