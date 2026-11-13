@@ -39,6 +39,25 @@ struct AudioShutdownTests {
         await controller.shutdown(); try await store.close()
     }
 
+    @MainActor @Test func finishingAppleAssetSetupCannotReplaceAnotherSelectedEnginesStatus() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-resource-route-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = try SaytileStore(directory: root)
+        let controller = AudioController(store: store)
+        let service = LocalASRService(root: root.appending(path: "LocalModels"))
+        await controller.prepareSpeechAssets {
+            controller.selectLocalModels(live: .sherpa, archive: .sherpa, service: service)
+            await controller.updateAvailability { LocalASRID.sherpa.title }.value
+            return "Apple 已就绪"
+        }
+        #expect(controller.speechStatus == LocalASRID.sherpa.title)
+        await controller.prepareSpeechAssets { throw AudioFailure.message("Apple 离线") }
+        #expect(controller.appleResourceFailure == "Apple 离线")
+        #expect(controller.issue == nil && controller.speechStatus == LocalASRID.sherpa.title)
+        await controller.shutdown()
+        try await store.close()
+    }
+
     @MainActor @Test func shutdownIsIdempotentAndCannotRestartAfterStoreClose() async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-audio-exit-\(UUID())")
         defer { try? FileManager.default.removeItem(at: root) }

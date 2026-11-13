@@ -30,7 +30,14 @@ struct LocalModelTests {
         #expect(text.accept("完全不同的一句话", final: false) == nil)
         #expect(text.accept("我们计划星期五下午四点开会确认时间", final: false) == 0)
         #expect(text.accept("最终原话", final: true) == 4)
-        #expect(LocalModelRecommendation.select(appleInstalled: false, sherpaInstalled: true) == .sherpa)
+    }
+    @Test func onlyReadyModelsCanTakeTheNextTicket() {
+        #expect(LocalModelRecommendation.select(preferred: .qwen, requested: nil, available: [.apple, .qwen]) == .qwen)
+        #expect(LocalModelRecommendation.select(preferred: .qwen, requested: .sherpa, available: [.apple, .qwen, .sherpa]) == .sherpa)
+        #expect(LocalModelRecommendation.select(preferred: .qwen, requested: .sherpa, available: [.apple]) == .apple)
+        #expect(LocalModelRecommendation.select(preferred: .qwen, requested: nil, available: [.apple, .qwen], unavailable: [.qwen]) == .apple)
+        #expect(LocalModelRecommendation.select(preferred: .apple, requested: nil, available: [.sherpa]) == .sherpa)
+        #expect(LocalModelRecommendation.select(preferred: .qwen, requested: nil, available: []) == .apple)
     }
     @Test func confirmedNumberRenderingCanResumeAPreviewButCannotCreateDispatchEvidence() {
         var q = LocalLiveText(model: .qwen)

@@ -121,7 +121,8 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         let v=AXValueCreate(.cfRange,&range)!
         if !browser, AXUIElementSetAttributeValue(target.element,kAXSelectedTextRangeAttribute as CFString,v) != .success { throw TargetError.unsupported("caret") }
         let access=AXInputAccess(selectionProvider:select)
-        guard try access.snapshot().canSetSelectedText else { throw TargetError.unsupported("selected-text setter") }
+        // bindOwnedField requires the setter on every one of its complete samples.
+        // The initial role/value can arrive before the focused AX range does.
         let store=try SaytileStore(directory:work.appendingPathComponent("store"))
         let trace = FixtureAccessTrace(access)
         let coordinator = NativeInputCoordinator(store: store, access: trace)
@@ -161,9 +162,12 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
                 browser || matchesTextEditDocument(snapshot.pageIdentity, expected: doc)
             }
         } catch {
-            let current = try access.snapshot()
-            print("Owned field context complete", current.pageContextComplete, "has identity", current.pageIdentity != nil,
-                  "known caret", current.selectionLocation == 7, "witness matches", access.textWitness(at: current) == original)
+            if let current = try? access.snapshot() {
+                print("Owned field context complete", current.pageContextComplete, "has identity", current.pageIdentity != nil,
+                      "known caret", current.selectionLocation == 7, "witness matches", access.textWitness(at: current) == original)
+            } else {
+                print("Owned field failure context unavailable")
+            }
             throw error
         }
         let row=try await store.createRecording()

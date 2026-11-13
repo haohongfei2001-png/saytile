@@ -1,0 +1,37 @@
+{
+  "variants": "Apple SpeechAnalyzer, public Mandarin, same baseline PCM + scoring",
+  "batch_pacing": {
+    "audio_seconds_per_push": 0.2,
+    "minimum_wall_seconds_between_pushes": 0.003,
+    "maximum_nominal_speedup": 66.67
+  },
+  "product_native_frame_seconds": 0.02,
+  "queue_slots": 300,
+  "product_queue_seconds": 6,
+  "direct_nominal_queue_seconds": 60,
+  "total_batch_rows": 440,
+  "rows_with_recognizer_input_queue_overflow": 1,
+  "baseline_product_segment_errors": {
+    "识别处理跟不上，原音已保留，可稍后重新识别": 1,
+    "RecogRejected": 41,
+    "未识别到文字；原音可回听或重试": 1
+  },
+  "overflow_fixture": "fleurs-1bc3201a9f24a2fe",
+  "wall_paced_same_audio": {
+    "baseline": {
+      "sha": "a4f9f08656d1a22d2e0b6c59ad60e36452881010",
+      "exit_code": 0,
+      "changes": 26,
+      "archived": true,
+      "audio_sha256": "ef3d6ba58fa3b2b22724593b0962964f1c107f3e33d04b12c2c41244ca30d717"
+    },
+    "current": {
+      "sha": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+      "exit_code": 0,
+      "changes": 26,
+      "archived": true,
+      "audio_sha256": "ef3d6ba58fa3b2b22724593b0962964f1c107f3e33d04b12c2c41244ca30d717"
+    }
+  },
+  "conclusion": "Buffer overflow reproduced with accelerated capture. Both real-time native windows recognized this same recording. No real-time cold model-load or scheduling overload was observed or induced for this claim."
+}

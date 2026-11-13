@@ -19,6 +19,8 @@ import SaytileKit
         let total: Double
         let archive: [String]
         let providers: [String]
+        let recordStates: [String]
+        let recordingErrors: [String]
     }
     static func textView(_ parent: NSView) -> CompactTranscriptScrollView? {
         if let result = parent as? CompactTranscriptScrollView { return result }
@@ -34,6 +36,11 @@ import SaytileKit
         await model.initialLoad()
         model.selectSource("local")
         model.selectLocal(id, archiveOnly: id.capability == .batch)
+        if id == .apple, !(await AppleSpeechService.availability()).installed {
+            await model.audio.prepareSpeechAssets()
+            let status = await AppleSpeechService.availability()
+            guard status.installed else { throw AudioFailure.message(model.audio.appleResourceFailure ?? status.message) }
+        }
         let start = ProcessInfo.processInfo.systemUptime
         // These are host timeline publications before the view performs any presentation.
         // A display frame is not another ASR result. Collect only inside this disposable probe.
@@ -90,7 +97,8 @@ import SaytileKit
         }
         let receipt = Result(model: id.rawValue, sha: Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String,
             sample: source.lastPathComponent, publications: publications, frames: frames, displayedChanges: changes, endOfFile: eos - start, pipelineSettledAt: settled,
-            total: ProcessInfo.processInfo.systemUptime - start, archive: records.map(\.text), providers: providers.sorted())
+            total: ProcessInfo.processInfo.systemUptime - start, archive: records.map(\.text), providers: providers.sorted(),
+            recordStates: records.map { $0.recognitionState.rawValue }, recordingErrors: records.compactMap(\.lastError))
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]
         try encoder.encode(receipt).write(to: model.directory.appending(path: "visible.json"), options: .atomic)
         let early = frames.filter { $0.t < receipt.endOfFile && $0.speaking }

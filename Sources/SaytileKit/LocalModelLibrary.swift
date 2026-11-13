@@ -207,6 +207,9 @@ public actor LocalModelLibrary {
             jobs[id] = nil
         }
     }
+    public func waitForDownload(_ id: LocalASRID) async {
+        await jobs[id]?.value
+    }
     public func pause(_ id: LocalASRID) async {
         guard let task = jobs[id] else { return }
         task.cancel()

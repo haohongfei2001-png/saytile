@@ -461,14 +461,14 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         }
         return eos
     }
-    public func selectLocalModels(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil) {
+    public func selectLocalModels(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil, onUnavailable: (@Sendable (LocalASRID) -> Void)? = nil) {
         guard live.capability != .batch else { return }
         if live != selectedLocalID {
             selectedLocalID = live
-            if live != .apple { automaticAssetTask?.cancel() }
+            automaticAssetAttempted = false
             Task { await service.releaseIdle() }
         }
-        recognitionFactory.selectLocal(live: live, archive: archive, service: service, review: review)
+        recognitionFactory.selectLocal(live: live, archive: archive, service: service, review: review, onUnavailable: onUnavailable)
         refreshLocalModelStatus()
     }
     public func refreshLocalModelStatus() {
@@ -489,18 +489,21 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     }
     public func selectHostedRoute(_ route: HostedRoute, revoke: Bool = false) {
         recognitionFactory.select(route, revoke: revoke)
+        if state.isRunning { prepareLocalSpeechResourcesIfNeeded() }
     }
 
     public func revokeCloudRecognition() {
         recognitionSettingsGeneration &+= 1
         var local = recognitionFactory.configuration; local.cloudEnabled = false
         recognitionFactory.update(local)
+        if state.isRunning { prepareLocalSpeechResourcesIfNeeded() }
         retryTask?.cancel()
         speechStatus = "云端已停用 · 本机识别"
     }
     public func setRouteForNextUtterance(_ configuration: RecognitionConfiguration) {
         recognitionSettingsGeneration &+= 1
         recognitionFactory.update(configuration, nextUtteranceOnly: true)
+        if state.isRunning { prepareLocalSpeechResourcesIfNeeded() }
         speechStatus = configuration.cloudEnabled ? "新讲话使用已选语言专家" : "新讲话使用本机识别"
     }
     public func setRecognitionConfiguration(_ configuration: RecognitionConfiguration) async {
@@ -526,6 +529,26 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             await activeRetry?.value
         }
     }
+    /// Prepares Apple's per-app language resource without delaying local capture. A later
+    /// route change cannot publish this model's status over the active model.
+    public func prepareLocalSpeechResourcesIfNeeded() {
+        guard !isShuttingDown else { return }
+        guard selectedLocalID == .apple, !recognitionFactory.usesCloud else {
+            automaticAssetAttempted = false
+            return
+        }
+        guard !automaticAssetAttempted, automaticAssetTask == nil else { return }
+        automaticAssetAttempted = true
+        automaticAssetTask = Task {
+            defer { automaticAssetTask = nil }
+            let availability = await AppleSpeechService.availability()
+            guard !Task.isCancelled, selectedLocalID == .apple, !recognitionFactory.usesCloud else { return }
+            if availability.installed { speechStatus = availability.message }
+            else if availability.supported { await prepareSpeechAssets() }
+            else { appleResourceFailure = availability.message; speechStatus = availability.message }
+        }
+    }
+
     public func prepareSpeechAssets() async {
         await prepareSpeechAssets {
             try await AppleSpeechService.prepare()
@@ -547,14 +570,22 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         defer { preparingAppleSpeech = false }
         let task = Task { @MainActor in
             preparingSpeech = true; defer { preparingSpeech = false }
-            speechStatus = "正在准备中文识别资源 · 原音继续保存"
+            if selectedLocalID == .apple && !recognitionFactory.usesCloud { speechStatus = "正在准备中文识别资源 · 原音继续保存" }
             do {
                 let ready = try await install(); try Task.checkCancellation()
-                speechStatus = ready
+                if selectedLocalID == .apple && !recognitionFactory.usesCloud { speechStatus = ready }
                 if let previousIssue, issue == previousIssue { issue = nil }
             }
             catch is CancellationError { }
-            catch { if !isShuttingDown { appleResourceFailure = error.localizedDescription; issue = "中文资源下载失败：\(error.localizedDescription)"; speechStatus = issue! } }
+            catch {
+                guard !isShuttingDown else { return }
+                appleResourceFailure = error.localizedDescription
+                if selectedLocalID == .apple && !recognitionFactory.usesCloud {
+                    let message = "中文资源下载失败：\(error.localizedDescription)"
+                    issue = message
+                    speechStatus = message
+                }
+            }
         }
         assetTask = task; await task.value; assetTask = nil
     }
@@ -628,15 +659,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             }
             self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
             await worker.start()
-            if selectedLocalID == .apple && !automaticAssetAttempted && !recognitionFactory.usesCloud {
-                automaticAssetAttempted = true
-                automaticAssetTask = Task {
-                    let availability = await AppleSpeechService.availability()
-                    if availability.installed { speechStatus = availability.message }
-                    else if availability.supported { await prepareSpeechAssets() }
-                    else { appleResourceFailure = availability.message; speechStatus = availability.message }
-                }
-            }
+            prepareLocalSpeechResourcesIfNeeded()
         } catch {
             guard generation == startGeneration else { return }
             activeInputIsBuiltIn = false

@@ -125,11 +125,11 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         }
     }
     func localAvailability() async -> SpeechAvailability { await snapshot.local.availability() }
-    func selectLocal(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil) {
+    func selectLocal(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil, onUnavailable: (@Sendable (LocalASRID) -> Void)? = nil) {
         lock.withLock {
             self.local = .device(live, service: service)
             self.archive = .device(archive, service: service)
-            self.liveLocal = .device(live, service: service, review: review)
+            self.liveLocal = .device(live, service: service, review: review, onUnavailable: onUnavailable)
         }
     }
     private final class Retired {

@@ -163,6 +163,10 @@ struct AppModelProbe {
         model.selectLocal(.apple)
         try require(model.manualLocalModel == .apple && model.selectedLocalModel == .apple && model.deviceOnly && !model.hosted.consent,
                     "choosing a named local model persists the choice without enabling online audio")
+        model.selectLocal(.qwen)
+        await model.refreshLocalRecommendation()
+        try require(model.manualLocalModel == .qwen && model.selectedLocalModel == .apple && model.localFallbackMessage != nil,
+                    "a missing preferred model preserves the preference and uses the available local fallback")
         model.selectLocal(nil)
         model.setLoginItem(true)
         try require(!model.canManageLoginItem && !model.launchAtLogin,
