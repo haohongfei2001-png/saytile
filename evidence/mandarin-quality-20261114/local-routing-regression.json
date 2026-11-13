@@ -1,0 +1,36 @@
+{
+  "platform": "macOS arm64 (M5), Command Line Tools 6.4",
+  "source_sha256": {
+    "Sources/SaytileApp/AppModel.swift": "60db3b122bf2fcb8f672dcfc78745de9426ce127790a7372dc8d327c79c9a972",
+    "Sources/SaytileApp/LocalModelSettings.swift": "cd9ad22c850a06e2706cf1d3d00aeed612292361f89343f9ca23840901e907dc",
+    "Sources/SaytileKit/LocalModelLibrary.swift": "a88242c1137e4d86b3215fe998ee7c4b7cb8a896f8ee859f197af5a2e85ae28f",
+    "tests/SaytileKitTests/LocalModelTests.swift": "73ed70c2a1518621a549edeeceb8c84e35779bb54b69e78ea260d70052baf3dd",
+    "tests/fixtures/AppModelProbe.swift": "eb27b954bf2d50bb5b53f1550d9f86614e3fd526d9eba1517378ca7235ddc4cf"
+  },
+  "scope": "Native AppModel, separate synthetic data directory, nonactivating window. Network interruptions injected at the URLSession boundary. No user recordings, cloud ASR, microphone input or changes to system network settings.",
+  "regressions": [
+    "Old A→B→A availability callbacks cannot dismiss the current model.",
+    "Fallback may be explicitly pinned and a failed sole local recognizer retried. Removing a pin restores the default.",
+    "Only connectivity errors arm a retry. Duplicate satisfied events do not repeat a transfer. A restoration racing with URLSession completion is retained. User cancellation removes the pending resumption.",
+    "Data integrity or server reply failures do not arm network retries. Deletion clears the saved interruption."
+  ],
+  "commands": {
+    "scripts/test-app-model.sh": {
+      "status": "PASS",
+      "checks": 162,
+      "failed": 0,
+      "extra_native_panel_gesture_checks": 30,
+      "log_sha256": "44088ef6e634ed36c078377c6bba4fdcc7ed11865fe873ce62abab04b3e8f719"
+    },
+    "scripts/test-native.sh --no-parallel --filter 'LocalModelTests|LocalModelRoutingTests|QwenRecoveryTests'": {
+      "status": "PASS",
+      "tests": 15,
+      "failed": 0,
+      "suites": 3,
+      "log_sha256": "c8a143586b8cac9e583b0b30c6d21cd7980d81ee713e7fb20539ba4b8bda72e2"
+    }
+  },
+  "not_run": [
+    "Disconnecting or reconnecting the host network or recording a private microphone session."
+  ]
+}

@@ -59,6 +59,21 @@ private struct DelayedFinalExpert: StreamingASRProvider {
 
 @Suite("Capture VAD activity during independent recognition finalization")
 struct CaptureVADFinalizationTests {
+    @Test func filterReleaseCannotStartSpeechFromDigitalSilence() throws {
+        // A quiet DC step excites the WebRTC filters only after returning
+        // to zero. A single PCM count in the same frame still counts as input.
+        for residual: Int16 in [0, 1] {
+            let vad = try #require(st_vad_create())
+            defer { st_vad_destroy(vad) }
+            let step = [Int16](repeating: 260, count: 320)
+            #expect(step.withUnsafeBufferPointer { st_vad_process(vad, $0.baseAddress!, $0.count) } == STVoiceQuiet)
+            var release = [Int16](repeating: 0, count: 320)
+            release[319] = residual
+            let decision = release.withUnsafeBufferPointer { st_vad_process(vad, $0.baseAddress!, $0.count) }
+            #expect(decision == (residual == 0 ? STVoiceHangover : STVoiceDetected))
+        }
+    }
+
     @Test func speechEndsAndRestartsWhileFirstExpertFinalsAreHeld() async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-vad-final-" + UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }

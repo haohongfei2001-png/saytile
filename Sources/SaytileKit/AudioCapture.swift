@@ -47,8 +47,7 @@ actor CaptureWorker {
         self.store = store; self.ring = ring; self.sampleRate = sampleRate; self.recognitionEnabled = recognitionEnabled; self.update = update; self.failed = failed
         self.journalIO = journalIO
         self.recognitionFactory = recognitionFactory
-        segmenter = try VoiceSegmenter(endSilenceFrames: recognitionFactory.usesCloud ? 100 : VoiceSegmenter.localPauseFrames,
-                                       maximumFrames: recognitionFactory.usesCloud ? 15_000 : 1_500)
+        segmenter = try VoiceSegmenter()
         sourceFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRate, channels: 1, interleaved: false)!
         targetFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16_000, channels: 1, interleaved: false)!
         guard let converter = AVAudioConverter(from: sourceFormat, to: targetFormat) else { throw AudioFailure.message("麦克风格式不受支持") }
@@ -125,10 +124,13 @@ actor CaptureWorker {
     private var lastPCMEnd: Date?
     func acceptPCM(_ pcm: Data, endingAt time: Date = .now) async throws {
         lastPCMEnd = time
-        for event in segmenter.accept(pcm, nextMaximumFrames: recognitionFactory.isHosted ? 1500 : nil) {
+        // Resolve the route when speech actually starts. The endpoint policy
+        // and recognition ticket must refer to the same settings generation.
+        lazy var route = recognitionFactory.snapshot
+        for event in segmenter.accept(pcm, nextLimits: { route.captureLimits }) {
             switch event {
             case let .begin(preRoll, sample):
-                try await beginUtterance(at: time.addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000))
+                try await beginUtterance(at: time.addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000), snapshot: route)
                 for frame in preRoll { try await append(frame) }
             case let .audio(frame): try await append(frame)
             case let .end(sample): try await endUtterance(at: time.addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000))
@@ -146,10 +148,10 @@ actor CaptureWorker {
             }
         }
     }
-    func beginUtterance(at start: Date = .now) async throws {
+    func beginUtterance(at start: Date = .now, snapshot requested: RecognitionSessionFactory.Snapshot? = nil) async throws {
         // A settings change during journal creation must not grant new destinations
         // to audio that began under a local-only or older consent configuration.
-        let snapshot = recognitionFactory.snapshot
+        let snapshot = requested ?? recognitionFactory.snapshot
         let record = try await store.createRecording(createdAt: start)
         recordingID = record.id
         do {
@@ -461,14 +463,14 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         }
         return eos
     }
-    public func selectLocalModels(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil) {
+    public func selectLocalModels(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil, onUnavailable: (@Sendable (LocalASRID) -> Void)? = nil) {
         guard live.capability != .batch else { return }
         if live != selectedLocalID {
             selectedLocalID = live
-            if live != .apple { automaticAssetTask?.cancel() }
+            automaticAssetAttempted = false
             Task { await service.releaseIdle() }
         }
-        recognitionFactory.selectLocal(live: live, archive: archive, service: service, review: review)
+        recognitionFactory.selectLocal(live: live, archive: archive, service: service, review: review, onUnavailable: onUnavailable)
         refreshLocalModelStatus()
     }
     public func refreshLocalModelStatus() {
@@ -489,18 +491,21 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     }
     public func selectHostedRoute(_ route: HostedRoute, revoke: Bool = false) {
         recognitionFactory.select(route, revoke: revoke)
+        if state.isRunning { prepareLocalSpeechResourcesIfNeeded() }
     }
 
     public func revokeCloudRecognition() {
         recognitionSettingsGeneration &+= 1
         var local = recognitionFactory.configuration; local.cloudEnabled = false
         recognitionFactory.update(local)
+        if state.isRunning { prepareLocalSpeechResourcesIfNeeded() }
         retryTask?.cancel()
         speechStatus = "云端已停用 · 本机识别"
     }
     public func setRouteForNextUtterance(_ configuration: RecognitionConfiguration) {
         recognitionSettingsGeneration &+= 1
         recognitionFactory.update(configuration, nextUtteranceOnly: true)
+        if state.isRunning { prepareLocalSpeechResourcesIfNeeded() }
         speechStatus = configuration.cloudEnabled ? "新讲话使用已选语言专家" : "新讲话使用本机识别"
     }
     public func setRecognitionConfiguration(_ configuration: RecognitionConfiguration) async {
@@ -526,6 +531,26 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             await activeRetry?.value
         }
     }
+    /// Prepares Apple's per-app language resource without delaying local capture. A later
+    /// route change cannot publish this model's status over the active model.
+    public func prepareLocalSpeechResourcesIfNeeded() {
+        guard !isShuttingDown else { return }
+        guard selectedLocalID == .apple, !recognitionFactory.usesCloud else {
+            automaticAssetAttempted = false
+            return
+        }
+        guard !automaticAssetAttempted, automaticAssetTask == nil else { return }
+        automaticAssetAttempted = true
+        automaticAssetTask = Task {
+            defer { automaticAssetTask = nil }
+            let availability = await AppleSpeechService.availability()
+            guard !Task.isCancelled, selectedLocalID == .apple, !recognitionFactory.usesCloud else { return }
+            if availability.installed { speechStatus = availability.message }
+            else if availability.supported { await prepareSpeechAssets() }
+            else { appleResourceFailure = availability.message; speechStatus = availability.message }
+        }
+    }
+
     public func prepareSpeechAssets() async {
         await prepareSpeechAssets {
             try await AppleSpeechService.prepare()
@@ -547,14 +572,22 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         defer { preparingAppleSpeech = false }
         let task = Task { @MainActor in
             preparingSpeech = true; defer { preparingSpeech = false }
-            speechStatus = "正在准备中文识别资源 · 原音继续保存"
+            if selectedLocalID == .apple && !recognitionFactory.usesCloud { speechStatus = "正在准备中文识别资源 · 原音继续保存" }
             do {
                 let ready = try await install(); try Task.checkCancellation()
-                speechStatus = ready
+                if selectedLocalID == .apple && !recognitionFactory.usesCloud { speechStatus = ready }
                 if let previousIssue, issue == previousIssue { issue = nil }
             }
             catch is CancellationError { }
-            catch { if !isShuttingDown { appleResourceFailure = error.localizedDescription; issue = "中文资源下载失败：\(error.localizedDescription)"; speechStatus = issue! } }
+            catch {
+                guard !isShuttingDown else { return }
+                appleResourceFailure = error.localizedDescription
+                if selectedLocalID == .apple && !recognitionFactory.usesCloud {
+                    let message = "中文资源下载失败：\(error.localizedDescription)"
+                    issue = message
+                    speechStatus = message
+                }
+            }
         }
         assetTask = task; await task.value; assetTask = nil
     }
@@ -628,15 +661,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             }
             self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
             await worker.start()
-            if selectedLocalID == .apple && !automaticAssetAttempted && !recognitionFactory.usesCloud {
-                automaticAssetAttempted = true
-                automaticAssetTask = Task {
-                    let availability = await AppleSpeechService.availability()
-                    if availability.installed { speechStatus = availability.message }
-                    else if availability.supported { await prepareSpeechAssets() }
-                    else { appleResourceFailure = availability.message; speechStatus = availability.message }
-                }
-            }
+            prepareLocalSpeechResourcesIfNeeded()
         } catch {
             guard generation == startGeneration else { return }
             activeInputIsBuiltIn = false

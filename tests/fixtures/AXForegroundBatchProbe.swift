@@ -111,12 +111,14 @@ private func immediateAbort(_ message: String) -> Never {
         for scenario in ["longer", "shorter", "manualEdit", "blur", "restart"] {
             try safety.check(pid)
             _ = try command("web", "restore")
-            try await Task.sleep(for: .milliseconds(200))
             let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-owned-web-" + UUID().uuidString)
             defer { try? FileManager.default.removeItem(at: root) }
             let store = try SaytileStore(directory: root)
-            let input = NativeInputCoordinator(store: store, access: access)
-            let binding = try await input.bindCurrentTarget()
+            let trace = FixtureAccessTrace(access)
+            trace.stage = "web " + scenario
+            let input = NativeInputCoordinator(store: store, access: trace)
+            try await bindOwnedField(input, trace: trace, original: "PREFIX|SUFFIX", caret: 7, pid: pid)
+            guard let binding = input.binding else { throw BatchFailure(message: "web " + scenario + " missing binding") }
             let record = try await store.createRecording()
             let ticket = try await store.beginFusionRecognition(recordingID: record.id)
             let asr = ModelConfiguration(purpose: .chineseASR, provider: .qwenMessage, model: "owned-fixture-no-network")

@@ -163,7 +163,39 @@ struct AppModelProbe {
         model.selectLocal(.apple)
         try require(model.manualLocalModel == .apple && model.selectedLocalModel == .apple && model.deviceOnly && !model.hosted.consent,
                     "choosing a named local model persists the choice without enabling online audio")
+        model.selectLocal(.qwen)
+        await model.refreshLocalRecommendation()
+        try require(model.manualLocalModel == .qwen && model.selectedLocalModel == .apple && model.localFallbackMessage != nil,
+                    "a missing preferred model preserves the preference and uses the available local fallback")
+        try require(model.localModelChoiceLabel(.apple) == "固定使用", "the user can pin the active fallback")
+        model.selectLocal(.apple)
+        let staleSelection = model.localEngineGeneration
+        model.selectLocal(.sherpa)
+        model.selectLocal(.apple)
+        await model.localEngineUnavailable(.apple, generation: staleSelection)
+        try require(model.localModelChoiceLabel(.apple) == "已选择" && model.localFallbackMessage == nil,
+                    "a late failure from Apple before an A-B-A reselection cannot disable the new Apple ticket")
+        await model.localEngineUnavailable(.apple, generation: model.localEngineGeneration)
+        try require(model.localModelChoiceLabel(.apple) == "重试", "the only remaining engine allows an explicit retry")
+        model.selectLocal(.apple)
+        try require(model.localModelChoiceLabel(.apple) == "已选择", "retry clears only that local model failure")
+        var reconnect = ModelDownloadReconnect()
+        let started = reconnect.generation
+        try require(!reconnect.update(available: true) && !reconnect.update(available: false)
+                    && !reconnect.interrupted(since: started), "an offline failed transfer waits for a real network restoration")
+        try require(reconnect.update(available: true) && !reconnect.update(available: true),
+                    "duplicated satisfied events resume one interrupted transfer at most once")
+        let secondStart = reconnect.generation
+        _ = reconnect.update(available: false)
+        _ = reconnect.update(available: true)
+        try require(reconnect.interrupted(since: secondStart), "connectivity restoration before URLSession reports an error is retained")
+        _ = reconnect.update(available: false)
+        _ = reconnect.interrupted(since: reconnect.generation)
+        reconnect.cancel()
+        try require(!reconnect.update(available: true), "pause, cloud selection, and explicit model selection cancel the pending reconnect")
         model.selectLocal(nil)
+        try require(model.manualLocalModel == nil && !model.isLocalChoiceFixed(.apple),
+                    "restoring the default removes the pinned choice")
         model.setLoginItem(true)
         try require(!model.canManageLoginItem && !model.launchAtLogin,
                     "an isolated instance cannot change the production login item or display an enabled state")

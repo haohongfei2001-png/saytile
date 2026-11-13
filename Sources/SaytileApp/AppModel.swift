@@ -3,6 +3,7 @@ import AppKit
 import SwiftUI
 import Combine
 import ServiceManagement
+import Network
 import AVFoundation
 import SaytileKit
 
@@ -160,6 +161,29 @@ struct PanelCapturePresentation: Equatable {
     }
 }
 
+/// Only an offline-to-online edge can retry a transient download. The edge may
+/// arrive while URLSession is still completing the failed request.
+struct ModelDownloadReconnect {
+    private var available: Bool?
+    private(set) var generation: UInt64 = 0
+    private var waiting = false
+
+    mutating func update(available next: Bool) -> Bool {
+        defer { available = next }
+        guard available == false && next else { return false }
+        generation &+= 1
+        defer { waiting = false }
+        return waiting
+    }
+
+    mutating func interrupted(since start: UInt64) -> Bool {
+        waiting = generation == start
+        return !waiting
+    }
+
+    mutating func cancel() { waiting = false }
+}
+
 @MainActor
 final class AppModel: ObservableObject {
     let store: SaytileStore
@@ -169,8 +193,17 @@ final class AppModel: ObservableObject {
     @Published private(set) var archiveLocalModel: LocalASRID?
     @Published private(set) var localTextAllowed: Bool
     private var localReview: LocalTextReview?
-    @Published private var automaticLocal: LocalASRID = .apple
-    var selectedLocalModel: LocalASRID { manualLocalModel ?? automaticLocal }
+    @Published private(set) var selectedLocalModel: LocalASRID = .apple
+    @Published private(set) var localFallbackMessage: String?
+    private let managesLocalModels: Bool
+    private var unavailableLocalModels: Set<LocalASRID> = []
+    private var selectionGeneration = 0
+    private(set) var localEngineGeneration: UInt64 = 0
+    private var attemptedAutomaticDownload = false
+    private var automaticTransfer: Task<Void, Never>?
+    private var downloadNetworkMonitor: NWPathMonitor?
+    private var downloadReconnect = ModelDownloadReconnect()
+
     private var accountRoute: HostedRoute = .byok
     let audio: AudioController
     let input: NativeInputCoordinator
@@ -246,6 +279,7 @@ final class AppModel: ObservableObject {
     var hasUnappliedRecognitionSettings: Bool { recognitionConfiguration != appliedRecognitionConfiguration }
     @Published var recognitionSettingsNotice: String?
     @Published var modelCallSummary: [String] = []
+    @Published private(set) var lastASR: String?
     @Published var directMode = false
     @Published private(set) var insertionLabels: [UUID: String] = [:]
     @Published var targetLabel = "在目标草稿中放置光标，再绑定"
@@ -336,6 +370,7 @@ final class AppModel: ObservableObject {
 
     init(directory: URL, preferences: UserDefaults = .standard, normalLaunch: Bool = false, connectionDependencies: AppConnectionDependencies = .live,
          captureDependencies: AppCaptureDependencies = .live, copyPasteboard: NSPasteboard? = nil) throws {
+        managesLocalModels = normalLaunch
         canManageLoginItem = normalLaunch && SaytileStorageProfile.current == .standard
         localModels = LocalASRService(root: directory.appending(path: "LocalModels"))
         localTextAllowed = preferences.bool(forKey: "localASR.textAllowed")
@@ -368,7 +403,7 @@ final class AppModel: ObservableObject {
         panelBorderVisible = preferences.object(forKey: "panelBorderVisible") as? Bool ?? true
         floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
         launchAtLogin = canManageLoginItem && SMAppService.mainApp.status == .enabled
-        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? ([.designExperience, .sharedVoicePreview].contains(SaytileStorageProfile.current) ? "disabled" : "option-space")
+        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? ([.designExperience, .sharedVoicePreview, .mandarinCandidate].contains(SaytileStorageProfile.current) ? "disabled" : "option-space")
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
         initializing = false
         hosted.bind { [weak self] route, revoke in
@@ -378,7 +413,7 @@ final class AppModel: ObservableObject {
             objectWillChange.send()
         }
         applyLocalSelection()
-        Task { await refreshLocalRecommendation() }
+        if normalLaunch { Task { await refreshLocalRecommendation() } }
         input.onBindingInvalidated = { [weak self] in
             self?.directMode = false
             self?.targetLabel = "目标已改变，请重新绑定草稿"
@@ -441,11 +476,15 @@ final class AppModel: ObservableObject {
     }
     func selectSource(_ source: String, revoke: Bool = false) {
         if source != "local" && localTextAllowed { allowLocalText(false) }
+        if source != "local" { cancelAutomaticDownload() }
+        let changedLocalRoute = deviceOnly != (source == "local")
+        if changedLocalRoute { localEngineGeneration &+= 1 }
         deviceOnly = source == "local"
         preferences.set(deviceOnly, forKey: "localASR.deviceOnly")
         hosted.select(source == "hosted")
         audio.selectHostedRoute(deviceOnly ? .local : accountRoute, revoke: revoke)
-        audio.refreshLocalModelStatus()
+        if changedLocalRoute { applyLocalSelection() } else { audio.refreshLocalModelStatus() }
+        if deviceOnly && managesLocalModels { Task { await refreshLocalRecommendation() } }
     }
     func allowHostedSpeech(_ enabled: Bool) {
         if enabled {
@@ -479,10 +518,19 @@ final class AppModel: ObservableObject {
             preferences.set(model?.rawValue, forKey: "localASR.archive")
         } else {
             guard model?.capability != .batch else { return }
+            selectionGeneration += 1
+            localEngineGeneration &+= 1
+            if let model {
+                cancelAutomaticDownload()
+                unavailableLocalModels.remove(model)
+                selectedLocalModel = model
+            }
+            localFallbackMessage = nil
             manualLocalModel = model
             preferences.set(model?.rawValue, forKey: "localASR.manual")
         }
         applyLocalSelection()
+        if !archiveOnly && (managesLocalModels || model == nil) { Task { await refreshLocalRecommendation() } }
     }
     var localGPT: ModelConfiguration? {
         appliedRecognitionConfiguration.enabledModels.first { $0.purpose == .textFusion && $0.provider == .openAIResponses && $0.model == "gpt-6-astra" }
@@ -494,18 +542,144 @@ final class AppModel: ObservableObject {
         applyLocalSelection()
     }
     func refreshLocalRecommendation() async {
-        guard manualLocalModel == nil else { return }
-        let sherpa = await localModels.library.status(.sherpa)
-        let apple = await AppleSpeechService.availability()
-        let pick = LocalModelRecommendation.select(appleInstalled: apple.installed, sherpaInstalled: sherpa.installed)
-        guard manualLocalModel == nil, pick != automaticLocal else { return }
-        automaticLocal = pick
-        applyLocalSelection()
+        selectionGeneration += 1
+        let generation = selectionGeneration
+        guard !exitPrepared, !preparingForExit else { return }
+        let preferred = LocalModelRecommendation.preferred
+        let requested = manualLocalModel
+        let choices = [requested, preferred, .apple, .sherpa, .qwen].compactMap { $0 }
+        var available: Set<LocalASRID> = []
+        // Stop once the first usable engine is found. Never read unused weight files
+        // solely to populate a routing decision.
+        var checked: Set<LocalASRID> = []
+        for id in choices where checked.insert(id).inserted && !unavailableLocalModels.contains(id) {
+            if await localModels.availability(id).installed { available.insert(id) }
+            guard generation == selectionGeneration, !exitPrepared, !preparingForExit else { return }
+            if available.contains(id) { break }
+        }
+        let pick = LocalModelRecommendation.select(preferred: preferred, requested: requested,
+                                                  available: available, unavailable: unavailableLocalModels)
+        let firstChoice = requested ?? preferred
+        if unavailableLocalModels.contains(firstChoice) || (requested != nil && !available.contains(firstChoice)) {
+            localFallbackMessage = available.contains(pick)
+                ? "\(firstChoice.title) 暂不可用，新讲话使用 \(pick.title)。"
+                : "本地识别资源尚未就绪，原音会继续保存。"
+        } else {
+            localFallbackMessage = nil
+        }
+        if selectedLocalModel != pick {
+            localEngineGeneration &+= 1
+            selectedLocalModel = pick
+            applyLocalSelection()
+        }
+        if managesLocalModels, deviceOnly, pick == .apple {
+            audio.prepareLocalSpeechResourcesIfNeeded()
+        }
+        if managesLocalModels, deviceOnly, requested == nil, preferred != .apple,
+           !available.contains(preferred), !unavailableLocalModels.contains(preferred), !attemptedAutomaticDownload,
+           !preferences.bool(forKey: "localASR.pauseAutomatic." + preferred.rawValue) {
+            let status = await localModels.library.status(preferred)
+            guard selectionGeneration == generation, deviceOnly, !status.installed,
+                  !preparingForExit, !exitPrepared, !attemptedAutomaticDownload,
+                  !preferences.bool(forKey: "localASR.pauseAutomatic." + preferred.rawValue) else { return }
+            attemptedAutomaticDownload = true
+            monitorAutomaticDownloadNetwork()
+            let startReconnection = downloadReconnect.generation
+            guard let transfer = await localModels.library.download(preferred) else {
+                // Another caller owns that transfer and its completion refresh.
+                // In particular, do not cancel a manually requested download.
+                return
+            }
+            automaticTransfer = transfer
+            if !deviceOnly || manualLocalModel != nil || exitPrepared || preparingForExit
+                || preferences.bool(forKey: "localASR.pauseAutomatic." + preferred.rawValue) {
+                transfer.cancel()
+            }
+            await transfer.value
+            let interrupted = await localModels.library.needsNetworkToResume(preferred)
+            guard automaticTransfer == transfer else { return }
+            automaticTransfer = nil
+            if transfer.isCancelled { attemptedAutomaticDownload = false }
+            if !transfer.isCancelled, interrupted {
+                if downloadReconnect.interrupted(since: startReconnection) { attemptedAutomaticDownload = false }
+            }
+            await refreshLocalRecommendation()
+        }
     }
+
+    private func monitorAutomaticDownloadNetwork() {
+        guard downloadNetworkMonitor == nil else { return }
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] path in
+            let available = path.status == .satisfied
+            Task { @MainActor [weak self] in self?.downloadPathChanged(available: available) }
+        }
+        downloadNetworkMonitor = monitor
+        monitor.start(queue: DispatchQueue(label: "app.saytile.model-connectivity"))
+    }
+
+    private func downloadPathChanged(available: Bool) {
+        guard downloadReconnect.update(available: available) else { return }
+        attemptedAutomaticDownload = false
+        Task { await refreshLocalRecommendation() }
+    }
+
+    private func cancelAutomaticDownload() {
+        automaticTransfer?.cancel()
+        downloadReconnect.cancel()
+        attemptedAutomaticDownload = false
+    }
+
+    func downloadLocalModel(_ id: LocalASRID) async {
+        preferences.removeObject(forKey: "localASR.pauseAutomatic." + id.rawValue)
+        await localModels.library.download(id)
+        await localModels.library.waitForDownload(id)
+        await refreshLocalRecommendation()
+    }
+
+    func pauseLocalModelDownload(_ id: LocalASRID) async {
+        preferences.set(true, forKey: "localASR.pauseAutomatic." + id.rawValue)
+        if id == LocalModelRecommendation.preferred { cancelAutomaticDownload() }
+        await localModels.library.pause(id)
+    }
+
+    func removeLocalModel(_ id: LocalASRID) async throws {
+        preferences.set(true, forKey: "localASR.pauseAutomatic." + id.rawValue)
+        if id == LocalModelRecommendation.preferred { cancelAutomaticDownload() }
+        try await localModels.delete(id)
+        if archiveLocalModel == id { selectLocal(nil, archiveOnly: true) }
+        if manualLocalModel == id { selectLocal(nil) }
+        await refreshLocalRecommendation()
+    }
+
+    func isLocalChoiceFixed(_ id: LocalASRID) -> Bool {
+        id == selectedLocalModel && id == manualLocalModel && !unavailableLocalModels.contains(id)
+    }
+
+    func localModelChoiceLabel(_ id: LocalASRID) -> String {
+        if unavailableLocalModels.contains(id) { return "重试" }
+        if id != selectedLocalModel { return "使用此模型" }
+        return id == manualLocalModel ? "已选择" : "固定使用"
+    }
+
+    func localEngineUnavailable(_ id: LocalASRID, generation: UInt64) async {
+        guard !exitPrepared, !preparingForExit, localEngineGeneration == generation,
+              selectedLocalModel == id, unavailableLocalModels.insert(id).inserted else { return }
+        await refreshLocalRecommendation()
+    }
+
     func applyLocalSelection() {
         if deviceOnly, localTextAllowed, localReview == nil, let item = localGPT { localReview = LocalTextReview(model: item) }
+        var onUnavailable: (@Sendable (LocalASRID) -> Void)?
+        if managesLocalModels {
+            let generation = localEngineGeneration
+            onUnavailable = { [weak self] id in
+                Task { @MainActor [weak self] in await self?.localEngineUnavailable(id, generation: generation) }
+            }
+        }
         let live = selectedLocalModel
-        audio.selectLocalModels(live: live, archive: archiveLocalModel ?? live, service: localModels, review: localReview)
+        audio.selectLocalModels(live: live, archive: archiveLocalModel ?? live, service: localModels,
+                                review: localReview, onUnavailable: onUnavailable)
     }
     var engineLabel: String { audio.speechStatus }
     func hasCredential(_ item: ModelConfiguration) -> Bool {
@@ -1085,7 +1259,15 @@ final class AppModel: ObservableObject {
             await self.refresh()
         }
     }
-    func prepareSpeech() { Task { await audio.prepareSpeechAssets() } }
+    func prepareSpeech() {
+        Task {
+            await audio.prepareSpeechAssets()
+            if await AppleSpeechService.availability().installed {
+                unavailableLocalModels.remove(.apple)
+                await refreshLocalRecommendation()
+            }
+        }
+    }
     func requestAccessibility() { input.requestPermission() }
     func revealData() { NSWorkspace.shared.activateFileViewerSelecting([directory]) }
     func setArchiveEditing(_ id: UUID?) {
@@ -1147,6 +1329,9 @@ final class AppModel: ObservableObject {
         // If saving fails, the delegate keeps this window open and the normal refresh loop alive.
         if !hasUnpersistedDrafts {
             exitPrepared = true
+            cancelAutomaticDownload()
+            downloadNetworkMonitor?.cancel()
+            downloadNetworkMonitor = nil
             timer?.cancel(); refreshTask?.cancel()
             await audio.shutdown()
             await refreshOperation?.value
@@ -1246,6 +1431,8 @@ final class AppModel: ObservableObject {
                 lastModelCallRefresh = Date.now
                 let summary = try await store.modelCallSummaries(limit: 30)
                 if modelCallSummary != summary { modelCallSummary = summary }
+                let actual = try await store.lastASREngine()
+                if lastASR != actual { lastASR = actual }
             }
             if Date.now.timeIntervalSince(lastStorageRefresh) > 60 {
                 lastStorageRefresh = Date.now

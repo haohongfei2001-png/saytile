@@ -1,0 +1,270 @@
+{
+ "source": "cd41c60f0d7cb042c066c42147a58085b6f33f95",
+ "reference": "PR #27 issued on the named product commit. No reruns requested.",
+ "all_job_count": 5,
+ "success_count": 5,
+ "failed_count": 0,
+ "runs": [
+  43482322026,
+  43482322018,
+  43482322113
+ ],
+ "jobs": [
+  {
+   "name": "native",
+   "result": "success",
+   "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43482322026/job/132081681176",
+   "attempt": 1,
+   "log_sha256": "e64968f9aa876c6e32be072d5d38050cecf96462c5b7428ff0608b72a3bd929e",
+   "steps": []
+  },
+  {
+   "name": "foreground",
+   "result": "success",
+   "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43482322026/job/132081681555",
+   "attempt": 1,
+   "log_sha256": "bb4ce63288ba11ec5a52b89634e824b5a6d315f8e0ed8430d9f7c6f603d8de42",
+   "steps": [
+    {
+     "n": 3,
+     "name": "Exercise real AX on owned windows in this disposable GUI session",
+     "result": "success"
+    },
+    {
+     "n": 5,
+     "name": "Exercise TextEdit on a new disposable document",
+     "result": "success"
+    },
+    {
+     "n": 6,
+     "name": "Exercise Chrome on a new disposable profile",
+     "result": "success"
+    },
+    {
+     "n": 8,
+     "name": "Check kernel sleep with paused Saytile on the disposable host",
+     "result": "success"
+    }
+   ]
+  },
+  {
+   "name": "gateway",
+   "result": "success",
+   "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43482322018/job/132081681802",
+   "attempt": 1,
+   "log_sha256": "7128a22028f8d0146426dd2a2a71c5cb9c3fb33d7114724bd70db0f46cf67609",
+   "steps": []
+  },
+  {
+   "name": "native-gateway",
+   "result": "success",
+   "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43482322018/job/132081682120",
+   "attempt": 1,
+   "log_sha256": "ed4f5faf60573025418b6b97083dd37cbd4dca2e5357da217326ff68a426f261",
+   "steps": []
+  },
+  {
+   "name": "data-and-prototype",
+   "result": "success",
+   "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43482322113/job/132081680969",
+   "attempt": 1,
+   "log_sha256": "2792af3d78fd27a6412496117cf9d917e65539d033cc2b86c10b06c6cec31e63",
+   "steps": []
+  }
+ ],
+ "swift": {
+  "xcode_in_log": [
+   "Xcode 26.6"
+  ],
+  "groups": [
+   {
+    "cases": 4,
+    "suites": 2,
+    "outcome": "passed",
+    "detail": "after 1.650 seconds."
+   },
+   {
+    "cases": 13,
+    "suites": 1,
+    "outcome": "passed",
+    "detail": "after 43.196 seconds."
+   },
+   {
+    "cases": 12,
+    "suites": 1,
+    "outcome": "passed",
+    "detail": "after 8.263 seconds."
+   },
+   {
+    "cases": 446,
+    "suites": 57,
+    "outcome": "passed",
+    "detail": "after 7.111 seconds."
+   }
+  ],
+  "passed": 475,
+  "failed": 0
+ },
+ "foreground": {
+  "chrome": {
+   "sha256": "fdf5414dcd59b48782170e25f8fe7e9852ce05cb55b1f6818a0460974b21f5b1",
+   "last_events": [
+    "OWNED_DOM cancel exact 1 caret 16 end 16 otherFocused 0 enter=0 submits=0",
+    "OWNED_SNAPSHOT switch-target-bind pid true app true window true editor true page true complete true caret 16 length 0 editable true sensitive false setter true appLabel true",
+    "OWNED_SNAPSHOT switch-target-bind pid true app true window true editor true page true complete true caret 16 length 0 editable true sensitive false setter true appLabel true",
+    "OWNED_OBSERVER switch-target-bind focus true content true page true",
+    "OWNED_CARET_READBACK switch-target-bind true",
+    "OWNED_READY complete_reads 3 bound_quiet_reads 3 observed_notifications 0",
+    "OWNED_EVENT focusOrDocument",
+    "OWNED_BINDING_INVALIDATED switch-target",
+    "OWNED_DOM switch-target exact 1 caret 16 end 16 otherFocused 1 enter=0 submits=0",
+    "PASS_CHROME foreground selected by WindowServer; Unicode insertion, prefix/suffix, deduplication, append and target mutation confirmed"
+   ],
+   "passes": [
+    "PASS_CHROME foreground selected by WindowServer; Unicode insertion, prefix/suffix, deduplication, append and target mutation confirmed"
+   ],
+   "zero_submit_observations": [
+    "OWNED_DOM bind exact 1 caret 7 end 7 otherFocused 0 enter=0 submits=0",
+    "OWNED_DOM append exact 1 caret 15 end 15 otherFocused 0 enter=0 submits=0",
+    "OWNED_DOM before-manual-edit exact 1 caret 16 end 16 otherFocused 0 enter=0 submits=0",
+    "OWNED_DOM manual-edit exact 1 caret 16 end 16 otherFocused 0 enter=0 submits=0",
+    "OWNED_DOM cancel exact 1 caret 16 end 16 otherFocused 0 enter=0 submits=0",
+    "OWNED_DOM switch-target exact 1 caret 16 end 16 otherFocused 1 enter=0 submits=0"
+   ]
+  },
+  "textedit": {
+   "sha256": "41f378b2c6eba489aae9582476805d6de06a6807334933a5516e8124492e5c93",
+   "last_events": [
+    "OWNED_EVENT contentOrSelection",
+    "OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 15 length 0 editable true sensitive false setter true appLabel true",
+    "OWNED_EVENT contentOrSelection",
+    "OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 15 length 0 editable true sensitive false setter true appLabel true",
+    "OWNED_VERIFY true",
+    "OWNED_RESULT append confirmed writes 2",
+    "OWNED_READBACK append AX_exact true",
+    "OWNED_EVENT contentOrSelection",
+    "OWNED_BINDING_INVALIDATED changed-selection",
+    "PASS_TEXTEDIT foreground selected by WindowServer; Unicode insertion, prefix/suffix, deduplication, append and target mutation confirmed"
+   ],
+   "passes": [
+    "PASS_TEXTEDIT foreground selected by WindowServer; Unicode insertion, prefix/suffix, deduplication, append and target mutation confirmed"
+   ],
+   "zero_submit_observations": []
+  },
+  "input-foreground-batch": {
+   "sha256": "5f626c9aa65f531484447acc9c0b4cfce72e746568aee047185c5f70b5fb2083",
+   "last_events": [
+    "FIXTURE_REPLY native command=otherWindow error=False value_omitted=true",
+    "FIXTURE_RPC {\"target\":\"native\",\"command\":\"state\"}",
+    "FIXTURE_REPLY native command=state error=False value_omitted=true",
+    "PASS foreground native ignored-write no replay, no wrong window, zero sends",
+    "PASS foreground native manual-edit no replay, no wrong window, zero sends",
+    "PASS foreground native cancel no replay, no wrong window, zero sends",
+    "PASS foreground native other-window no replay, no wrong window, zero sends",
+    "FOREGROUND_RESTORED original_pid=477; confirmed_by_PID_only=true",
+    "FOREGROUND_BATCH_COMPLETE checks=10 failures=0; production frontmost resolver + fixture PID guard; not a third-party browser claim",
+    "PROBE_EXIT returncode=0 signal=none"
+   ],
+   "passes": [
+    "PASS web real foreground insertion and local confirmation",
+    "PASS web duplicate stable range suppressed",
+    "PASS web UTF16 suffix preserves surrounding text",
+    "PASS web target mutation rejects stale insertion",
+    "PASS web no Return or send",
+    "PASS foreground WKWebView longer exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView shorter exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView manualEdit exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView blur exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView restart exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView silentContext cancelled after reservation; zero writes, original DOM and caret, zero sends",
+    "PASS foreground WKWebView holdAX cancelled after reservation; zero writes, original DOM and caret, zero sends",
+    "PASS native real foreground insertion and local confirmation",
+    "PASS native duplicate stable range suppressed",
+    "PASS native UTF16 suffix preserves surrounding text",
+    "PASS native target mutation rejects stale insertion",
+    "PASS native no Return or send",
+    "PASS foreground native ignored-write no replay, no wrong window, zero sends",
+    "PASS foreground native manual-edit no replay, no wrong window, zero sends",
+    "PASS foreground native cancel no replay, no wrong window, zero sends",
+    "PASS foreground native other-window no replay, no wrong window, zero sends"
+   ],
+   "zero_submit_observations": []
+  }
+ },
+ "notes": [
+  "A headless design-contract pass does not establish visual or foreground input acceptance.",
+  "GitHub-hosted macOS, independent from the M5 recognition and isolated installation runs."
+ ],
+ "gateway": {
+  "node_test_summary": [
+   "ℹ tests 3",
+   "ℹ suites 0",
+   "ℹ pass 3",
+   "ℹ fail 0",
+   "ℹ skipped 0"
+  ],
+  "database_subchecks": [
+   {
+    "status": "PASS",
+    "postgres": "17.12 (Debian 17.12-1.pgdg13+1)",
+    "parallelConnections": 12,
+    "admitted": 2,
+    "rejected": 10,
+    "duplicateReviewAdmissions": 1,
+    "secondUserAdmitted": true,
+    "globalCommittedMicros": 1105000
+   },
+   {
+    "status": "PASS",
+    "scope": "isolated official Supabase Auth, PostgREST, Postgres and Mailpit",
+    "confirmedOTPAccounts": 2,
+    "apiIdentity": true,
+    "manualGrant": true,
+    "otherAccountIsolated": true,
+    "accountRPCPrivate": true,
+    "refresh": true,
+    "revocation": true,
+    "logoutInvalidatesRefresh": true,
+    "postLogoutAccountHTTP": 401,
+    "realModelCalls": 0,
+    "liveRevokedStreamClosed": true,
+    "nativeMockASR": 0,
+    "nativeMockGPT": 0,
+    "unpaidProviderAdmissions": 0
+   }
+  ]
+ },
+ "design_contracts": {
+  "tests": [
+   "Ran 43 tests in 1.235s",
+   "inherited_pcm_sqlite PASS",
+   "reconstructed_contracts PASS",
+   "swift6_typecheck PASS",
+   "swift_smoke_build PASS",
+   "swift_unicode_smoke PASS",
+   "prototype_dom PASS"
+  ]
+ },
+ "kernel_sleep": {
+  "host_model": "VirtualMac2,1",
+  "status": "BLOCKED",
+  "reason": "runner lacks scheduled hardware wake or system sleep support",
+  "sleep_request_exit": 71
+ },
+ "archived_at_utc": "2026-11-13T19:01:18+00:00",
+ "native_supplemental": {
+  "app_model_checks": 162,
+  "localhost_protocol_scenarios": 52,
+  "localhost_protocol_violations": 0,
+  "cloud_calls": "no real upstream API",
+  "continuous_timeline_utterances": 12000,
+  "isolated_editor_and_no_microphone_startup": "PASS"
+ },
+ "hosted_native_gateway": {
+  "checks": [
+   "PASS isolated macOS Keychain save/restore/delete, account browsing with zero requests, independent OTP sign-in, rotated refresh, opt-in upload, local logout fence, BYOK switch",
+   "PASS native session factory, frozen source, PCM journal, gateway ASR events, GPT evidence, SQLite final and dispatchable text"
+  ]
+ },
+ "foreground_artifact_source_matches": true
+}

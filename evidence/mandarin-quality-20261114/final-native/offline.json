@@ -1,0 +1,51 @@
+{
+  "system_profile": "Isolated app and descendants under sandbox-exec (version 1)(allow default)(deny network*); user network unchanged",
+  "signed_source": "9e17c8d7099d54aef26ce5b2577747f35e285fc4",
+  "fixture": "fleurs-1bc3201a9f24a2fe",
+  "acoustic_onset": 2.62,
+  "acoustic_end": 8.7,
+  "runs": [
+    {
+      "model": "apple",
+      "providers": [
+        "apple-speech-analyzer"
+      ],
+      "complete": [
+        "completed"
+      ],
+      "source": "9e17c8d7099d54aef26ce5b2577747f35e285fc4",
+      "automatic": true,
+      "audio_sha256": "ef3d6ba58fa3b2b22724593b0962964f1c107f3e33d04b12c2c41244ca30d717",
+      "archive": [
+        "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。"
+      ],
+      "exit": 0,
+      "visible_updates": 25,
+      "first_publish": 4.006
+    },
+    {
+      "model": "qwen-small",
+      "providers": [
+        "qwen-small"
+      ],
+      "complete": [
+        "completed"
+      ],
+      "source": "9e17c8d7099d54aef26ce5b2577747f35e285fc4",
+      "automatic": true,
+      "audio_sha256": "ef3d6ba58fa3b2b22724593b0962964f1c107f3e33d04b12c2c41244ca30d717",
+      "archive": [
+        "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。"
+      ],
+      "exit": 0,
+      "visible_updates": 8,
+      "first_publish": 9.031
+    }
+  ],
+  "subsequent_clean_process": {
+    "same_audio_sha256": "ef3d6ba58fa3b2b22724593b0962964f1c107f3e33d04b12c2c41244ca30d717",
+    "first_publish": 3.423,
+    "method": "Same signed bundle and verified model. Fresh root and new process with ordinary network, local ASR only."
+  },
+  "scope": "Each archived output reached the same corresponding on-screen text. The slower network-denied Qwen run gave its first candidate after the acoustic end. A single difference cannot be attributed to network access."
+}

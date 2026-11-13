@@ -1,0 +1,121 @@
+{
+  "digests": {
+    "baseline_probe": "d82ff50f14403a43bf65de8b71881e7160f92fddb6ca3781604a291d2539c213",
+    "baseline_probe_json": "a5ffb322838c32f5577635c9d0a9af6ca7ad87975a8ff30e51ade166d3950cff",
+    "candidate_probe": "e3318c2cbce79e75098c1620fa2584269841b9ed73a807084c0a36c6afae5067",
+    "candidate_probe_json": "8a8d6f857f6a6cfee1f34ae50655ec2c09d12031eb09bdaaa472e9da15a92be2",
+    "paired_frames": "a36913a7b529012fba00c57c0c3d0ba32fb19169080514477d5851880cc593ae",
+    "probe_source": "d36f35f631add7c0c1d67bfb2301e1dcd4b818c1a035d79c26412a7ba631846d",
+    "wav_manifest_aishell": "0d96fc5417c706e37a0d6d46c354933b553577a0ce318c7442db25dfb917887a",
+    "wav_manifest_paired": "605196e487b3a8a03b206ebe23cb9ba4c86b9c311398d25e8a6dfbe21646d362"
+  },
+  "input_chunk_frames": 3200,
+  "same_input_sha256": true,
+  "sample_rate_hz": 16000,
+  "scope": "Native VoiceSegmenter frame boundaries, no ASR or CER measurement",
+  "source_baseline": "0e1cbc48236146c5b82e5517a59e0c18cbcb7a50",
+  "source_candidate_vad": "46c544d8f9f250d0b9450313848a1dd34fb88bdf",
+  "status": "PASS",
+  "totals": {
+    "aishell1-test": {
+      "baseline_empty": 0,
+      "baseline_segments": 100,
+      "candidate_empty": 0,
+      "candidate_segments": 100,
+      "decreased": 0,
+      "files": 100,
+      "increased": 0,
+      "input_frames": 8163913,
+      "same": 100
+    },
+    "all": {
+      "baseline_empty": 0,
+      "baseline_segments": 485,
+      "candidate_empty": 0,
+      "candidate_segments": 448,
+      "decreased": 33,
+      "files": 440,
+      "increased": 0,
+      "input_frames": 50589019,
+      "same": 407
+    },
+    "ascend-mixed": {
+      "baseline_empty": 0,
+      "baseline_segments": 80,
+      "candidate_empty": 0,
+      "candidate_segments": 80,
+      "decreased": 0,
+      "files": 80,
+      "increased": 0,
+      "input_frames": 5291383,
+      "same": 80
+    },
+    "ascend-zh": {
+      "baseline_empty": 0,
+      "baseline_segments": 80,
+      "candidate_empty": 0,
+      "candidate_segments": 80,
+      "decreased": 0,
+      "files": 80,
+      "increased": 0,
+      "input_frames": 3448923,
+      "same": 80
+    },
+    "derived": {
+      "baseline_empty": 0,
+      "baseline_segments": 28,
+      "candidate_empty": 0,
+      "candidate_segments": 21,
+      "decreased": 7,
+      "files": 20,
+      "increased": 0,
+      "input_frames": 3905600,
+      "same": 13
+    },
+    "fleurs": {
+      "baseline_empty": 0,
+      "baseline_segments": 197,
+      "candidate_empty": 0,
+      "candidate_segments": 167,
+      "decreased": 26,
+      "files": 160,
+      "increased": 0,
+      "input_frames": 29779200,
+      "same": 134
+    },
+    "noise15db": {
+      "baseline_empty": 0,
+      "baseline_segments": 18,
+      "candidate_empty": 0,
+      "candidate_segments": 11,
+      "decreased": 7,
+      "files": 10,
+      "increased": 0,
+      "input_frames": 2119040,
+      "same": 3
+    },
+    "primary": {
+      "baseline_empty": 0,
+      "baseline_segments": 457,
+      "candidate_empty": 0,
+      "candidate_segments": 427,
+      "decreased": 26,
+      "files": 420,
+      "increased": 0,
+      "input_frames": 46683419,
+      "same": 394
+    },
+    "quiet": {
+      "baseline_empty": 0,
+      "baseline_segments": 10,
+      "candidate_empty": 0,
+      "candidate_segments": 10,
+      "decreased": 0,
+      "files": 10,
+      "increased": 0,
+      "input_frames": 1786560,
+      "same": 10
+    }
+  },
+  "vad_window_frames": 320
+}

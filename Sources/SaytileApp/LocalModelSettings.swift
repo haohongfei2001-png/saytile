@@ -12,6 +12,17 @@ struct LocalModelSettings: View {
 
     var body: some View {
         Section("本机识别使用的模型") {
+            if model.deviceOnly {
+                LabeledContent("下一段本机识别", value: model.selectedLocalModel.title)
+                    .accessibilityIdentifier("models.nextLocalEngine")
+            }
+            if let fallback = model.localFallbackMessage {
+                Text(fallback).font(.callout).foregroundStyle(.secondary)
+            }
+            if let last = model.lastASR {
+                LabeledContent("最近一次实际识别", value: last)
+                    .accessibilityIdentifier("models.lastActualEngine")
+            }
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text("Apple 中文识别").font(.body.weight(.medium))
@@ -37,16 +48,17 @@ struct LocalModelSettings: View {
             ForEach(LocalASRID.consumer.filter { $0 != .apple }, id: \.rawValue) { id in
                 modelRow(id)
             }
+            if model.manualLocalModel != nil {
+                Button("恢复默认模型") { model.selectLocal(nil) }
+                    .controlSize(.small).accessibilityIdentifier("models.restoreDefault")
+            }
             if let issue { Text(issue).foregroundStyle(.secondary) }
         }
         .task { await watchDirectory() }
         .confirmationDialog("删除这个模型的本机文件？", isPresented: Binding(get: { deletion != nil }, set: { if !$0 { deletion = nil } }), presenting: deletion) { id in
             Button("删除模型", role: .destructive) { Task {
                 do {
-                    try await model.localModels.delete(id)
-                    if model.manualLocalModel == id { model.selectLocal(nil) }
-                    if model.archiveLocalModel == id { model.selectLocal(nil, archiveOnly: true) }
-                    await model.refreshLocalRecommendation()
+                    try await model.removeLocalModel(id)
                     experiments.removeAll { $0 == id }
                     issue = nil
                 } catch { issue = error.localizedDescription }
@@ -59,27 +71,21 @@ struct LocalModelSettings: View {
                 }
             }
         }
-        Section {
-            DisclosureGroup("运行内存参考") {
-                Text("M5 实测 App 与助手的同时峰值为 Paraformer 509 MiB、Qwen 1,442 MiB。Apple 的共享系统服务无法单独计量。实际占用随讲话时长变化。")
-                    .font(.callout).foregroundStyle(.secondary)
-            }
-        }
     }
 
     private func modelRow(_ id: LocalASRID) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(id == .sherpa ? "Streaming Paraformer" : "Qwen3-ASR 0.6B").font(.body.weight(.medium))
+                Text(id.title).font(.body.weight(.medium))
                 Spacer()
                 if let status = items[id] {
                     if status.installed {
                         choose(id, available: true)
                     } else if status.downloading {
-                        Button("暂停下载") { Task { await model.localModels.library.pause(id) } }
+                        Button("暂停下载") { Task { await model.pauseLocalModelDownload(id) } }
                     } else {
                         Button(status.bytes > 0 ? "继续下载" : status.error != nil || status.diskBytes > 0 ? "重新下载" : "下载") {
-                            Task { await model.localModels.library.download(id) }
+                            Task { await model.downloadLocalModel(id) }
                         }
                     }
                 }
@@ -108,22 +114,20 @@ struct LocalModelSettings: View {
     @MainActor private func watchDirectory() async {
         experiments = await model.localModels.library.cachedExperimentalModels()
         repeat {
-            let previous = items[.sherpa]?.installed
             for id in LocalASRID.consumer where id != .apple {
                 let state = await model.localModels.library.status(id)
                 guard !Task.isCancelled else { return }
                 if items[id] != state { items[id] = state }
             }
-            if let previous, previous != items[.sherpa]?.installed { await model.refreshLocalRecommendation() }
             do { try await Task.sleep(for: .seconds(1)) } catch { return }
         } while !Task.isCancelled
     }
 
     private func choose(_ id: LocalASRID, available: Bool) -> some View {
-        let selected = model.selectedLocalModel == id
-        return Button(selected ? "已选择" : "使用此模型") { model.selectLocal(id) }
-            .disabled(selected || !available).controlSize(.small)
-            .accessibilityLabel(id.title + (selected ? "，已选择" : "，使用此模型"))
+        let label = model.localModelChoiceLabel(id)
+        return Button(label) { model.selectLocal(id) }
+            .disabled(!available || model.isLocalChoiceFixed(id)).controlSize(.small)
+            .accessibilityLabel(id.title + "，" + label)
             .accessibilityIdentifier("models.use." + id.rawValue)
     }
 }

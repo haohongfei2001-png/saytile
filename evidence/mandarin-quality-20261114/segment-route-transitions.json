@@ -1,0 +1,87 @@
+{
+ "former_source": "a83fabf74205095a51832654c1b3b24f5925b989",
+ "verified_probe_source_sha256": "86c70bc192858d565bd458e708d781590808e50075b25c1dbbf531c6a3a8cc7f",
+ "pcm_wav_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+ "scope": "38.8 s public FLEURS composite, isolated store. No ASR or network calls. Before switches after CaptureWorker initialization but before first PCM, during switches after 2.00 s. Source-level snapshot test separately covers expired hosted credential.",
+ "enableBefore": {
+  "previous_recording_frames": [
+   481280,
+   139520
+  ],
+  "corrected": {
+   "chunks": 3,
+   "inputFrames": 620800,
+   "inputSHA256": "ebf9f4b041cd8223448a4c1a7e054384234bf15c3b83c5620fe2843224a86490",
+   "recordingFrames": [
+    620800
+   ],
+   "storedFrames": 620800,
+   "storedSHA256": "ebf9f4b041cd8223448a4c1a7e054384234bf15c3b83c5620fe2843224a86490"
+  }
+ },
+ "disableBefore": {
+  "previous_recording_frames": [
+   620800
+  ],
+  "corrected": {
+   "chunks": 4,
+   "inputFrames": 620800,
+   "inputSHA256": "ebf9f4b041cd8223448a4c1a7e054384234bf15c3b83c5620fe2843224a86490",
+   "recordingFrames": [
+    481280,
+    139520
+   ],
+   "storedFrames": 620800,
+   "storedSHA256": "ebf9f4b041cd8223448a4c1a7e054384234bf15c3b83c5620fe2843224a86490"
+  }
+ },
+ "enableDuring": {
+  "previous_recording_frames": [
+   481280,
+   139520
+  ],
+  "corrected": {
+   "chunks": 4,
+   "inputFrames": 620800,
+   "inputSHA256": "ebf9f4b041cd8223448a4c1a7e054384234bf15c3b83c5620fe2843224a86490",
+   "recordingFrames": [
+    481280,
+    139520
+   ],
+   "storedFrames": 620800,
+   "storedSHA256": "ebf9f4b041cd8223448a4c1a7e054384234bf15c3b83c5620fe2843224a86490"
+  }
+ },
+ "disableDuring": {
+  "previous_recording_frames": [
+   620800
+  ],
+  "corrected": {
+   "chunks": 3,
+   "inputFrames": 620800,
+   "inputSHA256": "ebf9f4b041cd8223448a4c1a7e054384234bf15c3b83c5620fe2843224a86490",
+   "recordingFrames": [
+    620800
+   ],
+   "storedFrames": 620800,
+   "storedSHA256": "ebf9f4b041cd8223448a4c1a7e054384234bf15c3b83c5620fe2843224a86490"
+  }
+ },
+ "source_file_sha256": {
+  "Sources/SaytileKit/AudioCapture.swift": "07731694940668668dd31ac03e385c28337e9670bdbc563d5ea0eb814a1c8900",
+  "Sources/SaytileKit/AudioJournal.swift": "2c254ca07cb6b47fbeb60e842c048f4c0da178c7e88b62c77d3a3912b6cb8c50",
+  "Sources/SaytileKit/RecognitionAudioFanout.swift": "436c13b93847bf5686fbfb076af72f5e8a6a6efc750632daabb6fe073b31a891"
+ },
+ "native_regressions": [
+  {
+   "log_sha256": "2b00554c2dd65cf0588737b2c80ae200322d088809727346448c16fbbc9d548c",
+   "tests": 38,
+   "result": "PASS"
+  },
+  {
+   "log_sha256": "68bce90aad4761fbdea2cf71debb5acd1ff74ec896361a7527c8cac2565b331c",
+   "tests": 3,
+   "result": "PASS"
+  }
+ ]
+}

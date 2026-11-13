@@ -1,0 +1,57 @@
+{
+  "run": 43462078506,
+  "source": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+  "reference_run": 43455496633,
+  "reference_source": "0e1cbc48236146c5b82e5517a59e0c18cbcb7a50",
+  "results": {
+    "chrome": {
+      "log_sha256": "67a209331cd986e465e34dcc0e0ebcfe9b4940b51be8e4c15952404757650deb",
+      "exit_evidence": [
+        "Launched disposable Chrome process",
+        "Owned browser process ready",
+        "CASE_INCOMPLETE unsupported"
+      ]
+    },
+    "textedit": {
+      "log_sha256": "4d0e9d71e4127539153ae2261ea020e209f8e5129d63de2785bfcd6df0ddccd7",
+      "exit_evidence": [
+        "OWNED_OBSERVER bind focus true content true page false",
+        "OWNED_BINDING_INVALIDATED bind",
+        "CASE_INCOMPLETE unsupported"
+      ]
+    },
+    "input-foreground-batch": {
+      "log_sha256": "db9acbfbdcb6e5578eaf9f041ad29d806110ea19d6706d29e3a2f5b93f2b91df",
+      "exit_evidence": [
+        "PASS web real foreground insertion and local confirmation",
+        "PASS web duplicate stable range suppressed",
+        "PASS web UTF16 suffix preserves surrounding text",
+        "PASS web target mutation rejects stale insertion",
+        "PASS web no Return or send",
+        "PASS foreground WKWebView longer exact DOM, intact prefix/suffix, zero sends",
+        "PASS foreground WKWebView shorter exact DOM, intact prefix/suffix, zero sends",
+        "PASS foreground WKWebView manualEdit exact DOM, intact prefix/suffix, zero sends",
+        "PASS foreground WKWebView blur exact DOM, intact prefix/suffix, zero sends",
+        "PASS foreground WKWebView restart exact DOM, intact prefix/suffix, zero sends",
+        "PASS foreground WKWebView silentContext cancelled after reservation; zero writes, original DOM and caret, zero sends",
+        "PASS foreground WKWebView holdAX cancelled after reservation; zero writes, original DOM and caret, zero sends",
+        "PASS native real foreground insertion and local confirmation",
+        "PASS native duplicate stable range suppressed",
+        "PASS native UTF16 suffix preserves surrounding text",
+        "PASS native target mutation rejects stale insertion",
+        "PASS native no Return or send",
+        "PASS foreground native ignored-write no replay, no wrong window, zero sends",
+        "PASS foreground native manual-edit no replay, no wrong window, zero sends",
+        "PASS foreground native cancel no replay, no wrong window, zero sends",
+        "PASS foreground native other-window no replay, no wrong window, zero sends"
+      ]
+    }
+  },
+  "review": [
+    "The isolated WKWebView and AppKit batch completed 21 PASS lines, including zero sends and stale-target rejection.",
+    "TextEdit attached the native focus and content observer, then failed with unsupported before any write. The readiness probe accepted transient unsupported only for web snapshots. Its catch could mask an earlier, different error with a second unsupported read.",
+    "Chrome started the owned profile then reported unsupported before the observer was installed. Existing logging does not resolve which AX attribute was absent. An unguarded redundant snapshot required the setter before the bounded full-read wait.",
+    "The ASR changes do not edit the production input coordinator or accessibility client, or the two failing fixture sources in that CI revision. No attempt at focus activation or retrying a dispatch was added.",
+    "Updated fixture retains full PID, window, document, setter, content, caret, focus event and exact-range checks. An unavailable read breaks a quiet sequence. Build of the two edited fixtures with the real SaytileKit succeeded on M5; real host result belongs to subsequent CI."
+  ]
+}

@@ -41,8 +41,8 @@ import AppKit
         let current: InputTargetSnapshot
         do {
             current = try access.snapshot()
-        } catch NativeInputError.unsupported where expected.isWeb {
-            // The focused web editor or its AX selection can be unreadable between
+        } catch NativeInputError.unsupported {
+            // The focused native or web editor and its range can be unreadable between
             // notifications. An unreadable sample cannot establish a quiet interval.
             quiet = 0
             print("OWNED_READ_UNAVAILABLE", trace.stage, "bound snapshot")

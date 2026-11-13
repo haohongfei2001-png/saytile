@@ -121,13 +121,17 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         let v=AXValueCreate(.cfRange,&range)!
         if !browser, AXUIElementSetAttributeValue(target.element,kAXSelectedTextRangeAttribute as CFString,v) != .success { throw TargetError.unsupported("caret") }
         let access=AXInputAccess(selectionProvider:select)
-        guard try access.snapshot().canSetSelectedText else { throw TargetError.unsupported("selected-text setter") }
+        // bindOwnedField requires the setter on every one of its complete samples.
+        // The initial role/value can arrive before the focused AX range does.
         let store=try SaytileStore(directory:work.appendingPathComponent("store"))
         let trace = FixtureAccessTrace(access)
         let coordinator = NativeInputCoordinator(store: store, access: trace)
         coordinator.onBindingInvalidated = { print("OWNED_BINDING_INVALIDATED", trace.stage) }
         func dom(_ action: String, _ expected: String) throws -> [String: Any] {
-            _ = try select()
+            // Even if AX loses its focused editor, the read-only observation can
+            // still report the exact state of the unique file in our new profile.
+            // State-changing fixture actions also require the live AX selection.
+            if action != "state" { _ = try select() }
             let tool = Process(), output = Pipe()
             tool.executableURL = URL(fileURLWithPath: "/usr/bin/env")
             tool.arguments = ["node", "tests/fixtures/owned-chrome-draft.mjs", work.appendingPathComponent("profile/DevToolsActivePort").path,
@@ -161,9 +165,12 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
                 browser || matchesTextEditDocument(snapshot.pageIdentity, expected: doc)
             }
         } catch {
-            let current = try access.snapshot()
-            print("Owned field context complete", current.pageContextComplete, "has identity", current.pageIdentity != nil,
-                  "known caret", current.selectionLocation == 7, "witness matches", access.textWitness(at: current) == original)
+            if let current = try? access.snapshot() {
+                print("Owned field context complete", current.pageContextComplete, "has identity", current.pageIdentity != nil,
+                      "known caret", current.selectionLocation == 7, "witness matches", access.textWitness(at: current) == original)
+            } else {
+                print("Owned field failure context unavailable")
+            }
             throw error
         }
         let row=try await store.createRecording()
@@ -183,9 +190,11 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         guard await insert(r) == .noNewText, trace.writes == 1 else { throw TargetError.mismatch("duplicate") }
         let next = try await store.saveEdit(recordingID: row.id, text: "你好😀，接着说")
         trace.stage = "append"
-        let suffix = await insert(next), suffixMatches = try matches(finalField)
-        print("OWNED_RESULT", trace.stage, suffix, "AX_exact", suffixMatches, "writes", trace.writes)
+        let suffix = await insert(next)
+        print("OWNED_RESULT", trace.stage, suffix, "writes", trace.writes)
         try checkDOM(finalField, caret: 15)
+        let suffixMatches = try matches(finalField)
+        print("OWNED_READBACK", trace.stage, "AX_exact", suffixMatches)
         guard suffix == .confirmed, suffixMatches, trace.writes == 2 else { throw TargetError.mismatch("suffix") }
         // Edit the selection in the synthetic document while the previous binding is still live.
         trace.stage = "changed-selection"

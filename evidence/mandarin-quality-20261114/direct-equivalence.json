@@ -1,0 +1,155 @@
+{
+  "baseline": "a4f9f08656d1a22d2e0b6c59ad60e36452881010",
+  "final": "cd41c60f0d7cb042c066c42147a58085b6f33f95",
+  "worker_comparison": {
+    "Helpers/SaytileSherpa": {
+      "old": {
+        "file_sha256": "e701ec71723d1e5f689cda6bd6adfdcf0757e9ffa1d6f4218219e29d4128dbe2",
+        "mach_o_payload_through_signature_offset_sha256": "ff9db5d53050a16ff9000fd3f86d855144ec0eeabd58195599d9c678409e5dd0",
+        "lc_uuid": "cbffd24ca63e358d91496a1f0600e9fc",
+        "signature_offset": 53664
+      },
+      "final": {
+        "file_sha256": "07eba7065b4f4a465645bbd33dbea787f6fe3a800cae16f171f3f7cee40224c2",
+        "mach_o_payload_through_signature_offset_sha256": "ff9db5d53050a16ff9000fd3f86d855144ec0eeabd58195599d9c678409e5dd0",
+        "lc_uuid": "cbffd24ca63e358d91496a1f0600e9fc",
+        "signature_offset": 53664
+      },
+      "payload_identical": true,
+      "measured_candidate": {
+        "file_sha256": "34417c7ebbfa5d8d2b2f74b76747b240db10c98b7f1995a4a7595f69e1181681",
+        "mach_o_payload_through_signature_offset_sha256": "ff9db5d53050a16ff9000fd3f86d855144ec0eeabd58195599d9c678409e5dd0",
+        "signature_offset": 53664
+      }
+    },
+    "Frameworks/libonnxruntime.dylib": {
+      "old": {
+        "file_sha256": "fdf91ccda6863727e3bba32cecee39ffe9a6c584fd66db7618860ab79f086218",
+        "mach_o_payload_through_signature_offset_sha256": "d8373dd8ddafc853645e2bec351ca7fcfa53a69818e3d9abd21019e84c88e166",
+        "lc_uuid": "27026bc1ecfa3087ac204a99e35bff1b",
+        "signature_offset": 28700784
+      },
+      "final": {
+        "file_sha256": "fbeb2edf17182df08d9e16806106e42783bc9d370412edd7cfadfc2d2d1d0a43",
+        "mach_o_payload_through_signature_offset_sha256": "d8373dd8ddafc853645e2bec351ca7fcfa53a69818e3d9abd21019e84c88e166",
+        "lc_uuid": "27026bc1ecfa3087ac204a99e35bff1b",
+        "signature_offset": 28700784
+      },
+      "payload_identical": true,
+      "measured_candidate": {
+        "file_sha256": "eaaf3b4ba94df79a4de8d76b889000a37d7afbc295af587f7165d8bd1c1c4df5",
+        "mach_o_payload_through_signature_offset_sha256": "d8373dd8ddafc853645e2bec351ca7fcfa53a69818e3d9abd21019e84c88e166",
+        "signature_offset": 28700784
+      }
+    },
+    "Frameworks/libsherpa-onnx-c-api.dylib": {
+      "old": {
+        "file_sha256": "31fedffff31574f5644a64926b5f48ff430dc635f21fc1ffae47656841e1ed04",
+        "mach_o_payload_through_signature_offset_sha256": "7e88d6723b589b9e1d21b533463e74d5f203b5e1bb7468eb0a256dcac71ce859",
+        "lc_uuid": "707f7ff408aa3ae1aedcf845e2ae477b",
+        "signature_offset": 3412064
+      },
+      "final": {
+        "file_sha256": "f1374ec89d5648c46ddd4d40ee88475ccb92263c1639276119b9fb21672c2a15",
+        "mach_o_payload_through_signature_offset_sha256": "7e88d6723b589b9e1d21b533463e74d5f203b5e1bb7468eb0a256dcac71ce859",
+        "lc_uuid": "707f7ff408aa3ae1aedcf845e2ae477b",
+        "signature_offset": 3412064
+      },
+      "payload_identical": true,
+      "measured_candidate": {
+        "file_sha256": "e958ab29884757bb5aaa9a4746d1e1158b1c98cd41335394f299157fa8828100",
+        "mach_o_payload_through_signature_offset_sha256": "7e88d6723b589b9e1d21b533463e74d5f203b5e1bb7468eb0a256dcac71ce859",
+        "signature_offset": 3412064
+      }
+    },
+    "Helpers/SaytileModelWorker": {
+      "old": {
+        "file_sha256": "ba9e5685b9229a4abb06aad08221f5f66cdeacbefdde8d83a59cc4dba327de9d",
+        "mach_o_payload_through_signature_offset_sha256": "3c6442822513d96eba25dff5f5af3abd566bad3e79e078b11561403264982aa6",
+        "lc_uuid": "bb1ef8f679073b4e9c4a11e40e9b0eb4",
+        "signature_offset": 39152288
+      },
+      "final": {
+        "file_sha256": "1fb6ae35c6b41143e0908d6cec4b12769059450c332411f52240b5426a9f06f9",
+        "mach_o_payload_through_signature_offset_sha256": "5850a27745127b772bea6057942af52815cb38ef179a597abbfa10585a79e27f",
+        "lc_uuid": "3c158f796bb23126b56c06e3959b572b",
+        "signature_offset": 39180592
+      },
+      "payload_identical": false
+    },
+    "Resources/default.metallib": {
+      "old": {
+        "file_sha256": "ba981ecf4fd7cdf808946c2be37b7eecff3a7b44eddbb9b7c8c51dc47b8b1617"
+      },
+      "final": {
+        "file_sha256": "ba981ecf4fd7cdf808946c2be37b7eecff3a7b44eddbb9b7c8c51dc47b8b1617"
+      },
+      "payload_identical": true
+    }
+  },
+  "source_sha256_equal": {
+    "tests/fixtures/MandarinCohort.swift": "6933bcb79f6dd512253909ac536191f618dc40861b7fa56501008f34f0fd747d",
+    "native/LocalASR/SherpaWorker.mm": "2fedf29c2495544810cdc675033f15fcb6fb53143ffb251e3e1620ccbc49d6bd",
+    "Sources/SaytileKit/Resources/LocalASR/sherpa.json": "3c5bc301d3abe7d4797abbed59b223b4fe83410ffb3eb8906fdbcfece88aa7e6",
+    "native/LocalASR/Package.resolved": "e9d555da26e732fc65f614a7952eb251967ec73f66861674d3a24b5d3e567464",
+    "Sources/SaytileKit/SingleTranscriptEngine.swift": "e92304b7bc979ef8df8452ea49edb9acb2447a19b2cc03484166822e73207ae7",
+    "Sources/SaytileKit/AudioCapture.swift func convertCapturedSamples(": "591cb13f630f8ee2c0c7ef7bbf52e2762592e85cf523c01adc22e8b268c5d949",
+    "Sources/SaytileKit/LocalASRProvider.swift func append(_ data: Data)": "b99e7286a3baaa1293f370ccc7b822e3346b43f47cad71a7b3566afbdec9319d"
+  },
+  "weights": {
+    "sherpa": {
+      "bytes": 655,
+      "sha256": "3c5bc301d3abe7d4797abbed59b223b4fe83410ffb3eb8906fdbcfece88aa7e6"
+    },
+    "qwen-small": {
+      "bytes": 1094,
+      "sha256": "a2b9d00644087dff42139996f013c396e468f1948a312893cd5e9e7f805149b8"
+    },
+    "qwen-large": {
+      "bytes": 930,
+      "sha256": "396971d3edb3f940917060171c5610c56c6ceee79a549f78fb027c02b1758953"
+    }
+  },
+  "manifests": {
+    "panel-cohort.json": {
+      "bytes": 5686,
+      "sha256": "b9fc425a3916373ef4cd96c517688a6c5168ee351f03ede3c02c0aee1acae166"
+    },
+    "paired.json": {
+      "bytes": 120279,
+      "sha256": "605196e487b3a8a03b206ebe23cb9ba4c86b9c311398d25e8a6dfbe21646d362"
+    },
+    "aishell.json": {
+      "bytes": 38397,
+      "sha256": "0d96fc5417c706e37a0d6d46c354933b553577a0ce318c7442db25dfb917887a"
+    },
+    "continuous.json": {
+      "bytes": 1924,
+      "sha256": "d7da77968f154dd19694a80fea078e02053d4e048c7840bba11cf67a3dd5999d"
+    }
+  },
+  "same_input": "Direct branch verifies each WAV SHA; both convert mono Float32 to 16 kHz Int16, append up to 3200 samples per pass, send a single factory.make session through finish and wait. No VoiceSegmenter.accept on direct input. An identical candidate/historical text is not a newly run receipt.",
+  "direct_measurement_policy": {
+    "sherpa": "For successful final text on the certified files, one complete contemporary run is a common decoder control; label its source once. C++ worker and two linked libraries have identical complete executable payloads and configuration (16 kHz, 80 bins, two CPU threads, greedy search, 9600 zero sample flush); same model manifest, PCM conversion, model session block aggregator and EOS. No duplicate reference execution needed for core decoder accuracy. Store admission, error attribution and failure paths did change. Never reuse a product/real-time or failure receipt across builds. Prior two complete historical runs agree on 440 final strings.",
+    "apple": "Measure both for the reported direct-to-SQLite metric. OS ASR asset identity is not fully exposed, and new SpeechResultAccumulator finalizes watermark even on a zero-duration event, which direct includes. Matching OS, preset and locale do not remove this difference.",
+    "qwen-small": "Measure distinct old forced zh and new auto checkpoints through their actual worker. Decoder prompt, rolling windows and preview coalescing changed; old and final native worker payloads differ.",
+    "qwen-large": "Measure the candidate worker and its pinned 1.7B weights. Old worker both used a different language argument and did not use the new rolling-Qwen rules for large. Historical 1.7B no product baseline in this evaluation; do not impute one. Intermediate forced-Chinese can be reported only under its own runtime.",
+    "stage_0093559_to_cd41c60": "Direct inputs can reference the same completed measurement for each model if helper/model hashes and options match, with the executed SHA recorded. Only CAudio/VAD.c changed between these two source trees; direct does not use the VAD decision. This does not apply to the full capture path or to long-running timing."
+  },
+  "equivalent_stage": "0093559fea8b8950469d78dbfa7a47d4f6805cfc",
+  "stage_to_final_product_diffs": [
+    "Sources/CAudio/VAD.c"
+  ],
+  "historical_text_crosscheck": [
+    {
+      "group": "paired",
+      "equal_final_text": 340
+    },
+    {
+      "group": "aishell",
+      "equal_final_text": 100
+    }
+  ],
+  "scope": "Text accuracy only; macOS direct Cohort measures the resulting SQLite text, not raw logits. Never generate one run file from a different one or count shared rows as separate executions.",
+  "sherpa_control_source": "d2da53545fc51e65c5f893cfb9dec92000e0f873"
+}

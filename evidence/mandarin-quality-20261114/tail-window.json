@@ -1,0 +1,48 @@
+{
+ "scope": "Deterministic public-language fixture with native VAD measurements; final decoded suffix must be checked in the signed native window. This reference has no valid whole-clip CER because the fourth source sentence is cut mid-utterance.",
+ "sha256": "44f64214de1cdd8e71b16ce87d29376065c7f35520a8533e87f019c72defe7af",
+ "route_source": "d63fb38",
+ "clip_frames": 553280,
+ "segments": [
+  {
+   "firstVoiceSample": 24320,
+   "journalFrames": 520960,
+   "lastVoiceSample": 506240
+  }
+ ],
+ "total_input_s": 34.58,
+ "total_journal_s": 32.56,
+ "captured_public_prefix_s": 30.08,
+ "window_limit_s": 32.0,
+ "last_window_s": 0.56,
+ "synthetic_trailing_silence_s": 3,
+ "dependency": "soniqo/speech-swift a57702e6f523fa36ac5532d2bdc5f35f701a052c",
+ "feature_extractor_max_seconds": 1200,
+ "encoder_chunks_cover_entire_mel_input": true,
+ "signed_panel": {
+  "source": "9e17c8d7099d54aef26ce5b2577747f35e285fc4",
+  "model": [
+   "qwen-small"
+  ],
+  "automatic": true,
+  "states": [
+   "completed"
+  ],
+  "input_finished_s": 34.583,
+  "archive_settled_s": 42.634,
+  "eof_to_settlement_s": 8.051,
+  "source_publications_during_input": 23,
+  "lexical_differences_mid_sentence_excluding_punctuation": [
+   [
+    "力士",
+    "理石"
+   ]
+  ],
+  "common_exact_suffix": "平时你总能在这里听到游客和小摊贩的声音，声光。",
+  "comparison_scope": "Same last clause. In the middle of earlier speech, the clipped fixture gets 大力士 versus 大理石 in the first archive of the longer file. Punctuation also differs. This checks for an extra lexical suffix on silence. Whole-clip CER is not defined for a sentence truncated between words.",
+  "files_sha256": {
+   "shipping/extended/auto-qwen-small-trailing-quiet-481280.json": "2c1610d1bc2f76a962137261744c0af91ed1d1aef89b45e43665a7e3653489e2",
+   "shipping/extended/auto-qwen-small-continuous-public-5.json": "11908f7a0207e389ec63ed567ffbd0fea71606c88b2373ca4621011f55bc1339"
+  }
+ }
+}

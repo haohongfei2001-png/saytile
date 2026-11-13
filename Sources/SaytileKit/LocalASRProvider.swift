@@ -5,18 +5,27 @@ import Foundation
 protocol LocalASRProvider: Sendable {
     func open(store: SaytileStore, ticket: RecognitionTicket) -> any RecognitionSession
 }
+/// A definite provider or asset failure. Silence, store errors and an
+/// explicitly cancelled session must not change routing for later speech.
+struct LocalASREngineUnavailable: LocalizedError {
+    let reason: String
+    var errorDescription: String? { reason }
+}
+
 struct AppleLocalASR: LocalASRProvider {
+    var onUnavailable: (@Sendable (LocalASRID) -> Void)? = nil
     var review: LocalTextReview? = nil
     func open(store: SaytileStore, ticket: RecognitionTicket) -> any RecognitionSession {
-        LiveSpeechSession(store: store, ticket: ticket, review: review)
+        LiveSpeechSession(store: store, ticket: ticket, review: review, onUnavailable: onUnavailable)
     }
 }
 struct NativeLocalASR: LocalASRProvider {
+    var onUnavailable: (@Sendable (LocalASRID) -> Void)? = nil
     let model: LocalASRID
     let service: LocalASRService
     var review: LocalTextReview? = nil
     func open(store: SaytileStore, ticket: RecognitionTicket) -> any RecognitionSession {
-        ModelRecognitionSession(model: model, service: service, store: store, ticket: ticket, review: review)
+        ModelRecognitionSession(model: model, service: service, store: store, ticket: ticket, review: review, onUnavailable: onUnavailable)
     }
 }
 
@@ -61,18 +70,20 @@ final class ModelWorker: @unchecked Sendable {
                 while true {
                     let count = buffer.withUnsafeMutableBytes { Darwin.read(source.fileDescriptor, $0.baseAddress, $0.count) }
                     if count < 0 && errno == EINTR { continue }
-                    if count < 0 { throw POSIXError(.EIO) }
+                    if count < 0 { throw LocalASREngineUnavailable(reason: "本机识别结果读取失败") }
                     if count == 0 { break }
                     pending.append(contentsOf: buffer.prefix(count))
                     while let end = pending.firstIndex(of: 10) {
                         let line = pending[..<end]
-                        let event = try JSONDecoder().decode(WorkerEvent.self, from: line)
+                        let event: WorkerEvent
+                        do { event = try JSONDecoder().decode(WorkerEvent.self, from: line) }
+                        catch { throw LocalASREngineUnavailable(reason: "本机识别返回了无效结果") }
                         if case .dropped = channel.yield(event) { throw AudioFailure.message("本机识别回传队列已满") }
                         pending.removeSubrange(...end)
                     }
-                    if pending.count > 1024 * 1024 { throw AudioFailure.message("本机识别输出过长") }
+                    if pending.count > 1024 * 1024 { throw LocalASREngineUnavailable(reason: "本机识别输出过长") }
                 }
-                channel.finish(throwing: AudioFailure.message("本机识别进程已退出"))
+                channel.finish(throwing: LocalASREngineUnavailable(reason: "本机识别进程已退出"))
             } catch { channel.finish(throwing: error) }
         }
     }
@@ -118,7 +129,7 @@ public actor LocalASRService {
         }
         try await library.delete(model)
     }
-    func availability(_ id: LocalASRID) async -> SpeechAvailability {
+    public func availability(_ id: LocalASRID) async -> SpeechAvailability {
         if id == .apple { return await AppleSpeechService.availability() }
         let status = await library.status(id)
         let ready = status.installed && FileManager.default.isExecutableFile(atPath:
@@ -139,14 +150,21 @@ public actor LocalASRService {
             idle = Task { do { try await Task.sleep(for: .seconds(30)) } catch { return }; releaseIdle() }
         }
         do {
-            let manifest = try LocalModelManifest.load(id)
-            let directory = try await library.validated(manifest)
             let fresh = worker?.id != id || worker?.process.isRunning != true
-            if fresh {
-                worker?.stop()
-                worker = try ModelWorker(id: id, directory: directory, helpers: helpers, stride: stride)
+            do {
+                let manifest = try LocalModelManifest.load(id)
+                let directory = try await library.validated(manifest)
+                try Task.checkCancellation()
+                if fresh {
+                    worker?.stop()
+                    worker = try ModelWorker(id: id, directory: directory, helpers: helpers, stride: stride)
+                }
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                throw LocalASREngineUnavailable(reason: error.localizedDescription)
             }
-            guard let current = worker else { throw ProviderFailure.connection }
+            guard let current = worker else { throw LocalASREngineUnavailable(reason: "本机识别进程未启动") }
             try await withTaskCancellationHandler {
                 let sender = Task.detached {
                     for await frame in audio {
@@ -164,7 +182,7 @@ public actor LocalASRService {
                         try Task.checkCancellation()
                         if event.kind == "ready" && !ready { ready = true; continue }
                         guard ready, ["partial", "final"].contains(event.kind), event.frames >= lastFrames else {
-                            throw AudioFailure.message("本机识别事件顺序异常")
+                            throw LocalASREngineUnavailable(reason: "本机识别事件顺序异常")
                         }
                         lastFrames = event.frames
                         let final = event.kind == "final"
@@ -198,7 +216,7 @@ struct LocalLiveText {
     mutating func accept(_ text: String, final: Bool) -> Int? {
         if final { return text.utf16.count }
         let common = RecognitionUTF16.commonPrefix([previous, text])
-        if model == .qwen {
+        if model == .qwen || model == .qwenLarge {
             // The zh decoder can change the script of the whole hypothesis mid-utterance.
             // Compare scripts only for preview ownership. Publish the original model string.
             let matches = RecognitionUTF16.hasExactPrefix(text, prefix: readingPrefix)
@@ -268,7 +286,7 @@ private final class ModelRecognitionSession: RecognitionSession, @unchecked Send
     private var pendingPCM = Data()
     private let timeout: Duration
     var isComplete: Bool { state.isComplete }
-    init(model: LocalASRID, service: LocalASRService, store: SaytileStore, ticket: RecognitionTicket, review: LocalTextReview?) {
+    init(model: LocalASRID, service: LocalASRService, store: SaytileStore, ticket: RecognitionTicket, review: LocalTextReview?, onUnavailable: (@Sendable (LocalASRID) -> Void)?) {
         recordingID = ticket.recordingID
         timeout = model.capability == .batch ? .seconds(180) : .seconds(60)
         let (audio, sender) = AsyncStream<Data>.makeStream(bufferingPolicy: .bufferingOldest(600))
@@ -278,11 +296,13 @@ private final class ModelRecognitionSession: RecognitionSession, @unchecked Send
             defer { state.finish() }
             let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: model, review: review)
             do {
+                try await ingress.start()
                 try await service.recognize(model, audio: audio, ingress: ingress)
                 try await ingress.finish()
             }
             catch {
-                try? await store.failRecognition(ticket: ticket, message: "本机识别未完成，原音可重试。\(error.localizedDescription)")
+                if error is LocalASREngineUnavailable && !Task.isCancelled { onUnavailable?(model) }
+                await ingress.fail("本机识别未完成，原音可重试。\(error.localizedDescription)")
             }
         }
     }

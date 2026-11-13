@@ -1,0 +1,98 @@
+{
+  "scope": "Synthetic PCM from CaptureWorker, real process SIGKILL, actual SQLite/journal reopen twice. No microphone, GPU, cloud or personal database.",
+  "status": "PASS",
+  "physical_power_failure": "NOT_RUN",
+  "probe_sha256": "2d02b2ac79c9a4ecfed2348c740de586a3e84eb19d3bc4247fe93f0dff117053",
+  "source_revision": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+  "runs": [
+    {
+      "fixture": "crash-live",
+      "signal": -9,
+      "frames": 244000,
+      "verify-live": [
+        "startup tail repair is idempotent",
+        "one original timeline row retains its displayed partial",
+        "interrupted WAV available after reopening",
+        "recovered sample counts include pre-checkpoint tail",
+        "WAV header",
+        "WAV header",
+        "all original PCM bytes match",
+        "one local candidate, no replay",
+        "partial was never promoted for external delivery",
+        "SQLite uses media flushes",
+        "SQLite integrity"
+      ],
+      "verify-live-again": [
+        "startup tail repair is idempotent",
+        "one original timeline row retains its displayed partial",
+        "interrupted WAV available after reopening",
+        "recovered sample counts include pre-checkpoint tail",
+        "WAV header",
+        "WAV header",
+        "all original PCM bytes match",
+        "one local candidate, no replay",
+        "partial was never promoted for external delivery",
+        "SQLite uses media flushes",
+        "SQLite integrity"
+      ]
+    },
+    {
+      "fixture": "crash-first-flush",
+      "signal": -9,
+      "frames": 4000,
+      "verify-live": [
+        "startup tail repair is idempotent",
+        "one original timeline row retains its displayed partial",
+        "interrupted WAV available after reopening",
+        "recovered sample counts include pre-checkpoint tail",
+        "WAV header",
+        "all original PCM bytes match",
+        "one local candidate, no replay",
+        "partial was never promoted for external delivery",
+        "SQLite uses media flushes",
+        "SQLite integrity"
+      ],
+      "verify-live-again": [
+        "startup tail repair is idempotent",
+        "one original timeline row retains its displayed partial",
+        "interrupted WAV available after reopening",
+        "recovered sample counts include pre-checkpoint tail",
+        "WAV header",
+        "all original PCM bytes match",
+        "one local candidate, no replay",
+        "partial was never promoted for external delivery",
+        "SQLite uses media flushes",
+        "SQLite integrity"
+      ]
+    },
+    {
+      "fixture": "crash-rotation",
+      "signal": -9,
+      "frames": 240000,
+      "verify-live": [
+        "startup tail repair is idempotent",
+        "one original timeline row retains its displayed partial",
+        "interrupted WAV available after reopening",
+        "recovered sample counts include pre-checkpoint tail",
+        "WAV header",
+        "all original PCM bytes match",
+        "one local candidate, no replay",
+        "partial was never promoted for external delivery",
+        "SQLite uses media flushes",
+        "SQLite integrity"
+      ],
+      "verify-live-again": [
+        "startup tail repair is idempotent",
+        "one original timeline row retains its displayed partial",
+        "interrupted WAV available after reopening",
+        "recovered sample counts include pre-checkpoint tail",
+        "WAV header",
+        "all original PCM bytes match",
+        "one local candidate, no replay",
+        "partial was never promoted for external delivery",
+        "SQLite uses media flushes",
+        "SQLite integrity"
+      ]
+    }
+  ]
+}

@@ -74,12 +74,15 @@ def transcriptions(path, rows):
     )
 
 
-def windows(model, panel_folder, samples, wav, sha):
+def windows(model, panel_folder, samples, wav, sha, *, automatic=False):
     observations = []
     gaps = []
     for item in samples:
-        result = read(panel_folder / (model + "-" + item["id"] + ".json"))
+        label = ("auto-" if automatic else "") + model
+        result = read(panel_folder / (label + "-" + item["id"] + ".json"))
         assert result["sha"] == sha and result["audio_sha256"] == item["audio_sha256"]
+        if automatic:
+            assert result["automatic"] is True and result["model"] == model
         onset, end = base["acoustic"](wav / (item["id"] + ".wav"))
         reference = norm(item["reference"])
         ref_pairs = set(zip(reference, reference[1:]))

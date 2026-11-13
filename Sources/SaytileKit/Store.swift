@@ -1276,6 +1276,35 @@ extension SaytileStore {
         _ = try requireRecording(recordingID)
         return try db.rows("SELECT payload FROM model_usage WHERE recording_id=? ORDER BY created_at,rowid", [.text(recordingID.uuidString)]).map { try Self.decodeEvidence(ModelUsageRecord.self, $0["payload"]) }
     }
+    /// Read the actual ASR ticket, including failed attempts and archived re-recognition.
+    /// Later reviewer runs and the currently selected preference cannot identify its engine.
+    public func lastASREngine() throws -> String? {
+        let row = try db.rows("""
+            SELECT payload,state FROM model_runs
+            WHERE json_extract(payload,'$.purpose') IN ('chineseASR','englishASR','multilingualASR','finalASR')
+            ORDER BY rowid DESC LIMIT 1
+            """).first
+        guard let row else { return nil }
+        let run = try Self.decodeEvidence(ModelRunTicket.self, row["payload"])
+        let name: String
+        if run.provider == "apple-speech-analyzer" {
+            name = LocalASRID.apple.title
+        } else if let local = LocalASRID(rawValue: run.provider) {
+            name = local.title
+        } else {
+            name = run.model
+        }
+        let state: String
+        switch row["state"].flatMap(ModelRunState.init(rawValue:)) {
+        case .running: state = "识别中"
+        case .completed: state = "已完成"
+        case .failed: state = "失败"
+        case .cancelled: state = "已取消"
+        case .interrupted: state = "已中断"
+        case nil: return name
+        }
+        return "\(name) · \(state)"
+    }
     public func modelCallSummaries(limit: Int = 30) throws -> [String] {
         try db.rows("SELECT r.payload AS run_payload,r.state,r.last_error,u.payload AS usage_payload FROM model_runs r LEFT JOIN model_usage u ON u.run_id=r.id ORDER BY r.created_at DESC,r.rowid DESC LIMIT ?", [.int(Int64(max(1, min(limit, 500))))]).map { row in
             let run = try Self.decodeEvidence(ModelRunTicket.self, row["run_payload"])

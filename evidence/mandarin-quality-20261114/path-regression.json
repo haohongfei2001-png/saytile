@@ -1,0 +1,54 @@
+[
+  {
+    "scope": "Path, finalization, owned edits and model input",
+    "source": "46c544d8f9f250d0b9450313848a1dd34fb88bdf",
+    "swift_suites": [
+      "Parallel audio and precision review boundaries",
+      "Capture shutdown tail",
+      "Journal range and local candidate integration",
+      "Owned range correction production path with synthetic OS and SQLite",
+      "Speech range aggregation",
+      "On-device streaming and model integrity"
+    ],
+    "tests_passed": 49,
+    "tests_failed": 0,
+    "runtime_seconds": 2.304,
+    "full_log_sha256": "c4476ef662e1415c64e25e1a840f24ee056cd4934ec21f2edee1b1a3051d50c5",
+    "source_note": "Recorded from the corresponding ASR or recovery source during development. The full final package is qualified separately."
+  },
+  {
+    "scope": "Restart, lifecycle gate, user edits and durable recording",
+    "source": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+    "swift_suites": [
+      "Independent lifecycle stop reasons",
+      "Audio controller shutdown",
+      "Journal range and local candidate integration",
+      "Storage failure state remains recoverable"
+    ],
+    "tests_passed": 21,
+    "tests_failed": 0,
+    "runtime_seconds": 0.969,
+    "full_log_sha256": "629c36335d06fd55a89575d01b5f3febad88c0ae6d824598bba72b44bcc5c0d2",
+    "source_note": "Recorded from the corresponding ASR or recovery source during development. The full final package is qualified separately."
+  },
+  {
+    "scope": "New missing-asset routing and verified model integrity",
+    "source": "d2da53545fc51e65c5f893cfb9dec92000e0f873 + working tree (see file hashes)",
+    "swift_suites": [
+      "Per-recording local model routing",
+      "On-device streaming and model integrity"
+    ],
+    "tests_passed": 10,
+    "tests_failed": 0,
+    "runtime_seconds": 1.479,
+    "full_log_sha256": "595081b346901985c1d80ac51ce8ef584ba74132153897700f7d00fc8e73e0de",
+    "source_files_sha256": {
+      "tests/SaytileKitTests/LocalModelRoutingTests.swift": "619be522981bb212eb7349965eda6d486b3adaf780e247a689424e9c05b81bc3",
+      "tests/SaytileKitTests/LocalModelTests.swift": "c8c60a0b27b10a8fd43d43c78bdccbb3514941e1fe75712c5fcfda26490a598e",
+      "Sources/SaytileKit/LocalModelRecommendation.swift": "89c075ed3ae3ed42389660324f5548d73b168f657bcb5c81a3289d9a03d285f9",
+      "Sources/SaytileKit/LocalASRProvider.swift": "d7a2133219e41c751a6b087f95103b979dfbf1e343d5488efe1e3dfa86cd8546",
+      "Sources/SaytileKit/RecognitionAudioFanout.swift": "7c65af9cbf0b530f36df21711f9bf58ff10ba94242e93d98540e795b9fe6cf09",
+      "Sources/SaytileKit/RecognitionFailover.swift": "39ecf7df2d191225e4cf7b80d12f91b484a1df6673b84d4878e3bed3f84ae5da"
+    }
+  }
+]

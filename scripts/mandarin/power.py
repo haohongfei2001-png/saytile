@@ -133,6 +133,7 @@ def measure(label, meter, start):
 parser = argparse.ArgumentParser()
 for arg in ("meter", "app", "weights", "wav", "out", "panels"):
     parser.add_argument("--" + arg, type=Path, required=True)
+parser.add_argument("--models", nargs="+", choices=("apple", "sherpa", "qwen-small", "qwen-large", "zipformer"), default=("apple", "sherpa", "qwen-small", "zipformer"))
 a = parser.parse_args()
 meta = plistlib.loads((a.app / "Contents/Info.plist").read_bytes())
 row = next(
@@ -141,7 +142,7 @@ row = next(
 source = a.wav / (row["id"] + ".wav")
 assert hashlib.sha256(source.read_bytes()).hexdigest() == row["audio_sha256"]
 a.out.mkdir(exist_ok=True)
-for model in ("apple", "sherpa", "qwen-small", "zipformer"):
+for model in a.models:
     dest = a.out / (model + ".json")
     if dest.exists():
         raise FileExistsError(dest)

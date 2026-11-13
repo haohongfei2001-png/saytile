@@ -52,6 +52,10 @@ cp Sources/SaytileKit/Resources/ConnectionSample.pcm "$bundle/Contents/Resources
 cp THIRD_PARTY_NOTICES.md "$bundle/Contents/Resources/THIRD_PARTY_NOTICES.md"
 cp Sources/CAudio/WEBRTC-LICENSE.txt "$bundle/Contents/Resources/WEBRTC-LICENSE.txt"
 cp packaging/Info.plist "$bundle/Contents/Info.plist"
+if [[ "${SAYTILE_MANDARIN_CANDIDATE:-0}" == 1 ]]; then
+  /usr/libexec/PlistBuddy -c 'Set :CFBundleIdentifier app.saytile.mac.mandarin-candidate' "$bundle/Contents/Info.plist"
+  /usr/libexec/PlistBuddy -c 'Set :CFBundleDisplayName Saytile 中文识别候选' "$bundle/Contents/Info.plist"
+fi
 ditto .build/sparkle/Sparkle.framework "$bundle/Contents/Frameworks/Sparkle.framework"
 cp .build/sparkle/LICENSE "$bundle/Contents/Resources/SPARKLE-LICENSE.txt"
 if [[ -n "${SAYTILE_UPDATE_FEED:-}${SAYTILE_UPDATE_PUBLIC_KEY:-}" ]]; then
@@ -59,8 +63,8 @@ if [[ -n "${SAYTILE_UPDATE_FEED:-}${SAYTILE_UPDATE_PUBLIC_KEY:-}" ]]; then
 fi
 /usr/libexec/PlistBuddy -c "Add :SaytileSourceRevision string $(git rev-parse HEAD)" "$bundle/Contents/Info.plist"
 SAYTILE_SOURCE_DIRTY=false
-if ! git diff --quiet HEAD -- Sources Package.swift packaging scripts/build-app.sh; then SAYTILE_SOURCE_DIRTY=true; fi
-if [[ -n "$(git ls-files --others --exclude-standard Sources packaging)" ]]; then SAYTILE_SOURCE_DIRTY=true; fi
+if ! git diff --quiet HEAD -- Sources Package.swift native/LocalASR packaging scripts/build-app.sh scripts/build-local-runtime.sh scripts/prepare-local-runtime.sh; then SAYTILE_SOURCE_DIRTY=true; fi
+if [[ -n "$(git ls-files --others --exclude-standard Sources native/LocalASR packaging)" ]]; then SAYTILE_SOURCE_DIRTY=true; fi
 /usr/libexec/PlistBuddy -c "Add :SaytileSourceDirty bool $SAYTILE_SOURCE_DIRTY" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $version" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :SaytileReleaseVersion string $version" "$bundle/Contents/Info.plist"

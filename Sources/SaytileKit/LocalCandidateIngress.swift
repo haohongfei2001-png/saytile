@@ -14,8 +14,15 @@ actor LocalCandidateIngress {
     init(store: SaytileStore, ticket: RecognitionTicket, model: LocalASRID = .apple, review: LocalTextReview? = nil) {
         self.store = store; self.ticket = ticket; self.model = model; self.review = review
     }
-    func receive(_ event: ProviderTranscriptEvent) async throws {
+    func start() async throws {
         if run == nil { run = try await store.beginLocalCandidateRun(ticket: ticket, model: model) }
+    }
+    func fail(_ message: String) async {
+        if let run { try? await store.finishModelRun(run, error: message) }
+        try? await store.failRecognition(ticket: ticket, message: message)
+    }
+    func receive(_ event: ProviderTranscriptEvent) async throws {
+        if run == nil { try await start() }
         guard let run else { throw FusionError.staleGeneration }
         sequence += 1
         let candidate = RecognitionCandidate(run: run, sequence: sequence, event: event)

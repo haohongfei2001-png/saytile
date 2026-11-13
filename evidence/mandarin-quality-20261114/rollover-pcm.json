@@ -1,0 +1,238 @@
+{
+ "public_source": "continuous-public-5, five FLEURS clips from evidence/mandarin/continuous.json, 50 ms between clips",
+ "source_wav_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+ "pcm_format": "16 kHz mono signed PCM16, 38.8 seconds; ten prefix cutpoints, actual reopened SQLite and WAV bytes",
+ "verified_probe_source_sha256": "64bb52eaceb462f322db97b1ebf37bbcefade12986a2a8e549bde99065f824bf",
+ "native_regression": {
+  "tests_passed": 68,
+  "failures": 0,
+  "filter": "AudioLifecycleTests|AudioTests|TranscriptTimelineTests|StoreTests|SingleTranscriptEngineTests|LocalModelRoutingTests",
+  "full_local_log_sha256": "150683a5308a70f03ee08c1c0b25fe819bb3fb673faddeee799ce071e07d7385"
+ },
+ "variants": {
+  "before": {
+   "source": "0e1cbc48236146c5b82e5517a59e0c18cbcb7a50",
+   "probe_binary_sha256": "52e3b1c7b80b323b2e0154d02710c053258e4dc8a2d21e03a1c56ccca46bfa41",
+   "matching_clip_count": 4,
+   "rows": [
+    {
+     "chunks": 3,
+     "inputFrames": 481280,
+     "inputSHA256": "6ceb84082b11f639b4891f021a86cd4722d0fb3f9b8b3f0a51d10f9167eebb00",
+     "recordingFrames": [
+      481280
+     ],
+     "storedFrames": 481280,
+     "storedSHA256": "6ceb84082b11f639b4891f021a86cd4722d0fb3f9b8b3f0a51d10f9167eebb00"
+    },
+    {
+     "chunks": 3,
+     "inputFrames": 481297,
+     "inputSHA256": "9c91a38531c9eb55a15771846118a8194fd932913246a0d7943a97a3d851c4c1",
+     "recordingFrames": [
+      481280
+     ],
+     "storedFrames": 481280,
+     "storedSHA256": "6ceb84082b11f639b4891f021a86cd4722d0fb3f9b8b3f0a51d10f9167eebb00"
+    },
+    {
+     "chunks": 3,
+     "inputFrames": 481599,
+     "inputSHA256": "42b48a507b20e0740a0f758c6a29fbe57a34697a14785f35c62c7ab504ff3624",
+     "recordingFrames": [
+      481280
+     ],
+     "storedFrames": 481280,
+     "storedSHA256": "6ceb84082b11f639b4891f021a86cd4722d0fb3f9b8b3f0a51d10f9167eebb00"
+    },
+    {
+     "chunks": 3,
+     "inputFrames": 481600,
+     "inputSHA256": "23a6b99f34c2098f824a2003ed38d902509e3067fb17730234647152e7cadd19",
+     "recordingFrames": [
+      481280
+     ],
+     "storedFrames": 481280,
+     "storedSHA256": "6ceb84082b11f639b4891f021a86cd4722d0fb3f9b8b3f0a51d10f9167eebb00"
+    },
+    {
+     "chunks": 3,
+     "inputFrames": 481617,
+     "inputSHA256": "0e3b98944268fa615e14dd71e6fd9b9cfcd7e662037cbfc0bb64ffbc30f2abcd",
+     "recordingFrames": [
+      481280
+     ],
+     "storedFrames": 481280,
+     "storedSHA256": "6ceb84082b11f639b4891f021a86cd4722d0fb3f9b8b3f0a51d10f9167eebb00"
+    },
+    {
+     "chunks": 3,
+     "inputFrames": 481920,
+     "inputSHA256": "e2a2b4b4f19dcb75d09afd01c61069564aed38b1ee7d02e9e4ae424761bad9cd",
+     "recordingFrames": [
+      481280
+     ],
+     "storedFrames": 481280,
+     "storedSHA256": "6ceb84082b11f639b4891f021a86cd4722d0fb3f9b8b3f0a51d10f9167eebb00"
+    },
+    {
+     "chunks": 3,
+     "inputFrames": 482239,
+     "inputSHA256": "7eecb576bf8d0b1b34e2792bc7e7e03ea16be73a6c71103ac9f305be8545bb45",
+     "recordingFrames": [
+      481280
+     ],
+     "storedFrames": 481280,
+     "storedSHA256": "6ceb84082b11f639b4891f021a86cd4722d0fb3f9b8b3f0a51d10f9167eebb00"
+    },
+    {
+     "chunks": 4,
+     "inputFrames": 482240,
+     "inputSHA256": "ec53f758de786a8dce81bf606fdc71d18c05129998ff9d7fc5e4f0285999ecbc",
+     "recordingFrames": [
+      481280,
+      960
+     ],
+     "storedFrames": 482240,
+     "storedSHA256": "ec53f758de786a8dce81bf606fdc71d18c05129998ff9d7fc5e4f0285999ecbc"
+    },
+    {
+     "chunks": 4,
+     "inputFrames": 482560,
+     "inputSHA256": "1275eb590522a595637ca9643c57ccee8c6ead2a865f629b135473fe1de69cfa",
+     "recordingFrames": [
+      481280,
+      1280
+     ],
+     "storedFrames": 482560,
+     "storedSHA256": "1275eb590522a595637ca9643c57ccee8c6ead2a865f629b135473fe1de69cfa"
+    },
+    {
+     "chunks": 4,
+     "inputFrames": 620800,
+     "inputSHA256": "ebf9f4b041cd8223448a4c1a7e054384234bf15c3b83c5620fe2843224a86490",
+     "recordingFrames": [
+      481280,
+      139520
+     ],
+     "storedFrames": 620800,
+     "storedSHA256": "ebf9f4b041cd8223448a4c1a7e054384234bf15c3b83c5620fe2843224a86490"
+    }
+   ]
+  },
+  "after": {
+   "source": "a83fabf74205095a51832654c1b3b24f5925b989",
+   "probe_binary_sha256": "ce34c1e018ea6b7271b4e39b137b4e762b2d0f6e4eebb0e442fd5a557844c150",
+   "matching_clip_count": 10,
+   "rows": [
+    {
+     "chunks": 3,
+     "inputFrames": 481280,
+     "inputSHA256": "6ceb84082b11f639b4891f021a86cd4722d0fb3f9b8b3f0a51d10f9167eebb00",
+     "recordingFrames": [
+      481280
+     ],
+     "storedFrames": 481280,
+     "storedSHA256": "6ceb84082b11f639b4891f021a86cd4722d0fb3f9b8b3f0a51d10f9167eebb00"
+    },
+    {
+     "chunks": 3,
+     "inputFrames": 481297,
+     "inputSHA256": "9c91a38531c9eb55a15771846118a8194fd932913246a0d7943a97a3d851c4c1",
+     "recordingFrames": [
+      481297
+     ],
+     "storedFrames": 481297,
+     "storedSHA256": "9c91a38531c9eb55a15771846118a8194fd932913246a0d7943a97a3d851c4c1"
+    },
+    {
+     "chunks": 3,
+     "inputFrames": 481599,
+     "inputSHA256": "42b48a507b20e0740a0f758c6a29fbe57a34697a14785f35c62c7ab504ff3624",
+     "recordingFrames": [
+      481599
+     ],
+     "storedFrames": 481599,
+     "storedSHA256": "42b48a507b20e0740a0f758c6a29fbe57a34697a14785f35c62c7ab504ff3624"
+    },
+    {
+     "chunks": 4,
+     "inputFrames": 481600,
+     "inputSHA256": "23a6b99f34c2098f824a2003ed38d902509e3067fb17730234647152e7cadd19",
+     "recordingFrames": [
+      481280,
+      320
+     ],
+     "storedFrames": 481600,
+     "storedSHA256": "23a6b99f34c2098f824a2003ed38d902509e3067fb17730234647152e7cadd19"
+    },
+    {
+     "chunks": 4,
+     "inputFrames": 481617,
+     "inputSHA256": "0e3b98944268fa615e14dd71e6fd9b9cfcd7e662037cbfc0bb64ffbc30f2abcd",
+     "recordingFrames": [
+      481280,
+      337
+     ],
+     "storedFrames": 481617,
+     "storedSHA256": "0e3b98944268fa615e14dd71e6fd9b9cfcd7e662037cbfc0bb64ffbc30f2abcd"
+    },
+    {
+     "chunks": 4,
+     "inputFrames": 481920,
+     "inputSHA256": "e2a2b4b4f19dcb75d09afd01c61069564aed38b1ee7d02e9e4ae424761bad9cd",
+     "recordingFrames": [
+      481280,
+      640
+     ],
+     "storedFrames": 481920,
+     "storedSHA256": "e2a2b4b4f19dcb75d09afd01c61069564aed38b1ee7d02e9e4ae424761bad9cd"
+    },
+    {
+     "chunks": 4,
+     "inputFrames": 482239,
+     "inputSHA256": "7eecb576bf8d0b1b34e2792bc7e7e03ea16be73a6c71103ac9f305be8545bb45",
+     "recordingFrames": [
+      481280,
+      959
+     ],
+     "storedFrames": 482239,
+     "storedSHA256": "7eecb576bf8d0b1b34e2792bc7e7e03ea16be73a6c71103ac9f305be8545bb45"
+    },
+    {
+     "chunks": 4,
+     "inputFrames": 482240,
+     "inputSHA256": "ec53f758de786a8dce81bf606fdc71d18c05129998ff9d7fc5e4f0285999ecbc",
+     "recordingFrames": [
+      481280,
+      960
+     ],
+     "storedFrames": 482240,
+     "storedSHA256": "ec53f758de786a8dce81bf606fdc71d18c05129998ff9d7fc5e4f0285999ecbc"
+    },
+    {
+     "chunks": 4,
+     "inputFrames": 482560,
+     "inputSHA256": "1275eb590522a595637ca9643c57ccee8c6ead2a865f629b135473fe1de69cfa",
+     "recordingFrames": [
+      481280,
+      1280
+     ],
+     "storedFrames": 482560,
+     "storedSHA256": "1275eb590522a595637ca9643c57ccee8c6ead2a865f629b135473fe1de69cfa"
+    },
+    {
+     "chunks": 4,
+     "inputFrames": 620800,
+     "inputSHA256": "ebf9f4b041cd8223448a4c1a7e054384234bf15c3b83c5620fe2843224a86490",
+     "recordingFrames": [
+      481280,
+      139520
+     ],
+     "storedFrames": 620800,
+     "storedSHA256": "ebf9f4b041cd8223448a4c1a7e054384234bf15c3b83c5620fe2843224a86490"
+    }
+   ]
+  }
+ }
+}

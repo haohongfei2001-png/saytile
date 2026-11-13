@@ -1,0 +1,161 @@
+{
+ "scope": "The three specific mixed-state FLEURS examples located in the unforced-language 0.6B batch. Comparison of complete archival strings on identical public PCM. No phonetic or speaker annotation of the individual failed interval. Do not suppress authentic disfluencies based on the reference.",
+ "cases": [
+  {
+   "id": "fleurs-e0687aaa8689e196",
+   "wav_sha256": "4681070ac0f3c6d11b5d80993298ad16e2059b3030869fcec6acc466523e154b",
+   "reference": "流行的运动项目包括足球、篮球、排球、水球、击剑、橄榄球、自行车、冰球、轮滑曲棍球和一级方程式赛车。",
+   "forced_result": {
+    "errors": [],
+    "id": "fleurs-e0687aaa8689e196",
+    "model": "qwen-small",
+    "path": "product",
+    "providers": [
+     "qwen-small"
+    ],
+    "states": [
+     "completed",
+     "completed"
+    ],
+    "text": "流行的运动项目包括：足球、篮球、排球、水球、击剑、橄榄球、自行车、冰球、轮滑曲棍球和一级方程式赛车。嗯。"
+   },
+   "unforced_result": {
+    "errors": [
+     "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。"
+    ],
+    "id": "fleurs-e0687aaa8689e196",
+    "model": "qwen-small",
+    "path": "product",
+    "providers": [
+     "qwen-small"
+    ],
+    "states": [
+     "completed",
+     "failed"
+    ],
+    "text": "流行的运动项目包括：足球、篮球、排球、水球、击剑、橄榄球、自行车、冰球、轮滑曲棍球和一级方程式赛车。"
+   },
+   "forced_edits": {
+    "errors": 1,
+    "substitutions": 0,
+    "deletions": 0,
+    "insertions": 1,
+    "reference_units": 40
+   },
+   "unforced_edits": {
+    "errors": 0,
+    "substitutions": 0,
+    "deletions": 0,
+    "insertions": 0,
+    "reference_units": 40
+   },
+   "failed_segment": 1,
+   "failed_segment_pcm_seconds": 1.3,
+   "failed_segment_detected_span_seconds": 0.16
+  },
+  {
+   "id": "fleurs-c1fcf0cd023db10f",
+   "wav_sha256": "95dae2e6509dac2af6b35149dbd46978e2a5bfd480d3604282a1a092606ff0ea",
+   "reference": "通过红外光谱 (FTIR) 进行比较后发现，这些结晶的成分与在受影响宠物的尿液中发现的结晶成分吻合。",
+   "forced_result": {
+    "errors": [],
+    "id": "fleurs-c1fcf0cd023db10f",
+    "model": "qwen-small",
+    "path": "product",
+    "providers": [
+     "qwen-small"
+    ],
+    "states": [
+     "completed",
+     "completed"
+    ],
+    "text": "嗯。通过红外光谱进行比较后，发现这些结晶的成分与在受影响宠物的尿液中发现的结晶成分吻合。"
+   },
+   "unforced_result": {
+    "errors": [
+     "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。"
+    ],
+    "id": "fleurs-c1fcf0cd023db10f",
+    "model": "qwen-small",
+    "path": "product",
+    "providers": [
+     "qwen-small"
+    ],
+    "states": [
+     "failed",
+     "completed"
+    ],
+    "text": "通过红外光谱进行比较后，发现这些结晶的成分与在受影响宠物的尿液中发现的结晶成分吻合。"
+   },
+   "forced_edits": {
+    "errors": 5,
+    "substitutions": 0,
+    "deletions": 4,
+    "insertions": 1,
+    "reference_units": 44
+   },
+   "unforced_edits": {
+    "errors": 4,
+    "substitutions": 0,
+    "deletions": 4,
+    "insertions": 0,
+    "reference_units": 44
+   },
+   "failed_segment": 0,
+   "failed_segment_pcm_seconds": 2.44,
+   "failed_segment_detected_span_seconds": 0.38
+  },
+  {
+   "id": "fleurs-fd242859bc18ffbb",
+   "wav_sha256": "bbb84204896b251dd30298adcba51a00d51aedb92337dabf9aaf860512ca3257",
+   "reference": "拉卡·辛格 (Lakkha Singh) 还介绍了 chhappan bhog bhajan。歌手 Raju Khandelwal 陪同他身边。",
+   "forced_result": {
+    "errors": [],
+    "id": "fleurs-fd242859bc18ffbb",
+    "model": "qwen-small",
+    "path": "product",
+    "providers": [
+     "qwen-small"
+    ],
+    "states": [
+     "completed",
+     "completed"
+    ],
+    "text": "嗯。拉卡辛格还介绍了 Chapin, Bog, Henson，歌手 Reggie， Handel陪同他身边。"
+   },
+   "unforced_result": {
+    "errors": [
+     "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。"
+    ],
+    "id": "fleurs-fd242859bc18ffbb",
+    "model": "qwen-small",
+    "path": "product",
+    "providers": [
+     "qwen-small"
+    ],
+    "states": [
+     "failed",
+     "completed"
+    ],
+    "text": "拉卡辛格还介绍了 Chapin, Bog, Henson，歌手 Reggie， Handel陪同他身边。"
+   },
+   "forced_edits": {
+    "errors": 29,
+    "substitutions": 10,
+    "deletions": 17,
+    "insertions": 2,
+    "reference_units": 58
+   },
+   "unforced_edits": {
+    "errors": 28,
+    "substitutions": 10,
+    "deletions": 17,
+    "insertions": 1,
+    "reference_units": 58
+   },
+   "failed_segment": 0,
+   "failed_segment_pcm_seconds": 4.52,
+   "failed_segment_detected_span_seconds": 2.7
+  }
+ ]
+}

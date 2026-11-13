@@ -21,7 +21,7 @@ import SaytileKit
             guard try await store.listRecordings(limit: 1).isEmpty else { throw CocoaError(.fileWriteFileExists) }
             _ = try await controller.replayLocalFixture(root.appending(path: "fixture.wav"), recordOnly: true)
         } else {
-            guard let id = LocalASRID(rawValue: job), (id.capability == .batch || id == .qwen) else { throw CocoaError(.fileReadCorruptFile) }
+            guard let id = LocalASRID(rawValue: job), id.capability != .streaming else { throw CocoaError(.fileReadCorruptFile) }
             controller.selectLocalModels(live: .sherpa, archive: id, service: service)
             let records = try await store.listRecordings(limit: 40)
             if id == .qwen {

@@ -128,6 +128,10 @@ final class PCMJournal {
 final class VoiceSegmenter {
     // Keep the active local recognizer through a short thinking pause.
     static let localPauseFrames = 75
+    struct Limits: Equatable {
+        var endSilenceFrames = VoiceSegmenter.localPauseFrames
+        var maximumFrames = 1_500
+    }
     enum Event { case begin([Data], sample: Int64), audio(Data), end(sample: Int64) }
     private let vad: OpaquePointer
     private var pending = Data()
@@ -139,32 +143,48 @@ final class VoiceSegmenter {
     private var speechVotes = 0
     private var silence = 0
     private var activeFrames = 0
-    private let endSilenceFrames: Int
-    private var activeMaximum = 1500
-    private let maximumFrames: Int
+    private let defaultLimits: Limits
+    private var activeLimits: Limits
     init(endSilenceFrames: Int = VoiceSegmenter.localPauseFrames, maximumFrames: Int = 1_500) throws {
         guard let vad = st_vad_create() else { throw AudioFailure.message("VAD 初始化失败") }
-        self.vad = vad; self.endSilenceFrames = max(1, endSilenceFrames); self.maximumFrames = max(1, maximumFrames)
+        self.vad = vad
+        defaultLimits = Limits(endSilenceFrames: max(1, endSilenceFrames), maximumFrames: max(1, maximumFrames))
+        activeLimits = defaultLimits
     }
     deinit { st_vad_destroy(vad) }
-    func accept(_ data: Data, nextMaximumFrames: Int? = nil) -> [Event] {
+    func accept(_ data: Data, nextLimits: (() -> Limits)? = nil) -> [Event] {
         receivedSamples += Int64(data.count / 2)
         pending.append(data); var events: [Event] = []
         while pending.count >= 640 {
             let frame = Data(pending.prefix(640)); pending.removeFirst(640)
             frameEnd += 320
-            let voiced = frame.withUnsafeBytes { st_vad_process(vad, $0.bindMemory(to: Int16.self).baseAddress!, 320) == 1 }
+            let decision = frame.withUnsafeBytes { st_vad_process(vad, $0.bindMemory(to: Int16.self).baseAddress!, 320) }
             if !speaking {
                 preRoll.append(frame); if preRoll.count > 50 { preRoll.removeFirst() }
+                let voiced = decision == STVoiceDetected
                 if voiced && speechVotes == 0 { possibleStart = frameEnd - 320 }
                 speechVotes = voiced ? speechVotes + 1 : max(0, speechVotes - 1)
-                if speechVotes >= 3 { activeMaximum = nextMaximumFrames ?? maximumFrames; speaking = true; silence = 0; activeFrames = 0; events.append(.begin(preRoll, sample: possibleStart)); preRoll.removeAll(keepingCapacity: true) }
+                if speechVotes >= 3 {
+                    activeLimits = nextLimits?() ?? defaultLimits
+                    speaking = true; silence = 0; activeFrames = 0
+                    events.append(.begin(preRoll, sample: possibleStart)); preRoll.removeAll(keepingCapacity: true)
+                }
             } else {
+                // A duration limit rotates an active recognizer; it is not a
+                // new speech onset. Keep the old journal open through quiet
+                // or a sub-frame EOF and move only on the next voiced frame.
+                if activeFrames >= activeLimits.maximumFrames && decision == STVoiceDetected {
+                    let boundary = frameEnd - 320
+                    events.append(.end(sample: boundary - Int64(silence) * 320))
+                    events.append(.begin([frame], sample: boundary))
+                    activeLimits = nextLimits?() ?? defaultLimits
+                    activeFrames = 1
+                    silence = 0
+                    continue
+                }
                 events.append(.audio(frame)); activeFrames += 1
-                silence = voiced ? 0 : silence + 1
-                // Journal rotation is separate. Cloud sessions retain longer context;
-                // this boundary controls resource recovery, never text confirmation.
-                if silence >= endSilenceFrames || activeFrames >= activeMaximum {
+                silence = decision == STVoiceQuiet ? silence + 1 : 0
+                if silence >= activeLimits.endSilenceFrames {
                     events.append(.end(sample: frameEnd - Int64(silence) * 320))
                     speaking = false; speechVotes = 0; silence = 0
                 }

@@ -1,0 +1,34 @@
+{
+  "scope": "Read-only system route and AudioQueue level meter. Probe did not request new authorization. No PCM, speech recognition, recordings, or third-party calls.",
+  "probe_source": "tests/fixtures/MandarinInputMeter.m",
+  "source_sha256": "98cec69cd7cb0ae70545dab9e6fd1fc55562cbc05ad5785879a84aa5ee5c188d",
+  "binary_sha256": "e7b5ff93e99ff8632dc2f5dd8bac01fdb822135f9bd53b2129d965ec4bee554e",
+  "device_check": {
+    "built_in_input_transport": "Built-in",
+    "device_pinned_to_enumerated_uid": true,
+    "selected_and_actual_queue_device_uid_equal": true,
+    "sample_rate_hz": 48000,
+    "channels": 1,
+    "queue_format": "mono PCM16",
+    "default_input_at_test": "Bluetooth, 24000 Hz, 1 channel",
+    "default_opened_by_meter": false,
+    "lid_closed_at_test": true
+  },
+  "measurement": {
+    "intervals": 20,
+    "interval_seconds": 0.1,
+    "finite_meter_intervals": 20,
+    "intervals_above_minus_119_9_dBFS": 0,
+    "delivered_buffers": 24,
+    "peak_dBFS": -120.0,
+    "max_mean_dBFS": -120.0,
+    "os_status": 0,
+    "pcm_bytes_read": 0,
+    "pcm_bytes_saved": 0,
+    "asr_runs": 0
+  },
+  "routed_meter": "PASS",
+  "audible_built_in_input": "BLOCKED_LID_CLOSED_DURING_MEASUREMENT",
+  "personal_accent_recognition": "NOT_RUN",
+  "earlier_product_frame_probe": "DEVICE_PROBE hardware_buffers=50 hardware_frames=240000 sample_rate=48000.0 channels=1 no_samples_read_saved_or_recognized=true pinned_frames=241024 pinned_rate=48000.0"
+}

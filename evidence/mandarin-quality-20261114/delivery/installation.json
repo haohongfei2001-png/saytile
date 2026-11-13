@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "source": "cd41c60f0d7cb042c066c42147a58085b6f33f95",
+  "installed": "Saytile 中文识别候选.app",
+  "installation": "Read-only mounted Developer ID signed DMG, normal macOS LaunchServices open",
+  "package_sha256": "7bf7bd812ac23c97d29711acaa4b8d9dec2147d26a5bbe869051fd44ae364fa9",
+  "executable_sha256": "09b45ff8ba6958597221f5da2d6ccaeb34de8466b337772d9f8f35fa68c011bd",
+  "original_executable_sha256": "35f6b2ae00f2888a7c5fdadf34a81f3a79f693aea76bca3d98733fc0ed25af45",
+  "running": [
+    {
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "launchFinished": "yes",
+      "name": "Saytile 中文识别候选.app",
+      "sha": "cd41c60f0d7cb042c066c42147a58085b6f33f95",
+      "version": "0.13"
+    }
+  ],
+  "isolated_local_model": {
+    "id": "qwen-small",
+    "revision": "bc441bd1e4295c1f42d9879f056049a925b6e013",
+    "verified_files": 6,
+    "verified_bytes": 712777119
+  },
+  "notarization_submitted": false,
+  "gatekeeper": "Saytile 中文识别候选.app: rejected\nsource=Unnotarized Developer ID",
+  "microphone": "Independent application identity; personal speech not recorded during install.",
+  "production_observation": {
+    "bundle_unchanged": true,
+    "was_running_at_final_check": false,
+    "process_lifetime_untested": true,
+    "installation_did_not_launch_or_terminate_production": true
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "sources": {
+    "base": "9e17c8d7099d54aef26ce5b2577747f35e285fc4",
+    "candidate_host_same_source": "9e17c8d7099d54aef26ce5b2577747f35e285fc4",
+    "mechanism": "qwen-small decodes the newest available PCM after first partial up to three extra strides at a time; final PCM and 32 s boundary preserved",
+    "base_worker": "9ad85ec9bd4c646b9943610cc45f36f85f86c818f068020cf5fc52a696643fde",
+    "candidate_worker": "be6e2156894f28952e601bf178fce9535319828fcf4f2081f95a6e590376321c",
+    "experimental_worker_source_sha256": "808d2fa1006708f17ae79d249c312843fed2ce398ea7756ae1eceba6dbe6c584",
+    "weights_manifest_sha256": "a2b9d00644087dff42139996f013c396e468f1948a312893cd5e9e7f805149b8"
+  },
+  "samples": {
+    "fleurs-f8646a257c0c4273": {
+      "wav_sha": "c68868cfa82bd8c0ebcf691ce38d9860ae95aa803b3e846c2f552fb82e997829",
+      "base": {
+        "raw_receipt_sha256": "5de4da20d3e6f03af46d2487bb775e58ef81b4a6b0207b2e252a36c0e8a61bbe",
+        "first_meaningful": 1.8043079581856727,
+        "first_publish": 1.7110439583938568,
+        "display_meaningful": 15,
+        "meaningful_publish": 14,
+        "publication_gap_seconds": {
+          "p50": 1.241,
+          "p95": 2.893
+        },
+        "final_eos": 2.1162985833361745,
+        "largest_display_gap": 2.917474874993786,
+        "edit_errors": 5,
+        "ref_units": 92,
+        "versions": [
+          "他们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚利桑那州奇甘镇，美国地质调查局（USGS）太空地质团队和北亚利桑纳大学的格伦·库欣说道。"
+        ],
+        "finished_states": [
+          "completed"
+        ]
+      },
+      "candidate": {
+        "raw_receipt_sha256": "b09fc11959bf350d2f1ddceae2433f6b9fb2980f0a4ae2b26dafc10de3c10ff8",
+        "first_meaningful": 3.0441902085021137,
+        "first_publish": 2.846379125099629,
+        "display_meaningful": 13,
+        "meaningful_publish": 11,
+        "publication_gap_seconds": {
+          "p50": 1.602,
+          "p95": 2.073
+        },
+        "final_eos": 0.01030275016091764,
+        "largest_display_gap": 3.0441902085021137,
+        "edit_errors": 5,
+        "ref_units": 92,
+        "versions": [
+          "他们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚利桑那州奇甘镇，美国地质调查局（USGS）太空地质团队和北亚利桑纳大学的格伦·库欣说道。"
+        ],
+        "finished_states": [
+          "completed"
+        ]
+      }
+    },
+    "continuous-public-5": {
+      "wav_sha": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "base": {
+        "raw_receipt_sha256": "11908f7a0207e389ec63ed567ffbd0fea71606c88b2373ca4621011f55bc1339",
+        "first_meaningful": 1.3623539998661727,
+        "first_publish": 1.3502222083043307,
+        "display_meaningful": 26,
+        "meaningful_publish": 22,
+        "publication_gap_seconds": {
+          "p50": 1.461,
+          "p95": 4.068
+        },
+        "final_eos": 10.235072625102475,
+        "largest_display_gap": 4.365915583213791,
+        "edit_errors": 31,
+        "ref_units": 205,
+        "versions": [
+          "交织，就像在讲述一个动人的故。有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+          "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地，科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁，平时你总能在这里听到游客和小摊贩的声音，声光。"
+        ],
+        "finished_states": [
+          "completed",
+          "completed"
+        ]
+      },
+      "candidate": {
+        "raw_receipt_sha256": "16f70804f0532c9357dcc6392bd6b5ea5cccd35ed7a8d09b059bb882bc4ddad7",
+        "first_meaningful": 0.9614432083908468,
+        "first_publish": 0.9547981666401029,
+        "display_meaningful": 36,
+        "meaningful_publish": 31,
+        "publication_gap_seconds": {
+          "p50": 1.225,
+          "p95": 1.998
+        },
+        "final_eos": 0.28738075005821884,
+        "largest_display_gap": 2.482642208226025,
+        "edit_errors": 31,
+        "ref_units": 205,
+        "versions": [
+          "交织，就像在讲述一个动人的故。有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+          "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地，科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁，平时你总能在这里听到游客和小摊贩的声音，声光。"
+        ],
+        "finished_states": [
+          "completed",
+          "completed"
+        ]
+      }
+    },
+    "trailing-quiet-481280": {
+      "wav_sha": "44f64214de1cdd8e71b16ce87d29376065c7f35520a8533e87f019c72defe7af",
+      "base": {
+        "raw_receipt_sha256": "2c1610d1bc2f76a962137261744c0af91ed1d1aef89b45e43665a7e3653489e2",
+        "first_publish": 1.426777791697532,
+        "meaningful_publish": null,
+        "edit_errors": null,
+        "final_eos": 8.050888041732833,
+        "total_before_acoustic_end": 22,
+        "versions": [
+          "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大力士的五倍。这里首选登山目的地——科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。平时你总能在这里听到游客和小摊贩的声音，声光。"
+        ],
+        "finished_states": [
+          "completed"
+        ]
+      },
+      "candidate": {
+        "raw_receipt_sha256": "446dbbcde4e46e96e43558402deb28db37adadcbf73eb044da8a588c809d857c",
+        "first_publish": 1.179452250013128,
+        "meaningful_publish": null,
+        "edit_errors": null,
+        "final_eos": 0.0362513333093375,
+        "total_before_acoustic_end": 25,
+        "versions": [
+          "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大力士的五倍。这里首选登山目的地——科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。平时你总能在这里听到游客和小摊贩的声音，声光。"
+        ],
+        "finished_states": [
+          "completed"
+        ]
+      }
+    }
+  }
+}

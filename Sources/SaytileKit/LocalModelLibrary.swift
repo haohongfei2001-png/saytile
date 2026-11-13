@@ -23,8 +23,8 @@ public enum LocalASRID: String, CaseIterable, Codable, Sendable {
     public var capability: LocalASRCapability {
         switch self {
         case .apple, .sherpa, .nemotron, .zipformer: .streaming
-        case .qwen: .chunked
-        case .paraformer, .sensevoice, .qwenLarge: .batch
+        case .qwen, .qwenLarge: .chunked
+        case .paraformer, .sensevoice: .batch
         }
     }
     var evidenceID: UUID {
@@ -90,6 +90,7 @@ public actor LocalModelLibrary {
     private let http: URLSession
     private var jobs: [LocalASRID: Task<Void, Never>] = [:]
     private var errors: [LocalASRID: String] = [:]
+    private var interruptedByNetwork: Set<LocalASRID> = []
     private var deleting: Set<LocalASRID> = []
     private struct Verification {
         let revision: String
@@ -194,18 +195,29 @@ public actor LocalModelLibrary {
             return fm.fileExists(atPath: directory(m).path) || fm.fileExists(atPath: staging(m).path)
         }
     }
-    public func download(_ id: LocalASRID) {
-        guard id != .apple, !deleting.contains(id), jobs[id] == nil else { return }
+    public func needsNetworkToResume(_ id: LocalASRID) -> Bool { interruptedByNetwork.contains(id) }
+
+    @discardableResult public func download(_ id: LocalASRID) -> Task<Void, Never>? {
+        guard id != .apple, !deleting.contains(id), jobs[id] == nil else { return nil }
         errors[id] = nil
+        interruptedByNetwork.remove(id)
         jobs[id] = Task {
             do { try await install(try LocalModelManifest.load(id)) }
             catch {
                 if !Task.isCancelled {
+                    if let network = error as? URLError, [.notConnectedToInternet, .networkConnectionLost,
+                        .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed, .timedOut].contains(network.code) {
+                        interruptedByNetwork.insert(id)
+                    }
                     errors[id] = error is URLError ? "模型下载中断。可继续下载，或使用系统识别。" : error.localizedDescription
                 }
             }
             jobs[id] = nil
         }
+        return jobs[id]
+    }
+    public func waitForDownload(_ id: LocalASRID) async {
+        await jobs[id]?.value
     }
     public func pause(_ id: LocalASRID) async {
         guard let task = jobs[id] else { return }
@@ -222,6 +234,7 @@ public actor LocalModelLibrary {
             try fm.removeItem(at: path)
         }
         errors[id] = nil
+        interruptedByNetwork.remove(id)
     }
     func install(_ m: LocalModelManifest) async throws {
         let dir = directory(m), stage = staging(m)

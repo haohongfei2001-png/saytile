@@ -1,0 +1,13 @@
+# Saytile 内测 0.13 · 中文识别候选
+
+本机入口为 `~/Applications/Saytile 中文识别候选.app`，内测 0.13（414）。应用与六个本地模型文件均已校验，使用时无需再等待模型下载。[实际安装收据](delivery/installation.json)
+
+在 Mac 上打开「Saytile 中文识别候选.app」。点击浮板右侧的语音键开始，第一次使用时按 macOS 提示允许麦克风。再次点击可暂停。可从菜单栏的「语音档案与设置…」查看该候选录下的原音、历史文字及实际运行的引擎。
+
+独立候选将资料保存在 `~/Library/Application Support/Saytile Mandarin Candidate`。本机的 Saytile 0.12 使用自己的应用标识、录音、模型和设置。使用 macOS 的同一个系统输入源时，可先在旧版面板上暂停收音。
+
+默认使用 Qwen3-ASR 0.6B，一次下载约 713 MB。在模型就绪前，已准备好资源的 Apple 中文识别可以接替下一段讲话。模型权重由本机校验，讲话在本地处理。可以在「本地模型」中查看下载进度、占用和实际识别状态。使用期间断网，已安装的本地模型仍可工作。这个候选无需登录或付费凭据。
+
+本机构建已用 Developer ID 签名并由 LaunchServices 启动。Gatekeeper 独立评估返回 `Unnotarized Developer ID`，未提交公证。通过浏览器下载或拷贝至另一台 Mac 后，系统可能阻止启动。[签名和镜像校验](delivery/package.json)
+
+回到原版时退出候选，打开原来的 Saytile.app。要移除候选，可以单独移走带「中文识别候选」字样的应用；保留其资料目录即可保留本轮新增录音和文字。

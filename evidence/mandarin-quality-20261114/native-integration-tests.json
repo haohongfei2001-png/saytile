@@ -1,0 +1,22 @@
+{
+  "source": "d63fb388fe3ce8899f262d00f93c9cf92b0e9839",
+  "platform": "macOS, Apple M5, CLT, Swift Testing",
+  "command": "SAYTILE_SIM_FULL_SUITE=1 scripts/test-protocol-simulator.sh",
+  "suite_groups": [
+    "viewport frames",
+    "localhost provider integration",
+    "connection setup",
+    "remaining Swift tests"
+  ],
+  "passed_by_group": [
+    4,
+    13,
+    12,
+    445
+  ],
+  "passed": 474,
+  "failed": 0,
+  "wire_cases": 52,
+  "wire_violations": 0,
+  "log_sha256": "f2a2de0e744fd3f03eba6b82899a6eb559e30ce8eb21d4867e5b1fbda1850d5a"
+}

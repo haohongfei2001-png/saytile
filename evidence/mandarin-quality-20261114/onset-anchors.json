@@ -1,0 +1,723 @@
+{
+ "criterion": "First/last min(6, reference length) normalized characters match at the exact text boundary; CER edits from the established scorer.",
+ "tracks": [
+  "candidate_qwen",
+  "candidate_qwen_auto",
+  "baseline_apple",
+  "baseline_qwen"
+ ],
+ "onset_delay_at_least_one_second": [
+  {
+   "id": "fleurs-e50b6b02d6d90ddc",
+   "wav_sha256": "5602b6156f417c000bb91b7c5c6b1d54946cf6decadfbd520a082d7465b14287",
+   "later_samples": 16960,
+   "ref_head": "有些原子含有",
+   "ref_tail": "况下发生分裂",
+   "results": {
+    "candidate_qwen": {
+     "head": "有些原子含有",
+     "tail": "况下发生分裂",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 39
+    },
+    "candidate_qwen_auto": {
+     "head": "有些原子含有",
+     "tail": "况下发生分裂",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 39
+    },
+    "baseline_apple": {
+     "head": "有些原子含有",
+     "tail": "况下发生分裂",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 39
+    },
+    "baseline_qwen": {
+     "head": "有些原子含有",
+     "tail": "况下发生分裂",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 39
+    }
+   }
+  },
+  {
+   "id": "fleurs-fe7c8b93142029fa",
+   "wav_sha256": "511167d6c479409649099da58f9d7b8a07f8691c30cc7f0ab528ef5c6dfa7fb7",
+   "later_samples": 40960,
+   "ref_head": "互联网结合了",
+   "ref_tail": "际传播的要素",
+   "results": {
+    "candidate_qwen": {
+     "head": "互联网结合了",
+     "tail": "际传播的要素",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 18
+    },
+    "candidate_qwen_auto": {
+     "head": "互联网结合了",
+     "tail": "际传播的要素",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 18
+    },
+    "baseline_apple": {
+     "head": "互联网结合了",
+     "tail": "际传播的要素",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 18
+    },
+    "baseline_qwen": {
+     "head": "互联网结合了",
+     "tail": "际传播的要素",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 18
+    }
+   }
+  },
+  {
+   "id": "fleurs-9589262630f775d9",
+   "wav_sha256": "6c7a7ea12753d1fa667e10ab6842a5e66bf755df4631b4b588235d2f5dd5e788",
+   "later_samples": 22080,
+   "ref_head": "意大利语也是",
+   "ref_tail": "用于宗教仪式",
+   "results": {
+    "candidate_qwen": {
+     "head": "意大利语也是",
+     "tail": "用于宗教仪式",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 2,
+     "substitutions": 0,
+     "deletions": 1,
+     "insertions": 1,
+     "reference_units": 35
+    },
+    "candidate_qwen_auto": {
+     "head": "意大利语也是",
+     "tail": "用于宗教仪式",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 2,
+     "substitutions": 0,
+     "deletions": 1,
+     "insertions": 1,
+     "reference_units": 35
+    },
+    "baseline_apple": {
+     "head": "意大利语也是",
+     "tail": "用于宗教仪式",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 3,
+     "substitutions": 1,
+     "deletions": 0,
+     "insertions": 2,
+     "reference_units": 35
+    },
+    "baseline_qwen": {
+     "head": "意大利语也是",
+     "tail": "用于宗教仪式",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 1,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 1,
+     "reference_units": 35
+    }
+   }
+  },
+  {
+   "id": "fleurs-d8d1713dc5816512",
+   "wav_sha256": "e004b6856fcbe040637aef99ef163c56e9c4a764c8973abb5c45324da2cbaf34",
+   "later_samples": 24000,
+   "ref_head": "现任参议员阿",
+   "ref_tail": "总统竞选资格",
+   "results": {
+    "candidate_qwen": {
+     "head": "现任议员阿根",
+     "tail": "总统竞选资格",
+     "head_matches": false,
+     "tail_matches": true,
+     "errors": 52,
+     "substitutions": 23,
+     "deletions": 28,
+     "insertions": 1,
+     "reference_units": 96
+    },
+    "candidate_qwen_auto": {
+     "head": "现任议员阿根",
+     "tail": "总统竞选资格",
+     "head_matches": false,
+     "tail_matches": true,
+     "errors": 45,
+     "substitutions": 10,
+     "deletions": 35,
+     "insertions": 0,
+     "reference_units": 96
+    },
+    "baseline_apple": {
+     "head": "现任议员阿根",
+     "tail": "总统竞选资格",
+     "head_matches": false,
+     "tail_matches": true,
+     "errors": 46,
+     "substitutions": 11,
+     "deletions": 35,
+     "insertions": 0,
+     "reference_units": 96
+    },
+    "baseline_qwen": {
+     "head": "现任议员阿根",
+     "tail": "总统竞选资格",
+     "head_matches": false,
+     "tail_matches": true,
+     "errors": 45,
+     "substitutions": 10,
+     "deletions": 35,
+     "insertions": 0,
+     "reference_units": 96
+    }
+   }
+  },
+  {
+   "id": "fleurs-9ed1279b64427e29",
+   "wav_sha256": "dc2cb0ccce3b7b71a403d143758ca967cfa8abb8d010b479d6f1773d15648b9f",
+   "later_samples": 21440,
+   "ref_head": "一枚炸弹在总",
+   "ref_tail": "办公室外爆炸",
+   "results": {
+    "candidate_qwen": {
+     "head": "一枚炸弹在总",
+     "tail": "办公室外爆炸",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 13
+    },
+    "candidate_qwen_auto": {
+     "head": "一枚炸弹在总",
+     "tail": "办公室外爆炸",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 13
+    },
+    "baseline_apple": {
+     "head": "一枚炸弹在总",
+     "tail": "办公室外爆炸",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 13
+    },
+    "baseline_qwen": {
+     "head": "一枚炸弹在总",
+     "tail": "办公室外爆炸",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 13
+    }
+   }
+  },
+  {
+   "id": "fleurs-8b7a686fc953486d",
+   "wav_sha256": "5f952e1d9f48681c5bb4d396e27844b0a2384d051ac433c1db8fdd328b706f94",
+   "later_samples": 48320,
+   "ref_head": "月球的表面由",
+   "ref_tail": "外层叫做地壳",
+   "results": {
+    "candidate_qwen": {
+     "head": "月球的表面由",
+     "tail": "外层叫做地壳",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 22
+    },
+    "candidate_qwen_auto": {
+     "head": "月球的表面由",
+     "tail": "外层叫做地壳",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 22
+    },
+    "baseline_apple": {
+     "head": "月球的表面有",
+     "tail": "外层叫做地壳",
+     "head_matches": false,
+     "tail_matches": true,
+     "errors": 2,
+     "substitutions": 2,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 22
+    },
+    "baseline_qwen": {
+     "head": "月球的表面由",
+     "tail": "外层叫做地壳",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 22
+    }
+   }
+  },
+  {
+   "id": "fleurs-a8caa602fb66f780",
+   "wav_sha256": "b7d85aa60ad0d403037b0a53bd09724891cbb25aa4474f45d2cb0a24dd7d4412",
+   "later_samples": 35520,
+   "ref_head": "但在队长输掉",
+   "ref_tail": "掉7个三柱门",
+   "results": {
+    "candidate_qwen": {
+     "head": "但在队长输掉",
+     "tail": "了七个三注门",
+     "head_matches": true,
+     "tail_matches": false,
+     "errors": 7,
+     "substitutions": 5,
+     "deletions": 0,
+     "insertions": 2,
+     "reference_units": 35
+    },
+    "candidate_qwen_auto": {
+     "head": "但在队长输掉",
+     "tail": "了七个三注门",
+     "head_matches": true,
+     "tail_matches": false,
+     "errors": 7,
+     "substitutions": 5,
+     "deletions": 0,
+     "insertions": 2,
+     "reference_units": 35
+    },
+    "baseline_apple": {
+     "head": "但在队长输掉",
+     "tail": "了七个三柱门",
+     "head_matches": true,
+     "tail_matches": false,
+     "errors": 3,
+     "substitutions": 2,
+     "deletions": 0,
+     "insertions": 1,
+     "reference_units": 35
+    },
+    "baseline_qwen": {
+     "head": "但在队长输掉",
+     "tail": "了七个三注门",
+     "head_matches": true,
+     "tail_matches": false,
+     "errors": 7,
+     "substitutions": 5,
+     "deletions": 0,
+     "insertions": 2,
+     "reference_units": 35
+    }
+   }
+  },
+  {
+   "id": "fleurs-e85cdd30a33c8fbe",
+   "wav_sha256": "5c9fec293d2968738827d066cd3c8df0df3a7b9ab7990032b1eb69d2be40ee64",
+   "later_samples": 20160,
+   "ref_head": "香港岛是香港",
+   "ref_tail": "中的焦点所在",
+   "results": {
+    "candidate_qwen": {
+     "head": "香港岛是香港",
+     "tail": "中的焦点所在",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 26
+    },
+    "candidate_qwen_auto": {
+     "head": "香港岛是香港",
+     "tail": "中的焦点所在",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 26
+    },
+    "baseline_apple": {
+     "head": "香港岛是香港",
+     "tail": "中的焦点所在",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 2,
+     "substitutions": 2,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 26
+    },
+    "baseline_qwen": {
+     "head": "香港岛是香港",
+     "tail": "中的焦點所在",
+     "head_matches": true,
+     "tail_matches": false,
+     "errors": 5,
+     "substitutions": 5,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 26
+    }
+   }
+  },
+  {
+   "id": "fleurs-f898c0e2fa3b9767",
+   "wav_sha256": "ccbab2eb6a682885ab8defa60b6484d29560a14eac9cdf641c6931894c9afc0f",
+   "later_samples": 20800,
+   "ref_head": "1990年由",
+   "ref_tail": "世界遗产名录",
+   "results": {
+    "candidate_qwen": {
+     "head": "1990年由",
+     "tail": "世界遗产名录",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 25
+    },
+    "candidate_qwen_auto": {
+     "head": "一九九零年由",
+     "tail": "世界遗产名录",
+     "head_matches": false,
+     "tail_matches": true,
+     "errors": 4,
+     "substitutions": 4,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 25
+    },
+    "baseline_apple": {
+     "head": "1990年由",
+     "tail": "世界遗产名录",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 2,
+     "substitutions": 1,
+     "deletions": 0,
+     "insertions": 1,
+     "reference_units": 25
+    },
+    "baseline_qwen": {
+     "head": "1990年由",
+     "tail": "世界遗产名录",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 25
+    }
+   }
+  },
+  {
+   "id": "fleurs-914c948388ae30bd-noise15db",
+   "wav_sha256": "98d04c98c9331ed73034510afeae7c7e3ef3e9ea784ed054a1467f651721a7cd",
+   "later_samples": 21440,
+   "ref_head": "平时你总能在",
+   "ref_tail": "个动人的故事",
+   "results": {
+    "candidate_qwen": {
+     "head": "平时你总能在",
+     "tail": "个动人的故事",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 35
+    },
+    "candidate_qwen_auto": {
+     "head": "平时你总能在",
+     "tail": "个动人的故事",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 35
+    },
+    "baseline_apple": {
+     "head": "平时你都能在",
+     "tail": "个动人的故事",
+     "head_matches": false,
+     "tail_matches": true,
+     "errors": 1,
+     "substitutions": 1,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 35
+    },
+    "baseline_qwen": {
+     "head": "平时你总能在",
+     "tail": "个动人的故事",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 35
+    }
+   }
+  }
+ ],
+ "by_corpus": {
+  "fleurs": {
+   "candidate_qwen": {
+    "clips": 160,
+    "head_exact": 138,
+    "tail_exact": 132,
+    "edits": 562,
+    "units": 6260
+   },
+   "candidate_qwen_auto": {
+    "clips": 160,
+    "head_exact": 136,
+    "tail_exact": 135,
+    "edits": 571,
+    "units": 6260
+   },
+   "baseline_apple": {
+    "clips": 160,
+    "head_exact": 120,
+    "tail_exact": 127,
+    "edits": 683,
+    "units": 6260
+   },
+   "baseline_qwen": {
+    "clips": 160,
+    "head_exact": 117,
+    "tail_exact": 126,
+    "edits": 646,
+    "units": 6260
+   }
+  },
+  "ascend-zh": {
+   "candidate_qwen": {
+    "clips": 80,
+    "head_exact": 63,
+    "tail_exact": 68,
+    "edits": 50,
+    "units": 934
+   },
+   "candidate_qwen_auto": {
+    "clips": 80,
+    "head_exact": 63,
+    "tail_exact": 67,
+    "edits": 53,
+    "units": 934
+   },
+   "baseline_apple": {
+    "clips": 80,
+    "head_exact": 57,
+    "tail_exact": 63,
+    "edits": 62,
+    "units": 934
+   },
+   "baseline_qwen": {
+    "clips": 80,
+    "head_exact": 50,
+    "tail_exact": 56,
+    "edits": 94,
+    "units": 934
+   }
+  },
+  "ascend-mixed": {
+   "candidate_qwen": {
+    "clips": 80,
+    "head_exact": 55,
+    "tail_exact": 52,
+    "edits": 299,
+    "units": 2004
+   },
+   "candidate_qwen_auto": {
+    "clips": 80,
+    "head_exact": 58,
+    "tail_exact": 50,
+    "edits": 225,
+    "units": 2004
+   },
+   "baseline_apple": {
+    "clips": 80,
+    "head_exact": 46,
+    "tail_exact": 34,
+    "edits": 351,
+    "units": 2004
+   },
+   "baseline_qwen": {
+    "clips": 80,
+    "head_exact": 43,
+    "tail_exact": 45,
+    "edits": 353,
+    "units": 2004
+   }
+  },
+  "quiet": {
+   "candidate_qwen": {
+    "clips": 10,
+    "head_exact": 8,
+    "tail_exact": 9,
+    "edits": 43,
+    "units": 403
+   },
+   "candidate_qwen_auto": {
+    "clips": 10,
+    "head_exact": 8,
+    "tail_exact": 9,
+    "edits": 43,
+    "units": 403
+   },
+   "baseline_apple": {
+    "clips": 10,
+    "head_exact": 6,
+    "tail_exact": 9,
+    "edits": 51,
+    "units": 403
+   },
+   "baseline_qwen": {
+    "clips": 10,
+    "head_exact": 8,
+    "tail_exact": 9,
+    "edits": 43,
+    "units": 403
+   }
+  },
+  "noise15db": {
+   "candidate_qwen": {
+    "clips": 10,
+    "head_exact": 8,
+    "tail_exact": 7,
+    "edits": 22,
+    "units": 361
+   },
+   "candidate_qwen_auto": {
+    "clips": 10,
+    "head_exact": 8,
+    "tail_exact": 7,
+    "edits": 22,
+    "units": 361
+   },
+   "baseline_apple": {
+    "clips": 10,
+    "head_exact": 5,
+    "tail_exact": 4,
+    "edits": 39,
+    "units": 361
+   },
+   "baseline_qwen": {
+    "clips": 10,
+    "head_exact": 8,
+    "tail_exact": 7,
+    "edits": 22,
+    "units": 361
+   }
+  },
+  "aishell1-test": {
+   "candidate_qwen": {
+    "clips": 100,
+    "head_exact": 88,
+    "tail_exact": 85,
+    "edits": 56,
+    "units": 1465
+   },
+   "candidate_qwen_auto": {
+    "clips": 100,
+    "head_exact": 86,
+    "tail_exact": 85,
+    "edits": 61,
+    "units": 1465
+   },
+   "baseline_apple": {
+    "clips": 100,
+    "head_exact": 73,
+    "tail_exact": 75,
+    "edits": 165,
+    "units": 1465
+   },
+   "baseline_qwen": {
+    "clips": 100,
+    "head_exact": 88,
+    "tail_exact": 85,
+    "edits": 57,
+    "units": 1465
+   }
+  }
+ }
+}

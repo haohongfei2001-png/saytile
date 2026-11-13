@@ -74,6 +74,10 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         var isHosted: Bool { route != .byok }
         let configuration: RecognitionConfiguration
         let appliedConfiguration: RecognitionConfiguration
+        var captureLimits: VoiceSegmenter.Limits {
+            guard configuration.cloudEnabled else { return .init() }
+            return .init(endSilenceFrames: 100, maximumFrames: isHosted ? 1_500 : 15_000)
+        }
         fileprivate let epoch: RecognitionFailoverEpoch
         fileprivate let generation: UInt64
         /// Restrict this exact settings generation without observing newer cloud consent.
@@ -113,7 +117,6 @@ final class RecognitionSessionFactory: @unchecked Sendable {
     var snapshot: Snapshot { lock.withLock { recordingSnapshot() } }
     var configuration: RecognitionConfiguration { lock.withLock { value } }
     var usesCloud: Bool { snapshot.configuration.cloudEnabled }
-    var isHosted: Bool { lock.withLock { route != .byok } }
     func select(_ new: HostedRoute, revoke: Bool) {
         lock.withLock {
             guard new != route || revoke else { return }
@@ -125,11 +128,11 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         }
     }
     func localAvailability() async -> SpeechAvailability { await snapshot.local.availability() }
-    func selectLocal(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil) {
+    func selectLocal(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil, onUnavailable: (@Sendable (LocalASRID) -> Void)? = nil) {
         lock.withLock {
             self.local = .device(live, service: service)
             self.archive = .device(archive, service: service)
-            self.liveLocal = .device(live, service: service, review: review)
+            self.liveLocal = .device(live, service: service, review: review, onUnavailable: onUnavailable)
         }
     }
     private final class Retired {

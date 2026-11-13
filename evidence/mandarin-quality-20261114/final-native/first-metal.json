@@ -1,0 +1,69 @@
+{
+  "model": "qwen-small",
+  "app_source": "9e17c8d7099d54aef26ce5b2577747f35e285fc4",
+  "model_weights_version": "bc441bd1e4295c1f42d9879f056049a925b6e013",
+  "sample": "fleurs-1bc3201a9f24a2fe",
+  "title": "First denied-network run versus subsequent fresh process",
+  "apple_system_time_zone": "Asia/Shanghai",
+  "offline_first": {
+    "receipt": "auto-qwen-small-fleurs-1bc3201a9f24a2fe.json",
+    "first_timeline_publish_seconds_from_acoustic_onset": 6.411,
+    "first_layout_seconds_from_file_start": 9.059,
+    "system_compiler_warning_timestamps": [
+      "01:39:05.541",
+      "01:39:05.616",
+      "01:39:05.732",
+      "01:39:05.839",
+      "01:39:06.035",
+      "01:39:06.178",
+      "01:39:06.273",
+      "01:39:06.379",
+      "01:39:06.503",
+      "01:39:06.620",
+      "01:39:06.736",
+      "01:39:06.887",
+      "01:39:06.946",
+      "01:39:07.030",
+      "01:39:07.080",
+      "01:39:07.150",
+      "01:39:07.553",
+      "01:39:08.104",
+      "01:39:08.391",
+      "01:39:08.438",
+      "01:39:08.514",
+      "01:39:08.612",
+      "01:39:08.695",
+      "01:39:08.798",
+      "01:39:08.934",
+      "01:39:09.428",
+      "01:39:10.026",
+      "01:39:10.144",
+      "01:39:10.368",
+      "01:39:10.548",
+      "01:39:10.929",
+      "01:39:11.012",
+      "01:39:11.295",
+      "01:39:16.225"
+    ]
+  },
+  "later_new_process": {
+    "receipt": "../shipping/panels/auto-qwen-small-fleurs-1bc3201a9f24a2fe.json",
+    "first_timeline_publish_seconds_from_acoustic_onset": 0.803,
+    "first_layout_seconds_from_file_start": 3.46,
+    "model_worker_metal_compiler_warnings_within_run": 0
+  },
+  "query": {
+    "from": "2026-11-14 01:39:01",
+    "through": "2026-11-14 01:42:12",
+    "process": "SaytileModelWorker",
+    "subsystem": "com.apple.Metal",
+    "category": "Metal Compiler Warning",
+    "embedded_logs": "Warning message payloads omitted. Only timestamps shown."
+  },
+  "findings": [
+    "Same weights and final archived text. Both launched a fresh app/worker. The first descendant process ran with network denied; the later sample used the ordinary environment.",
+    "The model recommendation awaited its shared per-process checksum task before this test started timing. The pinned MLX worker explicitly opened local weights with offlineMode: true.",
+    "The first worker activated MTLCompilerService at 01:39:05.152. Warnings span head publication; no weights-download delay or presentation bottleneck observed. This correlation does not apportion elapsed time to weight loading, shader compilation or initial inference. System caches were not cleared."
+  ],
+  "system_clock_alignment": "First-run stdout receipt written around 01:39:17.509 including 15.033 s timed playback, so first timeline output near 01:39:11.51. Time anchor is approximate because the test runner writes the final JSON after its child returns."
+}

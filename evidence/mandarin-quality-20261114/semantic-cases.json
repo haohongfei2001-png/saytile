@@ -1,0 +1,466 @@
+{
+  "scope": "420 natural public utterances. The 20 synthetic acoustic transformations are excluded.",
+  "scoring_sources": [
+    "scripts/mandarin/paired-quality.py",
+    "scripts/mandarin/score.py"
+  ],
+  "variants": {
+    "Apple 0.12 / product": {
+      "status": "SCORED",
+      "source": "a4f9f08656d1a22d2e0b6c59ad60e36452881010",
+      "scorer_input_directory": "baseline",
+      "alignment": {
+        "errors": 1261,
+        "substitutions": 623,
+        "deletions": 500,
+        "insertions": 138,
+        "reference_units": 10663,
+        "cer": 0.11826,
+        "rows": 420
+      },
+      "exact_anchor_tokens": {
+        "number": {
+          "reference": 249,
+          "missing": 44,
+          "extra": 54
+        },
+        "negative": {
+          "reference": 112,
+          "missing": 3,
+          "extra": 4
+        },
+        "money": {
+          "reference": 11,
+          "missing": 3,
+          "extra": 0
+        },
+        "date_time": {
+          "reference": 41,
+          "missing": 0,
+          "extra": 1
+        },
+        "latin": {
+          "reference": 237,
+          "missing": 170,
+          "extra": 88
+        },
+        "technical_term": {
+          "reference": 11,
+          "missing": 0,
+          "extra": 0
+        }
+      },
+      "mixed_mer": {
+        "reference_units": 1166,
+        "errors": 228,
+        "mer": 0.1955403087478559
+      },
+      "mixed_rows": 80,
+      "empty_output_ids": [
+        "fleurs-1bc3201a9f24a2fe"
+      ],
+      "chinese_local_repetition": {
+        "reference": {
+          "fleurs-aef662afc24b5edd": [
+            "修复修复"
+          ],
+          "ascend-zh-5befe22c412c728f": [
+            "了解了解"
+          ],
+          "ascend-zh-923c1789649f5185": [
+            "你们你们"
+          ],
+          "ascend-zh-cb665fb536308f05": [
+            "一直都很一直都很"
+          ],
+          "ascend-mixed-f616056985febc82": [
+            "就是就是"
+          ]
+        },
+        "misses": {
+          "ascend-zh-923c1789649f5185": [
+            "你们你们"
+          ]
+        },
+        "extras": {}
+      }
+    },
+    "Apple 0.12 / direct": {
+      "status": "NO_COMPLETE_SCORE"
+    },
+    "0.6B 固定中文 / product": {
+      "status": "SCORED",
+      "source": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+      "scorer_input_directory": "candidate",
+      "alignment": {
+        "errors": 967,
+        "substitutions": 406,
+        "deletions": 466,
+        "insertions": 95,
+        "reference_units": 10663,
+        "cer": 0.09069,
+        "rows": 420
+      },
+      "exact_anchor_tokens": {
+        "number": {
+          "reference": 249,
+          "missing": 38,
+          "extra": 45
+        },
+        "negative": {
+          "reference": 112,
+          "missing": 3,
+          "extra": 3
+        },
+        "money": {
+          "reference": 11,
+          "missing": 0,
+          "extra": 0
+        },
+        "date_time": {
+          "reference": 41,
+          "missing": 0,
+          "extra": 2
+        },
+        "latin": {
+          "reference": 237,
+          "missing": 107,
+          "extra": 26
+        },
+        "technical_term": {
+          "reference": 11,
+          "missing": 0,
+          "extra": 2
+        }
+      },
+      "mixed_mer": {
+        "reference_units": 1166,
+        "errors": 151,
+        "mer": 0.12950257289879932
+      },
+      "mixed_rows": 80,
+      "empty_output_ids": [],
+      "chinese_local_repetition": {
+        "reference": {
+          "fleurs-aef662afc24b5edd": [
+            "修复修复"
+          ],
+          "ascend-zh-5befe22c412c728f": [
+            "了解了解"
+          ],
+          "ascend-zh-923c1789649f5185": [
+            "你们你们"
+          ],
+          "ascend-zh-cb665fb536308f05": [
+            "一直都很一直都很"
+          ],
+          "ascend-mixed-f616056985febc82": [
+            "就是就是"
+          ]
+        },
+        "misses": {
+          "ascend-zh-923c1789649f5185": [
+            "你们你们"
+          ]
+        },
+        "extras": {
+          "fleurs-2f1223e9508a4ab2": [
+            "吸入吸入"
+          ],
+          "fleurs-8ba5ef4e282bf7bc": [
+            "二零二零"
+          ],
+          "fleurs-9b5173ba93decd31": [
+            "静物的静物的"
+          ]
+        }
+      }
+    },
+    "0.6B 固定中文 / direct": {
+      "status": "NO_COMPLETE_SCORE"
+    },
+    "0.6B 不指定语言 / product": {
+      "status": "SCORED",
+      "source": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+      "scorer_input_directory": "unforced",
+      "alignment": {
+        "errors": 910,
+        "substitutions": 407,
+        "deletions": 387,
+        "insertions": 116,
+        "reference_units": 10663,
+        "cer": 0.08534,
+        "rows": 420
+      },
+      "exact_anchor_tokens": {
+        "number": {
+          "reference": 249,
+          "missing": 45,
+          "extra": 53
+        },
+        "negative": {
+          "reference": 112,
+          "missing": 3,
+          "extra": 2
+        },
+        "money": {
+          "reference": 11,
+          "missing": 0,
+          "extra": 0
+        },
+        "date_time": {
+          "reference": 41,
+          "missing": 0,
+          "extra": 2
+        },
+        "latin": {
+          "reference": 237,
+          "missing": 96,
+          "extra": 39
+        },
+        "technical_term": {
+          "reference": 11,
+          "missing": 0,
+          "extra": 1
+        }
+      },
+      "mixed_mer": {
+        "reference_units": 1166,
+        "errors": 134,
+        "mer": 0.11492281303602059
+      },
+      "mixed_rows": 80,
+      "empty_output_ids": [],
+      "chinese_local_repetition": {
+        "reference": {
+          "fleurs-aef662afc24b5edd": [
+            "修复修复"
+          ],
+          "ascend-zh-5befe22c412c728f": [
+            "了解了解"
+          ],
+          "ascend-zh-923c1789649f5185": [
+            "你们你们"
+          ],
+          "ascend-zh-cb665fb536308f05": [
+            "一直都很一直都很"
+          ],
+          "ascend-mixed-f616056985febc82": [
+            "就是就是"
+          ]
+        },
+        "misses": {
+          "ascend-zh-923c1789649f5185": [
+            "你们你们"
+          ]
+        },
+        "extras": {
+          "fleurs-2f1223e9508a4ab2": [
+            "吸入吸入"
+          ],
+          "fleurs-8ba5ef4e282bf7bc": [
+            "二零二零"
+          ],
+          "fleurs-9b5173ba93decd31": [
+            "静物的静物的"
+          ]
+        }
+      }
+    },
+    "0.6B 不指定语言 / direct": {
+      "status": "NO_COMPLETE_SCORE"
+    },
+    "1.7B 固定中文 / product": {
+      "status": "SCORED",
+      "source": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+      "scorer_input_directory": "candidate",
+      "alignment": {
+        "errors": 872,
+        "substitutions": 358,
+        "deletions": 414,
+        "insertions": 100,
+        "reference_units": 10663,
+        "cer": 0.08178,
+        "rows": 420
+      },
+      "exact_anchor_tokens": {
+        "number": {
+          "reference": 249,
+          "missing": 43,
+          "extra": 47
+        },
+        "negative": {
+          "reference": 112,
+          "missing": 4,
+          "extra": 5
+        },
+        "money": {
+          "reference": 11,
+          "missing": 0,
+          "extra": 0
+        },
+        "date_time": {
+          "reference": 41,
+          "missing": 0,
+          "extra": 1
+        },
+        "latin": {
+          "reference": 237,
+          "missing": 92,
+          "extra": 25
+        },
+        "technical_term": {
+          "reference": 11,
+          "missing": 0,
+          "extra": 1
+        }
+      },
+      "mixed_mer": {
+        "reference_units": 1166,
+        "errors": 143,
+        "mer": 0.12264150943396226
+      },
+      "mixed_rows": 80,
+      "empty_output_ids": [],
+      "chinese_local_repetition": {
+        "reference": {
+          "fleurs-aef662afc24b5edd": [
+            "修复修复"
+          ],
+          "ascend-zh-5befe22c412c728f": [
+            "了解了解"
+          ],
+          "ascend-zh-923c1789649f5185": [
+            "你们你们"
+          ],
+          "ascend-zh-cb665fb536308f05": [
+            "一直都很一直都很"
+          ],
+          "ascend-mixed-f616056985febc82": [
+            "就是就是"
+          ]
+        },
+        "misses": {
+          "ascend-zh-923c1789649f5185": [
+            "你们你们"
+          ]
+        },
+        "extras": {
+          "fleurs-2f1223e9508a4ab2": [
+            "吸入吸入"
+          ],
+          "fleurs-8ba5ef4e282bf7bc": [
+            "二零二零"
+          ],
+          "fleurs-5325302e6a26d6e6": [
+            "大气大气"
+          ]
+        }
+      }
+    },
+    "1.7B 固定中文 / direct": {
+      "status": "NO_COMPLETE_SCORE"
+    }
+  },
+  "examples": {
+    "金额数量级": {
+      "id": "aishell1-test-fd654755de8d25fe",
+      "reference": "浪潮信息的研发支出约四亿元",
+      "wav_sha256": "7c0afb074263551d1ed43852d7d1f82f56604aa19b60c89240bb404e18566eb7",
+      "Apple 0.12 / product": "浪潮信息的研发支出约 400000",
+      "0.6B 固定中文 / product": "浪潮信息的研发支出约四亿元。",
+      "0.6B 不指定语言 / product": "浪潮信息的研发支出约四亿元。",
+      "1.7B 固定中文 / product": "浪潮信息的研发支出约四亿元。"
+    },
+    "数字格式与货币单位": {
+      "id": "aishell1-test-5bcb273927a4b5f6",
+      "reference": "纯商品房楼面价接近六万元每平方米",
+      "wav_sha256": "4d7f789b7a6acccba94154de963be9b015c452977c003f1157cbb5bf3cd53659",
+      "Apple 0.12 / product": "纯商品房楼面价接近 ¥60,000每平方米",
+      "0.6B 固定中文 / product": "纯商品房楼面价接近六万元每平方米。",
+      "0.6B 不指定语言 / product": "纯商品房楼面价接近六万元每平方米。",
+      "1.7B 固定中文 / product": "纯商品房楼面价接近六万元每平方米。"
+    },
+    "数字、时长": {
+      "id": "fleurs-7880bd7fe5dcd286",
+      "reference": "睡眠中断是指这样的过程：在正常睡眠期间有意地醒来，并且在短时间之后（10-60分钟）睡着。",
+      "wav_sha256": "d801874a0cfcc876d0d04ac675cb65947ac7e442e791b181c0c7b2462666923a",
+      "Apple 0.12 / product": "睡眠中断是指这样的过程在正常睡眠期间有益的醒来，并且在短时间之后 10到 60分钟睡着。",
+      "0.6B 固定中文 / product": "睡眠中断是指这样的过程：在正常睡眠期间，有意地醒来，并且在短时间之后（15分钟到60分钟），睡着。",
+      "0.6B 不指定语言 / product": "睡眠中断是指这样的过程：在正常睡眠期间，有意地醒来，并且在短时间之后（15分钟到60分钟），睡着。",
+      "1.7B 固定中文 / product": "睡眠中断是指这样的过程，在正常睡眠期间有意的醒来，并且在短时间之后，十到六十分钟睡着。"
+    },
+    "增添否定": {
+      "id": "ascend-zh-e2c8b5080e64fd8c",
+      "reference": "你们专业的是不是平时学得都是一些什么呃",
+      "wav_sha256": "00c62e3214f033c999b3d71d09d91402e7f4cd5053dd6a82f272416eb196925b",
+      "Apple 0.12 / product": "你们专业的人是不是平时学的都不是一些什么呃",
+      "0.6B 固定中文 / product": "你们专业的人是不是平时学的都是一些什么呃？",
+      "0.6B 不指定语言 / product": "你们专业的人是不是平时学的都是一些什么呃？",
+      "1.7B 固定中文 / product": "你们专业的人是不是平时学的都是一些什么呃？"
+    },
+    "漏掉否定": {
+      "id": "ascend-zh-0c5639a6e24f539b",
+      "reference": "我我不就是我爸妈就开始买电脑然后我就开始接触一些网络游戏",
+      "wav_sha256": "5f59ef721b132ef77f023bd01032d20a1539d074ef0ded828faddf13ac0b34fb",
+      "Apple 0.12 / product": "我我就是我爸妈就开始买电脑，然后我就开始接触一些网络游戏。",
+      "0.6B 固定中文 / product": "我我就是我爸妈就开始买电脑，然后我就开始接触一些网络游戏。",
+      "0.6B 不指定语言 / product": "我我就是我爸妈就开始买电脑，然后我就开始接触一些网络游戏。",
+      "1.7B 固定中文 / product": "我我就是我，爸妈就开始买电脑，然后我就开始接触一些网络游戏。"
+    },
+    "专业词": {
+      "id": "ascend-zh-1fc44c4f2b843c04",
+      "reference": "这个软件对数据的审核不够",
+      "wav_sha256": "0c7472808e851df1c7f678d3c3a6649918cab7cbfbd4b414db4bc262d510df2b",
+      "Apple 0.12 / product": "这个软件对数据的审核不够",
+      "0.6B 固定中文 / product": "这个软件对数据的审核不够。",
+      "0.6B 不指定语言 / product": "这个软件对数据的审核不够。",
+      "1.7B 固定中文 / product": "这个软件对数据的审核不够。"
+    },
+    "有意重复": {
+      "id": "ascend-zh-923c1789649f5185",
+      "reference": "那你们你们打算之后就是",
+      "wav_sha256": "084e1313abc9949844aaf4261326ec9e16a31c1c4e541e8757c3c621f7e8d65e",
+      "Apple 0.12 / product": "那你们你打算之后就是。",
+      "0.6B 固定中文 / product": "那你们，你打算之后就是。",
+      "0.6B 不指定语言 / product": "那你们，你打算之后就是。",
+      "1.7B 固定中文 / product": "那你们，你打算之后，就是。"
+    },
+    "新增局部重复": {
+      "id": "fleurs-9b5173ba93decd31",
+      "reference": "西藏冥想的核心活动是天瑜伽。通过把不同的神形象化，净化能量通道，激活轮穴，从而达到顿悟的境界。",
+      "wav_sha256": "4e9f4d0ad08b50ef48507d58dbc3a1f515feb8d1395a06f13ceb78ed97c06843",
+      "Apple 0.12 / product": "西藏冥想的核心活动是天瑜伽通过把不同的神形象化进化能量通道激活轮血，从而达到近物的动物的境界。",
+      "0.6B 固定中文 / product": "西藏冥想的核心活动是天瑜伽，通过把不同的神形象化，净化能量通道，激活轮觉，从而达到静物的静物的境界。",
+      "0.6B 不指定语言 / product": "西藏冥想的核心活动是天瑜伽，通过把不同的神形象化，净化能量通道，激活轮觉，从而达到静物的静物的境界。",
+      "1.7B 固定中文 / product": "西藏冥想的核心活动是天瑜伽，通过把不同的神形象化，净化能量通道，激活轮穴，从而达到静物的顿悟的境界。"
+    },
+    "整条缺失": {
+      "id": "fleurs-1bc3201a9f24a2fe",
+      "reference": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。",
+      "wav_sha256": "ef3d6ba58fa3b2b22724593b0962964f1c107f3e33d04b12c2c41244ca30d717",
+      "Apple 0.12 / product": "",
+      "0.6B 固定中文 / product": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。",
+      "0.6B 不指定语言 / product": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。",
+      "1.7B 固定中文 / product": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。"
+    },
+    "漏掉句尾": {
+      "id": "aishell1-test-d30e082521775278",
+      "reference": "这使得神雕在全球也成为最大的无人机之一",
+      "wav_sha256": "6b655698fd0dceae7010a735b4e74a66dfcc3c27f416a1f661990d300e826466",
+      "Apple 0.12 / product": "这使得神雕在全球也成为最大。",
+      "0.6B 固定中文 / product": "这使得神雕在全球也成为最大。",
+      "0.6B 不指定语言 / product": "这使得神雕在全球也成为最大。",
+      "1.7B 固定中文 / product": "这使得神雕在全球也成为最大。"
+    },
+    "把英文译为中文": {
+      "id": "ascend-mixed-6185571719fdd11b",
+      "reference": "就是he's faster stronger and more scared for than the other players",
+      "wav_sha256": "ea51d95c1380916c4af33dafccb4594fec0669a55a2e790bb61ce9b1d8e4def2",
+      "Apple 0.12 / product": "就是 his faster stronger and more scarefor ther outher players",
+      "0.6B 固定中文 / product": "就，他比其他球员更快、更强，更勇敢。",
+      "0.6B 不指定语言 / product": "He is faster, stronger, and more skillful than other players.",
+      "1.7B 固定中文 / product": "就是，他 is faster，stronger，and more careful than other players。"
+    }
+  }
+}
