@@ -19,3 +19,5 @@ Apple 原生 CloudKit 使用私有数据库、CKRecordZone 增量游标和 CKAss
 ## 验证
 
 运行 `scripts/test-native.sh --filter PrivateArchiveTests` 检查原生 SQLite、WAV、冲突、重启和损坏路径。机器结果与安装包据实记录在本分支 evidence 目录。真实 Apple 账号上传和下载在签名权限就绪前均为 BLOCKED。未经授权不发布，不替换现有 App。
+
+2026-11-14 的隔离候选源码为 `ca811764dab0807ad50271d5ef71df9bb020e479`。6 项备份专项包含在 87 项通过的本机相关回归中。主恢复 fixture 含 2 条录音、3 个已保存文字版本、1 份未提交草稿和 2 个 WAV，共 6,488 字节，两份恢复文件逐一匹配哈希并由 AVAudioFile 解码。真云备份与换机恢复量为 0。独立 DMG 已签名、只读挂载并核对原生可执行文件，隔离启动正常。Gatekeeper 返回 Unnotarized Developer ID。详见 [原生回归收据](../evidence/icloud-archive-20261114/mac-fixture.json) 和 [签名包收据](../evidence/icloud-archive-20261114/mac-package.json)。

@@ -36,5 +36,22 @@
     "cross-device transfer on a signed-in Mac",
     "physical iPhone access",
     "actual service limits for long recordings and asset lists"
-  ]
+  ],
+  "tested_mac_source": "ca811764dab0807ad50271d5ef71df9bb020e479",
+  "isolated_simulated_transport_apple_silicon_tests": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0,
+    "command": "scripts/test-native.sh --filter PrivateArchiveTests"
+  },
+  "related_swift_regressions": {
+    "total": 87,
+    "passed": 87,
+    "failed": 0,
+    "suites": 8,
+    "filter": "PrivateArchiveTests|Store|TranscriptTimeline",
+    "time_seconds": 2.052
+  },
+  "swift_testing_final_line": "✔ Test run with 87 tests in 8 suites passed after 2.052 seconds.",
+  "direct_apple_sdk_offline_record_test": "PASS unsigned entitlement gate, native CKRecord inline and large CKAsset manifest round trips, integrity rejection, CKAsset list and removal. No service or account accessed."
 }
