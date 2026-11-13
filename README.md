@@ -54,3 +54,13 @@ Saytile V1 的唯一视觉目标是用户选定的紫蓝色、无品牌字标、
 
 正式品牌 / App 图标采用用户选定的 **白底紫色 `tile` 声波字标**，见 [唯一图标视觉参考及实施边界](design/approved/app-icon/README.md)。这与上文的**主面板无 Logo**视觉规范分别管理；现有 App 图标生成器和已发布安装包不会因文档变更而自动更新。
 
+## 正式官网（2026-11-13）
+
+用户已批准当前 R3 作为正式官网。完整可运行源码在 [website/](website/README.md)，页面、样式、动效、交互和正式图标均按批准版本逐字节保留。
+
+- [正式版本批准记录](website/APPROVAL.md)
+- [整页视觉参考](website/reference/full-page.jpg)
+- [文件校验与来源](website/snapshot.json)
+- [当前线上预览](https://saytile-voice-20261113.dark-koala-7130.chatgpt.site/)（原访问范围不变）
+
+官网与原生 App 分别管理；`prototype/` 仍为历史应用原型，不是正式官网。

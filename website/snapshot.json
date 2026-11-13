@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "status": "USER_APPROVED_OFFICIAL_WEBSITE",
+  "approval_date": "2026-11-13",
+  "user_instruction": "把这版写进 github 作为正式官网，不要丢失细节",
+  "source_commit": "3bf7ceea971f0b97543daa6d9893671562d52489",
+  "source_directory": "dist/",
+  "repository_directory": "website/",
+  "published_preview": "https://saytile-voice-20261113.dark-koala-7130.chatgpt.site/",
+  "runtime_file_count": 6,
+  "runtime_total_bytes": 57269,
+  "copy_method": "Byte-for-byte copy. No runtime file was rewritten or reformatted.",
+  "runtime_files": [
+    {
+      "path": "app.js",
+      "bytes": 6823,
+      "sha256": "19dffec35c1f9b79ae6cde9500f17f46c658feeb493c0aaf0c08171d0e508b1c",
+      "git_blob_sha": "02be2dcd996be639e0b9394e6249777bafa2b2f7"
+    },
+    {
+      "path": "assets/saytile-approved.webp",
+      "bytes": 2988,
+      "sha256": "607fe0dca53a186835a35e82b0c9241975e11b9e3481e6dfb11502fe60d5f35c",
+      "git_blob_sha": "6bb1c22bdf2e1ece2084b7bae264bf44071d5d63"
+    },
+    {
+      "path": "index.html",
+      "bytes": 11399,
+      "sha256": "94a5ff533cfe181b605d88fb3dab50531dae4822deeca31da7e0531b6f5eeda0",
+      "git_blob_sha": "6444e5947649a08d6f88c3f731a1cd69c808882c"
+    },
+    {
+      "path": "panel.css",
+      "bytes": 5703,
+      "sha256": "76e28b0f928449cacd4753b055e90175b57fd55f570efe37d8d94a626e909f18",
+      "git_blob_sha": "b6d4166ee9b8c4ca33d158b3bfb611decbac8cbc"
+    },
+    {
+      "path": "panel.js",
+      "bytes": 4606,
+      "sha256": "7699da8d9f213b9d292e74f1d921e2abf603d993f772bc0fd01ff5f36739df27",
+      "git_blob_sha": "db0c2495efd7bb00397323bfe5251e43d79ce970"
+    },
+    {
+      "path": "styles.css",
+      "bytes": 25750,
+      "sha256": "a2ae490851ee709e0ce556d12ba1554365c857d7170008fedf5699cd4a2f5da1",
+      "git_blob_sha": "9a73e29e6c1860670026f81dab067ee7d57d66f9"
+    }
+  ],
+  "reference_images": [
+    {
+      "path": "reference/desktop-hero.jpg",
+      "bytes": 51998,
+      "sha256": "38b76e698b8c892ed34f1b18199c147e8800fc8d7252cd10c4bd223ff7995264",
+      "description": "Chromium actual page rendering of the approved R3"
+    },
+    {
+      "path": "reference/full-page.jpg",
+      "bytes": 191821,
+      "sha256": "4a6e8ddbfdd7531cf79f73b0ecb7dbb8975e649f11e87d23d234e354aeecf20c",
+      "description": "Chromium actual page rendering of the approved R3"
+    }
+  ],
+  "limitations": [
+    "Website interaction examples, not live microphone or ASR.",
+    "System font rendering can differ by operating system.",
+    "Source preservation does not change current hosting audience or domain."
+  ]
+}
