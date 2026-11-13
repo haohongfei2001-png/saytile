@@ -3,7 +3,8 @@
  "tracks": [
   "candidate_qwen",
   "candidate_qwen_auto",
-  "baseline_apple"
+  "baseline_apple",
+  "baseline_qwen"
  ],
  "onset_delay_at_least_one_second": [
   {
@@ -36,6 +37,17 @@
      "reference_units": 39
     },
     "baseline_apple": {
+     "head": "有些原子含有",
+     "tail": "况下发生分裂",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 39
+    },
+    "baseline_qwen": {
      "head": "有些原子含有",
      "tail": "况下发生分裂",
      "head_matches": true,
@@ -87,6 +99,17 @@
      "deletions": 0,
      "insertions": 0,
      "reference_units": 18
+    },
+    "baseline_qwen": {
+     "head": "互联网结合了",
+     "tail": "际传播的要素",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 18
     }
    }
   },
@@ -128,6 +151,17 @@
      "substitutions": 1,
      "deletions": 0,
      "insertions": 2,
+     "reference_units": 35
+    },
+    "baseline_qwen": {
+     "head": "意大利语也是",
+     "tail": "用于宗教仪式",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 1,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 1,
      "reference_units": 35
     }
    }
@@ -171,6 +205,17 @@
      "deletions": 35,
      "insertions": 0,
      "reference_units": 96
+    },
+    "baseline_qwen": {
+     "head": "现任议员阿根",
+     "tail": "总统竞选资格",
+     "head_matches": false,
+     "tail_matches": true,
+     "errors": 45,
+     "substitutions": 10,
+     "deletions": 35,
+     "insertions": 0,
+     "reference_units": 96
     }
    }
   },
@@ -204,6 +249,17 @@
      "reference_units": 13
     },
     "baseline_apple": {
+     "head": "一枚炸弹在总",
+     "tail": "办公室外爆炸",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 13
+    },
+    "baseline_qwen": {
      "head": "一枚炸弹在总",
      "tail": "办公室外爆炸",
      "head_matches": true,
@@ -255,6 +311,17 @@
      "deletions": 0,
      "insertions": 0,
      "reference_units": 22
+    },
+    "baseline_qwen": {
+     "head": "月球的表面由",
+     "tail": "外层叫做地壳",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 22
     }
    }
   },
@@ -297,6 +364,17 @@
      "deletions": 0,
      "insertions": 1,
      "reference_units": 35
+    },
+    "baseline_qwen": {
+     "head": "但在队长输掉",
+     "tail": "了七个三注门",
+     "head_matches": true,
+     "tail_matches": false,
+     "errors": 7,
+     "substitutions": 5,
+     "deletions": 0,
+     "insertions": 2,
+     "reference_units": 35
     }
    }
   },
@@ -336,6 +414,17 @@
      "tail_matches": true,
      "errors": 2,
      "substitutions": 2,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 26
+    },
+    "baseline_qwen": {
+     "head": "香港岛是香港",
+     "tail": "中的焦點所在",
+     "head_matches": true,
+     "tail_matches": false,
+     "errors": 5,
+     "substitutions": 5,
      "deletions": 0,
      "insertions": 0,
      "reference_units": 26
@@ -381,6 +470,17 @@
      "deletions": 0,
      "insertions": 1,
      "reference_units": 25
+    },
+    "baseline_qwen": {
+     "head": "1990年由",
+     "tail": "世界遗产名录",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 25
     }
    }
   },
@@ -423,6 +523,17 @@
      "deletions": 0,
      "insertions": 0,
      "reference_units": 35
+    },
+    "baseline_qwen": {
+     "head": "平时你总能在",
+     "tail": "个动人的故事",
+     "head_matches": true,
+     "tail_matches": true,
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 35
     }
    }
   }
@@ -449,6 +560,13 @@
     "tail_exact": 127,
     "edits": 683,
     "units": 6260
+   },
+   "baseline_qwen": {
+    "clips": 160,
+    "head_exact": 117,
+    "tail_exact": 126,
+    "edits": 646,
+    "units": 6260
    }
   },
   "ascend-zh": {
@@ -471,6 +589,13 @@
     "head_exact": 57,
     "tail_exact": 63,
     "edits": 62,
+    "units": 934
+   },
+   "baseline_qwen": {
+    "clips": 80,
+    "head_exact": 50,
+    "tail_exact": 56,
+    "edits": 94,
     "units": 934
    }
   },
@@ -495,6 +620,13 @@
     "tail_exact": 34,
     "edits": 351,
     "units": 2004
+   },
+   "baseline_qwen": {
+    "clips": 80,
+    "head_exact": 43,
+    "tail_exact": 45,
+    "edits": 353,
+    "units": 2004
    }
   },
   "quiet": {
@@ -517,6 +649,13 @@
     "head_exact": 6,
     "tail_exact": 9,
     "edits": 51,
+    "units": 403
+   },
+   "baseline_qwen": {
+    "clips": 10,
+    "head_exact": 8,
+    "tail_exact": 9,
+    "edits": 43,
     "units": 403
    }
   },
@@ -541,6 +680,13 @@
     "tail_exact": 4,
     "edits": 39,
     "units": 361
+   },
+   "baseline_qwen": {
+    "clips": 10,
+    "head_exact": 8,
+    "tail_exact": 7,
+    "edits": 22,
+    "units": 361
    }
   },
   "aishell1-test": {
@@ -563,6 +709,13 @@
     "head_exact": 73,
     "tail_exact": 75,
     "edits": 165,
+    "units": 1465
+   },
+   "baseline_qwen": {
+    "clips": 100,
+    "head_exact": 88,
+    "tail_exact": 85,
+    "edits": 57,
     "units": 1465
    }
   }
