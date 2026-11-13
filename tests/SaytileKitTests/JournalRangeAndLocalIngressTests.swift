@@ -4,6 +4,23 @@ import Testing
 
 @Suite("Journal range and local candidate integration")
 struct JournalRangeAndLocalIngressTests {
+    @Test(arguments: [LocalASRID.apple, .sherpa, .qwen, .qwenLarge])
+    func localFailureBeforeFirstWordKeepsItsAttemptedEngine(_ id: LocalASRID) async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-first-word-" + UUID().uuidString)
+        let store = try SaytileStore(directory: directory)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let record = try await store.createRecording()
+        let ticket = try await store.beginRecognition(recordingID: record.id)
+        let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: id)
+        try await ingress.start()
+        await ingress.fail("模型未就绪")
+        let runs = try await store.modelRuns(recordingID: record.id)
+        #expect(runs.count == 1)
+        #expect(runs.first?.ticket.configurationID == id.evidenceID)
+        #expect(runs.first?.state == .failed)
+        #expect(try await store.recording(id: record.id)?.recognitionState == .failed)
+        try await store.close()
+    }
     @Test(arguments: ["truncated-header", "wrong-format", "truncated-payload", "symlink", "stale-generation"])
     func rejectsChangedFilesAndRetiredTickets(reason: String) async throws {
         let directory = URL(fileURLWithPath: "/tmp/saytile-local-range-" + UUID().uuidString)

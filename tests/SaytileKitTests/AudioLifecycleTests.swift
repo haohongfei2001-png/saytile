@@ -39,6 +39,17 @@ struct AudioLifecycleTests {
         #expect(ends.count == 1)
         #expect(!segmenter.speaking)
     }
+    @Test func isolatedClickAndItsVADHangoverCannotStartARecording() throws {
+        let segmenter = try VoiceSegmenter()
+        // The pinned WebRTC model classifies this impulse once, then returns
+        // three hangover frames. Those frames cannot vote for a new utterance.
+        var samples = [Int16](repeating: 0, count: 32_000)
+        samples[3_200] = 10_000
+        let pcm = samples.withUnsafeBytes { Data($0) }
+        #expect(segmenter.accept(pcm).isEmpty)
+        #expect(segmenter.finish().isEmpty)
+    }
+
     @Test func finishDoesNotSaveStandbySilenceAsSpeech() throws {
         let segmenter = try VoiceSegmenter()
         _ = segmenter.accept(Data(repeating:0,count:1003 * 2))

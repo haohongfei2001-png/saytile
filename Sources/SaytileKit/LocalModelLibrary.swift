@@ -23,8 +23,8 @@ public enum LocalASRID: String, CaseIterable, Codable, Sendable {
     public var capability: LocalASRCapability {
         switch self {
         case .apple, .sherpa, .nemotron, .zipformer: .streaming
-        case .qwen: .chunked
-        case .paraformer, .sensevoice, .qwenLarge: .batch
+        case .qwen, .qwenLarge: .chunked
+        case .paraformer, .sensevoice: .batch
         }
     }
     var evidenceID: UUID {

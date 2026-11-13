@@ -80,6 +80,15 @@ struct SpeechResultTests {
         #expect(final.fullText == expected)
         #expect(final.stableText == expected)
     }
+    @Test(arguments: ["", "。"])
+    func zeroLengthWatermarkFinalizesThePrecedingWords(_ suffix: String) {
+        var accumulator = SpeechResultAccumulator()
+        accumulator.apply(start: 0, end: 0.84, text: "不是十五元", isFinal: false)
+        let result = accumulator.apply(start: 0.84, end: 0.84, text: suffix,
+                                       isFinal: true, finalizedThrough: 0.84)
+        #expect(result.isCompletelyFinal)
+        #expect(result.stableText == "不是十五元" + suffix)
+    }
     @Test func zeroDurationFinalPunctuationAttachesOnceToItsExactFinalRange() {
         var aggregate = SpeechResultAccumulator()
         aggregate.apply(start: 0.72, end: 15.6, text: "当时", isFinal: true)

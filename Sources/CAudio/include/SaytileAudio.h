@@ -18,7 +18,8 @@ uint64_t st_probe_buffers(STAudioProbe *probe);
 typedef struct STVAD STVAD;
 STVAD *st_vad_create(void);
 void st_vad_destroy(STVAD *vad);
-int st_vad_process(STVAD *vad, const int16_t *pcm, size_t count);
+typedef enum { STVoiceQuiet, STVoiceDetected, STVoiceHangover } STVoiceFrame;
+STVoiceFrame st_vad_process(STVAD *vad, const int16_t *pcm, size_t count);
 
 // Audio Queue pins the input UID without also rebinding the engine's output.
 // st_input_close synchronously ends callbacks before releasing the borrowed ring.

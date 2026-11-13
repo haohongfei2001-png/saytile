@@ -153,15 +153,16 @@ final class VoiceSegmenter {
         while pending.count >= 640 {
             let frame = Data(pending.prefix(640)); pending.removeFirst(640)
             frameEnd += 320
-            let voiced = frame.withUnsafeBytes { st_vad_process(vad, $0.bindMemory(to: Int16.self).baseAddress!, 320) == 1 }
+            let decision = frame.withUnsafeBytes { st_vad_process(vad, $0.bindMemory(to: Int16.self).baseAddress!, 320) }
             if !speaking {
                 preRoll.append(frame); if preRoll.count > 50 { preRoll.removeFirst() }
+                let voiced = decision == STVoiceDetected
                 if voiced && speechVotes == 0 { possibleStart = frameEnd - 320 }
                 speechVotes = voiced ? speechVotes + 1 : max(0, speechVotes - 1)
                 if speechVotes >= 3 { activeMaximum = nextMaximumFrames ?? maximumFrames; speaking = true; silence = 0; activeFrames = 0; events.append(.begin(preRoll, sample: possibleStart)); preRoll.removeAll(keepingCapacity: true) }
             } else {
                 events.append(.audio(frame)); activeFrames += 1
-                silence = voiced ? 0 : silence + 1
+                silence = decision == STVoiceQuiet ? silence + 1 : 0
                 // Journal rotation is separate. Cloud sessions retain longer context;
                 // this boundary controls resource recovery, never text confirmation.
                 if silence >= endSilenceFrames || activeFrames >= activeMaximum {

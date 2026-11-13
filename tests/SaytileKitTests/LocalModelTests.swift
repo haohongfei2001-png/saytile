@@ -14,7 +14,7 @@ struct LocalModelTests {
         #expect(LocalASRID.allCases.filter { $0.capability == .streaming } == [.apple,.sherpa,.nemotron,.zipformer])
         #expect(LocalASRID.consumer == [.apple,.sherpa,.qwen])
         #expect(!LocalASRID.consumer.contains(.zipformer))
-        #expect(LocalASRID.qwen.capability == .chunked)
+        #expect(LocalASRID.allCases.filter { $0.capability == .chunked } == [.qwen, .qwenLarge])
         #expect(Set(LocalASRID.allCases.map(\.evidenceID)).count == 8)
         for id in LocalASRID.allCases where id != .apple {
             let manifest = try LocalModelManifest.load(id)
@@ -22,8 +22,9 @@ struct LocalModelTests {
             #expect(manifest.id == id)
         }
     }
-    @Test func chunkCorrectionsStayInTheTailWithoutManufacturingEvidence() {
-        var text = LocalLiveText(model: .qwen)
+    @Test(arguments: [LocalASRID.qwen, .qwenLarge])
+    func chunkCorrectionsStayInTheTailWithoutManufacturingEvidence(_ id: LocalASRID) {
+        var text = LocalLiveText(model: id)
         #expect(text.accept("我们计划星期五下午三点开会确认", final: false) == 0)
         #expect(text.accept("我们计划星期五下午三点开会确认时间", final: false) == 0)
         #expect(text.accept("完全不同的一句话", final: false) == nil)

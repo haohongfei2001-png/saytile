@@ -21,10 +21,13 @@ struct SpeechResultAccumulator {
     private(set) var snapshot = Snapshot(fullText:"",stableText:"",isCompletelyFinal:false)
     @discardableResult mutating func apply(start: Double, end: Double, text: String, isFinal: Bool, finalizedThrough: Double? = nil) -> Snapshot {
         guard start.isFinite, end.isFinite, end >= start else { return snapshot }
+        // A zero-duration result may finalize earlier unchanged words without
+        // delivering them again. Its watermark is independent of its text.
+        if let finalizedThrough { markFinalized(through: finalizedThrough) }
         if start == end {
             // Speech can emit final punctuation twice at the exact end of a finalized range.
             guard isFinal, !text.isEmpty, text.unicodeScalars.allSatisfy(CharacterSet.punctuationCharacters.contains),
-                  let index = pieces.lastIndex(where: { $0.end == end && $0.isFinal && !$0.text.isEmpty }) else { return snapshot }
+                  let index = pieces.lastIndex(where: { $0.end == end && $0.isFinal && !$0.text.isEmpty }) else { return rebuildSnapshot() }
             pieces[index].finalPunctuation = pieces[index].text.hasSuffix(text) ? "" : text
             return rebuildSnapshot()
         }
@@ -32,7 +35,6 @@ struct SpeechResultAccumulator {
         pieces.append(Piece(start: start, end: end, text: Self.typeset(text),
                             isFinal: isFinal || end <= self.finalizedThrough))
         pieces.sort { $0.start < $1.start }
-        if let finalizedThrough { markFinalized(through: finalizedThrough) }
         return rebuildSnapshot()
     }
     @discardableResult mutating func advanceFinalization(through: Double) -> Snapshot {

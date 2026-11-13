@@ -198,7 +198,7 @@ struct LocalLiveText {
     mutating func accept(_ text: String, final: Bool) -> Int? {
         if final { return text.utf16.count }
         let common = RecognitionUTF16.commonPrefix([previous, text])
-        if model == .qwen {
+        if model == .qwen || model == .qwenLarge {
             // The zh decoder can change the script of the whole hypothesis mid-utterance.
             // Compare scripts only for preview ownership. Publish the original model string.
             let matches = RecognitionUTF16.hasExactPrefix(text, prefix: readingPrefix)
@@ -278,11 +278,12 @@ private final class ModelRecognitionSession: RecognitionSession, @unchecked Send
             defer { state.finish() }
             let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: model, review: review)
             do {
+                try await ingress.start()
                 try await service.recognize(model, audio: audio, ingress: ingress)
                 try await ingress.finish()
             }
             catch {
-                try? await store.failRecognition(ticket: ticket, message: "本机识别未完成，原音可重试。\(error.localizedDescription)")
+                await ingress.fail("本机识别未完成，原音可重试。\(error.localizedDescription)")
             }
         }
     }

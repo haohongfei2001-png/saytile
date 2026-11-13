@@ -32,6 +32,7 @@ func publish(_ text: String, kind: String, frames: Int) throws {
         let args = CommandLine.arguments
         guard args.count == 4, let stride = Int(args[3]), (8_000...64_000).contains(stride) else { throw WorkerError.configuration }
         let id = args[1], directory = URL(fileURLWithPath: args[2], isDirectory: true)
+        let rollingQwen = id == "qwen-small" || id == "qwen-large"
         let nemo: NemotronStreamingASRMLXModel?
         let transcribe: (([Float]) async throws -> String)?
         switch id {
@@ -45,7 +46,9 @@ func publish(_ text: String, kind: String, frames: Int) throws {
             let model = try await Qwen3ASRModel.fromPretrained(modelId: id == "qwen-small"
                 ? "aufklarer/Qwen3-ASR-0.6B-MLX-4bit" : "aufklarer/Qwen3-ASR-1.7B-MLX-4bit",
                 cacheDir: directory, offlineMode: true)
-            transcribe = { try model.transcribeThrowing(audio: $0, options: .init(language: "zh", longInputThresholdSeconds: .infinity)) }
+            // This argument is interpolated verbatim into the decoder prompt.
+            // The Qwen model's forced-language vocabulary uses "Chinese".
+            transcribe = { try model.transcribeThrowing(audio: $0, options: .init(language: "Chinese", longInputThresholdSeconds: .infinity)) }
         case "paraformer":
             nemo = nil
             let model = ParaformerManager(models: try ParaformerModels.load(from: directory, precision: .int8))
@@ -61,7 +64,10 @@ func publish(_ text: String, kind: String, frames: Int) throws {
         // Decode a short first window on the same warmed model. After a
         // revision, request one earlier confirmation; the normal growth cadence
         // and full final decode stay unchanged.
-        let firstStride = id == "qwen-small" ? min(stride, 12_800) : stride
+        let firstStride = rollingQwen ? min(stride, 12_800) : stride
+        // Local capture segments contain up to 30 s of active frames plus 1 s
+        // of pre-roll. Keep that whole segment available for the EOS decode.
+        let windowLimit = 16_000 * (rollingQwen ? 32 : 24)
         var samples: [Float] = [], prefix = "", last = "", frames = 0, next = firstStride
         while let header = try bytes(4, allowEOF: true) {
             let size = Int(header.withUnsafeBytes { $0.loadUnaligned(as: UInt32.self).littleEndian })
@@ -79,10 +85,10 @@ func publish(_ text: String, kind: String, frames: Int) throws {
                 samples.append(contentsOf: chunk)
                 // Upstream batch encoders have finite input windows. Bound history
                 // without retaining or retranscribing all preceding utterances.
-                if end || samples.count >= 16_000 * 24 || (id == "qwen-small" && samples.count >= next) {
+                if end || samples.count >= windowLimit || (rollingQwen && samples.count >= next) {
                     let tail = samples.isEmpty ? "" : try await transcribe(samples)
                     update = prefix + tail
-                    if samples.count >= 16_000 * 24 {
+                    if samples.count >= windowLimit {
                         prefix += tail
                         samples.removeAll(keepingCapacity: true)
                         next = stride
@@ -97,7 +103,7 @@ func publish(_ text: String, kind: String, frames: Int) throws {
                 stream = try nemo?.createSession(language: "zh")
                 samples.removeAll(keepingCapacity: true)
                 prefix = ""; last = ""; next = firstStride; frames = 0
-            } else if let update, !update.isEmpty, update != last, id == "nemotron-metal" || id == "qwen-small" {
+            } else if let update, !update.isEmpty, update != last, id == "nemotron-metal" || rollingQwen {
                 last = update
                 try publish(update, kind: "partial", frames: frames)
             }
