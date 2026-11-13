@@ -84,6 +84,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ["baseline", "candidate", "out"]:
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--unforced", type=Path, help="Isolated 0.6B build without a fixed decoder language")
     args = parser.parse_args()
     fixture = root / "evidence/mandarin"
     manifests = {key: json.loads((fixture / (key + ".json")).read_text()) for key in ["paired", "aishell"]}
@@ -109,6 +110,18 @@ def main():
         if outcome:
             label = "baseline" if earlier_dir == args.baseline else "candidate"
             report["default_comparisons"][f"{label}_{older}_to_candidate_{newer}"] = outcome
+    if args.unforced:
+        after = stage(args.unforced, "qwen-small", "product", manifests)
+        before = [
+            ("baseline_apple_to_unforced", args.baseline, "apple", "product"),
+            ("baseline_small_to_unforced", args.baseline, "qwen-small", "product"),
+            ("forced_small_to_unforced", args.candidate, "qwen-small", "product"),
+            ("large_to_unforced", args.candidate, "qwen-large", "product"),
+            ("unforced_direct_to_product", args.unforced, "qwen-small", "direct"),
+        ]
+        for name, folder, model, method in before:
+            result = comparison(stage(folder, model, method, manifests), after, references)
+            if result: report["default_comparisons"][name] = result
     args.out.write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n")
 
 
