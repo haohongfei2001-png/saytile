@@ -28,6 +28,8 @@ def main():
         flags = ['-D', 'SAYTILE_ADAPTIVE_SLOT'] if 'enum VoicePanelFootprint' in (tmp/'VoiceRailProportions.swift').read_text() else []
         # Exercise the window's event routing as well as the shared SwiftUI view.
         host_source = subprocess.check_output(['git', 'show', sha + ':Sources/SaytileApp/VoicePanel.swift'], cwd=ROOT)
+        wrapper = tmp / 'PanelHost.swift'
+        wrapper.write_bytes(subprocess.check_output(['git', 'show', sha + ':Sources/SaytileApp/ReferencePanelStyle.swift'], cwd=ROOT))
         full_card = b'compactCaptureAction' in host_source
         if full_card:
             flags += ['-D', 'SAYTILE_COMPACT_ACTION']
@@ -40,17 +42,17 @@ def main():
         subprocess.run([*swift, '-emit-library', '-static', '-emit-module', '-module-name', 'SaytileKit',
                         '-emit-module-path', str(package / 'SaytileKit.swiftmodule'), str(package / 'WindowPlacement.swift'),
                         str(tmp / 'VoiceRailProportions.swift'), '-o', str(package / 'libSaytileKit.a')], check=True)
-        shared = sorted(tmp.glob('*.swift'))
+        shared = sorted(p for p in tmp.glob('*.swift') if p != wrapper)
         subprocess.run([*swift, '-emit-library', '-static', '-emit-module', '-enable-testing', '-module-name', 'SaytileVoiceUI',
                         '-emit-module-path', str(package / 'SaytileVoiceUI.swiftmodule'), *map(str, shared),
                         '-o', str(package / 'libSaytileVoiceUI.a')], check=True)
         (tmp / 'VoicePanel.swift').write_bytes(host_source)
         executable = tmp / 'AdaptiveVoicePanelProbe'
-        subprocess.run([*swift, *flags, '-I', str(package), '-L', str(package), '-lSaytileKit', '-lSaytileVoiceUI', str(tmp/'VoicePanel.swift'),
+        subprocess.run([*swift, *flags, '-I', str(package), '-L', str(package), '-lSaytileKit', '-lSaytileVoiceUI', str(tmp/'VoicePanel.swift'), str(wrapper),
                        str(ROOT/'tests/fixtures/AdaptiveVoicePanelProbe.swift'),'-o',str(executable)],check=True)
         args.output.mkdir(exist_ok=True,parents=True)
         subprocess.run([str(executable),sha,str(args.output.resolve())],check=True)
-        if full_card:
+        if b'struct VoicePanelLayout' in b''.join(p.read_bytes() for p in shared):
             gestures = tmp / 'VoiceRailGestureProbe'
             subprocess.run([*swift, '-I', str(package), '-L', str(package), '-lSaytileKit', '-lSaytileVoiceUI',
                             str(tmp / 'VoicePanel.swift'), str(ROOT / 'tests/fixtures/VoiceRailGestureProbe.swift'),
@@ -66,25 +68,39 @@ def main():
     for name, stage in stages.items():
         width, height = stage['contentPt'][2:]
         controls = stage['controls']
-        compact = width <= 80
-        # The captured windows are all Retina. Allow half a logical point of
-        # origin/size rounding when reading AX bounding boxes from WindowServer.
+        # AX rectangles are converted into points relative to the actual window.
         def size_of(key, expected):
             return len(controls.get(key, [])) == 1 and all(abs(v-w) <= 0.5 for v,w in zip(controls[key][0][2:],expected))
-        checks[name + '/voice'] = size_of('panel.capture', [width,height] if compact else [54,26])
+        checks[name + '/voice'] = size_of('panel.capture', [min(width,54),26])
         checks[name + '/font'] = abs((stage['fontPt'] or 0)-14.04) < 0.01
-        if compact:
-            checks[name + '/onlyVoice'] = set(controls) == {'panel.capture'}
-            frame = controls.get('panel.capture', [[0,0,0,0]])[0]
-            checks[name + '/centered'] = abs(frame[0] + frame[2]/2 - width/2) <= .5 and abs(frame[1] + frame[3]/2 - height/2) <= .5
-        else:
-            checks[name + '/editableSurface'] = stage['textExposedInAccessibilityTree'] and stage['editorHasAllText'] == True
-            checks[name + '/copy'] = ('panel.copy' not in controls if name in ['narrow','edge81'] else size_of('panel.copy',[30,26]))
-    for key in ['pausePressed','resumePressed','centerClickPaused','editPersisted','imeStarted','imeSurvivedResize','imeCommittedOnce',
+        if 'panel.capture' in controls:
+            x, y, bw, bh = controls['panel.capture'][0]
+            checks[name + '/bottomRight'] = (-0.5 <= width-x-bw <= 24 and -0.5 <= height-y-bh <= 24)
+        if name in ('minimum','lowWide'):
+            checks[name + '/hiddenText'] = not stage['textExposedInAccessibilityTree']
+        if name in ('wide','default','smaller','narrow','tall72','control54','tall28','restored'):
+            checks[name + '/editableSurface'] = stage['textExposedInAccessibilityTree'] and stage['editorHasAllText']
+        if name in ('wide','default','restored'):
+            checks[name + '/copy'] = size_of('panel.copy',[30,26])
+        if width < 90:
+            checks[name + '/copyHidden'] = 'panel.copy' not in controls
+    for names in [('edge82','edge81','edge80','edge79'), ('control55','control54','control53')]:
+        rects = [stages[n]['controls']['panel.capture'][0] for n in names if 'panel.capture' in stages[n]['controls']]
+        checks[names[0] + '/continuousButton'] = len(rects) == len(names) and all(
+            max(abs(a-b) for a,b in zip(current,previous)) <= 1.01 for current,previous in zip(rects[1:],rects))
+    for sweep in report['resizeSweep']:
+        label = sweep['axis'] + str(sweep['travel'])
+        # A little mouse slop can delay the first 3 pt of a button drag. The
+        # orthogonal dimension and pinned edges should not move at all.
+        continuous = 'widthError' if sweep['axis'] == 'left' else 'heightError'
+        orthogonal = 'heightError' if sweep['axis'] == 'left' else 'widthError'
+        checks[label + '/trackedEveryPoint'] = sweep[continuous] <= 3.5 and sweep[orthogonal] <= 0.5
+        checks[label + '/anchor'] = max(sweep['rightError'],sweep['bottomError']) <= 0.5
+    for key in ['pausePressed','resumePressed','centerClickPaused','editPersisted','imeStarted','imeSurvivedMinimum','imeSurvivedResize','imeCommittedOnce',
                 'lateCandidateAfterSelectionReleased','compactRejectedKeyFocus']:
         checks[key] = report[key]
     checks['originalEditorAtEveryStage'] = all(s['sameEditor'] for s in stages.values())
-    checks['retainsSelectionWhileCollapsedAndRestored'] = all(stages[n]['selectionRetained'] for n in ['narrow','edge81','edge80','minimum','tallMinimum','restored'])
+    checks['retainsSelectionWhileCollapsedAndRestored'] = all(stages[n]['selectionRetained'] for n in ['narrow','edge81','edge80','tall28','minimum','restored'])
     checks['exactlyThreeIntentionalActions'] = report['toggleCount'] == 3
     checks['neverTookKey'] = not report['everTookKey']
     for name in ['left','right','top','bottom','voice']:

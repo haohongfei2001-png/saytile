@@ -90,6 +90,15 @@ import ApplicationServices
             guard let window = panel() else { return nil }
             return find([window], pid: pid) { attr($0, kAXIdentifierAttribute) as? String == "panel.transcript" }
         }
+        func rect(of element: AXUIElement) -> CGRect? {
+            guard let position = attr(element, kAXPositionAttribute), CFGetTypeID(position) == AXValueGetTypeID(),
+                  let size = attr(element, kAXSizeAttribute), CFGetTypeID(size) == AXValueGetTypeID() else { return nil }
+            var origin = CGPoint.zero
+            var extent = CGSize.zero
+            guard AXValueGetValue(unsafeDowncast(position, to: AXValue.self), .cgPoint, &origin),
+                  AXValueGetValue(unsafeDowncast(size, to: AXValue.self), .cgSize, &extent) else { return nil }
+            return CGRect(origin: origin, size: extent)
+        }
         func round(_ command: String?, visible: Bool, expected: String, compact: Bool = false) async throws {
             guard let button = status(pid) else { throw Failure("paused status unavailable") }
             let owner = Owned(element: button)
@@ -97,21 +106,35 @@ import ApplicationServices
                 AXUIElementSetMessagingTimeout(owner.element, 8)
                 return AXUIElementPerformAction(owner.element, kAXPressAction as CFString).rawValue
             }.value
-            func openWindowExists() -> Bool {
+            // Only the popup corresponding to this AX menu must close. The app can
+            // have other floating or help windows at the same WindowServer level.
+            func elevatedWindows() -> [(number: UInt32, bounds: CGRect)] {
                 let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]] ?? []
-                return windows.contains { item in
-                    (item[kCGWindowOwnerPID as String] as? Int32) == pid &&
-                        (item[kCGWindowLayer as String] as? Int ?? 0) >= CGWindowLevelForKey(.mainMenuWindow) &&
-                        (item[kCGWindowBounds as String] as? [String: CGFloat])?["Height"] ?? 0 > 55
+                return windows.compactMap { item in
+                    guard (item[kCGWindowOwnerPID as String] as? Int32) == pid,
+                          (item[kCGWindowLayer as String] as? Int ?? 0) >= CGWindowLevelForKey(.mainMenuWindow),
+                          let number = item[kCGWindowNumber as String] as? UInt32,
+                          let bounds = item[kCGWindowBounds as String] as? NSDictionary,
+                          let frame = CGRect(dictionaryRepresentation: bounds), frame.height > 55 else { return nil }
+                    return (number, frame)
                 }
             }
             var menu: AXUIElement?
-            try await wait("single status press failed to open menu on screen") {
-                guard openWindowExists() else { return false }
+            var menuWindow: UInt32?
+            try await wait("single status press failed to open the matching menu on screen") {
                 menu = find([button] + children(root, pid: pid), pid: pid) { attr($0, kAXRoleAttribute) as? String == kAXMenuRole }
-                return menu != nil
+                guard let menu, let frame = rect(of: menu) else { return false }
+                let matches = elevatedWindows().filter { window in
+                    let overlap = frame.intersection(window.bounds)
+                    return !overlap.isNull && frame.width > 0 && frame.height > 0
+                        && overlap.width * overlap.height >= frame.width * frame.height * 0.85
+                        && abs(frame.width - window.bounds.width) < 24 && abs(frame.height - window.bounds.height) < 24
+                }
+                guard matches.count == 1 else { return false }
+                menuWindow = matches[0].number
+                return true
             }
-            guard let menu else { throw Failure("missing owned menu") }
+            guard let menu, let menuWindow else { throw Failure("missing owned menu window") }
             var dismissed = false
             defer { if !dismissed { _ = AXUIElementPerformAction(menu, kAXCancelAction as CFString) } }
             let items = children(menu, pid: pid)
@@ -134,7 +157,9 @@ import ApplicationServices
             // issued menu-item press has already completed. WindowServer and the
             // actual action outcome are verified independently; do not retry.
             print("STATUS_TRIGGER_AX", pressResult)
-            try await wait("menu still on screen") { !openWindowExists() }
+            try await wait("the menu's own window is still on screen") {
+                !elevatedWindows().contains { $0.number == menuWindow }
+            }
             dismissed = true
             print("STATUS_NATIVE_ROUND command=\(command ?? "cancel") visibleWhileOpen=\(visible) fullMenu=true captureCommands=0")
         }
@@ -187,15 +212,6 @@ import ApplicationServices
             guard let w = panel(), let raw = attr(w, kAXSizeAttribute), CFGetTypeID(raw) == AXValueGetTypeID() else { return nil }
             var sz = CGSize.zero
             return AXValueGetValue(unsafeDowncast(raw, to: AXValue.self), .cgSize, &sz) ? sz : nil
-        }
-        func rect(of element: AXUIElement) -> CGRect? {
-            guard let position = attr(element, kAXPositionAttribute), CFGetTypeID(position) == AXValueGetTypeID(),
-                  let size = attr(element, kAXSizeAttribute), CFGetTypeID(size) == AXValueGetTypeID() else { return nil }
-            var origin = CGPoint.zero
-            var extent = CGSize.zero
-            guard AXValueGetValue(unsafeDowncast(position, to: AXValue.self), .cgPoint, &origin),
-                  AXValueGetValue(unsafeDowncast(size, to: AXValue.self), .cgSize, &extent) else { return nil }
-            return CGRect(origin: origin, size: extent)
         }
         let oldSize = CGSize(width: 72, height: 44)
         let seeds = [(legacy: true, size: oldSize), (false, oldSize),

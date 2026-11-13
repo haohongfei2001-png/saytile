@@ -1,22 +1,24 @@
 import AppKit
 @preconcurrency import ApplicationServices
 import SwiftUI
+import ImageIO
+import UniformTypeIdentifiers
 @testable import SaytileVoiceUI
 
-private struct Row: VoiceTranscriptEntry {
+struct Row: VoiceTranscriptEntry {
     let id: UUID
     let position: Int64
     var displayText: String
 }
 
 private enum Failure: Error { case args, window, edit, capture, press }
-@MainActor private final class Replay: ObservableObject {
+@MainActor final class AppModel: ObservableObject {
     let access = PanelTranscriptAccess<Row>()
     let id = UUID(), nextID = UUID()
     @Published var late = ""
     @Published var text = "缩放窗口仍应保留这段可以编辑的文字，数字 24 和手写换行。\n继续记录。"
     @Published var state = VoicePanelState.standby
-    @Published var showsBorder = true
+    @Published var panelBorderVisible = true
     var toggles = 0, edits = 0, copies = 0
     var doc: PanelTimelineDocument<Row> {
         var rows = [Row(id:id,position:1,displayText:text)]
@@ -30,25 +32,17 @@ private enum Failure: Error { case args, window, edit, capture, press }
     }
 }
 
-private struct Surface: View {
-    @ObservedObject var replay: Replay
+// Product InputPanelWindowView supplies the real rail, border and clipping.
+struct InputPanelView: View {
+    @ObservedObject var model: AppModel
+    var onExpand: (@MainActor () -> Void)?
     var body: some View {
-        GeometryReader { geometry in
-            let radius = VoiceRailMetrics(width: geometry.size.width).radius
-            FramedVoiceSlot(showsBorder: replay.showsBorder) {
-                VoiceSurfacePanel(document: replay.doc, access: replay.access,
-                    capture: .init(state: replay.state, level: replay.state == .recognizing ? 0.7 : nil, actionLabel: replay.state == .paused ? "恢复" : "暂停",
-                                   accessibilityValue: replay.state == .paused ? "已暂停" : "待命"),
-                    canCopy: true, selectedText: "", onCopy: { replay.copies += 1 }, onToggle: replay.toggle, applyEdits: replay.commit) { EmptyView() }
-            }.background {
-                #if SAYTILE_ADAPTIVE_SLOT
-                if replay.showsBorder && !VoicePanelFootprint.isCompact(outerWidth: geometry.size.width) { VoiceRailGlass(width: geometry.size.width) }
-                #else
-                VoiceRailGlass(width: geometry.size.width)
-                #endif
-            }
-              .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
-        }
+        VoiceSurfacePanel(document: model.doc, access: model.access,
+            capture: .init(state: model.state, level: model.state == .recognizing ? 0.7 : nil,
+                           actionLabel: model.state == .paused ? "恢复" : "暂停",
+                           accessibilityValue: model.state == .paused ? "已暂停" : "待命"),
+            canCopy: true, selectedText: "", onCopy: { model.copies += 1 }, onToggle: model.toggle,
+            applyEdits: model.commit) { EmptyView() }
     }
 }
 
@@ -140,6 +134,65 @@ private struct Surface: View {
         default: return false
         }
     }
+    @MainActor static func pointer(_ window: VoicePanel, kind: NSEvent.EventType, local: CGPoint) throws {
+        guard let event = NSEvent.mouseEvent(with: kind, location: local, modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime,
+            windowNumber: window.windowNumber, context: nil, eventNumber: 8, clickCount: 1, pressure: kind == .leftMouseUp ? 0 : 1) else { throw Failure.press }
+        window.sendEvent(event)
+    }
+
+    /// A single physical-coordinate gesture per edge. Sample the resulting window
+    /// frame at every point and capture the hosted view without any desktop pixels.
+    @MainActor static func recordSweep(window: VoicePanel, host: NSView, folder: URL) async throws -> [[String: Any]] {
+        guard let screen = window.screen, let gif = CGImageDestinationCreateWithURL(folder.appendingPathComponent("resize.gif") as CFURL,
+            UTType.gif.identifier as CFString, 134, nil) else { throw Failure.capture }
+        CGImageDestinationSetProperties(gif, [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 0]] as CFDictionary)
+        let start = CGRect(x: screen.visibleFrame.midX-80, y: screen.visibleFrame.midY-79, width: 156, height: 158)
+        window.applyPlacement(start, on: screen.visibleFrame)
+        var results = [[String: Any]]()
+        for (axis, signedTravel) in [("left",128),("top",-132),("top",132),("left",-128)] {
+            let origin = window.frame
+            let local = axis == "left" ? CGPoint(x: 2, y: origin.height/2) : CGPoint(x: origin.width/2, y: origin.height-2)
+            let mouse = window.convertPoint(toScreen: local)
+            try pointer(window, kind: .leftMouseDown, local: local)
+            var samples = [Double]()
+            let sweepStarted = ProcessInfo.processInfo.systemUptime
+            var last = mouse
+            var maxWidthError: CGFloat = 0, maxHeightError: CGFloat = 0, maxRightError: CGFloat = 0, maxBottomError: CGFloat = 0
+            for step in 0...abs(signedTravel) {
+                let delta = CGFloat(step * signedTravel.signum())
+                last = CGPoint(x: mouse.x + (axis == "left" ? delta : 0), y: mouse.y + (axis == "top" ? delta : 0))
+                if step > 0 { try pointer(window, kind: .leftMouseDragged, local: window.convertPoint(fromScreen: last)) }
+                let frame = window.frame
+                maxWidthError = max(maxWidthError,abs(frame.width - (origin.width - (axis == "left" ? delta : 0))))
+                maxHeightError = max(maxHeightError,abs(frame.height - (origin.height + (axis == "top" ? delta : 0))))
+                maxRightError = max(maxRightError,abs(frame.maxX-origin.maxX))
+                maxBottomError = max(maxBottomError,abs(frame.minY-origin.minY))
+                if step % 4 == 0 || step == abs(signedTravel) {
+                    try await Task.sleep(for: .milliseconds(18))
+                    host.layoutSubtreeIfNeeded()
+                    guard let image = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw Failure.capture }
+                    host.cacheDisplay(in: host.bounds, to: image)
+                    guard let actual = image.cgImage,
+                          let context = CGContext(data:nil,width:336,height:340,bitsPerComponent:8,bytesPerRow:0,
+                            space:CGColorSpaceCreateDeviceRGB(),bitmapInfo:CGImageAlphaInfo.premultipliedLast.rawValue) else { throw Failure.capture }
+                    context.setFillColor(red:0.25,green:0.29,blue:0.35,alpha:1)
+                    context.fill(CGRect(x:0,y:0,width:336,height:340))
+                    context.draw(actual, in:CGRect(x:12 + (frame.minX - start.minX)*2, y:12 + (frame.minY - start.minY)*2,
+                                                   width:frame.width*2, height:frame.height*2))
+                    samples.append(ProcessInfo.processInfo.systemUptime - sweepStarted)
+                    guard let composed = context.makeImage() else { throw Failure.capture }
+                    let delay = (step == 0 || step == abs(signedTravel)) ? 0.35 : 0.035
+                    CGImageDestinationAddImage(gif, composed, [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFDelayTime: delay]] as CFDictionary)
+                }
+            }
+            try pointer(window, kind: .leftMouseUp, local: window.convertPoint(fromScreen: last))
+            results.append(["axis":axis, "travel":signedTravel, "steps":abs(signedTravel), "start":array(origin), "end":array(window.frame),
+                "paintTimesSeconds":samples, "widthError":maxWidthError,"heightError":maxHeightError,"rightError":maxRightError,"bottomError":maxBottomError])
+        }
+        guard CGImageDestinationFinalize(gif) else { throw Failure.capture }
+        return results
+    }
+
     @MainActor static func run() async throws {
         let args = CommandLine.arguments
         guard args.count == 3 else { throw Failure.args }
@@ -148,7 +201,7 @@ private struct Surface: View {
         NSApplication.shared.delegate = delegate
         NSApplication.shared.setActivationPolicy(.accessory)
         defer { withExtendedLifetime(delegate) {} }
-        let model = Replay(), host = NSHostingView(rootView: Surface(replay: model))
+        let model = AppModel(), host = NSHostingView(rootView: InputPanelWindowView(model: model))
         let w = VoicePanel(contentRect: NSRect(x: 0, y: 0, width: 240, height: 126), styleMask: [.borderless,.nonactivatingPanel], backing: .buffered, defer: false)
         w.isFloatingPanel = true; w.becomesKeyOnlyIfNeeded = true
         w.backgroundColor = .clear; w.isOpaque = false; w.hasShadow = false; w.hidesOnDeactivate = false; w.isReleasedWhenClosed = false
@@ -167,7 +220,10 @@ private struct Surface: View {
         defer { w.orderOut(nil); w.close() }
         try await Task.sleep(for: .milliseconds(260))
         let sizes: [(String,CGFloat,CGFloat)] = [("wide",344,190),("default",178,90),("short",178,64),("smaller",128,82),
-            ("narrow",108,70),("edge81",81,58),("edge80",80,48),("minimum",72,44),("tallMinimum",72,96),("restored",344,190)]
+            ("narrow",108,158),("edge82",82,158),("edge81",81,158),("edge80",80,158),("edge79",79,158),
+            ("tall72",72,158),("control55",55,158),("control54",54,158),("control53",53,158),("tall42",42,158),
+            ("tall28",28,158),("mid28",28,76),("short28",28,38),("minimum",28,26),
+            ("lowWide",178,26),("restored",344,190)]
         var facts = [[String: Any]](), originalEditor: NSTextView?, syntheticEditOK = false
         var compactClicks = [String: Bool](), compactTestToggles = 0
         var pressed = false, resumed = false, everKey = false, selectedRange: NSRange?, normalHadEditorFocus = false
@@ -175,7 +231,7 @@ private struct Surface: View {
         var controlsBeforeCornerClicks = 0
         var compactPixels = [String: [String: CGFloat]](), glyphs = [String: Bool]()
         var clicked = false, hitChecks = [String: String](), buttonCorners = [String: Bool]()
-        var imeStarted = false, imeSurvivedResize = false, imeCommittedOnce = false, lateAppeared = false, compactRejectedKeyFocus = false
+        var imeStarted = false, imeSurvivedResize = false, imeSurvivedMinimum = false, imeCommittedOnce = false, lateAppeared = false, compactRejectedKeyFocus = false
         let late = "新到的实时文字。"
         for (label,width,height) in sizes {
             w.setContentSize(.init(width: width, height: height)); host.layoutSubtreeIfNeeded(); w.displayIfNeeded()
@@ -193,6 +249,13 @@ private struct Surface: View {
                 let selected = (editor.string as NSString).range(of: marker)
                 editor.setSelectedRange(selected); selectedRange = selected
             }
+            if label == "tall72" {
+                let old = model.toggles
+                // The outer edge is outside both the voice button and the editor.
+                try pointer(w, kind: .leftMouseDown, local: .init(x: 2, y: 83))
+                try pointer(w, kind: .leftMouseUp, local: .init(x: 2, y: 83))
+                compactClicks["upperGlassDoesNotToggle"] = model.toggles == old
+            }
             var fontSize: CGFloat?
             if let storage = editor?.textStorage, storage.length > 0 { fontSize = (storage.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)?.pointSize }
             if label == "edge81", let editor {
@@ -207,7 +270,7 @@ private struct Surface: View {
                 back.isReleasedWhenClosed = false; back.backgroundColor = .white; back.isOpaque = true; back.hasShadow = false
                 w.level = .floating; back.level = .floating; back.orderFront(nil); w.order(.above,relativeTo:back.windowNumber)
                 w.displayIfNeeded(); try await Task.sleep(for:.milliseconds(150))
-                let probes: [(String, CGPoint)] = [("left",.init(x:2,y:22)),("right",.init(x:70,y:22)),("top",.init(x:36,y:42)),("bottom",.init(x:36,y:2)),("voice",.init(x:36,y:22))]
+                let probes: [(String, CGPoint)] = [("left",.init(x:2,y:13)),("right",.init(x:26,y:13)),("top",.init(x:14,y:24)),("bottom",.init(x:14,y:2)),("voice",.init(x:14,y:13))]
                 for (name,point) in probes {
                     let screen = w.convertPoint(toScreen:point)
                     let top = NSWindow.windowNumber(at:screen,belowWindowWithWindowNumber:0)
@@ -240,10 +303,10 @@ private struct Surface: View {
             if label == "minimum" {
                 let count = model.toggles
                 let points: [(String, CGPoint)] = [
-                    ("leftEdge", .init(x: 2, y: 22)), ("rightEdge", .init(x: 70, y: 22)),
-                    ("topEdge", .init(x: 36, y: 42)), ("bottomEdge", .init(x: 36, y: 2)),
-                    ("leftGlass", .init(x: 8, y: 22)), ("rightGlass", .init(x: 64, y: 22)),
-                    ("topGlass", .init(x: 36, y: 38)), ("bottomGlass", .init(x: 36, y: 6))]
+                    ("leftEdge", .init(x: 2, y: height/2)), ("rightEdge", .init(x: width-2, y: height/2)),
+                    ("topEdge", .init(x: width/2, y: height-2)), ("bottomEdge", .init(x: width/2, y: 2)),
+                    ("leftGlass", .init(x: 6, y: height/2)), ("rightGlass", .init(x: width-6, y: height/2)),
+                    ("topGlass", .init(x: width/2, y: height-6)), ("bottomGlass", .init(x: width/2, y: 6))]
                 for (name, point) in points {
                     let before = model.toggles, frame = w.frame
                     for kind in [NSEvent.EventType.leftMouseDown, .leftMouseUp] {
@@ -258,7 +321,7 @@ private struct Surface: View {
                 }
                 compactTestToggles = model.toggles - count
                 for border in [true, false] {
-                    model.showsBorder = border
+                    model.panelBorderVisible = border
                     for (name, state) in [("paused", VoicePanelState.paused), ("standby", .standby), ("recognizing", .recognizing)] {
                         model.state = state
                         try await Task.sleep(for: .milliseconds(220))
@@ -273,13 +336,13 @@ private struct Surface: View {
                         }
                         // The old floating capsule was transparent on the four
                         // mid-edge samples. The surrounding glass is now the control.
-                        compactPixels[variant] = ["left": alpha(at: 4, 22), "right": alpha(at: 68, 22),
-                                                  "top": alpha(at: 36, 4), "bottom": alpha(at: 36, 40),
-                                                  "corner": alpha(at: 0, 0), "rim": alpha(at: 36, 0)]
+                        compactPixels[variant] = ["left": alpha(at: 3, height/2), "right": alpha(at: width-3, height/2),
+                                                  "top": alpha(at: width/2, 3), "bottom": alpha(at: width/2, height-3),
+                                                  "corner": alpha(at: 0, 0), "rim": alpha(at: width/2, 0)]
                         glyphs[variant] = glyph(in: bitmap, state: state)
                     }
                 }
-                model.showsBorder = true
+                model.panelBorderVisible = true
                 model.state = .paused
             }
             if label == "restored" {
@@ -307,7 +370,7 @@ private struct Surface: View {
             facts.append(["stage": label, "windowPt": array(w.frame), "contentPt": array(host.bounds), "controls": controls,
                 "fontPt": fontSize as Any? ?? NSNull(), "editorFramePt": array(rect), "textExposedInAccessibilityTree": textExposed, "sameEditor": editor === originalEditor,
                 "editorHasAllText": editor?.string == model.text, "editedTextRetained": model.text.hasSuffix(marker), "selectionRetained": selectedRange.map { editor?.selectedRange() == $0 && view?.selectionSnapshot == marker } ?? false])
-            if ["wide","narrow","minimum","restored"].contains(label) { try capture(host: host,target: folder.appendingPathComponent(label+".png")) }
+            if ["wide","narrow","tall72","control54","tall28","minimum","restored"].contains(label) { try capture(host: host,target: folder.appendingPathComponent(label+".png")) }
         }
         if let scroll = model.access.view {
             let editor = scroll.transcriptView
@@ -317,12 +380,15 @@ private struct Surface: View {
             w.makeFirstResponder(editor); let baseline = model.edits
             editor.setMarkedText("pinyin", selectedRange:.init(location:6,length:0), replacementRange:.init(location:0,length:0))
             imeStarted = editor.hasMarkedText() && model.edits == baseline
+            w.setContentSize(.init(width:28,height:26)); try await Task.sleep(for:.milliseconds(80))
+            imeSurvivedMinimum = editor.hasMarkedText() && editor.markedRange().length == 6 && model.edits == baseline
             w.setContentSize(.init(width:240,height:140)); try await Task.sleep(for:.milliseconds(95))
             imeSurvivedResize = editor.hasMarkedText() && model.edits == baseline && editor.markedRange().length == 6
             editor.insertText("拼音",replacementRange:editor.markedRange()); try await Task.sleep(for:.milliseconds(90))
             imeCommittedOnce = model.edits == baseline + 1 && model.text.hasPrefix("拼音") && !editor.hasMarkedText()
         }
-        let report: [String: Any] = ["glyphs": glyphs, "compactPixels": compactPixels, "compactClicks": compactClicks, "buttonCorners": buttonCorners, "perimeterHits":hitChecks,"imeStarted":imeStarted,"imeSurvivedResize":imeSurvivedResize,"imeCommittedOnce":imeCommittedOnce,"lateCandidateAfterSelectionReleased":lateAppeared,"compactRejectedKeyFocus":compactRejectedKeyFocus,"source":args[1], "stages":facts, "editPersisted":syntheticEditOK, "pausePressed":pressed, "resumePressed":resumed,
+        let sweep = try await recordSweep(window: w, host: host, folder: folder)
+        let report: [String: Any] = ["resizeSweep": sweep, "glyphs": glyphs, "compactPixels": compactPixels, "compactClicks": compactClicks, "buttonCorners": buttonCorners, "perimeterHits":hitChecks,"imeStarted":imeStarted,"imeSurvivedMinimum":imeSurvivedMinimum,"imeSurvivedResize":imeSurvivedResize,"imeCommittedOnce":imeCommittedOnce,"lateCandidateAfterSelectionReleased":lateAppeared,"compactRejectedKeyFocus":compactRejectedKeyFocus,"source":args[1], "stages":facts, "editPersisted":syntheticEditOK, "pausePressed":pressed, "resumePressed":resumed,
                                      "toggleCount":controlsBeforeCornerClicks, "centerClickPaused":clicked, "everTookKey":everKey, "backingScale":w.backingScaleFactor]
         try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys,.prettyPrinted]).write(to: folder.appendingPathComponent("receipt.json"))
     }

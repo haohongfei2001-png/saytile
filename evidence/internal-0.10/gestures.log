@@ -1,0 +1,30 @@
+PASS 128 × 69 footer gap drag frame=(864.0, 490.0, 128.0, 69.0)
+PASS factory footer gap drag frame=(1600.0, 892.0, 240.0, 128.0)
+PASS left edge resize frame=(1555.0, 892.0, 285.0, 128.0)
+PASS bottom corner resize frame=(1555.0, 862.0, 307.0, 158.0)
+PASS live left and bottom containment frame=(0.0, 0.0, 307.0, 158.0)
+PASS live right and top containment frame=(1613.0, 922.0, 307.0, 158.0)
+PASS extend bottom-left corner to available bounds frame=(0.0, 0.0, 1920.0, 1080.0)
+PASS shrink from full screen frame=(1613.0, 922.0, 307.0, 158.0)
+PASS cross to second display frame=(-542.0, 412.0, 307.0, 158.0)
+PASS return to original display frame=(818.0, 512.0, 307.0, 158.0)
+PASS fold left edge to the single control frame=(1097.0, 512.0, 28.0, 158.0)
+PASS reopen left edge keeping top and previous height frame=(818.0, 512.0, 307.0, 158.0)
+PASS fold from the right frame=(818.0, 512.0, 28.0, 158.0)
+PASS reopen from the right frame=(818.0, 512.0, 307.0, 158.0)
+PASS fold again for restart frame=(1097.0, 512.0, 28.0, 158.0)
+PASS shorten tall panel from the top keeping its lower edge frame=(1097.0, 512.0, 28.0, 26.0)
+PASS move the miniature from its center frame=(1073.0, 490.0, 28.0, 26.0)
+PASS return miniature from its center frame=(1097.0, 512.0, 28.0, 26.0)
+PASS slight motion at x=2.0 clicks exactly once
+PASS slight motion at x=14.0 clicks exactly once
+PASS slight motion at x=26.0 clicks exactly once
+PASS move and return does not toggle
+PASS resize and return does not toggle
+PASS release outside does not toggle
+PASS cancelled press does not toggle
+PASS hide/show and persisted geometry pid=93296
+PASS new edge drag takes over the in-flight expansion at its current frame
+PASS persisted reading size and anchor restored by expansion
+PASS expand only the width from a relaunched miniature frame=(997.0, 512.0, 128.0, 26.0)
+PASS restored in fresh process pid=93297 frame=(997.0, 512.0, 128.0, 26.0)

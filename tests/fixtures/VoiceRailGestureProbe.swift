@@ -89,16 +89,44 @@ struct VoiceRailGestureProbe {
             guard let rememberedWidth = stored.expandedWidth, stored.anchorsRightOnExpand == true else {
                 throw Problem("Missing original reading width or expansion anchor")
             }
-            panel.expandToReadingSize()
+            let reducedMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
             let target = CGRect(x: frame.maxX - rememberedWidth, y: frame.maxY - height, width: rememberedWidth, height: height)
-            guard matches(panel.frame, target), captureActions == 0, !panel.isKeyWindow else {
+            func advanceUntil(_ condition: () -> Bool) -> Bool {
+                let deadline = Date(timeIntervalSinceNow: 2)
+                while !condition() && deadline.timeIntervalSinceNow > 0 {
+                    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.004))
+                }
+                return condition()
+            }
+            func intermediate() -> Bool { panel.frame.width > frame.width && panel.frame.width < target.width }
+            panel.expandToReadingSize()
+            if !reducedMotion {
+                guard advanceUntil(intermediate) else { throw Problem("Explicit expansion did not render an intermediate frame") }
+                let current = panel.frame
+                let local = CGPoint(x: 2, y: current.height/2)
+                let mouse = panel.convertPoint(toScreen: local)
+                try send(.leftMouseDown, at: mouse)
+                let takeover = CGPoint(x: mouse.x-12, y: mouse.y)
+                try send(.leftMouseDragged, at: takeover)
+                try send(.leftMouseUp, at: takeover)
+                let expected = CGRect(x:current.minX-12, y:current.minY, width:current.width+12, height:current.height)
+                RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.35))
+                guard matches(panel.frame, expected), !panel.draggingPlacement else { throw Problem("Animation overwrote a new drag") }
+                print("PASS new edge drag takes over the in-flight expansion at its current frame")
+                panel.applyPlacement(frame, on: available)
+                panel.expandedWidth = rememberedWidth; panel.expandedHeight = height; panel.anchorsRightOnExpand = true
+                panel.expandToReadingSize()
+            } else {
+                print("PASS reduced motion used immediate expansion")
+            }
+            guard advanceUntil({ matches(panel.frame,target) }), captureActions == 0, !panel.isKeyWindow else {
                 throw Problem("Menu expansion after restart did not restore reading size")
             }
             print("PASS persisted reading size and anchor restored by expansion")
             panel.applyPlacement(frame, on: available)
             let width = min(128, available.width)
-            let end = CGRect(x: frame.maxX - width, y: frame.maxY - height, width: width, height: height)
-            try drag("reopen compact and drag left edge out", from: CGPoint(x: 2, y: frame.height / 2),
+            let end = CGRect(x: frame.maxX - width, y: frame.minY, width: width, height: frame.height)
+            try drag("expand only the width from a relaunched miniature", from: CGPoint(x: 2, y: frame.height / 2),
                      delta: CGPoint(x: frame.width - width, y: 0), expect: end)
             print("PASS restored in fresh process pid=\(getpid()) frame=\(panel.frame)")
             return
@@ -147,9 +175,9 @@ struct VoiceRailGestureProbe {
             print("NOT_RUN physical second-display drag (one display connected)")
         }
         let beforeFold = panel.frame
-        let compactSize = SaytileVoiceUI.VoicePanelFootprint.minimumSize
-        let folded = CGRect(x: beforeFold.maxX - compactSize.width, y: beforeFold.maxY - compactSize.height,
-                            width: compactSize.width, height: compactSize.height)
+        let compactSize = CGSize(width: 28, height: 26)
+        let folded = CGRect(x: beforeFold.maxX - compactSize.width, y: beforeFold.minY,
+                            width: compactSize.width, height: beforeFold.height)
         try drag("fold left edge to the single control", from: CGPoint(x: 2, y: beforeFold.height / 2),
                  delta: CGPoint(x: beforeFold.width - compactSize.width, y: 0), expect: folded)
         try drag("reopen left edge keeping top and previous height", from: CGPoint(x: 2, y: folded.height / 2),
@@ -161,10 +189,13 @@ struct VoiceRailGestureProbe {
                  delta: CGPoint(x: beforeFold.width - compactSize.width, y: 0), expect: beforeFold)
         try drag("fold again for restart", from: CGPoint(x: 2, y: beforeFold.height / 2),
                  delta: CGPoint(x: beforeFold.width - compactSize.width, y: 0), expect: folded)
-        try drag("move narrow control from its top margin", from: CGPoint(x: folded.width / 2, y: folded.height - 3),
-                 delta: CGPoint(x: -24, y: -22), expect: folded.offsetBy(dx: -24, dy: -22))
-        try drag("return narrow control using the bottom margin", from: CGPoint(x: folded.width / 2, y: 3),
-                 delta: CGPoint(x: 24, y: 22), expect: folded)
+        let minimum = CGRect(x: folded.minX, y: folded.minY, width: compactSize.width, height: compactSize.height)
+        try drag("shorten tall panel from the top keeping its lower edge", from: CGPoint(x: folded.width/2, y: folded.height-2),
+                 delta: CGPoint(x: 0, y: minimum.height-folded.height), expect: minimum)
+        try drag("move the miniature from its center", from: CGPoint(x: minimum.midX-minimum.minX, y: minimum.height/2),
+                 delta: CGPoint(x: -24, y: -22), expect: minimum.offsetBy(dx: -24, dy: -22))
+        try drag("return miniature from its center", from: CGPoint(x: minimum.width/2, y: minimum.height/2),
+                 delta: CGPoint(x: 24, y: 22), expect: minimum)
         func compactPointerSequence(_ name: String, from: CGPoint, deltas: [CGPoint], release: CGPoint,
                                     expectActions: Int, cancel: Bool = false) throws {
             let prior = panel.frame, start = panel.convertPoint(toScreen: from)
@@ -180,16 +211,16 @@ struct VoiceRailGestureProbe {
             print("PASS " + name)
         }
         for x: CGFloat in [2, folded.width / 2, folded.width - 2] {
-            try compactPointerSequence("slight motion at x=\(x) clicks exactly once", from: CGPoint(x: x, y: 22),
+            try compactPointerSequence("slight motion at x=\(x) clicks exactly once", from: CGPoint(x: x, y: 13),
                                        deltas: [CGPoint(x: -2, y: 1)], release: CGPoint(x: -2, y: 1), expectActions: 1)
         }
-        try compactPointerSequence("move and return does not toggle", from: CGPoint(x: 36, y: 22),
+        try compactPointerSequence("move and return does not toggle", from: CGPoint(x: 14, y: 13),
                                    deltas: [CGPoint(x: -15, y: -10), .zero], release: .zero, expectActions: 0)
-        try compactPointerSequence("resize and return does not toggle", from: CGPoint(x: 2, y: 22),
+        try compactPointerSequence("resize and return does not toggle", from: CGPoint(x: 2, y: 13),
                                    deltas: [CGPoint(x: -24, y: 0), .zero], release: .zero, expectActions: 0)
-        try compactPointerSequence("release outside does not toggle", from: CGPoint(x: 2, y: 22),
+        try compactPointerSequence("release outside does not toggle", from: CGPoint(x: 2, y: 13),
                                    deltas: [], release: CGPoint(x: -10, y: 0), expectActions: 0)
-        try compactPointerSequence("cancelled press does not toggle", from: CGPoint(x: 36, y: 22),
+        try compactPointerSequence("cancelled press does not toggle", from: CGPoint(x: 14, y: 13),
                                    deltas: [], release: .zero, expectActions: 0, cancel: true)
         let final = panel.frame
         panel.orderOut(nil); panel.orderFrontRegardless()
