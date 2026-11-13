@@ -12,3 +12,5 @@ Apple SpeechAnalyzer 使用 macOS 提供的简体中文转写资源。系统管�
 本轮沿用原先做过原生测试的候选范围。Zipformer 中文 INT8 有真流式运行时，但所用 Large 检查点和 INT8 导出未找到明确的商业权重许可，运行库的 Apache-2.0 不涵盖第三方权重。原始文件与维护者答复已在仓库留档。[Zipformer 权重来源记录](../mandarin/zipformer-provenance.json)
 
 FluidAudio 的离线档案模型保留以往测试结果。实际解码器必须在讲话中产生真实文字才能成为实时默认。运行库版本与第三方许可见[发行说明](../../THIRD_PARTY_NOTICES.md)。已发布的逐文件清单和此次实测二进制摘要见[机器记录](bench-identity.json)。
+
+另核对了 Fun-ASR-Nano-2512 和 FluidAudio Parakeet EOU。前者上游公开的增量 SDK 使用 Python / vLLM，另有支持 macOS 的 GGUF 移植；本轮未取得该移植在 Saytile 内按实际速率输出中文临时字的证据。后者原生增量模型限于英语。两者均未占用本轮中文产品对照的名额，厂商的中文分数也未计入上述结果。[Fun-ASR 增量入口](https://github.com/QwenAudio/Fun-ASR#streaming-sdk) · [macOS 移植的模型说明](https://github.com/handy-computer/transcribe.cpp/blob/main/docs/models/fun-asr-nano-2512.md) · [FluidAudio 原生模型能力](https://github.com/FluidInference/FluidAudio#highlights)

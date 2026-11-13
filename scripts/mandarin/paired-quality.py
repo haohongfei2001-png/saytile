@@ -27,6 +27,32 @@ def sha(file):
     return hashlib.sha256(file.read_bytes()).hexdigest()
 
 
+def publication_evidence(manifest, receipts, observations):
+    """A view can reveal one publication in several frames. Count the source as well."""
+    counts, gaps, mismatches = [], [], []
+    def pairs(s): return set(zip(s, s[1:]))
+    for source, path, observed in zip(manifest, receipts, observations, strict=True):
+        receipt = load(path)
+        reference = pairs(base["norm"](source["reference"]))
+        times = []
+        previous = set()
+        for item in receipt["publications"]:
+            current = pairs(base["norm"](item["text"]))
+            if observed["onset"] <= item["t"] < min(observed["active_end"], receipt["endOfFile"]):
+                if (current - previous) & reference:
+                    times.append(item["t"])
+            previous = current
+        counts.append(len(times))
+        gaps.extend(right - left for left, right in zip(times, times[1:]))
+        archived = "".join(reversed(receipt["archive"]))
+        latest = [(receipt[field][-1]["text"] if receipt[field] else "") for field in ("publications", "frames")]
+        if not archived or any(archived != text for text in latest):
+            mismatches.append(source["id"])
+    return {"clips_with_two_or_more_meaningful_publications": sum(n >= 2 for n in counts),
+            "range_of_meaningful_publications": [min(counts), max(counts)],
+            "publication_gap_seconds": base["quant"](gaps), "verbatim_final_mismatches": mismatches}
+
+
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("--receipts", type=Path, required=True)
@@ -55,6 +81,7 @@ def main():
                     failures.append({"id": ref["id"], "exit_code": frames["exit_code"],
                                      "providers": frames["providers"]})
             result["failed_or_empty"] = failures
+            result["publication_evidence"] = publication_evidence(panel, panels, result["rows"])
             summary["panels"][model] = result
         for method in ["direct", "product"]:
             reports = {}
