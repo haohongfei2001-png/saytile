@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 import AVFoundation
+import CloudKit
 @testable import SaytileKit
 
 private actor IsolatedArchiveTransport: PrivateArchiveTransport {
@@ -9,6 +10,9 @@ private actor IsolatedArchiveTransport: PrivateArchiveTransport {
     let files: URL
     var failDownload = false
     var failUpload = false
+    var expired = false
+    var recentCursors: [String?] = []
+    func expire() { expired = true; recentCursors = [] }
     private(set) var uploads = 0
     init(_ directory: URL) { files = directory }
     func account() -> String { "isolated-fixture-account" }
@@ -16,6 +20,8 @@ private actor IsolatedArchiveTransport: PrivateArchiveTransport {
         failDownload = download; failUpload = upload
     }
     func changes(after cursor: String?) throws -> (items: [PrivateArchive], cursor: String, more: Bool) {
+        recentCursors.append(cursor)
+        if expired { expired = false; throw ArchiveIssue.cursorExpired }
         let at = Int(cursor ?? "0") ?? 0
         let end = min(at + 2,log.count)
         return (log[at..<end].compactMap { records[$0] },String(end),end < log.count)
@@ -165,5 +171,43 @@ extension PrivateArchiveTests {
             #expect(Set(copies).isSuperset(of: ["甲的草稿","乙的草稿"]))
             #expect(try await store.recording(id: id)?.text == "第一个原句")
         }
+    }
+}
+
+extension PrivateArchiveTests {
+    @Test func expiredTokenRescansAnExistingZoneWithoutTreatingItAsFirstLaunch() async throws {
+        let f = CloudArchiveFixture(); defer { f.clean() }
+        let store = try f.store("local")
+        let wire = IsolatedArchiveTransport(f.directory.appendingPathComponent("wire"))
+        let sync = PrivateArchiveSync(store: store,remote: wire)
+        _ = try await f.append(store,time: 1700000789,text: "已有档案")
+        try await sync.synchronize { _ in }
+        await wire.expire()
+        try await sync.synchronize { _ in }
+        let requested = await wire.recentCursors
+        #expect(requested.count == 2 && requested[0] != nil && requested[1] == "")
+        #expect(await wire.uploads == 1)
+    }
+
+    @Test func nativeCloudKitRecordRejectsCorruptDigestAndStoresLargeVersionsAsAssets() throws {
+        let id = UUID()
+        let zone = CKRecordZone.ID(zoneName: "isolated-record",ownerName: CKCurrentUserDefaultName)
+        let record = CKRecord(recordType: ArchiveCloudRecord.type,recordID: .init(recordName: id.uuidString,zoneID: zone))
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: dir,withIntermediateDirectories: false)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        var manifest = PrivateArchive(format: 1,id: id,started: 1,ended: 2,day: "2001-01-01",offset: 0,
+            group: .init(start: 1,day: "2001-01-01",offset: 0),sampleRate: 16000,head: nil,pinned: false,
+            deleted: false,audioDeleted: false,versions: [],chunks: [])
+        try ArchiveCloudRecord.setManifest(try manifest.encoded(),parts: 0,on: record,staging: dir)
+        #expect(try ArchiveCloudRecord.manifest(in: record) == manifest)
+        #expect(record["manifest"] is Data)
+        let version = PrivateArchive.Version(id: UUID(),text: String(repeating: "隔离稿件",count: 40000),origin: .userEdit,created: 2,attempt: nil,base: nil)
+        manifest.head = version.id; manifest.versions = [version]
+        try ArchiveCloudRecord.setManifest(try manifest.encoded(),parts: 0,on: record,staging: dir)
+        #expect(record["manifestFile"] is CKAsset)
+        #expect(try ArchiveCloudRecord.manifest(in: record) == manifest)
+        record["manifestSHA256"] = "corrupt"
+        #expect(throws: ArchiveIssue.self) { try ArchiveCloudRecord.manifest(in: record) }
     }
 }

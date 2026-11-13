@@ -21,14 +21,14 @@ public struct PrivateArchiveSync: Sendable {
     func synchronize(report: @Sendable (String) async -> Void) async throws {
         let owner = try await remote.account()
         try await store.enablePrivateArchive(owner: owner)
-        var cursor = try await store.archiveState("cursor").flatMap { $0.isEmpty ? nil : $0 }
+        var cursor = try await store.archiveState("cursor")
         repeat {
             try Task.checkCancellation()
             let page: (items: [PrivateArchive], cursor: String, more: Bool)
             do { page = try await remote.changes(after: cursor) }
-            catch ArchiveIssue.cursorExpired where cursor != nil {
+            catch ArchiveIssue.cursorExpired where cursor?.isEmpty == false {
                 try await store.setArchiveState("cursor", "")
-                cursor = nil
+                cursor = ""
                 continue
             }
             if !page.items.isEmpty { await report("正在获取档案文字") }

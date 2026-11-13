@@ -58,5 +58,12 @@ entitlements = {
 Path(output).write_bytes(plistlib.dumps(entitlements))
 PY
 cp "$profile" "$app/Contents/embedded.provisionprofile"
+# Hardened library validation requires embedded, in-process frameworks to
+# carry the same Team ID as the app. Sparkle's separately launched helpers
+# keep the signatures supplied by its distribution.
+framework="$app/Contents/Frameworks/Sparkle.framework"
+if [[ -d "$framework" ]]; then
+  codesign --force --options runtime --timestamp=none --sign "$identity" "$framework"
+fi
 codesign --force --options runtime --timestamp=none --sign "$identity" --entitlements "$stage/entitlements.plist" "$app"
 codesign --verify --deep --strict "$app"

@@ -62,12 +62,12 @@ private actor CloudKitArchiveTransport: PrivateArchiveTransport {
     func changes(after cursor: String?) async throws -> (items: [PrivateArchive], cursor: String, more: Bool) {
         let zone = try await currentZone()
         var token: CKServerChangeToken?
-        if let cursor {
+        if let cursor, !cursor.isEmpty {
             guard let bytes = Data(base64Encoded: cursor),
                   let saved = try? NSKeyedUnarchiver.unarchivedObject(ofClass: CKServerChangeToken.self, from: bytes)
             else { throw ArchiveIssue.cursorExpired }
             token = saved
-        } else {
+        } else if cursor == nil {
             do { _ = try await database.recordZone(for: zone) }
             catch let error as CKError where error.code == .zoneNotFound {
                 guard try await currentZone() == zone else { throw ArchiveIssue.accountChanged }
@@ -128,10 +128,11 @@ private actor CloudKitArchiveTransport: PrivateArchiveTransport {
         try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
         defer { try? FileManager.default.removeItem(at: staging) }
         let bytes = try merged.encoded()
+        let sendingAudio = !merged.chunks.isEmpty && merged.chunks != existing?.chunks
         try ArchiveCloudRecord.setManifest(bytes, parts: merged.chunks.count, on: record, staging: staging)
         if merged.audioDeleted {
             record[ArchiveCloudRecord.audio] = nil
-        } else if !merged.chunks.isEmpty && merged.chunks != existing?.chunks {
+        } else if sendingAudio {
             guard merged.chunks == local.chunks, files.count == merged.chunks.count else { throw ArchiveIssue.invalid }
             // Freeze and verify the exact bytes CloudKit will read; deletion or
             // a local recovery race cannot silently upload different audio.
@@ -152,6 +153,12 @@ private actor CloudKitArchiveTransport: PrivateArchiveTransport {
             guard confirmed.recordChangeTag != nil, confirmed.recordID == id,
                   confirmed["manifestSHA256"] as? String == ArchiveCloudRecord.digest(bytes),
                   (confirmed["partCount"] as? NSNumber)?.intValue == merged.chunks.count else { throw ArchiveIssue.invalid }
+            if sendingAudio {
+                guard (confirmed[ArchiveCloudRecord.audio] as? [CKAsset])?.count == merged.chunks.count
+                else { throw ArchiveIssue.invalid }
+            } else if merged.audioDeleted, confirmed[ArchiveCloudRecord.audio] != nil {
+                throw ArchiveIssue.invalid
+            }
             return merged
         } catch let error as CKError where error.code == .serverRecordChanged {
             throw ArchiveIssue.stale
