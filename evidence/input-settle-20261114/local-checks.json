@@ -1,0 +1,23 @@
+[
+  {
+    "source": "0093559 (same tested files as cd41c60f)",
+    "role": "unmodified production, new test",
+    "log_sha256": "f3e5877c2f59d7094fb729a1f442c3aff622ba1f424cb57ea2e3f29d97d1d511",
+    "results": [
+      "✘ Test uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) recorded an issue with 1 argument scenario → \"observed-edit\" at InputTests.swift:111:9: Expectation failed: (input.binding != nil) == (scenario == \"restored\")",
+      "✘ Test uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) recorded an issue with 1 argument scenario → \"restored\" at InputTests.swift:110:9: Expectation failed: result == (scenario == \"restored\" ? .confirmed : .unverified)",
+      "✘ Test uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) recorded an issue with 1 argument scenario → \"restored\" at InputTests.swift:112:37: Expectation failed: readsAfterWrite >= 3",
+      "✘ Test uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) recorded an issue with 1 argument scenario → \"field-changed\" at InputTests.swift:111:9: Expectation failed: (input.binding != nil) == (scenario == \"restored\")",
+      "✘ Test run with 1 test in 1 suite failed after 0.390 seconds with 4 issues."
+    ]
+  },
+  {
+    "source": "0093559 (same tested files as cd41c60f)",
+    "role": "candidate product and new test",
+    "log_sha256": "6d69de44bc327ef790fc0cd9604b6da3f9606e9904704a74c93d2bc65c61e16f",
+    "results": [
+      "✔ Test uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) with 6 test cases passed after 1.736 seconds.",
+      "✔ Test run with 43 tests in 2 suites passed after 1.926 seconds."
+    ]
+  }
+]
