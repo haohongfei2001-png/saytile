@@ -1349,7 +1349,6 @@ final class AppModel: ObservableObject {
             downloadNetworkMonitor = nil
             timer?.cancel(); refreshTask?.cancel()
             privateArchiveTask?.cancel()
-            await privateArchiveTask?.value
             await audio.shutdown()
             await refreshOperation?.value
             do { try await store.close() } catch { notice = error.localizedDescription }

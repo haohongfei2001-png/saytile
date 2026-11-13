@@ -31,6 +31,7 @@ public struct PrivateArchiveSync: Sendable {
                 cursor = ""
                 continue
             }
+            try Task.checkCancellation()
             if !page.items.isEmpty { await report("正在获取档案文字") }
             try await store.stageArchivePage(page.items, cursor: page.cursor)
             cursor = page.cursor
@@ -57,6 +58,7 @@ public struct PrivateArchiveSync: Sendable {
             await report("正在恢复原音 · 已完成 \(audio) 条")
             do {
                 let urls = try await remote.download(manifest)
+                try Task.checkCancellation()
                 try await store.installArchiveAssets(manifest, files: urls)
             } catch {
                 try Self.deferIndividualFailure(error)
@@ -83,6 +85,7 @@ public struct PrivateArchiveSync: Sendable {
                     // Bind a confirmed server response to this generation only. A
                     // pin/edit/erasure made in flight always survives the acknowledgement.
                     let saved = try await remote.upload(occurrence, baseline: baseline, files: files)
+                    try Task.checkCancellation()
                     if saved == occurrence {
                         try await store.acknowledgeArchive(saved,generation: generation)
                     } else {
@@ -104,7 +107,9 @@ public struct PrivateArchiveSync: Sendable {
     }
 
     private static func deferIndividualFailure(_ error: Error) throws {
-        if error is ArchiveIssue || error is StoreError { return }
+        if case ArchiveIssue.invalid = error { return }
+        if case ArchiveIssue.stale = error { return }
+        if error is StoreError { return }
         throw error
     }
     public func run(report: @escaping @Sendable (String) async -> Void) async {

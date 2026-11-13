@@ -33,14 +33,27 @@ extension SaytileStore {
         }
     }
 
+    private func archiveGeneration(_ id: UUID) throws -> Int64? {
+        try db.rows("SELECT generation FROM icloud_outbox WHERE id=?", [.text(id.uuidString)]).first?["generation"].flatMap(Int64.init)
+    }
     func applyArchiveText(_ remote: PrivateArchive) throws {
         try remote.validate()
+        let key = StoreDatabase.Value.text(remote.id.uuidString)
+        // Reuse the store's erasure/lease contract. A deleted remote original
+        // has priority over an old offline replica.
+        if let record = try recording(id: remote.id) {
+            if remote.deleted { try deleteRecord(recordingID: remote.id) }
+            else if remote.audioDeleted && ![AudioState.deleted,.deletePending].contains(record.audioState) {
+                try deleteAudio(recordingID: remote.id)
+            }
+        }
+        // The archive editor also has its own SQLite connection. Check that
+        // nothing was edited during file verification *inside* the write txn.
+        let generation = try archiveGeneration(remote.id)
         let local = try exportArchive(remote.id)
         let merged = try local?.merged(with: remote, baseline: archiveBaseline(remote.id)) ?? remote
-        let key = StoreDatabase.Value.text(merged.id.uuidString)
-        if let local, !local.deleted, merged.deleted { try deleteRecord(recordingID: merged.id) }
-        else if let local, !local.audioDeleted, merged.audioDeleted { try deleteAudio(recordingID: merged.id) }
         try db.transaction {
+            guard try archiveGeneration(remote.id) == generation else { throw ArchiveIssue.stale }
             if local == nil {
                 try db.execute("""
                     INSERT INTO recordings(id,created_at,sample_rate,is_recording,audio_state,recognition_state,deleted)
