@@ -1,0 +1,15 @@
+{
+  "source": "14dae3bc3e90c8d973ee53d3f02b596ef54035b3",
+  "ci_run": 43478152586,
+  "foreground_job": 132067373559,
+  "result": "FAIL",
+  "log_sha256": {
+    "chrome.log": "44edf15ae17a915bbb09b34c62945433af88e74996cc87a9d6965fe01391cf64",
+    "input-foreground-batch.log": "38b42070653054c996fd39df0e173417d7747b2af5f9371e4398eccb76467905",
+    "textedit.log": "80a91cedcadcfe22a6b5da3e40a471525b19ea6e854340c7cbc1f6e38c5821e2"
+  },
+  "textedit": "PASS: actual first/append writes verified, duplicate suppressed; selection change prevented another write.",
+  "wkwebview": "FAIL before first write: correct fixture PID, text/range and observer support. System spell service timed out then targetChanged. No AX write, no first_insert_begin. bindOwnedField also invalidates a live binding from its defer if its own comparison fails. These traces cannot distinguish changed page identity, range/witness, or the failure source. A spell-service timeout alone is not causal proof.",
+  "chrome": "FAIL at before-manual-edit, after ordered first+append writes confirmed by two AX readbacks and independent DOM exact insert/caret/end with zero submits/enter. Selection mutation protected with no extra writes. A later independent setup write returned issued, verified, then had two unsupported AX reads; subsequent manual-edit and target-switch scenarios did not finish.",
+  "interpretation": "No shared fixture ownership collision proved. Scope of the two failures differs; no global retry, forced focus or assertion changes. Mandarin in-panel recognition is independent from cross-app direct delivery."
+}

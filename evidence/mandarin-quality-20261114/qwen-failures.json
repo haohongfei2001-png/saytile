@@ -2,6 +2,23 @@
  "scope": "Top seven historical ABSOLUTE increases in Qwen CER errors on the original 160 FLEURS clips, ranked before considering subsequent outputs. All recordings are public. These are accelerated fixture observations.",
  "historical_source": "a55d51a1ff4711340bc63ea5c8ecd927dd2327d3",
  "candidate_inference_source": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+ "auto_runtime": {
+  "app_source": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+  "difference": "Only Qwen worker forced language Chinese changed to nil; executable and patched source hashes distinguish the experiment from the base revision in Info.plist. No transcript postprocessing.",
+  "worker_source_sha256": "48ef748e06d6157061db571c26095ec30753de9ad72814a60acc1e7ef752b8b9",
+  "app_executable": {
+   "sha256": "9060c554ea1b65701c4d7017a1edfcb754f3210dc7c397f5ddbbcff7baf1e120",
+   "bytes": 10138496
+  },
+  "worker_executable": {
+   "sha256": "33c16ab6a5c801b461d604e007eebb13e40f52ffd8c726556e1226a33be34d27",
+   "bytes": 39255888
+  },
+  "base_worker": {
+   "bytes": 39255952,
+   "sha256": "ece4befeef175208c664e29d786f0851e37ee405393ce930a8d25077069d33ad"
+  }
+ },
  "baseline_inference_source": null,
  "note": "Per-record errors are compacted in reverse-record order, not aligned to the chronological 'states' array. Each VAD replay measured independently on original PCM; no historical per-frame recognizer traces available.",
  "historical_excess_errors_all_original_fleurs": 443,
@@ -10,7 +27,8 @@
  "seven_errors": {
   "historical_direct": 64,
   "historical": 460,
-  "candidate": 72
+  "candidate": 72,
+  "candidate_auto": 67
  },
  "cases": [
   {
@@ -93,6 +111,23 @@
      "qwen-small"
     ]
    },
+   "candidate_auto": {
+    "text": "来自美国普林斯顿大学和瑞典乌萨乌普萨拉大学的研究人员报告称，由于当地特有的达尔文雀的蛹地雀和外来的仙人掌大嘴地雀之间的繁殖，这个新物种只进化了两代。尽管人们认为这一过程需要更长的时间。",
+    "score": {
+     "errors": 4,
+     "substitutions": 1,
+     "deletions": 1,
+     "insertions": 2,
+     "reference_units": 87
+    },
+    "states": [
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   },
    "baseline": null
   },
   {
@@ -160,6 +195,23 @@
    ],
    "candidate": {
     "text": "然而，这些计划几乎在一夜之间被气如碧绿，在违反《加里加和平条约》、《苏联波兰互不侵犯条约》及其他双边及多边国际条约，入侵波兰的东部地区之后，超过80万名苏联红军入境，并在白俄罗斯和乌克兰筑起阵地。",
+    "score": {
+     "errors": 4,
+     "substitutions": 3,
+     "deletions": 0,
+     "insertions": 1,
+     "reference_units": 86
+    },
+    "states": [
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   },
+   "candidate_auto": {
+    "text": "然而，这些计划几乎在一夜之间被气如碧绿，在违反《加里加和平条约》《苏联波兰互不侵犯条约》及其他双边及多边国际条约，入侵波兰的东部地区之后，超过80万名苏联红军入境，并在白俄罗斯和乌克兰筑起阵地。",
     "score": {
      "errors": 4,
      "substitutions": 3,
@@ -267,6 +319,23 @@
      "qwen-small"
     ]
    },
+   "candidate_auto": {
+    "text": "其他提名包括最佳影片、最佳导演、最佳摄影、最佳服装设计、最佳电影剪辑、最佳原创配乐、最佳艺术指导、最佳音效剪辑、最佳混音和最佳原创剧本。",
+    "score": {
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 59
+    },
+    "states": [
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   },
    "baseline": null
   },
   {
@@ -333,6 +402,23 @@
     }
    ],
    "candidate": {
+    "text": "佩里表示他会返回德克萨斯，评估今晚党团会议的结果，明确表示，明确自己在这次较量中是否有胜算的余地。但后来他又表示会继续参加竞选，并参加于一月二十一日在南卡罗来纳州举行的初选。",
+    "score": {
+     "errors": 10,
+     "substitutions": 5,
+     "deletions": 0,
+     "insertions": 5,
+     "reference_units": 76
+    },
+    "states": [
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   },
+   "candidate_auto": {
     "text": "佩里表示他会返回德克萨斯，评估今晚党团会议的结果，明确表示，明确自己在这次较量中是否有胜算的余地。但后来他又表示会继续参加竞选，并参加于一月二十一日在南卡罗来纳州举行的初选。",
     "score": {
      "errors": 10,
@@ -445,6 +531,23 @@
      "qwen-small"
     ]
    },
+   "candidate_auto": {
+    "text": "现任议员阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·克克纳，昨晚在距离布伊诺斯爱丽丝五十公里三十英里的拉布拉塔市，宣布了其总统竞选资格。",
+    "score": {
+     "errors": 45,
+     "substitutions": 10,
+     "deletions": 35,
+     "insertions": 0,
+     "reference_units": 96
+    },
+    "states": [
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   },
    "baseline": null
   },
   {
@@ -544,6 +647,24 @@
      "qwen-small"
     ]
    },
+   "candidate_auto": {
+    "text": "表演开始五分钟后，刮起了风。约一分钟后，风速达到了七十公里每小时。紧接着又下起了雨，雨势如此之大，像针扎一样拍打在皮肤上。随后天上下起了冰雹，惊慌失措的人群尖叫着四散奔逃。",
+    "score": {
+     "errors": 3,
+     "substitutions": 2,
+     "deletions": 0,
+     "insertions": 1,
+     "reference_units": 76
+    },
+    "states": [
+     "completed",
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   },
    "baseline": null
   },
   {
@@ -626,6 +747,24 @@
     }
    ],
    "candidate": {
+    "text": "恐龙的羽毛并没有发育良好的主干。这成为羽轴，但还是有羽毛的其他特征，比如羽枝和羽小枝。研究人员推断，羽轴的进化可能比这些其他特征晚。",
+    "score": {
+     "errors": 1,
+     "substitutions": 1,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 60
+    },
+    "states": [
+     "completed",
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   },
+   "candidate_auto": {
     "text": "恐龙的羽毛并没有发育良好的主干。这成为羽轴，但还是有羽毛的其他特征，比如羽枝和羽小枝。研究人员推断，羽轴的进化可能比这些其他特征晚。",
     "score": {
      "errors": 1,

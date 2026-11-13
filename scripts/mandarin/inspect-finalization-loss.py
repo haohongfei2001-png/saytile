@@ -44,6 +44,7 @@ def main():
         base = evidence / "baseline/runs/paired-qwen-small-product.jsonl"
         args.baseline = [base] if base.exists() else []
     earlier = records(args.baseline)
+    auto = records([evidence / "unforced/runs/paired-qwen-small-product.jsonl"])
     segmentation = records([evidence / "segmentation-frames.jsonl"])
     replay = json.loads((evidence / "historical-qwen-vad.json").read_bytes())
     refs = json.loads((root / "evidence/mandarin/paired.json").read_bytes())
@@ -60,6 +61,7 @@ def main():
         old_direct, old_product = [measured(paths[m][key], r["reference"], m)
                                    for m in ["direct", "product"]]
         new = measured(final[key], r["reference"], "product")
+        auto_result = measured(auto[key], r["reference"], "product")
         seg = segmentation[key]
         assert seg["wav_sha256"] == r["audio_sha256"] == replay[key]["wav_sha256"]
         old_seg = replay[key]["segments"]
@@ -68,13 +70,14 @@ def main():
                           reference=r["reference"], historical=old_product,
                           historical_direct=old_direct, historical_product_additional_errors=difference,
                           historical_segments=old_seg, baseline_segments=seg["baseline"],
-                          candidate_segments=seg["candidate"], candidate=new,
+                          candidate_segments=seg["candidate"], candidate=new, candidate_auto=auto_result,
                           baseline=measured(earlier[key], r["reference"], "product") if earlier else None))
     totals = {name: sum(x[name]["score"]["errors"] for x in cases) for name in
-              ["historical_direct", "historical", "candidate"] + (["baseline"] if earlier else [])}
+              ["historical_direct", "historical", "candidate", "candidate_auto"] + (["baseline"] if earlier else [])}
     output = dict(scope="Top seven historical ABSOLUTE increases in Qwen CER errors on the original 160 FLEURS clips, ranked before considering subsequent outputs. All recordings are public. These are accelerated fixture observations.",
                   historical_source=json.loads((history / "comparison.json").read_bytes())["app_source"],
                   candidate_inference_source="d2da53545fc51e65c5f893cfb9dec92000e0f873",
+                  auto_runtime=json.loads((evidence / "bench-identity.json").read_bytes())["unforced_comparison"],
                   baseline_inference_source="a4f9f08656d1a22d2e0b6c59ad60e36452881010" if earlier else None,
                   note="Per-record errors are compacted in reverse-record order, not aligned to the chronological 'states' array. Each VAD replay measured independently on original PCM; no historical per-frame recognizer traces available.",
                   historical_excess_errors_all_original_fleurs=sum(d[0] for d in differences),
