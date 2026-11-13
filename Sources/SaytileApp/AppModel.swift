@@ -246,6 +246,7 @@ final class AppModel: ObservableObject {
     var hasUnappliedRecognitionSettings: Bool { recognitionConfiguration != appliedRecognitionConfiguration }
     @Published var recognitionSettingsNotice: String?
     @Published var modelCallSummary: [String] = []
+    @Published private(set) var lastASR: String?
     @Published var directMode = false
     @Published private(set) var insertionLabels: [UUID: String] = [:]
     @Published var targetLabel = "在目标草稿中放置光标，再绑定"
@@ -368,7 +369,7 @@ final class AppModel: ObservableObject {
         panelBorderVisible = preferences.object(forKey: "panelBorderVisible") as? Bool ?? true
         floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
         launchAtLogin = canManageLoginItem && SMAppService.mainApp.status == .enabled
-        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? ([.designExperience, .sharedVoicePreview].contains(SaytileStorageProfile.current) ? "disabled" : "option-space")
+        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? ([.designExperience, .sharedVoicePreview, .mandarinCandidate].contains(SaytileStorageProfile.current) ? "disabled" : "option-space")
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
         initializing = false
         hosted.bind { [weak self] route, revoke in
@@ -1246,6 +1247,8 @@ final class AppModel: ObservableObject {
                 lastModelCallRefresh = Date.now
                 let summary = try await store.modelCallSummaries(limit: 30)
                 if modelCallSummary != summary { modelCallSummary = summary }
+                let actual = try await store.lastASREngine()
+                if lastASR != actual { lastASR = actual }
             }
             if Date.now.timeIntervalSince(lastStorageRefresh) > 60 {
                 lastStorageRefresh = Date.now

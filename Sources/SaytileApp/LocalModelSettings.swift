@@ -12,6 +12,10 @@ struct LocalModelSettings: View {
 
     var body: some View {
         Section("本机识别使用的模型") {
+            if let last = model.lastASR {
+                LabeledContent("最近一次实际识别", value: last)
+                    .accessibilityIdentifier("models.lastActualEngine")
+            }
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text("Apple 中文识别").font(.body.weight(.medium))

@@ -116,11 +116,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             } else {
                 directory = SaytileStorageProfile.current.archiveDirectory
                 if SaytileStorageProfile.current != .standard { try DiagnosticDirectory.validate(directory: directory) }
-                if SaytileStorageProfile.current == .designExperience || SaytileStorageProfile.current == .sharedVoicePreview {
+                if [.designExperience, .sharedVoicePreview, .mandarinCandidate].contains(SaytileStorageProfile.current) {
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.personal.archiveDirectory)
                 }
-                if SaytileStorageProfile.current == .sharedVoicePreview {
+                if [.sharedVoicePreview, .mandarinCandidate].contains(SaytileStorageProfile.current) {
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.designExperience.archiveDirectory)
+                }
+                if SaytileStorageProfile.current == .mandarinCandidate {
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.sharedVoicePreview.archiveDirectory)
                 }
             }
             if isDiagnostic || directoryIndex != nil {
@@ -131,6 +134,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                     let preview = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
                         .appendingPathComponent("Saytile Timeline Preview", isDirectory: true)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: preview)
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.mandarinCandidate.archiveDirectory)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.sharedVoicePreview.archiveDirectory)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.designExperience.archiveDirectory)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.personal.archiveDirectory)
