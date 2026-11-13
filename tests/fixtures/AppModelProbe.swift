@@ -164,6 +164,16 @@ struct AppModelProbe {
         model.recordFilter = .pinned
         await model.refresh()
         try require(model.records.map(\.id) == [old.id], "archive pinned filter reaches store")
+        await model.selectForEditing(DisplayRecording(source: old))
+        model.updateEditorDraft("收藏筛选中的草稿")
+        await model.toggleFavorite(old.id)
+        try require(model.records.isEmpty && model.selected == nil, "removing the last favorite closes its detail in the filtered list")
+        _ = await model.flushEditorDrafts()
+        try require(try await model.store.loadDraft(recordingID: old.id) == "收藏筛选中的草稿", "leaving the favorites list preserves unsaved edits")
+        model.includeUntranscribed(true)
+        model.toggleFavoriteFilter()
+        model.toggleFavoriteFilter()
+        try require(model.recordFilter == .all, "the star returns to the previous archive scope")
         model.recordFilter = .all; model.query = "历史测试乙"
         await model.refresh()
         try require(model.records.map(\.id) == [other.id], "archive search reaches store without mixing pages")

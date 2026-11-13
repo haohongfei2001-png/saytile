@@ -116,7 +116,7 @@ import ApplicationServices
             defer { if !dismissed { _ = AXUIElementPerformAction(menu, kAXCancelAction as CFString) } }
             let items = children(menu, pid: pid)
             let titles = items.compactMap { attr($0, kAXTitleAttribute) as? String }
-            let destinations: Set<String> = [expected, "语音档案", "设置…", "退出 Saytile"]
+            let destinations: Set<String> = [expected, "语音档案与设置…", "退出 Saytile"]
             let menuTitles = Set(titles.filter { !$0.isEmpty })
             guard destinations.isSubset(of: menuTitles),
                   menuTitles.isSubset(of: destinations.union(["检查更新…"])),

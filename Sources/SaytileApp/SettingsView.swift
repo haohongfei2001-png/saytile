@@ -3,70 +3,102 @@ import SwiftUI
 import SaytileKit
 
 enum SettingsPage: String, CaseIterable, Identifiable {
-    case speech, models, cloud, input, storage, about
+    case archive, speech, models, cloud, input, storage, about
     var id: Self { self }
     var title: String { switch self {
-    case .speech: "麦克风"; case .models: "本地模型"; case .cloud: "云端服务"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .about: "关于"
+    case .archive: "语音档案"; case .speech: "麦克风"; case .models: "本地模型"; case .cloud: "云端服务"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .about: "关于"
     } }
     var symbol: String { switch self {
-    case .speech: "mic"; case .models: "cpu"; case .cloud: "cloud"; case .input: "keyboard"; case .storage: "internaldrive"; case .about: "info.circle"
+    case .archive: "tray.full"; case .speech: "mic"; case .models: "cpu"; case .cloud: "cloud"; case .input: "keyboard"; case .storage: "internaldrive"; case .about: "info.circle"
     } }
+}
+
+@MainActor
+final class WorkspaceNavigation: ObservableObject {
+    @Published var page: SettingsPage {
+        didSet { if page != oldValue { didNavigate?() } }
+    }
+    var didNavigate: (() -> Void)?
+    init(_ page: SettingsPage = .archive) { self.page = page }
 }
 
 struct SettingsView: View {
     @ObservedObject var model: AppModel
-    @ViewState private var page: SettingsPage
+    @StateObject private var navigation: WorkspaceNavigation
     @ViewState private var cloudService: CloudSettingsService
-    init(model: AppModel, initialPage: SettingsPage = .speech, initialCloudService: CloudSettingsService? = nil) {
-        self.model = model; _page = ViewState(initialValue: initialPage)
+    init(model: AppModel, initialPage: SettingsPage = .archive, initialCloudService: CloudSettingsService? = nil,
+         navigation: WorkspaceNavigation? = nil) {
+        self.model = model
+        _navigation = StateObject(wrappedValue: navigation ?? WorkspaceNavigation(initialPage))
         _cloudService = ViewState(initialValue: initialCloudService ?? (!model.deviceOnly && !model.hosted.selected ? .byok : .hosted))
     }
     @ViewState private var cleanup = false
+    private var page: SettingsPage { navigation.page }
     private var version: String { (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String).map { "内测 \($0)" } ?? "开发构建" }
     var body: some View {
         GeometryReader { geo in
+            let compact = geo.size.width < 640
             HStack(spacing: 0) {
-                if geo.size.width >= 640 {
-                    VStack(alignment: .leading, spacing: 3) {
-                        WorkspaceBrand(showsName: false).padding(.leading, 9).padding(.vertical, 18).padding(.bottom, 7)
+                if !compact {
+                    VStack(alignment: .leading, spacing: 2) {
+                        WorkspaceBrand().frame(maxWidth: .infinity).padding(.vertical, 16)
                         ForEach(SettingsPage.allCases) { item in
-                            WorkspaceNavRow(title: item.title, symbol: item.symbol, selected: page == item) { page = item }
+                            WorkspaceNavRow(title: item.title, symbol: item.symbol, selected: page == item) { navigation.page = item }
                                 .accessibilityIdentifier("settings.page." + item.rawValue)
                         }
-                        Spacer()
-                    }.padding(.horizontal, 12).padding(.top, 4).frame(width: 164).background(.regularMaterial)
+                        Spacer(minLength: 0)
+                    }.padding(.horizontal, 10).frame(width: 164).background(.regularMaterial)
                     Divider()
                 }
                 VStack(alignment: .leading, spacing: 0) {
-                    if geo.size.width < 640 {
-                        HStack { WorkspaceBrand(showsName: false); Spacer(); Picker("设置项目", selection: $page) {
-                            ForEach(SettingsPage.allCases) { Text($0.title).tag($0) }
-                        }.labelsHidden().fixedSize().accessibilityIdentifier("settings.navigation") }
-                            .padding(.horizontal, 24).padding(.top, 16)
+                    if compact {
+                        ZStack(alignment: .leading) {
+                            WorkspaceBrand(compact: true).frame(maxWidth: .infinity)
+                            Menu {
+                                ForEach(SettingsPage.allCases) { item in
+                                    Button { navigation.page = item } label: {
+                                        if page == item { Label(item.title, systemImage: "checkmark") }
+                                        else { Text(item.title) }
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "sidebar.left")
+                                    .frame(width: 32, height: 30).contentShape(Rectangle())
+                            }
+                            .fixedSize().menuStyle(.borderlessButton).menuIndicator(.hidden)
+                            .accessibilityLabel("选择页面").accessibilityValue(page.title)
+                            .accessibilityIdentifier("settings.navigation").help("选择页面")
+                        }.padding(.horizontal, 16).frame(height: 44)
+                        Divider()
                     }
-                    Text(page.title).font(WorkspaceStyle.title).accessibilityAddTraits(.isHeader)
-                        .padding(.horizontal, 24).padding(.top, geo.size.width < 640 ? 15 : 25).padding(.bottom, 6)
-                    if let notice = model.notice, page != .speech || notice != model.panelCaptureDetail {
-                        Text(notice).font(.callout).foregroundStyle(.secondary).textSelection(.enabled)
-                            .padding(.horizontal, 24).padding(.top, 6).accessibilityIdentifier("settings.notice")
-                    }
-                    Form {
-                        switch page {
-                        case .speech: speech
-                        case .models: LocalModelSettings(model: model)
-                        case .cloud: cloud
-                        case .input: input
-                        case .storage: storage
-                        case .about: about
+                    if page == .archive {
+                        ArchiveView(model: model)
+                    } else {
+                        Text(page.title).font(WorkspaceStyle.title).accessibilityAddTraits(.isHeader)
+                            .padding(.horizontal, 24).padding(.top, compact ? 15 : 25).padding(.bottom, 6)
+                        if let notice = model.notice, page != .speech || notice != model.panelCaptureDetail {
+                            Text(notice).font(.callout).foregroundStyle(.secondary).textSelection(.enabled)
+                                .padding(.horizontal, 24).padding(.top, 6).accessibilityIdentifier("settings.notice")
                         }
-                    }.formStyle(.grouped).scrollContentBackground(.hidden).id(page)
+                        Form { settingsContent }.formStyle(.grouped).scrollContentBackground(.hidden).id(page)
+                    }
                 }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
         }.background(WorkspaceStyle.background).foregroundStyle(WorkspaceStyle.foreground).tint(WorkspaceStyle.accent)
-            .onReceive(NotificationCenter.default.publisher(for: .init("SaytileOpenStorageSettings"))) { _ in page = .storage }
             .confirmationDialog("清理 \(model.cleanupCount) 条已识别、未收藏且超过 30 天的原音？已保存的文字会保留。", isPresented: $cleanup, titleVisibility: .visible) {
                 Button("清理这些原音", role: .destructive, action: model.performCleanup).disabled(model.cleanupCount == 0)
             }
+    }
+    @ViewBuilder private var settingsContent: some View {
+        switch page {
+        case .archive: EmptyView()
+        case .speech: speech.onAppear { model.audio.refreshDevices() }
+        case .models: LocalModelSettings(model: model)
+        case .cloud: cloud
+        case .input: input
+        case .storage: storage
+        case .about: about
+        }
     }
     @ViewBuilder private var speech: some View {
         Section {
@@ -138,7 +170,7 @@ struct SettingsView: View {
             Button(model.preparingCleanup ? "正在查找原音…" : "预览可清理的原音…") { Task { cleanup = await model.previewCleanup() } }.disabled(model.preparingCleanup)
             Text("可清理 30 天前已识别且未收藏的原音。").font(.callout).foregroundStyle(.secondary)
         }
-        Section("档案") { Button("打开语音档案", action: model.openArchive); Button("在 Finder 中显示资料目录", action: model.revealData) }
+        Section { Button("在 Finder 中显示资料目录", action: model.revealData) }
     }
     @ViewBuilder private var about: some View {
         Section {

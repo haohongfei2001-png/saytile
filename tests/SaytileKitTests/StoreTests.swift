@@ -126,6 +126,27 @@ private struct Fixture {
     #expect(try await f.store.listRecordings(query: "修改前", filter: .transcribed).first?.text == paragraph)
 }
 
+@Test func archiveStarsToggleDurablyOnExistingAndAudioOnlyRecords() async throws {
+    let f = try Fixture()
+    defer { f.clean() }
+    let existing = try await f.record(text: "历史语音")
+    let audioOnly = try await f.record(text: "")
+    try await f.store.setPinned(recordingID: existing.id, pinned: true)
+    #expect(try await f.store.togglePinned(recordingID: audioOnly.id))
+    async let first = f.store.togglePinned(recordingID: existing.id)
+    async let second = f.store.togglePinned(recordingID: existing.id)
+    let rapidChanges = try await [first, second]
+    #expect(Set(rapidChanges) == [false, true])
+    try await f.store.close()
+    let reopened = try SaytileStore(directory: f.directory)
+    let favorites = try await reopened.listRecordings(filter: .pinned)
+    #expect(Set(favorites.map(\.id)) == [existing.id, audioOnly.id])
+    #expect(try await reopened.listRecordings(query: "历史", filter: .pinned).map(\.id) == [existing.id])
+    #expect(try await reopened.togglePinned(recordingID: audioOnly.id) == false)
+    #expect(try await reopened.recording(id: audioOnly.id)?.audioState == .available)
+    try await reopened.close()
+}
+
 @Test func storeSearchEscapesLikeAndBindsSQL() async throws {
     let f = try Fixture(); defer { f.clean() }
     _ = try await f.record(text:"100% _ ' OR 1=1 --")

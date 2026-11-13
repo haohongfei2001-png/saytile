@@ -31,20 +31,19 @@ enum WorkspaceStyle {
 }
 
 struct WorkspaceBrand: View {
-    var showsName = true
+    var compact = false
     var body: some View {
-        HStack(spacing: 9) {
+        Group {
             if let mark = SaytileBrand.mark {
                 Image(nsImage: mark).resizable().interpolation(.high).aspectRatio(contentMode: .fit)
-                    .frame(width: 28, height: 32).accessibilityHidden(true)
-            }
-            if showsName || SaytileBrand.mark == nil {
-                Text("Saytile").font(.system(size: 18, weight: .semibold))
+                    .frame(width: compact ? 22 : 32, height: compact ? 24 : 36)
+            } else {
+                Text("Saytile").font(.headline)
             }
         }
-        .foregroundStyle(WorkspaceStyle.foreground)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Saytile")
+        .accessibilityIdentifier("workspace.brand")
     }
 }
 
@@ -59,7 +58,7 @@ struct WorkspaceNavRow: View {
                 Image(systemName: symbol).frame(width: 19).foregroundStyle(selected ? WorkspaceStyle.accent : .secondary)
                 Text(title).font(.system(size: 13, weight: selected ? .semibold : .regular))
                 Spacer(minLength: 0)
-            }.padding(.horizontal, 10).frame(height: 34)
+            }.padding(.horizontal, 10).frame(maxWidth: .infinity).frame(height: 34)
                 .background(selected ? WorkspaceStyle.selection : .clear, in: RoundedRectangle(cornerRadius: 7))
                 .contentShape(Rectangle())
         }.buttonStyle(.plain).accessibilityLabel(title).accessibilityAddTraits(selected ? .isSelected : [])
@@ -74,6 +73,7 @@ struct QuietButton: ButtonStyle {
             .padding(.horizontal, 13).padding(.vertical, 8)
             .foregroundStyle(prominent ? .white : WorkspaceStyle.foreground)
             .background(prominent ? Palette.accent : WorkspaceStyle.selection, in: RoundedRectangle(cornerRadius: 8))
+            .contentShape(Rectangle())
             .opacity(!isEnabled ? 0.38 : configuration.isPressed ? 0.7 : 1)
     }
 }

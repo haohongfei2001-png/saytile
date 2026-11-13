@@ -34,8 +34,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     private var trackingStatusMenu = false
     private var panel: VoicePanel?
     private var voiceEntry: VoiceEntryPanel?
-    private var archive: NSWindow?
-    private var settings: NSWindow?
+    private var workspace: NSWindow?
+    private let workspaceNavigation = WorkspaceNavigation()
     private var connectionSetupWindow: NSWindow?
     private var hotKey: EventHotKeyRef?
     private var eventHandler: EventHandlerRef?
@@ -184,11 +184,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             }
             model.openPanel = { [weak self] in self?.explicitlyShowPanel() }
             model.hidePanel = { [weak self] in self?.explicitlyHidePanel() }
-            model.openArchive = { [weak self] in self?.showArchive() }
-            model.openSettings = { [weak self] in self?.showSettings() }
-            model.openStorageSettings = { [weak self] in
-                self?.presentSettings(storage: true)
-            }
+            model.openArchive = { [weak self] in self?.presentWorkspace(.archive) }
+            model.openSettings = { [weak self] in self?.openWorkspace() }
             if let index = CommandLine.arguments.firstIndex(of: "--single-asr-probe"), CommandLine.arguments.count > index + 1 {
                 Task {
                     // Finish startup reconciliation before importing this new attempt.
@@ -387,13 +384,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         }
     }
     func windowDidBecomeKey(_ notification: Notification) {
-        if let window = notification.object as? NSWindow, window === archive { model?.archiveIsKey = true }
+        if let window = notification.object as? NSWindow, window === workspace { updateArchiveFocus() }
     }
     func windowDidResignKey(_ notification: Notification) {
-        if let window = notification.object as? NSWindow, window === archive { model?.archiveIsKey = false }
+        if let window = notification.object as? NSWindow, window === workspace { model?.archiveIsKey = false }
     }
     func windowWillClose(_ notification: Notification) {
-        if let window = notification.object as? NSWindow, window === archive { model?.closeDetail() }
+        if let window = notification.object as? NSWindow, window === workspace {
+            model?.archiveIsKey = false
+            Task { _ = await model?.flushEditorDrafts() }
+        }
         if let window = notification.object as? NSWindow, window === connectionSetupWindow { NSApp.terminate(nil) }
     }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
@@ -437,7 +437,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             await model?.prepareForExit()
             if model?.hasUnpersistedDrafts == true {
                 shutdownStarted = false
-                showPanel()
+                presentWorkspace(.archive)
                 return
             }
             terminating = true
@@ -501,7 +501,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             menu.addItem(.separator())
         }
         let panelVisible = panel?.isVisible == true
-        let items: [(String, Selector)] = [(panelVisible ? "收起语音板" : "显示语音板", panelVisible ? #selector(explicitlyHidePanel) : #selector(explicitlyShowPanel)), ("语音档案", #selector(showArchive)), ("设置…", #selector(showSettings))]
+        let items: [(String, Selector)] = [(panelVisible ? "收起语音板" : "显示语音板", panelVisible ? #selector(explicitlyHidePanel) : #selector(explicitlyShowPanel)), ("语音档案与设置…", #selector(openWorkspace))]
         for (title, selector) in items { let item = NSMenuItem(title: title, action: selector, keyEquivalent: ""); item.target = self; menu.addItem(item) }
         menu.addItem(.separator())
         #if canImport(Sparkle)
@@ -585,30 +585,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         }
         voiceEntry?.orderFrontRegardless()
     }
-    @objc func showArchive() {
-        guard let model else { return }
-        if archive == nil {
-            archive = makeWindow(title: "Saytile · 语音档案", width: 1000, height: 650, view: ArchiveView(model: model))
-            archive?.delegate = self
-            archive?.minSize = NSSize(width: 550, height: 460)
-        }
-        archive?.minSize = NSSize(width: 550, height: 460)
-        restoreVisibleWindows()
-        NSApp.activate(ignoringOtherApps: true); archive?.makeKeyAndOrderFront(nil)
+    @objc private func openWorkspace() { presentWorkspace(nil) }
+
+    private func presentWorkspace(_ page: SettingsPage?) {
+        guard let window = workspaceWindow(for: page) else { return }
+        restoreWorkspaceFrame()
+        if window.isMiniaturized { window.deminiaturize(nil) }
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
     }
-    @objc func showSettings() { presentSettings(storage: false) }
-    private func presentSettings(storage: Bool) {
-        guard let model else { return }
-        model.audio.refreshDevices()
-        if settings == nil {
-            settings = makeWindow(title: "设置", width: 780, height: 610, view: SettingsView(model: model, initialPage: storage ? .storage : .speech))
-        } else if storage {
-            NotificationCenter.default.post(name: .init("SaytileOpenStorageSettings"), object: nil)
-        }
-        settings?.minSize = NSSize(width: 500, height: 450)
-        restoreVisibleWindows()
-        NSApp.activate(ignoringOtherApps: true); settings?.makeKeyAndOrderFront(nil)
+
+    func workspaceWindow(for page: SettingsPage?) -> NSWindow? {
+        guard let model else { return nil }
+        if let page, page != workspaceNavigation.page { workspaceNavigation.page = page }
+        if let workspace { return workspace }
+        let window = makeWindow(title: "语音档案与设置", width: 1000, height: 650,
+                                view: SettingsView(model: model, navigation: workspaceNavigation))
+        window.delegate = self
+        window.minSize = NSSize(width: 500, height: 450)
+        // Only a regular launch persists a window frame in this application's defaults.
+        if diagnosticPreferencesSuite == nil { window.setFrameAutosaveName("SaytileWorkspace") }
+        workspace = window
+        workspaceNavigation.didNavigate = { [weak self] in self?.updateArchiveFocus() }
+        return window
     }
+
+    private func updateArchiveFocus() {
+        guard let model else { return }
+        let isKey = workspace?.isKeyWindow == true && workspaceNavigation.page == .archive
+        guard isKey != model.archiveIsKey else { return }
+        model.archiveIsKey = isKey
+        if isKey { Task { await model.refresh() } }
+    }
+
+    private func restoreWorkspaceFrame() {
+        guard let window = workspace else { return }
+        let size = NSSize(width: max(window.frame.width, window.minSize.width), height: max(window.frame.height, window.minSize.height))
+        let frame = WindowPlacement.restored(NSRect(origin: window.frame.origin, size: size), visibleFrames: NSScreen.screens.map(\.visibleFrame))
+        if window.frame != frame { window.setFrame(frame, display: window.isVisible) }
+    }
+
     private func makeWindow<V: View>(title: String, width: CGFloat, height: CGFloat, view: V) -> NSWindow {
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = title; window.isReleasedWhenClosed = false
@@ -616,15 +632,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         return window
     }
     private func restoreVisibleWindows(applySavedPlacement: Bool = false) {
-        let frames = NSScreen.screens.map(\.visibleFrame)
         if applySavedPlacement, let screen = NSScreen.screens.first ?? NSScreen.main {
             restorePanel(preferred: savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame))
         } else { restorePanel() }
         updateFloatingEntry()
-        for window in [archive, settings].compactMap({ $0 }) {
-            let size = NSSize(width: max(window.frame.width, window.minSize.width), height: max(window.frame.height, window.minSize.height))
-            window.setFrame(WindowPlacement.restored(NSRect(origin: window.frame.origin, size: size), visibleFrames: frames), display: true)
-        }
+        restoreWorkspaceFrame()
     }
     private func restorePanel(preferred: NSRect? = nil) {
         guard let panel, !positioningPanel else { return }
@@ -660,9 +672,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     }
     private func renderPreview(model: AppModel, path: String) {
         if CommandLine.arguments.contains("--preview-archive") {
-            renderView(ArchiveView(model: model).preferredColorScheme(.light), width: 1040, height: 720, path: path)
+            renderView(SettingsView(model: model, initialPage: .archive).preferredColorScheme(.light), width: 1040, height: 720, path: path)
         } else if CommandLine.arguments.contains("--preview-settings") {
-            renderView(SettingsView(model: model).preferredColorScheme(.light), width: 650, height: 740, path: path)
+            renderView(SettingsView(model: model, initialPage: .speech).preferredColorScheme(.light), width: 650, height: 740, path: path)
         } else {
             renderView(InputPanelView(model: model).preferredColorScheme(.light), width: 400, height: 550, path: path)
         }

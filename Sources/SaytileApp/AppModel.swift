@@ -33,7 +33,7 @@ struct DisplayRecording: Identifiable, Equatable {
         case .available:
             if source.isRecording { return "正在接收讲话…" }
             if !hasAudio { return "尚无转写文字或可回听的原音。" }
-            if source.recognitionState == .failed { return "原音已保存，文字等待恢复。" }
+            if source.recognitionState == .failed { return "尚未转写，可回听或重新识别。" }
             if source.recognitionState == .completed { return "原音已保存，未检测到可识别的文字。" }
             return "原音已保存，等待识别…"
         }
@@ -189,6 +189,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var editorDraftLoading = false
     @Published private(set) var savingEditorChanges = false
     @Published private(set) var editorDraftStatus = "修改会自动暂存，保存后更新这段文字"
+    private var archiveIncludesUntranscribed = false
     @Published var recordFilter: RecordingFilter = .transcribed { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var query = "" { didSet { pageLimit = 100; scheduleRefresh() } }
     @Published var notice: String?
@@ -263,7 +264,6 @@ final class AppModel: ObservableObject {
     var hidePanel: () -> Void = {}
     var openArchive: () -> Void = {}
     var openSettings: () -> Void = {}
-    var openStorageSettings: () -> Void = {}
     var checkForUpdates: (() -> Void)?
     private var pageLimit = 100
     private var panelLimit = 100
@@ -997,7 +997,27 @@ final class AppModel: ObservableObject {
         _ = await flushEditorDrafts()
         await refresh(); await loadVersions(item.id)
     }
-    func pin(_ item: DisplayRecording) { perform { try await self.store.setPinned(recordingID: item.id, pinned: !item.pinned); await self.refresh() } }
+    func includeUntranscribed(_ include: Bool) {
+        archiveIncludesUntranscribed = include
+        recordFilter = include ? .all : .transcribed
+        if !include, query.isEmpty, let selected, selected.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { closeDetail() }
+    }
+    func toggleFavoriteFilter() {
+        if recordFilter == .pinned {
+            includeUntranscribed(archiveIncludesUntranscribed)
+        } else {
+            archiveIncludesUntranscribed = recordFilter == .all
+            recordFilter = .pinned
+            if let selected, !selected.pinned { closeDetail() }
+        }
+    }
+    func toggleFavorite(_ id: UUID) async {
+        do {
+            let nowPinned = try await store.togglePinned(recordingID: id)
+            if !nowPinned, recordFilter == .pinned, selected?.id == id { closeDetail() }
+            await refresh()
+        } catch { notice = error.localizedDescription }
+    }
     func retry(_ item: DisplayRecording) {
         let shownConfiguration = appliedRecognitionConfiguration
         Task { await audio.retry(recordingID: item.id, expectedConfiguration: shownConfiguration); await refresh() }

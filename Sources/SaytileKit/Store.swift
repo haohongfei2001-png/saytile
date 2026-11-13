@@ -268,6 +268,14 @@ public actor SaytileStore {
         _ = try requireRecording(recordingID)
         try db.execute("UPDATE recordings SET pinned=? WHERE id=?",[.int(pinned ? 1:0),.text(recordingID.uuidString)])
     }
+    /// Resolve the toggle against SQLite so two presses on the same displayed row
+    /// still cancel each other before either refresh reaches the window.
+    @discardableResult public func togglePinned(recordingID: UUID) throws -> Bool {
+        let result = try db.rows("UPDATE recordings SET pinned = 1 - pinned WHERE id = ? AND deleted = 0 RETURNING pinned",
+                                 [.text(recordingID.uuidString)])
+        guard let pinned = result.first?["pinned"] else { throw StoreError.missingRecording }
+        return pinned == "1"
+    }
     public func beginRecognition(recordingID: UUID) throws -> RecognitionTicket {
         let record = try requireRecording(recordingID)
         guard record.audioState == .available else { throw StoreError.audioUnavailable }

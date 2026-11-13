@@ -19,6 +19,12 @@ extension AppDelegate {
                 return true
             }
             await model.initialLoad()
+            if let value = ProcessInfo.processInfo.environment["SAYTILE_REVIEW_REOPEN_STAR"], let id = UUID(uuidString: value) {
+                let restored = try await model.store.recording(id: id)
+                guard restored?.isPinned == true else { throw ReviewFailure("relaunch lost a row starred through the native control") }
+                print("WORKSPACE_REOPEN_PASS native row star persisted across processes")
+                return true
+            }
             if ProcessInfo.processInfo.environment["SAYTILE_EDITOR_REVIEW"] == "reopen" {
                 let rows = try await model.store.listRecordings(limit: 4)
                 guard rows.count == 1, let row = rows.first, row.text.isEmpty, row.audioState == .deleted,
@@ -70,8 +76,16 @@ extension AppDelegate {
                 print("UI_CONTROL_PASS modes through real native transcript context menu actions")
             }
             try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 320, height: 200), name: "panel-compact", output: output)
-            try await reviewWindow(ArchiveView(model: model), size: CGSize(width: 1040, height: 720), name: "archive", output: output) { host in
-                try await self.press("已收藏", in: host)
+            guard let workspace = workspaceWindow(for: .archive), let content = workspace.contentView,
+                  workspaceWindow(for: .speech) === workspace, workspaceWindow(for: .storage) === workspace,
+                  workspaceWindow(for: .archive)?.contentView === content, !workspace.isVisible else {
+                throw ReviewFailure("workspace deep links created separate native windows or replaced the hosting view")
+            }
+            print("WORKSPACE_REUSE_PASS same NSWindow and hosting view across archive, speech and storage routes")
+            try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1040, height: 720), name: "archive", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["workspace.brand", "settings.page.archive", "archive.favorites"],
+                    excluded: ["回到输入板", "全部文字", "全部记录", "待恢复", "设置与存储"])
+                try await self.press("archive.favorites", in: host)
                 await model.refresh()
                 guard model.recordFilter == .pinned, model.records.count == 1 else { throw ReviewFailure("native archive filter action failed: filter=\(model.recordFilter), count=\(model.records.count)") }
                 guard let paragraph = model.records.first, paragraph.hasAudio, paragraph.text == examples[1] else {
@@ -86,17 +100,38 @@ extension AppDelegate {
                 try await self.press("archive.play.\(paragraph.id)", in: host)
                 try await self.reviewUntil { model.playingID == nil }
                 print("UI_CONTROL_PASS archive row plays and stops its own original while reading")
-                try await self.press("全部记录", in: host)
+                try await self.press("archive.favorites", in: host)
+                try await self.press("archive.includeUntranscribed", in: host)
                 await model.refresh()
                 guard model.records.count == 4, model.records.contains(where: { $0.id == originalOnly.id }) else { throw ReviewFailure("native archive all-records action lost original-only record") }
-                try await self.press("全部文字", in: host)
+                try await self.press("archive.includeUntranscribed", in: host)
                 await model.refresh()
                 guard model.records.count == 3, let first = model.records.first else { throw ReviewFailure("archive transcript filter did not restore paragraphs") }
+                try await self.mouseClick("archive.favorite.\(first.id)", side: .right, minimumWidth: 22, in: host)
+                try await self.reviewUntil { model.records.contains(where: { $0.id == first.id && $0.pinned }) }
+                guard try await model.store.recording(id: first.id)?.isPinned == true else { throw ReviewFailure("row star did not persist") }
+                print("WORKSPACE_STAR_ID \(first.id.uuidString)")
+                try await self.mouseClick("archive.favorites", side: .left, minimumWidth: 24, in: host)
+                try await self.reviewUntil { model.recordFilter == .pinned && model.records.count == 2 }
                 try await self.press("archive.detail.\(first.id)", in: host)
                 try await self.reviewUntil { model.editorCanEdit && model.selected?.id == first.id }
                 guard model.selected?.id == first.id, model.editorDraft == first.text else { throw ReviewFailure("paragraph editor opened wrong text") }
+                try await self.press("archive.detailFavorite", in: host)
+                try await self.reviewUntil { model.selected == nil && !model.records.contains(where: { $0.id == first.id }) }
+                guard try await model.store.recording(id: first.id)?.isPinned == false else { throw ReviewFailure("removed favorite still pinned in SQLite") }
+                try await self.press("archive.favorites", in: host)
+                try await self.reviewUntil { model.recordFilter == .transcribed && model.records.count == 3 }
+                try await self.press("archive.detail.\(first.id)", in: host)
+                try await self.reviewUntil { model.editorCanEdit && model.selected?.id == first.id }
+                try await self.press("archive.detailFavorite", in: host)
+                try await self.reviewUntil { model.selected?.pinned == true }
                 try await self.press("返回记录列表", in: host)
                 guard model.selected == nil else { throw ReviewFailure("paragraph editor did not return to reader") }
+                try await self.mouseClick("settings.page.speech", side: .right, minimumWidth: 120, in: host)
+                try await self.inspectSettings(in: host, required: ["settings.inputDevice", "workspace.brand"], excluded: ["archive.favorites"])
+                try await self.mouseClick("settings.page.archive", side: .left, minimumWidth: 120, in: host)
+                try await self.inspectSettings(in: host, required: ["archive.favorites", "workspace.brand"], excluded: ["settings.inputDevice"])
+                guard model.recordFilter == .transcribed, model.records.count == 3 else { throw ReviewFailure("changing workspace page reset the archive list") }
                 print("UI_CONTROL_PASS archive filters through native control events and SQLite")
             }
             try await model.store.deleteRecord(recordingID: originalOnly.id)
@@ -104,7 +139,7 @@ extension AppDelegate {
                 await model.selectForEditing(row)
                 model.updateEditorDraft(row.text + "\n这是会自动保留的编辑草稿。")
                 _ = await model.flushEditorDrafts()
-                try await reviewWindow(ArchiveView(model: model), size: CGSize(width: 1120, height: 720), name: "archive-detail", output: output) { host in
+                try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1120, height: 720), name: "archive-detail", output: output) { host in
                     try await self.press("保存修改", in: host)
                     for _ in 0..<50 {
                         if (try await model.store.recording(id: row.id))?.text.contains("自动保留的编辑草稿") == true { break }
@@ -113,11 +148,11 @@ extension AppDelegate {
                     guard (try await model.store.recording(id: row.id))?.text.contains("自动保留的编辑草稿") == true else { throw ReviewFailure("native save action did not commit edit") }
                     print("UI_CONTROL_PASS native Save action commits immutable edit")
                 }
-                try await reviewWindow(ArchiveView(model: model), size: CGSize(width: 1120, height: 570), name: "archive-detail-compact", output: output)
+                try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1120, height: 570), name: "archive-detail-compact", output: output)
                 model.closeDetail()
             }
             model.query = "找不到的合成关键词"; await model.refresh()
-            try await reviewWindow(ArchiveView(model: model), size: CGSize(width: 1040, height: 720), name: "archive-no-results", output: output)
+            try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1040, height: 720), name: "archive-no-results", output: output)
             model.query = ""; model.notice = nil
             await model.refresh()
             if let row = model.records.first(where: { $0.source.audioState == .available }) {
@@ -142,7 +177,7 @@ extension AppDelegate {
                 print("UI_STATE_PASS one transcript survives single-core processing and failure; synthetic Store runs, no providers")
             }
             model.selectSource("local")
-            try await reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 740), name: "settings", output: output) { host in
+            try await reviewWindow(SettingsView(model: model, initialPage: .speech), size: CGSize(width: 650, height: 740), name: "settings", output: output) { host in
                 try await self.inspectSettings(in: host, required: ["settings.inputDevice", "麦克风权限"],
                                               excluded: ["cloud.serviceInspector", "hosted.email", "models.use.apple"])
                 try await self.press("settings.page.cloud", in: host)
@@ -483,6 +518,40 @@ extension AppDelegate {
     @MainActor private func press(_ label: String, in root: NSView) async throws {
         _ = try await performControl(label, in: root)
     }
+    private enum ReviewHitSide { case left, right }
+
+    /// The helper observes a real native control's frame. Deliver mouse events only
+    /// to our owned, nonactivating review window, including its actual hit-test path.
+    @MainActor private func mouseClick(_ id: String, side: ReviewHitSide, minimumWidth: CGFloat, in host: NSView) async throws {
+        let result = try await performControl(id, in: host, arguments: ["control-frame"])
+        let prefix = "NATIVE_UI_CONTROL_FRAME "
+        guard let line = result.split(separator: "\n").first(where: { $0.hasPrefix(prefix) }),
+              let metrics = try JSONSerialization.jsonObject(with: Data(line.dropFirst(prefix.count).utf8)) as? [CGFloat],
+              metrics.count == 4, metrics[2] >= minimumWidth, metrics[3] >= 22,
+              let window = host.window, let primary = NSScreen.screens.first else {
+            throw ReviewFailure("missing or undersized native hit region: \(id)")
+        }
+        let edge = side == .left ? metrics[0] + 3 : metrics[0] + metrics[2] - 3
+        let screen = NSPoint(x: edge, y: primary.frame.maxY - (metrics[1] + metrics[3] / 2))
+        let point = window.convertPoint(fromScreen: screen)
+        guard host.bounds.contains(host.convert(point, from: nil)) else { throw ReviewFailure("coordinate outside fixture window") }
+        func event(_ type: NSEvent.EventType) throws -> NSEvent {
+            guard let e = NSEvent.mouseEvent(with: type, location: point, modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime,
+                                             windowNumber: window.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: type == .leftMouseDown ? 1 : 0)
+            else { throw ReviewFailure("cannot create an owned mouse event") }
+            return e
+        }
+        let up = try event(.leftMouseUp)
+        NSApp.postEvent(up, atStart: true)
+        window.sendEvent(try event(.leftMouseDown))
+        if let unconsumed = NSApp.nextEvent(matching: .leftMouseUp, until: .distantPast, inMode: .default, dequeue: true) {
+            guard unconsumed.windowNumber == window.windowNumber else { throw ReviewFailure("unexpected up event in isolated process") }
+            window.sendEvent(unconsumed)
+        }
+        try await Task.sleep(for: .milliseconds(80))
+        print("WORKSPACE_MOUSE_EDGE \(id) side=\(side) target=\(metrics[2])x\(metrics[3])")
+    }
+
     @MainActor private func selectMenu(_ id: String, title: String, in root: NSView, hostID: String = "panel.transcript") async throws {
         let identifier = (hostID == "panel.copy" ? "panel.more." : "panel.menu.") + id
         let output = try await performControl(hostID, in: root, arguments: ["select-context-menu", identifier, title])
@@ -878,7 +947,7 @@ extension AppDelegate {
                     guard copyBoard.changeCount == before, capture.starts == 0, capture.pauses == 0, model.notice == nil else {
                         throw ReviewFailure("empty copy changed the private pasteboard or capture state")
                     }
-                    try await self.selectMenu("settings", title: "设置…", in: host, hostID: "panel.copy")
+                    try await self.selectMenu("settings", title: "语音档案与设置…", in: host, hostID: "panel.copy")
                     try await self.reviewUntil { emptyPanelSettings == 1 }
                     print("UI_EMPTY_PANEL_MENU_PASS empty copy is a no-op; its actual context menu opens settings")
                 })
@@ -973,7 +1042,7 @@ extension AppDelegate {
                     model.objectWillChange.send()
                     try await Task.sleep(for: .milliseconds(100))
                     try await self.inspectCapture("恢复收音", state: "需要恢复，合成设备暂不可用，原音与文字仍保留。", hasText: true, in: host)
-                    try await self.reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 740), name: "settings-interrupted", output: output) { settingsHost in
+                    try await self.reviewWindow(SettingsView(model: model, initialPage: .speech), size: CGSize(width: 650, height: 740), name: "settings-interrupted", output: output) { settingsHost in
                         try await self.inspectSettings(in: settingsHost, required: ["settings.captureDetail", "合成设备暂不可用，原音与文字仍保留。", "settings.notice", "合成操作提示"],
                                                      excluded: ["hosted.upload-consent"])
                     }
@@ -1161,13 +1230,11 @@ extension AppDelegate {
                 guard model.editorDraft.contains("用户上滚阅读") else { throw ReviewFailure("contextual edit did not open the existing saved transcript editor") }
                 print("UI_CONTROL_PASS contextual edit reaches existing archive editor with latest saved text; no second transcript or writeback path")
                 model.closeDetail()
-                try await self.selectMenu("archive", title: "语音档案…", in: host)
-                try await self.reviewUntil { archives == 2 }
-                try await self.selectMenu("settings", title: "设置…", in: host)
+                try await self.selectMenu("settings", title: "语音档案与设置…", in: host)
                 try await self.reviewUntil { settings == 1 }
                 try await self.selectMenu("hide", title: "收起输入板", in: host)
-                try await self.reviewUntil { archives == 2 && settings == 1 && hides == 1 }
-                guard archives == 2, settings == 1, hides == 1 else { throw ReviewFailure("Context menu navigation did not route to existing actions") }
+                try await self.reviewUntil { archives == 1 && settings == 1 && hides == 1 }
+                guard archives == 1, settings == 1, hides == 1 else { throw ReviewFailure("Context menu navigation did not route to existing actions") }
                 try await self.selectMenu("clear", title: "清空输入板（保留档案）", in: host)
                 try await self.reviewUntil { model.recent.isEmpty }
                 await model.refresh()

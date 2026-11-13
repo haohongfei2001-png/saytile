@@ -18,10 +18,11 @@ import ApplicationServices
         let paragraph = CommandLine.arguments.count == 6 && CommandLine.arguments[4] == "read-paragraph" ? CommandLine.arguments[5] : nil
         let menuItem = CommandLine.arguments.count == 7 && CommandLine.arguments[4] == "select-context-menu" ? CommandLine.arguments[5] : nil
         let menuTitle = menuItem == nil ? nil : CommandLine.arguments[6]
+        let controlFrame = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "control-frame"
         let inspect = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect"
         let inspectPanel = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect-panel"
         let inspectSettings = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect-settings"
-        guard CommandLine.arguments.count <= 4 || setValue != nil || menuItem != nil || inspect || inspectPanel || inspectSettings || paragraph != nil else { print("FAIL invalid control action"); exit(64) }
+        guard CommandLine.arguments.count <= 4 || setValue != nil || menuItem != nil || inspect || inspectPanel || inspectSettings || controlFrame || paragraph != nil else { print("FAIL invalid control action"); exit(64) }
         let root = AXUIElementCreateApplication(pid)
         func value(_ element: AXUIElement, _ name: String) -> CFTypeRef? {
             AXUIElementSetMessagingTimeout(element, name == kAXWindowsAttribute || name == kAXTitleAttribute ? 0.7 : 0.2)
@@ -79,6 +80,7 @@ import ApplicationServices
             var inspectedControls = [[String: Any]]()
             var panelControls = [[String: Any]](), scrollbarParts = [[String: Any]](), transcriptAreas = [[String: Any]](), staticStateText = [String](), obsoleteStateIDs = [String]()
             var settingsNames = Set<String>()
+            var brandCount = 0, archiveHeadingCount = 0
             let captureActions = Set(["开始收音", "暂停收音", "继续收音", "取消开启", "恢复收音"])
             let deadline = ProcessInfo.processInfo.systemUptime + 1
             while !queue.isEmpty, visited.count < 1000, ProcessInfo.processInfo.systemUptime < deadline {
@@ -90,8 +92,11 @@ import ApplicationServices
                 let canSet = [kAXTextFieldRole, kAXTextAreaRole].contains(role)
                 if inspectSettings {
                     settingsNames.formUnion(names)
-                    if role == kAXStaticTextRole, let text = value(node, kAXValueAttribute) as? String {
-                        settingsNames.insert(text)
+                    if names.contains("workspace.brand") { brandCount += 1 }
+                    if role == kAXStaticTextRole || role == "AXHeading" {
+                        let text = value(node, kAXValueAttribute) as? String
+                        if let text { settingsNames.insert(text) }
+                        if (names + [text ?? ""]).contains("语音档案") { archiveHeadingCount += 1 }
                     }
                     queue += observed.children
                     continue
@@ -146,6 +151,12 @@ import ApplicationServices
                 let applicable = menuItem != nil ? (role == kAXTextAreaRole || canPress) : (setValue == nil ? canPress : canSet)
                 if names.contains(label), applicable {
                     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED foreground changed before action"); exit(6) }
+                    if controlFrame {
+                        guard windows.count == 1, let rect = frame(node), canPress else { print("FAIL missing owned control geometry"); exit(1) }
+                        let dimensions = [rect.minX, rect.minY, rect.width, rect.height]
+                        let data = try! JSONSerialization.data(withJSONObject: dimensions)
+                        print("NATIVE_UI_CONTROL_FRAME " + String(decoding: data, as: UTF8.self)); exit(0)
+                    }
                     if inspect {
                         guard let sizeValue = value(node, kAXSizeAttribute), CFGetTypeID(sizeValue) == AXValueGetTypeID() else {
                             print("FAIL native control size unavailable"); exit(1)
@@ -241,6 +252,10 @@ import ApplicationServices
             if inspectSettings {
                 guard windows.count == 1, queue.isEmpty, !settingsNames.isEmpty,
                       NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { continue }
+                guard brandCount == 1 else { print("FAIL expected one workspace logo, found \(brandCount)"); exit(1) }
+                if settingsNames.contains("只看已收藏"), archiveHeadingCount != 1 {
+                    print("FAIL expected one archive heading, found \(archiveHeadingCount)"); exit(1)
+                }
                 let data = try! JSONSerialization.data(withJSONObject: settingsNames.sorted())
                 print("NATIVE_UI_SETTINGS_INSPECT " + String(decoding: data, as: UTF8.self)); exit(0)
             }
