@@ -9,10 +9,16 @@ def now():
 
 def run(args):
     manifests = pathlib.Path("Sources/SaytileKit/Resources/LocalASR")
-    corpus = json.loads(pathlib.Path("research/asr-2026-11-06/corpus/manifest.json").read_text())
-    items = [i for i in corpus if i.get("source_dataset") == "fleurs-zh" and i["group"] == "primary"][:args.primary]
-    if not args.primary_only:
-        items += [i for i in corpus if i.get("source_dataset") == "fleurs-zh" and i["group"] != "primary" and not i["synthetic_perturbation"]]
+    if args.paired:
+        entries = json.loads(args.paired.read_text())["samples"]
+        wanted = args.ids or [row["id"] for row in entries]
+        by_id = {row["id"]: row for row in entries}
+        items = [dict(by_id[i], audio=i + ".wav") for i in wanted]
+    else:
+        corpus = json.loads(pathlib.Path("research/asr-2026-11-06/corpus/manifest.json").read_text())
+        items = [i for i in corpus if i.get("source_dataset") == "fleurs-zh" and i["group"] == "primary"][:args.primary]
+        if not args.primary_only:
+            items += [i for i in corpus if i.get("source_dataset") == "fleurs-zh" and i["group"] != "primary" and not i["synthetic_perturbation"]]
     manifest = json.loads((manifests / (args.model + ".json")).read_text())
     binary = args.runtime.resolve() / ("SaytileSherpa" if args.model in ("sherpa","zipformer") else "SaytileModelWorker")
     directory = args.weights / args.model / manifest["revision"]
@@ -53,14 +59,21 @@ def run(args):
             sig=array("h",pcm); onset=next((i for i in range(0,len(sig),320) if
                 sum(v*v for v in sig[i:i+320]) >= len(sig[i:i+320])*327.68**2),0)/16000
             start=now()
+            sent_at = {}
             for pos in range(0,len(pcm),1280):
                 time.sleep(max(0,start+min(pos+1280,len(pcm))/32000-now()))
                 block=pcm[pos:pos+1280];worker.stdin.write(struct.pack("<I",len(block))+block);worker.stdin.flush()
+                if args.paired:
+                    sent_at[(pos + len(block)) // 2] = now() - start
             eos=now();worker.stdin.write(bytes(4));worker.stdin.flush()
             outputs=[]
             while True:
                 at,msg=expect(120)
-                outputs.append(dict(t=round(at-start,4),**msg))
+                record = dict(t=round(at-start,4),**msg)
+                if args.paired and msg["frames"] in sent_at:
+                    # Includes pipe/backlog, inference and result delivery.
+                    record["last_input_sent_t"] = round(sent_at[msg["frames"]], 4)
+                outputs.append(record)
                 if msg["kind"]=="final":break
             result["samples"].append(dict(id=item["id"],reference=item["reference"],critical=item.get("critical",[]),
                 audio_sha256=item["audio_sha256"],duration_s=len(pcm)/32000,onset_s=onset,eos_s=round(eos-start,4),events=outputs))
@@ -75,5 +88,7 @@ if __name__=="__main__":
     p=argparse.ArgumentParser()
     for flag in ["weights","runtime","audio","output"]:p.add_argument("--"+flag,type=pathlib.Path,required=True)
     p.add_argument("--model",required=True);p.add_argument("--chunk",type=float,default=1.2)
+    p.add_argument("--paired",type=pathlib.Path,help="Use a hash-pinned product panel manifest with WAVs named by sample ID")
+    p.add_argument("--ids",nargs="+",help="Replay these IDs from the paired manifest, in order")
     p.add_argument("--primary",type=int,default=6);p.add_argument("--primary-only",action="store_true")
     run(p.parse_args())
