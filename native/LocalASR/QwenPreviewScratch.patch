@@ -1,0 +1,22 @@
+--- Sources/Qwen3ASR/Qwen3ASR.swift
++++ Sources/Qwen3ASR/Qwen3ASR.swift
+@@ -21,6 +21,10 @@
+ 
+     /// Optional language hint ("en", "zh", …). `nil` = auto-detect.
+     public var language: String?
++
++    /// A streaming caller that owns a bounded MLX pool can reuse spare buffers
++    /// between previews and release the pool at the utterance boundary.
++    public var reusesPreviewScratch: Bool = false
+ 
+     /// Context hint prepended to the decoder prompt.
+     public var context: String?
+@@ -443,7 +447,7 @@
+             // cancellation. Wait for its buffers to become reusable before
+             // clearing the pool, after the decoder's local arrays are gone.
+             StreamOrDevice.default.stream.synchronize()
+-            Memory.clearCache()
++            if !decodingOptions.reusesPreviewScratch { Memory.clearCache() }
+         }
+         return try generateTextImpl(
+             audioEmbeds: audioEmbeds, textDecoder: textDecoder,

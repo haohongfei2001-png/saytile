@@ -212,7 +212,7 @@ public actor LocalASRService {
                         lastFrames = event.frames
                         let final = event.kind == "final"
                         if !event.text.isEmpty, let stable = liveText.accept(event.text, final: final) {
-                            try await ingress.receive(.init(text: event.text, stableUTF16Length: stable,
+                            try await ingress.receive(.init(text: liveText.presentation, stableUTF16Length: stable,
                                 audioEndSeconds: Double(event.frames) / 16_000, timingGranularity: "utterance", isComplete: final))
                         }
                         if final {
@@ -230,16 +230,20 @@ public actor LocalASRService {
 
 /// A rolling batch decoder can replace a large prefix on a transient pass.
 /// Keep that pass off the panel until supported by a later hypothesis. The
-/// accepted text always comes verbatim from this model. Only the cache-aware
+/// preview is always an exact prefix of the current raw hypothesis. Only the cache-aware
 /// Nemotron decoder appends irrevocable token IDs during a stream.
 struct LocalLiveText {
     let model: LocalASRID
     private(set) var previous = ""
+    private(set) var presentation = ""
     private var readingPrefix = ""
     private var withheld: String?
     init(model: LocalASRID) { self.model = model }
     mutating func accept(_ text: String, final: Bool) -> Int? {
-        if final { return text.utf16.count }
+        if final {
+            presentation = text
+            return text.utf16.count
+        }
         let common = RecognitionUTF16.commonPrefix([previous, text])
         if model == .qwen || model == .qwenLarge {
             // The zh decoder can change the script of the whole hypothesis mid-utterance.
@@ -281,6 +285,15 @@ struct LocalLiveText {
             }
             withheld = nil
         }
+        // The rolling decoder ends almost every intermediate hypothesis with a
+        // full stop. Most disappear as the next word arrives. Show the complete
+        // first result immediately and preserve punctuation confirmed in context.
+        if (model == .qwen || model == .qwenLarge), !previous.isEmpty,
+           text.count > 1, text.last == "。", !previous.hasPrefix(text) {
+            presentation = String(text.dropLast())
+        } else {
+            presentation = text
+        }
         previous = text
         return model == .nemotron ? String(common.dropLast()).utf16.count : 0
     }
@@ -293,25 +306,45 @@ struct LocalLiveText {
             guard let n = c?.asciiValue else { return false }
             return (65...90).contains(n) || (97...122).contains(n)
         }
-        func units(_ text: String) -> [(Character, String.Index)] {
-            var out: [(Character, String.Index)] = []
-            for i in text.indices {
+        enum Unit: Equatable { case literal(Character), pause }
+        func units(_ text: String, alignPauses: Bool) -> [(Unit, String.Index)] {
+            var out: [(Unit, String.Index)] = []
+            var i = text.startIndex
+            while i < text.endIndex {
                 let c = text[i], next = text.index(after: i)
+                var end = next
+                defer { i = end }
                 let before = i == text.startIndex ? nil : text[text.index(before: i)]
                 let after = next == text.endIndex ? nil : text[next]
-                if c == "，", before?.isNumber != true, after?.isNumber != true { continue }
-                let mapped: Character
-                if c == "-", latin(before), latin(after) { mapped = " " }
-                else if latin(c) { mapped = Character(c.lowercased()) }
-                else { mapped = c }
-                out.append((mapped, next))
+                let besideNumber = before?.isNumber == true || after?.isNumber == true
+                if !alignPauses, c == "，", !besideNumber { continue }
+                let mapped: Unit
+                if alignPauses, !besideNumber, c == "。" || c == "，" || c == "、" {
+                    mapped = .pause
+                } else if alignPauses, c == "—", after == "—", before?.isLetter == true,
+                          !besideNumber, text.index(after: next) < text.endIndex,
+                          text[text.index(after: next)].isLetter, !text[text.index(after: next)].isNumber {
+                    // A Chinese double dash can mark an apposition. A minus,
+                    // single dash, numeric range or moved boundary stays distinct.
+                    end = text.index(after: next)
+                    mapped = .pause
+                } else if c == "-", latin(before), latin(after) { mapped = .literal(" ") }
+                else if latin(c) { mapped = .literal(Character(c.lowercased())) }
+                else { mapped = .literal(c) }
+                out.append((mapped, end))
             }
             return out
         }
-        let prefix = units(raw), update = units(candidate)
-        guard !prefix.isEmpty, update.count >= prefix.count,
-              zip(prefix, update).allSatisfy({ $0.0.0 == $0.1.0 }) else { return nil }
-        return String(candidate[..<update[prefix.count - 1].1])
+        // First preserve the existing optional-comma comparison. If that fails,
+        // require an actual phrase boundary on both sides at the same position.
+        for alignPauses in [false, true] {
+            let prefix = units(raw, alignPauses: alignPauses), update = units(candidate, alignPauses: alignPauses)
+            if !prefix.isEmpty, update.count >= prefix.count,
+               zip(prefix, update).allSatisfy({ $0.0.0 == $0.1.0 }) {
+                return String(candidate[..<update[prefix.count - 1].1])
+            }
+        }
+        return nil
     }
 
     private static func hasLocalizedCorrection(from visible: String, to confirmed: String) -> Bool {

@@ -55,6 +55,58 @@ struct QwenRecoveryTests {
         #expect(preview.previous == prior)
     }
 
+    @Test func rawQwenPeriodStopsBlinkingUntilSupportedByMoreSpeech() {
+        var live = LocalLiveText(model: .qwen)
+        let first = "这是第一句。"
+        #expect(live.accept(first, final: false) == 0)
+        #expect(live.presentation == first)
+        let raw = "这是第一句。第二句还没说完。"
+        #expect(live.accept(raw, final: false) == 0)
+        #expect(live.presentation == "这是第一句。第二句还没说完")
+        #expect(live.previous == raw)
+        let extended = "这是第一句。第二句还没说完。再说一段……"
+        #expect(live.accept(extended, final: false) == 0)
+        #expect(live.presentation == extended)
+        #expect(live.accept(raw, final: true) == raw.utf16.count)
+        #expect(live.presentation == raw)
+
+        var other = LocalLiveText(model: .sherpa)
+        _ = other.accept(first, final: false)
+        _ = other.accept(raw, final: false)
+        #expect(other.presentation == raw)
+    }
+
+    @Test func wordsAfterAnAppositionCanAppearWhileTheDecoderRestylesOldPauses() {
+        // The 38.8 s native trace stalled at 26.52 s despite three genuine
+        // growing tails. The rolling decoder restyled these two old boundaries.
+        let start = "这里首选登山目的地，科查莫山谷，被称为南美洲的优美圣地，这里有各式各样的"
+        let corrected = "这里首选登山目的地——科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的"
+        var live = LocalLiveText(model: .qwen)
+        for words in [start + "花岗岩", start + "花岗岩大石壁", start + "花岗岩大石壁和峭壁。"] {
+            #expect(live.accept(words, final: false) == 0)
+        }
+        let speech = corrected + "花岗岩大石壁和峭壁，平时你"
+        #expect(live.accept(speech + "。", final: false) == 0)
+        #expect(live.presentation == speech)
+        for invalid in [corrected.replacingOccurrences(of: "——", with: "−"),
+                        corrected.replacingOccurrences(of: "——", with: ""),
+                        corrected.replacingOccurrences(of: "被称为", with: "不被称为")] {
+            #expect(live.accept(invalid + "花岗岩大石壁和峭壁，平时你总能听到。", final: false) == nil)
+        }
+        #expect(live.presentation == speech)
+    }
+
+    @Test func numericalPunctuationCannotReleaseAConflictingHypothesis() {
+        let head = "这次测量读数是3。5，下一次测量记录在附表中"
+        // Arabic numeric punctuation is significant even when the surrounding
+        // sentence and a long suffix of the observation are otherwise unchanged.
+        var digits = LocalLiveText(model: .qwen)
+        for tail in ["准备", "准备开始", "准备开始统计"] {
+            #expect(digits.accept(head + tail, final: false) == 0)
+        }
+        #expect(digits.accept(head.replacingOccurrences(of: "3。5", with: "3，5") + "准备开始统计了", final: false) == nil)
+    }
+
     private func fixture(_ variant: String) throws -> LocalModelManifest {
         let revision = try LocalModelManifest.load(.qwen).revision
         let file = LocalModelManifest.File(path: "weights", bytes: 3,

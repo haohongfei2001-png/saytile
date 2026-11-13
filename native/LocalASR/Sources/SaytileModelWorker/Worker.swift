@@ -50,7 +50,9 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
             // The small model translated whole English clauses in Mandarin speech
             // when forced to Chinese. Leave it free to transcribe the spoken language.
             let language = id == "qwen-small" ? nil : "Chinese"
-            transcribe = { try model.transcribeThrowing(audio: $0, options: .init(language: language, longInputThresholdSeconds: .infinity)) }
+            var options = Qwen3DecodingOptions(language: language, longInputThresholdSeconds: .infinity)
+            options.reusesPreviewScratch = id == "qwen-small"
+            transcribe = { try model.transcribeThrowing(audio: $0, options: options) }
         case "paraformer":
             nemo = nil
             let model = ParaformerManager(models: try ParaformerModels.load(from: directory, precision: .int8))
@@ -80,6 +82,10 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
         // of pre-roll. Keep that whole segment available for the EOS decode.
         let windowLimit = 16_000 * (rollingQwen ? 32 : 24)
         var samples: [Float] = [], prefix = "", last = "", frames = 0, next = firstStride
+        // The small Qwen model is greedy. If EOS follows a preview without
+        // another PCM sample, that exact decode is already its final answer.
+        var exactPreview: (frames: Int, text: String)?
+        defer { if id == "qwen-small" { MLX.Memory.clearCache() } }
         var input = PCMFrameReader(descriptor: STDIN_FILENO)
         func nextFrame() throws -> Data? {
             if id == "qwen-small" { return try input.next() }
@@ -98,6 +104,8 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
             if let stream {
                 let results = try end ? stream.finalize() : stream.pushAudio(chunk)
                 update = results.last?.text
+            } else if end, let exactPreview, exactPreview.frames == frames {
+                update = exactPreview.text
             } else if let transcribe {
                 samples.append(contentsOf: chunk)
                 // Upstream batch encoders have finite input windows. Bound history
@@ -111,7 +119,9 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
                        samples.count - next < maxPreviewBacklog, try input.hasNextFrameNow() { continue }
                     let started = traceDecodes ? ProcessInfo.processInfo.systemUptime : 0
                     let tail = samples.isEmpty ? "" : try await transcribe(samples)
-                    update = prefix + tail
+                    let decoded = prefix + tail
+                    update = decoded
+                    if id == "qwen-small" && !end { exactPreview = (frames, decoded) }
                     if traceDecodes {
                         decodes.append(["startUptime": started, "endUptime": ProcessInfo.processInfo.systemUptime,
                                         "frames": frames, "final": end, "changed": update != last])
@@ -129,6 +139,8 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
             if end {
                 try publish(update ?? last, kind: "final", frames: frames, decodes: decodes)
                 decodes.removeAll(keepingCapacity: true)
+                exactPreview = nil
+                if id == "qwen-small" { MLX.Memory.clearCache() }
                 stream = try nemo?.createSession(language: "zh")
                 samples.removeAll(keepingCapacity: true)
                 prefix = ""; last = ""; next = firstStride; frames = 0
