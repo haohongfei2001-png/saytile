@@ -86,7 +86,15 @@ actor ReaderDisk {
         }
     }
     func parts(_ item: PrivateArchive, owner: String, source: any ReaderSource) async throws -> [URL] {
-        guard !item.deleted, !item.audioDeleted, !item.chunks.isEmpty else { throw ArchiveIssue.stale }
+        // Identical content may be legitimately cached for a different record.
+        // Check the current owner's manifest before every playback, including a
+        // digest cache hit, then recheck after an asynchronous download.
+        func requireCurrentAudio() throws {
+            guard !item.deleted, !item.audioDeleted, !item.chunks.isEmpty,
+                  let latest = try load(owner).rows[item.id],
+                  !latest.deleted, !latest.audioDeleted, latest.chunks == item.chunks else { throw ArchiveIssue.stale }
+        }
+        try requireCurrentAudio()
         let dir = try folder(owner)
         let targets = item.chunks.map { dir.appendingPathComponent($0.sha256 + ".wav") }
         func valid(_ url: URL, _ chunk: PrivateArchive.Chunk) -> Bool {
@@ -95,7 +103,8 @@ actor ReaderDisk {
         }
         if !zip(targets, item.chunks).allSatisfy({ valid($0, $1) }) {
             let paths = try await source.audio(owner: owner, item: item)
-            guard paths.count == targets.count, try load(owner).rows[item.id]?.chunks == item.chunks else { throw ArchiveIssue.stale }
+            try requireCurrentAudio()
+            guard paths.count == targets.count else { throw ArchiveIssue.invalid }
             for (i, url) in paths.enumerated() {
                 let bytes = try Data(contentsOf: url, options: .mappedIfSafe), chunk = item.chunks[i]
                 guard bytes.count == 44 + chunk.frames * 2, ArchiveCloudRecord.digest(bytes) == chunk.sha256 else { throw ArchiveIssue.invalid }
