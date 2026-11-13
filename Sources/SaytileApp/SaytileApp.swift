@@ -282,7 +282,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 return
             }
             if let index = CommandLine.arguments.firstIndex(of: "--local-stream-probe") {
-                guard CommandLine.arguments.indices.contains(index + 1), let id = LocalASRID(rawValue: CommandLine.arguments[index + 1]) else { Darwin.exit(64) }
+                guard CommandLine.arguments.indices.contains(index + 1) else { Darwin.exit(64) }
+                let choice = CommandLine.arguments[index + 1]
+                let id = LocalASRID(rawValue: choice)
+                guard id != nil || choice == "auto" else { Darwin.exit(64) }
                 showPanel()
                 Task {
                     do { try await LocalStreamProbe.run(model: model, panel: panel, id: id) }

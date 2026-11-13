@@ -9,6 +9,7 @@ import SaytileKit
     struct Publication: Codable { let t: Double; let text: String }
     struct Result: Codable {
         let model: String
+        let automatic: Bool
         let sha: String?
         let sample: String
         let publications: [Publication]
@@ -27,7 +28,7 @@ import SaytileKit
         for item in parent.subviews { if let found = textView(item) { return found } }
         return nil
     }
-    static func run(model: AppModel, panel: NSWindow?, id: LocalASRID) async throws {
+    static func run(model: AppModel, panel: NSWindow?, id requested: LocalASRID?) async throws {
         guard let panel, let content = panel.contentView,
               try await model.store.listRecordings(limit: 1).isEmpty else { throw CocoaError(.fileReadCorruptFile) }
         let source = model.directory.appending(path: "fixture.wav")
@@ -35,7 +36,9 @@ import SaytileKit
         guard values.isRegularFile == true, values.isSymbolicLink == false, (values.fileSize ?? 0) < 60_000_000 else { throw CocoaError(.fileReadCorruptFile) }
         await model.initialLoad()
         model.selectSource("local")
-        model.selectLocal(id, archiveOnly: id.capability == .batch)
+        if let requested { model.selectLocal(requested, archiveOnly: requested.capability == .batch) }
+        else { await model.refreshLocalRecommendation() }
+        let id = requested ?? model.selectedLocalModel
         if id == .apple, !(await AppleSpeechService.availability()).installed {
             await model.audio.prepareSpeechAssets()
             let status = await AppleSpeechService.availability()
@@ -95,7 +98,7 @@ import SaytileKit
             let runs = try await model.store.modelRuns(recordingID: r.id)
             providers.formUnion(runs.map { $0.ticket.provider })
         }
-        let receipt = Result(model: id.rawValue, sha: Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String,
+        let receipt = Result(model: id.rawValue, automatic: requested == nil, sha: Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String,
             sample: source.lastPathComponent, publications: publications, frames: frames, displayedChanges: changes, endOfFile: eos - start, pipelineSettledAt: settled,
             total: ProcessInfo.processInfo.systemUptime - start, archive: records.map(\.text), providers: providers.sorted(),
             recordStates: records.map { $0.recognitionState.rawValue }, recordingErrors: records.compactMap(\.lastError))
