@@ -26,7 +26,7 @@ struct RecognitionSettingsSection: View {
                 }
             }.accessibilityIdentifier("recognition.asrOverride")
             if managesInputSource {
-                Toggle("使用自带 API 识别新讲话", isOn: Binding(get: { model.usesBYOK }, set: model.useBYOK))
+                Toggle("使用自带 API 识别新讲话", isOn: Binding(get: { model.usesBYOK }, set: { model.useBYOK($0) }))
                     .disabled(!model.usesBYOK && (!model.connectionVerified || model.checkingConnection || model.applyingRecognitionSettings))
                     .accessibilityIdentifier("cloud.useBYOK")
             } else {

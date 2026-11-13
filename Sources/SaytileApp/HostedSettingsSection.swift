@@ -44,7 +44,7 @@ struct HostedSettingsSection: View {
         }.onAppear { account.displaySavedAccount() }
         Section("语音授权") {
             Toggle("允许将新讲话交给云端中文识别", isOn: Binding(
-                get: { !model.deviceOnly && account.selected && account.consent }, set: model.allowHostedSpeech))
+                get: { !model.deviceOnly && account.selected && account.consent }, set: { model.allowHostedSpeech($0) }))
                 .accessibilityIdentifier("hosted.upload-consent")
             Text("新讲话经 Saytile 发送到阿里云识别，文字交给 OpenAI 核对。关闭后使用本机识别，历史原音保留在本机。")
                 .font(.callout).foregroundStyle(.secondary)
