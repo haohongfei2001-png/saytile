@@ -24,7 +24,7 @@ for y in range(H):
     for x in range(W):
         f=min(1,max(0,(x+66-55)/(856-55))); pixels[x,y]=tuple(round(left*(1-f)+right*f) for left,right in zip(l,r))
 bg.save(out/'environment.png')
-scenes=['first-use','first-denied','first-authorized','panel-paused','panel-standby','panel-speaking','settings','models','models-manual','models-recovery','input-compact-dark','storage','about','cloud','byok','archive-empty','archive','archive-detail','archive-detail-compact-dark']
+scenes=['first-use','first-denied','first-authorized','panel-paused','panel-standby','panel-speaking','panel-interrupted','settings-interrupted','settings','models','models-selected','models-recovery','input-compact-dark','storage','about','cloud','byok','archive-empty','archive','archive-detail','archive-detail-compact-dark']
 if a.border:
     if a.scenes: parser.error('--border captures its own two scenes')
     scenes=['panel-speaking','panel-border-hidden']

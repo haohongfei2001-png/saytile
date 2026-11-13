@@ -146,7 +146,8 @@ final class AppModel: ObservableObject {
     @Published private(set) var archiveLocalModel: LocalASRID?
     @Published private(set) var localTextAllowed: Bool
     private var localReview: LocalTextReview?
-    private var automaticLocal: LocalASRID = .apple
+    @Published private var automaticLocal: LocalASRID = .apple
+    var selectedLocalModel: LocalASRID { manualLocalModel ?? automaticLocal }
     private var accountRoute: HostedRoute = .byok
     let audio: AudioController
     let input: NativeInputCoordinator
@@ -393,7 +394,6 @@ final class AppModel: ObservableObject {
     var captureActionSymbolName: String { panelCapturePresentation.actionSymbolName }
     var captureLabel: String { panelCaptureLabel }
     var captureProblem: Bool { if case .interrupted = captureDependencies.state(audio) { return true }; return false }
-    var saveLabel: String { captureProblem ? "收音已暂停 · 请查看保存状态" : isListening ? "原音独立保存 · 识别不会阻塞收音" : "内容保存在此 Mac，随时可以取用" }
     var microphoneDenied: Bool { [.denied, .restricted].contains(captureDependencies.microphoneAuthorization()) }
     func openMicrophoneSettings() { captureDependencies.openMicrophonePreferences() }
     var microphoneLabel: String {
@@ -408,13 +408,39 @@ final class AppModel: ObservableObject {
         guard item.source.recognitionState == .running else { return item.stateLabel }
         return item.isRecording ? "正在记录" : "正在核对文字"
     }
-    func selectSource(_ source: String) {
+    func selectSource(_ source: String, revoke: Bool = false) {
         if source != "local" && localTextAllowed { allowLocalText(false) }
         deviceOnly = source == "local"
         preferences.set(deviceOnly, forKey: "localASR.deviceOnly")
         hosted.select(source == "hosted")
-        audio.selectHostedRoute(deviceOnly ? .local : accountRoute)
+        audio.selectHostedRoute(deviceOnly ? .local : accountRoute, revoke: revoke)
         audio.refreshLocalModelStatus()
+    }
+    func allowHostedSpeech(_ enabled: Bool) {
+        if enabled {
+            selectSource("hosted")
+            hosted.authorize(true)
+        } else {
+            hosted.authorize(false)
+            if hosted.selected { selectSource("local") }
+        }
+    }
+    var usesBYOK: Bool { !deviceOnly && !hosted.selected && appliedRecognitionConfiguration.cloudEnabled }
+    func useBYOK(_ enabled: Bool) {
+        if enabled {
+            guard connectionVerified, !checkingConnection, !applyingRecognitionSettings else { return }
+            recognitionConfiguration.cloudEnabled = true
+            applyRecognitionSettings(selectingBYOK: true)
+        } else if usesBYOK {
+            selectSource("local", revoke: true)
+            recognitionConfiguration.cloudEnabled = false
+            var saved = appliedRecognitionConfiguration
+            saved.cloudEnabled = false
+            appliedRecognitionConfiguration = saved
+            connectionDependencies.applyNextRoute(audio, saved)
+            do { try saved.save(to: preferences) }
+            catch { recognitionSettingsNotice = error.localizedDescription }
+        }
     }
     func selectLocal(_ model: LocalASRID?, archiveOnly: Bool = false) {
         if archiveOnly {
@@ -447,7 +473,7 @@ final class AppModel: ObservableObject {
     }
     func applyLocalSelection() {
         if deviceOnly, localTextAllowed, localReview == nil, let item = localGPT { localReview = LocalTextReview(model: item) }
-        let live = manualLocalModel ?? automaticLocal
+        let live = selectedLocalModel
         audio.selectLocalModels(live: live, archive: archiveLocalModel ?? live, service: localModels, review: localReview)
     }
     var engineLabel: String { audio.speechStatus }
@@ -509,6 +535,9 @@ final class AppModel: ObservableObject {
         }
     }
     func applyRecognitionSettings() {
+        applyRecognitionSettings(selectingBYOK: false)
+    }
+    private func applyRecognitionSettings(selectingBYOK: Bool) {
         guard !preparingForExit, !exitPrepared, !applyingRecognitionSettings, !checkingConnection else { return }
         var candidate = recognitionConfiguration
         candidate.checkedASRConfigurationID = connectionReport?.services.first(where: { $0.provider.isStreaming })?.id
@@ -526,9 +555,10 @@ final class AppModel: ObservableObject {
             }
             try candidate.save(to: preferences)
             recognitionConfiguration = candidate
-            if changingRoute && candidate.cloudEnabled {
+            if (changingRoute || selectingBYOK) && candidate.cloudEnabled {
                 connectionDependencies.applyNextRoute(audio, candidate)
                 appliedRecognitionConfiguration = candidate
+                if selectingBYOK { selectSource("byok") }
                 changingRoute = false
                 recognitionSettingsNotice = "已应用，新讲话使用所选模型。"
             } else {
@@ -549,7 +579,7 @@ final class AppModel: ObservableObject {
             guard recognitionApplyID == generation, !Task.isCancelled else { return }
             appliedRecognitionConfiguration = candidate; applyingRecognitionSettings = false
             if showNotice {
-                recognitionSettingsNotice = candidate.cloudEnabled ? "设置已应用。采集与原音保存继续独立运行。" : "已停止云端识别，继续使用本机模型。"
+                recognitionSettingsNotice = candidate.cloudEnabled ? "识别设置已保存。" : "自带 API 的配置已保存。"
             }
         }
     }
@@ -588,7 +618,7 @@ final class AppModel: ObservableObject {
         }
         recognitionSettingsNotice = "连接检查已停止。本机识别可以继续使用；已发出的请求可能由服务商计费。"
     }
-    func checkRecognitionConnections() {
+    func checkRecognitionConnections(activateOnSuccess: Bool = true) {
         guard !preparingForExit, !exitPrepared, connectionCheckAuthorized, !checkingConnection, !applyingRecognitionSettings else { return }
         let candidate = recognitionConfiguration
         let previous = connectionCheckTask
@@ -611,7 +641,7 @@ final class AppModel: ObservableObject {
                 connectionReport = report; checkingConnection = false; connectionCheckAuthorized = false
                 if report.canEnableCloud && report.matches(recognitionConfiguration) {
                     preferences.set(try JSONEncoder().encode(report), forKey: Self.connectionReceiptKey)
-                    recognitionConfiguration.cloudEnabled = true
+                    recognitionConfiguration.cloudEnabled = activateOnSuccess
                     applyRecognitionSettings()
                 } else { recognitionSettingsNotice = report.message ?? "连接尚未完整通过，请查看各项服务状态。" }
             } catch {
@@ -994,7 +1024,7 @@ final class AppModel: ObservableObject {
             await self.refresh()
         }
     }
-    func prepareSpeech() { Task { await audio.prepareSpeechAssets(); notice = audio.speechStatus } }
+    func prepareSpeech() { Task { await audio.prepareSpeechAssets() } }
     func requestAccessibility() { input.requestPermission() }
     func revealData() { NSWorkspace.shared.activateFileViewerSelecting([directory]) }
     func loadMore() { pageLimit += 100; scheduleRefresh() }

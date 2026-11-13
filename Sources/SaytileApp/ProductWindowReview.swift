@@ -51,7 +51,7 @@ extension AppDelegate {
                 item.level = .floating; item.isReleasedWhenClosed = false; item.hidesOnDeactivate = false
                 item.ignoresMouseEvents = true; item.hasShadow = false
             }
-            window.title = panel ? "Saytile · 此刻" : name.hasPrefix("archive") ? "Saytile · 语音档案" : "Saytile · 设置"
+            window.title = panel ? "Saytile · 此刻" : name.hasPrefix("archive") ? "Saytile · 语音档案" : "设置"
             window.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
             if panel { window.isOpaque = false; window.backgroundColor = .clear }
             let host = NSHostingView(rootView: view.environment(\.colorScheme, dark ? .dark : .light))
@@ -176,13 +176,19 @@ extension AppDelegate {
                 try await frame(InputPanelWindowView(model:meter),"panel-"+name,panelSize,panel:true,
                                 borderModel: borderSession != nil && name == "speaking" ? meter : nil)
             }
+            if !factoryPanel {
+                capture.state = .interrupted("麦克风未获授权"); capture.authorization = .denied
+                meter.objectWillChange.send()
+                try await frame(InputPanelWindowView(model:meter),"panel-interrupted",panelSize,panel:true)
+                try await frame(SettingsView(model:meter),"settings-interrupted",sz)
+            }
             await meter.prepareForExit()
             if sharedComparison || borderSession != nil { return }
         } catch { await meter.prepareForExit(); throw error }
         try await frame(SettingsView(model:model),"settings",sz)
         try await frame(SettingsView(model:model,initialPage:.models),"models",sz)
         model.selectLocal(.apple)
-        try await frame(SettingsView(model:model,initialPage:.models),"models-manual",sz)
+        try await frame(SettingsView(model:model,initialPage:.models),"models-selected",sz)
         let manifest = try LocalModelManifest.load(.sherpa)
         let baseURL = model.store.directory.appendingPathComponent("LocalModels").appendingPathComponent(manifest.id.rawValue)
         let damaged = baseURL.appendingPathComponent(manifest.revision)
@@ -203,12 +209,8 @@ extension AppDelegate {
         try await frame(SettingsView(model:model,initialPage:.input),"input-compact-dark",.init(width:540,height:500),dark:true)
         try await frame(SettingsView(model:model,initialPage:.storage),"storage",sz)
         try await frame(SettingsView(model:model,initialPage:.about),"about",sz)
-        print("PRODUCT_SELECT_HOSTED"); fflush(nil)
-        model.selectSource("hosted"); print("PRODUCT_HOSTED_SELECTED"); fflush(nil)
-        try await frame(SettingsView(model:model),"cloud",sz,bottom:true)
-        model.selectSource("byok")
-        try await frame(SettingsView(model:model),"byok",sz,bottom:true)
-        model.selectSource("local")
+        try await frame(SettingsView(model:model,initialPage:.cloud,initialCloudService:.hosted),"cloud",sz,bottom:true)
+        try await frame(SettingsView(model:model,initialPage:.cloud,initialCloudService:.byok),"byok",sz,bottom:true)
         try await frame(ArchiveView(model:model),"archive-empty",.init(width:840,height:560))
         let base = Date()
         for (i,words) in ["周五的讨论，先把决定留下来。","合同金额是不超过三千元，不是三万元。","上午十点复核版本，然后继续。","今天的想法分成两件事。\n先把讨论中确定的时间记下来。\n还要核对上一版里的两处数字。\n把这几行留在一起，下午可以直接接着看。"].enumerated() {

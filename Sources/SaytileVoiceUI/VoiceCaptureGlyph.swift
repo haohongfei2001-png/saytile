@@ -13,9 +13,8 @@ public struct VoiceCaptureGlyph: View {
     }
 
     public var body: some View {
-        // Keep one shape identity, including startup and recovery. Until capture
-        // succeeds the triangle remains; existing help/error text explains why.
-        // This avoids flashing a fourth glyph or claiming that capture is ready.
+        // Startup and recovery keep the triangle until capture succeeds.
+        // The host presents recovery details outside the transcript surface.
         let paused = presentation.state != .standby && presentation.state != .recognizing
         VoiceCaptureGlyphShape(
             paused: paused ? 1 : 0,

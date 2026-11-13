@@ -35,10 +35,6 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
     let fillContextMenu: (@MainActor (NSMenu) -> Void)?
     let applyEdits: (@MainActor ([VoicePanelEdit]) throws -> PanelTimelineDocument<Entry>)?
     let onEdit: (@MainActor () -> Void)?
-    let target: String?
-    let notice: String?
-    let placeholder: String?
-    let placeholderDetail: String?
     let captureDisabled: Bool
     let menu: () -> MenuItems
 
@@ -48,17 +44,16 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
     @Environment(\.compactVoiceSlot) private var compactSlot
     @ViewState private var captureHovered = false
     @FocusState private var captureFocused: Bool
-    private let muted = Color(red: 0.43, green: 0.41, blue: 0.51)
-    private let amber = Color(red: 0.58, green: 0.42, blue: 0.22)
     private let ink = Color(red: 0.17, green: 0.16, blue: 0.23)
 
+    /// Legacy host message parameters remain source-compatible. The document area contains only user text.
     public init(document: PanelTimelineDocument<Entry>, access: PanelTranscriptAccess<Entry>, capture: VoicePanelCapture,
                 canCopy: Bool, selectedText: String, onCopy: @escaping () -> Void, onToggle: @escaping () -> Void,
                 onPage: @escaping (Bool) -> Void = { _ in }, onSelectionChange: @escaping (String) -> Void = { _ in },
                 onFollowChange: @escaping (Bool) -> Void = { _ in }, focusPosition: Int64? = nil, editing: Bool = false,
                 latestRequest: Int = 0, fillContextMenu: (@MainActor (NSMenu) -> Void)? = nil, onEdit: (@MainActor () -> Void)? = nil,
                 applyEdits: (@MainActor ([VoicePanelEdit]) throws -> PanelTimelineDocument<Entry>)? = nil,
-                target: String? = nil, notice: String? = nil, placeholder: String? = nil, placeholderDetail: String? = nil,
+                target _: String? = nil, notice _: String? = nil, placeholder _: String? = nil, placeholderDetail _: String? = nil,
                 captureDisabled: Bool = false, @ViewBuilder menu: @escaping () -> MenuItems) {
         self.document = document
         self.access = access
@@ -76,10 +71,6 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
         self.fillContextMenu = fillContextMenu
         self.applyEdits = applyEdits
         self.onEdit = onEdit
-        self.target = target
-        self.notice = notice
-        self.placeholder = placeholder
-        self.placeholderDetail = placeholderDetail
         self.captureDisabled = captureDisabled
         self.menu = menu
     }
@@ -94,37 +85,10 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
     private func content(_ metrics: VoicePanelMetrics, compact: Bool) -> some View {
         let scale = metrics.scale
         return VStack(spacing: 0) {
-            if !compact, let target {
-                Label(target, systemImage: "arrow.up.forward.app")
-                    .font(.system(size: 10)).foregroundStyle(muted)
-                    .lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 14 * scale).padding(.bottom, 5)
-                    .help(target).accessibilityIdentifier("panel.target")
-            }
-            if !compact, let notice {
-                HStack(alignment: .top, spacing: 6) {
-                    Image(systemName: "exclamationmark.circle")
-                    Text(notice).lineLimit(2).fixedSize(horizontal: false, vertical: true).help(notice)
-                    Spacer(minLength: 0)
-                }.font(.system(size: 11)).foregroundStyle(amber)
-                    .padding(.horizontal, 14 * scale).padding(.vertical, 5).accessibilityIdentifier("panel.notice")
-            }
             CompactTranscriptView(document: document, access: access, onPage: onPage, focusPosition: focusPosition,
                 editing: editing, latestRequest: latestRequest, onFollowChange: onFollowChange,
                 onSelectionChange: onSelectionChange, fillContextMenu: fillContextMenu, applyEdits: applyEdits, onEdit: onEdit,
                 showsLiveCaret: capture.state == .recognizing, typeScale: metrics.typeScale, compact: compact)
-                .overlay(alignment: .topLeading) {
-                    if !compact, let placeholder {
-                        VStack(alignment: .leading, spacing: 8 * scale) {
-                            Text(placeholder).font(.system(size: ReferencePanelStyle.fontSize * metrics.typeScale))
-                            if let placeholderDetail {
-                                Text(placeholderDetail).font(.system(size: max(10, 12 * metrics.typeScale)))
-                                    .lineSpacing(3).foregroundStyle(muted)
-                            }
-                        }.foregroundStyle(ink.opacity(0.8)).padding(.top, 6).padding(.horizontal, 2)
-                            .accessibilityElement(children: .combine).allowsHitTesting(false)
-                    }
-                }
                 .opacity(compact ? 0 : 1).accessibilityHidden(compact).allowsHitTesting(!compact)
                 .padding(.leading, ReferencePanelStyle.textInset * scale - 2)
                 .padding(.trailing, 8 * scale).frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -174,7 +138,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
         let scale = metrics.scale
         return Button(action: onToggle) {
             VoiceCaptureGlyph(presentation: capture, scale: scale)
-                .foregroundStyle(capture.state == .recoveryNeeded ? AnyShapeStyle(amber) : AnyShapeStyle(ReferencePanelStyle.glyph))
+                .foregroundStyle(ReferencePanelStyle.glyph)
                 .frame(width: metrics.voiceWidth, height: metrics.controlHeight)
                 .background { ReferenceControlSurface(scale: scale) }
                 .background { if compact { Capsule().fill(.regularMaterial) } }

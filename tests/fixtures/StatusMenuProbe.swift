@@ -116,8 +116,11 @@ import ApplicationServices
             defer { if !dismissed { _ = AXUIElementPerformAction(menu, kAXCancelAction as CFString) } }
             let items = children(menu, pid: pid)
             let titles = items.compactMap { attr($0, kAXTitleAttribute) as? String }
-            guard titles.contains(expected), titles.contains("语音档案"), titles.contains("设置…"), titles.contains("退出 Saytile"),
-                  titles.contains(where: { $0.contains("收音") }), (panel() != nil) == visible else {
+            let destinations: Set<String> = [expected, "语音档案", "设置…", "退出 Saytile"]
+            let menuTitles = Set(titles.filter { !$0.isEmpty })
+            guard destinations.isSubset(of: menuTitles),
+                  menuTitles.isSubset(of: destinations.union(["检查更新…"])),
+                  (panel() != nil) == visible else {
                 throw Failure("menu incomplete or opening toggled the panel: " + titles.joined(separator: " / "))
             }
             if let command {
@@ -133,7 +136,7 @@ import ApplicationServices
             print("STATUS_TRIGGER_AX", pressResult)
             try await wait("menu still on screen") { !openWindowExists() }
             dismissed = true
-            print("STATUS_NATIVE_ROUND command=\(command ?? "cancel") visibleWhileOpen=\(visible) fullMenu=true")
+            print("STATUS_NATIVE_ROUND command=\(command ?? "cancel") visibleWhileOpen=\(visible) fullMenu=true captureCommands=0")
         }
         try await wait("fixture did not launch paused") { status(pid) != nil }
         try await round(nil, visible: false, expected: "显示语音板")

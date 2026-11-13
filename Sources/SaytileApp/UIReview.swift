@@ -141,16 +141,43 @@ extension AppDelegate {
                 try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 360, height: 260), name: "panel-ai-recovery", output: output)
                 print("UI_STATE_PASS one transcript survives single-core processing and failure; synthetic Store runs, no providers")
             }
-            try await reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 740), name: "settings", output: output)
+            model.selectSource("local")
+            try await reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 740), name: "settings", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["settings.inputDevice", "麦克风权限"],
+                                              excluded: ["cloud.serviceInspector", "hosted.email", "models.use.apple"])
+                try await self.press("settings.page.cloud", in: host)
+                try await self.inspectSettings(in: host, required: ["hosted.upload-consent"], excluded: ["settings.inputDevice"])
+                try await self.chooseCloudService("自带 API", in: host)
+                try await self.inspectSettings(in: host, required: ["cloud.useBYOK"], excluded: ["hosted.upload-consent"])
+                try await self.press("settings.page.models", in: host)
+                try await self.inspectSettings(in: host, required: ["models.use.apple"], excluded: ["models.mode", "cloud.serviceInspector"])
+                try await self.press("settings.page.speech", in: host)
+                guard model.deviceOnly, !model.hosted.selected, !model.hosted.consent,
+                      !model.recognitionConfiguration.cloudEnabled, !model.connectionCheckAuthorized else {
+                    throw ReviewFailure("browsing the model catalog and both cloud services changed activation or consent")
+                }
+            }
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 560, height: 570), name: "settings-compact", output: output)
-            model.selectSource("hosted")
-            try await reviewWindow(SettingsView(model: model), size: CGSize(width:650,height:740), name:"settings-hosted", output:output) { host in
-                guard model.hosted.selected, !model.hosted.consent, !model.hosted.signedIn else {throw ReviewFailure("unexpected hosted consent")}
-                if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil {
-                    try await self.press("hosted.upload-consent", in:host)
-                    try await self.reviewUntil { model.hosted.consent }
-                    try await self.press("hosted.upload-consent", in:host)
-                    try await self.reviewUntil { !model.hosted.consent }
+            try await reviewWindow(SettingsView(model: model, initialPage: .models), size: CGSize(width: 650, height: 740), name: "settings-models", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["models.use.apple"],
+                                              excluded: ["models.mode", "自动推荐", "手动选择", "hosted.upload-consent", "recognition.cloudEnabled"])
+            }
+            try await reviewWindow(SettingsView(model: model, initialPage: .cloud), size: CGSize(width: 650, height: 740), name: "settings-hosted", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["cloud.serviceInspector", "hosted.email", "hosted.upload-consent"],
+                                              excluded: ["settings.inputDevice", "recognition.cloudEnabled"])
+                guard model.deviceOnly, !model.hosted.selected, !model.hosted.consent, !model.hosted.signedIn else {
+                    throw ReviewFailure("browsing cloud settings changed the local route or its authorization")
+                }
+                try await self.press("hosted.upload-consent", in: host)
+                try await self.reviewUntil { model.hosted.consent && model.hosted.selected && !model.deviceOnly }
+                try await self.press("hosted.upload-consent", in: host)
+                try await self.reviewUntil { !model.hosted.consent && !model.hosted.selected && model.deviceOnly }
+            }
+            try await reviewWindow(SettingsView(model: model, initialPage: .cloud, initialCloudService: .byok), size: CGSize(width: 650, height: 740), name: "settings-byok", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["cloud.serviceInspector", "cloud.useBYOK"],
+                                              excluded: ["settings.inputDevice", "hosted.email", "hosted.upload-consent"])
+                guard !model.recognitionConfiguration.cloudEnabled, !model.connectionCheckAuthorized, !model.hosted.consent else {
+                    throw ReviewFailure("browsing BYOK settings authorized a service")
                 }
             }
             model.selectSource("local")
@@ -223,7 +250,8 @@ extension AppDelegate {
             try FileManager.default.createDirectory(at: referenceOutput, withIntermediateDirectories: true)
             try await reviewApprovedReference(output: referenceOutput)
             if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil { print("UI_CONTROLS_NOT_RUN remote AX helper not configured; rendering only") }
-            let captures = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil ? 28 : 38
+            let captures = try FileManager.default.contentsOfDirectory(at: output, includingPropertiesForKeys: nil)
+                .filter { $0.pathExtension == "png" }.count
             print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; \(captures) standard captures plus 3 approved-reference captures; synthetic data; no activation/microphone")
             return true
         } catch { print("UI_REVIEW_FAILED \(error.localizedDescription)"); fflush(nil); return false }
@@ -625,6 +653,31 @@ extension AppDelegate {
         throw ReviewFailure("native UI controller did not acknowledge the expected state at UIReview.swift:\(line) within five seconds")
     }
 
+    @MainActor private func chooseCloudService(_ title: String, in host: NSView) async throws {
+        let selection = ReviewCloudMenuSelection(title: title)
+        NotificationCenter.default.addObserver(selection, selector: #selector(ReviewCloudMenuSelection.menuOpened(_:)),
+                                               name: NSMenu.didBeginTrackingNotification, object: nil)
+        defer { NotificationCenter.default.removeObserver(selection) }
+        try await press("cloud.serviceInspector", in: host)
+        guard selection.chosen else { throw ReviewFailure("native cloud service menu did not dispatch the selected item") }
+        print("NATIVE_UI_CLOUD_SELECTION \(title) via=NSMenu.performActionForItem")
+    }
+
+    @MainActor private func inspectSettings(in host: NSView, required: [String], excluded: [String]) async throws {
+        let output = try await performControl("settings", in: host, arguments: ["inspect-settings"])
+        let marker = "NATIVE_UI_SETTINGS_INSPECT "
+        guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix(marker) }),
+              let names = try JSONSerialization.jsonObject(with: Data(line.dropFirst(marker.count).utf8)) as? [String] else {
+            throw ReviewFailure("incomplete native settings inventory")
+        }
+        let actual = Set(names)
+        let missing = Set(required).subtracting(actual)
+        let unexpected = actual.intersection(excluded + ["settings.source", "开始收音", "继续收音", "暂停收音", "恢复收音", "取消开启"])
+        guard missing.isEmpty, unexpected.isEmpty else {
+            throw ReviewFailure("unexpected settings tree: missing=\(missing.sorted()) forbidden=\(unexpected.sorted())")
+        }
+    }
+
     @MainActor private func inspectCapture(_ label: String, state: String, hasText: Bool = false, in host: NSView) async throws {
         let output = try await performControl("panel.capture", in: host, arguments: ["inspect-panel"])
         guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix("NATIVE_UI_PANEL_INSPECT ") }),
@@ -916,9 +969,14 @@ extension AppDelegate {
                     try await self.press("panel.capture", in: host)
                     try await self.reviewUntil { capture.pauses == 3 && capture.state == .paused }
                     capture.state = .interrupted("合成设备暂不可用，原音与文字仍保留。")
+                    model.notice = "合成操作提示"
                     model.objectWillChange.send()
                     try await Task.sleep(for: .milliseconds(100))
                     try await self.inspectCapture("恢复收音", state: "需要恢复，合成设备暂不可用，原音与文字仍保留。", hasText: true, in: host)
+                    try await self.reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 740), name: "settings-interrupted", output: output) { settingsHost in
+                        try await self.inspectSettings(in: settingsHost, required: ["settings.captureDetail", "合成设备暂不可用，原音与文字仍保留。", "settings.notice", "合成操作提示"],
+                                                     excluded: ["hosted.upload-consent"])
+                    }
                     try self.captureReview(host, name: "panel-capture-interrupted", output: output)
                     try await self.press("panel.capture", in: host)
                     try await self.reviewUntil { capture.starts == 3 && capture.state == .listening }
@@ -1316,4 +1374,18 @@ private final class ReviewActivations: @unchecked Sendable {
     }
     var candidateActivated: Bool { lock.lock(); defer { lock.unlock() }; return own }
     var otherActivations: Int { lock.lock(); defer { lock.unlock() }; return others }
+}
+
+@MainActor private final class ReviewCloudMenuSelection: NSObject {
+    let title: String
+    private(set) var chosen = false
+    init(title: String) { self.title = title }
+
+    @objc func menuOpened(_ note: Notification) {
+        guard let menu = note.object as? NSMenu, menu.item(withTitle: "Saytile Cloud") != nil,
+              let item = menu.item(withTitle: title) else { return }
+        menu.performActionForItem(at: menu.index(of: item))
+        chosen = true
+        menu.cancelTracking()
+    }
 }

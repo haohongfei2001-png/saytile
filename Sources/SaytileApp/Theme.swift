@@ -31,14 +31,20 @@ enum WorkspaceStyle {
 }
 
 struct WorkspaceBrand: View {
+    var showsName = true
     var body: some View {
         HStack(spacing: 9) {
             if let mark = SaytileBrand.mark {
                 Image(nsImage: mark).resizable().interpolation(.high).aspectRatio(contentMode: .fit)
                     .frame(width: 28, height: 32).accessibilityHidden(true)
             }
-            Text("Saytile").font(.system(size: 18, weight: .semibold))
-        }.foregroundStyle(WorkspaceStyle.foreground)
+            if showsName || SaytileBrand.mark == nil {
+                Text("Saytile").font(.system(size: 18, weight: .semibold))
+            }
+        }
+        .foregroundStyle(WorkspaceStyle.foreground)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Saytile")
     }
 }
 

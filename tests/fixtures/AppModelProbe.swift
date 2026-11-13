@@ -99,6 +99,15 @@ struct AppModelProbe {
         preferences.set("synthetic-disconnected-microphone", forKey: "selectedDeviceUID")
         let model = try AppModel(directory: directory, preferences: preferences)
         try require(model.deviceOnly && !model.hosted.selected, "fresh install starts offline")
+        model.useBYOK(true)
+        try require(model.deviceOnly && !model.usesBYOK && !model.recognitionConfiguration.cloudEnabled,
+                    "an unverified BYOK connection cannot take over on-device recognition")
+        try require(model.manualLocalModel == nil && model.selectedLocalModel == .apple,
+                    "the existing default appears as a concrete on-device model without rewriting preferences")
+        model.selectLocal(.apple)
+        try require(model.manualLocalModel == .apple && model.selectedLocalModel == .apple && model.deviceOnly && !model.hosted.consent,
+                    "choosing a named local model persists the choice without enabling online audio")
+        model.selectLocal(nil)
         model.setLoginItem(true)
         try require(!model.canManageLoginItem && !model.launchAtLogin,
                     "an isolated instance cannot change the production login item or display an enabled state")
@@ -654,6 +663,18 @@ extension AppModelProbe {
                   "service failures remain visible and retain local recognition")
         // The live bit here is intentionally fabricated ONLY to exercise the production
         // receipt admission branch. This is not evidence of a live cloud connection.
+        model.connectionCheckAuthorized = true; model.checkRecognitionConnections(activateOnSuccess: false)
+        try await until("settings verification without activation") { fixture.verificationContinuation != nil }
+        try fixture.finish(.verified, live: true, completed: true)
+        try await until("verified settings saved while local") { !model.checkingConnection && !model.applyingRecognitionSettings }
+        try check(model.connectionVerified && !model.usesBYOK && !fixture.runtimeCloud,
+                  "verifying a BYOK account from Settings leaves new speech local even with legacy source preferences")
+        model.useBYOK(true)
+        try check(model.usesBYOK && !model.deviceOnly && !model.hosted.selected,
+                  "explicit BYOK activation applies verified speech and text configuration for new speech")
+        model.useBYOK(false)
+        try check(model.deviceOnly && !model.usesBYOK && model.connectionVerified && !RecognitionConfiguration.load(from: preferences).cloudEnabled,
+                  "switching off BYOK immediately restores local speech and preserves verified credentials")
         model.connectionCheckAuthorized = true; model.checkRecognitionConnections()
         try await until("test-only live-shaped report entry") { fixture.verificationContinuation != nil }
         try fixture.finish(.verified, live: true, completed: true)

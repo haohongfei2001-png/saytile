@@ -3,21 +3,23 @@ import SwiftUI
 import SaytileKit
 
 enum SettingsPage: String, CaseIterable, Identifiable {
-    case speech, models, input, storage, about
+    case speech, models, cloud, input, storage, about
     var id: Self { self }
     var title: String { switch self {
-    case .speech: "声音与识别"; case .models: "本地模型"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .about: "关于 Saytile"
+    case .speech: "麦克风"; case .models: "本地模型"; case .cloud: "云端服务"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .about: "关于"
     } }
     var symbol: String { switch self {
-    case .speech: "waveform"; case .models: "cpu"; case .input: "keyboard"; case .storage: "internaldrive"; case .about: "info.circle"
+    case .speech: "mic"; case .models: "cpu"; case .cloud: "cloud"; case .input: "keyboard"; case .storage: "internaldrive"; case .about: "info.circle"
     } }
 }
 
 struct SettingsView: View {
     @ObservedObject var model: AppModel
     @ViewState private var page: SettingsPage
-    init(model: AppModel, initialPage: SettingsPage = .speech) {
+    @ViewState private var cloudService: CloudSettingsService
+    init(model: AppModel, initialPage: SettingsPage = .speech, initialCloudService: CloudSettingsService? = nil) {
         self.model = model; _page = ViewState(initialValue: initialPage)
+        _cloudService = ViewState(initialValue: initialCloudService ?? (!model.deviceOnly && !model.hosted.selected ? .byok : .hosted))
     }
     @ViewState private var cleanup = false
     private var version: String { (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String).map { "内测 \($0)" } ?? "开发构建" }
@@ -26,7 +28,7 @@ struct SettingsView: View {
             HStack(spacing: 0) {
                 if geo.size.width >= 640 {
                     VStack(alignment: .leading, spacing: 3) {
-                        WorkspaceBrand().padding(.leading, 9).padding(.vertical, 18).padding(.bottom, 7)
+                        WorkspaceBrand(showsName: false).padding(.leading, 9).padding(.vertical, 18).padding(.bottom, 7)
                         ForEach(SettingsPage.allCases) { item in
                             WorkspaceNavRow(title: item.title, symbol: item.symbol, selected: page == item) { page = item }
                                 .accessibilityIdentifier("settings.page." + item.rawValue)
@@ -37,14 +39,14 @@ struct SettingsView: View {
                 }
                 VStack(alignment: .leading, spacing: 0) {
                     if geo.size.width < 640 {
-                        HStack { WorkspaceBrand(); Spacer(); Picker("设置项目", selection: $page) {
+                        HStack { WorkspaceBrand(showsName: false); Spacer(); Picker("设置项目", selection: $page) {
                             ForEach(SettingsPage.allCases) { Text($0.title).tag($0) }
                         }.labelsHidden().fixedSize().accessibilityIdentifier("settings.navigation") }
                             .padding(.horizontal, 24).padding(.top, 16)
                     }
                     Text(page.title).font(WorkspaceStyle.title).accessibilityAddTraits(.isHeader)
                         .padding(.horizontal, 24).padding(.top, geo.size.width < 640 ? 15 : 25).padding(.bottom, 6)
-                    if let notice = model.notice {
+                    if let notice = model.notice, page != .speech || notice != model.panelCaptureDetail {
                         Text(notice).font(.callout).foregroundStyle(.secondary).textSelection(.enabled)
                             .padding(.horizontal, 24).padding(.top, 6).accessibilityIdentifier("settings.notice")
                     }
@@ -52,6 +54,7 @@ struct SettingsView: View {
                         switch page {
                         case .speech: speech
                         case .models: LocalModelSettings(model: model)
+                        case .cloud: cloud
                         case .input: input
                         case .storage: storage
                         case .about: about
@@ -66,29 +69,46 @@ struct SettingsView: View {
             }
     }
     @ViewBuilder private var speech: some View {
-        Section("麦克风") {
+        Section {
             Picker("输入设备", selection: $model.deviceUID) {
                 ForEach(model.devices) { device in Text(device.name).tag(device.id) }
             }.accessibilityLabel("输入设备").accessibilityIdentifier("settings.inputDevice")
-            LabeledContent("收音", value: model.captureLabel)
-            if let detail = model.panelCaptureDetail { Text(detail).foregroundStyle(.secondary).accessibilityIdentifier("settings.captureDetail") }
             LabeledContent("麦克风权限") {
                 if model.microphoneDenied { Button("打开系统设置…", action: model.openMicrophoneSettings) }
                 else { Text(model.microphoneLabel) }
             }
-            Button(model.captureActionLabel, action: model.toggleCapture)
         }
-        HostedSettingsSection(model: model, account: model.hosted)
-        if model.deviceOnly {
-            LabeledContent("识别语言", value: "中文 · 本机处理")
-            Button("管理本地模型") { page = .models }.accessibilityIdentifier("settings.manageModels")
-        } else if !model.hosted.selected {
-            RecognitionSettingsSection(model: model)
+        if let detail = model.panelCaptureDetail {
+            Section { Text(detail).textSelection(.enabled).accessibilityIdentifier("settings.captureDetail") }
+        }
+        if let issue = model.audio.issue, issue != model.notice, issue != model.panelCaptureDetail {
+            Section { Text(issue).textSelection(.enabled).accessibilityIdentifier("settings.audioIssue") }
+        }
+    }
+    @ViewBuilder private var cloud: some View {
+        Section {
+            Picker("配置服务", selection: $cloudService) {
+                Text("Saytile Cloud").tag(CloudSettingsService.hosted)
+                Text("自带 API").tag(CloudSettingsService.byok)
+            }.pickerStyle(.menu).accessibilityIdentifier("cloud.serviceInspector")
+        }
+        switch cloudService {
+        case .hosted: HostedSettingsSection(model: model, account: model.hosted)
+        case .byok:
+            RecognitionSettingsSection(model: model, managesInputSource: true)
+            if model.deviceOnly {
+                Section("本机识别的文字核对") {
+                    Toggle("用 GPT-6 核对新讲话的文字", isOn: Binding(get: { model.localTextAllowed }, set: { model.allowLocalText($0) }))
+                        .disabled(!model.localTextAllowed && model.localGPT.map(model.hasCredential) != true)
+                    Text("仅将文字发送给 OpenAI，费用由你的 API 账户承担。").font(.callout).foregroundStyle(.secondary)
+                }
+            }
         }
     }
     @ViewBuilder private var input: some View {
         Section("直接输入") {
             LabeledContent("辅助功能", value: model.accessibilityLabel)
+            LabeledContent("输入目标", value: model.targetLabel).accessibilityIdentifier("settings.inputTarget")
             if !model.input.hasPermission { Button("允许跨应用插入…", action: model.requestAccessibility) }
             Text("复制无需授权。直接输入只追加到你绑定的草稿。") .font(.callout).foregroundStyle(.secondary)
         }
@@ -135,3 +155,5 @@ struct SettingsView: View {
         }
     }
 }
+
+enum CloudSettingsService { case hosted, byok }

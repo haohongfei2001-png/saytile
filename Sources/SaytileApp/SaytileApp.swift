@@ -476,7 +476,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         status?.button?.title = status?.button?.image == nil ? "Saytile" : ""
         status?.button?.toolTip = [label, model.panelCaptureDetail].compactMap { $0 }.joined(separator: " · ")
         status?.button?.setAccessibilityLabel(label)
-        status?.button?.setAccessibilityHelp([model.panelCaptureDetail, "点按打开语音板、收音、档案和设置菜单"].compactMap { $0 }.joined(separator: "。"))
+        status?.button?.setAccessibilityHelp([model.panelCaptureDetail, "点按打开语音板、档案和设置菜单"].compactMap { $0 }.joined(separator: "。"))
     }
     func menuNeedsUpdate(_ menu: NSMenu) {
         guard menu === status?.menu, !trackingStatusMenu else { return }
@@ -493,15 +493,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     }
     private func populateStatusMenu(_ menu: NSMenu) {
         menu.removeAllItems()
-        let state = NSMenuItem(title: model?.panelCaptureLabel ?? "暂停", action: nil, keyEquivalent: "")
-        state.isEnabled = false; menu.addItem(state)
-        if let detail = model?.panelCaptureDetail {
+        if let model, model.captureProblem, let detail = model.panelCaptureDetail {
             let reason = NSMenuItem(title: detail, action: nil, keyEquivalent: "")
-            reason.isEnabled = false; reason.toolTip = detail; menu.addItem(reason)
+            reason.isEnabled = false
+            reason.toolTip = detail
+            menu.addItem(reason)
+            menu.addItem(.separator())
         }
-        menu.addItem(.separator())
         let panelVisible = panel?.isVisible == true
-        let items: [(String, Selector)] = [(panelVisible ? "收起语音板" : "显示语音板", panelVisible ? #selector(explicitlyHidePanel) : #selector(explicitlyShowPanel)), (model?.captureActionLabel ?? "开始收音", #selector(toggleCapture)), ("语音档案", #selector(showArchive)), ("设置…", #selector(showSettings))]
+        let items: [(String, Selector)] = [(panelVisible ? "收起语音板" : "显示语音板", panelVisible ? #selector(explicitlyHidePanel) : #selector(explicitlyShowPanel)), ("语音档案", #selector(showArchive)), ("设置…", #selector(showSettings))]
         for (title, selector) in items { let item = NSMenuItem(title: title, action: selector, keyEquivalent: ""); item.target = self; menu.addItem(item) }
         menu.addItem(.separator())
         #if canImport(Sparkle)
@@ -513,7 +513,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         #endif
         let quit = NSMenuItem(title: "退出 Saytile", action: #selector(quitApp), keyEquivalent: "q"); quit.target = self; menu.addItem(quit)
     }
-    @objc private func toggleCapture() { model?.toggleCapture() }
     @objc private func quitApp() { NSApp.terminate(nil) }
     @objc func togglePanel() { if panel?.isVisible == true { explicitlyHidePanel() } else { explicitlyShowPanel() } }
     @objc private func explicitlyShowPanel() {
@@ -602,7 +601,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         guard let model else { return }
         model.audio.refreshDevices()
         if settings == nil {
-            settings = makeWindow(title: "Saytile · 设置", width: 780, height: 610, view: SettingsView(model: model, initialPage: storage ? .storage : .speech))
+            settings = makeWindow(title: "设置", width: 780, height: 610, view: SettingsView(model: model, initialPage: storage ? .storage : .speech))
         } else if storage {
             NotificationCenter.default.post(name: .init("SaytileOpenStorageSettings"), object: nil)
         }

@@ -68,31 +68,7 @@ struct InputPanelView: View {
                     model.notice = error.localizedDescription
                     throw error
                 }
-            }, target: model.directMode ? model.targetLabel : nil, notice: model.panelCaptureDetail ?? model.notice,
-            placeholder: placeholder, placeholderDetail: model.completedFirstTranscript ? nil : firstUseDetail,
-            menu: { panelActions })
-    }
-
-    private var placeholder: String? {
-        guard model.timeline.entries.isEmpty else { return nil }
-        return !model.completedFirstTranscript ? firstUseTitle : (model.isListening ? "开口，文字会出现在这里。" : nil)
-    }
-
-    private var firstUseTitle: String {
-        switch model.panelCapturePresentation.state {
-        case .starting: "正在准备收音…"
-        case .standby, .recognizing: "说一句话试试。"
-        case .recoveryNeeded: "收音已暂停"
-        case .paused: "点右下角，开始说话。"
-        }
-    }
-    private var firstUseDetail: String {
-        if model.captureProblem {
-            return model.microphoneDenied ? "点右下角打开麦克风设置。允许后，回来继续。" : "处理上方提示后，点右下角继续。"
-        }
-        if model.audio.preparingAppleSpeech { return "正在准备中文资源，已开始的录音会保留。" }
-        if model.audio.appleResourceFailure != nil { return "中文资源尚未就绪。到设置中的本地模型重试，原音会保留。" }
-        return model.isListening ? "点左下角复制文字，再点右侧暂停。" : "讲话时文字会出现在这里。左下角可复制。"
+            }, menu: { panelActions })
     }
 
     private func copyTranscript() {
@@ -114,17 +90,16 @@ struct InputPanelView: View {
         let title: String
         var enabled = true
         var checked = false
-        var action: (@MainActor () -> Void)?
+        let action: @MainActor () -> Void
         var copyID: String {
             switch id {
             case "edit", "latest": "panel." + id
-            case "dismiss": "panel.dismissNotice"
             default: "panel.more." + id
             }
         }
     }
     private var commandGroups: [[PanelCommand]] {
-        var groups: [[PanelCommand]] = [
+        [
             [.init(id: "copy", title: selectedText.isEmpty ? "复制当前文字" : "复制所选文字", enabled: canCopy, action: { copyTranscript() }),
              .init(id: "edit", title: "在档案中编辑这段文字", enabled: editTarget != nil, action: { if let item = editTarget { model.select(item) } }),
              .init(id: "latest", title: "回到最新", enabled: !followsLatest, action: { model.followTimeline(); latestRequest += 1 })],
@@ -134,20 +109,10 @@ struct InputPanelView: View {
              .init(id: "direct", title: "直接输入", checked: model.directMode, action: { model.setDirect(true) }),
              .init(id: "bind", title: "绑定当前草稿", action: { model.bindTarget() }),
              .init(id: "insert", title: model.isInserting ? "正在插入…" : (model.insertionArchiveEntry == nil ? "插入最新时间组" : "插入档案定位的这段文字"),
-                   enabled: !model.isInserting && model.hasPanelInsertionScope, action: insertTranscript)]
+                   enabled: !model.isInserting && model.hasPanelInsertionScope, action: insertTranscript)],
+            [.init(id: "clear", title: "清空输入板（保留档案）", enabled: !model.isInserting && model.hasPanelInsertionScope, action: { model.clearPanel(); latestRequest += 1 }),
+             .init(id: "hide", title: "收起输入板", action: { model.hidePanel() })]
         ]
-        var last: [PanelCommand] = []
-        if model.captureProblem && model.microphoneDenied {
-            last.append(.init(id: "microphone", title: "打开麦克风系统设置…", action: { model.openMicrophoneSettings() }))
-        }
-        last.append(.init(id: "save", title: model.saveLabel, enabled: false))
-        last.append(.init(id: "clear", title: "清空输入板（保留档案）", enabled: !model.isInserting && model.hasPanelInsertionScope, action: { model.clearPanel(); latestRequest += 1 }))
-        if model.notice != nil, model.panelCaptureDetail == nil {
-            last.append(.init(id: "dismiss", title: "关闭提示", action: { model.notice = nil }))
-        }
-        last.append(.init(id: "hide", title: "收起输入板", action: { model.hidePanel() }))
-        groups.append(last)
-        return groups
     }
 
     @ViewBuilder private var panelActions: some View {
@@ -155,12 +120,10 @@ struct InputPanelView: View {
         ForEach(groups.indices, id: \.self) { i in
             if i != 0 { Divider() }
             ForEach(groups[i]) { command in
-                if let action = command.action {
-                    Button(action: action) {
-                        if command.checked { Label(command.title, systemImage: "checkmark") }
-                        else { Text(command.title) }
-                    }.disabled(!command.enabled).accessibilityIdentifier(command.copyID)
-                } else { Text(command.title) }
+                Button(action: command.action) {
+                    if command.checked { Label(command.title, systemImage: "checkmark") }
+                    else { Text(command.title) }
+                }.disabled(!command.enabled).accessibilityIdentifier(command.copyID)
             }
         }
     }
@@ -168,12 +131,7 @@ struct InputPanelView: View {
         for (i, commands) in commandGroups.enumerated() {
             if i != 0 { menu.addItem(.separator()) }
             for command in commands {
-                let item: NSMenuItem
-                if let action = command.action {
-                    item = TranscriptMenuItem(title: command.title, identifier: "panel.menu." + command.id, action: action)
-                } else {
-                    item = NSMenuItem(title: command.title, action: nil, keyEquivalent: "")
-                }
+                let item = TranscriptMenuItem(title: command.title, identifier: "panel.menu." + command.id, action: command.action)
                 item.isEnabled = command.enabled
                 item.state = command.checked ? .on : .off
                 menu.addItem(item)
