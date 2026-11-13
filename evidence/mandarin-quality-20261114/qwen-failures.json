@@ -19,7 +19,7 @@
    "sha256": "ece4befeef175208c664e29d786f0851e37ee405393ce930a8d25077069d33ad"
   }
  },
- "baseline_inference_source": null,
+ "baseline_inference_source": "a4f9f08656d1a22d2e0b6c59ad60e36452881010",
  "note": "Per-record errors are compacted in reverse-record order, not aligned to the chronological 'states' array. Each VAD replay measured independently on original PCM; no historical per-frame recognizer traces available.",
  "historical_excess_errors_all_original_fleurs": 443,
  "historical_excess_errors_in_seven": 396,
@@ -28,7 +28,8 @@
   "historical_direct": 64,
   "historical": 460,
   "candidate": 72,
-  "candidate_auto": 67
+  "candidate_auto": 67,
+  "baseline": 65
  },
  "cases": [
   {
@@ -128,7 +129,23 @@
      "qwen-small"
     ]
    },
-   "baseline": null
+   "baseline": {
+    "text": "来自美国普林斯顿大学和瑞典乌普萨拉大学的研究人员报告称，由于当地特有的达尔文雀的蛹地雀和外来的仙人掌大嘴地雀之间的繁殖，这个新物种只进化了两代。尽管人们认为这一过程需要更长的时间。",
+    "score": {
+     "errors": 2,
+     "substitutions": 1,
+     "deletions": 1,
+     "insertions": 0,
+     "reference_units": 87
+    },
+    "states": [
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   }
   },
   {
    "id": "fleurs-c6f5c46f9e3daea6",
@@ -227,7 +244,23 @@
      "qwen-small"
     ]
    },
-   "baseline": null
+   "baseline": {
+    "text": "然而，这些计划几乎在一夜之间被气如碧绿，在违反《加里加和平条约》《苏联波兰互不侵犯条约》及其他双边及多边国际条约，入侵波兰的东部地区之后，超过80万名苏联红军入境，并在白俄罗斯和乌克兰筑起阵地。",
+    "score": {
+     "errors": 4,
+     "substitutions": 3,
+     "deletions": 0,
+     "insertions": 1,
+     "reference_units": 86
+    },
+    "states": [
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   }
   },
   {
    "id": "fleurs-ced6f3c05e1dfefa",
@@ -336,7 +369,26 @@
      "qwen-small"
     ]
    },
-   "baseline": null
+   "baseline": {
+    "text": "其他提名包括最佳影片、最佳导演、最佳摄影、最佳服装设计、最佳电影剪辑、最佳原创配乐、最佳艺术指导、最佳音效剪辑、最佳混音和最佳原创剧本。",
+    "score": {
+     "errors": 0,
+     "substitutions": 0,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 59
+    },
+    "states": [
+     "failed",
+     "completed"
+    ],
+    "errors": [
+     "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。"
+    ],
+    "providers": [
+     "qwen-small"
+    ]
+   }
   },
   {
    "id": "fleurs-3f46bdea034f311a",
@@ -435,7 +487,23 @@
      "qwen-small"
     ]
    },
-   "baseline": null
+   "baseline": {
+    "text": "佩里表示他会返回德克萨斯，评估今晚党团会议的结果，明确表示明确自己在这次较量中是否有胜算的余地。但后来他又表示会继续参加竞选，并参加于一月二十一日在南卡罗来纳州举行的初选。",
+    "score": {
+     "errors": 10,
+     "substitutions": 5,
+     "deletions": 0,
+     "insertions": 5,
+     "reference_units": 76
+    },
+    "states": [
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   }
   },
   {
    "id": "fleurs-d8d1713dc5816512",
@@ -548,7 +616,23 @@
      "qwen-small"
     ]
    },
-   "baseline": null
+   "baseline": {
+    "text": "现任议员阿根廷第一夫人克里斯蒂娜·菲尔南德斯·德·克克纳，昨晚在距离布伊诺斯爱丽斯五十公里三十英里的拉布拉塔市，宣布了其总统竞选资格。",
+    "score": {
+     "errors": 45,
+     "substitutions": 10,
+     "deletions": 35,
+     "insertions": 0,
+     "reference_units": 96
+    },
+    "states": [
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   }
   },
   {
    "id": "fleurs-01a0123885ebec5b",
@@ -665,7 +749,24 @@
      "qwen-small"
     ]
    },
-   "baseline": null
+   "baseline": {
+    "text": "表演开始五分钟后，刮起了风，约一分钟后，风速达到了七十公里每小时。紧接着又下起了雨，雨势如此之大，像针扎一样拍打在皮肤上。随后天上下起了冰雹，惊慌失措的人群尖叫着四散奔逃。",
+    "score": {
+     "errors": 3,
+     "substitutions": 2,
+     "deletions": 0,
+     "insertions": 1,
+     "reference_units": 76
+    },
+    "states": [
+     "completed",
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   }
   },
   {
    "id": "fleurs-3ab57220f1f10003",
@@ -782,7 +883,24 @@
      "qwen-small"
     ]
    },
-   "baseline": null
+   "baseline": {
+    "text": "恐龙的羽毛并没有发育良好的主干。这成为羽轴，但还是有羽毛的其他特征，比如羽枝和羽小枝。研究人员推断，羽轴的进化可能比这些其他特征晚。",
+    "score": {
+     "errors": 1,
+     "substitutions": 1,
+     "deletions": 0,
+     "insertions": 0,
+     "reference_units": 60
+    },
+    "states": [
+     "completed",
+     "completed"
+    ],
+    "errors": [],
+    "providers": [
+     "qwen-small"
+    ]
+   }
   }
  ]
 }
