@@ -11,7 +11,7 @@ public actor SaytileStore {
     let panelEditor = PanelEditConnection()
     private let processLock: StoreProcessLock
     private var leases: [UUID: UUID] = [:]
-    private static let selection = "SELECT r.*,v.text FROM recordings r LEFT JOIN revisions v ON r.preferred_revision=v.id"
+    static let selection = "SELECT r.*,v.text FROM recordings r LEFT JOIN revisions v ON r.preferred_revision=v.id"
 
     public init(directory: URL) throws {
         let normalized = directory.standardizedFileURL
@@ -98,18 +98,36 @@ public actor SaytileStore {
         return !required.isEmpty && required.isSubset(of: authorized)
     }
     public func listRecordings(query: String = "", limit: Int = 200, offset: Int = 0, filter: RecordingFilter = .all) throws -> [Recording] {
+        let (predicate, values) = Self.archivePredicate(query: query, filter: filter)
+        return try db.rows(Self.selection + " WHERE r.deleted=0 AND " + predicate + " ORDER BY r.created_at DESC,r.id DESC LIMIT ? OFFSET ?",
+                           values + [.int(Int64(max(1,min(limit,1000)))), .int(Int64(max(0,offset)))]).map(Self.decodeRecording)
+    }
+
+    static func archivePredicate(query: String, filter: RecordingFilter, editingID: UUID? = nil) -> (String, [StoreDatabase.Value]) {
         let filterSQL: String
         switch filter {
-        case .all: filterSQL = ""
+        case .all: filterSQL = "1"
         case .transcribed:
-            // Browse by the currently selected text. Search can also find a saved draft
-            // or historical revision when there is no text in the current version.
-            filterSQL = query.isEmpty ? " AND trim(v.text,\(Self.whitespaceSQL))<>''" : ""
-        case .pinned: filterSQL = " AND r.pinned=1"
-        case .needsRecovery: filterSQL = " AND r.recognition_state IN('queued','failed') AND r.audio_state='available'"
+            // Browsing hides empty transcripts. Searches can also match a draft or an old version.
+            filterSQL = query.isEmpty ? "trim(v.text,\(Self.whitespaceSQL))<>''" : "1"
+        case .pinned: filterSQL = "r.pinned=1"
+        case .needsRecovery: filterSQL = "r.recognition_state IN('queued','failed') AND r.audio_state='available'"
         }
-        let escaped = query.replacingOccurrences(of:"\\",with:"\\\\").replacingOccurrences(of:"%",with:"\\%").replacingOccurrences(of:"_",with:"\\_")
-        return try db.rows(Self.selection + " WHERE r.deleted=0" + filterSQL + " AND (?='' OR EXISTS (SELECT 1 FROM revisions s WHERE s.recording_id=r.id AND s.text LIKE ? ESCAPE '\\') OR EXISTS (SELECT 1 FROM editing_drafts d WHERE d.recording_id=r.id AND d.text LIKE ? ESCAPE '\\')) ORDER BY r.created_at DESC,r.id DESC LIMIT ? OFFSET ?",[.text(query),.text("%" + escaped + "%"),.text("%" + escaped + "%"),.int(Int64(max(1,min(limit,1000)))),.int(Int64(max(0,offset)))]).map(Self.decodeRecording)
+        var values = [StoreDatabase.Value]()
+        var match = filterSQL
+        if !query.isEmpty {
+            let escaped = query.replacingOccurrences(of:"\\",with:"\\\\").replacingOccurrences(of:"%",with:"\\%").replacingOccurrences(of:"_",with:"\\_")
+            match += " AND (EXISTS (SELECT 1 FROM revisions s WHERE s.recording_id=r.id AND s.text LIKE ? ESCAPE '\\') OR EXISTS (SELECT 1 FROM editing_drafts d WHERE d.recording_id=r.id AND d.text LIKE ? ESCAPE '\\'))"
+            values += [.text("%" + escaped + "%"), .text("%" + escaped + "%")]
+        }
+        if let editingID {
+            // Keep an empty or no-longer-matching paragraph in place until editing ends.
+            // Explicit removal from Favorites must still take effect.
+            let keep = filter == .pinned || filter == .needsRecovery ? filterSQL + " AND r.id=?" : "r.id=?"
+            match = "((" + match + ") OR (" + keep + "))"
+            values.append(.text(editingID.uuidString))
+        }
+        return (match, values)
     }
     /// Pages the current listening session plus records explicitly returned to the panel.
     public func listPanelRecordings(createdSince: Date, includingIDs: [UUID], limit: Int = 100, offset: Int = 0) throws -> [Recording] {
@@ -212,6 +230,30 @@ public actor SaytileStore {
         guard try rawChunks(chunk.recordingID).contains(where:{$0.id == chunk.id && $0.relativePath == chunk.relativePath}) else { throw StoreError.invalidPath }
         return try safeAudioURL(chunk.relativePath)
     }
+    /// A previous failed first checkpoint can leave an owned, recoverable file
+    /// behind a missing marker. Erasure states must never expose that path.
+    func missingAudioRepairPaths(recordingID: UUID) throws -> [(AudioChunk, URL)] {
+        let record = try requireRecording(recordingID)
+        guard record.audioState == .missing, !record.isRecording else { return [] }
+        return try rawChunks(recordingID).map { chunk in
+            guard chunk.relativePath.split(separator: "/").first == Substring(recordingID.uuidString) else { throw StoreError.invalidPath }
+            return (chunk, try safeAudioURL(chunk.relativePath))
+        }
+    }
+
+    func restoreMissingAudio(recordingID: UUID, repaired: [(AudioChunk, Int64)]) throws -> Bool {
+        try db.transaction {
+            let record = try requireRecording(recordingID)
+            guard record.audioState == .missing, !record.isRecording,
+                  repaired.contains(where: { $0.1 > 0 }),
+                  try rawChunks(recordingID) == repaired.map({ $0.0 }) else { return false }
+            for (chunk, frames) in repaired {
+                try db.execute("UPDATE chunks SET frames=? WHERE id=?", [.int(frames), .text(chunk.id.uuidString)])
+            }
+            try db.execute("UPDATE recordings SET audio_state='available',last_error=NULL WHERE id=?", [.text(recordingID.uuidString)])
+            return true
+        }
+    }
     public func revisions(recordingID: UUID) throws -> [TranscriptRevision] {
         _ = try requireRecording(recordingID)
         return try db.rows("SELECT * FROM revisions WHERE recording_id=? ORDER BY created_at DESC,rowid DESC",[.text(recordingID.uuidString)]).map(Self.decodeRevision)
@@ -242,20 +284,44 @@ public actor SaytileStore {
     public func loadDraft(recordingID: UUID) throws -> String? {
         try db.rows("SELECT d.text FROM editing_drafts d JOIN recordings r ON r.id=d.recording_id WHERE d.recording_id=? AND r.deleted=0",[.text(recordingID.uuidString)]).first?["text"]
     }
+    public func archiveDraft(recordingID: UUID) throws -> (text: String, base: UUID?)? {
+        try db.rows("""
+            SELECT d.text,b.revision_id FROM editing_drafts d
+            LEFT JOIN archive_draft_bases b USING(recording_id)
+            JOIN recordings r ON r.id=d.recording_id WHERE d.recording_id=? AND r.deleted=0
+            """, [.text(recordingID.uuidString)]).first.map { ($0["text"] ?? "", $0["revision_id"].flatMap(UUID.init(uuidString:))) }
+    }
     public func saveDraft(recordingID: UUID, text: String) throws {
-        _ = try requireRecording(recordingID)
-        try db.execute("INSERT INTO editing_drafts(recording_id,text,updated_at) VALUES(?,?,?) ON CONFLICT(recording_id) DO UPDATE SET text=excluded.text,updated_at=excluded.updated_at",[.text(recordingID.uuidString),.text(text),.double(Date().timeIntervalSince1970)])
+        try db.transaction {
+            let record = try requireRecording(recordingID)
+            // The first write fixes the editing base. Repeated writes to the same
+            // draft must not adopt a later change to the preferred transcript.
+            let existed = try db.rows("SELECT 1 FROM editing_drafts WHERE recording_id=?", [.text(recordingID.uuidString)]).first != nil
+            try Self.persistArchiveDraft(text, id: recordingID, base: record.preferredRevisionID, updateBase: !existed, in: db)
+        }
     }
     public func clearDraft(recordingID: UUID) throws {
         try db.execute("DELETE FROM editing_drafts WHERE recording_id=?",[.text(recordingID.uuidString)])
     }
-    @discardableResult public func saveEdit(recordingID: UUID, text: String) throws -> TranscriptRevision {
-        let record = try requireRecording(recordingID)
+    @discardableResult public func saveEdit(recordingID: UUID, text: String, clearingDraftMatching savedDraft: String? = nil,
+                                           basedOn base: UUID? = nil) throws -> TranscriptRevision {
         let revision = TranscriptRevision(id:UUID(),recordingID:recordingID,text:text,origin:.userEdit,createdAt:Date())
         try db.transaction {
+            let record = try requireRecording(recordingID)
+            if savedDraft != nil, let preferred = record.preferredRevisionID, preferred != base,
+               try db.rows("SELECT origin FROM revisions WHERE id=?", [.text(preferred.uuidString)]).first?["origin"] == RevisionOrigin.userEdit.rawValue {
+                throw StoreError.archiveEditingConflict(record)
+            }
             try insertRevision(revision,attempt:nil,base:record.preferredRevisionID)
             try db.execute("UPDATE recordings SET preferred_revision=? WHERE id=?",[.text(revision.id.uuidString),.text(recordingID.uuidString)])
-            try db.execute("DELETE FROM editing_drafts WHERE recording_id=?",[.text(recordingID.uuidString)])
+            // An edit submitted from the detail window must not erase typing that
+            // reached its durable draft while this version waited for the writer.
+            if let savedDraft {
+                try db.execute("DELETE FROM editing_drafts WHERE recording_id=? AND text=?",
+                               [.text(recordingID.uuidString), .text(savedDraft)])
+            } else {
+                try db.execute("DELETE FROM editing_drafts WHERE recording_id=?", [.text(recordingID.uuidString)])
+            }
         }
         return revision
     }
@@ -727,6 +793,7 @@ extension SaytileStore {
       SELECT RAISE(ABORT,'create a new revision');
     END;
     CREATE TABLE IF NOT EXISTS editing_drafts(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),text TEXT NOT NULL,updated_at REAL NOT NULL);
+    CREATE TABLE IF NOT EXISTS archive_draft_bases(recording_id TEXT PRIMARY KEY REFERENCES editing_drafts(recording_id) ON DELETE CASCADE,revision_id TEXT);
     CREATE TABLE IF NOT EXISTS frozen_revisions(revision_id TEXT PRIMARY KEY REFERENCES revisions(id));
     CREATE TABLE IF NOT EXISTS recovery_attempts(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),attempt_count INTEGER NOT NULL CHECK(attempt_count>=0),retry_after REAL NOT NULL);
     CREATE TABLE IF NOT EXISTS recording_cloud_authorizations(

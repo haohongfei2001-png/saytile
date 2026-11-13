@@ -49,17 +49,22 @@ extension AppDelegate {
                 "这周想留一点时间。\n把散落的想法整理成一页清晰的计划。\n先收下讨论的时间。\n不要自动发送。\n确认之后再决定。",
                 "API、Swift 与中文可以放在同一段表达里。测试 emoji 😀，只显示一份持续修正的文字。"
             ]
+            // The first two paragraphs are one speaking session; a real idle gap starts the next.
+            let now = Date.now
+            let midnight = Calendar.current.dateInterval(of: .day, for: now)!.end
+            let base = midnight.timeIntervalSince(now) > 315 ? now.addingTimeInterval(1) : midnight
+            let offsets: [TimeInterval] = [0, 30, 280]
             for (index, text) in examples.enumerated() {
-                let row = try await model.store.createRecording(createdAt: Date().addingTimeInterval(Double(index)))
+                let row = try await model.store.createRecording(createdAt: base.addingTimeInterval(offsets[index]))
                 _ = try await model.store.saveEdit(recordingID: row.id, text: text)
                 if index == 1 {
                     try await addSilentReviewAudio(model: model, recordingID: row.id, frames: 80_000)
                 }
-                try await model.store.finishRecording(id: row.id)
+                try await model.store.finishRecording(id: row.id, speechEndedAt: base.addingTimeInterval(offsets[index] + 5))
                 if index == 1 { try await model.store.setPinned(recordingID: row.id, pinned: true) }
                 if index == 2 { try await model.store.deleteAudio(recordingID: row.id) }
             }
-            let originalOnly = try await model.store.createRecording()
+            let originalOnly = try await model.store.createRecording(createdAt: base.addingTimeInterval(310))
             try await model.store.finishRecording(id: originalOnly.id)
             await model.refresh()
             guard model.recordFilter == .transcribed, model.records.count == 3,
@@ -85,13 +90,32 @@ extension AppDelegate {
             try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1040, height: 720), name: "archive", output: output) { host in
                 try await self.inspectSettings(in: host, required: ["workspace.brand", "settings.page.archive", "archive.favorites"],
                     excluded: ["回到输入板", "全部文字", "全部记录", "待恢复", "设置与存储"])
-                try await self.press("archive.favorites", in: host)
+                let entries = try await model.store.timelinePage().entries
+                let groupIDs = Set(entries.map { $0.group })
+                guard groupIDs.count == 2 else { throw ReviewFailure("short pause split a presentation group or long gap disappeared") }
+                let timeIDs = groupIDs.map { "archive.time.\($0)" }
+                try await self.inspectSettings(in: host, required: timeIDs,
+                    excluded: model.records.flatMap { ["archive.detail.\($0.id)", "archive.copy.\($0.id)"] })
+                try self.captureReview(host, name: "archive-reading", output: output)
+                try await self.mouseClick("archive.favorites", side: .right, minimumWidth: 24, in: host)
                 await model.refresh()
                 guard model.recordFilter == .pinned, model.records.count == 1 else { throw ReviewFailure("native archive filter action failed: filter=\(model.recordFilter), count=\(model.records.count)") }
                 guard let paragraph = model.records.first, paragraph.hasAudio, paragraph.text == examples[1] else {
                     throw ReviewFailure("missing owned transcript or playback fixture")
                 }
                 _ = try await self.performControl("archive.text.\(paragraph.id)", in: host, arguments: ["read-paragraph", paragraph.text])
+                let editable = try await self.archiveEditor(paragraph.id, in: host)
+                try await self.mouseClick("archive.text.\(paragraph.id)", side: .left, minimumWidth: 40, in: host)
+                guard host.window?.firstResponder === editable, editable.isEditable, editable.isSelectable else {
+                    throw ReviewFailure("archive paragraph does not accept a caret in place")
+                }
+                let edited = paragraph.text + "已核对。"
+                editable.insertText("已核对。", replacementRange: NSRange(location: paragraph.text.utf16.count, length: 0))
+                guard (try await model.store.recording(id: paragraph.id))?.text == edited,
+                      model.selected == nil else { throw ReviewFailure("typing did not commit the correct original in place") }
+                try await self.reviewUntil { editable.string == edited }
+                try self.captureReview(host, name: "archive-editing", output: output)
+                print("ARCHIVE_READING_PASS two natural sessions; native inline change committed to its original record")
                 try await self.press("archive.play.\(paragraph.id)", in: host)
                 try await self.reviewUntil { model.playingID == paragraph.id && model.audio.playbackPosition > 0 }
                 guard abs(model.audio.playbackDuration - 5) < 0.01, model.selected == nil else {
@@ -104,24 +128,28 @@ extension AppDelegate {
                 try await self.press("archive.includeUntranscribed", in: host)
                 await model.refresh()
                 guard model.records.count == 4, model.records.contains(where: { $0.id == originalOnly.id }) else { throw ReviewFailure("native archive all-records action lost original-only record") }
+                try await self.reviewArchiveEditing(id: originalOnly.id, model: model, in: host)
                 try await self.press("archive.includeUntranscribed", in: host)
                 await model.refresh()
                 guard model.records.count == 3, let first = model.records.first else { throw ReviewFailure("archive transcript filter did not restore paragraphs") }
+                let starEditor = try await self.archiveEditor(first.id, in: host)
+                guard host.window?.makeFirstResponder(starEditor) == true else { throw ReviewFailure("could not focus archive text") }
+                try await Task.sleep(for: .milliseconds(150))
                 try await self.mouseClick("archive.favorite.\(first.id)", side: .right, minimumWidth: 22, in: host)
                 try await self.reviewUntil { model.records.contains(where: { $0.id == first.id && $0.pinned }) }
                 guard try await model.store.recording(id: first.id)?.isPinned == true else { throw ReviewFailure("row star did not persist") }
                 print("WORKSPACE_STAR_ID \(first.id.uuidString)")
                 try await self.mouseClick("archive.favorites", side: .left, minimumWidth: 24, in: host)
                 try await self.reviewUntil { model.recordFilter == .pinned && model.records.count == 2 }
-                try await self.press("archive.detail.\(first.id)", in: host)
+                try await self.openArchiveVersions(for: first.id, in: host)
                 try await self.reviewUntil { model.editorCanEdit && model.selected?.id == first.id }
                 guard model.selected?.id == first.id, model.editorDraft == first.text else { throw ReviewFailure("paragraph editor opened wrong text") }
                 try await self.press("archive.detailFavorite", in: host)
                 try await self.reviewUntil { model.selected == nil && !model.records.contains(where: { $0.id == first.id }) }
                 guard try await model.store.recording(id: first.id)?.isPinned == false else { throw ReviewFailure("removed favorite still pinned in SQLite") }
-                try await self.press("archive.favorites", in: host)
+                try await self.mouseClick("archive.favorites", side: .right, minimumWidth: 24, in: host)
                 try await self.reviewUntil { model.recordFilter == .transcribed && model.records.count == 3 }
-                try await self.press("archive.detail.\(first.id)", in: host)
+                try await self.openArchiveVersions(for: first.id, in: host)
                 try await self.reviewUntil { model.editorCanEdit && model.selected?.id == first.id }
                 try await self.press("archive.detailFavorite", in: host)
                 try await self.reviewUntil { model.selected?.pinned == true }
@@ -517,6 +545,104 @@ extension AppDelegate {
     }
     @MainActor private func press(_ label: String, in root: NSView) async throws {
         _ = try await performControl(label, in: root)
+    }
+    @MainActor private func archiveEditor(_ id: UUID, in host: NSView) async throws -> NSTextView {
+        // The model commits a filter before SwiftUI lays out its new lazy rows.
+        // Await the actual owned view without issuing or replaying a control action.
+        func rendered() -> NSTextView? {
+            var pending = [host]
+            while let view = pending.popLast() {
+                if let editor = view as? NSTextView, editor.accessibilityIdentifier() == "archive.text.\(id)", editor.window === host.window {
+                    return editor
+                }
+                pending.append(contentsOf: view.subviews)
+            }
+            return nil
+        }
+        try await reviewUntil { host.layoutSubtreeIfNeeded(); return rendered() != nil }
+        guard let editor = rendered() else { throw ReviewFailure("missing owned archive editor") }
+        return editor
+    }
+
+    @MainActor private func reviewArchiveEditing(id: UUID, model: AppModel, in host: NSView) async throws {
+        guard let editor = try await archiveEditor(id, in: host) as? ArchiveParagraphTextView,
+              let window = host.window, window.makeFirstResponder(editor), editor.string.isEmpty else {
+            throw ReviewFailure("empty archive paragraph could not acquire an insertion point")
+        }
+        let board = NSPasteboard.withUniqueName()
+        editor.commandPasteboard = board
+        defer {
+            editor.commandPasteboard = model.copyPasteboard
+            board.releaseGlobally()
+        }
+        editor.setMarkedText("zhong", selectedRange: .init(location: 5, length: 0),
+                             replacementRange: .init(location: 0, length: 0))
+        guard editor.hasMarkedText(), (try await model.store.recording(id: id))?.text == "" else {
+            throw ReviewFailure("unconfirmed Pinyin was archived")
+        }
+        editor.insertText("中文😀", replacementRange: editor.markedRange())
+        guard (try await model.store.recording(id: id))?.text == "中文😀" else {
+            throw ReviewFailure("IME acceptance failed to save inside its original row")
+        }
+        // Keep read/write probes on their own pasteboard across SwiftUI updates.
+        editor.commandPasteboard = board
+        editor.setSelectedRange(.init(location: 2, length: 2))
+        editor.copy(nil)
+        guard board.string(forType: .string) == "😀" else { throw ReviewFailure("archive copy lost its selection") }
+        editor.setSelectedRange(.init(location: 0, length: 1))
+        editor.paste(nil)
+        guard (try await model.store.recording(id: id))?.text == "😀文😀" else { throw ReviewFailure("archive paste replaced the wrong text range") }
+        editor.commandPasteboard = board
+        editor.setSelectedRange(.init(location: 0, length: 2))
+        editor.cut(nil)
+        guard board.string(forType: .string) == "😀",
+              (try await model.store.recording(id: id))?.text == "文😀" else {
+            throw ReviewFailure("archive cut failed to preserve adjacent words")
+        }
+        let beforeUndo = editor.string
+        guard let undo = editor.undoManager else { throw ReviewFailure("archive undo unavailable") }
+        // Synthetic multi-step actions run inside a single native event. An explicit
+        // event boundary exercises one user action without assuming run-loop timing.
+        undo.beginUndoGrouping()
+        editor.breakUndoCoalescing()
+        editor.insertText("。", replacementRange: .init(location: 3, length: 0))
+        undo.endUndoGrouping()
+        let beforeRedo = editor.string
+        guard beforeRedo == "文😀。", undo.canUndo else { throw ReviewFailure("archive undo unavailable for a committed edit") }
+        undo.undo()
+        // AppKit may coalesce adjacent typing into one user undo unit. Verify the
+        // text changed and SQLite contains precisely the restored text at each step.
+        guard editor.string != beforeRedo, (try await model.store.recording(id: id))?.text == editor.string,
+              undo.canRedo else { throw ReviewFailure("archive undo diverged from the saved revision") }
+        undo.redo()
+        guard editor.string == beforeRedo, (try await model.store.recording(id: id))?.text == beforeRedo,
+              beforeUndo == "文😀" else { throw ReviewFailure("archive redo failed to restore the saved revision") }
+        editor.selectAll(nil)
+        editor.deleteBackward(nil)
+        guard (try await model.store.recording(id: id))?.text == "", window.firstResponder === editor else {
+            throw ReviewFailure("deleting the full paragraph lost its empty editing position")
+        }
+        editor.doCommand(by: #selector(NSTextView.insertTab(_:)))
+        guard window.firstResponder !== editor, editor.string.isEmpty else {
+            throw ReviewFailure("Tab failed to leave the archive paragraph or inserted a tab into its content")
+        }
+        window.selectPreviousKeyView(nil)
+        guard window.firstResponder === editor else { throw ReviewFailure("reverse Tab did not restore the archive paragraph") }
+        print("ARCHIVE_EDITOR_PASS empty paragraph, accepted IME, UTF-16 selection, private copy/cut/paste, durable undo/redo, Tab and reverse Tab")
+    }
+
+    @MainActor private func openArchiveVersions(for id: UUID, in host: NSView) async throws {
+        let editor = try await archiveEditor(id, in: host)
+        guard let window = host.window,
+              let event = NSEvent.mouseEvent(with: .rightMouseDown, location: editor.convert(NSMakePoint(3, 3), to: nil),
+                  modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber,
+                  context: nil, eventNumber: 0, clickCount: 1, pressure: 1),
+              let menu = editor.menu(for: event),
+              let item = menu.items.first(where: { $0.identifier?.rawValue == "archive.detail.\(id)" && $0.isEnabled }) else {
+            throw ReviewFailure("missing original/versions command in this paragraph's native menu")
+        }
+        menu.performActionForItem(at: menu.index(of: item))
+        print("NATIVE_ARCHIVE_VERSIONS own_paragraph_menu=true")
     }
     private enum ReviewHitSide { case left, right }
 

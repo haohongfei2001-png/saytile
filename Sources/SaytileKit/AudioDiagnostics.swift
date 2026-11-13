@@ -35,6 +35,18 @@ public enum AudioDiagnostics {
         try await store.finishRecording(id: record.id); session.finish(); await session.wait()
         return record.id
     }
+    /// A rotation registers the next empty WAV before it receives data. A
+    /// missing/incomplete zero-frame tail must not hide the preceding sound.
+    private static func recoveredFrames(_ chunk: AudioChunk, url: URL, emptyRotationTail: Bool) throws -> Int64 {
+        do {
+            return try PCMJournal.repair(url, indexedFrames: chunk.frames)
+        } catch PCMJournal.RepairFailure.incompleteHeader where emptyRotationTail {
+            return 0
+        } catch let error as CocoaError where emptyRotationTail && (error.code == .fileReadNoSuchFile || error.code == .fileNoSuchFile) {
+            return 0
+        }
+    }
+
     /// Repairs only DB-owned files, after deletion intents. Unknown orphans are never reimported.
     public static func recoverAudio(store: SaytileStore) async throws -> Int {
         try await store.recoverPendingDeletions()
@@ -42,18 +54,44 @@ public enum AudioDiagnostics {
         while true {
             let recordings = try await store.listRecordings(limit: 200, offset: offset)
             if recordings.isEmpty { break }
-            for record in recordings where record.audioState == .available && !record.isRecording {
+            for record in recordings where !record.isRecording {
+                if record.audioState == .missing {
+                    // Older captures can have a registered zero-frame chunk even
+                    // though PCM was written before their first checkpoint failed.
+                    // Verify every chunk containing samples before restoring access.
+                    do {
+                        let paths = try await store.missingAudioRepairPaths(recordingID: record.id)
+                        var repaired: [(AudioChunk, Int64)] = []
+                        var hasSamples = false
+                        for (chunk, url) in paths {
+                            let emptyTail = hasSamples && chunk.frames == 0 && chunk.id == paths.last?.0.id
+                            let frames = try recoveredFrames(chunk, url: url, emptyRotationTail: emptyTail)
+                            hasSamples = hasSamples || frames > 0
+                            repaired.append((chunk, frames))
+                        }
+                        if !repaired.isEmpty, try await store.restoreMissingAudio(recordingID: record.id, repaired: repaired) { count += 1 }
+                    } catch {
+                        // A missing or inaccessible component cannot prove the entire
+                        // recording recoverable. Leave its state and text untouched.
+                        continue
+                    }
+                    continue
+                }
+                guard record.audioState == .available else { continue }
                 let chunks = try await store.audioChunks(recordingID: record.id)
                 guard !chunks.isEmpty else {
                     try await store.markAudioMissing(recordingID:record.id,message:"上次采集在原音登记前中断，已有文字已保留")
                     continue
                 }
+                var hasSamples = false
                 for chunk in chunks {
                     do {
                         // Keep ownership/path validation before opening the file, but
                         // isolate a single inaccessible recording from healthy ones.
                         let url = try await store.audioURL(for: chunk)
-                        let frames = try PCMJournal.repair(url)
+                        let emptyTail = hasSamples && chunk.frames == 0 && chunk.id == chunks.last?.id
+                        let frames = try recoveredFrames(chunk, url: url, emptyRotationTail: emptyTail)
+                        hasSamples = hasSamples || frames > 0
                         if frames != chunk.frames { try await store.reconcileAudioChunk(recordingID: record.id, path: chunk.relativePath, actualFrames: frames); count += 1 }
                     } catch let error as PCMJournal.RepairFailure {
                         try await store.markAudioMissing(recordingID: record.id, message: "原音文件不完整，文字已保留：\(error.localizedDescription)")

@@ -865,7 +865,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 try Task.checkCancellation()
                 let activeSession = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot, archived: !isAutomatic)
                 session = activeSession
-                for chunk in chunks {
+                for chunk in chunks where chunk.frames > 0 {
                     try Task.checkCancellation()
                     let handle = try FileHandle(forReadingFrom: try await store.audioURL(for: chunk))
                     defer { try? handle.close() }

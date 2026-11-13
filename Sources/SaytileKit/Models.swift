@@ -68,11 +68,13 @@ public struct StoreRecovery: Sendable {
     public let unverifiedDispatches: Int
 }
 public enum StoreError: LocalizedError, Sendable {
+    case archiveEditingConflict(Recording)
     case database(String), missingRecording, missingRevision, audioUnavailable, recordingActive, audioInUse
     case invalidPath, invalidFrames, invalidBoundary, bindingInvalid, prefixChanged, lateRecognitionDeferred
     public var errorDescription: String? {
         switch self {
         case .database(let message): return "资料库暂时不可用：\(message)"
+        case .archiveEditingConflict: return "原文已修改，草稿已保留。请先核对当前文字。"
         case .missingRecording: return "记录不存在。"
         case .missingRevision: return "文字版本不存在。"
         case .audioUnavailable: return "原音不可用。"

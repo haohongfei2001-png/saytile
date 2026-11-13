@@ -175,7 +175,7 @@ struct ArchiveView: View {
                 Spacer()
                 ArchiveIconButton(symbol: showingFavorites ? "star.fill" : "star",
                                   label: showingFavorites ? "显示所有语音档案" : "只看已收藏",
-                                  id: "archive.favorites", selected: showingFavorites,
+                                  id: "archive.favorites", selected: showingFavorites, highlighted: true,
                                   action: model.toggleFavoriteFilter)
             }
             HStack(spacing: 6) {
@@ -192,7 +192,7 @@ struct ArchiveView: View {
             .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(.quaternary).allowsHitTesting(false))
 
             if let notice = model.notice { Text(notice).font(.callout).foregroundStyle(.secondary).textSelection(.enabled) }
-            if model.records.isEmpty {
+            if model.archiveGroups.isEmpty {
                 ContentUnavailableView(
                     model.query.isEmpty ? (showingFavorites ? "还没有收藏" : model.recordFilter == .all ? "还没有语音记录" : "还没有转写文字") : "没有匹配结果",
                     systemImage: model.query.isEmpty ? (showingFavorites ? "star" : "waveform") : "magnifyingglass",
@@ -214,20 +214,43 @@ struct ArchiveView: View {
     }
 
     private var archiveRows: some View {
-        let rows = model.records
+        let groups = model.archiveGroups
         return ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(rows.enumerated()), id: \.element.id) { offset, item in
-                    if offset == 0 || !Calendar.current.isDate(rows[offset - 1].date, inSameDayAs: item.date) {
-                        Text(item.date, format: .dateTime.year().month().day())
-                            .font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                            .padding(.top, 8).padding(.bottom, 4).accessibilityAddTraits(.isHeader)
+                ForEach(Array(groups.enumerated()), id: \.element.id) { index, group in
+                    let startsDay = index == 0 || groups[index - 1].day != group.day
+                    if startsDay {
+                        Text(group.date, format: Date.FormatStyle(date: .long, time: .omitted,
+                            locale: Locale(identifier: "zh_CN"), timeZone: TimeZone(secondsFromGMT: group.utcOffset) ?? .gmt))
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(WorkspaceStyle.secondary)
+                            .accessibilityAddTraits(.isHeader)
+                            .padding(.top, index == 0 ? 5 : 20).padding(.bottom, 7)
+                    } else {
+                        Divider().padding(.vertical, 8)
                     }
-                    ArchiveRow(item: item, model: model)
-                    Divider()
+                    ForEach(group.items) { item in
+                        HStack(alignment: .top, spacing: 10) {
+                            if item.id == group.items.first?.id {
+                                Text(group.date, format: Date.FormatStyle(date: .omitted, time: .shortened,
+                                    locale: Locale(identifier: "en_GB"), timeZone: TimeZone(secondsFromGMT: group.utcOffset) ?? .gmt))
+                                    .font(.system(size: 12, weight: .medium)).monospacedDigit()
+                                    .foregroundStyle(WorkspaceStyle.secondary)
+                                    .frame(width: 42, alignment: .leading).padding(.top, 7)
+                                    .accessibilityAddTraits(.isHeader)
+                                    .accessibilityIdentifier("archive.time.\(group.id)")
+                            } else {
+                                Color.clear.frame(width: 42, height: 1).accessibilityHidden(true)
+                            }
+                            ArchiveRow(item: item, model: model)
+                        }
+                    }
                 }
-                if model.hasMore { Button("加载更早记录", action: model.loadMore).padding(.vertical, 12) }
-            }
+                if model.hasMore {
+                    Button("加载更早记录", action: model.loadMore).buttonStyle(QuietButton())
+                        .padding(.leading, 52).padding(.vertical, 12)
+                }
+            }.padding(.bottom, 8)
         }
     }
 }
@@ -237,12 +260,24 @@ private struct ArchiveIconButton: View {
     let label: String
     let id: String
     var selected = false
+    var highlighted = false
+    var revealed = true
     let action: () -> Void
+
     var body: some View {
         Button(action: action) {
             Image(systemName: symbol).font(.system(size: 14, weight: .medium))
-                .foregroundStyle(selected ? WorkspaceStyle.accent : .secondary)
-                .frame(width: 32, height: 32).contentShape(Rectangle())
+                .foregroundStyle(highlighted || selected ? WorkspaceStyle.accent : WorkspaceStyle.secondary)
+                .opacity(revealed ? 1 : 0)
+                .frame(width: highlighted ? 36 : 30, height: highlighted ? 32 : 28)
+                .background {
+                    if highlighted {
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(WorkspaceStyle.accent.opacity(selected ? 0.22 : 0.10))
+                            .shadow(color: WorkspaceStyle.accent.opacity(0.15), radius: 3, y: 1)
+                    }
+                }
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(label).accessibilityIdentifier(id)
@@ -255,9 +290,11 @@ private struct ArchiveFavorite: View {
     let item: DisplayRecording
     let id: String
     @ObservedObject var model: AppModel
+    var revealed = true
+
     var body: some View {
         ArchiveIconButton(symbol: item.pinned ? "star.fill" : "star", label: item.pinned ? "取消收藏" : "收藏这条记录",
-                          id: id, selected: item.pinned) {
+                          id: id, selected: item.pinned, revealed: revealed || item.pinned) {
             Task { await model.toggleFavorite(item.id) }
         }
     }
@@ -266,55 +303,41 @@ private struct ArchiveFavorite: View {
 private struct ArchiveRow: View {
     let item: DisplayRecording
     @ObservedObject var model: AppModel
+    @ViewState private var hovered = false
+    @ViewState private var editing = false
+    @FocusState private var actionFocused: Action?
+    private enum Action { case playback, favorite }
+
     var body: some View {
-        let hasText = !item.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        VStack(alignment: .leading, spacing: 7) {
-            HStack(spacing: 2) {
-                Text(item.date, format: .dateTime.hour().minute().second())
-                    .monospacedDigit()
-                    .accessibilityIdentifier("archive.time.\(item.id)")
+        let playing = model.playingID == item.id
+        let reveal = hovered || editing || actionFocused != nil
+        HStack(alignment: .top, spacing: 5) {
+            VStack(alignment: .leading, spacing: 3) {
+                ArchiveInlineEditor(item: item, model: model) { active in
+                    editing = active
+                }
+                if !model.query.isEmpty && !item.text.localizedCaseInsensitiveContains(model.query) {
+                    Text("匹配历史版本或草稿").font(.caption).foregroundStyle(.secondary)
+                }
+                if let label = model.insertionLabels[item.id] {
+                    Label(label, systemImage: "arrow.up.forward.app").font(.caption).foregroundStyle(.secondary)
+                }
+            }.frame(maxWidth: .infinity, alignment: .leading)
+            HStack(spacing: 1) {
                 if item.hasAudio {
-                    Button { model.play(item) } label: {
-                        Label {
-                            Text(model.playingID == item.id ? "停止" : "回听 · \(max(1, Int(item.source.duration.rounded()))) 秒")
-                        } icon: {
-                            Image(systemName: model.playingID == item.id ? "stop.fill" : "play.fill")
-                        }
-                        .padding(.horizontal, 5).frame(minHeight: 32).contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(model.playingID == item.id ? "停止回听" : "回听原音")
-                    .accessibilityIdentifier("archive.play.\(item.id)")
-                    .help(item.audioLabel)
+                    ArchiveIconButton(symbol: playing ? "stop.fill" : "play.fill",
+                                      label: playing ? "停止回听" : "回听原音",
+                                      id: "archive.play.\(item.id)", selected: playing,
+                                      revealed: reveal || playing) { model.play(item) }
+                        .focused($actionFocused, equals: .playback)
                 }
-                Spacer()
-                ArchiveFavorite(item: item, id: "archive.favorite.\(item.id)", model: model)
-                if hasText {
-                    ArchiveIconButton(symbol: "doc.on.doc", label: "复制这段文字", id: "archive.copy.\(item.id)") {
-                        model.copy(item.text)
-                    }
-                }
-                ArchiveIconButton(symbol: "square.and.pencil", label: "查看和编辑这段表达", id: "archive.detail.\(item.id)") {
-                    Task { await model.selectForEditing(item) }
-                }
-            }.font(.caption).foregroundStyle(.secondary)
-            if !hasText {
-                Text(item.emptyTextLabel).foregroundStyle(.secondary)
-            } else {
-                Text(verbatim: item.text)
-                    .font(.system(size: 16)).lineSpacing(4)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .textSelection(.enabled)
-                    .accessibilityIdentifier("archive.text.\(item.id)")
+                ArchiveFavorite(item: item, id: "archive.favorite.\(item.id)", model: model, revealed: reveal)
+                    .focused($actionFocused, equals: .favorite)
             }
-            if !model.query.isEmpty && !item.text.localizedCaseInsensitiveContains(model.query) {
-                Text("匹配历史版本或草稿").font(.caption).foregroundStyle(.secondary)
-            }
-            if let label = model.insertionLabels[item.id] { Label(label, systemImage: "arrow.up.forward.app").font(.caption).foregroundStyle(.secondary) }
         }
-        .padding(.top, 4).padding(.bottom, 12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(model.selected?.id == item.id ? WorkspaceStyle.selection : .clear, in: RoundedRectangle(cornerRadius: 6))
+        .padding(.bottom, 3)
+        .contentShape(Rectangle())
+        .onHover { hovered = $0 }
     }
 }
 
@@ -340,7 +363,18 @@ struct RecordDetailView: View {
                 .padding(8).background(WorkspaceStyle.editor, in: RoundedRectangle(cornerRadius: 8)).overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(.quaternary).allowsHitTesting(false)).frame(minHeight: 135, idealHeight: 180).accessibilityLabel("编辑这段文字").disabled(!model.editorCanEdit)
             Text(model.editorDraftStatus).font(.system(size: 10)).foregroundStyle(.secondary)
             HStack {
-                Button(model.savingEditorChanges ? "正在保存…" : "保存修改") { Task { await model.saveEditorChanges() } }.keyboardShortcut("s").buttonStyle(QuietButton(prominent: true)).disabled(!model.editorCanEdit || model.savingEditorChanges || model.editorDraft == item.text)
+                if let conflict = model.editorConflictingVersion {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("当前版本").font(.caption).foregroundStyle(.secondary)
+                        Text(verbatim: conflict.text.isEmpty ? "（空白）" : conflict.text).textSelection(.enabled)
+                        Button("将草稿存为新版本") { Task { await model.saveEditorChanges(reviewedRevision: conflict.preferredRevisionID) } }
+                            .buttonStyle(QuietButton(prominent: true)).disabled(model.savingEditorChanges)
+                    }
+                } else {
+                    Button(model.savingEditorChanges ? "正在保存…" : "保存修改") { Task { await model.saveEditorChanges() } }
+                        .keyboardShortcut("s").buttonStyle(QuietButton(prominent: true))
+                        .disabled(!model.editorCanEdit || model.savingEditorChanges || model.editorDraft == item.text)
+                }
                 ArchiveFavorite(item: item, id: "archive.detailFavorite", model: model)
             }
             if model.playingID == item.id {

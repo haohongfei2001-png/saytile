@@ -119,6 +119,37 @@ extension SaytileStore {
         try Self.timelinePage(window, from: db)
     }
 
+    /// Page from the newest captures, even when one session spans several pages. A search result,
+    /// bookmark, or page beginning mid-group retains its first utterance's civil time.
+    public func archiveEntries(query: String = "", filter: RecordingFilter = .transcribed,
+                               limit: Int = 100, editingID: UUID? = nil) throws -> [TimelineEntry] {
+        let (predicate, values) = Self.archivePredicate(query: query, filter: filter, editingID: editingID)
+        return try db.rows(Self.timelineSelection + " AND " + predicate + " ORDER BY t.position DESC LIMIT ?",
+                           values + [.int(Int64(max(1, limit)))]).map(Self.decodeTimelineEntry)
+    }
+
+    /// A newly arriving transcript may push a focused paragraph just outside the
+    /// current page. Read that one owner without widening the page to the whole library.
+    public func archiveEntryForEditing(_ id: UUID, filter: RecordingFilter) throws -> TimelineEntry? {
+        let (predicate, values) = Self.archivePredicate(query: "", filter: filter, editingID: id)
+        return try db.rows(Self.timelineSelection + " AND t.recording_id=? AND " + predicate,
+                           [.text(id.uuidString)] + values).first.map(Self.decodeTimelineEntry)
+    }
+
+    /// The next NSTextView keystroke needs the committed version synchronously,
+    /// including edits to records far outside the board's loaded timeline.
+    @MainActor public func editArchiveParagraph(id: UUID, before: String, after: String) throws -> Recording {
+        try panelEditor.use(at: directory.appendingPathComponent("Saytile.sqlite")) { writer in
+            try writer.transaction {
+                _ = try Self.writePanelEdits([PanelRowEdit(id: id, before: before, after: after)], to: writer, at: .now)
+                guard let updated = try writer.rows(Self.selection + " WHERE r.id=? AND r.deleted=0", [.text(id.uuidString)]).first else {
+                    throw StoreError.missingRecording
+                }
+                return try Self.decodeRecording(updated)
+            }
+        }
+    }
+
     /// The scrollable board pages through text. Audio-only recordings remain
     /// available in the archive and the actual capture tail is returned separately.
     public func panelTimeline(_ window: TimelineWindow) throws -> (page: TimelinePage, tail: TimelineEntry?, textTail: TimelineEntry?) {
@@ -161,25 +192,10 @@ extension SaytileStore {
         case .starting(let key): direction = "ASC"; predicate = " AND t.position>=?"; values = [.int(key)]
         }
         let textPredicate = textOnly ? " AND v.text<>''" : ""
-        let sql = """
-        SELECT r.*,v.text,v.origin AS preferred_origin,t.position,t.group_start,g.started AS group_date,g.day,g.utc_offset,
-               COALESCE(t.ended,t.started+r.total_frames/r.sample_rate) AS speech_end
-        FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id
-        JOIN transcript_timeline g ON g.position=t.group_start LEFT JOIN revisions v ON v.id=r.preferred_revision
-        WHERE r.deleted=0\(textPredicate)
-        """
-        let rows = try db.rows(sql + predicate + " ORDER BY t.position " + direction + " LIMIT ?", values + [.int(Int64(limit))])
+        let rows = try db.rows(timelineSelection + textPredicate + predicate + " ORDER BY t.position " + direction + " LIMIT ?",
+                               values + [.int(Int64(limit))])
         var page = TimelinePage()
-        for row in rows {
-            guard let position = row["position"].flatMap(Int64.init), let group = row["group_start"].flatMap(Int64.init),
-                  let first = row["group_date"].flatMap(Double.init), let day = row["day"],
-                  let offset = row["utc_offset"].flatMap(Int.init), let end = row["speech_end"].flatMap(Double.init) else {
-                throw StoreError.database("无法读取时间轴位置。")
-            }
-            page.entries.append(TimelineEntry(recording: try Self.decodeRecording(row), position: position, group: group,
-                groupStart: Date(timeIntervalSince1970: first), groupDay: day, groupUTCOffset: offset, speechEnd: Date(timeIntervalSince1970: end),
-                preferredOrigin: row["preferred_origin"].flatMap(RevisionOrigin.init(rawValue:))))
-        }
+        page.entries = try rows.map(decodeTimelineEntry)
         if direction == "DESC" { page.entries.reverse() }
         if limit == 1 { return page } // Tail lookup doesn't need navigation flags.
         let versionJoin = textOnly ? " JOIN revisions v ON v.id=r.preferred_revision" : ""
@@ -190,6 +206,25 @@ extension SaytileStore {
             page.hasNewer = try !db.rows(neighbors + ">? ORDER BY t.position LIMIT 1", [.int(last.position)]).isEmpty
         }
         return page
+    }
+
+    private static let timelineSelection = """
+        SELECT r.*,v.text,v.origin AS preferred_origin,t.position,t.group_start,g.started AS group_date,g.day,g.utc_offset,
+               COALESCE(t.ended,t.started+r.total_frames/r.sample_rate) AS speech_end
+        FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id
+        JOIN transcript_timeline g ON g.position=t.group_start LEFT JOIN revisions v ON v.id=r.preferred_revision
+        WHERE r.deleted=0
+        """
+
+    private static func decodeTimelineEntry(_ row: [String: String]) throws -> TimelineEntry {
+        guard let position = row["position"].flatMap(Int64.init), let group = row["group_start"].flatMap(Int64.init),
+                  let first = row["group_date"].flatMap(Double.init), let day = row["day"],
+                  let offset = row["utc_offset"].flatMap(Int.init), let end = row["speech_end"].flatMap(Double.init) else {
+            throw StoreError.database("无法读取时间轴位置。")
+        }
+        return TimelineEntry(recording: try Self.decodeRecording(row), position: position, group: group,
+                groupStart: Date(timeIntervalSince1970: first), groupDay: day, groupUTCOffset: offset, speechEnd: Date(timeIntervalSince1970: end),
+                preferredOrigin: row["preferred_origin"].flatMap(RevisionOrigin.init(rawValue:)))
     }
 
     /// Snapshot the group selected at the click, including segments outside the

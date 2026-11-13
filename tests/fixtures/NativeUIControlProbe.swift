@@ -140,7 +140,7 @@ import ApplicationServices
                 }
                 if let paragraph, names.contains(label), label.hasPrefix("archive.text.") {
                     let text = value(node, kAXValueAttribute) as? String
-                    guard (names.contains(paragraph) || text == paragraph),
+                    guard role == kAXTextAreaRole, text == paragraph,
                           let geometry = frame(node), geometry.height > 70,
                           NSWorkspace.shared.frontmostApplication?.processIdentifier == before else {
                         print("FAIL five-line archive paragraph was missing or clipped"); exit(1)
@@ -148,11 +148,11 @@ import ApplicationServices
                     print("NATIVE_ARCHIVE_PARAGRAPH full_text=true height=\(geometry.height)"); exit(0)
                 }
                 if paragraph != nil { queue += observed.children; continue }
-                let applicable = menuItem != nil ? (role == kAXTextAreaRole || canPress) : (setValue == nil ? canPress : canSet)
+                let applicable = controlFrame ? (canPress || canSet) : menuItem != nil ? (role == kAXTextAreaRole || canPress) : (setValue == nil ? canPress : canSet)
                 if names.contains(label), applicable {
                     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED foreground changed before action"); exit(6) }
                     if controlFrame {
-                        guard windows.count == 1, let rect = frame(node), canPress else { print("FAIL missing owned control geometry"); exit(1) }
+                        guard windows.count == 1, let rect = frame(node), (canPress || canSet) else { print("FAIL missing owned control geometry"); exit(1) }
                         let dimensions = [rect.minX, rect.minY, rect.width, rect.height]
                         let data = try! JSONSerialization.data(withJSONObject: dimensions)
                         print("NATIVE_UI_CONTROL_FRAME " + String(decoding: data, as: UTF8.self)); exit(0)
@@ -242,7 +242,27 @@ import ApplicationServices
                         }
                     }
                     else { result = AXUIElementPerformAction(node, kAXPressAction as CFString) }
-                    guard result == .success else { print("FAIL native control action error \(result.rawValue)"); exit(1) }
+                    if result == .failure, label == "settings.page.input", windows.count == 1, let window = windows.first {
+                        // A SwiftUI navigation action can invalidate its AX node before the
+                        // bridge replies. Never press twice. Observe the requested page itself.
+                        var arrived = false
+                        for _ in 0..<12 {
+                            var pending = [window], seen = Set<CFHashCode>(), targets = Set<String>()
+                            while let next = pending.popLast(), seen.count < 500 {
+                                guard seen.insert(CFHash(next)).inserted, let observation = inspectNode(next) else { continue }
+                                targets.formUnion(observation.names)
+                                pending.append(contentsOf: observation.children)
+                            }
+                            if targets.contains("settings.floatingEntry"), targets.contains("settings.inputTarget"),
+                               !targets.contains("archive.favorites") { arrived = true; break }
+                            try? await Task.sleep(for: .milliseconds(80))
+                        }
+                        guard arrived, NSWorkspace.shared.frontmostApplication?.processIdentifier == before else {
+                            print("FAIL AX navigation did not install the requested input settings"); exit(1)
+                        }
+                        print("NATIVE_UI_AXPRESS \(label) result=page_observed_after_ax_failure no_replay=true foreground_unchanged=true"); exit(0)
+                    }
+                    guard result == .success else { print("FAIL native control action error \(result.rawValue), role=\(role), actions=\(availableActions(node)), enabled=\(String(describing: value(node, kAXEnabledAttribute)))"); exit(1) }
                     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("FAIL AXPress changed foreground"); exit(6) }
                     print("NATIVE_UI_\(setValue == nil ? "AXPRESS" : "AXSETVALUE") \(label) fixture_pid=\(pid) foreground_unchanged=true"); exit(0)
                 }

@@ -240,6 +240,7 @@ struct AppModelProbe {
         let secondEditor = model.records.first { $0.id == other.id }!
         await model.selectForEditing(firstEditor)
         model.updateEditorDraft("未保存的修改😀")
+        try require(try await model.store.loadDraft(recordingID: old.id) == "未保存的修改😀", "detail draft reaches SQLite on input, without switching, closing or a debounce")
         await model.selectForEditing(secondEditor)
         try require(try await model.store.loadDraft(recordingID: old.id) == "未保存的修改😀", "switching records flushes pending draft without waiting for debounce")
         try require(model.editorDraft == secondEditor.text, "switching records does not show another record's draft")
@@ -260,6 +261,19 @@ struct AppModelProbe {
         let savedText = try await model.store.recording(id: old.id)?.text
         let savedDraft = try await model.store.loadDraft(recordingID: old.id)
         try require(savedText == "版本保存期间的新输入" || savedDraft == "版本保存期间的新输入", "typing during version commit is retained as version or newer draft")
+        await model.selectForEditing(secondEditor)
+        model.updateEditorDraft("详情编辑")
+        try model.editArchiveText(other.id, before: secondEditor.text, after: "来自浮板的修订")
+        await model.saveEditorChanges()
+        guard let conflict = model.editorConflictingVersion else { throw Failure(message: "detail save lost its conflicting version") }
+        let conflictDraft = try await model.store.loadDraft(recordingID: other.id)
+        try require(conflict.text == "来自浮板的修订" && model.editorDraft == "详情编辑" && conflictDraft == "详情编辑",
+                    "saving a stale detail draft preserves both the latest manual text and persisted draft")
+        await model.saveEditorChanges(reviewedRevision: conflict.preferredRevisionID)
+        let resolved = try await model.store.recording(id: other.id)
+        try require(model.editorConflictingVersion == nil && resolved?.text == "详情编辑",
+                    "a reviewed conflict can be saved deliberately after comparing the changed transcript")
+        await model.selectForEditing(firstEditor)
         // More than thirty new records must not silently disappear from the input panel.
         for index in 0..<115 {
             let row = try await model.store.createRecording(createdAt: Date().addingTimeInterval(Double(index) / 100))
@@ -272,6 +286,19 @@ struct AppModelProbe {
         while model.loadingPanel { try await Task.sleep(for: .milliseconds(10)) }
         try require(model.recent.count == 116 && !model.panelHasMore, "earlier current-session expressions remain available for batch reuse")
         try require(model.recent.contains(where: { $0.id == new.id }), "earliest current-session expression survives prolonged input")
+        guard let initialArchiveGroup = model.archiveGroups.first else { throw Failure(message: "missing archive group") }
+        try require(initialArchiveGroup.items.count == 100 && initialArchiveGroup.items.last?.id == model.recent.last?.id &&
+                    initialArchiveGroup.date == new.createdAt && model.hasMore, "bounded archive page keeps original session time and latest utterance")
+        // An open editor remains reachable when a live recording pushes it beyond the page.
+        model.setArchiveEditing(new.id)
+        await model.refresh()
+        try require(model.archiveGroups.first?.items.first?.id == new.id && model.records.count == 101,
+                    "a focused archive paragraph survives a moving page boundary without reading all intervening history")
+        model.endArchiveEditing(new.id)
+        model.loadMore()
+        await model.refresh()
+        try require(model.archiveGroups.first?.items.map(\.id) == model.recent.map(\.id) && model.archiveGroups.first?.id == initialArchiveGroup.id,
+                    "loading older paragraphs joins a page-spanning session in chronological order")
         let largeGroup = try model.panelInsertionSnapshots()
         try require(largeGroup.count == 116 && largeGroup.first?.recordingID == new.id,
                     "manual group insertion spans multiple virtual pages in capture order")

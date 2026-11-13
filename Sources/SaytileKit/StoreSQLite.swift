@@ -13,6 +13,7 @@ final class StoreDatabase: @unchecked Sendable {
     func configureForWriting() throws {
         try execute("PRAGMA journal_mode=WAL")
         try execute("PRAGMA synchronous=FULL")
+        try execute("PRAGMA fullfsync=ON")
         try execute("PRAGMA foreign_keys=ON")
     }
     func close() throws {

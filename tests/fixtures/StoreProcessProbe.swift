@@ -31,6 +31,73 @@ import Darwin
             let dispatch = try await store.reserveDispatch(bindingID:binding,recordingID:record.id,revisionID:revision.id,stableUTF16End:revision.text.utf16.count)!
             try receipt(root,["record":record.id.uuidString,"revision":revision.id.uuidString,"dispatch":dispatch.id.uuidString,"binding":binding.uuidString])
             if mode == "crash-seed" { try await park() }
+        #if SAYTILE_PACKAGE_PROBE
+        case "crash-live", "crash-first-flush", "crash-rotation":
+            let failedFlush = mode == "crash-first-flush"
+            var io = PCMJournal.IO.live
+            if failedFlush {
+                io.synchronize = { handle in
+                    // Creation succeeds. The first attempt to flush actual
+                    // samples and the close-time retry both hit a disk error.
+                    if try handle.seekToEnd() > 44 { throw POSIXError(.ENOSPC) }
+                    try handle.synchronize()
+                }
+            }
+            let worker = try CaptureWorker(store: store, ring: AudioRing(capacity: 32_000),
+                sampleRate: 16_000, recognitionEnabled: false, journalIO: io,
+                update: { _, _ in }, failed: { _ in })
+            try await worker.beginUtterance()
+            guard let id = await worker.recordingID else { throw ProbeFailure.failed("no active capture") }
+            // Pass production-sized PCM frames through the journal/rotation path.
+            let bodyFrames = failedFlush ? 0 : 15 * 16_000
+            let totalFrames = bodyFrames + (mode == "crash-rotation" ? 0 : 4000)
+            let expected = syntheticPCM(frames: totalFrames)
+            for offset in stride(from: 0, to: expected.count, by: 640) {
+                try await worker.append(expected.subdata(in: offset..<min(offset + 640, expected.count)))
+            }
+            let ticket = try await store.beginRecognition(recordingID: id)
+            let ingress = LocalCandidateIngress(store: store, ticket: ticket)
+            try await ingress.receive(.init(text: "离线实时草稿", stableUTF16Length: 0,
+                                           audioEndSeconds: 0.25, isComplete: false))
+            try check(try await store.timelinePage().entries.first?.recording.text == "离线实时草稿",
+                      "real candidate publisher stores timeline text before SIGKILL")
+            if failedFlush {
+                do {
+                    try await worker.endUtterance()
+                    throw ProbeFailure.failed("injected media failure must stop capture")
+                } catch let error as POSIXError where error.code == .ENOSPC {}
+                try check(try await store.recording(id: id)?.audioState == .missing, "unconfirmed audio never advertised as saved")
+            }
+            try receipt(root, ["record": id.uuidString, "frames": String(totalFrames)])
+            try await park()
+        case "verify-live", "verify-live-again":
+            let saved = try readReceipt(root)
+            guard let id = saved["record"].flatMap(UUID.init(uuidString:)),
+                  let frames = saved["frames"].flatMap(Int.init) else { throw ProbeFailure.failed("fixture receipt") }
+            let repairs = try await AudioDiagnostics.recoverAudio(store: store)
+            let expectedRepairs = mode == "verify-live" && frames != 240000 ? 1 : 0
+            try check(repairs == expectedRepairs, "startup tail repair is idempotent")
+            let rows = try await store.timelinePage().entries
+            try check(rows.count == 1 && rows[0].id == id && rows[0].recording.text == "离线实时草稿",
+                      "one original timeline row retains its displayed partial")
+            try check(rows[0].recording.audioState == .available && !rows[0].recording.isRecording,
+                      "interrupted WAV available after reopening")
+            let chunks = try await store.audioChunks(recordingID: id)
+            let expectedChunks: [Int64] = frames == 4000 ? [4000] : [240000, Int64(frames - 240000)]
+            try check(chunks.map(\.frames) == expectedChunks,
+                      "recovered sample counts include pre-checkpoint tail")
+            var pcm = Data()
+            for chunk in chunks where chunk.frames > 0 {
+                let wav = try Data(contentsOf: await store.audioURL(for: chunk))
+                try check(wav.prefix(44) == PCMJournal.header(frames: chunk.frames), "WAV header")
+                pcm.append(wav.dropFirst(44))
+            }
+            try check(pcm == syntheticPCM(frames: frames), "all original PCM bytes match")
+            try check(try await store.recognitionCandidates(recordingID: id).count == 1, "one local candidate, no replay")
+            try check(try await store.latestDispatchableRevision(recordingID: id) == nil, "partial was never promoted for external delivery")
+            try check(try await store.db.rows("PRAGMA fullfsync").first?["fullfsync"] == "1", "SQLite uses media flushes")
+            try check(try await store.db.rows("PRAGMA quick_check").first?["quick_check"] == "ok", "SQLite integrity")
+        #endif
         case "crash-delete":
             let saved = try readReceipt(root), id = UUID(uuidString:saved["record"]!)!
             _ = try await store.acquireAudioLease(recordingID:id)
@@ -94,6 +161,12 @@ import Darwin
         default: fatalError("unknown probe mode")
         }
     }
+    #if SAYTILE_PACKAGE_PROBE
+    static func syntheticPCM(frames: Int) -> Data {
+        // Deterministic per-frame signal catches reorder, duplicate and substitution.
+        Data((0..<(frames * 2)).map { i in UInt8(truncatingIfNeeded: (i &* 127) ^ (i >> 11)) })
+    }
+    #endif
     static func park() async throws { while true { try await Task.sleep(for:.seconds(60)) } }
     static func receipt(_ root:URL,_ value:[String:String]) throws {
         let url = root.appendingPathComponent("receipt.json")

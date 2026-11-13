@@ -147,8 +147,12 @@ struct SettingsView: View {
         Section("输入板") {
             Toggle("显示边框", isOn: $model.panelBorderVisible).accessibilityIdentifier("settings.panelBorder")
             Picker("讲话分组间隔", selection: Binding(get: { model.timelineIdleSeconds }, set: { model.changeIdleInterval($0) })) {
-                ForEach([10, 30, 60, 120, 300, 600, 1800, 3600], id: \.self) { seconds in
-                    Text(seconds < 60 ? "\(seconds) 秒" : "\(seconds / 60) 分钟").tag(seconds)
+                let minutes = [1, 2, 5, 10, 30, 60]
+                if !minutes.contains(where: { $0 * 60 == model.timelineIdleSeconds }) {
+                    Text("\(model.timelineIdleSeconds) 秒（自定义）").tag(model.timelineIdleSeconds)
+                }
+                ForEach(minutes, id: \.self) { minute in
+                    Text("\(minute) 分钟").tag(minute * 60)
                 }
             }.accessibilityIdentifier("settings.timelineIdle")
             Picker("展开或收起", selection: $model.shortcutChoice) {
