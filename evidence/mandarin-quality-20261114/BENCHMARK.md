@@ -27,3 +27,33 @@
 5. 资源测试使用 scripts/mandarin/power.py、macmon 0.11.0 及同一段大于等于 10 秒的人声。长稳测试使用 scripts/mandarin/quality-soak.py --app <签名App> --weights <权重> --wav <语料> --manifest evidence/mandarin/panel-cohort.json --output <收据> --model <模型>。
 
 批量、原速和长稳收据各自绑定运行时源码。在后续产品构建上修改选择策略、错误接替或首次资源准备时，应另行验证该包的真实路由和原生窗口，保留原始测量 SHA。
+
+## 重建最终包的两条长句
+
+[长句清单](delivery/extended/samples.json)含 25.74 秒的完整原始 WAV、五条公开录音的裁切起止帧及两个派生 WAV 的哈希。以下命令在已准备好 16 kHz 公开语料的工程根目录运行。输出目录仅用于这两条派生音频。
+
+```sh
+python3 - <<'PY'
+import hashlib, json, pathlib, wave
+root = pathlib.Path(".build/mandarin")
+out = root / "long-replay"
+out.mkdir(exist_ok=True)
+sources = json.loads(pathlib.Path("evidence/mandarin-quality-20261114/delivery/extended/samples.json").read_text())["samples"]
+item = next(row for row in sources if row["id"] == "continuous-public-5")
+target = out / (item["id"] + ".wav")
+with target.open("xb") as file, wave.open(file, "wb") as joined:
+    joined.setparams((1, 2, 16000, 0, "NONE", "not compressed"))
+    for i, segment in enumerate(item["segments"]):
+        original = root / "wav" / (segment["id"] + ".wav")
+        assert hashlib.sha256(original.read_bytes()).hexdigest() == segment["source_wav_sha256"]
+        with wave.open(str(original)) as reader:
+            reader.setpos(segment["start_frame"])
+            if i:
+                joined.writeframes(bytes(1600))
+            joined.writeframes(reader.readframes(segment["end_frame"] - segment["start_frame"]))
+assert hashlib.sha256(target.read_bytes()).hexdigest() == item["audio_sha256"]
+PY
+python3 scripts/mandarin/prepare-tail-window.py .build/mandarin/long-replay/continuous-public-5.wav .build/mandarin/long-replay/trailing-quiet-481280.wav
+```
+
+将清单中剩余的完整 FLEURS 音频从 wav 语料目录复制到 long-replay；然后用上文的原速窗口命令，以 long-replay 为音频目录，选择 qwen-small、--automatic、--limit 3 及长句清单。每次运行都核验 WAV 哈希。批量复现最终结果时使用产品源码 cd41c60f、对应签名 App 的实际 helper、qwen-small 与固定 420 + 20 清单。原生探针所在目录需包含链接时生成的 Saytile_SaytileKit.bundle。
