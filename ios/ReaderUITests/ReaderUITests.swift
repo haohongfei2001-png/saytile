@@ -5,7 +5,7 @@ final class ReaderUITests: XCTestCase {
     private let transcript = "星期五下午三点，讨论原音备份。"
 
     private func article(in app: XCUIApplication) -> XCUIElement {
-        app.staticTexts[transcript]
+        app.descendants(matching: .any).matching(identifier: "archive.text").firstMatch
     }
 
     private func capture(_ name: String, app: XCUIApplication) {
@@ -30,6 +30,7 @@ final class ReaderUITests: XCTestCase {
         app.launch()
         let text = article(in: app)
         XCTAssertTrue(text.waitForExistence(timeout: 15))
+        XCTAssertTrue([text.value as? String, text.label].contains(transcript))
         capture("Archive", app: app)
 
         let play = app.buttons["回听"], stop = app.buttons["停止回听"]
