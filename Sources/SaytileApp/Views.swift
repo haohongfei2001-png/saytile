@@ -26,7 +26,7 @@ import SaytileKit
 
 struct InputPanelView: View {
     @ObservedObject var model: AppModel
-    var onExpand: (() -> Void)? = nil
+    var onExpand: (@MainActor () -> Void)? = nil
     @ViewState private var followsLatest = true
     @StateObject private var access = PanelTranscriptAccess()
     @StateObject private var transcriptCache = PanelDocumentCache()
