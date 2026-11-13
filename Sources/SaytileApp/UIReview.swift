@@ -774,12 +774,21 @@ extension AppDelegate {
                         let viewport = scroll.convert(scroll.bounds, to: host)
                         let textView = scroll.transcriptView
                         let font = textView.textStorage?.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
-                        guard font?.pointSize == ReferencePanelStyle.fontSize,
-                              abs(viewport.width - 316) < 0.01,
-                              textView.bounds.height <= scroll.contentSize.height + 1 else {
-                            throw ReviewFailure("reference text metrics differ or the five-line reference clips")
+                        // The 344 pt card uses the approved fixed 14.04 pt type. Insets
+                        // are aligned to device pixels, so 1x and 2x can differ by 0.5 pt.
+                        let pixel = 1 / (host.window?.backingScaleFactor ?? 1)
+                        let bodyWidth: CGFloat = 344 - (22 * 0.68 - 2) - 8 * 0.68
+                        let expectedWidth = (bodyWidth / pixel).rounded() * pixel
+                        var lines = 0
+                        if let manager = textView.layoutManager, let container = textView.textContainer {
+                            manager.enumerateLineFragments(forGlyphRange: manager.glyphRange(for: container)) { _, _, _, _, _ in lines += 1 }
                         }
-                        print("REFERENCE_GEOMETRY state=\(name) window=408x298 card=344x234 font=\(font!.pointSize) viewport=\(viewport)")
+                        guard let font, abs(font.pointSize - 14.04) < 0.001,
+                              abs(viewport.width - expectedWidth) <= pixel,
+                              lines == 5, textView.bounds.height <= scroll.contentSize.height + 1 else {
+                            throw ReviewFailure("reference window expected 14.04 pt, \(expectedWidth) pt width and five unclipped lines; actual font \(font?.pointSize ?? 0), viewport \(viewport), document \(textView.bounds.size), lines \(lines)")
+                        }
+                        print("REFERENCE_GEOMETRY state=\(name) window=408x298 card=344x234 font=\(font.pointSize) viewport=\(viewport) lines=\(lines)")
                     })
             }
             await model.prepareForExit()
