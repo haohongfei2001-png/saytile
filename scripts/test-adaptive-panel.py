@@ -62,6 +62,10 @@ def main():
     for name in ['left','right','top','bottom','voice']:
         hits = report['perimeterHits']
         checks[name + '/windowServer'] = hits.get(name) == 'panel' and hits.get(name+'BackdropControl') == 'backdrop'
+    for button in ('panel.capture', 'panel.copy'):
+        for corner in ('topLeft', 'topRight', 'bottomLeft', 'bottomRight'):
+            key = button + '/' + corner
+            checks[key] = report['buttonCorners'].get(key) is True
     report['checks'] = checks
     report['status'] = 'PASS' if all(checks.values()) else 'FAIL'
     receipt.write_text(json.dumps(report, ensure_ascii=False,indent=2)+'\n')

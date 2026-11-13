@@ -15,7 +15,7 @@ private enum Failure: Error { case args, window, edit, capture, press }
     @Published var late = ""
     @Published var text = "缩放窗口仍应保留这段可以编辑的文字，数字 24 和手写换行。\n继续记录。"
     @Published var state = VoicePanelState.standby
-    var toggles = 0, edits = 0
+    var toggles = 0, edits = 0, copies = 0
     var doc: PanelTimelineDocument<Row> {
         var rows = [Row(id:id,position:1,displayText:text)]
         if !late.isEmpty { rows.append(.init(id:nextID,position:2,displayText:late)) }
@@ -37,7 +37,7 @@ private struct Surface: View {
                 VoiceSurfacePanel(document: replay.doc, access: replay.access,
                     capture: .init(state: replay.state, level: nil, actionLabel: replay.state == .paused ? "恢复" : "暂停",
                                    accessibilityValue: replay.state == .paused ? "已暂停" : "待命"),
-                    canCopy: true, selectedText: "", onCopy: {}, onToggle: replay.toggle, applyEdits: replay.commit) { EmptyView() }
+                    canCopy: true, selectedText: "", onCopy: { replay.copies += 1 }, onToggle: replay.toggle, applyEdits: replay.commit) { EmptyView() }
             }.background {
                 #if SAYTILE_ADAPTIVE_SLOT
                 if !VoicePanelFootprint.isCompact(outerWidth: geometry.size.width) { VoiceRailGlass(width: geometry.size.width) }
@@ -134,7 +134,8 @@ private struct Surface: View {
         var facts = [[String: Any]](), originalEditor: NSTextView?, syntheticEditOK = false
         var pressed = false, resumed = false, everKey = false, selectedRange: NSRange?, normalHadEditorFocus = false
         let marker = "手工编辑✅"
-        var clicked = false, hitChecks = [String: String]()
+        var controlsBeforeCornerClicks = 0
+        var clicked = false, hitChecks = [String: String](), buttonCorners = [String: Bool]()
         var imeStarted = false, imeSurvivedResize = false, imeCommittedOnce = false, lateAppeared = false, compactRejectedKeyFocus = false
         let late = "新到的实时文字。"
         for (label,width,height) in sizes {
@@ -197,6 +198,26 @@ private struct Surface: View {
                     try await Task.sleep(for:.milliseconds(120)); clicked = model.toggles == 3 && model.state == .paused
                 }
             }
+            if label == "restored" {
+                controlsBeforeCornerClicks = model.toggles
+                for id in ["panel.capture", "panel.copy"] {
+                    guard let rect = controls[id]?.first else { throw Failure.window }
+                    for (name, x, y) in [("topLeft", 1.5, 1.5), ("topRight", rect[2] - 1.5, 1.5),
+                                         ("bottomLeft", 1.5, rect[3] - 1.5), ("bottomRight", rect[2] - 1.5, rect[3] - 1.5)] {
+                        let point = NSPoint(x: rect[0] + x, y: height - rect[1] - y)
+                        let before = (model.toggles, model.copies)
+                        for kind in [NSEvent.EventType.leftMouseDown, .leftMouseUp] {
+                            guard let event = NSEvent.mouseEvent(with: kind, location: point, modifierFlags: [],
+                                timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: w.windowNumber,
+                                context: nil, eventNumber: 3, clickCount: 1, pressure: kind == .leftMouseDown ? 1 : 0) else { throw Failure.press }
+                            w.sendEvent(event)
+                        }
+                        try await Task.sleep(for: .milliseconds(50))
+                        buttonCorners[id + "/" + name] = model.toggles - before.0 == (id == "panel.capture" ? 1 : 0)
+                            && model.copies - before.1 == (id == "panel.copy" ? 1 : 0)
+                    }
+                }
+            }
             let rect = view.map { $0.convert($0.bounds, to: nil) } ?? .zero
             let textExposed = controls["panel.transcript"]?.isEmpty == false
             facts.append(["stage": label, "windowPt": array(w.frame), "contentPt": array(host.bounds), "controls": controls,
@@ -217,8 +238,8 @@ private struct Surface: View {
             editor.insertText("拼音",replacementRange:editor.markedRange()); try await Task.sleep(for:.milliseconds(90))
             imeCommittedOnce = model.edits == baseline + 1 && model.text.hasPrefix("拼音") && !editor.hasMarkedText()
         }
-        let report: [String: Any] = ["perimeterHits":hitChecks,"imeStarted":imeStarted,"imeSurvivedResize":imeSurvivedResize,"imeCommittedOnce":imeCommittedOnce,"lateCandidateAfterSelectionReleased":lateAppeared,"compactRejectedKeyFocus":compactRejectedKeyFocus,"source":args[1], "stages":facts, "editPersisted":syntheticEditOK, "pausePressed":pressed, "resumePressed":resumed,
-                                     "toggleCount":model.toggles, "centerClickPaused":clicked, "everTookKey":everKey, "backingScale":w.backingScaleFactor]
+        let report: [String: Any] = ["buttonCorners": buttonCorners, "perimeterHits":hitChecks,"imeStarted":imeStarted,"imeSurvivedResize":imeSurvivedResize,"imeCommittedOnce":imeCommittedOnce,"lateCandidateAfterSelectionReleased":lateAppeared,"compactRejectedKeyFocus":compactRejectedKeyFocus,"source":args[1], "stages":facts, "editPersisted":syntheticEditOK, "pausePressed":pressed, "resumePressed":resumed,
+                                     "toggleCount":controlsBeforeCornerClicks, "centerClickPaused":clicked, "everTookKey":everKey, "backingScale":w.backingScaleFactor]
         try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys,.prettyPrinted]).write(to: folder.appendingPathComponent("receipt.json"))
     }
 }

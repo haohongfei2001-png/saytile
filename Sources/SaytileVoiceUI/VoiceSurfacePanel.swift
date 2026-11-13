@@ -125,7 +125,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
                 .frame(width: metrics.copyMarkSize, height: metrics.copyMarkSize)
                 .frame(width: metrics.copyWidth, height: metrics.controlHeight)
                 .background { ReferenceControlSurface(copy: true, scale: scale) }
-                .contentShape(RoundedRectangle(cornerRadius: 13 * scale))
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain).contextMenu(menuItems: menu)
         .help(canCopy ? "复制文字；右键打开更多操作" : "右键打开更多操作")
@@ -142,10 +142,10 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
                 .frame(width: metrics.voiceWidth, height: metrics.controlHeight)
                 .background { ReferenceControlSurface(scale: scale) }
                 .background { if compact { Capsule().fill(.regularMaterial) } }
-                .contentShape(Capsule())
+                .contentShape(Rectangle())
         }
         .buttonStyle(CaptureButtonStyle()).disabled(captureDisabled)
-        .overlay(Capsule().stroke(Color.gray.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
+        .overlay(Capsule().stroke(Color.gray.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1).allowsHitTesting(false))
         .onHover { captureHovered = $0 }.focused($captureFocused)
         .help(capture.actionLabel).accessibilityLabel(capture.actionLabel)
         .accessibilityValue(capture.accessibilityValue).accessibilityIdentifier("panel.capture")
