@@ -28,6 +28,15 @@ else
   frame_suite='LiveTailViewportTests|TranscriptScrollingTests'
   echo "== Isolated native viewport frames ==" | tee "$SAYTILE_TEST_LOG"
   run_tests --no-parallel --filter "$frame_suite" 2>&1 | tee -a "$SAYTILE_TEST_LOG"
+  # The loopback socket deadlines and the paced connection-verification fixture
+  # measure wall time. Give each suite its own process, including parameter cases.
+  timing_suites=(ProtocolNetworkIntegrationTests CloudConnectionVerificationTests)
+  isolated_filter="$frame_suite"
+  for suite in "${timing_suites[@]}"; do
+    isolated_filter+="|$suite"
+    echo "== Isolated $suite ==" | tee -a "$SAYTILE_TEST_LOG"
+    run_tests --skip-build --no-parallel --filter "$suite" 2>&1 | tee -a "$SAYTILE_TEST_LOG"
+  done
   echo "== Remaining Swift suites ==" | tee -a "$SAYTILE_TEST_LOG"
-  run_tests --skip-build --skip "$frame_suite" 2>&1 | tee -a "$SAYTILE_TEST_LOG"
+  run_tests --skip-build --skip "$isolated_filter" 2>&1 | tee -a "$SAYTILE_TEST_LOG"
 fi

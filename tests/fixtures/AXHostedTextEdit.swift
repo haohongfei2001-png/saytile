@@ -200,7 +200,9 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
             guard selected["exact"] as? Bool == true, selected["start"] as? Int == 0, selected["end"] as? Int == 6 else {
                 throw TargetError.mismatch("protected selection")
             }
+            print("OWNED_PROTECTED_SELECTION", "range=0...6", "writes", trace.writes)
             // New scenario, same focused synthetic field. No reactivation or retry of a delivery.
+            trace.stage = "before-manual-edit-bind"
             coordinator.invalidate()
             _ = try dom("collapse", finalField)
             try await bindOwnedField(coordinator, trace: trace, original: finalField, caret: 15, pid: pid)

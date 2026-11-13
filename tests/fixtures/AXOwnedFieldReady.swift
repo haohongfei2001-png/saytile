@@ -37,9 +37,19 @@ import AppKit
     var events = trace.notifications
     var quiet = 0
     while clock.now < deadline {
-        guard input.binding?.id == binding.id, try access.snapshot() == expected, ready(expected) else {
-            throw NativeInputError.targetChanged
+        guard input.binding?.id == binding.id else { throw NativeInputError.targetChanged }
+        let current: InputTargetSnapshot
+        do {
+            current = try access.snapshot()
+        } catch NativeInputError.unsupported where expected.isWeb {
+            // The focused web editor or its AX selection can be unreadable between
+            // notifications. An unreadable sample cannot establish a quiet interval.
+            quiet = 0
+            print("OWNED_READ_UNAVAILABLE", trace.stage, "bound snapshot")
+            try await clock.sleep(until: min(deadline, clock.now.advanced(by: .milliseconds(180))))
+            continue
         }
+        guard current == expected, ready(current) else { throw NativeInputError.targetChanged }
         quiet = trace.notifications == events ? quiet + 1 : 1
         if quiet == 3 {
             verified = true
