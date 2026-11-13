@@ -116,15 +116,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             } else {
                 directory = SaytileStorageProfile.current.archiveDirectory
                 if SaytileStorageProfile.current != .standard { try DiagnosticDirectory.validate(directory: directory) }
-                if [.designExperience, .sharedVoicePreview, .mandarinCandidate].contains(SaytileStorageProfile.current) {
+                if [.designExperience, .sharedVoicePreview, .mandarinCandidate, .privateArchiveCandidate].contains(SaytileStorageProfile.current) {
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.personal.archiveDirectory)
                 }
-                if [.sharedVoicePreview, .mandarinCandidate].contains(SaytileStorageProfile.current) {
+                if [.sharedVoicePreview, .mandarinCandidate, .privateArchiveCandidate].contains(SaytileStorageProfile.current) {
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.designExperience.archiveDirectory)
                 }
-                if SaytileStorageProfile.current == .mandarinCandidate {
+                if [.mandarinCandidate,.privateArchiveCandidate].contains(SaytileStorageProfile.current) {
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.sharedVoicePreview.archiveDirectory)
                 }
+            }
+            if SaytileStorageProfile.current == .privateArchiveCandidate {
+                try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.mandarinCandidate.archiveDirectory)
             }
             if isDiagnostic || directoryIndex != nil {
                 // Reject production aliases before AppModel/Store can migrate or
@@ -134,6 +137,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                     let preview = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
                         .appendingPathComponent("Saytile Timeline Preview", isDirectory: true)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: preview)
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.privateArchiveCandidate.archiveDirectory)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.mandarinCandidate.archiveDirectory)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.sharedVoicePreview.archiveDirectory)
                     try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.designExperience.archiveDirectory)

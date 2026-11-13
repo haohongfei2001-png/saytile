@@ -1,0 +1,44 @@
+{
+  "scope": "Actual shared iPhone ReaderDisk compiled on macOS arm64 with Apple CloudKit and AVFoundation SDKs. Synthetic WAV and isolated temporary account directories. No app account, iCloud traffic, personal cache or microphone.",
+  "execution": "ios/Tests/run-reader-disk.sh",
+  "base_source": "714019087272c8eea0d9046ea1a6033e0ff43d06",
+  "tested_source_sha256": {
+    "ios/Reader/ReaderSource.swift": "46acc4d289914a2c6563dd5ca548945a962b07224982ade94ff547230ac2699e",
+    "ios/Tests/ReaderDiskProbe.swift": "6f12e4c4a8505b72bdd550ef3e28c5b2233bfa916ea44e32ef431dbc44392407"
+  },
+  "before": [
+    "PASS metadata synchronization does not fetch audio",
+    "PASS on-demand fetch verifies and decodes 1600 frames",
+    "PASS verified cache hit uses no network",
+    "PASS equal-size corrupt cached and remote assets rejected",
+    "PASS verified replacement repairs corrupted cache",
+    "PASS second account cannot read predecessor metadata or cursor",
+    "PASS second account fetches into a distinct folder even for identical SHA",
+    "PASS original-only erasure retains transcript and revisions",
+    "FAIL stale cache hit served a deleted recording's still-shared bytes",
+    "PASS last reference deletion prunes only that owner's WAV",
+    "PASS record erasure persists after reopening",
+    "fixture_wav_bytes=3244 fixture_sha256=a9fa674e9b54ac54ba601658e6e0f40fd0906ed635a2e7a868abf6c0e7bcfc4d real_service_calls=0",
+    "FAIL expected(\"stale cache hit\")"
+  ],
+  "after": [
+    "PASS metadata synchronization does not fetch audio",
+    "PASS on-demand fetch verifies and decodes 1600 frames",
+    "PASS verified cache hit uses no network",
+    "PASS equal-size corrupt cached and remote assets rejected",
+    "PASS verified replacement repairs corrupted cache",
+    "PASS second account cannot read predecessor metadata or cursor",
+    "PASS second account fetches into a distinct folder even for identical SHA",
+    "PASS original-only erasure retains transcript and revisions",
+    "PASS stale cache hit denied after deletion with identical live asset",
+    "PASS other live owner of the same WAV remains playable",
+    "PASS last reference deletion prunes only that owner's WAV",
+    "PASS record erasure persists after reopening",
+    "PASS deleted in-flight download cannot reinstall or return its bytes",
+    "fixture_wav_bytes=3244 fixture_sha256=a9fa674e9b54ac54ba601658e6e0f40fd0906ed635a2e7a868abf6c0e7bcfc4d real_service_calls=0"
+  ],
+  "passing_assertions_after": 13,
+  "real_ios_simulator": "NOT_RUN_IN_THIS_PROBE",
+  "physical_iphone": "NOT_RUN",
+  "cloud_service_calls": 0
+}

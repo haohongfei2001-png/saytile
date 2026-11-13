@@ -1,0 +1,85 @@
+name: iPhone archive reader
+on:
+  pull_request:
+    paths:
+      - 'ios/**'
+      - 'Sources/SaytileKit/PrivateArchiveManifest.swift'
+      - 'Sources/SaytileKit/ArchiveCloudRecord.swift'
+      - 'Sources/SaytileKit/RevisionOrigin.swift'
+      - '.github/workflows/icloud-reader.yml'
+permissions:
+  contents: read
+concurrency:
+  group: iphone-archive-reader-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  simulator:
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Select an installed iPhone simulator and record the toolchain
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/reader"
+          command -v xcodegen >/dev/null || brew install xcodegen
+          xcodegen --version > "$RUNNER_TEMP/reader/toolchain.txt"
+          xcodebuild -version >> "$RUNNER_TEMP/reader/toolchain.txt"
+          uname -m >> "$RUNNER_TEMP/reader/toolchain.txt"
+          git rev-parse HEAD > "$RUNNER_TEMP/reader/source.txt"
+          xcrun simctl list devices available -j > "$RUNNER_TEMP/reader/devices.json"
+          python3 - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          devices = json.loads((Path(os.environ['RUNNER_TEMP'])/'reader/devices.json').read_text())['devices']
+          phones = []
+          for runtime, entries in devices.items():
+              match = re.fullmatch(r'com\.apple\.CoreSimulator\.SimRuntime\.iOS-([\d-]+)', runtime)
+              if not match:
+                  continue
+              version = tuple(map(int, match.group(1).split('-')))
+              for entry in entries:
+                  if version >= (18,) and entry.get('isAvailable') and entry['name'].startswith('iPhone'):
+                      phones.append((version, entry['name'], entry['udid']))
+          if not phones:
+              raise SystemExit("No compatible installed iPhone simulator")
+          version, name, udid = max(phones)
+          with open(os.environ['GITHUB_ENV'], 'a') as env:
+              env.write(f'READER_SIMULATOR={udid}\n')
+          (Path(os.environ['RUNNER_TEMP'])/'reader/destination.txt').write_text(f'iOS {version} {name} {udid}\n')
+          PY
+      - name: Build and run native UI and playback checks
+        run: |
+          set -euo pipefail
+          cd ios
+          xcodegen generate
+          xcrun simctl bootstatus "$READER_SIMULATOR" -b
+          xcodebuild -project SaytileReader.xcodeproj -scheme SaytileReader -configuration Debug \
+            -destination "platform=iOS Simulator,id=$READER_SIMULATOR" \
+            -derivedDataPath "$RUNNER_TEMP/reader-build" -parallel-testing-enabled NO \
+            -resultBundlePath "$RUNNER_TEMP/reader/Reader.xcresult" test \
+            | tee "$RUNNER_TEMP/reader/build-test.log"
+      - name: Collect simulator candidate, XCResult and native screenshots
+        if: always()
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/reader"
+          if [[ -d "$root/Reader.xcresult" ]]; then
+            xcrun xcresulttool get test-results summary --path "$root/Reader.xcresult" > "$root/summary.json"
+            xcrun xcresulttool export attachments --path "$root/Reader.xcresult" --output-path "$root/screenshots"
+          fi
+          app="$RUNNER_TEMP/reader-build/Build/Products/Debug-iphonesimulator/SaytileReader.app"
+          if [[ -d "$app" ]]; then
+            ditto -c -k --sequesterRsrc --keepParent "$app" "$root/SaytileReader-Simulator.zip"
+            (cd "$root" && shasum -a 256 SaytileReader-Simulator.zip > SHA256SUMS)
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Saytile-iPhone-Simulator-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/reader
+          retention-days: 14

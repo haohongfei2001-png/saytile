@@ -1,0 +1,57 @@
+{
+  "scope": "Apple Silicon native SQLite and local fault-injected transport. No CKContainer, Apple account, external service or user data in the test cycle.",
+  "mac_private_cloud_backup": "BLOCKED_NO_DEVELOPMENT_PROFILE",
+  "fresh_mac_restore_from_real_icloud": "BLOCKED_NO_DEVELOPMENT_PROFILE",
+  "local_fixture_round_trip": "PASS",
+  "fixture_recordings": 2,
+  "fixture_revisions": 3,
+  "fixture_drafts": 1,
+  "fixture_stars": 1,
+  "fixture_groups": 1,
+  "audio_files": 2,
+  "frame_count_per_file": 1600,
+  "sample_rate_hz": 16000,
+  "channels": 1,
+  "wav_bytes_per_file": 3244,
+  "wav_bytes_total": 6488,
+  "wav_sha256_each": "260f7d54d110254c7931a0fd0d8c6bcf8dbac9f12747afef6144b624e6a382b9",
+  "decoded_readback": "AVAudioFile for each restored ID, 1600 frames",
+  "injected_faults": [
+    "upload out of space",
+    "offline before original download",
+    "relaunch with queued download",
+    "corrupted asset with intact size",
+    "stale offline edits after audio erasure and record deletion",
+    "different account",
+    "expired zone change token",
+    "invalid CloudKit manifest SHA"
+  ],
+  "owner_checks": [
+    "AppKit launch owns no production archive or Keychain suite",
+    "actual Developer ID Application identity exists",
+    "no corresponding Apple Development identity or provisioning profile found"
+  ],
+  "unverified": [
+    "real Apple private zone save/read and quota responses",
+    "cross-device transfer on a signed-in Mac",
+    "physical iPhone access",
+    "actual service limits for long recordings and asset lists"
+  ],
+  "tested_mac_source": "ca811764dab0807ad50271d5ef71df9bb020e479",
+  "isolated_simulated_transport_apple_silicon_tests": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0,
+    "command": "scripts/test-native.sh --filter PrivateArchiveTests"
+  },
+  "related_swift_regressions": {
+    "total": 87,
+    "passed": 87,
+    "failed": 0,
+    "suites": 8,
+    "filter": "PrivateArchiveTests|Store|TranscriptTimeline",
+    "time_seconds": 2.052
+  },
+  "swift_testing_final_line": "✔ Test run with 87 tests in 8 suites passed after 2.052 seconds.",
+  "direct_apple_sdk_offline_record_test": "PASS unsigned entitlement gate, native CKRecord inline and large CKAsset manifest round trips, integrity rejection, CKAsset list and removal. No service or account accessed."
+}

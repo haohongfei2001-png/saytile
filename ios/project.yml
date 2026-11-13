@@ -1,0 +1,45 @@
+name: SaytileReader
+options:
+  deploymentTarget:
+    iOS: "18.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "0.1"
+    TARGETED_DEVICE_FAMILY: "1"
+targets:
+  SaytileReader:
+    type: application
+    platform: iOS
+    sources:
+      - Reader
+      - ../Sources/SaytileKit/PrivateArchiveManifest.swift
+      - ../Sources/SaytileKit/ArchiveCloudRecord.swift
+      - ../Sources/SaytileKit/RevisionOrigin.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.saytile.iphone.icloud-candidate
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Saytile
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+  SaytileReaderUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [ReaderUITests]
+    dependencies:
+      - target: SaytileReader
+    settings:
+      base:
+        TEST_TARGET_NAME: SaytileReader
+        PRODUCT_BUNDLE_IDENTIFIER: app.saytile.iphone.icloud-candidate.uitests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  SaytileReader:
+    build:
+      targets:
+        SaytileReader: all
+        SaytileReaderUITests: [test]
+    test:
+      targets: [SaytileReaderUITests]

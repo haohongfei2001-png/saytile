@@ -174,6 +174,9 @@ struct SettingsView: View {
             Button(model.preparingCleanup ? "正在查找原音…" : "预览可清理的原音…") { Task { cleanup = await model.previewCleanup() } }.disabled(model.preparingCleanup)
             Text("只清理 30 天前已有转写文字、且未收藏的原音。没有转写的录音会保留。").font(.callout).foregroundStyle(.secondary)
         }
+        Section("iCloud 同步") {
+            LabeledContent("状态", value: model.privateArchiveStatus)
+        }
         Section { Button("在 Finder 中显示资料目录", action: model.revealData) }
     }
     @ViewBuilder private var about: some View {

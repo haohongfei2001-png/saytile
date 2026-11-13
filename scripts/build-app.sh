@@ -6,6 +6,20 @@ SAYTILE_BUILD_SCRATCH="${SAYTILE_BUILD_SCRATCH:-/tmp/saytile-build}"
 SAYTILE_BUILD_COMMAND=(swift build --scratch-path "$SAYTILE_BUILD_SCRATCH" -c "$configuration")
 if [[ "${SAYTILE_SWIFT_DISABLE_SANDBOX:-0}" == 1 ]]; then SAYTILE_BUILD_COMMAND+=(--disable-sandbox); fi
 version=$(cat packaging/VERSION)
+icloud_candidate="${SAYTILE_ICLOUD_CANDIDATE:-0}"
+icloud_profile="${SAYTILE_ICLOUD_DEVELOPMENT_PROFILE:-}"
+if [[ -n "$icloud_profile" && "$icloud_candidate" != 1 ]]; then
+  echo "An iCloud development profile requires the isolated iCloud candidate." >&2
+  exit 64
+fi
+if [[ "$icloud_candidate" == 1 && "${SAYTILE_MANDARIN_CANDIDATE:-0}" == 1 ]]; then
+  echo "Choose one candidate identity for this build." >&2
+  exit 64
+fi
+if [[ "$icloud_candidate" == 1 && -n "${SAYTILE_UPDATE_FEED:-}${SAYTILE_UPDATE_PUBLIC_KEY:-}" ]]; then
+  echo "The isolated iCloud development build has no distribution update feed." >&2
+  exit 64
+fi
 for old_identity in SAYTILE_PERSONAL_EXPERIENCE SAYTILE_DESIGN_EXPERIENCE SAYTILE_SHARED_VOICE_PREVIEW; do
   if [[ "${!old_identity:-0}" == 1 ]]; then
     echo "There is one Saytile application. For tests, launch it with an isolated --data-directory." >&2
@@ -16,7 +30,10 @@ scripts/prepare-updater.sh
 SAYTILE_BUILD_COMMAND+=(-Xswiftc -F -Xswiftc "$PWD/.build/sparkle" -Xlinker -F -Xlinker "$PWD/.build/sparkle" -Xlinker -rpath -Xlinker @executable_path/../Frameworks)
 "${SAYTILE_BUILD_COMMAND[@]}"
 bin_dir="$("${SAYTILE_BUILD_COMMAND[@]}" --show-bin-path)"
-app="${SAYTILE_APP_OUTPUT:-$PWD/dist/Saytile.app}"
+default_app="$PWD/dist/Saytile.app"
+if [[ "$icloud_candidate" == 1 ]]; then default_app="$PWD/dist/Saytile iCloud Candidate.app"; fi
+app="${SAYTILE_APP_OUTPUT:-$default_app}"
+if [[ "$icloud_candidate" == 1 && "$app" == "$PWD/dist/Saytile.app" ]]; then exit 64; fi
 SAYTILE_BUILD_STAGE="$(mktemp -d /tmp/saytile-bundle.XXXXXX)"
 trap 'rm -rf "$SAYTILE_BUILD_STAGE"' EXIT
 bundle="$SAYTILE_BUILD_STAGE/Saytile.app"
@@ -55,6 +72,9 @@ cp packaging/Info.plist "$bundle/Contents/Info.plist"
 if [[ "${SAYTILE_MANDARIN_CANDIDATE:-0}" == 1 ]]; then
   /usr/libexec/PlistBuddy -c 'Set :CFBundleIdentifier app.saytile.mac.mandarin-candidate' "$bundle/Contents/Info.plist"
   /usr/libexec/PlistBuddy -c 'Set :CFBundleDisplayName Saytile 中文识别候选' "$bundle/Contents/Info.plist"
+elif [[ "$icloud_candidate" == 1 ]]; then
+  /usr/libexec/PlistBuddy -c 'Set :CFBundleIdentifier app.saytile.mac.icloud-candidate' "$bundle/Contents/Info.plist"
+  /usr/libexec/PlistBuddy -c 'Set :CFBundleDisplayName Saytile iCloud 候选' "$bundle/Contents/Info.plist"
 fi
 ditto .build/sparkle/Sparkle.framework "$bundle/Contents/Frameworks/Sparkle.framework"
 cp .build/sparkle/LICENSE "$bundle/Contents/Resources/SPARKLE-LICENSE.txt"
@@ -70,12 +90,16 @@ if [[ -n "$(git ls-files --others --exclude-standard Sources native/LocalASR pac
 /usr/libexec/PlistBuddy -c "Add :SaytileReleaseVersion string $version" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(git rev-list --count HEAD)" "$bundle/Contents/Info.plist"
 xattr -cr "$bundle"
-codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$bundle"
+if [[ -n "$icloud_profile" ]]; then
+  scripts/sign-icloud-development.sh "$bundle" "$icloud_profile" "${SAYTILE_SIGN_IDENTITY:-}"
+else
+  codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$bundle"
+fi
 codesign --verify --strict "$bundle"
 plutil -lint "$bundle/Contents/Info.plist"
 # The destination is an explicitly chosen build artifact. Never mix old bundle resources.
 if [[ -e "$app" ]]; then
-  if [[ "$app" != "$PWD/dist/Saytile.app" && "$app" != /tmp/saytile-*/* ]]; then
+  if [[ "$app" != "$default_app" && "$app" != /tmp/saytile-*/* ]]; then
     printf 'Refusing to replace an existing non-build output: %s\n' "$app" >&2
     exit 64
   fi

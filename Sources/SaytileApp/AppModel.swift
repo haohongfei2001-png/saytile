@@ -285,6 +285,8 @@ final class AppModel: ObservableObject {
     @Published var targetLabel = "在目标草稿中放置光标，再绑定"
     @Published private(set) var completedFirstTranscript = false
     @Published var hasStarted = false
+    @Published private(set) var privateArchiveStatus = "当前安装版本未启用 iCloud"
+    private var privateArchiveTask: Task<Void,Never>?
     @Published var storageLabel = "计算中…"
     @Published var cleanupCount = 0
     @Published private(set) var preparingCleanup = false
@@ -403,7 +405,7 @@ final class AppModel: ObservableObject {
         panelBorderVisible = preferences.object(forKey: "panelBorderVisible") as? Bool ?? true
         floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
         launchAtLogin = canManageLoginItem && SMAppService.mainApp.status == .enabled
-        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? ([.designExperience, .sharedVoicePreview, .mandarinCandidate].contains(SaytileStorageProfile.current) ? "disabled" : "option-space")
+        shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? ([.designExperience, .sharedVoicePreview, .mandarinCandidate, .privateArchiveCandidate].contains(SaytileStorageProfile.current) ? "disabled" : "option-space")
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
         initializing = false
         hosted.bind { [weak self] route, revoke in
@@ -432,7 +434,20 @@ final class AppModel: ObservableObject {
             do { _ = try await AudioDiagnostics.recoverAudio(store: store); recovered = true; audio.completeStartupRecovery() }
             catch { notice = "资料恢复尚未完成：\(error.localizedDescription)" }
         }
+        if normalLaunch, let sync = PrivateArchiveSync.configured(for: store) {
+            privateArchiveStatus = "正在检查 iCloud"
+            privateArchiveTask = Task { [weak self] in
+                await self?.recoveryTask?.value
+                guard self?.recovered == true else { return }
+                await sync.run { [weak self] status in
+                    await self?.updateArchiveStatus(status)
+                }
+            }
+        }
         startRefreshTimer()
+    }
+    private func updateArchiveStatus(_ status: String) {
+        if privateArchiveStatus != status { privateArchiveStatus = status }
     }
     private func startRefreshTimer() {
         timer?.cancel()
@@ -1333,6 +1348,7 @@ final class AppModel: ObservableObject {
             downloadNetworkMonitor?.cancel()
             downloadNetworkMonitor = nil
             timer?.cancel(); refreshTask?.cancel()
+            privateArchiveTask?.cancel()
             await audio.shutdown()
             await refreshOperation?.value
             do { try await store.close() } catch { notice = error.localizedDescription }
