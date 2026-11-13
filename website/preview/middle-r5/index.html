@@ -80,17 +80,17 @@
           <p class="r5-note">只有明确暂停，才会停止采集。</p>
         </div>
         <div class="r5-presence-visual r5-reveal">
-          <div class="r5-stream" id="r5-stream" data-state="standby">
-            <div class="r5-stream-meta"><span class="r5-status-dot" id="r5-status-dot"></span><span id="r5-status">正在待命</span><span class="r5-stream-kind">自由记录 · 行为示意</span></div>
-            <div class="r5-stream-text" id="r5-stream-text">先把今天的想法说清楚。<br>不必为了停顿，重新开始。</div>
-            <div class="r5-stream-bottom"><span id="r5-stream-caption">文字留在原处，等你继续。</span><span class="r5-stream-caret" aria-hidden="true"></span></div>
-          </div>
-          <div class="r5-state-steps" aria-label="切换连续表达状态">
+          <figure class="r5-panel-shot">
+            <div class="r5-panel-frame"><img src="assets/panel-native.webp" alt="Saytile macOS 原生语音输入板，单一连续文字流与底部复制、收音控制" loading="lazy"></div>
+            <figcaption><span>Saytile / 原生输入板</span><span>实际界面 · 真实窗口</span></figcaption>
+          </figure>
+          <div class="r5-state-steps" aria-label="查看连续表达的不同状态">
             <button type="button" data-capture-state="speaking" aria-pressed="false"><span class="r5-step-index">01</span><span>讲话</span></button>
             <button type="button" data-capture-state="standby" aria-pressed="true"><span class="r5-step-index">02</span><span>停顿</span></button>
             <button type="button" data-capture-state="continue" aria-pressed="false"><span class="r5-step-index">03</span><span>继续</span></button>
           </div>
-          <p class="r5-demo-disclosure">可切换状态查看行为 · 不访问麦克风，不模拟识别准确率</p>
+          <p class="r5-state-note" id="r5-state-note" role="status" aria-live="polite">短暂停顿回到待命；记录不会因此结束。</p>
+          <p class="r5-demo-disclosure">状态说明为交互示意 · 不访问麦克风</p>
         </div>
       </div>
     </section>

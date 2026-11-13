@@ -17,14 +17,16 @@
     $('#experience').addEventListener('pointermove',e=>{const r=$('#experience').getBoundingClientRect();tx=(e.clientX-r.left)/r.width*2-1;ty=(e.clientY-r.top)/r.height*2-1;if(!frame)frame=requestAnimationFrame(step);});
     $('#experience').addEventListener('pointerleave',()=>{tx=0;ty=0;if(!frame)frame=requestAnimationFrame(step);});
   }
-  const stream=$('#r5-stream'),streamText=$('#r5-stream-text'),status=$('#r5-status'),caption=$('#r5-stream-caption');
-  const initial='先把今天的想法说清楚。<br>不必为了停顿，重新开始。';
+  const stateNote=$('#r5-state-note');
+  const stateMessages={
+    speaking:'讲话时，文字逐步进入同一份记录。',
+    standby:'短暂停顿回到待命；记录不会因此结束。',
+    continue:'再次开口，新内容接在原来的表达之后。'
+  };
   document.querySelectorAll('[data-capture-state]').forEach(button=>button.addEventListener('click',()=>{
     const state=button.dataset.captureState;
     document.querySelectorAll('[data-capture-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
-    if(state==='speaking'){stream.dataset.state='speaking';status.textContent='正在讲话';caption.textContent='同一份文字，随着表达继续。';}
-    if(state==='standby'){stream.dataset.state='standby';status.textContent='正在待命';caption.textContent='停顿时回到待命，文字留在原处。';streamText.innerHTML=initial;}
-    if(state==='continue'){stream.dataset.state='speaking';status.textContent='继续表达';caption.textContent='新内容接在原来的表达之后。';streamText.innerHTML=initial+'<br>刚才想到的，也接着说完。';}
+    if(stateNote)stateNote.textContent=stateMessages[state];
   }));
   const scene=$('#r5-mode-scene');
   const destination={
