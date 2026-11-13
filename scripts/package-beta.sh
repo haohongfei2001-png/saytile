@@ -9,6 +9,7 @@ SAYTILE_DMG="Saytile-$SAYTILE_VERSION-arm64.dmg"
 bundle_name="Saytile.app"
 guide=docs/V1-INSTALL.md
 if [[ "${SAYTILE_MANDARIN_CANDIDATE:-0}" == 1 ]]; then
+  source_sha=$(git rev-parse HEAD)
   bundle_name="Saytile 中文识别候选.app"
   guide=evidence/mandarin-quality-20261114/INSTALL.md
   SAYTILE_DMG="Saytile-$SAYTILE_VERSION-mandarin-arm64.dmg"
@@ -29,6 +30,7 @@ if [[ "${SAYTILE_MANDARIN_CANDIDATE:-0}" == 1 ]]; then
   plist="$SAYTILE_STAGE/$bundle_name/Contents/Info.plist"
   [[ "$(plutil -extract CFBundleIdentifier raw "$plist")" == app.saytile.mac.mandarin-candidate ]]
   [[ "$(plutil -extract SaytileSourceDirty raw "$plist")" == false ]]
+  [[ "$(plutil -extract SaytileSourceRevision raw "$plist")" == "$source_sha" && "$(git rev-parse HEAD)" == "$source_sha" ]]
   scripts/sign-developer-id-app.sh "$SAYTILE_STAGE/$bundle_name" "${SAYTILE_SIGN_IDENTITY:?Developer ID identity is required for the Mandarin candidate}"
 fi
 ln -s /Applications "$SAYTILE_STAGE/Applications"
