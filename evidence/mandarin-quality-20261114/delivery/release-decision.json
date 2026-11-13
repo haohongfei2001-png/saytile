@@ -1,0 +1,179 @@
+{
+  "product_source": "cd41c60f0d7cb042c066c42147a58085b6f33f95",
+  "component": "Signed macOS 0.13 build 414, automatic Qwen3-ASR 0.6B, no online ASR",
+  "final_package_sha256": "7bf7bd812ac23c97d29711acaa4b8d9dec2147d26a5bbe869051fd44ae364fa9",
+  "models": {
+    "selected": "Qwen3-ASR 0.6B MLX-4bit (language inferred per audio)",
+    "baseline": "Apple SpeechAnalyzer zh-CN",
+    "alternate": "Qwen3-ASR 1.7B MLX-4bit (experimental)",
+    "compact": "Streaming Paraformer INT8"
+  },
+  "packaged_automatic": {
+    "id": "qwen-small",
+    "revision": "bc441bd1e4295c1f42d9879f056049a925b6e013",
+    "verified_files": 6,
+    "verified_bytes": 712777119
+  },
+  "public_audio_420": {
+    "baseline_apple_archive": {
+      "errors": 1261,
+      "substitutions": 623,
+      "deletions": 500,
+      "insertions": 138,
+      "reference_units": 10663,
+      "cer": 0.11826,
+      "rows": 420
+    },
+    "candidate_qwen_archive": {
+      "errors": 910,
+      "substitutions": 407,
+      "deletions": 387,
+      "insertions": 116,
+      "reference_units": 10663,
+      "cer": 0.08534,
+      "rows": 420
+    },
+    "candidate_qwen_direct": {
+      "errors": 885,
+      "substitutions": 401,
+      "deletions": 380,
+      "insertions": 104,
+      "reference_units": 10663,
+      "cer": 0.083,
+      "rows": 420
+    },
+    "candidate_1_7_archive": {
+      "errors": 872,
+      "substitutions": 358,
+      "deletions": 414,
+      "insertions": 100,
+      "reference_units": 10663,
+      "cer": 0.08178,
+      "rows": 420
+    },
+    "old_paraformer_archive": {
+      "errors": 1449,
+      "substitutions": 734,
+      "deletions": 563,
+      "insertions": 152,
+      "reference_units": 10663,
+      "cer": 0.13589,
+      "rows": 420
+    },
+    "old_qwen_archive": {
+      "errors": 1150,
+      "substitutions": 549,
+      "deletions": 474,
+      "insertions": 127,
+      "reference_units": 10663,
+      "cer": 0.10785,
+      "rows": 420
+    },
+    "paired_comparisons": {
+      "baseline/apple/product -> delivery/qwen-small/product": {
+        "counts": {
+          "improved": 153,
+          "first_errors": 1261,
+          "second_errors": 910,
+          "first_empty": 1,
+          "second_empty": 0,
+          "unchanged": 219,
+          "regressed": 48
+        },
+        "interval": {
+          "difference_pp": -3.292,
+          "paired_clip_bootstrap_95_pp": [
+            -4.411,
+            -2.29
+          ],
+          "improved": 153,
+          "regressed": 48
+        }
+      },
+      "baseline/sherpa/product -> delivery/qwen-small/product": {
+        "counts": {
+          "improved": 201,
+          "first_errors": 1449,
+          "second_errors": 910,
+          "first_empty": 0,
+          "second_empty": 0,
+          "regressed": 28,
+          "unchanged": 191
+        },
+        "interval": {
+          "difference_pp": -5.055,
+          "paired_clip_bootstrap_95_pp": [
+            -5.93,
+            -4.198
+          ],
+          "improved": 201,
+          "regressed": 28
+        }
+      },
+      "baseline/qwen-small/product -> delivery/qwen-small/product": {
+        "counts": {
+          "unchanged": 329,
+          "first_errors": 1150,
+          "second_errors": 910,
+          "first_empty": 0,
+          "second_empty": 0,
+          "regressed": 20,
+          "improved": 71
+        },
+        "interval": {
+          "difference_pp": -2.251,
+          "paired_clip_bootstrap_95_pp": [
+            -3.479,
+            -1.288
+          ],
+          "improved": 71,
+          "regressed": 20
+        }
+      }
+    },
+    "per_utterance": {
+      "improved": 153,
+      "first_errors": 1261,
+      "second_errors": 910,
+      "first_empty": 1,
+      "second_empty": 0,
+      "unchanged": 219,
+      "regressed": 48
+    },
+    "paired_interval": {
+      "difference_pp": -3.292,
+      "paired_clip_bootstrap_95_pp": [
+        -4.411,
+        -2.29
+      ],
+      "improved": 153,
+      "regressed": 48
+    },
+    "mixed_MER_apple": 0.1955403087478559,
+    "mixed_MER_new": 0.11492281303602059
+  },
+  "provider_or_hardware_checks": {
+    "private_live_accent": "NOT_RUN",
+    "built_in_route_level_meter": "PASS",
+    "built_in_audible_test": "BLOCKED (lid was closed during the probe)",
+    "real_8GB_Mac": "NOT_RUN",
+    "real_power_loss": "NOT_RUN",
+    "real_cloud_ASR": "NOT_RUN",
+    "notarization": "NOT_SUBMITTED"
+  },
+  "receipts": {
+    "package.json": "b67bb3aa8b7b78b508614c84f1b3122dc57c5eacce44ff209c5bd3d6623bca48",
+    "installation.json": "498bd9a193e83d6506aa860c07f8c02781bb636a5426691738d60f5847ce2722",
+    "pipeline-differences.json": "f7941cb84018a9bf5bb7dab08afd20b71486e6b248a4d90935bd6911c41e3667",
+    "segment-status.json": "2ae0ab0ee3d554067183ceb20a7a8fecc2ffc4c8e3a1c9b83c38be8b9dbe9ef6",
+    "independent-review.json": "1aca37178202246fe6bcf79a26f8df9096e6c6a9238fb244b539e983b0b60076",
+    "native-execution.json": "34002d39e66354127f078efefe042631fb49955db5c570ae4302ece6745ab325",
+    "bench-identity.json": "7f2c0b371900651e6ad9d86d20414250ea16e86e70fa6956a918073ef7b0237f",
+    "metrics.json": "aaad2b7fc658be3c3ae01f3e7c6c8cafc4151e1976b8abe1e41085f57107a591",
+    "decision-comparison.json": "dc96143ce6305449bcc25eafb5a28da8e1fb726c575024e63d12007dad63f2c2",
+    "soak.json": "118df9c4d0026fc74ec9509c963315066248879f5932c325d2fe312b9d92fba1",
+    "soak-transcripts.json": "f573a8ad47bad9aeeb76152d87eaceb9a969e9881cd7b66d5305e1e1b535fab0",
+    "github-ci.json": "cf2241fa5864161d977dab5798c7a7811b6e2927ea932e301d1483224b7db68f",
+    "COMPARISON.md": "fe4c8e9beca11d8a19b7e6b2ffbbb3218b914776997b7f714f49794b5c9c5ff2"
+  }
+}
