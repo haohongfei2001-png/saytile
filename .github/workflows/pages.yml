@@ -1,0 +1,44 @@
+name: Publish Saytile official website
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: saytile-github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Verify approved website files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s website/index.html
+          test -s website/assets/saytile-approved.webp
+          (cd website && sha256sum --check SHA256SUMS.txt)
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload exact website directory
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: website
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
