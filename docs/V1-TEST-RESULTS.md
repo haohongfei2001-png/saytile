@@ -1,6 +1,6 @@
 ## 内测 0.13 中文识别复测
 
-交付包 0.13（414）的 15/15 条公开语音均在讲话中实际发布 3–9 次有效文字。窗口首字 P50/P95 为 1.01/2.09 秒，有效窗口更新间隔 P95 为 1.29 秒，文件结束至定稿 P95 为 0.29 秒。每条最终窗口文字与 SQLite 一致。[最终原速窗口与资源](../evidence/mandarin-quality-20261114/delivery/metrics.json) · [隔离升级与回退](../evidence/mandarin-quality-20261114/final-rollback.json)
+交付包 0.13（414）的 15/15 条公开语音均在讲话中实际发布 3–9 次有效文字。窗口首字 P50/P95 为 1.005/2.090 秒，有效窗口更新间隔 P95 为 1.29 秒，从文件结束至定稿 P95 为 0.286 秒，从估算声学终点至定稿 P95 为 4.170 秒。每条最终窗口文字与 SQLite 一致。[最终原速窗口与资源](../evidence/mandarin-quality-20261114/delivery/metrics.json) · [隔离升级与回退](../evidence/mandarin-quality-20261114/final-rollback.json)
 
 固定 15 段原速回放中，Qwen 0.6B 的归档错误从 55/568 降至 46/568；其中 8 个差异为繁简。1.7B 为 48/568。此轮 0.6B 强制中文时会把一整句英语译成中文。在相同权重与 9 组原速 A/B 中，取消强制语言后保留了该句大部分英文。参见[混说复现](../evidence/mandarin-quality-20261114/language-ab/README.md)。大语料、原速与工程故障的逐项记录见[本轮验收](../evidence/mandarin-quality-20261114/README.md)。
 
