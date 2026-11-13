@@ -40,6 +40,7 @@ def main():
     splits = rows(evidence / "segmentation-frames.jsonl")
     sets = {}
     for name, folder, engine in [("candidate_qwen", "candidate", "qwen-small"),
+                                  ("candidate_qwen_auto", "unforced", "qwen-small"),
                                   ("baseline_apple", "baseline", "apple"),
                                   ("baseline_qwen", "baseline", "qwen-small")]:
         primary = evidence / folder / "runs"
