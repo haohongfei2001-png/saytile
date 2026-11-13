@@ -49,6 +49,9 @@ struct LocalModelTests {
         #expect(text.accept("最终原话", final: true) == 4)
     }
     @Test func onlyReadyModelsCanTakeTheNextTicket() {
+        #expect(LocalModelRecommendation.preferred == .qwen)
+        #expect(LocalModelRecommendation.select(preferred: LocalModelRecommendation.preferred, requested: nil,
+                                               available: [.apple]) == .apple)
         #expect(LocalModelRecommendation.select(preferred: .qwen, requested: nil, available: [.apple, .qwen]) == .qwen)
         #expect(LocalModelRecommendation.select(preferred: .qwen, requested: .sherpa, available: [.apple, .qwen, .sherpa]) == .sherpa)
         #expect(LocalModelRecommendation.select(preferred: .qwen, requested: .sherpa, available: [.apple]) == .apple)
