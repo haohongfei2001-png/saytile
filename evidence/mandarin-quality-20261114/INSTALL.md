@@ -1,5 +1,7 @@
 # Saytile 内测 0.13 · 中文识别候选
 
+本机入口为 `~/Applications/Saytile 中文识别候选.app`，内测 0.13（414）。应用与六个本地模型文件均已校验，使用时无需再等待模型下载。[实际安装收据](delivery/installation.json)
+
 在 Mac 上打开「Saytile 中文识别候选.app」。点击浮板右侧的语音键开始，第一次使用时按 macOS 提示允许麦克风。再次点击可暂停。可从菜单栏的「语音档案与设置…」查看该候选录下的原音、历史文字及实际运行的引擎。
 
 独立候选将资料保存在 `~/Library/Application Support/Saytile Mandarin Candidate`。本机的 Saytile 0.12 使用自己的应用标识、录音、模型和设置。使用 macOS 的同一个系统输入源时，可先在旧版面板上暂停收音。
