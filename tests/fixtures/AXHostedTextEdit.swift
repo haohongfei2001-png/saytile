@@ -157,7 +157,7 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
             }
         }
         do {
-            try await waitForOwnedField(access, original: original, caret: 7, pid: pid) { snapshot in
+            try await bindOwnedField(coordinator, trace: trace, original: original, caret: 7, pid: pid) { snapshot in
                 browser || matchesTextEditDocument(snapshot.pageIdentity, expected: doc)
             }
         } catch {
@@ -166,7 +166,6 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
                   "known caret", current.selectionLocation == 7, "witness matches", access.textWitness(at: current) == original)
             throw error
         }
-        try await coordinator.bindCurrentTarget()
         let row=try await store.createRecording()
         let r=try await store.saveEdit(recordingID:row.id,text:"你好😀")
         func insert(_ rev:TranscriptRevision) async -> NativeInputResult {
@@ -204,8 +203,7 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
             // New scenario, same focused synthetic field. No reactivation or retry of a delivery.
             coordinator.invalidate()
             _ = try dom("collapse", finalField)
-            try await waitForOwnedField(access, original: finalField, caret: 15, pid: pid)
-            try await coordinator.bindCurrentTarget()
+            try await bindOwnedField(coordinator, trace: trace, original: finalField, caret: 15, pid: pid)
             let record = try await store.createRecording()
             func send(_ text: String) async throws -> NativeInputResult {
                 let revision = try await store.saveEdit(recordingID: record.id, text: text)
@@ -224,8 +222,7 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
             for scenario in ["cancel", "switch-target"] {
                 trace.stage = scenario + "-bind"
                 coordinator.invalidate()
-                try await waitForOwnedField(access, original: edited, caret: 16, pid: pid)
-                try await coordinator.bindCurrentTarget()
+                try await bindOwnedField(coordinator, trace: trace, original: edited, caret: 16, pid: pid)
                 let fresh = try await store.createRecording()
                 let revision = try await store.saveEdit(recordingID: fresh.id, text: "停")
                 trace.stage = scenario

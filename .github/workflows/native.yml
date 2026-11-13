@@ -80,23 +80,38 @@ jobs:
           mkdir -p "$SAYTILE_INPUT_EVIDENCE_DIRECTORY"
           git rev-parse HEAD > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/source.txt"
           python3 scripts/test-input-native.py --foreground-batch
-      - name: Exercise TextEdit on a new disposable document
-        if: always()
-        env:
-          SAYTILE_HOSTED_TARGETS: '1'
-          SAYTILE_INPUT_EVIDENCE_DIRECTORY: ${{ runner.temp }}/foreground-receipt
+      - name: Build the hosted editor probe
+        id: hosted_editor
+        if: ${{ !cancelled() }}
         run: |
           python3 - <<'PYTHON'
           import os, pathlib, runpy, subprocess
           p = runpy.run_path('scripts/test-input-native.py')
-          out = pathlib.Path(os.environ['SAYTILE_INPUT_EVIDENCE_DIRECTORY'])
           exe = pathlib.Path(os.environ['RUNNER_TEMP']) / 'textedit-probe'
           subprocess.run(['swiftc', '-parse-as-library', '-swift-version', '6', '-I', 'Sources/CSQLite',
                           *p['production_flags'](), 'tests/fixtures/AXOwnedFieldReady.swift', 'tests/fixtures/AXHostedTextEdit.swift', '-o', exe], check=True)
-          with (out / 'textedit.log').open('w') as log:
-              subprocess.run([exe], stdout=log, stderr=subprocess.STDOUT, timeout=60, check=True)
-          with (out / 'chrome.log').open('w') as log:
-              subprocess.run([exe, '--chrome'], stdout=log, stderr=subprocess.STDOUT, timeout=90, check=True)
+          PYTHON
+      - name: Exercise TextEdit on a new disposable document
+        if: ${{ !cancelled() && steps.hosted_editor.outcome == 'success' }}
+        env:
+          SAYTILE_HOSTED_TARGETS: '1'
+        run: |
+          python3 - <<'PYTHON'
+          import os, pathlib, subprocess
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          with (root / 'foreground-receipt/textedit.log').open('w') as log:
+              subprocess.run([root / 'textedit-probe'], stdout=log, stderr=subprocess.STDOUT, timeout=60, check=True)
+          PYTHON
+      - name: Exercise Chrome on a new disposable profile
+        if: ${{ !cancelled() && steps.hosted_editor.outcome == 'success' }}
+        env:
+          SAYTILE_HOSTED_TARGETS: '1'
+        run: |
+          python3 - <<'PYTHON'
+          import os, pathlib, subprocess
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          with (root / 'foreground-receipt/chrome.log').open('w') as log:
+              subprocess.run([root / 'textedit-probe', '--chrome'], stdout=log, stderr=subprocess.STDOUT, timeout=90, check=True)
           PYTHON
       - uses: actions/upload-artifact@v4
         if: always()

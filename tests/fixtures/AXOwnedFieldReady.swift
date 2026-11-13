@@ -1,38 +1,52 @@
 import AppKit
 @testable import SaytileKit
 
-/// Only reads the disposable window during its single startup transition. Registering
-/// an observer also lets pending WebKit focus, layout and selection events drain.
-@MainActor func waitForOwnedField(_ access: AXInputAccess, original: String,
-                                  caret: Int, pid: Int32,
-                                  documentReady: (InputTargetSnapshot) -> Bool = { _ in true }) async throws {
+/// Start one ordinary binding when the disposable editor has reported its full
+/// identity three times. The production observer remains attached through the
+/// quiet period and the subsequent test edit.
+@MainActor func bindOwnedField(_ input: NativeInputCoordinator, trace: FixtureAccessTrace,
+                               original: String, caret: Int, pid: Int32,
+                               documentReady: (InputTargetSnapshot) -> Bool = { _ in true }) async throws {
+    let access = trace.base
     let clock = ContinuousClock(), deadline = clock.now.advanced(by: .seconds(5))
-    var initial: InputTargetSnapshot?
-    var observedChanges = 0, previousChanges = 0, consecutive = 0
-    defer { access.stopObserving() }
+    func ready(_ current: InputTargetSnapshot) -> Bool {
+        current.processID == pid && current.isEditable && !current.isSensitive && current.canSetSelectedText &&
+        current.selectionLocation == caret && current.selectionLength == 0 && documentReady(current) &&
+        (!current.isWeb || (current.pageContextComplete && current.pageIdentity != nil)) &&
+        access.textWitness(at: current) == original
+    }
+    var first: InputTargetSnapshot?
+    var consecutive = 0
     while clock.now < deadline {
-        if let current = try? access.snapshot(), current.processID == pid,
-           current.isEditable, !current.isSensitive, current.canSetSelectedText,
-           current.selectionLocation == caret, current.selectionLength == 0,
-           documentReady(current),
-           !current.isWeb || (current.pageContextComplete && current.pageIdentity != nil),
-           access.textWitness(at: current) == original {
-            if let initial {
-                guard current == initial else { throw NativeInputError.targetChanged }
-            } else {
-                let support = access.observe(current) { _ in observedChanges += 1 }
-                guard support.focus && support.content && (!current.isWeb || support.page) else {
-                    throw NativeInputError.unobservablePage
-                }
-                initial = current
-            }
-            consecutive = previousChanges == observedChanges ? consecutive + 1 : 1
-            previousChanges = observedChanges
-            if consecutive >= 3 {
-                print("OWNED_READY complete_reads", consecutive, "startup_notifications", observedChanges)
-                return
-            }
+        if let current = try? access.snapshot(), ready(current) {
+            if let first, first != current { throw NativeInputError.targetChanged }
+            first = current
+            consecutive += 1
+            if consecutive == 3 { break }
         } else { consecutive = 0 }
+        try await Task.sleep(for: .milliseconds(180))
+    }
+    guard consecutive == 3, let expected = first else { throw CocoaError(.validationMissingMandatoryProperty) }
+    let binding = try await input.bindCurrentTarget()
+    var verified = false
+    defer { if !verified { input.invalidate() } }
+    guard trace.bound == expected, let support = trace.support,
+          support.focus && support.content && (!expected.isWeb || support.page) else {
+        throw NativeInputError.unobservablePage
+    }
+    var events = trace.notifications
+    var quiet = 0
+    while clock.now < deadline {
+        guard input.binding?.id == binding.id, try access.snapshot() == expected, ready(expected) else {
+            throw NativeInputError.targetChanged
+        }
+        quiet = trace.notifications == events ? quiet + 1 : 1
+        if quiet == 3 {
+            verified = true
+            print("OWNED_READY complete_reads", consecutive, "bound_quiet_reads", quiet, "observed_notifications", trace.notifications)
+            return
+        }
+        events = trace.notifications
         try await Task.sleep(for: .milliseconds(180))
     }
     throw CocoaError(.validationMissingMandatoryProperty)
@@ -43,7 +57,9 @@ import AppKit
     let base: AXInputAccess
     var stage = "bind"
     private(set) var writes = 0
-    private var bound: InputTargetSnapshot?
+    private(set) var bound: InputTargetSnapshot?
+    private(set) var support: InputObservationSupport?
+    private(set) var notifications = 0
     // Optional test action between reservation and the last ownership check.
     var beforeSnapshot: (() throws -> Void)?
     init(_ base: AXInputAccess) { self.base = base }
@@ -77,11 +93,20 @@ import AppKit
         return after
     }
     func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool? {
-        base.matchesText(text, utf16Start: utf16Start, at: expected)
+        let matched = base.matchesText(text, utf16Start: utf16Start, at: expected)
+        if text.isEmpty { print("OWNED_CARET_READBACK", stage, matched == true) }
+        return matched
     }
     func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport {
         bound = expected
-        return base.observe(expected) { change in print("OWNED_EVENT", change); fflush(nil); onChange(change) }
+        notifications = 0
+        let capabilities = base.observe(expected) { [weak self] change in
+            self?.notifications += 1
+            print("OWNED_EVENT", change); fflush(nil); onChange(change)
+        }
+        support = capabilities
+        print("OWNED_OBSERVER", stage, "focus", capabilities.focus, "content", capabilities.content, "page", capabilities.page)
+        return capabilities
     }
     func stopObserving() { base.stopObserving() }
     func replaceOwned(_ expectedText: String, with replacement: String, start: Int, witness: String, at expected: InputTargetSnapshot,

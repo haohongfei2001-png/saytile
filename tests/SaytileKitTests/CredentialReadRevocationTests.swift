@@ -6,6 +6,7 @@ import Testing
 /// happens after the read enters and before its synthetic result is returned.
 private final class CredentialReadBarrier: @unchecked Sendable {
     let purpose: RecognitionPurpose
+    private let onRead: @Sendable () -> Void
     private let condition = NSCondition()
     private var entered = false
     private var released = false
@@ -13,11 +14,15 @@ private final class CredentialReadBarrier: @unchecked Sendable {
     private var timedOut = false
     private var providers: [CloudProvider: Int] = [:]
     private var reviewCalls = 0
-    init(purpose: RecognitionPurpose) { self.purpose = purpose }
+    init(purpose: RecognitionPurpose, onRead: @escaping @Sendable () -> Void) {
+        self.purpose = purpose
+        self.onRead = onRead
+    }
     func read(_ configuration: ModelConfiguration) -> String {
         guard configuration.purpose == purpose else { return "synthetic-fixture-credential" }
         condition.lock(); defer { condition.unlock() }
         entered = true
+        onRead()
         let deadline = Date().addingTimeInterval(5)
         while !released {
             if !condition.wait(until: deadline) { timedOut = true; break }
@@ -59,7 +64,7 @@ private final class UnexpectedReadRevocationLocalSession: RecognitionSession, @u
 
 @Suite("Credential reads cannot outlive their cloud authorization")
 struct CredentialReadRevocationTests {
-    @Test(arguments: [RecognitionPurpose.chineseASR, .textFusion])
+    @Test(.timeLimit(.minutes(1)), arguments: [RecognitionPurpose.chineseASR, .textFusion])
     func revocationDuringSynchronousCredentialReadPreventsSubsequentRequest(purpose: RecognitionPurpose) async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-credential-read-revocation-" + UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -76,7 +81,8 @@ struct CredentialReadRevocationTests {
             configuration.models[index].cloudConsent = true
             if configuration.models[index].provider == .qwenMessage { configuration.models[index].workspaceID = "isolated-read" }
         }
-        let barrier = CredentialReadBarrier(purpose: purpose)
+        let (readEvents, readSignal) = AsyncStream<Void>.makeStream(bufferingPolicy: .bufferingOldest(1))
+        let barrier = CredentialReadBarrier(purpose: purpose) { readSignal.yield(()) }
         defer { barrier.release() }
         let epoch = RecognitionFailoverEpoch(now: Date.init)
         let dependencies = RecognitionPipelineDependencies(credential: { barrier.read($0) },
@@ -93,10 +99,14 @@ struct CredentialReadRevocationTests {
             dependencies: dependencies,
             local: .init(availability: { .init(supported: false, installed: false, message: "isolated fixture") },
                          make: { _, ticket in UnexpectedReadRevocationLocalSession(ticket.recordingID) }),
-            epoch: epoch, cloud: true, probe: nil, onComplete: {})
+            epoch: epoch, cloud: true, probe: nil, onComplete: { readSignal.finish() })
+        defer { session.cancel() }
         session.append(pcm); session.finish()
-        let admissionDeadline = ContinuousClock.now.advanced(by: .seconds(3))
-        while !barrier.snapshot.entered && ContinuousClock.now < admissionDeadline { try await Task.sleep(for: .milliseconds(2)) }
+        // The text read follows ASR publication. Revoke at the actual credential
+        // boundary, even if preparing that candidate takes longer on a busy runner.
+        var reads = readEvents.makeAsyncIterator()
+        let didStartReading = await reads.next() != nil
+        try #require(didStartReading, "The selected credential must be read before the session ends.")
         #expect(barrier.snapshot.entered)
         #expect(!barrier.snapshot.returned)
         epoch.invalidate()
