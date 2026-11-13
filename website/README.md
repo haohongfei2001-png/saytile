@@ -2,7 +2,7 @@
 
 **当前正式版本：2026-11-13 用户批准的 R3。**
 
-完整、可运行的官网就在本目录。运行文件从已发布版本逐字节复制，保留 HTML、CSS、JavaScript、动效、响应式布局和正式图标；本次没有重新制作或简化页面。
+完整、可运行的官网就在本目录。正式域名接入时，六个 R3 运行文件中仅 `index.html` 的 `og:url` 有一处修改。
 
 - [版本批准与保留细节](APPROVAL.md)
 - [冻结文件与 SHA-256](snapshot.json)
@@ -10,7 +10,7 @@
 - [实际验证记录](VALIDATION.md)
 - [原设计说明](SOURCE-README.md)
 - [首屏截图](reference/desktop-hero.jpg) · [完整页面截图](reference/full-page.jpg)
-- [当前线上预览](https://saytile-voice-20261113.dark-koala-7130.chatgpt.site/)（保留原访问范围）
+- [正式域名](https://saytile.com/) · [原始 R3 预览](https://saytile-voice-20261113.dark-koala-7130.chatgpt.site/)
 
 ## 本地运行
 
@@ -37,7 +37,7 @@ python3 -m http.server 8080 --directory website
 
 保持相对路径不变，并保持 `panel.js` 在 `app.js` 前加载，两个脚本均使用 `defer`。本目录已包含需要发布的全部资源，不需要从截图重建，也不要只复制 `index.html`。
 
-本次没有迁移域名或改变线上访问设置。HTML 的 `og:url` 原样保留已发布地址；未来绑定正式域名时可单独更新该元数据，不应借此改写页面。
+HTML 的 `og:url` 使用正式地址 `https://saytile.com/`。GitHub Pages 部署配置见 [DEPLOYMENT.md](DEPLOYMENT.md)。
 
 ## 校验
 
@@ -47,7 +47,7 @@ python3 -m http.server 8080 --directory website
 shasum -a 256 -c SHA256SUMS.txt
 ```
 
-六项全部通过，表示运行文件与批准版本逐字节相同。截图是 Chromium 的实际渲染参考；网站使用系统字体，不同系统字体渲染可能不同。
+六项全部通过，表示运行文件与当前发布清单逐字节相同。原始 R3 首页摘要保存在 `snapshot.json`，其余五个运行文件沿用批准时的摘要。截图是 Chromium 的实际渲染参考；网站使用系统字体，不同系统字体渲染可能不同。
 
 ## 产品范围
 

@@ -8,8 +8,8 @@
   "repository_directory": "website/",
   "published_preview": "https://saytile-voice-20261113.dark-koala-7130.chatgpt.site/",
   "runtime_file_count": 6,
-  "runtime_total_bytes": 57269,
-  "copy_method": "Byte-for-byte copy. No runtime file was rewritten or reformatted.",
+  "runtime_total_bytes": 57229,
+  "copy_method": "R3 runtime files copied byte for byte, followed by the single og:url change recorded in production_metadata.",
   "runtime_files": [
     {
       "path": "app.js",
@@ -25,9 +25,9 @@
     },
     {
       "path": "index.html",
-      "bytes": 11399,
-      "sha256": "94a5ff533cfe181b605d88fb3dab50531dae4822deeca31da7e0531b6f5eeda0",
-      "git_blob_sha": "6444e5947649a08d6f88c3f731a1cd69c808882c"
+      "bytes": 11359,
+      "sha256": "f069457170d4e5f2162b4283c59cb0592761f5b61311001e5a47205939321186",
+      "git_blob_sha": "2cc0b0b3023b06ac60ac8a30b73abbc0d9e99e09"
     },
     {
       "path": "panel.css",
@@ -66,5 +66,15 @@
     "Website interaction examples, not live microphone or ASR.",
     "System font rendering can differ by operating system.",
     "Source preservation does not change current hosting audience or domain."
-  ]
+  ],
+  "production_metadata": {
+    "url": "https://saytile.com/",
+    "change": "index.html og:url only",
+    "original_r3_index": {
+      "path": "index.html",
+      "bytes": 11399,
+      "sha256": "94a5ff533cfe181b605d88fb3dab50531dae4822deeca31da7e0531b6f5eeda0",
+      "git_blob_sha": "6444e5947649a08d6f88c3f731a1cd69c808882c"
+    }
+  }
 }
