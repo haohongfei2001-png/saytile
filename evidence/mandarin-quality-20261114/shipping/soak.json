@@ -1,0 +1,854 @@
+{
+  "model": "qwen-small",
+  "requested_automatic": true,
+  "observed_automatic": true,
+  "source": "9e17c8d7099d54aef26ce5b2577747f35e285fc4",
+  "observed_window_source": "9e17c8d7099d54aef26ce5b2577747f35e285fc4",
+  "errors": [
+    [
+      "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。",
+      2
+    ]
+  ],
+  "fixture_sha256": "6c6e57fb689187803fcbbbf52523fcebe047dedb8e85a71fe611588c66e4f072",
+  "input_clips": [
+    "fleurs-1bc3201a9f24a2fe",
+    "fleurs-0ebe0fb634f8e4ac",
+    "fleurs-9eb2d543a0a36152",
+    "fleurs-914c948388ae30bd",
+    "fleurs-e50b6b02d6d90ddc",
+    "fleurs-8e93e440f571a4da",
+    "ascend-zh-6a23208e2c146088",
+    "ascend-zh-ed182ef57fba310b",
+    "ascend-zh-4309bc70746a5c2c",
+    "ascend-zh-0c5639a6e24f539b",
+    "ascend-mixed-9255615fddf1a721",
+    "ascend-mixed-a0b0e736637c643c",
+    "ascend-mixed-ee4e2d5087648134",
+    "ascend-mixed-7c8bdcb41bb98a40",
+    "ascend-mixed-ff9c42612780330b",
+    "fleurs-1bc3201a9f24a2fe",
+    "fleurs-0ebe0fb634f8e4ac",
+    "fleurs-9eb2d543a0a36152",
+    "fleurs-914c948388ae30bd",
+    "fleurs-e50b6b02d6d90ddc",
+    "fleurs-8e93e440f571a4da",
+    "ascend-zh-6a23208e2c146088",
+    "ascend-zh-ed182ef57fba310b",
+    "ascend-zh-4309bc70746a5c2c",
+    "ascend-zh-0c5639a6e24f539b",
+    "ascend-mixed-9255615fddf1a721",
+    "ascend-mixed-a0b0e736637c643c",
+    "ascend-mixed-ee4e2d5087648134",
+    "ascend-mixed-7c8bdcb41bb98a40",
+    "ascend-mixed-ff9c42612780330b",
+    "fleurs-1bc3201a9f24a2fe",
+    "fleurs-0ebe0fb634f8e4ac",
+    "fleurs-9eb2d543a0a36152",
+    "fleurs-914c948388ae30bd",
+    "fleurs-e50b6b02d6d90ddc",
+    "fleurs-8e93e440f571a4da",
+    "ascend-zh-6a23208e2c146088",
+    "ascend-zh-ed182ef57fba310b",
+    "ascend-zh-4309bc70746a5c2c",
+    "ascend-zh-0c5639a6e24f539b",
+    "ascend-mixed-9255615fddf1a721",
+    "ascend-mixed-a0b0e736637c643c",
+    "ascend-mixed-ee4e2d5087648134",
+    "ascend-mixed-7c8bdcb41bb98a40",
+    "ascend-mixed-ff9c42612780330b",
+    "fleurs-1bc3201a9f24a2fe",
+    "fleurs-0ebe0fb634f8e4ac",
+    "fleurs-9eb2d543a0a36152",
+    "fleurs-914c948388ae30bd",
+    "fleurs-e50b6b02d6d90ddc",
+    "fleurs-8e93e440f571a4da",
+    "ascend-zh-6a23208e2c146088",
+    "ascend-zh-ed182ef57fba310b",
+    "ascend-zh-4309bc70746a5c2c",
+    "ascend-zh-0c5639a6e24f539b",
+    "ascend-mixed-9255615fddf1a721",
+    "ascend-mixed-a0b0e736637c643c",
+    "ascend-mixed-ee4e2d5087648134",
+    "ascend-mixed-7c8bdcb41bb98a40",
+    "ascend-mixed-ff9c42612780330b",
+    "fleurs-1bc3201a9f24a2fe",
+    "fleurs-0ebe0fb634f8e4ac",
+    "fleurs-9eb2d543a0a36152",
+    "fleurs-914c948388ae30bd",
+    "fleurs-e50b6b02d6d90ddc",
+    "fleurs-8e93e440f571a4da",
+    "ascend-zh-6a23208e2c146088",
+    "ascend-zh-ed182ef57fba310b",
+    "ascend-zh-4309bc70746a5c2c",
+    "ascend-zh-0c5639a6e24f539b",
+    "ascend-mixed-9255615fddf1a721",
+    "ascend-mixed-a0b0e736637c643c",
+    "ascend-mixed-ee4e2d5087648134",
+    "ascend-mixed-7c8bdcb41bb98a40",
+    "ascend-mixed-ff9c42612780330b",
+    "fleurs-1bc3201a9f24a2fe",
+    "fleurs-0ebe0fb634f8e4ac",
+    "fleurs-9eb2d543a0a36152",
+    "fleurs-914c948388ae30bd",
+    "fleurs-e50b6b02d6d90ddc",
+    "fleurs-8e93e440f571a4da",
+    "ascend-zh-6a23208e2c146088",
+    "ascend-zh-ed182ef57fba310b",
+    "ascend-zh-4309bc70746a5c2c"
+  ],
+  "input_duration": 905.020375,
+  "elapsed": 905.0213683333714,
+  "exit_code": 0,
+  "ui_updates": 585,
+  "retained_ui_frames": 512,
+  "providers": [
+    "qwen-small"
+  ],
+  "archived_seconds": 815.480375,
+  "archive_chunks": 81,
+  "states": [
+    [
+      "completed",
+      "available",
+      47
+    ],
+    [
+      "failed",
+      "available",
+      2
+    ]
+  ],
+  "completed_rows": 47,
+  "total_rows": 49,
+  "integrity": "ok",
+  "foreign_errors": 0,
+  "dispatches": 0,
+  "timeline_rows": 49,
+  "unmatched_chunk_ordinals": [],
+  "clips": [
+    {
+      "id": "fleurs-1bc3201a9f24a2fe",
+      "archive_frames": 165120,
+      "completed_frames": 165120,
+      "positions": [
+        1
+      ]
+    },
+    {
+      "id": "fleurs-0ebe0fb634f8e4ac",
+      "archive_frames": 238720,
+      "completed_frames": 238720,
+      "positions": [
+        2
+      ]
+    },
+    {
+      "id": "fleurs-9eb2d543a0a36152",
+      "archive_frames": 188480,
+      "completed_frames": 188480,
+      "positions": [
+        3
+      ]
+    },
+    {
+      "id": "fleurs-914c948388ae30bd",
+      "archive_frames": 152640,
+      "completed_frames": 152640,
+      "positions": [
+        4
+      ]
+    },
+    {
+      "id": "fleurs-e50b6b02d6d90ddc",
+      "archive_frames": 139840,
+      "completed_frames": 139840,
+      "positions": [
+        5
+      ]
+    },
+    {
+      "id": "fleurs-8e93e440f571a4da",
+      "archive_frames": 200640,
+      "completed_frames": 200640,
+      "positions": [
+        6
+      ]
+    },
+    {
+      "id": "ascend-zh-6a23208e2c146088",
+      "archive_frames": 67199,
+      "completed_frames": 67199,
+      "positions": [
+        7
+      ]
+    },
+    {
+      "id": "ascend-zh-ed182ef57fba310b",
+      "archive_frames": 94883,
+      "completed_frames": 94883,
+      "positions": [
+        7
+      ]
+    },
+    {
+      "id": "ascend-zh-4309bc70746a5c2c",
+      "archive_frames": 101119,
+      "completed_frames": 101119,
+      "positions": [
+        7
+      ]
+    },
+    {
+      "id": "ascend-zh-0c5639a6e24f539b",
+      "archive_frames": 115520,
+      "completed_frames": 115520,
+      "positions": [
+        7
+      ]
+    },
+    {
+      "id": "ascend-mixed-9255615fddf1a721",
+      "archive_frames": 103360,
+      "completed_frames": 103360,
+      "positions": [
+        7,
+        8
+      ]
+    },
+    {
+      "id": "ascend-mixed-a0b0e736637c643c",
+      "archive_frames": 146560,
+      "completed_frames": 146560,
+      "positions": [
+        8
+      ]
+    },
+    {
+      "id": "ascend-mixed-ee4e2d5087648134",
+      "archive_frames": 119040,
+      "completed_frames": 119040,
+      "positions": [
+        8
+      ]
+    },
+    {
+      "id": "ascend-mixed-7c8bdcb41bb98a40",
+      "archive_frames": 96000,
+      "completed_frames": 96000,
+      "positions": [
+        8
+      ]
+    },
+    {
+      "id": "ascend-mixed-ff9c42612780330b",
+      "archive_frames": 161920,
+      "completed_frames": 161920,
+      "positions": [
+        9
+      ]
+    },
+    {
+      "id": "fleurs-1bc3201a9f24a2fe",
+      "archive_frames": 179200,
+      "completed_frames": 179200,
+      "positions": [
+        9,
+        10
+      ]
+    },
+    {
+      "id": "fleurs-0ebe0fb634f8e4ac",
+      "archive_frames": 238559,
+      "completed_frames": 238559,
+      "positions": [
+        10
+      ]
+    },
+    {
+      "id": "fleurs-9eb2d543a0a36152",
+      "archive_frames": 188480,
+      "completed_frames": 188480,
+      "positions": [
+        11
+      ]
+    },
+    {
+      "id": "fleurs-914c948388ae30bd",
+      "archive_frames": 158559,
+      "completed_frames": 158559,
+      "positions": [
+        12
+      ]
+    },
+    {
+      "id": "fleurs-e50b6b02d6d90ddc",
+      "archive_frames": 139681,
+      "completed_frames": 139681,
+      "positions": [
+        13
+      ]
+    },
+    {
+      "id": "fleurs-8e93e440f571a4da",
+      "archive_frames": 215680,
+      "completed_frames": 215680,
+      "positions": [
+        14,
+        15
+      ]
+    },
+    {
+      "id": "ascend-zh-6a23208e2c146088",
+      "archive_frames": 67199,
+      "completed_frames": 67199,
+      "positions": [
+        15
+      ]
+    },
+    {
+      "id": "ascend-zh-ed182ef57fba310b",
+      "archive_frames": 94883,
+      "completed_frames": 94883,
+      "positions": [
+        15
+      ]
+    },
+    {
+      "id": "ascend-zh-4309bc70746a5c2c",
+      "archive_frames": 101119,
+      "completed_frames": 101119,
+      "positions": [
+        15
+      ]
+    },
+    {
+      "id": "ascend-zh-0c5639a6e24f539b",
+      "archive_frames": 115520,
+      "completed_frames": 115520,
+      "positions": [
+        15
+      ]
+    },
+    {
+      "id": "ascend-mixed-9255615fddf1a721",
+      "archive_frames": 103360,
+      "completed_frames": 103360,
+      "positions": [
+        15,
+        16
+      ]
+    },
+    {
+      "id": "ascend-mixed-a0b0e736637c643c",
+      "archive_frames": 146560,
+      "completed_frames": 146560,
+      "positions": [
+        16
+      ]
+    },
+    {
+      "id": "ascend-mixed-ee4e2d5087648134",
+      "archive_frames": 119040,
+      "completed_frames": 119040,
+      "positions": [
+        16
+      ]
+    },
+    {
+      "id": "ascend-mixed-7c8bdcb41bb98a40",
+      "archive_frames": 96000,
+      "completed_frames": 96000,
+      "positions": [
+        16,
+        17
+      ]
+    },
+    {
+      "id": "ascend-mixed-ff9c42612780330b",
+      "archive_frames": 161920,
+      "completed_frames": 161920,
+      "positions": [
+        17
+      ]
+    },
+    {
+      "id": "fleurs-1bc3201a9f24a2fe",
+      "archive_frames": 180160,
+      "completed_frames": 180160,
+      "positions": [
+        17,
+        18
+      ]
+    },
+    {
+      "id": "fleurs-0ebe0fb634f8e4ac",
+      "archive_frames": 250560,
+      "completed_frames": 238718,
+      "positions": [
+        18,
+        19
+      ]
+    },
+    {
+      "id": "fleurs-9eb2d543a0a36152",
+      "archive_frames": 202878,
+      "completed_frames": 192960,
+      "positions": [
+        19,
+        20
+      ]
+    },
+    {
+      "id": "fleurs-914c948388ae30bd",
+      "archive_frames": 152640,
+      "completed_frames": 152640,
+      "positions": [
+        21
+      ]
+    },
+    {
+      "id": "fleurs-e50b6b02d6d90ddc",
+      "archive_frames": 139840,
+      "completed_frames": 139840,
+      "positions": [
+        22
+      ]
+    },
+    {
+      "id": "fleurs-8e93e440f571a4da",
+      "archive_frames": 200638,
+      "completed_frames": 200638,
+      "positions": [
+        23
+      ]
+    },
+    {
+      "id": "ascend-zh-6a23208e2c146088",
+      "archive_frames": 67199,
+      "completed_frames": 67199,
+      "positions": [
+        24
+      ]
+    },
+    {
+      "id": "ascend-zh-ed182ef57fba310b",
+      "archive_frames": 94883,
+      "completed_frames": 94883,
+      "positions": [
+        24
+      ]
+    },
+    {
+      "id": "ascend-zh-4309bc70746a5c2c",
+      "archive_frames": 101119,
+      "completed_frames": 101119,
+      "positions": [
+        24
+      ]
+    },
+    {
+      "id": "ascend-zh-0c5639a6e24f539b",
+      "archive_frames": 115520,
+      "completed_frames": 115520,
+      "positions": [
+        24
+      ]
+    },
+    {
+      "id": "ascend-mixed-9255615fddf1a721",
+      "archive_frames": 103360,
+      "completed_frames": 103360,
+      "positions": [
+        24,
+        25
+      ]
+    },
+    {
+      "id": "ascend-mixed-a0b0e736637c643c",
+      "archive_frames": 146560,
+      "completed_frames": 146560,
+      "positions": [
+        25
+      ]
+    },
+    {
+      "id": "ascend-mixed-ee4e2d5087648134",
+      "archive_frames": 119040,
+      "completed_frames": 119040,
+      "positions": [
+        25
+      ]
+    },
+    {
+      "id": "ascend-mixed-7c8bdcb41bb98a40",
+      "archive_frames": 96000,
+      "completed_frames": 96000,
+      "positions": [
+        25
+      ]
+    },
+    {
+      "id": "ascend-mixed-ff9c42612780330b",
+      "archive_frames": 161920,
+      "completed_frames": 161920,
+      "positions": [
+        26
+      ]
+    },
+    {
+      "id": "fleurs-1bc3201a9f24a2fe",
+      "archive_frames": 179200,
+      "completed_frames": 179200,
+      "positions": [
+        26,
+        27
+      ]
+    },
+    {
+      "id": "fleurs-0ebe0fb634f8e4ac",
+      "archive_frames": 238557,
+      "completed_frames": 238557,
+      "positions": [
+        27
+      ]
+    },
+    {
+      "id": "fleurs-9eb2d543a0a36152",
+      "archive_frames": 188480,
+      "completed_frames": 188480,
+      "positions": [
+        28
+      ]
+    },
+    {
+      "id": "fleurs-914c948388ae30bd",
+      "archive_frames": 158557,
+      "completed_frames": 158557,
+      "positions": [
+        29
+      ]
+    },
+    {
+      "id": "fleurs-e50b6b02d6d90ddc",
+      "archive_frames": 139683,
+      "completed_frames": 139683,
+      "positions": [
+        30
+      ]
+    },
+    {
+      "id": "fleurs-8e93e440f571a4da",
+      "archive_frames": 215680,
+      "completed_frames": 215680,
+      "positions": [
+        31,
+        32
+      ]
+    },
+    {
+      "id": "ascend-zh-6a23208e2c146088",
+      "archive_frames": 67199,
+      "completed_frames": 67199,
+      "positions": [
+        32
+      ]
+    },
+    {
+      "id": "ascend-zh-ed182ef57fba310b",
+      "archive_frames": 94883,
+      "completed_frames": 94883,
+      "positions": [
+        32
+      ]
+    },
+    {
+      "id": "ascend-zh-4309bc70746a5c2c",
+      "archive_frames": 101119,
+      "completed_frames": 101119,
+      "positions": [
+        32
+      ]
+    },
+    {
+      "id": "ascend-zh-0c5639a6e24f539b",
+      "archive_frames": 115520,
+      "completed_frames": 115520,
+      "positions": [
+        32
+      ]
+    },
+    {
+      "id": "ascend-mixed-9255615fddf1a721",
+      "archive_frames": 103360,
+      "completed_frames": 103360,
+      "positions": [
+        32,
+        33
+      ]
+    },
+    {
+      "id": "ascend-mixed-a0b0e736637c643c",
+      "archive_frames": 146560,
+      "completed_frames": 146560,
+      "positions": [
+        33
+      ]
+    },
+    {
+      "id": "ascend-mixed-ee4e2d5087648134",
+      "archive_frames": 119040,
+      "completed_frames": 119040,
+      "positions": [
+        33
+      ]
+    },
+    {
+      "id": "ascend-mixed-7c8bdcb41bb98a40",
+      "archive_frames": 96000,
+      "completed_frames": 96000,
+      "positions": [
+        33,
+        34
+      ]
+    },
+    {
+      "id": "ascend-mixed-ff9c42612780330b",
+      "archive_frames": 161920,
+      "completed_frames": 161920,
+      "positions": [
+        34
+      ]
+    },
+    {
+      "id": "fleurs-1bc3201a9f24a2fe",
+      "archive_frames": 180160,
+      "completed_frames": 180160,
+      "positions": [
+        34,
+        35
+      ]
+    },
+    {
+      "id": "fleurs-0ebe0fb634f8e4ac",
+      "archive_frames": 250560,
+      "completed_frames": 238716,
+      "positions": [
+        35,
+        36
+      ]
+    },
+    {
+      "id": "fleurs-9eb2d543a0a36152",
+      "archive_frames": 202876,
+      "completed_frames": 192960,
+      "positions": [
+        36,
+        37
+      ]
+    },
+    {
+      "id": "fleurs-914c948388ae30bd",
+      "archive_frames": 152640,
+      "completed_frames": 152640,
+      "positions": [
+        38
+      ]
+    },
+    {
+      "id": "fleurs-e50b6b02d6d90ddc",
+      "archive_frames": 139840,
+      "completed_frames": 139840,
+      "positions": [
+        39
+      ]
+    },
+    {
+      "id": "fleurs-8e93e440f571a4da",
+      "archive_frames": 200636,
+      "completed_frames": 200636,
+      "positions": [
+        40
+      ]
+    },
+    {
+      "id": "ascend-zh-6a23208e2c146088",
+      "archive_frames": 67199,
+      "completed_frames": 67199,
+      "positions": [
+        41
+      ]
+    },
+    {
+      "id": "ascend-zh-ed182ef57fba310b",
+      "archive_frames": 94883,
+      "completed_frames": 94883,
+      "positions": [
+        41
+      ]
+    },
+    {
+      "id": "ascend-zh-4309bc70746a5c2c",
+      "archive_frames": 101119,
+      "completed_frames": 101119,
+      "positions": [
+        41
+      ]
+    },
+    {
+      "id": "ascend-zh-0c5639a6e24f539b",
+      "archive_frames": 115520,
+      "completed_frames": 115520,
+      "positions": [
+        41
+      ]
+    },
+    {
+      "id": "ascend-mixed-9255615fddf1a721",
+      "archive_frames": 103360,
+      "completed_frames": 103360,
+      "positions": [
+        41,
+        42
+      ]
+    },
+    {
+      "id": "ascend-mixed-a0b0e736637c643c",
+      "archive_frames": 146560,
+      "completed_frames": 146560,
+      "positions": [
+        42
+      ]
+    },
+    {
+      "id": "ascend-mixed-ee4e2d5087648134",
+      "archive_frames": 119040,
+      "completed_frames": 119040,
+      "positions": [
+        42
+      ]
+    },
+    {
+      "id": "ascend-mixed-7c8bdcb41bb98a40",
+      "archive_frames": 96000,
+      "completed_frames": 96000,
+      "positions": [
+        42
+      ]
+    },
+    {
+      "id": "ascend-mixed-ff9c42612780330b",
+      "archive_frames": 161920,
+      "completed_frames": 161920,
+      "positions": [
+        43
+      ]
+    },
+    {
+      "id": "fleurs-1bc3201a9f24a2fe",
+      "archive_frames": 179520,
+      "completed_frames": 179520,
+      "positions": [
+        43,
+        44
+      ]
+    },
+    {
+      "id": "fleurs-0ebe0fb634f8e4ac",
+      "archive_frames": 238555,
+      "completed_frames": 238555,
+      "positions": [
+        44
+      ]
+    },
+    {
+      "id": "fleurs-9eb2d543a0a36152",
+      "archive_frames": 188480,
+      "completed_frames": 188480,
+      "positions": [
+        45
+      ]
+    },
+    {
+      "id": "fleurs-914c948388ae30bd",
+      "archive_frames": 158555,
+      "completed_frames": 158555,
+      "positions": [
+        46
+      ]
+    },
+    {
+      "id": "fleurs-e50b6b02d6d90ddc",
+      "archive_frames": 139685,
+      "completed_frames": 139685,
+      "positions": [
+        47
+      ]
+    },
+    {
+      "id": "fleurs-8e93e440f571a4da",
+      "archive_frames": 215680,
+      "completed_frames": 215680,
+      "positions": [
+        48,
+        49
+      ]
+    },
+    {
+      "id": "ascend-zh-6a23208e2c146088",
+      "archive_frames": 67199,
+      "completed_frames": 67199,
+      "positions": [
+        49
+      ]
+    },
+    {
+      "id": "ascend-zh-ed182ef57fba310b",
+      "archive_frames": 94883,
+      "completed_frames": 94883,
+      "positions": [
+        49
+      ]
+    },
+    {
+      "id": "ascend-zh-4309bc70746a5c2c",
+      "archive_frames": 101119,
+      "completed_frames": 101119,
+      "positions": [
+        49
+      ]
+    }
+  ],
+  "readable_pcm_manifest": "bacce1ee11693d2a018930cbbbe1bf8fb188d60acbe10a73a6020a3b49897e88",
+  "resources": {
+    "app": {
+      "samples": 180,
+      "median_cpu_percent": 5.35,
+      "peak_RSS_MiB": 101.98,
+      "first_5min_median_RSS_MiB": 67.72,
+      "last_5min_median_RSS_MiB": 54.7
+    },
+    "worker": {
+      "samples": 175,
+      "median_cpu_percent": 11.2,
+      "peak_RSS_MiB": 786.5,
+      "first_5min_median_RSS_MiB": 174.09,
+      "last_5min_median_RSS_MiB": 723.62
+    }
+  },
+  "idle": {
+    "input_range_seconds": [
+      485.4901875,
+      530.4901875
+    ],
+    "sampled_after_35_seconds": [
+      [
+        525.3873416669667,
+        false
+      ]
+    ],
+    "released": true,
+    "worker_observed_again_after_speech": true
+  },
+  "passed": false
+}

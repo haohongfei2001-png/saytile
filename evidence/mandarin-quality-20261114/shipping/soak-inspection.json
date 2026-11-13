@@ -1,0 +1,1173 @@
+{
+ "source": "9e17c8d7099d54aef26ce5b2577747f35e285fc4",
+ "model": "qwen-small",
+ "fixture_sha256": "6c6e57fb689187803fcbbbf52523fcebe047dedb8e85a71fe611588c66e4f072",
+ "strict_soak_passed": false,
+ "notes": "Public PCM only; active spans use the existing sustained -55 dBFS proxy. A matching reference bigram shows associated words only; the archive-wide edit distance includes all missing text. Indices in overlapping_reference_clips are zero based.",
+ "input_count": 84,
+ "clips_with_corresponding_text": 84,
+ "failed_archive_positions": {
+  "19": [
+   {
+    "start_s": 331.68,
+    "end_s": 334.04,
+    "peak_pcm16": 96,
+    "strongest_20ms_rms_dbfs": -60.426,
+    "overlapping_reference_clips": [],
+    "state": "failed",
+    "diagnostic": "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。",
+    "retained_head": null
+   }
+  ],
+  "36": [
+   {
+    "start_s": 680.82,
+    "end_s": 683.18,
+    "peak_pcm16": 96,
+    "strongest_20ms_rms_dbfs": -60.399,
+    "overlapping_reference_clips": [],
+    "state": "failed",
+    "diagnostic": "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。",
+    "retained_head": null
+   }
+  ]
+ },
+ "concatenated_CER": {
+  "errors": 323,
+  "substitutions": 68,
+  "deletions": 225,
+  "insertions": 30,
+  "reference_units": 3146
+ },
+ "clips": [
+  {
+   "id": "fleurs-1bc3201a9f24a2fe",
+   "signal_s": [
+    2.62,
+    8.7
+   ],
+   "matching_reference_bigrams": 28,
+   "overlapping_completed_positions": [
+    1
+   ]
+  },
+  {
+   "id": "fleurs-0ebe0fb634f8e4ac",
+   "signal_s": [
+    15.44,
+    25.92
+   ],
+   "matching_reference_bigrams": 30,
+   "overlapping_completed_positions": [
+    2
+   ]
+  },
+  {
+   "id": "fleurs-9eb2d543a0a36152",
+   "signal_s": [
+    31.16,
+    40.32
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    3
+   ]
+  },
+  {
+   "id": "fleurs-914c948388ae30bd",
+   "signal_s": [
+    45.0,
+    51.74
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    4
+   ]
+  },
+  {
+   "id": "fleurs-e50b6b02d6d90ddc",
+   "signal_s": [
+    56.3,
+    62.44
+   ],
+   "matching_reference_bigrams": 37,
+   "overlapping_completed_positions": [
+    5
+   ]
+  },
+  {
+   "id": "fleurs-8e93e440f571a4da",
+   "signal_s": [
+    70.46,
+    75.06
+   ],
+   "matching_reference_bigrams": 18,
+   "overlapping_completed_positions": [
+    6
+   ]
+  },
+  {
+   "id": "ascend-zh-6a23208e2c146088",
+   "signal_s": [
+    80.22,
+    84.42
+   ],
+   "matching_reference_bigrams": 19,
+   "overlapping_completed_positions": [
+    7
+   ]
+  },
+  {
+   "id": "ascend-zh-ed182ef57fba310b",
+   "signal_s": [
+    85.5,
+    91.18
+   ],
+   "matching_reference_bigrams": 22,
+   "overlapping_completed_positions": [
+    7
+   ]
+  },
+  {
+   "id": "ascend-zh-4309bc70746a5c2c",
+   "signal_s": [
+    92.35,
+    98.67
+   ],
+   "matching_reference_bigrams": 29,
+   "overlapping_completed_positions": [
+    7
+   ]
+  },
+  {
+   "id": "ascend-zh-0c5639a6e24f539b",
+   "signal_s": [
+    99.83,
+    106.69
+   ],
+   "matching_reference_bigrams": 23,
+   "overlapping_completed_positions": [
+    7
+   ]
+  },
+  {
+   "id": "ascend-mixed-9255615fddf1a721",
+   "signal_s": [
+    107.89,
+    114.17
+   ],
+   "matching_reference_bigrams": 22,
+   "overlapping_completed_positions": [
+    7,
+    8
+   ]
+  },
+  {
+   "id": "ascend-mixed-a0b0e736637c643c",
+   "signal_s": [
+    115.51,
+    124.51
+   ],
+   "matching_reference_bigrams": 46,
+   "overlapping_completed_positions": [
+    8
+   ]
+  },
+  {
+   "id": "ascend-mixed-ee4e2d5087648134",
+   "signal_s": [
+    125.51,
+    132.77
+   ],
+   "matching_reference_bigrams": 35,
+   "overlapping_completed_positions": [
+    8
+   ]
+  },
+  {
+   "id": "ascend-mixed-7c8bdcb41bb98a40",
+   "signal_s": [
+    133.97,
+    139.89
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    8
+   ]
+  },
+  {
+   "id": "ascend-mixed-ff9c42612780330b",
+   "signal_s": [
+    140.95,
+    150.87
+   ],
+   "matching_reference_bigrams": 48,
+   "overlapping_completed_positions": [
+    9
+   ]
+  },
+  {
+   "id": "fleurs-1bc3201a9f24a2fe",
+   "signal_s": [
+    154.69,
+    160.77
+   ],
+   "matching_reference_bigrams": 28,
+   "overlapping_completed_positions": [
+    9
+   ]
+  },
+  {
+   "id": "fleurs-0ebe0fb634f8e4ac",
+   "signal_s": [
+    167.51,
+    177.99
+   ],
+   "matching_reference_bigrams": 33,
+   "overlapping_completed_positions": [
+    10
+   ]
+  },
+  {
+   "id": "fleurs-9eb2d543a0a36152",
+   "signal_s": [
+    183.23,
+    192.39
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    11
+   ]
+  },
+  {
+   "id": "fleurs-914c948388ae30bd",
+   "signal_s": [
+    197.07,
+    203.81
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    12
+   ]
+  },
+  {
+   "id": "fleurs-e50b6b02d6d90ddc",
+   "signal_s": [
+    208.37,
+    214.51
+   ],
+   "matching_reference_bigrams": 37,
+   "overlapping_completed_positions": [
+    13
+   ]
+  },
+  {
+   "id": "fleurs-8e93e440f571a4da",
+   "signal_s": [
+    222.53,
+    227.13
+   ],
+   "matching_reference_bigrams": 18,
+   "overlapping_completed_positions": [
+    14
+   ]
+  },
+  {
+   "id": "ascend-zh-6a23208e2c146088",
+   "signal_s": [
+    232.29,
+    236.49
+   ],
+   "matching_reference_bigrams": 19,
+   "overlapping_completed_positions": [
+    15
+   ]
+  },
+  {
+   "id": "ascend-zh-ed182ef57fba310b",
+   "signal_s": [
+    237.57,
+    243.25
+   ],
+   "matching_reference_bigrams": 22,
+   "overlapping_completed_positions": [
+    15
+   ]
+  },
+  {
+   "id": "ascend-zh-4309bc70746a5c2c",
+   "signal_s": [
+    244.42,
+    250.74
+   ],
+   "matching_reference_bigrams": 29,
+   "overlapping_completed_positions": [
+    15
+   ]
+  },
+  {
+   "id": "ascend-zh-0c5639a6e24f539b",
+   "signal_s": [
+    251.9,
+    258.76
+   ],
+   "matching_reference_bigrams": 23,
+   "overlapping_completed_positions": [
+    15
+   ]
+  },
+  {
+   "id": "ascend-mixed-9255615fddf1a721",
+   "signal_s": [
+    259.96,
+    266.24
+   ],
+   "matching_reference_bigrams": 33,
+   "overlapping_completed_positions": [
+    15,
+    16
+   ]
+  },
+  {
+   "id": "ascend-mixed-a0b0e736637c643c",
+   "signal_s": [
+    267.58,
+    276.58
+   ],
+   "matching_reference_bigrams": 46,
+   "overlapping_completed_positions": [
+    16
+   ]
+  },
+  {
+   "id": "ascend-mixed-ee4e2d5087648134",
+   "signal_s": [
+    277.58,
+    284.84
+   ],
+   "matching_reference_bigrams": 35,
+   "overlapping_completed_positions": [
+    16
+   ]
+  },
+  {
+   "id": "ascend-mixed-7c8bdcb41bb98a40",
+   "signal_s": [
+    286.04,
+    291.96
+   ],
+   "matching_reference_bigrams": 35,
+   "overlapping_completed_positions": [
+    16,
+    17
+   ]
+  },
+  {
+   "id": "ascend-mixed-ff9c42612780330b",
+   "signal_s": [
+    293.02,
+    302.94
+   ],
+   "matching_reference_bigrams": 40,
+   "overlapping_completed_positions": [
+    17
+   ]
+  },
+  {
+   "id": "fleurs-1bc3201a9f24a2fe",
+   "signal_s": [
+    306.76,
+    312.84
+   ],
+   "matching_reference_bigrams": 28,
+   "overlapping_completed_positions": [
+    17
+   ]
+  },
+  {
+   "id": "fleurs-0ebe0fb634f8e4ac",
+   "signal_s": [
+    319.58,
+    330.06
+   ],
+   "matching_reference_bigrams": 33,
+   "overlapping_completed_positions": [
+    18
+   ]
+  },
+  {
+   "id": "fleurs-9eb2d543a0a36152",
+   "signal_s": [
+    335.3,
+    344.46
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    20
+   ]
+  },
+  {
+   "id": "fleurs-914c948388ae30bd",
+   "signal_s": [
+    349.14,
+    355.88
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    21
+   ]
+  },
+  {
+   "id": "fleurs-e50b6b02d6d90ddc",
+   "signal_s": [
+    360.44,
+    366.58
+   ],
+   "matching_reference_bigrams": 37,
+   "overlapping_completed_positions": [
+    22
+   ]
+  },
+  {
+   "id": "fleurs-8e93e440f571a4da",
+   "signal_s": [
+    374.6,
+    379.2
+   ],
+   "matching_reference_bigrams": 18,
+   "overlapping_completed_positions": [
+    23
+   ]
+  },
+  {
+   "id": "ascend-zh-6a23208e2c146088",
+   "signal_s": [
+    384.36,
+    388.56
+   ],
+   "matching_reference_bigrams": 19,
+   "overlapping_completed_positions": [
+    24
+   ]
+  },
+  {
+   "id": "ascend-zh-ed182ef57fba310b",
+   "signal_s": [
+    389.64,
+    395.32
+   ],
+   "matching_reference_bigrams": 22,
+   "overlapping_completed_positions": [
+    24
+   ]
+  },
+  {
+   "id": "ascend-zh-4309bc70746a5c2c",
+   "signal_s": [
+    396.49,
+    402.81
+   ],
+   "matching_reference_bigrams": 29,
+   "overlapping_completed_positions": [
+    24
+   ]
+  },
+  {
+   "id": "ascend-zh-0c5639a6e24f539b",
+   "signal_s": [
+    403.97,
+    410.83
+   ],
+   "matching_reference_bigrams": 23,
+   "overlapping_completed_positions": [
+    24
+   ]
+  },
+  {
+   "id": "ascend-mixed-9255615fddf1a721",
+   "signal_s": [
+    412.03,
+    418.31
+   ],
+   "matching_reference_bigrams": 22,
+   "overlapping_completed_positions": [
+    24,
+    25
+   ]
+  },
+  {
+   "id": "ascend-mixed-a0b0e736637c643c",
+   "signal_s": [
+    419.65,
+    428.65
+   ],
+   "matching_reference_bigrams": 46,
+   "overlapping_completed_positions": [
+    25
+   ]
+  },
+  {
+   "id": "ascend-mixed-ee4e2d5087648134",
+   "signal_s": [
+    429.65,
+    436.91
+   ],
+   "matching_reference_bigrams": 33,
+   "overlapping_completed_positions": [
+    25
+   ]
+  },
+  {
+   "id": "ascend-mixed-7c8bdcb41bb98a40",
+   "signal_s": [
+    438.11,
+    444.03
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    25
+   ]
+  },
+  {
+   "id": "ascend-mixed-ff9c42612780330b",
+   "signal_s": [
+    445.09,
+    455.01
+   ],
+   "matching_reference_bigrams": 48,
+   "overlapping_completed_positions": [
+    26
+   ]
+  },
+  {
+   "id": "fleurs-1bc3201a9f24a2fe",
+   "signal_s": [
+    458.83,
+    464.91
+   ],
+   "matching_reference_bigrams": 28,
+   "overlapping_completed_positions": [
+    26
+   ]
+  },
+  {
+   "id": "fleurs-0ebe0fb634f8e4ac",
+   "signal_s": [
+    471.65,
+    482.13
+   ],
+   "matching_reference_bigrams": 33,
+   "overlapping_completed_positions": [
+    27
+   ]
+  },
+  {
+   "id": "fleurs-9eb2d543a0a36152",
+   "signal_s": [
+    532.37,
+    541.53
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    28
+   ]
+  },
+  {
+   "id": "fleurs-914c948388ae30bd",
+   "signal_s": [
+    546.21,
+    552.95
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    29
+   ]
+  },
+  {
+   "id": "fleurs-e50b6b02d6d90ddc",
+   "signal_s": [
+    557.51,
+    563.65
+   ],
+   "matching_reference_bigrams": 37,
+   "overlapping_completed_positions": [
+    30
+   ]
+  },
+  {
+   "id": "fleurs-8e93e440f571a4da",
+   "signal_s": [
+    571.67,
+    576.27
+   ],
+   "matching_reference_bigrams": 18,
+   "overlapping_completed_positions": [
+    31
+   ]
+  },
+  {
+   "id": "ascend-zh-6a23208e2c146088",
+   "signal_s": [
+    581.43,
+    585.63
+   ],
+   "matching_reference_bigrams": 19,
+   "overlapping_completed_positions": [
+    32
+   ]
+  },
+  {
+   "id": "ascend-zh-ed182ef57fba310b",
+   "signal_s": [
+    586.71,
+    592.39
+   ],
+   "matching_reference_bigrams": 22,
+   "overlapping_completed_positions": [
+    32
+   ]
+  },
+  {
+   "id": "ascend-zh-4309bc70746a5c2c",
+   "signal_s": [
+    593.56,
+    599.88
+   ],
+   "matching_reference_bigrams": 29,
+   "overlapping_completed_positions": [
+    32
+   ]
+  },
+  {
+   "id": "ascend-zh-0c5639a6e24f539b",
+   "signal_s": [
+    601.04,
+    607.9
+   ],
+   "matching_reference_bigrams": 23,
+   "overlapping_completed_positions": [
+    32
+   ]
+  },
+  {
+   "id": "ascend-mixed-9255615fddf1a721",
+   "signal_s": [
+    609.1,
+    615.38
+   ],
+   "matching_reference_bigrams": 33,
+   "overlapping_completed_positions": [
+    32,
+    33
+   ]
+  },
+  {
+   "id": "ascend-mixed-a0b0e736637c643c",
+   "signal_s": [
+    616.72,
+    625.72
+   ],
+   "matching_reference_bigrams": 46,
+   "overlapping_completed_positions": [
+    33
+   ]
+  },
+  {
+   "id": "ascend-mixed-ee4e2d5087648134",
+   "signal_s": [
+    626.72,
+    633.98
+   ],
+   "matching_reference_bigrams": 35,
+   "overlapping_completed_positions": [
+    33
+   ]
+  },
+  {
+   "id": "ascend-mixed-7c8bdcb41bb98a40",
+   "signal_s": [
+    635.18,
+    641.1
+   ],
+   "matching_reference_bigrams": 35,
+   "overlapping_completed_positions": [
+    33,
+    34
+   ]
+  },
+  {
+   "id": "ascend-mixed-ff9c42612780330b",
+   "signal_s": [
+    642.16,
+    652.08
+   ],
+   "matching_reference_bigrams": 40,
+   "overlapping_completed_positions": [
+    34
+   ]
+  },
+  {
+   "id": "fleurs-1bc3201a9f24a2fe",
+   "signal_s": [
+    655.9,
+    661.98
+   ],
+   "matching_reference_bigrams": 28,
+   "overlapping_completed_positions": [
+    34
+   ]
+  },
+  {
+   "id": "fleurs-0ebe0fb634f8e4ac",
+   "signal_s": [
+    668.72,
+    679.2
+   ],
+   "matching_reference_bigrams": 33,
+   "overlapping_completed_positions": [
+    35
+   ]
+  },
+  {
+   "id": "fleurs-9eb2d543a0a36152",
+   "signal_s": [
+    684.44,
+    693.6
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    37
+   ]
+  },
+  {
+   "id": "fleurs-914c948388ae30bd",
+   "signal_s": [
+    698.28,
+    705.02
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    38
+   ]
+  },
+  {
+   "id": "fleurs-e50b6b02d6d90ddc",
+   "signal_s": [
+    709.58,
+    715.72
+   ],
+   "matching_reference_bigrams": 37,
+   "overlapping_completed_positions": [
+    39
+   ]
+  },
+  {
+   "id": "fleurs-8e93e440f571a4da",
+   "signal_s": [
+    723.74,
+    728.34
+   ],
+   "matching_reference_bigrams": 18,
+   "overlapping_completed_positions": [
+    40
+   ]
+  },
+  {
+   "id": "ascend-zh-6a23208e2c146088",
+   "signal_s": [
+    733.5,
+    737.7
+   ],
+   "matching_reference_bigrams": 19,
+   "overlapping_completed_positions": [
+    41
+   ]
+  },
+  {
+   "id": "ascend-zh-ed182ef57fba310b",
+   "signal_s": [
+    738.78,
+    744.46
+   ],
+   "matching_reference_bigrams": 22,
+   "overlapping_completed_positions": [
+    41
+   ]
+  },
+  {
+   "id": "ascend-zh-4309bc70746a5c2c",
+   "signal_s": [
+    745.63,
+    751.95
+   ],
+   "matching_reference_bigrams": 29,
+   "overlapping_completed_positions": [
+    41
+   ]
+  },
+  {
+   "id": "ascend-zh-0c5639a6e24f539b",
+   "signal_s": [
+    753.11,
+    759.97
+   ],
+   "matching_reference_bigrams": 23,
+   "overlapping_completed_positions": [
+    41
+   ]
+  },
+  {
+   "id": "ascend-mixed-9255615fddf1a721",
+   "signal_s": [
+    761.17,
+    767.45
+   ],
+   "matching_reference_bigrams": 22,
+   "overlapping_completed_positions": [
+    41,
+    42
+   ]
+  },
+  {
+   "id": "ascend-mixed-a0b0e736637c643c",
+   "signal_s": [
+    768.79,
+    777.79
+   ],
+   "matching_reference_bigrams": 46,
+   "overlapping_completed_positions": [
+    42
+   ]
+  },
+  {
+   "id": "ascend-mixed-ee4e2d5087648134",
+   "signal_s": [
+    778.79,
+    786.05
+   ],
+   "matching_reference_bigrams": 35,
+   "overlapping_completed_positions": [
+    42
+   ]
+  },
+  {
+   "id": "ascend-mixed-7c8bdcb41bb98a40",
+   "signal_s": [
+    787.25,
+    793.17
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    42
+   ]
+  },
+  {
+   "id": "ascend-mixed-ff9c42612780330b",
+   "signal_s": [
+    794.23,
+    804.15
+   ],
+   "matching_reference_bigrams": 48,
+   "overlapping_completed_positions": [
+    43
+   ]
+  },
+  {
+   "id": "fleurs-1bc3201a9f24a2fe",
+   "signal_s": [
+    807.97,
+    814.05
+   ],
+   "matching_reference_bigrams": 28,
+   "overlapping_completed_positions": [
+    43
+   ]
+  },
+  {
+   "id": "fleurs-0ebe0fb634f8e4ac",
+   "signal_s": [
+    820.79,
+    831.27
+   ],
+   "matching_reference_bigrams": 30,
+   "overlapping_completed_positions": [
+    44
+   ]
+  },
+  {
+   "id": "fleurs-9eb2d543a0a36152",
+   "signal_s": [
+    836.51,
+    845.67
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    45
+   ]
+  },
+  {
+   "id": "fleurs-914c948388ae30bd",
+   "signal_s": [
+    850.35,
+    857.09
+   ],
+   "matching_reference_bigrams": 34,
+   "overlapping_completed_positions": [
+    46
+   ]
+  },
+  {
+   "id": "fleurs-e50b6b02d6d90ddc",
+   "signal_s": [
+    861.65,
+    867.79
+   ],
+   "matching_reference_bigrams": 37,
+   "overlapping_completed_positions": [
+    47
+   ]
+  },
+  {
+   "id": "fleurs-8e93e440f571a4da",
+   "signal_s": [
+    875.81,
+    880.41
+   ],
+   "matching_reference_bigrams": 18,
+   "overlapping_completed_positions": [
+    48
+   ]
+  },
+  {
+   "id": "ascend-zh-6a23208e2c146088",
+   "signal_s": [
+    885.57,
+    889.77
+   ],
+   "matching_reference_bigrams": 19,
+   "overlapping_completed_positions": [
+    49
+   ]
+  },
+  {
+   "id": "ascend-zh-ed182ef57fba310b",
+   "signal_s": [
+    890.85,
+    896.53
+   ],
+   "matching_reference_bigrams": 22,
+   "overlapping_completed_positions": [
+    49
+   ]
+  },
+  {
+   "id": "ascend-zh-4309bc70746a5c2c",
+   "signal_s": [
+    897.7,
+    904.02
+   ],
+   "matching_reference_bigrams": 29,
+   "overlapping_completed_positions": [
+    49
+   ]
+  }
+ ],
+ "archive_heads": [
+  {
+   "position": 1,
+   "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。"
+  },
+  {
+   "position": 2,
+   "text": "老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。"
+  },
+  {
+   "position": 3,
+   "text": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。"
+  },
+  {
+   "position": 4,
+   "text": "平时你总能在这里听到游客和小摊贩的声音，声光交织，就像在讲述一个动人的故事。"
+  },
+  {
+   "position": 5,
+   "text": "有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。"
+  },
+  {
+   "position": 6,
+   "text": "利金斯在医院工作时，开始在业余时间研究早产。"
+  },
+  {
+   "position": 7,
+   "text": "其实我也是到大学才发现，就学习不应该是整天。对，然后但是呢，就是说确实有一个手机呢，带来很多方便。因为像你说，可能当时的难度比较低，然后空余时间比较多，可以多一点。而且，我我就是我爸妈就开始买电脑，然后我就开始接触一些网络游戏。他当时也在那个。"
+  },
+  {
+   "position": 8,
+   "text": "跟Team Up with MacReady。对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。当然我小时候我也没有Smartphone，但是呢我是小时候比较早接触过那个电脑。但是我觉得Three Pointer是一个非常efficient的一个方式去得分。"
+  },
+  {
+   "position": 9,
+   "text": "我觉得那这样的话，就是应该customer他就是，他负这，就是说，如果真的accident happen的话，就应该是customer他负这个责了。毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。"
+  },
+  {
+   "position": 10,
+   "text": "老虎是全能运动员。他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大力士的五倍。"
+  },
+  {
+   "position": 11,
+   "text": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。"
+  },
+  {
+   "position": 12,
+   "text": "平时你总能在这里听到游客和小摊贩的声音，声光交织，就像在讲述一个动人的故事。"
+  },
+  {
+   "position": 13,
+   "text": "有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。"
+  },
+  {
+   "position": 14,
+   "text": "利金斯在医院工作时，开始在业余时间研究早产。"
+  },
+  {
+   "position": 15,
+   "text": "其实我也是到大学才发现，就学习不应该是整天。对。然后但是呢，就是说，确实有一个手机呢，带来很多方便。因为像你说，可能当时的难度比较低，然后空余时间比较多，可以多一点。而且，我我就是我爸妈就开始买电脑，然后我就开始接触一些网络游戏。他当时也在。"
+  },
+  {
+   "position": 16,
+   "text": "在那个Houston Rocky，跟Team Up with McGraydy。对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。当然我小时候我也没有Smartphone，但是呢我是小时候比较早接触过那个电脑。但我觉得Three Pointer是一个非常efficient的一个方式去。"
+  },
+  {
+   "position": 17,
+   "text": "得分。我觉得那这样的话，就是应该customer他就是，他负这，就是说，如果真的external happen的话，就应该是customer他负这个责了。毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。"
+  },
+  {
+   "position": 18,
+   "text": "老虎是全能运动员。他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大力士的五倍。"
+  },
+  {
+   "position": 19,
+   "text": ""
+  },
+  {
+   "position": 20,
+   "text": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。"
+  },
+  {
+   "position": 21,
+   "text": "平时你总能在这里听到游客和小摊贩的声音，声光交织，就像在讲述一个动人的故事。"
+  },
+  {
+   "position": 22,
+   "text": "有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。"
+  },
+  {
+   "position": 23,
+   "text": "利金斯在医院工作时，开始在业余时间研究早产。"
+  },
+  {
+   "position": 24,
+   "text": "其实我也是到大学才发现，就学习不应该是整天。对。然后但是呢，就是说，确实有一个手机呢，带来很多方便。因为像你说，可能当时的难度比较低，然后空余时间比较多，可以多一点。而且。我我就是我爸妈就开始买电脑，然后我就开始接触一些网络游戏。他当时也在那个。"
+  },
+  {
+   "position": 25,
+   "text": "跟Team Up with MacReady。对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。当然我小时候我也没有Smartphone，但是呢我是小时候比较早接触那个电脑。但是我觉得Three Pointer是一个非常efficient的一个方式去得分。"
+  },
+  {
+   "position": 26,
+   "text": "我觉得那这样的话，就是应该customer他就是，他负这，就是说，如果真的accident happen的话，就应该是customer他负这个责了。毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。"
+  },
+  {
+   "position": 27,
+   "text": "老虎是全能运动员。他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大力士的五倍。"
+  },
+  {
+   "position": 28,
+   "text": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。"
+  },
+  {
+   "position": 29,
+   "text": "平时你总能在这里听到游客和小摊贩的声音，声光交织，就像在讲述一个动人的故事。"
+  },
+  {
+   "position": 30,
+   "text": "有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。"
+  },
+  {
+   "position": 31,
+   "text": "利金斯在医院工作时，开始在业余时间研究早产。"
+  },
+  {
+   "position": 32,
+   "text": "其实我也是到大学才发现，就学习不应该是整天。对。然后但是呢，就是说，确实有一个手机呢，带来很多方便。因为像你说，可能当时的难度比较低，然后空余时间比较多，可以多一点。而且，我我就是我爸妈就开始买电脑，然后我就开始接触一些网络游戏。他当时也在。"
+  },
+  {
+   "position": 33,
+   "text": "在那个Houston Rocky，跟Team Up with McGraydy。对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。当然我小时候我也没有Smartphone，但是呢我是小时候比较早接触过那个电脑。但我觉得Three Pointer是一个非常efficient的一个方式去。"
+  },
+  {
+   "position": 34,
+   "text": "得分。我觉得那这样的话，就是应该customer他就是，他负这，就是说，如果真的external happen的话，就应该是customer他负这个责了。毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。"
+  },
+  {
+   "position": 35,
+   "text": "老虎是全能运动员。他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大力士的五倍。"
+  },
+  {
+   "position": 36,
+   "text": ""
+  },
+  {
+   "position": 37,
+   "text": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。"
+  },
+  {
+   "position": 38,
+   "text": "平时你总能在这里听到游客和小摊贩的声音，声光交织，就像在讲述一个动人的故事。"
+  },
+  {
+   "position": 39,
+   "text": "有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。"
+  },
+  {
+   "position": 40,
+   "text": "利金斯在医院工作时，开始在业余时间研究早产。"
+  },
+  {
+   "position": 41,
+   "text": "其实我也是到大学才发现，就学习不应该是整天。对。然后但是呢，就是说，确实有一个手机呢，带来很多方便。因为像你说，可能当时的难度比较低，然后空余时间比较多，可以多一点。而且。我我就是我爸妈就开始买电脑，然后我就开始接触一些网络游戏。他当时也在那个。"
+  },
+  {
+   "position": 42,
+   "text": "跟Team Up with MacReady。对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。当然我小时候我也没有Smartphone，但是呢我是小时候比较早接触过那个电脑。但是我觉得Three Pointer是一个非常efficient的一个方式去得分。"
+  },
+  {
+   "position": 43,
+   "text": "我觉得那这样的话，就是应该customer他就是，他负这，就是说，如果真的accident happen的话，就应该是customer他负这个责了。毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。"
+  },
+  {
+   "position": 44,
+   "text": "老虎是全能运动员。他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。"
+  },
+  {
+   "position": 45,
+   "text": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。"
+  },
+  {
+   "position": 46,
+   "text": "平时你总能在这里听到游客和小摊贩的声音，声光交织，就像在讲述一个动人的故事。"
+  },
+  {
+   "position": 47,
+   "text": "有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。"
+  },
+  {
+   "position": 48,
+   "text": "利金斯在医院工作时，开始在业余时间研究早产。"
+  },
+  {
+   "position": 49,
+   "text": "其实我也是到大学才发现，就学习不应该是整天。对。然后但是呢，就是说，确实有一个手机呢，带来很多方便。因为像你说，可能当时的难度比较低，然后空余时间比较多，可以多一点，而且。"
+  }
+ ]
+}
