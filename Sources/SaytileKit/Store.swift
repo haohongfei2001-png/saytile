@@ -104,7 +104,7 @@ public actor SaytileStore {
         case .transcribed:
             // Browse by the currently selected text. Search can also find a saved draft
             // or historical revision when there is no text in the current version.
-            filterSQL = query.isEmpty ? " AND trim(v.text,char(9,10,13,32,160,12288))<>''" : ""
+            filterSQL = query.isEmpty ? " AND trim(v.text,\(Self.whitespaceSQL))<>''" : ""
         case .pinned: filterSQL = " AND r.pinned=1"
         case .needsRecovery: filterSQL = " AND r.recognition_state IN('queued','failed') AND r.audio_state='available'"
         }
@@ -394,18 +394,30 @@ public actor SaytileStore {
             await Task.yield()
         }
     }
+    // A completed recognizer can return no words. A note or volatile preview is not
+    // a replacement for the original. Share the same predicate at preview and erasure.
+    private static let whitespaceSQL = "char(9,10,11,12,13,32,133,160,5760,8192,8193,8194,8195,8196,8197,8198,8199,8200,8201,8202,8232,8233,8239,8287,12288)"
+    private static let cleanupEligibility = """
+        r.deleted=0 AND r.pinned=0 AND r.audio_state='available' AND r.recognition_state='completed'
+        AND r.is_recording=0 AND r.created_at<? AND v.origin IN ('final','userEdit')
+        AND trim(v.text,\(whitespaceSQL))<>''
+        AND EXISTS (SELECT 1 FROM revisions f WHERE f.recording_id=r.id AND f.origin='final'
+                    AND trim(f.text,\(whitespaceSQL))<>'')
+        """
     public func cleanupCandidates(olderThan: Date) throws -> [Recording] {
-        try db.rows(Self.selection + " WHERE r.deleted=0 AND r.pinned=0 AND r.audio_state='available' AND r.recognition_state='completed' AND r.is_recording=0 AND r.created_at<? ORDER BY r.created_at",[.double(olderThan.timeIntervalSince1970)]).map(Self.decodeRecording).filter { !leases.values.contains($0.id) }
+        try db.rows(Self.selection + " WHERE " + Self.cleanupEligibility + " ORDER BY r.created_at",
+                    [.double(olderThan.timeIntervalSince1970)]).map(Self.decodeRecording).filter { !leases.values.contains($0.id) }
     }
-    /// Revalidate the preview at execution time. Newly pinned, active, failed or leased audio stays protected.
+    /// Revalidate on the same Store turn as erasure, including changes since the preview.
     @discardableResult public func cleanupAudio(recordingIDs: [UUID], olderThan: Date) async throws -> Int {
         var seen: Set<UUID> = []
         var count = 0
         for id in recordingIDs where seen.insert(id).inserted {
             try Task.checkCancellation()
-            guard let record = try recording(id:id), !record.isPinned, !record.isRecording,
-                  record.audioState == .available, record.recognitionState == .completed,
-                  record.createdAt < olderThan, !leases.values.contains(id) else { await Task.yield(); continue }
+            guard !leases.values.contains(id),
+                  !(try db.rows("SELECT 1 FROM recordings r JOIN revisions v ON r.preferred_revision=v.id WHERE r.id=? AND " + Self.cleanupEligibility,
+                                [.text(id.uuidString), .double(olderThan.timeIntervalSince1970)])).isEmpty
+            else { await Task.yield(); continue }
             try beginErasure(id,deleteRecord:false)
             try completeErasure(id)
             count += 1

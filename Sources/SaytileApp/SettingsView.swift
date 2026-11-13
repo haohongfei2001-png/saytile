@@ -168,7 +168,7 @@ struct SettingsView: View {
             LabeledContent("保留时间", value: "直到手动删除")
             Text("达到 10 GB 时提醒。删除原音会保留文字与修改版本。").font(.callout).foregroundStyle(.secondary)
             Button(model.preparingCleanup ? "正在查找原音…" : "预览可清理的原音…") { Task { cleanup = await model.previewCleanup() } }.disabled(model.preparingCleanup)
-            Text("可清理 30 天前已识别且未收藏的原音。").font(.callout).foregroundStyle(.secondary)
+            Text("只清理 30 天前已有转写文字、且未收藏的原音。没有转写的录音会保留。").font(.callout).foregroundStyle(.secondary)
         }
         Section { Button("在 Finder 中显示资料目录", action: model.revealData) }
     }
