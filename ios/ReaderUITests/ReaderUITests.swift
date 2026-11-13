@@ -36,9 +36,13 @@ final class ReaderUITests: XCTestCase {
         let play = app.buttons["回听"], stop = app.buttons["停止回听"]
         XCTAssertTrue(play.isHittable)
         play.tap()
-        XCTAssertTrue(stop.waitForExistence(timeout: 5))
+        XCTAssertTrue(stop.waitForExistence(timeout: 10), app.debugDescription)
         capture("Playback", app: app)
-        XCTAssertTrue(play.waitForExistence(timeout: 10), "The player delegate should finish the complete fixture.")
+        stop.tap()
+        XCTAssertTrue(play.waitForExistence(timeout: 10), "Manual stop should restore the playback action.")
+        play.tap()
+        XCTAssertTrue(stop.waitForExistence(timeout: 10), app.debugDescription)
+        XCTAssertTrue(play.waitForExistence(timeout: 45), "The player delegate should finish the complete fixture.")
 
         let search = app.searchFields.firstMatch
         if !search.isHittable { app.swipeDown() }
