@@ -1,0 +1,200 @@
+{
+  "models": {
+    "sherpa": {
+      "revision": "8e40c43232a1c5c66c82111efc5820d3accca11b",
+      "origin": "csukuangfj/sherpa-onnx-streaming-paraformer-bilingual-zh-en",
+      "declared_license": "apache-2.0",
+      "files": 3,
+      "total_bytes": 237202501,
+      "pinned_manifest": {
+        "bytes": 655,
+        "sha256": "3c5bc301d3abe7d4797abbed59b223b4fe83410ffb3eb8906fdbcfece88aa7e6"
+      },
+      "verified_files": [
+        {
+          "filename": "decoder.int8.onnx",
+          "actual_bytes": 71664561,
+          "actual_sha256": "f3cca9f77bb9d93c8fcbfb63ae617b6b1ee96818df3aa3b151c40658fe38594f"
+        },
+        {
+          "filename": "encoder.int8.onnx",
+          "actual_bytes": 165462184,
+          "actual_sha256": "81a70226a8934e6ed92aa1d4fc486b428b5398e2f2619ed4897b7294cab90e9a"
+        },
+        {
+          "filename": "tokens.txt",
+          "actual_bytes": 75756,
+          "actual_sha256": "59aba8873a2ed1e122c25fee421e25f283b63290efbde85c1f01a853d83cb6e6"
+        }
+      ]
+    },
+    "qwen-small": {
+      "revision": "bc441bd1e4295c1f42d9879f056049a925b6e013",
+      "origin": "aufklarer/Qwen3-ASR-0.6B-MLX-4bit",
+      "declared_license": "apache-2.0",
+      "files": 6,
+      "total_bytes": 712777119,
+      "pinned_manifest": {
+        "bytes": 1094,
+        "sha256": "a2b9d00644087dff42139996f013c396e468f1948a312893cd5e9e7f805149b8"
+      },
+      "verified_files": [
+        {
+          "filename": "config.json",
+          "actual_bytes": 7187,
+          "actual_sha256": "923618cf5ca452fda0253a6be5c1a17f94a2e4851d3b98beb45848565587bd72"
+        },
+        {
+          "filename": "merges.txt",
+          "actual_bytes": 1671853,
+          "actual_sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5"
+        },
+        {
+          "filename": "model.safetensors",
+          "actual_bytes": 708236945,
+          "actual_sha256": "70c7e67e588062adce4f10796e47ad42ead51c6671eda61a0987eae38ca95ddf"
+        },
+        {
+          "filename": "model.safetensors.index.json",
+          "actual_bytes": 71814,
+          "actual_sha256": "e3bb80ef0fd42a5be07b04e90c97d60460bbde8af3531e0bfe9100a61404d81a"
+        },
+        {
+          "filename": "tokenizer_config.json",
+          "actual_bytes": 12487,
+          "actual_sha256": "4942d005604266809309cabc9f4e9cb89ce855d59b14681fdc0e1cc62ea26c4c"
+        },
+        {
+          "filename": "vocab.json",
+          "actual_bytes": 2776833,
+          "actual_sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+        }
+      ]
+    },
+    "qwen-large": {
+      "revision": "d4f9fa3bb45489219f0fcbec671c92d9c1a68fb6",
+      "origin": "aufklarer/Qwen3-ASR-1.7B-MLX-4bit",
+      "declared_license": "apache-2.0",
+      "files": 5,
+      "total_bytes": 2229873245,
+      "pinned_manifest": {
+        "bytes": 930,
+        "sha256": "396971d3edb3f940917060171c5610c56c6ceee79a549f78fb027c02b1758953"
+      },
+      "verified_files": [
+        {
+          "filename": "config.json",
+          "actual_bytes": 560,
+          "actual_sha256": "1928d5e62e90f1c0b085c655fce43ef74ace6731ebf79ec2229729c99a1cf732"
+        },
+        {
+          "filename": "merges.txt",
+          "actual_bytes": 1671853,
+          "actual_sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5"
+        },
+        {
+          "filename": "model.safetensors",
+          "actual_bytes": 2225411512,
+          "actual_sha256": "6d3ded9f339df22308f57f3287b32940a7297c4ffc597debcfbeff41ca0ff8bd"
+        },
+        {
+          "filename": "tokenizer_config.json",
+          "actual_bytes": 12487,
+          "actual_sha256": "4942d005604266809309cabc9f4e9cb89ce855d59b14681fdc0e1cc62ea26c4c"
+        },
+        {
+          "filename": "vocab.json",
+          "actual_bytes": 2776833,
+          "actual_sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+        }
+      ]
+    },
+    "apple": {
+      "origin": "Apple SpeechAnalyzer on macOS, zh-CN system language asset",
+      "download_bytes": "not exposed by AssetInventory"
+    },
+    "macmon": {
+      "version": "0.11.0",
+      "executable": {
+        "bytes": 2400968,
+        "sha256": "28f8d2b50b1a58e032295eb658de42088a49feb8affaf42803fb707edb0f73af"
+      },
+      "license": {
+        "bytes": 1065,
+        "sha256": "65f575b0127a4383e4710c5ffefe2c5a9ab906231013f42ba899f3fa9b9fdaaf"
+      }
+    }
+  },
+  "bundles": {
+    "baseline": {
+      "CFBundleIdentifier": "app.saytile.mac",
+      "SaytileSourceRevision": "a4f9f08656d1a22d2e0b6c59ad60e36452881010",
+      "SaytileSourceDirty": false,
+      "CFBundleShortVersionString": "0.12",
+      "CFBundleVersion": "373",
+      "executable": {
+        "bytes": 10134288,
+        "sha256": "35f6b2ae00f2888a7c5fdadf34a81f3a79f693aea76bca3d98733fc0ed25af45"
+      },
+      "workers": {
+        "SaytileSherpa": {
+          "bytes": 72192,
+          "sha256": "e701ec71723d1e5f689cda6bd6adfdcf0757e9ffa1d6f4218219e29d4128dbe2"
+        },
+        "SaytileModelWorker": {
+          "bytes": 39247184,
+          "sha256": "ba9e5685b9229a4abb06aad08221f5f66cdeacbefdde8d83a59cc4dba327de9d"
+        }
+      }
+    },
+    "candidate": {
+      "CFBundleIdentifier": "app.saytile.mac.mandarin-candidate",
+      "SaytileSourceRevision": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+      "SaytileSourceDirty": false,
+      "CFBundleShortVersionString": "0.12",
+      "CFBundleVersion": "376",
+      "executable": {
+        "bytes": 10138496,
+        "sha256": "bdcef3f0492f6b942f4eaec766e4e3484a886a9931d1e51e83cb849d99ccf9d5"
+      },
+      "workers": {
+        "SaytileSherpa": {
+          "bytes": 72192,
+          "sha256": "34417c7ebbfa5d8d2b2f74b76747b240db10c98b7f1995a4a7595f69e1181681"
+        },
+        "SaytileModelWorker": {
+          "bytes": 39255952,
+          "sha256": "ece4befeef175208c664e29d786f0851e37ee405393ce930a8d25077069d33ad"
+        }
+      }
+    }
+  },
+  "accelerated_harness": {
+    "baseline": {
+      "bytes": 7559288,
+      "sha256": "975df59f743a3a845098c1c421e66b253f370c074880da1181eeeae01281e4f2"
+    },
+    "candidate": {
+      "bytes": 7579320,
+      "sha256": "b2d7a03e5fa2f6f13ef62f76eca53b9784eb31df291c51fe60520bfc5617ea7f"
+    }
+  },
+  "manifests": {
+    "panel-cohort.json": {
+      "bytes": 5686,
+      "sha256": "b9fc425a3916373ef4cd96c517688a6c5168ee351f03ede3c02c0aee1acae166"
+    },
+    "paired.json": {
+      "bytes": 120279,
+      "sha256": "605196e487b3a8a03b206ebe23cb9ba4c86b9c311398d25e8a6dfbe21646d362"
+    },
+    "aishell.json": {
+      "bytes": 38397,
+      "sha256": "0d96fc5417c706e37a0d6d46c354933b553577a0ce318c7442db25dfb917887a"
+    },
+    "continuous.json": {
+      "bytes": 1924,
+      "sha256": "d7da77968f154dd19694a80fea078e02053d4e048c7840bba11cf67a3dd5999d"
+    }
+  }
+}
