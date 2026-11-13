@@ -161,11 +161,21 @@ final class VoiceSegmenter {
                 speechVotes = voiced ? speechVotes + 1 : max(0, speechVotes - 1)
                 if speechVotes >= 3 { activeMaximum = nextMaximumFrames ?? maximumFrames; speaking = true; silence = 0; activeFrames = 0; events.append(.begin(preRoll, sample: possibleStart)); preRoll.removeAll(keepingCapacity: true) }
             } else {
+                // A duration limit rotates an active recognizer; it is not a
+                // new speech onset. Keep the old journal open through quiet
+                // or a sub-frame EOF and move only on the next voiced frame.
+                if activeFrames >= activeMaximum && decision == STVoiceDetected {
+                    let boundary = frameEnd - 320
+                    events.append(.end(sample: boundary - Int64(silence) * 320))
+                    events.append(.begin([frame], sample: boundary))
+                    activeMaximum = nextMaximumFrames ?? maximumFrames
+                    activeFrames = 1
+                    silence = 0
+                    continue
+                }
                 events.append(.audio(frame)); activeFrames += 1
                 silence = decision == STVoiceQuiet ? silence + 1 : 0
-                // Journal rotation is separate. Cloud sessions retain longer context;
-                // this boundary controls resource recovery, never text confirmation.
-                if silence >= endSilenceFrames || activeFrames >= activeMaximum {
+                if silence >= endSilenceFrames {
                     events.append(.end(sample: frameEnd - Int64(silence) * 320))
                     speaking = false; speechVotes = 0; silence = 0
                 }
