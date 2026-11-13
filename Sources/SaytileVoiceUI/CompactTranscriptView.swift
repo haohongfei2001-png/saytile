@@ -17,6 +17,7 @@ struct CompactTranscriptView<Entry: VoiceTranscriptEntry>: NSViewRepresentable {
     var onEdit: (@MainActor () -> Void)? = nil
     var showsLiveCaret = false
     var typeScale: CGFloat = 1
+    var compact = false
 
     func makeNSView(context: Context) -> CompactTranscriptScrollView<Entry> {
         CompactTranscriptScrollView<Entry>(frame: .zero)
@@ -32,6 +33,7 @@ struct CompactTranscriptView<Entry: VoiceTranscriptEntry>: NSViewRepresentable {
         view.transcriptView.onEdit = onEdit
         view.onPage = onPage
         view.editing = editing
+        view.setControlOnly(compact)
         view.applyTypeScale(typeScale)
         view.updateDocument(document)
         view.focus(on: focusPosition)
@@ -158,10 +160,27 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     }
     public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
+    // Keep the same editor, undo history and selection when only the voice button
+    // is visible. A hidden editor must not continue accepting keyboard input.
+    private var controlOnly = false
+    func setControlOnly(_ compact: Bool) {
+        guard compact != controlOnly else { return }
+        controlOnly = compact
+        transcriptView.concealed = compact
+        if compact {
+            cancelLivePresentation()
+            stopWheelMotion()
+            stopTailMotion()
+            if let window, window.firstResponder === transcriptView {
+                window.makeFirstResponder(nil)
+            }
+        }
+    }
+
     public override func layout() {
         super.layout()
         let size = contentSize
-        guard !changingDocument, size.width > 0, size.height > 0, size != lastLayoutSize else { return }
+        guard !controlOnly, !changingDocument, size.width > 0, size.height > 0, size != lastLayoutSize else { return }
         if lastLayoutSize.width != size.width { (transcriptView.textContainer as? ReaderTextContainer)?.preserve([]) }
         lastLayoutSize = size
         let origin = contentView.bounds.origin
@@ -388,7 +407,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     }
 
     @objc private func viewportChanged(_ notification: Notification) {
-        guard !changingDocument, !selecting, contentSize == lastLayoutSize else { return }
+        guard !controlOnly, !changingDocument, !selecting, contentSize == lastLayoutSize else { return }
         // AppKit may publish the aligned position on the next layout pass,
         // after our scroll returned its fractional origin. Only recognize the
         // adjacent backing-pixel boundary of that particular managed scroll.
@@ -432,6 +451,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         (transcriptView.textContainer as? ReaderTextContainer)?.preserve([])
         typeScale = scale
         transcriptView.textContainerInset = NSSize(width: 2, height: 6 * scale)
+        transcriptView.typingAttributes = attributes
         if let storage = transcriptView.textStorage {
             storage.setAttributes(attributes, range: NSRange(location: 0, length: storage.length))
             styleMarkers(in: storage)
@@ -488,7 +508,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     /// Newer candidates inherit the original deadline. Rewrites and finals apply atomically.
     private func liveFrame(immediate: Bool, patch: (range: NSRange, replacement: String),
                            oldLength: Int) -> PanelTimelineDocument<Entry> {
-        guard !immediate, window?.isVisible == true, isFollowingLatest, !pending.newer, !pending.idle,
+        guard !immediate, !controlOnly, window?.isVisible == true, isFollowingLatest, !pending.newer, !pending.idle,
               !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
               !NSWorkspace.shared.isVoiceOverEnabled,
               !(transcriptView.isEditable && window?.isKeyWindow == true && window?.firstResponder === transcriptView),
@@ -547,7 +567,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     }
 
     private func applyLatest(immediate: Bool = false) {
-        guard !changingDocument, !selecting, !editing,
+        guard !controlOnly, !changingDocument, !selecting, !editing,
               !transcriptView.composing, !transcriptView.hasMarkedText(),
               applyEdits == nil || Self.sameText(rendered.text, transcriptView.string),
               transcriptView.selectedRange().length == 0,
@@ -774,6 +794,8 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
 
 @MainActor
 public final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
+    fileprivate var concealed = false
+    public override var acceptsFirstResponder: Bool { !concealed && super.acceptsFirstResponder }
     let panelUndo = UndoManager()
     // NSTextStorage also consults the responder chain during replacements.
     // Keep raw range inverses out of our row-aware history, including on redo.
@@ -825,6 +847,7 @@ public final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
 
     var willAcceptEditingFocus: () -> Void = {}
     public override func becomeFirstResponder() -> Bool {
+        guard !concealed else { return false }
         if isEditable { willAcceptEditingFocus() }
         return super.becomeFirstResponder()
     }

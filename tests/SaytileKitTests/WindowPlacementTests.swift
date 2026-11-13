@@ -63,7 +63,7 @@ struct WindowPlacementTests {
         let display = CGRect(x: 0, y: 25, width: 1920, height: 850)
         let limits = WindowPlacement.panelLimits(visibleFrame: display)
         let initial = WindowPlacement.initialPanel(visibleFrame: display)
-        #expect(limits.minimum == CGSize(width: 178, height: 90))
+        #expect(limits.minimum == CGSize(width: 72, height: 44))
         #expect(limits.minimum.width < initial.width)
         #expect(limits.minimum.height < initial.height)
         #expect(limits.maximum == display.size)
@@ -71,6 +71,23 @@ struct WindowPlacementTests {
         #expect(WindowPlacement.panelSize(CGSize(width: 3200, height: 2000), visibleFrame: display) == limits.maximum)
         let enlarged = CGSize(width: 920, height: 740)
         #expect(WindowPlacement.panelSize(enlarged, visibleFrame: display) == enlarged)
+    }
+
+    @Test func compactWidthUsesOneFixedHeightAndKeepsThePreviousTopEdge() throws {
+        let screen = CGRect(x: -800, y: 20, width: 1280, height: 740)
+        let wide = CGRect(x: -600, y: 306, width: 245, height: 187)
+        let narrow = CGRect(x: wide.maxX - 77, y: wide.minY, width: 77, height: wide.height)
+        let compact = WindowPlacement.restoredPanel(narrow, visibleFrames: [screen])
+        #expect(compact == CGRect(x: narrow.minX, y: wide.maxY - 44, width: 77, height: 44))
+        #expect(WindowPlacement.panelSize(CGSize(width: 81, height: wide.height), visibleFrame: screen).height == wide.height)
+        let saved = try #require(SavedPanelPlacement(frame: compact, visibleFrame: screen,
+                                                     displayID: "built-in", expandedHeight: wide.height))
+        let reopened = try JSONDecoder().decode(SavedPanelPlacement.self, from: JSONEncoder().encode(saved))
+        #expect(reopened.expandedHeight == wide.height)
+        #expect(reopened.restored(on: [("built-in", screen)]) == compact)
+        let previous = try #require(SavedPanelPlacement(frame: wide, visibleFrame: screen, displayID: "built-in"))
+        let legacy = try JSONDecoder().decode(SavedPanelPlacement.self, from: JSONEncoder().encode(previous))
+        #expect(legacy.expandedHeight == nil && legacy.restored(on: [("built-in", screen)]) == wide)
     }
 
     @Test func temporarilyDisconnectedWidePanelReturnsAtChosenSize() throws {

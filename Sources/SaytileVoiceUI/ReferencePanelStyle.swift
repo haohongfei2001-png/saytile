@@ -130,23 +130,23 @@ public struct VoicePanelMetrics {
     public let voiceWidth: CGFloat
     public let copyWidth: CGFloat
     public let controlHeight: CGFloat
+    public let showsCopy: Bool
     public let copyMarkSize: CGFloat
 
     public init(width: CGFloat, inRail: Bool = false) {
-        // Type and controls keep their original scale at the reference outer width.
-        let referenceWidth = inRail ? VoiceRailMetrics.referenceContentWidth : ReferencePanelStyle.width
-        let factor = min(inRail ? 1.4 : 1, max(0.4, width / referenceWidth))
-        scale = factor
-        typeScale = max(0.72, factor)
-        radius = inRail ? VoiceRailMetrics.contentRadius(width: width) : ReferencePanelStyle.radius * factor
-        footerLeading = (inRail ? 15 : ReferencePanelStyle.footerLeading) * factor
-        footerBottom = (inRail ? 9 : ReferencePanelStyle.footerBottom) * factor
-        footerTop = (inRail ? 2 : 6) * factor
-        topPadding = (inRail ? 6 : 10.5) * factor
-        voiceWidth = (inRail ? 86 : ReferencePanelStyle.voiceWidth) * factor
-        copyWidth = (inRail ? 47 : ReferencePanelStyle.copyWidth) * factor
-        controlHeight = (inRail ? 36 : ReferencePanelStyle.controlHeight) * factor
-        copyMarkSize = (inRail ? 19 : 16) * factor
+        // Desktop points, not a zoom factor: rewrap the text when the user resizes.
+        scale = 0.68
+        typeScale = 0.72
+        radius = inRail ? VoiceRailMetrics.contentRadius(width: width) : ReferencePanelStyle.radius
+        footerLeading = 10
+        footerBottom = 6
+        footerTop = 2
+        topPadding = 4
+        voiceWidth = VoicePanelFootprint.controlSize.width
+        copyWidth = 30
+        controlHeight = VoicePanelFootprint.controlSize.height
+        copyMarkSize = 13
+        showsCopy = width >= 112
     }
 }
 
@@ -228,11 +228,18 @@ private struct SingleGlassSurfaceKey: EnvironmentKey {
     static let defaultValue = false
 }
 
+private struct CompactVoiceSlotKey: EnvironmentKey { static let defaultValue = false }
+
 private struct InsideVoiceRailKey: EnvironmentKey {
     static let defaultValue = false
 }
 
 extension EnvironmentValues {
+    var compactVoiceSlot: Bool {
+        get { self[CompactVoiceSlotKey.self] }
+        set { self[CompactVoiceSlotKey.self] = newValue }
+    }
+
     var singleGlassSurface: Bool {
         get { self[SingleGlassSurfaceKey.self] }
         set { self[SingleGlassSurfaceKey.self] = newValue }
@@ -257,14 +264,20 @@ public struct FramedVoiceSlot<Content: View>: View {
         GeometryReader { geometry in
             let slot = CGRect(origin: .zero, size: geometry.size)
             let metrics = VoiceRailMetrics(width: slot.width)
-            let card = metrics.cardFrame(in: slot)
+            let compact = VoicePanelFootprint.isCompact(outerWidth: slot.width)
+            let card = compact ? slot : metrics.cardFrame(in: slot)
             content
                 .environment(\.insideVoiceRail, true)
+                .environment(\.compactVoiceSlot, compact)
                 .environment(\.singleGlassSurface, !showsBorder)
                 .frame(width: card.width, height: card.height)
                 .position(x: card.midX, y: slot.height - card.midY)
                 .background {
-                    if !showsBorder {
+                    if compact {
+                        // A fully transparent pixel passes through this nonopaque NSPanel
+                        // in WindowServer, before AppKit can handle its resize gesture.
+                        Color.white.opacity(0.01).accessibilityHidden(true)
+                    } else if !showsBorder {
                         ReferencePanelSurface(radius: metrics.radius, showsStroke: false)
                     }
                 }

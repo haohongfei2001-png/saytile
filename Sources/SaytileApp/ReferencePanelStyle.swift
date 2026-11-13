@@ -10,7 +10,9 @@ struct InputPanelWindowView: View {
             let radius = VoiceRailMetrics(width: geometry.size.width).radius
             FramedVoiceSlot(showsBorder: model.panelBorderVisible) { InputPanelView(model: model) }
                 .background {
-                    if model.panelBorderVisible { VoiceRailGlass(width: geometry.size.width) }
+                    if model.panelBorderVisible && !VoicePanelFootprint.isCompact(outerWidth: geometry.size.width) {
+                        VoiceRailGlass(width: geometry.size.width)
+                    }
                 }
                 .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
         }

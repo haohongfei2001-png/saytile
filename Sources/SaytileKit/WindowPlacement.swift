@@ -5,7 +5,7 @@ import CoreGraphics
 public enum WindowPlacement {
     public static let nearpaneWidthFraction: CGFloat = 0.125
     public static let panelDefaultSize = CGSize(width: 344, height: 234)
-    public static let panelMinimumSize = CGSize(width: 178, height: 90)
+    public static let panelMinimumSize = VoicePanelFootprint.minimumSize
 
     public static func panelLimits(visibleFrame: CGRect) -> (minimum: CGSize, maximum: CGSize) {
         let maximum = visibleFrame.size
@@ -17,8 +17,9 @@ public enum WindowPlacement {
 
     public static func panelSize(_ requested: CGSize, visibleFrame: CGRect) -> CGSize {
         let limits = panelLimits(visibleFrame: visibleFrame)
-        return CGSize(width: min(max(requested.width, limits.minimum.width), limits.maximum.width),
-                      height: min(max(requested.height, limits.minimum.height), limits.maximum.height))
+        let width = min(max(requested.width, limits.minimum.width), limits.maximum.width)
+        let desiredHeight = VoicePanelFootprint.isCompact(outerWidth: width) ? limits.minimum.height : requested.height
+        return CGSize(width: width, height: min(max(desiredHeight, limits.minimum.height), limits.maximum.height))
     }
 
     /// Nearpane voice section by itself; not a full-height sidebar or fixed card.
@@ -37,8 +38,9 @@ public enum WindowPlacement {
         let size = panelSize(frame.size, visibleFrame: destination)
         let left = destination.minX
         let bottom = destination.minY
+        let y = VoicePanelFootprint.isCompact(outerWidth: size.width) ? frame.maxY - size.height : frame.minY
         return CGRect(x: min(max(frame.minX, left), destination.maxX - size.width),
-                      y: min(max(frame.minY, bottom), destination.maxY - size.height),
+                      y: min(max(y, bottom), destination.maxY - size.height),
                       width: size.width, height: size.height)
     }
 
@@ -78,10 +80,13 @@ public struct SavedPanelPlacement: Codable, Equatable {
     public let displayID: String
     public let frame: CGRect
     public let visibleFrame: CGRect
+    /// Older placement records have no compact state or remembered text height.
+    public let expandedHeight: CGFloat?
 
-    public init?(frame: CGRect, visibleFrame: CGRect, displayID: String) {
+    public init?(frame: CGRect, visibleFrame: CGRect, displayID: String, expandedHeight: CGFloat? = nil) {
         guard !displayID.isEmpty, Self.valid(frame), Self.valid(visibleFrame) else { return nil }
         self.frame = frame; self.visibleFrame = visibleFrame; self.displayID = displayID
+        self.expandedHeight = expandedHeight.flatMap { $0.isFinite && $0 > 0 ? $0 : nil }
     }
     private static func valid(_ rect: CGRect) -> Bool {
         [rect.minX, rect.minY, rect.width, rect.height].allSatisfy(\.isFinite) && rect.width > 0 && rect.height > 0

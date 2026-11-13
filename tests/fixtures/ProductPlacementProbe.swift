@@ -127,8 +127,32 @@ import ApplicationServices
             guard own.count==1 else {throw Problem("Candidate is not paused or its status is ambiguous")}
             return own[0]
         }
-        func clickOwnStatus(_ app:NSRunningApplication) throws {
-            guard AXUIElementPerformAction(try pausedStatus(app),kAXPressAction as CFString) == .success else {throw Problem("Could not press paused menu item")}
+        func choosePanelAction(_ title: String, _ app: NSRunningApplication) async throws {
+            struct Owned: @unchecked Sendable { let element: AXUIElement }
+            let owned = Owned(element: try pausedStatus(app))
+            async let opening: Int32 = Task.detached {
+                AXUIElementSetMessagingTimeout(owned.element, 5)
+                return AXUIElementPerformAction(owned.element, kAXPressAction as CFString).rawValue
+            }.value
+            let deadline = ContinuousClock.now + .seconds(3)
+            var selected = false
+            while !selected, ContinuousClock.now < deadline {
+                let menus = value(owned.element, kAXChildrenAttribute) as? [AXUIElement] ?? []
+                for menu in menus {
+                    let items = value(menu, kAXChildrenAttribute) as? [AXUIElement] ?? []
+                    if let item = items.first(where: { value($0, kAXTitleAttribute) as? String == title }) {
+                        var pid: pid_t = 0
+                        guard AXUIElementGetPid(item, &pid) == .success, pid == app.processIdentifier else { throw Problem("Unexpected menu owner") }
+                        selected = AXUIElementPerformAction(item, kAXPressAction as CFString) == .success
+                        break
+                    }
+                }
+                if !selected { try await Task.sleep(for: .milliseconds(30)) }
+            }
+            _ = await opening
+            // The window outcome is checked by the caller; a menu-item press may
+            // finish an AX-triggered tracking loop with a generic status error.
+            guard selected else { throw Problem("Could not choose " + title) }
         }
         func stop(_ app:NSRunningApplication) async throws {
             _ = try pausedStatus(app)
@@ -162,9 +186,9 @@ import ApplicationServices
         let wider=try await manipulate(first,moved,.left,dx:-54,dy:0)
         let heightAdjusted=try await manipulate(first,wider,.bottom,dx:0,dy:40)
         let taller=try await manipulate(first,heightAdjusted,.bottomRight,dx:24,dy:18)
-        try clickOwnStatus(first); try await Task.sleep(for:.milliseconds(220))
+        try await choosePanelAction("收起语音板", first); try await Task.sleep(for:.milliseconds(220))
         guard window(first)==nil else {throw Problem("Menu failed to hide")}
-        try clickOwnStatus(first); let shown=try await visible(first)
+        try await choosePanelAction("显示语音板", first); let shown=try await visible(first)
         guard same(shown.1,taller) else {throw Problem("Hide/show changed chosen size or position")}
         print("HIDE_SHOW_RESTORED \(shown.1)"); fflush(nil)
         try await stop(first); let middle=try await launch(), during=try await visible(middle)

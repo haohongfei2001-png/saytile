@@ -5,6 +5,7 @@ import SaytileKit
 /// Resize at the outer rail, move from its gutters, and leave the inner card’s
 /// controls and occupied transcript lines available to their native views.
 final class VoicePanel: NSPanel {
+    var expandedHeight: CGFloat?
     var didChoosePosition: (() -> Void)?
     var draggingPlacement: Bool { gesture != nil }
     override var canBecomeKey: Bool { true }
@@ -27,6 +28,7 @@ final class VoicePanel: NSPanel {
         let frame: CGRect
         let pointer: CGPoint
         let visible: CGRect
+        let expandedHeight: CGFloat
     }
     private var gesture: Gesture?
     private var customCursor = false
@@ -40,6 +42,7 @@ final class VoicePanel: NSPanel {
 
     func applyPlacement(_ proposed: CGRect, on visible: CGRect) {
         let bounded = WindowPlacement.restoredPanel(proposed, visibleFrames: [visible])
+        if !SaytileVoiceUI.VoicePanelFootprint.isCompact(outerWidth: bounded.width) { expandedHeight = bounded.height }
         let limits = WindowPlacement.panelLimits(visibleFrame: visible)
         if maxSize != limits.maximum || minSize != limits.minimum {
             minSize = .zero
@@ -55,7 +58,8 @@ final class VoicePanel: NSPanel {
             if !event.modifierFlags.contains(.control), let screen,
                let operation = operation(at: event.locationInWindow) {
                 gesture = Gesture(operation: operation, frame: frame,
-                                  pointer: convertPoint(toScreen: event.locationInWindow), visible: screen.visibleFrame)
+                                  pointer: convertPoint(toScreen: event.locationInWindow), visible: screen.visibleFrame,
+                                  expandedHeight: expandedHeight ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame).height)
                 if case .move = operation { NSCursor.closedHand.set() }
                 return
             }
@@ -93,6 +97,18 @@ final class VoicePanel: NSPanel {
     private func operation(at p: CGPoint) -> Operation? {
         let rail = CGRect(origin: .zero, size: frame.size)
         guard rail.contains(p) else { return nil }
+        let compact = SaytileVoiceUI.VoicePanelFootprint.isCompact(outerWidth: rail.width)
+        if compact {
+            let button = SaytileVoiceUI.VoicePanelFootprint.controlSize
+            let area = CGRect(x: rail.midX - button.width / 2, y: rail.midY - button.height / 2,
+                              width: button.width, height: button.height)
+            if area.contains(p) { return nil }
+            // The compact window has a fixed height. Keep both side edges
+            // available to expand it, and its top/bottom gutters to move it.
+            if p.x <= 7 { return .resize(.left) }
+            if rail.maxX - p.x <= 7 { return .resize(.right) }
+            return .move
+        }
         let card = VoiceRailMetrics(width: rail.width).cardFrame(in: rail)
         let left = p.x - rail.minX, right = rail.maxX - p.x
         let bottom = p.y - rail.minY, top = rail.maxY - p.y
@@ -117,7 +133,7 @@ final class VoicePanel: NSPanel {
         if cardBottom <= metrics.footerBottom + metrics.controlHeight {
             let gapStart = metrics.footerLeading + metrics.copyWidth
             let gapEnd = ReferencePanelStyle.footerTrailing * scale + metrics.voiceWidth
-            return cardLeft > gapStart && cardRight > gapEnd ? .move : nil
+            return (!metrics.showsCopy || cardLeft > gapStart) && cardRight > gapEnd ? .move : nil
         }
         if cardLeft < ReferencePanelStyle.textInset * scale - 2 { return .move }
 
@@ -149,10 +165,15 @@ final class VoicePanel: NSPanel {
                           width: limits.maximum.width, height: limits.maximum.height)
         let width = left ? min(start.maxX - area.minX, start.width - dx) :
                     right ? min(area.maxX - start.minX, start.width + dx) : start.width
-        let height = bottom ? min(start.maxY - area.minY, start.height - dy) :
-                     top ? min(area.maxY - start.minY, start.height + dy) : start.height
+        let compactStart = SaytileVoiceUI.VoicePanelFootprint.isCompact(outerWidth: start.width)
+        let compactEnd = SaytileVoiceUI.VoicePanelFootprint.isCompact(outerWidth: width)
+        let referenceHeight = compactStart ? gesture.expandedHeight : start.height
+        let referenceBottom = start.maxY - referenceHeight
+        let height = bottom ? min(start.maxY - area.minY, referenceHeight - dy) :
+                     top ? min(area.maxY - referenceBottom, referenceHeight + dy) : referenceHeight
         let size = WindowPlacement.panelSize(CGSize(width: width, height: height), visibleFrame: gesture.visible)
-        return CGRect(x: left ? start.maxX - size.width : start.minX,
-                      y: bottom ? start.maxY - size.height : start.minY, width: size.width, height: size.height)
+        let y = top && !compactEnd ? referenceBottom : start.maxY - size.height
+        return CGRect(x: left ? start.maxX - size.width : start.minX, y: y,
+                      width: size.width, height: size.height)
     }
 }

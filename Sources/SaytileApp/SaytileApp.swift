@@ -25,12 +25,13 @@ final class VoiceEntryPanel: NSPanel {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuDelegate {
     private var model: AppModel?
     #if canImport(Sparkle)
     private var updater: SPUStandardUpdaterController?
     #endif
     private var status: NSStatusItem?
+    private var trackingStatusMenu = false
     private var panel: VoicePanel?
     private var voiceEntry: VoiceEntryPanel?
     private var archive: NSWindow?
@@ -45,6 +46,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var positioningPanel = false
     private var movingPanel = false
     private var placementDefaults: UserDefaults?
+    private var visibilityDefaults: UserDefaults?
+    private let panelHiddenKey = "panel.explicitlyHidden"
     // v4 stores the visible rail. Preserve shadow-expanded v2/v3 records for rollback.
     private let placementKey = "panel.userPlacement.v4"
     private func displayKey(_ screen: NSScreen) -> String {
@@ -58,13 +61,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             if let data = placementDefaults?.data(forKey: key),
                let saved = try? JSONDecoder().decode(SavedPanelPlacement.self, from: data),
                let placement = key == placementKey ? saved : saved.removingLegacyShadowMargin(),
-               let frame = placement.restored(on: screens) { return frame }
+               let frame = placement.restored(on: screens) {
+                panel?.expandedHeight = placement.expandedHeight
+                return frame
+            }
         }
         return nil
     }
     private func rememberPlacement() {
         guard !positioningPanel, let panel, let screen = panel.screen,
-              let placement = SavedPanelPlacement(frame: panel.frame, visibleFrame: screen.visibleFrame, displayID: displayKey(screen)),
+              let placement = SavedPanelPlacement(frame: panel.frame, visibleFrame: screen.visibleFrame,
+                                                  displayID: displayKey(screen), expandedHeight: panel.expandedHeight),
               let data = try? JSONEncoder().encode(placement) else { return }
         placementDefaults?.set(data, forKey: placementKey)
     }
@@ -74,7 +81,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var diagnosticExitStatus: Int32 = 0
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        if diagnosticPreferencesSuite == nil, model != nil { showPanel() }
+        if visibilityDefaults != nil, model != nil { explicitlyShowPanel() }
         return false
     }
 
@@ -160,6 +167,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 try diagnosticConfiguration.save(to: preferences)
             } else { preferences = SaytileStorageProfile.current.preferences }
             placementDefaults = preferences
+            if !isDiagnostic, directoryIndex == nil { visibilityDefaults = preferences }
             let model = try AppModel(directory: directory, preferences: preferences, normalLaunch: directoryIndex == nil,
                 copyPasteboard: CommandLine.arguments.contains("--ui-review") ? NSPasteboard.withUniqueName() : nil)
             self.model = model
@@ -174,8 +182,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate()
                 return
             }
-            model.openPanel = { [weak self] in self?.showPanel() }
-            model.hidePanel = { [weak self] in self?.hidePanel() }
+            model.openPanel = { [weak self] in self?.explicitlyShowPanel() }
+            model.hidePanel = { [weak self] in self?.explicitlyHidePanel() }
             model.openArchive = { [weak self] in self?.showArchive() }
             model.openSettings = { [weak self] in self?.showSettings() }
             model.openStorageSettings = { [weak self] in
@@ -356,8 +364,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 }
             }
             // Relaunch never silently resumes the microphone or restores an input binding.
-            if directoryIndex == nil && (SaytileStorageProfile.current != .standard || !preferences.bool(forKey: "hasLaunched")) {
-                preferences.set(true, forKey: "hasLaunched")
+            if let visibilityDefaults, !visibilityDefaults.bool(forKey: panelHiddenKey) {
                 showPanel()
             }
             updateFloatingEntry()
@@ -391,7 +398,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         guard sender === panel else { return true }
-        hidePanel()
+        explicitlyHidePanel()
         return false // Closing the floating surface never changes capture state.
     }
     func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
@@ -456,9 +463,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private func configureStatusItem() {
         let status = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         status.button?.image = SaytileBrand.paused
-        status.button?.target = self
-        status.button?.action = #selector(statusClicked)
-        status.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        let menu = NSMenu()
+        menu.delegate = self
+        status.menu = menu
         self.status = status
         updateStatus()
     }
@@ -469,36 +476,52 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         status?.button?.title = status?.button?.image == nil ? "Saytile" : ""
         status?.button?.toolTip = [label, model.panelCaptureDetail].compactMap { $0 }.joined(separator: " · ")
         status?.button?.setAccessibilityLabel(label)
-        status?.button?.setAccessibilityHelp([model.panelCaptureDetail, "单击展开或收起输入板；右键打开收音、档案和设置菜单"].compactMap { $0 }.joined(separator: "。"))
+        status?.button?.setAccessibilityHelp([model.panelCaptureDetail, "点按打开语音板、收音、档案和设置菜单"].compactMap { $0 }.joined(separator: "。"))
     }
-    @objc private func statusClicked() {
-        if NSApp.currentEvent?.type == .rightMouseUp {
-            let menu = NSMenu()
-            let state = NSMenuItem(title: model?.panelCaptureLabel ?? "暂停", action: nil, keyEquivalent: "")
-            state.isEnabled = false; menu.addItem(state)
-            if let detail = model?.panelCaptureDetail {
-                let reason = NSMenuItem(title: detail, action: nil, keyEquivalent: "")
-                reason.isEnabled = false; reason.toolTip = detail; menu.addItem(reason)
-            }
-            menu.addItem(.separator())
-            let items: [(String, Selector)] = [(panel?.isVisible == true ? "收起输入板" : "展开输入板", #selector(togglePanel)), (model?.captureActionLabel ?? "开始收音", #selector(toggleCapture)), ("语音档案", #selector(showArchive)), ("设置…", #selector(showSettings))]
-            for (title, selector) in items { let item = NSMenuItem(title: title, action: selector, keyEquivalent: ""); item.target = self; menu.addItem(item) }
-            menu.addItem(.separator())
-            #if canImport(Sparkle)
-            if let updater {
-                let check = NSMenuItem(title: "检查更新…", action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)), keyEquivalent: "")
-                check.target = updater
-                menu.addItem(check)
-            }
-            #endif
-            let quit = NSMenuItem(title: "退出 Saytile", action: #selector(quitApp), keyEquivalent: "q"); quit.target = self; menu.addItem(quit)
-            status?.menu = menu; status?.button?.performClick(nil); status?.menu = nil
-        } else { togglePanel() }
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        guard menu === status?.menu, !trackingStatusMenu else { return }
+        populateStatusMenu(menu)
+    }
+    func menuWillOpen(_ menu: NSMenu) {
+        guard menu === status?.menu else { return }
+        // Some accessibility launch paths enter tracking before menuNeedsUpdate.
+        if menu.items.isEmpty { populateStatusMenu(menu) }
+        trackingStatusMenu = true
+    }
+    func menuDidClose(_ menu: NSMenu) {
+        if menu === status?.menu { trackingStatusMenu = false }
+    }
+    private func populateStatusMenu(_ menu: NSMenu) {
+        menu.removeAllItems()
+        let state = NSMenuItem(title: model?.panelCaptureLabel ?? "暂停", action: nil, keyEquivalent: "")
+        state.isEnabled = false; menu.addItem(state)
+        if let detail = model?.panelCaptureDetail {
+            let reason = NSMenuItem(title: detail, action: nil, keyEquivalent: "")
+            reason.isEnabled = false; reason.toolTip = detail; menu.addItem(reason)
+        }
+        menu.addItem(.separator())
+        let panelVisible = panel?.isVisible == true
+        let items: [(String, Selector)] = [(panelVisible ? "收起语音板" : "显示语音板", panelVisible ? #selector(explicitlyHidePanel) : #selector(explicitlyShowPanel)), (model?.captureActionLabel ?? "开始收音", #selector(toggleCapture)), ("语音档案", #selector(showArchive)), ("设置…", #selector(showSettings))]
+        for (title, selector) in items { let item = NSMenuItem(title: title, action: selector, keyEquivalent: ""); item.target = self; menu.addItem(item) }
+        menu.addItem(.separator())
+        #if canImport(Sparkle)
+        if let updater {
+            let check = NSMenuItem(title: "检查更新…", action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)), keyEquivalent: "")
+            check.target = updater
+            menu.addItem(check)
+        }
+        #endif
+        let quit = NSMenuItem(title: "退出 Saytile", action: #selector(quitApp), keyEquivalent: "q"); quit.target = self; menu.addItem(quit)
     }
     @objc private func toggleCapture() { model?.toggleCapture() }
     @objc private func quitApp() { NSApp.terminate(nil) }
-    @objc func togglePanel() { if panel?.isVisible == true { hidePanel() } else { showPanel() } }
-    private func hidePanel() {
+    @objc func togglePanel() { if panel?.isVisible == true { explicitlyHidePanel() } else { explicitlyShowPanel() } }
+    @objc private func explicitlyShowPanel() {
+        visibilityDefaults?.removeObject(forKey: panelHiddenKey)
+        showPanel()
+    }
+    @objc private func explicitlyHidePanel() {
+        visibilityDefaults?.set(true, forKey: panelHiddenKey)
         panel?.orderOut(nil)
         updateFloatingEntry()
     }
@@ -551,7 +574,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             entry.isOpaque = false; entry.backgroundColor = .clear; entry.hasShadow = true
             if forIsolatedProbe { entry.alphaValue = 0; entry.ignoresMouseEvents = true }
             entry.hidesOnDeactivate = false; entry.isReleasedWhenClosed = false
-            let content = NSHostingView(rootView: VoiceEntryView(model: model, open: { [weak self] in self?.showPanel() }).preferredColorScheme(.light))
+            let content = NSHostingView(rootView: VoiceEntryView(model: model, open: { [weak self] in self?.explicitlyShowPanel() }).preferredColorScheme(.light))
             content.sizingOptions = []
             entry.contentView = content
             voiceEntry = entry

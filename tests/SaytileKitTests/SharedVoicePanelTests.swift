@@ -36,28 +36,31 @@ import SaytileVoiceUI
         #expect(VoiceTranscriptFlow.join(["no ", "extra", "\n", "spaces", "."]) == "no extra\nspaces.")
     }
 
-    @Test func bothFooterControlsFitNarrowGlassAtTheSameScale() {
-        for width: CGFloat in [100, 128, 160, 178, 240, 344] {
-            let metrics = VoicePanelMetrics(width: width)
-            let footer = metrics.footerLeading + metrics.copyWidth + 8 * metrics.scale
-                + metrics.voiceWidth + ReferencePanelStyle.footerTrailing * metrics.scale
-            #expect(footer <= width)
-            #expect(metrics.typeScale * ReferencePanelStyle.fontSize >= 14)
-            #expect(metrics.typeScale <= 1)
+    @Test func resizingBothHostsReflowsTextWithoutZoomingControlsOrGlyphs() {
+        for rail in [false, true] {
+            let baseline = VoicePanelMetrics(width: 180, inRail: rail)
+            for width: CGFloat in [72, 100, 112, 160, 178, 240, 344, 620, 1440] {
+                let metrics = VoicePanelMetrics(width: width, inRail: rail)
+                #expect(abs(metrics.typeScale * ReferencePanelStyle.fontSize - 14.04) < 0.001)
+                #expect(metrics.copyWidth == 30 && metrics.copyMarkSize == 13)
+                #expect(metrics.voiceWidth == 54 && metrics.controlHeight == 26)
+                #expect(metrics.scale == baseline.scale && metrics.footerLeading == baseline.footerLeading)
+                #expect(metrics.showsCopy == (width >= 112))
+                if metrics.showsCopy {
+                    #expect(metrics.footerLeading + metrics.copyWidth + metrics.voiceWidth
+                            + ReferencePanelStyle.footerTrailing * metrics.scale + 8 <= width)
+                }
+            }
         }
-        #expect(VoicePanelMetrics(width: 344).scale == 1)
     }
 
-    @Test func artworkScalesTheTextAndBothControlsAtDefaultAndReferenceSidebarWidths() {
-        for outer: CGFloat in [240, 325, 374] {
-            let card = VoiceRailMetrics(width: outer).cardFrame(in: CGRect(x: 0, y: 0, width: outer, height: 300))
-            let metrics = VoicePanelMetrics(width: card.width, inRail: true)
-            let normalized = 325 / outer
-            #expect(abs(metrics.typeScale * normalized - 1) < 0.001)
-            #expect(abs(metrics.copyWidth * normalized - 47) < 0.001)
-            #expect(abs(metrics.voiceWidth * normalized - 86) < 0.001)
-            #expect(abs(metrics.controlHeight * normalized - 36) < 0.001)
-        }
+    @Test func voiceOnlyFootprintKeepsRoomForBothEdgeDragsAndTheUnscaledButton() {
+        let size = VoicePanelFootprint.minimumSize
+        #expect(VoicePanelFootprint.isCompact(outerWidth: size.width))
+        #expect(VoicePanelFootprint.isCompact(outerWidth: 80))
+        #expect(!VoicePanelFootprint.isCompact(outerWidth: 81))
+        #expect(size.width - VoicePanelFootprint.controlSize.width >= 14)
+        #expect(size.height - VoicePanelFootprint.controlSize.height >= 14)
     }
 
     @Test func lateAmplitudeCannotAnimatePausedOrWaitingGlyphs() {

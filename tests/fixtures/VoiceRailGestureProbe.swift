@@ -41,17 +41,6 @@ struct VoiceRailGestureProbe {
             abs(a.minX - b.minX) < 0.01 && abs(a.minY - b.minY) < 0.01 &&
             abs(a.width - b.width) < 0.01 && abs(a.height - b.height) < 0.01
         }
-        if CommandLine.arguments[1] == "restore" {
-            let stored = try JSONDecoder().decode(SavedPanelPlacement.self, from: Data(contentsOf: output))
-            guard let frame = stored.restored(on: [("primary", available)]) else { throw Problem("Restore rejected") }
-            panel.setFrame(frame, display: true)
-            guard matches(frame, stored.frame), matches(panel.frame, frame), !panel.isKeyWindow else { throw Problem("Relaunch geometry/focus") }
-            print("PASS restored in fresh process pid=\(getpid()) frame=\(panel.frame)")
-            return
-        }
-        guard CommandLine.arguments[1] == "write", !FileManager.default.fileExists(atPath: output.path) else {
-            throw Problem("Requires an unused fixture file")
-        }
         var completions = 0
         panel.didChoosePosition = { completions += 1 }
         func footerGap(in frame: CGRect) -> CGPoint {
@@ -85,6 +74,22 @@ struct VoiceRailGestureProbe {
             try send(.leftMouseUp, at: end)
             guard completions == count + 1, matches(panel.frame, expect), !panel.isKeyWindow else { throw Problem(name + " failed; observed " + String(describing: panel.frame)) }
             print("PASS \(name) frame=\(panel.frame)")
+        }
+        if CommandLine.arguments[1] == "restore" {
+            let stored = try JSONDecoder().decode(SavedPanelPlacement.self, from: Data(contentsOf: output))
+            guard let frame = stored.restored(on: [("primary", available)]), let height = stored.expandedHeight else { throw Problem("Restore rejected") }
+            panel.expandedHeight = height
+            panel.applyPlacement(frame, on: available)
+            guard matches(frame, stored.frame), matches(panel.frame, frame), !panel.isKeyWindow else { throw Problem("Relaunch geometry/focus") }
+            let width = min(128, available.width)
+            let end = CGRect(x: frame.maxX - width, y: frame.maxY - height, width: width, height: height)
+            try drag("reopen compact and drag left edge out", from: CGPoint(x: 2, y: frame.height / 2),
+                     delta: CGPoint(x: frame.width - width, y: 0), expect: end)
+            print("PASS restored in fresh process pid=\(getpid()) frame=\(panel.frame)")
+            return
+        }
+        guard CommandLine.arguments[1] == "write", !FileManager.default.fileExists(atPath: output.path) else {
+            throw Problem("Requires an unused fixture file")
         }
         // The 1024-point CI desktop has a 128 × 69 factory panel. Its upper
         // text margin is too narrow to assume a draggable strip above the editor.
@@ -126,9 +131,28 @@ struct VoiceRailGestureProbe {
         } else {
             print("NOT_RUN physical second-display drag (one display connected)")
         }
+        let beforeFold = panel.frame
+        let compactSize = SaytileVoiceUI.VoicePanelFootprint.minimumSize
+        let folded = CGRect(x: beforeFold.maxX - compactSize.width, y: beforeFold.maxY - compactSize.height,
+                            width: compactSize.width, height: compactSize.height)
+        try drag("fold left edge to the single control", from: CGPoint(x: 2, y: beforeFold.height / 2),
+                 delta: CGPoint(x: beforeFold.width - compactSize.width, y: 0), expect: folded)
+        try drag("reopen left edge keeping top and previous height", from: CGPoint(x: 2, y: folded.height / 2),
+                 delta: CGPoint(x: compactSize.width - beforeFold.width, y: 0), expect: beforeFold)
+        let rightFold = CGRect(x: beforeFold.minX, y: folded.minY, width: folded.width, height: folded.height)
+        try drag("fold from the right", from: CGPoint(x: beforeFold.width - 2, y: beforeFold.height / 2),
+                 delta: CGPoint(x: compactSize.width - beforeFold.width, y: 0), expect: rightFold)
+        try drag("reopen from the right", from: CGPoint(x: rightFold.width - 2, y: rightFold.height / 2),
+                 delta: CGPoint(x: beforeFold.width - compactSize.width, y: 0), expect: beforeFold)
+        try drag("fold again for restart", from: CGPoint(x: 2, y: beforeFold.height / 2),
+                 delta: CGPoint(x: beforeFold.width - compactSize.width, y: 0), expect: folded)
+        try drag("move narrow control from its top margin", from: CGPoint(x: folded.width / 2, y: folded.height - 3),
+                 delta: CGPoint(x: -24, y: -22), expect: folded.offsetBy(dx: -24, dy: -22))
+        try drag("return narrow control using the bottom margin", from: CGPoint(x: folded.width / 2, y: 3),
+                 delta: CGPoint(x: 24, y: 22), expect: folded)
         let final = panel.frame
         panel.orderOut(nil); panel.orderFrontRegardless()
-        guard matches(panel.frame, final), let saved = SavedPanelPlacement(frame: final, visibleFrame: available, displayID: "primary") else {
+        guard matches(panel.frame, final), let saved = SavedPanelPlacement(frame: final, visibleFrame: available, displayID: "primary", expandedHeight: panel.expandedHeight) else {
             throw Problem("Hide/show")
         }
         try JSONEncoder().encode(saved).write(to: output, options: .withoutOverwriting)
