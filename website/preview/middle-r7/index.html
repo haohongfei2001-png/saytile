@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#fbfbfa">
+  <meta name="description" content="Saytile，常驻 Mac 的 AI 语音板。自然开口，持续听写与核对，让每句话准确、忠实地留下。">
+  <meta property="og:title" content="Saytile — 让每句话，准确留下。">
+  <meta property="og:description" content="你自然开口。Saytile 持续听写、核对，让留下的文字忠实于你。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://saytile.com/preview/middle-r7/">
+  <title>Saytile — 让每句话，准确留下。</title>
+  <link rel="icon" href="assets/saytile-approved.webp" type="image/webp">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="panel.css">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="middle.css">
+</head>
+<body id="top">
+  <svg class="icon-defs" aria-hidden="true"><defs>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14m-5-5 5 5 5-5"/></symbol>
+    <symbol id="i-replay" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1 6M4 4v6h6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m9 5 10 7-10 7z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M6 18 18 6M6 6h12v12"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><path d="M8 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/><rect x="8" y="8" width="13" height="13" rx="3"/></symbol>
+    <symbol id="i-voice" viewBox="0 0 24 24"><path d="M4 10v4m4-8v12m4-15v18m4-15v12m4-8v4"/></symbol>
+    <symbol id="i-mac" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 21h8m-4-5v5"/></symbol>
+  </defs></svg>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <a href="#top" class="wordmark" aria-label="Saytile 首页"><img src="assets/saytile-approved.webp" width="46" height="46" alt=""><span>Saytile</span></a>
+    <nav aria-label="主导航"><a href="#precision">忠实表达</a><a href="#continuity">随时继续</a></nav>
+    <a class="nav-cta" href="#start">了解内测 <svg><use href="#i-arrow"/></svg></a>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-intro">
+        <p class="eyebrow hero-eyebrow"><span class="live-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span> AI 语音板，专为 Mac</p>
+        <h1 id="hero-title"><span>让每句话，</span><span>准确留下<span class="full-stop">。</span></span></h1>
+        <p class="hero-description">你自然开口。Saytile 持续听写、核对，<br>让留下的文字，忠实于你。</p>
+      </div>
+      <div class="hero-product" id="experience">
+        <div class="product-light" aria-hidden="true"><span></span></div>
+        <div class="product-orbit" aria-hidden="true"></div>
+        <div class="product-float" id="product-float">
+          <div id="saytile-panel" class="sp-panel" data-state="standby">
+  <div class="sp-scroll">
+    <div class="sp-text" contenteditable="plaintext-only" role="textbox" aria-label="Saytile 演示文字" aria-multiline="true" spellcheck="false">先别急着下结论。</div><span class="sp-caret" aria-hidden="true"></span>
+  </div>
+  <div class="sp-controls">
+    <button class="sp-button sp-copy" type="button" aria-label="复制这段文字" title="复制文字">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><g class="sp-copy-glyph"><path d="M9 8V5.5A1.5 1.5 0 0 0 7.5 4h-3A1.5 1.5 0 0 0 3 5.5v8A1.5 1.5 0 0 0 4.5 15H8"/><rect x="9" y="9" width="11" height="11" rx="2"/></g><path class="sp-check-glyph" d="m5 12 4 4L19 6"/></svg>
+    </button>
+    <button class="sp-button sp-voice" type="button" aria-label="暂停演示" title="暂停演示">
+      <span class="sp-dot" aria-hidden="true"></span>
+      <svg class="sp-triangle" viewBox="0 0 16 18" aria-hidden="true"><path d="M3 2.4C3 1.3 4 .7 4.9 1.3L14 7.5c1 .7 1 2.3 0 3L4.9 16.7C4 17.3 3 16.7 3 15.6Z"/></svg>
+      <span class="sp-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    </button>
+  </div>
+</div>
+
+        </div>
+        <div class="product-caption"><span class="caption-dot" id="caption-dot" aria-hidden="true"></span><span id="product-phase">等你下一句。</span><button id="hero-replay" aria-label="重播语音板演示" title="重播演示"><svg><use href="#i-replay"/></svg></button></div>
+      </div>
+      <div class="hero-actions"><a href="#start" class="button button-dark">了解 Mac 内测 <svg><use href="#i-arrow"/></svg></a><a href="#precision" class="text-link">往下，感受一下 <svg><use href="#i-down"/></svg></a></div>
+      <p class="hero-note">中文优先 <span>·</span> Apple Silicon <span>·</span> 产品交互演示</p>
+      <div class="hero-baseline" aria-hidden="true"><span>SPEAK NATURALLY.</span><span>STAY YOURSELF.</span></div>
+    </section>
+
+    <div class="s6 r7" id="new-middle">
+      <section class="s6-flow" id="precision" aria-labelledby="flow-title">
+        <div class="r7-live-layout">
+        <div class="s6-intro s6-shell s6-reveal">
+          <div><p class="s6-eyebrow">01 / 随时开口</p><h2 id="flow-title">思路不用停。<br><span>说话也一样。</span></h2></div>
+          <p class="s6-lead">边想边说，不必每句重新开始。<br>停一会儿，它在原处等你。</p>
+        </div>
+        <div class="s6-film s6-reveal" id="flow-film" data-chapter="speak" data-playing="false">
+          <div class="s6-atmosphere" aria-hidden="true"><div class="s6-dune s6-dune-one"></div><div class="s6-dune s6-dune-two"></div><div class="s6-dots"></div><div class="r7-horizon"></div></div>
+          <div class="s6-scene-head"><span><i></i> 连续表达</span><span>演示 · 可编辑</span></div>
+          <div class="s6-film-caption r7-sr-only" aria-hidden="true"><p id="film-caption">先说一点。</p><span id="film-subcaption">不必组织成一篇文章。</span></div>
+          <div class="s6-voice-wrap">
+            <div class="s6-voice" id="flow-panel" data-state="standby">
+              <div class="s6-voice-scroll" tabindex="0" aria-label="演示文字滚动区域">
+                <div class="s6-transcript" id="flow-text" role="textbox" aria-label="口述示例，可以编辑" aria-multiline="true" contenteditable="plaintext-only" spellcheck="false">这个周末，想去看海。<br>嗯，不赶时间。</div><span class="s6-caret" aria-hidden="true"></span>
+              </div>
+              <div class="s6-voice-controls">
+                <button type="button" class="s6-copy" id="flow-copy" aria-label="复制这段演示文字" title="复制文字"><svg viewBox="0 0 24 24"><path d="M8 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/><rect x="8" y="8" width="13" height="13" rx="3"/></svg></button>
+                <button type="button" class="s6-voice-control" id="flow-voice" aria-label="播放口述演示" title="播放演示"><span class="s6-state-dot" aria-hidden="true"></span><span class="s6-signal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><svg class="s6-state-play" viewBox="0 0 18 20" aria-hidden="true"><path d="M4 2 16 10 4 18Z"/></svg></button>
+              </div>
+            </div>
+            <div class="r7-ambient-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="s6-live-caption" id="flow-status" role="status" aria-live="polite"><span></span><span>等你下一句。</span></p>
+          </div>
+          <div class="s6-film-bottom">
+            <div class="s6-chapters" role="group" aria-label="查看表达过程">
+              <button type="button" data-step="0" aria-pressed="true"><span class="s6-chapter-line"><i></i></span><span class="s6-chapter-name"><small>01</small>自然开口</span></button>
+              <button type="button" data-step="1" aria-pressed="false"><span class="s6-chapter-line"><i></i></span><span class="s6-chapter-name"><small>02</small>停一会儿</span></button>
+              <button type="button" data-step="2" aria-pressed="false"><span class="s6-chapter-line"><i></i></span><span class="s6-chapter-name"><small>03</small>接着说完</span></button>
+            </div>
+            <div class="s6-film-actions"><button type="button" id="flow-play" aria-label="播放完整演示"><svg><use href="#i-play"/></svg></button><button type="button" id="flow-replay" aria-label="从头重播演示"><svg><use href="#i-replay"/></svg></button></div>
+          </div>
+        </div>
+        </div>
+        <div class="s6-under-film s6-shell"><p>停顿时回到待命。新的一句，接在原来的思路之后。</p><span>不开启麦克风</span></div>
+      </section>
+
+      <section class="s6-fidelity s6-shell" aria-labelledby="fidelity-title">
+        <div class="s6-fidelity-copy s6-reveal"><p class="s6-eyebrow"></p><h2 id="fidelity-title">听清，<span>不改写。</span></h2><p class="s6-lead">修正误听的字，<br>不替你换一种说法。</p></div>
+        <div class="s6-proof s6-reveal" id="correction-proof" data-active="false">
+          <div class="s6-proof-top"><span>同一份文字</span><button type="button" id="correction-replay" class="s6-text-action" aria-label="观看原位核对演示">看一次核对 <svg><use href="#i-replay"/></svg></button></div>
+          <p class="s6-proof-phrase"><span class="r7-original">嗯，不赶时间。</span><br>等天气放晴，<span class="s6-word" id="correction-word">再</span>出发。</p>
+          <div class="s6-proof-foot"><span class="s6-proof-line" aria-hidden="true"></span><span id="correction-status" role="status" aria-live="polite">修正一个字，不改写一句话。</span></div>
+        </div>
+      </section>
+
+      <section class="s6-take" id="continuity" aria-labelledby="take-title">
+        <div class="s6-shell s6-take-heading s6-reveal"><div><p class="s6-eyebrow">02 / 随手取用</p><h2 id="take-title">刚刚说的话，<br><span>现在就能用。</span></h2></div><p class="s6-lead">写下一段留言，或给 AI 讲清一个问题。<br>把心里的话，带到手上的事里。</p></div>
+        <div class="s6-take-stage s6-shell s6-reveal" id="take-stage" data-mode="copy" data-result="empty">
+          <div class="s6-source">
+            <div class="s6-mode-tabs" role="tablist" aria-label="文字取用方式"><button id="mode-copy" role="tab" type="button" aria-selected="true" aria-controls="take-content" data-mode="copy" tabindex="0">复制取用</button><button id="mode-direct" role="tab" type="button" aria-selected="false" aria-controls="take-content" data-mode="direct" tabindex="-1">连续输入示意</button></div>
+            <div id="take-content" role="tabpanel" aria-labelledby="mode-copy"><p class="s6-source-label">这段原话</p><p id="take-source">这个周末，想去看海。<br>嗯，不赶时间。<br>等天气放晴，再出发。</p><button class="s6-primary" type="button" id="take-action"><svg><use href="#i-copy"/></svg><span>复制这段话</span></button><p class="s6-source-note" id="take-description">编辑后再复制，也保留你的修改。</p></div>
+          </div>
+          <div class="s6-draft-wrap">
+            <div class="s6-paper-back" aria-hidden="true"></div>
+            <div class="s6-draft">
+              <div class="s6-draft-meta"><span>给朋友的一段留言</span><span class="s6-sample-tag">示例草稿</span></div>
+              <textarea id="take-draft" aria-label="示例草稿，可编辑" placeholder="你的文字，将出现在这里。" spellcheck="false">这个周末，想去看海。
+嗯，不赶时间。
+等天气放晴，再出发。</textarea>
+              <div class="s6-draft-bottom"><span class="s6-draft-state" id="draft-state">由你决定什么时候发送。</span><button type="button" id="paste-example" class="s6-paste" disabled>粘贴示例 <svg><use href="#i-arrow"/></svg></button></div>
+            </div>
+            <div class="s6-draft-caption"><span class="s6-binding-dot" aria-hidden="true"></span><span id="draft-caption">文字准备好，下一步由你。</span><button type="button" id="take-reset" aria-label="清空并重置取用示例"><svg><use href="#i-replay"/></svg></button></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="s6-memory" aria-labelledby="memory-title">
+        <div class="s6-shell s6-memory-intro s6-reveal"><div><p class="s6-eyebrow">03 / 再次想起</p><h2 id="memory-title">回到那段话。<br><span>接上那个想法。</span></h2></div><p class="s6-lead">文字和原音，分别保留。<br>查找、回听，或从上次停下的地方继续。</p></div>
+        <div class="s6-memory-stage s6-reveal" id="memory-stage" data-view="all">
+          <div class="s6-memory-bar s6-shell"><div class="s6-memory-tabs" role="group" aria-label="查看原生档案"><button type="button" data-view="all" aria-pressed="true">档案一览</button><button type="button" data-view="detail" aria-pressed="false">一段表达</button></div><button type="button" id="native-zoom" class="s6-text-action">放大原生界面 <svg><use href="#i-external"/></svg></button></div>
+          <figure class="s6-native-figure"><div class="s6-native-window" role="button" tabindex="0" aria-label="放大查看原生语音档案" title="点击放大原生界面"><img src="assets/archive-native.png" width="1536" height="983" alt="Saytile 原生语音档案：按时间浏览文字记录，右侧可编辑、回听、重新识别及查看文字版本" loading="lazy" decoding="async"></div><figcaption><span>Saytile 语音档案 · 原生界面实拍</span><span>隔离演示资料</span></figcaption></figure>
+        </div>
+        <div class="s6-memory-note s6-shell"><p>找回一段表达，不必重新组织一次。</p><span>只删除原音，文字和修改稿仍然保留。</span></div>
+      </section>
+      <dialog class="s6-dialog" id="native-dialog" aria-labelledby="native-dialog-title"><div class="s6-dialog-heading"><span id="native-dialog-title">Saytile · 原生语音档案</span><button type="button" id="native-close" aria-label="关闭原生界面大图">关闭 <span aria-hidden="true">×</span></button></div><div class="s6-dialog-scroll"><img src="assets/archive-native.png" width="1536" height="983" alt="原生语音档案完整截图，使用隔离示例资料"></div></dialog>
+    </div>
+
+    <section class="start-section" id="start" aria-labelledby="start-title">
+      <div class="start-glow" aria-hidden="true"></div><div class="start-main section-shell reveal"><div class="start-brand"><img src="assets/saytile-approved.webp" width="100" height="100" alt="Saytile 应用图标"><span>Saytile for Mac</span></div><h2 id="start-title">下一句，<br>从这里开始。</h2><div class="start-side"><p>给自然的表达，<br>一个随时可用的地方。</p><a class="button button-white" href="https://github.com/haohongfei2001-png/saytile/pull/23" target="_blank" rel="noopener noreferrer">了解 Saytile 内测 <svg><use href="#i-external"/></svg></a><span>Apple Silicon · macOS 26+</span></div></div>
+      <div class="start-faq section-shell"><details><summary>第一次使用，需要准备什么？<svg><use href="#i-plus"/></svg></summary><p>当前内测提供本地中文识别，无需 API Key。首次使用需要准备语言资源，并授予麦克风权限。你也可以在设置里配置支持的云端服务。</p></details><details><summary>在哪里获取当前版本？<svg><use href="#i-plus"/></svg></summary><p>当前界面仍在内测。通过 <a href="https://github.com/haohongfei2001-png/saytile/pull/23" target="_blank" rel="noopener noreferrer">GitHub 内测进展</a> 查看最新状态与后续发行；公开 Releases 中的 RC1 是较早版本。</p></details></div>
+      <footer class="site-footer section-shell"><a href="#top" class="footer-brand">Saytile</a><span>自然开口。忠实留下。</span><a href="https://github.com/haohongfei2001-png/saytile" target="_blank" rel="noopener noreferrer">GitHub <svg><use href="#i-external"/></svg></a><small>© 2026</small></footer>
+    </section>
+  </main>
+  <div class="toast" role="status" aria-live="polite" id="toast"></div>
+  <script src="panel.js" defer></script>
+  <script src="hero.js" defer></script>
+  <script src="middle.js" defer></script>
+</body>
+</html>
