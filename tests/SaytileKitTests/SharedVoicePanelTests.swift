@@ -54,13 +54,41 @@ import SaytileVoiceUI
         }
     }
 
-    @Test func voiceOnlyFootprintKeepsRoomForBothEdgeDragsAndTheUnscaledButton() {
-        let size = VoicePanelFootprint.minimumSize
-        #expect(VoicePanelFootprint.isCompact(outerWidth: size.width))
-        #expect(VoicePanelFootprint.isCompact(outerWidth: 80))
-        #expect(!VoicePanelFootprint.isCompact(outerWidth: 81))
-        #expect(size.width - VoicePanelFootprint.controlSize.width >= 14)
-        #expect(size.height - VoicePanelFootprint.controlSize.height >= 14)
+    @Test func aTallNarrowPanelKeepsCaptureAtTheFootAndLeavesTheUpperGlassAvailable() {
+        let control = VoicePanelFootprint.controlSize
+        #expect(control == CGSize(width: 54, height: 26))
+        #expect(VoicePanelFootprint.minimumSize == CGSize(width: 28, height: 26))
+        for width in [28, 42, 53, 54, 55, 72, 79, 80, 81, 112, 140, 240] {
+            let size = CGSize(width: width, height: 218)
+            let layout = VoicePanelLayout(size: size)
+            let capture = layout.captureFrame
+            #expect(capture.width == min(control.width, size.width))
+            #expect(capture.height == control.height)
+            #expect(CGRect(origin: .zero, size: size).contains(capture))
+            #expect(!capture.contains(CGPoint(x: size.width / 2, y: size.height / 2)))
+        }
+        let narrow = VoicePanelLayout(size: CGSize(width: 54, height: 218))
+        let tiny = VoicePanelLayout(size: VoicePanelFootprint.minimumSize)
+        #expect(narrow.transcriptOpacity > 0)
+        #expect(tiny.captureFrame == CGRect(origin: .zero, size: VoicePanelFootprint.minimumSize))
+        #expect(tiny.transcriptOpacity == 0)
+    }
+
+    @Test func voiceControlAndGlassFollowEachPointOfAReturnDrag() {
+        var previous: VoicePanelLayout?
+        for width in Array((28...178).reversed()) + Array(28...178) {
+            let layout = VoicePanelLayout(size: CGSize(width: width, height: 180))
+            if let previous {
+                // Fixed right edge in desktop coordinates while the left edge moves.
+                let previousRightInset = previous.cardFrame.maxX - previous.captureFrame.maxX
+                let rightInset = layout.cardFrame.maxX - layout.captureFrame.maxX
+                #expect(abs(previousRightInset - rightInset) <= 1)
+                #expect(abs(previous.captureFrame.minY - layout.captureFrame.minY) <= 1)
+                #expect(abs(previous.controlChromeOpacity - layout.controlChromeOpacity) <= 0.16)
+                #expect(abs(previous.transcriptOpacity - layout.transcriptOpacity) <= 0.24)
+            }
+            previous = layout
+        }
     }
 
     @Test func lateAmplitudeCannotAnimatePausedOrWaitingGlyphs() {

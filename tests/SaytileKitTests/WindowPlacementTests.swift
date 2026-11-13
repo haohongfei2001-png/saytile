@@ -63,7 +63,7 @@ struct WindowPlacementTests {
         let display = CGRect(x: 0, y: 25, width: 1920, height: 850)
         let limits = WindowPlacement.panelLimits(visibleFrame: display)
         let initial = WindowPlacement.initialPanel(visibleFrame: display)
-        #expect(limits.minimum == CGSize(width: 72, height: 44))
+        #expect(limits.minimum == CGSize(width: 28, height: 26))
         #expect(limits.minimum.width < initial.width)
         #expect(limits.minimum.height < initial.height)
         #expect(limits.maximum == display.size)
@@ -73,21 +73,42 @@ struct WindowPlacementTests {
         #expect(WindowPlacement.panelSize(enlarged, visibleFrame: display) == enlarged)
     }
 
-    @Test func compactWidthUsesOneFixedHeightAndKeepsThePreviousTopEdge() throws {
+    @Test func everyIntermediateWidthPreservesHeightAndPositionAfterRelaunch() throws {
         let screen = CGRect(x: -800, y: 20, width: 1280, height: 740)
-        let wide = CGRect(x: -600, y: 306, width: 245, height: 187)
-        let narrow = CGRect(x: wide.maxX - 77, y: wide.minY, width: 77, height: wide.height)
-        let compact = WindowPlacement.restoredPanel(narrow, visibleFrames: [screen])
-        #expect(compact == CGRect(x: narrow.minX, y: wide.maxY - 44, width: 77, height: 44))
-        #expect(WindowPlacement.panelSize(CGSize(width: 81, height: wide.height), visibleFrame: screen).height == wide.height)
-        let saved = try #require(SavedPanelPlacement(frame: compact, visibleFrame: screen,
-                                                     displayID: "built-in", expandedHeight: wide.height))
-        let reopened = try JSONDecoder().decode(SavedPanelPlacement.self, from: JSONEncoder().encode(saved))
-        #expect(reopened.expandedHeight == wide.height)
-        #expect(reopened.restored(on: [("built-in", screen)]) == compact)
-        let previous = try #require(SavedPanelPlacement(frame: wide, visibleFrame: screen, displayID: "built-in"))
-        let legacy = try JSONDecoder().decode(SavedPanelPlacement.self, from: JSONEncoder().encode(previous))
-        #expect(legacy.expandedHeight == nil && legacy.restored(on: [("built-in", screen)]) == wide)
+        // Cross both the old 80 pt collapse and the 54 pt button width in both directions.
+        let widths = Array(28...160)
+        for width in widths.reversed() + widths {
+            let frame = CGRect(x: -CGFloat(width), y: 210, width: CGFloat(width), height: 218)
+            #expect(WindowPlacement.panelSize(frame.size, visibleFrame: screen) == frame.size)
+            let saved = try #require(SavedPanelPlacement(frame: frame, visibleFrame: screen,
+                                                         displayID: "built-in", expandedHeight: 176, expandedWidth: 304))
+            let reopened = try JSONDecoder().decode(SavedPanelPlacement.self, from: JSONEncoder().encode(saved))
+            #expect(reopened.restored(on: [("built-in", screen)]) == frame)
+            #expect(reopened.expandedWidth == 304 && reopened.expandedHeight == 176)
+        }
+        for height in 26...180 {
+            let frame = CGRect(x: -52, y: 350 - CGFloat(height), width: 52, height: CGFloat(height))
+            #expect(WindowPlacement.restoredPanel(frame, visibleFrames: [screen]) == frame)
+        }
+    }
+
+    @Test func oldSavedMinimumReopensAtItsActualSizeAndCanExpand() throws {
+        let screen = CGRect(x: 0, y: 20, width: 1280, height: 740)
+        let frame = CGRect(x: 1208, y: 716, width: 72, height: 44)
+        let old = try #require(SavedPanelPlacement(frame: frame, visibleFrame: screen, displayID: "built-in", expandedHeight: 182))
+        let reopened = try JSONDecoder().decode(SavedPanelPlacement.self, from: JSONEncoder().encode(old))
+        #expect(reopened.restored(on: [("built-in", screen)]) == frame)
+        #expect(WindowPlacement.expandedPanel(from: frame, on: screen, width: reopened.expandedWidth,
+                                              height: reopened.expandedHeight, anchorsRight: nil)
+            == CGRect(x: 1120, y: 578, width: 160, height: 182))
+    }
+
+    @Test func restoringWithoutRememberedDimensionsKeepsAnAlreadyReadableAxis() {
+        let screen = CGRect(x: 0, y: 0, width: 1440, height: 875)
+        let tall = CGRect(x: 820, y: 110, width: 45, height: 370)
+        let flat = CGRect(x: 630, y: 540, width: 580, height: 26)
+        #expect(WindowPlacement.expandedPanel(from: tall, on: screen, width: nil, height: nil, anchorsRight: true).height == 370)
+        #expect(WindowPlacement.expandedPanel(from: flat, on: screen, width: nil, height: nil, anchorsRight: true).width == 580)
     }
 
     @Test func expandAfterRelaunchRestoresSizeAndEdgeUsedToFold() throws {

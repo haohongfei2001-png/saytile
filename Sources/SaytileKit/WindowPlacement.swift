@@ -18,8 +18,8 @@ public enum WindowPlacement {
     public static func panelSize(_ requested: CGSize, visibleFrame: CGRect) -> CGSize {
         let limits = panelLimits(visibleFrame: visibleFrame)
         let width = min(max(requested.width, limits.minimum.width), limits.maximum.width)
-        let desiredHeight = VoicePanelFootprint.isCompact(outerWidth: width) ? limits.minimum.height : requested.height
-        return CGSize(width: width, height: min(max(desiredHeight, limits.minimum.height), limits.maximum.height))
+        let height = min(max(requested.height, limits.minimum.height), limits.maximum.height)
+        return CGSize(width: width, height: height)
     }
 
     /// Nearpane voice section by itself; not a full-height sidebar or fixed card.
@@ -38,9 +38,8 @@ public enum WindowPlacement {
         let size = panelSize(frame.size, visibleFrame: destination)
         let left = destination.minX
         let bottom = destination.minY
-        let y = VoicePanelFootprint.isCompact(outerWidth: size.width) ? frame.maxY - size.height : frame.minY
         return CGRect(x: min(max(frame.minX, left), destination.maxX - size.width),
-                      y: min(max(y, bottom), destination.maxY - size.height),
+                      y: min(max(frame.minY, bottom), destination.maxY - size.height),
                       width: size.width, height: size.height)
     }
 
@@ -51,8 +50,8 @@ public enum WindowPlacement {
         let factory = initialPanel(visibleFrame: visible)
         let readableWidth = width.flatMap { $0.isFinite && !VoicePanelFootprint.isCompact(outerWidth: $0) ? $0 : nil }
         let readableHeight = height.flatMap { $0.isFinite && $0 > 0 ? $0 : nil }
-        let size = panelSize(CGSize(width: readableWidth ?? max(128, factory.width),
-                                    height: readableHeight ?? max(panelMinimumSize.height, factory.height)), visibleFrame: visible)
+        let size = panelSize(CGSize(width: readableWidth ?? max(128, factory.width, frame.width),
+                                    height: readableHeight ?? max(64, factory.height, frame.height)), visibleFrame: visible)
         let keepRight = anchorsRight ?? (frame.midX >= visible.midX)
         let proposed = CGRect(x: keepRight ? frame.maxX - size.width : frame.minX, y: frame.maxY - size.height,
                               width: size.width, height: size.height)

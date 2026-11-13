@@ -183,13 +183,27 @@ import ApplicationServices
         guard let screen = NSScreen.screens.first, let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
               let uuid = CGDisplayCreateUUIDFromDisplayID(number.uint32Value)?.takeRetainedValue() else { throw Failure("missing fixture screen") }
         let visible = screen.visibleFrame
-        let small = CGRect(x: visible.maxX-72, y: visible.maxY-44, width: 72, height: 44)
         func panelSize() -> CGSize? {
             guard let w = panel(), let raw = attr(w, kAXSizeAttribute), CFGetTypeID(raw) == AXValueGetTypeID() else { return nil }
             var sz = CGSize.zero
             return AXValueGetValue(unsafeDowncast(raw, to: AXValue.self), .cgSize, &sz) ? sz : nil
         }
-        for legacy in [true, false] {
+        func rect(of element: AXUIElement) -> CGRect? {
+            guard let position = attr(element, kAXPositionAttribute), CFGetTypeID(position) == AXValueGetTypeID(),
+                  let size = attr(element, kAXSizeAttribute), CFGetTypeID(size) == AXValueGetTypeID() else { return nil }
+            var origin = CGPoint.zero
+            var extent = CGSize.zero
+            guard AXValueGetValue(unsafeDowncast(position, to: AXValue.self), .cgPoint, &origin),
+                  AXValueGetValue(unsafeDowncast(size, to: AXValue.self), .cgSize, &extent) else { return nil }
+            return CGRect(origin: origin, size: extent)
+        }
+        let oldSize = CGSize(width: 72, height: 44)
+        let seeds = [(legacy: true, size: oldSize), (false, oldSize),
+                     (false, CGSize(width: 28, height: 26)), (false, CGSize(width: 54, height: 218)),
+                     (false, CGSize(width: 208, height: 32))]
+        for (legacy, size) in seeds {
+            let small = CGRect(x: visible.maxX - size.width, y: visible.maxY - size.height,
+                               width: size.width, height: size.height)
             let height: CGFloat = legacy ? 171 : 176
             let width: CGFloat = legacy ? max(128, 0.125 * visible.width) : 304
             let seed = PlacementSeed(displayID: CFUUIDCreateString(nil, uuid) as String,
@@ -198,6 +212,16 @@ import ApplicationServices
             let bytes = try JSONEncoder().encode(seed)
             try await coldLaunch(["-panel.userPlacement.v4", "<" + bytes.map { String(format: "%02x", $0) }.joined() + ">"])
             try await wait("minimum placement on real launch") { panelSize() == small.size }
+            try await wait("capture target must stay on the lower right at the saved size") {
+                guard let window = panel(), let frame = rect(of: window),
+                      let button = find([window], pid: pid, matching: { attr($0, kAXIdentifierAttribute) as? String == "panel.capture" }),
+                      let target = rect(of: button) else { return false }
+                // AX positions measure down from the top of the display.
+                let bottom = frame.maxY - target.maxY
+                let right = frame.maxX - target.maxX
+                return abs(target.width - min(54, frame.width)) <= 1 && abs(target.height - 26) <= 1
+                    && (-1...24).contains(right) && (-1...18).contains(bottom)
+            }
             try await round("展开语音板", visible: true, expected: "收起语音板", compact: true)
             func expanded() -> Bool {
                 guard let sz = panelSize() else { return false }
@@ -206,12 +230,12 @@ import ApplicationServices
             try await wait("menu must restore a readable panel without touching capture") { expanded() && status(pid) != nil }
             try await coldLaunch()
             try await wait("restored reading size must persist on ordinary launch") { expanded() && status(pid) != nil }
-            print("COMPACT_MENU_RESTORE_PASS legacy=\(legacy) restored=\(width)x\(height) relaunched=true paused=true")
+            print("COMPACT_MENU_RESTORE_PASS legacy=\(legacy) start=\(size.width)x\(size.height) restored=\(width)x\(height) relaunched=true paused=true")
         }
         guard initialFront == NSWorkspace.shared.frontmostApplication?.processIdentifier else { throw Failure("expanding unexpectedly activated another app") }
         try await stop()
         print("STATUS_MENU_RELAUNCH_PASS ordinaryFirstVisible=true subsequentVisible=true explicitHidePersisted=true explicitShowPersisted=true isolatedData=true")
-        print("STATUS_MENU_PASS opened=9 expanded=2 cancelled=3 explicitShow=2 explicitHide=2 selectedEditPreserved=true paused=true foregroundPreserved=true")
+        print("STATUS_MENU_PASS opened=12 expanded=5 cancelled=3 explicitShow=2 explicitHide=2 selectedEditPreserved=true paused=true foregroundPreserved=true")
     }
     @MainActor static func main() async {
         do { try await run() } catch { print("STATUS_MENU_FAILED", error); exit(1) }

@@ -565,11 +565,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         }
         // Match Nearpane primary-screen residency, not the status icon display.
         if firstPresentation, let screen = NSScreen.screens.first ?? NSScreen.main {
-            positioningPanel = true
-            panel?.setFrame(savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame), display: true)
-            positioningPanel = false
+            restorePanel(preferred: savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame))
+        } else {
+            restorePanel()
         }
-        restorePanel()
         voiceEntry?.orderOut(nil)
         panel?.orderFrontRegardless()
     }

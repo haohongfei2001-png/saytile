@@ -1,6 +1,6 @@
 # Saytile V1 工程交付状态
 
-个人内测的唯一入口为 Saytile.app（内测 0.9）。最新源码、原生体验证据与实际限制见[当前开发状态](V1-DEV-STATUS.md)及[逐版本实测记录](V1-TEST-RESULTS.md)；下述冻结候选记录独立保留。
+个人内测的唯一入口为 Saytile.app（内测 0.10）。最新源码、原生体验证据与实际限制见[当前开发状态](V1-DEV-STATUS.md)及[逐版本实测记录](V1-TEST-RESULTS.md)；下述冻结候选记录独立保留。
 
 独立 Draft PR #12 的时间轴预览使用源码 86dbd24。新包与 RC2 并存。[预览交付和机器收据](V1-CONTINUOUS-TIMELINE.md)
 
