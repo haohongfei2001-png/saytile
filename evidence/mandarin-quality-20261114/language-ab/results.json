@@ -1,0 +1,592 @@
+{
+  "app_source_sha": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+  "variant_source_diff": "Worker.swift language: \"Chinese\" → language: nil",
+  "sample_selection": "Regression 618557... requested following its observed failure. Eight controls selected before running either arm, ordered by SHA256 of saytile-language-v1/ + recording ID, within durations [4,14] s. ASCEND mixed (4 controls, >=2 Latin sequences), ASCEND zh (2), FLEURS (1), AISHELL-1 (1). ASCEND IDs appear once. Controls exclude the regression. This set partially overlaps prior recordings, and is not an estimate of overall accuracy.",
+  "speech_swift_revision": "a57702e6f523fa36ac5532d2bdc5f35f701a052c",
+  "implementation_semantics": {
+    "official_reference": "https://github.com/QwenLM/Qwen3-ASR/blob/main/qwen_asr/inference/qwen3_asr.py",
+    "swift_reference": "https://github.com/soniqo/speech-swift/blob/a57702e6f523fa36ac5532d2bdc5f35f701a052c/Sources/Qwen3ASR/Qwen3ASR.swift",
+    "difference": "Pinned Swift always appends the ASR text token. Its nil option omits the language-name token prefix. The official Python automatic setting appends neither. We exercised the pinned Swift option."
+  },
+  "same_assets": {
+    "revision": "bc441bd1e4295c1f42d9879f056049a925b6e013",
+    "origin": "aufklarer/Qwen3-ASR-0.6B-MLX-4bit",
+    "declared_license": "apache-2.0",
+    "files": 6,
+    "total_bytes": 712777119,
+    "pinned_manifest": {
+      "bytes": 1094,
+      "sha256": "a2b9d00644087dff42139996f013c396e468f1948a312893cd5e9e7f805149b8"
+    },
+    "verified_files": [
+      {
+        "filename": "config.json",
+        "actual_bytes": 7187,
+        "actual_sha256": "923618cf5ca452fda0253a6be5c1a17f94a2e4851d3b98beb45848565587bd72"
+      },
+      {
+        "filename": "merges.txt",
+        "actual_bytes": 1671853,
+        "actual_sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5"
+      },
+      {
+        "filename": "model.safetensors",
+        "actual_bytes": 708236945,
+        "actual_sha256": "70c7e67e588062adce4f10796e47ad42ead51c6671eda61a0987eae38ca95ddf"
+      },
+      {
+        "filename": "model.safetensors.index.json",
+        "actual_bytes": 71814,
+        "actual_sha256": "e3bb80ef0fd42a5be07b04e90c97d60460bbde8af3531e0bfe9100a61404d81a"
+      },
+      {
+        "filename": "tokenizer_config.json",
+        "actual_bytes": 12487,
+        "actual_sha256": "4942d005604266809309cabc9f4e9cb89ce855d59b14681fdc0e1cc62ea26c4c"
+      },
+      {
+        "filename": "vocab.json",
+        "actual_bytes": 2776833,
+        "actual_sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      }
+    ]
+  },
+  "unsigned_host_executable_sha256": "4a827f46c1c4b400be314febd7a3d79c7861db42d6525830018dcd149f7711ba",
+  "execution": "Alternating AB/BA in the signed native macOS panel, one model at original audio rate. Same host executable code, journal, VAD, SQLite and timing observers. Disk signature bytes for the host executable differ after sealing the modified helper. No microphone was used.",
+  "arms": {
+    "forced": {
+      "signed_host_sha256": "bdcef3f0492f6b942f4eaec766e4e3484a886a9931d1e51e83cb849d99ccf9d5",
+      "window": {
+        "observations": 9,
+        "multi": 8,
+        "multiple_on_long": [
+          0,
+          0
+        ],
+        "missing_meaningful": 0,
+        "first_lexical": {
+          "p50": 0.774,
+          "p95": 0.971
+        },
+        "first_meaningful": {
+          "p50": 0.858,
+          "p95": 2.074
+        },
+        "gaps": {
+          "p50": 1.169,
+          "p95": 1.288
+        },
+        "longest_stall": {
+          "p50": 1.573,
+          "p95": 5.407
+        },
+        "after_acoustic": {
+          "p50": 0.262,
+          "p95": 0.918
+        },
+        "after_file": {
+          "p50": 0.194,
+          "p95": 0.244
+        },
+        "churn": 6,
+        "archive": {
+          "errors": 84,
+          "substitutions": 23,
+          "deletions": 57,
+          "insertions": 4,
+          "reference_units": 331,
+          "cer": 0.25378
+        }
+      },
+      "signed_worker_sha256": "ece4befeef175208c664e29d786f0851e37ee405393ce930a8d25077069d33ad",
+      "worker_source_sha256": "9c24a28bfaa1279cbac4e9bc5460af64adb463b4e1a946d5e51411b9fbee4d1b"
+    },
+    "unforced": {
+      "signed_host_sha256": "9060c554ea1b65701c4d7017a1edfcb754f3210dc7c397f5ddbbcff7baf1e120",
+      "window": {
+        "observations": 9,
+        "multi": 9,
+        "multiple_on_long": [
+          0,
+          0
+        ],
+        "missing_meaningful": 0,
+        "first_lexical": {
+          "p50": 0.849,
+          "p95": 2.575
+        },
+        "first_meaningful": {
+          "p50": 1.259,
+          "p95": 2.648
+        },
+        "gaps": {
+          "p50": 0.862,
+          "p95": 1.294
+        },
+        "longest_stall": {
+          "p50": 1.562,
+          "p95": 2.648
+        },
+        "after_acoustic": {
+          "p50": 0.358,
+          "p95": 0.901
+        },
+        "after_file": {
+          "p50": 0.218,
+          "p95": 0.299
+        },
+        "churn": 10,
+        "archive": {
+          "errors": 35,
+          "substitutions": 16,
+          "deletions": 11,
+          "insertions": 8,
+          "reference_units": 331,
+          "cer": 0.10574
+        }
+      },
+      "signed_worker_sha256": "33c16ab6a5c801b461d604e007eebb13e40f52ffd8c726556e1226a33be34d27",
+      "worker_source_sha256": "48ef748e06d6157061db571c26095ec30753de9ad72814a60acc1e7ef752b8b9"
+    }
+  },
+  "checksums": {
+    "forced/qwen-small-ascend-mixed-6185571719fdd11b.json": "42d9f53788a156dc9ee02bbfd47a5bd4e61e4b99387cdab1386b6d23a60c2785",
+    "forced/qwen-small-ascend-mixed-f38ace045b7b4ae1.json": "319d35824380686cb882b1d78d04ebb60d072aade30ce82c1d9c9de7902c04e2",
+    "forced/qwen-small-ascend-mixed-09a3d664d38c9932.json": "4250bb2fbecc2c4aa7e24d960da6c7f6169554588e9db7e1743704a29dd647b9",
+    "forced/qwen-small-ascend-mixed-a0b0e736637c643c.json": "f19297a51ee2d4374ca34522ac03a914d9630d264024f9628b720e55b589aae0",
+    "forced/qwen-small-ascend-mixed-ab5121c727bf5e1f.json": "4ab382ee2f8dbafc60ef999c7d55616ca645314243ad4abbf8ab8e12215bc7f9",
+    "forced/qwen-small-ascend-zh-ed182ef57fba310b.json": "3712111b5eef629ca2fa54cadaefecaa779759a62cf192e1a2fdb5fc39d04ffd",
+    "forced/qwen-small-ascend-zh-e83120bd116da443.json": "960a86e6e86f20d7264cd2b2e85f35555ecb5af0761cb7c48b81586be35273ad",
+    "forced/qwen-small-fleurs-6b05617279df95e0.json": "67f25c3eb78392d08a984c754796c2b26234763eb72ac8a327ea3b60f96d9291",
+    "forced/qwen-small-aishell1-test-abeea3f7d1d80e47.json": "2efe7b6604e00f024d891cf734b619e004e86d46276012a5888f5706383c8b1e",
+    "unforced/qwen-small-ascend-mixed-6185571719fdd11b.json": "8487d14200bbd37cef75b38edcc20d794751fa5e213a12b8cdba8b39a80a7df3",
+    "unforced/qwen-small-ascend-mixed-f38ace045b7b4ae1.json": "4a046d695326972861a911a585596ff832c5012be187797341e6004a9080e415",
+    "unforced/qwen-small-ascend-mixed-09a3d664d38c9932.json": "47c1f6de34f27963d05c4a2641785e223b37de2ef37d05935bcb87af5e834202",
+    "unforced/qwen-small-ascend-mixed-a0b0e736637c643c.json": "eff428aa61a6038b29b5258e7a07a30ca42eaf454c0f3c9203a9cad4b2cb51cd",
+    "unforced/qwen-small-ascend-mixed-ab5121c727bf5e1f.json": "45e5129ae0e7ce6dc0843c39c24286f725708efbe56440d9a8e99171b1d990a5",
+    "unforced/qwen-small-ascend-zh-ed182ef57fba310b.json": "7b48e62a1110bb4fb4c5357522572aa4f12f6ada3d6226f2c6b868724cfc1875",
+    "unforced/qwen-small-ascend-zh-e83120bd116da443.json": "3e2c9acb0add90eae5063ac694e5f896564b3b4ba40713fce8d602d637cd791c",
+    "unforced/qwen-small-fleurs-6b05617279df95e0.json": "c1988d49043f88c844210ed0e27099981702b83670e3cf950f6788786bb51012",
+    "unforced/qwen-small-aishell1-test-abeea3f7d1d80e47.json": "1e79107e26db1393c177cf1b216ae051e4ac423ff68d810496d2b3a18b0f9697"
+  },
+  "metrics": {
+    "reported_regression": {
+      "forced": {
+        "cer": {
+          "errors": 53,
+          "substitutions": 13,
+          "deletions": 40,
+          "insertions": 0,
+          "reference_units": 54,
+          "cer": 0.98148
+        },
+        "mixed_error_rate": {
+          "mer": 0.9285714285714286,
+          "reference_units": 14,
+          "errors": 13
+        },
+        "english_words": {
+          "exact_surface_matches": 0,
+          "reference_occurrences": 11
+        }
+      },
+      "unforced": {
+        "cer": {
+          "errors": 13,
+          "substitutions": 6,
+          "deletions": 6,
+          "insertions": 1,
+          "reference_units": 54,
+          "cer": 0.24074
+        },
+        "mixed_error_rate": {
+          "mer": 0.42857142857142855,
+          "reference_units": 14,
+          "errors": 6
+        },
+        "english_words": {
+          "exact_surface_matches": 7,
+          "reference_occurrences": 11
+        }
+      }
+    },
+    "mixed_controls": {
+      "forced": {
+        "cer": {
+          "errors": 31,
+          "substitutions": 10,
+          "deletions": 17,
+          "insertions": 4,
+          "reference_units": 174,
+          "cer": 0.17816
+        },
+        "mixed_error_rate": {
+          "mer": 0.16455696202531644,
+          "reference_units": 79,
+          "errors": 13
+        },
+        "english_words": {
+          "exact_surface_matches": 11,
+          "reference_occurrences": 17
+        }
+      },
+      "unforced": {
+        "cer": {
+          "errors": 22,
+          "substitutions": 10,
+          "deletions": 5,
+          "insertions": 7,
+          "reference_units": 174,
+          "cer": 0.12644
+        },
+        "mixed_error_rate": {
+          "mer": 0.10126582278481013,
+          "reference_units": 79,
+          "errors": 8
+        },
+        "english_words": {
+          "exact_surface_matches": 12,
+          "reference_occurrences": 17
+        }
+      }
+    },
+    "mandarin_controls": {
+      "forced": {
+        "cer": {
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 103,
+          "cer": 0.0
+        },
+        "mixed_error_rate": {
+          "mer": 0.0,
+          "reference_units": 103,
+          "errors": 0
+        },
+        "english_words": {
+          "exact_surface_matches": 0,
+          "reference_occurrences": 0
+        }
+      },
+      "unforced": {
+        "cer": {
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 103,
+          "cer": 0.0
+        },
+        "mixed_error_rate": {
+          "mer": 0.0,
+          "reference_units": 103,
+          "errors": 0
+        },
+        "english_words": {
+          "exact_surface_matches": 0,
+          "reference_occurrences": 0
+        }
+      }
+    },
+    "eight_controls": {
+      "forced": {
+        "cer": {
+          "errors": 31,
+          "substitutions": 10,
+          "deletions": 17,
+          "insertions": 4,
+          "reference_units": 277,
+          "cer": 0.11191
+        },
+        "mixed_error_rate": {
+          "mer": 0.07142857142857142,
+          "reference_units": 182,
+          "errors": 13
+        },
+        "english_words": {
+          "exact_surface_matches": 11,
+          "reference_occurrences": 17
+        }
+      },
+      "unforced": {
+        "cer": {
+          "errors": 22,
+          "substitutions": 10,
+          "deletions": 5,
+          "insertions": 7,
+          "reference_units": 277,
+          "cer": 0.07942
+        },
+        "mixed_error_rate": {
+          "mer": 0.04395604395604396,
+          "reference_units": 182,
+          "errors": 8
+        },
+        "english_words": {
+          "exact_surface_matches": 12,
+          "reference_occurrences": 17
+        }
+      }
+    },
+    "all_nine": {
+      "forced": {
+        "cer": {
+          "errors": 84,
+          "substitutions": 23,
+          "deletions": 57,
+          "insertions": 4,
+          "reference_units": 331,
+          "cer": 0.25378
+        },
+        "mixed_error_rate": {
+          "mer": 0.1326530612244898,
+          "reference_units": 196,
+          "errors": 26
+        },
+        "english_words": {
+          "exact_surface_matches": 11,
+          "reference_occurrences": 28
+        }
+      },
+      "unforced": {
+        "cer": {
+          "errors": 35,
+          "substitutions": 16,
+          "deletions": 11,
+          "insertions": 8,
+          "reference_units": 331,
+          "cer": 0.10574
+        },
+        "mixed_error_rate": {
+          "mer": 0.07142857142857142,
+          "reference_units": 196,
+          "errors": 14
+        },
+        "english_words": {
+          "exact_surface_matches": 19,
+          "reference_occurrences": 28
+        }
+      }
+    }
+  },
+  "observations": [
+    {
+      "id": "ascend-mixed-6185571719fdd11b",
+      "reference": "就是he's faster stronger and more scared for than the other players",
+      "forced": "就，他比其他球员更快、更强，更勇敢。",
+      "unforced": "He is faster, stronger, and more skillful than other players.",
+      "audio_sha256": "ea51d95c1380916c4af33dafccb4594fec0669a55a2e790bb61ce9b1d8e4def2",
+      "units_and_errors": {
+        "forced": {
+          "errors": 53,
+          "substitutions": 13,
+          "deletions": 40,
+          "insertions": 0,
+          "reference_units": 54
+        },
+        "unforced": {
+          "errors": 13,
+          "substitutions": 6,
+          "deletions": 6,
+          "insertions": 1,
+          "reference_units": 54
+        }
+      }
+    },
+    {
+      "id": "ascend-mixed-f38ace045b7b4ae1",
+      "reference": "没有吗那可能business school有的就会让我们穿",
+      "forced": "没有吗？那可能毕真的school有的，就会让我们穿。",
+      "unforced": "没有吗？那可能毕真的school有的吧，就会让我们穿。",
+      "audio_sha256": "fb663472c166e7d70737c9751a2b7a00197db947869eaee7c0077b198777d3e7",
+      "units_and_errors": {
+        "forced": {
+          "errors": 8,
+          "substitutions": 3,
+          "deletions": 5,
+          "insertions": 0,
+          "reference_units": 28
+        },
+        "unforced": {
+          "errors": 9,
+          "substitutions": 3,
+          "deletions": 5,
+          "insertions": 1,
+          "reference_units": 28
+        }
+      }
+    },
+    {
+      "id": "ascend-mixed-09a3d664d38c9932",
+      "reference": "就是你在申请就是不认识American University或者就是Hong Kong的Singapore的",
+      "forced": "就是你在申请，就是不认识American University或者就是Hong Kong的Singapore的。",
+      "unforced": "就是你在申请，就是不认识American University或者就是Hong Kong的Singapore的。",
+      "audio_sha256": "68063a084c59e9b358d311e09323492d71312fcca9dcc98c867da08300a87edb",
+      "units_and_errors": {
+        "forced": {
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 52
+        },
+        "unforced": {
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 52
+        }
+      }
+    },
+    {
+      "id": "ascend-mixed-a0b0e736637c643c",
+      "reference": "对但是除了self driving car也有一些比较就是low low standard的那些technic",
+      "forced": "对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。",
+      "unforced": "对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。",
+      "audio_sha256": "c96f2ee1f508089189a0c55df4aa9fa8ff7e0e1d100114193cfcfe249b2ffe18",
+      "units_and_errors": {
+        "forced": {
+          "errors": 5,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 4,
+          "reference_units": 51
+        },
+        "unforced": {
+          "errors": 5,
+          "substitutions": 1,
+          "deletions": 0,
+          "insertions": 4,
+          "reference_units": 51
+        }
+      }
+    },
+    {
+      "id": "ascend-mixed-ab5121c727bf5e1f",
+      "reference": "其实呢badminton有一个就是badminton因为basketball的话主要是",
+      "forced": "其实呢，蹦兵腾有一个，就是蹦兵腾，因为basket ball的话，主要是。",
+      "unforced": "其实呢，Bennington有一个，就是Bennington，因为basketball的话，主要是。",
+      "audio_sha256": "f00eee99007540452707874965cf186afeacabe2e63c0a176b390c1a0ff20189",
+      "units_and_errors": {
+        "forced": {
+          "errors": 18,
+          "substitutions": 6,
+          "deletions": 12,
+          "insertions": 0,
+          "reference_units": 43
+        },
+        "unforced": {
+          "errors": 8,
+          "substitutions": 6,
+          "deletions": 0,
+          "insertions": 2,
+          "reference_units": 43
+        }
+      }
+    },
+    {
+      "id": "ascend-zh-ed182ef57fba310b",
+      "reference": "对然后但是呢就是说确实有一个手机呢带来很多方便",
+      "forced": "对，然后但是呢，就是说，确实有一个手机呢，带来很多方便。",
+      "unforced": "对，然后但是呢，就是说，确实有一个手机呢，带来很多方便。",
+      "audio_sha256": "14caf84362f6215af64363932afa13220fdbdd2de3256136db6a2d8b824b682a",
+      "units_and_errors": {
+        "forced": {
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 23
+        },
+        "unforced": {
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 23
+        }
+      }
+    },
+    {
+      "id": "ascend-zh-e83120bd116da443",
+      "reference": "因为我是以前我从以前开始就比较喜欢看美剧然后听一些",
+      "forced": "因为我是以前，我从以前开始就比较喜欢看美剧，然后听一些。",
+      "unforced": "因为我是以前，我从以前开始就比较喜欢看美剧，然后听一些。",
+      "audio_sha256": "d68f5d2a1f6e260d143f37a94f074d0b211176fd8121335805a03fb2e9b951ee",
+      "units_and_errors": {
+        "forced": {
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 25
+        },
+        "unforced": {
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 25
+        }
+      }
+    },
+    {
+      "id": "fleurs-6b05617279df95e0",
+      "reference": "周日晚些时候，美国总统唐纳德·特朗普通过新闻秘书发表声明，宣布美军将撤离叙利亚。",
+      "forced": "周日晚些时候，美国总统唐纳德·特朗普通过新闻秘书发表声明，宣布美军将撤离叙利亚。",
+      "unforced": "周日晚些时候，美国总统唐纳德·特朗普通过新闻秘书发表声明，宣布美军将撤离叙利亚。",
+      "audio_sha256": "ba638253905442f94477364f82c66f5ad599fe05c36c02fe87503508a7f9dce9",
+      "units_and_errors": {
+        "forced": {
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        },
+        "unforced": {
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 36
+        }
+      }
+    },
+    {
+      "id": "aishell1-test-abeea3f7d1d80e47",
+      "reference": "骗取搬迁补助资金用于支付搬迁安置房费用",
+      "forced": "骗取搬迁补助资金，用于支付搬迁安置房费用。",
+      "unforced": "骗取搬迁补助资金，用于支付搬迁安置房费用。",
+      "audio_sha256": "ab53bbf859e4d133b1d3abfe3e1fed644f00265f1e2d10ea3ccbf74e7d029b38",
+      "units_and_errors": {
+        "forced": {
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 19
+        },
+        "unforced": {
+          "errors": 0,
+          "substitutions": 0,
+          "deletions": 0,
+          "insertions": 0,
+          "reference_units": 19
+        }
+      }
+    }
+  ],
+  "large_model_crosscheck": {
+    "fixture": "ascend-mixed-6185571719fdd11b",
+    "archive": [
+      "就是，他 is faster，stronger，and more careful than other players。"
+    ],
+    "file": "large-forced/qwen-large-ascend-mixed-6185571719fdd11b.json",
+    "sha256": "a46db6aa131519a2d225304462af1ba0627f3fb844c0b292a6e0861e72b44153",
+    "result": "This sample retained English in the 1.7B forced Chinese run. Its wording still differed from the supplied reference. No 1.7B-unforced run was made in this diagnostic."
+  }
+}
