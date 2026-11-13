@@ -306,19 +306,26 @@ final class AXInputAccess: InputAccess {
             if CFEqual(node, editor) { tokens.append("bound-editor"); continue }
             // Other editable fields are not page context; their value can be private.
             if [kAXTextFieldRole, kAXTextAreaRole, kAXComboBoxRole].contains(role) { continue }
+            // Each single-attribute read crosses into the browser. Read this node's
+            // context in one request, after excluding the editor and other fields.
+            var names = [kAXTitleAttribute, kAXIdentifierAttribute, kAXSelectedAttribute, kAXChildrenAttribute]
+            let isAnchor = role == kAXStaticTextRole || role == "AXHeading"
+            if isAnchor { names.append(kAXValueAttribute) }
+            if role == "AXLink" { names.append(kAXURLAttribute) }
+            guard let values = contextAttributes(node, names: names) else { return nil }
             for name in [kAXTitleAttribute, kAXIdentifierAttribute] {
-                if let value = string(node, name), !value.isEmpty {
+                if let value = values[name] as? String, !value.isEmpty {
                     textBytes += value.utf8.count; guard textBytes <= 32_768 else { return nil }
                     tokens.append(name + ":" + value)
                 }
             }
-            if role == kAXStaticTextRole || role == "AXHeading", let value = string(node, kAXValueAttribute), !value.isEmpty {
+            if isAnchor, let value = values[kAXValueAttribute] as? String, !value.isEmpty {
                 textBytes += value.utf8.count; guard textBytes <= 32_768 else { return nil }
                 semanticAnchors += 1; tokens.append("text:" + value)
             }
-            if let selected = bool(node, kAXSelectedAttribute) { tokens.append("selected:\(selected)") }
-            if role == "AXLink", let url = string(node, kAXURLAttribute) { tokens.append("url:" + url) }
-            guard let children = attribute(node, kAXChildrenAttribute) as? [AXUIElement] else {
+            if let selected = values[kAXSelectedAttribute] as? Bool { tokens.append("selected:\(selected)") }
+            if role == "AXLink", let url = attributeString(values[kAXURLAttribute]) { tokens.append("url:" + url) }
+            guard let children = values[kAXChildrenAttribute] as? [AXUIElement] else {
                 // Leaf accessibility objects may legitimately omit children.
                 if [kAXStaticTextRole, kAXButtonRole, kAXImageRole, "AXLink"].contains(role) { continue }
                 return nil
@@ -331,6 +338,29 @@ final class AXInputAccess: InputAccess {
         return SHA256.hash(data: Data(tokens.joined(separator: "\u{1e}").utf8)).map { String(format: "%02x", $0) }.joined()
     }
 
+    /// Unsupported optional attributes and missing values represent normal AX leaves.
+    /// Transport errors and incomplete batches cannot establish page identity.
+    private func contextAttributes(_ node: AXUIElement, names: [String]) -> [String: AnyObject]? {
+        var results: CFArray?
+        guard AXUIElementCopyMultipleAttributeValues(node, names as CFArray, [], &results) == .success,
+              let items = results as? [AnyObject], items.count == names.count else { return nil }
+        var values: [String: AnyObject] = [:]
+        for (name, item) in zip(names, items) {
+            if CFGetTypeID(item) == CFNullGetTypeID() { continue }
+            if CFGetTypeID(item) == AXValueGetTypeID() {
+                let value = unsafeDowncast(item, to: AXValue.self)
+                if AXValueGetType(value) == .axError {
+                    var error = AXError.failure
+                    guard AXValueGetValue(value, .axError, &error),
+                          error == .attributeUnsupported || error == .noValue else { return nil }
+                    continue
+                }
+            }
+            values[name] = item
+        }
+        return values
+    }
+
     private func attribute(_ element: AXUIElement, _ name: String) -> CFTypeRef? {
         AXUIElementSetMessagingTimeout(element, 0.12)
         var output: CFTypeRef?
@@ -338,7 +368,10 @@ final class AXInputAccess: InputAccess {
         return output
     }
     private func string(_ element: AXUIElement, _ name: String) -> String? {
-        guard let value = attribute(element, name) else { return nil }
+        attributeString(attribute(element, name))
+    }
+    private func attributeString(_ raw: CFTypeRef?) -> String? {
+        guard let value = raw else { return nil }
         if let text = value as? String { return text }
         if CFGetTypeID(value) == CFURLGetTypeID(), let url = value as? URL { return url.absoluteString }
         return nil

@@ -222,6 +222,7 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
             guard rejected != .confirmed, rejected != .unverified, trace.writes == 3 else { throw TargetError.mismatch(trace.stage) }
             try checkDOM(edited, caret: 16)
             for scenario in ["cancel", "switch-target"] {
+                trace.stage = scenario + "-bind"
                 coordinator.invalidate()
                 try await waitForOwnedField(access, original: edited, caret: 16, pid: pid)
                 try await coordinator.bindCurrentTarget()
