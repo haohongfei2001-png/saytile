@@ -1,0 +1,38 @@
+{
+  "apple_language_asset_ready_for_this_probe_identity": false,
+  "attempted_providers": [
+    "apple-speech-analyzer"
+  ],
+  "byok_active": false,
+  "capture_error": "中文识别资源尚未就绪；原音已保存，可稍后重新识别",
+  "capture_recognition_state": "failed",
+  "checkpoint_bytes_before_and_after": 2048,
+  "checkpoint_sha256": "3520a8163eba85e0d96dd9cf0a152ac4be59c8d328c27d544827e77ff00e341a",
+  "empty_cache_fallback": "apple",
+  "existing_cache_verified_bytes": 712777119,
+  "failed_to_promote_incomplete_model": true,
+  "first_launch_local": true,
+  "hosted_audio_consent": false,
+  "journal_frames": 85120,
+  "journal_sha256": "d68f5d2a1f6e260d143f37a94f074d0b211176fd8121335805a03fb2e9b951ee",
+  "local_text_cloud_consent": false,
+  "model_download_error": "The operation couldn’t be completed. Operation not permitted",
+  "network_connect_errno": 1,
+  "public_fixture_sha256": "d68f5d2a1f6e260d143f37a94f074d0b211176fd8121335805a03fb2e9b951ee",
+  "reopened_user_revision_intact": true,
+  "requested_missing_model": "qwen-small",
+  "route_decision_seconds": 0.1604942916892469,
+  "scope": "OS-denied network in this process, fresh defaults and SQLite, public noise-free fixture, original rate. No microphone or system network change. The CLI test identity had no Apple locale reservation. It took the actual Apple error before model inference. Restore-only cache validation did not execute Qwen. Other installed-asset recognition is measured separately.",
+  "fixture": "ascend-zh-e83120bd116da443",
+  "command": "scripts/mandarin/offline-probe.sh .build/mandarin/wav/ascend-zh-e83120bd116da443.wav .build/local-asr/weights/qwen-small offline.json",
+  "file_sha256": {
+    "tests/fixtures/OfflineLocalModelProbe.swift": "ce762b0b5525359cefbb438d209d05aa850b52c58309b2576e93527c3fecfbf5",
+    "scripts/mandarin/offline-probe.sh": "34b2a01b0bcdfbec503ccaf5a066235becb1f1d505e611fd3b605aae854115a2",
+    "Sources/SaytileApp/AppModel.swift": "60db3b122bf2fcb8f672dcfc78745de9426ce127790a7372dc8d327c79c9a972",
+    "Sources/SaytileKit/LocalModelLibrary.swift": "a88242c1137e4d86b3215fe998ee7c4b7cb8a896f8ee859f197af5a2e85ae28f",
+    "Sources/SaytileKit/LocalModelRecommendation.swift": "89c075ed3ae3ed42389660324f5548d73b168f657bcb5c81a3289d9a03d285f9",
+    "Sources/SaytileKit/SpeechRecognition.swift": "77adb73f8ddcc61a2264091e09096bb72d428976514c112536ea3254669af3c6",
+    "Sources/SaytileKit/AudioCapture.swift": "07731694940668668dd31ac03e385c28337e9670bdbc563d5ea0eb814a1c8900",
+    "Sources/SaytileKit/AudioJournal.swift": "2c254ca07cb6b47fbeb60e842c048f4c0da178c7e88b62c77d3a3912b6cb8c50"
+  }
+}
