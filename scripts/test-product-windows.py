@@ -3,7 +3,76 @@
 Scenes are native; speech, permission and archives are fixtures. No user desktop is captured."""
 import argparse, hashlib, json, os, plistlib, subprocess, tempfile, time, uuid
 from pathlib import Path
+from statistics import median
 from PIL import Image, ImageChops, ImageFilter, ImageStat
+# Shared VoiceRailMetrics and VoicePanelMetrics keep the two footer buttons at
+# fixed point sizes inside the rim. The first-use board intentionally has no text.
+def first_use_controls(image, points, state):
+    width, height = points
+    scale = image.width / width
+    rim = min(10 * min(1.5, width / 325), min(width, height) / 4)
+    centers = {'copy': rim + 10 + 30 / 2, 'voice': width - rim - 14 * 0.68 - 54 / 2}
+    cy = round((height - rim - 6 - 26 / 2) * scale)
+    radius = round(9 * scale)
+    result = {}
+    for control, center in centers.items():
+        cx = round(center * scale)
+        glyph = image.crop((cx-radius, cy-radius, cx+radius+1, cy+radius+1))
+        # The ring is clear button material surrounding the glyph, in this
+        # exact composited scene. Measure local ink against it, not the wallpaper.
+        ring = [glyph.getpixel((x,y)) for x in range(glyph.width) for y in range(glyph.height)
+                if x in (0, glyph.width-1) or y in (0, glyph.height-1)]
+        green = median(p[1] for p in ring)
+        violet = median(p[2] - p[1] for p in ring)
+        ink = set()
+        for x in range(glyph.width):
+            for y in range(glyph.height):
+                _, g, b = glyph.getpixel((x,y))
+                if (control == 'copy' and green-g >= 22) or (control == 'voice' and b-g-violet >= 38):
+                    ink.add((x,y))
+        if not ink:
+            result[control] = False
+            continue
+        xs, ys = zip(*ink)
+        w, h = max(xs)-min(xs)+1, max(ys)-min(ys)+1
+        fill = len(ink)/(w*h)
+        if control == 'copy':
+            # Two offset, outlined sheets, with empty interiors in each outline.
+            holes = [(round(radius+dx*scale),round(radius+dy*scale)) for dx,dy in ((-3.5,-3.5),(2,2))]
+            result[control] = (10 <= w/scale <= 14 and 10 <= h/scale <= 14
+                               and 0.20 <= fill <= 0.55 and all(hole not in ink for hole in holes))
+        else:
+            left = sum(x < min(xs)+w/3 for x,y in ink)
+            right = sum(x >= min(xs)+w*2/3 for x,y in ink)
+            # Denial and initial pause show the right-facing triangle; authorized
+            # listening shows a solid, horizontally symmetric standby dot.
+            state_matches = (0.65 <= left/max(1,right) <= 1.55 and fill >= 0.68
+                             if state == 'dot' else left >= 2*right and 0.36 <= fill <= 0.66)
+            result[control] = 5 <= w/scale <= 10 and 5 <= h/scale <= 10 and state_matches
+    return result, centers, cy, radius
+
+
+def check_first_use(image, points, state):
+    observed, centers, cy, radius = first_use_controls(image, points, state)
+    assert all(observed.values()), f'missing or incorrect first-use glyph: {observed} ({state})'
+    rejected = []
+    for control, center in centers.items():
+        # Remove just the glyph; retain the real button rim, surrounding glass
+        # and the other control. Their presence must not satisfy its check.
+        cx = round(center * image.width/points[0])
+        masked = image.copy()
+        area = (cx-radius, cy-radius, cx+radius+1, cy+radius+1)
+        glass = image.crop((area[0], area[1]-1, area[2], area[1])).resize((2*radius+1,2*radius+1))
+        masked.paste(glass, area)
+        checks, _, _, _ = first_use_controls(masked, points, state)
+        assert checks == {key: key != control for key in centers}, f'missing {control} escaped detection'
+        rejected.append(control)
+    blank = Image.new('RGB', image.size, image.getpixel((image.width//2,image.height//2)))
+    checks, _, _, _ = first_use_controls(blank, points, state)
+    assert not any(checks.values()), 'blank first-use panel escaped detection'
+    return {'copy': 'two outlined sheets', 'voice': state, 'negative_controls': ['blank', *rejected]}
+
+
 parser=argparse.ArgumentParser(); parser.add_argument('--app',type=Path,required=True); parser.add_argument('--output',type=Path,required=True)
 parser.add_argument('--border',action='store_true',help='Verify the settings switch on one live window, then relaunch with the same isolated preferences')
 parser.add_argument('--scenes',nargs='+',help='Capture only these scenes; never earns a full PASS')
@@ -60,7 +129,12 @@ with tempfile.TemporaryDirectory(prefix='saytile-product-capture-') as td:
                 if result.returncode: raise RuntimeError('WindowServer '+name+': '+result.stdout+result.stderr)
                 with Image.open(png) as shot:
                     assert tuple(shot.size)==tuple(round(x*2) for x in req['points'])
-                    assert min(ImageStat.Stat(shot.convert('RGB')).stddev)>4,'empty or uniform window'
+                    rgb=shot.convert('RGB')
+                    if name in ('first-use','first-denied','first-authorized'):
+                        state='dot' if name=='first-authorized' else 'triangle'
+                        receipt.setdefault('first_use_controls',{})[name]=check_first_use(rgb,req['points'],state)
+                    else:
+                        assert min(ImageStat.Stat(rgb).stddev)>4,'empty or uniform window'
                 receipt['scenes'][name]={'window':req['window'],'origin':req['origin'],'points':req['points'],'display_scale':req['scale'],'sha256':hashlib.sha256(png.read_bytes()).hexdigest()}
             if proc.wait(timeout=12)!=0: raise RuntimeError('Review app reported failure')
             if a.border:

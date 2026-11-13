@@ -1,0 +1,110 @@
+{
+  "product_build": "356",
+  "product_version": "0.7",
+  "product_source": "c34edb428a80d36857304972cb69e98319573aae",
+  "source_dirty": false,
+  "bundle_identifier": "app.saytile.mac",
+  "binary_sha256": "15d12bdb1e6197e9c339de9fd20bd9d8c97cc45441ce25948b923d32f76e1119",
+  "installed_at": "~/Applications/Saytile.app",
+  "running_instances_after_atomic_update": 1,
+  "signing": "Developer ID; codesign --deep --strict passed; not submitted for notarization or publication",
+  "swift_tests_passed": 454,
+  "app_model_passed": 140,
+  "shared_panel_probe": {
+    "prior_failures": 8,
+    "current_passed": 66,
+    "shared_source": "c331ecb2b62dd4a21d0088ccca96ea3564d1641e"
+  },
+  "native_window": {
+    "native_ax_press": 58,
+    "native_menu_select": 9,
+    "native_workspace_edge_clicks": [
+      "WORKSPACE_MOUSE_EDGE archive.favorite.D8D2D42F-4095-4459-A042-A9B3A11E3444 side=right target=32.0x32.0",
+      "WORKSPACE_MOUSE_EDGE archive.favorites side=left target=32.0x32.0",
+      "WORKSPACE_MOUSE_EDGE settings.page.speech side=right target=144.0x34.0",
+      "WORKSPACE_MOUSE_EDGE settings.page.archive side=left target=144.0x34.0"
+    ],
+    "favorite_reopened": true,
+    "workspace_reused": true,
+    "outside_foreground_observations": 0
+  },
+  "status_menu": {
+    "opened": 7,
+    "cancelled": 3,
+    "show": 2,
+    "hide": 2,
+    "captured_recordings": 0
+  },
+  "workspace_windows": {
+    "settings": "a8ca3e5e0207c966ec35600b311ca1ff4af322c3f28a66d879df84e4175a2a15",
+    "models": "7ced42127ff53a4e7508dc3a162165d2229c5645f9137e986848405d3036c3c2",
+    "input-compact-dark": "4874b3a55ac9e17bc1f5bea0c886f1232e13dd11956fb93479794101cfbd57c9",
+    "storage": "50f5df9920d99640a3a047c0a2595b986d006ecf30615d7f3d2315990dacce7a",
+    "about": "9c2891b414324b7aedb858fcf086549dd442aa7fbd2bd61831562f9e804d96b1",
+    "cloud": "c21653e70a20f04e4cba40bf7ef08c743f153d77d64d654606e2a0bf0c9ddc65",
+    "byok": "797c3aabbcca31d14a2736762edaf77614b927157854272efd258d04365464b4",
+    "archive-empty": "a670c720d1639bc80259502c021af13c45483073162066b7bf5d241f6c5d1553",
+    "archive": "9fc2dbe48bff23bcd4934549a57e797ee090576e8b1dc08dddbb7408777837bc",
+    "archive-favorites": "71dd6683ee5bf4216cd36bd3a5e99898b0170fd0a9ac71ac11d900848ebe73fd",
+    "archive-detail": "4d7e08ca39ddb47ffa676bb62e2795bf43c630167aa3cfb9485d6d7fe48aa24d",
+    "archive-detail-compact-dark": "44af31d37758913d785b751375836a139a163cfde324e447542adbc6eff2c183"
+  },
+  "user_recordings": "NOT_USED",
+  "cloud_asr": "NOT_RUN",
+  "data": "Fixture only, original pinned flag reused, no database or data migration by installer.",
+  "installed_copies_in_application_folders": 1,
+  "github_product_ci": {
+    "passed": [
+      "native",
+      "data-and-prototype",
+      "gateway",
+      "native-gateway"
+    ],
+    "failed": [
+      "foreground"
+    ],
+    "native": "https://github.com/haohongfei2001-png/saytile/actions/runs/43354976067",
+    "foreground_detail": "Chrome switch-target setup was refused before writing: the second binding snapshot did not identify the page. No evidence that the archive change caused this. AppKit, WebKit and TextEdit controls passed."
+  },
+  "nearpane": {
+    "repo_commit": "70971eab4ad67afcdc2bc8dc6d706d89f4cbfb65",
+    "local_tests_passed": 319,
+    "offline_dependency_checks": 6,
+    "native_ci": "318/319; idle local transcript refresh was not observed within the existing timeout. Cause not established.",
+    "installed": false
+  },
+  "all_window_scenes": {
+    "passed": 22,
+    "receipt": "all-windows.json",
+    "original_empty_window_check": "FAIL: blue standard deviation below threshold on otherwise complete first-use panel",
+    "first_use_controls": {
+      "first-use": {
+        "copy": "two outlined sheets",
+        "voice": "triangle",
+        "negative_controls": [
+          "blank",
+          "copy",
+          "voice"
+        ]
+      },
+      "first-denied": {
+        "copy": "two outlined sheets",
+        "voice": "triangle",
+        "negative_controls": [
+          "blank",
+          "copy",
+          "voice"
+        ]
+      },
+      "first-authorized": {
+        "copy": "two outlined sheets",
+        "voice": "dot",
+        "negative_controls": [
+          "blank",
+          "copy",
+          "voice"
+        ]
+      }
+    }
+  }
+}
