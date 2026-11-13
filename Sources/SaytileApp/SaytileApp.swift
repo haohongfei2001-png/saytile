@@ -3,7 +3,6 @@ import AppKit
 import Sparkle
 #endif
 import SwiftUI
-import Combine
 import Carbon
 import Darwin
 import SaytileKit
@@ -31,6 +30,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     private var updater: SPUStandardUpdaterController?
     #endif
     private var status: NSStatusItem?
+    private let panelVisibilityItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
     private var trackingStatusMenu = false
     private var panel: VoicePanel?
     private var voiceEntry: VoiceEntryPanel?
@@ -42,7 +42,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     private var shortcutObserver: NSObjectProtocol?
     private var entryObserver: NSObjectProtocol?
     private var screenObserver: NSObjectProtocol?
-    private var statusSubscription: AnyCancellable?
     private var positioningPanel = false
     private var movingPanel = false
     private var placementDefaults: UserDefaults?
@@ -310,11 +309,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             entryObserver = NotificationCenter.default.addObserver(forName: .init("SaytileFloatingEntryChanged"), object: nil, queue: .main) { [weak self] _ in
                 Task { @MainActor in self?.updateFloatingEntry() }
             }
-            statusSubscription = model.audio.$state.combineLatest(model.$hasStarted).sink { [weak self] _ in
-                // Published values emit before assignment. Read the derived
-                // product state on the next main-actor turn, not a polling timer.
-                Task { @MainActor in self?.updateStatus() }
-            }
             if CommandLine.arguments.contains("--focus-probe") {
                 // Exercise the actual optional window under the same isolated
                 // startup. It is transparent and cannot accept keyboard focus.
@@ -465,21 +459,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     }
     private func configureStatusItem() {
         let status = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        status.button?.image = SaytileBrand.paused
+        if let button = status.button {
+            button.image = SaytileBrand.menuBarMark
+            if button.image == nil { button.title = "Saytile" }
+            button.toolTip = "Saytile 菜单"
+            button.setAccessibilityLabel("Saytile 菜单")
+            button.setAccessibilityHelp("打开语音板、档案与设置菜单")
+        }
         let menu = NSMenu()
         menu.delegate = self
+        panelVisibilityItem.target = self
         status.menu = menu
         self.status = status
-        updateStatus()
     }
-    private func updateStatus() {
-        guard let model else { return }
-        let label = "Saytile · \(model.panelCaptureLabel)"
-        status?.button?.image = model.captureProblem ? SaytileBrand.problem : (model.isListening ? SaytileBrand.active : SaytileBrand.paused)
-        status?.button?.title = status?.button?.image == nil ? "Saytile" : ""
-        status?.button?.toolTip = [label, model.panelCaptureDetail].compactMap { $0 }.joined(separator: " · ")
-        status?.button?.setAccessibilityLabel(label)
-        status?.button?.setAccessibilityHelp([model.panelCaptureDetail, "点按打开语音板、档案和设置菜单"].compactMap { $0 }.joined(separator: "。"))
+    private func updatePanelVisibilityItem() {
+        let visible = panel?.isVisible == true
+        panelVisibilityItem.title = visible ? "收起语音板" : "展开语音板"
+        panelVisibilityItem.action = visible ? #selector(explicitlyHidePanel) : #selector(explicitlyShowPanel)
     }
     func menuNeedsUpdate(_ menu: NSMenu) {
         guard menu === status?.menu, !trackingStatusMenu else { return }
@@ -488,7 +484,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     func menuWillOpen(_ menu: NSMenu) {
         guard menu === status?.menu else { return }
         // Some accessibility launch paths enter tracking before menuNeedsUpdate.
-        if menu.items.isEmpty { populateStatusMenu(menu) }
+        if menu.items.isEmpty { populateStatusMenu(menu) } else { updatePanelVisibilityItem() }
         trackingStatusMenu = true
     }
     func menuDidClose(_ menu: NSMenu) {
@@ -503,14 +499,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             menu.addItem(reason)
             menu.addItem(.separator())
         }
-        let panelVisible = panel?.isVisible == true
-        if panelVisible, panel?.isCompact == true {
-            let expand = NSMenuItem(title: "展开语音板", action: #selector(explicitlyExpandPanel), keyEquivalent: "")
-            expand.target = self
-            menu.addItem(expand)
-        }
-        let items: [(String, Selector)] = [(panelVisible ? "收起语音板" : "显示语音板", panelVisible ? #selector(explicitlyHidePanel) : #selector(explicitlyShowPanel)), ("语音档案与设置…", #selector(openWorkspace))]
-        for (title, selector) in items { let item = NSMenuItem(title: title, action: selector, keyEquivalent: ""); item.target = self; menu.addItem(item) }
+        updatePanelVisibilityItem()
+        menu.addItem(panelVisibilityItem)
+        let workspaceItem = NSMenuItem(title: "语音档案与设置…", action: #selector(openWorkspace), keyEquivalent: "")
+        workspaceItem.target = self
+        menu.addItem(workspaceItem)
         menu.addItem(.separator())
         #if canImport(Sparkle)
         if let updater {
@@ -527,7 +520,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         visibilityDefaults?.removeObject(forKey: panelHiddenKey)
         showPanel()
     }
-    @objc private func explicitlyExpandPanel() { panel?.expandToReadingSize() }
     @objc private func explicitlyHidePanel() {
         visibilityDefaults?.set(true, forKey: panelHiddenKey)
         panel?.orderOut(nil)

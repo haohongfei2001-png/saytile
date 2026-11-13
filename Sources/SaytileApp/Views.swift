@@ -69,7 +69,7 @@ struct InputPanelView: View {
                     model.notice = error.localizedDescription
                     throw error
                 }
-            }, compactHelp: "点按控制收音，向外拖动左右边缘或从菜单选择“展开语音板”", menu: { panelActions })
+            }, compactHelp: "点按控制收音。拖动边缘可调整大小，辅助菜单可恢复阅读尺寸。", menu: { panelActions })
     }
 
     private func copyTranscript() {
@@ -100,9 +100,13 @@ struct InputPanelView: View {
         }
     }
     private var commandGroups: [[PanelCommand]] {
-        let compactCommands = onExpand.map { [[PanelCommand(id: "expand", title: "展开语音板", action: $0)]] } ?? []
-        return compactCommands +
-        [
+        let windowCommand: PanelCommand
+        if let onExpand {
+            windowCommand = .init(id: "expand", title: "恢复阅读尺寸", action: onExpand)
+        } else {
+            windowCommand = .init(id: "hide", title: "收起语音板", action: { model.hidePanel() })
+        }
+        return [
             [.init(id: "copy", title: selectedText.isEmpty ? "复制当前文字" : "复制所选文字", enabled: canCopy, action: { copyTranscript() }),
              .init(id: "edit", title: "在档案中编辑这段文字", enabled: editTarget != nil, action: { if let item = editTarget { model.select(item) } }),
              .init(id: "latest", title: "回到最新", enabled: !followsLatest, action: { model.followTimeline(); latestRequest += 1 })],
@@ -113,7 +117,7 @@ struct InputPanelView: View {
              .init(id: "insert", title: model.isInserting ? "正在插入…" : (model.insertionArchiveEntry == nil ? "插入最新时间组" : "插入档案定位的这段文字"),
                    enabled: !model.isInserting && model.hasPanelInsertionScope, action: insertTranscript)],
             [.init(id: "clear", title: "清空输入板（保留档案）", enabled: !model.isInserting && model.hasPanelInsertionScope, action: { model.clearPanel(); latestRequest += 1 }),
-             .init(id: "hide", title: "收起输入板", action: { model.hidePanel() })]
+             windowCommand]
         ]
     }
 

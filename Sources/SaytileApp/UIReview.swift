@@ -1358,7 +1358,7 @@ extension AppDelegate {
                 model.closeDetail()
                 try await self.selectMenu("settings", title: "语音档案与设置…", in: host)
                 try await self.reviewUntil { settings == 1 }
-                try await self.selectMenu("hide", title: "收起输入板", in: host)
+                try await self.selectMenu("hide", title: "收起语音板", in: host)
                 try await self.reviewUntil { archives == 1 && settings == 1 && hides == 1 }
                 guard archives == 1, settings == 1, hides == 1 else { throw ReviewFailure("Context menu navigation did not route to existing actions") }
                 try await self.selectMenu("clear", title: "清空输入板（保留档案）", in: host)
