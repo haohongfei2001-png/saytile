@@ -1434,6 +1434,244 @@
   }
  },
  "accelerated": {
+  "apple-direct": {
+   "by_manifest": {
+    "paired": {
+     "rows": 340,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "number": {
+       "literal_matched": 196,
+       "reference_occurrences": 210
+      },
+      "negative": {
+       "literal_matched": 101,
+       "reference_occurrences": 103
+      },
+      "latin": {
+       "literal_matched": 98,
+       "reference_occurrences": 249
+      },
+      "date_time": {
+       "literal_matched": 36,
+       "reference_occurrences": 36
+      },
+      "technical_term": {
+       "literal_matched": 7,
+       "reference_occurrences": 7
+      },
+      "money": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 228,
+      "mer": 0.1955403087478559
+     },
+     "groups": {
+      "fleurs": {
+       "errors": 649,
+       "substitutions": 305,
+       "deletions": 273,
+       "insertions": 71,
+       "reference_units": 6260,
+       "cer": 0.10367,
+       "rows": 160
+      },
+      "ALL": {
+       "errors": 1153,
+       "substitutions": 563,
+       "deletions": 470,
+       "insertions": 120,
+       "reference_units": 9962,
+       "cer": 0.11574,
+       "rows": 340
+      },
+      "ascend-zh": {
+       "errors": 62,
+       "substitutions": 35,
+       "deletions": 13,
+       "insertions": 14,
+       "reference_units": 934,
+       "cer": 0.06638,
+       "rows": 80
+      },
+      "ascend-mixed": {
+       "errors": 351,
+       "substitutions": 170,
+       "deletions": 150,
+       "insertions": 31,
+       "reference_units": 2004,
+       "cer": 0.17515,
+       "rows": 80
+      },
+      "quiet": {
+       "errors": 53,
+       "substitutions": 30,
+       "deletions": 22,
+       "insertions": 1,
+       "reference_units": 403,
+       "cer": 0.13151,
+       "rows": 10
+      },
+      "noise15db": {
+       "errors": 38,
+       "substitutions": 23,
+       "deletions": 12,
+       "insertions": 3,
+       "reference_units": 361,
+       "cer": 0.10526,
+       "rows": 10
+      }
+     }
+    },
+    "aishell": {
+     "rows": 100,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "negative": {
+       "literal_matched": 16,
+       "reference_occurrences": 17
+      },
+      "number": {
+       "literal_matched": 21,
+       "reference_occurrences": 48
+      },
+      "technical_term": {
+       "literal_matched": 4,
+       "reference_occurrences": 4
+      },
+      "money": {
+       "literal_matched": 2,
+       "reference_occurrences": 5
+      },
+      "date_time": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 0,
+      "errors": 0,
+      "mer": null
+     },
+     "groups": {
+      "aishell1-test": {
+       "errors": 165,
+       "substitutions": 110,
+       "deletions": 35,
+       "insertions": 20,
+       "reference_units": 1465,
+       "cer": 0.11263,
+       "rows": 100
+      },
+      "ALL": {
+       "errors": 165,
+       "substitutions": 110,
+       "deletions": 35,
+       "insertions": 20,
+       "reference_units": 1465,
+       "cer": 0.11263,
+       "rows": 100
+      }
+     }
+    }
+   },
+   "exact_anchor_tokens": {
+    "original_420": {
+     "number": {
+      "reference": 249,
+      "missing": 42,
+      "extra": 54
+     },
+     "negative": {
+      "reference": 112,
+      "missing": 3,
+      "extra": 5
+     },
+     "money": {
+      "reference": 11,
+      "missing": 3,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 41,
+      "missing": 0,
+      "extra": 1
+     },
+     "latin": {
+      "reference": 237,
+      "missing": 170,
+      "extra": 85
+     },
+     "technical_term": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 0
+     }
+    },
+    "derived_20": {
+     "number": {
+      "reference": 9,
+      "missing": 0,
+      "extra": 1
+     },
+     "negative": {
+      "reference": 8,
+      "missing": 1,
+      "extra": 0
+     },
+     "money": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 1,
+      "missing": 0,
+      "extra": 0
+     },
+     "latin": {
+      "reference": 12,
+      "missing": 7,
+      "extra": 2
+     },
+     "technical_term": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     }
+    }
+   },
+   "cohorts": {
+    "original_420": {
+     "errors": 1227,
+     "substitutions": 620,
+     "deletions": 471,
+     "insertions": 136,
+     "reference_units": 10663,
+     "cer": 0.11507,
+     "rows": 420
+    },
+    "derived_20": {
+     "errors": 91,
+     "substitutions": 53,
+     "deletions": 34,
+     "insertions": 4,
+     "reference_units": 764,
+     "cer": 0.11911,
+     "rows": 20
+    }
+   }
+  },
   "apple-product": {
    "by_manifest": {
     "paired": {
@@ -1910,6 +2148,244 @@
     }
    }
   },
+  "qwen-small-direct": {
+   "by_manifest": {
+    "paired": {
+     "rows": 340,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "number": {
+       "literal_matched": 173,
+       "reference_occurrences": 210
+      },
+      "negative": {
+       "literal_matched": 102,
+       "reference_occurrences": 103
+      },
+      "latin": {
+       "literal_matched": 141,
+       "reference_occurrences": 249
+      },
+      "date_time": {
+       "literal_matched": 36,
+       "reference_occurrences": 36
+      },
+      "technical_term": {
+       "literal_matched": 7,
+       "reference_occurrences": 7
+      },
+      "money": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 198,
+      "mer": 0.16981132075471697
+     },
+     "groups": {
+      "fleurs": {
+       "errors": 597,
+       "substitutions": 267,
+       "deletions": 271,
+       "insertions": 59,
+       "reference_units": 6260,
+       "cer": 0.09537,
+       "rows": 160
+      },
+      "ALL": {
+       "errors": 1111,
+       "substitutions": 541,
+       "deletions": 475,
+       "insertions": 95,
+       "reference_units": 9962,
+       "cer": 0.11152,
+       "rows": 340
+      },
+      "ascend-zh": {
+       "errors": 94,
+       "substitutions": 68,
+       "deletions": 14,
+       "insertions": 12,
+       "reference_units": 934,
+       "cer": 0.10064,
+       "rows": 80
+      },
+      "ascend-mixed": {
+       "errors": 353,
+       "substitutions": 175,
+       "deletions": 156,
+       "insertions": 22,
+       "reference_units": 2004,
+       "cer": 0.17615,
+       "rows": 80
+      },
+      "quiet": {
+       "errors": 43,
+       "substitutions": 19,
+       "deletions": 22,
+       "insertions": 2,
+       "reference_units": 403,
+       "cer": 0.1067,
+       "rows": 10
+      },
+      "noise15db": {
+       "errors": 24,
+       "substitutions": 12,
+       "deletions": 12,
+       "insertions": 0,
+       "reference_units": 361,
+       "cer": 0.06648,
+       "rows": 10
+      }
+     }
+    },
+    "aishell": {
+     "rows": 100,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "negative": {
+       "literal_matched": 16,
+       "reference_occurrences": 17
+      },
+      "number": {
+       "literal_matched": 45,
+       "reference_occurrences": 48
+      },
+      "technical_term": {
+       "literal_matched": 4,
+       "reference_occurrences": 4
+      },
+      "money": {
+       "literal_matched": 5,
+       "reference_occurrences": 5
+      },
+      "date_time": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 0,
+      "errors": 0,
+      "mer": null
+     },
+     "groups": {
+      "aishell1-test": {
+       "errors": 57,
+       "substitutions": 33,
+       "deletions": 24,
+       "insertions": 0,
+       "reference_units": 1465,
+       "cer": 0.03891,
+       "rows": 100
+      },
+      "ALL": {
+       "errors": 57,
+       "substitutions": 33,
+       "deletions": 24,
+       "insertions": 0,
+       "reference_units": 1465,
+       "cer": 0.03891,
+       "rows": 100
+      }
+     }
+    }
+   },
+   "exact_anchor_tokens": {
+    "original_420": {
+     "number": {
+      "reference": 249,
+      "missing": 39,
+      "extra": 47
+     },
+     "negative": {
+      "reference": 112,
+      "missing": 3,
+      "extra": 3
+     },
+     "money": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 41,
+      "missing": 0,
+      "extra": 1
+     },
+     "latin": {
+      "reference": 237,
+      "missing": 111,
+      "extra": 31
+     },
+     "technical_term": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 1
+     }
+    },
+    "derived_20": {
+     "number": {
+      "reference": 9,
+      "missing": 2,
+      "extra": 2
+     },
+     "negative": {
+      "reference": 8,
+      "missing": 0,
+      "extra": 0
+     },
+     "money": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 1,
+      "missing": 0,
+      "extra": 0
+     },
+     "latin": {
+      "reference": 12,
+      "missing": 7,
+      "extra": 2
+     },
+     "technical_term": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     }
+    }
+   },
+   "cohorts": {
+    "original_420": {
+     "errors": 1101,
+     "substitutions": 543,
+     "deletions": 465,
+     "insertions": 93,
+     "reference_units": 10663,
+     "cer": 0.10325,
+     "rows": 420
+    },
+    "derived_20": {
+     "errors": 67,
+     "substitutions": 31,
+     "deletions": 34,
+     "insertions": 2,
+     "reference_units": 764,
+     "cer": 0.0877,
+     "rows": 20
+    }
+   }
+  },
   "qwen-small-product": {
    "by_manifest": {
     "paired": {
@@ -2165,6 +2641,8 @@
   "panels/apple-ascend-mixed-ee4e2d5087648134.json": "6dccf6306a5f5520d7a0d9663cb3ee95c65a30623ada7809da496cff7e1bef5c",
   "panels/apple-ascend-mixed-7c8bdcb41bb98a40.json": "b4ea53e7007929fb6799e44fc0a2b647815650fd7c18d6a219a82d908e5e8f24",
   "panels/apple-ascend-mixed-ff9c42612780330b.json": "6f643a3a5f67b2b7c49618d357e8e0c0c61cb37442a1c02d9de01dacef1e6e95",
+  "runs/paired-apple-direct.jsonl": "708deb5395a4d612497b2bce0b90738bd8ef2a95050c063a0b3616d147eaeff8",
+  "runs/aishell-apple-direct.jsonl": "d5ccda7fae731ffd061559cb2fe6ba43acfb80b801a26de614870e402dad2c7e",
   "runs/paired-apple-product.jsonl": "4b043e6de353264e1cf69c12e134bd8ad2832d3817a0cecef1db76205b5beece",
   "runs/aishell-apple-product.jsonl": "f1d3c68d987942547d43bd4c1ec57488b9147157f7d380f696b011382a5ea2c8",
   "panels/sherpa-fleurs-1bc3201a9f24a2fe.json": "8d0e09d58c8347a8468a4f172315caa227825bd7ac9c9734e3c74b771399d9d2",
@@ -2199,9 +2677,13 @@
   "panels/qwen-small-ascend-mixed-ee4e2d5087648134.json": "eed2264b6f80a937da3f079b67a1fa688fab2f880a31f33db3fecaccb121d178",
   "panels/qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "fde5dd7a3ad64f01c7c9479ffb344803dcc14bbe48f2e1f0e529bf98ee44221b",
   "panels/qwen-small-ascend-mixed-ff9c42612780330b.json": "bacfbf7f48a3b264a7891eb58f8c86fd9bc96afdc5407effa66e1d654756488b",
+  "runs/paired-qwen-small-direct.jsonl": "36ea2740886be0a7853105a8449b7d77d8e54b80be55214c4d935ad691cfb7e7",
+  "runs/aishell-qwen-small-direct.jsonl": "c3f78673ac7ed741c847878c773db4c1acfd9b526e7fce47aec81b9995ff4b78",
   "runs/paired-qwen-small-product.jsonl": "337a8e6bcb497598136f4b7609664102fb71c3fd9ec926d021e068e84bf7dda6",
   "runs/aishell-qwen-small-product.jsonl": "82cadc756b5fd2bc66d7f9337cabbe6dfe1a6ec9535212353ecbb4a0a55b9957",
-  "resources/apple.json": "82151e02f70a09b6f58f049d992ec8628c3150a9213725e19373a642d67618a2"
+  "resources/apple.json": "82151e02f70a09b6f58f049d992ec8628c3150a9213725e19373a642d67618a2",
+  "resources/sherpa.json": "93eec1cecd378c6689847f62c2bf428c4bf8f30bb54461ef79641b2c9042540b",
+  "resources/qwen-small.json": "4053a11e41ea663ff760cd032e2c9513b5d9c724555c6e4d15b1a2a1cd2ecedd"
  },
  "resources": {
   "apple": {
@@ -2229,6 +2711,62 @@
     "gpu_active_ratio": 0.2857177418967088
    },
    "system_W_above_adjacent_idle": 2.16,
+   "samples_active": 12,
+   "samples_idle": 9
+  },
+  "sherpa": {
+   "app_and_helper_simultaneous_peak_MiB": 539.96,
+   "cpu_percent_app_and_helper": {
+    "p50": 15.0,
+    "p95": 57.4
+   },
+   "apple_shared_recognizer_peak_MiB": 10.66,
+   "seconds": 12.94,
+   "idle_mean": {
+    "sys_power": 24.152952432632446,
+    "cpu_power": 7.884190797805786,
+    "gpu_power": 0.26885067764669657,
+    "ane_power": 0.0,
+    "cpu_active_ratio": 0.2939968891441822,
+    "gpu_active_ratio": 0.2247797716408968
+   },
+   "active_mean": {
+    "sys_power": 24.24028476079305,
+    "cpu_power": 7.554418047269185,
+    "gpu_power": 1.0708716629693906,
+    "ane_power": 0.0012009841351148982,
+    "cpu_active_ratio": 0.3954571597278118,
+    "gpu_active_ratio": 0.3696272211770217
+   },
+   "system_W_above_adjacent_idle": 0.087,
+   "samples_active": 12,
+   "samples_idle": 8
+  },
+  "qwen-small": {
+   "app_and_helper_simultaneous_peak_MiB": 913.31,
+   "cpu_percent_app_and_helper": {
+    "p50": 12.2,
+    "p95": 73.1
+   },
+   "apple_shared_recognizer_peak_MiB": 10.84,
+   "seconds": 12.48,
+   "idle_mean": {
+    "sys_power": 22.092321395874023,
+    "cpu_power": 6.876893414391412,
+    "gpu_power": 0.08150501124974754,
+    "ane_power": 0.0,
+    "cpu_active_ratio": 0.23084109193748897,
+    "gpu_active_ratio": 0.1067539896402094
+   },
+   "active_mean": {
+    "sys_power": 19.696601072947185,
+    "cpu_power": 4.023819228013356,
+    "gpu_power": 0.8754720135281483,
+    "ane_power": 0.0,
+    "cpu_active_ratio": 0.29167424763242406,
+    "gpu_active_ratio": 0.2727622129023075
+   },
+   "system_W_above_adjacent_idle": -2.396,
    "samples_active": 12,
    "samples_idle": 9
   }

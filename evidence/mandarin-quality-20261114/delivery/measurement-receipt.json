@@ -1,0 +1,110 @@
+{
+  "machine": "MacBook Air, Apple M5, 24 GiB",
+  "scope": "420 distinct public recordings and 20 fixed derivatives per model/path, accelerated for accuracy. Native window timings and resources are separate measurements.",
+  "group_reports": {
+    "baseline": {
+      "source": "a4f9f08656d1a22d2e0b6c59ad60e36452881010",
+      "scored_files": 10,
+      "scored_rows": 2200,
+      "panels": 3,
+      "resource_sets": 3,
+      "metrics_sha256": "21819ac0f435814240d867150a862bb478f1a40eb10665a8a50d47dbd3736d6a"
+    },
+    "candidate": {
+      "source": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+      "scored_files": 16,
+      "scored_rows": 3520,
+      "panels": 4,
+      "resource_sets": 4,
+      "metrics_sha256": "f643a8abe9c2f5fd26e21d03182d4aa990d912c5c45f3085399a5def206b53a9"
+    },
+    "unforced": {
+      "source": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+      "scored_files": 4,
+      "scored_rows": 880,
+      "panels": 1,
+      "resource_sets": 0,
+      "metrics_sha256": "0bfb905e22a8c0ac15dde946b058fb4efcbab7b7f53a9488eba6d53a116254f7"
+    },
+    "delivery": {
+      "source": "cd41c60f0d7cb042c066c42147a58085b6f33f95",
+      "scored_files": 4,
+      "scored_rows": 880,
+      "panels": 1,
+      "resource_sets": 1,
+      "metrics_sha256": "aaad2b7fc658be3c3ae01f3e7c6c8cafc4151e1976b8abe1e41085f57107a591"
+    }
+  },
+  "score_manifest_sha256": {
+    "paired.json": "605196e487b3a8a03b206ebe23cb9ba4c86b9c311398d25e8a6dfbe21646d362",
+    "aishell.json": "0d96fc5417c706e37a0d6d46c354933b553577a0ce318c7442db25dfb917887a",
+    "panel-cohort.json": "b9fc425a3916373ef4cd96c517688a6c5168ee351f03ede3c02c0aee1acae166"
+  },
+  "total_scored_rows": 7480,
+  "comparisons": {
+    "final_decision_sha256": "dc96143ce6305449bcc25eafb5a28da8e1fb726c575024e63d12007dad63f2c2",
+    "paired_paths_sha256": "def2c6d492977a690b247b055f8981752d98386aa92ff88469fd8cd16a4dddfb",
+    "matched_controls_per_group": 9
+  },
+  "checks": {
+    "unique_id_and_order_match_across_every_audio_manifest": true,
+    "declared_engine_and_path_match_all_rows": true,
+    "raw_window_audio_power_and_batch_receipts_checked_against_metric_hashes": true,
+    "source_audio_and_weight_hashes_recorded_in_bench_identity": true
+  },
+  "sherpa_direct": "Single 440-row execution on d2da535; shared as a decoder control for 0.12 only after verifying identical executable, runtime, models and successful records. No duplicate run counted.",
+  "exit_codes": [
+    {
+      "test": "unforced qwen-small direct",
+      "exit": 0
+    },
+    {
+      "test": "current apple product",
+      "exit": 0
+    },
+    {
+      "test": "current sherpa product",
+      "exit": 0
+    },
+    {
+      "test": "current apple direct",
+      "exit": 0
+    },
+    {
+      "test": "current sherpa direct",
+      "exit": 0
+    },
+    {
+      "test": "current qwen-large direct",
+      "exit": 0
+    },
+    {
+      "test": "baseline qwen-small product",
+      "exit": 0
+    },
+    {
+      "test": "baseline sherpa product",
+      "exit": 0
+    },
+    {
+      "test": "current qwen-small direct",
+      "exit": 0
+    },
+    {
+      "test": "baseline apple direct",
+      "exit": 0
+    },
+    {
+      "test": "baseline qwen-small direct",
+      "exit": 0
+    },
+    {
+      "test": "baseline power sherpa",
+      "exit": 0
+    },
+    {
+      "test": "baseline power qwen-small",
+      "exit": 0
+    }
+  ]
+}

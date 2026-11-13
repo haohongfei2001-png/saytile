@@ -567,6 +567,301 @@
      ]
     }
    ]
+  },
+  "baseline_direct_to_product": {
+   "rows": 420,
+   "counts": {
+    "regressed": 15,
+    "first_errors": 1227,
+    "second_errors": 1261,
+    "first_empty": 0,
+    "second_empty": 1,
+    "unchanged": 392,
+    "improved": 13
+   },
+   "paired": {
+    "difference_pp": 0.319,
+    "paired_clip_bootstrap_95_pp": [
+     -0.075,
+     0.957
+    ],
+    "improved": 13,
+    "regressed": 15
+   },
+   "by_source": {
+    "aishell1-test": {
+     "difference_pp": 0.0,
+     "paired_clip_bootstrap_95_pp": [
+      0.0,
+      0.0
+     ],
+     "improved": 0,
+     "regressed": 0
+    },
+    "ascend-mixed": {
+     "difference_pp": 0.0,
+     "paired_clip_bootstrap_95_pp": [
+      0.0,
+      0.0
+     ],
+     "improved": 0,
+     "regressed": 0
+    },
+    "ascend-zh": {
+     "difference_pp": 0.0,
+     "paired_clip_bootstrap_95_pp": [
+      0.0,
+      0.0
+     ],
+     "improved": 0,
+     "regressed": 0
+    },
+    "fleurs": {
+     "difference_pp": 0.543,
+     "paired_clip_bootstrap_95_pp": [
+      -0.127,
+      1.56
+     ],
+     "improved": 13,
+     "regressed": 15
+    }
+   },
+   "largest_gains": [
+    {
+     "id": "fleurs-1ba71fb680250d97",
+     "source": "fleurs",
+     "errors_before": 9,
+     "errors_after": 6,
+     "change": -3,
+     "reference_units": 42,
+     "before": "普利特维兹湖国家公园森林茂盛，主要树种有 ¥0.3榉云山和冷山地高山和地中海植被混合为特色。",
+     "after": "普利特维兹湖国家公园森林茂盛，主要树种有山.毛榉云山和冷山地高山和地中海植被混合为特色",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-33dc0ba86008f443",
+     "source": "fleurs",
+     "errors_before": 2,
+     "errors_after": 0,
+     "change": -2,
+     "reference_units": 33,
+     "before": "水下的地形早上回流集中于几处较深的区域那里可能会形成流向深水的急流",
+     "after": "水下的地形造成回流集中于几处较深的区域那里可能会形成流向深水的急流",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "failed",
+      "completed",
+      "failed"
+     ]
+    },
+    {
+     "id": "fleurs-2fe98face8187bcd",
+     "source": "fleurs",
+     "errors_before": 4,
+     "errors_after": 2,
+     "change": -2,
+     "reference_units": 32,
+     "before": "宇宙中的一切都有物质构成，而所有的物质都有被称为原子的微小颗粒组成。",
+     "after": "宇宙中的一切都由物质构成，而所有的物质都由被称为原子的微小颗粒组成。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-30606ac3b4fd5c61",
+     "source": "fleurs",
+     "errors_before": 2,
+     "errors_after": 0,
+     "change": -2,
+     "reference_units": 33,
+     "before": "他会攻击任何进入水中的东西，即使像霸王龙之类的巨型恐龙也不是他的对手。",
+     "after": "它会攻击任何进入水中的东西，即使像霸王龙之类的巨型恐龙也不是它的对手",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "failed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-a4fd40788cd53f2f",
+     "source": "fleurs",
+     "errors_before": 3,
+     "errors_after": 2,
+     "change": -1,
+     "reference_units": 17,
+     "before": "猪血带该疾病，然后通过文字传染给人类",
+     "after": "猪携带该疾病，然后通过文字传染给人类",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "failed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-a7be8e1fe282a37c",
+     "source": "fleurs",
+     "errors_before": 2,
+     "errors_after": 1,
+     "change": -1,
+     "reference_units": 52,
+     "before": "博客还能帮助学生提高写作等力增管学生们开始写博客时用的语法和拼写往往都很马虎。读者的出现通常会改变这一状况。",
+     "after": "博客还能帮助学生提高写作等力，尽管学生们开始写博客时用的语法和拼写往往都很马虎。读者的出现通常会改变这一状况。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-3ab57220f1f10003",
+     "source": "fleurs",
+     "errors_before": 10,
+     "errors_after": 9,
+     "change": -1,
+     "reference_units": 60,
+     "before": "恐龙的羽毛并没有发育良好的主干，这成为宇宙，但还是有羽毛的，其他特征，比如雨汁和鱼小之研究人员推断宇宙的进化可能比这些其他特征外",
+     "after": "恐龙的羽毛并没有发育良好的主干这成为宇宙，但还是有羽毛的，其他特征比如雨汁和鱼小之研究人员推断雨轴的进化可能比这些其他特征外",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed"
+     ]
+    }
+   ],
+   "largest_regressions": [
+    {
+     "id": "fleurs-1bc3201a9f24a2fe",
+     "source": "fleurs",
+     "errors_before": 0,
+     "errors_after": 29,
+     "change": 29,
+     "reference_units": 29,
+     "before": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。",
+     "after": "",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "failed"
+     ]
+    },
+    {
+     "id": "fleurs-1a09807a0e6928a6",
+     "source": "fleurs",
+     "errors_before": 1,
+     "errors_after": 4,
+     "change": 3,
+     "reference_units": 39,
+     "before": "加利福尼亚州州长阿诺德施瓦辛格签署了一项法案，禁止向未成年人出售或出租暴力电子游戏。",
+     "after": "家里福尼亚州州长阿诺德施瓦辛格签署了一项法案，禁止向未成年出售或出租暴力电子游戏。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-c30c6b3aa67e27e0",
+     "source": "fleurs",
+     "errors_before": 1,
+     "errors_after": 4,
+     "change": 3,
+     "reference_units": 37,
+     "before": "许多德国烘焙食物也以杏仁榛子和其他坚果为特色，受欢迎的蛋糕与浓咖啡往往是绝配。",
+     "after": "许多德国烘焙食物也以吸引人榛子和其他坚果为特色受欢迎的蛋糕与浓咖啡往往是绝配。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-1cdabc0d91a05125",
+     "source": "fleurs",
+     "errors_before": 0,
+     "errors_after": 3,
+     "change": 3,
+     "reference_units": 31,
+     "before": "科学家们可以得出结论暗物质对其他暗物质的影响方式与普通物质相同。",
+     "after": "科学家man可以得出结论暗物质对其他暗物质的影响方式与普通物质相同。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "failed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-a860d24f31d82a4f",
+     "source": "fleurs",
+     "errors_before": 2,
+     "errors_after": 4,
+     "change": 2,
+     "reference_units": 31,
+     "before": "昨天马尔泰利在有九名成员组成的新临时选举委员会 CEP中宣誓就职。",
+     "after": "昨天马尔泰利在有九名成员组成的心灵时选举委员会 CEP中宣誓就职",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-74ed65a2d22a92c3",
+     "source": "fleurs",
+     "errors_before": 2,
+     "errors_after": 4,
+     "change": 2,
+     "reference_units": 32,
+     "before": "与虚拟方式分享实地考察也是回顾行程以及以后班级分享经验的好办法",
+     "after": "与虚拟方式分享时的考察也是回顾行程以及以后班级分享经验的好办法",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "failed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-8f8472a2f6ec348b",
+     "source": "fleurs",
+     "errors_before": 10,
+     "errors_after": 12,
+     "change": 2,
+     "reference_units": 46,
+     "before": "真正影星团队的存在拉森和 Lafost 1989 P109也是虚拟团队的一个独特组成部分。",
+     "after": "真正影星团队的存在拉森和拉fost 1989 P109也是虚拟团队的一个独特组成部分",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "failed"
+     ]
+    }
+   ]
   }
  },
  "sherpa": {
@@ -1748,6 +2043,595 @@
       "completed"
      ],
      "states_after": [
+      "completed"
+     ]
+    }
+   ]
+  },
+  "candidate_direct_to_product": {
+   "rows": 420,
+   "counts": {
+    "unchanged": 397,
+    "first_errors": 946,
+    "second_errors": 967,
+    "first_empty": 0,
+    "second_empty": 0,
+    "regressed": 15,
+    "improved": 8
+   },
+   "paired": {
+    "difference_pp": 0.197,
+    "paired_clip_bootstrap_95_pp": [
+     0.0,
+     0.428
+    ],
+    "improved": 8,
+    "regressed": 15
+   },
+   "by_source": {
+    "aishell1-test": {
+     "difference_pp": 0.0,
+     "paired_clip_bootstrap_95_pp": [
+      0.0,
+      0.0
+     ],
+     "improved": 0,
+     "regressed": 0
+    },
+    "ascend-mixed": {
+     "difference_pp": 0.0,
+     "paired_clip_bootstrap_95_pp": [
+      0.0,
+      0.0
+     ],
+     "improved": 0,
+     "regressed": 0
+    },
+    "ascend-zh": {
+     "difference_pp": 0.0,
+     "paired_clip_bootstrap_95_pp": [
+      0.0,
+      0.0
+     ],
+     "improved": 0,
+     "regressed": 0
+    },
+    "fleurs": {
+     "difference_pp": 0.335,
+     "paired_clip_bootstrap_95_pp": [
+      -0.016,
+      0.748
+     ],
+     "improved": 8,
+     "regressed": 15
+    }
+   },
+   "largest_gains": [
+    {
+     "id": "fleurs-8f8472a2f6ec348b",
+     "source": "fleurs",
+     "errors_before": 16,
+     "errors_after": 13,
+     "change": -3,
+     "reference_units": 46,
+     "before": "真正影星团队的存在，拉斯和拉菲尔斯道（Lass和Lafos）到1989 P109，也是虚拟团队的一个独特组成部分。",
+     "after": "真正隐形团队的存在，拉斯和拉夫斯道（1989 P109）也是虚拟团队的一个独特组成部分。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-a860d24f31d82a4f",
+     "source": "fleurs",
+     "errors_before": 3,
+     "errors_after": 1,
+     "change": -2,
+     "reference_units": 31,
+     "before": "昨天，马尔泰利在由九名成员组成的新零食选举委员会（CEP）中宣誓就职。",
+     "after": "昨天，马尔泰利在由九名成员组成的新临时选举委员会（CEP）中宣誓就职。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-ad7a0849a3ea6e33",
+     "source": "fleurs",
+     "errors_before": 3,
+     "errors_after": 1,
+     "change": -2,
+     "reference_units": 51,
+     "before": "美国体操协会对美国奥运会的申韩表示支持，并接受奥运会大家庭的严格要求，即为所有运动员营造一个安全的训练环境。",
+     "after": "美国体操协会对美国奥运会的信函表示支持，并接受奥运会大家庭的严格要求，即为所有运动员营造一个安全的训练环境。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-01a0123885ebec5b",
+     "source": "fleurs",
+     "errors_before": 4,
+     "errors_after": 3,
+     "change": -1,
+     "reference_units": 76,
+     "before": "表演开始五分钟后，刮起了风。约一分钟后，风速达到七十公里每小时。紧接着又下起了雨，雨势如此之大，像针扎一样拍打在皮肤上。随后天上下起了冰雹，惊慌失措的人群尖叫着四散奔逃。",
+     "after": "表演开始五分钟后，刮起了风，约一分钟后，风速达到了七十公里每小时。紧接着又下起了雨，雨势如此之大，像针扎一样拍打在皮肤上。随后天上下起了冰雹，惊慌失措的人群尖叫着四散奔逃。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-f8646a257c0c4273",
+     "source": "fleurs",
+     "errors_before": 5,
+     "errors_after": 4,
+     "change": -1,
+     "reference_units": 92,
+     "before": "他们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚利桑那州奇甘镇，美国地质调查局（USGS）、太空地质团队和北亚利桑纳大学的格伦·库欣说道。",
+     "after": "它们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚利桑那州奇甘镇，美国地质调查局（USGS）太空地质团队和北亚利桑纳大学的格伦·库欣说道。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-825f11613c4f2f30",
+     "source": "fleurs",
+     "errors_before": 1,
+     "errors_after": 0,
+     "change": -1,
+     "reference_units": 85,
+     "before": "娱乐新闻网站 TMZ了解到，该名摄影师在Sepulvada大道的另一侧停车，开始拍摄警察的拦截，并在横穿马路后继续拍照，促使进行交通拦截的加州公路巡警两次停下手中工作，命令他回到对面。",
+     "after": "娱乐新闻网站 TMZ了解到，该名摄影师在Sepulveda大道的另一侧停车，开始拍摄警察的拦截，并在横穿马路后继续拍照。促使进行交通拦截的加州公路巡警两次停下手中工作，命令他回到对面。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-1c918023d679a37e",
+     "source": "fleurs",
+     "errors_before": 1,
+     "errors_after": 0,
+     "change": -1,
+     "reference_units": 52,
+     "before": "自1966年以来，孙德尔本斯一直是野生动物保护区。据估计，目前该区生活着400只皇家梦加拉虎和大约3万只梅花鹿。",
+     "after": "自1966年以来，孙德尔本斯一直是野生动物保护区。据估计，目前该区生活着400只皇家孟加拉虎和大约3万只梅花鹿。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    }
+   ],
+   "largest_regressions": [
+    {
+     "id": "fleurs-d8d1713dc5816512",
+     "source": "fleurs",
+     "errors_before": 45,
+     "errors_after": 52,
+     "change": 7,
+     "reference_units": 96,
+     "before": "现任议员、阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·克克纳，昨晚在距离布伊诺斯爱丽丝五十公里三十英里的拉布拉塔市，宣布了其总统竞选资格。",
+     "after": "现任议员阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·克克纳，昨晚在距离不以诺斯爱丽丝五十公里三十英里（五十公里三十英里）的拉布拉塔市，宣布了其总统竞选资格。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-39fb5bd005525dbf",
+     "source": "fleurs",
+     "errors_before": 2,
+     "errors_after": 9,
+     "change": 7,
+     "reference_units": 55,
+     "before": "虽然没有人能确定作者是谁，但这个大型羊皮纸文档尺寸为29.4英寸乘以24.2英寸，据称在刚写成的时候是卷起来存放的。",
+     "after": "虽然没有人能确定作者是谁，但这个大型羊皮纸文档尺寸为29又4分之3英寸乘以24又2分之1英寸，据说在刚写成的时候是卷起来存放的。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-7880bd7fe5dcd286",
+     "source": "fleurs",
+     "errors_before": 1,
+     "errors_after": 4,
+     "change": 3,
+     "reference_units": 40,
+     "before": "睡眠中断是指这样的过程：在正常睡眠期间，有意地醒来，并且在短时间之后（10到60分钟），睡着。",
+     "after": "睡眠中断是指这样的过程：在正常睡眠期间，有意地醒来，并且在短时间之后（15分钟到60分钟），睡着。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-fd242859bc18ffbb",
+     "source": "fleurs",
+     "errors_before": 26,
+     "errors_after": 29,
+     "change": 3,
+     "reference_units": 58,
+     "before": "拉卡辛格还介绍了 Chapman，Brok，Hudson，歌手Radio，Hendelwell陪同他身边。",
+     "after": "嗯。拉卡辛格还介绍了 Chapin, Bog, Henson，歌手 Reggie， Handel陪同他身边。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-f7ec2d2600c8998d",
+     "source": "fleurs",
+     "errors_before": 4,
+     "errors_after": 6,
+     "change": 2,
+     "reference_units": 26,
+     "before": "当天格林尼治时间约12时许，该车辆被脱离事故现场。",
+     "after": "当天格林尼治时间约十二时许，该车辆被脱离事故现场。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-483029d526219f81",
+     "source": "fleurs",
+     "errors_before": 0,
+     "errors_after": 2,
+     "change": 2,
+     "reference_units": 31,
+     "before": "同一个月，又有一架客机冲出马什哈德的跑道，撞上一堵墙，造成17人死亡。",
+     "after": "同一个月，又有一架客机冲出马什哈德的跑道，撞上一堵墙，造成十七人死亡。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-3ab57220f1f10003",
+     "source": "fleurs",
+     "errors_before": 0,
+     "errors_after": 1,
+     "change": 1,
+     "reference_units": 60,
+     "before": "恐龙的羽毛并没有发育良好的主干。这称为羽轴。但还是有羽毛的其他特征，比如羽枝和羽小枝。研究人员推断，羽轴的进化可能比这些其他特征晚。",
+     "after": "恐龙的羽毛并没有发育良好的主干。这成为羽轴，但还是有羽毛的其他特征，比如羽枝和羽小枝。研究人员推断，羽轴的进化可能比这些其他特征晚。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed"
+     ]
+    }
+   ]
+  },
+  "baseline_direct_to_product": {
+   "rows": 420,
+   "counts": {
+    "unchanged": 384,
+    "first_errors": 1101,
+    "second_errors": 1150,
+    "first_empty": 0,
+    "second_empty": 0,
+    "improved": 8,
+    "regressed": 28
+   },
+   "paired": {
+    "difference_pp": 0.46,
+    "paired_clip_bootstrap_95_pp": [
+     0.162,
+     0.792
+    ],
+    "improved": 8,
+    "regressed": 28
+   },
+   "by_source": {
+    "aishell1-test": {
+     "difference_pp": 0.0,
+     "paired_clip_bootstrap_95_pp": [
+      0.0,
+      0.0
+     ],
+     "improved": 0,
+     "regressed": 0
+    },
+    "ascend-mixed": {
+     "difference_pp": 0.0,
+     "paired_clip_bootstrap_95_pp": [
+      0.0,
+      0.0
+     ],
+     "improved": 0,
+     "regressed": 0
+    },
+    "ascend-zh": {
+     "difference_pp": 0.0,
+     "paired_clip_bootstrap_95_pp": [
+      0.0,
+      0.0
+     ],
+     "improved": 0,
+     "regressed": 0
+    },
+    "fleurs": {
+     "difference_pp": 0.783,
+     "paired_clip_bootstrap_95_pp": [
+      0.305,
+      1.359
+     ],
+     "improved": 8,
+     "regressed": 28
+    }
+   },
+   "largest_gains": [
+    {
+     "id": "fleurs-39fb5bd005525dbf",
+     "source": "fleurs",
+     "errors_before": 8,
+     "errors_after": 5,
+     "change": -3,
+     "reference_units": 55,
+     "before": "虽然没有人能确定作者是谁，但这个大型羊皮纸文档尺寸为29又4分之3英寸乘以24又2分之1英寸。据称在刚写成的时候是卷起来存放的。",
+     "after": "嗯。虽然没有人能确定作者是谁，但这个大型羊皮纸文档尺寸为29英寸乘以24英寸，据称在刚写成的时候是卷起来存放的。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-3510a92fc7dd04f6",
+     "source": "fleurs",
+     "errors_before": 6,
+     "errors_after": 3,
+     "change": -3,
+     "reference_units": 41,
+     "before": "二零零二年，哥马贝尼拉贡戈火山的熔岩所摧毁，火山熔岩掩埋了该镇的大部分街道，尤其是镇中心。",
+     "after": "嗯。2002年，哥马贝尼拉贡戈火山的熔岩所摧毁，火山熔岩掩埋了该镇的大部分街道，尤其是镇中心。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-a860d24f31d82a4f",
+     "source": "fleurs",
+     "errors_before": 3,
+     "errors_after": 1,
+     "change": -2,
+     "reference_units": 31,
+     "before": "昨天，马尔泰利在由九名成员组成的新零食选举委员会（CEP）中宣誓就职。",
+     "after": "昨天，马尔泰利在由九名成员组成的新临时选举委员会（CEP）中宣誓就职。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-0ebe0fb634f8e4ac",
+     "source": "fleurs",
+     "errors_before": 4,
+     "errors_after": 3,
+     "change": -1,
+     "reference_units": 39,
+     "before": "老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。",
+     "after": "嗯。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳、跳远、拉力能拿到人类大力士的五倍。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-01a0123885ebec5b",
+     "source": "fleurs",
+     "errors_before": 4,
+     "errors_after": 3,
+     "change": -1,
+     "reference_units": 76,
+     "before": "表演开始五分钟后，刮起了风，约一分钟后，风速达到七十公里每小时。紧接着又下起了雨，雨势如此之大，像针扎一样拍打在皮肤上。随后天上下起了冰雹，惊慌失措的人群尖叫着四散奔逃。",
+     "after": "表演开始五分钟后，刮起了风，约一分钟后，风速达到了七十公里每小时。紧接着又下起了雨，雨势如此之大，像针扎一样拍打在皮肤上。随后天上下起了冰雹，惊慌失措的人群尖叫着四散奔逃。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-1c918023d679a37e",
+     "source": "fleurs",
+     "errors_before": 1,
+     "errors_after": 0,
+     "change": -1,
+     "reference_units": 52,
+     "before": "自1966年以来，孙德尔本斯一直是野生动物保护区。据估计，目前该区生活着400只皇家梦加拉虎和大约3万只梅花鹿。",
+     "after": "自1966年以来，孙德尔本斯一直是野生动物保护区。据估计，目前该区生活着400只皇家孟加拉虎和大约3万只梅花鹿。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-8b7a686fc953486d",
+     "source": "fleurs",
+     "errors_before": 1,
+     "errors_after": 0,
+     "change": -1,
+     "reference_units": 22,
+     "before": "月球的表面由岩石和灰尘组成。月球的外层叫做“底壳”。",
+     "after": "月球的表面由岩石和灰尘组成。月球的外层叫做地壳。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    }
+   ],
+   "largest_regressions": [
+    {
+     "id": "fleurs-4c3aada37cf7fd38",
+     "source": "fleurs",
+     "errors_before": 3,
+     "errors_after": 12,
+     "change": 9,
+     "reference_units": 35,
+     "before": "中局击球手萨钦·坦杜尔卡和拉胡尔·德拉维德表现出色，搭档取得了一百跑的成绩。",
+     "after": "中局击球手，萨钦（Tanturka）和拉胡尔（德拉韦德）表现出色，搭档取得了一百跑的成绩。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-f8646a257c0c4273",
+     "source": "fleurs",
+     "errors_before": 5,
+     "errors_after": 12,
+     "change": 7,
+     "reference_units": 92,
+     "before": "他们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚利桑那州奇甘镇，美国地质调查局（USGS）、太空地质团队和北亚利桑那大学的格伦·库欣说道。嗯。",
+     "after": "。它们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深穴的情况很相似。亚利桑那州奇甘镇，美国地质调查局（USGS）太空地质团队和北亚利桑纳大学的格林·库欣（Glen Kuhn）说道。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-7880bd7fe5dcd286",
+     "source": "fleurs",
+     "errors_before": 1,
+     "errors_after": 8,
+     "change": 7,
+     "reference_units": 40,
+     "before": "睡眠中断是指这样的过程：在正常睡眠期间，有意地醒来，并且在短时间之后（10到60分钟），睡着。",
+     "after": "嗯。睡眠中断是指这样的过程：在正常睡眠期间，有意的醒来，并且在短时间之后（十到六十分钟），睡着。嗯。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-a7bb4472588958f3",
+     "source": "fleurs",
+     "errors_before": 3,
+     "errors_after": 8,
+     "change": 5,
+     "reference_units": 30,
+     "before": "802.11n标准在2.5 GHz和5 GHz频率上都可运行。",
+     "after": "802.点11n标准在2.5G和5G赫兹频率上都可运行。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-fd242859bc18ffbb",
+     "source": "fleurs",
+     "errors_before": 26,
+     "errors_after": 31,
+     "change": 5,
+     "reference_units": 58,
+     "before": "拉卡辛格还介绍了 Chapman，Brok，Hudson，歌手Radio，Hendelwell陪同他身边。",
+     "after": "嗯。拉卡辛格还介绍了 Chapin Bog, Hagen, 歌手 Reggie, Henderson, 配同他身边。嗯。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-30606ac3b4fd5c61",
+     "source": "fleurs",
+     "errors_before": 0,
+     "errors_after": 3,
+     "change": 3,
+     "reference_units": 33,
+     "before": "它会攻击任何进入水中的东西，即使像霸王龙之类的巨型恐龙也不是它的对手。",
+     "after": "嗯。他会攻击任何进入水中的东西，即使像霸王龙之类的巨型恐龙也不是他的对手。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed"
+     ]
+    },
+    {
+     "id": "fleurs-8e93e440f571a4da",
+     "source": "fleurs",
+     "errors_before": 7,
+     "errors_after": 9,
+     "change": 2,
+     "reference_units": 27,
+     "before": "利金斯在医院工作时，开始在业余时间研究早产。",
+     "after": "嗯。嗯。利金斯在医院工作时，开始在业余时间研究早产。",
+     "states_before": [
+      "completed"
+     ],
+     "states_after": [
+      "completed",
+      "completed",
       "completed"
      ]
     }

@@ -2863,6 +2863,244 @@
     }
    }
   },
+  "qwen-small-direct": {
+   "by_manifest": {
+    "paired": {
+     "rows": 340,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "number": {
+       "literal_matched": 178,
+       "reference_occurrences": 210
+      },
+      "negative": {
+       "literal_matched": 102,
+       "reference_occurrences": 103
+      },
+      "latin": {
+       "literal_matched": 140,
+       "reference_occurrences": 249
+      },
+      "date_time": {
+       "literal_matched": 36,
+       "reference_occurrences": 36
+      },
+      "technical_term": {
+       "literal_matched": 7,
+       "reference_occurrences": 7
+      },
+      "money": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 151,
+      "mer": 0.12950257289879932
+     },
+     "groups": {
+      "fleurs": {
+       "errors": 541,
+       "substitutions": 219,
+       "deletions": 265,
+       "insertions": 57,
+       "reference_units": 6260,
+       "cer": 0.08642,
+       "rows": 160
+      },
+      "ALL": {
+       "errors": 955,
+       "substitutions": 391,
+       "deletions": 474,
+       "insertions": 90,
+       "reference_units": 9962,
+       "cer": 0.09586,
+       "rows": 340
+      },
+      "ascend-zh": {
+       "errors": 50,
+       "substitutions": 26,
+       "deletions": 14,
+       "insertions": 10,
+       "reference_units": 934,
+       "cer": 0.05353,
+       "rows": 80
+      },
+      "ascend-mixed": {
+       "errors": 299,
+       "substitutions": 117,
+       "deletions": 161,
+       "insertions": 21,
+       "reference_units": 2004,
+       "cer": 0.1492,
+       "rows": 80
+      },
+      "quiet": {
+       "errors": 43,
+       "substitutions": 19,
+       "deletions": 22,
+       "insertions": 2,
+       "reference_units": 403,
+       "cer": 0.1067,
+       "rows": 10
+      },
+      "noise15db": {
+       "errors": 22,
+       "substitutions": 10,
+       "deletions": 12,
+       "insertions": 0,
+       "reference_units": 361,
+       "cer": 0.06094,
+       "rows": 10
+      }
+     }
+    },
+    "aishell": {
+     "rows": 100,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "negative": {
+       "literal_matched": 16,
+       "reference_occurrences": 17
+      },
+      "number": {
+       "literal_matched": 45,
+       "reference_occurrences": 48
+      },
+      "technical_term": {
+       "literal_matched": 4,
+       "reference_occurrences": 4
+      },
+      "money": {
+       "literal_matched": 5,
+       "reference_occurrences": 5
+      },
+      "date_time": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 0,
+      "errors": 0,
+      "mer": null
+     },
+     "groups": {
+      "aishell1-test": {
+       "errors": 56,
+       "substitutions": 32,
+       "deletions": 24,
+       "insertions": 0,
+       "reference_units": 1465,
+       "cer": 0.03823,
+       "rows": 100
+      },
+      "ALL": {
+       "errors": 56,
+       "substitutions": 32,
+       "deletions": 24,
+       "insertions": 0,
+       "reference_units": 1465,
+       "cer": 0.03823,
+       "rows": 100
+      }
+     }
+    }
+   },
+   "exact_anchor_tokens": {
+    "original_420": {
+     "number": {
+      "reference": 249,
+      "missing": 37,
+      "extra": 39
+     },
+     "negative": {
+      "reference": 112,
+      "missing": 3,
+      "extra": 2
+     },
+     "money": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 41,
+      "missing": 0,
+      "extra": 1
+     },
+     "latin": {
+      "reference": 237,
+      "missing": 108,
+      "extra": 29
+     },
+     "technical_term": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 2
+     }
+    },
+    "derived_20": {
+     "number": {
+      "reference": 9,
+      "missing": 1,
+      "extra": 1
+     },
+     "negative": {
+      "reference": 8,
+      "missing": 0,
+      "extra": 0
+     },
+     "money": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 1,
+      "missing": 0,
+      "extra": 0
+     },
+     "latin": {
+      "reference": 12,
+      "missing": 7,
+      "extra": 2
+     },
+     "technical_term": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     }
+    }
+   },
+   "cohorts": {
+    "original_420": {
+     "errors": 946,
+     "substitutions": 394,
+     "deletions": 464,
+     "insertions": 88,
+     "reference_units": 10663,
+     "cer": 0.08872,
+     "rows": 420
+    },
+    "derived_20": {
+     "errors": 65,
+     "substitutions": 29,
+     "deletions": 34,
+     "insertions": 2,
+     "reference_units": 764,
+     "cer": 0.08508,
+     "rows": 20
+    }
+   }
+  },
   "qwen-small-product": {
    "by_manifest": {
     "paired": {
@@ -3632,6 +3870,8 @@
   "panels/qwen-small-ascend-mixed-ee4e2d5087648134.json": "2a06b573d879c4c719fb0fa1651fcc94faeb5bb505e5eef59ce82ee0f35755bc",
   "panels/qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "33e1782d5c3d9e64ef455118e15d472fea18e02397441a229ab1a9f078f02c4d",
   "panels/qwen-small-ascend-mixed-ff9c42612780330b.json": "48cd3ca13cb1ed5d3ea5daa5005f62d94b2108d49953ec0dce092e6dafef6ec5",
+  "runs/paired-qwen-small-direct.jsonl": "1d2e0849c6d7c95a9c9f142caf55c9f7c25fd9bc64e7a4ed3f0182bd6d614184",
+  "runs/aishell-qwen-small-direct.jsonl": "f0673e666e8a207a1856bff53bc8f9bd01fce60b07c333e63619d7f4a0394dba",
   "runs/paired-qwen-small-product.jsonl": "8062f4d1359c092f38c419478628c37a593b0d7d4e83f99d4f09c0a69d2b55b8",
   "runs/aishell-qwen-small-product.jsonl": "a1ee5544417b940f4ba6e1d45f563a58912574cab5749858b222a290fd6318b7",
   "panels/qwen-large-fleurs-1bc3201a9f24a2fe.json": "e2d5539fafc8674a9d08f53b601d2e4a5ff8d098b1183fb77805860065a3e73a",
