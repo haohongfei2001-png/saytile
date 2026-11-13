@@ -44,6 +44,21 @@ public enum WindowPlacement {
                       width: size.width, height: size.height)
     }
 
+    /// Reopen at the compact panel's current position even if it was moved
+    /// while folded. Old compact placements have only a remembered height.
+    public static func expandedPanel(from frame: CGRect, on visible: CGRect,
+                                     width: CGFloat?, height: CGFloat?, anchorsRight: Bool?) -> CGRect {
+        let factory = initialPanel(visibleFrame: visible)
+        let readableWidth = width.flatMap { $0.isFinite && !VoicePanelFootprint.isCompact(outerWidth: $0) ? $0 : nil }
+        let readableHeight = height.flatMap { $0.isFinite && $0 > 0 ? $0 : nil }
+        let size = panelSize(CGSize(width: readableWidth ?? max(128, factory.width),
+                                    height: readableHeight ?? max(panelMinimumSize.height, factory.height)), visibleFrame: visible)
+        let keepRight = anchorsRight ?? (frame.midX >= visible.midX)
+        let proposed = CGRect(x: keepRight ? frame.maxX - size.width : frame.minX, y: frame.maxY - size.height,
+                              width: size.width, height: size.height)
+        return restoredPanel(proposed, visibleFrames: [visible])
+    }
+
     /// The cursor chooses the display even over its Dock or menu bar. Outside all
     /// display bounds, keep the panel on its current available screen.
     public static func dragDestination(pointer: CGPoint, currentPanel: CGRect,
@@ -80,13 +95,18 @@ public struct SavedPanelPlacement: Codable, Equatable {
     public let displayID: String
     public let frame: CGRect
     public let visibleFrame: CGRect
-    /// Older placement records have no compact state or remembered text height.
+    /// All three are optional so existing v4 placements decode unchanged.
     public let expandedHeight: CGFloat?
+    public let expandedWidth: CGFloat?
+    public let anchorsRightOnExpand: Bool?
 
-    public init?(frame: CGRect, visibleFrame: CGRect, displayID: String, expandedHeight: CGFloat? = nil) {
+    public init?(frame: CGRect, visibleFrame: CGRect, displayID: String,
+                 expandedHeight: CGFloat? = nil, expandedWidth: CGFloat? = nil, anchorsRightOnExpand: Bool? = nil) {
         guard !displayID.isEmpty, Self.valid(frame), Self.valid(visibleFrame) else { return nil }
         self.frame = frame; self.visibleFrame = visibleFrame; self.displayID = displayID
         self.expandedHeight = expandedHeight.flatMap { $0.isFinite && $0 > 0 ? $0 : nil }
+        self.expandedWidth = expandedWidth.flatMap { $0.isFinite && !VoicePanelFootprint.isCompact(outerWidth: $0) ? $0 : nil }
+        self.anchorsRightOnExpand = anchorsRightOnExpand
     }
     private static func valid(_ rect: CGRect) -> Bool {
         [rect.minX, rect.minY, rect.width, rect.height].allSatisfy(\.isFinite) && rect.width > 0 && rect.height > 0

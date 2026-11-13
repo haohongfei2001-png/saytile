@@ -6,7 +6,11 @@ import SaytileKit
 /// controls and occupied transcript lines available to their native views.
 final class VoicePanel: NSPanel {
     var expandedHeight: CGFloat?
+    var expandedWidth: CGFloat?
+    var anchorsRightOnExpand: Bool?
+    var compactCaptureAction: (() -> Void)?
     var didChoosePosition: (() -> Void)?
+    var isCompact: Bool { SaytileVoiceUI.VoicePanelFootprint.isCompact(outerWidth: frame.width) }
     var draggingPlacement: Bool { gesture != nil }
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
@@ -29,6 +33,8 @@ final class VoicePanel: NSPanel {
         let pointer: CGPoint
         let visible: CGRect
         let expandedHeight: CGFloat
+        let compact: Bool
+        var didDrag = false
     }
     private var gesture: Gesture?
     private var customCursor = false
@@ -42,7 +48,6 @@ final class VoicePanel: NSPanel {
 
     func applyPlacement(_ proposed: CGRect, on visible: CGRect) {
         let bounded = WindowPlacement.restoredPanel(proposed, visibleFrames: [visible])
-        if !SaytileVoiceUI.VoicePanelFootprint.isCompact(outerWidth: bounded.width) { expandedHeight = bounded.height }
         let limits = WindowPlacement.panelLimits(visibleFrame: visible)
         if maxSize != limits.maximum || minSize != limits.minimum {
             minSize = .zero
@@ -50,6 +55,21 @@ final class VoicePanel: NSPanel {
             minSize = limits.minimum
         }
         if frame != bounded { setFrame(bounded, display: isVisible) }
+        if gesture == nil { rememberReadingSize() }
+    }
+
+    private func rememberReadingSize() {
+        guard !isCompact else { return }
+        expandedWidth = frame.width
+        expandedHeight = frame.height
+    }
+
+    func expandToReadingSize() {
+        guard isCompact, let visible = screen?.visibleFrame else { return }
+        cancelPlacementGesture()
+        applyPlacement(WindowPlacement.expandedPanel(from: frame, on: visible, width: expandedWidth,
+                                                     height: expandedHeight, anchorsRight: anchorsRightOnExpand), on: visible)
+        didChoosePosition?()
     }
 
     override func sendEvent(_ event: NSEvent) {
@@ -57,18 +77,23 @@ final class VoicePanel: NSPanel {
         case .leftMouseDown:
             if !event.modifierFlags.contains(.control), let screen,
                let operation = operation(at: event.locationInWindow) {
+                rememberReadingSize()
                 gesture = Gesture(operation: operation, frame: frame,
                                   pointer: convertPoint(toScreen: event.locationInWindow), visible: screen.visibleFrame,
-                                  expandedHeight: expandedHeight ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame).height)
-                if case .move = operation { NSCursor.closedHand.set() }
+                                  expandedHeight: expandedHeight ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame).height,
+                                  compact: isCompact)
+                if case .move = operation, !isCompact { NSCursor.closedHand.set() }
                 return
             }
         case .leftMouseDragged:
             if let gesture {
                 let p = convertPoint(toScreen: event.locationInWindow)
                 let dx = p.x - gesture.pointer.x, dy = p.y - gesture.pointer.y
+                if gesture.compact && !gesture.didDrag && hypot(dx, dy) < 4 { return }
+                self.gesture?.didDrag = true
                 switch gesture.operation {
                 case .move:
+                    NSCursor.closedHand.set()
                     let displays = NSScreen.screens.map { (frame: $0.frame, visible: $0.visibleFrame) }
                     if let visible = WindowPlacement.dragDestination(pointer: p, currentPanel: frame, displays: displays) {
                         applyPlacement(gesture.frame.offsetBy(dx: dx, dy: dy), on: visible)
@@ -81,7 +106,18 @@ final class VoicePanel: NSPanel {
         case .leftMouseUp:
             if let finished = gesture {
                 gesture = nil
-                if frame != finished.frame { didChoosePosition?() }
+                if finished.compact && !finished.didDrag {
+                    let release = convertPoint(toScreen: event.locationInWindow)
+                    if frame.contains(release), hypot(release.x - finished.pointer.x, release.y - finished.pointer.y) < 4 {
+                        compactCaptureAction?()
+                    }
+                } else if frame != finished.frame {
+                    if !finished.compact && isCompact, case let .resize(edge) = finished.operation {
+                        anchorsRightOnExpand = [.left, .topLeft, .bottomLeft].contains(edge)
+                    }
+                    rememberReadingSize()
+                    didChoosePosition?()
+                }
                 updatePointer(at: event.locationInWindow)
                 return
             }
@@ -97,14 +133,9 @@ final class VoicePanel: NSPanel {
     private func operation(at p: CGPoint) -> Operation? {
         let rail = CGRect(origin: .zero, size: frame.size)
         guard rail.contains(p) else { return nil }
-        let compact = SaytileVoiceUI.VoicePanelFootprint.isCompact(outerWidth: rail.width)
-        if compact {
-            let button = SaytileVoiceUI.VoicePanelFootprint.controlSize
-            let area = CGRect(x: rail.midX - button.width / 2, y: rail.midY - button.height / 2,
-                              width: button.width, height: button.height)
-            if area.contains(p) { return nil }
-            // The compact window has a fixed height. Keep both side edges
-            // available to expand it, and its top/bottom gutters to move it.
+        if isCompact {
+            // Decide tap vs drag on release. Choosing an edge here must not
+            // swallow a click or start capture during a resize.
             if p.x <= 7 { return .resize(.left) }
             if rail.maxX - p.x <= 7 { return .resize(.right) }
             return .move
@@ -144,7 +175,7 @@ final class VoicePanel: NSPanel {
 
     private func updatePointer(at point: CGPoint) {
         if let operation = operation(at: point) {
-            operation.cursor.set()
+            if isCompact, case .move = operation { NSCursor.pointingHand.set() } else { operation.cursor.set() }
             customCursor = true
         } else if customCursor {
             if let contentView, contentView.hitTest(contentView.convert(point, from: nil)) is CompactTranscriptTextView { NSCursor.iBeam.set() }

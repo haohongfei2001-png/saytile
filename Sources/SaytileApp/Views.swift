@@ -26,6 +26,7 @@ import SaytileKit
 
 struct InputPanelView: View {
     @ObservedObject var model: AppModel
+    var onExpand: (() -> Void)? = nil
     @ViewState private var followsLatest = true
     @StateObject private var access = PanelTranscriptAccess()
     @StateObject private var transcriptCache = PanelDocumentCache()
@@ -68,7 +69,7 @@ struct InputPanelView: View {
                     model.notice = error.localizedDescription
                     throw error
                 }
-            }, menu: { panelActions })
+            }, compactHelp: "点按控制收音，向外拖动左右边缘或从菜单选择“展开语音板”", menu: { panelActions })
     }
 
     private func copyTranscript() {
@@ -99,6 +100,8 @@ struct InputPanelView: View {
         }
     }
     private var commandGroups: [[PanelCommand]] {
+        let compactCommands = onExpand.map { [[PanelCommand(id: "expand", title: "展开语音板", action: $0)]] } ?? []
+        return compactCommands +
         [
             [.init(id: "copy", title: selectedText.isEmpty ? "复制当前文字" : "复制所选文字", enabled: canCopy, action: { copyTranscript() }),
              .init(id: "edit", title: "在档案中编辑这段文字", enabled: editTarget != nil, action: { if let item = editTarget { model.select(item) } }),

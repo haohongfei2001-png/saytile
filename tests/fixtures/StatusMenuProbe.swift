@@ -73,9 +73,9 @@ import ApplicationServices
             guard app.terminate() else { throw Failure("fixture could not close cleanly") }
             try await wait("fixture did not terminate") { app.isTerminated }
         }
-        func coldLaunch() async throws {
+        func coldLaunch(_ extra: [String] = []) async throws {
             try await stop()
-            config.arguments = ["-shortcutChoice", "disabled", "-floatingEntryEnabled", "NO"]
+            config.arguments = ["-shortcutChoice", "disabled", "-floatingEntryEnabled", "NO"] + extra
             app = try await launch()
             pid = app.processIdentifier
             root = AXUIElementCreateApplication(pid)
@@ -90,7 +90,7 @@ import ApplicationServices
             guard let window = panel() else { return nil }
             return find([window], pid: pid) { attr($0, kAXIdentifierAttribute) as? String == "panel.transcript" }
         }
-        func round(_ command: String?, visible: Bool, expected: String) async throws {
+        func round(_ command: String?, visible: Bool, expected: String, compact: Bool = false) async throws {
             guard let button = status(pid) else { throw Failure("paused status unavailable") }
             let owner = Owned(element: button)
             async let open: Int32 = Task.detached {
@@ -116,7 +116,7 @@ import ApplicationServices
             defer { if !dismissed { _ = AXUIElementPerformAction(menu, kAXCancelAction as CFString) } }
             let items = children(menu, pid: pid)
             let titles = items.compactMap { attr($0, kAXTitleAttribute) as? String }
-            let destinations: Set<String> = [expected, "语音档案与设置…", "退出 Saytile"]
+            let destinations = Set([expected, "语音档案与设置…", "退出 Saytile"] + (compact ? ["展开语音板"] : []))
             let menuTitles = Set(titles.filter { !$0.isEmpty })
             guard destinations.isSubset(of: menuTitles),
                   menuTitles.isSubset(of: destinations.union(["检查更新…"])),
@@ -171,9 +171,47 @@ import ApplicationServices
         try await wait("explicit ordinary show") { panel() != nil }
         try await coldLaunch()
         try await wait("explicit show was not remembered") { panel() != nil }
+        // Start the real product with a minimum placement, as for a user already stuck
+        // on 0.8. Argument-domain data doesn't touch any production preferences.
+        struct PlacementSeed: Encodable {
+            let displayID: String
+            let frame, visibleFrame: CGRect
+            let expandedHeight: CGFloat
+            let expandedWidth: CGFloat?
+            let anchorsRightOnExpand: Bool?
+        }
+        guard let screen = NSScreen.screens.first, let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
+              let uuid = CGDisplayCreateUUIDFromDisplayID(number.uint32Value)?.takeRetainedValue() else { throw Failure("missing fixture screen") }
+        let visible = screen.visibleFrame
+        let small = CGRect(x: visible.maxX-72, y: visible.maxY-44, width: 72, height: 44)
+        func panelSize() -> CGSize? {
+            guard let w = panel(), let raw = attr(w, kAXSizeAttribute), CFGetTypeID(raw) == AXValueGetTypeID() else { return nil }
+            var sz = CGSize.zero
+            return AXValueGetValue(unsafeDowncast(raw, to: AXValue.self), .cgSize, &sz) ? sz : nil
+        }
+        for legacy in [true, false] {
+            let height: CGFloat = legacy ? 171 : 176
+            let width: CGFloat = legacy ? max(128, 0.125 * visible.width) : 304
+            let seed = PlacementSeed(displayID: CFUUIDCreateString(nil, uuid) as String,
+                                     frame: small, visibleFrame: visible, expandedHeight: height,
+                                     expandedWidth: legacy ? nil : width, anchorsRightOnExpand: legacy ? nil : true)
+            let bytes = try JSONEncoder().encode(seed)
+            try await coldLaunch(["-panel.userPlacement.v4", "<" + bytes.map { String(format: "%02x", $0) }.joined() + ">"])
+            try await wait("minimum placement on real launch") { panelSize() == small.size }
+            try await round("展开语音板", visible: true, expected: "收起语音板", compact: true)
+            func expanded() -> Bool {
+                guard let sz = panelSize() else { return false }
+                return abs(sz.width - width) <= 1 && abs(sz.height - height) <= 1 && editor() != nil
+            }
+            try await wait("menu must restore a readable panel without touching capture") { expanded() && status(pid) != nil }
+            try await coldLaunch()
+            try await wait("restored reading size must persist on ordinary launch") { expanded() && status(pid) != nil }
+            print("COMPACT_MENU_RESTORE_PASS legacy=\(legacy) restored=\(width)x\(height) relaunched=true paused=true")
+        }
+        guard initialFront == NSWorkspace.shared.frontmostApplication?.processIdentifier else { throw Failure("expanding unexpectedly activated another app") }
         try await stop()
         print("STATUS_MENU_RELAUNCH_PASS ordinaryFirstVisible=true subsequentVisible=true explicitHidePersisted=true explicitShowPersisted=true isolatedData=true")
-        print("STATUS_MENU_PASS opened=7 cancelled=3 explicitShow=2 explicitHide=2 selectedEditPreserved=true paused=true foregroundPreserved=true")
+        print("STATUS_MENU_PASS opened=9 expanded=2 cancelled=3 explicitShow=2 explicitHide=2 selectedEditPreserved=true paused=true foregroundPreserved=true")
     }
     @MainActor static func main() async {
         do { try await run() } catch { print("STATUS_MENU_FAILED", error); exit(1) }

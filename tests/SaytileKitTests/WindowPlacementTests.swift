@@ -90,6 +90,30 @@ struct WindowPlacementTests {
         #expect(legacy.expandedHeight == nil && legacy.restored(on: [("built-in", screen)]) == wide)
     }
 
+    @Test func expandAfterRelaunchRestoresSizeAndEdgeUsedToFold() throws {
+        let screen = CGRect(x: -1512, y: 50, width: 1512, height: 902)
+        let wide = CGRect(x: -1050, y: 270, width: 385, height: 291)
+        for anchorsRight in [true, false] {
+            let mini = CGRect(x: anchorsRight ? wide.maxX - 72 : wide.minX,
+                              y: wide.maxY - 44, width: 72, height: 44)
+            let snapshot = try #require(SavedPanelPlacement(frame: mini, visibleFrame: screen, displayID: "desk",
+                                                            expandedHeight: wide.height, expandedWidth: wide.width,
+                                                            anchorsRightOnExpand: anchorsRight))
+            let restored = try JSONDecoder().decode(SavedPanelPlacement.self, from: JSONEncoder().encode(snapshot))
+            #expect(WindowPlacement.expandedPanel(from: restored.frame, on: screen, width: restored.expandedWidth,
+                                                  height: restored.expandedHeight, anchorsRight: restored.anchorsRightOnExpand) == wide)
+        }
+    }
+
+    @Test func expansionRemainsOnTheCurrentWorkAreaWithOldOrOversizedPreferences() {
+        let screen = CGRect(x: -900, y: -300, width: 900, height: 700)
+        let bottomRight = CGRect(x: screen.maxX - 72, y: screen.minY, width: 72, height: 44)
+        let old = WindowPlacement.expandedPanel(from: bottomRight, on: screen, width: nil, height: 275, anchorsRight: nil)
+        #expect(old.width == 128 && old.height == 275 && old.maxX == screen.maxX && old.minY == screen.minY)
+        let oversize = WindowPlacement.expandedPanel(from: bottomRight, on: screen, width: 6000, height: 5000, anchorsRight: false)
+        #expect(oversize == screen)
+    }
+
     @Test func temporarilyDisconnectedWidePanelReturnsAtChosenSize() throws {
         let desk = CGRect(x: -1920, y: 0, width: 1920, height: 1050)
         let portrait = CGRect(x: 0, y: 0, width: 800, height: 1260)

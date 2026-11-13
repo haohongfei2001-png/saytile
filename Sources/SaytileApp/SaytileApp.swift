@@ -63,6 +63,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                let placement = key == placementKey ? saved : saved.removingLegacyShadowMargin(),
                let frame = placement.restored(on: screens) {
                 panel?.expandedHeight = placement.expandedHeight
+                panel?.expandedWidth = placement.expandedWidth
+                panel?.anchorsRightOnExpand = placement.anchorsRightOnExpand
                 return frame
             }
         }
@@ -71,7 +73,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     private func rememberPlacement() {
         guard !positioningPanel, let panel, let screen = panel.screen,
               let placement = SavedPanelPlacement(frame: panel.frame, visibleFrame: screen.visibleFrame,
-                                                  displayID: displayKey(screen), expandedHeight: panel.expandedHeight),
+                                                  displayID: displayKey(screen), expandedHeight: panel.expandedHeight,
+                                                  expandedWidth: panel.expandedWidth, anchorsRightOnExpand: panel.anchorsRightOnExpand),
               let data = try? JSONEncoder().encode(placement) else { return }
         placementDefaults?.set(data, forKey: placementKey)
     }
@@ -501,6 +504,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             menu.addItem(.separator())
         }
         let panelVisible = panel?.isVisible == true
+        if panelVisible, panel?.isCompact == true {
+            let expand = NSMenuItem(title: "展开语音板", action: #selector(explicitlyExpandPanel), keyEquivalent: "")
+            expand.target = self
+            menu.addItem(expand)
+        }
         let items: [(String, Selector)] = [(panelVisible ? "收起语音板" : "显示语音板", panelVisible ? #selector(explicitlyHidePanel) : #selector(explicitlyShowPanel)), ("语音档案与设置…", #selector(openWorkspace))]
         for (title, selector) in items { let item = NSMenuItem(title: title, action: selector, keyEquivalent: ""); item.target = self; menu.addItem(item) }
         menu.addItem(.separator())
@@ -519,6 +527,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         visibilityDefaults?.removeObject(forKey: panelHiddenKey)
         showPanel()
     }
+    @objc private func explicitlyExpandPanel() { panel?.expandToReadingSize() }
     @objc private func explicitlyHidePanel() {
         visibilityDefaults?.set(true, forKey: panelHiddenKey)
         panel?.orderOut(nil)
@@ -541,10 +550,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             panel.becomesKeyOnlyIfNeeded = true; panel.delegate = self
             panel.isMovableByWindowBackground = false
             panel.acceptsMouseMovedEvents = true
+            panel.compactCaptureAction = { [weak model] in model?.toggleCapture() }
             panel.didChoosePosition = { [weak self] in
                 self?.movingPanel = false; self?.restorePanel(); self?.rememberPlacement()
             }
-            let content = NSHostingView(rootView: InputPanelWindowView(model: model).preferredColorScheme(.light))
+            let content = NSHostingView(rootView: InputPanelWindowView(model: model, onExpand: { [weak panel] in
+                panel?.expandToReadingSize()
+            }).preferredColorScheme(.light))
             // Streaming text must scroll inside the chosen window geometry, not
             // enlarge the NSPanel through SwiftUI's intrinsic-size propagation.
             content.sizingOptions = []
