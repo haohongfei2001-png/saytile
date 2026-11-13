@@ -12,6 +12,7 @@ enum VoiceRailProportions {
 public enum VoicePanelFootprint {
     public static let minimumSize = CGSize(width: 72, height: 44)
     public static let compactWidthLimit: CGFloat = 80
+    static let compactCornerRadius: CGFloat = 12
     public static let controlSize = CGSize(width: 54, height: 26)
 
     public static func isCompact(outerWidth: CGFloat) -> Bool {

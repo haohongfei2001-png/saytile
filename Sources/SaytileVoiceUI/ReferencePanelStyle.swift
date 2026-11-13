@@ -273,11 +273,7 @@ public struct FramedVoiceSlot<Content: View>: View {
                 .frame(width: card.width, height: card.height)
                 .position(x: card.midX, y: slot.height - card.midY)
                 .background {
-                    if compact {
-                        // A fully transparent pixel passes through this nonopaque NSPanel
-                        // in WindowServer, before AppKit can handle its resize gesture.
-                        Color.white.opacity(0.01).accessibilityHidden(true)
-                    } else if !showsBorder {
+                    if !compact && !showsBorder {
                         ReferencePanelSurface(radius: metrics.radius, showsStroke: false)
                     }
                 }

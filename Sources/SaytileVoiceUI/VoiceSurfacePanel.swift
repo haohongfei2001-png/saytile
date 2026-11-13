@@ -36,6 +36,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
     let applyEdits: (@MainActor ([VoicePanelEdit]) throws -> PanelTimelineDocument<Entry>)?
     let onEdit: (@MainActor () -> Void)?
     let captureDisabled: Bool
+    let compactHelp: String?
     let menu: () -> MenuItems
 
     private typealias ViewState<T> = SwiftUI.State<T>
@@ -54,7 +55,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
                 latestRequest: Int = 0, fillContextMenu: (@MainActor (NSMenu) -> Void)? = nil, onEdit: (@MainActor () -> Void)? = nil,
                 applyEdits: (@MainActor ([VoicePanelEdit]) throws -> PanelTimelineDocument<Entry>)? = nil,
                 target _: String? = nil, notice _: String? = nil, placeholder _: String? = nil, placeholderDetail _: String? = nil,
-                captureDisabled: Bool = false, @ViewBuilder menu: @escaping () -> MenuItems) {
+                captureDisabled: Bool = false, compactHelp: String? = nil, @ViewBuilder menu: @escaping () -> MenuItems) {
         self.document = document
         self.access = access
         self.capture = capture
@@ -72,6 +73,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
         self.applyEdits = applyEdits
         self.onEdit = onEdit
         self.captureDisabled = captureDisabled
+        self.compactHelp = compactHelp
         self.menu = menu
     }
 
@@ -134,21 +136,46 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
         .accessibilityIdentifier("panel.copy")
     }
 
-    private func captureButton(_ metrics: VoicePanelMetrics, compact: Bool) -> some View {
-        let scale = metrics.scale
-        return Button(action: onToggle) {
-            VoiceCaptureGlyph(presentation: capture, scale: scale)
-                .foregroundStyle(ReferencePanelStyle.glyph)
-                .frame(width: metrics.voiceWidth, height: metrics.controlHeight)
-                .background { ReferenceControlSurface(scale: scale) }
-                .background { if compact { Capsule().fill(.regularMaterial) } }
-                .contentShape(Rectangle())
+    @ViewBuilder private func captureButton(_ metrics: VoicePanelMetrics, compact: Bool) -> some View {
+        let glyph = VoiceCaptureGlyph(presentation: capture, scale: metrics.scale)
+            .foregroundStyle(ReferencePanelStyle.glyph)
+        let highlight = Color.gray.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0)
+        let button = Button(action: onToggle) {
+            if compact {
+                // In the smallest footprint the board itself is the control.
+                let radius = VoicePanelFootprint.compactCornerRadius
+                glyph
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background { ReferencePanelSurface(radius: radius, showsStroke: !singleGlassSurface) }
+                    .overlay {
+                        RoundedRectangle(cornerRadius: radius, style: .continuous)
+                            .strokeBorder(captureFocused ? highlight : .clear, lineWidth: 2)
+                            .allowsHitTesting(false)
+                    }
+                    .contentShape(Rectangle())
+            } else {
+                glyph
+                    .frame(width: metrics.voiceWidth, height: metrics.controlHeight)
+                    .background { ReferenceControlSurface(scale: metrics.scale) }
+                    .overlay {
+                        Capsule().stroke(highlight, lineWidth: captureFocused ? 2 : 1)
+                            .allowsHitTesting(false)
+                    }
+                    .contentShape(Rectangle())
+            }
         }
         .buttonStyle(CaptureButtonStyle()).disabled(captureDisabled)
-        .overlay(Capsule().stroke(Color.gray.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1).allowsHitTesting(false))
         .onHover { captureHovered = $0 }.focused($captureFocused)
-        .help(capture.actionLabel).accessibilityLabel(capture.actionLabel)
+        .accessibilityLabel(capture.actionLabel)
         .accessibilityValue(capture.accessibilityValue).accessibilityIdentifier("panel.capture")
+
+        if compact {
+            button.contextMenu(menuItems: menu)
+                .help(compactHelp ?? capture.actionLabel)
+                .accessibilityHint(compactHelp ?? "")
+        } else {
+            button.help(capture.actionLabel)
+        }
     }
 
     private struct CaptureButtonStyle: ButtonStyle {
