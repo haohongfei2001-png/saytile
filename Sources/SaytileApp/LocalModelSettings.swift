@@ -12,6 +12,10 @@ struct LocalModelSettings: View {
 
     var body: some View {
         Section("本机识别使用的模型") {
+            if model.deviceOnly {
+                LabeledContent("下一段本机识别", value: model.selectedLocalModel.title)
+                    .accessibilityIdentifier("models.nextLocalEngine")
+            }
             if let fallback = model.localFallbackMessage {
                 Text(fallback).font(.callout).foregroundStyle(.secondary)
             }
