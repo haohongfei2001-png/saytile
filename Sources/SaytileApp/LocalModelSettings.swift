@@ -44,6 +44,10 @@ struct LocalModelSettings: View {
             ForEach(LocalASRID.consumer.filter { $0 != .apple }, id: \.rawValue) { id in
                 modelRow(id)
             }
+            if model.manualLocalModel != nil {
+                Button("恢复默认模型") { model.selectLocal(nil) }
+                    .controlSize(.small).accessibilityIdentifier("models.restoreDefault")
+            }
             if let issue { Text(issue).foregroundStyle(.secondary) }
         }
         .task { await watchDirectory() }
@@ -61,12 +65,6 @@ struct LocalModelSettings: View {
                 DisclosureGroup("清理旧模型文件") {
                     ForEach(experiments, id: \.self) { id in Button("删除 " + id.title + "…") { deletion = id } }
                 }
-            }
-        }
-        Section {
-            DisclosureGroup("运行内存参考") {
-                Text("M5 实测 App 与助手的同时峰值为 Paraformer 509 MiB、Qwen 1,442 MiB。Apple 的共享系统服务无法单独计量。实际占用随讲话时长变化。")
-                    .font(.callout).foregroundStyle(.secondary)
             }
         }
     }
@@ -122,10 +120,10 @@ struct LocalModelSettings: View {
     }
 
     private func choose(_ id: LocalASRID, available: Bool) -> some View {
-        let selected = model.selectedLocalModel == id
-        return Button(selected ? "已选择" : "使用此模型") { model.selectLocal(id) }
-            .disabled(selected || !available).controlSize(.small)
-            .accessibilityLabel(id.title + (selected ? "，已选择" : "，使用此模型"))
+        let label = model.localModelChoiceLabel(id)
+        return Button(label) { model.selectLocal(id) }
+            .disabled(!available || model.isLocalChoiceFixed(id)).controlSize(.small)
+            .accessibilityLabel(id.title + "，" + label)
             .accessibilityIdentifier("models.use." + id.rawValue)
     }
 }

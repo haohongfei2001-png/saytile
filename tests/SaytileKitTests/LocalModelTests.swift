@@ -4,6 +4,23 @@ import Testing
 
 @Suite("On-device streaming and model integrity")
 struct LocalModelTests {
+    @Test func onlyNetworkFailuresBecomeEligibleForAutomaticResume() async throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        for (protocolClass, expected) in [(OfflineModelRequest.self as URLProtocol.Type, true),
+                                          (InvalidModelResponse.self as URLProtocol.Type, false)] {
+            let configuration = URLSessionConfiguration.ephemeral
+            configuration.protocolClasses = [protocolClass]
+            let library = LocalModelLibrary(root: root, session: URLSession(configuration: configuration))
+            let transfer = try #require(await library.download(.qwen))
+            await transfer.value
+            #expect(await library.needsNetworkToResume(.qwen) == expected)
+            let status = await library.status(.qwen)
+            #expect(!status.installed && status.error != nil)
+            try await library.delete(.qwen)
+            #expect(await !library.needsNetworkToResume(.qwen))
+        }
+    }
     @Test func downloadPreservesRoomForRecording() throws {
         #expect(throws: AudioFailure.self) {
             try LocalModelLibrary.checkDownloadCapacity(remaining: 100, available: 128_000_099)
@@ -125,4 +142,16 @@ struct LocalModelTests {
         #expect(try await store.modelRuns(recordingID: recording.id).count == (mode == "revoked" ? 1 : 2))
         if mode == "verified" { #expect(try await store.modelUsage(recordingID: recording.id).first?.audioSeconds == 0) }
     }
+}
+
+private class FailedModelRequest: URLProtocol, @unchecked Sendable {
+    override class func canInit(with request: URLRequest) -> Bool { true }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override func stopLoading() {}
+}
+private final class OfflineModelRequest: FailedModelRequest, @unchecked Sendable {
+    override func startLoading() { client?.urlProtocol(self, didFailWithError: URLError(.notConnectedToInternet)) }
+}
+private final class InvalidModelResponse: FailedModelRequest, @unchecked Sendable {
+    override func startLoading() { client?.urlProtocol(self, didFailWithError: URLError(.badServerResponse)) }
 }
