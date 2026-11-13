@@ -684,6 +684,7 @@ extension SaytileStore {
          JOIN revisions stable ON stable.id=(
            SELECT latest.id FROM revisions latest
            WHERE latest.recording_id=r.id AND latest.origin='final'
+             AND NOT EXISTS(SELECT 1 FROM icloud_imported_revisions cloud WHERE cloud.revision_id=latest.id)
              AND NOT EXISTS(SELECT 1 FROM fusion_archives archive WHERE archive.revision_id=latest.id)
            ORDER BY latest.created_at DESC,latest.rowid DESC LIMIT 1
          )
@@ -715,13 +716,14 @@ extension SaytileStore {
                 WHERE b.id=? AND b.active=1 AND r.rowid>boundary.recording_rowid
                   AND r.created_at>=b.created_at
                 """,[.text(recordingID.uuidString),.text(bindingID.uuidString)]).first != nil else { throw StoreError.bindingInvalid }
-                guard let revision = try db.rows("SELECT text,origin FROM revisions WHERE id=? AND recording_id=?",[.text(revisionID.uuidString),.text(recordingID.uuidString)]).first else { throw StoreError.missingRevision }
+                guard let revision = try db.rows("SELECT text,origin FROM revisions WHERE id=? AND recording_id=? AND NOT EXISTS(SELECT 1 FROM icloud_imported_revisions cloud WHERE cloud.revision_id=revisions.id)",[.text(revisionID.uuidString),.text(recordingID.uuidString)]).first else { throw StoreError.missingRevision }
                 let text = revision["text"]!
                 let cursor = try db.rows("SELECT end_utf16,prefix FROM cursors WHERE binding_id=? AND recording_id=?",[.text(bindingID.uuidString),.text(recordingID.uuidString)]).first
                 let start = Int(cursor?["end_utf16"] ?? "0")!
                 let prefix = Self.slice(text,start:0,end:start)
                 // Duplicate callbacks remain a no-op, even after a later record advanced.
                 if stableUTF16End == start, prefix == (cursor?["prefix"] ?? "") { return nil }
+                guard try db.rows("SELECT revision_id FROM icloud_imported_revisions WHERE revision_id=?", [.text(revisionID.uuidString)]).isEmpty else { throw StoreError.lateRecognitionDeferred }
                 guard try db.rows("SELECT revision_id FROM fusion_archives WHERE revision_id=?", [.text(revisionID.uuidString)]).isEmpty else { throw StoreError.lateRecognitionDeferred }
                 guard try fusionDispatchEvidenceIsCurrent(recordingID: recordingID, revisionID: revisionID) else { return nil }
                 let advanced = try db.rows("""
@@ -789,6 +791,7 @@ extension SaytileStore {
       id TEXT PRIMARY KEY,recording_id TEXT NOT NULL REFERENCES recordings(id),text TEXT NOT NULL,
       origin TEXT NOT NULL CHECK(origin IN('partial','final','userEdit')),created_at REAL NOT NULL,attempt TEXT,base_revision TEXT
     );
+    CREATE TABLE IF NOT EXISTS icloud_imported_revisions(revision_id TEXT PRIMARY KEY REFERENCES revisions(id) ON DELETE CASCADE);
     CREATE TRIGGER IF NOT EXISTS revisions_immutable BEFORE UPDATE ON revisions BEGIN
       SELECT RAISE(ABORT,'create a new revision');
     END;

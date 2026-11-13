@@ -3,7 +3,6 @@ import Foundation
 public enum RecordingFilter: Sendable { case all, transcribed, pinned, needsRecovery }
 public enum AudioState: String, Codable, Sendable { case available, deletePending, deleted, missing }
 public enum RecognitionState: String, Codable, Sendable { case queued, running, completed, failed, cancelled }
-public enum RevisionOrigin: String, Codable, Sendable { case partial, final, userEdit }
 public enum DispatchState: String, Codable, Sendable { case dispatching, confirmed, unverified, failed, cancelled }
 
 public struct Recording: Identifiable, Sendable, Equatable {
