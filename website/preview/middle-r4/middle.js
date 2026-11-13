@@ -41,6 +41,7 @@
     if (!scenes[next] || next === scene) return;
     sceneCache.set(scene,{text:textOf(workText),edited:workEdited,index:workIndex}); stopWork(); scene=next;
     $('#r4-desktop').dataset.scene = scene; $('#r4-desktop').setAttribute('aria-labelledby','r4-tab-'+scene); $('#r4-menu-app').textContent = scenes[scene].menu; $('#r4-window-title').textContent = scenes[scene].title; $('#r4-context').innerHTML = scenes[scene].body;
+    if(!reduced) $('#r4-document').animate([{opacity:.45,transform:'translateY(5px)'},{opacity:1,transform:'translateY(0)'}],{duration:420,easing:'cubic-bezier(.2,.8,.2,1)'});
     sceneTabs.forEach(b => { const current=b.dataset.scene===scene; b.setAttribute('aria-selected',String(current)); b.tabIndex=current?0:-1; });
     const cached=sceneCache.get(scene); workEdited=!!cached?.edited; workIndex=cached?.edited?cached.index:1; workText.textContent=cached?.edited?cached.text:scenes[scene].chunks[0]; playWork();
   }
@@ -88,7 +89,7 @@
     {title:'还没想完的问题',date:'昨天　21:32',text:'这个方案，嗯，先别急着定。\n\n下次评审，我们再一起看看。',audio:'assets/original-demo.m4a'}
   ];
   let selected=0;const recordText=$('#r4-record-text');
-  function chooseRecord(index){if(index===selected)return;records[selected].text=textOf(recordText);selected=index;archiveAudio.pause();archiveAudio.src=records[index].audio;archiveUI();$('#r4-record-date').textContent=records[index].date;$('#r4-record-title').textContent=records[index].title;recordText.textContent=records[index].text;document.querySelectorAll('.r4-record').forEach(b=>{const yes=Number(b.dataset.record)===index;b.classList.toggle('is-selected',yes);b.setAttribute('aria-pressed',String(yes));});}
+  function chooseRecord(index){if(index===selected)return;records[selected].text=textOf(recordText);selected=index;archiveAudio.pause();archiveAudio.src=records[index].audio;archiveUI();$('#r4-record-date').textContent=records[index].date;$('#r4-record-title').textContent=records[index].title;recordText.textContent=records[index].text;if(!reduced) recordText.animate([{opacity:.3,transform:'translateY(4px)'},{opacity:1,transform:'translateY(0)'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'});document.querySelectorAll('.r4-record').forEach(b=>{const yes=Number(b.dataset.record)===index;b.classList.toggle('is-selected',yes);b.setAttribute('aria-pressed',String(yes));});}
   document.querySelectorAll('.r4-record').forEach(b=>b.addEventListener('click',()=>chooseRecord(Number(b.dataset.record))));
   function filterRecords(){records[selected].text=textOf(recordText);const q=$('#r4-search').value.trim().toLocaleLowerCase();let count=0,first=null;document.querySelectorAll('.r4-record').forEach(b=>{const i=Number(b.dataset.record),visible=(records[i].title+' '+records[i].text).toLocaleLowerCase().includes(q);b.hidden=!visible;if(visible){count++;if(first===null)first=i;}});$('#r4-result-count').textContent=String(count);$('#r4-no-results').hidden=count>0;if(q&&first!==null&&!((records[selected].title+' '+records[selected].text).toLocaleLowerCase().includes(q)))chooseRecord(first);}
   $('#r4-search').addEventListener('input',filterRecords);$('#r4-search').addEventListener('keydown',e=>{if(e.key==='Escape'){$('#r4-search').value='';filterRecords();}});$('#r4-clear-search').addEventListener('click',()=>{$('#r4-search').value='';filterRecords();$('#r4-search').focus();});
