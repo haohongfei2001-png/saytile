@@ -1,0 +1,106 @@
+{
+  "source": "d3b37a88efd4f61ad2ff091353313379a584b1df",
+  "segmentation": "Read unchanged VAD boundaries from ../mandarin-quality-20261114/segmentation-frames.jsonl (independent replay). Matched state order is chronological per MandarinCohort.swift. Acoustic activity is RMS above -55 dB in the firstVoiceSample..lastVoiceSample interval and does not classify speech. Direct and baseline archived comparison are the earlier signed 414 receipts; 442 full product outputs were replayed.",
+  "cases": [
+    {
+      "id": "fleurs-e0687aaa8689e196",
+      "wav_sha256": "4681070ac0f3c6d11b5d80993298ad16e2059b3030869fcec6acc466523e154b",
+      "states": [
+        "completed",
+        "failed"
+      ],
+      "failed_ordinal": 2,
+      "failed_voice_span_s": [
+        17.94,
+        18.1
+      ],
+      "failed_vad_span_seconds": 0.16,
+      "journal_seconds": 1.3,
+      "span_blocks_over_minus55_fraction": 0.5,
+      "direct_414_errors": 0,
+      "archive_414_errors": 0,
+      "archive_442_errors": 0,
+      "reference_chars": 40
+    },
+    {
+      "id": "fleurs-fd242859bc18ffbb",
+      "wav_sha256": "bbb84204896b251dd30298adcba51a00d51aedb92337dabf9aaf860512ca3257",
+      "states": [
+        "failed",
+        "completed"
+      ],
+      "failed_ordinal": 1,
+      "failed_voice_span_s": [
+        0.32,
+        3.02
+      ],
+      "failed_vad_span_seconds": 2.7,
+      "journal_seconds": 4.52,
+      "span_blocks_over_minus55_fraction": 0.007,
+      "direct_414_errors": 28,
+      "archive_414_errors": 28,
+      "archive_442_errors": 28,
+      "reference_chars": 58
+    },
+    {
+      "id": "fleurs-c1fcf0cd023db10f",
+      "wav_sha256": "95dae2e6509dac2af6b35149dbd46978e2a5bfd480d3604282a1a092606ff0ea",
+      "states": [
+        "failed",
+        "completed"
+      ],
+      "failed_ordinal": 1,
+      "failed_voice_span_s": [
+        0.56,
+        0.94
+      ],
+      "failed_vad_span_seconds": 0.38,
+      "journal_seconds": 2.44,
+      "span_blocks_over_minus55_fraction": 0.0,
+      "direct_414_errors": 4,
+      "archive_414_errors": 4,
+      "archive_442_errors": 4,
+      "reference_chars": 44
+    },
+    {
+      "id": "fleurs-b53a7292b38e011d",
+      "wav_sha256": "3c1755ea9074e65e3c64de653ef1ec5404607cb26ba145d1b6d09bbf9fe7e22d",
+      "states": [
+        "completed",
+        "failed"
+      ],
+      "failed_ordinal": 2,
+      "failed_voice_span_s": [
+        10.9,
+        11.4
+      ],
+      "failed_vad_span_seconds": 0.5,
+      "journal_seconds": 2.42,
+      "span_blocks_over_minus55_fraction": 0.8,
+      "direct_414_errors": 0,
+      "archive_414_errors": 0,
+      "archive_442_errors": 0,
+      "reference_chars": 29
+    },
+    {
+      "id": "fleurs-9a0d49266d4f5e24",
+      "wav_sha256": "23e0b9b1ce4f846beba5d465396f9a5c52d684802949163a3c2dee5197375f66",
+      "states": [
+        "completed",
+        "failed"
+      ],
+      "failed_ordinal": 2,
+      "failed_voice_span_s": [
+        13.26,
+        13.56
+      ],
+      "failed_vad_span_seconds": 0.3,
+      "journal_seconds": 1.88,
+      "span_blocks_over_minus55_fraction": 0.467,
+      "direct_414_errors": 0,
+      "archive_414_errors": 0,
+      "archive_442_errors": 0,
+      "reference_chars": 33
+    }
+  ]
+}

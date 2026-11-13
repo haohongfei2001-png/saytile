@@ -1,0 +1,478 @@
+{
+  "panel_15": {
+    "0.13.414": {
+      "source": "cd41c60f0d7cb042c066c42147a58085b6f33f95",
+      "clips": 15,
+      "archive": {
+        "errors": 46,
+        "substitutions": 11,
+        "deletions": 30,
+        "insertions": 5,
+        "reference_units": 568,
+        "cer": 0.08099
+      },
+      "complete": 15,
+      "first_display_s": {
+        "p50": 1.184,
+        "p95": 2.055
+      },
+      "published_gap_s": {
+        "p50": 1.205,
+        "p95": 2.061
+      },
+      "display_gap_s": {
+        "p50": 1.135,
+        "p95": 1.361
+      },
+      "largest_display_stall_s": 2.99,
+      "largest_source_stall_s": 3.023,
+      "source_gaps_ge_2s": 7,
+      "display_gaps_ge_2s": 7,
+      "display_tail_replacements": 8,
+      "characters_retracted": 39,
+      "after_eof_s": {
+        "p50": 0.199,
+        "p95": 0.444
+      }
+    },
+    "0.13.440": {
+      "source": "1c5525f0b7e92244e8b7a8718a8517571ef8408a",
+      "clips": 15,
+      "archive": {
+        "errors": 46,
+        "substitutions": 11,
+        "deletions": 30,
+        "insertions": 5,
+        "reference_units": 568,
+        "cer": 0.08099
+      },
+      "complete": 15,
+      "first_display_s": {
+        "p50": 0.966,
+        "p95": 2.743
+      },
+      "published_gap_s": {
+        "p50": 0.516,
+        "p95": 1.038
+      },
+      "display_gap_s": {
+        "p50": 0.515,
+        "p95": 1.045
+      },
+      "largest_display_stall_s": 2.743,
+      "largest_source_stall_s": 2.699,
+      "source_gaps_ge_2s": 3,
+      "display_gaps_ge_2s": 2,
+      "display_tail_replacements": 25,
+      "characters_retracted": 97,
+      "after_eof_s": {
+        "p50": 0.198,
+        "p95": 0.333
+      }
+    },
+    "0.13.442": {
+      "source": "d3b37a88efd4f61ad2ff091353313379a584b1df",
+      "clips": 15,
+      "archive": {
+        "errors": 46,
+        "substitutions": 11,
+        "deletions": 30,
+        "insertions": 5,
+        "reference_units": 568,
+        "cer": 0.08099
+      },
+      "complete": 15,
+      "first_display_s": {
+        "p50": 0.974,
+        "p95": 1.608
+      },
+      "published_gap_s": {
+        "p50": 0.515,
+        "p95": 1.067
+      },
+      "display_gap_s": {
+        "p50": 0.514,
+        "p95": 1.039
+      },
+      "largest_display_stall_s": 1.85,
+      "largest_source_stall_s": 1.9,
+      "source_gaps_ge_2s": 0,
+      "display_gaps_ge_2s": 0,
+      "display_tail_replacements": 26,
+      "characters_retracted": 97,
+      "after_eof_s": {
+        "p50": 0.187,
+        "p95": 0.301
+      }
+    }
+  },
+  "resource_38s": {
+    "0.13.414": {
+      "sample_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "peak_simultaneous_footprint_MiB": 1645.1,
+      "app_and_helper_cpu_percent": {
+        "p50": 28.4,
+        "p95": 122.1
+      },
+      "sampled_seconds": 39.85,
+      "cpu_w_above_idle": -1.93,
+      "gpu_w_above_idle": 2.42,
+      "system_w_idle": 23.44,
+      "system_w_active": 25.44,
+      "whole_machine_ac_power_only": true
+    },
+    "0.13.442": {
+      "sample_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "peak_simultaneous_footprint_MiB": 1573.9,
+      "app_and_helper_cpu_percent": {
+        "p50": 75.9,
+        "p95": 131.8
+      },
+      "sampled_seconds": 40.28,
+      "cpu_w_above_idle": -5.07,
+      "gpu_w_above_idle": 3.78,
+      "system_w_idle": 28.88,
+      "system_w_active": 29.87,
+      "whole_machine_ac_power_only": true
+    }
+  },
+  "cohorts": {
+    "original_420": {
+      "0.13.414": {
+        "errors": 910,
+        "substitutions": 407,
+        "deletions": 387,
+        "insertions": 116,
+        "reference_units": 10663,
+        "rows": 420,
+        "empty_texts": 0,
+        "failed_parts": 5,
+        "cer": 0.08534
+      },
+      "0.13.442": {
+        "errors": 910,
+        "substitutions": 407,
+        "deletions": 387,
+        "insertions": 116,
+        "reference_units": 10663,
+        "rows": 420,
+        "empty_texts": 0,
+        "failed_parts": 5,
+        "cer": 0.08534
+      }
+    },
+    "derived_20": {
+      "0.13.414": {
+        "errors": 65,
+        "substitutions": 29,
+        "deletions": 34,
+        "insertions": 2,
+        "reference_units": 764,
+        "rows": 20,
+        "empty_texts": 0,
+        "failed_parts": 0,
+        "cer": 0.08508
+      },
+      "0.13.442": {
+        "errors": 65,
+        "substitutions": 29,
+        "deletions": 34,
+        "insertions": 2,
+        "reference_units": 764,
+        "rows": 20,
+        "empty_texts": 0,
+        "failed_parts": 0,
+        "cer": 0.08508
+      }
+    }
+  },
+  "accelerated_changes": [],
+  "soak": {
+    "0.13.414": {
+      "model": "qwen-small",
+      "requested_automatic": true,
+      "observed_automatic": true,
+      "observed_window_source": "cd41c60f0d7cb042c066c42147a58085b6f33f95",
+      "errors": [],
+      "fixture_sha256": "6c6e57fb689187803fcbbbf52523fcebe047dedb8e85a71fe611588c66e4f072",
+      "input_clips": [
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c"
+      ],
+      "input_duration": 905.020375,
+      "elapsed": 905.0217150833923,
+      "exit_code": 0,
+      "ui_updates": 579,
+      "retained_ui_frames": 512,
+      "providers": [
+        "qwen-small"
+      ],
+      "archived_seconds": 803.040375,
+      "archive_chunks": 79,
+      "states": [
+        [
+          "completed",
+          "available",
+          47
+        ]
+      ],
+      "completed_rows": 47,
+      "total_rows": 47,
+      "integrity": "ok",
+      "foreign_errors": 0,
+      "dispatches": 0,
+      "timeline_rows": 47,
+      "unmatched_chunk_ordinals": [],
+      "resources": {
+        "app": {
+          "samples": 180,
+          "median_cpu_percent": 6.15,
+          "peak_RSS_MiB": 104.06,
+          "first_5min_median_RSS_MiB": 93.1,
+          "last_5min_median_RSS_MiB": 64.93
+        },
+        "worker": {
+          "samples": 175,
+          "median_cpu_percent": 12.3,
+          "peak_RSS_MiB": 745.48,
+          "first_5min_median_RSS_MiB": 725.73,
+          "last_5min_median_RSS_MiB": 727.91
+        }
+      },
+      "passed": true,
+      "idle": {
+        "input_range_seconds": [
+          485.4901875,
+          530.4901875
+        ],
+        "released": true,
+        "worker_observed_again_after_speech": true
+      }
+    },
+    "0.13.442": {
+      "model": "qwen-small",
+      "requested_automatic": true,
+      "observed_automatic": true,
+      "observed_window_source": "d3b37a88efd4f61ad2ff091353313379a584b1df",
+      "errors": [],
+      "fixture_sha256": "6c6e57fb689187803fcbbbf52523fcebe047dedb8e85a71fe611588c66e4f072",
+      "input_clips": [
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c"
+      ],
+      "input_duration": 905.020375,
+      "elapsed": 905.0232372083701,
+      "exit_code": 0,
+      "ui_updates": 911,
+      "retained_ui_frames": 512,
+      "providers": [
+        "qwen-small"
+      ],
+      "archived_seconds": 803.040375,
+      "archive_chunks": 79,
+      "states": [
+        [
+          "completed",
+          "available",
+          47
+        ]
+      ],
+      "completed_rows": 47,
+      "total_rows": 47,
+      "integrity": "ok",
+      "foreign_errors": 0,
+      "dispatches": 0,
+      "timeline_rows": 47,
+      "unmatched_chunk_ordinals": [],
+      "resources": {
+        "app": {
+          "samples": 180,
+          "median_cpu_percent": 5.95,
+          "peak_RSS_MiB": 99.48,
+          "first_5min_median_RSS_MiB": 54.59,
+          "last_5min_median_RSS_MiB": 58.62
+        },
+        "worker": {
+          "samples": 175,
+          "median_cpu_percent": 31.3,
+          "peak_RSS_MiB": 798.69,
+          "first_5min_median_RSS_MiB": 719.19,
+          "last_5min_median_RSS_MiB": 793.88
+        }
+      },
+      "passed": true,
+      "idle": {
+        "input_range_seconds": [
+          485.4901875,
+          530.4901875
+        ],
+        "released": true,
+        "worker_observed_again_after_speech": true
+      }
+    }
+  }
+}

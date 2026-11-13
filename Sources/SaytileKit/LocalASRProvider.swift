@@ -29,10 +29,20 @@ struct NativeLocalASR: LocalASRProvider {
     }
 }
 
-struct WorkerEvent: Decodable, Sendable {
-    let kind: String
-    let text: String
-    let frames: Int
+/// Optional decode times are emitted only for an isolated local stream probe.
+public struct WorkerDecodeTiming: Codable, Sendable {
+    public let startUptime: Double
+    public let endUptime: Double
+    public let frames: Int
+    public let final: Bool
+    public let changed: Bool?
+}
+
+public struct WorkerEvent: Decodable, Sendable {
+    public let kind: String
+    public let text: String
+    public let frames: Int
+    public let decodes: [WorkerDecodeTiming]?
 }
 
 final class ModelWorker: @unchecked Sendable {
@@ -40,7 +50,8 @@ final class ModelWorker: @unchecked Sendable {
     let process = Process()
     let input: FileHandle
     let events: AsyncThrowingStream<WorkerEvent, Error>
-    init(id: LocalASRID, directory: URL, helpers: URL, stride: Int) throws {
+    init(id: LocalASRID, directory: URL, helpers: URL, stride: Int,
+         observe: (@Sendable (WorkerEvent) -> Void)? = nil) throws {
         self.id = id
         let stdin = Pipe(), stdout = Pipe()
         input = stdin.fileHandleForWriting
@@ -51,6 +62,11 @@ final class ModelWorker: @unchecked Sendable {
             process.currentDirectoryURL = resources
         }
         process.arguments = [id.rawValue, directory.path, String(stride)]
+        if observe != nil {
+            var environment = ProcessInfo.processInfo.environment
+            environment["SAYTILE_WORKER_TIMING"] = "1"
+            process.environment = environment
+        }
         process.standardInput = stdin
         process.standardOutput = stdout
         process.standardError = FileHandle.nullDevice
@@ -78,6 +94,7 @@ final class ModelWorker: @unchecked Sendable {
                         let event: WorkerEvent
                         do { event = try JSONDecoder().decode(WorkerEvent.self, from: line) }
                         catch { throw LocalASREngineUnavailable(reason: "本机识别返回了无效结果") }
+                        observe?(event)
                         if case .dropped = channel.yield(event) { throw AudioFailure.message("本机识别回传队列已满") }
                         pending.removeSubrange(...end)
                     }
@@ -105,16 +122,22 @@ final class ModelWorker: @unchecked Sendable {
 public actor LocalASRService {
     public nonisolated let library: LocalModelLibrary
     private let helpers: URL
-    private let stride: Int
+    private let chunkFrames: Int?
+    private var probeObserver: (@Sendable (WorkerEvent) -> Void)?
     private var waiting: [UUID] = []
     private var activeModel: LocalASRID?
     private var worker: ModelWorker?
     private var idle: Task<Void, Never>?
-    public init(root: URL, helpers: URL? = nil, chunkFrames: Int = 19_200) {
+    public init(root: URL, helpers: URL? = nil, chunkFrames: Int? = nil) {
         library = LocalModelLibrary(root: root)
         self.helpers = helpers ?? Bundle.main.bundleURL.appending(path: "Contents/Helpers")
-        self.stride = chunkFrames
+        self.chunkFrames = chunkFrames
     }
+    /// Called only by the isolated fixture probe before it starts its first session.
+    public func observeFixtureWorker(_ observe: @escaping @Sendable (WorkerEvent) -> Void) {
+        probeObserver = observe
+    }
+
     public func releaseIdle() {
         guard activeModel == nil else { return }
         idle?.cancel()
@@ -157,7 +180,9 @@ public actor LocalASRService {
                 try Task.checkCancellation()
                 if fresh {
                     worker?.stop()
-                    worker = try ModelWorker(id: id, directory: directory, helpers: helpers, stride: stride)
+                    let stride = chunkFrames ?? (id == .qwen ? 8_000 : 19_200)
+                    worker = try ModelWorker(id: id, directory: directory, helpers: helpers, stride: stride,
+                                             observe: probeObserver)
                 }
             } catch is CancellationError {
                 throw CancellationError()
@@ -224,6 +249,11 @@ struct LocalLiveText {
                let candidate = text.applyingTransform(StringTransform("Traditional-Simplified"), reverse: false),
                candidate.hasPrefix(reference), !reference.isEmpty {
                 readingPrefix = String(text.prefix(readingPrefix.count))
+            } else if !matches, let mapped = Self.formattedPrefix(readingPrefix, in: text) {
+                // The decoder can restyle an earlier English phrase on every pass
+                // while correctly extending the tail. Compare only the protected
+                // preview prefix. Never synthesize display text or grant dispatch.
+                readingPrefix = mapped
             } else if !matches {
                 // A decoder may permanently change “二十九岁” to “29岁”. Suppressing
                 // every later hypothesis would freeze the preview until end of speech.
@@ -253,6 +283,35 @@ struct LocalLiveText {
         }
         previous = text
         return model == .nemotron ? String(common.dropLast()).utf16.count : 0
+    }
+
+    /// Map common ASR typography to the exact raw end index in the new pass.
+    /// Keep word boundaries, signs, numbers, and lexical changes distinct.
+    private static func formattedPrefix(_ raw: String, in candidate: String) -> String? {
+        guard !raw.isEmpty else { return nil }
+        func latin(_ c: Character?) -> Bool {
+            guard let n = c?.asciiValue else { return false }
+            return (65...90).contains(n) || (97...122).contains(n)
+        }
+        func units(_ text: String) -> [(Character, String.Index)] {
+            var out: [(Character, String.Index)] = []
+            for i in text.indices {
+                let c = text[i], next = text.index(after: i)
+                let before = i == text.startIndex ? nil : text[text.index(before: i)]
+                let after = next == text.endIndex ? nil : text[next]
+                if c == "，", before?.isNumber != true, after?.isNumber != true { continue }
+                let mapped: Character
+                if c == "-", latin(before), latin(after) { mapped = " " }
+                else if latin(c) { mapped = Character(c.lowercased()) }
+                else { mapped = c }
+                out.append((mapped, next))
+            }
+            return out
+        }
+        let prefix = units(raw), update = units(candidate)
+        guard !prefix.isEmpty, update.count >= prefix.count,
+              zip(prefix, update).allSatisfy({ $0.0.0 == $0.1.0 }) else { return nil }
+        return String(candidate[..<update[prefix.count - 1].1])
     }
 
     private static func hasLocalizedCorrection(from visible: String, to confirmed: String) -> Bool {

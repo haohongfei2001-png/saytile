@@ -20,8 +20,9 @@ func bytes(_ count: Int, allowEOF: Bool = false) throws -> Data? {
     return data
 }
 
-func publish(_ text: String, kind: String, frames: Int) throws {
-    let event: [String: Any] = ["kind": kind, "text": text, "frames": frames]
+func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]] = []) throws {
+    var event: [String: Any] = ["kind": kind, "text": text, "frames": frames]
+    if !decodes.isEmpty { event["decodes"] = decodes }
     var line = try JSONSerialization.data(withJSONObject: event)
     line.append(10)
     try FileHandle.standardOutput.write(contentsOf: line)
@@ -62,10 +63,19 @@ func publish(_ text: String, kind: String, frames: Int) throws {
         }
         try publish("", kind: "ready", frames: 0)
         var stream = try nemo?.createSession(language: "zh")
-        // Decode a short first window on the same warmed model. After a
-        // revision, request one earlier confirmation; the normal growth cadence
-        // and full final decode stay unchanged.
-        let firstStride = rollingQwen ? min(stride, 12_800) : stride
+        // Give the first hypothesis 800 ms of acoustic context even when later
+        // previews are requested more frequently.
+        let firstStride: Int
+        switch id {
+        case "qwen-small": firstStride = 12_800
+        case "qwen-large": firstStride = min(stride, 12_800)
+        default: firstStride = stride
+        }
+        // Coalesce up to the previous 3.6 s of new PCM under heavy backlog.
+        // More frequent previews should consume spare time, not delay EOS.
+        let maxPreviewBacklog = max(57_600, 3 * stride)
+        let traceDecodes = id == "qwen-small" && ProcessInfo.processInfo.environment["SAYTILE_WORKER_TIMING"] == "1"
+        var decodes: [[String: Any]] = []
         // Local capture segments contain up to 30 s of active frames plus 1 s
         // of pre-roll. Keep that whole segment available for the EOS decode.
         let windowLimit = 16_000 * (rollingQwen ? 32 : 24)
@@ -98,27 +108,34 @@ func publish(_ text: String, kind: String, frames: Int) throws {
                     // for the next preview. Always decode the window boundary
                     // and EOS. Keep all samples, including partially read packets.
                     if id == "qwen-small", !end, !last.isEmpty, samples.count < windowLimit,
-                       samples.count - next < 3 * stride, try input.hasNextFrameNow() { continue }
+                       samples.count - next < maxPreviewBacklog, try input.hasNextFrameNow() { continue }
+                    let started = traceDecodes ? ProcessInfo.processInfo.systemUptime : 0
                     let tail = samples.isEmpty ? "" : try await transcribe(samples)
                     update = prefix + tail
+                    if traceDecodes {
+                        decodes.append(["startUptime": started, "endUptime": ProcessInfo.processInfo.systemUptime,
+                                        "frames": frames, "final": end, "changed": update != last])
+                    }
                     if samples.count >= windowLimit {
                         prefix += tail
                         samples.removeAll(keepingCapacity: true)
                         next = stride
                     } else {
                         let rollback = !last.isEmpty && !(update ?? "").hasPrefix(String(last.dropLast(2)))
-                        next = samples.count + (rollback ? firstStride : stride)
+                        next = samples.count + (rollback ? min(firstStride, stride) : stride)
                     }
                 }
             }
             if end {
-                try publish(update ?? last, kind: "final", frames: frames)
+                try publish(update ?? last, kind: "final", frames: frames, decodes: decodes)
+                decodes.removeAll(keepingCapacity: true)
                 stream = try nemo?.createSession(language: "zh")
                 samples.removeAll(keepingCapacity: true)
                 prefix = ""; last = ""; next = firstStride; frames = 0
             } else if let update, !update.isEmpty, update != last, id == "nemotron-metal" || rollingQwen {
                 last = update
-                try publish(update, kind: "partial", frames: frames)
+                try publish(update, kind: "partial", frames: frames, decodes: decodes)
+                decodes.removeAll(keepingCapacity: true)
             }
         }
     }

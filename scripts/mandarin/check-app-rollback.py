@@ -111,10 +111,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for key in ("old", "candidate", "seed-probe", "output"):
         parser.add_argument("--" + key, required=True, type=Path)
+    parser.add_argument("--same-candidate-profile", action="store_true", help="Upgrade and reopen the isolated candidate, never the production profile")
     args = parser.parse_args()
     apps = (args.old.resolve(), args.candidate.resolve())
     identities = [binary_info(app) for app in apps]
-    assert identities[0]["bundle_id"] == "app.saytile.mac"
+    assert identities[0]["bundle_id"] == ("app.saytile.mac.mandarin-candidate" if args.same_candidate_profile else "app.saytile.mac")
+    if args.same_candidate_profile:
+        assert int(identities[1]["build"]) > int(identities[0]["build"])
     assert identities[1]["bundle_id"] == "app.saytile.mac.mandarin-candidate"
     with tempfile.TemporaryDirectory(prefix="saytile-mandarin-rollback-") as folder:
         tmp = Path(folder).resolve()
@@ -128,7 +131,7 @@ def main():
             assert binary_info(installed[-1]) == identities[index]
             profiles.append(profile_contract(installed[-1], dest, identities[index]))
         for key in ("archive", "byok_service", "hosted_service"):
-            assert profiles[0][key] != profiles[1][key], key
+            assert (profiles[0][key] == profiles[1][key]) == args.same_candidate_profile, key
 
         archive, upgrade, fresh = (tmp / key for key in ("original-fixture", "test-copy", "empty-candidate"))
         open_fixture(installed[0], archive, 0)

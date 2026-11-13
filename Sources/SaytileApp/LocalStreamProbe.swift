@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import Synchronization
 import SaytileKit
 
 /// Observes only this isolated panel's laid-out NSTextView. No screen capture,
@@ -7,11 +8,20 @@ import SaytileKit
 @MainActor enum LocalStreamProbe {
     struct Frame: Codable { let t: Double; let text: String; let speaking: Bool; let level: Float }
     struct Publication: Codable { let t: Double; let text: String }
-    struct Result: Codable {
+    struct RawWorkerEvent: Encodable {
+        let t: Double
+        let kind: String
+        let text: String
+        let frames: Int
+        let decodes: [WorkerDecodeTiming]?
+    }
+    struct Result: Encodable {
         let model: String
         let automatic: Bool
         let sha: String?
         let sample: String
+        let rawWorkerEvents: [RawWorkerEvent]
+        let clockOriginUptime: Double
         let publications: [Publication]
         let frames: [Frame]
         let displayedChanges: Int
@@ -45,6 +55,14 @@ import SaytileKit
             guard status.installed else { throw AudioFailure.message(model.audio.appleResourceFailure ?? status.message) }
         }
         let start = ProcessInfo.processInfo.systemUptime
+        let rawEvents = Mutex<[RawWorkerEvent]>([])
+        await model.localModels.observeFixtureWorker { event in
+            let t = ProcessInfo.processInfo.systemUptime - start
+            rawEvents.withLock { entries in
+                entries.append(RawWorkerEvent(t: t, kind: event.kind, text: event.text, frames: event.frames,
+                                              decodes: event.decodes))
+            }
+        }
         // These are host timeline publications before the view performs any presentation.
         // A display frame is not another ASR result. Collect only inside this disposable probe.
         var publications: [Publication] = []
@@ -99,7 +117,8 @@ import SaytileKit
             providers.formUnion(runs.map { $0.ticket.provider })
         }
         let receipt = Result(model: id.rawValue, automatic: requested == nil, sha: Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String,
-            sample: source.lastPathComponent, publications: publications, frames: frames, displayedChanges: changes, endOfFile: eos - start, pipelineSettledAt: settled,
+            sample: source.lastPathComponent, rawWorkerEvents: rawEvents.withLock { $0 }, clockOriginUptime: start,
+            publications: publications, frames: frames, displayedChanges: changes, endOfFile: eos - start, pipelineSettledAt: settled,
             total: ProcessInfo.processInfo.systemUptime - start, archive: records.map(\.text), providers: providers.sorted(),
             recordStates: records.map { $0.recognitionState.rawValue }, recordingErrors: records.compactMap(\.lastError))
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]
