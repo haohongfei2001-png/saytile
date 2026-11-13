@@ -1,5 +1,7 @@
 # 本地普通话识别 · M5 原生候选
 
+本文记录源码 `a55d51a` 的历史实测。内测 0.13（414）更换了本机中文默认引擎，安装基线、最新四模型实测与原速窗口见[本轮交付记录](../evidence/mandarin-quality-20261114/README.md)。
+
 产品源码 `a55d51a1ff4711340bc63ea5c8ecd927dd2327d3`。四种引擎均已在 Apple M5、24 GiB、macOS 27 的签名原生窗口实际运行。屏幕文字由当次唯一的 ASR 生成，采集和原音写盘独立于识别。Zipformer 为研究候选，正式目录提供 Apple、Streaming Paraformer 与 Qwen 0.6B。云端模式保持原有授权路径。
 
 **安装包** 为 61,646,743 字节。Developer ID 签名和升级演练通过，Gatekeeper 对此未公证构建返回拒绝。[DMG 与安装说明](../deliverables/mandarin-local/) · [原生窗口实录](../evidence/mandarin/delivery/zipformer-window.mp4) · [产品源码及权重指纹](../evidence/mandarin/delivery/build-receipt.json)
