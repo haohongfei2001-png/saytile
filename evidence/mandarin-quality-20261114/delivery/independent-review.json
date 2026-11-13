@@ -1,0 +1,234 @@
+{
+  "source": "cd41c60f0d7cb042c066c42147a58085b6f33f95",
+  "method": "Joined the two frozen manifests to raw model/direct and product transcripts by ID, checked WAV hashes for unique originals and panel overlap, independently recomputed Levenshtein distance with the frozen tokenizer, checksummed panel identity and compared raw final window/publication with reopened archive, independently repeated the 2,000 stratified paired draws.",
+  "original_420": {
+    "n_unique_wav": 420,
+    "cer_errors_reference": {
+      "baseline_apple": [
+        1261,
+        10663
+      ],
+      "delivery_qwen_small": [
+        910,
+        10663
+      ],
+      "delivery_qwen_direct": [
+        885,
+        10663
+      ],
+      "comparison_qwen_large": [
+        872,
+        10663
+      ]
+    },
+    "old_apple_to_final_qwen": {
+      "net_change": -351,
+      "fewer": 153,
+      "more": 48,
+      "tie": 219,
+      "gross_fewer": 474,
+      "gross_more": 123
+    },
+    "paired_CI_pp": [
+      -4.411,
+      -2.29
+    ],
+    "large_to_final_qwen_paired_CI_pp": [
+      -0.434,
+      1.098
+    ],
+    "final_direct_to_archive": {
+      "net_change": 25,
+      "fewer": 5,
+      "more": 9,
+      "tie": 406,
+      "gross_fewer": 8,
+      "gross_more": 33
+    },
+    "verbatim_direct_equals_archive": 394,
+    "per_source_direct_to_product": {
+      "fleurs": {
+        "net_change": 25,
+        "fewer": 5,
+        "more": 9,
+        "tie": 146,
+        "gross_fewer": 8,
+        "gross_more": 33
+      },
+      "ascend-zh": {
+        "net_change": 0,
+        "fewer": 0,
+        "more": 0,
+        "tie": 80,
+        "gross_fewer": 0,
+        "gross_more": 0
+      },
+      "ascend-mixed": {
+        "net_change": 0,
+        "fewer": 0,
+        "more": 0,
+        "tie": 80,
+        "gross_fewer": 0,
+        "gross_more": 0
+      },
+      "aishell1-test": {
+        "net_change": 0,
+        "fewer": 0,
+        "more": 0,
+        "tie": 100,
+        "gross_fewer": 0,
+        "gross_more": 0
+      }
+    },
+    "per_source_old_to_product": {
+      "fleurs": {
+        "net_change": -112,
+        "fewer": 71,
+        "more": 26,
+        "tie": 63,
+        "gross_fewer": 188,
+        "gross_more": 76
+      },
+      "ascend-zh": {
+        "net_change": -9,
+        "fewer": 11,
+        "more": 7,
+        "tie": 62,
+        "gross_fewer": 16,
+        "gross_more": 7
+      },
+      "ascend-mixed": {
+        "net_change": -126,
+        "fewer": 44,
+        "more": 12,
+        "tie": 24,
+        "gross_fewer": 161,
+        "gross_more": 35
+      },
+      "aishell1-test": {
+        "net_change": -104,
+        "fewer": 27,
+        "more": 3,
+        "tie": 70,
+        "gross_fewer": 109,
+        "gross_more": 5
+      }
+    },
+    "mixed_mer_errors_reference": {
+      "baseline_apple": [
+        228,
+        1166
+      ],
+      "delivery_qwen_small": [
+        134,
+        1166
+      ]
+    },
+    "per_source_cer": {
+      "fleurs": {
+        "old_apple_errors_ref": [
+          683,
+          6260
+        ],
+        "delivered_errors_ref": [
+          571,
+          6260
+        ]
+      },
+      "ascend-zh": {
+        "old_apple_errors_ref": [
+          62,
+          934
+        ],
+        "delivered_errors_ref": [
+          53,
+          934
+        ]
+      },
+      "ascend-mixed": {
+        "old_apple_errors_ref": [
+          351,
+          2004
+        ],
+        "delivered_errors_ref": [
+          225,
+          2004
+        ]
+      },
+      "aishell1-test": {
+        "old_apple_errors_ref": [
+          165,
+          1465
+        ],
+        "delivered_errors_ref": [
+          61,
+          1465
+        ]
+      }
+    },
+    "excluding_15_native_window_ids_posthoc": {
+      "n": 405,
+      "old_apple_errors_ref": [
+        1162,
+        10095
+      ],
+      "delivered_errors_ref": [
+        864,
+        10095
+      ],
+      "scope": "Sensitivity check only. This subset is still part of the model-selection corpus."
+    }
+  },
+  "selection_scope": "The 15 native-window clips are 15 of the same 420 source WAVs. The separate 20 volume/noise variants are correlated transformations. The confidence interval treats an utterance, not a speaker, as the sampling unit, preserves these corpus proportions and does not account for model/prompt selection. No external holdout or private speech was measured.",
+  "native_15": {
+    "source_wavs_inside_original_420": 15,
+    "window_equals_archive_each": true,
+    "old_apple_errors_reference": [
+      70,
+      568
+    ],
+    "delivered_errors_reference": [
+      46,
+      568
+    ],
+    "final_P95_from_file_and_active_end_seconds": {
+      "file": 0.286,
+      "acoustic_proxy": 4.17
+    },
+    "scope": "The 15-clip P95 uses nearest rank and therefore equals the largest per-clip observation. Gaps between meaningful updates are pooled across events. Capture of real speech via the built-in microphone remains unmeasured."
+  },
+  "endurance": {
+    "seconds": 905.020375,
+    "presentations": 84,
+    "unique_wavs": 15,
+    "times_each": [
+      5,
+      6
+    ],
+    "ui_updates_including_rendered_steps": 579,
+    "archive_records": 47,
+    "durable_chunks": 79,
+    "matched_reference_bigram_clips": 84,
+    "concatenated_errors_over_reference": [
+      341,
+      3146
+    ],
+    "source_pcm_ordered_exact_byte_matches": 79
+  },
+  "resource_scope": {
+    "computer": "24 GiB Apple M5 on AC",
+    "active_observed_seconds": 12.67,
+    "idle_observed_seconds": 9.12,
+    "active_power_samples": 12,
+    "idle_power_samples": 8,
+    "whole_machine_delta_w": 1.973,
+    "scope": "One short paired active/idle capture; aggregate device power includes other system activity. No independent battery runtime, physical 8 GiB hardware or attributable app-only watts."
+  },
+  "stage_limits": {
+    "nonempty_final440": 440,
+    "failed_subsegments": 5,
+    "initial_candidate_apple_not_ready_native_clips": 15,
+    "personal_accent": "NOT_RUN",
+    "audible_builtin_input": "BLOCKED_LID_CLOSED_DURING_MEASUREMENT"
+  }
+}
