@@ -76,7 +76,7 @@ import ApplicationServices
             var incomplete = false
             var queue = windows, visited = Set<CFHashCode>(), tree = [String]()
             var inspectedControls = [[String: Any]]()
-            var panelControls = [[String: Any]](), scrollbarParts = [[String: Any]](), staticStateText = [String](), obsoleteStateIDs = [String]()
+            var panelControls = [[String: Any]](), scrollbarParts = [[String: Any]](), transcriptAreas = [[String: Any]](), staticStateText = [String](), obsoleteStateIDs = [String]()
             let stateText = Set(["未开启", "暂停", "待命", "待命中", "聆听中", "正在识别", "正在接收讲话", "正在核对文字", "正在修正", "已暂停", "正在准备", "需要恢复"])
             let captureActions = Set(["开始收音", "暂停收音", "继续收音", "取消开启", "恢复收音"])
             let deadline = ProcessInfo.processInfo.systemUptime + 1
@@ -100,7 +100,8 @@ import ApplicationServices
                     // has its own system subroles and is outside the panel content.
                     let chrome = ["AXCloseButton", "AXMinimizeButton", "AXZoomButton", "AXFullScreenButton"]
                     let subrole = value(node, kAXSubroleAttribute) as? String ?? ""
-                    if !chrome.contains(subrole), canPress || availableActions(node).contains(kAXPressAction) {
+                    let isTranscript = role == kAXTextAreaRole && identifier == "panel.transcript" && ancestorRoles(node).first == kAXScrollAreaRole
+                    if !chrome.contains(subrole), canPress || isTranscript || availableActions(node).contains(kAXPressAction) {
                         guard let bounds = frame(node) else { print("FAIL native panel control geometry unavailable"); exit(1) }
                         let ancestors = ancestorRoles(node)
                         let detail: [String: Any] = ["identifier": identifier, "role": role, "subrole": subrole,
@@ -112,6 +113,10 @@ import ApplicationServices
                         // Their verified parentage, never size, name or enabled state,
                         // separates native scrolling from permanent panel actions.
                         if ancestors.contains(kAXScrollBarRole) { scrollbarParts.append(detail) }
+                        // Some macOS versions also expose AXPress on the editable
+                        // text area. Keep that single document independently accounted
+                        // for; all other pressable elements still count as panel actions.
+                        else if isTranscript { transcriptAreas.append(detail) }
                         else { panelControls.append(detail) }
                     }
                     queue += observed.children
@@ -226,7 +231,8 @@ import ApplicationServices
                 guard windows.count == 1, queue.isEmpty, !panelControls.isEmpty else { print("FAIL incomplete native panel inspection"); exit(1) }
                 guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED foreground changed during inspection"); exit(6) }
                 guard let bounds = frame(windows[0]) else { print("FAIL native panel window geometry unavailable"); exit(1) }
-                let detail: [String: Any] = ["controls": panelControls, "native_scrollbar_parts": scrollbarParts, "window_x": bounds.minX, "window_y": bounds.minY,
+                guard transcriptAreas.count == 1 else { print("FAIL expected one native panel.transcript AXTextArea in the document scroll area, found \(transcriptAreas.count)"); exit(1) }
+                let detail: [String: Any] = ["controls": panelControls, "transcript_areas": transcriptAreas, "native_scrollbar_parts": scrollbarParts, "window_x": bounds.minX, "window_y": bounds.minY,
                     "window_width": bounds.width, "window_height": bounds.height, "static_state_text": staticStateText,
                     "obsolete_state_identifiers": obsoleteStateIDs, "visited_nodes": visited.count]
                 let data = try! JSONSerialization.data(withJSONObject: detail, options: [.sortedKeys])

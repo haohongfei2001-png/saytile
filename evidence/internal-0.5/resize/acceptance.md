@@ -1,6 +1,6 @@
 # 0.5 原生浮板缩放与交互
 
-**PASS**　产品源码 `059fd4a43b262b2ce2e9e0c260d442bdc3f96a61`，58/58 项断言通过。使用真实 AppKit / SwiftUI，单个非激活浮板从宽到窄再还原，覆盖 10 种外窗尺寸，所有尺寸均为 macOS 逻辑点。
+**PASS**　产品源码 `745acb2273d0512ce957a666364114cf36d663e7`，58/58 项断言通过。使用真实 AppKit / SwiftUI，单个非激活浮板从宽到窄再还原，覆盖 10 种外窗尺寸，所有尺寸均为 macOS 逻辑点。
 
 ![极简、窄态与还原后的同一个原生浮板](size-comparison.png)
 
@@ -18,5 +18,5 @@
 这里验证产品共享视图与独立宿主的相同玻璃包裹逻辑。图像来自窗口内原生视图实际绘制；并排对照统一使用蓝灰底，未读取屏幕其他内容。按钮触发的是隔离状态回调，候选文字为测试输入，未开启麦克风。本测项的读数见 [机器收据](receipt.json)，原始画面见 [72 × 44](minimum.png) 与 [恢复到 344 × 190](restored.png)。
 
 ```sh
-python3 scripts/test-adaptive-panel.py --source 059fd4a --output /tmp/saytile-adaptive-verification --expect-pass
+python3 scripts/test-adaptive-panel.py --source 745acb2 --output /tmp/saytile-adaptive-verification --expect-pass
 ```
