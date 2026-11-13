@@ -16,5 +16,13 @@ STVoiceFrame st_vad_process(STVAD *v, const int16_t *pcm, size_t count) {
   if (!v || !pcm || WebRtcVad_Process(v->instance, 16000, pcm, count) <= 0) {
     return STVoiceQuiet;
   }
-  return ((VadInstT *)v->instance)->vad == 1 ? STVoiceDetected : STVoiceHangover;
+  if (((VadInstT *)v->instance)->vad == 1) {
+    // The filter state can vote for new speech just after the signal cuts to
+    // digital silence. Keep its hangover for an active recording, but require
+    // an actual nonzero input sample for a new onset vote.
+    for (size_t i = 0; i < count; ++i) {
+      if (pcm[i] != 0) return STVoiceDetected;
+    }
+  }
+  return STVoiceHangover;
 }

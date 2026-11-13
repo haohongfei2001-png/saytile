@@ -1,0 +1,534 @@
+{
+ "status": "PASS",
+ "wav_sha256": "6c6e57fb689187803fcbbbf52523fcebe047dedb8e85a71fe611588c66e4f072",
+ "source_before": "9e17c8d7099d54aef26ce5b2577747f35e285fc4",
+ "sources_sha256": {
+  "Sources/CAudio/VAD.c": "c81c801b6310633d7ae96f85fa031914ed8f920f07b83bdf5bd27bd7f73078b6",
+  "tests/SaytileKitTests/CaptureVADFinalizationTests.swift": "d414cb0fdff7fa4e0dcda54773415a8c08939c1b906f368637febf7f8792bb80",
+  "tests/fixtures/MandarinSegmentationProbe.swift": "d36f35f631add7c0c1d67bfb2301e1dcd4b818c1a035d79c26412a7ba631846d"
+ },
+ "regression": "Two real WebRTC runs on the same 20ms DC step: following exact-zero frame returns hangover; following frame with one PCM16 sample equal to 1 still returns fresh detected speech. Tests 2/2 passed.",
+ "native_probe_before": "3b45d8e6df515467d10643d9bc8273295d602cff2176ba364f96344c9571b729",
+ "native_probe_after": "c434023301470d5ad2195b60a94b4c3d9316bf9afe646bc5c7d276d61e34453b",
+ "public_same_boundaries": {
+  "unique_original_clips": 420,
+  "derived_clips": 20,
+  "files_with_all_recording_starts_ends_and_journal_frames_identical": 440,
+  "cohorts": {
+   "fleurs": 160,
+   "ascend-zh": 80,
+   "ascend-mixed": 80,
+   "quiet": 10,
+   "noise15db": 10,
+   "aishell1-test": 100
+  },
+  "before": "8a8d6f857f6a6cfee1f34ae50655ec2c09d12031eb09bdaaa472e9da15a92be2",
+  "after": "8a8d6f857f6a6cfee1f34ae50655ec2c09d12031eb09bdaaa472e9da15a92be2"
+ },
+ "continuous": {
+  "files": 1,
+  "audio_seconds": 905.020375,
+  "recordings_before": 49,
+  "recordings_after": 47,
+  "false_starts_before": [
+   332.42,
+   681.56
+  ],
+  "false_starts_after": 0,
+  "old_new_speech_votes_pcm_absolute_peaks": [
+   2,
+   0,
+   0
+  ],
+  "reference_intervals": 84,
+  "all_reference_intervals_had_unchanged_stored_sample_coverage": true,
+  "all_reference_intervals_fully_covered": true,
+  "reference_interval_samples": 9321600,
+  "archived_reference_interval_samples_after": 9321600,
+  "interval_definition": "Sustained -55dBFS proxy from the existing licensed soak inspection, not phoneme alignment; each journal interval reproduced against the exact native segment onset/end/byte count.",
+  "before": [
+   {
+    "firstVoiceSample": 7040,
+    "journalFrames": 165120,
+    "lastVoiceSample": 141120
+   },
+   {
+    "firstVoiceSample": 206720,
+    "journalFrames": 248960,
+    "lastVoiceSample": 416640
+   },
+   {
+    "firstVoiceSample": 497920,
+    "journalFrames": 188480,
+    "lastVoiceSample": 647360
+   },
+   {
+    "firstVoiceSample": 719680,
+    "journalFrames": 152640,
+    "lastVoiceSample": 833280
+   },
+   {
+    "firstVoiceSample": 900800,
+    "journalFrames": 139840,
+    "lastVoiceSample": 1001600
+   },
+   {
+    "firstVoiceSample": 1046400,
+    "journalFrames": 210880,
+    "lastVoiceSample": 1218240
+   },
+   {
+    "firstVoiceSample": 1283520,
+    "journalFrames": 496000,
+    "lastVoiceSample": 1764480
+   },
+   {
+    "firstVoiceSample": 1764480,
+    "journalFrames": 490560,
+    "lastVoiceSample": 2241280
+   },
+   {
+    "firstVoiceSample": 2255040,
+    "journalFrames": 342400,
+    "lastVoiceSample": 2573440
+   },
+   {
+    "firstVoiceSample": 2619200,
+    "journalFrames": 269440,
+    "lastVoiceSample": 2849600
+   },
+   {
+    "firstVoiceSample": 2930880,
+    "journalFrames": 188480,
+    "lastVoiceSample": 3080320
+   },
+   {
+    "firstVoiceSample": 3143040,
+    "journalFrames": 162240,
+    "lastVoiceSample": 3266240
+   },
+   {
+    "firstVoiceSample": 3334080,
+    "journalFrames": 139840,
+    "lastVoiceSample": 3434880
+   },
+   {
+    "firstVoiceSample": 3479360,
+    "journalFrames": 210880,
+    "lastVoiceSample": 3651200
+   },
+   {
+    "firstVoiceSample": 3700480,
+    "journalFrames": 496000,
+    "lastVoiceSample": 4181440
+   },
+   {
+    "firstVoiceSample": 4181440,
+    "journalFrames": 480000,
+    "lastVoiceSample": 4661440
+   },
+   {
+    "firstVoiceSample": 4661440,
+    "journalFrames": 369920,
+    "lastVoiceSample": 5007360
+   },
+   {
+    "firstVoiceSample": 5052160,
+    "journalFrames": 269760,
+    "lastVoiceSample": 5282880
+   },
+   {
+    "firstVoiceSample": 5318720,
+    "journalFrames": 37760,
+    "lastVoiceSample": 5320640
+   },
+   {
+    "firstVoiceSample": 5345280,
+    "journalFrames": 192960,
+    "lastVoiceSample": 5513600
+   },
+   {
+    "firstVoiceSample": 5585920,
+    "journalFrames": 152640,
+    "lastVoiceSample": 5699520
+   },
+   {
+    "firstVoiceSample": 5767040,
+    "journalFrames": 139840,
+    "lastVoiceSample": 5867840
+   },
+   {
+    "firstVoiceSample": 5912640,
+    "journalFrames": 210880,
+    "lastVoiceSample": 6084480
+   },
+   {
+    "firstVoiceSample": 6149760,
+    "journalFrames": 496000,
+    "lastVoiceSample": 6630720
+   },
+   {
+    "firstVoiceSample": 6630720,
+    "journalFrames": 490560,
+    "lastVoiceSample": 7107520
+   },
+   {
+    "firstVoiceSample": 7121280,
+    "journalFrames": 342400,
+    "lastVoiceSample": 7439680
+   },
+   {
+    "firstVoiceSample": 7485440,
+    "journalFrames": 269440,
+    "lastVoiceSample": 7715840
+   },
+   {
+    "firstVoiceSample": 8517120,
+    "journalFrames": 188480,
+    "lastVoiceSample": 8666560
+   },
+   {
+    "firstVoiceSample": 8729280,
+    "journalFrames": 162240,
+    "lastVoiceSample": 8852480
+   },
+   {
+    "firstVoiceSample": 8920320,
+    "journalFrames": 139840,
+    "lastVoiceSample": 9021120
+   },
+   {
+    "firstVoiceSample": 9065600,
+    "journalFrames": 210880,
+    "lastVoiceSample": 9237440
+   },
+   {
+    "firstVoiceSample": 9286720,
+    "journalFrames": 496000,
+    "lastVoiceSample": 9767680
+   },
+   {
+    "firstVoiceSample": 9767680,
+    "journalFrames": 480000,
+    "lastVoiceSample": 10247680
+   },
+   {
+    "firstVoiceSample": 10247680,
+    "journalFrames": 369920,
+    "lastVoiceSample": 10593600
+   },
+   {
+    "firstVoiceSample": 10638400,
+    "journalFrames": 269760,
+    "lastVoiceSample": 10869120
+   },
+   {
+    "firstVoiceSample": 10904960,
+    "journalFrames": 37760,
+    "lastVoiceSample": 10906880
+   },
+   {
+    "firstVoiceSample": 10931520,
+    "journalFrames": 192960,
+    "lastVoiceSample": 11099840
+   },
+   {
+    "firstVoiceSample": 11172160,
+    "journalFrames": 152640,
+    "lastVoiceSample": 11285760
+   },
+   {
+    "firstVoiceSample": 11353280,
+    "journalFrames": 139840,
+    "lastVoiceSample": 11454080
+   },
+   {
+    "firstVoiceSample": 11498880,
+    "journalFrames": 210880,
+    "lastVoiceSample": 11670720
+   },
+   {
+    "firstVoiceSample": 11736000,
+    "journalFrames": 496000,
+    "lastVoiceSample": 12216960
+   },
+   {
+    "firstVoiceSample": 12216960,
+    "journalFrames": 490560,
+    "lastVoiceSample": 12693760
+   },
+   {
+    "firstVoiceSample": 12707520,
+    "journalFrames": 342400,
+    "lastVoiceSample": 13025920
+   },
+   {
+    "firstVoiceSample": 13071360,
+    "journalFrames": 269760,
+    "lastVoiceSample": 13302080
+   },
+   {
+    "firstVoiceSample": 13383360,
+    "journalFrames": 188480,
+    "lastVoiceSample": 13532800
+   },
+   {
+    "firstVoiceSample": 13595520,
+    "journalFrames": 162240,
+    "lastVoiceSample": 13718720
+   },
+   {
+    "firstVoiceSample": 13786560,
+    "journalFrames": 139840,
+    "lastVoiceSample": 13887360
+   },
+   {
+    "firstVoiceSample": 13931840,
+    "journalFrames": 210880,
+    "lastVoiceSample": 14103680
+   },
+   {
+    "firstVoiceSample": 14152960,
+    "journalFrames": 342406,
+    "lastVoiceSample": 14466560
+   }
+  ],
+  "after": [
+   {
+    "firstVoiceSample": 7040,
+    "journalFrames": 165120,
+    "lastVoiceSample": 141120
+   },
+   {
+    "firstVoiceSample": 206720,
+    "journalFrames": 248960,
+    "lastVoiceSample": 416640
+   },
+   {
+    "firstVoiceSample": 497920,
+    "journalFrames": 188480,
+    "lastVoiceSample": 647360
+   },
+   {
+    "firstVoiceSample": 719680,
+    "journalFrames": 152640,
+    "lastVoiceSample": 833280
+   },
+   {
+    "firstVoiceSample": 900800,
+    "journalFrames": 139840,
+    "lastVoiceSample": 1001600
+   },
+   {
+    "firstVoiceSample": 1046400,
+    "journalFrames": 210880,
+    "lastVoiceSample": 1218240
+   },
+   {
+    "firstVoiceSample": 1283520,
+    "journalFrames": 496000,
+    "lastVoiceSample": 1764480
+   },
+   {
+    "firstVoiceSample": 1764480,
+    "journalFrames": 490560,
+    "lastVoiceSample": 2241280
+   },
+   {
+    "firstVoiceSample": 2255040,
+    "journalFrames": 342400,
+    "lastVoiceSample": 2573440
+   },
+   {
+    "firstVoiceSample": 2640000,
+    "journalFrames": 248640,
+    "lastVoiceSample": 2849600
+   },
+   {
+    "firstVoiceSample": 2930880,
+    "journalFrames": 188480,
+    "lastVoiceSample": 3080320
+   },
+   {
+    "firstVoiceSample": 3143040,
+    "journalFrames": 162240,
+    "lastVoiceSample": 3266240
+   },
+   {
+    "firstVoiceSample": 3334080,
+    "journalFrames": 139840,
+    "lastVoiceSample": 3434880
+   },
+   {
+    "firstVoiceSample": 3479360,
+    "journalFrames": 210880,
+    "lastVoiceSample": 3651200
+   },
+   {
+    "firstVoiceSample": 3716480,
+    "journalFrames": 496000,
+    "lastVoiceSample": 4197440
+   },
+   {
+    "firstVoiceSample": 4197440,
+    "journalFrames": 490880,
+    "lastVoiceSample": 4674560
+   },
+   {
+    "firstVoiceSample": 4688320,
+    "journalFrames": 343040,
+    "lastVoiceSample": 5007360
+   },
+   {
+    "firstVoiceSample": 5072960,
+    "journalFrames": 248960,
+    "lastVoiceSample": 5282880
+   },
+   {
+    "firstVoiceSample": 5345280,
+    "journalFrames": 207360,
+    "lastVoiceSample": 5513600
+   },
+   {
+    "firstVoiceSample": 5585920,
+    "journalFrames": 152640,
+    "lastVoiceSample": 5699520
+   },
+   {
+    "firstVoiceSample": 5767040,
+    "journalFrames": 139840,
+    "lastVoiceSample": 5867840
+   },
+   {
+    "firstVoiceSample": 5912640,
+    "journalFrames": 210880,
+    "lastVoiceSample": 6084480
+   },
+   {
+    "firstVoiceSample": 6149760,
+    "journalFrames": 496000,
+    "lastVoiceSample": 6630720
+   },
+   {
+    "firstVoiceSample": 6630720,
+    "journalFrames": 490560,
+    "lastVoiceSample": 7107520
+   },
+   {
+    "firstVoiceSample": 7121280,
+    "journalFrames": 342400,
+    "lastVoiceSample": 7439680
+   },
+   {
+    "firstVoiceSample": 7506240,
+    "journalFrames": 248640,
+    "lastVoiceSample": 7715840
+   },
+   {
+    "firstVoiceSample": 8517120,
+    "journalFrames": 188480,
+    "lastVoiceSample": 8666560
+   },
+   {
+    "firstVoiceSample": 8729280,
+    "journalFrames": 162240,
+    "lastVoiceSample": 8852480
+   },
+   {
+    "firstVoiceSample": 8920320,
+    "journalFrames": 139840,
+    "lastVoiceSample": 9021120
+   },
+   {
+    "firstVoiceSample": 9065600,
+    "journalFrames": 210880,
+    "lastVoiceSample": 9237440
+   },
+   {
+    "firstVoiceSample": 9302720,
+    "journalFrames": 496000,
+    "lastVoiceSample": 9783680
+   },
+   {
+    "firstVoiceSample": 9783680,
+    "journalFrames": 490880,
+    "lastVoiceSample": 10260800
+   },
+   {
+    "firstVoiceSample": 10274560,
+    "journalFrames": 343040,
+    "lastVoiceSample": 10593600
+   },
+   {
+    "firstVoiceSample": 10659200,
+    "journalFrames": 248960,
+    "lastVoiceSample": 10869120
+   },
+   {
+    "firstVoiceSample": 10931520,
+    "journalFrames": 207360,
+    "lastVoiceSample": 11099840
+   },
+   {
+    "firstVoiceSample": 11172160,
+    "journalFrames": 152640,
+    "lastVoiceSample": 11285760
+   },
+   {
+    "firstVoiceSample": 11353280,
+    "journalFrames": 139840,
+    "lastVoiceSample": 11454080
+   },
+   {
+    "firstVoiceSample": 11498880,
+    "journalFrames": 210880,
+    "lastVoiceSample": 11670720
+   },
+   {
+    "firstVoiceSample": 11736000,
+    "journalFrames": 496000,
+    "lastVoiceSample": 12216960
+   },
+   {
+    "firstVoiceSample": 12216960,
+    "journalFrames": 490560,
+    "lastVoiceSample": 12693760
+   },
+   {
+    "firstVoiceSample": 12707520,
+    "journalFrames": 342400,
+    "lastVoiceSample": 13025920
+   },
+   {
+    "firstVoiceSample": 13092480,
+    "journalFrames": 248640,
+    "lastVoiceSample": 13302080
+   },
+   {
+    "firstVoiceSample": 13383360,
+    "journalFrames": 188480,
+    "lastVoiceSample": 13532800
+   },
+   {
+    "firstVoiceSample": 13595520,
+    "journalFrames": 162240,
+    "lastVoiceSample": 13718720
+   },
+   {
+    "firstVoiceSample": 13786560,
+    "journalFrames": 139840,
+    "lastVoiceSample": 13887360
+   },
+   {
+    "firstVoiceSample": 13931840,
+    "journalFrames": 210880,
+    "lastVoiceSample": 14103680
+   },
+   {
+    "firstVoiceSample": 14168960,
+    "journalFrames": 326406,
+    "lastVoiceSample": 14466560
+   }
+  ]
+ }
+}
