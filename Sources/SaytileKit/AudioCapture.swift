@@ -47,8 +47,7 @@ actor CaptureWorker {
         self.store = store; self.ring = ring; self.sampleRate = sampleRate; self.recognitionEnabled = recognitionEnabled; self.update = update; self.failed = failed
         self.journalIO = journalIO
         self.recognitionFactory = recognitionFactory
-        segmenter = try VoiceSegmenter(endSilenceFrames: recognitionFactory.usesCloud ? 100 : VoiceSegmenter.localPauseFrames,
-                                       maximumFrames: recognitionFactory.usesCloud ? 15_000 : 1_500)
+        segmenter = try VoiceSegmenter()
         sourceFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRate, channels: 1, interleaved: false)!
         targetFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16_000, channels: 1, interleaved: false)!
         guard let converter = AVAudioConverter(from: sourceFormat, to: targetFormat) else { throw AudioFailure.message("麦克风格式不受支持") }
@@ -125,10 +124,13 @@ actor CaptureWorker {
     private var lastPCMEnd: Date?
     func acceptPCM(_ pcm: Data, endingAt time: Date = .now) async throws {
         lastPCMEnd = time
-        for event in segmenter.accept(pcm, nextMaximumFrames: recognitionFactory.isHosted ? 1500 : nil) {
+        // Resolve the route when speech actually starts. The endpoint policy
+        // and recognition ticket must refer to the same settings generation.
+        lazy var route = recognitionFactory.snapshot
+        for event in segmenter.accept(pcm, nextLimits: { route.captureLimits }) {
             switch event {
             case let .begin(preRoll, sample):
-                try await beginUtterance(at: time.addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000))
+                try await beginUtterance(at: time.addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000), snapshot: route)
                 for frame in preRoll { try await append(frame) }
             case let .audio(frame): try await append(frame)
             case let .end(sample): try await endUtterance(at: time.addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000))
@@ -146,10 +148,10 @@ actor CaptureWorker {
             }
         }
     }
-    func beginUtterance(at start: Date = .now) async throws {
+    func beginUtterance(at start: Date = .now, snapshot requested: RecognitionSessionFactory.Snapshot? = nil) async throws {
         // A settings change during journal creation must not grant new destinations
         // to audio that began under a local-only or older consent configuration.
-        let snapshot = recognitionFactory.snapshot
+        let snapshot = requested ?? recognitionFactory.snapshot
         let record = try await store.createRecording(createdAt: start)
         recordingID = record.id
         do {

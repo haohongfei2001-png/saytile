@@ -74,6 +74,10 @@ final class RecognitionSessionFactory: @unchecked Sendable {
         var isHosted: Bool { route != .byok }
         let configuration: RecognitionConfiguration
         let appliedConfiguration: RecognitionConfiguration
+        var captureLimits: VoiceSegmenter.Limits {
+            guard configuration.cloudEnabled else { return .init() }
+            return .init(endSilenceFrames: 100, maximumFrames: isHosted ? 1_500 : 15_000)
+        }
         fileprivate let epoch: RecognitionFailoverEpoch
         fileprivate let generation: UInt64
         /// Restrict this exact settings generation without observing newer cloud consent.
@@ -113,7 +117,6 @@ final class RecognitionSessionFactory: @unchecked Sendable {
     var snapshot: Snapshot { lock.withLock { recordingSnapshot() } }
     var configuration: RecognitionConfiguration { lock.withLock { value } }
     var usesCloud: Bool { snapshot.configuration.cloudEnabled }
-    var isHosted: Bool { lock.withLock { route != .byok } }
     func select(_ new: HostedRoute, revoke: Bool) {
         lock.withLock {
             guard new != route || revoke else { return }
