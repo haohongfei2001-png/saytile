@@ -1,0 +1,183 @@
+{
+  "status": "PASS",
+  "baseline": "a7cf21df55d60c3b19b1d9462a57e2f46a67ec73",
+  "browser": "Installed Google Chrome headless, isolated fresh profile",
+  "tests": [
+    {
+      "name": "No horizontal overflow 320",
+      "pass": true,
+      "detail": {
+        "inner": 320,
+        "scroll": 320
+      }
+    },
+    {
+      "name": "No horizontal overflow 390",
+      "pass": true,
+      "detail": {
+        "inner": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "name": "No horizontal overflow 768",
+      "pass": true,
+      "detail": {
+        "inner": 768,
+        "scroll": 768
+      }
+    },
+    {
+      "name": "No horizontal overflow 1024",
+      "pass": true,
+      "detail": {
+        "inner": 1024,
+        "scroll": 1024
+      }
+    },
+    {
+      "name": "No horizontal overflow 1440",
+      "pass": true,
+      "detail": {
+        "inner": 1440,
+        "scroll": 1440
+      }
+    },
+    {
+      "name": "Workspace proportional to desktop at large viewport",
+      "pass": true
+    },
+    {
+      "name": "Reading scene changes working document",
+      "pass": true
+    },
+    {
+      "name": "AI example does not submit into another app",
+      "pass": true
+    },
+    {
+      "name": "Edited workspace text survives resume",
+      "pass": true
+    },
+    {
+      "name": "Workspace copies actual edited text",
+      "pass": true
+    },
+    {
+      "name": "Edited scene survives switching away and back",
+      "pass": true
+    },
+    {
+      "name": "Explicit replay restores only the selected sample",
+      "pass": true
+    },
+    {
+      "name": "Archive search filters actual records",
+      "pass": true
+    },
+    {
+      "name": "Archive no-results state",
+      "pass": true
+    },
+    {
+      "name": "Clear search restores all three records",
+      "pass": true
+    },
+    {
+      "name": "Archive selection updates reader",
+      "pass": true
+    },
+    {
+      "name": "Archive copies edited text",
+      "pass": true
+    },
+    {
+      "name": "Archive retains edits between selections",
+      "pass": true
+    },
+    {
+      "name": "Archive audio really plays",
+      "pass": true,
+      "detail": {
+        "time": 0.02322,
+        "duration": 10.1239,
+        "paused": false,
+        "ready": 4
+      }
+    },
+    {
+      "name": "Original sample audio really plays",
+      "pass": true
+    },
+    {
+      "name": "Original audio seek changes actual playhead",
+      "pass": true,
+      "detail": {
+        "time": 3.018594,
+        "duration": 6.037188,
+        "seekable": 1,
+        "paused": true
+      }
+    },
+    {
+      "name": "Reduced motion renders complete legible transcript",
+      "pass": true
+    },
+    {
+      "name": "All page images decoded",
+      "pass": true
+    },
+    {
+      "name": "Opening source DOM identical to baseline",
+      "pass": true
+    },
+    {
+      "name": "Four frozen visual and panel assets unchanged",
+      "pass": true
+    },
+    {
+      "name": "Closing DOM identical to live baseline",
+      "pass": true
+    },
+    {
+      "name": "Mobile archive search functional",
+      "pass": true
+    },
+    {
+      "name": "Original ending FAQ still works",
+      "pass": true
+    },
+    {
+      "name": "Workspace animation adds spoken clauses",
+      "pass": true
+    },
+    {
+      "name": "Pause actually stops workspace updates",
+      "pass": true
+    },
+    {
+      "name": "Correction changes one word in place",
+      "pass": true
+    },
+    {
+      "name": "Correction preserves filler",
+      "pass": true
+    },
+    {
+      "name": "Correction pause control works",
+      "pass": true
+    },
+    {
+      "name": "Zero JavaScript runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Zero failed resource responses",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "badRequests": []
+}
