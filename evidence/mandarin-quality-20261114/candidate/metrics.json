@@ -1911,6 +1911,244 @@
   }
  },
  "accelerated": {
+  "apple-product": {
+   "by_manifest": {
+    "paired": {
+     "rows": 340,
+     "failures": {
+      "empty_rows": 1,
+      "rows_with_failed_segment": 6
+     },
+     "literal_anchors": {
+      "number": {
+       "literal_matched": 195,
+       "reference_occurrences": 210
+      },
+      "negative": {
+       "literal_matched": 99,
+       "reference_occurrences": 103
+      },
+      "latin": {
+       "literal_matched": 97,
+       "reference_occurrences": 249
+      },
+      "date_time": {
+       "literal_matched": 36,
+       "reference_occurrences": 36
+      },
+      "technical_term": {
+       "literal_matched": 7,
+       "reference_occurrences": 7
+      },
+      "money": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 228,
+      "mer": 0.1955403087478559
+     },
+     "groups": {
+      "fleurs": {
+       "errors": 738,
+       "substitutions": 296,
+       "deletions": 365,
+       "insertions": 77,
+       "reference_units": 6260,
+       "cer": 0.11789,
+       "rows": 160
+      },
+      "ALL": {
+       "errors": 1241,
+       "substitutions": 552,
+       "deletions": 562,
+       "insertions": 127,
+       "reference_units": 9962,
+       "cer": 0.12457,
+       "rows": 340
+      },
+      "ascend-zh": {
+       "errors": 62,
+       "substitutions": 35,
+       "deletions": 13,
+       "insertions": 14,
+       "reference_units": 934,
+       "cer": 0.06638,
+       "rows": 80
+      },
+      "ascend-mixed": {
+       "errors": 351,
+       "substitutions": 170,
+       "deletions": 150,
+       "insertions": 31,
+       "reference_units": 2004,
+       "cer": 0.17515,
+       "rows": 80
+      },
+      "quiet": {
+       "errors": 52,
+       "substitutions": 29,
+       "deletions": 22,
+       "insertions": 1,
+       "reference_units": 403,
+       "cer": 0.12903,
+       "rows": 10
+      },
+      "noise15db": {
+       "errors": 38,
+       "substitutions": 22,
+       "deletions": 12,
+       "insertions": 4,
+       "reference_units": 361,
+       "cer": 0.10526,
+       "rows": 10
+      }
+     }
+    },
+    "aishell": {
+     "rows": 100,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "negative": {
+       "literal_matched": 16,
+       "reference_occurrences": 17
+      },
+      "number": {
+       "literal_matched": 21,
+       "reference_occurrences": 48
+      },
+      "technical_term": {
+       "literal_matched": 4,
+       "reference_occurrences": 4
+      },
+      "money": {
+       "literal_matched": 2,
+       "reference_occurrences": 5
+      },
+      "date_time": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 0,
+      "errors": 0,
+      "mer": null
+     },
+     "groups": {
+      "aishell1-test": {
+       "errors": 165,
+       "substitutions": 110,
+       "deletions": 35,
+       "insertions": 20,
+       "reference_units": 1465,
+       "cer": 0.11263,
+       "rows": 100
+      },
+      "ALL": {
+       "errors": 165,
+       "substitutions": 110,
+       "deletions": 35,
+       "insertions": 20,
+       "reference_units": 1465,
+       "cer": 0.11263,
+       "rows": 100
+      }
+     }
+    }
+   },
+   "exact_anchor_tokens": {
+    "original_420": {
+     "number": {
+      "reference": 249,
+      "missing": 43,
+      "extra": 54
+     },
+     "negative": {
+      "reference": 112,
+      "missing": 5,
+      "extra": 4
+     },
+     "money": {
+      "reference": 11,
+      "missing": 3,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 41,
+      "missing": 0,
+      "extra": 1
+     },
+     "latin": {
+      "reference": 237,
+      "missing": 171,
+      "extra": 89
+     },
+     "technical_term": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 0
+     }
+    },
+    "derived_20": {
+     "number": {
+      "reference": 9,
+      "missing": 0,
+      "extra": 1
+     },
+     "negative": {
+      "reference": 8,
+      "missing": 1,
+      "extra": 0
+     },
+     "money": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 1,
+      "missing": 0,
+      "extra": 0
+     },
+     "latin": {
+      "reference": 12,
+      "missing": 7,
+      "extra": 2
+     },
+     "technical_term": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     }
+    }
+   },
+   "cohorts": {
+    "original_420": {
+     "errors": 1316,
+     "substitutions": 611,
+     "deletions": 563,
+     "insertions": 142,
+     "reference_units": 10663,
+     "cer": 0.12342,
+     "rows": 420
+    },
+    "derived_20": {
+     "errors": 90,
+     "substitutions": 51,
+     "deletions": 34,
+     "insertions": 5,
+     "reference_units": 764,
+     "cer": 0.1178,
+     "rows": 20
+    }
+   }
+  },
   "qwen-small-product": {
    "by_manifest": {
     "paired": {
@@ -2404,6 +2642,8 @@
   "panels/apple-ascend-mixed-ee4e2d5087648134.json": "e18806bde8844e029a52c461e52eef3536a7e4eb6de0ea23e2fa7bbc5a2f08a4",
   "panels/apple-ascend-mixed-7c8bdcb41bb98a40.json": "696df9bec0abba252434bcc186325dc00e92fa38395a2a3b4d7581dd37a3d449",
   "panels/apple-ascend-mixed-ff9c42612780330b.json": "7b67c55cad6671d9eb20fe7d6132e39ee3e7da40c6479c3f52bd85f982950430",
+  "runs/paired-apple-product.jsonl": "6bead190ae0b5a7bc5afc513ce5b04a4798d513e00a919cdd99c0cc28132227c",
+  "runs/aishell-apple-product.jsonl": "f1d3c68d987942547d43bd4c1ec57488b9147157f7d380f696b011382a5ea2c8",
   "panels/sherpa-fleurs-1bc3201a9f24a2fe.json": "582b9d97b558801a518248c4ad3f1c48b74d29e2eeb544ba75c99af82b54a876",
   "panels/sherpa-fleurs-0ebe0fb634f8e4ac.json": "250fd8d46b107c672d8e149f792cd384fed8d771c6bcca787a4ddee7d7dc7fd5",
   "panels/sherpa-fleurs-9eb2d543a0a36152.json": "613ebf858d25f85da1f6eb38558b0ca80f0587b652d64675a35ba771e66a03ec",
