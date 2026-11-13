@@ -3,6 +3,23 @@ import Testing
 @testable import SaytileKit
 
 @Suite struct TranscriptTimelineTests {
+    @Test func activeTimelineDistinguishesPartialFinalAndUserSelection() async throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let store = try SaytileStore(directory: dir)
+        let record = try await store.createRecording()
+        let ticket = try await store.beginRecognition(recordingID: record.id)
+        try await store.applyRecognition(ticket: ticket, text: "实时", isFinal: false)
+        let partial = try #require(try await store.timelinePage().entries.last)
+        #expect(partial.recording.isRecording && partial.preferredOrigin == .partial)
+        try await store.applyRecognition(ticket: ticket, text: "实时确认", isFinal: true)
+        let final = try #require(try await store.timelinePage().entries.last)
+        #expect(final.recording.isRecording && final.preferredOrigin == .final)
+        try await store.saveEdit(recordingID: record.id, text: "本人修改")
+        let edit = try #require(try await store.timelinePage().entries.last)
+        #expect(edit.preferredOrigin == .userEdit)
+    }
+
     @Test func speechBoundariesRevisionIdentityAndSnapshot() async throws {
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: dir) }
@@ -25,9 +42,10 @@ import Testing
         let changed = try await store.timelinePage().entries
         #expect(changed.map(\.id) == p.map(\.id))
         #expect(changed[0].recording.text == "保留修改")
-        #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, displayed: [p[0].position:"原话"]) == "原话\n接续")
+        #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, displayed: [p[0].position:"原话"]) == "原话接续")
         #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, displayed: [p[1].position:""]) == "保留修改")
         #expect(try store.timelineCopy(group: p[2].group, through: p[2].position, displayed: [:]) == "新组")
+        #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, after: p[0].position, displayed: [:]) == "接续")
         try await store.setTimelineIdleSeconds(600)
         _ = try await add(490, 491, "修改阈值")
         let rolled = try await add(488, 489, "时钟拨回")

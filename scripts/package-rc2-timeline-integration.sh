@@ -3,26 +3,13 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 version=$(cat packaging/VERSION)
-case "$version" in
-  *-timeline.integration.*) volume="Saytile RC2 Integration";;
-  *-integrated.*) volume="Saytile V1 Candidate";;
-  *-local-asr.*) volume="Saytile Local ASR Candidate";;
-  *-cloud.integration.*) volume="Saytile Cloud Candidate";;
-  *) exit 64;;
-esac
+volume="Saytile 内测 $version"
 out="$PWD/dist/Saytile-$version-arm64.dmg"
 [[ ! -e "$out" && -z "$(git status --porcelain -- Sources packaging scripts/build-app.sh Package.swift)" ]]
 stage=$(mktemp -d /tmp/saytile-rc2-integration.XXXXXX)
 trap 'rm -rf "$stage"' EXIT
 mkdir -p "$stage/volume" dist
 app="$stage/volume/Saytile.app"
-if [[ "${SAYTILE_DESIGN_EXPERIENCE:-0}" == 1 ]]; then
-  app="$stage/volume/Saytile 设计体验.app"
-  volume="Saytile 设计体验"
-elif [[ "${SAYTILE_PERSONAL_EXPERIENCE:-0}" == 1 ]]; then
-  app="$stage/volume/Saytile 个人体验.app"
-  volume="Saytile 个人体验"
-fi
 SAYTILE_APP_OUTPUT="$app" scripts/build-app.sh release
 identity=$(security find-identity -v -p codesigning | awk '/Developer ID Application/ {print $2}')
 [[ "$identity" =~ ^[0-9A-Fa-f]{40}$ ]]

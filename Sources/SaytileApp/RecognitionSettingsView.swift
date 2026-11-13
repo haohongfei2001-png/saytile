@@ -5,6 +5,7 @@ struct RecognitionSettingsSection: View {
     @ObservedObject var model: AppModel
     var initiallyExpanded = false
     var allowsAutomaticRecovery = true
+    var managesInputSource = false
     @ViewState private var servicesExpanded = false
     @ViewState private var credentialStates: [UUID: CloudCredentialPresence] = [:]
     private var active: [ModelConfiguration] { model.recognitionConfiguration.activeModels }
@@ -24,9 +25,15 @@ struct RecognitionSettingsSection: View {
                     Text(item.provider.label).tag(Optional(item.id))
                 }
             }.accessibilityIdentifier("recognition.asrOverride")
-            Toggle("启用高质量云端识别", isOn: $model.recognitionConfiguration.cloudEnabled)
-                .disabled(!model.connectionVerified || model.checkingConnection)
-                .accessibilityIdentifier("recognition.cloudEnabled")
+            if managesInputSource {
+                Toggle("使用自带 API 识别新讲话", isOn: Binding(get: { model.usesBYOK }, set: { model.useBYOK($0) }))
+                    .disabled(!model.usesBYOK && (!model.connectionVerified || model.checkingConnection || model.applyingRecognitionSettings))
+                    .accessibilityIdentifier("cloud.useBYOK")
+            } else {
+                Toggle("启用高质量云端识别", isOn: $model.recognitionConfiguration.cloudEnabled)
+                    .disabled(!model.connectionVerified || model.checkingConnection)
+                    .accessibilityIdentifier("recognition.cloudEnabled")
+            }
             HStack {
                 Label("已准备 \(preparedCount) / \(active.count) 项服务", systemImage: "checklist")
                     .font(.system(size: 12, weight: .medium))
@@ -48,7 +55,7 @@ struct RecognitionSettingsSection: View {
                         ModelConfigurationEditor(configuration: $item, model: model, onCredentialChange: refreshPresence)
                     }
                 }
-                ConnectionCheckPanel(model: model, ready: preparedCount == 2 && active.count == 2)
+                ConnectionCheckPanel(model: model, ready: preparedCount == 2 && active.count == 2, managesInputSource: managesInputSource)
             }
             Toggle("连接中断后从已保存原音自动恢复", isOn: $model.recognitionConfiguration.automaticRecovery)
                 .accessibilityIdentifier("recognition.automaticRecovery")
@@ -199,13 +206,15 @@ private func connectionRoleLabel(_ provider: CloudProvider) -> String {
 private struct ConnectionCheckPanel: View {
     @ObservedObject var model: AppModel
     let ready: Bool
+    let managesInputSource: Bool
     @ViewState private var costsExpanded = false
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label(model.connectionVerified ? "已接通，可以使用" : "最后一步 · 自动检查连接",
                   systemImage: model.connectionVerified ? "checkmark.circle.fill" : "network")
                 .font(.system(size: 13, weight: .semibold))
-            Text("保存语音服务和 GPT-6 的密钥后，可用一段内置合成语音检查连接。通过后才启用云端；检查期间可以继续使用本机识别。")
+            Text(managesInputSource ? "用内置合成语音检查连接。验证通过后，可开启「使用自带 API 识别新讲话」。" :
+                    "保存语音服务和 GPT-6 的密钥后，可用一段内置合成语音检查连接。通过后才启用云端；检查期间可以继续使用本机识别。")
                 .font(.system(size: 11)).foregroundStyle(WorkspaceStyle.secondary)
             if let report = model.connectionReport {
                 ForEach(report.services) { service in
@@ -249,7 +258,9 @@ private struct ConnectionCheckPanel: View {
                     Spacer()
                     Button("停止检查", action: model.cancelConnectionCheck).accessibilityIdentifier("connection.cancelCheck")
                 } else {
-                    Button(model.connectionVerified ? "重新检查连接" : "授权并连接", action: model.checkRecognitionConnections)
+                    Button(model.connectionVerified ? "重新检查连接" : "授权并连接") {
+                        model.checkRecognitionConnections(activateOnSuccess: !managesInputSource || model.usesBYOK)
+                    }
                         .buttonStyle(.borderedProminent)
                         .disabled(!ready || !model.connectionCheckAuthorized || model.applyingRecognitionSettings)
                         .accessibilityIdentifier("connection.startCheck")

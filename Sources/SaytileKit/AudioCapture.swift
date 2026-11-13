@@ -47,7 +47,7 @@ actor CaptureWorker {
         self.store = store; self.ring = ring; self.sampleRate = sampleRate; self.recognitionEnabled = recognitionEnabled; self.update = update; self.failed = failed
         self.journalIO = journalIO
         self.recognitionFactory = recognitionFactory
-        segmenter = try VoiceSegmenter(endSilenceFrames: recognitionFactory.usesCloud ? 100 : 40,
+        segmenter = try VoiceSegmenter(endSilenceFrames: recognitionFactory.usesCloud ? 100 : VoiceSegmenter.localPauseFrames,
                                        maximumFrames: recognitionFactory.usesCloud ? 15_000 : 1_500)
         sourceFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRate, channels: 1, interleaved: false)!
         targetFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16_000, channels: 1, interleaved: false)!
@@ -865,7 +865,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 try Task.checkCancellation()
                 let activeSession = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot, archived: !isAutomatic)
                 session = activeSession
-                for chunk in chunks {
+                for chunk in chunks where chunk.frames > 0 {
                     try Task.checkCancellation()
                     let handle = try FileHandle(forReadingFrom: try await store.audioURL(for: chunk))
                     defer { try? handle.close() }

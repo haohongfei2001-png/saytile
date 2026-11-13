@@ -4,7 +4,13 @@ import argparse, hashlib, json, os, pathlib, shutil, signal, sqlite3, subprocess
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
 parser.add_argument('--output', type=pathlib.Path, default=ROOT/'research/asr/validation/rc2/storage-processes.json')
+parser.add_argument('--deny-network', action='store_true', help='deny network access to every fixture subprocess on macOS')
 args = parser.parse_args()
+isolation = ['/usr/bin/sandbox-exec', '-p', '(version 1)(allow default)(deny network*)'] if args.deny_network else []
+if args.deny_network:
+    # Verify that this policy actually rejects a loopback connection in the child.
+    subprocess.run(isolation + ['/usr/bin/python3', '-c',
+        'import errno,socket; s=socket.socket(); assert s.connect_ex(("127.0.0.1",9)) in (errno.EACCES,errno.EPERM)'], check=True)
 SCRATCH = pathlib.Path(os.environ.get('SAYTILE_STORAGE_SCRATCH', '/tmp/saytile-rc2-storage'))
 SCRATCH.mkdir(exist_ok=True)
 args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -28,7 +34,7 @@ for label, revision, names in [
     subprocess.run(base+[str(source/(n+'.swift')) for n in names]+[fixture,'-o',str(SCRATCH/(label+'-probe'))],cwd=ROOT,check=True)
 checks=[]
 def run(binary,mode,directory,good=True):
-    p=subprocess.run([str(SCRATCH/binary),mode,str(directory)],text=True,capture_output=True)
+    p=subprocess.run(isolation+[str(SCRATCH/binary),mode,str(directory)],text=True,capture_output=True)
     if (p.returncode == 0) != good: raise RuntimeError(f'{mode}: {p.returncode}\n{p.stdout}\n{p.stderr}')
     print(p.stdout,end=''); return p
 
@@ -42,7 +48,7 @@ def snapshot(directory):
                           for p in sorted((directory/'Audio').rglob('*')) if p.is_file()}}
 
 def killed(mode,directory,marker,check_lock=False):
-    proc=subprocess.Popen([str(SCRATCH/'probe'),mode,str(directory)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+    proc=subprocess.Popen(isolation+[str(SCRATCH/'probe'),mode,str(directory)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
     try:
         deadline=time.monotonic()+15
         while not (directory/marker).exists():
@@ -90,6 +96,16 @@ with tempfile.TemporaryDirectory(prefix='process-fixtures-',dir=SCRATCH) as tmp:
             run('rc1-probe','open',restored)
             assert snapshot(restored)==before and snapshot(upgrade)==after
             checks.append('explicit_preupgrade_copy_opens_in_rc1_while_rc2_data_is_preserved')
+    for mode in ('crash-live', 'crash-first-flush', 'crash-rotation'):
+        live = parent / mode
+        killed(mode, live, 'receipt.json')
+        if mode == 'crash-rotation':
+            # Inject a torn, uncommitted next header after actual process death.
+            empty, = (path for path in (live/'Audio').rglob('*.wav') if path.stat().st_size == 44)
+            empty.write_bytes(empty.read_bytes()[:12])
+        run('probe', 'verify-live', live)
+        run('probe', 'verify-live-again', live)
+        checks.append(mode + '_pcm_partial_text_restored_exactly_and_idempotently')
     crash=parent/'crash'
     killed('crash-seed',crash,'receipt.json',True)
     run('probe','verify',crash);checks.append('wal_durable_data_and_nonreplay_after_sigkill')
@@ -97,6 +113,6 @@ with tempfile.TemporaryDirectory(prefix='process-fixtures-',dir=SCRATCH) as tmp:
     run('probe','verify',crash);checks.append('uncommitted_transaction_rolled_back_after_sigkill')
     killed('crash-delete',crash,'delete-ready')
     run('probe','verify-delete',crash);checks.append('erasure_intent_survives_sigkill_without_losing_text')
-report={'scope':'Real SIGKILL subprocess; compiled released Beta/RC1 storage-source upgrade and explicit preupgrade-copy rollback; synthetic temporary data only','checks':checks,'passed':len(checks),'status':'PASS','baseline_revisions':{tag:subprocess.check_output(['git','rev-parse',tag],cwd=ROOT,text=True).strip() for tag in ['v1.0.0-beta.1','v1.0.0-rc.1']},'probe_sha256':hashlib.sha256((SCRATCH/'probe').read_bytes()).hexdigest(),'source_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'source_dirty':bool(subprocess.check_output(['git','status','--porcelain','--','Sources','tests/fixtures/StoreProcessProbe.swift'],cwd=ROOT,text=True).strip())}
+report={'scope':'Real SIGKILL subprocess; compiled released Beta/RC1 storage-source upgrade and explicit preupgrade-copy rollback; synthetic temporary data only','fixture_network_denied':args.deny_network,'physical_power_loss':'NOT_RUN','checks':checks,'passed':len(checks),'status':'PASS','baseline_revisions':{tag:subprocess.check_output(['git','rev-parse',tag],cwd=ROOT,text=True).strip() for tag in ['v1.0.0-beta.1','v1.0.0-rc.1']},'probe_sha256':hashlib.sha256((SCRATCH/'probe').read_bytes()).hexdigest(),'source_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'source_dirty':bool(subprocess.check_output(['git','status','--porcelain','--','Sources','tests/fixtures/StoreProcessProbe.swift'],cwd=ROOT,text=True).strip())}
 args.output.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 print('RC_STORAGE_PROCESS_PASS',len(checks),'checks')

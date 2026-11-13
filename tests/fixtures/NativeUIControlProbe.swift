@@ -18,9 +18,11 @@ import ApplicationServices
         let paragraph = CommandLine.arguments.count == 6 && CommandLine.arguments[4] == "read-paragraph" ? CommandLine.arguments[5] : nil
         let menuItem = CommandLine.arguments.count == 7 && CommandLine.arguments[4] == "select-context-menu" ? CommandLine.arguments[5] : nil
         let menuTitle = menuItem == nil ? nil : CommandLine.arguments[6]
+        let controlFrame = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "control-frame"
         let inspect = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect"
         let inspectPanel = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect-panel"
-        guard CommandLine.arguments.count <= 4 || setValue != nil || menuItem != nil || inspect || inspectPanel || paragraph != nil else { print("FAIL invalid control action"); exit(64) }
+        let inspectSettings = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect-settings"
+        guard CommandLine.arguments.count <= 4 || setValue != nil || menuItem != nil || inspect || inspectPanel || inspectSettings || controlFrame || paragraph != nil else { print("FAIL invalid control action"); exit(64) }
         let root = AXUIElementCreateApplication(pid)
         func value(_ element: AXUIElement, _ name: String) -> CFTypeRef? {
             AXUIElementSetMessagingTimeout(element, name == kAXWindowsAttribute || name == kAXTitleAttribute ? 0.7 : 0.2)
@@ -76,8 +78,9 @@ import ApplicationServices
             var incomplete = false
             var queue = windows, visited = Set<CFHashCode>(), tree = [String]()
             var inspectedControls = [[String: Any]]()
-            var panelControls = [[String: Any]](), scrollbarParts = [[String: Any]](), staticStateText = [String](), obsoleteStateIDs = [String]()
-            let stateText = Set(["未开启", "暂停", "待命", "待命中", "聆听中", "正在识别", "正在接收讲话", "正在核对文字", "正在修正", "已暂停", "正在准备", "需要恢复"])
+            var panelControls = [[String: Any]](), scrollbarParts = [[String: Any]](), transcriptAreas = [[String: Any]](), staticStateText = [String](), obsoleteStateIDs = [String]()
+            var settingsNames = Set<String>()
+            var brandCount = 0, archiveHeadingCount = 0
             let captureActions = Set(["开始收音", "暂停收音", "继续收音", "取消开启", "恢复收音"])
             let deadline = ProcessInfo.processInfo.systemUptime + 1
             while !queue.isEmpty, visited.count < 1000, ProcessInfo.processInfo.systemUptime < deadline {
@@ -87,20 +90,34 @@ import ApplicationServices
                 tree.append(role + " " + names.joined(separator: " | "))
                 let canPress = [kAXButtonRole, kAXCheckBoxRole, kAXRadioButtonRole, kAXDisclosureTriangleRole, kAXMenuButtonRole, kAXPopUpButtonRole].contains(role)
                 let canSet = [kAXTextFieldRole, kAXTextAreaRole].contains(role)
+                if inspectSettings {
+                    settingsNames.formUnion(names)
+                    if names.contains("workspace.brand") { brandCount += 1 }
+                    if role == kAXStaticTextRole || role == "AXHeading" {
+                        let text = value(node, kAXValueAttribute) as? String
+                        if let text { settingsNames.insert(text) }
+                        if (names + [text ?? ""]).contains("语音档案") { archiveHeadingCount += 1 }
+                    }
+                    queue += observed.children
+                    continue
+                }
                 if inspectPanel {
                     let identifier = value(node, kAXIdentifierAttribute) as? String ?? ""
                     let content = value(node, kAXValueAttribute) as? String ?? ""
-                    if role == kAXStaticTextRole, (names + [content]).contains(where: { stateText.contains($0) }) {
-                        staticStateText.append(contentsOf: (names + [content]).filter { stateText.contains($0) })
+                    // The fixture window title is native AppKit chrome. All other
+                    // visible text belongs exclusively to the editable transcript.
+                    if role == kAXStaticTextRole, let title, !names.contains(title), content != title {
+                        staticStateText += (names + [content]).filter { !$0.isEmpty }
                     }
-                    if ["panel.status", "panel.activity", "panel.more", "panel.edit", "panel.latest"].contains(identifier) {
+                    if ["panel.status", "panel.activity", "panel.more", "panel.edit", "panel.latest", "panel.placeholder", "panel.notice", "panel.target"].contains(identifier) {
                         obsoleteStateIDs.append(identifier)
                     }
                     // Include unnamed or accidentally added controls. Window chrome
                     // has its own system subroles and is outside the panel content.
                     let chrome = ["AXCloseButton", "AXMinimizeButton", "AXZoomButton", "AXFullScreenButton"]
                     let subrole = value(node, kAXSubroleAttribute) as? String ?? ""
-                    if !chrome.contains(subrole), canPress || availableActions(node).contains(kAXPressAction) {
+                    let isTranscript = role == kAXTextAreaRole && identifier == "panel.transcript" && ancestorRoles(node).first == kAXScrollAreaRole
+                    if !chrome.contains(subrole), canPress || isTranscript || availableActions(node).contains(kAXPressAction) {
                         guard let bounds = frame(node) else { print("FAIL native panel control geometry unavailable"); exit(1) }
                         let ancestors = ancestorRoles(node)
                         let detail: [String: Any] = ["identifier": identifier, "role": role, "subrole": subrole,
@@ -112,6 +129,10 @@ import ApplicationServices
                         // Their verified parentage, never size, name or enabled state,
                         // separates native scrolling from permanent panel actions.
                         if ancestors.contains(kAXScrollBarRole) { scrollbarParts.append(detail) }
+                        // Some macOS versions also expose AXPress on the editable
+                        // text area. Keep that single document independently accounted
+                        // for; all other pressable elements still count as panel actions.
+                        else if isTranscript { transcriptAreas.append(detail) }
                         else { panelControls.append(detail) }
                     }
                     queue += observed.children
@@ -119,7 +140,7 @@ import ApplicationServices
                 }
                 if let paragraph, names.contains(label), label.hasPrefix("archive.text.") {
                     let text = value(node, kAXValueAttribute) as? String
-                    guard (names.contains(paragraph) || text == paragraph),
+                    guard role == kAXTextAreaRole, text == paragraph,
                           let geometry = frame(node), geometry.height > 70,
                           NSWorkspace.shared.frontmostApplication?.processIdentifier == before else {
                         print("FAIL five-line archive paragraph was missing or clipped"); exit(1)
@@ -127,9 +148,15 @@ import ApplicationServices
                     print("NATIVE_ARCHIVE_PARAGRAPH full_text=true height=\(geometry.height)"); exit(0)
                 }
                 if paragraph != nil { queue += observed.children; continue }
-                let applicable = menuItem != nil ? (role == kAXTextAreaRole || canPress) : (setValue == nil ? canPress : canSet)
+                let applicable = controlFrame ? (canPress || canSet) : menuItem != nil ? (role == kAXTextAreaRole || canPress) : (setValue == nil ? canPress : canSet)
                 if names.contains(label), applicable {
                     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED foreground changed before action"); exit(6) }
+                    if controlFrame {
+                        guard windows.count == 1, let rect = frame(node), (canPress || canSet) else { print("FAIL missing owned control geometry"); exit(1) }
+                        let dimensions = [rect.minX, rect.minY, rect.width, rect.height]
+                        let data = try! JSONSerialization.data(withJSONObject: dimensions)
+                        print("NATIVE_UI_CONTROL_FRAME " + String(decoding: data, as: UTF8.self)); exit(0)
+                    }
                     if inspect {
                         guard let sizeValue = value(node, kAXSizeAttribute), CFGetTypeID(sizeValue) == AXValueGetTypeID() else {
                             print("FAIL native control size unavailable"); exit(1)
@@ -215,18 +242,49 @@ import ApplicationServices
                         }
                     }
                     else { result = AXUIElementPerformAction(node, kAXPressAction as CFString) }
-                    guard result == .success else { print("FAIL native control action error \(result.rawValue)"); exit(1) }
+                    if result == .failure, label == "settings.page.input", windows.count == 1, let window = windows.first {
+                        // A SwiftUI navigation action can invalidate its AX node before the
+                        // bridge replies. Never press twice. Observe the requested page itself.
+                        var arrived = false
+                        for _ in 0..<12 {
+                            var pending = [window], seen = Set<CFHashCode>(), targets = Set<String>()
+                            while let next = pending.popLast(), seen.count < 500 {
+                                guard seen.insert(CFHash(next)).inserted, let observation = inspectNode(next) else { continue }
+                                targets.formUnion(observation.names)
+                                pending.append(contentsOf: observation.children)
+                            }
+                            if targets.contains("settings.floatingEntry"), targets.contains("settings.inputTarget"),
+                               !targets.contains("archive.favorites") { arrived = true; break }
+                            try? await Task.sleep(for: .milliseconds(80))
+                        }
+                        guard arrived, NSWorkspace.shared.frontmostApplication?.processIdentifier == before else {
+                            print("FAIL AX navigation did not install the requested input settings"); exit(1)
+                        }
+                        print("NATIVE_UI_AXPRESS \(label) result=page_observed_after_ax_failure no_replay=true foreground_unchanged=true"); exit(0)
+                    }
+                    guard result == .success else { print("FAIL native control action error \(result.rawValue), role=\(role), actions=\(availableActions(node)), enabled=\(String(describing: value(node, kAXEnabledAttribute)))"); exit(1) }
                     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("FAIL AXPress changed foreground"); exit(6) }
                     print("NATIVE_UI_\(setValue == nil ? "AXPRESS" : "AXSETVALUE") \(label) fixture_pid=\(pid) foreground_unchanged=true"); exit(0)
                 }
                 queue += observed.children
             }
-            if (inspectPanel || inspect) && incomplete { continue }
+            if (inspectPanel || inspect || inspectSettings) && incomplete { continue }
+            if inspectSettings {
+                guard windows.count == 1, queue.isEmpty, !settingsNames.isEmpty,
+                      NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { continue }
+                guard brandCount == 1 else { print("FAIL expected one workspace logo, found \(brandCount)"); exit(1) }
+                if settingsNames.contains("只看已收藏"), archiveHeadingCount != 1 {
+                    print("FAIL expected one archive heading, found \(archiveHeadingCount)"); exit(1)
+                }
+                let data = try! JSONSerialization.data(withJSONObject: settingsNames.sorted())
+                print("NATIVE_UI_SETTINGS_INSPECT " + String(decoding: data, as: UTF8.self)); exit(0)
+            }
             if inspectPanel {
                 guard windows.count == 1, queue.isEmpty, !panelControls.isEmpty else { print("FAIL incomplete native panel inspection"); exit(1) }
                 guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED foreground changed during inspection"); exit(6) }
                 guard let bounds = frame(windows[0]) else { print("FAIL native panel window geometry unavailable"); exit(1) }
-                let detail: [String: Any] = ["controls": panelControls, "native_scrollbar_parts": scrollbarParts, "window_x": bounds.minX, "window_y": bounds.minY,
+                guard transcriptAreas.count == 1 else { print("FAIL expected one native panel.transcript AXTextArea in the document scroll area, found \(transcriptAreas.count)"); exit(1) }
+                let detail: [String: Any] = ["controls": panelControls, "transcript_areas": transcriptAreas, "native_scrollbar_parts": scrollbarParts, "window_x": bounds.minX, "window_y": bounds.minY,
                     "window_width": bounds.width, "window_height": bounds.height, "static_state_text": staticStateText,
                     "obsolete_state_identifiers": obsoleteStateIDs, "visited_nodes": visited.count]
                 let data = try! JSONSerialization.data(withJSONObject: detail, options: [.sortedKeys])

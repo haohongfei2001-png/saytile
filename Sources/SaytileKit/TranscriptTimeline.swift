@@ -9,6 +9,7 @@ public struct TimelineEntry: Identifiable, Equatable, Sendable {
     public let groupDay: String
     public let groupUTCOffset: Int
     public let speechEnd: Date
+    public private(set) var preferredOrigin: RevisionOrigin? = nil
 }
 
 public struct TimelineTextSnapshot: Equatable, Sendable {
@@ -38,6 +39,36 @@ public struct TimelinePage: Equatable, Sendable {
     public var hasOlder = false
     public var hasNewer = false
     public init() {}
+}
+
+/// The UI owns a small, independent writer so the next AppKit key can use
+/// committed row identities. Closing the store revokes it before releasing
+/// the process lock, including when a second process opens the same library.
+final class PanelEditConnection: @unchecked Sendable {
+    private let lock = NSLock()
+    private var database: StoreDatabase?
+    private var closed = false
+
+    func use<T>(at url: URL, _ body: (StoreDatabase) throws -> T) throws -> T {
+        try lock.withLock {
+            guard !closed else { throw StoreError.database("资料库已关闭。") }
+            if database == nil {
+                let writer = try StoreDatabase(url: url)
+                try writer.configureForWriting()
+                database = writer
+            }
+            guard let database else { throw StoreError.database("无法打开文字编辑资料库。") }
+            return try body(database)
+        }
+    }
+
+    func close() throws {
+        try lock.withLock {
+            closed = true
+            try database?.close()
+            database = nil
+        }
+    }
 }
 
 extension SaytileStore {
@@ -85,32 +116,91 @@ extension SaytileStore {
         try db.rows("SELECT position FROM transcript_timeline WHERE recording_id=?", [.text(id.uuidString)]).first?["position"].flatMap(Int64.init)
     }
     public func timelinePage(_ window: TimelineWindow = .latest) throws -> TimelinePage {
+        try Self.timelinePage(window, from: db)
+    }
+
+    /// Page from the newest captures, even when one session spans several pages. A search result,
+    /// bookmark, or page beginning mid-group retains its first utterance's civil time.
+    public func archiveEntries(query: String = "", filter: RecordingFilter = .transcribed,
+                               limit: Int = 100, editingID: UUID? = nil) throws -> [TimelineEntry] {
+        let (predicate, values) = Self.archivePredicate(query: query, filter: filter, editingID: editingID)
+        return try db.rows(Self.timelineSelection + " AND " + predicate + " ORDER BY t.position DESC LIMIT ?",
+                           values + [.int(Int64(max(1, limit)))]).map(Self.decodeTimelineEntry)
+    }
+
+    /// A newly arriving transcript may push a focused paragraph just outside the
+    /// current page. Read that one owner without widening the page to the whole library.
+    public func archiveEntryForEditing(_ id: UUID, filter: RecordingFilter) throws -> TimelineEntry? {
+        let (predicate, values) = Self.archivePredicate(query: "", filter: filter, editingID: id)
+        return try db.rows(Self.timelineSelection + " AND t.recording_id=? AND " + predicate,
+                           [.text(id.uuidString)] + values).first.map(Self.decodeTimelineEntry)
+    }
+
+    /// The next NSTextView keystroke needs the committed version synchronously,
+    /// including edits to records far outside the board's loaded timeline.
+    @MainActor public func editArchiveParagraph(id: UUID, before: String, after: String) throws -> Recording {
+        try panelEditor.use(at: directory.appendingPathComponent("Saytile.sqlite")) { writer in
+            try writer.transaction {
+                _ = try Self.writePanelEdits([PanelRowEdit(id: id, before: before, after: after)], to: writer, at: .now)
+                guard let updated = try writer.rows(Self.selection + " WHERE r.id=? AND r.deleted=0", [.text(id.uuidString)]).first else {
+                    throw StoreError.missingRecording
+                }
+                return try Self.decodeRecording(updated)
+            }
+        }
+    }
+
+    /// The scrollable board pages through text. Audio-only recordings remain
+    /// available in the archive and the actual capture tail is returned separately.
+    public func panelTimeline(_ window: TimelineWindow) throws -> (page: TimelinePage, tail: TimelineEntry?, textTail: TimelineEntry?) {
+        try Self.panelTimeline(window, from: db)
+    }
+
+    /// NSTextView needs the new row spans before it can accept the next key.
+    /// Read the exact committed page and tail in the same bounded transaction.
+    @MainActor public func editTimeline(_ edits: [PanelRowEdit], window: TimelineWindow) throws -> (page: TimelinePage, tail: TimelineEntry?, textTail: TimelineEntry?) {
+        try panelEditor.use(at: directory.appendingPathComponent("Saytile.sqlite")) { writer in
+            try writer.transaction {
+                try Self.writePanelEdits(edits, to: writer, at: .now)
+                return try Self.panelTimeline(window, from: writer)
+            }
+        }
+    }
+
+    private static func panelTimeline(_ window: TimelineWindow, from db: StoreDatabase) throws -> (page: TimelinePage, tail: TimelineEntry?, textTail: TimelineEntry?) {
+        let page = try timelinePage(window, from: db, textOnly: true)
+        let tail = try timelinePage(.latest, from: db, limit: 1).entries.last
+        // The capture tail may belong to a new group that has not produced text yet.
+        // Reuse the displayed page unless the reader is paging through older text.
+        let textTail: TimelineEntry?
+        if !page.hasNewer && (window == .latest || !page.entries.isEmpty) {
+            textTail = page.entries.last
+        } else if let tail, !tail.recording.text.isEmpty {
+            textTail = tail
+        } else {
+            textTail = try timelinePage(.latest, from: db, textOnly: true, limit: 1).entries.last
+        }
+        return (page, tail, textTail)
+    }
+
+    private static func timelinePage(_ window: TimelineWindow, from db: StoreDatabase,
+                                     textOnly: Bool = false, limit: Int = TimelinePage.capacity) throws -> TimelinePage {
         let direction: String, predicate: String, values: [StoreDatabase.Value]
         switch window {
         case .latest: direction = "DESC"; predicate = ""; values = []
         case .ending(let key): direction = "DESC"; predicate = " AND t.position<=?"; values = [.int(key)]
         case .starting(let key): direction = "ASC"; predicate = " AND t.position>=?"; values = [.int(key)]
         }
-        let sql = """
-        SELECT r.*,v.text,t.position,t.group_start,g.started AS group_date,g.day,g.utc_offset,
-               COALESCE(t.ended,t.started+r.total_frames/r.sample_rate) AS speech_end
-        FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id
-        JOIN transcript_timeline g ON g.position=t.group_start LEFT JOIN revisions v ON v.id=r.preferred_revision
-        WHERE r.deleted=0
-        """
-        let rows = try db.rows(sql + predicate + " ORDER BY t.position " + direction + " LIMIT ?", values + [.int(Int64(TimelinePage.capacity))])
+        let textPredicate = textOnly ? " AND v.text<>''" : ""
+        let rows = try db.rows(timelineSelection + textPredicate + predicate + " ORDER BY t.position " + direction + " LIMIT ?",
+                               values + [.int(Int64(limit))])
         var page = TimelinePage()
-        for row in rows {
-            guard let position = row["position"].flatMap(Int64.init), let group = row["group_start"].flatMap(Int64.init),
-                  let first = row["group_date"].flatMap(Double.init), let day = row["day"],
-                  let offset = row["utc_offset"].flatMap(Int.init), let end = row["speech_end"].flatMap(Double.init) else {
-                throw StoreError.database("无法读取时间轴位置。")
-            }
-            page.entries.append(TimelineEntry(recording: try Self.decodeRecording(row), position: position, group: group,
-                groupStart: Date(timeIntervalSince1970: first), groupDay: day, groupUTCOffset: offset, speechEnd: Date(timeIntervalSince1970: end)))
-        }
+        page.entries = try rows.map(decodeTimelineEntry)
         if direction == "DESC" { page.entries.reverse() }
-        let neighbors = "SELECT 1 FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id WHERE r.deleted=0 AND t.position"
+        if limit == 1 { return page } // Tail lookup doesn't need navigation flags.
+        let versionJoin = textOnly ? " JOIN revisions v ON v.id=r.preferred_revision" : ""
+        let neighbors = "SELECT 1 FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id" +
+            versionJoin + " WHERE r.deleted=0" + textPredicate + " AND t.position"
         if let first = page.entries.first, let last = page.entries.last {
             page.hasOlder = try !db.rows(neighbors + "<? ORDER BY t.position DESC LIMIT 1", [.int(first.position)]).isEmpty
             page.hasNewer = try !db.rows(neighbors + ">? ORDER BY t.position LIMIT 1", [.int(last.position)]).isEmpty
@@ -118,15 +208,34 @@ extension SaytileStore {
         return page
     }
 
+    private static let timelineSelection = """
+        SELECT r.*,v.text,v.origin AS preferred_origin,t.position,t.group_start,g.started AS group_date,g.day,g.utc_offset,
+               COALESCE(t.ended,t.started+r.total_frames/r.sample_rate) AS speech_end
+        FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id
+        JOIN transcript_timeline g ON g.position=t.group_start LEFT JOIN revisions v ON v.id=r.preferred_revision
+        WHERE r.deleted=0
+        """
+
+    private static func decodeTimelineEntry(_ row: [String: String]) throws -> TimelineEntry {
+        guard let position = row["position"].flatMap(Int64.init), let group = row["group_start"].flatMap(Int64.init),
+                  let first = row["group_date"].flatMap(Double.init), let day = row["day"],
+                  let offset = row["utc_offset"].flatMap(Int.init), let end = row["speech_end"].flatMap(Double.init) else {
+            throw StoreError.database("无法读取时间轴位置。")
+        }
+        return TimelineEntry(recording: try Self.decodeRecording(row), position: position, group: group,
+                groupStart: Date(timeIntervalSince1970: first), groupDay: day, groupUTCOffset: offset, speechEnd: Date(timeIntervalSince1970: end),
+                preferredOrigin: row["preferred_origin"].flatMap(RevisionOrigin.init(rawValue:)))
+    }
+
     /// Snapshot the group selected at the click, including segments outside the
     /// current TextKit page. Reading another group never expands this range.
-    private nonisolated func timelineGroupRows(group: Int64, through last: Int64) throws -> [[String: String]] {
+    private nonisolated func timelineGroupRows(group: Int64, through last: Int64, after cleared: Int64 = 0) throws -> [[String: String]] {
         let reader = try StoreDatabase(url: directory.appendingPathComponent("Saytile.sqlite"), readOnly: true)
         return try reader.rows("""
             SELECT t.position,r.id,r.preferred_revision,v.text FROM transcript_timeline t CROSS JOIN recordings r ON r.id=t.recording_id
             LEFT JOIN revisions v ON v.id=r.preferred_revision
-            WHERE t.group_start=? AND t.position<=? AND r.deleted=0 ORDER BY t.position
-            """, [.int(group), .int(last)])
+            WHERE t.group_start=? AND t.position<=? AND t.position>? AND r.deleted=0 ORDER BY t.position
+            """, [.int(group), .int(last), .int(cleared)])
     }
 
     public nonisolated func timelineGroupSnapshots(group: Int64, through last: Int64) throws -> [TimelineTextSnapshot] {
@@ -140,10 +249,11 @@ extension SaytileStore {
     }
 
     /// Already rendered text wins over a newer revision not yet drawn.
-    public nonisolated func timelineCopy(group: Int64, through last: Int64, displayed: [Int64:String]) throws -> String {
-        try timelineGroupRows(group: group, through: last).compactMap { row in
+    public nonisolated func timelineCopy(group: Int64, through last: Int64, after cleared: Int64 = 0, displayed: [Int64:String]) throws -> String {
+        let fragments: [String] = try timelineGroupRows(group: group, through: last, after: cleared).compactMap { row in
             let text = row["position"].flatMap(Int64.init).flatMap { displayed[$0] } ?? row["text"] ?? ""
             return text.isEmpty ? nil : text
-        }.joined(separator: "\n")
+        }
+        return VoiceTranscriptFlow.join(fragments)
     }
 }

@@ -1,0 +1,57 @@
+{
+  "product_source": "f18c2b5f2ad15aec7f66cc34fa79ad671936a532",
+  "build": "360",
+  "binary_sha256": "c126f5930f51f7cb128708599ec58b82ddc10a713faa7fff6fb41c570b6c511c",
+  "source": {
+    "repo": "google/fleurs",
+    "revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+    "path": "parquet-data/cmn_hans_cn/test-00000-of-00001.parquet",
+    "file": "fleurs-cmn_hans_cn-test.parquet",
+    "license": "CC-BY-4.0",
+    "url": "https://huggingface.co/datasets/google/fleurs/resolve/70bb2e84b976b7e960aa89f1c648e09c59f894dd/parquet-data/cmn_hans_cn/test-00000-of-00001.parquet",
+    "archive_sha256": "87c0aebbe183f3a36ac87b5c3421b6ab57036824744ff695029a3f858e7622fd",
+    "archive_bytes": 695674033
+  },
+  "sample": {
+    "id": "fleurs-1bc3201a9f24a2fe",
+    "source": "fleurs",
+    "row": "1994",
+    "revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+    "reference": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。",
+    "audio_sha256": "ef3d6ba58fa3b2b22724593b0962964f1c107f3e33d04b12c2c41244ca30d717",
+    "duration": 11.62
+  },
+  "scope": "Public FLEURS audio replayed at 1x into the capture ring, one on-device Apple provider, actual AppKit text and SQLite in a temporary directory. No physical microphone or personal speech.",
+  "onset_estimate_s": 2.62,
+  "last_sustained_signal_s": 8.700000000000001,
+  "file_eof_observed_s": 11.623,
+  "first_lexical_after_onset_s": 1.398,
+  "first_lexical_from_file_s": 4.018,
+  "first_reference_bigram_after_onset_s": 1.468,
+  "distinct_pre_speech_end_lexical_updates": 19,
+  "reference_bearing_pre_speech_end_updates": 18,
+  "settled_after_file_s": 0.02,
+  "on_disk_journal_chunks": 1,
+  "providers": [
+    "apple-speech-analyzer"
+  ],
+  "recordings": [
+    {
+      "audio_state": "available",
+      "recognition_state": "completed",
+      "total_frames": 165120,
+      "sample_rate": 16000.0
+    }
+  ],
+  "archive": [
+    "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。"
+  ],
+  "archive_score": {
+    "errors": 0,
+    "substitutions": 0,
+    "deletions": 0,
+    "insertions": 0,
+    "reference_units": 29
+  },
+  "status": "PASS"
+}

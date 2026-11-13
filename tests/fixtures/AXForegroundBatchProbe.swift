@@ -175,13 +175,12 @@ private func immediateAbort(_ message: String) -> Never {
         for change in ["silentContext", "holdAX"] {
             try safety.check(pid)
             _ = try command("web", "restore") // Start a new case with no live binding.
-            try await waitForOwnedField(access, original: "PREFIX|SUFFIX", caret: 7, pid: pid)
             let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
             defer { try? FileManager.default.removeItem(at: directory) }
             let store = try SaytileStore(directory: directory)
             let trace = FixtureAccessTrace(access)
             let input = NativeInputCoordinator(store: store, access: trace)
-            try await input.bindCurrentTarget()
+            try await bindOwnedField(input, trace: trace, original: "PREFIX|SUFFIX", caret: 7, pid: pid)
             let record = try await store.createRecording()
             let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
             var reads = 0
@@ -316,9 +315,8 @@ private func immediateAbort(_ message: String) -> Never {
                 let store = try SaytileStore(directory: directory)
                 let trace = FixtureAccessTrace(access)
                 let input = NativeInputCoordinator(store: store, access: trace)
-                try await waitForOwnedField(access, original: "PREFIX|SUFFIX", caret: 7, pid: pid)
                 input.onBindingInvalidated = { print("OWNED_BINDING_INVALIDATED", kind, ProcessInfo.processInfo.systemUptime); fflush(nil) }
-                try await input.bindCurrentTarget()
+                try await bindOwnedField(input, trace: trace, original: "PREFIX|SUFFIX", caret: 7, pid: pid)
                 let recording = try await store.createRecording()
                 let revision = try await store.saveEdit(recordingID: recording.id, text: "你好😀")
                 print("FOREGROUND_STAGE target=\(kind) first_insert_begin"); fflush(nil)

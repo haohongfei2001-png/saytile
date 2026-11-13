@@ -40,13 +40,106 @@ struct AppModelProbe {
             try require(!guide.completedFirstTranscript, "a cancelled start or empty saved recording is not first recognition")
             let ticket = try await guide.store.beginRecognition(recordingID: segment.id)
             let accepted = try await guide.store.applyRecognition(ticket: ticket, text: "第一句话", isFinal: false)
-            await guide.refresh()
+            await guide.refreshRecognition()
+            try require(guide.panelTimelinePage.entries.last?.recording.text == "第一句话",
+                        "a partial reaches the board before a full archive refresh")
             try require(accepted && guide.completedFirstTranscript && prefs.bool(forKey: "firstTranscript.v1"), "an actual nonempty stored partial completes first use before end of speech")
             try await guide.store.finishRecording(id: segment.id)
             await guide.prepareForExit()
             let reopened = try AppModel(directory: home, preferences: prefs, captureDependencies: capture)
             try require(reopened.completedFirstTranscript && !reopened.isListening, "relaunch retains completion without starting capture")
             await reopened.prepareForExit()
+        }
+        do {
+            let suite = "app.saytile.scroll-pages." + UUID().uuidString
+            let prefs = UserDefaults(suiteName: suite)!
+            defer { prefs.removePersistentDomain(forName: suite) }
+            let reader = try AppModel(directory: directory.appendingPathComponent("reading"), preferences: prefs)
+            // Recordings without a transcript remain available in the archive. They
+            // cannot serve as character anchors when the board's backing page advances.
+            for i in 1...160 {
+                let row = try await reader.store.createRecording()
+                if i <= 64 || i > 144 {
+                    try await reader.store.saveEdit(recordingID: row.id, text: "可阅读的文字" + String(i))
+                }
+                try await reader.store.finishRecording(id: row.id)
+            }
+            await reader.refreshRecognition()
+            let latest = reader.panelTimelinePage.entries
+            reader.pinTimeline()
+            reader.moveTimeline(older: true)
+            await reader.refreshRecognition()
+            let older = reader.panelTimelinePage.entries
+            let latestIDs = Set(latest.filter { !$0.recording.text.isEmpty }.map(\.id))
+            let olderIDs = Set(older.filter { !$0.recording.text.isEmpty }.map(\.id))
+            try require(!olderIDs.isEmpty && !olderIDs.isDisjoint(with: latestIDs) && older.first?.position == 1,
+                        "manual paging keeps visible overlap across eighty consecutive untranscribed recordings")
+            let future = try await reader.store.createRecording()
+            try await reader.store.saveEdit(recordingID: future.id, text: "正在说的下一句")
+            await reader.refreshRecognition()
+            try require(reader.panelTimelinePage.entries.map(\.id) == older.map(\.id) && reader.timelineTail?.id == future.id,
+                        "new speech advances the live tail without taking over the pinned history page")
+            reader.followTimeline()
+            await reader.refreshRecognition()
+            try require(reader.panelTimelinePage.entries.last?.id == future.id,
+                        "returning to latest after manual paging reveals the actual newest live row")
+            await reader.prepareForExit()
+        }
+        do {
+            let suite = "app.saytile.archive-journey." + UUID().uuidString
+            let prefs = UserDefaults(suiteName: suite)!
+            defer { prefs.removePersistentDomain(forName: suite) }
+            let board = NSPasteboard.withUniqueName()
+            defer { board.releaseGlobally() }
+            let app = try AppModel(directory: directory.appendingPathComponent("archive-journey"),
+                                   preferences: prefs, copyPasteboard: board)
+            let start = Date.now.addingTimeInterval(-900)
+            let history = try await app.store.createRecording(createdAt: start.addingTimeInterval(-900))
+            try await app.store.saveEdit(recordingID: history.id, text: "不应复制的上一组")
+            try await app.store.finishRecording(id: history.id)
+            let first = try await app.store.createRecording(createdAt: start)
+            let ticket = try await app.store.beginRecognition(recordingID: first.id)
+            _ = try await app.store.applyRecognition(ticket: ticket, text: "屏幕上的这句话", isFinal: false)
+            try await app.store.finishRecording(id: first.id)
+            let silent = try await app.store.createRecording()
+            await app.refresh()
+            await app.selectForEditing(DisplayRecording(source: try await app.store.recording(id: first.id)!))
+            app.updateEditorDraft("改了一半"); _ = await app.flushEditorDrafts()
+            app.updateEditorDraft("屏幕上的这句话"); _ = await app.flushEditorDrafts()
+            let releasedDraft = try await app.store.loadDraft(recordingID: first.id)
+            app.copy("已有剪贴板", quietly: true)
+            app.copyTimeline(selection: "", displayed: [:])
+            let copied = board.string(forType: .string)
+            print("JOURNEY_REPRO revertedDraftCleared=\(releasedDraft == nil) textGroupCopied=\(copied == "屏幕上的这句话")")
+            fflush(nil)
+            try require(releasedDraft == nil, "undoing every archive edit releases the automatic transcript")
+            try require(app.canCopyLatestGroup && copied == "屏幕上的这句话",
+                        "a new group awaiting its first word leaves the latest visible text group available to copy")
+            _ = try await app.store.applyRecognition(ticket: ticket, text: "迟到的原句定稿", isFinal: true)
+            await app.refresh()
+            try require(app.editorDraft == "迟到的原句定稿" && board.string(forType: .string) == copied,
+                        "after undo, late recognition updates the editor and preserves the clipboard snapshot")
+            app.closeDetail()
+            try await app.store.saveDraft(recordingID: first.id, text: "迟到的原句定稿")
+            await app.selectForEditing(DisplayRecording(source: try await app.store.recording(id: first.id)!))
+            _ = await app.flushEditorDrafts()
+            try require(try await app.store.loadDraft(recordingID: first.id) == nil,
+                        "opening a legacy unchanged draft releases it without creating a revision")
+            app.updateEditorDraft("")
+            _ = await app.flushEditorDrafts()
+            try require(try await app.store.loadDraft(recordingID: first.id) == "",
+                        "deliberately erasing the text keeps a recoverable empty draft")
+            app.clearPanel()
+            await app.refresh()
+            let next = try await app.store.createRecording()
+            await app.refreshRecognition()
+            let changeCount = board.changeCount
+            app.copyTimeline(selection: "", displayed: [:])
+            try require(!app.canCopyLatestGroup && board.changeCount == changeCount,
+                        "a new audio-only row after a clear cannot resurrect old text or replace the clipboard")
+            try await app.store.finishRecording(id: silent.id)
+            try await app.store.finishRecording(id: next.id)
+            await app.prepareForExit()
         }
         let seed = try SaytileStore(directory: directory)
         let old = try await seed.createRecording(createdAt: .distantPast)
@@ -62,6 +155,15 @@ struct AppModelProbe {
         preferences.set("synthetic-disconnected-microphone", forKey: "selectedDeviceUID")
         let model = try AppModel(directory: directory, preferences: preferences)
         try require(model.deviceOnly && !model.hosted.selected, "fresh install starts offline")
+        model.useBYOK(true)
+        try require(model.deviceOnly && !model.usesBYOK && !model.recognitionConfiguration.cloudEnabled,
+                    "an unverified BYOK connection cannot take over on-device recognition")
+        try require(model.manualLocalModel == nil && model.selectedLocalModel == .apple,
+                    "the existing default appears as a concrete on-device model without rewriting preferences")
+        model.selectLocal(.apple)
+        try require(model.manualLocalModel == .apple && model.selectedLocalModel == .apple && model.deviceOnly && !model.hosted.consent,
+                    "choosing a named local model persists the choice without enabling online audio")
+        model.selectLocal(nil)
         model.setLoginItem(true)
         try require(!model.canManageLoginItem && !model.launchAtLogin,
                     "an isolated instance cannot change the production login item or display an enabled state")
@@ -106,6 +208,7 @@ struct AppModelProbe {
                     "returning to latest drops the archive-specific insertion scope")
         model.clearPanel(); await model.refresh()
         try require(model.recent.isEmpty && model.records.count == 2, "clearing panel preserves archive")
+        try require(!model.canCopyLatestGroup, "clearing the panel removes its implicit copy target")
         try require(!model.hasPanelInsertionScope && (try model.panelInsertionSnapshots()).isEmpty,
                     "an explicitly cleared panel cannot manually dispatch the cleared group")
         let new = try await model.store.createRecording()
@@ -117,6 +220,16 @@ struct AppModelProbe {
         model.recordFilter = .pinned
         await model.refresh()
         try require(model.records.map(\.id) == [old.id], "archive pinned filter reaches store")
+        await model.selectForEditing(DisplayRecording(source: old))
+        model.updateEditorDraft("收藏筛选中的草稿")
+        await model.toggleFavorite(old.id)
+        try require(model.records.isEmpty && model.selected == nil, "removing the last favorite closes its detail in the filtered list")
+        _ = await model.flushEditorDrafts()
+        try require(try await model.store.loadDraft(recordingID: old.id) == "收藏筛选中的草稿", "leaving the favorites list preserves unsaved edits")
+        model.includeUntranscribed(true)
+        model.toggleFavoriteFilter()
+        model.toggleFavoriteFilter()
+        try require(model.recordFilter == .all, "the star returns to the previous archive scope")
         model.recordFilter = .all; model.query = "历史测试乙"
         await model.refresh()
         try require(model.records.map(\.id) == [other.id], "archive search reaches store without mixing pages")
@@ -127,6 +240,7 @@ struct AppModelProbe {
         let secondEditor = model.records.first { $0.id == other.id }!
         await model.selectForEditing(firstEditor)
         model.updateEditorDraft("未保存的修改😀")
+        try require(try await model.store.loadDraft(recordingID: old.id) == "未保存的修改😀", "detail draft reaches SQLite on input, without switching, closing or a debounce")
         await model.selectForEditing(secondEditor)
         try require(try await model.store.loadDraft(recordingID: old.id) == "未保存的修改😀", "switching records flushes pending draft without waiting for debounce")
         try require(model.editorDraft == secondEditor.text, "switching records does not show another record's draft")
@@ -147,6 +261,19 @@ struct AppModelProbe {
         let savedText = try await model.store.recording(id: old.id)?.text
         let savedDraft = try await model.store.loadDraft(recordingID: old.id)
         try require(savedText == "版本保存期间的新输入" || savedDraft == "版本保存期间的新输入", "typing during version commit is retained as version or newer draft")
+        await model.selectForEditing(secondEditor)
+        model.updateEditorDraft("详情编辑")
+        try model.editArchiveText(other.id, before: secondEditor.text, after: "来自浮板的修订")
+        await model.saveEditorChanges()
+        guard let conflict = model.editorConflictingVersion else { throw Failure(message: "detail save lost its conflicting version") }
+        let conflictDraft = try await model.store.loadDraft(recordingID: other.id)
+        try require(conflict.text == "来自浮板的修订" && model.editorDraft == "详情编辑" && conflictDraft == "详情编辑",
+                    "saving a stale detail draft preserves both the latest manual text and persisted draft")
+        await model.saveEditorChanges(reviewedRevision: conflict.preferredRevisionID)
+        let resolved = try await model.store.recording(id: other.id)
+        try require(model.editorConflictingVersion == nil && resolved?.text == "详情编辑",
+                    "a reviewed conflict can be saved deliberately after comparing the changed transcript")
+        await model.selectForEditing(firstEditor)
         // More than thirty new records must not silently disappear from the input panel.
         for index in 0..<115 {
             let row = try await model.store.createRecording(createdAt: Date().addingTimeInterval(Double(index) / 100))
@@ -159,6 +286,19 @@ struct AppModelProbe {
         while model.loadingPanel { try await Task.sleep(for: .milliseconds(10)) }
         try require(model.recent.count == 116 && !model.panelHasMore, "earlier current-session expressions remain available for batch reuse")
         try require(model.recent.contains(where: { $0.id == new.id }), "earliest current-session expression survives prolonged input")
+        guard let initialArchiveGroup = model.archiveGroups.first else { throw Failure(message: "missing archive group") }
+        try require(initialArchiveGroup.items.count == 100 && initialArchiveGroup.items.last?.id == model.recent.last?.id &&
+                    initialArchiveGroup.date == new.createdAt && model.hasMore, "bounded archive page keeps original session time and latest utterance")
+        // An open editor remains reachable when a live recording pushes it beyond the page.
+        model.setArchiveEditing(new.id)
+        await model.refresh()
+        try require(model.archiveGroups.first?.items.first?.id == new.id && model.records.count == 101,
+                    "a focused archive paragraph survives a moving page boundary without reading all intervening history")
+        model.endArchiveEditing(new.id)
+        model.loadMore()
+        await model.refresh()
+        try require(model.archiveGroups.first?.items.map(\.id) == model.recent.map(\.id) && model.archiveGroups.first?.id == initialArchiveGroup.id,
+                    "loading older paragraphs joins a page-spanning session in chronological order")
         let largeGroup = try model.panelInsertionSnapshots()
         try require(largeGroup.count == 116 && largeGroup.first?.recordingID == new.id,
                     "manual group insertion spans multiple virtual pages in capture order")
@@ -616,6 +756,18 @@ extension AppModelProbe {
                   "service failures remain visible and retain local recognition")
         // The live bit here is intentionally fabricated ONLY to exercise the production
         // receipt admission branch. This is not evidence of a live cloud connection.
+        model.connectionCheckAuthorized = true; model.checkRecognitionConnections(activateOnSuccess: false)
+        try await until("settings verification without activation") { fixture.verificationContinuation != nil }
+        try fixture.finish(.verified, live: true, completed: true)
+        try await until("verified settings saved while local") { !model.checkingConnection && !model.applyingRecognitionSettings }
+        try check(model.connectionVerified && !model.usesBYOK && !fixture.runtimeCloud,
+                  "verifying a BYOK account from Settings leaves new speech local even with legacy source preferences")
+        model.useBYOK(true)
+        try check(model.usesBYOK && !model.deviceOnly && !model.hosted.selected,
+                  "explicit BYOK activation applies verified speech and text configuration for new speech")
+        model.useBYOK(false)
+        try check(model.deviceOnly && !model.usesBYOK && model.connectionVerified && !RecognitionConfiguration.load(from: preferences).cloudEnabled,
+                  "switching off BYOK immediately restores local speech and preserves verified credentials")
         model.connectionCheckAuthorized = true; model.checkRecognitionConnections()
         try await until("test-only live-shaped report entry") { fixture.verificationContinuation != nil }
         try fixture.finish(.verified, live: true, completed: true)

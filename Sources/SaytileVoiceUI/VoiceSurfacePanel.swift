@@ -33,29 +33,29 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
     let editing: Bool
     let latestRequest: Int
     let fillContextMenu: (@MainActor (NSMenu) -> Void)?
+    let applyEdits: (@MainActor ([VoicePanelEdit]) throws -> PanelTimelineDocument<Entry>)?
     let onEdit: (@MainActor () -> Void)?
-    let target: String?
-    let notice: String?
-    let placeholder: String?
-    let placeholderDetail: String?
     let captureDisabled: Bool
+    let compactHelp: String?
     let menu: () -> MenuItems
 
     private typealias ViewState<T> = SwiftUI.State<T>
+    @Environment(\.singleGlassSurface) private var singleGlassSurface
     @Environment(\.insideVoiceRail) private var insideVoiceRail
+    @Environment(\.voiceSlotLayout) private var slotLayout
     @ViewState private var captureHovered = false
     @FocusState private var captureFocused: Bool
-    private let muted = Color(red: 0.43, green: 0.41, blue: 0.51)
-    private let amber = Color(red: 0.58, green: 0.42, blue: 0.22)
     private let ink = Color(red: 0.17, green: 0.16, blue: 0.23)
 
+    /// Legacy host message parameters remain source-compatible. The document area contains only user text.
     public init(document: PanelTimelineDocument<Entry>, access: PanelTranscriptAccess<Entry>, capture: VoicePanelCapture,
                 canCopy: Bool, selectedText: String, onCopy: @escaping () -> Void, onToggle: @escaping () -> Void,
                 onPage: @escaping (Bool) -> Void = { _ in }, onSelectionChange: @escaping (String) -> Void = { _ in },
                 onFollowChange: @escaping (Bool) -> Void = { _ in }, focusPosition: Int64? = nil, editing: Bool = false,
                 latestRequest: Int = 0, fillContextMenu: (@MainActor (NSMenu) -> Void)? = nil, onEdit: (@MainActor () -> Void)? = nil,
-                target: String? = nil, notice: String? = nil, placeholder: String? = nil, placeholderDetail: String? = nil,
-                captureDisabled: Bool = false, @ViewBuilder menu: @escaping () -> MenuItems) {
+                applyEdits: (@MainActor ([VoicePanelEdit]) throws -> PanelTimelineDocument<Entry>)? = nil,
+                target _: String? = nil, notice _: String? = nil, placeholder _: String? = nil, placeholderDetail _: String? = nil,
+                captureDisabled: Bool = false, compactHelp: String? = nil, @ViewBuilder menu: @escaping () -> MenuItems) {
         self.document = document
         self.access = access
         self.capture = capture
@@ -70,96 +70,90 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
         self.editing = editing
         self.latestRequest = latestRequest
         self.fillContextMenu = fillContextMenu
+        self.applyEdits = applyEdits
         self.onEdit = onEdit
-        self.target = target
-        self.notice = notice
-        self.placeholder = placeholder
-        self.placeholderDetail = placeholderDetail
         self.captureDisabled = captureDisabled
+        self.compactHelp = compactHelp
         self.menu = menu
     }
 
     public var body: some View {
         GeometryReader { frame in
-            content(VoicePanelMetrics(width: frame.size.width, inRail: insideVoiceRail))
+            let layout = slotLayout ?? VoicePanelLayout(size: frame.size, inRail: false)
+            content(layout, metrics: VoicePanelMetrics(width: layout.cardFrame.width, inRail: insideVoiceRail))
         }
     }
 
-    private func content(_ metrics: VoicePanelMetrics) -> some View {
-        let scale = metrics.scale
-        return VStack(spacing: 0) {
-            if let target {
-                Label(target, systemImage: "arrow.up.forward.app")
-                    .font(.system(size: 10)).foregroundStyle(muted)
-                    .lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 14 * scale).padding(.bottom, 5)
-                    .help(target).accessibilityIdentifier("panel.target")
-            }
-            if let notice {
-                HStack(alignment: .top, spacing: 6) {
-                    Image(systemName: "exclamationmark.circle")
-                    Text(notice).lineLimit(2).fixedSize(horizontal: false, vertical: true).help(notice)
-                    Spacer(minLength: 0)
-                }.font(.system(size: 11)).foregroundStyle(amber)
-                    .padding(.horizontal, 14 * scale).padding(.vertical, 5).accessibilityIdentifier("panel.notice")
-            }
+    private func content(_ layout: VoicePanelLayout, metrics: VoicePanelMetrics) -> some View {
+        let card = layout.cardFrame
+        let text = layout.transcriptFrame
+        let copy = layout.copyFrame
+        let captureRect = layout.captureFrame
+        return ZStack(alignment: .topLeading) {
             CompactTranscriptView(document: document, access: access, onPage: onPage, focusPosition: focusPosition,
                 editing: editing, latestRequest: latestRequest, onFollowChange: onFollowChange,
-                onSelectionChange: onSelectionChange, fillContextMenu: fillContextMenu, onEdit: onEdit,
-                showsLiveCaret: capture.state == .recognizing, typeScale: metrics.typeScale)
-                .overlay(alignment: .topLeading) {
-                    if let placeholder {
-                        VStack(alignment: .leading, spacing: 8 * scale) {
-                            Text(placeholder).font(.system(size: ReferencePanelStyle.fontSize * metrics.typeScale))
-                            if let placeholderDetail {
-                                Text(placeholderDetail).font(.system(size: max(10, 12 * metrics.typeScale)))
-                                    .lineSpacing(3).foregroundStyle(muted)
-                            }
-                        }.foregroundStyle(ink.opacity(0.8)).padding(.top, 6).padding(.horizontal, 2)
-                            .accessibilityElement(children: .combine).allowsHitTesting(false)
-                    }
-                }
-                .padding(.leading, ReferencePanelStyle.textInset * scale - 2)
-                .padding(.trailing, 8 * scale).frame(maxWidth: .infinity, maxHeight: .infinity)
+                onSelectionChange: onSelectionChange, fillContextMenu: fillContextMenu, applyEdits: applyEdits, onEdit: onEdit,
+                showsLiveCaret: capture.state == .recognizing, typeScale: metrics.typeScale, compact: !layout.canUseTranscript)
+                .frame(width: text.width, height: text.height).clipped()
+                .opacity(layout.transcriptOpacity)
+                .accessibilityHidden(!layout.canUseTranscript).allowsHitTesting(layout.canUseTranscript)
+                .position(x: text.midX - card.minX, y: card.maxY - text.midY)
 
-            HStack(spacing: 0) {
-                Button(action: onCopy) {
-                    ReferenceCopyMark().stroke(ReferencePanelStyle.copyInk.opacity(canCopy ? 1 : 0.5),
-                                               style: StrokeStyle(lineWidth: 1.65 * scale, lineCap: .round, lineJoin: .round))
-                        .frame(width: metrics.copyMarkSize, height: metrics.copyMarkSize)
-                        .frame(width: metrics.copyWidth, height: metrics.controlHeight)
-                        .background { ReferenceControlSurface(copy: true, scale: scale) }
-                        .contentShape(RoundedRectangle(cornerRadius: 13 * scale))
-                }
-                .buttonStyle(.plain).contextMenu(menuItems: menu)
-                .help(canCopy ? "复制文字；右键打开更多操作" : "右键打开更多操作")
-                .accessibilityLabel(selectedText.isEmpty ? "复制当前文字" : "复制所选文字")
-                .accessibilityHint("右键或打开上下文菜单可查看更多操作")
-                .accessibilityIdentifier("panel.copy")
-                Spacer(minLength: 8 * scale)
-                Button(action: onToggle) {
-                    VoiceCaptureGlyph(presentation: capture, scale: scale)
-                        .foregroundStyle(capture.state == .recoveryNeeded ? AnyShapeStyle(amber) : AnyShapeStyle(ReferencePanelStyle.glyph))
-                        .frame(width: metrics.voiceWidth, height: metrics.controlHeight)
-                        .background { ReferenceControlSurface(scale: scale) }
-                        .contentShape(Capsule())
-                }
-                .buttonStyle(CaptureButtonStyle()).disabled(captureDisabled)
-                .overlay(Capsule().stroke(Color.gray.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0), lineWidth: captureFocused ? 2 : 1))
-                .onHover { captureHovered = $0 }.focused($captureFocused)
-                .help(capture.actionLabel).accessibilityLabel(capture.actionLabel)
-                .accessibilityValue(capture.accessibilityValue).accessibilityIdentifier("panel.capture")
-            }
-            .padding(.leading, metrics.footerLeading)
-            .padding(.trailing, ReferencePanelStyle.footerTrailing * scale)
-            .padding(.top, metrics.footerTop).padding(.bottom, metrics.footerBottom)
+            copyButton(metrics)
+                .disabled(!layout.canUseCopy)
+                .opacity(layout.copyOpacity)
+                .accessibilityHidden(!layout.canUseCopy).allowsHitTesting(layout.canUseCopy)
+                .position(x: copy.midX - card.minX, y: card.maxY - copy.midY)
+            captureButton(metrics, rect: captureRect, chrome: layout.controlChromeOpacity)
+                .position(x: captureRect.midX - card.minX, y: card.maxY - captureRect.midY)
         }
-        .padding(.top, metrics.topPadding)
-        .background { ReferencePanelSurface(radius: metrics.radius) }
-        .clipShape(RoundedRectangle(cornerRadius: metrics.radius, style: .continuous))
-        .background { VoicePanelShadow(radius: metrics.radius) }
+        .frame(width: card.width, height: card.height)
+        .background {
+            if !singleGlassSurface { ReferencePanelSurface(radius: layout.innerRadius) }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: layout.innerRadius, style: .continuous))
+        .background {
+            if !insideVoiceRail { VoicePanelShadow(radius: layout.innerRadius) }
+        }
         .foregroundStyle(ink)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func copyButton(_ metrics: VoicePanelMetrics) -> some View {
+        let scale = metrics.scale
+        return Button(action: onCopy) {
+            ReferenceCopyMark().stroke(ReferencePanelStyle.copyInk.opacity(canCopy ? 1 : 0.5),
+                                       style: StrokeStyle(lineWidth: 1.65 * scale, lineCap: .round, lineJoin: .round))
+                .frame(width: metrics.copyMarkSize, height: metrics.copyMarkSize)
+                .frame(width: metrics.copyWidth, height: metrics.controlHeight)
+                .background { ReferenceControlSurface(copy: true, scale: scale) }
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain).contextMenu(menuItems: menu)
+        .help(canCopy ? "复制文字；右键打开更多操作" : "右键打开更多操作")
+        .accessibilityLabel(selectedText.isEmpty ? "复制当前文字" : "复制所选文字")
+        .accessibilityHint("右键或打开上下文菜单可查看更多操作")
+        .accessibilityIdentifier("panel.copy")
+    }
+
+    private func captureButton(_ metrics: VoicePanelMetrics, rect: CGRect, chrome: CGFloat) -> some View {
+        let highlight = Color.gray.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0)
+        return Button(action: onToggle) {
+            VoiceCaptureGlyph(presentation: capture, scale: metrics.scale)
+                .foregroundStyle(ReferencePanelStyle.glyph)
+                .frame(width: rect.width, height: rect.height)
+                .background { ReferenceControlSurface(scale: metrics.scale).opacity(chrome) }
+                .overlay {
+                    Capsule().strokeBorder(highlight.opacity(captureFocused ? 1 : chrome), lineWidth: captureFocused ? 2 : 1)
+                        .allowsHitTesting(false)
+                }
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(CaptureButtonStyle()).disabled(captureDisabled)
+        .onHover { captureHovered = $0 }.focused($captureFocused)
+        .contextMenu(menuItems: menu)
+        .help(chrome < 1 ? compactHelp ?? capture.actionLabel : capture.actionLabel)
+        .accessibilityLabel(capture.actionLabel)
+        .accessibilityValue(capture.accessibilityValue).accessibilityIdentifier("panel.capture")
     }
 
     private struct CaptureButtonStyle: ButtonStyle {

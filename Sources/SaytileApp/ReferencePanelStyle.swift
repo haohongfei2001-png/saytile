@@ -5,12 +5,19 @@ import SaytileVoiceUI
 /// visible rail footprint; the transcript card and its shadow sit inside it.
 struct InputPanelWindowView: View {
     @ObservedObject var model: AppModel
+    var onExpand: (@MainActor () -> Void)? = nil
     var body: some View {
         GeometryReader { geometry in
-            let radius = VoiceRailMetrics(width: geometry.size.width).radius
-            FramedVoiceSlot { InputPanelView(model: model) }
-                .background { VoiceRailGlass(width: geometry.size.width) }
-                .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
+            let layout = VoicePanelLayout(size: geometry.size)
+            FramedVoiceSlot(showsBorder: model.panelBorderVisible) {
+                InputPanelView(model: model, onExpand: VoicePanelFootprint.offersReadingSize(for: geometry.size) ? onExpand : nil)
+            }
+                .background {
+                    if model.panelBorderVisible {
+                        VoiceRailGlass(width: geometry.size.width).opacity(layout.railOpacity)
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: layout.outerRadius, style: .continuous))
         }
     }
 }

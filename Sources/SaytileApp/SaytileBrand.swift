@@ -11,24 +11,21 @@ enum SaytileBrand {
         return url.flatMap(NSImage.init(contentsOf:))
     }()
 
-    static let active = menuImage(opacity: 1, warning: false)
-    static let paused = menuImage(opacity: 0.72, warning: false)
-    static let problem = menuImage(opacity: 1, warning: true)
-
-    private static func menuImage(opacity: CGFloat, warning: Bool) -> NSImage? {
+    /// The status item is an application menu. Keep the approved lettering and its
+    /// footprint constant as capture, faults, and panel visibility change.
+    static let menuBarMark: NSImage? = {
         guard let mark else { return nil }
-        let alert = warning ? NSImage(systemSymbolName: "exclamationmark", accessibilityDescription: nil) : nil
-        let size = NSSize(width: warning ? 25 : 18, height: 18)
+        let size = NSSize(width: 20, height: 20)
         let image = NSImage(size: size, flipped: false) { _ in
             NSGraphicsContext.current?.imageInterpolation = .high
-            let width = 18 * mark.size.width / mark.size.height
-            mark.draw(in: NSRect(x: (18-width)/2, y: 0, width: width, height: 18), from: .zero,
-                      operation: .sourceOver, fraction: opacity)
-            alert?.draw(in: NSRect(x: 19, y: 3, width: 5, height: 12), from: .zero,
-                        operation: .sourceOver, fraction: 1)
+            // The original is 152 × 172. Integral edges keep its small dot
+            // and crossbar aligned at both menu-bar backing scales.
+            mark.draw(in: NSRect(x: 2, y: 1, width: 16, height: 18),
+                      from: .zero, operation: .sourceOver, fraction: 1)
             return true
         }
-        image.isTemplate = true // AppKit supplies menu-bar contrast for either appearance.
+        image.isTemplate = true
+        image.accessibilityDescription = "Saytile"
         return image
-    }
+    }()
 }

@@ -81,7 +81,7 @@ import ApplicationServices
         enum Handle { case footer, top, left, bottom, bottomRight }
         func manipulate(_ app:NSRunningApplication, _ frame:CGRect, _ handle:Handle,
                         dx:CGFloat, dy:CGFloat) async throws -> CGRect {
-            _ = try pausedStatus(app)
+            try requirePausedPanel(app)
             let from:CGPoint, expected:CGRect
             switch handle {
             case .footer:
@@ -115,23 +115,79 @@ import ApplicationServices
             print("NATIVE_GESTURE handle=\(handle) before=\(frame) after=\(actual)"); fflush(nil)
             return actual
         }
-        func pausedStatus(_ app:NSRunningApplication) throws -> AXUIElement {
-            let ax=AXUIElementCreateApplication(app.processIdentifier)
-            guard let raw=value(ax,"AXExtrasMenuBar"), CFGetTypeID(raw)==AXUIElementGetTypeID() else {throw Problem("Owned menu bar unavailable")}
-            let bar=unsafeDowncast(raw,to:AXUIElement.self)
-            let items=value(bar,kAXChildrenAttribute) as? [AXUIElement] ?? []
-            let own=items.filter { node in
-                var owner:pid_t=0; guard AXUIElementGetPid(node,&owner) == .success,owner==app.processIdentifier else{return false}
-                return [kAXDescriptionAttribute,kAXTitleAttribute].contains { (value(node,$0) as? String)?.hasPrefix("Saytile · 暂停") == true }
-            }
-            guard own.count==1 else {throw Problem("Candidate is not paused or its status is ambiguous")}
-            return own[0]
+        func belongs(_ node: AXUIElement, to app: NSRunningApplication) -> Bool {
+            var pid: pid_t = 0
+            return AXUIElementGetPid(node, &pid) == .success && pid == app.processIdentifier
         }
-        func clickOwnStatus(_ app:NSRunningApplication) throws {
-            guard AXUIElementPerformAction(try pausedStatus(app),kAXPressAction as CFString) == .success else {throw Problem("Could not press paused menu item")}
+        func requirePausedPanel(_ app: NSRunningApplication) throws {
+            let root = AXUIElementCreateApplication(app.processIdentifier)
+            let windows = value(root, kAXWindowsAttribute) as? [AXUIElement] ?? []
+            let panels = windows.filter { belongs($0, to: app) && value($0, kAXTitleAttribute) as? String == "Saytile · 此刻" }
+            guard panels.count == 1 else { throw Problem("Owned voice panel unavailable") }
+            var remaining = panels
+            var seen = Set<AXUIElement>()
+            var buttons = [AXUIElement]()
+            while let node = remaining.popLast() {
+                guard belongs(node, to: app), seen.insert(node).inserted else { continue }
+                if value(node, kAXIdentifierAttribute) as? String == "panel.capture" {
+                    buttons.append(node)
+                } else if value(node, kAXRoleAttribute) as? String != kAXTextAreaRole {
+                    remaining += value(node, kAXChildrenAttribute) as? [AXUIElement] ?? []
+                }
+            }
+            guard buttons.count == 1, value(buttons[0], kAXRoleAttribute) as? String == kAXButtonRole,
+                  value(buttons[0], kAXValueAttribute) as? String == "暂停" else {
+                throw Problem("Owned capture control must be paused")
+            }
+        }
+        func chooseVisibility(show: Bool, app: NSRunningApplication) async throws {
+            struct Owned: @unchecked Sendable { let element: AXUIElement }
+            // A hidden panel may be absent from AXWindows. Only operate its owned
+            // menu to reveal it; verify the capture button again before any drag.
+            if !show { try requirePausedPanel(app) }
+            let ax = AXUIElementCreateApplication(app.processIdentifier)
+            guard let raw = value(ax, "AXExtrasMenuBar"), CFGetTypeID(raw) == AXUIElementGetTypeID() else {
+                throw Problem("Owned menu bar unavailable")
+            }
+            let bar = unsafeDowncast(raw, to: AXUIElement.self)
+            let items = value(bar, kAXChildrenAttribute) as? [AXUIElement] ?? []
+            let matches: [(AXUIElement, Bool)] = items.compactMap { item in
+                guard belongs(item, to: app) else { return nil }
+                let labels = [kAXDescriptionAttribute, kAXTitleAttribute].compactMap { value(item, $0) as? String }
+                if labels.contains("Saytile 菜单") { return (item, false) }
+                if labels.contains("Saytile · 暂停") { return (item, true) }
+                return nil
+            }
+            guard matches.count == 1 else { throw Problem("Could not identify a unique owned menu") }
+            let (button, legacy) = matches[0]
+            let title = show ? (legacy ? "显示语音板" : "展开语音板") : "收起语音板"
+            let owned = Owned(element: button)
+            async let opening: Int32 = Task.detached {
+                AXUIElementSetMessagingTimeout(owned.element, 5)
+                return AXUIElementPerformAction(owned.element, kAXPressAction as CFString).rawValue
+            }.value
+            let deadline = ContinuousClock.now + .seconds(3)
+            var selected = false
+            while !selected, ContinuousClock.now < deadline {
+                let menus = value(owned.element, kAXChildrenAttribute) as? [AXUIElement] ?? []
+                for menu in menus {
+                    let items = value(menu, kAXChildrenAttribute) as? [AXUIElement] ?? []
+                    if let item = items.first(where: { value($0, kAXTitleAttribute) as? String == title }) {
+                        var pid: pid_t = 0
+                        guard AXUIElementGetPid(item, &pid) == .success, pid == app.processIdentifier else { throw Problem("Unexpected menu owner") }
+                        selected = AXUIElementPerformAction(item, kAXPressAction as CFString) == .success
+                        break
+                    }
+                }
+                if !selected { try await Task.sleep(for: .milliseconds(30)) }
+            }
+            _ = await opening
+            // The window outcome is checked by the caller; a menu-item press may
+            // finish an AX-triggered tracking loop with a generic status error.
+            guard selected else { throw Problem("Could not choose " + title) }
         }
         func stop(_ app:NSRunningApplication) async throws {
-            _ = try pausedStatus(app)
+            try requirePausedPanel(app)
             guard app.bundleIdentifier==id,app.bundleURL?.resolvingSymlinksInPath()==url.resolvingSymlinksInPath(),app.terminate() else {throw Problem("Could not quit the isolated candidate gracefully")}
             for _ in 0..<60 { if app.isTerminated {return}; try await Task.sleep(for:.milliseconds(100)) }
             throw Problem("Timed out waiting for clean quit")
@@ -140,7 +196,7 @@ import ApplicationServices
         let first:NSRunningApplication
         if let current=existing.first { first=current } else { first=try await launch() }
         let initial=try await visible(first)
-        _ = try pausedStatus(first)
+        try requirePausedPanel(first)
         guard foreground != first.processIdentifier else {throw Problem("Candidate is in use")}
         let primary = CGDisplayBounds(CGMainDisplayID())
         // WindowServer mouse and window geometry both use the top-left desktop origin.
@@ -162,13 +218,14 @@ import ApplicationServices
         let wider=try await manipulate(first,moved,.left,dx:-54,dy:0)
         let heightAdjusted=try await manipulate(first,wider,.bottom,dx:0,dy:40)
         let taller=try await manipulate(first,heightAdjusted,.bottomRight,dx:24,dy:18)
-        try clickOwnStatus(first); try await Task.sleep(for:.milliseconds(220))
+        try await chooseVisibility(show: false, app: first); try await Task.sleep(for:.milliseconds(220))
         guard window(first)==nil else {throw Problem("Menu failed to hide")}
-        try clickOwnStatus(first); let shown=try await visible(first)
+        try await chooseVisibility(show: true, app: first); let shown=try await visible(first)
+        try requirePausedPanel(first)
         guard same(shown.1,taller) else {throw Problem("Hide/show changed chosen size or position")}
         print("HIDE_SHOW_RESTORED \(shown.1)"); fflush(nil)
         try await stop(first); let middle=try await launch(), during=try await visible(middle)
-        _ = try pausedStatus(middle)
+        try requirePausedPanel(middle)
         guard first.processIdentifier != middle.processIdentifier, same(taller,during.1) else {throw Problem("Relaunch changed chosen size or position")}
         print("RELAUNCH_RESTORED \(during.1)"); fflush(nil)
         let other=displays.first { $0 != screen && $0.width>taller.width+32 && $0.height>taller.height+32 }
@@ -179,7 +236,7 @@ import ApplicationServices
             guard other.contains(across) else {throw Problem("Cross-display gesture missed destination")}
             try await stop(middle); current=try await launch()
             let resumed=try await visible(current)
-            _ = try pausedStatus(current)
+            try requirePausedPanel(current)
             guard middle.processIdentifier != current.processIdentifier, same(across,resumed.1) else {throw Problem("Cross-display relaunch changed chosen size or position")}
             _ = try await manipulate(current,resumed.1,.top,dx:-dx,dy:-dy)
             print("SECOND_DISPLAY_RELAUNCH_RESTORED \(resumed.1)")
@@ -189,7 +246,7 @@ import ApplicationServices
         let narrower=try await manipulate(current,shorter,.left,dx:54,dy:0)
         let final=try await manipulate(current,narrower,.footer,dx:72,dy:-48)
         guard same(initial.1,final), foreground==NSWorkspace.shared.frontmostApplication?.processIdentifier else {throw Problem("Default was not restored or foreground changed")}
-        _ = try pausedStatus(current)
+        try requirePausedPanel(current)
         print("PLACEMENT_PASS restored_top_right=\(final) screens=\(NSScreen.screens.count) foreground_preserved=true paused=true")
     }
 }

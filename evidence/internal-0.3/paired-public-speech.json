@@ -1,0 +1,509 @@
+{
+  "method": "Real-time replay of hash-matched public audio into a single on-device Chinese Apple SpeechAnalyzer, isolated native Saytile window and archive. Microphone and paid services not used. Screen sampled ~35 ms; distinct lexical changes only during sustained signal and actual speaking state. Append lengths exclude replacements. Host notifications measure timeline updates, not new model tokens. Nearest-rank quantiles across 10 clips are descriptive, not general accuracy or latency claims.",
+  "corpus": [
+    {
+      "id": "fleurs-1bc3201a9f24a2fe",
+      "source": "fleurs",
+      "row": "1994",
+      "revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "reference": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。",
+      "audio_sha256": "ef3d6ba58fa3b2b22724593b0962964f1c107f3e33d04b12c2c41244ca30d717",
+      "duration": 11.62
+    },
+    {
+      "id": "fleurs-0ebe0fb634f8e4ac",
+      "source": "fleurs",
+      "row": "1680",
+      "revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "reference": "老虎是全能运动员，它会攀爬（虽然攀爬能力不是很强）、游泳、跳远，拉力能达到人类大力士的五倍。",
+      "audio_sha256": "3db0177b2e61fdb305ef7763419e7b800542394721f3558a90be49b2860895d6",
+      "duration": 15.66
+    },
+    {
+      "id": "ascend-zh-f8a5f7657cb3c020",
+      "source": "ascend-zh",
+      "row": "00595",
+      "revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "reference": "对于减肥来说最好",
+      "audio_sha256": "6ff550ee202d6e14d8d211b4084abe27226f1b38044fb76ed85135a3020d96cb",
+      "duration": 1.38
+    },
+    {
+      "id": "ascend-zh-8c6b9e6e9622eed2",
+      "source": "ascend-zh",
+      "row": "00432",
+      "revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "reference": "当时",
+      "audio_sha256": "561bcb191c0039919050faf77b4223a44ffd1e308a05a2edc0df05c443aa9f86",
+      "duration": 1.34
+    },
+    {
+      "id": "ascend-mixed-1f546252624b8191",
+      "source": "ascend-mixed",
+      "row": "00632",
+      "revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "reference": "对然后badminton呢",
+      "audio_sha256": "0b94a160dc821cc802e9b00be5d0e1a80086cb9f93c5f68073bb81bb4d16ab2a",
+      "duration": 2.0701875
+    },
+    {
+      "id": "ascend-mixed-9255615fddf1a721",
+      "source": "ascend-mixed",
+      "row": "00718",
+      "revision": "737e9800ae31be9932ba8464c80366559bd28424",
+      "reference": "他当时也在那个Houston Rockets跟team up with McGrady",
+      "audio_sha256": "e4d9f5aaff9858ff0710a2f2e8fb46d4a7d2b2cf81d9ec54532a19e46de12f3f",
+      "duration": 6.46
+    },
+    {
+      "id": "aishell1-test-62bcde7c39a1ef95",
+      "source": "aishell1-test",
+      "row": "50378d4b8e2ec3f628a7f8022d5865cda5f2447def17cebf767cf6a741637fa1",
+      "revision": "e73dc7f096ecea5c8e5c722446c8d3b4014fdd18",
+      "reference": "足够使美国失去战争基础因此彻底失败",
+      "audio_sha256": "50378d4b8e2ec3f628a7f8022d5865cda5f2447def17cebf767cf6a741637fa1",
+      "duration": 5.585125
+    },
+    {
+      "id": "aishell1-test-c9d13fee248640ab",
+      "source": "aishell1-test",
+      "row": "090508388fdcbfa4a71c02ae3083c7e5b9c2b0a791801e61c78c603d8cb2e0c5",
+      "revision": "e73dc7f096ecea5c8e5c722446c8d3b4014fdd18",
+      "reference": "这个项目是自有资金投入",
+      "audio_sha256": "090508388fdcbfa4a71c02ae3083c7e5b9c2b0a791801e61c78c603d8cb2e0c5",
+      "duration": 4.093
+    },
+    {
+      "id": "fleurs-1bc3201a9f24a2fe-quiet",
+      "source": "quiet",
+      "row": "1994",
+      "revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "reference": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。",
+      "audio_sha256": "1c016875d0ac78550450fdf8330fcd60180a54909cd398904f283a1090921e88",
+      "duration": 11.62
+    },
+    {
+      "id": "fleurs-9eb2d543a0a36152-quiet",
+      "source": "quiet",
+      "row": "1663",
+      "revision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "reference": "智利首选登山目的地科茶莫山谷 (Cochamó Valley) 被称为南美洲的优胜美地 (Yosemite)，这里有各式各样的花岗岩大石壁和峭壁。",
+      "audio_sha256": "d9fae8775ba164360acff95e1360f773c983a3fa983c9889807ae6f1247a7463",
+      "duration": 13.38
+    }
+  ],
+  "baseline": {
+    "source": "2a0e566f6cb1b8921b8dfaf517672e4ebaa371f1",
+    "samples": 10,
+    "with_reference_text_during_speech": 10,
+    "first_reference_bigram_after_onset_s": {
+      "p50": 1.208,
+      "p95": 2.822
+    },
+    "pre_end_lexical_screen_changes": 79,
+    "observed_append_size_characters": {
+      "p50": 2,
+      "p95": 5
+    },
+    "observed_gap_s": {
+      "p50": 0.079,
+      "p95": 0.955
+    },
+    "worst_inter_update_gap_s": 0.975,
+    "empty_archive_segments": 1,
+    "archived": {
+      "errors": 52,
+      "substitutions": 25,
+      "deletions": 25,
+      "insertions": 2,
+      "reference_units": 250,
+      "cer": 0.208
+    },
+    "rows": [
+      {
+        "id": "fleurs-1bc3201a9f24a2fe",
+        "first_reference_bigram_after_onset_s": 1.457,
+        "pre_end_screen_changes": 9,
+        "screen_append_chars": {
+          "p50": 3,
+          "p95": 5
+        },
+        "screen_gap_s": {
+          "p50": 0.073,
+          "p95": 0.955
+        },
+        "max_screen_gap_s": 0.955,
+        "archive_empty": false,
+        "empty_archive_segments": 0
+      },
+      {
+        "id": "fleurs-0ebe0fb634f8e4ac",
+        "first_reference_bigram_after_onset_s": 1.452,
+        "pre_end_screen_changes": 17,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 5
+        },
+        "screen_gap_s": {
+          "p50": 0.841,
+          "p95": 0.965
+        },
+        "max_screen_gap_s": 0.965,
+        "archive_empty": false,
+        "empty_archive_segments": 1
+      },
+      {
+        "id": "ascend-zh-f8a5f7657cb3c020",
+        "first_reference_bigram_after_onset_s": 1.066,
+        "pre_end_screen_changes": 2,
+        "screen_append_chars": {
+          "p50": 4,
+          "p95": 4
+        },
+        "screen_gap_s": {
+          "p50": 0.073,
+          "p95": 0.073
+        },
+        "max_screen_gap_s": 0.073,
+        "archive_empty": false,
+        "empty_archive_segments": 0
+      },
+      {
+        "id": "ascend-zh-8c6b9e6e9622eed2",
+        "first_reference_bigram_after_onset_s": 1.209,
+        "pre_end_screen_changes": 2,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 1
+        },
+        "screen_gap_s": {
+          "p50": 0.072,
+          "p95": 0.072
+        },
+        "max_screen_gap_s": 0.072,
+        "archive_empty": false,
+        "empty_archive_segments": 0
+      },
+      {
+        "id": "ascend-mixed-1f546252624b8191",
+        "first_reference_bigram_after_onset_s": 1.132,
+        "pre_end_screen_changes": 2,
+        "screen_append_chars": {
+          "p50": 2,
+          "p95": 2
+        },
+        "screen_gap_s": {
+          "p50": 0.07,
+          "p95": 0.07
+        },
+        "max_screen_gap_s": 0.07,
+        "archive_empty": false,
+        "empty_archive_segments": 0
+      },
+      {
+        "id": "ascend-mixed-9255615fddf1a721",
+        "first_reference_bigram_after_onset_s": 1.182,
+        "pre_end_screen_changes": 11,
+        "screen_append_chars": {
+          "p50": 2,
+          "p95": 8
+        },
+        "screen_gap_s": {
+          "p50": 0.079,
+          "p95": 0.975
+        },
+        "max_screen_gap_s": 0.975,
+        "archive_empty": false,
+        "empty_archive_segments": 0
+      },
+      {
+        "id": "aishell1-test-62bcde7c39a1ef95",
+        "first_reference_bigram_after_onset_s": 2.822,
+        "pre_end_screen_changes": 9,
+        "screen_append_chars": {
+          "p50": 2,
+          "p95": 3
+        },
+        "screen_gap_s": {
+          "p50": 0.073,
+          "p95": 0.955
+        },
+        "max_screen_gap_s": 0.955,
+        "archive_empty": false,
+        "empty_archive_segments": 0
+      },
+      {
+        "id": "aishell1-test-c9d13fee248640ab",
+        "first_reference_bigram_after_onset_s": 1.208,
+        "pre_end_screen_changes": 8,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 3
+        },
+        "screen_gap_s": {
+          "p50": 0.072,
+          "p95": 0.917
+        },
+        "max_screen_gap_s": 0.917,
+        "archive_empty": false,
+        "empty_archive_segments": 0
+      },
+      {
+        "id": "fleurs-1bc3201a9f24a2fe-quiet",
+        "first_reference_bigram_after_onset_s": 1.209,
+        "pre_end_screen_changes": 10,
+        "screen_append_chars": {
+          "p50": 2,
+          "p95": 5
+        },
+        "screen_gap_s": {
+          "p50": 0.073,
+          "p95": 0.921
+        },
+        "max_screen_gap_s": 0.921,
+        "archive_empty": false,
+        "empty_archive_segments": 0
+      },
+      {
+        "id": "fleurs-9eb2d543a0a36152-quiet",
+        "first_reference_bigram_after_onset_s": 0.84,
+        "pre_end_screen_changes": 9,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 6
+        },
+        "screen_gap_s": {
+          "p50": 0.073,
+          "p95": 0.954
+        },
+        "max_screen_gap_s": 0.954,
+        "archive_empty": false,
+        "empty_archive_segments": 0
+      }
+    ]
+  },
+  "candidate": {
+    "source": "d80a537f6038674e8755c47bbde0b28c90e6684c",
+    "samples": 10,
+    "with_reference_text_during_speech": 10,
+    "first_reference_bigram_after_onset_s": {
+      "p50": 1.183,
+      "p95": 2.85
+    },
+    "pre_end_lexical_screen_changes": 128,
+    "observed_append_size_characters": {
+      "p50": 1,
+      "p95": 2
+    },
+    "observed_gap_s": {
+      "p50": 0.05,
+      "p95": 0.915
+    },
+    "worst_inter_update_gap_s": 0.949,
+    "empty_archive_segments": 1,
+    "archived": {
+      "errors": 52,
+      "substitutions": 25,
+      "deletions": 25,
+      "insertions": 2,
+      "reference_units": 250,
+      "cer": 0.208
+    },
+    "rows": [
+      {
+        "id": "fleurs-1bc3201a9f24a2fe",
+        "first_reference_bigram_after_onset_s": 1.467,
+        "pre_end_screen_changes": 18,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 3
+        },
+        "screen_gap_s": {
+          "p50": 0.045,
+          "p95": 0.879
+        },
+        "max_screen_gap_s": 0.879,
+        "archive_empty": false,
+        "empty_archive_segments": 0,
+        "host_text_publications": 14,
+        "sampled_changes": 26,
+        "first_publication_to_first_screen_observation_ms": 32.8
+      },
+      {
+        "id": "fleurs-0ebe0fb634f8e4ac",
+        "first_reference_bigram_after_onset_s": 1.448,
+        "pre_end_screen_changes": 32,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 2
+        },
+        "screen_gap_s": {
+          "p50": 0.038,
+          "p95": 0.885
+        },
+        "max_screen_gap_s": 0.919,
+        "archive_empty": false,
+        "empty_archive_segments": 1,
+        "host_text_publications": 22,
+        "sampled_changes": 37,
+        "first_publication_to_first_screen_observation_ms": 18.0
+      },
+      {
+        "id": "ascend-zh-f8a5f7657cb3c020",
+        "first_reference_bigram_after_onset_s": 1.061,
+        "pre_end_screen_changes": 4,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 2
+        },
+        "screen_gap_s": {
+          "p50": 0.05,
+          "p95": 0.075
+        },
+        "max_screen_gap_s": 0.075,
+        "archive_empty": false,
+        "empty_archive_segments": 0,
+        "host_text_publications": 4,
+        "sampled_changes": 6,
+        "first_publication_to_first_screen_observation_ms": 9.6
+      },
+      {
+        "id": "ascend-zh-8c6b9e6e9622eed2",
+        "first_reference_bigram_after_onset_s": 1.18,
+        "pre_end_screen_changes": 2,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 1
+        },
+        "screen_gap_s": {
+          "p50": 0.037,
+          "p95": 0.037
+        },
+        "max_screen_gap_s": 0.037,
+        "archive_empty": false,
+        "empty_archive_segments": 0,
+        "host_text_publications": 2,
+        "sampled_changes": 2,
+        "first_publication_to_first_screen_observation_ms": 28.4
+      },
+      {
+        "id": "ascend-mixed-1f546252624b8191",
+        "first_reference_bigram_after_onset_s": 1.132,
+        "pre_end_screen_changes": 3,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 1
+        },
+        "screen_gap_s": {
+          "p50": 0.046,
+          "p95": 0.073
+        },
+        "max_screen_gap_s": 0.073,
+        "archive_empty": false,
+        "empty_archive_segments": 0,
+        "host_text_publications": 4,
+        "sampled_changes": 7,
+        "first_publication_to_first_screen_observation_ms": 29.7
+      },
+      {
+        "id": "ascend-mixed-9255615fddf1a721",
+        "first_reference_bigram_after_onset_s": 1.207,
+        "pre_end_screen_changes": 12,
+        "screen_append_chars": {
+          "p50": 2,
+          "p95": 7
+        },
+        "screen_gap_s": {
+          "p50": 0.08,
+          "p95": 0.936
+        },
+        "max_screen_gap_s": 0.936,
+        "archive_empty": false,
+        "empty_archive_segments": 0,
+        "host_text_publications": 13,
+        "sampled_changes": 15,
+        "first_publication_to_first_screen_observation_ms": 23.9
+      },
+      {
+        "id": "aishell1-test-62bcde7c39a1ef95",
+        "first_reference_bigram_after_onset_s": 2.85,
+        "pre_end_screen_changes": 13,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 2
+        },
+        "screen_gap_s": {
+          "p50": 0.071,
+          "p95": 0.949
+        },
+        "max_screen_gap_s": 0.949,
+        "archive_empty": false,
+        "empty_archive_segments": 0,
+        "host_text_publications": 11,
+        "sampled_changes": 16,
+        "first_publication_to_first_screen_observation_ms": 18.4
+      },
+      {
+        "id": "aishell1-test-c9d13fee248640ab",
+        "first_reference_bigram_after_onset_s": 1.245,
+        "pre_end_screen_changes": 10,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 2
+        },
+        "screen_gap_s": {
+          "p50": 0.071,
+          "p95": 0.875
+        },
+        "max_screen_gap_s": 0.875,
+        "archive_empty": false,
+        "empty_archive_segments": 0,
+        "host_text_publications": 9,
+        "sampled_changes": 11,
+        "first_publication_to_first_screen_observation_ms": 22.1
+      },
+      {
+        "id": "fleurs-1bc3201a9f24a2fe-quiet",
+        "first_reference_bigram_after_onset_s": 1.183,
+        "pre_end_screen_changes": 21,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 2
+        },
+        "screen_gap_s": {
+          "p50": 0.038,
+          "p95": 0.847
+        },
+        "max_screen_gap_s": 0.852,
+        "archive_empty": false,
+        "empty_archive_segments": 0,
+        "host_text_publications": 14,
+        "sampled_changes": 27,
+        "first_publication_to_first_screen_observation_ms": 25.1
+      },
+      {
+        "id": "fleurs-9eb2d543a0a36152-quiet",
+        "first_reference_bigram_after_onset_s": 0.83,
+        "pre_end_screen_changes": 13,
+        "screen_append_chars": {
+          "p50": 1,
+          "p95": 2
+        },
+        "screen_gap_s": {
+          "p50": 0.037,
+          "p95": 0.915
+        },
+        "max_screen_gap_s": 0.915,
+        "archive_empty": false,
+        "empty_archive_segments": 0,
+        "host_text_publications": 20,
+        "sampled_changes": 30,
+        "first_publication_to_first_screen_observation_ms": 18.7
+      }
+    ],
+    "first_host_publication_to_first_screen_observation_ms": {
+      "p50": 22.1,
+      "p95": 32.8
+    }
+  }
+}

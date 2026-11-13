@@ -27,7 +27,7 @@ import Darwin
                 INSERT INTO revisions(id,recording_id,text,origin,created_at,base_revision)
                 SELECT upper(printf('%08x-\(revision)\(revision)\(revision)\(revision)-4\(revision)\(revision)\(revision)-8\(revision)\(revision)\(revision)-%012x',created_at,created_at)),id,
                 '长期语音档案第'||created_at||'条。今天讨论产品设计、中文识别和可靠存储，文字版本应始终可检索。'||CASE WHEN created_at%1000=0 THEN '验收关键词' ELSE '' END,
-                'userEdit',created_at,NULL FROM recordings
+                CASE WHEN \(revision)=1 THEN 'final' ELSE 'userEdit' END,created_at,NULL FROM recordings
                 """)
             }
         }

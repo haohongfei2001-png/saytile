@@ -11,7 +11,7 @@ public enum AudioFailure: LocalizedError, Sendable {
 final class PCMJournal {
     struct IO: Sendable {
         var write: @Sendable (FileHandle, Data) throws -> Void = { try $0.write(contentsOf: $1) }
-        var synchronize: @Sendable (FileHandle) throws -> Void = { try $0.synchronize() }
+        var synchronize: @Sendable (FileHandle) throws -> Void = { try PCMJournal.flushToDisk($0) }
         static let live = IO()
     }
     let directory: URL
@@ -63,7 +63,24 @@ final class PCMJournal {
         try file.seek(toOffset: 0); try io.write(file, Self.header(frames: frames))
         try io.synchronize(file); lastCheckpoint = frames; try file.seekToEnd()
     }
-    func closeChunk() throws { try checkpoint(); try file?.close(); file = nil }
+    func closeChunk() throws {
+        if frames != lastCheckpoint { try checkpoint() }
+        try file?.close()
+        file = nil
+    }
+
+    // fsync alone can leave completed writes in a drive's volatile cache on macOS.
+    // Request a media flush at checkpoints, never on individual PCM frames.
+    private static func flushToDisk(_ file: FileHandle) throws {
+        if Darwin.fcntl(file.fileDescriptor, F_FULLFSYNC) == 0 { return }
+        let code = errno
+        if code == ENOTSUP || code == EINVAL || code == ENOTTY {
+            // Some mounted filesystems only implement the portable durability primitive.
+            try file.synchronize()
+            return
+        }
+        throw NSError(domain: NSPOSIXErrorDomain, code: Int(code))
+    }
     func abandonOpenHandle() { try? file?.close(); file = nil }
     deinit { try? file?.close(); Darwin.close(recordingDirectoryDescriptor) }
     static func header(frames: Int64) -> Data {
@@ -84,7 +101,7 @@ final class PCMJournal {
             }
         }
     }
-    static func repair(_ url: URL) throws -> Int64 {
+    static func repair(_ url: URL, indexedFrames: Int64? = nil) throws -> Int64 {
         // An intact file needs only read permission. Request write access only
         // when a recovered crash tail or stale header actually requires repair.
         let reader = try FileHandle(forReadingFrom: url); defer { try? reader.close() }
@@ -94,16 +111,23 @@ final class PCMJournal {
         let frames = Int64((size - 44) / 2)
         try reader.seek(toOffset: 0)
         let currentHeader = try reader.read(upToCount: 44)
-        if size == UInt64(44 + frames * 2), currentHeader == header(frames: frames) { return frames }
+        if size == UInt64(44 + frames * 2), currentHeader == header(frames: frames) {
+            // A failed media flush can still leave a readable updated WAV header.
+            // Confirm newly discovered frames before raising SQLite's durable watermark.
+            if let indexedFrames, indexedFrames != frames { try flushToDisk(reader) }
+            return frames
+        }
         let handle = try FileHandle(forUpdating: url); defer { try? handle.close() }
         try handle.truncate(atOffset: UInt64(44 + frames * 2))
-        try handle.seek(toOffset: 0); try handle.write(contentsOf: header(frames: frames)); try handle.synchronize()
+        try handle.seek(toOffset: 0); try handle.write(contentsOf: header(frames: frames)); try flushToDisk(handle)
         return frames
     }
 }
 
-/// WebRTC's mature 20ms VAD, with 1 second pre-roll and 800ms end silence.
+/// WebRTC consumes 20 ms frames. A one-second pre-roll protects speech onset.
 final class VoiceSegmenter {
+    // Keep the active local recognizer through a short thinking pause.
+    static let localPauseFrames = 75
     enum Event { case begin([Data], sample: Int64), audio(Data), end(sample: Int64) }
     private let vad: OpaquePointer
     private var pending = Data()
@@ -118,7 +142,7 @@ final class VoiceSegmenter {
     private let endSilenceFrames: Int
     private var activeMaximum = 1500
     private let maximumFrames: Int
-    init(endSilenceFrames: Int = 40, maximumFrames: Int = 1_500) throws {
+    init(endSilenceFrames: Int = VoiceSegmenter.localPauseFrames, maximumFrames: Int = 1_500) throws {
         guard let vad = st_vad_create() else { throw AudioFailure.message("VAD 初始化失败") }
         self.vad = vad; self.endSilenceFrames = max(1, endSilenceFrames); self.maximumFrames = max(1, maximumFrames)
     }

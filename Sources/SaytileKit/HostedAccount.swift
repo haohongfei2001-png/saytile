@@ -78,10 +78,10 @@ import Combine
         defaults.removeObject(forKey:"hosted.restore-blocked.v1");saved=record;signedIn=true;loaded=true
     }
     private func perform(_ fn: (UUID) async throws -> Void) async {
-        guard selected,!busy,origin != nil else {return};busy=true;let g=generation
+        guard !busy,origin != nil else {return};busy=true;let g=generation
         defer {if g==generation { busy=false }}
         do { try await fn(g) } catch {
-            guard g==generation else { return };current=nil;apply()
+            guard g==generation else { return };current=nil;if selected { apply() }
             if case ProviderFailure.authorization = error { status="登录已失效或验证码无效 · 本机识别可用" }
             else { status="云服务暂不可用 · 原音仍保存在本机" }
         }
@@ -97,11 +97,23 @@ import Combine
             guard g==generation else {return};try persist(.init(project:c.url,tokens:try JSONDecoder().decode(Tokens.self,from:data)))
             try await account(g) }
     }
+    private func loadSavedSession() throws {
+        guard !loaded, origin != nil else { return }
+        if !defaults.bool(forKey: "hosted.restore-blocked.v1"),
+           let raw = try keychain.read(configurationID: slot, provider: .openAIResponses) {
+            saved = try JSONDecoder().decode(Saved.self, from: Data(raw.utf8))
+        }
+        loaded = true
+        signedIn = saved != nil
+        if signedIn { status = "已登录" }
+    }
+    public func displaySavedAccount() {
+        do { try loadSavedSession() }
+        catch { status = "无法读取本机登录信息" }
+    }
     public func refresh() async {
         await perform { g in
-            if !loaded { let raw=defaults.bool(forKey:"hosted.restore-blocked.v1") ? nil : try keychain.read(configurationID:slot,provider:.openAIResponses)
-                if let raw { saved=try JSONDecoder().decode(Saved.self,from:Data(raw.utf8)) }
-                loaded=true;signedIn=saved != nil }
+            try loadSavedSession()
             guard saved != nil else { return };try await account(g) }
     }
     private func account(_ g: UUID) async throws {
@@ -120,13 +132,14 @@ import Combine
         billingAvailable=a.billing == true;remainingMS=a.remaining_ms;plan=a.plan;validUntil=a.valid_until
         current = a.active && a.available && a.remaining_ms>=35000 ? .init(origin:origin,bearer:tokens.access_token,expiry:Date(timeIntervalSince1970:tokens.expires_at)) : nil
         status = !a.active ? "尚无有效权益" : !a.available ? "托管服务已暂停" : current == nil ? "剩余额度不足" : "中文识别可用"
-        apply()
+        if selected { apply() }
     }
     public func signOut() async {
         guard origin != nil else {return}
         defaults.set(true,forKey:"hosted.restore-blocked.v1")
         let old=saved;generation=UUID();busy=false;current=nil;consent=false;defaults.set(false,forKey:"hosted.zh-consent.v1")
-        apply(true);billingAvailable=false;signedIn=false;saved=nil;loaded=true;remainingMS=nil;plan=nil;validUntil=nil;status="已退出 · 本机识别可用"
+        if selected { apply(true) }
+        billingAvailable=false;signedIn=false;saved=nil;loaded=true;remainingMS=nil;plan=nil;validUntil=nil;status="已退出 · 本机识别可用"
         do { try keychain.delete(configurationID:slot,provider:.openAIResponses) } catch { status="钥匙串暂不可用；请再次退出以清除本机会话" }
         if let old, let c=try? await project(), old.project==c.url {
             _ = try? await request(c.url.appending(path:"auth/v1/logout"),old.tokens.access_token,[:],c.publishableKey)

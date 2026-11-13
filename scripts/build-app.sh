@@ -6,10 +6,14 @@ SAYTILE_BUILD_SCRATCH="${SAYTILE_BUILD_SCRATCH:-/tmp/saytile-build}"
 SAYTILE_BUILD_COMMAND=(swift build --scratch-path "$SAYTILE_BUILD_SCRATCH" -c "$configuration")
 if [[ "${SAYTILE_SWIFT_DISABLE_SANDBOX:-0}" == 1 ]]; then SAYTILE_BUILD_COMMAND+=(--disable-sandbox); fi
 version=$(cat packaging/VERSION)
-if [[ "$version" == *-integrated.* ]]; then
-  scripts/prepare-updater.sh
-  SAYTILE_BUILD_COMMAND+=(-Xswiftc -F -Xswiftc "$PWD/.build/sparkle" -Xlinker -F -Xlinker "$PWD/.build/sparkle" -Xlinker -rpath -Xlinker @executable_path/../Frameworks)
-fi
+for old_identity in SAYTILE_PERSONAL_EXPERIENCE SAYTILE_DESIGN_EXPERIENCE SAYTILE_SHARED_VOICE_PREVIEW; do
+  if [[ "${!old_identity:-0}" == 1 ]]; then
+    echo "There is one Saytile application. For tests, launch it with an isolated --data-directory." >&2
+    exit 64
+  fi
+done
+scripts/prepare-updater.sh
+SAYTILE_BUILD_COMMAND+=(-Xswiftc -F -Xswiftc "$PWD/.build/sparkle" -Xlinker -F -Xlinker "$PWD/.build/sparkle" -Xlinker -rpath -Xlinker @executable_path/../Frameworks)
 "${SAYTILE_BUILD_COMMAND[@]}"
 bin_dir="$("${SAYTILE_BUILD_COMMAND[@]}" --show-bin-path)"
 app="${SAYTILE_APP_OUTPUT:-$PWD/dist/Saytile.app}"
@@ -34,49 +38,33 @@ if ! iconutil -c icns "$SAYTILE_BUILD_STAGE/Saytile.iconset" -o "$bundle/Content
   python3 scripts/encode-iconset.py "$SAYTILE_BUILD_STAGE/Saytile.iconset" "$bundle/Contents/Resources/Saytile.icns"
 fi
 cp -R Sources/SaytileKit/Resources/LocalASR "$bundle/Contents/Resources/"
-if [[ "$version" == *-local-asr.* || "$version" == *-integrated.* ]]; then
-  scripts/build-local-runtime.sh
-  mkdir -p "$bundle/Contents/Helpers" "$bundle/Contents/Frameworks"
-  cp .build/local-asr/runtime/{SaytileSherpa,SaytileModelWorker} "$bundle/Contents/Helpers/"
-  cp .build/local-asr/runtime/*.dylib "$bundle/Contents/Frameworks/"
-  cp .build/local-asr/runtime/mlx.metallib "$bundle/Contents/Resources/default.metallib"
-  install_name_tool -add_rpath @executable_path/../Frameworks "$bundle/Contents/Helpers/SaytileSherpa"
-  cp -R .build/local-asr/runtime-licenses "$bundle/Contents/Resources/LocalASRLicenses"
-  for child in "$bundle/Contents/Frameworks/"*.dylib "$bundle/Contents/Helpers/"{SaytileSherpa,SaytileModelWorker}; do
-    codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$child"
-  done
-fi
+scripts/build-local-runtime.sh
+mkdir -p "$bundle/Contents/Helpers" "$bundle/Contents/Frameworks"
+cp .build/local-asr/runtime/{SaytileSherpa,SaytileModelWorker} "$bundle/Contents/Helpers/"
+cp .build/local-asr/runtime/*.dylib "$bundle/Contents/Frameworks/"
+cp .build/local-asr/runtime/mlx.metallib "$bundle/Contents/Resources/default.metallib"
+install_name_tool -add_rpath @executable_path/../Frameworks "$bundle/Contents/Helpers/SaytileSherpa"
+cp -R .build/local-asr/runtime-licenses "$bundle/Contents/Resources/LocalASRLicenses"
+for child in "$bundle/Contents/Frameworks/"*.dylib "$bundle/Contents/Helpers/"{SaytileSherpa,SaytileModelWorker}; do
+  codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$child"
+done
 cp Sources/SaytileKit/Resources/ConnectionSample.pcm "$bundle/Contents/Resources/ConnectionSample.pcm"
 cp THIRD_PARTY_NOTICES.md "$bundle/Contents/Resources/THIRD_PARTY_NOTICES.md"
 cp Sources/CAudio/WEBRTC-LICENSE.txt "$bundle/Contents/Resources/WEBRTC-LICENSE.txt"
 cp packaging/Info.plist "$bundle/Contents/Info.plist"
-if [[ "$version" == *-integrated.* ]]; then
-  ditto .build/sparkle/Sparkle.framework "$bundle/Contents/Frameworks/Sparkle.framework"
-  cp .build/sparkle/LICENSE "$bundle/Contents/Resources/SPARKLE-LICENSE.txt"
-  if [[ "${SAYTILE_PERSONAL_EXPERIENCE:-0}" != 1 && "${SAYTILE_DESIGN_EXPERIENCE:-0}" != 1 && "${SAYTILE_SHARED_VOICE_PREVIEW:-0}" != 1 && -n "${SAYTILE_UPDATE_FEED:-}${SAYTILE_UPDATE_PUBLIC_KEY:-}" ]]; then
-    python3 scripts/configure-update-feed.py "$bundle/Contents/Info.plist"
-  fi
+ditto .build/sparkle/Sparkle.framework "$bundle/Contents/Frameworks/Sparkle.framework"
+cp .build/sparkle/LICENSE "$bundle/Contents/Resources/SPARKLE-LICENSE.txt"
+if [[ -n "${SAYTILE_UPDATE_FEED:-}${SAYTILE_UPDATE_PUBLIC_KEY:-}" ]]; then
+  python3 scripts/configure-update-feed.py "$bundle/Contents/Info.plist"
 fi
 /usr/libexec/PlistBuddy -c "Add :SaytileSourceRevision string $(git rev-parse HEAD)" "$bundle/Contents/Info.plist"
 SAYTILE_SOURCE_DIRTY=false
 if ! git diff --quiet HEAD -- Sources Package.swift packaging scripts/build-app.sh; then SAYTILE_SOURCE_DIRTY=true; fi
 if [[ -n "$(git ls-files --others --exclude-standard Sources packaging)" ]]; then SAYTILE_SOURCE_DIRTY=true; fi
 /usr/libexec/PlistBuddy -c "Add :SaytileSourceDirty bool $SAYTILE_SOURCE_DIRTY" "$bundle/Contents/Info.plist"
-/usr/libexec/PlistBuddy -c "Add :SaytileReleaseVersion string $(cat packaging/VERSION)" "$bundle/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $version" "$bundle/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Add :SaytileReleaseVersion string $version" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(git rev-list --count HEAD)" "$bundle/Contents/Info.plist"
-if [[ "${SAYTILE_SHARED_VOICE_PREVIEW:-0}" == 1 ]]; then
-  /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier app.saytile.mac.shared-voice-preview" "$bundle/Contents/Info.plist"
-  /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Saytile 语音板体验" "$bundle/Contents/Info.plist"
-  /usr/libexec/PlistBuddy -c "Set :CFBundleName Saytile 语音板体验" "$bundle/Contents/Info.plist"
-elif [[ "${SAYTILE_DESIGN_EXPERIENCE:-0}" == 1 ]]; then
-  /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier app.saytile.mac.design-experience" "$bundle/Contents/Info.plist"
-  /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Saytile 设计体验" "$bundle/Contents/Info.plist"
-  /usr/libexec/PlistBuddy -c "Set :CFBundleName Saytile 设计体验" "$bundle/Contents/Info.plist"
-elif [[ "${SAYTILE_PERSONAL_EXPERIENCE:-0}" == 1 ]]; then
-  /usr/libexec/PlistBuddy -c "Add :SaytilePersonalExperience bool true" "$bundle/Contents/Info.plist"
-  /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Saytile 个人体验" "$bundle/Contents/Info.plist"
-  /usr/libexec/PlistBuddy -c "Set :CFBundleName Saytile 个人体验" "$bundle/Contents/Info.plist"
-fi
 xattr -cr "$bundle"
 codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$bundle"
 codesign --verify --strict "$bundle"

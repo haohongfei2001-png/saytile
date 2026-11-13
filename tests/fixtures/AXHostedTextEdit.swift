@@ -9,6 +9,20 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
     guard AXUIElementCopyAttributeValue(node,key as CFString,&result) == .success else { return nil }
     return result
 }
+/// TextEdit can expose a usable editor and filename before LaunchServices
+/// assigns AXDocument. Both must identify the fixture before the first binding.
+func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
+    // Native AXInputAccess snapshots carry AXDocument and AXTitle in this order.
+    guard let identity, let separator = identity.firstIndex(of: "\u{1f}") else { return false }
+    let path = String(identity[..<separator])
+    let title = identity[identity.index(after: separator)...]
+    let url = path.hasPrefix("/") ? URL(fileURLWithPath: path) : URL(string: path)
+    guard !path.isEmpty, let url, url.isFileURL, url.host == nil || url.host == "" || url.host == "localhost",
+          url.resolvingSymlinksInPath().standardizedFileURL.path ==
+            expected.resolvingSymlinksInPath().standardizedFileURL.path else { return false }
+    return title == expected.lastPathComponent || title == expected.deletingPathExtension().lastPathComponent
+}
+
 @main struct HostedTextEdit {
     @MainActor static func main() async {
         do { try await test() }
@@ -143,14 +157,15 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
             }
         }
         do {
-            try await waitForOwnedField(access, original: original, caret: 7, pid: pid)
+            try await bindOwnedField(coordinator, trace: trace, original: original, caret: 7, pid: pid) { snapshot in
+                browser || matchesTextEditDocument(snapshot.pageIdentity, expected: doc)
+            }
         } catch {
             let current = try access.snapshot()
             print("Owned field context complete", current.pageContextComplete, "has identity", current.pageIdentity != nil,
                   "known caret", current.selectionLocation == 7, "witness matches", access.textWitness(at: current) == original)
             throw error
         }
-        try await coordinator.bindCurrentTarget()
         let row=try await store.createRecording()
         let r=try await store.saveEdit(recordingID:row.id,text:"你好😀")
         func insert(_ rev:TranscriptRevision) async -> NativeInputResult {
@@ -185,11 +200,12 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
             guard selected["exact"] as? Bool == true, selected["start"] as? Int == 0, selected["end"] as? Int == 6 else {
                 throw TargetError.mismatch("protected selection")
             }
+            print("OWNED_PROTECTED_SELECTION", "range=0...6", "writes", trace.writes)
             // New scenario, same focused synthetic field. No reactivation or retry of a delivery.
+            trace.stage = "before-manual-edit-bind"
             coordinator.invalidate()
             _ = try dom("collapse", finalField)
-            try await waitForOwnedField(access, original: finalField, caret: 15, pid: pid)
-            try await coordinator.bindCurrentTarget()
+            try await bindOwnedField(coordinator, trace: trace, original: finalField, caret: 15, pid: pid)
             let record = try await store.createRecording()
             func send(_ text: String) async throws -> NativeInputResult {
                 let revision = try await store.saveEdit(recordingID: record.id, text: text)
@@ -206,9 +222,9 @@ func attribute(_ node: AXUIElement, _ key: String) -> CFTypeRef? {
             guard rejected != .confirmed, rejected != .unverified, trace.writes == 3 else { throw TargetError.mismatch(trace.stage) }
             try checkDOM(edited, caret: 16)
             for scenario in ["cancel", "switch-target"] {
+                trace.stage = scenario + "-bind"
                 coordinator.invalidate()
-                try await waitForOwnedField(access, original: edited, caret: 16, pid: pid)
-                try await coordinator.bindCurrentTarget()
+                try await bindOwnedField(coordinator, trace: trace, original: edited, caret: 16, pid: pid)
                 let fresh = try await store.createRecording()
                 let revision = try await store.saveEdit(recordingID: fresh.id, text: "停")
                 trace.stage = scenario

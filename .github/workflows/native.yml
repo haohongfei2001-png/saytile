@@ -1,10 +1,10 @@
 name: Saytile native
 on:
   pull_request:
-    paths: ['Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/AX*.swift', 'tests/fixtures/owned-chrome-draft.mjs', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-native-timeline.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
+    paths: ['Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/VoiceRailGestureProbe.swift', 'scripts/test-app-model.sh', 'tests/fixtures/AX*.swift', 'tests/fixtures/owned-chrome-draft.mjs', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-native-timeline.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
   push:
     branches: [main]
-    paths: ['Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/AX*.swift', 'tests/fixtures/owned-chrome-draft.mjs', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-native-timeline.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
+    paths: ['Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/VoiceRailGestureProbe.swift', 'scripts/test-app-model.sh', 'tests/fixtures/AX*.swift', 'tests/fixtures/owned-chrome-draft.mjs', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-native-timeline.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
 permissions:
   contents: read
 concurrency:
@@ -18,6 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
       - name: Verify complete Xcode and record the actual tested revision
         run: |
           set -e
@@ -39,6 +40,10 @@ jobs:
         run: python3 research/asr/validation/fusion-quality/check-probe-isolation.py --app dist/Saytile.app/Contents/MacOS/Saytile --output "$RUNNER_TEMP/probe-isolation.json"
       - name: Isolated connection setup CLI boundaries
         run: python3 scripts/test-connection-setup.py --app dist/Saytile.app --output "$RUNNER_TEMP/connection-setup-isolation.json"
+      - name: Edit directly in the native panel using a private clipboard
+        run: |
+          SAYTILE_EDITOR_REVIEW=1 dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/editor-data" --ui-review "$RUNNER_TEMP/saytile-editor"
+          SAYTILE_EDITOR_REVIEW=reopen dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/editor-data" --ui-review "$RUNNER_TEMP/saytile-editor"
       - name: Native windows with synthetic data
         run: python3 scripts/test-native-ui.py --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui"
       - name: Native continuous timeline with 12000 isolated utterances
@@ -75,23 +80,38 @@ jobs:
           mkdir -p "$SAYTILE_INPUT_EVIDENCE_DIRECTORY"
           git rev-parse HEAD > "$SAYTILE_INPUT_EVIDENCE_DIRECTORY/source.txt"
           python3 scripts/test-input-native.py --foreground-batch
-      - name: Exercise TextEdit on a new disposable document
-        if: always()
-        env:
-          SAYTILE_HOSTED_TARGETS: '1'
-          SAYTILE_INPUT_EVIDENCE_DIRECTORY: ${{ runner.temp }}/foreground-receipt
+      - name: Build the hosted editor probe
+        id: hosted_editor
+        if: ${{ !cancelled() }}
         run: |
           python3 - <<'PYTHON'
           import os, pathlib, runpy, subprocess
           p = runpy.run_path('scripts/test-input-native.py')
-          out = pathlib.Path(os.environ['SAYTILE_INPUT_EVIDENCE_DIRECTORY'])
           exe = pathlib.Path(os.environ['RUNNER_TEMP']) / 'textedit-probe'
           subprocess.run(['swiftc', '-parse-as-library', '-swift-version', '6', '-I', 'Sources/CSQLite',
                           *p['production_flags'](), 'tests/fixtures/AXOwnedFieldReady.swift', 'tests/fixtures/AXHostedTextEdit.swift', '-o', exe], check=True)
-          with (out / 'textedit.log').open('w') as log:
-              subprocess.run([exe], stdout=log, stderr=subprocess.STDOUT, timeout=60, check=True)
-          with (out / 'chrome.log').open('w') as log:
-              subprocess.run([exe, '--chrome'], stdout=log, stderr=subprocess.STDOUT, timeout=90, check=True)
+          PYTHON
+      - name: Exercise TextEdit on a new disposable document
+        if: ${{ !cancelled() && steps.hosted_editor.outcome == 'success' }}
+        env:
+          SAYTILE_HOSTED_TARGETS: '1'
+        run: |
+          python3 - <<'PYTHON'
+          import os, pathlib, subprocess
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          with (root / 'foreground-receipt/textedit.log').open('w') as log:
+              subprocess.run([root / 'textedit-probe'], stdout=log, stderr=subprocess.STDOUT, timeout=60, check=True)
+          PYTHON
+      - name: Exercise Chrome on a new disposable profile
+        if: ${{ !cancelled() && steps.hosted_editor.outcome == 'success' }}
+        env:
+          SAYTILE_HOSTED_TARGETS: '1'
+        run: |
+          python3 - <<'PYTHON'
+          import os, pathlib, subprocess
+          root = pathlib.Path(os.environ['RUNNER_TEMP'])
+          with (root / 'foreground-receipt/chrome.log').open('w') as log:
+              subprocess.run([root / 'textedit-probe', '--chrome'], stdout=log, stderr=subprocess.STDOUT, timeout=90, check=True)
           PYTHON
       - uses: actions/upload-artifact@v4
         if: always()

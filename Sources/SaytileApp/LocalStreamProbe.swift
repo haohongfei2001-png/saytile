@@ -1,14 +1,17 @@
 import AppKit
+import Combine
 import SaytileKit
 
 /// Observes only this isolated panel's laid-out NSTextView. No screen capture,
 /// microphone, pasteboard, real archive or external application is used.
 @MainActor enum LocalStreamProbe {
     struct Frame: Codable { let t: Double; let text: String; let speaking: Bool; let level: Float }
+    struct Publication: Codable { let t: Double; let text: String }
     struct Result: Codable {
         let model: String
         let sha: String?
         let sample: String
+        let publications: [Publication]
         let frames: [Frame]
         let displayedChanges: Int
         let endOfFile: Double
@@ -32,6 +35,16 @@ import SaytileKit
         model.selectSource("local")
         model.selectLocal(id, archiveOnly: id.capability == .batch)
         let start = ProcessInfo.processInfo.systemUptime
+        // These are host timeline publications before the view performs any presentation.
+        // A display frame is not another ASR result. Collect only inside this disposable probe.
+        var publications: [Publication] = []
+        let subscription = model.$timeline.sink { page in
+            let text = PanelTimelineDocument(entries: page.entries).text
+            if !text.isEmpty, text != publications.last?.text, publications.count < 512 {
+                publications.append(Publication(t: ProcessInfo.processInfo.systemUptime - start, text: text))
+            }
+        }
+        defer { subscription.cancel() }
         let observe = Task { @MainActor () -> ([Frame], Int) in
             var frames: [Frame] = [], last = "", changes = 0, captured = false
             while !Task.isCancelled {
@@ -40,7 +53,7 @@ import SaytileKit
                     let string = view.transcriptView.string
                     if !string.isEmpty, last != string {
                         last = string; changes += 1
-                        if changes <= 100 { frames.append(Frame(t: ProcessInfo.processInfo.systemUptime - start, text: string, speaking: model.audio.state == .speaking, level: model.audio.level)) }
+                        if changes <= 512 { frames.append(Frame(t: ProcessInfo.processInfo.systemUptime - start, text: string, speaking: model.audio.state == .speaking, level: model.audio.level)) }
                         if changes >= 3, !captured, model.audio.state == .speaking, let bitmap = content.bitmapImageRepForCachingDisplay(in: content.bounds) {
                             captured = true
                             content.cacheDisplay(in: content.bounds, to: bitmap)
@@ -76,7 +89,7 @@ import SaytileKit
             providers.formUnion(runs.map { $0.ticket.provider })
         }
         let receipt = Result(model: id.rawValue, sha: Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String,
-            sample: source.lastPathComponent, frames: frames, displayedChanges: changes, endOfFile: eos - start, pipelineSettledAt: settled,
+            sample: source.lastPathComponent, publications: publications, frames: frames, displayedChanges: changes, endOfFile: eos - start, pipelineSettledAt: settled,
             total: ProcessInfo.processInfo.systemUptime - start, archive: records.map(\.text), providers: providers.sorted())
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]
         try encoder.encode(receipt).write(to: model.directory.appending(path: "visible.json"), options: .atomic)

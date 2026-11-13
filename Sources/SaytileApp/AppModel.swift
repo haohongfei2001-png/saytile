@@ -33,7 +33,7 @@ struct DisplayRecording: Identifiable, Equatable {
         case .available:
             if source.isRecording { return "正在接收讲话…" }
             if !hasAudio { return "尚无转写文字或可回听的原音。" }
-            if source.recognitionState == .failed { return "原音已保存，文字等待恢复。" }
+            if source.recognitionState == .failed { return "尚未转写，可回听或重新识别。" }
             if source.recognitionState == .completed { return "原音已保存，未检测到可识别的文字。" }
             return "原音已保存，等待识别…"
         }
@@ -41,12 +41,35 @@ struct DisplayRecording: Identifiable, Equatable {
     var audioLabel: String {
         switch source.audioState {
         case .available: return source.duration > 0 ? "原音 · \(max(1, Int(source.duration.rounded()))) 秒" : (source.isRecording ? "原音保存中" : "尚无可回放原音")
-        case .deleted: return "原音已删除 · 文字保留"
+        case .deleted: return source.duration == 0 ? "仅文字" : "原音已删除 · 文字保留"
         case .deletePending: return "原音清理中"
         case .missing: return "原音文件缺失"
         }
     }
 }
+struct ArchiveDisplayGroup: Identifiable, Equatable {
+    let id: Int64
+    let date: Date
+    let day: String
+    let utcOffset: Int
+    var items: [DisplayRecording]
+
+    static func from(_ entries: ArraySlice<TimelineEntry>) -> [Self] {
+        var groups: [Self] = []
+        // Read the visible slice in speaking order, then put the newest session first.
+        for entry in entries.reversed() {
+            let item = DisplayRecording(source: entry.recording)
+            if groups.last?.id == entry.group {
+                groups[groups.count - 1].items.append(item)
+            } else {
+                groups.append(Self(id: entry.group, date: entry.groupStart, day: entry.groupDay,
+                                   utcOffset: entry.groupUTCOffset, items: [item]))
+            }
+        }
+        return groups.reversed()
+    }
+}
+
 struct DisplayVersion: Identifiable {
     let id: UUID
     let text: String
@@ -146,7 +169,8 @@ final class AppModel: ObservableObject {
     @Published private(set) var archiveLocalModel: LocalASRID?
     @Published private(set) var localTextAllowed: Bool
     private var localReview: LocalTextReview?
-    private var automaticLocal: LocalASRID = .apple
+    @Published private var automaticLocal: LocalASRID = .apple
+    var selectedLocalModel: LocalASRID { manualLocalModel ?? automaticLocal }
     private var accountRoute: HostedRoute = .byok
     let audio: AudioController
     let input: NativeInputCoordinator
@@ -157,24 +181,45 @@ final class AppModel: ObservableObject {
     private let captureDependencies: AppCaptureDependencies
     let copyPasteboard: NSPasteboard?
     private var copyFeedback: Task<Void, Never>?
-    @Published private(set) var timeline = TimelinePage()
+    // Sound level updates redraw the control, but do not invalidate transcript text.
+    private(set) var timelineRenderRevision: UInt64 = 0
+    @Published private(set) var timeline = TimelinePage() {
+        didSet { timelineRenderRevision &+= 1 }
+    }
     @Published private(set) var timelineTail: TimelineEntry?
+    @Published private var latestTextEntry: TimelineEntry?
     @Published private(set) var timelineIdle = false
     @Published private(set) var timelineIdleSeconds: Int
     @Published private(set) var timelineFocus: Int64?
     private var timelineWindow = TimelineWindow.latest
-    private var hiddenThrough: Int64 = 0
+    private var hiddenThrough: Int64 = 0 { didSet { timelineRenderRevision &+= 1 } }
+
+    /// Only an explicit Clear starts an empty board. Opening an archived row
+    /// still shows its surrounding history; a pause never changes this boundary.
+    var panelTimelinePage: TimelinePage {
+        guard hiddenThrough > 0, timelineFocus == nil else { return timeline }
+        guard timeline.entries.first.map({ $0.position <= hiddenThrough }) == true else { return timeline }
+        var page = timeline
+        page.entries.removeAll { $0.position <= hiddenThrough }
+        page.hasOlder = false
+        return page
+    }
     @Published var recent: [DisplayRecording] = []
-    @Published var records: [DisplayRecording] = []
+    @Published private(set) var archiveGroups: [ArchiveDisplayGroup] = []
+    var records: [DisplayRecording] { archiveGroups.flatMap(\.items) }
+    private var archiveEditingID: UUID?
+    private var archiveEditGeneration: UInt64 = 0
     @Published var versions: [DisplayVersion] = []
     @Published var archiveIsKey = false
     @Published var selected: DisplayRecording?
     @Published private(set) var editorDraft = ""
     @Published private(set) var editorDraftLoading = false
     @Published private(set) var savingEditorChanges = false
+    @Published private(set) var editorConflictingVersion: Recording?
     @Published private(set) var editorDraftStatus = "修改会自动暂存，保存后更新这段文字"
-    @Published var recordFilter: RecordingFilter = .transcribed { didSet { pageLimit = 100; scheduleRefresh() } }
-    @Published var query = "" { didSet { pageLimit = 100; scheduleRefresh() } }
+    private var archiveIncludesUntranscribed = false
+    @Published var recordFilter: RecordingFilter = .transcribed { didSet { archiveEditingID = nil; pageLimit = 100; scheduleRefresh() } }
+    @Published var query = "" { didSet { archiveEditingID = nil; pageLimit = 100; scheduleRefresh() } }
     @Published var notice: String?
     private var captureStartIssue: (reason: String, detail: String)?
     @Published var recognitionConfiguration = RecognitionConfiguration() {
@@ -224,6 +269,12 @@ final class AppModel: ObservableObject {
             NotificationCenter.default.post(name: .init("SaytileShortcutChanged"), object: nil)
         }
     }
+    @Published var panelBorderVisible = true {
+        didSet {
+            guard !initializing, panelBorderVisible != oldValue else { return }
+            preferences.set(panelBorderVisible, forKey: "panelBorderVisible")
+        }
+    }
     @Published var floatingEntryEnabled = false {
         didSet {
             guard !initializing, floatingEntryEnabled != oldValue else { return }
@@ -241,7 +292,6 @@ final class AppModel: ObservableObject {
     var hidePanel: () -> Void = {}
     var openArchive: () -> Void = {}
     var openSettings: () -> Void = {}
-    var openStorageSettings: () -> Void = {}
     var checkForUpdates: (() -> Void)?
     private var pageLimit = 100
     private var panelLimit = 100
@@ -251,6 +301,7 @@ final class AppModel: ObservableObject {
     private var recognitionSubscription: AnyCancellable?
     private var cleanupIDs: [UUID] = []
     private var refreshOperation: Task<Void, Never>?
+    private var fullRefreshRequested = false
     private var refreshVersion: UInt64 = 0
     private var completedRefreshVersion: UInt64 = 0
     private var refreshOperationID = UUID()
@@ -266,7 +317,13 @@ final class AppModel: ObservableObject {
     private var recoveryTask: Task<Void, Never>?
     private var panelSessionStartedAt = Date()
     private var stagedRecordIDs: Set<UUID> = []
-    private struct DraftWrite: Equatable { let sequence: UInt64; let text: String }
+    private struct DraftWrite: Equatable {
+        let sequence: UInt64
+        let text: String
+        let removesDraft: Bool
+        var base: UUID?
+    }
+    private var editorBase: UUID?
     private var editorRecordingID: UUID?
     private var editorWasEdited = false
     private var editorSelectionGeneration = UUID()
@@ -274,9 +331,6 @@ final class AppModel: ObservableObject {
     private var pendingDraftWrites: [UUID: DraftWrite] = [:]
     private var latestEditorValues: [UUID: DraftWrite] = [:]
     private var committingEditorIDs: Set<UUID> = []
-    private var editorDebounce: Task<Void, Never>?
-    private var editorFlushTask: Task<Bool, Never>?
-    private var editorFlushGeneration: UInt64 = 0
     var editorCanEdit: Bool { editorRecordingID != nil && !editorDraftLoading }
     var hasUnpersistedDrafts: Bool { !pendingDraftWrites.isEmpty }
 
@@ -311,6 +365,7 @@ final class AppModel: ObservableObject {
         self.appliedRecognitionConfiguration = recognitionConfiguration
         audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration, startupRecoveryReady: false)
         input = NativeInputCoordinator(store: store)
+        panelBorderVisible = preferences.object(forKey: "panelBorderVisible") as? Bool ?? true
         floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
         launchAtLogin = canManageLoginItem && SMAppService.mainApp.status == .enabled
         shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? ([.designExperience, .sharedVoicePreview].contains(SaytileStorageProfile.current) ? "disabled" : "option-space")
@@ -335,8 +390,8 @@ final class AppModel: ObservableObject {
                 if case .interrupted = self.audio.state, self.input.binding != nil { self.input.invalidate() } }
         }
         recognitionSubscription = NotificationCenter.default.publisher(for: .init("SaytileRecognitionUpdated"))
-            .throttle(for: .milliseconds(120), scheduler: RunLoop.main, latest: true)
-            .sink { [weak self] _ in Task { @MainActor [weak self] in await self?.refresh() } }
+            .throttle(for: .milliseconds(60), scheduler: DispatchQueue.main, latest: true)
+            .sink { [weak self] _ in Task { @MainActor [weak self] in await self?.refreshRecognition() } }
         recoveryTask = Task { [weak self] in
             guard let self else { return }
             do { _ = try await AudioDiagnostics.recoverAudio(store: store); recovered = true; audio.completeStartupRecovery() }
@@ -370,7 +425,6 @@ final class AppModel: ObservableObject {
     var captureActionSymbolName: String { panelCapturePresentation.actionSymbolName }
     var captureLabel: String { panelCaptureLabel }
     var captureProblem: Bool { if case .interrupted = captureDependencies.state(audio) { return true }; return false }
-    var saveLabel: String { captureProblem ? "收音已暂停 · 请查看保存状态" : isListening ? "原音独立保存 · 识别不会阻塞收音" : "内容保存在此 Mac，随时可以取用" }
     var microphoneDenied: Bool { [.denied, .restricted].contains(captureDependencies.microphoneAuthorization()) }
     func openMicrophoneSettings() { captureDependencies.openMicrophonePreferences() }
     var microphoneLabel: String {
@@ -385,13 +439,39 @@ final class AppModel: ObservableObject {
         guard item.source.recognitionState == .running else { return item.stateLabel }
         return item.isRecording ? "正在记录" : "正在核对文字"
     }
-    func selectSource(_ source: String) {
+    func selectSource(_ source: String, revoke: Bool = false) {
         if source != "local" && localTextAllowed { allowLocalText(false) }
         deviceOnly = source == "local"
         preferences.set(deviceOnly, forKey: "localASR.deviceOnly")
         hosted.select(source == "hosted")
-        audio.selectHostedRoute(deviceOnly ? .local : accountRoute)
+        audio.selectHostedRoute(deviceOnly ? .local : accountRoute, revoke: revoke)
         audio.refreshLocalModelStatus()
+    }
+    func allowHostedSpeech(_ enabled: Bool) {
+        if enabled {
+            selectSource("hosted")
+            hosted.authorize(true)
+        } else {
+            hosted.authorize(false)
+            if hosted.selected { selectSource("local") }
+        }
+    }
+    var usesBYOK: Bool { !deviceOnly && !hosted.selected && appliedRecognitionConfiguration.cloudEnabled }
+    func useBYOK(_ enabled: Bool) {
+        if enabled {
+            guard connectionVerified, !checkingConnection, !applyingRecognitionSettings else { return }
+            recognitionConfiguration.cloudEnabled = true
+            applyRecognitionSettings(selectingBYOK: true)
+        } else if usesBYOK {
+            selectSource("local", revoke: true)
+            recognitionConfiguration.cloudEnabled = false
+            var saved = appliedRecognitionConfiguration
+            saved.cloudEnabled = false
+            appliedRecognitionConfiguration = saved
+            connectionDependencies.applyNextRoute(audio, saved)
+            do { try saved.save(to: preferences) }
+            catch { recognitionSettingsNotice = error.localizedDescription }
+        }
     }
     func selectLocal(_ model: LocalASRID?, archiveOnly: Bool = false) {
         if archiveOnly {
@@ -424,7 +504,7 @@ final class AppModel: ObservableObject {
     }
     func applyLocalSelection() {
         if deviceOnly, localTextAllowed, localReview == nil, let item = localGPT { localReview = LocalTextReview(model: item) }
-        let live = manualLocalModel ?? automaticLocal
+        let live = selectedLocalModel
         audio.selectLocalModels(live: live, archive: archiveLocalModel ?? live, service: localModels, review: localReview)
     }
     var engineLabel: String { audio.speechStatus }
@@ -486,6 +566,9 @@ final class AppModel: ObservableObject {
         }
     }
     func applyRecognitionSettings() {
+        applyRecognitionSettings(selectingBYOK: false)
+    }
+    private func applyRecognitionSettings(selectingBYOK: Bool) {
         guard !preparingForExit, !exitPrepared, !applyingRecognitionSettings, !checkingConnection else { return }
         var candidate = recognitionConfiguration
         candidate.checkedASRConfigurationID = connectionReport?.services.first(where: { $0.provider.isStreaming })?.id
@@ -503,9 +586,10 @@ final class AppModel: ObservableObject {
             }
             try candidate.save(to: preferences)
             recognitionConfiguration = candidate
-            if changingRoute && candidate.cloudEnabled {
+            if (changingRoute || selectingBYOK) && candidate.cloudEnabled {
                 connectionDependencies.applyNextRoute(audio, candidate)
                 appliedRecognitionConfiguration = candidate
+                if selectingBYOK { selectSource("byok") }
                 changingRoute = false
                 recognitionSettingsNotice = "已应用，新讲话使用所选模型。"
             } else {
@@ -526,7 +610,7 @@ final class AppModel: ObservableObject {
             guard recognitionApplyID == generation, !Task.isCancelled else { return }
             appliedRecognitionConfiguration = candidate; applyingRecognitionSettings = false
             if showNotice {
-                recognitionSettingsNotice = candidate.cloudEnabled ? "设置已应用。采集与原音保存继续独立运行。" : "已停止云端识别，继续使用本机模型。"
+                recognitionSettingsNotice = candidate.cloudEnabled ? "识别设置已保存。" : "自带 API 的配置已保存。"
             }
         }
     }
@@ -565,7 +649,7 @@ final class AppModel: ObservableObject {
         }
         recognitionSettingsNotice = "连接检查已停止。本机识别可以继续使用；已发出的请求可能由服务商计费。"
     }
-    func checkRecognitionConnections() {
+    func checkRecognitionConnections(activateOnSuccess: Bool = true) {
         guard !preparingForExit, !exitPrepared, connectionCheckAuthorized, !checkingConnection, !applyingRecognitionSettings else { return }
         let candidate = recognitionConfiguration
         let previous = connectionCheckTask
@@ -588,7 +672,7 @@ final class AppModel: ObservableObject {
                 connectionReport = report; checkingConnection = false; connectionCheckAuthorized = false
                 if report.canEnableCloud && report.matches(recognitionConfiguration) {
                     preferences.set(try JSONEncoder().encode(report), forKey: Self.connectionReceiptKey)
-                    recognitionConfiguration.cloudEnabled = true
+                    recognitionConfiguration.cloudEnabled = activateOnSuccess
                     applyRecognitionSettings()
                 } else { recognitionSettingsNotice = report.message ?? "连接尚未完整通过，请查看各项服务状态。" }
             } catch {
@@ -656,10 +740,12 @@ final class AppModel: ObservableObject {
     private var observedPosition: Int64?
     private var silenceStarted = ContinuousClock.now
     private func refreshTimeline(_ window: TimelineWindow) async throws {
+        // A delayed navigation task for a superseded window cannot invalidate a
+        // newer read (including a refresh scheduled by the recognition stream).
+        guard window == timelineWindow else { return }
         timelineRead &+= 1
         let request = timelineRead
-        let page = try await store.timelinePage(window)
-        let tail = window == .latest ? page.entries.last : try await store.timelinePage().entries.last
+        let (page, tail, textTail) = try await store.panelTimeline(window)
         guard window == timelineWindow, request == timelineRead else { return }
         if timeline != page { timeline = page }
         if !completedFirstTranscript, page.entries.contains(where: { !$0.recording.text.isEmpty }) || tail?.recording.text.isEmpty == false {
@@ -667,6 +753,7 @@ final class AppModel: ObservableObject {
             preferences.set(true, forKey: "firstTranscript.v1")
         }
         if timelineTail != tail { timelineTail = tail }
+        if latestTextEntry != textTail { latestTextEntry = textTail }
         if observedPosition != tail?.position || observedEnd != tail?.speechEnd {
             observedPosition = tail?.position
             observedEnd = tail?.speechEnd
@@ -694,15 +781,34 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func editPanelRows(_ edits: [PanelRowEdit]) throws {
+        guard !exitPrepared else { throw StoreError.database("资料库正在关闭。") }
+        let createsRow = edits.contains { $0.before == nil }
+        let window = createsRow ? .latest : timelineWindow
+        let snapshot = try store.editTimeline(edits, window: window)
+        timelineRead &+= 1 // Ignore a refresh which started before the edit.
+        timelineWindow = window
+        timeline = snapshot.page
+        timelineTail = snapshot.tail
+        latestTextEntry = snapshot.textTail
+        if createsRow { timelineIdle = false }
+        if !completedFirstTranscript {
+            completedFirstTranscript = true
+            preferences.set(true, forKey: "firstTranscript.v1")
+        }
+    }
+
+    var canCopyLatestGroup: Bool { (latestTextEntry?.position ?? 0) > hiddenThrough }
+
     func copyTimeline(selection: String, displayed: [Int64: String]) {
         if !selection.isEmpty { copy(selection, quietly: true); return }
-        guard let end = timelineTail else { return }
+        guard let end = latestTextEntry, canCopyLatestGroup else { return }
         // The editor can hold a previous page across a new group. The click targets
         // the live tail while preserving the exact text of any already rendered rows.
         var snapshot = Dictionary(uniqueKeysWithValues: timeline.entries.map { ($0.position, $0.recording.text) })
         snapshot[end.position] = end.recording.text
         snapshot.merge(displayed) { _, rendered in rendered }
-        do { copy(try store.timelineCopy(group: end.group, through: end.position, displayed: snapshot), quietly: true) }
+        do { copy(try store.timelineCopy(group: end.group, through: end.position, after: hiddenThrough, displayed: snapshot), quietly: true) }
         catch { notice = error.localizedDescription }
     }
 
@@ -722,7 +828,7 @@ final class AppModel: ObservableObject {
         }
     }
     var panelScopeLabel: String { panelHasMore ? "已载入 \(recent.count) / \(panelCount) 段" : "输入板 \(recent.count) 段" }
-    func copyRecent() { copy(recent.map(\.text).filter { !$0.isEmpty }.joined(separator: "\n")) }
+    func copyRecent() { copy(SaytileVoiceUI.VoiceTranscriptFlow.join(recent.map(\.text))) }
     func loadEarlierPanel() {
         guard !loadingPanel else { return }
         panelLimit += 100; refreshVersion &+= 1; loadingPanel = true
@@ -797,6 +903,8 @@ final class AppModel: ObservableObject {
     }
     func clearPanel() {
         guard !isInserting else { return }
+        timelineFocus = nil
+        setTimelineWindow(.latest)
         panelSessionStartedAt = Date()
         stagedRecordIDs.removeAll()
         panelLimit = 100; panelCount = 0; panelHasMore = false
@@ -829,100 +937,128 @@ final class AppModel: ObservableObject {
     }
     func selectForEditing(_ item: DisplayRecording) async {
         if editorRecordingID == item.id { selected = item; await loadVersions(item.id); return }
-        editorDebounce?.cancel()
         let generation = UUID(); editorSelectionGeneration = generation
-        selected = item; versions = []; editorDraftLoading = true; editorRecordingID = nil; editorDraft = ""
+        selected = item; versions = []; editorDraftLoading = true; editorRecordingID = nil; editorDraft = ""; editorConflictingVersion = nil
         _ = await flushEditorDrafts()
         do {
-            let stored = try await store.loadDraft(recordingID: item.id)
+            let stored = try await store.archiveDraft(recordingID: item.id)
             guard let current = try await store.recording(id: item.id) else { return }
             guard editorSelectionGeneration == generation, selected?.id == item.id else { return }
-            let draft = pendingDraftWrites[item.id]?.text ?? stored
+            let pending = pendingDraftWrites[item.id]
+            let draft = pending?.text ?? stored?.text
+            if let pending { editorBase = pending.base }
+            else if let stored { editorBase = stored.base }
+            else { editorBase = current.preferredRevisionID }
+            selected = DisplayRecording(source: current)
             editorDraft = draft ?? current.text
             editorWasEdited = draft != nil
             editorRecordingID = item.id; editorDraftLoading = false
             editorDraftStatus = pendingDraftWrites[item.id] == nil ? "修改会自动暂存，保存后更新这段文字" : "草稿尚未写入磁盘，请保留此窗口"
+            // Older builds could leave a durable draft after an edit was fully undone.
+            if draft?.utf16.elementsEqual(current.text.utf16) == true, current.preferredRevisionID != nil {
+                updateEditorDraft(current.text)
+            }
             await loadVersions(item.id)
         } catch {
             if editorSelectionGeneration == generation { editorDraftStatus = "草稿读取失败，请重新选择记录"; notice = error.localizedDescription; editorDraftLoading = false }
         }
     }
     func closeDetail() {
-        editorSelectionGeneration = UUID(); selected = nil; editorRecordingID = nil
-        editorDebounce?.cancel()
+        editorSelectionGeneration = UUID(); selected = nil; editorRecordingID = nil; editorConflictingVersion = nil
         Task { _ = await flushEditorDrafts() }
     }
     func updateEditorDraft(_ text: String) {
-        guard let id = editorRecordingID, !editorDraftLoading else { return }
-        editorDraft = text; editorWasEdited = true; draftSequence &+= 1
-        let write = DraftWrite(sequence: draftSequence, text: text)
+        guard let id = editorRecordingID, selected?.id == id, !editorDraftLoading else { return }
+        // If a version is being saved, even returning to the old spelling is a newer edit.
+        let removesDraft = !committingEditorIDs.contains(id) && selected?.source.preferredRevisionID != nil
+            && selected?.text.utf16.elementsEqual(text.utf16) == true
+        editorDraft = text
+        editorWasEdited = !removesDraft
+        draftSequence &+= 1
+        if removesDraft { editorBase = selected?.source.preferredRevisionID; editorConflictingVersion = nil }
+        let write = DraftWrite(sequence: draftSequence, text: text, removesDraft: removesDraft, base: editorBase)
         pendingDraftWrites[id] = write; latestEditorValues[id] = write
-        editorDraftStatus = "正在保留草稿…"
-        editorDebounce?.cancel()
-        editorDebounce = Task { [weak self] in
-            do { try await Task.sleep(for: .milliseconds(300)) } catch { return }
-            _ = await self?.flushEditorDrafts()
+        _ = persistDraft(id, write: write)
+    }
+
+    private func persistDraft(_ id: UUID, write: DraftWrite) -> Bool {
+        do {
+            try store.writeArchiveDraft(recordingID: id, text: write.removesDraft ? nil : write.text, basedOn: write.base)
+            pendingDraftWrites.removeValue(forKey: id)
+            if editorRecordingID != id, !committingEditorIDs.contains(id) { latestEditorValues.removeValue(forKey: id) }
+            if editorRecordingID == id {
+                editorDraftStatus = write.removesDraft ? "修改会自动暂存，保存后更新这段文字" : "草稿已自动保留，保存修改创建版本"
+            }
+            return true
+        } catch StoreError.missingRecording {
+            pendingDraftWrites.removeValue(forKey: id); latestEditorValues.removeValue(forKey: id)
+            return true
+        } catch {
+            editorDraftStatus = "草稿尚未写入磁盘，请勿退出"
+            notice = "草稿保存失败：\(error.localizedDescription)"
+            return false
         }
     }
     @discardableResult func flushEditorDrafts() async -> Bool {
-        if let editorFlushTask {
-            let generation = editorFlushGeneration
-            let saved = await editorFlushTask.value
-            if editorFlushGeneration == generation { self.editorFlushTask = nil }
-            guard saved else { return false }
-            return await flushEditorDrafts()
+        for (id, write) in pendingDraftWrites {
+            if !persistDraft(id, write: write) { return false }
         }
-        guard pendingDraftWrites.contains(where: { !committingEditorIDs.contains($0.key) }) else { return pendingDraftWrites.isEmpty }
-        editorFlushGeneration &+= 1
-        let generation = editorFlushGeneration
-        let task = Task<Bool, Never> { [weak self] in
-            guard let self else { return true }
-            while let (id, write) = self.pendingDraftWrites.first(where: { !self.committingEditorIDs.contains($0.key) }) {
-                do {
-                    try await self.store.saveDraft(recordingID: id, text: write.text)
-                    if self.pendingDraftWrites[id] == write { self.pendingDraftWrites.removeValue(forKey: id) }
-                    if self.editorRecordingID != id, !self.committingEditorIDs.contains(id), self.pendingDraftWrites[id] == nil { self.latestEditorValues.removeValue(forKey: id) }
-                    if self.editorRecordingID == id, self.pendingDraftWrites[id] == nil {
-                        self.editorDraftStatus = "草稿已自动保留，保存修改创建版本"
-                    }
-                } catch StoreError.missingRecording {
-                    // A deliberate record deletion also cancels a queued draft write.
-                    self.pendingDraftWrites.removeValue(forKey: id); self.latestEditorValues.removeValue(forKey: id)
-                } catch {
-                    self.editorDraftStatus = "草稿尚未写入磁盘，请勿退出"
-                    self.notice = "草稿保存失败：\(error.localizedDescription)"
-                    return false
-                }
-            }
-            return true
-        }
-        editorFlushTask = task
-        let saved = await task.value
-        if editorFlushGeneration == generation { editorFlushTask = nil }
-        guard saved else { return false }
-        return await flushEditorDrafts()
+        return true
     }
-    func saveEditorChanges() async {
+    func saveEditorChanges(reviewedRevision: UUID? = nil) async {
         guard let item = selected, editorRecordingID == item.id, !editorDraftLoading, !savingEditorChanges else { return }
+        if let conflict = editorConflictingVersion {
+            guard conflict.preferredRevisionID == reviewedRevision else { return }
+        }
         let text = editorDraft, sequence = latestEditorValues[item.id]?.sequence
-        savingEditorChanges = true; committingEditorIDs.insert(item.id); editorDebounce?.cancel()
-        // Let a previously issued draft write finish before saveEdit atomically clears it.
-        _ = await editorFlushTask?.value
+        savingEditorChanges = true; committingEditorIDs.insert(item.id)
         do {
-            _ = try await store.saveEdit(recordingID: item.id, text: text)
+            let revision = try await store.saveEdit(recordingID: item.id, text: text, clearingDraftMatching: text,
+                                                    basedOn: reviewedRevision ?? editorBase)
+            if editorRecordingID == item.id {
+                editorBase = revision.id
+                editorConflictingVersion = nil
+            }
             if latestEditorValues[item.id]?.sequence == sequence {
                 pendingDraftWrites.removeValue(forKey: item.id)
                 if editorRecordingID == item.id { editorWasEdited = false; editorDraftStatus = "修改已保存" }
-            } else if let newer = latestEditorValues[item.id] {
-                // Typing while a version is committed remains a separate unsaved draft.
+            } else if var newer = latestEditorValues[item.id] {
+                // The just-committed version is the base of typing that arrived during save.
+                newer.base = revision.id
                 pendingDraftWrites[item.id] = newer
+                latestEditorValues[item.id] = newer
+            }
+        } catch StoreError.archiveEditingConflict(let current) {
+            if editorRecordingID == item.id {
+                editorConflictingVersion = current
+                editorDraftStatus = "另一处修改了这段文字。核对下方当前版本后，可将草稿存为新版本。"
             }
         } catch { notice = error.localizedDescription }
         committingEditorIDs.remove(item.id); savingEditorChanges = false
         _ = await flushEditorDrafts()
         await refresh(); await loadVersions(item.id)
     }
-    func pin(_ item: DisplayRecording) { perform { try await self.store.setPinned(recordingID: item.id, pinned: !item.pinned); await self.refresh() } }
+    func includeUntranscribed(_ include: Bool) {
+        archiveIncludesUntranscribed = include
+        recordFilter = include ? .all : .transcribed
+        if !include, query.isEmpty, let selected, selected.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { closeDetail() }
+    }
+    func toggleFavoriteFilter() {
+        if recordFilter == .pinned {
+            includeUntranscribed(archiveIncludesUntranscribed)
+        } else {
+            archiveIncludesUntranscribed = recordFilter == .all
+            recordFilter = .pinned
+            if let selected, !selected.pinned { closeDetail() }
+        }
+    }
+    func toggleFavorite(_ id: UUID) async {
+        do {
+            let nowPinned = try await store.togglePinned(recordingID: id)
+            if !nowPinned, recordFilter == .pinned, selected?.id == id { closeDetail() }
+            await refresh()
+        } catch { notice = error.localizedDescription }
+    }
     func retry(_ item: DisplayRecording) {
         let shownConfiguration = appliedRecognitionConfiguration
         Task { await audio.retry(recordingID: item.id, expectedConfiguration: shownConfiguration); await refresh() }
@@ -949,9 +1085,31 @@ final class AppModel: ObservableObject {
             await self.refresh()
         }
     }
-    func prepareSpeech() { Task { await audio.prepareSpeechAssets(); notice = audio.speechStatus } }
+    func prepareSpeech() { Task { await audio.prepareSpeechAssets() } }
     func requestAccessibility() { input.requestPermission() }
     func revealData() { NSWorkspace.shared.activateFileViewerSelecting([directory]) }
+    func setArchiveEditing(_ id: UUID?) {
+        guard archiveEditingID != id else { return }
+        archiveEditingID = id
+        if id == nil { scheduleRefresh() }
+    }
+
+    func endArchiveEditing(_ id: UUID) {
+        guard archiveEditingID == id else { return }
+        setArchiveEditing(nil)
+    }
+
+    func editArchiveText(_ id: UUID, before: String, after: String) throws {
+        guard !exitPrepared else { throw StoreError.database("资料库正在关闭。") }
+        let updated = try store.editArchiveParagraph(id: id, before: before, after: after)
+        archiveEditGeneration &+= 1
+        if let group = archiveGroups.firstIndex(where: { $0.items.contains { $0.id == id } }),
+           let item = archiveGroups[group].items.firstIndex(where: { $0.id == id }) {
+            archiveGroups[group].items[item] = DisplayRecording(source: updated)
+        }
+        scheduleRefresh()
+    }
+
     func loadMore() { pageLimit += 100; scheduleRefresh() }
     func previewCleanup() async -> Bool {
         guard !preparingCleanup else { return false }
@@ -985,7 +1143,6 @@ final class AppModel: ObservableObject {
         await recognitionApplyTask?.value; recognitionApplyTask = nil; applyingRecognitionSettings = false
         timer?.cancel(); refreshTask?.cancel()
         await audio.pause()
-        editorDebounce?.cancel()
         _ = await flushEditorDrafts()
         // If saving fails, the delegate keeps this window open and the normal refresh loop alive.
         if !hasUnpersistedDrafts {
@@ -998,8 +1155,15 @@ final class AppModel: ObservableObject {
     }
     // All callers await the same in-flight refresh, including startup diagnostics.
     // A timer refresh must not make a user action or initial render return empty early.
-    func refresh() async {
+    func refreshRecognition() async {
+        // The board needs the newest text immediately. Archive and direct-input
+        // consumers retain the full pass when active and on the regular timer.
+        await refresh(transcriptOnly: !archiveIsKey && input.binding == nil)
+    }
+
+    func refresh(transcriptOnly: Bool = false) async {
         guard !exitPrepared else { return }
+        if !transcriptOnly { fullRefreshRequested = true }
         refreshVersion &+= 1
         let requestedVersion = refreshVersion
         while !exitPrepared, completedRefreshVersion < requestedVersion {
@@ -1013,9 +1177,16 @@ final class AppModel: ObservableObject {
                 // A waiting caller retains its original version; recursively calling
                 // refresh here would invent another request and serialize the burst.
                 let coveredVersion = refreshVersion
+                let full = fullRefreshRequested
+                fullRefreshRequested = false
                 operation = Task<Void, Never> { [weak self] in
                     guard let self else { return }
-                    await self.performRefresh()
+                    if full {
+                        await self.performRefresh()
+                    } else {
+                        do { try await self.refreshTimeline(self.timelineWindow) }
+                        catch { self.notice = error.localizedDescription }
+                    }
                     self.completedRefreshVersion = max(self.completedRefreshVersion, coveredVersion)
                 }
                 refreshOperation = operation
@@ -1031,17 +1202,20 @@ final class AppModel: ObservableObject {
         do {
             await recoveryTask?.value
             try await refreshTimeline(timelineWindow)
-            var rows: [Recording] = []
-            while rows.count < requestedLimit + 1 {
-                let batch = try await store.listRecordings(query: requestedQuery, limit: min(100, requestedLimit + 1 - rows.count), offset: rows.count, filter: requestedFilter)
-                rows += batch
-                if batch.isEmpty { break }
+            let generation = archiveEditGeneration, editingID = archiveEditingID
+            let entries = try await store.archiveEntries(query: requestedQuery, filter: requestedFilter,
+                                                         limit: requestedLimit + 1, editingID: editingID)
+            var visibleEntries = entries.prefix(requestedLimit)
+            if let editingID, !visibleEntries.contains(where: { $0.id == editingID }),
+               let focused = try await store.archiveEntryForEditing(editingID, filter: requestedFilter) {
+                visibleEntries.append(focused)
             }
-            guard query == requestedQuery, recordFilter == requestedFilter, pageLimit == requestedLimit else { scheduleRefresh(); return }
-            let more = rows.count > requestedLimit
+            guard query == requestedQuery, recordFilter == requestedFilter, pageLimit == requestedLimit,
+                  archiveEditGeneration == generation, archiveEditingID == editingID else { scheduleRefresh(); return }
+            let more = entries.count > requestedLimit
             if hasMore != more { hasMore = more }
-            let nextRecords = Array(rows.prefix(requestedLimit)).map { DisplayRecording(source: $0) }
-            if records != nextRecords { records = nextRecords }
+            let groups = ArchiveDisplayGroup.from(visibleEntries)
+            if archiveGroups != groups { archiveGroups = groups }
             let panelStart = panelSessionStartedAt, panelIDs = Array(stagedRecordIDs), requestedPanelLimit = panelLimit
             var panelRows: [Recording] = []
             while panelRows.count < requestedPanelLimit {
@@ -1061,8 +1235,9 @@ final class AppModel: ObservableObject {
                 let refreshedSelection = try await store.recording(id: selection.id).map { DisplayRecording(source: $0) }
                 if selected?.id == selection.id {
                     if selected != refreshedSelection { selected = refreshedSelection }
-                    if editorRecordingID == selection.id, !editorWasEdited, let refreshedSelection, editorDraft != refreshedSelection.text {
-                        editorDraft = refreshedSelection.text
+                    if editorRecordingID == selection.id, !editorWasEdited, let refreshedSelection {
+                        editorBase = refreshedSelection.source.preferredRevisionID
+                        if editorDraft != refreshedSelection.text { editorDraft = refreshedSelection.text }
                     }
                     if refreshedSelection?.source.preferredRevisionID != selection.source.preferredRevisionID { await loadVersions(selection.id) }
                 }

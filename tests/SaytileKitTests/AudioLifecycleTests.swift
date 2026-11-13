@@ -25,6 +25,20 @@ struct AudioLifecycleTests {
         #expect(!segmenter.speaking)
         #expect(segmenter.finish().isEmpty)
     }
+    @Test func localRecognizerKeepsItsContextAcrossAThinkingPause() throws {
+        let segmenter = try VoiceSegmenter()
+        let samples = (0..<3_200).map { i in
+            Int16(10_000 * sin(2 * .pi * Double(i) * 180 / 16_000))
+        }
+        let syllable = samples.withUnsafeBytes { Data($0) }
+        let pause = Data(repeating: 0, count: 35_200) // 1.1 seconds at 16 kHz, mono PCM16.
+        let events = segmenter.accept(syllable + pause + syllable + Data(repeating: 0, count: 80_000))
+        let starts = events.filter { if case .begin = $0 { true } else { false } }
+        let ends = events.filter { if case .end = $0 { true } else { false } }
+        #expect(starts.count == 1)
+        #expect(ends.count == 1)
+        #expect(!segmenter.speaking)
+    }
     @Test func finishDoesNotSaveStandbySilenceAsSpeech() throws {
         let segmenter = try VoiceSegmenter()
         _ = segmenter.accept(Data(repeating:0,count:1003 * 2))

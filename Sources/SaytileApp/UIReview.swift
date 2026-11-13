@@ -19,6 +19,24 @@ extension AppDelegate {
                 return true
             }
             await model.initialLoad()
+            if let value = ProcessInfo.processInfo.environment["SAYTILE_REVIEW_REOPEN_STAR"], let id = UUID(uuidString: value) {
+                let restored = try await model.store.recording(id: id)
+                guard restored?.isPinned == true else { throw ReviewFailure("relaunch lost a row starred through the native control") }
+                print("WORKSPACE_REOPEN_PASS native row star persisted across processes")
+                return true
+            }
+            if ProcessInfo.processInfo.environment["SAYTILE_EDITOR_REVIEW"] == "reopen" {
+                let rows = try await model.store.listRecordings(limit: 4)
+                guard rows.count == 1, let row = rows.first, row.text.isEmpty, row.audioState == .deleted,
+                      try await model.store.revisions(recordingID: row.id).contains(where: { $0.text == "先写😀再改中\n第二行" })
+                else { throw ReviewFailure("restarting lost a committed edit or resurrected deleted text") }
+                print("INLINE_EDITOR_REOPEN_PASS previous revisions and deliberate deletion preserved")
+                return true
+            }
+            if ProcessInfo.processInfo.environment["SAYTILE_EDITOR_REVIEW"] == "1" {
+                try await reviewInlineEditing(model: model, output: output)
+                return true
+            }
             if product { try await reviewProductWindows(model: model, output: output); return true }
             if ProcessInfo.processInfo.environment["SAYTILE_TIMELINE_REVIEW"] == "1" {
                 try await reviewTimeline(model: model, output: output)
@@ -31,17 +49,22 @@ extension AppDelegate {
                 "这周想留一点时间。\n把散落的想法整理成一页清晰的计划。\n先收下讨论的时间。\n不要自动发送。\n确认之后再决定。",
                 "API、Swift 与中文可以放在同一段表达里。测试 emoji 😀，只显示一份持续修正的文字。"
             ]
+            // The first two paragraphs are one speaking session; a real idle gap starts the next.
+            let now = Date.now
+            let midnight = Calendar.current.dateInterval(of: .day, for: now)!.end
+            let base = midnight.timeIntervalSince(now) > 315 ? now.addingTimeInterval(1) : midnight
+            let offsets: [TimeInterval] = [0, 30, 280]
             for (index, text) in examples.enumerated() {
-                let row = try await model.store.createRecording(createdAt: Date().addingTimeInterval(Double(index)))
+                let row = try await model.store.createRecording(createdAt: base.addingTimeInterval(offsets[index]))
                 _ = try await model.store.saveEdit(recordingID: row.id, text: text)
                 if index == 1 {
                     try await addSilentReviewAudio(model: model, recordingID: row.id, frames: 80_000)
                 }
-                try await model.store.finishRecording(id: row.id)
+                try await model.store.finishRecording(id: row.id, speechEndedAt: base.addingTimeInterval(offsets[index] + 5))
                 if index == 1 { try await model.store.setPinned(recordingID: row.id, pinned: true) }
                 if index == 2 { try await model.store.deleteAudio(recordingID: row.id) }
             }
-            let originalOnly = try await model.store.createRecording()
+            let originalOnly = try await model.store.createRecording(createdAt: base.addingTimeInterval(310))
             try await model.store.finishRecording(id: originalOnly.id)
             await model.refresh()
             guard model.recordFilter == .transcribed, model.records.count == 3,
@@ -58,14 +81,41 @@ extension AppDelegate {
                 print("UI_CONTROL_PASS modes through real native transcript context menu actions")
             }
             try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 320, height: 200), name: "panel-compact", output: output)
-            try await reviewWindow(ArchiveView(model: model), size: CGSize(width: 1040, height: 720), name: "archive", output: output) { host in
-                try await self.press("已收藏", in: host)
+            guard let workspace = workspaceWindow(for: .archive), let content = workspace.contentView,
+                  workspaceWindow(for: .speech) === workspace, workspaceWindow(for: .storage) === workspace,
+                  workspaceWindow(for: .archive)?.contentView === content, !workspace.isVisible else {
+                throw ReviewFailure("workspace deep links created separate native windows or replaced the hosting view")
+            }
+            print("WORKSPACE_REUSE_PASS same NSWindow and hosting view across archive, speech and storage routes")
+            try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1040, height: 720), name: "archive", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["workspace.brand", "settings.page.archive", "archive.favorites"],
+                    excluded: ["回到输入板", "全部文字", "全部记录", "待恢复", "设置与存储"])
+                let entries = try await model.store.timelinePage().entries
+                let groupIDs = Set(entries.map { $0.group })
+                guard groupIDs.count == 2 else { throw ReviewFailure("short pause split a presentation group or long gap disappeared") }
+                let timeIDs = groupIDs.map { "archive.time.\($0)" }
+                try await self.inspectSettings(in: host, required: timeIDs,
+                    excluded: model.records.flatMap { ["archive.detail.\($0.id)", "archive.copy.\($0.id)"] })
+                try self.captureReview(host, name: "archive-reading", output: output)
+                try await self.mouseClick("archive.favorites", side: .right, minimumWidth: 24, in: host)
                 await model.refresh()
                 guard model.recordFilter == .pinned, model.records.count == 1 else { throw ReviewFailure("native archive filter action failed: filter=\(model.recordFilter), count=\(model.records.count)") }
                 guard let paragraph = model.records.first, paragraph.hasAudio, paragraph.text == examples[1] else {
                     throw ReviewFailure("missing owned transcript or playback fixture")
                 }
                 _ = try await self.performControl("archive.text.\(paragraph.id)", in: host, arguments: ["read-paragraph", paragraph.text])
+                let editable = try await self.archiveEditor(paragraph.id, in: host)
+                try await self.mouseClick("archive.text.\(paragraph.id)", side: .left, minimumWidth: 40, in: host)
+                guard host.window?.firstResponder === editable, editable.isEditable, editable.isSelectable else {
+                    throw ReviewFailure("archive paragraph does not accept a caret in place")
+                }
+                let edited = paragraph.text + "已核对。"
+                editable.insertText("已核对。", replacementRange: NSRange(location: paragraph.text.utf16.count, length: 0))
+                guard (try await model.store.recording(id: paragraph.id))?.text == edited,
+                      model.selected == nil else { throw ReviewFailure("typing did not commit the correct original in place") }
+                try await self.reviewUntil { editable.string == edited }
+                try self.captureReview(host, name: "archive-editing", output: output)
+                print("ARCHIVE_READING_PASS two natural sessions; native inline change committed to its original record")
                 try await self.press("archive.play.\(paragraph.id)", in: host)
                 try await self.reviewUntil { model.playingID == paragraph.id && model.audio.playbackPosition > 0 }
                 guard abs(model.audio.playbackDuration - 5) < 0.01, model.selected == nil else {
@@ -74,17 +124,42 @@ extension AppDelegate {
                 try await self.press("archive.play.\(paragraph.id)", in: host)
                 try await self.reviewUntil { model.playingID == nil }
                 print("UI_CONTROL_PASS archive row plays and stops its own original while reading")
-                try await self.press("全部记录", in: host)
+                try await self.press("archive.favorites", in: host)
+                try await self.press("archive.includeUntranscribed", in: host)
                 await model.refresh()
                 guard model.records.count == 4, model.records.contains(where: { $0.id == originalOnly.id }) else { throw ReviewFailure("native archive all-records action lost original-only record") }
-                try await self.press("全部文字", in: host)
+                try await self.reviewArchiveEditing(id: originalOnly.id, model: model, in: host)
+                try await self.press("archive.includeUntranscribed", in: host)
                 await model.refresh()
                 guard model.records.count == 3, let first = model.records.first else { throw ReviewFailure("archive transcript filter did not restore paragraphs") }
-                try await self.press("archive.detail.\(first.id)", in: host)
+                let starEditor = try await self.archiveEditor(first.id, in: host)
+                guard host.window?.makeFirstResponder(starEditor) == true else { throw ReviewFailure("could not focus archive text") }
+                try await Task.sleep(for: .milliseconds(150))
+                try await self.mouseClick("archive.favorite.\(first.id)", side: .right, minimumWidth: 22, in: host)
+                try await self.reviewUntil { model.records.contains(where: { $0.id == first.id && $0.pinned }) }
+                guard try await model.store.recording(id: first.id)?.isPinned == true else { throw ReviewFailure("row star did not persist") }
+                print("WORKSPACE_STAR_ID \(first.id.uuidString)")
+                try await self.mouseClick("archive.favorites", side: .left, minimumWidth: 24, in: host)
+                try await self.reviewUntil { model.recordFilter == .pinned && model.records.count == 2 }
+                try await self.openArchiveVersions(for: first.id, in: host)
                 try await self.reviewUntil { model.editorCanEdit && model.selected?.id == first.id }
                 guard model.selected?.id == first.id, model.editorDraft == first.text else { throw ReviewFailure("paragraph editor opened wrong text") }
+                try await self.press("archive.detailFavorite", in: host)
+                try await self.reviewUntil { model.selected == nil && !model.records.contains(where: { $0.id == first.id }) }
+                guard try await model.store.recording(id: first.id)?.isPinned == false else { throw ReviewFailure("removed favorite still pinned in SQLite") }
+                try await self.mouseClick("archive.favorites", side: .right, minimumWidth: 24, in: host)
+                try await self.reviewUntil { model.recordFilter == .transcribed && model.records.count == 3 }
+                try await self.openArchiveVersions(for: first.id, in: host)
+                try await self.reviewUntil { model.editorCanEdit && model.selected?.id == first.id }
+                try await self.press("archive.detailFavorite", in: host)
+                try await self.reviewUntil { model.selected?.pinned == true }
                 try await self.press("返回记录列表", in: host)
                 guard model.selected == nil else { throw ReviewFailure("paragraph editor did not return to reader") }
+                try await self.mouseClick("settings.page.speech", side: .right, minimumWidth: 120, in: host)
+                try await self.inspectSettings(in: host, required: ["settings.inputDevice", "workspace.brand"], excluded: ["archive.favorites"])
+                try await self.mouseClick("settings.page.archive", side: .left, minimumWidth: 120, in: host)
+                try await self.inspectSettings(in: host, required: ["archive.favorites", "workspace.brand"], excluded: ["settings.inputDevice"])
+                guard model.recordFilter == .transcribed, model.records.count == 3 else { throw ReviewFailure("changing workspace page reset the archive list") }
                 print("UI_CONTROL_PASS archive filters through native control events and SQLite")
             }
             try await model.store.deleteRecord(recordingID: originalOnly.id)
@@ -92,7 +167,7 @@ extension AppDelegate {
                 await model.selectForEditing(row)
                 model.updateEditorDraft(row.text + "\n这是会自动保留的编辑草稿。")
                 _ = await model.flushEditorDrafts()
-                try await reviewWindow(ArchiveView(model: model), size: CGSize(width: 1120, height: 720), name: "archive-detail", output: output) { host in
+                try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1120, height: 720), name: "archive-detail", output: output) { host in
                     try await self.press("保存修改", in: host)
                     for _ in 0..<50 {
                         if (try await model.store.recording(id: row.id))?.text.contains("自动保留的编辑草稿") == true { break }
@@ -101,11 +176,11 @@ extension AppDelegate {
                     guard (try await model.store.recording(id: row.id))?.text.contains("自动保留的编辑草稿") == true else { throw ReviewFailure("native save action did not commit edit") }
                     print("UI_CONTROL_PASS native Save action commits immutable edit")
                 }
-                try await reviewWindow(ArchiveView(model: model), size: CGSize(width: 1120, height: 570), name: "archive-detail-compact", output: output)
+                try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1120, height: 570), name: "archive-detail-compact", output: output)
                 model.closeDetail()
             }
             model.query = "找不到的合成关键词"; await model.refresh()
-            try await reviewWindow(ArchiveView(model: model), size: CGSize(width: 1040, height: 720), name: "archive-no-results", output: output)
+            try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1040, height: 720), name: "archive-no-results", output: output)
             model.query = ""; model.notice = nil
             await model.refresh()
             if let row = model.records.first(where: { $0.source.audioState == .available }) {
@@ -129,16 +204,43 @@ extension AppDelegate {
                 try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 360, height: 260), name: "panel-ai-recovery", output: output)
                 print("UI_STATE_PASS one transcript survives single-core processing and failure; synthetic Store runs, no providers")
             }
-            try await reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 740), name: "settings", output: output)
+            model.selectSource("local")
+            try await reviewWindow(SettingsView(model: model, initialPage: .speech), size: CGSize(width: 650, height: 740), name: "settings", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["settings.inputDevice", "麦克风权限"],
+                                              excluded: ["cloud.serviceInspector", "hosted.email", "models.use.apple"])
+                try await self.press("settings.page.cloud", in: host)
+                try await self.inspectSettings(in: host, required: ["hosted.upload-consent"], excluded: ["settings.inputDevice"])
+                try await self.chooseCloudService("自带 API", in: host)
+                try await self.inspectSettings(in: host, required: ["cloud.useBYOK"], excluded: ["hosted.upload-consent"])
+                try await self.press("settings.page.models", in: host)
+                try await self.inspectSettings(in: host, required: ["models.use.apple"], excluded: ["models.mode", "cloud.serviceInspector"])
+                try await self.press("settings.page.speech", in: host)
+                guard model.deviceOnly, !model.hosted.selected, !model.hosted.consent,
+                      !model.recognitionConfiguration.cloudEnabled, !model.connectionCheckAuthorized else {
+                    throw ReviewFailure("browsing the model catalog and both cloud services changed activation or consent")
+                }
+            }
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 560, height: 570), name: "settings-compact", output: output)
-            model.selectSource("hosted")
-            try await reviewWindow(SettingsView(model: model), size: CGSize(width:650,height:740), name:"settings-hosted", output:output) { host in
-                guard model.hosted.selected, !model.hosted.consent, !model.hosted.signedIn else {throw ReviewFailure("unexpected hosted consent")}
-                if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil {
-                    try await self.press("hosted.upload-consent", in:host)
-                    try await self.reviewUntil { model.hosted.consent }
-                    try await self.press("hosted.upload-consent", in:host)
-                    try await self.reviewUntil { !model.hosted.consent }
+            try await reviewWindow(SettingsView(model: model, initialPage: .models), size: CGSize(width: 650, height: 740), name: "settings-models", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["models.use.apple"],
+                                              excluded: ["models.mode", "自动推荐", "手动选择", "hosted.upload-consent", "recognition.cloudEnabled"])
+            }
+            try await reviewWindow(SettingsView(model: model, initialPage: .cloud), size: CGSize(width: 650, height: 740), name: "settings-hosted", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["cloud.serviceInspector", "hosted.email", "hosted.upload-consent"],
+                                              excluded: ["settings.inputDevice", "recognition.cloudEnabled"])
+                guard model.deviceOnly, !model.hosted.selected, !model.hosted.consent, !model.hosted.signedIn else {
+                    throw ReviewFailure("browsing cloud settings changed the local route or its authorization")
+                }
+                try await self.press("hosted.upload-consent", in: host)
+                try await self.reviewUntil { model.hosted.consent && model.hosted.selected && !model.deviceOnly }
+                try await self.press("hosted.upload-consent", in: host)
+                try await self.reviewUntil { !model.hosted.consent && !model.hosted.selected && model.deviceOnly }
+            }
+            try await reviewWindow(SettingsView(model: model, initialPage: .cloud, initialCloudService: .byok), size: CGSize(width: 650, height: 740), name: "settings-byok", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["cloud.serviceInspector", "cloud.useBYOK"],
+                                              excluded: ["settings.inputDevice", "hosted.email", "hosted.upload-consent"])
+                guard !model.recognitionConfiguration.cloudEnabled, !model.connectionCheckAuthorized, !model.hosted.consent else {
+                    throw ReviewFailure("browsing BYOK settings authorized a service")
                 }
             }
             model.selectSource("local")
@@ -211,7 +313,8 @@ extension AppDelegate {
             try FileManager.default.createDirectory(at: referenceOutput, withIntermediateDirectories: true)
             try await reviewApprovedReference(output: referenceOutput)
             if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil { print("UI_CONTROLS_NOT_RUN remote AX helper not configured; rendering only") }
-            let captures = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil ? 28 : 38
+            let captures = try FileManager.default.contentsOfDirectory(at: output, includingPropertiesForKeys: nil)
+                .filter { $0.pathExtension == "png" }.count
             print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; \(captures) standard captures plus 3 approved-reference captures; synthetic data; no activation/microphone")
             return true
         } catch { print("UI_REVIEW_FAILED \(error.localizedDescription)"); fflush(nil); return false }
@@ -249,7 +352,7 @@ extension AppDelegate {
                 try self.captureReview(host, name: "timeline-live", output: output)
                 if controls {
                     try await self.press("panel.copy", in: host)
-                    guard board.string(forType: .string) == initialText + "\n" + continuation else { throw ReviewFailure("copy scope was not latest group") }
+                    guard board.string(forType: .string) == initialText + continuation else { throw ReviewFailure("copy scope was not latest group") }
                 }
                 let changes = board.changeCount
                 try await model.store.applyRecognition(ticket: ticket, text: "想把这段话记下来。", isFinal: true)
@@ -263,34 +366,38 @@ extension AppDelegate {
                 guard model.editorDraft == "用户自己决定的写法" else { throw ReviewFailure("late ASR rewrote unsaved edit") }
                 model.closeDetail()
                 let beforeIdle = scroll.contentView.bounds.minY
+                let textBeforeIdle = scroll.transcriptView.string
+                let heightBeforeIdle = scroll.transcriptView.bounds.height
                 // Wait for the actual production timer at the shortest supported interval.
                 if ProcessInfo.processInfo.environment["SAYTILE_RECORD_TIMELINE"] == "1" {
                     try await self.recordIdleTransition(host, model: model, output: output)
                 } else {
                     for _ in 0..<140 where !model.timelineIdle { try await Task.sleep(for: .milliseconds(100)) }
                 }
-                // The final easing step can be less than one point. Capture the
-                // anchor only after the clip reaches the actual layout destination.
-                do {
-                    try await self.reviewUntil { scroll.rendered.idle && scroll.contentView.bounds.minY > beforeIdle + 20 &&
-                        scroll.contentView.bounds.minY == max(0, scroll.transcriptView.bounds.height - scroll.contentSize.height) }
-                } catch {
-                    print("TIMELINE_IDLE_LAYOUT idle=\(scroll.rendered.idle) before=\(beforeIdle) origin=\(scroll.contentView.bounds.minY) expected=\(scroll.transcriptView.bounds.height - scroll.contentSize.height) visible=\(scroll.contentView.bounds.height) document=\(scroll.transcriptView.bounds.height) follow=\(scroll.isFollowingLatest)")
-                    throw error
+                guard model.timelineIdle else { throw ReviewFailure("production idle interval did not elapse") }
+                // Sample beyond the previous 12 animation frames to detect even a transient hop.
+                for _ in 0..<18 {
+                    try await Task.sleep(for: .milliseconds(16))
+                    guard abs(scroll.contentView.bounds.minY - beforeIdle) < 1,
+                          scroll.transcriptView.bounds.height == heightBeforeIdle,
+                          scroll.transcriptView.string == textBeforeIdle else {
+                        throw ReviewFailure("idle moved the native viewport or changed its text")
+                    }
                 }
+                print("TIMELINE_IDLE_STATIONARY delta=\(scroll.contentView.bounds.minY - beforeIdle) height=\(heightBeforeIdle)")
                 try self.captureReview(host, name: "timeline-idle", output: output)
                 if controls {
                     let anchor = scroll.contentView.bounds.origin
                     let state = model.audio.state
                     let notice = model.notice
-                    let expected = try await model.store.recording(id: first.id)!.text + "\n" + continuation
+                    let expected = try await model.store.recording(id: first.id)!.text + continuation
                     try await self.press("panel.copy", in: host)
                     guard board.string(forType: .string) == expected, model.timelineIdle,
                           scroll.contentView.bounds.origin == anchor, scroll.selectionSnapshot.isEmpty,
                           model.audio.state == state, model.notice == notice else {
                         throw ReviewFailure("idle click did not silently snapshot the latest group in place")
                     }
-                    print("IDLE_COPY_PASS two utterances; blank viewport, capture and notice unchanged")
+                    print("IDLE_COPY_PASS two utterances; stationary viewport, capture and notice unchanged")
                 }
                 let idleClipboard = board.changeCount
                 // The archive editor holds its page, as on a nonactivating panel click.
@@ -304,13 +411,13 @@ extension AppDelegate {
                 await model.refresh()
                 guard board.changeCount == idleClipboard else { throw ReviewFailure("new speech rewrote an idle clipboard snapshot") }
                 if controls {
-                    guard scroll.rendered.idle, scroll.rendered.spans.last?.entry.id == second.id else {
+                    guard scroll.rendered.spans.last?.entry.id == second.id else {
                         throw ReviewFailure("editor failed to hold the idle reading page")
                     }
                     try await self.press("panel.copy", in: host)
                     guard board.string(forType: .string) == "再记一句，和之前的想法放在一起。",
-                          model.editorDraft == "独立复核的未提交草稿", scroll.rendered.idle else {
-                        throw ReviewFailure("copy on a held blank panel used the previous group")
+                          model.editorDraft == "独立复核的未提交草稿", scroll.rendered.spans.last?.entry.id == second.id else {
+                        throw ReviewFailure("copy on a held panel used the previous group")
                     }
                     print("HELD_IDLE_COPY_PASS newest group only; editor draft and held viewport intact")
                 }
@@ -324,28 +431,49 @@ extension AppDelegate {
                 let expectedLast = scroll.rendered.spans[scroll.rendered.spans.count / 2].entry.position
                 scroll.contentView.scroll(to: .zero)
                 scroll.reflectScrolledClipView(scroll.contentView)
-                guard let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: 320, wheel2: 0, wheel3: 0),
+                guard let overlap = scroll.rendered.spans.first,
+                      let glyphLayout = scroll.transcriptView.layoutManager,
+                      let glyphContainer = scroll.transcriptView.textContainer else {
+                    throw ReviewFailure("pagination anchor unavailable")
+                }
+                @MainActor func rowViewportPoint(_ character: Int) -> CGPoint {
+                    let glyph = glyphLayout.glyphIndexForCharacter(at: character)
+                    let rect = glyphLayout.boundingRect(forGlyphRange: NSRange(location: glyph, length: 1), in: glyphContainer)
+                    return CGPoint(x: rect.minX + scroll.transcriptView.textContainerOrigin.x - scroll.documentVisibleRect.minX,
+                                   y: rect.minY + scroll.transcriptView.textContainerOrigin.y - scroll.documentVisibleRect.minY)
+                }
+                let offsets = Array(0..<min(16, overlap.range.length))
+                let beforePage = offsets.map { rowViewportPoint(overlap.range.location + $0) }
+                guard let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: 1, wheel2: 0, wheel3: 0),
                       let event = NSEvent(cgEvent: wheel) else { throw ReviewFailure("no native wheel event") }
                 let began = ContinuousClock.now
                 // A real trackpad gesture can span multiple Cocoa run-loop turns.
                 // The native view must cross the old keyset boundary and retain overlap.
-                for _ in 0..<12 where scroll.rendered.firstPosition == oldFirst {
-                    scroll.scrollWheel(with: event)
-                    try await Task.sleep(for: .milliseconds(20))
-                }
+                scroll.scrollWheel(with: event)
                 try await self.reviewUntil { (scroll.rendered.firstPosition ?? oldFirst) < oldFirst }
                 guard scroll.rendered.spans.count == 64, scroll.rendered.lastPosition == expectedLast,
                       !scroll.isFollowingLatest,
                       scroll.rendered.spans.contains(where: { $0.entry.position == oldFirst }) else { throw ReviewFailure("paged native viewport dropped overlap") }
+                guard let sameRow = scroll.rendered.spans.first(where: { $0.entry.id == overlap.entry.id }) else {
+                    throw ReviewFailure("pagination lost the visible row")
+                }
+                let afterPage = offsets.map { rowViewportPoint(sameRow.range.location + $0) }
+                let pairs = Array(zip(beforePage, afterPage))
+                let sideways = pairs.map { abs($1.x - $0.x) }.max() ?? .infinity
+                let pageOffset = (afterPage.first?.y ?? .infinity) - (beforePage.first?.y ?? 0)
+                let shear = pairs.map { abs(($1.y - $0.y) - pageOffset) }.max() ?? .infinity
+                guard sideways <= 1, shear <= 1 else { throw ReviewFailure("pagination rewrapped visible characters: dx=\(sideways) shear=\(shear)") }
+                // One pixel of requested scrolling, plus backing-pixel alignment.
+                guard abs(pageOffset) <= 2 else { throw ReviewFailure("pagination displaced the reader by \(pageOffset) pt") }
+                print("TIMELINE_PAGE_ANCHOR delta=\(pageOffset) points dx=\(sideways) lineShear=\(shear) characters=\(offsets.count)")
                 print("TIMELINE_NATIVE_PAGE rows=12003 resident=64 wheel_to_paint=\(began.duration(to: .now))")
-                let dateMarkers = scroll.rendered.markers.filter { range in
-                    (scroll.transcriptView.string as NSString).substring(with: range).hasPrefix("2025-01-")
+                let entries = scroll.rendered.spans
+                guard scroll.rendered.markers.isEmpty,
+                      let nextDay = entries.indices.dropFirst().first(where: { entries[$0-1].entry.groupDay != entries[$0].entry.groupDay }),
+                      NSMaxRange(entries[nextDay-1].range) == entries[nextDay].range.location else {
+                    throw ReviewFailure("midnight interrupted continuous Chinese text")
                 }
-                guard dateMarkers.count == 2, let midnight = dateMarkers.last else {
-                    let days = Set(scroll.rendered.spans.map { $0.entry.groupDay }).sorted()
-                    throw ReviewFailure("midnight marker count=\(dateMarkers.count) days=\(days) positions=\(scroll.rendered.firstPosition ?? 0)...\(scroll.rendered.lastPosition ?? 0)")
-                }
-                scroll.transcriptView.scrollRangeToVisible(midnight)
+                scroll.transcriptView.scrollRangeToVisible(entries[nextDay].range)
                 try self.captureReview(host, name: "timeline-midnight", output: output)
                 // Select a line already on screen. A second asynchronous AppKit scroll
                 // would still be moving the viewport when the history check starts.
@@ -418,6 +546,138 @@ extension AppDelegate {
     @MainActor private func press(_ label: String, in root: NSView) async throws {
         _ = try await performControl(label, in: root)
     }
+    @MainActor private func archiveEditor(_ id: UUID, in host: NSView) async throws -> NSTextView {
+        // The model commits a filter before SwiftUI lays out its new lazy rows.
+        // Await the actual owned view without issuing or replaying a control action.
+        func rendered() -> NSTextView? {
+            var pending = [host]
+            while let view = pending.popLast() {
+                if let editor = view as? NSTextView, editor.accessibilityIdentifier() == "archive.text.\(id)", editor.window === host.window {
+                    return editor
+                }
+                pending.append(contentsOf: view.subviews)
+            }
+            return nil
+        }
+        try await reviewUntil { host.layoutSubtreeIfNeeded(); return rendered() != nil }
+        guard let editor = rendered() else { throw ReviewFailure("missing owned archive editor") }
+        return editor
+    }
+
+    @MainActor private func reviewArchiveEditing(id: UUID, model: AppModel, in host: NSView) async throws {
+        guard let editor = try await archiveEditor(id, in: host) as? ArchiveParagraphTextView,
+              let window = host.window, window.makeFirstResponder(editor), editor.string.isEmpty else {
+            throw ReviewFailure("empty archive paragraph could not acquire an insertion point")
+        }
+        let board = NSPasteboard.withUniqueName()
+        editor.commandPasteboard = board
+        defer {
+            editor.commandPasteboard = model.copyPasteboard
+            board.releaseGlobally()
+        }
+        editor.setMarkedText("zhong", selectedRange: .init(location: 5, length: 0),
+                             replacementRange: .init(location: 0, length: 0))
+        guard editor.hasMarkedText(), (try await model.store.recording(id: id))?.text == "" else {
+            throw ReviewFailure("unconfirmed Pinyin was archived")
+        }
+        editor.insertText("中文😀", replacementRange: editor.markedRange())
+        guard (try await model.store.recording(id: id))?.text == "中文😀" else {
+            throw ReviewFailure("IME acceptance failed to save inside its original row")
+        }
+        // Keep read/write probes on their own pasteboard across SwiftUI updates.
+        editor.commandPasteboard = board
+        editor.setSelectedRange(.init(location: 2, length: 2))
+        editor.copy(nil)
+        guard board.string(forType: .string) == "😀" else { throw ReviewFailure("archive copy lost its selection") }
+        editor.setSelectedRange(.init(location: 0, length: 1))
+        editor.paste(nil)
+        guard (try await model.store.recording(id: id))?.text == "😀文😀" else { throw ReviewFailure("archive paste replaced the wrong text range") }
+        editor.commandPasteboard = board
+        editor.setSelectedRange(.init(location: 0, length: 2))
+        editor.cut(nil)
+        guard board.string(forType: .string) == "😀",
+              (try await model.store.recording(id: id))?.text == "文😀" else {
+            throw ReviewFailure("archive cut failed to preserve adjacent words")
+        }
+        let beforeUndo = editor.string
+        guard let undo = editor.undoManager else { throw ReviewFailure("archive undo unavailable") }
+        // Synthetic multi-step actions run inside a single native event. An explicit
+        // event boundary exercises one user action without assuming run-loop timing.
+        undo.beginUndoGrouping()
+        editor.breakUndoCoalescing()
+        editor.insertText("。", replacementRange: .init(location: 3, length: 0))
+        undo.endUndoGrouping()
+        let beforeRedo = editor.string
+        guard beforeRedo == "文😀。", undo.canUndo else { throw ReviewFailure("archive undo unavailable for a committed edit") }
+        undo.undo()
+        // AppKit may coalesce adjacent typing into one user undo unit. Verify the
+        // text changed and SQLite contains precisely the restored text at each step.
+        guard editor.string != beforeRedo, (try await model.store.recording(id: id))?.text == editor.string,
+              undo.canRedo else { throw ReviewFailure("archive undo diverged from the saved revision") }
+        undo.redo()
+        guard editor.string == beforeRedo, (try await model.store.recording(id: id))?.text == beforeRedo,
+              beforeUndo == "文😀" else { throw ReviewFailure("archive redo failed to restore the saved revision") }
+        editor.selectAll(nil)
+        editor.deleteBackward(nil)
+        guard (try await model.store.recording(id: id))?.text == "", window.firstResponder === editor else {
+            throw ReviewFailure("deleting the full paragraph lost its empty editing position")
+        }
+        editor.doCommand(by: #selector(NSTextView.insertTab(_:)))
+        guard window.firstResponder !== editor, editor.string.isEmpty else {
+            throw ReviewFailure("Tab failed to leave the archive paragraph or inserted a tab into its content")
+        }
+        window.selectPreviousKeyView(nil)
+        guard window.firstResponder === editor else { throw ReviewFailure("reverse Tab did not restore the archive paragraph") }
+        print("ARCHIVE_EDITOR_PASS empty paragraph, accepted IME, UTF-16 selection, private copy/cut/paste, durable undo/redo, Tab and reverse Tab")
+    }
+
+    @MainActor private func openArchiveVersions(for id: UUID, in host: NSView) async throws {
+        let editor = try await archiveEditor(id, in: host)
+        guard let window = host.window,
+              let event = NSEvent.mouseEvent(with: .rightMouseDown, location: editor.convert(NSMakePoint(3, 3), to: nil),
+                  modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber,
+                  context: nil, eventNumber: 0, clickCount: 1, pressure: 1),
+              let menu = editor.menu(for: event),
+              let item = menu.items.first(where: { $0.identifier?.rawValue == "archive.detail.\(id)" && $0.isEnabled }) else {
+            throw ReviewFailure("missing original/versions command in this paragraph's native menu")
+        }
+        menu.performActionForItem(at: menu.index(of: item))
+        print("NATIVE_ARCHIVE_VERSIONS own_paragraph_menu=true")
+    }
+    private enum ReviewHitSide { case left, right }
+
+    /// The helper observes a real native control's frame. Deliver mouse events only
+    /// to our owned, nonactivating review window, including its actual hit-test path.
+    @MainActor private func mouseClick(_ id: String, side: ReviewHitSide, minimumWidth: CGFloat, in host: NSView) async throws {
+        let result = try await performControl(id, in: host, arguments: ["control-frame"])
+        let prefix = "NATIVE_UI_CONTROL_FRAME "
+        guard let line = result.split(separator: "\n").first(where: { $0.hasPrefix(prefix) }),
+              let metrics = try JSONSerialization.jsonObject(with: Data(line.dropFirst(prefix.count).utf8)) as? [CGFloat],
+              metrics.count == 4, metrics[2] >= minimumWidth, metrics[3] >= 22,
+              let window = host.window, let primary = NSScreen.screens.first else {
+            throw ReviewFailure("missing or undersized native hit region: \(id)")
+        }
+        let edge = side == .left ? metrics[0] + 3 : metrics[0] + metrics[2] - 3
+        let screen = NSPoint(x: edge, y: primary.frame.maxY - (metrics[1] + metrics[3] / 2))
+        let point = window.convertPoint(fromScreen: screen)
+        guard host.bounds.contains(host.convert(point, from: nil)) else { throw ReviewFailure("coordinate outside fixture window") }
+        func event(_ type: NSEvent.EventType) throws -> NSEvent {
+            guard let e = NSEvent.mouseEvent(with: type, location: point, modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime,
+                                             windowNumber: window.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: type == .leftMouseDown ? 1 : 0)
+            else { throw ReviewFailure("cannot create an owned mouse event") }
+            return e
+        }
+        let up = try event(.leftMouseUp)
+        NSApp.postEvent(up, atStart: true)
+        window.sendEvent(try event(.leftMouseDown))
+        if let unconsumed = NSApp.nextEvent(matching: .leftMouseUp, until: .distantPast, inMode: .default, dequeue: true) {
+            guard unconsumed.windowNumber == window.windowNumber else { throw ReviewFailure("unexpected up event in isolated process") }
+            window.sendEvent(unconsumed)
+        }
+        try await Task.sleep(for: .milliseconds(80))
+        print("WORKSPACE_MOUSE_EDGE \(id) side=\(side) target=\(metrics[2])x\(metrics[3])")
+    }
+
     @MainActor private func selectMenu(_ id: String, title: String, in root: NSView, hostID: String = "panel.transcript") async throws {
         let identifier = (hostID == "panel.copy" ? "panel.more." : "panel.menu.") + id
         let output = try await performControl(hostID, in: root, arguments: ["select-context-menu", identifier, title])
@@ -588,6 +848,31 @@ extension AppDelegate {
         throw ReviewFailure("native UI controller did not acknowledge the expected state at UIReview.swift:\(line) within five seconds")
     }
 
+    @MainActor private func chooseCloudService(_ title: String, in host: NSView) async throws {
+        let selection = ReviewCloudMenuSelection(title: title)
+        NotificationCenter.default.addObserver(selection, selector: #selector(ReviewCloudMenuSelection.menuOpened(_:)),
+                                               name: NSMenu.didBeginTrackingNotification, object: nil)
+        defer { NotificationCenter.default.removeObserver(selection) }
+        try await press("cloud.serviceInspector", in: host)
+        guard selection.chosen else { throw ReviewFailure("native cloud service menu did not dispatch the selected item") }
+        print("NATIVE_UI_CLOUD_SELECTION \(title) via=NSMenu.performActionForItem")
+    }
+
+    @MainActor private func inspectSettings(in host: NSView, required: [String], excluded: [String]) async throws {
+        let output = try await performControl("settings", in: host, arguments: ["inspect-settings"])
+        let marker = "NATIVE_UI_SETTINGS_INSPECT "
+        guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix(marker) }),
+              let names = try JSONSerialization.jsonObject(with: Data(line.dropFirst(marker.count).utf8)) as? [String] else {
+            throw ReviewFailure("incomplete native settings inventory")
+        }
+        let actual = Set(names)
+        let missing = Set(required).subtracting(actual)
+        let unexpected = actual.intersection(excluded + ["settings.source", "开始收音", "继续收音", "暂停收音", "恢复收音", "取消开启"])
+        guard missing.isEmpty, unexpected.isEmpty else {
+            throw ReviewFailure("unexpected settings tree: missing=\(missing.sorted()) forbidden=\(unexpected.sorted())")
+        }
+    }
+
     @MainActor private func inspectCapture(_ label: String, state: String, hasText: Bool = false, in host: NSView) async throws {
         let output = try await performControl("panel.capture", in: host, arguments: ["inspect-panel"])
         guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix("NATIVE_UI_PANEL_INSPECT ") }),
@@ -633,7 +918,7 @@ extension AppDelegate {
 
     }
 
-    @MainActor private func compactTranscript(in host: NSView) throws -> CompactTranscriptScrollView {
+    @MainActor func compactTranscript(in host: NSView) throws -> CompactTranscriptScrollView {
         var pending = [host], found: [CompactTranscriptScrollView] = []
         while !pending.isEmpty {
             let view = pending.removeFirst()
@@ -644,6 +929,62 @@ extension AppDelegate {
             throw ReviewFailure("panel must contain one owned native transcript")
         }
         return result
+    }
+
+    /// Exercise the shipping editor + persistence through a window-local responder.
+    /// Never change the frontmost app or read/write the user's general pasteboard.
+    @MainActor private func reviewInlineEditing(model: AppModel, output: URL) async throws {
+        let board = NSPasteboard(name: .init("app.saytile.test.editor." + UUID().uuidString))
+        defer { board.releaseGlobally() }
+        guard try await model.store.listRecordings(limit: 1).isEmpty else { throw ReviewFailure("editor fixture must be empty") }
+        try await reviewValidatedWindow(InputPanelWindowView(model: model), size: CGSize(width: 320, height: 230),
+            name: "inline-editor", output: output, validation: { host in
+                let scroll = try self.compactTranscript(in: host)
+                let editor = scroll.transcriptView
+                guard editor.isEditable, editor.isSelectable, editor.string.isEmpty,
+                      host.window?.makeFirstResponder(editor) == true else { throw ReviewFailure("cannot enter the empty native editor") }
+                editor.commandPasteboard = board
+                @MainActor func command(_ key: String, modifiers: NSEvent.ModifierFlags = .command) throws {
+                    guard let win = host.window,
+                          let event = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: modifiers,
+                            timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: win.windowNumber, context: nil,
+                            characters: key, charactersIgnoringModifiers: key, isARepeat: false, keyCode: 0),
+                          editor.performKeyEquivalent(with: event) else { throw ReviewFailure("editor did not handle command " + key) }
+                }
+                let caret = NSRange(location: NSNotFound, length: 0)
+                editor.insertText("先写😀再改", replacementRange: caret)
+                try await self.reviewUntil { editor.string == "先写😀再改" }
+                editor.setSelectedRange((editor.string as NSString).range(of: "😀"))
+                board.clearContents()
+                try command("c")
+                guard board.string(forType: .string) == "😀" else { throw ReviewFailure("native selection copy split an emoji") }
+                try command("x")
+                guard editor.string == "先写再改" else { throw ReviewFailure("cut did not honor the selection") }
+                try command("v")
+                guard editor.string == "先写😀再改" else { throw ReviewFailure("native paste failed") }
+                editor.setSelectedRange(NSRange(location: (editor.string as NSString).length, length: 0))
+                editor.setMarkedText("zhong", selectedRange: NSRange(location: 5, length: 0), replacementRange: caret)
+                guard editor.hasMarkedText() else { throw ReviewFailure("IME did not mark its provisional text") }
+                editor.insertText("中", replacementRange: caret)
+                try await self.reviewUntil { editor.string == "先写😀再改中" && !editor.hasMarkedText() }
+                editor.insertNewline(nil)
+                editor.insertText("第二行", replacementRange: caret)
+                let expected = "先写😀再改中\n第二行"
+                try await self.reviewUntil { editor.string == expected }
+                guard let saved = try await model.store.listRecordings(limit: 8).first,
+                      saved.text == expected, saved.audioState == .deleted, !saved.isRecording,
+                      board.string(forType: .string) == "😀" else { throw ReviewFailure("typing, return or paste did not persist correctly") }
+                guard !(try await model.store.revisions(recordingID: saved.id)).contains(where: { $0.text.contains("zhong") })
+                else { throw ReviewFailure("uncommitted IME text escaped into the archive") }
+                let oldID = saved.id
+                // Deleting all text retains the recording identity and previous edits.
+                try command("a"); editor.deleteBackward(nil)
+                try await self.reviewUntil { editor.string.isEmpty }
+                guard let cleared = try await model.store.recording(id: oldID), cleared.text.isEmpty,
+                      try await model.store.revisions(recordingID: oldID).contains(where: { $0.text == expected })
+                else { throw ReviewFailure("delete-all destroyed the archive or previous edits") }
+                print("INLINE_EDITOR_PASS typing, private copy/paste, delete, Chinese IME, newline, archive history")
+            })
     }
 
     /// Same shipping view and text renderer, on the exact measured card size.
@@ -674,19 +1015,28 @@ extension AppDelegate {
                     validation: { host in
                         let scroll = try self.compactTranscript(in: host)
                         guard scroll.transcriptView.string.utf16.elementsEqual(text.utf16),
-                              !scroll.transcriptView.isEditable, scroll.transcriptView.isSelectable,
+                              scroll.transcriptView.isEditable, scroll.transcriptView.isSelectable,
                               model.audio.state == .paused else {
                             throw ReviewFailure("reference scene must use real selectable text without opening the microphone")
                         }
                         let viewport = scroll.convert(scroll.bounds, to: host)
                         let textView = scroll.transcriptView
                         let font = textView.textStorage?.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
-                        guard font?.pointSize == ReferencePanelStyle.fontSize,
-                              abs(viewport.width - 316) < 0.01,
-                              textView.bounds.height <= scroll.contentSize.height + 1 else {
-                            throw ReviewFailure("reference text metrics differ or the five-line reference clips")
+                        // The 344 pt card uses the approved fixed 14.04 pt type. Insets
+                        // are aligned to device pixels, so 1x and 2x can differ by 0.5 pt.
+                        let pixel = 1 / (host.window?.backingScaleFactor ?? 1)
+                        let bodyWidth: CGFloat = 344 - (22 * 0.68 - 2) - 8 * 0.68
+                        let expectedWidth = (bodyWidth / pixel).rounded() * pixel
+                        var lines = 0
+                        if let manager = textView.layoutManager, let container = textView.textContainer {
+                            manager.enumerateLineFragments(forGlyphRange: manager.glyphRange(for: container)) { _, _, _, _, _ in lines += 1 }
                         }
-                        print("REFERENCE_GEOMETRY state=\(name) window=408x298 card=344x234 font=\(font!.pointSize) viewport=\(viewport)")
+                        guard let font, abs(font.pointSize - 14.04) < 0.001,
+                              abs(viewport.width - expectedWidth) <= pixel,
+                              lines == 5, textView.bounds.height <= scroll.contentSize.height + 1 else {
+                            throw ReviewFailure("reference window expected 14.04 pt, \(expectedWidth) pt width and five unclipped lines; actual font \(font?.pointSize ?? 0), viewport \(viewport), document \(textView.bounds.size), lines \(lines)")
+                        }
+                        print("REFERENCE_GEOMETRY state=\(name) window=408x298 card=344x234 font=\(font.pointSize) viewport=\(viewport) lines=\(lines)")
                     })
             }
             await model.prepareForExit()
@@ -723,7 +1073,7 @@ extension AppDelegate {
                     guard copyBoard.changeCount == before, capture.starts == 0, capture.pauses == 0, model.notice == nil else {
                         throw ReviewFailure("empty copy changed the private pasteboard or capture state")
                     }
-                    try await self.selectMenu("settings", title: "设置…", in: host, hostID: "panel.copy")
+                    try await self.selectMenu("settings", title: "语音档案与设置…", in: host, hostID: "panel.copy")
                     try await self.reviewUntil { emptyPanelSettings == 1 }
                     print("UI_EMPTY_PANEL_MENU_PASS empty copy is a no-op; its actual context menu opens settings")
                 })
@@ -814,9 +1164,14 @@ extension AppDelegate {
                     try await self.press("panel.capture", in: host)
                     try await self.reviewUntil { capture.pauses == 3 && capture.state == .paused }
                     capture.state = .interrupted("合成设备暂不可用，原音与文字仍保留。")
+                    model.notice = "合成操作提示"
                     model.objectWillChange.send()
                     try await Task.sleep(for: .milliseconds(100))
                     try await self.inspectCapture("恢复收音", state: "需要恢复，合成设备暂不可用，原音与文字仍保留。", hasText: true, in: host)
+                    try await self.reviewWindow(SettingsView(model: model, initialPage: .speech), size: CGSize(width: 650, height: 740), name: "settings-interrupted", output: output) { settingsHost in
+                        try await self.inspectSettings(in: settingsHost, required: ["settings.captureDetail", "合成设备暂不可用，原音与文字仍保留。", "settings.notice", "合成操作提示"],
+                                                     excluded: ["hosted.upload-consent"])
+                    }
                     try self.captureReview(host, name: "panel-capture-interrupted", output: output)
                     try await self.press("panel.capture", in: host)
                     try await self.reviewUntil { capture.starts == 3 && capture.state == .listening }
@@ -903,7 +1258,7 @@ extension AppDelegate {
                     return (scroll.transcriptView.string as NSString).substring(with: range)
                 }
                 try await self.reviewUntil { bodyText().utf16.elementsEqual(text.utf16) }
-                guard !scroll.transcriptView.isEditable, scroll.transcriptView.isSelectable else { throw ReviewFailure("transcript selection contract changed") }
+                guard scroll.transcriptView.isEditable, scroll.transcriptView.isSelectable else { throw ReviewFailure("transcript selection contract changed") }
                 let composed = text.precomposedStringWithCanonicalMapping
                 guard composed == text, composed.utf16.count != text.utf16.count else { throw ReviewFailure("Unicode fixture did not differ in UTF-16 representation") }
                 for replacement in [composed, text] {
@@ -947,7 +1302,7 @@ extension AppDelegate {
                 }
                 scroll.contentView.scroll(to: NSPoint(x: 0, y: 120)); scroll.reflectScrolledClipView(scroll.contentView)
                 try await self.reviewUntil { !scroll.isFollowingLatest }
-                try await self.reviewUntil { !scroll.rendered.markers.isEmpty }
+                guard scroll.rendered.markers.isEmpty else { throw ReviewFailure("scrolling inserted labels into the transcript") }
                 let readingOrigin = scroll.contentView.bounds.origin
                 let appended = updated + "\n用户上滚阅读时继续接收的新一句。"
                 _ = try await model.store.saveEdit(recordingID: row.id, text: appended); await model.refresh()
@@ -974,7 +1329,7 @@ extension AppDelegate {
                 let nearBottom = NSPoint(x: 0, y: scroll.contentView.bounds.origin.y - 2)
                 scroll.contentView.scroll(to: nearBottom); scroll.reflectScrolledClipView(scroll.contentView)
                 try await self.reviewUntil { !scroll.isFollowingLatest }
-                try await self.reviewUntil { !scroll.rendered.markers.isEmpty }
+                guard scroll.rendered.markers.isEmpty else { throw ReviewFailure("scrolling inserted labels into the transcript") }
                 let readingTail = scroll.contentView.bounds.origin.y
                 let nearTailText = prepended + "\n近底上滚仍应保留阅读位置。"
                 _ = try await model.store.saveEdit(recordingID: row.id, text: nearTailText); await model.refresh()
@@ -1001,13 +1356,11 @@ extension AppDelegate {
                 guard model.editorDraft.contains("用户上滚阅读") else { throw ReviewFailure("contextual edit did not open the existing saved transcript editor") }
                 print("UI_CONTROL_PASS contextual edit reaches existing archive editor with latest saved text; no second transcript or writeback path")
                 model.closeDetail()
-                try await self.selectMenu("archive", title: "语音档案…", in: host)
-                try await self.reviewUntil { archives == 2 }
-                try await self.selectMenu("settings", title: "设置…", in: host)
+                try await self.selectMenu("settings", title: "语音档案与设置…", in: host)
                 try await self.reviewUntil { settings == 1 }
-                try await self.selectMenu("hide", title: "收起输入板", in: host)
-                try await self.reviewUntil { archives == 2 && settings == 1 && hides == 1 }
-                guard archives == 2, settings == 1, hides == 1 else { throw ReviewFailure("Context menu navigation did not route to existing actions") }
+                try await self.selectMenu("hide", title: "收起语音板", in: host)
+                try await self.reviewUntil { archives == 1 && settings == 1 && hides == 1 }
+                guard archives == 1, settings == 1, hides == 1 else { throw ReviewFailure("Context menu navigation did not route to existing actions") }
                 try await self.selectMenu("clear", title: "清空输入板（保留档案）", in: host)
                 try await self.reviewUntil { model.recent.isEmpty }
                 await model.refresh()
@@ -1050,6 +1403,16 @@ extension AppDelegate {
             }
             await model.prepareForExit()
         } catch { await model.prepareForExit(); throw error }
+    }
+
+    @MainActor func pressBorderSetting(model: AppModel, output: URL) async throws {
+        let wasVisible = model.panelBorderVisible
+        try await reviewWindow(SettingsView(model: model, initialPage: .input), size: CGSize(width: 650, height: 700),
+                               name: "settings-panel-border", output: output) { host in
+            try await self.press("settings.panelBorder", in: host)
+            try await self.reviewUntil { model.panelBorderVisible != wasVisible }
+        }
+        guard model.panelBorderVisible != wasVisible else { throw ReviewFailure("Border setting did not change") }
     }
 
     @MainActor private func reviewFirstConnection(output: URL) async throws {
@@ -1204,4 +1567,18 @@ private final class ReviewActivations: @unchecked Sendable {
     }
     var candidateActivated: Bool { lock.lock(); defer { lock.unlock() }; return own }
     var otherActivations: Int { lock.lock(); defer { lock.unlock() }; return others }
+}
+
+@MainActor private final class ReviewCloudMenuSelection: NSObject {
+    let title: String
+    private(set) var chosen = false
+    init(title: String) { self.title = title }
+
+    @objc func menuOpened(_ note: Notification) {
+        guard let menu = note.object as? NSMenu, menu.item(withTitle: "Saytile Cloud") != nil,
+              let item = menu.item(withTitle: title) else { return }
+        menu.performActionForItem(at: menu.index(of: item))
+        chosen = true
+        menu.cancelTracking()
+    }
 }

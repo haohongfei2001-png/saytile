@@ -1,0 +1,27 @@
+{
+  "version": "内测 0.3",
+  "build": "328",
+  "source": "d80a537f6038674e8755c47bbde0b28c90e6684c",
+  "executable_sha256": "d32e021665ebb7a029771e20e4602d9011b9b336aef401e9f6cd81dd06809a00",
+  "automatic_checks_at": "3e18e4dc478ffde2c9f66f4144a51e0dd072d21c",
+  "install": "Atomic replacement of existing app.saytile.mac; one running instance verified; application bundle only.",
+  "signature": "Developer ID Application; codesign --deep --strict passed",
+  "native_serial": 449,
+  "native_ci_entry_local": {
+    "timing": 1,
+    "remaining": 448,
+    "failed": 0
+  },
+  "first_all_parallel": {
+    "passed": 448,
+    "failed": 1,
+    "reason": "MainActor contention: no observed intermediate viewport sample during 150ms animation. See docs/V1-TEST-RESULTS.md; all assertions retained."
+  },
+  "model_checks": 128,
+  "simulated_protocol_cases": 52,
+  "real_cloud": "NOT_RUN",
+  "on_site_live_microphone": "NOT_RUN",
+  "same_audio_live_native_window": "PASS",
+  "secondary_physical_display": "NOT_RUN",
+  "private_audio_access": false
+}

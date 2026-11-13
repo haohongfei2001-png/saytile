@@ -126,6 +126,27 @@ private struct Fixture {
     #expect(try await f.store.listRecordings(query: "修改前", filter: .transcribed).first?.text == paragraph)
 }
 
+@Test func archiveStarsToggleDurablyOnExistingAndAudioOnlyRecords() async throws {
+    let f = try Fixture()
+    defer { f.clean() }
+    let existing = try await f.record(text: "历史语音")
+    let audioOnly = try await f.record(text: "")
+    try await f.store.setPinned(recordingID: existing.id, pinned: true)
+    #expect(try await f.store.togglePinned(recordingID: audioOnly.id))
+    async let first = f.store.togglePinned(recordingID: existing.id)
+    async let second = f.store.togglePinned(recordingID: existing.id)
+    let rapidChanges = try await [first, second]
+    #expect(Set(rapidChanges) == [false, true])
+    try await f.store.close()
+    let reopened = try SaytileStore(directory: f.directory)
+    let favorites = try await reopened.listRecordings(filter: .pinned)
+    #expect(Set(favorites.map(\.id)) == [existing.id, audioOnly.id])
+    #expect(try await reopened.listRecordings(query: "历史", filter: .pinned).map(\.id) == [existing.id])
+    #expect(try await reopened.togglePinned(recordingID: audioOnly.id) == false)
+    #expect(try await reopened.recording(id: audioOnly.id)?.audioState == .available)
+    try await reopened.close()
+}
+
 @Test func storeSearchEscapesLikeAndBindsSQL() async throws {
     let f = try Fixture(); defer { f.clean() }
     _ = try await f.record(text:"100% _ ' OR 1=1 --")
@@ -213,6 +234,31 @@ private struct Fixture {
     _ = try await f.store.createRecording(createdAt:date)
     let candidates = try await f.store.cleanupCandidates(olderThan:Date())
     #expect(candidates.map(\.id) == [good.id])
+}
+@Test func bulkCleanupKeepsOriginalWhenNoUsableTranscriptWillRemain() async throws {
+    let f = try Fixture(); defer { f.clean() }
+    let date = Date(timeIntervalSince1970: 1), cutoff = Date(timeIntervalSince1970: 100)
+    let noText = try await f.record(text: "　\n", date: date)
+    let typedOnly = try await f.record(text: "", date: date)
+    _ = try await f.store.saveEdit(recordingID: typedOnly.id, text: "我的备注")
+    let transient = try await f.record(text: "", date: date)
+    let attempt = try await f.store.beginRecognition(recordingID: transient.id)
+    _ = try await f.store.applyRecognition(ticket: attempt, text: "临时候选", isFinal: false)
+    try await f.store.finishRecognition(ticket: attempt)
+    let editedAfterPreview = try await f.record(text: "已确认的原文", date: date)
+    let confirmed = try await f.record(text: "真实定稿", date: date)
+    _ = try await f.store.saveEdit(recordingID: confirmed.id, text: "保留修改")
+    let preview = try await f.store.cleanupCandidates(olderThan: cutoff)
+    #expect(Set(preview.map(\.id)) == [editedAfterPreview.id, confirmed.id])
+    _ = try await f.store.saveEdit(recordingID: editedAfterPreview.id, text: "")
+    let allIDs = [noText.id, typedOnly.id, transient.id, editedAfterPreview.id, confirmed.id]
+    #expect(try await f.store.cleanupAudio(recordingIDs: allIDs, olderThan: cutoff) == 1)
+    for id in allIDs.dropLast() {
+        #expect(try await f.store.recording(id: id)?.audioState == .available)
+        #expect(FileManager.default.fileExists(atPath: f.store.audioDirectory.appendingPathComponent(id.uuidString + "/chunk.wav").path))
+    }
+    #expect(try await f.store.recording(id: confirmed.id)?.text == "保留修改")
+    #expect(try await f.store.recording(id: confirmed.id)?.audioState == .deleted)
 }
 @Test func storeInterruptedCaptureAndASRRecover() async throws {
     let f = try Fixture(); defer { f.clean() }

@@ -34,8 +34,10 @@ extension AppDelegate {
         }
         let request = output.appendingPathComponent("request.json")
         let sharedComparison = ProcessInfo.processInfo.environment["SAYTILE_SHARED_VOICE_COMPARISON"] == "1"
+        let borderSession = ProcessInfo.processInfo.environment["SAYTILE_BORDER_REVIEW_ID"].flatMap(UUID.init(uuidString:))
+        let factoryPanel = sharedComparison || borderSession != nil
         let docked = WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame)
-        func frame<V: View>(_ view: V, _ name: String, _ size: CGSize, panel: Bool = false, dark: Bool = false, bottom: Bool = false) async throws {
+        func frame<V: View>(_ view: V, _ name: String, _ size: CGSize, panel: Bool = false, dark: Bool = false, bottom: Bool = false, borderModel: AppModel? = nil) async throws {
             if let subset = ProcessInfo.processInfo.environment["SAYTILE_PRODUCT_WINDOW_SUBSET"],
                !subset.split(separator:",").contains(Substring(name)) { return }
             print("PRODUCT_SCENE_BEGIN "+name); fflush(nil)
@@ -49,17 +51,17 @@ extension AppDelegate {
                 item.level = .floating; item.isReleasedWhenClosed = false; item.hidesOnDeactivate = false
                 item.ignoresMouseEvents = true; item.hasShadow = false
             }
-            window.title = panel ? "Saytile · 此刻" : name.hasPrefix("archive") ? "Saytile · 语音档案" : "Saytile · 设置"
+            window.title = panel ? "Saytile · 此刻" : "语音档案与设置"
             window.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
             if panel { window.isOpaque = false; window.backgroundColor = .clear }
             let host = NSHostingView(rootView: view.environment(\.colorScheme, dark ? .dark : .light))
             host.sizingOptions = []; window.contentView = host; window.setContentSize(size)
             let area = screen.visibleFrame
-            if sharedComparison && panel { window.setFrame(docked, display: false) }
+            if factoryPanel && panel { window.setFrame(docked, display: false) }
             else { window.setFrameOrigin(CGPoint(x: floor(area.midX-window.frame.width/2), y: floor(area.midY-window.frame.height/2))) }
             backdrop.setFrame(window.frame, display: false); backdrop.title = "Saytile controlled visual environment"
             let background = NSImageView(); background.image = environment; background.imageScaling = .scaleAxesIndependently
-            if sharedComparison && panel {
+            if factoryPanel && panel {
                 // Give both isolated windows the same coordinates within the generated desktop.
                 let clipping = NSView(frame: NSRect(origin: .zero, size: window.frame.size))
                 clipping.wantsLayer = true; clipping.layer?.masksToBounds = true
@@ -94,39 +96,72 @@ extension AppDelegate {
             guard !window.isKeyWindow, !window.isMainWindow, NSWorkspace.shared.frontmostApplication?.processIdentifier != getpid() else {
                 throw Stop(message: "Fixture took foreground or keyboard focus")
             }
-            print("PRODUCT_SCENE_LAID_OUT "+name); fflush(nil)
-            var info: [String:Any] = ["scene":name,"pid":getpid(),"window":window.windowNumber,"backdrop":backdrop.windowNumber,
-                "points":[window.frame.width,window.frame.height],"scale":screen.backingScaleFactor]
-            if sharedComparison && panel {
-                let glass = VoiceRailMetrics(width: window.frame.width).cardFrame(in: window.frame)
-                info["glass"] = [glass.minX, glass.minY, glass.width, glass.height]
-                info["visible"] = [area.minX, area.minY, area.width, area.height]
-            }
-            try JSONSerialization.data(withJSONObject: info,options:.sortedKeys).write(to: request,options:.atomic)
-            let ack = output.appendingPathComponent(name+".done")
-            for _ in 0..<180 {
-                if FileManager.default.fileExists(atPath: ack.path) {
-                    guard (try String(contentsOf: ack,encoding:.utf8)) == "captured" else { throw Stop(message: "WindowServer capture denied for "+name) }
-                    print("PRODUCT_WINDOWSERVER "+name); fflush(nil); return
+            func captureScene(_ name: String) async throws {
+                print("PRODUCT_SCENE_LAID_OUT "+name); fflush(nil)
+                var info: [String:Any] = ["scene":name,"pid":getpid(),"window":window.windowNumber,"backdrop":backdrop.windowNumber,
+                    "origin":[window.frame.minX,window.frame.minY],"points":[window.frame.width,window.frame.height],"scale":screen.backingScaleFactor]
+                if factoryPanel && panel {
+                    let glass = VoiceRailMetrics(width: window.frame.width).cardFrame(in: window.frame)
+                    info["glass"] = [glass.minX, glass.minY, glass.width, glass.height]
+                    info["visible"] = [area.minX, area.minY, area.width, area.height]
                 }
-                try await Task.sleep(for: .milliseconds(100))
+                try JSONSerialization.data(withJSONObject: info,options:.sortedKeys).write(to: request,options:.atomic)
+                let ack = output.appendingPathComponent(name+".done")
+                for _ in 0..<180 {
+                    if FileManager.default.fileExists(atPath: ack.path) {
+                        guard (try String(contentsOf: ack,encoding:.utf8)) == "captured" else { throw Stop(message: "WindowServer capture denied for "+name) }
+                        print("PRODUCT_WINDOWSERVER "+name); fflush(nil); return
+                    }
+                    try await Task.sleep(for: .milliseconds(100))
+                }
+                throw Stop(message: "No compositor acknowledgement for "+name)
             }
-            throw Stop(message: "No compositor acknowledgement for "+name)
+            if let borderModel {
+                let originalFrame = window.frame
+                let scroll = try compactTranscript(in: host)
+                guard let editor = scroll.documentView as? NSTextView, editor.string.utf16.count >= 2 else {
+                    throw Stop(message: "Expected the synthetic transcript in its native text view")
+                }
+                let viewport = scroll.convert(scroll.bounds, to: host)
+                let selection = NSRange(location: 0, length: 2)
+                editor.setSelectedRange(selection)
+                try await captureScene(name)
+                try await pressBorderSetting(model: borderModel, output: output)
+                try await Task.sleep(for: .milliseconds(300))
+                host.layoutSubtreeIfNeeded()
+                let current = try compactTranscript(in: host)
+                guard !borderModel.panelBorderVisible, originalFrame == window.frame, current === scroll,
+                      editor === current.documentView, selection == editor.selectedRange(),
+                      current.convert(current.bounds, to: host) == viewport else {
+                    throw Stop(message: "Live border toggle changed panel or editor geometry, identity, or selection")
+                }
+                try await captureScene("panel-border-hidden")
+                print("BORDER_LIVE_PASS same_window same_editor same_viewport selection_preserved")
+            } else { try await captureScene(name) }
         }
         model.selectSource("local") // explicit diagnostics carry an inert legacy configuration; use the actual fresh-install source.
-        let sz = NSSize(width:780,height:610), panelSize = sharedComparison ? docked.size : WindowPlacement.panelDefaultSize
+        let sz = NSSize(width:780,height:610), panelSize = factoryPanel ? docked.size : WindowPlacement.panelDefaultSize
         try await frame(InputPanelWindowView(model:model),"first-use",panelSize,panel:true)
-        let text = sharedComparison ? "把设计系统的更新内容整理成一份简要的汇报，重点包括组件优化和交互调整。" : "我想让 Saytile 成为一个始终待命\n的语音输入工作台，它应该让文字\n自然出现，而不是让按钮打断表达。\n说完这一句，它会安静地等我\n继续开口。"
+        let text = factoryPanel ? "把设计系统的更新内容整理成一份简要的汇报，重点包括组件优化和交互调整。" : "我想让 Saytile 成为一个始终待命\n的语音输入工作台，它应该让文字\n自然出现，而不是让按钮打断表达。\n说完这一句，它会安静地等我\n继续开口。"
         let capture = UIPanelCaptureFixture()
         // Same AppModel and native panel as normal; only microphone/permission states are injected.
-        let suite = "app.saytile.test.design."+UUID().uuidString
+        let suite = borderSession.map { "app.saytile.test.border." + $0.uuidString } ?? ("app.saytile.test.design." + UUID().uuidString)
         let prefs = UserDefaults(suiteName:suite)!
-        defer { prefs.removePersistentDomain(forName:suite) }
+        let reopening = ProcessInfo.processInfo.environment["SAYTILE_BORDER_REOPEN"] == "1"
+        defer { if borderSession == nil || reopening { prefs.removePersistentDomain(forName:suite) } }
         let root = output.appendingPathComponent("capture-fixture-"+UUID().uuidString)
         let reviewBoard = sharedComparison ? NSPasteboard(name: .init("app.saytile.voice-comparison." + String(getpid()))) : nil
         defer { reviewBoard?.releaseGlobally() }
         let meter = try AppModel(directory:root,preferences:prefs,captureDependencies:capture.dependencies, copyPasteboard:reviewBoard)
         do {
+            if borderSession != nil && reopening {
+                guard prefs.persistentDomain(forName: suite)?["panelBorderVisible"] as? Bool == false,
+                      !meter.panelBorderVisible else { throw Stop(message: "Border preference lost after reopening") }
+                print("BORDER_REOPEN_PASS persisted_off")
+                await meter.prepareForExit()
+                return
+            }
+            if borderSession != nil && !meter.panelBorderVisible { throw Stop(message: "Expected border on for fresh settings") }
             await meter.initialLoad(); capture.state = .interrupted("麦克风未获授权"); capture.authorization = .denied
             meter.objectWillChange.send()
             try await frame(InputPanelWindowView(model:meter),"first-denied",panelSize,panel:true)
@@ -138,15 +173,22 @@ extension AppDelegate {
             guard meter.completedFirstTranscript else { throw Stop(message:"First stored partial was not recognized") }
             for (name,state,value) in [("paused",CaptureState.paused,Float(0)),("standby",.listening,0),("speaking",.speaking,1)] {
                 capture.state = state; capture.level = value; meter.objectWillChange.send()
-                try await frame(InputPanelWindowView(model:meter),"panel-"+name,panelSize,panel:true)
+                try await frame(InputPanelWindowView(model:meter),"panel-"+name,panelSize,panel:true,
+                                borderModel: borderSession != nil && name == "speaking" ? meter : nil)
+            }
+            if !factoryPanel {
+                capture.state = .interrupted("麦克风未获授权"); capture.authorization = .denied
+                meter.objectWillChange.send()
+                try await frame(InputPanelWindowView(model:meter),"panel-interrupted",panelSize,panel:true)
+                try await frame(SettingsView(model:meter,initialPage:.speech),"settings-interrupted",sz)
             }
             await meter.prepareForExit()
-            if sharedComparison { return }
+            if sharedComparison || borderSession != nil { return }
         } catch { await meter.prepareForExit(); throw error }
-        try await frame(SettingsView(model:model),"settings",sz)
+        try await frame(SettingsView(model:model,initialPage:.speech),"settings",sz)
         try await frame(SettingsView(model:model,initialPage:.models),"models",sz)
         model.selectLocal(.apple)
-        try await frame(SettingsView(model:model,initialPage:.models),"models-manual",sz)
+        try await frame(SettingsView(model:model,initialPage:.models),"models-selected",sz)
         let manifest = try LocalModelManifest.load(.sherpa)
         let baseURL = model.store.directory.appendingPathComponent("LocalModels").appendingPathComponent(manifest.id.rawValue)
         let damaged = baseURL.appendingPathComponent(manifest.revision)
@@ -167,13 +209,9 @@ extension AppDelegate {
         try await frame(SettingsView(model:model,initialPage:.input),"input-compact-dark",.init(width:540,height:500),dark:true)
         try await frame(SettingsView(model:model,initialPage:.storage),"storage",sz)
         try await frame(SettingsView(model:model,initialPage:.about),"about",sz)
-        print("PRODUCT_SELECT_HOSTED"); fflush(nil)
-        model.selectSource("hosted"); print("PRODUCT_HOSTED_SELECTED"); fflush(nil)
-        try await frame(SettingsView(model:model),"cloud",sz,bottom:true)
-        model.selectSource("byok")
-        try await frame(SettingsView(model:model),"byok",sz,bottom:true)
-        model.selectSource("local")
-        try await frame(ArchiveView(model:model),"archive-empty",.init(width:840,height:560))
+        try await frame(SettingsView(model:model,initialPage:.cloud,initialCloudService:.hosted),"cloud",sz,bottom:true)
+        try await frame(SettingsView(model:model,initialPage:.cloud,initialCloudService:.byok),"byok",sz,bottom:true)
+        try await frame(SettingsView(model:model,initialPage:.archive),"archive-empty",.init(width:840,height:560))
         let base = Date()
         for (i,words) in ["周五的讨论，先把决定留下来。","合同金额是不超过三千元，不是三万元。","上午十点复核版本，然后继续。","今天的想法分成两件事。\n先把讨论中确定的时间记下来。\n还要核对上一版里的两处数字。\n把这几行留在一起，下午可以直接接着看。"].enumerated() {
             let row = try await model.store.createRecording(createdAt:base.addingTimeInterval(Double(i-3)*36_000))
@@ -188,11 +226,17 @@ extension AppDelegate {
             if i == 3 { _ = try await model.store.saveEdit(recordingID:row.id,text:words+"\n记得带笔。") }
         }
         await model.refresh()
-        try await frame(ArchiveView(model:model),"archive",.init(width:980,height:620))
+        try await frame(SettingsView(model:model,initialPage:.archive),"archive",.init(width:980,height:620))
         guard let row = model.records.first else { throw Stop(message:"No synthetic archive row") }
+        try await model.store.setPinned(recordingID:row.id,pinned:true)
+        model.recordFilter = .pinned
+        await model.refresh()
+        try await frame(SettingsView(model:model,initialPage:.archive),"archive-favorites",.init(width:980,height:620))
+        model.recordFilter = .transcribed
+        await model.refresh()
         await model.selectForEditing(row)
-        try await frame(ArchiveView(model:model),"archive-detail",.init(width:1050,height:640))
-        try await frame(ArchiveView(model:model),"archive-detail-compact-dark",.init(width:570,height:510),dark:true)
+        try await frame(SettingsView(model:model,initialPage:.archive),"archive-detail",.init(width:1050,height:640))
+        try await frame(SettingsView(model:model,initialPage:.archive),"archive-detail-compact-dark",.init(width:570,height:510),dark:true)
         print("PRODUCT_WINDOW_REVIEW_PASS single display, isolated source selected; no system authorization changes")
     }
 }
