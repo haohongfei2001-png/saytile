@@ -119,7 +119,10 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         transcriptView.isAutomaticDashSubstitutionEnabled = false
         transcriptView.isAutomaticQuoteSubstitutionEnabled = false
         transcriptView.typingAttributes = attributes
-        transcriptView.compositionFinished = { [weak self] in self?.finishUserInput() }
+        transcriptView.compositionFinished = { [weak self] in
+            self?.finishUserInput()
+            self?.releaseConcealedEditor()
+        }
         transcriptView.willAcceptEditingFocus = { [weak self] in self?.settleLivePresentation() }
         transcriptView.pointerDown = { [weak self] _ in
             self?.settleLivePresentation()
@@ -171,10 +174,16 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
             cancelLivePresentation()
             stopWheelMotion()
             stopTailMotion()
-            if let window, window.firstResponder === transcriptView {
-                window.makeFirstResponder(nil)
-            }
+            releaseConcealedEditor()
         }
+    }
+
+    private func releaseConcealedEditor() {
+        // Resigning mid-composition can commit the phonetic preedit. Keep its
+        // current input session until the IME finishes or the board opens again.
+        guard controlOnly, !transcriptView.composing, !transcriptView.hasMarkedText(),
+              let window, window.firstResponder === transcriptView else { return }
+        window.makeFirstResponder(nil)
     }
 
     public override func layout() {

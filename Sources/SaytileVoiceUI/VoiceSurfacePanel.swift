@@ -42,7 +42,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
     private typealias ViewState<T> = SwiftUI.State<T>
     @Environment(\.singleGlassSurface) private var singleGlassSurface
     @Environment(\.insideVoiceRail) private var insideVoiceRail
-    @Environment(\.compactVoiceSlot) private var compactSlot
+    @Environment(\.voiceSlotLayout) private var slotLayout
     @ViewState private var captureHovered = false
     @FocusState private var captureFocused: Bool
     private let ink = Color(red: 0.17, green: 0.16, blue: 0.23)
@@ -79,44 +79,43 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
 
     public var body: some View {
         GeometryReader { frame in
-            content(VoicePanelMetrics(width: frame.size.width, inRail: insideVoiceRail),
-                    compact: insideVoiceRail ? compactSlot : VoicePanelFootprint.isCompact(outerWidth: frame.size.width))
+            let layout = slotLayout ?? VoicePanelLayout(size: frame.size, inRail: false)
+            content(layout, metrics: VoicePanelMetrics(width: layout.cardFrame.width, inRail: insideVoiceRail))
         }
     }
 
-    private func content(_ metrics: VoicePanelMetrics, compact: Bool) -> some View {
-        let scale = metrics.scale
-        return VStack(spacing: 0) {
+    private func content(_ layout: VoicePanelLayout, metrics: VoicePanelMetrics) -> some View {
+        let card = layout.cardFrame
+        let text = layout.transcriptFrame
+        let copy = layout.copyFrame
+        let captureRect = layout.captureFrame
+        return ZStack(alignment: .topLeading) {
             CompactTranscriptView(document: document, access: access, onPage: onPage, focusPosition: focusPosition,
                 editing: editing, latestRequest: latestRequest, onFollowChange: onFollowChange,
                 onSelectionChange: onSelectionChange, fillContextMenu: fillContextMenu, applyEdits: applyEdits, onEdit: onEdit,
-                showsLiveCaret: capture.state == .recognizing, typeScale: metrics.typeScale, compact: compact)
-                .opacity(compact ? 0 : 1).accessibilityHidden(compact).allowsHitTesting(!compact)
-                .padding(.leading, ReferencePanelStyle.textInset * scale - 2)
-                .padding(.trailing, 8 * scale).frame(maxWidth: .infinity, maxHeight: .infinity)
-                .frame(height: compact ? 0 : nil).clipped()
+                showsLiveCaret: capture.state == .recognizing, typeScale: metrics.typeScale, compact: !layout.canUseTranscript)
+                .frame(width: text.width, height: text.height).clipped()
+                .opacity(layout.transcriptOpacity)
+                .accessibilityHidden(!layout.canUseTranscript).allowsHitTesting(layout.canUseTranscript)
+                .position(x: text.midX - card.minX, y: card.maxY - text.midY)
 
-            HStack(spacing: 0) {
-                if !compact && metrics.showsCopy {
-                    copyButton(metrics)
-                }
-                if !compact { Spacer(minLength: 0) }
-                captureButton(metrics, compact: compact)
-            }
-            .padding(.leading, compact ? 0 : metrics.footerLeading)
-            .padding(.trailing, compact ? 0 : ReferencePanelStyle.footerTrailing * scale)
-            .padding(.top, compact ? 0 : metrics.footerTop).padding(.bottom, compact ? 0 : metrics.footerBottom)
+            copyButton(metrics)
+                .disabled(!layout.canUseCopy)
+                .opacity(layout.copyOpacity)
+                .accessibilityHidden(!layout.canUseCopy).allowsHitTesting(layout.canUseCopy)
+                .position(x: copy.midX - card.minX, y: card.maxY - copy.midY)
+            captureButton(metrics, rect: captureRect, chrome: layout.controlChromeOpacity)
+                .position(x: captureRect.midX - card.minX, y: card.maxY - captureRect.midY)
         }
-        .padding(.top, compact ? 0 : metrics.topPadding)
+        .frame(width: card.width, height: card.height)
         .background {
-            if !singleGlassSurface && !compact { ReferencePanelSurface(radius: metrics.radius) }
+            if !singleGlassSurface { ReferencePanelSurface(radius: layout.innerRadius) }
         }
-        .clipShape(RoundedRectangle(cornerRadius: compact ? 0 : metrics.radius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: layout.innerRadius, style: .continuous))
         .background {
-            if !insideVoiceRail && !compact { VoicePanelShadow(radius: metrics.radius) }
+            if !insideVoiceRail { VoicePanelShadow(radius: layout.innerRadius) }
         }
         .foregroundStyle(ink)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func copyButton(_ metrics: VoicePanelMetrics) -> some View {
@@ -136,46 +135,25 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
         .accessibilityIdentifier("panel.copy")
     }
 
-    @ViewBuilder private func captureButton(_ metrics: VoicePanelMetrics, compact: Bool) -> some View {
-        let glyph = VoiceCaptureGlyph(presentation: capture, scale: metrics.scale)
-            .foregroundStyle(ReferencePanelStyle.glyph)
+    private func captureButton(_ metrics: VoicePanelMetrics, rect: CGRect, chrome: CGFloat) -> some View {
         let highlight = Color.gray.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0)
-        let button = Button(action: onToggle) {
-            if compact {
-                // In the smallest footprint the board itself is the control.
-                let radius = VoicePanelFootprint.compactCornerRadius
-                glyph
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background { ReferencePanelSurface(radius: radius, showsStroke: !singleGlassSurface) }
-                    .overlay {
-                        RoundedRectangle(cornerRadius: radius, style: .continuous)
-                            .strokeBorder(captureFocused ? highlight : .clear, lineWidth: 2)
-                            .allowsHitTesting(false)
-                    }
-                    .contentShape(Rectangle())
-            } else {
-                glyph
-                    .frame(width: metrics.voiceWidth, height: metrics.controlHeight)
-                    .background { ReferenceControlSurface(scale: metrics.scale) }
-                    .overlay {
-                        Capsule().stroke(highlight, lineWidth: captureFocused ? 2 : 1)
-                            .allowsHitTesting(false)
-                    }
-                    .contentShape(Rectangle())
-            }
+        return Button(action: onToggle) {
+            VoiceCaptureGlyph(presentation: capture, scale: metrics.scale)
+                .foregroundStyle(ReferencePanelStyle.glyph)
+                .frame(width: rect.width, height: rect.height)
+                .background { ReferenceControlSurface(scale: metrics.scale).opacity(chrome) }
+                .overlay {
+                    Capsule().strokeBorder(highlight.opacity(captureFocused ? 1 : chrome), lineWidth: captureFocused ? 2 : 1)
+                        .allowsHitTesting(false)
+                }
+                .contentShape(Rectangle())
         }
         .buttonStyle(CaptureButtonStyle()).disabled(captureDisabled)
         .onHover { captureHovered = $0 }.focused($captureFocused)
+        .contextMenu(menuItems: menu)
+        .help(chrome < 1 ? compactHelp ?? capture.actionLabel : capture.actionLabel)
         .accessibilityLabel(capture.actionLabel)
         .accessibilityValue(capture.accessibilityValue).accessibilityIdentifier("panel.capture")
-
-        if compact {
-            button.contextMenu(menuItems: menu)
-                .help(compactHelp ?? capture.actionLabel)
-                .accessibilityHint(compactHelp ?? "")
-        } else {
-            button.help(capture.actionLabel)
-        }
     }
 
     private struct CaptureButtonStyle: ButtonStyle {

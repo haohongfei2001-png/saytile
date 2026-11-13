@@ -150,6 +150,61 @@ public struct VoicePanelMetrics {
     }
 }
 
+/// Shared control and editor frames in the slot's AppKit coordinates (origin at bottom left).
+/// Every dimension follows the proposed size directly while the pointer is dragging.
+public struct VoicePanelLayout: Sendable {
+    public let cardFrame, captureFrame, copyFrame, transcriptFrame: CGRect
+    public let transcriptOpacity, copyOpacity, controlChromeOpacity: CGFloat
+    public let outerRadius, innerRadius, railOpacity: CGFloat
+    public var canUseTranscript: Bool { transcriptOpacity >= 0.5 }
+    public var canUseCopy: Bool { copyOpacity >= 0.5 }
+
+    public init(size: CGSize, inRail: Bool = true) {
+        let slot = CGRect(origin: .zero, size: CGSize(width: max(0, size.width), height: max(0, size.height)))
+        let rail = VoiceRailMetrics(width: slot.width)
+        let control = VoicePanelFootprint.controlSize
+        func blend(_ value: CGFloat, from start: CGFloat, to end: CGFloat) -> CGFloat {
+            let t = min(1, max(0, (value - start) / (end - start)))
+            return t * t * (3 - 2 * t)
+        }
+        // As the side borders approach the button, its own bezel melts into the glass.
+        // In a wide, shallow board the button remains distinct at the right.
+        controlChromeOpacity = blend(slot.width, from: control.width, to: 96)
+        railOpacity = min(controlChromeOpacity, blend(slot.height, from: control.height, to: 58))
+        let inset = inRail ? min(rail.sideInset * railOpacity, min(slot.width, slot.height) / 4) : 0
+        let card = slot.insetBy(dx: inset, dy: inset)
+        cardFrame = card
+        let metrics = VoicePanelMetrics(width: card.width, inRail: inRail)
+        let minimumRadius: CGFloat = 12
+        let regularRadius = inRail ? rail.radius : ReferencePanelStyle.radius
+        outerRadius = min(min(slot.width, slot.height) / 2, minimumRadius + (regularRadius - minimumRadius) * railOpacity)
+        innerRadius = max(0, outerRadius - inset)
+
+        // Keep normal insets until the board itself would clip the control. Below its
+        // nominal width, only the visible part is interactive; the glyph is never scaled.
+        let trailing = min(ReferencePanelStyle.footerTrailing * metrics.scale, max(0, card.width - control.width))
+        let bottom = min(metrics.footerBottom, max(0, card.height - control.height))
+        let buttonWidth = min(card.width, control.width)
+        let height = min(card.height, control.height)
+        captureFrame = CGRect(x: card.maxX - trailing - buttonWidth, y: card.minY + bottom,
+                              width: buttonWidth, height: height)
+        copyFrame = CGRect(x: card.minX + metrics.footerLeading, y: captureFrame.minY,
+                           width: metrics.copyWidth, height: height)
+        // A fading copy control always has enough room to avoid the capture hit target.
+        copyOpacity = blend(captureFrame.minX - copyFrame.maxX, from: 3, to: 13)
+
+        let sidePadding = blend(card.width, from: 28, to: 96)
+        let leading = (ReferencePanelStyle.textInset * metrics.scale - 2) * sidePadding
+        let trailingText = 8 * metrics.scale * sidePadding
+        let lower = min(card.maxY, captureFrame.maxY + metrics.footerTop)
+        let text = CGRect(x: card.minX + leading, y: lower,
+                          width: max(0, card.width - leading - trailingText),
+                          height: max(0, card.maxY - metrics.topPadding - lower))
+        transcriptFrame = text
+        transcriptOpacity = min(blend(text.height, from: 17, to: 27), blend(text.width, from: 16, to: 24))
+    }
+}
+
 /// The cast shadow extends beyond the glass, without changing its measured bounds.
 struct VoicePanelShadow: View {
     let radius: CGFloat
@@ -228,16 +283,18 @@ private struct SingleGlassSurfaceKey: EnvironmentKey {
     static let defaultValue = false
 }
 
-private struct CompactVoiceSlotKey: EnvironmentKey { static let defaultValue = false }
+private struct VoiceSlotLayoutKey: EnvironmentKey {
+    static let defaultValue: VoicePanelLayout? = nil
+}
 
 private struct InsideVoiceRailKey: EnvironmentKey {
     static let defaultValue = false
 }
 
 extension EnvironmentValues {
-    var compactVoiceSlot: Bool {
-        get { self[CompactVoiceSlotKey.self] }
-        set { self[CompactVoiceSlotKey.self] = newValue }
+    var voiceSlotLayout: VoicePanelLayout? {
+        get { self[VoiceSlotLayoutKey.self] }
+        set { self[VoiceSlotLayoutKey.self] = newValue }
     }
 
     var singleGlassSurface: Bool {
@@ -263,18 +320,17 @@ public struct FramedVoiceSlot<Content: View>: View {
     public var body: some View {
         GeometryReader { geometry in
             let slot = CGRect(origin: .zero, size: geometry.size)
-            let metrics = VoiceRailMetrics(width: slot.width)
-            let compact = VoicePanelFootprint.isCompact(outerWidth: slot.width)
-            let card = compact ? slot : metrics.cardFrame(in: slot)
+            let layout = VoicePanelLayout(size: slot.size)
+            let card = layout.cardFrame
             content
                 .environment(\.insideVoiceRail, true)
-                .environment(\.compactVoiceSlot, compact)
+                .environment(\.voiceSlotLayout, layout)
                 .environment(\.singleGlassSurface, !showsBorder)
                 .frame(width: card.width, height: card.height)
                 .position(x: card.midX, y: slot.height - card.midY)
                 .background {
-                    if !compact && !showsBorder {
-                        ReferencePanelSurface(radius: metrics.radius, showsStroke: false)
+                    if !showsBorder {
+                        ReferencePanelSurface(radius: layout.outerRadius, showsStroke: false)
                     }
                 }
         }

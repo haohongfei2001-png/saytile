@@ -8,17 +8,16 @@ struct InputPanelWindowView: View {
     var onExpand: (@MainActor () -> Void)? = nil
     var body: some View {
         GeometryReader { geometry in
-            let radius = VoiceRailMetrics(width: geometry.size.width).radius
-            let compact = VoicePanelFootprint.isCompact(outerWidth: geometry.size.width)
+            let layout = VoicePanelLayout(size: geometry.size)
             FramedVoiceSlot(showsBorder: model.panelBorderVisible) {
-                InputPanelView(model: model, onExpand: compact ? onExpand : nil)
+                InputPanelView(model: model, onExpand: VoicePanelFootprint.offersReadingSize(for: geometry.size) ? onExpand : nil)
             }
                 .background {
-                    if model.panelBorderVisible && !compact {
-                        VoiceRailGlass(width: geometry.size.width)
+                    if model.panelBorderVisible {
+                        VoiceRailGlass(width: geometry.size.width).opacity(layout.railOpacity)
                     }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: layout.outerRadius, style: .continuous))
         }
     }
 }
