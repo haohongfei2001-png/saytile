@@ -1,0 +1,39 @@
+--- a/tests/fixtures/StatusMenuProbe.swift
++++ b/tests/fixtures/StatusMenuProbe.swift
+@@ -105,6 +105,17 @@
+                         (item[kCGWindowBounds as String] as? [String: CGFloat])?["Height"] ?? 0 > 55
+                 }
+             }
++            func observeMenuWindow(_ phase: String) {
++                let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]] ?? []
++                let ours = windows.filter { ($0[kCGWindowOwnerPID as String] as? Int32) == pid }
++                let description = ours.map { window in
++                    let id = window[kCGWindowNumber as String] as? Int ?? 0
++                    let level = window[kCGWindowLayer as String] as? Int ?? 0
++                    let bounds = window[kCGWindowBounds as String] as? [String: CGFloat]
++                    return "\(id)@\(level):\(Int(bounds?["X"] ?? 0)),\(Int(bounds?["Y"] ?? 0)),\(Int(bounds?["Width"] ?? 0))x\(Int(bounds?["Height"] ?? 0))"
++                }
++                print("STATUS_OBSERVATION", command ?? "cancel", "visible", visible, phase, description.joined(separator: " "))
++            }
+             var menu: AXUIElement?
+             try await wait("single status press failed to open menu on screen") {
+                 guard openWindowExists() else { return false }
+@@ -112,6 +123,7 @@
+                 return menu != nil
+             }
+             guard let menu else { throw Failure("missing owned menu") }
++            observeMenuWindow("opened")
+             var dismissed = false
+             defer { if !dismissed { _ = AXUIElementPerformAction(menu, kAXCancelAction as CFString) } }
+             let items = children(menu, pid: pid)
+@@ -134,7 +146,9 @@
+             // issued menu-item press has already completed. WindowServer and the
+             // actual action outcome are verified independently; do not retry.
+             print("STATUS_TRIGGER_AX", pressResult)
+-            try await wait("menu still on screen") { !openWindowExists() }
++            do { try await wait("menu still on screen") { !openWindowExists() } }
++            catch { observeMenuWindow("still-open"); throw error }
++            observeMenuWindow("closed")
+             dismissed = true
+             print("STATUS_NATIVE_ROUND command=\(command ?? "cancel") visibleWhileOpen=\(visible) fullMenu=true captureCommands=0")
+         }
