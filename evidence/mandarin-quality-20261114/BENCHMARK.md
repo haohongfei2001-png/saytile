@@ -26,6 +26,12 @@
 4. 运行 python3 scripts/mandarin/paired-quality.py --receipts <该版本目录> --wav <语料目录> --source <源码SHA> --out <metrics.json>。脚本只汇总完整且哈希匹配的原速组。420 段和 20 个派生的加速指标分开计。scripts/mandarin/compare-paths.py 可基于两组 runs 复算引擎直通与归档差异、改善与退化个例。
 5. 资源测试使用 scripts/mandarin/power.py、macmon 0.11.0 及同一段大于等于 10 秒的人声。长稳测试使用 scripts/mandarin/quality-soak.py --app <签名App> --weights <权重> --wav <语料> --manifest evidence/mandarin/panel-cohort.json --output <收据> --model <模型>。
 
+最终安装包的原速窗口由自动选型触发。在第 4 步为该包加上 `--automatic`，可同时重建 [打包版原速、资源及完整直通/归档指标](delivery/metrics.json)。当各组原始记录齐备后，以下命令按样本 ID 比较最终归档与各个对照，保留空白、退步个例和按语料分层的配对区间。
+
+```sh
+python3 scripts/mandarin/compare-delivery.py --receipts evidence/mandarin-quality-20261114 --out /tmp/saytile-mandarin-defaults.json
+```
+
 批量、原速和长稳收据各自绑定运行时源码。在后续产品构建上修改选择策略、错误接替或首次资源准备时，应另行验证该包的真实路由和原生窗口，保留原始测量 SHA。
 
 ## 重建最终包的两条长句

@@ -85,6 +85,8 @@ def main():
     for name in ["baseline", "candidate", "out"]:
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--unforced", type=Path, help="Isolated 0.6B build without a fixed decoder language")
+    parser.add_argument("--sherpa-equivalence", type=Path,
+                        help="Use a proven identical decoder control for the baseline Sherpa archive")
     args = parser.parse_args()
     fixture = root / "evidence/mandarin"
     manifests = {key: json.loads((fixture / (key + ".json")).read_text()) for key in ["paired", "aishell"]}
@@ -96,12 +98,32 @@ def main():
         before = stage(args.baseline, model, "product", manifests)
         after = stage(args.candidate, model, "product", manifests)
         direct = stage(args.candidate, model, "direct", manifests)
+        baseline_direct = stage(args.baseline, model, "direct", manifests)
         groups = [
             ("product_old_to_new", before, after),
             ("candidate_direct_to_product", direct, after),
+            ("baseline_direct_to_product", baseline_direct, before),
         ]
         report[model] = {name: result for name, left, right in groups
                          if (result := comparison(left, right, references)) is not None}
+    if args.sherpa_equivalence:
+        identity = json.loads(args.sherpa_equivalence.read_text())
+        baseline_sha = json.loads((args.baseline / "metrics.json").read_text())["source"]
+        candidate_sha = json.loads((args.candidate / "metrics.json").read_text())["source"]
+        assert (baseline_sha, candidate_sha) == (identity["baseline"], identity["sherpa_control_source"])
+        for name in ["Helpers/SaytileSherpa", "Frameworks/libonnxruntime.dylib", "Frameworks/libsherpa-onnx-c-api.dylib"]:
+            fingerprints = identity["worker_comparison"][name]
+            field = "mach_o_payload_through_signature_offset_sha256"
+            assert fingerprints["old"][field] == fingerprints["measured_candidate"][field] == fingerprints["final"][field]
+        direct = stage(args.candidate, "sherpa", "direct", manifests)
+        product = stage(args.baseline, "sherpa", "product", manifests)
+        if len(direct) == len(all_rows) and product:
+            assert all(row["states"] == ["completed"] and not row["errors"] and row["text"].strip()
+                       for row in direct.values()), "Cannot share a failed Sherpa decoder control"
+            result = comparison(direct, product, references)
+            if result:
+                result["direct_measurement_source"] = candidate_sha
+                report["sherpa"]["shared_direct_to_baseline_product"] = result
     report["default_comparisons"] = {}
     for older, earlier_dir, newer in [("apple", args.baseline, "qwen-small"), ("apple", args.baseline, "qwen-large"),
                                       ("qwen-small", args.candidate, "qwen-large")]:

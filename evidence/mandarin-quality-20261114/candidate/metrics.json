@@ -1911,6 +1911,244 @@
   }
  },
  "accelerated": {
+  "apple-direct": {
+   "by_manifest": {
+    "paired": {
+     "rows": 340,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "number": {
+       "literal_matched": 196,
+       "reference_occurrences": 210
+      },
+      "negative": {
+       "literal_matched": 101,
+       "reference_occurrences": 103
+      },
+      "latin": {
+       "literal_matched": 98,
+       "reference_occurrences": 249
+      },
+      "date_time": {
+       "literal_matched": 36,
+       "reference_occurrences": 36
+      },
+      "technical_term": {
+       "literal_matched": 7,
+       "reference_occurrences": 7
+      },
+      "money": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 228,
+      "mer": 0.1955403087478559
+     },
+     "groups": {
+      "fleurs": {
+       "errors": 649,
+       "substitutions": 305,
+       "deletions": 273,
+       "insertions": 71,
+       "reference_units": 6260,
+       "cer": 0.10367,
+       "rows": 160
+      },
+      "ALL": {
+       "errors": 1153,
+       "substitutions": 563,
+       "deletions": 470,
+       "insertions": 120,
+       "reference_units": 9962,
+       "cer": 0.11574,
+       "rows": 340
+      },
+      "ascend-zh": {
+       "errors": 62,
+       "substitutions": 35,
+       "deletions": 13,
+       "insertions": 14,
+       "reference_units": 934,
+       "cer": 0.06638,
+       "rows": 80
+      },
+      "ascend-mixed": {
+       "errors": 351,
+       "substitutions": 170,
+       "deletions": 150,
+       "insertions": 31,
+       "reference_units": 2004,
+       "cer": 0.17515,
+       "rows": 80
+      },
+      "quiet": {
+       "errors": 53,
+       "substitutions": 30,
+       "deletions": 22,
+       "insertions": 1,
+       "reference_units": 403,
+       "cer": 0.13151,
+       "rows": 10
+      },
+      "noise15db": {
+       "errors": 38,
+       "substitutions": 23,
+       "deletions": 12,
+       "insertions": 3,
+       "reference_units": 361,
+       "cer": 0.10526,
+       "rows": 10
+      }
+     }
+    },
+    "aishell": {
+     "rows": 100,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "negative": {
+       "literal_matched": 16,
+       "reference_occurrences": 17
+      },
+      "number": {
+       "literal_matched": 21,
+       "reference_occurrences": 48
+      },
+      "technical_term": {
+       "literal_matched": 4,
+       "reference_occurrences": 4
+      },
+      "money": {
+       "literal_matched": 2,
+       "reference_occurrences": 5
+      },
+      "date_time": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 0,
+      "errors": 0,
+      "mer": null
+     },
+     "groups": {
+      "aishell1-test": {
+       "errors": 165,
+       "substitutions": 110,
+       "deletions": 35,
+       "insertions": 20,
+       "reference_units": 1465,
+       "cer": 0.11263,
+       "rows": 100
+      },
+      "ALL": {
+       "errors": 165,
+       "substitutions": 110,
+       "deletions": 35,
+       "insertions": 20,
+       "reference_units": 1465,
+       "cer": 0.11263,
+       "rows": 100
+      }
+     }
+    }
+   },
+   "exact_anchor_tokens": {
+    "original_420": {
+     "number": {
+      "reference": 249,
+      "missing": 42,
+      "extra": 54
+     },
+     "negative": {
+      "reference": 112,
+      "missing": 3,
+      "extra": 5
+     },
+     "money": {
+      "reference": 11,
+      "missing": 3,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 41,
+      "missing": 0,
+      "extra": 1
+     },
+     "latin": {
+      "reference": 237,
+      "missing": 170,
+      "extra": 85
+     },
+     "technical_term": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 0
+     }
+    },
+    "derived_20": {
+     "number": {
+      "reference": 9,
+      "missing": 0,
+      "extra": 1
+     },
+     "negative": {
+      "reference": 8,
+      "missing": 1,
+      "extra": 0
+     },
+     "money": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 1,
+      "missing": 0,
+      "extra": 0
+     },
+     "latin": {
+      "reference": 12,
+      "missing": 7,
+      "extra": 2
+     },
+     "technical_term": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     }
+    }
+   },
+   "cohorts": {
+    "original_420": {
+     "errors": 1227,
+     "substitutions": 620,
+     "deletions": 471,
+     "insertions": 136,
+     "reference_units": 10663,
+     "cer": 0.11507,
+     "rows": 420
+    },
+    "derived_20": {
+     "errors": 91,
+     "substitutions": 53,
+     "deletions": 34,
+     "insertions": 4,
+     "reference_units": 764,
+     "cer": 0.11911,
+     "rows": 20
+    }
+   }
+  },
   "apple-product": {
    "by_manifest": {
     "paired": {
@@ -2145,6 +2383,482 @@
      "insertions": 5,
      "reference_units": 764,
      "cer": 0.1178,
+     "rows": 20
+    }
+   }
+  },
+  "sherpa-direct": {
+   "by_manifest": {
+    "paired": {
+     "rows": 340,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "number": {
+       "literal_matched": 148,
+       "reference_occurrences": 210
+      },
+      "negative": {
+       "literal_matched": 97,
+       "reference_occurrences": 103
+      },
+      "latin": {
+       "literal_matched": 110,
+       "reference_occurrences": 249
+      },
+      "date_time": {
+       "literal_matched": 36,
+       "reference_occurrences": 36
+      },
+      "technical_term": {
+       "literal_matched": 6,
+       "reference_occurrences": 7
+      },
+      "money": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 221,
+      "mer": 0.1895368782161235
+     },
+     "groups": {
+      "fleurs": {
+       "errors": 875,
+       "substitutions": 476,
+       "deletions": 300,
+       "insertions": 99,
+       "reference_units": 6260,
+       "cer": 0.13978,
+       "rows": 160
+      },
+      "ALL": {
+       "errors": 1461,
+       "substitutions": 730,
+       "deletions": 579,
+       "insertions": 152,
+       "reference_units": 9962,
+       "cer": 0.14666,
+       "rows": 340
+      },
+      "ascend-zh": {
+       "errors": 90,
+       "substitutions": 39,
+       "deletions": 38,
+       "insertions": 13,
+       "reference_units": 934,
+       "cer": 0.09636,
+       "rows": 80
+      },
+      "ascend-mixed": {
+       "errors": 394,
+       "substitutions": 159,
+       "deletions": 199,
+       "insertions": 36,
+       "reference_units": 2004,
+       "cer": 0.19661,
+       "rows": 80
+      },
+      "quiet": {
+       "errors": 51,
+       "substitutions": 22,
+       "deletions": 27,
+       "insertions": 2,
+       "reference_units": 403,
+       "cer": 0.12655,
+       "rows": 10
+      },
+      "noise15db": {
+       "errors": 51,
+       "substitutions": 34,
+       "deletions": 15,
+       "insertions": 2,
+       "reference_units": 361,
+       "cer": 0.14127,
+       "rows": 10
+      }
+     }
+    },
+    "aishell": {
+     "rows": 100,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "negative": {
+       "literal_matched": 16,
+       "reference_occurrences": 17
+      },
+      "number": {
+       "literal_matched": 44,
+       "reference_occurrences": 48
+      },
+      "technical_term": {
+       "literal_matched": 4,
+       "reference_occurrences": 4
+      },
+      "money": {
+       "literal_matched": 4,
+       "reference_occurrences": 5
+      },
+      "date_time": {
+       "literal_matched": 5,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 0,
+      "errors": 0,
+      "mer": null
+     },
+     "groups": {
+      "aishell1-test": {
+       "errors": 102,
+       "substitutions": 63,
+       "deletions": 34,
+       "insertions": 5,
+       "reference_units": 1465,
+       "cer": 0.06962,
+       "rows": 100
+      },
+      "ALL": {
+       "errors": 102,
+       "substitutions": 63,
+       "deletions": 34,
+       "insertions": 5,
+       "reference_units": 1465,
+       "cer": 0.06962,
+       "rows": 100
+      }
+     }
+    }
+   },
+   "exact_anchor_tokens": {
+    "original_420": {
+     "number": {
+      "reference": 249,
+      "missing": 68,
+      "extra": 75
+     },
+     "negative": {
+      "reference": 112,
+      "missing": 7,
+      "extra": 7
+     },
+     "money": {
+      "reference": 11,
+      "missing": 1,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 41,
+      "missing": 1,
+      "extra": 3
+     },
+     "latin": {
+      "reference": 237,
+      "missing": 143,
+      "extra": 72
+     },
+     "technical_term": {
+      "reference": 11,
+      "missing": 2,
+      "extra": 0
+     }
+    },
+    "derived_20": {
+     "number": {
+      "reference": 9,
+      "missing": 2,
+      "extra": 3
+     },
+     "negative": {
+      "reference": 8,
+      "missing": 1,
+      "extra": 0
+     },
+     "money": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 1,
+      "missing": 0,
+      "extra": 0
+     },
+     "latin": {
+      "reference": 12,
+      "missing": 9,
+      "extra": 3
+     },
+     "technical_term": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     }
+    }
+   },
+   "cohorts": {
+    "original_420": {
+     "errors": 1461,
+     "substitutions": 737,
+     "deletions": 571,
+     "insertions": 153,
+     "reference_units": 10663,
+     "cer": 0.13702,
+     "rows": 420
+    },
+    "derived_20": {
+     "errors": 102,
+     "substitutions": 56,
+     "deletions": 42,
+     "insertions": 4,
+     "reference_units": 764,
+     "cer": 0.13351,
+     "rows": 20
+    }
+   }
+  },
+  "sherpa-product": {
+   "by_manifest": {
+    "paired": {
+     "rows": 340,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 5
+     },
+     "literal_anchors": {
+      "number": {
+       "literal_matched": 149,
+       "reference_occurrences": 210
+      },
+      "negative": {
+       "literal_matched": 98,
+       "reference_occurrences": 103
+      },
+      "latin": {
+       "literal_matched": 112,
+       "reference_occurrences": 249
+      },
+      "date_time": {
+       "literal_matched": 36,
+       "reference_occurrences": 36
+      },
+      "technical_term": {
+       "literal_matched": 6,
+       "reference_occurrences": 7
+      },
+      "money": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 221,
+      "mer": 0.1895368782161235
+     },
+     "groups": {
+      "fleurs": {
+       "errors": 862,
+       "substitutions": 471,
+       "deletions": 297,
+       "insertions": 94,
+       "reference_units": 6260,
+       "cer": 0.1377,
+       "rows": 160
+      },
+      "ALL": {
+       "errors": 1439,
+       "substitutions": 718,
+       "deletions": 575,
+       "insertions": 146,
+       "reference_units": 9962,
+       "cer": 0.14445,
+       "rows": 340
+      },
+      "ascend-zh": {
+       "errors": 90,
+       "substitutions": 39,
+       "deletions": 38,
+       "insertions": 13,
+       "reference_units": 934,
+       "cer": 0.09636,
+       "rows": 80
+      },
+      "ascend-mixed": {
+       "errors": 394,
+       "substitutions": 159,
+       "deletions": 199,
+       "insertions": 36,
+       "reference_units": 2004,
+       "cer": 0.19661,
+       "rows": 80
+      },
+      "quiet": {
+       "errors": 49,
+       "substitutions": 20,
+       "deletions": 27,
+       "insertions": 2,
+       "reference_units": 403,
+       "cer": 0.12159,
+       "rows": 10
+      },
+      "noise15db": {
+       "errors": 44,
+       "substitutions": 29,
+       "deletions": 14,
+       "insertions": 1,
+       "reference_units": 361,
+       "cer": 0.12188,
+       "rows": 10
+      }
+     }
+    },
+    "aishell": {
+     "rows": 100,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "negative": {
+       "literal_matched": 16,
+       "reference_occurrences": 17
+      },
+      "number": {
+       "literal_matched": 44,
+       "reference_occurrences": 48
+      },
+      "technical_term": {
+       "literal_matched": 4,
+       "reference_occurrences": 4
+      },
+      "money": {
+       "literal_matched": 4,
+       "reference_occurrences": 5
+      },
+      "date_time": {
+       "literal_matched": 5,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 0,
+      "errors": 0,
+      "mer": null
+     },
+     "groups": {
+      "aishell1-test": {
+       "errors": 102,
+       "substitutions": 63,
+       "deletions": 34,
+       "insertions": 5,
+       "reference_units": 1465,
+       "cer": 0.06962,
+       "rows": 100
+      },
+      "ALL": {
+       "errors": 102,
+       "substitutions": 63,
+       "deletions": 34,
+       "insertions": 5,
+       "reference_units": 1465,
+       "cer": 0.06962,
+       "rows": 100
+      }
+     }
+    }
+   },
+   "exact_anchor_tokens": {
+    "original_420": {
+     "number": {
+      "reference": 249,
+      "missing": 67,
+      "extra": 75
+     },
+     "negative": {
+      "reference": 112,
+      "missing": 7,
+      "extra": 8
+     },
+     "money": {
+      "reference": 11,
+      "missing": 1,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 41,
+      "missing": 1,
+      "extra": 3
+     },
+     "latin": {
+      "reference": 237,
+      "missing": 143,
+      "extra": 72
+     },
+     "technical_term": {
+      "reference": 11,
+      "missing": 2,
+      "extra": 0
+     }
+    },
+    "derived_20": {
+     "number": {
+      "reference": 9,
+      "missing": 2,
+      "extra": 3
+     },
+     "negative": {
+      "reference": 8,
+      "missing": 0,
+      "extra": 0
+     },
+     "money": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 1,
+      "missing": 0,
+      "extra": 0
+     },
+     "latin": {
+      "reference": 12,
+      "missing": 9,
+      "extra": 3
+     },
+     "technical_term": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     }
+    }
+   },
+   "cohorts": {
+    "original_420": {
+     "errors": 1448,
+     "substitutions": 732,
+     "deletions": 568,
+     "insertions": 148,
+     "reference_units": 10663,
+     "cer": 0.1358,
+     "rows": 420
+    },
+    "derived_20": {
+     "errors": 93,
+     "substitutions": 49,
+     "deletions": 41,
+     "insertions": 3,
+     "reference_units": 764,
+     "cer": 0.12173,
      "rows": 20
     }
    }
@@ -2642,6 +3356,8 @@
   "panels/apple-ascend-mixed-ee4e2d5087648134.json": "e18806bde8844e029a52c461e52eef3536a7e4eb6de0ea23e2fa7bbc5a2f08a4",
   "panels/apple-ascend-mixed-7c8bdcb41bb98a40.json": "696df9bec0abba252434bcc186325dc00e92fa38395a2a3b4d7581dd37a3d449",
   "panels/apple-ascend-mixed-ff9c42612780330b.json": "7b67c55cad6671d9eb20fe7d6132e39ee3e7da40c6479c3f52bd85f982950430",
+  "runs/paired-apple-direct.jsonl": "708deb5395a4d612497b2bce0b90738bd8ef2a95050c063a0b3616d147eaeff8",
+  "runs/aishell-apple-direct.jsonl": "d5ccda7fae731ffd061559cb2fe6ba43acfb80b801a26de614870e402dad2c7e",
   "runs/paired-apple-product.jsonl": "6bead190ae0b5a7bc5afc513ce5b04a4798d513e00a919cdd99c0cc28132227c",
   "runs/aishell-apple-product.jsonl": "f1d3c68d987942547d43bd4c1ec57488b9147157f7d380f696b011382a5ea2c8",
   "panels/sherpa-fleurs-1bc3201a9f24a2fe.json": "582b9d97b558801a518248c4ad3f1c48b74d29e2eeb544ba75c99af82b54a876",
@@ -2659,6 +3375,10 @@
   "panels/sherpa-ascend-mixed-ee4e2d5087648134.json": "c679f9af691284cc6b2cac651523560e35bff841f85d60d78ea89a7dddbb75e6",
   "panels/sherpa-ascend-mixed-7c8bdcb41bb98a40.json": "f08d07e86793404d6f09e1224d72111b2d6acd959839994b9553322a482c0379",
   "panels/sherpa-ascend-mixed-ff9c42612780330b.json": "ece136f5d8944af43631e37c4a1982169f92ff37de6ffdfe350d8405b128b275",
+  "runs/paired-sherpa-direct.jsonl": "fba19c7f03c8afbbe62f58e9601ecab131cd16567fbaab518e6d06a6cd7f22c5",
+  "runs/aishell-sherpa-direct.jsonl": "2589ed4641b67ef2c3613ef9fc6927fcb083fb551adb0aa50b33e0d84968dddb",
+  "runs/paired-sherpa-product.jsonl": "bae93cb984fa9f00233820c384844c59ba52ab425639e70a84d7eecfd5e8ee1a",
+  "runs/aishell-sherpa-product.jsonl": "dc4bca69ad70ab029d1a344194dac4e8e183a06c4423e0f464cdc3637d6835b7",
   "panels/qwen-small-fleurs-1bc3201a9f24a2fe.json": "9429f29509c6b912f9d16057d962a47c20b6d5c68eeda6f86cd69274dc97fcab",
   "panels/qwen-small-fleurs-0ebe0fb634f8e4ac.json": "9876dbe37b1261334a6d492861db0cab8645ffb6aaeefd463d9f174484487c71",
   "panels/qwen-small-fleurs-9eb2d543a0a36152.json": "e47213e55af2767fa7ed79e93d04f2668c82b9544631a03c07de207384e0f9d8",

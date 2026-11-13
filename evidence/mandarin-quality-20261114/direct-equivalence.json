@@ -15,7 +15,12 @@
         "lc_uuid": "cbffd24ca63e358d91496a1f0600e9fc",
         "signature_offset": 53664
       },
-      "payload_identical": true
+      "payload_identical": true,
+      "measured_candidate": {
+        "file_sha256": "34417c7ebbfa5d8d2b2f74b76747b240db10c98b7f1995a4a7595f69e1181681",
+        "mach_o_payload_through_signature_offset_sha256": "ff9db5d53050a16ff9000fd3f86d855144ec0eeabd58195599d9c678409e5dd0",
+        "signature_offset": 53664
+      }
     },
     "Frameworks/libonnxruntime.dylib": {
       "old": {
@@ -30,7 +35,12 @@
         "lc_uuid": "27026bc1ecfa3087ac204a99e35bff1b",
         "signature_offset": 28700784
       },
-      "payload_identical": true
+      "payload_identical": true,
+      "measured_candidate": {
+        "file_sha256": "eaaf3b4ba94df79a4de8d76b889000a37d7afbc295af587f7165d8bd1c1c4df5",
+        "mach_o_payload_through_signature_offset_sha256": "d8373dd8ddafc853645e2bec351ca7fcfa53a69818e3d9abd21019e84c88e166",
+        "signature_offset": 28700784
+      }
     },
     "Frameworks/libsherpa-onnx-c-api.dylib": {
       "old": {
@@ -45,7 +55,12 @@
         "lc_uuid": "707f7ff408aa3ae1aedcf845e2ae477b",
         "signature_offset": 3412064
       },
-      "payload_identical": true
+      "payload_identical": true,
+      "measured_candidate": {
+        "file_sha256": "e958ab29884757bb5aaa9a4746d1e1158b1c98cd41335394f299157fa8828100",
+        "mach_o_payload_through_signature_offset_sha256": "7e88d6723b589b9e1d21b533463e74d5f203b5e1bb7468eb0a256dcac71ce859",
+        "signature_offset": 3412064
+      }
     },
     "Helpers/SaytileModelWorker": {
       "old": {
@@ -135,5 +150,6 @@
       "equal_final_text": 100
     }
   ],
-  "scope": "Text accuracy only; macOS direct Cohort measures the resulting SQLite text, not raw logits. Never generate one run file from a different one or count shared rows as separate executions."
+  "scope": "Text accuracy only; macOS direct Cohort measures the resulting SQLite text, not raw logits. Never generate one run file from a different one or count shared rows as separate executions.",
+  "sherpa_control_source": "d2da53545fc51e65c5f893cfb9dec92000e0f873"
 }
