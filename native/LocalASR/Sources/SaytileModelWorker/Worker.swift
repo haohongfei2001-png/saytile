@@ -7,7 +7,6 @@ import Qwen3ASR
 
 // Private pipe from the signed Saytile process. PCM16LE mono, 16 kHz.
 // A zero-length frame ends one utterance. EOF releases the model.
-enum WorkerError: Error { case invalidFrame, truncated, configuration }
 func bytes(_ count: Int, allowEOF: Bool = false) throws -> Data? {
     var data = Data()
     while data.count < count {
@@ -20,6 +19,7 @@ func bytes(_ count: Int, allowEOF: Bool = false) throws -> Data? {
     }
     return data
 }
+
 func publish(_ text: String, kind: String, frames: Int) throws {
     let event: [String: Any] = ["kind": kind, "text": text, "frames": frames]
     var line = try JSONSerialization.data(withJSONObject: event)
@@ -70,11 +70,17 @@ func publish(_ text: String, kind: String, frames: Int) throws {
         // of pre-roll. Keep that whole segment available for the EOS decode.
         let windowLimit = 16_000 * (rollingQwen ? 32 : 24)
         var samples: [Float] = [], prefix = "", last = "", frames = 0, next = firstStride
-        while let header = try bytes(4, allowEOF: true) {
+        var input = PCMFrameReader(descriptor: STDIN_FILENO)
+        func nextFrame() throws -> Data? {
+            if id == "qwen-small" { return try input.next() }
+            guard let header = try bytes(4, allowEOF: true) else { return nil }
             let size = Int(header.withUnsafeBytes { $0.loadUnaligned(as: UInt32.self).littleEndian })
-            guard size <= 65_536 && size.isMultiple(of: 2) else { throw WorkerError.invalidFrame }
-            let end = size == 0
-            let chunk = try bytes(size)!.withUnsafeBytes { buffer in
+            guard size <= 65_536, size.isMultiple(of: 2) else { throw WorkerError.invalidFrame }
+            return try bytes(size)
+        }
+        while let payload = try nextFrame() {
+            let end = payload.isEmpty
+            let chunk = payload.withUnsafeBytes { buffer in
                 buffer.bindMemory(to: Int16.self).map { Float(Int16(littleEndian: $0)) / 32768 }
             }
             frames += chunk.count
@@ -87,6 +93,12 @@ func publish(_ text: String, kind: String, frames: Int) throws {
                 // Upstream batch encoders have finite input windows. Bound history
                 // without retaining or retranscribing all preceding utterances.
                 if end || samples.count >= windowLimit || (rollingQwen && samples.count >= next) {
+                    // Once the first real result is visible, drain complete PCM
+                    // packets that arrived while MLX was decoding before asking
+                    // for the next preview. Always decode the window boundary
+                    // and EOS. Keep all samples, including partially read packets.
+                    if id == "qwen-small", !end, !last.isEmpty, samples.count < windowLimit,
+                       samples.count - next < 3 * stride, try input.hasNextFrameNow() { continue }
                     let tail = samples.isEmpty ? "" : try await transcribe(samples)
                     update = prefix + tail
                     if samples.count >= windowLimit {
