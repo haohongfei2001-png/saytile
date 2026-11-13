@@ -46,9 +46,10 @@ func publish(_ text: String, kind: String, frames: Int) throws {
             let model = try await Qwen3ASRModel.fromPretrained(modelId: id == "qwen-small"
                 ? "aufklarer/Qwen3-ASR-0.6B-MLX-4bit" : "aufklarer/Qwen3-ASR-1.7B-MLX-4bit",
                 cacheDir: directory, offlineMode: true)
-            // This argument is interpolated verbatim into the decoder prompt.
-            // The Qwen model's forced-language vocabulary uses "Chinese".
-            transcribe = { try model.transcribeThrowing(audio: $0, options: .init(language: "Chinese", longInputThresholdSeconds: .infinity)) }
+            // The small model translated whole English clauses in Mandarin speech
+            // when forced to Chinese. Leave it free to transcribe the spoken language.
+            let language = id == "qwen-small" ? nil : "Chinese"
+            transcribe = { try model.transcribeThrowing(audio: $0, options: .init(language: language, longInputThresholdSeconds: .infinity)) }
         case "paraformer":
             nemo = nil
             let model = ParaformerManager(models: try ParaformerModels.load(from: directory, precision: .int8))
