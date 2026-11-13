@@ -196,5 +196,22 @@
       "bytes": 1924,
       "sha256": "d7da77968f154dd19694a80fea078e02053d4e048c7840bba11cf67a3dd5999d"
     }
+  },
+  "unforced_comparison": {
+    "app_source": "d2da53545fc51e65c5f893cfb9dec92000e0f873",
+    "difference": "Only Qwen worker forced language Chinese changed to nil; executable and patched source hashes distinguish the experiment from the base revision in Info.plist. No transcript postprocessing.",
+    "worker_source_sha256": "48ef748e06d6157061db571c26095ec30753de9ad72814a60acc1e7ef752b8b9",
+    "app_executable": {
+      "sha256": "9060c554ea1b65701c4d7017a1edfcb754f3210dc7c397f5ddbbcff7baf1e120",
+      "bytes": 10138496
+    },
+    "worker_executable": {
+      "sha256": "33c16ab6a5c801b461d604e007eebb13e40f52ffd8c726556e1226a33be34d27",
+      "bytes": 39255888
+    },
+    "base_worker": {
+      "bytes": 39255952,
+      "sha256": "ece4befeef175208c664e29d786f0851e37ee405393ce930a8d25077069d33ad"
+    }
   }
 }

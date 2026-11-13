@@ -463,6 +463,19 @@
     "insertions": 2,
     "reference_units": 568,
     "cer": 0.12676
+   },
+   "failed_or_empty": [],
+   "publication_evidence": {
+    "clips_with_two_or_more_meaningful_publications": 15,
+    "range_of_meaningful_publications": [
+     7,
+     15
+    ],
+    "publication_gap_seconds": {
+     "p50": 0.87,
+     "p95": 0.973
+    },
+    "verbatim_final_mismatches": []
    }
   },
   "sherpa": {
@@ -927,6 +940,19 @@
     "insertions": 4,
     "reference_units": 568,
     "cer": 0.13556
+   },
+   "failed_or_empty": [],
+   "publication_evidence": {
+    "clips_with_two_or_more_meaningful_publications": 15,
+    "range_of_meaningful_publications": [
+     5,
+     15
+    ],
+    "publication_gap_seconds": {
+     "p50": 0.597,
+     "p95": 1.182
+    },
+    "verbatim_final_mismatches": []
    }
   },
   "qwen-small": {
@@ -1391,6 +1417,19 @@
     "insertions": 5,
     "reference_units": 568,
     "cer": 0.08099
+   },
+   "failed_or_empty": [],
+   "publication_evidence": {
+    "clips_with_two_or_more_meaningful_publications": 15,
+    "range_of_meaningful_publications": [
+     3,
+     9
+    ],
+    "publication_gap_seconds": {
+     "p50": 1.208,
+     "p95": 1.321
+    },
+    "verbatim_final_mismatches": []
    }
   },
   "qwen-large": {
@@ -1855,10 +1894,500 @@
     "insertions": 4,
     "reference_units": 568,
     "cer": 0.08451
+   },
+   "failed_or_empty": [],
+   "publication_evidence": {
+    "clips_with_two_or_more_meaningful_publications": 15,
+    "range_of_meaningful_publications": [
+     3,
+     8
+    ],
+    "publication_gap_seconds": {
+     "p50": 1.231,
+     "p95": 2.057
+    },
+    "verbatim_final_mismatches": []
    }
   }
  },
- "accelerated": {},
+ "accelerated": {
+  "qwen-small-product": {
+   "by_manifest": {
+    "paired": {
+     "rows": 340,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "number": {
+       "literal_matched": 174,
+       "reference_occurrences": 210
+      },
+      "negative": {
+       "literal_matched": 102,
+       "reference_occurrences": 103
+      },
+      "latin": {
+       "literal_matched": 141,
+       "reference_occurrences": 249
+      },
+      "date_time": {
+       "literal_matched": 36,
+       "reference_occurrences": 36
+      },
+      "technical_term": {
+       "literal_matched": 7,
+       "reference_occurrences": 7
+      },
+      "money": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 151,
+      "mer": 0.12950257289879932
+     },
+     "groups": {
+      "fleurs": {
+       "errors": 562,
+       "substitutions": 231,
+       "deletions": 267,
+       "insertions": 64,
+       "reference_units": 6260,
+       "cer": 0.08978,
+       "rows": 160
+      },
+      "ALL": {
+       "errors": 976,
+       "substitutions": 403,
+       "deletions": 476,
+       "insertions": 97,
+       "reference_units": 9962,
+       "cer": 0.09797,
+       "rows": 340
+      },
+      "ascend-zh": {
+       "errors": 50,
+       "substitutions": 26,
+       "deletions": 14,
+       "insertions": 10,
+       "reference_units": 934,
+       "cer": 0.05353,
+       "rows": 80
+      },
+      "ascend-mixed": {
+       "errors": 299,
+       "substitutions": 117,
+       "deletions": 161,
+       "insertions": 21,
+       "reference_units": 2004,
+       "cer": 0.1492,
+       "rows": 80
+      },
+      "quiet": {
+       "errors": 43,
+       "substitutions": 19,
+       "deletions": 22,
+       "insertions": 2,
+       "reference_units": 403,
+       "cer": 0.1067,
+       "rows": 10
+      },
+      "noise15db": {
+       "errors": 22,
+       "substitutions": 10,
+       "deletions": 12,
+       "insertions": 0,
+       "reference_units": 361,
+       "cer": 0.06094,
+       "rows": 10
+      }
+     }
+    },
+    "aishell": {
+     "rows": 100,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "negative": {
+       "literal_matched": 16,
+       "reference_occurrences": 17
+      },
+      "number": {
+       "literal_matched": 45,
+       "reference_occurrences": 48
+      },
+      "technical_term": {
+       "literal_matched": 4,
+       "reference_occurrences": 4
+      },
+      "money": {
+       "literal_matched": 5,
+       "reference_occurrences": 5
+      },
+      "date_time": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 0,
+      "errors": 0,
+      "mer": null
+     },
+     "groups": {
+      "aishell1-test": {
+       "errors": 56,
+       "substitutions": 32,
+       "deletions": 24,
+       "insertions": 0,
+       "reference_units": 1465,
+       "cer": 0.03823,
+       "rows": 100
+      },
+      "ALL": {
+       "errors": 56,
+       "substitutions": 32,
+       "deletions": 24,
+       "insertions": 0,
+       "reference_units": 1465,
+       "cer": 0.03823,
+       "rows": 100
+      }
+     }
+    }
+   },
+   "exact_anchor_tokens": {
+    "original_420": {
+     "number": {
+      "reference": 249,
+      "missing": 38,
+      "extra": 45
+     },
+     "negative": {
+      "reference": 112,
+      "missing": 3,
+      "extra": 3
+     },
+     "money": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 41,
+      "missing": 0,
+      "extra": 2
+     },
+     "latin": {
+      "reference": 237,
+      "missing": 107,
+      "extra": 26
+     },
+     "technical_term": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 2
+     }
+    },
+    "derived_20": {
+     "number": {
+      "reference": 9,
+      "missing": 2,
+      "extra": 2
+     },
+     "negative": {
+      "reference": 8,
+      "missing": 0,
+      "extra": 0
+     },
+     "money": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 1,
+      "missing": 0,
+      "extra": 0
+     },
+     "latin": {
+      "reference": 12,
+      "missing": 7,
+      "extra": 2
+     },
+     "technical_term": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     }
+    }
+   },
+   "cohorts": {
+    "original_420": {
+     "errors": 967,
+     "substitutions": 406,
+     "deletions": 466,
+     "insertions": 95,
+     "reference_units": 10663,
+     "cer": 0.09069,
+     "rows": 420
+    },
+    "derived_20": {
+     "errors": 65,
+     "substitutions": 29,
+     "deletions": 34,
+     "insertions": 2,
+     "reference_units": 764,
+     "cer": 0.08508,
+     "rows": 20
+    }
+   }
+  },
+  "qwen-large-product": {
+   "by_manifest": {
+    "paired": {
+     "rows": 340,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 5
+     },
+     "literal_anchors": {
+      "number": {
+       "literal_matched": 171,
+       "reference_occurrences": 210
+      },
+      "negative": {
+       "literal_matched": 101,
+       "reference_occurrences": 103
+      },
+      "latin": {
+       "literal_matched": 161,
+       "reference_occurrences": 249
+      },
+      "date_time": {
+       "literal_matched": 36,
+       "reference_occurrences": 36
+      },
+      "technical_term": {
+       "literal_matched": 7,
+       "reference_occurrences": 7
+      },
+      "money": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 143,
+      "mer": 0.12264150943396226
+     },
+     "groups": {
+      "fleurs": {
+       "errors": 550,
+       "substitutions": 206,
+       "deletions": 286,
+       "insertions": 58,
+       "reference_units": 6260,
+       "cer": 0.08786,
+       "rows": 160
+      },
+      "ALL": {
+       "errors": 876,
+       "substitutions": 350,
+       "deletions": 427,
+       "insertions": 99,
+       "reference_units": 9962,
+       "cer": 0.08793,
+       "rows": 340
+      },
+      "ascend-zh": {
+       "errors": 55,
+       "substitutions": 28,
+       "deletions": 13,
+       "insertions": 14,
+       "reference_units": 934,
+       "cer": 0.05889,
+       "rows": 80
+      },
+      "ascend-mixed": {
+       "errors": 216,
+       "substitutions": 98,
+       "deletions": 91,
+       "insertions": 27,
+       "reference_units": 2004,
+       "cer": 0.10778,
+       "rows": 80
+      },
+      "quiet": {
+       "errors": 35,
+       "substitutions": 10,
+       "deletions": 25,
+       "insertions": 0,
+       "reference_units": 403,
+       "cer": 0.08685,
+       "rows": 10
+      },
+      "noise15db": {
+       "errors": 20,
+       "substitutions": 8,
+       "deletions": 12,
+       "insertions": 0,
+       "reference_units": 361,
+       "cer": 0.0554,
+       "rows": 10
+      }
+     }
+    },
+    "aishell": {
+     "rows": 100,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "negative": {
+       "literal_matched": 16,
+       "reference_occurrences": 17
+      },
+      "number": {
+       "literal_matched": 45,
+       "reference_occurrences": 48
+      },
+      "technical_term": {
+       "literal_matched": 4,
+       "reference_occurrences": 4
+      },
+      "money": {
+       "literal_matched": 5,
+       "reference_occurrences": 5
+      },
+      "date_time": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 0,
+      "errors": 0,
+      "mer": null
+     },
+     "groups": {
+      "aishell1-test": {
+       "errors": 51,
+       "substitutions": 26,
+       "deletions": 24,
+       "insertions": 1,
+       "reference_units": 1465,
+       "cer": 0.03481,
+       "rows": 100
+      },
+      "ALL": {
+       "errors": 51,
+       "substitutions": 26,
+       "deletions": 24,
+       "insertions": 1,
+       "reference_units": 1465,
+       "cer": 0.03481,
+       "rows": 100
+      }
+     }
+    }
+   },
+   "exact_anchor_tokens": {
+    "original_420": {
+     "number": {
+      "reference": 249,
+      "missing": 43,
+      "extra": 47
+     },
+     "negative": {
+      "reference": 112,
+      "missing": 4,
+      "extra": 5
+     },
+     "money": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 41,
+      "missing": 0,
+      "extra": 1
+     },
+     "latin": {
+      "reference": 237,
+      "missing": 92,
+      "extra": 25
+     },
+     "technical_term": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 1
+     }
+    },
+    "derived_20": {
+     "number": {
+      "reference": 9,
+      "missing": 1,
+      "extra": 1
+     },
+     "negative": {
+      "reference": 8,
+      "missing": 0,
+      "extra": 0
+     },
+     "money": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 1,
+      "missing": 0,
+      "extra": 0
+     },
+     "latin": {
+      "reference": 12,
+      "missing": 7,
+      "extra": 2
+     },
+     "technical_term": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     }
+    }
+   },
+   "cohorts": {
+    "original_420": {
+     "errors": 872,
+     "substitutions": 358,
+     "deletions": 414,
+     "insertions": 100,
+     "reference_units": 10663,
+     "cer": 0.08178,
+     "rows": 420
+    },
+    "derived_20": {
+     "errors": 55,
+     "substitutions": 18,
+     "deletions": 37,
+     "insertions": 0,
+     "reference_units": 764,
+     "cer": 0.07199,
+     "rows": 20
+    }
+   }
+  }
+ },
  "files_sha256": {
   "panels/apple-fleurs-1bc3201a9f24a2fe.json": "0d69452b066055a52a24d0736dc0e0075ed34b92564ea340ca1550d3af23381c",
   "panels/apple-fleurs-0ebe0fb634f8e4ac.json": "50532890abbfa3c512cd054b6444dacb683c6531871c6c50b9fafa549594c4ce",
@@ -1905,6 +2434,8 @@
   "panels/qwen-small-ascend-mixed-ee4e2d5087648134.json": "2a06b573d879c4c719fb0fa1651fcc94faeb5bb505e5eef59ce82ee0f35755bc",
   "panels/qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "33e1782d5c3d9e64ef455118e15d472fea18e02397441a229ab1a9f078f02c4d",
   "panels/qwen-small-ascend-mixed-ff9c42612780330b.json": "48cd3ca13cb1ed5d3ea5daa5005f62d94b2108d49953ec0dce092e6dafef6ec5",
+  "runs/paired-qwen-small-product.jsonl": "8062f4d1359c092f38c419478628c37a593b0d7d4e83f99d4f09c0a69d2b55b8",
+  "runs/aishell-qwen-small-product.jsonl": "a1ee5544417b940f4ba6e1d45f563a58912574cab5749858b222a290fd6318b7",
   "panels/qwen-large-fleurs-1bc3201a9f24a2fe.json": "e2d5539fafc8674a9d08f53b601d2e4a5ff8d098b1183fb77805860065a3e73a",
   "panels/qwen-large-fleurs-0ebe0fb634f8e4ac.json": "90bd4f67eb1ed6aa16e2d1e6cd2b944ec012bb7dcdb7978a460580cea53b8aa6",
   "panels/qwen-large-fleurs-9eb2d543a0a36152.json": "ceaabd0981b28f87b6fee82941347469456293d5735601e70ea4c24405fb4946",
@@ -1920,6 +2451,8 @@
   "panels/qwen-large-ascend-mixed-ee4e2d5087648134.json": "2e8814d50a25f4dc326d9d7e87a833eb6e144919898056141cf1a5a5b815d2c5",
   "panels/qwen-large-ascend-mixed-7c8bdcb41bb98a40.json": "efb3de8ef02a1b8dbc60ee13ee0646eb821e26cb0dacfc85567e0bf88c38a487",
   "panels/qwen-large-ascend-mixed-ff9c42612780330b.json": "48f94ae5df0425283b90b38b31b49a7d79d11cd7e4a20859f58936501c27aca0",
+  "runs/paired-qwen-large-product.jsonl": "751dc3b8005285c5c4c8665cf5abe25695dc0f6ab4ed5de0c9d5a9065be0a421",
+  "runs/aishell-qwen-large-product.jsonl": "7bb7c72065f7219496d69e643762f8a7143612f61dad5db8f67aa0f5cec081b2",
   "resources/apple.json": "5f52083ba8b2224a02407f64810ea830d3cf3f8408343e410ebacdcf9a3fe2da",
   "resources/sherpa.json": "25eb8ec01c2a96ede6213ae266df8cf178c80d23749423fa1506f5e111a18520",
   "resources/qwen-small.json": "8c2517d05196647cf932f2eee2cb25bcde711fa8d8ca6c5d6681ed24b0f3fc18",

@@ -59,6 +59,7 @@ def main():
     cli.add_argument("--wav", type=Path, required=True)
     cli.add_argument("--out", type=Path, required=True)
     cli.add_argument("--source", required=True)
+    cli.add_argument("--automatic", action="store_true", help="Score windows recorded through the app's default model selection")
     args = cli.parse_args()
     fixtures = root / "evidence/mandarin"
     cohort = {group: load(fixtures / (group + ".json")) for group in ["paired", "aishell"]}
@@ -66,14 +67,15 @@ def main():
     summary = {"source": args.source, "panels": {}, "accelerated": {}, "files_sha256": {}}
     for model in models:
         place = args.receipts / "panels"
-        panels = [place / f"{model}-{row['id']}.json" for row in panel]
+        label = ("auto-" if args.automatic else "") + model
+        panels = [place / f"{label}-{row['id']}.json" for row in panel]
         if all(path.exists() for path in panels):
             for p in panels:
                 row = load(p)
                 allowed = {"apple-speech-analyzer" if model == "apple" else model}
                 assert row["model"] == model and set(row["providers"]) <= allowed, p
                 summary["files_sha256"][str(p.relative_to(args.receipts))] = sha(p)
-            result = score["windows"](model, place, panel, args.wav, args.source)
+            result = score["windows"](model, place, panel, args.wav, args.source, automatic=args.automatic)
             failures = []
             for ref, receipt in zip(panel, panels, strict=True):
                 frames = load(receipt)
