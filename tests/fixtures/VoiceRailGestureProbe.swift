@@ -41,7 +41,8 @@ struct VoiceRailGestureProbe {
             abs(a.minX - b.minX) < 0.01 && abs(a.minY - b.minY) < 0.01 &&
             abs(a.width - b.width) < 0.01 && abs(a.height - b.height) < 0.01
         }
-        var completions = 0
+        var completions = 0, captureActions = 0
+        panel.compactCaptureAction = { captureActions += 1 }
         panel.didChoosePosition = { completions += 1 }
         func footerGap(in frame: CGRect) -> CGPoint {
             let card = VoiceRailMetrics(width: frame.width).cardFrame(in: CGRect(origin: .zero, size: frame.size))
@@ -50,16 +51,18 @@ struct VoiceRailGestureProbe {
             let voiceStart = card.maxX - ReferencePanelStyle.footerTrailing * controls.scale - controls.voiceWidth
             return CGPoint(x: (copyEnd + voiceStart) / 2, y: card.minY + controls.footerBottom + controls.controlHeight / 2)
         }
+        func send(_ type: NSEvent.EventType, at point: CGPoint) throws {
+            guard let event = NSEvent.mouseEvent(with: type, location: panel.convertPoint(fromScreen: point),
+                modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: panel.windowNumber,
+                context: nil, eventNumber: 1, clickCount: 1, pressure: type == .leftMouseUp ? 0 : 1) else {
+                throw Problem("Mouse event creation")
+            }
+            panel.sendEvent(event)
+        }
         func drag(_ name: String, from: CGPoint, delta: CGPoint, expect: CGRect) throws {
             let start = panel.convertPoint(toScreen: from)
             let end = CGPoint(x: start.x + delta.x, y: start.y + delta.y)
-            let count = completions
-            func send(_ type: NSEvent.EventType, at point: CGPoint) throws {
-                guard let event = NSEvent.mouseEvent(with: type, location: panel.convertPoint(fromScreen: point),
-                    modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: panel.windowNumber,
-                    context: nil, eventNumber: 1, clickCount: 1, pressure: 1) else { throw Problem("Mouse event creation") }
-                panel.sendEvent(event)
-            }
+            let count = completions, toggles = captureActions
             try send(.leftMouseDown, at: start)
             for step in 1...8 {
                 let fraction = CGFloat(step) / 8
@@ -72,15 +75,27 @@ struct VoiceRailGestureProbe {
                 throw Problem("\(name) before mouse-up expected \(expect), got \(panel.frame), completion delta \(completions-count)")
             }
             try send(.leftMouseUp, at: end)
-            guard completions == count + 1, matches(panel.frame, expect), !panel.isKeyWindow else { throw Problem(name + " failed; observed " + String(describing: panel.frame)) }
+            guard completions == count + 1, captureActions == toggles, matches(panel.frame, expect), !panel.isKeyWindow else { throw Problem(name + " failed; observed " + String(describing: panel.frame)) }
             print("PASS \(name) frame=\(panel.frame)")
         }
         if CommandLine.arguments[1] == "restore" {
             let stored = try JSONDecoder().decode(SavedPanelPlacement.self, from: Data(contentsOf: output))
             guard let frame = stored.restored(on: [("primary", available)]), let height = stored.expandedHeight else { throw Problem("Restore rejected") }
             panel.expandedHeight = height
+            panel.expandedWidth = stored.expandedWidth
+            panel.anchorsRightOnExpand = stored.anchorsRightOnExpand
             panel.applyPlacement(frame, on: available)
             guard matches(frame, stored.frame), matches(panel.frame, frame), !panel.isKeyWindow else { throw Problem("Relaunch geometry/focus") }
+            guard let rememberedWidth = stored.expandedWidth, stored.anchorsRightOnExpand == true else {
+                throw Problem("Missing original reading width or expansion anchor")
+            }
+            panel.expandToReadingSize()
+            let target = CGRect(x: frame.maxX - rememberedWidth, y: frame.maxY - height, width: rememberedWidth, height: height)
+            guard matches(panel.frame, target), captureActions == 0, !panel.isKeyWindow else {
+                throw Problem("Menu expansion after restart did not restore reading size")
+            }
+            print("PASS persisted reading size and anchor restored by expansion")
+            panel.applyPlacement(frame, on: available)
             let width = min(128, available.width)
             let end = CGRect(x: frame.maxX - width, y: frame.maxY - height, width: width, height: height)
             try drag("reopen compact and drag left edge out", from: CGPoint(x: 2, y: frame.height / 2),
@@ -150,9 +165,36 @@ struct VoiceRailGestureProbe {
                  delta: CGPoint(x: -24, y: -22), expect: folded.offsetBy(dx: -24, dy: -22))
         try drag("return narrow control using the bottom margin", from: CGPoint(x: folded.width / 2, y: 3),
                  delta: CGPoint(x: 24, y: 22), expect: folded)
+        func compactPointerSequence(_ name: String, from: CGPoint, deltas: [CGPoint], release: CGPoint,
+                                    expectActions: Int, cancel: Bool = false) throws {
+            let prior = panel.frame, start = panel.convertPoint(toScreen: from)
+            let toggles = captureActions, count = completions
+            try send(.leftMouseDown, at: start)
+            for delta in deltas {
+                try send(.leftMouseDragged, at: CGPoint(x: start.x + delta.x, y: start.y + delta.y))
+            }
+            if cancel { panel.cancelPlacementGesture() }
+            try send(.leftMouseUp, at: CGPoint(x: start.x + release.x, y: start.y + release.y))
+            guard matches(prior, panel.frame), !panel.isKeyWindow, captureActions == toggles + expectActions,
+                  completions == count, !panel.draggingPlacement else { throw Problem(name) }
+            print("PASS " + name)
+        }
+        for x: CGFloat in [2, folded.width / 2, folded.width - 2] {
+            try compactPointerSequence("slight motion at x=\(x) clicks exactly once", from: CGPoint(x: x, y: 22),
+                                       deltas: [CGPoint(x: -2, y: 1)], release: CGPoint(x: -2, y: 1), expectActions: 1)
+        }
+        try compactPointerSequence("move and return does not toggle", from: CGPoint(x: 36, y: 22),
+                                   deltas: [CGPoint(x: -15, y: -10), .zero], release: .zero, expectActions: 0)
+        try compactPointerSequence("resize and return does not toggle", from: CGPoint(x: 2, y: 22),
+                                   deltas: [CGPoint(x: -24, y: 0), .zero], release: .zero, expectActions: 0)
+        try compactPointerSequence("release outside does not toggle", from: CGPoint(x: 2, y: 22),
+                                   deltas: [], release: CGPoint(x: -10, y: 0), expectActions: 0)
+        try compactPointerSequence("cancelled press does not toggle", from: CGPoint(x: 36, y: 22),
+                                   deltas: [], release: .zero, expectActions: 0, cancel: true)
         let final = panel.frame
         panel.orderOut(nil); panel.orderFrontRegardless()
-        guard matches(panel.frame, final), let saved = SavedPanelPlacement(frame: final, visibleFrame: available, displayID: "primary", expandedHeight: panel.expandedHeight) else {
+        guard matches(panel.frame, final), let saved = SavedPanelPlacement(frame: final, visibleFrame: available, displayID: "primary", expandedHeight: panel.expandedHeight,
+                                                                     expandedWidth: panel.expandedWidth, anchorsRightOnExpand: panel.anchorsRightOnExpand) else {
             throw Problem("Hide/show")
         }
         try JSONEncoder().encode(saved).write(to: output, options: .withoutOverwriting)

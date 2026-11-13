@@ -26,11 +26,39 @@ def main():
                 if member.isfile() and member.name.endswith('.swift'):
                     (tmp / Path(member.name).name).write_bytes(tar.extractfile(member).read())
         flags = ['-D', 'SAYTILE_ADAPTIVE_SLOT'] if 'enum VoicePanelFootprint' in (tmp/'VoiceRailProportions.swift').read_text() else []
+        # Exercise the window's event routing as well as the shared SwiftUI view.
+        host_source = subprocess.check_output(['git', 'show', sha + ':Sources/SaytileApp/VoicePanel.swift'], cwd=ROOT)
+        full_card = b'compactCaptureAction' in host_source
+        if full_card:
+            flags += ['-D', 'SAYTILE_COMPACT_ACTION']
+        package = tmp / 'kit'
+        package.mkdir()
+        (package / 'WindowPlacement.swift').write_bytes(subprocess.check_output(
+            ['git', 'show', sha + ':Sources/SaytileKit/WindowPlacement.swift'], cwd=ROOT))
+        cache = str(Path(tempfile.gettempdir()) / 'saytile-reader-module-cache')
+        swift = ['xcrun', 'swiftc', '-swift-version', '6', '-module-cache-path', cache, '-parse-as-library']
+        subprocess.run([*swift, '-emit-library', '-static', '-emit-module', '-module-name', 'SaytileKit',
+                        '-emit-module-path', str(package / 'SaytileKit.swiftmodule'), str(package / 'WindowPlacement.swift'),
+                        str(tmp / 'VoiceRailProportions.swift'), '-o', str(package / 'libSaytileKit.a')], check=True)
+        shared = sorted(tmp.glob('*.swift'))
+        subprocess.run([*swift, '-emit-library', '-static', '-emit-module', '-enable-testing', '-module-name', 'SaytileVoiceUI',
+                        '-emit-module-path', str(package / 'SaytileVoiceUI.swiftmodule'), *map(str, shared),
+                        '-o', str(package / 'libSaytileVoiceUI.a')], check=True)
+        (tmp / 'VoicePanel.swift').write_bytes(host_source)
         executable = tmp / 'AdaptiveVoicePanelProbe'
-        subprocess.run(['xcrun','swiftc','-parse-as-library','-swift-version','6','-module-cache-path',str(Path(tempfile.gettempdir())/'saytile-reader-module-cache'),
-                       *flags, *map(str,sorted(tmp.glob('*.swift'))),str(ROOT/'tests/fixtures/AdaptiveVoicePanelProbe.swift'),'-o',str(executable)],check=True)
+        subprocess.run([*swift, *flags, '-I', str(package), '-L', str(package), '-lSaytileKit', '-lSaytileVoiceUI', str(tmp/'VoicePanel.swift'),
+                       str(ROOT/'tests/fixtures/AdaptiveVoicePanelProbe.swift'),'-o',str(executable)],check=True)
         args.output.mkdir(exist_ok=True,parents=True)
         subprocess.run([str(executable),sha,str(args.output.resolve())],check=True)
+        if full_card:
+            gestures = tmp / 'VoiceRailGestureProbe'
+            subprocess.run([*swift, '-I', str(package), '-L', str(package), '-lSaytileKit', '-lSaytileVoiceUI',
+                            str(tmp / 'VoicePanel.swift'), str(ROOT / 'tests/fixtures/VoiceRailGestureProbe.swift'),
+                            '-o', str(gestures)], check=True)
+            with (args.output / 'gestures.log').open('w') as log:
+                for phase in ('write', 'restore'):
+                    subprocess.run([str(gestures), phase, str(tmp / 'placement.json')], stdout=log, check=True)
+
     receipt = args.output / 'receipt.json'
     report = json.loads(receipt.read_text())
     checks = {}
@@ -43,7 +71,7 @@ def main():
         # origin/size rounding when reading AX bounding boxes from WindowServer.
         def size_of(key, expected):
             return len(controls.get(key, [])) == 1 and all(abs(v-w) <= 0.5 for v,w in zip(controls[key][0][2:],expected))
-        checks[name + '/voice'] = size_of('panel.capture', [54,26])
+        checks[name + '/voice'] = size_of('panel.capture', [width,height] if compact else [54,26])
         checks[name + '/font'] = abs((stage['fontPt'] or 0)-14.04) < 0.01
         if compact:
             checks[name + '/onlyVoice'] = set(controls) == {'panel.capture'}
@@ -62,6 +90,14 @@ def main():
     for name in ['left','right','top','bottom','voice']:
         hits = report['perimeterHits']
         checks[name + '/windowServer'] = hits.get(name) == 'panel' and hits.get(name+'BackdropControl') == 'backdrop'
+    for variant, samples in report['compactPixels'].items():
+        checks['glass/' + variant] = all(samples[key] > 0.25 for key in ('left', 'right', 'top', 'bottom')) and samples['corner'] < 0.1
+    for variant, matched in report['glyphs'].items():
+        checks['glyph/' + variant] = matched
+    for state in ('paused', 'standby', 'recognizing'):
+        checks['border/' + state] = report['compactPixels'][state]['rim'] > report['compactPixels'][state + '-border-off']['rim'] + 0.05
+    for key, passed in report['compactClicks'].items():
+        checks['compactClick/' + key] = passed
     for button in ('panel.capture', 'panel.copy'):
         for corner in ('topLeft', 'topRight', 'bottomLeft', 'bottomRight'):
             key = button + '/' + corner

@@ -1,6 +1,7 @@
 import AppKit
 @preconcurrency import ApplicationServices
 import SwiftUI
+@testable import SaytileVoiceUI
 
 private struct Row: VoiceTranscriptEntry {
     let id: UUID
@@ -15,6 +16,7 @@ private enum Failure: Error { case args, window, edit, capture, press }
     @Published var late = ""
     @Published var text = "缩放窗口仍应保留这段可以编辑的文字，数字 24 和手写换行。\n继续记录。"
     @Published var state = VoicePanelState.standby
+    @Published var showsBorder = true
     var toggles = 0, edits = 0, copies = 0
     var doc: PanelTimelineDocument<Row> {
         var rows = [Row(id:id,position:1,displayText:text)]
@@ -33,14 +35,14 @@ private struct Surface: View {
     var body: some View {
         GeometryReader { geometry in
             let radius = VoiceRailMetrics(width: geometry.size.width).radius
-            FramedVoiceSlot {
+            FramedVoiceSlot(showsBorder: replay.showsBorder) {
                 VoiceSurfacePanel(document: replay.doc, access: replay.access,
-                    capture: .init(state: replay.state, level: nil, actionLabel: replay.state == .paused ? "恢复" : "暂停",
+                    capture: .init(state: replay.state, level: replay.state == .recognizing ? 0.7 : nil, actionLabel: replay.state == .paused ? "恢复" : "暂停",
                                    accessibilityValue: replay.state == .paused ? "已暂停" : "待命"),
                     canCopy: true, selectedText: "", onCopy: { replay.copies += 1 }, onToggle: replay.toggle, applyEdits: replay.commit) { EmptyView() }
             }.background {
                 #if SAYTILE_ADAPTIVE_SLOT
-                if !VoicePanelFootprint.isCompact(outerWidth: geometry.size.width) { VoiceRailGlass(width: geometry.size.width) }
+                if replay.showsBorder && !VoicePanelFootprint.isCompact(outerWidth: geometry.size.width) { VoiceRailGlass(width: geometry.size.width) }
                 #else
                 VoiceRailGlass(width: geometry.size.width)
                 #endif
@@ -112,6 +114,32 @@ private struct Surface: View {
         guard let png = bitmap.representation(using: .png, properties: [:]) else { throw Failure.capture }
         try png.write(to: target)
     }
+    // Analyze only the rendered test view. Purple columns distinguish the
+    // pointed triangle, circular dot and separated bars at any display scale.
+    static func glyph(in bitmap: NSBitmapImageRep, state: VoicePanelState) -> Bool {
+        var heights = [Int](repeating: 0, count: bitmap.pixelsWide)
+        for x in heights.indices {
+            for y in 0..<bitmap.pixelsHigh {
+                guard let color = bitmap.colorAt(x: x, y: y)?.usingColorSpace(.sRGB),
+                      color.alphaComponent > 0.5, color.blueComponent - color.redComponent > 0.15,
+                      color.blueComponent - color.greenComponent > 0.3 else { continue }
+                heights[x] += 1
+            }
+        }
+        let groups = zip([0] + heights, heights).filter { $0.0 == 0 && $0.1 > 0 }.count
+        let painted = heights.filter { $0 > 0 }
+        guard let first = painted.first, let last = painted.last, let peak = painted.max() else { return false }
+        switch state {
+        case .paused:
+            let third = max(1, painted.count / 3)
+            let base = painted.prefix(third).reduce(0, +)
+            let tip = painted.suffix(third).reduce(0, +)
+            return groups == 1 && base > 2 * tip && painted.prefix(third).contains(peak)
+        case .standby: return groups == 1 && abs(first - last) <= 2 && painted[painted.count / 2] == peak && peak > first
+        case .recognizing: return groups == 5
+        default: return false
+        }
+    }
     @MainActor static func run() async throws {
         let args = CommandLine.arguments
         guard args.count == 3 else { throw Failure.args }
@@ -121,10 +149,19 @@ private struct Surface: View {
         NSApplication.shared.setActivationPolicy(.accessory)
         defer { withExtendedLifetime(delegate) {} }
         let model = Replay(), host = NSHostingView(rootView: Surface(replay: model))
-        let w = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 240, height: 126), styleMask: [.borderless,.nonactivatingPanel], backing: .buffered, defer: false)
+        let w = VoicePanel(contentRect: NSRect(x: 0, y: 0, width: 240, height: 126), styleMask: [.borderless,.nonactivatingPanel], backing: .buffered, defer: false)
+        w.isFloatingPanel = true; w.becomesKeyOnlyIfNeeded = true
         w.backgroundColor = .clear; w.isOpaque = false; w.hasShadow = false; w.hidesOnDeactivate = false; w.isReleasedWhenClosed = false
+        host.sizingOptions = []
         w.contentView = host
-        if let frame = NSScreen.main?.visibleFrame { w.setFrameOrigin(frame.origin) }
+        #if SAYTILE_COMPACT_ACTION
+        w.compactCaptureAction = model.toggle
+        #endif
+        // Keep the hit-test fixture below the system menu bar's reveal zone.
+        // The gesture probe exercises the actual visibleFrame boundaries.
+        if let frame = NSScreen.main?.visibleFrame {
+            w.setFrameTopLeftPoint(.init(x: frame.maxX - 376, y: frame.maxY - 48))
+        }
         w.title = "Saytile adaptive fixture " + String(w.windowNumber)
         w.orderBack(nil)
         defer { w.orderOut(nil); w.close() }
@@ -132,9 +169,11 @@ private struct Surface: View {
         let sizes: [(String,CGFloat,CGFloat)] = [("wide",344,190),("default",178,90),("short",178,64),("smaller",128,82),
             ("narrow",108,70),("edge81",81,58),("edge80",80,48),("minimum",72,44),("tallMinimum",72,96),("restored",344,190)]
         var facts = [[String: Any]](), originalEditor: NSTextView?, syntheticEditOK = false
+        var compactClicks = [String: Bool](), compactTestToggles = 0
         var pressed = false, resumed = false, everKey = false, selectedRange: NSRange?, normalHadEditorFocus = false
         let marker = "手工编辑✅"
         var controlsBeforeCornerClicks = 0
+        var compactPixels = [String: [String: CGFloat]](), glyphs = [String: Bool]()
         var clicked = false, hitChecks = [String: String](), buttonCorners = [String: Bool]()
         var imeStarted = false, imeSurvivedResize = false, imeCommittedOnce = false, lateAppeared = false, compactRejectedKeyFocus = false
         let late = "新到的实时文字。"
@@ -198,8 +237,53 @@ private struct Surface: View {
                     try await Task.sleep(for:.milliseconds(120)); clicked = model.toggles == 3 && model.state == .paused
                 }
             }
+            if label == "minimum" {
+                let count = model.toggles
+                let points: [(String, CGPoint)] = [
+                    ("leftEdge", .init(x: 2, y: 22)), ("rightEdge", .init(x: 70, y: 22)),
+                    ("topEdge", .init(x: 36, y: 42)), ("bottomEdge", .init(x: 36, y: 2)),
+                    ("leftGlass", .init(x: 8, y: 22)), ("rightGlass", .init(x: 64, y: 22)),
+                    ("topGlass", .init(x: 36, y: 38)), ("bottomGlass", .init(x: 36, y: 6))]
+                for (name, point) in points {
+                    let before = model.toggles, frame = w.frame
+                    for kind in [NSEvent.EventType.leftMouseDown, .leftMouseUp] {
+                        guard let event = NSEvent.mouseEvent(with: kind, location: point, modifierFlags: [],
+                            timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: w.windowNumber,
+                            context: nil, eventNumber: 4, clickCount: 1, pressure: kind == .leftMouseDown ? 1 : 0)
+                            else { throw Failure.press }
+                        w.sendEvent(event)
+                    }
+                    try await Task.sleep(for: .milliseconds(35))
+                    compactClicks[name] = model.toggles == before + 1 && w.frame == frame
+                }
+                compactTestToggles = model.toggles - count
+                for border in [true, false] {
+                    model.showsBorder = border
+                    for (name, state) in [("paused", VoicePanelState.paused), ("standby", .standby), ("recognizing", .recognizing)] {
+                        model.state = state
+                        try await Task.sleep(for: .milliseconds(220))
+                        host.layoutSubtreeIfNeeded()
+                        let variant = name + (border ? "" : "-border-off")
+                        let target = folder.appendingPathComponent("minimum-" + variant + ".png")
+                        try capture(host: host, target: target)
+                        guard let bitmap = NSBitmapImageRep(data: try Data(contentsOf: target)) else { throw Failure.capture }
+                        func alpha(at x: Double, _ y: Double) -> CGFloat {
+                            bitmap.colorAt(x: Int(x * Double(bitmap.pixelsWide) / width),
+                                           y: Int(y * Double(bitmap.pixelsHigh) / height))?.alphaComponent ?? 0
+                        }
+                        // The old floating capsule was transparent on the four
+                        // mid-edge samples. The surrounding glass is now the control.
+                        compactPixels[variant] = ["left": alpha(at: 4, 22), "right": alpha(at: 68, 22),
+                                                  "top": alpha(at: 36, 4), "bottom": alpha(at: 36, 40),
+                                                  "corner": alpha(at: 0, 0), "rim": alpha(at: 36, 0)]
+                        glyphs[variant] = glyph(in: bitmap, state: state)
+                    }
+                }
+                model.showsBorder = true
+                model.state = .paused
+            }
             if label == "restored" {
-                controlsBeforeCornerClicks = model.toggles
+                controlsBeforeCornerClicks = model.toggles - compactTestToggles
                 for id in ["panel.capture", "panel.copy"] {
                     guard let rect = controls[id]?.first else { throw Failure.window }
                     for (name, x, y) in [("topLeft", 1.5, 1.5), ("topRight", rect[2] - 1.5, 1.5),
@@ -238,7 +322,7 @@ private struct Surface: View {
             editor.insertText("拼音",replacementRange:editor.markedRange()); try await Task.sleep(for:.milliseconds(90))
             imeCommittedOnce = model.edits == baseline + 1 && model.text.hasPrefix("拼音") && !editor.hasMarkedText()
         }
-        let report: [String: Any] = ["buttonCorners": buttonCorners, "perimeterHits":hitChecks,"imeStarted":imeStarted,"imeSurvivedResize":imeSurvivedResize,"imeCommittedOnce":imeCommittedOnce,"lateCandidateAfterSelectionReleased":lateAppeared,"compactRejectedKeyFocus":compactRejectedKeyFocus,"source":args[1], "stages":facts, "editPersisted":syntheticEditOK, "pausePressed":pressed, "resumePressed":resumed,
+        let report: [String: Any] = ["glyphs": glyphs, "compactPixels": compactPixels, "compactClicks": compactClicks, "buttonCorners": buttonCorners, "perimeterHits":hitChecks,"imeStarted":imeStarted,"imeSurvivedResize":imeSurvivedResize,"imeCommittedOnce":imeCommittedOnce,"lateCandidateAfterSelectionReleased":lateAppeared,"compactRejectedKeyFocus":compactRejectedKeyFocus,"source":args[1], "stages":facts, "editPersisted":syntheticEditOK, "pausePressed":pressed, "resumePressed":resumed,
                                      "toggleCount":controlsBeforeCornerClicks, "centerClickPaused":clicked, "everTookKey":everKey, "backingScale":w.backingScaleFactor]
         try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys,.prettyPrinted]).write(to: folder.appendingPathComponent("receipt.json"))
     }
