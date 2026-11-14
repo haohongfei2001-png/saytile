@@ -1,0 +1,55 @@
+{
+  "reviewed_code": "c556d3dfd6546f81d3449d0f557e82b90e2a7a80",
+  "package": "ff8f8a014bd6b554a5703971a1139d94da155a6c",
+  "version": "0.13 (466)",
+  "dmg_sha256": "228fc94ccefc75f05dd2c7a70608bef5b04c93fba229d793127eb1345d0ef102",
+  "evidence_only_delta": [
+    "evidence/mandarin-preview-20261114/candidate-459/README.md",
+    "evidence/mandarin-preview-20261114/candidate-459/archive-comparison.json",
+    "evidence/mandarin-preview-20261114/candidate-459/bench-identity.json",
+    "evidence/mandarin-preview-20261114/candidate-459/metrics.json",
+    "evidence/mandarin-preview-20261114/candidate-459/runs/aishell-qwen-small-product.jsonl",
+    "evidence/mandarin-preview-20261114/candidate-459/runs/paired-qwen-small-product.jsonl"
+  ],
+  "appmodel": {
+    "passed": 162,
+    "failed": 0,
+    "kind": "existing AppModelProbe built with final product AppModel, release library, isolated application sandbox and dedicated pasteboard; no external target, mic, cloud or live WindowServer actions"
+  },
+  "swift_testing": {
+    "selected": 39,
+    "passed": 39,
+    "failed": 0,
+    "rows": "16 StoreDispatch + 11 FusionRevisionSafety + 12 Qwen preview",
+    "scope": "Unmodified test bodies. For a lightweight standalone runner @testable import was replaced with import; exact internal LocalLiveText and StoreDatabase compiled alongside the existing final release kit. Model download suites outside the selection. Not full-suite results."
+  },
+  "foreground_job": {
+    "verdict": "PASS",
+    "job": "https://github.com/haohongfei2001-png/saytile/actions/runs/43535280703/job/132262677994",
+    "evidence": "downloaded single-asr-foreground artifact 14088614986; source.txt equals package source; AppKit + WKWebView editable controls, native TextEdit, isolated Chrome profile; differing word lengths, manual edit, focus/window changes, ignored writes, restart, duplicate suppression and no send"
+  },
+  "worker_eos": {
+    "source": "ff8f8a014bd6b554a5703971a1139d94da155a6c",
+    "test": "tests/fixtures/QwenWorkerFinal.py",
+    "passed": true,
+    "checks": [
+      "identical_pcm",
+      "extra_320_frames",
+      "clean_utterance_reset"
+    ]
+  },
+  "review": {
+    "preview": "LocalASRProvider.swift:243/289 forwards raw EOS text with full UTF16; provisional values are 0 or nil, never externally dispatchable as confirmed.",
+    "editing": "Store.swift:1343 and 1416–1417 preserve preferred user revisions and draft rows; LocalCandidateIngress requires valid current run and a nondeferred complete event.",
+    "dispatch": "Store.swift:703 reserves only new UTF16 suffix, serially; InputCoordinator.swift:421–484 operates only in owned range with one mutation and verification, no automatic replay.",
+    "worker": "Worker.swift:86/105/122/140 memoizes greedy output only after decode for qwen-small and only reuses it at same-frame EOS, invalidated on every utterance boundary. Additional PCM always decodes at EOS."
+  },
+  "scope": "No private archive or local AX target used; native runner supplied foreground proof; worker EOS measured by the separate native queue. These tests do not establish live microphone input, long-run resource performance or population accuracy.",
+  "digests": {
+    "appmodel.log": "44088ef6e634ed36c078377c6bba4fdcc7ed11865fe873ce62abab04b3e8f719",
+    "store-contracts.log": "cbf8a2657f135a07d515b131b05ecc63b883792938bbc92154e81a579068f1fe",
+    "libSaytileKit.a": "1d8b6897d6eb2056ad778c7bc643ad832ebdaa8bb12307a81e6df4d7a914683d",
+    "package.json": "01a832a2442e2da4304775f7d88ba9c1dba1b6044d7d930d1fc3103876ba263c",
+    "worker-eos.json": "c14557f9adf8bcc20df37b9770f65269d6ceacdfb002fe84967db3e2aecbd934"
+  }
+}

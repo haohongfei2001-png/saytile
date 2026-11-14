@@ -1,5 +1,7 @@
 # Mandarin preview comparison on Apple M5
 
+本轮最终内测为 0.13（466）。[442 与 466 的原速窗口对照与交付记录](DELIVERY.md)。
+
 The installed baseline is 0.13 (442), d3b37a88efd4f61ad2ff091353313379a584b1df, executable SHA-256 f7281deefbd08411e773c8f19406896e2243b3aeeae940d1a2e2fea5b88ac35c. All six files of Qwen 0.6B 4-bit revision bc441bd1e4295c1f42d9879f056049a925b6e013 matched the frozen manifest hashes, 712,777,119 bytes. The 15 fixed clips and three long files have separate, verified public SHA-256 manifests. No microphone is opened.
 
 ## Same-run resource measurements
