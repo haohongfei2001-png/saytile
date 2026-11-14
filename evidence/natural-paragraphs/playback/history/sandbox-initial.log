@@ -1,0 +1,49 @@
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Chunked playback seeking" started.
+◇ Test seeksAcrossOriginalChunkBoundaries() started.
+✔ Test seeksAcrossOriginalChunkBoundaries() passed after 0.001 seconds.
+◇ Test clampsEndAndRejectsInvalidDurations() started.
+✔ Test clampsEndAndRejectsInvalidDurations() passed after 0.001 seconds.
+✔ Suite "Chunked playback seeking" passed after 0.001 seconds.
+◇ Suite "Silent production AVAudioPlayer integration" started.
+◇ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() started.
+2026-11-14 13:36:16.506 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-14 13:36:16.506 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+✘ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() recorded an issue at AudioPlaybackTests.swift:30:17: Caught error: .message("无法播放原音")
+✘ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() failed after 0.070 seconds with 1 issue.
+◇ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() started.
+2026-11-14 13:36:16.540 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-14 13:36:16.540 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+✘ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() recorded an issue at AudioPlaybackTests.swift:77:17: Caught error: .message("无法播放原音")
+✘ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() failed after 0.016 seconds with 1 issue.
+✘ Suite "Silent production AVAudioPlayer integration" failed after 0.087 seconds with 2 issues.
+◇ Suite "Natural paragraph playback" started.
+◇ Test paragraphKeepsIdentitySeeksAcrossRecordingsAndSkipsMissingOriginals() started.
+2026-11-14 13:36:16.607 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-14 13:36:16.607 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+✘ Test paragraphKeepsIdentitySeeksAcrossRecordingsAndSkipsMissingOriginals() recorded an issue at AudioPlaybackTests.swift:115:17: Caught error: .message("无法播放原音")
+✘ Test paragraphKeepsIdentitySeeksAcrossRecordingsAndSkipsMissingOriginals() failed after 0.069 seconds with 1 issue.
+◇ Test actualPlayerContinuouslyFinishesTwoOriginalsWithoutMicrophone() started.
+2026-11-14 13:36:16.642 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-14 13:36:16.642 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+✘ Test actualPlayerContinuouslyFinishesTwoOriginalsWithoutMicrophone() recorded an issue at AudioPlaybackTests.swift:146:17: Caught error: .message("无法播放原音")
+✘ Test actualPlayerContinuouslyFinishesTwoOriginalsWithoutMicrophone() failed after 0.033 seconds with 1 issue.
+◇ Test deletionOfQueuedOriginalSkipsItAndReleasesItsLease() started.
+2026-11-14 13:36:16.692 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-14 13:36:16.692 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+✘ Test deletionOfQueuedOriginalSkipsItAndReleasesItsLease() recorded an issue at AudioPlaybackTests.swift:163:17: Caught error: .message("无法播放原音")
+✘ Test deletionOfQueuedOriginalSkipsItAndReleasesItsLease() failed after 0.050 seconds with 1 issue.
+◇ Test switchingAndCancellingASeekCannotResumeTheOldParagraph() started.
+2026-11-14 13:36:16.738 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-14 13:36:16.738 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+✘ Test switchingAndCancellingASeekCannotResumeTheOldParagraph() recorded an issue at AudioPlaybackTests.swift:187:17: Caught error: .message("无法播放原音")
+✘ Test switchingAndCancellingASeekCannotResumeTheOldParagraph() failed after 0.046 seconds with 1 issue.
+◇ Test unreadableChunkDoesNotBlockTheNextOriginalAndAllMissingIsHonest() started.
+2026-11-14 13:36:16.777 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-14 13:36:16.777 probe[21447:52946517] IOPMScheduleUserActivityLevelNotification returned 0
+✘ Test unreadableChunkDoesNotBlockTheNextOriginalAndAllMissingIsHonest() recorded an issue at AudioPlaybackTests.swift:211:17: Caught error: .message("无法播放原音")
+✘ Test unreadableChunkDoesNotBlockTheNextOriginalAndAllMissingIsHonest() failed after 0.156 seconds with 1 issue.
+✘ Suite "Natural paragraph playback" failed after 0.357 seconds with 5 issues.
+✘ Test run with 9 tests in 3 suites failed after 0.446 seconds with 7 issues.

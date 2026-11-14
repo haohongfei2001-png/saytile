@@ -37,6 +37,10 @@ extension AppDelegate {
                 try await reviewInlineEditing(model: model, output: output)
                 return true
             }
+            if ProcessInfo.processInfo.environment["SAYTILE_NATURAL_PARAGRAPHS"] == "1" {
+                try await reviewNaturalParagraphs(model: model, output: output)
+                return true
+            }
             if product { try await reviewProductWindows(model: model, output: output); return true }
             if ProcessInfo.processInfo.environment["SAYTILE_TIMELINE_REVIEW"] == "1" {
                 try await reviewTimeline(model: model, output: output)
@@ -327,8 +331,8 @@ extension AppDelegate {
             throw ReviewFailure("expected private board, isolated 12000-row timeline and paused capture")
         }
         defer { board.releaseGlobally() }
-        model.changeIdleInterval(10)
-        try await reviewUntil { model.timelineIdleSeconds == 10 }
+        model.changeIdleInterval(60)
+        try await reviewUntil { model.timelineIdleSeconds == 60 }
         let start = Date.now
         let first = try await model.store.createRecording(createdAt: start)
         let ticket = try await model.store.beginRecognition(recordingID: first.id)
@@ -372,7 +376,7 @@ extension AppDelegate {
                 if ProcessInfo.processInfo.environment["SAYTILE_RECORD_TIMELINE"] == "1" {
                     try await self.recordIdleTransition(host, model: model, output: output)
                 } else {
-                    for _ in 0..<140 where !model.timelineIdle { try await Task.sleep(for: .milliseconds(100)) }
+                    for _ in 0..<740 where !model.timelineIdle { try await Task.sleep(for: .milliseconds(100)) }
                 }
                 guard model.timelineIdle else { throw ReviewFailure("production idle interval did not elapse") }
                 // Sample beyond the previous 12 animation frames to detect even a transient hop.
@@ -468,11 +472,24 @@ extension AppDelegate {
                 print("TIMELINE_PAGE_ANCHOR delta=\(pageOffset) points dx=\(sideways) lineShear=\(shear) characters=\(offsets.count)")
                 print("TIMELINE_NATIVE_PAGE rows=12003 resident=64 wheel_to_paint=\(began.duration(to: .now))")
                 let entries = scroll.rendered.spans
+                // This fixture has 24-second speech gaps: midnight changes the
+                // archive day, while the >15-second gap independently starts a paragraph.
                 guard scroll.rendered.markers.isEmpty,
-                      let nextDay = entries.indices.dropFirst().first(where: { entries[$0-1].entry.groupDay != entries[$0].entry.groupDay }),
-                      NSMaxRange(entries[nextDay-1].range) == entries[nextDay].range.location else {
-                    throw ReviewFailure("midnight interrupted continuous Chinese text")
+                      let nextDay = entries.indices.dropFirst().first(where: { entries[$0-1].entry.groupDay != entries[$0].entry.groupDay }) else {
+                    throw ReviewFailure("midnight inserted a time heading or lost the adjacent historical owners")
                 }
+                let beforeMidnight = entries[nextDay - 1], afterMidnight = entries[nextDay]
+                let separation = NSRange(location: NSMaxRange(beforeMidnight.range),
+                                         length: afterMidnight.range.location - NSMaxRange(beforeMidnight.range))
+                let displayed = scroll.transcriptView.string as NSString
+                guard afterMidnight.entry.recording.createdAt.timeIntervalSince(beforeMidnight.entry.speechEnd) >= 15,
+                      beforeMidnight.entry.paragraphID != afterMidnight.entry.paragraphID,
+                      separation.length == 1, displayed.substring(with: separation) == "\n",
+                      displayed.substring(with: beforeMidnight.range) == beforeMidnight.entry.displayText,
+                      displayed.substring(with: afterMidnight.range) == afterMidnight.entry.displayText else {
+                    throw ReviewFailure("24-second midnight pause did not preserve both originals with exactly one natural paragraph break")
+                }
+                print("TIMELINE_MIDNIGHT_PARAGRAPH one_newline=true original_text=true time_heading=false")
                 scroll.transcriptView.scrollRangeToVisible(entries[nextDay].range)
                 try self.captureReview(host, name: "timeline-midnight", output: output)
                 // Select a line already on screen. A second asynchronous AppKit scroll
@@ -518,7 +535,7 @@ extension AppDelegate {
         var frames: [(time: Double, png: Data)] = []
         let start = ProcessInfo.processInfo.systemUptime
         var idleAt: Double?
-        while ProcessInfo.processInfo.systemUptime - start < 16 {
+        while ProcessInfo.processInfo.systemUptime - start < Double(model.timelineIdleSeconds + 6) {
             guard let window = host.window, window is ReviewPanel, !window.isKeyWindow,
                   let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw ReviewFailure("native view recording unavailable") }
             host.cacheDisplay(in: host.bounds, to: bitmap)
@@ -538,7 +555,7 @@ extension AppDelegate {
         try JSONEncoder().encode(frames.map { $0.time - first.time }).write(to: directory.appendingPathComponent("times.json"))
     }
 
-    private struct ReviewFailure: LocalizedError {
+    struct ReviewFailure: LocalizedError {
         let message: String
         init(_ message: String) { self.message = message }
         var errorDescription: String? { message }
@@ -546,7 +563,7 @@ extension AppDelegate {
     @MainActor private func press(_ label: String, in root: NSView) async throws {
         _ = try await performControl(label, in: root)
     }
-    @MainActor private func archiveEditor(_ id: UUID, in host: NSView) async throws -> NSTextView {
+    @MainActor func archiveEditor(_ id: UUID, in host: NSView) async throws -> NSTextView {
         // The model commits a filter before SwiftUI lays out its new lazy rows.
         // Await the actual owned view without issuing or replaying a control action.
         func rendered() -> NSTextView? {
@@ -638,10 +655,11 @@ extension AppDelegate {
                   modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber,
                   context: nil, eventNumber: 0, clickCount: 1, pressure: 1),
               let menu = editor.menu(for: event),
-              let item = menu.items.first(where: { $0.identifier?.rawValue == "archive.detail.\(id)" && $0.isEnabled }) else {
+              let item = menu.items.flatMap({ $0.submenu?.items ?? [$0] }).first(where: { $0.identifier?.rawValue == "archive.detail.\(id)" && $0.isEnabled }) else {
             throw ReviewFailure("missing original/versions command in this paragraph's native menu")
         }
-        menu.performActionForItem(at: menu.index(of: item))
+        guard let ownerMenu = item.menu else { throw ReviewFailure("missing archive versions menu owner") }
+        ownerMenu.performActionForItem(at: ownerMenu.index(of: item))
         print("NATIVE_ARCHIVE_VERSIONS own_paragraph_menu=true")
     }
     private enum ReviewHitSide { case left, right }
@@ -735,7 +753,7 @@ extension AppDelegate {
         print("NATIVE_UI_FIELD_EDIT \(label) via owned NSTextView delegate; no global key events")
         if secure { print("NATIVE_UI_SECURE_FIELD_EDIT \(label) fixture credential only; value omitted") }
     }
-    @MainActor private func performControl(_ label: String, in root: NSView, arguments: [String] = []) async throws -> String {
+    @MainActor func performControl(_ label: String, in root: NSView, arguments: [String] = []) async throws -> String {
         guard let path = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"], let window = root.window else { throw ReviewFailure("Native UI control helper not configured") }
         let process = Process(), pipe = Pipe()
         process.executableURL = URL(fileURLWithPath: path)
@@ -760,7 +778,7 @@ extension AppDelegate {
         try await reviewValidatedWindow(content, size: size, name: name, output: output,
                                         validation: nil, interaction: interaction)
     }
-    @MainActor private func reviewValidatedWindow<V: View>(_ content: V, size: CGSize, name: String, output: URL,
+    @MainActor func reviewValidatedWindow<V: View>(_ content: V, size: CGSize, name: String, output: URL,
         validation: (@MainActor (NSView) async throws -> Void)? = nil,
         interaction: (@MainActor (NSView) async throws -> Void)? = nil) async throws {
         let before = NSWorkspace.shared.frontmostApplication?.processIdentifier
@@ -827,7 +845,7 @@ extension AppDelegate {
         print("UI_KEYBOARD_ISOLATION \(phase) can_become_key=false can_become_main=false is_key=false is_main=false")
     }
 
-    @MainActor private func captureReview(_ host: NSView, name: String, output: URL) throws {
+    @MainActor func captureReview(_ host: NSView, name: String, output: URL) throws {
         guard let window = host.window else { throw ReviewFailure("native capture window unavailable") }
         try checkKeyboardIsolation(window, phase: "capture")
         host.layoutSubtreeIfNeeded()
@@ -840,7 +858,7 @@ extension AppDelegate {
         print("UI_IMAGE_GEOMETRY " + String(decoding: try JSONSerialization.data(withJSONObject: geometry, options: [.sortedKeys]), as: UTF8.self))
     }
 
-    @MainActor private func reviewUntil(line: Int = #line, _ condition: () -> Bool) async throws {
+    @MainActor func reviewUntil(line: Int = #line, _ condition: () -> Bool) async throws {
         for _ in 0..<250 {
             if condition() { return }
             try await Task.sleep(for: .milliseconds(20))

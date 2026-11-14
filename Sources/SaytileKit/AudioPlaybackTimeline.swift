@@ -1,5 +1,11 @@
 import Foundation
 
+struct AudioPlaybackItem: Sendable, Equatable {
+    let recordingID: UUID
+    let url: URL
+    let duration: Double
+}
+
 struct AudioPlaybackTimeline: Sendable, Equatable {
     let durations: [Double]
     let starts: [Double]

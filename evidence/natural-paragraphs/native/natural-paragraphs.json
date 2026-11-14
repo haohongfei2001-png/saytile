@@ -1,0 +1,96 @@
+{
+  "archiveControls" : [
+    "archive.play.790D4652-D4E4-43DE-A6E0-7BE954B41889",
+    "archive.favorite.790D4652-D4E4-43DE-A6E0-7BE954B41889",
+    "archive.play.1C5E16A6-BFC6-4800-9360-98C90B22496C",
+    "archive.favorite.1C5E16A6-BFC6-4800-9360-98C90B22496C",
+    "archive.play.AB2DFC3D-5175-42C6-9A96-6B12DF736F70",
+    "archive.favorite.AB2DFC3D-5175-42C6-9A96-6B12DF736F70"
+  ],
+  "asrExecuted" : false,
+  "audio" : [
+    {
+      "bytes" : 36096,
+      "recording" : "790D4652-D4E4-43DE-A6E0-7BE954B41889",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    },
+    {
+      "bytes" : 36096,
+      "recording" : "E42997A8-CF53-4641-8C0B-F6B88AAEA53E",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    },
+    {
+      "bytes" : 36096,
+      "recording" : "1C5E16A6-BFC6-4800-9360-98C90B22496C",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    },
+    {
+      "bytes" : 36096,
+      "recording" : "AB2DFC3D-5175-42C6-9A96-6B12DF736F70",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    }
+  ],
+  "captureScope" : "owned nonactivating native views rendered using AppKit cacheDisplay; not a full-desktop screenshot",
+  "checks" : [
+    "ASR-origin seed",
+    "three-second continuation",
+    "15-second paragraph",
+    "60-second time group",
+    "panel selection\/copy",
+    "selected viewport held",
+    "late ASR retains original position",
+    "one native play\/star control per paragraph via independent AX inspection",
+    "one native editor per paragraph",
+    "panel\/archive identical newlines",
+    "cross-owner emoji edit",
+    "archive private selection copy",
+    "archive native undo\/redo",
+    "late ASR manual protection",
+    "whole-paragraph star",
+    "real AVAudioPlayer silent clip transition past 1.1105625 seconds",
+    "independent second-paragraph edit keeps panel boundary"
+  ],
+  "microphoneOpened" : false,
+  "nativeControlActions" : {
+    "reason" : "independent owned-window AX inspection and AXPress",
+    "status" : "PASS"
+  },
+  "paragraphs" : 3,
+  "privatePasteboard" : true,
+  "recordings" : 4,
+  "source" : "unpackaged",
+  "speechEndGapsSeconds" : [
+    3,
+    15,
+    60
+  ],
+  "status" : "PASS",
+  "syntheticOnly" : true,
+  "timeGroups" : 2,
+  "timeline" : [
+    {
+      "group" : 1,
+      "id" : "790D4652-D4E4-43DE-A6E0-7BE954B41889",
+      "paragraphID" : 1,
+      "position" : 1
+    },
+    {
+      "group" : 1,
+      "id" : "E42997A8-CF53-4641-8C0B-F6B88AAEA53E",
+      "paragraphID" : 1,
+      "position" : 2
+    },
+    {
+      "group" : 1,
+      "id" : "1C5E16A6-BFC6-4800-9360-98C90B22496C",
+      "paragraphID" : 3,
+      "position" : 3
+    },
+    {
+      "group" : 4,
+      "id" : "AB2DFC3D-5175-42C6-9A96-6B12DF736F70",
+      "paragraphID" : 4,
+      "position" : 4
+    }
+  ]
+}

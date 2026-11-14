@@ -1,0 +1,68 @@
+{
+  "reviewedAtUTC": "2026-11-14T05:59:04.705557+00:00",
+  "baselineSHA": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+  "workingTree": true,
+  "sourceFiles": {
+    "Sources/SaytileApp/AppModel.swift": "1cf2f70ca11d0c918502e88695af1b25287fb461746d49c68e93a1b935765c92",
+    "Sources/SaytileApp/ArchiveInlineEditor.swift": "fa3c3d0bc5269523045c089613d889c24ea75ac39e3a364cc939ad3647360864",
+    "Sources/SaytileApp/Views.swift": "12314efb38c34177910d930762a75f9932ff7c5245a0725a646a747decbf97d0",
+    "Sources/SaytileApp/PanelTimelineDocument.swift": "62ba150cde86109d53cd8547165e6c2a54340a035902af3a887ff473db6f22fe",
+    "Sources/SaytileVoiceUI/PanelTimelineDocument.swift": "a50d9d706245872ec532337d7a7860b6231489805bf9e85e3599151d77f4a769",
+    "Sources/SaytileKit/TranscriptTimeline.swift": "a3a95b12c7b5dc5f6de071939e8de6143d7e50cbfc298053eae1e08d5ac2a61a",
+    "Sources/SaytileKit/PanelEditTransaction.swift": "57d41816a35e332c47d6b7aacd18c0ab40e315b3ecaf334948d53fa5e9359461",
+    "Sources/SaytileVoiceUI/CompactTranscriptView.swift": "bbd1d8c5f2645a195b12fe183d9abdd23352f90b16868bb93c78c926b3d8fe13",
+    "Sources/SaytileKit/Store.swift": "6378ee0ca58be4f2df97797a78f2679b9d01b879bdc11eb083472e2e86ff9f01",
+    "Sources/SaytileKit/ArchiveDraftPersistence.swift": "27d0e8e56385adbbcd596dd40bc8761ac5f42a912ac97dea9f6db4383e3352c6"
+  },
+  "nativeProbe": {
+    "beforeFix": "FAIL: actual user typing lost after save error",
+    "afterFix": "PASS: typing survives save error, blur, and subsequent late snapshot",
+    "syntheticDataOnly": true,
+    "visibleWindows": false,
+    "microphone": false,
+    "SQLitePersistenceTestedByThisProbe": false,
+    "actualArchiveUITestedByThisProbe": false
+  },
+  "findings": [
+    {
+      "id": "R1",
+      "priority": "P1",
+      "issue": "Save conflict replaced unsaved native text and erased undo",
+      "status": "native local preservation verified after fix; durable draft separately owned by integration/store tests"
+    },
+    {
+      "id": "R2",
+      "priority": "P2",
+      "issue": "Whole paragraph copy used latest model snapshot while native editor deliberately retained older visible text",
+      "status": "fixed by visibleSnapshot; statically reviewed; integrated native acceptance owned by parent"
+    },
+    {
+      "id": "R3",
+      "priority": "P2",
+      "issue": "All existing audio files fail decoding; stopped playback notice hidden by playing-only row condition",
+      "status": "fixed by AppModel publishing notice after play returns stopped; statically reviewed"
+    },
+    {
+      "id": "R4",
+      "priority": "P2",
+      "issue": "Member-page navigation can change during awaited refresh without final generation check, allowing one stale page publication",
+      "status": "fixed: requestedMembers captured and final guard checks archiveMemberWindows == requestedMembers; statically verified"
+    }
+  ],
+  "postFixReview": {
+    "durableDraftRecovery": "AppModel now calls Store.preserveArchiveParagraphDraft on save conflict; preserves separate draft revisions and does not select over a newer human edit. Statically reviewed; integration tests own runtime proof.",
+    "explicitBoundaryMetadata": "break_hidden lives at paragraph head and both live and archive host maps carry forward/backward values; undo swaps them. Pure boundary edits do not freeze unchanged ASR text as userEdit. Statically reviewed; mapper/native tests own runtime proof."
+  },
+  "finalStorageReview": {
+    "status": "NO_ADDITIONAL_CONFIRMED_DEFECT",
+    "scope": "Read-only transaction and rollback source review; not another runtime test",
+    "checked": [
+      "boundary old value and contradictory edits validated before writes",
+      "all writePanelEdits callers use transaction",
+      "pure boundary metadata leaves ASR preferred words and revision origin unchanged",
+      "DDL and sidecar version commit atomically with schema6",
+      "draft recovery validates all owners and stores previous draft before replacing slot, without changing preferred",
+      "legacy table and audio bytes preserved by additive schema; signed binary reopen checked by separate prepared rollback runner"
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+Building for debugging...
+[4 / 8] SaytileKitTests-product
+[6 / 10] SaytileKitTests-product
+/private/tmp/saytile-natural-paragraphs/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-natural-paragraphs/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[11 / 13] SaytileKitTests-product
+Build complete! (2.88秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Chunked playback seeking" started.
+◇ Test seeksAcrossOriginalChunkBoundaries() started.
+✔ Test seeksAcrossOriginalChunkBoundaries() passed after 0.001 seconds.
+◇ Test clampsEndAndRejectsInvalidDurations() started.
+✔ Test clampsEndAndRejectsInvalidDurations() passed after 0.001 seconds.
+✔ Suite "Chunked playback seeking" passed after 0.001 seconds.
+◇ Suite "Silent production AVAudioPlayer integration" started.
+◇ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() started.
+PLAYBACK_FIRST_PROGRESS position=0.0788125 after_play=0.101809584 seconds
+✔ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() passed after 0.301 seconds.
+◇ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() started.
+✔ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() passed after 0.421 seconds.
+✔ Suite "Silent production AVAudioPlayer integration" passed after 0.723 seconds.
+◇ Suite "Natural paragraph playback" started.
+◇ Test paragraphKeepsIdentitySeeksAcrossRecordingsAndSkipsMissingOriginals() started.
+PARAGRAPH_SEEK requested=0.9 observed=0.9 lower_bound=0.8999999999999999
+✔ Test paragraphKeepsIdentitySeeksAcrossRecordingsAndSkipsMissingOriginals() passed after 0.189 seconds.
+◇ Test actualPlayerContinuouslyFinishesTwoOriginalsWithoutMicrophone() started.
+✔ Test actualPlayerContinuouslyFinishesTwoOriginalsWithoutMicrophone() passed after 0.625 seconds.
+◇ Test deletionOfQueuedOriginalSkipsItAndReleasesItsLease() started.
+✔ Test deletionOfQueuedOriginalSkipsItAndReleasesItsLease() passed after 0.616 seconds.
+◇ Test switchingAndCancellingASeekCannotResumeTheOldParagraph() started.
+✔ Test switchingAndCancellingASeekCannotResumeTheOldParagraph() passed after 0.597 seconds.
+◇ Test pauseDuringNextOriginalValidationCannotResumePlaybackOrCapture() started.
+✔ Test pauseDuringNextOriginalValidationCannotResumePlaybackOrCapture() passed after 0.448 seconds.
+◇ Test unreadableChunkDoesNotBlockTheNextOriginalAndAllMissingIsHonest() started.
+✔ Test unreadableChunkDoesNotBlockTheNextOriginalAndAllMissingIsHonest() passed after 0.083 seconds.
+✔ Suite "Natural paragraph playback" passed after 2.562 seconds.
+✔ Test run with 10 tests in 3 suites passed after 3.286 seconds.

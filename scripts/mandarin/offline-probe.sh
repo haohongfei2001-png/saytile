@@ -20,7 +20,7 @@ mkdir "$tmp/fresh"
 ditto "$bin/Saytile_SaytileKit.bundle" "$tmp/Saytile_SaytileKit.bundle"
 swiftc -swift-version 6 -parse-as-library -module-cache-path "$scratch/probe-module-cache" \
   -I "$bin" -I "$bin/Modules" -I Sources/CSQLite -Xcc "-fmodule-map-file=$module_map" \
-  -L "$bin" -lSaytileKit -lSaytileVoiceUI -lc++ Sources/SaytileApp/AppModel.swift \
+  -L "$bin" -lSaytileKit -lSaytileVoiceUI -lc++ Sources/SaytileApp/AppModel.swift Sources/SaytileApp/PanelTimelineDocument.swift \
   tests/fixtures/OfflineLocalModelProbe.swift -o "$tmp/OfflineLocalModelProbe"
 sandbox-exec -p '(version 1)(allow default)(deny network*)' "$tmp/OfflineLocalModelProbe" \
   "$tmp/fresh" "$fixture" "$weights" "$receipt"

@@ -13,7 +13,7 @@ concurrency:
 jobs:
   native:
     runs-on: macos-26
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,6 +34,17 @@ jobs:
           /tmp/saytile-contract-smoke
       - name: Real localhost provider protocols (no API keys)
         run: SAYTILE_SIM_FULL_SUITE=1 scripts/test-protocol-simulator.sh
+      - name: Preserve localhost protocol evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Saytile-localhost-protocol
+          path: |
+            evidence/no-api-product/protocol/native-network.log
+            evidence/no-api-product/protocol/server.log
+            evidence/no-api-product/protocol/wire-audit.json
+          if-no-files-found: warn
+          retention-days: 14
       - run: scripts/test-app-model.sh
       - name: Owned native window boundary and restoration
         run: |
@@ -62,6 +73,17 @@ jobs:
         run: |
           SAYTILE_EDITOR_REVIEW=1 dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/editor-data" --ui-review "$RUNNER_TEMP/saytile-editor"
           SAYTILE_EDITOR_REVIEW=reopen dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/editor-data" --ui-review "$RUNNER_TEMP/saytile-editor"
+      - name: Shared natural paragraphs in real panel and archive
+        run: |
+          SAYTILE_NATURAL_PARAGRAPHS=1 dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/natural-paragraph-data" --ui-review "$RUNNER_TEMP/saytile-natural-paragraphs"
+      - name: Preserve natural paragraph screenshots and receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Saytile-natural-paragraphs
+          path: ${{ runner.temp }}/saytile-natural-paragraphs
+          if-no-files-found: warn
+          retention-days: 14
       - name: Native windows with synthetic data
         run: python3 scripts/test-native-ui.py --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui"
       - name: Native continuous timeline with 12000 isolated utterances

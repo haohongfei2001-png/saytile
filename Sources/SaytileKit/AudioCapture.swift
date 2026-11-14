@@ -263,6 +263,9 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         }
     }
     @Published public private(set) var playingID: UUID?
+    @Published public private(set) var playingRecordingID: UUID?
+    /// Archive-only feedback. Missing originals never become a main-panel status.
+    @Published public private(set) var playbackNotice: String?
     @Published public private(set) var playbackPosition: Double = 0
     @Published public private(set) var playbackDuration: Double = 0
     @Published public private(set) var preparingAppleSpeech = false
@@ -272,6 +275,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     @Published public private(set) var reprocessingID: UUID?
     private let store: SaytileStore
     private let recognitionFactory: RecognitionSessionFactory
+    private let playbackRecord: @Sendable (UUID) async throws -> Recording?
     private var pinnedInput: PinnedAudioInput?
     // Set only by a real hardware start. File replay must work even on a closed notebook.
     private var activeInputIsBuiltIn = false
@@ -296,10 +300,12 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     private var interruption = false
     private var playbackResume = false
     private var playbackGeneration: UInt64 = 0
-    private var playbackLease: UUID?
+    private var playbackLeases: [UUID: UUID] = [:]
+    private var playbackTransitionGeneration: UInt64 = 0
+    private var skippedPlaybackRecordings: Set<UUID> = []
     private var leaseReleaseTasks: [UUID: Task<Void, Never>] = [:]
     private var player: AVAudioPlayer?
-    private var playbackURLs: [URL] = []
+    private var playbackItems: [AudioPlaybackItem] = []
     private var playbackTimeline = AudioPlaybackTimeline(durations: [])
     private var playbackIndex = 0
     private var playbackProgressTask: Task<Void, Never>?
@@ -313,9 +319,11 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         self.init(store: store, recognitionFactory: RecognitionSessionFactory(configuration: recognitionConfiguration),
                   startupRecoveryReady: startupRecoveryReady)
     }
-    init(store: SaytileStore, recognitionFactory: RecognitionSessionFactory, startupRecoveryReady: Bool = true) {
+    init(store: SaytileStore, recognitionFactory: RecognitionSessionFactory, startupRecoveryReady: Bool = true,
+         playbackRecord: (@Sendable (UUID) async throws -> Recording?)? = nil) {
         self.startupRecoveryReady = startupRecoveryReady
         self.store = store; self.recognitionFactory = recognitionFactory
+        self.playbackRecord = playbackRecord ?? { try await store.recording(id: $0) }
         super.init(); refreshDevices()
         let center = NSWorkspace.shared.notificationCenter
         observers.append(center.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
@@ -673,7 +681,11 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             state = .interrupted(error.localizedDescription); issue = error.localizedDescription
         }
     }
-    public func pause() async { startGeneration &+= 1; playbackGeneration &+= 1; requestedRunning = false; playbackResume = false; state = .paused; await stopCapture() }
+    public func pause() async {
+        startGeneration &+= 1; requestedRunning = false; playbackResume = false
+        stopPlayback(); state = .paused
+        await stopCapture()
+    }
     private func stopCapture() async {
         if let stopTask { await stopTask.value; return }
         activeInputIsBuiltIn = false
@@ -742,74 +754,156 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         }
     }
     public func play(recordingID: UUID) async throws {
+        try await play(recordingIDs: [recordingID], playbackID: recordingID)
+    }
+    /// A paragraph keeps its original recording IDs and files. Playback only
+    /// concatenates the caller's chronological selection, never rewrites audio.
+    public func play(recordingIDs: [UUID], playbackID: UUID) async throws {
         guard !isShuttingDown else { throw CancellationError() }
+        try Task.checkCancellation()
         let resume = state.isRunning || playbackResume
         playbackResume = false; stopPlayback()
+        playbackNotice = nil; skippedPlaybackRecordings = []
         let generation = playbackGeneration
-        var lease: UUID?
+        var leases: [UUID: UUID] = [:]
+        // Close the live journal before resolving its final chunk lengths. A
+        // paragraph may include the utterance that was still being recorded.
+        playingID = playbackID; playbackResume = resume
         do {
-            lease = try await store.acquireAudioLease(recordingID: recordingID)
-            let chunks = try await store.audioChunks(recordingID: recordingID)
-            var urls: [URL] = []; var durations: [Double] = []
-            let sampleRate = (try await store.recording(id: recordingID))?.sampleRate ?? 16_000
-            for chunk in chunks where chunk.frames > 0 {
-                urls.append(try await store.audioURL(for: chunk)); durations.append(Double(chunk.frames) / sampleRate)
-            }
-            guard !urls.isEmpty else { throw AudioFailure.message("原音不存在") }
-            guard generation == playbackGeneration, !isShuttingDown else { throw CancellationError() }
             await stopCapture()
-            guard generation == playbackGeneration, !isShuttingDown else { throw CancellationError() }
+            try checkPlayback(generation)
             state = .paused
-            playbackLease = lease; playbackResume = resume
-            playbackURLs = urls; playbackTimeline = AudioPlaybackTimeline(durations: durations)
-            playbackDuration = playbackTimeline.duration; playbackPosition = 0; playbackIndex = 0
-            playingID = recordingID; try playCurrentChunk(offset: 0)
+            var items: [AudioPlaybackItem] = [], seen: Set<UUID> = [], skipped: Set<UUID> = []
+            for id in recordingIDs where seen.insert(id).inserted {
+                try checkPlayback(generation)
+                do {
+                    let record = try await store.recording(id: id)
+                    guard let record, record.audioState == .available else { skipped.insert(id); continue }
+                    guard !record.isRecording else { throw StoreError.recordingActive }
+                    leases[id] = try await store.acquireAudioLease(recordingID: id)
+                    let chunks = try await store.audioChunks(recordingID: id)
+                    let countBefore = items.count
+                    for chunk in chunks where chunk.frames > 0 {
+                        let url = try await store.audioURL(for: chunk)
+                        if FileManager.default.fileExists(atPath: url.path) {
+                            items.append(.init(recordingID: id, url: url, duration: Double(chunk.frames) / record.sampleRate))
+                        } else { skipped.insert(id) }
+                    }
+                    if countBefore == items.count { skipped.insert(id) }
+                } catch StoreError.audioUnavailable { skipped.insert(id) }
+                  catch StoreError.missingRecording { skipped.insert(id) }
+            }
+            try checkPlayback(generation)
+            skippedPlaybackRecordings = skipped; updatePlaybackNotice()
+            guard !items.isEmpty else { throw AudioFailure.message("这段文字对应的原音已删除或不可用") }
+            playbackLeases = leases; playbackResume = resume
+            playbackItems = items; rebuildPlaybackTimeline()
+            playbackPosition = 0; playbackIndex = 0; playingID = playbackID
+            let transition = playbackTransitionGeneration
+            try await playCurrentChunk(index: 0, offset: 0, generation: generation, transition: transition)
+            guard generation == playbackGeneration, playingID == playbackID else { return }
             playbackProgressTask = Task { [weak self] in
                 while !Task.isCancelled {
                     do { try await Task.sleep(for: .milliseconds(100)) } catch { break }
-                    guard let self, let player = self.player, self.playingID != nil else { break }
+                    guard let self, generation == self.playbackGeneration, self.playingID != nil else { break }
+                    guard let player = self.player, self.playbackTimeline.starts.indices.contains(self.playbackIndex) else { continue }
                     self.playbackPosition = min(self.playbackDuration, self.playbackTimeline.starts[self.playbackIndex] + player.currentTime)
                 }
             }
         } catch {
             if generation == playbackGeneration { playbackResume = resume; stopPlayback() }
-            if let lease { try? await store.releaseAudioLease(lease) }; throw error
+            for lease in leases.values { try? await store.releaseAudioLease(lease) }
+            throw error
         }
     }
-    private func playCurrentChunk(offset: Double) throws {
-        guard playbackURLs.indices.contains(playbackIndex) else { stopPlayback(); return }
-        player?.stop()
-        player = try AVAudioPlayer(contentsOf: playbackURLs[playbackIndex]); player?.delegate = self
-        player?.currentTime = offset
-        guard player?.play() == true else { throw AudioFailure.message("无法播放原音") }
+    private func checkPlayback(_ generation: UInt64, transition: UInt64? = nil) throws {
+        try Task.checkCancellation()
+        guard generation == playbackGeneration, !isShuttingDown,
+              transition == nil || transition == playbackTransitionGeneration else { throw CancellationError() }
+    }
+    private func rebuildPlaybackTimeline() {
+        playbackTimeline = AudioPlaybackTimeline(durations: playbackItems.map(\.duration))
+        playbackDuration = playbackTimeline.duration
+    }
+    private func updatePlaybackNotice() {
+        playbackNotice = skippedPlaybackRecordings.isEmpty ? nil : "有 \(skippedPlaybackRecordings.count) 段原音已删除或不可用，已跳过"
+    }
+    private func playCurrentChunk(index requested: Int, offset: Double, generation: UInt64, transition: UInt64) async throws {
+        var index = requested, offset = offset
+        while playbackItems.indices.contains(index) {
+            try checkPlayback(generation, transition: transition)
+            let item = playbackItems[index]
+            let record = try await playbackRecord(item.recordingID)
+            try checkPlayback(generation, transition: transition)
+            if record?.audioState != .available {
+                // A queued original deleted during playback must not start later.
+                // Release its lease without touching the text or other originals.
+                let preceding = playbackItems.prefix(index).filter { $0.recordingID != item.recordingID }.count
+                playbackItems.removeAll { $0.recordingID == item.recordingID }
+                if let lease = playbackLeases.removeValue(forKey: item.recordingID) { releasePlaybackLease(lease) }
+                skippedPlaybackRecordings.insert(item.recordingID); updatePlaybackNotice()
+                rebuildPlaybackTimeline(); index = preceding; offset = 0
+                continue
+            }
+            let next: AVAudioPlayer
+            do { next = try AVAudioPlayer(contentsOf: item.url) }
+            catch {
+                // A missing or unreadable chunk cannot suppress the remainder.
+                playbackItems.remove(at: index); rebuildPlaybackTimeline()
+                skippedPlaybackRecordings.insert(item.recordingID); updatePlaybackNotice(); offset = 0
+                continue
+            }
+            try checkPlayback(generation, transition: transition)
+            player?.stop(); player = next; playbackIndex = index
+            playingRecordingID = item.recordingID
+            next.delegate = self; next.currentTime = offset
+            guard next.play() else { throw AudioFailure.message("无法播放原音") }
+            playbackPosition = playbackTimeline.starts[index] + offset
+            return
+        }
+        try checkPlayback(generation, transition: transition)
+        stopPlayback()
     }
     public func seekPlayback(to seconds: Double) {
         guard playingID != nil, let location = playbackTimeline.location(at: seconds) else { return }
-        do {
-            if location.index == playbackIndex { player?.currentTime = location.offset }
-            else { playbackIndex = location.index; try playCurrentChunk(offset: location.offset) }
+        playbackTransitionGeneration &+= 1
+        if location.index == playbackIndex, let player {
+            player.currentTime = location.offset
             playbackPosition = playbackTimeline.starts[location.index] + location.offset
-        } catch { issue = error.localizedDescription; stopPlayback() }
-    }
-    public func stopPlayback() {
-        playbackGeneration &+= 1
-        playbackProgressTask?.cancel(); playbackProgressTask = nil
-        player?.stop(); player = nil; playingID = nil; playbackURLs = []
-        playbackTimeline = AudioPlaybackTimeline(durations: []); playbackIndex = 0
-        playbackPosition = 0; playbackDuration = 0
-        if let lease = playbackLease {
-            playbackLease = nil
-            let store = store
-            leaseReleaseTasks[lease] = Task { @MainActor [weak self] in
-                try? await store.releaseAudioLease(lease)
-                self?.leaseReleaseTasks[lease] = nil
+            return
+        }
+        let generation = playbackGeneration, transition = playbackTransitionGeneration
+        player?.stop(); player = nil
+        playbackPosition = playbackTimeline.starts[location.index] + location.offset
+        Task {
+            do { try await playCurrentChunk(index: location.index, offset: location.offset, generation: generation, transition: transition) }
+            catch is CancellationError { }
+            catch {
+                guard generation == playbackGeneration, transition == playbackTransitionGeneration else { return }
+                issue = error.localizedDescription; stopPlayback()
             }
         }
+    }
+    private func releasePlaybackLease(_ lease: UUID) {
+        let store = store
+        leaseReleaseTasks[lease] = Task { @MainActor [weak self] in
+            try? await store.releaseAudioLease(lease)
+            self?.leaseReleaseTasks[lease] = nil
+        }
+    }
+    public func stopPlayback() {
+        playbackGeneration &+= 1; playbackTransitionGeneration &+= 1
+        playbackProgressTask?.cancel(); playbackProgressTask = nil
+        player?.stop(); player = nil; playingID = nil; playingRecordingID = nil; playbackItems = []
+        playbackTimeline = AudioPlaybackTimeline(durations: []); playbackIndex = 0
+        playbackPosition = 0; playbackDuration = 0
+        let leases = playbackLeases; playbackLeases = [:]
+        for lease in leases.values { releasePlaybackLease(lease) }
         if playbackResume {
             playbackResume = false
-            let generation = startGeneration
+            let generation = startGeneration, playback = playbackGeneration
             Task {
-                guard generation == startGeneration, requestedRunning else { return }
+                guard generation == startGeneration, playback == playbackGeneration, requestedRunning else { return }
                 await start(requestPermission: false)
             }
         }
@@ -818,8 +912,15 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         Task { @MainActor in
             guard self.player === player else { return }
             guard flag else { issue = "原音播放未完整完成，请重试"; stopPlayback(); return }
-            do { playbackIndex += 1; try playCurrentChunk(offset: 0) }
-            catch { issue = error.localizedDescription; stopPlayback() }
+            self.player = nil
+            playbackTransitionGeneration &+= 1
+            let generation = playbackGeneration, transition = playbackTransitionGeneration
+            do { try await playCurrentChunk(index: playbackIndex + 1, offset: 0, generation: generation, transition: transition) }
+            catch is CancellationError { }
+            catch {
+                guard generation == playbackGeneration, transition == playbackTransitionGeneration else { return }
+                issue = error.localizedDescription; stopPlayback()
+            }
         }
     }
     nonisolated public func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
@@ -921,9 +1022,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 NSWorkspace.shared.notificationCenter.removeObserver(observer)
             }
             observers.removeAll()
-            let lease = playbackLease; playbackLease = nil
             stopPlayback()
-            if let lease { try? await store.releaseAudioLease(lease) }
             for release in Array(leaseReleaseTasks.values) { await release.value }
             leaseReleaseTasks.removeAll()
             await stopCapture()

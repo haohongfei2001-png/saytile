@@ -1,0 +1,25 @@
+/private/tmp/saytile-natural-paragraphs/Sources/SaytileKit/AudioCapture.swift:661:23: warning: 'installTap(onBus:bufferSize:format:block:)' was deprecated in macOS 27.0 [#DeprecatedDeclaration]
+ 659 |                 }
+ 660 |             } else if let engine, let input, let format {
+ 661 |                 input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.recording(ring: ring, channels: format.channelCount, sampleRate: format.sampleRate))
+     |                       `- warning: 'installTap(onBus:bufferSize:format:block:)' was deprecated in macOS 27.0 [#DeprecatedDeclaration]
+ 662 |                 tapInstalled = true
+ 663 |                 engine.prepare(); try engine.start()
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+/private/tmp/saytile-natural-paragraphs/Sources/SaytileKit/AudioDiagnostics.swift:160:15: warning: 'installTap(onBus:bufferSize:format:block:)' was deprecated in macOS 27.0 [#DeprecatedDeclaration]
+158 |         let counter = try AudioProbeCounter()
+159 |         let engine = AVAudioEngine(); let input = engine.inputNode; let format = input.outputFormat(forBus: 0)
+160 |         input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.counting(counter: counter))
+    |               `- warning: 'installTap(onBus:bufferSize:format:block:)' was deprecated in macOS 27.0 [#DeprecatedDeclaration]
+161 |         do {
+162 |             defer { engine.stop(); input.removeTap(onBus: 0) }
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+/private/tmp/saytile-natural-paragraphs/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()

@@ -162,7 +162,7 @@ struct SettingsView: View {
                     .accessibilityIdentifier("settings.panelArrangementStatus")
             }
             Toggle("显示边框", isOn: $model.panelBorderVisible).accessibilityIdentifier("settings.panelBorder")
-            Picker("讲话分组间隔", selection: Binding(get: { model.timelineIdleSeconds }, set: { model.changeIdleInterval($0) })) {
+            Picker("时间标记间隔", selection: Binding(get: { model.timelineIdleSeconds }, set: { model.changeIdleInterval($0) })) {
                 let minutes = [1, 2, 5, 10, 30, 60]
                 if !minutes.contains(where: { $0 * 60 == model.timelineIdleSeconds }) {
                     Text("\(model.timelineIdleSeconds) 秒（自定义）").tag(model.timelineIdleSeconds)
@@ -171,6 +171,8 @@ struct SettingsView: View {
                     Text("\(minute) 分钟").tag(minute * 60)
                 }
             }.accessibilityIdentifier("settings.timelineIdle")
+            Text("停顿约15秒后再次讲话时另起一段；时间标记使用更长的间隔。输入板和语音档案使用相同段落。")
+                .font(.callout).foregroundStyle(.secondary)
             Picker("展开或收起", selection: $model.shortcutChoice) {
                 Text("⌥ 空格").tag("option-space"); Text("⌃ ⌥ 空格").tag("control-option-space")
                 Text("⌘ ⇧ 空格").tag("command-shift-space"); Text("关闭快捷键").tag("disabled")

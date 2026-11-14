@@ -7,6 +7,7 @@ struct ArchiveReadingTests {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
         let store = try SaytileStore(directory: directory)
+        try await store.setTimelineIdleSeconds(120) // Explicit legacy grouping remains supported.
         let date = Calendar.current.startOfDay(for: .now).addingTimeInterval(3600)
         func segment(start: TimeInterval, end: TimeInterval, text: String?) async throws -> UUID {
             let row = try await store.createRecording(createdAt: date.addingTimeInterval(start))

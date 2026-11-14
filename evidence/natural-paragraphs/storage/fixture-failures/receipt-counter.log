@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/private/tmp/saytile-natural-paragraphs/evidence/natural-paragraphs/storage/run.py", line 55, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/private/tmp/saytile-natural-paragraphs/evidence/natural-paragraphs/storage/run.py", line 39, in main
+    assert result.count('PASS ')==len(names) and f'NATURAL_PARAGRAPHS_PASS tests={len(names)}' in result
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

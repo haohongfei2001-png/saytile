@@ -1,10 +1,10 @@
 import AppKit
 import SwiftUI
 
-/// Each paragraph owns its original recording, text selection and undo history.
+/// A natural paragraph owns a bounded window of its original recording rows.
 /// AppKit handles the first click, keyboard input and IME in the same view used for reading.
 struct ArchiveInlineEditor: NSViewRepresentable {
-    let item: DisplayRecording
+    let paragraph: ArchiveDisplayParagraph
     let model: AppModel
     let focusChanged: (Bool) -> Void
 
@@ -22,42 +22,55 @@ struct ArchiveInlineEditor: NSViewRepresentable {
         view.textContainer?.widthTracksTextView = true
         view.isHorizontallyResizable = false
         view.isVerticallyResizable = false
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.lineSpacing = 3
-        view.defaultParagraphStyle = paragraph
-        view.setAccessibilityIdentifier("archive.text.\(item.id)")
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing = 3
+        view.defaultParagraphStyle = style
+        view.setAccessibilityIdentifier("archive.text.\(paragraph.anchorID)")
         view.setAccessibilityLabel("编辑这段文字")
         view.delegate = view
         return view
     }
 
     func updateNSView(_ view: ArchiveParagraphTextView, context: Context) {
-        let id = item.id
+        let id = paragraph.id
         view.commandPasteboard = model.copyPasteboard
-        view.save = { before, after in
-            do { try model.editArchiveText(id, before: before, after: after) }
+        view.save = { snapshot, after in
+            do { return try model.editArchiveParagraph(id, snapshot: snapshot, after: after) }
             catch { model.notice = error.localizedDescription; throw error }
         }
         view.onFocus = { active in
-            if active { model.setArchiveEditing(id) }
-            else { model.endArchiveEditing(id) }
+            if active { model.setArchiveEditing(paragraph.page.entries.first?.id ?? paragraph.anchorID) }
+            else if let owner = paragraph.page.entries.first?.id { model.endArchiveEditing(owner) }
             focusChanged(active)
         }
-        view.prepareMenu = { menu in
+        view.prepareMenu = { [weak view] menu in
             menu.addItem(.separator())
-            if item.hasAudio {
+            menu.addItem(TranscriptMenuItem(title: "复制这一整段", identifier: "archive.copyParagraph.\(paragraph.anchorID)") {
+                guard let view else { return }
+                model.copyParagraph(paragraph, displayed: view.visibleSnapshot)
+            })
+            if paragraph.hasAudio {
                 menu.addItem(TranscriptMenuItem(
-                    title: model.playingID == id ? "停止回听" : "回听原音",
-                    identifier: "archive.play.\(id)") { model.play(item) })
+                    title: model.playingID == paragraph.anchorID ? "停止回听" : "回听这一整段",
+                    identifier: "archive.play.\(paragraph.anchorID)") { model.playParagraph(paragraph) })
             }
             menu.addItem(TranscriptMenuItem(
-                title: item.pinned ? "取消收藏" : "收藏这条记录",
-                identifier: "archive.favorite.\(id)") { Task { await model.toggleFavorite(id) } })
-            menu.addItem(TranscriptMenuItem(title: "原音与文字版本…", identifier: "archive.detail.\(id)") {
-                Task { await model.selectForEditing(item) }
-            })
+                title: paragraph.pinned ? "取消这一段的收藏" : "收藏这一整段",
+                identifier: "archive.favorite.\(paragraph.anchorID)") { Task { await model.toggleParagraphFavorite(paragraph) } })
+            // Individual original audio/revision owners remain accessible in a
+            // secondary menu; the archive itself has one action pair per paragraph.
+            let versions = NSMenuItem(title: "原音与文字版本", action: nil, keyEquivalent: "")
+            let submenu = NSMenu()
+            for item in paragraph.items {
+                let label = item.date.formatted(date: .omitted, time: .standard)
+                submenu.addItem(TranscriptMenuItem(title: label, identifier: "archive.detail.\(item.id)") {
+                    Task { await model.selectForEditing(item) }
+                })
+            }
+            versions.submenu = submenu
+            menu.addItem(versions)
         }
-        view.display(item)
+        view.display(paragraph)
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, nsView: ArchiveParagraphTextView, context: Context) -> CGSize? {
@@ -78,30 +91,45 @@ struct ArchiveInlineEditor: NSViewRepresentable {
 final class ArchiveParagraphTextView: NSTextView, NSTextViewDelegate {
     var onFocus: ((Bool) -> Void)?
     var prepareMenu: ((NSMenu) -> Void)?
-    var save: ((String, String) throws -> Void)?
+    var save: ((PanelTimelineDocument, String) throws -> PanelTimelineDocument)?
     var commandPasteboard: NSPasteboard?
     private let editUndo = UndoManager()
     private var committed = ""
+    private var committedDocument = PanelTimelineDocument()
+    private var latestDocument = PanelTimelineDocument()
     private var latest = ""
     private var placeholder = ""
     private var changingComposition = false
     private var interacting = false
+    private var hasUnsavedChanges = false
+    var visibleSnapshot: [Int64: String] {
+        var visible = committedDocument.displayed
+        // Failed disk writes remain visible and copyable as a local draft.
+        if let edits = committedDocument.edits(replacingDisplayedText: string) {
+            let positions = Dictionary(uniqueKeysWithValues: committedDocument.entries.map { ($0.id, $0.position) })
+            for edit in edits { if let position = positions[edit.id] { visible[position] = edit.after } }
+        }
+        return visible
+    }
     override var undoManager: UndoManager? { editUndo }
 
-    func display(_ item: DisplayRecording) {
-        latest = item.text
-        if placeholder != item.emptyTextLabel {
-            placeholder = item.emptyTextLabel
+    func display(_ paragraph: ArchiveDisplayParagraph) {
+        latestDocument = paragraph.document
+        latest = latestDocument.text
+        if placeholder != paragraph.emptyTextLabel {
+            placeholder = paragraph.emptyTextLabel
             if string.isEmpty { needsDisplay = true }
         }
-        if !interacting && !changingComposition && !hasMarkedText() { applyLatest() }
+        if !interacting && !changingComposition && !hasMarkedText() && !hasUnsavedChanges { applyLatest() }
     }
 
     private func applyLatest() {
-        guard !string.utf16.elementsEqual(latest.utf16) else { committed = latest; return }
+        guard !hasUnsavedChanges else { return }
+        guard !string.utf16.elementsEqual(latest.utf16) else { committed = latest; committedDocument = latestDocument; return }
         editUndo.removeAllActions()
         string = latest
         committed = latest
+        committedDocument = latestDocument
         invalidateIntrinsicContentSize()
     }
 
@@ -160,14 +188,16 @@ final class ArchiveParagraphTextView: NSTextView, NSTextViewDelegate {
         guard !changingComposition, !hasMarkedText(), let save, !string.utf16.elementsEqual(committed.utf16) else { return }
         let edit = string
         do {
-            try save(committed, edit)
+            let saved = try save(committedDocument, edit)
+            committedDocument = saved
+            latestDocument = saved
             committed = edit
             latest = edit
+            hasUnsavedChanges = false
         } catch {
-            editUndo.removeAllActions()
-            string = latest
-            committed = latest
-            NSSound.beep()
+            // Keep the exact local draft and its undo history. The host attempts
+            // durable recovery; a late refresh or blur must not erase failed typing.
+            hasUnsavedChanges = true
         }
     }
 

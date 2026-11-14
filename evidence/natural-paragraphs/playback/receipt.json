@@ -1,0 +1,34 @@
+{
+  "status": "PASS",
+  "base_source_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+  "working_source_dirty": true,
+  "scope": "Actual production AVAudioPlayer, independent generated silent WAVs, official Swift Testing library with its local standalone entrypoint. This is not the complete CI suite or user speech acceptance.",
+  "tests": {
+    "executed": 10,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "existing": 4,
+    "new": 6
+  },
+  "source_files": {
+    "Sources/SaytileKit/AudioCapture.swift": "355a8efddbc640078a66f82916ac4dc7e914d6ac00fff1911d307766f0c256ca",
+    "Sources/SaytileKit/AudioPlaybackTimeline.swift": "5f1f31bab045b6cfdfd375bd839fd454e0c79dbd870d8d00257971d1c196e1a1",
+    "tests/SaytileKitTests/AudioPlaybackTests.swift": "ce77b08e15e802a618c9fb8f91ecf64b54f4800705995f19deb2ad01a86aa5c6"
+  },
+  "compiled_objects": {
+    "SaytileKit.o": "c7e9baed2cd2987d5b190d96a1d7966486e80eb532203e9c71cff54f50a7aece",
+    "CAudio.o": "2f1222439b7fd10e2b83b4df0b7dddbecb1a5e34ee59ec781b1f20d709989a12"
+  },
+  "probe_sha256": "a817ea3b25e9c7f8eb825935e14e46fcc5ce18852a13ee480d226bef9e007749",
+  "test_log_sha256": "50b705e1b4d2b47cb1dfd9740b4bad52423a7608e2431b33dba72cbb55f022da",
+  "swift_version": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+  "os_version": "27.0",
+  "real_microphone_used": false,
+  "user_recordings_read": false,
+  "paid_provider_calls": false,
+  "installed_app_changed": false,
+  "capture_VAD_or_ASR_changed": false,
+  "recorded_at_utc": "2026-11-14T05:40:46.534528+00:00",
+  "environment_note": "Execution sandbox cannot reach normal audio playback service; 7 playback assertions failed there, including both inherited integration tests. The same compiled probe then ran under existing normal macOS process permissions, with no TCC or system security changes, and all 10 passed."
+}

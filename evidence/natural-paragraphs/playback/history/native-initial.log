@@ -1,0 +1,29 @@
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Chunked playback seeking" started.
+◇ Test seeksAcrossOriginalChunkBoundaries() started.
+✔ Test seeksAcrossOriginalChunkBoundaries() passed after 0.001 seconds.
+◇ Test clampsEndAndRejectsInvalidDurations() started.
+✔ Test clampsEndAndRejectsInvalidDurations() passed after 0.001 seconds.
+✔ Suite "Chunked playback seeking" passed after 0.001 seconds.
+◇ Suite "Silent production AVAudioPlayer integration" started.
+◇ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() started.
+PLAYBACK_FIRST_PROGRESS position=0.10025 after_play=0.122838875 seconds
+✔ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() passed after 2.031 seconds.
+◇ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() started.
+✔ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() passed after 0.435 seconds.
+✔ Suite "Silent production AVAudioPlayer integration" passed after 2.466 seconds.
+◇ Suite "Natural paragraph playback" started.
+◇ Test paragraphKeepsIdentitySeeksAcrossRecordingsAndSkipsMissingOriginals() started.
+✔ Test paragraphKeepsIdentitySeeksAcrossRecordingsAndSkipsMissingOriginals() passed after 0.145 seconds.
+◇ Test actualPlayerContinuouslyFinishesTwoOriginalsWithoutMicrophone() started.
+✔ Test actualPlayerContinuouslyFinishesTwoOriginalsWithoutMicrophone() passed after 0.613 seconds.
+◇ Test deletionOfQueuedOriginalSkipsItAndReleasesItsLease() started.
+✔ Test deletionOfQueuedOriginalSkipsItAndReleasesItsLease() passed after 0.589 seconds.
+◇ Test switchingAndCancellingASeekCannotResumeTheOldParagraph() started.
+✔ Test switchingAndCancellingASeekCannotResumeTheOldParagraph() passed after 0.570 seconds.
+◇ Test unreadableChunkDoesNotBlockTheNextOriginalAndAllMissingIsHonest() started.
+✔ Test unreadableChunkDoesNotBlockTheNextOriginalAndAllMissingIsHonest() passed after 0.092 seconds.
+✔ Suite "Natural paragraph playback" passed after 2.010 seconds.
+✔ Test run with 9 tests in 3 suites passed after 4.479 seconds.
