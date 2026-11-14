@@ -69,12 +69,19 @@ struct AudioLifecycleTests {
     }
     @Test func localRecognizerKeepsItsContextAcrossAThinkingPause() throws {
         let segmenter = try VoiceSegmenter()
-        let samples = (0..<3_200).map { i in
-            Int16(10_000 * sin(2 * .pi * Double(i) * 180 / 16_000))
+        let samples = (0..<6_400).map { i in
+            let t = Double(i) / 16_000
+            return Int16(10_000 * sin(2 * .pi * 120 * t) + 4_000 * sin(2 * .pi * 660 * t))
         }
         let syllable = samples.withUnsafeBytes { Data($0) }
+        // Establish real VAD activity before the pause. A short pure tone can
+        // fail to start the first segment and make a one-segment count pass
+        // solely because the second tone was detected.
+        let first = segmenter.accept(syllable)
+        try #require(segmenter.speaking)
+        try #require(first.filter { if case .begin = $0 { true } else { false } }.count == 1)
         let pause = Data(repeating: 0, count: 35_200) // 1.1 seconds at 16 kHz, mono PCM16.
-        let events = segmenter.accept(syllable + pause + syllable + Data(repeating: 0, count: 80_000))
+        let events = first + segmenter.accept(pause + syllable + Data(repeating: 0, count: 80_000))
         let starts = events.filter { if case .begin = $0 { true } else { false } }
         let ends = events.filter { if case .end = $0 { true } else { false } }
         #expect(starts.count == 1)
