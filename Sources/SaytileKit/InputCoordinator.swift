@@ -233,7 +233,22 @@ public final class NativeInputCoordinator {
     }
 
     private func observedOwnWebEdit() -> Bool {
-        guard let current = try? access.snapshot(), current.isWeb, current.pageContextComplete,
+        let current: InputTargetSnapshot
+        do { current = try access.snapshot() }
+        catch NativeInputError.unsupported {
+            // Chrome can briefly omit the focused editor or selection in the first
+            // notification of our successful write. This is not ownership proof.
+            // Keep only this already-issued insertion eligible for bounded readback;
+            // a second observation invalidates it, and settledWrite still requires
+            // two complete, identical target/caret/full-field witnesses after the gap.
+            guard boundPurpose == .continuous, canObserveOwnership,
+                  hasIssuedDispatch, !insertionProofComplete,
+                  inFlightCorrection == nil, inFlightInsertion?.expectedField != nil,
+                  unreadWebInsertionAt == nil else { return false }
+            unreadWebInsertionAt = observedEditSequence
+            return true
+        } catch { return false }
+        guard current.isWeb, current.pageContextComplete,
               current.selectionLength == 0 else { return false }
         if let pending = inFlightCorrection {
             return current == pending.after && access.textWitness(at: current)?.utf8.elementsEqual(pending.newText.utf8) == true

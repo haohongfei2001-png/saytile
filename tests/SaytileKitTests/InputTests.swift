@@ -79,6 +79,86 @@ private final class FakeInputAccess: InputAccess {
 @Suite("Input coordinator with isolated SQLite and simulated OS")
 @MainActor
 struct InputCoordinatorTests {
+    @Test(arguments: ["restored", "persistent", "one-settled-read", "second-content", "focus", "layout",
+                      "changed-process", "changed-window", "changed-editor", "changed-page", "incomplete-page",
+                      "changed-caret", "selected-range", "changed-prefix", "changed-suffix", "sensitive"])
+    func firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_ scenario: String) async throws {
+        let directory = testDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true
+        access.target.selectionLocation = 2
+        access.fieldWitness = "abz"
+        let input = NativeInputCoordinator(store: store, access: access)
+        try await input.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+        var snapshotReads = 0, unavailableReads = 0, completeFieldReads = 0
+        access.afterDispatch = {
+            access.fieldWitness = "ab你好😀z"
+            // Match the native Chrome failure: the very first content notification
+            // cannot read the focused AX range. Install the fault BEFORE notifying.
+            access.onSnapshot = {
+                snapshotReads += 1
+                if snapshotReads == 1 || scenario == "persistent" ||
+                    scenario == "one-settled-read" && snapshotReads > 2 {
+                    unavailableReads += 1
+                    throw NativeInputError.unsupported
+                }
+            }
+            access.onWitness = { if access.fieldWitness != nil { completeFieldReads += 1 } }
+            access.onChange?(.contentOrSelection)
+            #expect(unavailableReads == 1)
+            switch scenario {
+            case "second-content": access.onChange?(.contentOrSelection)
+            case "focus": access.onChange?(.focusOrDocument)
+            case "layout": access.onChange?(.layout)
+            case "changed-process": access.target.processID += 1
+            case "changed-window": access.target.windowID = UUID()
+            case "changed-editor": access.target.elementID = UUID()
+            case "changed-page": access.target.pageIdentity = "fixture://another-page"
+            case "incomplete-page": access.target.pageContextComplete = false
+            case "changed-caret": access.target.selectionLocation -= 1
+            case "selected-range": access.target.selectionLength = 1
+            case "changed-prefix": access.fieldWitness = "Ab你好😀z"
+            case "changed-suffix": access.fieldWitness = "ab你好😀Z"
+            case "sensitive": access.target.isSensitive = true
+            default: break
+            }
+        }
+        let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
+            stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
+        #expect(result == (scenario == "restored" ? .confirmed : .unverified))
+        #expect((input.binding != nil) == (scenario == "restored"))
+        #expect(access.attempts == ["你好😀"])
+        if scenario == "restored" {
+            // Initial verification plus TWO independently settled complete witnesses.
+            #expect(snapshotReads >= 3)
+            #expect(completeFieldReads >= 3)
+        }
+        if scenario == "one-settled-read" {
+            #expect(completeFieldReads == 2)
+            #expect(unavailableReads >= 2)
+        }
+        access.onSnapshot = nil; access.onWitness = nil; access.afterDispatch = nil
+        #expect(await input.insertStable(recordingID: record.id, revisionID: revision.id,
+            stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt) ==
+            (scenario == "restored" ? .noNewText : .cancelled))
+        if scenario != "restored" {
+            let correction = try await store.saveEdit(recordingID: record.id, text: "您好😀")
+            #expect(await input.repairOwned(revision: correction) == .correctionPending)
+        }
+        #expect(access.attempts == ["你好😀"])
+        // Uncertain delivery must not acquire a stored range for later corrections.
+        let db = try StoreDatabase(url: directory.appendingPathComponent("Saytile.sqlite"), readOnly: true)
+        let ownership = try db.rows("SELECT expected_text,valid FROM owned_input_ranges WHERE recording_id=?", [.text(record.id.uuidString)])
+        if scenario == "restored" {
+            #expect(ownership.count == 1 && ownership.first?["expected_text"] == "你好😀" && ownership.first?["valid"] == "1")
+        } else { #expect(ownership.isEmpty) }
+        try db.close()
+        try await store.close()
+    }
+
     @Test(arguments: ["restored", "persistent", "late-focus", "observed-edit", "bad-caret", "field-changed"])
     func uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_ scenario: String) async throws {
         let directory = testDirectory()
