@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "url": "https://saytile.com/",
+  "checks": [
+    {
+      "name": "Public HTTPS 200",
+      "pass": true
+    },
+    {
+      "name": "Public HTML matches approved commit bytes",
+      "pass": true
+    },
+    {
+      "name": "Live CTA opens download section .nav-cta",
+      "pass": true
+    },
+    {
+      "name": "Live CTA opens download section .hero-actions .button-dark",
+      "pass": true
+    },
+    {
+      "name": "Live fixed beta URL",
+      "pass": true
+    },
+    {
+      "name": "Website button downloads full package",
+      "pass": true
+    },
+    {
+      "name": "Browser download matches verified package SHA256",
+      "pass": true
+    },
+    {
+      "name": "Mobile download visible and no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "Install limits accessible",
+      "pass": true
+    },
+    {
+      "name": "No public page script errors",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "html_sha256": "485c7a7e6ae548319216fa60a9ca9e270a1317e5744f2b039751803096955597",
+  "download_sha256": "654b08e926d90c88e0cb05ff4a5c116aa6c87c6cd59f7d71c24ca028c0d5f933",
+  "browser": "157.0.8103.51",
+  "environment": "Isolated headless macOS browser, fresh context, no user profile",
+  "date": "2026-11-14T18:38:07.082Z"
+}
