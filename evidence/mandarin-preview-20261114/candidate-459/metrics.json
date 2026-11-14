@@ -479,7 +479,246 @@
    }
   }
  },
- "accelerated": {},
+ "accelerated": {
+  "qwen-small-product": {
+   "by_manifest": {
+    "paired": {
+     "rows": 340,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 5
+     },
+     "literal_anchors": {
+      "number": {
+       "literal_matched": 168,
+       "reference_occurrences": 210
+      },
+      "negative": {
+       "literal_matched": 102,
+       "reference_occurrences": 103
+      },
+      "latin": {
+       "literal_matched": 153,
+       "reference_occurrences": 249
+      },
+      "date_time": {
+       "literal_matched": 36,
+       "reference_occurrences": 36
+      },
+      "technical_term": {
+       "literal_matched": 7,
+       "reference_occurrences": 7
+      },
+      "money": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 134,
+      "mer": 0.11492281303602059
+     },
+     "groups": {
+      "fleurs": {
+       "errors": 571,
+       "substitutions": 240,
+       "deletions": 266,
+       "insertions": 65,
+       "reference_units": 6260,
+       "cer": 0.09121,
+       "rows": 160
+      },
+      "ALL": {
+       "errors": 914,
+       "substitutions": 399,
+       "deletions": 397,
+       "insertions": 118,
+       "reference_units": 9962,
+       "cer": 0.09175,
+       "rows": 340
+      },
+      "ascend-zh": {
+       "errors": 53,
+       "substitutions": 27,
+       "deletions": 14,
+       "insertions": 12,
+       "reference_units": 934,
+       "cer": 0.05675,
+       "rows": 80
+      },
+      "ascend-mixed": {
+       "errors": 225,
+       "substitutions": 103,
+       "deletions": 83,
+       "insertions": 39,
+       "reference_units": 2004,
+       "cer": 0.11228,
+       "rows": 80
+      },
+      "quiet": {
+       "errors": 43,
+       "substitutions": 19,
+       "deletions": 22,
+       "insertions": 2,
+       "reference_units": 403,
+       "cer": 0.1067,
+       "rows": 10
+      },
+      "noise15db": {
+       "errors": 22,
+       "substitutions": 10,
+       "deletions": 12,
+       "insertions": 0,
+       "reference_units": 361,
+       "cer": 0.06094,
+       "rows": 10
+      }
+     }
+    },
+    "aishell": {
+     "rows": 100,
+     "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 0
+     },
+     "literal_anchors": {
+      "negative": {
+       "literal_matched": 16,
+       "reference_occurrences": 17
+      },
+      "number": {
+       "literal_matched": 45,
+       "reference_occurrences": 48
+      },
+      "technical_term": {
+       "literal_matched": 4,
+       "reference_occurrences": 4
+      },
+      "money": {
+       "literal_matched": 5,
+       "reference_occurrences": 5
+      },
+      "date_time": {
+       "literal_matched": 6,
+       "reference_occurrences": 6
+      }
+     },
+     "mixed_mer": {
+      "reference_units": 0,
+      "errors": 0,
+      "mer": null
+     },
+     "groups": {
+      "aishell1-test": {
+       "errors": 61,
+       "substitutions": 37,
+       "deletions": 24,
+       "insertions": 0,
+       "reference_units": 1465,
+       "cer": 0.04164,
+       "rows": 100
+      },
+      "ALL": {
+       "errors": 61,
+       "substitutions": 37,
+       "deletions": 24,
+       "insertions": 0,
+       "reference_units": 1465,
+       "cer": 0.04164,
+       "rows": 100
+      }
+     }
+    }
+   },
+   "exact_anchor_tokens": {
+    "original_420": {
+     "number": {
+      "reference": 249,
+      "missing": 45,
+      "extra": 53
+     },
+     "negative": {
+      "reference": 112,
+      "missing": 3,
+      "extra": 2
+     },
+     "money": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 41,
+      "missing": 0,
+      "extra": 2
+     },
+     "latin": {
+      "reference": 237,
+      "missing": 96,
+      "extra": 39
+     },
+     "technical_term": {
+      "reference": 11,
+      "missing": 0,
+      "extra": 1
+     }
+    },
+    "derived_20": {
+     "number": {
+      "reference": 9,
+      "missing": 2,
+      "extra": 2
+     },
+     "negative": {
+      "reference": 8,
+      "missing": 0,
+      "extra": 0
+     },
+     "money": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     },
+     "date_time": {
+      "reference": 1,
+      "missing": 0,
+      "extra": 0
+     },
+     "latin": {
+      "reference": 12,
+      "missing": 7,
+      "extra": 2
+     },
+     "technical_term": {
+      "reference": 0,
+      "missing": 0,
+      "extra": 0
+     }
+    }
+   },
+   "cohorts": {
+    "original_420": {
+     "errors": 910,
+     "substitutions": 407,
+     "deletions": 387,
+     "insertions": 116,
+     "reference_units": 10663,
+     "cer": 0.08534,
+     "rows": 420
+    },
+    "derived_20": {
+     "errors": 65,
+     "substitutions": 29,
+     "deletions": 34,
+     "insertions": 2,
+     "reference_units": 764,
+     "cer": 0.08508,
+     "rows": 20
+    }
+   }
+  }
+ },
  "files_sha256": {
   "panels/auto-qwen-small-fleurs-1bc3201a9f24a2fe.json": "d9c1646a0727b2a295430dd83e389407f19d36f2799e6e4ab73cfe634ced1635",
   "panels/auto-qwen-small-fleurs-0ebe0fb634f8e4ac.json": "f3cbb7c710592efd002311aa03712a76e25b623993f85a59fa82e46b6573a14f",
@@ -495,7 +734,9 @@
   "panels/auto-qwen-small-ascend-mixed-a0b0e736637c643c.json": "20c3209a5599e1e51ce43b9f443ae806d33cc50d6588cf525e1ee74b4142dd12",
   "panels/auto-qwen-small-ascend-mixed-ee4e2d5087648134.json": "d0102447cdfbb67de90b3f5bff60dd33d93942e9b901b1aca721c5d70e2788ef",
   "panels/auto-qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "471c12ca4617af79178d27f59153e2716b34b7fff349b760fecaf5870e84691b",
-  "panels/auto-qwen-small-ascend-mixed-ff9c42612780330b.json": "047616162dcc246b5412c3c236c95bdd77be37e9c535c99fa717f75918e510a6"
+  "panels/auto-qwen-small-ascend-mixed-ff9c42612780330b.json": "047616162dcc246b5412c3c236c95bdd77be37e9c535c99fa717f75918e510a6",
+  "runs/paired-qwen-small-product.jsonl": "9223a3350c80385650178f08306bd50302512487654dca31c50b62fa829f7a8d",
+  "runs/aishell-qwen-small-product.jsonl": "b80a4b1685346355a60c5507fec2c3d4ce26aff28cda24b2325f54d2fd58a7ec"
  },
  "resources": {}
 }
