@@ -50,8 +50,7 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
             // The small model translated whole English clauses in Mandarin speech
             // when forced to Chinese. Leave it free to transcribe the spoken language.
             let language = id == "qwen-small" ? nil : "Chinese"
-            var options = Qwen3DecodingOptions(language: language, longInputThresholdSeconds: .infinity)
-            options.reusesPreviewScratch = id == "qwen-small"
+            let options = Qwen3DecodingOptions(language: language, longInputThresholdSeconds: .infinity)
             transcribe = { try model.transcribeThrowing(audio: $0, options: options) }
         case "paraformer":
             nemo = nil
@@ -85,7 +84,6 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
         // The small Qwen model is greedy. If EOS follows a preview without
         // another PCM sample, that exact decode is already its final answer.
         var exactPreview: (frames: Int, text: String)?
-        defer { if id == "qwen-small" { MLX.Memory.clearCache() } }
         var input = PCMFrameReader(descriptor: STDIN_FILENO)
         func nextFrame() throws -> Data? {
             if id == "qwen-small" { return try input.next() }
@@ -140,7 +138,6 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
                 try publish(update ?? last, kind: "final", frames: frames, decodes: decodes)
                 decodes.removeAll(keepingCapacity: true)
                 exactPreview = nil
-                if id == "qwen-small" { MLX.Memory.clearCache() }
                 stream = try nemo?.createSession(language: "zh")
                 samples.removeAll(keepingCapacity: true)
                 prefix = ""; last = ""; next = firstStride; frames = 0

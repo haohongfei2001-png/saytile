@@ -20,16 +20,12 @@ if [[ ! -f "$pkg/.vendor/SpeechKernels/.$speech" ]]; then
   git -C "$cache/speech-swift" archive "$speech" Sources/{AudioCommon,MLXCommon,SpeechVAD,Qwen3ASR,NemotronStreamingASR} LICENSE | tar xf - -C "$pkg/.vendor/SpeechKernels"
   touch "$pkg/.vendor/SpeechKernels/.$speech"
 fi
-# Start from the pinned blob on every preparation so edits to the patch and
-# reused build directories produce the same source as a clean checkout.
+# Restore this file even if a previous build prepared a different Qwen preview policy.
 qwen=Sources/Qwen3ASR/Qwen3ASR.swift
-staged=$(mktemp -d)
-trap 'rm -rf "$staged"' EXIT
-mkdir -p "$staged/Sources/Qwen3ASR"
-git -C "$cache/speech-swift" show "$speech:$qwen" > "$staged/$qwen"
-echo "dd028981de6dcbeb5d0953efff60535e8dbff88c109d1b3fb10aadb60328b41f  $staged/$qwen" | shasum -a 256 -c - >/dev/null
-patch -s -d "$staged" -p0 -i "$PWD/$pkg/QwenPreviewScratch.patch"
-cmp -s "$staged/$qwen" "$pkg/.vendor/SpeechKernels/$qwen" || cp "$staged/$qwen" "$pkg/.vendor/SpeechKernels/$qwen"
+original=$(mktemp)
+trap 'rm -f "$original"' EXIT
+git -C "$cache/speech-swift" show "$speech:$qwen" > "$original"
+cmp -s "$original" "$pkg/.vendor/SpeechKernels/$qwen" || cp "$original" "$pkg/.vendor/SpeechKernels/$qwen"
 cmp -s "$pkg/SpeechKernels.swift-manifest" "$pkg/.vendor/SpeechKernels/Package.swift" || cp "$pkg/SpeechKernels.swift-manifest" "$pkg/.vendor/SpeechKernels/Package.swift"
 mkdir -p "$pkg/.vendor/FluidAudio"
 if [[ ! -f "$pkg/.vendor/FluidAudio/.$fluid" ]]; then

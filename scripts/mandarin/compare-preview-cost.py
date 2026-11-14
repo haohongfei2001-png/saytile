@@ -12,18 +12,31 @@ def edits(events, onset, end):
     prefix_replacements = 0
     replaced_or_removed = 0
     previous = ""
+    previous_literal = ""
+    literal_revisions = 0
+    provisional_periods_retracted = 0
     for item in events:
         text = norm(item["text"])
-        if not onset <= item["t"] < end or not text or text == previous:
+        if not onset <= item["t"] < end or not text:
             continue
         if "speaking" in item and not item["speaking"]:
+            continue
+        current = item["text"]
+        if previous_literal and not current.startswith(previous_literal):
+            literal_revisions += 1
+            # Only count a period that disappeared while the same words grew.
+            if previous_literal.endswith("。") and current.startswith(previous_literal[:-1]) and len(current) > len(previous_literal):
+                provisional_periods_retracted += 1
+        previous_literal = current
+        if text == previous:
             continue
         if previous and not text.startswith(previous):
             prefix_replacements += 1
             align = rating(previous, text)
             replaced_or_removed += align["deletions"] + align["substitutions"]
         previous = text
-    return {"suffix_revisions": prefix_replacements, "removed_or_replaced_chars": replaced_or_removed}
+    return {"suffix_revisions": prefix_replacements, "removed_or_replaced_chars": replaced_or_removed,
+            "literal_revisions": literal_revisions, "provisional_periods_retracted": provisional_periods_retracted}
 
 
 def collect(directory, summary, ident):
