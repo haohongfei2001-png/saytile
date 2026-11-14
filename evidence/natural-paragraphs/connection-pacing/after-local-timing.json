@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "parent_source": "783921b557b5d6aa1631c5015eb361ac41606dcb",
+  "scope": "Precommit targeted native localhost regression; not paid cloud or microphone",
+  "source_file_sha256": "931dc6fdedfade613cecdfc999a4b80a9b50266895daa4cd22421a6c72f0d154",
+  "tests": 13,
+  "wire_cases": 52,
+  "violations": 0,
+  "wizard_cases": [
+    {
+      "scenario": "normal",
+      "completed": true,
+      "bytes": 200706,
+      "blocks": 63,
+      "eos": true,
+      "connected_to_eos_seconds": 6.272119999999996,
+      "gpt_requests": 2
+    },
+    {
+      "scenario": "unsupported",
+      "completed": true,
+      "bytes": 200706,
+      "blocks": 63,
+      "eos": true,
+      "connected_to_eos_seconds": 6.277081000000005,
+      "gpt_requests": 2
+    },
+    {
+      "scenario": "churn",
+      "completed": true,
+      "bytes": 200706,
+      "blocks": 63,
+      "eos": true,
+      "connected_to_eos_seconds": 6.275851999999999,
+      "gpt_requests": 2
+    },
+    {
+      "scenario": "each_reconnect",
+      "completed": true,
+      "bytes": 200706,
+      "blocks": 63,
+      "eos": true,
+      "connected_to_eos_seconds": 6.274023999999998,
+      "gpt_requests": 4
+    }
+  ],
+  "deadline_seconds_unchanged": 12
+}
