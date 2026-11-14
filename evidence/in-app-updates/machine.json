@@ -10,13 +10,20 @@
   "rollback": "PASS",
   "signature": "PASS",
   "gatekeeper": "BLOCKED_UNNOTARIZED_DEVELOPER_ID",
-  "ci": "RUNNING",
-  "installed": "NOT_YET",
+  "ci": "PASS",
+  "installed": "PASS",
   "private_data": "NOT_ACCESSED",
   "paid_API": "NOT_CALLED",
   "mic_lid_closed": "NOT_RUN",
   "standard_sparkle_window_clicks": "NOT_RUN_deterministic_driver",
   "public_feed_release_item": "NONE",
   "main_modified": false,
-  "production_app_modified": false
+  "production_app_modified": false,
+  "ci_jobs_passed": 5,
+  "swift_tests_passed": 532,
+  "swift_tests_failed": 0,
+  "app_model_checks": 183,
+  "installed_path": "/Users/hhf/Applications/Saytile 中文识别候选.app",
+  "installed_running_pid": 84511,
+  "installation_method": "atomic same-path bootstrap from488; real Sparkle tested on isolated signed copies"
 }

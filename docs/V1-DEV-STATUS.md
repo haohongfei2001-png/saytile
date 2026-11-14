@@ -1,3 +1,12 @@
+## 2026-11-15 应用内更新已交付：0.18（492）
+
+- 产品源码 012999c2018f591f3cf9a529e4c0ae81e7b81f21；Draft PR #44，继承 PR43，main 不变。
+- PASS：最终 CI 5/5，完整 Xcode 26.6，532/532 Swift Testing、183 AppModel、18 打包配置，原生 UI/12000条时间轴及 foreground 隔离目标检查；没有放宽或跳过失败断言。
+- PASS：真实 Sparkle 下载/损坏包拒绝/安装/无参数重启，真实关于页按钮 AXPress 查询签名空 feed，全部合成资料保持；488→492→488→492 回退。
+- 当前中文候选已原位更新并启动 PID84511；正式373、资料目录/模型缓存/Keychain服务名及ASR运行库保持，旧488DMG可回退。没有读取用户数据库或密钥明文。
+- 原生证据及全部限制：evidence/in-app-updates/DELIVERY.md、machine.json、ci.json、activation.json。Developer ID签名PASS；Gatekeeper未公证仍BLOCKED，本轮不公证/不发布。
+- 下一步：以后获准发行的同身份签名新版本加入对应feed后，用户可在应用内确认安装。当前feed为空，不冒称已有公开新版。物理麦克风/新ASR质量/标准Sparkle窗口逐按钮操作本轮NOT_RUN。
+
 ## 2026-11-15 应用内更新最终候选（等待最后 CI）
 
 - 源码 012999c2018f591f3cf9a529e4c0ae81e7b81f21，0.18（492），Draft PR #44。源码冻结，无未提交产品变更。

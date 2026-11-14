@@ -19,7 +19,7 @@ Saytile 独立 Ed25519 密钥仅保留 Keychain；仓库只有公钥。正式与
 | 升级回退 | PASS | 488→492→488→492，同源签名包；SQLite v6、自然段元数据、原音哈希、版本和草稿保持 |
 | 更新配置 | PASS | Swift Testing 7 项，Python 打包配置 18 项；签名失败不降级、仅前进版本、渠道绑定、隐私设置 |
 | 独立代码复核 | PASS | 无新 P0/P1；3 处更新提示 P2 已修复，见 REVIEW.md |
-| 最终 CI | RUNNING | 见 machine.json；完成后更新 |
+| 最终 CI | PASS | 5/5；Xcode 26.6，532/532 Swift Testing、183 AppModel、18 打包配置；无失败断言跳过 |
 | Developer ID 签名 | PASS | App 与 DMG，Team ZB9D4T66QB |
 | Gatekeeper / 公证 | BLOCKED | Unnotarized Developer ID；未绕过策略、未提交公证 |
 | 标准 Sparkle 弹窗逐按钮操作 | NOT_RUN | 原生安装驱动为确定性测试 driver；不冒称标准窗口人工点击 |
@@ -38,6 +38,6 @@ Saytile 独立 Ed25519 密钥仅保留 Keychain；仓库只有公钥。正式与
 
 DMG：`Saytile-0.18-mandarin-arm64.dmg`，64,972,638 bytes。SHA-256：`654b08e926d90c88e0cb05ff4a5c116aa6c87c6cd59f7d71c24ca028c0d5f933`。
 
-本机交付目录：`/Users/hhf/Documents/GitHub/saytile/dist/in-app-updates-0.18-492/`。当前候选安装预检 PASS，最终安装状态以 activation.json 为准。现有正式 0.12（373）不修改。旧 0.17（488）DMG保留，可安全回退；不需要关闭 Gatekeeper。公网上下载的未公证包可能被系统阻止，本机工程启动与正式分发验收不同。
+本机交付目录：`/Users/hhf/Documents/GitHub/saytile/dist/in-app-updates-0.18-492/`。当前候选已在原路径原子更新并启动，492 的实际 PID 84511、签名和可执行文件指纹已核验，详见 activation.json。本次从未接通更新的488引导安装使用原子包替换；真正 Sparkle 安装链在隔离签名副本中验证，二者不混称。现有正式 0.12（373）不修改。旧 0.17（488）DMG保留，可安全回退；不需要关闭 Gatekeeper。公网上下载的未公证包可能被系统阻止，本机工程启动与正式分发验收不同。
 
 后续获准发行时才签名并发布对应身份的更新项。构建号必须高于已分发最大值，不能直接以 squash 后更小的 git count 发行。用户资料不参与 feed/安装包，模型缓存不进入更新归档。
