@@ -1,9 +1,9 @@
 # Saytile official site — GitHub Pages deployment
 
 - Canonical product site: `https://saytile.com/` (root domain, not `www`).
-- Source of truth: `main/website/`, previously approved as R3. Do not replace the page with a simplified reconstruction.
+- Source of truth: `main/website/`, R8 plus the two approved product scenes. Do not replace the page with a simplified reconstruction.
 - Publish via `.github/workflows/pages.yml` using GitHub Actions, upload the **contents** of `website/` as the Pages root. No Vercel, Node build, CDN, or external fonts are required.
-- Verify the six original runtime files before every deploy using `website/SHA256SUMS.txt`. Preserved screenshots and design approvals are in `website/reference/` and `website/APPROVAL.md`.
+- Verify the 15 current runtime files before every deploy using `website/SHA256SUMS.txt`. Preserved screenshots and design approvals are in `website/reference/` and `website/APPROVAL.md`.
 - GitHub Pages repository site configured through the Pages REST API with `build_type=workflow` and `cname=saytile.com` on 2026-11-13.
 
 ## DNS (DNSPod is currently authoritative)
