@@ -1,0 +1,265 @@
+{
+  "sourceSHA": "783921b557b5d6aa1631c5015eb361ac41606dcb",
+  "status": "FAIL",
+  "generatedUTC": "2026-11-14T07:11:02.242857+00:00",
+  "checks": {
+    "total": 5,
+    "passed": 4,
+    "failed": 1,
+    "jobs": [
+      {
+        "run": 43569246691,
+        "id": 132369785305,
+        "name": "gateway",
+        "conclusion": "success",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43569246691,
+        "id": 132369785471,
+        "name": "native-gateway",
+        "conclusion": "success",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43569246475,
+        "id": 132369784939,
+        "name": "data-and-prototype",
+        "conclusion": "success",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43569246503,
+        "id": 132369784892,
+        "name": "foreground",
+        "conclusion": "success",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43569246503,
+        "id": 132369785081,
+        "name": "native",
+        "conclusion": "failure",
+        "failedSteps": [
+          {
+            "completedAt": "2026-11-14T07:07:03Z",
+            "conclusion": "failure",
+            "name": "Real localhost provider protocols (no API keys)",
+            "number": 5,
+            "startedAt": "2026-11-14T07:03:42Z",
+            "status": "completed"
+          }
+        ],
+        "skippedSteps": [
+          "Run scripts/test-app-model.sh",
+          "Owned native window boundary and restoration",
+          "Run scripts/build-app.sh",
+          "Isolated cloud probe CLI boundaries",
+          "Isolated connection setup CLI boundaries",
+          "Edit directly in the native panel using a private clipboard",
+          "Shared natural paragraphs in real panel and archive",
+          "Native windows with synthetic data",
+          "Native continuous timeline with 12000 isolated utterances",
+          "Isolated startup without microphone",
+          "Preserve app bundle permissions",
+          "Run actions/upload-artifact@v4"
+        ]
+      }
+    ]
+  },
+  "swiftTesting": {
+    "expected": 523,
+    "run": 17,
+    "passed": 16,
+    "failed": 1,
+    "issues": 3,
+    "notRun": 506,
+    "groups": [
+      {
+        "tests": 4,
+        "suites": 2,
+        "status": "PASSED",
+        "seconds": 1.743
+      },
+      {
+        "tests": 13,
+        "suites": 1,
+        "status": "FAILED",
+        "seconds": 58.799
+      }
+    ]
+  },
+  "failure": {
+    "test": "actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:)",
+    "fault": "churn",
+    "assertionLines": [
+      304,
+      305,
+      315
+    ],
+    "elapsedSeconds": 12.261582970619202,
+    "watchdogSeconds": 12,
+    "actualPCMBytes": 198400,
+    "expectedPCMBytes": 200706,
+    "missingPCMBytes": 2306,
+    "blocksReceived": 62,
+    "eos": false,
+    "gptRequests": 1,
+    "rawProtocolViolations": 0,
+    "explanation": "The checker cumulatively sleeps 100 ms after each PCM block; real scheduling delays accumulated. The 6.2720625 s sample had only 6.2 s worth of PCM delivered after approximately 12 s. Watchdog cancelled before the final short block/EOS. Other wizard arms also took 10.88-11.64 s to deliver the same sample.",
+    "qualification": "Raw receive intervals prove observed timing drift; exact host scheduling cause is not separately measured. This is the setup connection-check replay path, not physical microphone capture.",
+    "recommendedFix": "Use monotonic absolute pacing keyed to cumulative PCM sample time; retain current hard timeout, PCM hash/EOS and successful-review assertions. Do not extend timeout or repeat CI without a fix."
+  },
+  "wireAudit": {
+    "source": "783921b557b5d6aa1631c5015eb361ac41606dcb",
+    "rawAuditSHA256": "b46310a01dd07484c652a4adb4ee57fa277266cc6db75e9a57817a21fd4eed8a",
+    "caseCount": 52,
+    "allProtocolViolations": 0,
+    "expectedPCMBytes": 200706,
+    "expectedAudioSeconds": 6.2720625,
+    "wizardCases": [
+      {
+        "scenario": "normal",
+        "case": "992E0907-E003-4D1B-840D-34624A196369",
+        "completed": true,
+        "pcmBytes": 200706,
+        "blocks": 63,
+        "eos": true,
+        "connectedToEOSms": 10880.910000000003,
+        "connectedToClosems": 10892.97099999999,
+        "partialFirstToLastms": 810.8869999999879,
+        "partialIntervalsMs": {
+          "min": 366.5789999999979,
+          "median": 405.44349999999395,
+          "max": 444.30799999999
+        },
+        "violations": [],
+        "gptRequests": 2
+      },
+      {
+        "scenario": "unsupported",
+        "case": "858F3281-393B-4C6A-8926-9801EBADAEC8",
+        "completed": true,
+        "pcmBytes": 200706,
+        "blocks": 63,
+        "eos": true,
+        "connectedToEOSms": 11635.959000000003,
+        "connectedToClosems": 11653.13500000001,
+        "partialFirstToLastms": 747.9700000000012,
+        "partialIntervalsMs": {
+          "min": 372.2149999999965,
+          "median": 373.9850000000006,
+          "max": 375.75500000000466
+        },
+        "violations": [],
+        "gptRequests": 2
+      },
+      {
+        "scenario": "churn",
+        "case": "896D491E-3902-4E16-95CB-FC61D252175B",
+        "completed": false,
+        "pcmBytes": 198400,
+        "blocks": 62,
+        "eos": false,
+        "connectedToEOSms": null,
+        "connectedToClosems": 12002.38500000001,
+        "partialFirstToLastms": 11748.789999999979,
+        "partialIntervalsMs": {
+          "min": 103.25699999998324,
+          "median": 215.9089999999851,
+          "max": 257.08699999999953
+        },
+        "violations": [],
+        "gptRequests": 1
+      },
+      {
+        "scenario": "each_reconnect",
+        "case": "BDF0AA52-3498-4DDD-9EB8-CE8E4BB9E785",
+        "completed": true,
+        "pcmBytes": 200706,
+        "blocks": 63,
+        "eos": true,
+        "connectedToEOSms": 11083.710000000021,
+        "connectedToClosems": 11100.733999999997,
+        "partialFirstToLastms": 698.2639999999956,
+        "partialIntervalsMs": {
+          "min": 273.33400000000256,
+          "median": 349.1319999999978,
+          "max": 424.929999999993
+        },
+        "violations": [],
+        "gptRequests": 4
+      }
+    ]
+  },
+  "foreground": {
+    "status": "PASS",
+    "noAutomaticSend": true,
+    "targets": [
+      "owned AppKit",
+      "owned WKWebView",
+      "TextEdit",
+      "Chrome"
+    ]
+  },
+  "power": {
+    "source": "783921b557b5d6aa1631c5015eb361ac41606dcb",
+    "host_model": "VirtualMac2,1",
+    "capabilities": [
+      "Capabilities for AC Power:",
+      " displaysleep",
+      " disksleep",
+      " sleep",
+      " standby",
+      " powernap",
+      " ttyskeepawake",
+      " tcpkeepalive"
+    ],
+    "private_audio_opened": false,
+    "status": "BLOCKED",
+    "reason": "runner lacks scheduled hardware wake or system sleep support",
+    "schedule_exit": 0,
+    "sleep_request_exit": 71
+  },
+  "notRun": [
+    "CloudConnectionVerificationTests remaining isolated suite",
+    "8 playback tests",
+    "486 remaining tests",
+    "AppModel",
+    "native natural paragraphs",
+    "native boundary",
+    "12000 timeline",
+    "general UI",
+    "startup/package"
+  ],
+  "artifacts": [
+    {
+      "id": 14104161072,
+      "name": "single-asr-foreground",
+      "bytes": 4083,
+      "sha256": "6183ce76e123e2814376e124b8a0729c30a1c7051ba3ede194e735bdcc83c038",
+      "matchesGitHubAdvertisedSHA256": true
+    },
+    {
+      "id": 14104051157,
+      "name": "single-asr-power",
+      "bytes": 704,
+      "sha256": "5ff79a7d03ac209bddfd6e9d5cfc0f77acb916bc43d929ad730ea00bc45a9897",
+      "matchesGitHubAdvertisedSHA256": true
+    },
+    {
+      "id": 14103527479,
+      "name": "Saytile-localhost-protocol",
+      "bytes": 16714,
+      "sha256": "4c655bcefc64972971f0c740dbea98fcf640058b2ae8f125684c19a212264607",
+      "matchesGitHubAdvertisedSHA256": true
+    }
+  ],
+  "noRerunPerformed": true,
+  "noSourceModified": true,
+  "installedAppUntouched": true
+}

@@ -1,34 +1,38 @@
 Building for production...
 [Pre-planning 1 / 242]
-[Starting]
+[Constructing 23 / 534]
 [54 / 125]
-[87 / 137]
-[105 / 137] CAudio
+[80 / 136] CAudio
+[96 / 137] CAudio
+[109 / 137] CAudio
 [114 / 137] CAudio
 [120 / 165]
 [138 / 296]
-[156 / 296]
-[167 / 296]
-[171 / 296]
+[152 / 296]
+[166 / 296]
+[170 / 296]
+[172 / 296]
 /private/tmp/saytile-natural-paragraphs/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
-[178 / 296]
-[182 / 296]
-[186 / 296]
+[180 / 296]
+[183 / 296]
 [191 / 296]
+[193 / 296]
 [196 / 296]
 [197 / 296]
-[211 / 296]
-[213 / 296]
-[220 / 296]
+[209 / 296]
+[212 / 296]
+[217 / 296]
+[222 / 296]
 [223 / 296]
 [225 / 296]
 [231 / 296]
 [233 / 296]
 [239 / 296]
 [240 / 296]
+[242 / 296]
 [243 / 296]
 [245 / 296]
-[257 / 296]
+[258 / 296]
 [259 / 296]
 [263 / 296]
 [268 / 296]
@@ -39,7 +43,6 @@ Building for production...
 [276 / 296]
 [277 / 296] SaytileVoiceUI
 /private/tmp/saytile-natural-paragraphs/Package.swift: SaytileVoiceUI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
-[284 / 296] SaytileKit
 /private/tmp/saytile-natural-paragraphs/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
 274 |         var run: ModelRunTicket?
 275 |         let started = Date()
@@ -47,9 +50,9 @@ Building for production...
     |             `- warning: variable 'usageRecorded' was written to, but never read
 277 |         do {
 278 |             try await assertCurrent()
+[284 / 296] SaytileKit
 /private/tmp/saytile-natural-paragraphs/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
 [292 / 297] Saytile-product
-[298 / 304]
 [299 / 304]
 [300 / 304] Saytile-product
 /private/tmp/saytile-natural-paragraphs/Sources/SaytileApp/AppModel.swift:868:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
@@ -74,4 +77,4 @@ Building for production...
 /private/tmp/saytile-natural-paragraphs/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
 [302 / 304] Saytile-product
 [303 / 304] Saytile-product
-Build complete! (51.94秒)
+Build complete! (55.14秒)

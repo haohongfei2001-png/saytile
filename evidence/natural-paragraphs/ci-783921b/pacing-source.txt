@@ -1,0 +1,29 @@
+SOURCE 783921b557b5d6aa1631c5015eb361ac41606dcb
+240:         let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-connection-" + UUID().uuidString, isDirectory: true)
+241:         defer { try? FileManager.default.removeItem(at: root) }
+242:         let store = try SaytileStore(directory: root)
+243:         let record = try await store.createRecording()
+244:         let journal = try PCMJournal(directory: store.audioDirectory, recordingID: record.id)
+245:         try journal.openChunk(); try journal.append(pcm); try journal.closeChunk()
+246:         try await store.registerAudioChunk(recordingID: record.id, relativePath: journal.relativePath, frames: journal.durableFrames)
+247:         let ticket = try await store.beginFusionRecognition(recordingID: record.id)
+248:         try Task.checkCancellation()
+249:         let session = MultiRecognitionSession(store: store, ticket: ticket, configuration: check, dependencies: dependencies, finalizationTimeout: deadline)
+250:         let began = Date()
+251:         let watchdog = Task { do { try await Task.sleep(for: deadline); session.cancel(); await review.cancel() } catch {} }
+252:         defer { watchdog.cancel() }
+253:         do {
+254:             try await withTaskCancellationHandler {
+255:                 for offset in stride(from: 0, to: pcm.count, by: 3200) {
+256:                     try Task.checkCancellation()
+257:                     guard !session.isComplete else { break }
+258:                     session.append(pcm.subdata(in: offset..<min(offset + 3200, pcm.count)))
+259:                     if paced { try await Task.sleep(for: .milliseconds(100)) }
+260:                 }
+261:                 try await store.finishRecording(id: record.id)
+262:                 session.finish(); await session.wait()
+263:                 try Task.checkCancellation()
+264:             } onCancel: { session.cancel(); Task { await review.cancel() } }
+265:         } catch {
+266:             session.cancel(); await review.cancel(); await session.wait(); try? await store.close()
+267:             throw error

@@ -1,0 +1,27 @@
+OWNED_OBSERVER bind focus true content true page false
+OWNED_READY complete_reads 3 bound_quiet_reads 3 observed_notifications 0
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 26
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_VERIFY true
+OWNED_RESULT first confirmed AX_exact true writes 1
+OWNED_SNAPSHOT duplicate pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 5
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 15 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 15 length 0 editable true sensitive false setter true appLabel true
+OWNED_VERIFY true
+OWNED_RESULT append confirmed writes 2
+OWNED_READBACK append AX_exact true
+OWNED_EVENT contentOrSelection
+OWNED_BINDING_INVALIDATED changed-selection
+PASS_TEXTEDIT foreground selected by WindowServer; Unicode insertion, prefix/suffix, deduplication, append and target mutation confirmed

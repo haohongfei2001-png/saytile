@@ -1,0 +1,187 @@
+{
+  "sourceSHA": "29ca0cc323fcdf4f1ed53ca98b546b11e98f9f31",
+  "version": "0.15 (481)",
+  "run": 43567337463,
+  "attempt": 2,
+  "status": "FAIL",
+  "generatedUTC": "2026-11-14T06:59:09.673417+00:00",
+  "rerunScope": "One parent-authorized --failed --debug rerun; no further retries",
+  "checks": {
+    "total": 5,
+    "passed": 4,
+    "failed": 1,
+    "jobs": [
+      {
+        "run": 43567337463,
+        "name": "native",
+        "id": 132366528519,
+        "conclusion": "failure",
+        "startedAt": "2026-11-14T06:49:20Z",
+        "completedAt": "2026-11-14T06:55:39Z",
+        "failedSteps": [
+          {
+            "completedAt": "2026-11-14T06:55:27Z",
+            "conclusion": "failure",
+            "name": "Real localhost provider protocols (no API keys)",
+            "number": 5,
+            "startedAt": "2026-11-14T06:50:07Z",
+            "status": "completed"
+          }
+        ],
+        "skippedSteps": [
+          "Run scripts/test-app-model.sh",
+          "Owned native window boundary and restoration",
+          "Run scripts/build-app.sh",
+          "Isolated cloud probe CLI boundaries",
+          "Isolated connection setup CLI boundaries",
+          "Edit directly in the native panel using a private clipboard",
+          "Shared natural paragraphs in real panel and archive",
+          "Native windows with synthetic data",
+          "Native continuous timeline with 12000 isolated utterances",
+          "Isolated startup without microphone",
+          "Preserve app bundle permissions",
+          "Run actions/upload-artifact@v4"
+        ]
+      },
+      {
+        "run": 43567337463,
+        "name": "foreground",
+        "id": 132366529681,
+        "conclusion": "success",
+        "startedAt": "2026-11-14T06:38:38Z",
+        "completedAt": "2026-11-14T06:40:40Z",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43567337444,
+        "name": "gateway",
+        "id": 132363927966,
+        "conclusion": "success",
+        "startedAt": "2026-11-14T06:38:38Z",
+        "completedAt": "2026-11-14T06:39:24Z",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43567337444,
+        "name": "native-gateway",
+        "id": 132363928188,
+        "conclusion": "success",
+        "startedAt": "2026-11-14T06:38:38Z",
+        "completedAt": "2026-11-14T06:39:57Z",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43567337448,
+        "name": "data-and-prototype",
+        "id": 132363927779,
+        "conclusion": "success",
+        "startedAt": "2026-11-14T06:38:38Z",
+        "completedAt": "2026-11-14T06:39:58Z",
+        "failedSteps": [],
+        "skippedSteps": []
+      }
+    ],
+    "foregroundCarriedForward": {
+      "sameLogSHA256": "5a4d5998953e5384e24834ec39e968c6f6b954e2a318d1d0407799fd0634ad51",
+      "originalStartedAt": "2026-11-14T06:38:38Z",
+      "originalCompletedAt": "2026-11-14T06:40:40Z",
+      "newMappedJobID": 132366529681
+    }
+  },
+  "swiftTesting": {
+    "total": 523,
+    "passed": 522,
+    "failed": 1,
+    "issues": 1,
+    "groups": [
+      {
+        "tests": 4,
+        "suites": 2,
+        "status": "PASSED",
+        "seconds": 2.368
+      },
+      {
+        "tests": 13,
+        "suites": 1,
+        "status": "PASSED",
+        "seconds": 56.38
+      },
+      {
+        "tests": 12,
+        "suites": 1,
+        "status": "PASSED",
+        "seconds": 9.169
+      },
+      {
+        "tests": 494,
+        "suites": 61,
+        "status": "FAILED",
+        "seconds": 13.356
+      }
+    ]
+  },
+  "protocol": {
+    "status": "PASS",
+    "tests": 13,
+    "seconds": 56.38,
+    "wizardCases": [
+      "normal",
+      "unsupported",
+      "churn",
+      "each_reconnect"
+    ],
+    "wizardAllFourSeconds": 43.341,
+    "normalExactSeconds": "NOT_RECORDED in this log; cannot infer from buffered timestamp",
+    "normalGPTRequests": 2,
+    "priorAttemptNormalFailureStillRetained": true,
+    "rawWireAudit": "NOT_AVAILABLE: workflow did not upload server.log/wire-audit; debug only provides runner diagnostics"
+  },
+  "failure": {
+    "test": "paragraphKeepsIdentitySeeksAcrossRecordingsAndSkipsMissingOriginals",
+    "source": "tests/SaytileKitTests/AudioPlaybackTests.swift:144",
+    "assertion": "controller.playbackPosition >= 0.9 && controller.playbackPosition < 1.5",
+    "observed": "Lower bound evaluated false. Actual Double was not printed. All other assertions in this test including second recording identity passed.",
+    "testSeconds": 8.522,
+    "classification": "Unresolved seek readback/timing failure; 494 suites run concurrently. Possible sample-quantized AVAudioPlayer.currentTime or scheduling race; do not call either proven from this log.",
+    "safeNextStep": "Inspect actual Double in isolated equivalent playback test, retain lower-bound safety and actual audio identity; no blind CI retry, no assertion skip, no arbitrary tolerance."
+  },
+  "notRun": [
+    "AppModel",
+    "native natural-paragraph review",
+    "native panel boundary",
+    "native 12000 timeline",
+    "general UI",
+    "startup and packaging"
+  ],
+  "foreground": {
+    "status": "PASS",
+    "scope": "Carried-forward same-SHA prior-attempt AppKit/WKWebView/TextEdit/Chrome synthetic acceptance; no automatic send"
+  },
+  "power": {
+    "status": "BLOCKED",
+    "scope": "Carried-forward VirtualMac2,1 lacks actual hardware sleep/wake"
+  },
+  "artifacts": [
+    {
+      "id": 14103281801,
+      "name": "single-asr-power",
+      "sha256": "c2bb83fe43b191dece01e442565d1c8431c852019febae32efa0482e7a1bda77",
+      "reusedFromAttempt1": true,
+      "redownloaded": false
+    },
+    {
+      "id": 14103276720,
+      "name": "single-asr-foreground",
+      "sha256": "b014a4c2466d7139f65abf7b053a841c33c8d3c40238ec03c5b7ffbf391228c0",
+      "reusedFromAttempt1": true,
+      "redownloaded": false
+    }
+  ],
+  "installation": "NOT_PERFORMED by this monitor",
+  "priorFailedAttempt": "/private/tmp/saytile-natural-ci-final",
+  "localProtocolReproduction": "local-reproduction-binding.json",
+  "noMoreRetries": true
+}

@@ -10,29 +10,29 @@
     },
     {
       "bundle_id": "app.saytile.mac.mandarin-candidate",
-      "source": "29ca0cc323fcdf4f1ed53ca98b546b11e98f9f31",
+      "source": "3b60b66295070cffbc34ed2486e53c1dc33e5b98",
       "version": "0.15",
-      "build": "481",
-      "executable_sha256": "6fb820b6a536fa09f1a76e9a90f0277b88a50b5c915d0a7fc88215f845df4f9d"
+      "build": "483",
+      "executable_sha256": "d77294ec96877c0937a31fe76e6c8400aa410641a6100af6babf40d301849116"
     }
   ],
   "app_storage_profiles": [
     {
       "bundle": "app.saytile.mac.mandarin-candidate",
-      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1",
       "archive": "Saytile Mandarin Candidate",
-      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1"
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1",
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1"
     },
     {
       "bundle": "app.saytile.mac.mandarin-candidate",
-      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1",
       "archive": "Saytile Mandarin Candidate",
-      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1"
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1",
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1"
     }
   ],
   "fixture": {
     "schema": 6,
-    "table_sha256": "b9127c44bc1bbcb9c35dd090b9ef04d6124a3b5a260b088c1982482889970234",
+    "table_sha256": "e60e11ab053c2162b98ff4947feed67b5b7e17dfd9b561137f2b35a6710a2dfb",
     "row_counts": {
       "recordings": 2,
       "revisions": 4,
@@ -45,12 +45,12 @@
       "recognition_candidates": 0
     },
     "wav_sha256": {
-      "052EDF56-B4E1-48B0-B44C-C96F4DA00EFE/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
-      "295118F0-5512-4AC2-AC33-22A9B1F9C461/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      "5C0F56DB-5EC5-493B-BC81-FF3FA2ECF9FA/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "0826CD6E-D113-4951-9834-417A8207239B/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
     },
     "preferred_manual_revision_ids": [
-      "65450D5F-C0A6-49DB-8422-02E4E6E39841",
-      "771E6277-4534-4C3B-AB72-9750AF8F04F8"
+      "2DCEA32F-989B-43AB-B267-109A515FCA15",
+      "F571C1AE-D79F-4C84-9036-BE5E8D35326D"
     ],
     "integrity": "ok",
     "foreign_key_errors": 0
@@ -59,7 +59,7 @@
     {
       "step": "old",
       "records": 2,
-      "logical_tables_sha256": "b9127c44bc1bbcb9c35dd090b9ef04d6124a3b5a260b088c1982482889970234",
+      "logical_tables_sha256": "e60e11ab053c2162b98ff4947feed67b5b7e17dfd9b561137f2b35a6710a2dfb",
       "wav_sha256": [
         "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
         "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
@@ -73,7 +73,7 @@
     {
       "step": "candidate",
       "records": 2,
-      "logical_tables_sha256": "b9127c44bc1bbcb9c35dd090b9ef04d6124a3b5a260b088c1982482889970234",
+      "logical_tables_sha256": "e60e11ab053c2162b98ff4947feed67b5b7e17dfd9b561137f2b35a6710a2dfb",
       "wav_sha256": [
         "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
         "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
@@ -106,7 +106,7 @@
     {
       "step": "old_reopened",
       "records": 2,
-      "logical_tables_sha256": "b9127c44bc1bbcb9c35dd090b9ef04d6124a3b5a260b088c1982482889970234",
+      "logical_tables_sha256": "e60e11ab053c2162b98ff4947feed67b5b7e17dfd9b561137f2b35a6710a2dfb",
       "wav_sha256": [
         "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
         "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
@@ -139,7 +139,7 @@
     {
       "step": "candidate_reopened",
       "records": 2,
-      "logical_tables_sha256": "b9127c44bc1bbcb9c35dd090b9ef04d6124a3b5a260b088c1982482889970234",
+      "logical_tables_sha256": "e60e11ab053c2162b98ff4947feed67b5b7e17dfd9b561137f2b35a6710a2dfb",
       "wav_sha256": [
         "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
         "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
