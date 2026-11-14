@@ -12,6 +12,7 @@ final class AppUpdateController: NSObject, SPUUpdaterDelegate, @preconcurrency S
     private var updater: SPUUpdater?
     private var observations: [NSKeyValueObservation] = []
     private var configuration: AppUpdateConfiguration?
+    private var availableVersion: String?
 
     init(model: AppModel, bundle: Bundle = .main, isolatedFixture: Bool = false,
          userDriver: (any SPUUserDriver)? = nil) {
@@ -26,7 +27,7 @@ final class AppUpdateController: NSObject, SPUUpdaterDelegate, @preconcurrency S
             updater.sendsSystemProfile = false
             try updater.start()
             model.updateConfigured = true
-            model.updateStatus = "自动检查新版本，安装前会征求你的确认。"
+            model.updateStatus = "安装新版本前会征求你的确认。"
             model.checkForUpdates = { [weak self] in self?.checkForUpdates() }
             model.setAutomaticUpdateChecks = { [weak self] enabled in
                 self?.updater?.automaticallyChecksForUpdates = enabled
@@ -50,7 +51,7 @@ final class AppUpdateController: NSObject, SPUUpdaterDelegate, @preconcurrency S
 
     func checkForUpdates() {
         guard let updater, updater.canCheckForUpdates else { return }
-        model?.updateStatus = "正在检查更新…"
+        model?.updateStatus = availableVersion.map { "发现新版本 \($0)，可查看并安装。" } ?? "正在检查更新…"
         updater.checkForUpdates()
         publish()
     }
@@ -77,20 +78,25 @@ final class AppUpdateController: NSObject, SPUUpdaterDelegate, @preconcurrency S
     }
 
     func updater(_ updater: SPUUpdater, didFindValidUpdate item: SUAppcastItem) {
+        availableVersion = item.displayVersionString
         model?.updateStatus = "发现新版本 \(item.displayVersionString)"
         model?.updateActionTitle = "查看更新…"
     }
     func updaterDidNotFindUpdate(_ updater: SPUUpdater, error: Error) {
+        availableVersion = nil
         // An empty feed says no published update, not that all engineering work is released.
         model?.updateStatus = "暂无可用更新。"
         model?.updateActionTitle = "检查更新…"
     }
     func updater(_ updater: SPUUpdater, didAbortWithError error: Error) {
+        availableVersion = nil
         let code = (error as NSError).code
         if (error as NSError).domain == SUSparkleErrorDomain && code == 1001 {
             model?.updateStatus = "暂无可用更新。"
         } else if (error as NSError).domain == SUSparkleErrorDomain && code == 4007 {
             model?.updateStatus = "已取消更新，当前版本仍可使用。"
+        } else if (error as NSError).domain == SUSparkleErrorDomain && code == 4008 {
+            model?.updateStatus = "已暂缓安装，当前版本仍可使用。"
         } else {
             model?.updateStatus = "更新未完成：\(error.localizedDescription)"
         }
@@ -106,12 +112,15 @@ final class AppUpdateController: NSObject, SPUUpdaterDelegate, @preconcurrency S
     var supportsGentleScheduledUpdateReminders: Bool { true }
     func standardUserDriverShouldHandleShowingScheduledUpdate(_ update: SUAppcastItem, andInImmediateFocus immediateFocus: Bool) -> Bool { false }
     func standardUserDriverWillHandleShowingUpdate(_ handleShowingUpdate: Bool, forUpdate update: SUAppcastItem, state: SPUUserUpdateState) {
+        availableVersion = update.displayVersionString
         if !handleShowingUpdate {
             model?.updateStatus = "发现新版本 \(update.displayVersionString)，可在这里查看并安装。"
             model?.updateActionTitle = "查看更新…"
         }
     }
     func standardUserDriverWillFinishUpdateSession() {
+        if model?.updateStatus == "正在检查更新…" { model?.updateStatus = "安装新版本前会征求你的确认。" }
+        availableVersion = nil
         model?.updateActionTitle = "检查更新…"
         publish()
     }

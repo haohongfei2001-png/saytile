@@ -1,7 +1,9 @@
 import AppKit
+import Darwin
 import Foundation
 import Security
 import SaytileKit
+import SwiftUI
 #if canImport(Sparkle)
 import Sparkle
 #endif
@@ -39,10 +41,16 @@ struct UpdateReviewRequest {
         let root = URL(fileURLWithPath: rootPath, isDirectory: true)
         let directory = URL(fileURLWithPath: dataPath, isDirectory: true)
         let eventLog = URL(fileURLWithPath: logPath)
-        guard root.resolvingSymlinksInPath().path == rootPath,
-              bundle.bundleURL.standardizedFileURL.path.hasPrefix(rootPath + "/Applications/"),
-              bundle.bundleURL.resolvingSymlinksInPath().path == bundle.bundleURL.standardizedFileURL.path else {
+        let bundlePath = temporaryAlias(bundle.bundleURL.standardizedFileURL.path)
+        guard try canonicalPath(root) == rootPath,
+              bundlePath == rootPath + "/Applications/Saytile.app",
+              try canonicalPath(bundle.bundleURL) == bundlePath else {
             throw Failure("Update review must run from its owned disposable installation")
+        }
+        for path in [rootPath, rootPath + "/Applications", bundlePath] {
+            var entry = stat()
+            guard Darwin.lstat(path, &entry) == 0, entry.st_mode & S_IFMT == S_IFDIR,
+                  entry.st_uid == getuid() else { throw Failure("Update fixture directory is aliased or not owned") }
         }
         let attributes = try FileManager.default.attributesOfItem(atPath: rootPath)
         guard attributes[.type] as? FileAttributeType == .typeDirectory,
@@ -51,8 +59,8 @@ struct UpdateReviewRequest {
             throw Failure("Update fixture root must be private and owned by the current user")
         }
         try DiagnosticDirectory.validate(directory: directory)
-        guard directory.resolvingSymlinksInPath().path == dataPath,
-              eventLog.resolvingSymlinksInPath().path == logPath else { throw Failure("Symlinked update fixture") }
+        guard try canonicalPath(directory) == dataPath,
+              try canonicalPath(eventLog, allowMissingLeaf: true) == logPath else { throw Failure("Symlinked update fixture") }
         var code: SecStaticCode?
         guard SecStaticCodeCreateWithPath(bundle.bundleURL as CFURL, [], &code) == errSecSuccess,
               let code, SecStaticCodeCheckValidity(code, SecCSFlags(rawValue: kSecCSStrictValidate), nil) == errSecSuccess else {
@@ -85,6 +93,25 @@ struct UpdateReviewRequest {
         let message: String
         init(_ message: String) { self.message = message }
         var errorDescription: String? { message }
+    }
+
+    // Foundation may spell the canonical macOS temporary volume as /tmp even
+    // after resolving symlinks. POSIX realpath preserves the actual /private/tmp
+    // ownership boundary. No other aliases or arbitrary symlinks are accepted.
+    private static func temporaryAlias(_ path: String) -> String {
+        path.hasPrefix("/tmp/") ? "/private" + path : path
+    }
+    private static func canonicalPath(_ url: URL, allowMissingLeaf: Bool = false) throws -> String {
+        if let path = Darwin.realpath(url.path, nil) {
+            defer { free(path) }
+            return String(cString: path)
+        }
+        guard allowMissingLeaf, errno == ENOENT,
+              let parent = Darwin.realpath(url.deletingLastPathComponent().path, nil) else {
+            throw Failure("Cannot resolve update fixture ownership")
+        }
+        defer { free(parent) }
+        return String(cString: parent) + "/" + url.lastPathComponent
     }
 }
 
@@ -143,7 +170,93 @@ final class UpdateReviewSession: NSObject, SPUUserDriver {
             guard !Task.isCancelled else { return }
             self?.finish(false, "Native update cycle timed out")
         }
-        check()
+        if request.phase == "public-empty" {
+            do { try await checkThroughNativeSettings() }
+            catch { finish(false, "Native settings action failed: \(error.localizedDescription)") }
+        } else { check() }
+    }
+
+    /// Render the actual product page, then dispatch its actual accessibility
+    /// button action. No replacement UI, direct model call, global key or focus.
+    private func checkThroughNativeSettings() async throws {
+        let before = NSWorkspace.shared.frontmostApplication?.processIdentifier
+        let ownPID = ProcessInfo.processInfo.processIdentifier
+        let focus = UpdateReviewFocus()
+        let observer = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
+        ) { note in
+            if let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+               app.processIdentifier == ownPID {
+                MainActor.assumeIsolated { focus.activated = true }
+            }
+        }
+        defer { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
+        NSApp.setActivationPolicy(.accessory)
+        defer { NSApp.setActivationPolicy(.prohibited) }
+        let size = CGSize(width: 920, height: 680)
+        let panel = UpdateReviewPanel(contentRect: CGRect(origin: .zero, size: size),
+            styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
+        panel.title = "Saytile isolated native update settings"
+        panel.isReleasedWhenClosed = false
+        panel.hidesOnDeactivate = false
+        panel.ignoresMouseEvents = true
+        let host = NSHostingView(rootView: SettingsView(model: model, initialPage: .about).preferredColorScheme(.light))
+        panel.contentView = host
+        panel.setContentSize(size)
+        panel.setFrameOrigin(NSPoint(x: (NSScreen.screens.map { $0.frame.maxX }.max() ?? 0) + 64, y: 0))
+        guard NSScreen.screens.allSatisfy({ !$0.frame.intersects(panel.frame) }) else {
+            throw UpdateReviewRequest.Failure("Native settings fixture intersects a physical display")
+        }
+        panel.orderBack(nil)
+        defer { panel.orderOut(nil); panel.close() }
+        var checks: [any NSAccessibilityProtocol] = [], toggles: [any NSAccessibilityProtocol] = []
+        for _ in 0..<50 {
+            host.layoutSubtreeIfNeeded()
+            checks = accessibilityNodes("settings.checkForUpdates", in: host)
+            toggles = accessibilityNodes("settings.automaticUpdates", in: host)
+            if checks.count == 1, toggles.count == 1, checks[0].isAccessibilityEnabled() { break }
+            try await Task.sleep(for: .milliseconds(40))
+        }
+        guard checks.count == 1, toggles.count == 1, checks[0].isAccessibilityEnabled(),
+              toggles[0].isAccessibilityEnabled(), checks[0].accessibilityRole() == .button,
+              !panel.canBecomeKey, !panel.canBecomeMain, !panel.isKeyWindow, !panel.isMainWindow,
+              !focus.activated, NSWorkspace.shared.frontmostApplication?.processIdentifier != ownPID else {
+            throw UpdateReviewRequest.Failure("Unique enabled update controls or keyboard isolation were not verified")
+        }
+        guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else {
+            throw UpdateReviewRequest.Failure("Cannot capture the native settings view")
+        }
+        host.cacheDisplay(in: host.bounds, to: bitmap)
+        guard let image = bitmap.representation(using: .png, properties: [:]) else {
+            throw UpdateReviewRequest.Failure("Cannot encode native settings evidence")
+        }
+        try image.write(to: request.root.appendingPathComponent("native-settings-about.png"), options: .atomic)
+        let pressed = checks[0].accessibilityPerformPress()
+        guard pressed else { throw UpdateReviewRequest.Failure("Native check-for-updates AXPress was rejected") }
+        guard !focus.activated, !panel.isKeyWindow, !panel.isMainWindow,
+              NSWorkspace.shared.frontmostApplication?.processIdentifier != ownPID else {
+            throw UpdateReviewRequest.Failure("Native settings action activated the fixture")
+        }
+        event("settings_control", ["identifier": "settings.checkForUpdates", "action": "accessibilityPerformPress",
+            "pressed": pressed, "automatic_updates_control_present": true,
+            "width_points": host.bounds.width, "height_points": host.bounds.height,
+            "width_pixels": bitmap.pixelsWide, "height_pixels": bitmap.pixelsHigh,
+            "candidate_activated": focus.activated,
+            "foreground_unchanged": before == NSWorkspace.shared.frontmostApplication?.processIdentifier])
+    }
+
+    private func accessibilityNodes(_ identifier: String, in root: NSView) -> [any NSAccessibilityProtocol] {
+        var queue: [AnyObject] = [root], visited = Set<ObjectIdentifier>()
+        var matches: [any NSAccessibilityProtocol] = []
+        while let object = queue.popLast(), visited.count < 4096 {
+            guard visited.insert(ObjectIdentifier(object)).inserted else { continue }
+            if let node = object as? any NSAccessibilityProtocol {
+                if node.accessibilityIdentifier() == identifier { matches.append(node) }
+                queue += (node.accessibilityChildren() ?? []).map { $0 as AnyObject }
+            }
+            if let view = object as? NSView { queue += view.subviews }
+        }
+        return matches
     }
 
     private func event(_ name: String, _ fields: [String: Any] = [:]) {
@@ -233,5 +346,13 @@ final class UpdateReviewSession: NSObject, SPUUserDriver {
         event("installed_callback", ["relaunched": relaunched]); acknowledgement()
     }
     func dismissUpdateInstallation() { event("dismissed") }
+}
+
+@MainActor private final class UpdateReviewPanel: NSPanel {
+    override var canBecomeKey: Bool { false }
+    override var canBecomeMain: Bool { false }
+}
+@MainActor private final class UpdateReviewFocus {
+    var activated = false
 }
 #endif

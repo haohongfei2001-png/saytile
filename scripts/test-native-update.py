@@ -128,7 +128,7 @@ def main():
         processes.append((proc, log))
         return proc
 
-    def wait_for(predicate, *, timeout=180):
+    def wait_for(predicate, *, process, allow_relaunch=False, timeout=180):
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             current = rows(events)
@@ -136,6 +136,13 @@ def main():
             assert not failures, failures
             if predicate(current):
                 return current
+            code = process.poll()
+            if code is not None:
+                # The valid source is expected to quit before Sparkle starts its
+                # successor. Any earlier/other exit is a failure, not a 3m wait.
+                installing = any(row["event"] == "installing" and row["pid"] == process.pid for row in current)
+                if code != 0 or not (allow_relaunch and installing):
+                    raise RuntimeError(f"Fixture host PID {process.pid} exited {code} before its required native receipt")
             time.sleep(0.25)
         raise TimeoutError("Native host-app update did not produce its required receipt")
 
@@ -193,7 +200,7 @@ def main():
         # Deliberate corrupt case: same advertised length/signature, one bad byte.
         flip_archive()
         bad = launch("corrupt")
-        wait_for(lambda entries: any(row["event"] == "complete" and row["case"] == "corrupt" for row in entries))
+        wait_for(lambda entries: any(row["event"] == "complete" and row["case"] == "corrupt" for row in entries), process=bad)
         assert bad.wait(timeout=30) == 0
         assert info(installed)["CFBundleVersion"] == "1"
         assert fixture_snapshot() == before
@@ -206,7 +213,7 @@ def main():
         flip_archive()
         assert digest(archive) == archive_hash
         good = launch("valid")
-        completed = wait_for(lambda entries: any(row["event"] == "complete" and row["phase"] == "relaunch" for row in entries))
+        completed = wait_for(lambda entries: any(row["event"] == "complete" and row["phase"] == "relaunch" for row in entries), process=good, allow_relaunch=True)
         assert good.wait(timeout=30) == 0
         valid = [row for row in completed if row["case"] == "valid"]
         before_launch = [row for row in valid if row["event"] == "launched" and row["phase"] == "check"]
@@ -255,13 +262,17 @@ def main():
             run("codesign", "--force", "--options", "runtime", "--timestamp=none", "--sign", identities[0], installed)
             run("codesign", "--verify", "--deep", "--strict", installed)
             public = launch("public-empty")
-            wait_for(lambda entries: any(row["event"] == "complete" and row["phase"] == "public-empty" for row in entries))
+            wait_for(lambda entries: any(row["event"] == "complete" and row["phase"] == "public-empty" for row in entries), process=public)
             assert public.wait(timeout=30) == 0
             public_events = [row for row in rows(events) if row["phase"] == "public-empty"]
             assert any(row["event"] == "no_update" for row in public_events)
+            assert any(row["event"] == "settings_control" and row["pressed"] is True and row["candidate_activated"] is False for row in public_events)
             assert not any(row["event"] in ("update_found", "download_started", "ready_to_install") for row in public_events)
             assert fixture_snapshot() == before and digest(canary) == canary_hash and canary.stat().st_mtime_ns == canary_stamp
-            result["public_empty_feed"] = dict(status="PASS", url=args.public_feed, signature_required=True, no_archive_downloaded=True, no_update_installed=True)
+            screenshot = root / "native-settings-about.png"
+            assert screenshot.is_file()
+            result["public_empty_feed"] = dict(status="PASS", url=args.public_feed, signature_required=True, no_archive_downloaded=True, no_update_installed=True,
+                native_settings_action="accessibilityPerformPress on existing SettingsView", settings_screenshot_sha256=digest(screenshot))
     except Exception as error:
         result["status"] = "FAIL"
         result["failure"] = str(error)
@@ -301,6 +312,9 @@ def main():
                     result["cleanup_retained_root"] = str(root)
         if events.exists():
             shutil.copy2(events, args.output / "events.jsonl")
+        screenshot = root / "native-settings-about.png"
+        if screenshot.is_file():
+            shutil.copy2(screenshot, args.output / screenshot.name)
         (args.output / "loopback-requests.json").write_text(json.dumps(request_log, indent=2) + "\n")
         result["runner_sha256"] = digest(Path(__file__))
         result["seed_probe_sha256"] = PROBE_SHA
