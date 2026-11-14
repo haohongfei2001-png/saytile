@@ -1,0 +1,25 @@
+{
+  "result": "NO_NEW_P0_P1_FOUND",
+  "reviewedSourceSHA256": "9889f2fb1aa56470ecd7f84c80101763114b4f03572419c013afe49df2612e65",
+  "scope": "Only observedOwnWebEdit snapshot unsupported handling; no product/test edit by reviewer",
+  "confirmedGuards": [
+    "continuous binding only",
+    "ownership observations available",
+    "already issued external dispatch",
+    "insertion proof not complete",
+    "no in-flight correction",
+    "precomputed expected whole-field text exists",
+    "no prior unread observation",
+    "one later content/selection observation invalidates",
+    "focus/document/layout changes invalidate",
+    "two fresh same target/caret/exact UTF-8 whole-field reads after gap",
+    "no additional mutation or automatic focus acquisition"
+  ],
+  "nativeOwnedRange": "PASS 9/9",
+  "nativeAppKit": "PASS",
+  "nativeWKWebViewObservations": "PASS 6/6",
+  "realChromeForeground": "NOT_RUN; CI must validate; background fixtures do not certify Chrome foreground snapshot gap",
+  "syntheticUnknownGapSpecificRegression": "Owned by cadence agent, not claimed by these native fixtures",
+  "frontendUnchanged": true,
+  "privateDataUsed": false
+}

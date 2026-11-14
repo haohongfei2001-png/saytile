@@ -1,0 +1,171 @@
+Building for debugging...
+[14 / 74] SaytileVoiceUI
+[53 / 74] CAudio
+[54 / 74] CAudio
+/private/tmp/saytile-natural-paragraphs/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[66 / 94] SaytileKit
+[69 / 94] SaytileKit
+[70 / 94] SaytileKit
+[73 / 94] SaytileVoiceUI
+[76 / 95] SaytileVoiceUI
+[80 / 95] SaytileKit
+/private/tmp/saytile-natural-paragraphs/Package.swift: SaytileVoiceUI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[85 / 100] SaytileVoiceUI
+[86 / 100] SaytileKit
+[90 / 111] Saytile-product
+[91 / 111] Saytile-product
+/private/tmp/saytile-natural-paragraphs/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+[93 / 111] Saytile-product
+[95 / 111] Saytile-product
+[96 / 111] Saytile-product
+[97 / 111] Saytile-product
+[97 / 111] SaytileKit
+/private/tmp/saytile-natural-paragraphs/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[102 / 110] Saytile-product
+[102 / 110] SaytileKitTests-product
+[110 / 121] SaytileKitTests-product
+/private/tmp/saytile-natural-paragraphs/Sources/SaytileApp/AppModel.swift:868:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 860 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+ 861 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+ 862 |         connectionCheckTask = Task {
+     |                                    |- note: 'self' implicitly strongly captured here
+     |                                    `- note: add 'self' as a capture list item to silence
+ 863 |             // A cancelled older check must fully close its sockets before another starts.
+ 864 |             await previous?.value
+     :
+ 866 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+ 867 |             do {
+ 868 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+     |                                                                                         `- note: explicitly assign the capture list item to silence
+ 869 |                     Task { @MainActor [weak self] in
+ 870 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[112 / 121] SaytileKitTests-product
+[113 / 121] SaytileKitTests-product
+[115 / 121] SaytileKitTests-product
+[118 / 124] SaytileKitTests-product
+[118 / 124] Saytile-product
+[120 / 124] SaytileKitTests-product
+[120 / 124] Saytile-product/private/tmp/saytile-natural-paragraphs/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-natural-paragraphs/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[120 / 124] SaytileKitTests-product
+/private/tmp/saytile-natural-paragraphs/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-natural-paragraphs/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[122 / 124] SaytileKitTests-product
+[125 / 125] Saytile-product
+Build complete! (14.03秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Input identity and safety" started.
+◇ Test testnoSelectedReplacement() started.
+✔ Test testnoSelectedReplacement() passed after 0.001 seconds.
+◇ Test testunidentifiableWebPageRejected() started.
+✔ Test testunidentifiableWebPageRejected() passed after 0.001 seconds.
+◇ Test testreusedEditorDoesNotMakeSamePage() started.
+✔ Test testreusedEditorDoesNotMakeSamePage() passed after 0.001 seconds.
+◇ Test testcursorMovementMakesBindingStale() started.
+✔ Test testcursorMovementMakesBindingStale() passed after 0.001 seconds.
+◇ Test testpasswordsTerminalsAndEmbeddedTerminalBlocked() started.
+✔ Test testpasswordsTerminalsAndEmbeddedTerminalBlocked() passed after 0.001 seconds.
+✔ Suite "Input identity and safety" passed after 0.001 seconds.
+◇ Suite "Input coordinator with isolated SQLite and simulated OS" started.
+◇ Test firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "restored" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "persistent" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "one-settled-read" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "second-content" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "focus" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "layout" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "changed-process" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "changed-window" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "changed-editor" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "changed-page" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "incomplete-page" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "changed-caret" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "selected-range" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "changed-prefix" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "changed-suffix" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+◇ Test case passing 1 argument scenario → "sensitive" to firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) started.
+✔ Test firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_:) with 16 test cases passed after 6.942 seconds.
+◇ Test uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) started.
+◇ Test case passing 1 argument scenario → "restored" to uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) started.
+◇ Test case passing 1 argument scenario → "persistent" to uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) started.
+◇ Test case passing 1 argument scenario → "late-focus" to uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) started.
+◇ Test case passing 1 argument scenario → "observed-edit" to uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) started.
+◇ Test case passing 1 argument scenario → "bad-caret" to uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) started.
+◇ Test case passing 1 argument scenario → "field-changed" to uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) started.
+✔ Test uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_:) with 6 test cases passed after 4.014 seconds.
+◇ Test webInsertionNotificationWithMissingFieldNeverRetriesTheWrite(_:) started.
+◇ Test case passing 1 argument scenario → "restored" to webInsertionNotificationWithMissingFieldNeverRetriesTheWrite(_:) started.
+◇ Test case passing 1 argument scenario → "unreadable" to webInsertionNotificationWithMissingFieldNeverRetriesTheWrite(_:) started.
+◇ Test case passing 1 argument scenario → "new-event" to webInsertionNotificationWithMissingFieldNeverRetriesTheWrite(_:) started.
+◇ Test case passing 1 argument scenario → "changed-window" to webInsertionNotificationWithMissingFieldNeverRetriesTheWrite(_:) started.
+◇ Test case passing 1 argument scenario → "changed-page" to webInsertionNotificationWithMissingFieldNeverRetriesTheWrite(_:) started.
+◇ Test case passing 1 argument scenario → "changed-caret" to webInsertionNotificationWithMissingFieldNeverRetriesTheWrite(_:) started.
+◇ Test case passing 1 argument scenario → "changed-field" to webInsertionNotificationWithMissingFieldNeverRetriesTheWrite(_:) started.
+◇ Test case passing 1 argument scenario → "missing-before" to webInsertionNotificationWithMissingFieldNeverRetriesTheWrite(_:) started.
+✔ Test webInsertionNotificationWithMissingFieldNeverRetriesTheWrite(_:) with 8 test cases passed after 2.646 seconds.
+◇ Test teststableSuffixOnlyOnce() started.
+✔ Test teststableSuffixOnlyOnce() passed after 0.181 seconds.
+◇ Test testexistingSpeechNeverAutomaticallyReplayed() started.
+✔ Test testexistingSpeechNeverAutomaticallyReplayed() passed after 0.011 seconds.
+◇ Test testchangedPageStopsBeforeDispatch() started.
+✔ Test testchangedPageStopsBeforeDispatch() passed after 0.010 seconds.
+◇ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() started.
+✔ Test testuncertainDeliveryDoesNotReplayOrBlockNewSpeech() passed after 1.200 seconds.
+◇ Test testtimeoutIsUncertainAndNeverRetried() started.
+✔ Test testtimeoutIsUncertainAndNeverRetried() passed after 0.010 seconds.
+◇ Test testunavailablePermissionHasNoPromptOrSideEffect() started.
+✔ Test testunavailablePermissionHasNoPromptOrSideEffect() passed after 0.009 seconds.
+◇ Test cancellationBeforeStartDoesNotWrite() started.
+✔ Test cancellationBeforeStartDoesNotWrite() passed after 0.012 seconds.
+◇ Test cancellationDuringReservationNeverReachesAX() started.
+✔ Test cancellationDuringReservationNeverReachesAX() passed after 0.013 seconds.
+◇ Test slowAcknowledgementIsConfirmedWithoutResending() started.
+✔ Test slowAcknowledgementIsConfirmedWithoutResending() passed after 0.345 seconds.
+◇ Test focusAwayAndBackExpiresBinding() started.
+✔ Test focusAwayAndBackExpiresBinding() passed after 0.008 seconds.
+◇ Test injectedWorkspaceActivationExpiresBindingWithoutChangingFakeSnapshot() started.
+✔ Test injectedWorkspaceActivationExpiresBindingWithoutChangingFakeSnapshot() passed after 0.011 seconds.
+◇ Test sameURLReusedWebEditorLayoutExpiresBinding() started.
+✔ Test sameURLReusedWebEditorLayoutExpiresBinding() passed after 0.008 seconds.
+◇ Test webTimedOutTextWriteNeedsExactReadback(scenario:) started.
+◇ Test case passing 1 argument scenario → "own-edit" to webTimedOutTextWriteNeedsExactReadback(scenario:) started.
+◇ Test case passing 1 argument scenario → "changed-prefix" to webTimedOutTextWriteNeedsExactReadback(scenario:) started.
+◇ Test case passing 1 argument scenario → "other-page" to webTimedOutTextWriteNeedsExactReadback(scenario:) started.
+◇ Test case passing 1 argument scenario → "changed-caret" to webTimedOutTextWriteNeedsExactReadback(scenario:) started.
+✔ Test webTimedOutTextWriteNeedsExactReadback(scenario:) with 4 test cases passed after 0.612 seconds.
+◇ Test unobservableWebOnlyAllowsExplicitManualInsertion() started.
+✔ Test unobservableWebOnlyAllowsExplicitManualInsertion() passed after 0.100 seconds.
+◇ Test incompleteSemanticContextRejectsContinuousButKeepsManual() started.
+✔ Test incompleteSemanticContextRejectsContinuousButKeepsManual() passed after 0.008 seconds.
+◇ Test userSelectionDuringConfirmationStopsBinding() started.
+✔ Test userSelectionDuringConfirmationStopsBinding() passed after 0.102 seconds.
+◇ Test ownInsertionNotificationKeepsContinuousBinding() started.
+✔ Test ownInsertionNotificationKeepsContinuousBinding() passed after 0.098 seconds.
+◇ Test lostLocalReadCapabilityStopsNextAppend() started.
+✔ Test lostLocalReadCapabilityStopsNextAppend() passed after 0.099 seconds.
+◇ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() started.
+✔ Test newRecordingAtExactBindingTimestampUsesCreationBoundary() passed after 0.098 seconds.
+◇ Test lateEarlierRecordingIsDeferredWithoutBlockingNextSpeech() started.
+✔ Test lateEarlierRecordingIsDeferredWithoutBlockingNextSpeech() passed after 0.190 seconds.
+◇ Test lateTailCannotBeAppendedAfterAnotherRecording() started.
+✔ Test lateTailCannotBeAppendedAfterAnotherRecording() passed after 0.274 seconds.
+◇ Test mutationOfConfirmedTailStopsNextAppend() started.
+✔ Test mutationOfConfirmedTailStopsNextAppend() passed after 0.097 seconds.
+◇ Test productionFusionPublicationReachesIncrementalCoordinatorOnce() started.
+✔ Test productionFusionPublicationReachesIncrementalCoordinatorOnce() passed after 0.203 seconds.
+◇ Test failedFusionExpertPreventsStaleExternalAttemptWithoutBlockingNextSpeech() started.
+✔ Test failedFusionExpertPreventsStaleExternalAttemptWithoutBlockingNextSpeech() passed after 0.109 seconds.
+✔ Suite "Input coordinator with isolated SQLite and simulated OS" passed after 17.427 seconds.
+✔ Test run with 32 tests in 2 suites passed after 17.429 seconds.
