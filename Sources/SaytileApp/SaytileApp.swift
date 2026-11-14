@@ -24,10 +24,11 @@ final class VoiceEntryPanel: NSPanel {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuDelegate, NSMenuItemValidation {
     private var model: AppModel?
     #if canImport(Sparkle)
-    private var updater: SPUStandardUpdaterController?
+    private var updater: AppUpdateController?
+    private var updateReview: UpdateReviewSession?
     #endif
     private var status: NSStatusItem?
     private let panelVisibilityItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
@@ -91,6 +92,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
+            // Sparkle relaunches without argv. Resolve only a signed, strictly
+            // owned fixture marker before choosing any database/preferences.
+            let updateReviewRequest = try UpdateReviewRequest.resolve()
             // An unsupported explicit-directory spelling must never fall back
             // to a normal launch against the user's default archive.
             guard !CommandLine.arguments.contains(where: { $0.hasPrefix("--data-directory=") }) else {
@@ -101,10 +105,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 print("RETIRED_PROBE_USE_SINGLE_ASR_WITH_ISOLATED_DIRECTORY")
                 Darwin.exit(64)
             }
-            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--single-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--local-stream-probe", "--connection-setup"]
-            let isDiagnostic = diagnostics.contains(where: CommandLine.arguments.contains)
+            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--single-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--local-stream-probe", "--connection-setup", "--update-review"]
+            let isDiagnostic = updateReviewRequest != nil || diagnostics.contains(where: CommandLine.arguments.contains)
             let directoryIndex = CommandLine.arguments.firstIndex(of: "--data-directory")
-            if isDiagnostic || directoryIndex != nil {
+            if updateReviewRequest == nil && (isDiagnostic || directoryIndex != nil) {
                 guard let index = directoryIndex, CommandLine.arguments.count > index + 1,
                       !CommandLine.arguments[index + 1].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                       !CommandLine.arguments[index + 1].hasPrefix("--") else {
@@ -113,7 +117,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 }
             }
             let directory: URL
-            if let index = directoryIndex {
+            if let request = updateReviewRequest {
+                directory = request.directory
+            } else if let index = directoryIndex {
                 directory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
             } else {
                 directory = SaytileStorageProfile.current.archiveDirectory
@@ -159,7 +165,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 } catch { print("CONNECTION_SETUP_REJECTED \(error.localizedDescription)"); Darwin.exit(64) }
             } else { setupRequest = nil }
             let preferences: UserDefaults
-            if isDiagnostic || directoryIndex != nil {
+            if let request = updateReviewRequest {
+                preferences = request.preferences
+                var diagnosticConfiguration = RecognitionConfiguration()
+                diagnosticConfiguration.automaticRecovery = false
+                try diagnosticConfiguration.save(to: preferences)
+                preferences.setVolatileDomain(["hasLaunched": true, "shortcutChoice": "disabled", "floatingEntryEnabled": false], forName: UserDefaults.argumentDomain)
+            } else if isDiagnostic || directoryIndex != nil {
                 let suite = "app.saytile.diagnostics." + UUID().uuidString
                 diagnosticPreferencesSuite = suite
                 preferences = UserDefaults(suiteName: suite)!
@@ -176,9 +188,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             } else { preferences = SaytileStorageProfile.current.preferences }
             placementDefaults = preferences
             if !isDiagnostic, directoryIndex == nil { visibilityDefaults = preferences }
-            let model = try AppModel(directory: directory, preferences: preferences, normalLaunch: directoryIndex == nil,
-                copyPasteboard: CommandLine.arguments.contains("--ui-review") ? NSPasteboard.withUniqueName() : nil)
+            let model = try AppModel(directory: directory, preferences: preferences, normalLaunch: !isDiagnostic && directoryIndex == nil,
+                copyPasteboard: CommandLine.arguments.contains("--ui-review") || updateReviewRequest != nil ? NSPasteboard.withUniqueName() : nil)
             self.model = model
+            if let request = updateReviewRequest {
+                #if canImport(Sparkle)
+                let review = UpdateReviewSession(model: model, request: request)
+                updateReview = review
+                Task { await review.start() }
+                #else
+                print("UPDATE_REVIEW_REQUIRES_SPARKLE")
+                Darwin.exit(64)
+                #endif
+                return
+            }
             if let setupRequest {
                 configureMainMenu()
                 let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 680, height: 800),
@@ -304,10 +327,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             }
             configureMainMenu()
             #if canImport(Sparkle)
-            if directoryIndex == nil, SaytileStorageProfile.current == .standard, Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil,
-               Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") != nil {
-                updater = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
-                model.checkForUpdates = { [weak self] in self?.updater?.checkForUpdates(nil) }
+            if directoryIndex == nil {
+                updater = AppUpdateController(model: model)
             }
             #endif
             configureStatusItem()
@@ -519,16 +540,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         workspaceItem.target = self
         menu.addItem(workspaceItem)
         menu.addItem(.separator())
-        #if canImport(Sparkle)
-        if let updater {
-            let check = NSMenuItem(title: "检查更新…", action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)), keyEquivalent: "")
-            check.target = updater
-            menu.addItem(check)
-        }
-        #endif
+        let check = NSMenuItem(title: model?.updateActionTitle ?? "检查更新…", action: #selector(checkForAppUpdates), keyEquivalent: "")
+        check.target = self
+        check.isEnabled = model?.canCheckForUpdates == true
+        check.toolTip = model?.updateStatus
+        menu.addItem(check)
         let quit = NSMenuItem(title: "退出 Saytile", action: #selector(quitApp), keyEquivalent: "q"); quit.target = self; menu.addItem(quit)
     }
     @objc private func quitApp() { NSApp.terminate(nil) }
+    @objc private func checkForAppUpdates() { model?.checkForUpdates?() }
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(checkForAppUpdates) { return model?.canCheckForUpdates == true }
+        return true
+    }
     @objc func togglePanel() { if panel?.isVisible == true { explicitlyHidePanel() } else { explicitlyShowPanel() } }
     @objc private func explicitlyShowPanel() {
         visibilityDefaults?.removeObject(forKey: panelHiddenKey)

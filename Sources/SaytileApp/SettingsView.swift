@@ -198,8 +198,17 @@ struct SettingsView: View {
         Section {
             LabeledContent("版本", value: version).textSelection(.enabled)
             if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String { LabeledContent("构建", value: build) }
-            if let check = model.checkForUpdates { Button("检查更新…", action: check) }
-            else { LabeledContent("更新", value: "手动安装") }
+        }
+        Section("应用更新") {
+            Button(model.updateActionTitle) { model.checkForUpdates?() }
+                .disabled(!model.canCheckForUpdates)
+                .accessibilityIdentifier("settings.checkForUpdates")
+            if model.updateConfigured {
+                Toggle("自动检查更新", isOn: Binding(get: { model.automaticUpdateChecks }, set: model.setAutomaticUpdateChecks))
+                    .accessibilityIdentifier("settings.automaticUpdates")
+            }
+            Text(model.updateStatus).font(.callout).foregroundStyle(.secondary)
+                .textSelection(.enabled).accessibilityIdentifier("settings.updateStatus")
         }
         Section("诊断信息") {
             LabeledContent("识别状态", value: model.engineLabel)

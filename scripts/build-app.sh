@@ -58,9 +58,7 @@ if [[ "${SAYTILE_MANDARIN_CANDIDATE:-0}" == 1 ]]; then
 fi
 ditto .build/sparkle/Sparkle.framework "$bundle/Contents/Frameworks/Sparkle.framework"
 cp .build/sparkle/LICENSE "$bundle/Contents/Resources/SPARKLE-LICENSE.txt"
-if [[ -n "${SAYTILE_UPDATE_FEED:-}${SAYTILE_UPDATE_PUBLIC_KEY:-}" ]]; then
-  python3 scripts/configure-update-feed.py "$bundle/Contents/Info.plist"
-fi
+python3 scripts/configure-update-feed.py "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :SaytileSourceRevision string $(git rev-parse HEAD)" "$bundle/Contents/Info.plist"
 SAYTILE_SOURCE_DIRTY=false
 if ! git diff --quiet HEAD -- Sources Package.swift native/LocalASR packaging scripts/build-app.sh scripts/build-local-runtime.sh scripts/prepare-local-runtime.sh; then SAYTILE_SOURCE_DIRTY=true; fi
