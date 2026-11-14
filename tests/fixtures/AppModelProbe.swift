@@ -402,6 +402,7 @@ private final class CaptureControlFixture {
     var pauses = 0
     var measuredLevel: Float? = nil
     var floatingChanges = 0
+    var placementChanges = 0
     var dependencies: AppCaptureDependencies {
         AppCaptureDependencies(state: { _ in self.state },
             start: { audio in self.starts += 1; self.state = self.startResult; audio.issue = self.startIssue },
@@ -530,6 +531,18 @@ extension AppModelProbe {
             MainActor.assumeIsolated { capture.floatingChanges += 1 }
         }
         defer { NotificationCenter.default.removeObserver(observer) }
+        let placementObserver = NotificationCenter.default.addObserver(forName: .init("SaytilePanelPlacementChanged"), object: nil, queue: .main) { _ in
+            MainActor.assumeIsolated { capture.placementChanges += 1 }
+        }
+        defer { NotificationCenter.default.removeObserver(placementObserver) }
+        try check(model.panelPlacementMode == .floating && preferences.object(forKey: "panelPlacementMode") == nil,
+            "panel placement defaults to floating without modifying existing preferences")
+        model.panelPlacementMode = .boundary
+        model.panelPlacementMode = .boundary
+        try check(preferences.string(forKey: "panelPlacementMode") == "boundary" && capture.placementChanges == 1,
+            "explicit boundary choice persists and notifies exactly once without requesting permission")
+        model.panelOverFullscreen = true
+        model.panelArrangementStatus = "隔离窗口状态"
         try check(!model.floatingEntryEnabled && preferences.object(forKey: "floatingEntryEnabled") == nil,
             "desktop entry defaults off in an isolated preference domain")
         model.floatingEntryEnabled = true
@@ -540,6 +553,14 @@ extension AppModelProbe {
             connectionDependencies: connection.dependencies, captureDependencies: preparing.dependencies)
         try check(reopened.floatingEntryEnabled && capture.floatingChanges == 1,
             "saved desktop entry choice reloads without sending a spurious setting change")
+        try check(reopened.panelPlacementMode == .boundary && capture.placementChanges == 1,
+            "saved panel placement reloads without a spurious window arrangement notification")
+        try check(!reopened.panelOverFullscreen && reopened.panelArrangementStatus == nil &&
+            preferences.object(forKey: "panelOverFullscreen") == nil && preferences.object(forKey: "panelArrangementStatus") == nil,
+            "fullscreen context and arrangement feedback are transient and do not survive a new session")
+        reopened.panelPlacementMode = .floating
+        try check(preferences.string(forKey: "panelPlacementMode") == "floating" && capture.placementChanges == 2,
+            "returning to floating persists and sends one arrangement change")
         reopened.floatingEntryEnabled = false
         try check(!preferences.bool(forKey: "floatingEntryEnabled") && capture.floatingChanges == 2,
             "turning desktop entry off persists and sends one change notification")

@@ -3,6 +3,7 @@ import AppKit
 import SwiftUI
 import ImageIO
 import UniformTypeIdentifiers
+import ScreenCaptureKit
 @testable import SaytileVoiceUI
 
 struct Row: VoiceTranscriptEntry {
@@ -19,6 +20,7 @@ private enum Failure: Error { case args, window, edit, capture, press }
     @Published var text = "缩放窗口仍应保留这段可以编辑的文字，数字 24 和手写换行。\n继续记录。"
     @Published var state = VoicePanelState.standby
     @Published var panelBorderVisible = true
+    @Published var panelOverFullscreen = false
     var toggles = 0, edits = 0, copies = 0
     var doc: PanelTimelineDocument<Row> {
         var rows = [Row(id:id,position:1,displayText:text)]
@@ -51,15 +53,106 @@ struct InputPanelView: View {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 }
 
+@MainActor private final class GlassBackdropFixture: NSView {
+    override func draw(_ dirtyRect: NSRect) {
+        NSColor(srgbRed: 0.16, green: 0.21, blue: 0.38, alpha: 1).setFill()
+        bounds.fill()
+        NSColor(srgbRed: 0.63, green: 0.72, blue: 0.92, alpha: 1).setFill()
+        for x in stride(from: CGFloat(0), to: bounds.width, by: 20) {
+            NSRect(x: x, y: 0, width: 10, height: bounds.height).fill()
+        }
+    }
+}
+
 @main private struct AdaptiveVoicePanelProbe {
     @MainActor static func main() {
         if CommandLine.arguments.count == 6 && CommandLine.arguments[1] == "--ax-owned-window" { inspectOwnedWindow(); return }
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
         Task { @MainActor in
-            do { try await run(); exit(0) } catch { print("Adaptive panel probe: \(error)"); exit(2) }
+            do {
+                if CommandLine.arguments.dropFirst().first == "--glass-only" { try await glassSnapshots() }
+                else { try await run() }
+                exit(0)
+            } catch { print("Adaptive panel probe: \(error)"); exit(2) }
         }
         app.run()
+    }
+    /// Uses only two owned, nonactivating windows with synthetic text and a
+    /// deterministic backdrop. No installed app, microphone or desktop capture.
+    @MainActor static func glassSnapshots() async throws {
+        let args = CommandLine.arguments
+        guard args.count == 4, let screen = NSScreen.screens.first else { throw Failure.args }
+        let folder = URL(fileURLWithPath: args[3])
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let receipt = folder.appendingPathComponent("glass-receipt.json")
+        guard CGPreflightScreenCaptureAccess() else {
+            try JSONSerialization.data(withJSONObject: ["source": args[2], "status": "BLOCKED",
+                "reason": "Screen capture is not already authorized; no permission prompt was requested."])
+                .write(to: receipt)
+            return
+        }
+        let frame = NSRect(x: screen.visibleFrame.minX + 48, y: screen.visibleFrame.minY + 48, width: 344, height: 190)
+        let backdrop = NSPanel(contentRect: frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+        let panel = NSPanel(contentRect: frame, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+        let model = AppModel(), host = NSHostingView(rootView: InputPanelWindowView(model: model))
+        model.state = .paused
+        model.text = "同一段隔离测试文字。\n全屏时加强毛玻璃，字号、按钮和排版保持一致。"
+        host.sizingOptions = []
+        backdrop.contentView = GlassBackdropFixture(frame: .init(origin: .zero, size: frame.size))
+        backdrop.backgroundColor = .white
+        backdrop.isOpaque = true
+        panel.contentView = host
+        panel.backgroundColor = .clear
+        panel.isOpaque = false
+        for window in [backdrop, panel] {
+            window.hasShadow = false; window.ignoresMouseEvents = true
+            window.isReleasedWhenClosed = false; window.hidesOnDeactivate = false
+        }
+        backdrop.orderBack(nil)
+        panel.order(.above, relativeTo: backdrop.windowNumber)
+        defer { panel.orderOut(nil); backdrop.orderOut(nil); panel.close(); backdrop.close() }
+        var variants = [[String: Any]]()
+        var originalEditor: NSTextView?
+        for border in [true, false] {
+            model.panelBorderVisible = border
+            for fullscreen in [false, true] {
+                model.panelOverFullscreen = fullscreen
+                try await Task.sleep(for: .milliseconds(300))
+                host.layoutSubtreeIfNeeded(); panel.displayIfNeeded()
+                let content = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
+                guard let own = content.windows.first(where: { $0.owningApplication?.processID == getpid() && $0.windowID == CGWindowID(panel.windowNumber) }),
+                      let back = content.windows.first(where: { $0.owningApplication?.processID == getpid() && $0.windowID == CGWindowID(backdrop.windowNumber) }),
+                      own.frame == back.frame, let display = content.displays.first(where: { $0.frame.contains(own.frame) })
+                else { throw Failure.window }
+                let filter = SCContentFilter(display: display, including: [back, own])
+                filter.includeMenuBar = false
+                let configuration = SCStreamConfiguration()
+                configuration.showsCursor = false
+                configuration.sourceRect = own.frame.offsetBy(dx: -display.frame.minX, dy: -display.frame.minY)
+                configuration.width = 688; configuration.height = 380
+                let image = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: configuration)
+                guard let png = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:]) else { throw Failure.capture }
+                let name = (border ? "border-on-" : "border-off-") + (fullscreen ? "fullscreen" : "desktop")
+                try png.write(to: folder.appendingPathComponent(name + ".png"))
+                let editor = model.access.view?.transcriptView
+                if originalEditor == nil { originalEditor = editor }
+                let actualFont: CGFloat?
+                if let storage = editor?.textStorage, storage.length > 0 {
+                    actualFont = (storage.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)?.pointSize
+                } else { actualFont = nil }
+                let layout = VoicePanelLayout(size: host.bounds.size)
+                guard editor != nil, editor === originalEditor, editor?.string == model.text,
+                      !panel.isKeyWindow, !backdrop.isKeyWindow else { throw Failure.window }
+                variants.append(["name": name, "windowPt": array(panel.frame), "cardPt": array(layout.cardFrame),
+                    "capturePt": array(layout.captureFrame), "copyPt": array(layout.copyFrame),
+                    "fontPt": actualFont as Any? ?? NSNull(), "sameEditor": true, "unchangedText": true,
+                    "sourceWindows": 2, "everTookKey": false])
+            }
+        }
+        try JSONSerialization.data(withJSONObject: ["source": args[2], "status": "PASS", "variants": variants,
+            "capture": "WindowServer composition of exactly two owned fixture windows; context is injected, not actual system fullscreen."],
+            options: [.prettyPrinted, .sortedKeys]).write(to: receipt)
     }
     // Separate client process addresses exactly the parent it was spawned by.
     // No system-wide hit tests, no desktop input and no interaction with other apps.

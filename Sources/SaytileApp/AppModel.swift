@@ -309,6 +309,16 @@ final class AppModel: ObservableObject {
             preferences.set(panelBorderVisible, forKey: "panelBorderVisible")
         }
     }
+    @Published var panelPlacementMode: PanelPlacementMode = .floating {
+        didSet {
+            guard !initializing, panelPlacementMode != oldValue else { return }
+            preferences.set(panelPlacementMode.rawValue, forKey: "panelPlacementMode")
+            NotificationCenter.default.post(name: .init("SaytilePanelPlacementChanged"), object: nil)
+        }
+    }
+    // Window observations are session state, never persisted as a user choice.
+    @Published var panelOverFullscreen = false
+    @Published var panelArrangementStatus: String?
     @Published var floatingEntryEnabled = false {
         didSet {
             guard !initializing, floatingEntryEnabled != oldValue else { return }
@@ -401,6 +411,8 @@ final class AppModel: ObservableObject {
         audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration, startupRecoveryReady: false)
         input = NativeInputCoordinator(store: store)
         panelBorderVisible = preferences.object(forKey: "panelBorderVisible") as? Bool ?? true
+        panelPlacementMode = preferences.string(forKey: "panelPlacementMode")
+            .flatMap(PanelPlacementMode.init(rawValue:)) ?? .floating
         floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")
         launchAtLogin = canManageLoginItem && SMAppService.mainApp.status == .enabled
         shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? ([.designExperience, .sharedVoicePreview, .mandarinCandidate].contains(SaytileStorageProfile.current) ? "disabled" : "option-space")

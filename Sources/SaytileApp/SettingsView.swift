@@ -145,6 +145,22 @@ struct SettingsView: View {
             Text("复制无需授权。直接输入只追加到你绑定的草稿。") .font(.callout).foregroundStyle(.secondary)
         }
         Section("输入板") {
+            Picker("显示方式", selection: $model.panelPlacementMode) {
+                Text("浮板").tag(PanelPlacementMode.floating)
+                Text("实体边界").tag(PanelPlacementMode.boundary)
+            }.pickerStyle(.menu).accessibilityIdentifier("settings.panelPlacement")
+            if model.panelPlacementMode == .boundary {
+                Text("为语音板留出空间，需要辅助功能权限来调整可移动的应用窗口。")
+                    .font(.callout).foregroundStyle(.secondary)
+                if !model.input.hasPermission {
+                    Button("允许窗口避让…", action: model.requestAccessibility)
+                        .accessibilityIdentifier("settings.panelArrangementPermission")
+                }
+            }
+            if let status = model.panelArrangementStatus {
+                Text(status).font(.callout).foregroundStyle(.secondary).textSelection(.enabled)
+                    .accessibilityIdentifier("settings.panelArrangementStatus")
+            }
             Toggle("显示边框", isOn: $model.panelBorderVisible).accessibilityIdentifier("settings.panelBorder")
             Picker("讲话分组间隔", selection: Binding(get: { model.timelineIdleSeconds }, set: { model.changeIdleInterval($0) })) {
                 let minutes = [1, 2, 5, 10, 30, 60]

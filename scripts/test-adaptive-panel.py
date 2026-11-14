@@ -16,6 +16,7 @@ def main():
     parser.add_argument('--source', required=True)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--expect-pass', action='store_true')
+    parser.add_argument('--glass-only', action='store_true', help='Capture same-content desktop/fullscreen glass without gestures or installed apps')
     args = parser.parse_args()
     sha = subprocess.check_output(['git','rev-parse','--verify',args.source+'^{commit}'],cwd=ROOT,text=True).strip()
     with tempfile.TemporaryDirectory(prefix='saytile-adaptive-') as folder:
@@ -51,7 +52,11 @@ def main():
         subprocess.run([*swift, *flags, '-I', str(package), '-L', str(package), '-lSaytileKit', '-lSaytileVoiceUI', str(tmp/'VoicePanel.swift'), str(wrapper),
                        str(ROOT/'tests/fixtures/AdaptiveVoicePanelProbe.swift'),'-o',str(executable)],check=True)
         args.output.mkdir(exist_ok=True,parents=True)
-        subprocess.run([str(executable),sha,str(args.output.resolve())],check=True)
+        subprocess.run([str(executable), *(['--glass-only'] if args.glass_only else []), sha, str(args.output.resolve())],check=True)
+        if args.glass_only:
+            report = json.loads((args.output / 'glass-receipt.json').read_text())
+            print(report['status'], 'owned native glass variants:', len(report.get('variants', [])))
+            return int(args.expect_pass and report['status'] != 'PASS')
         if b'struct VoicePanelLayout' in b''.join(p.read_bytes() for p in shared):
             gestures = tmp / 'VoiceRailGestureProbe'
             subprocess.run([*swift, '-I', str(package), '-L', str(package), '-lSaytileKit', '-lSaytileVoiceUI',
