@@ -1,0 +1,53 @@
+{
+  "source": "unprivileged macmon whole-machine sensors during the same native public recording; no attribution to individual processes",
+  "baseline": {
+    "source": "d3b37a88efd4f61ad2ff091353313379a584b1df",
+    "wave": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+    "active_samples": 39,
+    "idle_samples": 9,
+    "active_mean": {
+      "sys_power": 31.803755784646057,
+      "cpu_power": 5.9214483591226434,
+      "gpu_power": 5.813418836165697,
+      "ane_power": 0.3423458471512183,
+      "cpu_active_ratio": 0.33622373678745365,
+      "gpu_active_ratio": 0.6634492010642321
+    },
+    "idle_mean": {
+      "sys_power": 15.638941340976292,
+      "cpu_power": 2.236468646261427,
+      "gpu_power": 0.3414738244480557,
+      "ane_power": 0.12720989767048094,
+      "cpu_active_ratio": 0.2008240587181515,
+      "gpu_active_ratio": 0.3161663015683492
+    },
+    "total_delta_w": 16.165,
+    "peak_MB": 1697.846,
+    "probe_exit": 0
+  },
+  "candidate": {
+    "source": "ff8f8a014bd6b554a5703971a1139d94da155a6c",
+    "wave": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+    "active_samples": 39,
+    "idle_samples": 9,
+    "active_mean": {
+      "sys_power": 30.109123963576096,
+      "cpu_power": 5.216631443072588,
+      "gpu_power": 5.8247625430425005,
+      "ane_power": 0.2743231083911199,
+      "cpu_active_ratio": 0.2706432602344415,
+      "gpu_active_ratio": 0.6621328447109613
+    },
+    "idle_mean": {
+      "sys_power": 16.698956595526802,
+      "cpu_power": 2.143194039662679,
+      "gpu_power": 0.36840958727730644,
+      "ane_power": 0.16746611562040117,
+      "cpu_active_ratio": 0.19567719929748112,
+      "gpu_active_ratio": 0.32206930054558647
+    },
+    "total_delta_w": 13.41,
+    "peak_MB": 1660.815,
+    "probe_exit": 0
+  }
+}
