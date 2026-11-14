@@ -171,6 +171,43 @@ struct QwenRecoveryTests {
         #expect(live.presentation == statement + "等待消息")
     }
 
+    @Test func establishedWordAndUnfinishedTailCanBothBeCorrectedByGrowingPasses() {
+        // Public FLEURS trace f8646a257c0c4273. The two changes occur in
+        // different parts of the same raw hypothesis, with new speech at its end.
+        let middle = "们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚"
+        var live = LocalLiveText(model: .qwen)
+        for tail in ["", "亚", "亚历。"] {
+            #expect(live.accept("它" + middle.dropLast() + tail, final: false) == 0)
+        }
+        let visible = live.presentation
+        let corrected = "他" + middle + "利桑那州"
+        #expect(live.accept(corrected + "。", final: false) == nil)
+        #expect(live.presentation == visible)
+        #expect(live.accept(corrected + "奇甘镇。", final: false) == 0)
+        #expect(live.presentation == corrected + "奇甘镇")
+        #expect(live.accept(corrected + "奇甘镇，美国地质调查局。", final: false) == 0)
+    }
+
+    @Test func aSecondChangeAtTheRightEdgeCannotBypassProtectedEvidence() {
+        let middle = "今天下午会议结束之后才会公布山谷附近遗址的名字"
+        func check(_ early: String, _ newEarly: String, _ oldTail: String, _ newTail: String,
+                   body: String, priorWord: String? = nil, secondExtension: String = "和地图") {
+            var live = LocalLiveText(model: .qwen)
+            for n in [4, 2, 0] {
+                #expect(live.accept(early + String(body.dropLast(n)) + oldTail, final: false) == 0)
+            }
+            let visible = live.presentation
+            #expect(live.accept(newEarly + body + (priorWord ?? newTail) + "附近", final: false) == nil)
+            #expect(live.accept(newEarly + body + newTail + "附近" + secondExtension, final: false) == nil)
+            #expect(live.presentation == visible)
+        }
+        check("不去", "要去", "亚历", "亚利", body: middle)
+        check("它们", "他们", "一百", "一千", body: middle)
+        check("它们", "他们", "亚历", "亚利", body: middle, priorWord: "亚力")
+        check("它们", "他们", "亚历", "亚利", body: middle, secondExtension: "……")
+        check("它们", "他们", "亚历", "亚利", body: middle + "亚" + middle)
+    }
+
     private func fixture(_ variant: String) throws -> LocalModelManifest {
         let revision = try LocalModelManifest.load(.qwen).revision
         let file = LocalModelManifest.File(path: "weights", bytes: 3,

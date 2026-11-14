@@ -340,27 +340,39 @@ struct LocalLiveText {
         guard old.count >= 20, current.count >= old.count + 2,
               observed.count > old.count, current.count >= observed.count else { return nil }
         let changes = old.indices.filter { old[$0] != current[$0] }
-        guard let first = changes.first, let last = changes.last, first >= 3, last - first < 4,
-              old.count - last > 12 else { return nil }
+        guard let first = changes.first, let last = changes.last else { return nil }
         func ordinaryHan(_ c: Character) -> Bool {
             c.unicodeScalars.count == 1 && c.unicodeScalars.allSatisfy { (0x3400...0x9FFF).contains($0.value) }
                 && !protectsBoundary(c)
         }
-        guard changes.allSatisfy({ ordinaryHan(old[$0]) && ordinaryHan(current[$0]) }),
-              // The same local words, unchanged suffix and start of the true
-              // extension must be present in both observations at this position.
-              current[(first - 3)...old.count].elementsEqual(observed[(first - 3)...old.count]) else { return nil }
+        guard changes.allSatisfy({ ordinaryHan(old[$0]) && ordinaryHan(current[$0]) }) else { return nil }
         // A shared space or an ellipsis does not substantiate a new word.
         let extensionAgreement = zip(current[old.count...], observed[old.count...]).prefix { $0 == $1 }
         guard extensionAgreement.contains(where: { $0.0.isLetter || $0.0.isNumber }) else { return nil }
-        let earlier = (0..<(first - 3)).filter { observed[$0] != current[$0] }
-        guard let a = earlier.first, let b = earlier.last, b - a < 4,
-              earlier.allSatisfy({ ordinaryHan(observed[$0]) && ordinaryHan(current[$0]) }) else { return nil }
 
-        let anchor = old.suffix(12)
+        let anchorEnd: Int
+        if last - first < 4, first >= 3, old.count - last > 12 {
+            // A different, earlier spelling on the prior pass must not invalidate
+            // the local evidence when the current pass restores the displayed words.
+            guard current[(first - 3)..<old.count].elementsEqual(observed[(first - 3)..<old.count]) else { return nil }
+            let earlier = (0..<(first - 3)).filter { observed[$0] != current[$0] }
+            guard let a = earlier.first, let b = earlier.last, b - a < 4,
+                  earlier.allSatisfy({ ordinaryHan(observed[$0]) && ordinaryHan(current[$0]) }) else { return nil }
+            anchorEnd = old.count
+        } else {
+            // A short unfinished word at the old right edge can be corrected at
+            // the same time as one older word. Both passes must corroborate the
+            // *whole* corrected old span, then grow beyond it with real words.
+            let tail = changes.drop { $0 - first < 4 }
+            guard let tailStart = tail.first, tailStart >= old.count - 3,
+                  let earlyEnd = changes.last(where: { $0 < tailStart }), tailStart - earlyEnd > 12,
+                  observed.prefix(old.count).elementsEqual(current.prefix(old.count)),
+                  current[observed.count...].contains(where: { $0.isLetter || $0.isNumber }) else { return nil }
+            anchorEnd = tailStart
+        }
+        let offset = anchorEnd - 12, anchor = old[offset..<anchorEnd]
         func unique(_ words: [Character]) -> Bool {
-            let offset = old.count - anchor.count
-            return !(0...(words.count - anchor.count)).contains { i in
+            !(0...(words.count - anchor.count)).contains { i in
                 i != offset && words[i...].starts(with: anchor)
             }
         }
