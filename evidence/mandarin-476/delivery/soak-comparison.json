@@ -1,0 +1,130 @@
+{
+  "474": {
+    "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+    "fixture_sha256": "6c6e57fb689187803fcbbbf52523fcebe047dedb8e85a71fe611588c66e4f072",
+    "input_duration": 905.020375,
+    "elapsed": 905.0234297916759,
+    "exit_code": 0,
+    "archive_chunks": 79,
+    "archived_seconds": 803.040375,
+    "completed_rows": 47,
+    "total_rows": 47,
+    "integrity": "ok",
+    "foreign_errors": 0,
+    "timeline_rows": 47,
+    "dispatches": 0,
+    "unmatched_chunk_ordinals": [],
+    "readable_pcm_manifest": "1cc02d044e283969d66dcf4d70f8d14739f1792d696203184f1a41501524dd10",
+    "resources": {
+      "app": {
+        "samples": 180,
+        "median_cpu_percent": 7.0,
+        "peak_RSS_MiB": 107.22,
+        "first_5min_median_RSS_MiB": 75.84,
+        "last_5min_median_RSS_MiB": 53.98
+      },
+      "worker": {
+        "samples": 175,
+        "median_cpu_percent": 36.3,
+        "peak_RSS_MiB": 790.17,
+        "first_5min_median_RSS_MiB": 718.2,
+        "last_5min_median_RSS_MiB": 716.79
+      }
+    },
+    "idle": {
+      "input_range_seconds": [
+        485.4901875,
+        530.4901875
+      ],
+      "sampled_after_35_seconds": [
+        [
+          520.9633399168961,
+          false
+        ],
+        [
+          525.9835548328701,
+          false
+        ]
+      ],
+      "released": true,
+      "worker_observed_again_after_speech": true
+    },
+    "ui_updates": 1568,
+    "providers": [
+      "qwen-small"
+    ],
+    "requested_automatic": true,
+    "observed_automatic": true,
+    "input_clips": 84,
+    "all_inputs_have_archived_audio": true
+  },
+  "476": {
+    "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+    "fixture_sha256": "6c6e57fb689187803fcbbbf52523fcebe047dedb8e85a71fe611588c66e4f072",
+    "input_duration": 905.020375,
+    "elapsed": 905.0259603748564,
+    "exit_code": 0,
+    "archive_chunks": 79,
+    "archived_seconds": 803.040375,
+    "completed_rows": 47,
+    "total_rows": 47,
+    "integrity": "ok",
+    "foreign_errors": 0,
+    "timeline_rows": 47,
+    "dispatches": 0,
+    "unmatched_chunk_ordinals": [],
+    "readable_pcm_manifest": "1cc02d044e283969d66dcf4d70f8d14739f1792d696203184f1a41501524dd10",
+    "resources": {
+      "app": {
+        "samples": 181,
+        "median_cpu_percent": 5.9,
+        "peak_RSS_MiB": 98.42,
+        "first_5min_median_RSS_MiB": 59.33,
+        "last_5min_median_RSS_MiB": 54.66
+      },
+      "worker": {
+        "samples": 177,
+        "median_cpu_percent": 22.0,
+        "peak_RSS_MiB": 787.11,
+        "first_5min_median_RSS_MiB": 723.12,
+        "last_5min_median_RSS_MiB": 721.95
+      }
+    },
+    "idle": {
+      "input_range_seconds": [
+        485.4901875,
+        530.4901875
+      ],
+      "sampled_after_35_seconds": [
+        [
+          524.8382747080177,
+          false
+        ]
+      ],
+      "released": true,
+      "worker_observed_again_after_speech": true
+    },
+    "ui_updates": 1676,
+    "providers": [
+      "qwen-small"
+    ],
+    "requested_automatic": true,
+    "observed_automatic": true,
+    "input_clips": 84,
+    "all_inputs_have_archived_audio": true
+  },
+  "same": {
+    "fixture_sha256": true,
+    "readable_pcm_manifest": true,
+    "input_duration": true,
+    "input_clips": true,
+    "clips": true,
+    "completed_rows": true,
+    "total_rows": true,
+    "archive_chunks": true,
+    "archived_seconds": true
+  },
+  "baseline_receipt_sha256": "5242fc2861116a7eb57887ba64bbea9bb5acb69d947f862da637ff055db8bbf0",
+  "candidate_receipt_sha256": "193c30f3e7ea46cc923e8d8641da4b101bf9f08ee69843e481d7efcb00d79a24",
+  "transcript_comparison": "NOT_RUN: prior successful 474 soak saved PCM integrity and archive totals, no record text. Same-input final-text comparison is reported independently for the 440 files."
+}
