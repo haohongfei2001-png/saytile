@@ -1,0 +1,296 @@
+{
+  "status": "PASS",
+  "environment": "Isolated Linux Chromium, same local assets inlined; clipboard call captured in test memory, not a system clipboard verification",
+  "checks": [
+    {
+      "name": "No horizontal overflow 320",
+      "pass": true,
+      "detail": {
+        "inner": 320,
+        "scroll": 320
+      }
+    },
+    {
+      "name": "No horizontal overflow 360",
+      "pass": true,
+      "detail": {
+        "inner": 360,
+        "scroll": 360
+      }
+    },
+    {
+      "name": "No horizontal overflow 390",
+      "pass": true,
+      "detail": {
+        "inner": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "name": "No horizontal overflow 650",
+      "pass": true,
+      "detail": {
+        "inner": 650,
+        "scroll": 650
+      }
+    },
+    {
+      "name": "No horizontal overflow 700",
+      "pass": true,
+      "detail": {
+        "inner": 700,
+        "scroll": 700
+      }
+    },
+    {
+      "name": "No horizontal overflow 768",
+      "pass": true,
+      "detail": {
+        "inner": 768,
+        "scroll": 768
+      }
+    },
+    {
+      "name": "No horizontal overflow 850",
+      "pass": true,
+      "detail": {
+        "inner": 850,
+        "scroll": 850
+      }
+    },
+    {
+      "name": "No horizontal overflow 1024",
+      "pass": true,
+      "detail": {
+        "inner": 1024,
+        "scroll": 1024
+      }
+    },
+    {
+      "name": "No horizontal overflow 1440",
+      "pass": true,
+      "detail": {
+        "inner": 1440,
+        "scroll": 1440
+      }
+    },
+    {
+      "name": "No horizontal overflow 1920",
+      "pass": true,
+      "detail": {
+        "inner": 1920,
+        "scroll": 1920
+      }
+    },
+    {
+      "name": "No duplicate HTML ids",
+      "pass": true
+    },
+    {
+      "name": "Reduced motion displays complete transcript",
+      "pass": true
+    },
+    {
+      "name": "Resume preserves edits",
+      "pass": true
+    },
+    {
+      "name": "Chapter selection preserves edited text",
+      "pass": true
+    },
+    {
+      "name": "Explicit copy requests actual edited text",
+      "pass": true
+    },
+    {
+      "name": "Edited source propagates to reuse",
+      "pass": true
+    },
+    {
+      "name": "Intentional empty edit remains empty",
+      "pass": true
+    },
+    {
+      "name": "Empty edit does not restore old copy source",
+      "pass": true
+    },
+    {
+      "name": "Only explicit replay resets edited text",
+      "pass": true
+    },
+    {
+      "name": "Copy action uses current source",
+      "pass": true
+    },
+    {
+      "name": "Paste preserves previous draft",
+      "pass": true
+    },
+    {
+      "name": "Explicit binding does not replay existing text",
+      "pass": true
+    },
+    {
+      "name": "Direct mode appends exactly one new phrase",
+      "pass": true
+    },
+    {
+      "name": "Editing invalidates binding",
+      "pass": true
+    },
+    {
+      "name": "Rebinding retains current draft",
+      "pass": true
+    },
+    {
+      "name": "Moved caret rejects append",
+      "pass": true
+    },
+    {
+      "name": "Mode switch supports arrow keys",
+      "pass": true
+    },
+    {
+      "name": "Reset empties only demo draft",
+      "pass": true
+    },
+    {
+      "name": "Search filters sample records",
+      "pass": true
+    },
+    {
+      "name": "No matches stated correctly",
+      "pass": true
+    },
+    {
+      "name": "Unmatched record cannot be copied",
+      "pass": true
+    },
+    {
+      "name": "Clearing query restores records",
+      "pass": true
+    },
+    {
+      "name": "Record selection changes content",
+      "pass": true
+    },
+    {
+      "name": "Record edits persist across selection",
+      "pass": true
+    },
+    {
+      "name": "Version view is read-only",
+      "pass": true
+    },
+    {
+      "name": "Returning to current version preserves edits",
+      "pass": true
+    },
+    {
+      "name": "Archive copy uses current edited text",
+      "pass": true
+    },
+    {
+      "name": "Original native screenshot fully decodes",
+      "pass": true
+    },
+    {
+      "name": "Escape closes dialog",
+      "pass": true
+    },
+    {
+      "name": "Dialog returns focus to trigger",
+      "pass": true
+    },
+    {
+      "name": "No microphone or outbound API calls in source",
+      "pass": true
+    },
+    {
+      "name": "Timed transcript visibly progresses",
+      "pass": true
+    },
+    {
+      "name": "Speaking state animates bars",
+      "pass": true
+    },
+    {
+      "name": "Pause freezes timeline",
+      "pass": true
+    },
+    {
+      "name": "Resume continues rather than restarts",
+      "pass": true
+    },
+    {
+      "name": "Natural pause returns to standby",
+      "pass": true
+    },
+    {
+      "name": "Next spoken phrase appends to same text",
+      "pass": true
+    },
+    {
+      "name": "Motion resume protects empty edit",
+      "pass": true
+    },
+    {
+      "name": "Correction starts from sample misspelling",
+      "pass": true
+    },
+    {
+      "name": "Correction changes only one glyph in place",
+      "pass": true
+    },
+    {
+      "name": "Reset cancels in-flight paste",
+      "pass": true
+    },
+    {
+      "name": "Mode change cancels stale paste",
+      "pass": true
+    },
+    {
+      "name": "Animated record switch settles",
+      "pass": true
+    },
+    {
+      "name": "Zero JavaScript runtime errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Approved opening HTML exactly preserved",
+      "pass": true
+    },
+    {
+      "name": "Approved closing HTML exactly preserved",
+      "pass": true
+    },
+    {
+      "name": "Original asset unchanged: styles.css",
+      "pass": true
+    },
+    {
+      "name": "Original asset unchanged: panel.css",
+      "pass": true
+    },
+    {
+      "name": "Original asset unchanged: panel.js",
+      "pass": true
+    },
+    {
+      "name": "Original asset unchanged: hero.js",
+      "pass": true
+    },
+    {
+      "name": "Original asset unchanged: assets/saytile-approved.webp",
+      "pass": true
+    },
+    {
+      "name": "Original asset unchanged: assets/archive-native.png",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#fbfbfa">
+  <meta name="description" content="Saytile，常驻 Mac 的 AI 语音板。自然开口，持续听写与核对，让每句话准确、忠实地留下。">
+  <meta property="og:title" content="Saytile — 让每句话，准确留下。">
+  <meta property="og:description" content="你自然开口。Saytile 持续听写、核对，让留下的文字忠实于你。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://saytile.com/preview/middle-r8/">
+  <title>Saytile — 让每句话，准确留下。</title>
+  <link rel="icon" href="assets/saytile-approved.webp" type="image/webp">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="panel.css">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="middle.css">
+</head>
+<body id="top">
+  <svg class="icon-defs" aria-hidden="true"><defs>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14m-5-5 5 5 5-5"/></symbol>
+    <symbol id="i-replay" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1 6M4 4v6h6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m9 5 10 7-10 7z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M6 18 18 6M6 6h12v12"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><path d="M8 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/><rect x="8" y="8" width="13" height="13" rx="3"/></symbol>
+    <symbol id="i-voice" viewBox="0 0 24 24"><path d="M4 10v4m4-8v12m4-15v18m4-15v12m4-8v4"/></symbol>
+    <symbol id="i-mac" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 21h8m-4-5v5"/></symbol>
+  </defs></svg>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <a href="#top" class="wordmark" aria-label="Saytile 首页"><img src="assets/saytile-approved.webp" width="46" height="46" alt=""><span>Saytile</span></a>
+    <nav aria-label="主导航"><a href="#precision">忠实表达</a><a href="#continuity">随时继续</a></nav>
+    <a class="nav-cta" href="#start">了解内测 <svg><use href="#i-arrow"/></svg></a>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-intro">
+        <p class="eyebrow hero-eyebrow"><span class="live-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span> AI 语音板，专为 Mac</p>
+        <h1 id="hero-title"><span>让每句话，</span><span>准确留下<span class="full-stop">。</span></span></h1>
+        <p class="hero-description">你自然开口。Saytile 持续听写、核对，<br>让留下的文字，忠实于你。</p>
+      </div>
+      <div class="hero-product" id="experience">
+        <div class="product-light" aria-hidden="true"><span></span></div>
+        <div class="product-orbit" aria-hidden="true"></div>
+        <div class="product-float" id="product-float">
+          <div id="saytile-panel" class="sp-panel" data-state="standby">
+  <div class="sp-scroll">
+    <div class="sp-text" contenteditable="plaintext-only" role="textbox" aria-label="Saytile 演示文字" aria-multiline="true" spellcheck="false">先别急着下结论。</div><span class="sp-caret" aria-hidden="true"></span>
+  </div>
+  <div class="sp-controls">
+    <button class="sp-button sp-copy" type="button" aria-label="复制这段文字" title="复制文字">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><g class="sp-copy-glyph"><path d="M9 8V5.5A1.5 1.5 0 0 0 7.5 4h-3A1.5 1.5 0 0 0 3 5.5v8A1.5 1.5 0 0 0 4.5 15H8"/><rect x="9" y="9" width="11" height="11" rx="2"/></g><path class="sp-check-glyph" d="m5 12 4 4L19 6"/></svg>
+    </button>
+    <button class="sp-button sp-voice" type="button" aria-label="暂停演示" title="暂停演示">
+      <span class="sp-dot" aria-hidden="true"></span>
+      <svg class="sp-triangle" viewBox="0 0 16 18" aria-hidden="true"><path d="M3 2.4C3 1.3 4 .7 4.9 1.3L14 7.5c1 .7 1 2.3 0 3L4.9 16.7C4 17.3 3 16.7 3 15.6Z"/></svg>
+      <span class="sp-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    </button>
+  </div>
+</div>
+
+        </div>
+        <div class="product-caption"><span class="caption-dot" id="caption-dot" aria-hidden="true"></span><span id="product-phase">等你下一句。</span><button id="hero-replay" aria-label="重播语音板演示" title="重播演示"><svg><use href="#i-replay"/></svg></button></div>
+      </div>
+      <div class="hero-actions"><a href="#start" class="button button-dark">了解 Mac 内测 <svg><use href="#i-arrow"/></svg></a><a href="#precision" class="text-link">往下，感受一下 <svg><use href="#i-down"/></svg></a></div>
+      <p class="hero-note">中文优先 <span>·</span> Apple Silicon <span>·</span> 产品交互演示</p>
+      <div class="hero-baseline" aria-hidden="true"><span>SPEAK NATURALLY.</span><span>STAY YOURSELF.</span></div>
+    </section>
+
+    <div class="r8" id="new-middle">
+      <section class="r8-expression" id="precision" aria-labelledby="expression-heading">
+        <div class="r8-container r8-expression-grid">
+          <div class="r8-editorial">
+            <p class="r8-kicker"><i></i> 随时开口</p>
+            <h2 id="expression-heading">停一下，<br><span class="r8-ink">也接得上。</span></h2>
+            <p class="r8-description">想法不必一次成形。<br>你边想边说，文字在一旁，<br>一句接着一句。</p>
+            <div class="r8-chapters" role="group" aria-label="表达过程演示">
+              <button type="button" data-phase="0" aria-pressed="true"><span class="r8-chapter-dot"></span><span>自然说</span><small>文字随之出现</small></button>
+              <button type="button" data-phase="1" aria-pressed="false"><span class="r8-chapter-dot"></span><span>慢慢想</span><small>停顿，仍在待命</small></button>
+              <button type="button" data-phase="2" aria-pressed="false"><span class="r8-chapter-dot"></span><span>接着说</span><small>继续同一份表达</small></button>
+            </div>
+          </div>
+          <div class="r8-stage" id="voice-stage" data-state="standby">
+            <div class="r8-caustic" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="r8-glass-line" aria-hidden="true"></div><div class="r8-voice-object" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            <canvas class="r8-particles" id="voice-particles" aria-hidden="true"></canvas>
+            
+            <div class="r8-voice-holder">
+              <div class="r8-voice" id="voice-panel" data-state="standby">
+                <div class="r8-voice-scroll" tabindex="0" aria-label="口述示例滚动区域"><div id="voice-text" contenteditable="plaintext-only" role="textbox" aria-label="口述示例，可以编辑" aria-multiline="true" spellcheck="false">这个周末，想去看海。<br>嗯，不赶时间。<br>等天气放晴，再出发。</div><span class="r8-caret" aria-hidden="true"></span></div>
+                <div class="r8-voice-controls">
+                  <button type="button" class="r8-copy" id="voice-copy" aria-label="复制口述文字"><svg><use href="#i-copy"/></svg><svg class="r8-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button>
+                  <button type="button" class="r8-state" id="voice-toggle" aria-label="暂停口述演示"><span class="r8-dot"></span><span class="r8-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><svg class="r8-triangle" viewBox="0 0 18 20" aria-hidden="true"><path d="m4 2 12 8-12 8Z"/></svg></button>
+                </div>
+              </div>
+              <div class="r8-status" role="status" aria-live="polite"><i></i><span id="voice-status">等你下一句。</span></div>
+            </div>
+            <div class="r8-player"><span>产品交互演示</span><div class="r8-progress"><i id="voice-progress"></i></div><button type="button" id="voice-play" aria-label="播放演示"><svg><use href="#i-play"/></svg></button><button type="button" id="voice-replay" aria-label="从头重播"><svg><use href="#i-replay"/></svg></button></div>
+          </div>
+        </div>
+        <div class="r8-fidelity r8-container" id="fidelity-demo">
+          <div class="r8-fidelity-label"><svg><use href="#i-voice"/></svg><span>逐字核对。<br><strong>语气，还是你。</strong></span></div>
+          <p class="r8-proof"><span class="r8-spoken">嗯，不赶时间。</span><span>等天气放晴，<span class="r8-corrected" id="corrected-sample">再</span>出发。</span></p>
+          <button type="button" id="correction-replay" class="r8-text-button">看一次修正 <svg><use href="#i-replay"/></svg></button>
+        </div>
+      </section>
+
+      <section class="r8-reuse" id="continuity" aria-labelledby="reuse-heading">
+        <div class="r8-container">
+          <div class="r8-section-head"><div><p class="r8-kicker"><i></i> 从表达，到使用</p><h2 id="reuse-heading">刚刚说出口。<br><span class="r8-ink">现在就能用。</span></h2></div><p class="r8-description">一段留言，一份文稿。<br>把心里的话，带到手上的事里。</p></div>
+          <div class="r8-handoff" id="handoff-scene" data-mode="copy" data-delivered="true">
+            <div class="r8-source-column">
+              <div class="r8-mode-switch" role="tablist" aria-label="文字取用方式"><button id="copy-tab" type="button" role="tab" data-mode="copy" aria-selected="true" aria-controls="mode-content">复制取用</button><button id="direct-tab" type="button" role="tab" data-mode="direct" aria-selected="false" aria-controls="mode-content" tabindex="-1">连续输入示意</button><span aria-hidden="true"></span></div>
+              <div id="mode-content" role="tabpanel" aria-labelledby="copy-tab"><div class="r8-source-heading"><i></i> 刚才的原话</div><p id="source-text">这个周末，想去看海。<br>嗯，不赶时间。<br>等天气放晴，再出发。</p><button type="button" class="r8-primary" id="take-action"><svg><use href="#i-copy"/></svg><span>复制这段话</span></button><p class="r8-action-note" id="take-note">你的修改，也一起带走。</p></div>
+            </div>
+            <div class="r8-destination-column">
+              <div class="r8-paper-edge" aria-hidden="true"></div>
+              <div class="r8-paper" id="draft-paper">
+                <div class="r8-paper-head"><span class="r8-message-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4Z"/></svg></span><span>给朋友的一段留言</span><small>示例草稿</small></div>
+                <textarea id="draft-text" aria-label="可编辑的示例草稿" placeholder="刚才的想法，即将来到这里。" spellcheck="false">这个周末，想去看海。
+嗯，不赶时间。
+等天气放晴，再出发。</textarea>
+                <div class="r8-paper-bottom"><span id="draft-status">继续编辑，或直接取用。</span><button type="button" id="paste-sample" disabled>粘贴示例 <svg><use href="#i-arrow"/></svg></button></div>
+              </div>
+              <div class="r8-paper-caption"><span><i id="bound-dot"></i><span id="target-status">下一步，由你。</span></span><button type="button" id="reset-draft" aria-label="清空并重置示例草稿"><svg><use href="#i-replay"/></svg></button></div>
+            </div>
+            <div class="r8-transfer-glow" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="r8-memory" aria-labelledby="memory-heading">
+        <div class="r8-container r8-memory-grid">
+          <div class="r8-memory-copy"><p class="r8-kicker"><i></i> 留下，也找回</p><h2 id="memory-heading">想法走远了。<br><span class="r8-ink">原话还在。</span></h2><p class="r8-description">文字、原音和修改版本，分别保留。<br>回到某一段表达，再接着想。</p><div class="r8-search-box"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input id="memory-search" type="search" aria-label="搜索示例档案" placeholder="试着找「看海」" autocomplete="off"/><kbd aria-hidden="true">⌕</kbd></div><p class="r8-search-status" id="search-status" role="status" aria-live="polite">三个示例，随手翻一翻。</p><button type="button" id="native-open" class="r8-text-button">查看原生语音档案 <svg><use href="#i-external"/></svg></button></div>
+          <div class="r8-memory-visual" id="memory-visual">
+            <div class="r8-memory-light" aria-hidden="true"></div>
+            <div class="r8-record-nav" role="group" aria-label="选择档案示例"><button type="button" data-record="0" aria-pressed="true"><i></i><span>今天</span></button><button type="button" data-record="1" aria-pressed="false"><i></i><span>昨天</span></button><button type="button" data-record="2" aria-pressed="false"><i></i><span>更早</span></button></div>
+            <div class="r8-time-line" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="r8-folio-back r8-folio-back-two" aria-hidden="true"><small>昨天 · 10:18</small><span>读到这里，想到一点。</span></div>
+            <div class="r8-folio-back" aria-hidden="true"><small>明天</small><span>还有没说完的，留给下一次。</span></div>
+            <article class="r8-folio" id="record-card">
+              <div class="r8-record-top"><span id="record-date">今天 · 14:06</span><span class="r8-record-label"><i></i> 示例档案</span></div>
+              <h3 id="record-title">等天气放晴。</h3>
+              <div class="r8-record-text" id="record-text" contenteditable="plaintext-only" role="textbox" aria-label="档案示例文字，可以编辑" aria-multiline="true" spellcheck="false">这个周末，想去看海。<br>嗯，不赶时间。<br>等天气放晴，再出发。</div>
+              <div class="r8-record-foot"><button type="button" id="version-toggle" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6M12 7v5l3 2"/></svg><span>文字版本</span></button><button type="button" id="record-copy" aria-label="复制当前档案文字"><svg><use href="#i-copy"/></svg></button></div>
+            </article>
+            <div class="r8-memory-caption"><span>每一段表达，都有来处。</span><span>档案交互演示</span></div>
+          </div>
+        </div>
+        <div class="r8-coda r8-container"><span>说的时候，自然一点。</span><span>需要的时候，随手取用。</span><i></i></div>
+      </section>
+      <dialog class="r8-dialog" id="native-dialog" aria-labelledby="native-heading"><div><span id="native-heading">Saytile · 原生语音档案</span><button type="button" id="native-close">关闭 <span aria-hidden="true">×</span></button></div><section><img src="assets/archive-native.png" width="2100" height="1344" loading="lazy" alt="Saytile 原生语音档案截图，隔离示例资料"/></section></dialog>
+      <p class="r8-disclosure r8-container">以上为产品交互演示，不开启麦克风；原生界面可在语音档案处查看。</p>
+    </div>
+
+    <section class="start-section" id="start" aria-labelledby="start-title">
+      <div class="start-glow" aria-hidden="true"></div><div class="start-main section-shell reveal"><div class="start-brand"><img src="assets/saytile-approved.webp" width="100" height="100" alt="Saytile 应用图标"><span>Saytile for Mac</span></div><h2 id="start-title">下一句，<br>从这里开始。</h2><div class="start-side"><p>给自然的表达，<br>一个随时可用的地方。</p><a class="button button-white" href="https://github.com/haohongfei2001-png/saytile/pull/23" target="_blank" rel="noopener noreferrer">了解 Saytile 内测 <svg><use href="#i-external"/></svg></a><span>Apple Silicon · macOS 26+</span></div></div>
+      <div class="start-faq section-shell"><details><summary>第一次使用，需要准备什么？<svg><use href="#i-plus"/></svg></summary><p>当前内测提供本地中文识别，无需 API Key。首次使用需要准备语言资源，并授予麦克风权限。你也可以在设置里配置支持的云端服务。</p></details><details><summary>在哪里获取当前版本？<svg><use href="#i-plus"/></svg></summary><p>当前界面仍在内测。通过 <a href="https://github.com/haohongfei2001-png/saytile/pull/23" target="_blank" rel="noopener noreferrer">GitHub 内测进展</a> 查看最新状态与后续发行；公开 Releases 中的 RC1 是较早版本。</p></details></div>
+      <footer class="site-footer section-shell"><a href="#top" class="footer-brand">Saytile</a><span>自然开口。忠实留下。</span><a href="https://github.com/haohongfei2001-png/saytile" target="_blank" rel="noopener noreferrer">GitHub <svg><use href="#i-external"/></svg></a><small>© 2026</small></footer>
+    </section>
+  </main>
+  <div class="toast" role="status" aria-live="polite" id="toast"></div>
+  <script src="panel.js" defer></script>
+  <script src="hero.js" defer></script>
+  <script src="middle.js" defer></script>
+</body>
+</html>
