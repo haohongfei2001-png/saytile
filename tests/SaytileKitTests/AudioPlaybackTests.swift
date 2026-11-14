@@ -92,3 +92,181 @@ struct AudioPlayerIntegrationTests {
         try await store.close()
     }
 }
+
+private actor PlaybackTransitionGate {
+    private(set) var entered = false
+    private var continuation: CheckedContinuation<Void, Never>?
+    func wait() async {
+        entered = true
+        await withCheckedContinuation { continuation = $0 }
+    }
+    func release() { continuation?.resume(); continuation = nil }
+}
+
+@Suite("Natural paragraph playback", .serialized)
+struct ParagraphPlaybackTests {
+    private func silentRecording(_ store: SaytileStore, frames: [Int], text: String = "独立回听资料") async throws -> UUID {
+        let record = try await store.createRecording()
+        let journal = try PCMJournal(directory: store.audioDirectory, recordingID: record.id)
+        for count in frames {
+            try journal.openChunk(); try journal.append(Data(repeating: 0, count: count * 2)); try journal.closeChunk()
+            try await store.registerAudioChunk(recordingID: record.id, relativePath: journal.relativePath, frames: Int64(count))
+        }
+        try await store.finishRecording(id: record.id)
+        _ = try await store.saveEdit(recordingID: record.id, text: text)
+        return record.id
+    }
+    @MainActor private func waitFor(_ predicate: () -> Bool) async throws {
+        let deadline = ContinuousClock.now.advanced(by: .seconds(4))
+        while !predicate(), ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(10)) }
+        #expect(predicate())
+    }
+
+    @MainActor @Test func paragraphKeepsIdentitySeeksAcrossRecordingsAndSkipsMissingOriginals() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-paragraph-play-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = try SaytileStore(directory: root)
+        let first = try await silentRecording(store, frames: [6_400, 4_800])
+        let second = try await silentRecording(store, frames: [14_400])
+        let deleted = try await silentRecording(store, frames: [8_000])
+        try await store.deleteAudio(recordingID: deleted)
+        let missing = try await silentRecording(store, frames: [8_000])
+        let chunk = try #require(try await store.audioChunks(recordingID: missing).first)
+        try FileManager.default.removeItem(at: await store.audioURL(for: chunk))
+        let controller = AudioController(store: store)
+        try await controller.play(recordingIDs: [first, deleted, missing, second, first], playbackID: first)
+        #expect(controller.playingID == first && controller.playingRecordingID == first)
+        #expect(abs(controller.playbackDuration - 1.6) < 0.0001)
+        #expect(controller.playbackNotice == "有 2 段原音已删除或不可用，已跳过")
+        controller.seekPlayback(to: 0.9)
+        try await waitFor { controller.playingRecordingID == second }
+        #expect(controller.playingID == first)
+        #expect(controller.playbackPosition >= 0.9 && controller.playbackPosition < 1.5)
+        controller.seekPlayback(to: 0.1)
+        try await waitFor { controller.playingRecordingID == first && controller.playbackPosition < 0.4 }
+        controller.stopPlayback(); await controller.shutdown()
+        try await store.deleteAudio(recordingID: first)
+        try await store.deleteAudio(recordingID: second)
+        #expect(try await store.recording(id: first)?.audioState == .deleted)
+        #expect(try await store.recording(id: second)?.audioState == .deleted)
+        #expect(try await store.recording(id: deleted)?.text == "独立回听资料")
+        try await store.close()
+    }
+
+    @MainActor @Test func actualPlayerContinuouslyFinishesTwoOriginalsWithoutMicrophone() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-paragraph-finish-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = try SaytileStore(directory: root)
+        let first = try await silentRecording(store, frames: [2_400])
+        let second = try await silentRecording(store, frames: [2_400])
+        let controller = AudioController(store: store)
+        var played: [UUID] = []
+        let observation = controller.$playingRecordingID.compactMap { $0 }.sink { played.append($0) }
+        defer { observation.cancel() }
+        try await controller.play(recordingIDs: [first, second], playbackID: first)
+        try await waitFor { controller.playingID == nil }
+        #expect(played == [first, second])
+        #expect(controller.state == .paused)
+        await controller.shutdown(); try await store.close()
+    }
+
+    @MainActor @Test func deletionOfQueuedOriginalSkipsItAndReleasesItsLease() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-paragraph-delete-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = try SaytileStore(directory: root)
+        let first = try await silentRecording(store, frames: [6_400])
+        let deleted = try await silentRecording(store, frames: [8_000])
+        let third = try await silentRecording(store, frames: [16_000])
+        let controller = AudioController(store: store)
+        var played: [UUID] = []
+        let observation = controller.$playingRecordingID.compactMap { $0 }.sink { played.append($0) }
+        defer { observation.cancel() }
+        try await controller.play(recordingIDs: [first, deleted, third], playbackID: first)
+        try await store.deleteAudio(recordingID: deleted)
+        #expect(try await store.recording(id: deleted)?.audioState == .deletePending)
+        try await waitFor { controller.playingRecordingID == third }
+        #expect(played == [first, third])
+        #expect(abs(controller.playbackDuration - 1.4) < 0.0001)
+        #expect(controller.playbackNotice == "有 1 段原音已删除或不可用，已跳过")
+        controller.stopPlayback(); await controller.shutdown()
+        #expect(try await store.recording(id: deleted)?.audioState == .deleted)
+        #expect(try await store.recording(id: deleted)?.text == "独立回听资料")
+        try await store.close()
+    }
+
+    @MainActor @Test func switchingAndCancellingASeekCannotResumeTheOldParagraph() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-paragraph-switch-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = try SaytileStore(directory: root)
+        let first = try await silentRecording(store, frames: [3_200])
+        let second = try await silentRecording(store, frames: [8_000, 24_000])
+        let controller = AudioController(store: store)
+        try await controller.play(recordingIDs: [first, second], playbackID: first)
+        try await controller.play(recordingID: second)
+        try await Task.sleep(for: .milliseconds(350))
+        #expect(controller.playingID == second && controller.playingRecordingID == second)
+        controller.seekPlayback(to: 0.6)
+        controller.stopPlayback()
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(controller.playingID == nil && controller.playingRecordingID == nil)
+        #expect(controller.playbackPosition == 0 && controller.playbackDuration == 0)
+        await controller.shutdown()
+        for id in [first, second] {
+            try await store.deleteAudio(recordingID: id)
+            #expect(try await store.recording(id: id)?.audioState == .deleted)
+        }
+        try await store.close()
+    }
+
+    @MainActor @Test func pauseDuringNextOriginalValidationCannotResumePlaybackOrCapture() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-paragraph-pause-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = try SaytileStore(directory: root)
+        let first = try await silentRecording(store, frames: [2_400])
+        let second = try await silentRecording(store, frames: [16_000])
+        let gate = PlaybackTransitionGate()
+        let controller = AudioController(store: store, recognitionFactory: RecognitionSessionFactory(), playbackRecord: { id in
+            if id == second { await gate.wait() }
+            return try await store.recording(id: id)
+        })
+        var played: [UUID] = []
+        let observation = controller.$playingRecordingID.compactMap { $0 }.sink { played.append($0) }
+        defer { observation.cancel() }
+        try await controller.play(recordingIDs: [first, second], playbackID: first)
+        let deadline = ContinuousClock.now.advanced(by: .seconds(4))
+        while await !gate.entered, ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(10)) }
+        #expect(await gate.entered)
+        await controller.pause()
+        await gate.release()
+        try await Task.sleep(for: .milliseconds(100))
+        #expect(controller.playingID == nil && controller.playingRecordingID == nil)
+        #expect(controller.state == .paused && controller.playbackDuration == 0)
+        #expect(played == [first])
+        await controller.shutdown()
+        try await store.deleteAudio(recordingID: second)
+        #expect(try await store.recording(id: second)?.audioState == .deleted)
+        try await store.close()
+    }
+
+    @MainActor @Test func unreadableChunkDoesNotBlockTheNextOriginalAndAllMissingIsHonest() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-paragraph-unreadable-\(UUID())")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = try SaytileStore(directory: root)
+        let damaged = try await silentRecording(store, frames: [8_000])
+        let second = try await silentRecording(store, frames: [16_000])
+        let chunk = try #require(try await store.audioChunks(recordingID: damaged).first)
+        try Data("invalid synthetic WAV".utf8).write(to: await store.audioURL(for: chunk))
+        let controller = AudioController(store: store)
+        try await controller.play(recordingIDs: [damaged, second], playbackID: damaged)
+        #expect(controller.playingID == damaged && controller.playingRecordingID == second)
+        #expect(controller.playbackDuration == 1 && controller.playbackNotice != nil)
+        controller.stopPlayback()
+        try await store.deleteAudio(recordingID: second)
+        do {
+            try await controller.play(recordingIDs: [UUID(), second], playbackID: UUID())
+            Issue.record("An entirely unavailable paragraph cannot claim playback")
+        } catch { #expect(controller.playbackNotice == "有 2 段原音已删除或不可用，已跳过") }
+        #expect(controller.playingID == nil && controller.state == .paused)
+        await controller.shutdown(); try await store.close()
+    }
+}

@@ -48,23 +48,38 @@ struct DisplayRecording: Identifiable, Equatable {
         }
     }
 }
+/// A user-facing paragraph keeps its original recording/revision owners.
+/// The member window is bounded independently of the archive's paragraph page.
+struct ArchiveDisplayParagraph: Identifiable, Equatable {
+    let summary: TimelineParagraph
+    var page: TimelinePage
+    var id: Int64 { summary.id }
+    var anchorID: UUID { summary.firstRecordingID }
+    var document: PanelTimelineDocument { PanelTimelineDocument(entries: page.entries) }
+    var text: String { document.text }
+    var pinned: Bool { summary.isPinned }
+    var items: [DisplayRecording] { page.entries.map { DisplayRecording(source: $0.recording) } }
+    var hasAudio: Bool { summary.hasAudio }
+    var emptyTextLabel: String { items.first?.emptyTextLabel ?? "尚无转写文字。" }
+}
+
 struct ArchiveDisplayGroup: Identifiable, Equatable {
     let id: Int64
     let date: Date
     let day: String
     let utcOffset: Int
-    var items: [DisplayRecording]
+    var paragraphs: [ArchiveDisplayParagraph]
+    var items: [DisplayRecording] { paragraphs.flatMap(\.items) }
 
-    static func from(_ entries: ArraySlice<TimelineEntry>) -> [Self] {
+    static func from(_ paragraphs: [ArchiveDisplayParagraph]) -> [Self] {
         var groups: [Self] = []
-        // Read the visible slice in speaking order, then put the newest session first.
-        for entry in entries.reversed() {
-            let item = DisplayRecording(source: entry.recording)
+        for paragraph in paragraphs {
+            let entry = paragraph.summary
             if groups.last?.id == entry.group {
-                groups[groups.count - 1].items.append(item)
+                groups[groups.count - 1].paragraphs.append(paragraph)
             } else {
                 groups.append(Self(id: entry.group, date: entry.groupStart, day: entry.groupDay,
-                                   utcOffset: entry.groupUTCOffset, items: [item]))
+                                   utcOffset: entry.groupUTCOffset, paragraphs: [paragraph]))
             }
         }
         return groups.reversed()
@@ -242,6 +257,9 @@ final class AppModel: ObservableObject {
     var records: [DisplayRecording] { archiveGroups.flatMap(\.items) }
     private var archiveEditingID: UUID?
     private var archiveEditGeneration: UInt64 = 0
+    private var archiveMemberWindows: [Int64: TimelineWindow] = [:]
+    @Published private(set) var archiveHasNewer = false
+    private var archiveWindow: TimelineWindow = .latest
     @Published var versions: [DisplayVersion] = []
     @Published var archiveIsKey = false
     @Published var selected: DisplayRecording?
@@ -251,8 +269,8 @@ final class AppModel: ObservableObject {
     @Published private(set) var editorConflictingVersion: Recording?
     @Published private(set) var editorDraftStatus = "修改会自动暂存，保存后更新这段文字"
     private var archiveIncludesUntranscribed = false
-    @Published var recordFilter: RecordingFilter = .transcribed { didSet { archiveEditingID = nil; pageLimit = 100; scheduleRefresh() } }
-    @Published var query = "" { didSet { archiveEditingID = nil; pageLimit = 100; scheduleRefresh() } }
+    @Published var recordFilter: RecordingFilter = .transcribed { didSet { archiveEditingID = nil; archiveWindow = .latest; archiveMemberWindows.removeAll(); scheduleRefresh() } }
+    @Published var query = "" { didSet { archiveEditingID = nil; archiveWindow = .latest; archiveMemberWindows.removeAll(); scheduleRefresh() } }
     @Published var notice: String?
     private var captureStartIssue: (reason: String, detail: String)?
     @Published var recognitionConfiguration = RecognitionConfiguration() {
@@ -337,7 +355,6 @@ final class AppModel: ObservableObject {
     var openArchive: () -> Void = {}
     var openSettings: () -> Void = {}
     var checkForUpdates: (() -> Void)?
-    private var pageLimit = 100
     private var panelLimit = 100
     private var timer: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
@@ -1252,7 +1269,10 @@ final class AppModel: ObservableObject {
     func play(_ item: DisplayRecording) {
         perform {
             if self.audio.playingID == item.id { self.audio.stopPlayback() }
-            else { try await self.audio.play(recordingID: item.id) }
+            else {
+                do { try await self.audio.play(recordingID: item.id) }
+                catch is CancellationError { }
+            }
         }
     }
     func eraseAudio(_ item: DisplayRecording) {
@@ -1295,16 +1315,96 @@ final class AppModel: ObservableObject {
 
     func editArchiveText(_ id: UUID, before: String, after: String) throws {
         guard !exitPrepared else { throw StoreError.database("资料库正在关闭。") }
-        let updated = try store.editArchiveParagraph(id: id, before: before, after: after)
+        _ = try store.editArchiveParagraph(id: id, before: before, after: after)
         archiveEditGeneration &+= 1
-        if let group = archiveGroups.firstIndex(where: { $0.items.contains { $0.id == id } }),
-           let item = archiveGroups[group].items.firstIndex(where: { $0.id == id }) {
-            archiveGroups[group].items[item] = DisplayRecording(source: updated)
-        }
         scheduleRefresh()
     }
 
-    func loadMore() { pageLimit += 100; scheduleRefresh() }
+    /// The NSTextView supplies the exact owner snapshot it rendered, including
+    /// during a late ASR append or a background archive refresh.
+    func editArchiveParagraph(_ id: Int64, snapshot: PanelTimelineDocument, after: String) throws -> PanelTimelineDocument {
+        guard !exitPrepared else { throw StoreError.database("资料库正在关闭。") }
+        guard let changes = snapshot.edits(replacingDisplayedText: after) else {
+            throw StoreError.database("无法确认文字范围，已保留原文。")
+        }
+        let edits = changes.map { PanelRowEdit(id: $0.id, before: $0.before, after: $0.after, paragraphBreakHidden: $0.paragraphBreakHidden, previousParagraphBreakHidden: $0.previousParagraphBreakHidden) }
+        let updated: [TimelineEntry]
+        do { updated = try store.editArchiveParagraph(id: id, edits: edits) }
+        catch {
+            let bases = Dictionary(uniqueKeysWithValues: snapshot.entries.compactMap { entry in
+                entry.recording.preferredRevisionID.map { (entry.id, $0) }
+            })
+            do {
+                try store.preserveArchiveParagraphDraft(id: id, edits: edits, bases: bases)
+            } catch let recoveryError {
+                throw StoreError.database("文字暂未写入磁盘，当前输入仍保留，请勿关闭档案：\(recoveryError.localizedDescription)")
+            }
+            throw StoreError.database("这段文字同时有其他修改。你的输入已保留为草稿，可在「原音与文字版本」中继续编辑。")
+        }
+        let byID = Dictionary(uniqueKeysWithValues: updated.map { ($0.id, $0) })
+        let entries = snapshot.entries.map { byID[$0.id] ?? $0 }
+        let document = PanelTimelineDocument(entries: entries)
+        guard document.text.utf16.elementsEqual(after.utf16) else {
+            // A stored edit must never be guessed back into another owner.
+            scheduleRefresh()
+            throw StoreError.database("文字已保存，正在重新读取段落。")
+        }
+        archiveEditGeneration &+= 1
+        for group in archiveGroups.indices {
+            if let index = archiveGroups[group].paragraphs.firstIndex(where: { $0.id == id }) {
+                for row in archiveGroups[group].paragraphs[index].page.entries.indices {
+                    let entry = archiveGroups[group].paragraphs[index].page.entries[row]
+                    if let replacement = byID[entry.id] { archiveGroups[group].paragraphs[index].page.entries[row] = replacement }
+                }
+            }
+        }
+        scheduleRefresh()
+        return document
+    }
+
+    func toggleParagraphFavorite(_ paragraph: ArchiveDisplayParagraph) async {
+        do {
+            let pinned = try await store.toggleParagraphPinned(paragraphID: paragraph.id)
+            if !pinned, recordFilter == .pinned {
+                if paragraph.items.contains(where: { $0.id == archiveEditingID }) { archiveEditingID = nil }
+                if paragraph.items.contains(where: { $0.id == selected?.id }) { closeDetail() }
+            }
+            await refresh()
+        }
+        catch { notice = error.localizedDescription }
+    }
+    func copyParagraph(_ paragraph: ArchiveDisplayParagraph, displayed: [Int64: String]? = nil) {
+        do { copy(try store.paragraphCopy(paragraphID: paragraph.id, displayed: displayed ?? paragraph.document.displayed), quietly: true) }
+        catch { notice = error.localizedDescription }
+    }
+    func playParagraph(_ paragraph: ArchiveDisplayParagraph) {
+        perform {
+            if self.audio.playingID == paragraph.anchorID { self.audio.stopPlayback(); return }
+            let ids = try await self.store.paragraphRecordingIDs(paragraphID: paragraph.id)
+            do {
+                try await self.audio.play(recordingIDs: ids, playbackID: paragraph.anchorID)
+                if self.audio.playingID == nil, let message = self.audio.playbackNotice { self.notice = message }
+            }
+            catch is CancellationError { }
+        }
+    }
+    func loadArchiveParagraph(_ paragraph: ArchiveDisplayParagraph, earlier: Bool) {
+        guard archiveEditingID == nil else { return }
+        if earlier, let first = paragraph.page.entries.first {
+            archiveMemberWindows[paragraph.id] = .ending(at: first.position - 1)
+        } else if let last = paragraph.page.entries.last {
+            archiveMemberWindows[paragraph.id] = .starting(at: last.position + 1)
+        }
+        scheduleRefresh()
+    }
+    func loadMore() {
+        guard archiveEditingID == nil, let first = archiveGroups.flatMap(\.paragraphs).map(\.id).min() else { return }
+        archiveWindow = .ending(at: first - 1); archiveMemberWindows.removeAll(); scheduleRefresh()
+    }
+    func loadNewerArchive() {
+        guard archiveEditingID == nil, let last = archiveGroups.flatMap(\.paragraphs).map(\.id).max() else { return }
+        archiveWindow = .starting(at: last + 1); archiveMemberWindows.removeAll(); scheduleRefresh()
+    }
     func previewCleanup() async -> Bool {
         guard !preparingCleanup else { return false }
         preparingCleanup = true
@@ -1395,23 +1495,41 @@ final class AppModel: ObservableObject {
     func initialLoad() async { await refresh() }
     private func performRefresh() async {
         refreshReadPasses &+= 1
-        let requestedQuery = query, requestedFilter = recordFilter, requestedLimit = pageLimit
+        let requestedQuery = query, requestedFilter = recordFilter, requestedWindow = archiveWindow
         do {
             await recoveryTask?.value
             try await refreshTimeline(timelineWindow)
             let generation = archiveEditGeneration, editingID = archiveEditingID
-            let entries = try await store.archiveEntries(query: requestedQuery, filter: requestedFilter,
-                                                         limit: requestedLimit + 1, editingID: editingID)
-            var visibleEntries = entries.prefix(requestedLimit)
-            if let editingID, !visibleEntries.contains(where: { $0.id == editingID }),
-               let focused = try await store.archiveEntryForEditing(editingID, filter: requestedFilter) {
-                visibleEntries.append(focused)
+            let requestedMembers = archiveMemberWindows
+            let focused: TimelineEntry?
+            if let editingID { focused = try await store.archiveEntryForEditing(editingID, filter: .all) }
+            else { focused = nil }
+            let page = try await store.archiveParagraphPage(requestedWindow, query: requestedQuery, filter: requestedFilter,
+                                                           limit: 24, editingID: focused?.paragraphID)
+            var summaries = page.paragraphs
+            if let focused, !summaries.contains(where: { $0.id == focused.paragraphID }) {
+                let retained = try await store.archiveParagraphPage(.ending(at: focused.paragraphID), query: requestedQuery,
+                    filter: requestedFilter, limit: 1, editingID: focused.paragraphID)
+                if let owner = retained.paragraphs.first(where: { $0.id == focused.paragraphID }) { summaries.append(owner) }
+                summaries.sort { $0.id < $1.id }
             }
-            guard query == requestedQuery, recordFilter == requestedFilter, pageLimit == requestedLimit,
-                  archiveEditGeneration == generation, archiveEditingID == editingID else { scheduleRefresh(); return }
-            let more = entries.count > requestedLimit
-            if hasMore != more { hasMore = more }
-            let groups = ArchiveDisplayGroup.from(visibleEntries)
+            var paragraphs: [ArchiveDisplayParagraph] = []
+            let existing = Dictionary(uniqueKeysWithValues: archiveGroups.flatMap(\.paragraphs).map { ($0.id, $0) })
+            for summary in summaries {
+                var window = requestedMembers[summary.id] ?? .latest
+                if let focused, focused.paragraphID == summary.id {
+                    if let prior = existing[summary.id], prior.page.entries.contains(where: { $0.id == focused.id }),
+                       let first = prior.page.entries.first { window = .starting(at: first.position) }
+                    else { window = .starting(at: focused.position) }
+                }
+                let members = try await store.paragraphMembers(paragraphID: summary.id, window)
+                paragraphs.append(ArchiveDisplayParagraph(summary: summary, page: members))
+            }
+            guard query == requestedQuery, recordFilter == requestedFilter, archiveWindow == requestedWindow,
+                  archiveEditGeneration == generation, archiveEditingID == editingID, archiveMemberWindows == requestedMembers else { scheduleRefresh(); return }
+            if hasMore != page.hasOlder { hasMore = page.hasOlder }
+            if archiveHasNewer != page.hasNewer { archiveHasNewer = page.hasNewer }
+            let groups = ArchiveDisplayGroup.from(paragraphs)
             if archiveGroups != groups { archiveGroups = groups }
             let panelStart = panelSessionStartedAt, panelIDs = Array(stagedRecordIDs), requestedPanelLimit = panelLimit
             var panelRows: [Recording] = []

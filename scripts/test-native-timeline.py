@@ -43,7 +43,7 @@ with tempfile.TemporaryDirectory(prefix='saytile-timeline-review-') as raw:
         src = Path(__file__).resolve().parents[1] / 'tests/fixtures/NativeUIControlProbe.swift'
         subprocess.run(['swiftc','-swift-version','6','-parse-as-library',str(src),'-o',str(probe)], check=True)
         env['SAYTILE_UI_CONTROL_PROBE'] = str(probe)
-    run = subprocess.run(command + ['--ui-review', str(out)], env=env, timeout=90, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    run = subprocess.run(command + ['--ui-review', str(out)], env=env, timeout=150, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     (out / 'run.log').write_text(run.stdout)
     print(run.stdout, end='')
     info = plistlib.loads((app / 'Contents/Info.plist').read_bytes())

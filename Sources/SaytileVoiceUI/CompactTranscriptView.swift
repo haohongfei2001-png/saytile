@@ -278,7 +278,8 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     }
 
     private func registerUndo(_ applied: [VoicePanelEdit], caret: Int) {
-        let inverse = applied.map { VoicePanelEdit(id: $0.id, before: $0.after, after: $0.before ?? "") }
+        let inverse = applied.map { VoicePanelEdit(id: $0.id, before: $0.after, after: $0.before ?? "",
+            paragraphBreakHidden: $0.previousParagraphBreakHidden, previousParagraphBreakHidden: $0.paragraphBreakHidden) }
         transcriptView.panelUndo.registerUndo(withTarget: self) { view in
             MainActor.assumeIsolated { view.performHistoryEdit(inverse, caret: caret) }
         }

@@ -24,6 +24,7 @@ import Testing
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: dir) }
         let store = try SaytileStore(directory: dir)
+        try await store.setTimelineIdleSeconds(120) // Explicit legacy grouping remains supported.
         let day = Calendar.current.startOfDay(for: .now).addingTimeInterval(43200)
         func add(_ delta: Double, _ end: Double, _ text: String) async throws -> Recording {
             let r = try await store.createRecording(createdAt: day.addingTimeInterval(delta))
@@ -42,7 +43,7 @@ import Testing
         let changed = try await store.timelinePage().entries
         #expect(changed.map(\.id) == p.map(\.id))
         #expect(changed[0].recording.text == "保留修改")
-        #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, displayed: [p[0].position:"原话"]) == "原话接续")
+        #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, displayed: [p[0].position:"原话"]) == "原话\n接续")
         #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, displayed: [p[1].position:""]) == "保留修改")
         #expect(try store.timelineCopy(group: p[2].group, through: p[2].position, displayed: [:]) == "新组")
         #expect(try store.timelineCopy(group: p[0].group, through: p[1].position, after: p[0].position, displayed: [:]) == "接续")
@@ -71,7 +72,8 @@ import Testing
         try await old.close()
         let fixture = try StoreDatabase(url: dir.appendingPathComponent("Saytile.sqlite"))
         try fixture.script("""
-            DROP TRIGGER timeline_record_civil_second; DROP TABLE transcript_timeline; DROP TABLE timeline_settings;
+            DROP TRIGGER timeline_record_civil_second; DROP TABLE timeline_paragraphs; DROP TABLE natural_paragraph_schema;
+            DROP TABLE transcript_timeline; DROP TABLE timeline_settings;
             PRAGMA user_version=5;
             WITH RECURSIVE seq(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM seq WHERE x<12000)
             INSERT INTO recordings(id,created_at,sample_rate,is_recording)

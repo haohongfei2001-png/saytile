@@ -63,7 +63,7 @@ struct InputPanelView: View {
             latestRequest: latestRequest, fillContextMenu: fillContextMenu,
             applyEdits: { edits in
                 do {
-                    try model.editPanelRows(edits.map { PanelRowEdit(id: $0.id, before: $0.before, after: $0.after) })
+                    try model.editPanelRows(edits.map { PanelRowEdit(id: $0.id, before: $0.before, after: $0.after, paragraphBreakHidden: $0.paragraphBreakHidden, previousParagraphBreakHidden: $0.previousParagraphBreakHidden) })
                     return document
                 } catch {
                     model.notice = error.localizedDescription
@@ -233,9 +233,9 @@ struct ArchiveView: View {
                     } else {
                         Divider().padding(.vertical, 8)
                     }
-                    ForEach(group.items) { item in
+                    ForEach(group.paragraphs) { paragraph in
                         HStack(alignment: .top, spacing: 10) {
-                            if item.id == group.items.first?.id {
+                            if paragraph.id == group.paragraphs.first?.id {
                                 Text(group.date, format: Date.FormatStyle(date: .omitted, time: .shortened,
                                     locale: Locale(identifier: "en_GB"), timeZone: TimeZone(secondsFromGMT: group.utcOffset) ?? .gmt))
                                     .font(.system(size: 12, weight: .medium)).monospacedDigit()
@@ -246,14 +246,15 @@ struct ArchiveView: View {
                             } else {
                                 Color.clear.frame(width: 42, height: 1).accessibilityHidden(true)
                             }
-                            ArchiveRow(item: item, model: model)
+                            ArchiveRow(paragraph: paragraph, model: model)
                         }
                     }
                 }
-                if model.hasMore {
-                    Button("加载更早记录", action: model.loadMore).buttonStyle(QuietButton())
-                        .padding(.leading, 52).padding(.vertical, 12)
-                }
+                HStack {
+                    if model.hasMore { Button("更早的段落", action: model.loadMore) }
+                    Spacer()
+                    if model.archiveHasNewer { Button("更新的段落", action: model.loadNewerArchive) }
+                }.buttonStyle(QuietButton()).padding(.leading, 52).padding(.vertical, 12)
             }.padding(.bottom, 8)
         }
     }
@@ -305,7 +306,7 @@ private struct ArchiveFavorite: View {
 }
 
 private struct ArchiveRow: View {
-    let item: DisplayRecording
+    let paragraph: ArchiveDisplayParagraph
     @ObservedObject var model: AppModel
     @ViewState private var hovered = false
     @ViewState private var editing = false
@@ -313,33 +314,45 @@ private struct ArchiveRow: View {
     private enum Action { case playback, favorite }
 
     var body: some View {
-        let playing = model.playingID == item.id
+        let playing = model.playingID == paragraph.anchorID
         let reveal = hovered || editing || actionFocused != nil
         HStack(alignment: .top, spacing: 5) {
             VStack(alignment: .leading, spacing: 3) {
-                ArchiveInlineEditor(item: item, model: model) { active in
-                    editing = active
+                if paragraph.page.hasOlder {
+                    Button("查看这一段的前文") { model.loadArchiveParagraph(paragraph, earlier: true) }
+                        .buttonStyle(.link).font(.caption).disabled(editing)
+                        .accessibilityIdentifier("archive.earlier.\(paragraph.id)")
                 }
-                if !model.query.isEmpty && !item.text.localizedCaseInsensitiveContains(model.query) {
-                    Text("匹配历史版本或草稿").font(.caption).foregroundStyle(.secondary)
+                ArchiveInlineEditor(paragraph: paragraph, model: model) { editing = $0 }
+                if !model.query.isEmpty && !paragraph.text.localizedCaseInsensitiveContains(model.query) {
+                    Text("匹配这段的其他文字、历史版本或草稿").font(.caption).foregroundStyle(.secondary)
                 }
-                if let label = model.insertionLabels[item.id] {
-                    Label(label, systemImage: "arrow.up.forward.app").font(.caption).foregroundStyle(.secondary)
+                if playing, let message = model.audio.playbackNotice {
+                    Text(message).font(.caption).foregroundStyle(.secondary)
+                }
+                if paragraph.page.hasNewer {
+                    Button("继续阅读这一段") { model.loadArchiveParagraph(paragraph, earlier: false) }
+                        .buttonStyle(.link).font(.caption).disabled(editing)
+                        .accessibilityIdentifier("archive.later.\(paragraph.id)")
                 }
             }.frame(maxWidth: .infinity, alignment: .leading)
             HStack(spacing: 1) {
-                if item.hasAudio {
+                if paragraph.hasAudio {
                     ArchiveIconButton(symbol: playing ? "stop.fill" : "play.fill",
-                                      label: playing ? "停止回听" : "回听原音",
-                                      id: "archive.play.\(item.id)", selected: playing,
-                                      revealed: reveal || playing) { model.play(item) }
+                                      label: playing ? "停止回听" : "回听这一整段",
+                                      id: "archive.play.\(paragraph.anchorID)", selected: playing,
+                                      revealed: reveal || playing) { model.playParagraph(paragraph) }
                         .focused($actionFocused, equals: .playback)
                 }
-                ArchiveFavorite(item: item, id: "archive.favorite.\(item.id)", model: model, revealed: reveal)
-                    .focused($actionFocused, equals: .favorite)
+                ArchiveIconButton(symbol: paragraph.pinned ? "star.fill" : "star",
+                                  label: paragraph.pinned ? "取消这一段的收藏" : "收藏这一整段",
+                                  id: "archive.favorite.\(paragraph.anchorID)", selected: paragraph.pinned,
+                                  revealed: reveal || paragraph.pinned) {
+                    Task { await model.toggleParagraphFavorite(paragraph) }
+                }.focused($actionFocused, equals: .favorite)
             }
         }
-        .padding(.bottom, 3)
+        .padding(.bottom, 10)
         .contentShape(Rectangle())
         .onHover { hovered = $0 }
     }

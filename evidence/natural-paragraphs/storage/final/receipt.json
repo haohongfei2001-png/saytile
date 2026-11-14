@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "timestamp": "2026-11-14T05:58:56.108260+00:00",
+  "baseline": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+  "source_hashes": {
+    "Sources/SaytileKit/TranscriptTimeline.swift": "a3a95b12c7b5dc5f6de071939e8de6143d7e50cbfc298053eae1e08d5ac2a61a",
+    "Sources/SaytileKit/Store.swift": "6378ee0ca58be4f2df97797a78f2679b9d01b879bdc11eb083472e2e86ff9f01",
+    "Sources/SaytileKit/PanelEditTransaction.swift": "57d41816a35e332c47d6b7aacd18c0ab40e315b3ecaf334948d53fa5e9359461",
+    "tests/SaytileKitTests/NaturalParagraphTests.swift": "b59d7118521bad3d5d51dde49278479b77136e39f63da20ba71f92023b8fc6c3"
+  },
+  "tests": 11,
+  "passed": 11,
+  "failed": 0,
+  "test_names": [
+    "actualSpeechGapHasIndependentParagraphAndTimeGroupThresholds",
+    "longUtteranceAndLateRevisionsNeverRegroup",
+    "paragraphsPageWithoutSplittingAndSearchReturnsEveryMember",
+    "additiveMigrationPreservesLegacyGroupsAndAllOriginalRows",
+    "multiRecordingEditValidatesEveryOwnerAndPreservesVersions",
+    "ordinaryHeadEditKeepsParagraphAndWinsOverLateMachineRevision",
+    "conflictDraftPreservesBothWritersWithoutSelectingEitherDraft",
+    "emptyHumanRowsDoNotInventBoundaryIntentOrEvictVisibleText",
+    "explicitBoundaryEditIsReversibleAndDoesNotFreezeOrRewriteASR",
+    "starredParagraphProtectsNewMembersAndStopsAtNextParagraph",
+    "midnightClockReversalAndDurableFrameFallback"
+  ],
+  "framework_execution": "NOT_RUN here: test bodies run as native standalone functions; full Swift Testing is separate",
+  "swift_testing_typecheck": "PASS",
+  "fixtures": "generated SQLite and metadata only; no user archive, microphone, network API or model inference",
+  "runner_sha256": "3ea9d4b0f3acb41add8be6e0831c5694c3da577e3f670ff257172824685f17ea"
+}

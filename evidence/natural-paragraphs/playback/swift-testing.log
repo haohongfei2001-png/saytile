@@ -1,0 +1,31 @@
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Chunked playback seeking" started.
+◇ Test seeksAcrossOriginalChunkBoundaries() started.
+✔ Test seeksAcrossOriginalChunkBoundaries() passed after 0.001 seconds.
+◇ Test clampsEndAndRejectsInvalidDurations() started.
+✔ Test clampsEndAndRejectsInvalidDurations() passed after 0.001 seconds.
+✔ Suite "Chunked playback seeking" passed after 0.001 seconds.
+◇ Suite "Silent production AVAudioPlayer integration" started.
+◇ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() started.
+PLAYBACK_FIRST_PROGRESS position=0.07825 after_play=0.101348 seconds
+✔ Test silentPlayerSeeksAcrossChunksAndReleasesDeletionLease() passed after 0.317 seconds.
+◇ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() started.
+✔ Test silentPlayerNaturallyFinishesWithoutStartingMicrophone() passed after 0.416 seconds.
+✔ Suite "Silent production AVAudioPlayer integration" passed after 0.733 seconds.
+◇ Suite "Natural paragraph playback" started.
+◇ Test paragraphKeepsIdentitySeeksAcrossRecordingsAndSkipsMissingOriginals() started.
+✔ Test paragraphKeepsIdentitySeeksAcrossRecordingsAndSkipsMissingOriginals() passed after 0.233 seconds.
+◇ Test actualPlayerContinuouslyFinishesTwoOriginalsWithoutMicrophone() started.
+✔ Test actualPlayerContinuouslyFinishesTwoOriginalsWithoutMicrophone() passed after 0.758 seconds.
+◇ Test deletionOfQueuedOriginalSkipsItAndReleasesItsLease() started.
+✔ Test deletionOfQueuedOriginalSkipsItAndReleasesItsLease() passed after 0.746 seconds.
+◇ Test switchingAndCancellingASeekCannotResumeTheOldParagraph() started.
+✔ Test switchingAndCancellingASeekCannotResumeTheOldParagraph() passed after 0.552 seconds.
+◇ Test pauseDuringNextOriginalValidationCannotResumePlaybackOrCapture() started.
+✔ Test pauseDuringNextOriginalValidationCannotResumePlaybackOrCapture() passed after 0.429 seconds.
+◇ Test unreadableChunkDoesNotBlockTheNextOriginalAndAllMissingIsHonest() started.
+✔ Test unreadableChunkDoesNotBlockTheNextOriginalAndAllMissingIsHonest() passed after 0.072 seconds.
+✔ Suite "Natural paragraph playback" passed after 2.793 seconds.
+✔ Test run with 10 tests in 3 suites passed after 3.529 seconds.

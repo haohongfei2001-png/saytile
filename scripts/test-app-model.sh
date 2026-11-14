@@ -25,7 +25,7 @@ SAYTILE_PROBE_FLAGS=(-swift-version 6 -parse-as-library -module-cache-path "$SAY
   -Xcc "-fmodule-map-file=$SAYTILE_MODEL_MODULE_MAP" \
   -L "$SAYTILE_MODEL_BIN_DIR" -lSaytileKit -lSaytileVoiceUI -lc++)
 swiftc "${SAYTILE_PROBE_FLAGS[@]}" \
-  Sources/SaytileApp/AppModel.swift tests/fixtures/AppModelProbe.swift \
+  Sources/SaytileApp/AppModel.swift Sources/SaytileApp/PanelTimelineDocument.swift tests/fixtures/AppModelProbe.swift \
   -o "$SAYTILE_MODEL_TEMP/probe"
 SAYTILE_MODEL_LOG="${SAYTILE_MODEL_LOG:-evidence/native-app-model.log}"
 mkdir -p "$(dirname "$SAYTILE_MODEL_LOG")"

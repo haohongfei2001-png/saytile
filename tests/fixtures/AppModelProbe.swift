@@ -318,19 +318,28 @@ struct AppModelProbe {
         while model.loadingPanel { try await Task.sleep(for: .milliseconds(10)) }
         try require(model.recent.count == 116 && !model.panelHasMore, "earlier current-session expressions remain available for batch reuse")
         try require(model.recent.contains(where: { $0.id == new.id }), "earliest current-session expression survives prolonged input")
-        guard let initialArchiveGroup = model.archiveGroups.first else { throw Failure(message: "missing archive group") }
-        try require(initialArchiveGroup.items.count == 100 && initialArchiveGroup.items.last?.id == model.recent.last?.id &&
-                    initialArchiveGroup.date == new.createdAt && model.hasMore, "bounded archive page keeps original session time and latest utterance")
-        // An open editor remains reachable when a live recording pushes it beyond the page.
+        guard let initialArchiveGroup = model.archiveGroups.first,
+              let initialParagraph = initialArchiveGroup.paragraphs.last else { throw Failure(message: "missing archive paragraph") }
+        try require(initialParagraph.page.entries.count == 64 && initialParagraph.page.hasOlder &&
+                    initialParagraph.page.entries.last?.id == model.recent.last?.id && initialArchiveGroup.date == new.createdAt,
+                    "one natural archive paragraph keeps its original time and a bounded latest member window")
+        let latestMemberIDs = initialParagraph.page.entries.map(\.id)
         model.setArchiveEditing(new.id)
         await model.refresh()
-        try require(model.archiveGroups.first?.items.first?.id == new.id && model.records.count == 101,
-                    "a focused archive paragraph survives a moving page boundary without reading all intervening history")
+        try require(model.archiveGroups.first?.paragraphs.last?.page.entries.first?.id == new.id &&
+                    model.archiveGroups.first?.paragraphs.last?.page.entries.count == 64,
+                    "a focused archive owner retains its bounded window while the paragraph grows")
         model.endArchiveEditing(new.id)
-        model.loadMore()
+        model.loadArchiveParagraph(initialParagraph, earlier: true)
         await model.refresh()
-        try require(model.archiveGroups.first?.items.map(\.id) == model.recent.map(\.id) && model.archiveGroups.first?.id == initialArchiveGroup.id,
-                    "loading older paragraphs joins a page-spanning session in chronological order")
+        guard let earlierParagraph = model.archiveGroups.first?.paragraphs.last else { throw Failure(message: "missing earlier member window") }
+        let combinedIDs = earlierParagraph.page.entries.map(\.id) + latestMemberIDs
+        try require(combinedIDs == model.recent.map(\.id) && earlierParagraph.id == initialParagraph.id &&
+                    earlierParagraph.page.hasNewer && !earlierParagraph.page.hasOlder,
+                    "bounded member navigation preserves one paragraph and covers every original owner exactly once")
+        let allParagraphIDs = try await model.store.paragraphRecordingIDs(paragraphID: initialParagraph.id)
+        try require(allParagraphIDs == combinedIDs,
+                    "whole-paragraph actions include all original recordings independently of the visible member page")
         let largeGroup = try model.panelInsertionSnapshots()
         try require(largeGroup.count == 116 && largeGroup.first?.recordingID == new.id,
                     "manual group insertion spans multiple virtual pages in capture order")
@@ -389,6 +398,7 @@ struct AppModelProbe {
         try await reopened.close()
         checks += try await connectionChecks(directory: directory)
         checks += try await capturePresentationChecks(directory: directory)
+        checks += try await naturalArchiveChecks(directory: directory)
         print("APP_MODEL_PROBE_PASS \(checks) checks; no microphone, no external input, no window activation")
     }
 }
@@ -943,6 +953,54 @@ extension AppModelProbe {
                     !applyingModel.appliedRecognitionConfiguration.cloudEnabled,
                   "late apply completion cannot publish cloud settings during exit")
         print("CONNECTION_EVIDENCE_SCOPE injected controller workflow only; no Keychain, provider sockets, microphone or live verification")
+        return count
+    }
+}
+
+
+extension AppModelProbe {
+    @MainActor static func naturalArchiveChecks(directory: URL) async throws -> Int {
+        var count = 0
+        func check(_ result: Bool, _ title: String) throws {
+            guard result else { throw Failure(message: title) }
+            count += 1; print("PASS " + title)
+        }
+        let name = "app.saytile.natural-archive." + UUID().uuidString
+        let prefs = UserDefaults(suiteName: name)!
+        defer { prefs.removePersistentDomain(forName: name) }
+        let clipboard = NSPasteboard.withUniqueName()
+        defer { clipboard.releaseGlobally() }
+        let home = directory.appendingPathComponent("natural-archive")
+        let model = try AppModel(directory: home, preferences: prefs, copyPasteboard: clipboard)
+        await model.initialLoad()
+        let record = try await model.store.createRecording()
+        let ticket = try await model.store.beginRecognition(recordingID: record.id)
+        _ = try await model.store.applyRecognition(ticket: ticket, text: "眼前的文字", isFinal: false)
+        await model.refresh()
+        guard let shown = model.archiveGroups.flatMap(\.paragraphs).first else { throw Failure(message: "no natural archive paragraph") }
+        _ = try await model.store.applyRecognition(ticket: ticket, text: "迟到的识别修订", isFinal: true)
+        await model.refresh()
+        guard let refreshed = model.archiveGroups.flatMap(\.paragraphs).first else { throw Failure(message: "no refreshed paragraph") }
+        model.copyParagraph(refreshed, displayed: shown.document.displayed)
+        try check(clipboard.string(forType: .string) == "眼前的文字", "archive whole-paragraph copy preserves the actual displayed snapshot during late ASR")
+        let snapshot = try model.editArchiveParagraph(shown.id, snapshot: shown.document, after: "我对眼前文字的修改")
+        let revisions = try await model.store.revisions(recordingID: record.id)
+        try check(snapshot.text == "我对眼前文字的修改" && revisions.contains(where: { $0.text == "迟到的识别修订" }),
+                  "editing an older visible ASR snapshot wins without losing the late machine revision")
+        _ = try await model.store.saveEdit(recordingID: record.id, text: "另一处人工修改")
+        var conflicted = false
+        do { _ = try model.editArchiveParagraph(shown.id, snapshot: snapshot, after: "未提交的人写草稿") }
+        catch { conflicted = true }
+        let current = try await model.store.recording(id: record.id)
+        let draft = try await model.store.loadDraft(recordingID: record.id)
+        try check(conflicted && current?.text == "另一处人工修改" && draft == "未提交的人写草稿",
+                  "conflicting archive typing keeps the preferred human revision and a durable recoverable draft")
+        try await model.store.finishRecording(id: record.id)
+        await model.prepareForExit()
+        let restored = try SaytileStore(directory: home)
+        try check(try await restored.loadDraft(recordingID: record.id) == "未提交的人写草稿",
+                  "conflicting paragraph draft survives shutdown and reopening")
+        try await restored.close()
         return count
     }
 }

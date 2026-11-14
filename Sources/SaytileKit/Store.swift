@@ -36,9 +36,10 @@ public actor SaytileStore {
             try database.script(Self.schema)
             try database.script(Self.timelineSchema)
             if version != "6" { try database.script(Self.timelineBackfill) }
+            try Self.installParagraphSchema(in: database)
             try database.execute("PRAGMA user_version=6")
         }
-        initialTimelineIdleSeconds = Int(try database.rows("SELECT idle_seconds FROM timeline_settings WHERE singleton=1").first?["idle_seconds"] ?? "") ?? 120
+        initialTimelineIdleSeconds = Int(try database.rows("SELECT idle_seconds FROM timeline_settings WHERE singleton=1").first?["idle_seconds"] ?? "") ?? 60
         func count(_ whereClause: String) throws -> Int { Int(try database.rows("SELECT COUNT(*) AS n FROM \(whereClause)").first?["n"] ?? "0") ?? 0 }
         recovery = try StoreRecovery(interruptedRecordings:count("recordings WHERE is_recording=1"),interruptedRecognitions:count("recordings WHERE recognition_state='running'"),unverifiedDispatches:count("dispatches WHERE state='dispatching'"))
         try database.transaction {
