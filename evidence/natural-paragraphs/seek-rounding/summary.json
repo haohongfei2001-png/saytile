@@ -1,0 +1,35 @@
+{
+  "result": "REPRODUCED_FLOATING_POINT_ASSERTION_BOUNDARY",
+  "productionModified": false,
+  "microphoneOpened": false,
+  "syntheticOnly": true,
+  "sourceWorktree": "/private/tmp/saytile-natural-paragraphs",
+  "compiledObject": "/private/tmp/saytile-natural-build/out/Products/Debug/SaytileKit.o",
+  "compiledObjectSHA256": "5b796d6e4845885c834daf6266ce0009fb07a6e79d0db59967d79277f10a1cf2",
+  "chunksSeconds": [
+    0.4,
+    0.3,
+    0.9
+  ],
+  "sampleRate": 16000,
+  "requestedSeekSeconds": 0.9,
+  "iterations": 8,
+  "iterationsBelowExactLowerBound": 1,
+  "lowestObservedPosition": 0.8999999999999999,
+  "differenceSeconds": 1.1102230246251565e-16,
+  "doubleULPAtPoint9": 1.1102230246251565e-16,
+  "oneSampleSeconds": 6.25e-05,
+  "rawCurrentTimeAtMinimum": 0.2,
+  "minimumIdentity": {
+    "paragraph": "first",
+    "recording": "second"
+  },
+  "finding": "The production sync seek sets exact requested 0.9. A progress tick during AVAudioPlayer startup reads currentTime 0.2 and computes (0.4 + 0.3) + 0.2 = 0.8999999999999999. It is one binary64 ULP below 0.9, not one PCM sample. Later progress advances normally. Strict >=0.9 is an invalid numerical assertion at this endpoint.",
+  "recommendedTestContract": "Check immediate seek within existing player tolerance, wait for expected recording identity, and accept position no earlier than requested minus one sample (or existing 0.0001 numerical tolerance), while retaining strict upper bound and identity/cancellation checks.",
+  "sourceReference": "29ca0cc323fcdf4f1ed53ca98b546b11e98f9f31",
+  "binding": "Linked existing debug SaytileKit.o; this is an instrumented reproduction, not execution of the signed481 bundle. Playback source unchanged between that object build and final481.",
+  "playbackSourceSHA256": {
+    "Sources/SaytileKit/AudioCapture.swift": "355a8efddbc640078a66f82916ac4dc7e914d6ac00fff1911d307766f0c256ca",
+    "Sources/SaytileKit/AudioPlaybackTimeline.swift": "5f1f31bab045b6cfdfd375bd839fd454e0c79dbd870d8d00257971d1c196e1a1"
+  }
+}

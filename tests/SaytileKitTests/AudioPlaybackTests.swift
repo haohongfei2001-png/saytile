@@ -139,9 +139,15 @@ struct ParagraphPlaybackTests {
         #expect(abs(controller.playbackDuration - 1.6) < 0.0001)
         #expect(controller.playbackNotice == "有 2 段原音已删除或不可用，已跳过")
         controller.seekPlayback(to: 0.9)
+        #expect(controller.playbackPosition == 0.9)
         try await waitFor { controller.playingRecordingID == second }
         #expect(controller.playingID == first)
-        #expect(controller.playbackPosition >= 0.9 && controller.playbackPosition < 1.5)
+        // The real player's 0.2-second offset added to the two prior chunks
+        // (0.4 + 0.3) can be 0.8999999999999999, exactly one Double ULP below
+        // 0.9. Preserve the seek bound, allowing only that arithmetic rounding.
+        let observedPosition = controller.playbackPosition
+        #expect(observedPosition >= Double(0.9).nextDown && observedPosition < 1.5)
+        print("PARAGRAPH_SEEK requested=0.9 observed=\(observedPosition) lower_bound=\(Double(0.9).nextDown)")
         controller.seekPlayback(to: 0.1)
         try await waitFor { controller.playingRecordingID == first && controller.playbackPosition < 0.4 }
         controller.stopPlayback(); await controller.shutdown()
