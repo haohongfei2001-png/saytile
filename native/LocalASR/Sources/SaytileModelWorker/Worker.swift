@@ -152,7 +152,11 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
                 stream = try nemo?.createSession(language: "zh")
                 samples.removeAll(keepingCapacity: true)
                 prefix = ""; last = ""; next = firstStride; frames = 0
-            } else if let update, !update.isEmpty, update != last, id == "nemotron-metal" || rollingQwen {
+            } else if let update, !update.isEmpty,
+                      (rollingQwen || (id == "nemotron-metal" && update != last)) {
+                // A second decode of growing audio can confirm a previously
+                // withheld correction even when its words did not change. Let
+                // the publisher deduplicate accepted text, not this evidence.
                 last = update
                 try publish(update, kind: "partial", frames: frames, decodes: decodes)
                 decodes.removeAll(keepingCapacity: true)

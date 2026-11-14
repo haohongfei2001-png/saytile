@@ -212,7 +212,7 @@ public actor LocalASRService {
                         }
                         lastFrames = event.frames
                         let final = event.kind == "final"
-                        if !event.text.isEmpty, let stable = liveText.accept(event.text, final: final) {
+                        if !event.text.isEmpty, let stable = liveText.accept(event.text, final: final, audioFrames: event.frames) {
                             try await ingress.receive(.init(text: liveText.presentation, stableUTF16Length: stable,
                                 audioEndSeconds: Double(event.frames) / 16_000, timingGranularity: "utterance", isComplete: final))
                         }
@@ -239,11 +239,28 @@ struct LocalLiveText {
     private(set) var presentation = ""
     private var readingPrefix = ""
     private var withheld: String?
+    private var lastAudioFrames: Int?
     init(model: LocalASRID) { self.model = model }
-    mutating func accept(_ text: String, final: Bool) -> Int? {
+    mutating func accept(_ text: String, final: Bool, audioFrames: Int? = nil) -> Int? {
+        let rollingQwen = model == .qwen || model == .qwenLarge
+        // Corroboration requires a new decode over additional audio, not a
+        // duplicate delivery of the same observation. Existing text-only
+        // fixtures supply independent observations; the live service always
+        // supplies the worker's actual frame count.
+        if let audioFrames {
+            guard audioFrames >= 0, lastAudioFrames.map({ audioFrames >= $0 }) ?? true else { return nil }
+            if !final, rollingQwen, audioFrames == lastAudioFrames { return nil }
+            lastAudioFrames = audioFrames
+        }
         if final {
             presentation = text
             return text.utf16.count
+        }
+        if rollingQwen, text == previous {
+            // Already visible text needs no new Store revision or punctuation
+            // change. Returning to it also breaks a pending correction pair.
+            withheld = nil
+            return nil
         }
         let common = RecognitionUTF16.commonPrefix([previous, text])
         if model == .qwen || model == .qwenLarge {
