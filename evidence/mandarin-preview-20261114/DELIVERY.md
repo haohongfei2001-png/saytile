@@ -41,3 +41,9 @@
 162 项原生 AppModel 检查和 39 项定向 Swift 回归通过。macOS 前台作业完成 AppKit、WKWebView、TextEdit 与 Chrome 的真实隔离输入，覆盖用户编辑、焦点变化和未确认投递。当前改动仅决定临时稿何时显示。[独立复核](delivery/independent-review.json)
 
 交付源码的五项 GitHub 检查均成功，完整 Xcode 的四组 Swift Testing 共 485 项通过，失败 0 项。另有 162 项 AppModel，以上数字分别统计。[源码 SHA 对应的完整 CI 收据](delivery/ci.json)
+
+## 连续使用与本机交付
+
+用同一 905.020 秒的原速输入做长测，84 个公开人声输入均有录音与已完成文字对应。47/47 条定稿，79 个原音块逐字节对应输入。两版原音清单哈希相同，SQLite 完整性通过、外键错误为零，外部派发为零。45 秒静音中观测到助手释放，讲话恢复后重新加载。与上一版同夹具的长测相比，识别进程抽样 CPU 中位数 31.3% → 23.2%，App 为 5.95% → 5.60%；上面的短片累计 CPU 则略高。两种口径都保留。[905 秒原生长测](candidate-466/soak.json)
+
+已将已有中文候选从 442 原位更新到 466，并用 LaunchServices 核实相同路径的候选进程已完成启动。独立复查了已安装主程序 SHA-256 和 Developer ID 签名。原版 Saytile.app 仍为 0.12（373），旧候选的签名 DMG 可用于回退。此次操作只交换应用包，测试使用隔离资料。本人讲话和 8 GB Mac 为 NOT_RUN。[安装收据](delivery/installation.json)
