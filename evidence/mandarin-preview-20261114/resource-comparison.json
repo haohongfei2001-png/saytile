@@ -1,0 +1,80 @@
+{
+  "public_audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+  "observations_in_chronological_order": [
+    {
+      "build": "442",
+      "receipt": "baseline/continuous-cost/process.json",
+      "cpu_seconds": 18.3,
+      "app_cpu_seconds": 2.61,
+      "helper_cpu_seconds": 15.69,
+      "simultaneous_peak_physical_MiB": 1659.0,
+      "preview_decodes": 73,
+      "preview_compute_wall_s": 20.615,
+      "input_s": 38.8,
+      "source_longest_s": 3.088,
+      "source_gap_p95_s": 1.518,
+      "native_longest_s": 3.102,
+      "native_gap_p95_s": 1.077
+    },
+    {
+      "build": "442",
+      "receipt": "baseline/continuous-cost-repeat/process.json",
+      "cpu_seconds": 28.66,
+      "app_cpu_seconds": 3.42,
+      "helper_cpu_seconds": 25.24,
+      "simultaneous_peak_physical_MiB": 1717.5,
+      "preview_decodes": 57,
+      "preview_compute_wall_s": 26.675,
+      "input_s": 38.8,
+      "source_longest_s": 3.768,
+      "source_gap_p95_s": 2.098,
+      "native_longest_s": 3.769,
+      "native_gap_p95_s": 2.101
+    },
+    {
+      "build": "459",
+      "receipt": "candidate-459/continuous-cost/process.json",
+      "cpu_seconds": 18.83,
+      "app_cpu_seconds": 2.97,
+      "helper_cpu_seconds": 15.86,
+      "simultaneous_peak_physical_MiB": 1723.3,
+      "preview_decodes": 73,
+      "preview_compute_wall_s": 21.4,
+      "input_s": 38.8,
+      "source_longest_s": 1.567,
+      "source_gap_p95_s": 1.267,
+      "native_longest_s": 1.579,
+      "native_gap_p95_s": 1.072
+    },
+    {
+      "build": "442",
+      "receipt": "baseline/continuous-cost-after459/process.json",
+      "cpu_seconds": 36.3,
+      "app_cpu_seconds": 4.19,
+      "helper_cpu_seconds": 32.11,
+      "simultaneous_peak_physical_MiB": 1469.6,
+      "preview_decodes": 62,
+      "preview_compute_wall_s": 26.411,
+      "input_s": 38.8,
+      "source_longest_s": 4.184,
+      "source_gap_p95_s": 2.516,
+      "native_longest_s": 4.203,
+      "native_gap_p95_s": 2.501
+    },
+    {
+      "build": "459",
+      "receipt": "candidate-459/continuous-cost-repeat/process.json",
+      "cpu_seconds": 34.82,
+      "app_cpu_seconds": 4.69,
+      "helper_cpu_seconds": 30.13,
+      "simultaneous_peak_physical_MiB": 1217.4,
+      "preview_decodes": 57,
+      "preview_compute_wall_s": 26.51,
+      "input_s": 38.8,
+      "source_longest_s": 2.842,
+      "source_gap_p95_s": 1.523,
+      "native_longest_s": 2.86,
+      "native_gap_p95_s": 1.36
+    }
+  ]
+}

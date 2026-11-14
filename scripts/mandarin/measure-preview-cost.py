@@ -1,7 +1,7 @@
 """Measure native partials and process CPU in one isolated wall-paced public replay.
 
 The Darwin sampled cumulative CPU time is taken from ps time= (1/100 second).
-Each PID's last observation is a lower bound if the process exits between samples.
+Each PID's maximum observed counter is a lower bound if it exits between samples.
 Wall time includes model startup and EOS. No real microphone, accounts or archives.
 """
 import argparse
@@ -57,7 +57,10 @@ def public_run(app, manifest, sample_id, weights, audio, out):
                                                    capture_output=True, text=True)
                     observed = {int(pid): seconds(t) for line in process_times.stdout.splitlines()
                                 for pid, t in [line.split()]}
-                    last_cpu.update(observed)
+                    # ps can reset the last line to zero for a just-exited process.
+                    # CPU time is cumulative for the lifetime of this child.
+                    for pid, cpu in observed.items():
+                        last_cpu[pid] = max(last_cpu.get(pid, 0), cpu)
                     footprint = {}
                     for pid, role in [(p.pid, "app"), *((i, "worker") for i in active)]:
                         info = (ctypes.c_uint64 * 12)()
