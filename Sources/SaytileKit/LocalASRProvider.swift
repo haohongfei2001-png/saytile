@@ -304,6 +304,13 @@ struct LocalLiveText {
         return String(supported.dropLast(8))
     }
 
+    // Changing a boundary next to a number or negative can change the meaning
+    // even when the surrounding spoken words are unchanged.
+    private static func protectsBoundary(_ c: Character?) -> Bool {
+        guard let c else { return false }
+        return c.isNumber || "不没無无未非否别別勿莫甭负負".contains(c)
+    }
+
     /// Two growing passes can agree about a local correction while disagreeing
     /// at an earlier word that the current pass leaves exactly as last displayed.
     /// Only accept a whole current hypothesis, never splice corrected words.
@@ -317,11 +324,11 @@ struct LocalLiveText {
                 let c = raw[i], next = raw.index(after: i)
                 let before = i == raw.startIndex ? nil : raw[raw.index(before: i)]
                 let after = next == raw.endIndex ? nil : raw[next]
-                if c == "—", after == "—", let before, before.isLetter, !before.isNumber {
+                if c == "—", after == "—", let before, before.isLetter, !protectsBoundary(before) {
                     let end = raw.index(after: next)
-                    if end < raw.endIndex, raw[end].isLetter, !raw[end].isNumber { i = end; continue }
+                    if end < raw.endIndex, raw[end].isLetter, !protectsBoundary(raw[end]) { i = end; continue }
                 }
-                if !("。，、".contains(c) && before?.isNumber != true && after?.isNumber != true) {
+                if !("。，、".contains(c) && !protectsBoundary(before) && !protectsBoundary(after)) {
                     result.append((c, next))
                 }
                 i = next
@@ -335,15 +342,17 @@ struct LocalLiveText {
         let changes = old.indices.filter { old[$0] != current[$0] }
         guard let first = changes.first, let last = changes.last, first >= 3, last - first < 4,
               old.count - last > 12 else { return nil }
-        let sensitive = "不没無无未非否别別勿莫甭负負零〇两兩"
         func ordinaryHan(_ c: Character) -> Bool {
             c.unicodeScalars.count == 1 && c.unicodeScalars.allSatisfy { (0x3400...0x9FFF).contains($0.value) }
-                && !c.isNumber && !sensitive.contains(c)
+                && !protectsBoundary(c)
         }
         guard changes.allSatisfy({ ordinaryHan(old[$0]) && ordinaryHan(current[$0]) }),
               // The same local words, unchanged suffix and start of the true
               // extension must be present in both observations at this position.
               current[(first - 3)...old.count].elementsEqual(observed[(first - 3)...old.count]) else { return nil }
+        // A shared space or an ellipsis does not substantiate a new word.
+        let extensionAgreement = zip(current[old.count...], observed[old.count...]).prefix { $0 == $1 }
+        guard extensionAgreement.contains(where: { $0.0.isLetter || $0.0.isNumber }) else { return nil }
         let earlier = (0..<(first - 3)).filter { observed[$0] != current[$0] }
         guard let a = earlier.first, let b = earlier.last, b - a < 4,
               earlier.allSatisfy({ ordinaryHan(observed[$0]) && ordinaryHan(current[$0]) }) else { return nil }
@@ -378,14 +387,14 @@ struct LocalLiveText {
                 defer { i = end }
                 let before = i == text.startIndex ? nil : text[text.index(before: i)]
                 let after = next == text.endIndex ? nil : text[next]
-                let besideNumber = before?.isNumber == true || after?.isNumber == true
-                if !alignPauses, c == "，", !besideNumber { continue }
+                let protected = protectsBoundary(before) || protectsBoundary(after)
+                if !alignPauses, c == "，", !protected { continue }
                 let mapped: Unit
-                if alignPauses, !besideNumber, c == "。" || c == "，" || c == "、" {
+                if alignPauses, !protected, c == "。" || c == "，" || c == "、" {
                     mapped = .pause
                 } else if alignPauses, c == "—", after == "—", before?.isLetter == true,
-                          !besideNumber, text.index(after: next) < text.endIndex,
-                          text[text.index(after: next)].isLetter, !text[text.index(after: next)].isNumber {
+                          !protected, text.index(after: next) < text.endIndex,
+                          text[text.index(after: next)].isLetter, !protectsBoundary(text[text.index(after: next)]) {
                     // A Chinese double dash can mark an apposition. A minus,
                     // single dash, numeric range or moved boundary stays distinct.
                     end = text.index(after: next)

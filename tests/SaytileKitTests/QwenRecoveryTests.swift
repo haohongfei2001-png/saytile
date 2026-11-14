@@ -144,6 +144,33 @@ struct QwenRecoveryTests {
         expectBlocked(old: "视力", prior: "这里", current: "这里", suffix: anchor + anchor)
     }
 
+    @Test func localConfirmationNeedsARealSharedNewWordAndKeepsNegationBoundaries() {
+        let lead = "这里的工程师准备在山谷附近建造一座大桥，"
+        let unstable = lead.replacingOccurrences(of: "工程师", with: "攻城师")
+        let suffix = "沿着河岸可以欣赏远处群山之间的风景"
+        let cases = [("", "……", "……？！"), ("", " ", "  "), ("", " 今天", " 明天"),
+                     ("不，可以停", "不可以停这项工作", "不可以停这项工作到明天")]
+        for (oldEnding, priorEnding, currentEnding) in cases {
+            var live = LocalLiveText(model: .qwen)
+            for n in [4, 2, 0] {
+                #expect(live.accept(lead + "视力" + String(suffix.dropLast(n)) + oldEnding, final: false) == 0)
+            }
+            let before = live.presentation
+            #expect(live.accept(unstable + "这里" + suffix + priorEnding, final: false) == nil)
+            #expect(live.accept(lead + "这里" + suffix + currentEnding, final: false) == nil)
+            #expect(live.presentation == before)
+        }
+    }
+
+    @Test func aCommaAfterANegationIsNotAnOptionalStyleChange() {
+        var live = LocalLiveText(model: .qwen)
+        let statement = "不，可以停这项工作，请大家按照之前的安排"
+        for tail in ["", "等待", "等待消息"] { #expect(live.accept(statement + tail, final: false) == 0) }
+        let change = "不可以停这项工作，请大家按照之前的安排等待消息。"
+        #expect(live.accept(change, final: false) == nil)
+        #expect(live.presentation == statement + "等待消息")
+    }
+
     private func fixture(_ variant: String) throws -> LocalModelManifest {
         let revision = try LocalModelManifest.load(.qwen).revision
         let file = LocalModelManifest.File(path: "weights", bytes: 3,
