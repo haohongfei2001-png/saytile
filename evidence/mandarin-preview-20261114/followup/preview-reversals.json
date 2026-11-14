@@ -1,0 +1,134 @@
+{
+  "baseline_gate": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+  "historical_traces": 120,
+  "adjacent_466_474_traces": 30,
+  "unique_wave_files": 18,
+  "all_input_receipt_manifest_sha256": "612ff102a110a49edfbed51044e865c50ccb61569b726a50c31f12e2d4155ff7",
+  "by_source": {
+    "ff8f8a014bd6b554a5703971a1139d94da155a6c": 35,
+    "0dc6ed70e873ec41da3b1dd24f47350a91211a43": 15,
+    "d3b37a88efd4f61ad2ff091353313379a584b1df": 40,
+    "00694d9073346b8868ff96abd1bcd161ddff1c49": 19,
+    "914b339298e7214f0a38008300fd88a56f9c1a3b": 21,
+    "32cb2c31e1c1f614ffbc359be31d3771a9823a91": 20
+  },
+  "within_two_observations": {
+    "receipts": 150,
+    "reversals": 37,
+    "next_observation": 33,
+    "second_observation": 4,
+    "no_new_tail": 11
+  },
+  "adjacent_issued": {
+    "receipts": 30,
+    "reversals": 6,
+    "next_observation": 6,
+    "second_observation": 0,
+    "no_new_tail": 3
+  },
+  "no_new_tail_local_revisions": {
+    "是→": 1,
+    "理石→力士": 8,
+    "伦→林": 2
+  },
+  "reading": [
+    "8 of 11 no-growth reversals temporarily corrected 大理石 to the reference 大力士.",
+    "One no-growth removal temporarily corrected 但是我 to the reference 但我. The other two involved a name.",
+    "Revisions before file EOF are distinct from the shorter voiced-only window used in the earlier benchmark."
+  ],
+  "corroborated_latin_boundary": {
+    "results": {
+      "receipts": 150,
+      "rollbacks_before_eof_baseline": 513,
+      "rollbacks_before_eof_candidate": 513,
+      "identical_first": 150,
+      "identical_final": 150,
+      "earlier": 0,
+      "later": 0,
+      "additional": 8,
+      "lost": 0,
+      "changed": 8
+    },
+    "additional_reference_pairs": {
+      "那个": 8
+    },
+    "changed_receipts": [
+      {
+        "id": "ascend-mixed-ee4e2d5087648134",
+        "sha256": "25afe3a779b3aefbdb39e897e3ba6066179ef215f4134364f7750fae536a8284",
+        "reference_pairs": [
+          "那个"
+        ]
+      },
+      {
+        "id": "ascend-mixed-ee4e2d5087648134",
+        "sha256": "2d2ed1d5a28e9c4747e353f85f7e3e74d4f5850dd454fe047383036bbf48bf3e",
+        "reference_pairs": [
+          "那个"
+        ]
+      },
+      {
+        "id": "ascend-mixed-ee4e2d5087648134",
+        "sha256": "453166eeac3bc042576f5078e081416da7071ee10d8b42a4f6865ddf432a48f7",
+        "reference_pairs": [
+          "那个"
+        ]
+      },
+      {
+        "id": "ascend-mixed-ee4e2d5087648134",
+        "sha256": "d0102447cdfbb67de90b3f5bff60dd33d93942e9b901b1aca721c5d70e2788ef",
+        "reference_pairs": [
+          "那个"
+        ]
+      },
+      {
+        "id": "ascend-mixed-ee4e2d5087648134",
+        "sha256": "2dcb9ccdcbe400362bb2a27e8f875539b018a45e277ec300deb8f1b4b3caa26e",
+        "reference_pairs": [
+          "那个"
+        ]
+      },
+      {
+        "id": "ascend-mixed-ee4e2d5087648134",
+        "sha256": "d57b2bfc388c23168aa8a39f7521ba9c71d563d5f5a1d1606d6a1d59907c0bca",
+        "reference_pairs": [
+          "那个"
+        ]
+      },
+      {
+        "id": "ascend-mixed-ee4e2d5087648134",
+        "sha256": "bf1984369e817a50869277b300a529566412dcf050cc4862993694442bf29375",
+        "reference_pairs": [
+          "那个"
+        ]
+      },
+      {
+        "id": "ascend-mixed-ee4e2d5087648134",
+        "sha256": "f4c4ba9b2baa0bdd47f96a6076fc9d9df52cfe269d33468773cf1e1ce1a608fc",
+        "reference_pairs": [
+          "那个"
+        ]
+      }
+    ]
+  },
+  "rejected_composite_preview": {
+    "rollbacks_removed": 13,
+    "correct_reference_pairs_first_appearance_delayed": 3,
+    "delayed": [
+      "大力",
+      "力士",
+      "士的"
+    ],
+    "retained": false
+  },
+  "high_competition": {
+    "receipt_sha256": "87d00d6861431a6ab1b5a3e52356a7a16452a7e21c2d7bd49d2796c3ec3bf983",
+    "visible_gap_s": 5.148,
+    "worker_t": [
+      24.728,
+      26.467
+    ],
+    "published_again_s": 28.17,
+    "counterfactual": "Exact current prefix at 26.467 changes 视力→这里. The fixed reference is 智利; zero reference bigrams appeared earlier. Rejected."
+  }
+}

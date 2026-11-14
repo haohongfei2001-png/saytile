@@ -77,6 +77,37 @@ struct QwenRecoveryTests {
         #expect(other.presentation == raw)
     }
 
+    @Test func mixedSpeechResumesAfterTwoRealObservationsOfANewLatinWordBoundary() {
+        let head = "当然，我小时候我也没有", visible = "，但是呢，我是小时候比较早接触"
+        let restyled = "，但是呢我是小时候比较早接触"
+        let updated = "当然我小时候我也没有smart phone"
+        func prepared() -> LocalLiveText {
+            var live = LocalLiveText(model: .qwen)
+            for tail in ["", "，但是呢", visible] { _ = live.accept(head + "Smartphone" + tail + "。", final: false) }
+            return live
+        }
+        var live = prepared()
+        #expect(live.accept(head + "smart phone" + visible + "个。", final: false) == nil)
+        let next = updated + restyled + "的那个。"
+        #expect(live.accept(next, final: false) == 0)
+        #expect(live.previous == next)
+        #expect(live.presentation == String(next.dropLast()))
+        let final = head + "Smartphone" + visible + "过那个电脑。"
+        #expect(live.accept(final, final: true) == final.utf16.count)
+        #expect(live.presentation == final)
+
+        for replacement in ["smart-phone", "sm artphone", "smart  phone", "smart ph0ne", "smart phones", "smart phоne"] {
+            var unconfirmed = prepared()
+            _ = unconfirmed.accept(head + replacement + visible + "个。", final: false)
+            #expect(unconfirmed.accept(next, final: false) == nil)
+        }
+        for replacement in ["smart  phone", "smart phone2", "smart-ph0ne"] {
+            var invalid = prepared()
+            _ = invalid.accept(head + replacement + visible + "个。", final: false)
+            #expect(invalid.accept("当然我小时候我也没有" + replacement + restyled + "过那个电脑。", final: false) == nil)
+        }
+    }
+
     @Test func firstRollingWordAppearsImmediatelyAndGetsItsFinalPunctuationAtEOS() {
         var live = LocalLiveText(model: .qwen)
         #expect(live.accept("我。", final: false) == 0)

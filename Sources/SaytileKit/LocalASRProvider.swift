@@ -36,6 +36,7 @@ public struct WorkerDecodeTiming: Codable, Sendable {
     public let frames: Int
     public let final: Bool
     public let changed: Bool?
+    public let verifiedPreviewTokens: Int?
 }
 
 public struct WorkerEvent: Decodable, Sendable {
@@ -267,7 +268,8 @@ struct LocalLiveText {
                 withheld = text
                 guard let prior else { return nil }
                 if let prefix = Self.confirmedReadingPrefix(previous: previous, prior: prior, text: text, unchanged: common.count)
-                    ?? Self.locallyConfirmedPrefix(previous: previous, prior: prior, text: text) {
+                    ?? Self.locallyConfirmedPrefix(previous: previous, prior: prior, text: text)
+                    ?? Self.confirmedLatinSpacing(previous: previous, prior: prior, text: text) {
                     readingPrefix = prefix
                 } else { return nil }
             } else if common.count > 8 {
@@ -302,6 +304,48 @@ struct LocalLiveText {
             }) else { return nil }
         } else if !Self.hasLocalizedCorrection(from: previous, to: supported) { return nil }
         return String(supported.dropLast(8))
+    }
+
+    // In mixed speech Qwen may split an earlier compound ("smartphone" to
+    // "smart phone") while appending Chinese words. Spaces can change meaning.
+    // Accept the complete current hypothesis only after a second observation
+    // confirms the changed boundary, the entire old text, and fresh speech.
+    private static func confirmedLatinSpacing(previous: String, prior: String, text: String) -> String? {
+        func latin(_ c: Character) -> Bool {
+            guard let n = c.asciiValue else { return false }
+            return (65...90).contains(n) || (97...122).contains(n)
+        }
+        func units(_ value: String) -> [(Character, String.Index)] {
+            var result: [(Character, String.Index)] = []
+            for i in value.indices {
+                let c = value[i], next = value.index(after: i)
+                if c == "。", next == value.endIndex { continue }
+                if c == "，", i > value.startIndex, next < value.endIndex {
+                    let before = value[value.index(before: i)], after = value[next]
+                    if before.isLetter, after.isLetter, !protectsBoundary(before), !protectsBoundary(after) { continue }
+                }
+                result.append((latin(c) ? Character(c.lowercased()) : c, next))
+            }
+            return result
+        }
+        let original = units(previous).map(\.0), proposal = units(text)
+        let current = proposal.map(\.0)
+        let i = zip(original, current).prefix(while: { $0 == $1 }).count
+        guard i >= 2, i < min(original.count, current.count), original[..<i].suffix(2).allSatisfy(latin) else { return nil }
+        let inserting = current[i] == " "
+        guard inserting != (original[i] == " ") else { return nil }
+        var corrected = original
+        if inserting { corrected.insert(" ", at: i) } else { corrected.remove(at: i) }
+        let after = i + (inserting ? 1 : 0)
+        let right = corrected[after...].prefix(while: latin)
+        let following = corrected.dropFirst(after + right.count)
+        guard right.count >= 2, following.count >= 6, following.prefix(6).allSatisfy({ $0.isLetter }),
+              current.starts(with: corrected) else { return nil }
+        let observed = units(prior).map(\.0)
+        guard observed.starts(with: corrected),
+              observed.dropFirst(corrected.count).contains(where: { $0.isLetter || $0.isNumber }),
+              current.dropFirst(corrected.count).contains(where: { $0.isLetter || $0.isNumber }) else { return nil }
+        return String(text[..<proposal[corrected.count - 9].1])
     }
 
     // Changing a boundary next to a number or negative can change the meaning

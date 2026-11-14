@@ -25,6 +25,9 @@ qwen=Sources/Qwen3ASR/Qwen3ASR.swift
 original=$(mktemp)
 trap 'rm -f "$original"' EXIT
 git -C "$cache/speech-swift" show "$speech:$qwen" > "$original"
+# Apply the local preview policy to the pinned git blob, never to a
+# previously patched checkout. Repeated builds retain the same mtime.
+patch -s -f "$original" < "$pkg/qwen-verified-preview.patch"
 cmp -s "$original" "$pkg/.vendor/SpeechKernels/$qwen" || cp "$original" "$pkg/.vendor/SpeechKernels/$qwen"
 cmp -s "$pkg/SpeechKernels.swift-manifest" "$pkg/.vendor/SpeechKernels/Package.swift" || cp "$pkg/SpeechKernels.swift-manifest" "$pkg/.vendor/SpeechKernels/Package.swift"
 mkdir -p "$pkg/.vendor/FluidAudio"

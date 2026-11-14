@@ -1,0 +1,96 @@
+{
+  "baseline_source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+  "experimental_worker_swift_sha256": "6c947081701cd48ec170d4c6e209738987efb5a62fad256288e47fa6e5dab443",
+  "change": "After three seconds and a growing hypothesis, decode each 700 rather than 500 ms. Keep first and corrective intervals unchanged.",
+  "decision": "Rejected. No controlled paired CPU benefit demonstrated. Host contention varied while the injected load missed its requested target. Retain the 500 ms production scheduling policy.",
+  "runs": {
+    "control-qos-continuous": {
+      "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "load_target": 4.0,
+      "load_actual": 1.2722,
+      "load_target_met": false,
+      "system_load": [
+        90.7255859375,
+        44.07861328125,
+        22.296875
+      ],
+      "combined_cpu_s": 17.02,
+      "decode_count": 14,
+      "visible_first": 3.925,
+      "visible_new_bigram_longest": 8.935,
+      "archive": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      }
+    },
+    "control-qos-fleurs": {
+      "audio_sha256": "c68868cfa82bd8c0ebcf691ce38d9860ae95aa803b3e846c2f552fb82e997829",
+      "load_target": 4.0,
+      "load_actual": 1.0027,
+      "load_target_met": false,
+      "system_load": [
+        119.244140625,
+        61.11572265625,
+        30.072265625
+      ],
+      "combined_cpu_s": 11.38,
+      "decode_count": 6,
+      "visible_first": 13.042,
+      "visible_new_bigram_longest": 13.042,
+      "archive": {
+        "errors": 5,
+        "substitutions": 5,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 92
+      }
+    },
+    "sustained-qos-continuous": {
+      "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "load_target": 4.0,
+      "load_actual": 1.8439,
+      "load_target_met": false,
+      "system_load": [
+        52.93408203125,
+        26.599609375,
+        14.4130859375
+      ],
+      "combined_cpu_s": 19.22,
+      "decode_count": 17,
+      "visible_first": 4.69,
+      "visible_new_bigram_longest": 13.6,
+      "archive": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      }
+    },
+    "sustained-qos-fleurs": {
+      "audio_sha256": "c68868cfa82bd8c0ebcf691ce38d9860ae95aa803b3e846c2f552fb82e997829",
+      "load_target": 4.0,
+      "load_actual": 1.5981,
+      "load_target_met": false,
+      "system_load": [
+        64.38037109375,
+        33.0546875,
+        17.4521484375
+      ],
+      "combined_cpu_s": 11.99,
+      "decode_count": 9,
+      "visible_first": 5.315,
+      "visible_new_bigram_longest": 7.497,
+      "archive": {
+        "errors": 5,
+        "substitutions": 5,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 92
+      }
+    }
+  }
+}
