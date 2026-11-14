@@ -60,17 +60,20 @@ final class PanelArrangementWorker: @unchecked Sendable {
         let foreground = snapshots.filter { $0.pid == request.frontmostPID && $0.frame.intersects(request.screen) }
         if foreground.contains(where: { $0.isFullscreen && $0.frame.intersection(request.screen).width > request.screen.width * 0.6 }) {
             result.fullscreen = true
+        } else if foreground.contains(where: { $0.standardWindow && !$0.isFullscreen &&
+            abs($0.frame.width - request.screen.width) <= 2 && abs($0.frame.height - request.screen.height) <= 2 }) {
+            // A trusted AX answer outranks the geometry fallback when menu bar
+            // and Dock auto-hide let an ordinary maximized window fill a screen.
+            result.fullscreen = false
         }
         let reserving = request.reserve && request.shown && !result.fullscreen
         // Restore only geometry still owned by us. A user's intervening move
         // transfers ownership back, so mode-off must never undo that move.
         for (key, lease) in leases {
             guard !cancellation.isCancelled else { return result }
-            guard let current = access.read(lease.window), !current.isFullscreen else {
-                if !snapshots.contains(where: { $0.stableKey == key }) { continue }
-                leases.removeValue(forKey: key)
-                continue
-            }
+            // Entering another Space or fullscreen temporarily hides/replaces
+            // geometry. Keep the original until the same ordinary window returns.
+            guard let current = access.read(lease.window), !current.isFullscreen else { continue }
             guard Self.same(current.frame, lease.applied) else {
                 leases.removeValue(forKey: key); unresolvedRestores.remove(key); continue
             }
@@ -141,7 +144,7 @@ final class PanelArrangementWorker: @unchecked Sendable {
         }
     }
     static func same(_ a: CGRect, _ b: CGRect) -> Bool {
-        abs(a.minX-b.minX) <= 1 && abs(a.minY-b.minY) <= 1 && abs(a.width-b.width) <= 1 && abs(a.height-b.height) <= 1
+        abs(a.minX-b.minX) <= 0.25 && abs(a.minY-b.minY) <= 0.25 && abs(a.width-b.width) <= 0.25 && abs(a.height-b.height) <= 0.25
     }
 }
 
@@ -175,7 +178,7 @@ final class PanelCoexistenceController {
         worker = PanelArrangementWorker(allowedPIDs: allowedPIDs)
     }
     func start() {
-        windowEvents = PanelWindowEvents { [weak self] in self?.changed() }
+        windowEvents = PanelWindowEvents { [weak self] in self?.windowGeometryChanged() }
         let workspace = NSWorkspace.shared.notificationCenter
         for name in [NSWorkspace.didActivateApplicationNotification, NSWorkspace.activeSpaceDidChangeNotification,
                      NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification,
@@ -197,6 +200,19 @@ final class PanelCoexistenceController {
             Task { @MainActor in self?.changed() }
         }
         observers.append((center, token))
+    }
+    private func windowGeometryChanged() {
+        // AX emits moved/resized for our own writes too. Such observations
+        // schedule a new read, never cancel the resize/move halfway through.
+        // User mode, visibility and Space decisions still invalidate immediately.
+        guard !stopped else { return }
+        if inFlight != nil { rerun = true; return }
+        pending?.cancel()
+        pending = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(140))
+            guard !Task.isCancelled else { return }
+            self?.refresh()
+        }
     }
     func changed(userPlacement: Bool = false) {
         guard !stopped else { return }
@@ -242,12 +258,18 @@ final class PanelCoexistenceController {
     }
     private func apply(_ result: PanelArrangementWorker.Result, request: PanelArrangementWorker.Request) {
         guard let panel, let model else { return }
-        model.panelOverFullscreen = result.fullscreen
+        if model.panelOverFullscreen != result.fullscreen { model.panelOverFullscreen = result.fullscreen }
+        let status: String?
         if model.panelPlacementMode == .boundary {
-            model.panelArrangementStatus = !result.trusted ? "需要辅助功能权限，当前仍为浮板。"
+            status = !result.trusted ? "需要辅助功能权限，当前仍为浮板。"
                 : result.blocked > 0 ? "部分窗口不支持调整，或可用空间不足。"
-                : result.fullscreen ? "全屏时保留浮板，并避开附近控件。" : nil
-        } else { model.panelArrangementStatus = nil }
+                : result.fullscreen ? "全屏时保留浮板，自动避让可确认的控件。" : nil
+        } else {
+            status = result.blocked > 0 ? "部分窗口未能自动恢复，可手动调整。" : nil
+        }
+        // Idle polling must not publish identical values and re-render the live
+        // transcript. The monitor has no reason to wake the text view at rest.
+        if model.panelArrangementStatus != status { model.panelArrangementStatus = status }
         if !panel.draggingPlacement && !panel.inLiveResize && NSEvent.pressedMouseButtons == 0 && !panel.isKeyWindow {
             var target = result.panel
             if automaticallyDisplaced && !result.fullscreen { target = preferred }

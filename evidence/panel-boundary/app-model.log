@@ -1,0 +1,171 @@
+PASS first launch remains offline, paused, with no permission request
+PASS denial preserves the start guide and identifies microphone recovery
+PASS denied capsule opens recovery directly without a second start request
+PASS a cancelled start or empty saved recording is not first recognition
+PASS a partial reaches the board before a full archive refresh
+PASS an actual nonempty stored partial completes first use before end of speech
+PASS relaunch retains completion without starting capture
+PASS manual paging keeps visible overlap across eighty consecutive untranscribed recordings
+PASS new speech advances the live tail without taking over the pinned history page
+PASS returning to latest after manual paging reveals the actual newest live row
+JOURNEY_REPRO revertedDraftCleared=true textGroupCopied=true
+PASS undoing every archive edit releases the automatic transcript
+PASS a new group awaiting its first word leaves the latest visible text group available to copy
+PASS after undo, late recognition updates the editor and preserves the clipboard snapshot
+PASS opening a legacy unchanged draft releases it without creating a revision
+PASS deliberately erasing the text keeps a recoverable empty draft
+PASS a new audio-only row after a clear cannot resurrect old text or replace the clipboard
+PASS fresh install starts offline
+PASS an unverified BYOK connection cannot take over on-device recognition
+PASS the existing default appears as a concrete on-device model without rewriting preferences
+PASS choosing a named local model persists the choice without enabling online audio
+PASS a missing preferred model preserves the preference and uses the available local fallback
+PASS the user can pin the active fallback
+PASS a late failure from Apple before an A-B-A reselection cannot disable the new Apple ticket
+PASS the only remaining engine allows an explicit retry
+PASS retry clears only that local model failure
+PASS an offline failed transfer waits for a real network restoration
+PASS duplicated satisfied events resume one interrupted transfer at most once
+PASS connectivity restoration before URLSession reports an error is retained
+PASS pause, cloud selection, and explicit model selection cancel the pending reconnect
+PASS restoring the default removes the pinned choice
+PASS an isolated instance cannot change the production login item or display an enabled state
+PASS Cloud selection grants no upload consent
+PASS BYOK can be selected independently
+PASS return to local has no cloud review
+PASS missing remembered microphone keeps its own UID in the input picker
+PASS selecting an absent device by stable UID never falls back to the default input
+PASS explicit default device choice clears remembered hardware UID
+PASS coalesced initial load waits for populated archive
+REFRESH_BURST callers=40 database_passes=2
+PASS overlapping refresh callers share database work without losing archive contents
+PASS historical records do not enter current insertion panel
+PASS a fresh app session can manually insert only the last time group from its archive
+PASS only explicit historical reuse enters panel
+PASS bringing one archive entry to the panel offers that record alone for manual reuse
+PASS returning to latest drops the archive-specific insertion scope
+PASS clearing panel preserves archive
+PASS clearing the panel removes its implicit copy target
+PASS an explicitly cleared panel cannot manually dispatch the cleared group
+PASS new speech enters current session
+PASS archive pinned filter reaches store
+PASS removing the last favorite closes its detail in the filtered list
+PASS leaving the favorites list preserves unsaved edits
+PASS the star returns to the previous archive scope
+PASS archive search reaches store without mixing pages
+PASS cleanup preview waits for candidates and protects unrecognized audio
+PASS detail draft reaches SQLite on input, without switching, closing or a debounce
+PASS switching records flushes pending draft without waiting for debounce
+PASS switching records does not show another record's draft
+PASS returning to record restores durable unsaved draft
+PASS periodic refresh does not reset unsaved editor text
+PASS save modification creates selected immutable version
+PASS successful version save clears old editor draft
+PASS typing during version commit is retained as version or newer draft
+PASS saving a stale detail draft preserves both the latest manual text and persisted draft
+PASS a reviewed conflict can be saved deliberately after comparing the changed transcript
+PASS panel exposes total and pagination instead of silently truncating after thirty
+PASS earlier current-session expressions remain available for batch reuse
+PASS earliest current-session expression survives prolonged input
+PASS bounded archive page keeps original session time and latest utterance
+PASS a focused archive paragraph survives a moving page boundary without reading all intervening history
+PASS loading older paragraphs joins a page-spanning session in chronological order
+PASS manual group insertion spans multiple virtual pages in capture order
+PASS manual click excludes the previous 116 records and freezes the version actually drawn
+PASS a just-arrived revision cannot be manually sent before its first visible text
+PASS unchanged paused timeline, archive, editor and model status do not publish redundant UI updates
+PASS production model exposes active text review without fabricated progress
+PASS completed review phase disappears when logical recognition fails
+PASS late refresh requests do not query the closed store after exit preparation
+PASS exit flush persists an intentionally empty unsaved draft
+PASS CONNECTION missing keys are shown through metadata-only injected presence
+PASS CONNECTION no upload authorization means no verification invocation
+PASS CONNECTION unverified settings cannot enable cloud recognition
+PASS CONNECTION authorized check with missing keys fails before any mocked provider starts
+PASS CONNECTION failed credential save does not claim saved or connected
+PASS CONNECTION failed credential save cannot change the account authorization generation
+PASS CONNECTION fixture credential saved without Keychain access for qwenMessage
+PASS CONNECTION successful credential save persists a new opaque account generation in draft and runtime configuration for qwenMessage
+PASS CONNECTION fixture credential saved without Keychain access for assemblyAI
+PASS CONNECTION successful credential save persists a new opaque account generation in draft and runtime configuration for assemblyAI
+PASS CONNECTION fixture credential saved without Keychain access for openAIResponses
+PASS CONNECTION successful credential save persists a new opaque account generation in draft and runtime configuration for openAIResponses
+PASS CONNECTION replacing a saved key rotates authorization even when the synthetic value is unchanged
+PASS CONNECTION stale UI credential actions cannot mutate an untracked account identity
+PASS CONNECTION a stale provider editor cannot change another credential namespace
+PASS CONNECTION disabled services persist credential identity even when absent from connection fingerprints
+PASS CONNECTION check remains active while actual controller awaits backend
+PASS CONNECTION the two selected services are not final connection success
+PASS CONNECTION visible partial progress does not enable cloud
+PASS CONNECTION simulated completed report remains NO_API_ENGINEERING_READY and cannot persist a live receipt
+PASS CONNECTION service failures remain visible and retain local recognition
+PASS CONNECTION verifying a BYOK account from Settings leaves new speech local even with legacy source preferences
+PASS CONNECTION explicit BYOK activation applies verified speech and text configuration for new speech
+PASS CONNECTION switching off BYOK immediately restores local speech and preserves verified credentials
+PASS CONNECTION TEST_ONLY live-shaped injected receipt exercises success-to-enable branch; no cloud call
+PASS CONNECTION failed credential removal preserves key metadata but keeps runtime local and receipt revoked
+PASS CONNECTION failed credential removal preserves its authorization generation
+PASS CONNECTION cloud runtime is synchronously revoked before any credential mutation can expose another account
+PASS CONNECTION fixture holds first cloud apply before its visible applied snapshot
+PASS CONNECTION credential revocation synchronously stops an unpublished in-flight cloud apply
+PASS CONNECTION successful key deletion durably changes account identity before any later connection
+PASS CONNECTION late completion of revoked apply cannot restore cloud state or persisted settings
+PASS CONNECTION cancelled check resolves every unfinished service card to a stopped state
+PASS CONNECTION replacement check waits for cancelled predecessor cleanup and ignores late progress
+PASS CONNECTION cancelled successful response cannot enable cloud or overlap a replacement check
+PASS CONNECTION cancelling preserves the selected ASR and GPT service outcomes
+PASS CONNECTION credential removal invalidates an active check and every late response
+PASS CONNECTION exit waits until an outstanding connection task has closed
+PASS CONNECTION exit ignores cancelled success and finishes with no active cloud task
+PASS CONNECTION closed model rejects late connection actions instead of opening new tasks
+PASS CONNECTION closed model rejects stale credential mutations
+PASS CONNECTION exit revokes cloud immediately and both exit callers await the same pending apply
+PASS CONNECTION credential changes are rejected while exit is waiting for cleanup
+PASS CONNECTION late apply completion cannot publish cloud settings during exit
+CONNECTION_EVIDENCE_SCOPE injected controller workflow only; no Keychain, provider sockets, microphone or live verification
+PASS first launch shares the paused play triangle and offers the start action
+PASS panel placement defaults to floating without modifying existing preferences
+PASS explicit boundary choice persists and notifies exactly once without requesting permission
+PASS desktop entry defaults off in an isolated preference domain
+PASS explicit desktop entry setting persists and notifies window owner
+PASS saved desktop entry choice reloads without sending a spurious setting change
+PASS saved panel placement reloads without a spurious window arrangement notification
+PASS fullscreen context and arrangement feedback are transient and do not survive a new session
+PASS returning to floating persists and sends one arrangement change
+PASS turning desktop entry off persists and sends one change notification
+PASS preparation alone does not mark the microphone as successfully started
+PASS cancelling before the first successful start retains the paused start action
+PASS successful start is quiet standby even when the raw meter contains ambient energy
+PASS VAD speech uses the single recognition state and only its measured amplitude
+PASS real meter changes propagate without a timer or fabricated oscillator
+PASS absent or invalid amplitude never becomes a manufactured speech level
+PASS absent or invalid amplitude never becomes a manufactured speech level
+PASS absent or invalid amplitude never becomes a manufactured speech level
+PASS absent or invalid amplitude never becomes a manufactured speech level
+PASS finite speech amplitude is clamped to the documented display range
+PASS current speech stays active while its provisional text is saved
+PASS VAD end returns to quiet standby immediately before any Store refresh or finalization
+PASS sealed first audio and pending ASR retain text during quiet standby
+PASS a background correction updates the same visible text in quiet standby
+PASS a queued saved segment cannot animate the voice control
+PASS real pending fusion remains independent of silent VAD
+PASS new speech becomes active while the previous segment is pending
+PASS late final changes only its original text and preserves the new speech waveform
+PASS failure of an older retry preserves newer speech and the old segment's saved text
+PASS clearing visible text leaves current voice capture active
+PASS user pause shares the first-launch triangle and now offers resume
+PASS late old failure and final text cannot restart user-paused capture
+PASS explicit resume returns to standby while an earlier job is still running
+PASS re-recognition of a settled record leaves standby quiet
+PASS explicitly restoring an archive with running fusion does not simulate speech
+PASS an open Store row alone cannot manufacture VAD activity after panel clearing
+PASS deleting the newest row cannot surface older background work as speech
+PASS pausing from standby is independent from completion of a historical job
+PASS pause, finalization and panel clearing preserve saved text
+PASS interruption remains actionable outside the three ordinary states
+PASS startup remains a cancellable exception
+PASS the single control cancels preparation into static pause
+PASS all presentation and preference checks avoid the actual microphone and provider network
+PASS an actionable capture interruption preserves an unrelated board notice
+PASS a successful resume removes the former microphone error and restores the unrelated notice
+APP_MODEL_PROBE_PASS 167 checks; no microphone, no external input, no window activation

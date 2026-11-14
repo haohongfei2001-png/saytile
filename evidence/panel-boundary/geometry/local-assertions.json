@@ -1,0 +1,24 @@
+{
+  "scope": "Same test bodies in isolated pure Swift assertion harness, NOT Swift Testing execution",
+  "status": "PASS",
+  "swift_testing": "BLOCKED: installed CLT lacks TestingMacros plugin",
+  "tests": [
+    "placementModesKeepStableStorageValues",
+    "nonoverlappingWindowAndExactGapDoNotMove",
+    "overlappingOrdinaryWindowUsesClosestSizePreservingTranslation",
+    "preserveSizeTakesPriorityOverNearbyShrinking",
+    "oversizedWindowKeepsLargestAvailableAreaWithoutCrossingPanel",
+    "minimumSizeCanRefuseMovementButExistingSmallWindowsStaySmall",
+    "disconnectedAndNegativeOriginScreenRemainWithinSingleVisibleFrame",
+    "ordinaryPlacementHasContainmentSeparationAndIdempotenceAcrossSizes",
+    "fullScreenMovesInEachDirectionWithoutChangingPanelSize",
+    "fullScreenUsesShortestFeasibleTranslationAgainstAnExhaustiveGridOracle",
+    "exactContactBetweenControlsLeavesAValidSingleOrigin",
+    "noFitAndBoundedDisplacementNeverTeleportOrShrinkPanel",
+    "safeCurrentPlacementAbsorbsSmallJitterWithoutCumulativeDrift",
+    "invalidBoundsParametersAndNaNFailWithoutMakingUnsafeFrames"
+  ],
+  "source_sha256": "7007f174d51c6aff69ca76984f66519f003168a1bc9d90315d1e2c96bc894ee6",
+  "tests_sha256": "400234d0b5c8956da4c6bbb11495e20dfc4214634f6eba86d9d9f04aec1732cd",
+  "log": "PASS placementModesKeepStableStorageValues\nPASS nonoverlappingWindowAndExactGapDoNotMove\nPASS overlappingOrdinaryWindowUsesClosestSizePreservingTranslation\nPASS preserveSizeTakesPriorityOverNearbyShrinking\nPASS oversizedWindowKeepsLargestAvailableAreaWithoutCrossingPanel\nPASS minimumSizeCanRefuseMovementButExistingSmallWindowsStaySmall\nPASS disconnectedAndNegativeOriginScreenRemainWithinSingleVisibleFrame\nPASS ordinaryPlacementHasContainmentSeparationAndIdempotenceAcrossSizes\nPASS fullScreenMovesInEachDirectionWithoutChangingPanelSize\nPASS fullScreenUsesShortestFeasibleTranslationAgainstAnExhaustiveGridOracle\nPASS exactContactBetweenControlsLeavesAValidSingleOrigin\nPASS noFitAndBoundedDisplacementNeverTeleportOrShrinkPanel\nPASS safeCurrentPlacementAbsorbsSmallJitterWithoutCumulativeDrift\nPASS invalidBoundsParametersAndNaNFailWithoutMakingUnsafeFrames\nPure assertion harness: 14 test bodies, 881 assertions; Swift Testing itself BLOCKED by missing CLT plugin\n"
+}

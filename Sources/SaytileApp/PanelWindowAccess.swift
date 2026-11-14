@@ -129,8 +129,8 @@ final class PanelWindowAccess: @unchecked Sendable {
 
     private let structuralRoles: Set<String> = [kAXWindowRole, kAXGroupRole, kAXSplitGroupRole, kAXToolbarRole]
     private let actionableRoles: Set<String> = [kAXButtonRole, kAXCheckBoxRole, kAXRadioButtonRole,
-        kAXPopUpButtonRole, kAXMenuButtonRole, kAXTextFieldRole, kAXTextAreaRole, kAXComboBoxRole,
-        kAXSliderRole, kAXIncrementorRole, kAXTabGroupRole]
+        kAXPopUpButtonRole, kAXMenuButtonRole, kAXTextFieldRole, kAXComboBoxRole,
+        kAXSliderRole, kAXIncrementorRole]
 
     private func collect(allowedPIDs requested: Set<pid_t>?) -> [Snapshot] {
         guard allowedPIDs?.isEmpty != true, requested?.isEmpty != true,
@@ -242,7 +242,9 @@ final class PanelWindowAccess: @unchecked Sendable {
     }
     private func element(_ source: AXUIElement, _ name: String) -> AXUIElement? {
         guard let raw = value(source, name), CFGetTypeID(raw) == AXUIElementGetTypeID() else { return nil }
-        return unsafeDowncast(raw, to: AXUIElement.self)
+        let result = unsafeDowncast(raw, to: AXUIElement.self)
+        AXUIElementSetMessagingTimeout(result, 0.06)
+        return result
     }
     private func elements(_ source: AXUIElement, _ name: String, maximum: Int) -> [AXUIElement]? {
         guard maximum > 0 else { return nil }
@@ -253,6 +255,7 @@ final class PanelWindowAccess: @unchecked Sendable {
         var raw: CFArray?
         guard AXUIElementCopyAttributeValues(source, name as CFString, 0, count, &raw) == .success,
               let values = raw as? [AXUIElement], values.count == count else { return nil }
+        for value in values { AXUIElementSetMessagingTimeout(value, 0.06) }
         return values
     }
     private func frame(_ element: AXUIElement) -> CGRect? {
