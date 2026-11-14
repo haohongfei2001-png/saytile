@@ -1,0 +1,57 @@
+--- a/Sources/SaytileModelWorker/Worker.swift
++++ b/Sources/SaytileModelWorker/Worker.swift
+@@ -20,9 +20,10 @@
+     return data
+ }
+ 
+-func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]] = []) throws {
++func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]] = [], diagnosticFinalVerified: Bool? = nil) throws {
+     var event: [String: Any] = ["kind": kind, "text": text, "frames": frames]
+     if !decodes.isEmpty { event["decodes"] = decodes }
++    if let diagnosticFinalVerified { event["diagnosticFinalVerified"] = diagnosticFinalVerified }
+     var line = try JSONSerialization.data(withJSONObject: event)
+     line.append(10)
+     try FileHandle.standardOutput.write(contentsOf: line)
+@@ -107,6 +108,7 @@
+             }
+             frames += chunk.count
+             var update: String?
++            var diagnosticFinalVerified = false
+             if let stream {
+                 let results = try end ? stream.finalize() : stream.pushAudio(chunk)
+                 update = results.last?.text
+@@ -124,8 +126,13 @@
+                     if id == "qwen-small", !end, !last.isEmpty, samples.count < windowLimit,
+                        samples.count - next < maxPreviewBacklog, try input.hasNextFrameNow() { continue }
+                     let started = traceDecodes ? ProcessInfo.processInfo.systemUptime : 0
+-                    let verifyingPreview = id == "qwen-small" && !end && !last.isEmpty
++                    // ISOLATED EXPERIMENT ONLY: re-encode the full current PCM
++                    // at EOS, then validate previous token IDs against it. Never
++                    // return previous preview text, and keep the 32 s boundary
++                    // on the original greedy path. No-draft/short input falls back.
++                    let verifyingPreview = id == "qwen-small" && !last.isEmpty
+                         && samples.count >= 48_000 && samples.count < windowLimit
++                    diagnosticFinalVerified = end && verifyingPreview
+                     let tail = samples.isEmpty ? "" : try await transcribe(samples, verifyingPreview)
+                     let decoded = prefix + tail
+                     update = decoded
+@@ -133,7 +140,8 @@
+                     if traceDecodes {
+                         decodes.append(["startUptime": started, "endUptime": ProcessInfo.processInfo.systemUptime,
+                                         "frames": frames, "final": end, "changed": update != last,
+-                                        "verifiedPreviewTokens": verifyingPreview ? verifiedTokens : 0])
++                                        "verifiedPreviewTokens": verifyingPreview ? verifiedTokens : 0,
++                                        "diagnosticFinalVerified": diagnosticFinalVerified])
+                     }
+                     if samples.count >= windowLimit {
+                         prefix += tail
+@@ -146,7 +154,8 @@
+                 }
+             }
+             if end {
+-                try publish(update ?? last, kind: "final", frames: frames, decodes: decodes)
++                try publish(update ?? last, kind: "final", frames: frames, decodes: decodes,
++                            diagnosticFinalVerified: diagnosticFinalVerified)
+                 decodes.removeAll(keepingCapacity: true)
+                 exactPreview = nil
+                 stream = try nemo?.createSession(language: "zh")

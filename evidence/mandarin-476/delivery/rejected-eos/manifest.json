@@ -1,0 +1,171 @@
+{
+  "base": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+  "product_source_unchanged": true,
+  "status": "COMPILE_PASS; INFERENCE_NOT_RUN",
+  "Qwen_source_unchanged": true,
+  "scope": "EOS for eligible small-model utterances re-encodes full current PCM and independently validates prior token IDs; no prior audio/KV or text reused. 32-second boundary stays ordinary greedy. No user app/data touched.",
+  "app": "/private/tmp/saytile-qwen-eos476/Saytile EOS 验证实验.app",
+  "helper_sha256": "d3eb98f6dc98ddedbbe67d150f166da843f545cacbc5b2de818ccded8976bd83",
+  "patch_sha256": "5326f9648e8a25956a7e8ade8928a5ee203128f84e5a272cbe5d764cf4bb3c64",
+  "base_host_content_identical_before_resign": true,
+  "signing": "ad-hoc, runtime flags 0 for isolated diagnostic executable; not Developer ID, not Gatekeeper acceptance",
+  "codesign_verify": "PASS",
+  "diagnosticFinalVerified": "true means EOS requested verified-token path; verifiedPreviewTokens reports actual number verified, 0 can mean scalar fallback",
+  "Qwen_source_sha256": "fa357bf3e73959417ce121386c541c322f2c075a1da21bff2abfc00b0e079b18",
+  "host_code_sections_equal_to_476": true,
+  "host_sections": {
+    "__TEXT:__text": {
+      "bytes": 3914440,
+      "sha256": "0abd5ac9c6bc9be6e3cb63f59c9a6f1f4f9accccbb1df96a5dba8652334e1b63"
+    },
+    "__TEXT:__stubs": {
+      "bytes": 14124,
+      "sha256": "b80baf67c9c0277056d4b1cef0117d68415aab5190fc99d26a5e51911af11172"
+    },
+    "__TEXT:__objc_stubs": {
+      "bytes": 14912,
+      "sha256": "f5fdfd7e0f1358da9e01437f723b01440cdeabf958736d1c02ea42b06db21f87"
+    },
+    "__TEXT:__objc_methlist": {
+      "bytes": 4924,
+      "sha256": "80d08077636b218b0f087709f46b030086f3b3c141a14c8a1974d487ff29c9db"
+    },
+    "__TEXT:__const": {
+      "bytes": 83156,
+      "sha256": "ff05d1df676ba4e3064ec054bfdba3e25fae7b112aea23748aaab5f76386b278"
+    },
+    "__TEXT:__constg_swiftt": {
+      "bytes": 19272,
+      "sha256": "d2138e63571f043de03a9d08b5f4be43bc8a1227f46e027508dc0fb19661ffc8"
+    },
+    "__TEXT:__swift5_typeref": {
+      "bytes": 106856,
+      "sha256": "20aeccc996af18cdf8c2a85557903944b7d1a7216ffbcab350bda103e6c73a7d"
+    },
+    "__TEXT:__objc_classname": {
+      "bytes": 3642,
+      "sha256": "9b89ff41c5b2abeab728d86c8f643bdafd9ebb8df0316c1cb6b77d6e8f9f8e25"
+    },
+    "__TEXT:__swift5_fieldmd": {
+      "bytes": 28768,
+      "sha256": "0b66bae9bb07a4ca05c6f546291792d33d707acc3d9a2b3098064d06d21bbe8d"
+    },
+    "__TEXT:__swift5_builtin": {
+      "bytes": 560,
+      "sha256": "23b05acea912c0c94c6417979575357df528ef7a5826bbdec4259211bb9403a7"
+    },
+    "__TEXT:__swift5_reflstr": {
+      "bytes": 20193,
+      "sha256": "25417bbd8a79e81a97be6686dd760dbad5d3ca81eb195e6df21432ab938c3084"
+    },
+    "__TEXT:__swift5_assocty": {
+      "bytes": 2568,
+      "sha256": "abb53a7df3c4482978d0c2378acf435473d50e42563182b95a2668912721a209"
+    },
+    "__TEXT:__cstring": {
+      "bytes": 109197,
+      "sha256": "58d7a1a3c3085cd4ead77b600d09287a7820112db0468167b22cdd7bb923b268"
+    },
+    "__TEXT:__swift5_proto": {
+      "bytes": 2600,
+      "sha256": "7575a1dea36da807d6339029f2ea3494510fb09babd7a520f3b2d7355a96170e"
+    },
+    "__TEXT:__swift5_types": {
+      "bytes": 1476,
+      "sha256": "d396e7ba1333596dd66b5b02f0a6654f682f9c7f86b359ec8f8c7facbee4e282"
+    },
+    "__TEXT:__objc_methname": {
+      "bytes": 28049,
+      "sha256": "52abe83d43c62848ef42b0d4bef67c7ffaaff2c08248369daa0b9cce3f6adeee"
+    },
+    "__TEXT:__swift5_capture": {
+      "bytes": 12388,
+      "sha256": "2e44b737a98915e225d4902ba58c2d59855acd35404bc055cc0cfea2c6c0841b"
+    },
+    "__TEXT:__swift_as_entry": {
+      "bytes": 1676,
+      "sha256": "2be32446febd605d9699f3e9d125fdbb6540ea59289ed62453cdb079c5b84cde"
+    },
+    "__TEXT:__swift_as_ret": {
+      "bytes": 3516,
+      "sha256": "029d3cc1d16a68a17cedc91014d782cc7b0b9ea7f56e6387c28e54aab5160b61"
+    },
+    "__TEXT:__swift_as_cont": {
+      "bytes": 12324,
+      "sha256": "7e25cde867873db632c4d6f8240f0f91a24855886c5bb64c1abeeb67ab7acd16"
+    },
+    "__TEXT:__objc_methtype": {
+      "bytes": 7125,
+      "sha256": "015efbfe075c944dd2991027deb81b9e22c454674c8d99bf21cbbf8cc48ea1a3"
+    },
+    "__TEXT:__swift5_entry": {
+      "bytes": 8,
+      "sha256": "05af5de18f2474aaed667274d1b134cea3d2f6abfc79c995ef08072df87c419e"
+    },
+    "__TEXT:__oslogstring": {
+      "bytes": 133,
+      "sha256": "5ba95a9097410e747e8d25d06a331f8db6c5d2fbc005df23f2fc005be745bb68"
+    },
+    "__TEXT:__gcc_except_tab": {
+      "bytes": 32,
+      "sha256": "a8bd760c884e977813fb6f2681eb91ee6d0fed10d45b0ab9674e9b914fe67b37"
+    },
+    "__TEXT:__swift5_mpenum": {
+      "bytes": 32,
+      "sha256": "be50c5b22c752702284de0c0f45f974fd0a38d61167d90fc30846de574f9856e"
+    },
+    "__TEXT:__swift5_protos": {
+      "bytes": 32,
+      "sha256": "64ccd5dac875aca6e7f81cff0173b0d45f7bd47b224df991417107e8486d1b18"
+    },
+    "__TEXT:__unwind_info": {
+      "bytes": 66176,
+      "sha256": "c116537dbbf3d72667f5f76ecb34de0035e3c4c799712cdf8b5c0a67496351de"
+    },
+    "__TEXT:__eh_frame": {
+      "bytes": 201176,
+      "sha256": "f6ee786a08f9fcca44822196d9524ab7d78324f85f2e8cf51b2f2350b29894c5"
+    },
+    "__DATA_CONST:__const": {
+      "bytes": 75648,
+      "sha256": "a98507606742216cf78d1a7cf37ee9388c4d79ead262c833880c09db2bb1e756"
+    },
+    "__DATA_CONST:__objc_classlist": {
+      "bytes": 504,
+      "sha256": "5b988315efdbf074ec056deb554d8809c6a60fc7a52c64cd42a5213f9b23f434"
+    },
+    "__DATA_CONST:__objc_protolist": {
+      "bytes": 224,
+      "sha256": "462e079ada9813c38a3417a4cf2812b334d493445f7d2e4aed6f1d208d4db581"
+    },
+    "__DATA_CONST:__objc_imageinfo": {
+      "bytes": 8,
+      "sha256": "7408fcdda372aaed9b8d62d262bd8e7ad4da66abeb61efb31e7c98020b1321ce"
+    },
+    "__DATA_CONST:__objc_protorefs": {
+      "bytes": 112,
+      "sha256": "486cf2b3c1c1400024e73d51581d0480316be92b3c8daf465192ff52c7af06c6"
+    },
+    "__DATA_CONST:__got": {
+      "bytes": 16104,
+      "sha256": "9191bb0b895417325ed43f0c840fb8b293240c2b6122cc2ca153099f03cb72e6"
+    },
+    "__DATA:__objc_const": {
+      "bytes": 28288,
+      "sha256": "b24fd1c48eec4081dc3441225a0da61e53f8df6b7de130e574a17a6d957cdbde"
+    },
+    "__DATA:__objc_selrefs": {
+      "bytes": 5520,
+      "sha256": "f92a4780081b3f656063a0326bf5b0b9f80e49419e27e1ad6996fcebb73b06be"
+    },
+    "__DATA:__objc_data": {
+      "bytes": 5136,
+      "sha256": "cc99e3be31f5638e90c0a99cca8228ed94594a021e47f15b4ca4076b533d58d8"
+    },
+    "__DATA:__data": {
+      "bytes": 48048,
+      "sha256": "eeb46f497c9f8058dcedee9d426a5fcabfecdc9a98b74f95889fd63f873a6a3b"
+    }
+  },
+  "host_comparison_note": "All non-zerofill Mach-O section contents are identical; full binary differs as expected after Developer ID to ad-hoc re-signing changes Mach-O signing metadata."
+}

@@ -1,0 +1,68 @@
+{
+  "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+  "build": "476",
+  "baseline": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+  "baseline_build": "474",
+  "as_of": "2026-11-14T12:02+08:00",
+  "status": "COMPLETE_WITH_REMAINING_LATENCY_LIMITS",
+  "verified": {
+    "native_15_original_rate": "PASS for identical final archives; mixed latency/revision tradeoffs reported",
+    "long2_final_archives": "PASS, identical transcripts",
+    "total_cpu_two_long_pairs": {
+      "baseline_seconds": 51.2,
+      "candidate_seconds": 39.1
+    },
+    "swift_testing": {
+      "pass": 490,
+      "fail": 0
+    },
+    "app_model": {
+      "pass": 162,
+      "fail": 0
+    },
+    "github_checks": {
+      "pass": 5,
+      "fail": 0
+    },
+    "upgrade_and_rollback": "PASS with isolated synthetic data",
+    "905-second_actual_native_replay": "PASS",
+    "440_original_and_derived_archives": "All final text and states identical to474; 5 pre-existing incomplete subsegments disclosed"
+  },
+  "pending": [],
+  "limitations": [
+    "Short-input cold-start median higher on adjacent run; delay principally before worker-ready, not causal attribution",
+    "High-load next-segment wait for full previous-segment EOS remains",
+    "Short input lexical changes decrease, long input lexical changes do not consistently decrease",
+    "Microphone NOT_RUN, user has explicitly kept lid closed",
+    "No claim of uniform two-second update bound"
+  ],
+  "one_expert": "qwen-small",
+  "live_cloud_calls": 0,
+  "installed_app": "/Users/hhf/Applications/Saytile 中文识别候选.app",
+  "installed_source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+  "candidate_running": "PASS",
+  "source_ci": "5/5 green, 490 Swift and162 AppModel checks passed",
+  "receipt": "installation.json",
+  "unmet_user_goals": [
+    "Long-sentence retraction consistently reduced",
+    "High-load long-sentence updates always within2seconds",
+    "First-text latency non-regression demonstrated under matched cold-start conditions"
+  ],
+  "source_changes_shipped": [
+    "Current-audio token verification for live previews",
+    "Two-pass Latin compound spacing reconciliation"
+  ],
+  "source_changes_rejected": [
+    "Verified EOS with914 vs910 public-CER errors",
+    "Tail-confidence hiding due overlapping margins and distant-word reversals",
+    "Single-shard loading without consistent measured benefit"
+  ],
+  "archive_comparison": "440/440 complete texts and states identical to474; 5 pre-existing failed VAD subsegments remain disclosed",
+  "installed_process_recheck": {
+    "pid": 57620,
+    "launched": true,
+    "observed": "2026-11-14T12:03+08:00"
+  },
+  "dmg_sha256": "d66aeb66b038b553e7d7e7ec89d18572d5ef2b182e3619bbcce55f45e11b18b1",
+  "release_ready": "NOT_DECLARED: high-load pauses, cold-start latency, physical microphone and notarization remain separate"
+}

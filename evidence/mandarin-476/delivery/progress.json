@@ -1,44 +1,5 @@
 {
-  "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
-  "build": "476",
-  "baseline": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
-  "baseline_build": "474",
-  "as_of": "2026-11-14T11:54+08:00",
-  "status": "IN_PROGRESS",
-  "verified": {
-    "native_15_original_rate": "PASS for identical final archives; mixed latency/revision tradeoffs reported",
-    "long2_final_archives": "PASS, identical transcripts",
-    "total_cpu_two_long_pairs": {
-      "baseline_seconds": 51.2,
-      "candidate_seconds": 39.1
-    },
-    "swift_testing": {
-      "pass": 490,
-      "fail": 0
-    },
-    "app_model": {
-      "pass": 162,
-      "fail": 0
-    },
-    "github_checks": {
-      "pass": 5,
-      "fail": 0
-    },
-    "upgrade_and_rollback": "PASS with isolated synthetic data",
-    "905-second_actual_native_replay": "PASS",
-    "440_original_and_derived_archives": "All final text and states identical to474; 5 pre-existing incomplete subsegments disclosed"
-  },
-  "pending": [
-    "Evaluate independently audio-verified EOS on full same corpus, then native if accuracy unchanged",
-    "Installation decision"
-  ],
-  "limitations": [
-    "Short-input cold-start median higher on adjacent run; delay principally before worker-ready, not causal attribution",
-    "High-load next-segment wait for full previous-segment EOS remains",
-    "Short input lexical changes decrease, long input lexical changes do not consistently decrease",
-    "Microphone NOT_RUN, user has explicitly kept lid closed",
-    "No claim of uniform two-second update bound"
-  ],
-  "one_expert": "qwen-small",
-  "live_cloud_calls": 0
+  "final_receipt": "DELIVERY.json",
+  "status": "COMPLETE_WITH_REMAINING_LATENCY_LIMITS",
+  "product_source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae"
 }

@@ -1,0 +1,1267 @@
+{
+  "experimental": true,
+  "dirty": true,
+  "identity": {
+    "experimental": true,
+    "dirty": true,
+    "source": "EXPERIMENTAL_DIRTY_WORKER",
+    "host_source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+    "worker_source_base": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+    "worker_patch_sha256": "5326f9648e8a25956a7e8ade8928a5ee203128f84e5a272cbe5d764cf4bb3c64",
+    "worker_sha256": "d3eb98f6dc98ddedbbe67d150f166da843f545cacbc5b2de818ccded8976bd83",
+    "shipping_worker_sha256": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e",
+    "host_app_sha256": "8f57b24b98fd0e2ff91575b358f471a7d53c5f373da02c382e1171b1e5345eed",
+    "shipping_host_app_sha256": "8a54d7a5db4e113c1e1941160087c02b45ca112c3a507dde8e4fe24dc621c849",
+    "host_macho_code_sha256_excluding_signature_and_linkedit_size": "e9963c0c4455e7f8c8bd7b6080a5c8cc059a630fa67600967f0b7995d0e91560",
+    "host_code_exactly_shipping_476": true,
+    "cohort": {
+      "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+      "sha256": {
+        "cohort": "3cf39b4309d28f9d71d1b148bcb1918c661571387fc1e26904ec0782d9c1c38b",
+        "kit": "447d11d1b06ab5915625e007a83125e616477e67e5199ea632cdda401bad8491",
+        "fixture_source": "6933bcb79f6dd512253909ac536191f618dc40861b7fa56501008f34f0fd747d"
+      }
+    },
+    "app_path": "/private/tmp/saytile-qwen-eos476/Saytile EOS 验证实验.app",
+    "provider": "qwen-small",
+    "hypothesis": "Full-PCM EOS recomputation with current-audio token verification; no preview promoted directly to final"
+  },
+  "comparison": {
+    "474": {
+      "cohorts": {
+        "public-420": {
+          "before": {
+            "errors": 910,
+            "substitutions": 407,
+            "deletions": 387,
+            "insertions": 116,
+            "reference_units": 10663,
+            "rows": 420,
+            "empty_archives": 0,
+            "incomplete_subsegments": 5
+          },
+          "after": {
+            "errors": 914,
+            "substitutions": 404,
+            "deletions": 392,
+            "insertions": 118,
+            "reference_units": 10663,
+            "rows": 420,
+            "empty_archives": 0,
+            "incomplete_subsegments": 5
+          },
+          "exact_text": 407,
+          "exact_states": 420
+        },
+        "derived-20": {
+          "before": {
+            "errors": 65,
+            "substitutions": 29,
+            "deletions": 34,
+            "insertions": 2,
+            "reference_units": 764,
+            "rows": 20,
+            "empty_archives": 0,
+            "incomplete_subsegments": 0
+          },
+          "after": {
+            "errors": 65,
+            "substitutions": 29,
+            "deletions": 34,
+            "insertions": 2,
+            "reference_units": 764,
+            "rows": 20,
+            "empty_archives": 0,
+            "incomplete_subsegments": 0
+          },
+          "exact_text": 20,
+          "exact_states": 20
+        }
+      },
+      "differences": [
+        {
+          "id": "aishell1-test-72ae32cd8dfe9da8",
+          "before": {
+            "errors": [],
+            "id": "aishell1-test-72ae32cd8dfe9da8",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "村妇将一零万元现金埋地底四年多，已腐烂成碎块。"
+          },
+          "after": {
+            "errors": [],
+            "id": "aishell1-test-72ae32cd8dfe9da8",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "村妇将一零万元现金埋地底四年多，已腐烂成碎块儿。"
+          },
+          "before_score": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 21
+          },
+          "after_score": {
+            "errors": 1,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 1,
+            "reference_units": 21
+          }
+        },
+        {
+          "id": "fleurs-825f11613c4f2f30",
+          "before": {
+            "errors": [],
+            "id": "fleurs-825f11613c4f2f30",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "娱乐新闻网站 TMZ了解到，该名摄影师在Sepulvada大道的另一侧停车，开始拍摄警察的拦截，并在横穿马路后继续拍照，促使进行交通拦截的加州公路巡警两次停下手中工作，命令他回到对面。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-825f11613c4f2f30",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "娱乐新闻网站 TMZ了解到，该名摄影师在Sepulveda大道的另一侧停车，开始拍摄警察的拦截，并在横穿马路后继续拍照，促使进行交通拦截的加州公路巡警两次停下手中工作，命令他回到对面。"
+          },
+          "before_score": {
+            "errors": 1,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 85
+          },
+          "after_score": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 85
+          }
+        },
+        {
+          "id": "fleurs-d8d1713dc5816512",
+          "before": {
+            "errors": [],
+            "id": "fleurs-d8d1713dc5816512",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "现任议员阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·克克纳，昨晚在距离布伊诺斯爱丽丝五十公里三十英里的拉布拉塔市，宣布了其总统竞选资格。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-d8d1713dc5816512",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "现任议员阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·克克纳，昨晚在距离布伊诺斯爱丽斯五十公里三十英里的拉布拉塔市，宣布了其总统竞选资格。"
+          },
+          "before_score": {
+            "errors": 45,
+            "substitutions": 10,
+            "deletions": 35,
+            "insertions": 0,
+            "reference_units": 96
+          },
+          "after_score": {
+            "errors": 44,
+            "substitutions": 9,
+            "deletions": 35,
+            "insertions": 0,
+            "reference_units": 96
+          }
+        },
+        {
+          "id": "fleurs-8f8472a2f6ec348b",
+          "before": {
+            "errors": [],
+            "id": "fleurs-8f8472a2f6ec348b",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "真正隐形团队的存在，拉斯和拉夫斯道（1989 P109）也是虚拟团队的一个独特组成部分。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-8f8472a2f6ec348b",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "真正隐形团队的存在，拉斯和拉菲尔斯道（1989 P109）也是虚拟团队的一个独特组成部分。"
+          },
+          "before_score": {
+            "errors": 13,
+            "substitutions": 6,
+            "deletions": 7,
+            "insertions": 0,
+            "reference_units": 46
+          },
+          "after_score": {
+            "errors": 13,
+            "substitutions": 7,
+            "deletions": 6,
+            "insertions": 0,
+            "reference_units": 46
+          }
+        },
+        {
+          "id": "fleurs-811af1590c16fc90",
+          "before": {
+            "errors": [],
+            "id": "fleurs-811af1590c16fc90",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "你可以乘坐Bodapoda出租的摩托车游览迦格玛。短途车程的正常当地价格是五百刚果法郎。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-811af1590c16fc90",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "你可以乘坐Bodapoda出租的摩托车游览迦格马。短途车程的正常当地价格是五百干国法郎。"
+          },
+          "before_score": {
+            "errors": 10,
+            "substitutions": 6,
+            "deletions": 4,
+            "insertions": 0,
+            "reference_units": 46
+          },
+          "after_score": {
+            "errors": 12,
+            "substitutions": 8,
+            "deletions": 4,
+            "insertions": 0,
+            "reference_units": 46
+          }
+        },
+        {
+          "id": "fleurs-6debfc7d20fed153",
+          "before": {
+            "errors": [],
+            "id": "fleurs-6debfc7d20fed153",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "实验是一种用来消除一个或多个可能性假设的实验。不过，实验并不是唯一的方法：提出问题以及进行观察，也可以指导科学研究。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-6debfc7d20fed153",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "实验是一种用来消除一个或多个可能性假设的实验。不过，实验并不是唯一的方法——提出问题以及进行观察，也可以指导科学研究。"
+          },
+          "before_score": {
+            "errors": 2,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 1,
+            "reference_units": 52
+          },
+          "after_score": {
+            "errors": 2,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 1,
+            "reference_units": 52
+          }
+        },
+        {
+          "id": "fleurs-19e639b064bdb018",
+          "before": {
+            "errors": [],
+            "id": "fleurs-19e639b064bdb018",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "前往苛征重税的国家地区的旅客，有时可以省下一大笔钱，在这些地方购买酒水和烟草等产品，特别划算。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-19e639b064bdb018",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "前往克征重税的国家地区的旅客，有时可以省下一大笔钱。在这些地方购买酒水和烟草等产品，特别划算。"
+          },
+          "before_score": {
+            "errors": 1,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 43
+          },
+          "after_score": {
+            "errors": 1,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 43
+          }
+        },
+        {
+          "id": "fleurs-314e9ad1bb068ed1",
+          "before": {
+            "errors": [],
+            "id": "fleurs-314e9ad1bb068ed1",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "29岁的Malala Sabra Miliam一生在俄亥俄州新近亚提市以北约15公里的郊区布鲁埃斯被发现。他被找到时身穿T恤衫和内裤，躺在路边的地上，看上去服用了大量的药物。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-314e9ad1bb068ed1",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "29岁的Malala Sabra Miliam一生在俄亥俄州新近亚提市以北约15公里的郊区布鲁埃斯被发现，他被找到时身穿T恤衫和内裤，躺在路边的地上，看上去服用了大量的药物。"
+          },
+          "before_score": {
+            "errors": 16,
+            "substitutions": 12,
+            "deletions": 3,
+            "insertions": 1,
+            "reference_units": 83
+          },
+          "after_score": {
+            "errors": 16,
+            "substitutions": 12,
+            "deletions": 3,
+            "insertions": 1,
+            "reference_units": 83
+          }
+        },
+        {
+          "id": "fleurs-d2388821e8b13716",
+          "before": {
+            "errors": [],
+            "id": "fleurs-d2388821e8b13716",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "苍龙是那个时代的顶级掠食者，除了同类，他什么都不怕。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-d2388821e8b13716",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "苍龙是那个时代的顶级猎食者，除了同类，他什么都不怕。"
+          },
+          "before_score": {
+            "errors": 2,
+            "substitutions": 2,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 23
+          },
+          "after_score": {
+            "errors": 3,
+            "substitutions": 3,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 23
+          }
+        },
+        {
+          "id": "fleurs-52bb7cc738dbf5e5",
+          "before": {
+            "errors": [],
+            "id": "fleurs-52bb7cc738dbf5e5",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "文明一词来自拉丁语，civilis意为公民的，与拉丁语， civitas意为公民及citatus意为城市和城邦都有关。这也以某种方式定位义了社会的规模。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-52bb7cc738dbf5e5",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "文明一词来自拉丁语，civilis意为公民的，与拉丁语， civitas意为公民及citas意为城市和城邦都有关。这也以某种方式定位义了社会的规模。"
+          },
+          "before_score": {
+            "errors": 7,
+            "substitutions": 4,
+            "deletions": 0,
+            "insertions": 3,
+            "reference_units": 67
+          },
+          "after_score": {
+            "errors": 6,
+            "substitutions": 1,
+            "deletions": 2,
+            "insertions": 3,
+            "reference_units": 67
+          }
+        },
+        {
+          "id": "ascend-mixed-ee4e2d5087648134",
+          "before": {
+            "errors": [],
+            "id": "ascend-mixed-ee4e2d5087648134",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "当然，我小时候我也没有smart phone，但是呢，我是小时候比较早接触过那个电脑。"
+          },
+          "after": {
+            "errors": [],
+            "id": "ascend-mixed-ee4e2d5087648134",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "当然我小时候我也没有smart phone，但是呢，我是小时候比较早接触过那个电脑。"
+          },
+          "before_score": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 38
+          },
+          "after_score": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 38
+          }
+        },
+        {
+          "id": "ascend-mixed-09a3d664d38c9932",
+          "before": {
+            "errors": [],
+            "id": "ascend-mixed-09a3d664d38c9932",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "就是你在申请，就是不认识American University或者就是Hong Kong的Singapore的。"
+          },
+          "after": {
+            "errors": [],
+            "id": "ascend-mixed-09a3d664d38c9932",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "就是你在申请，就是不认识American的University或者就是Hong Kong的Singapore的。"
+          },
+          "before_score": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 52
+          },
+          "after_score": {
+            "errors": 1,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 1,
+            "reference_units": 52
+          }
+        },
+        {
+          "id": "ascend-mixed-13770c2bba7ee89a",
+          "before": {
+            "errors": [],
+            "id": "ascend-mixed-13770c2bba7ee89a",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "三文鱼ques，或者是其他的东西，分给我们吃。然后我们又边吃边听他分享，吃他的一些他们公司的一些东西。"
+          },
+          "after": {
+            "errors": [],
+            "id": "ascend-mixed-13770c2bba7ee89a",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "三文鱼，或者是其他的东西，分给我们吃。然后我们又边吃边听他分享，吃他的一些他们公司的一些东西。"
+          },
+          "before_score": {
+            "errors": 15,
+            "substitutions": 7,
+            "deletions": 7,
+            "insertions": 1,
+            "reference_units": 52
+          },
+          "after_score": {
+            "errors": 17,
+            "substitutions": 5,
+            "deletions": 11,
+            "insertions": 1,
+            "reference_units": 52
+          }
+        }
+      ]
+    },
+    "476": {
+      "cohorts": {
+        "public-420": {
+          "before": {
+            "errors": 910,
+            "substitutions": 407,
+            "deletions": 387,
+            "insertions": 116,
+            "reference_units": 10663,
+            "rows": 420,
+            "empty_archives": 0,
+            "incomplete_subsegments": 5
+          },
+          "after": {
+            "errors": 914,
+            "substitutions": 404,
+            "deletions": 392,
+            "insertions": 118,
+            "reference_units": 10663,
+            "rows": 420,
+            "empty_archives": 0,
+            "incomplete_subsegments": 5
+          },
+          "exact_text": 407,
+          "exact_states": 420
+        },
+        "derived-20": {
+          "before": {
+            "errors": 65,
+            "substitutions": 29,
+            "deletions": 34,
+            "insertions": 2,
+            "reference_units": 764,
+            "rows": 20,
+            "empty_archives": 0,
+            "incomplete_subsegments": 0
+          },
+          "after": {
+            "errors": 65,
+            "substitutions": 29,
+            "deletions": 34,
+            "insertions": 2,
+            "reference_units": 764,
+            "rows": 20,
+            "empty_archives": 0,
+            "incomplete_subsegments": 0
+          },
+          "exact_text": 20,
+          "exact_states": 20
+        }
+      },
+      "differences": [
+        {
+          "id": "aishell1-test-72ae32cd8dfe9da8",
+          "before": {
+            "errors": [],
+            "id": "aishell1-test-72ae32cd8dfe9da8",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "村妇将一零万元现金埋地底四年多，已腐烂成碎块。"
+          },
+          "after": {
+            "errors": [],
+            "id": "aishell1-test-72ae32cd8dfe9da8",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "村妇将一零万元现金埋地底四年多，已腐烂成碎块儿。"
+          },
+          "before_score": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 21
+          },
+          "after_score": {
+            "errors": 1,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 1,
+            "reference_units": 21
+          }
+        },
+        {
+          "id": "fleurs-825f11613c4f2f30",
+          "before": {
+            "errors": [],
+            "id": "fleurs-825f11613c4f2f30",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "娱乐新闻网站 TMZ了解到，该名摄影师在Sepulvada大道的另一侧停车，开始拍摄警察的拦截，并在横穿马路后继续拍照，促使进行交通拦截的加州公路巡警两次停下手中工作，命令他回到对面。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-825f11613c4f2f30",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "娱乐新闻网站 TMZ了解到，该名摄影师在Sepulveda大道的另一侧停车，开始拍摄警察的拦截，并在横穿马路后继续拍照，促使进行交通拦截的加州公路巡警两次停下手中工作，命令他回到对面。"
+          },
+          "before_score": {
+            "errors": 1,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 85
+          },
+          "after_score": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 85
+          }
+        },
+        {
+          "id": "fleurs-d8d1713dc5816512",
+          "before": {
+            "errors": [],
+            "id": "fleurs-d8d1713dc5816512",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "现任议员阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·克克纳，昨晚在距离布伊诺斯爱丽丝五十公里三十英里的拉布拉塔市，宣布了其总统竞选资格。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-d8d1713dc5816512",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "现任议员阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·克克纳，昨晚在距离布伊诺斯爱丽斯五十公里三十英里的拉布拉塔市，宣布了其总统竞选资格。"
+          },
+          "before_score": {
+            "errors": 45,
+            "substitutions": 10,
+            "deletions": 35,
+            "insertions": 0,
+            "reference_units": 96
+          },
+          "after_score": {
+            "errors": 44,
+            "substitutions": 9,
+            "deletions": 35,
+            "insertions": 0,
+            "reference_units": 96
+          }
+        },
+        {
+          "id": "fleurs-8f8472a2f6ec348b",
+          "before": {
+            "errors": [],
+            "id": "fleurs-8f8472a2f6ec348b",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "真正隐形团队的存在，拉斯和拉夫斯道（1989 P109）也是虚拟团队的一个独特组成部分。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-8f8472a2f6ec348b",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "真正隐形团队的存在，拉斯和拉菲尔斯道（1989 P109）也是虚拟团队的一个独特组成部分。"
+          },
+          "before_score": {
+            "errors": 13,
+            "substitutions": 6,
+            "deletions": 7,
+            "insertions": 0,
+            "reference_units": 46
+          },
+          "after_score": {
+            "errors": 13,
+            "substitutions": 7,
+            "deletions": 6,
+            "insertions": 0,
+            "reference_units": 46
+          }
+        },
+        {
+          "id": "fleurs-811af1590c16fc90",
+          "before": {
+            "errors": [],
+            "id": "fleurs-811af1590c16fc90",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "你可以乘坐Bodapoda出租的摩托车游览迦格玛。短途车程的正常当地价格是五百刚果法郎。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-811af1590c16fc90",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "你可以乘坐Bodapoda出租的摩托车游览迦格马。短途车程的正常当地价格是五百干国法郎。"
+          },
+          "before_score": {
+            "errors": 10,
+            "substitutions": 6,
+            "deletions": 4,
+            "insertions": 0,
+            "reference_units": 46
+          },
+          "after_score": {
+            "errors": 12,
+            "substitutions": 8,
+            "deletions": 4,
+            "insertions": 0,
+            "reference_units": 46
+          }
+        },
+        {
+          "id": "fleurs-6debfc7d20fed153",
+          "before": {
+            "errors": [],
+            "id": "fleurs-6debfc7d20fed153",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "实验是一种用来消除一个或多个可能性假设的实验。不过，实验并不是唯一的方法：提出问题以及进行观察，也可以指导科学研究。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-6debfc7d20fed153",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "实验是一种用来消除一个或多个可能性假设的实验。不过，实验并不是唯一的方法——提出问题以及进行观察，也可以指导科学研究。"
+          },
+          "before_score": {
+            "errors": 2,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 1,
+            "reference_units": 52
+          },
+          "after_score": {
+            "errors": 2,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 1,
+            "reference_units": 52
+          }
+        },
+        {
+          "id": "fleurs-19e639b064bdb018",
+          "before": {
+            "errors": [],
+            "id": "fleurs-19e639b064bdb018",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "前往苛征重税的国家地区的旅客，有时可以省下一大笔钱，在这些地方购买酒水和烟草等产品，特别划算。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-19e639b064bdb018",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "前往克征重税的国家地区的旅客，有时可以省下一大笔钱。在这些地方购买酒水和烟草等产品，特别划算。"
+          },
+          "before_score": {
+            "errors": 1,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 43
+          },
+          "after_score": {
+            "errors": 1,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 43
+          }
+        },
+        {
+          "id": "fleurs-314e9ad1bb068ed1",
+          "before": {
+            "errors": [],
+            "id": "fleurs-314e9ad1bb068ed1",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "29岁的Malala Sabra Miliam一生在俄亥俄州新近亚提市以北约15公里的郊区布鲁埃斯被发现。他被找到时身穿T恤衫和内裤，躺在路边的地上，看上去服用了大量的药物。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-314e9ad1bb068ed1",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "29岁的Malala Sabra Miliam一生在俄亥俄州新近亚提市以北约15公里的郊区布鲁埃斯被发现，他被找到时身穿T恤衫和内裤，躺在路边的地上，看上去服用了大量的药物。"
+          },
+          "before_score": {
+            "errors": 16,
+            "substitutions": 12,
+            "deletions": 3,
+            "insertions": 1,
+            "reference_units": 83
+          },
+          "after_score": {
+            "errors": 16,
+            "substitutions": 12,
+            "deletions": 3,
+            "insertions": 1,
+            "reference_units": 83
+          }
+        },
+        {
+          "id": "fleurs-d2388821e8b13716",
+          "before": {
+            "errors": [],
+            "id": "fleurs-d2388821e8b13716",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "苍龙是那个时代的顶级掠食者，除了同类，他什么都不怕。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-d2388821e8b13716",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "苍龙是那个时代的顶级猎食者，除了同类，他什么都不怕。"
+          },
+          "before_score": {
+            "errors": 2,
+            "substitutions": 2,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 23
+          },
+          "after_score": {
+            "errors": 3,
+            "substitutions": 3,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 23
+          }
+        },
+        {
+          "id": "fleurs-52bb7cc738dbf5e5",
+          "before": {
+            "errors": [],
+            "id": "fleurs-52bb7cc738dbf5e5",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "文明一词来自拉丁语，civilis意为公民的，与拉丁语， civitas意为公民及citatus意为城市和城邦都有关。这也以某种方式定位义了社会的规模。"
+          },
+          "after": {
+            "errors": [],
+            "id": "fleurs-52bb7cc738dbf5e5",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "文明一词来自拉丁语，civilis意为公民的，与拉丁语， civitas意为公民及citas意为城市和城邦都有关。这也以某种方式定位义了社会的规模。"
+          },
+          "before_score": {
+            "errors": 7,
+            "substitutions": 4,
+            "deletions": 0,
+            "insertions": 3,
+            "reference_units": 67
+          },
+          "after_score": {
+            "errors": 6,
+            "substitutions": 1,
+            "deletions": 2,
+            "insertions": 3,
+            "reference_units": 67
+          }
+        },
+        {
+          "id": "ascend-mixed-ee4e2d5087648134",
+          "before": {
+            "errors": [],
+            "id": "ascend-mixed-ee4e2d5087648134",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "当然，我小时候我也没有smart phone，但是呢，我是小时候比较早接触过那个电脑。"
+          },
+          "after": {
+            "errors": [],
+            "id": "ascend-mixed-ee4e2d5087648134",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "当然我小时候我也没有smart phone，但是呢，我是小时候比较早接触过那个电脑。"
+          },
+          "before_score": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 38
+          },
+          "after_score": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 38
+          }
+        },
+        {
+          "id": "ascend-mixed-09a3d664d38c9932",
+          "before": {
+            "errors": [],
+            "id": "ascend-mixed-09a3d664d38c9932",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "就是你在申请，就是不认识American University或者就是Hong Kong的Singapore的。"
+          },
+          "after": {
+            "errors": [],
+            "id": "ascend-mixed-09a3d664d38c9932",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "就是你在申请，就是不认识American的University或者就是Hong Kong的Singapore的。"
+          },
+          "before_score": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 52
+          },
+          "after_score": {
+            "errors": 1,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 1,
+            "reference_units": 52
+          }
+        },
+        {
+          "id": "ascend-mixed-13770c2bba7ee89a",
+          "before": {
+            "errors": [],
+            "id": "ascend-mixed-13770c2bba7ee89a",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "三文鱼ques，或者是其他的东西，分给我们吃。然后我们又边吃边听他分享，吃他的一些他们公司的一些东西。"
+          },
+          "after": {
+            "errors": [],
+            "id": "ascend-mixed-13770c2bba7ee89a",
+            "model": "qwen-small",
+            "path": "product",
+            "providers": [
+              "qwen-small"
+            ],
+            "states": [
+              "completed"
+            ],
+            "text": "三文鱼，或者是其他的东西，分给我们吃。然后我们又边吃边听他分享，吃他的一些他们公司的一些东西。"
+          },
+          "before_score": {
+            "errors": 15,
+            "substitutions": 7,
+            "deletions": 7,
+            "insertions": 1,
+            "reference_units": 52
+          },
+          "after_score": {
+            "errors": 17,
+            "substitutions": 5,
+            "deletions": 11,
+            "insertions": 1,
+            "reference_units": 52
+          }
+        }
+      ]
+    }
+  },
+  "per_clip_worse_or_empty": [
+    "aishell1-test-72ae32cd8dfe9da8",
+    "ascend-mixed-09a3d664d38c9932",
+    "ascend-mixed-13770c2bba7ee89a",
+    "fleurs-811af1590c16fc90",
+    "fleurs-d2388821e8b13716"
+  ],
+  "accuracy_gate": "REJECT",
+  "timing_gate": "NOT_RUN: full original-rate timing/EOS checks are separate and still required",
+  "verified_eos_path_coverage": "NOT_OBSERVED: accelerated PCM may reach EOS before a preview draft exists; this corpus alone does not establish that token-verified EOS was exercised for every sample. Separate original-rate endpoint receipts are required."
+}

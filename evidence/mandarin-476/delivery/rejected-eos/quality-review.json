@@ -1,0 +1,593 @@
+{
+  "experimental": true,
+  "dirty": true,
+  "decision": "PENDING_ROOT_QUALITY_REVIEW",
+  "initial_per_clip_screen": "REJECT",
+  "screen_scope": "This was an initial conservative experiment screen, not a user-mandated adoption condition. All regressions retained; net accuracy and critical content require review.",
+  "aggregate": {
+    "public-420": {
+      "before_errors": 910,
+      "after_errors": 914,
+      "reference_units": 10663,
+      "delta": 4,
+      "before_cer": 0.08534183625621307,
+      "after_cer": 0.08571696520678983
+    },
+    "derived-20": {
+      "before_errors": 65,
+      "after_errors": 65,
+      "reference_units": 764,
+      "delta": 0,
+      "before_cer": 0.08507853403141362,
+      "after_cer": 0.08507853403141362
+    }
+  },
+  "changed_clip_counts": {
+    "worse": 5,
+    "error_delta": 4,
+    "better": 3,
+    "equal_cer": 5
+  },
+  "flags_scope": "Character/span flags only identify review candidates. They are NOT entity accuracy scores or confirmed semantic errors; CJK names need contextual review.",
+  "coverage": "NOT_OBSERVED: accelerated PCM may reach EOS before a preview draft exists; this corpus alone does not establish that token-verified EOS was exercised for every sample. Separate original-rate endpoint receipts are required.",
+  "changes": [
+    {
+      "id": "aishell1-test-72ae32cd8dfe9da8",
+      "reference": "村妇将一零万元现金埋地底四年多已腐烂成碎块",
+      "before": "村妇将一零万元现金埋地底四年多，已腐烂成碎块。",
+      "after": "村妇将一零万元现金埋地底四年多，已腐烂成碎块儿。",
+      "before_score": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 21
+      },
+      "after_score": {
+        "errors": 1,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 1,
+        "reference_units": 21
+      },
+      "error_delta": 1,
+      "lexical_edits": [
+        {
+          "kind": "insert",
+          "before": "",
+          "after": "儿",
+          "old_range": [
+            21,
+            21
+          ],
+          "new_range": [
+            21,
+            22
+          ],
+          "before_context": "年多已腐烂成碎块",
+          "after_context": "年多已腐烂成碎块儿"
+        }
+      ],
+      "review_flags": [],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    },
+    {
+      "id": "fleurs-825f11613c4f2f30",
+      "reference": "娱乐新闻网站TMZ了解到，该名摄影师在Sepulveda大道的另一侧停车，开始拍摄警察的拦截，并在横穿马路后继续拍照，促使进行交通拦截的加州公路巡警两次停下手中工作，命令他回到对面。",
+      "before": "娱乐新闻网站 TMZ了解到，该名摄影师在Sepulvada大道的另一侧停车，开始拍摄警察的拦截，并在横穿马路后继续拍照，促使进行交通拦截的加州公路巡警两次停下手中工作，命令他回到对面。",
+      "after": "娱乐新闻网站 TMZ了解到，该名摄影师在Sepulveda大道的另一侧停车，开始拍摄警察的拦截，并在横穿马路后继续拍照，促使进行交通拦截的加州公路巡警两次停下手中工作，命令他回到对面。",
+      "before_score": {
+        "errors": 1,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 85
+      },
+      "after_score": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 85
+      },
+      "error_delta": -1,
+      "lexical_edits": [
+        {
+          "kind": "replace",
+          "before": "a",
+          "after": "e",
+          "old_range": [
+            24,
+            25
+          ],
+          "new_range": [
+            24,
+            25
+          ],
+          "before_context": "师在sepulvada大道的另一侧",
+          "after_context": "师在sepulveda大道的另一侧"
+        }
+      ],
+      "review_flags": [
+        "latin_spelling_change"
+      ],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    },
+    {
+      "id": "fleurs-d8d1713dc5816512",
+      "reference": "现任参议员、阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·柯克纳 (Cristina Fernandez de Kirchner) 昨晚在距离布宜诺斯艾利斯 50 公里（31英里）的拉普拉塔市 (La Plata) 宣布了其总统竞选资格。",
+      "before": "现任议员阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·克克纳，昨晚在距离布伊诺斯爱丽丝五十公里三十英里的拉布拉塔市，宣布了其总统竞选资格。",
+      "after": "现任议员阿根廷第一夫人克里斯蒂娜·费尔南德斯·德·克克纳，昨晚在距离布伊诺斯爱丽斯五十公里三十英里的拉布拉塔市，宣布了其总统竞选资格。",
+      "before_score": {
+        "errors": 45,
+        "substitutions": 10,
+        "deletions": 35,
+        "insertions": 0,
+        "reference_units": 96
+      },
+      "after_score": {
+        "errors": 44,
+        "substitutions": 9,
+        "deletions": 35,
+        "insertions": 0,
+        "reference_units": 96
+      },
+      "error_delta": -1,
+      "lexical_edits": [
+        {
+          "kind": "replace",
+          "before": "丝",
+          "after": "斯",
+          "old_range": [
+            36,
+            37
+          ],
+          "new_range": [
+            36,
+            37
+          ],
+          "before_context": "距离布伊诺斯爱丽丝五十公里三十英里",
+          "after_context": "距离布伊诺斯爱丽斯五十公里三十英里"
+        }
+      ],
+      "review_flags": [],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    },
+    {
+      "id": "fleurs-8f8472a2f6ec348b",
+      "reference": "真正“隐形团队”的存在 (Larson 和 LaFasto，1989，p109），也是虚拟团队的一个独特组成部分。",
+      "before": "真正隐形团队的存在，拉斯和拉夫斯道（1989 P109）也是虚拟团队的一个独特组成部分。",
+      "after": "真正隐形团队的存在，拉斯和拉菲尔斯道（1989 P109）也是虚拟团队的一个独特组成部分。",
+      "before_score": {
+        "errors": 13,
+        "substitutions": 6,
+        "deletions": 7,
+        "insertions": 0,
+        "reference_units": 46
+      },
+      "after_score": {
+        "errors": 13,
+        "substitutions": 7,
+        "deletions": 6,
+        "insertions": 0,
+        "reference_units": 46
+      },
+      "error_delta": 0,
+      "lexical_edits": [
+        {
+          "kind": "replace",
+          "before": "夫",
+          "after": "菲尔",
+          "old_range": [
+            13,
+            14
+          ],
+          "new_range": [
+            13,
+            15
+          ],
+          "before_context": "队的存在拉斯和拉夫斯道1989p1",
+          "after_context": "队的存在拉斯和拉菲尔斯道1989p1"
+        }
+      ],
+      "review_flags": [],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    },
+    {
+      "id": "fleurs-811af1590c16fc90",
+      "reference": "你可以乘坐 boda-boda（出租的摩托车）游览戈马（Goma）。短途车程的正常（当地）价格是 500 刚果法郎。",
+      "before": "你可以乘坐Bodapoda出租的摩托车游览迦格玛。短途车程的正常当地价格是五百刚果法郎。",
+      "after": "你可以乘坐Bodapoda出租的摩托车游览迦格马。短途车程的正常当地价格是五百干国法郎。",
+      "before_score": {
+        "errors": 10,
+        "substitutions": 6,
+        "deletions": 4,
+        "insertions": 0,
+        "reference_units": 46
+      },
+      "after_score": {
+        "errors": 12,
+        "substitutions": 8,
+        "deletions": 4,
+        "insertions": 0,
+        "reference_units": 46
+      },
+      "error_delta": 2,
+      "lexical_edits": [
+        {
+          "kind": "replace",
+          "before": "玛",
+          "after": "马",
+          "old_range": [
+            23,
+            24
+          ],
+          "new_range": [
+            23,
+            24
+          ],
+          "before_context": "的摩托车游览迦格玛短途车程的正常当",
+          "after_context": "的摩托车游览迦格马短途车程的正常当"
+        },
+        {
+          "kind": "replace",
+          "before": "刚果",
+          "after": "干国",
+          "old_range": [
+            38,
+            40
+          ],
+          "new_range": [
+            38,
+            40
+          ],
+          "before_context": "常当地价格是五百刚果法郎",
+          "after_context": "常当地价格是五百干国法郎"
+        }
+      ],
+      "review_flags": [],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    },
+    {
+      "id": "fleurs-6debfc7d20fed153",
+      "reference": "实验是一种用来消除一个或多个可能性假设的试验，不过，实验并不是唯一的方法。提出问题及进行观察也可以指导科学研究。",
+      "before": "实验是一种用来消除一个或多个可能性假设的实验。不过，实验并不是唯一的方法：提出问题以及进行观察，也可以指导科学研究。",
+      "after": "实验是一种用来消除一个或多个可能性假设的实验。不过，实验并不是唯一的方法——提出问题以及进行观察，也可以指导科学研究。",
+      "before_score": {
+        "errors": 2,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 1,
+        "reference_units": 52
+      },
+      "after_score": {
+        "errors": 2,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 1,
+        "reference_units": 52
+      },
+      "error_delta": 0,
+      "lexical_edits": [],
+      "review_flags": [],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    },
+    {
+      "id": "fleurs-19e639b064bdb018",
+      "reference": "前往课征重税的国家/地区的旅客有时可以省下一大笔钱，在这些地方购买酒水和烟草等产品特别划算。",
+      "before": "前往苛征重税的国家地区的旅客，有时可以省下一大笔钱，在这些地方购买酒水和烟草等产品，特别划算。",
+      "after": "前往克征重税的国家地区的旅客，有时可以省下一大笔钱。在这些地方购买酒水和烟草等产品，特别划算。",
+      "before_score": {
+        "errors": 1,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 43
+      },
+      "after_score": {
+        "errors": 1,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 43
+      },
+      "error_delta": 0,
+      "lexical_edits": [
+        {
+          "kind": "replace",
+          "before": "苛",
+          "after": "克",
+          "old_range": [
+            2,
+            3
+          ],
+          "new_range": [
+            2,
+            3
+          ],
+          "before_context": "前往苛征重税的国家地区",
+          "after_context": "前往克征重税的国家地区"
+        }
+      ],
+      "review_flags": [],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    },
+    {
+      "id": "fleurs-314e9ad1bb068ed1",
+      "reference": "29 岁的 Malar Balasubramanian 医生在俄亥俄州辛辛那提市以北约 15 英里的郊区布鲁艾施被发现，她被找到时身穿 T 恤衫和内裤，躺在路边的地上，看上去服用了大量药物。",
+      "before": "29岁的Malala Sabra Miliam一生在俄亥俄州新近亚提市以北约15公里的郊区布鲁埃斯被发现。他被找到时身穿T恤衫和内裤，躺在路边的地上，看上去服用了大量的药物。",
+      "after": "29岁的Malala Sabra Miliam一生在俄亥俄州新近亚提市以北约15公里的郊区布鲁埃斯被发现，他被找到时身穿T恤衫和内裤，躺在路边的地上，看上去服用了大量的药物。",
+      "before_score": {
+        "errors": 16,
+        "substitutions": 12,
+        "deletions": 3,
+        "insertions": 1,
+        "reference_units": 83
+      },
+      "after_score": {
+        "errors": 16,
+        "substitutions": 12,
+        "deletions": 3,
+        "insertions": 1,
+        "reference_units": 83
+      },
+      "error_delta": 0,
+      "lexical_edits": [],
+      "review_flags": [],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    },
+    {
+      "id": "fleurs-d2388821e8b13716",
+      "reference": "沧龙是那个时代的顶级掠食者，除了同类它什么都不怕。",
+      "before": "苍龙是那个时代的顶级掠食者，除了同类，他什么都不怕。",
+      "after": "苍龙是那个时代的顶级猎食者，除了同类，他什么都不怕。",
+      "before_score": {
+        "errors": 2,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 23
+      },
+      "after_score": {
+        "errors": 3,
+        "substitutions": 3,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 23
+      },
+      "error_delta": 1,
+      "lexical_edits": [
+        {
+          "kind": "replace",
+          "before": "掠",
+          "after": "猎",
+          "old_range": [
+            10,
+            11
+          ],
+          "new_range": [
+            10,
+            11
+          ],
+          "before_context": "是那个时代的顶级掠食者除了同类他什",
+          "after_context": "是那个时代的顶级猎食者除了同类他什"
+        }
+      ],
+      "review_flags": [],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    },
+    {
+      "id": "fleurs-52bb7cc738dbf5e5",
+      "reference": "“文明”一词来自拉丁语“civilis”（意为“公民的”），与拉丁语\"civis\"（意为“公民”）及\"civitas\"（意为“城市”或“城邦”）都有关，这也以某种方式定义了社会的规模。",
+      "before": "文明一词来自拉丁语，civilis意为公民的，与拉丁语， civitas意为公民及citatus意为城市和城邦都有关。这也以某种方式定位义了社会的规模。",
+      "after": "文明一词来自拉丁语，civilis意为公民的，与拉丁语， civitas意为公民及citas意为城市和城邦都有关。这也以某种方式定位义了社会的规模。",
+      "before_score": {
+        "errors": 7,
+        "substitutions": 4,
+        "deletions": 0,
+        "insertions": 3,
+        "reference_units": 67
+      },
+      "after_score": {
+        "errors": 6,
+        "substitutions": 1,
+        "deletions": 2,
+        "insertions": 3,
+        "reference_units": 67
+      },
+      "error_delta": -1,
+      "lexical_edits": [
+        {
+          "kind": "delete",
+          "before": "tu",
+          "after": "",
+          "old_range": [
+            41,
+            43
+          ],
+          "new_range": [
+            41,
+            41
+          ],
+          "before_context": "为公民及citatus意为城市和城邦",
+          "after_context": "为公民及citas意为城市和城邦"
+        }
+      ],
+      "review_flags": [
+        "latin_spelling_change"
+      ],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    },
+    {
+      "id": "ascend-mixed-ee4e2d5087648134",
+      "reference": "当然我小时候我也没有smartphone但是呢我是小时候比较早接触过那个电脑",
+      "before": "当然，我小时候我也没有smart phone，但是呢，我是小时候比较早接触过那个电脑。",
+      "after": "当然我小时候我也没有smart phone，但是呢，我是小时候比较早接触过那个电脑。",
+      "before_score": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 38
+      },
+      "after_score": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 38
+      },
+      "error_delta": 0,
+      "lexical_edits": [],
+      "review_flags": [],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    },
+    {
+      "id": "ascend-mixed-09a3d664d38c9932",
+      "reference": "就是你在申请就是不认识American University或者就是Hong Kong的Singapore的",
+      "before": "就是你在申请，就是不认识American University或者就是Hong Kong的Singapore的。",
+      "after": "就是你在申请，就是不认识American的University或者就是Hong Kong的Singapore的。",
+      "before_score": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 52
+      },
+      "after_score": {
+        "errors": 1,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 1,
+        "reference_units": 52
+      },
+      "error_delta": 1,
+      "lexical_edits": [
+        {
+          "kind": "insert",
+          "before": "",
+          "after": "的",
+          "old_range": [
+            19,
+            19
+          ],
+          "new_range": [
+            19,
+            20
+          ],
+          "before_context": "americanuniversi",
+          "after_context": "american的universi"
+        }
+      ],
+      "review_flags": [],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    },
+    {
+      "id": "ascend-mixed-13770c2bba7ee89a",
+      "reference": "sandwiches或者是其他东西分给我们吃然后我们就边吃边听他分享share他的一些他们公司的一些东西",
+      "before": "三文鱼ques，或者是其他的东西，分给我们吃。然后我们又边吃边听他分享，吃他的一些他们公司的一些东西。",
+      "after": "三文鱼，或者是其他的东西，分给我们吃。然后我们又边吃边听他分享，吃他的一些他们公司的一些东西。",
+      "before_score": {
+        "errors": 15,
+        "substitutions": 7,
+        "deletions": 7,
+        "insertions": 1,
+        "reference_units": 52
+      },
+      "after_score": {
+        "errors": 17,
+        "substitutions": 5,
+        "deletions": 11,
+        "insertions": 1,
+        "reference_units": 52
+      },
+      "error_delta": 2,
+      "lexical_edits": [
+        {
+          "kind": "delete",
+          "before": "ques",
+          "after": "",
+          "old_range": [
+            3,
+            7
+          ],
+          "new_range": [
+            3,
+            3
+          ],
+          "before_context": "三文鱼ques或者是其他的东西",
+          "after_context": "三文鱼或者是其他的东西"
+        }
+      ],
+      "review_flags": [
+        "latin_spelling_change"
+      ],
+      "states_before": [
+        "completed"
+      ],
+      "states_after": [
+        "completed"
+      ]
+    }
+  ]
+}

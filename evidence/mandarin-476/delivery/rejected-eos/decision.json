@@ -1,0 +1,37 @@
+{
+  "status": "REJECTED_NOT_ADOPTED",
+  "source_base": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+  "experimental": true,
+  "dirty": true,
+  "reason": "Same-input public-420 CER worsened from 910/10663 to 914/10663 and an already-correct currency country term 刚果法郎 changed to 干国法郎. Derived-20 unchanged. Preserve shipping 476 scalar-greedy EOS.",
+  "changed_clip_counts": {
+    "worse": 5,
+    "error_delta": 4,
+    "better": 3,
+    "equal_cer": 5
+  },
+  "aggregate": {
+    "public-420": {
+      "before_errors": 910,
+      "after_errors": 914,
+      "reference_units": 10663,
+      "delta": 4,
+      "before_cer": 0.08534183625621307,
+      "after_cer": 0.08571696520678983
+    },
+    "derived-20": {
+      "before_errors": 65,
+      "after_errors": 65,
+      "reference_units": 764,
+      "delta": 0,
+      "before_cer": 0.08507853403141362,
+      "after_cer": 0.08507853403141362
+    }
+  },
+  "runtime_results": "440/440 nonempty; unchanged provider qwen-small. All scoring, differences, reference texts and earlier failures retained.",
+  "original_rate_followup": "NOT_RUN; canceled after root quality rejection, no further compute justified.",
+  "path_coverage_limit": "NOT_OBSERVED: accelerated PCM may reach EOS before a preview draft exists; this corpus alone does not establish that token-verified EOS was exercised for every sample. Separate original-rate endpoint receipts are required.",
+  "initial_screen_scope": "This was an initial conservative experiment screen, not a user-mandated adoption condition. All regressions retained; net accuracy and critical content require review.",
+  "production_effect": "None. Official 476 app, source and original receipts unchanged. Experimental app was never installed.",
+  "decided_at": "2026-11-14T12:01:37.825468+08:00"
+}
