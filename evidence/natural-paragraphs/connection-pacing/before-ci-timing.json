@@ -1,0 +1,82 @@
+{
+  "source": "783921b557b5d6aa1631c5015eb361ac41606dcb",
+  "rawAuditSHA256": "b46310a01dd07484c652a4adb4ee57fa277266cc6db75e9a57817a21fd4eed8a",
+  "caseCount": 52,
+  "allProtocolViolations": 0,
+  "expectedPCMBytes": 200706,
+  "expectedAudioSeconds": 6.2720625,
+  "wizardCases": [
+    {
+      "scenario": "normal",
+      "case": "992E0907-E003-4D1B-840D-34624A196369",
+      "completed": true,
+      "pcmBytes": 200706,
+      "blocks": 63,
+      "eos": true,
+      "connectedToEOSms": 10880.910000000003,
+      "connectedToClosems": 10892.97099999999,
+      "partialFirstToLastms": 810.8869999999879,
+      "partialIntervalsMs": {
+        "min": 366.5789999999979,
+        "median": 405.44349999999395,
+        "max": 444.30799999999
+      },
+      "violations": [],
+      "gptRequests": 2
+    },
+    {
+      "scenario": "unsupported",
+      "case": "858F3281-393B-4C6A-8926-9801EBADAEC8",
+      "completed": true,
+      "pcmBytes": 200706,
+      "blocks": 63,
+      "eos": true,
+      "connectedToEOSms": 11635.959000000003,
+      "connectedToClosems": 11653.13500000001,
+      "partialFirstToLastms": 747.9700000000012,
+      "partialIntervalsMs": {
+        "min": 372.2149999999965,
+        "median": 373.9850000000006,
+        "max": 375.75500000000466
+      },
+      "violations": [],
+      "gptRequests": 2
+    },
+    {
+      "scenario": "churn",
+      "case": "896D491E-3902-4E16-95CB-FC61D252175B",
+      "completed": false,
+      "pcmBytes": 198400,
+      "blocks": 62,
+      "eos": false,
+      "connectedToEOSms": null,
+      "connectedToClosems": 12002.38500000001,
+      "partialFirstToLastms": 11748.789999999979,
+      "partialIntervalsMs": {
+        "min": 103.25699999998324,
+        "median": 215.9089999999851,
+        "max": 257.08699999999953
+      },
+      "violations": [],
+      "gptRequests": 1
+    },
+    {
+      "scenario": "each_reconnect",
+      "case": "BDF0AA52-3498-4DDD-9EB8-CE8E4BB9E785",
+      "completed": true,
+      "pcmBytes": 200706,
+      "blocks": 63,
+      "eos": true,
+      "connectedToEOSms": 11083.710000000021,
+      "connectedToClosems": 11100.733999999997,
+      "partialFirstToLastms": 698.2639999999956,
+      "partialIntervalsMs": {
+        "min": 273.33400000000256,
+        "median": 349.1319999999978,
+        "max": 424.929999999993
+      },
+      "violations": [],
+      "gptRequests": 4
+    }
+  ]
+}

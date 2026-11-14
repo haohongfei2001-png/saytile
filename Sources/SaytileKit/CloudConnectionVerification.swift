@@ -252,11 +252,19 @@ public enum CloudConnectionVerifier {
         defer { watchdog.cancel() }
         do {
             try await withTaskCancellationHandler {
+                let clock = ContinuousClock(), audioStart = ContinuousClock.now
                 for offset in stride(from: 0, to: pcm.count, by: 3200) {
                     try Task.checkCancellation()
                     guard !session.isComplete else { break }
-                    session.append(pcm.subdata(in: offset..<min(offset + 3200, pcm.count)))
-                    if paced { try await Task.sleep(for: .milliseconds(100)) }
+                    let end = min(offset + 3200, pcm.count)
+                    session.append(pcm.subdata(in: offset..<end))
+                    if paced {
+                        // Keep one audio clock: scheduling delays must not accumulate
+                        // once per block and consume the bounded check before EOS.
+                        // PCM is 16 kHz mono Int16; include the shorter final block.
+                        let elapsedAudio = Duration.nanoseconds(Int64(end) * 1_000_000_000 / 32_000)
+                        try await clock.sleep(until: audioStart.advanced(by: elapsedAudio), tolerance: .zero)
+                    }
                 }
                 try await store.finishRecording(id: record.id)
                 session.finish(); await session.wait()

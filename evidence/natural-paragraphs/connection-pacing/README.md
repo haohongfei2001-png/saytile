@@ -1,0 +1,7 @@
+# Connection-check PCM pacing correction
+
+The 783921b CI raw wire audit showed its 6.2720625-second built-in sample taking 10.881–11.636 seconds to send. In the churn case, the unchanged 12-second watchdog cancelled after only 198,400 / 200,706 bytes: the last 2,306 bytes and EOS had not been sent. Each relative 100 ms Task.sleep accumulated scheduling lateness; churn partial intervals had a 215.909 ms median. This is preserved in before-ci-timing.json and the full before-ci-wire-audit.json. It explains why earlier intermittent failures could not be safely classified without the missing audit.
+
+Only CloudConnectionVerifier's explicitly authorized built-in-sample check changes: one ContinuousClock start, an absolute deadline from total submitted Int16/16kHz PCM bytes, and zero timer tolerance. The shorter final block uses its actual duration. Cancellation, all source bytes, one active ASR, bounded queues, 12-second test deadline, 90-second production budget and final-evidence assertions remain intact. No microphone path, local recognizer, ASR worker or default configuration changes.
+
+The existing full wire-level protocol regression then passes 13/13 tests over 52 scenarios with zero protocol violations, using the identical sample and complete-byte/hash/EOS checks. after-local-timing.json binds that precommit test to the actual source-file hash. Final committed-SHA CI follows separately. This is a scheduling fix, not proof of live-cloud credentials or recognition accuracy.
