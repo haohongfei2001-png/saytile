@@ -472,11 +472,24 @@ extension AppDelegate {
                 print("TIMELINE_PAGE_ANCHOR delta=\(pageOffset) points dx=\(sideways) lineShear=\(shear) characters=\(offsets.count)")
                 print("TIMELINE_NATIVE_PAGE rows=12003 resident=64 wheel_to_paint=\(began.duration(to: .now))")
                 let entries = scroll.rendered.spans
+                // This fixture has 24-second speech gaps: midnight changes the
+                // archive day, while the >15-second gap independently starts a paragraph.
                 guard scroll.rendered.markers.isEmpty,
-                      let nextDay = entries.indices.dropFirst().first(where: { entries[$0-1].entry.groupDay != entries[$0].entry.groupDay }),
-                      NSMaxRange(entries[nextDay-1].range) == entries[nextDay].range.location else {
-                    throw ReviewFailure("midnight interrupted continuous Chinese text")
+                      let nextDay = entries.indices.dropFirst().first(where: { entries[$0-1].entry.groupDay != entries[$0].entry.groupDay }) else {
+                    throw ReviewFailure("midnight inserted a time heading or lost the adjacent historical owners")
                 }
+                let beforeMidnight = entries[nextDay - 1], afterMidnight = entries[nextDay]
+                let separation = NSRange(location: NSMaxRange(beforeMidnight.range),
+                                         length: afterMidnight.range.location - NSMaxRange(beforeMidnight.range))
+                let displayed = scroll.transcriptView.string as NSString
+                guard afterMidnight.entry.recording.createdAt.timeIntervalSince(beforeMidnight.entry.speechEnd) >= 15,
+                      beforeMidnight.entry.paragraphID != afterMidnight.entry.paragraphID,
+                      separation.length == 1, displayed.substring(with: separation) == "\n",
+                      displayed.substring(with: beforeMidnight.range) == beforeMidnight.entry.displayText,
+                      displayed.substring(with: afterMidnight.range) == afterMidnight.entry.displayText else {
+                    throw ReviewFailure("24-second midnight pause did not preserve both originals with exactly one natural paragraph break")
+                }
+                print("TIMELINE_MIDNIGHT_PARAGRAPH one_newline=true original_text=true time_heading=false")
                 scroll.transcriptView.scrollRangeToVisible(entries[nextDay].range)
                 try self.captureReview(host, name: "timeline-midnight", output: output)
                 // Select a line already on screen. A second asynchronous AppKit scroll
