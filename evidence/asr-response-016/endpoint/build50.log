@@ -1,0 +1,91 @@
+Building for debugging...
+[Planning deferred tasks]
+[38 / 97]
+[42 / 107]
+[51 / 107] CAudio
+[58 / 107]
+[81 / 247]
+[84 / 247]
+[87 / 275]
+[90 / 275]
+[93 / 275]
+[97 / 275]
+[100 / 275]
+[104 / 275]
+[105 / 275]
+[106 / 275]
+[109 / 275]
+[110 / 275]
+[112 / 275]
+[115 / 275]
+[119 / 275]
+[121 / 275]
+[123 / 275]
+[126 / 275]
+[129 / 275]
+[132 / 275]
+[135 / 275]
+[137 / 275]
+[139 / 275]
+[140 / 275]
+[144 / 275]
+[147 / 275]
+[152 / 275]
+[153 / 275]
+[157 / 275]
+[158 / 275]
+[160 / 275] CAudio
+[165 / 275] CAudio
+[174 / 275]
+[181 / 275]
+[188 / 275]
+[190 / 275]
+[193 / 275]
+[199 / 275]
+[202 / 275]
+/private/tmp/saytile-response-endpoint50/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[205 / 275]
+[211 / 275]
+[212 / 275]
+[214 / 275]
+[216 / 275]
+[219 / 275]
+[221 / 275]
+[222 / 275]
+[223 / 275]
+[224 / 275]
+[225 / 275]
+[226 / 275]
+[231 / 275]
+[232 / 275]
+[236 / 275]
+[239 / 275]
+[240 / 275]
+[242 / 275]
+[246 / 275]
+[248 / 275]
+[249 / 275]
+[252 / 275]
+[253 / 275]
+[254 / 275]
+[255 / 275]
+[258 / 275] SaytileKit
+[266 / 275] SaytileKit
+[267 / 275] SaytileKit-product
+[268 / 275] SaytileKit-product
+[270 / 275] SaytileKit
+[271 / 275] SaytileKit
+[272 / 275] SaytileKit
+/private/tmp/saytile-response-endpoint50/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+[272 / 275]
+[272 / 275] SaytileKit
+/private/tmp/saytile-response-endpoint50/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (26.04秒)
+ff91c26bcdf8e3293bedcb5f9a3f7e68efe57c8e55e27ecabeafbafa4e775b2e  /private/tmp/saytile-endpoint50-bin/Cohort
+1d25cd29ea71d6895a1bfa5f916e8855580f30f31b82f920fd2b5cc2dd8656eb  /private/tmp/saytile-endpoint50-build/out/Products/Debug/libSaytileKit.a

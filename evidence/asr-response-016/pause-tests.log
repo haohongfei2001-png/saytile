@@ -1,0 +1,126 @@
+warning: /Users/hhf/Library/org.swift.swiftpm/configuration is not accessible or not writable, disabling user-level cache features.
+warning: /Users/hhf/Library/org.swift.swiftpm/security is not accessible or not writable, disabling user-level cache features.
+warning: /Users/hhf/Library/Caches/org.swift.swiftpm is not accessible or not writable, disabling user-level cache features.
+warning: 'saytile-asr-response': failed storing manifest for 'saytile-asr-response' in cache: attempt to write a readonly database
+Building for debugging...
+[Pre-planning 1 / 271]
+[Planning deferred tasks]
+[3 / 70]
+[32 / 81] CAudio
+[40 / 110]
+[62 / 110] CAudio
+[69 / 110] CAudio
+[78 / 232] SaytileKit
+[89 / 260]
+[103 / 260]
+[108 / 260]
+[115 / 260]
+[117 / 260]
+[124 / 260]
+/private/tmp/saytile-asr-response/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[129 / 260]
+[133 / 260]
+[138 / 260]
+[143 / 260]
+[144 / 260]
+[158 / 260]
+[159 / 260]
+[164 / 260]
+[169 / 260]
+[170 / 260]
+[171 / 260]
+[172 / 260]
+[179 / 260]
+[181 / 260]
+[187 / 260]
+[188 / 260]
+[190 / 260]
+[192 / 260]
+[193 / 260]
+[205 / 260]
+[206 / 260]
+[211 / 260]
+[216 / 260]
+[219 / 260]
+[220 / 260]
+[221 / 260]
+[222 / 260]
+[233 / 260] SaytileKit
+[234 / 260] SaytileKit
+[236 / 260] SaytileKit
+[237 / 261] SaytileKit
+/private/tmp/saytile-asr-response/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+[237 / 261]
+[246 / 261] SaytileVoiceUI
+[250 / 266] SaytileVoiceUI
+[251 / 266] SaytileKit
+/private/tmp/saytile-asr-response/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[253 / 266] Saytile-product
+[257 / 282]
+[258 / 282] SaytileVoiceUI
+/private/tmp/saytile-asr-response/Package.swift: SaytileVoiceUI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[264 / 283]
+[274 / 283] Saytile-product
+[275 / 298]
+[276 / 298] Saytile-product
+[276 / 298]
+[279 / 298]
+[283 / 298] SaytileKitTests-product
+[284 / 298] SaytileKitTests-product
+[285 / 298] SaytileKitTests-product
+[285 / 298] Saytile-product
+[287 / 298] SaytileKitTests-product
+[288 / 298] SaytileKitTests-product
+/private/tmp/saytile-asr-response/Sources/SaytileApp/AppModel.swift:868:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 860 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+ 861 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+ 862 |         connectionCheckTask = Task {
+     |                                    |- note: 'self' implicitly strongly captured here
+     |                                    `- note: add 'self' as a capture list item to silence
+ 863 |             // A cancelled older check must fully close its sockets before another starts.
+ 864 |             await previous?.value
+     :
+ 866 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+ 867 |             do {
+ 868 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+     |                                                                                         `- note: explicitly assign the capture list item to silence
+ 869 |                     Task { @MainActor [weak self] in
+ 870 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[291 / 298] SaytileKitTests-product
+[292 / 300] SaytileKitTests-product
+[295 / 301] SaytileKitTests-product
+[295 / 301] Saytile-product
+/private/tmp/saytile-asr-response/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-asr-response/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[297 / 301] Saytile-product
+[297 / 301] SaytileKitTests-product
+/private/tmp/saytile-asr-response/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-asr-response/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[299 / 301] SaytileKitTests-product
+[302 / 302] Saytile-product
+Build complete! (36.34秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Capture shutdown tail" started.
+◇ Test isolatedClickAndItsVADHangoverCannotStartARecording() started.
+◇ Test finishFlushesSubVADFrameTailOfActiveSpeech() started.
+◇ Test finishDoesNotSaveStandbySilenceAsSpeech() started.
+◇ Test durationRolloverKeepsEveryPCMByteWhenPausedNearTheBoundary() started.
+◇ Test localRecognizerKeepsItsContextAcrossAThinkingPause() started.
+✔ Test finishDoesNotSaveStandbySilenceAsSpeech() passed after 0.001 seconds.
+✔ Test finishFlushesSubVADFrameTailOfActiveSpeech() passed after 0.001 seconds.
+✔ Test isolatedClickAndItsVADHangoverCannotStartARecording() passed after 0.001 seconds.
+✔ Test durationRolloverKeepsEveryPCMByteWhenPausedNearTheBoundary() passed after 0.001 seconds.
+✔ Test localRecognizerKeepsItsContextAcrossAThinkingPause() passed after 0.001 seconds.
+✔ Suite "Capture shutdown tail" passed after 0.002 seconds.
+✔ Test run with 5 tests in 1 suite passed after 0.002 seconds.

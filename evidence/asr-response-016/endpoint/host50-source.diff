@@ -1,0 +1,64 @@
+diff --git a/Sources/SaytileKit/RecognitionAudioFanout.swift b/Sources/SaytileKit/RecognitionAudioFanout.swift
+index 6514342..69880b2 100644
+--- a/Sources/SaytileKit/RecognitionAudioFanout.swift
++++ b/Sources/SaytileKit/RecognitionAudioFanout.swift
+@@ -69,13 +69,18 @@ final class RecognitionSessionFactory: @unchecked Sendable {
+     struct Snapshot: Sendable {
+         fileprivate let local: LocalFailoverDependencies
+         fileprivate let liveLocal: LocalFailoverDependencies
++        fileprivate let liveModel: LocalASRID
+         fileprivate let archive: LocalFailoverDependencies
+         let route: HostedRoute
+         var isHosted: Bool { route != .byok }
+         let configuration: RecognitionConfiguration
+         let appliedConfiguration: RecognitionConfiguration
+         var captureLimits: VoiceSegmenter.Limits {
+-            guard configuration.cloudEnabled else { return .init() }
++            guard configuration.cloudEnabled else {
++                // Isolated endpoint experiment: only Qwen 0.6B closes after one second.
++                // The choice remains frozen in this recording snapshot.
++                return .init(endSilenceFrames: liveModel == .qwen ? 50 : VoiceSegmenter.localPauseFrames)
++            }
+             return .init(endSilenceFrames: 100, maximumFrames: isHosted ? 1_500 : 15_000)
+         }
+         fileprivate let epoch: RecognitionFailoverEpoch
+@@ -84,7 +89,7 @@ final class RecognitionSessionFactory: @unchecked Sendable {
+         var localOnly: Self {
+             var restricted = configuration
+             restricted.cloudEnabled = false
+-            return Self(local: local, liveLocal: local, archive: archive, route: route, configuration: restricted, appliedConfiguration: appliedConfiguration, epoch: epoch, generation: generation)
++            return Self(local: local, liveLocal: local, liveModel: liveModel, archive: archive, route: route, configuration: restricted, appliedConfiguration: appliedConfiguration, epoch: epoch, generation: generation)
+         }
+     }
+     private let lock = NSLock()
+@@ -95,6 +100,7 @@ final class RecognitionSessionFactory: @unchecked Sendable {
+     private var active = 0
+     private let dependencies: RecognitionPipelineDependencies
+     private var liveLocal: LocalFailoverDependencies
++    private var liveModel: LocalASRID = .apple
+     private var archive: LocalFailoverDependencies
+     private var local: LocalFailoverDependencies
+     private var epoch: RecognitionFailoverEpoch
+@@ -107,12 +113,12 @@ final class RecognitionSessionFactory: @unchecked Sendable {
+         if route != .byok {
+             var config = HostedTransport.configuration
+             if case .connected(let access) = route, access.expiry > Date() {} else { config.cloudEnabled = false }
+-            return Snapshot(local: local, liveLocal: liveLocal, archive: archive, route:route,configuration:config,appliedConfiguration:value,epoch:epoch,generation:generation)
++            return Snapshot(local: local, liveLocal: liveLocal, liveModel: liveModel, archive: archive, route:route,configuration:config,appliedConfiguration:value,epoch:epoch,generation:generation)
+         }
+         var frozen = value
+         frozen.languagePreference = value.resolvedLanguage
+         if checkedStreamingID == nil || frozen.selectedASRModel?.id != checkedStreamingID { frozen.cloudEnabled = false }
+-        return Snapshot(local: local, liveLocal: liveLocal, archive: archive, route:route,configuration: frozen, appliedConfiguration: value, epoch: epoch, generation: generation)
++        return Snapshot(local: local, liveLocal: liveLocal, liveModel: liveModel, archive: archive, route:route,configuration: frozen, appliedConfiguration: value, epoch: epoch, generation: generation)
+     }
+     var snapshot: Snapshot { lock.withLock { recordingSnapshot() } }
+     var configuration: RecognitionConfiguration { lock.withLock { value } }
+@@ -130,6 +136,7 @@ final class RecognitionSessionFactory: @unchecked Sendable {
+     func localAvailability() async -> SpeechAvailability { await snapshot.local.availability() }
+     func selectLocal(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil, onUnavailable: (@Sendable (LocalASRID) -> Void)? = nil) {
+         lock.withLock {
++            self.liveModel = live
+             self.local = .device(live, service: service)
+             self.archive = .device(archive, service: service)
+             self.liveLocal = .device(live, service: service, review: review, onUnavailable: onUnavailable)

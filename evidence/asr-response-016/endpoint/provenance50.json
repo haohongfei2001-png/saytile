@@ -1,0 +1,73 @@
+{
+  "status": "REJECTED",
+  "worktree": "/private/tmp/saytile-response-endpoint50",
+  "branch": "codex/asr-response-endpoint-lab",
+  "base_source_sha": "d0b2d87320fd4145fbaea756690066bca3718bab",
+  "patch_path": "/private/tmp/asr-qwen-endpoint50.patch",
+  "patch_sha256": "bc8fdfb611538c85e6e63e21fa579dd6f9ae9ad70b0476bed312ec9b6f7f1535",
+  "changed_files": [
+    "Sources/SaytileKit/RecognitionAudioFanout.swift"
+  ],
+  "experimental_source_sha256": "2ced0b314563a742dda1f8f06b85acca3b8cc352c8ae5d8e9a5a56841aa84a1f",
+  "cohort_source_sha256": "6933bcb79f6dd512253909ac536191f618dc40861b7fa56501008f34f0fd747d",
+  "policy": {
+    "qwen_small_local_end_silence_frames": 50,
+    "other_local_end_silence_frames": 75,
+    "cloud_end_silence_frames": 100,
+    "sample_frame_ms": 20,
+    "other_parameters": "unchanged"
+  },
+  "execution_authorized": "not started; wait for root compute slot and runtime provenance resolution",
+  "data": "licensed public fixtures only; no microphone/private audio/cloud API",
+  "future_decision": "Compare same-PCM affected segmentation first; then all440 product accuracy and critical entities; original-rate15 and quiet-tail only if acceptable; reject otherwise",
+  "build_log": "/private/tmp/asr-qwen-endpoint50-build.log",
+  "baseline_build_log": "/private/tmp/asr-qwen-endpoint75-build.log",
+  "binaries": {
+    "endpoint50": {
+      "path": "/private/tmp/saytile-endpoint50-bin/Cohort",
+      "sha256": "ff91c26bcdf8e3293bedcb5f9a3f7e68efe57c8e55e27ecabeafbafa4e775b2e"
+    },
+    "endpoint75": {
+      "path": "/private/tmp/saytile-endpoint75-bin/Cohort",
+      "sha256": "845916ac198c7453bdeb8140a169b12fca43f0cd09e316fcd3247dfc5d41ca0f"
+    },
+    "kit50": {
+      "path": "/private/tmp/saytile-endpoint50-build/out/Products/Debug/libSaytileKit.a",
+      "sha256": "1d25cd29ea71d6895a1bfa5f916e8855580f30f31b82f920fd2b5cc2dd8656eb"
+    },
+    "kit75": {
+      "path": "/private/tmp/saytile-asr-audit-tests/out/Products/Debug/libSaytileKit.a",
+      "sha256": "666bc3be232b44291b4026491045f825c87a07c0c53dea5d814ec2459130d707"
+    }
+  },
+  "baseline_kit_note": "Existing root-built debug library; manifest.pif source root /private/tmp/saytile-asr-response; current root clean at d0b2d873; archive and source hashes bound here.",
+  "baseline_fanout_sha256": "436c13b93847bf5686fbfb076af72f5e8a6a6efc750632daabb6fe073b31a891",
+  "model_worker_sha256": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e",
+  "quality_run": {
+    "scope": "4 public true-midphrase-cut cases; 75 then50, sequential, accelerated product path, one worker per arm",
+    "baseline_exit_code": 0,
+    "candidate_exit_code": 0,
+    "baseline_result": "/private/tmp/asr-endpoint75-priority4.jsonl",
+    "candidate_result": "/private/tmp/asr-endpoint50-priority4.jsonl",
+    "comparison": "/private/tmp/asr-endpoint-priority4-comparison.json",
+    "errors_reference_units": {
+      "baseline": [
+        5,
+        204
+      ],
+      "candidate": [
+        5,
+        204
+      ]
+    },
+    "regression": "aishell1-test-72ae32cd8dfe9da8: 现金 -> 现今; +1 substitution, financial meaning changed; digits preserved",
+    "improvement": "fleurs-f8646a257c0c4273: 他们 -> 它们; -1 substitution",
+    "unchanged_whole_texts": 2,
+    "not_counted_as_speech_loss": "fleurs-c8c817e80216ce40 gains failed subsegment, but complete joined final identical and correct",
+    "remaining11": "NOT_RUN after financial-word regression",
+    "all440": "NOT_RUN",
+    "native_original_rate": "NOT_RUN",
+    "microphone": "NOT_RUN lid closed"
+  },
+  "decision": "Do not adopt: context split causes financial 现金 -> 现今. Unchanged aggregate CER does not erase semantic regression."
+}

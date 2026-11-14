@@ -1,0 +1,49 @@
+{
+  "id": "aishell1-test-72ae32cd8dfe9da8",
+  "reference": "村妇将一零万元现金埋地底四年多已腐烂成碎块",
+  "audio_sha256": "3041500705cb656ca5c5bc3bc4bfcd542a2c07cbf8768139b97c4f6ff44add97",
+  "baseline75": {
+    "errors": [],
+    "id": "aishell1-test-72ae32cd8dfe9da8",
+    "model": "qwen-small",
+    "path": "product",
+    "providers": [
+      "qwen-small"
+    ],
+    "states": [
+      "completed"
+    ],
+    "text": "村妇将一零万元现金埋地底四年多，已腐烂成碎块。"
+  },
+  "candidate60": {
+    "errors": [],
+    "id": "aishell1-test-72ae32cd8dfe9da8",
+    "model": "qwen-small",
+    "path": "product",
+    "providers": [
+      "qwen-small"
+    ],
+    "states": [
+      "completed",
+      "completed"
+    ],
+    "text": "村妇将一零万元。现今埋地底四年多，已腐烂成碎块。"
+  },
+  "baseline_score": {
+    "errors": 0,
+    "substitutions": 0,
+    "deletions": 0,
+    "insertions": 0,
+    "reference_units": 21
+  },
+  "candidate_score": {
+    "errors": 1,
+    "substitutions": 1,
+    "deletions": 0,
+    "insertions": 0,
+    "reference_units": 21
+  },
+  "decision": "REJECTED",
+  "reason": "Critical financial term 现金 became 现今 after boundary inside phrase; identical regression to50. No65/70oradditionalthresholdtuning.",
+  "execution": "Single authorized public sample, accelerated realproduct pipeline, unchanged484helper/weights; exit0; no microphone/network/private data."
+}

@@ -1,0 +1,811 @@
+{
+  "checked_at": "2026-11-14T13:30:56.259334+00:00",
+  "status": "WORKER_INCREASE_CONFIRMED_CAUSE_NOT_ESTABLISHED",
+  "clock_caveat": "Process samples use process-launch-relative time; raw worker events use probe-start-relative time. No exact bridge was recorded. Peak stage and neighboring decodes below use wall_s minus receipt.total as an approximate offset, containing exit/poll overhead. They do not establish precise allocation attribution.",
+  "runs": [
+    {
+      "run": "1-baseline",
+      "source": "ab8545507c79640ec3f419e33467a0263c154844",
+      "process_peak_at_s": 25.858,
+      "app_at_peak_MiB": 25.251,
+      "worker_at_peak_MiB": 1662.611,
+      "combined_at_peak_MiB": 1687.9,
+      "max_app_MiB": 26.407,
+      "max_worker_MiB": 1662.611,
+      "ready": {
+        "t": 0.5313840415328741,
+        "kind": "ready",
+        "frames": 0,
+        "decodes": []
+      },
+      "first_partial": {
+        "t": 0.9618657499086112,
+        "kind": "partial",
+        "frames": 12800,
+        "decodes": [
+          {
+            "changed": true,
+            "endUptime": 1993465.9704126252,
+            "final": false,
+            "frames": 12800,
+            "startUptime": 1993465.8233118334,
+            "verifiedPreviewTokens": 0
+          }
+        ]
+      },
+      "finals": [
+        {
+          "t": 30.87181754154153,
+          "kind": "final",
+          "frames": 481280,
+          "decodes": [
+            {
+              "changed": true,
+              "endUptime": 1993495.8804172918,
+              "final": true,
+              "frames": 481280,
+              "startUptime": 1993495.2524787085,
+              "verifiedPreviewTokens": 0
+            }
+          ]
+        },
+        {
+          "t": 39.06504041654989,
+          "kind": "final",
+          "frames": 139520,
+          "decodes": [
+            {
+              "changed": true,
+              "endUptime": 1993504.073648417,
+              "final": true,
+              "frames": 139520,
+              "startUptime": 1993503.8370485834,
+              "verifiedPreviewTokens": 0
+            }
+          ]
+        }
+      ],
+      "approximate_clock_offset_s": 0.710406,
+      "approximate_peak_probe_time_s": 25.147594,
+      "approximate_peak_previous_event": {
+        "t": 25.07060099998489,
+        "kind": "partial",
+        "frames": 396800,
+        "decodes": [
+          {
+            "changed": true,
+            "endUptime": 1993490.0791936668,
+            "final": false,
+            "frames": 396800,
+            "startUptime": 1993489.8289880417,
+            "verifiedPreviewTokens": 77
+          }
+        ]
+      },
+      "approximate_peak_next_event": {
+        "t": 25.67800029157661,
+        "kind": "partial",
+        "frames": 404800,
+        "decodes": [
+          {
+            "changed": true,
+            "endUptime": 1993490.6866097085,
+            "final": false,
+            "frames": 404800,
+            "startUptime": 1993490.3428073751,
+            "verifiedPreviewTokens": 57
+          }
+        ]
+      },
+      "footprint_checkpoints": [
+        {
+          "process_time_s": 1.042,
+          "app_MiB": 22.485,
+          "worker_MiB": 76.673
+        },
+        {
+          "process_time_s": 2.102,
+          "app_MiB": 24.095,
+          "worker_MiB": 808.642
+        },
+        {
+          "process_time_s": 2.952,
+          "app_MiB": 24.673,
+          "worker_MiB": 808.048
+        },
+        {
+          "process_time_s": 5.103,
+          "app_MiB": 25.017,
+          "worker_MiB": 806.954
+        },
+        {
+          "process_time_s": 10.06,
+          "app_MiB": 22.892,
+          "worker_MiB": 815.439
+        },
+        {
+          "process_time_s": 14.99,
+          "app_MiB": 23.11,
+          "worker_MiB": 819.423
+        },
+        {
+          "process_time_s": 20.104,
+          "app_MiB": 23.47,
+          "worker_MiB": 814.533
+        },
+        {
+          "process_time_s": 25.004,
+          "app_MiB": 25.985,
+          "worker_MiB": 979.064
+        },
+        {
+          "process_time_s": 30.087,
+          "app_MiB": 26.267,
+          "worker_MiB": 924.142
+        },
+        {
+          "process_time_s": 31.978,
+          "app_MiB": 26.407,
+          "worker_MiB": 812.486
+        },
+        {
+          "process_time_s": 34.954,
+          "app_MiB": 26.251,
+          "worker_MiB": 820.001
+        },
+        {
+          "process_time_s": 37.952,
+          "app_MiB": 26.345,
+          "worker_MiB": 1110.611
+        },
+        {
+          "process_time_s": 39.013,
+          "app_MiB": 25.86,
+          "worker_MiB": 826.83
+        }
+      ]
+    },
+    {
+      "run": "2-candidate",
+      "source": "d0b2d87320fd4145fbaea756690066bca3718bab",
+      "process_peak_at_s": 29.817,
+      "app_at_peak_MiB": 26.126,
+      "worker_at_peak_MiB": 1789.064,
+      "combined_at_peak_MiB": 1815.2,
+      "max_app_MiB": 26.501,
+      "max_worker_MiB": 1789.064,
+      "ready": {
+        "t": 0.5316176665946841,
+        "kind": "ready",
+        "frames": 0,
+        "decodes": []
+      },
+      "first_partial": {
+        "t": 1.034155000001192,
+        "kind": "partial",
+        "frames": 12800,
+        "decodes": [
+          {
+            "changed": true,
+            "endUptime": 1993506.5957060002,
+            "final": false,
+            "frames": 12800,
+            "startUptime": 1993506.38145425,
+            "verifiedPreviewTokens": 0
+          }
+        ]
+      },
+      "finals": [
+        {
+          "t": 30.908539041643962,
+          "kind": "final",
+          "frames": 481280,
+          "decodes": [
+            {
+              "changed": true,
+              "endUptime": 1993536.4724406668,
+              "final": true,
+              "frames": 481280,
+              "startUptime": 1993535.8238502084,
+              "verifiedPreviewTokens": 0
+            }
+          ]
+        },
+        {
+          "t": 39.111190374940634,
+          "kind": "final",
+          "frames": 139520,
+          "decodes": [
+            {
+              "changed": true,
+              "endUptime": 1993544.6751020835,
+              "final": true,
+              "frames": 139520,
+              "startUptime": 1993544.4144242501,
+              "verifiedPreviewTokens": 0
+            }
+          ]
+        }
+      ],
+      "approximate_clock_offset_s": 0.612264,
+      "approximate_peak_probe_time_s": 29.204736,
+      "approximate_peak_previous_event": {
+        "t": 28.625354500021785,
+        "kind": "partial",
+        "frames": 452800,
+        "decodes": [
+          {
+            "changed": true,
+            "endUptime": 1993534.1892650002,
+            "final": false,
+            "frames": 452800,
+            "startUptime": 1993533.906882375,
+            "verifiedPreviewTokens": 91
+          }
+        ]
+      },
+      "approximate_peak_next_event": {
+        "t": 29.270513916620985,
+        "kind": "partial",
+        "frames": 460800,
+        "decodes": [
+          {
+            "changed": true,
+            "endUptime": 1993534.8344206668,
+            "final": false,
+            "frames": 460800,
+            "startUptime": 1993534.4092135418,
+            "verifiedPreviewTokens": 57
+          }
+        ]
+      },
+      "footprint_checkpoints": [
+        {
+          "process_time_s": 1.047,
+          "app_MiB": 22.532,
+          "worker_MiB": 73.532
+        },
+        {
+          "process_time_s": 1.904,
+          "app_MiB": 24.11,
+          "worker_MiB": 836.939
+        },
+        {
+          "process_time_s": 3.001,
+          "app_MiB": 24.642,
+          "worker_MiB": 805.548
+        },
+        {
+          "process_time_s": 4.933,
+          "app_MiB": 22.282,
+          "worker_MiB": 866.704
+        },
+        {
+          "process_time_s": 10.055,
+          "app_MiB": 22.298,
+          "worker_MiB": 807.939
+        },
+        {
+          "process_time_s": 14.961,
+          "app_MiB": 22.376,
+          "worker_MiB": 906.892
+        },
+        {
+          "process_time_s": 20.051,
+          "app_MiB": 23.267,
+          "worker_MiB": 857.408
+        },
+        {
+          "process_time_s": 24.939,
+          "app_MiB": 25.97,
+          "worker_MiB": 1031.689
+        },
+        {
+          "process_time_s": 30.029,
+          "app_MiB": 26.126,
+          "worker_MiB": 999.173
+        },
+        {
+          "process_time_s": 31.936,
+          "app_MiB": 25.423,
+          "worker_MiB": 845.095
+        },
+        {
+          "process_time_s": 34.939,
+          "app_MiB": 26.267,
+          "worker_MiB": 877.142
+        },
+        {
+          "process_time_s": 37.937,
+          "app_MiB": 26.22,
+          "worker_MiB": 1386.454
+        },
+        {
+          "process_time_s": 39.001,
+          "app_MiB": 25.517,
+          "worker_MiB": 882.158
+        }
+      ]
+    },
+    {
+      "run": "3-baseline",
+      "source": "ab8545507c79640ec3f419e33467a0263c154844",
+      "process_peak_at_s": 20.312,
+      "app_at_peak_MiB": 23.579,
+      "worker_at_peak_MiB": 1650.158,
+      "combined_at_peak_MiB": 1673.7,
+      "max_app_MiB": 26.392,
+      "max_worker_MiB": 1650.158,
+      "ready": {
+        "t": 0.5850437497720122,
+        "kind": "ready",
+        "frames": 0,
+        "decodes": []
+      },
+      "first_partial": {
+        "t": 1.023217333247885,
+        "kind": "partial",
+        "frames": 12800,
+        "decodes": [
+          {
+            "changed": true,
+            "endUptime": 1993547.0753059585,
+            "final": false,
+            "frames": 12800,
+            "startUptime": 1993546.8665084168,
+            "verifiedPreviewTokens": 0
+          }
+        ]
+      },
+      "finals": [
+        {
+          "t": 30.90730783320032,
+          "kind": "final",
+          "frames": 481280,
+          "decodes": [
+            {
+              "changed": true,
+              "endUptime": 1993576.962535375,
+              "final": true,
+              "frames": 481280,
+              "startUptime": 1993576.3114230419,
+              "verifiedPreviewTokens": 0
+            }
+          ]
+        },
+        {
+          "t": 39.03765054163523,
+          "kind": "final",
+          "frames": 139520,
+          "decodes": [
+            {
+              "changed": true,
+              "endUptime": 1993585.0928795834,
+              "final": true,
+              "frames": 139520,
+              "startUptime": 1993584.8793186252,
+              "verifiedPreviewTokens": 0
+            }
+          ]
+        }
+      ],
+      "approximate_clock_offset_s": 0.589071,
+      "approximate_peak_probe_time_s": 19.722929,
+      "approximate_peak_previous_event": {
+        "t": 19.544041458284482,
+        "kind": "partial",
+        "frames": 308800,
+        "decodes": [
+          {
+            "changed": true,
+            "endUptime": 1993565.5992680418,
+            "final": false,
+            "frames": 308800,
+            "startUptime": 1993565.3861687502,
+            "verifiedPreviewTokens": 57
+          }
+        ]
+      },
+      "approximate_peak_next_event": {
+        "t": 20.044142124941573,
+        "kind": "partial",
+        "frames": 316800,
+        "decodes": [
+          {
+            "changed": true,
+            "endUptime": 1993566.0993773334,
+            "final": false,
+            "frames": 316800,
+            "startUptime": 1993565.8831244167,
+            "verifiedPreviewTokens": 60
+          }
+        ]
+      },
+      "footprint_checkpoints": [
+        {
+          "process_time_s": 1.044,
+          "app_MiB": 21.392,
+          "worker_MiB": 73.563
+        },
+        {
+          "process_time_s": 1.894,
+          "app_MiB": 22.985,
+          "worker_MiB": 815.158
+        },
+        {
+          "process_time_s": 2.961,
+          "app_MiB": 23.517,
+          "worker_MiB": 813.423
+        },
+        {
+          "process_time_s": 5.094,
+          "app_MiB": 23.829,
+          "worker_MiB": 806.189
+        },
+        {
+          "process_time_s": 10.001,
+          "app_MiB": 23.079,
+          "worker_MiB": 819.126
+        },
+        {
+          "process_time_s": 15.051,
+          "app_MiB": 22.985,
+          "worker_MiB": 811.095
+        },
+        {
+          "process_time_s": 20.092,
+          "app_MiB": 23.72,
+          "worker_MiB": 830.939
+        },
+        {
+          "process_time_s": 24.941,
+          "app_MiB": 25.939,
+          "worker_MiB": 965.595
+        },
+        {
+          "process_time_s": 29.908,
+          "app_MiB": 25.407,
+          "worker_MiB": 1038.751
+        },
+        {
+          "process_time_s": 32.075,
+          "app_MiB": 26.142,
+          "worker_MiB": 811.97
+        },
+        {
+          "process_time_s": 35.063,
+          "app_MiB": 26.079,
+          "worker_MiB": 812.22
+        },
+        {
+          "process_time_s": 38.054,
+          "app_MiB": 26.189,
+          "worker_MiB": 812.423
+        },
+        {
+          "process_time_s": 38.913,
+          "app_MiB": 25.564,
+          "worker_MiB": 1038.158
+        }
+      ]
+    },
+    {
+      "run": "4-candidate",
+      "source": "d0b2d87320fd4145fbaea756690066bca3718bab",
+      "process_peak_at_s": 28.806,
+      "app_at_peak_MiB": 25.892,
+      "worker_at_peak_MiB": 1774.954,
+      "combined_at_peak_MiB": 1800.8,
+      "max_app_MiB": 26.532,
+      "max_worker_MiB": 1774.954,
+      "ready": {
+        "t": 0.5697035416960716,
+        "kind": "ready",
+        "frames": 0,
+        "decodes": []
+      },
+      "first_partial": {
+        "t": 0.9826915001031011,
+        "kind": "partial",
+        "frames": 12800,
+        "decodes": [
+          {
+            "changed": true,
+            "endUptime": 1993587.5742727919,
+            "final": false,
+            "frames": 12800,
+            "startUptime": 1993587.4359947918,
+            "verifiedPreviewTokens": 0
+          }
+        ]
+      },
+      "finals": [
+        {
+          "t": 30.91156266676262,
+          "kind": "final",
+          "frames": 481280,
+          "decodes": [
+            {
+              "changed": true,
+              "endUptime": 1993617.5061894585,
+              "final": true,
+              "frames": 481280,
+              "startUptime": 1993616.873274417,
+              "verifiedPreviewTokens": 0
+            }
+          ]
+        },
+        {
+          "t": 39.11494183330797,
+          "kind": "final",
+          "frames": 139520,
+          "decodes": [
+            {
+              "changed": true,
+              "endUptime": 1993625.7095807919,
+              "final": true,
+              "frames": 139520,
+              "startUptime": 1993625.4354262918,
+              "verifiedPreviewTokens": 0
+            }
+          ]
+        }
+      ],
+      "approximate_clock_offset_s": 0.677225,
+      "approximate_peak_probe_time_s": 28.128775,
+      "approximate_peak_previous_event": {
+        "t": 27.75405712495558,
+        "kind": "partial",
+        "frames": 436800,
+        "decodes": [
+          {
+            "changed": true,
+            "endUptime": 1993614.3486969168,
+            "final": false,
+            "frames": 436800,
+            "startUptime": 1993613.9236246669,
+            "verifiedPreviewTokens": 48
+          }
+        ]
+      },
+      "approximate_peak_next_event": {
+        "t": 28.2697614999488,
+        "kind": "partial",
+        "frames": 444800,
+        "decodes": [
+          {
+            "changed": true,
+            "endUptime": 1993614.8644045833,
+            "final": false,
+            "frames": 444800,
+            "startUptime": 1993614.4307614167,
+            "verifiedPreviewTokens": 48
+          }
+        ]
+      },
+      "footprint_checkpoints": [
+        {
+          "process_time_s": 1.048,
+          "app_MiB": 21.407,
+          "worker_MiB": 73.657
+        },
+        {
+          "process_time_s": 1.896,
+          "app_MiB": 23.188,
+          "worker_MiB": 826.798
+        },
+        {
+          "process_time_s": 2.985,
+          "app_MiB": 23.751,
+          "worker_MiB": 806.439
+        },
+        {
+          "process_time_s": 4.915,
+          "app_MiB": 23.548,
+          "worker_MiB": 814.017
+        },
+        {
+          "process_time_s": 10.061,
+          "app_MiB": 23.267,
+          "worker_MiB": 812.642
+        },
+        {
+          "process_time_s": 14.973,
+          "app_MiB": 23.298,
+          "worker_MiB": 944.392
+        },
+        {
+          "process_time_s": 20.095,
+          "app_MiB": 23.954,
+          "worker_MiB": 825.408
+        },
+        {
+          "process_time_s": 24.981,
+          "app_MiB": 26.126,
+          "worker_MiB": 980.845
+        },
+        {
+          "process_time_s": 30.083,
+          "app_MiB": 26.298,
+          "worker_MiB": 834.095
+        },
+        {
+          "process_time_s": 31.995,
+          "app_MiB": 26.47,
+          "worker_MiB": 824.329
+        },
+        {
+          "process_time_s": 35.009,
+          "app_MiB": 26.454,
+          "worker_MiB": 868.376
+        },
+        {
+          "process_time_s": 37.997,
+          "app_MiB": 26.36,
+          "worker_MiB": 819.001
+        },
+        {
+          "process_time_s": 39.055,
+          "app_MiB": 26.532,
+          "worker_MiB": 827.376
+        }
+      ]
+    }
+  ],
+  "vendor_comparison_file": "vendor-hash-comparison.json",
+  "dependency_comparison_file": "dependency-provenance.json",
+  "prior476_provenance": {
+    "package.json": {
+      "evidence_commit": "aca01cb",
+      "evidence_path": "evidence/mandarin-476/delivery/package.json",
+      "evidence_sha256": "7879cc18c1aa79ee81590b9bb15c998d075b0000f35dc37c1f63b96ef62703ac",
+      "content": {
+        "version": "0.13",
+        "build": "476",
+        "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+        "bundle": "app.saytile.mac.mandarin-candidate",
+        "app_executable_sha256": "8a54d7a5db4e113c1e1941160087c02b45ca112c3a507dde8e4fe24dc621c849",
+        "worker_sha256": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e",
+        "dmg_bytes": 64662577,
+        "dmg_sha256": "d66aeb66b038b553e7d7e7ec89d18572d5ef2b182e3619bbcce55f45e11b18b1",
+        "codesign_app": "PASS",
+        "codesign_image": "PASS",
+        "signing": [
+          "Identifier=app.saytile.mac.mandarin-candidate",
+          "CodeDirectory v=20500 size=20398 flags=0x10000(runtime) hashes=626+7 location=embedded",
+          "CDHash=8678188a5b197a29cd7e2b05697022fc108b7230",
+          "Authority=Developer ID Application: hongfei hao (ZB9D4T66QB)",
+          "Authority=Developer ID Certification Authority",
+          "Authority=Apple Root CA",
+          "Timestamp=Nov 14, 2026 at 10:59:48",
+          "TeamIdentifier=ZB9D4T66QB"
+        ],
+        "model_weights_in_bundle": [],
+        "gatekeeper_exit": 3,
+        "gatekeeper_result": "Saytile 中文识别候选.app: rejected\nsource=Unnotarized Developer ID",
+        "notarization_submitted": false,
+        "production_replaced": false
+      }
+    },
+    "installation.json": {
+      "evidence_commit": "aca01cb",
+      "evidence_path": "evidence/mandarin-476/delivery/installation.json",
+      "evidence_sha256": "5f95235e8b07240ae6b87ba05e0ac5c6614cf6fda9ceb5d1ce4f43e312436cee",
+      "content": {
+        "status": "PASS",
+        "old": {
+          "team": "ZB9D4T66QB",
+          "id": "app.saytile.mac.mandarin-candidate",
+          "build": "474",
+          "version": "0.13",
+          "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+          "dirty": false,
+          "exe": "57bf030609c2b1ebecda8c21f15a02ab1295956ab6b481871b9f403daa06de6e",
+          "worker": "fa879b1bcf72922126effef7e21ef6b62b1c2d1d8b5adce3a00f91c85b79d518",
+          "ent": "15f20773327637e1e3896c2bd530db7e483d00e71014e73ec19d6c06f32032f2"
+        },
+        "installed": {
+          "team": "ZB9D4T66QB",
+          "id": "app.saytile.mac.mandarin-candidate",
+          "build": "476",
+          "version": "0.13",
+          "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+          "dirty": false,
+          "exe": "8a54d7a5db4e113c1e1941160087c02b45ca112c3a507dde8e4fe24dc621c849",
+          "worker": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e",
+          "ent": "15f20773327637e1e3896c2bd530db7e483d00e71014e73ec19d6c06f32032f2"
+        },
+        "production_unchanged": {
+          "team": "ZB9D4T66QB",
+          "id": "app.saytile.mac",
+          "build": "373",
+          "version": "0.12",
+          "source": "a4f9f08656d1a22d2e0b6c59ad60e36452881010",
+          "dirty": false,
+          "exe": "35f6b2ae00f2888a7c5fdadf34a81f3a79f693aea76bca3d98733fc0ed25af45",
+          "worker": "ba9e5685b9229a4abb06aad08221f5f66cdeacbefdde8d83a59cc4dba327de9d",
+          "ent": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "running": "candidate_pid=57620 launched=true",
+        "old_exit": "old_instances=1 graceful=true",
+        "atomic_swap": true,
+        "old_image_sha256": "dbf3074f68353e56c058b6e5f139792ba5982c03c0614592712ed5513e9a7128",
+        "new_image_sha256": "d66aeb66b038b553e7d7e7ec89d18572d5ef2b182e3619bbcce55f45e11b18b1",
+        "private_archive_or_keychain_read": false
+      }
+    },
+    "bench-identity.json": {
+      "evidence_commit": "aca01cb",
+      "evidence_path": "evidence/mandarin-476/delivery/bench-identity.json",
+      "evidence_sha256": "bc5a4add11e5a2f184f3ea1b2ae9a6ad539c5bc76c19f093b935f7e547907799",
+      "content": {
+        "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+        "sha256": {
+          "cohort": "3cf39b4309d28f9d71d1b148bcb1918c661571387fc1e26904ec0782d9c1c38b",
+          "kit": "447d11d1b06ab5915625e007a83125e616477e67e5199ea632cdda401bad8491",
+          "fixture_source": "6933bcb79f6dd512253909ac536191f618dc40861b7fa56501008f34f0fd747d",
+          "app": "8a54d7a5db4e113c1e1941160087c02b45ca112c3a507dde8e4fe24dc621c849",
+          "worker": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e"
+        },
+        "version": "0.13",
+        "build": "476",
+        "bundle": "app.saytile.mac.mandarin-candidate"
+      }
+    },
+    "startup-experiment/manifest.json": {
+      "evidence_commit": "aca01cb",
+      "evidence_path": "evidence/mandarin-476/delivery/startup-experiment/manifest.json",
+      "evidence_sha256": "0cced6abf99d4d2d2fd5579a5a550af79a0988c24307a0f93dd089dbdf8724f9",
+      "content": {
+        "basis": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+        "scope": "TEMPORARY load-only prototype; no production edits; no inference run",
+        "upstream": "soniqo/speech-swift@a57702e6f523fa36ac5532d2bdc5f35f701a052c",
+        "sources": {
+          "Qwen3ASR/WeightLoading.swift": "1154ec430b65f2bba332ab70e20a53e401b725257d42c25cfa331447d4e94e48",
+          "Qwen3ASR/Qwen3ASR.swift": "079ab664b8765d52ac2017cde83757483acbaf3f6b8a5c6fe67a078f08c29a20",
+          "Worker/Worker.swift": "16b73815a8be0b1e4fa535039b2f168445a8fe7f7b15d9bff1d6d1cdf9b20128"
+        },
+        "compiled_helpers": {
+          "control": "75e995e4cd33c3583a80e676e6a2dd1db38b7168d97b2e0de0dd6c96eb73883f",
+          "candidate": "6322911f789f696b02b15549f61e52f49b9c67d5b36ac89b8babad032d01cc54"
+        },
+        "status": "COMPILE_PASS; INFERENCE_NOT_RUN",
+        "changed_vendor_files": [
+          "Qwen3ASR.swift",
+          "WeightLoading.swift"
+        ],
+        "worker_identical_to_476": true
+      }
+    },
+    "rejected-eos/bench-identity.json": {
+      "evidence_commit": "aca01cb",
+      "evidence_path": "evidence/mandarin-476/delivery/rejected-eos/bench-identity.json",
+      "evidence_sha256": "f1b5544641e007efbe752a79108d14925105e7ddb0af39c7ed6a5ea76b95d0fe",
+      "content": {
+        "experimental": true,
+        "dirty": true,
+        "source": "EXPERIMENTAL_DIRTY_WORKER",
+        "host_source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+        "worker_source_base": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+        "worker_patch_sha256": "5326f9648e8a25956a7e8ade8928a5ee203128f84e5a272cbe5d764cf4bb3c64",
+        "worker_sha256": "d3eb98f6dc98ddedbbe67d150f166da843f545cacbc5b2de818ccded8976bd83",
+        "shipping_worker_sha256": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e",
+        "host_app_sha256": "8f57b24b98fd0e2ff91575b358f471a7d53c5f373da02c382e1171b1e5345eed",
+        "shipping_host_app_sha256": "8a54d7a5db4e113c1e1941160087c02b45ca112c3a507dde8e4fe24dc621c849",
+        "host_macho_code_sha256_excluding_signature_and_linkedit_size": "e9963c0c4455e7f8c8bd7b6080a5c8cc059a630fa67600967f0b7995d0e91560",
+        "host_code_exactly_shipping_476": true,
+        "cohort": {
+          "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+          "sha256": {
+            "cohort": "3cf39b4309d28f9d71d1b148bcb1918c661571387fc1e26904ec0782d9c1c38b",
+            "kit": "447d11d1b06ab5915625e007a83125e616477e67e5199ea632cdda401bad8491",
+            "fixture_source": "6933bcb79f6dd512253909ac536191f618dc40861b7fa56501008f34f0fd747d"
+          }
+        },
+        "app_path": "/private/tmp/saytile-qwen-eos476/Saytile EOS 验证实验.app",
+        "provider": "qwen-small",
+        "hypothesis": "Full-PCM EOS recomputation with current-audio token verification; no preview promoted directly to final"
+      }
+    }
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "at_utc": "2026-11-14T13:50:20.788321+00:00",
+  "product_source": "d0b2d87320fd4145fbaea756690066bca3718bab",
+  "source_dirty": false,
+  "version": "0.16",
+  "build": "486",
+  "pr": "https://github.com/haohongfei2001-png/saytile/pull/42",
+  "product_status": "RELIABILITY_FIX_VALIDATED_PERFORMANCE_GOAL_NOT_MET",
+  "adoption": "HOLD_INSTALLED_484_UNCHANGED",
+  "changes": [
+    "Forward genuine repeated Qwen decodes to confirmation gate",
+    "Reject duplicate/regressing-frame corroboration",
+    "Deduplicate accepted text before publication",
+    "Strengthen VAD initial-onset regression",
+    "Measure speech-stop response separately from trailing file silence"
+  ],
+  "unchanged": [
+    "model",
+    "weights",
+    "one active ASR",
+    "VAD product thresholds",
+    "scalar final decode",
+    "audio storage",
+    "user edits and external input ownership",
+    "natural paragraph UI",
+    "main",
+    "installed candidate484",
+    "formal373"
+  ],
+  "ci": {
+    "status": "PASS",
+    "source": "d0b2d87320fd4145fbaea756690066bca3718bab",
+    "swift_testing": {
+      "total": 528,
+      "passed": 528,
+      "failed": 0
+    },
+    "app_model": {
+      "total": 172,
+      "passed": 172,
+      "failed": 0
+    },
+    "checks": [
+      {
+        "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/43598471543/job/132458002402",
+        "name": "native",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/43598471543/job/132458002215",
+        "name": "foreground",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/43598471523/job/132457925891",
+        "name": "native-gateway",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/43598471523/job/132457925658",
+        "name": "gateway",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/43598471525/job/132457925698",
+        "name": "data-and-prototype",
+        "state": "SUCCESS"
+      }
+    ]
+  },
+  "measurements": {
+    "clean_original_rate_pairs": 18,
+    "unchanged_final_archives": 18,
+    "raw_final_archive_window_equal": 36,
+    "15_clip_errors_before_after": [
+      46,
+      46
+    ],
+    "reference_characters": 568,
+    "source": "paired/FINAL-SUMMARY.json",
+    "cpu_memory": "resource/",
+    "endpoint_experiments": "endpoint/",
+    "endpoint_decision": "50_AND_60_REJECTED_CASH_TO_NOW_SEMANTIC_REGRESSION"
+  },
+  "package": {
+    "version": "0.16",
+    "build": "486",
+    "source": "d0b2d87320fd4145fbaea756690066bca3718bab",
+    "bundle": "app.saytile.mac.mandarin-candidate",
+    "app_executable_sha256": "f2cc37e001f4efa36b763fa001715b7bc681d70e83828ee4fed147db972a6922",
+    "worker_sha256": "d8a926bb740f188f9a5a5dcd8c9e7dc3c8255795a643a5450e9aa79880005108",
+    "dmg_bytes": 63751241,
+    "dmg_sha256": "592604bc0868250482220bbbe501d4e87c7dfcab2a8e79c8bf40228c338f86a6",
+    "codesign_app": "PASS",
+    "codesign_image": "PASS",
+    "signing": [
+      "Identifier=app.saytile.mac.mandarin-candidate",
+      "CodeDirectory v=20500 size=21742 flags=0x10000(runtime) hashes=668+7 location=embedded",
+      "CDHash=c5359d2b4126f4f604ec68c65406ff12299b4bb0",
+      "Authority=Developer ID Application: hongfei hao (ZB9D4T66QB)",
+      "Authority=Developer ID Certification Authority",
+      "Authority=Apple Root CA",
+      "Timestamp=Nov 14, 2026 at 21:11:41",
+      "TeamIdentifier=ZB9D4T66QB"
+    ],
+    "model_weights_in_bundle": [],
+    "gatekeeper_exit": 3,
+    "gatekeeper_result": "Saytile 中文识别候选.app: rejected\nsource=Unnotarized Developer ID",
+    "notarization_submitted": false,
+    "production_replaced": false
+  },
+  "upgrade_rollback": "upgrade-rollback.json",
+  "extracted_dmg": "extracted-image-verification.json",
+  "installed_final_fingerprints": [
+    {
+      "name": "Saytile.app",
+      "bundle": "app.saytile.mac",
+      "source": "a4f9f08656d1a22d2e0b6c59ad60e36452881010",
+      "dirty": false,
+      "version": "0.12",
+      "build": "373",
+      "executable_sha256": "35f6b2ae00f2888a7c5fdadf34a81f3a79f693aea76bca3d98733fc0ed25af45"
+    },
+    {
+      "name": "Saytile 中文识别候选.app",
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "source": "ab8545507c79640ec3f419e33467a0263c154844",
+      "dirty": false,
+      "version": "0.15",
+      "build": "484",
+      "executable_sha256": "a88118dc0a9b04f794b9ebdde0bbdede642e8a9b2b2c1b7f5cef93ea6bd2799d"
+    }
+  ],
+  "blocked": [
+    "Gatekeeper public distribution: Unnotarized Developer ID",
+    "CI VM hardware sleep lacks wake/system support"
+  ],
+  "not_run": [
+    "Physical microphone at user clamshell request",
+    "User natural voice and accent",
+    "New full 420 ASR rerun on486",
+    "New15-minute load soak on486",
+    "8GB hardware",
+    "GPU/ANE power and battery",
+    "Cloud and paid API",
+    "Notarization",
+    "Production release",
+    "In-place installation"
+  ],
+  "remaining": [
+    "First-visible p95 worse in current pair; not resolved",
+    "Long-sentence cadence not materially improved",
+    "No reliable App+helper CPU reduction",
+    "Intermediate allocation timing/root cause unresolved",
+    "Original model still omits words in long corpus"
+  ]
+}

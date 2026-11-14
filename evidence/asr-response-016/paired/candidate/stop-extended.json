@@ -1,0 +1,71 @@
+{
+  "source": "d0b2d87320fd4145fbaea756690066bca3718bab",
+  "clips": 3,
+  "measurement": "Same acoustic estimate as existing cadence scorer; eventual final-text display can precede ASR confirmation. Neither is a human endpoint or archive commit timestamp.",
+  "cadence_sha256": "d7dc5923f4588892d1c8a3b53eedaf42a85a52b8afb48030752bce924bfc0411",
+  "summary": {
+    "raw_final_after_last_acoustic_signal_s": {
+      "p50": 2.013,
+      "p95": 2.264
+    },
+    "eventual_final_text_display_after_last_acoustic_signal_s": {
+      "p50": 2.047,
+      "p95": 2.295
+    },
+    "whole_file_settled_after_last_acoustic_signal_s": {
+      "p50": 2.605,
+      "p95": 3.065
+    },
+    "whole_file_settled_after_eof_s": {
+      "p50": 0.023,
+      "p95": 0.296
+    }
+  },
+  "rows": [
+    {
+      "id": "fleurs-f8646a257c0c4273",
+      "receipt_sha256": "f49a4cf66523b5b3ba38d143dae9284f78cece7fb9f6fe9e93cd2d584e849ae3",
+      "audio_sha256": "c68868cfa82bd8c0ebcf691ce38d9860ae95aa803b3e846c2f552fb82e997829",
+      "last_acoustic_signal_estimate_s": 23.16,
+      "last_raw_final_event_at_s": 25.42422437481582,
+      "eventual_final_text_continuously_visible_from_s": 25.454520999919623,
+      "raw_final_after_last_acoustic_signal_s": 2.264,
+      "eventual_final_text_display_after_last_acoustic_signal_s": 2.295,
+      "eventual_final_text_display_before_raw_final_s": -0.03,
+      "vad_endpoint_status": "NOT_RECORDED",
+      "archive_commit_timestamp_status": "NOT_RECORDED",
+      "whole_file_settled_after_last_acoustic_signal_s": 2.605,
+      "whole_file_settled_after_eof_s": 0.023
+    },
+    {
+      "id": "continuous-public-5",
+      "receipt_sha256": "7b3c683eada0fa61416b72d40faa3697ea5a8ff2290994ae1e4d84f3b5cf5daa",
+      "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "last_acoustic_signal_estimate_s": 38.8,
+      "last_raw_final_event_at_s": 39.04732154170051,
+      "eventual_final_text_continuously_visible_from_s": 39.061059166677296,
+      "raw_final_after_last_acoustic_signal_s": 0.247,
+      "eventual_final_text_display_after_last_acoustic_signal_s": 0.261,
+      "eventual_final_text_display_before_raw_final_s": -0.014,
+      "vad_endpoint_status": "NOT_RECORDED",
+      "archive_commit_timestamp_status": "NOT_RECORDED",
+      "whole_file_settled_after_last_acoustic_signal_s": 0.299,
+      "whole_file_settled_after_eof_s": 0.296
+    },
+    {
+      "id": "trailing-quiet-481280",
+      "receipt_sha256": "2ac488fe5bba0f23a106f3060837b55bf6b9dfe53f6d702593862f992d4896b6",
+      "audio_sha256": "44f64214de1cdd8e71b16ce87d29376065c7f35520a8533e87f019c72defe7af",
+      "last_acoustic_signal_estimate_s": 31.52,
+      "last_raw_final_event_at_s": 33.53337116679177,
+      "eventual_final_text_continuously_visible_from_s": 33.56738487514667,
+      "raw_final_after_last_acoustic_signal_s": 2.013,
+      "eventual_final_text_display_after_last_acoustic_signal_s": 2.047,
+      "eventual_final_text_display_before_raw_final_s": -0.034,
+      "vad_endpoint_status": "NOT_RECORDED",
+      "archive_commit_timestamp_status": "NOT_RECORDED",
+      "whole_file_settled_after_last_acoustic_signal_s": 3.065,
+      "whole_file_settled_after_eof_s": 0.003
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+warning: /Users/hhf/Library/org.swift.swiftpm/configuration is not accessible or not writable, disabling user-level cache features.
+warning: /Users/hhf/Library/org.swift.swiftpm/security is not accessible or not writable, disabling user-level cache features.
+warning: /Users/hhf/Library/Caches/org.swift.swiftpm is not accessible or not writable, disabling user-level cache features.
+warning: 'saytile-asr-response': failed storing manifest for 'saytile-asr-response' in cache: attempt to write a readonly database
+Building for debugging...
+[Constructing description]
+[Planning deferred tasks]
+[73 / 164]
+[98 / 175] CAudio
+[107 / 176]
+[121 / 176] CAudio
+[133 / 176] CAudio
+[139 / 204] SaytileVoiceUI
+[149 / 354]
+[158 / 354]
+[173 / 354]
+[178 / 354]
+[186 / 354]
+[188 / 354]
+[195 / 354]
+/private/tmp/saytile-asr-response/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[200 / 354]
+[208 / 354]
+[210 / 354]
+[213 / 354]
+[214 / 354]
+[226 / 354]
+[229 / 354]
+[234 / 354]
+[239 / 354]
+[240 / 354]
+[242 / 354]
+[249 / 354]
+[251 / 354]
+[256 / 354]
+[257 / 354]
+[258 / 354]
+[261 / 354]
+[263 / 354]
+[275 / 354]
+[276 / 354]
+[277 / 354]
+[281 / 354]
+[286 / 354]
+[289 / 354]
+[290 / 354]
+[291 / 354]
+[292 / 354]
+[303 / 354] SaytileKit
+/private/tmp/saytile-asr-response/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+[310 / 354] SaytileKit
+[319 / 354] SaytileVoiceUI
+[330 / 355] SaytileVoiceUI
+[333 / 371] SaytileVoiceUI
+[334 / 371]
+[337 / 371] SaytileKit
+/private/tmp/saytile-asr-response/Package.swift: SaytileVoiceUI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/private/tmp/saytile-asr-response/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[345 / 372]
+[355 / 372] Saytile-product
+[355 / 387] Saytile-product
+[357 / 387] Saytile-product
+[360 / 387]
+[361 / 387]
+[364 / 387] SaytileKitTests-product
+[366 / 387] SaytileKitTests-product
+[367 / 387] SaytileKitTests-product
+[368 / 387] SaytileKitTests-product
+[369 / 387] SaytileKitTests-product
+[370 / 387] SaytileKitTests-product
+[371 / 387] SaytileKitTests-product
+/private/tmp/saytile-asr-response/Sources/SaytileApp/AppModel.swift:868:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 860 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+ 861 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+ 862 |         connectionCheckTask = Task {
+     |                                    |- note: 'self' implicitly strongly captured here
+     |                                    `- note: add 'self' as a capture list item to silence
+ 863 |             // A cancelled older check must fully close its sockets before another starts.
+ 864 |             await previous?.value
+     :
+ 866 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+ 867 |             do {
+ 868 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+     |                                                                                         `- note: explicitly assign the capture list item to silence
+ 869 |                     Task { @MainActor [weak self] in
+ 870 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[376 / 387] SaytileKitTests-product
+[377 / 387] SaytileKitTests-product
+[377 / 387] Saytile-product
+[379 / 387] SaytileKitTests-product
+[379 / 387] Saytile-product
+/private/tmp/saytile-asr-response/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-asr-response/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[381 / 387] SaytileKitTests-product
+[383 / 387] SaytileKitTests-product/private/tmp/saytile-asr-response/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-asr-response/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (40.65秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Local model preview and download recovery" started.
+◇ Suite "On-device streaming and model integrity" started.
+◇ Test mixedSpeechResumesAfterTwoRealObservationsOfANewLatinWordBoundary() started.
+◇ Test identicalNewDecodesCanConfirmAWithheldCorrectionWithoutRepeatingPublishedText() started.
+◇ Test numericalPunctuationCannotReleaseAConflictingHypothesis() started.
+◇ Test wordsAfterAnAppositionCanAppearWhileTheDecoderRestylesOldPauses() started.
+◇ Test localConfirmationNeedsARealSharedNewWordAndKeepsNegationBoundaries() started.
+◇ Test replayedOrRegressingFramesCannotConfirmACorrectionOrReplaceNewerText() started.
+◇ Test rawQwenPeriodStopsBlinkingUntilSupportedByMoreSpeech() started.
+◇ Test invalidCompleteResponsePreservesCheckpointForNextDownload() started.
+◇ Test localConfirmationRefusesUnsupportedWordsAmbiguousAnchorsOrChangedMeaning() started.
+◇ Test establishedWordAndUnfinishedTailCanBothBeCorrectedByGrowingPasses() started.
+◇ Test aCommaAfterANegationIsNotAnOptionalStyleChange() started.
+◇ Test twoPassCorrectionSurvivesAnIndependentEarlierOscillation() started.
+◇ Test mixedSpeechCanGrowWhileEarlierWordsChangeTypography() started.
+◇ Test firstRollingWordAppearsImmediatelyAndGetsItsFinalPunctuationAtEOS() started.
+◇ Test longPreviewResumesAfterTwoAlignedCorrectionsFromTheDecoder() started.
+◇ Test aSecondChangeAtTheRightEdgeCannotBypassProtectedEvidence() started.
+◇ Test coldReopenVerifiesEqualSizeDamageAndReportsAllRemovableBytes() started.
+◇ Test localFinalReviewRetainsEvidence(mode:) started.
+◇ Test streamingProviderCanStillPublishAdditionalEvidenceAtTheSameFrame() started.
+◇ Test longPreviewRejectsWidelyChangedPassesDespiteSharedWords() started.
+◇ Test scriptChangeKeepsVerbatimPreviewAndNoDispatch() started.
+◇ Test confirmedNumberRenderingCanResumeAPreviewButCannotCreateDispatchEvidence() started.
+◇ Test twoLexicallyIdenticalPassesCanCorroborateNewWordsAcrossARephrasedPause() started.
+◇ Test downloadPreservesRoomForRecording() started.
+◇ Test pinnedCatalogSeparatesBatchFromStreaming() started.
+◇ Test changedSameLengthWeightsCannotBeOpened() started.
+◇ Test returningToPublishedWordsBreaksThePendingCorrectionPair() started.
+◇ Test onlyNetworkFailuresBecomeEligibleForAutomaticResume() started.
+◇ Test chunkCorrectionsStayInTheTailWithoutManufacturingEvidence(_:) started.
+◇ Test shortPipeLineArrivesWithInputStillOpen() started.
+◇ Test onlyReadyModelsCanTakeTheNextTicket() started.
+◇ Test case passing 1 argument mode → "verified" to localFinalReviewRetainsEvidence(mode:) started.
+◇ Test case passing 1 argument mode → "revoked" to localFinalReviewRetainsEvidence(mode:) started.
+◇ Test case passing 1 argument mode → "offline" to localFinalReviewRetainsEvidence(mode:) started.
+◇ Test case passing 1 argument id → .qwen to chunkCorrectionsStayInTheTailWithoutManufacturingEvidence(_:) started.
+◇ Test case passing 1 argument id → .qwenLarge to chunkCorrectionsStayInTheTailWithoutManufacturingEvidence(_:) started.
+✔ Test rawQwenPeriodStopsBlinkingUntilSupportedByMoreSpeech() passed after 0.016 seconds.
+✔ Test wordsAfterAnAppositionCanAppearWhileTheDecoderRestylesOldPauses() passed after 0.017 seconds.
+✔ Test numericalPunctuationCannotReleaseAConflictingHypothesis() passed after 0.017 seconds.
+✔ Test firstRollingWordAppearsImmediatelyAndGetsItsFinalPunctuationAtEOS() passed after 0.017 seconds.
+✔ Test identicalNewDecodesCanConfirmAWithheldCorrectionWithoutRepeatingPublishedText() passed after 0.017 seconds.
+✔ Test replayedOrRegressingFramesCannotConfirmACorrectionOrReplaceNewerText() passed after 0.017 seconds.
+✔ Test twoPassCorrectionSurvivesAnIndependentEarlierOscillation() passed after 0.017 seconds.
+✔ Test streamingProviderCanStillPublishAdditionalEvidenceAtTheSameFrame() passed after 0.017 seconds.
+✔ Test longPreviewResumesAfterTwoAlignedCorrectionsFromTheDecoder() passed after 0.017 seconds.
+✔ Test longPreviewRejectsWidelyChangedPassesDespiteSharedWords() passed after 0.017 seconds.
+✔ Test aCommaAfterANegationIsNotAnOptionalStyleChange() passed after 0.017 seconds.
+✔ Test localConfirmationRefusesUnsupportedWordsAmbiguousAnchorsOrChangedMeaning() passed after 0.017 seconds.
+✔ Test scriptChangeKeepsVerbatimPreviewAndNoDispatch() passed after 0.017 seconds.
+✔ Test aSecondChangeAtTheRightEdgeCannotBypassProtectedEvidence() passed after 0.017 seconds.
+✔ Test localConfirmationNeedsARealSharedNewWordAndKeepsNegationBoundaries() passed after 0.017 seconds.
+✔ Test downloadPreservesRoomForRecording() passed after 0.017 seconds.
+✔ Test mixedSpeechCanGrowWhileEarlierWordsChangeTypography() passed after 0.017 seconds.
+✔ Test establishedWordAndUnfinishedTailCanBothBeCorrectedByGrowingPasses() passed after 0.016 seconds.
+✔ Test confirmedNumberRenderingCanResumeAPreviewButCannotCreateDispatchEvidence() passed after 0.017 seconds.
+✔ Test pinnedCatalogSeparatesBatchFromStreaming() passed after 0.017 seconds.
+✔ Test twoLexicallyIdenticalPassesCanCorroborateNewWordsAcrossARephrasedPause() passed after 0.017 seconds.
+✔ Test chunkCorrectionsStayInTheTailWithoutManufacturingEvidence(_:) with 2 test cases passed after 0.017 seconds.
+✔ Test returningToPublishedWordsBreaksThePendingCorrectionPair() passed after 0.017 seconds.
+✔ Test onlyReadyModelsCanTakeTheNextTicket() passed after 0.017 seconds.
+✔ Test mixedSpeechResumesAfterTwoRealObservationsOfANewLatinWordBoundary() passed after 0.018 seconds.
+✔ Test changedSameLengthWeightsCannotBeOpened() passed after 0.022 seconds.
+✔ Test coldReopenVerifiesEqualSizeDamageAndReportsAllRemovableBytes() passed after 0.023 seconds.
+✔ Test onlyNetworkFailuresBecomeEligibleForAutomaticResume() passed after 0.041 seconds.
+✔ Test invalidCompleteResponsePreservesCheckpointForNextDownload() passed after 0.041 seconds.
+✔ Suite "Local model preview and download recovery" passed after 0.041 seconds.
+✔ Test localFinalReviewRetainsEvidence(mode:) with 3 test cases passed after 0.042 seconds.
+✔ Test shortPipeLineArrivesWithInputStillOpen() passed after 0.294 seconds.
+✔ Suite "On-device streaming and model integrity" passed after 0.295 seconds.
+✔ Test run with 31 tests in 2 suites passed after 0.295 seconds.

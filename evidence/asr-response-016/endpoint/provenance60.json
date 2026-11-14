@@ -1,0 +1,31 @@
+{
+  "status": "REJECTED",
+  "worktree": "/private/tmp/saytile-response-endpoint50",
+  "branch": "codex/asr-response-endpoint-lab",
+  "base_source_sha": "d0b2d87320fd4145fbaea756690066bca3718bab",
+  "patch_path": "/private/tmp/asr-qwen-endpoint60.patch",
+  "patch_sha256": "e6e76b7374aea76fde0928929287f6487fdd1c04ad64b0a5cb62c56a3b109ba8",
+  "experimental_fanout_sha256": "fdae39aa883a3e16687e1a5ec7957f37e253cbe0f96c572b3db779a4b04d00eb",
+  "policy": "Qwen0.6B60frames (1.2s),otherlocal75,cloud100; nootherparams changed",
+  "prior50": "REJECTED financial现金->现今; evidence preserved /private/tmp/asr-endpoint50-evidence",
+  "scratch_note": "Incremental reuse of prior50 CPU host build scratch; independent60 Cohort output; unchanged484 modelworker used for later comparisons",
+  "gpu": "Completed singlepublicfinancecase exit0; workerexited; nofurtherASR",
+  "build_log": "/private/tmp/asr-qwen-endpoint60-build.log",
+  "binaries": {
+    "cohort": {
+      "path": "/private/tmp/saytile-endpoint60-bin/Cohort",
+      "sha256": "3d758a5b64c401fa45920e9f42d7ae5645dd1515bc8eef7c800d3d5c2d986bc9"
+    },
+    "kit": {
+      "path": "/private/tmp/saytile-endpoint50-build/out/Products/Debug/libSaytileKit.a",
+      "sha256": "25f194053e76ee80616d8bce4959dcb35eef77866c750418b4aabd29c95cd517"
+    }
+  },
+  "decision": "Critical financial term 现金 became 现今 after boundary inside phrase; identical regression to50. No65/70oradditionalthresholdtuning.",
+  "not_run": [
+    "remaining14",
+    "all440",
+    "original-rate",
+    "microphone"
+  ]
+}

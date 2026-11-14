@@ -1,0 +1,128 @@
+{
+  "status": "SAME_FIXED_TEXT_PASS_GLOBAL_PEAK_DIFFERENCE_NOT_REPRODUCED_INTERMEDIATE_FOOTPRINT_DIFFERENCE_REMAINS",
+  "partial_count": 16,
+  "identical_events": true,
+  "baseline_cpu_time": "0:03.20",
+  "candidate_cpu_time": "0:03.19",
+  "baseline_wall_s": 6.710877666017041,
+  "candidate_wall_s": 6.337041625054553,
+  "peak_baseline_MiB": 1798.986,
+  "peak_candidate_MiB": 1798.423,
+  "phases": [
+    {
+      "phase": "load",
+      "baseline_peak_MiB": 73.47,
+      "candidate_peak_MiB": 73.657,
+      "candidate_minus_baseline_MiB": 0.188
+    },
+    {
+      "phase": "preview-12800",
+      "baseline_peak_MiB": 840.517,
+      "candidate_peak_MiB": 843.673,
+      "candidate_minus_baseline_MiB": 3.156
+    },
+    {
+      "phase": "preview-44800",
+      "baseline_peak_MiB": 969.814,
+      "candidate_peak_MiB": 1169.564,
+      "candidate_minus_baseline_MiB": 199.75
+    },
+    {
+      "phase": "preview-76800",
+      "baseline_peak_MiB": 1044.892,
+      "candidate_peak_MiB": 1191.079,
+      "candidate_minus_baseline_MiB": 146.188
+    },
+    {
+      "phase": "preview-108800",
+      "baseline_peak_MiB": 1037.236,
+      "candidate_peak_MiB": 1335.329,
+      "candidate_minus_baseline_MiB": 298.094
+    },
+    {
+      "phase": "preview-140800",
+      "baseline_peak_MiB": 1129.611,
+      "candidate_peak_MiB": 1426.767,
+      "candidate_minus_baseline_MiB": 297.156
+    },
+    {
+      "phase": "preview-172800",
+      "baseline_peak_MiB": 1062.158,
+      "candidate_peak_MiB": 1479.251,
+      "candidate_minus_baseline_MiB": 417.094
+    },
+    {
+      "phase": "preview-204800",
+      "baseline_peak_MiB": 1233.095,
+      "candidate_peak_MiB": 1512.548,
+      "candidate_minus_baseline_MiB": 279.453
+    },
+    {
+      "phase": "preview-236800",
+      "baseline_peak_MiB": 1148.079,
+      "candidate_peak_MiB": 1236.548,
+      "candidate_minus_baseline_MiB": 88.469
+    },
+    {
+      "phase": "preview-260800",
+      "baseline_peak_MiB": 1197.939,
+      "candidate_peak_MiB": 1569.814,
+      "candidate_minus_baseline_MiB": 371.875
+    },
+    {
+      "phase": "preview-292800",
+      "baseline_peak_MiB": 1320.595,
+      "candidate_peak_MiB": 1579.892,
+      "candidate_minus_baseline_MiB": 259.297
+    },
+    {
+      "phase": "preview-324800",
+      "baseline_peak_MiB": 1504.595,
+      "candidate_peak_MiB": 1617.126,
+      "candidate_minus_baseline_MiB": 112.531
+    },
+    {
+      "phase": "preview-356800",
+      "baseline_peak_MiB": 1600.908,
+      "candidate_peak_MiB": 1614.814,
+      "candidate_minus_baseline_MiB": 13.906
+    },
+    {
+      "phase": "preview-388800",
+      "baseline_peak_MiB": 1623.064,
+      "candidate_peak_MiB": 1739.111,
+      "candidate_minus_baseline_MiB": 116.047
+    },
+    {
+      "phase": "preview-420800",
+      "baseline_peak_MiB": 1641.142,
+      "candidate_peak_MiB": 1748.204,
+      "candidate_minus_baseline_MiB": 107.063
+    },
+    {
+      "phase": "preview-452800",
+      "baseline_peak_MiB": 1777.142,
+      "candidate_peak_MiB": 1739.783,
+      "candidate_minus_baseline_MiB": -37.359
+    },
+    {
+      "phase": "preview-476800",
+      "baseline_peak_MiB": 1791.095,
+      "candidate_peak_MiB": 1790.548,
+      "candidate_minus_baseline_MiB": -0.547
+    },
+    {
+      "phase": "final-481280",
+      "baseline_peak_MiB": 1798.986,
+      "candidate_peak_MiB": 1798.423,
+      "candidate_minus_baseline_MiB": -0.562
+    }
+  ],
+  "caveats": [
+    "One bounded pair; does not identify the allocator owning the original difference",
+    "Sampling differs from native measure (25ms vs200ms); compare arms within each experiment",
+    "Natural wall-paced fixed audio remains more variable than identical decoder call boundaries",
+    "Not real-time speed evidence and not a CPU improvement proof",
+    "Candidate intermediate preview footprint is higher at several identical acoustic boundaries; equal final global peak does not establish allocation-lifetime equivalence or prove that input timing fully explains the prior difference."
+  ]
+}

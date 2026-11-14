@@ -1,0 +1,810 @@
+{
+  "status": "COMPLETED_MEASURED_NOT_PROVEN_RESPONSIVENESS_WINNER",
+  "at": "2026-11-14T13:24:54.720273+00:00",
+  "identities": {
+    "baseline": {
+      "app": "/private/tmp/saytile-response-bench/baseline-484.app",
+      "sha": "ab8545507c79640ec3f419e33467a0263c154844",
+      "version": "0.15",
+      "build": "484",
+      "executable_sha256": "a88118dc0a9b04f794b9ebdde0bbdede642e8a9b2b2c1b7f5cef93ea6bd2799d",
+      "helper_sha256": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e"
+    },
+    "candidate": {
+      "app": "/private/tmp/saytile-response-bench/clean-paired486/candidate.app",
+      "sha": "d0b2d87320fd4145fbaea756690066bca3718bab",
+      "version": "0.16",
+      "build": "486",
+      "executable_sha256": "f2cc37e001f4efa36b763fa001715b7bc681d70e83828ee4fed147db972a6922",
+      "helper_sha256": "d8a926bb740f188f9a5a5dcd8c9e7dc3c8255795a643a5450e9aa79880005108"
+    }
+  },
+  "order": "Per sample AB/BA alternating; 15 fixed public clips + 3 fixed extended; CPU A-B-A-B",
+  "arms": {
+    "baseline": {
+      "panels": {
+        "clips": 15,
+        "reference_clips": 15,
+        "errors": 46,
+        "reference_units": 568,
+        "CER": 0.08098591549295775,
+        "cadence_summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.515,
+              "p95": 1.095
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.515,
+              "p95": 1.095
+            },
+            "longest_per_clip_s": {
+              "p50": 1.242,
+              "p95": 1.98
+            },
+            "first_s": {
+              "p50": 0.924,
+              "p95": 1.515
+            },
+            "clips_with_repeated_updates": 15,
+            "number_of_gaps_at_least_2s": 0
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.403,
+              "p95": 1.016
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.403,
+              "p95": 1.016
+            },
+            "longest_per_clip_s": {
+              "p50": 1.269,
+              "p95": 1.908
+            },
+            "first_s": {
+              "p50": 0.955,
+              "p95": 1.551
+            },
+            "clips_with_repeated_updates": 15,
+            "number_of_gaps_at_least_2s": 0
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.515,
+              "p95": 1.055
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.515,
+              "p95": 1.055
+            },
+            "longest_per_clip_s": {
+              "p50": 1.238,
+              "p95": 1.981
+            },
+            "first_s": {
+              "p50": 0.916,
+              "p95": 1.51
+            },
+            "clips_with_repeated_updates": 15,
+            "number_of_gaps_at_least_2s": 0
+          }
+        },
+        "stop_response": {
+          "raw_final_after_last_acoustic_signal_s": {
+            "p50": 0.375,
+            "p95": 2.838
+          },
+          "eventual_final_text_display_after_last_acoustic_signal_s": {
+            "p50": 0.406,
+            "p95": 2.85
+          },
+          "whole_file_settled_after_last_acoustic_signal_s": {
+            "p50": 0.431,
+            "p95": 4.189
+          },
+          "whole_file_settled_after_eof_s": {
+            "p50": 0.228,
+            "p95": 0.359
+          }
+        }
+      },
+      "extended": {
+        "clips": 3,
+        "reference_clips": 2,
+        "errors": 36,
+        "reference_units": 297,
+        "CER": 0.12121212121212122,
+        "cadence_summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.518,
+              "p95": 1.105
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.518,
+              "p95": 1.105
+            },
+            "longest_per_clip_s": {
+              "p50": 1.609,
+              "p95": 1.95
+            },
+            "first_s": {
+              "p50": 0.74,
+              "p95": 0.978
+            },
+            "clips_with_repeated_updates": 3,
+            "number_of_gaps_at_least_2s": 0
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.4,
+              "p95": 0.968
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.4,
+              "p95": 0.968
+            },
+            "longest_per_clip_s": {
+              "p50": 1.622,
+              "p95": 1.968
+            },
+            "first_s": {
+              "p50": 0.767,
+              "p95": 1.038
+            },
+            "clips_with_repeated_updates": 3,
+            "number_of_gaps_at_least_2s": 0
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.517,
+              "p95": 1.015
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.517,
+              "p95": 1.015
+            },
+            "longest_per_clip_s": {
+              "p50": 1.58,
+              "p95": 1.609
+            },
+            "first_s": {
+              "p50": 0.737,
+              "p95": 0.973
+            },
+            "clips_with_repeated_updates": 3,
+            "number_of_gaps_at_least_2s": 0
+          }
+        },
+        "stop_response": {
+          "raw_final_after_last_acoustic_signal_s": {
+            "p50": 2.279,
+            "p95": 2.29
+          },
+          "eventual_final_text_display_after_last_acoustic_signal_s": {
+            "p50": 2.295,
+            "p95": 2.309
+          },
+          "whole_file_settled_after_last_acoustic_signal_s": {
+            "p50": 2.623,
+            "p95": 3.085
+          },
+          "whole_file_settled_after_eof_s": {
+            "p50": 0.04,
+            "p95": 0.342
+          }
+        }
+      },
+      "word_progress": {
+        "window/literal": {
+          "first_s": {
+            "p50": 0.869,
+            "p95": 1.118
+          },
+          "internal_gaps_s": {
+            "p50": 0.044,
+            "p95": 0.912
+          },
+          "longest_s": 1.908
+        },
+        "window/lexical": {
+          "first_s": {
+            "p50": 0.869,
+            "p95": 1.118
+          },
+          "internal_gaps_s": {
+            "p50": 0.365,
+            "p95": 0.944
+          },
+          "longest_s": 1.908
+        },
+        "window/reference_words": {
+          "first_s": {
+            "p50": 0.92,
+            "p95": 1.118
+          },
+          "internal_gaps_s": {
+            "p50": 0.479,
+            "p95": 1.105
+          },
+          "longest_s": 2.442
+        },
+        "publication/literal": {
+          "first_s": {
+            "p50": 0.855,
+            "p95": 1.091
+          },
+          "internal_gaps_s": {
+            "p50": 0.512,
+            "p95": 1.013
+          },
+          "longest_s": 1.98
+        },
+        "publication/lexical": {
+          "first_s": {
+            "p50": 0.855,
+            "p95": 1.091
+          },
+          "internal_gaps_s": {
+            "p50": 0.513,
+            "p95": 1.013
+          },
+          "longest_s": 1.98
+        },
+        "publication/reference_words": {
+          "first_s": {
+            "p50": 0.896,
+            "p95": 1.091
+          },
+          "internal_gaps_s": {
+            "p50": 0.525,
+            "p95": 1.492
+          },
+          "longest_s": 2.448
+        },
+        "worker/literal": {
+          "first_s": {
+            "p50": 0.851,
+            "p95": 1.085
+          },
+          "internal_gaps_s": {
+            "p50": 0.511,
+            "p95": 0.994
+          },
+          "longest_s": 1.981
+        },
+        "worker/lexical": {
+          "first_s": {
+            "p50": 0.851,
+            "p95": 1.085
+          },
+          "internal_gaps_s": {
+            "p50": 0.512,
+            "p95": 0.998
+          },
+          "longest_s": 1.981
+        },
+        "worker/reference_words": {
+          "first_s": {
+            "p50": 0.891,
+            "p95": 1.088
+          },
+          "internal_gaps_s": {
+            "p50": 0.525,
+            "p95": 1.082
+          },
+          "longest_s": 2.451
+        }
+      },
+      "localized_reversals": {
+        "receipts": 18,
+        "reversals": 4,
+        "next_observation": 4,
+        "second_observation": 0,
+        "no_new_tail": 1
+      }
+    },
+    "candidate": {
+      "panels": {
+        "clips": 15,
+        "reference_clips": 15,
+        "errors": 46,
+        "reference_units": 568,
+        "CER": 0.08098591549295775,
+        "cadence_summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.512,
+              "p95": 1.042
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.512,
+              "p95": 1.042
+            },
+            "longest_per_clip_s": {
+              "p50": 1.23,
+              "p95": 2.728
+            },
+            "first_s": {
+              "p50": 1.015,
+              "p95": 2.728
+            },
+            "clips_with_repeated_updates": 15,
+            "number_of_gaps_at_least_2s": 1
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.411,
+              "p95": 1.026
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.411,
+              "p95": 1.026
+            },
+            "longest_per_clip_s": {
+              "p50": 1.245,
+              "p95": 2.805
+            },
+            "first_s": {
+              "p50": 1.054,
+              "p95": 2.805
+            },
+            "clips_with_repeated_updates": 15,
+            "number_of_gaps_at_least_2s": 1
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.513,
+              "p95": 1.042
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.513,
+              "p95": 1.042
+            },
+            "longest_per_clip_s": {
+              "p50": 1.228,
+              "p95": 2.724
+            },
+            "first_s": {
+              "p50": 1.009,
+              "p95": 2.724
+            },
+            "clips_with_repeated_updates": 15,
+            "number_of_gaps_at_least_2s": 1
+          }
+        },
+        "stop_response": {
+          "raw_final_after_last_acoustic_signal_s": {
+            "p50": 0.44,
+            "p95": 2.762
+          },
+          "eventual_final_text_display_after_last_acoustic_signal_s": {
+            "p50": 0.453,
+            "p95": 2.794
+          },
+          "whole_file_settled_after_last_acoustic_signal_s": {
+            "p50": 0.452,
+            "p95": 4.203
+          },
+          "whole_file_settled_after_eof_s": {
+            "p50": 0.231,
+            "p95": 0.286
+          }
+        }
+      },
+      "extended": {
+        "clips": 3,
+        "reference_clips": 2,
+        "errors": 36,
+        "reference_units": 297,
+        "CER": 0.12121212121212122,
+        "cadence_summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.515,
+              "p95": 1.111
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.515,
+              "p95": 1.111
+            },
+            "longest_per_clip_s": {
+              "p50": 1.562,
+              "p95": 1.976
+            },
+            "first_s": {
+              "p50": 0.742,
+              "p95": 0.97
+            },
+            "clips_with_repeated_updates": 3,
+            "number_of_gaps_at_least_2s": 0
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.403,
+              "p95": 1.004
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.403,
+              "p95": 1.004
+            },
+            "longest_per_clip_s": {
+              "p50": 1.59,
+              "p95": 1.972
+            },
+            "first_s": {
+              "p50": 0.8,
+              "p95": 1.038
+            },
+            "clips_with_repeated_updates": 3,
+            "number_of_gaps_at_least_2s": 0
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.514,
+              "p95": 1.026
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.514,
+              "p95": 1.026
+            },
+            "longest_per_clip_s": {
+              "p50": 1.561,
+              "p95": 1.582
+            },
+            "first_s": {
+              "p50": 0.739,
+              "p95": 0.966
+            },
+            "clips_with_repeated_updates": 3,
+            "number_of_gaps_at_least_2s": 0
+          }
+        },
+        "stop_response": {
+          "raw_final_after_last_acoustic_signal_s": {
+            "p50": 2.013,
+            "p95": 2.264
+          },
+          "eventual_final_text_display_after_last_acoustic_signal_s": {
+            "p50": 2.047,
+            "p95": 2.295
+          },
+          "whole_file_settled_after_last_acoustic_signal_s": {
+            "p50": 2.605,
+            "p95": 3.065
+          },
+          "whole_file_settled_after_eof_s": {
+            "p50": 0.023,
+            "p95": 0.296
+          }
+        }
+      },
+      "word_progress": {
+        "window/literal": {
+          "first_s": {
+            "p50": 0.961,
+            "p95": 2.768
+          },
+          "internal_gaps_s": {
+            "p50": 0.143,
+            "p95": 0.662
+          },
+          "longest_s": 2.768
+        },
+        "window/lexical": {
+          "first_s": {
+            "p50": 0.961,
+            "p95": 2.768
+          },
+          "internal_gaps_s": {
+            "p50": 0.38,
+            "p95": 0.893
+          },
+          "longest_s": 2.768
+        },
+        "window/reference_words": {
+          "first_s": {
+            "p50": 0.971,
+            "p95": 2.768
+          },
+          "internal_gaps_s": {
+            "p50": 0.482,
+            "p95": 1.073
+          },
+          "longest_s": 2.768
+        },
+        "publication/literal": {
+          "first_s": {
+            "p50": 0.939,
+            "p95": 2.728
+          },
+          "internal_gaps_s": {
+            "p50": 0.511,
+            "p95": 1.023
+          },
+          "longest_s": 2.728
+        },
+        "publication/lexical": {
+          "first_s": {
+            "p50": 0.939,
+            "p95": 2.728
+          },
+          "internal_gaps_s": {
+            "p50": 0.511,
+            "p95": 1.023
+          },
+          "longest_s": 2.728
+        },
+        "publication/reference_words": {
+          "first_s": {
+            "p50": 0.94,
+            "p95": 2.728
+          },
+          "internal_gaps_s": {
+            "p50": 0.523,
+            "p95": 1.495
+          },
+          "longest_s": 2.728
+        },
+        "worker/literal": {
+          "first_s": {
+            "p50": 0.935,
+            "p95": 2.724
+          },
+          "internal_gaps_s": {
+            "p50": 0.51,
+            "p95": 0.98
+          },
+          "longest_s": 2.724
+        },
+        "worker/lexical": {
+          "first_s": {
+            "p50": 0.935,
+            "p95": 2.724
+          },
+          "internal_gaps_s": {
+            "p50": 0.51,
+            "p95": 0.98
+          },
+          "longest_s": 2.724
+        },
+        "worker/reference_words": {
+          "first_s": {
+            "p50": 0.935,
+            "p95": 2.724
+          },
+          "internal_gaps_s": {
+            "p50": 0.518,
+            "p95": 1.051
+          },
+          "longest_s": 2.724
+        }
+      },
+      "localized_reversals": {
+        "receipts": 18,
+        "reversals": 4,
+        "next_observation": 4,
+        "second_observation": 0,
+        "no_new_tail": 1
+      }
+    }
+  },
+  "archive_equality": {
+    "panels": {
+      "pairs": 15,
+      "identical": 15
+    },
+    "extended": {
+      "pairs": 3,
+      "identical": 3
+    }
+  },
+  "cpu": [
+    {
+      "order": "1-baseline",
+      "source": "ab8545507c79640ec3f419e33467a0263c154844",
+      "build": "484",
+      "sample": "continuous-public-5",
+      "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "wall_s": 40.298,
+      "app_cpu_s": 2.41,
+      "workers_cpu_s": 9.75,
+      "combined_cpu_s": 12.16,
+      "process_equivalent_cores": 0.3017,
+      "input_s": 38.8,
+      "end_of_file": 38.80295724980533,
+      "peak_simultaneous_footprint_MiB": 1687.9,
+      "computes": 75,
+      "preview_compute_wall_s": 14.358
+    },
+    {
+      "order": "2-candidate",
+      "source": "d0b2d87320fd4145fbaea756690066bca3718bab",
+      "build": "486",
+      "sample": "continuous-public-5",
+      "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "wall_s": 40.287,
+      "app_cpu_s": 2.46,
+      "workers_cpu_s": 9.83,
+      "combined_cpu_s": 12.29,
+      "process_equivalent_cores": 0.3051,
+      "input_s": 38.8,
+      "end_of_file": 38.802773541770875,
+      "peak_simultaneous_footprint_MiB": 1815.2,
+      "computes": 75,
+      "preview_compute_wall_s": 14.26
+    },
+    {
+      "order": "3-baseline",
+      "source": "ab8545507c79640ec3f419e33467a0263c154844",
+      "build": "484",
+      "sample": "continuous-public-5",
+      "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "wall_s": 40.179,
+      "app_cpu_s": 2.29,
+      "workers_cpu_s": 10.53,
+      "combined_cpu_s": 12.82,
+      "process_equivalent_cores": 0.3191,
+      "input_s": 38.8,
+      "end_of_file": 38.80299341655336,
+      "peak_simultaneous_footprint_MiB": 1673.7,
+      "computes": 72,
+      "preview_compute_wall_s": 15.175
+    },
+    {
+      "order": "4-candidate",
+      "source": "d0b2d87320fd4145fbaea756690066bca3718bab",
+      "build": "486",
+      "sample": "continuous-public-5",
+      "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "wall_s": 40.336,
+      "app_cpu_s": 2.46,
+      "workers_cpu_s": 9.57,
+      "combined_cpu_s": 12.03,
+      "process_equivalent_cores": 0.2982,
+      "input_s": 38.8,
+      "end_of_file": 38.80307920835912,
+      "peak_simultaneous_footprint_MiB": 1800.8,
+      "computes": 75,
+      "preview_compute_wall_s": 14.288
+    }
+  ],
+  "limits": [
+    "Physical microphone NOT_RUN (user requested clamshell)",
+    "No private archive, recording, clipboard, account or cloud API used",
+    "One model per segment",
+    "15 public native cohort is not user-personal quality acceptance",
+    "38.8s fixture concatenates five licensed public utterances; not natural single-speaker conversation",
+    "Tail-silence derivative lacks full reference; CER NOT_RUN for that clip",
+    "Same streaming raw finals equal archive; new complete-file direct-model comparison NOT_RUN in this phase",
+    "CPU counters sampled every 200ms are lower bounds if child exits between samples; full App + helper included",
+    "24GB M5 environment; 8GB Mac NOT_RUN",
+    "No GPU/ANE power or battery energy meter; CPU and simultaneous physical footprint only"
+  ],
+  "raw_final_archive_equality": {
+    "runs": 36,
+    "equal": 36,
+    "final_window_equal": 36
+  },
+  "revision_comparison": {
+    "panels": {
+      "identical_archives": 15,
+      "before": {
+        "preview_decodes": 232,
+        "preview_decode_wall_s": 29.09,
+        "audio_wall_s": 137.122,
+        "publications": 154,
+        "decode_wall_ratio": 0.2121,
+        "timeline_revisions": {
+          "suffix_revisions": 27,
+          "removed_or_replaced_chars": 41,
+          "literal_revisions": 49,
+          "provisional_periods_retracted": 0
+        },
+        "screen_revisions": {
+          "suffix_revisions": 27,
+          "removed_or_replaced_chars": 41,
+          "literal_revisions": 49,
+          "provisional_periods_retracted": 0
+        },
+        "first_visible_s": {
+          "p50": 0.955,
+          "p95": 1.551
+        },
+        "final_after_eof_s": {
+          "p50": 0.228,
+          "p95": 0.359
+        },
+        "longest_published_s": 1.98
+      },
+      "after": {
+        "preview_decodes": 229,
+        "preview_decode_wall_s": 30.64,
+        "audio_wall_s": 137.113,
+        "publications": 155,
+        "decode_wall_ratio": 0.2235,
+        "timeline_revisions": {
+          "suffix_revisions": 26,
+          "removed_or_replaced_chars": 40,
+          "literal_revisions": 46,
+          "provisional_periods_retracted": 0
+        },
+        "screen_revisions": {
+          "suffix_revisions": 26,
+          "removed_or_replaced_chars": 40,
+          "literal_revisions": 46,
+          "provisional_periods_retracted": 0
+        },
+        "first_visible_s": {
+          "p50": 1.054,
+          "p95": 2.805
+        },
+        "final_after_eof_s": {
+          "p50": 0.231,
+          "p95": 0.286
+        },
+        "longest_published_s": 2.728
+      }
+    },
+    "extended": {
+      "identical_archives": 3,
+      "before": {
+        "preview_decodes": 182,
+        "preview_decode_wall_s": 37.249,
+        "audio_wall_s": 99.129,
+        "publications": 143,
+        "decode_wall_ratio": 0.3758,
+        "timeline_revisions": {
+          "suffix_revisions": 24,
+          "removed_or_replaced_chars": 48,
+          "literal_revisions": 51,
+          "provisional_periods_retracted": 0
+        },
+        "screen_revisions": {
+          "suffix_revisions": 24,
+          "removed_or_replaced_chars": 48,
+          "literal_revisions": 51,
+          "provisional_periods_retracted": 0
+        },
+        "first_visible_s": {
+          "p50": 0.767,
+          "p95": 1.038
+        },
+        "final_after_eof_s": {
+          "p50": 0.04,
+          "p95": 0.342
+        },
+        "longest_published_s": 1.95
+      },
+      "after": {
+        "preview_decodes": 182,
+        "preview_decode_wall_s": 36.715,
+        "audio_wall_s": 99.127,
+        "publications": 143,
+        "decode_wall_ratio": 0.3704,
+        "timeline_revisions": {
+          "suffix_revisions": 24,
+          "removed_or_replaced_chars": 48,
+          "literal_revisions": 51,
+          "provisional_periods_retracted": 0
+        },
+        "screen_revisions": {
+          "suffix_revisions": 24,
+          "removed_or_replaced_chars": 48,
+          "literal_revisions": 51,
+          "provisional_periods_retracted": 0
+        },
+        "first_visible_s": {
+          "p50": 0.8,
+          "p95": 1.038
+        },
+        "final_after_eof_s": {
+          "p50": 0.023,
+          "p95": 0.296
+        },
+        "longest_published_s": 1.976
+      }
+    }
+  }
+}
