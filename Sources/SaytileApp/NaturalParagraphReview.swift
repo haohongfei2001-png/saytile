@@ -16,10 +16,12 @@ extension AppDelegate {
         try await model.store.setTimelineIdleSeconds(60)
         let base = Calendar.current.startOfDay(for: Date()).addingTimeInterval(10 * 3600)
         let starts: [TimeInterval] = [0, 4, 20, 81]
-        var texts = ["我们先把这个想法记下来，", "稍微停顿之后继续，文字仍然属于同一段。",
+        var texts = ["我们🙂先把这个想法记下来，", "稍微停顿之后继续，文字仍然属于同一段。",
                      "隔了一会儿再说，这是同一个时间组里的新自然段。", "一分钟后开启另一段输入，回看时再显示新的时间。"]
         var recordings: [Recording] = []
         var tickets: [RecognitionTicket] = []
+        let hasControlProbe = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil
+        var copyChecks: [String] = []
         for index in texts.indices {
             let row = try await model.store.createRecording(createdAt: base.addingTimeInterval(starts[index]))
             let ticket = try await model.store.beginRecognition(recordingID: row.id)
@@ -27,6 +29,12 @@ extension AppDelegate {
             try await addSilentReviewAudio(model: model, recordingID: row.id, frames: 16_000)
             try await model.store.finishRecording(id: row.id, speechEndedAt: base.addingTimeInterval(starts[index] + 1))
             recordings.append(row); tickets.append(ticket)
+            if index == 2 {
+                // Stop before the fourth recording opens another time group. A
+                // whole-group implementation must fail this same-group fixture.
+                copyChecks = try await reviewSameGroupParagraphCopy(model: model, board: board,
+                    latestTicket: ticket, latestText: texts[index], output: output, controls: hasControlProbe)
+            }
         }
         await model.refresh()
         let initial = try await model.store.timelinePage().entries
@@ -43,7 +51,7 @@ extension AppDelegate {
               model.archiveGroups.flatMap(\.paragraphs).count == 3, model.archiveGroups.count == 2 else {
             throw ReviewFailure("archive and live panel did not use the same paragraph identities")
         }
-        var checks: [String] = ["ASR-origin seed", "three-second continuation", "15-second paragraph", "60-second time group"]
+        var checks: [String] = ["ASR-origin seed", "three-second continuation", "15-second paragraph", "60-second time group"] + copyChecks
         try await reviewValidatedWindow(InputPanelWindowView(model: model), size: .init(width: 340, height: 360),
             name: "natural-panel", output: output, validation: { host in
                 let scroll = try self.compactTranscript(in: host)
@@ -81,10 +89,12 @@ extension AppDelegate {
               let first = paragraphs.first, first.page.entries.map(\.id) == Array(ids.prefix(2)) else {
             throw ReviewFailure("archive paragraph aggregation differs from the panel")
         }
-        let hasControlProbe = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil
         var archiveInventory: [String] = []
+        // The timeline prefix keeps this owned nonactivating window drawable
+        // offscreen. macOS may remove an alpha-zero window from AXWindows during
+        // the playback wait, leaving the independent stop-button probe no tree.
         try await reviewValidatedWindow(SettingsView(model: model, initialPage: .archive), size: .init(width: 1000, height: 760),
-            name: "natural-archive", output: output, validation: { host in
+            name: "timeline-natural-archive", output: output, validation: { host in
                 try await self.reviewUntil { host.layoutSubtreeIfNeeded(); return self.naturalEditors(in: host).count == 3 }
                 let editors = self.naturalEditors(in: host)
                 guard Set(editors.compactMap { $0.accessibilityIdentifier() }) == Set(paragraphs.map { "archive.text.\($0.anchorID)" }) else {
@@ -145,6 +155,10 @@ extension AppDelegate {
                       try await model.store.revisions(recordingID: ids[1]).contains(where: { $0.text == "迟到的识别不能覆盖人工修改。" }) else {
                     throw ReviewFailure("late ASR overwrote a manual paragraph or its copied snapshot")
                 }
+                try self.copyNaturalArchiveParagraph(editor, anchorID: first.anchorID)
+                guard board.string(forType: .string) == expected else {
+                    throw ReviewFailure("archive whole-paragraph copy lost the edited visible snapshot")
+                }
                 if hasControlProbe {
                     _ = try await self.performControl("archive.favorite.\(first.anchorID)", in: host)
                 } else { await model.toggleParagraphFavorite(first) }
@@ -165,6 +179,7 @@ extension AppDelegate {
                 try await self.reviewUntil { model.audio.playingID == nil }
                 checks += ["one native editor per paragraph", "panel/archive identical newlines", "cross-owner emoji edit",
                            "archive private selection copy", "archive native undo/redo", "late ASR manual protection",
+                           "archive context copy keeps the user-edited visible snapshot",
                            "whole-paragraph star", "real AVAudioPlayer silent clip transition past \(playedTo) seconds"]
                 guard let secondEditor = try await self.archiveEditor(ids[2], in: host) as? ArchiveParagraphTextView,
                       host.window?.makeFirstResponder(secondEditor) == true else {
@@ -199,12 +214,112 @@ extension AppDelegate {
             "speechEndGapsSeconds": [3, 15, 60], "recordings": 4, "paragraphs": 3, "timeGroups": 2,
             "checks": checks, "archiveControls": archiveInventory,
             "nativeControlActions": ["status": hasControlProbe ? "PASS" : "NOT_RUN",
-                                     "reason": hasControlProbe ? "independent owned-window AX inspection and AXPress" : "SAYTILE_UI_CONTROL_PROBE not configured; star/play model actions only"],
+                                     "reason": hasControlProbe ? "independent owned-window AX inspection and AXPress, including panel.copy" : "SAYTILE_UI_CONTROL_PROBE not configured; panel copy/star/play model actions only"],
+            "paragraphCopy": ["status": "PASS", "fixtureRecordings": 3, "fixtureTimeGroups": 1, "fixtureParagraphs": 2,
+                              "panelButtonAX": hasControlProbe ? "PASS" : "NOT_RUN",
+                              "archiveAction": "real native context-menu action dispatched by NSMenu; no global input",
+                              "checks": copyChecks],
             "audio": audio,
             "timeline": finals.map { ["id": $0.id.uuidString, "position": $0.position, "paragraphID": $0.paragraphID, "group": $0.group] as [String: Any] }]
         try JSONSerialization.data(withJSONObject: receipt, options: [.prettyPrinted, .sortedKeys])
             .write(to: output.appendingPathComponent("natural-paragraphs.json"))
         print("NATURAL_PARAGRAPHS_PASS 4 synthetic originals, 3 natural paragraphs, 2 time groups; native panel/archive editing and playback")
+    }
+
+    /// Uses the production panel button and archive menu while both paragraphs
+    /// still share one time group; all text and pasteboard contents are synthetic.
+    @MainActor private func reviewSameGroupParagraphCopy(model: AppModel, board: NSPasteboard,
+        latestTicket: RecognitionTicket, latestText: String, output: URL, controls: Bool) async throws -> [String] {
+        await model.refresh()
+        let entries = try await model.store.timelinePage().entries
+        let paragraphs = model.archiveGroups.flatMap(\.paragraphs).sorted { $0.id < $1.id }
+        guard entries.count == 3, Set(entries.map(\.group)).count == 1, paragraphs.count == 2,
+              let latest = paragraphs.last, latest.page.entries.map(\.id) == [latestTicket.recordingID],
+              latest.text == latestText, model.canCopyLatestParagraph else {
+            throw ReviewFailure("same-group copy fixture did not contain two distinct natural paragraphs")
+        }
+        let original = PanelTimelineDocument(entries: entries).text
+        var copiedParagraph = ""
+        try await reviewValidatedWindow(InputPanelWindowView(model: model), size: .init(width: 340, height: 240),
+            name: "timeline-natural-paragraph-copy", output: output, validation: { host in
+                let scroll = try self.compactTranscript(in: host)
+                let editor = scroll.transcriptView
+                try await self.reviewUntil { editor.string == original }
+                editor.commandPasteboard = board
+                @MainActor func copyPanel() async throws {
+                    if controls { _ = try await self.performControl("panel.copy", in: host) }
+                    else { model.copyTimeline(selection: scroll.selectionSnapshot, displayed: scroll.rendered.displayed) }
+                }
+                editor.setSelectedRange(.init(location: 0, length: 0))
+                let origin = scroll.contentView.bounds.origin
+                let audioState = model.audio.state, notice = model.notice
+                try await copyPanel()
+                guard board.string(forType: .string) == latestText,
+                      scroll.contentView.bounds.origin == origin, model.audio.state == audioState, model.notice == notice else {
+                    throw ReviewFailure("no-selection panel copy included an older natural paragraph or disturbed the panel")
+                }
+                copiedParagraph = board.string(forType: .string) ?? ""
+                let emoji = (editor.string as NSString).range(of: "🙂")
+                guard emoji.location != NSNotFound, emoji.length == 2 else { throw ReviewFailure("UTF-16 selection fixture is missing") }
+                editor.setSelectedRange(emoji)
+                try await copyPanel()
+                guard board.string(forType: .string) == "🙂", editor.selectedRange() == emoji else {
+                    throw ReviewFailure("panel button did not prioritize the older paragraph's emoji selection")
+                }
+                editor.setSelectedRange(.init(location: 0, length: 0))
+                try await copyPanel()
+                let copied = board.changeCount
+                let revised = latestText.replacingOccurrences(of: "新自然段", with: "下一自然段")
+                guard revised != latestText,
+                      try await model.store.applyRecognition(ticket: latestTicket, text: revised, isFinal: true) else {
+                    throw ReviewFailure("late revision fixture was not applied")
+                }
+                await model.refresh()
+                try await self.reviewUntil { editor.string.hasSuffix(revised) }
+                guard board.changeCount == copied, board.string(forType: .string) == copiedParagraph,
+                      scroll.rendered.spans.map({ $0.entry.id }) == entries.map(\.id) else {
+                    throw ReviewFailure("late revision rewrote the copied paragraph or reordered its source rows")
+                }
+                _ = try await model.store.applyRecognition(ticket: latestTicket, text: latestText, isFinal: true)
+                await model.refresh()
+                try await self.reviewUntil { editor.string == original }
+                guard board.changeCount == copied else { throw ReviewFailure("restoring a revision mutated the copied snapshot") }
+                try self.captureReview(host, name: "same-group-panel-copy", output: output)
+                // Selecting history intentionally pins the model's page. Restore
+                // following through the normal owned-view action before the next
+                // fixture appends a fourth recording; clearing a selection alone
+                // must never move the user's reading position in the product.
+                scroll.jumpToLatest()
+                try await self.reviewUntil { scroll.isFollowingLatest }
+                await model.refresh()
+            }, interaction: nil)
+        try await reviewValidatedWindow(SettingsView(model: model, initialPage: .archive), size: .init(width: 1000, height: 620),
+            name: "timeline-natural-archive-copy", output: output, validation: { host in
+                guard let editor = try await self.archiveEditor(latest.anchorID, in: host) as? ArchiveParagraphTextView else {
+                    throw ReviewFailure("same-group archive paragraph is not a native editor")
+                }
+                try await self.reviewUntil { editor.string == latestText }
+                try self.copyNaturalArchiveParagraph(editor, anchorID: latest.anchorID)
+                guard board.string(forType: .string) == copiedParagraph else {
+                    throw ReviewFailure("archive and panel copied different scopes for the same natural paragraph")
+                }
+                try self.captureReview(host, name: "same-group-archive-copy", output: output)
+            }, interaction: nil)
+        return ["same time group, two paragraphs: panel copies latest paragraph only",
+                "panel button gives UTF-16 emoji selection priority over latest paragraph",
+                "late ASR revision preserves copied paragraph snapshot",
+                "panel/archive context copy agree on the same natural paragraph"]
+    }
+
+    @MainActor private func copyNaturalArchiveParagraph(_ editor: ArchiveParagraphTextView, anchorID: UUID) throws {
+        let menu = NSMenu()
+        editor.prepareMenu?(menu)
+        let identifier = NSUserInterfaceItemIdentifier("archive.copyParagraph.\(anchorID)")
+        let matches = menu.items.enumerated().filter { $0.element.identifier == identifier }
+        guard matches.count == 1, let item = matches.first, item.element.isEnabled, item.element.action != nil else {
+            throw ReviewFailure("archive whole-paragraph copy is not a unique actionable native menu item")
+        }
+        menu.performActionForItem(at: item.offset)
     }
 
     @MainActor private func naturalEditors(in host: NSView) -> [ArchiveParagraphTextView] {

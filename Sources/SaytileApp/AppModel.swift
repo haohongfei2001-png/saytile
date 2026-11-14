@@ -1001,17 +1001,18 @@ final class AppModel: ObservableObject {
         }
     }
 
-    var canCopyLatestGroup: Bool { (latestTextEntry?.position ?? 0) > hiddenThrough }
+    var canCopyLatestParagraph: Bool { (latestTextEntry?.position ?? 0) > hiddenThrough }
 
     func copyTimeline(selection: String, displayed: [Int64: String]) {
         if !selection.isEmpty { copy(selection, quietly: true); return }
-        guard let end = latestTextEntry, canCopyLatestGroup else { return }
-        // The editor can hold a previous page across a new group. The click targets
-        // the live tail while preserving the exact text of any already rendered rows.
+        guard let end = latestTextEntry, canCopyLatestParagraph else { return }
+        // A timestamp may contain several natural paragraphs. Copy the same unit
+        // shown by the archive, even while reading an older page; rendered text wins.
         var snapshot = Dictionary(uniqueKeysWithValues: timeline.entries.map { ($0.position, $0.recording.text) })
         snapshot[end.position] = end.recording.text
         snapshot.merge(displayed) { _, rendered in rendered }
-        do { copy(try store.timelineCopy(group: end.group, through: end.position, after: hiddenThrough, displayed: snapshot), quietly: true) }
+        do { copy(try store.paragraphCopy(paragraphID: end.paragraphID, through: end.position,
+                                         after: hiddenThrough, displayed: snapshot), quietly: true) }
         catch { notice = error.localizedDescription }
     }
 

@@ -35,7 +35,7 @@ struct InputPanelView: View {
     private var document: PanelTimelineDocument {
         transcriptCache.document(for: model)
     }
-    private var canCopy: Bool { model.canCopyLatestGroup || !selectedText.isEmpty }
+    private var canCopy: Bool { model.canCopyLatestParagraph || !selectedText.isEmpty }
     private var editTarget: DisplayRecording? {
         if let view = access.view {
             let selection = view.transcriptView.selectedRange()

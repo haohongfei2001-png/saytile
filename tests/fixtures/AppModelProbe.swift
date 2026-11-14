@@ -113,8 +113,8 @@ struct AppModelProbe {
             print("JOURNEY_REPRO revertedDraftCleared=\(releasedDraft == nil) textGroupCopied=\(copied == "屏幕上的这句话")")
             fflush(nil)
             try require(releasedDraft == nil, "undoing every archive edit releases the automatic transcript")
-            try require(app.canCopyLatestGroup && copied == "屏幕上的这句话",
-                        "a new group awaiting its first word leaves the latest visible text group available to copy")
+            try require(app.canCopyLatestParagraph && copied == "屏幕上的这句话",
+                        "a new group awaiting its first word leaves the latest text paragraph available to copy")
             _ = try await app.store.applyRecognition(ticket: ticket, text: "迟到的原句定稿", isFinal: true)
             await app.refresh()
             try require(app.editorDraft == "迟到的原句定稿" && board.string(forType: .string) == copied,
@@ -135,7 +135,7 @@ struct AppModelProbe {
             await app.refreshRecognition()
             let changeCount = board.changeCount
             app.copyTimeline(selection: "", displayed: [:])
-            try require(!app.canCopyLatestGroup && board.changeCount == changeCount,
+            try require(!app.canCopyLatestParagraph && board.changeCount == changeCount,
                         "a new audio-only row after a clear cannot resurrect old text or replace the clipboard")
             try await app.store.finishRecording(id: silent.id)
             try await app.store.finishRecording(id: next.id)
@@ -240,7 +240,7 @@ struct AppModelProbe {
                     "returning to latest drops the archive-specific insertion scope")
         model.clearPanel(); await model.refresh()
         try require(model.recent.isEmpty && model.records.count == 2, "clearing panel preserves archive")
-        try require(!model.canCopyLatestGroup, "clearing the panel removes its implicit copy target")
+        try require(!model.canCopyLatestParagraph, "clearing the panel removes its implicit copy target")
         try require(!model.hasPanelInsertionScope && (try model.panelInsertionSnapshots()).isEmpty,
                     "an explicitly cleared panel cannot manually dispatch the cleared group")
         let new = try await model.store.createRecording()
@@ -399,6 +399,7 @@ struct AppModelProbe {
         checks += try await connectionChecks(directory: directory)
         checks += try await capturePresentationChecks(directory: directory)
         checks += try await naturalArchiveChecks(directory: directory)
+        checks += try await paragraphCopyChecks(directory: directory)
         print("APP_MODEL_PROBE_PASS \(checks) checks; no microphone, no external input, no window activation")
     }
 }
@@ -959,6 +960,82 @@ extension AppModelProbe {
 
 
 extension AppModelProbe {
+    @MainActor static func paragraphCopyChecks(directory: URL) async throws -> Int {
+        var count = 0
+        func check(_ ok: Bool, _ message: String) throws {
+            guard ok else { throw Failure(message: message) }
+            count += 1; print("PASS " + message)
+        }
+        let suite = "app.saytile.paragraph-copy." + UUID().uuidString
+        let prefs = UserDefaults(suiteName: suite)!
+        defer { prefs.removePersistentDomain(forName: suite) }
+        let clipboard = NSPasteboard.withUniqueName()
+        defer { clipboard.releaseGlobally() }
+        let model = try AppModel(directory: directory.appendingPathComponent("paragraph-copy"),
+                                 preferences: prefs, copyPasteboard: clipboard)
+        let start = Calendar.current.startOfDay(for: .now).addingTimeInterval(36_000)
+        func add(_ offset: Double, _ text: String) async throws -> (Recording, RecognitionTicket) {
+            let row = try await model.store.createRecording(createdAt: start.addingTimeInterval(offset))
+            let ticket = try await model.store.beginRecognition(recordingID: row.id)
+            _ = try await model.store.applyRecognition(ticket: ticket, text: text, isFinal: false)
+            try await model.store.finishRecording(id: row.id, speechEndedAt: start.addingTimeInterval(offset + 1))
+            return (row, ticket)
+        }
+        _ = try await add(0, "上一自然段。")
+        let (second, ticket) = try await add(20, "这一段🙂")
+        _ = try await add(23, "继续说。")
+        await model.refresh()
+        let page = model.panelTimelinePage
+        try check(Set(page.entries.map(\.group)).count == 1 && Set(page.entries.map(\.paragraphID)).count == 2,
+                  "copy fixture has two natural paragraphs inside one time group")
+        model.copyTimeline(selection: "", displayed: PanelTimelineDocument(entries: page.entries).displayed)
+        try check(clipboard.string(forType: .string) == "这一段🙂继续说。",
+                  "panel copy chooses one complete latest paragraph, never its timestamp group")
+        guard let latest = model.archiveGroups.flatMap(\.paragraphs).max(by: { $0.id < $1.id }) else {
+            throw Failure(message: "latest archive paragraph missing")
+        }
+        model.copyParagraph(latest)
+        try check(clipboard.string(forType: .string) == "这一段🙂继续说。",
+                  "archive and panel copy use the same natural paragraph")
+        model.copyTimeline(selection: "🙂", displayed: [:])
+        let selectedCount = clipboard.changeCount
+        try check(clipboard.string(forType: .string) == "🙂", "selected Unicode text takes priority over paragraph copy")
+        _ = try await model.store.applyRecognition(ticket: ticket, text: "后台新修订", isFinal: true)
+        await model.refresh()
+        try check(clipboard.changeCount == selectedCount && clipboard.string(forType: .string) == "🙂",
+                  "late ASR does not rewrite the copied snapshot")
+        model.copyTimeline(selection: "", displayed: [page.entries[1].position: "眼前的编辑🙂"])
+        try check(clipboard.string(forType: .string) == "眼前的编辑🙂继续说。",
+                  "panel paragraph copy preserves the visible edited snapshot over a late revision")
+        try model.editPanelRows([.init(id: second.id, before: "后台新修订", after: "后台新修订",
+                                      paragraphBreakHidden: true, previousParagraphBreakHidden: false)])
+        await model.refresh()
+        model.copyTimeline(selection: "", displayed: [:])
+        try check(!PanelTimelineDocument(entries: model.panelTimelinePage.entries).text.contains("\n") &&
+                  clipboard.string(forType: .string) == "后台新修订继续说。",
+                  "hiding a visual break preserves the same archive paragraph copy unit")
+        model.copyTimeline(selection: "上一自然段。后台新修订", displayed: [:])
+        try check(clipboard.string(forType: .string) == "上一自然段。后台新修订",
+                  "explicit selection can span natural paragraph boundaries")
+        _ = try await add(90, "")
+        await model.refresh()
+        model.pinTimeline()
+        model.copyTimeline(selection: "", displayed: [:])
+        try check(clipboard.string(forType: .string) == "后台新修订继续说。",
+                  "a new empty paragraph and pinned reading do not expand the copy scope")
+        model.clearPanel()
+        let before = clipboard.changeCount
+        model.copyTimeline(selection: "", displayed: [:])
+        try check(clipboard.changeCount == before, "clearing the panel prevents implicit copy from resurrecting hidden history")
+        _ = try await add(93, "清空后新说的话。")
+        await model.refresh()
+        model.copyTimeline(selection: "", displayed: [:])
+        try check(clipboard.string(forType: .string) == "清空后新说的话。",
+                  "copy after clear includes only the new paragraph portion")
+        await model.prepareForExit()
+        return count
+    }
+
     @MainActor static func naturalArchiveChecks(directory: URL) async throws -> Int {
         var count = 0
         func check(_ result: Bool, _ title: String) throws {

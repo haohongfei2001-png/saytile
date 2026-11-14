@@ -1,6 +1,7 @@
 #!/bin/bash
 # Build-time dependencies only. Installed applications execute bundled arm64 code.
-set -euo pipefail
+set -Eeuo pipefail
+trap 'printf "LOCAL_RUNTIME_FAILURE build-local-runtime.sh line=%s exit=%s pipeline=%s\n" "$LINENO" "$?" "${PIPESTATUS[*]}" >&2' ERR
 cd "$(dirname "$0")/.."
 cache=.build/local-asr
 runtime="$cache/runtime"

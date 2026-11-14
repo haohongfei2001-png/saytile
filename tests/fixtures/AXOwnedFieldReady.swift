@@ -9,37 +9,96 @@ import AppKit
                                documentReady: (InputTargetSnapshot) -> Bool = { _ in true }) async throws {
     let access = trace.base
     let clock = ContinuousClock(), deadline = clock.now.advanced(by: .seconds(5))
-    func ready(_ current: InputTargetSnapshot) -> Bool {
-        current.processID == pid && current.isWeb == expectingWeb && current.isEditable && !current.isSensitive && current.canSetSelectedText &&
-        current.selectionLocation == caret && current.selectionLength == 0 && documentReady(current) &&
-        (!current.isWeb || (current.pageContextComplete && current.pageIdentity != nil)) &&
-        access.textWitness(at: current) == original
+    // Only booleans/reason labels enter the fixture log. Keep the original AX read
+    // count and short-circuit order: diagnosis must not add another witness read.
+    func difference(_ current: InputTargetSnapshot, from expected: InputTargetSnapshot, phase: String) {
+        print("OWNED_READY_DIFFERENCE", trace.stage, phase,
+              "pid", current.processID == expected.processID, "app", current.applicationID == expected.applicationID,
+              "appLabel", current.applicationName == expected.applicationName, "window", current.windowID == expected.windowID,
+              "editor", current.elementID == expected.elementID, "page", current.pageIdentity == expected.pageIdentity,
+              "complete", current.pageContextComplete == expected.pageContextComplete,
+              "caret", current.selectionLocation == expected.selectionLocation, "range", current.selectionLength == expected.selectionLength,
+              "web", current.isWeb == expected.isWeb, "editable", current.isEditable == expected.isEditable,
+              "sensitive", current.isSensitive == expected.isSensitive, "setter", current.canSetSelectedText == expected.canSetSelectedText)
+    }
+    func ready(_ current: InputTargetSnapshot, phase: String) -> Bool {
+        guard current.processID == pid && current.isWeb == expectingWeb && current.isEditable && !current.isSensitive && current.canSetSelectedText &&
+              current.selectionLocation == caret && current.selectionLength == 0 else {
+            print("OWNED_READY_REJECT", trace.stage, phase, "field_requirements",
+                  "pid", current.processID == pid, "web", current.isWeb == expectingWeb,
+                  "editable", current.isEditable, "sensitive", current.isSensitive, "setter", current.canSetSelectedText,
+                  "caret", current.selectionLocation == caret, "collapsed", current.selectionLength == 0)
+            return false
+        }
+        guard documentReady(current) else {
+            print("OWNED_READY_REJECT", trace.stage, phase, "document_requirements"); return false
+        }
+        guard !current.isWeb || (current.pageContextComplete && current.pageIdentity != nil) else {
+            print("OWNED_READY_REJECT", trace.stage, phase, "page_proof",
+                  "complete", current.pageContextComplete, "identityPresent", current.pageIdentity != nil)
+            return false
+        }
+        let witness = access.textWitness(at: current)
+        guard witness == original else {
+            print("OWNED_READY_REJECT", trace.stage, phase, witness == nil ? "witness_missing" : "witness_mismatch")
+            return false
+        }
+        return true
     }
     // WKWebView can temporarily expose an editable AX object before its web area
     // is readable. Only the known editor kind may start this three-read interval.
     var first: InputTargetSnapshot?
     var consecutive = 0
     while clock.now < deadline {
-        if let current = try? access.snapshot(), ready(current) {
-            if let first, first != current { throw NativeInputError.targetChanged }
+        let current = try? access.snapshot()
+        if let current, ready(current, phase: "initial") {
+            if let first, first != current {
+                difference(current, from: first, phase: "initial_identity")
+                throw NativeInputError.targetChanged
+            }
             first = current
             consecutive += 1
             if consecutive == 3 { break }
-        } else { consecutive = 0 }
+        } else {
+            if current == nil { print("OWNED_READY_REJECT", trace.stage, "initial", "snapshot_unavailable") }
+            consecutive = 0
+        }
         try await Task.sleep(for: .milliseconds(180))
     }
-    guard consecutive == 3, let expected = first else { throw CocoaError(.validationMissingMandatoryProperty) }
-    let binding = try await input.bindCurrentTarget()
+    guard consecutive == 3, let expected = first else {
+        print("OWNED_READY_REJECT", trace.stage, "initial", "deadline", "complete_reads", consecutive)
+        throw CocoaError(.validationMissingMandatoryProperty)
+    }
+    let binding: InputBindingInfo
+    do { binding = try await input.bindCurrentTarget() }
+    catch {
+        print("OWNED_READY_REJECT", trace.stage, "bind_call", "failed")
+        throw error
+    }
     var verified = false
-    defer { if !verified { input.invalidate() } }
+    var abortReason = "bound_exception"
+    defer {
+        if !verified {
+            print("OWNED_READY_ABORT", trace.stage, abortReason, "bindingStillCurrent", input.binding?.id == binding.id,
+                  "observed_notifications", trace.notifications)
+            input.invalidate()
+        }
+    }
     guard trace.bound == expected, let support = trace.support,
           support.focus && support.content && (!expected.isWeb || support.page) else {
+        abortReason = "observer_requirements"
+        if let bound = trace.bound { difference(bound, from: expected, phase: "observer_identity") }
+        print("OWNED_READY_REJECT", trace.stage, abortReason, "boundPresent", trace.bound != nil,
+              "focus", trace.support?.focus == true, "content", trace.support?.content == true, "page", trace.support?.page == true)
         throw NativeInputError.unobservablePage
     }
     var events = trace.notifications
     var quiet = 0
     while clock.now < deadline {
-        guard input.binding?.id == binding.id else { throw NativeInputError.targetChanged }
+        guard input.binding?.id == binding.id else {
+            abortReason = "binding_invalidated_before_read"
+            throw NativeInputError.targetChanged
+        }
         let current: InputTargetSnapshot
         do {
             current = try access.snapshot()
@@ -50,8 +109,20 @@ import AppKit
             print("OWNED_READ_UNAVAILABLE", trace.stage, "bound snapshot")
             try await clock.sleep(until: min(deadline, clock.now.advanced(by: .milliseconds(180))))
             continue
+        } catch {
+            abortReason = "bound_snapshot_error"
+            print("OWNED_READY_REJECT", trace.stage, abortReason)
+            throw error
         }
-        guard current == expected, ready(current) else { throw NativeInputError.targetChanged }
+        guard current == expected else {
+            abortReason = "bound_snapshot_difference"
+            difference(current, from: expected, phase: "bound")
+            throw NativeInputError.targetChanged
+        }
+        guard ready(current, phase: "bound") else {
+            abortReason = "bound_readiness_rejected"
+            throw NativeInputError.targetChanged
+        }
         quiet = trace.notifications == events ? quiet + 1 : 1
         if quiet == 3 {
             verified = true
@@ -61,6 +132,8 @@ import AppKit
         events = trace.notifications
         try await Task.sleep(for: .milliseconds(180))
     }
+    abortReason = "bound_deadline"
+    print("OWNED_READY_REJECT", trace.stage, abortReason, "quiet_reads", quiet)
     throw CocoaError(.validationMissingMandatoryProperty)
 }
 
