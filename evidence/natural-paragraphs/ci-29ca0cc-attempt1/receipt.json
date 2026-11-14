@@ -1,0 +1,196 @@
+{
+  "sourceSHA": "29ca0cc323fcdf4f1ed53ca98b546b11e98f9f31",
+  "version": "0.15 (481)",
+  "pullRequest": "https://github.com/haohongfei2001-png/saytile/pull/41",
+  "generatedAtUTC": "2026-11-14T06:48:28.043555+00:00",
+  "status": "FAIL",
+  "checks": {
+    "total": 5,
+    "passed": 4,
+    "failed": 1,
+    "jobs": [
+      {
+        "run": 43567337444,
+        "id": 132363927966,
+        "name": "gateway",
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43567337444/job/132363927966",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43567337444,
+        "id": 132363928188,
+        "name": "native-gateway",
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43567337444/job/132363928188",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43567337448,
+        "id": 132363927779,
+        "name": "data-and-prototype",
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43567337448/job/132363927779",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43567337463,
+        "id": 132363928090,
+        "name": "native",
+        "conclusion": "failure",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43567337463/job/132363928090",
+        "failedSteps": [
+          {
+            "completedAt": "2026-11-14T06:42:28Z",
+            "conclusion": "failure",
+            "name": "Real localhost provider protocols (no API keys)",
+            "number": 5,
+            "startedAt": "2026-11-14T06:39:13Z",
+            "status": "completed"
+          }
+        ],
+        "skippedSteps": [
+          "Run scripts/test-app-model.sh",
+          "Owned native window boundary and restoration",
+          "Run scripts/build-app.sh",
+          "Isolated cloud probe CLI boundaries",
+          "Isolated connection setup CLI boundaries",
+          "Edit directly in the native panel using a private clipboard",
+          "Shared natural paragraphs in real panel and archive",
+          "Native windows with synthetic data",
+          "Native continuous timeline with 12000 isolated utterances",
+          "Isolated startup without microphone",
+          "Preserve app bundle permissions",
+          "Run actions/upload-artifact@v4"
+        ]
+      },
+      {
+        "run": 43567337463,
+        "id": 132363928243,
+        "name": "foreground",
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43567337463/job/132363928243",
+        "failedSteps": [],
+        "skippedSteps": []
+      }
+    ]
+  },
+  "swiftTesting": {
+    "status": "FAIL",
+    "expectedFullSuite": 523,
+    "actuallyRun": 17,
+    "passed": 16,
+    "failed": 1,
+    "issues": 2,
+    "notRun": 506,
+    "groups": [
+      {
+        "tests": 4,
+        "suites": 2,
+        "status": "PASSED",
+        "seconds": 1.263
+      },
+      {
+        "tests": 13,
+        "suites": 1,
+        "status": "FAILED",
+        "seconds": 57.343
+      }
+    ]
+  },
+  "appModel": {
+    "status": "NOT_RUN",
+    "checks": 0,
+    "reason": "Earlier protocol step failed"
+  },
+  "nativeParagraphs": {
+    "status": "NOT_RUN",
+    "reason": "Earlier protocol step failed"
+  },
+  "timeline12000": {
+    "status": "NOT_RUN",
+    "reason": "Earlier protocol step failed; separate parent-owned same-SHA local native receipt must be cited independently"
+  },
+  "panelBoundary": {
+    "status": "NOT_RUN",
+    "reason": "Earlier protocol step failed"
+  },
+  "foreground": {
+    "status": "PASS",
+    "targets": [
+      "isolated AppKit",
+      "isolated WKWebView",
+      "TextEdit",
+      "Chrome"
+    ],
+    "zeroAutomaticSend": true,
+    "batchChecks": 10,
+    "batchFailures": 0,
+    "scope": "Hosted synthetic fixtures; no user private conversation"
+  },
+  "power": {
+    "source": "29ca0cc323fcdf4f1ed53ca98b546b11e98f9f31",
+    "host_model": "VirtualMac2,1",
+    "capabilities": [
+      "Capabilities for AC Power:",
+      " displaysleep",
+      " disksleep",
+      " sleep",
+      " standby",
+      " powernap",
+      " ttyskeepawake",
+      " tcpkeepalive"
+    ],
+    "private_audio_opened": false,
+    "status": "BLOCKED",
+    "reason": "runner lacks scheduled hardware wake or system sleep support",
+    "schedule_exit": 0,
+    "sleep_request_exit": 71
+  },
+  "failure": {
+    "test": "actualConnectionWizardBackendUsesBoundedProductionNetwork(fault:)",
+    "argument": "normal",
+    "assertions": [
+      "ProtocolNetworkIntegrationTests.swift:304 report.pipelineCompleted",
+      "ProtocolNetworkIntegrationTests.swift:305 report.services.count == 2 && report.services.allSatisfy { $0.state == .verified }"
+    ],
+    "elapsedSeconds": 12.024816989898682,
+    "watchdogSeconds": 12,
+    "qwenLastSequence": 3,
+    "qwenState": "failed / cancelled",
+    "gptRequests": 1,
+    "gptLastStatus": "incomplete_response after one received live review",
+    "reportedPCMSeconds": 6.2720625,
+    "peerAssertions": "The subsequent same-case peer.snapshot assertions on complete PCM bytes/hash, one Qwen connection and EOS=true, and empty violations did not fail. This is assertion-derived evidence, not a retained raw wire audit.",
+    "subsequentCases": "unsupported, churn and each_reconnect wizard cases passed; subsequent productionSession normal and unbacked_selection cases passed. Peer server remained reachable.",
+    "processResult": "Swift Testing / script returned exit 1; normal-case watchdog cancelled the session. Server trap terminates the fixture; raw server.log/wire-audit not uploaded by this workflow. No peer crash/traceback is present in retained logs.",
+    "classification": "Undetermined client drain / scheduling stall; not evidence of new natural-paragraph behavior. No protocol, verifier or simulator source changed from prior passing source. A deterministic product defect versus environmental timing cannot be conclusively separated by this run alone.",
+    "nextStep": "Parent to coordinate one bounded reproduction with preserved per-case peer events and client EOS/drain timing. Keep timeout and success assertions unchanged; do not blind-retry or claim environmental flakiness as proven."
+  },
+  "artifacts": [
+    {
+      "id": 14103281801,
+      "name": "single-asr-power",
+      "bytes": 707,
+      "sha256": "c2bb83fe43b191dece01e442565d1c8431c852019febae32efa0482e7a1bda77",
+      "matchesGitHubAdvertisedDigest": true
+    },
+    {
+      "id": 14103276720,
+      "name": "single-asr-foreground",
+      "bytes": 3934,
+      "sha256": "b014a4c2466d7139f65abf7b053a841c33c8d3c40238ec03c5b7ffbf391228c0",
+      "matchesGitHubAdvertisedDigest": true
+    }
+  ],
+  "policy": {
+    "sourceModified": false,
+    "ciRetried": false,
+    "paidAPIUsed": false,
+    "installedAppTouched": false,
+    "privateAudioRead": false
+  }
+}

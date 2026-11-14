@@ -1,0 +1,1723 @@
+﻿2026-11-14T06:11:43.4111020Z Current runner version: '2.338.2'
+2026-11-14T06:11:43.4125700Z ##[group]Runner Image Provisioner
+2026-11-14T06:11:43.4126220Z Hosted Compute Agent
+2026-11-14T06:11:43.4126630Z Version: 20261028.624
+2026-11-14T06:11:43.4127050Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-14T06:11:43.4127520Z Build Date: 2026-10-28T21:51:42Z
+2026-11-14T06:11:43.4128010Z Worker ID: {d396a0df-bdc5-4608-a83e-d8c6c177fe53}
+2026-11-14T06:11:43.4128470Z Region: westus
+2026-11-14T06:11:43.4128820Z Cloud: MacCloud
+2026-11-14T06:11:43.4129180Z ##[endgroup]
+2026-11-14T06:11:43.4130000Z ##[group]Operating System
+2026-11-14T06:11:43.4130400Z macOS
+2026-11-14T06:11:43.4130720Z 26.7.2
+2026-11-14T06:11:43.4131060Z 25G332
+2026-11-14T06:11:43.4131390Z ##[endgroup]
+2026-11-14T06:11:43.4131750Z ##[group]Runner Image
+2026-11-14T06:11:43.4132140Z Image: macos-26-arm64
+2026-11-14T06:11:43.4132510Z Version: 20261102.0473.1
+2026-11-14T06:11:43.4133330Z Included Software: https://github.com/actions/runner-images/blob/macos-26-arm64/20261102.0473/images/macos/macos-26-arm64-Readme.md
+2026-11-14T06:11:43.4134360Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-26-arm64%2F20261102.0473
+2026-11-14T06:11:43.4135040Z ##[endgroup]
+2026-11-14T06:11:43.4135750Z ##[group]GITHUB_TOKEN Permissions
+2026-11-14T06:11:43.4136730Z Contents: read
+2026-11-14T06:11:43.4137090Z Metadata: read
+2026-11-14T06:11:43.4137460Z ##[endgroup]
+2026-11-14T06:11:43.4138740Z Secret source: Actions
+2026-11-14T06:11:43.4139330Z Cache mode: write
+2026-11-14T06:11:43.4139740Z Prepare workflow directory
+2026-11-14T06:11:43.4361270Z Prepare all required actions
+2026-11-14T06:11:43.4394760Z Getting action download info
+2026-11-14T06:11:43.8241710Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-14T06:11:44.0258750Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-11-14T06:11:44.1741540Z Complete job name: native-gateway
+2026-11-14T06:11:44.2259570Z ##[group]Run actions/checkout@v4
+2026-11-14T06:11:44.2260140Z with:
+2026-11-14T06:11:44.2260560Z   ref: 4622f486987f920e4ec725eb20934561ea6c9a7f
+2026-11-14T06:11:44.2261010Z   repository: haohongfei2001-png/saytile
+2026-11-14T06:11:44.2263800Z   token: ***
+2026-11-14T06:11:44.2264110Z   ssh-strict: true
+2026-11-14T06:11:44.2264430Z   ssh-user: git
+2026-11-14T06:11:44.2264750Z   persist-credentials: true
+2026-11-14T06:11:44.2265110Z   clean: true
+2026-11-14T06:11:44.2265430Z   sparse-checkout-cone-mode: true
+2026-11-14T06:11:44.2265810Z   fetch-depth: 1
+2026-11-14T06:11:44.2266130Z   fetch-tags: false
+2026-11-14T06:11:44.2266460Z   show-progress: true
+2026-11-14T06:11:44.2266780Z   lfs: false
+2026-11-14T06:11:44.2267090Z   submodules: false
+2026-11-14T06:11:44.2267420Z   set-safe-directory: true
+2026-11-14T06:11:44.2267780Z   allow-unsafe-pr-checkout: false
+2026-11-14T06:11:44.2268270Z ##[endgroup]
+2026-11-14T06:11:44.7395200Z Syncing repository: haohongfei2001-png/saytile
+2026-11-14T06:11:44.7396960Z ##[group]Getting Git version info
+2026-11-14T06:11:44.7397500Z Working directory is '/Users/runner/work/saytile/saytile'
+2026-11-14T06:11:44.7398300Z [command]/opt/homebrew/bin/git version
+2026-11-14T06:11:44.8021390Z git version 2.56.0
+2026-11-14T06:11:44.8118470Z ##[endgroup]
+2026-11-14T06:11:44.8145330Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/c314b7e1-f082-4701-b13b-bb71c3023993/.gitconfig'
+2026-11-14T06:11:44.8148070Z Temporarily overriding HOME='/Users/runner/work/_temp/c314b7e1-f082-4701-b13b-bb71c3023993' before making global git config changes
+2026-11-14T06:11:44.8149470Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-14T06:11:44.8150430Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/saytile/saytile
+2026-11-14T06:11:44.8156620Z Deleting the contents of '/Users/runner/work/saytile/saytile'
+2026-11-14T06:11:44.8159310Z ##[group]Initializing the repository
+2026-11-14T06:11:44.8163000Z [command]/opt/homebrew/bin/git init /Users/runner/work/saytile/saytile
+2026-11-14T06:11:44.8403240Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-14T06:11:44.8404050Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-14T06:11:44.8404990Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-14T06:11:44.8405590Z hint: call:
+2026-11-14T06:11:44.8405880Z hint:
+2026-11-14T06:11:44.8406270Z hint: 	git config --global init.defaultBranch <name>
+2026-11-14T06:11:44.8406740Z hint:
+2026-11-14T06:11:44.8407550Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-14T06:11:44.8408330Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-14T06:11:44.8408880Z hint:
+2026-11-14T06:11:44.8409190Z hint: 	git branch -m <name>
+2026-11-14T06:11:44.8409750Z hint:
+2026-11-14T06:11:44.8410370Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-14T06:11:44.8416020Z Initialized empty Git repository in /Users/runner/work/saytile/saytile/.git/
+2026-11-14T06:11:44.8424250Z [command]/opt/homebrew/bin/git remote add origin https://github.com/haohongfei2001-png/saytile
+2026-11-14T06:11:44.8636930Z ##[endgroup]
+2026-11-14T06:11:44.8737120Z ##[group]Disabling automatic garbage collection
+2026-11-14T06:11:44.8811790Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-11-14T06:11:44.8853990Z ##[endgroup]
+2026-11-14T06:11:44.8855960Z ##[group]Setting up auth
+2026-11-14T06:11:44.8864200Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T06:11:44.8872170Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T06:11:45.0004850Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T06:11:45.0085480Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T06:11:45.1027530Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T06:11:45.1106370Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T06:11:45.2002180Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-14T06:11:45.2084420Z ##[endgroup]
+2026-11-14T06:11:45.2088170Z ##[group]Fetching the repository
+2026-11-14T06:11:45.2092760Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 4622f486987f920e4ec725eb20934561ea6c9a7f
+2026-11-14T06:11:53.5401020Z From https://github.com/haohongfei2001-png/saytile
+2026-11-14T06:11:53.5404450Z  * branch            4622f486987f920e4ec725eb20934561ea6c9a7f -> FETCH_HEAD
+2026-11-14T06:11:53.5416550Z ##[endgroup]
+2026-11-14T06:11:53.5417680Z ##[group]Determining the checkout info
+2026-11-14T06:11:53.5418930Z ##[endgroup]
+2026-11-14T06:11:53.5433030Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-11-14T06:11:53.5529610Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-14T06:11:53.5612770Z ##[group]Checking out the ref
+2026-11-14T06:11:53.5616240Z [command]/opt/homebrew/bin/git checkout --progress --force 4622f486987f920e4ec725eb20934561ea6c9a7f
+2026-11-14T06:11:54.6617210Z Updating files:   7% (443/5926)
+2026-11-14T06:11:54.6721890Z Updating files:   8% (475/5926)
+2026-11-14T06:11:54.6873520Z Updating files:   9% (534/5926)
+2026-11-14T06:11:54.7077870Z Updating files:  10% (593/5926)
+2026-11-14T06:11:54.7291410Z Updating files:  11% (652/5926)
+2026-11-14T06:11:54.7386490Z Updating files:  12% (712/5926)
+2026-11-14T06:11:54.7448390Z Updating files:  13% (771/5926)
+2026-11-14T06:11:54.7649360Z Updating files:  14% (830/5926)
+2026-11-14T06:11:54.7958970Z Updating files:  15% (889/5926)
+2026-11-14T06:11:54.8124400Z Updating files:  16% (949/5926)
+2026-11-14T06:11:54.8315660Z Updating files:  17% (1008/5926)
+2026-11-14T06:11:54.8447410Z Updating files:  18% (1067/5926)
+2026-11-14T06:11:54.8547740Z Updating files:  19% (1126/5926)
+2026-11-14T06:11:54.8660020Z Updating files:  20% (1186/5926)
+2026-11-14T06:11:54.8766040Z Updating files:  21% (1245/5926)
+2026-11-14T06:11:54.8849670Z Updating files:  22% (1304/5926)
+2026-11-14T06:11:54.8936600Z Updating files:  23% (1363/5926)
+2026-11-14T06:11:54.9041820Z Updating files:  24% (1423/5926)
+2026-11-14T06:11:54.9123560Z Updating files:  25% (1482/5926)
+2026-11-14T06:11:54.9213830Z Updating files:  26% (1541/5926)
+2026-11-14T06:11:54.9287900Z Updating files:  27% (1601/5926)
+2026-11-14T06:11:54.9409270Z Updating files:  28% (1660/5926)
+2026-11-14T06:11:54.9478300Z Updating files:  29% (1719/5926)
+2026-11-14T06:11:54.9548250Z Updating files:  30% (1778/5926)
+2026-11-14T06:11:54.9642290Z Updating files:  31% (1838/5926)
+2026-11-14T06:11:54.9708910Z Updating files:  32% (1897/5926)
+2026-11-14T06:11:54.9787410Z Updating files:  33% (1956/5926)
+2026-11-14T06:11:54.9841240Z Updating files:  34% (2015/5926)
+2026-11-14T06:11:54.9930860Z Updating files:  35% (2075/5926)
+2026-11-14T06:11:54.9995730Z Updating files:  36% (2134/5926)
+2026-11-14T06:11:55.0119090Z Updating files:  37% (2193/5926)
+2026-11-14T06:11:55.0509160Z Updating files:  38% (2252/5926)
+2026-11-14T06:11:55.0579670Z Updating files:  39% (2312/5926)
+2026-11-14T06:11:55.0640650Z Updating files:  40% (2371/5926)
+2026-11-14T06:11:55.0692880Z Updating files:  41% (2430/5926)
+2026-11-14T06:11:55.0779020Z Updating files:  42% (2489/5926)
+2026-11-14T06:11:55.1279150Z Updating files:  43% (2549/5926)
+2026-11-14T06:11:55.1353240Z Updating files:  44% (2608/5926)
+2026-11-14T06:11:55.1418940Z Updating files:  45% (2667/5926)
+2026-11-14T06:11:55.1508000Z Updating files:  46% (2726/5926)
+2026-11-14T06:11:55.1569830Z Updating files:  47% (2786/5926)
+2026-11-14T06:11:55.1915020Z Updating files:  48% (2845/5926)
+2026-11-14T06:11:55.2044780Z Updating files:  49% (2904/5926)
+2026-11-14T06:11:55.2190750Z Updating files:  50% (2963/5926)
+2026-11-14T06:11:55.2460120Z Updating files:  51% (3023/5926)
+2026-11-14T06:11:55.2516570Z Updating files:  52% (3082/5926)
+2026-11-14T06:11:55.2800340Z Updating files:  53% (3141/5926)
+2026-11-14T06:11:55.2866520Z Updating files:  54% (3201/5926)
+2026-11-14T06:11:55.2941150Z Updating files:  55% (3260/5926)
+2026-11-14T06:11:55.3171690Z Updating files:  56% (3319/5926)
+2026-11-14T06:11:55.3256330Z Updating files:  57% (3378/5926)
+2026-11-14T06:11:55.3321780Z Updating files:  58% (3438/5926)
+2026-11-14T06:11:55.3395780Z Updating files:  59% (3497/5926)
+2026-11-14T06:11:55.3503820Z Updating files:  60% (3556/5926)
+2026-11-14T06:11:55.4025860Z Updating files:  61% (3615/5926)
+2026-11-14T06:11:55.4259380Z Updating files:  62% (3675/5926)
+2026-11-14T06:11:55.4625410Z Updating files:  63% (3734/5926)
+2026-11-14T06:11:55.4702320Z Updating files:  64% (3793/5926)
+2026-11-14T06:11:55.4755220Z Updating files:  65% (3852/5926)
+2026-11-14T06:11:55.4973920Z Updating files:  66% (3912/5926)
+2026-11-14T06:11:55.5424950Z Updating files:  67% (3971/5926)
+2026-11-14T06:11:55.5757960Z Updating files:  68% (4030/5926)
+2026-11-14T06:11:55.5811530Z Updating files:  69% (4089/5926)
+2026-11-14T06:11:55.6252710Z Updating files:  69% (4091/5926)
+2026-11-14T06:11:55.7019120Z Updating files:  70% (4149/5926)
+2026-11-14T06:11:55.7308610Z Updating files:  71% (4208/5926)
+2026-11-14T06:11:55.7654080Z Updating files:  72% (4267/5926)
+2026-11-14T06:11:55.7745500Z Updating files:  73% (4326/5926)
+2026-11-14T06:11:55.7798730Z Updating files:  74% (4386/5926)
+2026-11-14T06:11:55.7867750Z Updating files:  75% (4445/5926)
+2026-11-14T06:11:55.8008400Z Updating files:  76% (4504/5926)
+2026-11-14T06:11:55.8373930Z Updating files:  77% (4564/5926)
+2026-11-14T06:11:55.8530410Z Updating files:  78% (4623/5926)
+2026-11-14T06:11:55.8877690Z Updating files:  79% (4682/5926)
+2026-11-14T06:11:55.8976550Z Updating files:  80% (4741/5926)
+2026-11-14T06:11:55.9039940Z Updating files:  81% (4801/5926)
+2026-11-14T06:11:55.9155740Z Updating files:  82% (4860/5926)
+2026-11-14T06:11:55.9387880Z Updating files:  83% (4919/5926)
+2026-11-14T06:11:55.9534690Z Updating files:  84% (4978/5926)
+2026-11-14T06:11:55.9873940Z Updating files:  85% (5038/5926)
+2026-11-14T06:11:56.0014310Z Updating files:  86% (5097/5926)
+2026-11-14T06:11:56.0142160Z Updating files:  87% (5156/5926)
+2026-11-14T06:11:56.0301900Z Updating files:  88% (5215/5926)
+2026-11-14T06:11:56.0694640Z Updating files:  89% (5275/5926)
+2026-11-14T06:11:56.0831970Z Updating files:  90% (5334/5926)
+2026-11-14T06:11:56.0971930Z Updating files:  91% (5393/5926)
+2026-11-14T06:11:56.1088390Z Updating files:  92% (5452/5926)
+2026-11-14T06:11:56.1352040Z Updating files:  93% (5512/5926)
+2026-11-14T06:11:56.1513680Z Updating files:  94% (5571/5926)
+2026-11-14T06:11:56.1643000Z Updating files:  95% (5630/5926)
+2026-11-14T06:11:56.1731990Z Updating files:  96% (5689/5926)
+2026-11-14T06:11:56.1797340Z Updating files:  97% (5749/5926)
+2026-11-14T06:11:56.1868130Z Updating files:  98% (5808/5926)
+2026-11-14T06:11:56.1933450Z Updating files:  99% (5867/5926)
+2026-11-14T06:11:56.1933890Z Updating files: 100% (5926/5926)
+2026-11-14T06:11:56.1934190Z Updating files: 100% (5926/5926), done.
+2026-11-14T06:11:56.2023760Z HEAD is now at 4622f48 Verify natural paragraph editing and grouped playback in native windows
+2026-11-14T06:11:56.2095110Z ##[endgroup]
+2026-11-14T06:11:56.2248750Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-11-14T06:11:56.2342460Z 4622f486987f920e4ec725eb20934561ea6c9a7f
+2026-11-14T06:11:56.2780250Z ##[group]Run actions/setup-node@v4
+2026-11-14T06:11:56.2780600Z with:
+2026-11-14T06:11:56.2780740Z   node-version: 24
+2026-11-14T06:11:56.2781060Z   always-auth: false
+2026-11-14T06:11:56.2781310Z   check-latest: false
+2026-11-14T06:11:56.2783930Z   token: ***
+2026-11-14T06:11:56.2784180Z ##[endgroup]
+2026-11-14T06:11:56.4738520Z Found in cache @ /Users/runner/hostedtoolcache/node/24.22.2/arm64
+2026-11-14T06:11:56.4741080Z (node:1829) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T06:11:56.4741800Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T06:11:56.4743440Z ##[group]Environment details
+2026-11-14T06:11:57.0233200Z node: v24.22.2
+2026-11-14T06:11:57.0259860Z npm: 11.19.1
+2026-11-14T06:11:57.0265870Z yarn: 1.22.22
+2026-11-14T06:11:57.0266950Z ##[endgroup]
+2026-11-14T06:11:57.0341740Z ##[group]Run npm ci --prefix cloud
+2026-11-14T06:11:57.0342010Z [36;1mnpm ci --prefix cloud[0m
+2026-11-14T06:11:57.0394630Z shell: /bin/bash -e {0}
+2026-11-14T06:11:57.0394850Z ##[endgroup]
+2026-11-14T06:11:58.2687820Z 
+2026-11-14T06:11:58.2692820Z added 17 packages, and audited 18 packages in 1s
+2026-11-14T06:11:58.2693060Z 
+2026-11-14T06:11:58.2693240Z found 0 vulnerabilities
+2026-11-14T06:11:58.3329160Z ##[group]Run scripts/test-hosted-gateway.sh
+2026-11-14T06:11:58.3329460Z [36;1mscripts/test-hosted-gateway.sh[0m
+2026-11-14T06:11:58.3360660Z shell: /bin/bash -e {0}
+2026-11-14T06:11:58.3360850Z ##[endgroup]
+2026-11-14T06:12:10.0847110Z Building for debugging...
+2026-11-14T06:12:10.0914630Z [0/31] Copying ConnectionSample.pcm
+2026-11-14T06:12:10.0920570Z [1/31] Write sources
+2026-11-14T06:12:10.0923910Z [2/31] Copying LocalASR
+2026-11-14T06:12:10.3505130Z [3/31] Write swift-version-7974D3F7F03D5E95.txt
+2026-11-14T06:12:10.8360700Z [4/31] Compiling webrtc_vad.c
+2026-11-14T06:12:10.8389170Z [4/31] Compiling vad_sp.c
+2026-11-14T06:12:10.8726830Z [6/31] Compiling vad_gmm.c
+2026-11-14T06:12:10.8805840Z [7/31] Compiling vad_filterbank.c
+2026-11-14T06:12:10.9124680Z [8/31] Compiling spl_sqrt_floor.c
+2026-11-14T06:12:10.9189170Z [9/31] Compiling vad_core.c
+2026-11-14T06:12:10.9474300Z [10/31] Compiling vector_scaling_operations.c
+2026-11-14T06:12:10.9530170Z [11/31] Compiling spl_sqrt.c
+2026-11-14T06:12:10.9774740Z [12/31] Compiling spl_inl.c
+2026-11-14T06:12:10.9881270Z [13/31] Compiling spl_init.c
+2026-11-14T06:12:11.0110340Z [14/31] Compiling resample_fractional.c
+2026-11-14T06:12:11.0263630Z [15/31] Compiling resample_by_2_internal.c
+2026-11-14T06:12:11.0461110Z [16/31] Compiling resample_48khz.c
+2026-11-14T06:12:11.0608740Z [17/31] Compiling min_max_operations.c
+2026-11-14T06:12:11.1094680Z [18/31] Compiling get_scaling_square.c
+2026-11-14T06:12:11.1276670Z [19/31] Compiling energy.c
+2026-11-14T06:12:11.1635800Z [20/31] Compiling downsample_fast.c
+2026-11-14T06:12:11.1966510Z [21/31] Compiling division_operations.c
+2026-11-14T06:12:11.2196480Z [22/31] Compiling cross_correlation.c
+2026-11-14T06:12:11.2407520Z [23/31] Compiling complex_fft.c
+2026-11-14T06:12:11.2621970Z [24/31] Compiling complex_bit_reverse.c
+2026-11-14T06:12:11.2936800Z [25/31] Compiling CAudio VAD.c
+2026-11-14T06:12:11.3045620Z [26/31] Compiling checks.cc
+2026-11-14T06:12:11.3777120Z [27/31] Compiling CAudio AudioRing.c
+2026-11-14T06:12:13.4266570Z [28/31] Compiling CAudio PinnedInput.c
+2026-11-14T06:12:29.3323470Z [30/69] Compiling SaytileKit JournalRangeReader.swift
+2026-11-14T06:12:29.3388690Z [31/69] Compiling SaytileKit LocalASRProvider.swift
+2026-11-14T06:12:29.3524460Z [32/69] Compiling SaytileKit LocalCandidateIngress.swift
+2026-11-14T06:12:29.3648640Z [33/69] Compiling SaytileKit LocalModelLibrary.swift
+2026-11-14T06:12:29.3762160Z [34/69] Compiling SaytileKit LocalModelRecommendation.swift
+2026-11-14T06:12:29.3866750Z [35/69] Compiling SaytileKit LocalTextReview.swift
+2026-11-14T06:12:29.3968170Z [36/69] Compiling SaytileKit MetaStreamingProvider.swift
+2026-11-14T06:12:29.4054840Z [37/69] Compiling SaytileKit MicrophoneLid.swift
+2026-11-14T06:12:29.4157410Z [38/69] Compiling SaytileKit Models.swift
+2026-11-14T06:12:29.4258900Z [39/69] Compiling SaytileKit MultiRecognitionDiagnostics.swift
+2026-11-14T06:12:29.4360330Z [40/69] Compiling SaytileKit MultiRecognitionSession.swift
+2026-11-14T06:12:29.4460830Z [41/69] Compiling SaytileKit PanelCoexistenceGeometry.swift
+2026-11-14T06:12:29.4461860Z [42/69] Compiling SaytileKit PanelEditTransaction.swift
+2026-11-14T06:12:29.4492770Z [43/69] Compiling SaytileKit PinnedAudioInput.swift
+2026-11-14T06:12:29.4493520Z [44/69] Compiling SaytileKit PrecisionReviewClient.swift
+2026-11-14T06:12:29.4494290Z [45/69] Compiling SaytileKit QwenMessageProvider.swift
+2026-11-14T06:12:29.4506470Z [46/69] Compiling SaytileKit RecognitionAudioFanout.swift
+2026-11-14T06:12:29.4542970Z [47/69] Compiling SaytileKit RecognitionCandidates.swift
+2026-11-14T06:12:30.1246850Z [48/87] Compiling SaytileKit ASRProviderProtocol.swift
+2026-11-14T06:12:30.1348910Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.1460890Z   98 |             var error: NSError?
+2026-11-14T06:12:30.1583840Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.1686760Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.1788440Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.1890280Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.1973970Z  102 |             }
+2026-11-14T06:12:30.2010060Z 
+2026-11-14T06:12:30.2016100Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.2019240Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.2029950Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.2036530Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.2055820Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.2070760Z  102 |             }
+2026-11-14T06:12:30.2084120Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.2093940Z 
+2026-11-14T06:12:30.2100860Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.2109060Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.2113970Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.2116780Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.2133740Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.2178690Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.2234750Z  25 |             }
+2026-11-14T06:12:30.2264760Z 
+2026-11-14T06:12:30.2283530Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.2512310Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.2756710Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.2864850Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.2972880Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.2973740Z  25 |             }
+2026-11-14T06:12:30.3129750Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.3256190Z 
+2026-11-14T06:12:30.3479530Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.3585330Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.3686910Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.3816820Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.3946160Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.4053550Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.4155430Z 133 |         }
+2026-11-14T06:12:30.4256300Z 
+2026-11-14T06:12:30.4358480Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.4460410Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.4562020Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.4643420Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.4647780Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.4659410Z 133 |         }
+2026-11-14T06:12:30.4674660Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.4685070Z 
+2026-11-14T06:12:30.4689560Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.4742260Z [49/87] Compiling SaytileKit ArchiveDraftPersistence.swift
+2026-11-14T06:12:30.4844520Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.4938220Z   98 |             var error: NSError?
+2026-11-14T06:12:30.4956620Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.4957580Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.4959220Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.4960400Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.4960840Z  102 |             }
+2026-11-14T06:12:30.4960960Z 
+2026-11-14T06:12:30.4961760Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.4962740Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.4963240Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.4963690Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.4964310Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.4964750Z  102 |             }
+2026-11-14T06:12:30.4965340Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.4965670Z 
+2026-11-14T06:12:30.5054330Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5055600Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5056070Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5056540Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5057170Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5057800Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5058470Z  25 |             }
+2026-11-14T06:12:30.5058600Z 
+2026-11-14T06:12:30.5060010Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5061020Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5062050Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5062660Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5063290Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5063710Z  25 |             }
+2026-11-14T06:12:30.5064230Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5064580Z 
+2026-11-14T06:12:30.5065330Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5066220Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5066820Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5067650Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5068730Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5069390Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5069770Z 133 |         }
+2026-11-14T06:12:30.5069940Z 
+2026-11-14T06:12:30.5070740Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5071580Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5072060Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5072500Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5073160Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5073700Z 133 |         }
+2026-11-14T06:12:30.5074280Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5074620Z 
+2026-11-14T06:12:30.5075060Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5075790Z [50/87] Compiling SaytileKit AssemblyStreamingProvider.swift
+2026-11-14T06:12:30.5076800Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5077450Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5077900Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5078340Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5079080Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5080190Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5080560Z  102 |             }
+2026-11-14T06:12:30.5080750Z 
+2026-11-14T06:12:30.5081530Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5083030Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5083660Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5085200Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5086500Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5087220Z  102 |             }
+2026-11-14T06:12:30.5087910Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5088320Z 
+2026-11-14T06:12:30.5089150Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5089980Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5090750Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5091650Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5092390Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5093030Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5093790Z  25 |             }
+2026-11-14T06:12:30.5093990Z 
+2026-11-14T06:12:30.5094800Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5095910Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5096420Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5096890Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5097610Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5098020Z  25 |             }
+2026-11-14T06:12:30.5098570Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5098920Z 
+2026-11-14T06:12:30.5099750Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5100570Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5101330Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5101940Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5102580Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5103300Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5103740Z 133 |         }
+2026-11-14T06:12:30.5103840Z 
+2026-11-14T06:12:30.5104580Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5105570Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5106200Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5106800Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5107370Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5107870Z 133 |         }
+2026-11-14T06:12:30.5108430Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5108750Z 
+2026-11-14T06:12:30.5109440Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5110060Z [51/87] Compiling SaytileKit AudioCapture.swift
+2026-11-14T06:12:30.5111870Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5112710Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5113270Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5115140Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5115740Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5116380Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5116660Z  102 |             }
+2026-11-14T06:12:30.5116850Z 
+2026-11-14T06:12:30.5118110Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5119200Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5119650Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5120060Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5120710Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5121280Z  102 |             }
+2026-11-14T06:12:30.5121930Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5122290Z 
+2026-11-14T06:12:30.5123090Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5123970Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5124400Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5124830Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5125410Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5126000Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5126330Z  25 |             }
+2026-11-14T06:12:30.5126430Z 
+2026-11-14T06:12:30.5127150Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5127980Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5128460Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5128870Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5129630Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5130130Z  25 |             }
+2026-11-14T06:12:30.5130700Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5130980Z 
+2026-11-14T06:12:30.5131710Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5132510Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5133470Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5133950Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5134840Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5135490Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5135760Z 133 |         }
+2026-11-14T06:12:30.5135900Z 
+2026-11-14T06:12:30.5136680Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5137580Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5138110Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5138600Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5139170Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5139560Z 133 |         }
+2026-11-14T06:12:30.5140260Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5140530Z 
+2026-11-14T06:12:30.5141060Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5141680Z [52/87] Compiling SaytileKit AudioDiagnostics.swift
+2026-11-14T06:12:30.5142570Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5143210Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5143580Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5144020Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5144700Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5145390Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5145670Z  102 |             }
+2026-11-14T06:12:30.5145770Z 
+2026-11-14T06:12:30.5146480Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5147330Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5147870Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5148840Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5149420Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5149830Z  102 |             }
+2026-11-14T06:12:30.5150280Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5150550Z 
+2026-11-14T06:12:30.5151440Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5152160Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5152570Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5153000Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5153560Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5154110Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5154500Z  25 |             }
+2026-11-14T06:12:30.5155030Z 
+2026-11-14T06:12:30.5156230Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5157050Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5157490Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5157900Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5158510Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5158980Z  25 |             }
+2026-11-14T06:12:30.5159440Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5159710Z 
+2026-11-14T06:12:30.5160480Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5161480Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5161940Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5162420Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5163020Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5163930Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5164270Z 133 |         }
+2026-11-14T06:12:30.5164390Z 
+2026-11-14T06:12:30.5165230Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5166150Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5166690Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5167150Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5167820Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5168220Z 133 |         }
+2026-11-14T06:12:30.5168910Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5169250Z 
+2026-11-14T06:12:30.5169690Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5170210Z [53/87] Compiling SaytileKit AudioJournal.swift
+2026-11-14T06:12:30.5171090Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5171750Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5172110Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5172550Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5173330Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5173950Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5174770Z  102 |             }
+2026-11-14T06:12:30.5174900Z 
+2026-11-14T06:12:30.5175920Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5176940Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5178130Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5178720Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5179500Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5179960Z  102 |             }
+2026-11-14T06:12:30.5180670Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5181000Z 
+2026-11-14T06:12:30.5182010Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5183010Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5183500Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5184170Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5185260Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5186000Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5186330Z  25 |             }
+2026-11-14T06:12:30.5186570Z 
+2026-11-14T06:12:30.5187580Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5188690Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5189310Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5189790Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5190580Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5191190Z  25 |             }
+2026-11-14T06:12:30.5191800Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5192110Z 
+2026-11-14T06:12:30.5193080Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5194140Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5194810Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5195340Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5196110Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5197000Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5197310Z 133 |         }
+2026-11-14T06:12:30.5197400Z 
+2026-11-14T06:12:30.5198360Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5199530Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5200200Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5200800Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5201560Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5202010Z 133 |         }
+2026-11-14T06:12:30.5202720Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5203060Z 
+2026-11-14T06:12:30.5204130Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5204760Z [54/87] Compiling SaytileKit AudioLifecycle.swift
+2026-11-14T06:12:30.5205640Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5206270Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5206640Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5207070Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5207650Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5208200Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5208640Z  102 |             }
+2026-11-14T06:12:30.5208740Z 
+2026-11-14T06:12:30.5209450Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5210240Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5210670Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5211070Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5211650Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5212050Z  102 |             }
+2026-11-14T06:12:30.5212490Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5212760Z 
+2026-11-14T06:12:30.5213500Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5214210Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5214620Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5215160Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5215820Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5216520Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5226050Z  25 |             }
+2026-11-14T06:12:30.5226200Z 
+2026-11-14T06:12:30.5226950Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5227740Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5228170Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5228570Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5229130Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5229530Z  25 |             }
+2026-11-14T06:12:30.5229990Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5230260Z 
+2026-11-14T06:12:30.5231000Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5232180Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5232960Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5233450Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5234200Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5234870Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5235140Z 133 |         }
+2026-11-14T06:12:30.5235230Z 
+2026-11-14T06:12:30.5235960Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5236980Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5237460Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5237910Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5238890Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5239360Z 133 |         }
+2026-11-14T06:12:30.5239850Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5240110Z 
+2026-11-14T06:12:30.5240560Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5241130Z [55/87] Compiling SaytileKit AudioPlaybackTimeline.swift
+2026-11-14T06:12:30.5244000Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5245160Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5245560Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5246030Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5246630Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5247190Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5247470Z  102 |             }
+2026-11-14T06:12:30.5247580Z 
+2026-11-14T06:12:30.5248300Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5250580Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5251120Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5251620Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5252220Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5252640Z  102 |             }
+2026-11-14T06:12:30.5253140Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5253420Z 
+2026-11-14T06:12:30.5254160Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5254920Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5255790Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5256240Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5257300Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5257870Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5258150Z  25 |             }
+2026-11-14T06:12:30.5258250Z 
+2026-11-14T06:12:30.5259190Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5259980Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5260420Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5260820Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5261490Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5262040Z  25 |             }
+2026-11-14T06:12:30.5262730Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5263010Z 
+2026-11-14T06:12:30.5263750Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5264520Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5264970Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5265450Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5266020Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5266600Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5266870Z 133 |         }
+2026-11-14T06:12:30.5266960Z 
+2026-11-14T06:12:30.5267740Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5268910Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5269390Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5269830Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5270390Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5270790Z 133 |         }
+2026-11-14T06:12:30.5271280Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5271550Z 
+2026-11-14T06:12:30.5271990Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5272560Z [56/87] Compiling SaytileKit AudioTapCallbacks.swift
+2026-11-14T06:12:30.5273440Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5274080Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5274450Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5274880Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5275450Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5276000Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5276270Z  102 |             }
+2026-11-14T06:12:30.5276380Z 
+2026-11-14T06:12:30.5277380Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5278170Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5278610Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5279000Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5279580Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5279980Z  102 |             }
+2026-11-14T06:12:30.5280410Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5280680Z 
+2026-11-14T06:12:30.5281410Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5282260Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5282670Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5283090Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5283660Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5284210Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5284490Z  25 |             }
+2026-11-14T06:12:30.5284590Z 
+2026-11-14T06:12:30.5285530Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5286340Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5286850Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5287260Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5287840Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5288260Z  25 |             }
+2026-11-14T06:12:30.5288710Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5289000Z 
+2026-11-14T06:12:30.5289820Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5290570Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5291020Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5291520Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5292330Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5292980Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5293250Z 133 |         }
+2026-11-14T06:12:30.5293340Z 
+2026-11-14T06:12:30.5294160Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5295020Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5295500Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5295960Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5297040Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5297490Z 133 |         }
+2026-11-14T06:12:30.5298040Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5298310Z 
+2026-11-14T06:12:30.5298760Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5299340Z [57/87] Compiling SaytileKit CloudConnectionVerification.swift
+2026-11-14T06:12:30.5300270Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5300910Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5301330Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5301820Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5302680Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5303240Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5303520Z  102 |             }
+2026-11-14T06:12:30.5303630Z 
+2026-11-14T06:12:30.5304350Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5305140Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5305580Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5306000Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5306580Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5307060Z  102 |             }
+2026-11-14T06:12:30.5307540Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5307810Z 
+2026-11-14T06:12:30.5308540Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5309230Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5309630Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5310060Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5310620Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5311180Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5311470Z  25 |             }
+2026-11-14T06:12:30.5311560Z 
+2026-11-14T06:12:30.5312280Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5313060Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5313480Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5313880Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5314450Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5314840Z  25 |             }
+2026-11-14T06:12:30.5315250Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5315520Z 
+2026-11-14T06:12:30.5316460Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5317210Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5317670Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5318150Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5318710Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5319300Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5319570Z 133 |         }
+2026-11-14T06:12:30.5319660Z 
+2026-11-14T06:12:30.5320400Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5321340Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5321810Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5322330Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5322900Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5323290Z 133 |         }
+2026-11-14T06:12:30.5323780Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5324040Z 
+2026-11-14T06:12:30.5324490Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5325180Z [58/87] Compiling SaytileKit CloudCredentials.swift
+2026-11-14T06:12:30.5326120Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5326760Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5327120Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5327560Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5328130Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5328680Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5328980Z  102 |             }
+2026-11-14T06:12:30.5329090Z 
+2026-11-14T06:12:30.5329800Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5330820Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5331250Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5331660Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5332230Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5332630Z  102 |             }
+2026-11-14T06:12:30.5333070Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5333820Z 
+2026-11-14T06:12:30.5334630Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5335370Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5336690Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5337190Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5338800Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5339370Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5339660Z  25 |             }
+2026-11-14T06:12:30.5339750Z 
+2026-11-14T06:12:30.5340490Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5341270Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5341700Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5342110Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5342890Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5343390Z  25 |             }
+2026-11-14T06:12:30.5343900Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5344170Z 
+2026-11-14T06:12:30.5344910Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5345630Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5346080Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5346560Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5347140Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5347720Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5347990Z 133 |         }
+2026-11-14T06:12:30.5348080Z 
+2026-11-14T06:12:30.5349070Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5349900Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5350380Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5350810Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5351370Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5351760Z 133 |         }
+2026-11-14T06:12:30.5352280Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5353480Z 
+2026-11-14T06:12:30.5353980Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5354540Z [59/87] Compiling SaytileKit ConnectionSetup.swift
+2026-11-14T06:12:30.5355440Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5356100Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5356470Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5356920Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5357590Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5358410Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5358710Z  102 |             }
+2026-11-14T06:12:30.5358810Z 
+2026-11-14T06:12:30.5359620Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5360400Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5360840Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5361240Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5361810Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5362220Z  102 |             }
+2026-11-14T06:12:30.5362780Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5363220Z 
+2026-11-14T06:12:30.5383000Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5383760Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5384180Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5384610Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5385180Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5385800Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5386150Z  25 |             }
+2026-11-14T06:12:30.5386570Z 
+2026-11-14T06:12:30.5388060Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5399610Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5400350Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5400860Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5401830Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5402840Z  25 |             }
+2026-11-14T06:12:30.5403900Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5404590Z 
+2026-11-14T06:12:30.5405880Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5406630Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5407090Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5407560Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5408130Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5408700Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5408970Z 133 |         }
+2026-11-14T06:12:30.5409110Z 
+2026-11-14T06:12:30.5409850Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5410790Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5422440Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5422970Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5423560Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5423980Z 133 |         }
+2026-11-14T06:12:30.5424530Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5424790Z 
+2026-11-14T06:12:30.5425240Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5425780Z [60/87] Compiling SaytileKit DiagnosticDirectory.swift
+2026-11-14T06:12:30.5426680Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5427490Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5427860Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5428300Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5428870Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5429530Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5429810Z  102 |             }
+2026-11-14T06:12:30.5429900Z 
+2026-11-14T06:12:30.5430610Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5431430Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5431920Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5432330Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5432900Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5433310Z  102 |             }
+2026-11-14T06:12:30.5433720Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5434000Z 
+2026-11-14T06:12:30.5434730Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5435420Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5435830Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5436250Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5436840Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5437380Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5437650Z  25 |             }
+2026-11-14T06:12:30.5437740Z 
+2026-11-14T06:12:30.5438460Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5439250Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5439680Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5440070Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5440730Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5441150Z  25 |             }
+2026-11-14T06:12:30.5441560Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5441830Z 
+2026-11-14T06:12:30.5442560Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5443330Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5443780Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5444260Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5444830Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5445410Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5445790Z 133 |         }
+2026-11-14T06:12:30.5445880Z 
+2026-11-14T06:12:30.5474720Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5475720Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5476200Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5476640Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5477210Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5477610Z 133 |         }
+2026-11-14T06:12:30.5478200Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5478470Z 
+2026-11-14T06:12:30.5478950Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5479490Z [61/87] Compiling SaytileKit FinalASRProvider.swift
+2026-11-14T06:12:30.5480390Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5481030Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5481400Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5481830Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5482400Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5482950Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5483250Z  102 |             }
+2026-11-14T06:12:30.5483360Z 
+2026-11-14T06:12:30.5484070Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5484830Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5485260Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5485660Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5486230Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5486630Z  102 |             }
+2026-11-14T06:12:30.5487050Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5487320Z 
+2026-11-14T06:12:30.5488370Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5489140Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5489580Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5490000Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5490570Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5491110Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5491380Z  25 |             }
+2026-11-14T06:12:30.5491480Z 
+2026-11-14T06:12:30.5492200Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5493090Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5493520Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5506210Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5506840Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5507260Z  25 |             }
+2026-11-14T06:12:30.5507880Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5508160Z 
+2026-11-14T06:12:30.5509310Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5510070Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5510540Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5511010Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5511590Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5512350Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5512640Z 133 |         }
+2026-11-14T06:12:30.5512730Z 
+2026-11-14T06:12:30.5513460Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5514290Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5514760Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5515190Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5515760Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5516150Z 133 |         }
+2026-11-14T06:12:30.5516640Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5516910Z 
+2026-11-14T06:12:30.5517350Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5517880Z [62/87] Compiling SaytileKit GPTReviewSession.swift
+2026-11-14T06:12:30.5518770Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5519400Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5519780Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5520420Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5521000Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5521540Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5521820Z  102 |             }
+2026-11-14T06:12:30.5521930Z 
+2026-11-14T06:12:30.5522630Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5523390Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5523820Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5524230Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5524880Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5525280Z  102 |             }
+2026-11-14T06:12:30.5525790Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5526130Z 
+2026-11-14T06:12:30.5527010Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5527820Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5528220Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5528650Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5529370Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5530250Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5530550Z  25 |             }
+2026-11-14T06:12:30.5530640Z 
+2026-11-14T06:12:30.5531380Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5532160Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5532600Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5533000Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5533570Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5533980Z  25 |             }
+2026-11-14T06:12:30.5534420Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5534700Z 
+2026-11-14T06:12:30.5535440Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5536170Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5536620Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5537100Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5537710Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5538540Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5538810Z 133 |         }
+2026-11-14T06:12:30.5538900Z 
+2026-11-14T06:12:30.5540360Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5546160Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5546650Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5547080Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5547640Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5548040Z 133 |         }
+2026-11-14T06:12:30.5549140Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5549480Z 
+2026-11-14T06:12:30.5550170Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5551240Z [63/87] Compiling SaytileKit HostedAccount.swift
+2026-11-14T06:12:30.5567840Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5568490Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5568900Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5569340Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5569920Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5570470Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5570740Z  102 |             }
+2026-11-14T06:12:30.5570850Z 
+2026-11-14T06:12:30.5571570Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5572340Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5572770Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5573180Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5573750Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5574150Z  102 |             }
+2026-11-14T06:12:30.5574660Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5574930Z 
+2026-11-14T06:12:30.5575660Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5576370Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5576770Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5577190Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5577760Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5578300Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5578570Z  25 |             }
+2026-11-14T06:12:30.5578660Z 
+2026-11-14T06:12:30.5579390Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5580160Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5580860Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5581280Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5581840Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5582250Z  25 |             }
+2026-11-14T06:12:30.5582650Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5582920Z 
+2026-11-14T06:12:30.5583660Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5584380Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5584820Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5585290Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5585980Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5586560Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5586820Z 133 |         }
+2026-11-14T06:12:30.5586910Z 
+2026-11-14T06:12:30.5587630Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5588440Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5588910Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5632470Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5633200Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5633660Z 133 |         }
+2026-11-14T06:12:30.5634260Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5634540Z 
+2026-11-14T06:12:30.5635010Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5635550Z [64/87] Compiling SaytileKit HostedTransport.swift
+2026-11-14T06:12:30.5636460Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5637100Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5637470Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5637910Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5638500Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5639060Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5639330Z  102 |             }
+2026-11-14T06:12:30.5639440Z 
+2026-11-14T06:12:30.5640150Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5640910Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5641350Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5641740Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5642310Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5642720Z  102 |             }
+2026-11-14T06:12:30.5643470Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5643750Z 
+2026-11-14T06:12:30.5644490Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5645180Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5645580Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5646010Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5646580Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5647110Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5647390Z  25 |             }
+2026-11-14T06:12:30.5647600Z 
+2026-11-14T06:12:30.5648340Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5649100Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5649520Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5649920Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5650480Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5650870Z  25 |             }
+2026-11-14T06:12:30.5651280Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5651550Z 
+2026-11-14T06:12:30.5652290Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5653020Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5653460Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5653930Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5654490Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5655070Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5655340Z 133 |         }
+2026-11-14T06:12:30.5655420Z 
+2026-11-14T06:12:30.5656150Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5656970Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5657450Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5657880Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5658440Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5658840Z 133 |         }
+2026-11-14T06:12:30.5659280Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5659550Z 
+2026-11-14T06:12:30.5659990Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5660530Z [65/87] Compiling SaytileKit InputAccessibility.swift
+2026-11-14T06:12:30.5661500Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5662220Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5662610Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5663040Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5663610Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5664150Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5664430Z  102 |             }
+2026-11-14T06:12:30.5664530Z 
+2026-11-14T06:12:30.5665300Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5666060Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5666570Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5667050Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5713850Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5714300Z  102 |             }
+2026-11-14T06:12:30.5715350Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5715990Z 
+2026-11-14T06:12:30.5716780Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5717490Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5717910Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5718400Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5718980Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5719530Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5719810Z  25 |             }
+2026-11-14T06:12:30.5719910Z 
+2026-11-14T06:12:30.5720640Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5721420Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5721860Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5722260Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5722880Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5723290Z  25 |             }
+2026-11-14T06:12:30.5723740Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5724020Z 
+2026-11-14T06:12:30.5724750Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5725490Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5725940Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5726410Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5726980Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5728140Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5728430Z 133 |         }
+2026-11-14T06:12:30.5728510Z 
+2026-11-14T06:12:30.5729250Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5730070Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5730540Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5730980Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5731530Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5731930Z 133 |         }
+2026-11-14T06:12:30.5732400Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5732840Z 
+2026-11-14T06:12:30.5733280Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5733820Z [66/87] Compiling SaytileKit InputCoordinator.swift
+2026-11-14T06:12:30.5734720Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:100:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5735350Z   98 |             var error: NSError?
+2026-11-14T06:12:30.5735720Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5736160Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5736740Z      |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5737290Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5737570Z  102 |             }
+2026-11-14T06:12:30.5737680Z 
+2026-11-14T06:12:30.5738390Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioCapture.swift:101:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5739160Z   99 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5739590Z  100 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5739990Z  101 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5740560Z      |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5740960Z  102 |             }
+2026-11-14T06:12:30.5741390Z  103 |             if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+2026-11-14T06:12:30.5741660Z 
+2026-11-14T06:12:30.5742400Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:23:20: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5743090Z  21 |             var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5743490Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5743920Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5744490Z     |                    `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5745030Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5745300Z  25 |             }
+2026-11-14T06:12:30.5745400Z 
+2026-11-14T06:12:30.5746210Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:24:17: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5747010Z  22 |             let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5747430Z  23 |                 if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:30.5747830Z  24 |                 supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:30.5748390Z     |                 `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5748790Z  25 |             }
+2026-11-14T06:12:30.5749200Z  26 |             if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5749470Z 
+2026-11-14T06:12:30.5750280Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:131:16: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5751160Z 129 |         var supplied = false; var error: NSError?
+2026-11-14T06:12:30.5751610Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5752100Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5752670Z     |                `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5753450Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5753720Z 133 |         }
+2026-11-14T06:12:30.5753810Z 
+2026-11-14T06:12:30.5754530Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/AudioDiagnostics.swift:132:13: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5755410Z 130 |         let status = converter.convert(to: output, error: &error) { _, state in
+2026-11-14T06:12:30.5755930Z 131 |             if supplied { state.pointee = .endOfStream; return nil }
+2026-11-14T06:12:30.5756360Z 132 |             supplied = true; state.pointee = .haveData; return input
+2026-11-14T06:12:30.5756920Z     |             `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:30.5757320Z 133 |         }
+2026-11-14T06:12:30.5757810Z 134 |         if status == .error { throw error ?? AudioFailure.message("测试音频转换失败") as NSError }
+2026-11-14T06:12:30.5758080Z 
+2026-11-14T06:12:30.5758520Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:30.5759000Z [67/87] Emitting module SaytileKit
+2026-11-14T06:12:35.5039560Z [68/87] Compiling SaytileKit RecognitionConfiguration.swift
+2026-11-14T06:12:35.5141290Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5163440Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5164290Z 275 |         let started = Date()
+2026-11-14T06:12:35.5170960Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5171570Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5172090Z 277 |         do {
+2026-11-14T06:12:35.5172380Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5172530Z 
+2026-11-14T06:12:35.5173290Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5174010Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5174520Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5175050Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5176230Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5176900Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5177240Z 176 |                 }
+2026-11-14T06:12:35.5177340Z 
+2026-11-14T06:12:35.5178090Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5178980Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5179500Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5179960Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5180540Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5181100Z 176 |                 }
+2026-11-14T06:12:35.5182140Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5182460Z 
+2026-11-14T06:12:35.5182910Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5183470Z [69/87] Compiling SaytileKit RecognitionFailover.swift
+2026-11-14T06:12:35.5184280Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5184880Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5185140Z 275 |         let started = Date()
+2026-11-14T06:12:35.5185400Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5185800Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5186110Z 277 |         do {
+2026-11-14T06:12:35.5186350Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5186500Z 
+2026-11-14T06:12:35.5187350Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5188080Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5188600Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5189130Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5189730Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5190460Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5191060Z 176 |                 }
+2026-11-14T06:12:35.5191210Z 
+2026-11-14T06:12:35.5191990Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5193030Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5193610Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5194120Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5194720Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5195140Z 176 |                 }
+2026-11-14T06:12:35.5195720Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5196020Z 
+2026-11-14T06:12:35.5196650Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5197250Z [70/87] Compiling SaytileKit RecognitionFusion.swift
+2026-11-14T06:12:35.5198030Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5199860Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5200250Z 275 |         let started = Date()
+2026-11-14T06:12:35.5200520Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5200880Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5201200Z 277 |         do {
+2026-11-14T06:12:35.5201440Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5201600Z 
+2026-11-14T06:12:35.5202380Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5203320Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5203840Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5204380Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5204970Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5205600Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5205920Z 176 |                 }
+2026-11-14T06:12:35.5206030Z 
+2026-11-14T06:12:35.5206780Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5207700Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5208240Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5208720Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5209310Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5209740Z 176 |                 }
+2026-11-14T06:12:35.5210380Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5210690Z 
+2026-11-14T06:12:35.5211140Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5211710Z [71/87] Compiling SaytileKit RecordingCloudAuthorization.swift
+2026-11-14T06:12:35.5212630Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5213240Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5213490Z 275 |         let started = Date()
+2026-11-14T06:12:35.5213750Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5214150Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5214520Z 277 |         do {
+2026-11-14T06:12:35.5214800Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5214980Z 
+2026-11-14T06:12:35.5215720Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5216440Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5216940Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5217470Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5218210Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5218840Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5219140Z 176 |                 }
+2026-11-14T06:12:35.5219250Z 
+2026-11-14T06:12:35.5219980Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5220870Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5221380Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5221840Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5222420Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5223100Z 176 |                 }
+2026-11-14T06:12:35.5223660Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5223970Z 
+2026-11-14T06:12:35.5224410Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5224960Z [72/87] Compiling SaytileKit SaytileStorageProfile.swift
+2026-11-14T06:12:35.5225750Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5226340Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5226600Z 275 |         let started = Date()
+2026-11-14T06:12:35.5226850Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5227200Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5227520Z 277 |         do {
+2026-11-14T06:12:35.5227750Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5227900Z 
+2026-11-14T06:12:35.5228650Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5229440Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5229970Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5230490Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5231070Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5231670Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5231960Z 176 |                 }
+2026-11-14T06:12:35.5232070Z 
+2026-11-14T06:12:35.5232800Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5233680Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5234200Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5234680Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5235340Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5235750Z 176 |                 }
+2026-11-14T06:12:35.5236320Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5236630Z 
+2026-11-14T06:12:35.5237230Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5237800Z [73/87] Compiling SaytileKit SingleTranscriptEngine.swift
+2026-11-14T06:12:35.5238590Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5239230Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5239500Z 275 |         let started = Date()
+2026-11-14T06:12:35.5239840Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5240290Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5240610Z 277 |         do {
+2026-11-14T06:12:35.5240850Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5241020Z 
+2026-11-14T06:12:35.5241770Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5242630Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5243210Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5243740Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5244320Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5251670Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5252060Z 176 |                 }
+2026-11-14T06:12:35.5252170Z 
+2026-11-14T06:12:35.5252910Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5253820Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5254400Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5254920Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5255500Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5255920Z 176 |                 }
+2026-11-14T06:12:35.5256540Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5256850Z 
+2026-11-14T06:12:35.5257290Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5257850Z [74/87] Compiling SaytileKit SonioxStreamingProvider.swift
+2026-11-14T06:12:35.5258650Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5259260Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5259520Z 275 |         let started = Date()
+2026-11-14T06:12:35.5259780Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5260200Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5260520Z 277 |         do {
+2026-11-14T06:12:35.5260750Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5260910Z 
+2026-11-14T06:12:35.5261650Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5262380Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5262890Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5263670Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5264280Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5264900Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5265200Z 176 |                 }
+2026-11-14T06:12:35.5265300Z 
+2026-11-14T06:12:35.5266050Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5266950Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5267480Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5267960Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5268560Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5269110Z 176 |                 }
+2026-11-14T06:12:35.5269690Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5270000Z 
+2026-11-14T06:12:35.5270450Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5271010Z [75/87] Compiling SaytileKit SpeechRecognition.swift
+2026-11-14T06:12:35.5271880Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5272470Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5272730Z 275 |         let started = Date()
+2026-11-14T06:12:35.5272980Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5273340Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5273650Z 277 |         do {
+2026-11-14T06:12:35.5273880Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5274030Z 
+2026-11-14T06:12:35.5274760Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5275480Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5275990Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5276520Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5277130Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5277740Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5278120Z 176 |                 }
+2026-11-14T06:12:35.5278240Z 
+2026-11-14T06:12:35.5279020Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5280020Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5280610Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5281080Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5281680Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5282110Z 176 |                 }
+2026-11-14T06:12:35.5282670Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5283080Z 
+2026-11-14T06:12:35.5283540Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5284110Z [76/87] Compiling SaytileKit SpeechResultAccumulator.swift
+2026-11-14T06:12:35.5284930Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5285520Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5285780Z 275 |         let started = Date()
+2026-11-14T06:12:35.5286030Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5286380Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5286690Z 277 |         do {
+2026-11-14T06:12:35.5286910Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5287060Z 
+2026-11-14T06:12:35.5287800Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5288610Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5289120Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5289630Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5290210Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5290810Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5291110Z 176 |                 }
+2026-11-14T06:12:35.5291220Z 
+2026-11-14T06:12:35.5291950Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5292850Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5293360Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5293820Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5294570Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5295090Z 176 |                 }
+2026-11-14T06:12:35.5295630Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5295950Z 
+2026-11-14T06:12:35.5296380Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5297130Z [77/87] Compiling SaytileKit SpeechTiming.swift
+2026-11-14T06:12:35.5298390Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5299030Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5299290Z 275 |         let started = Date()
+2026-11-14T06:12:35.5299540Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5299900Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5300200Z 277 |         do {
+2026-11-14T06:12:35.5300440Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5300580Z 
+2026-11-14T06:12:35.5301370Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5302160Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5302670Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5303380Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5303960Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5304570Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5304890Z 176 |                 }
+2026-11-14T06:12:35.5305020Z 
+2026-11-14T06:12:35.5305760Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5306690Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5307210Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5307670Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5308270Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5308700Z 176 |                 }
+2026-11-14T06:12:35.5309320Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5309630Z 
+2026-11-14T06:12:35.5310080Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5310580Z [78/87] Compiling SaytileKit Store.swift
+2026-11-14T06:12:35.5311340Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5311940Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5312200Z 275 |         let started = Date()
+2026-11-14T06:12:35.5312460Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5312830Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5313140Z 277 |         do {
+2026-11-14T06:12:35.5313370Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5313520Z 
+2026-11-14T06:12:35.5314270Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5315000Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5315500Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5316040Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5316640Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5317260Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5317790Z 176 |                 }
+2026-11-14T06:12:35.5317910Z 
+2026-11-14T06:12:35.5318650Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5319650Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5320350Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5320830Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5321420Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5321860Z 176 |                 }
+2026-11-14T06:12:35.5322440Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5322900Z 
+2026-11-14T06:12:35.5323360Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5323870Z [79/87] Compiling SaytileKit StoreLock.swift
+2026-11-14T06:12:35.5324630Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5325220Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5325480Z 275 |         let started = Date()
+2026-11-14T06:12:35.5325740Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5326100Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5326410Z 277 |         do {
+2026-11-14T06:12:35.5326650Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5326800Z 
+2026-11-14T06:12:35.5327560Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5328290Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5328810Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5329330Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5329920Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5330530Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5330820Z 176 |                 }
+2026-11-14T06:12:35.5330930Z 
+2026-11-14T06:12:35.5331650Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5332550Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5333060Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5333600Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5334290Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5334710Z 176 |                 }
+2026-11-14T06:12:35.5335250Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5335560Z 
+2026-11-14T06:12:35.5336000Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5336500Z [80/87] Compiling SaytileKit StoreSQLite.swift
+2026-11-14T06:12:35.5337330Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5337940Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5338190Z 275 |         let started = Date()
+2026-11-14T06:12:35.5338440Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5338790Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5339090Z 277 |         do {
+2026-11-14T06:12:35.5339320Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5339470Z 
+2026-11-14T06:12:35.5340360Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5341060Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5341570Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5342430Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5343060Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5343660Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5343950Z 176 |                 }
+2026-11-14T06:12:35.5344060Z 
+2026-11-14T06:12:35.5344780Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5345670Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5346190Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5346650Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5347240Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5347650Z 176 |                 }
+2026-11-14T06:12:35.5348200Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5348510Z 
+2026-11-14T06:12:35.5348950Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5349540Z [81/87] Compiling SaytileKit TranscriptTimeline.swift
+2026-11-14T06:12:35.5350370Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5350960Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5351210Z 275 |         let started = Date()
+2026-11-14T06:12:35.5351460Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5351820Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5352120Z 277 |         do {
+2026-11-14T06:12:35.5352350Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5352500Z 
+2026-11-14T06:12:35.5353230Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5354090Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5354590Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5355240Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5355830Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5356540Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5356860Z 176 |                 }
+2026-11-14T06:12:35.5356960Z 
+2026-11-14T06:12:35.5357700Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5358800Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5359420Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5360070Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5360660Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5361280Z 176 |                 }
+2026-11-14T06:12:35.5361940Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5362540Z 
+2026-11-14T06:12:35.5363090Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5363890Z [82/87] Compiling SaytileKit VoiceRailProportions.swift
+2026-11-14T06:12:35.5364980Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5365790Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5366090Z 275 |         let started = Date()
+2026-11-14T06:12:35.5366510Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5366890Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5367370Z 277 |         do {
+2026-11-14T06:12:35.5367610Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5367800Z 
+2026-11-14T06:12:35.5368880Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5369870Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5370580Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5371300Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5372090Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5372880Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5373200Z 176 |                 }
+2026-11-14T06:12:35.5373330Z 
+2026-11-14T06:12:35.5374400Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5375520Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5376240Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5376890Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5378190Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5378980Z 176 |                 }
+2026-11-14T06:12:35.5380030Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5380470Z 
+2026-11-14T06:12:35.5381180Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5382020Z [83/87] Compiling SaytileKit VoiceTranscriptFlow.swift
+2026-11-14T06:12:35.5383660Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5384530Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5384900Z 275 |         let started = Date()
+2026-11-14T06:12:35.5385320Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5385930Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5386260Z 277 |         do {
+2026-11-14T06:12:35.5386480Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5386630Z 
+2026-11-14T06:12:35.5387380Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5388100Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5388600Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5389380Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5389970Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5390580Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5390880Z 176 |                 }
+2026-11-14T06:12:35.5390990Z 
+2026-11-14T06:12:35.5392510Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5393460Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5394040Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5394560Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5395180Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5395610Z 176 |                 }
+2026-11-14T06:12:35.5401960Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5402290Z 
+2026-11-14T06:12:35.5402740Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5403270Z [84/87] Compiling SaytileKit WindowPlacement.swift
+2026-11-14T06:12:35.5404220Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5404820Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5405070Z 275 |         let started = Date()
+2026-11-14T06:12:35.5405330Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5405700Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5406000Z 277 |         do {
+2026-11-14T06:12:35.5406230Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5406380Z 
+2026-11-14T06:12:35.5407120Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5407840Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5408340Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5408860Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5409450Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5410240Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5410550Z 176 |                 }
+2026-11-14T06:12:35.5410650Z 
+2026-11-14T06:12:35.5411380Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5412280Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5412810Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5413270Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5413850Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5414270Z 176 |                 }
+2026-11-14T06:12:35.5414840Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5415250Z 
+2026-11-14T06:12:35.5415690Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5416240Z [85/87] Compiling SaytileKit resource_bundle_accessor.swift
+2026-11-14T06:12:35.5417040Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5417640Z 274 |         var run: ModelRunTicket?
+2026-11-14T06:12:35.5417890Z 275 |         let started = Date()
+2026-11-14T06:12:35.5418140Z 276 |         var usageRecorded = false
+2026-11-14T06:12:35.5418490Z     |             `- warning: variable 'usageRecorded' was written to, but never read
+2026-11-14T06:12:35.5418790Z 277 |         do {
+2026-11-14T06:12:35.5419020Z 278 |             try await assertCurrent()
+2026-11-14T06:12:35.5419180Z 
+2026-11-14T06:12:35.5419920Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:174:24: warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5420630Z 172 |                 var conversionError: NSError?
+2026-11-14T06:12:35.5421130Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5421640Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5422230Z     |                        `- warning: reference to captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5422840Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5423140Z 176 |                 }
+2026-11-14T06:12:35.5423250Z 
+2026-11-14T06:12:35.5423990Z /Users/runner/work/saytile/saytile/Sources/SaytileKit/SpeechRecognition.swift:175:21: warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5424910Z 173 |                 let status = converter.convert(to: output, error: &conversionError) { _, state in
+2026-11-14T06:12:35.5425430Z 174 |                     if supplied { state.pointee = .noDataNow; return nil }
+2026-11-14T06:12:35.5425900Z 175 |                     supplied = true; state.pointee = .haveData; return buffer
+2026-11-14T06:12:35.5426490Z     |                     `- warning: mutation of captured var 'supplied' in concurrently-executing code [#SendableClosureCaptures]
+2026-11-14T06:12:35.5426920Z 176 |                 }
+2026-11-14T06:12:35.5427470Z 177 |                 if status == .error { throw conversionError ?? AudioFailure.message("识别音频转换失败") as NSError }
+2026-11-14T06:12:35.5427810Z 
+2026-11-14T06:12:35.5428330Z [#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+2026-11-14T06:12:35.5709620Z [85/87] Write Objects.LinkFileList
+2026-11-14T06:12:35.6345230Z [86/87] Archiving libSaytileKit.a
+2026-11-14T06:12:35.6422010Z Build of product 'SaytileKit' complete! (26.99s)
+2026-11-14T06:12:47.6148650Z PASS isolated macOS Keychain save/restore/delete, account browsing with zero requests, independent OTP sign-in, rotated refresh, opt-in upload, local logout fence, BYOK switch
+2026-11-14T06:12:47.6158010Z PASS native session factory, frozen source, PCM journal, gateway ASR events, GPT evidence, SQLite final and dispatchable text
+2026-11-14T06:12:47.7311620Z {'started': 1, 'ai': 1, 'bytes': 3200}
+2026-11-14T06:12:47.7746660Z Post job cleanup.
+2026-11-14T06:12:48.1699990Z (node:3300) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T06:12:48.1735610Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T06:12:48.1859320Z Post job cleanup.
+2026-11-14T06:12:48.3001760Z [command]/opt/homebrew/bin/git version
+2026-11-14T06:12:48.3267090Z git version 2.56.0
+2026-11-14T06:12:48.3299930Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/0b335d8f-b293-4ed8-b0f4-a2f45b9a0b69/.gitconfig'
+2026-11-14T06:12:48.3410570Z Temporarily overriding HOME='/Users/runner/work/_temp/0b335d8f-b293-4ed8-b0f4-a2f45b9a0b69' before making global git config changes
+2026-11-14T06:12:48.3446680Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-14T06:12:48.3474420Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/saytile/saytile
+2026-11-14T06:12:48.3494260Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T06:12:48.3565650Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T06:12:48.4730380Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T06:12:48.4832480Z http.https://github.com/.extraheader
+2026-11-14T06:12:48.4844920Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-14T06:12:48.4948140Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T06:12:48.7228960Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T06:12:48.7458380Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T06:12:48.8716530Z Cleaning up orphan processes
+2026-11-14T06:12:49.7893570Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

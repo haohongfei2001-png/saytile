@@ -1,0 +1,16 @@
+[
+  {
+    "source": "4622f486987f920e4ec725eb20934561ea6c9a7f",
+    "file": "Sources/SaytileApp/UIReview.swift",
+    "firstLine": 472,
+    "lastLine": 479,
+    "content": "                print(\"TIMELINE_PAGE_ANCHOR delta=\\(pageOffset) points dx=\\(sideways) lineShear=\\(shear) characters=\\(offsets.count)\")\n                print(\"TIMELINE_NATIVE_PAGE rows=12003 resident=64 wheel_to_paint=\\(began.duration(to: .now))\")\n                let entries = scroll.rendered.spans\n                guard scroll.rendered.markers.isEmpty,\n                      let nextDay = entries.indices.dropFirst().first(where: { entries[$0-1].entry.groupDay != entries[$0].entry.groupDay }),\n                      NSMaxRange(entries[nextDay-1].range) == entries[nextDay].range.location else {\n                    throw ReviewFailure(\"midnight interrupted continuous Chinese text\")\n                }"
+  },
+  {
+    "source": "4622f486987f920e4ec725eb20934561ea6c9a7f",
+    "file": "scripts/test-native-timeline.py",
+    "firstLine": 30,
+    "lastLine": 38,
+    "content": "        boundary = 11945\n        for n in range(1, 12001):\n            rid = f'00000000-0000-4000-8000-{n:012d}'\n            vid = f'00000000-0001-4000-8000-{n:012d}'\n            time = midnight + (n - boundary) * 24 + ((n-1)//4 - (boundary-1)//4) * 200\n            db.execute('INSERT INTO recordings(id,created_at,sample_rate,preferred_revision,is_recording,recognition_state) VALUES (?,?,16000,?,0,?)', (rid, time, vid, 'completed'))\n            texts = ['先把今天想说的记下来。', '嗯，这一句还想再琢磨一下。', '有空的时候，再接着往下说。']\n            db.execute('INSERT INTO revisions(id,recording_id,text,origin,created_at) VALUES (?,?,?,?,?)', (vid, rid, texts[n % 3], 'userEdit', time))\n    env = dict(os.environ, SAYTILE_TIMELINE_REVIEW='1')"
+  }
+]

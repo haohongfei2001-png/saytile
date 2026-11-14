@@ -1,0 +1,231 @@
+{
+  "sourceSHA": "4622f486987f920e4ec725eb20934561ea6c9a7f",
+  "version": "0.15 (480)",
+  "pullRequest": "https://github.com/haohongfei2001-png/saytile/pull/41",
+  "generatedAtUTC": "2026-11-14T06:36:45.689964+00:00",
+  "status": "FAIL",
+  "githubChecks": {
+    "total": 5,
+    "passed": 4,
+    "failed": 1,
+    "jobs": [
+      {
+        "run": 43565125736,
+        "workflow": "Saytile Cloud",
+        "name": "native-gateway",
+        "id": 132357174946,
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43565125736/job/132357174946",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43565125736,
+        "workflow": "Saytile Cloud",
+        "name": "gateway",
+        "id": 132357175171,
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43565125736/job/132357175171",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43565125749,
+        "workflow": "Saytile design contracts",
+        "name": "data-and-prototype",
+        "id": 132357174988,
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43565125749/job/132357174988",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43565125802,
+        "workflow": "Saytile native",
+        "name": "foreground",
+        "id": 132357174915,
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43565125802/job/132357174915",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43565125802,
+        "workflow": "Saytile native",
+        "name": "native",
+        "id": 132357175146,
+        "conclusion": "failure",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43565125802/job/132357175146",
+        "failedSteps": [
+          {
+            "completedAt": "2026-11-14T06:28:07Z",
+            "conclusion": "failure",
+            "name": "Native continuous timeline with 12000 isolated utterances",
+            "number": 16,
+            "startedAt": "2026-11-14T06:26:54Z",
+            "status": "completed"
+          }
+        ],
+        "skippedSteps": [
+          "Isolated startup without microphone",
+          "Preserve app bundle permissions",
+          "Run actions/upload-artifact@v4"
+        ]
+      }
+    ]
+  },
+  "swiftTesting": {
+    "status": "PASS",
+    "total": 523,
+    "passed": 523,
+    "failed": 0,
+    "groups": [
+      {
+        "tests": 4,
+        "suites": 2,
+        "seconds": 2.042
+      },
+      {
+        "tests": 13,
+        "suites": 1,
+        "seconds": 57.989
+      },
+      {
+        "tests": 12,
+        "suites": 1,
+        "seconds": 9.229
+      },
+      {
+        "tests": 494,
+        "suites": 61,
+        "seconds": 10.606
+      }
+    ]
+  },
+  "appModel": {
+    "status": "PASS",
+    "checks": 172,
+    "scope": "No microphone, external input or window activation"
+  },
+  "failure": {
+    "job": "native",
+    "step": "Native continuous timeline with 12000 isolated utterances",
+    "timeUTC": "2026-11-14T06:28:07Z",
+    "assertion": "UI_REVIEW_FAILED midnight interrupted continuous Chinese text",
+    "rootCause": "Stale zero-gap span assertion after intentionally introducing natural paragraphs. The existing fixture places each recording at least 24 seconds apart (224 seconds at the seeded midnight pair), above the new 15-second paragraph threshold; the renderer intentionally inserts one newline between paragraphs.",
+    "sourceEvidence": "failure-source-excerpts.json",
+    "recommendedCorrection": "Test only: assert no time markers, a real cross-date transition, distinct paragraphIDs, exactly one newline between ranges, and unchanged adjacent source text/order. Keep the production grouping rules unchanged.",
+    "rerunPerformed": false,
+    "installationPerformed": false
+  },
+  "nativeParagraphs": {
+    "status": "PASS",
+    "checks": 16,
+    "recordings": 4,
+    "paragraphs": 3,
+    "timeGroups": 2,
+    "syntheticOnly": true,
+    "asrExecuted": false,
+    "microphoneOpened": false,
+    "captureScope": "owned nonactivating native views rendered using AppKit cacheDisplay; not a full-desktop screenshot",
+    "nativeControlActions": {
+      "reason": "SAYTILE_UI_CONTROL_PROBE not configured; star/play model actions only",
+      "status": "NOT_RUN"
+    }
+  },
+  "panelBoundary": {
+    "status": "PASS",
+    "passed": 20,
+    "failed": 0,
+    "notRun": [
+      {
+        "name": "native fullscreen",
+        "note": "Requires explicit isolated fixture GUI run flag; not substituted by full-screen-sized ordinary frame.",
+        "status": "NOT_RUN"
+      }
+    ],
+    "scope": "Only two disposable synthetic AppKit fixture PIDs; production PanelWindowAccess/PanelArrangementWorker; no user app target, no text read, no mic, no input events.",
+    "retainedHistoricalPlatformObservations": [
+      {
+        "actualFrame": [
+          10,
+          58,
+          1004,
+          679
+        ],
+        "declaredMinSize": [
+          1004,
+          679
+        ],
+        "expected_unchanged_frame_status": "FAIL",
+        "name": "AppKit minimum size can normalize limits and change the actual frame",
+        "note": "Original native9 unchanged-frame assertion FAIL retained. Read declaredMinSize and actualFrame together: a changed frame is not proof the minimum was ignored. The worker reports actual partial geometry and refusal, never presumed success.",
+        "requestedFrame": [
+          10,
+          68,
+          1004,
+          659
+        ],
+        "workerAdjusted": 1,
+        "workerBlocked": 1
+      }
+    ]
+  },
+  "foreground": {
+    "status": "PASS",
+    "targets": [
+      "isolated AppKit",
+      "isolated WKWebView",
+      "TextEdit",
+      "Chrome"
+    ],
+    "noAutomaticSend": true,
+    "detailsPath": "foreground-artifact",
+    "boundary": "Hosted disposable fixtures only; not acceptance of user private conversations"
+  },
+  "power": {
+    "source": "4622f486987f920e4ec725eb20934561ea6c9a7f",
+    "host_model": "VirtualMac2,1",
+    "capabilities": [
+      "Capabilities for AC Power:",
+      " displaysleep",
+      " disksleep",
+      " sleep",
+      " standby",
+      " powernap",
+      " ttyskeepawake",
+      " tcpkeepalive"
+    ],
+    "private_audio_opened": false,
+    "status": "BLOCKED",
+    "reason": "runner lacks scheduled hardware wake or system sleep support",
+    "schedule_exit": 0,
+    "sleep_request_exit": 71
+  },
+  "generalUI": {
+    "renderedScreenshots": 33,
+    "controlActions": "NOT_RUN",
+    "reason": "remote AX helper not configured",
+    "note": "Render evidence is not interactive UI acceptance"
+  },
+  "timeline12000": {
+    "status": "FAIL",
+    "beforeFailedAssertion": {
+      "rows": 12003,
+      "resident": 64,
+      "idlePositionDeltaPoints": 0,
+      "pagingAnchorPoints": 1,
+      "horizontalShiftPoints": 0,
+      "lineShearPoints": 0,
+      "wheelToPaintSeconds": 0.038408291
+    },
+    "laterChecks": "NOT_RUN after failed midnight assertion"
+  },
+  "policy": {
+    "noSourceModification": true,
+    "noCITriggeredOrRetried": true,
+    "noUserDesktopOperation": true,
+    "noPrivateAudioReadOrUploaded": true,
+    "noPaidAPICall": true
+  }
+}

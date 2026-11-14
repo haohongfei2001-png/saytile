@@ -1,0 +1,188 @@
+{
+  "status": "PASS",
+  "identities": [
+    {
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "source": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+      "version": "0.14",
+      "build": "478",
+      "executable_sha256": "4b650a5d852a3f62658acd19d1854fa47b82f3a8ec53c8ef483fea997121e0a1"
+    },
+    {
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "source": "29ca0cc323fcdf4f1ed53ca98b546b11e98f9f31",
+      "version": "0.15",
+      "build": "481",
+      "executable_sha256": "6fb820b6a536fa09f1a76e9a90f0277b88a50b5c915d0a7fc88215f845df4f9d"
+    }
+  ],
+  "app_storage_profiles": [
+    {
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1",
+      "archive": "Saytile Mandarin Candidate",
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1"
+    },
+    {
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1",
+      "archive": "Saytile Mandarin Candidate",
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1"
+    }
+  ],
+  "fixture": {
+    "schema": 6,
+    "table_sha256": "b9127c44bc1bbcb9c35dd090b9ef04d6124a3b5a260b088c1982482889970234",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "052EDF56-B4E1-48B0-B44C-C96F4DA00EFE/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "295118F0-5512-4AC2-AC33-22A9B1F9C461/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "65450D5F-C0A6-49DB-8422-02E4E6E39841",
+      "771E6277-4534-4C3B-AB72-9750AF8F04F8"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0
+  },
+  "steps": [
+    {
+      "step": "old",
+      "records": 2,
+      "logical_tables_sha256": "b9127c44bc1bbcb9c35dd090b9ef04d6124a3b5a260b088c1982482889970234",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ],
+      "sidecar": {
+        "present": false,
+        "idle_seconds": 120,
+        "schema": 6
+      }
+    },
+    {
+      "step": "candidate",
+      "records": 2,
+      "logical_tables_sha256": "b9127c44bc1bbcb9c35dd090b9ef04d6124a3b5a260b088c1982482889970234",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ],
+      "sidecar": {
+        "present": true,
+        "schema": 6,
+        "idle_seconds": 60,
+        "rows": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ],
+        "version": [
+          [
+            1,
+            2
+          ]
+        ],
+        "trigger_sha256": "b492cbe18732c752f1ffb78ffc4deae14e5a7f93e92c70de37d496184f3191fa"
+      }
+    },
+    {
+      "step": "old_reopened",
+      "records": 2,
+      "logical_tables_sha256": "b9127c44bc1bbcb9c35dd090b9ef04d6124a3b5a260b088c1982482889970234",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ],
+      "sidecar": {
+        "present": true,
+        "schema": 6,
+        "idle_seconds": 60,
+        "rows": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ],
+        "version": [
+          [
+            1,
+            2
+          ]
+        ],
+        "trigger_sha256": "b492cbe18732c752f1ffb78ffc4deae14e5a7f93e92c70de37d496184f3191fa"
+      }
+    },
+    {
+      "step": "candidate_reopened",
+      "records": 2,
+      "logical_tables_sha256": "b9127c44bc1bbcb9c35dd090b9ef04d6124a3b5a260b088c1982482889970234",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ],
+      "sidecar": {
+        "present": true,
+        "schema": 6,
+        "idle_seconds": 60,
+        "rows": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ],
+        "version": [
+          [
+            1,
+            2
+          ]
+        ],
+        "trigger_sha256": "b492cbe18732c752f1ffb78ffc4deae14e5a7f93e92c70de37d496184f3191fa"
+      }
+    }
+  ],
+  "natural_paragraph_sidecar": "PASS",
+  "sidecar_schema_version": 2,
+  "sqlite_schema_version": 6,
+  "old_table_rows_unchanged": true,
+  "original_audio_hashes_unchanged": true,
+  "hidden_boundary_preserved_after_old_and_new_reopen": true,
+  "custom_180_second_setting_preserved": true,
+  "network": "denied to every smoke and seed process",
+  "launch": "temporary diagnostic directories only; no capture or inference",
+  "keychain": "service-name contracts only; no secret read",
+  "empty_candidate_records": 0,
+  "original_fixture_unchanged": true,
+  "installed_binaries_unchanged": true,
+  "runner_sha256": "01e6bf02ec7a7ca6c2cdf3fb847259acea205daee6912f6bbd188442d082fdf9",
+  "shared_source_runner_sha256": "0f97709dc7162ee4a33e18c0af34220a65f40aabb241e6320588c2b55a8dbd1b"
+}

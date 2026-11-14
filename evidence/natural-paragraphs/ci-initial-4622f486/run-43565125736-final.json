@@ -1,0 +1,195 @@
+{
+  "conclusion": "success",
+  "createdAt": "2026-11-14T06:11:40Z",
+  "databaseId": 43565125736,
+  "event": "pull_request",
+  "headSha": "4622f486987f920e4ec725eb20934561ea6c9a7f",
+  "jobs": [
+    {
+      "completedAt": "2026-11-14T06:12:52Z",
+      "conclusion": "success",
+      "databaseId": 132357174946,
+      "name": "native-gateway",
+      "startedAt": "2026-11-14T06:11:43Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-14T06:11:44Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-14T06:11:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:11:56Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-11-14T06:11:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:11:57Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4",
+          "number": 3,
+          "startedAt": "2026-11-14T06:11:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:11:58Z",
+          "conclusion": "success",
+          "name": "Run npm ci --prefix cloud",
+          "number": 4,
+          "startedAt": "2026-11-14T06:11:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:47Z",
+          "conclusion": "success",
+          "name": "Run scripts/test-hosted-gateway.sh",
+          "number": 5,
+          "startedAt": "2026-11-14T06:11:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:48Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4",
+          "number": 9,
+          "startedAt": "2026-11-14T06:12:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:48Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 10,
+          "startedAt": "2026-11-14T06:12:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:49Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 11,
+          "startedAt": "2026-11-14T06:12:48Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43565125736/job/132357174946"
+    },
+    {
+      "completedAt": "2026-11-14T06:12:37Z",
+      "conclusion": "success",
+      "databaseId": 132357175171,
+      "name": "gateway",
+      "startedAt": "2026-11-14T06:11:42Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-14T06:11:44Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-14T06:11:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:11:54Z",
+          "conclusion": "success",
+          "name": "Initialize containers",
+          "number": 2,
+          "startedAt": "2026-11-14T06:11:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:02Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 3,
+          "startedAt": "2026-11-14T06:11:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:05Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-node@v4",
+          "number": 4,
+          "startedAt": "2026-11-14T06:12:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:08Z",
+          "conclusion": "success",
+          "name": "Run npm ci --prefix cloud",
+          "number": 5,
+          "startedAt": "2026-11-14T06:12:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:11Z",
+          "conclusion": "success",
+          "name": "Run npm test --prefix cloud",
+          "number": 6,
+          "startedAt": "2026-11-14T06:12:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:11Z",
+          "conclusion": "success",
+          "name": "Run node cloud/test/postgres.mjs ***127.0.0.1:5432/saytile_cloud_test",
+          "number": 7,
+          "startedAt": "2026-11-14T06:12:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:33Z",
+          "conclusion": "success",
+          "name": "Run scripts/test-supabase-local.sh",
+          "number": 8,
+          "startedAt": "2026-11-14T06:12:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:33Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-node@v4",
+          "number": 14,
+          "startedAt": "2026-11-14T06:12:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:34Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 15,
+          "startedAt": "2026-11-14T06:12:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:34Z",
+          "conclusion": "success",
+          "name": "Stop containers",
+          "number": 16,
+          "startedAt": "2026-11-14T06:12:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T06:12:34Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-11-14T06:12:34Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43565125736/job/132357175171"
+    }
+  ],
+  "name": "Saytile Cloud",
+  "status": "completed",
+  "updatedAt": "2026-11-14T06:12:53Z",
+  "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43565125736"
+}
