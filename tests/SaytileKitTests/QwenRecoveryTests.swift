@@ -25,6 +25,65 @@ struct QwenRecoveryTests {
         #expect(preview.accept(final, final: true) == final.utf16.count)
     }
 
+    @Test func identicalNewDecodesCanConfirmAWithheldCorrectionWithoutRepeatingPublishedText() {
+        var preview = LocalLiveText(model: .qwen)
+        for (i, words) in original.enumerated() {
+            #expect(preview.accept(words, final: false, audioFrames: (i + 1) * 8_000) == 0)
+        }
+        let corrected = "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。"
+        #expect(preview.accept(corrected, final: false, audioFrames: 56_000) == nil)
+        #expect(preview.previous == original.last)
+        #expect(preview.accept(corrected, final: false, audioFrames: 64_000) == 0)
+        #expect(preview.presentation == String(corrected.dropLast()))
+        #expect(preview.accept(corrected, final: false, audioFrames: 72_000) == nil)
+        #expect(preview.presentation == String(corrected.dropLast()))
+        // The final is still authoritative even when no additional PCM arrived.
+        #expect(preview.accept(corrected, final: true, audioFrames: 72_000) == corrected.utf16.count)
+        #expect(preview.presentation == corrected)
+    }
+
+    @Test func replayedOrRegressingFramesCannotConfirmACorrectionOrReplaceNewerText() {
+        var preview = LocalLiveText(model: .qwen)
+        for (i, words) in original.enumerated() {
+            #expect(preview.accept(words, final: false, audioFrames: (i + 1) * 8_000) == 0)
+        }
+        let corrected = "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。"
+        #expect(preview.accept(corrected, final: false, audioFrames: 56_000) == nil)
+        let visible = preview.presentation
+        for frame in [56_000, 48_000, 56_000] {
+            #expect(preview.accept(corrected, final: false, audioFrames: frame) == nil)
+            #expect(preview.presentation == visible)
+        }
+        #expect(preview.accept(corrected, final: true, audioFrames: 48_000) == nil)
+        #expect(preview.presentation == visible)
+        #expect(preview.accept(corrected, final: false, audioFrames: 64_000) == 0)
+        #expect(preview.presentation == String(corrected.dropLast()))
+    }
+
+    @Test func returningToPublishedWordsBreaksThePendingCorrectionPair() {
+        var preview = LocalLiveText(model: .qwen)
+        for (i, words) in original.enumerated() {
+            #expect(preview.accept(words, final: false, audioFrames: (i + 1) * 8_000) == 0)
+        }
+        let corrected = "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。"
+        let visible = preview.presentation
+        #expect(preview.accept(corrected, final: false, audioFrames: 56_000) == nil)
+        #expect(preview.accept(original.last!, final: false, audioFrames: 64_000) == nil)
+        #expect(preview.presentation == visible)
+        #expect(preview.accept(corrected, final: false, audioFrames: 72_000) == nil)
+        #expect(preview.presentation == visible)
+        #expect(preview.accept(corrected, final: false, audioFrames: 80_000) == 0)
+    }
+
+    @Test func streamingProviderCanStillPublishAdditionalEvidenceAtTheSameFrame() {
+        var preview = LocalLiveText(model: .sherpa)
+        #expect(preview.accept("正在", final: false, audioFrames: 8_000) == 0)
+        #expect(preview.accept("正在讲话", final: false, audioFrames: 8_000) == 0)
+        #expect(preview.presentation == "正在讲话")
+        #expect(preview.accept("正在讲话。", final: true, audioFrames: 8_000) == 5)
+        #expect(preview.presentation == "正在讲话。")
+    }
+
     @Test func longPreviewRejectsWidelyChangedPassesDespiteSharedWords() {
         var preview = LocalLiveText(model: .qwen)
         for words in original { #expect(preview.accept(words, final: false) == 0) }
