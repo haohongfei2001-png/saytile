@@ -24,10 +24,10 @@ final class VoiceEntryPanel: NSPanel {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuDelegate, NSMenuItemValidation {
     private var model: AppModel?
     #if canImport(Sparkle)
-    private var updater: SPUStandardUpdaterController?
+    private var updater: AppUpdateController?
     #endif
     private var status: NSStatusItem?
     private let panelVisibilityItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
@@ -304,10 +304,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             }
             configureMainMenu()
             #if canImport(Sparkle)
-            if directoryIndex == nil, SaytileStorageProfile.current == .standard, Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil,
-               Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") != nil {
-                updater = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
-                model.checkForUpdates = { [weak self] in self?.updater?.checkForUpdates(nil) }
+            if directoryIndex == nil {
+                updater = AppUpdateController(model: model)
             }
             #endif
             configureStatusItem()
@@ -447,14 +445,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             if model?.hasUnpersistedDrafts == true {
                 shutdownStarted = false
                 presentWorkspace(.archive)
+                sender.reply(toApplicationShouldTerminate: false)
                 return
             }
             await panelCoexistence?.stop()
             panelCoexistence = nil
             terminating = true
-            DispatchQueue.main.async { NSApp.terminate(nil) }
+            sender.reply(toApplicationShouldTerminate: true)
         }
-        return .terminateCancel
+        // Keep the original quit request alive: Sparkle must wait for durable
+        // shutdown instead of interpreting a temporary cancellation as refusal.
+        return .terminateLater
     }
     func applicationWillTerminate(_ notification: Notification) {
         if let suite = diagnosticPreferencesSuite { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
@@ -519,16 +520,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         workspaceItem.target = self
         menu.addItem(workspaceItem)
         menu.addItem(.separator())
-        #if canImport(Sparkle)
-        if let updater {
-            let check = NSMenuItem(title: "检查更新…", action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)), keyEquivalent: "")
-            check.target = updater
-            menu.addItem(check)
-        }
-        #endif
+        let check = NSMenuItem(title: model?.updateActionTitle ?? "检查更新…", action: #selector(checkForAppUpdates), keyEquivalent: "")
+        check.target = self
+        check.isEnabled = model?.canCheckForUpdates == true
+        check.toolTip = model?.updateStatus
+        menu.addItem(check)
         let quit = NSMenuItem(title: "退出 Saytile", action: #selector(quitApp), keyEquivalent: "q"); quit.target = self; menu.addItem(quit)
     }
     @objc private func quitApp() { NSApp.terminate(nil) }
+    @objc private func checkForAppUpdates() { model?.checkForUpdates?() }
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(checkForAppUpdates) { return model?.canCheckForUpdates == true }
+        return true
+    }
     @objc func togglePanel() { if panel?.isVisible == true { explicitlyHidePanel() } else { explicitlyShowPanel() } }
     @objc private func explicitlyShowPanel() {
         visibilityDefaults?.removeObject(forKey: panelHiddenKey)

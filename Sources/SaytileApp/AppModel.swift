@@ -355,6 +355,12 @@ final class AppModel: ObservableObject {
     var openArchive: () -> Void = {}
     var openSettings: () -> Void = {}
     var checkForUpdates: (() -> Void)?
+    @Published var updateConfigured = false
+    @Published var canCheckForUpdates = false
+    @Published var automaticUpdateChecks = false
+    @Published var updateStatus = "此安装包尚未配置应用内更新。"
+    @Published var updateActionTitle = "检查更新…"
+    var setAutomaticUpdateChecks: (Bool) -> Void = { _ in }
     private var panelLimit = 100
     private var timer: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
