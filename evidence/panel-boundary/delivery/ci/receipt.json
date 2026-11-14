@@ -1,0 +1,237 @@
+{
+  "source_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+  "pull_request": "https://github.com/haohongfei2001-png/saytile/pull/40",
+  "recorded_at_utc": "2026-11-14T05:19:21.478240+00:00",
+  "status": "PASS",
+  "jobs_total": 5,
+  "jobs_passed": 5,
+  "jobs_failed": 0,
+  "jobs": [
+    {
+      "name": "native",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43559075106/job/132338472843",
+      "started_at": "2026-11-14T04:59:04Z",
+      "completed_at": "2026-11-14T05:16:24Z"
+    },
+    {
+      "name": "foreground",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43559075106/job/132338472609",
+      "started_at": "2026-11-14T04:59:03Z",
+      "completed_at": "2026-11-14T05:01:24Z"
+    },
+    {
+      "name": "gateway",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43559075053/job/132338472492",
+      "started_at": "2026-11-14T04:56:24Z",
+      "completed_at": "2026-11-14T04:57:11Z"
+    },
+    {
+      "name": "data-and-prototype",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43559075142/job/132338472411",
+      "started_at": "2026-11-14T04:56:25Z",
+      "completed_at": "2026-11-14T04:57:26Z"
+    },
+    {
+      "name": "native-gateway",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43559075053/job/132338472325",
+      "started_at": "2026-11-14T04:57:11Z",
+      "completed_at": "2026-11-14T04:59:02Z"
+    }
+  ],
+  "swift_testing": {
+    "total": 504,
+    "passed": 504,
+    "failed": 0,
+    "skipped": 0,
+    "invocation_counts": [
+      4,
+      13,
+      12,
+      475
+    ],
+    "scope": "Full suite partitioned only to run timing-sensitive suites serially; other tests run excluding those already executed. Real localhost protocol peer; no paid API."
+  },
+  "app_model": {
+    "checks": 167,
+    "passed": 167,
+    "failed": 0,
+    "scope": "isolated real AppModel; no microphone/external input/window activation"
+  },
+  "window_boundary": {
+    "pass": 20,
+    "fail": 0,
+    "not_run": 1,
+    "binding": {
+      "source_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+      "job_id": 132338472843,
+      "artifact_id": 14099713031,
+      "archive_sha256": "e9b7722d29b3b84a8575ef283112946207e174f3639e77b8ff24834f3f9fba27",
+      "assertions": {
+        "PASS": 20,
+        "NOT_RUN": 1
+      },
+      "test_count": 21,
+      "source_match": true,
+      "source_files": {
+        "tests/fixtures/PanelBoundaryTarget.swift": {
+          "commit_sha256": "5b64653ae77610df82efdbd1ce6a3d4a54439402875ce496ffefa7ff6e74ce63",
+          "artifact_sha256": "5b64653ae77610df82efdbd1ce6a3d4a54439402875ce496ffefa7ff6e74ce63",
+          "match": true
+        },
+        "tests/fixtures/PanelBoundaryProbe.swift": {
+          "commit_sha256": "08a5fa342425444b450b735f8497dd879189d77253336ef49a9e963a2f426d09",
+          "artifact_sha256": "08a5fa342425444b450b735f8497dd879189d77253336ef49a9e963a2f426d09",
+          "match": true
+        },
+        "Sources/SaytileApp/PanelWindowAccess.swift": {
+          "commit_sha256": "4441db292eeb984e3b5f42a5114908142e689caf863662be0331f415fac1a587",
+          "artifact_sha256": "4441db292eeb984e3b5f42a5114908142e689caf863662be0331f415fac1a587",
+          "match": true
+        },
+        "Sources/SaytileApp/PanelCoexistenceController.swift": {
+          "commit_sha256": "b2a6c32d79748d8178c74117bb40fd170123b1f1f824757ceabda6f9225a861f",
+          "artifact_sha256": "b2a6c32d79748d8178c74117bb40fd170123b1f1f824757ceabda6f9225a861f",
+          "match": true
+        },
+        "Sources/SaytileApp/PanelWindowEvents.swift": {
+          "commit_sha256": "55e65caea5f9becde88bb39953afc2a8c81b5d671e905f87c1fca98911fbc65b",
+          "artifact_sha256": "55e65caea5f9becde88bb39953afc2a8c81b5d671e905f87c1fca98911fbc65b",
+          "match": true
+        },
+        "Sources/SaytileApp/VoicePanel.swift": {
+          "commit_sha256": "8aaf2e3c318cb4dc90d37918fc8bb5559b610b54dcdd88807551c9f82761ba1c",
+          "artifact_sha256": "8aaf2e3c318cb4dc90d37918fc8bb5559b610b54dcdd88807551c9f82761ba1c",
+          "match": true
+        }
+      },
+      "native_fullscreen": "NOT_RUN in CI; verified separately in local native evidence",
+      "platform_observation": "Changed frame under AppKit minSize is explicitly recorded as disproven unchanged-frame expectation, not a passing product assertion."
+    },
+    "fullscreen": "NOT_RUN in hosted CI; local 28/28 suite independently includes real native fullscreen/controller movement and restoration"
+  },
+  "foreground": {
+    "status": "PASS",
+    "targets": [
+      "owned AppKit",
+      "owned WKWebView",
+      "disposable TextEdit document",
+      "disposable Chrome profile"
+    ],
+    "guards": [
+      "first insertion",
+      "incremental append",
+      "duplicate suppression",
+      "prefix/suffix",
+      "selection",
+      "manual edit invalidation",
+      "cancellation",
+      "target change",
+      "uncertain or unobservable write refused without replay"
+    ],
+    "automatic_sends": 0
+  },
+  "additional_native": {
+    "inline_editor": "PASS typing/copy/paste/delete/Chinese IME/newline/archive history; reopening preserves revisions/deletion",
+    "rendering": "PASS 30 standard plus 3 approved-reference native captures",
+    "remote_AX_controls": "NOT_RUN: helper not configured in rendering run; separate gesture/editor/foreground/boundary paths are actual interaction tests",
+    "timeline": {
+      "status": "PASS",
+      "rows": 12003,
+      "resident": 64,
+      "wheel_to_paint_seconds": 0.114423583,
+      "idle_shift_points": 0,
+      "page_anchor_delta_points": 1
+    },
+    "isolated_startup": "PASS; no microphone capture"
+  },
+  "limits": [
+    {
+      "name": "Hosted actual hardware sleep/wake",
+      "status": "BLOCKED",
+      "reason": "VirtualMac2,1 has no working system sleep/scheduled wake; actual sleep exit71, zero kernel sleep/wake events."
+    },
+    {
+      "name": "Hosted real fullscreen boundary",
+      "status": "NOT_RUN",
+      "reason": "Explicit fixture fullscreen opt-in absent; local same-product-source 28/28 evidence covers actual fullscreen."
+    },
+    {
+      "name": "Hosted UI remote control helper",
+      "status": "NOT_RUN",
+      "reason": "Rendering run has no remote AX helper; not claimed as full interactive UI acceptance."
+    },
+    {
+      "name": "Real paid cloud ASR/GPT",
+      "status": "NOT_RUN",
+      "reason": "This CI used isolated local peers, not paid providers."
+    },
+    {
+      "name": "User microphone speech",
+      "status": "NOT_RUN",
+      "reason": "This task only monitored GitHub and downloaded machine evidence."
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 14099713031,
+      "name": "Saytile-panel-boundary",
+      "digest": "sha256:e9b7722d29b3b84a8575ef283112946207e174f3639e77b8ff24834f3f9fba27",
+      "source_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+      "downloaded": true
+    },
+    {
+      "id": 14099407159,
+      "name": "single-asr-power",
+      "digest": "sha256:89425c1472d02d9917e2c0c26ae63341821e90b2a43d80d4173fa7ae76200614",
+      "source_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+      "downloaded": true
+    },
+    {
+      "id": 14099294161,
+      "name": "Saytile-native-candidate",
+      "digest": "sha256:d4b444ca42f0aa9add9547388c4decea84edd58b05526290b6e324bc6c0214e6",
+      "source_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+      "downloaded": false
+    },
+    {
+      "id": 14099152591,
+      "name": "single-asr-foreground",
+      "digest": "sha256:cf8b8c27ca00040c43e92fee0d1dac203ff2c5dc46dc8fabebedf54c557f21a6",
+      "source_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+      "downloaded": true
+    },
+    {
+      "id": 14099064397,
+      "name": "Saytile-native-ui-review",
+      "digest": "sha256:2b035638124e2801859e0f9f0bebb7dee91ae903bf4dbc35c2d498e62f195402",
+      "source_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+      "downloaded": false,
+      "note": "Optional archive not retained or verified; native.log contains completed rendering/test evidence. GitHub artifact remains available."
+    }
+  ],
+  "log_sha256": {
+    "gateway.log": "c3200f0917932b3e50057611576ec36a0fe1fca56e53fa0e83679ca938d09b08",
+    "foreground.log": "7bc907ab0a166866c974a108e57ec99c972c8fd72933fc98032636cfcecab1cc",
+    "data-and-prototype.log": "7ecb5ec1df0c27de9a7ac644e6d2507bcf9d2e14d2a45ccf5747ffefc7940bbf",
+    "native-gateway.log": "014a355f15354c3558c819a304daebcaca8a6b1b320a95653549a0057f903f71",
+    "native.log": "3870b4d851e695b7dfe029a1873353a1e68a1b28b47ff06f67ec6b393ef49189"
+  },
+  "no_source_changed": true,
+  "no_CI_rerun_triggered": true,
+  "no_desktop_used": true
+}

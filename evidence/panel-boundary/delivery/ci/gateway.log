@@ -1,0 +1,513 @@
+﻿2026-11-14T04:56:25.4407548Z Current runner version: '2.338.2'
+2026-11-14T04:56:25.4435904Z ##[group]Runner Image Provisioner
+2026-11-14T04:56:25.4436893Z Hosted Compute Agent
+2026-11-14T04:56:25.4437722Z Version: 20261103.629
+2026-11-14T04:56:25.4438638Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-14T04:56:25.4439873Z Build Date: 2026-11-03T17:26:59Z
+2026-11-14T04:56:25.4440736Z Worker ID: {4c5f95f7-3dd4-4c9e-af85-63c4936ab47c}
+2026-11-14T04:56:25.4441593Z Region: eastus2
+2026-11-14T04:56:25.4442364Z Cloud: Azure
+2026-11-14T04:56:25.4443057Z ##[endgroup]
+2026-11-14T04:56:25.4445006Z ##[group]Operating System
+2026-11-14T04:56:25.4445788Z Ubuntu
+2026-11-14T04:56:25.4446412Z 24.04.5
+2026-11-14T04:56:25.4447096Z LTS
+2026-11-14T04:56:25.4447805Z ##[endgroup]
+2026-11-14T04:56:25.4448500Z ##[group]Runner Image
+2026-11-14T04:56:25.4449474Z Image: ubuntu-24.04
+2026-11-14T04:56:25.4450179Z Version: 20261111.370.1
+2026-11-14T04:56:25.4451880Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-14T04:56:25.4453889Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+2026-11-14T04:56:25.4455119Z ##[endgroup]
+2026-11-14T04:56:25.4456400Z ##[group]GITHUB_TOKEN Permissions
+2026-11-14T04:56:25.4459180Z Contents: read
+2026-11-14T04:56:25.4459903Z Metadata: read
+2026-11-14T04:56:25.4460677Z ##[endgroup]
+2026-11-14T04:56:25.4463053Z Secret source: Actions
+2026-11-14T04:56:25.4464338Z Cache mode: write
+2026-11-14T04:56:25.4465237Z Prepare workflow directory
+2026-11-14T04:56:25.4945061Z Prepare all required actions
+2026-11-14T04:56:25.4999788Z Getting action download info
+2026-11-14T04:56:25.6763053Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-14T04:56:25.7894280Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-11-14T04:56:25.9791418Z Complete job name: gateway
+2026-11-14T04:56:26.0281833Z ##[group]Checking docker version
+2026-11-14T04:56:26.0292181Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+2026-11-14T04:56:26.1290146Z '1.48'
+2026-11-14T04:56:26.1306743Z Docker daemon API version: '1.48'
+2026-11-14T04:56:26.1307370Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+2026-11-14T04:56:26.1457155Z '1.48'
+2026-11-14T04:56:26.1470246Z Docker client API version: '1.48'
+2026-11-14T04:56:26.1473929Z ##[endgroup]
+2026-11-14T04:56:26.1475831Z ##[group]Clean up resources from previous jobs
+2026-11-14T04:56:26.1480950Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=09e333"
+2026-11-14T04:56:26.1626264Z ##[command]/usr/bin/docker network prune --force --filter "label=09e333"
+2026-11-14T04:56:26.1762298Z ##[endgroup]
+2026-11-14T04:56:26.1762729Z ##[group]Create local container network
+2026-11-14T04:56:26.1770657Z ##[command]/usr/bin/docker network create --label 09e333 github_network_52cb56279ec74ba287a32d97c5cc4ca4
+2026-11-14T04:56:26.2281797Z 6271bd080e68da4e1cac8d148f3ad67f075bcaee6db1d8ef467c3a3567bff4b9
+2026-11-14T04:56:26.2301193Z ##[endgroup]
+2026-11-14T04:56:26.2322053Z ##[group]Starting pg service container
+2026-11-14T04:56:26.2339558Z ##[command]/usr/bin/docker pull postgres:17
+2026-11-14T04:56:26.5845646Z 17: Pulling from library/postgres
+2026-11-14T04:56:26.6790785Z 37fb86c2a767: Pulling fs layer
+2026-11-14T04:56:26.6791589Z e3f1858cb92e: Pulling fs layer
+2026-11-14T04:56:26.6792299Z 8fb810914793: Pulling fs layer
+2026-11-14T04:56:26.6793036Z 0364acb7b7f6: Pulling fs layer
+2026-11-14T04:56:26.6793667Z aa59ca706586: Pulling fs layer
+2026-11-14T04:56:26.6794318Z c18f3c4e97d4: Pulling fs layer
+2026-11-14T04:56:26.6794931Z 27d6f21260a0: Pulling fs layer
+2026-11-14T04:56:26.6795426Z 4abaab6950ec: Pulling fs layer
+2026-11-14T04:56:26.6796101Z 3391d2c467d6: Pulling fs layer
+2026-11-14T04:56:26.6796825Z ed4bbee64e27: Pulling fs layer
+2026-11-14T04:56:26.6797286Z d1f2edaee96e: Pulling fs layer
+2026-11-14T04:56:26.6797900Z cdfe3ddb3b6b: Pulling fs layer
+2026-11-14T04:56:26.6798603Z 09a57405bcb1: Pulling fs layer
+2026-11-14T04:56:26.6799302Z d678e0101545: Pulling fs layer
+2026-11-14T04:56:26.6799737Z aa59ca706586: Waiting
+2026-11-14T04:56:26.6800129Z c18f3c4e97d4: Waiting
+2026-11-14T04:56:26.6800518Z 27d6f21260a0: Waiting
+2026-11-14T04:56:26.6800972Z 4abaab6950ec: Waiting
+2026-11-14T04:56:26.6801367Z 3391d2c467d6: Waiting
+2026-11-14T04:56:26.6801759Z ed4bbee64e27: Waiting
+2026-11-14T04:56:26.6802144Z d1f2edaee96e: Waiting
+2026-11-14T04:56:26.6802533Z cdfe3ddb3b6b: Waiting
+2026-11-14T04:56:26.6802935Z 09a57405bcb1: Waiting
+2026-11-14T04:56:26.6803321Z d678e0101545: Waiting
+2026-11-14T04:56:26.6803700Z 0364acb7b7f6: Waiting
+2026-11-14T04:56:26.7295015Z e3f1858cb92e: Download complete
+2026-11-14T04:56:26.7801574Z 8fb810914793: Verifying Checksum
+2026-11-14T04:56:26.7802514Z 8fb810914793: Download complete
+2026-11-14T04:56:26.8206379Z 0364acb7b7f6: Verifying Checksum
+2026-11-14T04:56:26.8207285Z 0364acb7b7f6: Download complete
+2026-11-14T04:56:26.8312030Z 37fb86c2a767: Verifying Checksum
+2026-11-14T04:56:26.8313695Z 37fb86c2a767: Download complete
+2026-11-14T04:56:26.8854867Z aa59ca706586: Verifying Checksum
+2026-11-14T04:56:26.8858350Z aa59ca706586: Download complete
+2026-11-14T04:56:26.8886435Z 27d6f21260a0: Verifying Checksum
+2026-11-14T04:56:26.8887662Z 27d6f21260a0: Download complete
+2026-11-14T04:56:26.9019964Z c18f3c4e97d4: Verifying Checksum
+2026-11-14T04:56:26.9024751Z c18f3c4e97d4: Download complete
+2026-11-14T04:56:26.9330766Z 4abaab6950ec: Verifying Checksum
+2026-11-14T04:56:26.9331575Z 4abaab6950ec: Download complete
+2026-11-14T04:56:26.9519458Z ed4bbee64e27: Verifying Checksum
+2026-11-14T04:56:26.9521392Z ed4bbee64e27: Download complete
+2026-11-14T04:56:26.9808250Z d1f2edaee96e: Verifying Checksum
+2026-11-14T04:56:26.9809616Z d1f2edaee96e: Download complete
+2026-11-14T04:56:27.0022092Z cdfe3ddb3b6b: Verifying Checksum
+2026-11-14T04:56:27.0022918Z cdfe3ddb3b6b: Download complete
+2026-11-14T04:56:27.0478486Z 09a57405bcb1: Verifying Checksum
+2026-11-14T04:56:27.0479936Z 09a57405bcb1: Download complete
+2026-11-14T04:56:27.0547481Z d678e0101545: Verifying Checksum
+2026-11-14T04:56:27.0548440Z d678e0101545: Download complete
+2026-11-14T04:56:27.2807549Z 3391d2c467d6: Verifying Checksum
+2026-11-14T04:56:27.2809289Z 3391d2c467d6: Download complete
+2026-11-14T04:56:27.6666252Z 37fb86c2a767: Pull complete
+2026-11-14T04:56:29.3371401Z e3f1858cb92e: Pull complete
+2026-11-14T04:56:29.5497560Z 8fb810914793: Pull complete
+2026-11-14T04:56:29.5998038Z 0364acb7b7f6: Pull complete
+2026-11-14T04:56:29.9829869Z aa59ca706586: Pull complete
+2026-11-14T04:56:30.0609425Z c18f3c4e97d4: Pull complete
+2026-11-14T04:56:30.0707006Z 27d6f21260a0: Pull complete
+2026-11-14T04:56:30.0790886Z 4abaab6950ec: Pull complete
+2026-11-14T04:56:34.0008041Z 3391d2c467d6: Pull complete
+2026-11-14T04:56:34.0299917Z ed4bbee64e27: Pull complete
+2026-11-14T04:56:34.0389356Z d1f2edaee96e: Pull complete
+2026-11-14T04:56:34.0488450Z cdfe3ddb3b6b: Pull complete
+2026-11-14T04:56:34.0572310Z 09a57405bcb1: Pull complete
+2026-11-14T04:56:34.0657026Z d678e0101545: Pull complete
+2026-11-14T04:56:34.0692486Z Digest: sha256:846a7ddaa67a4b354ae1d21087b683901aa6113a4ed626d3787cfbf6c85e3e07
+2026-11-14T04:56:34.0706267Z Status: Downloaded newer image for postgres:17
+2026-11-14T04:56:34.0713949Z docker.io/library/postgres:17
+2026-11-14T04:56:34.0784584Z ##[command]/usr/bin/docker create --name 852a8775ce6643058bbf3598e5e1266b_postgres17_4b039b --label 09e333 --network github_network_52cb56279ec74ba287a32d97c5cc4ca4 --network-alias pg -p 5432:5432 --health-cmd pg_isready --health-interval 2s --health-retries 15 -e "POSTGRES_DB=saytile_cloud_test" -e "POSTGRES_PASSWORD=fixture" -e GITHUB_ACTIONS=true -e CI=true postgres:17
+2026-11-14T04:56:34.1009449Z 5c2f96cc05d811320145c6d8e16623aba7f01c6af49c2af749719b808202c9b3
+2026-11-14T04:56:34.1031384Z ##[command]/usr/bin/docker start 5c2f96cc05d811320145c6d8e16623aba7f01c6af49c2af749719b808202c9b3
+2026-11-14T04:56:34.2902712Z 5c2f96cc05d811320145c6d8e16623aba7f01c6af49c2af749719b808202c9b3
+2026-11-14T04:56:34.2927354Z ##[command]/usr/bin/docker ps --all --filter id=5c2f96cc05d811320145c6d8e16623aba7f01c6af49c2af749719b808202c9b3 --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2026-11-14T04:56:34.3066054Z 5c2f96cc05d811320145c6d8e16623aba7f01c6af49c2af749719b808202c9b3 Up Less than a second (health: starting)
+2026-11-14T04:56:34.3087849Z ##[command]/usr/bin/docker port 5c2f96cc05d811320145c6d8e16623aba7f01c6af49c2af749719b808202c9b3
+2026-11-14T04:56:34.3228167Z 5432/tcp -> 0.0.0.0:5432
+2026-11-14T04:56:34.3229427Z 5432/tcp -> [::]:5432
+2026-11-14T04:56:34.3279394Z ##[endgroup]
+2026-11-14T04:56:34.3288105Z ##[group]Waiting for all services to be ready
+2026-11-14T04:56:34.3299800Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 5c2f96cc05d811320145c6d8e16623aba7f01c6af49c2af749719b808202c9b3
+2026-11-14T04:56:34.3462325Z starting
+2026-11-14T04:56:34.3476149Z pg service is starting, waiting 2 seconds before checking again.
+2026-11-14T04:56:36.3482328Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 5c2f96cc05d811320145c6d8e16623aba7f01c6af49c2af749719b808202c9b3
+2026-11-14T04:56:36.3628504Z starting
+2026-11-14T04:56:36.3649288Z pg service is starting, waiting 4 seconds before checking again.
+2026-11-14T04:56:40.5925000Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 5c2f96cc05d811320145c6d8e16623aba7f01c6af49c2af749719b808202c9b3
+2026-11-14T04:56:40.6051187Z healthy
+2026-11-14T04:56:40.6067878Z pg service is healthy.
+2026-11-14T04:56:40.6068546Z ##[endgroup]
+2026-11-14T04:56:40.6380648Z ##[group]Run actions/checkout@v4
+2026-11-14T04:56:40.6381054Z with:
+2026-11-14T04:56:40.6381256Z   ref: 7fd9296d8eb2bd81379bbaa7287844d0d46703d5
+2026-11-14T04:56:40.6381527Z   repository: haohongfei2001-png/saytile
+2026-11-14T04:56:40.6383793Z   token: ***
+2026-11-14T04:56:40.6383974Z   ssh-strict: true
+2026-11-14T04:56:40.6384164Z   ssh-user: git
+2026-11-14T04:56:40.6384350Z   persist-credentials: true
+2026-11-14T04:56:40.6384549Z   clean: true
+2026-11-14T04:56:40.6384730Z   sparse-checkout-cone-mode: true
+2026-11-14T04:56:40.6384937Z   fetch-depth: 1
+2026-11-14T04:56:40.6385103Z   fetch-tags: false
+2026-11-14T04:56:40.6385284Z   show-progress: true
+2026-11-14T04:56:40.6385455Z   lfs: false
+2026-11-14T04:56:40.6385608Z   submodules: false
+2026-11-14T04:56:40.6385774Z   set-safe-directory: true
+2026-11-14T04:56:40.6385971Z   allow-unsafe-pr-checkout: false
+2026-11-14T04:56:40.6386306Z ##[endgroup]
+2026-11-14T04:56:40.8536444Z Syncing repository: haohongfei2001-png/saytile
+2026-11-14T04:56:40.8538265Z ##[group]Getting Git version info
+2026-11-14T04:56:40.8538926Z Working directory is '/home/runner/work/saytile/saytile'
+2026-11-14T04:56:40.8539503Z [command]/usr/bin/git version
+2026-11-14T04:56:40.8586699Z git version 2.56.1
+2026-11-14T04:56:40.8603072Z ##[endgroup]
+2026-11-14T04:56:40.8614660Z Temporarily overriding HOME='/home/runner/work/_temp/5f4f2489-799b-4a84-bb77-02cb72e86621' before making global git config changes
+2026-11-14T04:56:40.8615751Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-14T04:56:40.8618618Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/saytile/saytile
+2026-11-14T04:56:40.8659764Z Deleting the contents of '/home/runner/work/saytile/saytile'
+2026-11-14T04:56:40.8663240Z ##[group]Initializing the repository
+2026-11-14T04:56:40.8666322Z [command]/usr/bin/git init /home/runner/work/saytile/saytile
+2026-11-14T04:56:40.8751308Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-14T04:56:40.8752403Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-14T04:56:40.8753037Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-14T04:56:40.8753651Z hint: call:
+2026-11-14T04:56:40.8753840Z hint:
+2026-11-14T04:56:40.8754146Z hint: 	git config --global init.defaultBranch <name>
+2026-11-14T04:56:40.8754733Z hint:
+2026-11-14T04:56:40.8755046Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-14T04:56:40.8755439Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-14T04:56:40.8755796Z hint:
+2026-11-14T04:56:40.8756036Z hint: 	git branch -m <name>
+2026-11-14T04:56:40.8756316Z hint:
+2026-11-14T04:56:40.8756695Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-14T04:56:40.8757646Z Initialized empty Git repository in /home/runner/work/saytile/saytile/.git/
+2026-11-14T04:56:40.8768225Z [command]/usr/bin/git remote add origin https://github.com/haohongfei2001-png/saytile
+2026-11-14T04:56:40.8812145Z ##[endgroup]
+2026-11-14T04:56:40.8812498Z ##[group]Disabling automatic garbage collection
+2026-11-14T04:56:40.8816519Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-14T04:56:40.8845446Z ##[endgroup]
+2026-11-14T04:56:40.8845758Z ##[group]Setting up auth
+2026-11-14T04:56:40.8853268Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T04:56:40.8886216Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T04:56:40.9228207Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T04:56:40.9271225Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T04:56:40.9480416Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T04:56:40.9518471Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T04:56:40.9721550Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-14T04:56:40.9765823Z ##[endgroup]
+2026-11-14T04:56:40.9766370Z ##[group]Fetching the repository
+2026-11-14T04:56:40.9775990Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 7fd9296d8eb2bd81379bbaa7287844d0d46703d5
+2026-11-14T04:56:46.0688513Z From https://github.com/haohongfei2001-png/saytile
+2026-11-14T04:56:46.0689258Z  * branch            7fd9296d8eb2bd81379bbaa7287844d0d46703d5 -> FETCH_HEAD
+2026-11-14T04:56:46.0702330Z ##[endgroup]
+2026-11-14T04:56:46.0702800Z ##[group]Determining the checkout info
+2026-11-14T04:56:46.0703318Z ##[endgroup]
+2026-11-14T04:56:46.0703698Z [command]/usr/bin/git sparse-checkout disable
+2026-11-14T04:56:46.0764420Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-14T04:56:46.0797293Z ##[group]Checking out the ref
+2026-11-14T04:56:46.0801371Z [command]/usr/bin/git checkout --progress --force 7fd9296d8eb2bd81379bbaa7287844d0d46703d5
+2026-11-14T04:56:47.1008879Z Updating files:  55% (3271/5868)
+2026-11-14T04:56:47.1059038Z Updating files:  56% (3287/5868)
+2026-11-14T04:56:47.1079440Z Updating files:  57% (3345/5868)
+2026-11-14T04:56:47.1112748Z Updating files:  58% (3404/5868)
+2026-11-14T04:56:47.1128656Z Updating files:  59% (3463/5868)
+2026-11-14T04:56:47.1341410Z Updating files:  60% (3521/5868)
+2026-11-14T04:56:47.1412638Z Updating files:  61% (3580/5868)
+2026-11-14T04:56:47.1729622Z Updating files:  62% (3639/5868)
+2026-11-14T04:56:47.1773727Z Updating files:  63% (3697/5868)
+2026-11-14T04:56:47.1795664Z Updating files:  64% (3756/5868)
+2026-11-14T04:56:47.1811900Z Updating files:  65% (3815/5868)
+2026-11-14T04:56:47.2114751Z Updating files:  66% (3873/5868)
+2026-11-14T04:56:47.2166813Z Updating files:  67% (3932/5868)
+2026-11-14T04:56:47.2480698Z Updating files:  68% (3991/5868)
+2026-11-14T04:56:47.2623770Z Updating files:  69% (4049/5868)
+2026-11-14T04:56:47.2897693Z Updating files:  70% (4108/5868)
+2026-11-14T04:56:47.3124978Z Updating files:  71% (4167/5868)
+2026-11-14T04:56:47.3219461Z Updating files:  72% (4225/5868)
+2026-11-14T04:56:47.3252483Z Updating files:  73% (4284/5868)
+2026-11-14T04:56:47.3272505Z Updating files:  74% (4343/5868)
+2026-11-14T04:56:47.3290662Z Updating files:  75% (4401/5868)
+2026-11-14T04:56:47.3353876Z Updating files:  76% (4460/5868)
+2026-11-14T04:56:47.3514178Z Updating files:  77% (4519/5868)
+2026-11-14T04:56:47.3635041Z Updating files:  78% (4578/5868)
+2026-11-14T04:56:47.3808811Z Updating files:  79% (4636/5868)
+2026-11-14T04:56:47.3845761Z Updating files:  80% (4695/5868)
+2026-11-14T04:56:47.3865391Z Updating files:  81% (4754/5868)
+2026-11-14T04:56:47.3925286Z Updating files:  82% (4812/5868)
+2026-11-14T04:56:47.3998981Z Updating files:  83% (4871/5868)
+2026-11-14T04:56:47.4093914Z Updating files:  84% (4930/5868)
+2026-11-14T04:56:47.4252134Z Updating files:  85% (4988/5868)
+2026-11-14T04:56:47.4301703Z Updating files:  86% (5047/5868)
+2026-11-14T04:56:47.4357055Z Updating files:  87% (5106/5868)
+2026-11-14T04:56:47.4450080Z Updating files:  88% (5164/5868)
+2026-11-14T04:56:47.4673396Z Updating files:  89% (5223/5868)
+2026-11-14T04:56:47.4701227Z Updating files:  90% (5282/5868)
+2026-11-14T04:56:47.4747378Z Updating files:  91% (5340/5868)
+2026-11-14T04:56:47.4851504Z Updating files:  92% (5399/5868)
+2026-11-14T04:56:47.4888294Z Updating files:  93% (5458/5868)
+2026-11-14T04:56:47.4936947Z Updating files:  94% (5516/5868)
+2026-11-14T04:56:47.4981046Z Updating files:  95% (5575/5868)
+2026-11-14T04:56:47.5003655Z Updating files:  96% (5634/5868)
+2026-11-14T04:56:47.5029393Z Updating files:  97% (5692/5868)
+2026-11-14T04:56:47.5062326Z Updating files:  98% (5751/5868)
+2026-11-14T04:56:47.5093707Z Updating files:  99% (5810/5868)
+2026-11-14T04:56:47.5094049Z Updating files: 100% (5868/5868)
+2026-11-14T04:56:47.5099597Z Updating files: 100% (5868/5868), done.
+2026-11-14T04:56:47.5142700Z Note: switching to '7fd9296d8eb2bd81379bbaa7287844d0d46703d5'.
+2026-11-14T04:56:47.5143198Z 
+2026-11-14T04:56:47.5143494Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-14T04:56:47.5144169Z changes and commit them, and you can discard any commits you make in this
+2026-11-14T04:56:47.5144628Z state without impacting any branches by switching back to a branch.
+2026-11-14T04:56:47.5144846Z 
+2026-11-14T04:56:47.5145003Z If you want to create a new branch to retain commits you create, you may
+2026-11-14T04:56:47.5145435Z do so (now or later) by using -c with the switch command. Example:
+2026-11-14T04:56:47.5145641Z 
+2026-11-14T04:56:47.5145731Z   git switch -c <new-branch-name>
+2026-11-14T04:56:47.5145871Z 
+2026-11-14T04:56:47.5145961Z Or undo this operation with:
+2026-11-14T04:56:47.5146091Z 
+2026-11-14T04:56:47.5146167Z   git switch -
+2026-11-14T04:56:47.5146265Z 
+2026-11-14T04:56:47.5146441Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-14T04:56:47.5146672Z 
+2026-11-14T04:56:47.5146892Z HEAD is now at 7fd9296 Verify native boundary ownership and actual fullscreen control avoidance
+2026-11-14T04:56:47.5213729Z ##[endgroup]
+2026-11-14T04:56:47.5262155Z [command]/usr/bin/git log -1 --format=%H
+2026-11-14T04:56:47.5290697Z 7fd9296d8eb2bd81379bbaa7287844d0d46703d5
+2026-11-14T04:56:47.5512013Z ##[group]Run actions/setup-node@v4
+2026-11-14T04:56:47.5512254Z with:
+2026-11-14T04:56:47.5512422Z   node-version: 24
+2026-11-14T04:56:47.5512606Z   always-auth: false
+2026-11-14T04:56:47.5512781Z   check-latest: false
+2026-11-14T04:56:47.5514975Z   token: ***
+2026-11-14T04:56:47.5515142Z ##[endgroup]
+2026-11-14T04:56:47.6662658Z (node:2652) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T04:56:47.6663503Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T04:56:47.6664399Z Found in cache @ /opt/hostedtoolcache/node/24.22.2/x64
+2026-11-14T04:56:47.6666985Z ##[group]Environment details
+2026-11-14T04:56:47.9597301Z node: v24.22.2
+2026-11-14T04:56:47.9597969Z npm: 11.19.1
+2026-11-14T04:56:47.9598186Z yarn: 1.22.22
+2026-11-14T04:56:47.9599041Z ##[endgroup]
+2026-11-14T04:56:47.9736056Z ##[group]Run npm ci --prefix cloud
+2026-11-14T04:56:47.9736365Z [36;1mnpm ci --prefix cloud[0m
+2026-11-14T04:56:47.9763739Z shell: /usr/bin/bash -e {0}
+2026-11-14T04:56:47.9763980Z ##[endgroup]
+2026-11-14T04:56:49.2213119Z 
+2026-11-14T04:56:49.2219199Z added 17 packages, and audited 18 packages in 1s
+2026-11-14T04:56:49.2220867Z 
+2026-11-14T04:56:49.2221018Z found 0 vulnerabilities
+2026-11-14T04:56:49.2592189Z ##[group]Run npm test --prefix cloud
+2026-11-14T04:56:49.2592470Z [36;1mnpm test --prefix cloud[0m
+2026-11-14T04:56:49.2611018Z shell: /usr/bin/bash -e {0}
+2026-11-14T04:56:49.2611239Z ##[endgroup]
+2026-11-14T04:56:49.3398469Z 
+2026-11-14T04:56:49.3399228Z > saytile-cloud@0.1.0 test
+2026-11-14T04:56:49.3399578Z > node --test test/*.test.mjs
+2026-11-14T04:56:49.3399725Z 
+2026-11-14T04:56:49.6186370Z ✔ loopback PCM → paired Qwen events → authenticated evidence → one review; snapshot/replay protected (64.929724ms)
+2026-11-14T04:56:49.6231190Z ✔ Stripe signed test invoice routes to server-defined plan; no Stripe network call (7.486368ms)
+2026-11-14T04:56:51.1608479Z ✔ Postgres grants, isolation, concurrent admission, replay, unresolved cost, reconciliation and revocation (1720.349993ms)
+2026-11-14T04:56:51.2033828Z ℹ tests 3
+2026-11-14T04:56:51.2034252Z ℹ suites 0
+2026-11-14T04:56:51.2034515Z ℹ pass 3
+2026-11-14T04:56:51.2034702Z ℹ fail 0
+2026-11-14T04:56:51.2034881Z ℹ cancelled 0
+2026-11-14T04:56:51.2035190Z ℹ skipped 0
+2026-11-14T04:56:51.2035615Z ℹ todo 0
+2026-11-14T04:56:51.2058521Z ℹ duration_ms 1833.661691
+2026-11-14T04:56:51.2186682Z ##[group]Run node cloud/test/postgres.mjs ***127.0.0.1:5432/saytile_cloud_test
+2026-11-14T04:56:51.2187272Z [36;1mnode cloud/test/postgres.mjs ***127.0.0.1:5432/saytile_cloud_test[0m
+2026-11-14T04:56:51.2205834Z shell: /usr/bin/bash -e {0}
+2026-11-14T04:56:51.2206058Z ##[endgroup]
+2026-11-14T04:56:51.3809157Z {"status":"PASS","postgres":"17.12 (Debian 17.12-1.pgdg13+1)","parallelConnections":12,"admitted":2,"rejected":10,"duplicateReviewAdmissions":1,"secondUserAdmitted":true,"globalCommittedMicros":1105000}
+2026-11-14T04:56:51.3904072Z ##[group]Run scripts/test-supabase-local.sh
+2026-11-14T04:56:51.3904392Z [36;1mscripts/test-supabase-local.sh[0m
+2026-11-14T04:56:51.3922360Z shell: /usr/bin/bash -e {0}
+2026-11-14T04:56:51.3922571Z ##[endgroup]
+2026-11-14T04:56:53.9401344Z Resolved service versions:
+2026-11-14T04:56:53.9401929Z   database  17.11.0.018-r0  (specifier linked; unlinked)
+2026-11-14T04:56:53.9402458Z   rest      v16.5-r0  (specifier linked; unlinked)
+2026-11-14T04:56:53.9403084Z   auth      v2.197.0-r0  (specifier linked; unlinked)
+2026-11-14T04:56:53.9403595Z   realtime  v2.154.0-r0  (specifier linked; unlinked)
+2026-11-14T04:56:53.9404070Z   storage   v1.90.1-r0  (specifier linked; unlinked)
+2026-11-14T04:56:53.9404546Z   imgproxy  v3.26.0-r0  (specifier linked; unlinked)
+2026-11-14T04:56:53.9405037Z   functions v1.78.1-r0  (specifier linked; unlinked)
+2026-11-14T04:56:53.9405602Z   studio    2026.11.09-sha-1567384-r0  (specifier linked; unlinked)
+2026-11-14T04:56:53.9406182Z   pgmeta    v0.100.0-r0  (specifier linked; unlinked)
+2026-11-14T04:56:53.9406618Z   mail      v1.31.3-r0  (specifier linked; unlinked)
+2026-11-14T04:56:53.9407051Z   analytics v1.50.15-r1  (specifier linked; unlinked)
+2026-11-14T04:56:53.9407493Z   pooler    v2.10.0-r0  (specifier linked; unlinked)
+2026-11-14T04:56:53.9407936Z Created supabase/supabase.lock.
+2026-11-14T04:56:53.9408525Z Commit supabase/supabase.lock so CI and your team run the same versions.
+2026-11-14T04:56:54.0643531Z [task] start: Starting local Supabase stack...
+2026-11-14T04:57:00.7210323Z Seeding globals from roles.sql...
+2026-11-14T04:57:00.7364893Z no files matched pattern: supabase/seed.sql
+2026-11-14T04:57:00.7555877Z [task] done: Stack is ready.
+2026-11-14T04:57:07.6854264Z {"status":"PASS","scope":"isolated official Supabase Auth, PostgREST, Postgres and Mailpit","confirmedOTPAccounts":2,"apiIdentity":true,"manualGrant":true,"otherAccountIsolated":true,"accountRPCPrivate":true,"refresh":true,"revocation":true,"logoutInvalidatesRefresh":true,"postLogoutAccountHTTP":401,"realModelCalls":0,"liveRevokedStreamClosed":true,"nativeMockASR":0,"nativeMockGPT":0,"unpaidProviderAdmissions":0}
+2026-11-14T04:57:09.5073546Z Post job cleanup.
+2026-11-14T04:57:09.6113683Z (node:3416) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T04:57:09.6114393Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T04:57:09.6241168Z Post job cleanup.
+2026-11-14T04:57:09.6957186Z [command]/usr/bin/git version
+2026-11-14T04:57:09.7026631Z git version 2.56.1
+2026-11-14T04:57:09.7059525Z Temporarily overriding HOME='/home/runner/work/_temp/e1045e4c-0bc3-402e-92da-eae1ffcaf726' before making global git config changes
+2026-11-14T04:57:09.7060616Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-14T04:57:09.7063993Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/saytile/saytile
+2026-11-14T04:57:09.7099745Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T04:57:09.7133852Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T04:57:09.7360549Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T04:57:09.7386151Z http.https://github.com/.extraheader
+2026-11-14T04:57:09.7396019Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-14T04:57:09.7428854Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T04:57:09.7657218Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T04:57:09.7697253Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T04:57:09.8045012Z Print service container logs: 852a8775ce6643058bbf3598e5e1266b_postgres17_4b039b
+2026-11-14T04:57:09.8048936Z ##[command]/usr/bin/docker logs --details 5c2f96cc05d811320145c6d8e16623aba7f01c6af49c2af749719b808202c9b3
+2026-11-14T04:57:09.8175786Z  The files belonging to this database system will be owned by user "postgres".
+2026-11-14T04:57:09.8177883Z  initdb: warning: enabling "trust" authentication for local connections
+2026-11-14T04:57:09.8178928Z  initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+2026-11-14T04:57:09.8180098Z  2026-11-14 04:56:35.431 UTC [1] LOG:  starting PostgreSQL 17.12 (Debian 17.12-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-11-14T04:57:09.8180983Z  2026-11-14 04:56:35.431 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-11-14T04:57:09.8181603Z  2026-11-14 04:56:35.431 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-11-14T04:57:09.8182238Z  2026-11-14 04:56:35.432 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-11-14T04:57:09.8182917Z  2026-11-14 04:56:35.434 UTC [64] LOG:  database system was shut down at 2026-11-14 04:56:35 UTC
+2026-11-14T04:57:09.8183538Z  2026-11-14 04:56:35.438 UTC [1] LOG:  database system is ready to accept connections
+2026-11-14T04:57:09.8184112Z  2026-11-14 04:56:36.386 UTC [75] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8184576Z  2026-11-14 04:56:38.438 UTC [83] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8185033Z  2026-11-14 04:56:40.488 UTC [91] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8185482Z  2026-11-14 04:56:42.542 UTC [99] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8186223Z  2026-11-14 04:56:44.592 UTC [107] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8186689Z  2026-11-14 04:56:46.644 UTC [115] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8187163Z  2026-11-14 04:56:48.709 UTC [123] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8187663Z  2026-11-14 04:56:50.783 UTC [131] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8188136Z  2026-11-14 04:56:51.328 UTC [136] ERROR:  rate_limit
+2026-11-14T04:57:09.8188810Z  2026-11-14 04:56:51.328 UTC [136] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+2026-11-14T04:57:09.8189497Z  2026-11-14 04:56:51.328 UTC [136] STATEMENT:  select public.st_reserve($1,$2,1) lease
+2026-11-14T04:57:09.8189913Z  2026-11-14 04:56:51.330 UTC [142] ERROR:  rate_limit
+2026-11-14T04:57:09.8190476Z  2026-11-14 04:56:51.330 UTC [142] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+2026-11-14T04:57:09.8191149Z  2026-11-14 04:56:51.330 UTC [142] STATEMENT:  select public.st_reserve($1,$2,1) lease
+2026-11-14T04:57:09.8191559Z  2026-11-14 04:56:51.331 UTC [134] ERROR:  rate_limit
+2026-11-14T04:57:09.8192054Z  2026-11-14 04:56:51.331 UTC [134] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+2026-11-14T04:57:09.8192683Z  2026-11-14 04:56:51.331 UTC [134] STATEMENT:  select public.st_reserve($1,$2,1) lease
+2026-11-14T04:57:09.8193167Z  2026-11-14 04:56:51.333 UTC [139] ERROR:  rate_limit
+2026-11-14T04:57:09.8193757Z  2026-11-14 04:56:51.333 UTC [139] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+2026-11-14T04:57:09.8194460Z  2026-11-14 04:56:51.333 UTC [139] STATEMENT:  select public.st_reserve($1,$2,1) lease
+2026-11-14T04:57:09.8194884Z  2026-11-14 04:56:51.334 UTC [140] ERROR:  rate_limit
+2026-11-14T04:57:09.8195382Z  2026-11-14 04:56:51.334 UTC [140] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+2026-11-14T04:57:09.8195991Z  2026-11-14 04:56:51.334 UTC [140] STATEMENT:  select public.st_reserve($1,$2,1) lease
+2026-11-14T04:57:09.8196406Z  2026-11-14 04:56:51.335 UTC [137] ERROR:  rate_limit
+2026-11-14T04:57:09.8197146Z  2026-11-14 04:56:51.335 UTC [137] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+2026-11-14T04:57:09.8197826Z  2026-11-14 04:56:51.335 UTC [137] STATEMENT:  select public.st_reserve($1,$2,1) lease
+2026-11-14T04:57:09.8198553Z  2026-11-14 04:56:51.337 UTC [138] ERROR:  rate_limit
+2026-11-14T04:57:09.8199768Z  2026-11-14 04:56:51.337 UTC [138] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+2026-11-14T04:57:09.8200209Z  2026-11-14 04:56:51.337 UTC [138] STATEMENT:  select public.st_reserve($1,$2,1) lease
+2026-11-14T04:57:09.8200524Z  2026-11-14 04:56:51.338 UTC [135] ERROR:  rate_limit
+2026-11-14T04:57:09.8200902Z  2026-11-14 04:56:51.338 UTC [135] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+2026-11-14T04:57:09.8201351Z  2026-11-14 04:56:51.338 UTC [135] STATEMENT:  select public.st_reserve($1,$2,1) lease
+2026-11-14T04:57:09.8201666Z  2026-11-14 04:56:51.341 UTC [143] ERROR:  rate_limit
+2026-11-14T04:57:09.8202047Z  2026-11-14 04:56:51.341 UTC [143] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+2026-11-14T04:57:09.8202489Z  2026-11-14 04:56:51.341 UTC [143] STATEMENT:  select public.st_reserve($1,$2,1) lease
+2026-11-14T04:57:09.8202801Z  2026-11-14 04:56:51.342 UTC [141] ERROR:  rate_limit
+2026-11-14T04:57:09.8203164Z  2026-11-14 04:56:51.342 UTC [141] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+2026-11-14T04:57:09.8203616Z  2026-11-14 04:56:51.342 UTC [141] STATEMENT:  select public.st_reserve($1,$2,1) lease
+2026-11-14T04:57:09.8203950Z  2026-11-14 04:56:51.345 UTC [132] ERROR:  already_admitted
+2026-11-14T04:57:09.8204344Z  2026-11-14 04:56:51.345 UTC [132] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+2026-11-14T04:57:09.8204927Z  2026-11-14 04:56:51.345 UTC [132] STATEMENT:  select public.st_review($1,$2,1)
+2026-11-14T04:57:09.8205240Z  2026-11-14 04:56:51.363 UTC [146] ERROR:  already_admitted
+2026-11-14T04:57:09.8205622Z  2026-11-14 04:56:51.363 UTC [146] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+2026-11-14T04:57:09.8206036Z  2026-11-14 04:56:51.363 UTC [146] STATEMENT:  select public.st_review($1,$2,1)
+2026-11-14T04:57:09.8206329Z  2026-11-14 04:56:51.364 UTC [150] ERROR:  already_admitted
+2026-11-14T04:57:09.8206698Z  2026-11-14 04:56:51.364 UTC [150] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+2026-11-14T04:57:09.8207099Z  2026-11-14 04:56:51.364 UTC [150] STATEMENT:  select public.st_review($1,$2,1)
+2026-11-14T04:57:09.8207390Z  2026-11-14 04:56:51.365 UTC [148] ERROR:  already_admitted
+2026-11-14T04:57:09.8207828Z  2026-11-14 04:56:51.365 UTC [148] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+2026-11-14T04:57:09.8208275Z  2026-11-14 04:56:51.365 UTC [148] STATEMENT:  select public.st_review($1,$2,1)
+2026-11-14T04:57:09.8208568Z  2026-11-14 04:56:51.366 UTC [149] ERROR:  already_admitted
+2026-11-14T04:57:09.8209205Z  2026-11-14 04:56:51.366 UTC [149] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+2026-11-14T04:57:09.8209612Z  2026-11-14 04:56:51.366 UTC [149] STATEMENT:  select public.st_review($1,$2,1)
+2026-11-14T04:57:09.8209899Z  2026-11-14 04:56:51.368 UTC [152] ERROR:  already_admitted
+2026-11-14T04:57:09.8210267Z  2026-11-14 04:56:51.368 UTC [152] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+2026-11-14T04:57:09.8210664Z  2026-11-14 04:56:51.368 UTC [152] STATEMENT:  select public.st_review($1,$2,1)
+2026-11-14T04:57:09.8210967Z  2026-11-14 04:56:51.369 UTC [145] ERROR:  already_admitted
+2026-11-14T04:57:09.8211342Z  2026-11-14 04:56:51.369 UTC [145] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+2026-11-14T04:57:09.8211761Z  2026-11-14 04:56:51.369 UTC [145] STATEMENT:  select public.st_review($1,$2,1)
+2026-11-14T04:57:09.8212084Z  2026-11-14 04:56:51.371 UTC [144] ERROR:  already_admitted
+2026-11-14T04:57:09.8212598Z  2026-11-14 04:56:51.371 UTC [144] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+2026-11-14T04:57:09.8213018Z  2026-11-14 04:56:51.371 UTC [144] STATEMENT:  select public.st_review($1,$2,1)
+2026-11-14T04:57:09.8213317Z  2026-11-14 04:56:51.373 UTC [151] ERROR:  already_admitted
+2026-11-14T04:57:09.8213696Z  2026-11-14 04:56:51.373 UTC [151] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+2026-11-14T04:57:09.8214110Z  2026-11-14 04:56:51.373 UTC [151] STATEMENT:  select public.st_review($1,$2,1)
+2026-11-14T04:57:09.8214401Z  2026-11-14 04:56:51.375 UTC [153] ERROR:  already_admitted
+2026-11-14T04:57:09.8214760Z  2026-11-14 04:56:51.375 UTC [153] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+2026-11-14T04:57:09.8215164Z  2026-11-14 04:56:51.375 UTC [153] STATEMENT:  select public.st_review($1,$2,1)
+2026-11-14T04:57:09.8215456Z  2026-11-14 04:56:51.377 UTC [147] ERROR:  already_admitted
+2026-11-14T04:57:09.8215827Z  2026-11-14 04:56:51.377 UTC [147] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+2026-11-14T04:57:09.8216223Z  2026-11-14 04:56:51.377 UTC [147] STATEMENT:  select public.st_review($1,$2,1)
+2026-11-14T04:57:09.8216540Z  2026-11-14 04:56:52.839 UTC [161] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8216833Z  2026-11-14 04:56:54.908 UTC [169] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8217118Z  2026-11-14 04:56:56.985 UTC [177] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8217402Z  2026-11-14 04:56:59.053 UTC [185] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8217699Z  2026-11-14 04:57:01.105 UTC [193] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8217984Z  2026-11-14 04:57:03.156 UTC [201] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8218395Z  2026-11-14 04:57:05.207 UTC [209] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8218837Z  2026-11-14 04:57:07.258 UTC [218] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8219132Z  2026-11-14 04:57:09.310 UTC [226] FATAL:  role "root" does not exist
+2026-11-14T04:57:09.8219413Z  This user must also own the server process.
+2026-11-14T04:57:09.8219631Z  
+2026-11-14T04:57:09.8219854Z  The database cluster will be initialized with locale "en_US.utf8".
+2026-11-14T04:57:09.8220195Z  The default database encoding has accordingly been set to "UTF8".
+2026-11-14T04:57:09.8220520Z  The default text search configuration will be set to "english".
+2026-11-14T04:57:09.8220765Z  
+2026-11-14T04:57:09.8220920Z  Data page checksums are disabled.
+2026-11-14T04:57:09.8221119Z  
+2026-11-14T04:57:09.8221350Z  fixing permissions on existing directory /var/lib/postgresql/data ... ok
+2026-11-14T04:57:09.8221660Z  creating subdirectories ... ok
+2026-11-14T04:57:09.8221916Z  selecting dynamic shared memory implementation ... posix
+2026-11-14T04:57:09.8222215Z  selecting default "max_connections" ... 100
+2026-11-14T04:57:09.8222458Z  selecting default "shared_buffers" ... 128MB
+2026-11-14T04:57:09.8222700Z  selecting default time zone ... Etc/UTC
+2026-11-14T04:57:09.8223011Z  creating configuration files ... ok
+2026-11-14T04:57:09.8223252Z  running bootstrap script ... ok
+2026-11-14T04:57:09.8223489Z  performing post-bootstrap initialization ... ok
+2026-11-14T04:57:09.8223737Z  syncing data to disk ... ok
+2026-11-14T04:57:09.8223918Z  
+2026-11-14T04:57:09.8224062Z  
+2026-11-14T04:57:09.8224244Z  Success. You can now start the database server using:
+2026-11-14T04:57:09.8224495Z  
+2026-11-14T04:57:09.8224780Z      pg_ctl -D /var/lib/postgresql/data -l logfile start
+2026-11-14T04:57:09.8225116Z  
+2026-11-14T04:57:09.8225857Z  waiting for server to start....2026-11-14 04:56:35.121 UTC [48] LOG:  starting PostgreSQL 17.12 (Debian 17.12-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-11-14T04:57:09.8226624Z  2026-11-14 04:56:35.121 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-11-14T04:57:09.8227251Z  2026-11-14 04:56:35.124 UTC [51] LOG:  database system was shut down at 2026-11-14 04:56:34 UTC
+2026-11-14T04:57:09.8227818Z  2026-11-14 04:56:35.127 UTC [48] LOG:  database system is ready to accept connections
+2026-11-14T04:57:09.8228212Z   done
+2026-11-14T04:57:09.8228571Z  server started
+2026-11-14T04:57:09.8228984Z  CREATE DATABASE
+2026-11-14T04:57:09.8229234Z  
+2026-11-14T04:57:09.8229534Z  
+2026-11-14T04:57:09.8229893Z  /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+2026-11-14T04:57:09.8230348Z  
+2026-11-14T04:57:09.8230791Z  waiting for server to shut down...2026-11-14 04:56:35.300 UTC [48] LOG:  received fast shutdown request
+2026-11-14T04:57:09.8242226Z  .2026-11-14 04:56:35.300 UTC [48] LOG:  aborting any active transactions
+2026-11-14T04:57:09.8242774Z  2026-11-14 04:56:35.302 UTC [48] LOG:  background worker "logical replication launcher" (PID 54) exited with exit code 1
+2026-11-14T04:57:09.8243223Z  2026-11-14 04:56:35.302 UTC [49] LOG:  shutting down
+2026-11-14T04:57:09.8243524Z  2026-11-14 04:56:35.302 UTC [49] LOG:  checkpoint starting: shutdown immediate
+2026-11-14T04:57:09.8244339Z  2026-11-14 04:56:35.361 UTC [49] LOG:  checkpoint complete: wrote 934 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.054 s, sync=0.004 s, total=0.059 s; sync files=301, longest=0.003 s, average=0.001 s; distance=4329 kB, estimate=4329 kB; lsn=0/193BDF0, redo lsn=0/193BDF0
+2026-11-14T04:57:09.8245144Z  2026-11-14 04:56:35.367 UTC [48] LOG:  database system is shut down
+2026-11-14T04:57:09.8245405Z   done
+2026-11-14T04:57:09.8245560Z  server stopped
+2026-11-14T04:57:09.8245721Z  
+2026-11-14T04:57:09.8245912Z  PostgreSQL init process complete; ready for start up.
+2026-11-14T04:57:09.8246149Z  
+2026-11-14T04:57:09.8251094Z Stop and remove container: 852a8775ce6643058bbf3598e5e1266b_postgres17_4b039b
+2026-11-14T04:57:09.8254925Z ##[command]/usr/bin/docker rm --force 5c2f96cc05d811320145c6d8e16623aba7f01c6af49c2af749719b808202c9b3
+2026-11-14T04:57:10.1150152Z 5c2f96cc05d811320145c6d8e16623aba7f01c6af49c2af749719b808202c9b3
+2026-11-14T04:57:10.1175059Z Remove container network: github_network_52cb56279ec74ba287a32d97c5cc4ca4
+2026-11-14T04:57:10.1178294Z ##[command]/usr/bin/docker network rm github_network_52cb56279ec74ba287a32d97c5cc4ca4
+2026-11-14T04:57:10.2090054Z github_network_52cb56279ec74ba287a32d97c5cc4ca4
+2026-11-14T04:57:10.2156112Z Cleaning up orphan processes
+2026-11-14T04:57:10.2466525Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,0 +1,83 @@
+Building for production...
+[Pre-planning 1 / 242]
+[Planning deferred tasks]
+[54 / 125]
+[77 / 135]
+[89 / 137]
+[108 / 137] CAudio
+[114 / 137] CAudio
+[120 / 165]
+[137 / 296]
+[151 / 296]
+[164 / 296]
+[170 / 296]
+[172 / 296]
+/private/tmp/saytile-window-boundary/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[180 / 296]
+[182 / 296]
+[185 / 296]
+[191 / 296]
+[194 / 296]
+[196 / 296]
+[197 / 296]
+[211 / 296]
+[212 / 296]
+[217 / 296]
+[222 / 296]
+[223 / 296]
+[225 / 296]
+[231 / 296]
+[233 / 296]
+[238 / 296]
+[239 / 296]
+[240 / 296]
+[242 / 296]
+[243 / 296]
+[245 / 296]
+[257 / 296]
+[258 / 296]
+[263 / 296]
+[268 / 296]
+[271 / 296]
+[272 / 296]
+[273 / 296]
+[274 / 296]
+[276 / 296]
+[277 / 296] SaytileVoiceUI
+/private/tmp/saytile-window-boundary/Package.swift: SaytileVoiceUI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/private/tmp/saytile-window-boundary/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+[284 / 296] SaytileKit
+/private/tmp/saytile-window-boundary/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[292 / 297] Saytile-product
+[298 / 304]
+[299 / 304]
+[300 / 304] Saytile-product
+/private/tmp/saytile-window-boundary/Sources/SaytileApp/AppModel.swift:851:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 843 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+ 844 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+ 845 |         connectionCheckTask = Task {
+     |                                    |- note: 'self' implicitly strongly captured here
+     |                                    `- note: add 'self' as a capture list item to silence
+ 846 |             // A cancelled older check must fully close its sockets before another starts.
+ 847 |             await previous?.value
+     :
+ 849 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+ 850 |             do {
+ 851 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+     |                                                                                         `- note: explicitly assign the capture list item to silence
+ 852 |                     Task { @MainActor [weak self] in
+ 853 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[302 / 304] Saytile-product
+/private/tmp/saytile-window-boundary/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-window-boundary/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[303 / 304] Saytile-product
+Build complete! (57.19秒)

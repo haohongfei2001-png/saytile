@@ -1,0 +1,46 @@
+{
+  "source_sha": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+  "job_id": 132338472843,
+  "artifact_id": 14099713031,
+  "archive_sha256": "e9b7722d29b3b84a8575ef283112946207e174f3639e77b8ff24834f3f9fba27",
+  "assertions": {
+    "PASS": 20,
+    "NOT_RUN": 1
+  },
+  "test_count": 21,
+  "source_match": true,
+  "source_files": {
+    "tests/fixtures/PanelBoundaryTarget.swift": {
+      "commit_sha256": "5b64653ae77610df82efdbd1ce6a3d4a54439402875ce496ffefa7ff6e74ce63",
+      "artifact_sha256": "5b64653ae77610df82efdbd1ce6a3d4a54439402875ce496ffefa7ff6e74ce63",
+      "match": true
+    },
+    "tests/fixtures/PanelBoundaryProbe.swift": {
+      "commit_sha256": "08a5fa342425444b450b735f8497dd879189d77253336ef49a9e963a2f426d09",
+      "artifact_sha256": "08a5fa342425444b450b735f8497dd879189d77253336ef49a9e963a2f426d09",
+      "match": true
+    },
+    "Sources/SaytileApp/PanelWindowAccess.swift": {
+      "commit_sha256": "4441db292eeb984e3b5f42a5114908142e689caf863662be0331f415fac1a587",
+      "artifact_sha256": "4441db292eeb984e3b5f42a5114908142e689caf863662be0331f415fac1a587",
+      "match": true
+    },
+    "Sources/SaytileApp/PanelCoexistenceController.swift": {
+      "commit_sha256": "b2a6c32d79748d8178c74117bb40fd170123b1f1f824757ceabda6f9225a861f",
+      "artifact_sha256": "b2a6c32d79748d8178c74117bb40fd170123b1f1f824757ceabda6f9225a861f",
+      "match": true
+    },
+    "Sources/SaytileApp/PanelWindowEvents.swift": {
+      "commit_sha256": "55e65caea5f9becde88bb39953afc2a8c81b5d671e905f87c1fca98911fbc65b",
+      "artifact_sha256": "55e65caea5f9becde88bb39953afc2a8c81b5d671e905f87c1fca98911fbc65b",
+      "match": true
+    },
+    "Sources/SaytileApp/VoicePanel.swift": {
+      "commit_sha256": "8aaf2e3c318cb4dc90d37918fc8bb5559b610b54dcdd88807551c9f82761ba1c",
+      "artifact_sha256": "8aaf2e3c318cb4dc90d37918fc8bb5559b610b54dcdd88807551c9f82761ba1c",
+      "match": true
+    }
+  },
+  "native_fullscreen": "NOT_RUN in CI; verified separately in local native evidence",
+  "platform_observation": "Changed frame under AppKit minSize is explicitly recorded as disproven unchanged-frame expectation, not a passing product assertion."
+}

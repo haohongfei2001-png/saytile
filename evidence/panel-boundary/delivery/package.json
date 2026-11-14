@@ -1,0 +1,27 @@
+{
+  "version": "0.14",
+  "build": "478",
+  "source": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+  "bundle": "app.saytile.mac.mandarin-candidate",
+  "app_executable_sha256": "4b650a5d852a3f62658acd19d1854fa47b82f3a8ec53c8ef483fea997121e0a1",
+  "worker_sha256": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e",
+  "dmg_bytes": 64720679,
+  "dmg_sha256": "7ecc7bb6bd09e4a764df091b86780fc6c4ee4d84a628017e7aeadb72af5b2212",
+  "codesign_app": "PASS",
+  "codesign_image": "PASS",
+  "signing": [
+    "Identifier=app.saytile.mac.mandarin-candidate",
+    "CodeDirectory v=20500 size=20974 flags=0x10000(runtime) hashes=644+7 location=embedded",
+    "CDHash=d33831d31ed1537d16c741b19693f3ce18fbcb3f",
+    "Authority=Developer ID Application: hongfei hao (ZB9D4T66QB)",
+    "Authority=Developer ID Certification Authority",
+    "Authority=Apple Root CA",
+    "Timestamp=Nov 14, 2026 at 12:56:57",
+    "TeamIdentifier=ZB9D4T66QB"
+  ],
+  "model_weights_in_bundle": [],
+  "gatekeeper_exit": 3,
+  "gatekeeper_result": "Saytile 中文识别候选.app: rejected\nsource=Unnotarized Developer ID",
+  "notarization_submitted": false,
+  "production_replaced": false
+}
