@@ -13,6 +13,9 @@
   <link rel="icon" href="assets/saytile-approved.webp" type="image/webp">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="panel.css">
+  <link rel="stylesheet" href="middle.css">
+  <link rel="stylesheet" href="scenes.css">
+  <link rel="canonical" href="https://saytile.com/">
 </head>
 <body id="top">
   <svg class="icon-defs" aria-hidden="true"><defs>
@@ -68,38 +71,126 @@
       <div class="hero-baseline" aria-hidden="true"><span>SPEAK NATURALLY.</span><span>STAY YOURSELF.</span></div>
     </section>
 
-    <section class="precision section-shell" id="precision" aria-labelledby="precision-title">
-      <div class="precision-copy reveal">
-        <p class="eyebrow section-eyebrow"><span>01</span> 忠实表达</p>
-        <h2 id="precision-title">你继续说。<br><span class="muted-heading">文字继续核对。</span></h2>
-        <p class="section-description">语音识别与 AI 核对协同，<br>持续修订同一份文字。<br>你的语气、犹豫和有意的重复，都留下。</p>
-      </div>
-      <div class="precision-demo reveal" id="precision-demo">
-        <div class="demo-label"><span class="small-dot"></span> 一段口述 <span class="demo-note">交互示例</span></div>
-        <div class="spoken-passage" aria-label="持续核对的原话示例"><div id="phrase-a">这个地方，<span class="spoken-um">嗯，</span></div><div id="phrase-b">我想<span class="corrected-word" id="corrected-word">再</span>想一想。</div><div id="phrase-c">不是内容越多越好。</div><div id="phrase-d">是把真正重要的，<br class="phrase-break">讲清楚。</div><span class="passage-caret" aria-hidden="true"></span></div>
-        <div class="passage-footer"><p id="precision-caption">语气与补充，都留在原话里。</p><button class="round-button" id="precision-replay" aria-label="重播持续核对演示" title="重播演示"><svg><use href="#i-replay"/></svg></button><button class="round-button pause-precision" id="precision-toggle" aria-label="暂停持续核对演示" title="暂停演示"><svg><use href="#i-pause"/></svg></button></div>
-      </div>
-    </section>
-
-    <section class="continuity" id="continuity" aria-labelledby="continuity-title">
-      <div class="continuity-heading reveal"><p class="eyebrow section-eyebrow"><span>02</span> 随时继续</p><h2 id="continuity-title">下一句话，<br>还在同一处。</h2><p class="section-description">开启后，安静地留在一旁。<br>停一会儿，再接着说。思路沿着时间，自然延续。</p></div>
-      <div class="journal-shell reveal">
-        <div class="journal-top"><span class="journal-day">今天</span><span class="journal-note">你的表达，慢慢连成一条线。</span><span class="journal-disclosure">交互示例</span></div>
-        <div class="journal-viewport" id="journal-viewport" tabindex="0" aria-label="可滚动的连续文字时间轴示例">
-          <div class="journal-entries" id="journal-entries">
-            <article class="journal-entry"><time>09:41</time><div><p>第一版先保留最直接的入口。</p><span class="entry-tone">从一个小想法开始。</span></div></article>
-            <article class="journal-entry"><time>10:18</time><div><p>刚刚又想到一点：打开后就能试，设置可以晚一点再说。</p></div></article>
-            <article class="journal-entry is-latest"><time>14:06</time><div><p>嗯，先把这个想法记下来。<br>我还想再想一会儿。</p><span class="entry-caret" aria-hidden="true"></span></div></article>
+    <div class="r8" id="new-middle">
+      <section class="r8-expression" id="precision" aria-labelledby="expression-heading">
+        <div class="r8-container r8-expression-grid">
+          <div class="r8-editorial">
+            <p class="r8-kicker"><i></i> 随时开口</p>
+            <h2 id="expression-heading">停一下，<br><span class="r8-ink">也接得上。</span></h2>
+            <p class="r8-description">想法不必一次成形。<br>你边想边说，文字在一旁，<br>一句接着一句。</p>
+            <div class="r8-chapters" role="group" aria-label="表达过程演示">
+              <button type="button" data-phase="0" aria-pressed="true"><span class="r8-chapter-dot"></span><span>自然说</span><small>文字随之出现</small></button>
+              <button type="button" data-phase="1" aria-pressed="false"><span class="r8-chapter-dot"></span><span>慢慢想</span><small>停顿，仍在待命</small></button>
+              <button type="button" data-phase="2" aria-pressed="false"><span class="r8-chapter-dot"></span><span>接着说</span><small>继续同一份表达</small></button>
+            </div>
+          </div>
+          <div class="r8-stage" id="voice-stage" data-state="standby">
+            <div class="r8-caustic" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="r8-glass-line" aria-hidden="true"></div><div class="r8-voice-object" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            <canvas class="r8-particles" id="voice-particles" aria-hidden="true"></canvas>
+            
+            <div class="r8-voice-holder">
+              <div class="r8-voice" id="voice-panel" data-state="standby">
+                <div class="r8-voice-scroll" tabindex="0" aria-label="口述示例滚动区域"><div id="voice-text" contenteditable="plaintext-only" role="textbox" aria-label="口述示例，可以编辑" aria-multiline="true" spellcheck="false">这个周末，想去看海。<br>嗯，不赶时间。<br>等天气放晴，再出发。</div><span class="r8-caret" aria-hidden="true"></span></div>
+                <div class="r8-voice-controls">
+                  <button type="button" class="r8-copy" id="voice-copy" aria-label="复制口述文字"><svg><use href="#i-copy"/></svg><svg class="r8-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button>
+                  <button type="button" class="r8-state" id="voice-toggle" aria-label="暂停口述演示"><span class="r8-dot"></span><span class="r8-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><svg class="r8-triangle" viewBox="0 0 18 20" aria-hidden="true"><path d="m4 2 12 8-12 8Z"/></svg></button>
+                </div>
+              </div>
+              <div class="r8-status" role="status" aria-live="polite"><i></i><span id="voice-status">等你下一句。</span></div>
+            </div>
+            <div class="r8-player"><span>产品交互演示</span><div class="r8-progress"><i id="voice-progress"></i></div><button type="button" id="voice-play" aria-label="播放演示"><svg><use href="#i-play"/></svg></button><button type="button" id="voice-replay" aria-label="从头重播"><svg><use href="#i-replay"/></svg></button></div>
           </div>
         </div>
-        <div class="journal-actions"><button class="continue-button" id="continue-thought"><span class="continue-symbol"><svg><use href="#i-plus"/></svg></span>接着说一句</button><button class="history-button" id="history-top">回看前面 <svg><use href="#i-arrow"/></svg></button><span class="journal-state" id="journal-state">一直在，等你下一句。</span></div>
-      </div>
-    </section>
+        <div class="r8-fidelity r8-container" id="fidelity-demo">
+          <div class="r8-fidelity-label"><svg><use href="#i-voice"/></svg><span>逐字核对。<br><strong>语气，还是你。</strong></span></div>
+          <p class="r8-proof"><span class="r8-spoken">嗯，不赶时间。</span><span>等天气放晴，<span class="r8-corrected" id="corrected-sample">再</span>出发。</span></p>
+          <button type="button" id="correction-replay" class="r8-text-button">看一次修正 <svg><use href="#i-replay"/></svg></button>
+        </div>
+      </section>
 
-    <section class="afterwards section-shell" aria-label="说完之后">
-      <div class="afterwards-intro reveal"><p class="eyebrow section-eyebrow"><span>03</span> 说完之后</p><h2>此刻可用。<br><span class="muted-heading">以后，也找得到。</span></h2></div>
-      <div class="afterwards-details"><article class="reveal"><span class="feature-icon"><svg><use href="#i-copy"/></svg></span><h3>随手，拿走这段话。</h3><p>一键复制眼前的文字。<br>放进对话、文稿，或接下来的工作。</p></article><article class="reveal"><span class="feature-icon"><svg><use href="#i-voice"/></svg></span><h3>原话，也有声音可循。</h3><p>录音独立保存。<br>回听、查找，也可以重新识别。</p></article></div>
-    </section>
+      <section class="s9 s9-use" id="continuity" aria-labelledby="reuse-heading">
+        <div class="s9-shell s9-use-layout">
+          <div class="s9-editorial">
+            <p class="s9-eyebrow"><i></i> 从表达，到使用</p>
+            <h2 id="reuse-heading">刚刚说出口。<br><span class="s9-blue">现在就能用。</span></h2>
+            <p class="s9-description">说完，点一下复制。<br>再粘贴给对话框或 AI。</p>
+            <div class="s9-actions"><button type="button" class="s9-primary" id="journey-play"><svg><use href="#i-play"/></svg><span>播放这段流程</span></button><button type="button" class="s9-replay" id="journey-replay" aria-label="重新播放说话、复制与粘贴流程"><svg><use href="#i-replay"/></svg><span>重播</span></button></div>
+            <div class="s9-steps" role="group" aria-label="表达取用的三个步骤"><button type="button" data-journey-step="0" aria-pressed="true"><i>01</i><span>自然说</span><small>文字，跟上思路</small></button><button type="button" data-journey-step="1" aria-pressed="false"><i>02</i><span>点一下复制</span><small>完整带走刚才的表达</small></button><button type="button" data-journey-step="2" aria-pressed="false"><i>03</i><span>粘贴给 AI</span><small>留在输入框，等你发送</small></button></div>
+          </div>
+          <div class="s9-journey" id="journey" data-phase="ready" data-speaking="false">
+            <div class="s9-local-light" aria-hidden="true"></div>
+            <div class="s9-spectrum" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="s9-source-label"><img src="assets/saytile-approved.webp" width="25" height="25" alt=""><span>Saytile</span><span id="journey-state">等你下一句。</span></div>
+            <div class="s9-speech" id="journey-panel">
+              <div class="s9-speech-scroll"><div id="journey-transcript" contenteditable="plaintext-only" role="textbox" aria-label="Saytile 口述示例，可以编辑" aria-multiline="true" spellcheck="false">这个周末，想去看海。<br>嗯，不赶时间。<br>等天气放晴，再出发。</div><span class="s9-caret" aria-hidden="true"></span></div>
+              <div class="s9-speech-controls"><button type="button" id="journey-copy" class="s9-copy" aria-label="复制语音板中的文字" title="复制文字"><svg class="s9-copy-icon"><use href="#i-copy"/></svg><svg class="s9-check-icon" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></button><span class="s9-copy-feedback" id="journey-copy-feedback" role="status" aria-live="polite"></span><button type="button" class="s9-voice-button" id="journey-voice" aria-label="暂停演示"><span class="s9-dot"></span><span class="s9-sound" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><svg class="s9-play-icon" viewBox="0 0 18 20"><path d="m4 2 12 8-12 8Z"/></svg></button></div>
+            </div>
+            <svg class="s9-transfer-path" viewBox="0 0 640 140" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="s9-path-ink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#bca0d9"/><stop offset="1" stop-color="#b6c7e2"/></linearGradient></defs><path d="M265 4 C265 62 183 51 183 120"/><path class="s9-path-tip" d="m176 109 7 12 7-12"/></svg>
+            <div class="s9-composer" id="journey-composer">
+              <div class="s9-composer-head"><svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 3V6a2 2 0 0 1 1-2Z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg><span>与 AI 对话</span><small>示例输入框</small></div>
+              <div class="s9-compose-area"><textarea id="journey-draft" aria-label="AI 对话框示例，可编辑，内容不会发送" placeholder="把刚才说的话，放到这里。" spellcheck="false">这个周末，想去看海。
+嗯，不赶时间。
+等天气放晴，再出发。</textarea><button type="button" class="s9-paste" id="journey-paste" aria-label="粘贴本页刚复制的示例文字"><svg><use href="#i-copy"/></svg><span>粘贴</span><kbd>⌘ V</kbd></button></div>
+              <div class="s9-compose-tools"><div class="s9-decorative-tools" aria-hidden="true"><span><svg><use href="#i-plus"/></svg></span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><ellipse cx="12" cy="12" rx="3" ry="8"/><path d="M4 12h16"/></svg></span></div><span id="journey-draft-status">发送前，还可以再想一想。</span><button type="button" id="journey-send" aria-label="示例发送按钮，不会发送消息" title="这是示例输入框，不会发送消息"><svg viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></button></div>
+            </div>
+            <div class="s9-pointer" id="journey-pointer" aria-hidden="true"><svg viewBox="0 0 25 33"><path d="M3 2 21 20l-8 1 4 8-4 2-4-9-6 6Z"/></svg><i></i></div>
+            <div class="s9-journey-caption"><span></span><p id="journey-caption" role="status" aria-live="polite">说完 · 复制 · 粘贴到对话框</p><span></span></div>
+          </div>
+        </div>
+        <p class="s9-demonstration s9-shell">产品流程演示 · 不开启麦克风，不连接外部 AI，不自动发送</p>
+      </section>
+
+      <section class="s9 s9-archive" id="archive" aria-labelledby="memory-heading">
+        <div class="s9-shell s9-archive-layout">
+          <div class="s9-editorial s9-archive-editorial">
+            <p class="s9-eyebrow"><i></i> 语音档案</p>
+            <h2 id="memory-heading">说过的话，<br><span class="s9-purple">之后再看。</span></h2>
+            <p class="s9-description">文字、原音与修改版本，分别保留。<br>随时查找、回听，再接着编辑。</p>
+            <button type="button" class="s9-search-invite" id="archive-search-invite"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><span>试着找找「看海」</span><svg><use href="#i-arrow"/></svg></button>
+            <div class="s9-features"><div><span><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6Z M14 3v5h4M9 12h6M9 16h6"/></svg></span><strong>文字记录</strong><small>完整留下</small></div><div><span><svg><use href="#i-voice"/></svg></span><strong>原声音频</strong><small>随时回听</small></div><div><span><svg viewBox="0 0 24 24"><path d="m3 8 9-5 9 5-9 5Zm0 5 9 5 9-5M3 18l9 5 9-5"/></svg></span><strong>修改版本</strong><small>回看每一稿</small></div></div>
+            <button type="button" id="native-open" class="s9-native-link">查看原生界面 <svg><use href="#i-external"/></svg></button>
+          </div>
+          <div class="s9-archive-visual">
+            <div class="s9-archive-light" aria-hidden="true"><i></i><i></i></div>
+            <div class="s9-library" id="archive-demo">
+              <header class="s9-library-header"><span class="s9-library-mark"><svg viewBox="0 0 24 24"><path d="M4 8h16v12H4ZM3 4h18v4H3Zm6 8h6"/></svg></span><h3>我的档案</h3><span class="s9-library-status" id="archive-save-state"><i></i> 示例资料</span><span class="s9-library-label">Saytile</span></header>
+              <div class="s9-library-body">
+                <aside class="s9-index" aria-label="示例档案列表">
+                  <div class="s9-date-filters" role="group" aria-label="按日期筛选"><button type="button" data-period="all" aria-pressed="true">全部</button><button type="button" data-period="today" aria-pressed="false">今天</button><button type="button" data-period="older" aria-pressed="false">更早</button></div>
+                  <label class="s9-search"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input type="search" id="archive-search" aria-label="搜索示例档案的文字、标题和版本" placeholder="搜索档案内容…" autocomplete="off"></label>
+                  <div class="s9-record-list" id="archive-records">
+                    <button type="button" class="s9-record is-selected" data-record="0" aria-pressed="true"><time>今天 · 14:06</time><strong>等天气放晴。</strong><span>这个周末，想去看海。</span><svg><use href="#i-voice"/></svg></button>
+                    <button type="button" class="s9-record" data-record="1" aria-pressed="false"><time>今天 · 10:18</time><strong>读到这里，想到一点。</strong><span>不是内容越多越好。</span><svg><use href="#i-voice"/></svg></button>
+                    <button type="button" class="s9-record" data-record="2" aria-pressed="false"><time>昨天 · 09:32</time><strong>关于下一版。</strong><span>先把最直接的入口做好。</span><svg><use href="#i-voice"/></svg></button>
+                    <button type="button" class="s9-record" data-record="3" aria-pressed="false"><time>更早 · 08:47</time><strong>先把想法留下。</strong><span>这个方案，先别急着定。</span><svg><use href="#i-voice"/></svg></button>
+                  </div>
+                  <div class="s9-index-empty" id="archive-empty" hidden><p>没有找到这段话。</p><button type="button" id="archive-clear">清空搜索</button></div>
+                  <p class="s9-result-count" id="archive-result" role="status" aria-live="polite">4 段示例表达</p>
+                </aside>
+                <article class="s9-reader" id="archive-reader" aria-label="当前选中档案">
+                  <div class="s9-reader-heading"><h4 id="archive-title">等天气放晴。</h4><button type="button" id="archive-favorite" aria-label="收藏这段示例" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.3.9-4.6 4.4 1.1 6.3-5.6-3-5.6 3 1.1-6.3L3 9.6l6.2-.9Z"/></svg></button></div>
+                  <p class="s9-reader-meta"><span id="archive-date">今天 14:06</span><i></i><span id="archive-version-count">2 个版本</span></p>
+                  <div class="s9-content-tabs" role="tablist" aria-label="档案内容类型"><button type="button" id="archive-tab-text" role="tab" data-content="text" aria-selected="true" aria-controls="archive-text-panel"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6Zm8 0v5h4M9 12h6M9 16h6"/></svg>文字</button><button type="button" id="archive-tab-audio" role="tab" data-content="audio" tabindex="-1" aria-selected="false" aria-controls="archive-audio-panel"><svg><use href="#i-voice"/></svg>原音</button><button type="button" id="archive-tab-history" role="tab" data-content="history" tabindex="-1" aria-selected="false" aria-controls="archive-history-panel"><svg viewBox="0 0 24 24"><path d="m3 8 9-5 9 5-9 5Zm0 5 9 5 9-5M3 18l9 5 9-5"/></svg>修订</button></div>
+                  <div class="s9-record-view">
+                    <div role="tabpanel" id="archive-text-panel" aria-labelledby="archive-tab-text"><div id="archive-transcript" contenteditable="plaintext-only" role="textbox" aria-label="档案示例文字，可编辑" aria-multiline="true" spellcheck="false">这个周末，想去看海。<br>嗯，不赶时间。<br>等天气放晴，再出发。</div></div>
+                    <div role="tabpanel" id="archive-audio-panel" aria-labelledby="archive-tab-audio" hidden><div class="s9-audio-insight"><svg><use href="#i-voice"/></svg><h5>听听当时怎么说。</h5><p>原音单独保留，文字可以继续编辑。</p><small>下方音频为合成语音示例</small></div></div>
+                    <div role="tabpanel" id="archive-history-panel" aria-labelledby="archive-tab-history" hidden><div class="s9-version"><span><i></i> 当前文字</span><p id="archive-current-version"></p></div><div class="s9-version"><span><i></i> 初次记录</span><p id="archive-first-version"></p></div></div>
+                  </div>
+                  <div class="s9-audio-player"><button type="button" id="archive-audio-play" aria-label="播放合成示例音频"><svg><use href="#i-play"/></svg></button><div class="s9-wave-track"><div id="archive-wave" aria-hidden="true"></div><input type="range" id="archive-seek" min="0" max="100" value="0" step="0.1" aria-label="示例音频进度"></div><span id="archive-audio-time">0:00</span><button type="button" id="archive-speed" aria-label="播放速度，当前一倍速">1×</button></div>
+                  <div class="s9-reader-footer"><button type="button" id="archive-versions">版本历史 <span id="archive-history-number">2</span><svg><use href="#i-down"/></svg></button><button type="button" id="archive-edit"><svg viewBox="0 0 24 24"><path d="m15 4 5 5M4 20l1-5L16 4a2 2 0 0 1 3 3L8 19ZM4 20h16"/></svg>继续编辑</button><button type="button" id="archive-copy" aria-label="复制当前档案文字"><svg><use href="#i-copy"/></svg></button></div>
+                  <audio id="archive-audio" preload="none" src="assets/archive-sea.m4a"></audio>
+                </article>
+                <div class="s9-reader-empty" id="archive-reader-empty" hidden>换一个词，再找找。</div>
+              </div>
+            </div>
+            <p class="s9-archive-caption"><span>文字可以再编辑。原音，留作另一份记忆。</span><span>可交互示例 · 合成音频</span></p>
+          </div>
+        </div>
+      </section>
+      <dialog class="r8-dialog" id="native-dialog" aria-labelledby="native-heading"><div><span id="native-heading">Saytile · 原生语音档案</span><button type="button" id="native-close">关闭 <span aria-hidden="true">×</span></button></div><section><img src="assets/archive-native.png" width="2100" height="1344" loading="lazy" alt="Saytile 原生语音档案截图，隔离示例资料"/></section></dialog>
+      <p class="r8-disclosure r8-container">以上为产品交互演示，不开启麦克风；原生界面可在语音档案处查看。</p>
+    </div>
 
     <section class="start-section" id="start" aria-labelledby="start-title">
       <div class="start-glow" aria-hidden="true"></div><div class="start-main section-shell reveal"><div class="start-brand"><img src="assets/saytile-approved.webp" width="100" height="100" alt="Saytile 应用图标"><span>Saytile for Mac</span></div><h2 id="start-title">下一句，<br>从这里开始。</h2><div class="start-side"><p>给自然的表达，<br>一个随时可用的地方。</p><a class="button button-white" href="https://github.com/haohongfei2001-png/saytile/pull/23" target="_blank" rel="noopener noreferrer">了解 Saytile 内测 <svg><use href="#i-external"/></svg></a><span>Apple Silicon · macOS 26+</span></div></div>
@@ -109,6 +200,8 @@
   </main>
   <div class="toast" role="status" aria-live="polite" id="toast"></div>
   <script src="panel.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="hero.js" defer></script>
+  <script src="middle.js" defer></script>
+  <script src="scenes.js" defer></script>
 </body>
 </html>

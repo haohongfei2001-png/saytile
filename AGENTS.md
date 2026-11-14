@@ -25,3 +25,7 @@
 用户已明确要求把当前 R3 写入仓库作为正式官网并完整保留细节。唯一正式官网目录是 `website/`；先读 `website/README.md`、`website/APPROVAL.md` 和 `website/AGENTS.md`。原样保存的运行源码与 SHA-256 清单是官网基线，截图仅作视觉参考。
 
 该批准只确立官网，不改动原生 App 的批准界面、识别架构、发行包或用户数据。旧 `prototype/` 不是正式官网，不得用它替换本次官网。
+
+## 官网正式更新（2026-11-14）
+
+用户已要求将R8保留部分及新两段上线到正式根首页。上述R3六文件冻结说明现在是历史记录；最新官网权威以website/README.md、AGENTS.md、APPROVAL.md与snapshot.json为准。此更新不改变原生App。
