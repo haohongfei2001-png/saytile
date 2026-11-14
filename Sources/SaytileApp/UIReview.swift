@@ -740,7 +740,7 @@ extension AppDelegate {
         print("NATIVE_UI_FIELD_EDIT \(label) via owned NSTextView delegate; no global key events")
         if secure { print("NATIVE_UI_SECURE_FIELD_EDIT \(label) fixture credential only; value omitted") }
     }
-    @MainActor private func performControl(_ label: String, in root: NSView, arguments: [String] = []) async throws -> String {
+    @MainActor func performControl(_ label: String, in root: NSView, arguments: [String] = []) async throws -> String {
         guard let path = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"], let window = root.window else { throw ReviewFailure("Native UI control helper not configured") }
         let process = Process(), pipe = Pipe()
         process.executableURL = URL(fileURLWithPath: path)

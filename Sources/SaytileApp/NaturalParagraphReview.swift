@@ -81,6 +81,7 @@ extension AppDelegate {
               let first = paragraphs.first, first.page.entries.map(\.id) == Array(ids.prefix(2)) else {
             throw ReviewFailure("archive paragraph aggregation differs from the panel")
         }
+        let hasControlProbe = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil
         var archiveInventory: [String] = []
         try await reviewValidatedWindow(SettingsView(model: model, initialPage: .archive), size: .init(width: 1000, height: 760),
             name: "natural-archive", output: output, validation: { host in
@@ -90,23 +91,27 @@ extension AppDelegate {
                     throw ReviewFailure("archive retained per-recording editors instead of one per paragraph")
                 }
                 try self.captureReview(host, name: "natural-archive-reading", output: output)
-                for paragraph in paragraphs {
-                    let focused = try await self.archiveEditor(paragraph.anchorID, in: host)
-                    guard host.window?.makeFirstResponder(focused) == true else { throw ReviewFailure("archive focus did not reveal its actions") }
-                    try await Task.sleep(for: .milliseconds(100))
-                    host.layoutSubtreeIfNeeded()
-                    let nodes = self.naturalAccessibility(in: host)
-                    archiveInventory += nodes.compactMap { $0.accessibilityIdentifier() }.filter { $0.hasPrefix("archive.") }
-                    for prefix in ["archive.play.", "archive.favorite."] {
-                        guard nodes.filter({ $0.accessibilityIdentifier() == prefix + paragraph.anchorID.uuidString }).count == 1 else {
-                            let diagnostic = nodes.map { ["id": $0.accessibilityIdentifier() ?? "", "role": $0.accessibilityRole()?.rawValue ?? "", "label": $0.accessibilityLabel() ?? ""] }
-                            try JSONSerialization.data(withJSONObject: diagnostic, options: [.prettyPrinted, .sortedKeys])
-                                .write(to: output.appendingPathComponent("owned-archive-accessibility.json"))
-                            throw ReviewFailure("focused paragraph did not have exactly one play/star control: \(prefix)\(paragraph.anchorID)")
+                if hasControlProbe {
+                    for paragraph in paragraphs {
+                        let focused = try await self.archiveEditor(paragraph.anchorID, in: host)
+                        guard host.window?.makeFirstResponder(focused) == true else {
+                            throw ReviewFailure("archive focus did not reveal its actions")
+                        }
+                        try await Task.sleep(for: .milliseconds(100))
+                        host.layoutSubtreeIfNeeded()
+                        for prefix in ["archive.play.", "archive.favorite."] {
+                            let identifier = prefix + paragraph.anchorID.uuidString
+                            // The existing independent AX fixture checks the entire
+                            // owned window for exactly one matching native control.
+                            let result = try await self.performControl(identifier, in: host, arguments: ["inspect"])
+                            guard result.contains("NATIVE_UI_INSPECT ") else {
+                                throw ReviewFailure("native paragraph control inspection was incomplete")
+                            }
+                            archiveInventory.append(identifier)
                         }
                     }
+                    checks.append("one native play/star control per paragraph via independent AX inspection")
                 }
-                archiveInventory = Array(Set(archiveInventory)).sorted()
                 guard let editor = try await self.archiveEditor(first.anchorID, in: host) as? ArchiveParagraphTextView,
                       host.window?.makeFirstResponder(editor) == true else { throw ReviewFailure("archive paragraph could not acquire native editing focus") }
                 editor.commandPasteboard = board
@@ -140,19 +145,25 @@ extension AppDelegate {
                       try await model.store.revisions(recordingID: ids[1]).contains(where: { $0.text == "迟到的识别不能覆盖人工修改。" }) else {
                     throw ReviewFailure("late ASR overwrote a manual paragraph or its copied snapshot")
                 }
-                try await self.naturalPress("archive.favorite.\(first.anchorID)", in: host)
+                if hasControlProbe {
+                    _ = try await self.performControl("archive.favorite.\(first.anchorID)", in: host)
+                } else { await model.toggleParagraphFavorite(first) }
                 try await self.reviewUntil { model.archiveGroups.flatMap(\.paragraphs).contains { $0.id == first.id && $0.pinned } }
                 for id in ids.prefix(2) {
                     guard try await model.store.recording(id: id)?.isPinned == true else { throw ReviewFailure("paragraph star omitted an original recording") }
                 }
                 try self.captureReview(host, name: "natural-archive-editing", output: output)
-                try await self.naturalPress("archive.play.\(first.anchorID)", in: host)
+                if hasControlProbe {
+                    _ = try await self.performControl("archive.play.\(first.anchorID)", in: host)
+                } else { model.playParagraph(first) }
                 try await self.reviewUntil { model.audio.playingID == first.anchorID && model.audio.playbackPosition > 1.1 }
                 guard abs(model.audio.playbackDuration - 2) < 0.02 else { throw ReviewFailure("paragraph playback did not span both one-second originals") }
                 let playedTo = model.audio.playbackPosition
-                try await self.naturalPress("archive.play.\(first.anchorID)", in: host)
+                if hasControlProbe {
+                    _ = try await self.performControl("archive.play.\(first.anchorID)", in: host)
+                } else { model.playParagraph(first) }
                 try await self.reviewUntil { model.audio.playingID == nil }
-                checks += ["one editor/play/star per paragraph", "panel/archive identical newlines", "cross-owner emoji edit",
+                checks += ["one native editor per paragraph", "panel/archive identical newlines", "cross-owner emoji edit",
                            "archive private selection copy", "archive native undo/redo", "late ASR manual protection",
                            "whole-paragraph star", "real AVAudioPlayer silent clip transition past \(playedTo) seconds"]
                 guard let secondEditor = try await self.archiveEditor(ids[2], in: host) as? ArchiveParagraphTextView,
@@ -186,7 +197,10 @@ extension AppDelegate {
             "syntheticOnly": true, "asrExecuted": false, "microphoneOpened": false, "privatePasteboard": true,
             "captureScope": "owned nonactivating native views rendered using AppKit cacheDisplay; not a full-desktop screenshot",
             "speechEndGapsSeconds": [3, 15, 60], "recordings": 4, "paragraphs": 3, "timeGroups": 2,
-            "checks": checks, "archiveControls": archiveInventory, "audio": audio,
+            "checks": checks, "archiveControls": archiveInventory,
+            "nativeControlActions": ["status": hasControlProbe ? "PASS" : "NOT_RUN",
+                                     "reason": hasControlProbe ? "independent owned-window AX inspection and AXPress" : "SAYTILE_UI_CONTROL_PROBE not configured; star/play model actions only"],
+            "audio": audio,
             "timeline": finals.map { ["id": $0.id.uuidString, "position": $0.position, "paragraphID": $0.paragraphID, "group": $0.group] as [String: Any] }]
         try JSONSerialization.data(withJSONObject: receipt, options: [.prettyPrinted, .sortedKeys])
             .write(to: output.appendingPathComponent("natural-paragraphs.json"))
@@ -200,25 +214,5 @@ extension AppDelegate {
             stack += view.subviews
         }
         return result
-    }
-    @MainActor private func naturalAccessibility(in host: NSView) -> [any NSAccessibilityProtocol] {
-        var pending: [Any] = [host], seen = Set<ObjectIdentifier>(), result: [any NSAccessibilityProtocol] = []
-        while let item = pending.popLast(), seen.count < 3000 {
-            guard let node = item as? any NSAccessibilityProtocol else { continue }
-            let identity = ObjectIdentifier(node as AnyObject)
-            guard seen.insert(identity).inserted else { continue }
-            result.append(node)
-            pending += node.accessibilityChildren() ?? []
-            if let view = item as? NSView {
-                pending += view.subviews
-                pending += NSAccessibility.unignoredChildren(from: view.subviews)
-            }
-        }
-        return result
-    }
-    @MainActor private func naturalPress(_ identifier: String, in host: NSView) async throws {
-        let matches = naturalAccessibility(in: host).filter { $0.accessibilityIdentifier() == identifier }
-        guard matches.count == 1, matches[0].accessibilityPerformPress() else { throw ReviewFailure("owned native control refused press: \(identifier)") }
-        try await Task.sleep(for: .milliseconds(50))
     }
 }

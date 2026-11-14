@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "source_head": "7fd9296d8eb2bd81379bbaa7287844d0d46703d5",
+  "source_dirty": true,
+  "files": {
+    "Sources/SaytileVoiceUI/PanelTimelineDocument.swift": "a50d9d706245872ec532337d7a7860b6231489805bf9e85e3599151d77f4a769",
+    "Sources/SaytileVoiceUI/CompactTranscriptView.swift": "bbd1d8c5f2645a195b12fe183d9abdd23352f90b16868bb93c78c926b3d8fe13",
+    "tests/SaytileKitTests/PanelParagraphDocumentTests.swift": "b746ae9abae1a959277b6e6b82445fcec7fa8438c4ec97a637da91692719935b"
+  },
+  "pure_assertions": 25896,
+  "native_cases": [
+    "real NSTextView paragraph deletion",
+    "native UndoManager undo",
+    "native UndoManager redo"
+  ],
+  "private_data": false,
+  "microphone": false,
+  "app_installation": false,
+  "app_activation": false,
+  "log": "/private/tmp/saytile-natural-document-native.log",
+  "command": "swiftc -swift-version 6 -D SAYTILE_DOCUMENT_STANDALONE -parse-as-library Sources/SaytileVoiceUI/*.swift tests/SaytileKitTests/PanelParagraphDocumentTests.swift -o /tmp/saytile-natural-document-native-probe && /tmp/saytile-natural-document-native-probe",
+  "policy": "explicit paragraphBreakHidden; no inference from empty/userEdit text"
+}

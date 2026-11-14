@@ -1,6 +1,6 @@
-## 2026-11-14 · 0.15 自然段整合（进行中）
+## 2026-11-14 · 0.15 自然段整合
 
-第一轮原生编译与168项AppModel检查PASS。独立审查复现旧编辑器在迟到修订冲突时丢输入，修复后原生失焦/刷新保留回归PASS；持久化和最终同源回归进行中，当前不作交付结论。 详见[NATURAL-PARAGRAPHS](NATURAL-PARAGRAPHS.md)。
+PASS：原生编译；172项AppModel检查；11项真实SQLite回归；共享文档25,896项断言与真实NSTextView撤销/重做；10项播放器Swift Testing；合成4份原音在主板/档案归为3自然段/2时间组，实际原生编辑、独立AX检查及收藏/连续回听/停止。完整Swift Testing由最终SHA的macOS CI执行，不把本机局部断言数冒充全套。初期fixture错误与自建AX遍历失败保留记录，现已使用成熟的既有独立AX探针复验。 详见[NATURAL-PARAGRAPHS](NATURAL-PARAGRAPHS.md)。
 
 ## 2026-11-14 · 0.14 窗口共存候选（原生收口，待签名包与 CI）
 
