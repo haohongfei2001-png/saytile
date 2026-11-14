@@ -497,16 +497,19 @@ extension SaytileStore {
     }
 
     /// A single SQLite statement supplies a consistent whole-paragraph copy even
-    /// when its member text spans more than one UI page. Never changes pasteboard later.
-    public nonisolated func paragraphCopy(paragraphID: Int64, displayed: [Int64: String]) throws -> String {
+    /// when its member text spans more than one UI page. The panel freezes its tail
+    /// at the click and excludes explicitly cleared history; the archive defaults
+    /// to all members. Never changes the pasteboard after the explicit copy.
+    public nonisolated func paragraphCopy(paragraphID: Int64, through last: Int64 = .max,
+                                          after cleared: Int64 = 0, displayed: [Int64: String]) throws -> String {
         let reader = try StoreDatabase(url: directory.appendingPathComponent("Saytile.sqlite"), readOnly: true)
         let rows = try reader.rows("""
             SELECT t.position,v.text,v.origin,p.paragraph_start,ph.break_hidden FROM timeline_paragraphs p
             JOIN timeline_paragraphs ph ON ph.position=p.paragraph_start
             JOIN transcript_timeline t ON t.position=p.position JOIN recordings r ON r.id=t.recording_id
             LEFT JOIN revisions v ON v.id=r.preferred_revision
-            WHERE p.paragraph_start=? AND r.deleted=0 ORDER BY t.position
-            """, [.int(paragraphID)])
+            WHERE p.paragraph_start=? AND t.position<=? AND t.position>? AND r.deleted=0 ORDER BY t.position
+            """, [.int(paragraphID), .int(last), .int(cleared)])
         return try Self.formatParagraphText(rows, displayed: displayed)
     }
 

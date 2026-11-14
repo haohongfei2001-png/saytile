@@ -58,6 +58,27 @@ struct NaturalParagraphTests {
         try await reopened.close()
     }
 
+    @Test func paragraphCopyRespectsClickBoundsAndDoesNotExpandToItsTimeGroup() async throws {
+        let dir = directory(); defer { try? FileManager.default.removeItem(at: dir) }
+        let store = try SaytileStore(directory: dir)
+        _ = try await add(store, noon, 1, "上一段。")
+        let head = try await add(store, noon.addingTimeInterval(20), 1, "本段开头🙂")
+        _ = try await add(store, noon.addingTimeInterval(22), 1, "继续。")
+        let shown = try await store.timelinePage().entries
+        try check(Set(shown.map(\.group)).count == 1 && shown.map(\.paragraphID) == [1, 2, 2])
+        _ = try await add(store, noon.addingTimeInterval(24), 1, "点击之后的新话。")
+        _ = try await add(store, noon.addingTimeInterval(42), 1, "下一个自然段。")
+        try await store.saveEdit(recordingID: head.id, text: "用户改字\n保留手工换行🙂")
+        let visible: [Int64: String] = [1: "不能混入上一段", 2: "点击时眼前🙂", 3: "继续。", 5: "不能混入下一段"]
+        try check(try store.paragraphCopy(paragraphID: 2, through: 3, displayed: visible) == "点击时眼前🙂继续。")
+        try check(try store.paragraphCopy(paragraphID: 2, through: 3, after: 2, displayed: visible) == "继续。")
+        try check(try store.paragraphCopy(paragraphID: 2, through: 3, after: 3, displayed: visible).isEmpty)
+        try check(try store.paragraphCopy(paragraphID: 2, displayed: [:]) == "用户改字\n保留手工换行🙂继续。点击之后的新话。")
+        try await store.deleteRecord(recordingID: head.id)
+        try check(try store.paragraphCopy(paragraphID: 2, through: 3, displayed: visible) == "继续。")
+        try await store.close()
+    }
+
     @Test func paragraphsPageWithoutSplittingAndSearchReturnsEveryMember() async throws {
         let dir = directory(); defer { try? FileManager.default.removeItem(at: dir) }
         let store = try SaytileStore(directory: dir)
@@ -85,6 +106,8 @@ struct NaturalParagraphTests {
         try check(try await store.paragraphRecordingIDs(paragraphID: 1) == ids)
         let copied = try store.paragraphCopy(paragraphID: 1, displayed: [76: "眼前显示"])
         try check(copied.contains("第0句") && copied.contains("第134句") && copied.contains("眼前显示") && !copied.contains("唯一搜索"))
+        let bounded = try store.paragraphCopy(paragraphID: 1, through: 100, after: 70, displayed: [76: "眼前显示"])
+        try check(bounded.hasPrefix("第70句") && bounded.hasSuffix("第99句") && bounded.contains("眼前显示") && !bounded.contains("第100句"))
         try await store.setPinned(recordingID: ids[75], pinned: true)
         try check(try await store.archiveParagraphPage(filter: .pinned).paragraphs.map(\.id) == [1])
         try check(try await store.toggleParagraphPinned(paragraphID: 1) == false)
