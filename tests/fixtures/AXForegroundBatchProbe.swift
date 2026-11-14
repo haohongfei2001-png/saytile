@@ -117,7 +117,7 @@ private func immediateAbort(_ message: String) -> Never {
             let trace = FixtureAccessTrace(access)
             trace.stage = "web " + scenario
             let input = NativeInputCoordinator(store: store, access: trace)
-            try await bindOwnedField(input, trace: trace, original: "PREFIX|SUFFIX", caret: 7, pid: pid)
+            try await bindOwnedField(input, trace: trace, original: "PREFIX|SUFFIX", caret: 7, pid: pid, expectingWeb: true)
             guard let binding = input.binding else { throw BatchFailure(message: "web " + scenario + " missing binding") }
             let record = try await store.createRecording()
             let ticket = try await store.beginFusionRecognition(recordingID: record.id)
@@ -182,7 +182,7 @@ private func immediateAbort(_ message: String) -> Never {
             let store = try SaytileStore(directory: directory)
             let trace = FixtureAccessTrace(access)
             let input = NativeInputCoordinator(store: store, access: trace)
-            try await bindOwnedField(input, trace: trace, original: "PREFIX|SUFFIX", caret: 7, pid: pid)
+            try await bindOwnedField(input, trace: trace, original: "PREFIX|SUFFIX", caret: 7, pid: pid, expectingWeb: true)
             let record = try await store.createRecording()
             let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
             var reads = 0
@@ -289,7 +289,7 @@ private func immediateAbort(_ message: String) -> Never {
                 var ready: InputTargetSnapshot?
                 for _ in 0..<40 {
                     try guardrail.check(pid)
-                    if let candidate = try? access.snapshot(), candidate.isEditable,
+                    if let candidate = try? access.snapshot(), candidate.isWeb == (kind == "web"), candidate.isEditable,
                        candidate.selectionLocation == 7, candidate.selectionLength == 0 { ready = candidate; break }
                     try await Task.sleep(for: .milliseconds(50))
                 }
@@ -318,7 +318,7 @@ private func immediateAbort(_ message: String) -> Never {
                 let trace = FixtureAccessTrace(access)
                 let input = NativeInputCoordinator(store: store, access: trace)
                 input.onBindingInvalidated = { print("OWNED_BINDING_INVALIDATED", kind, ProcessInfo.processInfo.systemUptime); fflush(nil) }
-                try await bindOwnedField(input, trace: trace, original: "PREFIX|SUFFIX", caret: 7, pid: pid)
+                try await bindOwnedField(input, trace: trace, original: "PREFIX|SUFFIX", caret: 7, pid: pid, expectingWeb: kind == "web")
                 let recording = try await store.createRecording()
                 let revision = try await store.saveEdit(recordingID: recording.id, text: "你好😀")
                 print("FOREGROUND_STAGE target=\(kind) first_insert_begin"); fflush(nil)

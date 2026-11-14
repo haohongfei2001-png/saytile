@@ -1,0 +1,16 @@
+# Original-rate native panel under CPU competition
+
+Installed 0.13 (474) reports source `0dc6ed70e873ec41da3b1dd24f47350a91211a43`. These probes exercise Qwen 0.6B, the production VAD, transcript publisher, AppKit panel and SQLite, using isolated copies of public recordings on a 10-core M5. Each arm runs one ASR worker. Audio enters at original rate from the fixture input. Microphone, acoustic playback, user speech, cloud calls and private files were outside this measurement.
+
+`474-normal-and-light.tar.gz` contains all 15 standard native panel receipts and SHA-256, plus two resource-monitored longer recordings with two extra load workers (1.33 CPU cores measured). Each `process.json` records the app and helper CPU seconds and sampled physical footprint. The public 38.8 s recording is assembled from five public clips. The 25.74 s recording is a FLEURS utterance. A one-time compiler warmup overlapped the end of the initial light-load session, so comparisons involving that session alone carry a possible background-load confound.
+
+`474-4core-diagnostic.tar.gz` is a diagnostic run of that same 38.8 s recording. Nine default-QoS load workers targeted six cores and received **4.398**. The saved load receipt reports the missed target. The native transcript remained unchanged for **5.148 s**, from t=23.027 to 28.176. Roughly 69% of 20 ms audio blocks in that span exceeded −55 dB, and at t=24.728 and 26.467 the worker sent further hypotheses. The next timeline update was at 28.170. This recording archived 31 errors per 205 reference units in both diagnostic and initial light-load runs.
+
+## Metrics
+
+* Literal screen change, normalized lexical change and first appearance of a new reference bigram or word type are separate measures. Initial/terminal waiting is included in each clip's longest gap and excluded from the pooled internal P95. A newly appearing reference word is a timing proxy. A repeated word type counts only once per utterance.
+* Whole-word scoring separates contiguous ASCII and non-ASCII spans before applying Apple's NLTokenizer in English and Simplified Chinese. This avoids dropping Chinese words when the recognizer or reference has adjacent unspaced English names. The tokenizer is the same on all arms.
+* Normal-load 15-file reference CER was 46/568 (8.099%). All 15 showed repeated matching updates. First lexical P50/P95 were 0.903/1.056 s, native lexical-update P95 was 0.932 s, and the longest literal freeze was 1.830 s. For newly visible matching whole-word types the internal P95 was 1.101 s and the longest gap was 2.388 s. Final archive after the last WAV buffer P50/P95 was 0.194/0.419 s. The gap from the last audible sample includes any silence in the recording and is available separately.
+* The 1.33-core 38.8/25.74 s inputs used a combined 19.87/14.23 process CPU seconds. Longest literal freezes were 1.209/1.511 s. Correct-word P95 gaps were 1.293/1.511 s.
+
+See `scripts/mandarin/measure-loaded-preview.py` for the reproducible target-load driver and `scripts/mandarin/score-preview-words.py` for word-level scoring. Each per-worker load sample contains actual process CPU and wall seconds. See `checksums.json` for the compressed artifacts' hashes.

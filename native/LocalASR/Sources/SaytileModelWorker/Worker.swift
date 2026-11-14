@@ -35,7 +35,8 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
         let id = args[1], directory = URL(fileURLWithPath: args[2], isDirectory: true)
         let rollingQwen = id == "qwen-small" || id == "qwen-large"
         let nemo: NemotronStreamingASRMLXModel?
-        let transcribe: (([Float]) async throws -> String)?
+        let transcribe: (([Float], Bool) async throws -> String)?
+        var verifiedTokens = 0
         switch id {
         case "nemotron-metal":
             nemo = try await .fromDirectory(directory)
@@ -50,15 +51,23 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
             // The small model translated whole English clauses in Mandarin speech
             // when forced to Chinese. Leave it free to transcribe the spoken language.
             let language = id == "qwen-small" ? nil : "Chinese"
-            transcribe = { try model.transcribeThrowing(audio: $0, options: .init(language: language, longInputThresholdSeconds: .infinity)) }
+            let options = Qwen3DecodingOptions(language: language, longInputThresholdSeconds: .infinity)
+            transcribe = { samples, verifyingPreview in
+                var decoding = options
+                decoding.verifiesPreviewTokens = verifyingPreview
+                if !verifyingPreview { model.clearPreviewTokens() }
+                let text = try model.transcribeThrowing(audio: samples, options: decoding)
+                verifiedTokens = model.verifiedPreviewTokenCount
+                return text
+            }
         case "paraformer":
             nemo = nil
             let model = ParaformerManager(models: try ParaformerModels.load(from: directory, precision: .int8))
-            transcribe = { try await model.transcribe(audio: $0) }
+            transcribe = { samples, _ in try await model.transcribe(audio: samples) }
         case "sensevoice":
             nemo = nil
             let model = SenseVoiceManager(models: try SenseVoiceModels.load(from: directory, precision: .int8))
-            transcribe = { try await model.transcribe(audio: $0) }
+            transcribe = { samples, _ in try await model.transcribe(audio: samples) }
         default: throw WorkerError.configuration
         }
         try publish("", kind: "ready", frames: 0)
@@ -80,6 +89,9 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
         // of pre-roll. Keep that whole segment available for the EOS decode.
         let windowLimit = 16_000 * (rollingQwen ? 32 : 24)
         var samples: [Float] = [], prefix = "", last = "", frames = 0, next = firstStride
+        // Only original scalar-greedy output can be an exact-PCM final.
+        // Block-verified previews may differ numerically and always need a fresh EOS.
+        var exactPreview: (frames: Int, text: String)?
         var input = PCMFrameReader(descriptor: STDIN_FILENO)
         func nextFrame() throws -> Data? {
             if id == "qwen-small" { return try input.next() }
@@ -98,6 +110,8 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
             if let stream {
                 let results = try end ? stream.finalize() : stream.pushAudio(chunk)
                 update = results.last?.text
+            } else if end, let exactPreview, exactPreview.frames == frames {
+                update = exactPreview.text
             } else if let transcribe {
                 samples.append(contentsOf: chunk)
                 // Upstream batch encoders have finite input windows. Bound history
@@ -110,11 +124,16 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
                     if id == "qwen-small", !end, !last.isEmpty, samples.count < windowLimit,
                        samples.count - next < maxPreviewBacklog, try input.hasNextFrameNow() { continue }
                     let started = traceDecodes ? ProcessInfo.processInfo.systemUptime : 0
-                    let tail = samples.isEmpty ? "" : try await transcribe(samples)
-                    update = prefix + tail
+                    let verifyingPreview = id == "qwen-small" && !end && !last.isEmpty
+                        && samples.count >= 48_000 && samples.count < windowLimit
+                    let tail = samples.isEmpty ? "" : try await transcribe(samples, verifyingPreview)
+                    let decoded = prefix + tail
+                    update = decoded
+                    if id == "qwen-small" && !end { exactPreview = verifyingPreview ? nil : (frames, decoded) }
                     if traceDecodes {
                         decodes.append(["startUptime": started, "endUptime": ProcessInfo.processInfo.systemUptime,
-                                        "frames": frames, "final": end, "changed": update != last])
+                                        "frames": frames, "final": end, "changed": update != last,
+                                        "verifiedPreviewTokens": verifyingPreview ? verifiedTokens : 0])
                     }
                     if samples.count >= windowLimit {
                         prefix += tail
@@ -129,6 +148,7 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
             if end {
                 try publish(update ?? last, kind: "final", frames: frames, decodes: decodes)
                 decodes.removeAll(keepingCapacity: true)
+                exactPreview = nil
                 stream = try nemo?.createSession(language: "zh")
                 samples.removeAll(keepingCapacity: true)
                 prefix = ""; last = ""; next = firstStride; frames = 0

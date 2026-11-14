@@ -1,0 +1,237 @@
+{
+  "baseline_rule": "914b339298e7214f0a38008300fd88a56f9c1a3b",
+  "candidate_rule": "ff8f8a014bd6b554a5703971a1139d94da155a6c",
+  "method": "Fixed worker raw hypotheses through both Swift publication policies. Result timestamps come from the original recordings and do not measure fresh model inference.",
+  "sets": {
+    "candidate": {
+      "input_count": 19,
+      "exact_original_streams": 19,
+      "raw_SHA256": {
+        "continuous-cost/auto-qwen-small-continuous-public-5.json": "3b8f16e2ff1148d8a497a684d129e905e7645e19918fec2b0e467719d3d1807b",
+        "extended/auto-qwen-small-continuous-public-5.json": "2d81352769b9c1b9caf027b77d307a99774808d9c5cf34bbe13ce143687d74b7",
+        "extended/auto-qwen-small-fleurs-f8646a257c0c4273.json": "e6a518e8337e25732b1442ca15784615ffa226df34de731580fb404be169d6a6",
+        "extended/auto-qwen-small-trailing-quiet-481280.json": "81a364982674ab669bac6b0af27d9f3329b4e4df9fcc18b716bb505ed0d2bdae",
+        "panels/auto-qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "bfe8fa866152da7c4e096fdbbd70864051d06a0abf6b41be9e109b6d7ae2013b",
+        "panels/auto-qwen-small-ascend-mixed-9255615fddf1a721.json": "8079d37c62172cd86e7510b0d5dacc9f1a28cc5720545840cd3df49d3b980fc9",
+        "panels/auto-qwen-small-ascend-mixed-a0b0e736637c643c.json": "70064f2866361a3364f24eeeded23e05172053bf1e4a3edccc5da7436d19e933",
+        "panels/auto-qwen-small-ascend-mixed-ee4e2d5087648134.json": "d57b2bfc388c23168aa8a39f7521ba9c71d563d5f5a1d1606d6a1d59907c0bca",
+        "panels/auto-qwen-small-ascend-mixed-ff9c42612780330b.json": "f7316e2234f51d3ac897323fcde2220b9231ead772b52c16a9ee3947ce3ec28a",
+        "panels/auto-qwen-small-ascend-zh-0c5639a6e24f539b.json": "9fe43d1e11c95be123c9398e1e41bac3becc9e96810ec50c7af5913d55532994",
+        "panels/auto-qwen-small-ascend-zh-4309bc70746a5c2c.json": "f4aec5b977c30af69329c3f367d0def1c69bdccb5644f7d827c48162f02383ff",
+        "panels/auto-qwen-small-ascend-zh-6a23208e2c146088.json": "5bcc4c0443ca59bbaf3a3ff1a165c1f27405f223cceb1d82d7e4edbb9377bbd5",
+        "panels/auto-qwen-small-ascend-zh-ed182ef57fba310b.json": "9897c18e8c4524b17375614f2edcb008a0833a9554f4db60aa5181252e081579",
+        "panels/auto-qwen-small-fleurs-0ebe0fb634f8e4ac.json": "f175a99fc034fe686bc009bac4a4d149aeec025e581b3645d9a8da9472adc357",
+        "panels/auto-qwen-small-fleurs-1bc3201a9f24a2fe.json": "42cb35ea74e8d23b404d3bc06607ecb0930baddc0684b8de2f53a4eb04450e3b",
+        "panels/auto-qwen-small-fleurs-8e93e440f571a4da.json": "b40e4992ca92fec24da52941f6a0a92a82326118dd01e2c2b4bdfcac2dfc4b37",
+        "panels/auto-qwen-small-fleurs-914c948388ae30bd.json": "94760e69cd86c4b96d463860d11f766e42ca87c101922151dc6aadd3894a179f",
+        "panels/auto-qwen-small-fleurs-9eb2d543a0a36152.json": "907fa63c34cfa13586f8d040085ebb8c94e4204b73cadebf9fb61794c9cd7bea",
+        "panels/auto-qwen-small-fleurs-e50b6b02d6d90ddc.json": "9e153eac47ec69ac54f332e441eb854e2248f44aa31a27636cde4fd68f04661f"
+      },
+      "differences": {}
+    },
+    "baseline": {
+      "input_count": 21,
+      "exact_original_streams": 21,
+      "raw_SHA256": {
+        "continuous-cost/auto-qwen-small-continuous-public-5.json": "86878b90ee7341afaa11b8d63ee70bb3ce9beb75f029c0c727181f6045208ca5",
+        "continuous-cost-after459/auto-qwen-small-continuous-public-5.json": "b94601c211dce72c8e59ee4419e7433204791c32345784b3757e80f2d999ef26",
+        "continuous-cost-repeat/auto-qwen-small-continuous-public-5.json": "8d254769c51b4c810ecfbf3e7b75c70f4dbbd4a3f26756a1e27ba40a03ad699c",
+        "extended/auto-qwen-small-continuous-public-5.json": "49d242e83756ecce583d4d4e0f4c0a16cbbdb5a1be7da3a4f28e95b19f45d113",
+        "extended/auto-qwen-small-fleurs-f8646a257c0c4273.json": "3978125f822e9c87ddce30be6b042d459d7a92e67bad9f28b9b2e7a5b7bcda8f",
+        "extended/auto-qwen-small-trailing-quiet-481280.json": "63ae92da0b9b2595c69cfe7f9c05e54cdbd649211cbd29081f503087f5f1a7ec",
+        "panels/auto-qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "1872a26766f3038fe4430de3d3aa13f96c3b4891120cf8c84cd66b1a9036c80b",
+        "panels/auto-qwen-small-ascend-mixed-9255615fddf1a721.json": "2bb6a3441732e8564ef3d6d4d95ae79c707282405d0bff4e6ea6dd9416363edd",
+        "panels/auto-qwen-small-ascend-mixed-a0b0e736637c643c.json": "29aeaa400c612f3deb9b8ba39d29201c634b5043d941c8ebce0d95698759fdfc",
+        "panels/auto-qwen-small-ascend-mixed-ee4e2d5087648134.json": "25afe3a779b3aefbdb39e897e3ba6066179ef215f4134364f7750fae536a8284",
+        "panels/auto-qwen-small-ascend-mixed-ff9c42612780330b.json": "18e342454fc5d59322eea506f54e3f377f8a011a8c4553ab0d6e92b017e7433e",
+        "panels/auto-qwen-small-ascend-zh-0c5639a6e24f539b.json": "788258c005b37b44e69c610757adca5470e9637cee3d3a54e72b0fe01e37dd38",
+        "panels/auto-qwen-small-ascend-zh-4309bc70746a5c2c.json": "1a4535a9156928ce151cdab6a7254315c83c4eaaa988f20b86d008ba225b694f",
+        "panels/auto-qwen-small-ascend-zh-6a23208e2c146088.json": "f0bcd66d3764cfb7eb2192915c45a92f859fc3952f7d58a8f3105e4f821fdbd5",
+        "panels/auto-qwen-small-ascend-zh-ed182ef57fba310b.json": "32e2daadb1f307b42445098e2e975bba56913f50df4c95a9f297e4a84a5db236",
+        "panels/auto-qwen-small-fleurs-0ebe0fb634f8e4ac.json": "8d26bf9834ed8db962e585da5c5b6fa7ff8720521cf245647070c5a9eb073dcc",
+        "panels/auto-qwen-small-fleurs-1bc3201a9f24a2fe.json": "4d9495e424557e2e25bbf289fdd73602e704838e8173722acef8351a64641b73",
+        "panels/auto-qwen-small-fleurs-8e93e440f571a4da.json": "0183ed7a727716501283132c47ebfefcbc96ea124ede1577e80e0ed9ee35f9f9",
+        "panels/auto-qwen-small-fleurs-914c948388ae30bd.json": "6942184a2acfc3c8620920edacc1e0c60faac00aaf9bde6eaa0dedff0040d1ad",
+        "panels/auto-qwen-small-fleurs-9eb2d543a0a36152.json": "466158d4cafc93739271faba9c583b4e8d98a0420ef8109041a5ed7cdc7dd866",
+        "panels/auto-qwen-small-fleurs-e50b6b02d6d90ddc.json": "990d92ce60079b0912582a76807b838791ae5a74c81ccaad2c2eb3c8c826c1ba"
+      },
+      "differences": {}
+    },
+    "final": {
+      "input_count": 20,
+      "exact_original_streams": 20,
+      "raw_SHA256": {
+        "continuous-cost/auto-qwen-small-continuous-public-5.json": "5e27033d4d475acdf07bed9d06030c613ba7f22831a897e285136d681c51a5ca",
+        "continuous-cost-repeat/auto-qwen-small-continuous-public-5.json": "730076c8a6e6257d7a83aca762bf56be5ae4ea1875d5a9f4268b0b67ff3416f8",
+        "extended/auto-qwen-small-continuous-public-5.json": "20699ca9cc82e557ccefb0a2e2fd8646cfecafe031393aee802a61dff0e137b0",
+        "extended/auto-qwen-small-fleurs-f8646a257c0c4273.json": "5d26872b5120ec1bf438d795a189981362837d73b728f28a64381647087fa738",
+        "extended/auto-qwen-small-trailing-quiet-481280.json": "0999a1b66d389328f1d7f1e571abfafb04ff04853d5f22b805e9d125e2ec7eab",
+        "panels/auto-qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "471c12ca4617af79178d27f59153e2716b34b7fff349b760fecaf5870e84691b",
+        "panels/auto-qwen-small-ascend-mixed-9255615fddf1a721.json": "569502d98a3049de2c01b0d9abc3b6c2cc5702f8a24153db5a3b6dc7455a8758",
+        "panels/auto-qwen-small-ascend-mixed-a0b0e736637c643c.json": "20c3209a5599e1e51ce43b9f443ae806d33cc50d6588cf525e1ee74b4142dd12",
+        "panels/auto-qwen-small-ascend-mixed-ee4e2d5087648134.json": "d0102447cdfbb67de90b3f5bff60dd33d93942e9b901b1aca721c5d70e2788ef",
+        "panels/auto-qwen-small-ascend-mixed-ff9c42612780330b.json": "047616162dcc246b5412c3c236c95bdd77be37e9c535c99fa717f75918e510a6",
+        "panels/auto-qwen-small-ascend-zh-0c5639a6e24f539b.json": "c117c5eb4d8147ce67f1e29843f5bf5e5e985e2b7015387c698c93e306ef0590",
+        "panels/auto-qwen-small-ascend-zh-4309bc70746a5c2c.json": "de0cc7afc64fdb8c3c7d5594d66d5d3bfe0d6d621275485d20a7f47620aff9b6",
+        "panels/auto-qwen-small-ascend-zh-6a23208e2c146088.json": "4b6703f1fb9065d9df1091923daf4b517b88e5cf3b710f25aa9ba53a35565118",
+        "panels/auto-qwen-small-ascend-zh-ed182ef57fba310b.json": "6e25470102dadcb2f54f776b240be693b9bec35b321156f9d84aac4b322bab5f",
+        "panels/auto-qwen-small-fleurs-0ebe0fb634f8e4ac.json": "f3cbb7c710592efd002311aa03712a76e25b623993f85a59fa82e46b6573a14f",
+        "panels/auto-qwen-small-fleurs-1bc3201a9f24a2fe.json": "d9c1646a0727b2a295430dd83e389407f19d36f2799e6e4ab73cfe634ced1635",
+        "panels/auto-qwen-small-fleurs-8e93e440f571a4da.json": "eba6a3d79542649de1f26230391f0410c8e49f3967e254eb019fd3b7824201e1",
+        "panels/auto-qwen-small-fleurs-914c948388ae30bd.json": "77a1a543c146d0d5574af1ca436962969465293a2c036f3ef095c476c310fd1f",
+        "panels/auto-qwen-small-fleurs-9eb2d543a0a36152.json": "31c1f29ee5b6769725518b4139b2f757a99c526d394a79c42a0fa0207bdd89d5",
+        "panels/auto-qwen-small-fleurs-e50b6b02d6d90ddc.json": "63b4f7e572d676d48ba729ead4ceffa1d20238392f22db1805cf15c8784077cd"
+      },
+      "differences": {}
+    },
+    "final2": {
+      "input_count": 19,
+      "exact_original_streams": 18,
+      "raw_SHA256": {
+        "continuous-cost/auto-qwen-small-continuous-public-5.json": "90fd46f1094fb655c7bbb140c33128d5daccc96b88e0107b7a71edd766477460",
+        "extended/auto-qwen-small-continuous-public-5.json": "7890e273a6da58f9571173c48ca63ce988f8821d16cd21af69deed85b3a11a03",
+        "extended/auto-qwen-small-fleurs-f8646a257c0c4273.json": "61b8d8425eeddfcf7b53f9b4f8eb5177fcaa63c88ed59f76d4a0c42bcb01a533",
+        "extended/auto-qwen-small-trailing-quiet-481280.json": "432b7073ac3d7db330a34c8f99c1382c5d627593150d5d05549cfd210819fbe6",
+        "panels/auto-qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "da480752c9d0559256a7783e0588a1ed8cea7f790abff43662e8025d3c274601",
+        "panels/auto-qwen-small-ascend-mixed-9255615fddf1a721.json": "5321815391c6ee7557768eba978c87d34a5fb69c879d1db585b376a0ec1fd4af",
+        "panels/auto-qwen-small-ascend-mixed-a0b0e736637c643c.json": "bcd6d7e328bf6fbc66d610ac7b79562f797721ae0451d783f3a1ec12e19e7d2e",
+        "panels/auto-qwen-small-ascend-mixed-ee4e2d5087648134.json": "f4c4ba9b2baa0bdd47f96a6076fc9d9df52cfe269d33468773cf1e1ce1a608fc",
+        "panels/auto-qwen-small-ascend-mixed-ff9c42612780330b.json": "e077f4376e9e6aa8bcbdeae0aa6404862798e7c00392a7a62800639a1c8ce900",
+        "panels/auto-qwen-small-ascend-zh-0c5639a6e24f539b.json": "d721123abce55dc3b77c4a87e34c872b46b3e0c5e6ead60aea1743a36a8e7c11",
+        "panels/auto-qwen-small-ascend-zh-4309bc70746a5c2c.json": "433de3c26fde3b6d40afef88b80aeac7b5b8bbb6b9763f8fe9bf3c172a875da4",
+        "panels/auto-qwen-small-ascend-zh-6a23208e2c146088.json": "a3c9c6961e6e6a72a1643af649f3a01ba32e684ae034e119c6901c0006bf7381",
+        "panels/auto-qwen-small-ascend-zh-ed182ef57fba310b.json": "7006b4839d3509f1b3e70ed3e572b2f3cd9fe04639bef273152b48dbedd02466",
+        "panels/auto-qwen-small-fleurs-0ebe0fb634f8e4ac.json": "aa8cdc1458ebe74fd7478ac72c3143cc473f50bddb7a3771d04ce5bad8168308",
+        "panels/auto-qwen-small-fleurs-1bc3201a9f24a2fe.json": "0ad4f3d062f722b1f465fccf2fb9037017e94edf8ec9f5a341e3de7289e359e1",
+        "panels/auto-qwen-small-fleurs-8e93e440f571a4da.json": "217cdcba039d72d6ebc72fde90adf700c01282f45a48be93fac3b6076f5cdb47",
+        "panels/auto-qwen-small-fleurs-914c948388ae30bd.json": "9d81bea4a8a814c3d3ea1269f812a0bafffa82543f5c2b5bb2b937dde6c521cc",
+        "panels/auto-qwen-small-fleurs-9eb2d543a0a36152.json": "e4b34197bdba55ae4b94be645c03f7f1700330c855ac9df72f5c8cef7c6e7b5a",
+        "panels/auto-qwen-small-fleurs-e50b6b02d6d90ddc.json": "d7b5f84b5a0aad5b78eb965a3ad83712610d9b813b76c818b81bac2a8efdc8de"
+      },
+      "differences": {
+        "extended/auto-qwen-small-continuous-public-5.json": {
+          "add": [
+            [
+              30.758,
+              "总能在这里听到游客和小摊贩的声音"
+            ]
+          ],
+          "remove": [],
+          "identical_finals": true
+        }
+      }
+    },
+    "targeted-459": {
+      "input_count": 1,
+      "exact_original_streams": 1,
+      "raw_SHA256": {
+        "auto-qwen-small-fleurs-f8646a257c0c4273.json": "0566d4ac16c72b7244b78d60f3c6571d23ce7d9a4f0c1d8954507a841d8bb398"
+      },
+      "differences": {}
+    },
+    "targeted-461": {
+      "input_count": 1,
+      "exact_original_streams": 0,
+      "raw_SHA256": {
+        "auto-qwen-small-fleurs-f8646a257c0c4273.json": "1fe606fe4187196dce0ee6fbf1bac4ea7a1d64dacaa2417c30959177816a1e35"
+      },
+      "differences": {
+        "auto-qwen-small-fleurs-f8646a257c0c4273.json": {
+          "add": [
+            [
+              16.276,
+              "雪的情况很相似。亚利桑那州奇甘镇"
+            ],
+            [
+              16.805,
+              "情况很相似。亚利桑那州奇甘镇，美"
+            ],
+            [
+              17.28,
+              "相似。亚利桑那州奇甘镇，美国地质"
+            ],
+            [
+              17.786,
+              "亚利桑那州奇甘镇，美国地质调查局"
+            ],
+            [
+              18.813,
+              "那州奇甘镇，美国地质调查局，US"
+            ],
+            [
+              19.332,
+              "奇甘镇，美国地质调查局，USGS"
+            ],
+            [
+              20.355,
+              "美国地质调查局（USGS），太空"
+            ],
+            [
+              20.829,
+              "质调查局，USGS，太空地质团队"
+            ],
+            [
+              21.361,
+              "局（USGS），太空地质团队和北"
+            ],
+            [
+              21.868,
+              "USGS），太空地质团队和北亚利"
+            ],
+            [
+              22.398,
+              "），太空地质团队和北亚利桑那大学"
+            ],
+            [
+              22.934,
+              "太空地质团队和北亚利桑纳大学的格"
+            ],
+            [
+              23.407,
+              "团队和北亚利桑纳大学的格伦·库欣"
+            ],
+            [
+              23.929,
+              "和北亚利桑纳大学的格伦·库欣说道"
+            ],
+            [
+              24.439,
+              "和北亚利桑纳大学的格伦·库欣说道"
+            ],
+            [
+              24.963,
+              "和北亚利桑纳大学的格伦·库欣说道"
+            ]
+          ],
+          "remove": [],
+          "identical_finals": true
+        }
+      }
+    },
+    "historical442": {
+      "input_count": 18,
+      "exact_original_streams": 18,
+      "raw_SHA256": {
+        "extended/auto-qwen-small-continuous-public-5.json": "8b2b24bd476f3f0d132390e20a79bf575a0533ac1db8e02738368fb40681673e",
+        "extended/auto-qwen-small-fleurs-f8646a257c0c4273.json": "ffc7e98ec6925f8dece00fa03fdec37e7e27fa3b8af293c26fea5ca544f3d6a4",
+        "extended/auto-qwen-small-trailing-quiet-481280.json": "06cf318830f715cc90a8f01b6637f4aae2c84428e10b098cd8f657191ec7dd33",
+        "panels/auto-qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "9f7d3036be99839d51a43d789c007e2098137072b1aed01b9ada1544ce345a8e",
+        "panels/auto-qwen-small-ascend-mixed-9255615fddf1a721.json": "0dcefea59bc9f06c83c9b0b1395194782081263b9dbc008853a006eb165ff172",
+        "panels/auto-qwen-small-ascend-mixed-a0b0e736637c643c.json": "6f63ab4ace3f20b4b7bf59a91e507ac8f6ac24e84e5d2499d520949e598d0ec7",
+        "panels/auto-qwen-small-ascend-mixed-ee4e2d5087648134.json": "2dcb9ccdcbe400362bb2a27e8f875539b018a45e277ec300deb8f1b4b3caa26e",
+        "panels/auto-qwen-small-ascend-mixed-ff9c42612780330b.json": "eb9ff51946756ac999aa3191816028e088f693a55a49e10c7e813b99a5295b89",
+        "panels/auto-qwen-small-ascend-zh-0c5639a6e24f539b.json": "e1f7fa54681e12166624a59eb7eb21b6f90026db0de0834dd789702ffbf0808e",
+        "panels/auto-qwen-small-ascend-zh-4309bc70746a5c2c.json": "d98154eae8369c55b222180cf520cc3c003502958e0df50eb3774f9e690fae1e",
+        "panels/auto-qwen-small-ascend-zh-6a23208e2c146088.json": "570abd6a20f5bba8f8c6d5593643f9904575e00eeb71402a9fac2841b4fa4fc0",
+        "panels/auto-qwen-small-ascend-zh-ed182ef57fba310b.json": "4fed73ad2a22154d0a448a981fabbd6124fcfb5c7c897487677abe778cee41f9",
+        "panels/auto-qwen-small-fleurs-0ebe0fb634f8e4ac.json": "4c607d4b3c622d4d300a849dbd3aa0e333134e85136e50b999585322c171c0af",
+        "panels/auto-qwen-small-fleurs-1bc3201a9f24a2fe.json": "68a1efa57c8faf6f8f44cad91ee25b63ea155931c4477257a88b870ae7218c34",
+        "panels/auto-qwen-small-fleurs-8e93e440f571a4da.json": "9980d17e50f0db9a80e3a14cf534812a5f89b10d36e4968cb58350f34ef5d978",
+        "panels/auto-qwen-small-fleurs-914c948388ae30bd.json": "f61704fa01798d1e7eed21ee00d99e6500ea54ca545ffa58b1aef16a88952c7b",
+        "panels/auto-qwen-small-fleurs-9eb2d543a0a36152.json": "b13f79a1bde95b1d35de5a0bd35ba8386521c9c3efb7012a824d535c20090a35",
+        "panels/auto-qwen-small-fleurs-e50b6b02d6d90ddc.json": "025a821e21af9d0375ea5b86d5c9461d147ddbf960c203e864d89e5e5780cfd1"
+      },
+      "differences": {}
+    }
+  }
+}

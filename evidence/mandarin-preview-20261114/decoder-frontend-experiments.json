@@ -1,0 +1,75 @@
+{
+  "scope": "Isolated Apple M5 component experiments. Offline, licensed public files only. No production microphone, install or archive. Neither alternative is in the shipping worker.",
+  "scalar_groups": {
+    "protocol": "One testing helper, current audio only, upstream greedy vs chains of four unchanged scalar [1,1] greedy GPU steps, host synchronizes the chain; EOS always uses the original algorithm. Each arm starts a fresh helper. Wall time covers inferences and pipe delivery after the ready signal. Process CPU includes startup and exit.",
+    "decision": "Rejected; 31 of 31 outputs matched token for token but both clips took longer with grouped synchronization.",
+    "fixtures": [
+      {
+        "id": "continuous-public-5",
+        "seconds": 30.0,
+        "exact_outputs": 17,
+        "outputs": 17,
+        "sha256_audio": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+        "sha256_helper": "9b10ee2856491be4b93fee4287afdde1949d3bb84553677caaa90e3c5fdcf952",
+        "sha256_observation": "801354155a12f0563b81f377462786eb8b50cf1c4eb06208be50de29e0920656",
+        "worker_wall_s": [
+          6.350135375047103,
+          7.224392582895234
+        ],
+        "worker_cpu_s": [
+          4.87917,
+          5.22096
+        ],
+        "control_then_trial": false
+      },
+      {
+        "id": "ascend-mixed-a0b0e736637c643c",
+        "seconds": 7.0,
+        "exact_outputs": 14,
+        "outputs": 14,
+        "sha256_audio": "c96f2ee1f508089189a0c55df4aa9fa8ff7e0e1d100114193cfcfe249b2ffe18",
+        "sha256_helper": "9b10ee2856491be4b93fee4287afdde1949d3bb84553677caaa90e3c5fdcf952",
+        "sha256_observation": "ba34fa25f7f143f014ca08e33f29567469a9cc7a3ded8d3ef5e07fa5434af312",
+        "worker_wall_s": [
+          1.4393172089476138,
+          1.4939385841134936
+        ],
+        "worker_cpu_s": [
+          2.050471,
+          1.7378209999999998
+        ],
+        "control_then_trial": true
+      }
+    ]
+  },
+  "magnitude_cache": {
+    "fft_loop_cpu_s_cached": [
+      0.00189,
+      0.001383,
+      0.001455,
+      0.001336
+    ],
+    "fft_loop_cpu_s_original": [
+      0.038517,
+      0.031199,
+      0.034083,
+      0.030176
+    ],
+    "identical_float32_arrays": 292,
+    "max_cache_bytes": 3033628,
+    "total_frontend_cpu_s_cached": [
+      0.031164,
+      0.024328,
+      0.024468,
+      0.022627
+    ],
+    "total_frontend_cpu_s_original": [
+      0.072117,
+      0.055066,
+      0.058109,
+      0.052039
+    ],
+    "protocol": "Four alternating-order, CPU-only comparisons across the 73 actual packet-prefix lengths from the 442 continuous cost replay. Both paths use the pinned Accelerate production Swift STFT/mel math up to the Float32 array passed into MLX. Each append-only segment caches only full FFT magnitude rows with no reflected right input (200-sample context). Subsequent filterbank, full maximum/clamp and normalization always recomputed. CPU benchmark reuses prefixes of the same verified continuous WAV for both groups; this is not a full VAD/model run.",
+    "decision": "Rejected. Cumulative median CPU improvement of 0.0322 s per 73 previews versus 15.69 s total baseline helper CPU, roughly 0.2%, for up to 3,033,628 bytes of cached magnitudes."
+  }
+}

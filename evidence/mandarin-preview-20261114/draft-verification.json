@@ -1,0 +1,226 @@
+{
+  "scope": "Independent diagnostic on M5, fixed PCM prefixes from 30 s of the existing continuous-public-5 public WAV. Includes complete EOS. Not real-time UX, microphone, or a production build.",
+  "protocol": "In one experimental binary, sequential control then trial in separate fresh workers. Both release scratch on each decode and perform full original EOS. The trial feeds up to 16 previous token IDs to the current audio's causal model; only matching current argmaxes are retained, with rejected KV suffixes discarded. No audio KV reused. Timings cover actual model calls/output and exclude startup. No changes applied to either shipping app or candidate.",
+  "source_worker_base": "00694d9",
+  "experimental_worker_sha256": "dcdae7e06e3cb1c32bc4dd09684e1b7bc6a4a646d7ce6d8f95f23129d7bc3110",
+  "input_id": "continuous-public-5",
+  "public_input_file_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+  "input_seconds": 30.0,
+  "stride_seconds": 2,
+  "source_patch_sha256": "06a3542fba17e73579df4828d651be64a4c8b4226d0cca50a12c8f7c2521d5a6",
+  "helper_protocol_sha256": "6d0e095ea49ef204b5fef2b1314493793c877ae77775ec39f658f5b52dda3514",
+  "raw_receipt_sha256": "7b880154f52cf8415c6e37558f5f90d667cce052d0370bc48602f07557d9c695",
+  "candidate_seconds": 5.738824083935469,
+  "control_seconds": 12.546213999856263,
+  "exact_token_outputs": 14,
+  "outputs": 17,
+  "outcome": "REJECTED: independent token sequences diverged on 3 preview inputs",
+  "rows": [
+    {
+      "frames": 12800,
+      "final": false,
+      "direct_s": 2.7514,
+      "draft_s": 0.1064,
+      "greedy_tokens": 6,
+      "draft_tokens": 6,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 44800,
+      "final": false,
+      "direct_s": 0.089,
+      "draft_s": 0.2176,
+      "greedy_tokens": 12,
+      "draft_tokens": 12,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 76800,
+      "final": false,
+      "direct_s": 0.2078,
+      "draft_s": 0.1189,
+      "greedy_tokens": 20,
+      "draft_tokens": 20,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 108800,
+      "final": false,
+      "direct_s": 0.1511,
+      "draft_s": 0.1173,
+      "greedy_tokens": 25,
+      "draft_tokens": 25,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 140800,
+      "final": false,
+      "direct_s": 0.1901,
+      "draft_s": 0.1357,
+      "greedy_tokens": 31,
+      "draft_tokens": 31,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 172800,
+      "final": false,
+      "direct_s": 0.2839,
+      "draft_s": 0.1621,
+      "greedy_tokens": 38,
+      "draft_tokens": 38,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 204800,
+      "final": false,
+      "direct_s": 0.2655,
+      "draft_s": 0.2889,
+      "greedy_tokens": 44,
+      "draft_tokens": 44,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 236800,
+      "final": false,
+      "direct_s": 0.3377,
+      "draft_s": 0.2697,
+      "greedy_tokens": 50,
+      "draft_tokens": 50,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 268800,
+      "final": false,
+      "direct_s": 0.4378,
+      "draft_s": 0.2767,
+      "greedy_tokens": 54,
+      "draft_tokens": 54,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 300800,
+      "final": false,
+      "direct_s": 0.6503,
+      "draft_s": 0.333,
+      "greedy_tokens": 59,
+      "draft_tokens": 60,
+      "same_tokens": false,
+      "first_unequal_token": 53,
+      "changed_text": [
+        {
+          "before": "视",
+          "after": "是"
+        }
+      ]
+    },
+    {
+      "frames": 332800,
+      "final": false,
+      "direct_s": 0.9888,
+      "draft_s": 0.3985,
+      "greedy_tokens": 66,
+      "draft_tokens": 66,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 364800,
+      "final": false,
+      "direct_s": 0.6674,
+      "draft_s": 0.3163,
+      "greedy_tokens": 71,
+      "draft_tokens": 71,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 396800,
+      "final": false,
+      "direct_s": 0.8995,
+      "draft_s": 0.4099,
+      "greedy_tokens": 81,
+      "draft_tokens": 81,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 428800,
+      "final": false,
+      "direct_s": 1.1699,
+      "draft_s": 0.3355,
+      "greedy_tokens": 91,
+      "draft_tokens": 91,
+      "same_tokens": false,
+      "first_unequal_token": 48,
+      "changed_text": [
+        {
+          "before": "力士",
+          "after": "理石"
+        }
+      ]
+    },
+    {
+      "frames": 460800,
+      "final": false,
+      "direct_s": 1.2679,
+      "draft_s": 0.53,
+      "greedy_tokens": 98,
+      "draft_tokens": 98,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    },
+    {
+      "frames": 480000,
+      "final": false,
+      "direct_s": 1.1208,
+      "draft_s": 0.6926,
+      "greedy_tokens": 101,
+      "draft_tokens": 101,
+      "same_tokens": false,
+      "first_unequal_token": 57,
+      "changed_text": [
+        {
+          "before": "，",
+          "after": "——"
+        },
+        {
+          "before": "，",
+          "after": "。"
+        }
+      ]
+    },
+    {
+      "frames": 480000,
+      "final": true,
+      "direct_s": 1.0666,
+      "draft_s": 1.0289,
+      "greedy_tokens": 101,
+      "draft_tokens": 101,
+      "same_tokens": true,
+      "first_unequal_token": null,
+      "changed_text": []
+    }
+  ]
+}

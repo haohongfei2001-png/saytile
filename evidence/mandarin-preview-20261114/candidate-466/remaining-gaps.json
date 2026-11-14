@@ -1,0 +1,92 @@
+[
+  {
+    "id": "trailing-quiet-481280",
+    "sha256": "44f64214de1cdd8e71b16ce87d29376065c7f35520a8533e87f019c72defe7af",
+    "window_longest_s": 1.893,
+    "timeline": {
+      "count": 45,
+      "first_s": 0.759,
+      "gap_s": {
+        "p50": 0.525,
+        "p95": 1.058
+      },
+      "longest_s": 2.008,
+      "longest_start_end_s": [
+        24.464,
+        26.473
+      ],
+      "longest_position": "interior",
+      "longest_input_above_minus55_fraction": 0.693,
+      "raw_outputs_inside_longest": 3,
+      "timeline_outputs_inside_longest": 1,
+      "above_two_seconds": 1
+    },
+    "worker": {
+      "count": 46,
+      "first_s": 0.755,
+      "gap_s": {
+        "p50": 0.526,
+        "p95": 1.058
+      },
+      "longest_s": 1.326,
+      "longest_start_end_s": [
+        24.46,
+        25.786
+      ],
+      "longest_position": "interior",
+      "longest_input_above_minus55_fraction": 0.727,
+      "raw_outputs_inside_longest": 1,
+      "timeline_outputs_inside_longest": 2,
+      "above_two_seconds": 0
+    },
+    "candidate_sequence_inside_gap": [
+      {
+        "t": 24.46,
+        "frames": 369600,
+        "kind": "partial",
+        "edits": []
+      },
+      {
+        "t": 25.121,
+        "frames": 380800,
+        "kind": "partial",
+        "edits": [
+          {
+            "action": "replace",
+            "was": "，",
+            "now": "——"
+          }
+        ]
+      },
+      {
+        "t": 25.786,
+        "frames": 392000,
+        "kind": "partial",
+        "edits": [
+          {
+            "action": "replace",
+            "was": "视力",
+            "now": "这里"
+          },
+          {
+            "action": "insert",
+            "was": "",
+            "now": "这里有各式各样。"
+          }
+        ]
+      },
+      {
+        "t": 26.467,
+        "frames": 401600,
+        "kind": "partial",
+        "edits": [
+          {
+            "action": "insert",
+            "was": "",
+            "now": "的花岗"
+          }
+        ]
+      }
+    ]
+  }
+]

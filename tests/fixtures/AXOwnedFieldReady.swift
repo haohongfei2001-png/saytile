@@ -5,16 +5,18 @@ import AppKit
 /// identity three times. The production observer remains attached through the
 /// quiet period and the subsequent test edit.
 @MainActor func bindOwnedField(_ input: NativeInputCoordinator, trace: FixtureAccessTrace,
-                               original: String, caret: Int, pid: Int32,
+                               original: String, caret: Int, pid: Int32, expectingWeb: Bool,
                                documentReady: (InputTargetSnapshot) -> Bool = { _ in true }) async throws {
     let access = trace.base
     let clock = ContinuousClock(), deadline = clock.now.advanced(by: .seconds(5))
     func ready(_ current: InputTargetSnapshot) -> Bool {
-        current.processID == pid && current.isEditable && !current.isSensitive && current.canSetSelectedText &&
+        current.processID == pid && current.isWeb == expectingWeb && current.isEditable && !current.isSensitive && current.canSetSelectedText &&
         current.selectionLocation == caret && current.selectionLength == 0 && documentReady(current) &&
         (!current.isWeb || (current.pageContextComplete && current.pageIdentity != nil)) &&
         access.textWitness(at: current) == original
     }
+    // WKWebView can temporarily expose an editable AX object before its web area
+    // is readable. Only the known editor kind may start this three-read interval.
     var first: InputTargetSnapshot?
     var consecutive = 0
     while clock.now < deadline {

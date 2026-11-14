@@ -1,0 +1,77 @@
+{
+  "source": "ff8f8a014bd6b554a5703971a1139d94da155a6c",
+  "wav_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+  "timeline_gap": 2.171,
+  "window_gap": 2.196,
+  "observations": [
+    {
+      "time": 29.098,
+      "kind": "partial",
+      "changes": [
+        {
+          "prior": "理石",
+          "current": "力士"
+        },
+        {
+          "prior": "有",
+          "current": "游客和小"
+        }
+      ]
+    },
+    {
+      "time": 29.788,
+      "kind": "partial",
+      "changes": [
+        {
+          "prior": "力士",
+          "current": "理石"
+        },
+        {
+          "prior": "——",
+          "current": "，"
+        },
+        {
+          "prior": "。",
+          "current": "，"
+        },
+        {
+          "prior": "",
+          "current": "摊贩的声音"
+        }
+      ]
+    },
+    {
+      "time": 30.494,
+      "kind": "partial",
+      "changes": [
+        {
+          "prior": "，",
+          "current": "——"
+        },
+        {
+          "prior": "，",
+          "current": "。"
+        }
+      ]
+    },
+    {
+      "time": 31.262,
+      "kind": "final",
+      "changes": [
+        {
+          "prior": "——",
+          "current": "，"
+        },
+        {
+          "prior": "。",
+          "current": "，"
+        },
+        {
+          "prior": "",
+          "current": "，声光"
+        }
+      ]
+    }
+  ],
+  "finding": "At 29.788 the earlier 力士 changed to an unsupported 理石 (the public reference says 力士) while new words appeared. At 30.494 the clause punctuation changed again without lexical growth. Finalization at 31.262 accepted the complete model result. Releasing the first revision would visibly change a correct word into an error. This case still exceeds two seconds."
+}

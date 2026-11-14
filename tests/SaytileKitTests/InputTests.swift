@@ -43,7 +43,11 @@ private final class FakeInputAccess: InputAccess {
     var target = sampleTarget()
     var attempts: [String] = []
     var fieldWitness: String?
-    func textWitness(at expected: InputTargetSnapshot) -> String? { expected == target ? fieldWitness : nil }
+    var onWitness: (() -> Void)?
+    func textWitness(at expected: InputTargetSnapshot) -> String? {
+        onWitness?()
+        return expected == target ? fieldWitness : nil
+    }
     var confirms = true
     var timesOutAfterTextWrite = false
     var throwsAfterAttempt = false
@@ -52,8 +56,8 @@ private final class FakeInputAccess: InputAccess {
     var afterDispatch: (@MainActor () -> Void)?
     var observedSupport = InputObservationSupport(focus: true, content: true, page: true)
     var onChange: (@MainActor (InputTargetChange) -> Void)?
-    var onSnapshot: (@MainActor () -> Void)?
-    func snapshot() throws -> InputTargetSnapshot { onSnapshot?(); return target }
+    var onSnapshot: (@MainActor () throws -> Void)?
+    func snapshot() throws -> InputTargetSnapshot { try onSnapshot?(); return target }
     func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool? { localTextMatches }
     func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport { self.onChange = onChange; return observedSupport }
     func stopObserving() { onChange = nil }
@@ -75,6 +79,80 @@ private final class FakeInputAccess: InputAccess {
 @Suite("Input coordinator with isolated SQLite and simulated OS")
 @MainActor
 struct InputCoordinatorTests {
+    @Test(arguments: ["restored", "persistent", "late-focus", "observed-edit", "bad-caret", "field-changed"])
+    func uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_ scenario: String) async throws {
+        let directory = testDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true
+        access.target.selectionLocation = 2
+        access.fieldWitness = "abz"
+        let input = NativeInputCoordinator(store: store, access: access)
+        try await input.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+        var readsAfterWrite = 0
+        access.afterDispatch = {
+            access.fieldWitness = "ab你好😀z"
+            access.onChange?(.contentOrSelection)
+            access.onSnapshot = {
+                readsAfterWrite += 1
+                if readsAfterWrite == 1 || scenario == "persistent" { throw NativeInputError.unsupported }
+                if readsAfterWrite == 2 {
+                    switch scenario {
+                    case "late-focus": access.onChange?(.focusOrDocument)
+                    case "observed-edit": access.onChange?(.contentOrSelection)
+                    case "bad-caret": access.target.selectionLength = 1
+                    case "field-changed": access.fieldWitness = "cb你好😀z"
+                    default: break
+                    }
+                }
+            }
+        }
+        let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
+                                               stableUTF16End: 4, recordingStartedAt: record.createdAt)
+        #expect(result == (scenario == "restored" ? .confirmed : .unverified))
+        #expect((input.binding != nil) == (scenario == "restored"))
+        if scenario == "restored" { #expect(readsAfterWrite >= 3) }
+        #expect(access.attempts == ["你好😀"])
+    }
+
+    @Test(arguments: ["restored", "unreadable", "new-event", "changed-window", "changed-page", "changed-caret", "changed-field", "missing-before"])
+    func webInsertionNotificationWithMissingFieldNeverRetriesTheWrite(_ scenario: String) async throws {
+        let directory = testDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true
+        access.target.selectionLocation = 2
+        access.fieldWitness = scenario == "missing-before" ? nil : "abz"
+        let input = NativeInputCoordinator(store: store, access: access)
+        try await input.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+        var completeReads = 0
+        access.afterDispatch = {
+            access.fieldWitness = nil // Chrome exposes the expected caret before the whole AX field.
+            access.onChange?(.contentOrSelection)
+            access.fieldWitness = scenario == "unreadable" ? nil : "ab你好😀z"
+            access.onWitness = { if access.fieldWitness != nil { completeReads += 1 } }
+            switch scenario {
+            case "new-event": access.onChange?(.contentOrSelection)
+            case "changed-window": access.target.windowID = UUID()
+            case "changed-page": access.target.pageIdentity = "another page"
+            case "changed-caret": access.target.selectionLocation -= 1
+            case "changed-field": access.fieldWitness = "Ab你好😀z"
+            default: break
+            }
+        }
+        let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
+                                               stableUTF16End: 4, recordingStartedAt: record.createdAt)
+        access.onWitness = nil
+        #expect(result == (scenario == "missing-before" ? .cancelled : scenario == "restored" ? .confirmed : .unverified))
+        #expect((input.binding != nil) == (scenario == "restored"))
+        if scenario == "restored" { #expect(completeReads >= 3) } // Initial detection and two complete settled witnesses.
+        #expect(access.attempts == (scenario == "missing-before" ? [] : ["你好😀"]))
+    }
+
     @Test func teststableSuffixOnlyOnce() async throws {
         let directory = testDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
