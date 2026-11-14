@@ -45,15 +45,17 @@ struct ReferencePanelSurface: View {
     var showsStroke = true
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.isOverFullscreen) private var isOverFullscreen
+    @Environment(\.voicePanelAppearance) private var appearance
     private var shape: RoundedRectangle { RoundedRectangle(cornerRadius: radius, style: .continuous) }
     public var body: some View {
+        let material = appearance.opacity.material(fullscreen: isOverFullscreen, reduceTransparency: reduceTransparency)
         ZStack {
-            // Behind-window AppKit material supplies the blur. A neutral,
-            // translucent white wash supplies legibility without painting a
-            // fixed blue/purple background over the user's desktop.
+            // Behind-window AppKit material supplies the blur. The original
+            // neutral white wash remains the default; optional colors tint
+            // only the surface, never a fixed desktop backdrop.
             ReferenceGlassBackdrop()
-                .opacity(reduceTransparency ? 1 : isOverFullscreen ? 0.85 : 0.10)
-            shape.fill(.white.opacity(reduceTransparency ? 1 : isOverFullscreen ? 0.64 : 0.42))
+                .opacity(material.cardBlur)
+            shape.fill(appearance.panelColor.color.opacity(material.cardWash))
                 .overlay {
                     shape.fill(LinearGradient(stops: [
                         .init(color: .white.opacity(0.23), location: 0),
@@ -79,17 +81,19 @@ struct ReferencePanelSurface: View {
 /// The raised small buttons use a clear highlight, inner tint and two restrained
 /// shadows. No macOS default bezel, resize grip or extra state label is added.
 public struct ReferenceControlSurface: View {
+    @Environment(\.voicePanelAppearance) private var appearance
     var copy = false
     var scale: CGFloat = 1
     public init(copy: Bool = false, scale: CGFloat = 1) { self.copy = copy; self.scale = scale }
     private var radius: CGFloat { (copy ? 13 : ReferencePanelStyle.controlHeight / 2) * scale }
     public var body: some View {
         let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
-        // Both controls are neutral translucent white glass, not tinted
-        // lavender buttons. Only the voice glyph and live caret carry violet.
+        // Original controls retain neutral white glass and the existing
+        // gray copy mark. Other accents use a restrained matching wash.
+        let fill = appearance.buttonColor.controlFill
         shape.fill(LinearGradient(colors: copy
-            ? [.white.opacity(0.65), .white.opacity(0.36)]
-            : [.white.opacity(0.58), .white.opacity(0.29)],
+            ? [fill.opacity(0.65), fill.opacity(0.36)]
+            : [fill.opacity(0.58), fill.opacity(0.29)],
             startPoint: .top, endPoint: .bottom))
             .overlay {
                 shape.strokeBorder(
@@ -265,13 +269,15 @@ public struct VoiceRailGlass: View {
     public let width: CGFloat
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.isOverFullscreen) private var isOverFullscreen
+    @Environment(\.voicePanelAppearance) private var appearance
     public init(width: CGFloat) { self.width = width }
 
     public var body: some View {
         let shape = RoundedRectangle(cornerRadius: VoiceRailMetrics(width: width).radius, style: .continuous)
+        let material = appearance.opacity.material(fullscreen: isOverFullscreen, reduceTransparency: reduceTransparency)
         ZStack {
-            ReferenceGlassBackdrop().opacity(reduceTransparency ? 1 : isOverFullscreen ? 0.80 : 0.12)
-            shape.fill(.white.opacity(reduceTransparency ? 0.94 : isOverFullscreen ? 0.50 : 0.27))
+            ReferenceGlassBackdrop().opacity(material.railBlur)
+            shape.fill(appearance.panelColor.color.opacity(material.railWash))
             shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.64), .white.opacity(0.32)],
                                               startPoint: .top, endPoint: .bottom), lineWidth: 0.7)
         }

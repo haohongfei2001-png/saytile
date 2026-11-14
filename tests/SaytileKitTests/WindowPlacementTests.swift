@@ -59,6 +59,64 @@ struct WindowPlacementTests {
         #expect(display.contains(frame))
     }
 
+    @Test func standardSizePresetKeepsTheExistingFactoryGeometry() {
+        for display in [CGRect(x: 0, y: 25, width: 1280, height: 650),
+                        CGRect(x: -1920, y: 180, width: 1920, height: 1040),
+                        CGRect(x: 0, y: -2000, width: 3024, height: 1920),
+                        CGRect(x: -5, y: 8, width: 10, height: 8)] {
+            let width = min(display.width, max(20, display.width * 0.125))
+            let oldSize = WindowPlacement.panelSize(CGSize(width: width,
+                height: min(display.height * 0.225, width * 173 / 325)), visibleFrame: display)
+            let oldFrame = CGRect(x: display.maxX - oldSize.width, y: display.maxY - oldSize.height,
+                                  width: oldSize.width, height: oldSize.height)
+            #expect(WindowPlacement.initialPanel(visibleFrame: display) == oldFrame)
+            #expect(WindowPlacement.initialPanel(visibleFrame: display, preset: .standard) == oldFrame)
+        }
+    }
+
+    @Test func sizePresetScalesBothAxesWithoutChangingTheUpperRightAnchor() {
+        let display = CGRect(x: -1920, y: -300, width: 1920, height: 1040)
+        let standard = WindowPlacement.initialPanel(visibleFrame: display)
+        let moved = CGRect(x: -1100, y: 110, width: 380, height: 290)
+        for (preset, scale): (PanelSizePreset, CGFloat) in [(.compact, 0.85), (.standard, 1), (.spacious, 1.35)] {
+            let initial = WindowPlacement.initialPanel(visibleFrame: display, preset: preset)
+            #expect(initial.size == CGSize(width: standard.width * scale, height: standard.height * scale))
+            #expect(initial.maxX == display.maxX)
+            #expect(abs(initial.maxY - display.maxY) < 0.000_001)
+            let resized = WindowPlacement.resizedPanel(moved, preset: preset, visibleFrame: display)
+            #expect(resized.size == initial.size)
+            #expect(resized.maxX == moved.maxX)
+            #expect(abs(resized.maxY - moved.maxY) < 0.000_001)
+            #expect(display.contains(resized))
+        }
+    }
+
+    @Test func sizePresetsClampToTheCurrentDisplayEvenAfterAnOffscreenMove() {
+        for display in [CGRect(x: -800, y: -400, width: 800, height: 1280),
+                        CGRect(x: 0, y: 25, width: 1280, height: 650),
+                        CGRect(x: -300, y: -180, width: 220, height: 180),
+                        CGRect(x: -5, y: 8, width: 10, height: 8)] {
+            for preset in PanelSizePreset.allCases {
+                let initial = WindowPlacement.initialPanel(visibleFrame: display, preset: preset)
+                #expect(display.contains(initial))
+                let limits = WindowPlacement.panelLimits(visibleFrame: display)
+                #expect(initial.width >= limits.minimum.width && initial.height >= limits.minimum.height)
+                let moved = CGRect(x: 8000, y: -9000, width: 5000, height: 4000)
+                let resized = WindowPlacement.resizedPanel(moved, preset: preset, visibleFrame: display)
+                #expect(resized.size == initial.size)
+                #expect(display.contains(resized))
+                #expect(resized.maxX == display.maxX && resized.minY == display.minY)
+            }
+        }
+    }
+
+    @Test func sizePresetCodableIdentityIsStable() throws {
+        #expect(PanelSizePreset.allCases.map(\.rawValue) == ["compact", "standard", "spacious"])
+        for preset in PanelSizePreset.allCases {
+            #expect(try JSONDecoder().decode(PanelSizePreset.self, from: JSONEncoder().encode(preset)) == preset)
+        }
+    }
+
     @Test func panelCanShrinkOrGrowAcrossAvailableScreen() {
         let display = CGRect(x: 0, y: 25, width: 1920, height: 850)
         let limits = WindowPlacement.panelLimits(visibleFrame: display)

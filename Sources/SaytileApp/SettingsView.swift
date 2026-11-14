@@ -1,15 +1,16 @@
 import AppKit
 import SwiftUI
 import SaytileKit
+import SaytileVoiceUI
 
 enum SettingsPage: String, CaseIterable, Identifiable {
-    case archive, speech, models, cloud, input, storage, about
+    case archive, appearance, speech, models, cloud, input, storage, about
     var id: Self { self }
     var title: String { switch self {
-    case .archive: "语音档案"; case .speech: "麦克风"; case .models: "本地模型"; case .cloud: "云端服务"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .about: "关于"
+    case .archive: "语音档案"; case .appearance: "语音板外观"; case .speech: "麦克风"; case .models: "本地模型"; case .cloud: "云端服务"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .about: "关于"
     } }
     var symbol: String { switch self {
-    case .archive: "tray.full"; case .speech: "mic"; case .models: "cpu"; case .cloud: "cloud"; case .input: "keyboard"; case .storage: "internaldrive"; case .about: "info.circle"
+    case .archive: "tray.full"; case .appearance: "rectangle.on.rectangle"; case .speech: "mic"; case .models: "cpu"; case .cloud: "cloud"; case .input: "keyboard"; case .storage: "internaldrive"; case .about: "info.circle"
     } }
 }
 
@@ -92,12 +93,45 @@ struct SettingsView: View {
     @ViewBuilder private var settingsContent: some View {
         switch page {
         case .archive: EmptyView()
+        case .appearance: appearance
         case .speech: speech.onAppear { model.audio.refreshDevices() }
         case .models: LocalModelSettings(model: model)
         case .cloud: cloud
         case .input: input
         case .storage: storage
         case .about: about
+        }
+    }
+    @ViewBuilder private var appearance: some View {
+        Section("玻璃与颜色") {
+            Picker("面板颜色", selection: $model.panelAppearance.panelColor) {
+                ForEach(PanelColorPreset.allCases, id: \.self) { Text($0.title).tag($0) }
+            }.pickerStyle(.menu).accessibilityIdentifier("settings.panelColor")
+            Picker("按钮颜色", selection: $model.panelAppearance.buttonColor) {
+                ForEach(PanelButtonColorPreset.allCases, id: \.self) { Text($0.title).tag($0) }
+            }.pickerStyle(.menu).accessibilityIdentifier("settings.buttonColor")
+            Picker("透明度", selection: $model.panelAppearance.opacity) {
+                ForEach(PanelOpacityPreset.allCases, id: \.self) { Text($0.title).tag($0) }
+            }.pickerStyle(.menu).accessibilityIdentifier("settings.panelOpacity")
+            Text("通透保留当前的玻璃效果；柔雾、浓雾和不透明依次增加遮挡。全屏时仍会适当加强遮挡。")
+                .font(.callout).foregroundStyle(.secondary)
+            Toggle("显示边框", isOn: $model.panelBorderVisible).accessibilityIdentifier("settings.panelBorder")
+        }
+        Section("文字与大小") {
+            Picker("字号", selection: $model.panelAppearance.textSize) {
+                ForEach(PanelTextSizePreset.allCases, id: \.self) { Text($0.title).tag($0) }
+            }.pickerStyle(.menu).accessibilityIdentifier("settings.panelTextSize")
+            Picker("默认大小", selection: $model.panelSizePreset) {
+                ForEach(PanelSizePreset.allCases, id: \.self) { Text($0.title).tag($0) }
+            }.pickerStyle(.menu).accessibilityIdentifier("settings.panelSize")
+            Button("恢复所选大小", action: model.applyPanelSizePreset)
+                .accessibilityIdentifier("settings.applyPanelSize")
+            Text("选择后立即应用。也可以继续拖动边缘调整，字号和按钮大小保持不变。")
+                .font(.callout).foregroundStyle(.secondary)
+        }
+        Section {
+            Button("恢复默认外观", action: model.resetPanelAppearance)
+                .accessibilityIdentifier("settings.resetAppearance")
         }
     }
     @ViewBuilder private var speech: some View {
@@ -161,7 +195,6 @@ struct SettingsView: View {
                 Text(status).font(.callout).foregroundStyle(.secondary).textSelection(.enabled)
                     .accessibilityIdentifier("settings.panelArrangementStatus")
             }
-            Toggle("显示边框", isOn: $model.panelBorderVisible).accessibilityIdentifier("settings.panelBorder")
             Picker("时间标记间隔", selection: Binding(get: { model.timelineIdleSeconds }, set: { model.changeIdleInterval($0) })) {
                 let minutes = [1, 2, 5, 10, 30, 60]
                 if !minutes.contains(where: { $0 * 60 == model.timelineIdleSeconds }) {

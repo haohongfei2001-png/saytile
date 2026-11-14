@@ -17,6 +17,7 @@ struct CompactTranscriptView<Entry: VoiceTranscriptEntry>: NSViewRepresentable {
     var onEdit: (@MainActor () -> Void)? = nil
     var showsLiveCaret = false
     var typeScale: CGFloat = 1
+    var caretColor = NSColor(srgbRed: 0.55, green: 0.23, blue: 0.98, alpha: 1)
     var compact = false
 
     func makeNSView(context: Context) -> CompactTranscriptScrollView<Entry> {
@@ -34,6 +35,7 @@ struct CompactTranscriptView<Entry: VoiceTranscriptEntry>: NSViewRepresentable {
         view.onPage = onPage
         view.editing = editing
         view.setControlOnly(compact)
+        view.transcriptView.liveCaretColor = caretColor
         view.applyTypeScale(typeScale)
         view.updateDocument(document)
         view.focus(on: focusPosition)
@@ -121,6 +123,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         transcriptView.typingAttributes = attributes
         transcriptView.compositionFinished = { [weak self] in
             self?.finishUserInput()
+            self?.applyPendingTypeScale()
             self?.releaseConcealedEditor()
         }
         transcriptView.willAcceptEditingFocus = { [weak self] in self?.settleLivePresentation() }
@@ -456,8 +459,28 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     }
 
     private var typeScale: CGFloat = 1
+    private var requestedTypeScale: CGFloat?
     func applyTypeScale(_ scale: CGFloat) {
-        guard typeScale != scale, !transcriptView.hasMarkedText() else { return }
+        guard scale.isFinite, scale > 0 else { return }
+        requestedTypeScale = scale
+        applyPendingTypeScale()
+    }
+
+    private func applyPendingTypeScale() {
+        // A settings change must not strip marked-text attributes or commit an
+        // unfinished IME session. Remember the most recent choice until it ends.
+        guard let scale = requestedTypeScale, !changingDocument,
+              !transcriptView.composing, !transcriptView.hasMarkedText() else { return }
+        requestedTypeScale = nil
+        guard typeScale != scale else { return }
+        let selections = transcriptView.selectedRanges
+        let follows = isFollowingLatest && !editing && !selecting && transcriptView.selectedRange().length == 0
+        let anchor = follows ? nil : readingAnchor()
+        let origin = contentView.bounds.origin
+        stopWheelMotion()
+        stopTailMotion()
+        pageRemainder = 0
+        changingDocument = true
         (transcriptView.textContainer as? ReaderTextContainer)?.preserve([])
         typeScale = scale
         transcriptView.textContainerInset = NSSize(width: 2, height: 6 * scale)
@@ -466,6 +489,19 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
             storage.setAttributes(attributes, range: NSRange(location: 0, length: storage.length))
             styleMarkers(in: storage)
         }
+        // The viewport's size does not change when the font does. Reflow now;
+        // waiting for layout()'s size-change guard would leave a stale document.
+        ensureDocumentLayout()
+        transcriptView.selectedRanges = selections
+        if follows { scrollToLatest() }
+        else if let anchor, let manager = transcriptView.layoutManager,
+                let container = transcriptView.textContainer, !transcriptView.string.isEmpty {
+            let position = min(transcriptView.string.utf16.count - 1, anchor.character)
+            let glyph = manager.glyphIndexForCharacter(at: position)
+            let rect = manager.boundingRect(forGlyphRange: NSRange(location: glyph, length: 1), in: container)
+            scroll(to: NSPoint(x: origin.x, y: rect.minY + transcriptView.textContainerInset.height + anchor.offset))
+        } else { scroll(to: origin) }
+        changingDocument = false
         needsLayout = true
     }
 
@@ -883,6 +919,9 @@ public final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
     }
     // A read-only trailing voice caret: no editing, focus acquisition, timer or
     // insertion. Selection and reading earlier text suppress it.
+    var liveCaretColor = NSColor(srgbRed: 0.55, green: 0.23, blue: 0.98, alpha: 1) {
+        didSet { if oldValue != liveCaretColor { needsDisplay = true } }
+    }
     var showsLiveCaret = false { didSet { if oldValue != showsLiveCaret { needsDisplay = true } } }
     var shouldDrawLiveCaret: Bool {
         let editingHere = isEditable && window?.isKeyWindow == true && window?.firstResponder === self
@@ -916,7 +955,7 @@ public final class CompactTranscriptTextView: NSTextView, NSMenuDelegate {
         let rect = CGRect(x: origin.x + inkEnd + 9 * scale,
                           y: origin.y + line.minY + 3 * scale, width: 2.5 * scale, height: 19 * scale)
         guard rect.maxX < bounds.maxX - 1 else { return }
-        NSColor(srgbRed: 0.55, green: 0.23, blue: 0.98, alpha: 1).setFill()
+        liveCaretColor.setFill()
         NSBezierPath(roundedRect: rect, xRadius: 1.25, yRadius: 1.25).fill()
     }
     var onEdit: (@MainActor () -> Void)?

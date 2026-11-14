@@ -56,6 +56,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
     @Environment(\.singleGlassSurface) private var singleGlassSurface
     @Environment(\.insideVoiceRail) private var insideVoiceRail
     @Environment(\.voiceSlotLayout) private var slotLayout
+    @Environment(\.voicePanelAppearance) private var appearance
     @ViewState private var captureHovered = false
     @FocusState private var captureFocused: Bool
     private let ink = Color(red: 0.17, green: 0.16, blue: 0.23)
@@ -106,7 +107,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
             CompactTranscriptView(document: document, access: access, onPage: onPage, focusPosition: focusPosition,
                 editing: editing, latestRequest: latestRequest, onFollowChange: onFollowChange,
                 onSelectionChange: onSelectionChange, fillContextMenu: fillContextMenu, applyEdits: applyEdits, onEdit: onEdit,
-                showsLiveCaret: capture.state == .recognizing, typeScale: metrics.typeScale, compact: !layout.canUseTranscript)
+                showsLiveCaret: capture.state == .recognizing, typeScale: appearance.textSize.typeScale, caretColor: appearance.buttonColor.nsColor, compact: !layout.canUseTranscript)
                 .frame(width: text.width, height: text.height).clipped()
                 .opacity(layout.transcriptOpacity)
                 .accessibilityHidden(!layout.canUseTranscript).allowsHitTesting(layout.canUseTranscript)
@@ -134,7 +135,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
     private func copyButton(_ metrics: VoicePanelMetrics) -> some View {
         let scale = metrics.scale
         return Button(action: onCopy) {
-            ReferenceCopyMark().stroke(ReferencePanelStyle.copyInk.opacity(canCopy ? 1 : 0.5),
+            ReferenceCopyMark().stroke(appearance.buttonColor.copyInk.opacity(canCopy ? 1 : 0.5),
                                        style: StrokeStyle(lineWidth: 1.65 * scale, lineCap: .round, lineJoin: .round))
                 .frame(width: metrics.copyMarkSize, height: metrics.copyMarkSize)
                 .frame(width: metrics.copyWidth, height: metrics.controlHeight)
@@ -152,7 +153,7 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
         let highlight = Color.gray.opacity(captureFocused ? 0.65 : captureHovered ? 0.24 : 0)
         return Button(action: onToggle) {
             VoiceCaptureGlyph(presentation: capture, scale: metrics.scale)
-                .foregroundStyle(ReferencePanelStyle.glyph)
+                .foregroundStyle(appearance.buttonColor.glyph)
                 .frame(width: rect.width, height: rect.height)
                 .background { ReferenceControlSurface(scale: metrics.scale).opacity(chrome) }
                 .overlay {

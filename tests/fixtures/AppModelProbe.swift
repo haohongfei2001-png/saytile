@@ -2,6 +2,7 @@ import AppKit
 import Combine
 import AVFoundation
 import SaytileKit
+import SaytileVoiceUI
 
 // Compiled together with the production AppModel.swift, using only isolated synthetic data.
 @main
@@ -16,6 +17,37 @@ struct AppModelProbe {
             guard result else { throw Failure(message: description) }
             checks += 1
             print("PASS " + description); fflush(nil)
+        }
+        do {
+            let name = "app.saytile.appearance." + UUID().uuidString
+            let prefs = UserDefaults(suiteName: name)!
+            defer { prefs.removePersistentDomain(forName: name) }
+            let home = directory.appendingPathComponent("appearance")
+            prefs.set(false, forKey: "panelBorderVisible")
+            let first = try AppModel(directory: home, preferences: prefs)
+            try require(first.panelAppearance == VoicePanelAppearance() && first.panelSizePreset == .standard,
+                        "existing installs retain original glass, type and default dimensions")
+            try require(!first.panelBorderVisible, "existing border preference survives appearance upgrade")
+            first.panelAppearance.panelColor = .blue
+            first.panelAppearance.buttonColor = .graphite
+            first.panelAppearance.opacity = .dense
+            first.panelAppearance.textSize = .large
+            first.panelSizePreset = .spacious
+            let saved = first.panelAppearance
+            await first.prepareForExit()
+            let reopened = try AppModel(directory: home, preferences: prefs)
+            try require(reopened.panelAppearance == saved && reopened.panelSizePreset == .spacious && !reopened.panelBorderVisible,
+                        "appearance presets survive store and settings restart")
+            reopened.resetPanelAppearance()
+            try require(reopened.panelAppearance == VoicePanelAppearance() && reopened.panelBorderVisible && reopened.panelSizePreset == .standard,
+                        "one reset restores the original appearance without touching ASR")
+            await reopened.prepareForExit()
+            prefs.set(Data("{invalid}".utf8), forKey: "panelAppearance")
+            prefs.set("unknown-size", forKey: "panelSizePreset")
+            let repaired = try AppModel(directory: home, preferences: prefs)
+            try require(repaired.panelAppearance == VoicePanelAppearance() && repaired.panelSizePreset == .standard,
+                        "invalid appearance preferences safely fall back to current visual defaults")
+            await repaired.prepareForExit()
         }
         do {
             let home = directory.appendingPathComponent("first-use")
