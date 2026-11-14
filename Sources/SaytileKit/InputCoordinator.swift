@@ -123,7 +123,11 @@ public final class NativeInputCoordinator {
     public private(set) var binding: InputBindingInfo?
     private var isDispatching = false
     private var hasIssuedDispatch = false
+    private var insertionProofComplete = false
     private var inFlightInsertion: (target: InputTargetSnapshot, text: String, expectedField: String?)?
+    // Set only when the observer sees the exact post-insertion identity and caret
+    // but cannot read the complete field. No later edit notification may cross this gap.
+    private var unreadWebInsertionAt: UInt64?
     private var boundPurpose: InputBindingPurpose = .continuous
     private struct Ownership {
         let recordingID: UUID
@@ -201,7 +205,7 @@ public final class NativeInputCoordinator {
                    ((current == pending.selected && witness.utf8.elementsEqual(pending.oldText.utf8)) ||
                     (current == pending.after && witness.utf8.elementsEqual(pending.newText.utf8))) { break }
                 if self.target?.isWeb == true {
-                    if !self.observedOwnWebEdit() { self.invalidate() }
+                    if self.unreadWebInsertionAt != nil || !self.observedOwnWebEdit() { self.invalidate() }
                     break
                 }
                 if self.hasIssuedDispatch, let pending = self.inFlightInsertion,
@@ -230,26 +234,50 @@ public final class NativeInputCoordinator {
 
     private func observedOwnWebEdit() -> Bool {
         guard let current = try? access.snapshot(), current.isWeb, current.pageContextComplete,
-              current.selectionLength == 0, let field = access.textWitness(at: current) else { return false }
+              current.selectionLength == 0 else { return false }
         if let pending = inFlightCorrection {
-            return current == pending.after && field.utf8.elementsEqual(pending.newText.utf8)
+            return current == pending.after && access.textWitness(at: current)?.utf8.elementsEqual(pending.newText.utf8) == true
         }
         guard hasIssuedDispatch, let pending = inFlightInsertion, let expectedField = pending.expectedField else { return false }
         var expected = pending.target
         expected.selectionLocation += pending.text.utf16.count
-        return current == expected && field.utf8.elementsEqual(expectedField.utf8)
+        guard current == expected else { return false }
+        if let field = access.textWitness(at: current) { return field.utf8.elementsEqual(expectedField.utf8) }
+        guard boundPurpose == .continuous, canObserveOwnership, !insertionProofComplete else { return false }
+        // An absent AX witness is not a match. Defer only this already-issued
+        // insertion to settledWrite's two independent complete observations.
+        unreadWebInsertionAt = observedEditSequence
+        return true
     }
 
     /// Wait for pending notifications of this one write, while the binding can still
     /// be revoked. After returning, even an edit followed by Undo expires ownership.
     private func settledWrite(at target: InputTargetSnapshot, witness: String, generation expectedGeneration: Int) async -> Bool {
+        var gapSequence = unreadWebInsertionAt
+        var matchingReadsAfterGap = 0
         for _ in 0..<4 {
             let sequence = observedEditSequence
             do { try await Task.sleep(for: .milliseconds(220)) } catch { return false }
-            guard generation == expectedGeneration,
-                  (try? access.snapshot()) == target,
-                  access.textWitness(at: target)?.utf8.elementsEqual(witness.utf8) == true else { return false }
-            if observedEditSequence == sequence { return true }
+            if gapSequence == nil { gapSequence = unreadWebInsertionAt }
+            guard generation == expectedGeneration, gapSequence == nil || gapSequence == observedEditSequence else { return false }
+            do {
+                guard try access.snapshot() == target,
+                      access.textWitness(at: target)?.utf8.elementsEqual(witness.utf8) == true else { return false }
+            } catch NativeInputError.unsupported {
+                // No mutation while the AX field is unreadable. After any gap the
+                // same binding must give two new full witnesses without an edit,
+                // focus, selection or document observation anywhere in between.
+                guard observedEditSequence == sequence else { return false }
+                gapSequence = sequence
+                matchingReadsAfterGap = 0
+                continue
+            } catch { return false }
+            guard generation == expectedGeneration else { return false }
+            if gapSequence != nil {
+                guard observedEditSequence == sequence else { return false }
+                matchingReadsAfterGap += 1
+                if matchingReadsAfterGap == 2 { return true }
+            } else if observedEditSequence == sequence { return true }
         }
         return false
     }
@@ -301,7 +329,13 @@ public final class NativeInputCoordinator {
         do {
             try validate(target)
             isDispatching = true
-            defer { isDispatching = false; hasIssuedDispatch = false; inFlightInsertion = nil }
+            defer {
+                isDispatching = false
+                hasIssuedDispatch = false
+                insertionProofComplete = false
+                inFlightInsertion = nil
+                unreadWebInsertionAt = nil
+            }
             let reservation: DispatchReservation?
             if let stableEnd {
                 reservation = try await store.reserveDispatch(bindingID: binding.id, recordingID: recordingID,
@@ -340,8 +374,15 @@ public final class NativeInputCoordinator {
                 let expectedField = beforeText.flatMap {
                     OwnedInputText.replacing($0, start: target.selectionLocation, expected: "", replacement: reservation.text)
                 }
+                if target.isWeb, boundPurpose == .continuous, expectedField == nil {
+                    try? await store.completeDispatch(id: reservation.id, state: .cancelled)
+                    invalidate()
+                    return .cancelled
+                }
                 inFlightInsertion = (target, reservation.text, expectedField)
                 hasIssuedDispatch = true
+                var expectedAfter = target
+                expectedAfter.selectionLocation += reservation.text.utf16.count
                 var needsFullReadback = target.isWeb && boundPurpose == .continuous
                 do {
                     guard try access.dispatch(reservation.text, to: target) else {
@@ -358,12 +399,16 @@ public final class NativeInputCoordinator {
                 for delay in [80, 80, 160, 240] {
                     do { try await Task.sleep(for: .milliseconds(delay)) } catch { break }
                     guard startGeneration == generation else { break }
-                    if let after = access.verify(reservation.text, at: target),
+                    if let after = access.verify(reservation.text, at: target), after == expectedAfter,
                        !needsFullReadback || expectedField.map({ access.textWitness(at: after)?.utf8.elementsEqual($0.utf8) == true }) == true,
                        startGeneration == generation {
                         if needsFullReadback {
-                            guard let expectedField, await settledWrite(at: after, witness: expectedField, generation: startGeneration) else { break }
+                            guard let expectedField, await settledWrite(at: after, witness: expectedField, generation: startGeneration) else {
+                                invalidate()
+                                break
+                            }
                         }
+                        insertionProofComplete = true
                         self.target = after
                         let tail = String(reservation.text.suffix(32))
                         confirmedTail = (tail, target.selectionLocation + reservation.text.utf16.count - tail.utf16.count)
@@ -395,7 +440,7 @@ public final class NativeInputCoordinator {
                 try? await store.completeDispatch(id: reservation.id, state: .unverified)
                 // A failed confirmation does not globally freeze independent future speech.
                 // Keep binding only if identity is unchanged and caret moved by exactly our range.
-                if let after = try? access.snapshot(), after.sameTarget(as: target),
+                if unreadWebInsertionAt == nil, let after = try? access.snapshot(), after.sameTarget(as: target),
                    after.selectionLength == 0,
                    after.selectionLocation == target.selectionLocation + reservation.text.utf16.count,
                    startGeneration == generation {

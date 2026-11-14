@@ -1,0 +1,124 @@
+{
+  "sqlite": "3.54.0",
+  "schema_sql_sha256": "95e11852cc2e2a2ef1a9552bd8695f7e7c2051c4c12ff972a2421e340b90273d",
+  "query_sha256": "562704552f4f0c48e53821ba400c09fe01dfd58d300fdf7a852806d2f4bfb56c",
+  "version_branches_on_open": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "fixtures": [
+    {
+      "runs": 47,
+      "mixed_usage": false,
+      "hash_first_30": "685e7c01877192a97bf9d02b8d035963d3da42a77369704339ef52570ffacb71",
+      "old_cpu_ms": 0.02492,
+      "new_cpu_ms": 0.0219,
+      "added_index_bytes": 8192,
+      "old_plan": [
+        "SCAN r USING INDEX sqlite_autoindex_model_runs_1",
+        "SEARCH u USING AUTOMATIC COVERING INDEX (run_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "new_plan": [
+        "SCAN r USING INDEX model_runs_recent",
+        "SEARCH u USING INDEX usage_run (run_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+      ]
+    },
+    {
+      "runs": 47,
+      "mixed_usage": true,
+      "hash_first_30": "ab88465baf32f689538bc5cf2773181dac556bf4863109918b557886afbef499",
+      "old_cpu_ms": 0.03965,
+      "new_cpu_ms": 0.02354,
+      "added_index_bytes": 8192,
+      "old_plan": [
+        "SCAN r USING INDEX sqlite_autoindex_model_runs_1",
+        "SEARCH u USING AUTOMATIC COVERING INDEX (run_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "new_plan": [
+        "SCAN r USING INDEX model_runs_recent",
+        "SEARCH u USING INDEX usage_run (run_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+      ]
+    },
+    {
+      "runs": 1000,
+      "mixed_usage": false,
+      "hash_first_30": "2eb1b5dc4d82e637c462904dfdab506ebda204d1f0ea7bc19c291c6ecf409dc6",
+      "old_cpu_ms": 0.19289,
+      "new_cpu_ms": 0.02253,
+      "added_index_bytes": 20480,
+      "old_plan": [
+        "SCAN r USING INDEX sqlite_autoindex_model_runs_1",
+        "SEARCH u USING AUTOMATIC COVERING INDEX (run_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "new_plan": [
+        "SCAN r USING INDEX model_runs_recent",
+        "SEARCH u USING INDEX usage_run (run_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+      ]
+    },
+    {
+      "runs": 1000,
+      "mixed_usage": true,
+      "hash_first_30": "89fb7e3a00fce58685f0c8756a1ea2393d6b78081f92c8d89ff6a2423781a2dd",
+      "old_cpu_ms": 0.64558,
+      "new_cpu_ms": 0.02496,
+      "added_index_bytes": 36864,
+      "old_plan": [
+        "SCAN r USING INDEX sqlite_autoindex_model_runs_1",
+        "SEARCH u USING AUTOMATIC COVERING INDEX (run_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "new_plan": [
+        "SCAN r USING INDEX model_runs_recent",
+        "SEARCH u USING INDEX usage_run (run_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+      ]
+    },
+    {
+      "runs": 10000,
+      "mixed_usage": false,
+      "hash_first_30": "2fc35219af22f81ffab189e86b9d6e84f5df0b73819916148e35f6f82c471922",
+      "old_cpu_ms": 1.70237,
+      "new_cpu_ms": 0.02181,
+      "added_index_bytes": 110592,
+      "old_plan": [
+        "SCAN r USING INDEX sqlite_autoindex_model_runs_1",
+        "SEARCH u USING AUTOMATIC COVERING INDEX (run_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "new_plan": [
+        "SCAN r USING INDEX model_runs_recent",
+        "SEARCH u USING INDEX usage_run (run_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+      ]
+    },
+    {
+      "runs": 10000,
+      "mixed_usage": true,
+      "hash_first_30": "ac09b2c2bd53183e9f89d1e79ed7fa48b6118a3337d9f0c44f57a80ac7b80aa0",
+      "old_cpu_ms": 7.9615,
+      "new_cpu_ms": 0.02394,
+      "added_index_bytes": 270336,
+      "old_plan": [
+        "SCAN r USING INDEX sqlite_autoindex_model_runs_1",
+        "SEARCH u USING AUTOMATIC COVERING INDEX (run_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "new_plan": [
+        "SCAN r USING INDEX model_runs_recent",
+        "SEARCH u USING INDEX usage_run (run_id=?) LEFT-JOIN",
+        "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+      ]
+    }
+  ]
+}

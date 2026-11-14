@@ -277,10 +277,10 @@ struct LocalLiveText {
             withheld = nil
         }
         // The rolling decoder ends almost every intermediate hypothesis with a
-        // full stop. Most disappear as the next word arrives. Show the complete
-        // first result immediately and preserve punctuation confirmed in context.
-        if (model == .qwen || model == .qwenLarge), !previous.isEmpty,
-           text.count > 1, text.last == "。", !previous.hasPrefix(text) {
+        // full stop, including on the first word. Reveal the words immediately.
+        // Internal punctuation and the eventual verbatim final are preserved.
+        if (model == .qwen || model == .qwenLarge),
+           text.last == "。", text.count > 1, !previous.hasPrefix(text) {
             presentation = String(text.dropLast())
         } else {
             presentation = text
@@ -356,8 +356,13 @@ struct LocalLiveText {
             // the local evidence when the current pass restores the displayed words.
             guard current[(first - 3)..<old.count].elementsEqual(observed[(first - 3)..<old.count]) else { return nil }
             let earlier = (0..<(first - 3)).filter { observed[$0] != current[$0] }
-            guard let a = earlier.first, let b = earlier.last, b - a < 4,
-                  earlier.allSatisfy({ ordinaryHan(observed[$0]) && ordinaryHan(current[$0]) }) else { return nil }
+            if let a = earlier.first, let b = earlier.last {
+                guard b - a < 4, earlier.allSatisfy({ ordinaryHan(observed[$0]) && ordinaryHan(current[$0]) }) else { return nil }
+            } else if current != observed {
+                // Without an independent earlier change, this fallback admits
+                // only two whole lexical hypotheses that corroborate one another.
+                return nil
+            }
             anchorEnd = old.count
         } else {
             // A short unfinished word at the old right edge can be corrected at

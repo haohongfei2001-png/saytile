@@ -1,0 +1,25 @@
+{
+  "base": "c4930a308558c4dca9be2a8ce5063eda8aacb4b0",
+  "files": {
+    "Sources/SaytileKit/InputCoordinator.swift": "cc01a7341037ac19b04bea3eff7ab7ec39a27f947687ca05a1d0784fc1c65a0e",
+    "tests/SaytileKitTests/InputTests.swift": "b865087d1d8da28d883275b4554c8f1f6c4722cc0d6426f375bc5f37f95fffce",
+    "tests/fixtures/AXOwnedFieldReady.swift": "1a7293e11f0661ded1b00e80cbeb514a981db2ed1cf41fd6f9b7f6b488d92dd8",
+    "tests/fixtures/AXHostedTextEdit.swift": "026ed10f00eeae88d606bd83c912811712442d020578bf6dee0667c418ea442d",
+    "tests/fixtures/AXForegroundBatchProbe.swift": "512fc753430512e1bf612d59aa4310e058fca1755e676fbeee86c4f6b700dc83"
+  },
+  "staged": false,
+  "regression": {
+    "passed": 49,
+    "suites": 3,
+    "wall_seconds": 15.861,
+    "log_sha256": "48f083e2a31612eca3cd9f221c9dbbf6f0ffeb5d3801451facc55ef1c7523e56"
+  },
+  "ci_fixture_build": {
+    "AXHostedTextEdit": "0c2d02aa7eec9a3cc17a71471845b527bbb23c9f1fe53a343a676ccd8a137df9",
+    "AXForegroundBatchProbe": "b58b1a0a4dd1f8acd3d4255304a794d7a2fb00d76248ed6980ee37e3f478dbd9"
+  },
+  "actual_postwrite_recovery": "When a notification follows one already-issued Chrome write, exact expected identity and caret with a temporarily unavailable field may only be settled by two fresh complete same-generation readbacks. An additional notification or inconsistent contents revokes the binding. No second mutation or target reacquisition.",
+  "previous_run_2_exception": "Chrome emitted a content/selection callback with expected caret 11 and unchanged identity, invalidated, displayed AX_exact true after the single write; receipts do not distinguish all possible instantaneous states. Original #32 addresses a different unsupported-snapshot settle path and is also included.",
+  "wkwebview": "The fixture now rejects a native-looking AX object when a web editor is required before starting its three-read readiness interval. Original failure did not log sufficient fields to prove this was its exact cause. The same SHA passed the second WKWebView foreground attempt.",
+  "actual_changed_foreground": "NOT_RUN locally to respect the existing desktop, pending CI for the integrated SHA."
+}

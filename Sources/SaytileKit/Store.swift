@@ -864,12 +864,14 @@ extension SaytileStore {
     CREATE TABLE IF NOT EXISTS fusion_decisions(id TEXT PRIMARY KEY,recognition_id TEXT NOT NULL REFERENCES fusion_sessions(id),recording_id TEXT NOT NULL REFERENCES recordings(id),payload TEXT NOT NULL,created_at REAL NOT NULL);
     CREATE TABLE IF NOT EXISTS model_usage(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES model_runs(id),recording_id TEXT NOT NULL REFERENCES recordings(id),payload TEXT NOT NULL,created_at REAL NOT NULL);
     CREATE TABLE IF NOT EXISTS recognition_retry_blocks(recording_id TEXT PRIMARY KEY REFERENCES recordings(id),reason TEXT NOT NULL);
+    CREATE INDEX IF NOT EXISTS model_runs_recent ON model_runs(created_at);
     CREATE INDEX IF NOT EXISTS model_runs_recording ON model_runs(recording_id,created_at);
     CREATE INDEX IF NOT EXISTS model_runs_configuration ON model_runs(recognition_id,configuration_id);
     CREATE INDEX IF NOT EXISTS candidates_session ON recognition_candidates(recognition_id,run_id,sequence);
     CREATE INDEX IF NOT EXISTS candidates_recording ON recognition_candidates(recording_id,created_at);
     CREATE INDEX IF NOT EXISTS decisions_recording ON fusion_decisions(recording_id,created_at);
     CREATE INDEX IF NOT EXISTS usage_recording ON model_usage(recording_id,created_at);
+    CREATE INDEX IF NOT EXISTS usage_run ON model_usage(run_id);
 
     """
 }
@@ -1305,8 +1307,10 @@ extension SaytileStore {
         }
         return "\(name) · \(state)"
     }
+    // Preserve the previous SQLite covering join's payload tie order for runs
+    // with multiple usage entries, including when LIMIT falls inside one run.
     public func modelCallSummaries(limit: Int = 30) throws -> [String] {
-        try db.rows("SELECT r.payload AS run_payload,r.state,r.last_error,u.payload AS usage_payload FROM model_runs r LEFT JOIN model_usage u ON u.run_id=r.id ORDER BY r.created_at DESC,r.rowid DESC LIMIT ?", [.int(Int64(max(1, min(limit, 500))))]).map { row in
+        try db.rows("SELECT r.payload AS run_payload,r.state,r.last_error,u.payload AS usage_payload FROM model_runs r LEFT JOIN model_usage u ON u.run_id=r.id ORDER BY r.created_at DESC,r.rowid DESC,u.payload LIMIT ?", [.int(Int64(max(1, min(limit, 500))))]).map { row in
             let run = try Self.decodeEvidence(ModelRunTicket.self, row["run_payload"])
             var summary = "\(run.provider) / \(run.model) · \(run.purpose.rawValue) · \(row["state"] ?? "unknown")"
             if let payload = row["usage_payload"] {

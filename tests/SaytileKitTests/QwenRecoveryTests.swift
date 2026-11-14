@@ -59,7 +59,8 @@ struct QwenRecoveryTests {
         var live = LocalLiveText(model: .qwen)
         let first = "这是第一句。"
         #expect(live.accept(first, final: false) == 0)
-        #expect(live.presentation == first)
+        #expect(live.presentation == "这是第一句")
+        #expect(live.previous == first)
         let raw = "这是第一句。第二句还没说完。"
         #expect(live.accept(raw, final: false) == 0)
         #expect(live.presentation == "这是第一句。第二句还没说完")
@@ -74,6 +75,22 @@ struct QwenRecoveryTests {
         _ = other.accept(first, final: false)
         _ = other.accept(raw, final: false)
         #expect(other.presentation == raw)
+    }
+
+    @Test func firstRollingWordAppearsImmediatelyAndGetsItsFinalPunctuationAtEOS() {
+        var live = LocalLiveText(model: .qwen)
+        #expect(live.accept("我。", final: false) == 0)
+        #expect(live.presentation == "我")
+        #expect(live.accept("我觉得", final: false) == 0)
+        #expect(live.presentation == "我觉得")
+        #expect(live.accept("我觉得。", final: true) == 4)
+        #expect(live.presentation == "我觉得。")
+
+        var short = LocalLiveText(model: .qwen)
+        #expect(short.accept("对。", final: false) == 0)
+        #expect(short.presentation == "对")
+        #expect(short.accept("对。", final: true) == 2)
+        #expect(short.presentation == "对。")
     }
 
     @Test func wordsAfterAnAppositionCanAppearWhileTheDecoderRestylesOldPauses() {
@@ -206,6 +223,32 @@ struct QwenRecoveryTests {
         check("它们", "他们", "亚历", "亚利", body: middle, priorWord: "亚力")
         check("它们", "他们", "亚历", "亚利", body: middle, secondExtension: "……")
         check("它们", "他们", "亚历", "亚利", body: middle + "亚" + middle)
+    }
+
+    @Test func twoLexicallyIdenticalPassesCanCorroborateNewWordsAcrossARephrasedPause() {
+        // The signed 466 window had no new useful word for 2.196 s on the
+        // 38.8 s public replay while these two lexical hypotheses agreed.
+        let head = "老虎是全能运动员，游泳跳远能够达到人类大力士的五倍。"
+        let correction = head.replacingOccurrences(of: "大力士", with: "大理石")
+        let tail = "这里首选登山目的地——科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。平时你总能在这里听到游客和小"
+        let restyled = tail.replacingOccurrences(of: "——", with: "，").replacingOccurrences(of: "。", with: "，")
+        func primed() -> LocalLiveText {
+            var gate = LocalLiveText(model: .qwen)
+            for n in [6, 3, 0] { _ = gate.accept(head + String(tail.dropLast(n)), final: false) }
+            return gate
+        }
+
+        var live = primed()
+        let first = correction + restyled + "摊贩的声音。"
+        let corroborated = correction + tail + "摊贩的声音。"
+        #expect(live.accept(first, final: false) == nil)
+        #expect(live.accept(corroborated, final: false) == 0)
+        #expect(live.presentation == String(corroborated.dropLast()))
+
+        var ambiguous = primed()
+        #expect(ambiguous.accept(first, final: false) == nil)
+        #expect(ambiguous.accept(correction + tail + "摊贩的笑声。", final: false) == nil)
+        #expect(ambiguous.presentation == head + tail)
     }
 
     private func fixture(_ variant: String) throws -> LocalModelManifest {
