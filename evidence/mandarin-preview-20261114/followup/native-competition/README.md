@@ -14,3 +14,30 @@ Installed 0.13 (474) reports source `0dc6ed70e873ec41da3b1dd24f47350a91211a43`. 
 * The 1.33-core 38.8/25.74 s inputs used a combined 19.87/14.23 process CPU seconds. Longest literal freezes were 1.209/1.511 s. Correct-word P95 gaps were 1.293/1.511 s.
 
 See `scripts/mandarin/measure-loaded-preview.py` for the reproducible target-load driver and `scripts/mandarin/score-preview-words.py` for word-level scoring. Each per-worker load sample contains actual process CPU and wall seconds. See `checksums.json` for the compressed artifacts' hashes.
+
+## Uncontrolled-pressure exploration
+
+The two `*-external-pressure` artifacts preserve a neighboring 474 and temporary checked-prefix-helper pair during strong external build activity. The second bundle kept the 474 host and changed its signed helper. Its helper SHA is bound in `external.json`; it is an experimental combination and has no full-product source identity. This is excluded from a causal product comparison. Sampled external Swift compiler CPU grew from a mean 185% in the first arm to 325% in the second. Sampled clang CPU grew from 1.8% to 43.4%. The script itself did not create synthetic load during these two runs.
+
+Both completed with byte-identical public transcripts and 31/205 reference errors. 474 took 25.39 process CPU seconds and the experimental helper pair took 13.70, but wall waiting at EOS was respectively 21.393 and 30.214 s, and first visible text was 3.261 and 11.215 s. A lower CPU count during a different amount of external contention does not establish a performance gain. The complete final package must be retested under matched conditions.
+
+## Reproduction
+
+Compile both measurement helpers before either arm starts so compiler work cannot contaminate the timed replay.
+
+```sh
+cc -O2 scripts/mandarin/preview-cpu-load.c -o "$BENCH/preview-cpu-load"
+swiftc scripts/mandarin/reference-words.swift -o "$BENCH/reference-words"
+python3 scripts/mandarin/measure-loaded-preview.py \
+  --app "$APP" --sha "$SOURCE" \
+  --manifest evidence/mandarin-quality-20261114/delivery/extended/samples.json \
+  --weights "$WEIGHTS" --audio "$PUBLIC_WAV" \
+  --id continuous-public-5 --workers 9 \
+  --load-helper "$BENCH/preview-cpu-load" --out "$RESULT"
+python3 scripts/mandarin/score-preview-words.py \
+  --cadence "$RESULT/cadence.json" --manifest "$RESULT/input.json" \
+  --receipts "$RESULT/native" --tokenizer "$BENCH/reference-words" \
+  --out "$RESULT/words.json"
+```
+
+Use the same executables, input checksums and worker count for each side. Source must equal the signed app's embedded source. The native replay starts a new isolated profile and original-rate stream. Each load process has user-initiated QoS and aims to consume 40 ms of CPU time per 60 ms of wall time. Nine target six total CPU cores. If OS contention prevents that allocation, the driver preserves all native receipts and metrics, then exits with status 2. The words scorer can still evaluate those receipts. “Target missed” remains distinct from a failed recognizer run.

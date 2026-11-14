@@ -1,0 +1,67 @@
+--- base/Sources/Qwen3ASR/Qwen3ASR.swift
++++ experiment/Sources/Qwen3ASR/Qwen3ASR.swift
+@@ -33,6 +33,7 @@
+     /// Previews only. Proposals from the same recording must agree with the
+     /// current audio-conditioned greedy distribution at every accepted position.
+     public var verifiesPreviewTokens = false
++    public var groupsLongScalarOutput = false
+ 
+     /// If > 0, masks any next-token whose emission would form a repeated
+     /// n-gram of this size. `0` disables.
+@@ -549,6 +550,8 @@
+                                                        draft: draft, maxTokens: maxTokens, check: checkCancellation)
+             generatedTokens = result.tokens
+             verifiedPreviewTokenCount = result.accepted
++        } else if decodingOptions.groupsLongScalarOutput, Self.isGreedyFastPath(decodingOptions) {
++            generatedTokens = try Self.groupedScalar(textDecoder: textDecoder, logits: logits, initialCache: newCache, maxTokens: maxTokens, check: checkCancellation)
+         } else if Self.isGreedyFastPath(decodingOptions) {
+             generatedTokens = try Self.generateGreedyAsyncEval(
+                 textDecoder: textDecoder,
+@@ -741,6 +744,37 @@
+ 
+     // Only token IDs survive a preview. The prompt, audio embedding and full
+     // causal KV cache above are rebuilt from this invocation's PCM.
++    private static func groupedScalar(
++        textDecoder: QuantizedTextModel, logits: MLXArray, initialCache: [(MLXArray, MLXArray)],
++        maxTokens: Int, check: () throws -> Void
++    ) rethrows -> [Int32] {
++        let eos = Int32(Qwen3ASRTokens.eosTokenId)
++        var token = argMax(logits, axis: -1).squeezed().asType(.int32)
++        var cache = initialCache
++        var tokens: [Int32] = []
++        while tokens.count < maxTokens {
++            try check()
++            let count = min(4, maxTokens - tokens.count)
++            var block: [MLXArray] = []
++            for i in 0..<count {
++                block.append(token)
++                if i == count - 1 && tokens.count + count == maxTokens { break }
++                let embed = textDecoder.embedTokens(token.expandedDimensions(axis: 0).expandedDimensions(axis: 0))
++                let (hidden, next) = textDecoder(inputsEmbeds: embed, cache: cache)
++                cache = next
++                let scores = textDecoder.embedTokens.asLinear(hidden[0..., (-1)..., .ellipsis])
++                token = argMax(scores, axis: -1).squeezed().asType(.int32)
++            }
++            let words = stacked(block).asType(.int32)
++            asyncEval(words, token, cache)
++            for item in words.asArray(Int32.self) {
++                tokens.append(item)
++                if item == eos { return tokens }
++            }
++        }
++        return tokens
++    }
++
+     private static func verifyPreviewTokens(
+         textDecoder: QuantizedTextModel, logits initialLogits: MLXArray,
+         cache initialCache: [(MLXArray, MLXArray)], draft: [Int32],
+--- base/Sources/SaytileModelWorker/Worker.swift
++++ experiment/Sources/SaytileModelWorker/Worker.swift
+@@ -55,6 +55,7 @@
+             transcribe = { samples, verifyingPreview in
+                 var decoding = options
+                 decoding.verifiesPreviewTokens = verifyingPreview
++                decoding.groupsLongScalarOutput = id == "qwen-small" && !verifyingPreview && samples.count >= 16_000 * 8
+                 if !verifyingPreview { model.clearPreviewTokens() }
+                 let text = try model.transcribeThrowing(audio: samples, options: decoding)
+                 verifiedTokens = model.verifiedPreviewTokenCount

@@ -1,0 +1,54 @@
+{
+  "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+  "scope": "Independent read-only review of production source changes and unchanged safety boundaries; current native GPU fixtures pending.",
+  "checks": [
+    {
+      "status": "PASS",
+      "kind": "source",
+      "name": "fresh_current_audio",
+      "evidence": "Qwen3ASR.generateTextImpl constructs fresh prompt/current audio embedding/newCache before checking prior token IDs. Prior-preview state contains Int32 IDs only."
+    },
+    {
+      "status": "PASS",
+      "kind": "source",
+      "name": "current_causal_validation",
+      "evidence": "First proposed token must match current logits argmax; later tokens match current teacher-forced causal argmax. On first mismatch, suffix cache is sliced away before scalar greedy continuation. No display text is inserted into model context."
+    },
+    {
+      "status": "PASS",
+      "kind": "source",
+      "name": "final_exclusion",
+      "evidence": "Worker enables preview verification only for non-EOS, observed nonempty last, >=48000 and <512000 active PCM frames. EOS passes false. Whole-window boundaries pass false before prefix append."
+    },
+    {
+      "status": "PASS",
+      "kind": "source",
+      "name": "same_pcm_short_final",
+      "evidence": "exactPreview cleared for any verifyingPreview-eligible decode, even when model has insufficient prior draft. Only unchanged plain greedy result at exactly same frames can be reused. 320 added PCM frames force recompute. Empty following EOS cleared."
+    },
+    {
+      "status": "PASS",
+      "kind": "source",
+      "name": "dispatch",
+      "evidence": "LocalLiveText returns 0 stable UTF16 for every Qwen partial. LocalCandidateIngress uses highestQuality and database reserved prefix. Only final gives full stability."
+    },
+    {
+      "status": "PASS",
+      "kind": "source",
+      "name": "edits_and_copy",
+      "evidence": "Store.selectFusionRevision excludes preferred userEdit and active editing_drafts. Protected frozen/dispatch revisions survive preview pruning. No store or external input code modified by this patch."
+    },
+    {
+      "status": "PASS",
+      "kind": "execution",
+      "name": "repeatable_pinned_patch",
+      "evidence": "prepare-local-runtime.sh re-extracts pinned a57702e git blob then patches temporary file. Two executions unchanged final mtime=1794624541 and size=66767."
+    },
+    {
+      "status": "PASS",
+      "kind": "hardware",
+      "name": "final_signed_worker",
+      "evidence": "Final signed 0fbca1d package passed exact short EOS, extra 320 PCM frames, 30s verified preview to independent same-PCM scalar EOS, 32s window then 6.8s suffix, independent 6s next segment, and empty EOS. Real scalar reference 474 outputs match. See /private/tmp/saytile-474-delivery/476/worker-contract/summary.json"
+    }
+  ]
+}

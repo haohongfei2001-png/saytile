@@ -1,0 +1,589 @@
+{
+  "status": "PASS",
+  "protocol": "Sequential original and candidate helpers. Identical 0.2s packets, 32s window, 38.8s whole stream, 6s independent next segment, empty EOS. No microphone or native-window acceptance inferred.",
+  "input_sha256": [
+    "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+    "fa81b08d0ca30c00ab08b1c66bd620dce60ae33327c7ae885c4320b925baff0d"
+  ],
+  "wire_sha256": "9e550d858719096cf6ab11d016187c9aad6fc4476b0811cc8e8f0501427e0dc5",
+  "arms": [
+    {
+      "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+      "dirty": false,
+      "build": "474",
+      "helper_sha256": "fa879b1bcf72922126effef7e21ef6b62b1c2d1d8b5adce3a00f91c85b79d518",
+      "stdout_nonprotocol": [
+        "Found 1 safetensor files",
+        "Loading: model.safetensors",
+        "Applied weights to audio encoder (18 layers, 301 tensors)",
+        "Applied weights to text decoder (28 layers, 704 tensors)"
+      ],
+      "final_frames": [
+        620800,
+        96000,
+        0
+      ],
+      "decodes": [
+        {
+          "startUptime": 1961978.5045693752,
+          "final": false,
+          "frames": 12800,
+          "endUptime": 1961978.725967125,
+          "changed": true
+        },
+        {
+          "startUptime": 1961978.7264943335,
+          "final": false,
+          "frames": 22400,
+          "endUptime": 1961978.83531725,
+          "changed": true
+        },
+        {
+          "startUptime": 1961978.836236667,
+          "final": false,
+          "frames": 70400,
+          "endUptime": 1961979.0716302502,
+          "changed": true
+        },
+        {
+          "startUptime": 1961979.0725876251,
+          "final": false,
+          "frames": 80000,
+          "endUptime": 1961979.5505359585,
+          "changed": true
+        },
+        {
+          "startUptime": 1961979.5511294585,
+          "final": false,
+          "frames": 89600,
+          "endUptime": 1961980.1141808336,
+          "changed": true
+        },
+        {
+          "startUptime": 1961980.1156187502,
+          "final": false,
+          "frames": 140800,
+          "endUptime": 1961980.790732125,
+          "changed": true
+        },
+        {
+          "startUptime": 1961980.7962547084,
+          "final": false,
+          "frames": 160000,
+          "endUptime": 1961981.5041072085,
+          "changed": true
+        },
+        {
+          "startUptime": 1961981.5043025,
+          "final": false,
+          "frames": 169600,
+          "endUptime": 1961982.5607665835,
+          "changed": true
+        },
+        {
+          "startUptime": 1961982.5613647501,
+          "final": false,
+          "frames": 185600,
+          "endUptime": 1961983.4476545418,
+          "changed": true
+        },
+        {
+          "startUptime": 1961983.4494761252,
+          "final": false,
+          "frames": 198400,
+          "endUptime": 1961984.525364875,
+          "changed": true
+        },
+        {
+          "startUptime": 1961984.5257035,
+          "final": false,
+          "frames": 208000,
+          "endUptime": 1961985.6001167502,
+          "changed": true
+        },
+        {
+          "startUptime": 1961985.6006789168,
+          "final": false,
+          "frames": 217600,
+          "endUptime": 1961986.4935534585,
+          "changed": false
+        },
+        {
+          "startUptime": 1961986.4952840002,
+          "final": false,
+          "frames": 278400,
+          "endUptime": 1961987.5852772917,
+          "changed": true
+        },
+        {
+          "startUptime": 1961987.5864847917,
+          "final": false,
+          "frames": 345600,
+          "endUptime": 1961989.1076242917,
+          "changed": true
+        },
+        {
+          "startUptime": 1961989.1130422917,
+          "final": false,
+          "frames": 393600,
+          "endUptime": 1961991.45001875,
+          "changed": true
+        },
+        {
+          "startUptime": 1961991.45082925,
+          "final": false,
+          "frames": 403200,
+          "endUptime": 1961993.8704482084,
+          "changed": true
+        },
+        {
+          "startUptime": 1961993.8708447085,
+          "final": false,
+          "frames": 416000,
+          "endUptime": 1961995.8054600002,
+          "changed": true
+        },
+        {
+          "startUptime": 1961995.8069037085,
+          "final": false,
+          "frames": 483200,
+          "endUptime": 1961998.8250657918,
+          "changed": true
+        },
+        {
+          "startUptime": 1961998.8252718751,
+          "final": false,
+          "frames": 496000,
+          "endUptime": 1962001.9980696668,
+          "changed": true
+        },
+        {
+          "startUptime": 1962001.9982727084,
+          "final": false,
+          "frames": 505600,
+          "endUptime": 1962004.8795077917,
+          "changed": true
+        },
+        {
+          "startUptime": 1962004.8796580418,
+          "final": false,
+          "frames": 512000,
+          "endUptime": 1962007.8517142918,
+          "changed": true
+        },
+        {
+          "startUptime": 1962007.8518845418,
+          "final": false,
+          "frames": 521600,
+          "endUptime": 1962008.3523156669,
+          "changed": true
+        },
+        {
+          "startUptime": 1962008.3567350002,
+          "final": false,
+          "frames": 547200,
+          "endUptime": 1962009.034975167,
+          "changed": true
+        },
+        {
+          "startUptime": 1962009.0392209168,
+          "final": false,
+          "frames": 595200,
+          "endUptime": 1962010.1381936667,
+          "changed": true
+        },
+        {
+          "startUptime": 1962010.1390482502,
+          "final": false,
+          "frames": 604800,
+          "endUptime": 1962012.0975614584,
+          "changed": true
+        },
+        {
+          "startUptime": 1962012.098001125,
+          "final": true,
+          "frames": 620800,
+          "endUptime": 1962013.2808197502,
+          "changed": true
+        },
+        {
+          "startUptime": 1962013.2813186252,
+          "final": false,
+          "frames": 12800,
+          "endUptime": 1962013.439350417,
+          "changed": true
+        },
+        {
+          "startUptime": 1962013.4395845002,
+          "final": false,
+          "frames": 25600,
+          "endUptime": 1962013.8144998334,
+          "changed": true
+        },
+        {
+          "startUptime": 1962013.8298564584,
+          "final": false,
+          "frames": 80000,
+          "endUptime": 1962014.3023265835,
+          "changed": true
+        },
+        {
+          "startUptime": 1962014.3027197502,
+          "final": false,
+          "frames": 89600,
+          "endUptime": 1962014.8684965002,
+          "changed": true
+        },
+        {
+          "startUptime": 1962014.868865125,
+          "final": true,
+          "frames": 96000,
+          "endUptime": 1962015.7131490419,
+          "changed": true
+        },
+        {
+          "startUptime": 1962015.7132520834,
+          "final": true,
+          "frames": 0,
+          "endUptime": 1962015.7132524168,
+          "changed": false
+        }
+      ],
+      "final_utf16_lengths": [
+        203,
+        40,
+        0
+      ],
+      "final_text_sha256": [
+        "310c3a4acefe313fcc8dd8d79cdbac63d95594795450b0e896e305de611825e3",
+        "705f5aedabdd86797797406a22ece23a3258a926def117b0f299b3d7d8d1e22b",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      ]
+    },
+    {
+      "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+      "dirty": false,
+      "build": "476",
+      "helper_sha256": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e",
+      "stdout_nonprotocol": [
+        "Found 1 safetensor files",
+        "Loading: model.safetensors",
+        "Applied weights to audio encoder (18 layers, 301 tensors)",
+        "Applied weights to text decoder (28 layers, 704 tensors)"
+      ],
+      "final_frames": [
+        620800,
+        96000,
+        0
+      ],
+      "decodes": [
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962019.112165667,
+          "endUptime": 1962020.0965370417,
+          "frames": 12800,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962020.097396125,
+          "endUptime": 1962020.820715625,
+          "frames": 25600,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962020.8212178336,
+          "endUptime": 1962021.7880427502,
+          "frames": 35200,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962021.78871725,
+          "endUptime": 1962022.152511375,
+          "frames": 48000,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962022.1528085833,
+          "endUptime": 1962022.59044625,
+          "frames": 57600,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 14,
+          "startUptime": 1962022.5906354585,
+          "endUptime": 1962022.993329375,
+          "frames": 67200,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 16,
+          "startUptime": 1962022.9934768751,
+          "endUptime": 1962023.4328114167,
+          "frames": 76800,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 18,
+          "startUptime": 1962023.43319875,
+          "endUptime": 1962023.9779931668,
+          "frames": 92800,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 22,
+          "startUptime": 1962023.9785799584,
+          "endUptime": 1962024.8997125835,
+          "frames": 112000,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 24,
+          "startUptime": 1962024.9011303752,
+          "endUptime": 1962025.7017039584,
+          "frames": 121600,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 25,
+          "startUptime": 1962025.702987625,
+          "endUptime": 1962026.8448975834,
+          "frames": 188800,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 37,
+          "startUptime": 1962026.8453343334,
+          "endUptime": 1962028.276200375,
+          "frames": 208000,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 42,
+          "startUptime": 1962028.2766373751,
+          "endUptime": 1962029.5660376668,
+          "frames": 227200,
+          "final": false
+        },
+        {
+          "changed": true,
+          "verifiedPreviewTokens": 46,
+          "startUptime": 1962029.5686020001,
+          "endUptime": 1962030.8621634585,
+          "frames": 259200,
+          "final": false
+        },
+        {
+          "changed": false,
+          "verifiedPreviewTokens": 53,
+          "startUptime": 1962030.8628284167,
+          "endUptime": 1962031.945395875,
+          "frames": 268800,
+          "final": false
+        },
+        {
+          "startUptime": 1962031.9467902917,
+          "frames": 336000,
+          "changed": true,
+          "final": false,
+          "verifiedPreviewTokens": 53,
+          "endUptime": 1962033.5120186252
+        },
+        {
+          "startUptime": 1962033.5121924584,
+          "frames": 345600,
+          "changed": true,
+          "final": false,
+          "verifiedPreviewTokens": 64,
+          "endUptime": 1962035.5730553335
+        },
+        {
+          "startUptime": 1962035.5732874584,
+          "frames": 355200,
+          "changed": true,
+          "final": false,
+          "verifiedPreviewTokens": 52,
+          "endUptime": 1962037.7629632917
+        },
+        {
+          "startUptime": 1962037.7631492917,
+          "frames": 364800,
+          "changed": true,
+          "final": false,
+          "verifiedPreviewTokens": 52,
+          "endUptime": 1962039.4967857501
+        },
+        {
+          "changed": true,
+          "frames": 374400,
+          "endUptime": 1962041.6674267917,
+          "verifiedPreviewTokens": 53,
+          "startUptime": 1962039.4970277085,
+          "final": false
+        },
+        {
+          "changed": true,
+          "frames": 384000,
+          "endUptime": 1962044.61674825,
+          "verifiedPreviewTokens": 57,
+          "startUptime": 1962041.6675632917,
+          "final": false
+        },
+        {
+          "startUptime": 1962044.6182259584,
+          "frames": 451200,
+          "changed": true,
+          "final": false,
+          "verifiedPreviewTokens": 48,
+          "endUptime": 1962048.2004498334
+        },
+        {
+          "changed": true,
+          "frames": 470400,
+          "endUptime": 1962049.7730246668,
+          "verifiedPreviewTokens": 48,
+          "startUptime": 1962048.2011542919,
+          "final": false
+        },
+        {
+          "startUptime": 1962049.7746012502,
+          "frames": 480000,
+          "changed": true,
+          "final": false,
+          "verifiedPreviewTokens": 57,
+          "endUptime": 1962052.0639859168
+        },
+        {
+          "changed": true,
+          "frames": 489600,
+          "endUptime": 1962053.599369625,
+          "verifiedPreviewTokens": 57,
+          "startUptime": 1962052.064225,
+          "final": false
+        },
+        {
+          "startUptime": 1962053.6003053335,
+          "frames": 505600,
+          "changed": true,
+          "final": false,
+          "verifiedPreviewTokens": 57,
+          "endUptime": 1962054.9516415002
+        },
+        {
+          "changed": true,
+          "frames": 512000,
+          "endUptime": 1962056.7573805419,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962054.9517946667,
+          "final": false
+        },
+        {
+          "changed": true,
+          "frames": 521600,
+          "endUptime": 1962056.8521934168,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962056.7578763335,
+          "final": false
+        },
+        {
+          "changed": true,
+          "frames": 531200,
+          "endUptime": 1962057.7189146252,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962056.8523334584,
+          "final": false
+        },
+        {
+          "changed": true,
+          "frames": 598400,
+          "endUptime": 1962058.2141423335,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962057.7202181667,
+          "final": false
+        },
+        {
+          "changed": true,
+          "frames": 611200,
+          "endUptime": 1962058.5872740834,
+          "verifiedPreviewTokens": 18,
+          "startUptime": 1962058.2147138335,
+          "final": false
+        },
+        {
+          "changed": true,
+          "frames": 620800,
+          "endUptime": 1962059.1111912918,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962058.5879929168,
+          "final": true
+        },
+        {
+          "changed": true,
+          "frames": 12800,
+          "endUptime": 1962059.2004788334,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962059.1113620833,
+          "final": false
+        },
+        {
+          "changed": true,
+          "frames": 22400,
+          "endUptime": 1962059.345440875,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962059.2006330835,
+          "final": false
+        },
+        {
+          "changed": true,
+          "frames": 32000,
+          "endUptime": 1962059.5193874585,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962059.3460615417,
+          "final": false
+        },
+        {
+          "changed": true,
+          "frames": 96000,
+          "endUptime": 1962059.7790457918,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962059.5213146252,
+          "final": true
+        },
+        {
+          "changed": false,
+          "frames": 0,
+          "endUptime": 1962059.7792478334,
+          "verifiedPreviewTokens": 0,
+          "startUptime": 1962059.7792475417,
+          "final": true
+        }
+      ],
+      "final_utf16_lengths": [
+        203,
+        40,
+        0
+      ],
+      "final_text_sha256": [
+        "310c3a4acefe313fcc8dd8d79cdbac63d95594795450b0e896e305de611825e3",
+        "705f5aedabdd86797797406a22ece23a3258a926def117b0f299b3d7d8d1e22b",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      ]
+    }
+  ]
+}

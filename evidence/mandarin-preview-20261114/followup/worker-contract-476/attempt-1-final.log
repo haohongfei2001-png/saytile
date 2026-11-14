@@ -1,0 +1,19 @@
+Loaded 62 added tokens from tokenizer_config.json
+Loaded tokenizer with 151705 tokens, 151291 merges
+Loaded 62 added tokens from tokenizer_config.json
+Loaded tokenizer with 151705 tokens, 151291 merges
+Traceback (most recent call last):
+  File "/private/tmp/saytile-preview-013/tests/fixtures/QwenWorkerFinal.py", line 123, in <module>
+    run(**vars(parser.parse_args()))
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-preview-013/tests/fixtures/QwenWorkerFinal.py", line 92, in run
+    expected = json.loads(result.stdout.splitlines()[-1])
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)

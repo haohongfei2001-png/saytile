@@ -1,0 +1,185 @@
+--- a/Qwen3ASR/Qwen3ASR.swift
++++ b/Qwen3ASR/Qwen3ASR.swift
+@@ -135,6 +135,7 @@
+     public let featureExtractor: WhisperFeatureExtractor
+     public var textDecoder: QuantizedTextModel?
+ 
++    public private(set) var tailDiagnostic: [[String: Any]] = []
+     private var previousPreviewTokens: [Int32] = []
+     public private(set) var verifiedPreviewTokenCount = 0
+ 
+@@ -541,12 +542,19 @@
+         // the full logits tensor to CPU for repetition / n-gram / temperature
+         // manipulation, which would defeat the overlap.
+         let generatedTokens: [Int32]
++        var trailingScores: [(Int32, MLXArray)] = []
++        let observeTail: (Int32, MLXArray) -> Void = { token, score in
++            if token < 151643 {
++                trailingScores.append((token, score))
++                if trailingScores.count > 2 { trailingScores.removeFirst() }
++            }
++        }
+         let draft = previousPreviewTokens
+         clearPreviewTokens()
+         if decodingOptions.verifiesPreviewTokens, draft.count >= 16,
+            Self.isGreedyFastPath(decodingOptions) {
+             let result = try Self.verifyPreviewTokens(textDecoder: textDecoder, logits: logits, cache: newCache,
+-                                                       draft: draft, maxTokens: maxTokens, check: checkCancellation)
++                                                       draft: draft, maxTokens: maxTokens, check: checkCancellation, observe: observeTail)
+             generatedTokens = result.tokens
+             verifiedPreviewTokenCount = result.accepted
+         } else if Self.isGreedyFastPath(decodingOptions) {
+@@ -555,7 +563,7 @@
+                 initialLogits: logits,
+                 cache: cache!,
+                 maxTokens: maxTokens,
+-                checkCancellation: checkCancellation
++                checkCancellation: checkCancellation, observe: observeTail
+             )
+         } else {
+             generatedTokens = try Self.generateSlow(
+@@ -572,6 +580,30 @@
+             previousPreviewTokens = generatedTokens
+         }
+ 
++        tailDiagnostic = []
++        if let tokenizer {
++            func plain(_ tokens: [Int32]) -> String {
++                let raw = tokenizer.decode(tokens: tokens.map(Int.init))
++                let body = raw.range(of: "<asr_text>").map { String(raw[$0.upperBound...]) } ?? raw
++                return body.trimmingCharacters(in: .whitespaces)
++            }
++            let full = plain(generatedTokens)
++            let positions = generatedTokens.indices.filter { generatedTokens[$0] < 151643 }
++            let sensitive = Set("不没无非否莫未别勿零一二三四五六七八九十百千万亿两")
++            for index in 0..<min(2, positions.count) {
++                let drop = index + 1
++                let cut = positions[positions.count - drop]
++                let prefix = plain(Array(generatedTokens[..<cut]))
++                let exact = full.utf8.starts(with: prefix.utf8)
++                let removed = exact ? String(full.dropFirst(prefix.count)) : ""
++                let safe = exact && !prefix.isEmpty && !prefix.contains("\u{FFFD}")
++                    && !removed.isEmpty && !removed.contains { $0.isNumber || sensitive.contains($0) }
++                let entry = trailingScores[trailingScores.count - drop]
++                let tops = top(entry.1, k: 2, axis: -1).asType(.float32).asArray(Float.self).sorted(by: >)
++                tailDiagnostic.append(["token": entry.0, "margin": tops[0] - tops[1],
++                                       "drop": drop, "prefix": prefix, "removed": removed, "safe": safe])
++            }
++        }
+         // Decode tokens to text
+         if let tokenizer = tokenizer {
+             let rawText = tokenizer.decode(tokens: generatedTokens.map { Int($0) })
+@@ -666,7 +698,7 @@
+         initialLogits: MLXArray,
+         cache initialCache: [(MLXArray, MLXArray)],
+         maxTokens: Int,
+-        checkCancellation: () throws -> Void
++        checkCancellation: () throws -> Void, observe: ((Int32, MLXArray) -> Void)? = nil
+     ) rethrows -> [Int32] {
+         var generatedTokens: [Int32] = []
+         guard maxTokens > 0 else { return generatedTokens }
+@@ -684,6 +716,7 @@
+         // identical to the pre-optimisation decoder.
+         var nextTokenArr = argMax(initialLogits, axis: -1).squeezed().asType(.int32)
+         var cache = initialCache
++        var currentScore = initialLogits
+         // Kick off the GPU on the first token (and the prefill cache that
+         // step 1's graph will read from).
+         asyncEval(nextTokenArr, cache)
+@@ -699,6 +732,7 @@
+             // we'd never consume it, and on tiny `maxTokens` the saved
+             // GPU/host work matters.
+             var nextTokenArrN1: MLXArray? = nil
++            var nextScore: MLXArray?
+             var cacheN1: [(MLXArray, MLXArray)]? = nil
+             if step + 1 < maxTokens {
+                 try checkCancellation()
+@@ -708,6 +742,7 @@
+                 let (hiddenN1, newCacheN1) = textDecoder(inputsEmbeds: nextEmbed, cache: cache)
+                 let lastHiddenN1 = hiddenN1[0..., (-1)..., .ellipsis]
+                 let logitsN1 = textDecoder.embedTokens.asLinear(lastHiddenN1)
++                nextScore = logitsN1
+                 let argN1 = argMax(logitsN1, axis: -1).squeezed().asType(.int32)
+                 // Kick GPU on N+1 (chains after the asyncEval that is
+                 // still computing N).
+@@ -725,6 +760,7 @@
+             // first, *then* break on EOS. The legacy loop emitted EOS
+             // into `generatedTokens` whenever EOS was the most recent
+             // pick, so greedy stays bit-identical.
++            observe?(nextToken, currentScore)
+             generatedTokens.append(nextToken)
+             if nextToken == eosToken { break }
+ 
+@@ -733,6 +769,7 @@
+                 // advance to; the loop will exit naturally next.
+                 break
+             }
++            currentScore = nextScore!
+             cache = advancedCache
+             nextTokenArr = advancedToken
+         }
+@@ -744,7 +781,7 @@
+     private static func verifyPreviewTokens(
+         textDecoder: QuantizedTextModel, logits initialLogits: MLXArray,
+         cache initialCache: [(MLXArray, MLXArray)], draft: [Int32],
+-        maxTokens: Int, check: () throws -> Void
++        maxTokens: Int, check: () throws -> Void, observe: ((Int32, MLXArray) -> Void)? = nil
+     ) rethrows -> (tokens: [Int32], accepted: Int) {
+         let eos = Int32(Qwen3ASRTokens.eosTokenId)
+         let end = min(maxTokens, draft.firstIndex(of: eos) ?? draft.count)
+@@ -763,6 +800,9 @@
+             let picks = argMax(scores, axis: -1).asType(.int32).asArray(Int32.self)
+             var matched = 1
+             while matched < count && picks[matched - 1] == ids[matched] { matched += 1 }
++            for j in 0..<matched {
++                observe?(ids[j], j == 0 ? logits : scores[0..., (j - 1)..<j, 0...])
++            }
+             let prefixLength = cache[0].0.dim(2) + matched
+             if matched == count {
+                 cache = trialCache
+@@ -776,7 +816,7 @@
+             if matched < count { break }
+         }
+         let tail = try generateGreedyAsyncEval(textDecoder: textDecoder, initialLogits: logits, cache: cache,
+-                                               maxTokens: maxTokens - accepted, checkCancellation: check)
++                                               maxTokens: maxTokens - accepted, checkCancellation: check, observe: observe)
+         return (Array(draft.prefix(accepted)) + tail, accepted)
+     }
+ 
+--- a/Worker/Worker.swift
++++ b/Worker/Worker.swift
+@@ -37,6 +37,7 @@
+         let nemo: NemotronStreamingASRMLXModel?
+         let transcribe: (([Float], Bool) async throws -> String)?
+         var verifiedTokens = 0
++        var tailDiagnostic: [[String: Any]] = []
+         switch id {
+         case "nemotron-metal":
+             nemo = try await .fromDirectory(directory)
+@@ -58,6 +59,7 @@
+                 if !verifyingPreview { model.clearPreviewTokens() }
+                 let text = try model.transcribeThrowing(audio: samples, options: decoding)
+                 verifiedTokens = model.verifiedPreviewTokenCount
++                tailDiagnostic = model.tailDiagnostic
+                 return text
+             }
+         case "paraformer":
+@@ -110,7 +112,7 @@
+             if let stream {
+                 let results = try end ? stream.finalize() : stream.pushAudio(chunk)
+                 update = results.last?.text
+-            } else if end, let exactPreview, exactPreview.frames == frames {
++            } else if end, false, let exactPreview, exactPreview.frames == frames {
+                 update = exactPreview.text
+             } else if let transcribe {
+                 samples.append(contentsOf: chunk)
+@@ -135,6 +137,9 @@
+                                         "frames": frames, "final": end, "changed": update != last,
+                                         "verifiedPreviewTokens": verifyingPreview ? verifiedTokens : 0])
+                     }
++                    var line = try JSONSerialization.data(withJSONObject: ["kind": "diagnostic", "frames": frames, "text": decoded, "final": end, "tails": tailDiagnostic])
++                    line.append(10)
++                    try FileHandle.standardOutput.write(contentsOf: line)
+                     if samples.count >= windowLimit {
+                         prefix += tail
+                         samples.removeAll(keepingCapacity: true)

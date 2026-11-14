@@ -1,0 +1,186 @@
+--- a/Qwen3ASR/QuantizedTextDecoder.swift
++++ b/Qwen3ASR/QuantizedTextDecoder.swift
+@@ -5,6 +5,40 @@
+ import MLXFast
+ import AudioCommon
+ 
++// Fold independent quantized output rows together without dequantization.
++private struct PackedRows {
++    let weight: MLXArray
++    let scales: MLXArray
++    let biases: MLXArray?
++    let ends: [Int]
++    let reference: QuantizedLinear
++
++    init(_ layers: [QuantizedLinear]) {
++        self.reference = layers[0]
++        weight = concatenated(layers.map(\.weight), axis: 0)
++        scales = concatenated(layers.map(\.scales), axis: 0)
++        let zeroPoints = layers.compactMap(\.biases)
++        biases = zeroPoints.isEmpty ? nil : concatenated(zeroPoints, axis: 0)
++        var offset = 0
++        ends = layers.dropLast().map { offset += $0.weight.dim(0); return offset }
++        eval([weight, scales] + (biases.map { [$0] } ?? []))
++        // Retain the original projections as views into the same allocation.
++        let ws = weight.split(indices: ends, axis: 0), ss = scales.split(indices: ends, axis: 0)
++        let bs = biases?.split(indices: ends, axis: 0)
++        for i in layers.indices {
++            var parameters: [(String, MLXArray)] = [("weight", ws[i]), ("scales", ss[i])]
++            if let bs { parameters.append(("biases", bs[i])) }
++            layers[i].update(parameters: .unflattened(parameters))
++        }
++    }
++
++    func project(_ x: MLXArray) -> [MLXArray] {
++        let y = quantizedMM(x, weight, scales: scales, biases: biases, transpose: true,
++                            groupSize: reference.groupSize, bits: reference.bits, mode: reference.mode)
++        return y.split(indices: ends, axis: -1)
++    }
++}
++
+ /// Multi-head attention for Qwen3 text decoder with GQA and RoPE (quantized version)
+ public class QuantizedTextAttention: Module {
+     let numHeads: Int
+@@ -19,6 +53,8 @@
+     @ModuleInfo var qNorm: RMSNorm
+     @ModuleInfo var kNorm: RMSNorm
+ 
++    var usePacking = false
++    private var packed: PackedRows?
+     let rope: MLXNN.RoPE
+ 
+     public init(config: TextDecoderConfig) {
+@@ -61,9 +97,14 @@
+         let (batch, seqLen, _) = (hiddenStates.dim(0), hiddenStates.dim(1), hiddenStates.dim(2))
+ 
+         // Project Q, K, V
+-        var queries = qProj(hiddenStates)
+-        var keys = kProj(hiddenStates)
+-        var values = vProj(hiddenStates)
++        var queries: MLXArray, keys: MLXArray, values: MLXArray
++        if usePacking && seqLen == 1 {
++            if packed == nil { packed = PackedRows([qProj, kProj, vProj]) }
++            let group = packed!.project(hiddenStates)
++            (queries, keys, values) = (group[0],group[1],group[2])
++        } else {
++            (queries, keys, values) = (qProj(hiddenStates),kProj(hiddenStates),vProj(hiddenStates))
++        }
+ 
+         // Reshape for multi-head attention
+         queries = queries.reshaped(batch, seqLen, numHeads, headDim)
+@@ -108,6 +149,8 @@
+ /// MLP for Qwen3 text decoder (SwiGLU activation, quantized)
+ /// Wraps the shared QuantizedMLP for backward compatibility
+ public class QuantizedTextMLP: Module {
++    var usePacking = false
++    private var packed: PackedRows?
+     @ModuleInfo var gateProj: QuantizedLinear
+     @ModuleInfo var upProj: QuantizedLinear
+     @ModuleInfo var downProj: QuantizedLinear
+@@ -131,6 +174,11 @@
+ 
+     public func callAsFunction(_ x: MLXArray) -> MLXArray {
+         // SwiGLU: down(silu(gate(x)) * up(x))
++        if usePacking && x.dim(1) == 1 {
++            if packed == nil { packed = PackedRows([gateProj,upProj]) }
++            let group = packed!.project(x)
++            return downProj(silu(group[0]) * group[1])
++        }
+         let gate = silu(gateProj(x))
+         let up = upProj(x)
+         return downProj(gate * up)
+--- a/Qwen3ASR/Qwen3ASR.swift
++++ b/Qwen3ASR/Qwen3ASR.swift
+@@ -132,6 +132,16 @@
+     public var textDecoder: QuantizedTextModel?
+ 
+     /// Tokenizer for decoding output tokens
++    public private(set) var lastDecodeTokens: [Int32] = []
++    public var usesPackedPreview = false {
++        didSet {
++            guard oldValue != usesPackedPreview, let textDecoder else { return }
++            for layer in textDecoder.layers {
++                layer.selfAttn.usePacking = usesPackedPreview
++                layer.mlp.usePacking = usesPackedPreview
++            }
++        }
++    }
+     private var tokenizer: Qwen3Tokenizer?
+ 
+     /// Text decoder config
+@@ -548,6 +558,7 @@
+             )
+         }
+ 
++        lastDecodeTokens = generatedTokens
+         // Decode tokens to text
+         if let tokenizer = tokenizer {
+             let rawText = tokenizer.decode(tokens: generatedTokens.map { Int($0) })
+--- a/Worker/Worker.swift
++++ b/Worker/Worker.swift
+@@ -35,7 +35,11 @@
+         let id = args[1], directory = URL(fileURLWithPath: args[2], isDirectory: true)
+         let rollingQwen = id == "qwen-small" || id == "qwen-large"
+         let nemo: NemotronStreamingASRMLXModel?
+-        let transcribe: (([Float]) async throws -> String)?
++        let transcribe: (([Float], Bool) async throws -> String)?
++        var tokens: [Int32] = []
++        var reusedBlocks = 0
++        let probeFrames = ProcessInfo.processInfo.environment["SAYTILE_VERIFY_STEP"] == "1"
++        let useBlocks = ProcessInfo.processInfo.environment["SAYTILE_QWEN_DRAFT"] == "1"
+         switch id {
+         case "nemotron-metal":
+             nemo = try await .fromDirectory(directory)
+@@ -51,15 +55,20 @@
+             // when forced to Chinese. Leave it free to transcribe the spoken language.
+             let language = id == "qwen-small" ? nil : "Chinese"
+             let options = Qwen3DecodingOptions(language: language, longInputThresholdSeconds: .infinity)
+-            transcribe = { try model.transcribeThrowing(audio: $0, options: options) }
++            transcribe = { samples, end in
++                model.usesPackedPreview = id == "qwen-small" && useBlocks && !end && samples.count >= 48_000
++                let result = try model.transcribeThrowing(audio: samples, options: options)
++                if probeFrames { tokens = model.lastDecodeTokens; reusedBlocks = 0 }
++                return result
++            }
+         case "paraformer":
+             nemo = nil
+             let model = ParaformerManager(models: try ParaformerModels.load(from: directory, precision: .int8))
+-            transcribe = { try await model.transcribe(audio: $0) }
++            transcribe = { samples, _ in try await model.transcribe(audio: samples) }
+         case "sensevoice":
+             nemo = nil
+             let model = SenseVoiceManager(models: try SenseVoiceModels.load(from: directory, precision: .int8))
+-            transcribe = { try await model.transcribe(audio: $0) }
++            transcribe = { samples, _ in try await model.transcribe(audio: samples) }
+         default: throw WorkerError.configuration
+         }
+         try publish("", kind: "ready", frames: 0)
+@@ -102,7 +111,7 @@
+             if let stream {
+                 let results = try end ? stream.finalize() : stream.pushAudio(chunk)
+                 update = results.last?.text
+-            } else if end, let exactPreview, exactPreview.frames == frames {
++            } else if end, !probeFrames, let exactPreview, exactPreview.frames == frames {
+                 update = exactPreview.text
+             } else if let transcribe {
+                 samples.append(contentsOf: chunk)
+@@ -116,13 +125,18 @@
+                     if id == "qwen-small", !end, !last.isEmpty, samples.count < windowLimit,
+                        samples.count - next < maxPreviewBacklog, try input.hasNextFrameNow() { continue }
+                     let started = traceDecodes ? ProcessInfo.processInfo.systemUptime : 0
+-                    let tail = samples.isEmpty ? "" : try await transcribe(samples)
++                    let tail = samples.isEmpty ? "" : try await transcribe(samples, end || samples.count >= windowLimit)
+                     let decoded = prefix + tail
+                     update = decoded
+                     if id == "qwen-small" && !end { exactPreview = (frames, decoded) }
+                     if traceDecodes {
+                         decodes.append(["startUptime": started, "endUptime": ProcessInfo.processInfo.systemUptime,
+                                         "frames": frames, "final": end, "changed": update != last])
++                    }
++                    if probeFrames {
++                        var line = try JSONSerialization.data(withJSONObject: ["kind": "verified", "frames": frames, "final": end, "text": decoded, "tokens": tokens, "blocks": reusedBlocks])
++                        line.append(10)
++                        try FileHandle.standardOutput.write(contentsOf: line)
+                     }
+                     if samples.count >= windowLimit {
+                         prefix += tail

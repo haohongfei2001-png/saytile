@@ -1,0 +1,176 @@
+--- a/Qwen3ASR/AudioPreprocessing.swift
++++ b/Qwen3ASR/AudioPreprocessing.swift
+@@ -27,6 +27,8 @@
+     public let nMels: Int = 128             // Mel filterbank bins (feature_size)
+     public let chunkLength: Int = 30        // Max audio chunk in seconds
+ 
++    var captureNormalizedMel = false
++    var capturedNormalizedMel: [Float] = []
+     private var melFilterbank: [Float]?
+ 
+     // Cached Hann window and FFT setup for Accelerate
+@@ -312,6 +314,7 @@
+             finalMelSpec = trimmedMelSpec
+         }
+ 
++        if captureNormalizedMel { capturedNormalizedMel = finalMelSpec }
+         let array = MLXArray(finalMelSpec, [finalFrames, nMels])
+         return array.transposed(1, 0)  // [mel_bins, time_frames]
+     }
+--- a/Qwen3ASR/Qwen3ASR.swift
++++ b/Qwen3ASR/Qwen3ASR.swift
+@@ -132,6 +132,54 @@
+     public var textDecoder: QuantizedTextModel?
+ 
+     /// Tokenizer for decoding output tokens
++    public private(set) var lastDecodeTokens: [Int32] = []
++    public private(set) var reusedBlocks = 0
++    public var previewBlockReuse = false
++    private var encodedBlocks: [(mel: Data, embedding: MLXArray)] = []
++
++    public func clearPreviewBlocks() {
++        encodedBlocks.removeAll(keepingCapacity: false)
++    }
++
++    // Encoder CNN units span 100 mel frames. The bidirectional transformer
++    // has a hard mask every eight such units; only that complete block can be shared.
++    private func previewEncoder(_ mel: MLXArray, normalized: [Float]) -> MLXArray {
++        let frames = mel.dim(2), blockFrames = 800, bins = 128
++        let count = frames / blockFrames, tokens = 104
++        guard count > 0, frames <= 3200, normalized.count == frames * bins else {
++            clearPreviewBlocks()
++            return audioEncoder(mel)
++        }
++        let stride = blockFrames * bins * MemoryLayout<Float>.stride
++        var reuse = 0
++        normalized.withUnsafeBytes { bytes in
++            while reuse < min(count, encodedBlocks.count) {
++                let begin = bytes.baseAddress!.advanced(by: reuse * stride)
++                let identical = encodedBlocks[reuse].mel.withUnsafeBytes { cached in
++                    memcmp(begin, cached.baseAddress!, stride) == 0
++                }
++                guard identical else { break }
++                reuse += 1
++            }
++        }
++        reusedBlocks += reuse
++        encodedBlocks.removeSubrange(reuse..<encodedBlocks.count)
++        let begin = reuse * blockFrames
++        var pieces = encodedBlocks.map(\.embedding)
++        if begin < frames {
++            let encoded = begin == 0 ? audioEncoder(mel) : audioEncoder(mel[0..., 0..., begin..<frames])
++            pieces.append(encoded)
++            for index in reuse..<count {
++                let tokenStart = (index - reuse) * tokens
++                let embedding = encoded[tokenStart..<(tokenStart + tokens), 0...]
++                let source = normalized.withUnsafeBytes { bytes in
++                    Data(bytes: bytes.baseAddress!.advanced(by: index * stride), count: stride)
++                }
++                encodedBlocks.append((source, embedding))
++            }
++        }
++        return pieces.count == 1 ? pieces[0] : concatenated(pieces, axis: 0)
++    }
+     private var tokenizer: Qwen3Tokenizer?
+ 
+     /// Text decoder config
+@@ -328,10 +376,20 @@
+             : 0.0
+         let effective = options.adaptedFor(audioDurationSeconds: durationSeconds)
+ 
+-        let melFeatures = featureExtractor.process(audio, sampleRate: sampleRate)
++        let wantsReuse = previewBlockReuse && sampleRate == 16_000 && audio.count >= 128_000
++        featureExtractor.captureNormalizedMel = wantsReuse
++        var melFeatures = featureExtractor.process(audio, sampleRate: sampleRate)
+         try checkCancellation()
+-        let batchedFeatures = melFeatures.expandedDimensions(axis: 0)
+-        var audioEmbeds = audioEncoder(batchedFeatures)
++        melFeatures = melFeatures.expandedDimensions(axis: 0)
++        let normalized = featureExtractor.capturedNormalizedMel
++        featureExtractor.capturedNormalizedMel = []
++        var audioEmbeds: MLXArray
++        if wantsReuse {
++            audioEmbeds = previewEncoder(melFeatures, normalized: normalized)
++        } else {
++            clearPreviewBlocks()
++            audioEmbeds = audioEncoder(melFeatures)
++        }
+         audioEmbeds = audioEmbeds.expandedDimensions(axis: 0)
+         guard let textDecoder = textDecoder else {
+             let shape = audioEmbeds.shape
+@@ -548,6 +606,7 @@
+             )
+         }
+ 
++        lastDecodeTokens = generatedTokens
+         // Decode tokens to text
+         if let tokenizer = tokenizer {
+             let rawText = tokenizer.decode(tokens: generatedTokens.map { Int($0) })
+--- a/Worker/Worker.swift
++++ b/Worker/Worker.swift
+@@ -35,7 +35,11 @@
+         let id = args[1], directory = URL(fileURLWithPath: args[2], isDirectory: true)
+         let rollingQwen = id == "qwen-small" || id == "qwen-large"
+         let nemo: NemotronStreamingASRMLXModel?
+-        let transcribe: (([Float]) async throws -> String)?
++        let transcribe: (([Float], Bool) async throws -> String)?
++        var tokens: [Int32] = []
++        var reusedBlocks = 0
++        let probeFrames = ProcessInfo.processInfo.environment["SAYTILE_VERIFY_STEP"] == "1"
++        let useBlocks = ProcessInfo.processInfo.environment["SAYTILE_QWEN_DRAFT"] == "1"
+         switch id {
+         case "nemotron-metal":
+             nemo = try await .fromDirectory(directory)
+@@ -51,15 +55,20 @@
+             // when forced to Chinese. Leave it free to transcribe the spoken language.
+             let language = id == "qwen-small" ? nil : "Chinese"
+             let options = Qwen3DecodingOptions(language: language, longInputThresholdSeconds: .infinity)
+-            transcribe = { try model.transcribeThrowing(audio: $0, options: options) }
++            transcribe = { samples, end in
++                model.previewBlockReuse = id == "qwen-small" && useBlocks && !end
++                let result = try model.transcribeThrowing(audio: samples, options: options)
++                if probeFrames { tokens = model.lastDecodeTokens; reusedBlocks = model.reusedBlocks }
++                return result
++            }
+         case "paraformer":
+             nemo = nil
+             let model = ParaformerManager(models: try ParaformerModels.load(from: directory, precision: .int8))
+-            transcribe = { try await model.transcribe(audio: $0) }
++            transcribe = { samples, _ in try await model.transcribe(audio: samples) }
+         case "sensevoice":
+             nemo = nil
+             let model = SenseVoiceManager(models: try SenseVoiceModels.load(from: directory, precision: .int8))
+-            transcribe = { try await model.transcribe(audio: $0) }
++            transcribe = { samples, _ in try await model.transcribe(audio: samples) }
+         default: throw WorkerError.configuration
+         }
+         try publish("", kind: "ready", frames: 0)
+@@ -102,7 +111,7 @@
+             if let stream {
+                 let results = try end ? stream.finalize() : stream.pushAudio(chunk)
+                 update = results.last?.text
+-            } else if end, let exactPreview, exactPreview.frames == frames {
++            } else if end, !probeFrames, let exactPreview, exactPreview.frames == frames {
+                 update = exactPreview.text
+             } else if let transcribe {
+                 samples.append(contentsOf: chunk)
+@@ -116,13 +125,18 @@
+                     if id == "qwen-small", !end, !last.isEmpty, samples.count < windowLimit,
+                        samples.count - next < maxPreviewBacklog, try input.hasNextFrameNow() { continue }
+                     let started = traceDecodes ? ProcessInfo.processInfo.systemUptime : 0
+-                    let tail = samples.isEmpty ? "" : try await transcribe(samples)
++                    let tail = samples.isEmpty ? "" : try await transcribe(samples, end || samples.count >= windowLimit)
+                     let decoded = prefix + tail
+                     update = decoded
+                     if id == "qwen-small" && !end { exactPreview = (frames, decoded) }
+                     if traceDecodes {
+                         decodes.append(["startUptime": started, "endUptime": ProcessInfo.processInfo.systemUptime,
+                                         "frames": frames, "final": end, "changed": update != last])
++                    }
++                    if probeFrames {
++                        var line = try JSONSerialization.data(withJSONObject: ["kind": "verified", "frames": frames, "final": end, "text": decoded, "tokens": tokens, "blocks": reusedBlocks])
++                        line.append(10)
++                        try FileHandle.standardOutput.write(contentsOf: line)
+                     }
+                     if samples.count >= windowLimit {
+                         prefix += tail

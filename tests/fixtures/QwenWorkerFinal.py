@@ -60,12 +60,12 @@ def run(app, weights, audio, reference_app=None):
                     assert hashlib.sha256(long_file.read_bytes()).hexdigest() == long_case["audio_sha256"]
                     with wave.open(str(long_file)) as named:
                         assert (named.getframerate(), named.getnchannels(), named.getsampwidth()) == (16000, 1, 2)
-                        long_pcm = named.readframes(16_000 * 12)
+                        long_pcm = named.readframes(16_000 * 30)
                     offset = 0
                     receipt = []
                     # All chunks have exactly the same acoustic boundaries. Wait for
                     # the known public phrase to change before providing more audio.
-                    for boundary in [12_800, 44_800, 76_800, 108_800, 140_800, 172_800]:
+                    for boundary in list(range(12_800, 16_000 * 30, 32_000)) + [16_000 * 30]:
                         send(long_pcm[2 * offset:2 * boundary])
                         update = receive()
                         assert update["kind"] == "partial" and update["frames"] == boundary
@@ -89,12 +89,27 @@ def run(app, weights, audio, reference_app=None):
                                              "qwen-small", weights / "qwen-small" / manifest["revision"], "8000"],
                                             input=stream, stdout=subprocess.PIPE, check=True, timeout=60,
                                             cwd=reference_app / "Contents/Resources")
-                    expected = json.loads(result.stdout.splitlines()[-1])
+                    output_lines = result.stdout.splitlines()
+                    reference_events = [json.loads(line) for line in output_lines if line.startswith(b'{"')]
+                    expected = reference_events[-1]
+                    unexpected = [line.decode(errors="replace") for line in output_lines if not line.startswith(b'{"')]
+                    assert set(unexpected) <= {
+                        "Found 1 safetensor files", "Loading: model.safetensors",
+                        "Applied weights to audio encoder (18 layers, 301 tensors)",
+                        "Applied weights to text decoder (28 layers, 704 tensors)",
+                    }, unexpected
+                    print(json.dumps({"reference_stdout_nonprotocol": unexpected}))
                     assert expected["kind"] == "final" and expected["frames"] == offset
                     assert confirmed["text"] == expected["text"]
                     print(json.dumps(dict(public_audio_sha256=long_case["audio_sha256"], frames=offset,
                                           verified_tokens=[r["verifiedPreviewTokens"] for r in receipt],
-                                          final_greedy_recomputed=True, equal_to_reference=True)))
+                                          final_greedy_recomputed=True, equal_to_reference=True,
+                                          preview_text_sha256=hashlib.sha256(update["text"].encode()).hexdigest(),
+                                          final_text_sha256=hashlib.sha256(confirmed["text"].encode()).hexdigest(),
+                                          preview_equal_to_greedy_final=update["text"] == confirmed["text"],
+                                          last_preview_seconds=receipt[-1]["endUptime"] - receipt[-1]["startUptime"],
+                                          original_greedy_eos_seconds=end[0]["endUptime"] - end[0]["startUptime"],
+                                          last_verified_preview_tokens=receipt[-1]["verifiedPreviewTokens"])))
                 send(b"")
                 empty = receive()
                 assert empty["kind"] == "final" and empty["frames"] == 0 and empty["text"] == ""
