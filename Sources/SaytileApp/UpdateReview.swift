@@ -128,6 +128,8 @@ final class UpdateReviewSession: NSObject, SPUUserDriver {
     private var deadline: Task<Void, Never>?
     private var finished = false
     private var downloadedBytes: UInt64 = 0
+    private var settingsActionPending = false
+    private var pendingSettingsResult: (Bool, String)?
 
     init(model: AppModel, request: UpdateReviewRequest, bundle: Bundle = .main) {
         self.model = model; self.request = request; self.bundle = bundle
@@ -209,20 +211,18 @@ final class UpdateReviewSession: NSObject, SPUUserDriver {
         }
         panel.orderBack(nil)
         defer { panel.orderOut(nil); panel.close() }
-        var checks: [any NSAccessibilityProtocol] = [], toggles: [any NSAccessibilityProtocol] = []
-        for _ in 0..<50 {
-            host.layoutSubtreeIfNeeded()
-            checks = accessibilityNodes("settings.checkForUpdates", in: host)
-            toggles = accessibilityNodes("settings.automaticUpdates", in: host)
-            if checks.count == 1, toggles.count == 1, checks[0].isAccessibilityEnabled() { break }
-            try await Task.sleep(for: .milliseconds(40))
-        }
-        guard checks.count == 1, toggles.count == 1, checks[0].isAccessibilityEnabled(),
-              toggles[0].isAccessibilityEnabled(), checks[0].accessibilityRole() == .button,
-              !panel.canBecomeKey, !panel.canBecomeMain, !panel.isKeyWindow, !panel.isMainWindow,
-              !focus.activated, NSWorkspace.shared.frontmostApplication?.processIdentifier != ownPID else {
-            throw UpdateReviewRequest.Failure("Unique enabled update controls or keyboard isolation were not verified")
-        }
+        try await Task.sleep(for: .milliseconds(200))
+        host.layoutSubtreeIfNeeded()
+        let checks = accessibilityNodes("settings.checkForUpdates", in: host)
+        let toggles = accessibilityNodes("settings.automaticUpdates", in: host)
+        // Retain the failed in-process observation for comparison. SwiftUI's
+        // exported AX tree is queried by our existing external native harness.
+        event("settings_preconditions", ["in_process_check_count": checks.count,
+            "in_process_toggle_count": toggles.count,
+            "in_process_checks": checks.map { node -> [String: Any] in ["role": node.accessibilityRole()?.rawValue ?? "", "enabled": node.isAccessibilityEnabled()] },
+            "in_process_toggles": toggles.map { node -> [String: Any] in ["role": node.accessibilityRole()?.rawValue ?? "", "enabled": node.isAccessibilityEnabled()] },
+            "can_become_key": panel.canBecomeKey, "can_become_main": panel.canBecomeMain,
+            "is_key": panel.isKeyWindow, "is_main": panel.isMainWindow, "candidate_activated": focus.activated])
         guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else {
             throw UpdateReviewRequest.Failure("Cannot capture the native settings view")
         }
@@ -231,18 +231,54 @@ final class UpdateReviewSession: NSObject, SPUUserDriver {
             throw UpdateReviewRequest.Failure("Cannot encode native settings evidence")
         }
         try image.write(to: request.root.appendingPathComponent("native-settings-about.png"), options: .atomic)
-        let pressed = checks[0].accessibilityPerformPress()
-        guard pressed else { throw UpdateReviewRequest.Failure("Native check-for-updates AXPress was rejected") }
+        guard !panel.canBecomeKey, !panel.canBecomeMain, !panel.isKeyWindow, !panel.isMainWindow,
+              !focus.activated, NSWorkspace.shared.frontmostApplication?.processIdentifier != ownPID,
+              let delegate = NSApp.delegate as? AppDelegate else {
+            throw UpdateReviewRequest.Failure("Native settings keyboard isolation was not verified")
+        }
+        let check = try await inspectNativeControl("settings.checkForUpdates", in: host, delegate: delegate)
+        let automatic = try await inspectNativeControl("settings.automaticUpdates", in: host, delegate: delegate)
+        event("settings_native_controls", ["check": check, "automatic": automatic])
+        guard check["role"] as? String == "AXButton", check["enabled"] as? Bool == true,
+              automatic["enabled"] as? Bool == true,
+              (check["actions"] as? [String])?.contains("AXPress") == true,
+              (automatic["actions"] as? [String])?.contains("AXPress") == true else {
+            throw UpdateReviewRequest.Failure("Owned native update controls are not enabled and actionable")
+        }
+        // A fast feed can finish while the AX helper is returning. Retain the
+        // callback, and do not terminate before recording the actual action ACK.
+        settingsActionPending = true
+        defer { settingsActionPending = false }
+        let action = try await delegate.performControl("settings.checkForUpdates", in: host)
+        guard action.contains("NATIVE_UI_AXPRESS settings.checkForUpdates fixture_pid=\(ownPID) foreground_unchanged=true") else {
+            throw UpdateReviewRequest.Failure("Owned native AXPress acknowledgement is missing")
+        }
         guard !focus.activated, !panel.isKeyWindow, !panel.isMainWindow,
               NSWorkspace.shared.frontmostApplication?.processIdentifier != ownPID else {
             throw UpdateReviewRequest.Failure("Native settings action activated the fixture")
         }
-        event("settings_control", ["identifier": "settings.checkForUpdates", "action": "accessibilityPerformPress",
-            "pressed": pressed, "automatic_updates_control_present": true,
+        event("settings_control", ["identifier": "settings.checkForUpdates", "action": "AXUIElementPerformAction/AXPress",
+            "pressed": true, "automatic_updates_control_present": true,
             "width_points": host.bounds.width, "height_points": host.bounds.height,
             "width_pixels": bitmap.pixelsWide, "height_pixels": bitmap.pixelsHigh,
             "candidate_activated": focus.activated,
             "foreground_unchanged": before == NSWorkspace.shared.frontmostApplication?.processIdentifier])
+        settingsActionPending = false
+        if let result = pendingSettingsResult {
+            pendingSettingsResult = nil
+            finish(result.0, result.1)
+        }
+    }
+
+    private func inspectNativeControl(_ identifier: String, in host: NSView, delegate: AppDelegate) async throws -> [String: Any] {
+        let output = try await delegate.performControl(identifier, in: host, arguments: ["inspect"])
+        let prefix = "NATIVE_UI_INSPECT "
+        guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix(prefix) }),
+              let control = try JSONSerialization.jsonObject(with: Data(line.dropFirst(prefix.count).utf8)) as? [String: Any],
+              control["identifier"] as? String == identifier else {
+            throw UpdateReviewRequest.Failure("Unique native control inspection is missing for \(identifier)")
+        }
+        return control
     }
 
     private func accessibilityNodes(_ identifier: String, in root: NSView) -> [any NSAccessibilityProtocol] {
@@ -284,6 +320,7 @@ final class UpdateReviewSession: NSObject, SPUUserDriver {
 
     private func finish(_ pass: Bool, _ reason: String) {
         guard !finished else { return }
+        if settingsActionPending { pendingSettingsResult = (pass, reason); return }
         finished = true; deadline?.cancel()
         event("complete", ["status": pass ? "PASS" : "FAIL", "reason": reason])
         // Use the ordinary async AppDelegate termination/save gate.

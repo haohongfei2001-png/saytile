@@ -124,7 +124,10 @@ def main():
     def launch(scenario):
         log = (args.output / (scenario + "-host.log")).open("w")
         command = [str(installed / "Contents/MacOS/Saytile"), "--update-review", "--data-directory", str(data), "--update-review-case", scenario]
-        proc = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, cwd=installed / "Contents/Resources")
+        environment = dict(os.environ)
+        if scenario == "public-empty":
+            environment["SAYTILE_UI_CONTROL_PROBE"] = str(root / "native-ui-control-probe")
+        proc = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, cwd=installed / "Contents/Resources", env=environment)
         processes.append((proc, log))
         return proc
 
@@ -174,7 +177,7 @@ def main():
                 SUFeedURL=url + "appcast.xml", SUPublicEDKey=public_key, SURequireSignedFeed=True,
                 SUSignedFeedFailureExpirationInterval=0,
                 SUVerifyUpdateBeforeExtraction=True, SUEnableAutomaticChecks=False, SUAllowsAutomaticUpdates=False,
-                SUSendProfileInfo=False, SUDefaultsDomain=bundle_id, SaytileUpdateBundleIdentifier=bundle_id, SaytileUpdateChannel="fixture",
+                SUSendProfileInfo=False, SaytileUpdateBundleIdentifier=bundle_id, SaytileUpdateChannel="fixture",
                 SaytileUpdateReview=dict(root=str(root), dataDirectory=str(data), preferencesSuite=preferences,
                     eventLog=str(events), expectedSource=args.expected_source, phase="check" if version == 1 else "relaunch", sessionID=session))
             (app / "Contents/Info.plist").write_bytes(plistlib.dumps(metadata))
@@ -252,6 +255,11 @@ def main():
             update_archive_sha256=archive_hash, update_appcast_sha256=digest(appcast),
             updater_binary_sha256=original_binary, key_scope="ephemeral Ed25519 file; deleted, never emitted or read from Keychain")
         if args.public_feed:
+            # Reuse the established native AX harness. It only observes this
+            # fixture's PID/window/identifier and never activates or posts keys.
+            helper_source = REPO / "Tests/fixtures/NativeUIControlProbe.swift"
+            run("swiftc", "-swift-version", "6", "-parse-as-library", helper_source, "-o", root / "native-ui-control-probe")
+            result["native_control_helper_source_sha256"] = digest(helper_source)
             # A final re-signed disposable fixture invokes the identical host
             # controller against the real signed empty channel. It installs nothing.
             metadata = info(installed)
@@ -272,7 +280,7 @@ def main():
             screenshot = root / "native-settings-about.png"
             assert screenshot.is_file()
             result["public_empty_feed"] = dict(status="PASS", url=args.public_feed, signature_required=True, no_archive_downloaded=True, no_update_installed=True,
-                native_settings_action="accessibilityPerformPress on existing SettingsView", settings_screenshot_sha256=digest(screenshot))
+                native_settings_action="AXUIElementPerformAction/AXPress on existing SettingsView", settings_screenshot_sha256=digest(screenshot))
     except Exception as error:
         result["status"] = "FAIL"
         result["failure"] = str(error)

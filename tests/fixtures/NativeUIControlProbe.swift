@@ -163,7 +163,8 @@ import ApplicationServices
                         }
                         var size = CGSize.zero
                         guard AXValueGetValue(unsafeDowncast(sizeValue, to: AXValue.self), .cgSize, &size) else { print("FAIL invalid native control size"); exit(1) }
-                        let detail: [String: Any] = ["identifier": label, "role": role, "width": size.width, "height": size.height, "names": names]
+                        let detail: [String: Any] = ["identifier": label, "role": role, "width": size.width, "height": size.height, "names": names,
+                            "enabled": (value(node, kAXEnabledAttribute) as? Bool) ?? false, "actions": availableActions(node)]
                         inspectedControls.append(detail)
                         queue += observed.children
                         continue
