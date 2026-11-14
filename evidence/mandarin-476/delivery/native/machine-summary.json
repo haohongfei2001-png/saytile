@@ -1,0 +1,2547 @@
+{
+  "baseline_source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+  "candidate_source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+  "candidate_build": 476,
+  "candidate_executable_sha256": "8a54d7a5db4e113c1e1941160087c02b45ca112c3a507dde8e4fe24dc621c849",
+  "machine": "Apple M5, 24 GiB unified memory, 10 CPU cores; closed lid, no microphone use",
+  "candidate_public_utterances": 17,
+  "acceptance": {
+    "native_multiple_updates": "PASS",
+    "exact_final_archive_all17": "PASS",
+    "original_rate_and_unique_asr": "PASS",
+    "plain_EOS_zero_verified_tokens": "PASS",
+    "all_record_states_complete": "PASS",
+    "six_core_load_target": "FAIL",
+    "uniform_latency_improvement": "NOT_PROVEN",
+    "physical_microphone": "NOT_RUN"
+  },
+  "short_sequence": [
+    "candidate476",
+    "baseline474"
+  ],
+  "short_archive_matches": 15,
+  "all_archive_matches": true,
+  "paired_long": [
+    {
+      "arm": "final-low-new-c",
+      "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+      "input_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "load_achieved": true,
+      "real_cpu_cores": 1.3328,
+      "load_before": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          75.0439453125,
+          100.234375,
+          74.9052734375
+        ]
+      },
+      "load_after": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          46.08349609375,
+          88.33251953125,
+          71.93359375
+        ]
+      },
+      "cpu_seconds": 23.68,
+      "app_cpu": 4.66,
+      "helper_cpu": 19.02,
+      "wall_seconds": 42.047,
+      "peak_footprint_mib": 1532.3,
+      "first": 1.278,
+      "after_eof": 0.594,
+      "after_signal": 0.598,
+      "literal": {
+        "first_s": {
+          "p50": 1.24,
+          "p95": 1.24
+        },
+        "internal_gaps_s": {
+          "p50": 0.038,
+          "p95": 1.001
+        },
+        "longest_s": 3.17
+      },
+      "word": {
+        "first_s": {
+          "p50": 1.364,
+          "p95": 1.364
+        },
+        "internal_gaps_s": {
+          "p50": 0.493,
+          "p95": 2.047
+        },
+        "longest_s": 4.134
+      },
+      "source_word": {
+        "first_s": {
+          "p50": 1.233,
+          "p95": 1.233
+        },
+        "internal_gaps_s": {
+          "p50": 0.523,
+          "p95": 2.135
+        },
+        "longest_s": 4.133
+      },
+      "bigram": {
+        "count": 86,
+        "first_s": 1.278,
+        "gap_s": {
+          "p50": 0.434,
+          "p95": 1.517
+        },
+        "longest_s": 3.575,
+        "longest_start_end_s": [
+          22.558,
+          26.133
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.626,
+        "raw_outputs_inside_longest": 4,
+        "timeline_outputs_inside_longest": 2,
+        "above_two_seconds": 3
+      },
+      "cer": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      },
+      "edits": {
+        "suffix_revisions": 9,
+        "removed_or_replaced_chars": 12,
+        "literal_revisions": 18,
+        "provisional_periods_retracted": 0
+      },
+      "window_edits": {
+        "suffix_revisions": 9,
+        "removed_or_replaced_chars": 12,
+        "literal_revisions": 18,
+        "provisional_periods_retracted": 0
+      },
+      "states": [
+        "completed",
+        "completed"
+      ],
+      "verified_calls": 54,
+      "verified_tokens": 2026,
+      "decode_calls": 66,
+      "decode_wall": 20.721
+    },
+    {
+      "arm": "final-low-new-f",
+      "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+      "input_sha256": "c68868cfa82bd8c0ebcf691ce38d9860ae95aa803b3e846c2f552fb82e997829",
+      "load_achieved": true,
+      "real_cpu_cores": 1.3292,
+      "load_before": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          43.00634765625,
+          83.4384765625,
+          70.7197265625
+        ]
+      },
+      "load_after": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          35.330078125,
+          76.9658203125,
+          68.8671875
+        ]
+      },
+      "cpu_seconds": 15.42,
+      "app_cpu": 3.11,
+      "helper_cpu": 12.31,
+      "wall_seconds": 27.509,
+      "peak_footprint_mib": 1382.7,
+      "first": 2.411,
+      "after_eof": 0.297,
+      "after_signal": 2.881,
+      "literal": {
+        "first_s": {
+          "p50": 2.154,
+          "p95": 2.154
+        },
+        "internal_gaps_s": {
+          "p50": 0.051,
+          "p95": 1.241
+        },
+        "longest_s": 2.154
+      },
+      "word": {
+        "first_s": {
+          "p50": 2.411,
+          "p95": 2.411
+        },
+        "internal_gaps_s": {
+          "p50": 0.589,
+          "p95": 1.448
+        },
+        "longest_s": 2.411
+      },
+      "source_word": {
+        "first_s": {
+          "p50": 2.377,
+          "p95": 2.377
+        },
+        "internal_gaps_s": {
+          "p50": 0.905,
+          "p95": 2.066
+        },
+        "longest_s": 2.377
+      },
+      "bigram": {
+        "count": 34,
+        "first_s": 2.411,
+        "gap_s": {
+          "p50": 0.48,
+          "p95": 1.448
+        },
+        "longest_s": 2.411,
+        "longest_start_end_s": [
+          3.58,
+          5.991
+        ],
+        "longest_position": "first",
+        "longest_input_above_minus55_fraction": 0.694,
+        "raw_outputs_inside_longest": 2,
+        "timeline_outputs_inside_longest": 2,
+        "above_two_seconds": 2
+      },
+      "cer": {
+        "errors": 5,
+        "substitutions": 5,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 92
+      },
+      "edits": {
+        "suffix_revisions": 5,
+        "removed_or_replaced_chars": 7,
+        "literal_revisions": 8,
+        "provisional_periods_retracted": 0
+      },
+      "window_edits": {
+        "suffix_revisions": 5,
+        "removed_or_replaced_chars": 7,
+        "literal_revisions": 8,
+        "provisional_periods_retracted": 0
+      },
+      "states": [
+        "completed"
+      ],
+      "verified_calls": 24,
+      "verified_tokens": 1049,
+      "decode_calls": 35,
+      "decode_wall": 16.527
+    },
+    {
+      "arm": "final-low-old-c",
+      "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+      "input_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "load_achieved": true,
+      "real_cpu_cores": 1.3333,
+      "load_before": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          93.4130859375,
+          107.37255859375,
+          75.939453125
+        ]
+      },
+      "load_after": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          75.0439453125,
+          100.234375,
+          74.9052734375
+        ]
+      },
+      "cpu_seconds": 31.95,
+      "app_cpu": 5.36,
+      "helper_cpu": 26.59,
+      "wall_seconds": 41.378,
+      "peak_footprint_mib": 1255.1,
+      "first": 1.371,
+      "after_eof": 0.723,
+      "after_signal": 0.729,
+      "literal": {
+        "first_s": {
+          "p50": 1.334,
+          "p95": 1.334
+        },
+        "internal_gaps_s": {
+          "p50": 0.038,
+          "p95": 1.289
+        },
+        "longest_s": 6.873
+      },
+      "word": {
+        "first_s": {
+          "p50": 1.407,
+          "p95": 1.407
+        },
+        "internal_gaps_s": {
+          "p50": 0.518,
+          "p95": 1.696
+        },
+        "longest_s": 6.945
+      },
+      "source_word": {
+        "first_s": {
+          "p50": 1.301,
+          "p95": 1.301
+        },
+        "internal_gaps_s": {
+          "p50": 0.668,
+          "p95": 1.846
+        },
+        "longest_s": 6.962
+      },
+      "bigram": {
+        "count": 83,
+        "first_s": 1.371,
+        "gap_s": {
+          "p50": 0.054,
+          "p95": 1.327
+        },
+        "longest_s": 6.909,
+        "longest_start_end_s": [
+          24.199,
+          31.108
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.597,
+        "raw_outputs_inside_longest": 4,
+        "timeline_outputs_inside_longest": 1,
+        "above_two_seconds": 1
+      },
+      "cer": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      },
+      "edits": {
+        "suffix_revisions": 7,
+        "removed_or_replaced_chars": 12,
+        "literal_revisions": 10,
+        "provisional_periods_retracted": 0
+      },
+      "window_edits": {
+        "suffix_revisions": 7,
+        "removed_or_replaced_chars": 12,
+        "literal_revisions": 10,
+        "provisional_periods_retracted": 0
+      },
+      "states": [
+        "completed",
+        "completed"
+      ],
+      "verified_calls": 0,
+      "verified_tokens": 0,
+      "decode_calls": 46,
+      "decode_wall": 30.627
+    },
+    {
+      "arm": "final-low-old-f",
+      "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+      "input_sha256": "c68868cfa82bd8c0ebcf691ce38d9860ae95aa803b3e846c2f552fb82e997829",
+      "load_achieved": true,
+      "real_cpu_cores": 1.3336,
+      "load_before": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          46.08349609375,
+          88.33251953125,
+          71.93359375
+        ]
+      },
+      "load_after": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          43.00634765625,
+          83.4384765625,
+          70.7197265625
+        ]
+      },
+      "cpu_seconds": 19.25,
+      "app_cpu": 2.88,
+      "helper_cpu": 16.37,
+      "wall_seconds": 28.181,
+      "peak_footprint_mib": 1316.7,
+      "first": 1.129,
+      "after_eof": 0.761,
+      "after_signal": 3.344,
+      "literal": {
+        "first_s": {
+          "p50": 1.057,
+          "p95": 1.057
+        },
+        "internal_gaps_s": {
+          "p50": 0.038,
+          "p95": 1.551
+        },
+        "longest_s": 2.735
+      },
+      "word": {
+        "first_s": {
+          "p50": 1.129,
+          "p95": 1.129
+        },
+        "internal_gaps_s": {
+          "p50": 0.622,
+          "p95": 2.043
+        },
+        "longest_s": 2.735
+      },
+      "source_word": {
+        "first_s": {
+          "p50": 1.123,
+          "p95": 1.123
+        },
+        "internal_gaps_s": {
+          "p50": 0.732,
+          "p95": 2.844
+        },
+        "longest_s": 2.844
+      },
+      "bigram": {
+        "count": 42,
+        "first_s": 1.129,
+        "gap_s": {
+          "p50": 0.058,
+          "p95": 1.551
+        },
+        "longest_s": 2.735,
+        "longest_start_end_s": [
+          14.006,
+          16.741
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.54,
+        "raw_outputs_inside_longest": 2,
+        "timeline_outputs_inside_longest": 1,
+        "above_two_seconds": 2
+      },
+      "cer": {
+        "errors": 5,
+        "substitutions": 5,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 92
+      },
+      "edits": {
+        "suffix_revisions": 3,
+        "removed_or_replaced_chars": 5,
+        "literal_revisions": 4,
+        "provisional_periods_retracted": 0
+      },
+      "window_edits": {
+        "suffix_revisions": 3,
+        "removed_or_replaced_chars": 5,
+        "literal_revisions": 4,
+        "provisional_periods_retracted": 0
+      },
+      "states": [
+        "completed"
+      ],
+      "verified_calls": 0,
+      "verified_tokens": 0,
+      "decode_calls": 29,
+      "decode_wall": 18.43
+    },
+    {
+      "arm": "final-stress-new-c",
+      "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+      "input_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "load_achieved": false,
+      "real_cpu_cores": 3.8537,
+      "load_before": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          60.314453125,
+          77.8876953125,
+          69.62939453125
+        ]
+      },
+      "load_after": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          65.9716796875,
+          76.5498046875,
+          69.5390625
+        ]
+      },
+      "cpu_seconds": 17.52,
+      "app_cpu": 4.4,
+      "helper_cpu": 13.12,
+      "wall_seconds": 41.343,
+      "peak_footprint_mib": 1302.7,
+      "first": 1.548,
+      "after_eof": 0.854,
+      "after_signal": 0.858,
+      "literal": {
+        "first_s": {
+          "p50": 1.512,
+          "p95": 1.512
+        },
+        "internal_gaps_s": {
+          "p50": 0.298,
+          "p95": 1.766
+        },
+        "longest_s": 4.32
+      },
+      "word": {
+        "first_s": {
+          "p50": 1.584,
+          "p95": 1.584
+        },
+        "internal_gaps_s": {
+          "p50": 0.589,
+          "p95": 2.0
+        },
+        "longest_s": 4.574
+      },
+      "source_word": {
+        "first_s": {
+          "p50": 1.482,
+          "p95": 1.482
+        },
+        "internal_gaps_s": {
+          "p50": 0.692,
+          "p95": 2.698
+        },
+        "longest_s": 4.547
+      },
+      "bigram": {
+        "count": 69,
+        "first_s": 1.548,
+        "gap_s": {
+          "p50": 0.404,
+          "p95": 1.844
+        },
+        "longest_s": 4.539,
+        "longest_start_end_s": [
+          31.461,
+          36.0
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.648,
+        "raw_outputs_inside_longest": 2,
+        "timeline_outputs_inside_longest": 2,
+        "above_two_seconds": 3
+      },
+      "cer": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      },
+      "edits": {
+        "suffix_revisions": 8,
+        "removed_or_replaced_chars": 12,
+        "literal_revisions": 16,
+        "provisional_periods_retracted": 0
+      },
+      "window_edits": {
+        "suffix_revisions": 8,
+        "removed_or_replaced_chars": 12,
+        "literal_revisions": 16,
+        "provisional_periods_retracted": 0
+      },
+      "states": [
+        "completed",
+        "completed"
+      ],
+      "verified_calls": 43,
+      "verified_tokens": 1726,
+      "decode_calls": 52,
+      "decode_wall": 24.486
+    },
+    {
+      "arm": "final-stress-old-c",
+      "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+      "input_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "load_achieved": false,
+      "real_cpu_cores": 5.0607,
+      "load_before": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          35.330078125,
+          76.9658203125,
+          68.8671875
+        ]
+      },
+      "load_after": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          60.314453125,
+          77.8876953125,
+          69.62939453125
+        ]
+      },
+      "cpu_seconds": 26.09,
+      "app_cpu": 4.17,
+      "helper_cpu": 21.92,
+      "wall_seconds": 42.08,
+      "peak_footprint_mib": 1822.4,
+      "first": 1.473,
+      "after_eof": 1.314,
+      "after_signal": 1.321,
+      "literal": {
+        "first_s": {
+          "p50": 1.437,
+          "p95": 1.437
+        },
+        "internal_gaps_s": {
+          "p50": 0.038,
+          "p95": 1.612
+        },
+        "longest_s": 3.466
+      },
+      "word": {
+        "first_s": {
+          "p50": 1.51,
+          "p95": 1.51
+        },
+        "internal_gaps_s": {
+          "p50": 0.523,
+          "p95": 1.74
+        },
+        "longest_s": 3.466
+      },
+      "source_word": {
+        "first_s": {
+          "p50": 1.418,
+          "p95": 1.418
+        },
+        "internal_gaps_s": {
+          "p50": 0.591,
+          "p95": 1.741
+        },
+        "longest_s": 3.463
+      },
+      "bigram": {
+        "count": 79,
+        "first_s": 1.473,
+        "gap_s": {
+          "p50": 0.336,
+          "p95": 1.669
+        },
+        "longest_s": 3.466,
+        "longest_start_end_s": [
+          23.727,
+          27.193
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.701,
+        "raw_outputs_inside_longest": 2,
+        "timeline_outputs_inside_longest": 1,
+        "above_two_seconds": 2
+      },
+      "cer": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      },
+      "edits": {
+        "suffix_revisions": 8,
+        "removed_or_replaced_chars": 13,
+        "literal_revisions": 13,
+        "provisional_periods_retracted": 0
+      },
+      "window_edits": {
+        "suffix_revisions": 8,
+        "removed_or_replaced_chars": 13,
+        "literal_revisions": 13,
+        "provisional_periods_retracted": 0
+      },
+      "states": [
+        "completed",
+        "completed"
+      ],
+      "verified_calls": 0,
+      "verified_tokens": 0,
+      "decode_calls": 49,
+      "decode_wall": 29.726
+    },
+    {
+      "arm": "final-stress-old2-c",
+      "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+      "input_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "load_achieved": false,
+      "real_cpu_cores": 5.0809,
+      "load_before": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          65.9716796875,
+          76.5498046875,
+          69.5390625
+        ]
+      },
+      "load_after": {
+        "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "load_average": [
+          64.7236328125,
+          74.900390625,
+          69.3017578125
+        ]
+      },
+      "cpu_seconds": 27.56,
+      "app_cpu": 4.05,
+      "helper_cpu": 23.51,
+      "wall_seconds": 41.416,
+      "peak_footprint_mib": 1639.8,
+      "first": 2.19,
+      "after_eof": 0.914,
+      "after_signal": 0.919,
+      "literal": {
+        "first_s": {
+          "p50": 2.153,
+          "p95": 2.153
+        },
+        "internal_gaps_s": {
+          "p50": 0.038,
+          "p95": 1.184
+        },
+        "longest_s": 5.928
+      },
+      "word": {
+        "first_s": {
+          "p50": 2.228,
+          "p95": 2.228
+        },
+        "internal_gaps_s": {
+          "p50": 0.558,
+          "p95": 1.522
+        },
+        "longest_s": 7.019
+      },
+      "source_word": {
+        "first_s": {
+          "p50": 2.119,
+          "p95": 2.119
+        },
+        "internal_gaps_s": {
+          "p50": 0.635,
+          "p95": 2.666
+        },
+        "longest_s": 6.989
+      },
+      "bigram": {
+        "count": 77,
+        "first_s": 2.19,
+        "gap_s": {
+          "p50": 0.26,
+          "p95": 1.312
+        },
+        "longest_s": 7.019,
+        "longest_start_end_s": [
+          22.561,
+          29.58
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.627,
+        "raw_outputs_inside_longest": 4,
+        "timeline_outputs_inside_longest": 2,
+        "above_two_seconds": 3
+      },
+      "cer": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      },
+      "edits": {
+        "suffix_revisions": 3,
+        "removed_or_replaced_chars": 5,
+        "literal_revisions": 11,
+        "provisional_periods_retracted": 0
+      },
+      "window_edits": {
+        "suffix_revisions": 3,
+        "removed_or_replaced_chars": 5,
+        "literal_revisions": 11,
+        "provisional_periods_retracted": 0
+      },
+      "states": [
+        "completed",
+        "completed"
+      ],
+      "verified_calls": 0,
+      "verified_tokens": 0,
+      "decode_calls": 48,
+      "decode_wall": 29.827
+    }
+  ],
+  "short": [
+    {
+      "arm": "baseline",
+      "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+      "first_literal": {
+        "p50": 0.903,
+        "p95": 1.056
+      },
+      "literal_cadence": {
+        "first_s": {
+          "p50": 0.903,
+          "p95": 1.056
+        },
+        "internal_gaps_s": {
+          "p50": 0.183,
+          "p95": 0.858
+        },
+        "longest_s": 1.83
+      },
+      "lexical_cadence": {
+        "first_s": {
+          "p50": 0.903,
+          "p95": 1.056
+        },
+        "internal_gaps_s": {
+          "p50": 0.402,
+          "p95": 0.932
+        },
+        "longest_s": 1.83
+      },
+      "reference_word_cadence": {
+        "first_s": {
+          "p50": 0.932,
+          "p95": 1.056
+        },
+        "internal_gaps_s": {
+          "p50": 0.479,
+          "p95": 1.101
+        },
+        "longest_s": 2.388
+      },
+      "summary": {
+        "cer_errors": 46,
+        "cer_ref": 568,
+        "first": {
+          "p50": 0.955,
+          "p95": 1.478
+        },
+        "eos": {
+          "p50": 0.194,
+          "p95": 0.419
+        },
+        "changes": {
+          "suffix_revisions": 27,
+          "removed_or_replaced_chars": 41,
+          "literal_revisions": 48,
+          "provisional_periods_retracted": 0
+        },
+        "visible_changes": {
+          "suffix_revisions": 27,
+          "removed_or_replaced_chars": 41,
+          "literal_revisions": 48,
+          "provisional_periods_retracted": 0
+        },
+        "decode_wall_s": 29.081558710196987,
+        "decode_count": 232,
+        "verified_calls": 0,
+        "verified_tokens": 0,
+        "all_eos_plain": true
+      },
+      "details": [
+        {
+          "id": "ascend-mixed-7c8bdcb41bb98a40",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 38
+          },
+          "after_file_s": 0.179,
+          "first_s": 1.05,
+          "gap_s": {
+            "p50": 0.326,
+            "p95": 1.518
+          },
+          "longest_s": 1.518,
+          "changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.1778828750830144,
+          "decode_count": 11
+        },
+        {
+          "id": "ascend-mixed-a0b0e736637c643c",
+          "cer": {
+            "errors": 5,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 4,
+            "reference_units": 51
+          },
+          "after_file_s": 0.242,
+          "first_s": 0.906,
+          "gap_s": {
+            "p50": 0.477,
+            "p95": 1.83
+          },
+          "longest_s": 1.83,
+          "changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 7,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 7,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.9152958332560956,
+          "decode_count": 17
+        },
+        {
+          "id": "fleurs-1bc3201a9f24a2fe",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 29
+          },
+          "after_file_s": 0.027,
+          "first_s": 0.786,
+          "gap_s": {
+            "p50": 0.44,
+            "p95": 0.551
+          },
+          "longest_s": 0.786,
+          "changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 3,
+            "literal_revisions": 3,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 3,
+            "literal_revisions": 3,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.368998751277104,
+          "decode_count": 20
+        },
+        {
+          "id": "fleurs-0ebe0fb634f8e4ac",
+          "cer": {
+            "errors": 4,
+            "substitutions": 4,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 39
+          },
+          "after_file_s": 0.015,
+          "first_s": 0.939,
+          "gap_s": {
+            "p50": 0.474,
+            "p95": 1.045
+          },
+          "longest_s": 1.521,
+          "changes": {
+            "suffix_revisions": 4,
+            "removed_or_replaced_chars": 5,
+            "literal_revisions": 7,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 4,
+            "removed_or_replaced_chars": 5,
+            "literal_revisions": 7,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 3.6944187497720122,
+          "decode_count": 25
+        },
+        {
+          "id": "fleurs-9eb2d543a0a36152",
+          "cer": {
+            "errors": 24,
+            "substitutions": 3,
+            "deletions": 21,
+            "insertions": 0,
+            "reference_units": 63
+          },
+          "after_file_s": 0.032,
+          "first_s": 0.665,
+          "gap_s": {
+            "p50": 0.446,
+            "p95": 1.502
+          },
+          "longest_s": 1.502,
+          "changes": {
+            "suffix_revisions": 7,
+            "removed_or_replaced_chars": 15,
+            "literal_revisions": 7,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 7,
+            "removed_or_replaced_chars": 15,
+            "literal_revisions": 7,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 3.340335958637297,
+          "decode_count": 22
+        },
+        {
+          "id": "fleurs-914c948388ae30bd",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 35
+          },
+          "after_file_s": 0.214,
+          "first_s": 0.741,
+          "gap_s": {
+            "p50": 0.219,
+            "p95": 0.587
+          },
+          "longest_s": 0.956,
+          "changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.3474387507885695,
+          "decode_count": 18
+        },
+        {
+          "id": "fleurs-e50b6b02d6d90ddc",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 39
+          },
+          "after_file_s": 0.231,
+          "first_s": 0.818,
+          "gap_s": {
+            "p50": 0.042,
+            "p95": 0.544
+          },
+          "longest_s": 0.985,
+          "changes": {
+            "suffix_revisions": 3,
+            "removed_or_replaced_chars": 3,
+            "literal_revisions": 3,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 3,
+            "removed_or_replaced_chars": 3,
+            "literal_revisions": 3,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.033211541827768,
+          "decode_count": 16
+        },
+        {
+          "id": "fleurs-8e93e440f571a4da",
+          "cer": {
+            "errors": 7,
+            "substitutions": 0,
+            "deletions": 7,
+            "insertions": 0,
+            "reference_units": 27
+          },
+          "after_file_s": 0.022,
+          "first_s": 1.478,
+          "gap_s": {
+            "p50": 0.444,
+            "p95": 1.101
+          },
+          "longest_s": 1.478,
+          "changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 4,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 4,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.7391329582314938,
+          "decode_count": 15
+        },
+        {
+          "id": "ascend-zh-6a23208e2c146088",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 20
+          },
+          "after_file_s": 0.194,
+          "first_s": 0.958,
+          "gap_s": {
+            "p50": 0.037,
+            "p95": 0.48
+          },
+          "longest_s": 0.958,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 0.7127932079602033,
+          "decode_count": 7
+        },
+        {
+          "id": "ascend-zh-ed182ef57fba310b",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 23
+          },
+          "after_file_s": 0.237,
+          "first_s": 1.358,
+          "gap_s": {
+            "p50": 0.474,
+            "p95": 0.55
+          },
+          "longest_s": 1.358,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.1508105415850878,
+          "decode_count": 11
+        },
+        {
+          "id": "ascend-zh-4309bc70746a5c2c",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 31
+          },
+          "after_file_s": 0.419,
+          "first_s": 0.957,
+          "gap_s": {
+            "p50": 0.037,
+            "p95": 0.479
+          },
+          "longest_s": 0.957,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.4261123335454613,
+          "decode_count": 12
+        },
+        {
+          "id": "ascend-zh-0c5639a6e24f539b",
+          "cer": {
+            "errors": 1,
+            "substitutions": 0,
+            "deletions": 1,
+            "insertions": 0,
+            "reference_units": 28
+          },
+          "after_file_s": 0.187,
+          "first_s": 1.239,
+          "gap_s": {
+            "p50": 0.44,
+            "p95": 0.986
+          },
+          "longest_s": 1.239,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.5009867083281279,
+          "decode_count": 13
+        },
+        {
+          "id": "ascend-mixed-9255615fddf1a721",
+          "cer": {
+            "errors": 3,
+            "substitutions": 2,
+            "deletions": 0,
+            "insertions": 1,
+            "reference_units": 39
+          },
+          "after_file_s": 0.19,
+          "first_s": 0.951,
+          "gap_s": {
+            "p50": 0.515,
+            "p95": 1.032
+          },
+          "longest_s": 1.032,
+          "changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.1741391248069704,
+          "decode_count": 12
+        },
+        {
+          "id": "ascend-mixed-ee4e2d5087648134",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 38
+          },
+          "after_file_s": 0.231,
+          "first_s": 0.955,
+          "gap_s": {
+            "p50": 0.037,
+            "p95": 1.063
+          },
+          "longest_s": 1.247,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.6978054165374488,
+          "decode_count": 14
+        },
+        {
+          "id": "ascend-mixed-ff9c42612780330b",
+          "cer": {
+            "errors": 2,
+            "substitutions": 1,
+            "deletions": 1,
+            "insertions": 0,
+            "reference_units": 68
+          },
+          "after_file_s": 0.279,
+          "first_s": 0.97,
+          "gap_s": {
+            "p50": 0.417,
+            "p95": 1.018
+          },
+          "longest_s": 1.53,
+          "changes": {
+            "suffix_revisions": 3,
+            "removed_or_replaced_chars": 5,
+            "literal_revisions": 4,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 3,
+            "removed_or_replaced_chars": 5,
+            "literal_revisions": 4,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.8021959585603327,
+          "decode_count": 19
+        }
+      ]
+    },
+    {
+      "arm": "final-short",
+      "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+      "first_literal": {
+        "p50": 1.348,
+        "p95": 2.303
+      },
+      "literal_cadence": {
+        "first_s": {
+          "p50": 1.348,
+          "p95": 2.303
+        },
+        "internal_gaps_s": {
+          "p50": 0.256,
+          "p95": 0.956
+        },
+        "longest_s": 2.303
+      },
+      "lexical_cadence": {
+        "first_s": {
+          "p50": 1.348,
+          "p95": 2.303
+        },
+        "internal_gaps_s": {
+          "p50": 0.363,
+          "p95": 1.004
+        },
+        "longest_s": 2.303
+      },
+      "reference_word_cadence": {
+        "first_s": {
+          "p50": 1.401,
+          "p95": 2.303
+        },
+        "internal_gaps_s": {
+          "p50": 0.478,
+          "p95": 1.474
+        },
+        "longest_s": 2.57
+      },
+      "summary": {
+        "cer_errors": 46,
+        "cer_ref": 568,
+        "first": {
+          "p50": 1.401,
+          "p95": 2.303
+        },
+        "eos": {
+          "p50": 0.462,
+          "p95": 1.469
+        },
+        "changes": {
+          "suffix_revisions": 20,
+          "removed_or_replaced_chars": 30,
+          "literal_revisions": 45,
+          "provisional_periods_retracted": 0
+        },
+        "visible_changes": {
+          "suffix_revisions": 20,
+          "removed_or_replaced_chars": 30,
+          "literal_revisions": 45,
+          "provisional_periods_retracted": 0
+        },
+        "decode_wall_s": 41.530304913874716,
+        "decode_count": 221,
+        "verified_calls": 75,
+        "verified_tokens": 1428,
+        "all_eos_plain": true
+      },
+      "details": [
+        {
+          "id": "ascend-mixed-7c8bdcb41bb98a40",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 38
+          },
+          "after_file_s": 0.681,
+          "first_s": 1.129,
+          "gap_s": {
+            "p50": 0.295,
+            "p95": 1.413
+          },
+          "longest_s": 1.413,
+          "changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.267786916345358,
+          "decode_count": 11
+        },
+        {
+          "id": "ascend-mixed-a0b0e736637c643c",
+          "cer": {
+            "errors": 5,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 4,
+            "reference_units": 51
+          },
+          "after_file_s": 0.805,
+          "first_s": 0.873,
+          "gap_s": {
+            "p50": 0.514,
+            "p95": 1.872
+          },
+          "longest_s": 1.872,
+          "changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 8,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 8,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 4,
+          "verified_tokens": 44,
+          "all_eos_plain": true,
+          "decode_wall_s": 4.911090791225433,
+          "decode_count": 17
+        },
+        {
+          "id": "fleurs-1bc3201a9f24a2fe",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 29
+          },
+          "after_file_s": 0.042,
+          "first_s": 0.785,
+          "gap_s": {
+            "p50": 0.444,
+            "p95": 0.591
+          },
+          "longest_s": 0.785,
+          "changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 3,
+            "literal_revisions": 3,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 3,
+            "literal_revisions": 3,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 8,
+          "verified_tokens": 151,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.540713874390349,
+          "decode_count": 20
+        },
+        {
+          "id": "fleurs-0ebe0fb634f8e4ac",
+          "cer": {
+            "errors": 4,
+            "substitutions": 4,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 39
+          },
+          "after_file_s": 0.019,
+          "first_s": 1.401,
+          "gap_s": {
+            "p50": 0.477,
+            "p95": 1.067
+          },
+          "longest_s": 1.401,
+          "changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 14,
+          "verified_tokens": 313,
+          "all_eos_plain": true,
+          "decode_wall_s": 3.1012884164229035,
+          "decode_count": 24
+        },
+        {
+          "id": "fleurs-9eb2d543a0a36152",
+          "cer": {
+            "errors": 24,
+            "substitutions": 3,
+            "deletions": 21,
+            "insertions": 0,
+            "reference_units": 63
+          },
+          "after_file_s": 0.039,
+          "first_s": 0.666,
+          "gap_s": {
+            "p50": 0.434,
+            "p95": 1.694
+          },
+          "longest_s": 1.694,
+          "changes": {
+            "suffix_revisions": 7,
+            "removed_or_replaced_chars": 15,
+            "literal_revisions": 7,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 7,
+            "removed_or_replaced_chars": 15,
+            "literal_revisions": 7,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 11,
+          "verified_tokens": 243,
+          "all_eos_plain": true,
+          "decode_wall_s": 3.054612208157778,
+          "decode_count": 22
+        },
+        {
+          "id": "fleurs-914c948388ae30bd",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 35
+          },
+          "after_file_s": 0.748,
+          "first_s": 1.313,
+          "gap_s": {
+            "p50": 0.061,
+            "p95": 1.111
+          },
+          "longest_s": 1.313,
+          "changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 8,
+          "verified_tokens": 162,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.583372625056654,
+          "decode_count": 17
+        },
+        {
+          "id": "fleurs-e50b6b02d6d90ddc",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 39
+          },
+          "after_file_s": 0.34,
+          "first_s": 1.588,
+          "gap_s": {
+            "p50": 0.038,
+            "p95": 1.004
+          },
+          "longest_s": 1.588,
+          "changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 7,
+          "verified_tokens": 125,
+          "all_eos_plain": true,
+          "decode_wall_s": 3.0488557915668935,
+          "decode_count": 15
+        },
+        {
+          "id": "fleurs-8e93e440f571a4da",
+          "cer": {
+            "errors": 7,
+            "substitutions": 0,
+            "deletions": 7,
+            "insertions": 0,
+            "reference_units": 27
+          },
+          "after_file_s": 0.032,
+          "first_s": 1.458,
+          "gap_s": {
+            "p50": 0.404,
+            "p95": 1.066
+          },
+          "longest_s": 1.458,
+          "changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 5,
+          "verified_tokens": 77,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.8676582910120487,
+          "decode_count": 14
+        },
+        {
+          "id": "ascend-zh-6a23208e2c146088",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 20
+          },
+          "after_file_s": 0.222,
+          "first_s": 1.295,
+          "gap_s": {
+            "p50": 0.037,
+            "p95": 0.55
+          },
+          "longest_s": 1.295,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 0.9498051248956472,
+          "decode_count": 7
+        },
+        {
+          "id": "ascend-zh-ed182ef57fba310b",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 23
+          },
+          "after_file_s": 0.472,
+          "first_s": 1.611,
+          "gap_s": {
+            "p50": 0.331,
+            "p95": 1.017
+          },
+          "longest_s": 1.611,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 1,
+          "verified_tokens": 15,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.15481362468563,
+          "decode_count": 10
+        },
+        {
+          "id": "ascend-zh-4309bc70746a5c2c",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 31
+          },
+          "after_file_s": 1.075,
+          "first_s": 1.901,
+          "gap_s": {
+            "p50": 0.038,
+            "p95": 0.485
+          },
+          "longest_s": 1.901,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 4,
+          "verified_tokens": 64,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.8392771249637008,
+          "decode_count": 11
+        },
+        {
+          "id": "ascend-zh-0c5639a6e24f539b",
+          "cer": {
+            "errors": 1,
+            "substitutions": 0,
+            "deletions": 1,
+            "insertions": 0,
+            "reference_units": 28
+          },
+          "after_file_s": 0.462,
+          "first_s": 1.248,
+          "gap_s": {
+            "p50": 0.478,
+            "p95": 1.268
+          },
+          "longest_s": 1.268,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 2,
+          "verified_tokens": 28,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.649954041931778,
+          "decode_count": 13
+        },
+        {
+          "id": "ascend-mixed-9255615fddf1a721",
+          "cer": {
+            "errors": 3,
+            "substitutions": 2,
+            "deletions": 0,
+            "insertions": 1,
+            "reference_units": 39
+          },
+          "after_file_s": 0.29,
+          "first_s": 1.435,
+          "gap_s": {
+            "p50": 0.42,
+            "p95": 1.108
+          },
+          "longest_s": 1.435,
+          "changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.7981876253616065,
+          "decode_count": 12
+        },
+        {
+          "id": "ascend-mixed-ee4e2d5087648134",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 38
+          },
+          "after_file_s": 1.469,
+          "first_s": 1.444,
+          "gap_s": {
+            "p50": 0.478,
+            "p95": 1.123
+          },
+          "longest_s": 1.444,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 3,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 3,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 3,
+          "verified_tokens": 23,
+          "all_eos_plain": true,
+          "decode_wall_s": 4.765186541713774,
+          "decode_count": 11
+        },
+        {
+          "id": "ascend-mixed-ff9c42612780330b",
+          "cer": {
+            "errors": 2,
+            "substitutions": 1,
+            "deletions": 1,
+            "insertions": 0,
+            "reference_units": 68
+          },
+          "after_file_s": 0.485,
+          "first_s": 2.303,
+          "gap_s": {
+            "p50": 0.501,
+            "p95": 1.221
+          },
+          "longest_s": 2.303,
+          "changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 8,
+          "verified_tokens": 183,
+          "all_eos_plain": true,
+          "decode_wall_s": 3.997701916145161,
+          "decode_count": 17
+        }
+      ]
+    },
+    {
+      "arm": "repeat-old-short",
+      "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+      "first_literal": {
+        "p50": 1.105,
+        "p95": 2.038
+      },
+      "literal_cadence": {
+        "first_s": {
+          "p50": 1.105,
+          "p95": 2.038
+        },
+        "internal_gaps_s": {
+          "p50": 0.045,
+          "p95": 0.823
+        },
+        "longest_s": 2.038
+      },
+      "lexical_cadence": {
+        "first_s": {
+          "p50": 1.105,
+          "p95": 2.038
+        },
+        "internal_gaps_s": {
+          "p50": 0.054,
+          "p95": 0.917
+        },
+        "longest_s": 2.038
+      },
+      "reference_word_cadence": {
+        "first_s": {
+          "p50": 1.142,
+          "p95": 2.49
+        },
+        "internal_gaps_s": {
+          "p50": 0.449,
+          "p95": 1.371
+        },
+        "longest_s": 2.49
+      },
+      "summary": {
+        "cer_errors": 46,
+        "cer_ref": 568,
+        "first": {
+          "p50": 1.259,
+          "p95": 2.49
+        },
+        "eos": {
+          "p50": 0.302,
+          "p95": 1.087
+        },
+        "changes": {
+          "suffix_revisions": 23,
+          "removed_or_replaced_chars": 34,
+          "literal_revisions": 43,
+          "provisional_periods_retracted": 0
+        },
+        "visible_changes": {
+          "suffix_revisions": 23,
+          "removed_or_replaced_chars": 34,
+          "literal_revisions": 43,
+          "provisional_periods_retracted": 0
+        },
+        "decode_wall_s": 51.09800154156983,
+        "decode_count": 225,
+        "verified_calls": 0,
+        "verified_tokens": 0,
+        "all_eos_plain": true
+      },
+      "details": [
+        {
+          "id": "ascend-mixed-7c8bdcb41bb98a40",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 38
+          },
+          "after_file_s": 0.465,
+          "first_s": 1.146,
+          "gap_s": {
+            "p50": 0.328,
+            "p95": 1.67
+          },
+          "longest_s": 1.67,
+          "changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.0078805005177855,
+          "decode_count": 11
+        },
+        {
+          "id": "ascend-mixed-a0b0e736637c643c",
+          "cer": {
+            "errors": 5,
+            "substitutions": 1,
+            "deletions": 0,
+            "insertions": 4,
+            "reference_units": 51
+          },
+          "after_file_s": 1.087,
+          "first_s": 1.868,
+          "gap_s": {
+            "p50": 0.42,
+            "p95": 1.333
+          },
+          "longest_s": 1.868,
+          "changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 6,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 6,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 6.668251124909148,
+          "decode_count": 14
+        },
+        {
+          "id": "fleurs-1bc3201a9f24a2fe",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 29
+          },
+          "after_file_s": 0.044,
+          "first_s": 1.259,
+          "gap_s": {
+            "p50": 0.365,
+            "p95": 0.554
+          },
+          "longest_s": 1.259,
+          "changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 5.840798166347668,
+          "decode_count": 19
+        },
+        {
+          "id": "fleurs-0ebe0fb634f8e4ac",
+          "cer": {
+            "errors": 4,
+            "substitutions": 4,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 39
+          },
+          "after_file_s": 0.041,
+          "first_s": 1.142,
+          "gap_s": {
+            "p50": 0.449,
+            "p95": 1.024
+          },
+          "longest_s": 1.532,
+          "changes": {
+            "suffix_revisions": 4,
+            "removed_or_replaced_chars": 5,
+            "literal_revisions": 7,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 4,
+            "removed_or_replaced_chars": 5,
+            "literal_revisions": 7,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 4.5802129581570625,
+          "decode_count": 25
+        },
+        {
+          "id": "fleurs-9eb2d543a0a36152",
+          "cer": {
+            "errors": 24,
+            "substitutions": 3,
+            "deletions": 21,
+            "insertions": 0,
+            "reference_units": 63
+          },
+          "after_file_s": 0.018,
+          "first_s": 0.766,
+          "gap_s": {
+            "p50": 0.438,
+            "p95": 1.644
+          },
+          "longest_s": 1.644,
+          "changes": {
+            "suffix_revisions": 7,
+            "removed_or_replaced_chars": 15,
+            "literal_revisions": 7,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 7,
+            "removed_or_replaced_chars": 15,
+            "literal_revisions": 7,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 5.310580583056435,
+          "decode_count": 22
+        },
+        {
+          "id": "fleurs-914c948388ae30bd",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 35
+          },
+          "after_file_s": 0.448,
+          "first_s": 1.272,
+          "gap_s": {
+            "p50": 0.037,
+            "p95": 0.995
+          },
+          "longest_s": 1.272,
+          "changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 3.2082440410740674,
+          "decode_count": 17
+        },
+        {
+          "id": "fleurs-e50b6b02d6d90ddc",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 39
+          },
+          "after_file_s": 0.468,
+          "first_s": 1.17,
+          "gap_s": {
+            "p50": 0.037,
+            "p95": 0.588
+          },
+          "longest_s": 1.17,
+          "changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 1,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 3.375324625056237,
+          "decode_count": 16
+        },
+        {
+          "id": "fleurs-8e93e440f571a4da",
+          "cer": {
+            "errors": 7,
+            "substitutions": 0,
+            "deletions": 7,
+            "insertions": 0,
+            "reference_units": 27
+          },
+          "after_file_s": 0.003,
+          "first_s": 2.49,
+          "gap_s": {
+            "p50": 0.037,
+            "p95": 0.819
+          },
+          "longest_s": 2.49,
+          "changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 1,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 1,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 4.539322208147496,
+          "decode_count": 13
+        },
+        {
+          "id": "ascend-zh-6a23208e2c146088",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 20
+          },
+          "after_file_s": 0.302,
+          "first_s": 1.29,
+          "gap_s": {
+            "p50": 0.037,
+            "p95": 0.513
+          },
+          "longest_s": 1.29,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.3131157082971185,
+          "decode_count": 7
+        },
+        {
+          "id": "ascend-zh-ed182ef57fba310b",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 23
+          },
+          "after_file_s": 0.286,
+          "first_s": 1.355,
+          "gap_s": {
+            "p50": 0.444,
+            "p95": 0.552
+          },
+          "longest_s": 1.355,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 5,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.2769388335291296,
+          "decode_count": 11
+        },
+        {
+          "id": "ascend-zh-4309bc70746a5c2c",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 31
+          },
+          "after_file_s": 0.456,
+          "first_s": 1.425,
+          "gap_s": {
+            "p50": 0.039,
+            "p95": 0.558
+          },
+          "longest_s": 1.425,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.422241208842024,
+          "decode_count": 12
+        },
+        {
+          "id": "ascend-zh-0c5639a6e24f539b",
+          "cer": {
+            "errors": 1,
+            "substitutions": 0,
+            "deletions": 1,
+            "insertions": 0,
+            "reference_units": 28
+          },
+          "after_file_s": 0.282,
+          "first_s": 1.277,
+          "gap_s": {
+            "p50": 0.368,
+            "p95": 1.213
+          },
+          "longest_s": 1.277,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.111813374562189,
+          "decode_count": 13
+        },
+        {
+          "id": "ascend-mixed-9255615fddf1a721",
+          "cer": {
+            "errors": 3,
+            "substitutions": 2,
+            "deletions": 0,
+            "insertions": 1,
+            "reference_units": 39
+          },
+          "after_file_s": 0.838,
+          "first_s": 0.99,
+          "gap_s": {
+            "p50": 0.511,
+            "p95": 1.104
+          },
+          "longest_s": 1.104,
+          "changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 2,
+            "removed_or_replaced_chars": 2,
+            "literal_revisions": 2,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 1.7667347504757345,
+          "decode_count": 12
+        },
+        {
+          "id": "ascend-mixed-ee4e2d5087648134",
+          "cer": {
+            "errors": 0,
+            "substitutions": 0,
+            "deletions": 0,
+            "insertions": 0,
+            "reference_units": 38
+          },
+          "after_file_s": 0.299,
+          "first_s": 1.099,
+          "gap_s": {
+            "p50": 0.037,
+            "p95": 1.031
+          },
+          "longest_s": 1.215,
+          "changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 0,
+            "removed_or_replaced_chars": 0,
+            "literal_revisions": 0,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 2.029389624716714,
+          "decode_count": 14
+        },
+        {
+          "id": "ascend-mixed-ff9c42612780330b",
+          "cer": {
+            "errors": 2,
+            "substitutions": 1,
+            "deletions": 1,
+            "insertions": 0,
+            "reference_units": 68
+          },
+          "after_file_s": 0.954,
+          "first_s": 0.954,
+          "gap_s": {
+            "p50": 0.365,
+            "p95": 1.07
+          },
+          "longest_s": 1.542,
+          "changes": {
+            "suffix_revisions": 3,
+            "removed_or_replaced_chars": 5,
+            "literal_revisions": 4,
+            "provisional_periods_retracted": 0
+          },
+          "visible_changes": {
+            "suffix_revisions": 3,
+            "removed_or_replaced_chars": 5,
+            "literal_revisions": 4,
+            "provisional_periods_retracted": 0
+          },
+          "verified_calls": 0,
+          "verified_tokens": 0,
+          "all_eos_plain": true,
+          "decode_wall_s": 4.6471538338810205,
+          "decode_count": 19
+        }
+      ]
+    }
+  ],
+  "metric_notes": [
+    "Word timing counts first appearance of a distinct matching reference word type; not WER. Tokenizer splits ASCII and non-ASCII runs.",
+    "Literal, normalized lexical, matching reference bigram, and word timing are separate.",
+    "Longest gaps include initial and terminal silence within the active acoustic span; internal P95 excludes boundary waits.",
+    "CPU counters are sampled per app and child PID; decode occupancy is wall time and is reported separately.",
+    "The two lighter arms targeted and achieved 1.33 injected CPU cores, but external load declined during the sequence.",
+    "The three heavy arms targeted six CPU cores, but achieved 5.061 / 3.854 / 5.081. No fixed-six-core conclusion is supported.",
+    "All cases used original-rate public audio and isolated app profiles. The microphone was never accessed.",
+    "Initial 10:33 baseline short receipts are historical relative to the adjacent 11:05/11:09 pair.",
+    "Each independent case starts a fresh app and worker. Warm-host natural dictation is a separate condition.",
+    "External builds were present on this machine. Neither the test nor this report attributes all latency differences to source code."
+  ]
+}
