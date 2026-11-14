@@ -84,6 +84,8 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
         // The small Qwen model is greedy. If EOS follows a preview without
         // another PCM sample, that exact decode is already its final answer.
         var exactPreview: (frames: Int, text: String)?
+        var lastChangedAt = 0
+        var awaitingConfirmation = false
         var input = PCMFrameReader(descriptor: STDIN_FILENO)
         func nextFrame() throws -> Data? {
             if id == "qwen-small" { return try input.next() }
@@ -127,10 +129,21 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
                     if samples.count >= windowLimit {
                         prefix += tail
                         samples.removeAll(keepingCapacity: true)
+                        lastChangedAt = frames
+                        awaitingConfirmation = false
                         next = stride
                     } else {
-                        let rollback = !last.isEmpty && !(update ?? "").hasPrefix(String(last.dropLast(2)))
-                        next = samples.count + (rollback ? min(firstStride, stride) : stride)
+                        if id == "qwen-small", stride == 8_000, !end {
+                            // An early follow-up requires genuinely new PCM. The existing
+                            // backlog coalescing path still takes precedence under load.
+                            let confirm = !awaitingConfirmation && QwenConfirmationCadence.shouldConfirm(
+                                previous: last, candidate: decoded, changedAfterFrames: frames - lastChangedAt)
+                            next = samples.count + (confirm ? 4_800 : stride)
+                            awaitingConfirmation = confirm
+                        } else {
+                            let rollback = !last.isEmpty && !decoded.hasPrefix(String(last.dropLast(2)))
+                            next = samples.count + (rollback ? min(firstStride, stride) : stride)
+                        }
                     }
                 }
             }
@@ -141,8 +154,10 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
                 stream = try nemo?.createSession(language: "zh")
                 samples.removeAll(keepingCapacity: true)
                 prefix = ""; last = ""; next = firstStride; frames = 0
+                lastChangedAt = 0; awaitingConfirmation = false
             } else if let update, !update.isEmpty, update != last, id == "nemotron-metal" || rollingQwen {
                 last = update
+                lastChangedAt = frames
                 try publish(update, kind: "partial", frames: frames, decodes: decodes)
                 decodes.removeAll(keepingCapacity: true)
             }
