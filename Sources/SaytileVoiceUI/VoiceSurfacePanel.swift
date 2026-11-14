@@ -3,6 +3,19 @@ import SwiftUI
 
 public enum VoicePanelState: Equatable, Sendable { case paused, standby, recognizing, starting, recoveryNeeded }
 
+private struct VoicePanelFullscreenKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+public extension EnvironmentValues {
+    /// Hosts report the surrounding window context; the shared card alone owns
+    /// its material response. Ordinary desktop rendering remains the default.
+    var isOverFullscreen: Bool {
+        get { self[VoicePanelFullscreenKey.self] }
+        set { self[VoicePanelFullscreenKey.self] = newValue }
+    }
+}
+
 public struct VoicePanelCapture: Equatable, Sendable {
     public let state: VoicePanelState
     public let level: Double?

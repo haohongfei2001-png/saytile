@@ -1,0 +1,75 @@
+{
+  "error" : "Failed(message: \"BLOCKED_FIXTURE_AX_CG_READINESS: frame\")",
+  "scope" : "Only two disposable synthetic AppKit fixture PIDs; production PanelWindowAccess\/PanelArrangementWorker; no user app target, no text read, no mic, no input events.",
+  "status" : "BLOCKED",
+  "tests" : [
+    {
+      "name" : "scope excludes unrelated fixture PID",
+      "status" : "PASS"
+    },
+    {
+      "name" : "initial owned window corresponds to public CG ID",
+      "status" : "PASS"
+    },
+    {
+      "name" : "ordinary window displaced beyond panel",
+      "status" : "PASS"
+    },
+    {
+      "name" : "repeat is idempotent",
+      "status" : "PASS"
+    },
+    {
+      "name" : "mode off restores original",
+      "status" : "PASS"
+    },
+    {
+      "name" : "user moved safe frame is not restored over",
+      "status" : "PASS"
+    },
+    {
+      "name" : "cancelled plan writes nothing",
+      "status" : "PASS"
+    },
+    {
+      "name" : "bridge cancelled before write refuses",
+      "status" : "PASS"
+    },
+    {
+      "name" : "hidden panel releases owned frame",
+      "status" : "PASS"
+    },
+    {
+      "name" : "hidden target excluded",
+      "status" : "PASS"
+    },
+    {
+      "name" : "two equal bounds reject ambiguous AX binding",
+      "status" : "PASS"
+    },
+    {
+      "name" : "insufficient-space scenario baseline",
+      "status" : "PASS"
+    },
+    {
+      "name" : "insufficient free area refuses without modifying",
+      "status" : "PASS"
+    },
+    {
+      "name" : "real NSWindow minimum size refuses shrink",
+      "status" : "FAIL"
+    },
+    {
+      "name" : "minimum refusal is not repeatedly written",
+      "status" : "PASS"
+    },
+    {
+      "name" : "unrelated fixture untouched",
+      "status" : "PASS"
+    },
+    {
+      "name" : "production controller initially enforces boundary",
+      "status" : "PASS"
+    }
+  ]
+}

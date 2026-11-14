@@ -1,0 +1,63 @@
+{
+  "source": "9e00287f24bd959d609cb6ceafa0164b90fae6fc",
+  "baseline_source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+  "capture_scope": "WindowServer composition of exactly two owned synthetic windows; fullscreen material environment injected, not the actual system fullscreen detector. No app installation or microphone.",
+  "pixels": [
+    {
+      "blank_patch_pixels": [
+        64,
+        180,
+        624,
+        260
+      ],
+      "border": "on",
+      "fullscreen_blank_patch_luminance": {
+        "mean": 244.15147668192463,
+        "stddev": 0.3560465545188569
+      },
+      "ordinary_blank_patch_luminance": {
+        "mean": 217.90211539651733,
+        "stddev": 14.629951486388457
+      },
+      "ordinary_changed_pixels": 3798,
+      "ordinary_max_abs_difference_255": 1.7196661233901978,
+      "ordinary_mean_abs_difference_255": 0.004241279657813863
+    },
+    {
+      "blank_patch_pixels": [
+        64,
+        180,
+        624,
+        260
+      ],
+      "border": "off",
+      "fullscreen_blank_patch_luminance": {
+        "mean": 241.800920218535,
+        "stddev": 1.5322889941374778
+      },
+      "ordinary_blank_patch_luminance": {
+        "mean": 198.59221171040645,
+        "stddev": 26.038078632514594
+      },
+      "ordinary_changed_pixels": 0,
+      "ordinary_max_abs_difference_255": 0,
+      "ordinary_mean_abs_difference_255": 0
+    }
+  ],
+  "component_sha256": {
+    "Sources/SaytileApp/ReferencePanelStyle.swift": "5ba2748e00ea4640c73993bbe5a5d0b9623aa7ec07eb2eb5258432c3820e1770",
+    "Sources/SaytileVoiceUI/VoiceSurfacePanel.swift": "b60d644163f9434d6d14c4495fb565e97297eb413c2d45e2f9a3b4695296ce0f",
+    "Sources/SaytileVoiceUI/ReferencePanelStyle.swift": "7a6d7fedc752b71232ddcfcf9b410912e12c2a2f53dfad0aeac20654d737c5ee",
+    "tests/fixtures/AdaptiveVoicePanelProbe.swift": "69d09bb2d4ecc07e8250ec495d7bb8c1479bc832cd41c0fdb63c5d29cd77ba2e"
+  },
+  "image_sha256": {
+    "border-off-fullscreen.png": "47a509ce6ba68f08239b3a63d7fd89eaee5ae4f97c1a4af3b5aba29e599b3536",
+    "border-off-desktop.png": "92aaa4402485133ed4f21b008e822bfcf9d110a5acde340d4bb0b165f063b471",
+    "border-on-desktop.png": "78d4b0514c45390bcac5ee49b53d0968072f496126d60454ad50ffe9276a4f8c",
+    "border-on-fullscreen.png": "de6f673748c59020e2eaea812daf0faea2bbedf740327d34ceb35c565a3c0a5e"
+  },
+  "ordinary_png_matches_476": {
+    "border-on": false,
+    "border-off": true
+  }
+}

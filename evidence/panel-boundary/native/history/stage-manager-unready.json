@@ -1,0 +1,28 @@
+{
+  "error" : "Failed(message: \"owned unique visible AX window unavailable\")",
+  "scope" : "Only two disposable synthetic AppKit fixture PIDs; production PanelWindowAccess\/PanelArrangementWorker; no user app target, no text read, no mic, no input events.",
+  "status" : "FAIL",
+  "tests" : [
+    {
+      "name" : "scope excludes unrelated fixture PID",
+      "status" : "PASS"
+    },
+    {
+      "axCount" : 0,
+      "axCountStatus" : 0,
+      "axReadStatus" : 0,
+      "cg" : [
+
+      ],
+      "hidden" : false,
+      "launchDatePresent" : true,
+      "name" : "owned fixture readiness diagnostics",
+      "pid" : 86266,
+      "regular" : true,
+      "status" : "FAIL",
+      "windows" : [
+
+      ]
+    }
+  ]
+}

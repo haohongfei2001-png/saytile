@@ -44,6 +44,7 @@ struct ReferencePanelSurface: View {
     let radius: CGFloat
     var showsStroke = true
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.isOverFullscreen) private var isOverFullscreen
     private var shape: RoundedRectangle { RoundedRectangle(cornerRadius: radius, style: .continuous) }
     public var body: some View {
         ZStack {
@@ -51,8 +52,8 @@ struct ReferencePanelSurface: View {
             // translucent white wash supplies legibility without painting a
             // fixed blue/purple background over the user's desktop.
             ReferenceGlassBackdrop()
-                .opacity(reduceTransparency ? 1 : 0.10)
-            shape.fill(.white.opacity(reduceTransparency ? 1 : 0.42))
+                .opacity(reduceTransparency ? 1 : isOverFullscreen ? 0.85 : 0.10)
+            shape.fill(.white.opacity(reduceTransparency ? 1 : isOverFullscreen ? 0.64 : 0.42))
                 .overlay {
                     shape.fill(LinearGradient(stops: [
                         .init(color: .white.opacity(0.23), location: 0),
@@ -263,13 +264,14 @@ public struct VoiceRailMetrics {
 public struct VoiceRailGlass: View {
     public let width: CGFloat
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.isOverFullscreen) private var isOverFullscreen
     public init(width: CGFloat) { self.width = width }
 
     public var body: some View {
         let shape = RoundedRectangle(cornerRadius: VoiceRailMetrics(width: width).radius, style: .continuous)
         ZStack {
-            ReferenceGlassBackdrop().opacity(reduceTransparency ? 1 : 0.12)
-            shape.fill(.white.opacity(reduceTransparency ? 0.94 : 0.27))
+            ReferenceGlassBackdrop().opacity(reduceTransparency ? 1 : isOverFullscreen ? 0.80 : 0.12)
+            shape.fill(.white.opacity(reduceTransparency ? 0.94 : isOverFullscreen ? 0.50 : 0.27))
             shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.64), .white.opacity(0.32)],
                                               startPoint: .top, endPoint: .bottom), lineWidth: 0.7)
         }

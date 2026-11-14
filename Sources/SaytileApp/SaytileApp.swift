@@ -33,6 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     private let panelVisibilityItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
     private var trackingStatusMenu = false
     private var panel: VoicePanel?
+    private var panelCoexistence: PanelCoexistenceController?
     private var voiceEntry: VoiceEntryPanel?
     private var workspace: NSWindow?
     private let workspaceNavigation = WorkspaceNavigation()
@@ -76,6 +77,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                                                   expandedWidth: panel.expandedWidth, anchorsRightOnExpand: panel.anchorsRightOnExpand),
               let data = try? JSONEncoder().encode(placement) else { return }
         placementDefaults?.set(data, forKey: placementKey)
+        panelCoexistence?.changed(userPlacement: true)
     }
     private var terminating = false
     private var shutdownStarted = false
@@ -420,6 +422,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     }
     func windowDidResize(_ notification: Notification) {
         constrainSystemPlacement(notification)
+        if let window = notification.object as? NSWindow, window === panel, !positioningPanel {
+            panelCoexistence?.changed()
+        }
     }
     func windowDidMove(_ notification: Notification) {
         constrainSystemPlacement(notification)
@@ -444,6 +449,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 presentWorkspace(.archive)
                 return
             }
+            await panelCoexistence?.stop()
+            panelCoexistence = nil
             terminating = true
             DispatchQueue.main.async { NSApp.terminate(nil) }
         }
@@ -530,6 +537,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     @objc private func explicitlyHidePanel() {
         visibilityDefaults?.set(true, forKey: panelHiddenKey)
         panel?.orderOut(nil)
+        panelCoexistence?.changed()
         updateFloatingEntry()
     }
     func showPanel() {
@@ -570,6 +578,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         }
         voiceEntry?.orderOut(nil)
         panel?.orderFrontRegardless()
+        // Diagnostics never adjust unrelated windows. Native coexistence
+        // acceptance uses its own explicit PID allowlist in an isolated fixture.
+        if panelCoexistence == nil, diagnosticPreferencesSuite == nil, let panel {
+            let controller = PanelCoexistenceController(panel: panel, model: model) { [weak self] frame in
+                self?.restorePanel(preferred: frame)
+            }
+            panelCoexistence = controller
+            controller.start()
+        } else { panelCoexistence?.changed() }
     }
     private func updateFloatingEntry(forIsolatedProbe: Bool = false) {
         guard let model, model.floatingEntryEnabled, diagnosticPreferencesSuite == nil || forIsolatedProbe,
@@ -645,6 +662,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         if applySavedPlacement, let screen = NSScreen.screens.first ?? NSScreen.main {
             restorePanel(preferred: savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame))
         } else { restorePanel() }
+        panelCoexistence?.changed(userPlacement: true)
         updateFloatingEntry()
         restoreWorkspaceFrame()
     }
