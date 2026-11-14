@@ -282,6 +282,13 @@ extension AppDelegate {
                 try await self.reviewUntil { editor.string == original }
                 guard board.changeCount == copied else { throw ReviewFailure("restoring a revision mutated the copied snapshot") }
                 try self.captureReview(host, name: "same-group-panel-copy", output: output)
+                // Selecting history intentionally pins the model's page. Restore
+                // following through the normal owned-view action before the next
+                // fixture appends a fourth recording; clearing a selection alone
+                // must never move the user's reading position in the product.
+                scroll.jumpToLatest()
+                try await self.reviewUntil { scroll.isFollowingLatest }
+                await model.refresh()
             }, interaction: nil)
         try await reviewValidatedWindow(SettingsView(model: model, initialPage: .archive), size: .init(width: 1000, height: 620),
             name: "timeline-natural-archive-copy", output: output, validation: { host in
