@@ -30,7 +30,10 @@ else
   run_tests --no-parallel --filter "$frame_suite" 2>&1 | tee -a "$SAYTILE_TEST_LOG"
   # The loopback socket deadlines and the paced connection-verification fixture
   # measure wall time. Give each suite its own process, including parameter cases.
-  timing_suites=(ProtocolNetworkIntegrationTests CloudConnectionVerificationTests)
+  # Real audio devices advance independently of Swift's main-actor scheduling.
+  # A 1.6-second playback fixture cannot share its observation window with hundreds
+  # of unrelated tests. Run every player test unchanged in an isolated process.
+  timing_suites=(ProtocolNetworkIntegrationTests CloudConnectionVerificationTests 'AudioPlayerIntegrationTests|ParagraphPlaybackTests')
   isolated_filter="$frame_suite"
   for suite in "${timing_suites[@]}"; do
     isolated_filter+="|$suite"
