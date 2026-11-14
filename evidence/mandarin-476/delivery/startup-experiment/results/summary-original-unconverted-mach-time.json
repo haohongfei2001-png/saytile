@@ -1,0 +1,39 @@
+{
+  "basis": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+  "scope": "Fresh helper process startup with OS file cache uncontrolled; fixed 0.8 s public PCM, not native UI or microphone acceptance; 20 ms sampled memory can miss shorter peaks. Same toolchain/control source, no token math changes. No production package modified.",
+  "order": [
+    "old",
+    "new",
+    "new",
+    "old",
+    "new",
+    "old",
+    "old",
+    "new"
+  ],
+  "prefix_text_equal": true,
+  "medians": {
+    "old": {
+      "startup_ready_s": 0.7753092078492045,
+      "first_pcm_to_visible_s": 1.097289583645761,
+      "startup_to_visible_s": 1.8727181454887614,
+      "sampled_peak_resident_bytes": 814555136.0,
+      "sampled_peak_physical_bytes": 884393352.0
+    },
+    "new": {
+      "startup_ready_s": 0.6240980209549889,
+      "first_pcm_to_visible_s": 0.9959084375295788,
+      "startup_to_visible_s": 1.5975732915103436,
+      "sampled_peak_resident_bytes": 819478528.0,
+      "sampled_peak_physical_bytes": 878355824.0
+    }
+  },
+  "cpu_at_ready_medians": {
+    "old": 0.0141111975,
+    "new": 0.011385929999999999
+  },
+  "cpu_at_first_text_medians": {
+    "old": 0.0211631285,
+    "new": 0.018333535999999998
+  }
+}

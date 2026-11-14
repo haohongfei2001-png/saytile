@@ -1,0 +1,125 @@
+{
+  "status": "COMPLETE",
+  "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+  "build": "476",
+  "helper_sha256": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e",
+  "wall_seconds": 60.190317375119776,
+  "expected": 17,
+  "recorded": 17,
+  "statuses": {
+    "COMPARED_NO_ACCEPTED_PREFIX": 3,
+    "COMPARED_VERIFIED": 14
+  },
+  "verified_comparisons": 14,
+  "exact_equal": 12,
+  "normalized_equal": 14,
+  "preview": {
+    "errors": 48,
+    "reference_units": 563,
+    "CER": 0.0852575488454707
+  },
+  "scalar": {
+    "errors": 48,
+    "reference_units": 563,
+    "CER": 0.0852575488454707
+  },
+  "preview_decode_seconds_total": 7.4451652087736875,
+  "scalar_decode_seconds_total": 9.689305958570912,
+  "differences": [
+    {
+      "id": "ascend-mixed-ee4e2d5087648134",
+      "frames": 119040,
+      "raw": [
+        {
+          "operation": "insert",
+          "preview": "",
+          "scalar": "，",
+          "preview_range": [
+            2,
+            2
+          ],
+          "scalar_range": [
+            2,
+            3
+          ]
+        }
+      ],
+      "normalized": [],
+      "preview_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 38
+      },
+      "scalar_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 38
+      }
+    },
+    {
+      "id": "continuous-public-5",
+      "frames": 480000,
+      "raw": [
+        {
+          "operation": "replace",
+          "preview": "——",
+          "scalar": "，",
+          "preview_range": [
+            86,
+            88
+          ],
+          "scalar_range": [
+            86,
+            87
+          ]
+        },
+        {
+          "operation": "replace",
+          "preview": "。",
+          "scalar": "，",
+          "preview_range": [
+            123,
+            124
+          ],
+          "scalar_range": [
+            122,
+            123
+          ]
+        }
+      ],
+      "normalized": [],
+      "preview_CER": null,
+      "scalar_CER": null
+    }
+  ],
+  "no_accepted_prefix": [
+    {
+      "id": "ascend-mixed-7c8bdcb41bb98a40",
+      "status": "COMPARED_NO_ACCEPTED_PREFIX"
+    },
+    {
+      "id": "ascend-zh-6a23208e2c146088",
+      "status": "COMPARED_NO_ACCEPTED_PREFIX"
+    },
+    {
+      "id": "ascend-mixed-9255615fddf1a721",
+      "status": "COMPARED_NO_ACCEPTED_PREFIX"
+    }
+  ],
+  "not_comparable": [],
+  "all_full_reference_preview": {
+    "errors": 51,
+    "reference_units": 660,
+    "CER": 0.07727272727272727
+  },
+  "all_full_reference_scalar": {
+    "errors": 51,
+    "reference_units": 660,
+    "CER": 0.07727272727272727
+  },
+  "scope": "Direct signed-worker controlled endpoints. This does not measure native original-rate latency. The 30.0 s prefix has no partial reference; excluded from CER."
+}

@@ -1,0 +1,3324 @@
+{
+  "source": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+  "build": "476",
+  "helper_sha256": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e",
+  "model_revision": "bc441bd1e4295c1f42d9879f056049a925b6e013",
+  "mode": "Direct signed worker, same original PCM endpoint, independently recomputed scalar EOS",
+  "prepared_cases": [
+    {
+      "id": "ascend-mixed-7c8bdcb41bb98a40",
+      "audio_sha256": "fa81b08d0ca30c00ab08b1c66bd620dce60ae33327c7ae885c4320b925baff0d",
+      "pcm_sha256": "f03ed1ebe77301b824374f23d56358fd613a62a84f2655ed39c4d54c9a7786f6",
+      "frames": 96000,
+      "seconds": 6.0,
+      "original_frames": 96000,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        88000,
+        96000
+      ]
+    },
+    {
+      "id": "ascend-mixed-a0b0e736637c643c",
+      "audio_sha256": "c96f2ee1f508089189a0c55df4aa9fa8ff7e0e1d100114193cfcfe249b2ffe18",
+      "pcm_sha256": "246a6bd6edf83b4ddac807dcfdc8d7232d23a557ee9fabed5b8df234a4574c38",
+      "frames": 146560,
+      "seconds": 9.16,
+      "original_frames": 146560,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        87936,
+        138560,
+        146560
+      ]
+    },
+    {
+      "id": "fleurs-1bc3201a9f24a2fe",
+      "audio_sha256": "ef3d6ba58fa3b2b22724593b0962964f1c107f3e33d04b12c2c41244ca30d717",
+      "pcm_sha256": "c296c4803f44cd3ed8f9e0b0aab88afa9bb42f69134a60deb2c1fea26108f58b",
+      "frames": 185920,
+      "seconds": 11.62,
+      "original_frames": 185920,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        111552,
+        177920,
+        185920
+      ]
+    },
+    {
+      "id": "fleurs-0ebe0fb634f8e4ac",
+      "audio_sha256": "3db0177b2e61fdb305ef7763419e7b800542394721f3558a90be49b2860895d6",
+      "pcm_sha256": "9286dc68d31be8a9d2f6d80cc359b261061c0e6fd6c3dcd42fd5978c9e1ade2b",
+      "frames": 250560,
+      "seconds": 15.66,
+      "original_frames": 250560,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        150336,
+        242560,
+        250560
+      ]
+    },
+    {
+      "id": "fleurs-9eb2d543a0a36152",
+      "audio_sha256": "7b89c08b013e69fb282f0c00b3c7cb6dc2d8172828f4948b474dba40917c00ed",
+      "pcm_sha256": "e5fa648391ff327126975271a1c7fb3e57a79aa5a02599fd9076b35c3a733214",
+      "frames": 214080,
+      "seconds": 13.38,
+      "original_frames": 214080,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        128448,
+        206080,
+        214080
+      ]
+    },
+    {
+      "id": "fleurs-914c948388ae30bd",
+      "audio_sha256": "ae157fc1b9d1e15e2f84f682a1e217a3f9ba992a44540670fcd1baec828e5d0f",
+      "pcm_sha256": "a80ce1d48f6fd3ed5539ae97620a086f91a98b4cd611ee53dc4e3efe29d11db4",
+      "frames": 159360,
+      "seconds": 9.96,
+      "original_frames": 159360,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        95616,
+        151360,
+        159360
+      ]
+    },
+    {
+      "id": "fleurs-e50b6b02d6d90ddc",
+      "audio_sha256": "5602b6156f417c000bb91b7c5c6b1d54946cf6decadfbd520a082d7465b14287",
+      "pcm_sha256": "28ec6ab0b644e45f6c9eabd29254625c138486c1bf38be6ef292ad48a02999d4",
+      "frames": 151680,
+      "seconds": 9.48,
+      "original_frames": 151680,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        91008,
+        143680,
+        151680
+      ]
+    },
+    {
+      "id": "fleurs-8e93e440f571a4da",
+      "audio_sha256": "8a0cb0baf6fbd1ce4ed2e841beb7aceceacb1a5bb0346dfb2752c2a08aa2d1ed",
+      "pcm_sha256": "a0481694c344dd05af3f2153c626d7ad51c45c804fc00fa48341e1eb9e6abd06",
+      "frames": 225920,
+      "seconds": 14.12,
+      "original_frames": 225920,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        135552,
+        217920,
+        225920
+      ]
+    },
+    {
+      "id": "ascend-zh-6a23208e2c146088",
+      "audio_sha256": "2962a6f5eae36de76bcb2b59ed81cd52c9344c955366c838c849c21ae649750c",
+      "pcm_sha256": "fbe63731d9b75e67a14bb646cf5427ba631375578fb4bcead02a93921b7f0b7b",
+      "frames": 67199,
+      "seconds": 4.1999375,
+      "original_frames": 67199,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        67199
+      ]
+    },
+    {
+      "id": "ascend-zh-ed182ef57fba310b",
+      "audio_sha256": "14caf84362f6215af64363932afa13220fdbdd2de3256136db6a2d8b824b682a",
+      "pcm_sha256": "42f587aad4608c868316481d68d2d9cc98326d688f714a3985b43d70a8ef9371",
+      "frames": 94883,
+      "seconds": 5.9301875,
+      "original_frames": 94883,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        86883,
+        94883
+      ]
+    },
+    {
+      "id": "ascend-zh-4309bc70746a5c2c",
+      "audio_sha256": "c7a2127326cc36c700e77ae3840e488c9d2b44b3f5303d7b8925d83a7066b6ff",
+      "pcm_sha256": "81d1bbe0dcb71bfb5fd0a533fd2f9dc0aa9213651d4cc93fc8ae5baa56e6e7bb",
+      "frames": 101119,
+      "seconds": 6.3199375,
+      "original_frames": 101119,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        93119,
+        101119
+      ]
+    },
+    {
+      "id": "ascend-zh-0c5639a6e24f539b",
+      "audio_sha256": "5f59ef721b132ef77f023bd01032d20a1539d074ef0ded828faddf13ac0b34fb",
+      "pcm_sha256": "425106a43d73f7104548c256767d3d6180c1b7b29deb73d1d53df5708f41d2a0",
+      "frames": 115520,
+      "seconds": 7.22,
+      "original_frames": 115520,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        69312,
+        107520,
+        115520
+      ]
+    },
+    {
+      "id": "ascend-mixed-9255615fddf1a721",
+      "audio_sha256": "e4d9f5aaff9858ff0710a2f2e8fb46d4a7d2b2cf81d9ec54532a19e46de12f3f",
+      "pcm_sha256": "d9dce361c9b80de343b4c13f2e730a8580cfb67821787e812ea6aa6e802a8895",
+      "frames": 103360,
+      "seconds": 6.46,
+      "original_frames": 103360,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        62016,
+        95360,
+        103360
+      ]
+    },
+    {
+      "id": "ascend-mixed-ee4e2d5087648134",
+      "audio_sha256": "9f57d91794977a4b011070157461d1093bcf0b76b5b8b51cea85dd697827f898",
+      "pcm_sha256": "d7133ceaa577bddaf4e19b487cbd072a13bd802a881b2b7afa374852c5153014",
+      "frames": 119040,
+      "seconds": 7.44,
+      "original_frames": 119040,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        71424,
+        111040,
+        119040
+      ]
+    },
+    {
+      "id": "ascend-mixed-ff9c42612780330b",
+      "audio_sha256": "219f7c57fe38d36efd022d6d4b725234ddeb61fb83f952e4ddeb6f03fd59d121",
+      "pcm_sha256": "9b9d8447132d9b99b3c4db8f156645e52eacea23a899bca6c12ee5a0f42c7c01",
+      "frames": 161920,
+      "seconds": 10.12,
+      "original_frames": 161920,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        97152,
+        153920,
+        161920
+      ]
+    },
+    {
+      "id": "fleurs-f8646a257c0c4273",
+      "audio_sha256": "c68868cfa82bd8c0ebcf691ce38d9860ae95aa803b3e846c2f552fb82e997829",
+      "pcm_sha256": "0e340eb46585606bcd830a97f63d87a6484a7408958d69f77e7f41e37b753235",
+      "frames": 411840,
+      "seconds": 25.74,
+      "original_frames": 411840,
+      "full_reference_available": true,
+      "prefixes": [
+        12800,
+        52800,
+        247104,
+        403840,
+        411840
+      ]
+    },
+    {
+      "id": "continuous-public-5",
+      "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "pcm_sha256": "35e26b3a565877ca7defda32aa37c40ca28d71cb1c993fcc2af009b602f06d2c",
+      "frames": 480000,
+      "seconds": 30.0,
+      "original_frames": 620800,
+      "full_reference_available": false,
+      "prefixes": [
+        12800,
+        52800,
+        288000,
+        472000,
+        480000
+      ]
+    }
+  ],
+  "microphone": false,
+  "synthetic_padding": false,
+  "original_rate": false,
+  "records": [
+    {
+      "id": "ascend-mixed-7c8bdcb41bb98a40",
+      "audio_sha256": "fa81b08d0ca30c00ab08b1c66bd620dce60ae33327c7ae885c4320b925baff0d",
+      "pcm_sha256": "f03ed1ebe77301b824374f23d56358fd613a62a84f2655ed39c4d54c9a7786f6",
+      "frames": 96000,
+      "seconds": 6.0,
+      "original_frames": 96000,
+      "full_reference_available": true,
+      "reference": "但我觉得three pointer是一个非常efficient的一个方式去得分",
+      "prefixes": [
+        12800,
+        52800,
+        88000,
+        96000
+      ],
+      "events": [
+        {
+          "kind": "partial",
+          "frames": 12800,
+          "decodes": [
+            {
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963915.7619843334,
+              "endUptime": 1963916.238342375,
+              "frames": 12800
+            }
+          ],
+          "text": "但是我觉得three。"
+        },
+        {
+          "kind": "partial",
+          "frames": 44800,
+          "decodes": [
+            {
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963916.2390129585,
+              "endUptime": 1963916.441435625,
+              "frames": 44800
+            }
+          ],
+          "text": "但是我觉得Three Pointer是一个非常。"
+        },
+        {
+          "kind": "partial",
+          "frames": 52800,
+          "decodes": [
+            {
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963916.44172225,
+              "endUptime": 1963916.6176083751,
+              "frames": 52800
+            }
+          ],
+          "text": "但我觉得Three Pointer是一个非常。"
+        },
+        {
+          "kind": "partial",
+          "frames": 84800,
+          "decodes": [
+            {
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963916.6181634585,
+              "endUptime": 1963917.0380802501,
+              "frames": 84800
+            }
+          ],
+          "text": "但我觉得Three Pointer是一个非常efficient的一个方式去。"
+        },
+        {
+          "kind": "partial",
+          "frames": 96000,
+          "decodes": [
+            {
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963917.0383506252,
+              "endUptime": 1963917.8649525002,
+              "frames": 96000
+            }
+          ],
+          "text": "但我觉得Three Pointer是一个非常efficient的一个方式去得分。"
+        },
+        {
+          "kind": "final",
+          "frames": 96000,
+          "decodes": [
+            {
+              "final": true,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963917.8669306668,
+              "endUptime": 1963918.9436765,
+              "frames": 96000
+            }
+          ],
+          "text": "但我觉得Three Pointer是一个非常efficient的一个方式去得分。"
+        }
+      ],
+      "scalar_text": "但我觉得Three Pointer是一个非常efficient的一个方式去得分。",
+      "scalar_text_sha256": "705f5aedabdd86797797406a22ece23a3258a926def117b0f299b3d7d8d1e22b",
+      "scalar_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 38
+      },
+      "status": "COMPARED_NO_ACCEPTED_PREFIX",
+      "preview_text": "但我觉得Three Pointer是一个非常efficient的一个方式去得分。",
+      "preview_text_source": "exact_endpoint_partial",
+      "preview_text_sha256": "705f5aedabdd86797797406a22ece23a3258a926def117b0f299b3d7d8d1e22b",
+      "preview_decode": {
+        "final": false,
+        "changed": true,
+        "verifiedPreviewTokens": 0,
+        "startUptime": 1963917.0383506252,
+        "endUptime": 1963917.8649525002,
+        "frames": 96000
+      },
+      "scalar_decode": {
+        "final": true,
+        "changed": false,
+        "verifiedPreviewTokens": 0,
+        "startUptime": 1963917.8669306668,
+        "endUptime": 1963918.9436765,
+        "frames": 96000
+      },
+      "preview_decode_seconds": 0.8266018750146031,
+      "scalar_decode_seconds": 1.0767458332702518,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 38,
+        "hypothesis_units": 38,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 38
+      }
+    },
+    {
+      "id": "ascend-mixed-a0b0e736637c643c",
+      "audio_sha256": "c96f2ee1f508089189a0c55df4aa9fa8ff7e0e1d100114193cfcfe249b2ffe18",
+      "pcm_sha256": "246a6bd6edf83b4ddac807dcfdc8d7232d23a557ee9fabed5b8df234a4574c38",
+      "frames": 146560,
+      "seconds": 9.16,
+      "original_frames": 146560,
+      "full_reference_available": true,
+      "reference": "对但是除了self driving car也有一些比较就是low low standard的那些technic",
+      "prefixes": [
+        12800,
+        52800,
+        87936,
+        138560,
+        146560
+      ],
+      "events": [
+        {
+          "kind": "partial",
+          "frames": 12800,
+          "decodes": [
+            {
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963918.9570037501,
+              "endUptime": 1963919.1500108335,
+              "frames": 12800
+            }
+          ],
+          "text": "对，但是。"
+        },
+        {
+          "kind": "partial",
+          "frames": 44800,
+          "decodes": [
+            {
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963919.1551052085,
+              "endUptime": 1963919.4868270417,
+              "frames": 44800
+            }
+          ],
+          "text": "对，但是除了。"
+        },
+        {
+          "kind": "partial",
+          "frames": 68800,
+          "decodes": [
+            {
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963919.4889699167,
+              "endUptime": 1963919.9106324585,
+              "frames": 68800
+            }
+          ],
+          "text": "对，但是除了self-driving car，也有一些。"
+        },
+        {
+          "kind": "partial",
+          "frames": 103936,
+          "decodes": [
+            {
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963919.9120181669,
+              "endUptime": 1963920.6431348335,
+              "frames": 103936
+            }
+          ],
+          "text": "对，但是除了self driving car，也有一些比较，就是lower lower。"
+        },
+        {
+          "kind": "partial",
+          "frames": 146560,
+          "decodes": [
+            {
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 4,
+              "startUptime": 1963920.6433985834,
+              "endUptime": 1963921.824847167,
+              "frames": 146560
+            }
+          ],
+          "text": "对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。"
+        },
+        {
+          "kind": "final",
+          "frames": 146560,
+          "decodes": [
+            {
+              "final": true,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963921.8252490833,
+              "endUptime": 1963922.940413875,
+              "frames": 146560
+            }
+          ],
+          "text": "对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。"
+        }
+      ],
+      "scalar_text": "对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。",
+      "scalar_text_sha256": "0c19bf7f35318988a45e2d6684f7f825251cade52ec7415ce5597b53c0f23075",
+      "scalar_reference_CER": {
+        "errors": 5,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 4,
+        "reference_units": 51
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。",
+      "preview_text_source": "exact_endpoint_partial",
+      "preview_text_sha256": "0c19bf7f35318988a45e2d6684f7f825251cade52ec7415ce5597b53c0f23075",
+      "preview_decode": {
+        "final": false,
+        "changed": true,
+        "verifiedPreviewTokens": 4,
+        "startUptime": 1963920.6433985834,
+        "endUptime": 1963921.824847167,
+        "frames": 146560
+      },
+      "scalar_decode": {
+        "final": true,
+        "changed": false,
+        "verifiedPreviewTokens": 0,
+        "startUptime": 1963921.8252490833,
+        "endUptime": 1963922.940413875,
+        "frames": 146560
+      },
+      "preview_decode_seconds": 1.1814485834911466,
+      "scalar_decode_seconds": 1.115164791699499,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 55,
+        "hypothesis_units": 55,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 5,
+        "substitutions": 1,
+        "deletions": 0,
+        "insertions": 4,
+        "reference_units": 51
+      }
+    },
+    {
+      "id": "fleurs-1bc3201a9f24a2fe",
+      "audio_sha256": "ef3d6ba58fa3b2b22724593b0962964f1c107f3e33d04b12c2c41244ca30d717",
+      "pcm_sha256": "c296c4803f44cd3ed8f9e0b0aab88afa9bb42f69134a60deb2c1fea26108f58b",
+      "frames": 185920,
+      "seconds": 11.62,
+      "original_frames": 185920,
+      "full_reference_available": true,
+      "reference": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。",
+      "prefixes": [
+        12800,
+        52800,
+        111552,
+        177920,
+        185920
+      ],
+      "events": [
+        {
+          "text": "我。",
+          "frames": 44800,
+          "decodes": [
+            {
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963922.9657877919,
+              "endUptime": 1963923.1168251669,
+              "frames": 12800
+            },
+            {
+              "startUptime": 1963923.2706357501,
+              "verifiedPreviewTokens": 0,
+              "frames": 28800,
+              "final": false,
+              "endUptime": 1963923.4572238752,
+              "changed": false
+            },
+            {
+              "startUptime": 1963923.457339375,
+              "frames": 44800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963923.8711573752
+            }
+          ],
+          "kind": "partial"
+        },
+        {
+          "kind": "partial",
+          "frames": 84800,
+          "decodes": [
+            {
+              "startUptime": 1963923.871373875,
+              "frames": 84800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963924.7115495417
+            }
+          ],
+          "text": "毋庸置疑的是，如果你会讲一门……"
+        },
+        {
+          "kind": "partial",
+          "frames": 111552,
+          "decodes": [
+            {
+              "startUptime": 1963924.7123770835,
+              "frames": 111552,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963925.5693423334
+            }
+          ],
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习普通话。"
+        },
+        {
+          "kind": "partial",
+          "frames": 143552,
+          "decodes": [
+            {
+              "startUptime": 1963925.571403125,
+              "frames": 143552,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 16,
+              "endUptime": 1963926.1529463334
+            }
+          ],
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。"
+        },
+        {
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。",
+          "frames": 185920,
+          "decodes": [
+            {
+              "startUptime": 1963926.1577754167,
+              "frames": 177920,
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 22,
+              "endUptime": 1963926.6381177502
+            },
+            {
+              "startUptime": 1963926.6403699168,
+              "verifiedPreviewTokens": 22,
+              "frames": 185920,
+              "final": false,
+              "endUptime": 1963927.1244972502,
+              "changed": false
+            },
+            {
+              "final": true,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963927.3638446252,
+              "endUptime": 1963928.1857505417,
+              "frames": 185920
+            }
+          ],
+          "kind": "final"
+        }
+      ],
+      "scalar_text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。",
+      "scalar_text_sha256": "ce8baec4370c775bc0a84aaa4244831f1e9ae11f942caf39a75014b939ebae2f",
+      "scalar_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 29
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。",
+      "preview_text_source": "unchanged_exact_endpoint_decode_proves_last_partial",
+      "preview_text_sha256": "ce8baec4370c775bc0a84aaa4244831f1e9ae11f942caf39a75014b939ebae2f",
+      "preview_decode": {
+        "startUptime": 1963926.6403699168,
+        "verifiedPreviewTokens": 22,
+        "frames": 185920,
+        "final": false,
+        "endUptime": 1963927.1244972502,
+        "changed": false
+      },
+      "scalar_decode": {
+        "final": true,
+        "changed": false,
+        "verifiedPreviewTokens": 0,
+        "startUptime": 1963927.3638446252,
+        "endUptime": 1963928.1857505417,
+        "frames": 185920
+      },
+      "preview_decode_seconds": 0.4841273333877325,
+      "scalar_decode_seconds": 0.821905916556716,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 29,
+        "hypothesis_units": 29,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 29
+      }
+    },
+    {
+      "id": "fleurs-0ebe0fb634f8e4ac",
+      "audio_sha256": "3db0177b2e61fdb305ef7763419e7b800542394721f3558a90be49b2860895d6",
+      "pcm_sha256": "9286dc68d31be8a9d2f6d80cc359b261061c0e6fd6c3dcd42fd5978c9e1ade2b",
+      "frames": 250560,
+      "seconds": 15.66,
+      "original_frames": 250560,
+      "full_reference_available": true,
+      "reference": "老虎是全能运动员，它会攀爬（虽然攀爬能力不是很强）、游泳、跳远，拉力能达到人类大力士的五倍。",
+      "prefixes": [
+        12800,
+        52800,
+        150336,
+        242560,
+        250560
+      ],
+      "events": [
+        {
+          "decodes": [
+            {
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963928.1957734583,
+              "endUptime": 1963928.3470737084,
+              "frames": 12800
+            },
+            {
+              "startUptime": 1963928.4510193334,
+              "verifiedPreviewTokens": 0,
+              "frames": 28800,
+              "final": false,
+              "endUptime": 1963928.6595194584,
+              "changed": false
+            },
+            {
+              "startUptime": 1963928.6595828335,
+              "frames": 44800,
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963928.7890432084
+            },
+            {
+              "startUptime": 1963928.7890906667,
+              "frames": 52800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963928.9722437086
+            }
+          ],
+          "text": "老。",
+          "kind": "partial",
+          "frames": 52800
+        },
+        {
+          "frames": 84800,
+          "text": "老虎是全能运动员。他会。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963928.9730595418,
+              "frames": 84800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963929.3979575417
+            }
+          ]
+        },
+        {
+          "frames": 116800,
+          "text": "老虎是全能运动员，他会攀爬。虽然攀爬能力不是。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963929.3984402919,
+              "frames": 116800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963929.9361451669
+            }
+          ]
+        },
+        {
+          "frames": 150336,
+          "text": "老虎是全能运动员。他会攀爬，虽然攀爬能力不是很强，游泳，跳。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963929.937908125,
+              "frames": 150336,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 4,
+              "endUptime": 1963930.5877787918
+            }
+          ]
+        },
+        {
+          "frames": 182336,
+          "text": "老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963930.5893156251,
+              "frames": 182336,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 4,
+              "endUptime": 1963931.360312292
+            }
+          ]
+        },
+        {
+          "frames": 214336,
+          "text": "老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963931.3608087918,
+              "frames": 214336,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 25,
+              "endUptime": 1963931.9695010835
+            }
+          ]
+        },
+        {
+          "frames": 250560,
+          "text": "老虎是全能运动员。他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963931.9697761668,
+              "frames": 250560,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 4,
+              "endUptime": 1963933.0544055419
+            }
+          ]
+        },
+        {
+          "frames": 250560,
+          "text": "老虎是全能运动员。他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。",
+          "kind": "final",
+          "decodes": [
+            {
+              "startUptime": 1963933.0568030002,
+              "frames": 250560,
+              "final": true,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963934.0463890834
+            }
+          ]
+        }
+      ],
+      "scalar_text": "老虎是全能运动员。他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。",
+      "scalar_text_sha256": "b7534f184a6b773400c50596795dce4d8e65f9b8f4a2beaa640b776c51051642",
+      "scalar_reference_CER": {
+        "errors": 4,
+        "substitutions": 4,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 39
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "老虎是全能运动员。他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。",
+      "preview_text_source": "exact_endpoint_partial",
+      "preview_text_sha256": "b7534f184a6b773400c50596795dce4d8e65f9b8f4a2beaa640b776c51051642",
+      "preview_decode": {
+        "startUptime": 1963931.9697761668,
+        "frames": 250560,
+        "final": false,
+        "changed": true,
+        "verifiedPreviewTokens": 4,
+        "endUptime": 1963933.0544055419
+      },
+      "scalar_decode": {
+        "startUptime": 1963933.0568030002,
+        "frames": 250560,
+        "final": true,
+        "changed": false,
+        "verifiedPreviewTokens": 0,
+        "endUptime": 1963934.0463890834
+      },
+      "preview_decode_seconds": 1.0846293750219047,
+      "scalar_decode_seconds": 0.9895860832184553,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 39,
+        "hypothesis_units": 39,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 4,
+        "substitutions": 4,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 39
+      }
+    },
+    {
+      "id": "fleurs-9eb2d543a0a36152",
+      "audio_sha256": "7b89c08b013e69fb282f0c00b3c7cb6dc2d8172828f4948b474dba40917c00ed",
+      "pcm_sha256": "e5fa648391ff327126975271a1c7fb3e57a79aa5a02599fd9076b35c3a733214",
+      "frames": 214080,
+      "seconds": 13.38,
+      "original_frames": 214080,
+      "full_reference_available": true,
+      "reference": "智利首选登山目的地科茶莫山谷 (Cochamó Valley) 被称为南美洲的优胜美地 (Yosemite)，这里有各式各样的花岗岩大石壁和峭壁。",
+      "prefixes": [
+        12800,
+        52800,
+        128448,
+        206080,
+        214080
+      ],
+      "events": [
+        {
+          "decodes": [
+            {
+              "startUptime": 1963934.0550770834,
+              "frames": 12800,
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963934.189274
+            },
+            {
+              "startUptime": 1963934.3083757502,
+              "frames": 28800,
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963934.5170261252
+            },
+            {
+              "startUptime": 1963934.5170927919,
+              "verifiedPreviewTokens": 0,
+              "frames": 44800,
+              "final": false,
+              "endUptime": 1963934.7462466252,
+              "changed": true
+            }
+          ],
+          "kind": "partial",
+          "text": "致力首選燈。",
+          "frames": 44800
+        },
+        {
+          "frames": 84800,
+          "text": "致力首选登山目的地——喀察莫山谷。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963934.7465719169,
+              "verifiedPreviewTokens": 0,
+              "frames": 84800,
+              "final": false,
+              "endUptime": 1963935.074952125,
+              "changed": true
+            }
+          ]
+        },
+        {
+          "frames": 116800,
+          "text": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963935.0757747919,
+              "verifiedPreviewTokens": 0,
+              "frames": 116800,
+              "final": false,
+              "endUptime": 1963935.724962875,
+              "changed": true
+            }
+          ]
+        },
+        {
+          "frames": 144448,
+          "text": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963935.7265397084,
+              "verifiedPreviewTokens": 16,
+              "frames": 144448,
+              "final": false,
+              "endUptime": 1963936.3337245001,
+              "changed": true
+            }
+          ]
+        },
+        {
+          "frames": 192448,
+          "text": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963936.3349019168,
+              "verifiedPreviewTokens": 21,
+              "frames": 192448,
+              "final": false,
+              "endUptime": 1963937.3370106667,
+              "changed": true
+            }
+          ]
+        },
+        {
+          "text": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。",
+          "frames": 214080,
+          "decodes": [
+            {
+              "startUptime": 1963937.3372938752,
+              "verifiedPreviewTokens": 31,
+              "frames": 214080,
+              "final": false,
+              "endUptime": 1963937.9151090002,
+              "changed": false
+            },
+            {
+              "startUptime": 1963937.9151388335,
+              "frames": 214080,
+              "final": true,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963939.0543004167
+            }
+          ],
+          "kind": "final"
+        }
+      ],
+      "scalar_text": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。",
+      "scalar_text_sha256": "73ce3f82e9f590a46384384509eb7273876a156dcf8c130c2190e22c18eeecee",
+      "scalar_reference_CER": {
+        "errors": 24,
+        "substitutions": 3,
+        "deletions": 21,
+        "insertions": 0,
+        "reference_units": 63
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "智利首选登山目的地科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。",
+      "preview_text_source": "unchanged_exact_endpoint_decode_proves_last_partial",
+      "preview_text_sha256": "73ce3f82e9f590a46384384509eb7273876a156dcf8c130c2190e22c18eeecee",
+      "preview_decode": {
+        "startUptime": 1963937.3372938752,
+        "verifiedPreviewTokens": 31,
+        "frames": 214080,
+        "final": false,
+        "endUptime": 1963937.9151090002,
+        "changed": false
+      },
+      "scalar_decode": {
+        "startUptime": 1963937.9151388335,
+        "frames": 214080,
+        "final": true,
+        "changed": false,
+        "verifiedPreviewTokens": 0,
+        "endUptime": 1963939.0543004167
+      },
+      "preview_decode_seconds": 0.5778151249978691,
+      "scalar_decode_seconds": 1.139161583269015,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 42,
+        "hypothesis_units": 42,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 24,
+        "substitutions": 3,
+        "deletions": 21,
+        "insertions": 0,
+        "reference_units": 63
+      }
+    },
+    {
+      "id": "fleurs-914c948388ae30bd",
+      "audio_sha256": "ae157fc1b9d1e15e2f84f682a1e217a3f9ba992a44540670fcd1baec828e5d0f",
+      "pcm_sha256": "a80ce1d48f6fd3ed5539ae97620a086f91a98b4cd611ee53dc4e3efe29d11db4",
+      "frames": 159360,
+      "seconds": 9.96,
+      "original_frames": 159360,
+      "full_reference_available": true,
+      "reference": "平时你总能在这里听到游客和小摊贩的声音。声光交织，就像在讲述一个动人的故事。",
+      "prefixes": [
+        12800,
+        52800,
+        95616,
+        151360,
+        159360
+      ],
+      "events": [
+        {
+          "text": "平时。",
+          "frames": 28800,
+          "decodes": [
+            {
+              "startUptime": 1963939.069227917,
+              "frames": 12800,
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963939.2079941668
+            },
+            {
+              "startUptime": 1963939.3232315,
+              "verifiedPreviewTokens": 0,
+              "frames": 28800,
+              "final": false,
+              "endUptime": 1963939.4828474168,
+              "changed": true
+            }
+          ],
+          "kind": "partial"
+        },
+        {
+          "frames": 52800,
+          "text": "平时你总能在这里听到有。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963939.4831926252,
+              "verifiedPreviewTokens": 0,
+              "frames": 52800,
+              "final": false,
+              "endUptime": 1963939.7222099167,
+              "changed": true
+            }
+          ]
+        },
+        {
+          "frames": 95616,
+          "text": "平时你总能在这里听到游客和小摊贩的声音，声光交织。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963939.7225467502,
+              "verifiedPreviewTokens": 0,
+              "frames": 95616,
+              "final": false,
+              "endUptime": 1963940.3350066252,
+              "changed": true
+            }
+          ]
+        },
+        {
+          "frames": 151360,
+          "text": "平时你总能在这里听到游客和小摊贩的声音，声光交织，就像在讲述一个动人的故事。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963940.3356284169,
+              "verifiedPreviewTokens": 16,
+              "frames": 151360,
+              "final": false,
+              "endUptime": 1963940.8357479167,
+              "changed": true
+            }
+          ]
+        },
+        {
+          "text": "平时你总能在这里听到游客和小摊贩的声音，声光交织，就像在讲述一个动人的故事。",
+          "frames": 159360,
+          "decodes": [
+            {
+              "startUptime": 1963940.8421637502,
+              "verifiedPreviewTokens": 25,
+              "frames": 159360,
+              "final": false,
+              "endUptime": 1963941.2015774169,
+              "changed": false
+            },
+            {
+              "startUptime": 1963941.7956222917,
+              "frames": 159360,
+              "final": true,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963942.3421132085
+            }
+          ],
+          "kind": "final"
+        }
+      ],
+      "scalar_text": "平时你总能在这里听到游客和小摊贩的声音，声光交织，就像在讲述一个动人的故事。",
+      "scalar_text_sha256": "bc4e7c29689cc6d59d22bb10eb6a811b84036ebb28f7a6d58b9d7a8055e4cf97",
+      "scalar_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 35
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "平时你总能在这里听到游客和小摊贩的声音，声光交织，就像在讲述一个动人的故事。",
+      "preview_text_source": "unchanged_exact_endpoint_decode_proves_last_partial",
+      "preview_text_sha256": "bc4e7c29689cc6d59d22bb10eb6a811b84036ebb28f7a6d58b9d7a8055e4cf97",
+      "preview_decode": {
+        "startUptime": 1963940.8421637502,
+        "verifiedPreviewTokens": 25,
+        "frames": 159360,
+        "final": false,
+        "endUptime": 1963941.2015774169,
+        "changed": false
+      },
+      "scalar_decode": {
+        "startUptime": 1963941.7956222917,
+        "frames": 159360,
+        "final": true,
+        "changed": false,
+        "verifiedPreviewTokens": 0,
+        "endUptime": 1963942.3421132085
+      },
+      "preview_decode_seconds": 0.3594136666506529,
+      "scalar_decode_seconds": 0.5464909167494625,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 35,
+        "hypothesis_units": 35,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 35
+      }
+    },
+    {
+      "id": "fleurs-e50b6b02d6d90ddc",
+      "audio_sha256": "5602b6156f417c000bb91b7c5c6b1d54946cf6decadfbd520a082d7465b14287",
+      "pcm_sha256": "28ec6ab0b644e45f6c9eabd29254625c138486c1bf38be6ef292ad48a02999d4",
+      "frames": 151680,
+      "seconds": 9.48,
+      "original_frames": 151680,
+      "full_reference_available": true,
+      "reference": "有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+      "prefixes": [
+        12800,
+        52800,
+        91008,
+        143680,
+        151680
+      ],
+      "events": [
+        {
+          "text": "又。",
+          "frames": 28800,
+          "decodes": [
+            {
+              "startUptime": 1963942.3484644168,
+              "frames": 12800,
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963942.4462098752
+            },
+            {
+              "startUptime": 1963942.6000394167,
+              "verifiedPreviewTokens": 0,
+              "frames": 28800,
+              "final": false,
+              "endUptime": 1963942.8047755002,
+              "changed": true
+            }
+          ],
+          "kind": "partial"
+        },
+        {
+          "frames": 52800,
+          "text": "有些原子含有不稳定的原子核。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963942.8050682084,
+              "verifiedPreviewTokens": 0,
+              "frames": 52800,
+              "final": false,
+              "endUptime": 1963943.1456562502,
+              "changed": true
+            }
+          ]
+        },
+        {
+          "frames": 84800,
+          "text": "有些原子含有不稳定的原子核，这意味着它们很可能。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963943.1468257918,
+              "verifiedPreviewTokens": 0,
+              "frames": 84800,
+              "final": false,
+              "endUptime": 1963943.6181720835,
+              "changed": true
+            }
+          ]
+        },
+        {
+          "frames": 107008,
+          "text": "有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963943.6199899167,
+              "verifiedPreviewTokens": 0,
+              "frames": 107008,
+              "final": false,
+              "endUptime": 1963944.1332457918,
+              "changed": true
+            }
+          ]
+        },
+        {
+          "frames": 151680,
+          "text": "有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "startUptime": 1963944.133511,
+              "verifiedPreviewTokens": 18,
+              "frames": 151680,
+              "final": false,
+              "endUptime": 1963944.4875105834,
+              "changed": true
+            }
+          ]
+        },
+        {
+          "frames": 151680,
+          "text": "有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+          "kind": "final",
+          "decodes": [
+            {
+              "startUptime": 1963944.4891738335,
+              "verifiedPreviewTokens": 0,
+              "frames": 151680,
+              "final": true,
+              "endUptime": 1963945.0950659586,
+              "changed": false
+            }
+          ]
+        }
+      ],
+      "scalar_text": "有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+      "scalar_text_sha256": "45135458070be99d428448566f33df7489d248d24811c9985c681b91a19fd1ba",
+      "scalar_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 39
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+      "preview_text_source": "exact_endpoint_partial",
+      "preview_text_sha256": "45135458070be99d428448566f33df7489d248d24811c9985c681b91a19fd1ba",
+      "preview_decode": {
+        "startUptime": 1963944.133511,
+        "verifiedPreviewTokens": 18,
+        "frames": 151680,
+        "final": false,
+        "endUptime": 1963944.4875105834,
+        "changed": true
+      },
+      "scalar_decode": {
+        "startUptime": 1963944.4891738335,
+        "verifiedPreviewTokens": 0,
+        "frames": 151680,
+        "final": true,
+        "endUptime": 1963945.0950659586,
+        "changed": false
+      },
+      "preview_decode_seconds": 0.3539995832834393,
+      "scalar_decode_seconds": 0.6058921250514686,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 39,
+        "hypothesis_units": 39,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 39
+      }
+    },
+    {
+      "id": "fleurs-8e93e440f571a4da",
+      "audio_sha256": "8a0cb0baf6fbd1ce4ed2e841beb7aceceacb1a5bb0346dfb2752c2a08aa2d1ed",
+      "pcm_sha256": "a0481694c344dd05af3f2153c626d7ad51c45c804fc00fa48341e1eb9e6abd06",
+      "frames": 225920,
+      "seconds": 14.12,
+      "original_frames": 225920,
+      "full_reference_available": true,
+      "reference": "利金斯 (Liggins) 在医院工作时，开始在业余时间研究早产。",
+      "prefixes": [
+        12800,
+        52800,
+        135552,
+        217920,
+        225920
+      ],
+      "events": [
+        {
+          "frames": 100800,
+          "decodes": [
+            {
+              "startUptime": 1963945.1016165835,
+              "verifiedPreviewTokens": 0,
+              "frames": 12800,
+              "final": false,
+              "endUptime": 1963945.2467102918,
+              "changed": false
+            },
+            {
+              "startUptime": 1963945.3568115002,
+              "frames": 28800,
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963945.5172829584
+            },
+            {
+              "startUptime": 1963945.5173591669,
+              "frames": 44800,
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963945.73660225
+            },
+            {
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963945.7366428336,
+              "endUptime": 1963945.8925957917,
+              "frames": 52800
+            },
+            {
+              "startUptime": 1963945.8927903334,
+              "endUptime": 1963946.0607074169,
+              "verifiedPreviewTokens": 0,
+              "changed": false,
+              "frames": 68800,
+              "final": false
+            },
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963946.0607785,
+              "changed": false,
+              "endUptime": 1963946.2816890834,
+              "frames": 84800,
+              "final": false
+            },
+            {
+              "final": false,
+              "endUptime": 1963946.7383309584,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963946.2817544586,
+              "changed": true,
+              "frames": 100800
+            }
+          ],
+          "text": "李金司在一篇采访中表示：“……”",
+          "kind": "partial"
+        },
+        {
+          "text": "利金斯在医院工作时，开始在夜。",
+          "decodes": [
+            {
+              "final": false,
+              "endUptime": 1963946.9861383336,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963946.7389460418,
+              "changed": true,
+              "frames": 135552
+            }
+          ],
+          "frames": 135552,
+          "kind": "partial"
+        },
+        {
+          "text": "利金斯在医院工作时，开始在业余时间研究早产。",
+          "decodes": [
+            {
+              "final": false,
+              "endUptime": 1963947.3929668334,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963946.986648125,
+              "changed": true,
+              "frames": 167552
+            }
+          ],
+          "frames": 167552,
+          "kind": "partial"
+        },
+        {
+          "decodes": [
+            {
+              "final": false,
+              "endUptime": 1963947.7622547918,
+              "verifiedPreviewTokens": 16,
+              "startUptime": 1963947.3935947085,
+              "changed": false,
+              "frames": 215552
+            },
+            {
+              "verifiedPreviewTokens": 16,
+              "startUptime": 1963947.7623525,
+              "changed": false,
+              "endUptime": 1963948.0345207502,
+              "frames": 225920,
+              "final": false
+            },
+            {
+              "startUptime": 1963948.8503755,
+              "endUptime": 1963949.1517379167,
+              "verifiedPreviewTokens": 0,
+              "changed": false,
+              "frames": 225920,
+              "final": true
+            }
+          ],
+          "kind": "final",
+          "text": "利金斯在医院工作时，开始在业余时间研究早产。",
+          "frames": 225920
+        }
+      ],
+      "scalar_text": "利金斯在医院工作时，开始在业余时间研究早产。",
+      "scalar_text_sha256": "8dc90d07e68310359e005fbb3b2f9555b2c50e11aa44313030257b036ea974b2",
+      "scalar_reference_CER": {
+        "errors": 7,
+        "substitutions": 0,
+        "deletions": 7,
+        "insertions": 0,
+        "reference_units": 27
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "利金斯在医院工作时，开始在业余时间研究早产。",
+      "preview_text_source": "unchanged_exact_endpoint_decode_proves_last_partial",
+      "preview_text_sha256": "8dc90d07e68310359e005fbb3b2f9555b2c50e11aa44313030257b036ea974b2",
+      "preview_decode": {
+        "verifiedPreviewTokens": 16,
+        "startUptime": 1963947.7623525,
+        "changed": false,
+        "endUptime": 1963948.0345207502,
+        "frames": 225920,
+        "final": false
+      },
+      "scalar_decode": {
+        "startUptime": 1963948.8503755,
+        "endUptime": 1963949.1517379167,
+        "verifiedPreviewTokens": 0,
+        "changed": false,
+        "frames": 225920,
+        "final": true
+      },
+      "preview_decode_seconds": 0.27216825005598366,
+      "scalar_decode_seconds": 0.3013624167069793,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 20,
+        "hypothesis_units": 20,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 7,
+        "substitutions": 0,
+        "deletions": 7,
+        "insertions": 0,
+        "reference_units": 27
+      }
+    },
+    {
+      "id": "ascend-zh-6a23208e2c146088",
+      "audio_sha256": "2962a6f5eae36de76bcb2b59ed81cd52c9344c955366c838c849c21ae649750c",
+      "pcm_sha256": "fbe63731d9b75e67a14bb646cf5427ba631375578fb4bcead02a93921b7f0b7b",
+      "frames": 67199,
+      "seconds": 4.1999375,
+      "original_frames": 67199,
+      "full_reference_available": true,
+      "reference": "其实我也是到大学才发现就学习不应该是整天",
+      "prefixes": [
+        12800,
+        52800,
+        67199
+      ],
+      "events": [
+        {
+          "text": "其实我也是到大。",
+          "decodes": [
+            {
+              "startUptime": 1963949.1555385,
+              "endUptime": 1963949.2706854586,
+              "verifiedPreviewTokens": 0,
+              "changed": true,
+              "frames": 12800,
+              "final": false
+            }
+          ],
+          "frames": 12800,
+          "kind": "partial"
+        },
+        {
+          "text": "其实我也是到大学才发现，就学习不应该是。",
+          "decodes": [
+            {
+              "startUptime": 1963949.2712932085,
+              "endUptime": 1963949.4154566252,
+              "verifiedPreviewTokens": 0,
+              "changed": true,
+              "frames": 52800,
+              "final": false
+            }
+          ],
+          "frames": 52800,
+          "kind": "partial"
+        },
+        {
+          "text": "其实我也是到大学才发现，就学习不应该是整天。",
+          "decodes": [
+            {
+              "startUptime": 1963949.4159691252,
+              "endUptime": 1963949.587210125,
+              "verifiedPreviewTokens": 0,
+              "changed": true,
+              "frames": 67199,
+              "final": false
+            }
+          ],
+          "frames": 67199,
+          "kind": "partial"
+        },
+        {
+          "text": "其实我也是到大学才发现，就学习不应该是整天。",
+          "decodes": [
+            {
+              "startUptime": 1963949.5878087918,
+              "endUptime": 1963949.8405545834,
+              "verifiedPreviewTokens": 0,
+              "changed": false,
+              "frames": 67199,
+              "final": true
+            }
+          ],
+          "frames": 67199,
+          "kind": "final"
+        }
+      ],
+      "scalar_text": "其实我也是到大学才发现，就学习不应该是整天。",
+      "scalar_text_sha256": "71c4ca7a217931298e2a7e0dab14d0caabedafb337f0610755a53e3055529926",
+      "scalar_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 20
+      },
+      "status": "COMPARED_NO_ACCEPTED_PREFIX",
+      "preview_text": "其实我也是到大学才发现，就学习不应该是整天。",
+      "preview_text_source": "exact_endpoint_partial",
+      "preview_text_sha256": "71c4ca7a217931298e2a7e0dab14d0caabedafb337f0610755a53e3055529926",
+      "preview_decode": {
+        "startUptime": 1963949.4159691252,
+        "endUptime": 1963949.587210125,
+        "verifiedPreviewTokens": 0,
+        "changed": true,
+        "frames": 67199,
+        "final": false
+      },
+      "scalar_decode": {
+        "startUptime": 1963949.5878087918,
+        "endUptime": 1963949.8405545834,
+        "verifiedPreviewTokens": 0,
+        "changed": false,
+        "frames": 67199,
+        "final": true
+      },
+      "preview_decode_seconds": 0.17124099982902408,
+      "scalar_decode_seconds": 0.2527457915712148,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 20,
+        "hypothesis_units": 20,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 20
+      }
+    },
+    {
+      "id": "ascend-zh-ed182ef57fba310b",
+      "audio_sha256": "14caf84362f6215af64363932afa13220fdbdd2de3256136db6a2d8b824b682a",
+      "pcm_sha256": "42f587aad4608c868316481d68d2d9cc98326d688f714a3985b43d70a8ef9371",
+      "frames": 94883,
+      "seconds": 5.9301875,
+      "original_frames": 94883,
+      "full_reference_available": true,
+      "reference": "对然后但是呢就是说确实有一个手机呢带来很多方便",
+      "prefixes": [
+        12800,
+        52800,
+        86883,
+        94883
+      ],
+      "events": [
+        {
+          "text": "对。",
+          "decodes": [
+            {
+              "startUptime": 1963949.84404175,
+              "endUptime": 1963949.9177208336,
+              "verifiedPreviewTokens": 0,
+              "changed": true,
+              "frames": 12800,
+              "final": false
+            }
+          ],
+          "frames": 12800,
+          "kind": "partial"
+        },
+        {
+          "text": "对。然后，但是呢，就是说，确。",
+          "decodes": [
+            {
+              "startUptime": 1963949.9183827084,
+              "endUptime": 1963950.0786584169,
+              "verifiedPreviewTokens": 0,
+              "changed": true,
+              "frames": 52800,
+              "final": false
+            }
+          ],
+          "frames": 52800,
+          "kind": "partial"
+        },
+        {
+          "text": "对，然后但是呢，就是说，确实有一个手机呢，带来很多方便。",
+          "decodes": [
+            {
+              "startUptime": 1963950.0793973336,
+              "endUptime": 1963950.4417360418,
+              "verifiedPreviewTokens": 0,
+              "changed": true,
+              "frames": 86883,
+              "final": false
+            }
+          ],
+          "frames": 86883,
+          "kind": "partial"
+        },
+        {
+          "text": "对，然后但是呢，就是说，确实有一个手机呢，带来很多方便。",
+          "kind": "final",
+          "frames": 94883,
+          "decodes": [
+            {
+              "startUptime": 1963950.44197,
+              "endUptime": 1963950.5967727501,
+              "verifiedPreviewTokens": 16,
+              "changed": false,
+              "frames": 94883,
+              "final": false
+            },
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963951.5396859585,
+              "changed": false,
+              "endUptime": 1963951.6999554168,
+              "frames": 94883,
+              "final": true
+            }
+          ]
+        }
+      ],
+      "scalar_text": "对，然后但是呢，就是说，确实有一个手机呢，带来很多方便。",
+      "scalar_text_sha256": "d845916c0499447afbf87141e5f9857c343015e7f42fa15b6ec36139688f3fdb",
+      "scalar_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 23
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "对，然后但是呢，就是说，确实有一个手机呢，带来很多方便。",
+      "preview_text_source": "unchanged_exact_endpoint_decode_proves_last_partial",
+      "preview_text_sha256": "d845916c0499447afbf87141e5f9857c343015e7f42fa15b6ec36139688f3fdb",
+      "preview_decode": {
+        "startUptime": 1963950.44197,
+        "endUptime": 1963950.5967727501,
+        "verifiedPreviewTokens": 16,
+        "changed": false,
+        "frames": 94883,
+        "final": false
+      },
+      "scalar_decode": {
+        "verifiedPreviewTokens": 0,
+        "startUptime": 1963951.5396859585,
+        "changed": false,
+        "endUptime": 1963951.6999554168,
+        "frames": 94883,
+        "final": true
+      },
+      "preview_decode_seconds": 0.1548027500975877,
+      "scalar_decode_seconds": 0.16026945831254125,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 23,
+        "hypothesis_units": 23,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 23
+      }
+    },
+    {
+      "id": "ascend-zh-4309bc70746a5c2c",
+      "audio_sha256": "c7a2127326cc36c700e77ae3840e488c9d2b44b3f5303d7b8925d83a7066b6ff",
+      "pcm_sha256": "81d1bbe0dcb71bfb5fd0a533fd2f9dc0aa9213651d4cc93fc8ae5baa56e6e7bb",
+      "frames": 101119,
+      "seconds": 6.3199375,
+      "original_frames": 101119,
+      "full_reference_available": true,
+      "reference": "因为像你说可能当时的难度比较低然后空余时间比较多可以多一点而且",
+      "prefixes": [
+        12800,
+        52800,
+        93119,
+        101119
+      ],
+      "events": [
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963951.7024117084,
+              "changed": true,
+              "endUptime": 1963951.7616991252,
+              "frames": 12800,
+              "final": false
+            }
+          ],
+          "text": "因为像你说。",
+          "kind": "partial",
+          "frames": 12800
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963951.7620400002,
+              "changed": true,
+              "endUptime": 1963951.8565207084,
+              "frames": 52800,
+              "final": false
+            }
+          ],
+          "text": "因为像你说，可能当时的难度比较低。",
+          "kind": "partial",
+          "frames": 52800
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963951.8569109167,
+              "changed": true,
+              "endUptime": 1963952.0678485,
+              "frames": 93119,
+              "final": false
+            }
+          ],
+          "text": "因为像你说，可能当时的难度比较低，然后空余时间比较多，可以多一点。",
+          "kind": "partial",
+          "frames": 93119
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 19,
+              "startUptime": 1963952.0681586668,
+              "changed": true,
+              "endUptime": 1963952.2156127084,
+              "frames": 101119,
+              "final": false
+            }
+          ],
+          "text": "因为像你说，可能当时的难度比较低，然后空余时间比较多，可以多一点，而且。",
+          "kind": "partial",
+          "frames": 101119
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963952.2171845417,
+              "changed": false,
+              "endUptime": 1963952.538861042,
+              "frames": 101119,
+              "final": true
+            }
+          ],
+          "text": "因为像你说，可能当时的难度比较低，然后空余时间比较多，可以多一点，而且。",
+          "kind": "final",
+          "frames": 101119
+        }
+      ],
+      "scalar_text": "因为像你说，可能当时的难度比较低，然后空余时间比较多，可以多一点，而且。",
+      "scalar_text_sha256": "0ad84e0befadff6c7cedeb2bf1b066996450c555e559d22c4b10f6d91f6be480",
+      "scalar_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 31
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "因为像你说，可能当时的难度比较低，然后空余时间比较多，可以多一点，而且。",
+      "preview_text_source": "exact_endpoint_partial",
+      "preview_text_sha256": "0ad84e0befadff6c7cedeb2bf1b066996450c555e559d22c4b10f6d91f6be480",
+      "preview_decode": {
+        "verifiedPreviewTokens": 19,
+        "startUptime": 1963952.0681586668,
+        "changed": true,
+        "endUptime": 1963952.2156127084,
+        "frames": 101119,
+        "final": false
+      },
+      "scalar_decode": {
+        "verifiedPreviewTokens": 0,
+        "startUptime": 1963952.2171845417,
+        "changed": false,
+        "endUptime": 1963952.538861042,
+        "frames": 101119,
+        "final": true
+      },
+      "preview_decode_seconds": 0.14745404152199626,
+      "scalar_decode_seconds": 0.32167650014162064,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 31,
+        "hypothesis_units": 31,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 31
+      }
+    },
+    {
+      "id": "ascend-zh-0c5639a6e24f539b",
+      "audio_sha256": "5f59ef721b132ef77f023bd01032d20a1539d074ef0ded828faddf13ac0b34fb",
+      "pcm_sha256": "425106a43d73f7104548c256767d3d6180c1b7b29deb73d1d53df5708f41d2a0",
+      "frames": 115520,
+      "seconds": 7.22,
+      "original_frames": 115520,
+      "full_reference_available": true,
+      "reference": "我我不就是我爸妈就开始买电脑然后我就开始接触一些网络游戏",
+      "prefixes": [
+        12800,
+        52800,
+        69312,
+        107520,
+        115520
+      ],
+      "events": [
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963952.545230125,
+              "changed": true,
+              "endUptime": 1963952.6464865834,
+              "frames": 12800,
+              "final": false
+            }
+          ],
+          "text": "我。",
+          "kind": "partial",
+          "frames": 12800
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963952.6470630001,
+              "changed": true,
+              "endUptime": 1963952.8061247917,
+              "frames": 52800,
+              "final": false
+            }
+          ],
+          "text": "我我就是我爸妈就开始买电。",
+          "kind": "partial",
+          "frames": 52800
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963952.8068599585,
+              "changed": true,
+              "endUptime": 1963953.0390583335,
+              "frames": 69312,
+              "final": false
+            }
+          ],
+          "text": "我我就是我爸妈就开始买电脑，然后我就。",
+          "kind": "partial",
+          "frames": 69312
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963953.0397407918,
+              "changed": true,
+              "endUptime": 1963953.4153470001,
+              "frames": 101312,
+              "final": false
+            }
+          ],
+          "text": "我我就是我爸妈就开始买电脑，然后我就开始接触一些网络。",
+          "kind": "partial",
+          "frames": 101312
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 14,
+              "startUptime": 1963953.4155621668,
+              "changed": true,
+              "endUptime": 1963953.618241042,
+              "frames": 115520,
+              "final": false
+            }
+          ],
+          "text": "我我就是我爸妈就开始买电脑，然后我就开始接触一些网络游戏。",
+          "kind": "partial",
+          "frames": 115520
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963953.6186770417,
+              "changed": false,
+              "endUptime": 1963954.0360189169,
+              "frames": 115520,
+              "final": true
+            }
+          ],
+          "text": "我我就是我爸妈就开始买电脑，然后我就开始接触一些网络游戏。",
+          "kind": "final",
+          "frames": 115520
+        }
+      ],
+      "scalar_text": "我我就是我爸妈就开始买电脑，然后我就开始接触一些网络游戏。",
+      "scalar_text_sha256": "6d39854fc12718e14147c27213108c1e7b06536cd74c064f5a62c5e3a0cb043d",
+      "scalar_reference_CER": {
+        "errors": 1,
+        "substitutions": 0,
+        "deletions": 1,
+        "insertions": 0,
+        "reference_units": 28
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "我我就是我爸妈就开始买电脑，然后我就开始接触一些网络游戏。",
+      "preview_text_source": "exact_endpoint_partial",
+      "preview_text_sha256": "6d39854fc12718e14147c27213108c1e7b06536cd74c064f5a62c5e3a0cb043d",
+      "preview_decode": {
+        "verifiedPreviewTokens": 14,
+        "startUptime": 1963953.4155621668,
+        "changed": true,
+        "endUptime": 1963953.618241042,
+        "frames": 115520,
+        "final": false
+      },
+      "scalar_decode": {
+        "verifiedPreviewTokens": 0,
+        "startUptime": 1963953.6186770417,
+        "changed": false,
+        "endUptime": 1963954.0360189169,
+        "frames": 115520,
+        "final": true
+      },
+      "preview_decode_seconds": 0.20267887506633997,
+      "scalar_decode_seconds": 0.4173418751452118,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 27,
+        "hypothesis_units": 27,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 1,
+        "substitutions": 0,
+        "deletions": 1,
+        "insertions": 0,
+        "reference_units": 28
+      }
+    },
+    {
+      "id": "ascend-mixed-9255615fddf1a721",
+      "audio_sha256": "e4d9f5aaff9858ff0710a2f2e8fb46d4a7d2b2cf81d9ec54532a19e46de12f3f",
+      "pcm_sha256": "d9dce361c9b80de343b4c13f2e730a8580cfb67821787e812ea6aa6e802a8895",
+      "frames": 103360,
+      "seconds": 6.46,
+      "original_frames": 103360,
+      "full_reference_available": true,
+      "reference": "他当时也在那个Houston Rockets跟team up with McGrady",
+      "prefixes": [
+        12800,
+        52800,
+        62016,
+        95360,
+        103360
+      ],
+      "events": [
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963954.0404392085,
+              "changed": true,
+              "endUptime": 1963954.1342095002,
+              "frames": 12800,
+              "final": false
+            }
+          ],
+          "text": "他当时。",
+          "kind": "partial",
+          "frames": 12800
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963954.1345366251,
+              "changed": true,
+              "endUptime": 1963954.3164468752,
+              "frames": 52800,
+              "final": false
+            }
+          ],
+          "text": "他当时也在那个Houston Rocky。",
+          "kind": "partial",
+          "frames": 52800
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963954.3169630002,
+              "changed": true,
+              "endUptime": 1963954.5517045835,
+              "frames": 62016,
+              "final": false
+            }
+          ],
+          "text": "他当时也在那个Houston Rockies。",
+          "kind": "partial",
+          "frames": 62016
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963954.5527368335,
+              "changed": true,
+              "endUptime": 1963954.8063418334,
+              "frames": 95360,
+              "final": false
+            }
+          ],
+          "text": "他当时也在那个Houston Rockies，跟Team Up With McGregor。",
+          "kind": "partial",
+          "frames": 95360
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963954.8069251669,
+              "changed": true,
+              "endUptime": 1963955.0957970833,
+              "frames": 103360,
+              "final": false
+            }
+          ],
+          "text": "他当时也在那个Houston Rockies，跟Team Up With McGready。",
+          "kind": "partial",
+          "frames": 103360
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963955.0962509168,
+              "changed": false,
+              "endUptime": 1963955.8455967084,
+              "frames": 103360,
+              "final": true
+            }
+          ],
+          "text": "他当时也在那个Houston Rockies，跟Team Up With McGready。",
+          "kind": "final",
+          "frames": 103360
+        }
+      ],
+      "scalar_text": "他当时也在那个Houston Rockies，跟Team Up With McGready。",
+      "scalar_text_sha256": "31aeb26ce1fde5c271b8d16581cacc0708efc578ac0089fbecc950216a4e8807",
+      "scalar_reference_CER": {
+        "errors": 3,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 1,
+        "reference_units": 39
+      },
+      "status": "COMPARED_NO_ACCEPTED_PREFIX",
+      "preview_text": "他当时也在那个Houston Rockies，跟Team Up With McGready。",
+      "preview_text_source": "exact_endpoint_partial",
+      "preview_text_sha256": "31aeb26ce1fde5c271b8d16581cacc0708efc578ac0089fbecc950216a4e8807",
+      "preview_decode": {
+        "verifiedPreviewTokens": 0,
+        "startUptime": 1963954.8069251669,
+        "changed": true,
+        "endUptime": 1963955.0957970833,
+        "frames": 103360,
+        "final": false
+      },
+      "scalar_decode": {
+        "verifiedPreviewTokens": 0,
+        "startUptime": 1963955.0962509168,
+        "changed": false,
+        "endUptime": 1963955.8455967084,
+        "frames": 103360,
+        "final": true
+      },
+      "preview_decode_seconds": 0.2888719164766371,
+      "scalar_decode_seconds": 0.7493457915261388,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 40,
+        "hypothesis_units": 40,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 3,
+        "substitutions": 2,
+        "deletions": 0,
+        "insertions": 1,
+        "reference_units": 39
+      }
+    },
+    {
+      "id": "ascend-mixed-ee4e2d5087648134",
+      "audio_sha256": "9f57d91794977a4b011070157461d1093bcf0b76b5b8b51cea85dd697827f898",
+      "pcm_sha256": "d7133ceaa577bddaf4e19b487cbd072a13bd802a881b2b7afa374852c5153014",
+      "frames": 119040,
+      "seconds": 7.44,
+      "original_frames": 119040,
+      "full_reference_available": true,
+      "reference": "当然我小时候我也没有smartphone但是呢我是小时候比较早接触过那个电脑",
+      "prefixes": [
+        12800,
+        52800,
+        71424,
+        111040,
+        119040
+      ],
+      "events": [
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963955.8519515002,
+              "changed": true,
+              "endUptime": 1963956.0745595002,
+              "frames": 12800,
+              "final": false
+            }
+          ],
+          "text": "当然，我小时候。",
+          "kind": "partial",
+          "frames": 12800
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963956.0762514584,
+              "changed": true,
+              "endUptime": 1963956.9360861669,
+              "frames": 44800,
+              "final": false
+            }
+          ],
+          "text": "当然，我小时候我也没有Smartphone。",
+          "kind": "partial",
+          "frames": 44800
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963956.9365767918,
+              "changed": true,
+              "endUptime": 1963957.336984625,
+              "frames": 87424,
+              "final": false
+            }
+          ],
+          "text": "当然，我小时候我也没有smart phone，但是呢，我是小时候比较早。",
+          "kind": "partial",
+          "frames": 87424
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 1,
+              "startUptime": 1963957.3373325418,
+              "changed": true,
+              "endUptime": 1963957.85396725,
+              "frames": 119040,
+              "final": false
+            }
+          ],
+          "text": "当然我小时候我也没有smart phone，但是呢，我是小时候比较早接触过那个电脑。",
+          "kind": "partial",
+          "frames": 119040
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963957.854425875,
+              "changed": true,
+              "endUptime": 1963958.4940124168,
+              "frames": 119040,
+              "final": true
+            }
+          ],
+          "text": "当然，我小时候我也没有smart phone，但是呢，我是小时候比较早接触过那个电脑。",
+          "kind": "final",
+          "frames": 119040
+        }
+      ],
+      "scalar_text": "当然，我小时候我也没有smart phone，但是呢，我是小时候比较早接触过那个电脑。",
+      "scalar_text_sha256": "270bcb0b351ab5dac1265af9526693e88653103cf2ed7b129aa27e6e91e73a54",
+      "scalar_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 38
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "当然我小时候我也没有smart phone，但是呢，我是小时候比较早接触过那个电脑。",
+      "preview_text_source": "exact_endpoint_partial",
+      "preview_text_sha256": "fd466d4850a5e37c19b0f018dd724a57862332cc23f24653f2b27b36020df272",
+      "preview_decode": {
+        "verifiedPreviewTokens": 1,
+        "startUptime": 1963957.3373325418,
+        "changed": true,
+        "endUptime": 1963957.85396725,
+        "frames": 119040,
+        "final": false
+      },
+      "scalar_decode": {
+        "verifiedPreviewTokens": 0,
+        "startUptime": 1963957.854425875,
+        "changed": true,
+        "endUptime": 1963958.4940124168,
+        "frames": 119040,
+        "final": true
+      },
+      "preview_decode_seconds": 0.5166347082704306,
+      "scalar_decode_seconds": 0.639586541801691,
+      "exact_text_equal": false,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 38,
+        "hypothesis_units": 38,
+        "error_rate": 0.0
+      },
+      "raw_differences": [
+        {
+          "operation": "insert",
+          "preview": "",
+          "scalar": "，",
+          "preview_range": [
+            2,
+            2
+          ],
+          "scalar_range": [
+            2,
+            3
+          ]
+        }
+      ],
+      "normalized_differences": [],
+      "punctuation_differences": [
+        {
+          "operation": "insert",
+          "preview": "",
+          "scalar": "，",
+          "preview_range": [
+            0,
+            0
+          ],
+          "scalar_range": [
+            0,
+            1
+          ]
+        }
+      ],
+      "preview_reference_CER": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 38
+      }
+    },
+    {
+      "id": "ascend-mixed-ff9c42612780330b",
+      "audio_sha256": "219f7c57fe38d36efd022d6d4b725234ddeb61fb83f952e4ddeb6f03fd59d121",
+      "pcm_sha256": "9b9d8447132d9b99b3c4db8f156645e52eacea23a899bca6c12ee5a0f42c7c01",
+      "frames": 161920,
+      "seconds": 10.12,
+      "original_frames": 161920,
+      "full_reference_available": true,
+      "reference": "我觉得那这样的话就是应该customer他就是他负这个就是说如果真的accident happen的话就应该是customer他负这个责任",
+      "prefixes": [
+        12800,
+        52800,
+        97152,
+        153920,
+        161920
+      ],
+      "events": [
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963958.5005576252,
+              "changed": true,
+              "endUptime": 1963958.5911377084,
+              "frames": 12800,
+              "final": false
+            }
+          ],
+          "text": "我觉得那。",
+          "kind": "partial",
+          "frames": 12800
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963958.5915969585,
+              "changed": true,
+              "endUptime": 1963958.882184125,
+              "frames": 52800,
+              "final": false
+            }
+          ],
+          "text": "我觉得那这样的话，就是应该customer他就是。",
+          "kind": "partial",
+          "frames": 52800
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963958.88245525,
+              "changed": true,
+              "endUptime": 1963959.4380517085,
+              "frames": 97152,
+              "final": false
+            }
+          ],
+          "text": "我觉得那这样的话，就是应该customer他就是，他负这，就是说，如果真的。",
+          "kind": "partial",
+          "frames": 97152
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 19,
+              "startUptime": 1963959.43838025,
+              "changed": true,
+              "endUptime": 1963959.9505824584,
+              "frames": 145152,
+              "final": false
+            }
+          ],
+          "text": "我觉得那这样的话，就是应该customer他就是，他负这，就是说，如果真的accident happen的话，就应该是customer他。",
+          "kind": "partial",
+          "frames": 145152
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 28,
+              "startUptime": 1963959.9511892502,
+              "changed": true,
+              "endUptime": 1963960.4930551252,
+              "frames": 161920,
+              "final": false
+            }
+          ],
+          "text": "我觉得那这样的话，就是应该customer他就是，他负这，就是说，如果真的accident happen的话，就应该是customer他负这个责了。",
+          "kind": "partial",
+          "frames": 161920
+        },
+        {
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963960.4932687085,
+              "changed": false,
+              "endUptime": 1963961.0582437501,
+              "frames": 161920,
+              "final": true
+            }
+          ],
+          "text": "我觉得那这样的话，就是应该customer他就是，他负这，就是说，如果真的accident happen的话，就应该是customer他负这个责了。",
+          "kind": "final",
+          "frames": 161920
+        }
+      ],
+      "scalar_text": "我觉得那这样的话，就是应该customer他就是，他负这，就是说，如果真的accident happen的话，就应该是customer他负这个责了。",
+      "scalar_text_sha256": "bc58d72231e88a1f81f11c8a3c195e46908bfb1f7290e9ed75807a212822860c",
+      "scalar_reference_CER": {
+        "errors": 2,
+        "substitutions": 1,
+        "deletions": 1,
+        "insertions": 0,
+        "reference_units": 68
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "我觉得那这样的话，就是应该customer他就是，他负这，就是说，如果真的accident happen的话，就应该是customer他负这个责了。",
+      "preview_text_source": "exact_endpoint_partial",
+      "preview_text_sha256": "bc58d72231e88a1f81f11c8a3c195e46908bfb1f7290e9ed75807a212822860c",
+      "preview_decode": {
+        "verifiedPreviewTokens": 28,
+        "startUptime": 1963959.9511892502,
+        "changed": true,
+        "endUptime": 1963960.4930551252,
+        "frames": 161920,
+        "final": false
+      },
+      "scalar_decode": {
+        "verifiedPreviewTokens": 0,
+        "startUptime": 1963960.4932687085,
+        "changed": false,
+        "endUptime": 1963961.0582437501,
+        "frames": 161920,
+        "final": true
+      },
+      "preview_decode_seconds": 0.5418658750131726,
+      "scalar_decode_seconds": 0.5649750416632742,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 67,
+        "hypothesis_units": 67,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 2,
+        "substitutions": 1,
+        "deletions": 1,
+        "insertions": 0,
+        "reference_units": 68
+      }
+    },
+    {
+      "id": "fleurs-f8646a257c0c4273",
+      "audio_sha256": "c68868cfa82bd8c0ebcf691ce38d9860ae95aa803b3e846c2f552fb82e997829",
+      "pcm_sha256": "0e340eb46585606bcd830a97f63d87a6484a7408958d69f77e7f41e37b753235",
+      "frames": 411840,
+      "seconds": 25.74,
+      "original_frames": 411840,
+      "full_reference_available": true,
+      "reference": "“它们的热行为不像地球上的大型洞穴那么稳定，这些大型洞穴通常会保持相当恒定的温度，但它们与地下深穴的情况很相似，”亚利桑那州旗杆镇美国地质调查局 (USGS) 太空地质团队和北亚利桑那大学的格伦·库欣说道。",
+      "prefixes": [
+        12800,
+        52800,
+        247104,
+        403840,
+        411840
+      ],
+      "events": [
+        {
+          "frames": 68800,
+          "text": "他们的热心为。",
+          "kind": "partial",
+          "decodes": [
+            {
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963961.0747485,
+              "changed": false,
+              "endUptime": 1963961.1562630418,
+              "frames": 12800,
+              "final": false
+            },
+            {
+              "startUptime": 1963961.3298917918,
+              "endUptime": 1963961.3870175001,
+              "verifiedPreviewTokens": 0,
+              "changed": false,
+              "frames": 28800,
+              "final": false
+            },
+            {
+              "final": false,
+              "endUptime": 1963961.4471651667,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963961.3870643335,
+              "changed": false,
+              "frames": 44800
+            },
+            {
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "startUptime": 1963961.4472003335,
+              "endUptime": 1963961.5128640418,
+              "frames": 52800
+            },
+            {
+              "startUptime": 1963961.5819420002,
+              "frames": 68800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963961.6983770835
+            }
+          ]
+        },
+        {
+          "decodes": [
+            {
+              "startUptime": 1963961.6986722085,
+              "frames": 116800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963961.8962022502
+            }
+          ],
+          "kind": "partial",
+          "text": "他们的热行为不像地球上的大型洞穴那么稳定。",
+          "frames": 116800
+        },
+        {
+          "decodes": [
+            {
+              "startUptime": 1963961.8967098752,
+              "frames": 148800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963962.251116875
+            }
+          ],
+          "kind": "partial",
+          "text": "他们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当。",
+          "frames": 148800
+        },
+        {
+          "decodes": [
+            {
+              "startUptime": 1963962.2514720834,
+              "frames": 196800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963962.7346302501
+            }
+          ],
+          "kind": "partial",
+          "text": "它们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的形况。",
+          "frames": 196800
+        },
+        {
+          "decodes": [
+            {
+              "startUptime": 1963962.7348913334,
+              "frames": 247104,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 32,
+              "endUptime": 1963963.0617260835
+            }
+          ],
+          "kind": "partial",
+          "text": "它们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚利桑那州。",
+          "frames": 247104
+        },
+        {
+          "text": "他们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚利桑那州奇甘镇，美国地质调查局，USG.",
+          "frames": 295104,
+          "decodes": [
+            {
+              "endUptime": 1963963.7769091667,
+              "startUptime": 1963963.0621566668,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "frames": 295104
+            }
+          ],
+          "kind": "partial"
+        },
+        {
+          "text": "他们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚利桑那州奇甘镇，美国地质调查局（USGS）、太空地质团队和北亚利。",
+          "frames": 343104,
+          "decodes": [
+            {
+              "endUptime": 1963964.3086905002,
+              "startUptime": 1963963.7771561667,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 48,
+              "frames": 343104
+            }
+          ],
+          "kind": "partial"
+        },
+        {
+          "text": "他们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚利桑那州奇甘镇，美国地质调查局（USGS）、太空地质团队和北亚利桑纳大学的格伦·库欣说道。",
+          "frames": 391104,
+          "decodes": [
+            {
+              "endUptime": 1963964.7480125418,
+              "startUptime": 1963964.3090669168,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 59,
+              "frames": 391104
+            }
+          ],
+          "kind": "partial"
+        },
+        {
+          "decodes": [
+            {
+              "endUptime": 1963965.4295334169,
+              "startUptime": 1963964.748290375,
+              "final": false,
+              "changed": false,
+              "verifiedPreviewTokens": 70,
+              "frames": 411840
+            },
+            {
+              "startUptime": 1963965.7698305834,
+              "frames": 411840,
+              "final": true,
+              "changed": false,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963966.421704875
+            }
+          ],
+          "kind": "final",
+          "text": "他们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚利桑那州奇甘镇，美国地质调查局（USGS）、太空地质团队和北亚利桑纳大学的格伦·库欣说道。",
+          "frames": 411840
+        }
+      ],
+      "scalar_text": "他们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚利桑那州奇甘镇，美国地质调查局（USGS）、太空地质团队和北亚利桑纳大学的格伦·库欣说道。",
+      "scalar_text_sha256": "2f4ae03235c6aed74d4574ca13cbdbdd7daef2dcde8439691ac78342bc742421",
+      "scalar_reference_CER": {
+        "errors": 5,
+        "substitutions": 5,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 92
+      },
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "他们的热行为不像地球上的大型洞穴那么稳定。这些大型洞穴通常会保持相当恒定的温度，但它们与地下深雪的情况很相似。亚利桑那州奇甘镇，美国地质调查局（USGS）、太空地质团队和北亚利桑纳大学的格伦·库欣说道。",
+      "preview_text_source": "unchanged_exact_endpoint_decode_proves_last_partial",
+      "preview_text_sha256": "2f4ae03235c6aed74d4574ca13cbdbdd7daef2dcde8439691ac78342bc742421",
+      "preview_decode": {
+        "endUptime": 1963965.4295334169,
+        "startUptime": 1963964.748290375,
+        "final": false,
+        "changed": false,
+        "verifiedPreviewTokens": 70,
+        "frames": 411840
+      },
+      "scalar_decode": {
+        "startUptime": 1963965.7698305834,
+        "frames": 411840,
+        "final": true,
+        "changed": false,
+        "verifiedPreviewTokens": 0,
+        "endUptime": 1963966.421704875
+      },
+      "preview_decode_seconds": 0.6812430417630821,
+      "scalar_decode_seconds": 0.6518742917105556,
+      "exact_text_equal": true,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 92,
+        "hypothesis_units": 92,
+        "error_rate": 0.0
+      },
+      "raw_differences": [],
+      "normalized_differences": [],
+      "punctuation_differences": [],
+      "preview_reference_CER": {
+        "errors": 5,
+        "substitutions": 5,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 92
+      }
+    },
+    {
+      "id": "continuous-public-5",
+      "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "pcm_sha256": "35e26b3a565877ca7defda32aa37c40ca28d71cb1c993fcc2af009b602f06d2c",
+      "frames": 480000,
+      "seconds": 30.0,
+      "original_frames": 620800,
+      "full_reference_available": false,
+      "reference": null,
+      "prefixes": [
+        12800,
+        52800,
+        288000,
+        472000,
+        480000
+      ],
+      "events": [
+        {
+          "kind": "partial",
+          "text": "毋庸置疑。",
+          "decodes": [
+            {
+              "startUptime": 1963966.4415883333,
+              "frames": 12800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963966.512780042
+            }
+          ],
+          "frames": 12800
+        },
+        {
+          "kind": "partial",
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语。",
+          "decodes": [
+            {
+              "startUptime": 1963966.5132166669,
+              "frames": 52800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963966.6713221667
+            }
+          ],
+          "frames": 52800
+        },
+        {
+          "kind": "partial",
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员。",
+          "decodes": [
+            {
+              "startUptime": 1963966.6719809168,
+              "frames": 132800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963966.9896986668
+            }
+          ],
+          "frames": 132800
+        },
+        {
+          "kind": "partial",
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远。",
+          "decodes": [
+            {
+              "startUptime": 1963966.9901068334,
+              "frames": 212800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 26,
+              "endUptime": 1963967.3652405834
+            }
+          ],
+          "frames": 212800
+        },
+        {
+          "kind": "partial",
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。",
+          "decodes": [
+            {
+              "startUptime": 1963967.3656580835,
+              "frames": 260800,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 42,
+              "endUptime": 1963967.7380912085
+            }
+          ],
+          "frames": 260800
+        },
+        {
+          "kind": "partial",
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。视力首选登山目的地科。",
+          "decodes": [
+            {
+              "startUptime": 1963967.7384672083,
+              "frames": 304000,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 53,
+              "endUptime": 1963968.1002119584
+            }
+          ],
+          "frames": 304000
+        },
+        {
+          "kind": "partial",
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。视力首选登山目的地——科查莫山谷，被称为南美洲的优美圣。",
+          "decodes": [
+            {
+              "startUptime": 1963968.1006499585,
+              "frames": 352000,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 57,
+              "endUptime": 1963968.589910542
+            }
+          ],
+          "frames": 352000
+        },
+        {
+          "kind": "partial",
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地——科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花。",
+          "decodes": [
+            {
+              "startUptime": 1963968.590447125,
+              "frames": 384000,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 53,
+              "endUptime": 1963969.218107125
+            }
+          ],
+          "frames": 384000
+        },
+        {
+          "kind": "partial",
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大力士的五倍。这里首选登山目的地——科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。",
+          "decodes": [
+            {
+              "startUptime": 1963969.2184590418,
+              "frames": 416000,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 48,
+              "endUptime": 1963970.2297129584
+            }
+          ],
+          "frames": 416000
+        },
+        {
+          "kind": "partial",
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地，科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁，平时你总能在这里听到游客和小摊贩的声音。",
+          "decodes": [
+            {
+              "startUptime": 1963970.2302397918,
+              "frames": 464000,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 48,
+              "endUptime": 1963971.2022657502
+            }
+          ],
+          "frames": 464000
+        },
+        {
+          "kind": "partial",
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地——科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。平时你总能在这里听到游客和小摊贩的声音，声光。",
+          "decodes": [
+            {
+              "startUptime": 1963971.202507375,
+              "frames": 480000,
+              "final": false,
+              "changed": true,
+              "verifiedPreviewTokens": 57,
+              "endUptime": 1963972.0893913752
+            }
+          ],
+          "frames": 480000
+        },
+        {
+          "kind": "final",
+          "text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地，科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁，平时你总能在这里听到游客和小摊贩的声音，声光。",
+          "decodes": [
+            {
+              "startUptime": 1963972.0895570419,
+              "frames": 480000,
+              "final": true,
+              "changed": true,
+              "verifiedPreviewTokens": 0,
+              "endUptime": 1963973.5035754584
+            }
+          ],
+          "frames": 480000
+        }
+      ],
+      "scalar_text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地，科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁，平时你总能在这里听到游客和小摊贩的声音，声光。",
+      "scalar_text_sha256": "34a2deef160b820d4bcdd5354e1df361d212410d3ed1bb0984a53e803391516b",
+      "scalar_reference_CER": null,
+      "status": "COMPARED_VERIFIED",
+      "preview_text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地——科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。平时你总能在这里听到游客和小摊贩的声音，声光。",
+      "preview_text_source": "exact_endpoint_partial",
+      "preview_text_sha256": "d300389cf34cd9b34c52358e6db048b75051a991d20b948b589a1156a69e9f06",
+      "preview_decode": {
+        "startUptime": 1963971.202507375,
+        "frames": 480000,
+        "final": false,
+        "changed": true,
+        "verifiedPreviewTokens": 57,
+        "endUptime": 1963972.0893913752
+      },
+      "scalar_decode": {
+        "startUptime": 1963972.0895570419,
+        "frames": 480000,
+        "final": true,
+        "changed": true,
+        "verifiedPreviewTokens": 0,
+        "endUptime": 1963973.5035754584
+      },
+      "preview_decode_seconds": 0.8868840001523495,
+      "scalar_decode_seconds": 1.4140184165444225,
+      "exact_text_equal": false,
+      "normalized_text_equal": true,
+      "normalized_char_edits": {
+        "errors": 0,
+        "substitutions": 0,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 131,
+        "hypothesis_units": 131,
+        "error_rate": 0.0
+      },
+      "raw_differences": [
+        {
+          "operation": "replace",
+          "preview": "——",
+          "scalar": "，",
+          "preview_range": [
+            86,
+            88
+          ],
+          "scalar_range": [
+            86,
+            87
+          ]
+        },
+        {
+          "operation": "replace",
+          "preview": "。",
+          "scalar": "，",
+          "preview_range": [
+            123,
+            124
+          ],
+          "scalar_range": [
+            122,
+            123
+          ]
+        }
+      ],
+      "normalized_differences": [],
+      "punctuation_differences": [
+        {
+          "operation": "replace",
+          "preview": "——",
+          "scalar": "，",
+          "preview_range": [
+            9,
+            11
+          ],
+          "scalar_range": [
+            9,
+            10
+          ]
+        },
+        {
+          "operation": "replace",
+          "preview": "。",
+          "scalar": "，",
+          "preview_range": [
+            13,
+            14
+          ],
+          "scalar_range": [
+            12,
+            13
+          ]
+        }
+      ],
+      "preview_reference_CER": null
+    }
+  ],
+  "status": "COMPLETE",
+  "wall_seconds": 60.190317375119776,
+  "worker_exit": 0,
+  "stdout_messages": [
+    "Found 1 safetensor files",
+    "Loading: model.safetensors",
+    "Applied weights to audio encoder (18 layers, 301 tensors)",
+    "Applied weights to text decoder (28 layers, 704 tensors)"
+  ],
+  "stderr": "Loaded 62 added tokens from tokenizer_config.json\nLoaded tokenizer with 151705 tokens, 151291 merges\n"
+}

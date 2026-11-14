@@ -3,7 +3,7 @@
   "build": "476",
   "baseline": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
   "baseline_build": "474",
-  "as_of": "2026-11-14T11:33+08:00",
+  "as_of": "2026-11-14T11:54+08:00",
   "status": "IN_PROGRESS",
   "verified": {
     "native_15_original_rate": "PASS for identical final archives; mixed latency/revision tradeoffs reported",
@@ -24,12 +24,13 @@
       "pass": 5,
       "fail": 0
     },
-    "upgrade_and_rollback": "PASS with isolated synthetic data"
+    "upgrade_and_rollback": "PASS with isolated synthetic data",
+    "905-second_actual_native_replay": "PASS",
+    "440_original_and_derived_archives": "All final text and states identical to474; 5 pre-existing incomplete subsegments disclosed"
   },
   "pending": [
-    "905-second actual native replay",
-    "440-file full pipeline rerun after restricted native execution failure",
-    "installation decision"
+    "Evaluate independently audio-verified EOS on full same corpus, then native if accuracy unchanged",
+    "Installation decision"
   ],
   "limitations": [
     "Short-input cold-start median higher on adjacent run; delay principally before worker-ready, not causal attribution",

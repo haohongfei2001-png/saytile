@@ -1,0 +1,47 @@
+{
+  "basis": "0fbca1d892bbc8aa550c4439b8cfcb045af825ae",
+  "scope": "Fresh helper process startup with OS file cache uncontrolled; fixed 0.8 s public PCM, not native UI or microphone acceptance; 20 ms sampled memory can miss shorter peaks. Same toolchain/control source, no token math changes. No production package modified.",
+  "order": [
+    "old",
+    "new",
+    "new",
+    "old",
+    "new",
+    "old",
+    "old",
+    "new"
+  ],
+  "prefix_text_equal": true,
+  "medians": {
+    "old": {
+      "startup_ready_s": 0.7753092078492045,
+      "first_pcm_to_visible_s": 1.097289583645761,
+      "startup_to_visible_s": 1.8727181454887614,
+      "sampled_peak_resident_bytes": 814555136.0,
+      "sampled_peak_physical_bytes": 884393352.0
+    },
+    "new": {
+      "startup_ready_s": 0.6240980209549889,
+      "first_pcm_to_visible_s": 0.9959084375295788,
+      "startup_to_visible_s": 1.5975732915103436,
+      "sampled_peak_resident_bytes": 819478528.0,
+      "sampled_peak_physical_bytes": 878355824.0
+    }
+  },
+  "cpu_at_ready_medians": {
+    "old": 0.5879665625,
+    "new": 0.4744137499999999
+  },
+  "cpu_at_first_text_medians": {
+    "old": 0.8817970208333332,
+    "new": 0.7638973333333332
+  },
+  "cpu_unit_correction": "rusage_info_v0 times are mach ticks, not nanoseconds on this M5; converted with mach_timebase_info 125/3 and verified against time.process_time over 200 ms, CPU-only. Original unconverted output retained.",
+  "conclusion": "NOT_ADOPTED: matched startup pairs are mixed, startup/readiness and first decode are heavily variable; memory changes under 6 MiB and no consistent clear benefit from a second tiny metadata parsing pass. No production edits.",
+  "paired_ready_cpu_delta_new_minus_old_s": [
+    0.0452028333333333,
+    0.07236316666666665,
+    -0.05575387500000001,
+    -0.31514349999999997
+  ]
+}

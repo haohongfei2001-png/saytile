@@ -1,0 +1,73 @@
+--- a/Sources/Qwen3ASR/WeightLoading.swift
++++ b/Sources/Qwen3ASR/WeightLoading.swift
+@@ -65,6 +65,42 @@
+             appliedTotal += textWeights.count
+         }
+         print("Applied weights to text decoder (\(textModel.layers.count) layers, \(appliedTotal) tensors)")
++    }
++
++    /// Apply both ASR components in one pass through each shard. Each
++    /// component still sees lexicographically sorted shards and its original
++    /// exact prefix. No tensor dictionary survives into the next shard.
++    public static func loadASRWeights(
++        into audioEncoder: Qwen3AudioEncoder,
++        textDecoder: QuantizedTextModel?,
++        from directory: URL
++    ) throws {
++        let files = try safetensorFiles(in: directory)
++        print("Found \(files.count) safetensor files")
++        var audioApplied = 0
++        var textApplied = 0
++        for file in files {
++            print("Loading: \(file.lastPathComponent)")
++            let raw = try loadSafetensors(url: file)
++            let audioWeights = stripPrefix(raw, prefix: "audio_tower.")
++            if !audioWeights.isEmpty {
++                applyAudioEncoderComponents(
++                    to: audioEncoder, weights: audioWeights,
++                    transposeConv2dPyTorch: false)
++                audioApplied += audioWeights.count
++            }
++            if let textDecoder {
++                let textWeights = stripPrefix(raw, prefix: "model.")
++                if !textWeights.isEmpty {
++                    applyQuantizedTextDecoderComponents(to: textDecoder, weights: textWeights)
++                    textApplied += textWeights.count
++                }
++            }
++        }
++        print("Applied weights to audio encoder (\(audioEncoder.layers.count) layers, \(audioApplied) tensors)")
++        if let textDecoder {
++            print("Applied weights to text decoder (\(textDecoder.layers.count) layers, \(textApplied) tensors)")
++        }
+     }
+ 
+     // MARK: - Forced Aligner Weight Loading
+--- a/Sources/Qwen3ASR/Qwen3ASR.swift
++++ b/Sources/Qwen3ASR/Qwen3ASR.swift
+@@ -1458,19 +1458,15 @@
+             try tokenizer.load(from: vocabPath)
+             model.setTokenizer(tokenizer)
+         }
+-
+-        progressHandler?(0.85, "Loading audio encoder weights...")
+ 
+-        // Load audio encoder weights
+-        try WeightLoader.loadWeights(into: model.audioEncoder, from: cacheDir)
++        progressHandler?(0.85, "Loading model weights...")
+ 
+-        progressHandler?(0.92, "Loading text decoder weights...")
+-
+-        // Initialize and load text decoder
++        // Both components are independent. Preserve each component's original
++        // sorted shard order, without parsing every shard twice.
+         model.initializeTextDecoder()
+-        if let textDecoder = model.textDecoder {
+-            try WeightLoader.loadTextDecoderWeights(into: textDecoder, from: cacheDir)
+-        }
++        try WeightLoader.loadASRWeights(
++            into: model.audioEncoder, textDecoder: model.textDecoder, from: cacheDir)
++        progressHandler?(0.92, "Model weights loaded")
+ 
+         MetalBudget.pinMemory()
+ 
