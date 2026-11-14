@@ -3,11 +3,19 @@ import Testing
 @testable import SaytileKit
 
 struct AppUpdateConfigurationTests {
+    @Test func versionsAdvanceWithoutDowngradeOrAmbiguity() {
+        #expect(AppUpdateConfiguration.isUpgrade(from: "0.17", build: "488", to: "0.18", build: "490"))
+        #expect(AppUpdateConfiguration.isUpgrade(from: "0.18", build: "1", to: "0.18.0", build: "2"))
+        #expect(!AppUpdateConfiguration.isUpgrade(from: "0.18", build: "490", to: "0.17", build: "491"))
+        #expect(!AppUpdateConfiguration.isUpgrade(from: "0.18", build: "490", to: "0.19", build: "490"))
+        #expect(!AppUpdateConfiguration.isUpgrade(from: "0.18", build: "490", to: "0.19-beta", build: "491"))
+        #expect(!AppUpdateConfiguration.isUpgrade(from: "0.18", build: "490", to: "0.19", build: "99999999999999999999999999"))
+    }
     private func info(_ id: String = "app.saytile.mac", channel: String = "standard") -> [String: Any] {
         ["SUFeedURL": "https://updates.example.test/standard/appcast.xml",
          "SUPublicEDKey": Data(repeating: 1, count: 32).base64EncodedString(),
          "SaytileUpdateBundleIdentifier": id, "SaytileUpdateChannel": channel,
-         "SURequireSignedFeed": true, "SUVerifyUpdateBeforeExtraction": true,
+         "SURequireSignedFeed": true, "SUSignedFeedFailureExpirationInterval": 0, "SUVerifyUpdateBeforeExtraction": true,
          "SUAllowsAutomaticUpdates": false, "SUSendProfileInfo": false]
     }
     @Test func eachProductIdentityHasItsOwnConfiguration() throws {
@@ -27,6 +35,12 @@ struct AppUpdateConfigurationTests {
     @Test(arguments: ["SURequireSignedFeed", "SUVerifyUpdateBeforeExtraction", "SUAllowsAutomaticUpdates", "SUSendProfileInfo"])
     func signatureAndPrivacyCannotBeWeakened(key: String) {
         var values = info(); values[key] = !(values[key] as! Bool)
+        #expect(throws: AppUpdateConfiguration.Failure.self) { try AppUpdateConfiguration(info: values, bundleID: "app.saytile.mac") }
+    }
+    @Test func signedFeedFailureNeverExpires() {
+        var values = info(); values["SUSignedFeedFailureExpirationInterval"] = 86400
+        #expect(throws: AppUpdateConfiguration.Failure.self) { try AppUpdateConfiguration(info: values, bundleID: "app.saytile.mac") }
+        values.removeValue(forKey: "SUSignedFeedFailureExpirationInterval")
         #expect(throws: AppUpdateConfiguration.Failure.self) { try AppUpdateConfiguration(info: values, bundleID: "app.saytile.mac") }
     }
     @Test func missingOrMalformedKeyRefusesUpdates() {

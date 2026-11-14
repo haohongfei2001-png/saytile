@@ -62,6 +62,20 @@ final class AppUpdateController: NSObject, SPUUpdaterDelegate, @preconcurrency S
     func allowedSystemProfileKeys(for updater: SPUUpdater) -> [String]? { [] }
     func updaterShouldDownloadReleaseNotes(_ updater: SPUUpdater) -> Bool { false }
 
+    func updater(_ updater: SPUUpdater, shouldProceedWithUpdate item: SUAppcastItem, updateCheck: SPUUpdateCheck) throws {
+        guard item.signingValidationStatus == .succeeded else {
+            throw AppUpdateConfiguration.Failure.signature
+        }
+        let info = updater.hostBundle.infoDictionary ?? [:]
+        guard let version = info["CFBundleShortVersionString"] as? String,
+              let build = info["CFBundleVersion"] as? String,
+              AppUpdateConfiguration.isUpgrade(from: version, build: build,
+                  to: item.displayVersionString, build: item.versionString) else {
+            throw NSError(domain: "app.saytile.updates", code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "更新版本未通过校验，已保留当前版本。"])
+        }
+    }
+
     func updater(_ updater: SPUUpdater, didFindValidUpdate item: SUAppcastItem) {
         model?.updateStatus = "发现新版本 \(item.displayVersionString)"
         model?.updateActionTitle = "查看更新…"

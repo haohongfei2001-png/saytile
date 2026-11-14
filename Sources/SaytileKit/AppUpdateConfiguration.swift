@@ -6,6 +6,25 @@ public struct AppUpdateConfiguration: Equatable, Sendable {
     public let publicKey: String
     public let channel: String
 
+    /// Build numbers are monotonic; a higher build must not downgrade the
+    /// displayed product version. Reject ambiguous/prerelease labels.
+    public static func isUpgrade(from version: String, build: String, to nextVersion: String, build nextBuild: String) -> Bool {
+        func number(_ text: String) -> UInt64? {
+            guard !text.isEmpty, text.utf8.allSatisfy({ (48...57).contains($0) }) else { return nil }
+            return UInt64(text)
+        }
+        func components(_ text: String) -> [UInt64]? {
+            let parts = text.split(separator: ".", omittingEmptySubsequences: false).map(String.init)
+            guard (2...3).contains(parts.count) else { return nil }
+            let values = parts.compactMap(number)
+            guard values.count == parts.count else { return nil }
+            return values + Array(repeating: 0, count: 3 - values.count)
+        }
+        guard let current = components(version), let next = components(nextVersion),
+              let oldBuild = number(build), let newBuild = number(nextBuild), newBuild > oldBuild else { return false }
+        return !next.lexicographicallyPrecedes(current)
+    }
+
     public enum Failure: Error, LocalizedError {
         case missing, identity, feed, signature
         public var errorDescription: String? {
@@ -36,6 +55,7 @@ public struct AppUpdateConfiguration: Equatable, Sendable {
         }
         guard Data(base64Encoded: key)?.count == 32,
               info["SURequireSignedFeed"] as? Bool == true,
+              info["SUSignedFeedFailureExpirationInterval"] as? Int == 0,
               info["SUVerifyUpdateBeforeExtraction"] as? Bool == true,
               info["SUAllowsAutomaticUpdates"] as? Bool == false,
               info["SUSendProfileInfo"] as? Bool == false else { throw Failure.signature }

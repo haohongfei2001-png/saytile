@@ -102,7 +102,8 @@ def configured_plist(info, channels, environment):
     result.update(
         SaytileUpdateBundleIdentifier=bundle_id, SaytileUpdateChannel=channel,
         SUFeedURL=feed, SUPublicEDKey=key,
-        SURequireSignedFeed=True, SUVerifyUpdateBeforeExtraction=True,
+        SURequireSignedFeed=True, SUSignedFeedFailureExpirationInterval=0,
+        SUVerifyUpdateBeforeExtraction=True, SUScheduledCheckInterval=86400,
         SUEnableAutomaticChecks=True,
         SUAutomaticallyUpdate=False, SUAllowsAutomaticUpdates=False,
         SUEnableSystemProfiling=False, SUSendProfileInfo=False,

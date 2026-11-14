@@ -27,6 +27,8 @@ jobs:
           swift --version
           git rev-parse HEAD
           test -d "$(xcode-select -p)/Platforms/MacOSX.platform"
+      - name: Signed update packaging configuration
+        run: python3 -m unittest discover -s tests -p test_update_configuration.py
       - name: Inherited Swift contracts
         run: |
           swiftc -swift-version 6 -typecheck contracts/Contracts.swift

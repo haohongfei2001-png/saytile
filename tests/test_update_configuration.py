@@ -42,6 +42,8 @@ class UpdateConfigurationTests(unittest.TestCase):
             self.assertIs(result[key], True)
         for key in ("SUAutomaticallyUpdate", "SUAllowsAutomaticUpdates", "SUEnableSystemProfiling", "SUSendProfileInfo"):
             self.assertIs(result[key], False)
+        self.assertEqual(result["SUSignedFeedFailureExpirationInterval"], 0)
+        self.assertEqual(result["SUScheduledCheckInterval"], 86400)
         self.assertEqual(result["CFBundleVersion"], "488")
         self.assertEqual(result["CFBundleShortVersionString"], "0.17")
         self.assertEqual(result["SaytileUpdateBundleIdentifier"], STANDARD)

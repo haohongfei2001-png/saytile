@@ -28,6 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     private var model: AppModel?
     #if canImport(Sparkle)
     private var updater: AppUpdateController?
+    private var updateReview: UpdateReviewSession?
     #endif
     private var status: NSStatusItem?
     private let panelVisibilityItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
@@ -91,6 +92,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
+            // Sparkle relaunches without argv. Resolve only a signed, strictly
+            // owned fixture marker before choosing any database/preferences.
+            let updateReviewRequest = try UpdateReviewRequest.resolve()
             // An unsupported explicit-directory spelling must never fall back
             // to a normal launch against the user's default archive.
             guard !CommandLine.arguments.contains(where: { $0.hasPrefix("--data-directory=") }) else {
@@ -101,10 +105,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 print("RETIRED_PROBE_USE_SINGLE_ASR_WITH_ISOLATED_DIRECTORY")
                 Darwin.exit(64)
             }
-            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--single-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--local-stream-probe", "--connection-setup"]
-            let isDiagnostic = diagnostics.contains(where: CommandLine.arguments.contains)
+            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--single-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--local-stream-probe", "--connection-setup", "--update-review"]
+            let isDiagnostic = updateReviewRequest != nil || diagnostics.contains(where: CommandLine.arguments.contains)
             let directoryIndex = CommandLine.arguments.firstIndex(of: "--data-directory")
-            if isDiagnostic || directoryIndex != nil {
+            if updateReviewRequest == nil && (isDiagnostic || directoryIndex != nil) {
                 guard let index = directoryIndex, CommandLine.arguments.count > index + 1,
                       !CommandLine.arguments[index + 1].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                       !CommandLine.arguments[index + 1].hasPrefix("--") else {
@@ -113,7 +117,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 }
             }
             let directory: URL
-            if let index = directoryIndex {
+            if let request = updateReviewRequest {
+                directory = request.directory
+            } else if let index = directoryIndex {
                 directory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
             } else {
                 directory = SaytileStorageProfile.current.archiveDirectory
@@ -159,7 +165,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 } catch { print("CONNECTION_SETUP_REJECTED \(error.localizedDescription)"); Darwin.exit(64) }
             } else { setupRequest = nil }
             let preferences: UserDefaults
-            if isDiagnostic || directoryIndex != nil {
+            if let request = updateReviewRequest {
+                preferences = request.preferences
+                var diagnosticConfiguration = RecognitionConfiguration()
+                diagnosticConfiguration.automaticRecovery = false
+                try diagnosticConfiguration.save(to: preferences)
+                preferences.setVolatileDomain(["hasLaunched": true, "shortcutChoice": "disabled", "floatingEntryEnabled": false], forName: UserDefaults.argumentDomain)
+            } else if isDiagnostic || directoryIndex != nil {
                 let suite = "app.saytile.diagnostics." + UUID().uuidString
                 diagnosticPreferencesSuite = suite
                 preferences = UserDefaults(suiteName: suite)!
@@ -176,9 +188,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             } else { preferences = SaytileStorageProfile.current.preferences }
             placementDefaults = preferences
             if !isDiagnostic, directoryIndex == nil { visibilityDefaults = preferences }
-            let model = try AppModel(directory: directory, preferences: preferences, normalLaunch: directoryIndex == nil,
-                copyPasteboard: CommandLine.arguments.contains("--ui-review") ? NSPasteboard.withUniqueName() : nil)
+            let model = try AppModel(directory: directory, preferences: preferences, normalLaunch: !isDiagnostic && directoryIndex == nil,
+                copyPasteboard: CommandLine.arguments.contains("--ui-review") || updateReviewRequest != nil ? NSPasteboard.withUniqueName() : nil)
             self.model = model
+            if let request = updateReviewRequest {
+                #if canImport(Sparkle)
+                let review = UpdateReviewSession(model: model, request: request)
+                updateReview = review
+                Task { await review.start() }
+                #else
+                print("UPDATE_REVIEW_REQUIRES_SPARKLE")
+                Darwin.exit(64)
+                #endif
+                return
+            }
             if let setupRequest {
                 configureMainMenu()
                 let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 680, height: 800),
@@ -445,17 +468,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             if model?.hasUnpersistedDrafts == true {
                 shutdownStarted = false
                 presentWorkspace(.archive)
-                sender.reply(toApplicationShouldTerminate: false)
                 return
             }
             await panelCoexistence?.stop()
             panelCoexistence = nil
             terminating = true
-            sender.reply(toApplicationShouldTerminate: true)
+            DispatchQueue.main.async { NSApp.terminate(nil) }
         }
-        // Keep the original quit request alive: Sparkle must wait for durable
-        // shutdown instead of interpreting a temporary cancellation as refusal.
-        return .terminateLater
+        return .terminateCancel
     }
     func applicationWillTerminate(_ notification: Notification) {
         if let suite = diagnosticPreferencesSuite { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
