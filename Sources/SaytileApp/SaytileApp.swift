@@ -723,6 +723,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                     "preset persists while never-opened panel remains hidden")
         showPanel()
         guard let panel else { throw NSError(domain: "MissingPanel", code: 1) }
+        print("APPEARANCE_HOST_GEOMETRY actual=\(panel.frame) expected=\(WindowPlacement.initialPanel(visibleFrame: visible, preset: .spacious)) saved=\(String(describing: savedPanelFrame())) screen=\(visible)")
         try require(sameSize(panel.frame, WindowPlacement.initialPanel(visibleFrame: visible, preset: .spacious)), "first opening uses the saved preset")
         for preset in PanelSizePreset.allCases {
             let before = panel.frame

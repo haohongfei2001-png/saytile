@@ -1548,10 +1548,18 @@ extension AppDelegate {
         let selection = ReviewAppearanceMenuSelection(title: title, expected: Set(titles))
         NotificationCenter.default.addObserver(selection, selector: #selector(ReviewAppearanceMenuSelection.menuOpened(_:)),
                                                name: NSMenu.didBeginTrackingNotification, object: nil)
+        NotificationCenter.default.addObserver(selection, selector: #selector(ReviewAppearanceMenuSelection.menuClosed(_:)),
+                                               name: NSMenu.didEndTrackingNotification, object: nil)
         defer { NotificationCenter.default.removeObserver(selection) }
         try await press(identifier, in: host)
-        guard selection.chosen else { throw ReviewFailure("Appearance menu did not dispatch \(identifier) → \(title)") }
-        print("NATIVE_APPEARANCE_MENU \(identifier) value=\(title) via=AXPress+NSMenu.performActionForItem")
+        do {
+            // Observe completion of this one action. Never press again: a second
+            // press while a picker still tracks its menu can simply close it.
+            try await reviewUntil { selection.chosen && selection.trackingEnded }
+        } catch {
+            throw ReviewFailure("Appearance menu lifecycle incomplete for \(identifier) → \(title): opened=\(selection.opened), action=\(selection.chosen), ended=\(selection.trackingEnded)")
+        }
+        print("NATIVE_APPEARANCE_MENU \(identifier) value=\(title) via=AXPress+NSMenu.performActionForItem tracking_ended=true")
     }
 
     @MainActor private func appearanceControlGeometry(in host: NSView) async throws -> [String: [Double]] {
@@ -1756,14 +1764,34 @@ private final class ReviewActivations: @unchecked Sendable {
 @MainActor private final class ReviewAppearanceMenuSelection: NSObject {
     let title: String
     let expected: Set<String>
+    private(set) var opened = false
     private(set) var chosen = false
+    private(set) var trackingEnded = false
+    private var menu: NSMenu?
     init(title: String, expected: Set<String>) { self.title = title; self.expected = expected }
     @objc func menuOpened(_ note: Notification) {
-        guard !chosen, let menu = note.object as? NSMenu,
+        guard !opened, let candidate = note.object as? NSMenu,
+              expected.isSubset(of: Set(candidate.items.map(\.title))),
+              let item = candidate.item(withTitle: title), item.isEnabled else { return }
+        opened = true; menu = candidate
+        // The begin notification runs before the menu's tracking loop has taken
+        // control. Dispatching and cancelling inside it can leave the picker
+        // tracking after the binding changed. Enter the actual tracking mode
+        // once, then dispatch its existing native item target/action.
+        RunLoop.main.perform(inModes: [.eventTracking]) { [weak self] in
+            MainActor.assumeIsolated { self?.chooseTrackedItem() }
+        }
+    }
+    private func chooseTrackedItem() {
+        guard !chosen, !trackingEnded, let menu,
               expected.isSubset(of: Set(menu.items.map(\.title))),
               let item = menu.item(withTitle: title), item.isEnabled else { return }
-        menu.performActionForItem(at: menu.index(of: item))
         chosen = true
+        menu.performActionForItem(at: menu.index(of: item))
         menu.cancelTracking()
+    }
+    @objc func menuClosed(_ note: Notification) {
+        guard let candidate = note.object as? NSMenu, candidate === menu else { return }
+        trackingEnded = true
     }
 }
