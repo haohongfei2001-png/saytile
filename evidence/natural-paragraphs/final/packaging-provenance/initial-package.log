@@ -1,0 +1,46 @@
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $347626A4
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $5EF9C202
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $33E03363
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $34F8CBDF
+正在检查“（Apple_Free：5）”的校验和…
+                      （Apple_Free：5）：已验证CRC32 $00000000
+正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $33E03363
+正在检查“GPT Header（Backup GPT Header：7）”的校验和…
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $C967CEFF
+已验证CRC32 $8ABF1706
+hdiutil: verify: checksum of "/Users/hhf/Documents/GitHub/saytile/dist/panel-boundary-0.14-478/Saytile-0.14-mandarin-arm64.dmg" is VALID
+预计CRC32 $8ABF1706
+hdiutil: WARNING: 'hdiutil attach -readonly -nobrowse -mountpoint ...' is deprecated. Please use 'diskutil image attach --readOnly --mountOptions nobrowse --mountPoint ...' instead.
+/dev/disk4          	GUID_partition_scheme          	
+/dev/disk4s1        	Apple_APFS                     	
+/dev/disk5          	EF57347C-0000-11AA-AA11-0030654	
+/dev/disk5s1        	41504653-0000-11AA-AA11-0030654	/private/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-015-base-volume-e_dj04r7
+hdiutil: WARNING: 'hdiutil detach ...' is deprecated. Please use 'diskutil eject ...' instead.
+"disk4" ejected.
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+/private/tmp/saytile-natural-paragraphs-release-ab854550/payload/Saytile 中文识别候选.app: replacing existing signature
+/private/tmp/saytile-natural-paragraphs-release-ab854550/payload/Saytile 中文识别候选.app: The timestamp service is not available.
+Traceback (most recent call last):
+  File "/private/tmp/saytile-015-delivery/package.py", line 82, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/private/tmp/saytile-015-delivery/package.py", line 65, in main
+    run('codesign','--force','--options','runtime','--timestamp','--entitlements',REPO/'distribution/audio-input.plist','--sign',IDENTITY,app)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-015-delivery/package.py", line 14, in run
+    def run(*args,**kw):return sp.run(list(map(str,args)),check=True,**kw)
+                               ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['codesign', '--force', '--options', 'runtime', '--timestamp', '--entitlements', '/private/tmp/saytile-natural-paragraphs/distribution/audio-input.plist', '--sign', '92B7E50A1D43D247EA7EA19A31DCA3E407435A42', '/private/tmp/saytile-natural-paragraphs-release-ab854550/payload/Saytile 中文识别候选.app']' returned non-zero exit status 1.

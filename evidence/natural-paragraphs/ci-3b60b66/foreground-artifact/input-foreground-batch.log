@@ -1,0 +1,366 @@
+FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0 background=false
+FIXTURE_READY
+WEB_FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0
+WEB_FIXTURE_READY
+PHASE probe_launch native_pid=2233 web_pid=2243; synthetic_targets_only=true
+PROBE_STARTED pid=2269 executable=AXForegroundBatchProbe
+FOREGROUND_STAGE safety_guardrail_init_begin
+FOREGROUND_STAGE ax_trusted=true idle_checked=true
+FOREGROUND_STAGE safety_timer_and_activation_observer_installed
+FOREGROUND_PREFLIGHT existing_AX=true idle_seconds=161; original_pid=457; contents_not_read=true
+FOREGROUND_STAGE safety_guardrail_init_complete
+FOREGROUND_STAGE target=web pid=2243 activate_begin
+FIXTURE_RPC {"command":"activate","target":"web"}
+FIXTURE_REPLY web command=activate error=False value_omitted=true
+FOREGROUND_STAGE target=web activated frontmost_pid_verified
+FOREGROUND_STAGE target=web resolver_begin
+FOREGROUND_STAGE target=web snapshot_complete can_set=true
+2026-11-14 10:44:55.477 AXWebFixture[2243:11280] NSSpellServer dataFromGeneratingCandidatesForSelectedRange timed out, index is 0
+OWNED_WITNESS web count 0 13 valueMatches 0 true rangeMatches true
+OWNED_OBSERVER bind focus true content true page true
+OWNED_CARET_READBACK bind true
+OWNED_READY complete_reads 3 bound_quiet_reads 3 observed_notifications 0
+FOREGROUND_STAGE target=web first_insert_begin
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_WRITE error AXTextWriteTimeout()
+OWNED_WRITE elapsed_ms 192
+OWNED_VERIFY true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+FOREGROUND_STAGE target=web first_insert_complete result=confirmed
+FOREGROUND_INSERT kind=web result=confirmed
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+OWNED_FIRST_STATE web PREFIX|你好😀SUFFIX utf16 17 caret 11 range 0 attempts -1 bound true
+OWNED_READBACK web sameTarget true pageComplete true substring true whole true
+PASS web real foreground insertion and local confirmation
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+PASS web duplicate stable range suppressed
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 33
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 15 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 15 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 15 length 0 editable true sensitive false setter true appLabel true
+OWNED_VERIFY true
+OWNED_EVENT contentOrSelection
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 15 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 15 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 15 length 0 editable true sensitive false setter true appLabel true
+PASS web UTF16 suffix preserves surrounding text
+OWNED_BINDING_INVALIDATED web 171.84824241666666
+FIXTURE_RPC {"target":"web","command":"restore"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"silentContext"}
+FIXTURE_REPLY web command=silentContext error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+OWNED_SNAPSHOT append pid true app true window true editor true page false complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT append pid true app true window true editor true page false complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_OBSERVER append focus true content true page true
+OWNED_CARET_READBACK append true
+OWNED_SNAPSHOT append pid true app true window true editor true page false complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_BINDING_INVALIDATED web 172.30641958333334
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+PASS web target mutation rejects stale insertion
+PASS web no Return or send
+FIXTURE_RPC {"command":"restore","target":"web"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+OWNED_OBSERVER web longer focus true content true page true
+OWNED_CARET_READBACK web longer true
+OWNED_READY complete_reads 3 bound_quiet_reads 3 observed_notifications 0
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 13
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_VERIFY true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+FIXTURE_RPC {"command":"state","target":"web"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"restore","target":"web"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web longer pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+PASS foreground WKWebView longer exact DOM, intact prefix/suffix, zero sends
+OWNED_OBSERVER web shorter focus true content true page true
+OWNED_CARET_READBACK web shorter true
+OWNED_READY complete_reads 3 bound_quiet_reads 3 observed_notifications 0
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 15
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_VERIFY true
+OWNED_EVENT contentOrSelection
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 17 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+FIXTURE_RPC {"command":"state","target":"web"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"restore","target":"web"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web shorter pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+PASS foreground WKWebView shorter exact DOM, intact prefix/suffix, zero sends
+OWNED_OBSERVER web manualEdit focus true content true page true
+OWNED_CARET_READBACK web manualEdit true
+OWNED_READY complete_reads 3 bound_quiet_reads 3 observed_notifications 0
+OWNED_SNAPSHOT web manualEdit pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web manualEdit pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 8
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web manualEdit pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web manualEdit pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web manualEdit pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_VERIFY true
+OWNED_EVENT contentOrSelection
+FIXTURE_RPC {"command":"state","target":"web"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"manualEdit"}
+FIXTURE_REPLY web command=manualEdit error=False value_omitted=true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+OWNED_SNAPSHOT web manualEdit pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web manualEdit pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web manualEdit pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web manualEdit pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+FIXTURE_RPC {"command":"state","target":"web"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"restore","target":"web"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+OWNED_SNAPSHOT web manualEdit pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+PASS foreground WKWebView manualEdit exact DOM, intact prefix/suffix, zero sends
+OWNED_OBSERVER web blur focus true content true page true
+OWNED_CARET_READBACK web blur true
+OWNED_READY complete_reads 3 bound_quiet_reads 3 observed_notifications 0
+OWNED_SNAPSHOT web blur pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web blur pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 15
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web blur pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web blur pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web blur pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web blur pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_VERIFY true
+FIXTURE_RPC {"target":"web","command":"state"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"blur","target":"web"}
+FIXTURE_REPLY web command=blur error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"web"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+OWNED_SNAPSHOT web blur pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT_ERROR web blur unsupported
+OWNED_EVENT focusOrDocument
+FIXTURE_RPC {"command":"state","target":"web"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"restore","target":"web"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+PASS foreground WKWebView blur exact DOM, intact prefix/suffix, zero sends
+OWNED_OBSERVER web restart focus true content true page true
+OWNED_CARET_READBACK web restart true
+OWNED_READY complete_reads 3 bound_quiet_reads 3 observed_notifications 0
+OWNED_SNAPSHOT web restart pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT web restart pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 20
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web restart pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web restart pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web restart pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT web restart pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_VERIFY true
+FIXTURE_RPC {"command":"state","target":"web"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"web"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"web"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"restore","target":"web"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+FIXTURE_RPC {"command":"silentContext","target":"web"}
+FIXTURE_REPLY web command=silentContext error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"web"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"restore","target":"web"}
+FIXTURE_REPLY web command=restore error=False value_omitted=true
+FIXTURE_RPC {"command":"holdAX","target":"web"}
+FIXTURE_REPLY web command=holdAX error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"web"}
+FIXTURE_REPLY web command=state error=False value_omitted=true
+OWNED_SNAPSHOT web restart pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+PASS foreground WKWebView restart exact DOM, intact prefix/suffix, zero sends
+OWNED_OBSERVER bind focus true content true page true
+OWNED_CARET_READBACK bind true
+OWNED_READY complete_reads 3 bound_quiet_reads 3 observed_notifications 0
+OWNED_SNAPSHOT silentContext pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT silentContext pid true app true window true editor true page false complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+PASS foreground WKWebView silentContext cancelled after reservation; zero writes, original DOM and caret, zero sends
+OWNED_OBSERVER bind focus true content true page true
+OWNED_CARET_READBACK bind true
+OWNED_READY complete_reads 3 bound_quiet_reads 3 observed_notifications 0
+OWNED_SNAPSHOT holdAX pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT_ERROR holdAX unsupported
+PASS foreground WKWebView holdAX cancelled after reservation; zero writes, original DOM and caret, zero sends
+FOREGROUND_STAGE target=native pid=2233 activate_begin
+FIXTURE_RPC {"command":"activate","target":"native"}
+FIXTURE_REPLY native command=activate error=False value_omitted=true
+FOREGROUND_STAGE target=native activated frontmost_pid_verified
+FOREGROUND_STAGE target=native resolver_begin
+FOREGROUND_STAGE target=native snapshot_complete can_set=true
+OWNED_WITNESS native count 0 13 valueMatches 0 true rangeMatches true
+OWNED_OBSERVER bind focus true content true page false
+OWNED_READY complete_reads 3 bound_quiet_reads 3 observed_notifications 0
+FOREGROUND_STAGE target=native first_insert_begin
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 101
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_VERIFY true
+FOREGROUND_STAGE target=native first_insert_complete result=confirmed
+FOREGROUND_INSERT kind=native result=confirmed
+FIXTURE_RPC {"command":"state","target":"native"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+OWNED_FIRST_STATE native PREFIX|你好😀SUFFIX utf16 17 caret 11 range 0 attempts 1 bound true
+OWNED_READBACK native sameTarget true pageComplete true substring true whole true
+PASS native real foreground insertion and local confirmation
+OWNED_SNAPSHOT first pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+PASS native duplicate stable range suppressed
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 11 length 0 editable true sensitive false setter true appLabel true
+OWNED_WRITE issued true
+OWNED_WRITE elapsed_ms 2
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 15 length 0 editable true sensitive false setter true appLabel true
+OWNED_EVENT contentOrSelection
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 15 length 0 editable true sensitive false setter true appLabel true
+OWNED_VERIFY true
+FIXTURE_RPC {"command":"state","target":"native"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+PASS native UTF16 suffix preserves surrounding text
+OWNED_BINDING_INVALIDATED native 186.15473183333336
+FIXTURE_RPC {"command":"restore","target":"native"}
+FIXTURE_REPLY native command=restore error=False value_omitted=true
+FIXTURE_RPC {"command":"select","target":"native"}
+FIXTURE_REPLY native command=select error=False value_omitted=true
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_SNAPSHOT append pid true app true window true editor true page true complete true caret 7 length 0 editable true sensitive false setter true appLabel true
+OWNED_OBSERVER append focus true content true page false
+OWNED_EVENT contentOrSelection
+OWNED_BINDING_INVALIDATED native 186.41623558333333
+FIXTURE_RPC {"command":"state","target":"native"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"native"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+PASS native target mutation rejects stale insertion
+PASS native no Return or send
+FIXTURE_RPC {"command":"restore","target":"native"}
+FIXTURE_REPLY native command=restore error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"native"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"ignoreNextWrite","target":"native"}
+FIXTURE_REPLY native command=ignoreNextWrite error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"native"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"restore","target":"native"}
+FIXTURE_REPLY native command=restore error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"native"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"manualEdit","target":"native"}
+FIXTURE_REPLY native command=manualEdit error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"native"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"restore","target":"native"}
+FIXTURE_REPLY native command=restore error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"native"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"native"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"restore","target":"native"}
+FIXTURE_REPLY native command=restore error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"native"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+FIXTURE_RPC {"command":"otherWindow","target":"native"}
+FIXTURE_REPLY native command=otherWindow error=False value_omitted=true
+FIXTURE_RPC {"command":"state","target":"native"}
+FIXTURE_REPLY native command=state error=False value_omitted=true
+PASS foreground native ignored-write no replay, no wrong window, zero sends
+PASS foreground native manual-edit no replay, no wrong window, zero sends
+PASS foreground native cancel no replay, no wrong window, zero sends
+PASS foreground native other-window no replay, no wrong window, zero sends
+FOREGROUND_RESTORED original_pid=457; confirmed_by_PID_only=true
+FOREGROUND_BATCH_COMPLETE checks=10 failures=0; production frontmost resolver + fixture PID guard; not a third-party browser claim
+PROBE_EXIT returncode=0 signal=none

@@ -1,0 +1,409 @@
+{
+  "sourceSHA": "ab8545507c79640ec3f419e33467a0263c154844",
+  "build": 484,
+  "pr": 41,
+  "generatedUTC": "2026-11-14T12:32:55.787876+00:00",
+  "status": "PASS",
+  "checks": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0,
+    "jobs": [
+      {
+        "run": 43587864004,
+        "id": 132426148675,
+        "name": "native-gateway",
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43587864004/job/132426148675",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43587864004,
+        "id": 132426148815,
+        "name": "gateway",
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43587864004/job/132426148815",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43587864103,
+        "id": 132426148902,
+        "name": "data-and-prototype",
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43587864103/job/132426148902",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43587863976,
+        "id": 132426148694,
+        "name": "foreground",
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43587863976/job/132426148694",
+        "failedSteps": [],
+        "skippedSteps": []
+      },
+      {
+        "run": 43587863976,
+        "id": 132426148773,
+        "name": "native",
+        "conclusion": "success",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43587863976/job/132426148773",
+        "failedSteps": [],
+        "skippedSteps": []
+      }
+    ]
+  },
+  "swiftTesting": {
+    "status": "PASS",
+    "total": 524,
+    "passed": 524,
+    "failed": 0,
+    "groups": [
+      {
+        "tests": 4,
+        "suites": 2,
+        "status": "PASSED",
+        "seconds": 0.832
+      },
+      {
+        "tests": 13,
+        "suites": 1,
+        "status": "PASSED",
+        "seconds": 35.177
+      },
+      {
+        "tests": 12,
+        "suites": 1,
+        "status": "PASSED",
+        "seconds": 8.892
+      },
+      {
+        "tests": 8,
+        "suites": 2,
+        "status": "PASSED",
+        "seconds": 3.521
+      },
+      {
+        "tests": 487,
+        "suites": 59,
+        "status": "PASSED",
+        "seconds": 5.679
+      }
+    ],
+    "newParameterizedSafetyCaseCount": 16,
+    "countNote": "16 parameterized cases belong to one test function; total increases from 523 to 524, not to 539."
+  },
+  "appModel": {
+    "status": "PASS",
+    "checks": 172,
+    "scope": "No microphone, external input or window activation"
+  },
+  "protocol": {
+    "status": "PASS",
+    "scope": "SIMULATED_PROTOCOL_NOT_LIVE_CLOUD",
+    "cases": 52,
+    "protocolViolations": 0,
+    "sampleDurationSeconds": 6.2720625,
+    "wizard": [
+      {
+        "scenario": "normal",
+        "case": "FFB2D1A3-24EC-4466-B56C-27296E6AC6F0",
+        "pipelineCompleted": true,
+        "wireGPTRequests": 2,
+        "pcmBytes": 200706,
+        "pcmSHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+        "blocks": 63,
+        "eos": true,
+        "closed": true,
+        "connectedToEOSSeconds": 6.334512999999991,
+        "connectedToCloseSeconds": 6.343040999999998,
+        "partialIntervalMilliseconds": {
+          "min": 206.32800000000861,
+          "median": 213.02049999999872,
+          "max": 219.71299999998882
+        }
+      },
+      {
+        "scenario": "unsupported",
+        "case": "900B825D-1818-492B-8803-8DDA0ED297D6",
+        "pipelineCompleted": true,
+        "wireGPTRequests": 2,
+        "pcmBytes": 200706,
+        "pcmSHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+        "blocks": 63,
+        "eos": true,
+        "closed": true,
+        "connectedToEOSSeconds": 6.350987999999997,
+        "connectedToCloseSeconds": 6.386618000000002,
+        "partialIntervalMilliseconds": {
+          "min": 213.4939999999915,
+          "median": 236.3110000000015,
+          "max": 259.1280000000115
+        }
+      },
+      {
+        "scenario": "churn",
+        "case": "E672E2FE-9C8D-419D-8DFC-4E04553BA6BA",
+        "pipelineCompleted": true,
+        "wireGPTRequests": 2,
+        "pcmBytes": 200706,
+        "pcmSHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+        "blocks": 63,
+        "eos": true,
+        "closed": true,
+        "connectedToEOSSeconds": 6.283133999999991,
+        "connectedToCloseSeconds": 6.302680999999997,
+        "partialIntervalMilliseconds": {
+          "min": 30.872000000003027,
+          "median": 102.70049999999901,
+          "max": 169.72000000000116
+        }
+      },
+      {
+        "scenario": "each_reconnect",
+        "case": "FF69917D-8CD9-408B-AE41-206104CD68BD",
+        "pipelineCompleted": true,
+        "wireGPTRequests": 4,
+        "pcmBytes": 200706,
+        "pcmSHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+        "blocks": 63,
+        "eos": true,
+        "closed": true,
+        "connectedToEOSSeconds": 6.28378899999999,
+        "connectedToCloseSeconds": 6.306795000000013,
+        "partialIntervalMilliseconds": {
+          "min": 148.74700000000303,
+          "median": 212.60499999999593,
+          "max": 276.4629999999888
+        }
+      }
+    ]
+  },
+  "naturalParagraphs": {
+    "status": "PASS",
+    "recordings": 4,
+    "paragraphs": 3,
+    "timeGroups": 2,
+    "evidence": "Complete native job log: NATURAL_PARAGRAPHS_PASS",
+    "dedicatedArtifactDownloaded": false,
+    "checksCount": "Not inferred from unavailable artifact",
+    "microphoneOpened": false,
+    "asrExecuted": false
+  },
+  "panelBoundary": {
+    "status": "PASS",
+    "passed": 20,
+    "failed": 0,
+    "notRun": [
+      {
+        "name": "native fullscreen",
+        "note": "Requires explicit isolated fixture GUI run flag; not substituted by full-screen-sized ordinary frame.",
+        "status": "NOT_RUN"
+      }
+    ],
+    "scope": "Only two disposable synthetic AppKit fixture PIDs; production PanelWindowAccess/PanelArrangementWorker; no user app target, no text read, no mic, no input events.",
+    "historicalPlatformObservations": [
+      {
+        "actualFrame": [
+          10,
+          58,
+          1004,
+          679
+        ],
+        "declaredMinSize": [
+          1004,
+          679
+        ],
+        "expected_unchanged_frame_status": "FAIL",
+        "name": "AppKit minimum size can normalize limits and change the actual frame",
+        "note": "Original native9 unchanged-frame assertion FAIL retained. Read declaredMinSize and actualFrame together: a changed frame is not proof the minimum was ignored. The worker reports actual partial geometry and refusal, never presumed success.",
+        "requestedFrame": [
+          10,
+          68,
+          1004,
+          659
+        ],
+        "workerAdjusted": 1,
+        "workerBlocked": 1
+      }
+    ]
+  },
+  "nativeTimeline": {
+    "status": "PASS",
+    "rows": 12003,
+    "maxResidentRows": 64,
+    "idleShiftPoints": 0,
+    "pagingAnchorPoints": 1,
+    "horizontalShiftPoints": 0,
+    "lineShearPoints": 0,
+    "wheelToPaintSeconds": 0.024695542,
+    "midnightOneNewline": true,
+    "originalTextPreserved": true,
+    "timeHeading": false,
+    "selection": "stable",
+    "historyIsolated": true,
+    "nativeAXCopy": false,
+    "evidence": "native-ui-artifact/timeline/receipt.json and native-summary.log"
+  },
+  "ui": {
+    "status": "PASS_RENDER_ONLY",
+    "standardCaptures": 30,
+    "approvedReferenceCaptures": 3,
+    "actualControlActions": "NOT_RUN",
+    "reason": "Remote AX helper not configured",
+    "artifactVerified": true,
+    "totalPNGMembersIncludingMotionAndTimeline": 109,
+    "note": "Rendered images do not establish visual approval or physical interaction."
+  },
+  "smoke": {
+    "status": "PASS",
+    "records": 0,
+    "samplePCMBytes": 200706,
+    "microphoneCapture": "NOT_RUN; permission label alone does not prove capture"
+  },
+  "power": {
+    "source": "ab8545507c79640ec3f419e33467a0263c154844",
+    "host_model": "VirtualMac2,1",
+    "capabilities": [
+      "Capabilities for AC Power:",
+      " displaysleep",
+      " disksleep",
+      " sleep",
+      " standby",
+      " powernap",
+      " ttyskeepawake",
+      " tcpkeepalive"
+    ],
+    "private_audio_opened": false,
+    "status": "BLOCKED",
+    "reason": "runner lacks scheduled hardware wake or system sleep support",
+    "schedule_exit": 0,
+    "sleep_request_exit": 71
+  },
+  "foreground": {
+    "sourceSHA": "ab8545507c79640ec3f419e33467a0263c154844",
+    "status": "PASS",
+    "chrome": {
+      "firstInsertion": "confirmed; exact AX text; 1 write",
+      "incrementalAppend": "confirmed; exact AX and DOM text; 2 cumulative writes",
+      "duplicate": "suppressed; no additional write",
+      "changedSelection": "invalidates binding; 2 writes unchanged",
+      "manualEdit": "preserved exact DOM",
+      "cancel": "zero replay, exact DOM",
+      "targetSwitch": "other field focused, original DOM preserved",
+      "automaticSend": false,
+      "transientUnreadablePostwriteSnapshot": "NOT_OBSERVED_IN_THIS_REAL_CHROME_RUN",
+      "longerShorterCorrection": "NOT_RUN_IN_CHROME; separately exercised in real WKWebView",
+      "evidence": "foreground-artifact/chrome.log"
+    },
+    "wkWebView": {
+      "firstInsertion": "confirmed",
+      "incrementalAppend": "exact UTF16 suffix preserves surrounding text",
+      "longerShorterCorrection": "both exact DOM, intact prefix/suffix, zero sends",
+      "manualEditFocusRestart": "PASS",
+      "silentContextAndUnavailableAX": "cancel after reservation; zero writes; original DOM/caret retained",
+      "evidence": "foreground-artifact/input-foreground-batch.log"
+    },
+    "appKit": {
+      "firstInsertion": "single AX setter timed out at 189ms; actual exact owned readback confirmed once, no repeated write",
+      "incrementalAppend": "PASS",
+      "ignoredWriteManualEditCancelOtherWindow": "no replay, no wrong window, zero sends"
+    },
+    "textEdit": {
+      "firstInsertion": "confirmed exact AX, 1 write",
+      "incrementalAppend": "confirmed, 2 cumulative writes",
+      "changedSelection": "invalidates binding"
+    },
+    "isolatedBatchSummary": {
+      "checks": 10,
+      "failures": 0,
+      "note": "Script summary, not total number of all PASS markers across browser extensions"
+    },
+    "newUnreadableSnapshotRegression": {
+      "status": "PASS",
+      "testFunctions": 1,
+      "parameterizedCases": 16,
+      "scope": "Deterministic adapter test, not a claim of real Chrome transient reproduction"
+    },
+    "policy": {
+      "windowEditorCaretRangeOwnership": "Strict evidence checks retained",
+      "repeatedMutation": "No blind write retry",
+      "send": "No Return or send"
+    }
+  },
+  "artifacts": [
+    {
+      "id": 14111980637,
+      "name": "Saytile-native-ui-review",
+      "downloaded": true,
+      "bytes": 3235714,
+      "sha256": "43ba0bf2e8de5feec11d7ea537110a14c7a0bbf47dc4e3f570d99e92f9c4c1f1",
+      "matchesGitHubDigest": true
+    },
+    {
+      "id": 14111930212,
+      "name": "Saytile-localhost-protocol",
+      "downloaded": true,
+      "bytes": 44198,
+      "sha256": "8242cc4c5edcbdf80b4382aa8167340a4fb2006a51958c1ed94440cc7f3a2b92",
+      "matchesGitHubDigest": true
+    },
+    {
+      "id": 14111915812,
+      "name": "Saytile-native-candidate",
+      "downloaded": false,
+      "reason": "Large unsigned candidate intentionally omitted; parent owns local signed build 484 acceptance"
+    },
+    {
+      "id": 14111800523,
+      "name": "single-asr-power",
+      "downloaded": true,
+      "bytes": 706,
+      "sha256": "85190e9d75783611ed9bfd15515310f630f7ec00cf1084473bcacc1fcff4b4c1",
+      "matchesGitHubDigest": true
+    },
+    {
+      "id": 14111696074,
+      "name": "Saytile-natural-paragraphs",
+      "downloaded": false,
+      "attempts": 1,
+      "error": "TLS handshake timeout; partial retained, no retry",
+      "expectedDigest": "sha256:d12b2b32726eb068bd23b35aebb04cdc3daabad14f436e55bdbe8fcdf195655f",
+      "testStatusFromCompleteNativeLog": "PASS"
+    },
+    {
+      "id": 14111526126,
+      "name": "Saytile-panel-boundary",
+      "downloaded": true,
+      "bytes": 28359,
+      "sha256": "fc2783b908ec711607dec1d3dfbe45bb1870cd68ab7b4f6f3d535c41df3afc1d",
+      "matchesGitHubDigest": true
+    },
+    {
+      "id": 14111256425,
+      "name": "single-asr-foreground",
+      "downloaded": true,
+      "bytes": 4114,
+      "sha256": "e42c31de77ddc867c13af436640fa882e1976ab7b4da2a7ac68297f049c74cad",
+      "matchesGitHubDigest": true
+    }
+  ],
+  "notRun": [
+    "Real cloud provider connections",
+    "Private recording upload",
+    "Physical microphone speech",
+    "Hosted native fullscreen",
+    "Hosted actual pointer UI control review",
+    "Hosted timeline AX-copy path"
+  ],
+  "policy": {
+    "rerunPerformed": false,
+    "sourceModified": false,
+    "privateDataTouched": false,
+    "installedAppChanged": false
+  },
+  "priorFailureEvidence": "/private/tmp/saytile-natural-ci-3b60b66 remains 4/5 FAIL; subsequent ab85455 is a distinct fixed SHA, not rerun."
+}

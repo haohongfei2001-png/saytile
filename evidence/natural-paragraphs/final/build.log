@@ -1,22 +1,21 @@
 Building for production...
 [Pre-planning 1 / 242]
-[Constructing 23 / 534]
+[Constructing 28 / 534]
 [54 / 125]
-[80 / 136] CAudio
+[87 / 136] CAudio
 [96 / 137] CAudio
-[109 / 137] CAudio
 [114 / 137] CAudio
 [120 / 165]
-[138 / 296]
-[152 / 296]
-[166 / 296]
-[170 / 296]
-[172 / 296]
+[136 / 296]
+[151 / 296]
+[163 / 296]
+[167 / 296]
+[171 / 296]
+[178 / 296] CAudio
 /private/tmp/saytile-natural-paragraphs/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
-[180 / 296]
-[183 / 296]
+[181 / 296]
+[185 / 296]
 [191 / 296]
-[193 / 296]
 [196 / 296]
 [197 / 296]
 [209 / 296]
@@ -29,11 +28,10 @@ Building for production...
 [233 / 296]
 [239 / 296]
 [240 / 296]
-[242 / 296]
 [243 / 296]
 [245 / 296]
+[257 / 296]
 [258 / 296]
-[259 / 296]
 [263 / 296]
 [268 / 296]
 [271 / 296]
@@ -53,8 +51,8 @@ Building for production...
 [284 / 296] SaytileKit
 /private/tmp/saytile-natural-paragraphs/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
 [292 / 297] Saytile-product
+[298 / 304]
 [299 / 304]
-[300 / 304] Saytile-product
 /private/tmp/saytile-natural-paragraphs/Sources/SaytileApp/AppModel.swift:868:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
  860 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
  861 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
@@ -67,14 +65,15 @@ Building for production...
  866 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
  867 |             do {
  868 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
-     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#Implicit[300 / 304] Saytile-product
+StrongCapture]
      |                                                                                         `- note: explicitly assign the capture list item to silence
  869 |                     Task { @MainActor [weak self] in
  870 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
 
 [#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[302 / 304] Saytile-product
 /private/tmp/saytile-natural-paragraphs/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
 /private/tmp/saytile-natural-paragraphs/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
-[302 / 304] Saytile-product
 [303 / 304] Saytile-product
-Build complete! (55.14秒)
+Build complete! (637.79秒)

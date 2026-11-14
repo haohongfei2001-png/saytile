@@ -1,0 +1,51 @@
+{
+  "sourceSHA": "ab8545507c79640ec3f419e33467a0263c154844",
+  "status": "PASS",
+  "chrome": {
+    "firstInsertion": "confirmed; exact AX text; 1 write",
+    "incrementalAppend": "confirmed; exact AX and DOM text; 2 cumulative writes",
+    "duplicate": "suppressed; no additional write",
+    "changedSelection": "invalidates binding; 2 writes unchanged",
+    "manualEdit": "preserved exact DOM",
+    "cancel": "zero replay, exact DOM",
+    "targetSwitch": "other field focused, original DOM preserved",
+    "automaticSend": false,
+    "transientUnreadablePostwriteSnapshot": "NOT_OBSERVED_IN_THIS_REAL_CHROME_RUN",
+    "longerShorterCorrection": "NOT_RUN_IN_CHROME; separately exercised in real WKWebView",
+    "evidence": "foreground-artifact/chrome.log"
+  },
+  "wkWebView": {
+    "firstInsertion": "confirmed",
+    "incrementalAppend": "exact UTF16 suffix preserves surrounding text",
+    "longerShorterCorrection": "both exact DOM, intact prefix/suffix, zero sends",
+    "manualEditFocusRestart": "PASS",
+    "silentContextAndUnavailableAX": "cancel after reservation; zero writes; original DOM/caret retained",
+    "evidence": "foreground-artifact/input-foreground-batch.log"
+  },
+  "appKit": {
+    "firstInsertion": "single AX setter timed out at 189ms; actual exact owned readback confirmed once, no repeated write",
+    "incrementalAppend": "PASS",
+    "ignoredWriteManualEditCancelOtherWindow": "no replay, no wrong window, zero sends"
+  },
+  "textEdit": {
+    "firstInsertion": "confirmed exact AX, 1 write",
+    "incrementalAppend": "confirmed, 2 cumulative writes",
+    "changedSelection": "invalidates binding"
+  },
+  "isolatedBatchSummary": {
+    "checks": 10,
+    "failures": 0,
+    "note": "Script summary, not total number of all PASS markers across browser extensions"
+  },
+  "newUnreadableSnapshotRegression": {
+    "status": "PASS",
+    "testFunctions": 1,
+    "parameterizedCases": 16,
+    "scope": "Deterministic adapter test, not a claim of real Chrome transient reproduction"
+  },
+  "policy": {
+    "windowEditorCaretRangeOwnership": "Strict evidence checks retained",
+    "repeatedMutation": "No blind write retry",
+    "send": "No Return or send"
+  }
+}

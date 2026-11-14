@@ -1,0 +1,112 @@
+{
+  "conclusion": "success",
+  "createdAt": "2026-11-14T10:43:18Z",
+  "databaseId": 43586609665,
+  "event": "pull_request",
+  "headSha": "3b60b66295070cffbc34ed2486e53c1dc33e5b98",
+  "jobs": [
+    {
+      "completedAt": "2026-11-14T10:44:30Z",
+      "conclusion": "success",
+      "databaseId": 132422375057,
+      "name": "data-and-prototype",
+      "startedAt": "2026-11-14T10:43:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-14T10:43:22Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-14T10:43:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T10:43:31Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-11-14T10:43:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T10:43:31Z",
+          "conclusion": "success",
+          "name": "Verify exact bytes of the sole approved visual reference",
+          "number": 3,
+          "startedAt": "2026-11-14T10:43:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T10:43:31Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v5",
+          "number": 4,
+          "startedAt": "2026-11-14T10:43:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T10:43:36Z",
+          "conclusion": "success",
+          "name": "Run python -m pip install -r tests/requirements.txt",
+          "number": 5,
+          "startedAt": "2026-11-14T10:43:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T10:43:39Z",
+          "conclusion": "success",
+          "name": "Use the runner browser for headless prototype checks",
+          "number": 6,
+          "startedAt": "2026-11-14T10:43:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T10:43:40Z",
+          "conclusion": "success",
+          "name": "Offline ASR quality metrics and provenance",
+          "number": 7,
+          "startedAt": "2026-11-14T10:43:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T10:44:27Z",
+          "conclusion": "success",
+          "name": "Run python scripts/verify.py --ui",
+          "number": 8,
+          "startedAt": "2026-11-14T10:43:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T10:44:27Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v5",
+          "number": 15,
+          "startedAt": "2026-11-14T10:44:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T10:44:27Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 16,
+          "startedAt": "2026-11-14T10:44:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T10:44:27Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-11-14T10:44:27Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43586609665/job/132422375057"
+    }
+  ],
+  "name": "Saytile design contracts",
+  "status": "completed",
+  "updatedAt": "2026-11-14T10:44:30Z",
+  "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43586609665"
+}

@@ -1,0 +1,90 @@
+{
+  "archiveControls" : [
+
+  ],
+  "asrExecuted" : false,
+  "audio" : [
+    {
+      "bytes" : 36096,
+      "recording" : "20996A8E-F967-4261-951C-684E14E7FB90",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    },
+    {
+      "bytes" : 36096,
+      "recording" : "98E15951-9994-4E3B-AC99-BA6D3D73CA18",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    },
+    {
+      "bytes" : 36096,
+      "recording" : "E2C87568-8EAA-437A-88DD-3A47C14B1398",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    },
+    {
+      "bytes" : 36096,
+      "recording" : "5FF9C0BE-8B8B-453D-A99B-17BE2189A8DB",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    }
+  ],
+  "captureScope" : "owned nonactivating native views rendered using AppKit cacheDisplay; not a full-desktop screenshot",
+  "checks" : [
+    "ASR-origin seed",
+    "three-second continuation",
+    "15-second paragraph",
+    "60-second time group",
+    "panel selection\/copy",
+    "selected viewport held",
+    "late ASR retains original position",
+    "one native editor per paragraph",
+    "panel\/archive identical newlines",
+    "cross-owner emoji edit",
+    "archive private selection copy",
+    "archive native undo\/redo",
+    "late ASR manual protection",
+    "whole-paragraph star",
+    "real AVAudioPlayer silent clip transition past 1.144625 seconds",
+    "independent second-paragraph edit keeps panel boundary"
+  ],
+  "microphoneOpened" : false,
+  "nativeControlActions" : {
+    "reason" : "SAYTILE_UI_CONTROL_PROBE not configured; star\/play model actions only",
+    "status" : "NOT_RUN"
+  },
+  "paragraphs" : 3,
+  "privatePasteboard" : true,
+  "recordings" : 4,
+  "source" : "3b60b66295070cffbc34ed2486e53c1dc33e5b98",
+  "speechEndGapsSeconds" : [
+    3,
+    15,
+    60
+  ],
+  "status" : "PASS",
+  "syntheticOnly" : true,
+  "timeGroups" : 2,
+  "timeline" : [
+    {
+      "group" : 1,
+      "id" : "20996A8E-F967-4261-951C-684E14E7FB90",
+      "paragraphID" : 1,
+      "position" : 1
+    },
+    {
+      "group" : 1,
+      "id" : "98E15951-9994-4E3B-AC99-BA6D3D73CA18",
+      "paragraphID" : 1,
+      "position" : 2
+    },
+    {
+      "group" : 1,
+      "id" : "E2C87568-8EAA-437A-88DD-3A47C14B1398",
+      "paragraphID" : 3,
+      "position" : 3
+    },
+    {
+      "group" : 4,
+      "id" : "5FF9C0BE-8B8B-453D-A99B-17BE2189A8DB",
+      "paragraphID" : 4,
+      "position" : 4
+    }
+  ]
+}

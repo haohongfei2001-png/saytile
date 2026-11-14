@@ -1,0 +1,307 @@
+{
+  "conclusion": "success",
+  "createdAt": "2026-11-14T10:59:45Z",
+  "databaseId": 43587863976,
+  "event": "pull_request",
+  "headSha": "ab8545507c79640ec3f419e33467a0263c154844",
+  "jobs": [
+    {
+      "completedAt": "2026-11-14T11:02:40Z",
+      "conclusion": "success",
+      "databaseId": 132426148694,
+      "name": "foreground",
+      "startedAt": "2026-11-14T10:59:48Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-14T10:59:49Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-14T10:59:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:00:00Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-11-14T10:59:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:01:48Z",
+          "conclusion": "success",
+          "name": "Exercise real AX on owned windows in this disposable GUI session",
+          "number": 3,
+          "startedAt": "2026-11-14T11:00:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:02:02Z",
+          "conclusion": "success",
+          "name": "Build the hosted editor probe",
+          "number": 4,
+          "startedAt": "2026-11-14T11:01:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:02:08Z",
+          "conclusion": "success",
+          "name": "Exercise TextEdit on a new disposable document",
+          "number": 5,
+          "startedAt": "2026-11-14T11:02:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:02:26Z",
+          "conclusion": "success",
+          "name": "Exercise Chrome on a new disposable profile",
+          "number": 6,
+          "startedAt": "2026-11-14T11:02:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:02:28Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 7,
+          "startedAt": "2026-11-14T11:02:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:02:34Z",
+          "conclusion": "success",
+          "name": "Check kernel sleep with paused Saytile on the disposable host",
+          "number": 8,
+          "startedAt": "2026-11-14T11:02:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:02:35Z",
+          "conclusion": "success",
+          "name": "Preserve sleep preflight and kernel events",
+          "number": 9,
+          "startedAt": "2026-11-14T11:02:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:02:36Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 18,
+          "startedAt": "2026-11-14T11:02:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:02:38Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 19,
+          "startedAt": "2026-11-14T11:02:36Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43587863976/job/132426148694"
+    },
+    {
+      "completedAt": "2026-11-14T11:11:27Z",
+      "conclusion": "success",
+      "databaseId": 132426148773,
+      "name": "native",
+      "startedAt": "2026-11-14T10:59:47Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-11-14T10:59:48Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-11-14T10:59:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:00:03Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-11-14T10:59:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:00:05Z",
+          "conclusion": "success",
+          "name": "Verify complete Xcode and record the actual tested revision",
+          "number": 3,
+          "startedAt": "2026-11-14T11:00:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:00:09Z",
+          "conclusion": "success",
+          "name": "Inherited Swift contracts",
+          "number": 4,
+          "startedAt": "2026-11-14T11:00:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:02:49Z",
+          "conclusion": "success",
+          "name": "Real localhost provider protocols (no API keys)",
+          "number": 5,
+          "startedAt": "2026-11-14T11:00:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:02:50Z",
+          "conclusion": "success",
+          "name": "Preserve localhost protocol evidence",
+          "number": 6,
+          "startedAt": "2026-11-14T11:02:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:03:56Z",
+          "conclusion": "success",
+          "name": "Run scripts/test-app-model.sh",
+          "number": 7,
+          "startedAt": "2026-11-14T11:02:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:04:17Z",
+          "conclusion": "success",
+          "name": "Owned native window boundary and restoration",
+          "number": 8,
+          "startedAt": "2026-11-14T11:03:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:04:19Z",
+          "conclusion": "success",
+          "name": "Preserve window boundary receipt",
+          "number": 9,
+          "startedAt": "2026-11-14T11:04:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:09:47Z",
+          "conclusion": "success",
+          "name": "Run scripts/build-app.sh",
+          "number": 10,
+          "startedAt": "2026-11-14T11:04:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:09:48Z",
+          "conclusion": "success",
+          "name": "Isolated cloud probe CLI boundaries",
+          "number": 11,
+          "startedAt": "2026-11-14T11:09:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:09:48Z",
+          "conclusion": "success",
+          "name": "Isolated connection setup CLI boundaries",
+          "number": 12,
+          "startedAt": "2026-11-14T11:09:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:09:49Z",
+          "conclusion": "success",
+          "name": "Edit directly in the native panel using a private clipboard",
+          "number": 13,
+          "startedAt": "2026-11-14T11:09:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:09:52Z",
+          "conclusion": "success",
+          "name": "Shared natural paragraphs in real panel and archive",
+          "number": 14,
+          "startedAt": "2026-11-14T11:09:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:09:54Z",
+          "conclusion": "success",
+          "name": "Preserve natural paragraph screenshots and receipts",
+          "number": 15,
+          "startedAt": "2026-11-14T11:09:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:10:04Z",
+          "conclusion": "success",
+          "name": "Native windows with synthetic data",
+          "number": 16,
+          "startedAt": "2026-11-14T11:09:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:11:15Z",
+          "conclusion": "success",
+          "name": "Native continuous timeline with 12000 isolated utterances",
+          "number": 17,
+          "startedAt": "2026-11-14T11:10:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:11:16Z",
+          "conclusion": "success",
+          "name": "Preserve native panel screenshots and review manifest",
+          "number": 18,
+          "startedAt": "2026-11-14T11:11:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:11:17Z",
+          "conclusion": "success",
+          "name": "Isolated startup without microphone",
+          "number": 19,
+          "startedAt": "2026-11-14T11:11:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:11:20Z",
+          "conclusion": "success",
+          "name": "Preserve app bundle permissions",
+          "number": 20,
+          "startedAt": "2026-11-14T11:11:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:11:23Z",
+          "conclusion": "success",
+          "name": "Run actions/upload-artifact@v4",
+          "number": 21,
+          "startedAt": "2026-11-14T11:11:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:11:23Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 42,
+          "startedAt": "2026-11-14T11:11:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-11-14T11:11:25Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 43,
+          "startedAt": "2026-11-14T11:11:23Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43587863976/job/132426148773"
+    }
+  ],
+  "name": "Saytile native",
+  "status": "completed",
+  "updatedAt": "2026-11-14T11:11:27Z",
+  "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43587863976"
+}

@@ -1,0 +1,331 @@
+﻿2026-11-14T10:59:48.2024564Z Current runner version: '2.338.2'
+2026-11-14T10:59:48.2053880Z ##[group]Runner Image Provisioner
+2026-11-14T10:59:48.2054923Z Hosted Compute Agent
+2026-11-14T10:59:48.2055669Z Version: 20261103.629
+2026-11-14T10:59:48.2056468Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-14T10:59:48.2057414Z Build Date: 2026-11-03T17:26:59Z
+2026-11-14T10:59:48.2058399Z Worker ID: {ab88402b-cc29-4254-b3d4-a677005ce9a1}
+2026-11-14T10:59:48.2059312Z Region: eastus2
+2026-11-14T10:59:48.2059996Z Cloud: Azure
+2026-11-14T10:59:48.2060668Z ##[endgroup]
+2026-11-14T10:59:48.2062251Z ##[group]Operating System
+2026-11-14T10:59:48.2063348Z Ubuntu
+2026-11-14T10:59:48.2064030Z 24.04.5
+2026-11-14T10:59:48.2064679Z LTS
+2026-11-14T10:59:48.2065322Z ##[endgroup]
+2026-11-14T10:59:48.2066026Z ##[group]Runner Image
+2026-11-14T10:59:48.2066896Z Image: ubuntu-24.04
+2026-11-14T10:59:48.2067618Z Version: 20261111.370.1
+2026-11-14T10:59:48.2069240Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-14T10:59:48.2071236Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+2026-11-14T10:59:48.2072758Z ##[endgroup]
+2026-11-14T10:59:48.2074176Z ##[group]GITHUB_TOKEN Permissions
+2026-11-14T10:59:48.2076550Z Contents: read
+2026-11-14T10:59:48.2077256Z Metadata: read
+2026-11-14T10:59:48.2078023Z ##[endgroup]
+2026-11-14T10:59:48.2080742Z Secret source: Actions
+2026-11-14T10:59:48.2081930Z Cache mode: write
+2026-11-14T10:59:48.2083107Z Prepare workflow directory
+2026-11-14T10:59:48.2439301Z Prepare all required actions
+2026-11-14T10:59:48.2494134Z Getting action download info
+2026-11-14T10:59:48.4444688Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-14T10:59:48.6953767Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-11-14T10:59:48.8761856Z Complete job name: data-and-prototype
+2026-11-14T10:59:48.9489613Z ##[group]Run actions/checkout@v4
+2026-11-14T10:59:48.9490369Z with:
+2026-11-14T10:59:48.9490793Z   ref: ab8545507c79640ec3f419e33467a0263c154844
+2026-11-14T10:59:48.9491344Z   repository: haohongfei2001-png/saytile
+2026-11-14T10:59:48.9494922Z   token: ***
+2026-11-14T10:59:48.9495321Z   ssh-strict: true
+2026-11-14T10:59:48.9495720Z   ssh-user: git
+2026-11-14T10:59:48.9496119Z   persist-credentials: true
+2026-11-14T10:59:48.9496554Z   clean: true
+2026-11-14T10:59:48.9496952Z   sparse-checkout-cone-mode: true
+2026-11-14T10:59:48.9497413Z   fetch-depth: 1
+2026-11-14T10:59:48.9497804Z   fetch-tags: false
+2026-11-14T10:59:48.9498206Z   show-progress: true
+2026-11-14T10:59:48.9498612Z   lfs: false
+2026-11-14T10:59:48.9498982Z   submodules: false
+2026-11-14T10:59:48.9499383Z   set-safe-directory: true
+2026-11-14T10:59:48.9499845Z   allow-unsafe-pr-checkout: false
+2026-11-14T10:59:48.9500477Z ##[endgroup]
+2026-11-14T10:59:49.1437159Z Syncing repository: haohongfei2001-png/saytile
+2026-11-14T10:59:49.1439793Z ##[group]Getting Git version info
+2026-11-14T10:59:49.1440865Z Working directory is '/home/runner/work/saytile/saytile'
+2026-11-14T10:59:49.1442401Z [command]/usr/bin/git version
+2026-11-14T10:59:49.1491984Z git version 2.56.1
+2026-11-14T10:59:49.1508741Z ##[endgroup]
+2026-11-14T10:59:49.1529144Z Temporarily overriding HOME='/home/runner/work/_temp/56621129-f0e4-4949-80a4-b953086ab299' before making global git config changes
+2026-11-14T10:59:49.1533193Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-14T10:59:49.1534762Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/saytile/saytile
+2026-11-14T10:59:49.1580009Z Deleting the contents of '/home/runner/work/saytile/saytile'
+2026-11-14T10:59:49.1587145Z ##[group]Initializing the repository
+2026-11-14T10:59:49.1591408Z [command]/usr/bin/git init /home/runner/work/saytile/saytile
+2026-11-14T10:59:49.1731311Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-14T10:59:49.1732881Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-14T10:59:49.1734668Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-14T10:59:49.1735943Z hint: call:
+2026-11-14T10:59:49.1736732Z hint:
+2026-11-14T10:59:49.1737763Z hint: 	git config --global init.defaultBranch <name>
+2026-11-14T10:59:49.1738932Z hint:
+2026-11-14T10:59:49.1739978Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-14T10:59:49.1741622Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-14T10:59:49.1743141Z hint:
+2026-11-14T10:59:49.1744033Z hint: 	git branch -m <name>
+2026-11-14T10:59:49.1744898Z hint:
+2026-11-14T10:59:49.1745908Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-14T10:59:49.1747679Z Initialized empty Git repository in /home/runner/work/saytile/saytile/.git/
+2026-11-14T10:59:49.1750868Z [command]/usr/bin/git remote add origin https://github.com/haohongfei2001-png/saytile
+2026-11-14T10:59:49.1796272Z ##[endgroup]
+2026-11-14T10:59:49.1797395Z ##[group]Disabling automatic garbage collection
+2026-11-14T10:59:49.1799865Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-14T10:59:49.1829567Z ##[endgroup]
+2026-11-14T10:59:49.1836406Z ##[group]Setting up auth
+2026-11-14T10:59:49.1837588Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T10:59:49.1869120Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T10:59:49.2222088Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T10:59:49.2266189Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T10:59:49.2492258Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T10:59:49.2534681Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T10:59:49.2750860Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-14T10:59:49.2794010Z ##[endgroup]
+2026-11-14T10:59:49.2795157Z ##[group]Fetching the repository
+2026-11-14T10:59:49.2804547Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin ab8545507c79640ec3f419e33467a0263c154844
+2026-11-14T10:59:54.5045448Z From https://github.com/haohongfei2001-png/saytile
+2026-11-14T10:59:54.5047892Z  * branch            ab8545507c79640ec3f419e33467a0263c154844 -> FETCH_HEAD
+2026-11-14T10:59:54.5051749Z ##[endgroup]
+2026-11-14T10:59:54.5052996Z ##[group]Determining the checkout info
+2026-11-14T10:59:54.5054256Z ##[endgroup]
+2026-11-14T10:59:54.5054951Z [command]/usr/bin/git sparse-checkout disable
+2026-11-14T10:59:54.5118830Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-14T10:59:54.5152109Z ##[group]Checking out the ref
+2026-11-14T10:59:54.5155551Z [command]/usr/bin/git checkout --progress --force ab8545507c79640ec3f419e33467a0263c154844
+2026-11-14T10:59:55.5240953Z Updating files:  54% (3258/5956)
+2026-11-14T10:59:55.5265305Z Updating files:  55% (3276/5956)
+2026-11-14T10:59:55.5455574Z Updating files:  56% (3336/5956)
+2026-11-14T10:59:55.5482228Z Updating files:  57% (3395/5956)
+2026-11-14T10:59:55.5504087Z Updating files:  58% (3455/5956)
+2026-11-14T10:59:55.5540465Z Updating files:  59% (3515/5956)
+2026-11-14T10:59:55.5585387Z Updating files:  60% (3574/5956)
+2026-11-14T10:59:55.5837630Z Updating files:  61% (3634/5956)
+2026-11-14T10:59:55.5921685Z Updating files:  62% (3693/5956)
+2026-11-14T10:59:55.6200584Z Updating files:  63% (3753/5956)
+2026-11-14T10:59:55.6231778Z Updating files:  64% (3812/5956)
+2026-11-14T10:59:55.6250956Z Updating files:  65% (3872/5956)
+2026-11-14T10:59:55.6308224Z Updating files:  66% (3931/5956)
+2026-11-14T10:59:55.6628429Z Updating files:  67% (3991/5956)
+2026-11-14T10:59:55.6761788Z Updating files:  68% (4051/5956)
+2026-11-14T10:59:55.7089462Z Updating files:  69% (4110/5956)
+2026-11-14T10:59:55.7153824Z Updating files:  70% (4170/5956)
+2026-11-14T10:59:55.7530798Z Updating files:  71% (4229/5956)
+2026-11-14T10:59:55.7742456Z Updating files:  72% (4289/5956)
+2026-11-14T10:59:55.7776010Z Updating files:  73% (4348/5956)
+2026-11-14T10:59:55.7804094Z Updating files:  74% (4408/5956)
+2026-11-14T10:59:55.7823161Z Updating files:  75% (4467/5956)
+2026-11-14T10:59:55.7851159Z Updating files:  76% (4527/5956)
+2026-11-14T10:59:55.8047428Z Updating files:  77% (4587/5956)
+2026-11-14T10:59:55.8097127Z Updating files:  78% (4646/5956)
+2026-11-14T10:59:55.8343052Z Updating files:  79% (4706/5956)
+2026-11-14T10:59:55.8377593Z Updating files:  80% (4765/5956)
+2026-11-14T10:59:55.8398828Z Updating files:  81% (4825/5956)
+2026-11-14T10:59:55.8437495Z Updating files:  82% (4884/5956)
+2026-11-14T10:59:55.8535450Z Updating files:  83% (4944/5956)
+2026-11-14T10:59:55.8604444Z Updating files:  84% (5004/5956)
+2026-11-14T10:59:55.8781957Z Updating files:  85% (5063/5956)
+2026-11-14T10:59:55.8829876Z Updating files:  86% (5123/5956)
+2026-11-14T10:59:55.8885893Z Updating files:  87% (5182/5956)
+2026-11-14T10:59:55.8958461Z Updating files:  88% (5242/5956)
+2026-11-14T10:59:55.9200471Z Updating files:  89% (5301/5956)
+2026-11-14T10:59:55.9228860Z Updating files:  90% (5361/5956)
+2026-11-14T10:59:55.9275071Z Updating files:  91% (5420/5956)
+2026-11-14T10:59:55.9353348Z Updating files:  92% (5480/5956)
+2026-11-14T10:59:55.9420474Z Updating files:  93% (5540/5956)
+2026-11-14T10:59:55.9469657Z Updating files:  94% (5599/5956)
+2026-11-14T10:59:55.9513653Z Updating files:  95% (5659/5956)
+2026-11-14T10:59:55.9537687Z Updating files:  96% (5718/5956)
+2026-11-14T10:59:55.9564025Z Updating files:  97% (5778/5956)
+2026-11-14T10:59:55.9597969Z Updating files:  98% (5837/5956)
+2026-11-14T10:59:55.9629803Z Updating files:  99% (5897/5956)
+2026-11-14T10:59:55.9630407Z Updating files: 100% (5956/5956)
+2026-11-14T10:59:55.9636121Z Updating files: 100% (5956/5956), done.
+2026-11-14T10:59:55.9678807Z Note: switching to 'ab8545507c79640ec3f419e33467a0263c154844'.
+2026-11-14T10:59:55.9679094Z 
+2026-11-14T10:59:55.9679272Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-14T10:59:55.9679653Z changes and commit them, and you can discard any commits you make in this
+2026-11-14T10:59:55.9680012Z state without impacting any branches by switching back to a branch.
+2026-11-14T10:59:55.9680229Z 
+2026-11-14T10:59:55.9680438Z If you want to create a new branch to retain commits you create, you may
+2026-11-14T10:59:55.9680810Z do so (now or later) by using -c with the switch command. Example:
+2026-11-14T10:59:55.9681003Z 
+2026-11-14T10:59:55.9681138Z   git switch -c <new-branch-name>
+2026-11-14T10:59:55.9681281Z 
+2026-11-14T10:59:55.9681372Z Or undo this operation with:
+2026-11-14T10:59:55.9681495Z 
+2026-11-14T10:59:55.9681574Z   git switch -
+2026-11-14T10:59:55.9681678Z 
+2026-11-14T10:59:55.9681841Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-14T10:59:55.9682074Z 
+2026-11-14T10:59:55.9682315Z HEAD is now at ab85455 Confirm first web insertion across one unreadable AX observation without replay
+2026-11-14T10:59:55.9751697Z ##[endgroup]
+2026-11-14T10:59:55.9800120Z [command]/usr/bin/git log -1 --format=%H
+2026-11-14T10:59:55.9829460Z ab8545507c79640ec3f419e33467a0263c154844
+2026-11-14T10:59:56.0118970Z ##[group]Run echo '58be88a019cf0241b1c540f799d0944ed294e650b8c119923a434a6e4889a7c5  design/approved/Saytile-original-visual-reference-20261107.jpeg' | sha256sum --check --status
+2026-11-14T10:59:56.0120015Z [36;1mecho '58be88a019cf0241b1c540f799d0944ed294e650b8c119923a434a6e4889a7c5  design/approved/Saytile-original-visual-reference-20261107.jpeg' | sha256sum --check --status[0m
+2026-11-14T10:59:56.0142093Z shell: /usr/bin/bash -e {0}
+2026-11-14T10:59:56.0142313Z ##[endgroup]
+2026-11-14T10:59:56.0292435Z ##[group]Run actions/setup-python@v5
+2026-11-14T10:59:56.0292867Z with:
+2026-11-14T10:59:56.0293044Z   python-version: 3.12
+2026-11-14T10:59:56.0293229Z   check-latest: false
+2026-11-14T10:59:56.0295088Z   token: ***
+2026-11-14T10:59:56.0295337Z   update-environment: true
+2026-11-14T10:59:56.0295572Z   allow-prereleases: false
+2026-11-14T10:59:56.0295766Z   freethreaded: false
+2026-11-14T10:59:56.0295942Z ##[endgroup]
+2026-11-14T10:59:56.1414389Z ##[group]Installed versions
+2026-11-14T10:59:56.1478023Z (node:2124) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T10:59:56.1478558Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T10:59:56.1479160Z Successfully set up CPython (3.12.16)
+2026-11-14T10:59:56.1479752Z ##[endgroup]
+2026-11-14T10:59:56.1636408Z ##[group]Run python -m pip install -r tests/requirements.txt
+2026-11-14T10:59:56.1636978Z [36;1mpython -m pip install -r tests/requirements.txt[0m
+2026-11-14T10:59:56.1670135Z shell: /usr/bin/bash -e {0}
+2026-11-14T10:59:56.1670453Z env:
+2026-11-14T10:59:56.1670776Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T10:59:56.1671352Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-14T10:59:56.1671929Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T10:59:56.1672421Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T10:59:56.1673164Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T10:59:56.1673676Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-14T10:59:56.1674088Z ##[endgroup]
+2026-11-14T10:59:56.9598932Z Collecting playwright==1.57.0 (from -r tests/requirements.txt (line 1))
+2026-11-14T10:59:57.0108544Z   Downloading playwright-1.57.0-py3-none-manylinux1_x86_64.whl.metadata (3.5 kB)
+2026-11-14T10:59:57.0261077Z Collecting pyee<14,>=13 (from playwright==1.57.0->-r tests/requirements.txt (line 1))
+2026-11-14T10:59:57.0327850Z   Downloading pyee-13.0.1-py3-none-any.whl.metadata (3.0 kB)
+2026-11-14T10:59:57.1671212Z Collecting greenlet<4.0.0,>=3.1.1 (from playwright==1.57.0->-r tests/requirements.txt (line 1))
+2026-11-14T10:59:57.1742682Z   Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+2026-11-14T10:59:57.1911334Z Collecting typing-extensions (from pyee<14,>=13->playwright==1.57.0->-r tests/requirements.txt (line 1))
+2026-11-14T10:59:57.1978688Z   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+2026-11-14T10:59:57.2076556Z Downloading playwright-1.57.0-py3-none-manylinux1_x86_64.whl (46.0 MB)
+2026-11-14T10:59:57.8157469Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 46.0/46.0 MB 77.8 MB/s  0:00:00
+2026-11-14T10:59:57.8228457Z Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (621 kB)
+2026-11-14T10:59:57.8293452Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 621.4/621.4 kB 78.9 MB/s  0:00:00
+2026-11-14T10:59:57.8362169Z Downloading pyee-13.0.1-py3-none-any.whl (15 kB)
+2026-11-14T10:59:57.8444686Z Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+2026-11-14T10:59:57.9261163Z Installing collected packages: typing-extensions, greenlet, pyee, playwright
+2026-11-14T10:59:58.6387890Z 
+2026-11-14T10:59:58.6397366Z Successfully installed greenlet-3.5.6 playwright-1.57.0 pyee-13.0.1 typing-extensions-4.16.0
+2026-11-14T10:59:58.6892321Z ##[group]Run if browser=$(command -v google-chrome || command -v chromium); then
+2026-11-14T10:59:58.6893090Z [36;1mif browser=$(command -v google-chrome || command -v chromium); then[0m
+2026-11-14T10:59:58.6893400Z [36;1m  "$browser" --version[0m
+2026-11-14T10:59:58.6893652Z [36;1m  echo "SAYTILE_BROWSER_PATH=$browser" >> "$GITHUB_ENV"[0m
+2026-11-14T10:59:58.6893917Z [36;1melse[0m
+2026-11-14T10:59:58.6894149Z [36;1m  python -m playwright install --with-deps chromium[0m
+2026-11-14T10:59:58.6894566Z [36;1mfi[0m
+2026-11-14T10:59:58.6912337Z shell: /usr/bin/bash -e {0}
+2026-11-14T10:59:58.6912751Z env:
+2026-11-14T10:59:58.6912987Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T10:59:58.6913336Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-14T10:59:58.6913667Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T10:59:58.6913965Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T10:59:58.6914299Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T10:59:58.6914599Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-14T10:59:58.6914860Z ##[endgroup]
+2026-11-14T11:00:00.0990740Z Google Chrome 157.0.8103.50 
+2026-11-14T11:00:00.1575904Z ##[group]Run python -m unittest discover -s research/asr/benchmark/quality-evaluation -p 'test_*.py' -v
+2026-11-14T11:00:00.1576472Z [36;1mpython -m unittest discover -s research/asr/benchmark/quality-evaluation -p 'test_*.py' -v[0m
+2026-11-14T11:00:00.1594889Z shell: /usr/bin/bash -e {0}
+2026-11-14T11:00:00.1595177Z env:
+2026-11-14T11:00:00.1595492Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T11:00:00.1596012Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-14T11:00:00.1596527Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T11:00:00.1596962Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T11:00:00.1597391Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T11:00:00.1597824Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-14T11:00:00.1598168Z   SAYTILE_BROWSER_PATH: /usr/bin/google-chrome
+2026-11-14T11:00:00.1598395Z ##[endgroup]
+2026-11-14T11:00:00.3178777Z test_all_explicit_digit_expressions_are_covered_without_reselecting_clips (test_evaluate.CorpusTests.test_all_explicit_digit_expressions_are_covered_without_reselecting_clips) ... ok
+2026-11-14T11:00:00.3273918Z test_annotation_receipts_and_denominators_reject_fabricated_coverage (test_evaluate.CorpusTests.test_annotation_receipts_and_denominators_reject_fabricated_coverage) ... ok
+2026-11-14T11:00:00.6511263Z test_cloud_unrun_metrics_are_null_and_legacy_results_all_accounted (test_evaluate.CorpusTests.test_cloud_unrun_metrics_are_null_and_legacy_results_all_accounted) ... ok
+2026-11-14T11:00:00.6799815Z test_duplicate_trace_attempts_rejected (test_evaluate.CorpusTests.test_duplicate_trace_attempts_rejected) ... ok
+2026-11-14T11:00:00.9957816Z test_frozen_unit_overlay_is_loaded_into_evaluation_and_cannot_change_silently (test_evaluate.CorpusTests.test_frozen_unit_overlay_is_loaded_into_evaluation_and_cannot_change_silently) ... ok
+2026-11-14T11:00:01.0235622Z test_local_qwen_cannot_be_claimed_as_hosted_qwen (test_evaluate.CorpusTests.test_local_qwen_cannot_be_claimed_as_hosted_qwen) ... ok
+2026-11-14T11:00:01.0715986Z test_nested_deterministic_language_balanced_panels (test_evaluate.CorpusTests.test_nested_deterministic_language_balanced_panels) ... ok
+2026-11-14T11:00:01.0743560Z test_number_negation_alias_expansion_requires_new_review (test_evaluate.CorpusTests.test_number_negation_alias_expansion_requires_new_review) ... ok
+2026-11-14T11:00:01.1344251Z test_prepare_only_configs_are_disabled_and_use_isolated_cli_paths (test_evaluate.CorpusTests.test_prepare_only_configs_are_disabled_and_use_isolated_cli_paths) ... ok
+2026-11-14T11:00:01.1432076Z test_reference_supplement_has_exact_occurrences_and_preserves_originals (test_evaluate.CorpusTests.test_reference_supplement_has_exact_occurrences_and_preserves_originals) ... ok
+2026-11-14T11:00:01.1478293Z test_reviewed_numbers_and_negations_catch_changed_values_and_polarity (test_evaluate.CorpusTests.test_reviewed_numbers_and_negations_catch_changed_values_and_polarity) ... ok
+2026-11-14T11:00:01.1511786Z test_counts_match_inherited_alignment_exhaustively (test_evaluate.MetricTests.test_counts_match_inherited_alignment_exhaustively) ... ok
+2026-11-14T11:00:01.1513784Z test_critical_occurrence_counts_preserve_real_repeats_and_expose_extras (test_evaluate.MetricTests.test_critical_occurrence_counts_preserve_real_repeats_and_expose_extras) ... ok
+2026-11-14T11:00:01.1514656Z test_critical_requires_token_boundaries_and_reference_truth (test_evaluate.MetricTests.test_critical_requires_token_boundaries_and_reference_truth) ... ok
+2026-11-14T11:00:01.1515542Z test_deletion_replaced_by_wrong_word_is_not_repaired (test_evaluate.MetricTests.test_deletion_replaced_by_wrong_word_is_not_repaired) ... ok
+2026-11-14T11:00:01.1518040Z test_equal_mer_can_hide_a_repair_and_new_error (test_evaluate.MetricTests.test_equal_mer_can_hide_a_repair_and_new_error) ... ok
+2026-11-14T11:00:01.1520338Z test_genuine_repetition_not_penalized_as_excess (test_evaluate.MetricTests.test_genuine_repetition_not_penalized_as_excess) ... ok
+2026-11-14T11:00:01.1523692Z test_number_negation_and_filler_not_rewritten (test_evaluate.MetricTests.test_number_negation_and_filler_not_rewritten) ... ok
+2026-11-14T11:00:01.1524833Z test_reviewed_unit_aliases_preserve_occurrence_counts (test_evaluate.MetricTests.test_reviewed_unit_aliases_preserve_occurrence_counts) ... ok
+2026-11-14T11:00:01.1529344Z test_reviewed_unit_forms_accept_symbols_without_rewriting_numbers_or_lexical_scores (test_evaluate.MetricTests.test_reviewed_unit_forms_accept_symbols_without_rewriting_numbers_or_lexical_scores) ... ok
+2026-11-14T11:00:01.1530800Z test_unit_symbols_are_not_reduced_to_unrelated_letters (test_evaluate.MetricTests.test_unit_symbols_are_not_reduced_to_unrelated_letters) ... ok
+2026-11-14T11:00:01.1531936Z test_audio_and_configuration_identity_fail_closed (test_evaluate.TraceTests.test_audio_and_configuration_identity_fail_closed) ... ok
+2026-11-14T11:00:01.1543044Z test_complete_early_hypothesis_errors_are_scored_against_whole_gold (test_evaluate.TraceTests.test_complete_early_hypothesis_errors_are_scored_against_whole_gold) ... ok
+2026-11-14T11:00:01.1560983Z test_explicit_timed_gold_scope_allows_stage_accuracy (test_evaluate.TraceTests.test_explicit_timed_gold_scope_allows_stage_accuracy) ... ok
+2026-11-14T11:00:01.1570559Z test_failure_not_dropped_from_final_omissions (test_evaluate.TraceTests.test_failure_not_dropped_from_final_omissions) ... ok
+2026-11-14T11:00:01.1583899Z test_final_from_an_old_generation_or_user_edit_not_scored (test_evaluate.TraceTests.test_final_from_an_old_generation_or_user_edit_not_scored) ... ok
+2026-11-14T11:00:01.1617547Z test_foreign_terminal_state_never_supplies_current_failure_or_final_latency (test_evaluate.TraceTests.test_foreign_terminal_state_never_supplies_current_failure_or_final_latency) ... ok
+2026-11-14T11:00:01.1627194Z test_generation_filter_and_persisted_not_ui_latency (test_evaluate.TraceTests.test_generation_filter_and_persisted_not_ui_latency) ... ok
+2026-11-14T11:00:01.1629548Z test_mislabeled_baseline_and_reasoning_change_are_not_pooled (test_evaluate.TraceTests.test_mislabeled_baseline_and_reasoning_change_are_not_pooled) ... ok
+2026-11-14T11:00:01.1639202Z test_missing_latency_is_null_not_zero (test_evaluate.TraceTests.test_missing_latency_is_null_not_zero) ... ok
+2026-11-14T11:00:01.1666801Z test_missing_or_changed_source_revision_prevents_cloud_pair (test_evaluate.TraceTests.test_missing_or_changed_source_revision_prevents_cloud_pair) ... ok
+2026-11-14T11:00:01.1680600Z test_no_stable_prefix_count_only_ended_verified_sessions (test_evaluate.TraceTests.test_no_stable_prefix_count_only_ended_verified_sessions) ... ok
+2026-11-14T11:00:01.1692131Z test_paired_different_scopes_not_compared (test_evaluate.TraceTests.test_paired_different_scopes_not_compared) ... ok
+2026-11-14T11:00:01.1710148Z test_partial_has_no_fabricated_accuracy_without_timed_gold (test_evaluate.TraceTests.test_partial_has_no_fabricated_accuracy_without_timed_gold) ... ok
+2026-11-14T11:00:01.1717525Z test_post_eos_whole_candidate_scores_early_stage_without_claiming_final (test_evaluate.TraceTests.test_post_eos_whole_candidate_scores_early_stage_without_claiming_final) ... ok
+2026-11-14T11:00:01.1724936Z test_provider_complete_is_not_logical_final (test_evaluate.TraceTests.test_provider_complete_is_not_logical_final) ... ok
+2026-11-14T11:00:01.1744213Z test_shared_provider_parameter_changes_break_single_variable_pair (test_evaluate.TraceTests.test_shared_provider_parameter_changes_break_single_variable_pair) ... ok
+2026-11-14T11:00:01.1757738Z test_uncertain_or_inconsistent_final_not_certified (test_evaluate.TraceTests.test_uncertain_or_inconsistent_final_not_certified) ... ok
+2026-11-14T11:00:01.1887664Z test_whole_candidate_scope_rejects_partial_foreign_or_temporally_unavailable_evidence (test_evaluate.TraceTests.test_whole_candidate_scope_rejects_partial_foreign_or_temporally_unavailable_evidence) ... ok
+2026-11-14T11:00:01.1889099Z test_missing_latency_is_not_zero_and_does_not_need_timed_accuracy (test_latency.PairedLatencyTests.test_missing_latency_is_not_zero_and_does_not_need_timed_accuracy) ... ok
+2026-11-14T11:00:01.1890145Z test_nonfinite_and_absent_events_stay_unmeasured (test_latency.PairedLatencyTests.test_nonfinite_and_absent_events_stay_unmeasured) ... ok
+2026-11-14T11:00:01.1890954Z test_pair_first_then_quantile_not_difference_of_aggregate_medians (test_latency.PairedLatencyTests.test_pair_first_then_quantile_not_difference_of_aggregate_medians) ... ok
+2026-11-14T11:00:01.1892218Z test_source_audio_parameters_and_unverified_or_missing_traces_excluded (test_latency.PairedLatencyTests.test_source_audio_parameters_and_unverified_or_missing_traces_excluded) ... ok
+2026-11-14T11:00:01.1892927Z 
+2026-11-14T11:00:01.1893067Z ----------------------------------------------------------------------
+2026-11-14T11:00:01.1893383Z Ran 43 tests in 0.904s
+2026-11-14T11:00:01.1893503Z 
+2026-11-14T11:00:01.1893572Z OK
+2026-11-14T11:00:01.2008743Z ##[group]Run python scripts/verify.py --ui
+2026-11-14T11:00:01.2009028Z [36;1mpython scripts/verify.py --ui[0m
+2026-11-14T11:00:01.2026625Z shell: /usr/bin/bash -e {0}
+2026-11-14T11:00:01.2026823Z env:
+2026-11-14T11:00:01.2027042Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T11:00:01.2027401Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-14T11:00:01.2027739Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T11:00:01.2028046Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T11:00:01.2028336Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-14T11:00:01.2028632Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-14T11:00:01.2028912Z   SAYTILE_BROWSER_PATH: /usr/bin/google-chrome
+2026-11-14T11:00:01.2029140Z ##[endgroup]
+2026-11-14T11:01:02.4424743Z inherited_pcm_sqlite PASS
+2026-11-14T11:01:02.4425814Z reconstructed_contracts PASS
+2026-11-14T11:01:02.4426562Z swift6_typecheck PASS
+2026-11-14T11:01:02.4426883Z swift_smoke_build PASS
+2026-11-14T11:01:02.4427107Z swift_unicode_smoke PASS
+2026-11-14T11:01:02.4427313Z prototype_dom PASS
+2026-11-14T11:01:02.4565766Z Post job cleanup.
+2026-11-14T11:01:02.5538082Z (node:2413) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-14T11:01:02.5538989Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-14T11:01:02.5743118Z Post job cleanup.
+2026-11-14T11:01:02.6472624Z [command]/usr/bin/git version
+2026-11-14T11:01:02.6543534Z git version 2.56.1
+2026-11-14T11:01:02.6575638Z Temporarily overriding HOME='/home/runner/work/_temp/7acb7e0b-ac60-40f2-8afb-1fd60ab4f422' before making global git config changes
+2026-11-14T11:01:02.6576627Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-14T11:01:02.6584428Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/saytile/saytile
+2026-11-14T11:01:02.6619453Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-14T11:01:02.6651399Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-14T11:01:02.6904846Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-14T11:01:02.6931120Z http.https://github.com/.extraheader
+2026-11-14T11:01:02.6963755Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-14T11:01:02.6987066Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-14T11:01:02.7229619Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-14T11:01:02.7266865Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-14T11:01:02.7641023Z Cleaning up orphan processes
+2026-11-14T11:01:02.7983627Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

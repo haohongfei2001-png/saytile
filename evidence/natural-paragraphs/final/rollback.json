@@ -10,29 +10,29 @@
     },
     {
       "bundle_id": "app.saytile.mac.mandarin-candidate",
-      "source": "3b60b66295070cffbc34ed2486e53c1dc33e5b98",
+      "source": "ab8545507c79640ec3f419e33467a0263c154844",
       "version": "0.15",
-      "build": "483",
-      "executable_sha256": "d77294ec96877c0937a31fe76e6c8400aa410641a6100af6babf40d301849116"
+      "build": "484",
+      "executable_sha256": "a88118dc0a9b04f794b9ebdde0bbdede642e8a9b2b2c1b7f5cef93ea6bd2799d"
     }
   ],
   "app_storage_profiles": [
     {
       "bundle": "app.saytile.mac.mandarin-candidate",
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1",
       "archive": "Saytile Mandarin Candidate",
-      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1",
-      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1"
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1"
     },
     {
       "bundle": "app.saytile.mac.mandarin-candidate",
-      "archive": "Saytile Mandarin Candidate",
       "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1",
+      "archive": "Saytile Mandarin Candidate",
       "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1"
     }
   ],
   "fixture": {
     "schema": 6,
-    "table_sha256": "e60e11ab053c2162b98ff4947feed67b5b7e17dfd9b561137f2b35a6710a2dfb",
+    "table_sha256": "6f937091ad6c522153cab78b3c64824fcafcb3621bab8925e4fd2a534143c20b",
     "row_counts": {
       "recordings": 2,
       "revisions": 4,
@@ -45,12 +45,12 @@
       "recognition_candidates": 0
     },
     "wav_sha256": {
-      "5C0F56DB-5EC5-493B-BC81-FF3FA2ECF9FA/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
-      "0826CD6E-D113-4951-9834-417A8207239B/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      "A382AC40-3921-451E-8C87-F8B6A1F50A1D/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "CACC0A9A-F772-4191-A003-561C0C956CBE/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
     },
     "preferred_manual_revision_ids": [
-      "2DCEA32F-989B-43AB-B267-109A515FCA15",
-      "F571C1AE-D79F-4C84-9036-BE5E8D35326D"
+      "06EBE7D2-2858-4E84-8636-63A7BFD50D59",
+      "0871B0DF-F277-477C-8E44-3BDAE1F3688B"
     ],
     "integrity": "ok",
     "foreign_key_errors": 0
@@ -59,7 +59,7 @@
     {
       "step": "old",
       "records": 2,
-      "logical_tables_sha256": "e60e11ab053c2162b98ff4947feed67b5b7e17dfd9b561137f2b35a6710a2dfb",
+      "logical_tables_sha256": "6f937091ad6c522153cab78b3c64824fcafcb3621bab8925e4fd2a534143c20b",
       "wav_sha256": [
         "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
         "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
@@ -73,7 +73,7 @@
     {
       "step": "candidate",
       "records": 2,
-      "logical_tables_sha256": "e60e11ab053c2162b98ff4947feed67b5b7e17dfd9b561137f2b35a6710a2dfb",
+      "logical_tables_sha256": "6f937091ad6c522153cab78b3c64824fcafcb3621bab8925e4fd2a534143c20b",
       "wav_sha256": [
         "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
         "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
@@ -106,7 +106,7 @@
     {
       "step": "old_reopened",
       "records": 2,
-      "logical_tables_sha256": "e60e11ab053c2162b98ff4947feed67b5b7e17dfd9b561137f2b35a6710a2dfb",
+      "logical_tables_sha256": "6f937091ad6c522153cab78b3c64824fcafcb3621bab8925e4fd2a534143c20b",
       "wav_sha256": [
         "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
         "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
@@ -139,7 +139,7 @@
     {
       "step": "candidate_reopened",
       "records": 2,
-      "logical_tables_sha256": "e60e11ab053c2162b98ff4947feed67b5b7e17dfd9b561137f2b35a6710a2dfb",
+      "logical_tables_sha256": "6f937091ad6c522153cab78b3c64824fcafcb3621bab8925e4fd2a534143c20b",
       "wav_sha256": [
         "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
         "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"

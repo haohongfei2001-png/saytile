@@ -1,0 +1,120 @@
+{
+  "source": "3b60b66295070cffbc34ed2486e53c1dc33e5b98",
+  "artifactID": 14110583604,
+  "artifactSHA256": "b952e77542a474612bbb873fab5014e77086e77911bbc66044fd7671edbb5176",
+  "caseCount": 52,
+  "allProtocolViolations": 0,
+  "expectedPCMBytes": 200706,
+  "expectedPCM_SHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+  "expectedAudioSeconds": 6.2720625,
+  "wizardCases": [
+    {
+      "scenario": "normal",
+      "case": "1F106AF0-77AD-4403-8070-D41F1F11E54F",
+      "completed": true,
+      "pcmBytes": 200706,
+      "blocks": 63,
+      "pcmSHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+      "eos": true,
+      "connectedToEOSms": 6270.997000000003,
+      "connectedToClosems": 6296.141000000003,
+      "partialFirstToLastms": 415.8310000000056,
+      "partialIntervalsMs": {
+        "min": 147.00200000000768,
+        "median": 207.9155000000028,
+        "max": 268.8289999999979
+      },
+      "violations": [],
+      "gptRequests": 2
+    },
+    {
+      "scenario": "unsupported",
+      "case": "B817FF90-D835-41DA-B288-F4AB2099D5CD",
+      "completed": true,
+      "pcmBytes": 200706,
+      "blocks": 63,
+      "pcmSHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+      "eos": true,
+      "connectedToEOSms": 6319.777000000002,
+      "connectedToClosems": 6340.796999999991,
+      "partialFirstToLastms": 418.1580000000249,
+      "partialIntervalsMs": {
+        "min": 206.83600000001024,
+        "median": 209.07900000001246,
+        "max": 211.32200000001467
+      },
+      "violations": [],
+      "gptRequests": 2
+    },
+    {
+      "scenario": "churn",
+      "case": "F1737BCA-2482-4F1A-9120-0BC0242D8C9E",
+      "completed": true,
+      "pcmBytes": 200706,
+      "blocks": 63,
+      "pcmSHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+      "eos": true,
+      "connectedToEOSms": 6290.430999999982,
+      "connectedToClosems": 6305.02900000001,
+      "partialFirstToLastms": 6250.74099999998,
+      "partialIntervalsMs": {
+        "min": 30.237999999983003,
+        "median": 102.63450000000012,
+        "max": 159.60000000000582
+      },
+      "violations": [],
+      "gptRequests": 2
+    },
+    {
+      "scenario": "each_reconnect",
+      "case": "1BE08969-9ED2-41D0-A285-A3E225801096",
+      "completed": true,
+      "pcmBytes": 200706,
+      "blocks": 63,
+      "pcmSHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+      "eos": true,
+      "connectedToEOSms": 6274.573999999993,
+      "connectedToClosems": 6293.156000000017,
+      "partialFirstToLastms": 428.22000000000116,
+      "partialIntervalsMs": {
+        "min": 207.7049999999872,
+        "median": 214.11000000000058,
+        "max": 220.51500000001397
+      },
+      "violations": [],
+      "gptRequests": 4
+    }
+  ],
+  "swiftTestingSummaries": [
+    [
+      "4",
+      "2",
+      "passed",
+      "2.043"
+    ],
+    [
+      "13",
+      "1",
+      "passed",
+      "35.089"
+    ],
+    [
+      "12",
+      "1",
+      "passed",
+      "8.339"
+    ],
+    [
+      "8",
+      "2",
+      "passed",
+      "3.896"
+    ],
+    [
+      "486",
+      "59",
+      "passed",
+      "8.538"
+    ]
+  ]
+}

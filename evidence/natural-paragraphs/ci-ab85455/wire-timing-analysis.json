@@ -1,0 +1,81 @@
+{
+  "status": "PASS",
+  "scope": "SIMULATED_PROTOCOL_NOT_LIVE_CLOUD",
+  "cases": 52,
+  "protocolViolations": 0,
+  "sampleDurationSeconds": 6.2720625,
+  "wizard": [
+    {
+      "scenario": "normal",
+      "case": "FFB2D1A3-24EC-4466-B56C-27296E6AC6F0",
+      "pipelineCompleted": true,
+      "wireGPTRequests": 2,
+      "pcmBytes": 200706,
+      "pcmSHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+      "blocks": 63,
+      "eos": true,
+      "closed": true,
+      "connectedToEOSSeconds": 6.334512999999991,
+      "connectedToCloseSeconds": 6.343040999999998,
+      "partialIntervalMilliseconds": {
+        "min": 206.32800000000861,
+        "median": 213.02049999999872,
+        "max": 219.71299999998882
+      }
+    },
+    {
+      "scenario": "unsupported",
+      "case": "900B825D-1818-492B-8803-8DDA0ED297D6",
+      "pipelineCompleted": true,
+      "wireGPTRequests": 2,
+      "pcmBytes": 200706,
+      "pcmSHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+      "blocks": 63,
+      "eos": true,
+      "closed": true,
+      "connectedToEOSSeconds": 6.350987999999997,
+      "connectedToCloseSeconds": 6.386618000000002,
+      "partialIntervalMilliseconds": {
+        "min": 213.4939999999915,
+        "median": 236.3110000000015,
+        "max": 259.1280000000115
+      }
+    },
+    {
+      "scenario": "churn",
+      "case": "E672E2FE-9C8D-419D-8DFC-4E04553BA6BA",
+      "pipelineCompleted": true,
+      "wireGPTRequests": 2,
+      "pcmBytes": 200706,
+      "pcmSHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+      "blocks": 63,
+      "eos": true,
+      "closed": true,
+      "connectedToEOSSeconds": 6.283133999999991,
+      "connectedToCloseSeconds": 6.302680999999997,
+      "partialIntervalMilliseconds": {
+        "min": 30.872000000003027,
+        "median": 102.70049999999901,
+        "max": 169.72000000000116
+      }
+    },
+    {
+      "scenario": "each_reconnect",
+      "case": "FF69917D-8CD9-408B-AE41-206104CD68BD",
+      "pipelineCompleted": true,
+      "wireGPTRequests": 4,
+      "pcmBytes": 200706,
+      "pcmSHA256": "5d29f5fc799a571b27d80bcf442004ba78a619c0d6e847258bb2b6b8b075387a",
+      "blocks": 63,
+      "eos": true,
+      "closed": true,
+      "connectedToEOSSeconds": 6.28378899999999,
+      "connectedToCloseSeconds": 6.306795000000013,
+      "partialIntervalMilliseconds": {
+        "min": 148.74700000000303,
+        "median": 212.60499999999593,
+        "max": 276.4629999999888
+      }
+    }
+  ]
+}

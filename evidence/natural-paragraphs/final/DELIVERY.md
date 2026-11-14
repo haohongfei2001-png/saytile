@@ -1,36 +1,60 @@
-# Saytile 0.15（483）未安装候选记录
+# Saytile 0.15（484）自然段交付
 
-产品源码：`3b60b66295070cffbc34ed2486e53c1dc33e5b98`。Draft PR [#41](https://github.com/haohongfei2001-png/saytile/pull/41) 以 PR #40 为增量基线；此证据分支只更新收据和状态，不改产品源码及已签名包。
+产品源码：`ab8545507c79640ec3f419e33467a0263c154844`。Draft PR [#41](https://github.com/haohongfei2001-png/saytile/pull/41) 以 PR #40 为增量基线；本证据分支只更新收据和状态，不改产品源码及已签名包。
 
-## 使用变化
+## 已安装与使用变化
 
-短停顿继续同一自然段，达到15秒后下一次讲话开始新段；默认60秒才开始新时间组。主板和档案共享段落，档案按整段编辑、回听、收藏。静音中不自动插入空行或抢滚动。普通改字、明确删除自动段界与撤销各自保留。
+已原子更新并启动原入口 `/Users/hhf/Applications/Saytile 中文识别候选.app`。478正常退出，484完成启动（PID见activation.json）。正式 `Saytile.app` 0.12（373）保持原签名、源码与可执行文件哈希，用户档案、原音、模型缓存和Keychain未被工程工具读取、替换或清理。[实际安装收据](activation.json)
 
-15秒按持久化的VAD活动结束/下次开始计算，不使用ASR返回时间。原有1.5秒静音结束等待已经扣除；仍包含VAD hangover与20ms帧精度，不声称精确到声学发声末点。
+短停顿继续同一自然段；达到15秒后下一次讲话开始新段，默认60秒才开始新时间组。主板和档案共享段落，档案按整段编辑、回听、收藏。静音本身不插入空行或抢滚动。普通改字、明确删除自动段界与撤销各自保留。
 
-修复编辑冲突丢字、复制拿到未显示修订、全部原音损坏时无失败提示、旧异步成员页闪回。识别模型、运行库、默认配置保持478，本轮不宣称进一步提升ASR准确率或速度。
+15秒按持久化VAD活动结束/下次开始计算，不使用ASR返回时间。既有1.5秒静音结束等待已经扣除；仍包含VAD hangover与20ms帧精度，不声称精确到声学发声末点。既有历史时间组ID保留。主schema仍6，增加独立自然段sidecar v2；录音ID、原音与文字版本不合并或删除。旧默认120秒变60秒，既有至少60秒的其他自定义间隔保留。
 
-## 验证与证据
+修复编辑冲突丢字、复制取得未显示修订、全部原音损坏时没有失败提示、旧异步成员页闪回。识别模型、运行库及默认配置保持478；本轮未重评ASR准确率/速度，不宣称新的识别提升。
 
-- PASS：签名483的17项原生检查，4份合成原音→3自然段/2时间组；6个独立AX控件检查以及3次实际收藏/播放/停止操作。跨录音emoji编辑、私有剪贴板、迟到修订、原位段界保护。截图来自实际AppKit视图，未采集用户桌面。[原生收据](native-final/machine-receipt.json)
-- PASS：签名483的一万二千条历史测试，64条驻留、60秒静置、历史滚动/选区、跨午夜自然换行、实际AX复制、重新打开。[时间轴收据](timeline-final/receipt.json)
-- PASS：签名478→483→478→483升级回退。2条记录、2份一秒WAV、4个文字版本、2个草稿、2个派发记录及9张既有表逻辑快照一致；两份原音SHA-256不变。主schema仍6、段落sidecar版本2；用户隐藏段界及180秒自定义设置保留；旧默认120秒→60秒。[回退收据](rollback.json)
-- 本机工程回归：172项AppModel检查、11项原生SQLite案例、25,896项共享编辑断言与NSTextView撤销/重做、10项播放器Swift Testing。最终完整CI数量另行记录，不能混算这些计数。
-- CI：4/5 PASS。523/523 Swift、172项AppModel、12k原生时间轴全部通过；Chrome首插一次写入正确，但首次AX通知不可读导致过早失效，foreground FAIL。修复代码另已提交ab85455，等待该源码完整验收。本483包不安装。此前节拍/播放器失败及原始证据完整保留。
-- 安装当前 NOT_RUN；只读更新预检PASS。候选478及正式App保持原样。
+## 最终源码验证
 
-## 安装包
+| 项目 | 结果与范围 |
+| --- | --- |
+| 完整GitHub CI | PASS，5/5 jobs；524/524 Swift Testing声明，172项AppModel检查 |
+| 实际前台输入 | PASS，隔离AppKit、WKWebView、TextEdit、Chrome；首次插入/追加、防重复、用户修改/目标变化、取消及零自动发送 |
+| 签名包自然段 | PASS，17/17；4份合成原音→3自然段/2时间组，6个独立AX控件检查、3次实际收藏/播放/停止 |
+| 签名包历史时间轴 | PASS，12000条，64条驻留，60秒静置、历史滚动/选区、午夜自然换行、实际AX复制和重开 |
+| 签名包升级回退 | PASS，478→484→478→484；9张既有表、2条录音/2份原音、4份修订、2草稿、2派发一致，原音SHA-256不变 |
+| 实际更新启动 | PASS，同一路径原子替换、完整签名与源码核对、旧进程正常退出、新进程启动 |
+| 物理麦克风/自然讲话 | NOT_RUN，遵循用户要求合盖 |
+| 云端API/私人音频上传 | NOT_RUN，无付费调用 |
+| 公证/独立分发Gatekeeper | BLOCKED，未公证，Unnotarized Developer ID；未改系统安全设置 |
 
-DMG：`Saytile-0.15-mandarin-arm64.dmg`，64,919,093字节。
-SHA-256：`b0485cf551f48d6d7dfc5b23821b5a0d81b395e4f5f1d5d521dac5fb24c1a18e`。
-可执行文件SHA-256：`d77294ec96877c0937a31fe76e6c8400aa410641a6100af6babf40d301849116`。
-ASR worker仍为`9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e`，全部Helpers/Frameworks/Metal运行库逐字节一致。
+[最终CI原始收据](../ci-ab85455/receipt.json)（含逐job、测试数量、下载完整性与NOT_RUN范围）。自然段专用CI截图ZIP单次TLS下载失败，完整日志仍有PASS；本机最终签名包截图齐全，不以缺失远端图片冒充已获取。
 
-Developer ID签名及深度严格验证PASS；未公证，Gatekeeper独立分发检查为rejected / Unnotarized Developer ID（BLOCKED）。不更改Gatekeeper或系统安全策略，不声称正式公开发行成功。正式Saytile.app、main、RC1/RC2及其他任务不变。
+CI：[native+foreground](https://github.com/haohongfei2001-png/saytile/actions/runs/43587863976)、[gateway](https://github.com/haohongfei2001-png/saytile/actions/runs/43587864004)、[contracts](https://github.com/haohongfei2001-png/saytile/actions/runs/43587864103)。时间敏感套件单独执行，原测试没有改成跳过。CI界面步骤没有独立AX助手的地方仍为render-only；不能用它替代本机签名包实际AX操作。
 
-## 明确限制
+[本机总收据](local-acceptance.json) · [自然段原生收据](native-final/machine-receipt.json) · [12k时间轴](timeline-final/receipt.json) · [回退收据](rollback.json) · [档案截图](native-final/images/natural-archive.png) · [主板截图](native-final/images/natural-panel.png)
 
-- NOT_RUN：真实麦克风（按用户要求合盖）、用户自然讲话、ASR质量重评、云端API。没有私人录音上传或收费调用。
-- CI硬件睡眠为BLOCKED（托管虚拟Mac不支持系统睡眠），原生全屏用例本轮未跑；不以普通满屏窗口冒充系统全屏。
-- iCloud PR #36尚未同步新增段首关联与break_hidden。后续整合须同步段首recording UUID并映射本机position，兼容旧清单缺字段、乱序恢复及用户段界冲突。本机回退通过不等于新增段界跨设备恢复通过。
-- 完整保留480首次失败、481两次尝试与783921b失败。481原始wire未上传，无法逐条重建其时间线；783921b新的原始wire证据已明确证明发送节拍漂移，修复后在最终SHA上复验。失败断言没有改成跳过。
+截图来自实际AppKit/SwiftUI窗口及NSTextView，使用独立合成资料，未捕获用户桌面。静音WAV用于关联与播放器控制验收，不能证明人声识别或听感。
+
+## 失败根因与复验边界
+
+- 480午夜旧断言要求零换行，而fixture实际有224秒间隔；已修为一处自然换行且原文不变。
+- 481播放器下界1 ULP误判由真实AVAudioPlayer复现；保留全部功能断言，以相邻浮点下界处理量化误差，并隔离原生时间敏感套件。[证据](../seek-rounding/README.md)
+- 783921b原始wire证明相对休眠让6.272秒音频在12秒前未发完末尾2306字节/EOS；改为累计音频时长的绝对单调时钟，未放宽deadline，最终协议52场景零违规。[证据](../connection-pacing/README.md)
+- 483 Chrome单次写入正确，第一内容通知的AX快照暂不可读却提前失效。新代码仅允许这一次已发出写入进入有界只读核验，仍需两次完整同身份/光标/全文；任何第二变更拒绝，不重写或夺焦点。同一故障顺序旧代码FAIL，新代码16场景PASS。最终真实Chrome此轮快照完整且前台验收通过；暂不可读恢复本身由确定性注入验证，不冒称真实Chrome瞬时故障在新一轮重现。[证据](../web-first-observation/README.md)
+
+失败尝试全部保留，后续PASS不覆盖之前FAIL。首次签名遇Apple时间戳服务不可用，仅同一已编译payload有界续签一次成功；仍有有效时间戳，原失败与续签脚本见[封包记录](packaging-provenance/)。
+
+## 安装包与回退
+
+唯一新DMG：`Saytile-0.15-mandarin-arm64.dmg`，64,920,442字节。
+SHA-256：`8dda6ce70631eb802ae117027c8e955a482de8cd092bfa4270bfa8b4a77061f7`。
+可执行文件SHA-256：`a88118dc0a9b04f794b9ebdde0bbdede642e8a9b2b2c1b7f5cef93ea6bd2799d`。
+ASR worker仍为`9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e`；99项Helpers/Frameworks/Metal运行库逐字节一致。
+
+本机镜像位于 `/Users/hhf/Documents/GitHub/saytile/dist/natural-paragraphs-0.15-484/`，独立Developer ID签名与DMG完整性验证PASS，未公证、未发布。已保留原478签名回退镜像及其收据；回退必须先正常退出候选，再在原路径恢复同一Bundle ID。无需导入、覆盖或删除档案数据库。
+
+## 仍有限制
+
+- 物理麦克风、用户口音、ASR质量重评、真实云端未在此轮验收。
+- CI虚拟Mac硬件睡眠BLOCKED；真实全屏未重复验收，不以普通满屏窗口冒充系统全屏。
+- 独立iCloud PR #36仍需整合段首recording UUID及break_hidden，并验证旧清单缺字段、乱序恢复与用户段界冲突。本地升级回退通过不代表新增段界跨设备恢复通过。
+- 本轮仅为可运行内测候选；不宣称完整云端/发行就绪。main、RC1/RC2、正式App及其他任务未修改，不合并PR。

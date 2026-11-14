@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "scope": "All assigned local packaging/rollback/native/read-only preflight checks",
+  "source": "ab8545507c79640ec3f419e33467a0263c154844",
+  "version": "0.15",
+  "build": "484",
+  "appExecutableSHA256": "a88118dc0a9b04f794b9ebdde0bbdede642e8a9b2b2c1b7f5cef93ea6bd2799d",
+  "dmgSHA256": "8dda6ce70631eb802ae117027c8e955a482de8cd092bfa4270bfa8b4a77061f7",
+  "dmgBytes": 64920442,
+  "nativeNaturalParagraphChecks": "17/17 PASS",
+  "nativeAXUniqueControls": 6,
+  "nativeAXPresses": 3,
+  "nativeTimeline": "12000 rows PASS with actual owned AX copy",
+  "rollback": "478 -> 484 -> 478 -> 484 PASS, synthetic only",
+  "runtime": "99 runtime entries byte-identical with478 verified independently",
+  "preflight": "PASS read-only",
+  "timestampRetry": {
+    "count": 1,
+    "reason": "Apple timestamp service unavailable on original attempt",
+    "sameBuiltPayload": true,
+    "validTimestampRetained": true,
+    "evidence": "packaging-provenance/"
+  },
+  "installation": "NOT_RUN; root owns final activation",
+  "privateDataRead": false,
+  "microphone": "NOT_RUN",
+  "foregroundActivated": false,
+  "sourceModified": false,
+  "notarization": "NOT_SUBMITTED",
+  "gatekeeper": "BLOCKED Unnotarized Developer ID",
+  "ci": "Parent coordinates; not inferred from these local checks"
+}
