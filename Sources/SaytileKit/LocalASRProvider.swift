@@ -266,19 +266,10 @@ struct LocalLiveText {
                 let prior = withheld
                 withheld = text
                 guard let prior else { return nil }
-                let supported = RecognitionUTF16.commonPrefix([prior, text])
-                let unchanged = common.count
-                guard text.count >= previous.count,
-                      supported.count >= max(unchanged + 4, min(previous.count, 12)) else { return nil }
-                if previous.count - unchanged <= 24 {
-                    let oldTail = Array(previous.dropFirst(unchanged))
-                    let newTail = String(supported.dropFirst(unchanged).prefix(48))
-                    guard oldTail.count >= 4, (0...(oldTail.count - 4)).contains(where: { i in
-                        let anchor = oldTail[i..<(i + 4)]
-                        return anchor.allSatisfy { $0.isLetter || $0.isNumber } && newTail.contains(String(anchor))
-                    }) else { return nil }
-                } else if !Self.hasLocalizedCorrection(from: previous, to: supported) { return nil }
-                readingPrefix = String(supported.dropLast(8))
+                if let prefix = Self.confirmedReadingPrefix(previous: previous, prior: prior, text: text, unchanged: common.count)
+                    ?? Self.locallyConfirmedPrefix(previous: previous, prior: prior, text: text) {
+                    readingPrefix = prefix
+                } else { return nil }
             } else if common.count > 8 {
                 let supported = String(common.dropLast(8))
                 if supported.utf16.count > readingPrefix.utf16.count { readingPrefix = supported }
@@ -296,6 +287,77 @@ struct LocalLiveText {
         }
         previous = text
         return model == .nemotron ? String(common.dropLast()).utf16.count : 0
+    }
+
+    private static func confirmedReadingPrefix(previous: String, prior: String, text: String, unchanged: Int) -> String? {
+        let supported = RecognitionUTF16.commonPrefix([prior, text])
+        guard text.count >= previous.count,
+              supported.count >= max(unchanged + 4, min(previous.count, 12)) else { return nil }
+        if previous.count - unchanged <= 24 {
+            let oldTail = Array(previous.dropFirst(unchanged))
+            let newTail = String(supported.dropFirst(unchanged).prefix(48))
+            guard oldTail.count >= 4, (0...(oldTail.count - 4)).contains(where: { i in
+                let anchor = oldTail[i..<(i + 4)]
+                return anchor.allSatisfy { $0.isLetter || $0.isNumber } && newTail.contains(String(anchor))
+            }) else { return nil }
+        } else if !Self.hasLocalizedCorrection(from: previous, to: supported) { return nil }
+        return String(supported.dropLast(8))
+    }
+
+    /// Two growing passes can agree about a local correction while disagreeing
+    /// at an earlier word that the current pass leaves exactly as last displayed.
+    /// Only accept a whole current hypothesis, never splice corrected words.
+    private static func locallyConfirmedPrefix(previous: String, prior: String, text: String) -> String? {
+        // Ignore Chinese phrase punctuation for alignment only. Preserve number
+        // punctuation, word boundaries, signs and all non-Han lexical units.
+        func units(_ raw: String) -> [(Character, String.Index)] {
+            var result: [(Character, String.Index)] = []
+            var i = raw.startIndex
+            while i < raw.endIndex {
+                let c = raw[i], next = raw.index(after: i)
+                let before = i == raw.startIndex ? nil : raw[raw.index(before: i)]
+                let after = next == raw.endIndex ? nil : raw[next]
+                if c == "—", after == "—", let before, before.isLetter, !before.isNumber {
+                    let end = raw.index(after: next)
+                    if end < raw.endIndex, raw[end].isLetter, !raw[end].isNumber { i = end; continue }
+                }
+                if !("。，、".contains(c) && before?.isNumber != true && after?.isNumber != true) {
+                    result.append((c, next))
+                }
+                i = next
+            }
+            return result
+        }
+        let old = units(previous).map(\.0), observed = units(prior).map(\.0), mapped = units(text)
+        let current = mapped.map(\.0)
+        guard old.count >= 20, current.count >= old.count + 2,
+              observed.count > old.count, current.count >= observed.count else { return nil }
+        let changes = old.indices.filter { old[$0] != current[$0] }
+        guard let first = changes.first, let last = changes.last, first >= 3, last - first < 4,
+              old.count - last > 12 else { return nil }
+        let sensitive = "不没無无未非否别別勿莫甭负負零〇两兩"
+        func ordinaryHan(_ c: Character) -> Bool {
+            c.unicodeScalars.count == 1 && c.unicodeScalars.allSatisfy { (0x3400...0x9FFF).contains($0.value) }
+                && !c.isNumber && !sensitive.contains(c)
+        }
+        guard changes.allSatisfy({ ordinaryHan(old[$0]) && ordinaryHan(current[$0]) }),
+              // The same local words, unchanged suffix and start of the true
+              // extension must be present in both observations at this position.
+              current[(first - 3)...old.count].elementsEqual(observed[(first - 3)...old.count]) else { return nil }
+        let earlier = (0..<(first - 3)).filter { observed[$0] != current[$0] }
+        guard let a = earlier.first, let b = earlier.last, b - a < 4,
+              earlier.allSatisfy({ ordinaryHan(observed[$0]) && ordinaryHan(current[$0]) }) else { return nil }
+
+        let anchor = old.suffix(12)
+        func unique(_ words: [Character]) -> Bool {
+            let offset = old.count - anchor.count
+            return !(0...(words.count - anchor.count)).contains { i in
+                i != offset && words[i...].starts(with: anchor)
+            }
+        }
+        guard unique(old), unique(observed), unique(current) else { return nil }
+        // Protect only material already visible and corroborated on both passes.
+        return String(text[..<mapped[old.count - 9].1])
     }
 
     /// Map common ASR typography to the exact raw end index in the new pass.

@@ -107,6 +107,43 @@ struct QwenRecoveryTests {
         #expect(digits.accept(head.replacingOccurrences(of: "3。5", with: "3，5") + "准备开始统计了", final: false) == nil)
     }
 
+    @Test func twoPassCorrectionSurvivesAnIndependentEarlierOscillation() {
+        let lead = "老虎是全能运动员，游泳跳远能够达到人类大理石的五倍。"
+        let suffix = "首选登山目的地科查莫山谷，被称为南美洲的优美圣地"
+        var live = LocalLiveText(model: .qwen)
+        for tail in ["", "附近", "附近山峰"] {
+            #expect(live.accept(lead + "视力" + suffix + tail, final: false) == 0)
+        }
+        let before = live.presentation
+        let wavering = lead.replacingOccurrences(of: "大理石", with: "大力士")
+        let earlierPass = wavering + "这里" + suffix + "附近山峰呈现出不同颜色"
+        #expect(live.accept(earlierPass, final: false) == nil)
+        #expect(live.presentation == before)
+        let current = lead + "这里" + suffix + "附近山峰呈现出不同颜色和纹理"
+        #expect(live.accept(current, final: false) == 0)
+        #expect(live.presentation == current)
+    }
+
+    @Test func localConfirmationRefusesUnsupportedWordsAmbiguousAnchorsOrChangedMeaning() {
+        let leading = "老虎是全能运动员，游泳跳远能够达到人类大理石的五倍。"
+        let alternating = leading.replacingOccurrences(of: "大理石", with: "大力士")
+        let anchor = "山谷附近树林密布景色宁静秀美如画"
+        func expectBlocked(old: String, prior: String, current: String, suffix: String) {
+            var live = LocalLiveText(model: .qwen)
+            for n in [4, 2, 0] {
+                #expect(live.accept(leading + old + String(suffix.dropLast(n)), final: false) == 0)
+            }
+            let visible = live.presentation
+            #expect(live.accept(alternating + prior + suffix + "平时有人来访", final: false) == nil)
+            #expect(live.accept(leading + current + suffix + "平时有人来访和登山", final: false) == nil)
+            #expect(live.presentation == visible)
+        }
+        expectBlocked(old: "视力", prior: "智利", current: "这里", suffix: anchor)
+        expectBlocked(old: "不去", prior: "要去", current: "要去", suffix: anchor)
+        expectBlocked(old: "十五", prior: "十六", current: "十六", suffix: anchor)
+        expectBlocked(old: "视力", prior: "这里", current: "这里", suffix: anchor + anchor)
+    }
+
     private func fixture(_ variant: String) throws -> LocalModelManifest {
         let revision = try LocalModelManifest.load(.qwen).revision
         let file = LocalModelManifest.File(path: "weights", bytes: 3,
