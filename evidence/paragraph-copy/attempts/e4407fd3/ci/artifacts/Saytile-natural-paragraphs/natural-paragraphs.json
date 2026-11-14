@@ -1,0 +1,109 @@
+{
+  "archiveControls" : [
+
+  ],
+  "asrExecuted" : false,
+  "audio" : [
+    {
+      "bytes" : 36096,
+      "recording" : "F3E403C7-6BDD-4EA8-9E59-54340030CA0A",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    },
+    {
+      "bytes" : 36096,
+      "recording" : "0E97E11D-E6EF-49CF-8B4F-261E0CE19A10",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    },
+    {
+      "bytes" : 36096,
+      "recording" : "C4385C74-5E3E-4201-A9ED-25BDA37DB64B",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    },
+    {
+      "bytes" : 36096,
+      "recording" : "2D308A45-23B3-416E-A14C-5F9C1E459778",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    }
+  ],
+  "captureScope" : "owned nonactivating native views rendered using AppKit cacheDisplay; not a full-desktop screenshot",
+  "checks" : [
+    "ASR-origin seed",
+    "three-second continuation",
+    "15-second paragraph",
+    "60-second time group",
+    "same time group, two paragraphs: panel copies latest paragraph only",
+    "panel button gives UTF-16 emoji selection priority over latest paragraph",
+    "late ASR revision preserves copied paragraph snapshot",
+    "panel\/archive context copy agree on the same natural paragraph",
+    "panel selection\/copy",
+    "selected viewport held",
+    "late ASR retains original position",
+    "one native editor per paragraph",
+    "panel\/archive identical newlines",
+    "cross-owner emoji edit",
+    "archive private selection copy",
+    "archive native undo\/redo",
+    "late ASR manual protection",
+    "archive context copy keeps the user-edited visible snapshot",
+    "whole-paragraph star",
+    "real AVAudioPlayer silent clip transition past 1.2140625 seconds",
+    "independent second-paragraph edit keeps panel boundary"
+  ],
+  "microphoneOpened" : false,
+  "nativeControlActions" : {
+    "reason" : "SAYTILE_UI_CONTROL_PROBE not configured; panel copy\/star\/play model actions only",
+    "status" : "NOT_RUN"
+  },
+  "paragraphCopy" : {
+    "archiveAction" : "real native context-menu action dispatched by NSMenu; no global input",
+    "checks" : [
+      "same time group, two paragraphs: panel copies latest paragraph only",
+      "panel button gives UTF-16 emoji selection priority over latest paragraph",
+      "late ASR revision preserves copied paragraph snapshot",
+      "panel\/archive context copy agree on the same natural paragraph"
+    ],
+    "fixtureParagraphs" : 2,
+    "fixtureRecordings" : 3,
+    "fixtureTimeGroups" : 1,
+    "panelButtonAX" : "NOT_RUN",
+    "status" : "PASS"
+  },
+  "paragraphs" : 3,
+  "privatePasteboard" : true,
+  "recordings" : 4,
+  "source" : "e4407fd3df7a62bbc6db1685a4de9ae6c417788c",
+  "speechEndGapsSeconds" : [
+    3,
+    15,
+    60
+  ],
+  "status" : "PASS",
+  "syntheticOnly" : true,
+  "timeGroups" : 2,
+  "timeline" : [
+    {
+      "group" : 1,
+      "id" : "F3E403C7-6BDD-4EA8-9E59-54340030CA0A",
+      "paragraphID" : 1,
+      "position" : 1
+    },
+    {
+      "group" : 1,
+      "id" : "0E97E11D-E6EF-49CF-8B4F-261E0CE19A10",
+      "paragraphID" : 1,
+      "position" : 2
+    },
+    {
+      "group" : 1,
+      "id" : "C4385C74-5E3E-4201-A9ED-25BDA37DB64B",
+      "paragraphID" : 3,
+      "position" : 3
+    },
+    {
+      "group" : 4,
+      "id" : "2D308A45-23B3-416E-A14C-5F9C1E459778",
+      "paragraphID" : 4,
+      "position" : 4
+    }
+  ]
+}

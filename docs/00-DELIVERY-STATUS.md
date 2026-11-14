@@ -1,5 +1,13 @@
 # Saytile V1 工程交付状态
 
+## 2026-11-15 · 当前已安装：0.17（488）自然段复制
+
+产品源码 `58bc8f96f79942881d1ae3221fd6219635833907`，Draft PR #43。已在现有中文识别候选路径原位更新并启动，正式 0.12（373）、main 和其他独立任务不变。无选区复制最新自然段，有选区优先；语音板与档案使用同一段落，保持原有 15 秒段落 / 默认 60 秒时间组规则。ASR 运行库逐字节沿用 484，不引入未采用的 0.16 实验。
+
+最终同源 CI 5/5、Swift Testing 525/525、AppModel 183、签名本机原生 22 项（含实际 AXPress）及 484→488→484→488 升级回退均 PASS。Gatekeeper 未公证 BLOCKED；本轮麦克风与 ASR 新评测 NOT_RUN。旧 Chrome 绑定及退出 141 间歇 CI 失败仍未查明根因，两次后续成功不作为根治证明。
+
+[完整交付、原生图片与机器收据](../evidence/paragraph-copy/DELIVERY.md) · [最终 CI](../evidence/paragraph-copy/ci/summary.json) · [实际安装](../evidence/paragraph-copy/activation.json)。下列旧阶段状态仅为历史，不能覆盖本节的最终结果。
+
 最新独立开发为0.15自然段候选，基于已安装0.14（478）源码`7fd9296d8eb2bd81379bbaa7287844d0d46703d5`。主板与档案统一15秒自然段、默认60秒时间组；原音与历史版本保留。实现、独立审查及原生窗口回归完成，最终同源CI/签名包收据另行追加。[自然段交付说明](NATURAL-PARAGRAPHS.md)。以下旧版本说明保留为历史记录。
 
 个人内测原版为 Saytile.app（0.12）。中文识别独立候选为 0.13（466），使用自己的档案和设置。[最终签名候选的原速对照和实测](../evidence/mandarin-preview-20261114/DELIVERY.md)。最新源码、原生体验证据与实际限制见[当前开发状态](V1-DEV-STATUS.md)及[逐版本实测记录](V1-TEST-RESULTS.md)；下述冻结候选记录独立保留。

@@ -1,0 +1,192 @@
+{
+  "source": "8ffa4461c7490ba0c2d707ca80f15e32f5f5fae9",
+  "pr": 43,
+  "checked_at": "2026-11-14T15:31:26.371260+00:00",
+  "status": "FAIL",
+  "checks": [
+    {
+      "name": "native",
+      "state": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43603950683/job/132474524114",
+      "workflow": "Saytile native"
+    },
+    {
+      "name": "foreground",
+      "state": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43603950683/job/132474524346",
+      "workflow": "Saytile native"
+    },
+    {
+      "name": "gateway",
+      "state": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43603950672/job/132474435293",
+      "workflow": "Saytile Cloud"
+    },
+    {
+      "name": "native-gateway",
+      "state": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43603950672/job/132474435532",
+      "workflow": "Saytile Cloud"
+    },
+    {
+      "name": "data-and-prototype",
+      "state": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43603950677/job/132474435315",
+      "workflow": "Saytile design contracts"
+    }
+  ],
+  "native_run_status": "completed",
+  "swift_testing": {
+    "passed_groups": [
+      4,
+      13,
+      12,
+      8,
+      488
+    ],
+    "passed": 525,
+    "failed": 0,
+    "evidence": "ci/artifacts/Saytile-localhost-protocol/native-network.log",
+    "explicit_skips": [],
+    "grouping": "Timing suites execute separately, then are excluded from remaining suites; no count inferred from source",
+    "status": "PASS",
+    "total": 525,
+    "skipped_test_cases": 0,
+    "skip_semantics": "No skipped Swift test cases appear in actual output. Shell --skip only excludes suites already executed in four preceding processes."
+  },
+  "appmodel": {
+    "status": "PASS",
+    "passed": 183,
+    "evidence": "ci/native-full.log",
+    "scope": "no microphone, no external input, no window activation"
+  },
+  "hardware_limitations": [
+    {
+      "source": "8ffa4461c7490ba0c2d707ca80f15e32f5f5fae9",
+      "host_model": "VirtualMac2,1",
+      "capabilities": [
+        "Capabilities for AC Power:",
+        " displaysleep",
+        " disksleep",
+        " sleep",
+        " standby",
+        " powernap",
+        " ttyskeepawake",
+        " tcpkeepalive"
+      ],
+      "private_audio_opened": false,
+      "status": "BLOCKED",
+      "reason": "runner lacks scheduled hardware wake or system sleep support",
+      "schedule_exit": 0,
+      "sleep_request_exit": 71
+    },
+    {
+      "status": "NOT_RUN",
+      "reason": "physical second-display drag (one display connected)",
+      "evidence": "ci/native-full.log"
+    }
+  ],
+  "private_audio_or_cloud_calls": false,
+  "rerun_performed": false,
+  "logs_directory": "/private/tmp/saytile-paragraph-copy-release-8ffa4461/ci",
+  "checks_passed": 3,
+  "checks_failed": 2,
+  "failures": [
+    {
+      "job": "foreground",
+      "step": "Exercise Chrome on a new disposable profile",
+      "assertion": "CASE_INCOMPLETE targetChanged",
+      "preceding": [
+        "OWNED_OBSERVER switch-target-bind focus true content true page true",
+        "OWNED_CARET_READBACK switch-target-bind true",
+        "OWNED_BINDING_INVALIDATED switch-target-bind"
+      ],
+      "scope": "Final target-switch fixture failed during binding preparation. Earlier Chrome initial, append, dedup, selection protection, manual edit, cancel succeeded. No repeat trial performed.",
+      "log": "ci/artifacts/single-asr-foreground/chrome.log"
+    },
+    {
+      "job": "native",
+      "step": "Run scripts/build-app.sh",
+      "exit": 141,
+      "preceding": [
+        "Build complete! (127.02s)",
+        ".build/local-asr/sherpa.tar.bz2.part: OK",
+        ".build/local-asr/sherpa.h.part: OK"
+      ],
+      "scope": "Swift release build finished; failure is later in runtime build/preparation. Exact shell command is not identified because step tracing was not enabled.",
+      "evidence": "ci/native-full.log:5637-5640"
+    }
+  ],
+  "dependent_steps_skipped": [
+    "Isolated cloud probe CLI boundaries",
+    "Isolated connection setup CLI boundaries",
+    "Edit directly in the native panel using a private clipboard",
+    "Shared natural paragraphs in real panel and archive",
+    "Native windows with synthetic data",
+    "Native continuous timeline with 12000 isolated utterances",
+    "Isolated startup without microphone",
+    "Preserve app bundle permissions",
+    "Run actions/upload-artifact@v4"
+  ],
+  "panel_boundary": {
+    "status": "PASS",
+    "pass": 20,
+    "not_run": [
+      {
+        "name": "native fullscreen",
+        "note": "Requires explicit isolated fixture GUI run flag; not substituted by full-screen-sized ordinary frame.",
+        "status": "NOT_RUN"
+      }
+    ],
+    "platform_observations": [
+      {
+        "actualFrame": [
+          10,
+          58,
+          1004,
+          679
+        ],
+        "declaredMinSize": [
+          1004,
+          679
+        ],
+        "expected_unchanged_frame_status": "FAIL",
+        "name": "AppKit minimum size can normalize limits and change the actual frame",
+        "note": "Original native9 unchanged-frame assertion FAIL retained. Read declaredMinSize and actualFrame together: a changed frame is not proof the minimum was ignored. The worker reports actual partial geometry and refusal, never presumed success.",
+        "requestedFrame": [
+          10,
+          68,
+          1004,
+          659
+        ],
+        "workerAdjusted": 1,
+        "workerBlocked": 1
+      }
+    ]
+  },
+  "cloud_and_contracts": {
+    "offline_asr_metric_tests": {
+      "total": 43,
+      "status": "PASS",
+      "evidence": "ci/contracts.log: Ran 43 tests / OK"
+    },
+    "gateway_unit_tests": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "evidence": "ci/cloud.log"
+    },
+    "live_paid_model_calls": "NOT_RUN; localhost/mock fixtures only"
+  },
+  "toolchain": {
+    "xcode": "26.6",
+    "swift": "6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)"
+  },
+  "installation_gate": "FAIL: 3 of 5 checks succeeded; native build preparation and Chrome target-switch setup need root-cause fixes before approval."
+}

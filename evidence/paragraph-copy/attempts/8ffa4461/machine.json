@@ -1,0 +1,60 @@
+{
+  "source": "8ffa4461c7490ba0c2d707ca80f15e32f5f5fae9",
+  "version": "0.17",
+  "build": "486",
+  "baseline_source": "ab8545507c79640ec3f419e33467a0263c154844",
+  "paragraph_seconds": 15,
+  "time_group_default_seconds": 60,
+  "native": {
+    "status": "PASS",
+    "checks": 22,
+    "source": "8ffa4461c7490ba0c2d707ca80f15e32f5f5fae9",
+    "private_pasteboard": true,
+    "microphone_opened": false,
+    "screen_capture": "owned native views only"
+  },
+  "upgrade_rollback": {
+    "status": "PASS",
+    "path": [
+      "484",
+      "486",
+      "484",
+      "486"
+    ],
+    "recordings": 2,
+    "audio_hashes_unchanged": true,
+    "paragraph_metadata_unchanged": true
+  },
+  "ci": {
+    "status": "FAIL",
+    "native_run": 43603950683,
+    "cloud_run": 43603950672,
+    "contracts_run": 43603950677,
+    "passed_jobs": 3,
+    "failed_jobs": 2,
+    "swift_testing_passed": 525,
+    "app_model_passed": 183,
+    "skipped_dependent_steps": 9
+  },
+  "installation": {
+    "status": "NOT_RUN_CI_FAILED",
+    "preflight": "PASS"
+  },
+  "signing": {
+    "Developer_ID": "PASS",
+    "gatekeeper": "BLOCKED_UNNOTARIZED",
+    "bypass": false
+  },
+  "dmg_sha256": "e7a15f5462f6cfe7bd5daa6ee952f0b2fb65ef46a44736eb956b00ebbdf07823",
+  "asr_runtime": "BYTE_IDENTICAL_TO_484",
+  "asr_quality": "NOT_RUN_UNCHANGED",
+  "physical_microphone": "NOT_RUN_USER_REQUESTED_CLOSED_LID",
+  "paid_or_cloud_api": "NOT_RUN",
+  "general_clipboard_accessed": false,
+  "manual_newline": "formatting preserved; audio/archive identity remains natural paragraph metadata",
+  "limitations": [
+    "Source8ffa4461 CI failed at Chrome final target-switch binding preparation and runtime packaging exit141; diagnostic source e4407fd3 pending.",
+    "No new ASR latency/accuracy/CPU improvement claimed.",
+    "Not a notarized public release."
+  ]
+}

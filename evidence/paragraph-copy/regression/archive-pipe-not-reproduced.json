@@ -1,0 +1,113 @@
+{
+  "status": "NOT_REPRODUCED",
+  "failureUnderInvestigation": "CI build exits141 after sherpa checksums before local runtime Swift build",
+  "environment": "2026-11-14T15:31:10Z\nGNU bash, version 3.2.57(1)-release (arm64-apple-darwin26)\ngit version 2.54.0 (Apple Git-157)\nbsdtar 3.5.3 - libarchive 3.7.4 zlib/1.2.12 liblzma/5.4.3 bz2lib/1.0.8 \n",
+  "cacheAccess": "read-only git archive of public pinned commits",
+  "attemptBound": "3 actual archive pipelines per scope",
+  "pipelineResults": [
+    {
+      "archive": "speech",
+      "trials": [
+        {
+          "attempt": 1,
+          "exitStatus": "speech attempt=1 git=0 tar=0",
+          "files": 114,
+          "bytes": 1183735,
+          "treeSHA256": "fdca1aef5d32ac4296499cd45b271daa0579c1997427e8a7163625b9123c0204",
+          "gitStderr": "",
+          "tarStderr": ""
+        },
+        {
+          "attempt": 2,
+          "exitStatus": "speech attempt=2 git=0 tar=0",
+          "files": 114,
+          "bytes": 1183735,
+          "treeSHA256": "fdca1aef5d32ac4296499cd45b271daa0579c1997427e8a7163625b9123c0204",
+          "gitStderr": "",
+          "tarStderr": ""
+        },
+        {
+          "attempt": 3,
+          "exitStatus": "speech attempt=3 git=0 tar=0",
+          "files": 114,
+          "bytes": 1183735,
+          "treeSHA256": "fdca1aef5d32ac4296499cd45b271daa0579c1997427e8a7163625b9123c0204",
+          "gitStderr": "",
+          "tarStderr": ""
+        }
+      ],
+      "sameExtractedTreeAcrossTrials": true
+    },
+    {
+      "archive": "fluid",
+      "trials": [
+        {
+          "attempt": 1,
+          "exitStatus": "fluid attempt=1 git=0 tar=0",
+          "files": 970,
+          "bytes": 16622989,
+          "treeSHA256": "1d3ca60a116a5b89b90e500e6a5416e5d2ddc6756155c6e2f452ba6da94fb8ad",
+          "gitStderr": "",
+          "tarStderr": ""
+        },
+        {
+          "attempt": 2,
+          "exitStatus": "fluid attempt=2 git=0 tar=0",
+          "files": 970,
+          "bytes": 16622989,
+          "treeSHA256": "1d3ca60a116a5b89b90e500e6a5416e5d2ddc6756155c6e2f452ba6da94fb8ad",
+          "gitStderr": "",
+          "tarStderr": ""
+        },
+        {
+          "attempt": 3,
+          "exitStatus": "fluid attempt=3 git=0 tar=0",
+          "files": 970,
+          "bytes": 16622989,
+          "treeSHA256": "1d3ca60a116a5b89b90e500e6a5416e5d2ddc6756155c6e2f452ba6da94fb8ad",
+          "gitStderr": "",
+          "tarStderr": ""
+        }
+      ],
+      "sameExtractedTreeAcrossTrials": true
+    },
+    {
+      "archive": "notices",
+      "trials": [
+        {
+          "attempt": 1,
+          "exitStatus": "notices attempt=1 git=0 tar=0",
+          "files": 5,
+          "bytes": 37731,
+          "treeSHA256": "81a2a018d85a43edc089b5438e5455fe03333a03c5b6958b81921cc3bd5518ad",
+          "gitStderr": "",
+          "tarStderr": ""
+        },
+        {
+          "attempt": 2,
+          "exitStatus": "notices attempt=2 git=0 tar=0",
+          "files": 5,
+          "bytes": 37731,
+          "treeSHA256": "81a2a018d85a43edc089b5438e5455fe03333a03c5b6958b81921cc3bd5518ad",
+          "gitStderr": "",
+          "tarStderr": ""
+        },
+        {
+          "attempt": 3,
+          "exitStatus": "notices attempt=3 git=0 tar=0",
+          "files": 5,
+          "bytes": 37731,
+          "treeSHA256": "81a2a018d85a43edc089b5438e5455fe03333a03c5b6958b81921cc3bd5518ad",
+          "gitStderr": "",
+          "tarStderr": ""
+        }
+      ],
+      "sameExtractedTreeAcrossTrials": true
+    }
+  ],
+  "harnessSetupFailure": "Initial fluid attempts in run.sh failed before git execution because Bash3 set -u rejects an empty array expansion. Preserved fluid-1..3 directories; excluded from valid trials. fluid.sh invokes the exact zero-path archive command without arrays.",
+  "productScriptChanges": false,
+  "asrExecuted": false,
+  "fullBuildExecuted": false,
+  "userApplicationModified": false
+}

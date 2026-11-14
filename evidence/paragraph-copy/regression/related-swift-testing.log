@@ -1,0 +1,116 @@
+warning: /Users/hhf/Library/org.swift.swiftpm/configuration is not accessible or not writable, disabling user-level cache features.
+warning: /Users/hhf/Library/org.swift.swiftpm/security is not accessible or not writable, disabling user-level cache features.
+warning: /Users/hhf/Library/Caches/org.swift.swiftpm is not accessible or not writable, disabling user-level cache features.
+warning: 'saytile-paragraph-copy': failed storing manifest for 'saytile-paragraph-copy' in cache: attempt to write a readonly database
+Building for debugging...
+[5 / 21] Saytile-product
+[16 / 47]
+[17 / 47]
+[20 / 47]
+[24 / 47] SaytileKitTests-product
+[25 / 48] SaytileKitTests-product
+[26 / 48] SaytileKitTests-product
+[27 / 48] SaytileKitTests-product
+[28 / 48] SaytileKitTests-product
+[29 / 48] SaytileKitTests-product
+/private/tmp/saytile-paragraph-copy/Sources/SaytileApp/AppModel.swift:868:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 860 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+ 861 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+ 862 |         connectionCheckTask = Task {
+     |                                    |- note: 'self' implicitly strongly captured here
+     |                                    `- note: add 'self' as a capture list item to silence
+ 863 |             // A cancelled older check must fully close its sockets before another starts.
+ 864 |             await previous?.value
+     :
+ 866 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+ 867 |             do {
+ 868 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+     |                                                                                         `- note: explicitly assign the capture list item to silence
+ 869 |                     Task { @MainActor [weak self] in
+ 870 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[30 / 48] SaytileKitTests-product
+[31 / 48] SaytileKitTests-product
+[32 / 48] SaytileKitTests-product
+[34 / 48] SaytileKitTests-product
+[38 / 48] SaytileKitTests-product
+[38 / 48] Saytile-product
+[40 / 48] SaytileKitTests-product
+[40 / 48] Saytile-product/private/tmp/saytile-paragraph-copy/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-paragraph-copy/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+[42 / 48] SaytileKitTests-product
+[44 / 48] SaytileKitTests-product/private/tmp/saytile-paragraph-copy/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-paragraph-copy/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (11.67秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite PanelParagraphDocumentTests started.
+◇ Suite TranscriptTimelineTests started.
+◇ Suite NaturalParagraphTests started.
+◇ Test paragraphMappingPreservesEveryNativeEditAndUndo() started.
+◇ Test nativeUndoRedoRestoresDeletedAutomaticParagraph() started.
+◇ Test activeTimelineDistinguishesPartialFinalAndUserSelection() started.
+◇ Test actualSpeechGapHasIndependentParagraphAndTimeGroupThresholds() started.
+◇ Test migrationAndKeysetTraversalAtScale() started.
+◇ Test paragraphsPageWithoutSplittingAndSearchReturnsEveryMember() started.
+◇ Test longUtteranceAndLateRevisionsNeverRegroup() started.
+◇ Test paragraphCopyRespectsClickBoundsAndDoesNotExpandToItsTimeGroup() started.
+◇ Test additiveMigrationPreservesLegacyGroupsAndAllOriginalRows() started.
+◇ Test starredParagraphProtectsNewMembersAndStopsAtNextParagraph() started.
+◇ Test multiRecordingEditValidatesEveryOwnerAndPreservesVersions() started.
+◇ Test emptyHumanRowsDoNotInventBoundaryIntentOrEvictVisibleText() started.
+◇ Test speechBoundariesRevisionIdentityAndSnapshot() started.
+◇ Test ordinaryHeadEditKeepsParagraphAndWinsOverLateMachineRevision() started.
+◇ Test explicitBoundaryEditIsReversibleAndDoesNotFreezeOrRewriteASR() started.
+◇ Test manualRoutingIsExclusiveAndFailClosed() started.
+◇ Test conflictDraftPreservesBothWritersWithoutSelectingEitherDraft() started.
+◇ Test midnightClockReversalAndDurableFrameFallback() started.
+✔ Test activeTimelineDistinguishesPartialFinalAndUserSelection() passed after 0.104 seconds.
+✔ Test manualRoutingIsExclusiveAndFailClosed() passed after 0.107 seconds.
+✔ Test starredParagraphProtectsNewMembersAndStopsAtNextParagraph() passed after 0.107 seconds.
+✔ Test longUtteranceAndLateRevisionsNeverRegroup() passed after 0.109 seconds.
+✔ Test actualSpeechGapHasIndependentParagraphAndTimeGroupThresholds() passed after 0.125 seconds.
+✔ Test paragraphCopyRespectsClickBoundsAndDoesNotExpandToItsTimeGroup() passed after 0.151 seconds.
+✔ Test speechBoundariesRevisionIdentityAndSnapshot() passed after 0.154 seconds.
+✔ Test additiveMigrationPreservesLegacyGroupsAndAllOriginalRows() passed after 0.166 seconds.
+✔ Test midnightClockReversalAndDurableFrameFallback() passed after 0.217 seconds.
+✔ Test paragraphMappingPreservesEveryNativeEditAndUndo() passed after 0.369 seconds.
+✔ Test nativeUndoRedoRestoresDeletedAutomaticParagraph() passed after 0.652 seconds.
+✔ Suite PanelParagraphDocumentTests passed after 0.652 seconds.
+2026-11-14 22:05:42.877 swiftpm-testing-helper[33255:53750295] TISFileInterrogator updateSystemInputSources false but old data invalid: currentCacheHeaderPtr nonNULL? 0, ->cacheFormatVersion 0, ->magicCookie 00000000, inputSourceTableCountSys 0
+2026-11-14 22:05:42.888 swiftpm-testing-helper[33255:53750325] Connection Invalid error for service com.apple.hiservices-xpcservice.
+2026-11-14 22:05:42.888 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+2026-11-14 22:05:42.891 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+Keyboard Layouts: duplicate keyboard layout identifier -17410.
+Keyboard Layouts: keyboard layout identifier -17410 has been replaced with -28673.
+2026-11-14 22:05:42.900 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+2026-11-14 22:05:42.901 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+2026-11-14 22:05:42.909 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+2026-11-14 22:05:42.915 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+✔ Test paragraphsPageWithoutSplittingAndSearchReturnsEveryMember() passed after 0.803 seconds.
+2026-11-14 22:05:42.917 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+2026-11-14 22:05:42.921 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+2026-11-14 22:05:42.922 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+2026-11-14 22:05:42.927 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+Keyboard Layouts: duplicate keyboard layout identifier -30769.
+Keyboard Layouts: keyboard layout identifier -30769 has been replaced with -28674.
+Keyboard Layouts: duplicate keyboard layout identifier -14934.
+Keyboard Layouts: keyboard layout identifier -14934 has been replaced with -28675.
+2026-11-14 22:05:42.938 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+2026-11-14 22:05:42.938 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+2026-11-14 22:05:42.939 swiftpm-testing-helper[33255:53750295] Error received in message reply handler: Connection invalid
+✔ Test ordinaryHeadEditKeepsParagraphAndWinsOverLateMachineRevision() passed after 0.888 seconds.
+✔ Test conflictDraftPreservesBothWritersWithoutSelectingEitherDraft() passed after 0.890 seconds.
+✔ Test multiRecordingEditValidatesEveryOwnerAndPreservesVersions() passed after 0.893 seconds.
+✔ Test explicitBoundaryEditIsReversibleAndDoesNotFreezeOrRewriteASR() passed after 0.898 seconds.
+✔ Test emptyHumanRowsDoNotInventBoundaryIntentOrEvictVisibleText() passed after 1.000 seconds.
+✔ Suite NaturalParagraphTests passed after 1.000 seconds.
+TIMELINE_SCALE rows=12001 page_reads=188 max_resident_rows=64 migration_and_traversal=1.092130792 seconds
+✔ Test migrationAndKeysetTraversalAtScale() passed after 1.339 seconds.
+✔ Suite TranscriptTimelineTests passed after 1.339 seconds.
+✔ Test run with 18 tests in 3 suites passed after 1.339 seconds.

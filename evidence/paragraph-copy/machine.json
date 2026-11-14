@@ -1,0 +1,67 @@
+{
+  "source": "58bc8f96f79942881d1ae3221fd6219635833907",
+  "version": "0.17",
+  "build": "488",
+  "native": {
+    "status": "PASS",
+    "checks": 22,
+    "AXPress": "PASS",
+    "private_pasteboard": true,
+    "source": "58bc8f96f79942881d1ae3221fd6219635833907",
+    "evidence": "native/natural-paragraphs.json"
+  },
+  "upgrade_rollback": {
+    "status": "PASS",
+    "path": [
+      "484",
+      "488",
+      "484",
+      "488"
+    ]
+  },
+  "ci": {
+    "status": "PASS",
+    "passed": 5,
+    "failed": 0,
+    "source": "58bc8f96f79942881d1ae3221fd6219635833907",
+    "swift_testing": {
+      "total": 525,
+      "passed": 525,
+      "failed": 0,
+      "skipped": 0
+    },
+    "appmodel_passed": 183,
+    "evidence": "ci/summary.json"
+  },
+  "installation": {
+    "status": "PASS",
+    "version": "0.17",
+    "build": "488",
+    "path": "/Users/hhf/Applications/Saytile 中文识别候选.app",
+    "source": "58bc8f96f79942881d1ae3221fd6219635833907",
+    "running_at_install": "candidate_pid=66677 launched=true",
+    "evidence": "activation.json"
+  },
+  "dmg_sha256": "831059554040385710dfdd1f6c60048a2bad98f167184fc244490fe6f1bbfbf8",
+  "asr_runtime": "BYTE_IDENTICAL_TO_484",
+  "ASR_and_microphone": "NOT_RUN",
+  "Gatekeeper": "BLOCKED_UNNOTARIZED",
+  "previous_CI_failures": {
+    "status": "NOT_ROOT_CAUSED",
+    "source": "8ffa4461c7490ba0c2d707ca80f15e32f5f5fae9",
+    "items": [
+      "Chrome switch-target-bind targetChanged",
+      "runtime preparation exit141"
+    ],
+    "subsequent_runs": "e4407fd3 and 58bc8f96 each 5/5; absence of recurrence is not a proven fix"
+  },
+  "physical_microphone": "NOT_RUN_USER_REQUESTED_CLOSED_LID",
+  "cloud_paid_services": "NOT_RUN",
+  "protection": {
+    "formal_app": "0.12 (373) identity unchanged",
+    "asr": "484 runtime byte-identical; no quality or latency claim",
+    "private_data": "No test access to user archive, recordings, system clipboard or Keychain; installation swaps app bundle only",
+    "main": "unchanged; no merge",
+    "public_release": false
+  }
+}

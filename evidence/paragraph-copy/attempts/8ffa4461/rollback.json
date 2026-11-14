@@ -1,0 +1,208 @@
+{
+  "status": "PASS",
+  "identities": [
+    {
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "source": "ab8545507c79640ec3f419e33467a0263c154844",
+      "version": "0.15",
+      "build": "484",
+      "executable_sha256": "a88118dc0a9b04f794b9ebdde0bbdede642e8a9b2b2c1b7f5cef93ea6bd2799d"
+    },
+    {
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "source": "8ffa4461c7490ba0c2d707ca80f15e32f5f5fae9",
+      "version": "0.17",
+      "build": "486",
+      "executable_sha256": "ddfb2cf264db017cab65a1711a192f23c69eae7ddf17ac3cb16bbfc53363f54c"
+    }
+  ],
+  "app_storage_profiles": [
+    {
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1",
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "archive": "Saytile Mandarin Candidate",
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1"
+    },
+    {
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "archive": "Saytile Mandarin Candidate",
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1",
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1"
+    }
+  ],
+  "fixture": {
+    "schema": 6,
+    "table_sha256": "9543a2ee21d1c8594e808ca5a25100993a21ebb4f397e66eb2274d2ea627ae70",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "DF4128AF-1957-44B2-B206-0EC1972F996A/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "8262F93A-78DE-42C2-9581-37C299F48FEB/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "F248BEE7-88D2-4FD3-87DA-391E3233B2A6",
+      "74BC14F7-13A4-48FA-B140-6C133107E861"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0
+  },
+  "steps": [
+    {
+      "step": "old",
+      "records": 2,
+      "logical_tables_sha256": "9543a2ee21d1c8594e808ca5a25100993a21ebb4f397e66eb2274d2ea627ae70",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ],
+      "sidecar": {
+        "present": true,
+        "schema": 6,
+        "idle_seconds": 60,
+        "rows": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ],
+        "version": [
+          [
+            1,
+            2
+          ]
+        ],
+        "trigger_sha256": "b492cbe18732c752f1ffb78ffc4deae14e5a7f93e92c70de37d496184f3191fa"
+      }
+    },
+    {
+      "step": "candidate",
+      "records": 2,
+      "logical_tables_sha256": "9543a2ee21d1c8594e808ca5a25100993a21ebb4f397e66eb2274d2ea627ae70",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ],
+      "sidecar": {
+        "present": true,
+        "schema": 6,
+        "idle_seconds": 60,
+        "rows": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ],
+        "version": [
+          [
+            1,
+            2
+          ]
+        ],
+        "trigger_sha256": "b492cbe18732c752f1ffb78ffc4deae14e5a7f93e92c70de37d496184f3191fa"
+      }
+    },
+    {
+      "step": "old_reopened",
+      "records": 2,
+      "logical_tables_sha256": "9543a2ee21d1c8594e808ca5a25100993a21ebb4f397e66eb2274d2ea627ae70",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ],
+      "sidecar": {
+        "present": true,
+        "schema": 6,
+        "idle_seconds": 60,
+        "rows": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ],
+        "version": [
+          [
+            1,
+            2
+          ]
+        ],
+        "trigger_sha256": "b492cbe18732c752f1ffb78ffc4deae14e5a7f93e92c70de37d496184f3191fa"
+      }
+    },
+    {
+      "step": "candidate_reopened",
+      "records": 2,
+      "logical_tables_sha256": "9543a2ee21d1c8594e808ca5a25100993a21ebb4f397e66eb2274d2ea627ae70",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ],
+      "sidecar": {
+        "present": true,
+        "schema": 6,
+        "idle_seconds": 60,
+        "rows": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ],
+        "version": [
+          [
+            1,
+            2
+          ]
+        ],
+        "trigger_sha256": "b492cbe18732c752f1ffb78ffc4deae14e5a7f93e92c70de37d496184f3191fa"
+      }
+    }
+  ],
+  "natural_paragraph_sidecar": "PASS",
+  "existing_paragraph_metadata_unchanged": true,
+  "sidecar_schema_version": 2,
+  "sqlite_schema_version": 6,
+  "old_table_rows_unchanged": true,
+  "original_audio_hashes_unchanged": true,
+  "hidden_boundary_preserved_after_old_and_new_reopen": true,
+  "custom_180_second_setting_preserved": true,
+  "network": "denied to every smoke and seed process",
+  "launch": "temporary diagnostic directories only; no capture or inference",
+  "keychain": "service-name contracts only; no secret read",
+  "empty_candidate_records": 0,
+  "original_fixture_unchanged": true,
+  "installed_binaries_unchanged": true,
+  "runner_sha256": "7acca8727c0ef4efdd1efb11127a7553000f65c0b83b17a76641631023bf7f95",
+  "shared_source_runner_sha256": "0f97709dc7162ee4a33e18c0af34220a65f40aabb241e6320588c2b55a8dbd1b"
+}

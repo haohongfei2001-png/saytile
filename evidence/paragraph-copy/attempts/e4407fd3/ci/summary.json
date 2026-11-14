@@ -1,0 +1,202 @@
+{
+  "source": "e4407fd3df7a62bbc6db1685a4de9ae6c417788c",
+  "pr": 43,
+  "checked_at": "2026-11-14T15:55:45.959995+00:00",
+  "ci_status": "PASS",
+  "checks_passed": 5,
+  "checks_failed": 0,
+  "checks": [
+    {
+      "name": "foreground",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43610941061/job/132495621396",
+      "workflow": "Saytile native",
+      "skipped_steps": []
+    },
+    {
+      "name": "native",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43610941061/job/132495621624",
+      "workflow": "Saytile native",
+      "skipped_steps": []
+    },
+    {
+      "name": "gateway",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43610941070/job/132495621487",
+      "workflow": "Saytile Cloud",
+      "skipped_steps": []
+    },
+    {
+      "name": "native-gateway",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43610941070/job/132495622205",
+      "workflow": "Saytile Cloud",
+      "skipped_steps": []
+    },
+    {
+      "name": "data-and-prototype",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43610941135/job/132495621341",
+      "workflow": "Saytile design contracts",
+      "skipped_steps": []
+    }
+  ],
+  "swift_testing": {
+    "status": "PASS",
+    "total": 525,
+    "passed": 525,
+    "failed": 0,
+    "skipped_test_cases": 0,
+    "groups": [
+      4,
+      13,
+      12,
+      8,
+      488
+    ],
+    "explicit_skip_lines": [],
+    "grouping": "4 timing groups execute separately; --skip in last process only excludes those already-executed suites.",
+    "evidence": "artifacts/Saytile-localhost-protocol/native-network.log"
+  },
+  "appmodel": {
+    "status": "PASS",
+    "passed": 183,
+    "scope": "No microphone, external input, or window activation",
+    "evidence": "native.log"
+  },
+  "runtime_build": {
+    "status": "PASS",
+    "diagnostic_errors": [],
+    "evidence": "native.log"
+  },
+  "foreground": {
+    "status": "PASS",
+    "surfaces": [
+      "owned AppKit",
+      "WKWebView",
+      "TextEdit disposable document",
+      "Chrome disposable profile"
+    ],
+    "exact_chrome_result": "PASS_CHROME foreground selected by WindowServer; Unicode insertion, prefix/suffix, deduplication, append and target mutation confirmed",
+    "evidence": "artifacts/single-asr-foreground/chrome.log"
+  },
+  "native_paragraphs": {
+    "status": "PASS",
+    "scenario_count": 21,
+    "paragraph_copy": {
+      "archiveAction": "real native context-menu action dispatched by NSMenu; no global input",
+      "checks": [
+        "same time group, two paragraphs: panel copies latest paragraph only",
+        "panel button gives UTF-16 emoji selection priority over latest paragraph",
+        "late ASR revision preserves copied paragraph snapshot",
+        "panel/archive context copy agree on the same natural paragraph"
+      ],
+      "fixtureParagraphs": 2,
+      "fixtureRecordings": 3,
+      "fixtureTimeGroups": 1,
+      "panelButtonAX": "NOT_RUN",
+      "status": "PASS"
+    },
+    "native_control_actions": {
+      "reason": "SAYTILE_UI_CONTROL_PROBE not configured; panel copy/star/play model actions only",
+      "status": "NOT_RUN"
+    },
+    "evidence": "artifacts/Saytile-natural-paragraphs/natural-paragraphs.json"
+  },
+  "timeline": {
+    "status": "PASS",
+    "seed_records": 12000,
+    "observed_rows": 12003,
+    "resident": 64,
+    "wheel_to_paint_seconds": 0.04386475,
+    "scope": "Disposable GitHub virtual Mac; not hardware battery/long-session proof",
+    "evidence": "native.log"
+  },
+  "hardware_limitations": [
+    {
+      "source": "e4407fd3df7a62bbc6db1685a4de9ae6c417788c",
+      "host_model": "VirtualMac2,1",
+      "capabilities": [
+        "Capabilities for AC Power:",
+        " displaysleep",
+        " disksleep",
+        " sleep",
+        " standby",
+        " powernap",
+        " ttyskeepawake",
+        " tcpkeepalive"
+      ],
+      "private_audio_opened": false,
+      "status": "BLOCKED",
+      "reason": "runner lacks scheduled hardware wake or system sleep support",
+      "schedule_exit": 0,
+      "sleep_request_exit": 71
+    },
+    {
+      "status": "NOT_RUN",
+      "reason": "physical second-display drag (one display connected)"
+    },
+    {
+      "name": "native fullscreen",
+      "note": "Requires explicit isolated fixture GUI run flag; not substituted by full-screen-sized ordinary frame.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "panel_boundary": {
+    "status": "PASS",
+    "passed": 20,
+    "platform_observations": [
+      {
+        "actualFrame": [
+          10,
+          58,
+          1004,
+          679
+        ],
+        "declaredMinSize": [
+          1004,
+          679
+        ],
+        "expected_unchanged_frame_status": "FAIL",
+        "name": "AppKit minimum size can normalize limits and change the actual frame",
+        "note": "Original native9 unchanged-frame assertion FAIL retained. Read declaredMinSize and actualFrame together: a changed frame is not proof the minimum was ignored. The worker reports actual partial geometry and refusal, never presumed success.",
+        "requestedFrame": [
+          10,
+          68,
+          1004,
+          659
+        ],
+        "workerAdjusted": 1,
+        "workerBlocked": 1
+      }
+    ]
+  },
+  "previous_failures": {
+    "status": "NOT_ROOT_CAUSED",
+    "source": "8ffa4461c7490ba0c2d707ca80f15e32f5f5fae9",
+    "items": [
+      "Chrome switch-target-bind CASE_INCOMPLETE targetChanged",
+      "runtime preparation exit141 after successful host build and sherpa checksum checks"
+    ],
+    "interpretation": "This diagnostic-only revision passed once. Neither prior failure reproduced; no root cause or fix is established. Ownership guards, deadlines and read thresholds were not relaxed.",
+    "evidence": "/private/tmp/saytile-paragraph-copy-release-8ffa4461/ci/"
+  },
+  "cloud_and_contracts": {
+    "offline_metric_tests": 43,
+    "gateway_unit_tests": 3,
+    "live_paid_services": "NOT_RUN; local fixtures only"
+  },
+  "toolchain": {
+    "xcode": "26.6",
+    "swift": "6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)"
+  },
+  "rerun_performed": false,
+  "source_edits_by_collector": false,
+  "app_execution_or_installation_by_collector": false
+}

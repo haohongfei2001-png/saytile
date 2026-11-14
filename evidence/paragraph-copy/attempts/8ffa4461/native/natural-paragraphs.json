@@ -1,0 +1,115 @@
+{
+  "archiveControls" : [
+    "archive.play.727AE4DA-809D-4A35-A5F4-422EEC894A73",
+    "archive.favorite.727AE4DA-809D-4A35-A5F4-422EEC894A73",
+    "archive.play.173E2BA8-9422-4A50-B61D-FCE44A2FE87D",
+    "archive.favorite.173E2BA8-9422-4A50-B61D-FCE44A2FE87D",
+    "archive.play.AD48D924-607C-475D-8AFA-C8A90C51A8BA",
+    "archive.favorite.AD48D924-607C-475D-8AFA-C8A90C51A8BA"
+  ],
+  "asrExecuted" : false,
+  "audio" : [
+    {
+      "bytes" : 36096,
+      "recording" : "727AE4DA-809D-4A35-A5F4-422EEC894A73",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    },
+    {
+      "bytes" : 36096,
+      "recording" : "8D874F13-A584-4B8D-B0FE-8BF87CE293BE",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    },
+    {
+      "bytes" : 36096,
+      "recording" : "173E2BA8-9422-4A50-B61D-FCE44A2FE87D",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    },
+    {
+      "bytes" : 36096,
+      "recording" : "AD48D924-607C-475D-8AFA-C8A90C51A8BA",
+      "sha256" : "e2f24e3cf5f8d8f1e54ddb3f9f7ddcff38515ab40b6cc6b3273a64f487053b84"
+    }
+  ],
+  "captureScope" : "owned nonactivating native views rendered using AppKit cacheDisplay; not a full-desktop screenshot",
+  "checks" : [
+    "ASR-origin seed",
+    "three-second continuation",
+    "15-second paragraph",
+    "60-second time group",
+    "same time group, two paragraphs: panel copies latest paragraph only",
+    "panel button gives UTF-16 emoji selection priority over latest paragraph",
+    "late ASR revision preserves copied paragraph snapshot",
+    "panel\/archive context copy agree on the same natural paragraph",
+    "panel selection\/copy",
+    "selected viewport held",
+    "late ASR retains original position",
+    "one native play\/star control per paragraph via independent AX inspection",
+    "one native editor per paragraph",
+    "panel\/archive identical newlines",
+    "cross-owner emoji edit",
+    "archive private selection copy",
+    "archive native undo\/redo",
+    "late ASR manual protection",
+    "archive context copy keeps the user-edited visible snapshot",
+    "whole-paragraph star",
+    "real AVAudioPlayer silent clip transition past 1.1250625 seconds",
+    "independent second-paragraph edit keeps panel boundary"
+  ],
+  "microphoneOpened" : false,
+  "nativeControlActions" : {
+    "reason" : "independent owned-window AX inspection and AXPress, including panel.copy",
+    "status" : "PASS"
+  },
+  "paragraphCopy" : {
+    "archiveAction" : "real native context-menu action dispatched by NSMenu; no global input",
+    "checks" : [
+      "same time group, two paragraphs: panel copies latest paragraph only",
+      "panel button gives UTF-16 emoji selection priority over latest paragraph",
+      "late ASR revision preserves copied paragraph snapshot",
+      "panel\/archive context copy agree on the same natural paragraph"
+    ],
+    "fixtureParagraphs" : 2,
+    "fixtureRecordings" : 3,
+    "fixtureTimeGroups" : 1,
+    "panelButtonAX" : "PASS",
+    "status" : "PASS"
+  },
+  "paragraphs" : 3,
+  "privatePasteboard" : true,
+  "recordings" : 4,
+  "source" : "8ffa4461c7490ba0c2d707ca80f15e32f5f5fae9",
+  "speechEndGapsSeconds" : [
+    3,
+    15,
+    60
+  ],
+  "status" : "PASS",
+  "syntheticOnly" : true,
+  "timeGroups" : 2,
+  "timeline" : [
+    {
+      "group" : 1,
+      "id" : "727AE4DA-809D-4A35-A5F4-422EEC894A73",
+      "paragraphID" : 1,
+      "position" : 1
+    },
+    {
+      "group" : 1,
+      "id" : "8D874F13-A584-4B8D-B0FE-8BF87CE293BE",
+      "paragraphID" : 1,
+      "position" : 2
+    },
+    {
+      "group" : 1,
+      "id" : "173E2BA8-9422-4A50-B61D-FCE44A2FE87D",
+      "paragraphID" : 3,
+      "position" : 3
+    },
+    {
+      "group" : 4,
+      "id" : "AD48D924-607C-475D-8AFA-C8A90C51A8BA",
+      "paragraphID" : 4,
+      "position" : 4
+    }
+  ]
+}
