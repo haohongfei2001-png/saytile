@@ -30,4 +30,8 @@
 
 签名DMG来自上述产品SHA，Developer ID App及镜像签名校验PASS，未经公证，Gatekeeper发行检查未通过。原安装的数据隔离身份保持 app.saytile.mac.mandarin-candidate。用2条合成录音、4个文字版本及原音校验值完成474→476→474回退演练。[打包与签名](package.json) [升级回退](rollback.json)
 
-440条完整语料复测及最终安装决定仍在进行，结果以最终DELIVERY.json为准。
+完整语料440/440最终文字及子段状态与474逐字相同，所有完整录音均有归档文字。公开420条为910/10663错（8.534%），20条低音量/噪声派生输入65/764错（8.508%）。延续已有5个未定稿VAD子段，原音保留；这5项不记为通过。旧证据记录其中3个不足0.5秒尾段、2个较低电平首段，电平不作为有人声与否的唯一证据。[完整归档对照](archive-comparison.json) [既有5段证据](../../mandarin-cadence-20261114/candidate/incomplete-segments.json)
+
+首次全语料执行受工具沙箱限制导致模型进程退出，所有空结果完整封存在restricted-execution-failure.tar.gz。已在获得授权的原生执行环境重新运行全部440条，每个分片都检查非空与provider，复测通过。该次失败不计作真实模型评分，也没有丢弃保留记录。
+
+最终安装决定仍在进行，结果以最终DELIVERY.json为准。
