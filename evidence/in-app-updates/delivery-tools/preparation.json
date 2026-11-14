@@ -1,0 +1,65 @@
+{
+  "status": "PREPARED_NOT_EXECUTED",
+  "created_at": "2026-11-14T17:32:55.597509+00:00",
+  "source_worktree": "/private/tmp/saytile-in-app-updates",
+  "source_branch": "codex/in-app-updates",
+  "observed_head_not_final": "2d713cf8188046503738d5137a14d60fd5fda94a",
+  "version": "0.18",
+  "build": "derived from final git rev-list --count HEAD; must exceed 488",
+  "baseline": {
+    "path": "/Users/hhf/Documents/GitHub/saytile/dist/paragraph-copy-0.17-488",
+    "source": "58bc8f96f79942881d1ae3221fd6219635833907",
+    "version": "0.17",
+    "build": "488",
+    "image_sha256": "831059554040385710dfdd1f6c60048a2bad98f167184fc244490fe6f1bbfbf8",
+    "package_receipt_sha256": "600f5303b39743aeded8918f74157206a2943c5c56426ec327339c6628565094",
+    "runtime_manifest_sha256": "55bf7683a6fdd9528b7e3d8c21956cabff38cc8675499222e12380aedf3582e8",
+    "production_identity_receipt_sha256": "b0b0fad99af778ac53b576d55136d88d71e9385b911adbb1aa3f988453fc9715"
+  },
+  "syntax": {
+    "python_AST": [
+      "activate.py",
+      "package.py",
+      "rollback.py",
+      "update_contract.py",
+      "validate-image.py"
+    ],
+    "shell_bash_n": [
+      "stage-image.sh"
+    ],
+    "status": "PASS"
+  },
+  "auxiliary_tools": {
+    "/private/tmp/saytile-011-frozen-process/probe": {
+      "sha256": "bd2c057e228cd8f1f2285fe6526a0860a7398f114a6a7b0ee23b93e19fe68f68",
+      "executed": false
+    },
+    "/private/tmp/saytile-cadence-update": {
+      "sha256": "860e7019d983f13c5eeb9b0aa39e5082ac8a41efff3358333838cffe6bd38ac7",
+      "executed": false
+    }
+  },
+  "not_run": [
+    "package",
+    "build",
+    "codesign",
+    "DMG attach",
+    "rollback",
+    "update native acceptance",
+    "Gatekeeper assessment",
+    "activation preflight",
+    "installation",
+    "app launch"
+  ],
+  "private_data_read": false,
+  "keys_read": false,
+  "asr_run": false,
+  "modified_product_source": false,
+  "update_policy": {
+    "signed_feed_failure_expiration_seconds": 0,
+    "scheduled_check_interval_seconds": 86400,
+    "auto_install": false,
+    "profile": false
+  },
+  "about_screenshot_entry": "NOT_AVAILABLE in current UIReview; isolated UpdateReview reuse proposed, not implemented"
+}

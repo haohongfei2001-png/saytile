@@ -1,0 +1,93 @@
+{
+  "status": "PASS",
+  "source": "012999c2018f591f3cf9a529e4c0ae81e7b81f21",
+  "scope": "real Saytile NSApplication and AppUpdateController -> SPUUpdater -> Sparkle installer -> argument-free app relaunch",
+  "user_driver": "deterministic fixture driver; standard Sparkle window interaction NOT_RUN",
+  "fixture_bundle_id": "app.saytile.update-fixture.44f1965af56246feae35c58f80ae3e82",
+  "original_app_untouched": true,
+  "production_data": "NOT_ACCESSED",
+  "paid_services": "NOT_CALLED",
+  "corrupt_archive": {
+    "status": "PASS",
+    "installed_version": "1",
+    "archive_unchanged": true,
+    "rejection": "SUSparkleErrorDomain/4005"
+  },
+  "fixture_before": {
+    "schema": 6,
+    "table_sha256": "f22fd2d9c05534cc536d7ed7bace44dfa31b8cbd2108850c9655dcf99e841c75",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "D324F1AE-5451-4F3E-AA73-E536BBA5941F/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "2E0A318A-966F-4AF2-A209-B5D9CE3E5D0E/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "D2C48B1C-2BB6-4686-BAED-CB1324C1F92B",
+      "0C68B098-0F3B-48B9-B838-314AB200C279"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0,
+    "paragraph_metadata_sha256": "5a2f50f2c5753cf0cf4e63bee229d0009076b4c2eab5f15bc6f15f3270f8a54a"
+  },
+  "fixture_after": {
+    "schema": 6,
+    "table_sha256": "f22fd2d9c05534cc536d7ed7bace44dfa31b8cbd2108850c9655dcf99e841c75",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "D324F1AE-5451-4F3E-AA73-E536BBA5941F/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "2E0A318A-966F-4AF2-A209-B5D9CE3E5D0E/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "D2C48B1C-2BB6-4686-BAED-CB1324C1F92B",
+      "0C68B098-0F3B-48B9-B838-314AB200C279"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0,
+    "paragraph_metadata_sha256": "5a2f50f2c5753cf0cf4e63bee229d0009076b4c2eab5f15bc6f15f3270f8a54a"
+  },
+  "real_native_install_relaunch": true,
+  "version_before": "1",
+  "version_after": "2",
+  "source_pid": 81739,
+  "relaunched_pid": 81749,
+  "argument_free_relaunch_isolated": true,
+  "preference_canary_preserved": true,
+  "installed_signature_verified": true,
+  "model_marker_bytes_and_mtime_unchanged": true,
+  "update_archive_sha256": "f115f3e7f7b3eca7688c93b7df518fdffd48cbf6d9f64335eaf1fc8a97af8e11",
+  "update_appcast_sha256": "2be31fb9572e868ca81f52dcd2603a137b38e3d44eb0ab05ad0d20c95f85c8e0",
+  "updater_binary_sha256": "d08e6c0fb9f164a996e432585f765dc4cdc4f4f7c9c8d93ca32bc8bbbd8d6e02",
+  "key_scope": "ephemeral Ed25519 file; deleted, never emitted or read from Keychain",
+  "native_control_helper_source_sha256": "f368038f6451532be6382ec6df5d975d52523fb1170637382724b677c16518ae",
+  "public_empty_feed": {
+    "status": "PASS",
+    "url": "https://raw.githubusercontent.com/haohongfei2001-png/saytile/codex/update-feed/mandarin/appcast.xml",
+    "signature_required": true,
+    "no_archive_downloaded": true,
+    "no_update_installed": true,
+    "native_settings_action": "AXUIElementPerformAction/AXPress on existing SettingsView",
+    "settings_screenshot_sha256": "e5d45f4217b6ae93fc1c4b431123a8293d015f46649ec7924f69f6dfa954e8e3"
+  },
+  "runner_sha256": "61c42f919c592dedfbb35782fdfa37a81918e031d5bf73f2b9f2c0a9ff8a3816",
+  "seed_probe_sha256": "bd2c057e228cd8f1f2285fe6526a0860a7398f114a6a7b0ee23b93e19fe68f68"
+}

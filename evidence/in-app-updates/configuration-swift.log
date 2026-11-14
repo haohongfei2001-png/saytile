@@ -1,0 +1,147 @@
+warning: /Users/hhf/Library/org.swift.swiftpm/configuration is not accessible or not writable, disabling user-level cache features.
+warning: /Users/hhf/Library/org.swift.swiftpm/security is not accessible or not writable, disabling user-level cache features.
+warning: /Users/hhf/Library/Caches/org.swift.swiftpm is not accessible or not writable, disabling user-level cache features.
+warning: 'saytile-in-app-updates': failed storing manifest for 'saytile-in-app-updates' in cache: attempt to write a readonly database
+Building for debugging...
+[Pre-planning 1 / 271]
+[Constructing 202 / 621]
+[3 / 72]
+[40 / 112]
+[62 / 112]
+[69 / 112] SaytileVoiceUI
+[79 / 241] SaytileKit
+[92 / 262]
+[108 / 262]
+[116 / 262]
+[118 / 262]
+[127 / 262]
+/private/tmp/saytile-in-app-updates/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[130 / 262]
+[138 / 262]
+[140 / 262]
+[143 / 262]
+[144 / 262]
+[156 / 262]
+[159 / 262]
+[164 / 262]
+[169 / 262]
+[170 / 262]
+[172 / 262]
+[179 / 262]
+[181 / 262]
+[187 / 262]
+[188 / 262]
+[191 / 262]
+[193 / 262]
+[205 / 262]
+[207 / 262]
+[211 / 262]
+[216 / 262]
+[219 / 262]
+[220 / 262]
+[221 / 262]
+[222 / 262]
+[233 / 262] SaytileKit
+[234 / 262] SaytileKit
+[236 / 262] SaytileKit
+/private/tmp/saytile-in-app-updates/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+[239 / 265] SaytileKit
+/private/tmp/saytile-in-app-updates/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[251 / 265] SaytileKit-product
+[251 / 265] SaytileVoiceUI
+[255 / 269] SaytileVoiceUI
+[255 / 269] Saytile-product
+[259 / 285]
+[260 / 285] SaytileVoiceUI
+/private/tmp/saytile-in-app-updates/Package.swift: SaytileVoiceUI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[276 / 285] Saytile-product
+[277 / 300]
+[278 / 300] Saytile-product
+[278 / 300]
+[281 / 300]
+[284 / 300] SaytileKitTests-product
+/private/tmp/saytile-in-app-updates/Sources/SaytileApp/SettingsView.swift:207:109: warning: converting non-Sendable function value to '@isolated(any) @Sendable (Bool) -> Void' may introduce data races
+205 |                 .accessibilityIdentifier("settings.checkForUpdates")
+206 |             if model.updateConfigured {
+207 |                 Toggle("自动检查更新", isOn: Binding(get: { model.automaticUpdateChecks }, set: model.setAutomaticUpdateChecks))
+    |                                                                                                 `- warning: converting non-Sendable function value to '@isolated(any) @Sendable (Bool) -> Void' may introduce data races
+208 |                     .accessibilityIdentifier("settings.automaticUpdates")
+209 |             }
+/private/tmp/saytile-in-app-updates/Sources/SaytileApp/SaytileApp.swift:203:17: warning: will never be executed
+199 |                 #else
+200 |                 print("UPDATE_REVIEW_REQUIRES_SPARKLE")
+201 |                 Darwin.exit(64)
+    |                 `- note: a call to a never-returning function
+202 |                 #endif
+203 |                 return
+    |                 `- warning: will never be executed
+204 |             }
+205 |             if let setupRequest {
+[286 / 300] SaytileKitTests-product
+[287 / 300] SaytileKitTests-product
+[288 / 300] SaytileKitTests-product
+[290 / 300] SaytileKitTests-product
+/private/tmp/saytile-in-app-updates/Sources/SaytileApp/AppModel.swift:874:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 866 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+ 867 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+ 868 |         connectionCheckTask = Task {
+     |                                    |- note: 'self' implicitly strongly captured here
+     |                                    `- note: add 'self' as a capture list item to silence
+ 869 |             // A cancelled older check must fully close its sockets before another starts.
+ 870 |             await previous?.value
+     :
+ 872 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+ 873 |             do {
+ 874 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+     |                                                                                         `- note: explicitly assign the capture list item to silence
+ 875 |                     Task { @MainActor [weak self] in
+ 876 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[293 / 300] SaytileKitTests-product
+[295 / 302] SaytileKitTests-product
+[297 / 303] SaytileKitTests-product
+/private/tmp/saytile-in-app-updates/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-in-app-updates/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[299 / 303] Saytile-product
+[299 / 303] SaytileKitTests-product
+[301 / 303] SaytileKitTests-product/private/tmp/saytile-in-app-updates/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-in-app-updates/Package.swift: SaytileKitTests-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+
+Build complete! (30.10秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite AppUpdateConfigurationTests started.
+◇ Test loopbackOnlyWorksForExplicitIsolatedFixture() started.
+◇ Test versionsAdvanceWithoutDowngradeOrAmbiguity() started.
+◇ Test eachProductIdentityHasItsOwnConfiguration() started.
+◇ Test signedFeedFailureNeverExpires() started.
+◇ Test rejectsUnsafeOrAmbiguousFeed(url:) started.
+◇ Test signatureAndPrivacyCannotBeWeakened(key:) started.
+◇ Test case passing 1 argument url → "http://updates.example.test/feed.xml" to rejectsUnsafeOrAmbiguousFeed(url:) started.
+◇ Test missingOrMalformedKeyRefusesUpdates() started.
+◇ Test case passing 1 argument key → "SURequireSignedFeed" to signatureAndPrivacyCannotBeWeakened(key:) started.
+◇ Test case passing 1 argument url → "https://example.test/feed.xml#part" to rejectsUnsafeOrAmbiguousFeed(url:) started.
+◇ Test case passing 1 argument url → "https://example.test/feed.xml?token=fixture" to rejectsUnsafeOrAmbiguousFeed(url:) started.
+◇ Test case passing 1 argument key → "SUVerifyUpdateBeforeExtraction" to signatureAndPrivacyCannotBeWeakened(key:) started.
+◇ Test case passing 1 argument url → "https://u:p@example.test/feed.xml" to rejectsUnsafeOrAmbiguousFeed(url:) started.
+◇ Test case passing 1 argument key → "SUAllowsAutomaticUpdates" to signatureAndPrivacyCannotBeWeakened(key:) started.
+◇ Test case passing 1 argument url → "file:///tmp/feed.xml" to rejectsUnsafeOrAmbiguousFeed(url:) started.
+◇ Test case passing 1 argument key → "SUSendProfileInfo" to signatureAndPrivacyCannotBeWeakened(key:) started.
+✔ Test loopbackOnlyWorksForExplicitIsolatedFixture() passed after 0.001 seconds.
+✔ Test signatureAndPrivacyCannotBeWeakened(key:) with 4 test cases passed after 0.001 seconds.
+✔ Test rejectsUnsafeOrAmbiguousFeed(url:) with 5 test cases passed after 0.001 seconds.
+✔ Test versionsAdvanceWithoutDowngradeOrAmbiguity() passed after 0.001 seconds.
+✔ Test eachProductIdentityHasItsOwnConfiguration() passed after 0.001 seconds.
+✔ Test missingOrMalformedKeyRefusesUpdates() passed after 0.001 seconds.
+✔ Test signedFeedFailureNeverExpires() passed after 0.001 seconds.
+✔ Suite AppUpdateConfigurationTests passed after 0.001 seconds.
+✔ Test run with 7 tests in 1 suite passed after 0.001 seconds.

@@ -1,3 +1,11 @@
+## 2026-11-15 应用内更新最终候选（等待最后 CI）
+
+- 源码 012999c2018f591f3cf9a529e4c0ae81e7b81f21，0.18（492），Draft PR #44。源码冻结，无未提交产品变更。
+- PASS：原生宿主 Sparkle 下载/损坏包拒绝/安装/无参数重启、真实关于页 AXPress 查询公开签名空 feed、全部合成数据保持、488→492→488→492 回退、独立代码审查、Developer ID 签名。
+- GitHub CI 4/5 通过；剩余 native 已通过完整 Swift 测试与 AppModel，正在打包和 UI 回归。尚未安装到用户当前候选。
+- 完整分层结果、原生截图、早期失败和最终包哈希见 evidence/in-app-updates/DELIVERY.md、machine.json。正式373、main和用户资料未改动。
+- Gatekeeper：未公证 Developer ID，保留 BLOCKED；标准 Sparkle 窗口逐按钮操作与物理麦克风 NOT_RUN。无付费 API、无私人音频上传。
+
 ## 2026-11-15 真实安装闭环结果与设置验收修正
 
 - 3c7dba9：真实宿主 App → Sparkle 下载/校验/安装/无参数重启 PASS；损坏签名包拒绝 PASS；2 条录音、4 版文字、2 份草稿、2 星标及原音哈希/段落元数据/模型缓存标记保持。

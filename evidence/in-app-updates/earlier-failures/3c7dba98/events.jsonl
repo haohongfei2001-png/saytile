@@ -1,0 +1,32 @@
+{"build":"1","case":"corrupt","event":"launched","explicit_data_argument":true,"phase":"check","pid":79646,"source":"3c7dba9828de342eb271bbceaddb32f4f6fa0e30","timestamp":1794678157.0279388}
+{"case":"corrupt","event":"archive_loaded","phase":"check","pid":79646,"pinned":2,"preferences_preserved":true,"recordings":2,"revisions":4,"timestamp":1794678157.028641}
+{"case":"corrupt","configured":true,"event":"app_check_action","phase":"check","pid":79646,"timestamp":1794678157.0296741}
+{"case":"corrupt","event":"checking","phase":"check","pid":79646,"timestamp":1794678157.0307059}
+{"case":"corrupt","event":"update_found","phase":"check","pid":79646,"stage":0,"timestamp":1794678157.055985,"user_initiated":true,"version":"2"}
+{"case":"corrupt","event":"download_started","phase":"check","pid":79646,"timestamp":1794678157.056123}
+{"bytes":54906445,"case":"corrupt","event":"download_size","phase":"check","pid":79646,"timestamp":1794678157.059479}
+{"case":"corrupt","downloaded_bytes":54906445,"event":"extracting","phase":"check","pid":79646,"timestamp":1794678157.128197}
+{"case":"corrupt","errors":[{"code":4005,"domain":"SUSparkleErrorDomain"},{"code":4005,"domain":"SUSparkleErrorDomain"},{"code":3002,"domain":"SUSparkleErrorDomain"}],"event":"update_error","phase":"check","pid":79646,"timestamp":1794678157.253268}
+{"case":"corrupt","event":"complete","phase":"check","pid":79646,"reason":"Sparkle rejected a corrupted signed archive","status":"PASS","timestamp":1794678157.253437}
+{"case":"corrupt","event":"dismissed","phase":"check","pid":79646,"timestamp":1794678157.2569771}
+{"build":"1","case":"valid","event":"launched","explicit_data_argument":true,"phase":"check","pid":79650,"source":"3c7dba9828de342eb271bbceaddb32f4f6fa0e30","timestamp":1794678157.6377611}
+{"case":"valid","event":"archive_loaded","phase":"check","pid":79650,"pinned":2,"preferences_preserved":true,"recordings":2,"revisions":4,"timestamp":1794678157.6380889}
+{"case":"valid","configured":true,"event":"app_check_action","phase":"check","pid":79650,"timestamp":1794678157.6387401}
+{"case":"valid","event":"checking","phase":"check","pid":79650,"timestamp":1794678157.640631}
+{"case":"valid","event":"update_found","phase":"check","pid":79650,"stage":0,"timestamp":1794678157.6482911,"user_initiated":true,"version":"2"}
+{"case":"valid","event":"download_started","phase":"check","pid":79650,"timestamp":1794678157.6484308}
+{"bytes":54906445,"case":"valid","event":"download_size","phase":"check","pid":79650,"timestamp":1794678157.650749}
+{"case":"valid","downloaded_bytes":54906445,"event":"extracting","phase":"check","pid":79650,"timestamp":1794678157.706053}
+{"case":"valid","event":"ready_to_install","phase":"check","pid":79650,"timestamp":1794678158.2623649}
+{"application_terminated":false,"case":"valid","event":"installing","phase":"check","pid":79650,"timestamp":1794678158.2627559}
+{"build":"2","case":"valid","event":"launched","explicit_data_argument":false,"phase":"relaunch","pid":79656,"source":"3c7dba9828de342eb271bbceaddb32f4f6fa0e30","timestamp":1794678159.4128561}
+{"case":"valid","event":"archive_loaded","phase":"relaunch","pid":79656,"pinned":2,"preferences_preserved":true,"recordings":2,"revisions":4,"timestamp":1794678159.4131401}
+{"case":"valid","configured":true,"event":"app_check_action","phase":"relaunch","pid":79656,"timestamp":1794678159.41383}
+{"case":"valid","event":"checking","phase":"relaunch","pid":79656,"timestamp":1794678159.55316}
+{"case":"valid","errors":[{"code":1001,"domain":"SUSparkleErrorDomain"}],"event":"no_update","phase":"relaunch","pid":79656,"timestamp":1794678159.563246}
+{"case":"valid","event":"complete","phase":"relaunch","pid":79656,"reason":"Signed feed verified; no newer version available","status":"PASS","timestamp":1794678159.5633931}
+{"case":"valid","event":"dismissed","phase":"relaunch","pid":79656,"timestamp":1794678159.5639191}
+{"build":"2","case":"public-empty","event":"launched","explicit_data_argument":true,"phase":"public-empty","pid":79664,"source":"3c7dba9828de342eb271bbceaddb32f4f6fa0e30","timestamp":1794678160.298147}
+{"case":"public-empty","event":"archive_loaded","phase":"public-empty","pid":79664,"pinned":2,"preferences_preserved":true,"recordings":2,"revisions":4,"timestamp":1794678160.298533}
+{"case":"public-empty","configured":true,"event":"app_check_action","phase":"public-empty","pid":79664,"timestamp":1794678160.2992229}
+{"case":"public-empty","event":"complete","phase":"public-empty","pid":79664,"reason":"Native settings action failed: Unique enabled update controls or keyboard isolation were not verified","status":"FAIL","timestamp":1794678162.708483}

@@ -1,0 +1,305 @@
+--- 017/activate.py
++++ 018/activate.py
+@@ -10,15 +10,16 @@
+ import subprocess
+ import sys
+ import tempfile
++from update_contract import verify_update_configuration
+ 
+-REPO = Path("/private/tmp/saytile-paragraph-copy")
+-BRANCH = "refs/heads/codex/paragraph-copy"
+-BASE = "ab8545507c79640ec3f419e33467a0263c154844"
+-FIRST_ACCEPTABLE = "ab8545507c79640ec3f419e33467a0263c154844"
++REPO = Path("/private/tmp/saytile-in-app-updates")
++BRANCH = "refs/heads/codex/in-app-updates"
++BASE = "58bc8f96f79942881d1ae3221fd6219635833907"
++FIRST_ACCEPTABLE = "58bc8f96f79942881d1ae3221fd6219635833907"
+ APP = Path("/Users/hhf/Applications/Saytile 中文识别候选.app")
+-PRIOR = Path("/Users/hhf/Documents/GitHub/saytile/dist/natural-paragraphs-0.15-484")
+-IMAGE = "Saytile-0.17-mandarin-arm64.dmg"
+-PRIOR_IMAGE = "Saytile-0.15-mandarin-arm64.dmg"
++PRIOR = Path("/Users/hhf/Documents/GitHub/saytile/dist/paragraph-copy-0.17-488")
++IMAGE = "Saytile-0.18-mandarin-arm64.dmg"
++PRIOR_IMAGE = "Saytile-0.17-mandarin-arm64.dmg"
+ CONTROL = Path("/private/tmp/saytile-cadence-update")
+ CONTROL_SHA = "860e7019d983f13c5eeb9b0aa39e5082ac8a41efff3358333838cffe6bd38ac7"
+ 
+@@ -62,17 +63,19 @@
+     require(run(*git, "rev-parse", "--verify", chosen + "^{commit}") == chosen, "Unknown source")
+     run(*git, "merge-base", "--is-ancestor", FIRST_ACCEPTABLE, chosen)
+     run(*git, "merge-base", "--is-ancestor", chosen, BRANCH)
+-    require(run(*git, "show", chosen + ":packaging/VERSION") == "0.17", "Wrong candidate version")
++    require(run(*git, "show", chosen + ":packaging/VERSION") == "0.18", "Wrong candidate version")
+ 
+ 
+ def preflight(chosen):
+     verify_source(chosen)
+-    pkg = Path("/private/tmp/saytile-paragraph-copy-release-" + chosen[:8])
++    pkg = Path("/private/tmp/saytile-in-app-update-release-" + chosen[:8])
+     require(pkg.is_dir() and not pkg.is_symlink(), "Missing build directory")
+     src = pkg / "installed" / APP.name
+     require(src.resolve() == src, "Unexpected staged bundle path")
+     record = json.loads((pkg / "package.json").read_bytes())
+     prior = json.loads((PRIOR / "package.json").read_bytes())
++    require(verify_update_configuration(src) == record.get("update_configuration"),
++            "Packaged update configuration differs from verified receipt")
+     old, new, prod = info(APP), info(src), info(APP.with_name("Saytile.app"))
+     require(old["source"] == prior["source"] == BASE and chosen == new["source"] == record["source"],
+             "Installed or selected bundle source changed")
+@@ -83,8 +86,8 @@
+                 and observed["build"] == expected["build"]
+                 and observed["exe"] == expected["app_executable_sha256"]
+                 and observed["worker"] == expected["worker_sha256"], "Signed bundle differs from verified build")
+-    require(old["version"] == "0.15" and old["build"] == "484" and new["version"] == "0.17"
+-            and int(new["build"]) > 484
++    require(old["version"] == "0.17" and old["build"] == "488" and new["version"] == "0.18"
++            and int(new["build"]) > 488
+             and old["worker"] == new["worker"] == "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e", "Unexpected runtime or version change")
+     require(prod["id"] == "app.saytile.mac" and old["ent"] == new["ent"], "Production/candidate identity mismatch")
+     expected_production = json.loads((PRIOR / "activation.json").read_bytes())["production_unchanged"]
+--- 017/package.py
++++ 018/package.py
+@@ -1,12 +1,14 @@
+ #!/usr/bin/env python3
+-"""Build a staged 0.17 image using the immutable signed 484 ASR runtime. Never install."""
++"""Build a staged 0.18 image using the immutable signed 484 ASR runtime. Never install."""
+ from pathlib import Path
++from update_contract import verify_update_configuration
+ import argparse,hashlib,json,os,plistlib,re,shutil,subprocess as sp,tempfile
+-REPO=Path('/private/tmp/saytile-paragraph-copy')
++REPO=Path('/private/tmp/saytile-in-app-updates')
+ TOOLS=Path(__file__).resolve().parent
+-BASE='ab8545507c79640ec3f419e33467a0263c154844'
++RUNTIME_SOURCE='ab8545507c79640ec3f419e33467a0263c154844'
++BASE='58bc8f96f79942881d1ae3221fd6219635833907'
+ WORKER='9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e'
+-PRIOR=Path('/Users/hhf/Documents/GitHub/saytile/dist/natural-paragraphs-0.15-484')
++PRIOR=Path('/Users/hhf/Documents/GitHub/saytile/dist/paragraph-copy-0.17-488')
+ BUNDLE='Saytile 中文识别候选.app'
+ IDENTITY='92B7E50A1D43D247EA7EA19A31DCA3E407435A42'
+ def require(value,message):
+@@ -23,34 +25,36 @@
+  require(not app.is_symlink(),'Baseline bundle cannot be a symlink')
+  i=plistlib.loads((app/'Contents/Info.plist').read_bytes())
+  require(i['SaytileSourceRevision']==receipt['source']==BASE and i['SaytileSourceDirty'] is False,'Wrong baseline source')
+- require(i['CFBundleIdentifier']==receipt['bundle']=='app.saytile.mac.mandarin-candidate' and i['CFBundleShortVersionString']=='0.15' and i['CFBundleVersion']=='484','Wrong baseline identity')
++ require(i['CFBundleIdentifier']==receipt['bundle']=='app.saytile.mac.mandarin-candidate' and i['CFBundleShortVersionString']=='0.17' and i['CFBundleVersion']=='488','Wrong baseline identity')
+  require(digest(app/'Contents/MacOS/Saytile')==receipt['app_executable_sha256'],'Baseline executable changed')
+  require(digest(app/'Contents/Helpers/SaytileModelWorker')==receipt['worker_sha256']==WORKER,'Baseline worker changed')
+  run('codesign','--verify','--deep','--strict',app)
+ def source(chosen):
+  require(re.fullmatch('[0-9a-f]{40}',chosen),'Full source SHA required')
+- require(output('git','-C',REPO,'symbolic-ref','HEAD')=='refs/heads/codex/paragraph-copy','Wrong worktree branch')
++ require(output('git','-C',REPO,'symbolic-ref','HEAD')=='refs/heads/codex/in-app-updates','Wrong worktree branch')
+  require(output('git','-C',REPO,'rev-parse','HEAD')==chosen,'HEAD differs from selected source')
+  require(not output('git','-C',REPO,'status','--porcelain'),'Commit all source/WIP before packaging')
+- require((REPO/'packaging/VERSION').read_text().strip()=='0.17','Wrong version')
++ require((REPO/'packaging/VERSION').read_text().strip()=='0.18','Wrong version')
+  run('git','-C',REPO,'merge-base','--is-ancestor',BASE,chosen)
+  # Runtime/identity reuse must not hide changed ASR, entitlement or profile code.
+  run('git','-C',REPO,'diff','--exit-code',BASE,chosen,'--','native/LocalASR','Sources/SaytileKit/Resources/LocalASR','Sources/SaytileKit/LocalASRProvider.swift','Sources/SaytileKit/SaytileStorageProfile.swift','distribution/audio-input.plist','packaging/brand')
+ def main():
+  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('source');a=parser.parse_args();source(a.source)
+- receipt=json.loads((PRIOR/'package.json').read_text());image=PRIOR/'Saytile-0.15-mandarin-arm64.dmg'
++ receipt=json.loads((PRIOR/'package.json').read_text());image=PRIOR/'Saytile-0.17-mandarin-arm64.dmg'
+  require(receipt['source']==BASE and receipt['worker_sha256']==WORKER,'Wrong durable baseline receipt')
+- require(digest(image)==receipt['dmg_sha256']=='8dda6ce70631eb802ae117027c8e955a482de8cd092bfa4270bfa8b4a77061f7','Durable image changed')
+- stage=Path('/private/tmp/saytile-paragraph-copy-release-'+a.source[:8]);stage.mkdir() # never overwrite
+- (stage/'baseline484').mkdir();baseline=stage/'baseline484'/BUNDLE
+- with tempfile.TemporaryDirectory(prefix='saytile-017-base-volume-') as mount:
++ require(digest(image)==receipt['dmg_sha256']=='831059554040385710dfdd1f6c60048a2bad98f167184fc244490fe6f1bbfbf8','Durable image changed')
++ stage=Path('/private/tmp/saytile-in-app-update-release-'+a.source[:8]);stage.mkdir() # never overwrite
++ (stage/'baseline488').mkdir();baseline=stage/'baseline488'/BUNDLE
++ with tempfile.TemporaryDirectory(prefix='saytile-018-base-volume-') as mount:
+   run('hdiutil','verify',image)
+   run('hdiutil','attach','-readonly','-noautoopen','-nobrowse','-mountpoint',mount,image)
+   try:run('ditto',Path(mount)/BUNDLE,baseline)
+   finally:run('hdiutil','detach',mount)
+  validate_old(baseline,receipt);runtime_before=runtime(baseline)
+- (stage/'runtime484.json').write_text(json.dumps({'source':BASE,'dmg_sha256':receipt['dmg_sha256'],'worker_sha256':WORKER,'files':runtime_before},indent=2)+'\n')
+- scratch=Path('/private/tmp/saytile-paragraph-copy-app-build-'+a.source[:8])
++ frozen=json.loads((PRIOR/'runtime484.json').read_text())
++ require(frozen['source']==RUNTIME_SOURCE and frozen['worker_sha256']==WORKER and runtime_before==frozen['files'],'488 runtime does not match immutable 484 manifest')
++ (stage/'runtime484.json').write_text(json.dumps({'source':RUNTIME_SOURCE,'baseline_source':BASE,'baseline_dmg_sha256':receipt['dmg_sha256'],'worker_sha256':WORKER,'files':runtime_before},indent=2)+'\n')
++ scratch=Path('/private/tmp/saytile-in-app-update-app-build-'+a.source[:8])
+  args=['swift','build','--scratch-path',str(scratch),'-c','release','--disable-sandbox','-Xswiftc','-F','-Xswiftc',str(baseline/'Contents/Frameworks'),'-Xlinker','-F','-Xlinker',str(baseline/'Contents/Frameworks'),'-Xlinker','-rpath','-Xlinker','@executable_path/../Frameworks']
+  with (stage/'build.log').open('w') as log:run(*args,cwd=REPO,stdout=log,stderr=sp.STDOUT)
+  bin_dir=Path(output(*args,'--show-bin-path',cwd=REPO))
+@@ -59,24 +63,28 @@
+  shutil.copy2(bin_dir/'Saytile',app/'Contents/MacOS/Saytile')
+  # Refresh source-owned host resources; large ASR weights remain absent.
+  for src,dst in [('Sources/SaytileApp/Resources/SaytileBrandMark.png','Resources/SaytileBrandMark.png'),('Sources/SaytileKit/Resources/ConnectionSample.pcm','Resources/ConnectionSample.pcm'),('THIRD_PARTY_NOTICES.md','Resources/THIRD_PARTY_NOTICES.md'),('Sources/CAudio/WEBRTC-LICENSE.txt','Resources/WEBRTC-LICENSE.txt')]:shutil.copy2(REPO/src,app/'Contents'/dst)
+- meta=plistlib.loads((REPO/'packaging/Info.plist').read_bytes());meta.update(CFBundleIdentifier='app.saytile.mac.mandarin-candidate',CFBundleDisplayName='Saytile 中文识别候选',CFBundleShortVersionString='0.17',CFBundleVersion=output('git','-C',REPO,'rev-list','--count','HEAD'),SaytileReleaseVersion='0.17',SaytileSourceRevision=a.source,SaytileSourceDirty=False)
+- require(int(meta['CFBundleVersion'])>484,'New candidate build must advance')
++ meta=plistlib.loads((REPO/'packaging/Info.plist').read_bytes());meta.update(CFBundleIdentifier='app.saytile.mac.mandarin-candidate',CFBundleDisplayName='Saytile 中文识别候选',CFBundleShortVersionString='0.18',CFBundleVersion=output('git','-C',REPO,'rev-list','--count','HEAD'),SaytileReleaseVersion='0.18',SaytileSourceRevision=a.source,SaytileSourceDirty=False)
++ require(int(meta['CFBundleVersion'])>488,'New candidate build must advance')
+  (app/'Contents/Info.plist').write_bytes(plistlib.dumps(meta,sort_keys=False))
++ # Configure only after assigning the final candidate identity, always before signing.
++ shutil.copy2(REPO/'packaging/update-channels.json',app/'Contents/Resources/UpdateChannels.json')
++ run('python3',REPO/'scripts/configure-update-feed.py',app/'Contents/Info.plist')
++ update_configuration=verify_update_configuration(app,REPO/'packaging/update-channels.json')
+  run('codesign','--force','--options','runtime','--timestamp','--entitlements',REPO/'distribution/audio-input.plist','--sign',IDENTITY,app)
+  run('codesign','--verify','--deep','--strict',app)
+  require(runtime(app)==runtime_before,'A frozen runtime byte changed during packaging')
+  require(digest(app/'Contents/Helpers/SaytileModelWorker')==WORKER,'Frozen worker was re-signed or replaced')
+  (payload/'Applications').symlink_to('/Applications')
+- (payload/'安装与使用.txt').write_text('Saytile 0.17 隔离候选\n本文件是工程候选，不是正式发布。与现有中文识别候选使用相同独立 Bundle ID；不要与其他版本同时运行。\n本次改进自然段复制与档案编辑交互，ASR 运行库逐字节沿用已验证的 0.15 (484)。\n需签名、升级/回退与原生验证完成后再由工程执行安装。未公证，不要求关闭 Gatekeeper。\n',encoding='utf-8')
+- dmg=stage/'Saytile-0.17-mandarin-arm64.dmg'
+- run('hdiutil','create','-volname','Saytile 0.17','-srcfolder',payload,'-format','UDZO',dmg)
++ (payload/'安装与使用.txt').write_text('Saytile 0.18 隔离候选\n本文件是工程候选，不是正式发布。与现有中文识别候选使用相同独立 Bundle ID；不要与其他版本同时运行。\n本次接入应用内更新；ASR 运行库逐字节沿用已验证的 0.15 (484)。\n需签名、升级/回退与原生验证完成后再由工程执行安装。未公证，不要求关闭 Gatekeeper。\n',encoding='utf-8')
++ dmg=stage/'Saytile-0.18-mandarin-arm64.dmg'
++ run('hdiutil','create','-volname','Saytile 0.18','-srcfolder',payload,'-format','UDZO',dmg)
+  run('codesign','--force','--timestamp','--sign',IDENTITY,dmg);run('codesign','--verify','--strict',dmg);run('hdiutil','verify',dmg)
+  run('/bin/bash',TOOLS/'stage-image.sh',dmg,a.source,stage/'installed')
+  staged=stage/'installed'/BUNDLE
+  require(runtime(staged)==runtime_before,'DMG extraction changed runtime')
+  run('python3',TOOLS/'validate-image.py',staged,dmg,stage/'package.json')
+- new=json.loads((stage/'package.json').read_text());require(new['worker_sha256']==WORKER and new['version']=='0.17' and new['source']==a.source,'Final identity mismatch')
++ new=json.loads((stage/'package.json').read_text());require(new['worker_sha256']==WORKER and new['version']=='0.18' and new['source']==a.source,'Final identity mismatch')
+  source(a.source)
+- (stage/'packaging-scope.json').write_text(json.dumps(dict(source=a.source,baseline_source=BASE,version='0.17',runtime_bytes_identical=True,asr_recompiled=False,installed_app_read=False,production_app_read=False,private_data_read=False,installed=False,notarized=False),indent=2)+'\n')
++ (stage/'packaging-scope.json').write_text(json.dumps(dict(source=a.source,baseline_source=BASE,version='0.18',runtime_original_source=RUNTIME_SOURCE,runtime_bytes_identical=True,asr_recompiled=False,update_configuration=update_configuration,installed_app_read=False,production_app_read=False,private_data_read=False,installed=False,notarized=False),indent=2)+'\n')
+  print(stage)
+ if __name__=='__main__':main()
+--- 017/rollback.py
++++ 018/rollback.py
+@@ -1,14 +1,14 @@
+ #!/usr/bin/env python3
+-"""Exercise 484 -> 0.17 -> 484 -> 0.17 with generated data and additive schema-6 metadata only."""
++"""Exercise 488 -> 0.18 -> 488 -> 0.18 with generated data and additive schema-6 metadata only."""
+ from pathlib import Path
+ import argparse,hashlib,importlib.util,json,plistlib,re,shutil,sqlite3,subprocess as sp,tempfile
+-ROOT=Path('/private/tmp/saytile-paragraph-copy')
+-BASE='ab8545507c79640ec3f419e33467a0263c154844'
++ROOT=Path('/private/tmp/saytile-in-app-updates')
++BASE='58bc8f96f79942881d1ae3221fd6219635833907'
+ WORKER='9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e'
+ NAME='Saytile 中文识别候选.app'
+ PROBE=Path('/private/tmp/saytile-011-frozen-process/probe')
+ PROBE_SHA='bd2c057e228cd8f1f2285fe6526a0860a7398f114a6a7b0ee23b93e19fe68f68'
+-OLD_EXE='a88118dc0a9b04f794b9ebdde0bbdede642e8a9b2b2c1b7f5cef93ea6bd2799d'
++OLD_EXE='2132615cba4f9929be84feda8b12513e9f645944d8dc4b91f589bf3840f0767f'
+ def digest(p):
+  with p.open('rb')as f:return hashlib.file_digest(f,'sha256').hexdigest()
+ def meta(app):return plistlib.loads((app/'Contents/Info.plist').read_bytes())
+@@ -36,20 +36,20 @@
+  frozen=sp.run(['git','-C',ROOT,'show',a.source+':scripts/mandarin/check-app-rollback.py'],check=True,capture_output=True).stdout
+  assert driver.read_bytes()==frozen,'Shared migration primitives changed since selected source'
+  spec=importlib.util.spec_from_file_location('source_bound_rollback',driver);common=importlib.util.module_from_spec(spec);spec.loader.exec_module(common)
+- stage=Path('/private/tmp/saytile-paragraph-copy-release-'+a.source[:8]);package=json.loads((stage/'package.json').read_text())
+- assert package['source']==a.source and package['version']=='0.17' and package['worker_sha256']==WORKER
+- old=stage/'baseline484'/NAME;new=stage/'installed'/NAME
+- assert meta(old)['SaytileSourceRevision']==BASE and meta(old)['CFBundleVersion']=='484'
+- assert meta(new)['SaytileSourceRevision']==a.source and meta(new)['CFBundleShortVersionString']=='0.17'
++ stage=Path('/private/tmp/saytile-in-app-update-release-'+a.source[:8]);package=json.loads((stage/'package.json').read_text())
++ assert package['source']==a.source and package['version']=='0.18' and package['worker_sha256']==WORKER
++ old=stage/'baseline488'/NAME;new=stage/'installed'/NAME
++ assert meta(old)['SaytileSourceRevision']==BASE and meta(old)['CFBundleVersion']=='488'
++ assert meta(new)['SaytileSourceRevision']==a.source and meta(new)['CFBundleShortVersionString']=='0.18'
+  assert all(meta(app)['CFBundleIdentifier']=='app.saytile.mac.mandarin-candidate' and meta(app)['SaytileSourceDirty'] is False for app in(old,new))
+- assert int(meta(new)['CFBundleVersion'])>484
++ assert int(meta(new)['CFBundleVersion'])>488
+  assert digest(PROBE)==PROBE_SHA and not PROBE.is_symlink()
+  assert all(digest(app/'Contents/Helpers/SaytileModelWorker')==WORKER for app in(old,new))
+  assert digest(old/'Contents/MacOS/Saytile')==OLD_EXE and digest(new/'Contents/MacOS/Saytile')==package['app_executable_sha256']
+  for app in(old,new):sp.run(['codesign','--verify','--deep','--strict',app],check=True)
+  out=stage/'rollback.json';assert not out.exists(),'Do not replace prior evidence'
+  identities=[common.binary_info(app)for app in(old,new)]
+- with tempfile.TemporaryDirectory(prefix='saytile-017-rollback-')as folder:
++ with tempfile.TemporaryDirectory(prefix='saytile-018-rollback-')as folder:
+   tmp=Path(folder).resolve();apps=[];profiles=[]
+   for index,app in enumerate((old,new)):
+    dest=tmp/str(index);dest.mkdir();apps.append(dest/app.name)
+@@ -62,7 +62,7 @@
+   shutil.copytree(archive,upgrade);shutil.copytree(archive,custom)
+   common.open_fixture(apps[1],fresh,0);common.snapshot(fresh,0);fresh_state=sidecar(fresh,0,True)
+   assert fresh_state['idle_seconds']==60
+-  # 484 already owns the natural-paragraph sidecar; 0.17 must preserve it.
++  # 488 already owns the natural-paragraph sidecar; 0.18 must preserve it.
+   steps=[]
+   for label,app in(('old',apps[0]),('candidate',apps[1]),('old_reopened',apps[0]),('candidate_reopened',apps[1])):
+    common.open_fixture(app,upgrade,2);state=common.snapshot(upgrade,2);assert state==initial,label
+--- 017/update_contract.py
++++ 018/update_contract.py
+@@ -0,0 +1,57 @@
++"""Read-only contract for this 0.18 Mandarin candidate's signed update configuration."""
++import base64
++import hashlib
++import json
++import plistlib
++from pathlib import Path
++
++BUNDLE = 'app.saytile.mac.mandarin-candidate'
++PUBLIC_KEY = 'yVPpMoHz8/6GJ82Becd+jgoKvCww+9h2v2Vs6xZu/iw='
++FEED_ROOT = 'https://raw.githubusercontent.com/haohongfei2001-png/saytile/codex/update-feed/'
++CHANNELS = {'app.saytile.mac': 'standard', BUNDLE: 'mandarin'}
++FLAGS = dict(SURequireSignedFeed=True, SUVerifyUpdateBeforeExtraction=True,
++             SUEnableAutomaticChecks=True, SUAutomaticallyUpdate=False,
++             SUAllowsAutomaticUpdates=False, SUEnableSystemProfiling=False,
++             SUSendProfileInfo=False)
++INTERVALS = dict(SUSignedFeedFailureExpirationInterval=0, SUScheduledCheckInterval=86400)
++
++
++def require(condition, message):
++    if not condition:
++        raise RuntimeError(message)
++
++
++def unique(pairs):
++    result = {}
++    for key, value in pairs:
++        require(key not in result, 'Duplicate update configuration key')
++        result[key] = value
++    return result
++
++
++def verify_update_configuration(app, source_config=None):
++    app = Path(app)
++    resource = app / 'Contents/Resources/UpdateChannels.json'
++    require(resource.is_file() and not resource.is_symlink(), 'Missing signed channel provenance')
++    raw = resource.read_bytes()
++    if source_config is not None:
++        require(raw == Path(source_config).read_bytes(), 'Packaged channel file differs from source')
++    config = json.loads(raw, object_pairs_hook=unique)
++    require(set(config) == {'schemaVersion', 'channels'} and type(config['schemaVersion']) is int
++            and config['schemaVersion'] == 1, 'Wrong channel schema')
++    expected = {bundle: dict(channel=channel, feedURL=FEED_ROOT + channel + '/appcast.xml',
++                            publicEDKey=PUBLIC_KEY) for bundle, channel in CHANNELS.items()}
++    require(config['channels'] == expected, 'Unexpected release channel, endpoint or public key')
++    public = base64.b64decode(PUBLIC_KEY, validate=True)
++    require(len(public) == 32 and base64.b64encode(public).decode() == PUBLIC_KEY, 'Wrong public key format')
++    info = plistlib.loads((app / 'Contents/Info.plist').read_bytes())
++    require(info['CFBundleIdentifier'] == info.get('SaytileUpdateBundleIdentifier') == BUNDLE
++            and info.get('SaytileUpdateChannel') == 'mandarin', 'Update channel crosses app profiles')
++    require(info.get('SUFeedURL') == expected[BUNDLE]['feedURL']
++            and info.get('SUPublicEDKey') == PUBLIC_KEY, 'Unexpected signed feed or key')
++    require(all(info.get(key) is value for key, value in FLAGS.items()), 'Unsafe update or privacy flags')
++    require(all(type(info.get(key)) is int and info[key] == value for key, value in INTERVALS.items()),
++            'Unsafe feed signature expiry or scheduled check interval')
++    return dict(bundle=BUNDLE, channel='mandarin', feed_url=info['SUFeedURL'],
++                public_key_sha256=hashlib.sha256(public).hexdigest(), flags=FLAGS, intervals_seconds=INTERVALS,
++                source_configuration_sha256=hashlib.sha256(raw).hexdigest())
+--- 017/validate-image.py
++++ 018/validate-image.py
+@@ -1,5 +1,6 @@
+ import subprocess, plistlib, sys, json, hashlib, os
+ from pathlib import Path
++from update_contract import verify_update_configuration
+ app, image, out = map(Path, sys.argv[1:])
+ def run(*args):
+     r=subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=90)
+@@ -7,6 +8,7 @@
+ def digest(path):
+     with path.open('rb') as f: return hashlib.file_digest(f,'sha256').hexdigest()
+ info=plistlib.loads((app/'Contents/Info.plist').read_bytes())
++update_configuration=verify_update_configuration(app)
+ verify_code,verify=run('codesign','--verify','--deep','--strict',str(app))
+ dcode,dresult=run('codesign','--verify','--strict',str(image))
+ rcode,display=run('codesign','-dv','--verbose=4',str(app))
+@@ -21,5 +23,5 @@
+             worker_sha256=digest(app/'Contents/Helpers/SaytileModelWorker'),dmg_bytes=image.stat().st_size,dmg_sha256=digest(image),
+             codesign_app='PASS',codesign_image='PASS',signing=signed_info,model_weights_in_bundle=weights,
+             gatekeeper_exit=acode,gatekeeper_result=gate.replace(str(app),'Saytile 中文识别候选.app'),
+-            notarization_submitted=False, production_replaced=False)
++            notarization_submitted=False, production_replaced=False, update_configuration=update_configuration)
+ out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n'); print(json.dumps(result,ensure_ascii=False))
