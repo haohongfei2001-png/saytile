@@ -1,0 +1,59 @@
+{
+  "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+  "job_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43543640613/job/132289684385",
+  "job_conclusion": "success",
+  "batch_outcome": "FOREGROUND_BATCH_COMPLETE checks=10 failures=0; production frontmost resolver + fixture PID guard; not a third-party browser claim",
+  "assertions": [
+    "PASS web real foreground insertion and local confirmation",
+    "PASS web duplicate stable range suppressed",
+    "PASS web UTF16 suffix preserves surrounding text",
+    "PASS web target mutation rejects stale insertion",
+    "PASS web no Return or send",
+    "PASS foreground WKWebView longer exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView shorter exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView manualEdit exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView blur exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView restart exact DOM, intact prefix/suffix, zero sends",
+    "PASS foreground WKWebView silentContext cancelled after reservation; zero writes, original DOM and caret, zero sends",
+    "PASS foreground WKWebView holdAX cancelled after reservation; zero writes, original DOM and caret, zero sends",
+    "PASS native real foreground insertion and local confirmation",
+    "PASS native duplicate stable range suppressed",
+    "PASS native UTF16 suffix preserves surrounding text",
+    "PASS native target mutation rejects stale insertion",
+    "PASS native no Return or send",
+    "PASS foreground native ignored-write no replay, no wrong window, zero sends",
+    "PASS foreground native manual-edit no replay, no wrong window, zero sends",
+    "PASS foreground native cancel no replay, no wrong window, zero sends",
+    "PASS foreground native other-window no replay, no wrong window, zero sends"
+  ],
+  "hosted_editors": {
+    "chrome": {
+      "results": [
+        "OWNED_RESULT first confirmed AX_exact true writes 1",
+        "OWNED_RESULT append confirmed writes 2"
+      ],
+      "dom_safety": [
+        "OWNED_DOM bind exact 1 caret 7 end 7 otherFocused 0 enter=0 submits=0",
+        "OWNED_DOM append exact 1 caret 15 end 15 otherFocused 0 enter=0 submits=0",
+        "OWNED_DOM before-manual-edit exact 1 caret 16 end 16 otherFocused 0 enter=0 submits=0",
+        "OWNED_DOM manual-edit exact 1 caret 16 end 16 otherFocused 0 enter=0 submits=0",
+        "OWNED_DOM cancel exact 1 caret 16 end 16 otherFocused 0 enter=0 submits=0",
+        "OWNED_DOM switch-target exact 1 caret 16 end 16 otherFocused 1 enter=0 submits=0"
+      ],
+      "outcome": "PASS_CHROME foreground selected by WindowServer; Unicode insertion, prefix/suffix, deduplication, append and target mutation confirmed"
+    },
+    "textedit": {
+      "results": [
+        "OWNED_RESULT first confirmed AX_exact true writes 1",
+        "OWNED_RESULT append confirmed writes 2"
+      ],
+      "dom_safety": [],
+      "outcome": "PASS_TEXTEDIT foreground selected by WindowServer; Unicode insertion, prefix/suffix, deduplication, append and target mutation confirmed"
+    }
+  },
+  "receipt_sha256": {
+    "chrome.log": "cf9bbba09d36bb347e8e967b25f85f1600f17229662e65d98ebe44a8e9f5c995",
+    "input-foreground-batch.log": "7d763754ac1e07b676ae9416fe81554f54ddad5579a92e40030a6e4c4a69023c",
+    "textedit.log": "4db8194956fa2b2a12ff2745e905c59d171847980ec6aa3b0619fbb86454c149"
+  }
+}

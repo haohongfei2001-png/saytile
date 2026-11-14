@@ -1,0 +1,76 @@
+{
+  "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+  "workflows_first_attempt": [
+    1
+  ],
+  "ci_jobs": {
+    "native": {
+      "status": "success",
+      "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/43543640613/job/132289684172"
+    },
+    "foreground": {
+      "status": "success",
+      "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/43543640613/job/132289684385"
+    },
+    "data-and-prototype": {
+      "status": "success",
+      "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/43543640599/job/132289684243"
+    },
+    "gateway": {
+      "status": "success",
+      "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/43543640625/job/132289684328"
+    },
+    "native-gateway": {
+      "status": "success",
+      "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/43543640625/job/132289684505"
+    }
+  },
+  "swift": {
+    "passed": 489,
+    "failed": 0,
+    "batches": [
+      {
+        "tests": 4,
+        "suites": 2,
+        "seconds": 1.032
+      },
+      {
+        "tests": 13,
+        "suites": 1,
+        "seconds": 56.801
+      },
+      {
+        "tests": 12,
+        "suites": 1,
+        "seconds": 9.185
+      },
+      {
+        "tests": 460,
+        "suites": 57,
+        "seconds": 6.509
+      }
+    ]
+  },
+  "appmodel": {
+    "passed": 162,
+    "failed": 0
+  },
+  "foreground": {
+    "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+    "batch": "FOREGROUND_BATCH_COMPLETE checks=10 failures=0; production frontmost resolver + fixture PID guard; not a third-party browser claim",
+    "named_passes": 21,
+    "receipt": "foreground.json",
+    "chrome_enter_and_submit_zero": true
+  },
+  "native_timeline": {
+    "synthetic_recordings": 12000,
+    "passed": true
+  },
+  "actual_mic_test": "NOT_RUN on hosted CI",
+  "physical_sleep": "BLOCKED",
+  "ui_window_receipt": "30 ordinary + 3 approved-reference window captures, no microphone or activation. The render job did not exercise remote AX panel control actions.",
+  "native_log": {
+    "file": "native-job.log",
+    "sha256": "cf0a95f0d4259a448eec76de2095daeb63ea8af4eec82692298010cb4bb8e4dd"
+  }
+}

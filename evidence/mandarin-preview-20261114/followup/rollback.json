@@ -1,0 +1,93 @@
+{
+  "status": "PASS",
+  "identities": [
+    {
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "source": "ff8f8a014bd6b554a5703971a1139d94da155a6c",
+      "version": "0.13",
+      "build": "466",
+      "executable_sha256": "850c3db9b7eec47278fe80953e76f34b3eb7ec59566df751330e5a9a4323ce38"
+    },
+    {
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+      "version": "0.13",
+      "build": "474",
+      "executable_sha256": "57bf030609c2b1ebecda8c21f15a02ab1295956ab6b481871b9f403daa06de6e"
+    }
+  ],
+  "app_storage_profiles": [
+    {
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "archive": "Saytile Mandarin Candidate",
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1",
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1"
+    },
+    {
+      "archive": "Saytile Mandarin Candidate",
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1",
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1"
+    }
+  ],
+  "fixture": {
+    "schema": 6,
+    "table_sha256": "987b7e917abaffccbc6b56ba168a24d3c4e25448de9cf5a08e87a3c5e786ade5",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "5940120C-8C7B-4349-9B16-ECFE9D00F1A5/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "8B57A00C-EDB2-430E-BF0E-E86980C2FC9A/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "69821E3C-8DBA-4A6F-939F-0839D9281EFF",
+      "D2AF6976-7AA8-49BE-BEAA-28CC8BD50205"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0
+  },
+  "steps": [
+    {
+      "step": "old",
+      "records": 2,
+      "logical_tables_sha256": "987b7e917abaffccbc6b56ba168a24d3c4e25448de9cf5a08e87a3c5e786ade5",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ]
+    },
+    {
+      "step": "candidate",
+      "records": 2,
+      "logical_tables_sha256": "987b7e917abaffccbc6b56ba168a24d3c4e25448de9cf5a08e87a3c5e786ade5",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ]
+    },
+    {
+      "step": "old_reopened",
+      "records": 2,
+      "logical_tables_sha256": "987b7e917abaffccbc6b56ba168a24d3c4e25448de9cf5a08e87a3c5e786ade5",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ]
+    }
+  ],
+  "network": "denied to all smoke and probe processes",
+  "launch": "explicit diagnostic directory, no capture or inference",
+  "keychain": "service names evaluated from the two exact sources using each signed bundle's identity; no secret inspected",
+  "empty_candidate_records": 0,
+  "original_fixture_unchanged": true,
+  "installed_binaries_unchanged": true
+}

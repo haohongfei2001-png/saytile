@@ -1,0 +1,338 @@
+{
+  "source": "0dc6ed70e873ec41da3b1dd24f47350a91211a43",
+  "clips": 3,
+  "reference_checked_clips": 2,
+  "summary": {
+    "timeline": {
+      "fresh_gaps_s": {
+        "p50": 0.521,
+        "p95": 1.29
+      },
+      "previous_event_gaps_s": {
+        "p50": 0.521,
+        "p95": 1.29
+      },
+      "longest_per_clip_s": {
+        "p50": 1.701,
+        "p95": 2.012
+      },
+      "first_s": {
+        "p50": 0.786,
+        "p95": 0.963
+      },
+      "clips_with_repeated_updates": 3,
+      "number_of_gaps_at_least_2s": 1
+    },
+    "display": {
+      "fresh_gaps_s": {
+        "p50": 0.404,
+        "p95": 1.033
+      },
+      "previous_event_gaps_s": {
+        "p50": 0.404,
+        "p95": 1.033
+      },
+      "longest_per_clip_s": {
+        "p50": 1.698,
+        "p95": 1.992
+      },
+      "first_s": {
+        "p50": 0.808,
+        "p95": 0.998
+      },
+      "clips_with_repeated_updates": 3,
+      "number_of_gaps_at_least_2s": 0
+    },
+    "worker": {
+      "fresh_gaps_s": {
+        "p50": 0.521,
+        "p95": 1.046
+      },
+      "previous_event_gaps_s": {
+        "p50": 0.521,
+        "p95": 1.043
+      },
+      "longest_per_clip_s": {
+        "p50": 1.533,
+        "p95": 1.605
+      },
+      "first_s": {
+        "p50": 0.777,
+        "p95": 0.958
+      },
+      "clips_with_repeated_updates": 3,
+      "number_of_gaps_at_least_2s": 0
+    }
+  },
+  "rows": [
+    {
+      "id": "fleurs-f8646a257c0c4273",
+      "sha256": "c68868cfa82bd8c0ebcf691ce38d9860ae95aa803b3e846c2f552fb82e997829",
+      "onset": 3.58,
+      "end": 23.16,
+      "reference_available": true,
+      "final_CER": {
+        "errors": 5,
+        "substitutions": 5,
+        "deletions": 0,
+        "insertions": 0,
+        "reference_units": 92
+      },
+      "matches_final_window": true,
+      "records": [
+        "completed"
+      ],
+      "after_file_s": 0.139,
+      "after_last_signal_s": 2.721,
+      "timeline": {
+        "count": 23,
+        "first_s": 0.786,
+        "gap_s": {
+          "p50": 0.528,
+          "p95": 1.538
+        },
+        "longest_s": 2.012,
+        "longest_start_end_s": [
+          13.534,
+          15.546
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.41,
+        "raw_outputs_inside_longest": 2,
+        "timeline_outputs_inside_longest": 0,
+        "above_two_seconds": 1
+      },
+      "display": {
+        "count": 41,
+        "first_s": 0.808,
+        "gap_s": {
+          "p50": 0.437,
+          "p95": 1.518
+        },
+        "longest_s": 1.992,
+        "longest_start_end_s": [
+          13.559,
+          15.551
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.42,
+        "raw_outputs_inside_longest": 2,
+        "timeline_outputs_inside_longest": 1,
+        "above_two_seconds": 0
+      },
+      "worker": {
+        "count": 25,
+        "first_s": 0.777,
+        "gap_s": {
+          "p50": 0.525,
+          "p95": 1.513
+        },
+        "longest_s": 1.533,
+        "longest_start_end_s": [
+          15.543,
+          17.076
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.558,
+        "raw_outputs_inside_longest": 2,
+        "timeline_outputs_inside_longest": 3,
+        "above_two_seconds": 0
+      },
+      "decode": {
+        "previews": 43,
+        "final_decodes": 1,
+        "preview_compute_s": {
+          "p50": 0.254,
+          "p95": 0.518
+        },
+        "preview_compute_sum_s": 11.7767,
+        "preview_start_intervals_s": {
+          "p50": 0.504,
+          "p95": 0.518
+        },
+        "previews_finishing_during_longest_timeline_gap": 4
+      }
+    },
+    {
+      "id": "continuous-public-5",
+      "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "onset": 0.0,
+      "end": 38.8,
+      "reference_available": true,
+      "final_CER": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      },
+      "matches_final_window": true,
+      "records": [
+        "completed",
+        "completed"
+      ],
+      "after_file_s": 0.305,
+      "after_last_signal_s": 0.307,
+      "timeline": {
+        "count": 59,
+        "first_s": 0.963,
+        "gap_s": {
+          "p50": 0.521,
+          "p95": 1.29
+        },
+        "longest_s": 1.681,
+        "longest_start_end_s": [
+          22.819,
+          24.5
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.786,
+        "raw_outputs_inside_longest": 3,
+        "timeline_outputs_inside_longest": 1,
+        "above_two_seconds": 0
+      },
+      "display": {
+        "count": 99,
+        "first_s": 0.998,
+        "gap_s": {
+          "p50": 0.44,
+          "p95": 1.075
+        },
+        "longest_s": 1.698,
+        "longest_start_end_s": [
+          22.825,
+          24.523
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.788,
+        "raw_outputs_inside_longest": 3,
+        "timeline_outputs_inside_longest": 2,
+        "above_two_seconds": 0
+      },
+      "worker": {
+        "count": 62,
+        "first_s": 0.958,
+        "gap_s": {
+          "p50": 0.523,
+          "p95": 1.034
+        },
+        "longest_s": 1.605,
+        "longest_start_end_s": [
+          22.35,
+          23.955
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.525,
+        "raw_outputs_inside_longest": 2,
+        "timeline_outputs_inside_longest": 2,
+        "above_two_seconds": 0
+      },
+      "decode": {
+        "previews": 73,
+        "final_decodes": 2,
+        "preview_compute_s": {
+          "p50": 0.252,
+          "p95": 0.656
+        },
+        "preview_compute_sum_s": 22.1054,
+        "preview_start_intervals_s": {
+          "p50": 0.506,
+          "p95": 0.656
+        },
+        "previews_finishing_during_longest_timeline_gap": 3
+      }
+    },
+    {
+      "id": "trailing-quiet-481280",
+      "sha256": "44f64214de1cdd8e71b16ce87d29376065c7f35520a8533e87f019c72defe7af",
+      "onset": 1.5,
+      "end": 31.52,
+      "reference_available": false,
+      "final_CER": null,
+      "matches_final_window": true,
+      "records": [
+        "completed"
+      ],
+      "after_file_s": 0.018,
+      "after_last_signal_s": 3.08,
+      "timeline": {
+        "count": 50,
+        "first_s": 0.742,
+        "gap_s": {
+          "p50": 0.517,
+          "p95": 1.038
+        },
+        "longest_s": 1.701,
+        "longest_start_end_s": [
+          24.387,
+          26.088
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.753,
+        "raw_outputs_inside_longest": 3,
+        "timeline_outputs_inside_longest": 1,
+        "above_two_seconds": 0
+      },
+      "display": {
+        "count": 101,
+        "first_s": 0.801,
+        "gap_s": {
+          "p50": 0.038,
+          "p95": 0.626
+        },
+        "longest_s": 1.643,
+        "longest_start_end_s": [
+          24.453,
+          26.097
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.732,
+        "raw_outputs_inside_longest": 3,
+        "timeline_outputs_inside_longest": 2,
+        "above_two_seconds": 0
+      },
+      "worker": {
+        "count": 51,
+        "first_s": 0.738,
+        "gap_s": {
+          "p50": 0.517,
+          "p95": 1.039
+        },
+        "longest_s": 1.147,
+        "longest_start_end_s": [
+          24.384,
+          25.531
+        ],
+        "longest_position": "interior",
+        "longest_input_above_minus55_fraction": 0.707,
+        "raw_outputs_inside_longest": 1,
+        "timeline_outputs_inside_longest": 2,
+        "above_two_seconds": 0
+      },
+      "decode": {
+        "previews": 60,
+        "final_decodes": 1,
+        "preview_compute_s": {
+          "p50": 0.353,
+          "p95": 0.708
+        },
+        "preview_compute_sum_s": 21.7926,
+        "preview_start_intervals_s": {
+          "p50": 0.505,
+          "p95": 0.709
+        },
+        "previews_finishing_during_longest_timeline_gap": 3
+      }
+    }
+  ],
+  "matched_bigram_delay_s": {
+    "worker_to_timeline": {
+      "p50": 0.003,
+      "p95": 0.523
+    },
+    "timeline_to_display": {
+      "p50": 0.031,
+      "p95": 0.1
+    }
+  }
+}

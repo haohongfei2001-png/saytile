@@ -1,0 +1,84 @@
+Building for production...
+[Starting]
+[2 / 61]
+[21 / 63] CAudio
+[34 / 63] CAudio
+[52 / 63] CAudio
+[53 / 63] CAudio
+/private/tmp/saytile-preview-013/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[54 / 63] SaytileVoiceUI
+[57 / 65] SaytileVoiceUI
+/private/tmp/saytile-preview-013/Package.swift: SaytileVoiceUI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/private/tmp/saytile-preview-013/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+[63 / 67] SaytileKit
+/private/tmp/saytile-preview-013/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[70 / 73] Saytile-product
+/private/tmp/saytile-preview-013/Sources/SaytileApp/AppModel.swift:839:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 831 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+ 832 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+ 833 |         connectionCheckTask = Task {
+     |                                    |- note: 'self' implicitly strongly captured here
+     |                                    `- note: add 'self' as a capture list item to silence
+ 834 |             // A cancelled older check must fully close its sockets before another starts.
+ 835 |             await previous?.value
+     :
+ 837 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+ 838 |             do {
+ 839 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongC[71 / 74] Saytile-product
+apture]
+     |                                                                                         `- note: explicitly assign the capture list item to silence
+ 840 |                     Task { @MainActor [weak self] in
+ 841 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+/private/tmp/saytile-preview-013/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-preview-013/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[73 / 74] Saytile-product
+[74 / 74] Saytile-product
+Build complete! (44.96秒)
+[0/1] Planning build
+Building for production...
+[0/2] Write swift-version--1AB21518FC5DEDBE.txt
+Build of product 'SaytileModelWorker' complete! (2.42s)
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+/tmp/saytile-bundle.YjSfxv/Saytile.app/Contents/Frameworks/libonnxruntime.dylib: replacing existing signature
+/tmp/saytile-bundle.YjSfxv/Saytile.app/Contents/Frameworks/libsherpa-onnx-c-api.dylib: replacing existing signature
+/tmp/saytile-bundle.YjSfxv/Saytile.app/Contents/Helpers/SaytileSherpa: replacing existing signature
+/tmp/saytile-bundle.YjSfxv/Saytile.app/Contents/Helpers/SaytileModelWorker: replacing existing signature
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+/tmp/saytile-bundle.YjSfxv/Saytile.app: replacing existing signature
+/tmp/saytile-bundle.YjSfxv/Saytile.app/Contents/Info.plist: OK
+Built /tmp/saytile-package.MzPDPF/Saytile 中文识别候选.app
+/tmp/saytile-package.MzPDPF/Saytile 中文识别候选.app/Contents/Frameworks/libonnxruntime.dylib: replacing existing signature
+/tmp/saytile-package.MzPDPF/Saytile 中文识别候选.app/Contents/Frameworks/libsherpa-onnx-c-api.dylib: replacing existing signature
+/tmp/saytile-package.MzPDPF/Saytile 中文识别候选.app/Contents/Helpers/SaytileSherpa: replacing existing signature
+/tmp/saytile-package.MzPDPF/Saytile 中文识别候选.app/Contents/Helpers/SaytileModelWorker: replacing existing signature
+/tmp/saytile-package.MzPDPF/Saytile 中文识别候选.app/Contents/Frameworks/Sparkle.framework: replacing existing signature
+/tmp/saytile-package.MzPDPF/Saytile 中文识别候选.app: replacing existing signature
+created: /private/tmp/saytile-preview-release-0dc6ed70/.saytile-image.wZk7Cl/candidate.dmghdiutil: WARNING: 'hdiutil create -volname -format ...' is deprecated. Please use 'diskutil image create from/blank --volumeName --format ...' instead.
+
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $1677C444
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $D3F3DB0C
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $C965DE1E
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $AC7DD17E
+正在检查“GPT Partition Data（Backup GPT Table：5）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $C965DE1E
+正在检查“GPT Header（Backup GPT Header：6）”的校验和…
+     GPT Header（Backup GPT Header：6）：已验证CRC32 $FFC20646
+已验证CRC32 $D4256AC4
+hdiutil: verify: checksum of "/private/tmp/saytile-preview-release-0dc6ed70/.saytile-image.wZk7Cl/candidate.dmg" is VALID
+Packaged /private/tmp/saytile-preview-release-0dc6ed70/Saytile-0.13-mandarin-arm64.dmg
