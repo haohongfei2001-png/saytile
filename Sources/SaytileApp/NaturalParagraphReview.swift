@@ -90,8 +90,11 @@ extension AppDelegate {
             throw ReviewFailure("archive paragraph aggregation differs from the panel")
         }
         var archiveInventory: [String] = []
+        // The timeline prefix keeps this owned nonactivating window drawable
+        // offscreen. macOS may remove an alpha-zero window from AXWindows during
+        // the playback wait, leaving the independent stop-button probe no tree.
         try await reviewValidatedWindow(SettingsView(model: model, initialPage: .archive), size: .init(width: 1000, height: 760),
-            name: "natural-archive", output: output, validation: { host in
+            name: "timeline-natural-archive", output: output, validation: { host in
                 try await self.reviewUntil { host.layoutSubtreeIfNeeded(); return self.naturalEditors(in: host).count == 3 }
                 let editors = self.naturalEditors(in: host)
                 guard Set(editors.compactMap { $0.accessibilityIdentifier() }) == Set(paragraphs.map { "archive.text.\($0.anchorID)" }) else {
