@@ -1,0 +1,11 @@
+# 0.16 response work — checkpoint
+
+Product branch `codex/asr-response-016`, Draft PR #42, source `d0b2d87320fd4145fbaea756690066bca3718bab`, build 486. Baseline installed 484 source `ab8545507c79640ec3f419e33467a0263c154844`. Product worktree `/private/tmp/saytile-asr-response`; this branch stores receipts only.
+
+Confirmed publisher/worker contract bug fixed: genuine identical decodes of additional PCM were dropped before a two-observation revision gate. New publisher frame guards prevent duplicate deliveries acting as new evidence; already visible words do not add Store revisions. Model math, scalar final, VAD, audio persistence and external dispatch remain unchanged.
+
+31 related Swift tests / 34 parameter cases passed; improved existing VAD test 5/5 passed; new stop-response scorer 5/5 passed. First baseline15+3 is diagnostic only because it overlapped compilation, retained separately. Clean original-rate per-clip AB/BA 15+3 and four sequential CPU runs are currently running under `/private/tmp/saytile-response-bench/clean-paired486`. No improvement claim until completion. Prior70trace replay found zero measured gains from this narrow fix; record it as a reliability fix if current native data also shows none.
+
+Next: finish current clean paired run (agent asr_benchmark_setup). A bounded 75/50 frame endpoint experiment remains prepared, not applied: `/private/tmp/asr-qwen-endpoint50.patch`; actual VAD corpus harness being prepared. Never run it alongside current timing tests. Existing1.1s fixture was strengthened because original first tone never triggered VAD; both75/50pass improvedfixture. Do not lower productthreshold without actual corpus/context quality proof. Cache-retention and alternate EOS decoding had prior unsuccessful experiments; do not repeat them.
+
+Signed candidate `/private/tmp/saytile-response-final/Saytile 中文识别候选.app`, Developer ID / hardened runtime. Old temporary485DMG is not final and must not be delivered. Final486DMG, isolated upgrade/rollback, clean native results and full CI still pending. Installed484 and formal373 remain unchanged. MacBook microphone NOT_RUN per clamshell instruction; no cloud, paid API, private audio or user archive access.
