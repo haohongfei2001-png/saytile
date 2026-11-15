@@ -4,13 +4,13 @@ import SaytileKit
 import SaytileVoiceUI
 
 enum SettingsPage: String, CaseIterable, Identifiable {
-    case archive, appearance, speech, models, cloud, input, storage, about
+    case archive, appearance, speech, models, cloud, input, storage, feedback, about
     var id: Self { self }
     var title: String { switch self {
-    case .archive: "语音档案"; case .appearance: "语音板外观"; case .speech: "麦克风"; case .models: "本地模型"; case .cloud: "云端服务"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .about: "关于"
+    case .archive: "语音档案"; case .appearance: "语音板外观"; case .speech: "麦克风"; case .models: "本地模型"; case .cloud: "云端服务"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .feedback: "用户反馈"; case .about: "关于"
     } }
     var symbol: String { switch self {
-    case .archive: "tray.full"; case .appearance: "rectangle.on.rectangle"; case .speech: "mic"; case .models: "cpu"; case .cloud: "cloud"; case .input: "keyboard"; case .storage: "internaldrive"; case .about: "info.circle"
+    case .archive: "tray.full"; case .appearance: "rectangle.on.rectangle"; case .speech: "mic"; case .models: "cpu"; case .cloud: "cloud"; case .input: "keyboard"; case .storage: "internaldrive"; case .feedback: "bubble.left"; case .about: "info.circle"
     } }
 }
 
@@ -77,7 +77,7 @@ struct SettingsView: View {
                     } else {
                         Text(page.title).font(WorkspaceStyle.title).accessibilityAddTraits(.isHeader)
                             .padding(.horizontal, 24).padding(.top, compact ? 15 : 25).padding(.bottom, 6)
-                        if let notice = model.notice, page != .speech || notice != model.panelCaptureDetail {
+                        if let notice = model.notice, page != .feedback, page != .speech || notice != model.panelCaptureDetail {
                             Text(notice).font(.callout).foregroundStyle(.secondary).textSelection(.enabled)
                                 .padding(.horizontal, 24).padding(.top, 6).accessibilityIdentifier("settings.notice")
                         }
@@ -99,6 +99,7 @@ struct SettingsView: View {
         case .cloud: cloud
         case .input: input
         case .storage: storage
+        case .feedback: FeedbackSettings(model: model.feedback)
         case .about: about
         }
     }

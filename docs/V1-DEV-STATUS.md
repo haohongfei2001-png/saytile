@@ -1,3 +1,7 @@
+## 2026-11-15 · 同一0.19版本接入用户反馈
+
+继承PR46源码fe5da285的外观预设（该SHA五项CI已通过，542项Swift Testing与188项AppModel）。在持久隔离分支codex/product-feedback添加设置内用户反馈，复用Riftlet的独立SQLite发件箱、Keychain capability、确定收据和重试/撤回保护；只发送用户主动填写内容，固定product=saytile。默认不读取录音/转写/日志。共享服务需兼容新增产品字段及私有仓库分类；真实联通、最终签名包和新SHA CI尚在执行，不宣称已接通或已安装。现用0.18与正式App保持不变。
+
 ## 2026-11-15 · 外观原生验收修复
 
 第一源码803b0f9的五项CI全部PASS。真实签名设置菜单验证发现测试helper没有等菜单退出tracking，已修测试生命周期。随后small→large字号复现阅读顶端漂移1.23pt：将原点误作负inset字符偏移，现保持原本顶部y=0，6项共享外观Swift Testing全部通过。NSPanel独立最小复现证实小数帧会向外整逻辑点取整；宿主fixture改为精确比较integral帧，未放宽容差或改产品几何。最终源码签名原生/CI与0.18升级回退仍待执行，现用安装保持。
