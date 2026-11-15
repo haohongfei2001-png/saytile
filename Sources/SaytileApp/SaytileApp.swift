@@ -712,7 +712,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             checks += 1; print("APPEARANCE_HOST_PASS " + label)
         }
         func sameSize(_ a: NSRect, _ b: NSRect) -> Bool {
-            abs(a.width - b.width) <= 0.5 && abs(a.height - b.height) <= 0.5
+            a.size == b.size
         }
         guard let screen = NSScreen.screens.first else { throw NSError(domain: "NoScreen", code: 1) }
         let visible = screen.visibleFrame
@@ -724,13 +724,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         showPanel()
         guard let panel else { throw NSError(domain: "MissingPanel", code: 1) }
         print("APPEARANCE_HOST_GEOMETRY actual=\(panel.frame) expected=\(WindowPlacement.initialPanel(visibleFrame: visible, preset: .spacious)) saved=\(String(describing: savedPanelFrame())) screen=\(visible)")
-        try require(sameSize(panel.frame, WindowPlacement.initialPanel(visibleFrame: visible, preset: .spacious)), "first opening uses the saved preset")
+        // NSPanel independently rounds fractional frame requests out to whole logical
+        // points, even before it is shown. Compare the exact native rectangle.
+        try require(panel.frame == WindowPlacement.initialPanel(visibleFrame: visible, preset: .spacious).integral, "first opening uses the saved preset")
         for preset in PanelSizePreset.allCases {
             let before = panel.frame
             model.panelSizePreset = preset
             try await Task.sleep(for: .milliseconds(150))
-            let expected = WindowPlacement.resizedPanel(before, preset: preset, visibleFrame: visible)
-            try require(sameSize(panel.frame, expected) && abs(panel.frame.maxX - expected.maxX) <= 0.5 && abs(panel.frame.maxY - expected.maxY) <= 0.5,
+            let expected = WindowPlacement.resizedPanel(before, preset: preset, visibleFrame: visible).integral
+            try require(panel.frame == expected,
                         "native host applies " + preset.rawValue + " without moving its upper-right anchor")
         }
         panel.orderOut(nil)
@@ -746,7 +748,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         try require(sameSize(panel.frame, hidden), "restore-selected-size action reverses manual resizing")
         model.resetPanelAppearance()
         try await Task.sleep(for: .milliseconds(150))
-        try require(sameSize(panel.frame, WindowPlacement.initialPanel(visibleFrame: visible)), "reset restores default dimensions")
+        try require(sameSize(panel.frame, WindowPlacement.initialPanel(visibleFrame: visible).integral), "reset restores default dimensions")
         try require(!panel.isKeyWindow && !panel.isMainWindow && model.audio.state == .paused && !model.hasStarted,
                     "appearance changes do not take focus or start capture")
         print("APPEARANCE_HOST_COMPLETE \(checks)")

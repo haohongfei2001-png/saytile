@@ -494,6 +494,11 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         ensureDocumentLayout()
         transcriptView.selectedRanges = selections
         if follows { scrollToLatest() }
+        else if origin.y <= 0 {
+            // The document boundary is stable; the first line's font-dependent
+            // top inset must not turn a top-of-document view into a scroll.
+            scroll(to: NSPoint(x: origin.x, y: 0))
+        }
         else if let anchor, let manager = transcriptView.layoutManager,
                 let container = transcriptView.textContainer, !transcriptView.string.isEmpty {
             let position = min(transcriptView.string.utf16.count - 1, anchor.character)

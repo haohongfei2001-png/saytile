@@ -58,7 +58,7 @@ import Testing
         let scroll = CompactTranscriptScrollView<Row>(frame: box)
         panel.contentView = scroll
         panel.orderBack(nil)
-        let row = Row(displayText: (1...80).map { "第\($0)段阅读文字：保留数字24、人工换行与选中文字。" }.joined(separator: "\n"))
+        let row = Row(displayText: (1...80).map { "第\($0)段阅读文字：保留数字24、人工换行与选中文字。cafe\u{301} 😀。" }.joined(separator: "\n"))
         scroll.applyTypeScale(PanelTextSizePreset.standard.typeScale)
         scroll.updateDocument(.init(entries: [row]))
         scroll.layoutSubtreeIfNeeded()
@@ -99,6 +99,26 @@ import Testing
         let newRect = manager.boundingRect(forGlyphRange: NSRange(location: newGlyph, length: 1), in: container)
         #expect(abs(scroll.documentVisibleRect.minY - newRect.minY - view.textContainerInset.height - offset) < 1)
         #expect(!scroll.isFollowingLatest && !panel.isKeyWindow)
+    }
+
+    @Test func fontChoicesKeepTheStartOfTheDocumentAtZeroWithAUnicodeSelection() throws {
+        let (panel, scroll, row) = fixture()
+        defer { panel.orderOut(nil); panel.close() }
+        let view = scroll.transcriptView
+        let selected = (row.displayText as NSString).range(of: "cafe\u{301} 😀", options: .literal)
+        #expect(selected.location != NSNotFound)
+        view.setSelectedRange(selected)
+        scroll.contentView.scroll(to: .zero)
+        scroll.reflectScrolledClipView(scroll.contentView)
+        #expect(!scroll.isFollowingLatest)
+        for choice in [PanelTextSizePreset.small, .large, .extraLarge, .standard] {
+            scroll.applyTypeScale(choice.typeScale)
+            scroll.layoutSubtreeIfNeeded()
+            #expect(scroll.documentVisibleRect.minY == 0,
+                    "Changing to \(choice.rawValue) shifted the document top to \(scroll.documentVisibleRect.minY)")
+            #expect(view.selectedRange() == selected && scroll.selectionSnapshot == "cafe\u{301} 😀")
+            #expect(view.string == row.displayText && !scroll.isFollowingLatest)
+        }
     }
 
     @Test func fontChangesKeepAnUnselectedLiveTailAtTheEnd() {
