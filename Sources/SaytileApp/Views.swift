@@ -70,6 +70,7 @@ struct InputPanelView: View {
                     throw error
                 }
             }, compactHelp: "点按控制收音。拖动边缘可调整大小，辅助菜单可恢复阅读尺寸。", menu: { panelActions })
+            .environment(\.voicePanelAppearance, model.panelAppearance)
     }
 
     private func copyTranscript() {

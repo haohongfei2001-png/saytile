@@ -43,6 +43,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     private var eventHandler: EventHandlerRef?
     private var shortcutObserver: NSObjectProtocol?
     private var entryObserver: NSObjectProtocol?
+    private var panelSizeObserver: NSObjectProtocol?
     private var screenObserver: NSObjectProtocol?
     private var positioningPanel = false
     private var movingPanel = false
@@ -339,6 +340,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             entryObserver = NotificationCenter.default.addObserver(forName: .init("SaytileFloatingEntryChanged"), object: nil, queue: .main) { [weak self] _ in
                 Task { @MainActor in self?.updateFloatingEntry() }
             }
+            panelSizeObserver = NotificationCenter.default.addObserver(forName: .init("SaytilePanelSizeChanged"), object: model, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.applyPanelSizePreset() }
+            }
+            if CommandLine.arguments.contains("--focus-probe"),
+               ProcessInfo.processInfo.environment["SAYTILE_APPEARANCE_HOST_REVIEW"] == "1" {
+                Task {
+                    do { try await self.reviewAppearancePlacement(model: model) }
+                    catch { diagnosticExitStatus = 1; print("APPEARANCE_HOST_FAIL \(error)") }
+                    await model.prepareForExit(); NSApp.terminate(nil)
+                }
+                return
+            }
             if CommandLine.arguments.contains("--focus-probe") {
                 // Exercise the actual optional window under the same isolated
                 // startup. It is transparent and cannot accept keyboard focus.
@@ -596,7 +609,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         }
         // Match Nearpane primary-screen residency, not the status icon display.
         if firstPresentation, let screen = NSScreen.screens.first ?? NSScreen.main {
-            restorePanel(preferred: savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame))
+            restorePanel(preferred: savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame, preset: model.panelSizePreset))
         } else {
             restorePanel()
         }
@@ -684,11 +697,84 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     }
     private func restoreVisibleWindows(applySavedPlacement: Bool = false) {
         if applySavedPlacement, let screen = NSScreen.screens.first ?? NSScreen.main {
-            restorePanel(preferred: savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame))
+            restorePanel(preferred: savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame, preset: model?.panelSizePreset ?? .standard))
         } else { restorePanel() }
         panelCoexistence?.changed(userPlacement: true)
         updateFloatingEntry()
         restoreWorkspaceFrame()
+    }
+    /// Opt-in acceptance with the existing required isolated --focus-probe directory.
+    private func reviewAppearancePlacement(model: AppModel) async throws {
+        var checks = 0
+        func require(_ value: Bool, _ label: String) throws {
+            guard value else { throw NSError(domain: "PanelAppearanceAcceptance", code: 1,
+                userInfo: [NSLocalizedDescriptionKey: label]) }
+            checks += 1; print("APPEARANCE_HOST_PASS " + label)
+        }
+        func sameSize(_ a: NSRect, _ b: NSRect) -> Bool {
+            a.size == b.size
+        }
+        guard let screen = NSScreen.screens.first else { throw NSError(domain: "NoScreen", code: 1) }
+        let visible = screen.visibleFrame
+        try require(panel == nil, "cold hidden panel has not been created")
+        model.panelSizePreset = .spacious
+        try await Task.sleep(for: .milliseconds(150))
+        try require(panel == nil && savedPanelFrame().map { sameSize($0, WindowPlacement.initialPanel(visibleFrame: visible, preset: .spacious)) } == true,
+                    "preset persists while never-opened panel remains hidden")
+        showPanel()
+        guard let panel else { throw NSError(domain: "MissingPanel", code: 1) }
+        print("APPEARANCE_HOST_GEOMETRY actual=\(panel.frame) expected=\(WindowPlacement.initialPanel(visibleFrame: visible, preset: .spacious)) saved=\(String(describing: savedPanelFrame())) screen=\(visible)")
+        // NSPanel independently rounds fractional frame requests out to whole logical
+        // points, even before it is shown. Compare the exact native rectangle.
+        try require(panel.frame == WindowPlacement.initialPanel(visibleFrame: visible, preset: .spacious).integral, "first opening uses the saved preset")
+        for preset in PanelSizePreset.allCases {
+            let before = panel.frame
+            model.panelSizePreset = preset
+            try await Task.sleep(for: .milliseconds(150))
+            let expected = WindowPlacement.resizedPanel(before, preset: preset, visibleFrame: visible).integral
+            try require(panel.frame == expected,
+                        "native host applies " + preset.rawValue + " without moving its upper-right anchor")
+        }
+        panel.orderOut(nil)
+        model.panelSizePreset = .compact
+        try await Task.sleep(for: .milliseconds(150))
+        let hidden = panel.frame
+        try require(!panel.isVisible && savedPanelFrame().map { sameSize($0, hidden) } == true, "hidden existing panel saves size without appearing")
+        showPanel()
+        try require(sameSize(panel.frame, hidden), "reopening preserves the selected size")
+        panel.applyPlacement(NSRect(x: hidden.minX, y: hidden.minY, width: hidden.width + 80, height: hidden.height + 50), on: visible)
+        model.applyPanelSizePreset()
+        try await Task.sleep(for: .milliseconds(150))
+        try require(sameSize(panel.frame, hidden), "restore-selected-size action reverses manual resizing")
+        model.resetPanelAppearance()
+        try await Task.sleep(for: .milliseconds(150))
+        try require(sameSize(panel.frame, WindowPlacement.initialPanel(visibleFrame: visible).integral), "reset restores default dimensions")
+        try require(!panel.isKeyWindow && !panel.isMainWindow && model.audio.state == .paused && !model.hasStarted,
+                    "appearance changes do not take focus or start capture")
+        print("APPEARANCE_HOST_COMPLETE \(checks)")
+    }
+    private func applyPanelSizePreset() {
+        guard let model else { return }
+        let previous = panel?.frame ?? savedPanelFrame()
+        let screen = panel?.screen ?? NSScreen.screens.first(where: { screen in
+            previous.map { screen.visibleFrame.contains(CGPoint(x: $0.midX, y: $0.midY)) } ?? false
+        }) ?? NSScreen.screens.first ?? NSScreen.main
+        guard let screen else { return }
+        let visible = screen.visibleFrame
+        let frame = WindowPlacement.resizedPanel(previous ?? WindowPlacement.initialPanel(visibleFrame: visible),
+                                                preset: model.panelSizePreset, visibleFrame: visible)
+        if let panel {
+            panel.cancelPlacementGesture()
+            restorePanel(preferred: frame)
+            rememberPlacement()
+        } else if let placement = SavedPanelPlacement(frame: frame, visibleFrame: visible, displayID: displayKey(screen),
+                                                     expandedHeight: frame.height, expandedWidth: frame.width,
+                                                     anchorsRightOnExpand: true),
+                  let data = try? JSONEncoder().encode(placement) {
+            // Remember an explicit choice even when launch kept the board hidden.
+            // Do not instantiate/show the panel just to apply a settings choice.
+            placementDefaults?.set(data, forKey: placementKey)
+        }
     }
     private func restorePanel(preferred: NSRect? = nil) {
         guard let panel, !positioningPanel else { return }

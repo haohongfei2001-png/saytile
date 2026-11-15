@@ -20,6 +20,7 @@ private enum Failure: Error { case args, window, edit, capture, press }
     @Published var text = "缩放窗口仍应保留这段可以编辑的文字，数字 24 和手写换行。\n继续记录。"
     @Published var state = VoicePanelState.standby
     @Published var panelBorderVisible = true
+    @Published var panelAppearance = VoicePanelAppearance()
     @Published var panelOverFullscreen = false
     var toggles = 0, edits = 0, copies = 0
     var doc: PanelTimelineDocument<Row> {
@@ -118,6 +119,8 @@ struct InputPanelView: View {
             model.panelBorderVisible = border
             for fullscreen in [false, true] {
                 model.panelOverFullscreen = fullscreen
+                for opacity in PanelOpacityPreset.allCases {
+                model.panelAppearance.opacity = opacity
                 try await Task.sleep(for: .milliseconds(300))
                 host.layoutSubtreeIfNeeded(); panel.displayIfNeeded()
                 let content = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
@@ -133,7 +136,8 @@ struct InputPanelView: View {
                 configuration.width = 688; configuration.height = 380
                 let image = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: configuration)
                 guard let png = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:]) else { throw Failure.capture }
-                let name = (border ? "border-on-" : "border-off-") + (fullscreen ? "fullscreen" : "desktop")
+                let baseName = (border ? "border-on-" : "border-off-") + (fullscreen ? "fullscreen" : "desktop")
+                let name = baseName + (opacity == .original ? "" : "-" + opacity.rawValue)
                 try png.write(to: folder.appendingPathComponent(name + ".png"))
                 let editor = model.access.view?.transcriptView
                 if originalEditor == nil { originalEditor = editor }
@@ -144,10 +148,11 @@ struct InputPanelView: View {
                 let layout = VoicePanelLayout(size: host.bounds.size)
                 guard editor != nil, editor === originalEditor, editor?.string == model.text,
                       !panel.isKeyWindow, !backdrop.isKeyWindow else { throw Failure.window }
-                variants.append(["name": name, "windowPt": array(panel.frame), "cardPt": array(layout.cardFrame),
+                variants.append(["name": name, "opacity": opacity.rawValue, "windowPt": array(panel.frame), "cardPt": array(layout.cardFrame),
                     "capturePt": array(layout.captureFrame), "copyPt": array(layout.copyFrame),
                     "fontPt": actualFont as Any? ?? NSNull(), "sameEditor": true, "unchangedText": true,
                     "sourceWindows": 2, "everTookKey": false])
+                }
             }
         }
         try JSONSerialization.data(withJSONObject: ["source": args[2], "status": "PASS", "variants": variants,

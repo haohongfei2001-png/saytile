@@ -20,5 +20,6 @@ struct InputPanelWindowView: View {
                 .clipShape(RoundedRectangle(cornerRadius: layout.outerRadius, style: .continuous))
         }
         .environment(\.isOverFullscreen, model.panelOverFullscreen)
+        .environment(\.voicePanelAppearance, model.panelAppearance)
     }
 }

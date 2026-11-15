@@ -327,6 +327,29 @@ final class AppModel: ObservableObject {
             preferences.set(panelBorderVisible, forKey: "panelBorderVisible")
         }
     }
+    @Published var panelAppearance = VoicePanelAppearance() {
+        didSet {
+            guard !initializing, panelAppearance != oldValue,
+                  let data = try? JSONEncoder().encode(panelAppearance) else { return }
+            preferences.set(data, forKey: "panelAppearance")
+        }
+    }
+    @Published var panelSizePreset: PanelSizePreset = .standard {
+        didSet {
+            guard !initializing, panelSizePreset != oldValue else { return }
+            preferences.set(panelSizePreset.rawValue, forKey: "panelSizePreset")
+            applyPanelSizePreset()
+        }
+    }
+    func applyPanelSizePreset() {
+        NotificationCenter.default.post(name: .init("SaytilePanelSizeChanged"), object: self)
+    }
+    func resetPanelAppearance() {
+        panelAppearance = VoicePanelAppearance()
+        panelBorderVisible = true
+        if panelSizePreset != .standard { panelSizePreset = .standard }
+        else { applyPanelSizePreset() }
+    }
     @Published var panelPlacementMode: PanelPlacementMode = .floating {
         didSet {
             guard !initializing, panelPlacementMode != oldValue else { return }
@@ -434,6 +457,10 @@ final class AppModel: ObservableObject {
         audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration, startupRecoveryReady: false)
         input = NativeInputCoordinator(store: store)
         panelBorderVisible = preferences.object(forKey: "panelBorderVisible") as? Bool ?? true
+        panelAppearance = preferences.data(forKey: "panelAppearance")
+            .flatMap { try? JSONDecoder().decode(VoicePanelAppearance.self, from: $0) } ?? VoicePanelAppearance()
+        panelSizePreset = preferences.string(forKey: "panelSizePreset")
+            .flatMap(PanelSizePreset.init(rawValue:)) ?? .standard
         panelPlacementMode = preferences.string(forKey: "panelPlacementMode")
             .flatMap(PanelPlacementMode.init(rawValue:)) ?? .floating
         floatingEntryEnabled = preferences.bool(forKey: "floatingEntryEnabled")

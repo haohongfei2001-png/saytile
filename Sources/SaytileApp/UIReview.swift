@@ -10,7 +10,8 @@ extension AppDelegate {
     @MainActor func runUIReview(model: AppModel, output: URL) async -> Bool {
         let timeline = ProcessInfo.processInfo.environment["SAYTILE_TIMELINE_REVIEW"] == "1"
         let product = ProcessInfo.processInfo.environment["SAYTILE_PRODUCT_WINDOWS"] == "1"
-        NSApp.setActivationPolicy(timeline || product ? .accessory : .prohibited)
+        let appearance = ProcessInfo.processInfo.environment["SAYTILE_APPEARANCE_REVIEW"] == "1"
+        NSApp.setActivationPolicy(timeline || product || appearance ? .accessory : .prohibited)
         do {
             try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
             if ProcessInfo.processInfo.environment["SAYTILE_REFERENCE_ONLY"] == "1" {
@@ -31,6 +32,10 @@ extension AppDelegate {
                       try await model.store.revisions(recordingID: row.id).contains(where: { $0.text == "先写😀再改中\n第二行" })
                 else { throw ReviewFailure("restarting lost a committed edit or resurrected deleted text") }
                 print("INLINE_EDITOR_REOPEN_PASS previous revisions and deliberate deletion preserved")
+                return true
+            }
+            if ProcessInfo.processInfo.environment["SAYTILE_APPEARANCE_REVIEW"] == "1" {
+                try await reviewPanelAppearance(output: output)
                 return true
             }
             if ProcessInfo.processInfo.environment["SAYTILE_EDITOR_REVIEW"] == "1" {
@@ -1423,9 +1428,164 @@ extension AppDelegate {
         } catch { await model.prepareForExit(); throw error }
     }
 
+    /// Uses the shipping settings and panel in two owned, nonactivating windows.
+    /// Menu actions go through AXPress and the actual AppKit menu target/action.
+    @MainActor private func reviewPanelAppearance(output: URL) async throws {
+        guard ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil else {
+            throw ReviewFailure("Appearance acceptance requires the owned native AX helper")
+        }
+        let suite = "app.saytile.test.appearance." + UUID().uuidString
+        let preferences = UserDefaults(suiteName: suite)!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-appearance-" + UUID().uuidString)
+        defer { preferences.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: directory) }
+        var configuration = RecognitionConfiguration(); configuration.automaticRecovery = false
+        try configuration.save(to: preferences)
+        let capture = UIPanelCaptureFixture(), connection = UIConnectionFixture()
+        let board = NSPasteboard.withUniqueName()
+        defer { board.releaseGlobally() }
+        let model = try AppModel(directory: directory, preferences: preferences, connectionDependencies: connection.dependencies,
+                                 captureDependencies: capture.dependencies, copyPasteboard: board)
+        await model.initialLoad()
+        do {
+            guard model.panelAppearance == VoicePanelAppearance(), model.panelBorderVisible, model.panelSizePreset == .standard else {
+                throw ReviewFailure("First-use appearance changed the existing defaults")
+            }
+            let text = (1...45).map { "第\($0)行：保留数字24、否定词不要和手动编辑。Swift API cafe\u{301} 😀。" }.joined(separator: "\n")
+            let row = try await model.store.createRecording()
+            _ = try await model.store.saveEdit(recordingID: row.id, text: text)
+            try await model.store.finishRecording(id: row.id); await model.refresh()
+            var selections = 0
+            try await reviewValidatedWindow(InputPanelWindowView(model: model), size: CGSize(width: 344, height: 380),
+                name: "timeline-appearance-panel", output: output, validation: { panelHost in
+                let scroll = try self.compactTranscript(in: panelHost), editor = scroll.transcriptView
+                try await self.reviewUntil { editor.string == text }
+                @MainActor func fontSize() -> CGFloat {
+                    (editor.textStorage?.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)?.pointSize ?? 0
+                }
+                guard abs(fontSize() - 14.04) < 0.01 else { throw ReviewFailure("Default font differs from the current 14.04 pt") }
+                scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
+                let selected = (text as NSString).range(of: "cafe\u{301} 😀", options: .literal)
+                guard selected.location != NSNotFound else { throw ReviewFailure("Missing Unicode selection fixture") }
+                editor.setSelectedRange(selected)
+                let baselineButtons = try await self.appearanceControlGeometry(in: panelHost)
+                try self.captureReview(panelHost, name: "appearance-default", output: output)
+                try await self.reviewValidatedWindow(SettingsView(model: model, initialPage: .appearance),
+                    size: CGSize(width: 1000, height: 850), name: "timeline-appearance-settings", output: output, validation: { settingsHost in
+                    try await self.inspectSettings(in: settingsHost,
+                        required: ["settings.panelColor", "settings.buttonColor", "settings.panelOpacity", "settings.panelTextSize", "settings.panelSize", "settings.panelBorder", "settings.resetAppearance", "settings.applyPanelSize"], excluded: ["暂停收音", "继续收音"])
+                    try self.captureReview(settingsHost, name: "appearance-settings-default", output: output)
+                    for value in PanelOpacityPreset.allCases where value != .original {
+                        try await self.chooseAppearanceMenu("settings.panelOpacity", title: value.title,
+                            titles: PanelOpacityPreset.allCases.map(\.title), in: settingsHost)
+                        try await self.reviewUntil { model.panelAppearance.opacity == value }
+                        selections += 1
+                        guard try self.compactTranscript(in: panelHost) === scroll, editor.string == text,
+                              editor.selectedRange() == selected else { throw ReviewFailure("Opacity change replaced the editor or its selection") }
+                        try self.captureReview(panelHost, name: "appearance-opacity-" + value.rawValue, output: output)
+                    }
+                    try await self.chooseAppearanceMenu("settings.panelColor", title: PanelColorPreset.blue.title,
+                        titles: PanelColorPreset.allCases.map(\.title), in: settingsHost)
+                    try await self.reviewUntil { model.panelAppearance.panelColor == .blue }; selections += 1
+                    try await self.chooseAppearanceMenu("settings.buttonColor", title: PanelButtonColorPreset.blue.title,
+                        titles: PanelButtonColorPreset.allCases.map(\.title), in: settingsHost)
+                    try await self.reviewUntil { model.panelAppearance.buttonColor == .blue }; selections += 1
+                    try self.captureReview(panelHost, name: "appearance-blue", output: output)
+                    try await self.chooseAppearanceMenu("settings.panelColor", title: PanelColorPreset.warm.title,
+                        titles: PanelColorPreset.allCases.map(\.title), in: settingsHost)
+                    try await self.reviewUntil { model.panelAppearance.panelColor == .warm }; selections += 1
+                    try await self.chooseAppearanceMenu("settings.buttonColor", title: PanelButtonColorPreset.graphite.title,
+                        titles: PanelButtonColorPreset.allCases.map(\.title), in: settingsHost)
+                    try await self.reviewUntil { model.panelAppearance.buttonColor == .graphite }; selections += 1
+                    try self.captureReview(panelHost, name: "appearance-warm-graphite", output: output)
+                    for (value, points) in [(PanelTextSizePreset.small, CGFloat(12)), (.large, 16), (.extraLarge, 18)] {
+                        try await self.chooseAppearanceMenu("settings.panelTextSize", title: value.title,
+                            titles: PanelTextSizePreset.allCases.map(\.title), in: settingsHost)
+                        try await self.reviewUntil { abs(fontSize() - points) < 0.01 }; selections += 1
+                        guard try self.compactTranscript(in: panelHost) === scroll, editor.string == text,
+                              editor.selectedRange() == selected, scroll.contentView.bounds.origin.y < 1,
+                              try await self.appearanceControlGeometry(in: panelHost) == baselineButtons else {
+                            throw ReviewFailure("Font change moved the reading position, selection or button geometry")
+                        }
+                        try self.captureReview(panelHost, name: "appearance-type-" + value.rawValue, output: output)
+                    }
+                    try await self.chooseAppearanceMenu("settings.panelSize", title: PanelSizePreset.spacious.title,
+                        titles: PanelSizePreset.allCases.map(\.title), in: settingsHost)
+                    try await self.reviewUntil { model.panelSizePreset == .spacious }; selections += 1
+                    try await self.press("settings.applyPanelSize", in: settingsHost)
+                    try await self.press("settings.panelBorder", in: settingsHost)
+                    try await self.reviewUntil { !model.panelBorderVisible }
+                    try self.captureReview(panelHost, name: "appearance-no-border", output: output)
+                    try self.captureReview(settingsHost, name: "appearance-settings-custom", output: output)
+                    try await self.press("settings.resetAppearance", in: settingsHost)
+                    try await self.reviewUntil { model.panelAppearance == VoicePanelAppearance() && model.panelBorderVisible && model.panelSizePreset == .standard }
+                    try await self.reviewUntil { abs(fontSize() - 14.04) < 0.01 }
+                    guard editor.string == text, editor.selectedRange() == selected,
+                          try await self.appearanceControlGeometry(in: panelHost) == baselineButtons else {
+                        throw ReviewFailure("Restore defaults changed text, selection or button geometry")
+                    }
+                    try self.captureReview(panelHost, name: "appearance-restored", output: output)
+                    try self.captureReview(settingsHost, name: "appearance-settings-restored", output: output)
+                })
+                let suffix = "\n外观修改后仍能编辑。"
+                editor.setSelectedRange(NSRange(location: editor.string.utf16.count, length: 0))
+                editor.insertText(suffix, replacementRange: editor.selectedRange())
+                try await self.reviewUntil { editor.string == text + suffix }
+                guard try await model.store.recording(id: row.id)?.text == text + suffix,
+                      try await model.store.revisions(recordingID: row.id).contains(where: { $0.text == text }) else {
+                    throw ReviewFailure("Changing appearance broke persistent editing or prior revisions")
+                }
+            })
+            guard capture.starts == 0, capture.pauses == 0, capture.state == .paused, model.audio.state == .paused,
+                  connection.requests == 0, selections == 11 else {
+                throw ReviewFailure("Appearance controls started capture/cloud or missed a required native menu action")
+            }
+            print("APPEARANCE_REVIEW_PASS menu_actions=11 defaults_restored=true editor_selection_preserved=true button_geometry_unchanged=true persistent_edit=true capture_starts=0 cloud_calls=0")
+            await model.prepareForExit()
+        } catch { await model.prepareForExit(); throw error }
+    }
+
+    @MainActor private func chooseAppearanceMenu(_ identifier: String, title: String, titles: [String], in host: NSView) async throws {
+        let selection = ReviewAppearanceMenuSelection(title: title, expected: Set(titles))
+        NotificationCenter.default.addObserver(selection, selector: #selector(ReviewAppearanceMenuSelection.menuOpened(_:)),
+                                               name: NSMenu.didBeginTrackingNotification, object: nil)
+        NotificationCenter.default.addObserver(selection, selector: #selector(ReviewAppearanceMenuSelection.menuClosed(_:)),
+                                               name: NSMenu.didEndTrackingNotification, object: nil)
+        defer { NotificationCenter.default.removeObserver(selection) }
+        try await press(identifier, in: host)
+        do {
+            // Observe completion of this one action. Never press again: a second
+            // press while a picker still tracks its menu can simply close it.
+            try await reviewUntil { selection.chosen && selection.trackingEnded }
+        } catch {
+            throw ReviewFailure("Appearance menu lifecycle incomplete for \(identifier) → \(title): opened=\(selection.opened), action=\(selection.chosen), ended=\(selection.trackingEnded)")
+        }
+        print("NATIVE_APPEARANCE_MENU \(identifier) value=\(title) via=AXPress+NSMenu.performActionForItem tracking_ended=true")
+    }
+
+    @MainActor private func appearanceControlGeometry(in host: NSView) async throws -> [String: [Double]] {
+        let output = try await performControl("panel.capture", in: host, arguments: ["inspect-panel"])
+        let prefix = "NATIVE_UI_PANEL_INSPECT "
+        guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix(prefix) }),
+              let body = try JSONSerialization.jsonObject(with: Data(line.dropFirst(prefix.count).utf8)) as? [String: Any],
+              let controls = body["controls"] as? [[String: Any]], controls.count == 2 else {
+            throw ReviewFailure("Appearance changed the two-control surface")
+        }
+        var result: [String: [Double]] = [:]
+        for control in controls {
+            guard let id = control["identifier"] as? String, ["panel.capture", "panel.copy"].contains(id),
+                  let width = control["width"] as? Double, let height = control["height"] as? Double,
+                  let x = control["x"] as? Double, let y = control["y"] as? Double else {
+                throw ReviewFailure("Appearance control geometry unavailable")
+            }
+            result[id] = [x, y, width, height]
+        }
+        guard result.count == 2 else { throw ReviewFailure("Missing or duplicate appearance controls") }
+        return result
+    }
+
     @MainActor func pressBorderSetting(model: AppModel, output: URL) async throws {
         let wasVisible = model.panelBorderVisible
-        try await reviewWindow(SettingsView(model: model, initialPage: .input), size: CGSize(width: 650, height: 700),
+        try await reviewWindow(SettingsView(model: model, initialPage: .appearance), size: CGSize(width: 650, height: 700),
                                name: "settings-panel-border", output: output) { host in
             try await self.press("settings.panelBorder", in: host)
             try await self.reviewUntil { model.panelBorderVisible != wasVisible }
@@ -1598,5 +1758,40 @@ private final class ReviewActivations: @unchecked Sendable {
         menu.performActionForItem(at: menu.index(of: item))
         chosen = true
         menu.cancelTracking()
+    }
+}
+
+@MainActor private final class ReviewAppearanceMenuSelection: NSObject {
+    let title: String
+    let expected: Set<String>
+    private(set) var opened = false
+    private(set) var chosen = false
+    private(set) var trackingEnded = false
+    private var menu: NSMenu?
+    init(title: String, expected: Set<String>) { self.title = title; self.expected = expected }
+    @objc func menuOpened(_ note: Notification) {
+        guard !opened, let candidate = note.object as? NSMenu,
+              expected.isSubset(of: Set(candidate.items.map(\.title))),
+              let item = candidate.item(withTitle: title), item.isEnabled else { return }
+        opened = true; menu = candidate
+        // The begin notification runs before the menu's tracking loop has taken
+        // control. Dispatching and cancelling inside it can leave the picker
+        // tracking after the binding changed. Enter the actual tracking mode
+        // once, then dispatch its existing native item target/action.
+        RunLoop.main.perform(inModes: [.eventTracking]) { [weak self] in
+            MainActor.assumeIsolated { self?.chooseTrackedItem() }
+        }
+    }
+    private func chooseTrackedItem() {
+        guard !chosen, !trackingEnded, let menu,
+              expected.isSubset(of: Set(menu.items.map(\.title))),
+              let item = menu.item(withTitle: title), item.isEnabled else { return }
+        chosen = true
+        menu.performActionForItem(at: menu.index(of: item))
+        menu.cancelTracking()
+    }
+    @objc func menuClosed(_ note: Notification) {
+        guard let candidate = note.object as? NSMenu, candidate === menu else { return }
+        trackingEnded = true
     }
 }

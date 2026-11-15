@@ -1,6 +1,31 @@
 import Foundation
 import CoreGraphics
 
+/// Optional starting sizes; manual dragging continues to use the saved frame.
+public enum PanelSizePreset: String, CaseIterable, Codable, Sendable {
+    case compact, standard, spacious
+
+    public var title: String {
+        switch self {
+        case .compact: "紧凑"
+        case .standard: "默认"
+        case .spacious: "宽敞"
+        }
+    }
+
+    private var scale: CGFloat {
+        switch self {
+        case .compact: 0.85
+        case .standard: 1
+        case .spacious: 1.35
+        }
+    }
+
+    fileprivate func scaled(_ size: CGSize) -> CGSize {
+        CGSize(width: size.width * scale, height: size.height * scale)
+    }
+}
+
 /// Window geometry uses visible frames, including displays with negative origins and menu bars.
 public enum WindowPlacement {
     public static let nearpaneWidthFraction: CGFloat = 0.125
@@ -23,14 +48,23 @@ public enum WindowPlacement {
     }
 
     /// Nearpane voice section by itself; not a full-height sidebar or fixed card.
-    public static func initialPanel(visibleFrame: CGRect) -> CGRect {
+    public static func initialPanel(visibleFrame: CGRect, preset: PanelSizePreset = .standard) -> CGRect {
         let width = min(visibleFrame.width, max(20, visibleFrame.width * nearpaneWidthFraction))
-        let size = panelSize(CGSize(width: width, height: VoiceRailProportions.factoryHeight(width: width, visibleHeight: visibleFrame.height)),
-                             visibleFrame: visibleFrame)
+        let factory = CGSize(width: width, height: VoiceRailProportions.factoryHeight(width: width, visibleHeight: visibleFrame.height))
+        let size = panelSize(preset.scaled(factory), visibleFrame: visibleFrame)
         // The glass touches the visible desktop's upper-right edge.
         return CGRect(x: visibleFrame.maxX - size.width,
                       y: visibleFrame.maxY - size.height,
                       width: size.width, height: size.height)
+    }
+
+    /// Changing a size preset keeps the chosen upper-right corner, except where
+    /// fitting the resulting panel inside the usable display requires a shift.
+    public static func resizedPanel(_ frame: CGRect, preset: PanelSizePreset, visibleFrame: CGRect) -> CGRect {
+        let size = initialPanel(visibleFrame: visibleFrame, preset: preset).size
+        let proposed = CGRect(x: frame.maxX - size.width, y: frame.maxY - size.height,
+                              width: size.width, height: size.height)
+        return restoredPanel(proposed, visibleFrames: [visibleFrame])
     }
 
     public static func restoredPanel(_ frame: CGRect, visibleFrames: [CGRect]) -> CGRect {
