@@ -6,10 +6,27 @@ import Darwin
 import Glibc
 #endif
 
+/// Owns the SQLite connection and process lock; referenced only by FeedbackStore.
+/// ARC releases these resources after the actor is no longer reachable, without
+/// an isolated actor destructor that triggers cross-module WMO compiler cycles.
+private final class FeedbackStoreResources {
+    var db: OpaquePointer?
+    var descriptor: Int32
+    init(db: OpaquePointer?, descriptor: Int32) { self.db = db; self.descriptor = descriptor }
+    deinit { if let db { sqlite3_close(db) }; if descriptor >= 0 { close(descriptor) } }
+}
+
 /// Independent sidecar. It never opens queue.sqlite or a media directory.
 public actor FeedbackStore {
-    private var db: OpaquePointer?
-    private var descriptor: Int32 = -1
+    private let resources: FeedbackStoreResources
+    private var db: OpaquePointer? {
+        get { resources.db }
+        set { resources.db = newValue }
+    }
+    private var descriptor: Int32 {
+        get { resources.descriptor }
+        set { resources.descriptor = newValue }
+    }
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
     public nonisolated let wasUnclean: Bool
@@ -78,14 +95,13 @@ public actor FeedbackStore {
                 try exec("INSERT OR REPLACE INTO meta VALUES('running','1')")
                 try exec("COMMIT"); wasUnclean = unclean
             } catch { try? exec("ROLLBACK"); throw error }
-            db = handle; descriptor = lockFD
+            resources = FeedbackStoreResources(db: handle, descriptor: lockFD)
         } catch {
             if let handle { sqlite3_close(handle) }
             if lockFD >= 0 { close(lockFD) }
             throw FeedbackFailure.storageUnavailable
         }
     }
-    isolated deinit { if let db { sqlite3_close(db) }; if descriptor >= 0 { close(descriptor) } }
     private func statement(_ sql: String, _ args: [String] = []) throws -> OpaquePointer {
         guard let db else { throw FeedbackFailure.storageUnavailable }
         var s: OpaquePointer?

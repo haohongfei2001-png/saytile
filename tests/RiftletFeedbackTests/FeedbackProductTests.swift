@@ -62,4 +62,40 @@ import Testing
         #expect(try await reopened.draft().text == "后续草稿不得改写已提交正文")
         try await reopened.closeForTesting(clean: true)
     }
+
+    @Test func releasingActorClosesSQLiteAndUnlocksDurableDraft() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-feedback-release-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        var store: FeedbackStore? = try FeedbackStore(directory: directory)
+        weak var released = store
+        try await store?.saveDraft(.init(text: "Actor释放后仍保留", revision: 1))
+        #expect(throws: FeedbackFailure.storageUnavailable) { try FeedbackStore(directory: directory) }
+        store = nil
+        // No explicit close: this exercises the actual resource owner's destructor.
+        #expect(released == nil)
+        let reopened = try FeedbackStore(directory: directory)
+        #expect(reopened.wasUnclean)
+        #expect(try await reopened.draft().text == "Actor释放后仍保留")
+        try await reopened.closeForTesting(clean: true)
+        try await reopened.closeForTesting(clean: false)
+        let afterExplicitClose = try FeedbackStore(directory: directory)
+        #expect(!afterExplicitClose.wasUnclean)
+        try await afterExplicitClose.closeForTesting(clean: true)
+    }
+
+    @Test func failedInitializationReleasesAcquiredProcessLock() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-feedback-init-failure-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let destination = directory.appendingPathComponent("must-not-create")
+        let journal = directory.appendingPathComponent("feedback.sqlite-journal")
+        try FileManager.default.createSymbolicLink(at: journal, withDestinationURL: destination)
+        #expect(throws: FeedbackFailure.storageUnavailable) { try FeedbackStore(directory: directory) }
+        #expect(!FileManager.default.fileExists(atPath: destination.path))
+        try FileManager.default.removeItem(at: journal)
+        let recovered = try FeedbackStore(directory: directory)
+        try await recovered.saveDraft(.init(text: "初始化失败后恢复", revision: 1))
+        #expect(try await recovered.draft().text == "初始化失败后恢复")
+        try await recovered.closeForTesting(clean: true)
+    }
 }

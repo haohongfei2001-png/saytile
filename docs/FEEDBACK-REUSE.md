@@ -6,7 +6,7 @@ The product adapter adds an optional closed product discriminator (`riftlet`, `s
 
 The outbox, capability lifecycle, unknown delivery protection, deletion workflow, privacy bounds and serial SQLite storage are inherited. The UI remains supplied by each product.
 
-The adaptation uses an isolated actor destructor for the SQLite handle under Swift 6 strict concurrency. Keychain service-name visibility is internal to the module for namespace tests; storage behavior is unchanged. The controller regression fixture uses only temporary SQLite files and in-memory capabilities, including explicit storage failures and a pending transport; it never sends feedback or reads the user's Keychain or archives.
+The adaptation keeps SQLite and the process lock in a resource owner held exclusively by the store actor. Its ordinary destructor closes both resources; this preserves Swift 6 isolation and avoids a confirmed cross-module release-optimizer cycle in isolated actor destruction. Keychain service-name visibility is internal to the module for namespace tests; storage behavior is unchanged. The controller regression fixture uses only temporary SQLite files and in-memory capabilities, including explicit storage failures and a pending transport; it never sends feedback or reads the user's Keychain or archives.
 
 ## Service dependency and release boundary
 

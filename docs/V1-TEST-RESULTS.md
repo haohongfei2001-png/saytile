@@ -1,3 +1,7 @@
+## 2026-11-15 · Release兼容性根因修复
+
+保留失败：b6b35126 完整CI为4/5，Release编译失败；该源546项Swift Testing、30项XCTest、188项AppModel与12项反馈controller全部通过，签名原生反馈9项检查通过。修复后新增2项析构/初始化失败锁释放回归，本机6/6核心与12/12controller通过。未跳过测试或改用Debug替代Release。
+
 ## 2026-11-15 · 反馈闭环与部署边界
 
 PASS：4项新增Swift Testing、12项controller检查、188项AppModel（首次构建）；服务30项Node+6项Python。继承30项XCTest保留，等待完整Xcode CI。原生真实控件和独立进程重启验收进行中；真实远端反馈NOT_RUN，不能以mock transport代替。
