@@ -1,3 +1,7 @@
+## 2026-11-15 · 反馈闭环与部署边界
+
+PASS：4项新增Swift Testing、12项controller检查、188项AppModel（首次构建）；服务30项Node+6项Python。继承30项XCTest保留，等待完整Xcode CI。原生真实控件和独立进程重启验收进行中；真实远端反馈NOT_RUN，不能以mock transport代替。
+
 ## 2026-11-15 · 同一0.19版本接入用户反馈
 
 继承PR46源码fe5da285的外观预设（该SHA五项CI已通过，542项Swift Testing与188项AppModel）。在持久隔离分支codex/product-feedback添加设置内用户反馈，复用Riftlet的独立SQLite发件箱、Keychain capability、确定收据和重试/撤回保护；只发送用户主动填写内容，固定product=saytile。默认不读取录音/转写/日志。共享服务需兼容新增产品字段及私有仓库分类；真实联通、最终签名包和新SHA CI尚在执行，不宣称已接通或已安装。现用0.18与正式App保持不变。
