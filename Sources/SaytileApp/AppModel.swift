@@ -223,6 +223,7 @@ final class AppModel: ObservableObject {
     let audio: AudioController
     let input: NativeInputCoordinator
     let directory: URL
+    let feedback: FeedbackSettingsModel
     let hosted: HostedAccount
     private let preferences: UserDefaults
     private let connectionDependencies: AppConnectionDependencies
@@ -422,7 +423,7 @@ final class AppModel: ObservableObject {
     private var latestEditorValues: [UUID: DraftWrite] = [:]
     private var committingEditorIDs: Set<UUID> = []
     var editorCanEdit: Bool { editorRecordingID != nil && !editorDraftLoading }
-    var hasUnpersistedDrafts: Bool { !pendingDraftWrites.isEmpty }
+    var hasUnpersistedDrafts: Bool { !pendingDraftWrites.isEmpty || feedback.hasUnsavedDraft }
 
     init(directory: URL, preferences: UserDefaults = .standard, normalLaunch: Bool = false, connectionDependencies: AppConnectionDependencies = .live,
          captureDependencies: AppCaptureDependencies = .live, copyPasteboard: NSPasteboard? = nil) throws {
@@ -435,6 +436,7 @@ final class AppModel: ObservableObject {
         manualLocalModel = preferences.string(forKey: "localASR.manual").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         archiveLocalModel = preferences.string(forKey: "localASR.archive").flatMap(LocalASRID.init(rawValue:)).flatMap { LocalASRID.consumer.contains($0) ? $0 : nil }
         self.directory = directory
+        feedback = FeedbackSettingsModel(directory: directory, normalLaunch: normalLaunch)
         hosted = HostedAccount(preferences: preferences, production: normalLaunch && (Bundle.main.bundleIdentifier == "app.saytile.mac" || SaytileStorageProfile.current == .designExperience))
         self.preferences = preferences
         completedFirstTranscript = preferences.bool(forKey: "firstTranscript.v1")
@@ -1472,8 +1474,10 @@ final class AppModel: ObservableObject {
         timer?.cancel(); refreshTask?.cancel()
         await audio.pause()
         _ = await flushEditorDrafts()
+        await feedback.prepareForExit()
         // If saving fails, the delegate keeps this window open and the normal refresh loop alive.
         if !hasUnpersistedDrafts {
+            await feedback.finishExit()
             exitPrepared = true
             cancelAutomaticDownload()
             downloadNetworkMonitor?.cancel()
@@ -1482,7 +1486,7 @@ final class AppModel: ObservableObject {
             await audio.shutdown()
             await refreshOperation?.value
             do { try await store.close() } catch { notice = error.localizedDescription }
-        } else { startRefreshTimer() }
+        } else { feedback.cancelExit(); startRefreshTimer() }
     }
     // All callers await the same in-flight refresh, including startup diagnostics.
     // A timer refresh must not make a user action or initial render return empty early.

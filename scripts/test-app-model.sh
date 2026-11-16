@@ -23,9 +23,9 @@ fi
 SAYTILE_PROBE_FLAGS=(-swift-version 6 -parse-as-library -module-cache-path "$SAYTILE_MODEL_SCRATCH/probe-module-cache" \
   -I "$SAYTILE_MODEL_BIN_DIR" -I "$SAYTILE_MODEL_BIN_DIR/Modules" -I Sources/CSQLite \
   -Xcc "-fmodule-map-file=$SAYTILE_MODEL_MODULE_MAP" \
-  -L "$SAYTILE_MODEL_BIN_DIR" -lSaytileKit -lSaytileVoiceUI -lc++)
+  -L "$SAYTILE_MODEL_BIN_DIR" -lSaytileKit -lSaytileVoiceUI -lRiftletFeedback -lc++)
 swiftc "${SAYTILE_PROBE_FLAGS[@]}" \
-  Sources/SaytileApp/AppModel.swift Sources/SaytileApp/PanelTimelineDocument.swift tests/fixtures/AppModelProbe.swift \
+  Sources/SaytileApp/AppModel.swift Sources/SaytileApp/FeedbackSettingsModel.swift Sources/SaytileApp/PanelTimelineDocument.swift tests/fixtures/AppModelProbe.swift \
   -o "$SAYTILE_MODEL_TEMP/probe"
 SAYTILE_MODEL_LOG="${SAYTILE_MODEL_LOG:-evidence/native-app-model.log}"
 mkdir -p "$(dirname "$SAYTILE_MODEL_LOG")"
@@ -38,3 +38,9 @@ swiftc "${SAYTILE_PROBE_FLAGS[@]}" Sources/SaytileApp/VoicePanel.swift \
 for phase in write restore; do
   "$SAYTILE_MODEL_TEMP/gesture-probe" "$phase" "$SAYTILE_MODEL_TEMP/placement.json"
 done
+
+# Feedback drafts/outbox use a separate SQLite fixture and an in-memory capability store.
+# Compile the actual controller to cover close/send races without a window or network.
+swiftc "${SAYTILE_PROBE_FLAGS[@]}" Sources/SaytileApp/FeedbackSettingsModel.swift \
+  tests/fixtures/FeedbackSettingsModelProbe.swift -o "$SAYTILE_MODEL_TEMP/feedback-probe"
+"$SAYTILE_MODEL_TEMP/feedback-probe" 2>&1 | tee -a "$SAYTILE_MODEL_LOG"
