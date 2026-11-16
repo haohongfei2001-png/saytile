@@ -1,6 +1,6 @@
 # Saytile — 可选黑色品牌外观（用户批准）
 
-状态：产品决定已批准；本分支实现与验收进行中，不能据此宣称已安装或发布。
+状态：功能已实现，黑色品牌专项 macOS 编译、回归及原生渲染检查通过；未在用户 Mac 安装或公开发布。
 
 ## 用户决定
 
@@ -41,3 +41,7 @@ SHA-256：`aed18390cffd1df6333b526d5ba0364f6352ef8313c6035f44cba707a9362024`。
 ## 本轮验证层次
 
 `BrandAppearanceTests` 覆盖默认值、坏值回退、偏好隔离、原紫色兼容和全部面板预设的往返。现有 `AppModelProbe` 增补重启恢复、原偏好不覆盖和识别/收音状态不变的检查。`SAYTILE_BRAND_REVIEW=1` 走现有隔离 `--ui-review` 通道，导出真实原生浅/深色设置、语音板和档案截图；它不是物理鼠标点击或用户安装验收。CI 结果以 PR 对应 SHA 的运行回执为准，不把测试脚本存在当成通过。
+
+## 已执行回执（2026-11-16 UTC）
+
+实现 `b159a297`，PR #50 合并测试提交 `58919815`，专项 CI [43946954900](https://github.com/haohongfei2001-png/saytile/actions/runs/43946954900) SUCCESS。10 项外观测试、196 项 AppModel 检查及 5 张原生截图通过；日志和原图已归档到 [evidence/black-brand-option2](../evidence/black-brand-option2/README.md)。本节只确认该功能专项，不把其他仍在运行的整体验收、用户安装或物理点击说成通过。
