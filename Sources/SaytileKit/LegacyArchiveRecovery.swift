@@ -41,7 +41,11 @@ public enum LegacyArchiveRecovery {
             _ = try await AudioDiagnostics.recoverAudio(store: target)
             try await first.installArchiveTables()
             try await target.installArchiveTables()
+            let originalEnd = try await target.lastArchivePosition()
             receipt = try await transfer(from: first, to: target)
+            if receipt.added > 0, originalEnd > 0 {
+                try await target.interleaveImportedHistory(after: originalEnd)
+            }
             try await target.verifyArchiveSQLite()
             try await first.close()
             try await target.close()
@@ -114,9 +118,10 @@ public enum LegacyArchiveRecovery {
                     receipt.verifiedOriginals += item.chunks.count
                     receipt.verifiedBytes += item.chunks.reduce(0) { $0 + 44 + $1.frames * 2 }
                 }
-                guard let saved = try await target.exportArchive(id),
-                      item.versions.allSatisfy(saved.versions.contains),
-                      item.draft == nil || item.draft == saved.draft || saved.versions.contains(item.draft!) else { throw ArchiveIssue.invalid }
+                guard let saved = try await target.exportArchive(id), item.versions.allSatisfy(saved.versions.contains) else {
+                    throw ArchiveIssue.invalid
+                }
+                if let draft = item.draft, draft != saved.draft, !saved.versions.contains(draft) { throw ArchiveIssue.invalid }
             }
         }
         return receipt
@@ -128,6 +133,43 @@ extension SaytileStore {
         try db.rows("SELECT position,recording_id FROM transcript_timeline WHERE recording_id IS NOT NULL AND position>? ORDER BY position LIMIT 64", [.int(position)]).map {
             guard let next = $0["position"].flatMap(Int64.init), let id = $0["recording_id"].flatMap(UUID.init(uuidString:)) else { throw ArchiveIssue.invalid }
             return (next,id)
+        }
+    }
+    fileprivate func lastArchivePosition() throws -> Int64 {
+        guard let end = try db.rows("SELECT COALESCE(max(position),0) AS n FROM transcript_timeline").first?["n"].flatMap(Int64.init) else {
+            throw ArchiveIssue.invalid
+        }
+        return end
+    }
+
+    /// This is run only on an unopened staged copy. Preserve capture order
+    /// within each original even if its wall clock jumped back, and place old
+    /// history before later entries rather than appending it to the live tail.
+    fileprivate func interleaveImportedHistory(after baseEnd: Int64) throws {
+        try db.transaction {
+            try db.execute("PRAGMA defer_foreign_keys=ON")
+            try db.execute("""
+                CREATE TEMP TABLE archive_position_map AS
+                WITH times AS (
+                  SELECT position, position>? AS imported,
+                    max(started) OVER (PARTITION BY (position>?) ORDER BY position ROWS UNBOUNDED PRECEDING) AS clock
+                  FROM transcript_timeline
+                )
+                SELECT position AS old,row_number() OVER (ORDER BY clock,imported,position) AS new FROM times
+                """, [.int(baseEnd), .int(baseEnd)])
+            try db.execute("CREATE UNIQUE INDEX archive_position_old ON archive_position_map(old)")
+            for (table, columns) in [("transcript_timeline", ["position", "group_start"]),
+                                     ("timeline_paragraphs", ["position", "paragraph_start"]),
+                                     ("icloud_groups", ["position"]), ("icloud_paragraph_anchors", ["position"]),
+                                     ("icloud_paragraph_edits", ["position"])] {
+                // Stage all keys as negative to avoid reusing another row's
+                // primary key before it has been moved.
+                try db.execute("UPDATE " + table + " SET " + columns.map { $0 + "= -" + $0 }.joined(separator: ","))
+                try db.execute("UPDATE " + table + " SET " + columns.map {
+                    $0 + "=(SELECT new FROM archive_position_map WHERE old= -" + table + "." + $0 + ")"
+                }.joined(separator: ","))
+            }
+            try db.execute("DROP TABLE archive_position_map")
         }
     }
     fileprivate func verifyArchiveSQLite() throws {

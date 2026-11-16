@@ -12,14 +12,15 @@ public struct PrivateArchiveSync: Sendable {
     let store: SaytileStore
     let remote: any PrivateArchiveTransport
 
+    public static func isDevelopmentFixture(_ directory: URL) -> Bool {
+        let location = directory.resolvingSymlinksInPath().standardizedFileURL
+        let root = URL(fileURLWithPath: "/private/tmp").standardizedFileURL
+        let relative = location.pathComponents.dropFirst(root.pathComponents.count)
+        return location.pathComponents.starts(with: root.pathComponents) && relative.first?.hasPrefix("saytile-icloud-fixture-") == true
+    }
+
     public static func configured(for store: SaytileStore, developmentFixture: Bool = false) -> Self? {
-        if developmentFixture {
-            let location = store.directory.resolvingSymlinksInPath().standardizedFileURL
-            let root = URL(fileURLWithPath: "/private/tmp").standardizedFileURL
-            let relative = Array(location.pathComponents.dropFirst(root.pathComponents.count))
-            guard location.pathComponents.starts(with: root.pathComponents),
-                  relative.first?.hasPrefix("saytile-icloud-fixture-") == true else { return nil }
-        }
+        if developmentFixture && !isDevelopmentFixture(store.directory) { return nil }
         return ApplePrivateArchive.transportIfEntitled(developmentFixture: developmentFixture).map { Self(store: store, remote: $0) }
     }
 

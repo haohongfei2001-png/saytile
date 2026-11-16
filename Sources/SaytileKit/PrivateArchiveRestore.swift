@@ -146,6 +146,9 @@ extension SaytileStore {
             }
             try db.execute("INSERT INTO icloud_paragraph_anchors VALUES(?,?)", [key, .int(anchor)])
         }
+        let original = try db.rows("SELECT started,day,utc_offset FROM transcript_timeline WHERE position=?", [.int(anchor)]).first
+        guard original?["started"].flatMap(Double.init) == paragraph.start, original?["day"] == paragraph.day,
+              original?["utc_offset"].flatMap(Int.init) == paragraph.offset else { throw ArchiveIssue.invalid }
         try db.execute("UPDATE timeline_paragraphs SET paragraph_start=? WHERE position=?", [.int(anchor), .int(member)])
         let state = try db.rows("""
             SELECT h.break_hidden,COALESCE(e.stamp,0) AS stamp FROM timeline_paragraphs h LEFT JOIN icloud_paragraph_edits e USING(position)

@@ -31,6 +31,15 @@ struct SaytileMain {
             }
             dispatchMain()
         }
+        if CommandLine.arguments.contains("--icloud-archive-fixture") {
+            let args = CommandLine.arguments
+            guard args.filter({ $0 == "--data-directory" }).count == 1,
+                  let index = args.firstIndex(of: "--data-directory"), index + 1 < args.count,
+                  PrivateArchiveSync.isDevelopmentFixture(URL(fileURLWithPath: args[index+1], isDirectory: true)) else {
+                print("Development CloudKit requires an explicit /private/tmp/saytile-icloud-fixture-… directory.")
+                exit(64)
+            }
+        }
         let app = NSApplication.shared
         let delegate = AppDelegate()
         app.delegate = delegate

@@ -55,6 +55,18 @@ private func makeItem(_ digest: String) -> PrivateArchive {
         let pcm = makeWAV(), wav = scratch.appendingPathComponent("source.wav")
         let digest = ArchiveCloudRecord.digest(pcm)
         try pcm.write(to: wav)
+        let a1 = makeItem(digest), b1 = makeItem(digest), c1 = makeItem(digest)
+        var first = a1, continued = b1, third = c1
+        first.sequence = 1; continued.sequence = 2; third.sequence = 3
+        first.paragraph = .init(id: first.id, start: first.started, day: first.day, offset: 0, hidden: false, edited: 0)
+        continued.paragraph = first.paragraph
+        third.paragraph = .init(id: third.id, start: third.started, day: third.day, offset: 0, hidden: false, edited: 0)
+        var grouped = ReaderParagraph.assemble([third,continued,first])
+        try check(grouped.count == 2 && grouped.last?.playable.map(\.id) == [first.id,continued.id], "one natural paragraph owns two playable recordings in capture order")
+        try check(grouped.last?.match("记录隔离") == "隔离阅读记录隔离阅读记录", "search spans adjacent recording boundaries")
+        third.paragraph = .init(id: third.id,start: third.started,day: third.day,offset: 0,hidden: true,edited: 10)
+        grouped = ReaderParagraph.assemble([third,continued,first])
+        try check(grouped.count == 1 && grouped[0].playable.map(\.id) == [first.id,continued.id,third.id], "explicitly joined paragraph reads and plays continuously")
         let disk = ReaderDisk(root: scratch.appendingPathComponent("cache")), sa = ProbeSource(key: a,wav: wav), sb = ProbeSource(key: b,wav: wav)
         var item = makeItem(digest)
         try item.validate()
