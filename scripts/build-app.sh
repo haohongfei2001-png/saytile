@@ -53,8 +53,8 @@ cp THIRD_PARTY_NOTICES.md "$bundle/Contents/Resources/THIRD_PARTY_NOTICES.md"
 cp Sources/CAudio/WEBRTC-LICENSE.txt "$bundle/Contents/Resources/WEBRTC-LICENSE.txt"
 cp packaging/Info.plist "$bundle/Contents/Info.plist"
 if [[ "${SAYTILE_MANDARIN_CANDIDATE:-0}" == 1 ]]; then
+  # Existing internal installations use this identifier for data, permissions and Sparkle.
   /usr/libexec/PlistBuddy -c 'Set :CFBundleIdentifier app.saytile.mac.mandarin-candidate' "$bundle/Contents/Info.plist"
-  /usr/libexec/PlistBuddy -c 'Set :CFBundleDisplayName Saytile 中文识别候选' "$bundle/Contents/Info.plist"
 fi
 ditto .build/sparkle/Sparkle.framework "$bundle/Contents/Frameworks/Sparkle.framework"
 cp .build/sparkle/LICENSE "$bundle/Contents/Resources/SPARKLE-LICENSE.txt"

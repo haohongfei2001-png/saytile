@@ -1,6 +1,6 @@
 # Saytile V1 RC2 工程候选安装说明
 
-当前内测只安装一个 `Saytile.app`（0.12），应用标识为 `app.saytile.mac`。更新时退出已运行的应用并替换同一路径的程序包；保留原有用户资料和授权。以下记录针对历史候选，不是当前安装步骤。
+个人内测安装和原位升级见[内测安装说明](INTERNAL-INSTALL.md)。以下是历史 RC2 工程候选记录。
 
 要求：Apple Silicon Mac，macOS 26 或更高。
 

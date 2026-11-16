@@ -1,6 +1,8 @@
 # Saytile
 
-个人内测使用一个 **Saytile.app（0.12）**。拖左、右边缘调宽度，拖上、下边缘调高度，可以停在长而窄的尺寸。收音键位于右下角。点菜单栏的 tile 图标可以收起或重新展开语音板。要把窄板调回原来的阅读尺寸，在窄板语音键上打开快捷菜单，选择「恢复阅读尺寸」。在「语音档案与设置…」中可按日期回听讲话、编辑文字和收藏记录。
+个人内测只使用一个 **Saytile.app**。版本与构建号在「关于」中显示，更新沿用现有安装位置。[内测安装与更新](docs/INTERNAL-INSTALL.md)
+
+拖左、右边缘调宽度，拖上、下边缘调高度，可以停在长而窄的尺寸。收音键位于右下角。点菜单栏的 tile 图标可以收起或重新展开语音板。要把窄板调回原来的阅读尺寸，在窄板语音键上打开快捷菜单，选择「恢复阅读尺寸」。在「语音档案与设置…」中可按日期回听讲话、编辑文字和收藏记录。
 
 > **最新产品增量决定（2026-11-09）：** [无限语音时间轴、一键复制、未来说话人模式、可选 ASR 及忠实原话](docs/PRODUCT-DECISIONS-2026-11-09.md)。这是后续产品目标，不是 no-api.10 已完成的能力；任何旧“双 ASR 同时运行”描述均已被 [单 ASR 权威架构](research/architecture/FINAL-ARCHITECTURE.md) 取代。
 
@@ -26,8 +28,8 @@ Saytile 是 macOS 原生语音输入与表达工作台。开启后持续待命�
 ## 构建和运行
 
 ```sh
-scripts/package-beta.sh
-# 输出文件名使用 packaging/VERSION；本分支为待云端验收的 RC2 候选
+SAYTILE_MANDARIN_CANDIDATE=1 SAYTILE_SIGN_IDENTITY="<Developer ID 身份的 SHA-1>" scripts/package-beta.sh
+# 内测镜像文件名包含版本、构建号和架构，镜像内只有 Saytile.app。
 ```
 
 同步盘可能在 App 目录附加影响签名的 Finder 元数据，请通过 DMG 安装至 Applications 后运行。
