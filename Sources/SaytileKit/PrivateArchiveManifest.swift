@@ -75,7 +75,11 @@ struct PrivateArchive: Codable, Equatable, Sendable {
         try Self.checked(id == remote.id && started == remote.started && sampleRate == remote.sampleRate)
         var result = self
         if let other = remote.paragraph {
-            if let here = paragraph {
+            if let here = paragraph, here.id != other.id, let baseline, baseline.paragraph == nil {
+                // A v1 replica inferred a local boundary before receiving the
+                // original machine's explicit anchor for the first time.
+                result.paragraph = other
+            } else if let here = paragraph {
                 try Self.checked(here.id == other.id && here.start == other.start && here.day == other.day && here.offset == other.offset)
                 if other.edited > here.edited || (other.edited == here.edited && other.hidden) { result.paragraph = other }
             } else {
@@ -148,4 +152,3 @@ enum ArchiveIssue: Error, LocalizedError {
         }
     }
 }
-

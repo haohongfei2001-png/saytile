@@ -40,9 +40,12 @@ final class ReaderUITests: XCTestCase {
         capture("Playback", app: app)
         stop.tap()
         XCTAssertTrue(play.waitForExistence(timeout: 10), "Manual stop should restore the playback action.")
+        let started = Date()
         play.tap()
         XCTAssertTrue(stop.waitForExistence(timeout: 10), app.debugDescription)
         XCTAssertTrue(play.waitForExistence(timeout: 45), "The player delegate should finish the complete fixture.")
+
+        XCTAssertGreaterThanOrEqual(Date().timeIntervalSince(started), 10, "Both six-second recordings in the paragraph must play.")
 
         let search = app.searchFields.firstMatch
         if !search.isHittable { app.swipeDown() }

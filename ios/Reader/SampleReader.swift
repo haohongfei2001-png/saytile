@@ -6,9 +6,8 @@ struct SampleReader: ReaderSource {
     private static let record = UUID(uuidString: "80E534FA-8C9F-4DB1-BF0B-4F619720910E")!
     private static let version = UUID(uuidString: "C7EB898F-3A10-400D-A867-F8EAE7086D13")!
     private static let chunk = UUID(uuidString: "009F1F92-2CCB-47DF-8B5A-9650910156C2")!
-    static let seconds = 12
+    static let seconds = 6
     static let frames = seconds * 16_000
-    static let text = "星期五下午三点，讨论原音备份。"
     func owner() async throws -> String { ArchiveCloudRecord.ownerKey("isolated-simulator-fixture") }
     private var wav: Data {
         var d = Data("RIFF".utf8)
@@ -20,12 +19,23 @@ struct SampleReader: ReaderSource {
         return d
     }
     func page(owner: String, after: Data?) async throws -> ReaderPage {
-        let item = PrivateArchive(format: 1, id: Self.record, started: 1_760_000_000, ended: 1_760_000_000 + Double(Self.seconds),
-            day: "2025-10-09", offset: 0, group: .init(start: 1_760_000_000, day: "2025-10-09", offset: 0),
-            sampleRate: 16000, head: Self.version, pinned: true, deleted: false, audioDeleted: false,
-            versions: [.init(id: Self.version, text: Self.text, origin: .userEdit, created: 1_760_000_004, attempt: nil, base: nil)],
-            chunks: [.init(id: Self.chunk, frames: Int64(Self.frames), ordinal: 0, sha256: ArchiveCloudRecord.digest(wav))])
-        return ReaderPage(items: after == nil ? [item] : [], removed: [], next: Data([1]), more: false)
+        let start = 1_760_000_000.0
+        let paragraph = PrivateArchive.Paragraph(id: Self.record, start: start, day: "2025-10-09", offset: 0, hidden: false, edited: 0)
+        let ids = [Self.record, UUID(uuidString: "72016381-A0E1-464A-84F9-C2937F061BAD")!]
+        let texts = ["星期五下午三点，","讨论原音备份。"]
+        let versions = [Self.version, UUID(uuidString: "5AB50738-8A9C-4B29-9CFE-F4C263DAC33F")!]
+        let chunks = [Self.chunk, UUID(uuidString: "4A1065C2-5B63-45CB-83D5-F85B2211A214")!]
+        let digest = ArchiveCloudRecord.digest(wav)
+        let items = ids.indices.map { i in
+            let began = start + Double(i) * Double(Self.seconds)
+            return PrivateArchive(format: 1, id: ids[i], started: began, ended: began + Double(Self.seconds),
+                day: "2025-10-09", offset: 0, group: .init(start: start, day: "2025-10-09", offset: 0),
+                sampleRate: 16000, sequence: Int64(i+1), paragraph: paragraph, head: versions[i], pinned: true, deleted: false, audioDeleted: false,
+                versions: [.init(id: versions[i], text: texts[i], origin: .userEdit, created: began, attempt: nil, base: nil)],
+                chunks: [.init(id: chunks[i], frames: Int64(Self.frames), ordinal: 0, sha256: digest)])
+        }
+        return ReaderPage(items: after == nil ? Array(items.reversed()) : [], removed: [], next: Data([1]), more: false)
+
     }
     func audio(owner: String, item: PrivateArchive) async throws -> [URL] {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-public-reader-fixture.wav")

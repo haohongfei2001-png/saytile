@@ -233,6 +233,62 @@ extension PrivateArchiveTests {
         #expect(try await target.exportArchive(id) == original)
     }
 
+    @Test func developmentProfileOnlyAcceptsAResolvedIsolatedFixture() throws {
+        let fixture = URL(fileURLWithPath: "/private/tmp/saytile-icloud-fixture-" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: fixture, withIntermediateDirectories: false)
+        defer { try? FileManager.default.removeItem(at: fixture) }
+        #expect(PrivateArchiveSync.isDevelopmentFixture(fixture.appendingPathComponent("second")))
+        #expect(!PrivateArchiveSync.isDevelopmentFixture(fixture.deletingLastPathComponent()))
+        let escaped = fixture.appendingPathComponent("outside")
+        try FileManager.default.createSymbolicLink(at: escaped, withDestinationURL: URL(fileURLWithPath: "/private/tmp"))
+        #expect(!PrivateArchiveSync.isDevelopmentFixture(escaped))
+        #expect(!PrivateArchiveSync.isDevelopmentFixture(fixture.appendingPathComponent("../unrelated")))
+    }
+
+    @Test func explicitLegacyMergeKeepsBothOriginalsAndChronologicalStagedResult() async throws {
+        let f = CloudArchiveFixture(); defer { f.clean() }
+        let fm = FileManager.default
+        let base = try f.store("base"), old = try f.store("old")
+        let time = 1_700_000_000.0
+        let recent = try await f.append(base, time: time+125, text: "目前的记录")
+        let early = try await f.append(old, time: time, text: "旧档")
+        let tail = try await f.append(old, time: time+4, text: "接续")
+        _ = try await old.saveEdit(recordingID: early, text: "旧版手改")
+        try await old.setPinned(recordingID: early, pinned: true)
+        try await old.saveDraft(recordingID: tail, text: "未提交")
+        let baseDir = base.directory, oldDir = old.directory, result = f.directory.appendingPathComponent("checked")
+        let extra = Data("本机资料".utf8)
+        try extra.write(to: baseDir.appendingPathComponent("fixture-other-state"))
+        await #expect(throws: StoreError.self) { _ = try await LegacyArchiveRecovery.prepare(base: baseDir, legacy: oldDir, output: result) }
+        #expect(!fm.fileExists(atPath: result.path))
+        try await old.close(); try await base.close()
+        func snapshot(_ dir: URL) throws -> String { ArchiveCloudRecord.digest(try Data(contentsOf: dir.appendingPathComponent("Saytile.sqlite"))) }
+        let before = try [snapshot(baseDir), snapshot(oldDir)]
+        let receipt = try await LegacyArchiveRecovery.prepare(base: baseDir, legacy: oldDir, output: result)
+        #expect(receipt.examined == 2 && receipt.added == 2 && receipt.verifiedOriginals == 2 && receipt.verifiedBytes == 6488)
+        #expect(try [snapshot(baseDir), snapshot(oldDir)] == before)
+        #expect(try Data(contentsOf: result.appendingPathComponent("fixture-other-state")) == extra)
+        let staged = try SaytileStore(directory: result)
+        let rows = try await staged.timelinePage().entries
+        #expect(rows.map(\.id) == [early,tail,recent])
+        #expect(rows[0].paragraphID == rows[1].paragraphID && rows[0].paragraphID != rows[2].paragraphID)
+        #expect(rows[0].recording.isPinned && rows[0].recording.text == "旧版手改")
+        #expect(try await staged.revisions(recordingID: early).count == 2)
+        #expect(try await staged.loadDraft(recordingID: tail) == "未提交")
+        #expect(try await staged.archiveState("owner") == nil)
+        try await staged.deleteAudio(recordingID: early)
+        try await staged.close()
+        let twice = f.directory.appendingPathComponent("checked-again")
+        let again = try await LegacyArchiveRecovery.prepare(base: result, legacy: oldDir, output: twice)
+        #expect(again.added == 0 && again.overlapping == 2)
+        let reopened = try SaytileStore(directory: twice)
+        #expect(try await reopened.recording(id: early)?.audioState == .deleted)
+        #expect(try await reopened.recording(id: early)?.text == "旧版手改")
+        try await reopened.close()
+        await #expect(throws: CocoaError.self) { _ = try await LegacyArchiveRecovery.prepare(base: baseDir, legacy: oldDir, output: result) }
+        #expect(try [snapshot(baseDir), snapshot(oldDir)] == before)
+    }
+
     @Test func expiredTokenRescansAnExistingZoneWithoutTreatingItAsFirstLaunch() async throws {
         let f = CloudArchiveFixture(); defer { f.clean() }
         let store = try f.store("local")
