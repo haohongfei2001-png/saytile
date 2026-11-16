@@ -144,6 +144,10 @@ struct SettingsView: View {
                 if model.microphoneDenied { Button("打开系统设置…", action: model.openMicrophoneSettings) }
                 else { Text(model.microphoneLabel) }
             }
+            Toggle(isOn: Binding(get: { model.remembersStandby }, set: model.setRemembersStandby)) {
+                Text("重新打开时恢复待命")
+                Text("只在上次已开启收音时恢复。手动暂停或退出后，需要再次开启。")
+            }.accessibilityIdentifier("settings.rememberStandby")
         }
         if let detail = model.panelCaptureDetail {
             Section { Text(detail).textSelection(.enabled).accessibilityIdentifier("settings.captureDetail") }

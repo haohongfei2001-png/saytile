@@ -120,6 +120,7 @@ struct AppCaptureDependencies {
     var state: (AudioController) -> CaptureState
     var start: (AudioController) async -> Void
     var pause: (AudioController) async -> Void
+    var restore: (AudioController) async -> Void = { await $0.restoreStandby() }
     var level: (AudioController) -> Float? = { $0.level }
     var microphoneAuthorization: () -> AVAuthorizationStatus = { AVCaptureDevice.authorizationStatus(for: .audio) }
     var openMicrophonePreferences: () -> Void = {
@@ -406,6 +407,21 @@ final class AppModel: ObservableObject {
     private var lastModelCallRefresh = Date.distantPast
     private var recovered = false
     private var recoveryTask: Task<Void, Never>?
+    // One key commits both the user's opt-in and the last explicit capture decision.
+    private enum StandbyIntent: String { case off, paused, armed }
+    private var standbyIntent: StandbyIntent {
+        get { preferences.string(forKey: "capture.standbyIntent.v1").flatMap(StandbyIntent.init(rawValue:)) ?? .off }
+        set {
+            guard newValue != standbyIntent else { return }
+            preferences.set(newValue.rawValue, forKey: "capture.standbyIntent.v1")
+            preferences.synchronize()
+            objectWillChange.send()
+        }
+    }
+    var remembersStandby: Bool { standbyIntent != .off }
+    private var captureActionGeneration: UInt64 = 0
+    private var startupIntentConsumed = false
+    var expectsUpdateRelaunch = false
     private var panelSessionStartedAt = Date()
     private var stagedRecordIDs: Set<UUID> = []
     private struct DraftWrite: Equatable {
@@ -428,7 +444,7 @@ final class AppModel: ObservableObject {
     init(directory: URL, preferences: UserDefaults = .standard, normalLaunch: Bool = false, connectionDependencies: AppConnectionDependencies = .live,
          captureDependencies: AppCaptureDependencies = .live, copyPasteboard: NSPasteboard? = nil) throws {
         managesLocalModels = normalLaunch
-        canManageLoginItem = normalLaunch && SaytileStorageProfile.current == .standard
+        canManageLoginItem = normalLaunch && [.standard, .mandarinCandidate].contains(SaytileStorageProfile.current)
         localModels = LocalASRService(root: directory.appending(path: "LocalModels"))
         localTextAllowed = preferences.bool(forKey: "localASR.textAllowed")
         deviceOnly = preferences.object(forKey: "localASR.deviceOnly") as? Bool
@@ -470,6 +486,7 @@ final class AppModel: ObservableObject {
         shortcutChoice = preferences.string(forKey: "shortcutChoice") ?? ([.designExperience, .sharedVoicePreview, .mandarinCandidate].contains(SaytileStorageProfile.current) ? "disabled" : "option-space")
         audio.selectDevice(uid: preferences.string(forKey: "selectedDeviceUID"))
         initializing = false
+        audio.onMicrophonePermissionLost = { [weak self] in self?.disarmStandby() }
         hosted.bind { [weak self] route, revoke in
             guard let self else { return }
             accountRoute = route
@@ -493,7 +510,12 @@ final class AppModel: ObservableObject {
             .sink { [weak self] _ in Task { @MainActor [weak self] in await self?.refreshRecognition() } }
         recoveryTask = Task { [weak self] in
             guard let self else { return }
-            do { _ = try await AudioDiagnostics.recoverAudio(store: store); recovered = true; audio.completeStartupRecovery() }
+            do {
+                _ = try await AudioDiagnostics.recoverAudio(store: store)
+                recovered = true
+                audio.completeStartupRecovery()
+                if normalLaunch { await restoreRememberedStandby() }
+            }
             catch { notice = "资料恢复尚未完成：\(error.localizedDescription)" }
         }
         startRefreshTimer()
@@ -928,19 +950,56 @@ final class AppModel: ObservableObject {
         return choices
     }
     var playingID: UUID? { audio.playingID }
+    func setRemembersStandby(_ enabled: Bool) {
+        guard enabled != remembersStandby else { return }
+        startupIntentConsumed = true
+        let state = captureDependencies.state(audio)
+        standbyIntent = !enabled ? .off : (state == .listening || state == .speaking) &&
+            captureDependencies.microphoneAuthorization() == .authorized ? .armed : .paused
+        if !enabled {
+            Task { if !remembersStandby { await audio.cancelPendingStandbyRestoration() } }
+        }
+    }
+    func disarmStandby() {
+        startupIntentConsumed = true
+        captureActionGeneration &+= 1
+        if remembersStandby { standbyIntent = .paused }
+    }
+    func noteTermination(systemRestart: Bool, explicitQuit: Bool = false) {
+        if explicitQuit || (!systemRestart && !expectsUpdateRelaunch) { disarmStandby() }
+    }
+    func restoreRememberedStandby() async {
+        guard recovered, !exitPrepared, !preparingForExit, !startupIntentConsumed else { return }
+        startupIntentConsumed = true
+        guard standbyIntent == .armed else { return }
+        guard captureDependencies.microphoneAuthorization() == .authorized else { disarmStandby(); return }
+        await captureDependencies.restore(audio)
+        let state = captureDependencies.state(audio)
+        if state == .listening || state == .speaking { hasStarted = true }
+    }
     func toggleCapture() {
         if captureProblem && microphoneDenied { openMicrophoneSettings(); return }
+        startupIntentConsumed = true
+        captureActionGeneration &+= 1
+        let generation = captureActionGeneration
+        let wantsPause = captureDependencies.state(audio).isRunning
+        if wantsPause && remembersStandby { standbyIntent = .paused }
         Task {
-            await recoveryTask?.value
+            if !recovered { await recoveryTask?.value }
+            guard generation == captureActionGeneration, !exitPrepared, !preparingForExit else { return }
             guard recovered else { notice = "资料库恢复未完成，请先重新打开 Saytile。已有资料会保留。"; return }
             let prior = captureDependencies.state(audio)
-            if prior.isRunning {
+            if wantsPause {
                 if prior == .listening || prior == .speaking { hasStarted = true }
                 await captureDependencies.pause(audio)
             } else {
                 await captureDependencies.start(audio)
+                guard generation == captureActionGeneration else { return }
                 let result = captureDependencies.state(audio)
-                if result == .listening || result == .speaking { hasStarted = true }
+                if result == .listening || result == .speaking {
+                    hasStarted = true
+                    if remembersStandby && captureDependencies.microphoneAuthorization() == .authorized { standbyIntent = .armed }
+                }
             }
             if case let .interrupted(reason) = captureDependencies.state(audio), let issue = audio.issue {
                 captureStartIssue = (reason, issue)
@@ -1461,6 +1520,8 @@ final class AppModel: ObservableObject {
         guard !exitPrepared else { return }
         if preparingForExit { await withCheckedContinuation { exitWaiters.append($0) }; return }
         preparingForExit = true
+        captureActionGeneration &+= 1
+        startupIntentConsumed = true
         defer {
             preparingForExit = false
             let waiters = exitWaiters; exitWaiters.removeAll()
@@ -1473,6 +1534,7 @@ final class AppModel: ObservableObject {
         await recognitionApplyTask?.value; recognitionApplyTask = nil; applyingRecognitionSettings = false
         timer?.cancel(); refreshTask?.cancel()
         await audio.pause()
+        await recoveryTask?.value
         _ = await flushEditorDrafts()
         await feedback.prepareForExit()
         // If saving fails, the delegate keeps this window open and the normal refresh loop alive.
@@ -1648,7 +1710,7 @@ final class AppModel: ObservableObject {
         do { if enabled { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() } }
         catch { notice = "登录启动未能更新：\(error.localizedDescription)" }
         let status = SMAppService.mainApp.status
-        if status == .requiresApproval { notice = "登录启动需要在系统设置的登录项中允许。收音仍需你主动开启。" }
+        if status == .requiresApproval { notice = "请在系统设置的登录项中允许 Saytile。" }
         launchAtLogin = status == .enabled
     }
 }

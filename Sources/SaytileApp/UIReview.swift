@@ -237,8 +237,15 @@ extension AppDelegate {
             }
             model.selectSource("local")
             try await reviewWindow(SettingsView(model: model, initialPage: .speech), size: CGSize(width: 650, height: 740), name: "settings", output: output) { host in
-                try await self.inspectSettings(in: host, required: ["settings.inputDevice", "麦克风权限"],
+                try await self.inspectSettings(in: host, required: ["settings.inputDevice", "麦克风权限", "settings.rememberStandby"],
                                               excluded: ["cloud.serviceInspector", "hosted.email", "models.use.apple"])
+                let originalStandbyChoice = model.remembersStandby
+                try await self.press("settings.rememberStandby", in: host)
+                guard model.remembersStandby != originalStandbyChoice, !model.isListening else {
+                    throw ReviewFailure("standby preference must change without starting a paused microphone")
+                }
+                try await self.press("settings.rememberStandby", in: host)
+                guard model.remembersStandby == originalStandbyChoice else { throw ReviewFailure("standby preference did not revert") }
                 try await self.press("settings.page.cloud", in: host)
                 try await self.inspectSettings(in: host, required: ["hosted.upload-consent"], excluded: ["settings.inputDevice"])
                 try await self.chooseCloudService("自带 API", in: host)

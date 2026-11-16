@@ -79,7 +79,7 @@ private actor PendingFeedbackTransport: FeedbackTransport {
         }
         do {
             let home = root.appendingPathComponent("send-exit")
-            let model = FeedbackSettingsModel(directory: home, normalLaunch: false)
+            let model = FeedbackSettingsModel(directory: home, normalLaunch: false, transport: DisabledFeedbackTransport())
             try await waitReady(model)
             model.edit(text: "发送后立即退出"); model.send()
             await model.prepareForExit()
@@ -90,7 +90,7 @@ private actor PendingFeedbackTransport: FeedbackTransport {
         }
         do {
             let home = root.appendingPathComponent("enqueue-failure")
-            let model = FeedbackSettingsModel(directory: home, normalLaunch: false)
+            let model = FeedbackSettingsModel(directory: home, normalLaunch: false, transport: DisabledFeedbackTransport())
             try await waitReady(model)
             _ = try database(home, sql: "CREATE TRIGGER reject_report BEFORE INSERT ON reports BEGIN SELECT RAISE(ABORT,'fixture'); END")
             model.edit(text: "提交失败仍有已保存草稿"); model.send()
@@ -100,6 +100,16 @@ private actor PendingFeedbackTransport: FeedbackTransport {
             _ = try database(home, sql: "DROP TRIGGER reject_report")
             model.send(); await model.prepareForExit(); await model.reload()
             try require(model.records.count == 1 && model.draft.text.isEmpty, "explicit retry after enqueue failure commits one report")
+            await model.finishExit()
+        }
+        do {
+            let home = root.appendingPathComponent("undeployed")
+            let model = FeedbackSettingsModel(directory: home, normalLaunch: false)
+            try await waitReady(model)
+            model.edit(text: "服务开放前保留的草稿")
+            try require(!model.submissionAvailable && !model.canSend, "undeployed service cannot accept a submission")
+            model.send(); await model.prepareForExit(); await model.reload()
+            try require(model.records.isEmpty && (try storedDraft(home).text) == "服务开放前保留的草稿", "unavailable send never enqueues or erases a local draft")
             await model.finishExit()
         }
         do {

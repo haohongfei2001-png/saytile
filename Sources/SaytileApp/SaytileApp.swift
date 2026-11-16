@@ -474,21 +474,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if terminating { return .terminateNow }
-        guard !shutdownStarted else { return .terminateCancel }
+        guard !shutdownStarted else { return .terminateLater }
         shutdownStarted = true
+        let reason = NSAppleEventManager.shared().currentAppleEvent?
+            .paramDescriptor(forKeyword: AEKeyword(kAEQuitReason))?.enumCodeValue
+        let systemRelaunch = [kAEShutDown, kAERestart, kAEReallyLogOut].contains { reason == OSType($0) }
+        model?.noteTermination(systemRestart: systemRelaunch)
         Task {
             await model?.prepareForExit()
             if model?.hasUnpersistedDrafts == true {
+                model?.expectsUpdateRelaunch = false
                 shutdownStarted = false
                 presentWorkspace(.archive)
+                sender.reply(toApplicationShouldTerminate: false)
                 return
             }
             await panelCoexistence?.stop()
             panelCoexistence = nil
             terminating = true
-            DispatchQueue.main.async { NSApp.terminate(nil) }
+            sender.reply(toApplicationShouldTerminate: true)
         }
-        return .terminateCancel
+        return .terminateLater
     }
     func applicationWillTerminate(_ notification: Notification) {
         if let suite = diagnosticPreferencesSuite { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
@@ -560,7 +566,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         menu.addItem(check)
         let quit = NSMenuItem(title: "退出 Saytile", action: #selector(quitApp), keyEquivalent: "q"); quit.target = self; menu.addItem(quit)
     }
-    @objc private func quitApp() { NSApp.terminate(nil) }
+    @objc private func quitApp() { model?.noteTermination(systemRestart: false, explicitQuit: true); NSApp.terminate(nil) }
     @objc private func checkForAppUpdates() { model?.checkForUpdates?() }
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(checkForAppUpdates) { return model?.canCheckForUpdates == true }

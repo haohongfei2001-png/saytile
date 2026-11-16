@@ -291,6 +291,10 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     private var ring: AudioRing?
     private var observers: [NSObjectProtocol] = []
     private var requestedRunning = false
+    public var onMicrophonePermissionLost: (() -> Void)?
+    private var restoringStandby = false
+    private var waitingForOpenLid = false
+    private var waitingForInputUID: String?
     private var startGeneration: UInt64 = 0
     private var automaticAssetAttempted = false
     private var selectedLocalID: LocalASRID = .apple
@@ -374,18 +378,39 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 guard let self, !self.isShuttingDown else { break }
                 let previouslyAllowed = self.lifecycleGate.permitsCapture
                 self.lifecycleGate.refresh(AudioSessionSnapshot.current())
-                if self.state.isRunning && !self.lifecycleGate.permitsCapture {
-                    await self.suspend(reason: self.lifecycleGate.reason)
-                } else if AudioLifecycleGate.requiresPermissionSuspension(state: self.state, authorization: AVCaptureDevice.authorizationStatus(for: .audio)) {
+                let authorization = AVCaptureDevice.authorizationStatus(for: .audio)
+                let revokedWhileWaiting = self.requestedRunning && !self.state.isRunning && authorization != .authorized
+                if revokedWhileWaiting || AudioLifecycleGate.requiresPermissionSuspension(state: self.state, authorization: authorization) {
                     self.requestedRunning = false
+                    self.restoringStandby = false
+                    self.onMicrophonePermissionLost?()
                     await self.suspend(reason: "麦克风权限已撤回，请在系统设置恢复权限后重新开启")
+                } else if self.state.isRunning && !self.lifecycleGate.permitsCapture {
+                    await self.suspend(reason: self.lifecycleGate.reason)
                 } else if self.state.isRunning && MicrophoneLid.blocks(builtIn: self.activeInputIsBuiltIn) {
+                    self.waitingForOpenLid = true
                     await self.suspend(reason: MicrophoneLid.reason)
                 } else if let pinned = self.pinnedInput, self.state.isRunning {
                     do { try pinned.checkProgress() }
-                    catch { await self.suspend(reason: error.localizedDescription); self.refreshDevices() }
-                } else if !previouslyAllowed && self.lifecycleGate.permitsCapture && self.requestedRunning {
-                    await self.start(requestPermission: false)
+                    catch {
+                        self.refreshDevices()
+                        if let uid = self.selectedDeviceUID, !self.devices.contains(where: { $0.uid == uid }) {
+                            self.waitingForInputUID = uid
+                        }
+                        await self.suspend(reason: error.localizedDescription)
+                    }
+                } else if self.requestedRunning && self.lifecycleGate.permitsCapture && !self.state.isRunning {
+                    var canResume = !previouslyAllowed
+                    if self.waitingForOpenLid && !MicrophoneLid.blocks(builtIn: true) {
+                        self.waitingForOpenLid = false; canResume = true
+                    }
+                    if let uid = self.waitingForInputUID {
+                        self.refreshDevices()
+                        if self.selectedDeviceUID == uid && self.devices.contains(where: { $0.uid == uid }) {
+                            self.waitingForInputUID = nil; canResume = true
+                        }
+                    }
+                    if canResume { await self.start(requestPermission: false) }
                 }
             }
         }
@@ -599,6 +624,24 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         }
         assetTask = task; await task.value; assetTask = nil
     }
+    /// Called only after local recovery and a persisted explicit opt-in. Never prompts.
+    public func restoreStandby() async {
+        guard startupRecoveryReady, !isShuttingDown, state == .paused,
+              AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else { return }
+        requestedRunning = true
+        restoringStandby = true
+        lifecycleGate.refresh(AudioSessionSnapshot.current())
+        guard lifecycleGate.permitsCapture else {
+            state = .interrupted(lifecycleGate.reason); issue = lifecycleGate.reason
+            return
+        }
+        await start(requestPermission: false)
+    }
+    public func cancelPendingStandbyRestoration() async {
+        guard restoringStandby else { return }
+        await pause()
+        issue = nil
+    }
     public func start(requestPermission: Bool = true) async {
         guard !isShuttingDown else { return }
         let generationBeforeStop = startGeneration
@@ -606,6 +649,8 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         lifecycleGate.refresh(AudioSessionSnapshot.current())
         guard !isShuttingDown, generationBeforeStop == startGeneration, lifecycleGate.permitsCapture else { return }
         guard !state.isRunning else { return }
+        waitingForOpenLid = false
+        waitingForInputUID = nil
         retryTask?.cancel()
         playbackResume = false; stopPlayback(); requestedRunning = true; state = .starting; issue = nil
         startGeneration &+= 1
@@ -617,14 +662,21 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         guard lifecycleGate.permitsCapture else {
             state = .interrupted(lifecycleGate.reason); issue = lifecycleGate.reason; return
         }
-        guard allowed else { state = .interrupted("需要麦克风权限"); issue = "请在系统设置 → 隐私与安全性 → 麦克风中允许 Saytile"; return }
+        guard allowed else {
+            requestedRunning = false; restoringStandby = false; onMicrophonePermissionLost?()
+            state = .interrupted("需要麦克风权限"); issue = "请在系统设置 → 隐私与安全性 → 麦克风中允许 Saytile"; return
+        }
         var startingEngine: AVAudioEngine?
         var tapInstalled = false
         do {
             refreshDevices()
             let selected: AudioInputDevice?
             if let uid = selectedDeviceUID {
-                guard let device = devices.first(where: { $0.uid == uid }) else { throw AudioFailure.message("所选麦克风未连接，请连接设备或明确选择另一个麦克风") }
+                guard let device = devices.first(where: { $0.uid == uid }) else {
+                    if requestPermission { requestedRunning = false }
+                    else { waitingForInputUID = uid }
+                    throw AudioFailure.message("所选麦克风未连接，请连接设备或明确选择另一个麦克风")
+                }
                 selected = device
             } else {
                 selected = nil
@@ -632,6 +684,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             let builtIn = MicrophoneLid.isBuiltIn(selected?.id ?? MicrophoneLid.defaultInput)
             guard !MicrophoneLid.blocks(builtIn: builtIn) else {
                 if requestPermission { requestedRunning = false }
+                waitingForOpenLid = requestedRunning
                 throw AudioFailure.message(MicrophoneLid.reason)
             }
             activeInputIsBuiltIn = builtIn
@@ -665,9 +718,11 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             // An explicit queue may have suspended while waiting for its first buffer.
             guard !MicrophoneLid.blocks(builtIn: builtIn) else {
                 if requestPermission { requestedRunning = false }
+                waitingForOpenLid = requestedRunning
                 throw AudioFailure.message(MicrophoneLid.reason)
             }
             self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
+            restoringStandby = false
             await worker.start()
             prepareLocalSpeechResourcesIfNeeded()
         } catch {
@@ -682,6 +737,8 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         }
     }
     public func pause() async {
+        restoringStandby = false
+        waitingForOpenLid = false; waitingForInputUID = nil
         startGeneration &+= 1; requestedRunning = false; playbackResume = false
         stopPlayback(); state = .paused
         await stopCapture()

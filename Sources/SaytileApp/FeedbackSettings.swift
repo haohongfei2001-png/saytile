@@ -19,7 +19,7 @@ struct FeedbackSettings: View {
                 Button(model.busy ? "正在保存…" : "发送反馈", action: model.send)
                     .disabled(!model.canSend).accessibilityIdentifier("feedback.send")
             }
-            Text("反馈发送到开发者的私有反馈中心，并标记为 Saytile。只提交你填写的内容、产品版本和提交时间；不会附带录音、转写文字或日志。")
+            Text(model.submissionAvailable ? "发送会提交你填写的内容、产品版本和提交时间。" : "反馈服务尚未开放，你的草稿会保存在这台 Mac。")
                 .font(.callout).foregroundStyle(.secondary)
             if let message = model.message { Text(message).font(.callout).textSelection(.enabled).accessibilityIdentifier("feedback.message") }
         }.task {
@@ -44,7 +44,7 @@ struct FeedbackSettings: View {
                             if record.state == .cancelled || record.state == .deleted {
                                 Button("移除本机记录") { Task { await model.forget(record) } }
                             } else {
-                                Button("刷新状态") { Task { await model.refresh(record) } }
+                                Button("刷新状态") { Task { await model.refresh(record) } }.disabled(!model.submissionAvailable)
                                 if ![.deletionQueued, .deletionPending].contains(record.state) {
                                     Button(record.state == .deletionBlocked ? "重试撤回" : "撤回") { withdrawing = record }
                                 }

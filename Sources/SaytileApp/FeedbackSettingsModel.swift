@@ -16,18 +16,21 @@ import RiftletFeedback
     private var saving: Task<Void, Never>?
     private var sending: Task<Void, Never>?
     private let version: String
+    let submissionAvailable: Bool
     static let endpoint = URL(string: "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback")!
 
     init(directory: URL, normalLaunch: Bool, transport: (any FeedbackTransport)? = nil,
          secrets: (any FeedbackSecretStorage)? = nil) {
         version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
+        submissionAvailable = transport != nil || (normalLaunch &&
+            Bundle.main.object(forInfoDictionaryKey: "SaytileFeedbackSubmissionEnabled") as? Bool == true)
         loading = Task { [weak self] in
             do {
                 let store = try await Task.detached(priority: .utility) {
                     try FeedbackStore(directory: directory.appendingPathComponent("Feedback-v01"))
                 }.value
                 guard let self else { return }
-                let network: any FeedbackTransport = try transport ?? (normalLaunch
+                let network: any FeedbackTransport = try transport ?? (self.submissionAvailable
                     ? HTTPSFeedbackTransport(endpoint: Self.endpoint) : DisabledFeedbackTransport())
                 let credentials: any FeedbackSecretStorage = secrets ?? (normalLaunch
                     ? KeychainFeedbackSecrets(namespace: (Bundle.main.bundleIdentifier ?? "app.saytile.mac") + ".feedback") : MemoryFeedbackSecrets())
@@ -37,11 +40,11 @@ import RiftletFeedback
                 self.ready = true
                 await self.reload()
                 // Only explicit, previously queued submissions are allowed to send.
-                Task { [weak self] in await engine.pump(); await self?.reload() }
+                if self.submissionAvailable { Task { [weak self] in await engine.pump(); await self?.reload() } }
             } catch { self?.message = "反馈暂时不可用；录音和文字保存不受影响。" }
         }
     }
-    var canSend: Bool { ready && !busy && !closing && !draft.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && draft.text.unicodeScalars.count <= 4000 && draft.text.utf8.count <= 16384 }
+    var canSend: Bool { submissionAvailable && ready && !busy && !closing && !draft.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && draft.text.unicodeScalars.count <= 4000 && draft.text.utf8.count <= 16384 }
     func edit(text: String? = nil, kind: FeedbackKind? = nil) {
         guard ready, !busy, !closing, draft.revision < Int64.max - 1 else { return }
         if let text { draft.text = text }
@@ -78,7 +81,7 @@ import RiftletFeedback
     }
     func reload() async { if let engine { do { records = try await engine.store.records() } catch { message = "暂时无法读取反馈记录。" } } }
     func refresh(_ record: FeedbackRecord) async {
-        guard !closing, let engine else { return }
+        guard submissionAvailable, !closing, let engine else { return }
         do { try await engine.refresh(id: record.id); message = nil }
         catch { message = "暂时无法确认送达状态，反馈记录已保留。" }
         await reload()
