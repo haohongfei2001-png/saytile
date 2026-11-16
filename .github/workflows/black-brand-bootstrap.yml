@@ -29,12 +29,20 @@ jobs:
           test "$(git ls-remote origin refs/heads/codex/black-brand-option2-20261117 | cut -f1)" = "$GITHUB_SHA"
           python3 - <<'PY'
           from pathlib import Path
-          import hashlib, io, json, os, urllib.request, zipfile, subprocess
+          import hashlib, io, json, os, urllib.request, urllib.parse, zipfile, subprocess
           root = Path.cwd()
           api = 'https://api.github.com/repos/haohongfei2001-png/saytile'
+          class SignedStorageRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  redirected = super().redirect_request(req, fp, code, msg, headers, newurl)
+                  if redirected and urllib.parse.urlsplit(newurl).netloc != 'api.github.com':
+                      redirected.remove_header('Authorization')
+                      redirected.remove_header('Accept')
+                  return redirected
+          opener = urllib.request.build_opener(SignedStorageRedirect())
           def get(path):
               request = urllib.request.Request(api + path, headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json'})
-              with urllib.request.urlopen(request, timeout=60) as response:
+              with opener.open(request, timeout=60) as response:
                   return response.read()
           run = json.loads(get('/actions/runs/43946954900'))
           assert run['conclusion'] == 'success' and run['head_sha'] == 'b159a2974492a23535b98875b7ae0c3182a5bfcd'
@@ -66,8 +74,7 @@ jobs:
           status.write_text(text.replace(old, new, 1))
           subprocess.run(['git', 'add', 'docs/BLACK-BRAND-OPTION2.md', 'docs/V1-DEV-STATUS.md', 'evidence/black-brand-option2'], check=True)
           subprocess.run(['python3', 'scripts/update-manifest.py'], check=True)
-          # The connector will delete the temporary workflow immediately next.
-          # Prepare the final manifest without that path; no product file changes.
+          # Prepare the final manifest for connector removal of this temporary workflow.
           manifest = root / 'SHA256SUMS.txt'
           lines = manifest.read_text().splitlines(keepends=True)
           manifest.write_text(''.join(line for line in lines if not line.rstrip().endswith('  .github/workflows/black-brand-bootstrap.yml')))
