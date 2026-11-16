@@ -243,13 +243,30 @@ public final class NativeInputCoordinator {
     /// Wait for pending notifications of this one write, while the binding can still
     /// be revoked. After returning, even an edit followed by Undo expires ownership.
     private func settledWrite(at target: InputTargetSnapshot, witness: String, generation expectedGeneration: Int) async -> Bool {
+        var gapSequence: UInt64?
+        var matchingReadsAfterGap = 0
         for _ in 0..<4 {
             let sequence = observedEditSequence
             do { try await Task.sleep(for: .milliseconds(220)) } catch { return false }
-            guard generation == expectedGeneration,
-                  (try? access.snapshot()) == target,
-                  access.textWitness(at: target)?.utf8.elementsEqual(witness.utf8) == true else { return false }
-            if observedEditSequence == sequence { return true }
+            guard generation == expectedGeneration, gapSequence == nil || gapSequence == observedEditSequence else { return false }
+            do {
+                guard try access.snapshot() == target,
+                      access.textWitness(at: target)?.utf8.elementsEqual(witness.utf8) == true else { return false }
+            } catch NativeInputError.unsupported {
+                // No mutation while the AX field is unreadable. After any gap the
+                // same binding must give two new full witnesses without an edit,
+                // focus, selection or document observation anywhere in between.
+                guard observedEditSequence == sequence else { return false }
+                gapSequence = sequence
+                matchingReadsAfterGap = 0
+                continue
+            } catch { return false }
+            guard generation == expectedGeneration else { return false }
+            if gapSequence != nil {
+                guard observedEditSequence == sequence else { return false }
+                matchingReadsAfterGap += 1
+                if matchingReadsAfterGap == 2 { return true }
+            } else if observedEditSequence == sequence { return true }
         }
         return false
     }
@@ -362,7 +379,10 @@ public final class NativeInputCoordinator {
                        !needsFullReadback || expectedField.map({ access.textWitness(at: after)?.utf8.elementsEqual($0.utf8) == true }) == true,
                        startGeneration == generation {
                         if needsFullReadback {
-                            guard let expectedField, await settledWrite(at: after, witness: expectedField, generation: startGeneration) else { break }
+                            guard let expectedField, await settledWrite(at: after, witness: expectedField, generation: startGeneration) else {
+                                invalidate()
+                                break
+                            }
                         }
                         self.target = after
                         let tail = String(reservation.text.suffix(32))
