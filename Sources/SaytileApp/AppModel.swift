@@ -327,6 +327,13 @@ final class AppModel: ObservableObject {
             preferences.set(panelBorderVisible, forKey: "panelBorderVisible")
         }
     }
+    @Published var brandAppearance: BrandAppearance = .purple {
+        didSet {
+            guard !initializing, brandAppearance != oldValue else { return }
+            brandAppearance.save(to: preferences)
+        }
+    }
+    var effectivePanelAppearance: VoicePanelAppearance { panelAppearance.resolved(for: brandAppearance) }
     @Published var panelAppearance = VoicePanelAppearance() {
         didSet {
             guard !initializing, panelAppearance != oldValue,
@@ -345,6 +352,7 @@ final class AppModel: ObservableObject {
         NotificationCenter.default.post(name: .init("SaytilePanelSizeChanged"), object: self)
     }
     func resetPanelAppearance() {
+        brandAppearance = .purple
         panelAppearance = VoicePanelAppearance()
         panelBorderVisible = true
         if panelSizePreset != .standard { panelSizePreset = .standard }
@@ -457,6 +465,7 @@ final class AppModel: ObservableObject {
         audio = AudioController(store: store, recognitionConfiguration: recognitionConfiguration, startupRecoveryReady: false)
         input = NativeInputCoordinator(store: store)
         panelBorderVisible = preferences.object(forKey: "panelBorderVisible") as? Bool ?? true
+        brandAppearance = BrandAppearance.load(from: preferences)
         panelAppearance = preferences.data(forKey: "panelAppearance")
             .flatMap { try? JSONDecoder().decode(VoicePanelAppearance.self, from: $0) } ?? VoicePanelAppearance()
         panelSizePreset = preferences.string(forKey: "panelSizePreset")

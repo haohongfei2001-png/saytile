@@ -8,7 +8,7 @@ struct VoiceEntryView: View {
     var body: some View {
         Button(action: open) {
             Group {
-                if let mark = SaytileBrand.mark {
+                if let mark = SaytileBrand.mark(for: model.brandAppearance) {
                     Image(nsImage: mark)
                         .renderingMode(model.captureProblem ? .template : .original)
                         .resizable().interpolation(.high).scaledToFit()
@@ -17,7 +17,7 @@ struct VoiceEntryView: View {
                 } else { Text("Saytile").font(.caption2) }
             }
                 .frame(width: 42, height: 42)
-                .background(Palette.paper.opacity(0.82), in: Circle())
+                .background((model.brandAppearance == .black ? Color.white : Palette.paper).opacity(0.82), in: Circle())
                 .background(.ultraThinMaterial, in: Circle())
                 .overlay(Circle().stroke(.white.opacity(0.75), lineWidth: 0.75))
                 .contentShape(Circle())

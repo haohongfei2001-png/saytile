@@ -70,7 +70,7 @@ struct InputPanelView: View {
                     throw error
                 }
             }, compactHelp: "点按控制收音。拖动边缘可调整大小，辅助菜单可恢复阅读尺寸。", menu: { panelActions })
-            .environment(\.voicePanelAppearance, model.panelAppearance)
+            .environment(\.voicePanelAppearance, model.effectivePanelAppearance)
     }
 
     private func copyTranscript() {
@@ -168,7 +168,8 @@ struct ArchiveView: View {
             }
         }
         .background(WorkspaceStyle.background)
-        .foregroundStyle(WorkspaceStyle.foreground).tint(WorkspaceStyle.accent)
+        .foregroundStyle(WorkspaceStyle.foreground).tint(WorkspaceStyle.accent(for: model.brandAppearance))
+            .environment(\.brandAppearance, model.brandAppearance)
         .background(Button("") { if model.selected != nil { model.closeDetail() }; searching = true }
             .keyboardShortcut("f").hidden().accessibilityHidden(true))
     }
@@ -262,6 +263,7 @@ struct ArchiveView: View {
 }
 
 private struct ArchiveIconButton: View {
+    @Environment(\.brandAppearance) private var brand
     let symbol: String
     let label: String
     let id: String
@@ -273,14 +275,14 @@ private struct ArchiveIconButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: symbol).font(.system(size: 14, weight: .medium))
-                .foregroundStyle(highlighted || selected ? WorkspaceStyle.accent : WorkspaceStyle.secondary)
+                .foregroundStyle(highlighted || selected ? WorkspaceStyle.accent(for: brand) : WorkspaceStyle.secondary)
                 .opacity(revealed ? 1 : 0)
                 .frame(width: highlighted ? 36 : 30, height: highlighted ? 32 : 28)
                 .background {
                     if highlighted {
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(WorkspaceStyle.accent.opacity(selected ? 0.22 : 0.10))
-                            .shadow(color: WorkspaceStyle.accent.opacity(0.15), radius: 3, y: 1)
+                            .fill(WorkspaceStyle.accent(for: brand).opacity(selected ? 0.22 : 0.10))
+                            .shadow(color: WorkspaceStyle.accent(for: brand).opacity(0.15), radius: 3, y: 1)
                     }
                 }
                 .contentShape(Rectangle())

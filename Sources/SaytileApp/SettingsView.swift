@@ -7,7 +7,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
     case archive, appearance, speech, models, cloud, input, storage, about
     var id: Self { self }
     var title: String { switch self {
-    case .archive: "语音档案"; case .appearance: "语音板外观"; case .speech: "麦克风"; case .models: "本地模型"; case .cloud: "云端服务"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .about: "关于"
+    case .archive: "语音档案"; case .appearance: "外观"; case .speech: "麦克风"; case .models: "本地模型"; case .cloud: "云端服务"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .about: "关于"
     } }
     var symbol: String { switch self {
     case .archive: "tray.full"; case .appearance: "rectangle.on.rectangle"; case .speech: "mic"; case .models: "cpu"; case .cloud: "cloud"; case .input: "keyboard"; case .storage: "internaldrive"; case .about: "info.circle"
@@ -85,7 +85,8 @@ struct SettingsView: View {
                     }
                 }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
-        }.background(WorkspaceStyle.background).foregroundStyle(WorkspaceStyle.foreground).tint(WorkspaceStyle.accent)
+        }.background(WorkspaceStyle.background).foregroundStyle(WorkspaceStyle.foreground).tint(WorkspaceStyle.accent(for: model.brandAppearance))
+            .environment(\.brandAppearance, model.brandAppearance)
             .confirmationDialog("清理 \(model.cleanupCount) 条已识别、未收藏且超过 30 天的原音？已保存的文字会保留。", isPresented: $cleanup, titleVisibility: .visible) {
                 Button("清理这些原音", role: .destructive, action: model.performCleanup).disabled(model.cleanupCount == 0)
             }
@@ -103,13 +104,32 @@ struct SettingsView: View {
         }
     }
     @ViewBuilder private var appearance: some View {
+        Section("品牌外观") {
+            HStack(spacing: 14) {
+                if let icon = SaytileBrand.icon(for: model.brandAppearance) {
+                    Image(nsImage: icon).resizable().interpolation(.high).scaledToFit()
+                        .frame(width: 64, height: 64).accessibilityHidden(true)
+                }
+                Picker("Logo 与强调色", selection: $model.brandAppearance) {
+                    ForEach(BrandAppearance.allCases) { Text($0.title).tag($0) }
+                }.pickerStyle(.segmented).accessibilityIdentifier("settings.brandAppearance")
+            }
+            Text("黑色采用已选定的深黑渐变 Logo，并将品牌紫色同步换成黑色。白色底板与玻璃质感不变；重启后保留选择。")
+                .font(.callout).foregroundStyle(.secondary)
+        }
         Section("玻璃与颜色") {
             Picker("面板颜色", selection: $model.panelAppearance.panelColor) {
                 ForEach(PanelColorPreset.allCases, id: \.self) { Text($0.title).tag($0) }
             }.pickerStyle(.menu).accessibilityIdentifier("settings.panelColor")
-            Picker("按钮颜色", selection: $model.panelAppearance.buttonColor) {
+            Picker("按钮颜色", selection: Binding(get: { model.effectivePanelAppearance.buttonColor },
+                set: { model.panelAppearance.buttonColor = $0 })) {
                 ForEach(PanelButtonColorPreset.allCases, id: \.self) { Text($0.title).tag($0) }
-            }.pickerStyle(.menu).accessibilityIdentifier("settings.buttonColor")
+            }.pickerStyle(.menu).disabled(model.brandAppearance == .black)
+                .accessibilityIdentifier("settings.buttonColor")
+            if model.brandAppearance == .black {
+                Text("黑色外观统一使用黑色按钮；切回原紫色后恢复之前的按钮颜色。")
+                    .font(.callout).foregroundStyle(.secondary)
+            }
             Picker("透明度", selection: $model.panelAppearance.opacity) {
                 ForEach(PanelOpacityPreset.allCases, id: \.self) { Text($0.title).tag($0) }
             }.pickerStyle(.menu).accessibilityIdentifier("settings.panelOpacity")

@@ -1,4 +1,6 @@
 import AppKit
+import Combine
+import SaytileVoiceUI
 #if canImport(Sparkle)
 import Sparkle
 #endif
@@ -26,6 +28,8 @@ final class VoiceEntryPanel: NSPanel {
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuDelegate, NSMenuItemValidation {
     private var model: AppModel?
+    private var brandSubscription: AnyCancellable?
+    private var originalApplicationIcon: NSImage?
     #if canImport(Sparkle)
     private var updater: AppUpdateController?
     private var updateReview: UpdateReviewSession?
@@ -192,6 +196,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             let model = try AppModel(directory: directory, preferences: preferences, normalLaunch: !isDiagnostic && directoryIndex == nil,
                 copyPasteboard: CommandLine.arguments.contains("--ui-review") || updateReviewRequest != nil ? NSPasteboard.withUniqueName() : nil)
             self.model = model
+            originalApplicationIcon = NSApp.applicationIconImage
+            brandSubscription = model.$brandAppearance.removeDuplicates().sink { [weak self] brand in
+                self?.applyBrandAppearance(brand)
+            }
             if let request = updateReviewRequest {
                 #if canImport(Sparkle)
                 let review = UpdateReviewSession(model: model, request: request)
@@ -505,10 +513,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         }
         edit.submenu = editMenu; main.addItem(edit); NSApp.mainMenu = main
     }
+    private func applyBrandAppearance(_ brand: BrandAppearance) {
+        // The running app icon is temporary. Never mutate a signed bundle or
+        // pretend that this overrides Finder's cached, on-disk installation icon.
+        NSApp.applicationIconImage = brand == .black ? SaytileBrand.icon(for: .black) : originalApplicationIcon
+        if let button = status?.button {
+            button.image = SaytileBrand.menuBarMark(for: brand)
+            button.title = button.image == nil ? "Saytile" : ""
+        }
+    }
     private func configureStatusItem() {
         let status = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = status.button {
-            button.image = SaytileBrand.menuBarMark
+            button.image = SaytileBrand.menuBarMark(for: model?.brandAppearance ?? .purple)
             if button.image == nil { button.title = "Saytile" }
             button.toolTip = "Saytile 菜单"
             button.setAccessibilityLabel("Saytile 菜单")

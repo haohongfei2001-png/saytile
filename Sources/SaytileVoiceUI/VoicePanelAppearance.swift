@@ -33,9 +33,9 @@ public enum PanelColorPreset: String, CaseIterable, Codable, Sendable {
 }
 
 public enum PanelButtonColorPreset: String, CaseIterable, Codable, Sendable {
-    case violet, blue, graphite
+    case violet, blue, graphite, black
     public var title: String {
-        switch self { case .violet: "紫色"; case .blue: "蓝色"; case .graphite: "石墨" }
+        switch self { case .violet: "紫色"; case .blue: "蓝色"; case .graphite: "石墨"; case .black: "黑色" }
     }
     public var color: Color { Color(nsColor: nsColor) }
     var nsColor: NSColor {
@@ -43,6 +43,7 @@ public enum PanelButtonColorPreset: String, CaseIterable, Codable, Sendable {
         case .violet: NSColor(srgbRed: 0.55, green: 0.23, blue: 0.98, alpha: 1)
         case .blue: NSColor(srgbRed: 0.16, green: 0.35, blue: 0.78, alpha: 1)
         case .graphite: NSColor(srgbRed: 0.28, green: 0.30, blue: 0.35, alpha: 1)
+        case .black: NSColor(srgbRed: 0, green: 0, blue: 0, alpha: 1)
         }
     }
     var glyph: LinearGradient {
@@ -50,6 +51,7 @@ public enum PanelButtonColorPreset: String, CaseIterable, Codable, Sendable {
         case .violet: ReferencePanelStyle.glyph
         case .blue: LinearGradient(colors: [Color(red: 0.26, green: 0.47, blue: 0.91), color], startPoint: .top, endPoint: .bottom)
         case .graphite: LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.50), color], startPoint: .top, endPoint: .bottom)
+        case .black: LinearGradient(colors: [Color(white: 0.18), .black], startPoint: .top, endPoint: .bottom)
         }
     }
     var copyInk: Color { self == .violet ? ReferencePanelStyle.copyInk : color }
@@ -58,6 +60,7 @@ public enum PanelButtonColorPreset: String, CaseIterable, Codable, Sendable {
         case .violet: .white
         case .blue: Color(red: 0.94, green: 0.97, blue: 1)
         case .graphite: Color(red: 0.95, green: 0.96, blue: 0.97)
+        case .black: .white
         }
     }
 }
@@ -110,5 +113,16 @@ public extension EnvironmentValues {
     var voicePanelAppearance: VoicePanelAppearance {
         get { self[VoicePanelAppearanceKey.self] }
         set { self[VoicePanelAppearanceKey.self] = newValue }
+    }
+}
+
+public extension VoicePanelAppearance {
+    /// Resolve instead of overwriting: switching back restores the original
+    /// button choice and never changes glass, text size, or opacity.
+    func resolved(for brand: BrandAppearance) -> Self {
+        guard brand == .black else { return self }
+        var result = self
+        result.buttonColor = .black
+        return result
     }
 }

@@ -24,7 +24,10 @@ mkdir -p "$bundle/Contents/MacOS" "$bundle/Contents/Resources"
 cp "$bin_dir/Saytile" "$bundle/Contents/MacOS/Saytile"
 # Native derivatives of the approved artwork, not its rectangular presentation canvas.
 icon_source="packaging/brand/SaytilePlate.png"
-cp Sources/SaytileApp/Resources/SaytileBrandMark.png "$bundle/Contents/Resources/"
+for asset in SaytileBrandMark SaytileBlackBrandMark SaytileBlackBrandMarkDark SaytileBlackPlate SaytilePurplePlate; do
+  test -s "Sources/SaytileApp/Resources/$asset.png"
+  cp "Sources/SaytileApp/Resources/$asset.png" "$bundle/Contents/Resources/"
+done
 mkdir "$SAYTILE_BUILD_STAGE/Saytile.iconset"
 for size in 16 32 128 256 512; do
   for scale in 1 2; do
