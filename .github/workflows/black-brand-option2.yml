@@ -1,26 +1,69 @@
 name: Black brand option 2
 on:
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - 'tests/**'
+      - 'scripts/prepare-black-brand.py'
+      - 'scripts/build-app.sh'
+      - 'design/approved/app-icon/**'
+      - 'Package.swift'
+      - '.github/workflows/black-brand-option2.yml'
   push:
     branches: [codex/black-brand-option2-20261117]
+    paths: ['Sources/**', 'tests/**', 'scripts/prepare-black-brand.py', 'Package.swift']
 permissions:
   contents: read
 concurrency:
   group: black-brand-option2-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  source-review:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+  native-brand:
+    runs-on: macos-26
+    timeout-minutes: 25
+    env:
+      SAYTILE_MODEL_SCRATCH: /tmp/saytile-black-brand
+      SAYTILE_MODEL_LOG: evidence/black-brand-ci/app-model.log
     steps:
       - uses: actions/checkout@v4
-      - name: Package exact integration sources for review
+      - name: Check approved source and bundled resource hashes
         run: |
-          git archive --format=tar HEAD Sources tests scripts packaging .github Package.swift AGENTS.md README.md docs design | gzip > integration-sources.tar.gz
-          git rev-parse HEAD > integration-revision.txt
+          mkdir -p evidence/black-brand-ci
+          git rev-parse HEAD > evidence/black-brand-ci/revision.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          manifest = json.loads(Path('design/approved/app-icon/black-option2-manifest.json').read_text())
+          assert manifest['original_png_sha256'] == 'aed18390cffd1df6333b526d5ba0364f6352ef8313c6035f44cba707a9362024'
+          t = manifest['transport']
+          assert hashlib.sha256(Path(t['file']).read_bytes()).hexdigest() == t['sha256']
+          for name, spec in manifest['resources'].items():
+              assert hashlib.sha256((Path('Sources/SaytileApp/Resources') / name).read_bytes()).hexdigest() == spec['sha256'], name
+              assert 'Resources/' + name in Path('Package.swift').read_text(), name
+          print('BRAND_ASSETS_PASS checked original provenance, transport and packaged PNGs')
+          PY
+          bash -n scripts/build-app.sh
+          python3 scripts/check_integrity.py
+      - name: Compile and run appearance unit tests
+        run: |
+          set -o pipefail
+          swift test --scratch-path "$SAYTILE_MODEL_SCRATCH" --filter 'BrandAppearanceTests|PanelAppearanceTests' 2>&1 | tee evidence/black-brand-ci/unit-tests.log
+      - name: Persist and restore production AppModel in isolated suites
+        run: bash scripts/test-app-model.sh
+      - name: Render real native brand views without microphone or user input
+        run: |
+          set -o pipefail
+          BIN="$(swift build --scratch-path "$SAYTILE_MODEL_SCRATCH" --show-bin-path)"
+          DATA="$(mktemp -d /tmp/saytile-brand-ui.XXXXXX)"
+          trap 'rm -rf "$DATA"' EXIT
+          SAYTILE_BRAND_REVIEW=1 "$BIN/Saytile" --ui-review "$PWD/evidence/black-brand-ci/native" --data-directory "$DATA" 2>&1 | tee evidence/black-brand-ci/native.log
+          grep -q BRAND_REVIEW_PASS evidence/black-brand-ci/native.log
+      - name: Archive reviewed sources
+        if: always()
+        run: git archive --format=tar HEAD Sources tests scripts packaging .github Package.swift AGENTS.md README.md docs design | gzip > evidence/black-brand-ci/reviewed-sources.tar.gz
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: black-brand-integration-sources
-          path: |
-            integration-sources.tar.gz
-            integration-revision.txt
-          retention-days: 3
+          name: black-brand-option2-evidence
+          path: evidence/black-brand-ci/
+          retention-days: 14
