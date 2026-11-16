@@ -4,6 +4,7 @@ import Combine
 import SwiftUI
 import AVFoundation
 import SaytileKit
+import RiftletFeedback
 
 // Runs only with --ui-review AND an explicitly isolated data directory. All text/audio is synthetic.
 extension AppDelegate {
@@ -11,12 +12,33 @@ extension AppDelegate {
         let timeline = ProcessInfo.processInfo.environment["SAYTILE_TIMELINE_REVIEW"] == "1"
         let product = ProcessInfo.processInfo.environment["SAYTILE_PRODUCT_WINDOWS"] == "1"
         let appearance = ProcessInfo.processInfo.environment["SAYTILE_APPEARANCE_REVIEW"] == "1"
+        let feedback = ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW"] == "1"
+        // A SwiftUI confirmationDialog creates its own key-capable NSAlertPanel.
+        // The feedback fixture must prohibit app activation, not only key status
+        // of its parent ReviewPanel. Production activation policy is unchanged.
         NSApp.setActivationPolicy(timeline || product || appearance ? .accessory : .prohibited)
         do {
             try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
             if ProcessInfo.processInfo.environment["SAYTILE_REFERENCE_ONLY"] == "1" {
                 try await reviewApprovedReference(output: output)
                 print("REFERENCE_REVIEW_PASS isolated production window; synthetic capture only")
+                return true
+            }
+            if feedback {
+                guard NSApp.activationPolicy() == .prohibited else {
+                    throw ReviewFailure("Feedback native fixture could not prohibit application activation")
+                }
+                print("FEEDBACK_HOST_POLICY actual=prohibited")
+                try await reviewFeedback(output: output)
+                if ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW_PHASE"] != "reopen" {
+                    await model.initialLoad()
+                    try await reviewValidatedWindow(SettingsView(model: model, initialPage: .feedback),
+                        size: CGSize(width: 900, height: 780), name: "timeline-feedback-settings", output: output,
+                        validation: { host in
+                            _ = try await self.performControl("settings.page.feedback", in: host, arguments: ["inspect"])
+                            _ = try await self.performControl("feedback.send", in: host, arguments: ["inspect"])
+                        })
+                }
                 return true
             }
             await model.initialLoad()
@@ -772,7 +794,11 @@ extension AppDelegate {
             return (process.terminationStatus, String(decoding: output, as: UTF8.self))
         }.value
         print(result.1.trimmingCharacters(in: .whitespacesAndNewlines))
-        guard result.0 == 0 else { throw ReviewFailure("Remote native AX action failed for \(label), code=\(result.0)") }
+        let unknownFeedbackConfirmation = result.0 == 10 && label == "撤回反馈"
+            && arguments.count == 2 && arguments[0] == "feedback-confirmation" && arguments[1] != "observe"
+            && ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW"] == "1"
+            && result.1.contains("NATIVE_FEEDBACK_CONFIRMATION_ACTION ") && result.1.contains("\"status\":\"UNKNOWN\"")
+        guard result.0 == 0 || unknownFeedbackConfirmation else { throw ReviewFailure("Remote native AX action failed for \(label), code=\(result.0)") }
         try await Task.sleep(for: .milliseconds(80))
         return result.1
     }
@@ -1428,6 +1454,121 @@ extension AppDelegate {
         } catch { await model.prepareForExit(); throw error }
     }
 
+    /// Actual FeedbackSettings controls and SQLite outbox; network outcomes are injected.
+    /// No production Keychain capability, remote service or audio archive is accessed.
+    @MainActor private func reviewFeedback(output: URL) async throws {
+        guard ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil else {
+            throw ReviewFailure("Feedback acceptance requires the owned native AX helper")
+        }
+        guard let statePath = ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW_STATE"] else { throw ReviewFailure("Feedback acceptance requires explicit isolated state") }
+        let directory = URL(fileURLWithPath: statePath, isDirectory: true)
+        let transport = try ReviewFeedbackTransport(log: directory.appendingPathComponent("transport.json"))
+        let secrets = ReviewFeedbackSecrets()
+        if ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW_PHASE"] == "reopen" {
+            let restarted = FeedbackSettingsModel(directory: directory, normalLaunch: false, transport: transport, secrets: secrets)
+            try await reviewUntil { restarted.ready && restarted.draft.text == "未发送草稿：保留选择和输入。" && restarted.records.count == 1 }
+            guard restarted.records.first?.state == .deleted, (await transport.snapshot()).submissions == 1 else { throw ReviewFailure("Reopen duplicated feedback or lost its deletion/draft") }
+            await restarted.prepareForExit(); await restarted.finishExit()
+            print("FEEDBACK_RESTART_PASS draft_preserved=true original_id=true deleted_not_replayed=true process_restart=true")
+            let offline = try ReviewFeedbackTransport(log: directory.appendingPathComponent("offline-transport.json"))
+            let before = await offline.snapshot()
+            guard before.submissions == 1, before.ids.count == 1 else { throw ReviewFailure("Missing original offline attempt") }
+            let resumed = FeedbackSettingsModel(directory: directory.appendingPathComponent("offline"), normalLaunch: false, transport: offline, secrets: secrets)
+            try await reviewUntil { resumed.ready }
+            let deadline = Date().addingTimeInterval(20)
+            while resumed.records.first?.state != .received, Date() < deadline {
+                await resumed.reload(); try await Task.sleep(for: .milliseconds(50))
+            }
+            let retry = await offline.snapshot()
+            guard resumed.records.count == 1, resumed.records.first?.state == .received,
+                  resumed.records.first?.id == before.ids.first, retry.submissions == 2,
+                  Set(retry.ids).count == 1, Set(retry.payloads).count == 1,
+                  retry.products == ["saytile", "saytile"], retry.diagnostics == 0 else {
+                await resumed.prepareForExit(); await resumed.finishExit()
+                throw ReviewFailure("Offline restart changed its ID, payload or product, or failed its persisted backoff")
+            }
+            await resumed.prepareForExit(); await resumed.finishExit()
+            print("FEEDBACK_OFFLINE_PASS attempts=2 unique_ids=1 identical_payloads=true restart_resume=true process_restart=true")
+            print("FEEDBACK_REVIEW_PASS native_controls=true mock_transport=true remote_requests=0 keychain_reads=0 capture_starts=0")
+            return
+        }
+        let model = FeedbackSettingsModel(directory: directory, normalLaunch: false, transport: transport, secrets: secrets)
+        try await reviewUntil { model.ready }
+        guard !model.canSend, model.records.isEmpty else { throw ReviewFailure("Fresh feedback unexpectedly sends or exposes old records") }
+        let text = "TEST_ONLY：Saytile 原生反馈。中文、cafe\u{301}、😀；没有录音、转写或日志。"
+        let draft = "未发送草稿：保留选择和输入。"
+        do {
+            try await reviewValidatedWindow(Form { FeedbackSettings(model: model) }.formStyle(.grouped).tint(WorkspaceStyle.accent),
+                size: CGSize(width: 760, height: 820), name: "timeline-feedback-controls", output: output, validation: { host in
+                for identifier in ["建议", "feedback.send"] {
+                    _ = try await self.performControl(identifier, in: host, arguments: ["inspect"])
+                }
+                try self.captureReview(host, name: "feedback-empty", output: output)
+                var pending = [host], editors: [NSTextView] = []
+                while let view = pending.popLast() {
+                    if let editor = view as? NSTextView, editor.isEditable, editor.window === host.window { editors.append(editor) }
+                    pending += view.subviews
+                }
+                guard editors.count == 1, let editor = editors.first,
+                      host.window?.makeFirstResponder(editor) == true else { throw ReviewFailure("Missing unique owned native feedback editor") }
+                editor.insertText(text, replacementRange: NSRange(location: 0, length: editor.string.utf16.count))
+                try await self.reviewUntil { model.draft.text == text && model.canSend && !model.hasUnsavedDraft }
+                print("FEEDBACK_NATIVE_TEXT input_via=NSTextView.insertText unicode_exact=true")
+                try self.captureReview(host, name: "feedback-draft", output: output)
+                try await self.press("feedback.send", in: host)
+                try await self.reviewUntil { model.records.count == 1 && model.records.first?.state == .received && model.draft.text.isEmpty }
+                let sent = await transport.snapshot()
+                guard sent.submissions == 1, sent.products == ["saytile"], sent.texts == [text], sent.diagnostics == 0,
+                      !model.canSend, let first = model.records.first else { throw ReviewFailure("Send violated product/payload/draft ownership") }
+                let disabled = try await self.performControl("feedback.send", in: host, arguments: ["inspect"])
+                guard disabled.contains("\"enabled\":false") || disabled.contains("\"enabled\": false") else { throw ReviewFailure("Empty draft Send remained enabled") }
+                try self.captureReview(host, name: "feedback-received", output: output)
+                try await self.press("刷新状态", in: host)
+                try await self.reviewUntil { model.records.first?.state == .delivered }
+                guard (await transport.snapshot()).submissions == 1 else { throw ReviewFailure("Status refresh re-submitted the feedback") }
+                try self.captureReview(host, name: "feedback-delivered", output: output)
+                guard model.records.first?.id == first.id, model.records.first?.state == .delivered,
+                      (await transport.snapshot()).deletions == 0 else { throw ReviewFailure("Unexpected pre-withdrawal state") }
+                try await self.press("撤回", in: host)
+                let mode = ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_AX_FAULT"] ?? "press"
+                let reply = try await self.performControl("撤回反馈", in: host, arguments: ["feedback-confirmation", mode])
+                let deadline = Date().addingTimeInterval(5)
+                while model.records.first?.state != .deleted, Date() < deadline {
+                    try await Task.sleep(for: .milliseconds(20))
+                }
+                let deletion = await transport.snapshot()
+                let observation = try await self.performControl("撤回反馈", in: host, arguments: ["feedback-confirmation", "observe"])
+                let absent = observation.contains("present=false complete_tree=true owned_window=true foreground_unchanged=true")
+                let confirmed = model.records.count == 1 && model.records.first?.id == first.id
+                    && model.records.first?.state == .deleted && deletion.deletions == 1
+                    && deletion.deletedIDs == [first.id] && absent
+                let evidence: [String: Any] = ["status": confirmed ? "PASS" : "FAIL", "mode": mode,
+                    "original_id": first.id, "before_state": "delivered", "after_id": model.records.first?.id ?? "missing",
+                    "after_state": model.records.first?.state.rawValue ?? "missing", "delete_requests": deletion.deletions,
+                    "deleted_ids": deletion.deletedIDs ?? [], "dialog_absent": absent, "action_reply": reply,
+                    "dialog_observation": observation, "action_replayed": false]
+                try JSONSerialization.data(withJSONObject: evidence, options: [.prettyPrinted, .sortedKeys])
+                    .write(to: output.appendingPathComponent("feedback-confirmation.json"), options: .atomic)
+                guard confirmed else { throw ReviewFailure("Feedback confirmation postcondition failed; no action replay") }
+                print("FEEDBACK_CONFIRMATION_PASS same_id=true deletions=1 dialog_absent=true no_replay=true")
+                try self.captureReview(host, name: "feedback-deleted", output: output)
+                editor.insertText(draft, replacementRange: NSRange(location: 0, length: editor.string.utf16.count))
+                try await self.reviewUntil { model.draft.text == draft && !model.hasUnsavedDraft }
+                print("FEEDBACK_NATIVE_PASS sends=1 status_gets=1 deletion_requests=1 product=saytile diagnostics=0")
+            })
+            await model.prepareForExit(); await model.finishExit()
+        } catch { await model.prepareForExit(); await model.finishExit(); throw error }
+
+        let offline = try ReviewFeedbackTransport(log: directory.appendingPathComponent("offline-transport.json"), offline: true)
+        let queued = FeedbackSettingsModel(directory: directory.appendingPathComponent("offline"), normalLaunch: false, transport: offline, secrets: secrets)
+        try await reviewUntil { queued.ready }
+        // Controller/outbox coverage is separate from the native Send control above.
+        queued.edit(text: "TEST_ONLY：断网后的同一条反馈，不重复创建。"); queued.send()
+        try await reviewUntil { queued.records.first?.attempts == 1 && queued.records.first?.state == .queued }
+        await queued.prepareForExit(); await queued.finishExit()
+        print("FEEDBACK_OFFLINE_QUEUED attempts=1 durable=true awaiting_process_restart=true")
+    }
+
     /// Uses the shipping settings and panel in two owned, nonactivating windows.
     /// Menu actions go through AXPress and the actual AppKit menu target/action.
     @MainActor private func reviewPanelAppearance(output: URL) async throws {
@@ -1793,5 +1934,45 @@ private final class ReviewActivations: @unchecked Sendable {
     @objc func menuClosed(_ note: Notification) {
         guard let candidate = note.object as? NSMenu, candidate === menu else { return }
         trackingEnded = true
+    }
+}
+
+/// Fixed synthetic capability only in the explicit offline UI fixture. Never used by the app host.
+private struct ReviewFeedbackSecrets: FeedbackSecretStorage {
+    func secret(for id: String, create: Bool) throws -> String { String(repeating: "a", count: 64) }
+    func remove(for id: String) throws {}
+}
+
+private actor ReviewFeedbackTransport: FeedbackTransport {
+    nonisolated let configured = true
+    private let offline: Bool, log: URL
+    struct Snapshot: Codable, Sendable {
+        var submissions = 0, deletions = 0, diagnostics = 0
+        var deletedIDs: [String]? = []
+        var ids: [String] = [], products: [String] = [], texts: [String] = [], payloads: [Data] = []
+    }
+    private var state: Snapshot
+    init(log: URL, offline: Bool = false) throws {
+        self.log = log; self.offline = offline
+        self.state = FileManager.default.fileExists(atPath: log.path) ? try JSONDecoder().decode(Snapshot.self, from: Data(contentsOf: log)) : Snapshot()
+    }
+    func snapshot() -> Snapshot { state }
+    func perform(_ action: FeedbackRequest, record: FeedbackRecord, secret: String) async throws -> FeedbackReceipt {
+        let receipt: FeedbackReceipt
+        switch action {
+        case .submit:
+            state.submissions += 1; state.ids.append(record.id); state.products.append(record.envelope.product?.rawValue ?? "missing")
+            state.texts.append(record.envelope.text); state.payloads.append(record.bytes)
+            if record.envelope.diagnostic != nil { state.diagnostics += 1 }
+            receipt = FeedbackReceipt(id: record.id, state: "received")
+        case .status: receipt = FeedbackReceipt(id: record.id, state: "delivered")
+        case .delete:
+            state.deletions += 1; state.deletedIDs = (state.deletedIDs ?? []) + [record.id]
+            receipt = FeedbackReceipt(id: record.id, state: "deleted")
+        }
+        try FileManager.default.createDirectory(at: log.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try JSONEncoder().encode(state).write(to: log, options: .atomic)
+        if offline { throw FeedbackFailure.transport }
+        return receipt
     }
 }
