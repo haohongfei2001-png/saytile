@@ -70,21 +70,6 @@ under = rgb(253,415)
 # Estimate the shadow ink from its darkest unobstructed sample. At near-zero alpha,
 # unmatting three independently compressed color channels otherwise creates bright blue speckles.
 shadow = tuple(round(clamp(b+(s-b)/0.22,255)) for b,s in zip(back,under))
-def icon(x, y):
-    x, y = x+54, y+51
-    sample = rgb(x,y)
-    theta = math.atan2(y-cy,x-cx)%math.tau * count/math.tau
-    i = int(theta)%count
-    radius = edge[i]+(edge[(i+1)%count]-edge[i])*(theta-int(theta))
-    coverage = clamp(radius-math.hypot(x-cx,y-cy)+0.5)
-    # Unmatte the photograph's own shadow; constant presentation-canvas pixels disappear.
-    shade = clamp((back[1]-sample[1]-1)/(back[1]-shadow[1]))
-    if coverage == 0:
-        return (*shadow,round(255*shade)) if shade > 1/255 else (0,0,0,0)
-    return rgba(sample,back,coverage+(1-coverage)*shade)
-
-save(ROOT/"packaging/brand/SaytilePlate.png",400,400,icon)
-
 # Extract colored strokes against the measured face either side of the lettering.
 # Local normalization keeps the pale e just as legible as the darker l in template mode.
 def face(x,y):
@@ -103,3 +88,28 @@ def mark(x,y):
     return rgba(rgb(x,y),face(x,y),alpha)
 
 save(ROOT/"Sources/SaytileApp/Resources/SaytileBrandMark.png",152,172,mark)
+
+def icon(x, y):
+    x, y = x+54, y+51
+    sample = rgb(x,y)
+    theta = math.atan2(y-cy,x-cx)%math.tau * count/math.tau
+    i = int(theta)%count
+    radius = edge[i]+(edge[(i+1)%count]-edge[i])*(theta-int(theta))
+    coverage = clamp(radius-math.hypot(x-cx,y-cy)+0.5)
+    # Unmatte the photograph's own shadow; constant presentation-canvas pixels disappear.
+    shade = clamp((back[1]-sample[1]-1)/(back[1]-shadow[1]))
+    if coverage == 0:
+        return (*shadow,round(255*shade)) if shade > 1/255 else (0,0,0,0)
+    # Use the existing transparent lettering on the product's pure-white face.
+    # Only the photographic shadow belongs outside the rounded plate.
+    if 171 <= x < 323 and 161 <= y < 333:
+        r, g, b, ink = mark(x - 171, y - 161)
+        return (*(255 - round((255 - c) * ink / 255) for c in (r, g, b)), 255)
+    if coverage == 1:
+        return (255, 255, 255, 255)
+    visible_shadow = (1 - coverage) * shade
+    alpha = coverage + visible_shadow
+    edge_color = tuple(round((255 * coverage + c * visible_shadow) / alpha) for c in shadow)
+    return (*edge_color, round(255 * alpha))
+
+save(ROOT/"packaging/brand/SaytilePlate.png",400,400,icon)
