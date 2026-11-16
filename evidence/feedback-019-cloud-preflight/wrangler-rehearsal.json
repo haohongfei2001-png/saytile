@@ -1,0 +1,46 @@
+{
+  "source": "6fba674ab4db536efea2090c4e482db73a3b949e",
+  "started_at_utc": "2026-11-16T14:05:33.392019+00:00",
+  "tool": "Wrangler 4.162.0",
+  "dry_run_bundles": {
+    "receiver": {
+      "status": "PASS",
+      "files": {
+        "receiver.js": {
+          "bytes": 10565,
+          "sha256": "fceaf1b0940e4a8a439a8265dd13c18adb0afdcd9953c6733a25a155841fb048"
+        }
+      }
+    },
+    "delivery": {
+      "status": "PASS",
+      "files": {
+        "delivery.js": {
+          "bytes": 9873,
+          "sha256": "c3c946e988ed762281045d0a2f1befe3bc55756db9c335c06aa4992d81c59466"
+        }
+      }
+    }
+  },
+  "local_d1": {
+    "status": "PASS",
+    "legacy_rows": 1,
+    "preserved_legacy_columns": 14,
+    "legacy_payload_sha256": "c587082592dca716ff7fcb3234fda0d7aa6240bda30230ed57c679c0f45c4931",
+    "legacy_state": "uncertain",
+    "unchanged_preexisting_quota_rows": 2,
+    "old_and_new_omitted_product": "riftlet",
+    "verified_explicit_product_values": [
+      "riftlet",
+      "saytile",
+      "nearpane"
+    ],
+    "unknown_product_insert": "CHECK constraint rejected",
+    "final_rows": 5,
+    "integrity_check_via_wranger": "NOT_SUPPORTED (SQLITE_AUTH)",
+    "integrity_check_on_existing_local_file_raw_sqlite_readonly": "ok"
+  },
+  "scope": "Exact reviewed Worker files/configs, Wrangler deploy --dry-run and Wrangler D1 execute --local with a fresh disposable Miniflare store. Synthetic values only. No remote DB or deployment, GitHub issue, or credential used. Optional PRAGMA integrity_check was denied by the local D1 SQL surface, then verified read-only on the same temporary Miniflare SQLite file. No second migration or Worker bundle.",
+  "status": "PASS",
+  "finished_at_utc": "2026-11-16T14:08:10.148960+00:00"
+}
