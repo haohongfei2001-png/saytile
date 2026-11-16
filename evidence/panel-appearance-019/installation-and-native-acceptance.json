@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-17",
+  "source": "fe5da285d05e9ca33fc64cac679ce95062ccdf6b",
+  "installed_version": "0.19",
+  "installed_build": "495",
+  "scope": "PR 46 panel appearance on the existing Mandarin candidate. Signed local package, not notarized.",
+  "package_sha256": "c59b4154f2b11b8985c4b02b751b1935f8111bf81edd1dae5284d96786d6e2e1",
+  "installed_executable_sha256": "9909000de53ae0c946c3cdcc315dfe99221a7bb7be24898510f7370e3e16b8f9",
+  "previous_build": "492",
+  "atomic_exchange": true,
+  "previously_open": false,
+  "launch_services": "PASS, isolated empty archive",
+  "signed_controls": {
+    "native_process_completed": true,
+    "appearance_contract": true,
+    "real_menu_selections": true,
+    "border_action": true,
+    "apply_size_action": true,
+    "reset_action": true,
+    "all_native_snapshots": true,
+    "no_candidate_activation": true
+  },
+  "actual_host_geometry": [
+    "APPEARANCE_HOST_PASS cold hidden panel has not been created",
+    "APPEARANCE_HOST_PASS preset persists while never-opened panel remains hidden",
+    "APPEARANCE_HOST_PASS first opening uses the saved preset",
+    "APPEARANCE_HOST_PASS native host applies compact without moving its upper-right anchor",
+    "APPEARANCE_HOST_PASS native host applies standard without moving its upper-right anchor",
+    "APPEARANCE_HOST_PASS native host applies spacious without moving its upper-right anchor",
+    "APPEARANCE_HOST_PASS hidden existing panel saves size without appearing",
+    "APPEARANCE_HOST_PASS reopening preserves the selected size",
+    "APPEARANCE_HOST_PASS restore-selected-size action reverses manual resizing",
+    "APPEARANCE_HOST_PASS reset restores default dimensions",
+    "APPEARANCE_HOST_PASS appearance changes do not take focus or start capture"
+  ],
+  "glass_fixtures": 16,
+  "glass_measurement": "Population standard deviation of sRGB luminance on center half of midline of deterministic striped backdrop, outside text and buttons (0–255). In fullscreen context original and mist use same readability minimum.",
+  "desktop_glass_contrast": {
+    "border-on-desktop": [
+      14.447558463487523,
+      2.775721082086394,
+      0.3609308752210551,
+      0.2618077371612998
+    ],
+    "border-off-desktop": [
+      25.908769023534205,
+      11.038439377872972,
+      2.367630811763264,
+      0.2618077371612998
+    ]
+  },
+  "fullscreen_scope": "WindowServer composition of exactly two owned fixture windows; context is injected, not actual system fullscreen.",
+  "rollback": "PASS",
+  "synthetic_audio_hashes_preserved": true,
+  "ci": {
+    "passed": 5,
+    "failed": 0,
+    "source": "fe5da285d05e9ca33fc64cac679ce95062ccdf6b"
+  },
+  "next": "The separate multi-product feedback service remains pending Cloudflare authorization."
+}
