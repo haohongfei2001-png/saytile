@@ -10,6 +10,27 @@ import SaytileKit
 @main
 struct SaytileMain {
     @MainActor static func main() {
+        if CommandLine.arguments.dropFirst().first == "--merge-legacy-archive" {
+            let paths = Array(CommandLine.arguments.dropFirst(2))
+            guard paths.count == 3, paths.allSatisfy({ $0.hasPrefix("/") }) else {
+                print("Usage: Saytile --merge-legacy-archive CURRENT_DIRECTORY LEGACY_DIRECTORY NEW_DIRECTORY")
+                exit(64)
+            }
+            Task.detached {
+                do {
+                    let folders = paths.map { URL(fileURLWithPath: $0, isDirectory: true) }
+                    let receipt = try await LegacyArchiveRecovery.prepare(base: folders[0], legacy: folders[1], output: folders[2])
+                    let encoder = JSONEncoder()
+                    encoder.outputFormatting = [.sortedKeys]
+                    print(String(decoding: try encoder.encode(receipt), as: UTF8.self))
+                    exit(0)
+                } catch {
+                    FileHandle.standardError.write(Data((error.localizedDescription + "\n").utf8))
+                    exit(1)
+                }
+            }
+            dispatchMain()
+        }
         let app = NSApplication.shared
         let delegate = AppDelegate()
         app.delegate = delegate

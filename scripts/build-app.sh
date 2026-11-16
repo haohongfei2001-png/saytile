@@ -68,7 +68,11 @@ if [[ -n "$(git ls-files --others --exclude-standard Sources native/LocalASR pac
 /usr/libexec/PlistBuddy -c "Add :SaytileReleaseVersion string $version" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(git rev-list --count HEAD)" "$bundle/Contents/Info.plist"
 xattr -cr "$bundle"
-codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$bundle"
+if [[ -n "${SAYTILE_ICLOUD_DEVELOPMENT_PROFILE:-}" ]]; then
+  scripts/sign-icloud-development.sh "$bundle" "$SAYTILE_ICLOUD_DEVELOPMENT_PROFILE" "${SAYTILE_SIGN_IDENTITY:-}"
+else
+  codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$bundle"
+fi
 codesign --verify --strict "$bundle"
 plutil -lint "$bundle/Contents/Info.plist"
 # The destination is an explicitly chosen build artifact. Never mix old bundle resources.
