@@ -1,3 +1,7 @@
+## 2026-11-16 · 反馈确认框 CI 差异
+
+源码b088b99a：Release构建PASS；Swift Testing 548/548、继承XCTest 30/30、AppModel 188/188、反馈controller 12/12。完整CI 4/5，原生反馈在确认撤回的AX返回检查失败，后续12k时间轴与启动步骤NOT_RUN。本机同源签名反馈9/9、外观8/8及合成资料回退PASS，不能替代失败CI。限定修复与正反故障注入见[确认框验收](FEEDBACK-NATIVE-CONFIRMATION.md)，最终源码结果将另外保存。
+
 ## 2026-11-15 · Release兼容性根因修复
 
 保留失败：b6b35126 完整CI为4/5，Release编译失败；该源546项Swift Testing、30项XCTest、188项AppModel与12项反馈controller全部通过，签名原生反馈9项检查通过。修复后新增2项析构/初始化失败锁释放回归，本机6/6核心与12/12controller通过。未跳过测试或改用Debug替代Release。

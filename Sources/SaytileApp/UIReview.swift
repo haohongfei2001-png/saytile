@@ -787,7 +787,11 @@ extension AppDelegate {
             return (process.terminationStatus, String(decoding: output, as: UTF8.self))
         }.value
         print(result.1.trimmingCharacters(in: .whitespacesAndNewlines))
-        guard result.0 == 0 else { throw ReviewFailure("Remote native AX action failed for \(label), code=\(result.0)") }
+        let unknownFeedbackConfirmation = result.0 == 10 && label == "撤回反馈"
+            && arguments.count == 2 && arguments[0] == "feedback-confirmation" && arguments[1] != "observe"
+            && ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW"] == "1"
+            && result.1.contains("NATIVE_FEEDBACK_CONFIRMATION_ACTION ") && result.1.contains("\"status\":\"UNKNOWN\"")
+        guard result.0 == 0 || unknownFeedbackConfirmation else { throw ReviewFailure("Remote native AX action failed for \(label), code=\(result.0)") }
         try await Task.sleep(for: .milliseconds(80))
         return result.1
     }
@@ -1516,10 +1520,30 @@ extension AppDelegate {
                 try await self.reviewUntil { model.records.first?.state == .delivered }
                 guard (await transport.snapshot()).submissions == 1 else { throw ReviewFailure("Status refresh re-submitted the feedback") }
                 try self.captureReview(host, name: "feedback-delivered", output: output)
+                guard model.records.first?.id == first.id, model.records.first?.state == .delivered,
+                      (await transport.snapshot()).deletions == 0 else { throw ReviewFailure("Unexpected pre-withdrawal state") }
                 try await self.press("撤回", in: host)
-                try await self.press("撤回反馈", in: host)
-                try await self.reviewUntil { model.records.first?.state == .deleted }
-                guard (await transport.snapshot()).deletions == 1, model.records.first?.id == first.id else { throw ReviewFailure("Withdrawal used a new report or failed to confirm deletion") }
+                let mode = ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_AX_FAULT"] ?? "press"
+                let reply = try await self.performControl("撤回反馈", in: host, arguments: ["feedback-confirmation", mode])
+                let deadline = Date().addingTimeInterval(5)
+                while model.records.first?.state != .deleted, Date() < deadline {
+                    try await Task.sleep(for: .milliseconds(20))
+                }
+                let deletion = await transport.snapshot()
+                let observation = try await self.performControl("撤回反馈", in: host, arguments: ["feedback-confirmation", "observe"])
+                let absent = observation.contains("present=false complete_tree=true owned_window=true foreground_unchanged=true")
+                let confirmed = model.records.count == 1 && model.records.first?.id == first.id
+                    && model.records.first?.state == .deleted && deletion.deletions == 1
+                    && deletion.deletedIDs == [first.id] && absent
+                let evidence: [String: Any] = ["status": confirmed ? "PASS" : "FAIL", "mode": mode,
+                    "original_id": first.id, "before_state": "delivered", "after_id": model.records.first?.id ?? "missing",
+                    "after_state": model.records.first?.state.rawValue ?? "missing", "delete_requests": deletion.deletions,
+                    "deleted_ids": deletion.deletedIDs ?? [], "dialog_absent": absent, "action_reply": reply,
+                    "dialog_observation": observation, "action_replayed": false]
+                try JSONSerialization.data(withJSONObject: evidence, options: [.prettyPrinted, .sortedKeys])
+                    .write(to: output.appendingPathComponent("feedback-confirmation.json"), options: .atomic)
+                guard confirmed else { throw ReviewFailure("Feedback confirmation postcondition failed; no action replay") }
+                print("FEEDBACK_CONFIRMATION_PASS same_id=true deletions=1 dialog_absent=true no_replay=true")
                 try self.captureReview(host, name: "feedback-deleted", output: output)
                 editor.insertText(draft, replacementRange: NSRange(location: 0, length: editor.string.utf16.count))
                 try await self.reviewUntil { model.draft.text == draft && !model.hasUnsavedDraft }
@@ -1917,6 +1941,7 @@ private actor ReviewFeedbackTransport: FeedbackTransport {
     private let offline: Bool, log: URL
     struct Snapshot: Codable, Sendable {
         var submissions = 0, deletions = 0, diagnostics = 0
+        var deletedIDs: [String]? = []
         var ids: [String] = [], products: [String] = [], texts: [String] = [], payloads: [Data] = []
     }
     private var state: Snapshot
@@ -1934,7 +1959,9 @@ private actor ReviewFeedbackTransport: FeedbackTransport {
             if record.envelope.diagnostic != nil { state.diagnostics += 1 }
             receipt = FeedbackReceipt(id: record.id, state: "received")
         case .status: receipt = FeedbackReceipt(id: record.id, state: "delivered")
-        case .delete: state.deletions += 1; receipt = FeedbackReceipt(id: record.id, state: "deleted")
+        case .delete:
+            state.deletions += 1; state.deletedIDs = (state.deletedIDs ?? []) + [record.id]
+            receipt = FeedbackReceipt(id: record.id, state: "deleted")
         }
         try FileManager.default.createDirectory(at: log.deletingLastPathComponent(), withIntermediateDirectories: true)
         try JSONEncoder().encode(state).write(to: log, options: .atomic)

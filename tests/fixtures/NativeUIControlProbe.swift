@@ -22,7 +22,8 @@ import ApplicationServices
         let inspect = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect"
         let inspectPanel = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect-panel"
         let inspectSettings = CommandLine.arguments.count == 5 && CommandLine.arguments[4] == "inspect-settings"
-        guard CommandLine.arguments.count <= 4 || setValue != nil || menuItem != nil || inspect || inspectPanel || inspectSettings || controlFrame || paragraph != nil else { print("FAIL invalid control action"); exit(64) }
+        let feedbackConfirmation = CommandLine.arguments.count == 6 && CommandLine.arguments[4] == "feedback-confirmation" ? CommandLine.arguments[5] : nil
+        guard CommandLine.arguments.count <= 4 || feedbackConfirmation != nil || setValue != nil || menuItem != nil || inspect || inspectPanel || inspectSettings || controlFrame || paragraph != nil else { print("FAIL invalid control action"); exit(64) }
         let root = AXUIElementCreateApplication(pid)
         func value(_ element: AXUIElement, _ name: String) -> CFTypeRef? {
             AXUIElementSetMessagingTimeout(element, name == kAXWindowsAttribute || name == kAXTitleAttribute ? 0.7 : 0.2)
@@ -69,6 +70,91 @@ import ApplicationServices
                   let properties = result as? [Any], properties.count == 6 else { return nil }
             return (properties[0] as? String ?? "unknown", properties[1...4].compactMap { $0 as? String },
                     properties[5] as? [AXUIElement] ?? [])
+        }
+        if let mode = feedbackConfirmation {
+            // Only the isolated feedback fixture can opt into an ambiguous action reply.
+            // Ordinary controls keep their strict success-only contract below.
+            guard ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW"] == "1",
+                  label == "撤回反馈", title == "Saytile UI Review timeline-feedback-controls",
+                  ["press", "observe", "reply-loss-after-action", "reply-loss-no-action"].contains(mode) else {
+                print("REFUSED invalid feedback confirmation scope"); exit(64)
+            }
+            func absentAttribute(_ property: Any) -> Bool {
+                let reference = property as CFTypeRef
+                guard CFGetTypeID(reference) == AXValueGetTypeID() else { return false }
+                let wrapped = unsafeDowncast(reference, to: AXValue.self)
+                guard AXValueGetType(wrapped) == .axError else { return false }
+                var error = AXError.success
+                guard AXValueGetValue(wrapped, .axError, &error) else { return false }
+                return error == .attributeUnsupported || error == .noValue
+            }
+            func strictNode(_ node: AXUIElement) -> (role: String, names: [String], children: [AXUIElement])? {
+                // A successful batch IPC can contain individual AX errors. An error
+                // reading a container must not be misreported as an empty subtree.
+                AXUIElementSetMessagingTimeout(node, 0.5)
+                var result: CFArray?
+                guard AXUIElementCopyMultipleAttributeValues(node, nodeAttributes, [], &result) == .success,
+                      let properties = result as? [Any], properties.count == 6,
+                      let role = properties[0] as? String, !role.isEmpty,
+                      properties[1...4].allSatisfy({ $0 is String || absentAttribute($0) }) else { return nil }
+                let leaves = [kAXButtonRole, kAXStaticTextRole, kAXImageRole, kAXTextAreaRole, kAXTextFieldRole,
+                              kAXCheckBoxRole, kAXRadioButtonRole, kAXPopUpButtonRole]
+                let children: [AXUIElement]
+                if let nodes = properties[5] as? [AXUIElement] { children = nodes }
+                else if leaves.contains(role), absentAttribute(properties[5]) { children = [] }
+                else { return nil }
+                return (role, properties[1...4].compactMap { $0 as? String }, children)
+            }
+            for _ in 0..<10 {
+                let windows = (value(root, kAXWindowsAttribute) as? [AXUIElement] ?? []).filter {
+                    value($0, kAXTitleAttribute) as? String == title
+                }
+                guard windows.count == 1 else { print("FAIL feedback confirmation requires exactly one owned window"); exit(1) }
+                var queue = windows, visited = Set<CFHashCode>(), matches: [AXUIElement] = []
+                var complete = true
+                let deadline = ProcessInfo.processInfo.systemUptime + 3
+                while !queue.isEmpty, visited.count < 1000, ProcessInfo.processInfo.systemUptime < deadline {
+                    let node = queue.removeLast()
+                    guard visited.insert(CFHash(node)).inserted else { continue }
+                    var owner: pid_t = 0
+                    guard AXUIElementGetPid(node, &owner) == .success, owner == pid,
+                          let observed = strictNode(node) else { complete = false; continue }
+                    if observed.role == kAXButtonRole, observed.names.contains(label) { matches.append(node) }
+                    queue += observed.children
+                }
+                guard complete, queue.isEmpty else { try? await Task.sleep(for: .milliseconds(100)); continue }
+                guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else {
+                    print("REFUSED foreground changed during feedback confirmation"); exit(6)
+                }
+                guard matches.count <= 1 else { print("FAIL duplicate feedback confirmation buttons"); exit(1) }
+                if mode == "observe" {
+                    print("NATIVE_FEEDBACK_CONFIRMATION_OBSERVED present=\(!matches.isEmpty) complete_tree=true owned_window=true foreground_unchanged=true"); exit(0)
+                }
+                guard let node = matches.first else { try? await Task.sleep(for: .milliseconds(100)); continue }
+                guard availableActions(node).contains(kAXPressAction), value(node, kAXEnabledAttribute) as? Bool == true else {
+                    print("FAIL feedback confirmation is not enabled and pressable"); exit(1)
+                }
+                AXUIElementSetMessagingTimeout(node, 1.0)
+                let actual: AXError
+                if mode == "reply-loss-no-action" { actual = .attributeUnsupported }
+                else { actual = AXUIElementPerformAction(node, kAXPressAction as CFString) }
+                // Fault injection changes only the helper reply after one real action;
+                // the negative fixture issues no action. Neither path invokes a closure.
+                let reported: AXError = mode == "reply-loss-after-action" && actual == .success ? .attributeUnsupported : actual
+                guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else {
+                    print("FAIL feedback confirmation changed foreground"); exit(6)
+                }
+                let outcome: [String: Any] = ["status": reported == .success ? "ACKNOWLEDGED" : "UNKNOWN",
+                    "actual_ax_error": mode == "reply-loss-no-action" ? NSNull() : actual.rawValue as Any, "reported_ax_error": reported.rawValue,
+                    "attempts": mode == "reply-loss-no-action" ? 0 : 1, "mode": mode,
+                    "pid": pid, "window": title!, "unique_button": true, "foreground_unchanged": true]
+                let data = try! JSONSerialization.data(withJSONObject: outcome, options: [.sortedKeys])
+                print("NATIVE_FEEDBACK_CONFIRMATION_ACTION " + String(decoding: data, as: UTF8.self))
+                if reported == .attributeUnsupported { exit(10) } // UNKNOWN, never a PASS.
+                guard reported == .success else { print("FAIL feedback confirmation AX error \(reported.rawValue)"); exit(1) }
+                exit(0)
+            }
+            print("FAIL feedback confirmation tree unavailable or target missing"); exit(1)
         }
         var lastTree = [String]()
         for _ in 0..<10 {
