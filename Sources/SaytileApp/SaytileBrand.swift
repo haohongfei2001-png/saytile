@@ -1,25 +1,33 @@
 import AppKit
+import SaytileVoiceUI
 
-/// One extraction of the user-selected lettering. Keep it out of the transcript itself.
+/// Raster derivatives of the approved artwork, never a re-typeset approximation.
+/// White plates belong to app icons; transparent marks belong to the workspace.
 @MainActor
 enum SaytileBrand {
-    static let mark: NSImage? = {
-        let name = "SaytileBrandMark"
-        // Installed app first; SwiftPM's own resource bundle for a development launch.
-        let resources = Bundle.main.bundleURL.pathExtension == "app" ? Bundle.main : Bundle.module
-        let url = resources.url(forResource: name, withExtension: "png")
-        return url.flatMap(NSImage.init(contentsOf:))
-    }()
+    private static let resources = Bundle.main.bundleURL.pathExtension == "app" ? Bundle.main : Bundle.module
+    private static func image(_ name: String) -> NSImage? {
+        resources.url(forResource: name, withExtension: "png").flatMap(NSImage.init(contentsOf:))
+    }
+    static let mark = image("SaytileBrandMark")
+    private static let blackMark = image("SaytileBlackBrandMark")
+    private static let blackMarkDark = image("SaytileBlackBrandMarkDark")
+    private static let purpleIcon = image("SaytilePurplePlate")
+    private static let blackIcon = image("SaytileBlackPlate")
 
-    /// The status item is an application menu. Keep the approved lettering and its
-    /// footprint constant as capture, faults, and panel visibility change.
-    static let menuBarMark: NSImage? = {
+    static func mark(for brand: BrandAppearance, dark: Bool = false) -> NSImage? {
+        brand == .purple ? mark : (dark ? blackMarkDark : blackMark)
+    }
+    static func icon(for brand: BrandAppearance) -> NSImage? {
+        brand == .purple ? purpleIcon : blackIcon
+    }
+
+    /// Keep template coverage, not the photograph's white background. The system
+    /// supplies menu-bar contrast; neither recording nor failures recolor it.
+    private static func template(from mark: NSImage?) -> NSImage? {
         guard let mark else { return nil }
-        let size = NSSize(width: 20, height: 20)
-        let image = NSImage(size: size, flipped: false) { _ in
+        let image = NSImage(size: NSSize(width: 20, height: 20), flipped: false) { _ in
             NSGraphicsContext.current?.imageInterpolation = .high
-            // The original is 152 × 172. Integral edges keep its small dot
-            // and crossbar aligned at both menu-bar backing scales.
             mark.draw(in: NSRect(x: 2, y: 1, width: 16, height: 18),
                       from: .zero, operation: .sourceOver, fraction: 1)
             return true
@@ -27,5 +35,10 @@ enum SaytileBrand {
         image.isTemplate = true
         image.accessibilityDescription = "Saytile"
         return image
-    }()
+    }
+    static let menuBarMark = template(from: mark)
+    private static let blackMenuBarMark = template(from: blackMark)
+    static func menuBarMark(for brand: BrandAppearance) -> NSImage? {
+        brand == .purple ? menuBarMark : blackMenuBarMark
+    }
 }

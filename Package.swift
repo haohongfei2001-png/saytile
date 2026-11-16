@@ -10,7 +10,7 @@ let package = Package(
         .target(name: "CAudio", exclude: ["WEBRTC-LICENSE.txt", "webrtc/common_audio/signal_processing/dot_product_with_scale.cc"], cSettings: [.headerSearchPath("."), .define("WEBRTC_POSIX")]),
         .target(name: "SaytileKit", dependencies: ["CSQLite", "CAudio"], resources: [.copy("Resources/ConnectionSample.pcm"), .copy("Resources/LocalASR")]),
         .target(name: "SaytileVoiceUI"),
-        .executableTarget(name: "SaytileApp", dependencies: ["SaytileKit", "SaytileVoiceUI"], resources: [.copy("Resources/SaytileBrandMark.png")]),
+        .executableTarget(name: "SaytileApp", dependencies: ["SaytileKit", "SaytileVoiceUI"], resources: [.copy("Resources/SaytileBrandMark.png"), .copy("Resources/SaytileBlackBrandMark.png"), .copy("Resources/SaytileBlackBrandMarkDark.png"), .copy("Resources/SaytileBlackPlate.png"), .copy("Resources/SaytilePurplePlate.png")]),
         .testTarget(name: "SaytileKitTests", dependencies: ["SaytileKit", "SaytileVoiceUI"], path: "tests/SaytileKitTests")
     ]
 )
