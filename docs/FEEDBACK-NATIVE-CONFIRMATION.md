@@ -22,3 +22,11 @@ The fixture uses synthetic feedback and an injected transport. A passing result 
 ## Pre-commit checks (2026-11-16)
 
 The modified helper compiles with Swift 6, the release executable builds, and Python syntax/diff checks pass. Independent review found and corrected a per-attribute AX read issue: a successful batch read can contain errors for individual attributes, so the feedback-only traversal now refuses incomplete containers. A raw unbundled WIP launch did not produce native evidence and is not counted as acceptance. The final clean signed app and complete CI remain the required execution checks.
+
+## Signed build 499 and host isolation
+
+The signed build 499 (`0243f7916f1ff14d869638d8eaf555a15c9c63d1`) failed locally before the confirmation action: opening the dialog was followed by the diagnostic process becoming frontmost. The helper refused to proceed. The no-action negative control retained the delivered report, zero deletion requests and the visible confirmation. Build 499 is not accepted even if its independent CI succeeds.
+
+A separate native SwiftUI/AppKit probe demonstrated that confirmationDialog creates an `_NSAlertPanel` capable of becoming key, despite the original host panel refusing key/main status. One real confirmation action executed once and dismissed the dialog while its AX reply was -25205. The probe also verified an actual activation-policy change from accessory (1) to prohibited (2), with the same real AX confirmation still working and no self-activation. Accessory did not activate on every probe run; no deterministic activation claim is made.
+
+The feedback-only diagnostic host now uses and asserts the prohibited policy before creating any window, removing its permission to activate. Production application policy and all other fixtures stay unchanged. Normal restart and both fault scenarios must record the actual prohibited policy. Final acceptance still requires the original foreground checks and all deletion postconditions.

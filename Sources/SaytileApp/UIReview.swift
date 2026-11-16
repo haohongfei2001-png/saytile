@@ -13,7 +13,10 @@ extension AppDelegate {
         let product = ProcessInfo.processInfo.environment["SAYTILE_PRODUCT_WINDOWS"] == "1"
         let appearance = ProcessInfo.processInfo.environment["SAYTILE_APPEARANCE_REVIEW"] == "1"
         let feedback = ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW"] == "1"
-        NSApp.setActivationPolicy(timeline || product || appearance || feedback ? .accessory : .prohibited)
+        // A SwiftUI confirmationDialog creates its own key-capable NSAlertPanel.
+        // The feedback fixture must prohibit app activation, not only key status
+        // of its parent ReviewPanel. Production activation policy is unchanged.
+        NSApp.setActivationPolicy(timeline || product || appearance ? .accessory : .prohibited)
         do {
             try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
             if ProcessInfo.processInfo.environment["SAYTILE_REFERENCE_ONLY"] == "1" {
@@ -22,6 +25,10 @@ extension AppDelegate {
                 return true
             }
             if feedback {
+                guard NSApp.activationPolicy() == .prohibited else {
+                    throw ReviewFailure("Feedback native fixture could not prohibit application activation")
+                }
+                print("FEEDBACK_HOST_POLICY actual=prohibited")
                 try await reviewFeedback(output: output)
                 if ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW_PHASE"] != "reopen" {
                     await model.initialLoad()

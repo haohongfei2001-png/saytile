@@ -73,7 +73,8 @@ with tempfile.TemporaryDirectory(prefix='saytile-feedback-native-') as temp:
         common = (same_id and evidence.get('before_state') == 'delivered'
                   and evidence.get('action_replayed') is False and action.get('status') == 'UNKNOWN'
                   and action.get('reported_ax_error') == -25205 and action.get('unique_button') is True
-                  and action.get('foreground_unchanged') is True)
+                  and action.get('foreground_unchanged') is True
+                  and fault_log.count('FEEDBACK_HOST_POLICY actual=prohibited') == 1)
         if mode == 'reply-loss-after-action':
             fault_checks['action_then_reply_loss_proven'] = (common and run.returncode == 0
                 and action.get('attempts') == 1 and action.get('actual_ax_error') in (0, -25205)
@@ -95,6 +96,7 @@ with tempfile.TemporaryDirectory(prefix='saytile-feedback-native-') as temp:
                 'timeline-feedback-settings.png'}
     checks = {
         'native_process_completed': result.returncode == 0 and reopened is not None and reopened.returncode == 0,
+        'background_modal_host': log.count('FEEDBACK_HOST_POLICY actual=prohibited') == 2,
         'native_send_withdraw': log.count('FEEDBACK_NATIVE_PASS ') == 1,
         'reopen_draft_and_record': log.count('FEEDBACK_RESTART_PASS ') == 1,
         'offline_immutable_retry': log.count('FEEDBACK_OFFLINE_PASS ') == 1,
