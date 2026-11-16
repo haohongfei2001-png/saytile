@@ -302,6 +302,8 @@ final class AppModel: ObservableObject {
     @Published var directMode = false
     @Published private(set) var insertionLabels: [UUID: String] = [:]
     @Published var targetLabel = "在目标草稿中放置光标，再绑定"
+    @Published private(set) var privateArchiveStatus = "此安装尚未获得 iCloud 权限"
+    private var privateArchiveTask: Task<Void, Never>?
     @Published private(set) var completedFirstTranscript = false
     @Published var hasStarted = false
     @Published var storageLabel = "计算中…"
@@ -496,7 +498,19 @@ final class AppModel: ObservableObject {
             do { _ = try await AudioDiagnostics.recoverAudio(store: store); recovered = true; audio.completeStartupRecovery() }
             catch { notice = "资料恢复尚未完成：\(error.localizedDescription)" }
         }
+        let fixture = CommandLine.arguments.contains("--icloud-archive-fixture") && CommandLine.arguments.contains("--data-directory")
+        if normalLaunch || fixture, let sync = PrivateArchiveSync.configured(for: store, developmentFixture: fixture) {
+            privateArchiveStatus = "正在检查 iCloud"
+            privateArchiveTask = Task { [weak self, recoveryTask] in
+                await recoveryTask?.value
+                guard self?.recovered == true, !Task.isCancelled else { return }
+                await sync.run { [weak self] status in await self?.updatePrivateArchiveStatus(status) }
+            }
+        }
         startRefreshTimer()
+    }
+    private func updatePrivateArchiveStatus(_ status: String) {
+        if privateArchiveStatus != status { privateArchiveStatus = status }
     }
     private func startRefreshTimer() {
         timer?.cancel()
@@ -1483,6 +1497,7 @@ final class AppModel: ObservableObject {
             downloadNetworkMonitor?.cancel()
             downloadNetworkMonitor = nil
             timer?.cancel(); refreshTask?.cancel()
+            privateArchiveTask?.cancel()
             await audio.shutdown()
             await refreshOperation?.value
             do { try await store.close() } catch { notice = error.localizedDescription }

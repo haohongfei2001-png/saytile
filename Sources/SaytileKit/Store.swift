@@ -685,6 +685,7 @@ extension SaytileStore {
          JOIN revisions stable ON stable.id=(
            SELECT latest.id FROM revisions latest
            WHERE latest.recording_id=r.id AND latest.origin='final'
+             AND NOT EXISTS(SELECT 1 FROM icloud_imported_revisions cloud WHERE cloud.revision_id=latest.id)
              AND NOT EXISTS(SELECT 1 FROM fusion_archives archive WHERE archive.revision_id=latest.id)
            ORDER BY latest.created_at DESC,latest.rowid DESC LIMIT 1
          )
@@ -695,6 +696,7 @@ extension SaytileStore {
            WHERE progress.binding_id=? AND progress.end_utf16>0
          ) watermark ON 1=1
          WHERE r.deleted=0 AND r.rowid>boundary.recording_rowid
+           AND NOT EXISTS(SELECT 1 FROM icloud_restored_recordings restored WHERE restored.recording_id=r.id)
            AND r.created_at>=? AND r.created_at>=b.created_at
            AND stable.text<>'' AND (cursor.prefix IS NULL OR stable.text<>cursor.prefix)
            AND (\(orderPredicate))
@@ -702,6 +704,10 @@ extension SaytileStore {
         """,[.text(bindingID.uuidString),.text(bindingID.uuidString),.double(createdSince.timeIntervalSince1970),.int(Int64(max(1,min(limit,1000))))])
     }
     public func reserveDispatch(bindingID: UUID, recordingID: UUID, revisionID: UUID, stableUTF16End: Int) throws -> DispatchReservation? {
+        guard try db.rows("SELECT 1 FROM icloud_restored_recordings WHERE recording_id=?", [.text(recordingID.uuidString)]).isEmpty,
+              try db.rows("SELECT 1 FROM icloud_imported_revisions WHERE revision_id=?", [.text(revisionID.uuidString)]).isEmpty else {
+            throw StoreError.lateRecognitionDeferred
+        }
         if try db.rows("SELECT 1 FROM owned_corrections WHERE binding_id=? AND recording_id=? AND state='confirmed' LIMIT 1",
                        [.text(bindingID.uuidString), .text(recordingID.uuidString)]).first != nil {
             return try reserveAfterOwnedCorrection(bindingID: bindingID, recordingID: recordingID,
@@ -790,6 +796,8 @@ extension SaytileStore {
       id TEXT PRIMARY KEY,recording_id TEXT NOT NULL REFERENCES recordings(id),text TEXT NOT NULL,
       origin TEXT NOT NULL CHECK(origin IN('partial','final','userEdit')),created_at REAL NOT NULL,attempt TEXT,base_revision TEXT
     );
+    CREATE TABLE IF NOT EXISTS icloud_restored_recordings(recording_id TEXT PRIMARY KEY REFERENCES recordings(id));
+    CREATE TABLE IF NOT EXISTS icloud_imported_revisions(revision_id TEXT PRIMARY KEY REFERENCES revisions(id) ON DELETE CASCADE);
     CREATE TRIGGER IF NOT EXISTS revisions_immutable BEFORE UPDATE ON revisions BEGIN
       SELECT RAISE(ABORT,'create a new revision');
     END;
