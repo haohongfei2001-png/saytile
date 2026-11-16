@@ -1,0 +1,67 @@
+name: Materialize approved black brand
+on:
+  push:
+    branches: [codex/black-brand-option2-20261117]
+    paths: ['.github/workflows/black-brand-bootstrap.yml', '.brand-integration/**']
+permissions:
+  contents: read
+concurrency:
+  group: black-brand-materialize
+  cancel-in-progress: false
+jobs:
+  materialize:
+    if: github.repository == 'haohongfei2001-png/saytile' && github.ref == 'refs/heads/codex/black-brand-option2-20261117'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Refuse stale or repeated materialization
+        run: |
+          set -euo pipefail
+          test -f .brand-integration/patch-0.b64
+          test -f .brand-integration/patch-1.b64
+          REMOTE="$(git ls-remote origin refs/heads/codex/black-brand-option2-20261117 | cut -f1)"
+          test "$REMOTE" = "$GITHUB_SHA"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install bitmap build dependency
+        run: python -m pip install 'Pillow==12.0.0'
+      - name: Verify both transports before applying any source change
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64, gzip, hashlib, subprocess
+          root = Path.cwd()
+          patch = gzip.decompress(base64.b64decode(''.join((root / f'.brand-integration/patch-{i}.b64').read_text().strip() for i in range(2)), validate=True))
+          assert hashlib.sha256(patch).hexdigest() == '6143dbe08dbb12385dd3415fe3c2eacd4b12305ee648cab57f47bc2ffe35f3e8', 'source patch checksum'
+          bitmap = base64.b64decode(''.join((root / f'.brand-integration/image-{i}.b64').read_text().strip() for i in range(3)), validate=True)
+          assert hashlib.sha256(bitmap).hexdigest() == 'addaddcd994a866914da5793e48ac363573319353f93b17d179b3be9efd58057', 'selected artwork checksum'
+          subprocess.run(['git', 'apply', '--check', '-'], input=patch, check=True)
+          subprocess.run(['git', 'apply', '-'], input=patch, check=True)
+          (root / 'design/approved/app-icon/Saytile-Black-Option2-1254.webp').write_bytes(bitmap)
+          print('Verified the exact implementation patch and selected option-2 bitmap transport')
+          PY
+          python scripts/prepare-black-brand.py
+          bash -n scripts/build-app.sh
+      - name: Commit generated resources and implementation to feature branch only
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add AGENTS.md Package.swift README.md Sources tests scripts packaging/VERSION docs design/approved/app-icon
+          git rm -r .brand-integration
+          python scripts/update-manifest.py
+          git add SHA256SUMS.txt
+          git diff --cached --check
+          python scripts/check_integrity.py
+          git commit -m 'feat(appearance): add approved option-2 black logo and linked neutral brand colors'
+          REMOTE="$(git ls-remote origin refs/heads/codex/black-brand-option2-20261117 | cut -f1)"
+          test "$REMOTE" = "$GITHUB_SHA"
+          git push origin HEAD:refs/heads/codex/black-brand-option2-20261117
+          git rev-parse HEAD
