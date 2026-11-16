@@ -218,7 +218,8 @@ public actor LocalASRService {
                         }
                         if final {
                             try await sender.value
-                            guard !event.text.isEmpty else { throw ProviderFailure.incomplete }
+                            // The worker reset its decoder at EOS, even when it heard no words.
+                            // Ingress rejects an unfinished transcript without retiring this worker.
                             return
                         }
                     }

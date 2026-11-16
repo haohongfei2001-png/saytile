@@ -21,6 +21,26 @@ struct JournalRangeAndLocalIngressTests {
         #expect(try await store.recording(id: record.id)?.recognitionState == .failed)
         try await store.close()
     }
+    @Test(arguments: [false, true])
+    func emptyDecoderFinalCannotPromoteSilenceOrAPreview(hasPreview: Bool) async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-empty-eos-" + UUID().uuidString)
+        let store = try SaytileStore(directory: directory)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let record = try await store.createRecording()
+        let ticket = try await store.beginRecognition(recordingID: record.id)
+        let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: .qwen)
+        try await ingress.start()
+        if hasPreview {
+            try await ingress.receive(.init(text: "已听到的候选", stableUTF16Length: 0,
+                audioEndSeconds: 0.4, timingGranularity: "utterance", isComplete: false))
+        }
+        await #expect(throws: ProviderFailure.self) { try await ingress.finish() }
+        await ingress.fail("空定稿，可从原音重试")
+        #expect(try await store.recording(id: record.id)?.recognitionState == .failed)
+        #expect(try await store.modelRuns(recordingID: record.id).map(\.state) == [.failed])
+        try await store.close()
+    }
+
     @Test(arguments: ["truncated-header", "wrong-format", "truncated-payload", "symlink", "stale-generation"])
     func rejectsChangedFilesAndRetiredTickets(reason: String) async throws {
         let directory = URL(fileURLWithPath: "/tmp/saytile-local-range-" + UUID().uuidString)
