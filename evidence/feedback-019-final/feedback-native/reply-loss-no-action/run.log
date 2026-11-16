@@ -1,0 +1,20 @@
+FEEDBACK_HOST_POLICY actual=prohibited
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_INSPECT {"actions":["AXPress"],"enabled":true,"height":24,"identifier":"建议","names":["建议"],"role":"AXRadioButton","width":76}
+NATIVE_UI_INSPECT {"actions":["AXPress"],"enabled":false,"height":24,"identifier":"feedback.send","names":["发送反馈","feedback.send"],"role":"AXButton","width":76}
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1640,"height_points":820,"name":"feedback-empty","width_pixels":1520,"width_points":760}
+FEEDBACK_NATIVE_TEXT input_via=NSTextView.insertText unicode_exact=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1640,"height_points":820,"name":"feedback-draft","width_pixels":1520,"width_points":760}
+NATIVE_UI_AXPRESS feedback.send fixture_pid=17462 foreground_unchanged=true
+NATIVE_UI_INSPECT {"actions":["AXPress"],"enabled":false,"height":24,"identifier":"feedback.send","names":["发送反馈","feedback.send"],"role":"AXButton","width":76}
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1640,"height_points":820,"name":"feedback-received","width_pixels":1520,"width_points":760}
+NATIVE_UI_AXPRESS 刷新状态 fixture_pid=17462 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1640,"height_points":820,"name":"feedback-delivered","width_pixels":1520,"width_points":760}
+NATIVE_UI_AXPRESS 撤回 fixture_pid=17462 foreground_unchanged=true
+NATIVE_FEEDBACK_CONFIRMATION_ACTION {"actual_ax_error":null,"attempts":0,"foreground_unchanged":true,"mode":"reply-loss-no-action","pid":17462,"reported_ax_error":-25205,"status":"UNKNOWN","unique_button":true,"window":"Saytile UI Review timeline-feedback-controls"}
+NATIVE_FEEDBACK_CONFIRMATION_OBSERVED present=true complete_tree=true owned_window=true foreground_unchanged=true
+UI_REVIEW_FAILED Feedback confirmation postcondition failed; no action replay

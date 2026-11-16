@@ -1,0 +1,116 @@
+{
+  "source": "b088b99a4b21a719088604b1236a16ba18f74b7a",
+  "pr": 47,
+  "status": "FAIL",
+  "checks": [
+    {
+      "name": "native",
+      "status": "COMPLETED",
+      "conclusion": "FAILURE",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43721346057/job/132833798952"
+    },
+    {
+      "name": "gateway",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43721345990/job/132833798963"
+    },
+    {
+      "name": "data-and-prototype",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43721346052/job/132833798976"
+    },
+    {
+      "name": "native-gateway",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43721345990/job/132833798680"
+    },
+    {
+      "name": "foreground",
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43721346057/job/132833799242"
+    }
+  ],
+  "run_id": 43721346057,
+  "native_job_id": 132833798952,
+  "toolchain": {
+    "xcode": "26.6",
+    "swift": "6.3.3"
+  },
+  "test_counts": {
+    "swift_testing": {
+      "total": 548,
+      "passed": 548,
+      "failed": 0,
+      "process_counts": [
+        4,
+        13,
+        12,
+        8,
+        511
+      ]
+    },
+    "xctest": {
+      "total": 30,
+      "passed": 30,
+      "failed": 0
+    },
+    "app_model": {
+      "total": 188,
+      "passed": 188,
+      "failed": 0
+    },
+    "feedback_controller": {
+      "total": 12,
+      "passed": 12,
+      "failed": 0
+    }
+  },
+  "release_build": "PASS",
+  "native_feedback": {
+    "status": "FAIL",
+    "failed_step": "withdrawal confirmation AXPress",
+    "message": "Remote native AX action failed for 撤回反馈, code=1; native control action error -25205, role=AXButton, actions=[AXPress], enabled=nil",
+    "completed": [
+      "Unicode NSTextView edit",
+      "explicit send",
+      "receive and delivery status",
+      "open withdrawal confirmation"
+    ],
+    "not_run_after_failure": [
+      "confirmed deletion",
+      "process-restart draft and record recovery",
+      "offline immutable retry",
+      "remaining final receipt assertions"
+    ],
+    "root_cause_status": "UNDER_INDEPENDENT_FIXTURE_REVIEW"
+  },
+  "native_log_sha256": "46d695d8ef3a364418298307428fc5d4b24f16c0e97f5a35b68facccb5488082",
+  "automatic_rerun": false,
+  "assertions_changed": false,
+  "remaining_ci_steps": [
+    {
+      "name": "Native continuous timeline with 12000 isolated utterances",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Isolated startup without microphone",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Preserve app bundle permissions",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Run actions/upload-artifact@v4",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ]
+}

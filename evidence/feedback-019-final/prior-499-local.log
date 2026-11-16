@@ -1,0 +1,22 @@
+reply-loss-after-action {"action_then_reply_loss_proven": false}
+reply-loss-no-action {"action_then_reply_loss_proven": false, "no_action_reply_loss_rejected": true}
+UI_KEYBOARD_ISOLATION before-validation can_become_key=false can_become_main=false is_key=false is_main=false
+NATIVE_UI_INSPECT {"actions":["AXPress"],"enabled":true,"height":24,"identifier":"建议","names":["建议"],"role":"AXRadioButton","width":76}
+NATIVE_UI_INSPECT {"actions":["AXPress"],"enabled":false,"height":24,"identifier":"feedback.send","names":["发送反馈","feedback.send"],"role":"AXButton","width":76}
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1640,"height_points":820,"name":"feedback-empty","width_pixels":1520,"width_points":760}
+FEEDBACK_NATIVE_TEXT input_via=NSTextView.insertText unicode_exact=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1640,"height_points":820,"name":"feedback-draft","width_pixels":1520,"width_points":760}
+NATIVE_UI_AXPRESS feedback.send fixture_pid=14429 foreground_unchanged=true
+NATIVE_UI_INSPECT {"actions":["AXPress"],"enabled":false,"height":24,"identifier":"feedback.send","names":["发送反馈","feedback.send"],"role":"AXButton","width":76}
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1640,"height_points":820,"name":"feedback-received","width_pixels":1520,"width_points":760}
+NATIVE_UI_AXPRESS 刷新状态 fixture_pid=14429 foreground_unchanged=true
+UI_KEYBOARD_ISOLATION capture can_become_key=false can_become_main=false is_key=false is_main=false
+UI_IMAGE_GEOMETRY {"height_pixels":1640,"height_points":820,"name":"feedback-delivered","width_pixels":1520,"width_points":760}
+NATIVE_UI_AXPRESS 撤回 fixture_pid=14429 foreground_unchanged=true
+REFUSED fixture is frontmost
+UI_REVIEW_FAILED Remote native AX action failed for 撤回反馈, code=6
+
+FAIL {"native_process_completed": false, "native_send_withdraw": false, "reopen_draft_and_record": false, "offline_immutable_retry": false, "no_external_submission": false, "action_then_reply_loss_proven": false, "no_action_reply_loss_rejected": true, "single_confirmation_postcondition": false, "real_send_action": true, "native_unicode_editor": true, "all_native_snapshots": false, "no_candidate_activation": false}

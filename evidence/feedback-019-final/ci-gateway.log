@@ -1,0 +1,508 @@
+gateway	Set up job	﻿2026-11-16T03:20:57.8004757Z Current runner version: '2.338.2'
+gateway	Set up job	2026-11-16T03:20:57.8026622Z ##[group]Runner Image Provisioner
+gateway	Set up job	2026-11-16T03:20:57.8027394Z Hosted Compute Agent
+gateway	Set up job	2026-11-16T03:20:57.8027971Z Version: 20261103.629
+gateway	Set up job	2026-11-16T03:20:57.8028545Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+gateway	Set up job	2026-11-16T03:20:57.8029185Z Build Date: 2026-11-03T17:26:59Z
+gateway	Set up job	2026-11-16T03:20:57.8029797Z Worker ID: {ddeeeffc-ff2f-4d4b-a712-75cd401cbcae}
+gateway	Set up job	2026-11-16T03:20:57.8030411Z Region: centralus
+gateway	Set up job	2026-11-16T03:20:57.8030933Z Cloud: Azure
+gateway	Set up job	2026-11-16T03:20:57.8031401Z ##[endgroup]
+gateway	Set up job	2026-11-16T03:20:57.8032896Z ##[group]Operating System
+gateway	Set up job	2026-11-16T03:20:57.8033566Z Ubuntu
+gateway	Set up job	2026-11-16T03:20:57.8034285Z 24.04.5
+gateway	Set up job	2026-11-16T03:20:57.8034782Z LTS
+gateway	Set up job	2026-11-16T03:20:57.8035259Z ##[endgroup]
+gateway	Set up job	2026-11-16T03:20:57.8035717Z ##[group]Runner Image
+gateway	Set up job	2026-11-16T03:20:57.8036274Z Image: ubuntu-24.04
+gateway	Set up job	2026-11-16T03:20:57.8036761Z Version: 20261111.370.1
+gateway	Set up job	2026-11-16T03:20:57.8037661Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+gateway	Set up job	2026-11-16T03:20:57.8039098Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+gateway	Set up job	2026-11-16T03:20:57.8039946Z ##[endgroup]
+gateway	Set up job	2026-11-16T03:20:57.8040862Z ##[group]GITHUB_TOKEN Permissions
+gateway	Set up job	2026-11-16T03:20:57.8042711Z Contents: read
+gateway	Set up job	2026-11-16T03:20:57.8043271Z Metadata: read
+gateway	Set up job	2026-11-16T03:20:57.8044024Z ##[endgroup]
+gateway	Set up job	2026-11-16T03:20:57.8045893Z Secret source: Actions
+gateway	Set up job	2026-11-16T03:20:57.8046759Z Cache mode: write
+gateway	Set up job	2026-11-16T03:20:57.8047558Z Prepare workflow directory
+gateway	Set up job	2026-11-16T03:20:57.8388125Z Prepare all required actions
+gateway	Set up job	2026-11-16T03:20:57.8426432Z Getting action download info
+gateway	Set up job	2026-11-16T03:20:58.1085946Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+gateway	Set up job	2026-11-16T03:20:58.2324916Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+gateway	Set up job	2026-11-16T03:20:58.4346642Z Complete job name: gateway
+gateway	Initialize containers	﻿2026-11-16T03:20:58.4826355Z ##[group]Checking docker version
+gateway	Initialize containers	2026-11-16T03:20:58.4836613Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+gateway	Initialize containers	2026-11-16T03:20:58.5533364Z '1.48'
+gateway	Initialize containers	2026-11-16T03:20:58.5550324Z Docker daemon API version: '1.48'
+gateway	Initialize containers	2026-11-16T03:20:58.5551022Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+gateway	Initialize containers	2026-11-16T03:20:58.5717289Z '1.48'
+gateway	Initialize containers	2026-11-16T03:20:58.5738722Z Docker client API version: '1.48'
+gateway	Initialize containers	2026-11-16T03:20:58.5742268Z ##[endgroup]
+gateway	Initialize containers	2026-11-16T03:20:58.5745098Z ##[group]Clean up resources from previous jobs
+gateway	Initialize containers	2026-11-16T03:20:58.5749053Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=63709e"
+gateway	Initialize containers	2026-11-16T03:20:58.5893458Z ##[command]/usr/bin/docker network prune --force --filter "label=63709e"
+gateway	Initialize containers	2026-11-16T03:20:58.6019445Z ##[endgroup]
+gateway	Initialize containers	2026-11-16T03:20:58.6019893Z ##[group]Create local container network
+gateway	Initialize containers	2026-11-16T03:20:58.6028251Z ##[command]/usr/bin/docker network create --label 63709e github_network_1f4ecb891a5e4f7bb7c5f1e595925d4f
+gateway	Initialize containers	2026-11-16T03:20:58.6528812Z 17e58b0614b4772d5cf919b388e378190c0fa3f219923a707a6a16f3b4d48764
+gateway	Initialize containers	2026-11-16T03:20:58.6549755Z ##[endgroup]
+gateway	Initialize containers	2026-11-16T03:20:58.6570433Z ##[group]Starting pg service container
+gateway	Initialize containers	2026-11-16T03:20:58.6588680Z ##[command]/usr/bin/docker pull postgres:17
+gateway	Initialize containers	2026-11-16T03:20:59.2264823Z 17: Pulling from library/postgres
+gateway	Initialize containers	2026-11-16T03:20:59.4142851Z 37fb86c2a767: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4144094Z e3f1858cb92e: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4144597Z 8fb810914793: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4145072Z 0364acb7b7f6: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4145531Z aa59ca706586: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4145995Z c18f3c4e97d4: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4146446Z 27d6f21260a0: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4146911Z 4abaab6950ec: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4147376Z 3391d2c467d6: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4147830Z ed4bbee64e27: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4148310Z d1f2edaee96e: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4148794Z cdfe3ddb3b6b: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4149601Z 09a57405bcb1: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4150051Z d678e0101545: Pulling fs layer
+gateway	Initialize containers	2026-11-16T03:20:59.4150498Z 0364acb7b7f6: Waiting
+gateway	Initialize containers	2026-11-16T03:20:59.4151082Z aa59ca706586: Waiting
+gateway	Initialize containers	2026-11-16T03:20:59.4151516Z 3391d2c467d6: Waiting
+gateway	Initialize containers	2026-11-16T03:20:59.4151915Z c18f3c4e97d4: Waiting
+gateway	Initialize containers	2026-11-16T03:20:59.4152318Z ed4bbee64e27: Waiting
+gateway	Initialize containers	2026-11-16T03:20:59.4152718Z d1f2edaee96e: Waiting
+gateway	Initialize containers	2026-11-16T03:20:59.4153114Z 27d6f21260a0: Waiting
+gateway	Initialize containers	2026-11-16T03:20:59.4153507Z 4abaab6950ec: Waiting
+gateway	Initialize containers	2026-11-16T03:20:59.4154125Z cdfe3ddb3b6b: Waiting
+gateway	Initialize containers	2026-11-16T03:20:59.4154523Z d678e0101545: Waiting
+gateway	Initialize containers	2026-11-16T03:20:59.4154917Z 09a57405bcb1: Waiting
+gateway	Initialize containers	2026-11-16T03:20:59.5886943Z e3f1858cb92e: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:20:59.5887987Z e3f1858cb92e: Download complete
+gateway	Initialize containers	2026-11-16T03:20:59.6723930Z 8fb810914793: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:20:59.6725798Z 8fb810914793: Download complete
+gateway	Initialize containers	2026-11-16T03:20:59.7312554Z 37fb86c2a767: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:20:59.7314475Z 37fb86c2a767: Download complete
+gateway	Initialize containers	2026-11-16T03:20:59.7435360Z 0364acb7b7f6: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:20:59.7436844Z 0364acb7b7f6: Download complete
+gateway	Initialize containers	2026-11-16T03:20:59.8692219Z 27d6f21260a0: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:20:59.8693642Z 27d6f21260a0: Download complete
+gateway	Initialize containers	2026-11-16T03:20:59.8829615Z aa59ca706586: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:20:59.8830446Z aa59ca706586: Download complete
+gateway	Initialize containers	2026-11-16T03:20:59.9404453Z c18f3c4e97d4: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:20:59.9405359Z c18f3c4e97d4: Download complete
+gateway	Initialize containers	2026-11-16T03:21:00.0239714Z 4abaab6950ec: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:21:00.0250494Z 4abaab6950ec: Download complete
+gateway	Initialize containers	2026-11-16T03:21:00.0860316Z ed4bbee64e27: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:21:00.0860779Z ed4bbee64e27: Download complete
+gateway	Initialize containers	2026-11-16T03:21:00.1742168Z d1f2edaee96e: Download complete
+gateway	Initialize containers	2026-11-16T03:21:00.2390646Z cdfe3ddb3b6b: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:21:00.2391893Z cdfe3ddb3b6b: Download complete
+gateway	Initialize containers	2026-11-16T03:21:00.3116434Z 09a57405bcb1: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:21:00.3627500Z 09a57405bcb1: Download complete
+gateway	Initialize containers	2026-11-16T03:21:00.3628030Z 3391d2c467d6: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:21:00.3628407Z 3391d2c467d6: Download complete
+gateway	Initialize containers	2026-11-16T03:21:00.3634510Z d678e0101545: Verifying Checksum
+gateway	Initialize containers	2026-11-16T03:21:00.3634920Z d678e0101545: Download complete
+gateway	Initialize containers	2026-11-16T03:21:00.5989542Z 37fb86c2a767: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:03.0651250Z e3f1858cb92e: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:03.3030242Z 8fb810914793: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:03.3527613Z 0364acb7b7f6: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:03.7428455Z aa59ca706586: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:03.8095732Z c18f3c4e97d4: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:03.8176234Z 27d6f21260a0: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:03.8264571Z 4abaab6950ec: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:07.9121939Z 3391d2c467d6: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:07.9231621Z ed4bbee64e27: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:07.9528044Z d1f2edaee96e: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:07.9646727Z cdfe3ddb3b6b: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:07.9733263Z 09a57405bcb1: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:07.9798528Z d678e0101545: Pull complete
+gateway	Initialize containers	2026-11-16T03:21:07.9833058Z Digest: sha256:0d938e975177bef9f1f61f3f9dbcf2e0aa0a139568f66d3415ed8892eb97f6ac
+gateway	Initialize containers	2026-11-16T03:21:07.9846718Z Status: Downloaded newer image for postgres:17
+gateway	Initialize containers	2026-11-16T03:21:07.9854511Z docker.io/library/postgres:17
+gateway	Initialize containers	2026-11-16T03:21:07.9942145Z ##[command]/usr/bin/docker create --name 7f526a7e85674a25bd7229f943cd5650_postgres17_c391ad --label 63709e --network github_network_1f4ecb891a5e4f7bb7c5f1e595925d4f --network-alias pg -p 5432:5432 --health-cmd pg_isready --health-interval 2s --health-retries 15 -e "POSTGRES_DB=saytile_cloud_test" -e "POSTGRES_PASSWORD=fixture" -e GITHUB_ACTIONS=true -e CI=true postgres:17
+gateway	Initialize containers	2026-11-16T03:21:08.0178869Z 8f59eea2146a9f915941a693c74d963c07192486dc2e921912c2905b5e3c690d
+gateway	Initialize containers	2026-11-16T03:21:08.0203356Z ##[command]/usr/bin/docker start 8f59eea2146a9f915941a693c74d963c07192486dc2e921912c2905b5e3c690d
+gateway	Initialize containers	2026-11-16T03:21:08.2145467Z 8f59eea2146a9f915941a693c74d963c07192486dc2e921912c2905b5e3c690d
+gateway	Initialize containers	2026-11-16T03:21:08.2177361Z ##[command]/usr/bin/docker ps --all --filter id=8f59eea2146a9f915941a693c74d963c07192486dc2e921912c2905b5e3c690d --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+gateway	Initialize containers	2026-11-16T03:21:08.2314388Z 8f59eea2146a9f915941a693c74d963c07192486dc2e921912c2905b5e3c690d Up Less than a second (health: starting)
+gateway	Initialize containers	2026-11-16T03:21:08.2335896Z ##[command]/usr/bin/docker port 8f59eea2146a9f915941a693c74d963c07192486dc2e921912c2905b5e3c690d
+gateway	Initialize containers	2026-11-16T03:21:08.2479993Z 5432/tcp -> 0.0.0.0:5432
+gateway	Initialize containers	2026-11-16T03:21:08.2480534Z 5432/tcp -> [::]:5432
+gateway	Initialize containers	2026-11-16T03:21:08.2524128Z ##[endgroup]
+gateway	Initialize containers	2026-11-16T03:21:08.2531776Z ##[group]Waiting for all services to be ready
+gateway	Initialize containers	2026-11-16T03:21:08.2542659Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 8f59eea2146a9f915941a693c74d963c07192486dc2e921912c2905b5e3c690d
+gateway	Initialize containers	2026-11-16T03:21:08.2681393Z starting
+gateway	Initialize containers	2026-11-16T03:21:08.2706126Z pg service is starting, waiting 2 seconds before checking again.
+gateway	Initialize containers	2026-11-16T03:21:10.2712154Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 8f59eea2146a9f915941a693c74d963c07192486dc2e921912c2905b5e3c690d
+gateway	Initialize containers	2026-11-16T03:21:10.2835977Z healthy
+gateway	Initialize containers	2026-11-16T03:21:10.2852410Z pg service is healthy.
+gateway	Initialize containers	2026-11-16T03:21:10.2852752Z ##[endgroup]
+gateway	Run actions/checkout@v4	﻿2026-11-16T03:21:10.3157469Z ##[group]Run actions/checkout@v4
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3157909Z with:
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3158108Z   ref: 412d008be30471abf7cf89e99ee7d4c10ae6cb92
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3158362Z   repository: haohongfei2001-png/saytile
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3160386Z   token: ***
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3160558Z   ssh-strict: true
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3160733Z   ssh-user: git
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3160906Z   persist-credentials: true
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3161114Z   clean: true
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3161285Z   sparse-checkout-cone-mode: true
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3161486Z   fetch-depth: 1
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3161640Z   fetch-tags: false
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3161806Z   show-progress: true
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3161981Z   lfs: false
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3162140Z   submodules: false
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3162314Z   set-safe-directory: true
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3162513Z   allow-unsafe-pr-checkout: false
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.3162866Z ##[endgroup]
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5154870Z Syncing repository: haohongfei2001-png/saytile
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5156295Z ##[group]Getting Git version info
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5156789Z Working directory is '/home/runner/work/saytile/saytile'
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5157418Z [command]/usr/bin/git version
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5206382Z git version 2.56.1
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5221662Z ##[endgroup]
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5233168Z Temporarily overriding HOME='/home/runner/work/_temp/11da77b0-457e-4490-a3ce-a1b9542102be' before making global git config changes
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5234358Z Adding repository directory to the temporary git global config as a safe directory
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5237391Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/saytile/saytile
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5278409Z Deleting the contents of '/home/runner/work/saytile/saytile'
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5281787Z ##[group]Initializing the repository
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5285022Z [command]/usr/bin/git init /home/runner/work/saytile/saytile
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5369346Z hint: Using 'master' as the name for the initial branch. This default branch name
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5374369Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5375052Z hint: to use in all of your new repositories, which will suppress this warning,
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5375595Z hint: call:
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5375839Z hint:
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5376233Z hint: 	git config --global init.defaultBranch <name>
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5376649Z hint:
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5377044Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5377709Z hint: 'development'. The just-created branch can be renamed via this command:
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5378223Z hint:
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5378747Z hint: 	git branch -m <name>
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5379044Z hint:
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5379456Z hint: Disable this message with "git config set advice.defaultBranchName false"
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5380154Z Initialized empty Git repository in /home/runner/work/saytile/saytile/.git/
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5381916Z [command]/usr/bin/git remote add origin https://github.com/haohongfei2001-png/saytile
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5422605Z ##[endgroup]
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5423086Z ##[group]Disabling automatic garbage collection
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5425519Z [command]/usr/bin/git config --local gc.auto 0
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5453906Z ##[endgroup]
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5454468Z ##[group]Setting up auth
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5460513Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5492412Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5819958Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.5855905Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.6070350Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.6108241Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.6310533Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.6351723Z ##[endgroup]
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.6352246Z ##[group]Fetching the repository
+gateway	Run actions/checkout@v4	2026-11-16T03:21:10.6361208Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 412d008be30471abf7cf89e99ee7d4c10ae6cb92
+gateway	Run actions/checkout@v4	2026-11-16T03:21:16.0362587Z From https://github.com/haohongfei2001-png/saytile
+gateway	Run actions/checkout@v4	2026-11-16T03:21:16.0363148Z  * branch            412d008be30471abf7cf89e99ee7d4c10ae6cb92 -> FETCH_HEAD
+gateway	Run actions/checkout@v4	2026-11-16T03:21:16.0375042Z ##[endgroup]
+gateway	Run actions/checkout@v4	2026-11-16T03:21:16.0375511Z ##[group]Determining the checkout info
+gateway	Run actions/checkout@v4	2026-11-16T03:21:16.0375923Z ##[endgroup]
+gateway	Run actions/checkout@v4	2026-11-16T03:21:16.0386755Z [command]/usr/bin/git sparse-checkout disable
+gateway	Run actions/checkout@v4	2026-11-16T03:21:16.0439277Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+gateway	Run actions/checkout@v4	2026-11-16T03:21:16.0471109Z ##[group]Checking out the ref
+gateway	Run actions/checkout@v4	2026-11-16T03:21:16.0474792Z [command]/usr/bin/git checkout --progress --force 412d008be30471abf7cf89e99ee7d4c10ae6cb92
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.0555852Z Updating files:  55% (3352/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.0745571Z Updating files:  56% (3356/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.0771074Z Updating files:  57% (3416/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.0792286Z Updating files:  58% (3476/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.0825082Z Updating files:  59% (3536/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.0858379Z Updating files:  60% (3596/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.1103096Z Updating files:  61% (3656/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.1194340Z Updating files:  62% (3716/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.1461946Z Updating files:  63% (3775/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.1487387Z Updating files:  64% (3835/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.1505718Z Updating files:  65% (3895/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.1584305Z Updating files:  66% (3955/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.1847111Z Updating files:  67% (4015/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.1998372Z Updating files:  68% (4075/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.2305593Z Updating files:  69% (4135/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.2587980Z Updating files:  70% (4195/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.2735452Z Updating files:  71% (4255/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.2908533Z Updating files:  72% (4315/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.2943400Z Updating files:  73% (4375/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.2965811Z Updating files:  74% (4435/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.2983433Z Updating files:  75% (4494/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.3010328Z Updating files:  76% (4554/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.3206311Z Updating files:  77% (4614/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.3298550Z Updating files:  78% (4674/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.3501349Z Updating files:  79% (4734/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.3535847Z Updating files:  80% (4794/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.3557107Z Updating files:  81% (4854/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.3616703Z Updating files:  82% (4914/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.3690545Z Updating files:  83% (4974/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.3782189Z Updating files:  84% (5034/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.3943643Z Updating files:  85% (5094/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.3991766Z Updating files:  86% (5154/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4037253Z Updating files:  87% (5214/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4140415Z Updating files:  88% (5273/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4350483Z Updating files:  89% (5333/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4378968Z Updating files:  90% (5393/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4425679Z Updating files:  91% (5453/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4532095Z Updating files:  92% (5513/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4565829Z Updating files:  93% (5573/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4615059Z Updating files:  94% (5633/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4657153Z Updating files:  95% (5693/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4682312Z Updating files:  96% (5753/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4709478Z Updating files:  97% (5813/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4743296Z Updating files:  98% (5873/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4775914Z Updating files:  99% (5933/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4776260Z Updating files: 100% (5992/5992)
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4776644Z Updating files: 100% (5992/5992), done.
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4835132Z Note: switching to '412d008be30471abf7cf89e99ee7d4c10ae6cb92'.
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4835456Z 
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4835701Z You are in 'detached HEAD' state. You can look around, make experimental
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4836257Z changes and commit them, and you can discard any commits you make in this
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4836625Z state without impacting any branches by switching back to a branch.
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4836835Z 
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4837002Z If you want to create a new branch to retain commits you create, you may
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4837400Z do so (now or later) by using -c with the switch command. Example:
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4837602Z 
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4837697Z   git switch -c <new-branch-name>
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4837834Z 
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4837913Z Or undo this operation with:
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4838054Z 
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4838123Z   git switch -
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4838223Z 
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4838383Z Turn off this advice by setting config variable advice.detachedHead to false
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4838618Z 
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4838816Z HEAD is now at 412d008 Prevent native feedback test dialogs from activating the fixture app
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4909773Z ##[endgroup]
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4957961Z [command]/usr/bin/git log -1 --format=%H
+gateway	Run actions/checkout@v4	2026-11-16T03:21:17.4986193Z 412d008be30471abf7cf89e99ee7d4c10ae6cb92
+gateway	Run actions/setup-node@v4	﻿2026-11-16T03:21:17.5208514Z ##[group]Run actions/setup-node@v4
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.5208761Z with:
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.5208947Z   node-version: 24
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.5209141Z   always-auth: false
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.5209330Z   check-latest: false
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.5211237Z   token: ***
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.5211427Z ##[endgroup]
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.6379756Z Found in cache @ /opt/hostedtoolcache/node/24.22.2/x64
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.6381687Z (node:2573) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.6382547Z (Use `node --trace-deprecation ...` to show where the warning was created)
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.6384469Z ##[group]Environment details
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.9690429Z node: v24.22.2
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.9690759Z npm: 11.19.1
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.9691113Z yarn: 1.22.22
+gateway	Run actions/setup-node@v4	2026-11-16T03:21:17.9692259Z ##[endgroup]
+gateway	Run npm ci --prefix cloud	﻿2026-11-16T03:21:17.9817672Z ##[group]Run npm ci --prefix cloud
+gateway	Run npm ci --prefix cloud	2026-11-16T03:21:17.9817967Z ^[[36;1mnpm ci --prefix cloud^[[0m
+gateway	Run npm ci --prefix cloud	2026-11-16T03:21:17.9843532Z shell: /usr/bin/bash -e {0}
+gateway	Run npm ci --prefix cloud	2026-11-16T03:21:17.9843981Z ##[endgroup]
+gateway	Run npm ci --prefix cloud	2026-11-16T03:21:19.2321405Z 
+gateway	Run npm ci --prefix cloud	2026-11-16T03:21:19.2327970Z added 17 packages, and audited 18 packages in 1s
+gateway	Run npm ci --prefix cloud	2026-11-16T03:21:19.2328828Z 
+gateway	Run npm ci --prefix cloud	2026-11-16T03:21:19.2329003Z found 0 vulnerabilities
+gateway	Run npm test --prefix cloud	﻿2026-11-16T03:21:19.2708601Z ##[group]Run npm test --prefix cloud
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:19.2708884Z ^[[36;1mnpm test --prefix cloud^[[0m
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:19.2726927Z shell: /usr/bin/bash -e {0}
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:19.2727147Z ##[endgroup]
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:19.3493667Z 
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:19.3494173Z > saytile-cloud@0.1.0 test
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:19.3494558Z > node --test test/*.test.mjs
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:19.3494738Z 
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:19.6405815Z ✔ loopback PCM → paired Qwen events → authenticated evidence → one review; snapshot/replay protected (63.782302ms)
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:19.6415316Z ✔ Stripe signed test invoice routes to server-defined plan; no Stripe network call (8.918703ms)
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:21.1648973Z ✔ Postgres grants, isolation, concurrent admission, replay, unresolved cost, reconciliation and revocation (1720.620535ms)
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:21.2034715Z ℹ tests 3
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:21.2035171Z ℹ suites 0
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:21.2035360Z ℹ pass 3
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:21.2035536Z ℹ fail 0
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:21.2035715Z ℹ cancelled 0
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:21.2036128Z ℹ skipped 0
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:21.2036564Z ℹ todo 0
+gateway	Run npm test --prefix cloud	2026-11-16T03:21:21.2036901Z ℹ duration_ms 1824.853882
+gateway	Run node cloud/test/postgres.mjs ***127.0.0.1:5432/saytile_cloud_test	﻿2026-11-16T03:21:21.2205382Z ##[group]Run node cloud/test/postgres.mjs ***127.0.0.1:5432/saytile_cloud_test
+gateway	Run node cloud/test/postgres.mjs ***127.0.0.1:5432/saytile_cloud_test	2026-11-16T03:21:21.2205964Z ^[[36;1mnode cloud/test/postgres.mjs ***127.0.0.1:5432/saytile_cloud_test^[[0m
+gateway	Run node cloud/test/postgres.mjs ***127.0.0.1:5432/saytile_cloud_test	2026-11-16T03:21:21.2223636Z shell: /usr/bin/bash -e {0}
+gateway	Run node cloud/test/postgres.mjs ***127.0.0.1:5432/saytile_cloud_test	2026-11-16T03:21:21.2224024Z ##[endgroup]
+gateway	Run node cloud/test/postgres.mjs ***127.0.0.1:5432/saytile_cloud_test	2026-11-16T03:21:21.3811266Z {"status":"PASS","postgres":"17.12 (Debian 17.12-1.pgdg13+1)","parallelConnections":12,"admitted":2,"rejected":10,"duplicateReviewAdmissions":1,"secondUserAdmitted":true,"globalCommittedMicros":1105000}
+gateway	Run scripts/test-supabase-local.sh	﻿2026-11-16T03:21:21.3904769Z ##[group]Run scripts/test-supabase-local.sh
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:21.3905084Z ^[[36;1mscripts/test-supabase-local.sh^[[0m
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:21.3922701Z shell: /usr/bin/bash -e {0}
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:21.3922915Z ##[endgroup]
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9855016Z Resolved service versions:
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9855428Z   database  17.11.0.018-r0  (specifier linked; unlinked)
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9855780Z   rest      v16.5-r0  (specifier linked; unlinked)
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9856331Z   auth      v2.197.0-r0  (specifier linked; unlinked)
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9856725Z   realtime  v2.154.0-r0  (specifier linked; unlinked)
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9857110Z   storage   v1.90.1-r0  (specifier linked; unlinked)
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9857504Z   imgproxy  v3.26.0-r0  (specifier linked; unlinked)
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9857908Z   functions v1.78.1-r0  (specifier linked; unlinked)
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9858396Z   studio    2026.11.09-sha-1567384-r0  (specifier linked; unlinked)
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9858838Z   pgmeta    v0.100.0-r0  (specifier linked; unlinked)
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9859312Z   mail      v1.31.3-r0  (specifier linked; unlinked)
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9859716Z   analytics v1.50.15-r1  (specifier linked; unlinked)
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9860124Z   pooler    v2.10.0-r0  (specifier linked; unlinked)
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9860497Z Created supabase/supabase.lock.
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:23.9861018Z Commit supabase/supabase.lock so CI and your team run the same versions.
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:24.1173986Z [task] start: Starting local Supabase stack...
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:31.8497911Z Seeding globals from roles.sql...
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:31.8660016Z no files matched pattern: supabase/seed.sql
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:31.8858607Z [task] done: Stack is ready.
+gateway	Run scripts/test-supabase-local.sh	2026-11-16T03:21:39.0044187Z {"status":"PASS","scope":"isolated official Supabase Auth, PostgREST, Postgres and Mailpit","confirmedOTPAccounts":2,"apiIdentity":true,"manualGrant":true,"otherAccountIsolated":true,"accountRPCPrivate":true,"refresh":true,"revocation":true,"logoutInvalidatesRefresh":true,"postLogoutAccountHTTP":401,"realModelCalls":0,"liveRevokedStreamClosed":true,"nativeMockASR":0,"nativeMockGPT":0,"unpaidProviderAdmissions":0}
+gateway	Post Run actions/setup-node@v4	﻿2026-11-16T03:21:40.8559397Z Post job cleanup.
+gateway	Post Run actions/setup-node@v4	2026-11-16T03:21:40.9568724Z (node:3337) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+gateway	Post Run actions/setup-node@v4	2026-11-16T03:21:40.9569407Z (Use `node --trace-deprecation ...` to show where the warning was created)
+gateway	Post Run actions/checkout@v4	﻿2026-11-16T03:21:40.9736413Z Post job cleanup.
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.0477381Z [command]/usr/bin/git version
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.0514243Z git version 2.56.1
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.0543446Z Temporarily overriding HOME='/home/runner/work/_temp/40e1a9e3-604a-411c-852c-6cc1725af52a' before making global git config changes
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.0544671Z Adding repository directory to the temporary git global config as a safe directory
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.0547643Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/saytile/saytile
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.0584080Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.0616201Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.0859442Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.0885539Z http.https://github.com/.extraheader
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.0895611Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.0945468Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.1211837Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+gateway	Post Run actions/checkout@v4	2026-11-16T03:21:41.1254291Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+gateway	Stop containers	﻿2026-11-16T03:21:41.1598423Z Print service container logs: 7f526a7e85674a25bd7229f943cd5650_postgres17_c391ad
+gateway	Stop containers	2026-11-16T03:21:41.1603429Z ##[command]/usr/bin/docker logs --details 8f59eea2146a9f915941a693c74d963c07192486dc2e921912c2905b5e3c690d
+gateway	Stop containers	2026-11-16T03:21:41.1779530Z  The files belonging to this database system will be owned by user "postgres".
+gateway	Stop containers	2026-11-16T03:21:41.1781739Z  initdb: warning: enabling "trust" authentication for local connections
+gateway	Stop containers	2026-11-16T03:21:41.1782523Z  initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+gateway	Stop containers	2026-11-16T03:21:41.1783210Z  This user must also own the server process.
+gateway	Stop containers	2026-11-16T03:21:41.1784578Z  
+gateway	Stop containers	2026-11-16T03:21:41.1785089Z  The database cluster will be initialized with locale "en_US.utf8".
+gateway	Stop containers	2026-11-16T03:21:41.1785741Z  The default database encoding has accordingly been set to "UTF8".
+gateway	Stop containers	2026-11-16T03:21:41.1786377Z  The default text search configuration will be set to "english".
+gateway	Stop containers	2026-11-16T03:21:41.1786907Z  
+gateway	Stop containers	2026-11-16T03:21:41.1787600Z  2026-11-16 03:21:09.404 UTC [1] LOG:  starting PostgreSQL 17.12 (Debian 17.12-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+gateway	Stop containers	2026-11-16T03:21:41.1788486Z  2026-11-16 03:21:09.404 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+gateway	Stop containers	2026-11-16T03:21:41.1789056Z  2026-11-16 03:21:09.404 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+gateway	Stop containers	2026-11-16T03:21:41.1789672Z  2026-11-16 03:21:09.405 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+gateway	Stop containers	2026-11-16T03:21:41.1790319Z  2026-11-16 03:21:09.413 UTC [63] LOG:  database system was shut down at 2026-11-16 03:21:09 UTC
+gateway	Stop containers	2026-11-16T03:21:41.1790914Z  2026-11-16 03:21:09.417 UTC [1] LOG:  database system is ready to accept connections
+gateway	Stop containers	2026-11-16T03:21:41.1791432Z  2026-11-16 03:21:10.264 UTC [74] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1791907Z  2026-11-16 03:21:12.318 UTC [82] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1792364Z  2026-11-16 03:21:14.377 UTC [90] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1793113Z  2026-11-16 03:21:16.429 UTC [98] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1793573Z  2026-11-16 03:21:18.487 UTC [106] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1794166Z  2026-11-16 03:21:20.591 UTC [113] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1794591Z  2026-11-16 03:21:21.327 UTC [116] ERROR:  rate_limit
+gateway	Stop containers	2026-11-16T03:21:41.1795167Z  2026-11-16 03:21:21.327 UTC [116] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1795847Z  2026-11-16 03:21:21.327 UTC [116] STATEMENT:  select public.st_reserve($1,$2,1) lease
+gateway	Stop containers	2026-11-16T03:21:41.1796334Z  2026-11-16 03:21:21.329 UTC [124] ERROR:  rate_limit
+gateway	Stop containers	2026-11-16T03:21:41.1796924Z  2026-11-16 03:21:21.329 UTC [124] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1797611Z  2026-11-16 03:21:21.329 UTC [124] STATEMENT:  select public.st_reserve($1,$2,1) lease
+gateway	Stop containers	2026-11-16T03:21:41.1798110Z  2026-11-16 03:21:21.330 UTC [125] ERROR:  rate_limit
+gateway	Stop containers	2026-11-16T03:21:41.1798684Z  2026-11-16 03:21:21.330 UTC [125] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1799352Z  2026-11-16 03:21:21.330 UTC [125] STATEMENT:  select public.st_reserve($1,$2,1) lease
+gateway	Stop containers	2026-11-16T03:21:41.1799798Z  2026-11-16 03:21:21.331 UTC [120] ERROR:  rate_limit
+gateway	Stop containers	2026-11-16T03:21:41.1800308Z  2026-11-16 03:21:21.331 UTC [120] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1800915Z  2026-11-16 03:21:21.331 UTC [120] STATEMENT:  select public.st_reserve($1,$2,1) lease
+gateway	Stop containers	2026-11-16T03:21:41.1801344Z  2026-11-16 03:21:21.334 UTC [122] ERROR:  rate_limit
+gateway	Stop containers	2026-11-16T03:21:41.1801852Z  2026-11-16 03:21:21.334 UTC [122] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1802445Z  2026-11-16 03:21:21.334 UTC [122] STATEMENT:  select public.st_reserve($1,$2,1) lease
+gateway	Stop containers	2026-11-16T03:21:41.1803106Z  2026-11-16 03:21:21.336 UTC [115] ERROR:  rate_limit
+gateway	Stop containers	2026-11-16T03:21:41.1803622Z  2026-11-16 03:21:21.336 UTC [115] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1804359Z  2026-11-16 03:21:21.336 UTC [115] STATEMENT:  select public.st_reserve($1,$2,1) lease
+gateway	Stop containers	2026-11-16T03:21:41.1804773Z  2026-11-16 03:21:21.337 UTC [117] ERROR:  rate_limit
+gateway	Stop containers	2026-11-16T03:21:41.1805283Z  2026-11-16 03:21:21.337 UTC [117] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1805875Z  2026-11-16 03:21:21.337 UTC [117] STATEMENT:  select public.st_reserve($1,$2,1) lease
+gateway	Stop containers	2026-11-16T03:21:41.1806312Z  2026-11-16 03:21:21.338 UTC [119] ERROR:  rate_limit
+gateway	Stop containers	2026-11-16T03:21:41.1806843Z  2026-11-16 03:21:21.338 UTC [119] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1807453Z  2026-11-16 03:21:21.338 UTC [119] STATEMENT:  select public.st_reserve($1,$2,1) lease
+gateway	Stop containers	2026-11-16T03:21:41.1807939Z  2026-11-16 03:21:21.339 UTC [121] ERROR:  rate_limit
+gateway	Stop containers	2026-11-16T03:21:41.1808485Z  2026-11-16 03:21:21.339 UTC [121] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1809113Z  2026-11-16 03:21:21.339 UTC [121] STATEMENT:  select public.st_reserve($1,$2,1) lease
+gateway	Stop containers	2026-11-16T03:21:41.1809558Z  2026-11-16 03:21:21.343 UTC [123] ERROR:  rate_limit
+gateway	Stop containers	2026-11-16T03:21:41.1810079Z  2026-11-16 03:21:21.343 UTC [123] CONTEXT:  PL/pgSQL function public.st_reserve(uuid,uuid,bigint) line 11 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1810701Z  2026-11-16 03:21:21.343 UTC [123] STATEMENT:  select public.st_reserve($1,$2,1) lease
+gateway	Stop containers	2026-11-16T03:21:41.1811152Z  2026-11-16 03:21:21.347 UTC [114] ERROR:  already_admitted
+gateway	Stop containers	2026-11-16T03:21:41.1811704Z  2026-11-16 03:21:21.347 UTC [114] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1812354Z  2026-11-16 03:21:21.347 UTC [114] STATEMENT:  select public.st_review($1,$2,1)
+gateway	Stop containers	2026-11-16T03:21:41.1813045Z  2026-11-16 03:21:21.363 UTC [126] ERROR:  already_admitted
+gateway	Stop containers	2026-11-16T03:21:41.1813592Z  2026-11-16 03:21:21.363 UTC [126] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1814983Z  2026-11-16 03:21:21.363 UTC [126] STATEMENT:  select public.st_review($1,$2,1)
+gateway	Stop containers	2026-11-16T03:21:41.1815439Z  2026-11-16 03:21:21.365 UTC [131] ERROR:  already_admitted
+gateway	Stop containers	2026-11-16T03:21:41.1816007Z  2026-11-16 03:21:21.365 UTC [131] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1816613Z  2026-11-16 03:21:21.365 UTC [131] STATEMENT:  select public.st_review($1,$2,1)
+gateway	Stop containers	2026-11-16T03:21:41.1817062Z  2026-11-16 03:21:21.366 UTC [128] ERROR:  already_admitted
+gateway	Stop containers	2026-11-16T03:21:41.1817687Z  2026-11-16 03:21:21.366 UTC [128] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1818800Z  2026-11-16 03:21:21.366 UTC [128] STATEMENT:  select public.st_review($1,$2,1)
+gateway	Stop containers	2026-11-16T03:21:41.1819254Z  2026-11-16 03:21:21.368 UTC [127] ERROR:  already_admitted
+gateway	Stop containers	2026-11-16T03:21:41.1819792Z  2026-11-16 03:21:21.368 UTC [127] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1820391Z  2026-11-16 03:21:21.368 UTC [127] STATEMENT:  select public.st_review($1,$2,1)
+gateway	Stop containers	2026-11-16T03:21:41.1820812Z  2026-11-16 03:21:21.370 UTC [134] ERROR:  already_admitted
+gateway	Stop containers	2026-11-16T03:21:41.1821367Z  2026-11-16 03:21:21.370 UTC [134] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1821966Z  2026-11-16 03:21:21.370 UTC [134] STATEMENT:  select public.st_review($1,$2,1)
+gateway	Stop containers	2026-11-16T03:21:41.1822386Z  2026-11-16 03:21:21.371 UTC [132] ERROR:  already_admitted
+gateway	Stop containers	2026-11-16T03:21:41.1822923Z  2026-11-16 03:21:21.371 UTC [132] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1823513Z  2026-11-16 03:21:21.371 UTC [132] STATEMENT:  select public.st_review($1,$2,1)
+gateway	Stop containers	2026-11-16T03:21:41.1824309Z  2026-11-16 03:21:21.372 UTC [133] ERROR:  already_admitted
+gateway	Stop containers	2026-11-16T03:21:41.1824859Z  2026-11-16 03:21:21.372 UTC [133] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1825473Z  2026-11-16 03:21:21.372 UTC [133] STATEMENT:  select public.st_review($1,$2,1)
+gateway	Stop containers	2026-11-16T03:21:41.1825937Z  2026-11-16 03:21:21.374 UTC [129] ERROR:  already_admitted
+gateway	Stop containers	2026-11-16T03:21:41.1826489Z  2026-11-16 03:21:21.374 UTC [129] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1827098Z  2026-11-16 03:21:21.374 UTC [129] STATEMENT:  select public.st_review($1,$2,1)
+gateway	Stop containers	2026-11-16T03:21:41.1827523Z  2026-11-16 03:21:21.375 UTC [130] ERROR:  already_admitted
+gateway	Stop containers	2026-11-16T03:21:41.1828062Z  2026-11-16 03:21:21.375 UTC [130] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1828665Z  2026-11-16 03:21:21.375 UTC [130] STATEMENT:  select public.st_review($1,$2,1)
+gateway	Stop containers	2026-11-16T03:21:41.1829097Z  2026-11-16 03:21:21.378 UTC [135] ERROR:  already_admitted
+gateway	Stop containers	2026-11-16T03:21:41.1829645Z  2026-11-16 03:21:21.378 UTC [135] CONTEXT:  PL/pgSQL function public.st_review(uuid,uuid,integer) line 7 at RAISE
+gateway	Stop containers	2026-11-16T03:21:41.1830240Z  2026-11-16 03:21:21.378 UTC [135] STATEMENT:  select public.st_review($1,$2,1)
+gateway	Stop containers	2026-11-16T03:21:41.1830691Z  2026-11-16 03:21:22.659 UTC [143] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1831118Z  2026-11-16 03:21:24.734 UTC [151] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1831529Z  2026-11-16 03:21:26.806 UTC [160] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1831940Z  2026-11-16 03:21:28.868 UTC [168] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1832359Z  2026-11-16 03:21:30.918 UTC [176] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1832771Z  2026-11-16 03:21:32.984 UTC [184] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1833178Z  2026-11-16 03:21:35.036 UTC [192] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1833956Z  2026-11-16 03:21:37.088 UTC [200] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1834372Z  2026-11-16 03:21:39.154 UTC [208] FATAL:  role "root" does not exist
+gateway	Stop containers	2026-11-16T03:21:41.1834770Z  Data page checksums are disabled.
+gateway	Stop containers	2026-11-16T03:21:41.1835034Z  
+gateway	Stop containers	2026-11-16T03:21:41.1835363Z  fixing permissions on existing directory /var/lib/postgresql/data ... ok
+gateway	Stop containers	2026-11-16T03:21:41.1835788Z  creating subdirectories ... ok
+gateway	Stop containers	2026-11-16T03:21:41.1836126Z  selecting dynamic shared memory implementation ... posix
+gateway	Stop containers	2026-11-16T03:21:41.1836521Z  selecting default "max_connections" ... 100
+gateway	Stop containers	2026-11-16T03:21:41.1836850Z  selecting default "shared_buffers" ... 128MB
+gateway	Stop containers	2026-11-16T03:21:41.1837173Z  selecting default time zone ... Etc/UTC
+gateway	Stop containers	2026-11-16T03:21:41.1837480Z  creating configuration files ... ok
+gateway	Stop containers	2026-11-16T03:21:41.1837773Z  running bootstrap script ... ok
+gateway	Stop containers	2026-11-16T03:21:41.1838094Z  performing post-bootstrap initialization ... ok
+gateway	Stop containers	2026-11-16T03:21:41.1838438Z  syncing data to disk ... ok
+gateway	Stop containers	2026-11-16T03:21:41.1838688Z  
+gateway	Stop containers	2026-11-16T03:21:41.1838869Z  
+gateway	Stop containers	2026-11-16T03:21:41.1839116Z  Success. You can now start the database server using:
+gateway	Stop containers	2026-11-16T03:21:41.1839437Z  
+gateway	Stop containers	2026-11-16T03:21:41.1839689Z      pg_ctl -D /var/lib/postgresql/data -l logfile start
+gateway	Stop containers	2026-11-16T03:21:41.1840008Z  
+gateway	Stop containers	2026-11-16T03:21:41.1840698Z  waiting for server to start....2026-11-16 03:21:09.098 UTC [47] LOG:  starting PostgreSQL 17.12 (Debian 17.12-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+gateway	Stop containers	2026-11-16T03:21:41.1841633Z  2026-11-16 03:21:09.099 UTC [47] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+gateway	Stop containers	2026-11-16T03:21:41.1842231Z  2026-11-16 03:21:09.101 UTC [50] LOG:  database system was shut down at 2026-11-16 03:21:08 UTC
+gateway	Stop containers	2026-11-16T03:21:41.1842783Z  2026-11-16 03:21:09.104 UTC [47] LOG:  database system is ready to accept connections
+gateway	Stop containers	2026-11-16T03:21:41.1843183Z   done
+gateway	Stop containers	2026-11-16T03:21:41.1843384Z  server started
+gateway	Stop containers	2026-11-16T03:21:41.1844694Z  CREATE DATABASE
+gateway	Stop containers	2026-11-16T03:21:41.1844913Z  
+gateway	Stop containers	2026-11-16T03:21:41.1845095Z  
+gateway	Stop containers	2026-11-16T03:21:41.1845437Z  /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+gateway	Stop containers	2026-11-16T03:21:41.1845855Z  
+gateway	Stop containers	2026-11-16T03:21:41.1846242Z  waiting for server to shut down...2026-11-16 03:21:09.285 UTC [47] LOG:  received fast shutdown request
+gateway	Stop containers	2026-11-16T03:21:41.1846813Z  .2026-11-16 03:21:09.285 UTC [47] LOG:  aborting any active transactions
+gateway	Stop containers	2026-11-16T03:21:41.1847685Z  2026-11-16 03:21:09.287 UTC [47] LOG:  background worker "logical replication launcher" (PID 53) exited with exit code 1
+gateway	Stop containers	2026-11-16T03:21:41.1848382Z  2026-11-16 03:21:09.287 UTC [48] LOG:  shutting down
+gateway	Stop containers	2026-11-16T03:21:41.1848899Z  2026-11-16 03:21:09.288 UTC [48] LOG:  checkpoint starting: shutdown immediate
+gateway	Stop containers	2026-11-16T03:21:41.1850270Z  2026-11-16 03:21:09.377 UTC [48] LOG:  checkpoint complete: wrote 934 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.068 s, sync=0.021 s, total=0.090 s; sync files=301, longest=0.019 s, average=0.001 s; distance=4329 kB, estimate=4329 kB; lsn=0/193BDF0, redo lsn=0/193BDF0
+gateway	Stop containers	2026-11-16T03:21:41.1851639Z  2026-11-16 03:21:09.384 UTC [47] LOG:  database system is shut down
+gateway	Stop containers	2026-11-16T03:21:41.1852150Z   done
+gateway	Stop containers	2026-11-16T03:21:41.1852467Z  server stopped
+gateway	Stop containers	2026-11-16T03:21:41.1852770Z  
+gateway	Stop containers	2026-11-16T03:21:41.1853207Z  PostgreSQL init process complete; ready for start up.
+gateway	Stop containers	2026-11-16T03:21:41.1853885Z  
+gateway	Stop containers	2026-11-16T03:21:41.1859943Z Stop and remove container: 7f526a7e85674a25bd7229f943cd5650_postgres17_c391ad
+gateway	Stop containers	2026-11-16T03:21:41.1865986Z ##[command]/usr/bin/docker rm --force 8f59eea2146a9f915941a693c74d963c07192486dc2e921912c2905b5e3c690d
+gateway	Stop containers	2026-11-16T03:21:41.4701984Z 8f59eea2146a9f915941a693c74d963c07192486dc2e921912c2905b5e3c690d
+gateway	Stop containers	2026-11-16T03:21:41.4732689Z Remove container network: github_network_1f4ecb891a5e4f7bb7c5f1e595925d4f
+gateway	Stop containers	2026-11-16T03:21:41.4736830Z ##[command]/usr/bin/docker network rm github_network_1f4ecb891a5e4f7bb7c5f1e595925d4f
+gateway	Stop containers	2026-11-16T03:21:41.5646053Z github_network_1f4ecb891a5e4f7bb7c5f1e595925d4f
+gateway	Complete job	﻿2026-11-16T03:21:41.5720899Z Cleaning up orphan processes
+gateway	Complete job	2026-11-16T03:21:41.6079753Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

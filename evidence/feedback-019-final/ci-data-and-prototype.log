@@ -1,0 +1,346 @@
+data-and-prototype	Set up job	﻿2026-11-16T03:20:58.8553139Z Current runner version: '2.338.2'
+data-and-prototype	Set up job	2026-11-16T03:20:58.8578193Z ##[group]Runner Image Provisioner
+data-and-prototype	Set up job	2026-11-16T03:20:58.8579194Z Hosted Compute Agent
+data-and-prototype	Set up job	2026-11-16T03:20:58.8580116Z Version: 20261103.629
+data-and-prototype	Set up job	2026-11-16T03:20:58.8580774Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+data-and-prototype	Set up job	2026-11-16T03:20:58.8581589Z Build Date: 2026-11-03T17:26:59Z
+data-and-prototype	Set up job	2026-11-16T03:20:58.8582284Z Worker ID: {2d5f3182-d0e7-4980-a339-72256d2cffd3}
+data-and-prototype	Set up job	2026-11-16T03:20:58.8583157Z Region: westus3
+data-and-prototype	Set up job	2026-11-16T03:20:58.8583855Z Cloud: Azure
+data-and-prototype	Set up job	2026-11-16T03:20:58.8584403Z ##[endgroup]
+data-and-prototype	Set up job	2026-11-16T03:20:58.8586306Z ##[group]Operating System
+data-and-prototype	Set up job	2026-11-16T03:20:58.8587039Z Ubuntu
+data-and-prototype	Set up job	2026-11-16T03:20:58.8587555Z 24.04.5
+data-and-prototype	Set up job	2026-11-16T03:20:58.8588180Z LTS
+data-and-prototype	Set up job	2026-11-16T03:20:58.8588705Z ##[endgroup]
+data-and-prototype	Set up job	2026-11-16T03:20:58.8589295Z ##[group]Runner Image
+data-and-prototype	Set up job	2026-11-16T03:20:58.8590301Z Image: ubuntu-24.04
+data-and-prototype	Set up job	2026-11-16T03:20:58.8590887Z Version: 20261111.370.1
+data-and-prototype	Set up job	2026-11-16T03:20:58.8592082Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+data-and-prototype	Set up job	2026-11-16T03:20:58.8593864Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+data-and-prototype	Set up job	2026-11-16T03:20:58.8594869Z ##[endgroup]
+data-and-prototype	Set up job	2026-11-16T03:20:58.8596048Z ##[group]GITHUB_TOKEN Permissions
+data-and-prototype	Set up job	2026-11-16T03:20:58.8597898Z Contents: read
+data-and-prototype	Set up job	2026-11-16T03:20:58.8598537Z Metadata: read
+data-and-prototype	Set up job	2026-11-16T03:20:58.8599211Z ##[endgroup]
+data-and-prototype	Set up job	2026-11-16T03:20:58.8601676Z Secret source: Actions
+data-and-prototype	Set up job	2026-11-16T03:20:58.8602822Z Cache mode: write
+data-and-prototype	Set up job	2026-11-16T03:20:58.8603528Z Prepare workflow directory
+data-and-prototype	Set up job	2026-11-16T03:20:58.8995396Z Prepare all required actions
+data-and-prototype	Set up job	2026-11-16T03:20:58.9043165Z Getting action download info
+data-and-prototype	Set up job	2026-11-16T03:20:59.2035079Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+data-and-prototype	Set up job	2026-11-16T03:20:59.3219885Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+data-and-prototype	Set up job	2026-11-16T03:20:59.5133888Z Complete job name: data-and-prototype
+data-and-prototype	Run actions/checkout@v4	﻿2026-11-16T03:20:59.6020356Z ##[group]Run actions/checkout@v4
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6021334Z with:
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6021844Z   ref: 412d008be30471abf7cf89e99ee7d4c10ae6cb92
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6022498Z   repository: haohongfei2001-png/saytile
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6026557Z   token: ***
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6027001Z   ssh-strict: true
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6027449Z   ssh-user: git
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6027895Z   persist-credentials: true
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6028388Z   clean: true
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6028836Z   sparse-checkout-cone-mode: true
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6029362Z   fetch-depth: 1
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6029995Z   fetch-tags: false
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6030452Z   show-progress: true
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6030923Z   lfs: false
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6031341Z   submodules: false
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6031800Z   set-safe-directory: true
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6032316Z   allow-unsafe-pr-checkout: false
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.6033105Z ##[endgroup]
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9315164Z Syncing repository: haohongfei2001-png/saytile
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9318023Z ##[group]Getting Git version info
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9319733Z Working directory is '/home/runner/work/saytile/saytile'
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9321714Z [command]/usr/bin/git version
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9459357Z git version 2.56.1
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9504924Z ##[endgroup]
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9514793Z Temporarily overriding HOME='/home/runner/work/_temp/69d4c3c2-cf27-42c5-8f47-c85bd8fdd58f' before making global git config changes
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9517346Z Adding repository directory to the temporary git global config as a safe directory
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9521931Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/saytile/saytile
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9651414Z Deleting the contents of '/home/runner/work/saytile/saytile'
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9653449Z ##[group]Initializing the repository
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9654775Z [command]/usr/bin/git init /home/runner/work/saytile/saytile
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9791320Z hint: Using 'master' as the name for the initial branch. This default branch name
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9793135Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9795100Z hint: to use in all of your new repositories, which will suppress this warning,
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9796289Z hint: call:
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9796966Z hint:
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9797816Z hint: 	git config --global init.defaultBranch <name>
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9798827Z hint:
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9799930Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9801469Z hint: 'development'. The just-created branch can be renamed via this command:
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9802733Z hint:
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9803385Z hint: 	git branch -m <name>
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9804128Z hint:
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9805114Z hint: Disable this message with "git config set advice.defaultBranchName false"
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9806795Z Initialized empty Git repository in /home/runner/work/saytile/saytile/.git/
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9819960Z [command]/usr/bin/git remote add origin https://github.com/haohongfei2001-png/saytile
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9880819Z ##[endgroup]
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9882041Z ##[group]Disabling automatic garbage collection
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9884854Z [command]/usr/bin/git config --local gc.auto 0
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9919858Z ##[endgroup]
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9921018Z ##[group]Setting up auth
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9928563Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:20:59.9996991Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:00.0438653Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:00.0485167Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:00.0734069Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:00.0781287Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:00.1025082Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:00.1074285Z ##[endgroup]
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:00.1075716Z ##[group]Fetching the repository
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:00.1088883Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 412d008be30471abf7cf89e99ee7d4c10ae6cb92
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:05.3482599Z From https://github.com/haohongfei2001-png/saytile
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:05.3484101Z  * branch            412d008be30471abf7cf89e99ee7d4c10ae6cb92 -> FETCH_HEAD
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:05.3512369Z ##[endgroup]
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:05.3513830Z ##[group]Determining the checkout info
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:05.3515300Z ##[endgroup]
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:05.3516228Z [command]/usr/bin/git sparse-checkout disable
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:05.3589577Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:05.3632517Z ##[group]Checking out the ref
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:05.3637679Z [command]/usr/bin/git checkout --progress --force 412d008be30471abf7cf89e99ee7d4c10ae6cb92
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.3760265Z Updating files:  39% (2369/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.3800563Z Updating files:  40% (2397/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.3831803Z Updating files:  41% (2457/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.3861743Z Updating files:  42% (2517/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.4186248Z Updating files:  43% (2577/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.4284037Z Updating files:  44% (2637/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.4310000Z Updating files:  45% (2697/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.4350585Z Updating files:  46% (2757/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.4376136Z Updating files:  47% (2817/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.4668772Z Updating files:  48% (2877/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.4778136Z Updating files:  49% (2937/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.4815950Z Updating files:  50% (2996/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.5169364Z Updating files:  51% (3056/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.5208894Z Updating files:  52% (3116/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.5421331Z Updating files:  53% (3176/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.5455041Z Updating files:  54% (3236/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.5487106Z Updating files:  55% (3296/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.5712269Z Updating files:  56% (3356/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.5746820Z Updating files:  57% (3416/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.5774941Z Updating files:  58% (3476/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.5815846Z Updating files:  59% (3536/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.5859027Z Updating files:  60% (3596/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.6149279Z Updating files:  61% (3656/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.6261774Z Updating files:  62% (3716/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.6647409Z Updating files:  63% (3775/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.6685210Z Updating files:  64% (3835/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.6709887Z Updating files:  65% (3895/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.6805653Z Updating files:  66% (3955/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.7114098Z Updating files:  67% (4015/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.7310345Z Updating files:  68% (4075/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.7744165Z Updating files:  69% (4135/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.8102946Z Updating files:  70% (4195/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.8278858Z Updating files:  71% (4255/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.8482568Z Updating files:  72% (4315/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.8527266Z Updating files:  73% (4375/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.8556980Z Updating files:  74% (4435/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.8580561Z Updating files:  75% (4494/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.8615909Z Updating files:  76% (4554/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.8846740Z Updating files:  77% (4614/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.8957298Z Updating files:  78% (4674/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.9195638Z Updating files:  79% (4734/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.9239626Z Updating files:  80% (4794/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.9267849Z Updating files:  81% (4854/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.9341030Z Updating files:  82% (4914/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.9431852Z Updating files:  83% (4974/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.9541872Z Updating files:  84% (5034/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.9732152Z Updating files:  85% (5094/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.9791585Z Updating files:  86% (5154/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.9848174Z Updating files:  87% (5214/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:06.9972955Z Updating files:  88% (5273/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0219180Z Updating files:  89% (5333/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0256671Z Updating files:  90% (5393/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0343736Z Updating files:  91% (5453/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0489557Z Updating files:  92% (5513/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0531992Z Updating files:  93% (5573/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0592292Z Updating files:  94% (5633/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0644710Z Updating files:  95% (5693/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0683247Z Updating files:  96% (5753/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0718162Z Updating files:  97% (5813/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0761679Z Updating files:  98% (5873/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0803079Z Updating files:  99% (5933/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0803844Z Updating files: 100% (5992/5992)
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0804442Z Updating files: 100% (5992/5992), done.
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0862492Z Note: switching to '412d008be30471abf7cf89e99ee7d4c10ae6cb92'.
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0863117Z 
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0863514Z You are in 'detached HEAD' state. You can look around, make experimental
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0864409Z changes and commit them, and you can discard any commits you make in this
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0865291Z state without impacting any branches by switching back to a branch.
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0865824Z 
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0866176Z If you want to create a new branch to retain commits you create, you may
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0867069Z do so (now or later) by using -c with the switch command. Example:
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0867579Z 
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0867790Z   git switch -c <new-branch-name>
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0868120Z 
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0868315Z Or undo this operation with:
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0868686Z 
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0869206Z   git switch -
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0869697Z 
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0870111Z Turn off this advice by setting config variable advice.detachedHead to false
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0870705Z 
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0871175Z HEAD is now at 412d008 Prevent native feedback test dialogs from activating the fixture app
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.0946706Z ##[endgroup]
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.1016020Z [command]/usr/bin/git log -1 --format=%H
+data-and-prototype	Run actions/checkout@v4	2026-11-16T03:21:07.1053365Z 412d008be30471abf7cf89e99ee7d4c10ae6cb92
+data-and-prototype	Verify exact bytes of the sole approved visual reference	﻿2026-11-16T03:21:07.1363685Z ##[group]Run echo '58be88a019cf0241b1c540f799d0944ed294e650b8c119923a434a6e4889a7c5  design/approved/Saytile-original-visual-reference-20261107.jpeg' | sha256sum --check --status
+data-and-prototype	Verify exact bytes of the sole approved visual reference	2026-11-16T03:21:07.1365113Z ^[[36;1mecho '58be88a019cf0241b1c540f799d0944ed294e650b8c119923a434a6e4889a7c5  design/approved/Saytile-original-visual-reference-20261107.jpeg' | sha256sum --check --status^[[0m
+data-and-prototype	Verify exact bytes of the sole approved visual reference	2026-11-16T03:21:07.1389368Z shell: /usr/bin/bash -e {0}
+data-and-prototype	Verify exact bytes of the sole approved visual reference	2026-11-16T03:21:07.1389961Z ##[endgroup]
+data-and-prototype	Run actions/setup-python@v5	﻿2026-11-16T03:21:07.1574090Z ##[group]Run actions/setup-python@v5
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.1574396Z with:
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.1574598Z   python-version: 3.12
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.1574837Z   check-latest: false
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.1577863Z   token: ***
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.1578086Z   update-environment: true
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.1578333Z   allow-prereleases: false
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.1578567Z   freethreaded: false
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.1578781Z ##[endgroup]
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.2938528Z ##[group]Installed versions
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.3040800Z (node:2504) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.3042417Z (Use `node --trace-deprecation ...` to show where the warning was created)
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.3043272Z Successfully set up CPython (3.12.16)
+data-and-prototype	Run actions/setup-python@v5	2026-11-16T03:21:07.3044475Z ##[endgroup]
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	﻿2026-11-16T03:21:07.3247914Z ##[group]Run python -m pip install -r tests/requirements.txt
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:07.3248680Z ^[[36;1mpython -m pip install -r tests/requirements.txt^[[0m
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:07.3290648Z shell: /usr/bin/bash -e {0}
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:07.3291043Z env:
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:07.3291457Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:07.3292221Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:07.3292940Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:07.3293581Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:07.3294221Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:07.3294867Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:07.3295415Z ##[endgroup]
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.3440966Z Collecting playwright==1.57.0 (from -r tests/requirements.txt (line 1))
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.3943622Z   Downloading playwright-1.57.0-py3-none-manylinux1_x86_64.whl.metadata (3.5 kB)
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.4157653Z Collecting pyee<14,>=13 (from playwright==1.57.0->-r tests/requirements.txt (line 1))
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.4199744Z   Downloading pyee-13.0.1-py3-none-any.whl.metadata (3.0 kB)
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.6117758Z Collecting greenlet<4.0.0,>=3.1.1 (from playwright==1.57.0->-r tests/requirements.txt (line 1))
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.6157164Z   Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.6403070Z Collecting typing-extensions (from pyee<14,>=13->playwright==1.57.0->-r tests/requirements.txt (line 1))
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.6435679Z   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.6523065Z Downloading playwright-1.57.0-py3-none-manylinux1_x86_64.whl (46.0 MB)
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.9468037Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 46.0/46.0 MB 165.3 MB/s  0:00:00
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.9508262Z Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (621 kB)
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.9560428Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 621.4/621.4 kB 127.3 MB/s  0:00:00
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.9607415Z Downloading pyee-13.0.1-py3-none-any.whl (15 kB)
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:08.9684900Z Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:09.0743606Z Installing collected packages: typing-extensions, greenlet, pyee, playwright
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:09.9230601Z 
+data-and-prototype	Run python -m pip install -r tests/requirements.txt	2026-11-16T03:21:09.9243924Z Successfully installed greenlet-3.5.6 playwright-1.57.0 pyee-13.0.1 typing-extensions-4.16.0
+data-and-prototype	Use the runner browser for headless prototype checks	﻿2026-11-16T03:21:09.9800461Z ##[group]Run if browser=$(command -v google-chrome || command -v chromium); then
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9801092Z ^[[36;1mif browser=$(command -v google-chrome || command -v chromium); then^[[0m
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9801519Z ^[[36;1m  "$browser" --version^[[0m
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9801835Z ^[[36;1m  echo "SAYTILE_BROWSER_PATH=$browser" >> "$GITHUB_ENV"^[[0m
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9802164Z ^[[36;1melse^[[0m
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9802436Z ^[[36;1m  python -m playwright install --with-deps chromium^[[0m
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9802759Z ^[[36;1mfi^[[0m
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9824104Z shell: /usr/bin/bash -e {0}
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9824354Z env:
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9824621Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9825060Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9825485Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9825876Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9826265Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9826717Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:09.9827037Z ##[endgroup]
+data-and-prototype	Use the runner browser for headless prototype checks	2026-11-16T03:21:10.1663823Z Google Chrome 157.0.8103.50 
+data-and-prototype	Offline ASR quality metrics and provenance	﻿2026-11-16T03:21:10.1786451Z ##[group]Run python -m unittest discover -s research/asr/benchmark/quality-evaluation -p 'test_*.py' -v
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.1787719Z ^[[36;1mpython -m unittest discover -s research/asr/benchmark/quality-evaluation -p 'test_*.py' -v^[[0m
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.1817307Z shell: /usr/bin/bash -e {0}
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.1817743Z env:
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.1818238Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.1819030Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.1820060Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.1820805Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.1821640Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.1822373Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.1823047Z   SAYTILE_BROWSER_PATH: /usr/bin/google-chrome
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.1823553Z ##[endgroup]
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.3592687Z test_all_explicit_digit_expressions_are_covered_without_reselecting_clips (test_evaluate.CorpusTests.test_all_explicit_digit_expressions_are_covered_without_reselecting_clips) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.3721039Z test_annotation_receipts_and_denominators_reject_fabricated_coverage (test_evaluate.CorpusTests.test_annotation_receipts_and_denominators_reject_fabricated_coverage) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.8162919Z test_cloud_unrun_metrics_are_null_and_legacy_results_all_accounted (test_evaluate.CorpusTests.test_cloud_unrun_metrics_are_null_and_legacy_results_all_accounted) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:10.8557889Z test_duplicate_trace_attempts_rejected (test_evaluate.CorpusTests.test_duplicate_trace_attempts_rejected) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.2989846Z test_frozen_unit_overlay_is_loaded_into_evaluation_and_cannot_change_silently (test_evaluate.CorpusTests.test_frozen_unit_overlay_is_loaded_into_evaluation_and_cannot_change_silently) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.3364856Z test_local_qwen_cannot_be_claimed_as_hosted_qwen (test_evaluate.CorpusTests.test_local_qwen_cannot_be_claimed_as_hosted_qwen) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.4024958Z test_nested_deterministic_language_balanced_panels (test_evaluate.CorpusTests.test_nested_deterministic_language_balanced_panels) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.4061169Z test_number_negation_alias_expansion_requires_new_review (test_evaluate.CorpusTests.test_number_negation_alias_expansion_requires_new_review) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.4868774Z test_prepare_only_configs_are_disabled_and_use_isolated_cli_paths (test_evaluate.CorpusTests.test_prepare_only_configs_are_disabled_and_use_isolated_cli_paths) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.4994055Z test_reference_supplement_has_exact_occurrences_and_preserves_originals (test_evaluate.CorpusTests.test_reference_supplement_has_exact_occurrences_and_preserves_originals) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5067722Z test_reviewed_numbers_and_negations_catch_changed_values_and_polarity (test_evaluate.CorpusTests.test_reviewed_numbers_and_negations_catch_changed_values_and_polarity) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5115569Z test_counts_match_inherited_alignment_exhaustively (test_evaluate.MetricTests.test_counts_match_inherited_alignment_exhaustively) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5117726Z test_critical_occurrence_counts_preserve_real_repeats_and_expose_extras (test_evaluate.MetricTests.test_critical_occurrence_counts_preserve_real_repeats_and_expose_extras) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5120211Z test_critical_requires_token_boundaries_and_reference_truth (test_evaluate.MetricTests.test_critical_requires_token_boundaries_and_reference_truth) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5123825Z test_deletion_replaced_by_wrong_word_is_not_repaired (test_evaluate.MetricTests.test_deletion_replaced_by_wrong_word_is_not_repaired) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5130009Z test_equal_mer_can_hide_a_repair_and_new_error (test_evaluate.MetricTests.test_equal_mer_can_hide_a_repair_and_new_error) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5133988Z test_genuine_repetition_not_penalized_as_excess (test_evaluate.MetricTests.test_genuine_repetition_not_penalized_as_excess) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5138463Z test_number_negation_and_filler_not_rewritten (test_evaluate.MetricTests.test_number_negation_and_filler_not_rewritten) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5140320Z test_reviewed_unit_aliases_preserve_occurrence_counts (test_evaluate.MetricTests.test_reviewed_unit_aliases_preserve_occurrence_counts) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5146970Z test_reviewed_unit_forms_accept_symbols_without_rewriting_numbers_or_lexical_scores (test_evaluate.MetricTests.test_reviewed_unit_forms_accept_symbols_without_rewriting_numbers_or_lexical_scores) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5148997Z test_unit_symbols_are_not_reduced_to_unrelated_letters (test_evaluate.MetricTests.test_unit_symbols_are_not_reduced_to_unrelated_letters) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5151156Z test_audio_and_configuration_identity_fail_closed (test_evaluate.TraceTests.test_audio_and_configuration_identity_fail_closed) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5167000Z test_complete_early_hypothesis_errors_are_scored_against_whole_gold (test_evaluate.TraceTests.test_complete_early_hypothesis_errors_are_scored_against_whole_gold) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5193255Z test_explicit_timed_gold_scope_allows_stage_accuracy (test_evaluate.TraceTests.test_explicit_timed_gold_scope_allows_stage_accuracy) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5206822Z test_failure_not_dropped_from_final_omissions (test_evaluate.TraceTests.test_failure_not_dropped_from_final_omissions) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5226204Z test_final_from_an_old_generation_or_user_edit_not_scored (test_evaluate.TraceTests.test_final_from_an_old_generation_or_user_edit_not_scored) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5266845Z test_foreign_terminal_state_never_supplies_current_failure_or_final_latency (test_evaluate.TraceTests.test_foreign_terminal_state_never_supplies_current_failure_or_final_latency) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5281095Z test_generation_filter_and_persisted_not_ui_latency (test_evaluate.TraceTests.test_generation_filter_and_persisted_not_ui_latency) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5284558Z test_mislabeled_baseline_and_reasoning_change_are_not_pooled (test_evaluate.TraceTests.test_mislabeled_baseline_and_reasoning_change_are_not_pooled) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5298758Z test_missing_latency_is_null_not_zero (test_evaluate.TraceTests.test_missing_latency_is_null_not_zero) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5338780Z test_missing_or_changed_source_revision_prevents_cloud_pair (test_evaluate.TraceTests.test_missing_or_changed_source_revision_prevents_cloud_pair) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5358790Z test_no_stable_prefix_count_only_ended_verified_sessions (test_evaluate.TraceTests.test_no_stable_prefix_count_only_ended_verified_sessions) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5375301Z test_paired_different_scopes_not_compared (test_evaluate.TraceTests.test_paired_different_scopes_not_compared) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5401727Z test_partial_has_no_fabricated_accuracy_without_timed_gold (test_evaluate.TraceTests.test_partial_has_no_fabricated_accuracy_without_timed_gold) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5412583Z test_post_eos_whole_candidate_scores_early_stage_without_claiming_final (test_evaluate.TraceTests.test_post_eos_whole_candidate_scores_early_stage_without_claiming_final) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5423259Z test_provider_complete_is_not_logical_final (test_evaluate.TraceTests.test_provider_complete_is_not_logical_final) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5451465Z test_shared_provider_parameter_changes_break_single_variable_pair (test_evaluate.TraceTests.test_shared_provider_parameter_changes_break_single_variable_pair) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5470680Z test_uncertain_or_inconsistent_final_not_certified (test_evaluate.TraceTests.test_uncertain_or_inconsistent_final_not_certified) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5660074Z test_whole_candidate_scope_rejects_partial_foreign_or_temporally_unavailable_evidence (test_evaluate.TraceTests.test_whole_candidate_scope_rejects_partial_foreign_or_temporally_unavailable_evidence) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5662638Z test_missing_latency_is_not_zero_and_does_not_need_timed_accuracy (test_latency.PairedLatencyTests.test_missing_latency_is_not_zero_and_does_not_need_timed_accuracy) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5666722Z test_nonfinite_and_absent_events_stay_unmeasured (test_latency.PairedLatencyTests.test_nonfinite_and_absent_events_stay_unmeasured) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5668974Z test_pair_first_then_quantile_not_difference_of_aggregate_medians (test_latency.PairedLatencyTests.test_pair_first_then_quantile_not_difference_of_aggregate_medians) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5671714Z test_source_audio_parameters_and_unverified_or_missing_traces_excluded (test_latency.PairedLatencyTests.test_source_audio_parameters_and_unverified_or_missing_traces_excluded) ... ok
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5673131Z 
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5673622Z ----------------------------------------------------------------------
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5674364Z Ran 43 tests in 1.252s
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5674619Z 
+data-and-prototype	Offline ASR quality metrics and provenance	2026-11-16T03:21:11.5674836Z OK
+data-and-prototype	Run python scripts/verify.py --ui	﻿2026-11-16T03:21:11.5806141Z ##[group]Run python scripts/verify.py --ui
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:11.5806512Z ^[[36;1mpython scripts/verify.py --ui^[[0m
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:11.5826916Z shell: /usr/bin/bash -e {0}
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:11.5827170Z env:
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:11.5827438Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:11.5827883Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:11.5828322Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:11.5828715Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:11.5829096Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:11.5829809Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:11.5830216Z   SAYTILE_BROWSER_PATH: /usr/bin/google-chrome
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:11.5830510Z ##[endgroup]
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:48.1823652Z inherited_pcm_sqlite PASS
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:48.1824390Z reconstructed_contracts PASS
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:48.1824934Z swift6_typecheck PASS
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:48.1825493Z swift_smoke_build PASS
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:48.1825930Z swift_unicode_smoke PASS
+data-and-prototype	Run python scripts/verify.py --ui	2026-11-16T03:21:48.1826417Z prototype_dom PASS
+data-and-prototype	Post Run actions/setup-python@v5	﻿2026-11-16T03:21:48.2001167Z Post job cleanup.
+data-and-prototype	Post Run actions/setup-python@v5	2026-11-16T03:21:48.3257897Z (node:2773) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+data-and-prototype	Post Run actions/setup-python@v5	2026-11-16T03:21:48.3260273Z (Use `node --trace-deprecation ...` to show where the warning was created)
+data-and-prototype	Post Run actions/checkout@v4	﻿2026-11-16T03:21:48.3468919Z Post job cleanup.
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.4377745Z [command]/usr/bin/git version
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.4423569Z git version 2.56.1
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.4464265Z Temporarily overriding HOME='/home/runner/work/_temp/534fe44d-4ca9-4f6b-aaad-c59c184c514f' before making global git config changes
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.4465791Z Adding repository directory to the temporary git global config as a safe directory
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.4469715Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/saytile/saytile
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.4511337Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.4558681Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.4829838Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.4858473Z http.https://github.com/.extraheader
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.4886465Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.4932121Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.5265795Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+data-and-prototype	Post Run actions/checkout@v4	2026-11-16T03:21:48.5315487Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+data-and-prototype	Complete job	﻿2026-11-16T03:21:48.5740315Z Cleaning up orphan processes
+data-and-prototype	Complete job	2026-11-16T03:21:48.6146706Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

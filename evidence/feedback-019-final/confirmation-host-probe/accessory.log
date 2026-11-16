@@ -1,0 +1,13 @@
+HOST policy=accessory accepted=true initial=2 actual=1
+HOST_SNAPSHOT before self_frontmost=false confirming=false confirmations=0
+HOST_WINDOW ProbePanel visible=true key=false canKey=false style=129
+NATIVE_UI_AXPRESS 撤回 fixture_pid=15407 foreground_unchanged=true
+
+HOST_SNAPSHOT opened self_frontmost=false confirming=true confirmations=0
+HOST_WINDOW ProbePanel visible=true key=false canKey=false style=129
+HOST_WINDOW _NSAlertPanel visible=true key=true canKey=true style=8589967553
+NATIVE_FEEDBACK_CONFIRMATION_ACTION {"actual_ax_error":-25205,"attempts":1,"foreground_unchanged":true,"mode":"press","pid":15407,"reported_ax_error":-25205,"status":"UNKNOWN","unique_button":true,"window":"Saytile UI Review timeline-feedback-controls"}
+
+HOST_SNAPSHOT confirmed self_frontmost=false confirming=false confirmations=1
+HOST_WINDOW ProbePanel visible=true key=false canKey=false style=129
+HOST_RESULT confirmed=10 count=1 showing=false

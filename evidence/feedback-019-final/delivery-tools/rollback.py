@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+"""Exercise 492 -> 0.19 -> 492 -> 0.19 with generated data and additive schema-6 metadata only."""
+from pathlib import Path
+import argparse,hashlib,importlib.util,json,plistlib,re,shutil,sqlite3,subprocess as sp,tempfile
+if not __debug__:raise RuntimeError('Run without Python optimization; rollback assertions are required')
+ROOT=Path('/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree')
+BASE='012999c2018f591f3cf9a529e4c0ae81e7b81f21'
+WORKER='9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e'
+NAME='Saytile 中文识别候选.app'
+TOOLS=Path(__file__).resolve().parent
+PROBE=TOOLS/'probe/store-probe'
+PROBE_SHA='efba4ed52e27d5ea387cb04d39d0fdab3b6af746d72faa11981fbe74f246c335'
+PROBE_SOURCE=ROOT/'tests/fixtures/StoreProcessProbe.swift'
+PROBE_SOURCE_SHA='a57ad69df09ccdc37825415b1f7d01321d7ef64793190ff90a04bdd5bc94448e'
+OLD_EXE='d08e6c0fb9f164a996e432585f765dc4cdc4f4f7c9c8d93ca32bc8bbbd8d6e02'
+def digest(p):
+ with p.open('rb')as f:return hashlib.file_digest(f,'sha256').hexdigest()
+def meta(app):return plistlib.loads((app/'Contents/Info.plist').read_bytes())
+def sidecar(data,expected_count,expect_present):
+ with sqlite3.connect((data/'Saytile.sqlite').as_uri()+'?mode=ro',uri=True)as db:
+  schema=db.execute('PRAGMA user_version').fetchone()[0];assert schema==6
+  assert db.execute('PRAGMA integrity_check').fetchone()==('ok',)
+  assert not db.execute('PRAGMA foreign_key_check').fetchall()
+  names={r[0]for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+  present={'timeline_paragraphs','natural_paragraph_schema'}.issubset(names)
+  assert present==expect_present
+  idle=db.execute('SELECT idle_seconds FROM timeline_settings WHERE singleton=1').fetchone()[0]
+  if not present:return dict(present=False,idle_seconds=idle,schema=schema)
+  rows=db.execute('SELECT position,paragraph_start,break_hidden FROM timeline_paragraphs ORDER BY position').fetchall()
+  version=db.execute('SELECT singleton,version FROM natural_paragraph_schema ORDER BY singleton').fetchall()
+  triggers=db.execute("SELECT name,sql FROM sqlite_master WHERE type='trigger' AND name='timeline_natural_paragraph'").fetchall()
+  assert len(rows)==expected_count and version==[(1,2)] and len(triggers)==1
+  positions={r[0]for r in db.execute('SELECT position FROM transcript_timeline')}
+  assert {r[0]for r in rows}==positions and all(r[1]in positions and r[1]<=r[0]and r[2]in(0,1)for r in rows)
+  assert not db.execute('SELECT 1 FROM transcript_timeline t LEFT JOIN timeline_paragraphs p ON t.position=p.position WHERE p.position IS NULL').fetchall()
+  return dict(present=True,schema=schema,idle_seconds=idle,rows=rows,version=version,trigger_sha256=hashlib.sha256(json.dumps(triggers).encode()).hexdigest())
+def main():
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('source');a=p.parse_args();assert re.fullmatch('[0-9a-f]{40}',a.source)
+ sp.run(['git','-C',ROOT,'diff','--exit-code','fe5da285d05e9ca33fc64cac679ce95062ccdf6b',a.source,'--','Sources/SaytileKit','tests/fixtures/StoreProcessProbe.swift'],check=True)
+ driver=ROOT/'scripts/mandarin/check-app-rollback.py'
+ frozen=sp.run(['git','-C',ROOT,'show',a.source+':scripts/mandarin/check-app-rollback.py'],check=True,capture_output=True).stdout
+ assert driver.read_bytes()==frozen,'Shared migration primitives changed since selected source'
+ spec=importlib.util.spec_from_file_location('source_bound_rollback',driver);common=importlib.util.module_from_spec(spec);spec.loader.exec_module(common)
+ stage=Path('/private/tmp/saytile-feedback-release-'+a.source[:8]);package=json.loads((stage/'package.json').read_text())
+ assert package['source']==a.source and package['version']=='0.19' and package['worker_sha256']==WORKER
+ old=stage/'baseline492'/NAME;new=stage/'installed'/NAME
+ assert meta(old)['SaytileSourceRevision']==BASE and meta(old)['CFBundleVersion']=='492'
+ assert meta(new)['SaytileSourceRevision']==a.source and meta(new)['CFBundleShortVersionString']=='0.19'
+ assert all(meta(app)['CFBundleIdentifier']=='app.saytile.mac.mandarin-candidate' and meta(app)['SaytileSourceDirty'] is False for app in(old,new))
+ assert int(meta(new)['CFBundleVersion'])>492
+ assert digest(PROBE)==PROBE_SHA and not PROBE.is_symlink()
+ assert digest(PROBE_SOURCE)==PROBE_SOURCE_SHA and not PROBE_SOURCE.is_symlink()
+ fixture_source=sp.run(['git','-C',ROOT,'show',a.source+':tests/fixtures/StoreProcessProbe.swift'],check=True,capture_output=True).stdout
+ assert fixture_source==PROBE_SOURCE.read_bytes(),'Probe fixture differs from selected source'
+ assert all(digest(app/'Contents/Helpers/SaytileModelWorker')==WORKER for app in(old,new))
+ assert digest(old/'Contents/MacOS/Saytile')==OLD_EXE and digest(new/'Contents/MacOS/Saytile')==package['app_executable_sha256']
+ for app in(old,new):sp.run(['codesign','--verify','--deep','--strict',app],check=True)
+ out=stage/'rollback.json';assert not out.exists(),'Do not replace prior evidence'
+ identities=[common.binary_info(app)for app in(old,new)]
+ with tempfile.TemporaryDirectory(prefix='saytile-019-rollback-')as folder:
+  tmp=Path(folder).resolve();apps=[];profiles=[]
+  for index,app in enumerate((old,new)):
+   dest=tmp/str(index);dest.mkdir();apps.append(dest/app.name)
+   common.run('cp','-cR',app,apps[-1]);assert common.binary_info(apps[-1])==identities[index]
+   profiles.append(common.profile_contract(apps[-1],dest,identities[index]))
+  assert profiles[0]==profiles[1]
+  archive,upgrade,fresh,custom=(tmp/k for k in('original-fixture','test-copy','empty-candidate','custom-settings'))
+  common.open_fixture(apps[0],archive,0);common.seed(archive,PROBE);common.open_fixture(apps[0],archive,2)
+  initial=common.snapshot(archive,2);legacy_sidecar=sidecar(archive,2,True)
+  shutil.copytree(archive,upgrade);shutil.copytree(archive,custom)
+  common.open_fixture(apps[1],fresh,0);common.snapshot(fresh,0);fresh_state=sidecar(fresh,0,True)
+  assert fresh_state['idle_seconds']==60
+  # 492 already owns the natural-paragraph sidecar; 0.19 must preserve it.
+  steps=[]
+  for label,app in(('old',apps[0]),('candidate',apps[1]),('old_reopened',apps[0]),('candidate_reopened',apps[1])):
+   common.open_fixture(app,upgrade,2);state=common.snapshot(upgrade,2);assert state==initial,label
+   added=sidecar(upgrade,2,True)
+   assert added==legacy_sidecar,label+' removed/changed existing paragraph metadata'
+   steps.append(dict(step=label,records=2,logical_tables_sha256=state['table_sha256'],wav_sha256=sorted(state['wav_sha256'].values()),sidecar=added))
+  # A rollback app leaves an intentionally hidden paragraph break intact.
+  with sqlite3.connect(upgrade/'Saytile.sqlite')as db:db.execute('UPDATE timeline_paragraphs SET break_hidden=1 WHERE position=(SELECT min(position)FROM timeline_paragraphs)')
+  hidden=sidecar(upgrade,2,True)
+  for app in(apps[0],apps[1]):
+   common.open_fixture(app,upgrade,2);assert common.snapshot(upgrade,2)==initial;assert sidecar(upgrade,2,True)==hidden
+  # A custom >= 60-second setting is not reset by migration or rollback.
+  with sqlite3.connect(custom/'Saytile.sqlite')as db:db.execute('UPDATE timeline_settings SET idle_seconds=180 WHERE singleton=1')
+  for app in(apps[1],apps[0]):
+   common.open_fixture(app,custom,2);assert common.snapshot(custom,2)==initial;assert sidecar(custom,2,True)['idle_seconds']==180
+  assert common.snapshot(archive,2)==initial and sidecar(archive,2,True)==legacy_sidecar
+ assert identities==[common.binary_info(app)for app in(old,new)]
+ result=dict(status='PASS',identities=identities,app_storage_profiles=profiles,fixture=initial,steps=steps,natural_paragraph_sidecar='PASS',existing_paragraph_metadata_unchanged=True,sidecar_schema_version=2,sqlite_schema_version=6,old_table_rows_unchanged=True,original_audio_hashes_unchanged=True,hidden_boundary_preserved_after_old_and_new_reopen=True,custom_180_second_setting_preserved=True,network='denied to every smoke and seed process',launch='temporary diagnostic directories only; no capture or inference',keychain='service-name contracts only; no secret read',empty_candidate_records=0,original_fixture_unchanged=True,installed_binaries_unchanged=True,runner_sha256=digest(Path(__file__)),shared_source_runner_sha256=hashlib.sha256(frozen).hexdigest())
+ result.update(probe_sha256=PROBE_SHA,probe_fixture_source_sha256=PROBE_SOURCE_SHA)
+ out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n');print(json.dumps(result,ensure_ascii=False,indent=2))
+if __name__=='__main__':main()

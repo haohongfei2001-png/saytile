@@ -1,0 +1,24 @@
+{
+  "source_before_repair": "b088b99a4b21a719088604b1236a16ba18f74b7a",
+  "independent_review": "PASS_NO_NEW_P0_P1",
+  "scope": [
+    "native feedback controller and persistence",
+    "product routing and privacy",
+    "bounded confirmation fixture patch"
+  ],
+  "review_findings_fixed": [
+    "feedback-specific complete AX tree must reject per-attribute errors on containers"
+  ],
+  "live_service": "NOT_RUN",
+  "cloudflare_authentication": {
+    "checked_at_utc": "2026-11-16T02:59:14Z",
+    "authenticated": false,
+    "available_accounts": 0,
+    "login_started": false,
+    "deployment_started": false
+  },
+  "installed_app_metadata_and_executable_hashes": "unchanged 0.18(492) and protected 0.12(373)",
+  "private_archive_settings_keychain_read": false,
+  "final_source": "412d008be30471abf7cf89e99ee7d4c10ae6cb92",
+  "final_fixture_patch_review": "PASS: actual prohibited policy; strict single-action and postcondition guards preserved"
+}

@@ -1,0 +1,147 @@
+{
+  "source": "412d008be30471abf7cf89e99ee7d4c10ae6cb92",
+  "checked_at_utc": "2026-11-16T03:36:18.511034+00:00",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "foreground",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43797639259/job/133070088535",
+      "started_at": "2026-11-16T03:21:17Z",
+      "completed_at": "2026-11-16T03:24:53Z",
+      "raw_log_file": "/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/.build/feedback-500-ci-foreground.log",
+      "raw_log_exit": 0
+    },
+    {
+      "name": "native",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43797639259/job/133070088216",
+      "started_at": "2026-11-16T03:21:15Z",
+      "completed_at": "2026-11-16T03:36:01Z",
+      "raw_log_file": "/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/.build/feedback-500-ci-native.log",
+      "raw_log_exit": 0
+    },
+    {
+      "name": "gateway",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43797639262/job/133069984786",
+      "started_at": "2026-11-16T03:20:57Z",
+      "completed_at": "2026-11-16T03:21:43Z",
+      "raw_log_file": "/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/.build/feedback-500-ci-gateway.log",
+      "raw_log_exit": 0
+    },
+    {
+      "name": "data-and-prototype",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43797639254/job/133069984515",
+      "started_at": "2026-11-16T03:20:57Z",
+      "completed_at": "2026-11-16T03:21:50Z",
+      "raw_log_file": "/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/.build/feedback-500-ci-data-and-prototype.log",
+      "raw_log_exit": 0
+    },
+    {
+      "name": "native-gateway",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43797639262/job/133069984416",
+      "started_at": "2026-11-16T03:20:57Z",
+      "completed_at": "2026-11-16T03:23:11Z",
+      "raw_log_file": "/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/.build/feedback-500-ci-native-gateway.log",
+      "raw_log_exit": 0
+    }
+  ],
+  "validation": {
+    "swift_testing": {
+      "run_counts": [
+        4,
+        13,
+        12,
+        8,
+        511
+      ],
+      "passed": 548,
+      "failed": 0
+    },
+    "inherited_xctest": {
+      "passed": 30,
+      "failed": 0,
+      "note": "One suite total; duplicated XCTest outer totals not summed."
+    },
+    "appmodel": {
+      "passed": 188,
+      "failed": 0
+    },
+    "feedback_controller": {
+      "passed": 12,
+      "failed": 0
+    },
+    "native_feedback": {
+      "passed": 13,
+      "failed": 0,
+      "scope": "Native AX and NSTextView interactions, durable SQLite/restart, injected transport; zero real remote submissions; negative no-action fixture expected to fail its postcondition."
+    },
+    "update_config_python": {
+      "passed": 18,
+      "failed": 0
+    },
+    "offline_metrics_python": {
+      "passed": 43,
+      "failed": 0
+    },
+    "foreground_batch": {
+      "passed": 10,
+      "failed": 0,
+      "scope": "Owned AppKit/WKWebView, not third-party Chrome."
+    },
+    "cloud_gateway_node": {
+      "passed": 3,
+      "failed": 0
+    },
+    "timeline": "PASS real native pipeline with 12000 synthetic utterances",
+    "generic_native_windows": "PASS rendering; UI_CONTROLS_NOT_RUN without remote AX helper. Separate feedback controls genuinely executed."
+  },
+  "limitations": [
+    {
+      "name": "physical second-display drag",
+      "status": "NOT_RUN",
+      "reason": "Only one display connected in runner."
+    },
+    {
+      "name": "boundary native fullscreen",
+      "status": "NOT_RUN",
+      "reason": "Explicit isolated GUI run flag not enabled; no substitution with fullscreen-size ordinary frame."
+    },
+    {
+      "name": "generic Native windows controls",
+      "status": "NOT_RUN",
+      "reason": "Rendering-only fixture; distinct native feedback controls have13 real checks."
+    },
+    {
+      "name": "live feedback service deployment/delivery",
+      "status": "BLOCKED / NOT_RUN",
+      "reason": "Cloudflare authentication absent; synthetic transport does not prove private Issue arrival."
+    },
+    {
+      "name": "physical microphone and personal speech",
+      "status": "NOT_RUN",
+      "reason": "This feedback/appearance delivery does not retest ASR or open MacBook lid."
+    }
+  ],
+  "observer": {
+    "reruns": 0,
+    "manual_cancellations": 0,
+    "poll_interval_seconds": 60,
+    "immutable_sha": true
+  },
+  "raw_log_sha256": {
+    "feedback-500-ci-data-and-prototype.log": "e8b9cdd8fe12ec4c9a682b7e6539c9c774b4f7d552cee225ccc9df0b2b1b0d01",
+    "feedback-500-ci-foreground.log": "4ce38bd954784ce6ece9e1c78ad2734a6868ec865fad07a5fce1dfb0301ede34",
+    "feedback-500-ci-native.log": "3f546ae4914829ac3eff7341c128f78c03b9e4224e6c7662f0159b934cbfdcee",
+    "feedback-500-ci-gateway.log": "95960805f29aeb5f3e6346c1556742fdcbe5d2ed6265a5e7addaf5d915ba537d",
+    "feedback-500-ci-native-gateway.log": "5694f994cedd7b65a080740d039347a6dfea08b582a4016a71383a5c621499ce"
+  }
+}

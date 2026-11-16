@@ -1,0 +1,145 @@
+{
+  "product_source": "412d008be30471abf7cf89e99ee7d4c10ae6cb92",
+  "version": "0.19",
+  "build": "500",
+  "status": "ENGINEERING_PASS_SERVICE_DEPLOYMENT_BLOCKED",
+  "client_pr": "https://github.com/haohongfei2001-png/saytile/pull/47",
+  "service_pr": "https://github.com/haohongfei2001-png/Riftlet/pull/104",
+  "package": {
+    "version": "0.19",
+    "build": "500",
+    "source": "412d008be30471abf7cf89e99ee7d4c10ae6cb92",
+    "bundle": "app.saytile.mac.mandarin-candidate",
+    "app_executable_sha256": "59692c471cda6783349091ddc4ab2971878b0566eb28d514c32a92d837bbeffa",
+    "worker_sha256": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e",
+    "dmg_bytes": 65307201,
+    "dmg_sha256": "9e22efdff60fe4842f507885d003a647edfb1e866a4cec45d02f5584d8a90353",
+    "codesign_app": "PASS",
+    "codesign_image": "PASS",
+    "signing": [
+      "Identifier=app.saytile.mac.mandarin-candidate",
+      "CodeDirectory v=20500 size=24558 flags=0x10000(runtime) hashes=756+7 location=embedded",
+      "CDHash=73bc8e09f7009ac1e6fb02226fdf3e7cc716496b",
+      "Authority=Developer ID Application: hongfei hao (ZB9D4T66QB)",
+      "Authority=Developer ID Certification Authority",
+      "Authority=Apple Root CA",
+      "Timestamp=Nov 16, 2026 at 11:18:29",
+      "TeamIdentifier=ZB9D4T66QB"
+    ],
+    "model_weights_in_bundle": [],
+    "gatekeeper_exit": 3,
+    "gatekeeper_result": "Saytile 中文识别候选.app: rejected\nsource=Unnotarized Developer ID",
+    "notarization_submitted": false,
+    "production_replaced": false,
+    "update_configuration": {
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "channel": "mandarin",
+      "feed_url": "https://raw.githubusercontent.com/haohongfei2001-png/saytile/codex/update-feed/mandarin/appcast.xml",
+      "public_key_sha256": "32cbd20d060df765b39cc5b914629f633323cad751fdb7eeef692f029fcc7d73",
+      "flags": {
+        "SURequireSignedFeed": true,
+        "SUVerifyUpdateBeforeExtraction": true,
+        "SUEnableAutomaticChecks": true,
+        "SUAutomaticallyUpdate": false,
+        "SUAllowsAutomaticUpdates": false,
+        "SUEnableSystemProfiling": false,
+        "SUSendProfileInfo": false
+      },
+      "intervals_seconds": {
+        "SUSignedFeedFailureExpirationInterval": 0,
+        "SUScheduledCheckInterval": 86400
+      },
+      "source_configuration_sha256": "36a6efeb577be5b3168891ffb896afa5d47a7b0d8c649b3e072770f9c1b67be0"
+    }
+  },
+  "client_ci": {
+    "status": "PASS",
+    "successful": 5,
+    "total": 5,
+    "source": "412d008be30471abf7cf89e99ee7d4c10ae6cb92",
+    "test_counts": {
+      "swift_testing": {
+        "total": 548,
+        "passed": 548,
+        "failed": 0
+      },
+      "xctest": {
+        "total": 30,
+        "passed": 30,
+        "failed": 0
+      },
+      "app_model": {
+        "total": 188,
+        "passed": 188,
+        "failed": 0
+      },
+      "feedback_controller": {
+        "total": 12,
+        "passed": 12,
+        "failed": 0
+      }
+    },
+    "receipt": "client-ci.json",
+    "raw_log_sha256": {
+      "ci-gateway.log": "95960805f29aeb5f3e6346c1556742fdcbe5d2ed6265a5e7addaf5d915ba537d",
+      "ci-foreground.log": "4ce38bd954784ce6ece9e1c78ad2734a6868ec865fad07a5fce1dfb0301ede34",
+      "ci-native-gateway.log": "5694f994cedd7b65a080740d039347a6dfea08b582a4016a71383a5c621499ce",
+      "ci-native.log": "3f546ae4914829ac3eff7341c128f78c03b9e4224e6c7662f0159b934cbfdcee",
+      "ci-data-and-prototype.log": "e8b9cdd8fe12ec4c9a682b7e6539c9c774b4f7d552cee225ccc9df0b2b1b0d01"
+    }
+  },
+  "service_ci": {
+    "status": "PASS",
+    "successful": 5,
+    "total": 5,
+    "source": "6fba674ab4db536efea2090c4e482db73a3b949e"
+  },
+  "local_feedback": {
+    "status": "PASS",
+    "checks": 13,
+    "transport": "injected only",
+    "normal_processes": 2,
+    "fault_processes": 2,
+    "actual_ax": true,
+    "foreground_unchanged": true
+  },
+  "local_appearance": {
+    "status": "PASS",
+    "checks": 8,
+    "menu_actions": 11,
+    "images": 16
+  },
+  "rollback": {
+    "status": "PASS",
+    "sequence": [
+      "0.18",
+      "0.19",
+      "0.18",
+      "0.19"
+    ],
+    "records": 2,
+    "versions": 4,
+    "audio_hashes_unchanged": true,
+    "production_data_read": false
+  },
+  "cloudflare_deployment": "BLOCKED_NO_AUTHENTICATION",
+  "cloudflare_auth_checked_at_utc": "2026-11-16T02:59:14Z",
+  "actual_native_to_private_issue": "NOT_RUN",
+  "installed": false,
+  "notarized": false,
+  "main_merged": false,
+  "public_release": false,
+  "private_audio_accessed": false,
+  "paid_api_calls": 0,
+  "local_environment": {
+    "arch": "arm64",
+    "macOS": "27.0 (26A428)",
+    "toolchain": "CLT Apple Swift 6.4"
+  },
+  "asr_runtime_bytes_unchanged": true,
+  "inherited_ci_not_run": [
+    "physical second-display drag: one display",
+    "native fullscreen: dedicated GUI flag not enabled",
+    "generic windows: rendering only; separate feedback AX step passed"
+  ]
+}

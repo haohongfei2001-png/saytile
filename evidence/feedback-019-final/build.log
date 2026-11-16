@@ -1,0 +1,89 @@
+Building for production...
+[Pre-planning 1 / 300]
+[Finalizing plan]
+[61 / 140]
+[85 / 152] CAudio
+[103 / 153] CAudio
+[117 / 153] CAudio
+[122 / 153] RiftletFeedback
+[137 / 240]
+[146 / 313]
+[163 / 313]
+[172 / 313]
+[178 / 313]
+[184 / 313]
+[190 / 313]
+/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[194 / 313]
+[200 / 313]
+[205 / 313]
+[206 / 313]
+[220 / 313]
+[222 / 313]
+[227 / 313]
+[232 / 313]
+[234 / 313]
+[240 / 313]
+[242 / 313]
+[248 / 313]
+[249 / 313]
+[251 / 313]
+[252 / 313]
+[254 / 313]
+[265 / 313]
+[268 / 313]
+[273 / 313]
+[278 / 313]
+[281 / 313]
+[282 / 313]
+[283 / 313]
+/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/Package.swift: RiftletFeedback: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[290 / 313]
+[291 / 313]
+[293 / 313]
+[294 / 313] SaytileVoiceUI
+/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/Package.swift: SaytileVoiceUI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+[301 / 313] SaytileKit
+/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[309 / 314] Saytile-product
+[315 / 321]
+[316 / 321]
+[317 / 321] Saytile-product
+/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/Sources/SaytileApp/AppModel.swift:903:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 895 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+ 896 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+ 897 |         connectionCheckTask = Task {
+     |                                    |- note: 'self' implicitly strongly captured here
+     |                                    `- note: add 'self' as a capture list item to silence
+ 898 |             // A cancelled older check must fully close its sockets before another starts.
+ 899 |             await previous?.value
+     :
+ 901 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+ 902 |             do {
+ 903 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+     |                                                                                         `- note: explicitly assign the capture list item to silence
+ 904 |                     Task { @MainActor [weak self] in
+ 905 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/Sources/SaytileApp/SettingsView.swift:241:109: warning: converting non-Sendable function value to '@isolated(any) @Sendable (Bool) -> Void' may introduce data races
+239 |                 .accessibilityIdentifier("settings.checkForUpdates")
+240 |             if model.updateConfigured {
+241 |                 Toggle("自动检查更新", isOn: Binding(get: { model.automaticUpdateChecks }, set: model.setAutomaticUpdateChecks))
+    |                                                                                                 `- warning: converting non-Sendable function value to '@isolated(any) @Sendable (Bool) -> Void' may introduce data races
+242 |                     .accessibilityIdentifier("settings.automaticUpdates")
+243 |             }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[319 / 321] Saytile-product
+[320 / 321] Saytile-product
+Build complete! (62.30秒)

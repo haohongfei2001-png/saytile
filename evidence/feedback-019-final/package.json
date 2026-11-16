@@ -1,0 +1,47 @@
+{
+  "version": "0.19",
+  "build": "500",
+  "source": "412d008be30471abf7cf89e99ee7d4c10ae6cb92",
+  "bundle": "app.saytile.mac.mandarin-candidate",
+  "app_executable_sha256": "59692c471cda6783349091ddc4ab2971878b0566eb28d514c32a92d837bbeffa",
+  "worker_sha256": "9b21b863a3b5bad11d4d36ee33b8204c0648da9409a977fd64d1c756cea2340e",
+  "dmg_bytes": 65307201,
+  "dmg_sha256": "9e22efdff60fe4842f507885d003a647edfb1e866a4cec45d02f5584d8a90353",
+  "codesign_app": "PASS",
+  "codesign_image": "PASS",
+  "signing": [
+    "Identifier=app.saytile.mac.mandarin-candidate",
+    "CodeDirectory v=20500 size=24558 flags=0x10000(runtime) hashes=756+7 location=embedded",
+    "CDHash=73bc8e09f7009ac1e6fb02226fdf3e7cc716496b",
+    "Authority=Developer ID Application: hongfei hao (ZB9D4T66QB)",
+    "Authority=Developer ID Certification Authority",
+    "Authority=Apple Root CA",
+    "Timestamp=Nov 16, 2026 at 11:18:29",
+    "TeamIdentifier=ZB9D4T66QB"
+  ],
+  "model_weights_in_bundle": [],
+  "gatekeeper_exit": 3,
+  "gatekeeper_result": "Saytile 中文识别候选.app: rejected\nsource=Unnotarized Developer ID",
+  "notarization_submitted": false,
+  "production_replaced": false,
+  "update_configuration": {
+    "bundle": "app.saytile.mac.mandarin-candidate",
+    "channel": "mandarin",
+    "feed_url": "https://raw.githubusercontent.com/haohongfei2001-png/saytile/codex/update-feed/mandarin/appcast.xml",
+    "public_key_sha256": "32cbd20d060df765b39cc5b914629f633323cad751fdb7eeef692f029fcc7d73",
+    "flags": {
+      "SURequireSignedFeed": true,
+      "SUVerifyUpdateBeforeExtraction": true,
+      "SUEnableAutomaticChecks": true,
+      "SUAutomaticallyUpdate": false,
+      "SUAllowsAutomaticUpdates": false,
+      "SUEnableSystemProfiling": false,
+      "SUSendProfileInfo": false
+    },
+    "intervals_seconds": {
+      "SUSignedFeedFailureExpirationInterval": 0,
+      "SUScheduledCheckInterval": 86400
+    },
+    "source_configuration_sha256": "36a6efeb577be5b3168891ffb896afa5d47a7b0d8c649b3e072770f9c1b67be0"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "source": "0243f7916f1ff14d869638d8eaf555a15c9c63d1",
+  "checked_at_utc": "2026-11-16T03:22:22.735141+00:00",
+  "status": "INCOMPLETE_CANCELLED",
+  "checks": [
+    {
+      "name": "native",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43795854684/job/133064386114",
+      "started_at": "2026-11-16T03:03:50Z",
+      "completed_at": "2026-11-16T03:21:13Z",
+      "raw_log_file": "/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/.build/feedback-499-ci-native.log",
+      "raw_log_exit": 0
+    },
+    {
+      "name": "foreground",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43795854684/job/133064385735",
+      "started_at": "2026-11-16T03:03:51Z",
+      "completed_at": "2026-11-16T03:06:59Z",
+      "raw_log_file": "/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/.build/feedback-499-ci-foreground.log",
+      "raw_log_exit": 0
+    },
+    {
+      "name": "native-gateway",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43795854706/job/133064385560",
+      "started_at": "2026-11-16T03:03:50Z",
+      "completed_at": "2026-11-16T03:06:03Z",
+      "raw_log_file": "/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/.build/feedback-499-ci-native-gateway.log",
+      "raw_log_exit": 0
+    },
+    {
+      "name": "data-and-prototype",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43795854688/job/133064385283",
+      "started_at": "2026-11-16T03:03:50Z",
+      "completed_at": "2026-11-16T03:05:01Z",
+      "raw_log_file": "/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/.build/feedback-499-ci-data-and-prototype.log",
+      "raw_log_exit": 0
+    },
+    {
+      "name": "gateway",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/43795854706/job/133064385242",
+      "started_at": "2026-11-16T03:03:49Z",
+      "completed_at": "2026-11-16T03:04:42Z",
+      "raw_log_file": "/Users/hhf/Documents/GitHub/saytile/.build/feedback-worktree/.build/feedback-499-ci-gateway.log",
+      "raw_log_exit": 0
+    }
+  ],
+  "reason": "Native check cancelled after successor push; no manual rerun/cancellation by this observer. Four other checks succeeded. Local 499 native acceptance independently failed.",
+  "native_validation_before_cancellation": {
+    "swift_testing": {
+      "passed": 548,
+      "failed": 0,
+      "run_counts": [
+        4,
+        13,
+        12,
+        8,
+        511
+      ]
+    },
+    "inherited_xctest": {
+      "passed": 30,
+      "failed": 0
+    },
+    "appmodel": {
+      "passed": 188,
+      "failed": 0
+    },
+    "feedback_controller": {
+      "passed": 12,
+      "failed": 0
+    },
+    "native_feedback": "CANCELLED before completion; not PASS",
+    "downstream_timeline_startup": "NOT_RUN due cancellation",
+    "cancellation_reason": "Workflow native-${github.ref} sets cancel-in-progress: true; successor500 push automatically cancelled prior499. Observer never cancelled or reran jobs."
+  }
+}

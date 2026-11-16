@@ -1,0 +1,34 @@
+{
+  "status": "PASS",
+  "checks": {
+    "native_process_completed": true,
+    "background_modal_host": true,
+    "native_send_withdraw": true,
+    "reopen_draft_and_record": true,
+    "offline_immutable_retry": true,
+    "no_external_submission": true,
+    "action_then_reply_loss_proven": true,
+    "no_action_reply_loss_rejected": true,
+    "single_confirmation_postcondition": true,
+    "real_send_action": true,
+    "native_unicode_editor": true,
+    "all_native_snapshots": true,
+    "no_candidate_activation": true
+  },
+  "source": "412d008be30471abf7cf89e99ee7d4c10ae6cb92",
+  "source_dirty": false,
+  "version": "0.19",
+  "build": "500",
+  "binary_sha256": "59692c471cda6783349091ddc4ab2971878b0566eb28d514c32a92d837bbeffa",
+  "images": {
+    "feedback-deleted.png": "e9f2a1888f6d8382a406ec5500b3aaf837fffb50f5ddf46fbac1dfd75e6ea7fa",
+    "feedback-delivered.png": "d0d6bae14c4cf266e6b5254135eecfe8a25c72815f8afe0d46c2b3f7f15a86a1",
+    "feedback-draft.png": "7d540b1d795762c25cfd60005876ba3743e5481cb2818f08c665f686ca1d4c86",
+    "feedback-empty.png": "87d6a5bc51c29d5bcc56b4a4cbfb45fd523214dab8c990ca9f732bf00202af08",
+    "feedback-received.png": "b1eff290fcc5a9027b7080f992d5ac9081c8ad0151945380907eccce5a141b08",
+    "timeline-feedback-controls.png": "8ac5f74a247835562ce9d5945109d7d65d96e8b0a0ba3967d1a040347a13c0b9",
+    "timeline-feedback-settings.png": "cd1117ebf054ea0e785f891f5246d565364b961efab373bf9abc03e07373e5fc"
+  },
+  "confirmation_fault_scope": "Separate native processes: actual action with ambiguous reply, and no-action negative control rejected by identical postconditions. No action retries.",
+  "scope": "Production FeedbackSettings component in an owned nonactivating native window; NSTextView insertText/delegate input and AXPress Send/refresh/withdraw. Actual SQLite outbox, immutable retry and draft restart; injected transport and synthetic capabilities. Two separate process launches exercise persisted restart. No live service, private archive, Keychain, microphone or global clipboard accessed. Component interactions plus production SettingsView screenshot and selected feedback-page AX inspection; remote delivery is separate acceptance."
+}

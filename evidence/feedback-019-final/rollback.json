@@ -1,0 +1,210 @@
+{
+  "status": "PASS",
+  "identities": [
+    {
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "source": "012999c2018f591f3cf9a529e4c0ae81e7b81f21",
+      "version": "0.18",
+      "build": "492",
+      "executable_sha256": "d08e6c0fb9f164a996e432585f765dc4cdc4f4f7c9c8d93ca32bc8bbbd8d6e02"
+    },
+    {
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "source": "412d008be30471abf7cf89e99ee7d4c10ae6cb92",
+      "version": "0.19",
+      "build": "500",
+      "executable_sha256": "59692c471cda6783349091ddc4ab2971878b0566eb28d514c32a92d837bbeffa"
+    }
+  ],
+  "app_storage_profiles": [
+    {
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "archive": "Saytile Mandarin Candidate",
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1",
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1"
+    },
+    {
+      "archive": "Saytile Mandarin Candidate",
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1",
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1"
+    }
+  ],
+  "fixture": {
+    "schema": 6,
+    "table_sha256": "a17e6e90349584af07172c2a90adbd28e549254459dd449f46aff9dd7fbc0185",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "9EBE2D06-9607-4873-B5C3-64D08903B8DE/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "A16C73F9-762D-4FF8-A1DB-9523F485C21B/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "C5398D6C-87AE-47CB-9D84-2906F1A6EB72",
+      "1FCCABC6-C548-4F30-9D45-2AF717FA0BF8"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0
+  },
+  "steps": [
+    {
+      "step": "old",
+      "records": 2,
+      "logical_tables_sha256": "a17e6e90349584af07172c2a90adbd28e549254459dd449f46aff9dd7fbc0185",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ],
+      "sidecar": {
+        "present": true,
+        "schema": 6,
+        "idle_seconds": 60,
+        "rows": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ],
+        "version": [
+          [
+            1,
+            2
+          ]
+        ],
+        "trigger_sha256": "b492cbe18732c752f1ffb78ffc4deae14e5a7f93e92c70de37d496184f3191fa"
+      }
+    },
+    {
+      "step": "candidate",
+      "records": 2,
+      "logical_tables_sha256": "a17e6e90349584af07172c2a90adbd28e549254459dd449f46aff9dd7fbc0185",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ],
+      "sidecar": {
+        "present": true,
+        "schema": 6,
+        "idle_seconds": 60,
+        "rows": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ],
+        "version": [
+          [
+            1,
+            2
+          ]
+        ],
+        "trigger_sha256": "b492cbe18732c752f1ffb78ffc4deae14e5a7f93e92c70de37d496184f3191fa"
+      }
+    },
+    {
+      "step": "old_reopened",
+      "records": 2,
+      "logical_tables_sha256": "a17e6e90349584af07172c2a90adbd28e549254459dd449f46aff9dd7fbc0185",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ],
+      "sidecar": {
+        "present": true,
+        "schema": 6,
+        "idle_seconds": 60,
+        "rows": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ],
+        "version": [
+          [
+            1,
+            2
+          ]
+        ],
+        "trigger_sha256": "b492cbe18732c752f1ffb78ffc4deae14e5a7f93e92c70de37d496184f3191fa"
+      }
+    },
+    {
+      "step": "candidate_reopened",
+      "records": 2,
+      "logical_tables_sha256": "a17e6e90349584af07172c2a90adbd28e549254459dd449f46aff9dd7fbc0185",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ],
+      "sidecar": {
+        "present": true,
+        "schema": 6,
+        "idle_seconds": 60,
+        "rows": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ],
+        "version": [
+          [
+            1,
+            2
+          ]
+        ],
+        "trigger_sha256": "b492cbe18732c752f1ffb78ffc4deae14e5a7f93e92c70de37d496184f3191fa"
+      }
+    }
+  ],
+  "natural_paragraph_sidecar": "PASS",
+  "existing_paragraph_metadata_unchanged": true,
+  "sidecar_schema_version": 2,
+  "sqlite_schema_version": 6,
+  "old_table_rows_unchanged": true,
+  "original_audio_hashes_unchanged": true,
+  "hidden_boundary_preserved_after_old_and_new_reopen": true,
+  "custom_180_second_setting_preserved": true,
+  "network": "denied to every smoke and seed process",
+  "launch": "temporary diagnostic directories only; no capture or inference",
+  "keychain": "service-name contracts only; no secret read",
+  "empty_candidate_records": 0,
+  "original_fixture_unchanged": true,
+  "installed_binaries_unchanged": true,
+  "runner_sha256": "8746f537ee15c45c21de01dcbecb9e9e70dd13c553ca124cd5b6b69162922037",
+  "shared_source_runner_sha256": "0f97709dc7162ee4a33e18c0af34220a65f40aabb241e6320588c2b55a8dbd1b",
+  "probe_sha256": "efba4ed52e27d5ea387cb04d39d0fdab3b6af746d72faa11981fbe74f246c335",
+  "probe_fixture_source_sha256": "a57ad69df09ccdc37825415b1f7d01321d7ef64793190ff90a04bdd5bc94448e"
+}
