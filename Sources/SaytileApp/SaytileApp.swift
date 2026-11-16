@@ -190,7 +190,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             placementDefaults = preferences
             if !isDiagnostic, directoryIndex == nil { visibilityDefaults = preferences }
             let model = try AppModel(directory: directory, preferences: preferences, normalLaunch: !isDiagnostic && directoryIndex == nil,
-                copyPasteboard: CommandLine.arguments.contains("--ui-review") || updateReviewRequest != nil ? NSPasteboard.withUniqueName() : nil)
+                copyPasteboard: CommandLine.arguments.contains("--ui-review") || CommandLine.arguments.contains("--local-stream-probe") || updateReviewRequest != nil ? NSPasteboard.withUniqueName() : nil)
             self.model = model
             if let request = updateReviewRequest {
                 #if canImport(Sparkle)
