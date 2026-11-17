@@ -1,0 +1,17 @@
+PASS one natural paragraph owns two playable recordings in capture order
+PASS search spans adjacent recording boundaries
+PASS explicitly joined paragraph reads and plays continuously
+PASS metadata synchronization does not fetch audio
+PASS on-demand fetch verifies and decodes 1600 frames
+PASS verified cache hit uses no network
+PASS equal-size corrupt cached and remote assets rejected
+PASS verified replacement repairs corrupted cache
+PASS second account cannot read predecessor metadata or cursor
+PASS second account fetches into a distinct folder even for identical SHA
+PASS original-only erasure retains transcript and revisions
+PASS stale cache hit denied after deletion with identical live asset
+PASS other live owner of the same WAV remains playable
+PASS last reference deletion prunes only that owner's WAV
+PASS record erasure persists after reopening
+PASS deleted in-flight download cannot reinstall or return its bytes
+fixture_wav_bytes=3244 fixture_sha256=a9fa674e9b54ac54ba601658e6e0f40fd0906ed635a2e7a868abf6c0e7bcfc4d real_service_calls=0

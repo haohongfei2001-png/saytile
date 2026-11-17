@@ -1,0 +1,92 @@
+{
+  "source": "d61ee5237b64be43c92422f1ee24d755e60ad279",
+  "base": "703fc9905b7ac1e482915971c3f249b75ddbf88f",
+  "source_PR36": "3978d5d5e7274977fd7176e8c8bd21c321efa578",
+  "platform": "arm64 macOS 27.0; Swift 6.4 Command Line Tools",
+  "tested_data": "isolated synthetic SQLite archives and generated PCM16 WAV files",
+  "private_archive_native": {
+    "status": "PASS",
+    "tests": 28,
+    "pass": 28,
+    "fail": 0,
+    "suites": [
+      "PrivateArchiveTests",
+      "NaturalParagraphTests",
+      "ParagraphPlaybackTests"
+    ],
+    "runner": "Original source and complete SaytileKitTests target in a temporary Swift package. Excluded unrelated RiftletFeedback XCTest target from this CLT build; no archive tests skipped."
+  },
+  "offline_backup_restore": {
+    "status": "PASS",
+    "transport": "isolated private-archive transport with simulated network, corruption, quota, repeated synchronization and account changes",
+    "main_fixture": {
+      "records": 2,
+      "committed_versions": 3,
+      "editor_drafts": 1,
+      "WAV_files": 2,
+      "decoded_frames_each": 1600,
+      "bytes_total": 6488,
+      "sha256_each": "260f7d54d110254c7931a0fd0d8c6bcf8dbac9f12747afef6144b624e6a382b9"
+    },
+    "paragraph_fixture": {
+      "source_recordings": 5,
+      "preexisting_target_recordings": 1,
+      "preserved": [
+        "recording identity",
+        "natural paragraphs",
+        "relative time group",
+        "manual break hide and restore",
+        "readable originals",
+        "non-dispatch after retranscription"
+      ]
+    }
+  },
+  "migration_cli": {
+    "status": "PASS",
+    "records": 2,
+    "versions": 2,
+    "audio_bytes": 6488,
+    "wav_sha256": [
+      "260f7d54d110254c7931a0fd0d8c6bcf8dbac9f12747afef6144b624e6a382b9",
+      "260f7d54d110254c7931a0fd0d8c6bcf8dbac9f12747afef6144b624e6a382b9"
+    ],
+    "sources_unchanged": true,
+    "chronological": true,
+    "new_output_only": true,
+    "malformed_cloud_fixture_stopped_before_opening_archive": true,
+    "cloud_calls": 0
+  },
+  "reader_host_disk": {
+    "status": "PASS",
+    "checks": 16,
+    "wave_bytes": 3244,
+    "operations": [
+      "paragraph grouping",
+      "joined paragraph playback order",
+      "cross-fragment search",
+      "independent account caches",
+      "corruption rejection",
+      "deletion while fetching"
+    ]
+  },
+  "reader_macos_typecheck": "PASS",
+  "scope": "SwiftUI reader typechecked in the macOS target environment. iOS-only UIKit and Simulator UI require Xcode.",
+  "local_iOS_simulator": {
+    "status": "BLOCKED",
+    "reason": "No full Xcode or simctl in the active toolchain; repository simulator CI is separate."
+  },
+  "real_Apple_cloud": {
+    "Mac_backup": "BLOCKED",
+    "new_Mac_restore": "BLOCKED",
+    "iPhone_playback": "BLOCKED",
+    "real_bytes": 0,
+    "real_records": 0,
+    "owner_action": "Enable iCloud.app.saytile.archive for the retained macOS and iPhone App IDs and provide access to matching Apple Development signing identities/profiles in the team. Use an isolated Apple test account/device for live acceptance.",
+    "signing_observations": [
+      "A Developer ID Application identity is available. No Apple Development signing identity found.",
+      "No profiles found in the conventional Xcode and MobileDevice profile directories.",
+      "Installed 0.19 app has microphone entitlement only. No actual CloudKit container permission established."
+    ]
+  },
+  "standalone_no_install": true
+}
