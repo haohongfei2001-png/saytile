@@ -38,16 +38,22 @@ if ! iconutil -c icns "$SAYTILE_BUILD_STAGE/Saytile.iconset" -o "$bundle/Content
   python3 scripts/encode-iconset.py "$SAYTILE_BUILD_STAGE/Saytile.iconset" "$bundle/Contents/Resources/Saytile.icns"
 fi
 cp -R Sources/SaytileKit/Resources/LocalASR "$bundle/Contents/Resources/"
-scripts/build-local-runtime.sh
 mkdir -p "$bundle/Contents/Helpers" "$bundle/Contents/Frameworks"
-cp .build/local-asr/runtime/{SaytileSherpa,SaytileModelWorker} "$bundle/Contents/Helpers/"
-cp .build/local-asr/runtime/*.dylib "$bundle/Contents/Frameworks/"
-cp .build/local-asr/runtime/mlx.metallib "$bundle/Contents/Resources/default.metallib"
-install_name_tool -add_rpath @executable_path/../Frameworks "$bundle/Contents/Helpers/SaytileSherpa"
-cp -R .build/local-asr/runtime-licenses "$bundle/Contents/Resources/LocalASRLicenses"
-for child in "$bundle/Contents/Frameworks/"*.dylib "$bundle/Contents/Helpers/"{SaytileSherpa,SaytileModelWorker}; do
-  codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$child"
-done
+if [[ -n "${SAYTILE_VERIFIED_RUNTIME_APP:-}" ]]; then
+  python3 distribution/copy-verified-runtime.py "$SAYTILE_VERIFIED_RUNTIME_APP" "$bundle"
+else
+  scripts/build-local-runtime.sh
+  cp .build/local-asr/runtime/{SaytileSherpa,SaytileModelWorker} "$bundle/Contents/Helpers/"
+  cp .build/local-asr/runtime/*.dylib "$bundle/Contents/Frameworks/"
+  cp .build/local-asr/runtime/mlx.metallib "$bundle/Contents/Resources/default.metallib"
+  install_name_tool -add_rpath @executable_path/../Frameworks "$bundle/Contents/Helpers/SaytileSherpa"
+  cp -R .build/local-asr/runtime-licenses "$bundle/Contents/Resources/LocalASRLicenses"
+  if [[ -z "${SAYTILE_DEVELOPER_ID:-}" ]]; then
+    for child in "$bundle/Contents/Frameworks/"*.dylib "$bundle/Contents/Helpers/"{SaytileSherpa,SaytileModelWorker}; do
+      codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$child"
+    done
+  fi
+fi
 cp Sources/SaytileKit/Resources/ConnectionSample.pcm "$bundle/Contents/Resources/ConnectionSample.pcm"
 cp THIRD_PARTY_NOTICES.md "$bundle/Contents/Resources/THIRD_PARTY_NOTICES.md"
 cp Sources/CAudio/WEBRTC-LICENSE.txt "$bundle/Contents/Resources/WEBRTC-LICENSE.txt"
@@ -58,17 +64,24 @@ if [[ "${SAYTILE_MANDARIN_CANDIDATE:-0}" == 1 ]]; then
 fi
 ditto .build/sparkle/Sparkle.framework "$bundle/Contents/Frameworks/Sparkle.framework"
 cp .build/sparkle/LICENSE "$bundle/Contents/Resources/SPARKLE-LICENSE.txt"
+cp packaging/update-channels.json "$bundle/Contents/Resources/UpdateChannels.json"
 python3 scripts/configure-update-feed.py "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :SaytileSourceRevision string $(git rev-parse HEAD)" "$bundle/Contents/Info.plist"
 SAYTILE_SOURCE_DIRTY=false
-if ! git diff --quiet HEAD -- Sources Package.swift native/LocalASR packaging scripts/build-app.sh scripts/build-local-runtime.sh scripts/prepare-local-runtime.sh; then SAYTILE_SOURCE_DIRTY=true; fi
+if ! git diff --quiet HEAD -- Sources Package.swift native/LocalASR packaging scripts/build-app.sh scripts/build-local-runtime.sh scripts/prepare-local-runtime.sh scripts/encode-iconset.py distribution/sign-app.sh distribution/copy-verified-runtime.py; then SAYTILE_SOURCE_DIRTY=true; fi
 if [[ -n "$(git ls-files --others --exclude-standard Sources native/LocalASR packaging)" ]]; then SAYTILE_SOURCE_DIRTY=true; fi
 /usr/libexec/PlistBuddy -c "Add :SaytileSourceDirty bool $SAYTILE_SOURCE_DIRTY" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $version" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :SaytileReleaseVersion string $version" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(git rev-list --count HEAD)" "$bundle/Contents/Info.plist"
 xattr -cr "$bundle"
-codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$bundle"
+if [[ -n "${SAYTILE_ICLOUD_DEVELOPMENT_PROFILE:-}" ]]; then
+  scripts/sign-icloud-development.sh "$bundle" "$SAYTILE_ICLOUD_DEVELOPMENT_PROFILE" "${SAYTILE_SIGN_IDENTITY:-}"
+elif [[ -n "${SAYTILE_DEVELOPER_ID:-}" ]]; then
+  distribution/sign-app.sh "$bundle" "$SAYTILE_DEVELOPER_ID"
+else
+  codesign --force --sign "${SAYTILE_SIGN_IDENTITY:--}" --timestamp=none "$bundle"
+fi
 codesign --verify --strict "$bundle"
 plutil -lint "$bundle/Contents/Info.plist"
 # The destination is an explicitly chosen build artifact. Never mix old bundle resources.

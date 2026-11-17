@@ -76,6 +76,7 @@ struct InputObservationSupport { let focus: Bool; let content: Bool; let page: B
 protocol InputAccess: AnyObject {
     var hasPermission: Bool { get }
     func snapshot() throws -> InputTargetSnapshot
+    func snapshotAfterIssuedWebInsertion() throws -> InputTargetSnapshot
     // One external attempt; a timeout is uncertain, never grounds for retry.
     func dispatch(_ text: String, to expected: InputTargetSnapshot) throws -> Bool
     func verify(_ text: String, at before: InputTargetSnapshot) -> InputTargetSnapshot?
@@ -88,6 +89,7 @@ protocol InputAccess: AnyObject {
                       witness: String, at expected: InputTargetSnapshot, isCurrent: @MainActor () -> Bool) throws -> Bool
 }
 extension InputAccess {
+    func snapshotAfterIssuedWebInsertion() throws -> InputTargetSnapshot { try snapshot() }
     func textWitness(at expected: InputTargetSnapshot) -> String? { nil }
     func replaceOwned(_ expectedText: String, with replacement: String, start: Int,
                       witness: String, at expected: InputTargetSnapshot, isCurrent: @MainActor () -> Bool) throws -> Bool { false }
@@ -234,17 +236,16 @@ public final class NativeInputCoordinator {
 
     private func observedOwnWebEdit() -> Bool {
         let current: InputTargetSnapshot
-        do { current = try access.snapshot() }
+        let confirmingInsertion = boundPurpose == .continuous && canObserveOwnership && hasIssuedDispatch &&
+            !insertionProofComplete && inFlightCorrection == nil && inFlightInsertion?.expectedField != nil
+        do { current = try confirmingInsertion ? access.snapshotAfterIssuedWebInsertion() : access.snapshot() }
         catch NativeInputError.unsupported {
             // Chrome can briefly omit the focused editor or selection in the first
             // notification of our successful write. This is not ownership proof.
             // Keep only this already-issued insertion eligible for bounded readback;
             // a second observation invalidates it, and settledWrite still requires
             // two complete, identical target/caret/full-field witnesses after the gap.
-            guard boundPurpose == .continuous, canObserveOwnership,
-                  hasIssuedDispatch, !insertionProofComplete,
-                  inFlightCorrection == nil, inFlightInsertion?.expectedField != nil,
-                  unreadWebInsertionAt == nil else { return false }
+            guard confirmingInsertion, unreadWebInsertionAt == nil else { return false }
             unreadWebInsertionAt = observedEditSequence
             return true
         } catch { return false }

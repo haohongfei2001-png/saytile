@@ -22,7 +22,10 @@ import time
 import uuid
 
 REPO = Path(__file__).resolve().parents[1]
-PROBE_SHA = "bd2c057e228cd8f1f2285fe6526a0860a7398f114a6a7b0ee23b93e19fe68f68"
+# Both frozen StoreProcessProbe executables were recorded with their build receipts.
+LEGACY_PROBE_SHA = "bd2c057e228cd8f1f2285fe6526a0860a7398f114a6a7b0ee23b93e19fe68f68"
+ARCHIVE_PROBE_SHA = "efba4ed52e27d5ea387cb04d39d0fdab3b6af746d72faa11981fbe74f246c335"
+ARCHIVE_PROBE_SOURCE = "a57ad69df09ccdc37825415b1f7d01321d7ef64793190ff90a04bdd5bc94448e"
 
 
 def run(*command, timeout=180):
@@ -76,7 +79,11 @@ def main():
     source = info(args.app)
     assert source["SaytileSourceRevision"] == args.expected_source
     assert source.get("SaytileSourceDirty") is False
-    assert digest(args.probe) == PROBE_SHA and not args.probe.is_symlink()
+    assert not args.probe.is_symlink()
+    probe_sha = digest(args.probe)
+    assert probe_sha in {LEGACY_PROBE_SHA, ARCHIVE_PROBE_SHA}
+    if probe_sha == ARCHIVE_PROBE_SHA:
+        assert digest(REPO / "tests/fixtures/StoreProcessProbe.swift") == ARCHIVE_PROBE_SOURCE
     run("codesign", "--verify", "--deep", "--strict", args.app)
     args.output.mkdir(parents=True, exist_ok=False)
     sign = (args.sparkle.resolve() / "bin/sign_update")
@@ -98,7 +105,7 @@ def main():
     server = None
     processes = []
     request_log = []
-    result = dict(status="FAIL", source=args.expected_source, scope="real Saytile NSApplication and AppUpdateController -> SPUUpdater -> Sparkle installer -> argument-free app relaunch", user_driver="deterministic fixture driver; standard Sparkle window interaction NOT_RUN", fixture_bundle_id=bundle_id, original_app_untouched=True, production_data="NOT_ACCESSED", paid_services="NOT_CALLED")
+    result = dict(status="FAIL", source=args.expected_source, seed_probe_sha256=probe_sha, scope="real Saytile NSApplication and AppUpdateController -> SPUUpdater -> Sparkle installer -> argument-free app relaunch", user_driver="deterministic fixture driver; standard Sparkle window interaction NOT_RUN", fixture_bundle_id=bundle_id, original_app_untouched=True, production_data="NOT_ACCESSED", paid_services="NOT_CALLED")
     original_binary = digest(args.app / "Contents/MacOS/Saytile")
 
     class Handler(http.server.SimpleHTTPRequestHandler):
@@ -325,7 +332,7 @@ def main():
             shutil.copy2(screenshot, args.output / screenshot.name)
         (args.output / "loopback-requests.json").write_text(json.dumps(request_log, indent=2) + "\n")
         result["runner_sha256"] = digest(Path(__file__))
-        result["seed_probe_sha256"] = PROBE_SHA
+        result["seed_probe_sha256"] = probe_sha
         (args.output / "receipt.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
         for domain in (bundle_id, preferences):
             subprocess.run(["defaults", "delete", domain], capture_output=True)

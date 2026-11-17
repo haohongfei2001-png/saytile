@@ -430,6 +430,7 @@ struct AppModelProbe {
         try await reopened.close()
         checks += try await connectionChecks(directory: directory)
         checks += try await capturePresentationChecks(directory: directory)
+        checks += try await standbyChecks(directory: directory)
         checks += try await naturalArchiveChecks(directory: directory)
         checks += try await paragraphCopyChecks(directory: directory)
         print("APP_MODEL_PROBE_PASS \(checks) checks; no microphone, no external input, no window activation")
@@ -442,15 +443,18 @@ private final class CaptureControlFixture {
     var startResult = CaptureState.listening
     var startIssue: String?
     var starts = 0
+    var restores = 0
     var pauses = 0
+    var permission: AVAuthorizationStatus = .authorized
     var measuredLevel: Float? = nil
     var floatingChanges = 0
     var placementChanges = 0
     var dependencies: AppCaptureDependencies {
         AppCaptureDependencies(state: { _ in self.state },
             start: { audio in self.starts += 1; self.state = self.startResult; audio.issue = self.startIssue },
-            pause: { _ in self.pauses += 1; self.state = .paused }, level: { _ in self.measuredLevel },
-            microphoneAuthorization: { .authorized }, openMicrophonePreferences: { preconditionFailure("device fixture cannot request system settings") })
+            pause: { _ in self.pauses += 1; self.state = .paused },
+            restore: { _ in self.restores += 1; self.state = self.startResult }, level: { _ in self.measuredLevel },
+            microphoneAuthorization: { self.permission }, openMicrophonePreferences: { preconditionFailure("device fixture cannot request system settings") })
     }
 }
 
@@ -551,6 +555,84 @@ extension AppModelProbe {
             guard ContinuousClock.now < deadline else { throw Failure(message: "timeout: " + message) }
             try await Task.sleep(for: .milliseconds(5))
         }
+    }
+    @MainActor private static func standbyChecks(directory: URL) async throws -> Int {
+        let suite = "app.saytile.test.standby." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        var checks = 0
+        func check(_ condition: Bool, _ label: String) throws {
+            guard condition else { throw Failure(message: label) }
+            checks += 1; print("PASS " + label)
+        }
+        func launch(_ fixture: CaptureControlFixture) async throws -> AppModel {
+            let model = try AppModel(directory: directory.appendingPathComponent("standby"),
+                                     preferences: defaults, captureDependencies: fixture.dependencies)
+            await model.initialLoad()
+            try check(fixture.starts == 0 && fixture.restores == 0, "isolated launch opens no microphone")
+            await model.restoreRememberedStandby()
+            return model
+        }
+        let first = CaptureControlFixture()
+        let start = try await launch(first)
+        try check(!start.remembersStandby && first.restores == 0, "new and legacy installations start paused by default")
+        start.setRemembersStandby(true)
+        await start.restoreRememberedStandby()
+        try check(first.restores == 0, "opting in while paused cannot start capture")
+        start.toggleCapture()
+        try await until("explicit start arms standby") { first.starts == 1 && start.hasStarted }
+        try check(defaults.string(forKey: "capture.standbyIntent.v1") == "armed", "confirmed explicit start arms the next launch")
+        start.noteTermination(systemRestart: true)
+        await start.prepareForExit()
+
+        for update in [false, true] {
+            let fixture = CaptureControlFixture()
+            let model = try await launch(fixture)
+            await model.restoreRememberedStandby()
+            try check(fixture.restores == 1 && fixture.starts == 0, "system or crash relaunch restores once without a permission request")
+            model.expectsUpdateRelaunch = update
+            model.noteTermination(systemRestart: !update)
+            await model.prepareForExit()
+        }
+        let resumed = CaptureControlFixture()
+        let afterUpdate = try await launch(resumed)
+        try check(resumed.restores == 1, "updater relaunch retains the last active decision")
+        afterUpdate.toggleCapture()
+        try check(defaults.string(forKey: "capture.standbyIntent.v1") == "paused", "pause is persisted before asynchronous shutdown")
+        try await until("explicit pause") { resumed.pauses == 1 }
+        await afterUpdate.prepareForExit()
+        let paused = CaptureControlFixture()
+        let afterPause = try await launch(paused)
+        try check(paused.restores == 0 && afterPause.remembersStandby, "reopened pause keeps the opt-in without starting")
+        afterPause.toggleCapture()
+        try await until("start before quit") { paused.starts == 1 }
+        afterPause.expectsUpdateRelaunch = true
+        afterPause.noteTermination(systemRestart: false, explicitQuit: true)
+        await afterPause.prepareForExit()
+        let quit = CaptureControlFixture()
+        let afterQuit = try await launch(quit)
+        try check(quit.restores == 0, "explicit quit wins even during a planned update")
+        afterQuit.toggleCapture()
+        try await until("start before simulated revocation") { quit.starts == 1 }
+        afterQuit.audio.onMicrophonePermissionLost?()
+        try check(defaults.string(forKey: "capture.standbyIntent.v1") == "paused", "observed TCC revocation disarms remembered standby")
+        await afterQuit.prepareForExit()
+        for permission: AVAuthorizationStatus in [.denied, .restricted, .notDetermined] {
+            defaults.set("armed", forKey: "capture.standbyIntent.v1")
+            let fixture = CaptureControlFixture()
+            fixture.permission = permission
+            let model = try await launch(fixture)
+            try check(fixture.restores == 0 && fixture.starts == 0 && defaults.string(forKey: "capture.standbyIntent.v1") == "paused", "startup without current permission disarms without prompting")
+            await model.prepareForExit()
+        }
+        let disabled = CaptureControlFixture()
+        let model = try await launch(disabled)
+        model.setRemembersStandby(false)
+        model.toggleCapture()
+        try await until("opt-out explicit capture") { disabled.starts == 1 }
+        try check(defaults.string(forKey: "capture.standbyIntent.v1") == "off", "ordinary capture never opts a user into automatic relaunch")
+        await model.prepareForExit()
+        return checks
     }
     @MainActor private static func capturePresentationChecks(directory: URL) async throws -> Int {
         let suite = "app.saytile.test.capture." + UUID().uuidString

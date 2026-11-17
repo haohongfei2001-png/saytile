@@ -10,6 +10,36 @@ import SaytileKit
 @main
 struct SaytileMain {
     @MainActor static func main() {
+        if CommandLine.arguments.dropFirst().first == "--merge-legacy-archive" {
+            let paths = Array(CommandLine.arguments.dropFirst(2))
+            guard paths.count == 3, paths.allSatisfy({ $0.hasPrefix("/") }) else {
+                print("Usage: Saytile --merge-legacy-archive CURRENT_DIRECTORY LEGACY_DIRECTORY NEW_DIRECTORY")
+                exit(64)
+            }
+            Task.detached {
+                do {
+                    let folders = paths.map { URL(fileURLWithPath: $0, isDirectory: true) }
+                    let receipt = try await LegacyArchiveRecovery.prepare(base: folders[0], legacy: folders[1], output: folders[2])
+                    let encoder = JSONEncoder()
+                    encoder.outputFormatting = [.sortedKeys]
+                    print(String(decoding: try encoder.encode(receipt), as: UTF8.self))
+                    exit(0)
+                } catch {
+                    FileHandle.standardError.write(Data((error.localizedDescription + "\n").utf8))
+                    exit(1)
+                }
+            }
+            dispatchMain()
+        }
+        if CommandLine.arguments.contains("--icloud-archive-fixture") {
+            let args = CommandLine.arguments
+            guard args.filter({ $0 == "--data-directory" }).count == 1,
+                  let index = args.firstIndex(of: "--data-directory"), index + 1 < args.count,
+                  PrivateArchiveSync.isDevelopmentFixture(URL(fileURLWithPath: args[index+1], isDirectory: true)) else {
+                print("Development CloudKit requires an explicit /private/tmp/saytile-icloud-fixture-… directory.")
+                exit(64)
+            }
+        }
         let app = NSApplication.shared
         let delegate = AppDelegate()
         app.delegate = delegate
@@ -82,7 +112,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         panelCoexistence?.changed(userPlacement: true)
     }
     private var terminating = false
-    private var shutdownStarted = false
+    private var shutdownTask: Task<Bool, Never>?
+    private var awaitingTerminationReply = false
     private var diagnosticPreferencesSuite: String?
     private var diagnosticExitStatus: Int32 = 0
 
@@ -190,7 +221,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             placementDefaults = preferences
             if !isDiagnostic, directoryIndex == nil { visibilityDefaults = preferences }
             let model = try AppModel(directory: directory, preferences: preferences, normalLaunch: !isDiagnostic && directoryIndex == nil,
-                copyPasteboard: CommandLine.arguments.contains("--ui-review") || updateReviewRequest != nil ? NSPasteboard.withUniqueName() : nil)
+                copyPasteboard: CommandLine.arguments.contains("--ui-review") || CommandLine.arguments.contains("--local-stream-probe") || updateReviewRequest != nil ? NSPasteboard.withUniqueName() : nil)
             self.model = model
             if let request = updateReviewRequest {
                 #if canImport(Sparkle)
@@ -209,7 +240,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                                       styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
                 window.title = "Saytile · 连接识别服务"
                 window.isReleasedWhenClosed = false; window.delegate = self
-                window.contentView = NSHostingView(rootView: ConnectionSetupView(model: model, request: setupRequest) { NSApp.terminate(nil) })
+                window.contentView = NSHostingView(rootView: ConnectionSetupView(model: model, request: setupRequest) { Task { await self.terminateAfterSaving() } })
                 connectionSetupWindow = window
                 window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate()
                 return
@@ -242,8 +273,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                         print("SINGLE_ASR_PROBE_RECORDED recording=\(id) state=\(state); accuracy requires reference scoring")
                         if state != "completed" { self.diagnosticExitStatus = 2 }
                     } catch { self.diagnosticExitStatus = 1; print("SINGLE_ASR_PROBE_FAILED \(error.localizedDescription)") }
-                    await model.prepareForExit()
-                    NSApp.terminate(nil)
+                    await terminateAfterSaving()
                 }
                 return
             }
@@ -251,8 +281,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 Task {
                     do { let result = try await AudioDiagnostics.probeInputDevice(seconds: 5, devices: model.audio.devices); print("DEVICE_PROBE \(result)") }
                     catch { print("DEVICE_PROBE_ERROR \(error.localizedDescription)") }
-                    await model.prepareForExit()
-                    NSApp.terminate(nil)
+                    await terminateAfterSaving()
                 }
                 return
             }
@@ -272,8 +301,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                         }
                         if let record = try await model.store.recording(id: id) { print("SPEECH_RESULT \(record.recognitionState) \(record.text) error=\(record.lastError ?? "none")") }
                     } catch { print("SPEECH_PROBE_ERROR \(error)") }
-                    await model.prepareForExit()
-                    NSApp.terminate(nil)
+                    await terminateAfterSaving()
                 }
                 return
             }
@@ -287,8 +315,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                         print("SAYTILE_SMOKE_FAILED bundled_connection_sample")
                         await model.prepareForExit(); exit(1)
                     }
-                    await model.prepareForExit()
-                    NSApp.terminate(nil)
+                    await terminateAfterSaving()
                 }
                 return
             }
@@ -302,8 +329,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                     }
                     if CommandLine.arguments.contains("--preview-content"), let first = model.records.first { model.stageInPanel(first, showPanel: false) }
                     renderPreview(model: model, path: path)
-                    await model.prepareForExit()
-                    NSApp.terminate(nil)
+                    await terminateAfterSaving()
                 }
                 return
             }
@@ -316,14 +342,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 Task {
                     do { try await LocalStreamProbe.run(model: model, panel: panel, id: id) }
                     catch { diagnosticExitStatus = 1; print("LOCAL_STREAM_PROBE_FAILED", error.localizedDescription) }
-                    await model.prepareForExit(); NSApp.terminate(nil)
+                    await terminateAfterSaving()
                 }
                 return
             }
             if let index = CommandLine.arguments.firstIndex(of: "--ui-review"), CommandLine.arguments.count > index + 1 {
                 guard CommandLine.arguments.contains("--data-directory") else { print("UI_REVIEW_REQUIRES_ISOLATED_DIRECTORY"); NSApp.terminate(nil); return }
                 let output = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
-                Task { diagnosticExitStatus = await runUIReview(model: model, output: output) ? 0 : 1; await model.prepareForExit(); NSApp.terminate(nil) }
+                Task { diagnosticExitStatus = await runUIReview(model: model, output: output) ? 0 : 1; await terminateAfterSaving() }
                 return
             }
             configureMainMenu()
@@ -348,7 +374,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                 Task {
                     do { try await self.reviewAppearancePlacement(model: model) }
                     catch { diagnosticExitStatus = 1; print("APPEARANCE_HOST_FAIL \(error)") }
-                    await model.prepareForExit(); NSApp.terminate(nil)
+                    await terminateAfterSaving()
                 }
                 return
             }
@@ -389,7 +415,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
                     let captureUntouched = model.audio.state == .paused && !model.hasStarted
                     print("FOCUS_CAPTURE_UNTOUCHED \(captureUntouched)")
                     if !captureUntouched { diagnosticExitStatus = 1 }
-                    await model.prepareForExit(); print("FOCUS_PROBE_FINISHED"); NSApp.terminate(nil)
+                    print("FOCUS_PROBE_FINISHED"); await terminateAfterSaving()
                 }
                 return
             }
@@ -434,7 +460,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
             model?.archiveIsKey = false
             Task { _ = await model?.flushEditorDrafts() }
         }
-        if let window = notification.object as? NSWindow, window === connectionSetupWindow { NSApp.terminate(nil) }
+        if let window = notification.object as? NSWindow, window === connectionSetupWindow { Task { await terminateAfterSaving() } }
     }
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         guard sender === panel else { return true }
@@ -472,23 +498,52 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     func windowDidChangeScreen(_ notification: Notification) {
         if let window = notification.object as? VoicePanel, window === panel, !window.draggingPlacement, !window.inLiveResize, NSEvent.pressedMouseButtons == 0 { restorePanel() }
     }
-    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        if terminating { return .terminateNow }
-        guard !shutdownStarted else { return .terminateCancel }
-        shutdownStarted = true
-        Task {
+    // An in-process Task must finish its own main-actor work before calling terminate.
+    // AppKit enters a nested event loop for terminateLater and cannot run a second
+    // main-queue Task while the first one is still inside NSApplication.terminate.
+    private func prepareToTerminate() async -> Bool {
+        if let shutdownTask { return await shutdownTask.value }
+        let task = Task {
             await model?.prepareForExit()
             if model?.hasUnpersistedDrafts == true {
-                shutdownStarted = false
+                model?.expectsUpdateRelaunch = false
                 presentWorkspace(.archive)
-                return
+                return false
             }
             await panelCoexistence?.stop()
             panelCoexistence = nil
             terminating = true
-            DispatchQueue.main.async { NSApp.terminate(nil) }
+            return true
         }
-        return .terminateCancel
+        shutdownTask = task
+        let ready = await task.value
+        if !ready { shutdownTask = nil }
+        return ready
+    }
+    private func terminateAfterSaving() async {
+        if await prepareToTerminate(), !awaitingTerminationReply { NSApp.terminate(nil) }
+    }
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        if terminating || model == nil { return .terminateNow }
+        guard !awaitingTerminationReply else { return .terminateLater }
+        let event = NSAppleEventManager.shared().currentAppleEvent
+        let reason = event?.paramDescriptor(forKeyword: AEKeyword(kAEQuitReason))?.enumCodeValue
+        let systemRelaunch = [kAEShutDown, kAERestart, kAEReallyLogOut].contains { reason == OSType($0) }
+        model?.noteTermination(systemRestart: systemRelaunch)
+        // Frameworks can request termination from a main-queue callback. There
+        // is no AppleEvent reply to defer in that case. Unwind the callback and
+        // re-enter AppKit once the normal save gate has actually completed.
+        if event?.eventID != AEEventID(kAEQuitApplication) && !systemRelaunch {
+            Task { await terminateAfterSaving() }
+            return .terminateCancel
+        }
+        awaitingTerminationReply = true
+        Task {
+            let ready = await prepareToTerminate()
+            awaitingTerminationReply = false
+            sender.reply(toApplicationShouldTerminate: ready)
+        }
+        return .terminateLater
     }
     func applicationWillTerminate(_ notification: Notification) {
         if let suite = diagnosticPreferencesSuite { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
@@ -560,7 +615,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
         menu.addItem(check)
         let quit = NSMenuItem(title: "退出 Saytile", action: #selector(quitApp), keyEquivalent: "q"); quit.target = self; menu.addItem(quit)
     }
-    @objc private func quitApp() { NSApp.terminate(nil) }
+    @objc private func quitApp() { model?.noteTermination(systemRestart: false, explicitQuit: true); Task { await terminateAfterSaving() } }
     @objc private func checkForAppUpdates() { model?.checkForUpdates?() }
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(checkForAppUpdates) { return model?.canCheckForUpdates == true }

@@ -1,0 +1,198 @@
+{
+  "source": "7c0df4728b113c17297a0cded20472de4ffc3337",
+  "version": "0.20",
+  "build": 533,
+  "installed": "~/Applications/Saytile.app",
+  "installed_count": 1,
+  "running_count": 1,
+  "registered_existing_count": 1,
+  "installed_executable_sha256": "d711d1cab97d0ff20e23129269b8d72989db2e5258f659d49276f77cf9ab4737",
+  "icon_sha256": "65f50b1645187adbe06540ef8ea884b4abbfa650b435eaf62d4b0c1f946cf166",
+  "previous_source": "32ea75dba50a055c224d323d56edd178543f2efe",
+  "rollback_sha256": "517258571cb48edc3b3252b57bc9cf8544594426639bf7bde0dfd83129562a56",
+  "image_file": "Saytile-0.20-533-arm64.dmg",
+  "image_bytes": 64286329,
+  "image_sha256": "e2739094eef9d58eb12401ecbd302d81152ca9bae60e3dd43435aef33efc8dcb",
+  "ci": {
+    "status": "PASS",
+    "jobs": 7,
+    "passed": 7,
+    "failed": 0,
+    "swift_testing": 559,
+    "xctest": 30,
+    "ios_simulator_ui": 2,
+    "app_model_checks": 212,
+    "product_checks": "pr-at-product.json"
+  },
+  "notary_app": "8122bb55-6a7d-4eff-ac09-b1dd1b6b13c9",
+  "notary_dmg": "73d60b67-5e1d-4668-91cb-ad1c06372d64",
+  "gatekeeper": {
+    "app": "Notarized Developer ID",
+    "dmg": "Notarized Developer ID",
+    "mounted_app": "Notarized Developer ID",
+    "hardened_timestamped_mach_o": 10
+  },
+  "package_validation": {
+    "mounted_readonly": true,
+    "macos_normal_acceptance": true,
+    "live_signed_apple_ticket_matches_bundle": true,
+    "app_stapler": "rcodesign 0.29.0",
+    "dmg_stapler": "Apple stapler",
+    "image_checksum": "PASS",
+    "installed_staged_copy": "PASS",
+    "mac_icon_service_512": "PASS"
+  },
+  "native": {
+    "archive_and_panel": "PASS",
+    "ax_presses": 56,
+    "appearances": 11,
+    "edge_clicks": 7,
+    "shots": 43,
+    "reference_shots": 3,
+    "feedback_controls": "PASS",
+    "external_input": "PASS",
+    "window_boundary": {
+      "normal_ci": {
+        "pass": 24,
+        "fail": 0,
+        "native_fullscreen": "NOT_RUN"
+      },
+      "explicit_fullscreen": {
+        "status": "BLOCKED",
+        "pass": 38,
+        "fail": 0,
+        "blocked": 1,
+        "panel_avoidance_and_return": "PASS",
+        "preserve_system_changed_window": "PASS",
+        "restore_external_window_that_retains_lease_across_fullscreen": "BLOCKED",
+        "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/44067255836/job/133984019973",
+        "details": "../release-window-boundary/fullscreen-533-followup/receipt.json"
+      }
+    },
+    "mic": "NOT_RUN",
+    "live_8GB": "NOT_RUN",
+    "composited_windowserver_scenes": 22,
+    "side_by_side_visible_panel_pixels": [
+      688,
+      468
+    ],
+    "visual_endorsement": "USER_JUDGMENT",
+    "adaptive_interaction": {
+      "passed": 147,
+      "failed": 0,
+      "receipt": "adaptive/receipt.json"
+    },
+    "material_presets": {
+      "variants": 16,
+      "environment": "injected desktop and fullscreen contexts, native WindowServer composition",
+      "receipt": "glass/glass-receipt.json"
+    }
+  },
+  "data": {
+    "upgrade_497_533_497_533": "PASS",
+    "upgrade_374_533_374_533": "PASS",
+    "explicit_non_overwriting_merge": "PASS",
+    "direct_private_recording_or_secret_read": false
+  },
+  "services": {
+    "icloud_offline_restore": "PASS",
+    "mac_cloud_backup": "BLOCKED",
+    "clean_mac_cloud_restore": "BLOCKED",
+    "physical_iPhone_cloud_playback": "BLOCKED",
+    "cloudkit_live_bytes": 0,
+    "cloudkit_live_records": 0,
+    "iphone_simulator": "PASS",
+    "feedback_client": "PASS",
+    "real_private_issue": "BLOCKED",
+    "paid_asr_or_ai": "NOT_RUN"
+  },
+  "distribution": {
+    "public_current_version": "0.18 (492)",
+    "public_020": "BLOCKED",
+    "public_installer_sha256": "654b08e926d90c88e0cb05ff4a5c116aa6c87c6cd59f7d71c24ca028c0d5f933",
+    "native_533_signed_public_feed_checked": true,
+    "entries": 0
+  },
+  "scope": "Each check refers to the listed build or the explicitly attributed source in QUALITY.md and the raw receipts.",
+  "recognition": {
+    "fixed_15_ordinary_original_rate": {
+      "status": "PASS",
+      "native_updates_while_speaking": 15,
+      "finals_identical_to_497": 15,
+      "old": {
+        "source": "32ea75dba50a055c224d323d56edd178543f2efe",
+        "observations": "retained original native run, rescored",
+        "clips": 15,
+        "archiveCER": {
+          "errors": 46,
+          "substitutions": 11,
+          "deletions": 30,
+          "insertions": 5,
+          "reference_units": 568,
+          "cer": 0.08099
+        },
+        "displayFirstSeconds": {
+          "p50": 0.937,
+          "p95": 1.504
+        },
+        "displayProgressGapSeconds": {
+          "p50": 0.405,
+          "p95": 1.025
+        },
+        "fileEOStoFinalSeconds": {
+          "p50": 0.2,
+          "p95": 0.825
+        },
+        "clipsWithMultipleUsefulUpdatesBeforeEos": 15,
+        "gapsAtLeastTwoSecondsIncludingAudioEdges": 0,
+        "longestGapPerClipSecondsIncludingAudioEdges": {
+          "p50": 1.274,
+          "p95": 1.875
+        }
+      },
+      "installed": {
+        "source": "7c0df4728b113c17297a0cded20472de4ffc3337",
+        "observations": "this run",
+        "clips": 15,
+        "archiveCER": {
+          "errors": 46,
+          "substitutions": 11,
+          "deletions": 30,
+          "insertions": 5,
+          "reference_units": 568,
+          "cer": 0.08099
+        },
+        "displayFirstSeconds": {
+          "p50": 0.938,
+          "p95": 1.518
+        },
+        "displayProgressGapSeconds": {
+          "p50": 0.406,
+          "p95": 1.008
+        },
+        "fileEOStoFinalSeconds": {
+          "p50": 0.204,
+          "p95": 0.278
+        },
+        "clipsWithMultipleUsefulUpdatesBeforeEos": 15,
+        "gapsAtLeastTwoSecondsIncludingAudioEdges": 0,
+        "longestGapPerClipSecondsIncludingAudioEdges": {
+          "p50": 1.271,
+          "p95": 1.926
+        }
+      },
+      "receipt": "recognition/same15.json"
+    },
+    "fixed_420_accelerated": {
+      "decoder_fix_source": "4c19982b4fecfb784bd7c7a3cf8fdbdde5af90b0",
+      "errors": 910,
+      "reference_units": 10663,
+      "cer_percent": 8.53,
+      "status": "PASS"
+    },
+    "high_load_long_utterance_gap_under_two_seconds": "FAIL",
+    "consistently_reduced_total_cpu": "NOT_DEMONSTRATED",
+    "power_8GB_and_closed_lid_microphone": "NOT_RUN",
+    "high_load_decomposition": "../next-release-recognition/loaded-gap/long-gap.json"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "candidate": "4c19982b4fecfb784bd7c7a3cf8fdbdde5af90b0",
+  "scorer": "scripts/score-local-asr.py",
+  "quality_harness": "tests/fixtures/MandarinCohort.swift, native accelerated product mode",
+  "groups": {
+    "fleurs": {
+      "errors": 571,
+      "substitutions": 240,
+      "deletions": 266,
+      "insertions": 65,
+      "reference_units": 6260,
+      "cer": 0.09121
+    },
+    "ascend-zh": {
+      "errors": 53,
+      "substitutions": 27,
+      "deletions": 14,
+      "insertions": 12,
+      "reference_units": 934,
+      "cer": 0.05675
+    },
+    "ascend-mixed": {
+      "errors": 225,
+      "substitutions": 103,
+      "deletions": 83,
+      "insertions": 39,
+      "reference_units": 2004,
+      "cer": 0.11228
+    },
+    "quiet": {
+      "errors": 43,
+      "substitutions": 19,
+      "deletions": 22,
+      "insertions": 2,
+      "reference_units": 403,
+      "cer": 0.1067
+    },
+    "noise15db": {
+      "errors": 22,
+      "substitutions": 10,
+      "deletions": 12,
+      "insertions": 0,
+      "reference_units": 361,
+      "cer": 0.06094
+    },
+    "aishell1-test": {
+      "errors": 61,
+      "substitutions": 37,
+      "deletions": 24,
+      "insertions": 0,
+      "reference_units": 1465,
+      "cer": 0.04164
+    }
+  },
+  "reference_run": "evidence/mandarin-cadence-20261114/candidate/runs",
+  "candidate_records": 440,
+  "recordings_with_text": 440,
+  "historical_text_or_state_differences": [],
+  "states": {
+    "completed": 443,
+    "failed": 5
+  }
+}

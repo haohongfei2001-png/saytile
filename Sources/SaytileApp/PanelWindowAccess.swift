@@ -29,7 +29,11 @@ final class PanelWindowAccess: @unchecked Sendable {
 
     /// An allowlist is a capability boundary for acceptance: reads and writes both
     /// remain restricted to these fixture processes, including retained snapshots.
-    init(allowedPIDs: Set<pid_t>? = nil) { self.allowedPIDs = allowedPIDs }
+    private let mouseHeld: @Sendable () -> Bool
+    init(allowedPIDs: Set<pid_t>? = nil, mouseHeld: @escaping @Sendable () -> Bool = PanelWindowAccess.sessionMouseHeld) {
+        self.allowedPIDs = allowedPIDs
+        self.mouseHeld = mouseHeld
+    }
 
     func snapshots(allowedPIDs: Set<pid_t>? = nil) -> [Snapshot] {
         queue.sync { collect(allowedPIDs: allowedPIDs) }
@@ -39,43 +43,48 @@ final class PanelWindowAccess: @unchecked Sendable {
         queue.sync { refreshed(snapshot) }
     }
 
-    /// nil means refused or no longer observable. A returned frame is the actual
-    /// readback, including a partial resize if the subsequent move is refused.
-    /// The caller must compare with `to`, not treat any non-nil result as success.
-    func setFrame(_ snapshot: Snapshot, from: CGRect, to: CGRect, shouldProceed: @Sendable () -> Bool = { true }) -> CGRect? {
+    enum FrameWrite: Equatable {
+        case notIssued
+        // A nil frame means the setter ran but its result could not be read.
+        case issued(CGRect?)
+    }
+
+    func setFrame(_ snapshot: Snapshot, from: CGRect, to: CGRect, shouldProceed: @Sendable () -> Bool = { true }) -> FrameWrite {
         queue.sync {
             guard shouldProceed(), valid(to), same(snapshot.frame, from),
                   let current = refreshed(snapshot), same(current.frame, from),
                   current.standardWindow, !current.isFullscreen,
                   writable(current.element), !mouseHeld(),
-                  remainsOnDisplay(from: from, to: to) else { return nil }
+                  remainsOnDisplay(from: from, to: to) else { return .notIssued }
             let start = quartz(from), destination = quartz(to)
             var expected = start
-            if !sameSize(start.size, destination.size) {
+            let resizing = !sameSize(start.size, destination.size)
+            if resizing {
                 guard let check = refreshed(current), same(quartz(check.frame), expected),
-                      writable(check.element), !mouseHeld(), shouldProceed() else { return nil }
+                      writable(check.element), !mouseHeld(), shouldProceed() else { return .notIssued }
                 var size = destination.size
-                guard let value = AXValueCreate(.cgSize, &size) else { return nil }
+                guard let value = AXValueCreate(.cgSize, &size) else { return .notIssued }
                 let status = AXUIElementSetAttributeValue(check.element, kAXSizeAttribute as CFString, value)
                 var resized = expected; resized.size = destination.size
-                guard let actual = awaitReadback(current, expectedQuartz: resized) else { return nil }
-                guard status == .success, same(quartz(actual.frame), resized) else { return actual.frame }
+                guard let actual = awaitReadback(current, expectedQuartz: resized) else { return .issued(nil) }
+                guard status == .success, same(quartz(actual.frame), resized) else { return .issued(actual.frame) }
                 expected = resized
             }
             if !samePoint(expected.origin, destination.origin) {
-                guard let check = refreshed(current), same(quartz(check.frame), expected),
-                      writable(check.element), !mouseHeld(), shouldProceed() else {
-                    // Cancellation after the resize may leave a known partial
-                    // frame. Return it only while it is still exactly ours.
-                    guard let partial = refreshed(current), same(quartz(partial.frame), expected) else { return nil }
-                    return partial.frame
-                }
                 var point = destination.origin
-                guard let value = AXValueCreate(.cgPoint, &point) else { return refreshed(current)?.frame }
+                guard let value = AXValueCreate(.cgPoint, &point),
+                      let check = refreshed(current), same(quartz(check.frame), expected),
+                      writable(check.element), !mouseHeld(), shouldProceed() else {
+                    guard resizing else { return .notIssued }
+                    // A size setter ran. Only attribute the partial geometry to
+                    // this plan while an independent read still matches it.
+                    guard let partial = refreshed(current), same(quartz(partial.frame), expected) else { return .issued(nil) }
+                    return .issued(partial.frame)
+                }
                 _ = AXUIElementSetAttributeValue(check.element, kAXPositionAttribute as CFString, value)
-                return awaitReadback(current, expectedQuartz: destination)?.frame
+                return .issued(awaitReadback(current, expectedQuartz: destination)?.frame)
             }
-            return refreshed(current)?.frame
+            return resizing ? .issued(refreshed(current)?.frame) : .notIssued
         }
     }
 
@@ -227,7 +236,7 @@ final class PanelWindowAccess: @unchecked Sendable {
         let owners = ids.prefix(Int(count)).map(CGDisplayBounds).filter { $0.contains(CGPoint(x: old.midX, y: old.midY)) }
         return owners.count == 1 && owners[0].contains(new)
     }
-    private func mouseHeld() -> Bool {
+    private static func sessionMouseHeld() -> Bool {
         [CGMouseButton.left, .right, .center].contains { CGEventSource.buttonState(.combinedSessionState, button: $0) }
     }
     private func value(_ element: AXUIElement, _ name: String) -> CFTypeRef? {

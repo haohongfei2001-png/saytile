@@ -1,3 +1,23 @@
+## 2026-11-16 · 隔离确认框宿主修复
+
+499签名本机验收在确认框弹出后被前台保护拒绝，未执行该次确认，不交付该包。独立原生probe复现系统确认框另建可聚焦窗口、单次操作成功却返回-25205，并验证accessory→prohibited的实际策略切换后真实AX确认仍可用。仅反馈验收宿主改为禁止激活并断言实际策略；产品行为、普通控件和焦点保护均不变。正常/正反故障共13项最终签名验收及新源码CI待完成。现用0.18与用户资料保持。
+
+## 2026-11-16 · 反馈确认框 CI 差异
+
+源码b088b99a：Release构建PASS；Swift Testing 548/548、继承XCTest 30/30、AppModel 188/188、反馈controller 12/12。完整CI 4/5，原生反馈在确认撤回的AX返回检查失败，后续12k时间轴与启动步骤NOT_RUN。本机同源签名反馈9/9、外观8/8及合成资料回退PASS，不能替代失败CI。限定修复与正反故障注入见[确认框验收](FEEDBACK-NATIVE-CONFIRMATION.md)，最终源码结果将另外保存。
+
+## 2026-11-15 · Release兼容性根因修复
+
+保留失败：b6b35126 完整CI为4/5，Release编译失败；该源546项Swift Testing、30项XCTest、188项AppModel与12项反馈controller全部通过，签名原生反馈9项检查通过。修复后新增2项析构/初始化失败锁释放回归，本机6/6核心与12/12controller通过。未跳过测试或改用Debug替代Release。
+
+## 2026-11-15 · 反馈闭环与部署边界
+
+PASS：4项新增Swift Testing、12项controller检查、188项AppModel（首次构建）；服务30项Node+6项Python。继承30项XCTest保留，等待完整Xcode CI。原生真实控件和独立进程重启验收进行中；真实远端反馈NOT_RUN，不能以mock transport代替。
+
+## 2026-11-15 · 同一0.19版本接入用户反馈
+
+继承PR46源码fe5da285的外观预设（该SHA五项CI已通过，542项Swift Testing与188项AppModel）。在持久隔离分支codex/product-feedback添加设置内用户反馈，复用Riftlet的独立SQLite发件箱、Keychain capability、确定收据和重试/撤回保护；只发送用户主动填写内容，固定product=saytile。默认不读取录音/转写/日志。共享服务需兼容新增产品字段及私有仓库分类；真实联通、最终签名包和新SHA CI尚在执行，不宣称已接通或已安装。现用0.18与正式App保持不变。
+
 ## 2026-11-15 · 外观验收问题及回归
 
 - PASS：803b0f9五项GitHub CI。44bc06e真实AX菜单连续选择修复后通过，继续字体测试发现顶部漂移，整轮仍FAIL。

@@ -4,9 +4,13 @@ import ScreenCaptureKit
 // Only two explicitly named windows of our launched, isolated review process are allowed.
 @main struct ProductWindowCapture {
     @MainActor static func main() async throws {
-        guard CommandLine.arguments.count == 7, let pid = Int32(CommandLine.arguments[1]),
+        let arguments = CommandLine.arguments
+        let expectedBundleID = arguments.count == 8 ? arguments[7] : "app.saytile.mac"
+        guard (7...8).contains(arguments.count),
+              ["app.saytile.mac", "app.saytile.mac.mandarin-candidate"].contains(expectedBundleID),
+              let pid = Int32(CommandLine.arguments[1]),
               let win = UInt32(CommandLine.arguments[3]), let back = UInt32(CommandLine.arguments[4]),
-              let app = NSRunningApplication(processIdentifier:pid), app.bundleIdentifier == "app.saytile.mac",
+              let app = NSRunningApplication(processIdentifier:pid), app.bundleIdentifier == expectedBundleID,
               app.bundleURL?.resolvingSymlinksInPath() == URL(fileURLWithPath:CommandLine.arguments[2],isDirectory:true).resolvingSymlinksInPath(),
               CGPreflightScreenCaptureAccess() else { print("BLOCKED capture access or candidate identity"); exit(2) }
         let content = try await SCShareableContent.excludingDesktopWindows(true,onScreenWindowsOnly:true)

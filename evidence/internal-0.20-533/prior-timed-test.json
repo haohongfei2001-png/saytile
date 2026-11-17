@@ -1,0 +1,129 @@
+{
+  "source": "2a01a3f1c0b1b419a09a00c6cc987580f2716503",
+  "bundleSHA256": "f8eb9be188921168c0aaaef1b63b317dc436e5308cea7aebedf7c7742d77262e",
+  "runs": [
+    {
+      "label": "04-isolated-1",
+      "filter": "CaptureCloudIntegrationTests",
+      "parallel": false,
+      "started": "2026-11-17T09:34:32.997732+00:00",
+      "exit": 0,
+      "summary": [
+        "✔ Test run with 1 test in 1 suite passed after 0.659 seconds."
+      ],
+      "captureResult": [
+        "✔ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) with 2 test cases passed after 0.659 seconds."
+      ],
+      "sha256": "76f4a33f4890d92ece3dd5b4d5d2dc8ae894c86adaf9d8ef2ca11811b9b910c1"
+    },
+    {
+      "label": "04-isolated-2",
+      "filter": "CaptureCloudIntegrationTests",
+      "parallel": false,
+      "started": "2026-11-17T09:34:33.689693+00:00",
+      "exit": 0,
+      "summary": [
+        "✔ Test run with 1 test in 1 suite passed after 0.638 seconds."
+      ],
+      "captureResult": [
+        "✔ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) with 2 test cases passed after 0.638 seconds."
+      ],
+      "sha256": "1afe1fc4ea36f77f5dfe7bd669d17265a06256b2372e1c0162c94505027f2bb3"
+    },
+    {
+      "label": "04-isolated-3",
+      "filter": "CaptureCloudIntegrationTests",
+      "parallel": false,
+      "started": "2026-11-17T09:34:34.347690+00:00",
+      "exit": 0,
+      "summary": [
+        "✔ Test run with 1 test in 1 suite passed after 0.658 seconds."
+      ],
+      "captureResult": [
+        "✔ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) with 2 test cases passed after 0.658 seconds."
+      ],
+      "sha256": "4ea80df417ae2d76629b387e12c441e79f03cb9e7c10f07fd8a9f3349b52e005"
+    },
+    {
+      "label": "05-parameter-parallel",
+      "filter": "CaptureCloudIntegrationTests",
+      "parallel": true,
+      "started": "2026-11-17T09:34:35.033569+00:00",
+      "exit": 0,
+      "summary": [
+        "✔ Test run with 1 test in 1 suite passed after 0.343 seconds."
+      ],
+      "captureResult": [
+        "✔ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) with 2 test cases passed after 0.343 seconds."
+      ],
+      "sha256": "d156e463bff49b25ab930548d18003088f29ded37bd7480107fd1d94e88c862b"
+    },
+    {
+      "label": "06-adjacent-serial",
+      "filter": "CaptureVADFinalizationTests|JournalRangeAndLocalIngressTests|OfflineFailoverTests|SingleTranscriptEngineTests",
+      "parallel": false,
+      "started": "2026-11-17T09:34:35.400142+00:00",
+      "exit": 0,
+      "summary": [
+        "✔ Test run with 28 tests in 4 suites passed after 5.980 seconds."
+      ],
+      "captureResult": [],
+      "sha256": "58dd3d6f27118a660af22a59c6d8378f673a1b5b5f904b6b124be36b52fcac1a"
+    },
+    {
+      "label": "07-mixed-parallel",
+      "filter": "CaptureCloudIntegrationTests|CaptureVADFinalizationTests|JournalRangeAndLocalIngressTests|OfflineFailoverTests|SingleTranscriptEngineTests",
+      "parallel": true,
+      "started": "2026-11-17T09:34:41.425541+00:00",
+      "exit": 0,
+      "summary": [
+        "✔ Test run with 29 tests in 5 suites passed after 2.362 seconds."
+      ],
+      "captureResult": [
+        "✔ Test journalAndSingleCorePipelineShareAudioAndPreserveReviewFailure(failReview:) with 2 test cases passed after 1.147 seconds."
+      ],
+      "sha256": "7df837cd06db9ca70b8518bd38047589a933c8e40f2506e14907080adc23fe75"
+    }
+  ],
+  "review": "Reproduction and scheduling only, unmodified source and assertion.",
+  "hostOS": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "toolchain": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+  "CI527": {
+    "job": "133929252795",
+    "reported": "522 tests/63 suites, 2 issues in parameterized failReview=false/true",
+    "stage": "First SQLite preview before endUtterance and arbitration, exact same issue on both parameters",
+    "rawLogSHA256": "c30d35a59cb92e853fe0d8f9abb7723b04082ebf1383e65d07467f29b0bd479c",
+    "failureLogLines": [
+      3987,
+      3988,
+      4003,
+      4004
+    ],
+    "summaryLine": 4188
+  },
+  "CI_coincidentSamples_s": {
+    "recordDirectorySymlinkCannotCreateFileOutsideAudioRoot": 5.201,
+    "storeCleanupRevalidatesPreview": 9.698,
+    "shortPipeLineArrivesWithInputStillOpen": 6.024
+  },
+  "sourceBinding": {
+    "snapshot": "2a01a3f1c0b1b419a09a00c6cc987580f2716503",
+    "schedulerChange": "630e11077246a7a8c9488439fd0584e091bc2ee2",
+    "schedulerCommitChangedPaths": [
+      "scripts/test-native.sh"
+    ],
+    "testedSourcesAndTestDiff": "",
+    "cloneClean": true
+  },
+  "scope": "Public fixture creates 6400 deterministic bytes. Injected in-process provider/credential and temporary SQLite; no microphone, no paid API, no network, no tuning or model replay.",
+  "interpretation": {
+    "evidence": "A process dedicated to the timed test is supported. Parallel argument cases also pass on their own. Mixed related concurrency increases the measured case time, and the original failure is not reproduced here.",
+    "alternatives": [
+      "Swift actor/continuation ready delay including the model-task and observer around a 5ms wall-clock poll.",
+      "Busy storage or SQLite synchronous=FULL durability work can delay proof of first text; sqlite file is unique per parameter, but storage is shared.",
+      "The fixture discards capture error callback; beginUtterance may save audio while setting speech=nil on setup throw; runStreaming startup, run ticket or publication can fail with an empty preview. The CI log lacks stage events, per-case DB and scheduler/disk traces. These alternatives were not observed in repetitions."
+    ],
+    "notCauseAtAssertion": "Both fail before worker.endUtterance and before directly injected review error can affect publication. No actual local/cloud recognizer or VAD is used for this assertion.",
+    "limits": "No assertion or 5s deadline changed. The independent fixture does not prove production cloud or user microphone. The CLT lacks XCTest for the separate RiftletFeedbackTests product; build/test framework used the exact SaytileKitTests.xctest built by swift build --target SaytileKitTests. No local claim for all 522."
+  }
+}

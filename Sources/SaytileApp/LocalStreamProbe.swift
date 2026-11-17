@@ -4,7 +4,7 @@ import Synchronization
 import SaytileKit
 
 /// Observes only this isolated panel's laid-out NSTextView. No screen capture,
-/// microphone, pasteboard, real archive or external application is used.
+/// microphone, system pasteboard, real archive or external application is used.
 @MainActor enum LocalStreamProbe {
     struct Frame: Codable { let t: Double; let text: String; let speaking: Bool; let level: Float }
     struct Publication: Codable { let t: Double; let text: String }
@@ -32,6 +32,7 @@ import SaytileKit
         let providers: [String]
         let recordStates: [String]
         let recordingErrors: [String]
+        let copiedArchiveParagraphs: [String]?
     }
     static func textView(_ parent: NSView) -> CompactTranscriptScrollView? {
         if let result = parent as? CompactTranscriptScrollView { return result }
@@ -116,11 +117,29 @@ import SaytileKit
             let runs = try await model.store.modelRuns(recordingID: r.id)
             providers.formUnion(runs.map { $0.ticket.provider })
         }
+        var copiedParagraphs: [String]?
+        if CommandLine.arguments.contains("--verify-archive-copy") {
+            guard let board = model.copyPasteboard, board.name != .general else { throw CocoaError(.featureUnsupported) }
+            defer { board.releaseGlobally() }
+            await model.refresh()
+            let paragraphs = model.archiveGroups.flatMap(\.paragraphs).filter { !$0.text.isEmpty }
+            guard !paragraphs.isEmpty else { throw AudioFailure.message("档案中没有可复制的文字") }
+            copiedParagraphs = try paragraphs.map { paragraph in
+                let count = board.changeCount
+                model.copyParagraph(paragraph)
+                guard board.changeCount > count, let text = board.string(forType: .string),
+                      text.utf16.elementsEqual(paragraph.text.utf16) else {
+                    throw AudioFailure.message("档案复制内容与该段文字不符")
+                }
+                return text
+            }
+        }
         let receipt = Result(model: id.rawValue, automatic: requested == nil, sha: Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String,
             sample: source.lastPathComponent, rawWorkerEvents: rawEvents.withLock { $0 }, clockOriginUptime: start,
             publications: publications, frames: frames, displayedChanges: changes, endOfFile: eos - start, pipelineSettledAt: settled,
             total: ProcessInfo.processInfo.systemUptime - start, archive: records.map(\.text), providers: providers.sorted(),
-            recordStates: records.map { $0.recognitionState.rawValue }, recordingErrors: records.compactMap(\.lastError))
+            recordStates: records.map { $0.recognitionState.rawValue }, recordingErrors: records.compactMap(\.lastError),
+            copiedArchiveParagraphs: copiedParagraphs)
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]
         try encoder.encode(receipt).write(to: model.directory.appending(path: "visible.json"), options: .atomic)
         let early = frames.filter { $0.t < receipt.endOfFile && $0.speaking }

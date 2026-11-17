@@ -79,6 +79,15 @@ private final class BoundaryWindow: NSWindow {
     func window(_ window: NSWindow, willUseFullScreenPresentationOptions proposedOptions: NSApplication.PresentationOptions) -> NSApplication.PresentationOptions {
         proposedOptions.subtracting(.autoHideToolbar)
     }
+    func windowDidEnterFullScreen(_ notification: Notification) { completedFullscreen(notification) }
+    func windowDidExitFullScreen(_ notification: Notification) { completedFullscreen(notification) }
+    private func completedFullscreen(_ notification: Notification) {
+        guard let sender = notification.object as? NSWindow, sender === window else { return }
+        write(["id": lastCommand, "notification": notification.name.rawValue, "windowID": window.windowNumber,
+               "frame": rect(window.frame), "fullscreen": window.styleMask.contains(.fullScreen),
+               "onActiveSpace": window.isOnActiveSpace, "appActive": NSApp.isActive],
+              "fullscreen-transition.json")
+    }
     func poll() {
         guard let data = try? Data(contentsOf: directory.appendingPathComponent("command.json")),
               let command = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -103,6 +112,7 @@ private final class BoundaryWindow: NSWindow {
                 window.setFrame(CGRect(x: values[0], y: values[1], width: values[2], height: values[3]), display: true)
             }
         case "strictMinimum": window.strictMinimum = command["enabled"] as? Bool ?? false
+        case "plainDocument": window.toolbar = nil
         case "minimum":
             if let values = command["size"] as? [Double], values.count == 2 { window.minSize = CGSize(width: values[0], height: values[1]) }
         case "hide":
@@ -125,6 +135,7 @@ private final class BoundaryWindow: NSWindow {
         }
         write(["id": id, "frame": rect(window.frame), "visible": window.isVisible,
                "fullscreen": window.styleMask.contains(.fullScreen), "windowID": window.windowNumber,
+               "onActiveSpace": window.isOnActiveSpace, "appActive": NSApp.isActive,
                "minSize": [window.minSize.width, window.minSize.height], "refusedSizeWrites": window.refusedSizeWrites], "ack.json")
     }
     func write(_ value: [String: Any], _ filename: String) {

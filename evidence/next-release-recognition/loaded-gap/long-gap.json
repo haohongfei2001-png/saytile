@@ -1,0 +1,404 @@
+{
+  "attribution": "Existing original-rate M5 native trace B-9-2, no new workload or model experiment.",
+  "measuredSource": "4c19982b4fecfb784bd7c7a3cf8fdbdde5af90b0",
+  "measuredRelease": "Isolated 4c19982 ASR candidate derived from build 497. The most recent 533 build did not repeat this load.",
+  "input": {
+    "id": "continuous-public-5",
+    "duration_s": 38.8,
+    "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+    "description": "five FLEURS references concatenated, 50 ms silence between trimmed public clips",
+    "sampleRate": 16000
+  },
+  "method": {
+    "clock": "Worker startUptime/endUptime minus the native probe clockOriginUptime. Raw event times are host read times. AppKit samples actual string changes; progress requires the first occurrence of a reference bigram in that layer.",
+    "intervals": "Enumerate adjacent first-occurrence timestamps on each layer; cross-check the winning interval against the original score. Intersect every decode, including unchanged ones batched inside subsequent events, with the precise worker interval. Half-open endpoints avoid attributing a preceding pass twice.",
+    "cpuLimits": "Decoder duration is elapsed wall time around transcribe(samples). It includes CPU running, GPU/Metal waits and descheduling. Original ps counters are process-wide, at ~200ms intervals with a different time-zero. There are no per-thread on/off-CPU, QoS or GPU counters for the pass. Its wall-time split by cause is not available."
+  },
+  "workerPause": {
+    "first_s": 31.32057,
+    "last_s": 33.848796,
+    "wall_ms": 2528.22675,
+    "delta_ms": {
+      "previousEventReceiptToDecodeStart": 0.012458,
+      "insideOneExactFullSegmentDecode": 2527.980542,
+      "decodeEndToHostReceipt": 0.23375
+    },
+    "decodeCoveragePercent": 99.990262,
+    "decodeStart_s": 31.320582,
+    "decodeEnd_s": 33.848563,
+    "numberIntersectingDecodes": 1,
+    "otherRawEventsStrictlyInside": 0,
+    "previousPreview": {
+      "frames": 470400,
+      "verifiedPreviewTokens": 57
+    },
+    "segmentEOS": {
+      "frames": 481280,
+      "audioSeconds": 30.08,
+      "extraPCMFramesSincePreview": 10880,
+      "extraAudioSecondsSincePreview": 0.68,
+      "verifiedPreviewTokens": 0,
+      "changed": true
+    },
+    "sourceAndFinal": [
+      {
+        "t": 31.32057,
+        "newReferencePairs": [
+          "到游",
+          "和小",
+          "声音",
+          "客和",
+          "小摊",
+          "摊贩",
+          "游客",
+          "的声",
+          "贩的"
+        ],
+        "kind": "partial",
+        "frames": 470400,
+        "suffix": "峭壁，平时你总能在这里听到游客和小摊贩的声音。"
+      },
+      {
+        "t": 33.848796,
+        "newReferencePairs": [
+          "声光",
+          "音声"
+        ],
+        "kind": "final",
+        "frames": 481280,
+        "suffix": "平时你总能在这里听到游客和小摊贩的声音，声光。"
+      }
+    ],
+    "finalReceiptToTimeline_ms": 7.074083,
+    "finalReceiptToAppKit_ms": 19.930333,
+    "firstFollowingSegmentCandidate_s": 34.015331,
+    "firstFollowingSegmentCandidateDelayAfterPreviousFinal_ms": 166.534958,
+    "fileEOS_s": 38.802822
+  },
+  "differentDisplayPause": {
+    "range_s": [
+      22.364352,
+      25.79296
+    ],
+    "wall_s": 3.428608,
+    "timelineRange_s": [
+      22.341133,
+      25.772087
+    ],
+    "workerCandidatesInsideDisplayRange": [
+      {
+        "t": 23.147434,
+        "newReferencePairs": [],
+        "kind": "partial",
+        "frames": 355200,
+        "suffix": "登山目的地科查莫山谷，被称为南美洲的优美圣地。"
+      },
+      {
+        "t": 24.244123,
+        "newReferencePairs": [
+          "力士",
+          "士的",
+          "大力",
+          "里有"
+        ],
+        "kind": "partial",
+        "frames": 369600,
+        "suffix": "，科查莫山谷，被称为南美洲的优美圣地，这里有。"
+      },
+      {
+        "t": 25.167881,
+        "newReferencePairs": [
+          "各式",
+          "各样",
+          "式各",
+          "有各",
+          "样的",
+          "的花",
+          "花岗"
+        ],
+        "kind": "partial",
+        "frames": 387200,
+        "suffix": "被称为南美洲的优美圣地。这里有各式各样的花岗。"
+      },
+      {
+        "t": 25.765429,
+        "newReferencePairs": [
+          "大石",
+          "岗岩",
+          "岩大",
+          "石壁"
+        ],
+        "kind": "partial",
+        "frames": 401600,
+        "suffix": "美洲的优美圣地。这里有各式各样的花岗岩大石壁。"
+      }
+    ],
+    "timelineItems": [
+      {
+        "t": 22.341133,
+        "newReferencePairs": [
+          "为南",
+          "南美",
+          "洲的",
+          "的优",
+          "美洲"
+        ],
+        "kind": null,
+        "frames": null,
+        "suffix": "视力首选登山目的地科查莫山谷，被称为南美洲的优"
+      },
+      {
+        "t": 23.159803,
+        "newReferencePairs": [],
+        "kind": null,
+        "frames": null,
+        "suffix": "选登山目的地科查莫山谷，被称为南美洲的优美圣地"
+      },
+      {
+        "t": 25.772087,
+        "newReferencePairs": [
+          "各式",
+          "各样",
+          "大石",
+          "岗岩",
+          "岩大",
+          "式各",
+          "有各",
+          "样的",
+          "的花",
+          "石壁",
+          "花岗",
+          "里有"
+        ],
+        "kind": null,
+        "frames": null,
+        "suffix": "南美洲的优美圣地。这里有各式各样的花岗岩大石壁"
+      }
+    ],
+    "appKitFrames": [
+      {
+        "t": 22.364352,
+        "newReferencePairs": [
+          "为南",
+          "南美",
+          "洲的",
+          "的优",
+          "美洲"
+        ],
+        "kind": null,
+        "frames": null,
+        "suffix": "视力首选登山目的地科查莫山谷，被称为南美洲的优"
+      },
+      {
+        "t": 23.171778,
+        "newReferencePairs": [],
+        "kind": null,
+        "frames": null,
+        "suffix": "选登山目的地科查莫山谷，被称为南美洲的优美圣地"
+      },
+      {
+        "t": 25.79296,
+        "newReferencePairs": [
+          "各式",
+          "各样",
+          "大石",
+          "岗岩",
+          "岩大",
+          "式各",
+          "有各",
+          "样的",
+          "的花",
+          "石壁",
+          "花岗",
+          "里有"
+        ],
+        "kind": null,
+        "frames": null,
+        "suffix": "南美洲的优美圣地。这里有各式各样的花岗岩大石壁"
+      }
+    ],
+    "publishedLiteralChangeWithoutNovelReferencePair_s": 23.171778,
+    "rightEndpointRawToTimeline_ms": 6.658542,
+    "rightEndpointRawToAppKit_ms": 27.530958,
+    "observation": "23.172s shows a changed string, with no previously unseen reference bigram. At 24.244s and 25.168s the worker brings new reference pairs with competing earlier wording; the timeline does not publish those observations. At 25.765s a supported longer observation arrives. UI delivery follows promptly. This 3.429s metric is a gap in reference-confirmed progress, not a literal frame freeze. Withholding provenance is inferred from the candidates and tested gate, not from a logged rejection code."
+  },
+  "crossovers": [
+    {
+      "run": "A-0-0",
+      "source": "32ea75dba50a055c224d323d56edd178543f2efe",
+      "inputs": [
+        "completed",
+        "completed"
+      ],
+      "addedLoadWorkers": 0,
+      "measuredLoadEquivalentCores": null,
+      "firstSegmentFinalWallSeconds": 0.627727,
+      "fileLastSegmentFinalWallSeconds": 0.219892,
+      "workerLongestSeconds": 1.564,
+      "windowLongestSeconds": 2.0,
+      "combinedAppAndWorkerCpuSeconds": 12.44,
+      "peakSimultaneousFootprintMiB": 1757.8
+    },
+    {
+      "run": "A-0-7",
+      "source": "32ea75dba50a055c224d323d56edd178543f2efe",
+      "inputs": [
+        "completed",
+        "completed"
+      ],
+      "addedLoadWorkers": 0,
+      "measuredLoadEquivalentCores": null,
+      "firstSegmentFinalWallSeconds": 1.398082,
+      "fileLastSegmentFinalWallSeconds": 0.220528,
+      "workerLongestSeconds": 1.398,
+      "windowLongestSeconds": 3.642,
+      "combinedAppAndWorkerCpuSeconds": 25.81,
+      "peakSimultaneousFootprintMiB": 1691.7
+    },
+    {
+      "run": "A-9-3",
+      "source": "32ea75dba50a055c224d323d56edd178543f2efe",
+      "inputs": [
+        "completed",
+        "completed"
+      ],
+      "addedLoadWorkers": 9,
+      "measuredLoadEquivalentCores": 4.9313,
+      "firstSegmentFinalWallSeconds": 1.99214,
+      "fileLastSegmentFinalWallSeconds": 0.645632,
+      "workerLongestSeconds": 1.993,
+      "windowLongestSeconds": 3.936,
+      "combinedAppAndWorkerCpuSeconds": 21.45,
+      "peakSimultaneousFootprintMiB": 1803.5
+    },
+    {
+      "run": "A-9-4",
+      "source": "32ea75dba50a055c224d323d56edd178543f2efe",
+      "inputs": [
+        "completed",
+        "completed"
+      ],
+      "addedLoadWorkers": 9,
+      "measuredLoadEquivalentCores": 5.2296,
+      "firstSegmentFinalWallSeconds": 2.119894,
+      "fileLastSegmentFinalWallSeconds": 0.523379,
+      "workerLongestSeconds": 2.642,
+      "windowLongestSeconds": 3.727,
+      "combinedAppAndWorkerCpuSeconds": 19.11,
+      "peakSimultaneousFootprintMiB": 1724.2
+    },
+    {
+      "run": "B-0-1",
+      "source": "4c19982b4fecfb784bd7c7a3cf8fdbdde5af90b0",
+      "inputs": [
+        "completed",
+        "completed"
+      ],
+      "addedLoadWorkers": 0,
+      "measuredLoadEquivalentCores": null,
+      "firstSegmentFinalWallSeconds": 0.689268,
+      "fileLastSegmentFinalWallSeconds": 0.514064,
+      "workerLongestSeconds": 1.547,
+      "windowLongestSeconds": 1.947,
+      "combinedAppAndWorkerCpuSeconds": 13.24,
+      "peakSimultaneousFootprintMiB": 1823.3
+    },
+    {
+      "run": "B-0-6",
+      "source": "4c19982b4fecfb784bd7c7a3cf8fdbdde5af90b0",
+      "inputs": [
+        "completed",
+        "completed"
+      ],
+      "addedLoadWorkers": 0,
+      "measuredLoadEquivalentCores": null,
+      "firstSegmentFinalWallSeconds": 1.68152,
+      "fileLastSegmentFinalWallSeconds": 0.349556,
+      "workerLongestSeconds": 1.812,
+      "windowLongestSeconds": 2.29,
+      "combinedAppAndWorkerCpuSeconds": 22.1,
+      "peakSimultaneousFootprintMiB": 1695.1
+    },
+    {
+      "run": "B-9-2",
+      "source": "4c19982b4fecfb784bd7c7a3cf8fdbdde5af90b0",
+      "inputs": [
+        "completed",
+        "completed"
+      ],
+      "addedLoadWorkers": 9,
+      "measuredLoadEquivalentCores": 3.7164,
+      "firstSegmentFinalWallSeconds": 2.527981,
+      "fileLastSegmentFinalWallSeconds": 1.084107,
+      "workerLongestSeconds": 2.528,
+      "windowLongestSeconds": 3.429,
+      "combinedAppAndWorkerCpuSeconds": 18.29,
+      "peakSimultaneousFootprintMiB": 1792.6
+    },
+    {
+      "run": "B-9-5",
+      "source": "4c19982b4fecfb784bd7c7a3cf8fdbdde5af90b0",
+      "inputs": [
+        "completed",
+        "completed"
+      ],
+      "addedLoadWorkers": 9,
+      "measuredLoadEquivalentCores": 5.7044,
+      "firstSegmentFinalWallSeconds": 1.824086,
+      "fileLastSegmentFinalWallSeconds": 0.480414,
+      "workerLongestSeconds": 1.824,
+      "windowLongestSeconds": 2.126,
+      "combinedAppAndWorkerCpuSeconds": 19.28,
+      "peakSimultaneousFootprintMiB": 1688.5
+    }
+  ],
+  "archiveCER": {
+    "errors": 31,
+    "substitutions": 9,
+    "deletions": 22,
+    "insertions": 0,
+    "reference_units": 205
+  },
+  "history": {
+    "schedulerTrial": {
+      "record": "evidence/mandarin-preview-20261114/followup/worker-blocks-474/scheduler-trial.json",
+      "variable": "After three seconds and a growing hypothesis, decode each 700 rather than 500 ms. Keep first and corrective intervals unchanged.",
+      "result": "Rejected. No controlled paired CPU benefit demonstrated. Host contention varied while the injected load missed its requested target. Retain the 500 ms production scheduling policy.",
+      "clarification": "The qos labels here belong to the external load workers. This comparison changed the preview interval, not the recognition child QoS."
+    },
+    "verifiedDraft": {
+      "record": "evidence/mandarin-preview-20261114/draft-verification.json",
+      "agreedPreviewTokens": 14,
+      "comparisons": 17,
+      "reason": "Block-verified preview may produce a different token sequence than exact scalar decoding. It is not a proven substitute for finalization; in the sampled pause PCM also grew by 680 ms."
+    },
+    "unstablePreview": {
+      "record": "evidence/next-release-recognition/publication-evidence.json",
+      "trial": {
+        "run": "B-9-2",
+        "worker_reversals": 1,
+        "publication_reversals": 0,
+        "worker_longest_fresh_bigram_gap_s": 2.528,
+        "observed_display_longest_fresh_bigram_gap_s": 3.429
+      }
+    }
+  },
+  "decision": {
+    "newScheduleAB": "NOT_RUN",
+    "rationale": "No measurable pre-/post-decode queue wait capable of removing the 2.528s. The sampled whole-process CPU/load is insufficient to justify raising worker QoS. Heavier competitor CPU consumption in B-9-5 coincides with a shorter exact first EOS than B-9-2; two readings are not causal. Advancing the previous 29.4s preview omits the last 0.68s of this segment. Keep current process priority and exact EOS. The evidence does not prove that optimizing the decoding algorithm is impossible.",
+    "productEdits": false,
+    "newInstallation": false
+  },
+  "inputsSHA256": {
+    "evidence/next-release-recognition/crossover38s.jsonl.gz": "556a45ff3bb8c7c95ef223511fb117c8e4add91d743bf330e9db6c17ec880ca3",
+    "evidence/next-release-recognition/crossover38s-metrics.json": "c437017d75043c051283ef741a6ba3aa05e1377ff1a0f955774d7df951bcad56",
+    "evidence/mandarin/continuous.json": "d7da77968f154dd19694a80fea078e02053d4e048c7840bba11cf67a3dd5999d",
+    "scripts/mandarin/score-live-cadence.py": "e01e750f76040fa89dee7b3b2f78a960f79cbc30ed3ac8d810adb6ddf6d3c668",
+    "evidence/mandarin-preview-20261114/followup/worker-blocks-474/scheduler-trial.json": "e89d03760af3d80a6ce4fdfe3634e7957a377b854b9c0aeeae5f93b212808d4d",
+    "evidence/mandarin-preview-20261114/draft-verification.json": "edafdccec493c58d6738feda0c24eb82d8120b46ed4c5c68144785c8a72a7356",
+    "evidence/next-release-recognition/publication-evidence.json": "8e3ea0dd0d8e1c6ec5c3d97c089803fb4bda9c1db2b9611b6872b3102055f0e2",
+    "native/LocalASR/Sources/SaytileModelWorker/Worker.swift": "16b73815a8be0b1e4fa535039b2f168445a8fe7f7b15d9bff1d6d1cdf9b20128",
+    "Sources/SaytileKit/LocalASRProvider.swift": "2bd86216d1fb9c327217a892f912682c9c3a8059ef771cbe3e4cd9aaf17165a6",
+    "scripts/mandarin/measure-preview-cost.py": "de87b8ab4980529c3dda309113fc4433942c89d785589a8a01a847648449b551"
+  }
+}

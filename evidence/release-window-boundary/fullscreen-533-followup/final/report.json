@@ -1,0 +1,577 @@
+{
+  "error" : "BLOCKED: one or more independent native scenarios could not be confirmed.",
+  "platformObservations" : [
+    {
+      "actualFrame" : [
+        10,
+        58,
+        1004,
+        679
+      ],
+      "declaredMinSize" : [
+        1004,
+        679
+      ],
+      "expected_unchanged_frame_status" : "FAIL",
+      "name" : "AppKit minimum size can normalize limits and change the actual frame",
+      "note" : "Original native9 unchanged-frame assertion FAIL retained. Read declaredMinSize and actualFrame together: a changed frame is not proof the minimum was ignored. The worker reports actual partial geometry and refusal, never presumed success.",
+      "requestedFrame" : [
+        10,
+        68,
+        1004,
+        659
+      ],
+      "workerAdjusted" : 1,
+      "workerBlocked" : 1
+    },
+    {
+      "ack" : {
+        "appActive" : true,
+        "frame" : [
+          0,
+          0,
+          1024,
+          716
+        ],
+        "fullscreen" : true,
+        "id" : 21,
+        "minSize" : [
+          100,
+          120
+        ],
+        "onActiveSpace" : true,
+        "refusedSizeWrites" : 2,
+        "visible" : true,
+        "windowID" : 34
+      },
+      "axFullscreen" : true,
+      "completion" : {
+        "appActive" : true,
+        "frame" : [
+          0,
+          0,
+          1024,
+          716
+        ],
+        "fullscreen" : true,
+        "id" : 21,
+        "notification" : "NSWindowDidEnterFullScreenNotification",
+        "onActiveSpace" : true,
+        "windowID" : 34
+      },
+      "matchedAXFrame" : [
+        0,
+        0,
+        1024,
+        716
+      ],
+      "name" : "NSWindowDidEnterFullScreenNotification"
+    },
+    {
+      "ack" : {
+        "appActive" : true,
+        "frame" : [
+          409,
+          285,
+          615,
+          452
+        ],
+        "fullscreen" : false,
+        "id" : 22,
+        "minSize" : [
+          100,
+          120
+        ],
+        "onActiveSpace" : true,
+        "refusedSizeWrites" : 2,
+        "visible" : true,
+        "windowID" : 34
+      },
+      "axFullscreen" : false,
+      "completion" : {
+        "appActive" : true,
+        "frame" : [
+          409,
+          285,
+          615,
+          452
+        ],
+        "fullscreen" : false,
+        "id" : 22,
+        "notification" : "NSWindowDidExitFullScreenNotification",
+        "onActiveSpace" : true,
+        "windowID" : 34
+      },
+      "matchedAXFrame" : [
+        409,
+        285,
+        615,
+        452
+      ],
+      "name" : "NSWindowDidExitFullScreenNotification"
+    },
+    {
+      "availableFrame" : [
+        0,
+        58,
+        1024,
+        679
+      ],
+      "name" : "fullscreen exit presentation and geometry",
+      "panelFrame" : [
+        804,
+        637,
+        220,
+        100
+      ],
+      "panelKey" : false,
+      "panelOnActiveSpace" : true,
+      "panelVisible" : true,
+      "preferred" : [
+        804,
+        637,
+        220,
+        100
+      ],
+      "presentationFullscreen" : false,
+      "targetIsFrontmost" : true,
+      "timeoutSeconds" : 7
+    },
+    {
+      "final" : [
+        409,
+        285,
+        615,
+        452
+      ],
+      "fullscreenDetected" : false,
+      "leased" : [
+        221,
+        325,
+        615,
+        400
+      ],
+      "name" : "boundary lease after completed Space transition",
+      "original" : [
+        397,
+        325,
+        615,
+        400
+      ],
+      "restorationBlocked" : 0,
+      "returned" : [
+        409,
+        285,
+        615,
+        452
+      ],
+      "sameTargetWindow" : true
+    },
+    {
+      "ack" : {
+        "appActive" : true,
+        "frame" : [
+          0,
+          0,
+          1024,
+          716
+        ],
+        "fullscreen" : true,
+        "id" : 24,
+        "minSize" : [
+          100,
+          120
+        ],
+        "onActiveSpace" : true,
+        "refusedSizeWrites" : 2,
+        "visible" : true,
+        "windowID" : 34
+      },
+      "axFullscreen" : true,
+      "completion" : {
+        "appActive" : true,
+        "frame" : [
+          0,
+          0,
+          1024,
+          716
+        ],
+        "fullscreen" : true,
+        "id" : 24,
+        "notification" : "NSWindowDidEnterFullScreenNotification",
+        "onActiveSpace" : true,
+        "windowID" : 34
+      },
+      "matchedAXFrame" : [
+        0,
+        0,
+        1024,
+        716
+      ],
+      "name" : "NSWindowDidEnterFullScreenNotification"
+    },
+    {
+      "ack" : {
+        "appActive" : true,
+        "frame" : [
+          409,
+          285,
+          615,
+          452
+        ],
+        "fullscreen" : false,
+        "id" : 25,
+        "minSize" : [
+          100,
+          120
+        ],
+        "onActiveSpace" : true,
+        "refusedSizeWrites" : 2,
+        "visible" : true,
+        "windowID" : 34
+      },
+      "axFullscreen" : false,
+      "completion" : {
+        "appActive" : true,
+        "frame" : [
+          409,
+          285,
+          615,
+          452
+        ],
+        "fullscreen" : false,
+        "id" : 25,
+        "notification" : "NSWindowDidExitFullScreenNotification",
+        "onActiveSpace" : true,
+        "windowID" : 34
+      },
+      "matchedAXFrame" : [
+        409,
+        285,
+        615,
+        452
+      ],
+      "name" : "NSWindowDidExitFullScreenNotification"
+    },
+    {
+      "controlExit" : [
+        409,
+        285,
+        615,
+        452
+      ],
+      "controlStart" : [
+        221,
+        325,
+        615,
+        400
+      ],
+      "name" : "same window roundtrip with Saytile stopped",
+      "productExit" : [
+        409,
+        285,
+        615,
+        452
+      ],
+      "systemReturnsIdenticalFrame" : true
+    },
+    {
+      "ack" : {
+        "appActive" : true,
+        "frame" : [
+          0,
+          0,
+          1024,
+          768
+        ],
+        "fullscreen" : true,
+        "id" : 28,
+        "minSize" : [
+          100,
+          100
+        ],
+        "onActiveSpace" : true,
+        "refusedSizeWrites" : 2,
+        "visible" : true,
+        "windowID" : 34
+      },
+      "axFullscreen" : true,
+      "completion" : {
+        "appActive" : true,
+        "frame" : [
+          0,
+          0,
+          1024,
+          768
+        ],
+        "fullscreen" : true,
+        "id" : 28,
+        "notification" : "NSWindowDidEnterFullScreenNotification",
+        "onActiveSpace" : true,
+        "windowID" : 34
+      },
+      "matchedAXFrame" : [
+        0,
+        0,
+        1024,
+        768
+      ],
+      "name" : "NSWindowDidEnterFullScreenNotification"
+    },
+    {
+      "ack" : {
+        "appActive" : true,
+        "frame" : [
+          409,
+          285,
+          615,
+          452
+        ],
+        "fullscreen" : false,
+        "id" : 29,
+        "minSize" : [
+          100,
+          100
+        ],
+        "onActiveSpace" : true,
+        "refusedSizeWrites" : 2,
+        "visible" : true,
+        "windowID" : 34
+      },
+      "axFullscreen" : false,
+      "completion" : {
+        "appActive" : true,
+        "frame" : [
+          409,
+          285,
+          615,
+          452
+        ],
+        "fullscreen" : false,
+        "id" : 29,
+        "notification" : "NSWindowDidExitFullScreenNotification",
+        "onActiveSpace" : true,
+        "windowID" : 34
+      },
+      "matchedAXFrame" : [
+        409,
+        285,
+        615,
+        452
+      ],
+      "name" : "NSWindowDidExitFullScreenNotification"
+    },
+    {
+      "final" : [
+        409,
+        285,
+        615,
+        452
+      ],
+      "leased" : [
+        221,
+        325,
+        615,
+        400
+      ],
+      "name" : "plain document ownership roundtrip",
+      "original" : [
+        397,
+        325,
+        615,
+        400
+      ],
+      "returned" : [
+        409,
+        285,
+        615,
+        452
+      ]
+    }
+  ],
+  "scope" : "Only two disposable synthetic AppKit fixture PIDs; production PanelWindowAccess\/PanelArrangementWorker; no user app target, no text read, no mic, no input events.",
+  "status" : "BLOCKED",
+  "tests" : [
+    {
+      "name" : "scope excludes unrelated fixture PID",
+      "status" : "PASS"
+    },
+    {
+      "name" : "initial owned window corresponds to public CG ID",
+      "status" : "PASS"
+    },
+    {
+      "name" : "ordinary window displaced beyond panel",
+      "status" : "PASS"
+    },
+    {
+      "name" : "repeat is idempotent",
+      "status" : "PASS"
+    },
+    {
+      "name" : "mode off restores original",
+      "status" : "PASS"
+    },
+    {
+      "name" : "user moved safe frame is not restored over",
+      "status" : "PASS"
+    },
+    {
+      "name" : "cancelled plan writes nothing",
+      "status" : "PASS"
+    },
+    {
+      "name" : "bridge cancelled before write refuses",
+      "status" : "PASS"
+    },
+    {
+      "name" : "held pointer defers first boundary write",
+      "status" : "PASS"
+    },
+    {
+      "name" : "unchanged overlap resolves after pointer release",
+      "status" : "PASS"
+    },
+    {
+      "name" : "held pointer defers restoration",
+      "status" : "PASS"
+    },
+    {
+      "name" : "unchanged owned frame restores after pointer release",
+      "status" : "PASS"
+    },
+    {
+      "name" : "hidden panel releases owned frame",
+      "status" : "PASS"
+    },
+    {
+      "name" : "hidden target excluded",
+      "status" : "PASS"
+    },
+    {
+      "name" : "two equal bounds reject ambiguous AX binding",
+      "status" : "PASS"
+    },
+    {
+      "name" : "insufficient-space scenario baseline",
+      "status" : "PASS"
+    },
+    {
+      "name" : "insufficient free area refuses without modifying",
+      "status" : "PASS"
+    },
+    {
+      "name" : "actual native AX size refusal keeps target unchanged",
+      "status" : "PASS"
+    },
+    {
+      "name" : "AX refusal is not repeatedly written",
+      "status" : "PASS"
+    },
+    {
+      "name" : "unrelated fixture untouched",
+      "status" : "PASS"
+    },
+    {
+      "name" : "production controller initially enforces boundary",
+      "status" : "PASS"
+    },
+    {
+      "name" : "AX observer reconciles new overlap",
+      "status" : "PASS"
+    },
+    {
+      "name" : "AX event response timing",
+      "note" : "Production AX observer plus 2-second fallback; timing alone is not event provenance.",
+      "seconds" : 0.33449208333334468,
+      "status" : "PASS"
+    },
+    {
+      "name" : "controller mode change restores latest user placement",
+      "status" : "PASS"
+    },
+    {
+      "name" : "panel anchor begins within the ordinary desktop",
+      "status" : "PASS"
+    },
+    {
+      "name" : "original target has an actual boundary lease before fullscreen",
+      "status" : "PASS"
+    },
+    {
+      "name" : "native fullscreen never resized",
+      "status" : "PASS"
+    },
+    {
+      "name" : "native full-screen toolbar geometry",
+      "note" : "Actual public AX role\/frame only.",
+      "obstacle_count" : 1,
+      "status" : "PASS"
+    },
+    {
+      "name" : "test panel begins over actual fullscreen button",
+      "status" : "PASS"
+    },
+    {
+      "name" : "production fullscreen controller marks opaque presentation",
+      "status" : "PASS"
+    },
+    {
+      "name" : "production fullscreen controller moves panel clear of actual controls",
+      "status" : "PASS"
+    },
+    {
+      "actual" : [
+        804,
+        608,
+        220,
+        100
+      ],
+      "name" : "fullscreen panel actual geometry",
+      "obstacles" : [
+        [
+          944,
+          716,
+          76,
+          52
+        ]
+      ],
+      "preferred" : [
+        804,
+        637,
+        220,
+        100
+      ],
+      "status" : "PASS"
+    },
+    {
+      "name" : "production fullscreen exit clears opaque presentation",
+      "status" : "PASS"
+    },
+    {
+      "name" : "production fullscreen exit restores desktop panel anchor",
+      "status" : "PASS"
+    },
+    {
+      "name" : "production fullscreen exit clears presentation and restores panel anchor",
+      "status" : "PASS"
+    },
+    {
+      "name" : "a system-changed target is not overwritten after fullscreen",
+      "status" : "PASS"
+    },
+    {
+      "name" : "plain document has an owned boundary before fullscreen",
+      "status" : "PASS"
+    },
+    {
+      "name" : "system-changed plain window remains untouched",
+      "status" : "PASS"
+    },
+    {
+      "name" : "full-screen roundtrip keeps original restore ownership",
+      "note" : "Neither native fixture returned the geometry Saytile leased. The ordinary owned-window restore is covered independently.",
+      "status" : "BLOCKED"
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "error" : "One or more assertions failed; see every recorded independent scenario.",
+  "platformObservations" : [
+    {
+      "actualFrame" : [
+        10,
+        58,
+        1004,
+        679
+      ],
+      "declaredMinSize" : [
+        1004,
+        679
+      ],
+      "expected_unchanged_frame_status" : "FAIL",
+      "name" : "AppKit minimum size can normalize limits and change the actual frame",
+      "note" : "Original native9 unchanged-frame assertion FAIL retained. Read declaredMinSize and actualFrame together: a changed frame is not proof the minimum was ignored. The worker reports actual partial geometry and refusal, never presumed success.",
+      "requestedFrame" : [
+        10,
+        68,
+        1004,
+        659
+      ],
+      "workerAdjusted" : 1,
+      "workerBlocked" : 1
+    }
+  ],
+  "scope" : "Only two disposable synthetic AppKit fixture PIDs; production PanelWindowAccess\/PanelArrangementWorker; no user app target, no text read, no mic, no input events.",
+  "status" : "FAIL",
+  "tests" : [
+    {
+      "name" : "scope excludes unrelated fixture PID",
+      "status" : "PASS"
+    },
+    {
+      "name" : "initial owned window corresponds to public CG ID",
+      "status" : "PASS"
+    },
+    {
+      "name" : "ordinary window displaced beyond panel",
+      "status" : "PASS"
+    },
+    {
+      "name" : "repeat is idempotent",
+      "status" : "PASS"
+    },
+    {
+      "name" : "mode off restores original",
+      "status" : "PASS"
+    },
+    {
+      "name" : "user moved safe frame is not restored over",
+      "status" : "PASS"
+    },
+    {
+      "name" : "cancelled plan writes nothing",
+      "status" : "PASS"
+    },
+    {
+      "name" : "bridge cancelled before write refuses",
+      "status" : "PASS"
+    },
+    {
+      "name" : "held pointer defers first boundary write",
+      "status" : "PASS"
+    },
+    {
+      "name" : "unchanged overlap resolves after pointer release",
+      "status" : "PASS"
+    },
+    {
+      "name" : "held pointer defers restoration",
+      "status" : "PASS"
+    },
+    {
+      "name" : "unchanged owned frame restores after pointer release",
+      "status" : "PASS"
+    },
+    {
+      "name" : "hidden panel releases owned frame",
+      "status" : "PASS"
+    },
+    {
+      "name" : "hidden target excluded",
+      "status" : "PASS"
+    },
+    {
+      "name" : "two equal bounds reject ambiguous AX binding",
+      "status" : "PASS"
+    },
+    {
+      "name" : "insufficient-space scenario baseline",
+      "status" : "PASS"
+    },
+    {
+      "name" : "insufficient free area refuses without modifying",
+      "status" : "PASS"
+    },
+    {
+      "name" : "actual native AX size refusal keeps target unchanged",
+      "status" : "PASS"
+    },
+    {
+      "name" : "AX refusal is not repeatedly written",
+      "status" : "PASS"
+    },
+    {
+      "name" : "unrelated fixture untouched",
+      "status" : "PASS"
+    },
+    {
+      "name" : "production controller initially enforces boundary",
+      "status" : "PASS"
+    },
+    {
+      "name" : "AX observer reconciles new overlap",
+      "status" : "PASS"
+    },
+    {
+      "name" : "AX event response timing",
+      "note" : "Production AX observer plus 2-second fallback; timing alone is not event provenance.",
+      "seconds" : 0.15749329166666826,
+      "status" : "PASS"
+    },
+    {
+      "name" : "controller mode change restores latest user placement",
+      "status" : "PASS"
+    },
+    {
+      "name" : "native fullscreen never resized",
+      "status" : "PASS"
+    },
+    {
+      "name" : "native full-screen toolbar geometry",
+      "note" : "Actual public AX role\/frame only.",
+      "obstacle_count" : 1,
+      "status" : "PASS"
+    },
+    {
+      "name" : "test panel begins over actual fullscreen button",
+      "status" : "PASS"
+    },
+    {
+      "name" : "production fullscreen controller marks opaque presentation",
+      "status" : "PASS"
+    },
+    {
+      "name" : "production fullscreen controller moves panel clear of actual controls",
+      "status" : "PASS"
+    },
+    {
+      "actual" : [
+        804,
+        608,
+        220,
+        100
+      ],
+      "name" : "fullscreen panel actual geometry",
+      "obstacles" : [
+        [
+          944,
+          716,
+          76,
+          52
+        ]
+      ],
+      "preferred" : [
+        804,
+        668,
+        220,
+        100
+      ],
+      "status" : "PASS"
+    },
+    {
+      "name" : "production fullscreen exit clears presentation and restores panel anchor",
+      "status" : "FAIL"
+    },
+    {
+      "name" : "full-screen roundtrip keeps original restore ownership",
+      "status" : "FAIL"
+    }
+  ]
+}

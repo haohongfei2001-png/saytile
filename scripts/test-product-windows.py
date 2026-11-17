@@ -74,6 +74,8 @@ def check_first_use(image, points, state):
 
 
 parser=argparse.ArgumentParser(); parser.add_argument('--app',type=Path,required=True); parser.add_argument('--output',type=Path,required=True)
+parser.add_argument('--expected-bundle-id',choices=('app.saytile.mac','app.saytile.mac.mandarin-candidate'),default='app.saytile.mac',
+                    help='Exact staged product identity allowed in this isolated window capture')
 parser.add_argument('--border',action='store_true',help='Verify the settings switch on one live window, then relaunch with the same isolated preferences')
 parser.add_argument('--scenes',nargs='+',help='Capture only these scenes; never earns a full PASS')
 a=parser.parse_args(); root=Path(__file__).resolve().parent.parent; out=a.output.resolve(); app=a.app.resolve()
@@ -84,7 +86,7 @@ if any(out.iterdir()): raise SystemExit('Output must be empty')
 original=root/'design/approved/Saytile-original-visual-reference-20261107.jpeg'; im=Image.open(original).convert('RGB')
 assert im.size==(1536,1024)
 # Reconstruct the obstructed gradient exclusively from unobstructed scene pixels either side of the panel.
-# Reference card starts at (130,250), captured app card starts at (64,64), both at two pixels per pt.
+# Sample the illustration around its board. The final comparison uses the visible board bounds.
 crop=(66,186,882,782); W,H=816,596
 im.crop(crop).save(out/'original.png'); blur=im.filter(ImageFilter.GaussianBlur(10))
 bg=Image.new('RGB',(W,H)); pixels=bg.load()
@@ -99,7 +101,7 @@ if a.border:
     scenes=['panel-speaking','panel-border-hidden']
 elif a.scenes:
     assert set(a.scenes)<=set(scenes); scenes=[n for n in scenes if n in a.scenes]
-info=plistlib.loads((app/'Contents/Info.plist').read_bytes()); assert info['CFBundleIdentifier']=='app.saytile.mac'
+info=plistlib.loads((app/'Contents/Info.plist').read_bytes()); assert info['CFBundleIdentifier']==a.expected_bundle_id
 receipt={'source':info['SaytileSourceRevision'],'source_dirty':info['SaytileSourceDirty'],'binary_sha256':hashlib.sha256((app/'Contents/MacOS/Saytile').read_bytes()).hexdigest(),'reference_sha256':hashlib.sha256(original.read_bytes()).hexdigest(),'scope':'Two named windows of same isolated process; controlled environment sampled from exterior of original; capture/permission states injected, not a physical microphone or an OS permission change.','scenes':{}}
 with tempfile.TemporaryDirectory(prefix='saytile-product-capture-') as td:
     t=Path(td); helper=t/'capture'
@@ -123,7 +125,7 @@ with tempfile.TemporaryDirectory(prefix='saytile-product-capture-') as td:
                     time.sleep(.05)
                 if req.get('scene')!=name or req['pid']!=proc.pid: raise RuntimeError('Native scene did not arrive: '+name+' exit='+str(proc.poll()))
                 png=out/(name+'.png')
-                result=subprocess.run([str(helper),str(proc.pid),str(app),str(req['window']),str(req['backdrop']),str(png),name],capture_output=True,text=True,timeout=12)
+                result=subprocess.run([str(helper),str(proc.pid),str(app),str(req['window']),str(req['backdrop']),str(png),name,a.expected_bundle_id],capture_output=True,text=True,timeout=12)
                 logs.write(result.stdout+result.stderr); logs.flush()
                 (out/(name+'.done')).write_text('captured' if result.returncode==0 else 'failed')
                 if result.returncode: raise RuntimeError('WindowServer '+name+': '+result.stdout+result.stderr)
@@ -159,5 +161,14 @@ with tempfile.TemporaryDirectory(prefix='saytile-product-capture-') as td:
                 subprocess.run(['defaults','delete',suite],capture_output=True)
             receipt.setdefault('status','INCOMPLETE'); (out/'receipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
 if receipt['status']=='PASS':
-    pair=Image.new('RGB',(W*2,H)); pair.paste(im.crop(crop)); pair.paste(Image.open(out/'panel-speaking.png').convert('RGB'),(W,0)); pair.save(out/'reference-and-native.png')
+    # Compare the visible board at the reference's native pixel scale. The
+    # surrounding shadow in the artwork is outside the standalone window.
+    measurements = json.loads((root/'design/approved/original-reference-20261107.measurements.json').read_text())
+    left, top, width, height = measurements['main_card_source_xywh']
+    with Image.open(out/'panel-speaking.png') as actual:
+        assert actual.size == (width, height), 'Reference and native board extents differ'
+        pair = Image.new('RGB',(2*width,height))
+        pair.paste(im.crop((left,top,left+width,top+height)), (0,0))
+        pair.paste(actual.convert('RGB'), (width,0))
+        pair.save(out/'reference-and-native.png')
     print('PASS real composited native windows:',len(receipt['scenes']))

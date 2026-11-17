@@ -4,13 +4,13 @@ import SaytileKit
 import SaytileVoiceUI
 
 enum SettingsPage: String, CaseIterable, Identifiable {
-    case archive, appearance, speech, models, cloud, input, storage, about
+    case archive, appearance, speech, models, cloud, input, storage, feedback, about
     var id: Self { self }
     var title: String { switch self {
-    case .archive: "语音档案"; case .appearance: "语音板外观"; case .speech: "麦克风"; case .models: "本地模型"; case .cloud: "云端服务"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .about: "关于"
+    case .archive: "语音档案"; case .appearance: "语音板外观"; case .speech: "麦克风"; case .models: "本地模型"; case .cloud: "云端服务"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .feedback: "用户反馈"; case .about: "关于"
     } }
     var symbol: String { switch self {
-    case .archive: "tray.full"; case .appearance: "rectangle.on.rectangle"; case .speech: "mic"; case .models: "cpu"; case .cloud: "cloud"; case .input: "keyboard"; case .storage: "internaldrive"; case .about: "info.circle"
+    case .archive: "tray.full"; case .appearance: "rectangle.on.rectangle"; case .speech: "mic"; case .models: "cpu"; case .cloud: "cloud"; case .input: "keyboard"; case .storage: "internaldrive"; case .feedback: "bubble.left"; case .about: "info.circle"
     } }
 }
 
@@ -77,7 +77,7 @@ struct SettingsView: View {
                     } else {
                         Text(page.title).font(WorkspaceStyle.title).accessibilityAddTraits(.isHeader)
                             .padding(.horizontal, 24).padding(.top, compact ? 15 : 25).padding(.bottom, 6)
-                        if let notice = model.notice, page != .speech || notice != model.panelCaptureDetail {
+                        if let notice = model.notice, page != .feedback, page != .speech || notice != model.panelCaptureDetail {
                             Text(notice).font(.callout).foregroundStyle(.secondary).textSelection(.enabled)
                                 .padding(.horizontal, 24).padding(.top, 6).accessibilityIdentifier("settings.notice")
                         }
@@ -99,6 +99,7 @@ struct SettingsView: View {
         case .cloud: cloud
         case .input: input
         case .storage: storage
+        case .feedback: FeedbackSettings(model: model.feedback)
         case .about: about
         }
     }
@@ -143,6 +144,10 @@ struct SettingsView: View {
                 if model.microphoneDenied { Button("打开系统设置…", action: model.openMicrophoneSettings) }
                 else { Text(model.microphoneLabel) }
             }
+            Toggle(isOn: Binding(get: { model.remembersStandby }, set: { model.setRemembersStandby($0) })) {
+                Text("重新打开时恢复待命")
+                Text("只在上次已开启收音时恢复。手动暂停或退出后，需要再次开启。")
+            }.accessibilityIdentifier("settings.rememberStandby")
         }
         if let detail = model.panelCaptureDetail {
             Section { Text(detail).textSelection(.enabled).accessibilityIdentifier("settings.captureDetail") }
@@ -225,6 +230,9 @@ struct SettingsView: View {
             Button(model.preparingCleanup ? "正在查找原音…" : "预览可清理的原音…") { Task { cleanup = await model.previewCleanup() } }.disabled(model.preparingCleanup)
             Text("只清理 30 天前已有转写文字、且未收藏的原音。没有转写的录音会保留。").font(.callout).foregroundStyle(.secondary)
         }
+        Section("iCloud 同步") {
+            LabeledContent("状态", value: model.privateArchiveStatus)
+        }
         Section { Button("在 Finder 中显示资料目录", action: model.revealData) }
     }
     @ViewBuilder private var about: some View {
@@ -237,7 +245,7 @@ struct SettingsView: View {
                 .disabled(!model.canCheckForUpdates)
                 .accessibilityIdentifier("settings.checkForUpdates")
             if model.updateConfigured {
-                Toggle("自动检查更新", isOn: Binding(get: { model.automaticUpdateChecks }, set: model.setAutomaticUpdateChecks))
+                Toggle("自动检查更新", isOn: Binding(get: { model.automaticUpdateChecks }, set: { model.setAutomaticUpdateChecks($0) }))
                     .accessibilityIdentifier("settings.automaticUpdates")
             }
             Text(model.updateStatus).font(.callout).foregroundStyle(.secondary)

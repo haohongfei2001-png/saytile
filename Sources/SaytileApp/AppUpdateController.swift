@@ -62,6 +62,7 @@ final class AppUpdateController: NSObject, SPUUpdaterDelegate, @preconcurrency S
     func feedURLString(for updater: SPUUpdater) -> String? { configuration?.feedURL.absoluteString }
     func allowedSystemProfileKeys(for updater: SPUUpdater) -> [String]? { [] }
     func updaterShouldDownloadReleaseNotes(_ updater: SPUUpdater) -> Bool { false }
+    func updaterWillRelaunchApplication(_ updater: SPUUpdater) { model?.expectsUpdateRelaunch = true }
 
     func updater(_ updater: SPUUpdater, shouldProceedWithUpdate item: SUAppcastItem, updateCheck: SPUUpdateCheck) throws {
         guard item.signingValidationStatus == .succeeded else {
@@ -89,6 +90,7 @@ final class AppUpdateController: NSObject, SPUUpdaterDelegate, @preconcurrency S
         model?.updateActionTitle = "检查更新…"
     }
     func updater(_ updater: SPUUpdater, didAbortWithError error: Error) {
+        model?.expectsUpdateRelaunch = false
         availableVersion = nil
         let code = (error as NSError).code
         if (error as NSError).domain == SUSparkleErrorDomain && code == 1001 {
