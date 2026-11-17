@@ -116,10 +116,14 @@ final class AXInputAccess: InputAccess {
         AXUIElementSetMessagingTimeout(system, 0.12)
         let root = AXUIElementCreateApplication(pid)
         AXUIElementSetMessagingTimeout(root, 0.12)
-        guard let focused = elementValue(system, kAXFocusedUIElementAttribute),
-              let window = elementValue(root, kAXFocusedWindowAttribute),
-              let owner = elementValue(focused, kAXWindowAttribute),
-              let isFocused = bool(focused, kAXFocusedAttribute) else { throw NativeInputError.unsupported }
+        let systemEditor = elementValue(system, kAXFocusedUIElementAttribute)
+        let focusedWindow = elementValue(root, kAXFocusedWindowAttribute)
+        let ownerWindow = systemEditor.flatMap { elementValue($0, kAXWindowAttribute) }
+        let focusFlag = systemEditor.flatMap { bool($0,kAXFocusedAttribute) }
+        print("OWNED_SYSTEM_AX", "editor", systemEditor != nil, "window", focusedWindow != nil,
+              "owner", ownerWindow != nil, "focused", String(describing: focusFlag))
+        guard let focused = systemEditor, let window = focusedWindow, let owner = ownerWindow,
+              let isFocused = focusFlag else { throw NativeInputError.unsupported }
         var actualPID: pid_t = 0
         guard AXUIElementGetPid(focused, &actualPID) == .success, actualPID == pid, isFocused,
               CFEqual(focused, previous.element), CFEqual(window, previous.window), CFEqual(window, owner),
