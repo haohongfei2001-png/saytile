@@ -6,3 +6,5 @@
 4. iCloud 需要 Apple 团队把 iCloud.app.saytile.archive 关联到既有 Mac、iPhone App ID，并提供匹配的开发签名与配置描述文件。之后用同一隔离 Apple 测试账号依次验证 Mac 上传、新 Mac 恢复、iPhone 回听。离线/模拟器证据不能更新真实云端状态。
 5. 反馈需要账户持有人登录已有 Cloudflare 账户。保持远端投递关闭，直到现有 Worker 的迁移、部署、合成 Saytile 工单在私有仓库的送达及删除均已验证。[反馈部署契约](../../FEEDBACK-REUSE.md)
 6. Nearpane 的宿主改动只在该仓库 PR #11。不要同步两款应用的真实档案、缓存、权限和凭据。
+
+当前个人体验入口是 `~/Applications/Saytile.app`。确认安装时读取 Info.plist 的 `SaytileSourceRevision` 和 release.json 即可，无需重新安装。下一轮优先用固定 38.8 秒公开长句检验高负载时 decoder 无新字的时段。有可量化改善后再运行固定 15 条和 420 条回归。Mac 合盖期间维持物理麦克风 NOT_RUN。真实云端、私有反馈与官网发包分别推进，账户操作集中在第 4、5 项。

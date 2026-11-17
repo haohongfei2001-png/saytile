@@ -1,5 +1,7 @@
 # Feedback core reuse
 
+0.20（533）整合状态见[本轮交付](delivery/saytile-next-release/RELEASE.md)。当前个人内测已安装可离线保存的反馈客户端，远端发送在部署前关闭。下文保留 0.19 及其前置方案的原始验收记录。
+
 The six files in `Sources/RiftletFeedback` and six inherited XCTest files in `tests/RiftletFeedbackTests` are reused from the same owner’s Riftlet repository, at `b5a412f6d37378b7cfef56e2f1e9524cc9b1ac6e`, under the user’s explicit request to share the existing feedback system. The upstream repository does not contain a blanket LICENSE; this is owner-authorized reuse, not a claim of an independent open-source grant.
 
 The product adapter adds an optional closed product discriminator (`riftlet`, `saytile`, `nearpane`) to the frozen envelope. Absent product preserves legacy encoding byte for byte. Saytile must always supply `saytile`; separate Application Support directories and Keychain namespaces isolate drafts, outboxes and capabilities. No ASR archive, transcription, recording or raw diagnostic log is inspected by this module.

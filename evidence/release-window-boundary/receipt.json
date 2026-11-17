@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "product_source": "118f3e4e32095f75f260c8e3e6d5189f84a82736",
+  "baseline_source": "2a01a3f1c0b1b419a09a00c6cc987580f2716503",
+  "host": "GitHub disposable macOS 26 with AX-approved probe; two test-owned native AppKit processes per scenario",
+  "comparison_job": "https://github.com/haohongfei2001-png/saytile/actions/runs/44055574017/job/133943933292",
+  "comparison_harness_head": "e9c55235b75fd41ddb7a495b573b332644b971b4",
+  "original_job": "https://github.com/haohongfei2001-png/saytile/actions/runs/44051225886/job/133929253182",
+  "results": [
+    {
+      "scenario": "527-original",
+      "result": "FAIL",
+      "cases": {
+        "PASS": 19,
+        "FAIL": 1,
+        "NOT_RUN": 1
+      },
+      "raw": {
+        "527-original-report.json": "7a76c045a052fa9d9987b7d1ef13678ed6f3c7ee750184731555a15745b13469",
+        "527-original-source-binding.json": "ceb325e6d575cab70bbf9f117abb3ad4a14555081cdd26b5b5db3b0d7640296d"
+      }
+    },
+    {
+      "scenario": "527-held-pointer",
+      "result": "FAIL",
+      "cases": {
+        "PASS": 22,
+        "FAIL": 2,
+        "NOT_RUN": 1
+      },
+      "raw": {
+        "527-held-pointer-report.json": "f03247aaf1234ec13f14ddddd39980e18201b842dd78f258ddb3a144e7a40480",
+        "527-held-pointer-source-binding.json": "9ac379691e3595683f09868fde6a8f54ff74aca0166a4c4fd5694fb5804eb75f"
+      }
+    },
+    {
+      "scenario": "candidate-first",
+      "result": "PASS",
+      "cases": {
+        "PASS": 24,
+        "NOT_RUN": 1
+      },
+      "raw": {
+        "candidate-first-report.json": "e6d3d3779f4e0775e176d86ab7bec2340ee00a4ff54f7971af448b67b93ba868",
+        "candidate-first-source-binding.json": "312e4227c01df44afaa6ea063264346bce0462273e154eb05a8394cd1b864bec"
+      }
+    },
+    {
+      "scenario": "candidate-second",
+      "result": "PASS",
+      "cases": {
+        "PASS": 24,
+        "NOT_RUN": 1
+      },
+      "raw": {
+        "candidate-second-report.json": "1036a1ca1e94981568e62131f95a41e6a202ba1c295c869aef221e3247d69604",
+        "candidate-second-source-binding.json": "312e4227c01df44afaa6ea063264346bce0462273e154eb05a8394cd1b864bec"
+      }
+    }
+  ],
+  "reproduction": "Build 527 passed the no-write assertion with a held pointing-device guard, then failed to displace the same overlapping window after that guard cleared. A test seam provides the guard reading; all window IDs, native AX setters and readbacks are real. No mouse event was posted. The original intermittent CI report did not measure which precondition rejected its first write.",
+  "product_change": "A preflight that issued neither a position nor a size setter leaves eligibility for future observations. A setter actually issued with partial or unreadable results is still held against repeat mutation. The same distinction applies to restoration.",
+  "scope": "The hosted test excludes real user windows. Native fullscreen was not requested in these geometry trials. Each raw report separately preserves the prior platform observation about AppKit minimum size normalization."
+}

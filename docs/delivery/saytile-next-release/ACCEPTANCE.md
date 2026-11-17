@@ -12,3 +12,14 @@
 iPhone 读端在 Xcode 26.6 Simulator 的两项完整端到端 UI 测试通过。两个独立缓存、按自然段搜索与回听次序等 16 个磁盘检查通过。新 Mac 离线恢复了 2 条记录、3 个编辑版本、1 份草稿和 2 份合成 WAV，共 6,488 字节，解码与校验和一致。真实 iCloud 传输了 0 条记录、0 字节。Mac 自动备份、新 Mac 从 Apple 云恢复、iPhone 真机私有库回听均为 BLOCKED。[隔离恢复收据](../../../evidence/release-private-archive/receipt.json)
 
 Nearpane 5.15（66）独立宿主的 436 项原生、8 项依赖测试通过，公开中文录音 15.50 秒内有 17 次真实 AppKit 可见更新。这个样本首显为 4.322 秒。插件和宿主使用各自档案及授权。其原生 CI 通过，预览网站检查在目标分支与 PR 均失败，Nearpane 公证未做。[Nearpane 机器验收](https://github.com/haohongfei2001-png/nearpane/actions/runs/44048498070)
+
+## 533 产品源码的最终验收
+
+- **PASS**。七项 GitHub 检查全部成功。Xcode 的 Swift Testing 559/559，XCTest 30/30，另有 AppModel 212/212 项及反馈控制器 14/14 项。iPhone Air iOS 26.5 Simulator 2/2，无跳过。源代码与本机签名二进制两者均已绑定。[七项检查](../../../evidence/internal-0.20-533/pr-at-product.json) · [iOS 结果](../../../evidence/internal-0.20-533/reader/summary.json)
+- **PASS**。最终签名包的原生输入板和档案共 56 次 AXPress、7 次边缘点击、43 张常规截图及 3 张参考尺寸截图。真实选区、回听、边缘点击、星标重启、点击编辑与撤销、连续段落和复制通过。另测 11 次外观菜单选择及反馈草稿与回复丢失。截图由合成档案以及授权的公开人声产生。[原生控件](../../../evidence/internal-0.20-533/native-ui/manifest.json) · [档案原图](../../../evidence/internal-0.20-533/native-ui/archive.png) · [外观](../../../evidence/internal-0.20-533/appearance/receipt.json) · [反馈](../../../evidence/internal-0.20-533/feedback/receipt.json)
+- **PASS**。旧 0.12 和 0.19 各完成旧→533→旧→533。合成原音、用户编辑、草稿、段落字段、收藏、设置、模型缓存与资料身份检查通过。真实 Sparkle 安装器拒绝损坏包，将有效包原位替换并正常重启。设置中的「检查更新」读取真实公开签名 feed，当前列表为空。系统原生更新对话框的人工点击 NOT_RUN。[497](../../../evidence/internal-0.20-533/rollback-497.json) · [0.12](../../../evidence/internal-0.20-533/rollback-012.json) · [更新收据](../../../evidence/internal-0.20-533/sparkle/receipt.json)
+- **PASS**。同一 533 源码在托管 Mac 使用真实 AppKit、WKWebView 和 Chrome 完成所有权、选区、增量、焦点中断与零自动发送回归。没有测试私人聊天窗口。[原生前台作业](https://github.com/haohongfei2001-png/saytile/actions/runs/44056592233/job/133947444986)
+- **FAIL**。有竞争负载的长句仍出现超过两秒无有效新字。**NOT_RUN** 项包括合盖的内置麦克风、个人口音、8 GB 设备、整机功耗、物理多显示器重插及本次边界作业中的原生全屏。[识别分项](QUALITY.md)
+- **BLOCKED**。真实私有 CloudKit 跨设备恢复与反馈实际送达私有仓库仍缺外部账户条件。真实远端已传输的测试档案为零。按授权范围没有调用付费语音或文字服务。[最少账户事项](HANDOFF.md)
+
+在 533 的真实 WindowServer 补测了 22 个场景，采集范围限定为隔离候选的两扇自有窗口；覆盖首启、权限异常、损坏模型、明暗外观、紧凑档案、模型与服务设置。两侧图均使用 688×468 个原像素展示同一段文字，左为批准原图，右为签名 533。当前固定字号和按钮比概念图小，可选边框在截图中开启。界面实测通过不等于用户已认可这些视觉差异。系统降低透明度的材质参数通过 Swift 测试，未修改用户的系统偏好。[同尺度对照](../../../evidence/internal-0.20-533/composited/reference-and-native.png) · [22 个场景](../../../evidence/internal-0.20-533/composited/receipt.json) · [深色紧凑档案](../../../evidence/internal-0.20-533/composited/archive-detail-compact-dark.png)

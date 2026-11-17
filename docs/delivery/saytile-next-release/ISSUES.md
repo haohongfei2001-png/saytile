@@ -7,8 +7,16 @@
 
 分发脚本按 Sparkle 2.10.1 的嵌套签名顺序单独处理两个 XPC 和两个帮助程序，下载进程保留其原有权限。验证时分别检查团队、Hardened Runtime 和安全时间戳。[Sparkle 签名说明](https://sparkle-project.org/documentation/sandboxing/#code-signing)
 
-CI 的 Xcode 26.6 在设置页生成 actor 隔离的 Bool 方法引用包装时触发编译器 SmallVector 崩溃。使用明确的 SwiftUI Binding setter 闭包，并把原有全量 Swift 测试及 localhost 协议服务安排在同一个独立作业。原有测试和断言均保留。Chrome 首次写入时真实 AX 未能稳定读回，两次通知之间第一次观察缺失，现场结果为单次已写入、状态未确认；独立复核中。
+CI 的 Xcode 26.6 在设置页生成 actor 隔离的 Bool 方法引用包装时触发编译器 SmallVector 崩溃。使用明确的 SwiftUI Binding setter 闭包，并把原有全量 Swift 测试及 localhost 协议服务安排在同一个独立作业。原有测试和断言均保留。Chrome 首次写入时真实 AX 未能稳定读回，两次通知之间第一次观察缺失，现场结果为单次已写入、状态未确认；随后已复现并修复，原始失败仍留在收据。
 
 ## 515 的退出故障
 
 GitHub native 作业在合法隔离探针结束时超时。签名 515 在本机同样超时。采样显示主线程停在 Swift Task 内的 NSApplication.terminate 与 AppKit 的嵌套事件循环，等待的主队列任务无法完成。程序主动退出现在先异步保存、关闭录音和清理窗口，再调用 AppKit。外部退出请求继续获得 AppKit 延迟答复，草稿写入失败仍拒绝退出。使用同一个隔离探针和 Sparkle 安装器复验。打包时对照已签名 497 的资源，避免 iconutil 在无窗口环境下产生不同的图标容器。
+
+## 外部输入与窗口边界
+
+Chrome 在一次写入成功后，偶发不再回答应用级焦点查询。若系统可再次独立证实同一 PID、窗口和输入元素，且文本、光标及 UTF-16 范围符合原有条件，允许确认这次已经发生的写入。证据不足仍返回未确认，取消、窗口变化或用户编辑均不可重发。两份真实 Chrome 记录均未触发发送或按回车。[根因对照](../../../evidence/release-chrome-foreground/receipt.json) · [533 焦点中断记录](../../../evidence/internal-0.20-533/foreground/chrome-focus-timeout.log)
+
+应用窗口正在拖动时，本应暂缓避让。527 把尚未发出任何几何写入与已写入但被拒绝合成了同一种返回值，松开后面对同一窗口仍不再排开。现在分别记录两种结果：前者仅在下一次正常观察、再次确认归属后处理，后者维持原有禁止重试约束。旧版同宿主确定性复现，修复版两次各通过 24 项。533 完整原生 CI 同样通过 24 项，原生全屏现场未验。[对照记录](../../../evidence/release-window-boundary/receipt.json) · [533 记录](../../../evidence/internal-0.20-533/panel-boundary.json)
+
+527 的两个合成识别参数在五秒首次 SQLite 预览断言超时，原有日志无法唯一确定是 CPU 或磁盘竞争。未改动的二进制独立复测三轮均通过。把该限时套件与既有同类套件独立调度，保留原始阈值和断言；533 在完整 Xcode CI 跑完全部测试。[隔离复核](../../../evidence/internal-0.20-533/prior-timed-test.json)

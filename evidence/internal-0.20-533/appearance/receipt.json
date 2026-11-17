@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "checks": {
+    "native_process_completed": true,
+    "appearance_contract": true,
+    "real_menu_selections": true,
+    "border_action": true,
+    "apply_size_action": true,
+    "reset_action": true,
+    "all_native_snapshots": true,
+    "no_candidate_activation": true
+  },
+  "source": "7c0df4728b113c17297a0cded20472de4ffc3337",
+  "source_dirty": false,
+  "version": "0.20",
+  "build": "533",
+  "binary_sha256": "d711d1cab97d0ff20e23129269b8d72989db2e5258f659d49276f77cf9ab4737",
+  "images": {
+    "appearance-blue.png": "ae62338b26d43844f82ff654b6b5c160a8499d9d5437e64097f0af49da716e13",
+    "appearance-default.png": "88859fb5a5bf791e005e43452e51d7417e7c4efebe6bdda3536e5e132b914874",
+    "appearance-no-border.png": "76f70a9bc41498ba5359aa16390b23b7f478e10b400fa99ea3b37e66ed9a0728",
+    "appearance-opacity-dense.png": "e385570381a33c7e59d398ad1397d57f8536ae02e5c9ae0359983043b8a0c3ec",
+    "appearance-opacity-mist.png": "0d4b08551a42a1054fb055aceb80e3be9d2d1964fff0e4d9556f03eec6e3b3a5",
+    "appearance-opacity-opaque.png": "af0992959200229049618bbc194c68131f2317e6cc183357c1b4a978dd530d4b",
+    "appearance-restored.png": "88859fb5a5bf791e005e43452e51d7417e7c4efebe6bdda3536e5e132b914874",
+    "appearance-settings-custom.png": "48f8bc57880bd574560f76d050ba20127c83d598e37534faccdc23435798adc1",
+    "appearance-settings-default.png": "325adf40d15da9b4d74a3fb2a2b8c7baa7aee0c6c1716483bef695cb203219b6",
+    "appearance-settings-restored.png": "325adf40d15da9b4d74a3fb2a2b8c7baa7aee0c6c1716483bef695cb203219b6",
+    "appearance-type-extraLarge.png": "cf6eaff0e8fe1aac28c5b52c1b87b97ca4998e37d2bb1873f402f439f83c3be0",
+    "appearance-type-large.png": "52902b8de80a8673c2e10dec83fe356795978e546b8a53f5e94bf44afb2d8406",
+    "appearance-type-small.png": "2cc8beb6c37b2c649788d43ff2c4537497e58e5b896efd31b2d3afd7361f77bf",
+    "appearance-warm-graphite.png": "711a1df0072c15585a51356853f7455e1c8f12d8163d2fd17d833c2fa9a1706f",
+    "timeline-appearance-panel.png": "54af34fade4b44fe871acebcc301de614e258066bc1d744441fb5555836000fc",
+    "timeline-appearance-settings.png": "325adf40d15da9b4d74a3fb2a2b8c7baa7aee0c6c1716483bef695cb203219b6"
+  },
+  "scope": "Production SettingsView/InputPanelWindowView in owned nonactivating native windows; 11 picker selections through AXPress and AppKit menu actions; resets, border, font and edit/selection protection; synthetic capture boundary with zero starts and zero cloud calls. Size picker and apply button action only; actual AppDelegate window resizing is a separate acceptance. Images use AppKit cacheDisplay; backdrop blur composition is separately covered by --glass-only."
+}
