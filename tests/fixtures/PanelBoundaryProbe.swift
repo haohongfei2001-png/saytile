@@ -1,5 +1,6 @@
 import AppKit
 import ApplicationServices
+import os
 import SaytileKit
 
 /// Compile the production bridge, worker, controller and VoicePanel; the only
@@ -164,7 +165,25 @@ private struct Failed: Error { let message: String }
             _ = worker.reconcile(request(), cancellation: cancelled)
             try check("cancelled plan writes nothing", PanelArrangementWorker.same(try snapshot().frame, original))
             let bound = try snapshot()
-            try check("bridge cancelled before write refuses", access.setFrame(bound, from: bound.frame, to: safeUserFrame, shouldProceed: { false }) == nil)
+            let cancelledWrite = access.setFrame(bound, from: bound.frame, to: safeUserFrame, shouldProceed: { false })
+            try check("bridge cancelled before write refuses", cancelledWrite == .notIssued)
+            // Only the mouse-state reading is injected. No synthetic mouse or
+            // keyboard event is posted. All target identity, geometry, writes
+            // and readback below use the real production AX bridge.
+            let held = OSAllocatedUnfairLock(initialState: true)
+            let gatedWorker = PanelArrangementWorker(access: PanelWindowAccess(allowedPIDs: [pid], mouseHeld: { held.withLock { $0 } }))
+            let deferred = gatedWorker.reconcile(request(), cancellation: .init())
+            try check("held pointer defers first boundary write", deferred.adjusted == 0 && deferred.blocked > 0 &&
+                      PanelArrangementWorker.same(try snapshot().frame, original))
+            held.withLock { $0 = false }
+            let resumed = gatedWorker.reconcile(request(), cancellation: .init())
+            try check("unchanged overlap resolves after pointer release", resumed.adjusted == 1 && !(try snapshot()).frame.intersects(panel))
+            held.withLock { $0 = true }
+            let heldRestore = gatedWorker.reconcile(request(reserve: false), cancellation: .init())
+            try check("held pointer defers restoration", heldRestore.blocked > 0 && !(try snapshot()).frame.intersects(panel))
+            held.withLock { $0 = false }
+            _ = gatedWorker.reconcile(request(reserve: false), cancellation: .init())
+            try check("unchanged owned frame restores after pointer release", PanelArrangementWorker.same(try snapshot().frame, original))
             _ = worker.reconcile(request(), cancellation: .init())
             _ = worker.reconcile(request(shown: false), cancellation: .init())
             try check("hidden panel releases owned frame", PanelArrangementWorker.same(try snapshot().frame, original))

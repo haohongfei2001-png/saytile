@@ -42,6 +42,7 @@ final class PanelArrangementWorker: @unchecked Sendable {
     private var leases: [String: Lease] = [:]
     private let access: PanelWindowAccess
     init(allowedPIDs: Set<pid_t>? = nil) { access = PanelWindowAccess(allowedPIDs: allowedPIDs) }
+    init(access: PanelWindowAccess) { self.access = access }
     private var refused: [String: (CGRect, CGRect)] = [:]
     private var unresolvedRestores: Set<String> = []
 
@@ -80,11 +81,15 @@ final class PanelArrangementWorker: @unchecked Sendable {
             let stillRequired = reserving && lease.original.intersects(request.panel.insetBy(dx: -8, dy: -8))
             if !stillRequired {
                 guard !unresolvedRestores.contains(key) else { result.blocked += 1; continue }
-                if let actual = access.setFrame(current, from: lease.applied, to: lease.original,
-                                               shouldProceed: { !cancellation.isCancelled }) {
+                let write = access.setFrame(current, from: lease.applied, to: lease.original,
+                                            shouldProceed: { !cancellation.isCancelled })
+                switch write {
+                case .notIssued:
+                    if !cancellation.isCancelled { result.blocked += 1 }
+                case .issued(let actual?):
                     if Self.same(actual, lease.original) { leases.removeValue(forKey: key) }
                     else { leases[key]?.applied = actual; unresolvedRestores.insert(key); result.blocked += 1 }
-                } else if !cancellation.isCancelled {
+                case .issued(nil):
                     unresolvedRestores.insert(key); result.blocked += 1
                 }
             }
@@ -101,8 +106,15 @@ final class PanelArrangementWorker: @unchecked Sendable {
                 guard let target = PanelCoexistenceGeometry.ordinaryWindow(frame, excluding: request.panel,
                         visibleFrame: request.visible) else { result.blocked += 1; continue }
                 guard !Self.same(frame, target) else { continue }
-                let actual = access.setFrame(snapshot, from: frame, to: target,
-                                             shouldProceed: { !cancellation.isCancelled })
+                let write = access.setFrame(snapshot, from: frame, to: target,
+                                            shouldProceed: { !cancellation.isCancelled })
+                // A transient AX/WindowServer disagreement, active drag or
+                // cancellation before a setter is not a refusal by the window.
+                // A later ordinary observation must establish ownership anew.
+                guard case .issued(let actual) = write else {
+                    if !cancellation.isCancelled { result.blocked += 1 }
+                    continue
+                }
                 if let actual, !Self.same(frame, actual) {
                     let original = leases[snapshot.stableKey]?.original ?? frame
                     leases[snapshot.stableKey] = Lease(window: snapshot, original: original, applied: actual)
