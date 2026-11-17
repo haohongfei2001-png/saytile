@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "product_source": "7c0df4728b113c17297a0cded20472de4ffc3337",
+  "build": 533,
+  "test_commits": [
+    "64e5bc9f2958043e6df2db6334c1e8b72da9d9e0",
+    "c4957b57b8eed4b57997ef29d7dcd27a4814f124"
+  ],
+  "native_trials": [
+    {
+      "name": "original",
+      "source_head": "7c0df4728b113c17297a0cded20472de4ffc3337",
+      "job": "https://github.com/haohongfei2001-png/saytile/actions/runs/44062756188/job/133968583396",
+      "status": "FAIL",
+      "cases": {
+        "PASS": 30,
+        "FAIL": 2
+      }
+    },
+    {
+      "name": "completed-space",
+      "source_head": "6f694f968e4204e7842e6e31f612ec0b842cbc15",
+      "job": "https://github.com/haohongfei2001-png/saytile/actions/runs/44066188009/job/133980353480",
+      "status": "FAIL",
+      "cases": {
+        "PASS": 35,
+        "FAIL": 1
+      }
+    },
+    {
+      "name": "final",
+      "source_head": "691d47e38f4185e40d5bc524b5cbbe00fca7b9e8",
+      "job": "https://github.com/haohongfei2001-png/saytile/actions/runs/44067255836/job/133984019973",
+      "status": "BLOCKED",
+      "cases": {
+        "PASS": 38,
+        "BLOCKED": 1
+      }
+    }
+  ],
+  "release_scope": "The completed-Space and final runs each verified that only the two fixture source files differed from build 533. The production app, signing configuration and production UI source were unchanged.",
+  "conclusions": {
+    "panel": "PASS. Actual pre-entry desktop anchor [804,637,220,100] fit within the ordinary desktop visibleFrame [0,58,1024,679]. After native didExitFullScreen and independently stable AX/WindowServer geometry, panelOverFullscreen was false and the panel exactly recovered its prior location.",
+    "toolbar": "PASS. A real toolbar control intersected the panel initially. The panel moved clear of it without resizing the fullscreen window.",
+    "window_changed_by_system": "PASS. The owned test window had been placed at [221,325,615,400]. After the native didExitFullScreen notification it returned [409,285,615,452]. With Saytile stopped, the same window from the same starting frame independently returned the identical geometry. Saytile left this system placement intact.",
+    "positive_restore": "PASS when the ordinary window remained at an owned placement (including deferred preflight, return and mode-off). BLOCKED on this runner for a full-screen round trip which preserves the owned frame: both a toolbar and a plain native window returned the system-modified geometry. The test retains the original 0.25-point comparison on hosts meeting that condition.",
+    "github": "The final job exited 77 and therefore GitHub records a non-success status. The native machine verdict was 38 PASS, 0 FAIL, 1 BLOCKED. Original failed and intermediate raw reports retained."
+  }
+}
