@@ -144,7 +144,7 @@ struct SettingsView: View {
                 if model.microphoneDenied { Button("打开系统设置…", action: model.openMicrophoneSettings) }
                 else { Text(model.microphoneLabel) }
             }
-            Toggle(isOn: Binding(get: { model.remembersStandby }, set: model.setRemembersStandby)) {
+            Toggle(isOn: Binding(get: { model.remembersStandby }, set: { model.setRemembersStandby($0) })) {
                 Text("重新打开时恢复待命")
                 Text("只在上次已开启收音时恢复。手动暂停或退出后，需要再次开启。")
             }.accessibilityIdentifier("settings.rememberStandby")
@@ -245,7 +245,7 @@ struct SettingsView: View {
                 .disabled(!model.canCheckForUpdates)
                 .accessibilityIdentifier("settings.checkForUpdates")
             if model.updateConfigured {
-                Toggle("自动检查更新", isOn: Binding(get: { model.automaticUpdateChecks }, set: model.setAutomaticUpdateChecks))
+                Toggle("自动检查更新", isOn: Binding(get: { model.automaticUpdateChecks }, set: { model.setAutomaticUpdateChecks($0) }))
                     .accessibilityIdentifier("settings.automaticUpdates")
             }
             Text(model.updateStatus).font(.callout).foregroundStyle(.secondary)
