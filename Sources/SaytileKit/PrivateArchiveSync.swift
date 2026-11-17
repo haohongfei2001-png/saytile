@@ -13,10 +13,19 @@ public struct PrivateArchiveSync: Sendable {
     let remote: any PrivateArchiveTransport
 
     public static func isDevelopmentFixture(_ directory: URL) -> Bool {
-        let location = directory.resolvingSymlinksInPath().standardizedFileURL
-        let root = URL(fileURLWithPath: "/private/tmp").standardizedFileURL
-        let relative = location.pathComponents.dropFirst(root.pathComponents.count)
-        return location.pathComponents.starts(with: root.pathComponents) && relative.first?.hasPrefix("saytile-icloud-fixture-") == true
+        let components = directory.path.split(separator: "/")
+        let relative: ArraySlice<Substring>
+        if components.starts(with: ["private", "tmp"]) { relative = components.dropFirst(2) }
+        else if components.first == "tmp" { relative = components.dropFirst() }
+        else { return false }
+        guard relative.first?.hasPrefix("saytile-icloud-fixture-") == true else { return false }
+        var current = URL(fileURLWithPath: "/private/tmp", isDirectory: true)
+        for component in relative {
+            guard component != ".", component != ".." else { return false }
+            current.appendPathComponent(String(component), isDirectory: true)
+            do { try StorePath.rejectSymbolicLink(current) } catch { return false }
+        }
+        return true
     }
 
     public static func configured(for store: SaytileStore, developmentFixture: Bool = false) -> Self? {
