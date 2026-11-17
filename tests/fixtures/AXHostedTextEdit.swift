@@ -160,6 +160,10 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
                 throw TargetError.mismatch("independent DOM " + trace.stage)
             }
         }
+        // The independent DOM probe launches Node and attaches a short-lived
+        // DevTools session. Complete fixture setup before measuring a quiet AX
+        // binding, so the probe cannot stall its notification run loop.
+        try checkDOM(original, caret: 7)
         do {
             try await bindOwnedField(coordinator, trace: trace, original: original, caret: 7, pid: pid, expectingWeb: browser) { snapshot in
                 browser || matchesTextEditDocument(snapshot.pageIdentity, expected: doc)
@@ -180,7 +184,6 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         }
         func matches(_ text:String) throws -> Bool { attribute(try select().element,kAXValueAttribute) as? String==text }
         let firstField = "PREFIX|你好😀SUFFIX", finalField = "PREFIX|你好😀，接着说SUFFIX"
-        try checkDOM(original, caret: 7)
         trace.stage = "first"
         let first = await insert(r), firstMatches = try matches(firstField)
         print("OWNED_RESULT", trace.stage, first, "AX_exact", firstMatches, "writes", trace.writes)
