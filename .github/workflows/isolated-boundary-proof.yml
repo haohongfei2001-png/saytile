@@ -11,20 +11,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 7c0df4728b113c17297a0cded20472de4ffc3337
+          ref: 6f694f968e4204e7842e6e31f612ec0b842cbc15
+          fetch-depth: 2
       - name: Run one native fullscreen entry and exit on the final product sources
         env:
           SAYTILE_PANEL_NATIVE_FULLSCREEN: '1'
           SAYTILE_PANEL_EVIDENCE: /private/tmp/saytile-533-native-fullscreen
         run: |
-          test "$(git rev-parse HEAD)" = 7c0df4728b113c17297a0cded20472de4ffc3337
+          test "$(git rev-parse HEAD^)" = 7c0df4728b113c17297a0cded20472de4ffc3337
+          test "$(git diff --name-only HEAD^..HEAD)" = "$(printf '%s\n' tests/fixtures/PanelBoundaryProbe.swift tests/fixtures/PanelBoundaryTarget.swift)"
           swift build --scratch-path "$RUNNER_TEMP/fullscreen-build"
           export SAYTILE_PANEL_PRODUCTS="$(swift build --scratch-path "$RUNNER_TEMP/fullscreen-build" --show-bin-path)"
           scripts/test-panel-boundary.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: saytile-533-native-fullscreen
+          name: saytile-533-fullscreen-transition-proof
           path: |
             /private/tmp/saytile-533-native-fullscreen/report.json
             /private/tmp/saytile-533-native-fullscreen/source-binding.json
