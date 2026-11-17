@@ -1,0 +1,45 @@
+name: Verify owned Chrome after AX timeout
+on:
+  push:
+    branches: [codex/saytile-chrome-focus-proof-20261117]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ordinary write and interrupted application-focus reply
+        env:
+          SAYTILE_HOSTED_TARGETS: '1'
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,runpy,subprocess
+          base=pathlib.Path(os.environ['RUNNER_TEMP'])/'owned-chrome'
+          base.mkdir()
+          run=runpy.run_path('scripts/test-input-native.py')
+          flags=run['production_flags']()
+          exe=base/'probe'
+          subprocess.run(['swiftc','-parse-as-library','-swift-version','6','-I','Sources/CSQLite',
+                          *flags,'tests/fixtures/AXOwnedFieldReady.swift','tests/fixtures/AXHostedTextEdit.swift','-o',exe],check=True)
+          (base/'head.txt').write_text(subprocess.check_output(['git','rev-parse','HEAD'],text=True))
+          failed=False
+          for name,args in [('normal',[]),('interrupted',['--interrupt-focus-read'])]:
+              with (base/(name+'.log')).open('w') as logfile:
+                  result=subprocess.run([exe,'--chrome',*args],stdout=logfile,stderr=subprocess.STDOUT,timeout=90)
+              print(name,result.returncode,flush=True)
+              failed |= result.returncode != 0
+          if failed: raise SystemExit(1)
+          PY
+      - name: Check all input-policy and coordinator safety regressions
+        if: always()
+        run: swift test --scratch-path /tmp/saytile-rc-input/build --filter Input
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chrome-focus-readback
+          path: |
+            ${{ runner.temp }}/owned-chrome/*.log
+            ${{ runner.temp }}/owned-chrome/head.txt
+          retention-days: 7
