@@ -112,6 +112,7 @@ private final class BoundaryWindow: NSWindow {
                 window.setFrame(CGRect(x: values[0], y: values[1], width: values[2], height: values[3]), display: true)
             }
         case "strictMinimum": window.strictMinimum = command["enabled"] as? Bool ?? false
+        case "plainDocument": window.toolbar = nil
         case "minimum":
             if let values = command["size"] as? [Double], values.count == 2 { window.minSize = CGSize(width: values[0], height: values[1]) }
         case "hide":

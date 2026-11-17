@@ -363,8 +363,9 @@ private struct Failed: Error { let message: String }
                     "leased": values(managedBeforeFullscreen.frame), "returned": values(returned.frame), "final": values(final.frame),
                     "restorationBlocked": restored.blocked, "fullscreenDetected": restored.fullscreen,
                     "sameTargetWindow": returned.windowID == managedBeforeFullscreen.windowID && final.windowID == returned.windowID])
-                try check("full-screen roundtrip keeps original restore ownership", PanelArrangementWorker.same(final.frame, original))
-                if !PanelArrangementWorker.same(returned.frame, managedBeforeFullscreen.frame) {
+                if PanelArrangementWorker.same(returned.frame, managedBeforeFullscreen.frame) {
+                    try check("full-screen roundtrip keeps original restore ownership", PanelArrangementWorker.same(final.frame, original))
+                } else {
                     // Same fixture, initial outer frame, toolbar, display and two
                     // native Space transitions, without a controller or boundary
                     // worker. Observe what AppKit itself does to the outer frame.
@@ -377,6 +378,33 @@ private struct Failed: Error { let message: String }
                         "controlStart": values(controlStart.frame), "controlExit": values(controlExit.frame),
                         "productExit": values(returned.frame),
                         "systemReturnsIdenticalFrame": PanelArrangementWorker.same(controlExit.frame, returned.frame)])
+                    try check("a system-changed target is not overwritten after fullscreen",
+                              PanelArrangementWorker.same(controlStart.frame, managedBeforeFullscreen.frame) &&
+                              PanelArrangementWorker.same(controlExit.frame, returned.frame) &&
+                              PanelArrangementWorker.same(final.frame, returned.frame))
+                    // Exercise the complementary owned case with a plain AppKit
+                    // window when the system preserves its leased outer frame.
+                    _ = try await command("plainDocument")
+                    _ = try await command("frame", frame: original)
+                    let plainWorker = PanelArrangementWorker(allowedPIDs: [pid])
+                    let acquired = plainWorker.reconcile(request(), cancellation: .init())
+                    let plainLease = try snapshot()
+                    try check("plain document has an owned boundary before fullscreen",
+                              acquired.adjusted == 1 && !plainLease.frame.intersects(panel))
+                    _ = try await toggleFullscreen(to: true)
+                    _ = plainWorker.reconcile(request(), cancellation: .init())
+                    let plainExit = try await toggleFullscreen(to: false)
+                    _ = plainWorker.reconcile(request(reserve: false), cancellation: .init())
+                    let plainFinal = try snapshot()
+                    platformObservations.append(["name": "plain document ownership roundtrip", "original": values(original),
+                        "leased": values(plainLease.frame), "returned": values(plainExit.frame), "final": values(plainFinal.frame)])
+                    if PanelArrangementWorker.same(plainExit.frame, plainLease.frame) {
+                        try check("full-screen roundtrip keeps original restore ownership", PanelArrangementWorker.same(plainFinal.frame, original))
+                    } else {
+                        try check("system-changed plain window remains untouched", PanelArrangementWorker.same(plainFinal.frame, plainExit.frame))
+                        tests.append(["name": "full-screen roundtrip keeps original restore ownership", "status": "BLOCKED",
+                            "note": "Neither native fixture returned the geometry Saytile leased. The ordinary owned-window restore is covered independently."])
+                    }
                 }
             } else { tests.append(["name": "native fullscreen", "status": "NOT_RUN", "note": "Requires explicit isolated fixture GUI run flag; not substituted by full-screen-sized ordinary frame."]) }
         } catch { errorText = String(describing: error) }
