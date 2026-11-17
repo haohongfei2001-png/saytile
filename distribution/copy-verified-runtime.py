@@ -25,3 +25,12 @@ for relative in ['Helpers/SaytileSherpa', 'Helpers/SaytileModelWorker', 'Framewo
     target = destination / 'Contents' / relative
     target.parent.mkdir(exist_ok=True)
     subprocess.run(['ditto', source / 'Contents' / relative, target], check=True)
+
+# iconutil and the headless PNG encoder can create different ICNS containers.
+# Keep the installed approved native artwork byte-for-byte when its inputs match.
+brand_inputs = ['packaging/brand/SaytilePlate.png', 'scripts/encode-iconset.py']
+if subprocess.run(['git', '-C', repo, 'diff', '--quiet', baseline, '--', *brand_inputs]).returncode == 0:
+    icon = source / 'Contents/Resources/Saytile.icns'
+    if hashlib.sha256(icon.read_bytes()).hexdigest() != '65f50b1645187adbe06540ef8ea884b4abbfa650b435eaf62d4b0c1f946cf166':
+        sys.exit('Unexpected approved native app icon')
+    subprocess.run(['ditto', icon, destination / 'Contents/Resources/Saytile.icns'], check=True)

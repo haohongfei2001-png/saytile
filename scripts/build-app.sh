@@ -68,7 +68,7 @@ cp packaging/update-channels.json "$bundle/Contents/Resources/UpdateChannels.jso
 python3 scripts/configure-update-feed.py "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :SaytileSourceRevision string $(git rev-parse HEAD)" "$bundle/Contents/Info.plist"
 SAYTILE_SOURCE_DIRTY=false
-if ! git diff --quiet HEAD -- Sources Package.swift native/LocalASR packaging scripts/build-app.sh scripts/build-local-runtime.sh scripts/prepare-local-runtime.sh; then SAYTILE_SOURCE_DIRTY=true; fi
+if ! git diff --quiet HEAD -- Sources Package.swift native/LocalASR packaging scripts/build-app.sh scripts/build-local-runtime.sh scripts/prepare-local-runtime.sh scripts/encode-iconset.py distribution/sign-app.sh distribution/copy-verified-runtime.py; then SAYTILE_SOURCE_DIRTY=true; fi
 if [[ -n "$(git ls-files --others --exclude-standard Sources native/LocalASR packaging)" ]]; then SAYTILE_SOURCE_DIRTY=true; fi
 /usr/libexec/PlistBuddy -c "Add :SaytileSourceDirty bool $SAYTILE_SOURCE_DIRTY" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $version" "$bundle/Contents/Info.plist"
