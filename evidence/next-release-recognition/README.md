@@ -1,6 +1,6 @@
 # 0.20 本地中文录音与定稿
 
-497 对照源码 `32ea75dba50a055c224d323d56edd178543f2efe`。识别修复源码 `4c19982b4fecfb784bd7c7a3cf8fdbdde5af90b0`。此处的独立识别样品以该源码重编译 App 主程序、沿用 497 的资源与 Qwen worker，在临时目录 ad hoc 签名。最终签名整合候选 0.20 (519) 为 `a33c239b7b526cb71801c5e46a884d424bd0d18b`。516 对应 905 秒稳定性与 SIGKILL 验收。515 为中间未采用的整合样品。每个宿主、模型清单、worker 的哈希与签名类型均在 [identity.json](identity.json)。
+497 对照源码 `32ea75dba50a055c224d323d56edd178543f2efe`。识别修复源码 `4c19982b4fecfb784bd7c7a3cf8fdbdde5af90b0`。此处的独立识别样品以该源码重编译 App 主程序、沿用 497 的资源与 Qwen worker，在临时目录 ad hoc 签名。最终签名整合候选 0.20 (526) 为 `aa8bf0dc80077d380aaff100200c9c57f07ee77b`。519 对应五例与固定 15 条原速对照，516 对应 905 秒稳定性与 SIGKILL 验收。515 为中间未采用的整合样品。每个宿主、模型清单、worker 的哈希与签名类型均在 [identity.json](identity.json)。
 
 ## 五个历史空定稿
 
@@ -61,8 +61,12 @@
 
 另有 11 项原生 Swift Testing 通过，涵盖原音事务边界、声道/采样率变化的回调处理、授权不足的原音重试和前一段定稿延迟时继续收音。这与前述 62 项为不重叠的 4、7 个 suites。[采集补充回归](capture-regressions.txt)
 
-## 最终签名 0.20 (519)
+## 签名 0.20 (519)
 
 **PASS**。对 `a33c239b7b526cb71801c5e46a884d424bd0d18b` 重新运行 5 条空定稿反例和 15 条固定原速公开短句，每条使用独立空数据库和自动选择的 Qwen。5 条全部复现正常失败/成功状态，每条仅启动一次工作进程，11 个原音分块与 516 逐字节相同。每条短句均在讲话中有多次可见更新，原生窗口、SQLite 终稿和真实档案复制动作写到私有剪贴板的文字一致，与 497 和 4c19982 的 15 条档案逐字一致。[五例](five-integrated519.json) · [15 条全部原始观察](fixed15-integrated519.jsonl.gz) · [原生讲话中截图](partial-native519.png)
 
 15 条归档为 46/568 错，CER 8.10%，首个新参考双字 P50/P95 为 0.969/1.537 秒，文字更新间隔 P95 为 1.001 秒，EOS 后落定 P50/P95 为 0.193/0.335 秒。本批没有相邻有意义更新间隔达到两秒。38.8 秒长句的竞争限制仍以先前真实测量为准。比较全部 `Sources/` 与 `native/`，516 到 519 唯一源码文件变化为 `Sources/SaytileApp/SaytileApp.swift`，用于 Sparkle 退出回调。worker 与模型清单指纹一致。905 秒结果绑定 516，440 段全量结果绑定 4c19982。[519 计量与源码差异](519-native-metrics.json) · [各签名包标识](identity.json)
+
+## 最终签名 0.20 (526)
+
+**PASS**。签名 App 源码 `aa8bf0dc80077d380aaff100200c9c57f07ee77b`。519 到 526 的原生源码改动仅在 `InputAccessibility.swift` 和 `InputCoordinator.swift`。本轮在 526 上复验五个历史空定稿样本。五条原速输入的转写、档案复制、11 个原音分块（字节及顺序）和可重试状态与 519 一致，每条只加载一次 Qwen。`fleurs-c1fcf0cd023db10f` 的原生窗口在文件开始后 4.163 秒显示“通”，4.200 秒显示“通过”，4.638 秒显示“通过红”。此时仍为讲话状态，文件在 15.503 秒结束。未重跑 519 的 15 条以及 516 的 905 秒稳定性。[526 五例](five-integrated526.json) · [原生窗口、时间轴及 worker 事件](preview-integrated526.json.gz) · [4.638 秒的原生截图](partial-native526.png)
