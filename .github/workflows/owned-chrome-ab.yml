@@ -1,0 +1,48 @@
+name: Isolated Chrome AX comparison
+on:
+  push:
+    branches: [codex/saytile-chrome-ax-owned-probe-20261117]
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - name: Compare unchanged assertions on an isolated foreground browser
+        env:
+          SAYTILE_HOSTED_TARGETS: '1'
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, runpy, subprocess
+          root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'owned-ax-comparison'
+          root.mkdir()
+          spec = runpy.run_path('scripts/test-input-native.py')
+          source = 'tests/fixtures/AXHostedTextEdit.swift'
+          original = root / 'ControlEditor.swift'
+          original.write_bytes(subprocess.check_output(['git', 'show', '5a8e44fb4156a373e71913312beeaf293943c21b:' + source]))
+          (root / 'head.txt').write_text(subprocess.check_output(['git','rev-parse','HEAD'],text=True))
+          flags = spec['production_flags']()
+          for executable, runner in [('control', str(original)), ('candidate', source)]:
+              subprocess.run(['swiftc', '-parse-as-library','-swift-version','6','-I','Sources/CSQLite',
+                              *flags,'tests/fixtures/AXOwnedFieldReady.swift', runner,'-o',str(root / executable)],check=True)
+          failed = False
+          for index in range(3):
+              for name in ('control','candidate'):
+                  with (root / f'{name}-{index}.log').open('w') as f:
+                      result = subprocess.run([str(root / name),'--chrome'],stdout=f,stderr=subprocess.STDOUT,timeout=90)
+                  print(name,index,result.returncode,flush=True)
+                  if name == 'candidate' and result.returncode: failed = True
+          if failed: raise SystemExit(1)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: isolated-chrome-observations
+          path: |
+            ${{ runner.temp }}/owned-ax-comparison/*.log
+            ${{ runner.temp }}/owned-ax-comparison/head.txt
+          retention-days: 7

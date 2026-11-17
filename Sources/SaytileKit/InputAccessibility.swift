@@ -32,8 +32,12 @@ final class AXInputAccess: InputAccess {
         AXUIElementSetMessagingTimeout(root, 0.12)
         func element(_ name: String) -> AXUIElement? {
             var output: CFTypeRef?
-            guard AXUIElementCopyAttributeValue(root, name as CFString, &output) == .success,
-                  let output, CFGetTypeID(output) == AXUIElementGetTypeID() else { return nil }
+            let result = AXUIElementCopyAttributeValue(root, name as CFString, &output)
+            guard result == .success,
+                  let output, CFGetTypeID(output) == AXUIElementGetTypeID() else {
+                print("OWNED_UNAVAILABLE", name, result.rawValue)
+                return nil
+            }
             return unsafeDowncast(output, to: AXUIElement.self)
         }
         guard let focused = element(kAXFocusedUIElementAttribute), let window = element(kAXFocusedWindowAttribute) else { throw NativeInputError.unsupported }
@@ -51,7 +55,10 @@ final class AXInputAccess: InputAccess {
         let app = selection.application, root = selection.root, element = selection.element, window = selection.window
         currentSelection = selection
         AXUIElementSetMessagingTimeout(root, 0.12)
-        guard let range = selectedRange(element) else { throw NativeInputError.unsupported }
+        guard let range = selectedRange(element) else {
+            print("OWNED_UNAVAILABLE", kAXSelectedTextRangeAttribute)
+            throw NativeInputError.unsupported
+        }
         // Verify the element belongs to the focused window, when the application exposes it.
         if let owningWindow = elementValue(element, kAXWindowAttribute), !CFEqual(owningWindow, window) {
             throw NativeInputError.targetChanged
