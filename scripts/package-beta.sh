@@ -33,7 +33,7 @@ if [[ "${SAYTILE_MANDARIN_CANDIDATE:-0}" == 1 ]]; then
   [[ "$(plutil -extract CFBundleIdentifier raw "$plist")" == app.saytile.mac.mandarin-candidate ]]
   [[ "$(plutil -extract SaytileSourceDirty raw "$plist")" == false ]]
   [[ "$(plutil -extract SaytileSourceRevision raw "$plist")" == "$source_sha" && "$(git rev-parse HEAD)" == "$source_sha" ]]
-  scripts/sign-developer-id-app.sh "$app" "${SAYTILE_SIGN_IDENTITY:?Developer ID identity is required for the internal build}"
+  distribution/sign-app.sh "$app" "${SAYTILE_SIGN_IDENTITY:?Developer ID identity is required for the internal build}"
 fi
 ln -s /Applications "$SAYTILE_STAGE/Applications"
 cp "$guide" "$SAYTILE_STAGE/安装与使用.txt"
