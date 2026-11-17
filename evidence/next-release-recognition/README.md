@@ -44,3 +44,13 @@
 - `scripts/test-local-panels.py`、`scripts/mandarin/score-live-cadence.py`、`scripts/mandarin/measure-preview-cost.py` 和 `scripts/mandarin/measure-loaded-preview.py` 是原有原速、评分与竞争负载工具。处理时只克隆公开权重，App 使用独立空 SQLite。用户生产档案、麦克风与付费服务未参与。
 - 本机 Swift Testing 针对 journal、空 EOS、原音尾部、离线回退、自然段、用户编辑与投递所有权运行 7 个 suites，62 项 PASS，0 失败。当前 CLT 需显式载入其自带的 `libTestingMacros.dylib`。[测试收据](regressions.txt)
 - 物理麦克风与个人口音 **NOT_RUN**。8 GB 设备、系统级电量和电池续航 **NOT_RUN**，本机为 Apple M5 24 GB。
+
+## 中断与长时间运行
+
+在 4c19982 的 905.020 秒文件原速回放中，首次运行于采集 292.38 秒后进入 `收音数据不连续` 故障。29 个已保存音频块能全部在输入中顺序逐字节定位，SQLite 完整，0 条外部投递。此轮 **FAIL**。电源日志未能把该次中断的具体触发点归因于某一条睡眠事件。另起一个隔离进程，在公开原声已有文字时仅挂起该宿主 9.005 秒，再恢复，实际触发了无新音频 watchdog，保留了 39,680 个 PCM 帧、故障状态和完整数据库。这是另一种走到中断保护路径的可控方式。[第一次长跑](soak-sleep-interruption.json) · [调度中断注入](deliberate-interruption.json)
+
+保留同一输入、应用和验收断言，给测试进程临时加上防空闲睡眠后重新原速运行 **PASS**。905.023 秒内有 1,734 次原生文字更新。84 段授权输入形成 47 个已完成档案，79 个原音块、803.040375 秒，与 WAV 的全部已保存范围逐字节一致，零外部投递。45 秒静音中实际观测到 worker 退出，下一段再次启动。每 5 秒采样的 RSS 峰值是 App 108.22 MiB、worker 798.52 MiB；这是 RSS，与上文进程总物理 footprint 口径不同。[独立候选长跑](soak-candidate-awake.json)
+
+对同一真实长句轨迹，离线比较上游解码文字与发布文字。两个负载轮若直接显示逐次模型观察，会把已观察到的尾部反转从 0 次变成 1 次、2 次，且较慢轮解码器自身仍有 2.528 秒无新增参考双字。该对照支持保留当前文字证据约束，真实 CPU 和解码延迟仍需如实披露。[逐轮比较](publication-evidence.json)
+
+**整合 515** 在限时 140 秒的原生探针退出环节失败。随后以主分支的修复版 0.20 (516) `3006a8e3ad1d952b0a18a34c4ce788b24b389623` 再验。五例 **PASS**，11 个原音块与识别单项版本逐字节一致，5 个完成的转写及档案复制同样逐字一致，5 个空片段仍可重试，每条 WAV 只启动一次 worker。[516 记录](five-integrated516.json)

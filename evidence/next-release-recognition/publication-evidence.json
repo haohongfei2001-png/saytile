@@ -1,0 +1,38 @@
+{
+  "comparison": "Same native trace before/after existing preview gate; raw layer is a diagnostic upper bound, not an alternative native run.",
+  "source": "4c19982b4fecfb784bd7c7a3cf8fdbdde5af90b0",
+  "scorers": [
+    "scripts/mandarin/score-live-cadence.py",
+    "scripts/mandarin/score-preview-reversals.py"
+  ],
+  "runs": [
+    {
+      "run": "B-0-1",
+      "worker_reversals": 1,
+      "publication_reversals": 0,
+      "worker_longest_fresh_bigram_gap_s": 1.547,
+      "observed_display_longest_fresh_bigram_gap_s": 1.947
+    },
+    {
+      "run": "B-0-6",
+      "worker_reversals": 2,
+      "publication_reversals": 1,
+      "worker_longest_fresh_bigram_gap_s": 1.812,
+      "observed_display_longest_fresh_bigram_gap_s": 2.29
+    },
+    {
+      "run": "B-9-2",
+      "worker_reversals": 1,
+      "publication_reversals": 0,
+      "worker_longest_fresh_bigram_gap_s": 2.528,
+      "observed_display_longest_fresh_bigram_gap_s": 3.429
+    },
+    {
+      "run": "B-9-5",
+      "worker_reversals": 2,
+      "publication_reversals": 0,
+      "worker_longest_fresh_bigram_gap_s": 1.824,
+      "observed_display_longest_fresh_bigram_gap_s": 2.126
+    }
+  ]
+}
