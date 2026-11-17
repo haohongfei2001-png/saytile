@@ -147,12 +147,27 @@ import AppKit
     private(set) var notifications = 0
     // Optional test action between reservation and the last ownership check.
     var beforeSnapshot: (() throws -> Void)?
+    // Hosted Chrome can interrupt only the application-level reply to the
+    // first post-write read. The system-wide focus still comes from macOS.
+    var interruptFirstWebFocusRead: (() -> Void)?
+    private(set) var provedInterruptedFocus = false
     init(_ base: AXInputAccess) { self.base = base }
     var hasPermission: Bool { base.hasPermission }
     func snapshot() throws -> InputTargetSnapshot {
+        try tracedSnapshot(base.snapshot)
+    }
+    func snapshotAfterIssuedWebInsertion() throws -> InputTargetSnapshot {
+        let interrupt = interruptFirstWebFocusRead
+        interruptFirstWebFocusRead = nil
+        interrupt?()
+        let result = try tracedSnapshot(base.snapshotAfterIssuedWebInsertion)
+        if interrupt != nil { provedInterruptedFocus = true }
+        return result
+    }
+    private func tracedSnapshot(_ read: () throws -> InputTargetSnapshot) throws -> InputTargetSnapshot {
         try beforeSnapshot?()
         do {
-            let current = try base.snapshot()
+            let current = try read()
             if let bound {
                 print("OWNED_SNAPSHOT", stage, "pid", current.processID == bound.processID,
                       "app", current.applicationID == bound.applicationID, "window", current.windowID == bound.windowID,

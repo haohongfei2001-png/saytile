@@ -162,8 +162,10 @@ jobs:
           python3 - <<'PYTHON'
           import os, pathlib, subprocess
           root = pathlib.Path(os.environ['RUNNER_TEMP'])
-          with (root / 'foreground-receipt/chrome.log').open('w') as log:
-              subprocess.run([root / 'textedit-probe', '--chrome'], stdout=log, stderr=subprocess.STDOUT, timeout=90, check=True)
+          for name, flags in [('chrome', []), ('chrome-focus-timeout', ['--interrupt-focus-read'])]:
+              with (root / f'foreground-receipt/{name}.log').open('w') as log:
+                  subprocess.run([root / 'textedit-probe', '--chrome', *flags], stdout=log, stderr=subprocess.STDOUT,
+                                 timeout=90, check=True)
           PYTHON
       - uses: actions/upload-artifact@v4
         if: always()
