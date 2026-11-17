@@ -97,8 +97,11 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         }
         defer { app.forceTerminate() } // dedicated new process and synthetic document only
         let pid=app.processIdentifier
+        let exerciseFocusTimeout = browser && CommandLine.arguments.contains("--interrupt-focus-read")
+        var interruptFocus = false
         func select() throws -> AXInputSelection {
             guard NSWorkspace.shared.frontmostApplication?.processIdentifier==pid else { throw TargetError.wrongDocument }
+            if interruptFocus { interruptFocus = false; throw AXFocusReadTimeout() }
             let s=try AXInputAccess.frontmostSelection()
             guard s.application.processIdentifier==pid else { throw TargetError.wrongDocument }
             let path=attribute(s.window,kAXDocumentAttribute) as? String ?? ""
@@ -125,6 +128,7 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         // The initial role/value can arrive before the focused AX range does.
         let store=try SaytileStore(directory:work.appendingPathComponent("store"))
         let trace = FixtureAccessTrace(access)
+        if exerciseFocusTimeout { trace.interruptFirstWebFocusRead = { interruptFocus = true } }
         let coordinator = NativeInputCoordinator(store: store, access: trace)
         coordinator.onBindingInvalidated = { print("OWNED_BINDING_INVALIDATED", trace.stage) }
         func dom(_ action: String, _ expected: String) throws -> [String: Any] {
@@ -164,6 +168,13 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         // DevTools session. Complete fixture setup before measuring a quiet AX
         // binding, so the probe cannot stall its notification run loop.
         try checkDOM(original, caret: 7)
+        if exerciseFocusTimeout {
+            interruptFocus = true
+            do {
+                _ = try access.snapshot()
+                throw TargetError.mismatch("focus timeout allowed a pre-write snapshot")
+            } catch NativeInputError.unsupported {}
+        }
         do {
             try await bindOwnedField(coordinator, trace: trace, original: original, caret: 7, pid: pid, expectingWeb: browser) { snapshot in
                 browser || matchesTextEditDocument(snapshot.pageIdentity, expected: doc)
@@ -189,6 +200,10 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         print("OWNED_RESULT", trace.stage, first, "AX_exact", firstMatches, "writes", trace.writes)
         // Keep duplicate + suffix back-to-back. The page records both actual input events.
         guard first == .confirmed, firstMatches, trace.writes == 1 else { throw TargetError.mismatch("first insertion") }
+        if exerciseFocusTimeout {
+            guard trace.provedInterruptedFocus else { throw TargetError.mismatch("system-wide focus was not proved") }
+            print("OWNED_SYSTEM_FOCUS", "same_foreground_pid", "same_window", "same_focused_editor", "first_write_once")
+        }
         trace.stage = "duplicate"
         guard await insert(r) == .noNewText, trace.writes == 1 else { throw TargetError.mismatch("duplicate") }
         let next = try await store.saveEdit(recordingID: row.id, text: "你好😀，接着说")
@@ -240,7 +255,21 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
                 let fresh = try await store.createRecording()
                 let revision = try await store.saveEdit(recordingID: fresh.id, text: "停")
                 trace.stage = scenario
-                if scenario == "cancel" { coordinator.invalidate() } else { _ = try dom("switchTarget", edited) }
+                if scenario == "cancel" { coordinator.invalidate() }
+                else {
+                    let witness = AXInputAccess(selectionProvider: select)
+                    if exerciseFocusTimeout { _ = try witness.snapshot() }
+                    _ = try dom("switchTarget", edited)
+                    if exerciseFocusTimeout {
+                        interruptFocus = true
+                        do {
+                            _ = try witness.snapshotAfterIssuedWebInsertion()
+                            throw TargetError.mismatch("old editor still accepted after focus moved")
+                        } catch NativeInputError.targetChanged {}
+                        catch NativeInputError.unsupported {}
+                        print("OWNED_SYSTEM_FOCUS", "other_editor_rejected")
+                    }
+                }
                 let result = await coordinator.insertStable(recordingID: fresh.id, revisionID: revision.id,
                     stableUTF16End: revision.text.utf16.count, recordingStartedAt: fresh.createdAt)
                 guard result != .confirmed, result != .unverified, trace.writes == 3, coordinator.binding == nil else {

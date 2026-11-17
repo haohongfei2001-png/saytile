@@ -9,6 +9,10 @@ struct AXInputSelection {
     let element: AXUIElement
 }
 
+/// The target did not answer the focus request. An explicit "no focus" or a
+/// different editor is never represented by this error.
+struct AXFocusReadTimeout: Error {}
+
 /// Narrow AX adapter: never replaces the entire target value, never activates an app,
 /// and never generates Return. Page identifiers stay in memory and are not sent to storage.
 @MainActor
@@ -30,13 +34,16 @@ final class AXInputAccess: InputAccess {
               app.processIdentifier != ProcessInfo.processInfo.processIdentifier else { throw NativeInputError.noTarget }
         let root = AXUIElementCreateApplication(app.processIdentifier)
         AXUIElementSetMessagingTimeout(root, 0.12)
-        func element(_ name: String) -> AXUIElement? {
+        func element(_ name: String) throws -> AXUIElement? {
             var output: CFTypeRef?
-            guard AXUIElementCopyAttributeValue(root, name as CFString, &output) == .success,
+            let status = AXUIElementCopyAttributeValue(root, name as CFString, &output)
+            if name == kAXFocusedUIElementAttribute && status == .cannotComplete { throw AXFocusReadTimeout() }
+            guard status == .success,
                   let output, CFGetTypeID(output) == AXUIElementGetTypeID() else { return nil }
             return unsafeDowncast(output, to: AXUIElement.self)
         }
-        guard let focused = element(kAXFocusedUIElementAttribute), let window = element(kAXFocusedWindowAttribute) else { throw NativeInputError.unsupported }
+        guard let focused = try element(kAXFocusedUIElementAttribute),
+              let window = try element(kAXFocusedWindowAttribute) else { throw NativeInputError.unsupported }
         return AXInputSelection(application: app, root: root, window: window, element: focused)
     }
     private var rememberedElement: AXUIElement?
@@ -46,8 +53,23 @@ final class AXInputAccess: InputAccess {
     private var currentElement: AXUIElement?
 
     func snapshot() throws -> InputTargetSnapshot {
+        try snapshot(verifyIssuedWebInsertion: false)
+    }
+
+    func snapshotAfterIssuedWebInsertion() throws -> InputTargetSnapshot {
+        try snapshot(verifyIssuedWebInsertion: true)
+    }
+
+    private func snapshot(verifyIssuedWebInsertion: Bool) throws -> InputTargetSnapshot {
         guard hasPermission else { throw NativeInputError.permission }
-        let selection = try selectionProvider()
+        let selection: AXInputSelection
+        do { selection = try selectionProvider() }
+        catch is AXFocusReadTimeout {
+            guard verifyIssuedWebInsertion, let currentSelection, currentWebArea != nil else {
+                throw NativeInputError.unsupported
+            }
+            selection = try systemFocus(matching: currentSelection)
+        }
         let app = selection.application, root = selection.root, element = selection.element, window = selection.window
         currentSelection = selection
         AXUIElementSetMessagingTimeout(root, 0.12)
@@ -82,6 +104,27 @@ final class AXInputAccess: InputAccess {
                                    elementID: elementID, pageIdentity: page, selectionLocation: range.location,
                                    selectionLength: range.length, isWeb: isWeb, isEditable: editable,
                                    isSensitive: sensitive, canSetSelectedText: isWeb ? supportsRangeReplacement(element) : settable.boolValue, pageContextComplete: contextComplete)
+    }
+
+    /// Prove an already-issued write against system-wide focus when the application
+    /// timed out. A cached element alone never proves focus. Require every independent
+    /// observation to point to the same already-bound web field and window.
+    private func systemFocus(matching previous: AXInputSelection) throws -> AXInputSelection {
+        let pid = previous.application.processIdentifier
+        guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else { throw NativeInputError.targetChanged }
+        let system = AXUIElementCreateSystemWide()
+        AXUIElementSetMessagingTimeout(system, 0.12)
+        let root = AXUIElementCreateApplication(pid)
+        AXUIElementSetMessagingTimeout(root, 0.12)
+        guard let focused = elementValue(system, kAXFocusedUIElementAttribute),
+              let window = elementValue(root, kAXFocusedWindowAttribute),
+              let owner = elementValue(focused, kAXWindowAttribute),
+              let isFocused = bool(focused, kAXFocusedAttribute) else { throw NativeInputError.unsupported }
+        var actualPID: pid_t = 0
+        guard AXUIElementGetPid(focused, &actualPID) == .success, actualPID == pid, isFocused,
+              CFEqual(focused, previous.element), CFEqual(window, previous.window), CFEqual(window, owner),
+              NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else { throw NativeInputError.targetChanged }
+        return AXInputSelection(application: previous.application, root: root, window: window, element: focused)
     }
 
     func dispatch(_ text: String, to expected: InputTargetSnapshot) throws -> Bool {
