@@ -35,7 +35,7 @@ jobs:
           PY
           swift build --scratch-path "$RUNNER_TEMP/boundary-build"
           export SAYTILE_PANEL_PRODUCTS="$(swift build --scratch-path "$RUNNER_TEMP/boundary-build" --show-bin-path)"
-          export SAYTILE_PANEL_EVIDENCE="$RUNNER_TEMP/boundary-control"
+          export SAYTILE_PANEL_EVIDENCE="/private/tmp/saytile-boundary-control"
           cd "$RUNNER_TEMP/boundary-527"
           set +e
           scripts/test-panel-boundary.sh
@@ -55,17 +55,17 @@ jobs:
         run: |
           export SAYTILE_PANEL_PRODUCTS="$(swift build --scratch-path "$RUNNER_TEMP/boundary-build" --show-bin-path)"
           for trial in first second; do
-            SAYTILE_PANEL_EVIDENCE="$RUNNER_TEMP/boundary-$trial" scripts/test-panel-boundary.sh
+            SAYTILE_PANEL_EVIDENCE="/private/tmp/saytile-boundary-$trial" scripts/test-panel-boundary.sh
           done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: native-boundary-evidence
           path: |
-            ${{ runner.temp }}/boundary-control/report.json
-            ${{ runner.temp }}/boundary-control/source-binding.json
-            ${{ runner.temp }}/boundary-first/report.json
-            ${{ runner.temp }}/boundary-first/source-binding.json
-            ${{ runner.temp }}/boundary-second/report.json
-            ${{ runner.temp }}/boundary-second/source-binding.json
+            /private/tmp/saytile-boundary-control/report.json
+            /private/tmp/saytile-boundary-control/source-binding.json
+            /private/tmp/saytile-boundary-first/report.json
+            /private/tmp/saytile-boundary-first/source-binding.json
+            /private/tmp/saytile-boundary-second/report.json
+            /private/tmp/saytile-boundary-second/source-binding.json
           retention-days: 7
