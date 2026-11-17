@@ -262,18 +262,59 @@ private struct Failed: Error { let message: String }
             await controller.stop(); hostPanel.orderOut(nil)
             _ = try await command("frame", frame: original)
             if ProcessInfo.processInfo.environment["SAYTILE_PANEL_NATIVE_FULLSCREEN"] == "1" {
-                _ = worker.reconcile(request(), cancellation: .init())
-                _ = try await command("fullscreen")
-                var full: PanelWindowAccess.Snapshot?
-                for _ in 0..<60 {
-                    try await Task.sleep(for: .milliseconds(100))
-                    full = access.snapshots().first(where: { $0.windowID == windowID && $0.isFullscreen })
-                    if full != nil { break }
+                // A toggle acknowledgement reports the start of the native Space
+                // animation. Wait for this target's matching AppKit completion
+                // and independently verify the same stable WindowServer/AX window.
+                func toggleFullscreen(to entered: Bool) async throws -> PanelWindowAccess.Snapshot {
+                    let ack = try await command("fullscreen")
+                    let event = entered ? NSWindow.didEnterFullScreenNotification : NSWindow.didExitFullScreenNotification
+                    let clock = ContinuousClock(), deadline = clock.now.advanced(by: .seconds(8))
+                    var completion: [String: Any]?, previous: CGRect?, stableSamples = 0
+                    var observed: PanelWindowAccess.Snapshot?
+                    while clock.now < deadline {
+                        if let notification = try? json(a.appendingPathComponent("fullscreen-transition.json")),
+                           notification["id"] as? Int == ack["id"] as? Int,
+                           notification["windowID"] as? Int == Int(windowID),
+                           notification["notification"] as? String == event.rawValue {
+                            completion = notification
+                            observed = access.snapshots().first { $0.windowID == windowID }
+                            if let seen = observed, seen.isFullscreen == entered {
+                                stableSamples = previous.map { PanelArrangementWorker.same($0, seen.frame) } == true ? stableSamples + 1 : 1
+                                previous = seen.frame
+                                if stableSamples == 2 {
+                                    platformObservations.append(["name": event.rawValue, "ack": ack, "completion": notification,
+                                        "matchedAXFrame": values(seen.frame), "axFullscreen": seen.isFullscreen])
+                                    return seen
+                                }
+                            } else { stableSamples = 0; previous = nil }
+                        }
+                        try await Task.sleep(for: .milliseconds(100))
+                    }
+                    platformObservations.append(["name": event.rawValue, "ack": ack, "completion": completion ?? [:],
+                        "matchedAXFrame": observed.map { values($0.frame) } ?? [], "timeoutSeconds": 8])
+                    throw Failed(message: "BLOCKED: native Space transition did not produce stable owned AX geometry after \(event.rawValue)")
                 }
-                guard let full else { throw Failed(message: "native fullscreen AX transition unavailable") }
+                // The panel is normally positioned within the Desktop's usable
+                // frame. A synthetic preference underneath the menu bar cannot
+                // be restored when the ordinary desktop returns.
+                let proposed = CGRect(x: visible.maxX - 220, y: visible.maxY - 100, width: 220, height: 100)
+                hostPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+                hostPanel.level = .floating
+                hostPanel.applyPlacement(proposed, on: visible)
+                hostPanel.orderFrontRegardless()
+                let anchor = hostPanel.frame
+                try check("panel anchor begins within the ordinary desktop", visible.contains(anchor) &&
+                          PanelArrangementWorker.same(anchor, proposed))
+                let baseline = try snapshot()
+                let displacement = worker.reconcile(request(), cancellation: .init())
+                let managedBeforeFullscreen = try snapshot()
+                try check("original target has an actual boundary lease before fullscreen",
+                          PanelArrangementWorker.same(baseline.frame, original) && displacement.adjusted == 1 &&
+                          !managedBeforeFullscreen.frame.intersects(panel))
+                let full = try await toggleFullscreen(to: true)
                 let report = worker.reconcile(request(), cancellation: .init())
                 try check("native fullscreen never resized", report.fullscreen && report.adjusted == 0 && PanelArrangementWorker.same(try snapshot().frame, full.frame))
-                let nearTopRight = CGRect(x: screen.maxX - 220, y: screen.maxY - 100, width: 220, height: 100)
+                let nearTopRight = anchor
                 let obstacles = access.focusedFullscreenObstacles(near: nearTopRight, allowedPIDs: [pid])
                 tests.append(["name": "native full-screen toolbar geometry", "status": obstacles.isEmpty ? "BLOCKED" : "PASS", "obstacle_count": obstacles.count,
                               "note": obstacles.isEmpty ? "System auto-hidden toolbar exposes no usable nearby control; no title/value scan or pointer forcing." : "Actual public AX role/frame only."])
@@ -284,10 +325,6 @@ private struct Failed: Error { let message: String }
                         let overlap = control.intersection(nearTopRight)
                         return overlap.width > 0 && overlap.height > 0 && !overlap.isNull
                     })
-                    hostPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-                    hostPanel.level = .floating
-                    hostPanel.setFrame(nearTopRight, display: false)
-                    hostPanel.orderFrontRegardless()
                     model.panelPlacementMode = .floating
                     let live = PanelCoexistenceController(panel: hostPanel, model: model, allowedPIDs: [pid]) { next in
                         hostPanel.setFrame(next, display: true)
@@ -304,21 +341,43 @@ private struct Failed: Error { let message: String }
                 } else {
                     tests.append(["name": "production fullscreen avoidance", "status": "BLOCKED", "note": "No confirmed toolbar controls or pointer is inside test panel; pointer/focus not forced."])
                 }
-                _ = try await command("fullscreen")
-                for _ in 0..<60 {
-                    try await Task.sleep(for: .milliseconds(100))
-                    if let returned = access.snapshots().first(where: { $0.windowID == windowID }), !returned.isFullscreen { break }
-                }
+                let returned = try await toggleFullscreen(to: false)
                 if let live = fullscreenController {
                     for _ in 0..<70 {
                         try await Task.sleep(for: .milliseconds(100))
                         if !model.panelOverFullscreen && PanelArrangementWorker.same(hostPanel.frame, nearTopRight) { break }
                     }
-                    try check("production fullscreen exit clears presentation and restores panel anchor", !model.panelOverFullscreen && PanelArrangementWorker.same(hostPanel.frame, nearTopRight))
+                    let restored = PanelArrangementWorker.same(hostPanel.frame, nearTopRight)
+                    platformObservations.append(["name": "fullscreen exit presentation and geometry", "presentationFullscreen": model.panelOverFullscreen,
+                        "panelFrame": values(hostPanel.frame), "preferred": values(nearTopRight), "panelOnActiveSpace": hostPanel.isOnActiveSpace,
+                        "panelVisible": hostPanel.isVisible, "panelKey": hostPanel.isKeyWindow, "targetIsFrontmost": NSWorkspace.shared.frontmostApplication?.processIdentifier == pid,
+                        "availableFrame": hostPanel.screen.map { values($0.visibleFrame) } ?? [], "timeoutSeconds": 7])
+                    try check("production fullscreen exit clears opaque presentation", !model.panelOverFullscreen)
+                    try check("production fullscreen exit restores desktop panel anchor", restored)
+                    try check("production fullscreen exit clears presentation and restores panel anchor", !model.panelOverFullscreen && restored)
                     await live.stop(); hostPanel.orderOut(nil)
                 }
-                _ = worker.reconcile(request(reserve: false), cancellation: .init())
-                try check("full-screen roundtrip keeps original restore ownership", PanelArrangementWorker.same(try snapshot().frame, original))
+                let restored = worker.reconcile(request(reserve: false), cancellation: .init())
+                let final = try snapshot()
+                platformObservations.append(["name": "boundary lease after completed Space transition", "original": values(original),
+                    "leased": values(managedBeforeFullscreen.frame), "returned": values(returned.frame), "final": values(final.frame),
+                    "restorationBlocked": restored.blocked, "fullscreenDetected": restored.fullscreen,
+                    "sameTargetWindow": returned.windowID == managedBeforeFullscreen.windowID && final.windowID == returned.windowID])
+                try check("full-screen roundtrip keeps original restore ownership", PanelArrangementWorker.same(final.frame, original))
+                if !PanelArrangementWorker.same(returned.frame, managedBeforeFullscreen.frame) {
+                    // Same fixture, initial outer frame, toolbar, display and two
+                    // native Space transitions, without a controller or boundary
+                    // worker. Observe what AppKit itself does to the outer frame.
+                    hostPanel.orderOut(nil)
+                    _ = try await command("frame", frame: managedBeforeFullscreen.frame)
+                    let controlStart = try snapshot()
+                    _ = try await toggleFullscreen(to: true)
+                    let controlExit = try await toggleFullscreen(to: false)
+                    platformObservations.append(["name": "same window roundtrip with Saytile stopped",
+                        "controlStart": values(controlStart.frame), "controlExit": values(controlExit.frame),
+                        "productExit": values(returned.frame),
+                        "systemReturnsIdenticalFrame": PanelArrangementWorker.same(controlExit.frame, returned.frame)])
+                }
             } else { tests.append(["name": "native fullscreen", "status": "NOT_RUN", "note": "Requires explicit isolated fixture GUI run flag; not substituted by full-screen-sized ordinary frame."]) }
         } catch { errorText = String(describing: error) }
         if tests.contains(where: { $0["status"] as? String == "FAIL" }) {
