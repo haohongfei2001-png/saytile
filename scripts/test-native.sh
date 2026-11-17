@@ -33,7 +33,9 @@ else
   # Real audio devices advance independently of Swift's main-actor scheduling.
   # A 1.6-second playback fixture cannot share its observation window with hundreds
   # of unrelated tests. Run every player test unchanged in an isolated process.
-  timing_suites=(ProtocolNetworkIntegrationTests CloudConnectionVerificationTests 'AudioPlayerIntegrationTests|ParagraphPlaybackTests')
+  # This suite asserts a five-second live preview before closing a real
+  # capture worker. Give it the same scheduling isolation as the socket peer.
+  timing_suites=(ProtocolNetworkIntegrationTests CloudConnectionVerificationTests CaptureCloudIntegrationTests 'AudioPlayerIntegrationTests|ParagraphPlaybackTests')
   isolated_filter="$frame_suite"
   for suite in "${timing_suites[@]}"; do
     isolated_filter+="|$suite"
