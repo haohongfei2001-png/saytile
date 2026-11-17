@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "platform": "GitHub-hosted macos-26, each run starts an isolated Chrome process and disposable profile with a synthetic file document.",
+  "application_and_production_suite_source": "8ca5405145a190c8a29cce55fc54fb6fc2e15472",
+  "source_tree": "b367896c8fe3e6d34d69b2775373cd73534f2f8c",
+  "ci_experiment_head": "2c2a62d890d7424a689a9ba8e5fbf26f5d5f5baa",
+  "ci_experiment_diff": "One branch-specific Actions workflow. All app, product CI and fixture files match the product source tree.",
+  "source_blobs": {
+    ".github/workflows/native.yml": "1a73afa87b51963d2ffea449cc9015d22ef4cc8b",
+    "Sources/SaytileKit/InputCoordinator.swift": "b704699af14eb02314630ae03bfd2952c0c6360d",
+    "Sources/SaytileKit/InputAccessibility.swift": "f39c6283e38793707c1177dbc36b8f0767240da2",
+    "tests/fixtures/AXHostedTextEdit.swift": "5832602ba5b94f066941c728f75bbeb6691b1555",
+    "tests/fixtures/AXOwnedFieldReady.swift": "77467398435f05926069377d91013c88c172d134"
+  },
+  "ci_job": "https://github.com/haohongfei2001-png/saytile/actions/runs/44049941071/job/133924931294",
+  "ci_conclusion": "success",
+  "browser_trials": [
+    {
+      "log": "fresh-interrupted.log",
+      "sha256": "1d49dce87d39b419c6d85bb6566874ed716098c577b6454317f40c8719482109",
+      "application_focus_timeout_injected": true,
+      "writes": 3,
+      "return_events": 0,
+      "submit_events": 0,
+      "verdict": "PASS"
+    },
+    {
+      "log": "fresh-normal.log",
+      "sha256": "159c4a36dc565550bc40237a8cc5a987e65ef58434e75fb2e7caa088702e4575",
+      "application_focus_timeout_injected": false,
+      "writes": 3,
+      "return_events": 0,
+      "submit_events": 0,
+      "verdict": "PASS"
+    },
+    {
+      "log": "interrupted.log",
+      "sha256": "33849f7b3c84d0f15a3e28ad52f635248f898422fbb03451a5d19f8e053aff98",
+      "application_focus_timeout_injected": true,
+      "writes": 3,
+      "return_events": 0,
+      "submit_events": 0,
+      "verdict": "PASS"
+    },
+    {
+      "log": "normal.log",
+      "sha256": "08a4542657828018895311ff2641282498c5c58a43ddd2da8c2c3b09b9547702",
+      "application_focus_timeout_injected": false,
+      "writes": 3,
+      "return_events": 0,
+      "submit_events": 0,
+      "verdict": "PASS"
+    }
+  ],
+  "swift_testing": {
+    "filter": "Input",
+    "tests": 33,
+    "suites": 3,
+    "failures": 0,
+    "assertions": "includes the 16-case unavailable-snapshot regression, rejection after a second unproved observation, unexpected focus/layout, changed identity/selection/page/content, and no uncertain replay."
+  },
+  "prior_evidence": [
+    {
+      "run": 43956139396,
+      "log": "pre-fix-unverified-first.log",
+      "observation": "The field matched after one write. A failed post-write AX snapshot followed by another change revoked ownership. The prior log did not identify the missing attribute."
+    },
+    {
+      "run": 44045747068,
+      "log": "pre-fix-unobservable-earlier-bind.log",
+      "observation": "Initial insert/append confirmed. Before the target-switch scenario, the caret witness required by a continuous binding failed. No new write was attempted."
+    },
+    {
+      "run": 44044771863,
+      "comparison": "Original fixture 3/3, setup-before-bind 3/3. A short application-level AXFocusedUIElement timeout was seen after startup. The old post-write failure did not recur and this run alone does not attribute it to DevTools."
+    },
+    {
+      "run": 44047934442,
+      "comparison": "Real normal and single post-write interrupted-focus scenarios both passed. Independent system AX exposed the same foreground PID, focused window and focused editor. A changed editor was rejected."
+    }
+  ],
+  "limits": "A native independent AX read can still be incomplete. A missing real witness remains unverified and never triggers replay. No user chat or private profile was opened. Coverage is the owned Chrome textarea and documented regression suite."
+}
