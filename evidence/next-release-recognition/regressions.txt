@@ -1,0 +1,72 @@
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test finishDoesNotSaveStandbySilenceAsSpeech() passed after 0.655 seconds.
+✔ Test finishFlushesSubVADFrameTailOfActiveSpeech() passed after 0.655 seconds.
+✔ Test isolatedClickAndItsVADHangoverCannotStartARecording() passed after 0.655 seconds.
+✔ Test localRecognizerKeepsItsContextAcrossAThinkingPause() passed after 0.655 seconds.
+✔ Test circuitCoalescesFailuresBoundsProbesAndSeparatesAuthorization() passed after 0.655 seconds.
+✔ Test durationRolloverKeepsEveryPCMByteWhenPausedNearTheBoundary() passed after 0.655 seconds.
+✔ Test localFailureBeforeFirstWordKeepsItsAttemptedEngine(_:) with 4 test cases passed after 0.672 seconds.
+✔ Test emptyDecoderFinalCannotPromoteSilenceOrAPreview(hasPreview:) with 2 test cases passed after 0.677 seconds.
+✔ Test offlineEvidenceUsesCandidatePublicationAndProtectsUserDraft() passed after 0.726 seconds.
+✔ Test localFinalConflictingWithExternalPrefixCannotClaimCompletion() passed after 0.832 seconds.
+✔ Test confirmedNumberRenderingCanResumeAPreviewButCannotCreateDispatchEvidence() passed after 0.608 seconds.
+✔ Test rejectsChangedFilesAndRetiredTickets(reason:) with 5 test cases passed after 0.839 seconds.
+✔ Test onlyReadyModelsCanTakeTheNextTicket() passed after 0.540 seconds.
+✔ Test pinnedCatalogSeparatesBatchFromStreaming() passed after 0.543 seconds.
+✔ Test exactDurableRangeCrossesChunksAfterTwelveMBWithoutLifetimeBuffer() passed after 0.853 seconds.
+✔ Test scriptChangeKeepsVerbatimPreviewAndNoDispatch() passed after 0.451 seconds.
+✔ Test downloadPreservesRoomForRecording() passed after 0.451 seconds.
+✔ Test chunkCorrectionsStayInTheTailWithoutManufacturingEvidence(_:) with 2 test cases passed after 0.451 seconds.
+✔ Suite "Capture shutdown tail" passed after 0.896 seconds.
+✔ Test additiveMigrationPreservesLegacyGroupsAndAllOriginalRows() passed after 1.203 seconds.
+✔ Test shortPipeLineArrivesWithInputStillOpen() passed after 0.803 seconds.
+✔ Suite "Journal range and local candidate integration" passed after 1.207 seconds.
+✔ Test midnightClockReversalAndDurableFrameFallback() passed after 0.988 seconds.
+✔ Test changedSameLengthWeightsCannotBeOpened() passed after 0.903 seconds.
+✔ Test longUtteranceAndLateRevisionsNeverRegroup() passed after 0.978 seconds.
+✔ Test starredParagraphProtectsNewMembersAndStopsAtNextParagraph() passed after 0.909 seconds.
+✔ Test localFinalReviewRetainsEvidence(mode:) with 3 test cases passed after 1.151 seconds.
+✔ Test actualSpeechGapHasIndependentParagraphAndTimeGroupThresholds() passed after 1.070 seconds.
+✔ Test onlyNetworkFailuresBecomeEligibleForAutomaticResume() passed after 1.237 seconds.
+✔ Suite "On-device streaming and model integrity" passed after 1.531 seconds.
+✔ Test revocationDuringAvailabilityFencesHandoverAndDropsOldOwners() passed after 1.565 seconds.
+✔ Test paragraphCopyRespectsClickBoundsAndDoesNotExpandToItsTimeGroup() passed after 1.199 seconds.
+✔ Test recoveryPreservesExternalReservationWithoutRepeatingStableText(state:) with 2 test cases passed after 1.726 seconds.
+✔ Test unavailableAppleQueuesAndNextRecordingIsLocalWithoutAToggle(supported:) with 2 test cases passed after 1.726 seconds.
+✔ Test nonNetworkFailureStopsAutomaticCloudAttempts(reason:) with 6 test cases passed after 1.743 seconds.
+✔ Test contextualGraphemeBoundariesAndByteIdentityAreMandatory() passed after 1.992 seconds.
+✔ Test finishingAppleAssetSetupCannotReplaceAnotherSelectedEnginesStatus() passed after 2.340 seconds.
+✔ Test ordinaryHeadEditKeepsParagraphAndWinsOverLateMachineRevision() passed after 2.117 seconds.
+✔ Test conflictDraftPreservesBothWritersWithoutSelectingEitherDraft() passed after 2.136 seconds.
+✔ Test manualASRChangeUsesNewProviderOnlyForTheNextUtterance() passed after 2.361 seconds.
+✔ Test rateLimitUsesLocalThenWaitsAtLeastServerBackoffBeforeNextCloudProbe() passed after 2.362 seconds.
+✔ Test multiRecordingEditValidatesEveryOwnerAndPreservesVersions() passed after 2.139 seconds.
+✔ Test resourceFailureAndRetryPreservePausedAudioAndItsArchive() passed after 2.365 seconds.
+✔ Test explicitBoundaryEditIsReversibleAndDoesNotFreezeOrRewriteASR() passed after 2.162 seconds.
+✔ Test shutdownIsIdempotentAndCannotRestartAfterStoreClose() passed after 2.374 seconds.
+✔ Suite "Audio controller shutdown" passed after 2.374 seconds.
+✔ Test userEditAndUndoStillInvalidatesOwnership() passed after 2.715 seconds.
+✔ Test v3MigrationPreservesLedgerAndInvalidatesOnlyRuntimeOwnership() passed after 2.728 seconds.
+✔ Test changedTargetNeverMutated(change:) with 9 test cases passed after 2.741 seconds.
+✔ Test durableReservationPrecedesSelectedRangeAndInvalidationPreventsTextSetter() passed after 2.743 seconds.
+✔ Test newerEvidenceRevokesStaleCorrectionEvenBeforePublication() passed after 2.758 seconds.
+✔ Test crashAfterReservationIsUnverifiedAndCannotReserveAgain() passed after 2.761 seconds.
+✔ Test uncertainReplacementConsumedOnceAndRestartCannotReplay() passed after 2.762 seconds.
+✔ Test cancelledOrFailedEvidenceCannotAuthorizePreviouslyApprovedRepair(state:) with 4 test cases passed after 2.765 seconds.
+✔ Test incompleteOrUnownedEvidenceCannotRepair(mode:) with 7 test cases passed after 2.765 seconds.
+✔ Test deleteAudioKeepsCorrectionHistoryButDeleteRecordErasesIt() passed after 2.825 seconds.
+✔ Test unsupportedReplacementPendingDoesNotBlockIndependentRecord() passed after 3.073 seconds.
+✔ Test localRecoveryAfterShorteningRepairKeepsEffectivePrefixAndAddsOnlySuffix() passed after 3.074 seconds.
+✔ Test shorterRepairKeepsInsertionLedgerMonotone() passed after 3.075 seconds.
+✔ Test lengthChangingRepairPreservesUserPrefixSuffixAndAppendsOnlyNewSuffix() passed after 3.077 seconds.
+✔ Test realGPTCoreFinalizationPublishesActionableCorrectionFromFakeProviders() passed after 3.187 seconds.
+✔ Test laterInsertionDefersEarlierCorrectionWithoutGlobalBlock() passed after 3.188 seconds.
+✔ Test unconfirmedInitialInsertionCannotCreateOwnershipAndDoesNotBlockNewRecord() passed after 3.188 seconds.
+✔ Suite "Owned range correction production path with synthetic OS and SQLite" passed after 3.189 seconds.
+✔ Test paragraphsPageWithoutSplittingAndSearchReturnsEveryMember() passed after 2.917 seconds.
+✔ Test emptyHumanRowsDoNotInventBoundaryIntentOrEvictVisibleText() passed after 3.191 seconds.
+✔ Suite NaturalParagraphTests passed after 3.352 seconds.
+✔ Test liveFailureFollowsDurableTailThenRestoresSelectedCloudOnNextSegment() passed after 3.519 seconds.
+✔ Suite "Automatic cloud outage to durable Apple candidate failover" passed after 3.519 seconds.
+✔ Test run with 62 tests in 7 suites passed after 3.519 seconds.
