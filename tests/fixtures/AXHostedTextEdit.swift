@@ -131,27 +131,35 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         if exerciseFocusTimeout { trace.interruptFirstWebFocusRead = { interruptFocus = true } }
         let coordinator = NativeInputCoordinator(store: store, access: trace)
         coordinator.onBindingInvalidated = { print("OWNED_BINDING_INVALIDATED", trace.stage) }
-        func dom(_ action: String, _ expected: String) throws -> [String: Any] {
+        func dom(_ action: String, _ expected: String) async throws -> [String: Any] {
             // Even if AX loses its focused editor, the read-only observation can
             // still report the exact state of the unique file in our new profile.
             // State-changing fixture actions also require the live AX selection.
             if action != "state" { _ = try select() }
-            let tool = Process(), output = Pipe()
-            tool.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-            tool.arguments = ["node", "tests/fixtures/owned-chrome-draft.mjs", work.appendingPathComponent("profile/DevToolsActivePort").path,
-                              doc.absoluteString, action, expected]
-            tool.standardOutput = output
-            try tool.run(); tool.waitUntilExit()
-            let bytes = output.fileHandleForReading.readDataToEndOfFile()
-            guard tool.terminationStatus == 0, let state = try JSONSerialization.jsonObject(with: bytes) as? [String: Any],
+            let arguments = ["node", "tests/fixtures/owned-chrome-draft.mjs", work.appendingPathComponent("profile/DevToolsActivePort").path,
+                             doc.absoluteString, action, expected]
+            // Observing the independent DOM must not block the main run loop that
+            // delivers real AX selection, page and focus notifications.
+            let bytes = try await Task.detached {
+                let tool = Process(), output = Pipe()
+                tool.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+                tool.arguments = arguments
+                tool.standardOutput = output
+                try tool.run()
+                let data = output.fileHandleForReading.readDataToEndOfFile()
+                tool.waitUntilExit()
+                guard tool.terminationStatus == 0 else { throw TargetError.mismatch("independent DOM process") }
+                return data
+            }.value
+            guard let state = try JSONSerialization.jsonObject(with: bytes) as? [String: Any],
                   state["otherIntact"] as? Bool == true, state["enter"] as? Int == 0, state["submits"] as? Int == 0 else {
                 throw TargetError.mismatch("independent DOM / zero sends")
             }
             return state
         }
-        func checkDOM(_ text: String, caret: Int, otherFocused: Bool = false) throws {
+        func checkDOM(_ text: String, caret: Int, otherFocused: Bool = false) async throws {
             guard browser else { return }
-            let state = try dom("state", text)
+            let state = try await dom("state", text)
             print("OWNED_DOM", trace.stage, "exact", state["exact"] ?? false, "caret", state["start"] ?? -1,
                   "end", state["end"] ?? -1, "otherFocused", state["otherFocused"] ?? false, "enter=0 submits=0")
             if trace.stage == "append" {
@@ -166,8 +174,8 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         }
         // The independent DOM probe launches Node and attaches a short-lived
         // DevTools session. Complete fixture setup before measuring a quiet AX
-        // binding, so the probe cannot stall its notification run loop.
-        try checkDOM(original, caret: 7)
+        // binding and issuing the first edit.
+        try await checkDOM(original, caret: 7)
         if exerciseFocusTimeout {
             interruptFocus = true
             do {
@@ -210,7 +218,7 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         trace.stage = "append"
         let suffix = await insert(next)
         print("OWNED_RESULT", trace.stage, suffix, "writes", trace.writes)
-        try checkDOM(finalField, caret: 15)
+        try await checkDOM(finalField, caret: 15)
         let suffixMatches = try matches(finalField)
         print("OWNED_READBACK", trace.stage, "AX_exact", suffixMatches)
         guard suffix == .confirmed, suffixMatches, trace.writes == 2 else { throw TargetError.mismatch("suffix") }
@@ -223,7 +231,7 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         let stale=await insert(changed)
         guard stale != .confirmed && stale != .unverified, trace.writes == 2, try matches(finalField) else { throw TargetError.mismatch("target mutation") }
         if browser {
-            let selected = try dom("state", finalField)
+            let selected = try await dom("state", finalField)
             guard selected["exact"] as? Bool == true, selected["start"] as? Int == 0, selected["end"] as? Int == 6 else {
                 throw TargetError.mismatch("protected selection")
             }
@@ -231,7 +239,7 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
             // New scenario, same focused synthetic field. No reactivation or retry of a delivery.
             trace.stage = "before-manual-edit-bind"
             coordinator.invalidate()
-            _ = try dom("collapse", finalField)
+            _ = try await dom("collapse", finalField)
             try await bindOwnedField(coordinator, trace: trace, original: finalField, caret: 15, pid: pid, expectingWeb: browser)
             let record = try await store.createRecording()
             func send(_ text: String) async throws -> NativeInputResult {
@@ -242,12 +250,12 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
             trace.stage = "before-manual-edit"
             let extraField = "PREFIX|你好😀，接着说好SUFFIX", edited = "EDITED|你好😀，接着说好SUFFIX"
             guard try await send("好") == .confirmed, trace.writes == 3 else { throw TargetError.mismatch(trace.stage) }
-            try checkDOM(extraField, caret: 16)
+            try await checkDOM(extraField, caret: 16)
             trace.stage = "manual-edit"
-            _ = try dom("manualEdit", extraField)
+            _ = try await dom("manualEdit", extraField)
             let rejected = try await send("好呀")
             guard rejected != .confirmed, rejected != .unverified, trace.writes == 3 else { throw TargetError.mismatch(trace.stage) }
-            try checkDOM(edited, caret: 16)
+            try await checkDOM(edited, caret: 16)
             for scenario in ["cancel", "switch-target"] {
                 trace.stage = scenario + "-bind"
                 coordinator.invalidate()
@@ -259,7 +267,7 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
                 else {
                     let witness = AXInputAccess(selectionProvider: select)
                     if exerciseFocusTimeout { _ = try witness.snapshot() }
-                    _ = try dom("switchTarget", edited)
+                    _ = try await dom("switchTarget", edited)
                     if exerciseFocusTimeout {
                         interruptFocus = true
                         do {
@@ -275,7 +283,7 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
                 guard result != .confirmed, result != .unverified, trace.writes == 3, coordinator.binding == nil else {
                     throw TargetError.mismatch(scenario)
                 }
-                try checkDOM(edited, caret: 16, otherFocused: scenario == "switch-target")
+                try await checkDOM(edited, caret: 16, otherFocused: scenario == "switch-target")
             }
         }
         coordinator.invalidate();try await store.close()
