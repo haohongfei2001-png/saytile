@@ -526,11 +526,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMe
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if terminating || model == nil { return .terminateNow }
         guard !awaitingTerminationReply else { return .terminateLater }
-        awaitingTerminationReply = true
-        let reason = NSAppleEventManager.shared().currentAppleEvent?
-            .paramDescriptor(forKeyword: AEKeyword(kAEQuitReason))?.enumCodeValue
+        let event = NSAppleEventManager.shared().currentAppleEvent
+        let reason = event?.paramDescriptor(forKeyword: AEKeyword(kAEQuitReason))?.enumCodeValue
         let systemRelaunch = [kAEShutDown, kAERestart, kAEReallyLogOut].contains { reason == OSType($0) }
         model?.noteTermination(systemRestart: systemRelaunch)
+        // Frameworks can request termination from a main-queue callback. There
+        // is no AppleEvent reply to defer in that case. Unwind the callback and
+        // re-enter AppKit once the normal save gate has actually completed.
+        if event?.eventID != AEEventID(kAEQuitApplication) && !systemRelaunch {
+            Task { await terminateAfterSaving() }
+            return .terminateCancel
+        }
+        awaitingTerminationReply = true
         Task {
             let ready = await prepareToTerminate()
             awaitingTerminationReply = false

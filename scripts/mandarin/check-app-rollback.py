@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Open an isolated synthetic archive with the installed, candidate, and installed apps, offline."""
+"""Open synthetic data offline through old, new, old, and new app binaries."""
 import argparse
 import array
 import hashlib
@@ -107,6 +107,18 @@ def snapshot(data, count):
                 preferred_manual_revision_ids=[r[1] for r in edit], integrity="ok", foreign_key_errors=0)
 
 
+def paragraph_state(data):
+    with sqlite3.connect((data / "Saytile.sqlite").as_uri() + "?mode=ro", uri=True) as db:
+        if not db.execute("SELECT 1 FROM sqlite_master WHERE name='timeline_paragraphs'").fetchone():
+            return None
+        idle, = db.execute("SELECT idle_seconds FROM timeline_settings WHERE singleton=1").fetchone()
+        rows = db.execute("SELECT position,paragraph_start,break_hidden FROM timeline_paragraphs ORDER BY position").fetchall()
+        entries = {r[0] for r in db.execute("SELECT position FROM transcript_timeline")}
+        assert {r[0] for r in rows} == entries
+        assert all(start in entries and start <= pos and hidden in (0, 1) for pos, start, hidden in rows)
+        return dict(idle_seconds=idle, boundaries=rows)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for key in ("old", "candidate", "seed-probe", "output"):
@@ -141,12 +153,36 @@ def main():
         shutil.copytree(archive, upgrade)
         open_fixture(installed[1], fresh, 0)
         snapshot(fresh, 0)
+        # User preference and cache canary are synthetic. An older app may predate paragraphs.
+        with sqlite3.connect(upgrade / "Saytile.sqlite") as db:
+            db.execute("UPDATE timeline_settings SET idle_seconds=180 WHERE singleton=1")
+        paragraphs = paragraph_state(upgrade)
+        marker = upgrade / "LocalModels/test-cache/fixture"
+        marker.parent.mkdir(parents=True)
+        marker.write_bytes(b"rollback model-cache fixture")
+        cache_digest = digest(marker.read_bytes())
+        marker_time = marker.stat().st_mtime_ns
         steps = []
-        for label, app in (("old", installed[0]), ("candidate", installed[1]), ("old_reopened", installed[0])):
+        for label, app in (("old", installed[0]), ("candidate", installed[1]),
+                           ("old_reopened", installed[0]), ("candidate_reopened", installed[1])):
             open_fixture(app, upgrade, 2)
             state = snapshot(upgrade, 2)
             assert state == initial, label
-            steps.append(dict(step=label, records=2, logical_tables_sha256=state["table_sha256"],
+            current = paragraph_state(upgrade)
+            if current is not None:
+                assert current["idle_seconds"] == 180, label
+                if paragraphs is not None:
+                    assert current == paragraphs, label
+                if label == "candidate":
+                    # A real manual join persists as break_hidden independently of the ASR chunks.
+                    with sqlite3.connect(upgrade / "Saytile.sqlite") as db:
+                        db.execute("UPDATE timeline_paragraphs SET break_hidden=1 WHERE position=(SELECT max(position) FROM timeline_paragraphs)")
+                    current = paragraph_state(upgrade)
+                paragraphs = current
+            elif label != "old":
+                raise AssertionError(f"Paragraph information disappeared during {label}")
+            assert digest(marker.read_bytes()) == cache_digest and marker.stat().st_mtime_ns == marker_time
+            steps.append(dict(step=label, records=2, paragraphs=current, cache_sha256=cache_digest, logical_tables_sha256=state["table_sha256"],
                               wav_sha256=sorted(state["wav_sha256"].values())))
         assert snapshot(archive, 2) == initial
     assert identities == [binary_info(app) for app in apps]
