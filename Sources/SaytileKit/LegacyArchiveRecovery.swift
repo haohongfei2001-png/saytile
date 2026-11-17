@@ -17,7 +17,17 @@ public enum LegacyArchiveRecovery {
     public static func prepare(base: URL, legacy: URL, output: URL) async throws -> Receipt {
         let fm = FileManager.default
         for url in [base, legacy, output] { try StorePath.rejectSymbolicLink(url.standardizedFileURL) }
-        let locations = [base, legacy, output].map { $0.standardizedFileURL.resolvingSymlinksInPath() }
+        // Foundation may spell an existing /private/tmp directory as /tmp,
+        // while retaining /private/tmp for its not-yet-created child. Resolve
+        // existing parents with POSIX realpath before comparing ancestry.
+        func canonical(_ url: URL) throws -> URL {
+            guard let path = Darwin.realpath(url.path, nil) else { throw StoreError.invalidPath }
+            defer { free(path) }
+            return URL(fileURLWithPath: String(cString: path), isDirectory: true)
+        }
+        guard !["", ".", "..", "/"].contains(output.lastPathComponent) else { throw StoreError.invalidPath }
+        let locations = try [canonical(base), canonical(legacy),
+                             canonical(output.deletingLastPathComponent()).appendingPathComponent(output.lastPathComponent)]
         for (i, location) in locations.enumerated() {
             for other in locations.dropFirst(i+1) {
                 guard !location.pathComponents.starts(with: other.pathComponents),

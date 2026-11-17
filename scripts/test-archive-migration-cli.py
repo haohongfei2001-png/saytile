@@ -44,7 +44,7 @@ def add_record(directory, text, start):
 
 
 def check(app):
-    with tempfile.TemporaryDirectory(prefix="saytile-legacy-cli-") as scratch:
+    with tempfile.TemporaryDirectory(prefix="saytile-legacy-cli-", dir="/private/tmp") as scratch:
         root = Path(scratch)
         for name in ("empty-base", "empty-old"):
             path = root / name
@@ -76,7 +76,11 @@ def check(app):
             assert database.execute("PRAGMA foreign_key_check").fetchall() == []
         run(app, command, base, old, output, success=False)
         run(app, command, base, old, base / "forbidden", success=False)
-        assert not (base / "forbidden").exists()
+        # macOS presents /tmp and /private/tmp as aliases. An absent output
+        # child must still be rejected before creating any work inside a source.
+        alias = Path("/tmp") / root.name / base.name / "aliased-child"
+        run(app, command, base, old, alias, success=False)
+        assert not (base / "forbidden").exists() and not alias.exists()
         mistaken = root / "not-a-cloud-fixture"
         guard = run(app, "--icloud-archive-fixture", "--data-directory", mistaken, success=False)
         assert guard.returncode == 64 and not mistaken.exists()
