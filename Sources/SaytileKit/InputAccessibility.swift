@@ -205,13 +205,16 @@ final class AXInputAccess: InputAccess {
     }
 
     func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool? {
-        guard let current = try? snapshot(), current == expected, let element = currentElement else { return false }
-        if current.isWeb {
-            guard let witness = textWitness(at: current), utf16Start >= 0,
+        if expected.isWeb {
+            // textWitness proves the full target and caret both before and after
+            // reading the field. A third tree walk before those two reads can
+            // needlessly time out while Chrome is processing selection changes.
+            guard let witness = textWitness(at: expected), utf16Start >= 0,
                   utf16Start <= witness.utf16.count, text.utf16.count <= witness.utf16.count - utf16Start,
                   let readback = RecognitionUTF16.slice(witness, start: utf16Start, end: utf16Start + text.utf16.count) else { return nil }
             return readback.utf8.elementsEqual(text.utf8)
         }
+        guard let current = try? snapshot(), current == expected, let element = currentElement else { return false }
         var range = CFRange(location: utf16Start, length: text.utf16.count)
         guard let value = AXValueCreate(.cfRange, &range) else { return nil }
         var output: CFTypeRef?
