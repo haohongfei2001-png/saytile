@@ -1,6 +1,6 @@
 # 0.20 本地中文录音与定稿
 
-最终安装包是 0.20（533），相同识别器在终包的五条原速难例见[独立收据](../internal-0.20-533/recognition/RESULT.json)。各批的样本数与源码分别列出。
+最终安装包是 0.20（533），终包已重跑[固定 15 条同机原速](../internal-0.20-533/recognition/same15.json)和[五条原速难例](../internal-0.20-533/recognition/RESULT.json)。各批的样本数与源码分别列出。
 
 497 对照源码 `32ea75dba50a055c224d323d56edd178543f2efe`。识别修复源码 `4c19982b4fecfb784bd7c7a3cf8fdbdde5af90b0`。此处的独立识别样品以该源码重编译 App 主程序、沿用 497 的资源与 Qwen worker，在临时目录 ad hoc 签名。固定 15 条对照所用签名整合候选 0.20 (527) 为 `2a01a3f1c0b1b419a09a00c6cc987580f2716503`。527 对应五例及固定 15 条原速签名包验收，516 对应 905 秒稳定性与 SIGKILL 验收。515 为中间未采用的整合样品。每个宿主、模型清单、worker 的哈希与签名类型均在 [identity.json](identity.json)。
 

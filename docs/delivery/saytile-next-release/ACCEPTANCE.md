@@ -19,7 +19,13 @@ Nearpane 5.15（66）独立宿主的 436 项原生、8 项依赖测试通过，�
 - **PASS**。最终签名包的原生输入板和档案共 56 次 AXPress、7 次边缘点击、43 张常规截图及 3 张参考尺寸截图。真实选区、回听、边缘点击、星标重启、点击编辑与撤销、连续段落和复制通过。另测 11 次外观菜单选择及反馈草稿与回复丢失。截图由合成档案以及授权的公开人声产生。[原生控件](../../../evidence/internal-0.20-533/native-ui/manifest.json) · [档案原图](../../../evidence/internal-0.20-533/native-ui/archive.png) · [外观](../../../evidence/internal-0.20-533/appearance/receipt.json) · [反馈](../../../evidence/internal-0.20-533/feedback/receipt.json)
 - **PASS**。旧 0.12 和 0.19 各完成旧→533→旧→533。合成原音、用户编辑、草稿、段落字段、收藏、设置、模型缓存与资料身份检查通过。真实 Sparkle 安装器拒绝损坏包，将有效包原位替换并正常重启。设置中的「检查更新」读取真实公开签名 feed，当前列表为空。系统原生更新对话框的人工点击 NOT_RUN。[497](../../../evidence/internal-0.20-533/rollback-497.json) · [0.12](../../../evidence/internal-0.20-533/rollback-012.json) · [更新收据](../../../evidence/internal-0.20-533/sparkle/receipt.json)
 - **PASS**。同一 533 源码在托管 Mac 使用真实 AppKit、WKWebView 和 Chrome 完成所有权、选区、增量、焦点中断与零自动发送回归。没有测试私人聊天窗口。[原生前台作业](https://github.com/haohongfei2001-png/saytile/actions/runs/44056592233/job/133947444986)
-- **FAIL**。有竞争负载的长句仍出现超过两秒无有效新字。**NOT_RUN** 项包括合盖的内置麦克风、个人口音、8 GB 设备、整机功耗、物理多显示器重插及本次边界作业中的原生全屏。[识别分项](QUALITY.md)
+- **FAIL**。有竞争负载的长句仍出现超过两秒无有效新字。**NOT_RUN** 项包括合盖的内置麦克风、个人口音、8 GB 设备、整机功耗、物理多显示器重插与真实突然断电。[识别分项](QUALITY.md)
 - **BLOCKED**。真实私有 CloudKit 跨设备恢复与反馈实际送达私有仓库仍缺外部账户条件。真实远端已传输的测试档案为零。按授权范围没有调用付费语音或文字服务。[最少账户事项](HANDOFF.md)
 
 在 533 的真实 WindowServer 补测了 22 个场景，采集范围限定为隔离候选的两扇自有窗口；覆盖首启、权限异常、损坏模型、明暗外观、紧凑档案、模型与服务设置。两侧图均使用 688×468 个原像素展示同一段文字，左为批准原图，右为签名 533。当前固定字号和按钮比概念图小，可选边框在截图中开启。界面实测通过不等于用户已认可这些视觉差异。系统降低透明度的材质参数通过 Swift 测试，未修改用户的系统偏好。[同尺度对照](../../../evidence/internal-0.20-533/composited/reference-and-native.png) · [22 个场景](../../../evidence/internal-0.20-533/composited/receipt.json) · [深色紧凑档案](../../../evidence/internal-0.20-533/composited/archive-detail-compact-dark.png)
+
+
+最终源码的连续双向缩放、最窄点击和恢复、边缘热区、编辑选区、中文输入法合成中的缩放与文字保护通过 147/147 项。相同源码的原生材质探针生成 16 种组合，保持同一编辑器、相同控件位置及字号。材质对照注入全屏环境值，真实 Space 的进入与退出另行记录。[缩放与点击](../../../evidence/internal-0.20-533/adaptive/receipt.json) · [16 组材质](../../../evidence/internal-0.20-533/glass/glass-receipt.json)
+
+
+真实全屏在独立托管 Mac 上另行验证。系统的 didExitFullScreen 事件后，同时核对原生窗口与 AX 几何。浮板避开真实工具栏，退出后恢复原桌面锚点和通透状态，均为 **PASS**。系统改变第三方窗口大小时，关闭 Saytile 的同窗对照取得逐点相同的新位置，产品保留了该位置。最终 38 项通过、0 项失败、1 项 **BLOCKED**。有工具栏和无工具栏的测试窗口都被系统重新布局，因此未能在该环境触发「全屏退出后外部窗口仍处于 Saytile 上次设置的精确位置」的正向恢复情形。普通桌面的同一归属保护和恢复另有实测。专门作业以 77 退出，GitHub 记为未成功；七项常规 CI 独立计算。[三轮完整收据](../../../evidence/release-window-boundary/fullscreen-533-followup/receipt.json)

@@ -7,4 +7,4 @@
 5. 反馈需要账户持有人登录已有 Cloudflare 账户。保持远端投递关闭，直到现有 Worker 的迁移、部署、合成 Saytile 工单在私有仓库的送达及删除均已验证。[反馈部署契约](../../FEEDBACK-REUSE.md)
 6. Nearpane 的宿主改动只在该仓库 PR #11。不要同步两款应用的真实档案、缓存、权限和凭据。
 
-当前个人体验入口是 `~/Applications/Saytile.app`。确认安装时读取 Info.plist 的 `SaytileSourceRevision` 和 release.json 即可，无需重新安装。下一轮优先用固定 38.8 秒公开长句检验高负载时 decoder 无新字的时段。有可量化改善后再运行固定 15 条和 420 条回归。Mac 合盖期间维持物理麦克风 NOT_RUN。真实云端、私有反馈与官网发包分别推进，账户操作集中在第 4、5 项。
+当前个人体验入口是 `~/Applications/Saytile.app`。确认安装时读取 Info.plist 的 `SaytileSourceRevision` 和 release.json 即可，无需重新安装。后续若优化竞争负载，先看同一 38.8 秒长句在 30.08 秒切段精确定稿的逐次解码，以及另一处两次改写前文的实测。[逐次解码、时间轴和窗口原始记录的复算](../../../evidence/next-release-recognition/loaded-gap/README.md)。有可量化改善后再运行固定 15 条和 420 条回归。Mac 合盖期间维持物理麦克风 NOT_RUN。真实云端、私有反馈与官网发包分别推进，账户操作集中在第 4、5 项。
