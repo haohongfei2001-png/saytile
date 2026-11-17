@@ -1,71 +1,36 @@
-name: Native boundary before and after
+name: Signed native panel in macOS fullscreen
 on:
   push:
     branches: [codex/saytile-boundary-proof-20261117]
 permissions:
   contents: read
 jobs:
-  hosted-boundary:
+  fullscreen:
     runs-on: macos-26
-    timeout-minutes: 18
+    timeout-minutes: 14
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 9
-      - name: Inject a held mouse-state reading into the old worker on the same two owned native windows
+          ref: 7c0df4728b113c17297a0cded20472de4ffc3337
+      - name: Run one native fullscreen entry and exit on the final product sources
+        env:
+          SAYTILE_PANEL_NATIVE_FULLSCREEN: '1'
+          SAYTILE_PANEL_EVIDENCE: /private/tmp/saytile-533-native-fullscreen
         run: |
-          git worktree add --detach "$RUNNER_TEMP/boundary-527" 2a01a3f1c0b1b419a09a00c6cc987580f2716503
-          python3 - <<'PY'
-          from pathlib import Path
-          import os
-          old=Path(os.environ['RUNNER_TEMP'])/'boundary-527'
-          bridge=Path('Sources/SaytileApp/PanelWindowAccess.swift')
-          text=(old/bridge).read_text()
-          injection=bridge.read_text().split('    private let mouseHeld:',1)[1].split('    func snapshots(',1)[0]
-          anchor='    init(allowedPIDs: Set<pid_t>? = nil) { self.allowedPIDs = allowedPIDs }'
-          assert text.count(anchor)==1
-          (old/bridge).write_text(text.replace(anchor,'    private let mouseHeld:'+injection).replace('private func mouseHeld() -> Bool','private static func sessionMouseHeld() -> Bool'))
-          worker=Path('Sources/SaytileApp/PanelCoexistenceController.swift')
-          anchor='    init(allowedPIDs: Set<pid_t>? = nil) { access = PanelWindowAccess(allowedPIDs: allowedPIDs) }'
-          text=(old/worker).read_text()
-          assert text.count(anchor)==1
-          (old/worker).write_text(text.replace(anchor,anchor+'\n    init(access: PanelWindowAccess) { self.access = access }'))
-          probe=Path('tests/fixtures/PanelBoundaryProbe.swift')
-          (old/probe).write_text(probe.read_text().replace('cancelledWrite == .notIssued','cancelledWrite == nil'))
-          PY
-          swift build --scratch-path "$RUNNER_TEMP/boundary-build"
-          export SAYTILE_PANEL_PRODUCTS="$(swift build --scratch-path "$RUNNER_TEMP/boundary-build" --show-bin-path)"
-          export SAYTILE_PANEL_EVIDENCE="/private/tmp/saytile-boundary-control"
-          cd "$RUNNER_TEMP/boundary-527"
-          set +e
+          test "$(git rev-parse HEAD)" = 7c0df4728b113c17297a0cded20472de4ffc3337
+          swift build --scratch-path "$RUNNER_TEMP/fullscreen-build"
+          export SAYTILE_PANEL_PRODUCTS="$(swift build --scratch-path "$RUNNER_TEMP/fullscreen-build" --show-bin-path)"
           scripts/test-panel-boundary.sh
-          result=$?
-          set -e
-          test "$result" -ne 0
-          python3 - <<'PY'
-          import json,os,pathlib
-          d=json.loads((pathlib.Path(os.environ['SAYTILE_PANEL_EVIDENCE'])/'report.json').read_text())
-          tests={item['name']:item['status'] for item in d['tests']}
-          assert tests['held pointer defers first boundary write']=='PASS', tests
-          assert tests['unchanged overlap resolves after pointer release']=='FAIL', tests
-          print('Reproduced stale refusal on build 527 without posting an input event.')
-          PY
-      - name: Repeat the production controller verification on independent synthetic windows
-        if: always()
-        run: |
-          export SAYTILE_PANEL_PRODUCTS="$(swift build --scratch-path "$RUNNER_TEMP/boundary-build" --show-bin-path)"
-          for trial in first second; do
-            SAYTILE_PANEL_EVIDENCE="/private/tmp/saytile-boundary-$trial" scripts/test-panel-boundary.sh
-          done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: native-boundary-evidence
+          name: saytile-533-native-fullscreen
           path: |
-            /private/tmp/saytile-boundary-control/report.json
-            /private/tmp/saytile-boundary-control/source-binding.json
-            /private/tmp/saytile-boundary-first/report.json
-            /private/tmp/saytile-boundary-first/source-binding.json
-            /private/tmp/saytile-boundary-second/report.json
-            /private/tmp/saytile-boundary-second/source-binding.json
+            /private/tmp/saytile-533-native-fullscreen/report.json
+            /private/tmp/saytile-533-native-fullscreen/source-binding.json
+            /private/tmp/saytile-533-native-fullscreen/probe.log
+            /private/tmp/saytile-533-native-fullscreen/sign.log
+            /private/tmp/saytile-533-native-fullscreen/permission.log
+            /private/tmp/saytile-533-native-fullscreen/target/*.json
+            /private/tmp/saytile-533-native-fullscreen/other/*.json
           retention-days: 7
