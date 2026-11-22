@@ -11,7 +11,7 @@ let package = Package(
         .target(name: "SaytileKit", dependencies: ["CSQLite", "CAudio"], resources: [.copy("Resources/ConnectionSample.pcm"), .copy("Resources/LocalASR")]),
         .target(name: "SaytileVoiceUI"),
         .target(name: "RiftletFeedback", dependencies: ["CSQLite"]),
-        .executableTarget(name: "SaytileApp", dependencies: ["SaytileKit", "SaytileVoiceUI", "RiftletFeedback"], resources: [.copy("Resources/SaytileBrandMark.png")]),
+        .executableTarget(name: "SaytileApp", dependencies: ["SaytileKit", "SaytileVoiceUI", "RiftletFeedback"], resources: [.copy("Resources/SaytileBrandMark.png"), .copy("Resources/SaytileBlackBrandMark.png"), .copy("Resources/SaytileBlackBrandMarkDark.png"), .copy("Resources/SaytileBlackPlate.png"), .copy("Resources/SaytilePurplePlate.png")]),
         .testTarget(name: "RiftletFeedbackTests", dependencies: ["RiftletFeedback", "CSQLite"], path: "tests/RiftletFeedbackTests"),
         .testTarget(name: "SaytileKitTests", dependencies: ["SaytileKit", "SaytileVoiceUI"], path: "tests/SaytileKitTests")
     ]

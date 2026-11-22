@@ -12,11 +12,12 @@ extension AppDelegate {
         let timeline = ProcessInfo.processInfo.environment["SAYTILE_TIMELINE_REVIEW"] == "1"
         let product = ProcessInfo.processInfo.environment["SAYTILE_PRODUCT_WINDOWS"] == "1"
         let appearance = ProcessInfo.processInfo.environment["SAYTILE_APPEARANCE_REVIEW"] == "1"
+        let brand = ProcessInfo.processInfo.environment["SAYTILE_BRAND_REVIEW"] == "1"
         let feedback = ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW"] == "1"
         // A SwiftUI confirmationDialog creates its own key-capable NSAlertPanel.
         // The feedback fixture must prohibit app activation, not only key status
         // of its parent ReviewPanel. Production activation policy is unchanged.
-        NSApp.setActivationPolicy(timeline || product || appearance ? .accessory : .prohibited)
+        NSApp.setActivationPolicy(timeline || product || appearance || brand ? .accessory : .prohibited)
         do {
             try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
             if ProcessInfo.processInfo.environment["SAYTILE_REFERENCE_ONLY"] == "1" {
@@ -42,6 +43,7 @@ extension AppDelegate {
                 return true
             }
             await model.initialLoad()
+            if brand { try await reviewBrandAppearance(model: model, output: output); return true }
             if let value = ProcessInfo.processInfo.environment["SAYTILE_REVIEW_REOPEN_STAR"], let id = UUID(uuidString: value) {
                 let restored = try await model.store.recording(id: id)
                 guard restored?.isPinned == true else { throw ReviewFailure("relaunch lost a row starred through the native control") }
@@ -817,6 +819,7 @@ extension AppDelegate {
                                         validation: nil, interaction: interaction)
     }
     @MainActor func reviewValidatedWindow<V: View>(_ content: V, size: CGSize, name: String, output: URL,
+        colorScheme: ColorScheme = .light,
         validation: (@MainActor (NSView) async throws -> Void)? = nil,
         interaction: (@MainActor (NSView) async throws -> Void)? = nil) async throws {
         let before = NSWorkspace.shared.frontmostApplication?.processIdentifier
@@ -838,7 +841,7 @@ extension AppDelegate {
         panel.ignoresMouseEvents = true
         panel.isReleasedWhenClosed = false
         panel.hidesOnDeactivate = false
-        let host = NSHostingView(rootView: content.preferredColorScheme(.light))
+        let host = NSHostingView(rootView: content.preferredColorScheme(colorScheme))
         panel.contentView = host
         panel.setContentSize(size)
         if offscreen {

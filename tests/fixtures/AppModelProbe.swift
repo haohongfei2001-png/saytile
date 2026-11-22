@@ -34,19 +34,40 @@ struct AppModelProbe {
             first.panelAppearance.textSize = .large
             first.panelSizePreset = .spacious
             let saved = first.panelAppearance
+            let captureBefore = first.panelCaptureLabel
+            let recognitionBefore = first.recognitionConfiguration
+            try require(first.brandAppearance == .purple, "existing install defaults to the original purple brand")
+            first.brandAppearance = .black
+            try require(first.effectivePanelAppearance.buttonColor == .black && first.panelAppearance == saved,
+                        "black brand resolves a neutral button without overwriting panel choices")
+            try require(first.effectivePanelAppearance.panelColor == saved.panelColor &&
+                        first.effectivePanelAppearance.opacity == saved.opacity &&
+                        first.effectivePanelAppearance.textSize == saved.textSize &&
+                        first.panelCaptureLabel == captureBefore && first.recognitionConfiguration == recognitionBefore,
+                        "changing brand preserves glass, text, capture and recognition")
+            try require(BrandAppearance.load(from: prefs) == .black, "black brand is persisted to the injected suite")
+            first.brandAppearance = .purple
+            try require(first.effectivePanelAppearance == saved, "purple restores the entire preexisting appearance")
+            first.brandAppearance = .black
             await first.prepareForExit()
             let reopened = try AppModel(directory: home, preferences: prefs)
             try require(reopened.panelAppearance == saved && reopened.panelSizePreset == .spacious && !reopened.panelBorderVisible,
                         "appearance presets survive store and settings restart")
+            try require(reopened.brandAppearance == .black && reopened.effectivePanelAppearance.buttonColor == .black,
+                        "relaunch restores black logo and colors together")
             reopened.resetPanelAppearance()
+            try require(reopened.brandAppearance == .purple && BrandAppearance.load(from: prefs) == .purple,
+                        "restore defaults restores and persists the original purple brand")
             try require(reopened.panelAppearance == VoicePanelAppearance() && reopened.panelBorderVisible && reopened.panelSizePreset == .standard,
                         "one reset restores the original appearance without touching ASR")
             await reopened.prepareForExit()
             prefs.set(Data("{invalid}".utf8), forKey: "panelAppearance")
             prefs.set("unknown-size", forKey: "panelSizePreset")
+            prefs.set("unsupported-brand", forKey: BrandAppearance.preferenceKey)
             let repaired = try AppModel(directory: home, preferences: prefs)
             try require(repaired.panelAppearance == VoicePanelAppearance() && repaired.panelSizePreset == .standard,
                         "invalid appearance preferences safely fall back to current visual defaults")
+            try require(repaired.brandAppearance == .purple, "invalid brand falls back safely to purple")
             await repaired.prepareForExit()
         }
         do {

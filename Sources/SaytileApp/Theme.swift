@@ -1,7 +1,18 @@
 import SwiftUI
+import SaytileVoiceUI
 
 // Select the stable property wrapper: CLT 27 does not ship SwiftUIMacros.
 typealias ViewState<Value> = SwiftUI.State<Value>
+
+private struct BrandAppearanceKey: EnvironmentKey {
+    static let defaultValue: BrandAppearance = .purple
+}
+extension EnvironmentValues {
+    var brandAppearance: BrandAppearance {
+        get { self[BrandAppearanceKey.self] }
+        set { self[BrandAppearanceKey.self] = newValue }
+    }
+}
 
 enum Palette {
     static let ink = Color(red: 0.17, green: 0.16, blue: 0.23)
@@ -26,15 +37,27 @@ enum WorkspaceStyle {
             ? NSColor(srgbRed: 0.76, green: 0.68, blue: 1, alpha: 1)
             : NSColor(srgbRed: 0.39, green: 0.26, blue: 0.67, alpha: 1)
     })
-    static let selection = accent.opacity(0.12)
+    static func accent(for brand: BrandAppearance) -> Color {
+        guard brand == .black else { return accent }
+        // A black brand is not a black window. In dark system windows the neutral
+        // accent reverses for contrast; the white app-icon plate does not change.
+        return Color(nsColor: NSColor(name: nil) { appearance in
+            appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+                ? NSColor(srgbRed: 0.90, green: 0.90, blue: 0.90, alpha: 1)
+                : NSColor(srgbRed: 0, green: 0, blue: 0, alpha: 1)
+        })
+    }
+    static func selection(for brand: BrandAppearance) -> Color { accent(for: brand).opacity(0.12) }
     static let title = Font.system(size: 25, weight: .semibold)
 }
 
 struct WorkspaceBrand: View {
+    @Environment(\.brandAppearance) private var brand
+    @Environment(\.colorScheme) private var colorScheme
     var compact = false
     var body: some View {
         Group {
-            if let mark = SaytileBrand.mark {
+            if let mark = SaytileBrand.mark(for: brand, dark: colorScheme == .dark) {
                 Image(nsImage: mark).resizable().interpolation(.high).aspectRatio(contentMode: .fit)
                     .frame(width: compact ? 22 : 32, height: compact ? 24 : 36)
             } else {
@@ -48,6 +71,7 @@ struct WorkspaceBrand: View {
 }
 
 struct WorkspaceNavRow: View {
+    @Environment(\.brandAppearance) private var brand
     let title: String
     let symbol: String
     let selected: Bool
@@ -55,36 +79,38 @@ struct WorkspaceNavRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 9) {
-                Image(systemName: symbol).frame(width: 19).foregroundStyle(selected ? WorkspaceStyle.accent : .secondary)
+                Image(systemName: symbol).frame(width: 19).foregroundStyle(selected ? WorkspaceStyle.accent(for: brand) : .secondary)
                 Text(title).font(.system(size: 13, weight: selected ? .semibold : .regular))
                 Spacer(minLength: 0)
             }.padding(.horizontal, 10).frame(maxWidth: .infinity).frame(height: 34)
-                .background(selected ? WorkspaceStyle.selection : .clear, in: RoundedRectangle(cornerRadius: 7))
+                .background(selected ? WorkspaceStyle.selection(for: brand) : .clear, in: RoundedRectangle(cornerRadius: 7))
                 .contentShape(Rectangle())
         }.buttonStyle(.plain).accessibilityLabel(title).accessibilityAddTraits(selected ? .isSelected : [])
     }
 }
 
 struct QuietButton: ButtonStyle {
+    @Environment(\.brandAppearance) private var brand
     @Environment(\.isEnabled) private var isEnabled
     var prominent = false
     func makeBody(configuration: Configuration) -> some View {
         configuration.label.font(.system(size: 12, weight: .medium))
             .padding(.horizontal, 13).padding(.vertical, 8)
             .foregroundStyle(prominent ? .white : WorkspaceStyle.foreground)
-            .background(prominent ? Palette.accent : WorkspaceStyle.selection, in: RoundedRectangle(cornerRadius: 8))
+            .background(prominent ? (brand == .black ? Color.black : Palette.accent) : WorkspaceStyle.selection(for: brand), in: RoundedRectangle(cornerRadius: 8))
             .contentShape(Rectangle())
             .opacity(!isEnabled ? 0.38 : configuration.isPressed ? 0.7 : 1)
     }
 }
 
 struct StatePill: View {
+    @Environment(\.brandAppearance) private var brand
     let text: String
     var warning = false
     var body: some View {
         Label(text, systemImage: warning ? "exclamationmark.circle" : "circle.fill")
-            .font(.system(size: 11)).foregroundStyle(warning ? Palette.amber : Palette.accent)
+            .font(.system(size: 11)).foregroundStyle(warning ? Palette.amber : WorkspaceStyle.accent(for: brand))
             .padding(.horizontal, 9).padding(.vertical, 5)
-            .background((warning ? Palette.amber : Palette.accent).opacity(0.08), in: Capsule())
+            .background((warning ? Palette.amber : WorkspaceStyle.accent(for: brand)).opacity(0.08), in: Capsule())
     }
 }
