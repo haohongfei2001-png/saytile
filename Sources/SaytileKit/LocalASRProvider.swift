@@ -240,6 +240,7 @@ struct LocalLiveText {
     private(set) var presentation = ""
     private var readingPrefix = ""
     private var withheld: String?
+    private var unconfirmedTail: String?
     init(model: LocalASRID) { self.model = model }
     mutating func accept(_ text: String, final: Bool) -> Int? {
         if final {
@@ -248,6 +249,15 @@ struct LocalLiveText {
         }
         let common = RecognitionUTF16.commonPrefix([previous, text])
         if model == .qwen || model == .qwenLarge {
+            if let correction = Self.tailOnlyCorrection(previous: previous, text: text),
+               unconfirmedTail != correction {
+                // A single unchanged-length tail spelling is not new speech.
+                // Keep the last observed words until this correction is repeated
+                // or fresh speech arrives. EOS always bypasses this preview gate.
+                unconfirmedTail = correction
+                return nil
+            }
+            unconfirmedTail = nil
             // The zh decoder can change the script of the whole hypothesis mid-utterance.
             // Compare scripts only for preview ownership. Publish the original model string.
             let matches = RecognitionUTF16.hasExactPrefix(text, prefix: readingPrefix)
@@ -290,6 +300,23 @@ struct LocalLiveText {
         }
         previous = text
         return model == .nemotron ? String(common.dropLast()).utf16.count : 0
+    }
+
+    private static func tailOnlyCorrection(previous: String, text: String) -> String? {
+        let old = Array(previous.filter { $0.isLetter || $0.isNumber })
+        let current = Array(text.filter { $0.isLetter || $0.isNumber })
+        guard old.count >= 12, old.count == current.count else { return nil }
+        let changed = old.indices.filter { old[$0] != current[$0] }
+        guard let first = changed.first, let last = changed.last,
+              first >= max(8, old.count - 8), last - first < 3 else { return nil }
+        func ordinaryHan(_ c: Character) -> Bool {
+            c.unicodeScalars.count == 1 && c.unicodeScalars.allSatisfy { (0x3400...0x9FFF).contains($0.value) }
+                && !protectsBoundary(c)
+        }
+        guard changed.allSatisfy({ ordinaryHan(old[$0]) && ordinaryHan(current[$0]) }) else { return nil }
+        // Comparison only: the actual displayed string still comes from the
+        // current raw hypothesis, after all existing ownership checks below.
+        return String(current)
     }
 
     private static func confirmedReadingPrefix(previous: String, prior: String, text: String, unchanged: Int) -> String? {

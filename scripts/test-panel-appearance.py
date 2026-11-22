@@ -62,7 +62,7 @@ with tempfile.TemporaryDirectory(prefix='saytile-appearance-native-') as temp:
                         '11 picker selections through AXPress and AppKit menu actions; resets, border, font and edit/selection '
                         'protection; synthetic capture boundary with zero starts and zero cloud calls. Size picker and apply '
                         'button action only; actual AppDelegate window resizing is a separate acceptance. Images use AppKit '
-                        'cacheDisplay; backdrop blur composition is separately covered by --glass-only.'}
+                        'cacheDisplay; backdrop blur composition is separately covered by scripts/test-product-windows.py.'}
     (output / 'receipt.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n')
     print(log)
     print(receipt['status'], json.dumps(checks))

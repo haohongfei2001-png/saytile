@@ -1,0 +1,28 @@
+{
+  "source": "268f59aea816974763a2b771fa00b1d8d00f8362",
+  "dirty": false,
+  "version": "0.21",
+  "build": "556",
+  "bundle": "app.saytile.mac.mandarin-candidate",
+  "app_binary_sha256": "fb668cafd44e0d9a91d9dfc08752e2254a72d6c8f75ec3bff00257acfbcba50a",
+  "dmg_sha256": "8022baef61e18695c1b05f8dc15b89016262ea190d04f7ea51deab0cdfc17d89",
+  "dmg_bytes": 64511531,
+  "checks": {
+    "signature": {
+      "code": 0,
+      "output": ""
+    },
+    "identity": {
+      "code": 0,
+      "output": "Executable=/private/tmp/saytile-021-final-app/Saytile.app/Contents/MacOS/Saytile\nIdentifier=app.saytile.mac.mandarin-candidate\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=26190 flags=0x10000(runtime) hashes=807+7 location=embedded\nVersionPlatform=1\nVersionMin=1703936\nVersionSDK=1703936\nHash type=sha256 size=32\nCandidateCDHash sha256=fe2dae995039d8290e8a04150bb79f4b92fcbd24\nCandidateCDHashFull sha256=fe2dae995039d8290e8a04150bb79f4b92fcbd24ecf794496b44aca44920cd33\nHash choices=sha256\nCMSDigest=fe2dae995039d8290e8a04150bb79f4b92fcbd24ecf794496b44aca44920cd33\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=6094848\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=fe2dae995039d8290e8a04150bb79f4b92fcbd24\nSignature size=9043\nAuthority=Developer ID Application: hongfei hao (ZB9D4T66QB)\nAuthority=Developer ID Certification Authority\nAuthority=Apple Root CA\nTimestamp=Nov 23, 2026 at 06:55:44\nInfo.plist entries=33\nTeamIdentifier=ZB9D4T66QB\nRuntime Version=26.0.0\nSealed Resources version=2 rules=13 files=40\nInternal requirements count=1 size=196\nTotal signatures=1\nChosen signature=1\n"
+    },
+    "gatekeeper": {
+      "code": 3,
+      "output": "/private/tmp/saytile-021-final-app/Saytile.app: rejected\nsource=Unnotarized Developer ID\norigin=Developer ID Application: hongfei hao (ZB9D4T66QB)\n"
+    },
+    "stapler": {
+      "code": 65,
+      "output": "Processing: /private/tmp/saytile-021-final-app/Saytile.app\nSaytile.app does not have a ticket stapled to it.\n"
+    }
+  }
+}

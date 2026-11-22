@@ -4,6 +4,43 @@ import Testing
 
 @Suite("Local model preview and download recovery")
 struct QwenRecoveryTests {
+    @Test func tailOnlyWordFlipNeedsASecondObservationButNeverDelaysEOS() {
+        let prefix = "老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大"
+        let shown = prefix + "理石的五倍。", transient = prefix + "力士的五倍。"
+        var live = LocalLiveText(model: .qwen)
+        #expect(live.accept(shown, final: false) == 0)
+        #expect(live.accept(transient, final: false) == nil)
+        #expect(live.previous == shown)
+        #expect(live.presentation == String(shown.dropLast()))
+        #expect(live.accept(shown, final: false) == 0)
+        #expect(live.accept(transient, final: false) == nil)
+        #expect(live.accept(transient, final: false) == 0)
+        #expect(live.previous == transient)
+        #expect(live.accept(shown, final: false) == nil)
+        #expect(live.accept(shown, final: true) == shown.utf16.count)
+        #expect(live.presentation == shown)
+    }
+
+    @Test func tailConfirmationDoesNotWaitForNewWordsFirstWordsNumbersOrOtherEngines() {
+        let shown = "这个例子介绍人类大理石的五倍。"
+        let changed = "这个例子介绍人类大力士的五倍。"
+        var live = LocalLiveText(model: .qwen)
+        #expect(live.accept(shown, final: false) == 0)
+        #expect(live.accept(changed, final: false) == nil)
+        #expect(live.accept(changed + "这里", final: false) == 0)
+        #expect(live.previous == changed + "这里")
+        for model in [LocalASRID.sherpa, .nemotron] {
+            var other = LocalLiveText(model: model)
+            #expect(other.accept(shown, final: false) != nil)
+            #expect(other.accept(changed, final: false) != nil)
+        }
+        for value in ["这是第一个例子费用一千五百元。", "这是第一个例子今天不能出发。"] {
+            var immediate = LocalLiveText(model: .qwen)
+            let update = value.replacingOccurrences(of: "五百", with: "六百").replacingOccurrences(of: "不能", with: "才能")
+            #expect(immediate.accept(value, final: false) == 0)
+            #expect(immediate.accept(update, final: false) == 0)
+        }
+    }
     @Test func twoEarlierChineseWordsNeedWholeSpanCorroborationBeforeTailCanResume() {
         // Same two independently changing words as the preserved loaded public
         // recording. A new word at the right edge must not wait for an earlier
