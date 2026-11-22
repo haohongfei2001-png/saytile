@@ -1648,6 +1648,21 @@ extension AppDelegate {
                         titles: PanelButtonColorPreset.allCases.map(\.title), in: settingsHost)
                     try await self.reviewUntil { model.panelAppearance.buttonColor == .graphite }; selections += 1
                     try self.captureReview(panelHost, name: "appearance-warm-graphite", output: output)
+                    let savedAppearance = model.panelAppearance
+                    for brand in [BrandAppearance.black, .purple] {
+                        try await self.press(brand.title, in: settingsHost)
+                        try await self.reviewUntil { model.brandAppearance == brand }
+                        guard BrandAppearance.load(from: preferences) == brand,
+                              model.panelAppearance == savedAppearance,
+                              model.effectivePanelAppearance == savedAppearance.resolved(for: brand),
+                              try self.compactTranscript(in: panelHost) === scroll,
+                              editor.string == text, editor.selectedRange() == selected,
+                              try await self.appearanceControlGeometry(in: panelHost) == baselineButtons else {
+                            throw ReviewFailure("Native brand selection lost panel preferences, text, selection or geometry")
+                        }
+                        try self.captureReview(panelHost, name: "appearance-brand-" + brand.rawValue, output: output)
+                        try self.captureReview(settingsHost, name: "appearance-brand-" + brand.rawValue + "-settings", output: output)
+                    }
                     for (value, points) in [(PanelTextSizePreset.small, CGFloat(12)), (.large, 16), (.extraLarge, 18)] {
                         try await self.chooseAppearanceMenu("settings.panelTextSize", title: value.title,
                             titles: PanelTextSizePreset.allCases.map(\.title), in: settingsHost)

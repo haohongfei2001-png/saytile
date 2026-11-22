@@ -287,3 +287,8 @@ Verified two active WindowServer displays on the test Mac (1920 × 1080 and 800 
 On two 2× WindowServer displays, a real mouse event sequence failed on build 274 at X=8; with the fix the panel crossed X=0, landed at (-604,491) (408×298), survived a process restart at exactly that frame, and moved back. Both sides used the same foreground guard, no external text target, and a paused microphone. Release binary receipts follow.
 
 Build 275: PASS 426 Swift, 126 AppModel, 19 compositor scenes, 44 AX presses, 12,000 timeline rows, two real displays with exact restart and a single-window on-device Apple speech movie. See evidence/native-product-design/machine.json. Protected build 269 and formal/personal file metadata unchanged; no private content opened.
+
+
+## 2026-11-23
+
+0.21：Qwen恢复/候选保护18项Swift Testing通过；计算图原速四轮失败证据已保存。新完整CI及安装包待最终源码验收。

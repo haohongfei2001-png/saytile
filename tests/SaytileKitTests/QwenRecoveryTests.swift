@@ -4,6 +4,41 @@ import Testing
 
 @Suite("Local model preview and download recovery")
 struct QwenRecoveryTests {
+    @Test func twoEarlierChineseWordsNeedWholeSpanCorroborationBeforeTailCanResume() {
+        // Same two independently changing words as the preserved loaded public
+        // recording. A new word at the right edge must not wait for an earlier
+        // spelling to revert, once two full raw observations agree.
+        let head = "毋庸置疑的是如果你会讲一门罗曼语那么学习葡萄牙语会更加容易"
+        let tail = "首选登山目的地科查莫山谷被称为南美洲的优美圣地"
+        let original = head + "人类大理石的五倍视力" + tail
+        let corrected = head + "人类大力士的五倍这里" + tail
+        func ready() -> LocalLiveText {
+            var live = LocalLiveText(model: .qwen)
+            _ = live.accept(original, final: false)
+            _ = live.accept(original + "。", final: false)
+            return live
+        }
+        var live = ready()
+        #expect(live.accept(corrected + "这里有各。", final: false) == nil)
+        let grown = corrected + "这里有各式各样的花岗岩。"
+        #expect(live.accept(grown, final: false) == 0)
+        #expect(live.presentation == String(grown.dropLast()))
+        #expect(live.previous == grown)
+        let final = corrected + "这里有各式各样的花岗岩大石壁。"
+        #expect(live.accept(final, final: true) == final.utf16.count)
+        #expect(live.presentation == final)
+        for unsafe in [head + "人类大力士的六倍这里" + tail,
+                       head + "人类大力士的五倍不是" + tail,
+                       head + "完全不同的另一种解释" + tail] {
+            var guarded = ready()
+            #expect(guarded.accept(unsafe + "这里有各。", final: false) == nil)
+            #expect(guarded.accept(unsafe + "这里有各式各样的花岗岩。", final: false) == nil)
+            #expect(guarded.previous == original + "。")
+        }
+        var disagreement = ready()
+        _ = disagreement.accept(corrected + "这里有各。", final: false)
+        #expect(disagreement.accept(head + "人类大博士的五倍这里" + tail + "这里有各式各样。", final: false) == nil)
+    }
     // Verbatim partials from the pinned Qwen worker on public FLEURS sample 9eb2d543a0a36152.
     private let original = [
         "嗯。", "致力首選燈。", "致力首选登山目的地。科", "致力首选登山目的地——喀嚓莫山。",

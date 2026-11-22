@@ -39,6 +39,8 @@ with tempfile.TemporaryDirectory(prefix='saytile-appearance-native-') as temp:
                 'appearance-opacity-opaque.png', 'appearance-blue.png', 'appearance-warm-graphite.png',
                 'appearance-type-small.png', 'appearance-type-large.png', 'appearance-type-extraLarge.png',
                 'appearance-no-border.png', 'appearance-restored.png', 'appearance-settings-default.png',
+                'appearance-brand-black.png', 'appearance-brand-purple.png',
+                'appearance-brand-black-settings.png', 'appearance-brand-purple-settings.png',
                 'appearance-settings-custom.png', 'appearance-settings-restored.png',
                 'timeline-appearance-panel.png', 'timeline-appearance-settings.png'}
     checks = {
@@ -46,6 +48,7 @@ with tempfile.TemporaryDirectory(prefix='saytile-appearance-native-') as temp:
         'appearance_contract': log.count('APPEARANCE_REVIEW_PASS ') == 1,
         'real_menu_selections': log.count('NATIVE_APPEARANCE_MENU ') == 11,
         'border_action': log.count('NATIVE_UI_AXPRESS settings.panelBorder ') == 1,
+        'brand_round_trip_actions': log.count('NATIVE_UI_AXPRESS 黑色 ') == 1 and log.count('NATIVE_UI_AXPRESS 原紫色 ') == 1,
         'apply_size_action': log.count('NATIVE_UI_AXPRESS settings.applyPanelSize ') == 1,
         'reset_action': log.count('NATIVE_UI_AXPRESS settings.resetAppearance ') == 1,
         'all_native_snapshots': set(image_hashes) == expected,

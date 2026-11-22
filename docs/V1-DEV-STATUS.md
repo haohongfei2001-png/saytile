@@ -252,3 +252,8 @@ An actual initial launch with an unlaid-out menu-bar item landed in the bottom c
 Real two-display dragging reproduced a shared-edge failure even though same-display dragging, menu hide/show and pure geometry passed. The unused top inset now tracks the native gesture in desktop coordinates; the app constrains the panel after release, not midway through a cross-display move. No visual chrome or new action was introduced. Work is isolated from all protected branches and profiles.
 
 Final private design candidate: build 275, product ef21bda1807e9152f41fd8dbc2597cb30e28c9fc. Installed in parallel and left paused. See V1-NATIVE-PRODUCT-ACCEPTANCE.md for native screenshots, live panel video, source-bound tests, geometry fixes and distribution limits.
+
+
+## 2026-11-23
+
+0.21：从PR49整合PR50；候选进度见 docs/delivery/beta-021/STATUS.md。拒绝冷启动回退的计算图试验；修复双词确认过严，待原生压力验收。

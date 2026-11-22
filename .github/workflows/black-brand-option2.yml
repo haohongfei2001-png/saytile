@@ -26,6 +26,8 @@ jobs:
       SAYTILE_MODEL_LOG: evidence/black-brand-ci/app-model.log
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Check approved source and bundled resource hashes
         run: |
           mkdir -p evidence/black-brand-ci

@@ -30,7 +30,6 @@ for source in Qwen3ASR.swift QuantizedTextDecoder.swift; do
   git -C "$cache/speech-swift" show "$speech:Sources/Qwen3ASR/$source" > "$original/Sources/Qwen3ASR/$source"
 done
 patch -s -f -p1 -d "$original" < "$pkg/qwen-verified-preview.patch"
-patch -s -f -p1 -d "$original" < "$pkg/qwen-compiled-decoder.patch"
 for source in Qwen3ASR.swift QuantizedTextDecoder.swift; do
   cmp -s "$original/Sources/Qwen3ASR/$source" "$pkg/.vendor/SpeechKernels/Sources/Qwen3ASR/$source" || cp "$original/Sources/Qwen3ASR/$source" "$pkg/.vendor/SpeechKernels/Sources/Qwen3ASR/$source"
 done

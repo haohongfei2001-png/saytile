@@ -63,6 +63,10 @@ final class ModelWorker: @unchecked Sendable {
             process.currentDirectoryURL = resources
         }
         process.arguments = [id.rawValue, directory.path, String(stride)]
+        // Recognition is waiting on current speech, not background maintenance.
+        // Set this before launch so decode work inherits the interactive task's
+        // scheduling class. The worker still sleeps on the pipe between chunks.
+        process.qualityOfService = .userInitiated
         if observe != nil {
             var environment = ProcessInfo.processInfo.environment
             environment["SAYTILE_WORKER_TIMING"] = "1"
@@ -396,7 +400,20 @@ struct LocalLiveText {
         guard extensionAgreement.contains(where: { $0.0.isLetter || $0.0.isNumber }) else { return nil }
 
         let anchorEnd: Int
-        if last - first < 4, first >= 3, old.count - last > 12 {
+        let clusters = changes.reduce(into: [[Int]]()) { groups, index in
+            if let end = groups.last?.last, index == end + 1 { groups[groups.count - 1].append(index) }
+            else { groups.append([index]) }
+        }
+        if clusters.count == 2, clusters.allSatisfy({ $0.count <= 3 }), first >= 12,
+           clusters[1][0] - clusters[0].last! >= 4, old.count - last > 12 {
+            // Two independent earlier Chinese words can settle on the same pass.
+            // Both raw observations must corroborate the ENTIRE visible lexical
+            // span, not just a shared phrase. Reject numbers, negatives, changed
+            // word lengths and broad rewrites above; publish only the raw model
+            // hypothesis. Final text and external dispatch remain independent.
+            guard observed.prefix(old.count).elementsEqual(current.prefix(old.count)) else { return nil }
+            anchorEnd = old.count
+        } else if last - first < 4, first >= 3, old.count - last > 12 {
             // A different, earlier spelling on the prior pass must not invalidate
             // the local evidence when the current pass restores the displayed words.
             guard current[(first - 3)..<old.count].elementsEqual(observed[(first - 3)..<old.count]) else { return nil }

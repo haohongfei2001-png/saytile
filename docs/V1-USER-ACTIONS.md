@@ -211,3 +211,8 @@ No display reconfiguration or testing is requested from the user. The design pro
 No user-assisted display movement is needed. The two-screen check uses only the newly created design candidate; its test gesture returns to a natural position for handoff.
 
 唯一体验入口是 ~/Applications/Saytile 设计体验.app。初始保持暂停，用户主动开启时可能出现新身份的系统麦克风提示。没有需要代替开发者执行的测试。仅请审定设置与档案的密度，以及真实桌面上的玻璃质感。未公证，不建议转发下载包给其他人。
+
+
+## 2026-11-23
+
+0.21：本轮不需要用户测试或开盖；iCloud/反馈/公证现有账户能力检查有阻断，最终交付合并列最少授权步骤。
