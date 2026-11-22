@@ -1,6 +1,23 @@
 import AppKit
 @testable import SaytileKit
 
+/// An incomplete web context is an absent observation, not a different page.
+/// This only schedules another read inside the original readiness deadline; it
+/// never accepts the field, rebinds it, changes focus, or issues an edit. Every
+/// independently readable target property must still match.
+func ownedWebContextUnavailable(_ current: InputTargetSnapshot, expected: InputTargetSnapshot) -> Bool {
+    guard expected.isWeb, expected.pageContextComplete, expected.pageIdentity != nil,
+          current.isWeb, !current.pageContextComplete else { return false }
+    // The adapter retains URL and title when only the bounded semantic traversal
+    // is incomplete. Do not wait through a changed URL/title or a missing identity.
+    guard let identity = expected.pageIdentity, let separator = identity.lastIndex(of: "\u{1f}"),
+          current.pageIdentity == String(identity[...separator]) else { return false }
+    var withoutMissingContext = current
+    withoutMissingContext.pageIdentity = expected.pageIdentity
+    withoutMissingContext.pageContextComplete = expected.pageContextComplete
+    return withoutMissingContext == expected
+}
+
 /// Start one ordinary binding when the disposable editor has reported its full
 /// identity three times. The production observer remains attached through the
 /// quiet period and the subsequent test edit.
@@ -113,6 +130,15 @@ import AppKit
             abortReason = "bound_snapshot_error"
             print("OWNED_READY_REJECT", trace.stage, abortReason)
             throw error
+        }
+        if ownedWebContextUnavailable(current, expected: expected) {
+            // A bounded page traversal may expire while focus, editor and caret
+            // remain readable. Just like an unsupported snapshot above, it cannot
+            // count as a quiet read. Require three new complete exact observations.
+            quiet = 0
+            print("OWNED_READ_UNAVAILABLE", trace.stage, "web context; quiet interval reset")
+            try await clock.sleep(until: min(deadline, clock.now.advanced(by: .milliseconds(180))))
+            continue
         }
         guard current == expected else {
             abortReason = "bound_snapshot_difference"

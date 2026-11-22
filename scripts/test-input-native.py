@@ -112,6 +112,7 @@ def foreground_batch(compile_only=False):
     # These binaries remain prohibited until the probe explicitly passes preflight.
     for source, include_production in [("AXTextFixture", False), ("AXWebFixture", False), ("AXForegroundBatchProbe", True)]:
         compile_source(source + ".swift", SCRATCH / source, include_production, foreground=True)
+    subprocess.run([str(SCRATCH / "AXForegroundBatchProbe"), "--readiness-policy-only"], check=True)
     if compile_only:
         print("FOREGROUND_COMPILE_ONLY_PASS; no fixtures or foreground probe executed")
         return

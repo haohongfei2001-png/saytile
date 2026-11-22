@@ -219,3 +219,8 @@ No user-assisted display movement is needed. The two-screen check uses only the 
 
 ### 0.21收口当前账户边界（2026-11-23）
 无需用户参与本机公开语料、临时档案及原生控件测试；内置麦克风依照指示维持未验。新包公证缺少可用notarytool配置，iCloud缺少对应签名profile/容器可用证明，反馈服务未认证及部署；不得使用旧版公证或受控传输声称通过。所有可独立工程继续，最终统一列出最少账户事项。
+
+
+## 2026-11-23 · 0.21 最终前台输入回归
+
+557 的 WKWebView 首次写入前读到不完整网页上下文；原始失败未删除。仅修正 fixture 对未完成观察的分类，保留五秒截止、三个完整一致观察和全部目标安全条件。17 项独立属性回归通过；真实 AX 以随后 CI 为准。产品源和 557 安装包不变，无需用户操作。详见 `evidence/beta-021/final/foreground-readiness.md`。

@@ -6,6 +6,37 @@ import ApplicationServices
 import Darwin
 
 private struct BatchFailure: Error { let message: String }
+
+private func verifyOwnedReadinessPolicy() throws {
+    let expected = InputTargetSnapshot(processID: 123, applicationID: "fixture", applicationName: "Owned fixture",
+        windowID: UUID(), elementID: UUID(), pageIdentity: "https://fixture.invalid/one\u{1f}Title\u{1f}context-digest",
+        selectionLocation: 7, selectionLength: 0, isWeb: true, isEditable: true, isSensitive: false, canSetSelectedText: true)
+    var incomplete = expected
+    incomplete.pageContextComplete = false
+    incomplete.pageIdentity = "https://fixture.invalid/one\u{1f}Title\u{1f}"
+    guard ownedWebContextUnavailable(incomplete, expected: expected),
+          !ownedWebContextUnavailable(expected, expected: expected) else {
+        throw BatchFailure(message: "Incomplete observation was confused with a complete proof")
+    }
+    let mutations: [(String, (inout InputTargetSnapshot) -> Void)] = [
+        ("process", { $0.processID += 1 }), ("application", { $0.applicationID += "other" }),
+        ("applicationLabel", { $0.applicationName += "other" }), ("window", { $0.windowID = UUID() }),
+        ("editor", { $0.elementID = UUID() }), ("caret", { $0.selectionLocation += 1 }),
+        ("selection", { $0.selectionLength = 1 }), ("native", { $0.isWeb = false }),
+        ("disabled", { $0.isEditable = false }), ("sensitive", { $0.isSensitive = true }),
+        ("setter", { $0.canSetSelectedText = false }), ("missingIdentity", { $0.pageIdentity = nil }),
+        ("differentURL", { $0.pageIdentity = "https://fixture.invalid/two\u{1f}Title\u{1f}" }),
+        ("differentTitle", { $0.pageIdentity = "https://fixture.invalid/one\u{1f}Other\u{1f}" }),
+        ("completeDifferentPage", { $0.pageContextComplete = true; $0.pageIdentity = "changed" })
+    ]
+    for (name, mutate) in mutations {
+        var changed = incomplete; mutate(&changed)
+        guard !ownedWebContextUnavailable(changed, expected: expected) else {
+            throw BatchFailure(message: "Readiness waited through changed " + name)
+        }
+    }
+    print("PASS OWNED_READINESS_POLICY checks=17; incomplete context never proves readiness; all independent mutations reject")
+}
 private func inputIdleSeconds() -> Double {
     // Only event ages are queried. No event tap, key codes, text, coordinates or payloads.
     let types: [CGEventType] = [.keyDown, .keyUp, .flagsChanged, .mouseMoved, .leftMouseDown, .leftMouseUp,
@@ -247,6 +278,10 @@ private func immediateAbort(_ message: String) -> Never {
 
     @MainActor static func main() async {
         NSApplication.shared.setActivationPolicy(.prohibited)
+        if CommandLine.arguments == [CommandLine.arguments[0], "--readiness-policy-only"] {
+            do { try verifyOwnedReadinessPolicy(); exit(0) }
+            catch { print("FAIL OWNED_READINESS_POLICY", error); exit(1) }
+        }
         guard CommandLine.arguments.count == 4, CommandLine.arguments[1] == "--allow-foreground",
               ProcessInfo.processInfo.environment["SAYTILE_ALLOW_FOREGROUND_INPUT_FIXTURES"] == "1",
               let nativePID = Int32(CommandLine.arguments[2]), let webPID = Int32(CommandLine.arguments[3]), nativePID != webPID else {
