@@ -317,6 +317,24 @@ struct QwenRecoveryTests {
         #expect(ambiguous.presentation == head + tail)
     }
 
+    @Test func corroboratedOldWordAndPunctuationCanKeepGrowingBeforeEOS() {
+        // Verbatim endings from loaded-new-1 (0.21/555). At 31.117s both
+        // observations agreed on the correction and the entire earlier tail;
+        // an additional “声光” wrongly caused withholding until 33.207s EOS.
+        let head = "老虎是全能运动员，游泳跳远能够达到人类大力士的五倍。"
+        let correction = head.replacingOccurrences(of: "大力士", with: "大理石")
+        let tail = "这里首选登山目的地——科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。平时你总能在这里听到游客"
+        let restyled = tail.replacingOccurrences(of: "——", with: "，").replacingOccurrences(of: "。", with: "，")
+        var live = LocalLiveText(model: .qwen)
+        for n in [6, 3, 0] { #expect(live.accept(head + String(tail.dropLast(n)), final: false) == 0) }
+        #expect(live.accept(correction + restyled + "和小摊贩的声音。", final: false) == nil)
+        let growing = correction + tail + "和小摊贩的声音，声光。"
+        #expect(live.accept(growing, final: false) == 0)
+        #expect(live.presentation == String(growing.dropLast()))
+        #expect(live.previous == growing)
+        // The contradictory-tail test above remains unchanged and must reject.
+    }
+
     private func fixture(_ variant: String) throws -> LocalModelManifest {
         let revision = try LocalModelManifest.load(.qwen).revision
         let file = LocalModelManifest.File(path: "weights", bytes: 3,

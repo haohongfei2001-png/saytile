@@ -1,0 +1,83 @@
+{
+  "status": "PASS",
+  "source": "9af4b15ccc0939fed73f3ab84cf5f64f8876332b",
+  "seed_probe_sha256": "acc73db7e6b8c72bfe11cc37a26e356ecd4f0c1c8c017655eb4553fe6148ada9",
+  "scope": "real Saytile NSApplication and AppUpdateController -> SPUUpdater -> Sparkle installer -> argument-free app relaunch",
+  "user_driver": "deterministic fixture driver; standard Sparkle window interaction NOT_RUN",
+  "fixture_bundle_id": "app.saytile.update-fixture.374070e993b74d309d3747e46b559fc6",
+  "original_app_untouched": true,
+  "production_data": "NOT_ACCESSED",
+  "paid_services": "NOT_CALLED",
+  "corrupt_archive": {
+    "status": "PASS",
+    "installed_version": "1",
+    "archive_unchanged": true,
+    "rejection": "SUSparkleErrorDomain/4005"
+  },
+  "fixture_before": {
+    "schema": 6,
+    "table_sha256": "8662cb2880db17fa0653fe8fca4e8cb669cb3bce3f2afec4065e171620a9a46e",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "4F36A364-1488-4ACD-902F-68EA5CE34C1B/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "A8CACC66-9478-482D-9E3E-E6847AC63847/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "3BA66C9D-9289-4E51-BF95-8D1A6F0A1D47",
+      "E417D8C4-CD01-443E-896E-B6425C1816C1"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0,
+    "paragraph_metadata_sha256": "5a2f50f2c5753cf0cf4e63bee229d0009076b4c2eab5f15bc6f15f3270f8a54a"
+  },
+  "fixture_after": {
+    "schema": 6,
+    "table_sha256": "8662cb2880db17fa0653fe8fca4e8cb669cb3bce3f2afec4065e171620a9a46e",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "4F36A364-1488-4ACD-902F-68EA5CE34C1B/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "A8CACC66-9478-482D-9E3E-E6847AC63847/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "3BA66C9D-9289-4E51-BF95-8D1A6F0A1D47",
+      "E417D8C4-CD01-443E-896E-B6425C1816C1"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0,
+    "paragraph_metadata_sha256": "5a2f50f2c5753cf0cf4e63bee229d0009076b4c2eab5f15bc6f15f3270f8a54a"
+  },
+  "real_native_install_relaunch": true,
+  "version_before": "1",
+  "version_after": "2",
+  "source_pid": 64358,
+  "relaunched_pid": 64386,
+  "argument_free_relaunch_isolated": true,
+  "preference_canary_preserved": true,
+  "installed_signature_verified": true,
+  "model_marker_bytes_and_mtime_unchanged": true,
+  "update_archive_sha256": "fb53b4f2de1d07c11f5d1f32ce03a8b830f5b8b8ba8d4fe3b6c7d597cc306cc5",
+  "update_appcast_sha256": "82b2f03668579d14567ad4bce432e7565e36fbc13c874820aa93ca42ddf57163",
+  "updater_binary_sha256": "de933b5720d3feb3069b1acfd461abc82ac88189b648c757b6fb6c35ae033573",
+  "key_scope": "ephemeral Ed25519 file; deleted, never emitted or read from Keychain",
+  "runner_sha256": "559fcf3428da79a130c287565713f14b101e23669d9bd1bc4fdb4fae9fc2b9c3"
+}

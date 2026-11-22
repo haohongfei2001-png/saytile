@@ -63,10 +63,6 @@ final class ModelWorker: @unchecked Sendable {
             process.currentDirectoryURL = resources
         }
         process.arguments = [id.rawValue, directory.path, String(stride)]
-        // Recognition is waiting on current speech, not background maintenance.
-        // Set this before launch so decode work inherits the interactive task's
-        // scheduling class. The worker still sleeps on the pipe between chunks.
-        process.qualityOfService = .userInitiated
         if observe != nil {
             var environment = ProcessInfo.processInfo.environment
             environment["SAYTILE_WORKER_TIMING"] = "1"
@@ -420,9 +416,11 @@ struct LocalLiveText {
             let earlier = (0..<(first - 3)).filter { observed[$0] != current[$0] }
             if let a = earlier.first, let b = earlier.last {
                 guard b - a < 4, earlier.allSatisfy({ ordinaryHan(observed[$0]) && ordinaryHan(current[$0]) }) else { return nil }
-            } else if current != observed {
+            } else if !current.starts(with: observed) {
                 // Without an independent earlier change, this fallback admits
-                // only two whole lexical hypotheses that corroborate one another.
+                // only a whole corroborated lexical hypothesis and its exact
+                // extension. New speech must not invalidate already matching
+                // words, but a changed word in the observed tail still does.
                 return nil
             }
             anchorEnd = old.count
