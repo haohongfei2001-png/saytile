@@ -21,15 +21,19 @@ if [[ ! -f "$pkg/.vendor/SpeechKernels/.$speech" ]]; then
   git -C "$cache/speech-swift" archive "$speech" Sources/{AudioCommon,MLXCommon,SpeechVAD,Qwen3ASR,NemotronStreamingASR} LICENSE | tar xf - -C "$pkg/.vendor/SpeechKernels"
   touch "$pkg/.vendor/SpeechKernels/.$speech"
 fi
-# Restore this file even if a previous build prepared a different Qwen preview policy.
-qwen=Sources/Qwen3ASR/Qwen3ASR.swift
-original=$(mktemp)
-trap 'rm -f "$original"' EXIT
-git -C "$cache/speech-swift" show "$speech:$qwen" > "$original"
-# Apply the local preview policy to the pinned git blob, never to a
-# previously patched checkout. Repeated builds retain the same mtime.
-patch -s -f "$original" < "$pkg/qwen-verified-preview.patch"
-cmp -s "$original" "$pkg/.vendor/SpeechKernels/$qwen" || cp "$original" "$pkg/.vendor/SpeechKernels/$qwen"
+# Reconstruct both upstream inputs before applying local patches; no dependency
+# on a previously prepared (possibly different) working tree.
+original=$(mktemp -d)
+trap 'rm -rf "$original"' EXIT
+mkdir -p "$original/Sources/Qwen3ASR"
+for source in Qwen3ASR.swift QuantizedTextDecoder.swift; do
+  git -C "$cache/speech-swift" show "$speech:Sources/Qwen3ASR/$source" > "$original/Sources/Qwen3ASR/$source"
+done
+patch -s -f -p1 -d "$original" < "$pkg/qwen-verified-preview.patch"
+patch -s -f -p1 -d "$original" < "$pkg/qwen-compiled-decoder.patch"
+for source in Qwen3ASR.swift QuantizedTextDecoder.swift; do
+  cmp -s "$original/Sources/Qwen3ASR/$source" "$pkg/.vendor/SpeechKernels/Sources/Qwen3ASR/$source" || cp "$original/Sources/Qwen3ASR/$source" "$pkg/.vendor/SpeechKernels/Sources/Qwen3ASR/$source"
+done
 cmp -s "$pkg/SpeechKernels.swift-manifest" "$pkg/.vendor/SpeechKernels/Package.swift" || cp "$pkg/SpeechKernels.swift-manifest" "$pkg/.vendor/SpeechKernels/Package.swift"
 mkdir -p "$pkg/.vendor/FluidAudio"
 if [[ ! -f "$pkg/.vendor/FluidAudio/.$fluid" ]]; then
