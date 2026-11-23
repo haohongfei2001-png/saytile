@@ -211,7 +211,10 @@ func ownedWitnessReadiness(_ witness: String?, original: String) -> OwnedWitness
     // first post-write read. The system-wide focus still comes from macOS.
     var interruptFirstWebFocusRead: (() -> Void)?
     private(set) var provedInterruptedFocus = false
-    init(_ base: AXInputAccess) { self.base = base }
+    init(_ base: AXInputAccess) {
+        self.base = base
+        base.onProofUnavailable = { print("OWNED_PROOF_UNAVAILABLE", $0); fflush(nil) }
+    }
     var hasPermission: Bool { base.hasPermission }
     func snapshot() throws -> InputTargetSnapshot {
         try tracedSnapshot(base.snapshot)

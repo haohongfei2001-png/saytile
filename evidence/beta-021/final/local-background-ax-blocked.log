@@ -1,0 +1,61 @@
+Building for debugging...
+[Planning deferred tasks]
+[38 / 97]
+[70 / 108]
+[92 / 108] CAudio
+[97 / 108] CAudio
+[103 / 136] SaytileKit
+[116 / 280]
+[135 / 280]
+[144 / 280]
+[150 / 280]
+[156 / 280]
+/private/tmp/saytile-beta-021-20261123/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[163 / 280]
+[166 / 280]
+[172 / 280]
+[177 / 280]
+[178 / 280]
+[192 / 280]
+[196 / 280]
+[201 / 280]
+[206 / 280]
+[207 / 280]
+[208 / 280]
+[215 / 280]
+[217 / 280]
+[223 / 280]
+[224 / 280]
+[226 / 280]
+[227 / 280]
+[229 / 280]
+[242 / 280]
+[245 / 280]
+[249 / 280]
+[254 / 280]
+[257 / 280]
+[258 / 280]
+[259 / 280]
+[260 / 280]
+[271 / 280] SaytileKit
+[272 / 280] SaytileKit
+[277 / 280] SaytileKit
+/private/tmp/saytile-beta-021-20261123/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+/private/tmp/saytile-beta-021-20261123/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (19.78秒)
+FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0 background=true
+FIXTURE_READY
+Traceback (most recent call last):
+  File "/private/tmp/saytile-beta-021-20261123/scripts/test-input-native.py", line 202, in <module>
+    run_fixture("AXTextFixture", "AXCoordinatorProbe", "input-native-coordinator.log", "FIXTURE_READY")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-beta-021-20261123/scripts/test-input-native.py", line 85, in run_fixture
+    if probe.returncode: raise RuntimeError(f"Probe exit {probe.returncode}; no permission prompts or focus escalation attempted")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Probe exit 2; no permission prompts or focus escalation attempted
