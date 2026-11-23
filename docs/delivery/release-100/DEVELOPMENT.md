@@ -51,3 +51,7 @@ Keychain仅查公证元数据（不解密、不读取密码），未发现notary
 最终包Developer ID签名，未公证，Gatekeeper如实拒绝；用户本轮允许该分发边界。官网仅下载文案/FAQ/说明及摘要更新；本地headless25项通过，初轮本地HTTP夹具缺少Range导致拖动失败，修正夹具后通过；无生产页面交互变化。
 
 CI 42d8: Swift Testing汇总532项、XCTest30项均0失败；native-brand、design、gateway通过。原生native作业已通过。foreground WKWebView预算耗尽安全拒绝，完整日志保留；另发现遗漏HostedPaused.swift，只恢复原文件。最终CI仍需完成，不把中间绿灯算最终通过。
+
+### 最终安装、连续运行与UI边界
+
+904.8秒原速连续运行、实际DMG隔离安装与损坏资源拒绝已通过。当前18种AppKit编辑/选择/隐藏/宽度组合全部252项通过，使用旧失败原始publication。2fcff81完整Swift与native-gateway已完成；WKWebView初次绑定的安全拒绝保留原日志。只对合成textarea隔离非测试目标的拼写/自动纠错服务，不修改生产代码，不改输入断言，不重复激活或重新绑定。

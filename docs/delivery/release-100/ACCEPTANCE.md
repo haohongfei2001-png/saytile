@@ -31,7 +31,7 @@
 - PASS：0.18→1.0→0.18→1.0、533→1.0→533→1.0；每组2条合成记录/全部版本/手工稿/PCM校验/自然段/缓存保持；独立空目录启动。实际用户App与资料未变。
 - PASS：18项实际CLI隔离检查；所有生产路径在构造Store前拒绝。
 - CI首轮缺失冻结测试配置与睡眠夹具已补回精确原件，未删测试。42d8 foreground在WKWebView变短修正后的页面上下文150ms预算耗尽，安全返回correctionPending；前后文未受损。保留完整日志，未增加重试、抢焦点或放宽判定。后续最终CI结果另附。
-- 15分钟连续运行正在执行；真实麦克风（Mac继续合盖）NOT_RUN；8GB实体Mac、付费云端、iCloud NOT_RUN。
+- PASS：904.830秒原速连续运行，1758次显示变化、44/44记录完成、80原音块、814.050秒VAD选中原音完整对应输入；静音35秒后worker释放、继续讲话后恢复。App/worker峰值RSS 98.05/789.42MiB，后5分钟中位RSS没有增长；该RSS与短语料footprint是不同指标。真实麦克风（Mac继续合盖）NOT_RUN；8GB实体Mac、付费云端、iCloud NOT_RUN。
 
 ## 分发与网站
 
@@ -40,3 +40,15 @@
 没有找到已配置的notary profile，只查元数据，不读密钥。App/DMG Gatekeeper均 **rejected / Unnotarized Developer ID**。依本轮明确授权允许签名发行并披露系统单App“仍要打开”；不关闭Gatekeeper、不移除quarantine，不宣称公证成功。
 
 网站维持全部15文件设计体系，下载及FAQ更新；本地headless25项通过，7档宽度、编辑/搜索/收藏/实际TTS播放与暂停/拖动/版本/弹窗，零JS和资源错误。第一轮临时HTTP服务器没有正确提供音频Range，拖动失败；补齐服务器Range后原断言通过，正式页面JS/CSS没有修改。线上部署及完整下载尚待实际完成，不能用本地结果替代。
+
+## 最终包安装与完整测试数量
+
+`install-dmg.json`：只读挂载正式DMG、独立Applications复制、五项实际二进制/配置摘要逐项相等，离线空目录启动通过；故意损坏副本资源被codesign拒绝，未绕过Gatekeeper。
+
+42d8完整Xcode运行实际为579项Swift Testing（4+13+12+1+9+8+532个互斥分组）和30项XCTest，零失败；仅引用最后一组532会漏计前面47项。所有原PR54测试文件保留；本轮新增断言，未跳过测试。后续文档/夹具HEAD的CI另列，不能把旧SHA日志当作新SHA运行。
+
+## 显示保护及WKWebView后续诊断
+
+最终VoiceUI原样重放旧失败的14条publications，在following/reading/selection/editing/hidden/controlOnly六种模式、180/260/360宽度共18种组合，252项观察全部通过，18项最终与档案相等。没有用户输入或焦点变化；不能据此声称找到了旧观测停更唯一根因。
+
+2fcff81 foreground第二次失败发生在首次写入前；同一WKWebView窗口与光标仍匹配，但AX的editable观察变化，日志同时出现NSSpellServer超时。产品正确拒绝该不完整状态，未写入。TextEdit、Chrome、Edge、Safari和Chrome焦点读取超时的其余真实路径通过。为隔离测试自身引入的OS拼写服务干扰，只在合成WKWebView textarea声明spellcheck=false/autocorrect=off，并在就绪前核对属性；全部原所有权/光标/文字/窗口断言和150ms时限不变，生产输入代码未改。该有明确假设的验证结果待下一次CI，不能提前归因为唯一原因或宣布通过。

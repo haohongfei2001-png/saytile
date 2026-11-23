@@ -52,11 +52,15 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
         // Foreground activation owns the sole request for focus. Setting the initial
         // selection on an unfocused textarea does not require a second activation.
         let prepare = foregroundArmed ? "document.querySelector('textarea').setSelectionRange(7,7)" : "focusComposer()"
-        webView.evaluateJavaScript(prepare + ";document.querySelector('textarea').value==='PREFIX|SUFFIX'&&document.querySelector('textarea').selectionStart===7&&document.querySelector('textarea').selectionEnd===7") { [self] value, error in
+        // Disable the independent spelling service only in this disposable editor.
+        // The fixture measures exact AX range operations, not OS autocorrection;
+        // runner NSSpellServer startup can otherwise stall its accessibility replies.
+        // All ownership reads, deadlines and post-write assertions remain unchanged.
+        webView.evaluateJavaScript(prepare + ";document.querySelector('textarea').value==='PREFIX|SUFFIX'&&document.querySelector('textarea').selectionStart===7&&document.querySelector('textarea').selectionEnd===7&&document.querySelector('textarea').spellcheck===false&&document.querySelector('textarea').getAttribute('autocorrect')==='off'") { [self] value, error in
             guard error == nil, value as? Bool == true, !window.isKeyWindow, !window.isMainWindow, window.keyboardEvents == 0 else {
                 FileHandle.standardOutput.write(Data("WEB_FIXTURE_ISOLATION_FAILED\n".utf8)); return
             }
-            FileHandle.standardOutput.write(Data("WEB_FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0\nWEB_FIXTURE_READY\n".utf8))
+            FileHandle.standardOutput.write(Data("WEB_FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0\nWEB_FIXTURE_EDITOR spellcheck=false autocorrect=off\nWEB_FIXTURE_READY\n".utf8))
         }
     }
     func consume(_ bytes: Data) {
@@ -92,7 +96,7 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
             case "silentContext": js = "document.querySelector('h1').textContent='Different synthetic chat with identical empty composer';"
             case "sameURL": js = "document.querySelector('h1').textContent='Second synthetic chat';document.querySelector('textarea').value='';focusComposer();"
             case "newURL": js = "history.pushState({},'', '/chat/two');document.querySelector('h1').textContent='Second synthetic chat';document.querySelector('textarea').value='';focusComposer();"
-            case "replaceEditor": js = "document.querySelector('textarea').outerHTML='<textarea id=\"composer\" aria-label=\"Synthetic composer\"></textarea>';focusComposer();"
+            case "replaceEditor": js = "document.querySelector('textarea').outerHTML='<textarea id=\"composer\" aria-label=\"Synthetic composer\" spellcheck=\"false\" autocorrect=\"off\" autocapitalize=\"off\"></textarea>';focusComposer();"
             case "manualEdit": js = "let t=document.querySelector('textarea');t.value='PREFIX|我的改字SUFFIX';t.setSelectionRange(11,11);"
             case "blur": js = "document.querySelector('#send').focus();"
             case "select": js = "document.querySelector('textarea').setSelectionRange(0,6);"
@@ -108,7 +112,7 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
     }
     static let html = """
     <!doctype html><html><head><title>Saytile synthetic web fixture</title></head><body>
-    <h1>First synthetic chat</h1><textarea id="composer" aria-label="Synthetic composer" style="width:500px;height:200px">PREFIX|SUFFIX</textarea>
+    <h1>First synthetic chat</h1><textarea id="composer" aria-label="Synthetic composer" spellcheck="false" autocorrect="off" autocapitalize="off" style="width:500px;height:200px">PREFIX|SUFFIX</textarea>
     <button id="send">Send fixture only</button><script>
     window.sends=0;function focusComposer(){let c=document.querySelector('textarea');c.focus();c.setSelectionRange(Math.min(7,c.value.length),Math.min(7,c.value.length));}
     document.addEventListener('keydown',e=>{if(e.key==='Enter'){window.sends++;e.preventDefault();}});
