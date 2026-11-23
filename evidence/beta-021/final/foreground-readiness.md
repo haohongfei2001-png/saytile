@@ -28,3 +28,12 @@ replacement for real AX. The updated real WKWebView/AppKit/Chrome/TextEdit workf
 
 The failed run's Chrome, Chrome interrupted-focus confirmation and TextEdit logs
 remain in the artifact ZIP; they do not turn the failed WKWebView batch into PASS.
+
+
+## Second observed failure: d03f446
+
+Run 45086450912, foreground job 137406069438, failed before first insertion. Original log/ZIP are `foreground-failed-d03f446.*`. This time every outer snapshot matched and the fixture logged `witness_missing`; binding was still current and observer notifications were zero. Production `textWitness` does bounded text and before/after identity reads, returning nil if any proof is unavailable. The log cannot identify which inner read was unavailable. The contemporaneous NSSpellServer timeout is retained, not asserted as a cause.
+
+The same readiness bug also existed for missing text witnesses: initial reads correctly waited for full evidence, but post-binding readiness treated nil as a changed readable value. The fixture now distinguishes ready / absent / changed. Only absence after an exact matching outer snapshot resets quiet count within the original five-second deadline; a different readable value (including byte-different Unicode), changed target or invalidated observer still aborts. No write, rebind, focus action, added deadline or skipped assertion occurs. Three complete exact reads are still required.
+
+PASS: compiled deterministic readiness policy 22 checks (the original 17 plus missing/exact/empty/manual-edit/Unicode-byte witness cases). The real native AppKit and WKWebView batches each inject exactly one missing *fixture-readiness* witness after binding, require zero writes before readiness, then use the normal unchanged production checks for insertion. Production witnesses are never intercepted. Actual updated foreground CI must succeed on the PR head; 94db534's previous success is not substituted for it.

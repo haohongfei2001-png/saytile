@@ -1,5 +1,10 @@
 ## 2026-11-16 · 隔离确认框宿主修复
 
+## 2026-11-23 · 前台复验
+
+本次前台fixture问题由工程独立修复和CI复验，不需要用户操作或授权；557产品包及现用533不变。
+
+
 ## 2026-11-23 · 0.21（557）最终收口
 
 本轮无需朗读或工程排错。公证需一个有效notarytool profile名称；iCloud需既有Team的容器/App ID/profile配置；真实反馈需已有Cloudflare账户接收端部署权限。凭据不写聊天/仓库。Mac继续合盖；其余硬件/账户未验项目不记PASS。 详见 [发布裁决](delivery/beta-021/STATUS.md) 与 [机器验收](delivery/beta-021/ACCEPTANCE.md)。

@@ -35,7 +35,15 @@ private func verifyOwnedReadinessPolicy() throws {
             throw BatchFailure(message: "Readiness waited through changed " + name)
         }
     }
-    print("PASS OWNED_READINESS_POLICY checks=17; incomplete context never proves readiness; all independent mutations reject")
+    let original = "PREFIX|SUFFIX"
+    guard ownedWitnessReadiness(nil, original: original) == .unavailable,
+          ownedWitnessReadiness(original, original: original) == .ready,
+          ownedWitnessReadiness("", original: original) == .changed,
+          ownedWitnessReadiness("PREFIX|USER_EDIT", original: original) == .changed,
+          ownedWitnessReadiness("e\u{301}", original: "é") == .changed else {
+        throw BatchFailure(message: "Missing, changed or byte-different witness confused with complete proof")
+    }
+    print("PASS OWNED_READINESS_POLICY checks=22; absent evidence never proves readiness; changed identities and readable text reject")
 }
 private func inputIdleSeconds() -> Double {
     // Only event ages are queried. No event tap, key codes, text, coordinates or payloads.
@@ -353,7 +361,11 @@ private func immediateAbort(_ message: String) -> Never {
                 let trace = FixtureAccessTrace(access)
                 let input = NativeInputCoordinator(store: store, access: trace)
                 input.onBindingInvalidated = { print("OWNED_BINDING_INVALIDATED", kind, ProcessInfo.processInfo.systemUptime); fflush(nil) }
+                trace.withholdOneBoundReadinessWitness = true
                 try await bindOwnedField(input, trace: trace, original: "PREFIX|SUFFIX", caret: 7, pid: pid, expectingWeb: kind == "web")
+                guard trace.withheldReadinessWitnesses == 1, trace.writes == 0 else {
+                    throw BatchFailure(message: "Missing-witness readiness test did not remain read-only")
+                }
                 let recording = try await store.createRecording()
                 let revision = try await store.saveEdit(recordingID: recording.id, text: "你好😀")
                 print("FOREGROUND_STAGE target=\(kind) first_insert_begin"); fflush(nil)

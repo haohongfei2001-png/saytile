@@ -1,5 +1,10 @@
 ## 2026-11-16 · 隔离确认框宿主修复
 
+## 2026-11-23 · 前台复验
+
+d03f446 前台FAIL原始证据已保留；22项缺失观察/目标与文本变异政策检查PASS。最终真实AppKit、WKWebView、Chrome、TextEdit需以本次fixture修复的PR head验收，不能沿用上一SHA成功。
+
+
 ## 2026-11-23 · 0.21（557）最终收口
 
 PASS：567 Swift Testing、30 XCTest、220 AppModel；真实隔离AppKit/WKWebView/TextEdit/Chrome；最终签名包56 AXPress/7边缘点击/22 WindowServer场景、18项持久化故障、533↔557回退及真实Sparkle安装。原速15段新旧CER均8.10%、尾词往返2→0；420原段CER8.53%、20派生段8.51%，最终稿无退化。905秒长测47/47完成，79块原音一致、idle释放/恢复。FAIL：竞争负载仍2.564秒停顿；五个既有空final由原始模型证实为空，未改成成功。 详见 [发布裁决](delivery/beta-021/STATUS.md) 与 [机器验收](delivery/beta-021/ACCEPTANCE.md)。
