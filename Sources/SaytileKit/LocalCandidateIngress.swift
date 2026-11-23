@@ -21,6 +21,13 @@ actor LocalCandidateIngress {
         if let run { try? await store.finishModelRun(run, error: message) }
         try? await store.failRecognition(ticket: ticket, message: message)
     }
+    /// An empty final is not silence certification and must never complete or
+    /// clear a recording. Keep previews, user drafts and original PCM retryable.
+    func finishWithoutTranscript() async {
+        await fail(last == nil
+            ? "未识别到文字，原音已保存，可回听或重新识别。"
+            : "未获得最终文字，已有文字和原音已保留，可重新识别。")
+    }
     func receive(_ event: ProviderTranscriptEvent) async throws {
         if run == nil { try await start() }
         guard let run else { throw FusionError.staleGeneration }

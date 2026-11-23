@@ -112,6 +112,39 @@ struct LocalModelTests {
         #expect(event?.text == "测试")
         #expect(worker.process.isRunning)
     }
+    @Test(arguments: [false, true]) func emptyWorkerFinalPreservesAudioPreviewAndUserEdit(hasPreview: Bool) async throws {
+        let dir = FileManager.default.temporaryDirectory.appending(path: "saytile-empty-final-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let store = try SaytileStore(directory: dir)
+        let recording = try await store.createRecording()
+        let journal = try PCMJournal(directory: store.audioDirectory, recordingID: recording.id)
+        try journal.openChunk(); try journal.append(Data(repeating: 3, count: 640)); try journal.closeChunk()
+        try await store.registerAudioChunk(recordingID: recording.id, relativePath: journal.relativePath, frames: 320)
+        try await store.finishRecording(id: recording.id)
+        let file = store.audioDirectory.appending(path: journal.relativePath)
+        let original = try Data(contentsOf: file)
+        let ticket = try await store.beginRecognition(recordingID: recording.id)
+        let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: .qwen)
+        try await ingress.start()
+        if hasPreview {
+            try await ingress.receive(.init(text: "不是三十，是十三", stableUTF16Length: 0, audioEndSeconds: 0.02))
+            _ = try await store.saveEdit(recordingID: recording.id, text: "用户保留的文字")
+            try await store.saveDraft(recordingID: recording.id, text: "尚在编辑")
+        }
+        await ingress.finishWithoutTranscript()
+        let failed = try #require(try await store.recording(id: recording.id))
+        #expect(failed.recognitionState == .failed)
+        #expect(failed.lastError == (hasPreview ? "未获得最终文字，已有文字和原音已保留，可重新识别。" : "未识别到文字，原音已保存，可回听或重新识别。"))
+        #expect(try Data(contentsOf: file) == original)
+        #expect(failed.text == (hasPreview ? "用户保留的文字" : ""))
+        let retry = try await store.beginRecognition(recordingID: recording.id)
+        let recovered = LocalCandidateIngress(store: store, ticket: retry, model: .qwen)
+        try await recovered.receive(.init(text: "不是三十，是十三。", stableUTF16Length: 9, audioEndSeconds: 0.02, isComplete: true))
+        try await recovered.finish()
+        #expect(try await store.recording(id: recording.id)?.text == (hasPreview ? "用户保留的文字" : "不是三十，是十三。"))
+        #expect(try Data(contentsOf: file) == original)
+    }
+
     @Test(arguments: ["verified","revoked","offline"]) func localFinalReviewRetainsEvidence(mode: String) async throws {
         let dir = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: dir) }

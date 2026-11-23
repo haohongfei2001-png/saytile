@@ -160,7 +160,7 @@ public actor LocalASRService {
             helpers.appending(path: id.sherpaRuntime ? "SaytileSherpa" : "SaytileModelWorker").path)
         return .init(supported: true, installed: ready, message: ready ? id.title : "\(id.title) · 需要准备模型")
     }
-    fileprivate func recognize(_ id: LocalASRID, audio: AsyncStream<Data>, ingress: LocalCandidateIngress) async throws {
+    fileprivate func recognize(_ id: LocalASRID, audio: AsyncStream<Data>, ingress: LocalCandidateIngress) async throws -> Bool {
         let token = UUID()
         guard waiting.count < 8 else { throw AudioFailure.message("前段识别仍在进行，原音可重新识别") }
         waiting.append(token)
@@ -191,7 +191,7 @@ public actor LocalASRService {
                 throw LocalASREngineUnavailable(reason: error.localizedDescription)
             }
             guard let current = worker else { throw LocalASREngineUnavailable(reason: "本机识别进程未启动") }
-            try await withTaskCancellationHandler {
+            return try await withTaskCancellationHandler {
                 let sender = Task.detached {
                     for await frame in audio {
                         try Task.checkCancellation()
@@ -218,9 +218,10 @@ public actor LocalASRService {
                         }
                         if final {
                             try await sender.value
-                            // The worker reset its decoder at EOS, even when it heard no words.
-                            // Ingress rejects an unfinished transcript without retiring this worker.
-                            return
+                            // Empty EOS is a completed decoder operation, not a
+                            // completed transcript or proof of silence. Retain
+                            // this healthy worker and report the distinct result.
+                            return !event.text.isEmpty
                         }
                     }
                     throw ProviderFailure.incomplete
@@ -564,8 +565,11 @@ private final class ModelRecognitionSession: RecognitionSession, @unchecked Send
             let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: model, review: review)
             do {
                 try await ingress.start()
-                try await service.recognize(model, audio: audio, ingress: ingress)
-                try await ingress.finish()
+                if try await service.recognize(model, audio: audio, ingress: ingress) {
+                    try await ingress.finish()
+                } else {
+                    await ingress.finishWithoutTranscript()
+                }
             }
             catch {
                 if error is LocalASREngineUnavailable && !Task.isCancelled { onUnavailable?(model) }
