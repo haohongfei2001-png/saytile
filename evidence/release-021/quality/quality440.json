@@ -1,0 +1,142 @@
+{
+  "product_source": "06997bd613ac4dede54450702385259f3bc02f2c",
+  "baseline_source": "9aace8f5b0d7082bd67d2e9b1b6e1db6dcf05883",
+  "scope": "Exact product source, test-enabled SaytileKit, unchanged MandarinCohort and signed 564 worker; accelerated quality only, not latency or actual window evidence. Worker cwd is the real App Resources directory as in production. Original420 membership is all source categories except quiet/noise15db; these twenty derivatives remain separate.",
+  "groups": {
+    "original420": {
+      "errors": 910,
+      "substitutions": 407,
+      "deletions": 387,
+      "insertions": 116,
+      "reference_units": 10663,
+      "rows": 420,
+      "cer": 0.08534183625621307
+    },
+    "fleurs": {
+      "errors": 571,
+      "substitutions": 240,
+      "deletions": 266,
+      "insertions": 65,
+      "reference_units": 6260,
+      "rows": 160,
+      "cer": 0.09121405750798722
+    },
+    "ascend-zh": {
+      "errors": 53,
+      "substitutions": 27,
+      "deletions": 14,
+      "insertions": 12,
+      "reference_units": 934,
+      "rows": 80,
+      "cer": 0.056745182012847964
+    },
+    "ascend-mixed": {
+      "errors": 225,
+      "substitutions": 103,
+      "deletions": 83,
+      "insertions": 39,
+      "reference_units": 2004,
+      "rows": 80,
+      "cer": 0.1122754491017964
+    },
+    "derived20": {
+      "errors": 65,
+      "substitutions": 29,
+      "deletions": 34,
+      "insertions": 2,
+      "reference_units": 764,
+      "rows": 20,
+      "cer": 0.08507853403141362
+    },
+    "quiet": {
+      "errors": 43,
+      "substitutions": 19,
+      "deletions": 22,
+      "insertions": 2,
+      "reference_units": 403,
+      "rows": 10,
+      "cer": 0.10669975186104218
+    },
+    "noise15db": {
+      "errors": 22,
+      "substitutions": 10,
+      "deletions": 12,
+      "insertions": 0,
+      "reference_units": 361,
+      "rows": 10,
+      "cer": 0.060941828254847646
+    },
+    "aishell1-test": {
+      "errors": 61,
+      "substitutions": 37,
+      "deletions": 24,
+      "insertions": 0,
+      "reference_units": 1465,
+      "rows": 100,
+      "cer": 0.041638225255972695
+    }
+  },
+  "rows": 440,
+  "identical_final_and_state_rows": 440,
+  "differences": [],
+  "failed": [
+    {
+      "id": "fleurs-e0687aaa8689e196",
+      "states": [
+        "completed",
+        "failed"
+      ],
+      "errors": [
+        "未识别到文字，原音已保存，可回听或重新识别。"
+      ]
+    },
+    {
+      "id": "fleurs-fd242859bc18ffbb",
+      "states": [
+        "failed",
+        "completed"
+      ],
+      "errors": [
+        "未识别到文字，原音已保存，可回听或重新识别。"
+      ]
+    },
+    {
+      "id": "fleurs-c1fcf0cd023db10f",
+      "states": [
+        "failed",
+        "completed"
+      ],
+      "errors": [
+        "未识别到文字，原音已保存，可回听或重新识别。"
+      ]
+    },
+    {
+      "id": "fleurs-b53a7292b38e011d",
+      "states": [
+        "completed",
+        "failed"
+      ],
+      "errors": [
+        "未识别到文字，原音已保存，可回听或重新识别。"
+      ]
+    },
+    {
+      "id": "fleurs-9a0d49266d4f5e24",
+      "states": [
+        "completed",
+        "failed"
+      ],
+      "errors": [
+        "未识别到文字，原音已保存，可回听或重新识别。"
+      ]
+    }
+  ],
+  "states": {
+    "completed": 443,
+    "failed": 5
+  },
+  "manifest_sha256": "bfdf0838a2ee542746c2f9c554d2c3161eef01d3c628abd734aff36217b4f576",
+  "probe_sha256": "855daaaf65d08b71674825d0dd8f8e106bd11871970f1115bdec7c765ebafffc",
+  "scorer_sha256": "c8acd0be998ad36eb00d3f11a1a7291445cdad237c67414b57ccc4735382824d",
+  "status": "PASS"
+}

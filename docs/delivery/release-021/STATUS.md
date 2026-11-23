@@ -1,23 +1,41 @@
-# 0.21 Release Closure
+# Saytile 0.21（564）Release Closure
 
-当前裁决：HOLD，工程进行中，不合并或公开发布。现用533与私人资料保持。
+2026-11-23（Asia/Shanghai）。唯一发行裁决：**HOLD，不应公开推广**。当前授权下可执行的 A–E 工程与验收已收口；压力响应性仍 FAIL，公证授权 BLOCKED，不能把测试完成或 CI 全绿当作产品放行。
 
-A 已完成：刷新远端main/PR49/50/51，PR51仍Draft且base为next-release-020；d6b54a6完整7项CI成功。核验563 DMG和现用533二进制哈希。来源见evidence/release-021/baseline.json。
+- 产品源码：`06997bd613ac4dede54450702385259f3bc02f2c`；签名包 0.21（564）。后续提交仅测试、证据和文档，运行时树相同。
+- 主线候选：[Draft PR #52 → main](https://github.com/haohongfei2001-png/saytile/pull/52)，直接基于 main `4caf73c85e31a5c49de70c3430a84d4504aa701f`。#49/#50/#51 保留历史且标注承接关系。
+- DMG SHA-256：`4c86d8cd7a29f7bce4682bf8fd994ab251e1d86f8914c38a470d96426eb13be7`，65,600,572 bytes。
+- [完整验收与剩余限制](ACCEPTANCE.md) · [机器总收据](../../../evidence/release-021/machine.json) · [源码及技术边界](ARCHITECTURE.md) · [安装回退](../../INTERNAL-INSTALL.md)。
 
-B 离线两轮已完成，均FAIL：局部候选接续未降低2.549s原始到达间隔；禁止回退方案将停顿扩大到8.948–9.914s，均不进入产品。34份相同原始候选和逐条结果保存在evidence/release-021/publisher。保留563生产算法。最终源码构建后仍做三组原速压力配对与15段回归，不宣称算法/CPU改善。
+## A — 基线与隔离
 
-C 已完成两轮诊断：五段均逐帧匹配完整公开语料，位于独立Apple识别正文时间范围外；Qwen原片段及诊断增益均为空。高度支持非语音触发，但无人听审，不伪称绝对静音；全部仍失败可重试。修正空EOS被误报为未收到定稿的文案，保留原音、候选与编辑。32项本地Swift Testing通过，最终SHA全套测试待D。详见evidence/release-021/empty-final。
+刷新远端 main / PR49–51 / CI，核验 563 包及现用 533。测试使用公开人声和独立合成档案；没有读取生产文字或录音，没有改现用 App、资料、Keychain、模型缓存。完整来源见 `evidence/release-021/baseline.json`。
 
-D 进行中，0.21（564）准备最终产品SHA：最终产品SHA的420准确率、原生交互与浏览器、数据/更新回退、签名包和适用长测；硬件缺失NOT_RUN。
+## B — 连续文字发布
 
-E 提前整理源码以使D的全部验收绑定发行分支：仅查现有公证授权；可用则真实公证/装订/Gatekeeper。基于最新main逐项选入正式产品及必要依赖，不机械合并历史。创建指向main的发行Draft PR并标明旧PR来源。官网/公开feed在放行前保持原版本。
+同一批 34 份原始候选离线重放，两轮有明确假设的算法尝试均 FAIL：局部锚点接续未消除原有间隔；禁止旧词回返扩大到 8.948–9.914 秒。拒绝进入产品，保留 563 生产算法与全部失败证据。没有第三轮无收益优化，没有增加生产 ASR。
 
-iCloud与反馈暂不作为首个公开Beta绝对门槛，未就绪保持关闭，不宣称已同步或跨设备通过。最少账户动作统一在最后交付。
+签名 563 / 564 完成三组有效原速压力配对，旧/新最大有效可见间隔依次 1.987/2.370、3.420/3.368、1.999/2.000 秒。新候选仍 FAIL；CPU 未证明改善。无效负载和计算干扰轮次完整保留并说明排除理由。
 
-发行分支codex/release-021直接基于main 4caf73c；按产品/依赖/测试范围导入540个源文件，并非合并历史提交链。未导入5554项历史证据变化和旧DMG，官网保留main。构建号显式564，避免58次提交的新主线倒退到旧版本。Chrome/Edge/Safari扩展验收仅在隔离CI进行，不打开用户浏览器。
+## C — 空定稿
 
-2026-11-23 阶段D中间收据：最终签名产品源码06997bd，564 DMG SHA-256 4c86d8cd7a29f7bce4682bf8fd994ab251e1d86f8914c38a470d96426eb13be7。Developer ID及时间戳PASS，App/DMG Gatekeeper均明确拒绝Unnotarized Developer ID；Keychain公证profile元数据0、Actions secrets 0，公证BLOCKED，不绕过。
+五个切片逐帧匹配完整公开语料，位于独立 Apple 正文识别区间外；Qwen 原片及诊断增益均空。最可能是非语音触发，但没有足够证据宣称绝对静音。全部仍失败可重试，原音和已有文字不删。修正空 EOS 被误报为“未收到定稿”的提示与分类，保留健康 worker；有/无预览及用户编辑的回归通过。详细逐项诊断见 `evidence/release-021/empty-final`。
 
-完整Xcode CI首轮：568 Swift Testing（38+530）/30 XCTest全部通过；native作业成功。Chrome、Edge、TextEdit、AppKit/WKWebView通过；Safari测试页首次绑定前光标为0而非预期7，修复一次性隔离测试初始化，不重新夺焦、不改变产品约束。补回整理主线时遗漏的HostedPaused测试源。原始失败日志保留，等待修复后CI。
+## D — 最终源码验证
 
-完整15段原速复验：46/568=8.10%，UI首字P95 1.499s、有效新字间隔P95 1.020s，15段全部讲话中更新。此前一次退出未留原生文件，保留原始运行日志且已修复验收器在失败前保存输出；不抹去该次异常。压力第一轮实际负载未达标准，原样保留，不算有效配对；第二轮有2组有效配对、第三组一侧负载不足，继续完成独立回归后补齐一次有效配对。不得据此宣称压力或CPU改善。
+- PASS：15 段原速 CER 46/568 = 8.10%，全部讲话中多次出字；首字 P95 1.499 秒、新字间隔 P95 1.020 秒、EOS P95 0.284 秒、局部往返回改 0。
+- PASS：固定 420 段 910/10663 = 8.53%，派生 20 段另列 8.51%；440 条最终文字及状态均与基线相同，五个失败子段没有改为成功。
+- PASS：905 秒原生连续运行、18 项存储/异常子进程、隔离 533→564→533→564、真实 Sparkle 安装与损坏包拒绝、原生编辑/复制/档案/菜单/品牌往返。
+- PASS：完整 Xcode 的 568 Swift Testing + 30 XCTest；测试修复后真实 AppKit / WKWebView / TextEdit / Chrome / Edge / Safari 前台输入均通过。产品所有权约束没有放宽。VirtualMac 系统睡眠实际 BLOCKED，独立披露。
+- 保留首次原速进程退出原因 UNKNOWN、批量 CLI 错误工作目录、首次 Safari 测试光标初始化、缺失测试源及旧清单校验失败的原始证据。后续复测不掩盖它们。
+- 最终证据提交还会触发完整 CI；以 PR #52 当前 head 的实际 checks 为准，不把上一提交 CI 冒充新提交结果。CI 最终收据在 PR 与交付目录关联该 head，避免为了记录同一次成功不断产生新源码版本。
+
+## E — 发行与边界
+
+Developer ID、安全时间戳及 App/DMG strict 校验 PASS。实际 Gatekeeper App/DMG 均拒绝 `Unnotarized Developer ID`；没有装订票据。普通/同步 Keychain 公证 profile 元数据均 0，Actions secret 名称列表为空。公证 BLOCKED，不清除 quarantine、不绕过安全机制。账户持有人只需在本机交互式运行 `xcrun notarytool store-credentials saytile-release` 配置授权；无需把密钥给聊天。授权仅解决公证，不自动解除压力 HOLD。
+
+正式分支选择性纳入需要的产品、依赖与测试，不合并历史分支链或旧 DMG。修正构建号依赖 Git 提交数导致的倒退风险，固定为 564；官网和公开更新源保留 main。候选仅存于交付目录，没有安装第二份产品，没有合并或公开发布。
+
+iCloud entitlement 缺失、反馈发送关闭，真实云同步/反馈 NOT_RUN；不宣传已同步，不上传私人数据。它们不是首个本地 Beta 的绝对前置条件。合盖麦克风、额外物理设备、真实 8 GB 与整机功耗 NOT_RUN。
+
+后续放行必须先取得可量化的压力响应性收益并回归，再对真正待发行包公证和 Gatekeeper 检查。当前工作不擅自扩大算法尝试次数或公开安装范围。

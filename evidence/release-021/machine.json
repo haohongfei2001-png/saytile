@@ -1,0 +1,158 @@
+{
+  "date": "2026-11-23",
+  "verdict": "HOLD",
+  "product_source": "06997bd613ac4dede54450702385259f3bc02f2c",
+  "version": "0.21",
+  "build": 564,
+  "pr": "https://github.com/haohongfei2001-png/saytile/pull/52",
+  "base_main": "4caf73c85e31a5c49de70c3430a84d4504aa701f",
+  "runtime_paths": [
+    "Sources",
+    "Package.swift",
+    "native/LocalASR",
+    "packaging",
+    "distribution",
+    "scripts/build-app.sh",
+    "scripts/build-number.py",
+    "scripts/build-local-runtime.sh",
+    "scripts/prepare-local-runtime.sh"
+  ],
+  "runtime_unchanged_after_product_commit": true,
+  "runtime_git_tree": "a69b65eb065432c8286303613b2bbc3905086deb",
+  "dmg": {
+    "name": "Saytile-0.21-564-arm64.dmg",
+    "sha256": "4c86d8cd7a29f7bce4682bf8fd994ab251e1d86f8914c38a470d96426eb13be7",
+    "bytes": 65600572,
+    "developer_id": "PASS",
+    "timestamp": "PASS",
+    "notary": "BLOCKED_NO_AUTHORIZATION",
+    "gatekeeper": "FAIL_UNNOTARIZED",
+    "stapled": "BLOCKED_NO_TICKET"
+  },
+  "installed_preserved": {
+    "version": "0.20",
+    "build": "533",
+    "source": "7c0df4728b113c17297a0cded20472de4ffc3337",
+    "executable_sha256": "d711d1cab97d0ff20e23129269b8d72989db2e5258f659d49276f77cf9ab4737",
+    "installed_new_product": false
+  },
+  "checks": {
+    "normal15": {
+      "status": "PASS",
+      "evidence": "cadence/comparison.json",
+      "cer": "46/568",
+      "repeated_pre_eos_updates": 15
+    },
+    "original420": {
+      "status": "PASS",
+      "evidence": "quality/quality440.json",
+      "cer": "910/10663"
+    },
+    "pressure": {
+      "status": "FAIL",
+      "valid_pairs": 3,
+      "evidence": "cadence/comparison.json",
+      "max_new_visible_gaps_s": [
+        2.37,
+        3.368,
+        2.0
+      ],
+      "cpu_improvement": "NOT_PROVEN"
+    },
+    "empty_final": {
+      "status": "INVESTIGATED_UNCERTAIN_NONSPEECH",
+      "retained_failed_segments": 5,
+      "audio_preserved": true,
+      "evidence": "empty-final/diagnosis.json"
+    },
+    "storage": {
+      "status": "PASS",
+      "checks": 18,
+      "evidence": "native/storage.json"
+    },
+    "rollback": {
+      "status": "PASS",
+      "evidence": "native/rollback.json"
+    },
+    "update": {
+      "status": "PASS",
+      "scope": "real Sparkle installer with deterministic test user driver; normal Sparkle UI NOT_RUN",
+      "evidence": "native/update.json"
+    },
+    "native_ui": {
+      "status": "PASS",
+      "evidence": "native/ui/manifest.json"
+    },
+    "appearance": {
+      "status": "PASS",
+      "evidence": "native/appearance/receipt.json"
+    },
+    "soak": {
+      "status": "PASS",
+      "seconds": 905.020375,
+      "evidence": "native/soak.json"
+    },
+    "foreground": {
+      "status": "PASS",
+      "test_source": "5ab03bdfa45eec54bf91dcec20ca8f903dbe30f8",
+      "evidence": "ci/foreground-fixed.json"
+    },
+    "swift_testing": {
+      "status": "PASS",
+      "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+      "passed": 568,
+      "failed": 0,
+      "evidence": "ci/first-summary.json"
+    },
+    "xctest": {
+      "status": "PASS",
+      "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+      "passed": 30,
+      "failed": 0
+    },
+    "physical_sleep": {
+      "status": "BLOCKED",
+      "reason": "VirtualMac2,1 sleep request unsupported; exit 71"
+    },
+    "microphone_live": {
+      "status": "NOT_RUN",
+      "reason": "user keeps Mac closed"
+    },
+    "physical_device_switch": {
+      "status": "NOT_RUN"
+    },
+    "8gb_hardware": {
+      "status": "NOT_RUN"
+    },
+    "whole_machine_power": {
+      "status": "NOT_RUN"
+    },
+    "iCloud": {
+      "status": "NOT_RUN",
+      "uploaded_records": 0,
+      "uploaded_bytes": 0,
+      "enabled": false
+    },
+    "feedback": {
+      "status": "NOT_RUN",
+      "sending_enabled": false
+    }
+  },
+  "ci_final_head": "See final PR52 checks and same-head receipt delivered alongside DMG; no historical result claimed for a new commit",
+  "boundaries": {
+    "private_audio_uploaded": false,
+    "paid_asr_calls": 0,
+    "production_files_modified": false,
+    "main_merged": false,
+    "public_release": false,
+    "website_changed_from_main": false,
+    "public_feed_changed": false
+  },
+  "failures_retained": [
+    "cadence/native.log.gz",
+    "quality/initial-cli-failure.json",
+    "ci/foreground-first",
+    "ci/brand-first-5ab03bd.log.gz",
+    "cadence/comparison.json"
+  ]
+}

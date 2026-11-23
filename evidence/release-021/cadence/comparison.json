@@ -1,0 +1,6145 @@
+{
+  "product_source": "06997bd613ac4dede54450702385259f3bc02f2c",
+  "baseline_source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+  "normal15": {
+    "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+    "status": "PASS",
+    "clips": 15,
+    "accuracy": {
+      "errors": 46,
+      "substitutions": 11,
+      "deletions": 30,
+      "insertions": 5,
+      "reference_units": 568,
+      "cer": 0.08099
+    },
+    "all_final_texts_equal_to_historical_baseline": true,
+    "cadence": {
+      "timeline": {
+        "fresh_gaps_s": {
+          "p50": 0.513,
+          "p95": 1.092
+        },
+        "previous_event_gaps_s": {
+          "p50": 0.513,
+          "p95": 1.092
+        },
+        "longest_per_clip_s": {
+          "p50": 1.211,
+          "p95": 1.982
+        },
+        "first_s": {
+          "p50": 0.904,
+          "p95": 1.482
+        },
+        "clips_with_repeated_updates": 15,
+        "number_of_gaps_at_least_2s": 0
+      },
+      "display": {
+        "fresh_gaps_s": {
+          "p50": 0.413,
+          "p95": 1.02
+        },
+        "previous_event_gaps_s": {
+          "p50": 0.413,
+          "p95": 1.02
+        },
+        "longest_per_clip_s": {
+          "p50": 1.232,
+          "p95": 1.865
+        },
+        "first_s": {
+          "p50": 0.968,
+          "p95": 1.499
+        },
+        "clips_with_repeated_updates": 15,
+        "number_of_gaps_at_least_2s": 0
+      },
+      "worker": {
+        "fresh_gaps_s": {
+          "p50": 0.512,
+          "p95": 1.028
+        },
+        "previous_event_gaps_s": {
+          "p50": 0.512,
+          "p95": 1.028
+        },
+        "longest_per_clip_s": {
+          "p50": 1.207,
+          "p95": 1.982
+        },
+        "first_s": {
+          "p50": 0.899,
+          "p95": 1.474
+        },
+        "clips_with_repeated_updates": 15,
+        "number_of_gaps_at_least_2s": 0
+      }
+    },
+    "eos_file_s": {
+      "p50": 0.193,
+      "p95": 0.284
+    },
+    "cpu_s": 42.25,
+    "peak_combined_footprint_MiB": 1513.6,
+    "reversals": []
+  },
+  "historical15": {
+    "source": "9aace8f5b0d7082bd67d2e9b1b6e1db6dcf05883",
+    "accuracy": {
+      "errors": 46,
+      "substitutions": 11,
+      "deletions": 30,
+      "insertions": 5,
+      "reference_units": 568,
+      "cer": 0.08099
+    },
+    "cadence": {
+      "timeline": {
+        "fresh_gaps_s": {
+          "p50": 0.515,
+          "p95": 1.082
+        },
+        "previous_event_gaps_s": {
+          "p50": 0.515,
+          "p95": 1.082
+        },
+        "longest_per_clip_s": {
+          "p50": 1.237,
+          "p95": 2.032
+        },
+        "first_s": {
+          "p50": 0.919,
+          "p95": 1.494
+        },
+        "clips_with_repeated_updates": 15,
+        "number_of_gaps_at_least_2s": 1
+      },
+      "display": {
+        "fresh_gaps_s": {
+          "p50": 0.37,
+          "p95": 1.0
+        },
+        "previous_event_gaps_s": {
+          "p50": 0.37,
+          "p95": 1.0
+        },
+        "longest_per_clip_s": {
+          "p50": 1.246,
+          "p95": 1.903
+        },
+        "first_s": {
+          "p50": 0.958,
+          "p95": 1.503
+        },
+        "clips_with_repeated_updates": 15,
+        "number_of_gaps_at_least_2s": 0
+      },
+      "worker": {
+        "fresh_gaps_s": {
+          "p50": 0.514,
+          "p95": 1.031
+        },
+        "previous_event_gaps_s": {
+          "p50": 0.514,
+          "p95": 1.031
+        },
+        "longest_per_clip_s": {
+          "p50": 1.234,
+          "p95": 2.032
+        },
+        "first_s": {
+          "p50": 0.914,
+          "p95": 1.491
+        },
+        "clips_with_repeated_updates": 15,
+        "number_of_gaps_at_least_2s": 1
+      }
+    },
+    "eos_file_s": {
+      "p50": 0.222,
+      "p95": 0.364
+    },
+    "cpu_s": 44.0,
+    "peak_combined_footprint_MiB": 1548.2,
+    "reversals": []
+  },
+  "historical_scope": "Prior source 9aace8f5b0d7082bd67d2e9b1b6e1db6dcf05883, not a new 563 run. Original raw 15 receipts retained.",
+  "pressure": {
+    "status": "FAIL",
+    "valid_pair_count": 3,
+    "pairs": [
+      {
+        "order": "AB",
+        "old": {
+          "run": "repeat-old-1",
+          "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+          "summary": {
+            "timeline": {
+              "fresh_gaps_s": {
+                "p50": 0.512,
+                "p95": 1.034
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.512,
+                "p95": 1.034
+              },
+              "longest_per_clip_s": {
+                "p50": 1.975,
+                "p95": 1.975
+              },
+              "first_s": {
+                "p50": 0.963,
+                "p95": 0.963
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 0
+            },
+            "display": {
+              "fresh_gaps_s": {
+                "p50": 0.442,
+                "p95": 0.996
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.442,
+                "p95": 0.996
+              },
+              "longest_per_clip_s": {
+                "p50": 1.987,
+                "p95": 1.987
+              },
+              "first_s": {
+                "p50": 0.997,
+                "p95": 0.997
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 0
+            },
+            "worker": {
+              "fresh_gaps_s": {
+                "p50": 0.511,
+                "p95": 1.02
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.511,
+                "p95": 1.02
+              },
+              "longest_per_clip_s": {
+                "p50": 1.558,
+                "p95": 1.558
+              },
+              "first_s": {
+                "p50": 0.959,
+                "p95": 0.959
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 0
+            }
+          },
+          "row": {
+            "id": "continuous-public-5",
+            "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+            "onset": 0.0,
+            "end": 38.8,
+            "reference_available": true,
+            "final_CER": {
+              "errors": 31,
+              "substitutions": 9,
+              "deletions": 22,
+              "insertions": 0,
+              "reference_units": 205
+            },
+            "matches_final_window": true,
+            "records": [
+              "completed",
+              "completed"
+            ],
+            "after_file_s": 0.284,
+            "after_last_signal_s": 0.287,
+            "timeline": {
+              "count": 64,
+              "first_s": 0.963,
+              "gap_s": {
+                "p50": 0.512,
+                "p95": 1.034
+              },
+              "longest_s": 1.975,
+              "longest_start_end_s": [
+                22.123,
+                24.098
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.495,
+              "raw_outputs_inside_longest": 4,
+              "timeline_outputs_inside_longest": 2,
+              "above_two_seconds": 0
+            },
+            "display": {
+              "count": 102,
+              "first_s": 0.997,
+              "gap_s": {
+                "p50": 0.442,
+                "p95": 0.996
+              },
+              "longest_s": 1.987,
+              "longest_start_end_s": [
+                22.133,
+                24.121
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.495,
+              "raw_outputs_inside_longest": 4,
+              "timeline_outputs_inside_longest": 3,
+              "above_two_seconds": 0
+            },
+            "worker": {
+              "count": 66,
+              "first_s": 0.959,
+              "gap_s": {
+                "p50": 0.511,
+                "p95": 1.02
+              },
+              "longest_s": 1.558,
+              "longest_start_end_s": [
+                7.96,
+                9.517
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.833,
+              "raw_outputs_inside_longest": 1,
+              "timeline_outputs_inside_longest": 2,
+              "above_two_seconds": 0
+            },
+            "decode": {
+              "previews": 75,
+              "final_decodes": 2,
+              "preview_compute_s": {
+                "p50": 0.171,
+                "p95": 0.444
+              },
+              "preview_compute_sum_s": 14.4741,
+              "preview_start_intervals_s": {
+                "p50": 0.505,
+                "p95": 0.512
+              },
+              "previews_finishing_during_longest_timeline_gap": 4
+            }
+          },
+          "process": {
+            "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+            "build": "563",
+            "sample": "continuous-public-5",
+            "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+            "wall_s": 40.083,
+            "app_cpu_s": 1.63,
+            "workers_cpu_s": 11.71,
+            "combined_cpu_s": 13.34,
+            "process_equivalent_cores": 0.3328,
+            "input_s": 38.8,
+            "end_of_file": 38.802897166635375,
+            "peak_simultaneous_footprint_MiB": 1788.0,
+            "computes": 75,
+            "preview_compute_wall_s": 14.474
+          },
+          "load": {
+            "workers": [
+              {
+                "pid": 78753,
+                "cpu_s": 29.509678,
+                "wall_s": 44.260602,
+                "periods": 738,
+                "checksum": 15717681338180380953,
+                "actual_cores": 0.66673
+              },
+              {
+                "pid": 78754,
+                "cpu_s": 29.51216,
+                "wall_s": 44.260082,
+                "periods": 738,
+                "checksum": 10550666531669737753,
+                "actual_cores": 0.66679
+              },
+              {
+                "pid": 78755,
+                "cpu_s": 29.506822,
+                "wall_s": 44.259284,
+                "periods": 738,
+                "checksum": 2378176703748981017,
+                "actual_cores": 0.66668
+              },
+              {
+                "pid": 78756,
+                "cpu_s": 29.50482,
+                "wall_s": 44.252032,
+                "periods": 738,
+                "checksum": 3983911825962053913,
+                "actual_cores": 0.66674
+              },
+              {
+                "pid": 78757,
+                "cpu_s": 29.508672,
+                "wall_s": 44.257538,
+                "periods": 738,
+                "checksum": 8564406200036055321,
+                "actual_cores": 0.66675
+              },
+              {
+                "pid": 78758,
+                "cpu_s": 29.500854,
+                "wall_s": 44.251191,
+                "periods": 738,
+                "checksum": 6040984981909725465,
+                "actual_cores": 0.66667
+              },
+              {
+                "pid": 78759,
+                "cpu_s": 29.501907,
+                "wall_s": 44.249825,
+                "periods": 738,
+                "checksum": 7737649935407440153,
+                "actual_cores": 0.66671
+              },
+              {
+                "pid": 78760,
+                "cpu_s": 29.496269,
+                "wall_s": 44.243268,
+                "periods": 738,
+                "checksum": 5985498379910983961,
+                "actual_cores": 0.66668
+              }
+            ],
+            "failures": [],
+            "qos": "userInitiated",
+            "period_s": 0.06,
+            "cpu_target_per_period_s": 0.04,
+            "target_cores": 5.333333333333333,
+            "observed_cores": 5.3338,
+            "target_met": true,
+            "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+            "before": {
+              "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+              "load_average": [
+                2.65673828125,
+                7.673828125,
+                11.28173828125
+              ]
+            },
+            "after": {
+              "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+              "load_average": [
+                5.62890625,
+                7.79541015625,
+                11.158203125
+              ]
+            }
+          },
+          "reversals": []
+        },
+        "new": {
+          "run": "repeat-new-1",
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "summary": {
+            "timeline": {
+              "fresh_gaps_s": {
+                "p50": 0.523,
+                "p95": 1.974
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.523,
+                "p95": 1.974
+              },
+              "longest_per_clip_s": {
+                "p50": 2.397,
+                "p95": 2.397
+              },
+              "first_s": {
+                "p50": 0.944,
+                "p95": 0.944
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 2
+            },
+            "display": {
+              "fresh_gaps_s": {
+                "p50": 0.443,
+                "p95": 1.503
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.443,
+                "p95": 1.503
+              },
+              "longest_per_clip_s": {
+                "p50": 2.37,
+                "p95": 2.37
+              },
+              "first_s": {
+                "p50": 1.0,
+                "p95": 1.0
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 2
+            },
+            "worker": {
+              "fresh_gaps_s": {
+                "p50": 0.525,
+                "p95": 1.216
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.525,
+                "p95": 1.216
+              },
+              "longest_per_clip_s": {
+                "p50": 1.976,
+                "p95": 1.976
+              },
+              "first_s": {
+                "p50": 0.939,
+                "p95": 0.939
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 0
+            }
+          },
+          "row": {
+            "id": "continuous-public-5",
+            "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+            "onset": 0.0,
+            "end": 38.8,
+            "reference_available": true,
+            "final_CER": {
+              "errors": 31,
+              "substitutions": 9,
+              "deletions": 22,
+              "insertions": 0,
+              "reference_units": 205
+            },
+            "matches_final_window": true,
+            "records": [
+              "completed",
+              "completed"
+            ],
+            "after_file_s": 0.497,
+            "after_last_signal_s": 0.5,
+            "timeline": {
+              "count": 54,
+              "first_s": 0.944,
+              "gap_s": {
+                "p50": 0.523,
+                "p95": 1.974
+              },
+              "longest_s": 2.397,
+              "longest_start_end_s": [
+                28.847,
+                31.244
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.458,
+              "raw_outputs_inside_longest": 2,
+              "timeline_outputs_inside_longest": 0,
+              "above_two_seconds": 2
+            },
+            "display": {
+              "count": 81,
+              "first_s": 1.0,
+              "gap_s": {
+                "p50": 0.443,
+                "p95": 1.503
+              },
+              "longest_s": 2.37,
+              "longest_start_end_s": [
+                28.879,
+                31.249
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.466,
+              "raw_outputs_inside_longest": 2,
+              "timeline_outputs_inside_longest": 1,
+              "above_two_seconds": 2
+            },
+            "worker": {
+              "count": 58,
+              "first_s": 0.939,
+              "gap_s": {
+                "p50": 0.525,
+                "p95": 1.216
+              },
+              "longest_s": 1.976,
+              "longest_start_end_s": [
+                31.236,
+                33.212
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.717,
+              "raw_outputs_inside_longest": 1,
+              "timeline_outputs_inside_longest": 2,
+              "above_two_seconds": 0
+            },
+            "decode": {
+              "previews": 66,
+              "final_decodes": 2,
+              "preview_compute_s": {
+                "p50": 0.165,
+                "p95": 0.959
+              },
+              "preview_compute_sum_s": 20.1641,
+              "preview_start_intervals_s": {
+                "p50": 0.505,
+                "p95": 0.96
+              },
+              "previews_finishing_during_longest_timeline_gap": 2
+            }
+          },
+          "process": {
+            "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+            "build": "564",
+            "sample": "continuous-public-5",
+            "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+            "wall_s": 40.431,
+            "app_cpu_s": 2.76,
+            "workers_cpu_s": 15.75,
+            "combined_cpu_s": 18.51,
+            "process_equivalent_cores": 0.4578,
+            "input_s": 38.8,
+            "end_of_file": 38.80274062498938,
+            "peak_simultaneous_footprint_MiB": 1651.5,
+            "computes": 66,
+            "preview_compute_wall_s": 20.164
+          },
+          "load": {
+            "workers": [
+              {
+                "pid": 79196,
+                "cpu_s": 29.755148,
+                "wall_s": 44.622446,
+                "periods": 744,
+                "checksum": 4279729383129889049,
+                "actual_cores": 0.66682
+              },
+              {
+                "pid": 79197,
+                "cpu_s": 29.751101,
+                "wall_s": 44.621155,
+                "periods": 744,
+                "checksum": 9636645643806601497,
+                "actual_cores": 0.66675
+              },
+              {
+                "pid": 79198,
+                "cpu_s": 29.753215,
+                "wall_s": 44.620044,
+                "periods": 744,
+                "checksum": 10600944411673229593,
+                "actual_cores": 0.66681
+              },
+              {
+                "pid": 79199,
+                "cpu_s": 29.750621,
+                "wall_s": 44.619103,
+                "periods": 744,
+                "checksum": 14465984434441396505,
+                "actual_cores": 0.66677
+              },
+              {
+                "pid": 79200,
+                "cpu_s": 29.749632,
+                "wall_s": 44.6186,
+                "periods": 744,
+                "checksum": 10051202832081150233,
+                "actual_cores": 0.66675
+              },
+              {
+                "pid": 79201,
+                "cpu_s": 29.748788,
+                "wall_s": 44.617242,
+                "periods": 744,
+                "checksum": 11614902855520164121,
+                "actual_cores": 0.66676
+              },
+              {
+                "pid": 79202,
+                "cpu_s": 29.751289,
+                "wall_s": 44.615893,
+                "periods": 744,
+                "checksum": 5210616224754444569,
+                "actual_cores": 0.66683
+              },
+              {
+                "pid": 79203,
+                "cpu_s": 29.745712,
+                "wall_s": 44.61426,
+                "periods": 744,
+                "checksum": 12744857007149082905,
+                "actual_cores": 0.66673
+              }
+            ],
+            "failures": [],
+            "qos": "userInitiated",
+            "period_s": 0.06,
+            "cpu_target_per_period_s": 0.04,
+            "target_cores": 5.333333333333333,
+            "observed_cores": 5.3342,
+            "target_met": true,
+            "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+            "before": {
+              "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+              "load_average": [
+                5.62890625,
+                7.79541015625,
+                11.158203125
+              ]
+            },
+            "after": {
+              "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+              "load_average": [
+                8.79296875,
+                8.271484375,
+                11.1552734375
+              ]
+            }
+          },
+          "reversals": [
+            {
+              "t": 28.8473,
+              "return_t": 31.2442,
+              "observations": 1,
+              "old": "理石",
+              "transient": "力士",
+              "no_new_tail": false
+            }
+          ]
+        },
+        "same_final_text": true
+      },
+      {
+        "order": "BA",
+        "old": {
+          "run": "repeat-old-2",
+          "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+          "summary": {
+            "timeline": {
+              "fresh_gaps_s": {
+                "p50": 0.595,
+                "p95": 2.681
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.595,
+                "p95": 2.681
+              },
+              "longest_per_clip_s": {
+                "p50": 3.44,
+                "p95": 3.44
+              },
+              "first_s": {
+                "p50": 1.384,
+                "p95": 1.384
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 3
+            },
+            "display": {
+              "fresh_gaps_s": {
+                "p50": 0.369,
+                "p95": 1.455
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.369,
+                "p95": 1.455
+              },
+              "longest_per_clip_s": {
+                "p50": 3.42,
+                "p95": 3.42
+              },
+              "first_s": {
+                "p50": 1.458,
+                "p95": 1.458
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 3
+            },
+            "worker": {
+              "fresh_gaps_s": {
+                "p50": 0.607,
+                "p95": 1.47
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.607,
+                "p95": 1.47
+              },
+              "longest_per_clip_s": {
+                "p50": 2.683,
+                "p95": 2.683
+              },
+              "first_s": {
+                "p50": 1.363,
+                "p95": 1.363
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 1
+            }
+          },
+          "row": {
+            "id": "continuous-public-5",
+            "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+            "onset": 0.0,
+            "end": 38.8,
+            "reference_available": true,
+            "final_CER": {
+              "errors": 31,
+              "substitutions": 9,
+              "deletions": 22,
+              "insertions": 0,
+              "reference_units": 205
+            },
+            "matches_final_window": true,
+            "records": [
+              "completed",
+              "completed"
+            ],
+            "after_file_s": 0.677,
+            "after_last_signal_s": 0.681,
+            "timeline": {
+              "count": 47,
+              "first_s": 1.384,
+              "gap_s": {
+                "p50": 0.595,
+                "p95": 2.681
+              },
+              "longest_s": 3.44,
+              "longest_start_end_s": [
+                22.652,
+                26.092
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.64,
+              "raw_outputs_inside_longest": 3,
+              "timeline_outputs_inside_longest": 0,
+              "above_two_seconds": 3
+            },
+            "display": {
+              "count": 81,
+              "first_s": 1.458,
+              "gap_s": {
+                "p50": 0.369,
+                "p95": 1.455
+              },
+              "longest_s": 3.42,
+              "longest_start_end_s": [
+                22.679,
+                26.099
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.643,
+              "raw_outputs_inside_longest": 3,
+              "timeline_outputs_inside_longest": 1,
+              "above_two_seconds": 3
+            },
+            "worker": {
+              "count": 50,
+              "first_s": 1.363,
+              "gap_s": {
+                "p50": 0.607,
+                "p95": 1.47
+              },
+              "longest_s": 2.683,
+              "longest_start_end_s": [
+                31.526,
+                34.209
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.731,
+              "raw_outputs_inside_longest": 1,
+              "timeline_outputs_inside_longest": 2,
+              "above_two_seconds": 1
+            },
+            "decode": {
+              "previews": 58,
+              "final_decodes": 2,
+              "preview_compute_s": {
+                "p50": 0.394,
+                "p95": 1.293
+              },
+              "preview_compute_sum_s": 28.7459,
+              "preview_start_intervals_s": {
+                "p50": 0.511,
+                "p95": 1.294
+              },
+              "previews_finishing_during_longest_timeline_gap": 3
+            }
+          },
+          "process": {
+            "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+            "build": "563",
+            "sample": "continuous-public-5",
+            "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+            "wall_s": 41.169,
+            "app_cpu_s": 4.5,
+            "workers_cpu_s": 18.98,
+            "combined_cpu_s": 23.48,
+            "process_equivalent_cores": 0.5703,
+            "input_s": 38.8,
+            "end_of_file": 38.804959875007626,
+            "peak_simultaneous_footprint_MiB": 1643.8,
+            "computes": 58,
+            "preview_compute_wall_s": 28.746
+          },
+          "load": {
+            "workers": [
+              {
+                "pid": 79910,
+                "cpu_s": 29.248834,
+                "wall_s": 45.392363,
+                "periods": 732,
+                "checksum": 1766547140993325337,
+                "actual_cores": 0.64436
+              },
+              {
+                "pid": 79911,
+                "cpu_s": 29.976567,
+                "wall_s": 45.390072,
+                "periods": 750,
+                "checksum": 11661092238776570137,
+                "actual_cores": 0.66042
+              },
+              {
+                "pid": 79912,
+                "cpu_s": 29.383959,
+                "wall_s": 45.387332,
+                "periods": 735,
+                "checksum": 14391091793910442265,
+                "actual_cores": 0.6474
+              },
+              {
+                "pid": 79913,
+                "cpu_s": 29.660589,
+                "wall_s": 45.385061,
+                "periods": 742,
+                "checksum": 3407758048958343449,
+                "actual_cores": 0.65353
+              },
+              {
+                "pid": 79914,
+                "cpu_s": 29.611676,
+                "wall_s": 45.382685,
+                "periods": 741,
+                "checksum": 9431209998664413465,
+                "actual_cores": 0.65249
+              },
+              {
+                "pid": 79915,
+                "cpu_s": 29.648596,
+                "wall_s": 45.37992,
+                "periods": 742,
+                "checksum": 12060834277482291481,
+                "actual_cores": 0.65334
+              },
+              {
+                "pid": 79916,
+                "cpu_s": 29.740268,
+                "wall_s": 45.378036,
+                "periods": 744,
+                "checksum": 2933257032514431257,
+                "actual_cores": 0.65539
+              },
+              {
+                "pid": 79917,
+                "cpu_s": 29.902789,
+                "wall_s": 45.375545,
+                "periods": 748,
+                "checksum": 16950311820422439193,
+                "actual_cores": 0.65901
+              }
+            ],
+            "failures": [],
+            "qos": "userInitiated",
+            "period_s": 0.06,
+            "cpu_target_per_period_s": 0.04,
+            "target_cores": 5.333333333333333,
+            "observed_cores": 5.2259,
+            "target_met": true,
+            "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+            "before": {
+              "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+              "load_average": [
+                16.96728515625,
+                10.515625,
+                11.81494140625
+              ]
+            },
+            "after": {
+              "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+              "load_average": [
+                22.90576171875,
+                13.03173828125,
+                12.6748046875
+              ]
+            }
+          },
+          "reversals": []
+        },
+        "new": {
+          "run": "repeat-new-2",
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "summary": {
+            "timeline": {
+              "fresh_gaps_s": {
+                "p50": 0.566,
+                "p95": 2.407
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.566,
+                "p95": 2.407
+              },
+              "longest_per_clip_s": {
+                "p50": 3.377,
+                "p95": 3.377
+              },
+              "first_s": {
+                "p50": 1.22,
+                "p95": 1.22
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 3
+            },
+            "display": {
+              "fresh_gaps_s": {
+                "p50": 0.407,
+                "p95": 1.588
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.407,
+                "p95": 1.588
+              },
+              "longest_per_clip_s": {
+                "p50": 3.368,
+                "p95": 3.368
+              },
+              "first_s": {
+                "p50": 1.281,
+                "p95": 1.281
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 3
+            },
+            "worker": {
+              "fresh_gaps_s": {
+                "p50": 0.573,
+                "p95": 1.608
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.573,
+                "p95": 1.608
+              },
+              "longest_per_clip_s": {
+                "p50": 2.412,
+                "p95": 2.412
+              },
+              "first_s": {
+                "p50": 1.213,
+                "p95": 1.213
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 1
+            }
+          },
+          "row": {
+            "id": "continuous-public-5",
+            "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+            "onset": 0.0,
+            "end": 38.8,
+            "reference_available": true,
+            "final_CER": {
+              "errors": 31,
+              "substitutions": 9,
+              "deletions": 22,
+              "insertions": 0,
+              "reference_units": 205
+            },
+            "matches_final_window": true,
+            "records": [
+              "completed",
+              "completed"
+            ],
+            "after_file_s": 0.848,
+            "after_last_signal_s": 0.851,
+            "timeline": {
+              "count": 48,
+              "first_s": 1.22,
+              "gap_s": {
+                "p50": 0.566,
+                "p95": 2.407
+              },
+              "longest_s": 3.377,
+              "longest_start_end_s": [
+                28.502,
+                31.88
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.491,
+              "raw_outputs_inside_longest": 2,
+              "timeline_outputs_inside_longest": 0,
+              "above_two_seconds": 3
+            },
+            "display": {
+              "count": 78,
+              "first_s": 1.281,
+              "gap_s": {
+                "p50": 0.407,
+                "p95": 1.588
+              },
+              "longest_s": 3.368,
+              "longest_start_end_s": [
+                23.065,
+                26.433
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.669,
+              "raw_outputs_inside_longest": 3,
+              "timeline_outputs_inside_longest": 1,
+              "above_two_seconds": 3
+            },
+            "worker": {
+              "count": 51,
+              "first_s": 1.213,
+              "gap_s": {
+                "p50": 0.573,
+                "p95": 1.608
+              },
+              "longest_s": 2.412,
+              "longest_start_end_s": [
+                31.869,
+                34.281
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.76,
+              "raw_outputs_inside_longest": 1,
+              "timeline_outputs_inside_longest": 2,
+              "above_two_seconds": 1
+            },
+            "decode": {
+              "previews": 58,
+              "final_decodes": 2,
+              "preview_compute_s": {
+                "p50": 0.34,
+                "p95": 1.283
+              },
+              "preview_compute_sum_s": 26.9492,
+              "preview_start_intervals_s": {
+                "p50": 0.51,
+                "p95": 1.283
+              },
+              "previews_finishing_during_longest_timeline_gap": 2
+            }
+          },
+          "process": {
+            "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+            "build": "564",
+            "sample": "continuous-public-5",
+            "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+            "wall_s": 41.115,
+            "app_cpu_s": 4.14,
+            "workers_cpu_s": 18.33,
+            "combined_cpu_s": 22.47,
+            "process_equivalent_cores": 0.5465,
+            "input_s": 38.8,
+            "end_of_file": 38.80302583333105,
+            "peak_simultaneous_footprint_MiB": 1829.7,
+            "computes": 58,
+            "preview_compute_wall_s": 26.949
+          },
+          "load": {
+            "workers": [
+              {
+                "pid": 79616,
+                "cpu_s": 29.748199,
+                "wall_s": 45.294468,
+                "periods": 744,
+                "checksum": 3213180001999143193,
+                "actual_cores": 0.65677
+              },
+              {
+                "pid": 79617,
+                "cpu_s": 29.629214,
+                "wall_s": 45.292768,
+                "periods": 741,
+                "checksum": 2810285135618330905,
+                "actual_cores": 0.65417
+              },
+              {
+                "pid": 79618,
+                "cpu_s": 29.294859,
+                "wall_s": 45.290644,
+                "periods": 733,
+                "checksum": 3730818432922970393,
+                "actual_cores": 0.64682
+              },
+              {
+                "pid": 79619,
+                "cpu_s": 29.955732,
+                "wall_s": 45.288316,
+                "periods": 749,
+                "checksum": 10063875038248933657,
+                "actual_cores": 0.66145
+              },
+              {
+                "pid": 79620,
+                "cpu_s": 29.449835,
+                "wall_s": 45.28668,
+                "periods": 737,
+                "checksum": 14770450522653659417,
+                "actual_cores": 0.6503
+              },
+              {
+                "pid": 79621,
+                "cpu_s": 29.838761,
+                "wall_s": 45.284696,
+                "periods": 746,
+                "checksum": 849822436721932569,
+                "actual_cores": 0.65891
+              },
+              {
+                "pid": 79622,
+                "cpu_s": 29.704941,
+                "wall_s": 45.282972,
+                "periods": 743,
+                "checksum": 8789864376088199449,
+                "actual_cores": 0.65598
+              },
+              {
+                "pid": 79623,
+                "cpu_s": 29.78281,
+                "wall_s": 45.280941,
+                "periods": 745,
+                "checksum": 18290028117834656025,
+                "actual_cores": 0.65773
+              }
+            ],
+            "failures": [],
+            "qos": "userInitiated",
+            "period_s": 0.06,
+            "cpu_target_per_period_s": 0.04,
+            "target_cores": 5.333333333333333,
+            "observed_cores": 5.2421,
+            "target_met": true,
+            "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+            "before": {
+              "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+              "load_average": [
+                8.79296875,
+                8.271484375,
+                11.1552734375
+              ]
+            },
+            "after": {
+              "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+              "load_average": [
+                17.83544921875,
+                10.5751953125,
+                11.84375
+              ]
+            }
+          },
+          "reversals": [
+            {
+              "t": 21.282,
+              "return_t": 22.2114,
+              "observations": 1,
+              "old": "科查",
+              "transient": "喀察",
+              "no_new_tail": false
+            }
+          ]
+        },
+        "same_final_text": true
+      },
+      {
+        "order": "AB",
+        "old": {
+          "run": "closure-old-3",
+          "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+          "summary": {
+            "timeline": {
+              "fresh_gaps_s": {
+                "p50": 0.519,
+                "p95": 1.072
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.519,
+                "p95": 1.072
+              },
+              "longest_per_clip_s": {
+                "p50": 1.978,
+                "p95": 1.978
+              },
+              "first_s": {
+                "p50": 1.071,
+                "p95": 1.071
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 0
+            },
+            "display": {
+              "fresh_gaps_s": {
+                "p50": 0.407,
+                "p95": 1.029
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.407,
+                "p95": 1.029
+              },
+              "longest_per_clip_s": {
+                "p50": 1.999,
+                "p95": 1.999
+              },
+              "first_s": {
+                "p50": 1.113,
+                "p95": 1.113
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 0
+            },
+            "worker": {
+              "fresh_gaps_s": {
+                "p50": 0.519,
+                "p95": 1.048
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.519,
+                "p95": 1.048
+              },
+              "longest_per_clip_s": {
+                "p50": 1.547,
+                "p95": 1.547
+              },
+              "first_s": {
+                "p50": 1.068,
+                "p95": 1.068
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 0
+            }
+          },
+          "row": {
+            "id": "continuous-public-5",
+            "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+            "onset": 0.0,
+            "end": 38.8,
+            "reference_available": true,
+            "final_CER": {
+              "errors": 31,
+              "substitutions": 9,
+              "deletions": 22,
+              "insertions": 0,
+              "reference_units": 205
+            },
+            "matches_final_window": true,
+            "records": [
+              "completed",
+              "completed"
+            ],
+            "after_file_s": 0.298,
+            "after_last_signal_s": 0.301,
+            "timeline": {
+              "count": 63,
+              "first_s": 1.071,
+              "gap_s": {
+                "p50": 0.519,
+                "p95": 1.072
+              },
+              "longest_s": 1.978,
+              "longest_start_end_s": [
+                22.126,
+                24.104
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.495,
+              "raw_outputs_inside_longest": 4,
+              "timeline_outputs_inside_longest": 2,
+              "above_two_seconds": 0
+            },
+            "display": {
+              "count": 104,
+              "first_s": 1.113,
+              "gap_s": {
+                "p50": 0.407,
+                "p95": 1.029
+              },
+              "longest_s": 1.999,
+              "longest_start_end_s": [
+                22.135,
+                24.134
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.5,
+              "raw_outputs_inside_longest": 4,
+              "timeline_outputs_inside_longest": 3,
+              "above_two_seconds": 0
+            },
+            "worker": {
+              "count": 65,
+              "first_s": 1.068,
+              "gap_s": {
+                "p50": 0.519,
+                "p95": 1.048
+              },
+              "longest_s": 1.547,
+              "longest_start_end_s": [
+                7.975,
+                9.522
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.831,
+              "raw_outputs_inside_longest": 1,
+              "timeline_outputs_inside_longest": 2,
+              "above_two_seconds": 0
+            },
+            "decode": {
+              "previews": 75,
+              "final_decodes": 2,
+              "preview_compute_s": {
+                "p50": 0.183,
+                "p95": 0.49
+              },
+              "preview_compute_sum_s": 15.4753,
+              "preview_start_intervals_s": {
+                "p50": 0.506,
+                "p95": 0.514
+              },
+              "previews_finishing_during_longest_timeline_gap": 4
+            }
+          },
+          "process": {
+            "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+            "build": "563",
+            "sample": "continuous-public-5",
+            "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+            "wall_s": 40.218,
+            "app_cpu_s": 1.74,
+            "workers_cpu_s": 11.44,
+            "combined_cpu_s": 13.18,
+            "process_equivalent_cores": 0.3277,
+            "input_s": 38.8,
+            "end_of_file": 38.80301316664554,
+            "peak_simultaneous_footprint_MiB": 1807.6,
+            "computes": 75,
+            "preview_compute_wall_s": 15.475
+          },
+          "load": {
+            "workers": [
+              {
+                "pid": 91282,
+                "cpu_s": 29.600035,
+                "wall_s": 44.393501,
+                "periods": 740,
+                "checksum": 10875616887578245401,
+                "actual_cores": 0.66677
+              },
+              {
+                "pid": 91283,
+                "cpu_s": 29.600028,
+                "wall_s": 44.392845,
+                "periods": 740,
+                "checksum": 12267218607887831321,
+                "actual_cores": 0.66677
+              },
+              {
+                "pid": 91284,
+                "cpu_s": 29.600025,
+                "wall_s": 44.391832,
+                "periods": 740,
+                "checksum": 596455280555000089,
+                "actual_cores": 0.66679
+              },
+              {
+                "pid": 91285,
+                "cpu_s": 29.600029,
+                "wall_s": 44.389441,
+                "periods": 740,
+                "checksum": 11270244417350627609,
+                "actual_cores": 0.66683
+              },
+              {
+                "pid": 91286,
+                "cpu_s": 29.600028,
+                "wall_s": 44.388423,
+                "periods": 740,
+                "checksum": 17482357682681788697,
+                "actual_cores": 0.66684
+              },
+              {
+                "pid": 91287,
+                "cpu_s": 29.599518,
+                "wall_s": 44.386693,
+                "periods": 740,
+                "checksum": 12480159007719606553,
+                "actual_cores": 0.66686
+              },
+              {
+                "pid": 91288,
+                "cpu_s": 29.598535,
+                "wall_s": 44.384812,
+                "periods": 740,
+                "checksum": 1708375659389356313,
+                "actual_cores": 0.66686
+              },
+              {
+                "pid": 91289,
+                "cpu_s": 29.599738,
+                "wall_s": 44.384094,
+                "periods": 740,
+                "checksum": 7533979563736654105,
+                "actual_cores": 0.6669
+              }
+            ],
+            "failures": [],
+            "qos": "userInitiated",
+            "period_s": 0.06,
+            "cpu_target_per_period_s": 0.04,
+            "target_cores": 5.333333333333333,
+            "observed_cores": 5.3346,
+            "target_met": true,
+            "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+            "before": {
+              "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+              "load_average": [
+                4.19677734375,
+                8.826171875,
+                8.560546875
+              ]
+            },
+            "after": {
+              "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+              "load_average": [
+                7.40234375,
+                9.189453125,
+                8.712890625
+              ]
+            }
+          },
+          "reversals": []
+        },
+        "new": {
+          "run": "closure-new-3",
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "summary": {
+            "timeline": {
+              "fresh_gaps_s": {
+                "p50": 0.521,
+                "p95": 1.328
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.521,
+                "p95": 1.328
+              },
+              "longest_per_clip_s": {
+                "p50": 1.983,
+                "p95": 1.983
+              },
+              "first_s": {
+                "p50": 1.011,
+                "p95": 1.011
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 0
+            },
+            "display": {
+              "fresh_gaps_s": {
+                "p50": 0.446,
+                "p95": 1.025
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.446,
+                "p95": 1.025
+              },
+              "longest_per_clip_s": {
+                "p50": 2.0,
+                "p95": 2.0
+              },
+              "first_s": {
+                "p50": 1.069,
+                "p95": 1.069
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 0
+            },
+            "worker": {
+              "fresh_gaps_s": {
+                "p50": 0.521,
+                "p95": 0.996
+              },
+              "previous_event_gaps_s": {
+                "p50": 0.521,
+                "p95": 0.996
+              },
+              "longest_per_clip_s": {
+                "p50": 1.554,
+                "p95": 1.554
+              },
+              "first_s": {
+                "p50": 1.007,
+                "p95": 1.007
+              },
+              "clips_with_repeated_updates": 1,
+              "number_of_gaps_at_least_2s": 0
+            }
+          },
+          "row": {
+            "id": "continuous-public-5",
+            "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+            "onset": 0.0,
+            "end": 38.8,
+            "reference_available": true,
+            "final_CER": {
+              "errors": 31,
+              "substitutions": 9,
+              "deletions": 22,
+              "insertions": 0,
+              "reference_units": 205
+            },
+            "matches_final_window": true,
+            "records": [
+              "completed",
+              "completed"
+            ],
+            "after_file_s": 0.279,
+            "after_last_signal_s": 0.282,
+            "timeline": {
+              "count": 62,
+              "first_s": 1.011,
+              "gap_s": {
+                "p50": 0.521,
+                "p95": 1.328
+              },
+              "longest_s": 1.983,
+              "longest_start_end_s": [
+                22.127,
+                24.11
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.5,
+              "raw_outputs_inside_longest": 4,
+              "timeline_outputs_inside_longest": 2,
+              "above_two_seconds": 0
+            },
+            "display": {
+              "count": 96,
+              "first_s": 1.069,
+              "gap_s": {
+                "p50": 0.446,
+                "p95": 1.025
+              },
+              "longest_s": 2.0,
+              "longest_start_end_s": [
+                22.137,
+                24.136
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.5,
+              "raw_outputs_inside_longest": 4,
+              "timeline_outputs_inside_longest": 3,
+              "above_two_seconds": 0
+            },
+            "worker": {
+              "count": 65,
+              "first_s": 1.007,
+              "gap_s": {
+                "p50": 0.521,
+                "p95": 0.996
+              },
+              "longest_s": 1.554,
+              "longest_start_end_s": [
+                7.977,
+                9.531
+              ],
+              "longest_position": "interior",
+              "longest_input_above_minus55_fraction": 0.833,
+              "raw_outputs_inside_longest": 1,
+              "timeline_outputs_inside_longest": 2,
+              "above_two_seconds": 0
+            },
+            "decode": {
+              "previews": 74,
+              "final_decodes": 2,
+              "preview_compute_s": {
+                "p50": 0.18,
+                "p95": 0.603
+              },
+              "preview_compute_sum_s": 16.1368,
+              "preview_start_intervals_s": {
+                "p50": 0.506,
+                "p95": 0.603
+              },
+              "previews_finishing_during_longest_timeline_gap": 4
+            }
+          },
+          "process": {
+            "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+            "build": "564",
+            "sample": "continuous-public-5",
+            "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+            "wall_s": 40.289,
+            "app_cpu_s": 2.03,
+            "workers_cpu_s": 13.2,
+            "combined_cpu_s": 15.23,
+            "process_equivalent_cores": 0.378,
+            "input_s": 38.8,
+            "end_of_file": 38.80304837500444,
+            "peak_simultaneous_footprint_MiB": 1750.3,
+            "computes": 74,
+            "preview_compute_wall_s": 16.137
+          },
+          "load": {
+            "workers": [
+              {
+                "pid": 91563,
+                "cpu_s": 29.64003,
+                "wall_s": 44.457247,
+                "periods": 741,
+                "checksum": 17446307482714810649,
+                "actual_cores": 0.66671
+              },
+              {
+                "pid": 91564,
+                "cpu_s": 29.640023,
+                "wall_s": 44.456216,
+                "periods": 741,
+                "checksum": 14480395041425731865,
+                "actual_cores": 0.66672
+              },
+              {
+                "pid": 91565,
+                "cpu_s": 29.64006,
+                "wall_s": 44.455317,
+                "periods": 741,
+                "checksum": 17715297958462650649,
+                "actual_cores": 0.66674
+              },
+              {
+                "pid": 91566,
+                "cpu_s": 29.640053,
+                "wall_s": 44.45413,
+                "periods": 741,
+                "checksum": 3845327437205950745,
+                "actual_cores": 0.66676
+              },
+              {
+                "pid": 91567,
+                "cpu_s": 29.640053,
+                "wall_s": 44.45245,
+                "periods": 741,
+                "checksum": 13567945342464639257,
+                "actual_cores": 0.66678
+              },
+              {
+                "pid": 91568,
+                "cpu_s": 29.640049,
+                "wall_s": 44.451159,
+                "periods": 741,
+                "checksum": 14764579811651776793,
+                "actual_cores": 0.6668
+              },
+              {
+                "pid": 91569,
+                "cpu_s": 29.640046,
+                "wall_s": 44.450726,
+                "periods": 741,
+                "checksum": 15081860400555295001,
+                "actual_cores": 0.66681
+              },
+              {
+                "pid": 91570,
+                "cpu_s": 29.639316,
+                "wall_s": 44.449227,
+                "periods": 741,
+                "checksum": 6700258218980131097,
+                "actual_cores": 0.66681
+              }
+            ],
+            "failures": [],
+            "qos": "userInitiated",
+            "period_s": 0.06,
+            "cpu_target_per_period_s": 0.04,
+            "target_cores": 5.333333333333333,
+            "observed_cores": 5.3341,
+            "target_met": true,
+            "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+            "before": {
+              "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+              "load_average": [
+                7.40234375,
+                9.189453125,
+                8.712890625
+              ]
+            },
+            "after": {
+              "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+              "load_average": [
+                8.74755859375,
+                9.32373046875,
+                8.787109375
+              ]
+            }
+          },
+          "reversals": []
+        },
+        "same_final_text": true
+      }
+    ],
+    "excluded": [
+      {
+        "run": "final-new-3",
+        "reasons": [
+          "load target not met on at least one side of the original paired attempt",
+          "paired old-side overlapped 6.7 seconds of local 440-result scoring; excluded regardless of result"
+        ],
+        "load_target_met": false
+      },
+      {
+        "run": "final-old-3",
+        "reasons": [
+          "load target not met on at least one side of the original paired attempt",
+          "paired old-side overlapped 6.7 seconds of local 440-result scoring; excluded regardless of result"
+        ],
+        "load_target_met": false
+      },
+      {
+        "run": "new-1",
+        "reasons": [
+          "load target not met on at least one side of the original paired attempt"
+        ],
+        "load_target_met": false
+      },
+      {
+        "run": "new-2",
+        "reasons": [
+          "load target not met on at least one side of the original paired attempt"
+        ],
+        "load_target_met": false
+      },
+      {
+        "run": "new-3",
+        "reasons": [
+          "load target not met on at least one side of the original paired attempt"
+        ],
+        "load_target_met": false
+      },
+      {
+        "run": "old-1",
+        "reasons": [
+          "load target not met on at least one side of the original paired attempt"
+        ],
+        "load_target_met": false
+      },
+      {
+        "run": "old-2",
+        "reasons": [
+          "load target not met on at least one side of the original paired attempt"
+        ],
+        "load_target_met": true
+      },
+      {
+        "run": "old-3",
+        "reasons": [
+          "load target not met on at least one side of the original paired attempt"
+        ],
+        "load_target_met": false
+      },
+      {
+        "run": "repeat-new-3",
+        "reasons": [
+          "load target not met on at least one side of the original paired attempt"
+        ],
+        "load_target_met": true
+      },
+      {
+        "run": "repeat-old-3",
+        "reasons": [
+          "load target not met on at least one side of the original paired attempt"
+        ],
+        "load_target_met": false
+      }
+    ],
+    "all_runs": {
+      "closure-new-3": {
+        "run": "closure-new-3",
+        "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.521,
+              "p95": 1.328
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.521,
+              "p95": 1.328
+            },
+            "longest_per_clip_s": {
+              "p50": 1.983,
+              "p95": 1.983
+            },
+            "first_s": {
+              "p50": 1.011,
+              "p95": 1.011
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 0
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.446,
+              "p95": 1.025
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.446,
+              "p95": 1.025
+            },
+            "longest_per_clip_s": {
+              "p50": 2.0,
+              "p95": 2.0
+            },
+            "first_s": {
+              "p50": 1.069,
+              "p95": 1.069
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 0
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.521,
+              "p95": 0.996
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.521,
+              "p95": 0.996
+            },
+            "longest_per_clip_s": {
+              "p50": 1.554,
+              "p95": 1.554
+            },
+            "first_s": {
+              "p50": 1.007,
+              "p95": 1.007
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 0
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 0.279,
+          "after_last_signal_s": 0.282,
+          "timeline": {
+            "count": 62,
+            "first_s": 1.011,
+            "gap_s": {
+              "p50": 0.521,
+              "p95": 1.328
+            },
+            "longest_s": 1.983,
+            "longest_start_end_s": [
+              22.127,
+              24.11
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.5,
+            "raw_outputs_inside_longest": 4,
+            "timeline_outputs_inside_longest": 2,
+            "above_two_seconds": 0
+          },
+          "display": {
+            "count": 96,
+            "first_s": 1.069,
+            "gap_s": {
+              "p50": 0.446,
+              "p95": 1.025
+            },
+            "longest_s": 2.0,
+            "longest_start_end_s": [
+              22.137,
+              24.136
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.5,
+            "raw_outputs_inside_longest": 4,
+            "timeline_outputs_inside_longest": 3,
+            "above_two_seconds": 0
+          },
+          "worker": {
+            "count": 65,
+            "first_s": 1.007,
+            "gap_s": {
+              "p50": 0.521,
+              "p95": 0.996
+            },
+            "longest_s": 1.554,
+            "longest_start_end_s": [
+              7.977,
+              9.531
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.833,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 2,
+            "above_two_seconds": 0
+          },
+          "decode": {
+            "previews": 74,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.18,
+              "p95": 0.603
+            },
+            "preview_compute_sum_s": 16.1368,
+            "preview_start_intervals_s": {
+              "p50": 0.506,
+              "p95": 0.603
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          }
+        },
+        "process": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "build": "564",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 40.289,
+          "app_cpu_s": 2.03,
+          "workers_cpu_s": 13.2,
+          "combined_cpu_s": 15.23,
+          "process_equivalent_cores": 0.378,
+          "input_s": 38.8,
+          "end_of_file": 38.80304837500444,
+          "peak_simultaneous_footprint_MiB": 1750.3,
+          "computes": 74,
+          "preview_compute_wall_s": 16.137
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 91563,
+              "cpu_s": 29.64003,
+              "wall_s": 44.457247,
+              "periods": 741,
+              "checksum": 17446307482714810649,
+              "actual_cores": 0.66671
+            },
+            {
+              "pid": 91564,
+              "cpu_s": 29.640023,
+              "wall_s": 44.456216,
+              "periods": 741,
+              "checksum": 14480395041425731865,
+              "actual_cores": 0.66672
+            },
+            {
+              "pid": 91565,
+              "cpu_s": 29.64006,
+              "wall_s": 44.455317,
+              "periods": 741,
+              "checksum": 17715297958462650649,
+              "actual_cores": 0.66674
+            },
+            {
+              "pid": 91566,
+              "cpu_s": 29.640053,
+              "wall_s": 44.45413,
+              "periods": 741,
+              "checksum": 3845327437205950745,
+              "actual_cores": 0.66676
+            },
+            {
+              "pid": 91567,
+              "cpu_s": 29.640053,
+              "wall_s": 44.45245,
+              "periods": 741,
+              "checksum": 13567945342464639257,
+              "actual_cores": 0.66678
+            },
+            {
+              "pid": 91568,
+              "cpu_s": 29.640049,
+              "wall_s": 44.451159,
+              "periods": 741,
+              "checksum": 14764579811651776793,
+              "actual_cores": 0.6668
+            },
+            {
+              "pid": 91569,
+              "cpu_s": 29.640046,
+              "wall_s": 44.450726,
+              "periods": 741,
+              "checksum": 15081860400555295001,
+              "actual_cores": 0.66681
+            },
+            {
+              "pid": 91570,
+              "cpu_s": 29.639316,
+              "wall_s": 44.449227,
+              "periods": 741,
+              "checksum": 6700258218980131097,
+              "actual_cores": 0.66681
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 5.3341,
+          "target_met": true,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              7.40234375,
+              9.189453125,
+              8.712890625
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              8.74755859375,
+              9.32373046875,
+              8.787109375
+            ]
+          }
+        },
+        "reversals": []
+      },
+      "closure-old-3": {
+        "run": "closure-old-3",
+        "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.519,
+              "p95": 1.072
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.519,
+              "p95": 1.072
+            },
+            "longest_per_clip_s": {
+              "p50": 1.978,
+              "p95": 1.978
+            },
+            "first_s": {
+              "p50": 1.071,
+              "p95": 1.071
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 0
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.407,
+              "p95": 1.029
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.407,
+              "p95": 1.029
+            },
+            "longest_per_clip_s": {
+              "p50": 1.999,
+              "p95": 1.999
+            },
+            "first_s": {
+              "p50": 1.113,
+              "p95": 1.113
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 0
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.519,
+              "p95": 1.048
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.519,
+              "p95": 1.048
+            },
+            "longest_per_clip_s": {
+              "p50": 1.547,
+              "p95": 1.547
+            },
+            "first_s": {
+              "p50": 1.068,
+              "p95": 1.068
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 0
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 0.298,
+          "after_last_signal_s": 0.301,
+          "timeline": {
+            "count": 63,
+            "first_s": 1.071,
+            "gap_s": {
+              "p50": 0.519,
+              "p95": 1.072
+            },
+            "longest_s": 1.978,
+            "longest_start_end_s": [
+              22.126,
+              24.104
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.495,
+            "raw_outputs_inside_longest": 4,
+            "timeline_outputs_inside_longest": 2,
+            "above_two_seconds": 0
+          },
+          "display": {
+            "count": 104,
+            "first_s": 1.113,
+            "gap_s": {
+              "p50": 0.407,
+              "p95": 1.029
+            },
+            "longest_s": 1.999,
+            "longest_start_end_s": [
+              22.135,
+              24.134
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.5,
+            "raw_outputs_inside_longest": 4,
+            "timeline_outputs_inside_longest": 3,
+            "above_two_seconds": 0
+          },
+          "worker": {
+            "count": 65,
+            "first_s": 1.068,
+            "gap_s": {
+              "p50": 0.519,
+              "p95": 1.048
+            },
+            "longest_s": 1.547,
+            "longest_start_end_s": [
+              7.975,
+              9.522
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.831,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 2,
+            "above_two_seconds": 0
+          },
+          "decode": {
+            "previews": 75,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.183,
+              "p95": 0.49
+            },
+            "preview_compute_sum_s": 15.4753,
+            "preview_start_intervals_s": {
+              "p50": 0.506,
+              "p95": 0.514
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          }
+        },
+        "process": {
+          "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+          "build": "563",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 40.218,
+          "app_cpu_s": 1.74,
+          "workers_cpu_s": 11.44,
+          "combined_cpu_s": 13.18,
+          "process_equivalent_cores": 0.3277,
+          "input_s": 38.8,
+          "end_of_file": 38.80301316664554,
+          "peak_simultaneous_footprint_MiB": 1807.6,
+          "computes": 75,
+          "preview_compute_wall_s": 15.475
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 91282,
+              "cpu_s": 29.600035,
+              "wall_s": 44.393501,
+              "periods": 740,
+              "checksum": 10875616887578245401,
+              "actual_cores": 0.66677
+            },
+            {
+              "pid": 91283,
+              "cpu_s": 29.600028,
+              "wall_s": 44.392845,
+              "periods": 740,
+              "checksum": 12267218607887831321,
+              "actual_cores": 0.66677
+            },
+            {
+              "pid": 91284,
+              "cpu_s": 29.600025,
+              "wall_s": 44.391832,
+              "periods": 740,
+              "checksum": 596455280555000089,
+              "actual_cores": 0.66679
+            },
+            {
+              "pid": 91285,
+              "cpu_s": 29.600029,
+              "wall_s": 44.389441,
+              "periods": 740,
+              "checksum": 11270244417350627609,
+              "actual_cores": 0.66683
+            },
+            {
+              "pid": 91286,
+              "cpu_s": 29.600028,
+              "wall_s": 44.388423,
+              "periods": 740,
+              "checksum": 17482357682681788697,
+              "actual_cores": 0.66684
+            },
+            {
+              "pid": 91287,
+              "cpu_s": 29.599518,
+              "wall_s": 44.386693,
+              "periods": 740,
+              "checksum": 12480159007719606553,
+              "actual_cores": 0.66686
+            },
+            {
+              "pid": 91288,
+              "cpu_s": 29.598535,
+              "wall_s": 44.384812,
+              "periods": 740,
+              "checksum": 1708375659389356313,
+              "actual_cores": 0.66686
+            },
+            {
+              "pid": 91289,
+              "cpu_s": 29.599738,
+              "wall_s": 44.384094,
+              "periods": 740,
+              "checksum": 7533979563736654105,
+              "actual_cores": 0.6669
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 5.3346,
+          "target_met": true,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              4.19677734375,
+              8.826171875,
+              8.560546875
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              7.40234375,
+              9.189453125,
+              8.712890625
+            ]
+          }
+        },
+        "reversals": []
+      },
+      "final-new-3": {
+        "run": "final-new-3",
+        "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.762,
+              "p95": 3.041
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.762,
+              "p95": 3.041
+            },
+            "longest_per_clip_s": {
+              "p50": 3.167,
+              "p95": 3.167
+            },
+            "first_s": {
+              "p50": 2.869,
+              "p95": 2.869
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 3
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.172,
+              "p95": 1.479
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.172,
+              "p95": 1.479
+            },
+            "longest_per_clip_s": {
+              "p50": 3.163,
+              "p95": 3.163
+            },
+            "first_s": {
+              "p50": 2.93,
+              "p95": 2.93
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 3
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.758,
+              "p95": 1.761
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.758,
+              "p95": 1.761
+            },
+            "longest_per_clip_s": {
+              "p50": 3.167,
+              "p95": 3.167
+            },
+            "first_s": {
+              "p50": 2.859,
+              "p95": 2.859
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 2
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 0.967,
+          "after_last_signal_s": 0.97,
+          "timeline": {
+            "count": 40,
+            "first_s": 2.869,
+            "gap_s": {
+              "p50": 0.762,
+              "p95": 3.041
+            },
+            "longest_s": 3.167,
+            "longest_start_end_s": [
+              31.225,
+              34.392
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.723,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 3
+          },
+          "display": {
+            "count": 78,
+            "first_s": 2.93,
+            "gap_s": {
+              "p50": 0.172,
+              "p95": 1.479
+            },
+            "longest_s": 3.163,
+            "longest_start_end_s": [
+              31.245,
+              34.408
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.722,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 3
+          },
+          "worker": {
+            "count": 41,
+            "first_s": 2.859,
+            "gap_s": {
+              "p50": 0.758,
+              "p95": 1.761
+            },
+            "longest_s": 3.167,
+            "longest_start_end_s": [
+              31.218,
+              34.385
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.722,
+            "raw_outputs_inside_longest": 0,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 2
+          },
+          "decode": {
+            "previews": 44,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.674,
+              "p95": 1.482
+            },
+            "preview_compute_sum_s": 30.6092,
+            "preview_start_intervals_s": {
+              "p50": 0.681,
+              "p95": 1.761
+            },
+            "previews_finishing_during_longest_timeline_gap": 0
+          }
+        },
+        "process": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "build": "564",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 41.721,
+          "app_cpu_s": 5.25,
+          "workers_cpu_s": 14.61,
+          "combined_cpu_s": 19.86,
+          "process_equivalent_cores": 0.476,
+          "input_s": 38.8,
+          "end_of_file": 38.803773291641846,
+          "peak_simultaneous_footprint_MiB": 1734.8,
+          "computes": 44,
+          "preview_compute_wall_s": 30.609
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 90124,
+              "cpu_s": 21.99007,
+              "wall_s": 46.017187,
+              "periods": 550,
+              "checksum": 8953227154289690905,
+              "actual_cores": 0.47787
+            },
+            {
+              "pid": 90125,
+              "cpu_s": 21.754946,
+              "wall_s": 46.014936,
+              "periods": 544,
+              "checksum": 5165237244796549401,
+              "actual_cores": 0.47278
+            },
+            {
+              "pid": 90126,
+              "cpu_s": 22.370401,
+              "wall_s": 46.011125,
+              "periods": 560,
+              "checksum": 16506744914340172057,
+              "actual_cores": 0.4862
+            },
+            {
+              "pid": 90127,
+              "cpu_s": 21.61548,
+              "wall_s": 46.008108,
+              "periods": 541,
+              "checksum": 3022071656037071129,
+              "actual_cores": 0.46982
+            },
+            {
+              "pid": 90128,
+              "cpu_s": 21.621373,
+              "wall_s": 46.003503,
+              "periods": 541,
+              "checksum": 7657207021849286937,
+              "actual_cores": 0.46999
+            },
+            {
+              "pid": 90129,
+              "cpu_s": 22.490288,
+              "wall_s": 45.998879,
+              "periods": 563,
+              "checksum": 4750297086971093273,
+              "actual_cores": 0.48893
+            },
+            {
+              "pid": 90130,
+              "cpu_s": 21.984033,
+              "wall_s": 45.992555,
+              "periods": 550,
+              "checksum": 4280657483429699865,
+              "actual_cores": 0.47799
+            },
+            {
+              "pid": 90131,
+              "cpu_s": 22.114913,
+              "wall_s": 45.976993,
+              "periods": 553,
+              "checksum": 17446764672545792281,
+              "actual_cores": 0.481
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 3.8246,
+          "target_met": false,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              33.5771484375,
+              12.8525390625,
+              9.33740234375
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              27.39404296875,
+              14.0908203125,
+              9.970703125
+            ]
+          }
+        },
+        "reversals": []
+      },
+      "final-old-3": {
+        "run": "final-old-3",
+        "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 1.146,
+              "p95": 10.084
+            },
+            "previous_event_gaps_s": {
+              "p50": 1.146,
+              "p95": 10.084
+            },
+            "longest_per_clip_s": {
+              "p50": 10.084,
+              "p95": 10.084
+            },
+            "first_s": {
+              "p50": 7.223,
+              "p95": 7.223
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 5
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.073,
+              "p95": 3.834
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.073,
+              "p95": 3.834
+            },
+            "longest_per_clip_s": {
+              "p50": 10.094,
+              "p95": 10.094
+            },
+            "first_s": {
+              "p50": 7.298,
+              "p95": 7.298
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 5
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 1.224,
+              "p95": 4.048
+            },
+            "previous_event_gaps_s": {
+              "p50": 1.224,
+              "p95": 4.048
+            },
+            "longest_per_clip_s": {
+              "p50": 7.038,
+              "p95": 7.038
+            },
+            "first_s": {
+              "p50": 7.038,
+              "p95": 7.038
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 7
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 1.541,
+          "after_last_signal_s": 1.549,
+          "timeline": {
+            "count": 16,
+            "first_s": 7.223,
+            "gap_s": {
+              "p50": 1.146,
+              "p95": 10.084
+            },
+            "longest_s": 10.084,
+            "longest_start_end_s": [
+              26.716,
+              36.8
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.615,
+            "raw_outputs_inside_longest": 3,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 5
+          },
+          "display": {
+            "count": 35,
+            "first_s": 7.298,
+            "gap_s": {
+              "p50": 0.073,
+              "p95": 3.834
+            },
+            "longest_s": 10.094,
+            "longest_start_end_s": [
+              26.719,
+              36.813
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.614,
+            "raw_outputs_inside_longest": 3,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 5
+          },
+          "worker": {
+            "count": 18,
+            "first_s": 7.038,
+            "gap_s": {
+              "p50": 1.224,
+              "p95": 4.048
+            },
+            "longest_s": 7.038,
+            "longest_start_end_s": [
+              0.0,
+              7.038
+            ],
+            "longest_position": "first",
+            "longest_input_above_minus55_fraction": 0.852,
+            "raw_outputs_inside_longest": 0,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 7
+          },
+          "decode": {
+            "previews": 20,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 1.081,
+              "p95": 3.316
+            },
+            "preview_compute_sum_s": 29.0791,
+            "preview_start_intervals_s": {
+              "p50": 1.115,
+              "p95": 7.386
+            },
+            "previews_finishing_during_longest_timeline_gap": 2
+          }
+        },
+        "process": {
+          "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+          "build": "563",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 42.202,
+          "app_cpu_s": 5.08,
+          "workers_cpu_s": 11.29,
+          "combined_cpu_s": 16.37,
+          "process_equivalent_cores": 0.3879,
+          "input_s": 38.8,
+          "end_of_file": 38.80827949999366,
+          "peak_simultaneous_footprint_MiB": 1506.3,
+          "computes": 20,
+          "preview_compute_wall_s": 29.079
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 89674,
+              "cpu_s": 15.545997,
+              "wall_s": 46.610449,
+              "periods": 389,
+              "checksum": 13996323513505515801,
+              "actual_cores": 0.33353
+            },
+            {
+              "pid": 89675,
+              "cpu_s": 15.516255,
+              "wall_s": 46.610458,
+              "periods": 388,
+              "checksum": 12312530958624684313,
+              "actual_cores": 0.33289
+            },
+            {
+              "pid": 89676,
+              "cpu_s": 15.400744,
+              "wall_s": 46.606369,
+              "periods": 386,
+              "checksum": 17507325627252732185,
+              "actual_cores": 0.33044
+            },
+            {
+              "pid": 89677,
+              "cpu_s": 15.455964,
+              "wall_s": 46.602878,
+              "periods": 387,
+              "checksum": 5351621397687982361,
+              "actual_cores": 0.33165
+            },
+            {
+              "pid": 89678,
+              "cpu_s": 15.140583,
+              "wall_s": 46.601668,
+              "periods": 379,
+              "checksum": 5241572230466652441,
+              "actual_cores": 0.32489
+            },
+            {
+              "pid": 89679,
+              "cpu_s": 15.1244,
+              "wall_s": 46.598534,
+              "periods": 379,
+              "checksum": 18096651380982579481,
+              "actual_cores": 0.32457
+            },
+            {
+              "pid": 89680,
+              "cpu_s": 15.321013,
+              "wall_s": 46.596488,
+              "periods": 384,
+              "checksum": 11799334959446620441,
+              "actual_cores": 0.3288
+            },
+            {
+              "pid": 89681,
+              "cpu_s": 15.560096,
+              "wall_s": 46.594248,
+              "periods": 390,
+              "checksum": 7964820114320423193,
+              "actual_cores": 0.33395
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 2.6407,
+          "target_met": false,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              8.0166015625,
+              5.6328125,
+              6.72998046875
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              33.5771484375,
+              12.8525390625,
+              9.33740234375
+            ]
+          }
+        },
+        "reversals": []
+      },
+      "new-1": {
+        "run": "new-1",
+        "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.677,
+              "p95": 3.668
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.677,
+              "p95": 3.668
+            },
+            "longest_per_clip_s": {
+              "p50": 6.394,
+              "p95": 6.394
+            },
+            "first_s": {
+              "p50": 6.394,
+              "p95": 6.394
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 5
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.322,
+              "p95": 2.746
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.322,
+              "p95": 2.746
+            },
+            "longest_per_clip_s": {
+              "p50": 6.439,
+              "p95": 6.439
+            },
+            "first_s": {
+              "p50": 6.439,
+              "p95": 6.439
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 5
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.692,
+              "p95": 3.663
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.692,
+              "p95": 3.663
+            },
+            "longest_per_clip_s": {
+              "p50": 6.385,
+              "p95": 6.385
+            },
+            "first_s": {
+              "p50": 6.385,
+              "p95": 6.385
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 4
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 1.672,
+          "after_last_signal_s": 1.677,
+          "timeline": {
+            "count": 31,
+            "first_s": 6.394,
+            "gap_s": {
+              "p50": 0.677,
+              "p95": 3.668
+            },
+            "longest_s": 6.394,
+            "longest_start_end_s": [
+              0.0,
+              6.394
+            ],
+            "longest_position": "first",
+            "longest_input_above_minus55_fraction": 0.838,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 5
+          },
+          "display": {
+            "count": 55,
+            "first_s": 6.439,
+            "gap_s": {
+              "p50": 0.322,
+              "p95": 2.746
+            },
+            "longest_s": 6.439,
+            "longest_start_end_s": [
+              0.0,
+              6.439
+            ],
+            "longest_position": "first",
+            "longest_input_above_minus55_fraction": 0.839,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 5
+          },
+          "worker": {
+            "count": 33,
+            "first_s": 6.385,
+            "gap_s": {
+              "p50": 0.692,
+              "p95": 3.663
+            },
+            "longest_s": 6.385,
+            "longest_start_end_s": [
+              0.0,
+              6.385
+            ],
+            "longest_position": "first",
+            "longest_input_above_minus55_fraction": 0.837,
+            "raw_outputs_inside_longest": 0,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 4
+          },
+          "decode": {
+            "previews": 39,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.585,
+              "p95": 3.597
+            },
+            "preview_compute_sum_s": 31.3346,
+            "preview_start_intervals_s": {
+              "p50": 0.586,
+              "p95": 4.304
+            },
+            "previews_finishing_during_longest_timeline_gap": 1
+          }
+        },
+        "process": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "build": "564",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 44.04,
+          "app_cpu_s": 4.71,
+          "workers_cpu_s": 16.17,
+          "combined_cpu_s": 20.88,
+          "process_equivalent_cores": 0.4741,
+          "input_s": 38.8,
+          "end_of_file": 38.80531899997732,
+          "peak_simultaneous_footprint_MiB": 1748.4,
+          "computes": 39,
+          "preview_compute_wall_s": 31.335
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 67860,
+              "cpu_s": 26.021469,
+              "wall_s": 48.360741,
+              "periods": 651,
+              "checksum": 12109391170902675737,
+              "actual_cores": 0.53807
+            },
+            {
+              "pid": 67861,
+              "cpu_s": 25.884291,
+              "wall_s": 48.359047,
+              "periods": 648,
+              "checksum": 11213462577127954713,
+              "actual_cores": 0.53525
+            },
+            {
+              "pid": 67862,
+              "cpu_s": 25.960909,
+              "wall_s": 48.35617,
+              "periods": 650,
+              "checksum": 5230981983776319769,
+              "actual_cores": 0.53687
+            },
+            {
+              "pid": 67863,
+              "cpu_s": 26.064015,
+              "wall_s": 48.353355,
+              "periods": 652,
+              "checksum": 13765126387397875993,
+              "actual_cores": 0.53903
+            },
+            {
+              "pid": 67864,
+              "cpu_s": 25.973819,
+              "wall_s": 48.349488,
+              "periods": 650,
+              "checksum": 1969314231301804313,
+              "actual_cores": 0.53721
+            },
+            {
+              "pid": 67865,
+              "cpu_s": 25.990773,
+              "wall_s": 48.347051,
+              "periods": 650,
+              "checksum": 2466965941787666713,
+              "actual_cores": 0.53759
+            },
+            {
+              "pid": 67866,
+              "cpu_s": 25.752262,
+              "wall_s": 48.340295,
+              "periods": 644,
+              "checksum": 10957085494413289753,
+              "actual_cores": 0.53273
+            },
+            {
+              "pid": 67868,
+              "cpu_s": 26.023878,
+              "wall_s": 48.335573,
+              "periods": 651,
+              "checksum": 13839990405162985753,
+              "actual_cores": 0.5384
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 4.2951,
+          "target_met": false,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              19.50830078125,
+              9.2451171875,
+              7.6171875
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              34.7138671875,
+              14.37548828125,
+              9.56884765625
+            ]
+          }
+        },
+        "reversals": []
+      },
+      "new-2": {
+        "run": "new-2",
+        "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.523,
+              "p95": 1.986
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.523,
+              "p95": 1.986
+            },
+            "longest_per_clip_s": {
+              "p50": 2.872,
+              "p95": 2.872
+            },
+            "first_s": {
+              "p50": 1.729,
+              "p95": 1.729
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 2
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.147,
+              "p95": 1.007
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.147,
+              "p95": 1.007
+            },
+            "longest_per_clip_s": {
+              "p50": 2.87,
+              "p95": 2.87
+            },
+            "first_s": {
+              "p50": 1.799,
+              "p95": 1.799
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 2
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.541,
+              "p95": 1.35
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.541,
+              "p95": 1.35
+            },
+            "longest_per_clip_s": {
+              "p50": 1.988,
+              "p95": 1.988
+            },
+            "first_s": {
+              "p50": 1.718,
+              "p95": 1.718
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 0
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 1.124,
+          "after_last_signal_s": 1.129,
+          "timeline": {
+            "count": 55,
+            "first_s": 1.729,
+            "gap_s": {
+              "p50": 0.523,
+              "p95": 1.986
+            },
+            "longest_s": 2.872,
+            "longest_start_end_s": [
+              28.279,
+              31.151
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.465,
+            "raw_outputs_inside_longest": 2,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 2
+          },
+          "display": {
+            "count": 103,
+            "first_s": 1.799,
+            "gap_s": {
+              "p50": 0.147,
+              "p95": 1.007
+            },
+            "longest_s": 2.87,
+            "longest_start_end_s": [
+              28.286,
+              31.157
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.465,
+            "raw_outputs_inside_longest": 2,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 2
+          },
+          "worker": {
+            "count": 58,
+            "first_s": 1.718,
+            "gap_s": {
+              "p50": 0.541,
+              "p95": 1.35
+            },
+            "longest_s": 1.988,
+            "longest_start_end_s": [
+              31.142,
+              33.13
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.72,
+            "raw_outputs_inside_longest": 0,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 0
+          },
+          "decode": {
+            "previews": 61,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.352,
+              "p95": 1.065
+            },
+            "preview_compute_sum_s": 27.0521,
+            "preview_start_intervals_s": {
+              "p50": 0.509,
+              "p95": 1.065
+            },
+            "previews_finishing_during_longest_timeline_gap": 2
+          }
+        },
+        "process": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "build": "564",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 41.863,
+          "app_cpu_s": 4.73,
+          "workers_cpu_s": 18.64,
+          "combined_cpu_s": 23.37,
+          "process_equivalent_cores": 0.5582,
+          "input_s": 38.8,
+          "end_of_file": 38.804560916672926,
+          "peak_simultaneous_footprint_MiB": 1696.3,
+          "computes": 61,
+          "preview_compute_wall_s": 27.052
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 69237,
+              "cpu_s": 28.727509,
+              "wall_s": 46.130856,
+              "periods": 719,
+              "checksum": 2320137170341839129,
+              "actual_cores": 0.62274
+            },
+            {
+              "pid": 69238,
+              "cpu_s": 28.424932,
+              "wall_s": 46.127626,
+              "periods": 711,
+              "checksum": 12917754092831928601,
+              "actual_cores": 0.61622
+            },
+            {
+              "pid": 69239,
+              "cpu_s": 28.55837,
+              "wall_s": 46.123507,
+              "periods": 714,
+              "checksum": 11458424272634132761,
+              "actual_cores": 0.61917
+            },
+            {
+              "pid": 69240,
+              "cpu_s": 28.288122,
+              "wall_s": 46.115861,
+              "periods": 708,
+              "checksum": 7702800044497580313,
+              "actual_cores": 0.61341
+            },
+            {
+              "pid": 69241,
+              "cpu_s": 28.488048,
+              "wall_s": 46.107396,
+              "periods": 713,
+              "checksum": 600508096359207193,
+              "actual_cores": 0.61786
+            },
+            {
+              "pid": 69242,
+              "cpu_s": 28.628066,
+              "wall_s": 46.100906,
+              "periods": 716,
+              "checksum": 3657809909121689881,
+              "actual_cores": 0.62099
+            },
+            {
+              "pid": 69243,
+              "cpu_s": 28.295774,
+              "wall_s": 46.090845,
+              "periods": 708,
+              "checksum": 1548872041366507801,
+              "actual_cores": 0.61391
+            },
+            {
+              "pid": 69244,
+              "cpu_s": 28.573381,
+              "wall_s": 46.068729,
+              "periods": 715,
+              "checksum": 17613191827197544729,
+              "actual_cores": 0.62023
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 4.9445,
+          "target_met": false,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              34.7138671875,
+              14.37548828125,
+              9.56884765625
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              52.66015625,
+              21.99755859375,
+              12.623046875
+            ]
+          }
+        },
+        "reversals": []
+      },
+      "new-3": {
+        "run": "new-3",
+        "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.647,
+              "p95": 1.864
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.647,
+              "p95": 1.864
+            },
+            "longest_per_clip_s": {
+              "p50": 2.724,
+              "p95": 2.724
+            },
+            "first_s": {
+              "p50": 2.627,
+              "p95": 2.627
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 3
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.119,
+              "p95": 1.678
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.119,
+              "p95": 1.678
+            },
+            "longest_per_clip_s": {
+              "p50": 2.679,
+              "p95": 2.679
+            },
+            "first_s": {
+              "p50": 2.679,
+              "p95": 2.679
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 3
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.683,
+              "p95": 1.676
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.683,
+              "p95": 1.676
+            },
+            "longest_per_clip_s": {
+              "p50": 2.615,
+              "p95": 2.615
+            },
+            "first_s": {
+              "p50": 2.615,
+              "p95": 2.615
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 1
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 0.579,
+          "after_last_signal_s": 0.585,
+          "timeline": {
+            "count": 43,
+            "first_s": 2.627,
+            "gap_s": {
+              "p50": 0.647,
+              "p95": 1.864
+            },
+            "longest_s": 2.724,
+            "longest_start_end_s": [
+              28.508,
+              31.232
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.474,
+            "raw_outputs_inside_longest": 2,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 3
+          },
+          "display": {
+            "count": 83,
+            "first_s": 2.679,
+            "gap_s": {
+              "p50": 0.119,
+              "p95": 1.678
+            },
+            "longest_s": 2.679,
+            "longest_start_end_s": [
+              0.0,
+              2.679
+            ],
+            "longest_position": "first",
+            "longest_input_above_minus55_fraction": 0.888,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 3
+          },
+          "worker": {
+            "count": 46,
+            "first_s": 2.615,
+            "gap_s": {
+              "p50": 0.683,
+              "p95": 1.676
+            },
+            "longest_s": 2.615,
+            "longest_start_end_s": [
+              0.0,
+              2.615
+            ],
+            "longest_position": "first",
+            "longest_input_above_minus55_fraction": 0.885,
+            "raw_outputs_inside_longest": 0,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 1
+          },
+          "decode": {
+            "previews": 50,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.497,
+              "p95": 1.333
+            },
+            "preview_compute_sum_s": 30.0065,
+            "preview_start_intervals_s": {
+              "p50": 0.533,
+              "p95": 1.334
+            },
+            "previews_finishing_during_longest_timeline_gap": 2
+          }
+        },
+        "process": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "build": "564",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 41.465,
+          "app_cpu_s": 4.8,
+          "workers_cpu_s": 17.52,
+          "combined_cpu_s": 22.32,
+          "process_equivalent_cores": 0.5383,
+          "input_s": 38.8,
+          "end_of_file": 38.80571087502176,
+          "peak_simultaneous_footprint_MiB": 1647.0,
+          "computes": 50,
+          "preview_compute_wall_s": 30.006
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 71453,
+              "cpu_s": 24.49022,
+              "wall_s": 45.813882,
+              "periods": 613,
+              "checksum": 4990761859530656025,
+              "actual_cores": 0.53456
+            },
+            {
+              "pid": 71454,
+              "cpu_s": 24.980001,
+              "wall_s": 45.812227,
+              "periods": 625,
+              "checksum": 14290544571647031577,
+              "actual_cores": 0.54527
+            },
+            {
+              "pid": 71455,
+              "cpu_s": 24.642066,
+              "wall_s": 45.808961,
+              "periods": 617,
+              "checksum": 17832392070294331673,
+              "actual_cores": 0.53793
+            },
+            {
+              "pid": 71456,
+              "cpu_s": 24.601811,
+              "wall_s": 45.806627,
+              "periods": 616,
+              "checksum": 948636084162648345,
+              "actual_cores": 0.53708
+            },
+            {
+              "pid": 71457,
+              "cpu_s": 24.221348,
+              "wall_s": 45.80451,
+              "periods": 606,
+              "checksum": 13725749192810037529,
+              "actual_cores": 0.5288
+            },
+            {
+              "pid": 71458,
+              "cpu_s": 24.753334,
+              "wall_s": 45.801359,
+              "periods": 619,
+              "checksum": 10865604191012903193,
+              "actual_cores": 0.54045
+            },
+            {
+              "pid": 71459,
+              "cpu_s": 25.019721,
+              "wall_s": 45.795801,
+              "periods": 626,
+              "checksum": 12480079071704527129,
+              "actual_cores": 0.54633
+            },
+            {
+              "pid": 71460,
+              "cpu_s": 24.746207,
+              "wall_s": 45.790661,
+              "periods": 619,
+              "checksum": 14660097942415247641,
+              "actual_cores": 0.54042
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 4.3108,
+          "target_met": false,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              37.060546875,
+              24.89892578125,
+              14.73046875
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              73.072265625,
+              35.361328125,
+              19.060546875
+            ]
+          }
+        },
+        "reversals": []
+      },
+      "old-1": {
+        "run": "old-1",
+        "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.574,
+              "p95": 2.663
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.574,
+              "p95": 2.663
+            },
+            "longest_per_clip_s": {
+              "p50": 3.4,
+              "p95": 3.4
+            },
+            "first_s": {
+              "p50": 2.319,
+              "p95": 2.319
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 4
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.335,
+              "p95": 1.615
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.335,
+              "p95": 1.615
+            },
+            "longest_per_clip_s": {
+              "p50": 3.379,
+              "p95": 3.379
+            },
+            "first_s": {
+              "p50": 2.396,
+              "p95": 2.396
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 4
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.601,
+              "p95": 1.619
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.601,
+              "p95": 1.619
+            },
+            "longest_per_clip_s": {
+              "p50": 3.402,
+              "p95": 3.402
+            },
+            "first_s": {
+              "p50": 2.31,
+              "p95": 2.31
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 2
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 0.665,
+          "after_last_signal_s": 0.669,
+          "timeline": {
+            "count": 41,
+            "first_s": 2.319,
+            "gap_s": {
+              "p50": 0.574,
+              "p95": 2.663
+            },
+            "longest_s": 3.4,
+            "longest_start_end_s": [
+              31.181,
+              34.581
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.694,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 4
+          },
+          "display": {
+            "count": 74,
+            "first_s": 2.396,
+            "gap_s": {
+              "p50": 0.335,
+              "p95": 1.615
+            },
+            "longest_s": 3.379,
+            "longest_start_end_s": [
+              31.208,
+              34.587
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.692,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 4
+          },
+          "worker": {
+            "count": 43,
+            "first_s": 2.31,
+            "gap_s": {
+              "p50": 0.601,
+              "p95": 1.619
+            },
+            "longest_s": 3.402,
+            "longest_start_end_s": [
+              31.172,
+              34.574
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.694,
+            "raw_outputs_inside_longest": 0,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 2
+          },
+          "decode": {
+            "previews": 45,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.413,
+              "p95": 1.614
+            },
+            "preview_compute_sum_s": 28.3662,
+            "preview_start_intervals_s": {
+              "p50": 0.511,
+              "p95": 1.619
+            },
+            "previews_finishing_during_longest_timeline_gap": 0
+          }
+        },
+        "process": {
+          "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+          "build": "563",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 41.308,
+          "app_cpu_s": 4.99,
+          "workers_cpu_s": 16.46,
+          "combined_cpu_s": 21.45,
+          "process_equivalent_cores": 0.5193,
+          "input_s": 38.8,
+          "end_of_file": 38.80400508333696,
+          "peak_simultaneous_footprint_MiB": 1329.3,
+          "computes": 45,
+          "preview_compute_wall_s": 28.366
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 67056,
+              "cpu_s": 23.829734,
+              "wall_s": 45.552936,
+              "periods": 596,
+              "checksum": 1893504805238216985,
+              "actual_cores": 0.52312
+            },
+            {
+              "pid": 67057,
+              "cpu_s": 23.369769,
+              "wall_s": 45.551753,
+              "periods": 585,
+              "checksum": 7271138372695107865,
+              "actual_cores": 0.51304
+            },
+            {
+              "pid": 67058,
+              "cpu_s": 23.904733,
+              "wall_s": 45.551538,
+              "periods": 598,
+              "checksum": 4877893121393576217,
+              "actual_cores": 0.52478
+            },
+            {
+              "pid": 67059,
+              "cpu_s": 23.686973,
+              "wall_s": 45.551607,
+              "periods": 593,
+              "checksum": 5284385424236161305,
+              "actual_cores": 0.52
+            },
+            {
+              "pid": 67060,
+              "cpu_s": 23.311748,
+              "wall_s": 45.551209,
+              "periods": 583,
+              "checksum": 4788792410561212697,
+              "actual_cores": 0.51177
+            },
+            {
+              "pid": 67061,
+              "cpu_s": 23.649671,
+              "wall_s": 45.551577,
+              "periods": 592,
+              "checksum": 9942013927154086169,
+              "actual_cores": 0.51918
+            },
+            {
+              "pid": 67062,
+              "cpu_s": 23.490145,
+              "wall_s": 45.551938,
+              "periods": 588,
+              "checksum": 3309731988757221657,
+              "actual_cores": 0.51568
+            },
+            {
+              "pid": 67063,
+              "cpu_s": 23.882914,
+              "wall_s": 45.551328,
+              "periods": 598,
+              "checksum": 5694721055248619801,
+              "actual_cores": 0.52431
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 4.1519,
+          "target_met": false,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              7.87255859375,
+              5.72265625,
+              6.35009765625
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              20.59765625,
+              9.283203125,
+              7.62109375
+            ]
+          }
+        },
+        "reversals": []
+      },
+      "old-2": {
+        "run": "old-2",
+        "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.597,
+              "p95": 1.385
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.597,
+              "p95": 1.385
+            },
+            "longest_per_clip_s": {
+              "p50": 4.009,
+              "p95": 4.009
+            },
+            "first_s": {
+              "p50": 2.564,
+              "p95": 2.564
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 2
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.185,
+              "p95": 1.327
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.185,
+              "p95": 1.327
+            },
+            "longest_per_clip_s": {
+              "p50": 4.018,
+              "p95": 4.018
+            },
+            "first_s": {
+              "p50": 2.604,
+              "p95": 2.604
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 2
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.61,
+              "p95": 1.31
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.61,
+              "p95": 1.31
+            },
+            "longest_per_clip_s": {
+              "p50": 2.553,
+              "p95": 2.553
+            },
+            "first_s": {
+              "p50": 2.553,
+              "p95": 2.553
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 1
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 1.066,
+          "after_last_signal_s": 1.071,
+          "timeline": {
+            "count": 48,
+            "first_s": 2.564,
+            "gap_s": {
+              "p50": 0.597,
+              "p95": 1.385
+            },
+            "longest_s": 4.009,
+            "longest_start_end_s": [
+              22.718,
+              26.727
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.69,
+            "raw_outputs_inside_longest": 4,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 2
+          },
+          "display": {
+            "count": 91,
+            "first_s": 2.604,
+            "gap_s": {
+              "p50": 0.185,
+              "p95": 1.327
+            },
+            "longest_s": 4.018,
+            "longest_start_end_s": [
+              22.733,
+              26.751
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.697,
+            "raw_outputs_inside_longest": 4,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 2
+          },
+          "worker": {
+            "count": 51,
+            "first_s": 2.553,
+            "gap_s": {
+              "p50": 0.61,
+              "p95": 1.31
+            },
+            "longest_s": 2.553,
+            "longest_start_end_s": [
+              0.0,
+              2.553
+            ],
+            "longest_position": "first",
+            "longest_input_above_minus55_fraction": 0.898,
+            "raw_outputs_inside_longest": 0,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 1
+          },
+          "decode": {
+            "previews": 59,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.355,
+              "p95": 1.158
+            },
+            "preview_compute_sum_s": 27.1829,
+            "preview_start_intervals_s": {
+              "p50": 0.504,
+              "p95": 1.158
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          }
+        },
+        "process": {
+          "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+          "build": "563",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 41.455,
+          "app_cpu_s": 4.43,
+          "workers_cpu_s": 18.86,
+          "combined_cpu_s": 23.29,
+          "process_equivalent_cores": 0.5618,
+          "input_s": 38.8,
+          "end_of_file": 38.80465783335967,
+          "peak_simultaneous_footprint_MiB": 1681.2,
+          "computes": 59,
+          "preview_compute_wall_s": 27.183
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 69976,
+              "cpu_s": 30.141231,
+              "wall_s": 45.700054,
+              "periods": 754,
+              "checksum": 5334624269487642905,
+              "actual_cores": 0.65954
+            },
+            {
+              "pid": 69977,
+              "cpu_s": 30.138973,
+              "wall_s": 45.698198,
+              "periods": 754,
+              "checksum": 9016792049696788761,
+              "actual_cores": 0.65952
+            },
+            {
+              "pid": 69978,
+              "cpu_s": 30.16328,
+              "wall_s": 45.695161,
+              "periods": 755,
+              "checksum": 15864009283404187929,
+              "actual_cores": 0.6601
+            },
+            {
+              "pid": 69979,
+              "cpu_s": 29.934918,
+              "wall_s": 45.693314,
+              "periods": 749,
+              "checksum": 13206313150903134489,
+              "actual_cores": 0.65513
+            },
+            {
+              "pid": 69980,
+              "cpu_s": 30.043223,
+              "wall_s": 45.690794,
+              "periods": 752,
+              "checksum": 256584736836208921,
+              "actual_cores": 0.65753
+            },
+            {
+              "pid": 69981,
+              "cpu_s": 30.244053,
+              "wall_s": 45.687972,
+              "periods": 757,
+              "checksum": 13224495651146803481,
+              "actual_cores": 0.66197
+            },
+            {
+              "pid": 69982,
+              "cpu_s": 30.137122,
+              "wall_s": 45.683789,
+              "periods": 754,
+              "checksum": 6992805341044072729,
+              "actual_cores": 0.65969
+            },
+            {
+              "pid": 69983,
+              "cpu_s": 30.133661,
+              "wall_s": 45.676297,
+              "periods": 754,
+              "checksum": 8444567645183899929,
+              "actual_cores": 0.65972
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 5.2732,
+          "target_met": true,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              52.66015625,
+              21.99755859375,
+              12.623046875
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              44.41650390625,
+              24.283203125,
+              13.98974609375
+            ]
+          }
+        },
+        "reversals": []
+      },
+      "old-3": {
+        "run": "old-3",
+        "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.538,
+              "p95": 2.372
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.538,
+              "p95": 2.372
+            },
+            "longest_per_clip_s": {
+              "p50": 3.91,
+              "p95": 3.91
+            },
+            "first_s": {
+              "p50": 1.234,
+              "p95": 1.234
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 3
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.401,
+              "p95": 1.238
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.401,
+              "p95": 1.238
+            },
+            "longest_per_clip_s": {
+              "p50": 3.901,
+              "p95": 3.901
+            },
+            "first_s": {
+              "p50": 1.284,
+              "p95": 1.284
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 3
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.548,
+              "p95": 1.58
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.548,
+              "p95": 1.58
+            },
+            "longest_per_clip_s": {
+              "p50": 2.371,
+              "p95": 2.371
+            },
+            "first_s": {
+              "p50": 1.228,
+              "p95": 1.228
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 1
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 0.872,
+          "after_last_signal_s": 0.876,
+          "timeline": {
+            "count": 50,
+            "first_s": 1.234,
+            "gap_s": {
+              "p50": 0.538,
+              "p95": 2.372
+            },
+            "longest_s": 3.91,
+            "longest_start_end_s": [
+              22.374,
+              26.284
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.61,
+            "raw_outputs_inside_longest": 4,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 3
+          },
+          "display": {
+            "count": 85,
+            "first_s": 1.284,
+            "gap_s": {
+              "p50": 0.401,
+              "p95": 1.238
+            },
+            "longest_s": 3.901,
+            "longest_start_end_s": [
+              22.39,
+              26.291
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.612,
+            "raw_outputs_inside_longest": 4,
+            "timeline_outputs_inside_longest": 2,
+            "above_two_seconds": 3
+          },
+          "worker": {
+            "count": 53,
+            "first_s": 1.228,
+            "gap_s": {
+              "p50": 0.548,
+              "p95": 1.58
+            },
+            "longest_s": 2.371,
+            "longest_start_end_s": [
+              30.263,
+              32.634
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.538,
+            "raw_outputs_inside_longest": 0,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 1
+          },
+          "decode": {
+            "previews": 62,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.213,
+              "p95": 1.093
+            },
+            "preview_compute_sum_s": 23.4795,
+            "preview_start_intervals_s": {
+              "p50": 0.507,
+              "p95": 1.094
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          }
+        },
+        "process": {
+          "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+          "build": "563",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 41.226,
+          "app_cpu_s": 4.25,
+          "workers_cpu_s": 18.24,
+          "combined_cpu_s": 22.49,
+          "process_equivalent_cores": 0.5455,
+          "input_s": 38.8,
+          "end_of_file": 38.8038724999642,
+          "peak_simultaneous_footprint_MiB": 1658.9,
+          "computes": 62,
+          "preview_compute_wall_s": 23.48
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 70871,
+              "cpu_s": 27.993299,
+              "wall_s": 45.43961,
+              "periods": 700,
+              "checksum": 4415875447003635993,
+              "actual_cores": 0.61606
+            },
+            {
+              "pid": 70872,
+              "cpu_s": 28.034408,
+              "wall_s": 45.437092,
+              "periods": 701,
+              "checksum": 18200684497667135769,
+              "actual_cores": 0.61699
+            },
+            {
+              "pid": 70873,
+              "cpu_s": 27.841522,
+              "wall_s": 45.434333,
+              "periods": 697,
+              "checksum": 336886385597294873,
+              "actual_cores": 0.61279
+            },
+            {
+              "pid": 70874,
+              "cpu_s": 28.167569,
+              "wall_s": 45.432328,
+              "periods": 705,
+              "checksum": 16782262584024828185,
+              "actual_cores": 0.61999
+            },
+            {
+              "pid": 70875,
+              "cpu_s": 27.907646,
+              "wall_s": 45.429692,
+              "periods": 698,
+              "checksum": 12533432697373206809,
+              "actual_cores": 0.6143
+            },
+            {
+              "pid": 70876,
+              "cpu_s": 28.498395,
+              "wall_s": 45.427848,
+              "periods": 713,
+              "checksum": 1174580801377517849,
+              "actual_cores": 0.62733
+            },
+            {
+              "pid": 70877,
+              "cpu_s": 28.319917,
+              "wall_s": 45.422599,
+              "periods": 708,
+              "checksum": 318450887681104153,
+              "actual_cores": 0.62348
+            },
+            {
+              "pid": 70878,
+              "cpu_s": 28.344511,
+              "wall_s": 45.411421,
+              "periods": 709,
+              "checksum": 7589172993650041113,
+              "actual_cores": 0.62417
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 4.9551,
+          "target_met": false,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              44.41650390625,
+              24.283203125,
+              13.98974609375
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              37.060546875,
+              24.89892578125,
+              14.73046875
+            ]
+          }
+        },
+        "reversals": [
+          {
+            "t": 20.8785,
+            "return_t": 21.5524,
+            "observations": 1,
+            "old": "科查",
+            "transient": "喀察",
+            "no_new_tail": false
+          }
+        ]
+      },
+      "repeat-new-1": {
+        "run": "repeat-new-1",
+        "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.523,
+              "p95": 1.974
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.523,
+              "p95": 1.974
+            },
+            "longest_per_clip_s": {
+              "p50": 2.397,
+              "p95": 2.397
+            },
+            "first_s": {
+              "p50": 0.944,
+              "p95": 0.944
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 2
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.443,
+              "p95": 1.503
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.443,
+              "p95": 1.503
+            },
+            "longest_per_clip_s": {
+              "p50": 2.37,
+              "p95": 2.37
+            },
+            "first_s": {
+              "p50": 1.0,
+              "p95": 1.0
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 2
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.525,
+              "p95": 1.216
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.525,
+              "p95": 1.216
+            },
+            "longest_per_clip_s": {
+              "p50": 1.976,
+              "p95": 1.976
+            },
+            "first_s": {
+              "p50": 0.939,
+              "p95": 0.939
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 0
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 0.497,
+          "after_last_signal_s": 0.5,
+          "timeline": {
+            "count": 54,
+            "first_s": 0.944,
+            "gap_s": {
+              "p50": 0.523,
+              "p95": 1.974
+            },
+            "longest_s": 2.397,
+            "longest_start_end_s": [
+              28.847,
+              31.244
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.458,
+            "raw_outputs_inside_longest": 2,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 2
+          },
+          "display": {
+            "count": 81,
+            "first_s": 1.0,
+            "gap_s": {
+              "p50": 0.443,
+              "p95": 1.503
+            },
+            "longest_s": 2.37,
+            "longest_start_end_s": [
+              28.879,
+              31.249
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.466,
+            "raw_outputs_inside_longest": 2,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 2
+          },
+          "worker": {
+            "count": 58,
+            "first_s": 0.939,
+            "gap_s": {
+              "p50": 0.525,
+              "p95": 1.216
+            },
+            "longest_s": 1.976,
+            "longest_start_end_s": [
+              31.236,
+              33.212
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.717,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 2,
+            "above_two_seconds": 0
+          },
+          "decode": {
+            "previews": 66,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.165,
+              "p95": 0.959
+            },
+            "preview_compute_sum_s": 20.1641,
+            "preview_start_intervals_s": {
+              "p50": 0.505,
+              "p95": 0.96
+            },
+            "previews_finishing_during_longest_timeline_gap": 2
+          }
+        },
+        "process": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "build": "564",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 40.431,
+          "app_cpu_s": 2.76,
+          "workers_cpu_s": 15.75,
+          "combined_cpu_s": 18.51,
+          "process_equivalent_cores": 0.4578,
+          "input_s": 38.8,
+          "end_of_file": 38.80274062498938,
+          "peak_simultaneous_footprint_MiB": 1651.5,
+          "computes": 66,
+          "preview_compute_wall_s": 20.164
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 79196,
+              "cpu_s": 29.755148,
+              "wall_s": 44.622446,
+              "periods": 744,
+              "checksum": 4279729383129889049,
+              "actual_cores": 0.66682
+            },
+            {
+              "pid": 79197,
+              "cpu_s": 29.751101,
+              "wall_s": 44.621155,
+              "periods": 744,
+              "checksum": 9636645643806601497,
+              "actual_cores": 0.66675
+            },
+            {
+              "pid": 79198,
+              "cpu_s": 29.753215,
+              "wall_s": 44.620044,
+              "periods": 744,
+              "checksum": 10600944411673229593,
+              "actual_cores": 0.66681
+            },
+            {
+              "pid": 79199,
+              "cpu_s": 29.750621,
+              "wall_s": 44.619103,
+              "periods": 744,
+              "checksum": 14465984434441396505,
+              "actual_cores": 0.66677
+            },
+            {
+              "pid": 79200,
+              "cpu_s": 29.749632,
+              "wall_s": 44.6186,
+              "periods": 744,
+              "checksum": 10051202832081150233,
+              "actual_cores": 0.66675
+            },
+            {
+              "pid": 79201,
+              "cpu_s": 29.748788,
+              "wall_s": 44.617242,
+              "periods": 744,
+              "checksum": 11614902855520164121,
+              "actual_cores": 0.66676
+            },
+            {
+              "pid": 79202,
+              "cpu_s": 29.751289,
+              "wall_s": 44.615893,
+              "periods": 744,
+              "checksum": 5210616224754444569,
+              "actual_cores": 0.66683
+            },
+            {
+              "pid": 79203,
+              "cpu_s": 29.745712,
+              "wall_s": 44.61426,
+              "periods": 744,
+              "checksum": 12744857007149082905,
+              "actual_cores": 0.66673
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 5.3342,
+          "target_met": true,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              5.62890625,
+              7.79541015625,
+              11.158203125
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              8.79296875,
+              8.271484375,
+              11.1552734375
+            ]
+          }
+        },
+        "reversals": [
+          {
+            "t": 28.8473,
+            "return_t": 31.2442,
+            "observations": 1,
+            "old": "理石",
+            "transient": "力士",
+            "no_new_tail": false
+          }
+        ]
+      },
+      "repeat-new-2": {
+        "run": "repeat-new-2",
+        "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.566,
+              "p95": 2.407
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.566,
+              "p95": 2.407
+            },
+            "longest_per_clip_s": {
+              "p50": 3.377,
+              "p95": 3.377
+            },
+            "first_s": {
+              "p50": 1.22,
+              "p95": 1.22
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 3
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.407,
+              "p95": 1.588
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.407,
+              "p95": 1.588
+            },
+            "longest_per_clip_s": {
+              "p50": 3.368,
+              "p95": 3.368
+            },
+            "first_s": {
+              "p50": 1.281,
+              "p95": 1.281
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 3
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.573,
+              "p95": 1.608
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.573,
+              "p95": 1.608
+            },
+            "longest_per_clip_s": {
+              "p50": 2.412,
+              "p95": 2.412
+            },
+            "first_s": {
+              "p50": 1.213,
+              "p95": 1.213
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 1
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 0.848,
+          "after_last_signal_s": 0.851,
+          "timeline": {
+            "count": 48,
+            "first_s": 1.22,
+            "gap_s": {
+              "p50": 0.566,
+              "p95": 2.407
+            },
+            "longest_s": 3.377,
+            "longest_start_end_s": [
+              28.502,
+              31.88
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.491,
+            "raw_outputs_inside_longest": 2,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 3
+          },
+          "display": {
+            "count": 78,
+            "first_s": 1.281,
+            "gap_s": {
+              "p50": 0.407,
+              "p95": 1.588
+            },
+            "longest_s": 3.368,
+            "longest_start_end_s": [
+              23.065,
+              26.433
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.669,
+            "raw_outputs_inside_longest": 3,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 3
+          },
+          "worker": {
+            "count": 51,
+            "first_s": 1.213,
+            "gap_s": {
+              "p50": 0.573,
+              "p95": 1.608
+            },
+            "longest_s": 2.412,
+            "longest_start_end_s": [
+              31.869,
+              34.281
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.76,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 2,
+            "above_two_seconds": 1
+          },
+          "decode": {
+            "previews": 58,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.34,
+              "p95": 1.283
+            },
+            "preview_compute_sum_s": 26.9492,
+            "preview_start_intervals_s": {
+              "p50": 0.51,
+              "p95": 1.283
+            },
+            "previews_finishing_during_longest_timeline_gap": 2
+          }
+        },
+        "process": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "build": "564",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 41.115,
+          "app_cpu_s": 4.14,
+          "workers_cpu_s": 18.33,
+          "combined_cpu_s": 22.47,
+          "process_equivalent_cores": 0.5465,
+          "input_s": 38.8,
+          "end_of_file": 38.80302583333105,
+          "peak_simultaneous_footprint_MiB": 1829.7,
+          "computes": 58,
+          "preview_compute_wall_s": 26.949
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 79616,
+              "cpu_s": 29.748199,
+              "wall_s": 45.294468,
+              "periods": 744,
+              "checksum": 3213180001999143193,
+              "actual_cores": 0.65677
+            },
+            {
+              "pid": 79617,
+              "cpu_s": 29.629214,
+              "wall_s": 45.292768,
+              "periods": 741,
+              "checksum": 2810285135618330905,
+              "actual_cores": 0.65417
+            },
+            {
+              "pid": 79618,
+              "cpu_s": 29.294859,
+              "wall_s": 45.290644,
+              "periods": 733,
+              "checksum": 3730818432922970393,
+              "actual_cores": 0.64682
+            },
+            {
+              "pid": 79619,
+              "cpu_s": 29.955732,
+              "wall_s": 45.288316,
+              "periods": 749,
+              "checksum": 10063875038248933657,
+              "actual_cores": 0.66145
+            },
+            {
+              "pid": 79620,
+              "cpu_s": 29.449835,
+              "wall_s": 45.28668,
+              "periods": 737,
+              "checksum": 14770450522653659417,
+              "actual_cores": 0.6503
+            },
+            {
+              "pid": 79621,
+              "cpu_s": 29.838761,
+              "wall_s": 45.284696,
+              "periods": 746,
+              "checksum": 849822436721932569,
+              "actual_cores": 0.65891
+            },
+            {
+              "pid": 79622,
+              "cpu_s": 29.704941,
+              "wall_s": 45.282972,
+              "periods": 743,
+              "checksum": 8789864376088199449,
+              "actual_cores": 0.65598
+            },
+            {
+              "pid": 79623,
+              "cpu_s": 29.78281,
+              "wall_s": 45.280941,
+              "periods": 745,
+              "checksum": 18290028117834656025,
+              "actual_cores": 0.65773
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 5.2421,
+          "target_met": true,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              8.79296875,
+              8.271484375,
+              11.1552734375
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              17.83544921875,
+              10.5751953125,
+              11.84375
+            ]
+          }
+        },
+        "reversals": [
+          {
+            "t": 21.282,
+            "return_t": 22.2114,
+            "observations": 1,
+            "old": "科查",
+            "transient": "喀察",
+            "no_new_tail": false
+          }
+        ]
+      },
+      "repeat-new-3": {
+        "run": "repeat-new-3",
+        "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.55,
+              "p95": 2.441
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.55,
+              "p95": 2.441
+            },
+            "longest_per_clip_s": {
+              "p50": 3.859,
+              "p95": 3.859
+            },
+            "first_s": {
+              "p50": 1.759,
+              "p95": 1.759
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 3
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.407,
+              "p95": 1.104
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.407,
+              "p95": 1.104
+            },
+            "longest_per_clip_s": {
+              "p50": 3.852,
+              "p95": 3.852
+            },
+            "first_s": {
+              "p50": 1.812,
+              "p95": 1.812
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 3
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.561,
+              "p95": 1.472
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.561,
+              "p95": 1.472
+            },
+            "longest_per_clip_s": {
+              "p50": 2.386,
+              "p95": 2.386
+            },
+            "first_s": {
+              "p50": 1.749,
+              "p95": 1.749
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 1
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 0.713,
+          "after_last_signal_s": 0.719,
+          "timeline": {
+            "count": 51,
+            "first_s": 1.759,
+            "gap_s": {
+              "p50": 0.55,
+              "p95": 2.441
+            },
+            "longest_s": 3.859,
+            "longest_start_end_s": [
+              29.635,
+              33.494
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.668,
+            "raw_outputs_inside_longest": 2,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 3
+          },
+          "display": {
+            "count": 85,
+            "first_s": 1.812,
+            "gap_s": {
+              "p50": 0.407,
+              "p95": 1.104
+            },
+            "longest_s": 3.852,
+            "longest_start_end_s": [
+              29.645,
+              33.497
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.668,
+            "raw_outputs_inside_longest": 2,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 3
+          },
+          "worker": {
+            "count": 55,
+            "first_s": 1.749,
+            "gap_s": {
+              "p50": 0.561,
+              "p95": 1.472
+            },
+            "longest_s": 2.386,
+            "longest_start_end_s": [
+              31.098,
+              33.484
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.756,
+            "raw_outputs_inside_longest": 0,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 1
+          },
+          "decode": {
+            "previews": 60,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.305,
+              "p95": 1.029
+            },
+            "preview_compute_sum_s": 26.5902,
+            "preview_start_intervals_s": {
+              "p50": 0.511,
+              "p95": 1.205
+            },
+            "previews_finishing_during_longest_timeline_gap": 1
+          }
+        },
+        "process": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "build": "564",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 41.159,
+          "app_cpu_s": 4.49,
+          "workers_cpu_s": 18.85,
+          "combined_cpu_s": 23.34,
+          "process_equivalent_cores": 0.5671,
+          "input_s": 38.8,
+          "end_of_file": 38.805136875016615,
+          "peak_simultaneous_footprint_MiB": 1739.1,
+          "computes": 60,
+          "preview_compute_wall_s": 26.59
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 80628,
+              "cpu_s": 29.579735,
+              "wall_s": 45.423249,
+              "periods": 740,
+              "checksum": 511238632740849945,
+              "actual_cores": 0.6512
+            },
+            {
+              "pid": 80629,
+              "cpu_s": 29.183259,
+              "wall_s": 45.420477,
+              "periods": 730,
+              "checksum": 17869544662932416793,
+              "actual_cores": 0.64251
+            },
+            {
+              "pid": 80630,
+              "cpu_s": 29.286942,
+              "wall_s": 45.416993,
+              "periods": 733,
+              "checksum": 5051928233919217945,
+              "actual_cores": 0.64485
+            },
+            {
+              "pid": 80631,
+              "cpu_s": 29.155296,
+              "wall_s": 45.412616,
+              "periods": 729,
+              "checksum": 4631673690225604889,
+              "actual_cores": 0.64201
+            },
+            {
+              "pid": 80632,
+              "cpu_s": 29.394713,
+              "wall_s": 45.406628,
+              "periods": 735,
+              "checksum": 8670183269643507993,
+              "actual_cores": 0.64737
+            },
+            {
+              "pid": 80633,
+              "cpu_s": 29.706442,
+              "wall_s": 45.402472,
+              "periods": 743,
+              "checksum": 6918096555880395033,
+              "actual_cores": 0.65429
+            },
+            {
+              "pid": 80634,
+              "cpu_s": 29.308059,
+              "wall_s": 45.399113,
+              "periods": 733,
+              "checksum": 17017486715029954841,
+              "actual_cores": 0.64556
+            },
+            {
+              "pid": 80635,
+              "cpu_s": 29.682412,
+              "wall_s": 45.386759,
+              "periods": 743,
+              "checksum": 10556995866555347225,
+              "actual_cores": 0.65399
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 5.1818,
+          "target_met": true,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              31.29150390625,
+              16.18408203125,
+              13.826171875
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              31.3837890625,
+              17.93310546875,
+              14.56689453125
+            ]
+          }
+        },
+        "reversals": [
+          {
+            "t": 21.3938,
+            "return_t": 22.0775,
+            "observations": 1,
+            "old": "科查",
+            "transient": "喀察",
+            "no_new_tail": false
+          },
+          {
+            "t": 29.6351,
+            "return_t": 33.4942,
+            "observations": 1,
+            "old": "理石",
+            "transient": "力士",
+            "no_new_tail": false
+          }
+        ]
+      },
+      "repeat-old-1": {
+        "run": "repeat-old-1",
+        "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.512,
+              "p95": 1.034
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.512,
+              "p95": 1.034
+            },
+            "longest_per_clip_s": {
+              "p50": 1.975,
+              "p95": 1.975
+            },
+            "first_s": {
+              "p50": 0.963,
+              "p95": 0.963
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 0
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.442,
+              "p95": 0.996
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.442,
+              "p95": 0.996
+            },
+            "longest_per_clip_s": {
+              "p50": 1.987,
+              "p95": 1.987
+            },
+            "first_s": {
+              "p50": 0.997,
+              "p95": 0.997
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 0
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.511,
+              "p95": 1.02
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.511,
+              "p95": 1.02
+            },
+            "longest_per_clip_s": {
+              "p50": 1.558,
+              "p95": 1.558
+            },
+            "first_s": {
+              "p50": 0.959,
+              "p95": 0.959
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 0
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 0.284,
+          "after_last_signal_s": 0.287,
+          "timeline": {
+            "count": 64,
+            "first_s": 0.963,
+            "gap_s": {
+              "p50": 0.512,
+              "p95": 1.034
+            },
+            "longest_s": 1.975,
+            "longest_start_end_s": [
+              22.123,
+              24.098
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.495,
+            "raw_outputs_inside_longest": 4,
+            "timeline_outputs_inside_longest": 2,
+            "above_two_seconds": 0
+          },
+          "display": {
+            "count": 102,
+            "first_s": 0.997,
+            "gap_s": {
+              "p50": 0.442,
+              "p95": 0.996
+            },
+            "longest_s": 1.987,
+            "longest_start_end_s": [
+              22.133,
+              24.121
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.495,
+            "raw_outputs_inside_longest": 4,
+            "timeline_outputs_inside_longest": 3,
+            "above_two_seconds": 0
+          },
+          "worker": {
+            "count": 66,
+            "first_s": 0.959,
+            "gap_s": {
+              "p50": 0.511,
+              "p95": 1.02
+            },
+            "longest_s": 1.558,
+            "longest_start_end_s": [
+              7.96,
+              9.517
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.833,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 2,
+            "above_two_seconds": 0
+          },
+          "decode": {
+            "previews": 75,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.171,
+              "p95": 0.444
+            },
+            "preview_compute_sum_s": 14.4741,
+            "preview_start_intervals_s": {
+              "p50": 0.505,
+              "p95": 0.512
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          }
+        },
+        "process": {
+          "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+          "build": "563",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 40.083,
+          "app_cpu_s": 1.63,
+          "workers_cpu_s": 11.71,
+          "combined_cpu_s": 13.34,
+          "process_equivalent_cores": 0.3328,
+          "input_s": 38.8,
+          "end_of_file": 38.802897166635375,
+          "peak_simultaneous_footprint_MiB": 1788.0,
+          "computes": 75,
+          "preview_compute_wall_s": 14.474
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 78753,
+              "cpu_s": 29.509678,
+              "wall_s": 44.260602,
+              "periods": 738,
+              "checksum": 15717681338180380953,
+              "actual_cores": 0.66673
+            },
+            {
+              "pid": 78754,
+              "cpu_s": 29.51216,
+              "wall_s": 44.260082,
+              "periods": 738,
+              "checksum": 10550666531669737753,
+              "actual_cores": 0.66679
+            },
+            {
+              "pid": 78755,
+              "cpu_s": 29.506822,
+              "wall_s": 44.259284,
+              "periods": 738,
+              "checksum": 2378176703748981017,
+              "actual_cores": 0.66668
+            },
+            {
+              "pid": 78756,
+              "cpu_s": 29.50482,
+              "wall_s": 44.252032,
+              "periods": 738,
+              "checksum": 3983911825962053913,
+              "actual_cores": 0.66674
+            },
+            {
+              "pid": 78757,
+              "cpu_s": 29.508672,
+              "wall_s": 44.257538,
+              "periods": 738,
+              "checksum": 8564406200036055321,
+              "actual_cores": 0.66675
+            },
+            {
+              "pid": 78758,
+              "cpu_s": 29.500854,
+              "wall_s": 44.251191,
+              "periods": 738,
+              "checksum": 6040984981909725465,
+              "actual_cores": 0.66667
+            },
+            {
+              "pid": 78759,
+              "cpu_s": 29.501907,
+              "wall_s": 44.249825,
+              "periods": 738,
+              "checksum": 7737649935407440153,
+              "actual_cores": 0.66671
+            },
+            {
+              "pid": 78760,
+              "cpu_s": 29.496269,
+              "wall_s": 44.243268,
+              "periods": 738,
+              "checksum": 5985498379910983961,
+              "actual_cores": 0.66668
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 5.3338,
+          "target_met": true,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              2.65673828125,
+              7.673828125,
+              11.28173828125
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              5.62890625,
+              7.79541015625,
+              11.158203125
+            ]
+          }
+        },
+        "reversals": []
+      },
+      "repeat-old-2": {
+        "run": "repeat-old-2",
+        "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.595,
+              "p95": 2.681
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.595,
+              "p95": 2.681
+            },
+            "longest_per_clip_s": {
+              "p50": 3.44,
+              "p95": 3.44
+            },
+            "first_s": {
+              "p50": 1.384,
+              "p95": 1.384
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 3
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.369,
+              "p95": 1.455
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.369,
+              "p95": 1.455
+            },
+            "longest_per_clip_s": {
+              "p50": 3.42,
+              "p95": 3.42
+            },
+            "first_s": {
+              "p50": 1.458,
+              "p95": 1.458
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 3
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.607,
+              "p95": 1.47
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.607,
+              "p95": 1.47
+            },
+            "longest_per_clip_s": {
+              "p50": 2.683,
+              "p95": 2.683
+            },
+            "first_s": {
+              "p50": 1.363,
+              "p95": 1.363
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 1
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 0.677,
+          "after_last_signal_s": 0.681,
+          "timeline": {
+            "count": 47,
+            "first_s": 1.384,
+            "gap_s": {
+              "p50": 0.595,
+              "p95": 2.681
+            },
+            "longest_s": 3.44,
+            "longest_start_end_s": [
+              22.652,
+              26.092
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.64,
+            "raw_outputs_inside_longest": 3,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 3
+          },
+          "display": {
+            "count": 81,
+            "first_s": 1.458,
+            "gap_s": {
+              "p50": 0.369,
+              "p95": 1.455
+            },
+            "longest_s": 3.42,
+            "longest_start_end_s": [
+              22.679,
+              26.099
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.643,
+            "raw_outputs_inside_longest": 3,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 3
+          },
+          "worker": {
+            "count": 50,
+            "first_s": 1.363,
+            "gap_s": {
+              "p50": 0.607,
+              "p95": 1.47
+            },
+            "longest_s": 2.683,
+            "longest_start_end_s": [
+              31.526,
+              34.209
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.731,
+            "raw_outputs_inside_longest": 1,
+            "timeline_outputs_inside_longest": 2,
+            "above_two_seconds": 1
+          },
+          "decode": {
+            "previews": 58,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.394,
+              "p95": 1.293
+            },
+            "preview_compute_sum_s": 28.7459,
+            "preview_start_intervals_s": {
+              "p50": 0.511,
+              "p95": 1.294
+            },
+            "previews_finishing_during_longest_timeline_gap": 3
+          }
+        },
+        "process": {
+          "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+          "build": "563",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 41.169,
+          "app_cpu_s": 4.5,
+          "workers_cpu_s": 18.98,
+          "combined_cpu_s": 23.48,
+          "process_equivalent_cores": 0.5703,
+          "input_s": 38.8,
+          "end_of_file": 38.804959875007626,
+          "peak_simultaneous_footprint_MiB": 1643.8,
+          "computes": 58,
+          "preview_compute_wall_s": 28.746
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 79910,
+              "cpu_s": 29.248834,
+              "wall_s": 45.392363,
+              "periods": 732,
+              "checksum": 1766547140993325337,
+              "actual_cores": 0.64436
+            },
+            {
+              "pid": 79911,
+              "cpu_s": 29.976567,
+              "wall_s": 45.390072,
+              "periods": 750,
+              "checksum": 11661092238776570137,
+              "actual_cores": 0.66042
+            },
+            {
+              "pid": 79912,
+              "cpu_s": 29.383959,
+              "wall_s": 45.387332,
+              "periods": 735,
+              "checksum": 14391091793910442265,
+              "actual_cores": 0.6474
+            },
+            {
+              "pid": 79913,
+              "cpu_s": 29.660589,
+              "wall_s": 45.385061,
+              "periods": 742,
+              "checksum": 3407758048958343449,
+              "actual_cores": 0.65353
+            },
+            {
+              "pid": 79914,
+              "cpu_s": 29.611676,
+              "wall_s": 45.382685,
+              "periods": 741,
+              "checksum": 9431209998664413465,
+              "actual_cores": 0.65249
+            },
+            {
+              "pid": 79915,
+              "cpu_s": 29.648596,
+              "wall_s": 45.37992,
+              "periods": 742,
+              "checksum": 12060834277482291481,
+              "actual_cores": 0.65334
+            },
+            {
+              "pid": 79916,
+              "cpu_s": 29.740268,
+              "wall_s": 45.378036,
+              "periods": 744,
+              "checksum": 2933257032514431257,
+              "actual_cores": 0.65539
+            },
+            {
+              "pid": 79917,
+              "cpu_s": 29.902789,
+              "wall_s": 45.375545,
+              "periods": 748,
+              "checksum": 16950311820422439193,
+              "actual_cores": 0.65901
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 5.2259,
+          "target_met": true,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              16.96728515625,
+              10.515625,
+              11.81494140625
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              22.90576171875,
+              13.03173828125,
+              12.6748046875
+            ]
+          }
+        },
+        "reversals": []
+      },
+      "repeat-old-3": {
+        "run": "repeat-old-3",
+        "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+        "summary": {
+          "timeline": {
+            "fresh_gaps_s": {
+              "p50": 0.567,
+              "p95": 1.952
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.567,
+              "p95": 1.952
+            },
+            "longest_per_clip_s": {
+              "p50": 2.563,
+              "p95": 2.563
+            },
+            "first_s": {
+              "p50": 1.32,
+              "p95": 1.32
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 2
+          },
+          "display": {
+            "fresh_gaps_s": {
+              "p50": 0.413,
+              "p95": 1.414
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.413,
+              "p95": 1.414
+            },
+            "longest_per_clip_s": {
+              "p50": 2.477,
+              "p95": 2.477
+            },
+            "first_s": {
+              "p50": 1.371,
+              "p95": 1.371
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 2
+          },
+          "worker": {
+            "fresh_gaps_s": {
+              "p50": 0.574,
+              "p95": 1.491
+            },
+            "previous_event_gaps_s": {
+              "p50": 0.574,
+              "p95": 1.491
+            },
+            "longest_per_clip_s": {
+              "p50": 1.952,
+              "p95": 1.952
+            },
+            "first_s": {
+              "p50": 1.314,
+              "p95": 1.314
+            },
+            "clips_with_repeated_updates": 1,
+            "number_of_gaps_at_least_2s": 0
+          }
+        },
+        "row": {
+          "id": "continuous-public-5",
+          "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "onset": 0.0,
+          "end": 38.8,
+          "reference_available": true,
+          "final_CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "matches_final_window": true,
+          "records": [
+            "completed",
+            "completed"
+          ],
+          "after_file_s": 1.241,
+          "after_last_signal_s": 1.247,
+          "timeline": {
+            "count": 52,
+            "first_s": 1.32,
+            "gap_s": {
+              "p50": 0.567,
+              "p95": 1.952
+            },
+            "longest_s": 2.563,
+            "longest_start_end_s": [
+              27.129,
+              29.693
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.543,
+            "raw_outputs_inside_longest": 2,
+            "timeline_outputs_inside_longest": 0,
+            "above_two_seconds": 2
+          },
+          "display": {
+            "count": 86,
+            "first_s": 1.371,
+            "gap_s": {
+              "p50": 0.413,
+              "p95": 1.414
+            },
+            "longest_s": 2.477,
+            "longest_start_end_s": [
+              27.221,
+              29.698
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.524,
+            "raw_outputs_inside_longest": 2,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 2
+          },
+          "worker": {
+            "count": 54,
+            "first_s": 1.314,
+            "gap_s": {
+              "p50": 0.574,
+              "p95": 1.491
+            },
+            "longest_s": 1.952,
+            "longest_start_end_s": [
+              30.708,
+              32.66
+            ],
+            "longest_position": "interior",
+            "longest_input_above_minus55_fraction": 0.571,
+            "raw_outputs_inside_longest": 0,
+            "timeline_outputs_inside_longest": 1,
+            "above_two_seconds": 0
+          },
+          "decode": {
+            "previews": 62,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.407,
+              "p95": 0.958
+            },
+            "preview_compute_sum_s": 27.9219,
+            "preview_start_intervals_s": {
+              "p50": 0.512,
+              "p95": 0.958
+            },
+            "previews_finishing_during_longest_timeline_gap": 2
+          }
+        },
+        "process": {
+          "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+          "build": "563",
+          "sample": "continuous-public-5",
+          "audio_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+          "wall_s": 41.566,
+          "app_cpu_s": 4.55,
+          "workers_cpu_s": 18.35,
+          "combined_cpu_s": 22.9,
+          "process_equivalent_cores": 0.5509,
+          "input_s": 38.8,
+          "end_of_file": 38.806704749993514,
+          "peak_simultaneous_footprint_MiB": 1651.4,
+          "computes": 62,
+          "preview_compute_wall_s": 27.922
+        },
+        "load": {
+          "workers": [
+            {
+              "pid": 80262,
+              "cpu_s": 28.231414,
+              "wall_s": 45.803793,
+              "periods": 706,
+              "checksum": 8473002352228655385,
+              "actual_cores": 0.61636
+            },
+            {
+              "pid": 80263,
+              "cpu_s": 28.152408,
+              "wall_s": 45.801872,
+              "periods": 704,
+              "checksum": 16093075910201495833,
+              "actual_cores": 0.61466
+            },
+            {
+              "pid": 80264,
+              "cpu_s": 27.999646,
+              "wall_s": 45.799439,
+              "periods": 700,
+              "checksum": 10757154619260209433,
+              "actual_cores": 0.61135
+            },
+            {
+              "pid": 80265,
+              "cpu_s": 28.108543,
+              "wall_s": 45.797376,
+              "periods": 703,
+              "checksum": 12073770165216925977,
+              "actual_cores": 0.61376
+            },
+            {
+              "pid": 80266,
+              "cpu_s": 28.10952,
+              "wall_s": 45.795537,
+              "periods": 703,
+              "checksum": 2282025863289559321,
+              "actual_cores": 0.6138
+            },
+            {
+              "pid": 80267,
+              "cpu_s": 28.378245,
+              "wall_s": 45.793723,
+              "periods": 710,
+              "checksum": 11066207672449886489,
+              "actual_cores": 0.6197
+            },
+            {
+              "pid": 80268,
+              "cpu_s": 28.680667,
+              "wall_s": 45.791795,
+              "periods": 718,
+              "checksum": 16589148243029455129,
+              "actual_cores": 0.62633
+            },
+            {
+              "pid": 80269,
+              "cpu_s": 28.199503,
+              "wall_s": 45.789877,
+              "periods": 705,
+              "checksum": 1305836796478816537,
+              "actual_cores": 0.61585
+            }
+          ],
+          "failures": [],
+          "qos": "userInitiated",
+          "period_s": 0.06,
+          "cpu_target_per_period_s": 0.04,
+          "target_cores": 5.333333333333333,
+          "observed_cores": 4.9318,
+          "target_met": false,
+          "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+          "before": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              22.90576171875,
+              13.03173828125,
+              12.6748046875
+            ]
+          },
+          "after": {
+            "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+            "load_average": [
+              31.29150390625,
+              16.18408203125,
+              13.826171875
+            ]
+          }
+        },
+        "reversals": []
+      }
+    },
+    "target": "same pre-existing <= about 2 s longest useful-word interval; no metric or load threshold changes",
+    "conclusion": "Three valid pairs completed. 564 maxima 2.370/3.368/2.000 s vs 563 1.987/3.420/1.999 s. No reliable cadence or CPU gain established."
+  },
+  "retained_failures": [
+    "initial normal15 exited at fifth sample without inner diagnostic files; cause UNKNOWN, outer log retained; same sample retry and full15 subsequently passed",
+    "insufficient-load pairs retained and excluded by original load assertion, not by recognition outcome",
+    "final-old-3 scoring overlap and associated pair retained; one clean replacement AB pair completed after other work stopped"
+  ],
+  "metric_sources": {
+    "scripts/score-local-asr.py": "c8acd0be998ad36eb00d3f11a1a7291445cdad237c67414b57ccc4735382824d",
+    "scripts/mandarin/score-live-cadence.py": "e01e750f76040fa89dee7b3b2f78a960f79cbc30ed3ac8d810adb6ddf6d3c668",
+    "scripts/mandarin/score-preview-reversals.py": "843e11db087886c1c0206f2aae68a79eba2908a5c9c0761b057ba36422f9cbd2",
+    "research/asr-2026-11-06/scripts/score.py": "7542aebea497d0ef70b31b64a1896c19dae332dacbfd795de60b74ea3566d25d"
+  }
+}

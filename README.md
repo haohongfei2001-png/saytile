@@ -5,6 +5,7 @@ macOS 原生中文语音输入：连续文字流、可编辑档案、原音回�
 本分支是 **0.21（564）发行候选**，目标为 main。当前裁决 **HOLD**；尚未公开发行，不替换正在使用的 0.20（533）。当前公开官网及 Sparkle 更新源保持原版本，候选与公开下载不能混为一谈。
 
 - [统一状态](docs/delivery/release-021/STATUS.md)
+- [最终验收与发布阻塞](docs/delivery/release-021/ACCEPTANCE.md)
 - [架构与发行来源](docs/delivery/release-021/ARCHITECTURE.md)
 - [安装、升级与回退](docs/INTERNAL-INSTALL.md)
 - [本轮证据](evidence/release-021)
