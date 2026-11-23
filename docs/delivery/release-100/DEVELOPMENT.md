@@ -55,3 +55,7 @@ CI 42d8: Swift Testing汇总532项、XCTest30项均0失败；native-brand、desi
 ### 最终安装、连续运行与UI边界
 
 904.8秒原速连续运行、实际DMG隔离安装与损坏资源拒绝已通过。当前18种AppKit编辑/选择/隐藏/宽度组合全部252项通过，使用旧失败原始publication。2fcff81完整Swift与native-gateway已完成；WKWebView初次绑定的安全拒绝保留原日志。只对合成textarea隔离非测试目标的拼写/自动纠错服务，不修改生产代码，不改输入断言，不重复激活或重新绑定。
+
+### WK初始服务第二项有界假设
+
+第一项textarea spellcheck/autocorrect关闭无收益：7de2390仍在首次写入前出现NSSpellServer超时，未绑定就读不到完整AX快照。保留失败并撤回这项属性修改。第二项仅在合成前台fixture创建窗口前完成一次固定英文的NSSpellChecker同步请求，使系统服务初始化属于fixture准备，而不是待测输入期间；不延长10秒fixture准备/5秒就绪/150ms AX预算，不重试激活或写入。生产代码完全不变，等待真实CI验证，不预先宣称根因已解决。
