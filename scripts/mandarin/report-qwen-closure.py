@@ -4,7 +4,10 @@ from pathlib import Path
 R=Path(__file__).resolve().parents[2]
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--root',type=Path,required=True);p.add_argument('--audio',type=Path,required=True)
-a=p.parse_args();manifest=R/'evidence/experience-023/setup/panel16.json'
+p.add_argument('--manifest',type=Path,default=R/'evidence/experience-023/setup/panel16.json')
+p.add_argument('--quality-input',type=Path,default=R/'evidence/release-021/quality/input440.json.gz')
+p.add_argument('--quality-baseline',type=Path,default=R/'evidence/experience-023/final/product440-qwen-small.jsonl')
+a=p.parse_args();manifest=a.manifest
 refs=json.loads(manifest.read_text())['samples']
 base=runpy.run_path(str(R/'scripts/score-local-asr.py'))
 cadence=runpy.run_path(str(R/'scripts/mandarin/score-live-cadence.py'))
@@ -49,8 +52,8 @@ for label in ['qwen-previous','qwen-current']:
 report['paired_final_identical']=[{'id':r['id'],'text_equal':b['archive']==c['archive'],'state_equal':b['recordStates']==c['recordStates']} for r,b,c in zip(refs,corpora['qwen-previous'],corpora['qwen-current'])]
 q=a.root/'quality/product440.jsonl'
 if q.exists():
- inp=json.loads(gzip.decompress((R/'evidence/release-021/quality/input440.json.gz').read_bytes()))
- old=[json.loads(l) for l in (R/'evidence/experience-023/final/product440-qwen-small.jsonl').read_text().splitlines()]
+ inp=json.loads(gzip.decompress(a.quality_input.read_bytes()))
+ old=[json.loads(l) for l in a.quality_baseline.read_text().splitlines()]
  new=[json.loads(l) for l in q.read_text().splitlines()];assert len(new)==len(inp)==440
  assert [r['id'] for r in old]==[r['id'] for r in new]==[r['id'] for r in inp]
  groups=collections.defaultdict(collections.Counter)

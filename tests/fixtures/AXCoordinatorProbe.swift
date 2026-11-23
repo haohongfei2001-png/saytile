@@ -120,6 +120,15 @@ struct AXCoordinatorProbe {
             print("QWEN_NATIVE_AUDIO_PASS early_writes=\(earlyWrites) first_write_s=\(firstWrite ?? -1) audio_s=\(Double(samples.count) / 16_000) records=\(records.count); microphone=NOT_RUN; public_file=true")
             await service.releaseIdle()
             coordinator.invalidate()
+            guard attribute(field, kAXValueAttribute) as? String == "PREFIX|" + finalText + "SUFFIX" else {
+                throw Failure(description: "Owned live-audio field changed before cleanup")
+            }
+            var selected = CFRange(location: 7, length: finalText.utf16.count)
+            guard let range = AXValueCreate(.cfRange, &selected),
+                  AXUIElementSetAttributeValue(field, kAXSelectedTextRangeAttribute as CFString, range) == .success,
+                  AXUIElementSetAttributeValue(field, kAXSelectedTextAttribute as CFString, "" as CFString) == .success else {
+                throw Failure(description: "Owned live-audio cleanup failed")
+            }
             // Keep the public-audio isolated archive as evidence; never touch the user's store.
             try await store.close()
             print("OWNED_PUBLIC_AUDIO_STORE " + directory.path)

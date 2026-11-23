@@ -174,11 +174,20 @@ PASS live ASR incremental input remains owned
 PASS live ASR incremental input remains owned
 PASS live ASR incremental input remains owned
 PASS live ASR incremental input remains owned
+PASS live ASR incremental input remains owned
+PASS live ASR incremental input remains owned
+PASS live ASR incremental input remains owned
+PASS live ASR incremental input remains owned
+PASS live ASR incremental input remains owned
+PASS live ASR incremental input remains owned
+PASS live ASR incremental input remains owned
 PASS live audio produces multiple confirmed writes before segment EOS
 PASS all actual Qwen segments finalized
 PASS live Qwen final matches archive and preserves surrounding text
 PASS live Qwen input never takes focus
-QWEN_NATIVE_AUDIO_PASS early_writes=11 first_write_s=5.619479958317243 audio_s=38.8 records=2; microphone=NOT_RUN; public_file=true
-OWNED_PUBLIC_AUDIO_STORE /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-rc-input-store-5F651924-58AC-483E-AFB0-22CFAC2538C1
-OWNED_TEST_STORE_RETAINED /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-rc-input-store-5F651924-58AC-483E-AFB0-22CFAC2538C1
-{"error":"","command":"state","value":"{\"keyWindow\":false,\"mainWindow\":false,\"text\":\"UNEXPECTED_TEXT_OMITTED\",\"knownSyntheticText\":false,\"sends\":0,\"utf16Length\":215,\"selectedTextWrites\":13,\"otherIntact\":false,\"keyboardEvents\":0}"}
+QWEN_NATIVE_AUDIO_PASS early_writes=11 first_write_s=5.8310144583228976 audio_s=38.8 records=2; microphone=NOT_RUN; public_file=true
+OWNED_PUBLIC_AUDIO_STORE /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-rc-input-store-AAD122D5-8A45-445C-9BF9-1FE76E119180
+OWNED_TEST_STORE_RETAINED /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-rc-input-store-AAD122D5-8A45-445C-9BF9-1FE76E119180
+{"command":"state","error":"","value":"{\"knownSyntheticText\":true,\"keyWindow\":false,\"selectedTextWrites\":14,\"keyboardEvents\":0,\"sends\":0,\"mainWindow\":false,\"text\":\"PREFIX|SUFFIX\",\"utf16Length\":13,\"otherIntact\":false}"}
+PASS owned fixture keyboard isolation key=false main=false keyboard_events=0
+PASS real native fixture never sends
