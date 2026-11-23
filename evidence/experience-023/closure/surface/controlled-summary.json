@@ -1,0 +1,21 @@
+{
+  "source": "a1ac008",
+  "modes": 18,
+  "checks": 252,
+  "final_matches": 18,
+  "failures": [
+    {
+      "mode": "controlOnly",
+      "width": 260,
+      "index": 2,
+      "actual": "对，但是除了self",
+      "blocker": "none",
+      "deferred": true,
+      "editing": false,
+      "expected": "对，但是除了self driving",
+      "pass": false,
+      "selectedLength": 0
+    }
+  ],
+  "interpretation": "Fast replay, 120ms samples. One intermediate sample still revealing; all final strings recovered. This does not establish the historical long stall cause or reclassify it PASS."
+}

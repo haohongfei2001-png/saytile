@@ -2,12 +2,16 @@
 Uses the unchanged PreviewPolicyReplay executable and recorded public hypotheses.
 Rejected whole-candidate throttles are kept to expose their latency tradeoff.
 """
-import json,runpy,subprocess,hashlib
+import argparse,json,runpy,subprocess,hashlib
 from pathlib import Path
+cli=argparse.ArgumentParser(description=__doc__)
+cli.add_argument('--replay',type=Path,required=True)
+cli.add_argument('--audio',type=Path,required=True)
+a=cli.parse_args()
 R=Path(__file__).resolve().parents[2]; E=R/'evidence/experience-023'; out=E/'closure/replay-deep'; out.mkdir(parents=True,exist_ok=True)
 sc=runpy.run_path(str(R/'scripts/mandarin/score-live-cadence.py')); rev=runpy.run_path(str(R/'scripts/mandarin/score-preview-reversals.py'))['reversals']; norm=sc['norm']
 files=sorted((E/'final/paired16/qwen-preview').glob('*/visible-raw.json'))+sorted((E/'final/variance/continuous-public-5').glob('*/qwen-preview/native/visible-raw.json'))
-replay=json.loads(subprocess.check_output(['/private/tmp/saytile-023-replay',*map(str,files)]))
+replay=json.loads(subprocess.check_output([str(a.replay),*map(str,files)]))
 refs={r['id']:r for r in json.loads((E/'setup/panel16.json').read_text())['samples']}
 
 def deep_rewrite(before,after):
@@ -40,7 +44,7 @@ def timeline(events):
  return result
 rows=[]; dispatch=[]
 for p,r in zip(files,replay):
- d=json.loads(p.read_text()); ident=next(i for i in refs if i in str(p)); ref=refs[ident]; onset,end=runpy.run_path(str(R/'scripts/score-local-asr.py'))['acoustic'](Path('/private/tmp/saytile-release-021/.build/mandarin/wav')/(ident+'.wav'));end=min(end,d['endOfFile'])
+ d=json.loads(p.read_text()); ident=next(i for i in refs if i in str(p)); ref=refs[ident]; onset,end=runpy.run_path(str(R/'scripts/score-local-asr.py'))['acoustic'](a.audio/(ident+'.wav'));end=min(end,d['endOfFile'])
  entry=dict(file=str(p.relative_to(R)),sha256=hashlib.sha256(p.read_bytes()).hexdigest(),id=ident,policies={})
  for name,events in [('baseline',r['provisional']),('revision900',throttle(r['provisional'],.9)),('revision1200',throttle(r['provisional'],1.2))]:
   ts=sc['layer_events'](timeline(events),sc['bigrams'](ref['reference']),onset,end,False)[1]

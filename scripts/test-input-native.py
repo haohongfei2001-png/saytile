@@ -193,8 +193,12 @@ if __name__ == "__main__":
     mode.add_argument("--foreground-batch", action="store_true", help="Explicit opt-in; existing AX permission and >=60s keyboard/mouse idle required; aborts on activity")
     mode.add_argument("--compile-foreground-only", action="store_true", help="Compile opt-in fixtures/probe, without running or activating anything")
     mode.add_argument("--compile-dom-only", action="store_true", help="Compile the package-linked headless DOM probe, without launching any fixture")
+    mode.add_argument("--qwen-preview-replay", type=Path, help="Replay public model events through the real coordinator and owned background NSTextView only")
     args = parser.parse_args()
-    if args.compile_dom_only:
+    if args.qwen_preview_replay:
+        os.environ["SAYTILE_QWEN_PREVIEW_REPLAY"] = str(args.qwen_preview_replay.resolve())
+        run_fixture("AXTextFixture", "AXCoordinatorProbe", "input-qwen-preview.log", "FIXTURE_READY")
+    elif args.compile_dom_only:
         compile_source("InputDOMCoordinatorProbe.swift", SCRATCH / "dom-coordinator-probe", True)
     elif args.foreground_batch or args.compile_foreground_only:
         foreground_batch(compile_only=args.compile_foreground_only)

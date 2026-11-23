@@ -1,0 +1,12 @@
+FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0 background=true
+FIXTURE_READY
+PASS Qwen original EOS enters real AX target after preview-only updates
+PASS Qwen final preserves external prefix and suffix
+PASS Qwen EOS replay does not duplicate text
+QWEN_INPUT_EXPERIENCE partials=13 first_preview_original_t=2.0885830000042915 first_dispatchable_original_t=9.357659750035964 replay_is_accelerated=true
+PASS real model generated multiple preview-only updates before EOS
+PASS Qwen external replay never acquires focus
+QWEN_NATIVE_INPUT_PASS 5; stable0_during_speech=true; live_foreground_resolver=NOT_RUN
+{"command":"state","value":"{\"keyWindow\":false,\"otherIntact\":false,\"keyboardEvents\":0,\"mainWindow\":false,\"sends\":0,\"utf16Length\":13,\"knownSyntheticText\":true,\"selectedTextWrites\":2,\"text\":\"PREFIX|SUFFIX\"}","error":""}
+PASS owned fixture keyboard isolation key=false main=false keyboard_events=0
+PASS real native fixture never sends

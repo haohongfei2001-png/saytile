@@ -10,6 +10,7 @@ p = argparse.ArgumentParser(description=__doc__)
 for name in ["candidate", "baseline", "manifest", "weights", "audio", "out"]:
     p.add_argument("--" + name, type=Path, required=True)
 p.add_argument("--two-routes", action="store_true", help="Only the two current model routes; historical baseline already recorded")
+p.add_argument("--qwen-only", action="store_true", help="Compare two Qwen product builds only; no other recognizer")
 a = p.parse_args()
 measure = runpy.run_path(str(Path(__file__).with_name("measure-preview-cost.py")))["public_run"]
 routes = [("qwen-022", a.baseline, "qwen-small"),
@@ -17,6 +18,9 @@ routes = [("qwen-022", a.baseline, "qwen-small"),
           ("nemotron", a.candidate, "nemotron-metal")]
 if a.two_routes:
     routes = routes[1:]
+if a.qwen_only:
+    if a.two_routes: p.error("choose one comparison scope")
+    routes = [("qwen-previous", a.baseline, "qwen-small"), ("qwen-current", a.candidate, "qwen-small")]
 failures = []
 for i, row in enumerate(json.loads(a.manifest.read_text())["samples"]):
     order = routes[i % len(routes):] + routes[:i % len(routes)]

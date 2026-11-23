@@ -50,6 +50,66 @@ struct AXCoordinatorProbe {
             guard condition else { throw Failure(description: message) }
             checks += 1; print("PASS " + message); fflush(nil)
         }
+        if let replay = ProcessInfo.processInfo.environment["SAYTILE_QWEN_PREVIEW_REPLAY"] {
+            // Only a hash-recorded public fixture is supplied by the harness.
+            // Replay recognition events, not keyboard events, against this PID.
+            let data = try JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: replay))) as! [String: Any]
+            let events = data["rawWorkerEvents"] as! [[String: Any]]
+            let binding = try await coordinator.bindCurrentTarget()
+            let recording = try await store.createRecording(createdAt: binding.boundAt.addingTimeInterval(1))
+            let ticket = try await store.beginRecognition(recordingID: recording.id)
+            let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: .qwen)
+            var preview = LocalLiveText(model: .qwen, previewPolicy: .provisional)
+            var partials = 0, finalText = "", firstPreview: Double?
+            for event in events {
+                let kind = event["kind"] as! String, text = event["text"] as! String
+                guard ["partial", "final"].contains(kind), !text.isEmpty else { continue }
+                let final = kind == "final"
+                guard let stable = preview.accept(text, final: final) else { continue }
+                try await ingress.receive(.init(text: preview.presentation, stableUTF16Length: stable,
+                    audioEndSeconds: Double(event["frames"] as! Int) / 16_000, isComplete: final))
+                if !final {
+                    if firstPreview == nil { firstPreview = event["t"] as? Double }
+                    partials += 1
+                    guard stable == 0, try await store.latestDispatchableRevision(recordingID: recording.id) == nil,
+                          attribute(field, kAXValueAttribute) as? String == "PREFIX|SUFFIX" else {
+                        throw Failure(description: "Unconfirmed Qwen preview gained external text ownership")
+                    }
+                } else {
+                    finalText = text
+                    try await ingress.finish()
+                    guard let revision = try await store.latestDispatchableRevision(recordingID: recording.id) else {
+                        throw Failure(description: "Qwen EOS has no dispatchable revision")
+                    }
+                    try expect(await coordinator.insertStable(recordingID: recording.id, revisionID: revision.id,
+                        stableUTF16End: text.utf16.count, recordingStartedAt: recording.createdAt) == .confirmed,
+                        "Qwen original EOS enters real AX target after preview-only updates")
+                    try expect(attribute(field, kAXValueAttribute) as? String == "PREFIX|" + text + "SUFFIX",
+                        "Qwen final preserves external prefix and suffix")
+                    try expect(await coordinator.insertStable(recordingID: recording.id, revisionID: revision.id,
+                        stableUTF16End: text.utf16.count, recordingStartedAt: recording.createdAt) == .noNewText,
+                        "Qwen EOS replay does not duplicate text")
+                    print("QWEN_INPUT_EXPERIENCE partials=\(partials) first_preview_original_t=\(firstPreview ?? -1) first_dispatchable_original_t=\(event["t"]!) replay_is_accelerated=true")
+                    break // One complete actual recording, not concatenated archive history.
+                }
+            }
+            try expect(partials >= 2 && !finalText.isEmpty, "real model generated multiple preview-only updates before EOS")
+            coordinator.invalidate()
+            // Restore only our exact inserted fixture span, without keyboard/focus.
+            guard attribute(field, kAXValueAttribute) as? String == "PREFIX|" + finalText + "SUFFIX" else {
+                throw Failure(description: "Owned fixture changed before cleanup")
+            }
+            var selected = CFRange(location: 7, length: finalText.utf16.count)
+            guard let range = AXValueCreate(.cfRange, &selected),
+                  AXUIElementSetAttributeValue(field, kAXSelectedTextRangeAttribute as CFString, range) == .success,
+                  AXUIElementSetAttributeValue(field, kAXSelectedTextAttribute as CFString, "" as CFString) == .success else {
+                throw Failure(description: "Owned fixture cleanup failed")
+            }
+            try expect(!activationAudit.finish().ownedActivated, "Qwen external replay never acquires focus")
+            try await store.close(); completed = true
+            print("QWEN_NATIVE_INPUT_PASS \(checks); stable0_during_speech=true; live_foreground_resolver=NOT_RUN")
+            return
+        }
         let historical = try await store.createRecording(createdAt: .now.addingTimeInterval(-600))
         let historicText = try await store.saveEdit(recordingID: historical.id, text: "历史草稿不应出现在外部窗口")
         try await store.finishRecording(id: historical.id)
