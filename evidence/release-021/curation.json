@@ -585,5 +585,13 @@
     "old website overriding current main website",
     "obsolete signed-image workflows"
   ],
-  "history": "PR49/50/51 and closure-work retain full historical evidence."
+  "history": "PR49/50/51 and closure-work retain full historical evidence.",
+  "additional_test_dependencies": [
+    "research/asr-2026-11-06/scripts/score.py",
+    "research/asr-2026-11-06/corpus/manifest.json",
+    "research/asr/results/direct/run.json",
+    "research/asr/results/direct/apple-direct-fixed-zh.jsonl",
+    "research/asr/results/direct/apple-direct-oracle-locale.jsonl",
+    "research/asr/results/direct/qwen-direct.jsonl"
+  ]
 }
