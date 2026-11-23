@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/private/tmp/saytile-idle-closure.py", line 14, in <module>
+    run(Path('/private/tmp/saytile-023-571/Saytile.app'),manifest,'qwen-idle-reload',Path('/private/tmp/saytile-023-weights'),audio,E/'idle-reload',trace=True,model='qwen-small',automatic=False)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-experience-023/scripts/mandarin/measure-preview-cost.py", line 134, in public_run
+    assert receipt["frames"][-1]["text"] == "".join(reversed(receipt["archive"]))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

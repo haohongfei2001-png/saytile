@@ -25,7 +25,8 @@ for label in ['qwen-previous','qwen-current']:
   scored['normal15']={'quality':base['pooled'](errors),
    'first_display_s':base['quant']([r['display']['first_s'] for r in scored['rows'][:15]]),
    'first_worker_s':base['quant']([r['worker']['first_s'] for r in scored['rows'][:15]]),
-   'update_gap_s':base['quant']([x for ref,d,row in zip(refs[:15],corpus[:15],scored['rows'][:15]) for x in cadence['gaps'](cadence['layer_events'](d['publications'],cadence['bigrams'](ref['reference']),row['onset'],row['end'],False)[1])]),
+   'timeline_update_gap_s':base['quant']([x for ref,d,row in zip(refs[:15],corpus[:15],scored['rows'][:15]) for x in cadence['gaps'](cadence['layer_events'](d['publications'],cadence['bigrams'](ref['reference']),row['onset'],row['end'],False)[1])]),
+   'visible_update_gap_s':base['quant']([x for ref,d,row in zip(refs[:15],corpus[:15],scored['rows'][:15]) for x in cadence['gaps'](cadence['layer_events'](d['frames'],cadence['bigrams'](ref['reference']),row['onset'],row['end'],False)[1])]),
    'eos_s':base['quant']([r['after_file_s'] for r in scored['rows'][:15]]),
    'aba':sum(len(reverse(d['publications'],d['endOfFile'])) for d in corpus[:15]),
    'cpu_s':sum(d['combined_cpu_s'] for d in resources[:15]),
@@ -34,6 +35,16 @@ for label in ['qwen-previous','qwen-current']:
   scored['surface']={'observations':sum(len(d.get('surfaceStates',[])) for d in corpus),
     'blockers':collections.Counter(s['blocker'] for d in corpus for s in d.get('surfaceStates',[]) if s.get('blocker')),
     'final_matches':sum(d['frames'][-1]['text']==''.join(reversed(d['archive'])) for d in corpus)}
+  starts=[]
+  for ref,d,row in zip(refs,corpus,scored['rows']):
+   ready=next(e for e in d['rawWorkerEvents'] if e['kind']=='ready')
+   raw=next(e for e in d['rawWorkerEvents'] if e['kind']=='partial' and e['text'])
+   stages=ready.get('startup',[]); stage={s['stage']:s['uptime'] for s in stages}
+   starts.append({'id':ref['id'],'ready_since_voice_s':ready['t']-row['onset'],
+     'first_nonempty_after_ready_s':raw['t']-ready['t'],
+     'tokenizer_wall_s':stage['Loading audio encoder weights...']-stage['Loading tokenizer...'] if stages else None,
+     'worker_startup_wall_s':stage['ready']-stage['main'] if stages else None})
+  scored['startup']=starts
   corpora[label]=corpus;report['routes'][label]=scored
 report['paired_final_identical']=[{'id':r['id'],'text_equal':b['archive']==c['archive'],'state_equal':b['recordStates']==c['recordStates']} for r,b,c in zip(refs,corpora['qwen-previous'],corpora['qwen-current'])]
 q=a.root/'quality/product440.jsonl'
@@ -41,6 +52,7 @@ if q.exists():
  inp=json.loads(gzip.decompress((R/'evidence/release-021/quality/input440.json.gz').read_bytes()))
  old=[json.loads(l) for l in (R/'evidence/experience-023/final/product440-qwen-small.jsonl').read_text().splitlines()]
  new=[json.loads(l) for l in q.read_text().splitlines()];assert len(new)==len(inp)==440
+ assert [r['id'] for r in old]==[r['id'] for r in new]==[r['id'] for r in inp]
  groups=collections.defaultdict(collections.Counter)
  for ref,d in zip(inp,new):
   assert ref['id']==d['id']; k='derived20' if ref['source'] in ['quiet','noise15db'] else 'original420';groups[k].update(base['rating'](ref['reference'],d['text']))

@@ -1,0 +1,347 @@
+{
+  "source": "a1ac008de50855ae0c03f30128f5b1f74269d617",
+  "diagnostic_trace": true,
+  "not_a_paired_latency_benchmark": true,
+  "harness_status": "FAIL retained: original one-paragraph archive concatenation cannot represent the explicitly inserted 45-second gap",
+  "independent_assertion": "Exact two final strings joined by one natural paragraph newline; both archive entries, timeline and laid-out native text verified",
+  "ready_count": 2,
+  "ready_events": [
+    {
+      "frames": 0,
+      "kind": "ready",
+      "startup": [
+        {
+          "stage": "main",
+          "uptime": 497469.96154325
+        },
+        {
+          "stage": "Downloading model...",
+          "uptime": 497470.1612272917
+        },
+        {
+          "stage": "Downloading weights...",
+          "uptime": 497470.16458850005
+        },
+        {
+          "stage": "Loading tokenizer...",
+          "uptime": 497470.1645944167
+        },
+        {
+          "stage": "Loading audio encoder weights...",
+          "uptime": 497471.0968495417
+        },
+        {
+          "stage": "Loading text decoder weights...",
+          "uptime": 497471.1158681667
+        },
+        {
+          "stage": "Ready",
+          "uptime": 497471.2242892917
+        },
+        {
+          "stage": "ready",
+          "uptime": 497471.2243424167
+        }
+      ],
+      "t": 2.0187608749838546,
+      "text": ""
+    },
+    {
+      "frames": 0,
+      "kind": "ready",
+      "startup": [
+        {
+          "stage": "main",
+          "uptime": 497523.51114875
+        },
+        {
+          "stage": "Downloading model...",
+          "uptime": 497523.808342
+        },
+        {
+          "stage": "Downloading weights...",
+          "uptime": 497523.8127493334
+        },
+        {
+          "stage": "Loading tokenizer...",
+          "uptime": 497523.8127609167
+        },
+        {
+          "stage": "Loading audio encoder weights...",
+          "uptime": 497524.5483693334
+        },
+        {
+          "stage": "Loading text decoder weights...",
+          "uptime": 497524.5611500417
+        },
+        {
+          "stage": "Ready",
+          "uptime": 497524.65560370835
+        },
+        {
+          "stage": "ready",
+          "uptime": 497524.65565525
+        }
+      ],
+      "t": 55.44980116665829,
+      "text": ""
+    }
+  ],
+  "finals": [
+    {
+      "decodes": [
+        {
+          "changed": false,
+          "endUptime": 497480.96952325,
+          "final": true,
+          "frames": 172160,
+          "startUptime": 497480.4093742917,
+          "verifiedPreviewTokens": 0
+        }
+      ],
+      "frames": 172160,
+      "kind": "final",
+      "t": 11.763628208311275,
+      "text": "对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。"
+    },
+    {
+      "decodes": [
+        {
+          "changed": true,
+          "endUptime": 497533.5682039167,
+          "final": true,
+          "frames": 161600,
+          "startUptime": 497532.6065130417,
+          "verifiedPreviewTokens": 0
+        }
+      ],
+      "frames": 161600,
+      "kind": "final",
+      "t": 64.36235104163643,
+      "text": "对，但是除了Self Driving Car也有一些比较就是Lower Low Standard的那些Technique。"
+    }
+  ],
+  "released_during_quiet": true,
+  "quiet_observations": [
+    {
+      "t": 46.343,
+      "app_cpu_s": 3.09,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29639736
+      }
+    },
+    {
+      "t": 46.555,
+      "app_cpu_s": 3.1,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29639736
+      }
+    },
+    {
+      "t": 46.811,
+      "app_cpu_s": 3.11,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29639736
+      }
+    },
+    {
+      "t": 47.021,
+      "app_cpu_s": 3.11,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29639736
+      }
+    },
+    {
+      "t": 47.241,
+      "app_cpu_s": 3.12,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29639736
+      }
+    },
+    {
+      "t": 47.453,
+      "app_cpu_s": 3.13,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29656120
+      }
+    },
+    {
+      "t": 47.671,
+      "app_cpu_s": 3.13,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29656120
+      }
+    },
+    {
+      "t": 47.878,
+      "app_cpu_s": 3.13,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29656120
+      }
+    },
+    {
+      "t": 48.097,
+      "app_cpu_s": 3.14,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29656120
+      }
+    },
+    {
+      "t": 48.327,
+      "app_cpu_s": 3.15,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29656120
+      }
+    },
+    {
+      "t": 48.539,
+      "app_cpu_s": 3.15,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29656120
+      }
+    },
+    {
+      "t": 48.804,
+      "app_cpu_s": 3.16,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29672504
+      }
+    },
+    {
+      "t": 49.112,
+      "app_cpu_s": 3.17,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29672504
+      }
+    },
+    {
+      "t": 49.327,
+      "app_cpu_s": 3.17,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29672504
+      }
+    },
+    {
+      "t": 49.541,
+      "app_cpu_s": 3.18,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29672504
+      }
+    },
+    {
+      "t": 49.758,
+      "app_cpu_s": 3.19,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29623352
+      }
+    },
+    {
+      "t": 49.978,
+      "app_cpu_s": 3.19,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29623352
+      }
+    },
+    {
+      "t": 50.193,
+      "app_cpu_s": 3.2,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29623352
+      }
+    },
+    {
+      "t": 50.411,
+      "app_cpu_s": 3.2,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29639736
+      }
+    },
+    {
+      "t": 50.629,
+      "app_cpu_s": 3.21,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29639736
+      }
+    },
+    {
+      "t": 50.845,
+      "app_cpu_s": 3.21,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29639736
+      }
+    },
+    {
+      "t": 51.061,
+      "app_cpu_s": 3.22,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29639736
+      }
+    },
+    {
+      "t": 51.278,
+      "app_cpu_s": 3.23,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29639736
+      }
+    },
+    {
+      "t": 51.484,
+      "app_cpu_s": 3.23,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29639736
+      }
+    },
+    {
+      "t": 51.705,
+      "app_cpu_s": 3.23,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29656120
+      }
+    },
+    {
+      "t": 51.918,
+      "app_cpu_s": 3.24,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29656120
+      }
+    },
+    {
+      "t": 52.134,
+      "app_cpu_s": 3.24,
+      "workers_cpu_s": 6.11,
+      "footprint": {
+        "app": 29656120
+      }
+    }
+  ],
+  "matching_repeat_final": true,
+  "final_visible_matches_exact_two_paragraphs": true,
+  "process_exit": 0,
+  "pass": true
+}

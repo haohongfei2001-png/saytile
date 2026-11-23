@@ -1505,9 +1505,13 @@
           "p50": 2.207,
           "p95": 3.214
         },
-        "update_gap_s": {
+        "timeline_update_gap_s": {
           "p50": 0.516,
           "p95": 1.05
+        },
+        "visible_update_gap_s": {
+          "p50": 0.256,
+          "p95": 1.005
         },
         "eos_s": {
           "p50": 0.693,
@@ -1811,7 +1815,121 @@
         "observations": 0,
         "blockers": {},
         "final_matches": 16
-      }
+      },
+      "startup": [
+        {
+          "id": "fleurs-1bc3201a9f24a2fe",
+          "ready_since_voice_s": -0.3688172083394603,
+          "first_nonempty_after_ready_s": 0.7470125000108965,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "fleurs-0ebe0fb634f8e4ac",
+          "ready_since_voice_s": 1.974632500037551,
+          "first_nonempty_after_ready_s": 0.7210531666642055,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "fleurs-9eb2d543a0a36152",
+          "ready_since_voice_s": 1.6073753749998285,
+          "first_nonempty_after_ready_s": 1.2642404999933206,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "fleurs-914c948388ae30bd",
+          "ready_since_voice_s": 2.4011255833576435,
+          "first_nonempty_after_ready_s": 0.8131816249806434,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "fleurs-e50b6b02d6d90ddc",
+          "ready_since_voice_s": 1.3805949166347273,
+          "first_nonempty_after_ready_s": 0.4761877916753292,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "fleurs-8e93e440f571a4da",
+          "ready_since_voice_s": 2.1516693333256987,
+          "first_nonempty_after_ready_s": 0.6598579999990761,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "ascend-zh-6a23208e2c146088",
+          "ready_since_voice_s": 2.1041155833518133,
+          "first_nonempty_after_ready_s": 0.4559631666634232,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "ascend-zh-ed182ef57fba310b",
+          "ready_since_voice_s": 2.4096715416689403,
+          "first_nonempty_after_ready_s": 0.34410520835081115,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "ascend-zh-4309bc70746a5c2c",
+          "ready_since_voice_s": 2.04462112498004,
+          "first_nonempty_after_ready_s": 0.20126612501917407,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "ascend-zh-0c5639a6e24f539b",
+          "ready_since_voice_s": 1.3855542916897685,
+          "first_nonempty_after_ready_s": 0.24765495827887207,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "ascend-mixed-9255615fddf1a721",
+          "ready_since_voice_s": 1.4951280833338387,
+          "first_nonempty_after_ready_s": 0.18755041668191552,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "ascend-mixed-a0b0e736637c643c",
+          "ready_since_voice_s": 1.5266019583540038,
+          "first_nonempty_after_ready_s": 0.4233299999614246,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "ascend-mixed-ee4e2d5087648134",
+          "ready_since_voice_s": 1.7805484166601673,
+          "first_nonempty_after_ready_s": 0.42685658333357424,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "ascend-mixed-7c8bdcb41bb98a40",
+          "ready_since_voice_s": 1.5417509167059325,
+          "first_nonempty_after_ready_s": 0.16720187501050532,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "ascend-mixed-ff9c42612780330b",
+          "ready_since_voice_s": 1.381067416688893,
+          "first_nonempty_after_ready_s": 0.1801294166361913,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        },
+        {
+          "id": "continuous-public-5",
+          "ready_since_voice_s": 2.395991416706238,
+          "first_nonempty_after_ready_s": 0.23219879163661972,
+          "tokenizer_wall_s": null,
+          "worker_startup_wall_s": null
+        }
+      ]
     },
     "qwen-current": {
       "source": "a1ac008de50855ae0c03f30128f5b1f74269d617",
@@ -3317,9 +3435,13 @@
           "p50": 1.542,
           "p95": 2.621
         },
-        "update_gap_s": {
+        "timeline_update_gap_s": {
           "p50": 0.535,
           "p95": 1.129
+        },
+        "visible_update_gap_s": {
+          "p50": 0.278,
+          "p95": 1.038
         },
         "eos_s": {
           "p50": 0.696,
@@ -3623,7 +3745,121 @@
         "observations": 4953,
         "blockers": {},
         "final_matches": 16
-      }
+      },
+      "startup": [
+        {
+          "id": "fleurs-1bc3201a9f24a2fe",
+          "ready_since_voice_s": -0.21934941667597752,
+          "first_nonempty_after_ready_s": 0.6870582500123419,
+          "tokenizer_wall_s": 0.7763193749706261,
+          "worker_startup_wall_s": 1.5574072916642763
+        },
+        {
+          "id": "fleurs-0ebe0fb634f8e4ac",
+          "ready_since_voice_s": 1.3398211666569115,
+          "first_nonempty_after_ready_s": 0.35765224997885525,
+          "tokenizer_wall_s": 0.6938371250289492,
+          "worker_startup_wall_s": 0.9800517083494924
+        },
+        {
+          "id": "fleurs-9eb2d543a0a36152",
+          "ready_since_voice_s": 1.8352457083575426,
+          "first_nonempty_after_ready_s": 0.7860569999902509,
+          "tokenizer_wall_s": 0.7285077083506621,
+          "worker_startup_wall_s": 1.5831175416242331
+        },
+        {
+          "id": "fleurs-914c948388ae30bd",
+          "ready_since_voice_s": 1.2673994583566672,
+          "first_nonempty_after_ready_s": 1.2402502082986757,
+          "tokenizer_wall_s": 0.7006349166622385,
+          "worker_startup_wall_s": 1.1275595416664146
+        },
+        {
+          "id": "fleurs-e50b6b02d6d90ddc",
+          "ready_since_voice_s": 1.1787772499886342,
+          "first_nonempty_after_ready_s": 0.3631366250338033,
+          "tokenizer_wall_s": 0.4112811250379309,
+          "worker_startup_wall_s": 1.0457120832870714
+        },
+        {
+          "id": "fleurs-8e93e440f571a4da",
+          "ready_since_voice_s": 0.9478442083206025,
+          "first_nonempty_after_ready_s": 0.6812550832983106,
+          "tokenizer_wall_s": 0.544935041689314,
+          "worker_startup_wall_s": 0.7874682916444726
+        },
+        {
+          "id": "ascend-zh-6a23208e2c146088",
+          "ready_since_voice_s": 1.3013332916307263,
+          "first_nonempty_after_ready_s": 0.34198395832208917,
+          "tokenizer_wall_s": 0.44637745834188536,
+          "worker_startup_wall_s": 0.6875655833282508
+        },
+        {
+          "id": "ascend-zh-ed182ef57fba310b",
+          "ready_since_voice_s": 1.3318367499904706,
+          "first_nonempty_after_ready_s": 0.15220558334840462,
+          "tokenizer_wall_s": 0.398541041649878,
+          "worker_startup_wall_s": 0.6368786667007953
+        },
+        {
+          "id": "ascend-zh-4309bc70746a5c2c",
+          "ready_since_voice_s": 1.3818363749887794,
+          "first_nonempty_after_ready_s": 0.5201005833223462,
+          "tokenizer_wall_s": 0.4894070416339673,
+          "worker_startup_wall_s": 0.7666625416604802
+        },
+        {
+          "id": "ascend-zh-0c5639a6e24f539b",
+          "ready_since_voice_s": 1.1656912083597855,
+          "first_nonempty_after_ready_s": 0.17876137496205047,
+          "tokenizer_wall_s": 0.43658633332233876,
+          "worker_startup_wall_s": 0.6903111666906625
+        },
+        {
+          "id": "ascend-mixed-9255615fddf1a721",
+          "ready_since_voice_s": 1.1687292499700561,
+          "first_nonempty_after_ready_s": 0.27752804168267176,
+          "tokenizer_wall_s": 0.4125464999815449,
+          "worker_startup_wall_s": 0.6280444166623056
+        },
+        {
+          "id": "ascend-mixed-a0b0e736637c643c",
+          "ready_since_voice_s": 1.0242695833183826,
+          "first_nonempty_after_ready_s": 0.23210866667795926,
+          "tokenizer_wall_s": 0.4366277083172463,
+          "worker_startup_wall_s": 0.6146393333328888
+        },
+        {
+          "id": "ascend-mixed-ee4e2d5087648134",
+          "ready_since_voice_s": 1.1151628749794327,
+          "first_nonempty_after_ready_s": 0.19173925003269687,
+          "tokenizer_wall_s": 0.3536016249563545,
+          "worker_startup_wall_s": 0.5632823333144188
+        },
+        {
+          "id": "ascend-mixed-7c8bdcb41bb98a40",
+          "ready_since_voice_s": 1.282250416658353,
+          "first_nonempty_after_ready_s": 0.18253145832568407,
+          "tokenizer_wall_s": 0.46397545834770426,
+          "worker_startup_wall_s": 0.7028938333387487
+        },
+        {
+          "id": "ascend-mixed-ff9c42612780330b",
+          "ready_since_voice_s": 0.961686083348468,
+          "first_nonempty_after_ready_s": 0.15673291665734723,
+          "tokenizer_wall_s": 0.3000202916446142,
+          "worker_startup_wall_s": 0.46318966668331996
+        },
+        {
+          "id": "continuous-public-5",
+          "ready_since_voice_s": 1.115964124968741,
+          "first_nonempty_after_ready_s": 0.290787750040181,
+          "tokenizer_wall_s": 0.43563308333978057,
+          "worker_startup_wall_s": 0.6178535416838713
+        }
+      ]
     }
   },
   "paired_final_identical": [
@@ -3707,5 +3943,108 @@
       "text_equal": true,
       "state_equal": true
     }
-  ]
+  ],
+  "quality440": {
+    "groups": {
+      "original420": {
+        "errors": 910,
+        "substitutions": 407,
+        "deletions": 387,
+        "insertions": 116,
+        "reference_units": 10663,
+        "cer": 0.08534
+      },
+      "derived20": {
+        "errors": 65,
+        "substitutions": 29,
+        "deletions": 34,
+        "insertions": 2,
+        "reference_units": 764,
+        "cer": 0.08508
+      }
+    },
+    "baseline_identical": 440,
+    "failed_rows": [
+      {
+        "errors": [
+          "未识别到文字，原音已保存，可回听或重新识别。"
+        ],
+        "id": "fleurs-e0687aaa8689e196",
+        "model": "qwen-small",
+        "path": "product",
+        "providers": [
+          "qwen-small"
+        ],
+        "states": [
+          "completed",
+          "failed"
+        ],
+        "text": "流行的运动项目包括：足球、篮球、排球、水球、击剑、橄榄球、自行车、冰球、轮滑曲棍球和一级方程式赛车。"
+      },
+      {
+        "errors": [
+          "未识别到文字，原音已保存，可回听或重新识别。"
+        ],
+        "id": "fleurs-fd242859bc18ffbb",
+        "model": "qwen-small",
+        "path": "product",
+        "providers": [
+          "qwen-small"
+        ],
+        "states": [
+          "failed",
+          "completed"
+        ],
+        "text": "拉卡辛格还介绍了 Chapin, Bog, Henson，歌手 Reggie， Handel陪同他身边。"
+      },
+      {
+        "errors": [
+          "未识别到文字，原音已保存，可回听或重新识别。"
+        ],
+        "id": "fleurs-c1fcf0cd023db10f",
+        "model": "qwen-small",
+        "path": "product",
+        "providers": [
+          "qwen-small"
+        ],
+        "states": [
+          "failed",
+          "completed"
+        ],
+        "text": "通过红外光谱进行比较后，发现这些结晶的成分与在受影响宠物的尿液中发现的结晶成分吻合。"
+      },
+      {
+        "errors": [
+          "未识别到文字，原音已保存，可回听或重新识别。"
+        ],
+        "id": "fleurs-b53a7292b38e011d",
+        "model": "qwen-small",
+        "path": "product",
+        "providers": [
+          "qwen-small"
+        ],
+        "states": [
+          "completed",
+          "failed"
+        ],
+        "text": "多发性硬化是一种影响中枢神经系统，由脑、脊髓和视神经组成的疾病。"
+      },
+      {
+        "errors": [
+          "未识别到文字，原音已保存，可回听或重新识别。"
+        ],
+        "id": "fleurs-9a0d49266d4f5e24",
+        "model": "qwen-small",
+        "path": "product",
+        "providers": [
+          "qwen-small"
+        ],
+        "states": [
+          "completed",
+          "failed"
+        ],
+        "text": "就像月球对地球施加拉力，引起潮汐一样，银河系也对人马座星系施加着作用力。"
+      }
+    ]
+  }
 }

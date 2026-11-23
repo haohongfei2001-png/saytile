@@ -1,0 +1,40 @@
+{
+  "product_source": "a1ac008de50855ae0c03f30128f5b1f74269d617",
+  "fixture_source": "1c56c422d1217ba0e880e1ec39c5137182727aa9",
+  "product_paths_unchanged": [
+    "Sources",
+    "native/LocalASR",
+    "scripts/prepare-local-runtime.sh",
+    "scripts/build-app.sh",
+    "Package.swift",
+    "Package.resolved",
+    "packaging"
+  ],
+  "files": {
+    "tests/fixtures/MandarinCohort.swift": "6933bcb79f6dd512253909ac536191f618dc40861b7fa56501008f34f0fd747d",
+    "tests/fixtures/PreviewSurfaceReplay.swift": "13c3fd9a12a23a96b662c78fef285f4cd15d927d60e83d1f4004d1e63692623c",
+    "tests/fixtures/AXCoordinatorProbe.swift": "ac09480a8e5fd70034f9de346db7f738c064be4cb72e65031d78e0e9e63b9e19",
+    "scripts/score-local-asr.py": "c8acd0be998ad36eb00d3f11a1a7291445cdad237c67414b57ccc4735382824d",
+    "scripts/mandarin/score-live-cadence.py": "43cebdb706fc5b97ceae7f8cfbf09037c32bd136bd7ac366d8d4491df38f4389",
+    "scripts/mandarin/score-preview-reversals.py": "843e11db087886c1c0206f2aae68a79eba2908a5c9c0761b057ba36422f9cbd2",
+    "scripts/mandarin/compare-experience.py": "a87283478f586c4519f723d21337f9716729a5edbc96f04056365a832ce9c4f5"
+  },
+  "quality_executable_sha256": "cdc727612b83ba699e24cd2d07b6ab54e1743ff021af8bfc53c32748a916b39b",
+  "quality_input_sha256": "089e2526a0a50d33ce22a5e663e30d578ba63f63326a94aaba406a5664a90d11",
+  "quality_scope": "All 440 fixed public rows; 420 original and 20 derived scored separately. Final candidate helper; current source Kit. Accelerated quality replay, not timing.",
+  "architecture": "arm64",
+  "hardware": "hw.model: Mac17,3\nhw.memsize: 25769803776\nmachdep.cpu.brand_string: Apple M5",
+  "xcode": {
+    "exit": 1,
+    "output": "xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance\n"
+  },
+  "microphone": "NOT_RUN: user keeps Mac closed",
+  "notarization": "NOT_RUN: prohibited",
+  "personal_data": "NOT_OPENED",
+  "build_log_sha256": "8697ad235024a2334fc8d9c8a75796f289e613098ac52212724c9e329759681f",
+  "app_executable_sha256": "b69d19145375e770148b617957853855959a2be0ca48fa6f94c7deb86d9ee573",
+  "worker_sha256": "fc6a05714209b3971bf1d06b9f2bbdff7e2a4f27e7d723b56d00a46f989d1e9c",
+  "runtime_patch": "native/LocalASR/qwen-tokenizer-load.patch",
+  "runtime_upstream": "soniqo/speech-swift@a57702e6f523fa36ac5532d2bdc5f35f701a052c",
+  "weights": "qwen-small@bc441bd1e4295c1f42d9879f056049a925b6e013"
+}

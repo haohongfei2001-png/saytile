@@ -1,13 +1,15 @@
-# Saytile 0.23（569）隔离工程候选
+# Saytile 0.23（571）隔离工程候选
 
-这是 PR #54 的可运行原型，不是公开发行版。产品源码为 `5ebff045ff10c34dbbe12ce5235e3cef4f6d07a0`。现有安装 0.20（533）继续保留；本轮没有安装替换、申请公证或公开发布。
+本包属于 Draft PR #54，产品源码 `a1ac008de50855ae0c03f30128f5b1f74269d617`，不是公开 Beta。当前安装 0.20（533）未被替换，个人数据库、录音、设置及 Keychain 未打开或迁移。
 
-最终 DMG 的路径、SHA-256、签名和启动收据见 `evidence/experience-023/final/package.json`。包中的 App 与已完成本轮原速测试的签名 App 为同一二进制；不捆绑模型权重、录音、数据库或密钥。
+- 文件：`/Users/hhf/Documents/GitHub/saytile/dist/internal-0.23-571/Saytile-0.23-571-arm64.dmg`
+- SHA-256：`1bae2309ca0b1493c7111e6080c24b3b8f6a86a83066008b53c0ca2f3d42b720`
+- 64,551,729 bytes，Apple Silicon / macOS 26+。
+- App / DMG：Developer ID + 安全时间戳，保留现有候选 Bundle ID `app.saytile.mac.mandarin-candidate`。
+- 原速验收的 App 与 DMG 中 App 为同一二进制，完整收据见 `evidence/experience-023/closure/package.json`，构建日志见同目录 `build571.log.gz`。
 
-请勿将此候选直接拖到 Applications 覆盖 533，也不要直接用它打开现有个人资料。工程验证仅在临时 Applications 目录复制 App，并显式使用新建的 `--data-directory`。包内没有自动迁移、安装器或公开更新源切换。
+工程验证只把只读挂载中的 App 复制到临时 Applications 目录，并传入新建 `--data-directory`，断网 smoke 通过。请勿将此候选直接覆盖 533，也不要直接打开个人资料。恢复旧版无需回滚数据库，因为本轮从未安装替换。
 
-App / DMG 使用 Developer ID 及安全时间戳签名；本任务明确不申请公证。若 Gatekeeper 拒绝，保留拒绝结果，不关闭 Gatekeeper、不移除 quarantine、不修改系统安全设置。尚不能当作面向普通用户的下载交付。
+本任务禁止公证；Gatekeeper 对实际 App 与 DMG 均返回 `rejected / Unnotarized Developer ID`。不关闭 Gatekeeper、不移除 quarantine、不提供绕过步骤。这个签名包用于隔离工程审查，尚不属于普通用户可放心下载的正式分发。
 
-默认仍是既有单路 Qwen 中文方案与 Apple 回退。Nemotron 只供隔离研究调用，不进入普通用户默认模型目录。所有模型通过既有下载与哈希机制按需获取；本轮原型无需付费 API。新预览使用较浅文字，定稿/用户编辑为正常文字，临时 Qwen 候选不能直接写入外部应用。
-
-回退无需恢复用户数据：本轮从未替换 533，也未打开其数据库、原音或 Keychain。工程临时数据可留作证据；不对个人目录执行删除或回滚命令。
+本轮没有新模型、付费 API、模型权重捆绑或公开更新源切换。Qwen 浅色文字是临时预览，外部应用仍要等待 EOS 正式文字；改善的 tokenizer 加载不会改变最终识别结果。限制与裁决见 [收口验收](CLOSURE.md)。

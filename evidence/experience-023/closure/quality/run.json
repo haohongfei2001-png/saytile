@@ -1,0 +1,114 @@
+{
+  "source": "a1ac008de50855ae0c03f30128f5b1f74269d617",
+  "fixture_sha256": "6933bcb79f6dd512253909ac536191f618dc40861b7fa56501008f34f0fd747d",
+  "exit_code": 0,
+  "rows": 440,
+  "output_sha256": "751ce5c320bc8c04113a5099070c1ed14a24b8a4cec8fff13f47fb986f1a3c54",
+  "model": "qwen-small",
+  "path": "product",
+  "input": "evidence/release-021/quality/input440.json.gz",
+  "runtime_app": "0.23(571)",
+  "comparison": {
+    "groups": {
+      "original420": {
+        "errors": 910,
+        "substitutions": 407,
+        "deletions": 387,
+        "insertions": 116,
+        "reference_units": 10663,
+        "cer": 0.08534
+      },
+      "derived20": {
+        "errors": 65,
+        "substitutions": 29,
+        "deletions": 34,
+        "insertions": 2,
+        "reference_units": 764,
+        "cer": 0.08508
+      }
+    },
+    "baseline_identical": 440,
+    "failed_rows": [
+      {
+        "errors": [
+          "未识别到文字，原音已保存，可回听或重新识别。"
+        ],
+        "id": "fleurs-e0687aaa8689e196",
+        "model": "qwen-small",
+        "path": "product",
+        "providers": [
+          "qwen-small"
+        ],
+        "states": [
+          "completed",
+          "failed"
+        ],
+        "text": "流行的运动项目包括：足球、篮球、排球、水球、击剑、橄榄球、自行车、冰球、轮滑曲棍球和一级方程式赛车。"
+      },
+      {
+        "errors": [
+          "未识别到文字，原音已保存，可回听或重新识别。"
+        ],
+        "id": "fleurs-fd242859bc18ffbb",
+        "model": "qwen-small",
+        "path": "product",
+        "providers": [
+          "qwen-small"
+        ],
+        "states": [
+          "failed",
+          "completed"
+        ],
+        "text": "拉卡辛格还介绍了 Chapin, Bog, Henson，歌手 Reggie， Handel陪同他身边。"
+      },
+      {
+        "errors": [
+          "未识别到文字，原音已保存，可回听或重新识别。"
+        ],
+        "id": "fleurs-c1fcf0cd023db10f",
+        "model": "qwen-small",
+        "path": "product",
+        "providers": [
+          "qwen-small"
+        ],
+        "states": [
+          "failed",
+          "completed"
+        ],
+        "text": "通过红外光谱进行比较后，发现这些结晶的成分与在受影响宠物的尿液中发现的结晶成分吻合。"
+      },
+      {
+        "errors": [
+          "未识别到文字，原音已保存，可回听或重新识别。"
+        ],
+        "id": "fleurs-b53a7292b38e011d",
+        "model": "qwen-small",
+        "path": "product",
+        "providers": [
+          "qwen-small"
+        ],
+        "states": [
+          "completed",
+          "failed"
+        ],
+        "text": "多发性硬化是一种影响中枢神经系统，由脑、脊髓和视神经组成的疾病。"
+      },
+      {
+        "errors": [
+          "未识别到文字，原音已保存，可回听或重新识别。"
+        ],
+        "id": "fleurs-9a0d49266d4f5e24",
+        "model": "qwen-small",
+        "path": "product",
+        "providers": [
+          "qwen-small"
+        ],
+        "states": [
+          "completed",
+          "failed"
+        ],
+        "text": "就像月球对地球施加拉力，引起潮汐一样，银河系也对人马座星系施加着作用力。"
+      }
+    ]
+  }
+}

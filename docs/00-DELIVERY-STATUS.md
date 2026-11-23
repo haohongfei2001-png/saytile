@@ -1,6 +1,8 @@
-# 当前工作：0.23（569）体验评估原型
+# 当前工作：0.23（571）Qwen 体验收口
 
-独立 Draft PR #54 以 PR #53 为父分支，比较既有 Qwen 与 Nemotron，并实现临时预览与正式输入分离。实际安装仍是 0.20（533）；不合并、不替换、不公证、不公开发布。产品裁决及原始失败见 [0.23 验收](delivery/experience-023/ACCEPTANCE.md)、[架构选择](delivery/experience-023/ARCHITECTURE.md) 和 [状态](delivery/experience-023/STATUS.md)。以下发行主线和历史证据保持原样。
+继续在 Draft PR #54 工作，父分支保持 PR #53，不改 main。产品源码 `a1ac008de50855ae0c03f30128f5b1f74269d617`；安装仍是 0.20（533）。本轮仅优化 Qwen 启动并验证预览、面板和直接输入边界；不新增模型、不安装替换、不公证、不公开发布。
+
+裁决仍为 **HOLD**。本轮实测与剩余问题见 [收口验收](delivery/experience-023/CLOSURE.md)、[状态](delivery/experience-023/STATUS.md) 和 [架构](delivery/experience-023/ARCHITECTURE.md)。以下发行主线及历史证据保留原样，不冒充 571 的新实测。
 
 ## 0.21（564）发行收口
 
