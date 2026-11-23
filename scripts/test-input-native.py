@@ -76,7 +76,7 @@ def run_fixture(fixture_name, probe_name, log_name, ready, web=False):
         threading.Thread(target=lines_to_queue, args=(probe.stdout, "probe", messages), daemon=True).start()
         # A wall-paced 38.8-second public replay cannot use the accelerated
         # fixture deadline. Other probes retain their original 30-second bound.
-        deadline = time.monotonic() + (55 if os.environ.get("SAYTILE_QWEN_STABLE_REPLAY") else 30)
+        deadline = time.monotonic() + (55 if os.environ.get("SAYTILE_QWEN_STABLE_REPLAY") or os.environ.get("SAYTILE_QWEN_NATIVE_AUDIO") else 30)
         while time.monotonic() < deadline and (probe.poll() is None or not messages.empty()):
             try: name, line = messages.get(timeout=0.2)
             except queue.Empty: continue
@@ -197,8 +197,13 @@ if __name__ == "__main__":
     mode.add_argument("--compile-dom-only", action="store_true", help="Compile the package-linked headless DOM probe, without launching any fixture")
     mode.add_argument("--qwen-preview-replay", type=Path, help="Replay public model events through the real coordinator and owned background NSTextView only")
     mode.add_argument("--qwen-stable-replay", type=Path, help="Paced public candidates, early confirmed phrases and exact EOS on owned real AX")
+    mode.add_argument("--qwen-native-audio", type=Path, help="Real-time public PCM through production VAD, Qwen, Store and owned AX; weights/helpers must be explicit")
     args = parser.parse_args()
-    if args.qwen_stable_replay:
+    if args.qwen_native_audio:
+        assert os.environ.get("SAYTILE_QWEN_NATIVE_WEIGHTS") and os.environ.get("SAYTILE_QWEN_NATIVE_HELPERS")
+        os.environ["SAYTILE_QWEN_NATIVE_AUDIO"] = str(args.qwen_native_audio.resolve())
+        run_fixture("AXTextFixture", "AXCoordinatorProbe", "input-qwen-native-audio.log", "FIXTURE_READY")
+    elif args.qwen_stable_replay:
         os.environ["SAYTILE_QWEN_STABLE_REPLAY"] = str(args.qwen_stable_replay.resolve())
         run_fixture("AXTextFixture", "AXCoordinatorProbe", "input-qwen-stable.log", "FIXTURE_READY")
     elif args.qwen_preview_replay:

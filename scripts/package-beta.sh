@@ -1,5 +1,5 @@
 #!/bin/bash
-# Historical entry point retained; packaging/VERSION names the current prerelease.
+# Historical command name retained; packaging/VERSION is the actual release.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 SAYTILE_STAGE="$(mktemp -d /tmp/saytile-package.XXXXXX)"
@@ -7,11 +7,20 @@ trap 'rm -rf "$SAYTILE_STAGE"' EXIT
 SAYTILE_VERSION="$(cat packaging/VERSION)"
 SAYTILE_DMG="Saytile-$SAYTILE_VERSION-arm64.dmg"
 guide=docs/V1-INSTALL.md
+if [[ "$SAYTILE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  # Public 0.18 and installed 533 already use this identity. Keep their
+  # permissions, archive and update channel when publishing the stable product.
+  export SAYTILE_MANDARIN_CANDIDATE=1
+fi
 if [[ "${SAYTILE_MANDARIN_CANDIDATE:-0}" == 1 ]]; then
   source_sha=$(git rev-parse HEAD)
   build_number=$(python3 scripts/build-number.py)
   guide=docs/INTERNAL-INSTALL.md
   SAYTILE_DMG="Saytile-$SAYTILE_VERSION-$build_number-arm64.dmg"
+  if [[ "$SAYTILE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    guide=docs/V1-INSTALL.md
+    SAYTILE_DMG="Saytile-$SAYTILE_VERSION-arm64.dmg"
+  fi
 fi
 SAYTILE_DMG_OUTPUT="${SAYTILE_DMG_OUTPUT:-dist/$SAYTILE_DMG}"
 mkdir -p "$(dirname "$SAYTILE_DMG_OUTPUT")"

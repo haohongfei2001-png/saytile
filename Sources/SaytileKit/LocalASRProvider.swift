@@ -283,6 +283,8 @@ struct LocalLiveText {
     private var readingPrefix = ""
     private var withheld: String?
     private var unconfirmedTail: String?
+    private var recentPreviews: [[Character]] = []
+    private var deferredOldWord = false
     init(model: LocalASRID, previewPolicy: PreviewPolicy = .confirmed) {
         self.model = model; self.previewPolicy = previewPolicy
     }
@@ -291,9 +293,27 @@ struct LocalLiveText {
             presentation = text
             return text.utf16.count
         }
+        // A previously settled, tiny Chinese spelling change with at most four
+        // new characters gets one observation to settle. Never chain this hold:
+        // the very next whole hypothesis is eligible, even if it disagrees.
+        // First words, substantial fresh speech and critical tokens bypass it.
+        let resumeOldWord = deferredOldWord
+        deferredOldWord = false
+        if model == .qwen, previewPolicy == .provisional {
+            let current = Self.previewLetters(text)
+            defer {
+                recentPreviews.append(current)
+                if recentPreviews.count > 4 { recentPreviews.removeFirst() }
+            }
+            if !resumeOldWord, Self.briefOldWordRevision(previous: Self.previewLetters(previous),
+                current: current, history: recentPreviews) {
+                deferredOldWord = true
+                return nil
+            }
+        }
         let common = RecognitionUTF16.commonPrefix([previous, text])
         if model == .qwen || model == .qwenLarge {
-            if let correction = Self.tailOnlyCorrection(previous: previous, text: text),
+            if !resumeOldWord, let correction = Self.tailOnlyCorrection(previous: previous, text: text),
                unconfirmedTail != correction {
                 // A single unchanged-length tail spelling is not new speech.
                 // Keep the last observed words until this correction is repeated
@@ -346,6 +366,22 @@ struct LocalLiveText {
         }
         previous = text
         return model == .nemotron ? String(common.dropLast()).utf16.count : 0
+    }
+
+    private static func previewLetters(_ text: String) -> [Character] {
+        Array(text.lowercased().filter { $0.isLetter || $0.isNumber })
+    }
+    private static func briefOldWordRevision(previous: [Character], current: [Character], history: [[Character]]) -> Bool {
+        guard history.count == 4, previous.count >= 20,
+              current.count >= previous.count, current.count - previous.count <= 4 else { return false }
+        let changes = previous.indices.filter { previous[$0] != current[$0] }
+        guard let first = changes.first, let last = changes.last, first >= 3, last - first <= 2 else { return false }
+        func ordinary(_ c: Character) -> Bool {
+            c.unicodeScalars.count == 1 && c.unicodeScalars.allSatisfy { (0x3400...0x9FFF).contains($0.value) }
+                && !c.isNumber && !"一二三四五六七八九十百千万萬亿億零〇两兩".contains(c) && !protectsBoundary(c)
+        }
+        return (previous[first...last] + current[first...last]).allSatisfy(ordinary)
+            && history.allSatisfy { $0.count > last && $0[first...last].elementsEqual(previous[first...last]) }
     }
 
     private static func tailOnlyCorrection(previous: String, text: String) -> String? {

@@ -1,4 +1,5 @@
 import AppKit
+import AVFoundation
 #if SAYTILE_PACKAGE_PROBE
 @testable import SaytileKit
 #endif
@@ -49,6 +50,80 @@ struct AXCoordinatorProbe {
         func expect(_ condition: Bool, _ message: String) throws {
             guard condition else { throw Failure(description: message) }
             checks += 1; print("PASS " + message); fflush(nil)
+        }
+        if let audio = ProcessInfo.processInfo.environment["SAYTILE_QWEN_NATIVE_AUDIO"],
+           let weights = ProcessInfo.processInfo.environment["SAYTILE_QWEN_NATIVE_WEIGHTS"],
+           let helpers = ProcessInfo.processInfo.environment["SAYTILE_QWEN_NATIVE_HELPERS"] {
+            // The production App sets its worker cwd to bundled Resources.
+            // This command-line fixture has no App bundle; supply the same
+            // packaged Metal library directory, without changing product code.
+            let resources = URL(fileURLWithPath: helpers).deletingLastPathComponent().appending(path: "Resources")
+            guard FileManager.default.fileExists(atPath: resources.appending(path: "default.metallib").path),
+                  FileManager.default.changeCurrentDirectoryPath(resources.path) else {
+                throw Failure(description: "Packaged Metal resources unavailable")
+            }
+            let binding = try await coordinator.bindCurrentTarget()
+            let reader = try AVAudioFile(forReading: URL(fileURLWithPath: audio), commonFormat: .pcmFormatFloat32, interleaved: false)
+            guard reader.processingFormat.sampleRate == 16_000, reader.processingFormat.channelCount == 1,
+                  let buffer = AVAudioPCMBuffer(pcmFormat: reader.processingFormat, frameCapacity: AVAudioFrameCount(reader.length)) else {
+                throw Failure(description: "Native input fixture requires declared public mono 16k PCM")
+            }
+            try reader.read(into: buffer)
+            let samples = Array(UnsafeBufferPointer(start: buffer.floatChannelData![0], count: Int(buffer.frameLength)))
+            let service = LocalASRService(root: URL(fileURLWithPath: weights), helpers: URL(fileURLWithPath: helpers))
+            let factory = RecognitionSessionFactory()
+            factory.selectLocal(live: .qwen, archive: .qwen, service: service)
+            let worker = try CaptureWorker(store: store, ring: AudioRing(capacity: 64_000), sampleRate: 16_000,
+                recognitionFactory: factory, update: { _, _ in }, failed: { _ in })
+            let started = ProcessInfo.processInfo.systemUptime, wall = Date()
+            let feed = Task {
+                for offset in stride(from: 0, to: samples.count, by: 320) {
+                    let count = min(320, samples.count - offset)
+                    for pcm in try await worker.convertCapturedSamples(Array(samples[offset..<offset + count]), count: UInt32(count)) {
+                        try await worker.acceptPCM(pcm, endingAt: wall.addingTimeInterval(Double(offset + count) / 16_000))
+                    }
+                    let wait = Double(offset + count) / 16_000 - (ProcessInfo.processInfo.systemUptime - started)
+                    if wait > 0 { try await Task.sleep(for: .seconds(wait)) }
+                }
+                await worker.stop()
+            }
+            defer { feed.cancel() }
+            var earlyWrites = 0, firstWrite: Double?, rounds = 0
+            while true {
+                for correction in try await store.ownedCorrectionCandidates(bindingID: binding.id) {
+                    try expect(await coordinator.repairOwned(revision: correction) == .confirmed, "live Qwen EOS corrects only witnessed owned text")
+                }
+                for record in try await store.listRecordings(limit: 30).reversed() {
+                    if let revision = try await store.latestDispatchableRevision(recordingID: record.id) {
+                        let result = await coordinator.insertStable(recordingID: record.id, revisionID: revision.id,
+                            stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
+                        try expect([NativeInputResult.confirmed, .noNewText, .deferred].contains(result), "live ASR incremental input remains owned")
+                        if record.recognitionState != .completed, result == .confirmed {
+                            earlyWrites += 1
+                            if firstWrite == nil { firstWrite = ProcessInfo.processInfo.systemUptime - started }
+                        }
+                    }
+                }
+                rounds += 1
+                guard rounds < 260 else { throw Failure(description: "Live Qwen input did not settle") }
+                try await Task.sleep(for: .milliseconds(200))
+                let pending = await worker.hasPendingRecognition()
+                if ProcessInfo.processInfo.systemUptime - started >= Double(samples.count) / 16_000 + 1 && !pending { break }
+            }
+            try await feed.value
+            let records = try await store.listRecordings(limit: 30)
+            let finalText = records.reversed().map(\.text).joined()
+            try expect(earlyWrites >= 2, "live audio produces multiple confirmed writes before segment EOS")
+            try expect(records.allSatisfy { $0.recognitionState == .completed }, "all actual Qwen segments finalized")
+            try expect(!finalText.isEmpty && attribute(field, kAXValueAttribute) as? String == "PREFIX|" + finalText + "SUFFIX", "live Qwen final matches archive and preserves surrounding text")
+            try expect(!activationAudit.finish().ownedActivated, "live Qwen input never takes focus")
+            print("QWEN_NATIVE_AUDIO_PASS early_writes=\(earlyWrites) first_write_s=\(firstWrite ?? -1) audio_s=\(Double(samples.count) / 16_000) records=\(records.count); microphone=NOT_RUN; public_file=true")
+            await service.releaseIdle()
+            coordinator.invalidate()
+            // Keep the public-audio isolated archive as evidence; never touch the user's store.
+            try await store.close()
+            print("OWNED_PUBLIC_AUDIO_STORE " + directory.path)
+            return
         }
         if let replay = ProcessInfo.processInfo.environment["SAYTILE_QWEN_STABLE_REPLAY"] {
             let data = try JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: replay))) as! [String: Any]

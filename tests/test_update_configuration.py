@@ -29,6 +29,12 @@ def fixture():
 
 
 class UpdateConfigurationTests(unittest.TestCase):
+    def test_release_keeps_published_018_and_533_bundle_identity(self):
+        root = SCRIPT.parents[1]
+        info = plistlib.loads((root / "packaging/Info.plist").read_bytes())
+        self.assertEqual(info["CFBundleIdentifier"], MANDARIN)
+        self.assertEqual(info["CFBundleDisplayName"], "Saytile")
+
     def test_curated_history_does_not_reset_update_build_number(self):
         root = SCRIPT.parents[1]
         build = subprocess.check_output([sys.executable, root / "scripts/build-number.py"], text=True).strip()

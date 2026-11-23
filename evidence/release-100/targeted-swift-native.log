@@ -1,0 +1,71 @@
+Building for debugging...
+[Computing dependencies]
+[Pre-planning 1 / 358]
+[Planning deferred tasks]
+[15 / 122] SaytileKitTests-product
+[22 / 120]
+[56 / 133]
+[61 / 161]
+[76 / 161] CAudio
+[88 / 161] CAudio
+[96 / 227]
+[99 / 259]
+[101 / 292]
+[104 / 292]
+[113 / 325]
+[121 / 325]
+[128 / 325]
+[130 / 325]
+[134 / 325]
+[136 / 325]
+[141 / 325]
+[143 / 325]
+[144 / 325]
+[147 / 325]
+/private/tmp/saytile-release-100/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[150 / 325]
+[152 / 325]
+[158 / 325]
+[160 / 325]
+[163 / 325]
+[164 / 325]
+[174 / 325]
+[178 / 325]
+[182 / 325]
+[183 / 325]
+[187 / 325]
+[192 / 325]
+[193 / 325]
+[194 / 325]
+[195 / 325]
+[202 / 325]
+[203 / 325]
+[204 / 325]
+[209 / 325]
+[210 / 325]
+[211 / 325]
+[213 / 325]
+[214 / 325]
+[215 / 325]
+[216 / 325]
+[227 / 325]
+[232 / 325] RiftletFeedback
+[234 / 325] RiftletFeedback
+[238 / 325]
+[242 / 326]
+[245 / 326]
+[246 / 326] RiftletFeedback
+[248 / 326]
+[248 / 326] RiftletFeedback
+/private/tmp/saytile-release-100/Package.swift: RiftletFeedback: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[250 / 326] RiftletFeedback
+[254 / 327]
+[257 / 327]
+[259 / 327]
+error: clang dependency scanning failure: 
+error: /private/tmp/saytile-release-100/tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift:2:8 unable to resolve module dependency: 'XCTest'
+[259 / 327] RiftletFeedbackTests-product
+error: SwiftDriver RiftletFeedbackTests normal arm64 com.apple.xcode.tools.swift.compiler failed with a nonzero exit code. Command line:     cd /private/tmp
+    builtin-SwiftDriver -- /Library/Developer/CommandLineTools/usr/bin/swiftc -parse-as-library -module-name RiftletFeedbackTests -Onone @/tmp/saytile-release100-build/out/Intermediates.noindex/Saytile.build/Debug/RiftletFeedbackTests-p.build/Objects-normal/arm64/RiftletFeedbackTests.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -Xcc -fmodule-map-file\=/private/tmp/saytile-release-100/Sources/CSQLite/module.modulemap -DXcode -load-plugin-library /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib -enable-experimental-feature DebugDescriptionMacro -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk -target arm64-apple-macos26.0 -g -module-cache-path /tmp/saytile-release100-build/out/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /tmp/saytile-release100-build/out -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /tmp/saytile-release100-build/out/Products/Debug -Isystem /Library/Developer/CommandLineTools/Developer/usr/lib -F /tmp/saytile-release100-build/out/Products/Debug/PackageFrameworks -F /tmp/saytile-release100-build/out/Products/Debug -F /Library/Developer/CommandLineTools/Library/Developer/Frameworks -F /Library/Developer/CommandLineTools/Developer/Library/Frameworks -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /tmp/saytile-release100-build/out/SDKStatCaches.noindex/macosx27.0-26A425-a0facfad118c1a7a18f0aad9463f6549ffd68ff603bdaacc80b00cb8898de72d.sdkstatcache -output-file-map /tmp/saytile-release100-build/out/Intermediates.noindex/Saytile.build/Debug/RiftletFeedbackTests-p.build/Objects-normal/arm64/RiftletFeedbackTests-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /tmp/saytile-release100-build/out/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /tmp/saytile-release100-build/out/ModuleCache.noindex -sdk-module-cache-path /tmp/saytile-release100-build/out/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /tmp/saytile-release100-build/out/Intermediates.noindex/Saytile.build/Debug/RiftletFeedbackTests-p.build/Objects-normal/arm64/RiftletFeedbackTests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /tmp/saytile-release100-build/out/Intermediates.noindex/Saytile.build/Debug/RiftletFeedbackTests-p.build/Objects-normal/arm64/RiftletFeedbackTests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /tmp/saytile-release100-build/out/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -package-name saytile_release_100 -emit-const-values -const-gather-protocols-list /tmp/saytile-release100-build/out/Intermediates.noindex/Saytile.build/Debug/RiftletFeedbackTests-p.build/Objects-normal/arm64/RiftletFeedbackTests_const_extract_protocols.json -Xcc -I/tmp/saytile-release100-build/out/Products/Debug/include -Xcc -I/tmp/saytile-release100-build/out/Intermediates.noindex/Saytile.build/Debug/RiftletFeedbackTests-p.build/DerivedSources-normal/arm64 -Xcc -I/tmp/saytile-release100-build/out/Intermediates.noindex/Saytile.build/Debug/RiftletFeedbackTests-p.build/DerivedSources/arm64 -Xcc -I/tmp/saytile-release100-build/out/Intermediates.noindex/Saytile.build/Debug/RiftletFeedbackTests-p.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -working-directory /private/tmp -experimental-emit-module-separately -disable-cmo
+error: Build failed
+error: fatalError

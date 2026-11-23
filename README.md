@@ -2,60 +2,42 @@
 
 **自然开口，随时取用。**
 
-Saytile 是 macOS 原生语音输入与表达工作台。开启后持续待命，自然讲话即可分段记录、识别中文，并独立保存原音。文字可以编辑、搜索、回听、重新识别、复制，或追加到明确选择的应用草稿。
+Saytile 是 Apple Silicon Mac 上的本地中文语音输入工具。Qwen 0.6B 在讲话过程中显示临时文字，停止后完成原音定稿；确认后的短语可逐步写入用户选定的应用。文字、手动修改和原音分别保存，不依赖网络。
 
-V1 Release Candidate 已完成工程回归，真实讲话与个人环境验收仍明确保留，下载见 [Releases](https://github.com/haohongfei2001-png/saytile/releases)。要求 **Apple Silicon / macOS 26+**。源码继承 PR #1 的完整设计、原型和数据契约；历史原件保留在 `archive/`。
-
-## 构建和运行
-
-```sh
-scripts/package-beta.sh
-# 打开 dist/Saytile-1.0.0-rc.1-arm64.dmg 安装
-```
-
-同步盘可能在 App 目录附加影响签名的 Finder 元数据，请通过 DMG 安装至 Applications 后运行。
-
-现有 Command Line Tools 即可构建，不要求安装完整 Xcode。App 使用系统框架和已固定提交的 WebRTC VAD，构建不下载语音模型。首次开启时准备 Apple 中文语言资源；识别失败仍保留原音。
-
-```sh
-scripts/test-native.sh
-scripts/test-app-model.sh
-python3 scripts/verify.py
-scripts/package-beta.sh
-```
-
-原生测试和 AppModel 检查均用独立测试资料，不操作私人录音或外部草稿。`scripts/test-ax-fixture.py` 只在已有辅助功能权限下使用专用后台文本框。
+本分支正在完成 **1.0.0（572）** 最终验收。发行状态与原始证据见 [STATUS](STATUS.md) 和 [验收记录](docs/delivery/release-100/DEVELOPMENT.md)。官网为 [saytile.com](https://saytile.com/)，正式下载以 [GitHub Releases](https://github.com/haohongfei2001-png/saytile/releases) 为准。
 
 ## 使用
 
-点击菜单栏或按 ⌥ 空格打开输入板。第一次点击开启收音后，后续讲话自动采集；关闭输入板继续待命，暂停随时可用。档案支持搜索全部文字版本、编辑草稿自动暂存、收藏、回听和重新识别。
+- 需要 Apple Silicon、macOS 26 或更新系统。首次联网下载约 713 MB 的 Qwen 模型，随后可离线使用；没有 API Key 或订阅要求。模型准备期间可使用系统 Apple 本地识别，具体状态在设置显示。
+- 语音板只有复制和语音状态两个常驻按钮。右侧按钮暂停/恢复收音；菜单栏点击展开菜单，单独控制语音板显隐。
+- 连续文字可选择、编辑、复制；自然停顿形成段落。无选区复制当前段落，档案按相同段落组织，支持搜索、星标、回听和重识别。
+- 自由记录保存在自己的档案。直接输入须授予辅助功能权限并绑定目标；普通复制不需要辅助功能权限。
+- 直接输入只追加已确认的短语。目标、光标、选区或用户内容变化时停止自动操作。EOS 的局部修正仅在完整目标内容和所属范围仍可验证时进行，否则保留到档案。Saytile 不按回车、不发送消息、不重试不确定的写入。
+- 临时预览可能修订；数字、否定词和名称仍需用户阅读确认。模型不可用或识别失败时保留原音和已有文字，允许重试。
 
-复制无需辅助功能。跨应用插入需要本人允许辅助功能；检测到目标应用、页面或光标变化时会暂停自动输入。并非所有网页都提供可区分的页面身份；完整前台浏览器插入及隐藏路由的支持边界见 RC 验证清单，不承诺泛网页兼容。Saytile 不发送消息，不按新识别版本重复插入全文，不重试不确定投递。输入板只包含本次表达及明确带回的历史内容。
+## 安装、更新和资料
 
-原音默认保留到手动删除；仅删除原音会保留文字及修改版本。10 GB 是提醒阈值，不是自动删除许可。资料位于 `~/Library/Application Support/Saytile`。
+见 [安装与回退](docs/V1-INSTALL.md)。正式 1.0 使用现有公开中文版本的 Bundle ID `app.saytile.mac.mandarin-candidate`，这个历史内部标识不会影响产品名称。
 
-## 交付与验证
+0.18、0.20（533）与 1.0 延续相同资料目录 `~/Library/Application Support/Saytile Mandarin Candidate`、Keychain 服务和更新通道。旧 RC1 的 `app.saytile.mac` 及 `Saytile` 资料目录保持独立，不会静默移动或覆盖。不要删除旧资料来升级。
 
-- [RC 验证与最终清单](docs/V1-RC-ACCEPTANCE.md)
-- [安装说明](docs/V1-INSTALL.md)
-- [实时开发状态](docs/V1-DEV-STATUS.md)
-- [实际测试记录及限制](docs/V1-TEST-RESULTS.md)
-- [最少用户授权与验收事项](docs/V1-USER-ACTIONS.md)
-- [产品设计](docs/01-PRODUCT-AND-ROADMAP.md)、[架构](docs/02-V1-ARCHITECTURE.md)、[数据契约](docs/03-REBUILT-REVIEW-CONTRACTS.md)
-- [原型](prototype/index.html)、[历史来源](docs/06-PROVENANCE.md)、[第三方许可](THIRD_PARTY_NOTICES.md)
+原音默认保留至手动删除。仅删除原音会保留文字和历史修订。iCloud 跨设备同步、尚未配置的反馈服务和云端识别不属于本地默认承诺；未经明确授权不会上传录音。
 
-个人包采用 ad-hoc 签名，尚未进行 Developer ID 公证。合成语音、后台 AX 测试、硬件缓冲统计、实际真人输入和整机功耗是不同验证层，详见测试记录。V2 轻声识别与 V3 个人词库/文字输入法不在本轮范围。
+## 源码构建和测试
 
-## 唯一批准的 V1 界面目标（2026-11-07）
+```sh
+scripts/build-app.sh debug
+scripts/test-app-model.sh
+scripts/test-native.sh
+python3 scripts/verify.py
+```
 
-Saytile V1 的唯一视觉目标是用户选定的紫蓝色、无品牌字标、单一连续文字流界面。完整规范见 [唯一界面设计规范](docs/SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md)。原始参考图保存在 ChatGPT Library：`Saytile语音输入工作台概念界面.png`（2026-11-06 23:05 UTC）。旧绿色原型仅供历史追溯，不得作为当前设计依据。
+构建会获取固定版本的 Sparkle、MLX/原生运行库，不捆绑模型权重。完整 Swift Testing/XCTest 需要完整 Xcode；Command Line Tools 构建成功不等于完整测试通过。原生测试使用隔离资料目录；不要把真实档案用于故障注入。
 
-## 正式 App 图标（2026-11-10）
+正式签名构建与 DMG 步骤见 [发行流程](distribution/README.md)。历史 #52、#53、#54 原始证据继续保留；整合文件来源见 [INTEGRATION.json](docs/delivery/release-100/INTEGRATION.json)。
 
-正式品牌 / App 图标采用用户选定的 **白底紫色 `tile` 声波字标**，见 [唯一图标视觉参考及实施边界](design/approved/app-icon/README.md)。这与上文的**主面板无 Logo**视觉规范分别管理；现有 App 图标生成器和已发布安装包不会因文档变更而自动更新。
+## 产品与来源
 
-## 正式官网
+[唯一主面板设计](docs/SAYTILE-V1-COMPACT-TRANSCRIPT-PANEL-DESIGN.md) · [批准图标](design/approved/app-icon/README.md) · [第三方许可](THIRD_PARTY_NOTICES.md) · [官网源码和批准范围](website/README.md)
 
-正式地址：[saytile.com](https://saytile.com/)。已按2026-11-14用户指令将R8整体与新复制到AI、语音档案两段上线到正式首页。
-
-完整源码与当前权威见[website/](website/README.md)，批准范围、文件摘要与验证记录也在此目录。历史预览不再是正式首页；原生App与官网分别管理。
+主语音板没有 Logo 或产品名，白色轻透面板、连续文字和两个按钮保持原定设计。紫色与黑色品牌是已有设置选项。旧 prototype 与 archive 是历史材料，不能替代当前原生界面验收；archive 原件只读。V2 轻声、V3 个人词库不在 1.0 范围内。

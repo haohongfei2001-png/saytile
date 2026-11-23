@@ -4,7 +4,7 @@
 
 ## 已核对
 - 最新 main 4caf73c；PR #52/#53/#54 开放。#54 最新 932b776，继承 571 的 token 等价启动优化。
-- 正式 v1.0.0 标签尚未使用。533 身份 app.saytile.mac.mandarin-candidate；0.18 身份待实际包核对。
+- 正式 v1.0.0 标签尚未使用。533 身份 app.saytile.mac.mandarin-candidate；0.18 官方 DMG 已下载并校验，身份、更新通道和533一致。
 - 本分支从 main 创建，仅移入生产和回归依赖，历史性能原件继续由原 PR 保存。详见 docs/delivery/release-100/INTEGRATION.json。
 
 ## 当前任务

@@ -4,6 +4,21 @@ import Testing
 @testable import SaytileVoiceUI
 
 @Suite struct ProvisionalPreviewTests {
+    @Test func oldWordFlickerWaitsOnlyOneObservationAndNeverSplicesCandidates() {
+        var preview = LocalLiveText(model: .qwen, previewPolicy: .provisional)
+        let head = "这里的山谷拥有很多不同形状的花岗岩和大理石，游客继续向前"
+        for _ in 0..<4 { #expect(preview.accept(head, final: false) == 0) }
+        let changed = head.replacingOccurrences(of: "大理石", with: "大力士") + "行走"
+        #expect(preview.accept(changed, final: false) == nil)
+        #expect(preview.presentation == head)
+        let next = head.replacingOccurrences(of: "大理石", with: "大博士") + "行走着"
+        #expect(preview.accept(next, final: false) == 0)
+        #expect(preview.presentation == next)
+        let final = head + "行走。"
+        #expect(preview.accept(final, final: true) == final.utf16.count)
+        #expect(preview.presentation == final)
+    }
+
     @Test func oldWordUncertaintyDoesNotFreezeNewSpeechOrGrantDispatch() {
         var strict = LocalLiveText(model: .qwen)
         var preview = LocalLiveText(model: .qwen, previewPolicy: .provisional)
