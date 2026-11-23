@@ -25,11 +25,14 @@ fi
 # on a previously prepared (possibly different) working tree.
 original=$(mktemp -d)
 trap 'rm -rf "$original"' EXIT
-mkdir -p "$original/Sources/Qwen3ASR"
+mkdir -p "$original/Sources/Qwen3ASR" "$original/Sources/AudioCommon"
 for source in Qwen3ASR.swift QuantizedTextDecoder.swift; do
   git -C "$cache/speech-swift" show "$speech:Sources/Qwen3ASR/$source" > "$original/Sources/Qwen3ASR/$source"
 done
+git -C "$cache/speech-swift" show "$speech:Sources/AudioCommon/Tokenizer.swift" > "$original/Sources/AudioCommon/Tokenizer.swift"
 patch -s -f -p1 -d "$original" < "$pkg/qwen-verified-preview.patch"
+patch -s -f -p1 -d "$original" < "$pkg/qwen-tokenizer-load.patch"
+cmp -s "$original/Sources/AudioCommon/Tokenizer.swift" "$pkg/.vendor/SpeechKernels/Sources/AudioCommon/Tokenizer.swift" || cp "$original/Sources/AudioCommon/Tokenizer.swift" "$pkg/.vendor/SpeechKernels/Sources/AudioCommon/Tokenizer.swift"
 for source in Qwen3ASR.swift QuantizedTextDecoder.swift; do
   cmp -s "$original/Sources/Qwen3ASR/$source" "$pkg/.vendor/SpeechKernels/Sources/Qwen3ASR/$source" || cp "$original/Sources/Qwen3ASR/$source" "$pkg/.vendor/SpeechKernels/Sources/Qwen3ASR/$source"
 done
