@@ -21,3 +21,9 @@ Files: `evidence/performance-022/diagnosis/baseline-profile/`, load receipt in a
 - Sampling is wall-stack observation, not CPU-time attribution. Do not sum recursive counts or claim a GPU utilization/power percentage from these files.
 
 Next isolate pipeline stages with monotonic trace, then test one bounded allocation policy against the same uninstrumented native baseline. No change to model weights, token semantics, publication gates, VAD, scoring or safety rules.
+
+## Stage isolation and experiment H1
+
+Traced baseline source `00387d91b376c4857af9768c98c842e846075474` with the unchanged signed baseline worker. 7547 timestamped events; raw trace and stage summary are in `diagnosis/stages-baseline`. Maximum observed conversion 0.145 ms, VAD 0.071 ms, journal append 3.257 ms, pipe write 2.884 ms, preview decision computation 3.877 ms, candidate persistence 1.273 ms, transcript persistence 2.549 ms, timeline read 1.171 ms. Seven raw hypotheses were withheld. Confirmation **waiting for another model output**, rather than the confirmation function's CPU execution, accounts for that gate's delay. Physical microphone not exercised.
+
+H1 changes only Qwen-small allocator cache ceiling from 32 to 128 MiB. Sampling found 489 of 2621 worker-main-thread stack samples under allocator malloc; 368 under IOGPU resource-group registration (overlapping with those 489, not additive). Model weights, graph/math, token verification, preview admission, EOS, VAD and scoring stay unchanged. Upstream per-decode cache clearing remains. Hypothesis: less within-decode allocation churn reduces decode CPU and long preview wall time without retaining a larger pool during standby. Paired benefit, memory and exact final transcripts are mandatory before admission.

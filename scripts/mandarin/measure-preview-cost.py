@@ -26,7 +26,7 @@ def seconds(cpu_time):
     return int(minutes) * 60 + float(secs)
 
 
-def public_run(app, manifest, sample_id, weights, audio, out, profile=False):
+def public_run(app, manifest, sample_id, weights, audio, out, profile=False, trace=False):
     meta = plistlib.loads((app / "Contents/Info.plist").read_bytes())
     row = next(r for r in json.loads(manifest.read_text())["samples"] if r["id"] == sample_id)
     wav = audio / (sample_id + ".wav")
@@ -41,7 +41,7 @@ def public_run(app, manifest, sample_id, weights, audio, out, profile=False):
         with tempfile.TemporaryFile() as log:
             start = time.monotonic()
             p = subprocess.Popen([app / "Contents/MacOS/Saytile", "--data-directory", data,
-                                  "--local-stream-probe", "auto"], stdout=log, stderr=log)
+                                  "--local-stream-probe", "auto", *(["--performance-trace"] if trace else [])], stdout=log, stderr=log)
             samples, children, last_cpu = [], set(), {}
             profiles = {}
             try:
@@ -143,4 +143,5 @@ if __name__ == "__main__":
         cli.add_argument("--" + name, type=Path, required=True)
     cli.add_argument("--id", dest="sample_id", required=True)
     cli.add_argument("--profile", action="store_true", help="Sample only this App and its worker; diagnostic, not acceptance")
+    cli.add_argument("--trace", action="store_true", help="Collect bounded stage timings inside the disposable replay")
     public_run(**vars(cli.parse_args()))
