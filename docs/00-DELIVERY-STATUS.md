@@ -1,4 +1,8 @@
-# 当前：0.21（564）发行收口
+# 当前工作：0.23（569）体验评估原型
+
+独立 Draft PR #54 以 PR #53 为父分支，比较既有 Qwen 与 Nemotron，并实现临时预览与正式输入分离。实际安装仍是 0.20（533）；不合并、不替换、不公证、不公开发布。产品裁决及原始失败见 [0.23 验收](delivery/experience-023/ACCEPTANCE.md)、[架构选择](delivery/experience-023/ARCHITECTURE.md) 和 [状态](delivery/experience-023/STATUS.md)。以下发行主线和历史证据保持原样。
+
+## 0.21（564）发行收口
 
 本分支目标 main，当前裁决 HOLD。最终依据为 [统一 STATUS](delivery/release-021/STATUS.md) 和 `evidence/release-021`。以下为继承的历史记录，不能冒充本轮最终 SHA 验收。
 

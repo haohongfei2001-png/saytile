@@ -26,7 +26,7 @@ def seconds(cpu_time):
     return int(minutes) * 60 + float(secs)
 
 
-def public_run(app, manifest, sample_id, weights, audio, out, profile=False, trace=False, model="qwen-small", automatic=True):
+def public_run(app, manifest, sample_id, weights, audio, out, profile=False, trace=False, model="qwen-small", automatic=True, window_observer=None):
     meta = plistlib.loads((app / "Contents/Info.plist").read_bytes())
     row = next(r for r in json.loads(manifest.read_text())["samples"] if r["id"] == sample_id)
     wav = audio / (sample_id + ".wav")
@@ -42,6 +42,10 @@ def public_run(app, manifest, sample_id, weights, audio, out, profile=False, tra
             start = time.monotonic()
             p = subprocess.Popen([app / "Contents/MacOS/Saytile", "--data-directory", data,
                                   "--local-stream-probe", "auto" if automatic else model, *(["--performance-trace"] if trace else [])], stdout=log, stderr=log)
+            observer = None
+            if window_observer:
+                observer_log = (out / "owned-windows.jsonl").open("wb")
+                observer = subprocess.Popen([window_observer, str(p.pid)], stdout=observer_log)
             samples, children, last_cpu = [], set(), {}
             profiles = {}
             try:
@@ -88,6 +92,13 @@ def public_run(app, manifest, sample_id, weights, audio, out, profile=False, tra
                 if p.poll() is None:
                     p.terminate()
                     p.wait(timeout=4)
+                if observer:
+                    try:
+                        observer.wait(timeout=4)
+                    except subprocess.TimeoutExpired:
+                        observer.terminate()
+                        observer.wait(timeout=4)
+                    observer_log.close()
                 if profile:
                     statuses = []
                     for pid, (sampler, profile_log, command) in profiles.items():
@@ -150,4 +161,5 @@ if __name__ == "__main__":
     cli.add_argument("--trace", action="store_true", help="Collect bounded stage timings inside the disposable replay")
     cli.add_argument("--model", choices=["qwen-small", "nemotron-metal"], default="qwen-small")
     cli.add_argument("--manual", action="store_false", dest="automatic", help="Select the requested research engine explicitly")
+    cli.add_argument("--window-observer", type=Path, help="Diagnostic only: owned window metadata observer; never touches focus or input")
     public_run(**vars(cli.parse_args()))

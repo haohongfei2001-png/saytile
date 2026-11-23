@@ -1,0 +1,29 @@
+{
+  "verdict": "HOLD",
+  "recommended_chinese_route": "Qwen3-ASR 0.6B MLX 4-bit plus display-only provisional preview",
+  "nemotron_promotion": "NO-GO: fixed Chinese quality materially worse",
+  "source": "5ebff045ff10c34dbbe12ce5235e3cef4f6d07a0",
+  "version": "0.23",
+  "build": "569",
+  "no_runtime_changes_after_product_source": true,
+  "checks": {
+    "15_realtime_cer": "PASS 8.10% unchanged",
+    "420_product_cer": "PASS 8.53% unchanged",
+    "same_candidate_preview_delay": "PASS 1.971s to 1.526s",
+    "ordinary_contention_pairs": "PASS useful gap reduced in all 3; one still 2.057s",
+    "first_output_non_regression": "FAIL",
+    "old_word_oscillation_reduction": "FAIL, increases under provisional policy",
+    "native_soaks": "PASS both 905s",
+    "additional_native_final_visibility": "FAIL in 1 of 18 arms; original cause UNKNOWN",
+    "full_xcode_ci": "PASS on product SHA, 573 Swift Testing + 30 XCTest",
+    "foreground_ownership": "PASS on product SHA in macOS CI",
+    "signature_and_isolated_launch": "PASS",
+    "notarization": "NOT_RUN, task prohibited",
+    "gatekeeper": "BLOCKED Unnotarized Developer ID",
+    "microphone": "NOT_RUN, lid closed",
+    "cloud_and_paid_APIs": "NOT_RUN"
+  },
+  "dmg": "/Users/hhf/Documents/GitHub/saytile/dist/internal-0.23-569/Saytile-0.23-569-arm64.dmg",
+  "dmg_sha256": "591792812e40bea333ed2e1df377a7226c4171335bc99b211488efb21fb7c5ed",
+  "installed_533_sha256": "d711d1cab97d0ff20e23129269b8d72989db2e5258f659d49276f77cf9ab4737"
+}

@@ -1,0 +1,55 @@
+{
+  "source": "5ebff045ff10c34dbbe12ce5235e3cef4f6d07a0",
+  "runs": [
+    {
+      "id": 45149564404,
+      "name": "native",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/45149564404"
+    },
+    {
+      "id": 45149564417,
+      "name": "design",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/45149564417"
+    },
+    {
+      "id": 45149564664,
+      "name": "cloud-mock",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/45149564664"
+    },
+    {
+      "id": 45149564411,
+      "name": "black-brand",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/haohongfei2001-png/saytile/actions/runs/45149564411"
+    }
+  ],
+  "swift_testing": {
+    "total": 573,
+    "passed": 573,
+    "failed": 0
+  },
+  "xctest": {
+    "total": 30,
+    "passed": 30,
+    "failed": 0
+  },
+  "app_model_checks": 220,
+  "foreground_artifact": 14805968243,
+  "notes": [
+    "No skipped assertions introduced",
+    "Cloud workflow is mock validation, not a real provider or private account claim",
+    "Local environment lacks full Xcode; full Swift Testing ran in macOS CI"
+  ],
+  "log_sha256": {
+    "ci-foreground.log.gz": "7cd9adb82a8106921f25b0ff4289405330100364834cdac19ffb8149326cb949",
+    "ci-native.log.gz": "b61d12da32bce4c1613178746097c22ae533d9da0f372e7fb82ca7d616a29212",
+    "ci-swift-tests.log.gz": "88acc649b888bbaf5f75bbf0a1b0fa139e80f30e8ec42b048a6379953ddde97f"
+  }
+}

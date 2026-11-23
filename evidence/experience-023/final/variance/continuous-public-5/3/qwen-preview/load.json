@@ -1,0 +1,44 @@
+{
+  "workers": [
+    {
+      "pid": 76286,
+      "cpu_s": 29.462081,
+      "wall_s": 44.185847,
+      "periods": 737,
+      "checksum": 10238966161777641753,
+      "actual_cores": 0.66678
+    },
+    {
+      "pid": 76287,
+      "cpu_s": 29.461345,
+      "wall_s": 44.184221,
+      "periods": 737,
+      "checksum": 14271487905847660825,
+      "actual_cores": 0.66678
+    }
+  ],
+  "failures": [],
+  "qos": "userInitiated",
+  "period_s": 0.06,
+  "cpu_target_per_period_s": 0.04,
+  "target_cores": 1.3333333333333333,
+  "observed_cores": 1.3336,
+  "target_met": true,
+  "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+  "before": {
+    "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+    "load_average": [
+      7.02685546875,
+      5.412109375,
+      5.01171875
+    ]
+  },
+  "after": {
+    "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+    "load_average": [
+      6.09130859375,
+      5.37451171875,
+      5.015625
+    ]
+  }
+}

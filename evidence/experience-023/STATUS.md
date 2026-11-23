@@ -1,16 +1,21 @@
-# 0.23 experience prototype — IN PROGRESS / HOLD
+# 0.23（569）experience prototype — Draft / HOLD
 
-Independent branch `codex/experience-preview-023`, based on PR53 `0ba33940788ff3b74af38c6f24e47d4e5c1afeba` (product `a90601b`). PR52 and installed 0.20(533) remain unchanged.
+Product source: `5ebff045ff10c34dbbe12ce5235e3cef4f6d07a0`.
+Branch: `codex/experience-preview-023`; Draft PR #54, based on PR #53.
 
-Scope: existing Qwen 0.6B vs Nemotron 3.5 MLX 8-bit only, same public 15 wall-paced and 420 corpus. No new ASR, Metal experiment, private recordings, installation, notarization or release.
+Authoritative result: [STATUS](../../docs/delivery/experience-023/STATUS.md), [ACCEPTANCE](../../docs/delivery/experience-023/ACCEPTANCE.md), [ARCHITECTURE](../../docs/delivery/experience-023/ARCHITECTURE.md).
 
-Prototype: bypass only the whole-hypothesis *reading* gate for provisional rolling Qwen previews. Same-length isolated tail flips still require another observation. Every preview is the actual model hypothesis (except the existing terminal-period suppression); zero dispatch length until final. Existing Store ownership, raw audio and user edits stay protected. Partial text uses a lighter ink; final/user-edit text remains normal ink. The 0.22 gate remains available solely for exact offline paired replay.
+- `setup/`: pinned model card, SHA-256 checks, fixed manifests, contaminated-run disclosure and original download failure.
+- `native/`: original 0.22 / provisional 568 / Nemotron auto-prompt observations; first three contaminated timings retained and repeated in `repeated4`.
+- `replay/`: identical raw candidates through both publication policies. No new inference or invented words.
+- `final/paired16/`: signed 569, explicit-model two-route real-rate comparison, fifteen clips plus 38.8-second long fixture. Owned-view PNGs included.
+- `final/product440-*.jsonl`: full product quality; original 420 plus separately scored 20 variants.
+- `final/soak-*.json`: 905-second native use, original audio checksum, SQLite integrity, idle unload/resume.
+- `final/variance/`: three paired observations per selected case, 17 complete + 1 failed. Failed visible final retained, never skipped or retried into PASS.
+- `final/surface-replay.json`, `window-diagnostic/`: bounded diagnostic follow-ups, not proof that the original observation failure was repaired.
+- `final/ci*`, `foreground/`, `failures/`: same-product CI and retained earlier failures.
+- `final/package.json`: exact signed binary, DMG hash, Gatekeeper rejection, isolated offline launch and unchanged installed 533 hash.
 
-Model download fixed to existing manifest and SHA-256; one small-file TLS failure retained in setup/download-first-attempt.log, followed by a bounded retry. Never enable unchecked partial weights.
+Qwen is the better tested Chinese route: 15-clip CER 8.10%, full 420 CER 8.53%. Nemotron explicit Chinese: 32.75% / 25.44%; not promoted to the consumer default. Provisional previews improve long-utterance waiting but increase some old-word oscillations; first-output non-regression remains FAIL. Five old failed empty subsegments remain failed and retryable with audio, not relabeled completed.
 
-NOT_RUN: current prototype native acceptance, corpus comparison, CI. Mac lid stays closed; live microphone NOT_RUN. P2 artificial 5.33-core stress is not this prototype's only product gate.
-
-## Confirmed adapter defect
-The pinned Nemotron `languages.json` has `zh-CN:4`, `zh-TW:5`, `auto:101`, and no `zh`. Upstream `NemotronLanguages.slot(for:)` silently falls back to auto for the existing `createSession(language:"zh")`. Both initial and reset sessions now use the explicit available `zh-CN`; a missing tag fails configuration. Original auto-prompt real-time results remain in `native/paired16` and `native/repeated4`. They are pre-fix evidence, not the corrected model's score.
-
-0.23(568) prototype product SHA `d68c43a` is signed and native-tested. The only later changes before the adapter correction were tests/tools/evidence; a rebuild refused to overwrite its custom path, leaving that bundle unchanged. 0.23(569) will contain the explicit-language fix. No production installation.
+No installation, notarization, merge, public release, private audio access, paid API calls, or change to main/533. Live microphone and real cloud service verification remain NOT_RUN.

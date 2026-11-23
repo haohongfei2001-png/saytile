@@ -1,0 +1,106 @@
+[
+  {
+    "label": "paired16",
+    "command": [
+      "python3",
+      "scripts/mandarin/compare-experience.py",
+      "--two-routes",
+      "--candidate",
+      "/tmp/saytile-023-569/Saytile.app",
+      "--baseline",
+      "/private/tmp/saytile-022-final/Saytile.app",
+      "--manifest",
+      "evidence/experience-023/setup/panel16.json",
+      "--weights",
+      "/private/tmp/saytile-023-weights",
+      "--audio",
+      "/private/tmp/saytile-release-021/.build/mandarin/wav",
+      "--out",
+      "/private/tmp/saytile-experience-023/evidence/experience-023/final/paired16"
+    ],
+    "cwd": "/private/tmp/saytile-experience-023",
+    "start": 1795427200.7460978,
+    "end": 1795427592.6928031,
+    "exit": 0
+  },
+  {
+    "label": "product440-nemotron-metal",
+    "command": [
+      "/private/tmp/saytile-023-cohort",
+      "nemotron-metal",
+      "product",
+      "/private/tmp/saytile-023-input440.json",
+      "/private/tmp/saytile-release-021/.build/mandarin/wav",
+      "/private/tmp/saytile-023-weights",
+      "/tmp/saytile-023-569/Saytile.app/Contents/Helpers",
+      "/private/tmp/saytile-experience-023/evidence/experience-023/final/product440-nemotron-metal.jsonl"
+    ],
+    "cwd": "/tmp/saytile-023-569/Saytile.app/Contents/Resources",
+    "start": 1795427592.6934369,
+    "end": 1795427816.5052822,
+    "exit": 0
+  },
+  {
+    "label": "product440-qwen-small",
+    "command": [
+      "/private/tmp/saytile-023-cohort",
+      "qwen-small",
+      "product",
+      "/private/tmp/saytile-023-input440.json",
+      "/private/tmp/saytile-release-021/.build/mandarin/wav",
+      "/private/tmp/saytile-023-weights",
+      "/tmp/saytile-023-569/Saytile.app/Contents/Helpers",
+      "/private/tmp/saytile-experience-023/evidence/experience-023/final/product440-qwen-small.jsonl"
+    ],
+    "cwd": "/tmp/saytile-023-569/Saytile.app/Contents/Resources",
+    "start": 1795427816.50721,
+    "end": 1795428101.0783832,
+    "exit": 0
+  },
+  {
+    "label": "soak-qwen-small",
+    "command": [
+      "python3",
+      "scripts/mandarin/quality-soak.py",
+      "--app",
+      "/tmp/saytile-023-569/Saytile.app",
+      "--weights",
+      "/private/tmp/saytile-023-weights",
+      "--wav",
+      "/private/tmp/saytile-release-021/.build/mandarin/wav",
+      "--manifest",
+      "evidence/mandarin/panel-cohort.json",
+      "--output",
+      "/private/tmp/saytile-experience-023/evidence/experience-023/final/soak-qwen-small.json",
+      "--model",
+      "qwen-small"
+    ],
+    "cwd": "/private/tmp/saytile-experience-023",
+    "start": 1795428101.081033,
+    "end": 1795429008.381056,
+    "exit": 0
+  },
+  {
+    "label": "soak-nemotron-metal",
+    "command": [
+      "python3",
+      "scripts/mandarin/quality-soak.py",
+      "--app",
+      "/tmp/saytile-023-569/Saytile.app",
+      "--weights",
+      "/private/tmp/saytile-023-weights",
+      "--wav",
+      "/private/tmp/saytile-release-021/.build/mandarin/wav",
+      "--manifest",
+      "evidence/mandarin/panel-cohort.json",
+      "--output",
+      "/private/tmp/saytile-experience-023/evidence/experience-023/final/soak-nemotron-metal.json",
+      "--model",
+      "nemotron-metal"
+    ],
+    "cwd": "/private/tmp/saytile-experience-023",
+    "start": 1795429008.381584,
+    "end": 1795429914.751353,
+    "exit": 0
+  }
+]

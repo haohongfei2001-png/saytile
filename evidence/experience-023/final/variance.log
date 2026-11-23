@@ -1,0 +1,16 @@
+{"source": "a90601b79e59333c97982e200dfb69e541c2bf95", "build": "567", "sample": "ascend-mixed-a0b0e736637c643c", "model": "qwen-small", "automatic": false, "audio_sha256": "c96f2ee1f508089189a0c55df4aa9fa8ff7e0e1d100114193cfcfe249b2ffe18", "wall_s": 10.281, "app_cpu_s": 1.0, "workers_cpu_s": 2.44, "combined_cpu_s": 3.44, "process_equivalent_cores": 0.3346, "input_s": 9.16, "end_of_file": 9.16341849998571, "peak_simultaneous_footprint_MiB": 1266.9, "computes": 17, "preview_compute_wall_s": 2.373}
+{"source": "5ebff045ff10c34dbbe12ce5235e3cef4f6d07a0", "build": "569", "sample": "ascend-mixed-a0b0e736637c643c", "model": "qwen-small", "automatic": false, "audio_sha256": "c96f2ee1f508089189a0c55df4aa9fa8ff7e0e1d100114193cfcfe249b2ffe18", "wall_s": 10.314, "app_cpu_s": 1.04, "workers_cpu_s": 2.65, "combined_cpu_s": 3.69, "process_equivalent_cores": 0.3578, "input_s": 9.16, "end_of_file": 9.162489041686058, "peak_simultaneous_footprint_MiB": 1047.5, "computes": 17, "preview_compute_wall_s": 2.82}
+{"source": "5ebff045ff10c34dbbe12ce5235e3cef4f6d07a0", "build": "569", "sample": "ascend-mixed-a0b0e736637c643c", "model": "qwen-small", "automatic": false, "audio_sha256": "c96f2ee1f508089189a0c55df4aa9fa8ff7e0e1d100114193cfcfe249b2ffe18", "wall_s": 10.686, "app_cpu_s": 0.98, "workers_cpu_s": 2.85, "combined_cpu_s": 3.83, "process_equivalent_cores": 0.3584, "input_s": 9.16, "end_of_file": 9.162783124949783, "peak_simultaneous_footprint_MiB": 1216.3, "computes": 17, "preview_compute_wall_s": 2.6}
+{"source": "a90601b79e59333c97982e200dfb69e541c2bf95", "build": "567", "sample": "ascend-mixed-a0b0e736637c643c", "model": "qwen-small", "automatic": false, "audio_sha256": "c96f2ee1f508089189a0c55df4aa9fa8ff7e0e1d100114193cfcfe249b2ffe18", "wall_s": 10.334, "app_cpu_s": 1.05, "workers_cpu_s": 2.45, "combined_cpu_s": 3.5, "process_equivalent_cores": 0.3387, "input_s": 9.16, "end_of_file": 9.163034958357457, "peak_simultaneous_footprint_MiB": 1338.6, "computes": 17, "preview_compute_wall_s": 2.217}
+{"source": "a90601b79e59333c97982e200dfb69e541c2bf95", "build": "567", "sample": "ascend-mixed-a0b0e736637c643c", "model": "qwen-small", "automatic": false, "audio_sha256": "c96f2ee1f508089189a0c55df4aa9fa8ff7e0e1d100114193cfcfe249b2ffe18", "wall_s": 10.255, "app_cpu_s": 1.14, "workers_cpu_s": 2.21, "combined_cpu_s": 3.35, "process_equivalent_cores": 0.3267, "input_s": 9.16, "end_of_file": 9.162407791649457, "peak_simultaneous_footprint_MiB": 1242.5, "computes": 17, "preview_compute_wall_s": 2.172}
+Traceback (most recent call last):
+  File "/private/tmp/saytile-experience-023/scripts/mandarin/check-preview-variance.py", line 59, in <module>
+    main()
+    ~~~~^^
+  File "/private/tmp/saytile-experience-023/scripts/mandarin/check-preview-variance.py", line 48, in main
+    measure(**kwargs)
+    ~~~~~~~^^^^^^^^^^
+  File "/private/tmp/saytile-experience-023/scripts/mandarin/measure-preview-cost.py", line 123, in public_run
+    assert receipt["frames"][-1]["text"] == "".join(reversed(receipt["archive"]))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

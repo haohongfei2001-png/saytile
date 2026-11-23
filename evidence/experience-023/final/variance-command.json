@@ -1,0 +1,21 @@
+{
+  "command": [
+    "python3",
+    "scripts/mandarin/check-preview-variance.py",
+    "--baseline",
+    "/private/tmp/saytile-022-final/Saytile.app",
+    "--candidate",
+    "/tmp/saytile-023-569/Saytile.app",
+    "--manifest",
+    "evidence/experience-023/setup/panel16.json",
+    "--weights",
+    "/private/tmp/saytile-023-weights",
+    "--audio",
+    "/private/tmp/saytile-release-021/.build/mandarin/wav",
+    "--load-helper",
+    "/private/tmp/saytile-021-cpu-load",
+    "--out",
+    "/private/tmp/saytile-experience-023/evidence/experience-023/final/variance"
+  ],
+  "exit": 1
+}

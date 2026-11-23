@@ -1,0 +1,173 @@
+{
+  "qwen-small": {
+    "rows": 420,
+    "failures": {
+      "empty_rows": 0,
+      "rows_with_failed_segment": 5
+    },
+    "literal_anchors": {
+      "number": {
+        "literal_matched": 206,
+        "reference_occurrences": 249
+      },
+      "negative": {
+        "literal_matched": 110,
+        "reference_occurrences": 112
+      },
+      "latin": {
+        "literal_matched": 148,
+        "reference_occurrences": 237
+      },
+      "date_time": {
+        "literal_matched": 41,
+        "reference_occurrences": 41
+      },
+      "technical_term": {
+        "literal_matched": 11,
+        "reference_occurrences": 11
+      },
+      "money": {
+        "literal_matched": 11,
+        "reference_occurrences": 11
+      }
+    },
+    "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 134,
+      "mer": 0.11492281303602059
+    },
+    "groups": {
+      "fleurs": {
+        "errors": 571,
+        "substitutions": 240,
+        "deletions": 266,
+        "insertions": 65,
+        "reference_units": 6260,
+        "cer": 0.09121,
+        "rows": 160
+      },
+      "ALL": {
+        "errors": 910,
+        "substitutions": 407,
+        "deletions": 387,
+        "insertions": 116,
+        "reference_units": 10663,
+        "cer": 0.08534,
+        "rows": 420
+      },
+      "ascend-zh": {
+        "errors": 53,
+        "substitutions": 27,
+        "deletions": 14,
+        "insertions": 12,
+        "reference_units": 934,
+        "cer": 0.05675,
+        "rows": 80
+      },
+      "ascend-mixed": {
+        "errors": 225,
+        "substitutions": 103,
+        "deletions": 83,
+        "insertions": 39,
+        "reference_units": 2004,
+        "cer": 0.11228,
+        "rows": 80
+      },
+      "aishell1-test": {
+        "errors": 61,
+        "substitutions": 37,
+        "deletions": 24,
+        "insertions": 0,
+        "reference_units": 1465,
+        "cer": 0.04164,
+        "rows": 100
+      }
+    }
+  },
+  "nemotron-metal": {
+    "rows": 420,
+    "failures": {
+      "empty_rows": 7,
+      "rows_with_failed_segment": 12
+    },
+    "literal_anchors": {
+      "number": {
+        "literal_matched": 184,
+        "reference_occurrences": 249
+      },
+      "negative": {
+        "literal_matched": 105,
+        "reference_occurrences": 112
+      },
+      "latin": {
+        "literal_matched": 16,
+        "reference_occurrences": 237
+      },
+      "date_time": {
+        "literal_matched": 38,
+        "reference_occurrences": 41
+      },
+      "technical_term": {
+        "literal_matched": 10,
+        "reference_occurrences": 11
+      },
+      "money": {
+        "literal_matched": 10,
+        "reference_occurrences": 11
+      }
+    },
+    "mixed_mer": {
+      "reference_units": 1166,
+      "errors": 379,
+      "mer": 0.32504288164665524
+    },
+    "groups": {
+      "fleurs": {
+        "errors": 1281,
+        "substitutions": 810,
+        "deletions": 408,
+        "insertions": 63,
+        "reference_units": 6260,
+        "cer": 0.20463,
+        "rows": 160
+      },
+      "ALL": {
+        "errors": 2713,
+        "substitutions": 1274,
+        "deletions": 1342,
+        "insertions": 97,
+        "reference_units": 10663,
+        "cer": 0.25443,
+        "rows": 420
+      },
+      "ascend-zh": {
+        "errors": 162,
+        "substitutions": 79,
+        "deletions": 78,
+        "insertions": 5,
+        "reference_units": 934,
+        "cer": 0.17345,
+        "rows": 80
+      },
+      "ascend-mixed": {
+        "errors": 1034,
+        "substitutions": 212,
+        "deletions": 811,
+        "insertions": 11,
+        "reference_units": 2004,
+        "cer": 0.51597,
+        "rows": 80
+      },
+      "aishell1-test": {
+        "errors": 236,
+        "substitutions": 173,
+        "deletions": 45,
+        "insertions": 18,
+        "reference_units": 1465,
+        "cer": 0.16109,
+        "rows": 100
+      }
+    }
+  },
+  "scope": "Fixed original420; literal anchor coverage is reference substring matching, not independently audited semantic entity accuracy. Existing normalization and mixed MER unchanged."
+}
