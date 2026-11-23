@@ -197,6 +197,10 @@ func matchesTextEditDocument(_ identity: String?, expected: URL) -> Bool {
         // The independent DOM probe launches Node and attaches a short-lived
         // DevTools session. Complete fixture setup before measuring a quiet AX
         // binding and issuing the first edit.
+        // Safari restores the initial textarea selection after its autofocus
+        // event. Initialize this synthetic caret exactly once, before binding;
+        // the DOM witness rejects a changed field/focus or any repeated setup.
+        if safari { _ = try await dom("initialize", original) }
         try await checkDOM(original, caret: 7)
         if exerciseFocusTimeout {
             interruptFocus = true

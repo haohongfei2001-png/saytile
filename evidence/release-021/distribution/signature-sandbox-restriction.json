@@ -1,0 +1,97 @@
+{
+  "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+  "version": "0.21",
+  "build": "564",
+  "bundle_id": "app.saytile.mac.mandarin-candidate",
+  "source_dirty": false,
+  "dmg_sha256": "4c86d8cd7a29f7bce4682bf8fd994ab251e1d86f8914c38a470d96426eb13be7",
+  "dmg_bytes": 65600572,
+  "notary_profiles": 0,
+  "actions_secrets": 0,
+  "notarization": "BLOCKED_NO_AUTHORIZATION",
+  "commands": [
+    {
+      "command": [
+        "codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "/private/tmp/saytile-release-021-app/Saytile.app"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "codesign",
+        "--verify",
+        "--strict",
+        "/private/tmp/saytile-release-021-package/Saytile-0.21-564-arm64.dmg"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "codesign",
+        "-dvvv",
+        "/private/tmp/saytile-release-021-app/Saytile.app"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "Executable=/private/tmp/saytile-release-021-app/Saytile.app/Contents/MacOS/Saytile\nIdentifier=app.saytile.mac.mandarin-candidate\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=26222 flags=0x10000(runtime) hashes=808+7 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=be9ad569bc1d4c4d60a280ffa97a5d8a23fa0fe5\nCandidateCDHashFull sha256=be9ad569bc1d4c4d60a280ffa97a5d8a23fa0fe5ebf388470ea1633e9350981b\nHash choices=sha256\nCMSDigest=be9ad569bc1d4c4d60a280ffa97a5d8a23fa0fe5ebf388470ea1633e9350981b\nCMSDigestType=2\nCDHash=be9ad569bc1d4c4d60a280ffa97a5d8a23fa0fe5\nSignature size=9043\nAuthority=Developer ID Application: hongfei hao (ZB9D4T66QB)\nAuthority=Developer ID Certification Authority\nAuthority=Apple Root CA\nTimestamp=Nov 23, 2026 at 10:44:22\nInfo.plist entries=33\nTeamIdentifier=ZB9D4T66QB\nRuntime Version=26.0.0\nSealed Resources version=2 rules=13 files=40\nInternal requirements count=1 size=196\nTotal signatures=1\nChosen signature=1\n"
+    },
+    {
+      "command": [
+        "spctl",
+        "--assess",
+        "--type",
+        "execute",
+        "--verbose=4",
+        "/private/tmp/saytile-release-021-app/Saytile.app"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "/private/tmp/saytile-release-021-app/Saytile.app: internal error in Code Signing subsystem\n"
+    },
+    {
+      "command": [
+        "spctl",
+        "--assess",
+        "--type",
+        "open",
+        "--context",
+        "context:primary-signature",
+        "--verbose=4",
+        "/private/tmp/saytile-release-021-package/Saytile-0.21-564-arm64.dmg"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "/private/tmp/saytile-release-021-package/Saytile-0.21-564-arm64.dmg: internal error in Code Signing subsystem\n"
+    },
+    {
+      "command": [
+        "xcrun",
+        "stapler",
+        "validate",
+        "/private/tmp/saytile-release-021-app/Saytile.app"
+      ],
+      "exit": 66,
+      "stdout": "File /private/tmp/saytile-release-021-app/Saytile.app does not exist. Error Domain=NSCocoaErrorDomain Code=256 \"The file “Saytile.app” couldn’t be opened.\" UserInfo={NSURL=file:///private/tmp/saytile-release-021-app/Saytile.app/, NSFilePath=/private/tmp/saytile-release-021-app/Saytile.app, NSUnderlyingError=0x7c7d11c450 {Error Domain=NSOSStatusErrorDomain Code=-10813 \"kLSDataUnavailableErr: E.g. no kind string\"}}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "xcrun",
+        "stapler",
+        "validate",
+        "/private/tmp/saytile-release-021-package/Saytile-0.21-564-arm64.dmg"
+      ],
+      "exit": 66,
+      "stdout": "File /private/tmp/saytile-release-021-package/Saytile-0.21-564-arm64.dmg does not exist. Error Domain=NSCocoaErrorDomain Code=256 \"The file “Saytile-0.21-564-arm64.dmg” couldn’t be opened.\" UserInfo={NSURL=file:///private/tmp/saytile-release-021-package/Saytile-0.21-564-arm64.dmg, NSFilePath=/private/tmp/saytile-release-021-package/Saytile-0.21-564-arm64.dmg, NSUnderlyingError=0x79eb424330 {Error Domain=NSOSStatusErrorDomain Code=-10813 \"kLSDataUnavailableErr: E.g. no kind string\"}}\n",
+      "stderr": ""
+    }
+  ]
+}

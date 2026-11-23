@@ -1,0 +1,30 @@
+{
+  "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+  "run": 45102102131,
+  "swift_testing": {
+    "passed": 568,
+    "failed": 0,
+    "groups": [
+      4,
+      13,
+      12,
+      1,
+      8,
+      530
+    ]
+  },
+  "xctest": {
+    "passed": 30,
+    "failed": 0
+  },
+  "foreground": {
+    "AppKit": "PASS",
+    "WKWebView": "PASS",
+    "TextEdit": "PASS",
+    "Chrome": "PASS",
+    "Chrome_focus_timeout": "PASS",
+    "Edge": "PASS",
+    "Safari": "FAIL_fixture_initial_caret_zero_before_binding"
+  },
+  "power": "FAIL_missing_frozen_HostedPaused_source"
+}

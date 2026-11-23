@@ -76,6 +76,17 @@ def public_run(app, manifest, sample_id, weights, audio, out):
                     p.terminate()
                     p.wait(timeout=4)
             elapsed = time.monotonic() - start
+            # Keep the real failure before TemporaryDirectory/TemporaryFile cleanup.
+            # These inputs are exclusively the hash-checked public fixture above.
+            log.seek(0)
+            (out / "native.log").write_bytes(log.read())
+            (out / "process-samples.json").write_text(json.dumps(samples))
+            (out / "invocation.json").write_text(json.dumps(dict(
+                source=meta["SaytileSourceRevision"], build=meta["CFBundleVersion"],
+                sample=sample_id, audio_sha256=row["audio_sha256"],
+                exit_code=p.returncode, elapsed_s=elapsed)))
+            if (data / "visible.json").exists():
+                shutil.copyfile(data / "visible.json", out / "visible-raw.json")
             assert p.returncode == 0, p.returncode
         receipt = json.loads((data / "visible.json").read_text())
         assert receipt["sha"] == meta["SaytileSourceRevision"]

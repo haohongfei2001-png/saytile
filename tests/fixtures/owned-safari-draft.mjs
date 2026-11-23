@@ -11,7 +11,11 @@ function check({documentURL, action, expected}) {
   if (!(field instanceof HTMLTextAreaElement) || !(other instanceof HTMLTextAreaElement)) throw Error('Unknown draft');
   if (action !== 'state') {
     if (field !== document.activeElement || field.value !== expected || other.value !== 'OTHER') throw Error('Setup target changed');
-    if (action === 'collapse') field.setSelectionRange(15, 15);
+    if (action === 'initialize') {
+      if (expected !== 'PREFIX|SUFFIX' || window.sawFirst || window.saytileCaretInitialized) throw Error('Initialization already ended');
+      window.saytileCaretInitialized = true;
+      field.setSelectionRange(7, 7);
+    } else if (action === 'collapse') field.setSelectionRange(15, 15);
     else if (action === 'manualEdit') {
       field.setRangeText('EDITED', 0, 6, 'preserve');
       field.dispatchEvent(new InputEvent('input', {bubbles:true,inputType:'insertText'}));
