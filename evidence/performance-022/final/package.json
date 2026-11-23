@@ -1,0 +1,207 @@
+{
+  "source": "a90601b79e59333c97982e200dfb69e541c2bf95",
+  "version": "0.22",
+  "build": "567",
+  "bundle_id": "app.saytile.mac.mandarin-candidate",
+  "verdict": "HOLD / performance NO-GO",
+  "notarization": "NOT_RUN: explicitly prohibited for this task",
+  "commands": [
+    {
+      "command": [
+        "codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "/tmp/saytile-022-final/Saytile.app"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "codesign",
+        "-dvv",
+        "/tmp/saytile-022-final/Saytile.app"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "Executable=/private/tmp/saytile-022-final/Saytile.app/Contents/MacOS/Saytile\nIdentifier=app.saytile.mac.mandarin-candidate\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=26286 flags=0x10000(runtime) hashes=810+7 location=embedded\nSignature size=9043\nAuthority=Developer ID Application: hongfei hao (ZB9D4T66QB)\nAuthority=Developer ID Certification Authority\nAuthority=Apple Root CA\nTimestamp=Nov 23, 2026 at 14:28:05\nInfo.plist entries=33\nTeamIdentifier=ZB9D4T66QB\nRuntime Version=26.0.0\nSealed Resources version=2 rules=13 files=40\nInternal requirements count=1 size=196\nTotal signatures=1\nChosen signature=1\n"
+    },
+    {
+      "command": [
+        "ditto",
+        "/tmp/saytile-022-final/Saytile.app",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/payload/Saytile.app"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "hdiutil",
+        "create",
+        "-volname",
+        "Saytile 0.22 (567)",
+        "-srcfolder",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/payload",
+        "-format",
+        "UDZO",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/candidate.dmg"
+      ],
+      "exit_code": 0,
+      "stdout": "created: /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/candidate.dmg\n",
+      "stderr": "hdiutil: WARNING: 'hdiutil create -volname -format ...' is deprecated. Please use 'diskutil image create from/blank --volumeName --format ...' instead.\n"
+    },
+    {
+      "command": [
+        "codesign",
+        "--force",
+        "--timestamp",
+        "--sign",
+        "92B7E50A1D43D247EA7EA19A31DCA3E407435A42",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/candidate.dmg"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "codesign",
+        "--verify",
+        "--strict",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/candidate.dmg"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "hdiutil",
+        "verify",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/candidate.dmg"
+      ],
+      "exit_code": 0,
+      "stdout": "正在检查“Protective Master Boot Record（MBR：0）”的校验和…\nProtective Master Boot Record（MBR：0）：已验证CRC32 $50517D12\n正在检查“GPT Header（Primary GPT Header：1）”的校验和…\n    GPT Header（Primary GPT Header：1）：已验证CRC32 $819FA4AC\n正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…\nGPT Partition Data（Primary GPT Table：已验证CRC32 $A5C856BF\n正在检查“（Apple_Free：3）”的校验和…\n                      （Apple_Free：3）：已验证CRC32 $00000000\n正在检查“disk image（Apple_APFS：4）”的校验和…\n            disk image（Apple_APFS：4）：已验证CRC32 $4E39CD49\n正在检查“（Apple_Free：5）”的校验和…\n                      （Apple_Free：5）：已验证CRC32 $00000000\n正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…\nGPT Partition Data（Backup GPT Table：：已验证CRC32 $A5C856BF\n正在检查“GPT Header（Backup GPT Header：7）”的校验和…\n     GPT Header（Backup GPT Header：7）：已验证CRC32 $11357D5C\n已验证CRC32 $EE46FBA7\n",
+      "stderr": "hdiutil: verify: checksum of \"/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/candidate.dmg\" is VALID\n"
+    },
+    {
+      "command": [
+        "hdiutil",
+        "attach",
+        "-readonly",
+        "-nobrowse",
+        "-mountpoint",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/mounted",
+        "/Users/hhf/Documents/GitHub/saytile/dist/internal-0.22-567/Saytile-0.22-567-arm64.dmg"
+      ],
+      "exit_code": 0,
+      "stdout": "正在检查“Protective Master Boot Record（MBR：0）”的校验和…\nProtective Master Boot Record（MBR：0）：已验证CRC32 $50517D12\n正在检查“GPT Header（Primary GPT Header：1）”的校验和…\n    GPT Header（Primary GPT Header：1）：已验证CRC32 $819FA4AC\n正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…\nGPT Partition Data（Primary GPT Table：已验证CRC32 $A5C856BF\n正在检查“（Apple_Free：3）”的校验和…\n                      （Apple_Free：3）：已验证CRC32 $00000000\n正在检查“disk image（Apple_APFS：4）”的校验和…\n            disk image（Apple_APFS：4）：已验证CRC32 $4E39CD49\n正在检查“（Apple_Free：5）”的校验和…\n                      （Apple_Free：5）：已验证CRC32 $00000000\n正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…\nGPT Partition Data（Backup GPT Table：：已验证CRC32 $A5C856BF\n正在检查“GPT Header（Backup GPT Header：7）”的校验和…\n     GPT Header（Backup GPT Header：7）：已验证CRC32 $11357D5C\n已验证CRC32 $EE46FBA7\n/dev/disk4          \tGUID_partition_scheme          \t\n/dev/disk4s1        \tApple_APFS                     \t\n/dev/disk5          \tEF57347C-0000-11AA-AA11-0030654\t\n/dev/disk5s1        \t41504653-0000-11AA-AA11-0030654\t/private/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/mounted\n",
+      "stderr": "hdiutil: WARNING: 'hdiutil attach -readonly -nobrowse -mountpoint ...' is deprecated. Please use 'diskutil image attach --readOnly --mountOptions nobrowse --mountPoint ...' instead.\n"
+    },
+    {
+      "command": [
+        "codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/mounted/Saytile.app"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "ditto",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/mounted/Saytile.app",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/isolated-install/Saytile.app"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/isolated-install/Saytile.app"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "sandbox-exec",
+        "-p",
+        "(version 1)(allow default)(deny network*)",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/isolated-install/Saytile.app/Contents/MacOS/Saytile",
+        "--data-directory",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/isolated-data",
+        "--smoke-test"
+      ],
+      "exit_code": 0,
+      "stdout": "SAYTILE_SMOKE_OK records=0 microphone=已允许 bundled_sample_bytes=200706\n",
+      "stderr": "sandbox_extension_issue_file_to_process failed for /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/isolated-install/Saytile.app: 1 (Operation not permitted)\n"
+    },
+    {
+      "command": [
+        "hdiutil",
+        "detach",
+        "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-022-image-8kj19puy/mounted"
+      ],
+      "exit_code": 0,
+      "stdout": "\"disk4\" ejected.\n",
+      "stderr": "hdiutil: WARNING: 'hdiutil detach ...' is deprecated. Please use 'diskutil eject ...' instead.\n"
+    },
+    {
+      "command": [
+        "spctl",
+        "--assess",
+        "--type",
+        "execute",
+        "--verbose=4",
+        "/tmp/saytile-022-final/Saytile.app"
+      ],
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "/tmp/saytile-022-final/Saytile.app: rejected\nsource=Unnotarized Developer ID\n"
+    },
+    {
+      "command": [
+        "spctl",
+        "--assess",
+        "--type",
+        "open",
+        "--context",
+        "context:primary-signature",
+        "--verbose=4",
+        "/Users/hhf/Documents/GitHub/saytile/dist/internal-0.22-567/Saytile-0.22-567-arm64.dmg"
+      ],
+      "exit_code": 3,
+      "stdout": "",
+      "stderr": "/Users/hhf/Documents/GitHub/saytile/dist/internal-0.22-567/Saytile-0.22-567-arm64.dmg: rejected\nsource=Unnotarized Developer ID\n"
+    }
+  ],
+  "installed_app_modified": false,
+  "executable_sha256": "dadd2fc9d5b066b72a46e5ed286e295e8e71969166f44432abde6c323754eaa3",
+  "worker_sha256": "a1481a7bcead7e8ed8adc82a2804a040b923ffbe9459f9e3ce6cbc0187707a34",
+  "isolated_install_startup": "PASS, copied from exact final DMG, disposable empty data, network denied",
+  "gatekeeper_app": {
+    "status": "REJECTED",
+    "evidence": "/tmp/saytile-022-final/Saytile.app: rejected\nsource=Unnotarized Developer ID"
+  },
+  "gatekeeper_dmg": {
+    "status": "REJECTED",
+    "evidence": "/Users/hhf/Documents/GitHub/saytile/dist/internal-0.22-567/Saytile-0.22-567-arm64.dmg: rejected\nsource=Unnotarized Developer ID"
+  },
+  "dmg": "/Users/hhf/Documents/GitHub/saytile/dist/internal-0.22-567/Saytile-0.22-567-arm64.dmg",
+  "dmg_sha256": "b81fa67571c956186734063be1e555223e7814dfd32d3fa54049ce829438de94",
+  "dmg_bytes": 64535471
+}

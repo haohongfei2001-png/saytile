@@ -1,0 +1,120 @@
+{
+  "source": "a90601b79e59333c97982e200dfb69e541c2bf95",
+  "version": "0.22 (567)",
+  "verdict": "NO-GO / Draft / HOLD",
+  "date": "2026-11-23 Asia/Shanghai",
+  "optimization_admitted": false,
+  "experiments": {
+    "H1": "FAIL: two valid pairs with conflicting results; three invalid pairs retained",
+    "H2": "FAIL: three valid pairs, no repeatable latency or CPU benefit, reverted"
+  },
+  "accuracy": {
+    "status": "PASS",
+    "normal15": {
+      "errors": 46,
+      "substitutions": 11,
+      "deletions": 30,
+      "insertions": 5,
+      "reference_units": 568,
+      "cer": 0.08098591549295775
+    },
+    "original420": {
+      "errors": 910,
+      "substitutions": 407,
+      "deletions": 387,
+      "insertions": 116,
+      "reference_units": 10663,
+      "rows": 420,
+      "cer": 0.08534183625621307
+    },
+    "derived20": {
+      "errors": 65,
+      "substitutions": 29,
+      "deletions": 34,
+      "insertions": 2,
+      "reference_units": 764,
+      "rows": 20,
+      "cer": 0.08507853403141362
+    },
+    "exact_final_text_and_state_matches": 440,
+    "known_failed_segment_rows": 5
+  },
+  "normal_latency": {
+    "status": "NOT_PROVEN_NON_REGRESSION",
+    "display": {
+      "fresh_gaps_s": {
+        "p50": 0.364,
+        "p95": 1.028
+      },
+      "previous_event_gaps_s": {
+        "p50": 0.364,
+        "p95": 1.028
+      },
+      "longest_per_clip_s": {
+        "p50": 1.275,
+        "p95": 1.906
+      },
+      "first_s": {
+        "p50": 0.981,
+        "p95": 1.568
+      },
+      "clips_with_repeated_updates": 15,
+      "number_of_gaps_at_least_2s": 0
+    },
+    "eos": {
+      "p50": 0.194,
+      "p95": 0.374
+    },
+    "historical_baseline_first_p95_s": 1.499,
+    "historical_baseline_fresh_gap_p95_s": 1.02,
+    "historical_baseline_eos_p95_s": 0.284
+  },
+  "stage_trace": {
+    "status": "PASS",
+    "events": 7586,
+    "raw": "trace/auto-qwen-small-continuous-public-5.json.gz",
+    "timeline": "trace/timeline.csv.gz",
+    "summary": "trace/summary.json",
+    "clock": "shared monotonic uptime"
+  },
+  "regressions": {
+    "ci_source": "a90601b79e59333c97982e200dfb69e541c2bf95",
+    "ci_receipt": "ci/receipt.json",
+    "swift_testing": 569,
+    "xctest": 30,
+    "failed_tests": 0,
+    "app_model_checks": 220,
+    "local_storage_process_checks": 18,
+    "foreground": "PASS in disposable macOS CI windows; no private browser content",
+    "rollback": "PASS: synthetic old/new/old/new, network denied"
+  },
+  "distribution": {
+    "signature": "PASS Developer ID with timestamp",
+    "dmg": "Saytile-0.22-567-arm64.dmg",
+    "bytes": 64535471,
+    "sha256": "b81fa67571c956186734063be1e555223e7814dfd32d3fa54049ce829438de94",
+    "gatekeeper_app": {
+      "status": "REJECTED",
+      "evidence": "/tmp/saytile-022-final/Saytile.app: rejected\nsource=Unnotarized Developer ID"
+    },
+    "gatekeeper_dmg": {
+      "status": "REJECTED",
+      "evidence": "/Users/hhf/Documents/GitHub/saytile/dist/internal-0.22-567/Saytile-0.22-567-arm64.dmg: rejected\nsource=Unnotarized Developer ID"
+    },
+    "notarization": "NOT_RUN, prohibited by this task",
+    "installed_533": "UNCHANGED"
+  },
+  "blocked": {
+    "Instruments_TimeProfiler_SystemTrace": "Full Xcode/xctrace absent locally; sample is not a substitute claim",
+    "GPU_ANE_power": "powermetrics needs interactive administrator privilege",
+    "kernel_sleep": "CI host lacks required hardware capability"
+  },
+  "not_run": [
+    "physical microphone (lid closed)",
+    "physical power loss",
+    "live cloud/iCloud/feedback services",
+    "public release/merge/website/feed update",
+    "installer replacement of production app"
+  ],
+  "safety": "One ASR; unchanged publisher/weights/safety assertions; no private recordings, user archive, credentials or paid APIs accessed"
+}

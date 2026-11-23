@@ -1,0 +1,78 @@
+{
+  "source": "a90601b79e59333c97982e200dfb69e541c2bf95",
+  "origin_uptime": 475702.7614925417,
+  "input_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+  "stages": {
+    "ui.timelineRead": {
+      "count": 110,
+      "p50_s": 0.00020616664551198483,
+      "p95_s": 0.0004010000266134739,
+      "maximum_s": 0.0009457083651795983
+    },
+    "capture.converted": {
+      "count": 925,
+      "p50_s": 1.9541708752512932e-05,
+      "p95_s": 3.766670124605298e-05,
+      "maximum_s": 9.675003821030259e-05
+    },
+    "vad.accepted": {
+      "count": 925,
+      "p50_s": 5.9166341088712215e-06,
+      "p95_s": 9.750016033649445e-06,
+      "maximum_s": 5.1291659474372864e-05
+    },
+    "journal.appended": {
+      "count": 1940,
+      "p50_s": 5.708367098122835e-06,
+      "p95_s": 3.6791665479540825e-05,
+      "maximum_s": 0.0009921250166371465
+    },
+    "asr.pipeWritten": {
+      "count": 389,
+      "p50_s": 4.791654646396637e-06,
+      "p95_s": 2.22083181142807e-05,
+      "maximum_s": 0.003388708340935409
+    },
+    "preview.decided": {
+      "count": 71,
+      "p50_s": 2.400000812485814e-05,
+      "p95_s": 0.0005026250146329403,
+      "maximum_s": 0.0036079166457057
+    },
+    "candidate.persisted": {
+      "count": 69,
+      "p50_s": 0.0006842917064204812,
+      "p95_s": 0.0012452916707843542,
+      "maximum_s": 0.002593083307147026
+    },
+    "transcript.persisted": {
+      "count": 69,
+      "p50_s": 0.0010123333777301013,
+      "p95_s": 0.001767833309713751,
+      "maximum_s": 0.003942958312109113
+    },
+    "worker.previewDecode": {
+      "count": 75,
+      "p50_s": 0.1927974166464992,
+      "p95_s": 0.4752972082933411,
+      "maximum_s": 0.6084565416676924
+    },
+    "worker.finalDecode": {
+      "count": 2,
+      "p50_s": 0.2359590000123717,
+      "p95_s": 0.8991490832995623,
+      "maximum_s": 0.8991490832995623
+    }
+  },
+  "helper_queue_lower_bound": {
+    "count": 77,
+    "p50_s": 4.320830339565873e-05,
+    "p95_s": 0.0026375000015832484,
+    "maximum_s": 0.3035362083464861
+  },
+  "withheld": 2,
+  "trace_events": 7586,
+  "clock": "ProcessInfo.systemUptime, shared across owned processes",
+  "physical_microphone": "NOT_RUN",
+  "view_observation_resolution_s": 0.035
+}
