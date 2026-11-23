@@ -50,7 +50,7 @@ Keychain仅查公证元数据（不解密、不读取密码），未发现notary
 
 最终包Developer ID签名，未公证，Gatekeeper如实拒绝；用户本轮允许该分发边界。官网仅下载文案/FAQ/说明及摘要更新；本地headless25项通过，初轮本地HTTP夹具缺少Range导致拖动失败，修正夹具后通过；无生产页面交互变化。
 
-CI 42d8: Swift Testing汇总532项、XCTest30项均0失败；native-brand、design、gateway通过。原生native作业已通过。foreground WKWebView预算耗尽安全拒绝，完整日志保留；另发现遗漏HostedPaused.swift，只恢复原文件。最终CI仍需完成，不把中间绿灯算最终通过。
+CI 42d8: Swift Testing合计579项（47项互斥前置分组+532项最后分组）、XCTest30项均0失败；native-brand、design、gateway通过。原生native作业已通过。foreground WKWebView预算耗尽安全拒绝，完整日志保留；另发现遗漏HostedPaused.swift，只恢复原文件。最终CI仍需完成，不把中间绿灯算最终通过。
 
 ### 最终安装、连续运行与UI边界
 
@@ -59,3 +59,7 @@ CI 42d8: Swift Testing汇总532项、XCTest30项均0失败；native-brand、desi
 ### WK初始服务第二项有界假设
 
 第一项textarea spellcheck/autocorrect关闭无收益：7de2390仍在首次写入前出现NSSpellServer超时，未绑定就读不到完整AX快照。保留失败并撤回这项属性修改。第二项仅在合成前台fixture创建窗口前完成一次固定英文的NSSpellChecker同步请求，使系统服务初始化属于fixture准备，而不是待测输入期间；不延长10秒fixture准备/5秒就绪/150ms AX预算，不重试激活或写入。生产代码完全不变，等待真实CI验证，不预先宣称根因已解决。
+
+### 验收资料校验清单修正
+
+本机verify.py重新运行通过，生成了当前验证报告。4e39的根SHA清单误用了这两个新生成文件的摘要，而历史根报告并未随提交替换；现将本轮报告独立存入release-100/final-verification.json与final-rebuilt-contracts.log，恢复历史原件并重算其清单。原验收资料内容不变，校验错误与修正均保留提交历史。完整原生controls原件独立附于Release，仓库只留必要收据与代表截图。

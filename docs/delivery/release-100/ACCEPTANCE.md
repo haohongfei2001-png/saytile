@@ -51,4 +51,10 @@
 
 最终VoiceUI原样重放旧失败的14条publications，在following/reading/selection/editing/hidden/controlOnly六种模式、180/260/360宽度共18种组合，252项观察全部通过，18项最终与档案相等。没有用户输入或焦点变化；不能据此声称找到了旧观测停更唯一根因。
 
-2fcff81 foreground第二次失败发生在首次写入前；同一WKWebView窗口与光标仍匹配，但AX的editable观察变化，日志同时出现NSSpellServer超时。产品正确拒绝该不完整状态，未写入。TextEdit、Chrome、Edge、Safari和Chrome焦点读取超时的其余真实路径通过。为隔离测试自身引入的OS拼写服务干扰，只在合成WKWebView textarea声明spellcheck=false/autocorrect=off，并在就绪前核对属性；全部原所有权/光标/文字/窗口断言和150ms时限不变，生产输入代码未改。该有明确假设的验证结果待下一次CI，不能提前归因为唯一原因或宣布通过。
+2fcff81 foreground第二次失败发生在首次写入前；同一WKWebView窗口与光标仍匹配，但AX的editable观察变化，日志同时出现NSSpellServer超时。产品正确拒绝该不完整状态，未写入。TextEdit、Chrome、Edge、Safari和Chrome焦点读取超时的其余真实路径通过。第一项合成textarea关闭spellcheck/autocorrect的尝试在7de2390仍然失败，已撤回并保留日志。第二项4e39f0b只在测试窗口创建前调用系统拼写服务一次，把服务准备提前到夹具初始化；所有权、光标、文字、窗口断言以及10秒准备/5秒就绪/150ms AX预算均不变，生产输入代码未改。结果尚待实际CI，不能预先归因为唯一原因。
+
+## 最终签名App的实际控件
+
+本机隔离 --controls 原生验收PASS：56次AXPress、9次菜单选择、2项私有剪贴板复制、1项内联编辑、暂停恢复确认与星标重启保留，原生键盘隔离全部通过。仅操作测试App自己的窗口，不激活用户窗口、不读写系统剪贴板、不打开真实麦克风；收音状态变化用注入捕获回执，不能视为现场设备实测。生产源码/二进制均对应42d8，见native-controls/manifest.json。
+
+CI中Native UI的render-only截图与这份本机controls验收分别记录，不能把0次AXPress的渲染检查当作按钮实测。原生档案和设置截图已实际查看；显示、行文、两按钮与统一设置布局保留原设计。
