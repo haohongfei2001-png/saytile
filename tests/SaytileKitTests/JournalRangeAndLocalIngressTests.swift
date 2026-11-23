@@ -41,6 +41,35 @@ struct JournalRangeAndLocalIngressTests {
         try await store.close()
     }
 
+    @Test(arguments: ["nan", "positive-infinity", "negative-infinity"])
+    func malformedLocalTimingCannotCrashDiagnosticsOrLoseAnEdit(kind: String) async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-invalid-time-" + UUID().uuidString)
+        let store = try SaytileStore(directory: directory)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let record = try await store.createRecording()
+        let journal = try PCMJournal(directory: store.audioDirectory, recordingID: record.id)
+        try journal.openChunk()
+        let pcm = Data(repeating: 42, count: 640)
+        try journal.append(pcm); try journal.closeChunk()
+        try await store.registerAudioChunk(recordingID: record.id, relativePath: journal.relativePath, frames: journal.durableFrames)
+        let ticket = try await store.beginRecognition(recordingID: record.id)
+        let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: .qwen)
+        try await ingress.receive(.init(text: "已有候选", stableUTF16Length: 0, audioEndSeconds: 0.01, isComplete: false))
+        _ = try await store.saveEdit(recordingID: record.id, text: "我的修改，不能丢失")
+        let end: Double = kind == "nan" ? .nan : kind == "positive-infinity" ? .infinity : -.infinity
+        await #expect(throws: FusionError.invalidCandidate) {
+            try await ingress.receive(.init(text: "无效候选", stableUTF16Length: 0, audioEndSeconds: end, isComplete: false))
+        }
+        #expect(try await store.recognitionCandidates(recordingID: record.id).count == 1)
+        #expect(try await store.recording(id: record.id)?.text == "我的修改，不能丢失")
+        #expect(try await store.readPCMRange(ticket: ticket, startFrame: 0, frameCount: 320) == pcm)
+        try await ingress.receive(.init(text: "模型原始定稿", stableUTF16Length: 6, audioEndSeconds: 0.02, isComplete: true))
+        try await ingress.finish()
+        #expect(try await store.recording(id: record.id)?.text == "我的修改，不能丢失")
+        #expect(try await store.recognitionCandidates(recordingID: record.id).count == 2)
+        try await store.close()
+    }
+
     @Test(arguments: ["truncated-header", "wrong-format", "truncated-payload", "symlink", "stale-generation"])
     func rejectsChangedFilesAndRetiredTickets(reason: String) async throws {
         let directory = URL(fileURLWithPath: "/tmp/saytile-local-range-" + UUID().uuidString)

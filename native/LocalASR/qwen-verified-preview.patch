@@ -8,7 +8,7 @@
 +    /// Previews only. Proposals from the same recording must agree with the
 +    /// current audio-conditioned greedy distribution at every accepted position.
 +    public var verifiesPreviewTokens = false
- 
+
      /// If > 0, masks any next-token whose emission would form a repeated
      /// n-gram of this size. `0` disables.
 @@ -130,6 +134,14 @@
@@ -23,22 +23,10 @@
 +        previousPreviewTokens.removeAll()
 +        verifiedPreviewTokenCount = 0
 +    }
- 
+
      /// Tokenizer for decoding output tokens
      private var tokenizer: Qwen3Tokenizer?
-@@ -443,7 +455,10 @@
-             // cancellation. Wait for its buffers to become reusable before
-             // clearing the pool, after the decoder's local arrays are gone.
-             StreamOrDevice.default.stream.synchronize()
--            Memory.clearCache()
-+            // Keep only the caller-bounded spare buffers between live previews.
-+            // No audio embeddings or KV cache survive this invocation. Final,
-+            // first-pass and non-streaming decoding still release the pool.
-+            if !decodingOptions.verifiesPreviewTokens { Memory.clearCache() }
-         }
-         return try generateTextImpl(
-             audioEmbeds: audioEmbeds, textDecoder: textDecoder,
-@@ -529,7 +544,15 @@
+@@ -529,7 +541,15 @@
          // the full logits tensor to CPU for repetition / n-gram / temperature
          // manipulation, which would defeat the overlap.
          let generatedTokens: [Int32]
@@ -55,7 +43,7 @@
              generatedTokens = try Self.generateGreedyAsyncEval(
                  textDecoder: textDecoder,
                  initialLogits: logits,
-@@ -546,6 +569,10 @@
+@@ -546,6 +566,10 @@
                  options: decodingOptions,
                  checkCancellation: checkCancellation
              )
@@ -64,12 +52,12 @@
 +        if decodingOptions.verifiesPreviewTokens {
 +            previousPreviewTokens = generatedTokens
          }
- 
+
          // Decode tokens to text
-@@ -715,6 +742,47 @@
+@@ -715,6 +739,47 @@
          return generatedTokens
      }
- 
+
 +    // Only token IDs survive a preview. The prompt, audio embedding and full
 +    // causal KV cache above are rebuilt from this invocation's PCM.
 +    private static func verifyPreviewTokens(

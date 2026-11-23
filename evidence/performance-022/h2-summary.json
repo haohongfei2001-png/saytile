@@ -1,0 +1,249 @@
+{
+  "valid_pairs": 3,
+  "all_pairs": [
+    {
+      "directory": "evidence/performance-022/h2-pairs",
+      "pair": 1,
+      "arms": {
+        "before": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "load_valid": true,
+          "load_cores": 5.3158,
+          "first_visible_s": 1.041,
+          "longest_visible_gap_s": 2.026,
+          "fresh_gap_p95_s": 1.066,
+          "decode": {
+            "previews": 74,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.188,
+              "p95": 0.413
+            },
+            "preview_compute_sum_s": 16.1358,
+            "preview_start_intervals_s": {
+              "p50": 0.505,
+              "p95": 0.52
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          },
+          "eos_s": 0.471,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 13.67,
+          "app_cpu_s": 1.91,
+          "worker_cpu_s": 11.76,
+          "observed_peak_MiB": 1816.4,
+          "reversals": []
+        },
+        "after": {
+          "source": "de3649b65d9124f927a4a0684e5c056194720179",
+          "load_valid": true,
+          "load_cores": 5.3341,
+          "first_visible_s": 1.171,
+          "longest_visible_gap_s": 2.063,
+          "fresh_gap_p95_s": 1.225,
+          "decode": {
+            "previews": 74,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.194,
+              "p95": 0.557
+            },
+            "preview_compute_sum_s": 17.2203,
+            "preview_start_intervals_s": {
+              "p50": 0.505,
+              "p95": 0.557
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          },
+          "eos_s": 0.302,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 15.5,
+          "app_cpu_s": 2.09,
+          "worker_cpu_s": 13.41,
+          "observed_peak_MiB": 1762.1,
+          "reversals": [
+            {
+              "t": 28.6537,
+              "return_t": 29.6803,
+              "observations": 1,
+              "old": "理石",
+              "transient": "力士",
+              "no_new_tail": false
+            }
+          ]
+        }
+      },
+      "valid": true,
+      "same_final_text": true
+    },
+    {
+      "directory": "evidence/performance-022/h2-pairs",
+      "pair": 2,
+      "arms": {
+        "before": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "load_valid": true,
+          "load_cores": 5.335,
+          "first_visible_s": 0.993,
+          "longest_visible_gap_s": 1.951,
+          "fresh_gap_p95_s": 1.0,
+          "decode": {
+            "previews": 75,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.169,
+              "p95": 0.436
+            },
+            "preview_compute_sum_s": 14.0669,
+            "preview_start_intervals_s": {
+              "p50": 0.505,
+              "p95": 0.515
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          },
+          "eos_s": 0.239,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 12.26,
+          "app_cpu_s": 1.49,
+          "worker_cpu_s": 10.77,
+          "observed_peak_MiB": 1789.8,
+          "reversals": []
+        },
+        "after": {
+          "source": "de3649b65d9124f927a4a0684e5c056194720179",
+          "load_valid": true,
+          "load_cores": 5.3346,
+          "first_visible_s": 1.101,
+          "longest_visible_gap_s": 2.022,
+          "fresh_gap_p95_s": 0.963,
+          "decode": {
+            "previews": 75,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.17,
+              "p95": 0.421
+            },
+            "preview_compute_sum_s": 14.121,
+            "preview_start_intervals_s": {
+              "p50": 0.504,
+              "p95": 0.513
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          },
+          "eos_s": 0.235,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 12.36,
+          "app_cpu_s": 1.6,
+          "worker_cpu_s": 10.76,
+          "observed_peak_MiB": 1891.6,
+          "reversals": []
+        }
+      },
+      "valid": true,
+      "same_final_text": true
+    },
+    {
+      "directory": "evidence/performance-022/h2-pairs",
+      "pair": 3,
+      "arms": {
+        "before": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "load_valid": true,
+          "load_cores": 5.3345,
+          "first_visible_s": 0.992,
+          "longest_visible_gap_s": 1.997,
+          "fresh_gap_p95_s": 0.994,
+          "decode": {
+            "previews": 75,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.157,
+              "p95": 0.453
+            },
+            "preview_compute_sum_s": 13.882,
+            "preview_start_intervals_s": {
+              "p50": 0.506,
+              "p95": 0.513
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          },
+          "eos_s": 0.301,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 12.4,
+          "app_cpu_s": 1.49,
+          "worker_cpu_s": 10.91,
+          "observed_peak_MiB": 1833.1,
+          "reversals": []
+        },
+        "after": {
+          "source": "de3649b65d9124f927a4a0684e5c056194720179",
+          "load_valid": true,
+          "load_cores": 5.3336,
+          "first_visible_s": 1.013,
+          "longest_visible_gap_s": 1.994,
+          "fresh_gap_p95_s": 1.152,
+          "decode": {
+            "previews": 73,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.184,
+              "p95": 0.512
+            },
+            "preview_compute_sum_s": 16.2228,
+            "preview_start_intervals_s": {
+              "p50": 0.505,
+              "p95": 0.54
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          },
+          "eos_s": 0.304,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 13.24,
+          "app_cpu_s": 1.79,
+          "worker_cpu_s": 11.45,
+          "observed_peak_MiB": 1903.2,
+          "reversals": []
+        }
+      },
+      "valid": true,
+      "same_final_text": true
+    }
+  ],
+  "interpretation": "Invalid runs are retained, never counted as valid benefit. No automatic release decision."
+}

@@ -33,7 +33,7 @@ actor LocalCandidateIngress {
         guard let run else { throw FusionError.staleGeneration }
         sequence += 1
         let started = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
-        FixturePerformanceTrace.record("candidate.received", recordingID: ticket.recordingID, frames: Int(event.audioEndSeconds * 16_000))
+        FixturePerformanceTrace.record("candidate.received", recordingID: ticket.recordingID)
         let candidate = RecognitionCandidate(run: run, sequence: sequence, event: event)
         guard try await store.appendRecognitionCandidate(candidate) else { throw FusionError.staleGeneration }
         FixturePerformanceTrace.record("candidate.persisted", recordingID: ticket.recordingID, since: started)
