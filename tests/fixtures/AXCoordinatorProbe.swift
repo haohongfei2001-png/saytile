@@ -67,8 +67,13 @@ struct AXCoordinatorProbe {
                 let final = kind == "final", frames = event["frames"] as! Int
                 let remaining = (event["t"] as! Double) - (ProcessInfo.processInfo.systemUptime - started)
                 if remaining > 0 { try await Task.sleep(for: .seconds(remaining)) }
-                guard let stable = preview.accept(text, final: final) else { continue }
-                let count = final ? stable : confirmation.accept(text, frames: frames)
+                let confirmed = final ? nil : confirmation.accept(text, frames: frames)
+                guard let stable = preview.accept(text, final: final) else {
+                    try await ingress.receive(.init(text: text, stableUTF16Length: 0,
+                        audioEndSeconds: Double(frames) / 16_000), publish: false)
+                    continue
+                }
+                let count = confirmed ?? stable
                 try await ingress.receive(.init(text: preview.presentation, stableUTF16Length: count,
                     audioEndSeconds: Double(frames) / 16_000, isComplete: final))
                 if final {

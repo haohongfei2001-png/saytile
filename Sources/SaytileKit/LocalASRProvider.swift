@@ -235,14 +235,21 @@ public actor LocalASRService {
                         let final = event.kind == "final"
                         FixturePerformanceTrace.record("asr.rawReceived", recordingID: recordingID, frames: event.frames, decision: event.kind)
                         let confirmationStart = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
+                        // Even a visually withheld spelling must break acoustic
+                        // agreement. Never count only the previews we chose to show.
+                        let confirmed = id == .qwen && !final
+                            ? qwenPrefix.accept(event.text, frames: event.frames) : nil
                         let stable = event.text.isEmpty ? nil : liveText.accept(event.text, final: final)
                         FixturePerformanceTrace.record("preview.decided", recordingID: recordingID, frames: event.frames,
                             since: confirmationStart, decision: stable == nil ? "withheld" : (final ? "final" : "preview"))
                         if let stable {
-                            let confirmed = id == .qwen && !final
-                                ? qwenPrefix.accept(event.text, frames: event.frames) : stable
-                            try await ingress.receive(.init(text: liveText.presentation, stableUTF16Length: confirmed,
+                            try await ingress.receive(.init(text: liveText.presentation, stableUTF16Length: confirmed ?? stable,
                                 audioEndSeconds: Double(event.frames) / 16_000, timingGranularity: "utterance", isComplete: final))
+                        } else if id == .qwen, !final, !event.text.isEmpty {
+                            // Record contrary evidence without repainting a transient
+                            // tail. Store now revokes the older dispatch proof.
+                            try await ingress.receive(.init(text: event.text, stableUTF16Length: 0,
+                                audioEndSeconds: Double(event.frames) / 16_000), publish: false)
                         }
                         if final {
                             try await sender.value

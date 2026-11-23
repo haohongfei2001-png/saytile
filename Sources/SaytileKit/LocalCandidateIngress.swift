@@ -28,7 +28,8 @@ actor LocalCandidateIngress {
             ? "未识别到文字，原音已保存，可回听或重新识别。"
             : "未获得最终文字，已有文字和原音已保留，可重新识别。")
     }
-    func receive(_ event: ProviderTranscriptEvent) async throws {
+    func receive(_ event: ProviderTranscriptEvent, publish: Bool = true) async throws {
+        guard publish || !event.isComplete else { throw FusionError.invalidCandidate }
         if run == nil { try await start() }
         guard let run else { throw FusionError.staleGeneration }
         sequence += 1
@@ -37,6 +38,10 @@ actor LocalCandidateIngress {
         let candidate = RecognitionCandidate(run: run, sequence: sequence, event: event)
         guard try await store.appendRecognitionCandidate(candidate) else { throw FusionError.staleGeneration }
         FixturePerformanceTrace.record("candidate.persisted", recordingID: ticket.recordingID, since: started)
+        if !publish {
+            last = candidate; complete = false
+            return
+        }
         complete = event.isComplete
         let prefix = try await store.fusionReservedPrefix(recordingID: ticket.recordingID)
         let proposal = PrecisionFusion.evaluate(candidates: [candidate], mode: .highestQuality,

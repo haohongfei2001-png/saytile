@@ -128,6 +128,24 @@ private final class OwnedFixture {
 @Suite("Owned range correction production path with synthetic OS and SQLite")
 @MainActor
 struct OwnedRangeRepairTests {
+    @Test func withheldRawCorrectionRevokesQueuedDispatchWithoutRepainting() async throws {
+        let f = try await OwnedFixture(createRuns: false)
+        let ticket = try await f.store.beginRecognition(recordingID: f.record.id)
+        let ingress = LocalCandidateIngress(store: f.store, ticket: ticket, model: .qwen)
+        let phrase = "今天阳光很好，", text = phrase + "我们继续讨论接下来的安排"
+        try await ingress.receive(.init(text: text, stableUTF16Length: phrase.utf16.count, audioEndSeconds: 3))
+        let early = try #require(try await f.store.latestDispatchableRevision(recordingID: f.record.id))
+        let visible = try await f.store.recording(id: f.record.id)?.text
+        try await ingress.receive(.init(text: "今天阴天，我们继续讨论接下来的安排", stableUTF16Length: 0,
+            audioEndSeconds: 3.5), publish: false)
+        #expect(try await f.store.recording(id: f.record.id)?.text == visible)
+        #expect(try await f.store.reserveDispatch(bindingID: f.binding.id, recordingID: f.record.id,
+            revisionID: early.id, stableUTF16End: early.text.utf16.count) == nil)
+        #expect(f.os.text == "用户前缀｜用户后缀" && f.os.insertions.isEmpty)
+        #expect(try await f.store.recognitionCandidates(recordingID: f.record.id).count == 2)
+        try await f.close()
+    }
+
     @Test(arguments: ["normal", "user-edit", "target-change"])
     func qwenEarlyPhraseAndExactEOSUseOwnedRangeOnly(scenario: String) async throws {
         let f = try await OwnedFixture(createRuns: false)
