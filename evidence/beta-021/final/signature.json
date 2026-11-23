@@ -1,0 +1,32 @@
+{
+  "source": "9aace8f5b0d7082bd67d2e9b1b6e1db6dcf05883",
+  "dirty": false,
+  "version": "0.21",
+  "build": "557",
+  "bundle": "app.saytile.mac.mandarin-candidate",
+  "app_binary_sha256": "10895f5a01c615d408ac7fb95b9aac98ff2982638979bd11590d135e94fb6d33",
+  "dmg_sha256": "7e44a00ba5e1ae4f47b70b37360929dd658b1b9f17a7ce745339156d873e0f83",
+  "dmg_bytes": 64513466,
+  "checks": {
+    "signature": {
+      "code": 0,
+      "output": ""
+    },
+    "identity": {
+      "code": 0,
+      "output": "Executable=/private/tmp/saytile-021-557-app/Saytile.app/Contents/MacOS/Saytile\nIdentifier=app.saytile.mac.mandarin-candidate\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=26190 flags=0x10000(runtime) hashes=807+7 location=embedded\nVersionPlatform=1\nVersionMin=1703936\nVersionSDK=1703936\nHash type=sha256 size=32\nCandidateCDHash sha256=5fa6f375c0a835c8c8a4fbe38c1727c4d7f0d6b7\nCandidateCDHashFull sha256=5fa6f375c0a835c8c8a4fbe38c1727c4d7f0d6b7464c0e21b90ac904520684d0\nHash choices=sha256\nCMSDigest=5fa6f375c0a835c8c8a4fbe38c1727c4d7f0d6b7464c0e21b90ac904520684d0\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=6094848\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=5fa6f375c0a835c8c8a4fbe38c1727c4d7f0d6b7\nSignature size=9042\nAuthority=Developer ID Application: hongfei hao (ZB9D4T66QB)\nAuthority=Developer ID Certification Authority\nAuthority=Apple Root CA\nTimestamp=Nov 23, 2026 at 07:16:27\nInfo.plist entries=33\nTeamIdentifier=ZB9D4T66QB\nRuntime Version=26.0.0\nSealed Resources version=2 rules=13 files=40\nInternal requirements count=1 size=196\nTotal signatures=1\nChosen signature=1\n"
+    },
+    "gatekeeper": {
+      "code": 3,
+      "output": "/private/tmp/saytile-021-557-app/Saytile.app: rejected\nsource=Unnotarized Developer ID\norigin=Developer ID Application: hongfei hao (ZB9D4T66QB)\n"
+    },
+    "stapler": {
+      "code": 65,
+      "output": "Processing: /private/tmp/saytile-021-557-app/Saytile.app\nSaytile.app does not have a ticket stapled to it.\n"
+    },
+    "dmg_signature": {
+      "code": 0,
+      "output": ""
+    }
+  }
+}

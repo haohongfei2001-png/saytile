@@ -22,8 +22,9 @@ focus reacquisition, skipped assertion or product safety change.
 
 PASS: standalone compiled Swift fixture policy, 17 cases, including all independent
 identity mutations. This is a deterministic readiness-policy regression, not a
-replacement for real AX. The updated real WKWebView/AppKit/Chrome/TextEdit workflow
-must pass on the ensuing commit before this failure is closed.
+replacement for real AX. The updated real WKWebView/AppKit/Chrome/TextEdit workflow passed on
+94db534265597e4bc26109e2d849b2406f62edb3, run 45083846290, foreground job
+137397822049. All six jobs passed; the original failure remains preserved.
 
 The failed run's Chrome, Chrome interrupted-focus confirmation and TextEdit logs
 remain in the artifact ZIP; they do not turn the failed WKWebView batch into PASS.

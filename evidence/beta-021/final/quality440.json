@@ -1,0 +1,133 @@
+{
+  "product_source": "9aace8f5b0d7082bd67d2e9b1b6e1db6dcf05883",
+  "reference_source": "4c19982b4fecfb784bd7c7a3cf8fdbdde5af90b0",
+  "scope": "accelerated native CaptureWorker VAD PCMJournal SingleTranscriptEngine SQLite, not timing or microphone evidence",
+  "rows": 440,
+  "rows_with_text": 440,
+  "groups": {
+    "original_420": {
+      "errors": 910,
+      "substitutions": 407,
+      "deletions": 387,
+      "insertions": 116,
+      "reference_units": 10663,
+      "cer": 0.08534
+    },
+    "fleurs": {
+      "errors": 571,
+      "substitutions": 240,
+      "deletions": 266,
+      "insertions": 65,
+      "reference_units": 6260,
+      "cer": 0.09121
+    },
+    "ascend-zh": {
+      "errors": 53,
+      "substitutions": 27,
+      "deletions": 14,
+      "insertions": 12,
+      "reference_units": 934,
+      "cer": 0.05675
+    },
+    "ascend-mixed": {
+      "errors": 225,
+      "substitutions": 103,
+      "deletions": 83,
+      "insertions": 39,
+      "reference_units": 2004,
+      "cer": 0.11228
+    },
+    "derived_20": {
+      "errors": 65,
+      "substitutions": 29,
+      "deletions": 34,
+      "insertions": 2,
+      "reference_units": 764,
+      "cer": 0.08508
+    },
+    "quiet": {
+      "errors": 43,
+      "substitutions": 19,
+      "deletions": 22,
+      "insertions": 2,
+      "reference_units": 403,
+      "cer": 0.1067
+    },
+    "noise15db": {
+      "errors": 22,
+      "substitutions": 10,
+      "deletions": 12,
+      "insertions": 0,
+      "reference_units": 361,
+      "cer": 0.06094
+    },
+    "aishell1-test": {
+      "errors": 61,
+      "substitutions": 37,
+      "deletions": 24,
+      "insertions": 0,
+      "reference_units": 1465,
+      "cer": 0.04164
+    }
+  },
+  "states": {
+    "completed": 443,
+    "failed": 5
+  },
+  "text_or_state_differences": [],
+  "record_errors": [
+    {
+      "id": "fleurs-e0687aaa8689e196",
+      "errors": [
+        "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。"
+      ],
+      "states": [
+        "completed",
+        "failed"
+      ]
+    },
+    {
+      "id": "fleurs-fd242859bc18ffbb",
+      "errors": [
+        "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。"
+      ],
+      "states": [
+        "failed",
+        "completed"
+      ]
+    },
+    {
+      "id": "fleurs-c1fcf0cd023db10f",
+      "errors": [
+        "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。"
+      ],
+      "states": [
+        "failed",
+        "completed"
+      ]
+    },
+    {
+      "id": "fleurs-b53a7292b38e011d",
+      "errors": [
+        "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。"
+      ],
+      "states": [
+        "completed",
+        "failed"
+      ]
+    },
+    {
+      "id": "fleurs-9a0d49266d4f5e24",
+      "errors": [
+        "本机识别未完成，原音可重试。模型未完成定稿；候选和原音已保留。"
+      ],
+      "states": [
+        "completed",
+        "failed"
+      ]
+    }
+  ],
+  "probe_sha256": "562cee640d6afc9cca21edeade281f62615c648ac5c093aacc88578cfa4a29ad",
+  "manifest_sha256": "bfdf0838a2ee542746c2f9c554d2c3161eef01d3c628abd734aff36217b4f576",
+  "raw_sha256": "d4c1a84297f8be23d7da6e98e580a724d8d48339b9efd00efb4daa06e37a9d6e"
+}
