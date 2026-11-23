@@ -31,7 +31,8 @@ import Testing
         let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: .qwen)
         var preview = LocalLiveText(model: .qwen, previewPolicy: .provisional)
         for text in ["我想支付三十元，今天就处理", "我不想支付十三元，今天先不要处理这个订单"] {
-            let stable = try #require(preview.accept(text, final: false))
+            let decision = preview.accept(text, final: false)
+            let stable = try #require(decision)
             try await ingress.receive(.init(text: preview.presentation, stableUTF16Length: stable, audioEndSeconds: 3))
             #expect(try await store.recording(id: record.id)?.text == text)
             #expect(try await store.latestDispatchableRevision(recordingID: record.id) == nil)
