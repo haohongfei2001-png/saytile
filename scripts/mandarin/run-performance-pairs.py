@@ -21,8 +21,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("before", "after", "weights", "audio", "load-helper", "out"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--quiet-seconds", type=float, default=8)
     args = parser.parse_args()
+    if not 8 <= args.quiet_seconds <= 120:
+        parser.error("quiet interval must be 8–120 seconds, applied identically before every arm")
     args.out.mkdir(parents=True, exist_ok=False)
+    (args.out / "protocol.json").write_text(json.dumps(dict(
+        order=[["before", "after"], ["after", "before"], ["before", "after"]],
+        quiet_seconds_before_each_arm=args.quiet_seconds, load_and_score_rules="unchanged"), indent=2))
     apps = {"before": args.before, "after": args.after}
     manifest = ROOT / "evidence/mandarin/continuous.json"
     runs = []
@@ -30,6 +36,7 @@ def main():
     # remains a failed pair; this script never retries it or selects a better run.
     for pair, order in enumerate((('before', 'after'), ('after', 'before'), ('before', 'after')), 1):
         for arm in order:
+            time.sleep(args.quiet_seconds)
             name = f"pair-{pair}-{arm}"
             output = args.out / name
             entry = dict(pair=pair, arm=arm, order=list(order), directory=name)
@@ -41,7 +48,6 @@ def main():
             runs.append(entry)
             (args.out / "runs.json").write_text(json.dumps(runs, indent=2))
             print(name, "FAILED" if "failure" in entry else "saved", flush=True)
-            time.sleep(8)
     for entry in runs:
         output = args.out / entry["directory"]
         if "failure" not in entry:

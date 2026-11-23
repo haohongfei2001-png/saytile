@@ -111,6 +111,10 @@ def public_run(app, manifest, sample_id, weights, audio, out, profile=False, tra
                 exit_code=p.returncode, elapsed_s=elapsed)))
             if (data / "visible.json").exists():
                 shutil.copyfile(data / "visible.json", out / "visible-raw.json")
+            if (data / "partial.png").exists():
+                # This is the owned NSView bitmap of public fixture text, never
+                # a desktop screenshot or a capture of the installed product.
+                shutil.copyfile(data / "partial.png", out / "partial.png")
             assert p.returncode == 0, p.returncode
         receipt = json.loads((data / "visible.json").read_text())
         assert receipt["sha"] == meta["SaytileSourceRevision"]
