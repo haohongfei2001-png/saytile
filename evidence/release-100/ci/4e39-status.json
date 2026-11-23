@@ -1,0 +1,45 @@
+{
+  "tested_head": "4e39f0bef38df54c53ef9c0c91e53710fc878f59",
+  "product_source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+  "checks": [
+    {
+      "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/45207946195/job/137808670344",
+      "name": "native-brand",
+      "state": "FAILURE"
+    },
+    {
+      "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/45207946109/job/137808858646",
+      "name": "swift-tests",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/45207946122/job/137808671447",
+      "name": "native-gateway",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/45207946109/job/137808858247",
+      "name": "native",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/45207946109/job/137808858939",
+      "name": "foreground",
+      "state": "CANCELLED"
+    },
+    {
+      "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/45207946122/job/137808673011",
+      "name": "gateway",
+      "state": "SUCCESS"
+    },
+    {
+      "link": "https://github.com/haohongfei2001-png/saytile/actions/runs/45207946572/job/137808664624",
+      "name": "data-and-prototype",
+      "state": "SUCCESS"
+    }
+  ],
+  "notes": [
+    "native-brand failed on two report checksums; corrected without changing historical report bytes",
+    "foreground never acquired a runner; NOT_RUN, not a test pass"
+  ]
+}

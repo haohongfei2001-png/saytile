@@ -58,3 +58,7 @@
 本机隔离 --controls 原生验收PASS：56次AXPress、9次菜单选择、2项私有剪贴板复制、1项内联编辑、暂停恢复确认与星标重启保留，原生键盘隔离全部通过。仅操作测试App自己的窗口，不激活用户窗口、不读写系统剪贴板、不打开真实麦克风；收音状态变化用注入捕获回执，不能视为现场设备实测。生产源码/二进制均对应42d8，见native-controls/manifest.json。
 
 CI中Native UI的render-only截图与这份本机controls验收分别记录，不能把0次AXPress的渲染检查当作按钮实测。原生档案和设置截图已实际查看；显示、行文、两按钮与统一设置布局保留原设计。
+
+## 4e39 最终生产等价回归
+
+完整原生native、579项Swift Testing/30项XCTest、native-gateway、gateway、design通过。native-brand准确检出两处历史报告清单摘要误差，修正见后续提交，生产资源未变。foreground因GitHub macOS ARM执行器容量不足被取消，未运行任何步骤；单独标NOT_RUN并保留GitHub原始注释。第二项WK假设在此轮尚无测试结果，不把排队取消算通过或当成产品故障。
