@@ -1,0 +1,21 @@
+{
+  "tested_head": "e988117c0a63b47b4d9f8467c6d7d5a41e9a375d",
+  "product_source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+  "job": 137824841787,
+  "owned_wk_appkit": "PASS 10 groups",
+  "TextEdit": "PASS",
+  "Chrome": "PASS",
+  "Chrome_focus_timeout": "PASS",
+  "Edge": "PASS",
+  "Safari": "FAIL first insertion confirmation; one exact insertion, no replay",
+  "Safari_observed": {
+    "write_timeout_ms": 150,
+    "readback_exact": true,
+    "write_count": 1,
+    "result": "unverified",
+    "subsequent_AX_snapshots": "unsupported",
+    "binding_invalidated": true
+  },
+  "causal_scope": "AX service timing and unavailable observations; safe refusal, no evidence of wrong target or duplicate insertion; unique upstream cause not proven",
+  "assertions_changed": false
+}

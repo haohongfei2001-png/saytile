@@ -1,4 +1,4 @@
-> 当前 1.0.0 发行收口见 [STATUS](../STATUS.md) 和 [本轮验收](delivery/release-100/DEVELOPMENT.md)。以下为设计恢复阶段原始历史，不代表当前产品状态。
+> 当前 1.0.0（572）已正式发行，见 [STATUS](../STATUS.md) 和 [本轮验收](delivery/release-100/ACCEPTANCE.md)。以下为设计恢复阶段原始历史，不代表当前产品状态。
 
 # 交付状态 · 2026-11-06
 

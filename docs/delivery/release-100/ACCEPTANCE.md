@@ -1,6 +1,6 @@
 # 1.0.0（572）实测验收
 
-产品源码 `42d8e98eaf04a56d34a36cc1aca2aff7061150f4`，签名 App 的 SourceDirty=false。后续文档/测试夹具提交不改生产源。当前正在收尾，尚未发布；正式公开地址验收另记。
+产品源码 `42d8e98eaf04a56d34a36cc1aca2aff7061150f4`，签名 App 的 SourceDirty=false。后续文档/测试夹具提交不改生产源。现已正式发布v1.0.0（572），Release及官网真实下载通过；最终结论见末尾。下文阶段性FAIL/NOT_RUN按原始时点保留，不能将后续复核成功改写为从未失败。
 
 ## 准确率与连续显示
 
@@ -62,3 +62,29 @@ CI中Native UI的render-only截图与这份本机controls验收分别记录，�
 ## 4e39 最终生产等价回归
 
 完整原生native、579项Swift Testing/30项XCTest、native-gateway、gateway、design通过。native-brand准确检出两处历史报告清单摘要误差，修正见后续提交，生产资源未变。foreground因GitHub macOS ARM执行器容量不足被取消，未运行任何步骤；单独标NOT_RUN并保留GitHub原始注释。第二项WK假设在此轮尚无测试结果，不把排队取消算通过或当成产品故障。
+
+## 本机最终前台验收（e988117）
+
+GitHub ARM执行器容量不足时，在本机执行同一foreground夹具，使用现有AX权限且确认键鼠已空闲3907秒；只激活自有一次性AppKit/WKWebView窗口，结束后核实恢复原前台PID，未读取其内容。10组检查全部通过，WK首次写入、追加、UTF-16前后保护、变长/变短修正、用户修改、失焦、重启、静默页面变化、预留后AX阻断，以及原生取消/忽略写入/窗口切换均保持安全，零发送。日志与准确测试SHA见local-foreground/receipt.json。系统拼写准备15ms；此单次通过不证明历史CI超时的唯一原因。真实第三方浏览器另由CI已执行路径记录，不能用自有WK代替。
+
+## 最后一次远端前台作业的逐目标结果
+
+e988117：WK/AppKit 10组全通过，TextEdit、Chrome、Chrome焦点读取超时、Edge全部通过；Safari首次写入AX超时150ms，实际一次写入且文本正确，随后快照间歇unsupported，绑定失效，返回unverified；自动确认断言FAIL。没有错投、重放或发送。完整作业与分目标原件见ci/e988-foreground/。这是实际发生的兼容性边界，不能把安全拒绝算作自动输入全通过；保留保护、可复制、原音和文字保留，不改生产超时或断言。仅安排一个有界作业复核，成功也不会覆盖原失败。
+
+## 最终e988117回归与发行裁决
+
+最终测试HEAD `e988117c0a63b47b4d9f8467c6d7d5a41e9a375d`：native、swift-tests、foreground、native-brand、native-gateway、gateway、data-and-prototype共七项SUCCESS。完整Swift Testing579项、XCTest30项、0失败；完整native流程、AppModel220项及Feedback14项通过。与签名产品42d8的193个生产文件摘要相同。
+
+同一HEAD的foreground作业第二次执行，AppKit/WKWebView、TextEdit、Chrome、Edge、Safari均通过；没有产品变更、预算增大、断言放宽或未确认投递重放。首轮Safari的AX超时仍是FAIL，日志保存在ci/e988-foreground/；复核PASS在ci/e988-foreground-rerun/；最终检查总表ci/final-checks.json。虚拟Mac物理睡眠仍BLOCKED，不以其电源预检通过宣称实机睡眠成功。
+
+发行裁决为**按已披露限制正式分发1.0.0**。正常原速与长时间运行、准确率、资料安全及所有权保护达到本轮放行条件；仍不承诺所有硬件调度下两秒出字、零临时回改或所有网页均支持自动输入。一次5.451秒首显和Safari超时属于保留的实际失败，复核没有证明它们永不再现。无已复现的数据丢失、错投、重复输入或自动发送缺陷。
+
+## 正式发行与线上验收
+
+PR #55已合并，main发行提交 `0aa5efd4f8c14e5fe2bb6279968cdd8f6aee3553`；[v1.0.0](https://github.com/haohongfei2001-png/saytile/releases/tag/v1.0.0)为正式非草稿、非预发行Release，保留旧版本。实际包源码仍是42d8，不把合并/收据提交伪称重新构建源码。
+
+[Pages部署45222069957](https://github.com/haohongfei2001-png/saytile/actions/runs/45222069957)成功。真实saytile.com在线25项交互、15个运行文件摘要全部通过；通过页面按钮实际下载完整65,662,466字节DMG，SHA-256 `60e4abf60618d510c7f99d8e92a6ec456f16840f22cc0fcd7eb74ac729c9dba2`，与签名实测包、GitHub资产相同。390/1440线上截图已查看，原有视觉和功能保持。
+
+官网、README、安装说明和Release Notes一致披露未公证。没有可用notary profile，不读取密钥；不等待额外账户操作，按本轮明确授权正式分发签名包。首次Gatekeeper阻止需用户系统单App确认，不能把完整下载PASS当成Gatekeeper自动放行。自动Sparkle更新未推广，本次使用官网/Release手动下载。
+
+当前533仅验证Bundle元数据和可执行文件摘要，仍原样保留；没有读取生产资料。机器总收据publication/receipt.json，以及release.json、pages.json、public-assets.json、public-download.json已提交。物理麦克风、8GB实体机、云端与iCloud仍NOT_RUN，不列作已通过。

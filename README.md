@@ -4,7 +4,7 @@
 
 Saytile 是 Apple Silicon Mac 上的本地中文语音输入工具。Qwen 0.6B 在讲话过程中显示临时文字，停止后完成原音定稿；确认后的短语可逐步写入用户选定的应用。文字、手动修改和原音分别保存，不依赖网络。
 
-本分支正在完成 **1.0.0（572）** 最终验收。发行状态与原始证据见 [STATUS](STATUS.md) 和 [验收记录](docs/delivery/release-100/DEVELOPMENT.md)。官网为 [saytile.com](https://saytile.com/)，正式下载以 [GitHub Releases](https://github.com/haohongfei2001-png/saytile/releases) 为准。
+**1.0.0（572）已正式发布**：[官网下载](https://saytile.com/#start) · [GitHub Release 与校验文件](https://github.com/haohongfei2001-png/saytile/releases/tag/v1.0.0)。Developer ID 已签名，尚未公证，首次安装可能需要系统单 App 打开确认，见[安装说明](docs/V1-INSTALL.md)。发行状态、原始失败与已知限制见 [STATUS](STATUS.md) 和 [验收记录](docs/delivery/release-100/ACCEPTANCE.md)。
 
 ## 使用
 

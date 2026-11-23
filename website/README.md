@@ -22,4 +22,4 @@
 
 ## 1.0.0 正式下载更新
 
-下载区准备指向正式 1.0.0（572），沿用已批准视觉，仅改入口、安装限制及版本说明。实际部署状态和公开下载校验见 VALIDATION.md；不能把本地检查当成上线完成。签名已验证，尚未公证，明确说明 Gatekeeper 单 App 确认。原 0.18 安装包仍保留在 GitHub 历史 Release。
+下载区已经上线正式 1.0.0（572），沿用已批准视觉，仅改入口、安装限制及版本说明。GitHub Pages部署、公开页面25项交互、15项资源摘要和实际点击下载完整DMG均已通过，见 VALIDATION.md 及仓库 evidence/release-100/publication/。签名已验证，尚未公证，明确说明 Gatekeeper 单 App 确认。原 0.18 安装包仍保留在 GitHub 历史 Release。

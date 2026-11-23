@@ -26,3 +26,11 @@ Mac实测覆盖七档宽度，真实AAC播放/暂停/拖动进度/倍速/换记�
 - 独立headless Chrome本机25项通过：320–1600七档宽度、下载入口与版本、原有搜索/星标/编辑与换行保留/音频真实播放暂停倍速拖动/切换记录停止/原生截图弹窗、脚本顺序、零JS与资源错误。390/1440截图已人工视图检查，无溢出、遮挡或改版。
 - 临时测试HTTP服务器初次未支持音频Range，seek断言失败原件保留；补全测试服务器206后原断言通过，产品脚本没有修改。
 - 本地收据evidence/release-100/website-local/receipt.json。Gatekeeper未公证限制在可见下载区和FAQ明确披露。此时Release草稿已上传，公开部署与真实下载将在完成后另记，不以本地PASS代替。
+
+## 正式公开部署与下载验收
+
+- main合并 `0aa5efd4f8c14e5fe2bb6279968cdd8f6aee3553`；[Pages实际部署](https://github.com/haohongfei2001-png/saytile/actions/runs/45222069957)成功，v1.0.0已正式发布（非Draft、非Pre-release）。
+- 对真实 `https://saytile.com/` 使用全新headless Chrome：25项PASS，320–1600七档宽度、导航与下载、搜索/星标/编辑/版本、实际TTS播放/暂停/倍速/拖动/切换、截图弹窗、零JS或资源错误。390/1440实际线上截图已查看，保留原设计，无横向溢出或下载区遮挡。
+- 15项线上运行文件全部HTTP200，字节数与SHA-256逐项等于受管理清单。没有把本地结果替代线上验收。
+- 从官网真正点击“下载正式版1.0.0”，完整取得65,662,466字节DMG，SHA-256 `60e4abf60618d510c7f99d8e92a6ec456f16840f22cc0fcd7eb74ac729c9dba2`，等同Release资产及经过原生验收的本机签名包。并非仅HEAD或链接检查；没有替换用户安装533。
+- 公开收据：`evidence/release-100/publication/`；浏览器与截图：`evidence/release-100/website-public/`。保留原0.18历史Release，当前首页不再宣传旧下载；本次未动DNS、收费方案、Sparkle推送或系统安全策略。
