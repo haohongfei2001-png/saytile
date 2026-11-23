@@ -10,10 +10,11 @@ public struct InputBindingInfo: Sendable, Equatable {
 }
 
 public enum NativeInputResult: Sendable, Equatable {
-    case confirmed, unverified, noNewText, cancelled, deferred, failed(String)
+    case confirmed, unverified, noNewText, cancelled, deferred, correctionPending, failed(String)
     public var message: String {
         switch self {
         case .confirmed: "已插入"
+        case .correctionPending: "修正版已保留；目标范围无法安全确认，不会自动重试修正。"
         case .unverified: "已尝试插入，请在目标应用核对；不会自动重发"
         case .noNewText: "没有新的稳定文字"
         case .deferred: "较早一段的识别结果已保留在输入板，可手动取用；后续新表达继续输入。"
@@ -75,17 +76,45 @@ struct InputObservationSupport { let focus: Bool; let content: Bool; let page: B
 protocol InputAccess: AnyObject {
     var hasPermission: Bool { get }
     func snapshot() throws -> InputTargetSnapshot
+    func snapshotAfterIssuedWebInsertion() throws -> InputTargetSnapshot
     // One external attempt; a timeout is uncertain, never grounds for retry.
     func dispatch(_ text: String, to expected: InputTargetSnapshot) throws -> Bool
     func verify(_ text: String, at before: InputTargetSnapshot) -> InputTargetSnapshot?
     func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool?
     func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport
     func stopObserving()
+    // Bounded, ephemeral witness; never persisted. Unknown text/boundaries forbid ownership.
+    func textWitness(at expected: InputTargetSnapshot) -> String?
+    func replaceOwned(_ expectedText: String, with replacement: String, start: Int,
+                      witness: String, at expected: InputTargetSnapshot, isCurrent: @MainActor () -> Bool) throws -> Bool
 }
 extension InputAccess {
+    func snapshotAfterIssuedWebInsertion() throws -> InputTargetSnapshot { try snapshot() }
+    func textWitness(at expected: InputTargetSnapshot) -> String? { nil }
+    func replaceOwned(_ expectedText: String, with replacement: String, start: Int,
+                      witness: String, at expected: InputTargetSnapshot, isCurrent: @MainActor () -> Bool) throws -> Bool { false }
+
     func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool? { nil }
     func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport { .init(focus: false, content: false, page: false) }
     func stopObserving() {}
+}
+
+/// Swift String equality is canonically equivalent, which is too weak for ownership.
+/// Both old and resulting boundaries must be extended-grapheme boundaries in context.
+enum OwnedInputText {
+    static func replacing(_ witness: String, start: Int, expected: String, replacement: String) -> String? {
+        guard start >= 0, start <= witness.utf16.count,
+              expected.utf16.count <= witness.utf16.count - start else { return nil }
+        let end = start + expected.utf16.count
+        guard let before = RecognitionUTF16.slice(witness, start: 0, end: start),
+              let owned = RecognitionUTF16.slice(witness, start: start, end: end),
+              owned.utf8.elementsEqual(expected.utf8),
+              let after = RecognitionUTF16.slice(witness, start: end, end: witness.utf16.count) else { return nil }
+        let result = before + replacement + after
+        guard RecognitionUTF16.slice(result, start: 0, end: start) != nil,
+              RecognitionUTF16.slice(result, start: start, end: start + replacement.utf16.count) != nil else { return nil }
+        return result
+    }
 }
 
 @MainActor
@@ -96,19 +125,42 @@ public final class NativeInputCoordinator {
     public private(set) var binding: InputBindingInfo?
     private var isDispatching = false
     private var hasIssuedDispatch = false
-    private var inFlightInsertion: (target: InputTargetSnapshot, text: String)?
+    private var insertionProofComplete = false
+    private var inFlightInsertion: (target: InputTargetSnapshot, text: String, expectedField: String?)?
+    // Set only when the observer sees the exact post-insertion identity and caret
+    // but cannot read the complete field. No later edit notification may cross this gap.
+    private var unreadWebInsertionAt: UInt64?
     private var boundPurpose: InputBindingPurpose = .continuous
+    private struct Ownership {
+        let recordingID: UUID
+        let start: Int
+        var text: String
+        var witness: String
+    }
+    private var owned: Ownership?
+    private var observedEditSequence: UInt64 = 0
+    private var canObserveOwnership = false
+    private var inFlightCorrection: (before: InputTargetSnapshot, selected: InputTargetSnapshot,
+                                     after: InputTargetSnapshot, oldText: String, newText: String)?
     private var confirmedTail: (text: String, start: Int)?
+    private let activationNotificationCenter: NotificationCenter?
     private var activationObserver: NSObjectProtocol?
     private var generation = 0
     public var onBindingInvalidated: (@MainActor () -> Void)?
     public var hasPermission: Bool { access.hasPermission }
 
-    public convenience init(store: SaytileStore) { self.init(store: store, access: AXInputAccess()) }
-    init(store: SaytileStore, access: any InputAccess) {
+    public convenience init(store: SaytileStore) {
+        self.init(store: store, access: AXInputAccess(),
+                  activationNotificationCenter: NSWorkspace.shared.notificationCenter)
+    }
+    // Simulated InputAccess must not observe the user's real desktop. Tests can
+    // supply their own center to exercise the same activation protection.
+    init(store: SaytileStore, access: any InputAccess,
+         activationNotificationCenter: NotificationCenter? = nil) {
         self.store = store
         self.access = access
-        activationObserver = NSWorkspace.shared.notificationCenter.addObserver(
+        self.activationNotificationCenter = activationNotificationCenter
+        activationObserver = activationNotificationCenter?.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
         ) { [weak self] note in
             let pid = (note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication)?.processIdentifier
@@ -149,6 +201,15 @@ public final class NativeInputCoordinator {
             switch change {
             case .focusOrDocument: self.invalidate()
             case .contentOrSelection:
+                self.observedEditSequence &+= 1
+                if let pending = self.inFlightCorrection, let current = try? self.access.snapshot(),
+                   let witness = self.access.textWitness(at: current),
+                   ((current == pending.selected && witness.utf8.elementsEqual(pending.oldText.utf8)) ||
+                    (current == pending.after && witness.utf8.elementsEqual(pending.newText.utf8))) { break }
+                if self.target?.isWeb == true {
+                    if self.unreadWebInsertionAt != nil || !self.observedOwnWebEdit() { self.invalidate() }
+                    break
+                }
                 if self.hasIssuedDispatch, let pending = self.inFlightInsertion,
                    let current = try? self.access.snapshot(), current.sameTarget(as: pending.target),
                    current.selectionLength == 0,
@@ -160,11 +221,11 @@ public final class NativeInputCoordinator {
                 }
                 self.invalidate()
             case .layout:
-                // A structural webpage change can reuse its editor and URL.
-                // Until an engine-specific context can distinguish self-layout, stop automatic input.
+                // An unrelated page layout can reuse the same editor and URL.
                 if self.target?.isWeb == true { self.invalidate() }
             }
         }
+        canObserveOwnership = support.focus && support.content && (!snapshot.isWeb || support.page && snapshot.pageContextComplete)
         if purpose == .continuous, snapshot.isWeb,
            !(snapshot.pageContextComplete && support.focus && support.content && support.page && access.matchesText("", utf16Start: snapshot.selectionLocation, at: snapshot) == true) {
             invalidate()
@@ -173,20 +234,90 @@ public final class NativeInputCoordinator {
         return info
     }
 
+    private func observedOwnWebEdit() -> Bool {
+        let current: InputTargetSnapshot
+        let confirmingInsertion = boundPurpose == .continuous && canObserveOwnership && hasIssuedDispatch &&
+            !insertionProofComplete && inFlightCorrection == nil && inFlightInsertion?.expectedField != nil
+        do { current = try confirmingInsertion ? access.snapshotAfterIssuedWebInsertion() : access.snapshot() }
+        catch NativeInputError.unsupported {
+            // Chrome can briefly omit the focused editor or selection in the first
+            // notification of our successful write. This is not ownership proof.
+            // Keep only this already-issued insertion eligible for bounded readback;
+            // a second observation invalidates it, and settledWrite still requires
+            // two complete, identical target/caret/full-field witnesses after the gap.
+            guard confirmingInsertion, unreadWebInsertionAt == nil else { return false }
+            unreadWebInsertionAt = observedEditSequence
+            return true
+        } catch { return false }
+        guard current.isWeb, current.pageContextComplete,
+              current.selectionLength == 0 else { return false }
+        if let pending = inFlightCorrection {
+            return current == pending.after && access.textWitness(at: current)?.utf8.elementsEqual(pending.newText.utf8) == true
+        }
+        guard hasIssuedDispatch, let pending = inFlightInsertion, let expectedField = pending.expectedField else { return false }
+        var expected = pending.target
+        expected.selectionLocation += pending.text.utf16.count
+        guard current == expected else { return false }
+        if let field = access.textWitness(at: current) { return field.utf8.elementsEqual(expectedField.utf8) }
+        guard boundPurpose == .continuous, canObserveOwnership, !insertionProofComplete else { return false }
+        // An absent AX witness is not a match. Defer only this already-issued
+        // insertion to settledWrite's two independent complete observations.
+        unreadWebInsertionAt = observedEditSequence
+        return true
+    }
+
+    /// Wait for pending notifications of this one write, while the binding can still
+    /// be revoked. After returning, even an edit followed by Undo expires ownership.
+    private func settledWrite(at target: InputTargetSnapshot, witness: String, generation expectedGeneration: Int) async -> Bool {
+        var gapSequence = unreadWebInsertionAt
+        var matchingReadsAfterGap = 0
+        for _ in 0..<4 {
+            let sequence = observedEditSequence
+            do { try await Task.sleep(for: .milliseconds(220)) } catch { return false }
+            if gapSequence == nil { gapSequence = unreadWebInsertionAt }
+            guard generation == expectedGeneration, gapSequence == nil || gapSequence == observedEditSequence else { return false }
+            do {
+                guard try access.snapshot() == target,
+                      access.textWitness(at: target)?.utf8.elementsEqual(witness.utf8) == true else { return false }
+            } catch NativeInputError.unsupported {
+                // No mutation while the AX field is unreadable. After any gap the
+                // same binding must give two new full witnesses without an edit,
+                // focus, selection or document observation anywhere in between.
+                guard observedEditSequence == sequence else { return false }
+                gapSequence = sequence
+                matchingReadsAfterGap = 0
+                continue
+            } catch { return false }
+            guard generation == expectedGeneration else { return false }
+            if gapSequence != nil {
+                guard observedEditSequence == sequence else { return false }
+                matchingReadsAfterGap += 1
+                if matchingReadsAfterGap == 2 { return true }
+            } else if observedEditSequence == sequence { return true }
+        }
+        return false
+    }
+
     public func invalidate() {
         generation += 1
         let id = binding?.id
         binding = nil
         target = nil
         confirmedTail = nil
+        owned = nil
+        canObserveOwnership = false
         access.stopObserving()
         if let id { Task { try? await store.invalidateBinding(id) } }
         if id != nil { onBindingInvalidated?() }
     }
 
     public func copy(_ text: String) {
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(text, forType: .string)
+        copy(text, to: .general)
+    }
+
+    @discardableResult public func copy(_ text: String, to pasteboard: NSPasteboard) -> Bool {
+        pasteboard.clearContents()
+        return pasteboard.setString(text, forType: .string)
     }
 
     /// Explicit manual reuse still requires an existing live target. It never activates another app.
@@ -214,7 +345,13 @@ public final class NativeInputCoordinator {
         do {
             try validate(target)
             isDispatching = true
-            defer { isDispatching = false; hasIssuedDispatch = false; inFlightInsertion = nil }
+            defer {
+                isDispatching = false
+                hasIssuedDispatch = false
+                insertionProofComplete = false
+                inFlightInsertion = nil
+                unreadWebInsertionAt = nil
+            }
             let reservation: DispatchReservation?
             if let stableEnd {
                 reservation = try await store.reserveDispatch(bindingID: binding.id, recordingID: recordingID,
@@ -238,28 +375,80 @@ public final class NativeInputCoordinator {
             }
             do {
                 // dispatch returns false only before any external side effect.
-                // Any thrown AX timeout is treated as unverified, never retried.
+                // A timeout on the text mutation may be settled by readback only.
                 guard !Task.isCancelled else {
                     try? await store.completeDispatch(id: reservation.id, state: .cancelled)
                     return .cancelled
                 }
-                inFlightInsertion = (target, reservation.text)
-                hasIssuedDispatch = true
-                let dispatched = try access.dispatch(reservation.text, to: target)
-                if !dispatched {
+                let beforeText = (canObserveOwnership || target.isWeb) ? access.textWitness(at: target) : nil
+                let priorOwned = owned
+                guard startGeneration == generation, !Task.isCancelled else {
+                    try? await store.completeDispatch(id: reservation.id, state: .cancelled)
+                    return .cancelled
+                }
+                owned = nil // Any unconfirmed or noncontiguous attempt consumes prior ownership.
+                let expectedField = beforeText.flatMap {
+                    OwnedInputText.replacing($0, start: target.selectionLocation, expected: "", replacement: reservation.text)
+                }
+                if target.isWeb, boundPurpose == .continuous, expectedField == nil {
                     try? await store.completeDispatch(id: reservation.id, state: .cancelled)
                     invalidate()
                     return .cancelled
+                }
+                inFlightInsertion = (target, reservation.text, expectedField)
+                hasIssuedDispatch = true
+                var expectedAfter = target
+                expectedAfter.selectionLocation += reservation.text.utf16.count
+                var needsFullReadback = target.isWeb && boundPurpose == .continuous
+                do {
+                    guard try access.dispatch(reservation.text, to: target) else {
+                        try? await store.completeDispatch(id: reservation.id, state: .cancelled)
+                        invalidate()
+                        return .cancelled
+                    }
+                } catch is AXTextWriteTimeout {
+                    // The OS can time out after actually modifying the field.
+                    // Only independently observed exact field, caret and identity can settle it.
+                    needsFullReadback = true
                 }
                 // Confirm the one attempt over a bounded window. This loop never dispatches again.
                 for delay in [80, 80, 160, 240] {
                     do { try await Task.sleep(for: .milliseconds(delay)) } catch { break }
                     guard startGeneration == generation else { break }
-                    if let after = access.verify(reservation.text, at: target) {
+                    if let after = access.verify(reservation.text, at: target), after == expectedAfter,
+                       !needsFullReadback || expectedField.map({ access.textWitness(at: after)?.utf8.elementsEqual($0.utf8) == true }) == true,
+                       startGeneration == generation {
+                        if needsFullReadback {
+                            guard let expectedField, await settledWrite(at: after, witness: expectedField, generation: startGeneration) else {
+                                invalidate()
+                                break
+                            }
+                        }
+                        insertionProofComplete = true
                         self.target = after
                         let tail = String(reservation.text.suffix(32))
                         confirmedTail = (tail, target.selectionLocation + reservation.text.utf16.count - tail.utf16.count)
                         try await store.completeDispatch(id: reservation.id, state: .confirmed)
+                        if stableEnd != nil, startGeneration == generation, let beforeText,
+                           let afterText = access.textWitness(at: after),
+                           let expectedAfter = OwnedInputText.replacing(beforeText, start: target.selectionLocation,
+                               expected: "", replacement: reservation.text),
+                           afterText.utf8.elementsEqual(expectedAfter.utf8) {
+                            let candidate: Ownership?
+                            if reservation.utf16Start == 0 {
+                                candidate = Ownership(recordingID: recordingID, start: target.selectionLocation,
+                                                      text: reservation.text, witness: afterText)
+                            } else if let priorOwned, priorOwned.recordingID == recordingID,
+                                      priorOwned.start + priorOwned.text.utf16.count == target.selectionLocation,
+                                      priorOwned.witness.utf8.elementsEqual(beforeText.utf8) {
+                                candidate = Ownership(recordingID: recordingID, start: priorOwned.start,
+                                    text: priorOwned.text + reservation.text, witness: afterText)
+                            } else { candidate = nil }
+                            if let candidate, try await store.recordOwnedInsertion(reservation, bindingID: binding.id,
+                                targetStart: candidate.start, text: candidate.text), startGeneration == generation {
+                                owned = candidate
+                            }
+                        }
                         return .confirmed
                     }
                     if let current = try? access.snapshot(), !current.sameTarget(as: target) { break }
@@ -267,7 +456,7 @@ public final class NativeInputCoordinator {
                 try? await store.completeDispatch(id: reservation.id, state: .unverified)
                 // A failed confirmation does not globally freeze independent future speech.
                 // Keep binding only if identity is unchanged and caret moved by exactly our range.
-                if let after = try? access.snapshot(), after.sameTarget(as: target),
+                if unreadWebInsertionAt == nil, let after = try? access.snapshot(), after.sameTarget(as: target),
                    after.selectionLength == 0,
                    after.selectionLocation == target.selectionLocation + reservation.text.utf16.count,
                    startGeneration == generation {
@@ -289,11 +478,87 @@ public final class NativeInputCoordinator {
         }
     }
 
+    /// Direct-mode correction of a Store-approved archive, never a local draft/preview.
+    public func repairOwned(revision: TranscriptRevision) async -> NativeInputResult {
+        guard !isDispatching, !Task.isCancelled, let binding, let target else { return .correctionPending }
+        let startGeneration = generation
+        guard let owned, owned.recordingID == revision.recordingID, canObserveOwnership,
+              target.selectionLength == 0, target.selectionLocation == owned.start + owned.text.utf16.count,
+              let replacementWitness = OwnedInputText.replacing(owned.witness, start: owned.start,
+                  expected: owned.text, replacement: revision.text) else {
+            try? await store.pendOwnedCorrection(bindingID: binding.id, revision: revision)
+            return .correctionPending
+        }
+        if owned.text.utf8.elementsEqual(revision.text.utf8) { return .noNewText }
+        isDispatching = true
+        defer { isDispatching = false; inFlightCorrection = nil }
+        var operation: OwnedCorrectionReservation?
+        do {
+            try validate(target)
+            guard let op = try await store.reserveOwnedCorrection(bindingID: binding.id, revision: revision,
+                targetStart: owned.start, expectedText: owned.text) else {
+                try? await store.pendOwnedCorrection(bindingID: binding.id, revision: revision)
+                return .correctionPending
+            }
+            operation = op
+            guard try await store.ownedCorrectionMayExecute(op), !Task.isCancelled,
+                  startGeneration == generation else { throw NativeInputError.targetChanged }
+            try validate(target)
+            var selected = target
+            selected.selectionLocation = owned.start; selected.selectionLength = owned.text.utf16.count
+            var after = target
+            after.selectionLocation = owned.start + revision.text.utf16.count
+            inFlightCorrection = (target, selected, after, owned.witness, replacementWitness)
+            self.owned = nil
+            do {
+                guard try access.replaceOwned(owned.text, with: revision.text, start: owned.start,
+                    witness: owned.witness, at: target, isCurrent: {
+                        self.generation == startGeneration && self.binding?.id == binding.id && !Task.isCancelled
+                    }) else {
+                    try await store.completeOwnedCorrection(op, confirmed: false, notAttempted: true)
+                    return .correctionPending
+                }
+            } catch is AXTextWriteTimeout {
+                // Read back the one already issued mutation and never send it again.
+            }
+            // One write, bounded confirmation only. Never a second mutation on uncertainty.
+            for delay in [40, 80, 160] {
+                try await Task.sleep(for: .milliseconds(delay))
+                guard startGeneration == generation else { break }
+                if let current = try? access.snapshot(), current == after,
+                   let witness = access.textWitness(at: current), witness.utf8.elementsEqual(replacementWitness.utf8) {
+                    if current.isWeb, !(await settledWrite(at: after, witness: replacementWitness, generation: startGeneration)) { break }
+                    try await store.completeOwnedCorrection(op, confirmed: true)
+                    guard startGeneration == generation else { return .correctionPending }
+                    self.target = after
+                    self.owned = Ownership(recordingID: revision.recordingID, start: owned.start,
+                                           text: revision.text, witness: witness)
+                    let tail = String(revision.text.suffix(32))
+                    confirmedTail = (tail, after.selectionLocation - tail.utf16.count)
+                    return .confirmed
+                }
+            }
+            try await store.completeOwnedCorrection(op, confirmed: false)
+            invalidate()
+            return .correctionPending
+        } catch {
+            if let operation { try? await store.completeOwnedCorrection(operation, confirmed: false) }
+            else { try? await store.pendOwnedCorrection(bindingID: binding.id, revision: revision) }
+            invalidate()
+            return .correctionPending
+        }
+    }
+
     private func validate(_ target: InputTargetSnapshot) throws {
         guard hasPermission else { throw NativeInputError.permission }
         let current = try access.snapshot()
         try current.checked()
         guard current == target else { throw NativeInputError.targetChanged }
+        if let owned {
+            guard let witness = access.textWitness(at: target), witness.utf8.elementsEqual(owned.witness.utf8) else {
+                throw NativeInputError.targetChanged
+            }
+        }
         if let confirmedTail, access.matchesText(confirmedTail.text, utf16Start: confirmedTail.start, at: target) != true {
             throw NativeInputError.targetChanged
         }

@@ -1,52 +1,206 @@
+import SaytileVoiceUI
 import AppKit
+import Combine
 import SwiftUI
 import AVFoundation
 import SaytileKit
+import RiftletFeedback
 
 // Runs only with --ui-review AND an explicitly isolated data directory. All text/audio is synthetic.
 extension AppDelegate {
-    @MainActor func runUIReview(model: AppModel, output: URL) async {
-        NSApp.setActivationPolicy(.prohibited)
+    @MainActor func runUIReview(model: AppModel, output: URL) async -> Bool {
+        let timeline = ProcessInfo.processInfo.environment["SAYTILE_TIMELINE_REVIEW"] == "1"
+        let product = ProcessInfo.processInfo.environment["SAYTILE_PRODUCT_WINDOWS"] == "1"
+        let appearance = ProcessInfo.processInfo.environment["SAYTILE_APPEARANCE_REVIEW"] == "1"
+        let brand = ProcessInfo.processInfo.environment["SAYTILE_BRAND_REVIEW"] == "1"
+        let feedback = ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW"] == "1"
+        // A SwiftUI confirmationDialog creates its own key-capable NSAlertPanel.
+        // The feedback fixture must prohibit app activation, not only key status
+        // of its parent ReviewPanel. Production activation policy is unchanged.
+        NSApp.setActivationPolicy(timeline || product || appearance || brand ? .accessory : .prohibited)
         do {
             try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
+            if ProcessInfo.processInfo.environment["SAYTILE_REFERENCE_ONLY"] == "1" {
+                try await reviewApprovedReference(output: output)
+                print("REFERENCE_REVIEW_PASS isolated production window; synthetic capture only")
+                return true
+            }
+            if feedback {
+                guard NSApp.activationPolicy() == .prohibited else {
+                    throw ReviewFailure("Feedback native fixture could not prohibit application activation")
+                }
+                print("FEEDBACK_HOST_POLICY actual=prohibited")
+                try await reviewFeedback(output: output)
+                if ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW_PHASE"] != "reopen" {
+                    await model.initialLoad()
+                    try await reviewValidatedWindow(SettingsView(model: model, initialPage: .feedback),
+                        size: CGSize(width: 900, height: 780), name: "timeline-feedback-settings", output: output,
+                        validation: { host in
+                            _ = try await self.performControl("settings.page.feedback", in: host, arguments: ["inspect"])
+                            _ = try await self.performControl("feedback.send", in: host, arguments: ["inspect"])
+                        })
+                }
+                return true
+            }
             await model.initialLoad()
-            guard model.records.isEmpty else { throw NSError(domain: "Saytile.UIReview", code: 2, userInfo: [NSLocalizedDescriptionKey: "UI review requires an empty isolated data directory"]) }
-            try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 400, height: 550), name: "panel-empty", output: output)
+            if brand { try await reviewBrandAppearance(model: model, output: output); return true }
+            if let value = ProcessInfo.processInfo.environment["SAYTILE_REVIEW_REOPEN_STAR"], let id = UUID(uuidString: value) {
+                let restored = try await model.store.recording(id: id)
+                guard restored?.isPinned == true else { throw ReviewFailure("relaunch lost a row starred through the native control") }
+                print("WORKSPACE_REOPEN_PASS native row star persisted across processes")
+                return true
+            }
+            if ProcessInfo.processInfo.environment["SAYTILE_EDITOR_REVIEW"] == "reopen" {
+                let rows = try await model.store.listRecordings(limit: 4)
+                guard rows.count == 1, let row = rows.first, row.text.isEmpty, row.audioState == .deleted,
+                      try await model.store.revisions(recordingID: row.id).contains(where: { $0.text == "先写😀再改中\n第二行" })
+                else { throw ReviewFailure("restarting lost a committed edit or resurrected deleted text") }
+                print("INLINE_EDITOR_REOPEN_PASS previous revisions and deliberate deletion preserved")
+                return true
+            }
+            if ProcessInfo.processInfo.environment["SAYTILE_APPEARANCE_REVIEW"] == "1" {
+                try await reviewPanelAppearance(output: output)
+                return true
+            }
+            if ProcessInfo.processInfo.environment["SAYTILE_EDITOR_REVIEW"] == "1" {
+                try await reviewInlineEditing(model: model, output: output)
+                return true
+            }
+            if ProcessInfo.processInfo.environment["SAYTILE_NATURAL_PARAGRAPHS"] == "1" {
+                try await reviewNaturalParagraphs(model: model, output: output)
+                return true
+            }
+            if product { try await reviewProductWindows(model: model, output: output); return true }
+            if ProcessInfo.processInfo.environment["SAYTILE_TIMELINE_REVIEW"] == "1" {
+                try await reviewTimeline(model: model, output: output)
+                return true
+            }
+            guard try await model.store.listRecordings(limit: 1).isEmpty else { throw NSError(domain: "Saytile.UIReview", code: 2, userInfo: [NSLocalizedDescriptionKey: "UI review requires an empty isolated data directory"]) }
+            try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240), name: "panel-empty", output: output)
             let examples = [
                 "周五的产品讨论，先把重点记下来。保持表达自然，停顿之后还可以继续。",
-                "这周想留一点时间，把散落的想法整理成一页清晰的计划。不要自动发送，确认之后再决定。",
-                "API、Swift 与中文可以放在同一段表达里。测试 emoji 😀，保留所有修改版本。"
+                "这周想留一点时间。\n把散落的想法整理成一页清晰的计划。\n先收下讨论的时间。\n不要自动发送。\n确认之后再决定。",
+                "API、Swift 与中文可以放在同一段表达里。测试 emoji 😀，只显示一份持续修正的文字。"
             ]
+            // The first two paragraphs are one speaking session; a real idle gap starts the next.
+            let now = Date.now
+            let midnight = Calendar.current.dateInterval(of: .day, for: now)!.end
+            let base = midnight.timeIntervalSince(now) > 315 ? now.addingTimeInterval(1) : midnight
+            let offsets: [TimeInterval] = [0, 30, 280]
             for (index, text) in examples.enumerated() {
-                let row = try await model.store.createRecording(createdAt: Date().addingTimeInterval(Double(index)))
+                let row = try await model.store.createRecording(createdAt: base.addingTimeInterval(offsets[index]))
                 _ = try await model.store.saveEdit(recordingID: row.id, text: text)
-                try await model.store.finishRecording(id: row.id)
+                if index == 1 {
+                    try await addSilentReviewAudio(model: model, recordingID: row.id, frames: 80_000)
+                }
+                try await model.store.finishRecording(id: row.id, speechEndedAt: base.addingTimeInterval(offsets[index] + 5))
                 if index == 1 { try await model.store.setPinned(recordingID: row.id, pinned: true) }
                 if index == 2 { try await model.store.deleteAudio(recordingID: row.id) }
             }
+            let originalOnly = try await model.store.createRecording(createdAt: base.addingTimeInterval(310))
+            try await model.store.finishRecording(id: originalOnly.id)
             await model.refresh()
-            try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 400, height: 550), name: "panel-content", output: output) { host in
-                try await self.press("直接输入", in: host)
+            guard model.recordFilter == .transcribed, model.records.count == 3,
+                  model.records.allSatisfy({ !$0.text.isEmpty }) else { throw ReviewFailure("archive did not open on transcribed paragraphs") }
+            try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240), name: "panel-content", output: output) { host in
+                try await self.selectMenu("direct", title: "直接输入", in: host)
+                try await self.reviewUntil { model.directMode }
                 guard model.directMode else { throw ReviewFailure("direct mode button did not change mode") }
-                try await self.press("自由记录", in: host)
+                print("UI_NATIVE_MENU_ACK direct_mode=true")
+                try await self.selectMenu("free", title: "自由记录", in: host)
+                try await self.reviewUntil { !model.directMode }
                 guard !model.directMode else { throw ReviewFailure("free record button did not restore mode") }
-                print("UI_CONTROL_PASS mode buttons through native control events")
+                print("UI_NATIVE_MENU_ACK direct_mode=false")
+                print("UI_CONTROL_PASS modes through real native transcript context menu actions")
             }
-            try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 400, height: 440), name: "panel-compact", output: output)
-            try await reviewWindow(ArchiveView(model: model), size: CGSize(width: 1040, height: 720), name: "archive", output: output) { host in
-                try await self.press("已收藏", in: host)
+            try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 320, height: 200), name: "panel-compact", output: output)
+            guard let workspace = workspaceWindow(for: .archive), let content = workspace.contentView,
+                  workspaceWindow(for: .speech) === workspace, workspaceWindow(for: .storage) === workspace,
+                  workspaceWindow(for: .archive)?.contentView === content, !workspace.isVisible else {
+                throw ReviewFailure("workspace deep links created separate native windows or replaced the hosting view")
+            }
+            print("WORKSPACE_REUSE_PASS same NSWindow and hosting view across archive, speech and storage routes")
+            try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1040, height: 720), name: "archive", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["workspace.brand", "settings.page.archive", "archive.favorites"],
+                    excluded: ["回到输入板", "全部文字", "全部记录", "待恢复", "设置与存储"])
+                let entries = try await model.store.timelinePage().entries
+                let groupIDs = Set(entries.map { $0.group })
+                guard groupIDs.count == 2 else { throw ReviewFailure("short pause split a presentation group or long gap disappeared") }
+                let timeIDs = groupIDs.map { "archive.time.\($0)" }
+                try await self.inspectSettings(in: host, required: timeIDs,
+                    excluded: model.records.flatMap { ["archive.detail.\($0.id)", "archive.copy.\($0.id)"] })
+                try self.captureReview(host, name: "archive-reading", output: output)
+                try await self.mouseClick("archive.favorites", side: .right, minimumWidth: 24, in: host)
                 await model.refresh()
                 guard model.recordFilter == .pinned, model.records.count == 1 else { throw ReviewFailure("native archive filter action failed: filter=\(model.recordFilter), count=\(model.records.count)") }
-                try await self.press("全部记录", in: host)
+                guard let paragraph = model.records.first, paragraph.hasAudio, paragraph.text == examples[1] else {
+                    throw ReviewFailure("missing owned transcript or playback fixture")
+                }
+                _ = try await self.performControl("archive.text.\(paragraph.id)", in: host, arguments: ["read-paragraph", paragraph.text])
+                let editable = try await self.archiveEditor(paragraph.id, in: host)
+                try await self.mouseClick("archive.text.\(paragraph.id)", side: .left, minimumWidth: 40, in: host)
+                guard host.window?.firstResponder === editable, editable.isEditable, editable.isSelectable else {
+                    throw ReviewFailure("archive paragraph does not accept a caret in place")
+                }
+                let edited = paragraph.text + "已核对。"
+                editable.insertText("已核对。", replacementRange: NSRange(location: paragraph.text.utf16.count, length: 0))
+                guard (try await model.store.recording(id: paragraph.id))?.text == edited,
+                      model.selected == nil else { throw ReviewFailure("typing did not commit the correct original in place") }
+                try await self.reviewUntil { editable.string == edited }
+                try self.captureReview(host, name: "archive-editing", output: output)
+                print("ARCHIVE_READING_PASS two natural sessions; native inline change committed to its original record")
+                try await self.press("archive.play.\(paragraph.id)", in: host)
+                try await self.reviewUntil { model.playingID == paragraph.id && model.audio.playbackPosition > 0 }
+                guard abs(model.audio.playbackDuration - 5) < 0.01, model.selected == nil else {
+                    throw ReviewFailure("row playback did not play its own five-second original inline")
+                }
+                try await self.press("archive.play.\(paragraph.id)", in: host)
+                try await self.reviewUntil { model.playingID == nil }
+                print("UI_CONTROL_PASS archive row plays and stops its own original while reading")
+                try await self.press("archive.favorites", in: host)
+                try await self.press("archive.includeUntranscribed", in: host)
                 await model.refresh()
-                guard model.records.count == 3 else { throw ReviewFailure("native archive all-records action failed") }
+                guard model.records.count == 4, model.records.contains(where: { $0.id == originalOnly.id }) else { throw ReviewFailure("native archive all-records action lost original-only record") }
+                try await self.reviewArchiveEditing(id: originalOnly.id, model: model, in: host)
+                try await self.press("archive.includeUntranscribed", in: host)
+                await model.refresh()
+                guard model.records.count == 3, let first = model.records.first else { throw ReviewFailure("archive transcript filter did not restore paragraphs") }
+                let starEditor = try await self.archiveEditor(first.id, in: host)
+                guard host.window?.makeFirstResponder(starEditor) == true else { throw ReviewFailure("could not focus archive text") }
+                try await Task.sleep(for: .milliseconds(150))
+                try await self.mouseClick("archive.favorite.\(first.id)", side: .right, minimumWidth: 22, in: host)
+                try await self.reviewUntil { model.records.contains(where: { $0.id == first.id && $0.pinned }) }
+                guard try await model.store.recording(id: first.id)?.isPinned == true else { throw ReviewFailure("row star did not persist") }
+                print("WORKSPACE_STAR_ID \(first.id.uuidString)")
+                try await self.mouseClick("archive.favorites", side: .left, minimumWidth: 24, in: host)
+                try await self.reviewUntil { model.recordFilter == .pinned && model.records.count == 2 }
+                try await self.openArchiveVersions(for: first.id, in: host)
+                try await self.reviewUntil { model.editorCanEdit && model.selected?.id == first.id }
+                guard model.selected?.id == first.id, model.editorDraft == first.text else { throw ReviewFailure("paragraph editor opened wrong text") }
+                try await self.press("archive.detailFavorite", in: host)
+                try await self.reviewUntil { model.selected == nil && !model.records.contains(where: { $0.id == first.id }) }
+                guard try await model.store.recording(id: first.id)?.isPinned == false else { throw ReviewFailure("removed favorite still pinned in SQLite") }
+                try await self.mouseClick("archive.favorites", side: .right, minimumWidth: 24, in: host)
+                try await self.reviewUntil { model.recordFilter == .transcribed && model.records.count == 3 }
+                try await self.openArchiveVersions(for: first.id, in: host)
+                try await self.reviewUntil { model.editorCanEdit && model.selected?.id == first.id }
+                try await self.press("archive.detailFavorite", in: host)
+                try await self.reviewUntil { model.selected?.pinned == true }
+                try await self.press("返回记录列表", in: host)
+                guard model.selected == nil else { throw ReviewFailure("paragraph editor did not return to reader") }
+                try await self.mouseClick("settings.page.speech", side: .right, minimumWidth: 120, in: host)
+                try await self.inspectSettings(in: host, required: ["settings.inputDevice", "workspace.brand"], excluded: ["archive.favorites"])
+                try await self.mouseClick("settings.page.archive", side: .left, minimumWidth: 120, in: host)
+                try await self.inspectSettings(in: host, required: ["archive.favorites", "workspace.brand"], excluded: ["settings.inputDevice"])
+                guard model.recordFilter == .transcribed, model.records.count == 3 else { throw ReviewFailure("changing workspace page reset the archive list") }
                 print("UI_CONTROL_PASS archive filters through native control events and SQLite")
             }
+            try await model.store.deleteRecord(recordingID: originalOnly.id)
             if let row = model.records.first {
                 await model.selectForEditing(row)
                 model.updateEditorDraft(row.text + "\n这是会自动保留的编辑草稿。")
                 _ = await model.flushEditorDrafts()
-                try await reviewWindow(ArchiveView(model: model), size: CGSize(width: 1120, height: 720), name: "archive-detail", output: output) { host in
+                try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1120, height: 720), name: "archive-detail", output: output) { host in
                     try await self.press("保存修改", in: host)
                     for _ in 0..<50 {
                         if (try await model.store.recording(id: row.id))?.text.contains("自动保留的编辑草稿") == true { break }
@@ -55,29 +209,592 @@ extension AppDelegate {
                     guard (try await model.store.recording(id: row.id))?.text.contains("自动保留的编辑草稿") == true else { throw ReviewFailure("native save action did not commit edit") }
                     print("UI_CONTROL_PASS native Save action commits immutable edit")
                 }
-                try await reviewWindow(ArchiveView(model: model), size: CGSize(width: 1120, height: 570), name: "archive-detail-compact", output: output)
+                try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1120, height: 570), name: "archive-detail-compact", output: output)
                 model.closeDetail()
             }
             model.query = "找不到的合成关键词"; await model.refresh()
-            try await reviewWindow(ArchiveView(model: model), size: CGSize(width: 1040, height: 720), name: "archive-no-results", output: output)
+            try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1040, height: 720), name: "archive-no-results", output: output)
             model.query = ""; model.notice = nil
-            try await reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 740), name: "settings", output: output)
+            await model.refresh()
+            if let row = model.records.first(where: { $0.source.audioState == .available }) {
+                let ticket = try await model.store.beginFusionRecognition(recordingID: row.id)
+                let review = ModelConfiguration(purpose: .textFusion, provider: .openAIResponses, model: "gpt-6-astra")
+                let run = try await model.store.beginModelRun(ticket: ticket, configuration: review)
+                await model.refresh()
+                guard let active = model.recent.first(where: { $0.id == row.id }),
+                      model.recognitionPhaseLabel(for: active) == "正在核对文字",
+                      active.text == row.text, model.recent.filter({ $0.id == row.id }).count == 1 else {
+                    throw ReviewFailure("single transcript or generic processing state was not retained")
+                }
+                try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 360, height: 260), name: "panel-ai-review", output: output)
+                try await model.store.finishModelRun(run, error: "合成复核连接中断", retryable: true)
+                try await model.store.failRecognition(ticket: ticket, message: "合成复核连接中断，原音与文字已保留")
+                await model.refresh()
+                guard let failed = model.recent.first(where: { $0.id == row.id }),
+                      model.recognitionPhaseLabel(for: failed) == "识别待恢复", failed.text == row.text else {
+                    throw ReviewFailure("failed review changed existing text or retained stale running phase")
+                }
+                try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 360, height: 260), name: "panel-ai-recovery", output: output)
+                print("UI_STATE_PASS one transcript survives single-core processing and failure; synthetic Store runs, no providers")
+            }
+            model.selectSource("local")
+            try await reviewWindow(SettingsView(model: model, initialPage: .speech), size: CGSize(width: 650, height: 740), name: "settings", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["settings.inputDevice", "麦克风权限", "settings.rememberStandby"],
+                                              excluded: ["cloud.serviceInspector", "hosted.email", "models.use.apple"])
+                let originalStandbyChoice = model.remembersStandby
+                try await self.press("settings.rememberStandby", in: host)
+                guard model.remembersStandby != originalStandbyChoice, !model.isListening else {
+                    throw ReviewFailure("standby preference must change without starting a paused microphone")
+                }
+                try await self.press("settings.rememberStandby", in: host)
+                guard model.remembersStandby == originalStandbyChoice else { throw ReviewFailure("standby preference did not revert") }
+                try await self.press("settings.page.cloud", in: host)
+                try await self.inspectSettings(in: host, required: ["hosted.upload-consent"], excluded: ["settings.inputDevice"])
+                try await self.chooseCloudService("自带 API", in: host)
+                try await self.inspectSettings(in: host, required: ["cloud.useBYOK"], excluded: ["hosted.upload-consent"])
+                try await self.press("settings.page.models", in: host)
+                try await self.inspectSettings(in: host, required: ["models.use.apple"], excluded: ["models.mode", "cloud.serviceInspector"])
+                try await self.press("settings.page.speech", in: host)
+                guard model.deviceOnly, !model.hosted.selected, !model.hosted.consent,
+                      !model.recognitionConfiguration.cloudEnabled, !model.connectionCheckAuthorized else {
+                    throw ReviewFailure("browsing the model catalog and both cloud services changed activation or consent")
+                }
+            }
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 560, height: 570), name: "settings-compact", output: output)
+            try await reviewWindow(SettingsView(model: model, initialPage: .models), size: CGSize(width: 650, height: 740), name: "settings-models", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["models.use.apple"],
+                                              excluded: ["models.mode", "自动推荐", "手动选择", "hosted.upload-consent", "recognition.cloudEnabled"])
+            }
+            try await reviewWindow(SettingsView(model: model, initialPage: .cloud), size: CGSize(width: 650, height: 740), name: "settings-hosted", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["cloud.serviceInspector", "hosted.email", "hosted.upload-consent"],
+                                              excluded: ["settings.inputDevice", "recognition.cloudEnabled"])
+                guard model.deviceOnly, !model.hosted.selected, !model.hosted.consent, !model.hosted.signedIn else {
+                    throw ReviewFailure("browsing cloud settings changed the local route or its authorization")
+                }
+                try await self.press("hosted.upload-consent", in: host)
+                try await self.reviewUntil { model.hosted.consent && model.hosted.selected && !model.deviceOnly }
+                try await self.press("hosted.upload-consent", in: host)
+                try await self.reviewUntil { !model.hosted.consent && !model.hosted.selected && model.deviceOnly }
+            }
+            try await reviewWindow(SettingsView(model: model, initialPage: .cloud, initialCloudService: .byok), size: CGSize(width: 650, height: 740), name: "settings-byok", output: output) { host in
+                try await self.inspectSettings(in: host, required: ["cloud.serviceInspector", "cloud.useBYOK"],
+                                              excluded: ["settings.inputDevice", "hosted.email", "hosted.upload-consent"])
+                guard !model.recognitionConfiguration.cloudEnabled, !model.connectionCheckAuthorized, !model.hosted.consent else {
+                    throw ReviewFailure("browsing BYOK settings authorized a service")
+                }
+            }
+            model.selectSource("local")
+            try await reviewWindow(Form { RecognitionSettingsSection(model: model) }.formStyle(.grouped), size: CGSize(width: 650, height: 840), name: "ai-controls", output: output) { host in
+                guard !model.connectionVerified, !model.recognitionConfiguration.cloudEnabled else {
+                    throw ReviewFailure("unconfigured cloud connection was enabled")
+                }
+                try await self.press("recognition.configureServices", in: host)
+                guard !model.connectionCheckAuthorized else { throw ReviewFailure("cost authorization was preselected") }
+                try await self.press("connection.authorizeCheck", in: host)
+                guard model.connectionCheckAuthorized, !model.checkingConnection,
+                      !model.appliedRecognitionConfiguration.cloudEnabled else {
+                    throw ReviewFailure("cost consent started a connection or enabled cloud without prepared services")
+                }
+                model.recognitionSettingsNotice = nil
+                try await self.press("recognition.apply", in: host)
+                for _ in 0..<100 {
+                    if !model.applyingRecognitionSettings, model.recognitionSettingsNotice != nil { break }
+                    try await Task.sleep(for: .milliseconds(20))
+                }
+                guard !model.appliedRecognitionConfiguration.cloudEnabled, model.recognitionSettingsNotice != nil else {
+                    throw ReviewFailure("unconfigured settings enabled cloud")
+                }
+                try await self.setValue("合成界面测试话题", for: "recognition.topicContext", in: host)
+                guard model.recognitionConfiguration.topicContext == "合成界面测试话题" else { throw ReviewFailure("native topic field did not update draft") }
+                try await self.press("recognition.apply", in: host)
+                for _ in 0..<100 {
+                    if !model.applyingRecognitionSettings, model.appliedRecognitionConfiguration.topicContext == "合成界面测试话题" { break }
+                    try await Task.sleep(for: .milliseconds(20))
+                }
+                guard model.appliedRecognitionConfiguration.topicContext == "合成界面测试话题",
+                      !model.appliedRecognitionConfiguration.cloudEnabled, !model.hasUnappliedRecognitionSettings else {
+                    throw ReviewFailure("native settings apply did not commit isolated local configuration")
+                }
+                print("UI_CONTROL_PASS recognition settings: unverified cloud disabled, explicit cost authorization, offline apply and native text edit")
+            }
+            try await reviewWindow(Form { RecognitionSettingsSection(model: model, initiallyExpanded: true) }.formStyle(.grouped), size: CGSize(width: 650, height: 840), name: "ai-services", output: output)
+            if !model.recognitionConfiguration.models.isEmpty {
+                try await reviewWindow(Form {
+                    Section("中文专家设置") {
+                        ModelConfigurationEditor(configuration: Binding(get: { model.recognitionConfiguration.models[0] }, set: { model.recognitionConfiguration.models[0] = $0 }), model: model, initiallyExpanded: true)
+                    }
+                }.formStyle(.grouped), size: CGSize(width: 650, height: 740), name: "ai-chinese-keychain", output: output) { host in
+                    let prefix = "recognition.model." + model.recognitionConfiguration.models[0].id.uuidString.lowercased()
+                    guard model.recognitionConfiguration.models[0].enabled else { throw ReviewFailure("required expert unexpectedly disabled") }
+                    try await self.setValue("synthetic-workspace", for: prefix + ".workspace", in: host)
+                    guard model.recognitionConfiguration.models[0].workspaceID == "synthetic-workspace" else { throw ReviewFailure("native workspace field failed") }
+                    try await self.press(prefix + ".consent", in: host)
+                    guard model.recognitionConfiguration.models[0].cloudConsent else { throw ReviewFailure("native processing consent toggle failed") }
+                    try await self.press(prefix + ".consent", in: host)
+                    guard !model.recognitionConfiguration.models[0].cloudConsent,
+                          model.recognitionConfiguration.models[0].enabled else { throw ReviewFailure("native model controls did not restore safe defaults") }
+                    print("UI_CONTROL_PASS single selected ASR + GPT setup: workspace and per-service consent; no model toggle, key read or cloud request")
+                }
+            }
+            let setupRoot = output.appendingPathComponent("connection-setup-" + UUID().uuidString, isDirectory: true)
+            let setup = try ConnectionSetupRequest(directory: setupRoot, output: setupRoot.appendingPathComponent("configuration.json"))
+            var setupFinished = false
+            try await reviewWindow(ConnectionSetupView(model: model, request: setup, finish: { setupFinished = true }), size: CGSize(width: 650, height: 840), name: "connection-setup", output: output) { host in
+                try await self.press("connectionSetup.finish", in: host)
+                guard !setupFinished, !FileManager.default.fileExists(atPath: setup.output.path) else {
+                    throw ReviewFailure("unready connection setup exported configuration or finished")
+                }
+                print("UI_CONTROL_PASS isolated setup rejects unfinished configuration through native Finish action; no export or provider request")
+            }
+            try await reviewFirstConnection(output: output)
+            try await reviewCompactPanel(output: output)
+            try reviewVoiceGlyph(output: output)
+            let referenceOutput = output.appendingPathComponent("approved-reference", isDirectory: true)
+            try FileManager.default.createDirectory(at: referenceOutput, withIntermediateDirectories: true)
+            try await reviewApprovedReference(output: referenceOutput)
             if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] == nil { print("UI_CONTROLS_NOT_RUN remote AX helper not configured; rendering only") }
-            print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; 9 captures; synthetic data; no activation/microphone")
-        } catch { print("UI_REVIEW_FAILED \(error.localizedDescription)") }
+            let captures = try FileManager.default.contentsOfDirectory(at: output, includingPropertiesForKeys: nil)
+                .filter { $0.pathExtension == "png" }.count
+            print("UI_REVIEW_PASS native SwiftUI attached to AppKit windows; \(captures) standard captures plus 3 approved-reference captures; synthetic data; no activation/microphone")
+            return true
+        } catch { print("UI_REVIEW_FAILED \(error.localizedDescription)"); fflush(nil); return false }
     }
 
-    private struct ReviewFailure: LocalizedError {
+    /// Runs only against the disposable seed prepared by test-native-timeline.py.
+    @MainActor private func reviewTimeline(model: AppModel, output: URL) async throws {
+        guard model.timelineTail?.position == 12000, let board = model.copyPasteboard,
+              board.name != NSPasteboard.general.name, !model.directMode, model.audio.state == .paused else {
+            throw ReviewFailure("expected private board, isolated 12000-row timeline and paused capture")
+        }
+        defer { board.releaseGlobally() }
+        model.changeIdleInterval(60)
+        try await reviewUntil { model.timelineIdleSeconds == 60 }
+        let start = Date.now
+        let first = try await model.store.createRecording(createdAt: start)
+        let ticket = try await model.store.beginRecognition(recordingID: first.id)
+        try await model.store.applyRecognition(ticket: ticket, text: "想把这个想法记下来。", isFinal: false)
+        try await model.store.finishRecording(id: first.id, speechEndedAt: start)
+        let second = try await model.store.createRecording(createdAt: start.addingTimeInterval(0.2))
+        let continuation = "嗯，先不发，明天再看。"
+        try await model.store.saveEdit(recordingID: second.id, text: continuation)
+        try await model.store.finishRecording(id: second.id, speechEndedAt: start.addingTimeInterval(0.2))
+        await model.refresh()
+        let initialText = "想把这个想法记下来。"
+        let controls = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil
+        try await reviewValidatedWindow(InputPanelWindowView(model: model), size: WindowPlacement.panelDefaultSize,
+            name: "timeline-history", output: output, validation: { host in
+                let scroll = try self.compactTranscript(in: host)
+                guard scroll.rendered.spans.count == 64,
+                      scroll.rendered.spans.suffix(2).map({ $0.entry.id }) == [first.id,second.id],
+                      scroll.rendered.spans.suffix(2).allSatisfy({ $0.entry.group == model.timelineTail?.group }) else {
+                    throw ReviewFailure("continuous native timeline did not load newest group")
+                }
+                try self.captureReview(host, name: "timeline-live", output: output)
+                if controls {
+                    try await self.press("panel.copy", in: host)
+                    guard board.string(forType: .string) == initialText + continuation else { throw ReviewFailure("copy scope was not latest group") }
+                }
+                let changes = board.changeCount
+                try await model.store.applyRecognition(ticket: ticket, text: "想把这段话记下来。", isFinal: true)
+                await model.refresh()
+                try await self.reviewUntil { scroll.rendered.spans.suffix(2).first?.entry.recording.text == "想把这段话记下来。" }
+                guard board.changeCount == changes, scroll.rendered.spans.last?.entry.id == second.id else { throw ReviewFailure("late revision changed clipboard or order") }
+                await model.selectForEditing(DisplayRecording(source: first))
+                model.updateEditorDraft("用户自己决定的写法")
+                try await model.store.applyRecognition(ticket: ticket, text: "迟到的候选版本", isFinal: true)
+                await model.refresh()
+                guard model.editorDraft == "用户自己决定的写法" else { throw ReviewFailure("late ASR rewrote unsaved edit") }
+                model.closeDetail()
+                let beforeIdle = scroll.contentView.bounds.minY
+                let textBeforeIdle = scroll.transcriptView.string
+                let heightBeforeIdle = scroll.transcriptView.bounds.height
+                // Wait for the actual production timer at the shortest supported interval.
+                if ProcessInfo.processInfo.environment["SAYTILE_RECORD_TIMELINE"] == "1" {
+                    try await self.recordIdleTransition(host, model: model, output: output)
+                } else {
+                    for _ in 0..<740 where !model.timelineIdle { try await Task.sleep(for: .milliseconds(100)) }
+                }
+                guard model.timelineIdle else { throw ReviewFailure("production idle interval did not elapse") }
+                // Sample beyond the previous 12 animation frames to detect even a transient hop.
+                for _ in 0..<18 {
+                    try await Task.sleep(for: .milliseconds(16))
+                    guard abs(scroll.contentView.bounds.minY - beforeIdle) < 1,
+                          scroll.transcriptView.bounds.height == heightBeforeIdle,
+                          scroll.transcriptView.string == textBeforeIdle else {
+                        throw ReviewFailure("idle moved the native viewport or changed its text")
+                    }
+                }
+                print("TIMELINE_IDLE_STATIONARY delta=\(scroll.contentView.bounds.minY - beforeIdle) height=\(heightBeforeIdle)")
+                try self.captureReview(host, name: "timeline-idle", output: output)
+                if controls {
+                    let anchor = scroll.contentView.bounds.origin
+                    let state = model.audio.state
+                    let notice = model.notice
+                    let expected = try await model.store.recording(id: first.id)!.text + continuation
+                    try await self.press("panel.copy", in: host)
+                    guard board.string(forType: .string) == expected, model.timelineIdle,
+                          scroll.contentView.bounds.origin == anchor, scroll.selectionSnapshot.isEmpty,
+                          model.audio.state == state, model.notice == notice else {
+                        throw ReviewFailure("idle click did not silently snapshot the latest group in place")
+                    }
+                    print("IDLE_COPY_PASS two utterances; stationary viewport, capture and notice unchanged")
+                }
+                let idleClipboard = board.changeCount
+                // The archive editor holds its page, as on a nonactivating panel click.
+                await model.selectForEditing(DisplayRecording(source: first))
+                model.archiveIsKey = true
+                model.updateEditorDraft("独立复核的未提交草稿")
+                try await self.reviewUntil { scroll.editing }
+                let new = try await model.store.createRecording()
+                try await model.store.saveEdit(recordingID: new.id, text: "再记一句，和之前的想法放在一起。")
+                try await model.store.finishRecording(id: new.id)
+                await model.refresh()
+                guard board.changeCount == idleClipboard else { throw ReviewFailure("new speech rewrote an idle clipboard snapshot") }
+                if controls {
+                    guard scroll.rendered.spans.last?.entry.id == second.id else {
+                        throw ReviewFailure("editor failed to hold the idle reading page")
+                    }
+                    try await self.press("panel.copy", in: host)
+                    guard board.string(forType: .string) == "再记一句，和之前的想法放在一起。",
+                          model.editorDraft == "独立复核的未提交草稿", scroll.rendered.spans.last?.entry.id == second.id else {
+                        throw ReviewFailure("copy on a held panel used the previous group")
+                    }
+                    print("HELD_IDLE_COPY_PASS newest group only; editor draft and held viewport intact")
+                }
+                model.archiveIsKey = false
+                model.closeDetail()
+                try await self.reviewUntil { !scroll.rendered.idle && scroll.rendered.spans.last?.entry.id == new.id }
+                guard model.timelineTail?.group != scroll.rendered.spans.dropLast().last?.entry.group else { throw ReviewFailure("post-idle speech reused previous group") }
+                // Deliver an AppKit wheel event directly to our own scroll view.
+                // No global event, active application, public clipboard or microphone.
+                let oldFirst = scroll.rendered.firstPosition!
+                let expectedLast = scroll.rendered.spans[scroll.rendered.spans.count / 2].entry.position
+                scroll.contentView.scroll(to: .zero)
+                scroll.reflectScrolledClipView(scroll.contentView)
+                guard let overlap = scroll.rendered.spans.first,
+                      let glyphLayout = scroll.transcriptView.layoutManager,
+                      let glyphContainer = scroll.transcriptView.textContainer else {
+                    throw ReviewFailure("pagination anchor unavailable")
+                }
+                @MainActor func rowViewportPoint(_ character: Int) -> CGPoint {
+                    let glyph = glyphLayout.glyphIndexForCharacter(at: character)
+                    let rect = glyphLayout.boundingRect(forGlyphRange: NSRange(location: glyph, length: 1), in: glyphContainer)
+                    return CGPoint(x: rect.minX + scroll.transcriptView.textContainerOrigin.x - scroll.documentVisibleRect.minX,
+                                   y: rect.minY + scroll.transcriptView.textContainerOrigin.y - scroll.documentVisibleRect.minY)
+                }
+                let offsets = Array(0..<min(16, overlap.range.length))
+                let beforePage = offsets.map { rowViewportPoint(overlap.range.location + $0) }
+                guard let wheel = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1, wheel1: 1, wheel2: 0, wheel3: 0),
+                      let event = NSEvent(cgEvent: wheel) else { throw ReviewFailure("no native wheel event") }
+                let began = ContinuousClock.now
+                // A real trackpad gesture can span multiple Cocoa run-loop turns.
+                // The native view must cross the old keyset boundary and retain overlap.
+                scroll.scrollWheel(with: event)
+                try await self.reviewUntil { (scroll.rendered.firstPosition ?? oldFirst) < oldFirst }
+                guard scroll.rendered.spans.count == 64, scroll.rendered.lastPosition == expectedLast,
+                      !scroll.isFollowingLatest,
+                      scroll.rendered.spans.contains(where: { $0.entry.position == oldFirst }) else { throw ReviewFailure("paged native viewport dropped overlap") }
+                guard let sameRow = scroll.rendered.spans.first(where: { $0.entry.id == overlap.entry.id }) else {
+                    throw ReviewFailure("pagination lost the visible row")
+                }
+                let afterPage = offsets.map { rowViewportPoint(sameRow.range.location + $0) }
+                let pairs = Array(zip(beforePage, afterPage))
+                let sideways = pairs.map { abs($1.x - $0.x) }.max() ?? .infinity
+                let pageOffset = (afterPage.first?.y ?? .infinity) - (beforePage.first?.y ?? 0)
+                let shear = pairs.map { abs(($1.y - $0.y) - pageOffset) }.max() ?? .infinity
+                guard sideways <= 1, shear <= 1 else { throw ReviewFailure("pagination rewrapped visible characters: dx=\(sideways) shear=\(shear)") }
+                // One pixel of requested scrolling, plus backing-pixel alignment.
+                guard abs(pageOffset) <= 2 else { throw ReviewFailure("pagination displaced the reader by \(pageOffset) pt") }
+                print("TIMELINE_PAGE_ANCHOR delta=\(pageOffset) points dx=\(sideways) lineShear=\(shear) characters=\(offsets.count)")
+                print("TIMELINE_NATIVE_PAGE rows=12003 resident=64 wheel_to_paint=\(began.duration(to: .now))")
+                let entries = scroll.rendered.spans
+                // This fixture has 24-second speech gaps: midnight changes the
+                // archive day, while the >15-second gap independently starts a paragraph.
+                guard scroll.rendered.markers.isEmpty,
+                      let nextDay = entries.indices.dropFirst().first(where: { entries[$0-1].entry.groupDay != entries[$0].entry.groupDay }) else {
+                    throw ReviewFailure("midnight inserted a time heading or lost the adjacent historical owners")
+                }
+                let beforeMidnight = entries[nextDay - 1], afterMidnight = entries[nextDay]
+                let separation = NSRange(location: NSMaxRange(beforeMidnight.range),
+                                         length: afterMidnight.range.location - NSMaxRange(beforeMidnight.range))
+                let displayed = scroll.transcriptView.string as NSString
+                guard afterMidnight.entry.recording.createdAt.timeIntervalSince(beforeMidnight.entry.speechEnd) >= 15,
+                      beforeMidnight.entry.paragraphID != afterMidnight.entry.paragraphID,
+                      separation.length == 1, displayed.substring(with: separation) == "\n",
+                      displayed.substring(with: beforeMidnight.range) == beforeMidnight.entry.displayText,
+                      displayed.substring(with: afterMidnight.range) == afterMidnight.entry.displayText else {
+                    throw ReviewFailure("24-second midnight pause did not preserve both originals with exactly one natural paragraph break")
+                }
+                print("TIMELINE_MIDNIGHT_PARAGRAPH one_newline=true original_text=true time_heading=false")
+                scroll.transcriptView.scrollRangeToVisible(entries[nextDay].range)
+                try self.captureReview(host, name: "timeline-midnight", output: output)
+                // Select a line already on screen. A second asynchronous AppKit scroll
+                // would still be moving the viewport when the history check starts.
+                guard let layout = scroll.transcriptView.layoutManager,
+                      let container = scroll.transcriptView.textContainer,
+                      let span = scroll.rendered.spans.first(where: {
+                          let glyphs = layout.glyphRange(forCharacterRange: $0.range, actualCharacterRange: nil)
+                          var rect = layout.boundingRect(forGlyphRange: glyphs, in: container)
+                          let origin = scroll.transcriptView.textContainerOrigin
+                          rect = rect.offsetBy(dx: origin.x, dy: origin.y)
+                          return scroll.documentVisibleRect.contains(rect)
+                      }) else { throw ReviewFailure("no visible historical line to select") }
+                scroll.transcriptView.setSelectedRange(span.range)
+                let anchor = scroll.contentView.bounds.minY
+                let last = try await model.store.createRecording()
+                try await model.store.saveEdit(recordingID: last.id, text: "继续说，也留住刚才选中的文字。")
+                try await model.store.finishRecording(id: last.id)
+                await model.refresh()
+                guard scroll.selectionSnapshot == span.entry.recording.text, abs(anchor - scroll.contentView.bounds.minY) < 1,
+                      !model.recent.contains(where: { $0.id == span.entry.id }) else { throw ReviewFailure("history selection moved or entered insertion list") }
+                if controls {
+                    try await self.press("panel.copy", in: host)
+                    guard board.string(forType: .string) == span.entry.recording.text else { throw ReviewFailure("historical selection copy failed") }
+                }
+                print("TIMELINE_NATIVE_PASS idle_before_y=\(beforeIdle) selected=stable private_board=\(controls) history_isolated=true")
+            })
+        model.followTimeline()
+        await model.refresh()
+        try await reviewValidatedWindow(InputPanelWindowView(model: model), size: WindowPlacement.panelDefaultSize,
+            name: "timeline-reopened", output: output, validation: { host in
+                let scroll = try self.compactTranscript(in: host)
+                guard scroll.isFollowingLatest, scroll.rendered.spans.last?.entry == model.timelineTail,
+                      scroll.rendered.spans.count == 64 else { throw ReviewFailure("reopened window lost live timeline") }
+            })
+    }
+
+    /// Record only this process's real native view during the production idle
+    /// transition. Keep pre-transition frames in a short rolling buffer.
+    @MainActor private func recordIdleTransition(_ host: NSView, model: AppModel, output: URL) async throws {
+        let directory = output.appendingPathComponent("motion-frames")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        var frames: [(time: Double, png: Data)] = []
+        let start = ProcessInfo.processInfo.systemUptime
+        var idleAt: Double?
+        while ProcessInfo.processInfo.systemUptime - start < Double(model.timelineIdleSeconds + 6) {
+            guard let window = host.window, window is ReviewPanel, !window.isKeyWindow,
+                  let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw ReviewFailure("native view recording unavailable") }
+            host.cacheDisplay(in: host.bounds, to: bitmap)
+            let time = ProcessInfo.processInfo.systemUptime
+            guard let png = bitmap.representation(using: .png, properties: [:]) else { throw ReviewFailure("native frame unavailable") }
+            frames.append((time, png))
+            if model.timelineIdle && idleAt == nil { idleAt = time }
+            if let idleAt {
+                if time - idleAt > 0.65 { break }
+            } else { frames.removeAll { time - $0.time > 0.5 } }
+            try await Task.sleep(for: .milliseconds(16))
+        }
+        guard idleAt != nil, let first = frames.first else { throw ReviewFailure("idle transition missing from recording") }
+        for (i, frame) in frames.enumerated() {
+            try frame.png.write(to: directory.appendingPathComponent("\(i).png"))
+        }
+        try JSONEncoder().encode(frames.map { $0.time - first.time }).write(to: directory.appendingPathComponent("times.json"))
+    }
+
+    struct ReviewFailure: LocalizedError {
         let message: String
         init(_ message: String) { self.message = message }
         var errorDescription: String? { message }
     }
     @MainActor private func press(_ label: String, in root: NSView) async throws {
+        _ = try await performControl(label, in: root)
+    }
+    @MainActor func archiveEditor(_ id: UUID, in host: NSView) async throws -> NSTextView {
+        // The model commits a filter before SwiftUI lays out its new lazy rows.
+        // Await the actual owned view without issuing or replaying a control action.
+        func rendered() -> NSTextView? {
+            var pending = [host]
+            while let view = pending.popLast() {
+                if let editor = view as? NSTextView, editor.accessibilityIdentifier() == "archive.text.\(id)", editor.window === host.window {
+                    return editor
+                }
+                pending.append(contentsOf: view.subviews)
+            }
+            return nil
+        }
+        try await reviewUntil { host.layoutSubtreeIfNeeded(); return rendered() != nil }
+        guard let editor = rendered() else { throw ReviewFailure("missing owned archive editor") }
+        return editor
+    }
+
+    @MainActor private func reviewArchiveEditing(id: UUID, model: AppModel, in host: NSView) async throws {
+        guard let editor = try await archiveEditor(id, in: host) as? ArchiveParagraphTextView,
+              let window = host.window, window.makeFirstResponder(editor), editor.string.isEmpty else {
+            throw ReviewFailure("empty archive paragraph could not acquire an insertion point")
+        }
+        let board = NSPasteboard.withUniqueName()
+        editor.commandPasteboard = board
+        defer {
+            editor.commandPasteboard = model.copyPasteboard
+            board.releaseGlobally()
+        }
+        editor.setMarkedText("zhong", selectedRange: .init(location: 5, length: 0),
+                             replacementRange: .init(location: 0, length: 0))
+        guard editor.hasMarkedText(), (try await model.store.recording(id: id))?.text == "" else {
+            throw ReviewFailure("unconfirmed Pinyin was archived")
+        }
+        editor.insertText("中文😀", replacementRange: editor.markedRange())
+        guard (try await model.store.recording(id: id))?.text == "中文😀" else {
+            throw ReviewFailure("IME acceptance failed to save inside its original row")
+        }
+        // Keep read/write probes on their own pasteboard across SwiftUI updates.
+        editor.commandPasteboard = board
+        editor.setSelectedRange(.init(location: 2, length: 2))
+        editor.copy(nil)
+        guard board.string(forType: .string) == "😀" else { throw ReviewFailure("archive copy lost its selection") }
+        editor.setSelectedRange(.init(location: 0, length: 1))
+        editor.paste(nil)
+        guard (try await model.store.recording(id: id))?.text == "😀文😀" else { throw ReviewFailure("archive paste replaced the wrong text range") }
+        editor.commandPasteboard = board
+        editor.setSelectedRange(.init(location: 0, length: 2))
+        editor.cut(nil)
+        guard board.string(forType: .string) == "😀",
+              (try await model.store.recording(id: id))?.text == "文😀" else {
+            throw ReviewFailure("archive cut failed to preserve adjacent words")
+        }
+        let beforeUndo = editor.string
+        guard let undo = editor.undoManager else { throw ReviewFailure("archive undo unavailable") }
+        // Synthetic multi-step actions run inside a single native event. An explicit
+        // event boundary exercises one user action without assuming run-loop timing.
+        undo.beginUndoGrouping()
+        editor.breakUndoCoalescing()
+        editor.insertText("。", replacementRange: .init(location: 3, length: 0))
+        undo.endUndoGrouping()
+        let beforeRedo = editor.string
+        guard beforeRedo == "文😀。", undo.canUndo else { throw ReviewFailure("archive undo unavailable for a committed edit") }
+        undo.undo()
+        // AppKit may coalesce adjacent typing into one user undo unit. Verify the
+        // text changed and SQLite contains precisely the restored text at each step.
+        guard editor.string != beforeRedo, (try await model.store.recording(id: id))?.text == editor.string,
+              undo.canRedo else { throw ReviewFailure("archive undo diverged from the saved revision") }
+        undo.redo()
+        guard editor.string == beforeRedo, (try await model.store.recording(id: id))?.text == beforeRedo,
+              beforeUndo == "文😀" else { throw ReviewFailure("archive redo failed to restore the saved revision") }
+        editor.selectAll(nil)
+        editor.deleteBackward(nil)
+        guard (try await model.store.recording(id: id))?.text == "", window.firstResponder === editor else {
+            throw ReviewFailure("deleting the full paragraph lost its empty editing position")
+        }
+        editor.doCommand(by: #selector(NSTextView.insertTab(_:)))
+        guard window.firstResponder !== editor, editor.string.isEmpty else {
+            throw ReviewFailure("Tab failed to leave the archive paragraph or inserted a tab into its content")
+        }
+        window.selectPreviousKeyView(nil)
+        guard window.firstResponder === editor else { throw ReviewFailure("reverse Tab did not restore the archive paragraph") }
+        print("ARCHIVE_EDITOR_PASS empty paragraph, accepted IME, UTF-16 selection, private copy/cut/paste, durable undo/redo, Tab and reverse Tab")
+    }
+
+    @MainActor private func openArchiveVersions(for id: UUID, in host: NSView) async throws {
+        let editor = try await archiveEditor(id, in: host)
+        guard let window = host.window,
+              let event = NSEvent.mouseEvent(with: .rightMouseDown, location: editor.convert(NSMakePoint(3, 3), to: nil),
+                  modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber,
+                  context: nil, eventNumber: 0, clickCount: 1, pressure: 1),
+              let menu = editor.menu(for: event),
+              let item = menu.items.flatMap({ $0.submenu?.items ?? [$0] }).first(where: { $0.identifier?.rawValue == "archive.detail.\(id)" && $0.isEnabled }) else {
+            throw ReviewFailure("missing original/versions command in this paragraph's native menu")
+        }
+        guard let ownerMenu = item.menu else { throw ReviewFailure("missing archive versions menu owner") }
+        ownerMenu.performActionForItem(at: ownerMenu.index(of: item))
+        print("NATIVE_ARCHIVE_VERSIONS own_paragraph_menu=true")
+    }
+    private enum ReviewHitSide { case left, right }
+
+    /// The helper observes a real native control's frame. Deliver mouse events only
+    /// to our owned, nonactivating review window, including its actual hit-test path.
+    @MainActor private func mouseClick(_ id: String, side: ReviewHitSide, minimumWidth: CGFloat, in host: NSView) async throws {
+        let result = try await performControl(id, in: host, arguments: ["control-frame"])
+        let prefix = "NATIVE_UI_CONTROL_FRAME "
+        guard let line = result.split(separator: "\n").first(where: { $0.hasPrefix(prefix) }),
+              let metrics = try JSONSerialization.jsonObject(with: Data(line.dropFirst(prefix.count).utf8)) as? [CGFloat],
+              metrics.count == 4, metrics[2] >= minimumWidth, metrics[3] >= 22,
+              let window = host.window, let primary = NSScreen.screens.first else {
+            throw ReviewFailure("missing or undersized native hit region: \(id)")
+        }
+        let edge = side == .left ? metrics[0] + 3 : metrics[0] + metrics[2] - 3
+        let screen = NSPoint(x: edge, y: primary.frame.maxY - (metrics[1] + metrics[3] / 2))
+        let point = window.convertPoint(fromScreen: screen)
+        guard host.bounds.contains(host.convert(point, from: nil)) else { throw ReviewFailure("coordinate outside fixture window") }
+        func event(_ type: NSEvent.EventType) throws -> NSEvent {
+            guard let e = NSEvent.mouseEvent(with: type, location: point, modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime,
+                                             windowNumber: window.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: type == .leftMouseDown ? 1 : 0)
+            else { throw ReviewFailure("cannot create an owned mouse event") }
+            return e
+        }
+        let up = try event(.leftMouseUp)
+        NSApp.postEvent(up, atStart: true)
+        window.sendEvent(try event(.leftMouseDown))
+        if let unconsumed = NSApp.nextEvent(matching: .leftMouseUp, until: .distantPast, inMode: .default, dequeue: true) {
+            guard unconsumed.windowNumber == window.windowNumber else { throw ReviewFailure("unexpected up event in isolated process") }
+            window.sendEvent(unconsumed)
+        }
+        try await Task.sleep(for: .milliseconds(80))
+        print("WORKSPACE_MOUSE_EDGE \(id) side=\(side) target=\(metrics[2])x\(metrics[3])")
+    }
+
+    @MainActor private func selectMenu(_ id: String, title: String, in root: NSView, hostID: String = "panel.transcript") async throws {
+        let identifier = (hostID == "panel.copy" ? "panel.more." : "panel.menu.") + id
+        let output = try await performControl(hostID, in: root, arguments: ["select-context-menu", identifier, title])
+        guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix("NATIVE_UI_CONTEXT_ITEMS ") }),
+              let ids = try JSONSerialization.jsonObject(with: Data(line.dropFirst("NATIVE_UI_CONTEXT_ITEMS ".count).utf8)) as? [String],
+              ids.contains(hostID == "panel.copy" ? "panel.more.bind" : "panel.menu.bind"),
+              ids.contains(hostID == "panel.copy" ? "panel.more.insert" : "panel.menu.insert") else {
+            throw ReviewFailure("native transcript menu did not retain explicit bind/insert commands")
+        }
+    }
+    @MainActor private func checkPrivateCopy(_ expected: String, board: NSPasteboard,
+        capture: UIPanelCaptureFixture, model: AppModel, host: NSView) async throws {
+        let previousCount = board.changeCount
+        let starts = capture.starts, pauses = capture.pauses, state = capture.state
+        var receivedSuccess = false
+        let observation = model.$notice.sink { message in
+            if message == "已复制，可以粘贴到任何应用。" { receivedSuccess = true }
+        }
+        defer { observation.cancel() }
+        try await press("panel.copy", in: host)
+        guard let copied = board.string(forType: .string), copied.utf16.elementsEqual(expected.utf16),
+              board.changeCount > previousCount, capture.starts == starts, capture.pauses == pauses, capture.state == state else {
+            throw ReviewFailure("copy changed capture or did not write the exact expected text to the unique pasteboard")
+        }
+        // Panel copy is silent, including while the private pasteboard is written.
+        guard !receivedSuccess else { throw ReviewFailure("panel copy displayed unsolicited success feedback") }
+    }
+
+    @MainActor private func setValue(_ value: String, for label: String, in root: NSView, secure: Bool = false) async throws {
+        _ = try await performControl(label, in: root, arguments: ["set-value", value])
+        // AXSetValue changes the AppKit presentation but does not necessarily send
+        // SwiftUI's editing delegate events. Exercise the real, window-owned editor
+        // to commit the same synthetic value; never call the model or post keys.
+        var queue = [root], matching: [NSTextField] = []
+        while !queue.isEmpty {
+            let view = queue.removeFirst()
+            if let field = view as? NSTextField, (field is NSSecureTextField) == secure, field.stringValue == value {
+                matching.append(field)
+            }
+            queue += view.subviews
+        }
+        guard matching.count == 1, let field = matching.first, let window = root.window,
+              field.window === window else {
+            throw ReviewFailure("unique native field unavailable for \(label)")
+        }
+        try checkKeyboardIsolation(window, phase: "before-field-edit")
+        guard window.makeFirstResponder(field),
+              let editor = window.fieldEditor(false, for: field) as? NSTextView else {
+            throw ReviewFailure("unique native field editor unavailable for \(label)")
+        }
+        editor.insertText(value, replacementRange: NSRange(location: 0, length: editor.string.utf16.count))
+        _ = window.makeFirstResponder(root)
+        try await Task.sleep(for: .milliseconds(80))
+        try checkKeyboardIsolation(window, phase: "after-field-edit")
+        print("NATIVE_UI_FIELD_EDIT \(label) via owned NSTextView delegate; no global key events")
+        if secure { print("NATIVE_UI_SECURE_FIELD_EDIT \(label) fixture credential only; value omitted") }
+    }
+    @MainActor func performControl(_ label: String, in root: NSView, arguments: [String] = []) async throws -> String {
         guard let path = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"], let window = root.window else { throw ReviewFailure("Native UI control helper not configured") }
         let process = Process(), pipe = Pipe()
         process.executableURL = URL(fileURLWithPath: path)
         process.arguments = [String(ProcessInfo.processInfo.processIdentifier), label, window.title]
+        process.arguments! += arguments
         process.standardOutput = pipe; process.standardError = pipe
         try process.run()
         let result = await Task.detached {
@@ -86,32 +803,1201 @@ extension AppDelegate {
             return (process.terminationStatus, String(decoding: output, as: UTF8.self))
         }.value
         print(result.1.trimmingCharacters(in: .whitespacesAndNewlines))
-        guard result.0 == 0 else { throw ReviewFailure("Remote native AX action failed for \(label), code=\(result.0)") }
+        let unknownFeedbackConfirmation = result.0 == 10 && label == "撤回反馈"
+            && arguments.count == 2 && arguments[0] == "feedback-confirmation" && arguments[1] != "observe"
+            && ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW"] == "1"
+            && result.1.contains("NATIVE_FEEDBACK_CONFIRMATION_ACTION ") && result.1.contains("\"status\":\"UNKNOWN\"")
+        guard result.0 == 0 || unknownFeedbackConfirmation else { throw ReviewFailure("Remote native AX action failed for \(label), code=\(result.0)") }
         try await Task.sleep(for: .milliseconds(80))
+        return result.1
     }
-    @MainActor private func reviewWindow<V: View>(_ content: V, size: CGSize, name: String, output: URL, interaction: (@MainActor (NSView) async throws -> Void)? = nil) async throws {
+    @MainActor private func reviewWindow<V: View>(_ content: V, size: CGSize, name: String, output: URL,
+        interaction: (@MainActor (NSView) async throws -> Void)? = nil) async throws {
+        // Keep legacy trailing closures unambiguously control-only. Rendering checks use
+        // a distinct entry point so an optional closure cannot bind to validation.
+        try await reviewValidatedWindow(content, size: size, name: name, output: output,
+                                        validation: nil, interaction: interaction)
+    }
+    @MainActor func reviewValidatedWindow<V: View>(_ content: V, size: CGSize, name: String, output: URL,
+        colorScheme: ColorScheme = .light,
+        validation: (@MainActor (NSView) async throws -> Void)? = nil,
+        interaction: (@MainActor (NSView) async throws -> Void)? = nil) async throws {
         let before = NSWorkspace.shared.frontmostApplication?.processIdentifier
-        let panel = NSPanel(contentRect: CGRect(origin: CGPoint(x: 0, y: 0), size: size),
+        let ownPID = ProcessInfo.processInfo.processIdentifier
+        let activations = ReviewActivations(ownPID: ownPID)
+        let observer = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { note in
+            if let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
+                activations.record(pid: app.processIdentifier)
+            }
+        }
+        defer { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
+        let panel = ReviewPanel(contentRect: CGRect(origin: CGPoint(x: 0, y: 0), size: size),
                             styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.title = "Saytile UI Review " + name
-        panel.alphaValue = 0
+        // A fully transparent panel may disappear from AXWindows while idle.
+        // Keep the timeline fixture drawable outside every display, without taking focus.
+        let offscreen = name.hasPrefix("timeline-")
+        panel.alphaValue = offscreen ? 1 : 0
         panel.ignoresMouseEvents = true
         panel.isReleasedWhenClosed = false
         panel.hidesOnDeactivate = false
-        let host = NSHostingView(rootView: content.preferredColorScheme(.light))
+        let host = NSHostingView(rootView: content.preferredColorScheme(colorScheme))
         panel.contentView = host
         panel.setContentSize(size)
+        if offscreen {
+            let right = NSScreen.screens.map { $0.frame.maxX }.max() ?? 0
+            panel.setFrameOrigin(NSPoint(x: right + 64, y: 0))
+            guard NSScreen.screens.allSatisfy({ !$0.frame.intersects(panel.frame) }) else {
+                throw ReviewFailure("timeline fixture intersects a physical display")
+            }
+        }
         panel.makeFirstResponder(host)
         panel.orderBack(nil)
         defer { panel.orderOut(nil); panel.close() }
         try await Task.sleep(for: .milliseconds(200))
         host.layoutSubtreeIfNeeded()
+        if name.hasPrefix("panel-") {
+            guard (320...360).contains(host.bounds.width), (200...480).contains(host.bounds.height),
+                  abs(host.bounds.width - size.width) < 1, abs(host.bounds.height - size.height) < 1 else {
+                throw ReviewFailure("compact panel exceeded its requested native geometry")
+            }
+        }
+        try checkKeyboardIsolation(panel, phase: "before-validation")
+        if let validation { try await validation(host); host.layoutSubtreeIfNeeded() }
+        try checkKeyboardIsolation(panel, phase: "after-validation")
         if let interaction, ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil { try await interaction(host); try await Task.sleep(for: .milliseconds(100)); host.layoutSubtreeIfNeeded() }
+        try checkKeyboardIsolation(panel, phase: "after-interaction")
+        try captureReview(host, name: name, output: output)
+        let after = NSWorkspace.shared.frontmostApplication?.processIdentifier
+        guard !activations.candidateActivated, after != ownPID else {
+            throw ReviewFailure("candidate activated during \(name); other_activation_events=\(activations.otherActivations)")
+        }
+        if before != after || activations.otherActivations > 0 {
+            print("UI_FOREGROUND_OBSERVATION \(name) candidate_activated=false outside_activation_events=\(activations.otherActivations); unrelated transition retained, no cause inferred")
+        }
+        print("UI_CAPTURE \(name) \(Int(host.bounds.width))x\(Int(host.bounds.height)) foreground_unchanged=\(before == after) candidate_activated=false")
+    }
+
+    @MainActor private func checkKeyboardIsolation(_ window: NSWindow, phase: String) throws {
+        guard window is ReviewPanel, !window.canBecomeKey, !window.canBecomeMain,
+              !window.isKeyWindow, !window.isMainWindow else {
+            throw ReviewFailure("native review window violated keyboard isolation during \(phase)")
+        }
+        print("UI_KEYBOARD_ISOLATION \(phase) can_become_key=false can_become_main=false is_key=false is_main=false")
+    }
+
+    @MainActor func captureReview(_ host: NSView, name: String, output: URL) throws {
+        guard let window = host.window else { throw ReviewFailure("native capture window unavailable") }
+        try checkKeyboardIsolation(window, phase: "capture")
+        host.layoutSubtreeIfNeeded()
         guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw CocoaError(.fileWriteUnknown) }
         host.cacheDisplay(in: host.bounds, to: bitmap)
         guard let data = bitmap.representation(using: .png, properties: [:]) else { throw CocoaError(.fileWriteUnknown) }
         try data.write(to: output.appendingPathComponent(name + ".png"))
-        guard before == NSWorkspace.shared.frontmostApplication?.processIdentifier else { throw NSError(domain: "Saytile.UIReview", code: 1, userInfo: [NSLocalizedDescriptionKey: "UI review changed the foreground application"] ) }
-        print("UI_CAPTURE \(name) \(Int(host.bounds.width))x\(Int(host.bounds.height)) foreground_unchanged=true")
+        let geometry: [String: Any] = ["name": name, "width_points": host.bounds.width, "height_points": host.bounds.height,
+                                      "width_pixels": bitmap.pixelsWide, "height_pixels": bitmap.pixelsHigh]
+        print("UI_IMAGE_GEOMETRY " + String(decoding: try JSONSerialization.data(withJSONObject: geometry, options: [.sortedKeys]), as: UTF8.self))
+    }
+
+    @MainActor func reviewUntil(line: Int = #line, _ condition: () -> Bool) async throws {
+        for _ in 0..<250 {
+            if condition() { return }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        throw ReviewFailure("native UI controller did not acknowledge the expected state at UIReview.swift:\(line) within five seconds")
+    }
+
+    @MainActor private func chooseCloudService(_ title: String, in host: NSView) async throws {
+        let selection = ReviewCloudMenuSelection(title: title)
+        NotificationCenter.default.addObserver(selection, selector: #selector(ReviewCloudMenuSelection.menuOpened(_:)),
+                                               name: NSMenu.didBeginTrackingNotification, object: nil)
+        defer { NotificationCenter.default.removeObserver(selection) }
+        try await press("cloud.serviceInspector", in: host)
+        guard selection.chosen else { throw ReviewFailure("native cloud service menu did not dispatch the selected item") }
+        print("NATIVE_UI_CLOUD_SELECTION \(title) via=NSMenu.performActionForItem")
+    }
+
+    @MainActor private func inspectSettings(in host: NSView, required: [String], excluded: [String]) async throws {
+        let output = try await performControl("settings", in: host, arguments: ["inspect-settings"])
+        let marker = "NATIVE_UI_SETTINGS_INSPECT "
+        guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix(marker) }),
+              let names = try JSONSerialization.jsonObject(with: Data(line.dropFirst(marker.count).utf8)) as? [String] else {
+            throw ReviewFailure("incomplete native settings inventory")
+        }
+        let actual = Set(names)
+        let missing = Set(required).subtracting(actual)
+        let unexpected = actual.intersection(excluded + ["settings.source", "开始收音", "继续收音", "暂停收音", "恢复收音", "取消开启"])
+        guard missing.isEmpty, unexpected.isEmpty else {
+            throw ReviewFailure("unexpected settings tree: missing=\(missing.sorted()) forbidden=\(unexpected.sorted())")
+        }
+    }
+
+    @MainActor private func inspectCapture(_ label: String, state: String, hasText: Bool = false, in host: NSView) async throws {
+        let output = try await performControl("panel.capture", in: host, arguments: ["inspect-panel"])
+        guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix("NATIVE_UI_PANEL_INSPECT ") }),
+              let detail = try JSONSerialization.jsonObject(with: Data(line.dropFirst("NATIVE_UI_PANEL_INSPECT ".count).utf8)) as? [String: Any],
+              let controls = detail["controls"] as? [[String: Any]],
+              let scrollbarParts = detail["native_scrollbar_parts"] as? [[String: Any]],
+              scrollbarParts.allSatisfy({ ($0["ancestor_roles"] as? [String])?.contains("AXScrollBar") == true }),
+              let visibleStateText = detail["static_state_text"] as? [String], visibleStateText.isEmpty,
+              let obsolete = detail["obsolete_state_identifiers"] as? [String], obsolete.isEmpty else {
+            throw ReviewFailure("panel retained a visible state label or inspection was incomplete")
+        }
+        let captures = controls.filter { $0["identifier"] as? String == "panel.capture" }
+        let copies = controls.filter { $0["identifier"] as? String == "panel.copy" }
+        guard controls.count == 2, captures.count == 1, copies.count == 1,
+              let capture = captures.first, let copy = copies.first,
+              capture["role"] as? String == "AXButton", copy["role"] as? String == "AXButton",
+              controls.filter({ $0["capture_action"] as? Bool == true }).count == 1,
+              (capture["names"] as? [String])?.contains(label) == true,
+              capture["value"] as? String == state, capture["enabled"] as? Bool == true, copy["enabled"] as? Bool == true,
+              let cw = capture["width"] as? Double, let ch = capture["height"] as? Double, cw > ch,
+              let copyHeight = copy["height"] as? Double, let copyWidth = copy["width"] as? Double,
+              let x = capture["x"] as? Double, let left = copy["x"] as? Double,
+              let y = capture["y"] as? Double, let copyY = copy["y"] as? Double,
+              let windowX = detail["window_x"] as? Double, let windowY = detail["window_y"] as? Double,
+              let windowWidth = detail["window_width"] as? Double, let windowHeight = detail["window_height"] as? Double,
+              left + copyWidth < windowX + windowWidth / 2, x > windowX + windowWidth / 2,
+              abs(y + ch / 2 - copyY - copyHeight / 2) < 2,
+              (6...18).contains(windowY + windowHeight - y - ch),
+              (6...18).contains(windowY + windowHeight - copyY - copyHeight) else {
+            throw ReviewFailure("panel requires only a left copy button and right horizontal voice capsule on the bottom row")
+        }
+        // A native text document can be tall and scrolled. Check its actual
+        // viewport in the host, not the full document's screen bounds.
+        let scroll = try compactTranscript(in: host)
+        let viewport = scroll.convert(scroll.bounds, to: host)
+        let topInset = host.isFlipped ? viewport.minY - host.bounds.minY : host.bounds.maxY - viewport.maxY
+        if state == "暂停" || state == "待命" || state == "正在识别" {
+            guard topInset < ch, viewport.height > host.bounds.height / 2 else {
+                throw ReviewFailure("normal compact panel retained a top toolbar or lost the transcript area")
+            }
+        }
+        print("UI_BOTTOM_CONTROLS_PASS state=\(state) panel_buttons=2 left_copy=true right_voice_capsule=true visible_status_labels=0 has_text=\(hasText)")
+
+    }
+
+    @MainActor func compactTranscript(in host: NSView) throws -> CompactTranscriptScrollView {
+        var pending = [host], found: [CompactTranscriptScrollView] = []
+        while !pending.isEmpty {
+            let view = pending.removeFirst()
+            if let transcript = view as? CompactTranscriptScrollView { found.append(transcript) }
+            pending += view.subviews
+        }
+        guard found.count == 1, let result = found.first, result.window === host.window else {
+            throw ReviewFailure("panel must contain one owned native transcript")
+        }
+        return result
+    }
+
+    /// Exercise the shipping editor + persistence through a window-local responder.
+    /// Never change the frontmost app or read/write the user's general pasteboard.
+    @MainActor private func reviewInlineEditing(model: AppModel, output: URL) async throws {
+        let board = NSPasteboard(name: .init("app.saytile.test.editor." + UUID().uuidString))
+        defer { board.releaseGlobally() }
+        guard try await model.store.listRecordings(limit: 1).isEmpty else { throw ReviewFailure("editor fixture must be empty") }
+        try await reviewValidatedWindow(InputPanelWindowView(model: model), size: CGSize(width: 320, height: 230),
+            name: "inline-editor", output: output, validation: { host in
+                let scroll = try self.compactTranscript(in: host)
+                let editor = scroll.transcriptView
+                guard editor.isEditable, editor.isSelectable, editor.string.isEmpty,
+                      host.window?.makeFirstResponder(editor) == true else { throw ReviewFailure("cannot enter the empty native editor") }
+                editor.commandPasteboard = board
+                @MainActor func command(_ key: String, modifiers: NSEvent.ModifierFlags = .command) throws {
+                    guard let win = host.window,
+                          let event = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: modifiers,
+                            timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: win.windowNumber, context: nil,
+                            characters: key, charactersIgnoringModifiers: key, isARepeat: false, keyCode: 0),
+                          editor.performKeyEquivalent(with: event) else { throw ReviewFailure("editor did not handle command " + key) }
+                }
+                let caret = NSRange(location: NSNotFound, length: 0)
+                editor.insertText("先写😀再改", replacementRange: caret)
+                try await self.reviewUntil { editor.string == "先写😀再改" }
+                editor.setSelectedRange((editor.string as NSString).range(of: "😀"))
+                board.clearContents()
+                try command("c")
+                guard board.string(forType: .string) == "😀" else { throw ReviewFailure("native selection copy split an emoji") }
+                try command("x")
+                guard editor.string == "先写再改" else { throw ReviewFailure("cut did not honor the selection") }
+                try command("v")
+                guard editor.string == "先写😀再改" else { throw ReviewFailure("native paste failed") }
+                editor.setSelectedRange(NSRange(location: (editor.string as NSString).length, length: 0))
+                editor.setMarkedText("zhong", selectedRange: NSRange(location: 5, length: 0), replacementRange: caret)
+                guard editor.hasMarkedText() else { throw ReviewFailure("IME did not mark its provisional text") }
+                editor.insertText("中", replacementRange: caret)
+                try await self.reviewUntil { editor.string == "先写😀再改中" && !editor.hasMarkedText() }
+                editor.insertNewline(nil)
+                editor.insertText("第二行", replacementRange: caret)
+                let expected = "先写😀再改中\n第二行"
+                try await self.reviewUntil { editor.string == expected }
+                guard let saved = try await model.store.listRecordings(limit: 8).first,
+                      saved.text == expected, saved.audioState == .deleted, !saved.isRecording,
+                      board.string(forType: .string) == "😀" else { throw ReviewFailure("typing, return or paste did not persist correctly") }
+                guard !(try await model.store.revisions(recordingID: saved.id)).contains(where: { $0.text.contains("zhong") })
+                else { throw ReviewFailure("uncommitted IME text escaped into the archive") }
+                let oldID = saved.id
+                // Deleting all text retains the recording identity and previous edits.
+                try command("a"); editor.deleteBackward(nil)
+                try await self.reviewUntil { editor.string.isEmpty }
+                guard let cleared = try await model.store.recording(id: oldID), cleared.text.isEmpty,
+                      try await model.store.revisions(recordingID: oldID).contains(where: { $0.text == expected })
+                else { throw ReviewFailure("delete-all destroyed the archive or previous edits") }
+                print("INLINE_EDITOR_PASS typing, private copy/paste, delete, Chinese IME, newline, archive history")
+            })
+    }
+
+    /// Same shipping view and text renderer, on the exact measured card size.
+    /// The new reference fixture supplements, never replaces, interaction tests.
+    @MainActor private func reviewApprovedReference(output: URL) async throws {
+        let suite = "app.saytile.test.reference." + UUID().uuidString
+        let preferences = UserDefaults(suiteName: suite)!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-reference-" + UUID().uuidString)
+        defer { preferences.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: directory) }
+        var configuration = RecognitionConfiguration(); configuration.automaticRecovery = false
+        try configuration.save(to: preferences)
+        let capture = UIPanelCaptureFixture(), connection = UIConnectionFixture()
+        let model = try AppModel(directory: directory, preferences: preferences,
+            connectionDependencies: connection.dependencies, captureDependencies: capture.dependencies)
+        await model.initialLoad()
+        do {
+            let row = try await model.store.createRecording()
+            let text = "我想让 Saytile 成为一个始终待命\n的语音输入工作台，它应该让文字\n自然出现，而不是让按钮打断表达。\n说完这一句，它会安静地等我\n继续开口。"
+            _ = try await model.store.saveEdit(recordingID: row.id, text: text)
+            try await model.store.finishRecording(id: row.id)
+            await model.refresh()
+            for (name, state, level) in [("paused", CaptureState.paused, Float(0)),
+                                          ("standby", CaptureState.listening, Float(0)),
+                                          ("recognizing", CaptureState.speaking, Float(1))] {
+                capture.state = state; capture.level = level; model.objectWillChange.send()
+                try await reviewValidatedWindow(InputPanelView(model: model).padding(ReferencePanelStyle.shadowInset),
+                    size: CGSize(width: 408, height: 298), name: "reference-" + name, output: output,
+                    validation: { host in
+                        let scroll = try self.compactTranscript(in: host)
+                        guard scroll.transcriptView.string.utf16.elementsEqual(text.utf16),
+                              scroll.transcriptView.isEditable, scroll.transcriptView.isSelectable,
+                              model.audio.state == .paused else {
+                            throw ReviewFailure("reference scene must use real selectable text without opening the microphone")
+                        }
+                        let viewport = scroll.convert(scroll.bounds, to: host)
+                        let textView = scroll.transcriptView
+                        let font = textView.textStorage?.attribute(.font, at: 0, effectiveRange: nil) as? NSFont
+                        // The 344 pt card uses the approved fixed 14.04 pt type. Insets
+                        // are aligned to device pixels, so 1x and 2x can differ by 0.5 pt.
+                        let pixel = 1 / (host.window?.backingScaleFactor ?? 1)
+                        let bodyWidth: CGFloat = 344 - (22 * 0.68 - 2) - 8 * 0.68
+                        let expectedWidth = (bodyWidth / pixel).rounded() * pixel
+                        var lines = 0
+                        if let manager = textView.layoutManager, let container = textView.textContainer {
+                            manager.enumerateLineFragments(forGlyphRange: manager.glyphRange(for: container)) { _, _, _, _, _ in lines += 1 }
+                        }
+                        guard let font, abs(font.pointSize - 14.04) < 0.001,
+                              abs(viewport.width - expectedWidth) <= pixel,
+                              lines == 5, textView.bounds.height <= scroll.contentSize.height + 1 else {
+                            throw ReviewFailure("reference window expected 14.04 pt, \(expectedWidth) pt width and five unclipped lines; actual font \(font?.pointSize ?? 0), viewport \(viewport), document \(textView.bounds.size), lines \(lines)")
+                        }
+                        print("REFERENCE_GEOMETRY state=\(name) window=408x298 card=344x234 font=\(font.pointSize) viewport=\(viewport) lines=\(lines)")
+                    })
+            }
+            await model.prepareForExit()
+        } catch { await model.prepareForExit(); throw error }
+    }
+
+    @MainActor private func reviewCompactPanel(output: URL) async throws {
+        let suite = "app.saytile.test.compact-panel." + UUID().uuidString
+        let preferences = UserDefaults(suiteName: suite)!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-ui-panel-" + UUID().uuidString)
+        defer { preferences.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: directory) }
+        var configuration = RecognitionConfiguration(); configuration.automaticRecovery = false
+        try configuration.save(to: preferences)
+        let capture = UIPanelCaptureFixture(), connection = UIConnectionFixture()
+        let copyBoard = NSPasteboard.withUniqueName()
+        defer { copyBoard.releaseGlobally() }
+        let model = try AppModel(directory: directory, preferences: preferences,
+            connectionDependencies: connection.dependencies, captureDependencies: capture.dependencies, copyPasteboard: copyBoard)
+        await model.initialLoad()
+        let hasControls = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil
+        var emptyPanelSettings = 0
+        model.openSettings = { emptyPanelSettings += 1 }
+        do {
+            try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
+                name: "panel-capture-initial", output: output, validation: { host in
+                    guard model.panelCapturePresentation.state == .paused,
+                          model.panelCapturePresentation.symbolName == "play.fill" else {
+                        throw ReviewFailure("first use must share the paused play appearance")
+                    }
+                }, interaction: { host in
+                    try await self.inspectCapture("开始收音", state: "暂停", in: host)
+                    let before = copyBoard.changeCount
+                    try await self.press("panel.copy", in: host)
+                    guard copyBoard.changeCount == before, capture.starts == 0, capture.pauses == 0, model.notice == nil else {
+                        throw ReviewFailure("empty copy changed the private pasteboard or capture state")
+                    }
+                    try await self.selectMenu("settings", title: "语音档案与设置…", in: host, hostID: "panel.copy")
+                    try await self.reviewUntil { emptyPanelSettings == 1 }
+                    print("UI_EMPTY_PANEL_MENU_PASS empty copy is a no-op; its actual context menu opens settings")
+                })
+
+            if hasControls {
+                try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
+                    name: "panel-capture-controls", output: output) { host in
+                    try await self.press("panel.capture", in: host)
+                    try await self.reviewUntil { capture.starts == 1 && capture.state == .listening }
+                    try await self.inspectCapture("暂停收音", state: "待命", in: host)
+                    try self.captureReview(host, name: "panel-capture-listening", output: output)
+                    let first = try await model.store.createRecording()
+                    let firstTicket = try await model.store.beginRecognition(recordingID: first.id)
+                    let partial = "不要支付15元。", final = "不要支付15元，Swift API 保留原文。"
+                    guard try await model.store.applyRecognition(ticket: firstTicket, text: partial, isFinal: false) else {
+                        throw ReviewFailure("synthetic partial did not reach the real Store")
+                    }
+                    capture.state = .speaking; capture.level = 0.35
+                    await model.refresh(); model.objectWillChange.send()
+                    guard model.panelCapturePresentation.liveVoiceLevel != nil else { throw ReviewFailure("injected speech level unavailable") }
+                    try await self.inspectCapture("暂停收音", state: "正在识别", hasText: true, in: host)
+                    try self.captureReview(host, name: "panel-capture-speaking", output: output)
+                    try await model.store.finishRecording(id: first.id)
+                    capture.state = .listening; capture.level = 0
+                    await model.refresh(); model.objectWillChange.send()
+                    guard try await model.store.recording(id: first.id)?.recognitionState == .running,
+                          model.panelCapturePresentation.state == .standby, model.panelCapturePresentation.liveVoiceLevel == nil else {
+                        throw ReviewFailure("VAD end waited for the running recognition ticket")
+                    }
+                    try await self.inspectCapture("暂停收音", state: "待命", hasText: true, in: host)
+                    try self.captureReview(host, name: "panel-capture-vad-ended", output: output)
+                    guard try await model.store.applyRecognition(ticket: firstTicket, text: final, isFinal: true) else {
+                        throw ReviewFailure("background final text did not update the real Store")
+                    }
+                    await model.refresh()
+                    let scroll = try self.compactTranscript(in: host)
+                    try await self.reviewUntil { scroll.transcriptView.string.utf16.elementsEqual(final.utf16) }
+                    guard model.recent.filter({ $0.id == first.id }).count == 1, capture.starts == 1, capture.pauses == 0,
+                          model.panelCapturePresentation.state == .standby else {
+                        throw ReviewFailure("background final changed capture or produced a second transcript")
+                    }
+                    let second = try await model.store.createRecording()
+                    let secondTicket = try await model.store.beginFusionRecognition(recordingID: second.id)
+                    let reviewer = ModelConfiguration(purpose: .textFusion, provider: .openAIResponses, model: "synthetic-review")
+                    let review = try await model.store.beginModelRun(ticket: secondTicket, configuration: reviewer)
+                    capture.state = .speaking; capture.level = 0.7; model.objectWillChange.send()
+                    try await model.store.finishRecognition(ticket: firstTicket)
+                    await model.refresh()
+                    guard model.panelCapturePresentation.liveVoiceLevel != nil, capture.starts == 1, capture.pauses == 0 else {
+                        throw ReviewFailure("late first-segment completion reset new speech")
+                    }
+                    try await self.inspectCapture("暂停收音", state: "正在识别", hasText: true, in: host)
+                    try self.captureReview(host, name: "panel-capture-next-speech", output: output)
+                    try await model.store.finishRecording(id: second.id)
+                    capture.state = .listening; capture.level = 0; model.objectWillChange.send()
+                    let phases = try await model.store.activeRecognitionPhases(recordingIDs: [second.id])
+                    guard phases[second.id] == .textFusion, model.panelCapturePresentation.state == .standby,
+                          model.panelCapturePresentation.liveVoiceLevel == nil else {
+                        throw ReviewFailure("pending text fusion occupied the voice capsule after VAD end")
+                    }
+                    try await self.inspectCapture("暂停收音", state: "待命", hasText: true, in: host)
+                    try self.captureReview(host, name: "panel-capture-fusion-pending", output: output)
+                    capture.state = .speaking; capture.level = 0.5; model.objectWillChange.send()
+                    try await self.press("panel.capture", in: host)
+                    try await self.reviewUntil { capture.pauses == 1 && capture.state == .paused }
+                    try await model.store.finishModelRun(review, error: "合成复核结束", retryable: true)
+                    try await model.store.failRecognition(ticket: secondTicket, message: "合成复核失败")
+                    await model.refresh()
+                    guard capture.starts == 1, capture.pauses == 1, model.panelCapturePresentation.state == .paused,
+                          model.panelCapturePresentation.symbolName == "play.fill",
+                          model.recent.first(where: { $0.id == first.id })?.text == final else {
+                        throw ReviewFailure("late review callback restarted paused capture or changed prior final text")
+                    }
+                    try await self.inspectCapture("继续收音", state: "暂停", hasText: true, in: host)
+                    try self.captureReview(host, name: "panel-capture-paused", output: output)
+                    print("UI_VAD_END_PASS running ASR/fusion permit standby; late final updates one transcript; old callbacks preserve new speech and manual pause")
+                    try await self.press("panel.capture", in: host)
+                    try await self.reviewUntil { capture.starts == 2 && capture.state == .listening && model.panelCapturePresentation.state == .standby }
+                    try await self.inspectCapture("暂停收音", state: "待命", hasText: true, in: host)
+                    guard model.captureActionLabel == "暂停收音" else { throw ReviewFailure("resuming capture did not restore the pause action") }
+                    print("UI_NATIVE_CAPTURE_ACK paused_to_listening starts=2; actual capture button, injected microphone boundary")
+                    try await self.press("panel.capture", in: host)
+                    try await self.reviewUntil { capture.pauses == 2 && capture.state == .paused }
+                    capture.state = .starting; model.objectWillChange.send()
+                    try await Task.sleep(for: .milliseconds(100))
+                    try await self.inspectCapture("取消开启", state: "正在准备", hasText: true, in: host)
+                    try self.captureReview(host, name: "panel-capture-starting", output: output)
+                    try await self.press("panel.capture", in: host)
+                    try await self.reviewUntil { capture.pauses == 3 && capture.state == .paused }
+                    capture.state = .interrupted("合成设备暂不可用，原音与文字仍保留。")
+                    model.notice = "合成操作提示"
+                    model.objectWillChange.send()
+                    try await Task.sleep(for: .milliseconds(100))
+                    try await self.inspectCapture("恢复收音", state: "需要恢复，合成设备暂不可用，原音与文字仍保留。", hasText: true, in: host)
+                    try await self.reviewWindow(SettingsView(model: model, initialPage: .speech), size: CGSize(width: 650, height: 740), name: "settings-interrupted", output: output) { settingsHost in
+                        try await self.inspectSettings(in: settingsHost, required: ["settings.captureDetail", "合成设备暂不可用，原音与文字仍保留。", "settings.notice", "合成操作提示"],
+                                                     excluded: ["hosted.upload-consent"])
+                    }
+                    try self.captureReview(host, name: "panel-capture-interrupted", output: output)
+                    try await self.press("panel.capture", in: host)
+                    try await self.reviewUntil { capture.starts == 3 && capture.state == .listening }
+                    try await self.press("panel.capture", in: host)
+                    try await self.reviewUntil { capture.pauses == 4 && capture.state == .paused }
+                    guard model.audio.state == .paused else { throw ReviewFailure("fixture capture reached the actual audio controller") }
+                    print("UI_CONTROL_PASS bottom-right voice capsule handles start, speech, VAD end, pause, resume, cancel and recovery with an injected audio boundary")
+                }
+            } else {
+                // Render the real SwiftUI view in CI without AX permission. Only
+                // the capture boundary is synthetic; no physical click is claimed.
+                model.toggleCapture()
+                try await reviewUntil { capture.starts == 1 && capture.state == .listening }
+                try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
+                    name: "panel-capture-listening", output: output, validation: { _ in
+                    guard model.panelCapturePresentation.state == .standby,
+                          model.panelCapturePresentation.symbolName == "circle.fill" else {
+                        throw ReviewFailure("synthetic listening did not produce standby")
+                    }
+                })
+                let current = try await model.store.createRecording()
+                _ = try await model.store.saveEdit(recordingID: current.id, text: "我想让文字自然出现。说完这一句，它会安静地等我继续开口。")
+                capture.state = .speaking; capture.level = 0.35
+                await model.refresh(); model.objectWillChange.send()
+                try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
+                    name: "panel-capture-speaking", output: output, validation: { _ in
+                    guard model.panelCapturePresentation.state == .recognizing,
+                          model.panelCapturePresentation.liveVoiceLevel != nil else {
+                        throw ReviewFailure("synthetic speech lost its explicitly injected level")
+                    }
+                })
+                try await model.store.finishRecording(id: current.id)
+                let ticket = try await model.store.beginFusionRecognition(recordingID: current.id)
+                let reviewer = ModelConfiguration(purpose: .textFusion, provider: .openAIResponses, model: "synthetic-review")
+                let review = try await model.store.beginModelRun(ticket: ticket, configuration: reviewer)
+                capture.state = .listening; capture.level = 0
+                await model.refresh(); model.objectWillChange.send()
+                try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
+                    name: "panel-capture-review", output: output, validation: { _ in
+                    let phases = try await model.store.activeRecognitionPhases(recordingIDs: [current.id])
+                    guard model.panelCapturePresentation.state == .standby,
+                          model.panelCapturePresentation.liveVoiceLevel == nil, phases[current.id] == .textFusion else {
+                        throw ReviewFailure("synthetic VAD end must show standby before background review finishes")
+                    }
+                })
+                try await model.store.finishModelRun(review)
+                try await model.store.finishRecognition(ticket: ticket)
+                await model.refresh()
+                try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
+                    name: "panel-capture-returned-standby", output: output, validation: { _ in
+                    guard model.panelCapturePresentation.state == .standby, capture.state == .listening,
+                          capture.starts == 1, capture.pauses == 0,
+                          model.recent.first(where: { $0.id == current.id })?.text == "我想让文字自然出现。说完这一句，它会安静地等我继续开口。" else {
+                        throw ReviewFailure("synthetic finalization changed capture or the retained user text")
+                    }
+                })
+                model.toggleCapture()
+                try await reviewUntil { capture.pauses == 1 && capture.state == .paused }
+                try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240),
+                    name: "panel-capture-paused", output: output, validation: { _ in
+                    guard model.panelCapturePresentation.state == .paused,
+                          model.panelCapturePresentation.symbolName == "play.fill",
+                          model.audio.state == .paused else {
+                        throw ReviewFailure("synthetic pause must retain the play icon without opening actual audio")
+                    }
+                })
+                print("UI_SYNTHETIC_CAPTURE_STATES_PASS paused, standby, speech, standby during review and retained final text; injected capture, no AX control actions or microphone")
+            }
+            // The long-text Unicode fixture needs exactly one utterance. Clear is
+            // now visual only; remove only these disposable fixture records.
+            for row in model.records { try await model.store.deleteRecord(recordingID: row.id) }
+            model.clearPanel(); model.notice = nil
+            let text = (0..<70).map { "第\($0 + 1)行：保留完整表达和原有否定词，不要支付15元。Swift API cafe\u{301} 😀。" }.joined(separator: "\n")
+            let row = try await model.store.createRecording()
+            _ = try await model.store.saveEdit(recordingID: row.id, text: text)
+            try await model.store.finishRecording(id: row.id); await model.refresh()
+            var archives = 0, settings = 0, hides = 0
+            model.openArchive = { archives += 1 }; model.openSettings = { settings += 1 }; model.hidePanel = { hides += 1 }
+            try await reviewValidatedWindow(InputPanelView(model: model), size: CGSize(width: 360, height: 480),
+                name: "panel-long-text", output: output, validation: { host in
+                let scroll = try self.compactTranscript(in: host)
+                @MainActor func bodyText() -> String {
+                    guard let range = scroll.rendered.spans.first(where: { $0.entry.id == row.id })?.range else { return "" }
+                    return (scroll.transcriptView.string as NSString).substring(with: range)
+                }
+                try await self.reviewUntil { bodyText().utf16.elementsEqual(text.utf16) }
+                guard scroll.transcriptView.isEditable, scroll.transcriptView.isSelectable else { throw ReviewFailure("transcript selection contract changed") }
+                let composed = text.precomposedStringWithCanonicalMapping
+                guard composed == text, composed.utf16.count != text.utf16.count else { throw ReviewFailure("Unicode fixture did not differ in UTF-16 representation") }
+                for replacement in [composed, text] {
+                    _ = try await model.store.saveEdit(recordingID: row.id, text: replacement); await model.refresh()
+                    try await self.reviewUntil { bodyText().utf16.elementsEqual(replacement.utf16) }
+                    guard bodyText().utf16.count == replacement.utf16.count else { throw ReviewFailure("native Unicode replacement retained stale UTF-16 length") }
+                }
+                print("UI_NATIVE_UNICODE_PASS Store-driven NFD to NFC to NFD preserves exact UTF-16 text and length")
+                scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
+                let selected = (text as NSString).range(of: "cafe\u{301} 😀", options: .literal)
+                guard selected.location != NSNotFound else { throw ReviewFailure("exact NFD/emoji selection fixture unavailable") }
+                scroll.transcriptView.setSelectedRange(selected)
+                let origin = scroll.contentView.bounds.origin
+                let incoming = (text as NSString).replacingCharacters(in: selected, with: "café 修订😄")
+                let updated = incoming.replacingOccurrences(of: "第1行：保留完整表达", with: "第1行：更新后仍保留完整表达😀")
+                    + "\n新增表达：否定、数字和术语必须保持完整。"
+                _ = try await model.store.saveEdit(recordingID: row.id, text: updated); await model.refresh()
+                try await self.reviewUntil { scroll.latestText.hasSuffix(updated) }
+                guard scroll.hasDeferredUpdate, bodyText() == text,
+                      scroll.transcriptView.selectedRange() == selected,
+                      abs(scroll.contentView.bounds.origin.y - origin.y) < 1 else {
+                    throw ReviewFailure("live revision replaced selected text or stole its viewport")
+                }
+                try self.captureReview(host, name: "panel-selection-held", output: output)
+                if hasControls {
+                    let expected = (text as NSString).substring(with: selected)
+                    try await self.checkPrivateCopy(expected, board: copyBoard, capture: capture, model: model, host: host)
+                    guard scroll.transcriptView.selectedRange() == selected, scroll.hasDeferredUpdate else {
+                        throw ReviewFailure("copy released the held visible NFD/emoji selection")
+                    }
+                    print("UI_PRIVATE_COPY_PASS exact selected NFD/emoji copied to unique pasteboard; feedback settled; capture and held selection preserved")
+                }
+                if hasControls { try await self.selectMenu("latest", title: "回到最新", in: host) } else { scroll.jumpToLatest() }
+                try await self.reviewUntil { bodyText() == updated && scroll.isFollowingLatest }
+                guard scroll.transcriptView.selectedRange().length == 0,
+                      scroll.documentVisibleRect.maxY >= scroll.transcriptView.bounds.maxY - 5 else { throw ReviewFailure("latest action did not apply pending text and reach the tail") }
+                try self.captureReview(host, name: "panel-latest", output: output)
+                if hasControls {
+                    try await self.checkPrivateCopy(updated, board: copyBoard, capture: capture, model: model, host: host)
+                    print("UI_PRIVATE_COPY_PASS current full text copied to unique pasteboard; feedback settled; capture preserved")
+                }
+                scroll.contentView.scroll(to: NSPoint(x: 0, y: 120)); scroll.reflectScrolledClipView(scroll.contentView)
+                try await self.reviewUntil { !scroll.isFollowingLatest }
+                guard scroll.rendered.markers.isEmpty else { throw ReviewFailure("scrolling inserted labels into the transcript") }
+                let readingOrigin = scroll.contentView.bounds.origin
+                let appended = updated + "\n用户上滚阅读时继续接收的新一句。"
+                _ = try await model.store.saveEdit(recordingID: row.id, text: appended); await model.refresh()
+                try await self.reviewUntil { bodyText() == appended }
+                guard !scroll.isFollowingLatest, abs(scroll.contentView.bounds.origin.y - readingOrigin.y) < 1 else {
+                    throw ReviewFailure("append stole the user's native scroll position")
+                }
+                guard let layout = scroll.transcriptView.layoutManager, let container = scroll.transcriptView.textContainer else {
+                    throw ReviewFailure("native text layout unavailable")
+                }
+                let beforePoint = NSPoint(x: 0, y: scroll.documentVisibleRect.minY - scroll.transcriptView.textContainerInset.height)
+                let beforeCharacter = layout.characterIndexForGlyph(at: layout.glyphIndex(for: beforePoint, in: container))
+                let prefix = "新增的合成开头只调整上方排版，不应改变正在阅读的位置。\n"
+                let prepended = prefix + appended
+                _ = try await model.store.saveEdit(recordingID: row.id, text: prepended); await model.refresh()
+                try await self.reviewUntil { bodyText() == prepended }
+                let afterPoint = NSPoint(x: 0, y: scroll.documentVisibleRect.minY - scroll.transcriptView.textContainerInset.height)
+                let afterCharacter = layout.characterIndexForGlyph(at: layout.glyphIndex(for: afterPoint, in: container))
+                guard !scroll.isFollowingLatest, afterCharacter == beforeCharacter + prefix.utf16.count else {
+                    throw ReviewFailure("earlier text revision changed the visible reading anchor")
+                }
+                if hasControls { try await self.selectMenu("latest", title: "回到最新", in: host) } else { scroll.jumpToLatest() }
+                try await self.reviewUntil { scroll.isFollowingLatest }
+                let nearBottom = NSPoint(x: 0, y: scroll.contentView.bounds.origin.y - 2)
+                scroll.contentView.scroll(to: nearBottom); scroll.reflectScrolledClipView(scroll.contentView)
+                try await self.reviewUntil { !scroll.isFollowingLatest }
+                guard scroll.rendered.markers.isEmpty else { throw ReviewFailure("scrolling inserted labels into the transcript") }
+                let readingTail = scroll.contentView.bounds.origin.y
+                let nearTailText = prepended + "\n近底上滚仍应保留阅读位置。"
+                _ = try await model.store.saveEdit(recordingID: row.id, text: nearTailText); await model.refresh()
+                try await self.reviewUntil { bodyText() == nearTailText }
+                guard !scroll.isFollowingLatest, abs(scroll.contentView.bounds.origin.y - readingTail) < 0.001 else {
+                    throw ReviewFailure("a two-point upward reading scroll silently resumed live following")
+                }
+                scroll.contentView.scroll(to: NSPoint(x: 0, y: max(0, scroll.transcriptView.bounds.height - scroll.contentSize.height)))
+                scroll.reflectScrolledClipView(scroll.contentView)
+                try await self.reviewUntil { scroll.isFollowingLatest }
+                let resumedText = nearTailText + "\n主动回到底部后继续跟随。"
+                _ = try await model.store.saveEdit(recordingID: row.id, text: resumedText); await model.refresh()
+                try await self.reviewUntil { bodyText() == resumedText && scroll.isFollowingLatest }
+                guard abs(scroll.documentVisibleRect.maxY - scroll.transcriptView.bounds.maxY) < 0.001 else {
+                    throw ReviewFailure("explicitly returning to the actual bottom did not resume following new text")
+                }
+                print("UI_NATIVE_NEAR_BOTTOM_PASS two-point upward scroll retains position; explicitly reaching the bottom resumes following")
+                print("UI_NATIVE_TEXT_PASS actual read-only NSTextView selection, Store-driven updates, manual scroll retention and explicit latest; no focus or key events")
+                if hasControls { print("UI_CONTROL_PASS native context-menu latest resumes one continuous transcript after selection and scrolling") }
+            }, interaction: { host in
+                try await self.inspectCapture("继续收音", state: "暂停", hasText: true, in: host)
+                try await self.selectMenu("edit", title: "在档案中编辑这段文字", in: host)
+                try await self.reviewUntil { archives == 1 && model.selected?.id == row.id && !model.editorDraftLoading }
+                guard model.editorDraft.contains("用户上滚阅读") else { throw ReviewFailure("contextual edit did not open the existing saved transcript editor") }
+                print("UI_CONTROL_PASS contextual edit reaches existing archive editor with latest saved text; no second transcript or writeback path")
+                model.closeDetail()
+                try await self.selectMenu("settings", title: "语音档案与设置…", in: host)
+                try await self.reviewUntil { settings == 1 }
+                try await self.selectMenu("hide", title: "收起语音板", in: host)
+                try await self.reviewUntil { archives == 1 && settings == 1 && hides == 1 }
+                guard archives == 1, settings == 1, hides == 1 else { throw ReviewFailure("Context menu navigation did not route to existing actions") }
+                try await self.selectMenu("clear", title: "清空输入板（保留档案）", in: host)
+                try await self.reviewUntil { model.recent.isEmpty }
+                await model.refresh()
+                guard model.recent.isEmpty, let saved = try await model.store.recording(id: row.id), saved.text.contains("用户上滚阅读") else {
+                    throw ReviewFailure("Context menu clear removed archive content")
+                }
+                model.stageInPanel(DisplayRecording(source: saved), showPanel: false); await model.refresh()
+                print("UI_CONTROL_PASS Transcript context menu archive/settings/hide/clear actions retain the saved text")
+            })
+            var opens = 0
+            model.openPanel = { opens += 1 }
+            let starts = capture.starts, pauses = capture.pauses, state = capture.state
+            try await reviewWindow(VoiceEntryView(model: model, open: model.openPanel), size: CGSize(width: 42, height: 42),
+                name: "voice-entry", output: output) { host in
+                try await self.press("voiceEntry.open", in: host)
+                try await self.reviewUntil { opens == 1 }
+                guard capture.starts == starts, capture.pauses == pauses, capture.state == state else {
+                    throw ReviewFailure("lightweight entry changed capture rather than only opening the transcript")
+                }
+                print("UI_CONTROL_PASS lightweight voice entry opens the transcript once without starting, pausing or changing capture")
+            }
+            try await reviewWindow(SettingsView(model: model), size: CGSize(width: 650, height: 840),
+                name: "settings-floating-entry", output: output) { host in
+                try await self.press("settings.page.input", in: host)
+                try await Task.sleep(for: .milliseconds(120))
+                guard !model.floatingEntryEnabled, !preferences.bool(forKey: "floatingEntryEnabled") else {
+                    throw ReviewFailure("fresh isolated settings unexpectedly enabled the desktop entry")
+                }
+                try await self.press("settings.floatingEntry", in: host)
+                // The diagnostic process keeps NSArgumentDomain false to prevent
+                // any test from opening a desktop entry. Check the real saved
+                // suite value beneath that intentional process-wide override.
+                try await self.reviewUntil { model.floatingEntryEnabled && preferences.persistentDomain(forName: suite)?["floatingEntryEnabled"] as? Bool == true }
+                try await self.press("settings.floatingEntry", in: host)
+                try await self.reviewUntil { !model.floatingEntryEnabled && preferences.persistentDomain(forName: suite)?["floatingEntryEnabled"] as? Bool == false }
+                guard capture.starts == starts, capture.pauses == pauses, capture.state == state else {
+                    throw ReviewFailure("desktop entry setting changed capture")
+                }
+                print("UI_CONTROL_PASS native desktop-entry setting persists on/off only in isolated preferences and leaves capture unchanged")
+            }
+            await model.prepareForExit()
+        } catch { await model.prepareForExit(); throw error }
+    }
+
+    /// Actual FeedbackSettings controls and SQLite outbox; network outcomes are injected.
+    /// No production Keychain capability, remote service or audio archive is accessed.
+    @MainActor private func reviewFeedback(output: URL) async throws {
+        guard ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil else {
+            throw ReviewFailure("Feedback acceptance requires the owned native AX helper")
+        }
+        guard let statePath = ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW_STATE"] else { throw ReviewFailure("Feedback acceptance requires explicit isolated state") }
+        let directory = URL(fileURLWithPath: statePath, isDirectory: true)
+        let transport = try ReviewFeedbackTransport(log: directory.appendingPathComponent("transport.json"))
+        let secrets = ReviewFeedbackSecrets()
+        if ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_REVIEW_PHASE"] == "reopen" {
+            let restarted = FeedbackSettingsModel(directory: directory, normalLaunch: false, transport: transport, secrets: secrets)
+            try await reviewUntil { restarted.ready && restarted.draft.text == "未发送草稿：保留选择和输入。" && restarted.records.count == 1 }
+            guard restarted.records.first?.state == .deleted, (await transport.snapshot()).submissions == 1 else { throw ReviewFailure("Reopen duplicated feedback or lost its deletion/draft") }
+            await restarted.prepareForExit(); await restarted.finishExit()
+            print("FEEDBACK_RESTART_PASS draft_preserved=true original_id=true deleted_not_replayed=true process_restart=true")
+            let offline = try ReviewFeedbackTransport(log: directory.appendingPathComponent("offline-transport.json"))
+            let before = await offline.snapshot()
+            guard before.submissions == 1, before.ids.count == 1 else { throw ReviewFailure("Missing original offline attempt") }
+            let resumed = FeedbackSettingsModel(directory: directory.appendingPathComponent("offline"), normalLaunch: false, transport: offline, secrets: secrets)
+            try await reviewUntil { resumed.ready }
+            let deadline = Date().addingTimeInterval(20)
+            while resumed.records.first?.state != .received, Date() < deadline {
+                await resumed.reload(); try await Task.sleep(for: .milliseconds(50))
+            }
+            let retry = await offline.snapshot()
+            guard resumed.records.count == 1, resumed.records.first?.state == .received,
+                  resumed.records.first?.id == before.ids.first, retry.submissions == 2,
+                  Set(retry.ids).count == 1, Set(retry.payloads).count == 1,
+                  retry.products == ["saytile", "saytile"], retry.diagnostics == 0 else {
+                await resumed.prepareForExit(); await resumed.finishExit()
+                throw ReviewFailure("Offline restart changed its ID, payload or product, or failed its persisted backoff")
+            }
+            await resumed.prepareForExit(); await resumed.finishExit()
+            print("FEEDBACK_OFFLINE_PASS attempts=2 unique_ids=1 identical_payloads=true restart_resume=true process_restart=true")
+            print("FEEDBACK_REVIEW_PASS native_controls=true mock_transport=true remote_requests=0 keychain_reads=0 capture_starts=0")
+            return
+        }
+        let model = FeedbackSettingsModel(directory: directory, normalLaunch: false, transport: transport, secrets: secrets)
+        try await reviewUntil { model.ready }
+        guard !model.canSend, model.records.isEmpty else { throw ReviewFailure("Fresh feedback unexpectedly sends or exposes old records") }
+        let text = "TEST_ONLY：Saytile 原生反馈。中文、cafe\u{301}、😀；没有录音、转写或日志。"
+        let draft = "未发送草稿：保留选择和输入。"
+        do {
+            try await reviewValidatedWindow(Form { FeedbackSettings(model: model) }.formStyle(.grouped).tint(WorkspaceStyle.accent),
+                size: CGSize(width: 760, height: 820), name: "timeline-feedback-controls", output: output, validation: { host in
+                for identifier in ["建议", "feedback.send"] {
+                    _ = try await self.performControl(identifier, in: host, arguments: ["inspect"])
+                }
+                try self.captureReview(host, name: "feedback-empty", output: output)
+                var pending = [host], editors: [NSTextView] = []
+                while let view = pending.popLast() {
+                    if let editor = view as? NSTextView, editor.isEditable, editor.window === host.window { editors.append(editor) }
+                    pending += view.subviews
+                }
+                guard editors.count == 1, let editor = editors.first,
+                      host.window?.makeFirstResponder(editor) == true else { throw ReviewFailure("Missing unique owned native feedback editor") }
+                editor.insertText(text, replacementRange: NSRange(location: 0, length: editor.string.utf16.count))
+                try await self.reviewUntil { model.draft.text == text && model.canSend && !model.hasUnsavedDraft }
+                print("FEEDBACK_NATIVE_TEXT input_via=NSTextView.insertText unicode_exact=true")
+                try self.captureReview(host, name: "feedback-draft", output: output)
+                try await self.press("feedback.send", in: host)
+                try await self.reviewUntil { model.records.count == 1 && model.records.first?.state == .received && model.draft.text.isEmpty }
+                let sent = await transport.snapshot()
+                guard sent.submissions == 1, sent.products == ["saytile"], sent.texts == [text], sent.diagnostics == 0,
+                      !model.canSend, let first = model.records.first else { throw ReviewFailure("Send violated product/payload/draft ownership") }
+                let disabled = try await self.performControl("feedback.send", in: host, arguments: ["inspect"])
+                guard disabled.contains("\"enabled\":false") || disabled.contains("\"enabled\": false") else { throw ReviewFailure("Empty draft Send remained enabled") }
+                try self.captureReview(host, name: "feedback-received", output: output)
+                try await self.press("刷新状态", in: host)
+                try await self.reviewUntil { model.records.first?.state == .delivered }
+                guard (await transport.snapshot()).submissions == 1 else { throw ReviewFailure("Status refresh re-submitted the feedback") }
+                try self.captureReview(host, name: "feedback-delivered", output: output)
+                guard model.records.first?.id == first.id, model.records.first?.state == .delivered,
+                      (await transport.snapshot()).deletions == 0 else { throw ReviewFailure("Unexpected pre-withdrawal state") }
+                try await self.press("撤回", in: host)
+                let mode = ProcessInfo.processInfo.environment["SAYTILE_FEEDBACK_AX_FAULT"] ?? "press"
+                let reply = try await self.performControl("撤回反馈", in: host, arguments: ["feedback-confirmation", mode])
+                let deadline = Date().addingTimeInterval(5)
+                while model.records.first?.state != .deleted, Date() < deadline {
+                    try await Task.sleep(for: .milliseconds(20))
+                }
+                let deletion = await transport.snapshot()
+                let observation = try await self.performControl("撤回反馈", in: host, arguments: ["feedback-confirmation", "observe"])
+                let absent = observation.contains("present=false complete_tree=true owned_window=true foreground_unchanged=true")
+                let confirmed = model.records.count == 1 && model.records.first?.id == first.id
+                    && model.records.first?.state == .deleted && deletion.deletions == 1
+                    && deletion.deletedIDs == [first.id] && absent
+                let evidence: [String: Any] = ["status": confirmed ? "PASS" : "FAIL", "mode": mode,
+                    "original_id": first.id, "before_state": "delivered", "after_id": model.records.first?.id ?? "missing",
+                    "after_state": model.records.first?.state.rawValue ?? "missing", "delete_requests": deletion.deletions,
+                    "deleted_ids": deletion.deletedIDs ?? [], "dialog_absent": absent, "action_reply": reply,
+                    "dialog_observation": observation, "action_replayed": false]
+                try JSONSerialization.data(withJSONObject: evidence, options: [.prettyPrinted, .sortedKeys])
+                    .write(to: output.appendingPathComponent("feedback-confirmation.json"), options: .atomic)
+                guard confirmed else { throw ReviewFailure("Feedback confirmation postcondition failed; no action replay") }
+                print("FEEDBACK_CONFIRMATION_PASS same_id=true deletions=1 dialog_absent=true no_replay=true")
+                try self.captureReview(host, name: "feedback-deleted", output: output)
+                editor.insertText(draft, replacementRange: NSRange(location: 0, length: editor.string.utf16.count))
+                try await self.reviewUntil { model.draft.text == draft && !model.hasUnsavedDraft }
+                print("FEEDBACK_NATIVE_PASS sends=1 status_gets=1 deletion_requests=1 product=saytile diagnostics=0")
+            })
+            await model.prepareForExit(); await model.finishExit()
+        } catch { await model.prepareForExit(); await model.finishExit(); throw error }
+
+        let offline = try ReviewFeedbackTransport(log: directory.appendingPathComponent("offline-transport.json"), offline: true)
+        let queued = FeedbackSettingsModel(directory: directory.appendingPathComponent("offline"), normalLaunch: false, transport: offline, secrets: secrets)
+        try await reviewUntil { queued.ready }
+        // Controller/outbox coverage is separate from the native Send control above.
+        queued.edit(text: "TEST_ONLY：断网后的同一条反馈，不重复创建。"); queued.send()
+        try await reviewUntil { queued.records.first?.attempts == 1 && queued.records.first?.state == .queued }
+        await queued.prepareForExit(); await queued.finishExit()
+        print("FEEDBACK_OFFLINE_QUEUED attempts=1 durable=true awaiting_process_restart=true")
+    }
+
+    /// Uses the shipping settings and panel in two owned, nonactivating windows.
+    /// Menu actions go through AXPress and the actual AppKit menu target/action.
+    @MainActor private func reviewPanelAppearance(output: URL) async throws {
+        guard ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil else {
+            throw ReviewFailure("Appearance acceptance requires the owned native AX helper")
+        }
+        let suite = "app.saytile.test.appearance." + UUID().uuidString
+        let preferences = UserDefaults(suiteName: suite)!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-appearance-" + UUID().uuidString)
+        defer { preferences.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: directory) }
+        var configuration = RecognitionConfiguration(); configuration.automaticRecovery = false
+        try configuration.save(to: preferences)
+        let capture = UIPanelCaptureFixture(), connection = UIConnectionFixture()
+        let board = NSPasteboard.withUniqueName()
+        defer { board.releaseGlobally() }
+        let model = try AppModel(directory: directory, preferences: preferences, connectionDependencies: connection.dependencies,
+                                 captureDependencies: capture.dependencies, copyPasteboard: board)
+        await model.initialLoad()
+        do {
+            guard model.panelAppearance == VoicePanelAppearance(), model.panelBorderVisible, model.panelSizePreset == .standard else {
+                throw ReviewFailure("First-use appearance changed the existing defaults")
+            }
+            let text = (1...45).map { "第\($0)行：保留数字24、否定词不要和手动编辑。Swift API cafe\u{301} 😀。" }.joined(separator: "\n")
+            let row = try await model.store.createRecording()
+            _ = try await model.store.saveEdit(recordingID: row.id, text: text)
+            try await model.store.finishRecording(id: row.id); await model.refresh()
+            var selections = 0
+            try await reviewValidatedWindow(InputPanelWindowView(model: model), size: CGSize(width: 344, height: 380),
+                name: "timeline-appearance-panel", output: output, validation: { panelHost in
+                let scroll = try self.compactTranscript(in: panelHost), editor = scroll.transcriptView
+                try await self.reviewUntil { editor.string == text }
+                @MainActor func fontSize() -> CGFloat {
+                    (editor.textStorage?.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)?.pointSize ?? 0
+                }
+                guard abs(fontSize() - 14.04) < 0.01 else { throw ReviewFailure("Default font differs from the current 14.04 pt") }
+                scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
+                let selected = (text as NSString).range(of: "cafe\u{301} 😀", options: .literal)
+                guard selected.location != NSNotFound else { throw ReviewFailure("Missing Unicode selection fixture") }
+                editor.setSelectedRange(selected)
+                let baselineButtons = try await self.appearanceControlGeometry(in: panelHost)
+                try self.captureReview(panelHost, name: "appearance-default", output: output)
+                try await self.reviewValidatedWindow(SettingsView(model: model, initialPage: .appearance),
+                    size: CGSize(width: 1000, height: 850), name: "timeline-appearance-settings", output: output, validation: { settingsHost in
+                    try await self.inspectSettings(in: settingsHost,
+                        required: ["settings.panelColor", "settings.buttonColor", "settings.panelOpacity", "settings.panelTextSize", "settings.panelSize", "settings.panelBorder", "settings.resetAppearance", "settings.applyPanelSize"], excluded: ["暂停收音", "继续收音"])
+                    try self.captureReview(settingsHost, name: "appearance-settings-default", output: output)
+                    for value in PanelOpacityPreset.allCases where value != .original {
+                        try await self.chooseAppearanceMenu("settings.panelOpacity", title: value.title,
+                            titles: PanelOpacityPreset.allCases.map(\.title), in: settingsHost)
+                        try await self.reviewUntil { model.panelAppearance.opacity == value }
+                        selections += 1
+                        guard try self.compactTranscript(in: panelHost) === scroll, editor.string == text,
+                              editor.selectedRange() == selected else { throw ReviewFailure("Opacity change replaced the editor or its selection") }
+                        try self.captureReview(panelHost, name: "appearance-opacity-" + value.rawValue, output: output)
+                    }
+                    try await self.chooseAppearanceMenu("settings.panelColor", title: PanelColorPreset.blue.title,
+                        titles: PanelColorPreset.allCases.map(\.title), in: settingsHost)
+                    try await self.reviewUntil { model.panelAppearance.panelColor == .blue }; selections += 1
+                    try await self.chooseAppearanceMenu("settings.buttonColor", title: PanelButtonColorPreset.blue.title,
+                        titles: PanelButtonColorPreset.allCases.map(\.title), in: settingsHost)
+                    try await self.reviewUntil { model.panelAppearance.buttonColor == .blue }; selections += 1
+                    try self.captureReview(panelHost, name: "appearance-blue", output: output)
+                    try await self.chooseAppearanceMenu("settings.panelColor", title: PanelColorPreset.warm.title,
+                        titles: PanelColorPreset.allCases.map(\.title), in: settingsHost)
+                    try await self.reviewUntil { model.panelAppearance.panelColor == .warm }; selections += 1
+                    try await self.chooseAppearanceMenu("settings.buttonColor", title: PanelButtonColorPreset.graphite.title,
+                        titles: PanelButtonColorPreset.allCases.map(\.title), in: settingsHost)
+                    try await self.reviewUntil { model.panelAppearance.buttonColor == .graphite }; selections += 1
+                    try self.captureReview(panelHost, name: "appearance-warm-graphite", output: output)
+                    let savedAppearance = model.panelAppearance
+                    for brand in [BrandAppearance.black, .purple] {
+                        try await self.press(brand.title, in: settingsHost)
+                        try await self.reviewUntil { model.brandAppearance == brand }
+                        guard BrandAppearance.load(from: preferences) == brand,
+                              model.panelAppearance == savedAppearance,
+                              model.effectivePanelAppearance == savedAppearance.resolved(for: brand),
+                              try self.compactTranscript(in: panelHost) === scroll,
+                              editor.string == text, editor.selectedRange() == selected,
+                              try await self.appearanceControlGeometry(in: panelHost) == baselineButtons else {
+                            throw ReviewFailure("Native brand selection lost panel preferences, text, selection or geometry")
+                        }
+                        try self.captureReview(panelHost, name: "appearance-brand-" + brand.rawValue, output: output)
+                        try self.captureReview(settingsHost, name: "appearance-brand-" + brand.rawValue + "-settings", output: output)
+                    }
+                    for (value, points) in [(PanelTextSizePreset.small, CGFloat(12)), (.large, 16), (.extraLarge, 18)] {
+                        try await self.chooseAppearanceMenu("settings.panelTextSize", title: value.title,
+                            titles: PanelTextSizePreset.allCases.map(\.title), in: settingsHost)
+                        try await self.reviewUntil { abs(fontSize() - points) < 0.01 }; selections += 1
+                        guard try self.compactTranscript(in: panelHost) === scroll, editor.string == text,
+                              editor.selectedRange() == selected, scroll.contentView.bounds.origin.y < 1,
+                              try await self.appearanceControlGeometry(in: panelHost) == baselineButtons else {
+                            throw ReviewFailure("Font change moved the reading position, selection or button geometry")
+                        }
+                        try self.captureReview(panelHost, name: "appearance-type-" + value.rawValue, output: output)
+                    }
+                    try await self.chooseAppearanceMenu("settings.panelSize", title: PanelSizePreset.spacious.title,
+                        titles: PanelSizePreset.allCases.map(\.title), in: settingsHost)
+                    try await self.reviewUntil { model.panelSizePreset == .spacious }; selections += 1
+                    try await self.press("settings.applyPanelSize", in: settingsHost)
+                    try await self.press("settings.panelBorder", in: settingsHost)
+                    try await self.reviewUntil { !model.panelBorderVisible }
+                    try self.captureReview(panelHost, name: "appearance-no-border", output: output)
+                    try self.captureReview(settingsHost, name: "appearance-settings-custom", output: output)
+                    try await self.press("settings.resetAppearance", in: settingsHost)
+                    try await self.reviewUntil { model.panelAppearance == VoicePanelAppearance() && model.panelBorderVisible && model.panelSizePreset == .standard }
+                    try await self.reviewUntil { abs(fontSize() - 14.04) < 0.01 }
+                    guard editor.string == text, editor.selectedRange() == selected,
+                          try await self.appearanceControlGeometry(in: panelHost) == baselineButtons else {
+                        throw ReviewFailure("Restore defaults changed text, selection or button geometry")
+                    }
+                    try self.captureReview(panelHost, name: "appearance-restored", output: output)
+                    try self.captureReview(settingsHost, name: "appearance-settings-restored", output: output)
+                })
+                let suffix = "\n外观修改后仍能编辑。"
+                editor.setSelectedRange(NSRange(location: editor.string.utf16.count, length: 0))
+                editor.insertText(suffix, replacementRange: editor.selectedRange())
+                try await self.reviewUntil { editor.string == text + suffix }
+                guard try await model.store.recording(id: row.id)?.text == text + suffix,
+                      try await model.store.revisions(recordingID: row.id).contains(where: { $0.text == text }) else {
+                    throw ReviewFailure("Changing appearance broke persistent editing or prior revisions")
+                }
+            })
+            guard capture.starts == 0, capture.pauses == 0, capture.state == .paused, model.audio.state == .paused,
+                  connection.requests == 0, selections == 11 else {
+                throw ReviewFailure("Appearance controls started capture/cloud or missed a required native menu action")
+            }
+            print("APPEARANCE_REVIEW_PASS menu_actions=11 defaults_restored=true editor_selection_preserved=true button_geometry_unchanged=true persistent_edit=true capture_starts=0 cloud_calls=0")
+            await model.prepareForExit()
+        } catch { await model.prepareForExit(); throw error }
+    }
+
+    @MainActor private func chooseAppearanceMenu(_ identifier: String, title: String, titles: [String], in host: NSView) async throws {
+        let selection = ReviewAppearanceMenuSelection(title: title, expected: Set(titles))
+        NotificationCenter.default.addObserver(selection, selector: #selector(ReviewAppearanceMenuSelection.menuOpened(_:)),
+                                               name: NSMenu.didBeginTrackingNotification, object: nil)
+        NotificationCenter.default.addObserver(selection, selector: #selector(ReviewAppearanceMenuSelection.menuClosed(_:)),
+                                               name: NSMenu.didEndTrackingNotification, object: nil)
+        defer { NotificationCenter.default.removeObserver(selection) }
+        try await press(identifier, in: host)
+        do {
+            // Observe completion of this one action. Never press again: a second
+            // press while a picker still tracks its menu can simply close it.
+            try await reviewUntil { selection.chosen && selection.trackingEnded }
+        } catch {
+            throw ReviewFailure("Appearance menu lifecycle incomplete for \(identifier) → \(title): opened=\(selection.opened), action=\(selection.chosen), ended=\(selection.trackingEnded)")
+        }
+        print("NATIVE_APPEARANCE_MENU \(identifier) value=\(title) via=AXPress+NSMenu.performActionForItem tracking_ended=true")
+    }
+
+    @MainActor private func appearanceControlGeometry(in host: NSView) async throws -> [String: [Double]] {
+        let output = try await performControl("panel.capture", in: host, arguments: ["inspect-panel"])
+        let prefix = "NATIVE_UI_PANEL_INSPECT "
+        guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix(prefix) }),
+              let body = try JSONSerialization.jsonObject(with: Data(line.dropFirst(prefix.count).utf8)) as? [String: Any],
+              let controls = body["controls"] as? [[String: Any]], controls.count == 2 else {
+            throw ReviewFailure("Appearance changed the two-control surface")
+        }
+        var result: [String: [Double]] = [:]
+        for control in controls {
+            guard let id = control["identifier"] as? String, ["panel.capture", "panel.copy"].contains(id),
+                  let width = control["width"] as? Double, let height = control["height"] as? Double,
+                  let x = control["x"] as? Double, let y = control["y"] as? Double else {
+                throw ReviewFailure("Appearance control geometry unavailable")
+            }
+            result[id] = [x, y, width, height]
+        }
+        guard result.count == 2 else { throw ReviewFailure("Missing or duplicate appearance controls") }
+        return result
+    }
+
+    @MainActor func pressBorderSetting(model: AppModel, output: URL) async throws {
+        let wasVisible = model.panelBorderVisible
+        try await reviewWindow(SettingsView(model: model, initialPage: .appearance), size: CGSize(width: 650, height: 700),
+                               name: "settings-panel-border", output: output) { host in
+            try await self.press("settings.panelBorder", in: host)
+            try await self.reviewUntil { model.panelBorderVisible != wasVisible }
+        }
+        guard model.panelBorderVisible != wasVisible else { throw ReviewFailure("Border setting did not change") }
+    }
+
+    @MainActor private func reviewFirstConnection(output: URL) async throws {
+        let suite = "app.saytile.test.ui-connection." + UUID().uuidString
+        let preferences = UserDefaults(suiteName: suite)!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("saytile-ui-connection-" + UUID().uuidString)
+        defer { preferences.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: directory) }
+        let fixture = UIConnectionFixture()
+        let model = try AppModel(directory: directory, preferences: preferences, connectionDependencies: fixture.dependencies)
+        await model.initialLoad()
+        model.recognitionConfiguration.languagePreference = .chinese
+        do {
+            guard model.records.isEmpty, fixture.saved.isEmpty, !model.connectionVerified,
+                  !model.recognitionConfiguration.cloudEnabled else { throw ReviewFailure("first connection fixture was not empty") }
+            try await reviewWindow(Form { RecognitionSettingsSection(model: model) }.formStyle(.grouped),
+                size: CGSize(width: 650, height: 840), name: "connection-first-empty", output: output)
+            if ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil {
+                try await reviewWindow(Form { RecognitionSettingsSection(model: model) }.formStyle(.grouped),
+                    size: CGSize(width: 650, height: 840), name: "connection-first-success", output: output) { host in
+                    try await self.press("recognition.configureServices", in: host)
+                    for item in model.recognitionConfiguration.activeModels {
+                        let prefix = "recognition.model." + item.id.uuidString.lowercased()
+                        try await self.press(prefix + ".header", in: host)
+                        if item.provider == .qwenMessage { try await self.setValue("fixture-workspace", for: prefix + ".workspace", in: host) }
+                        try await self.setValue(UIConnectionFixture.credential, for: prefix + ".secret", in: host, secure: true)
+                        try await self.press(prefix + ".saveKey", in: host)
+                        guard model.hasCredential(item) else { throw ReviewFailure("native save-key action failed") }
+                        try await self.press(prefix + ".consent", in: host)
+                        guard model.recognitionConfiguration.models.first(where: { $0.id == item.id })?.cloudConsent == true else {
+                            throw ReviewFailure("native service consent did not update configuration")
+                        }
+                        try await self.press(prefix + ".header", in: host)
+                    }
+                    try await self.reviewUntil { !model.applyingRecognitionSettings }
+                    guard fixture.saved.count == 2, !model.connectionCheckAuthorized, fixture.requests == 0,
+                          model.recognitionConfiguration.models[0].workspaceID == "fixture-workspace" else {
+                        throw ReviewFailure("first setup silently connected or did not save native fields")
+                    }
+                    try self.captureReview(host, name: "connection-first-ready", output: output)
+                    print("UI_STATE_CAPTURE connection-first-ready after native secure fields/save/consent; no network")
+                    try await self.press("connection.checkCosts", in: host)
+                    try self.captureReview(host, name: "connection-first-costs", output: output)
+                    print("UI_STATE_CAPTURE connection-first-costs after native disclosure action")
+                    try await self.press("connection.checkCosts", in: host)
+                    try await self.press("connection.authorizeCheck", in: host)
+                    try await self.press("connection.startCheck", in: host)
+                    try await self.reviewUntil { !model.checkingConnection && !model.applyingRecognitionSettings }
+                    guard fixture.requests == 1, model.connectionVerified, model.appliedRecognitionConfiguration.cloudEnabled,
+                          model.recognitionConfiguration.cloudEnabled else { throw ReviewFailure("native first connection did not pass the receipt-enable branch") }
+                    print("UI_CONTROL_PASS first connection via native Workspace/two selected secure fields/save/consent/cost/start; TEST_ONLY injected receipt, no live verification")
+                }
+                fixture.outcome = .failure
+                try await reviewWindow(Form { RecognitionSettingsSection(model: model, initiallyExpanded: true) }.formStyle(.grouped),
+                    size: CGSize(width: 650, height: 840), name: "connection-first-failure", output: output) { host in
+                    try await self.press("connection.authorizeCheck", in: host)
+                    try await self.press("connection.startCheck", in: host)
+                    try await self.reviewUntil { !model.checkingConnection }
+                    guard fixture.requests == 2, !model.connectionVerified, !model.appliedRecognitionConfiguration.cloudEnabled,
+                          model.connectionReport?.services.allSatisfy({ $0.state == .failed }) == true else { throw ReviewFailure("failed check did not keep local recognition") }
+                    print("UI_CONTROL_PASS native retry displays isolated service failure and keeps cloud disabled")
+                }
+                fixture.outcome = .waitForCancellation
+                try await reviewWindow(Form { RecognitionSettingsSection(model: model, initiallyExpanded: true) }.formStyle(.grouped),
+                    size: CGSize(width: 650, height: 840), name: "connection-first-cancelled", output: output) { host in
+                    try await self.press("connection.authorizeCheck", in: host)
+                    try await self.press("connection.startCheck", in: host)
+                    try await self.reviewUntil { model.connectionReport?.services.allSatisfy({ $0.state == .receiving }) == true }
+                    try self.captureReview(host, name: "connection-first-progress", output: output)
+                    print("UI_STATE_CAPTURE connection-first-progress from injected backend progress through actual AppModel")
+                    try await self.press("connection.cancelCheck", in: host)
+                    try await self.reviewUntil { !model.checkingConnection && fixture.active == 0 }
+                    guard fixture.requests == 3, !model.connectionVerified, !model.appliedRecognitionConfiguration.cloudEnabled,
+                          model.connectionReport?.services.allSatisfy({ $0.state == .cancelled }) == true else { throw ReviewFailure("native cancellation left stale connection cards") }
+                    print("UI_CONTROL_PASS native cancel closes injected verification and settles all service cards")
+                }
+            }
+            await model.prepareForExit()
+        } catch { await model.prepareForExit(); throw error }
+    }
+}
+
+/// Test windows cannot acquire keyboard focus, even when their owned field editor
+/// is exercised programmatically. The consumer's actual VoicePanel is unchanged.
+@MainActor private final class ReviewPanel: NSPanel {
+    override var canBecomeKey: Bool { false }
+    override var canBecomeMain: Bool { false }
+}
+
+@MainActor final class UIPanelCaptureFixture {
+    var authorization: AVAuthorizationStatus = .authorized
+    var state: CaptureState = .paused
+    var level: Float = 0
+    var starts = 0
+    var pauses = 0
+    var dependencies: AppCaptureDependencies {
+        AppCaptureDependencies(state: { _ in self.state },
+            start: { _ in self.starts += 1; self.state = .listening },
+            pause: { _ in self.pauses += 1; self.state = .paused }, level: { _ in self.level }, microphoneAuthorization: { self.authorization })
+    }
+}
+
+/// Same AppModel dependency seam as the controller probe; only the peer outcome is
+/// injected. Never read Keychain, upload audio or instantiate a provider transport.
+@MainActor private final class UIConnectionFixture {
+    enum Outcome { case success, failure, waitForCancellation }
+    static let credential = "simulator-fixture-credential"
+    var saved = Set<UUID>()
+    var requests = 0
+    var active = 0
+    var outcome: Outcome = .success
+    var dependencies: AppConnectionDependencies {
+        AppConnectionDependencies(presence: { self.saved.contains($0.id) ? .saved : .missing },
+            save: { value, item in
+                guard value == Self.credential else { throw ProviderFailure.authorization }
+                self.saved.insert(item.id)
+            }, delete: { self.saved.remove($0.id) }, verify: { configuration, progress in
+                guard configuration.activeModels.allSatisfy({ self.saved.contains($0.id) && $0.cloudConsent }) else { throw ProviderFailure.authorization }
+                self.requests += 1; self.active += 1; defer { self.active -= 1 }
+                progress(try Self.report(configuration, state: .accountAccepted))
+                try await Task.sleep(for: .milliseconds(150))
+                progress(try Self.report(configuration, state: .receiving))
+                if self.outcome == .waitForCancellation { try await Task.sleep(for: .seconds(30)); throw CancellationError() }
+                try await Task.sleep(for: .milliseconds(150))
+                return try Self.report(configuration, state: self.outcome == .success ? .verified : .failed)
+            }, applyConfiguration: { _, _ in }, revokeCloud: { $0.revokeCloudRecognition() })
+    }
+    private static func report(_ configuration: RecognitionConfiguration, state: ConnectionServiceState) throws -> CloudConnectionReport {
+        let success = state == .verified
+        let rows: [[String: Any]] = configuration.activeModels.map {
+            var value: [String: Any] = ["id": $0.id.uuidString, "provider": $0.provider.rawValue, "state": state.rawValue]
+            if state == .failed { value["code"] = "quota_exhausted"; value["message"] = "测试情形：服务余额不足，请在服务商账户处理后重新检查。" }
+            return value
+        }
+        let value: [String: Any] = ["configurationFingerprint": CloudConnectionVerifier.fingerprint(configuration), "date": 0,
+            "live": success, "services": rows, "transcript": success ? "TEST_ONLY：不要支付15元，send the report。" : "",
+            "pipelineCompleted": success, "elapsedSeconds": 0, "reviewRequests": 0,
+            "message": "TEST_ONLY 原生交互替身；未连接真实服务。"]
+        return try JSONDecoder().decode(CloudConnectionReport.self, from: JSONSerialization.data(withJSONObject: value))
+    }
+}
+
+// Records process identity transitions only, never another app's UI or contents.
+private final class ReviewActivations: @unchecked Sendable {
+    private let lock = NSLock()
+    private let ownPID: pid_t
+    private var own = false
+    private var others = 0
+    init(ownPID: pid_t) { self.ownPID = ownPID }
+    func record(pid: pid_t) {
+        lock.lock(); defer { lock.unlock() }
+        if pid == ownPID { own = true } else { others += 1 }
+    }
+    var candidateActivated: Bool { lock.lock(); defer { lock.unlock() }; return own }
+    var otherActivations: Int { lock.lock(); defer { lock.unlock() }; return others }
+}
+
+@MainActor private final class ReviewCloudMenuSelection: NSObject {
+    let title: String
+    private(set) var chosen = false
+    init(title: String) { self.title = title }
+
+    @objc func menuOpened(_ note: Notification) {
+        guard let menu = note.object as? NSMenu, menu.item(withTitle: "Saytile Cloud") != nil,
+              let item = menu.item(withTitle: title) else { return }
+        menu.performActionForItem(at: menu.index(of: item))
+        chosen = true
+        menu.cancelTracking()
+    }
+}
+
+@MainActor private final class ReviewAppearanceMenuSelection: NSObject {
+    let title: String
+    let expected: Set<String>
+    private(set) var opened = false
+    private(set) var chosen = false
+    private(set) var trackingEnded = false
+    private var menu: NSMenu?
+    init(title: String, expected: Set<String>) { self.title = title; self.expected = expected }
+    @objc func menuOpened(_ note: Notification) {
+        guard !opened, let candidate = note.object as? NSMenu,
+              expected.isSubset(of: Set(candidate.items.map(\.title))),
+              let item = candidate.item(withTitle: title), item.isEnabled else { return }
+        opened = true; menu = candidate
+        // The begin notification runs before the menu's tracking loop has taken
+        // control. Dispatching and cancelling inside it can leave the picker
+        // tracking after the binding changed. Enter the actual tracking mode
+        // once, then dispatch its existing native item target/action.
+        RunLoop.main.perform(inModes: [.eventTracking]) { [weak self] in
+            MainActor.assumeIsolated { self?.chooseTrackedItem() }
+        }
+    }
+    private func chooseTrackedItem() {
+        guard !chosen, !trackingEnded, let menu,
+              expected.isSubset(of: Set(menu.items.map(\.title))),
+              let item = menu.item(withTitle: title), item.isEnabled else { return }
+        chosen = true
+        menu.performActionForItem(at: menu.index(of: item))
+        menu.cancelTracking()
+    }
+    @objc func menuClosed(_ note: Notification) {
+        guard let candidate = note.object as? NSMenu, candidate === menu else { return }
+        trackingEnded = true
+    }
+}
+
+/// Fixed synthetic capability only in the explicit offline UI fixture. Never used by the app host.
+private struct ReviewFeedbackSecrets: FeedbackSecretStorage {
+    func secret(for id: String, create: Bool) throws -> String { String(repeating: "a", count: 64) }
+    func remove(for id: String) throws {}
+}
+
+private actor ReviewFeedbackTransport: FeedbackTransport {
+    nonisolated let configured = true
+    private let offline: Bool, log: URL
+    struct Snapshot: Codable, Sendable {
+        var submissions = 0, deletions = 0, diagnostics = 0
+        var deletedIDs: [String]? = []
+        var ids: [String] = [], products: [String] = [], texts: [String] = [], payloads: [Data] = []
+    }
+    private var state: Snapshot
+    init(log: URL, offline: Bool = false) throws {
+        self.log = log; self.offline = offline
+        self.state = FileManager.default.fileExists(atPath: log.path) ? try JSONDecoder().decode(Snapshot.self, from: Data(contentsOf: log)) : Snapshot()
+    }
+    func snapshot() -> Snapshot { state }
+    func perform(_ action: FeedbackRequest, record: FeedbackRecord, secret: String) async throws -> FeedbackReceipt {
+        let receipt: FeedbackReceipt
+        switch action {
+        case .submit:
+            state.submissions += 1; state.ids.append(record.id); state.products.append(record.envelope.product?.rawValue ?? "missing")
+            state.texts.append(record.envelope.text); state.payloads.append(record.bytes)
+            if record.envelope.diagnostic != nil { state.diagnostics += 1 }
+            receipt = FeedbackReceipt(id: record.id, state: "received")
+        case .status: receipt = FeedbackReceipt(id: record.id, state: "delivered")
+        case .delete:
+            state.deletions += 1; state.deletedIDs = (state.deletedIDs ?? []) + [record.id]
+            receipt = FeedbackReceipt(id: record.id, state: "deleted")
+        }
+        try FileManager.default.createDirectory(at: log.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try JSONEncoder().encode(state).write(to: log, options: .atomic)
+        if offline { throw FeedbackFailure.transport }
+        return receipt
     }
 }

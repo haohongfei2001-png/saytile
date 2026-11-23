@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "/private/tmp/saytile-release-100/scripts/mandarin/check-app-rollback.py", line 197, in <module>
+    main()
+    ~~~~^^
+  File "/private/tmp/saytile-release-100/scripts/mandarin/check-app-rollback.py", line 144, in main
+    profiles.append(profile_contract(installed[-1], dest, identities[index]))
+                    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-release-100/scripts/mandarin/check-app-rollback.py", line 66, in profile_contract
+    run("swiftc", "-swift-version", "6", "-module-cache-path", tmp.parent / "module-cache",
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        tmp / "profile.swift", tmp / "main.swift", "-o", exe)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/saytile-release-100/scripts/mandarin/check-app-rollback.py", line 23, in run
+    result = subprocess.run(args, capture_output=True, text=True, timeout=75)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1221, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 2154, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1268, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '('swiftc', '-swift-version', '6', '-module-cache-path', PosixPath('/private/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-mandarin-rollback-wf5ahbcu/module-cache'), PosixPath('/private/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-mandarin-rollback-wf5ahbcu/0/profile.swift'), PosixPath('/private/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-mandarin-rollback-wf5ahbcu/0/main.swift'), '-o', PosixPath('/private/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-mandarin-rollback-wf5ahbcu/0/Contract.app/Contents/MacOS/Contract'))' timed out after 75 seconds

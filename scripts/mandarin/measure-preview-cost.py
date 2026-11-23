@@ -1,0 +1,165 @@
+"""Measure native partials and process CPU in one isolated wall-paced public replay.
+
+The Darwin sampled cumulative CPU time is taken from ps time= (1/100 second).
+Each PID's maximum observed counter is a lower bound if it exits between samples.
+Wall time includes model startup and EOS. No real microphone, accounts or archives.
+"""
+import argparse
+import ctypes
+import hashlib
+import json
+from pathlib import Path
+import plistlib
+import shutil
+import subprocess
+import tempfile
+import time
+
+LIBPROC = ctypes.CDLL("/usr/lib/libproc.dylib")
+
+
+def seconds(cpu_time):
+    minutes, secs = cpu_time.rsplit(":", 1)
+    if ":" in minutes:
+        hours, minutes = minutes.split(":")
+        return int(hours) * 3600 + int(minutes) * 60 + float(secs)
+    return int(minutes) * 60 + float(secs)
+
+
+def public_run(app, manifest, sample_id, weights, audio, out, profile=False, trace=False, model="qwen-small", automatic=True, window_observer=None):
+    meta = plistlib.loads((app / "Contents/Info.plist").read_bytes())
+    row = next(r for r in json.loads(manifest.read_text())["samples"] if r["id"] == sample_id)
+    wav = audio / (sample_id + ".wav")
+    assert hashlib.sha256(wav.read_bytes()).hexdigest() == row["audio_sha256"]
+    out.mkdir(parents=True, exist_ok=False)
+    subprocess.run(["codesign", "--verify", "--deep", "--strict", app], check=True)
+    with tempfile.TemporaryDirectory(prefix="saytile-native-cost-") as tmp:
+        data = Path(tmp)
+        shutil.copyfile(wav, data / "fixture.wav")
+        (data / "LocalModels").mkdir()
+        subprocess.run(["cp", "-cR", weights / model, data / "LocalModels"], check=True)
+        with tempfile.TemporaryFile() as log:
+            start = time.monotonic()
+            p = subprocess.Popen([app / "Contents/MacOS/Saytile", "--data-directory", data,
+                                  "--local-stream-probe", "auto" if automatic else model, *(["--performance-trace"] if trace else [])], stdout=log, stderr=log)
+            observer = None
+            if window_observer:
+                observer_log = (out / "owned-windows.jsonl").open("wb")
+                observer = subprocess.Popen([window_observer, str(p.pid)], stdout=observer_log)
+            samples, children, last_cpu = [], set(), {}
+            profiles = {}
+            try:
+                while p.poll() is None:
+                    if time.monotonic() - start > 100:
+                        raise TimeoutError(sample_id)
+                    child_pids = (ctypes.c_int * 16)()
+                    count = LIBPROC.proc_listchildpids(p.pid, child_pids, ctypes.sizeof(child_pids))
+                    active = [pid for pid in child_pids if pid > 0]
+                    assert len(active) <= 1 and count < ctypes.sizeof(child_pids), active
+                    children.update(active)
+                    ids = [p.pid, *active]
+                    # Diagnostic runs only. Never use these instrumented timings
+                    # as an uninstrumented before/after performance comparison.
+                    # Targets come solely from this disposable App's process tree.
+                    if profile and time.monotonic() - start >= 8:
+                        for pid in ids:
+                            if pid not in profiles:
+                                role = "app" if pid == p.pid else "worker"
+                                profile_log = (out / f"sample-{role}.log").open("wb")
+                                command = ["/usr/bin/sample", str(pid), "30", "10", "-mayDie",
+                                           "-file", str(out / f"sample-{role}.txt")]
+                                sampler = subprocess.Popen(command, stdout=profile_log, stderr=profile_log)
+                                profiles[pid] = (sampler, profile_log, command)
+                    process_times = subprocess.run(["ps", "-p", ",".join(map(str, ids)), "-o", "pid=,time="],
+                                                   capture_output=True, text=True)
+                    observed = {int(pid): seconds(t) for line in process_times.stdout.splitlines()
+                                for pid, t in [line.split()]}
+                    # ps can reset the last line to zero for a just-exited process.
+                    # CPU time is cumulative for the lifetime of this child.
+                    for pid, cpu in observed.items():
+                        last_cpu[pid] = max(last_cpu.get(pid, 0), cpu)
+                    footprint = {}
+                    for pid, role in [(p.pid, "app"), *((i, "worker") for i in active)]:
+                        info = (ctypes.c_uint64 * 12)()
+                        if LIBPROC.proc_pid_rusage(pid, 0, ctypes.byref(info)) == 0:
+                            footprint[role] = info[9]
+                    samples.append(dict(t=round(time.monotonic() - start, 3),
+                                        app_cpu_s=observed.get(p.pid),
+                                        workers_cpu_s=round(sum(last_cpu.get(i, 0) for i in children), 3),
+                                        footprint=footprint))
+                    time.sleep(.20)
+            finally:
+                if p.poll() is None:
+                    p.terminate()
+                    p.wait(timeout=4)
+                if observer:
+                    try:
+                        observer.wait(timeout=4)
+                    except subprocess.TimeoutExpired:
+                        observer.terminate()
+                        observer.wait(timeout=4)
+                    observer_log.close()
+                if profile:
+                    statuses = []
+                    for pid, (sampler, profile_log, command) in profiles.items():
+                        try:
+                            sampler.wait(timeout=8)
+                        except subprocess.TimeoutExpired:
+                            sampler.terminate()
+                            sampler.wait(timeout=4)
+                        profile_log.close()
+                        statuses.append(dict(pid=pid, command=command, exit_code=sampler.returncode))
+                    (out / "profilers.json").write_text(json.dumps(statuses, indent=2))
+            elapsed = time.monotonic() - start
+            # Keep the real failure before TemporaryDirectory/TemporaryFile cleanup.
+            # These inputs are exclusively the hash-checked public fixture above.
+            log.seek(0)
+            (out / "native.log").write_bytes(log.read())
+            (out / "process-samples.json").write_text(json.dumps(samples))
+            (out / "invocation.json").write_text(json.dumps(dict(
+                source=meta["SaytileSourceRevision"], build=meta["CFBundleVersion"],
+                sample=sample_id, audio_sha256=row["audio_sha256"],
+                exit_code=p.returncode, elapsed_s=elapsed)))
+            if (data / "visible.json").exists():
+                shutil.copyfile(data / "visible.json", out / "visible-raw.json")
+            if (data / "partial.png").exists():
+                # This is the owned NSView bitmap of public fixture text, never
+                # a desktop screenshot or a capture of the installed product.
+                shutil.copyfile(data / "partial.png", out / "partial.png")
+            assert p.returncode == 0, p.returncode
+        receipt = json.loads((data / "visible.json").read_text())
+        assert receipt["sha"] == meta["SaytileSourceRevision"]
+        assert receipt["automatic"] == automatic and receipt["model"] == model and receipt["providers"] == [model]
+        assert all(v == "completed" for v in receipt["recordStates"]) and len(receipt["archive"]) > 0
+        assert receipt["frames"][-1]["text"] == "".join(reversed(receipt["archive"]))
+        assert receipt["rawWorkerEvents"] and receipt["publications"]
+        assert children and {p.pid, *children} <= last_cpu.keys()
+        receipt.update(exit_code=p.returncode, audio_sha256=row["audio_sha256"], id=sample_id)
+        (out / f"{'auto-' if automatic else ''}{model}-{sample_id}.json").write_text(json.dumps(receipt, ensure_ascii=False) + "\n")
+    worker_s = sum(last_cpu[pid] for pid in children)
+    total_s = last_cpu[p.pid] + worker_s
+    raw = receipt["rawWorkerEvents"]
+    decodes = [d for e in raw for d in e.get("decodes") or [] if not d["final"]]
+    result = dict(source=meta["SaytileSourceRevision"], build=meta["CFBundleVersion"], sample=sample_id, model=model, automatic=automatic,
+                  audio_sha256=row["audio_sha256"], wall_s=round(elapsed, 3), app_cpu_s=last_cpu[p.pid],
+                  workers_cpu_s=round(worker_s, 3), combined_cpu_s=round(total_s, 3),
+                  process_equivalent_cores=round(total_s / elapsed, 4),
+                  input_s=row["duration"], end_of_file=receipt["endOfFile"],
+                  peak_simultaneous_footprint_MiB=round(max(sum(s["footprint"].values()) for s in samples)/2**20, 1),
+                  computes=len(decodes), preview_compute_wall_s=round(sum(d["endUptime"]-d["startUptime"] for d in decodes),3),
+                  samples=samples)
+    (out / "process.json").write_text(json.dumps(result, indent=1) + "\n")
+    print(json.dumps({k:v for k,v in result.items() if k!="samples"}), flush=True)
+
+
+if __name__ == "__main__":
+    cli = argparse.ArgumentParser(description=__doc__)
+    for name in ["app", "manifest", "weights", "audio", "out"]:
+        cli.add_argument("--" + name, type=Path, required=True)
+    cli.add_argument("--id", dest="sample_id", required=True)
+    cli.add_argument("--profile", action="store_true", help="Sample only this App and its worker; diagnostic, not acceptance")
+    cli.add_argument("--trace", action="store_true", help="Collect bounded stage timings inside the disposable replay")
+    cli.add_argument("--model", choices=["qwen-small", "nemotron-metal"], default="qwen-small")
+    cli.add_argument("--manual", action="store_false", dest="automatic", help="Select the requested research engine explicitly")
+    cli.add_argument("--window-observer", type=Path, help="Diagnostic only: owned window metadata observer; never touches focus or input")
+    public_run(**vars(cli.parse_args()))

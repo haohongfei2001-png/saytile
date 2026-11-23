@@ -1,4 +1,9 @@
 import AppKit
+import Combine
+import SaytileVoiceUI
+#if canImport(Sparkle)
+import Sparkle
+#endif
 import SwiftUI
 import Carbon
 import Darwin
@@ -7,6 +12,36 @@ import SaytileKit
 @main
 struct SaytileMain {
     @MainActor static func main() {
+        if CommandLine.arguments.dropFirst().first == "--merge-legacy-archive" {
+            let paths = Array(CommandLine.arguments.dropFirst(2))
+            guard paths.count == 3, paths.allSatisfy({ $0.hasPrefix("/") }) else {
+                print("Usage: Saytile --merge-legacy-archive CURRENT_DIRECTORY LEGACY_DIRECTORY NEW_DIRECTORY")
+                exit(64)
+            }
+            Task.detached {
+                do {
+                    let folders = paths.map { URL(fileURLWithPath: $0, isDirectory: true) }
+                    let receipt = try await LegacyArchiveRecovery.prepare(base: folders[0], legacy: folders[1], output: folders[2])
+                    let encoder = JSONEncoder()
+                    encoder.outputFormatting = [.sortedKeys]
+                    print(String(decoding: try encoder.encode(receipt), as: UTF8.self))
+                    exit(0)
+                } catch {
+                    FileHandle.standardError.write(Data((error.localizedDescription + "\n").utf8))
+                    exit(1)
+                }
+            }
+            dispatchMain()
+        }
+        if CommandLine.arguments.contains("--icloud-archive-fixture") {
+            let args = CommandLine.arguments
+            guard args.filter({ $0 == "--data-directory" }).count == 1,
+                  let index = args.firstIndex(of: "--data-directory"), index + 1 < args.count,
+                  PrivateArchiveSync.isDevelopmentFixture(URL(fileURLWithPath: args[index+1], isDirectory: true)) else {
+                print("Development CloudKit requires an explicit /private/tmp/saytile-icloud-fixture-… directory.")
+                exit(64)
+            }
+        }
         let app = NSApplication.shared
         let delegate = AppDelegate()
         app.delegate = delegate
@@ -15,51 +50,246 @@ struct SaytileMain {
     }
 }
 
-final class VoicePanel: NSPanel {
-    override var canBecomeKey: Bool { true }
+final class VoiceEntryPanel: NSPanel {
+    override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuDelegate, NSMenuItemValidation {
     private var model: AppModel?
+    private var brandSubscription: AnyCancellable?
+    private var originalApplicationIcon: NSImage?
+    #if canImport(Sparkle)
+    private var updater: AppUpdateController?
+    private var updateReview: UpdateReviewSession?
+    #endif
     private var status: NSStatusItem?
+    private let panelVisibilityItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+    private var trackingStatusMenu = false
     private var panel: VoicePanel?
-    private var archive: NSWindow?
-    private var settings: NSWindow?
+    private var panelCoexistence: PanelCoexistenceController?
+    private var voiceEntry: VoiceEntryPanel?
+    private var workspace: NSWindow?
+    private let workspaceNavigation = WorkspaceNavigation()
+    private var connectionSetupWindow: NSWindow?
     private var hotKey: EventHotKeyRef?
     private var eventHandler: EventHandlerRef?
     private var shortcutObserver: NSObjectProtocol?
+    private var entryObserver: NSObjectProtocol?
+    private var panelSizeObserver: NSObjectProtocol?
     private var screenObserver: NSObjectProtocol?
-    private var statusTimer: Timer?
+    private var positioningPanel = false
+    private var movingPanel = false
+    private var placementDefaults: UserDefaults?
+    private var visibilityDefaults: UserDefaults?
+    private let panelHiddenKey = "panel.explicitlyHidden"
+    // v4 stores the visible rail. Preserve shadow-expanded v2/v3 records for rollback.
+    private let placementKey = "panel.userPlacement.v4"
+    private func displayKey(_ screen: NSScreen) -> String {
+        guard let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
+              let uuid = CGDisplayCreateUUIDFromDisplayID(number.uint32Value)?.takeRetainedValue() else { return "" }
+        return CFUUIDCreateString(nil, uuid) as String
+    }
+    private func savedPanelFrame() -> NSRect? {
+        let screens = NSScreen.screens.map { (displayKey($0), $0.visibleFrame) }
+        for key in [placementKey, "panel.userPlacement.v3", "panel.userPlacement.v2"] {
+            if let data = placementDefaults?.data(forKey: key),
+               let saved = try? JSONDecoder().decode(SavedPanelPlacement.self, from: data),
+               let placement = key == placementKey ? saved : saved.removingLegacyShadowMargin(),
+               let frame = placement.restored(on: screens) {
+                panel?.expandedHeight = placement.expandedHeight
+                panel?.expandedWidth = placement.expandedWidth
+                panel?.anchorsRightOnExpand = placement.anchorsRightOnExpand
+                return frame
+            }
+        }
+        return nil
+    }
+    private func rememberPlacement() {
+        guard !positioningPanel, let panel, let screen = panel.screen,
+              let placement = SavedPanelPlacement(frame: panel.frame, visibleFrame: screen.visibleFrame,
+                                                  displayID: displayKey(screen), expandedHeight: panel.expandedHeight,
+                                                  expandedWidth: panel.expandedWidth, anchorsRightOnExpand: panel.anchorsRightOnExpand),
+              let data = try? JSONEncoder().encode(placement) else { return }
+        placementDefaults?.set(data, forKey: placementKey)
+        panelCoexistence?.changed(userPlacement: true)
+    }
     private var terminating = false
-    private var shutdownStarted = false
+    private var shutdownTask: Task<Bool, Never>?
+    private var awaitingTerminationReply = false
+    private var diagnosticPreferencesSuite: String?
+    private var diagnosticExitStatus: Int32 = 0
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if visibilityDefaults != nil, model != nil { explicitlyShowPanel() }
+        return false
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         do {
-            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--render-preview", "--focus-probe", "--ui-review"]
-            if diagnostics.contains(where: CommandLine.arguments.contains), !CommandLine.arguments.contains("--data-directory") {
-                print("DIAGNOSTICS_REQUIRE_EXPLICIT_ISOLATED_DATA_DIRECTORY")
+            // Sparkle relaunches without argv. Resolve only a signed, strictly
+            // owned fixture marker before choosing any database/preferences.
+            let updateReviewRequest = try UpdateReviewRequest.resolve()
+            // An unsupported explicit-directory spelling must never fall back
+            // to a normal launch against the user's default archive.
+            guard !CommandLine.arguments.contains(where: { $0.hasPrefix("--data-directory=") }) else {
+                print("DIAGNOSTICS_REQUIRE_SEPARATE_DATA_DIRECTORY_ARGUMENT")
                 Darwin.exit(64)
             }
+            if CommandLine.arguments.contains("--multi-asr-probe") {
+                print("RETIRED_PROBE_USE_SINGLE_ASR_WITH_ISOLATED_DIRECTORY")
+                Darwin.exit(64)
+            }
+            let diagnostics = ["--smoke-test", "--device-probe", "--audio-probe", "--single-asr-probe", "--render-preview", "--focus-probe", "--ui-review", "--local-stream-probe", "--connection-setup", "--update-review"]
+            let isDiagnostic = updateReviewRequest != nil || diagnostics.contains(where: CommandLine.arguments.contains)
+            let directoryIndex = CommandLine.arguments.firstIndex(of: "--data-directory")
+            if updateReviewRequest == nil && (isDiagnostic || directoryIndex != nil) {
+                guard let index = directoryIndex, CommandLine.arguments.count > index + 1,
+                      !CommandLine.arguments[index + 1].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                      !CommandLine.arguments[index + 1].hasPrefix("--") else {
+                    print("DIAGNOSTICS_REQUIRE_EXPLICIT_ISOLATED_DATA_DIRECTORY")
+                    Darwin.exit(64)
+                }
+            }
             let directory: URL
-            if let index = CommandLine.arguments.firstIndex(of: "--data-directory"), CommandLine.arguments.count > index + 1 {
+            if let request = updateReviewRequest {
+                directory = request.directory
+            } else if let index = directoryIndex {
                 directory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
             } else {
-                directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Saytile", isDirectory: true)
+                directory = SaytileStorageProfile.current.archiveDirectory
+                if SaytileStorageProfile.current != .standard { try DiagnosticDirectory.validate(directory: directory) }
+                if [.designExperience, .sharedVoicePreview, .mandarinCandidate].contains(SaytileStorageProfile.current) {
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.personal.archiveDirectory)
+                }
+                if [.sharedVoicePreview, .mandarinCandidate].contains(SaytileStorageProfile.current) {
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.designExperience.archiveDirectory)
+                }
+                if SaytileStorageProfile.current == .mandarinCandidate {
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.sharedVoicePreview.archiveDirectory)
+                }
             }
-            let model = try AppModel(directory: directory)
+            if isDiagnostic || directoryIndex != nil {
+                // Reject production aliases before AppModel/Store can migrate or
+                // recover anything. A late "empty fixture" check is too late.
+                do {
+                    try DiagnosticDirectory.validate(directory: directory)
+                    let preview = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+                        .appendingPathComponent("Saytile Timeline Preview", isDirectory: true)
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: preview)
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.mandarinCandidate.archiveDirectory)
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.sharedVoicePreview.archiveDirectory)
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.designExperience.archiveDirectory)
+                    try DiagnosticDirectory.validate(directory: directory, productionDirectory: SaytileStorageProfile.personal.archiveDirectory)
+                }
+                catch { print("DIAGNOSTICS_REJECTED_DATA_DIRECTORY"); Darwin.exit(64) }
+            }
+            let setupRequest: ConnectionSetupRequest?
+            if CommandLine.arguments.contains("--connection-setup") {
+                guard !diagnostics.filter({ $0 != "--connection-setup" }).contains(where: CommandLine.arguments.contains),
+                      let index = CommandLine.arguments.firstIndex(of: "--connection-output"),
+                      CommandLine.arguments.count > index + 1,
+                      CommandLine.arguments[index + 1].hasPrefix("/"),
+                      directoryIndex.map({ CommandLine.arguments[$0 + 1].hasPrefix("/") }) == true else {
+                    print("CONNECTION_SETUP_REQUIRES_ISOLATED_DIRECTORY_AND_OUTPUT")
+                    Darwin.exit(64)
+                }
+                do {
+                    setupRequest = try ConnectionSetupRequest(directory: directory,
+                        output: URL(fileURLWithPath: CommandLine.arguments[index + 1]))
+                } catch { print("CONNECTION_SETUP_REJECTED \(error.localizedDescription)"); Darwin.exit(64) }
+            } else { setupRequest = nil }
+            let preferences: UserDefaults
+            if let request = updateReviewRequest {
+                preferences = request.preferences
+                var diagnosticConfiguration = RecognitionConfiguration()
+                diagnosticConfiguration.automaticRecovery = false
+                try diagnosticConfiguration.save(to: preferences)
+                preferences.setVolatileDomain(["hasLaunched": true, "shortcutChoice": "disabled", "floatingEntryEnabled": false], forName: UserDefaults.argumentDomain)
+            } else if isDiagnostic || directoryIndex != nil {
+                let suite = "app.saytile.diagnostics." + UUID().uuidString
+                diagnosticPreferencesSuite = suite
+                preferences = UserDefaults(suiteName: suite)!
+                // Explicit test data also isolates preferences. Override only the
+                // process argument domain, never inspect or alter the user's app
+                // defaults, and prevent a normal held test process showing UI or
+                // registering the user's global shortcut.
+                preferences.setVolatileDomain(["hasLaunched": true, "shortcutChoice": "disabled", "floatingEntryEnabled": false], forName: UserDefaults.argumentDomain)
+                // A research probe is one explicit attempt. The app's background
+                // recovery must not start a different recognizer on its failed fixture.
+                var diagnosticConfiguration = RecognitionConfiguration()
+                diagnosticConfiguration.automaticRecovery = false
+                try diagnosticConfiguration.save(to: preferences)
+            } else { preferences = SaytileStorageProfile.current.preferences }
+            placementDefaults = preferences
+            if !isDiagnostic, directoryIndex == nil { visibilityDefaults = preferences }
+            let model = try AppModel(directory: directory, preferences: preferences, normalLaunch: !isDiagnostic && directoryIndex == nil,
+                copyPasteboard: CommandLine.arguments.contains("--ui-review") || CommandLine.arguments.contains("--local-stream-probe") || updateReviewRequest != nil ? NSPasteboard.withUniqueName() : nil)
             self.model = model
-            model.openPanel = { [weak self] in self?.showPanel() }
-            model.hidePanel = { [weak self] in self?.panel?.orderOut(nil) }
-            model.openArchive = { [weak self] in self?.showArchive() }
-            model.openSettings = { [weak self] in self?.showSettings() }
+            originalApplicationIcon = NSApp.applicationIconImage
+            brandSubscription = model.$brandAppearance.removeDuplicates().sink { [weak self] brand in
+                self?.applyBrandAppearance(brand)
+            }
+            if let request = updateReviewRequest {
+                #if canImport(Sparkle)
+                let review = UpdateReviewSession(model: model, request: request)
+                updateReview = review
+                Task { await review.start() }
+                #else
+                print("UPDATE_REVIEW_REQUIRES_SPARKLE")
+                Darwin.exit(64)
+                #endif
+                return
+            }
+            if let setupRequest {
+                configureMainMenu()
+                let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 680, height: 800),
+                                      styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
+                window.title = "Saytile · 连接识别服务"
+                window.isReleasedWhenClosed = false; window.delegate = self
+                window.contentView = NSHostingView(rootView: ConnectionSetupView(model: model, request: setupRequest) { Task { await self.terminateAfterSaving() } })
+                connectionSetupWindow = window
+                window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate()
+                return
+            }
+            model.openPanel = { [weak self] in self?.explicitlyShowPanel() }
+            model.hidePanel = { [weak self] in self?.explicitlyHidePanel() }
+            model.openArchive = { [weak self] in self?.presentWorkspace(.archive) }
+            model.openSettings = { [weak self] in self?.openWorkspace() }
+            if let index = CommandLine.arguments.firstIndex(of: "--single-asr-probe"), CommandLine.arguments.count > index + 1 {
+                Task {
+                    // Finish startup reconciliation before importing this new attempt.
+                    await model.initialLoad()
+                    do {
+                        guard let configIndex = CommandLine.arguments.firstIndex(of: "--recognition-config"), CommandLine.arguments.count > configIndex + 1,
+                              let reportIndex = CommandLine.arguments.firstIndex(of: "--report-dir"), CommandLine.arguments.count > reportIndex + 1 else {
+                            throw AudioFailure.message("定向回放需要显式 --recognition-config 和 --report-dir。")
+                        }
+                        guard try await model.store.listRecordings(limit: 1).isEmpty else {
+                            throw AudioFailure.message("定向回放须使用空的独立资料目录。")
+                        }
+                        let configuration = try JSONDecoder().decode(RecognitionConfiguration.self,
+                            from: Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[configIndex + 1])))
+                        let id = try await MultiRecognitionDiagnostics.transcribeFixture(
+                            url: URL(fileURLWithPath: CommandLine.arguments[index + 1]), store: model.store, configuration: configuration)
+                        let report = URL(fileURLWithPath: CommandLine.arguments[reportIndex + 1], isDirectory: true)
+                        try FileManager.default.createDirectory(at: report, withIntermediateDirectories: true)
+                        try await MultiRecognitionDiagnostics.exportTrace(store: model.store, recordingID: id,
+                            to: report.appendingPathComponent(id.uuidString + ".json"))
+                        let state = try await model.store.recording(id: id)?.recognitionState.rawValue ?? "unknown"
+                        print("SINGLE_ASR_PROBE_RECORDED recording=\(id) state=\(state); accuracy requires reference scoring")
+                        if state != "completed" { self.diagnosticExitStatus = 2 }
+                    } catch { self.diagnosticExitStatus = 1; print("SINGLE_ASR_PROBE_FAILED \(error.localizedDescription)") }
+                    await terminateAfterSaving()
+                }
+                return
+            }
             if CommandLine.arguments.contains("--device-probe") {
                 Task {
-                    do { let result = try await AudioDiagnostics.probeInputDevice(seconds: 5); print("DEVICE_PROBE \(result)") }
+                    do { let result = try await AudioDiagnostics.probeInputDevice(seconds: 5, devices: model.audio.devices); print("DEVICE_PROBE \(result)") }
                     catch { print("DEVICE_PROBE_ERROR \(error.localizedDescription)") }
-                    await model.prepareForExit()
-                    NSApp.terminate(nil)
+                    await terminateAfterSaving()
                 }
                 return
             }
@@ -71,20 +301,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     print("SPEECH_AVAILABILITY \(availability.message)")
                     do {
                         if CommandLine.arguments.contains("--prepare-speech") { try await AppleSpeechService.prepare() }
-                        let id = try await AudioDiagnostics.transcribeFixture(url: fixture, store: model.store)
+                        let paced = CommandLine.arguments.contains("--paced")
+                        let id = try await AudioDiagnostics.transcribeFixture(url: fixture, store: model.store, realtime: paced) { event in
+                            if paced, let data = try? JSONEncoder().encode(event) {
+                                print("LOCAL_TIMING", String(decoding: data, as: UTF8.self))
+                            }
+                        }
                         if let record = try await model.store.recording(id: id) { print("SPEECH_RESULT \(record.recognitionState) \(record.text) error=\(record.lastError ?? "none")") }
                     } catch { print("SPEECH_PROBE_ERROR \(error)") }
-                    await model.prepareForExit()
-                    NSApp.terminate(nil)
+                    await terminateAfterSaving()
                 }
                 return
             }
             if CommandLine.arguments.contains("--smoke-test") {
                 Task {
                     await model.initialLoad()
-                    print("SAYTILE_SMOKE_OK records=\(model.records.count) microphone=\(model.microphoneLabel)")
-                    await model.prepareForExit()
-                    NSApp.terminate(nil)
+                    do {
+                        let sample = try CloudConnectionVerifier.bundledSample()
+                        print("SAYTILE_SMOKE_OK records=\(model.records.count) microphone=\(model.microphoneLabel) bundled_sample_bytes=\(sample.count)")
+                    } catch {
+                        print("SAYTILE_SMOKE_FAILED bundled_connection_sample")
+                        await model.prepareForExit(); exit(1)
+                    }
+                    await terminateAfterSaving()
                 }
                 return
             }
@@ -98,38 +337,112 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     if CommandLine.arguments.contains("--preview-content"), let first = model.records.first { model.stageInPanel(first, showPanel: false) }
                     renderPreview(model: model, path: path)
-                    await model.prepareForExit()
-                    NSApp.terminate(nil)
+                    await terminateAfterSaving()
+                }
+                return
+            }
+            if let index = CommandLine.arguments.firstIndex(of: "--local-stream-probe") {
+                guard CommandLine.arguments.indices.contains(index + 1) else { Darwin.exit(64) }
+                let choice = CommandLine.arguments[index + 1]
+                let id = LocalASRID(rawValue: choice)
+                guard id != nil || choice == "auto" else { Darwin.exit(64) }
+                showPanel()
+                Task {
+                    do { try await LocalStreamProbe.run(model: model, panel: panel, id: id) }
+                    catch { diagnosticExitStatus = 1; print("LOCAL_STREAM_PROBE_FAILED", error.localizedDescription) }
+                    await terminateAfterSaving()
                 }
                 return
             }
             if let index = CommandLine.arguments.firstIndex(of: "--ui-review"), CommandLine.arguments.count > index + 1 {
                 guard CommandLine.arguments.contains("--data-directory") else { print("UI_REVIEW_REQUIRES_ISOLATED_DIRECTORY"); NSApp.terminate(nil); return }
                 let output = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
-                Task { await runUIReview(model: model, output: output); await model.prepareForExit(); NSApp.terminate(nil) }
+                Task { diagnosticExitStatus = await runUIReview(model: model, output: output) ? 0 : 1; await terminateAfterSaving() }
                 return
             }
             configureMainMenu()
+            #if canImport(Sparkle)
+            if directoryIndex == nil {
+                updater = AppUpdateController(model: model)
+            }
+            #endif
             configureStatusItem()
             registerHotKey()
             shortcutObserver = NotificationCenter.default.addObserver(forName: .init("SaytileShortcutChanged"), object: nil, queue: .main) { [weak self] _ in
                 Task { @MainActor in self?.registerHotKey() }
             }
-            statusTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-                Task { @MainActor in self?.updateStatus() }
+            entryObserver = NotificationCenter.default.addObserver(forName: .init("SaytileFloatingEntryChanged"), object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.updateFloatingEntry() }
+            }
+            panelSizeObserver = NotificationCenter.default.addObserver(forName: .init("SaytilePanelSizeChanged"), object: model, queue: .main) { [weak self] _ in
+                Task { @MainActor in self?.applyPanelSizePreset() }
+            }
+            if CommandLine.arguments.contains("--focus-probe"),
+               ProcessInfo.processInfo.environment["SAYTILE_APPEARANCE_HOST_REVIEW"] == "1" {
+                Task {
+                    do { try await self.reviewAppearancePlacement(model: model) }
+                    catch { diagnosticExitStatus = 1; print("APPEARANCE_HOST_FAIL \(error)") }
+                    await terminateAfterSaving()
+                }
+                return
             }
             if CommandLine.arguments.contains("--focus-probe") {
+                // Exercise the actual optional window under the same isolated
+                // startup. It is transparent and cannot accept keyboard focus.
+                model.floatingEntryEnabled = true
+                updateFloatingEntry(forIsolatedProbe: true)
+                if let entry = voiceEntry {
+                    let valid = entry.frame.size == NSSize(width: 42, height: 42)
+                        && !entry.canBecomeKey && !entry.canBecomeMain
+                        && !entry.isKeyWindow && !entry.isMainWindow
+                        && entry.styleMask.contains(.nonactivatingPanel) && entry.alphaValue == 0
+                    print("FOCUS_ENTRY_GEOMETRY valid=\(valid) visible=\(entry.isVisible) transparent=\(entry.alphaValue == 0) key=\(entry.isKeyWindow) main=\(entry.isMainWindow)")
+                    if !valid { diagnosticExitStatus = 1 }
+                } else { diagnosticExitStatus = 1; print("FOCUS_ENTRY_GEOMETRY missing=true") }
                 showPanel()
-                Task { try? await Task.sleep(for: .seconds(3)); await model.prepareForExit(); print("FOCUS_PROBE_FINISHED"); NSApp.terminate(nil) }
+                print("FOCUS_ENTRY_HIDDEN_WITH_PANEL \(voiceEntry?.isVisible == false)")
+                if voiceEntry?.isVisible != false { diagnosticExitStatus = 1 }
+                if let panel {
+                    print("FOCUS_PANEL_GEOMETRY width=\(panel.frame.width) height=\(panel.frame.height) min_width=\(panel.minSize.width) min_height=\(panel.minSize.height) max_width=\(panel.maxSize.width) max_height=\(panel.maxSize.height) resizable=\(panel.styleMask.contains(.resizable)) nonactivating=\(panel.styleMask.contains(.nonactivatingPanel)) joins_spaces=\(panel.collectionBehavior.contains(.canJoinAllSpaces)) panel_key=\(panel.isKeyWindow) panel_main=\(panel.isMainWindow)")
+                    if let screen = panel.screen {
+                        let visible = screen.visibleFrame
+                        // WindowServer snaps a fractional slot to whole logical
+                        // points (e.g. 127.75pt becomes a 128pt NSPanel).
+                        let expected = WindowPlacement.initialPanel(visibleFrame: visible)
+                        let natural = abs(panel.frame.width - expected.width) <= 0.5
+                            && abs(panel.frame.height - expected.height) <= 0.5
+                            && abs(panel.frame.maxX - visible.maxX) <= 0.5
+                            && abs(panel.frame.maxY - visible.maxY) <= 0.5
+                        print("FOCUS_COLD_PLACEMENT frame=\(panel.frame) visible=\(visible) upper_right_eighth_width=\(natural) shown=\(panel.isVisible)")
+                        if !natural || !panel.isVisible { diagnosticExitStatus = 1 }
+                    } else { diagnosticExitStatus = 1 }
+                }
+                Task {
+                    try? await Task.sleep(for: .seconds(3))
+                    print("FOCUS_PANEL_END panel_key=\(panel?.isKeyWindow == true) panel_main=\(panel?.isMainWindow == true)")
+                    let captureUntouched = model.audio.state == .paused && !model.hasStarted
+                    print("FOCUS_CAPTURE_UNTOUCHED \(captureUntouched)")
+                    if !captureUntouched { diagnosticExitStatus = 1 }
+                    print("FOCUS_PROBE_FINISHED"); await terminateAfterSaving()
+                }
                 return
             }
             screenObserver = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor in self?.restoreVisibleWindows() }
+                Task { @MainActor in
+                    self?.panel?.cancelPlacementGesture()
+                    self?.movingPanel = false
+                    self?.restoreVisibleWindows(applySavedPlacement: true)
+                }
             }
             // Relaunch never silently resumes the microphone or restores an input binding.
-            if !UserDefaults.standard.bool(forKey: "hasLaunched") {
-                UserDefaults.standard.set(true, forKey: "hasLaunched")
+            if let visibilityDefaults, !visibilityDefaults.bool(forKey: panelHiddenKey) {
                 showPanel()
+            }
+            updateFloatingEntry()
+            if directoryIndex != nil {
+                let configuration = model.appliedRecognitionConfiguration
+                let report = "SAYTILE_ISOLATED_LAUNCH cloud_enabled=\(configuration.cloudEnabled) automatic_recovery=\(configuration.automaticRecovery) shortcut=\(model.shortcutChoice) visible_panel=\(panel?.isVisible == true) hotkey_registered=\(hotKey != nil)\n"
+                FileHandle.standardOutput.write(Data(report.utf8))
             }
         } catch {
             if CommandLine.arguments.contains("--data-directory") {
@@ -144,21 +457,105 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSApp.terminate(nil)
         }
     }
-    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        if terminating { return .terminateNow }
-        guard !shutdownStarted else { return .terminateCancel }
-        shutdownStarted = true
-        Task {
+    func windowDidBecomeKey(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === workspace { updateArchiveFocus() }
+    }
+    func windowDidResignKey(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === workspace { model?.archiveIsKey = false }
+    }
+    func windowWillClose(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === workspace {
+            model?.archiveIsKey = false
+            Task { _ = await model?.flushEditorDrafts() }
+        }
+        if let window = notification.object as? NSWindow, window === connectionSetupWindow { Task { await terminateAfterSaving() } }
+    }
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        guard sender === panel else { return true }
+        explicitlyHidePanel()
+        return false // Closing the floating surface never changes capture state.
+    }
+    func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
+        guard sender === panel, let screen = sender.screen ?? NSScreen.main else { return frameSize }
+        return WindowPlacement.panelSize(frameSize, visibleFrame: screen.visibleFrame)
+    }
+    func windowWillMove(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === panel, !positioningPanel { movingPanel = true }
+    }
+    private func constrainSystemPlacement(_ notification: Notification) {
+        guard let window = notification.object as? VoicePanel, window === panel,
+              !positioningPanel, !window.draggingPlacement,
+              !NSScreen.screens.contains(where: { $0.visibleFrame.contains(window.frame) }) else { return }
+        restorePanel()
+    }
+    func windowDidResize(_ notification: Notification) {
+        constrainSystemPlacement(notification)
+        if let window = notification.object as? NSWindow, window === panel, !positioningPanel {
+            panelCoexistence?.changed()
+        }
+    }
+    func windowDidMove(_ notification: Notification) {
+        constrainSystemPlacement(notification)
+        guard let window = notification.object as? NSWindow, window === panel, movingPanel, !positioningPanel, panel?.draggingPlacement == false else { return }
+        rememberPlacement()
+        if NSEvent.pressedMouseButtons == 0 { movingPanel = false }
+    }
+    func windowDidEndLiveResize(_ notification: Notification) {
+        if let window = notification.object as? NSWindow, window === panel { restorePanel(); rememberPlacement() }
+    }
+    func windowDidChangeScreen(_ notification: Notification) {
+        if let window = notification.object as? VoicePanel, window === panel, !window.draggingPlacement, !window.inLiveResize, NSEvent.pressedMouseButtons == 0 { restorePanel() }
+    }
+    // An in-process Task must finish its own main-actor work before calling terminate.
+    // AppKit enters a nested event loop for terminateLater and cannot run a second
+    // main-queue Task while the first one is still inside NSApplication.terminate.
+    private func prepareToTerminate() async -> Bool {
+        if let shutdownTask { return await shutdownTask.value }
+        let task = Task {
             await model?.prepareForExit()
             if model?.hasUnpersistedDrafts == true {
-                shutdownStarted = false
-                showPanel()
-                return
+                model?.expectsUpdateRelaunch = false
+                presentWorkspace(.archive)
+                return false
             }
+            await panelCoexistence?.stop()
+            panelCoexistence = nil
             terminating = true
-            DispatchQueue.main.async { NSApp.terminate(nil) }
+            return true
         }
-        return .terminateCancel
+        shutdownTask = task
+        let ready = await task.value
+        if !ready { shutdownTask = nil }
+        return ready
+    }
+    private func terminateAfterSaving() async {
+        if await prepareToTerminate(), !awaitingTerminationReply { NSApp.terminate(nil) }
+    }
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        if terminating || model == nil { return .terminateNow }
+        guard !awaitingTerminationReply else { return .terminateLater }
+        let event = NSAppleEventManager.shared().currentAppleEvent
+        let reason = event?.paramDescriptor(forKeyword: AEKeyword(kAEQuitReason))?.enumCodeValue
+        let systemRelaunch = [kAEShutDown, kAERestart, kAEReallyLogOut].contains { reason == OSType($0) }
+        model?.noteTermination(systemRestart: systemRelaunch)
+        // Frameworks can request termination from a main-queue callback. There
+        // is no AppleEvent reply to defer in that case. Unwind the callback and
+        // re-enter AppKit once the normal save gate has actually completed.
+        if event?.eventID != AEEventID(kAEQuitApplication) && !systemRelaunch {
+            Task { await terminateAfterSaving() }
+            return .terminateCancel
+        }
+        awaitingTerminationReply = true
+        Task {
+            let ready = await prepareToTerminate()
+            awaitingTerminationReply = false
+            sender.reply(toApplicationShouldTerminate: ready)
+        }
+        return .terminateLater
+    }
+    func applicationWillTerminate(_ notification: Notification) {
+        if let suite = diagnosticPreferencesSuite { UserDefaults(suiteName: suite)?.removePersistentDomain(forName: suite) }
+        if diagnosticExitStatus != 0 { Darwin.exit(diagnosticExitStatus) }
     }
     private func configureMainMenu() {
         let main = NSMenu()
@@ -171,37 +568,92 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         edit.submenu = editMenu; main.addItem(edit); NSApp.mainMenu = main
     }
+    private func applyBrandAppearance(_ brand: BrandAppearance) {
+        // The running app icon is temporary. Never mutate a signed bundle or
+        // pretend that this overrides Finder's cached, on-disk installation icon.
+        NSApp.applicationIconImage = brand == .black ? SaytileBrand.icon(for: .black) : originalApplicationIcon
+        if let button = status?.button {
+            button.image = SaytileBrand.menuBarMark(for: brand)
+            button.title = button.image == nil ? "Saytile" : ""
+        }
+    }
     private func configureStatusItem() {
         let status = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        status.button?.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "Saytile")
-        status.button?.target = self
-        status.button?.action = #selector(statusClicked)
-        status.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
-        status.button?.toolTip = "Saytile · 已暂停"
+        if let button = status.button {
+            button.image = SaytileBrand.menuBarMark(for: model?.brandAppearance ?? .purple)
+            if button.image == nil { button.title = "Saytile" }
+            button.toolTip = "Saytile 菜单"
+            button.setAccessibilityLabel("Saytile 菜单")
+            button.setAccessibilityHelp("打开语音板、档案与设置菜单")
+        }
+        let menu = NSMenu()
+        menu.delegate = self
+        panelVisibilityItem.target = self
+        status.menu = menu
         self.status = status
     }
-    private func updateStatus() {
-        guard let model else { return }
-        status?.button?.image = NSImage(systemSymbolName: model.captureProblem ? "exclamationmark.circle" : (model.isListening ? "waveform" : "waveform.slash"), accessibilityDescription: "Saytile · \(model.captureLabel)")
-        status?.button?.toolTip = "Saytile · \(model.captureLabel)"
+    private func updatePanelVisibilityItem() {
+        let visible = panel?.isVisible == true
+        panelVisibilityItem.title = visible ? "收起语音板" : "展开语音板"
+        panelVisibilityItem.action = visible ? #selector(explicitlyHidePanel) : #selector(explicitlyShowPanel)
     }
-    @objc private func statusClicked() {
-        if NSApp.currentEvent?.type == .rightMouseUp {
-            let menu = NSMenu()
-            let items: [(String, Selector)] = [("展开输入板", #selector(togglePanel)), (model?.isListening == true ? "暂停收音" : "恢复收音", #selector(toggleCapture)), ("语音档案", #selector(showArchive)), ("设置…", #selector(showSettings))]
-            for (title, selector) in items { let item = NSMenuItem(title: title, action: selector, keyEquivalent: ""); item.target = self; menu.addItem(item) }
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        guard menu === status?.menu, !trackingStatusMenu else { return }
+        populateStatusMenu(menu)
+    }
+    func menuWillOpen(_ menu: NSMenu) {
+        guard menu === status?.menu else { return }
+        // Some accessibility launch paths enter tracking before menuNeedsUpdate.
+        if menu.items.isEmpty { populateStatusMenu(menu) } else { updatePanelVisibilityItem() }
+        trackingStatusMenu = true
+    }
+    func menuDidClose(_ menu: NSMenu) {
+        if menu === status?.menu { trackingStatusMenu = false }
+    }
+    private func populateStatusMenu(_ menu: NSMenu) {
+        menu.removeAllItems()
+        if let model, model.captureProblem, let detail = model.panelCaptureDetail {
+            let reason = NSMenuItem(title: detail, action: nil, keyEquivalent: "")
+            reason.isEnabled = false
+            reason.toolTip = detail
+            menu.addItem(reason)
             menu.addItem(.separator())
-            let quit = NSMenuItem(title: "退出 Saytile", action: #selector(quitApp), keyEquivalent: "q"); quit.target = self; menu.addItem(quit)
-            status?.menu = menu; status?.button?.performClick(nil); status?.menu = nil
-        } else { togglePanel() }
+        }
+        updatePanelVisibilityItem()
+        menu.addItem(panelVisibilityItem)
+        let workspaceItem = NSMenuItem(title: "语音档案与设置…", action: #selector(openWorkspace), keyEquivalent: "")
+        workspaceItem.target = self
+        menu.addItem(workspaceItem)
+        menu.addItem(.separator())
+        let check = NSMenuItem(title: model?.updateActionTitle ?? "检查更新…", action: #selector(checkForAppUpdates), keyEquivalent: "")
+        check.target = self
+        check.isEnabled = model?.canCheckForUpdates == true
+        check.toolTip = model?.updateStatus
+        menu.addItem(check)
+        let quit = NSMenuItem(title: "退出 Saytile", action: #selector(quitApp), keyEquivalent: "q"); quit.target = self; menu.addItem(quit)
     }
-    @objc private func toggleCapture() { model?.toggleCapture() }
-    @objc private func quitApp() { NSApp.terminate(nil) }
-    @objc func togglePanel() { if panel?.isVisible == true { panel?.orderOut(nil) } else { showPanel() } }
+    @objc private func quitApp() { model?.noteTermination(systemRestart: false, explicitQuit: true); Task { await terminateAfterSaving() } }
+    @objc private func checkForAppUpdates() { model?.checkForUpdates?() }
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(checkForAppUpdates) { return model?.canCheckForUpdates == true }
+        return true
+    }
+    @objc func togglePanel() { if panel?.isVisible == true { explicitlyHidePanel() } else { explicitlyShowPanel() } }
+    @objc private func explicitlyShowPanel() {
+        visibilityDefaults?.removeObject(forKey: panelHiddenKey)
+        showPanel()
+    }
+    @objc private func explicitlyHidePanel() {
+        visibilityDefaults?.set(true, forKey: panelHiddenKey)
+        panel?.orderOut(nil)
+        panelCoexistence?.changed()
+        updateFloatingEntry()
+    }
     func showPanel() {
         guard let model else { return }
+        let firstPresentation = panel == nil
         if panel == nil {
-            let panel = VoicePanel(contentRect: NSRect(x: 0, y: 0, width: 400, height: 550), styleMask: [.titled, .fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
+            let panel = VoicePanel(contentRect: NSRect(origin: .zero, size: WindowPlacement.panelDefaultSize), styleMask: [.borderless, .resizable, .nonactivatingPanel], backing: .buffered, defer: false)
             panel.title = "Saytile · 此刻"
             panel.titleVisibility = .hidden; panel.titlebarAppearsTransparent = true
             panel.standardWindowButton(.closeButton)?.isHidden = true
@@ -210,46 +662,201 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             panel.isFloatingPanel = true; panel.level = .floating
             panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
             panel.hidesOnDeactivate = false; panel.isReleasedWhenClosed = false
-            panel.isMovableByWindowBackground = true
-            panel.contentView = NSHostingView(rootView: InputPanelView(model: model).preferredColorScheme(.light))
+            panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = false
+            panel.becomesKeyOnlyIfNeeded = true; panel.delegate = self
+            panel.isMovableByWindowBackground = false
+            panel.acceptsMouseMovedEvents = true
+            panel.compactCaptureAction = { [weak model] in model?.toggleCapture() }
+            panel.didChoosePosition = { [weak self] in
+                self?.movingPanel = false; self?.restorePanel(); self?.rememberPlacement()
+            }
+            let content = NSHostingView(rootView: InputPanelWindowView(model: model, onExpand: { [weak panel] in
+                panel?.expandToReadingSize()
+            }).preferredColorScheme(.light))
+            // Streaming text must scroll inside the chosen window geometry, not
+            // enlarge the NSPanel through SwiftUI's intrinsic-size propagation.
+            content.sizingOptions = []
+            panel.contentView = content
             self.panel = panel
         }
-        let anchor = status?.button.flatMap { button in button.window.map { $0.convertToScreen(button.convert(button.bounds, to: nil)) } }
-        if let screen = status?.button?.window?.screen ?? NSScreen.main ?? NSScreen.screens.first {
-            panel?.setFrame(WindowPlacement.panel(anchor: anchor, visibleFrame: screen.visibleFrame), display: true)
+        // Match Nearpane primary-screen residency, not the status icon display.
+        if firstPresentation, let screen = NSScreen.screens.first ?? NSScreen.main {
+            restorePanel(preferred: savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame, preset: model.panelSizePreset))
+        } else {
+            restorePanel()
         }
+        voiceEntry?.orderOut(nil)
         panel?.orderFrontRegardless()
+        // Diagnostics never adjust unrelated windows. Native coexistence
+        // acceptance uses its own explicit PID allowlist in an isolated fixture.
+        if panelCoexistence == nil, diagnosticPreferencesSuite == nil, let panel {
+            let controller = PanelCoexistenceController(panel: panel, model: model) { [weak self] frame in
+                self?.restorePanel(preferred: frame)
+            }
+            panelCoexistence = controller
+            controller.start()
+        } else { panelCoexistence?.changed() }
     }
-    @objc func showArchive() {
-        guard let model else { return }
-        if archive == nil {
-            archive = makeWindow(title: "Saytile · 语音档案", width: 1040, height: 720, view: ArchiveView(model: model).preferredColorScheme(.light))
-            archive?.minSize = NSSize(width: 800, height: 570)
+    private func updateFloatingEntry(forIsolatedProbe: Bool = false) {
+        guard let model, model.floatingEntryEnabled, diagnosticPreferencesSuite == nil || forIsolatedProbe,
+              panel?.isVisible != true else { voiceEntry?.orderOut(nil); return }
+        if voiceEntry == nil {
+            let entry = VoiceEntryPanel(contentRect: NSRect(x: 0, y: 0, width: 42, height: 42),
+                styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+            entry.title = "Saytile · 语音入口"
+            entry.isFloatingPanel = true; entry.level = .floating
+            entry.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+            entry.isOpaque = false; entry.backgroundColor = .clear; entry.hasShadow = true
+            if forIsolatedProbe { entry.alphaValue = 0; entry.ignoresMouseEvents = true }
+            entry.hidesOnDeactivate = false; entry.isReleasedWhenClosed = false
+            let content = NSHostingView(rootView: VoiceEntryView(model: model, open: { [weak self] in self?.explicitlyShowPanel() }).preferredColorScheme(.light))
+            content.sizingOptions = []
+            entry.contentView = content
+            voiceEntry = entry
         }
-        archive?.minSize = NSSize(width: model.selected == nil ? 760 : 1040, height: 570)
-        restoreVisibleWindows()
-        NSApp.activate(ignoringOtherApps: true); archive?.makeKeyAndOrderFront(nil)
+        if let screen = panel?.screen ?? NSScreen.main ?? NSScreen.screens.first {
+            let area = screen.visibleFrame
+            let requested = NSRect(x: area.maxX - 58, y: area.minY + 16, width: 42, height: 42)
+            voiceEntry?.setFrame(WindowPlacement.restored(requested, visibleFrames: [area]), display: false)
+        }
+        voiceEntry?.orderFrontRegardless()
     }
-    @objc func showSettings() {
+    @objc private func openWorkspace() { presentWorkspace(nil) }
+
+    private func presentWorkspace(_ page: SettingsPage?) {
+        guard let window = workspaceWindow(for: page) else { return }
+        restoreWorkspaceFrame()
+        if window.isMiniaturized { window.deminiaturize(nil) }
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
+    func workspaceWindow(for page: SettingsPage?) -> NSWindow? {
+        guard let model else { return nil }
+        if let page, page != workspaceNavigation.page { workspaceNavigation.page = page }
+        if let workspace { return workspace }
+        let window = makeWindow(title: "语音档案与设置", width: 1000, height: 650,
+                                view: SettingsView(model: model, navigation: workspaceNavigation))
+        window.delegate = self
+        window.minSize = NSSize(width: 500, height: 450)
+        // Only a regular launch persists a window frame in this application's defaults.
+        if diagnosticPreferencesSuite == nil { window.setFrameAutosaveName("SaytileWorkspace") }
+        workspace = window
+        workspaceNavigation.didNavigate = { [weak self] in self?.updateArchiveFocus() }
+        return window
+    }
+
+    private func updateArchiveFocus() {
         guard let model else { return }
-        model.audio.refreshDevices()
-        if settings == nil { settings = makeWindow(title: "Saytile · 设置", width: 650, height: 740, view: SettingsView(model: model).preferredColorScheme(.light)) }
-        settings?.minSize = NSSize(width: 560, height: 570)
-        restoreVisibleWindows()
-        NSApp.activate(ignoringOtherApps: true); settings?.makeKeyAndOrderFront(nil)
+        let isKey = workspace?.isKeyWindow == true && workspaceNavigation.page == .archive
+        guard isKey != model.archiveIsKey else { return }
+        model.archiveIsKey = isKey
+        if isKey { Task { await model.refresh() } }
     }
+
+    private func restoreWorkspaceFrame() {
+        guard let window = workspace else { return }
+        let size = NSSize(width: max(window.frame.width, window.minSize.width), height: max(window.frame.height, window.minSize.height))
+        let frame = WindowPlacement.restored(NSRect(origin: window.frame.origin, size: size), visibleFrames: NSScreen.screens.map(\.visibleFrame))
+        if window.frame != frame { window.setFrame(frame, display: window.isVisible) }
+    }
+
     private func makeWindow<V: View>(title: String, width: CGFloat, height: CGFloat, view: V) -> NSWindow {
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = title; window.isReleasedWhenClosed = false
         window.contentView = NSHostingView(rootView: view); window.center()
         return window
     }
-    private func restoreVisibleWindows() {
-        let frames = NSScreen.screens.map(\.visibleFrame)
-        for window in [panel, archive, settings].compactMap({ $0 }) {
-            let size = NSSize(width: max(window.frame.width, window.minSize.width), height: max(window.frame.height, window.minSize.height))
-            window.setFrame(WindowPlacement.restored(NSRect(origin: window.frame.origin, size: size), visibleFrames: frames), display: true)
+    private func restoreVisibleWindows(applySavedPlacement: Bool = false) {
+        if applySavedPlacement, let screen = NSScreen.screens.first ?? NSScreen.main {
+            restorePanel(preferred: savedPanelFrame() ?? WindowPlacement.initialPanel(visibleFrame: screen.visibleFrame, preset: model?.panelSizePreset ?? .standard))
+        } else { restorePanel() }
+        panelCoexistence?.changed(userPlacement: true)
+        updateFloatingEntry()
+        restoreWorkspaceFrame()
+    }
+    /// Opt-in acceptance with the existing required isolated --focus-probe directory.
+    private func reviewAppearancePlacement(model: AppModel) async throws {
+        var checks = 0
+        func require(_ value: Bool, _ label: String) throws {
+            guard value else { throw NSError(domain: "PanelAppearanceAcceptance", code: 1,
+                userInfo: [NSLocalizedDescriptionKey: label]) }
+            checks += 1; print("APPEARANCE_HOST_PASS " + label)
         }
+        func sameSize(_ a: NSRect, _ b: NSRect) -> Bool {
+            a.size == b.size
+        }
+        guard let screen = NSScreen.screens.first else { throw NSError(domain: "NoScreen", code: 1) }
+        let visible = screen.visibleFrame
+        try require(panel == nil, "cold hidden panel has not been created")
+        model.panelSizePreset = .spacious
+        try await Task.sleep(for: .milliseconds(150))
+        try require(panel == nil && savedPanelFrame().map { sameSize($0, WindowPlacement.initialPanel(visibleFrame: visible, preset: .spacious)) } == true,
+                    "preset persists while never-opened panel remains hidden")
+        showPanel()
+        guard let panel else { throw NSError(domain: "MissingPanel", code: 1) }
+        print("APPEARANCE_HOST_GEOMETRY actual=\(panel.frame) expected=\(WindowPlacement.initialPanel(visibleFrame: visible, preset: .spacious)) saved=\(String(describing: savedPanelFrame())) screen=\(visible)")
+        // NSPanel independently rounds fractional frame requests out to whole logical
+        // points, even before it is shown. Compare the exact native rectangle.
+        try require(panel.frame == WindowPlacement.initialPanel(visibleFrame: visible, preset: .spacious).integral, "first opening uses the saved preset")
+        for preset in PanelSizePreset.allCases {
+            let before = panel.frame
+            model.panelSizePreset = preset
+            try await Task.sleep(for: .milliseconds(150))
+            let expected = WindowPlacement.resizedPanel(before, preset: preset, visibleFrame: visible).integral
+            try require(panel.frame == expected,
+                        "native host applies " + preset.rawValue + " without moving its upper-right anchor")
+        }
+        panel.orderOut(nil)
+        model.panelSizePreset = .compact
+        try await Task.sleep(for: .milliseconds(150))
+        let hidden = panel.frame
+        try require(!panel.isVisible && savedPanelFrame().map { sameSize($0, hidden) } == true, "hidden existing panel saves size without appearing")
+        showPanel()
+        try require(sameSize(panel.frame, hidden), "reopening preserves the selected size")
+        panel.applyPlacement(NSRect(x: hidden.minX, y: hidden.minY, width: hidden.width + 80, height: hidden.height + 50), on: visible)
+        model.applyPanelSizePreset()
+        try await Task.sleep(for: .milliseconds(150))
+        try require(sameSize(panel.frame, hidden), "restore-selected-size action reverses manual resizing")
+        model.resetPanelAppearance()
+        try await Task.sleep(for: .milliseconds(150))
+        try require(sameSize(panel.frame, WindowPlacement.initialPanel(visibleFrame: visible).integral), "reset restores default dimensions")
+        try require(!panel.isKeyWindow && !panel.isMainWindow && model.audio.state == .paused && !model.hasStarted,
+                    "appearance changes do not take focus or start capture")
+        print("APPEARANCE_HOST_COMPLETE \(checks)")
+    }
+    private func applyPanelSizePreset() {
+        guard let model else { return }
+        let previous = panel?.frame ?? savedPanelFrame()
+        let screen = panel?.screen ?? NSScreen.screens.first(where: { screen in
+            previous.map { screen.visibleFrame.contains(CGPoint(x: $0.midX, y: $0.midY)) } ?? false
+        }) ?? NSScreen.screens.first ?? NSScreen.main
+        guard let screen else { return }
+        let visible = screen.visibleFrame
+        let frame = WindowPlacement.resizedPanel(previous ?? WindowPlacement.initialPanel(visibleFrame: visible),
+                                                preset: model.panelSizePreset, visibleFrame: visible)
+        if let panel {
+            panel.cancelPlacementGesture()
+            restorePanel(preferred: frame)
+            rememberPlacement()
+        } else if let placement = SavedPanelPlacement(frame: frame, visibleFrame: visible, displayID: displayKey(screen),
+                                                     expandedHeight: frame.height, expandedWidth: frame.width,
+                                                     anchorsRightOnExpand: true),
+                  let data = try? JSONEncoder().encode(placement) {
+            // Remember an explicit choice even when launch kept the board hidden.
+            // Do not instantiate/show the panel just to apply a settings choice.
+            placementDefaults?.set(data, forKey: placementKey)
+        }
+    }
+    private func restorePanel(preferred: NSRect? = nil) {
+        guard let panel, !positioningPanel else { return }
+        let frames = NSScreen.screens.map(\.visibleFrame)
+        guard !frames.isEmpty else { return }
+        positioningPanel = true; defer { positioningPanel = false }
+        let frame = WindowPlacement.restoredPanel(preferred ?? panel.frame, visibleFrames: frames)
+        let center = CGPoint(x: frame.midX, y: frame.midY)
+        let screen = frames.first(where: { $0.contains(center) }) ?? frames[0]
+        panel.applyPlacement(frame, on: screen)
     }
     private func registerHotKey() {
         if let hotKey { UnregisterEventHotKey(hotKey); self.hotKey = nil }
@@ -275,9 +882,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     private func renderPreview(model: AppModel, path: String) {
         if CommandLine.arguments.contains("--preview-archive") {
-            renderView(ArchiveView(model: model).preferredColorScheme(.light), width: 1040, height: 720, path: path)
+            renderView(SettingsView(model: model, initialPage: .archive).preferredColorScheme(.light), width: 1040, height: 720, path: path)
         } else if CommandLine.arguments.contains("--preview-settings") {
-            renderView(SettingsView(model: model).preferredColorScheme(.light), width: 650, height: 740, path: path)
+            renderView(SettingsView(model: model, initialPage: .speech).preferredColorScheme(.light), width: 650, height: 740, path: path)
         } else {
             renderView(InputPanelView(model: model).preferredColorScheme(.light), width: 400, height: 550, path: path)
         }

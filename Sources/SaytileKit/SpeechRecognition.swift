@@ -48,8 +48,9 @@ private final class SpeechCompletion: @unchecked Sendable {
     }
 }
 
-final class LiveSpeechSession: @unchecked Sendable {
+final class LiveSpeechSession: RecognitionSession, @unchecked Sendable {
     private let completion = SpeechCompletion()
+    var recordingID: UUID { ticket.recordingID }
     var isComplete: Bool { completion.isComplete }
     private let continuation: AsyncStream<Data>.Continuation
     private let task: Task<Void, Never>
@@ -57,7 +58,7 @@ final class LiveSpeechSession: @unchecked Sendable {
     private let store: SaytileStore
     private let event: @Sendable (SpeechTimingEvent) -> Void
     private let started = ProcessInfo.processInfo.systemUptime
-    init(store: SaytileStore, ticket: RecognitionTicket, event: @escaping @Sendable (SpeechTimingEvent) -> Void = { _ in }) {
+    init(store: SaytileStore, ticket: RecognitionTicket, review: LocalTextReview? = nil, onUnavailable: (@Sendable (LocalASRID) -> Void)? = nil, event: @escaping @Sendable (SpeechTimingEvent) -> Void = { _ in }) {
         self.store = store; self.ticket = ticket; self.event = event
         let began = started
         let (stream, continuation) = AsyncStream<Data>.makeStream(bufferingPolicy: .bufferingOldest(300))
@@ -65,8 +66,14 @@ final class LiveSpeechSession: @unchecked Sendable {
         let completion = completion
         self.task = Task {
             defer { completion.finish() }
-            do { try await Self.recognize(stream: stream, store: store, ticket: ticket, started: began, event: event) }
-            catch { try? await store.failRecognition(ticket: ticket, message: completion.failureMessage ?? error.localizedDescription) }
+            let ingress = LocalCandidateIngress(store: store, ticket: ticket, review: review)
+            do {
+                try await ingress.start()
+                try await Self.recognize(stream: stream, ingress: ingress, started: began, event: event)
+            } catch {
+                if error is LocalASREngineUnavailable && !Task.isCancelled { onUnavailable?(.apple) }
+                await ingress.fail(completion.failureMessage ?? error.localizedDescription)
+            }
         }
     }
     func append(_ data: Data) {
@@ -87,52 +94,73 @@ final class LiveSpeechSession: @unchecked Sendable {
     }
     func cancel() { continuation.finish(); task.cancel() }
     func wait() async { await task.value }
-    private static func recognize(stream: AsyncStream<Data>, store: SaytileStore, ticket: RecognitionTicket, started: Double, event: @escaping @Sendable (SpeechTimingEvent) -> Void) async throws {
-        guard SpeechTranscriber.isAvailable, let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "zh-CN")) else { throw AudioFailure.message("此设备的 Apple 中文识别不可用；原音已保存") }
+    private static func recognize(stream: AsyncStream<Data>, ingress: LocalCandidateIngress, started: Double, event: @escaping @Sendable (SpeechTimingEvent) -> Void) async throws {
+        guard SpeechTranscriber.isAvailable, let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "zh-CN")) else { throw LocalASREngineUnavailable(reason: "此设备的 Apple 中文识别不可用；原音已保存") }
         let transcriber = SpeechTranscriber(locale: locale, preset: .progressiveTranscription)
         let detector = SpeechDetector()
-        guard await AssetInventory.status(forModules: [transcriber]) == .installed else { throw AudioFailure.message("请在设置下载中文识别资源；原音已保存") }
+        // The per-app reservation can finish while a first recording is in progress.
+        // This ticket remains recoverable and does not mark the engine as broken.
+        guard await AssetInventory.status(forModules: [transcriber]) == .installed else { throw AudioFailure.message("中文识别资源尚未就绪；原音已保存，可稍后重新识别") }
         let modules: [any SpeechModule] = [transcriber, detector]
         guard let format = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: modules),
               let source = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16_000, channels: 1, interleaved: false),
-              let converter = AVAudioConverter(from: source, to: format) else { throw AudioFailure.message("无法创建语音格式转换器") }
+              let converter = AVAudioConverter(from: source, to: format) else { throw LocalASREngineUnavailable(reason: "无法创建语音格式转换器") }
         let analyzer = SpeechAnalyzer(modules: modules)
         let (inputs, inputContinuation) = AsyncStream<AnalyzerInput>.makeStream(bufferingPolicy: .bufferingOldest(300))
         let resultTask = Task {
             var accumulator = SpeechResultAccumulator()
+            var audioEnd = 0.0
             var hasText = false
             var lastStable = ""
             var lastDisplayed = ""
             var firstResult = true
+            var lastPreview = ""
             for try await result in transcriber.results {
                 let snapshot = accumulator.apply(start:result.range.start.seconds, end:CMTimeRangeGetEnd(result.range).seconds, text:String(result.text.characters), isFinal:result.isFinal, finalizedThrough: result.resultsFinalizationTime.seconds)
+                audioEnd = max(audioEnd, CMTimeRangeGetEnd(result.range).seconds)
+                if !snapshot.fullText.isEmpty {
+                    try await ingress.receive(.init(text: snapshot.fullText, stableUTF16Length: snapshot.stableText.utf16.count,
+                        audioEndSeconds: audioEnd, timingGranularity: "utterance",
+                        isComplete: false))
+                }
+                if !snapshot.fullText.isEmpty, lastPreview != snapshot.fullText {
+                    lastPreview = snapshot.fullText
+                    event(.init(kind: "preview", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started, text: lastPreview))
+                }
                 if firstResult && !snapshot.fullText.isEmpty {
                     firstResult = false
                     event(.init(kind: "firstText", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
                 }
                 if !snapshot.stableText.isEmpty && snapshot.stableText != lastStable {
-                    _ = try await store.applyRecognition(ticket:ticket,text:snapshot.stableText,isFinal:true)
                     lastStable = snapshot.stableText
                     lastDisplayed = snapshot.stableText
                     hasText = true
                     event(.init(kind: "stableText", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
                 }
                 if !snapshot.fullText.isEmpty && snapshot.fullText != lastDisplayed {
-                    _ = try await store.applyRecognition(ticket:ticket,text:snapshot.fullText,isFinal:false)
                     lastDisplayed = snapshot.fullText
                     hasText = true
                 }
             }
             if !hasText { throw AudioFailure.message("未识别到文字；原音可回听或重试") }
             guard accumulator.snapshot.isCompletelyFinal else { throw AudioFailure.message("部分文字尚未定稿，已保留文字和原音，可稍后重新识别") }
-            try await store.finishRecognition(ticket: ticket)
+            try await ingress.receive(.init(text: accumulator.snapshot.fullText,
+                stableUTF16Length: accumulator.snapshot.stableText.utf16.count,
+                audioEndSeconds: audioEnd, timingGranularity: "utterance", isComplete: true))
+            try await ingress.finish()
             event(.init(kind: "completed", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
         }
         try await withTaskCancellationHandler {
         do {
-            try await analyzer.prepareToAnalyze(in: format)
-            event(.init(kind: "prepared", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
-            try await analyzer.start(inputSequence: inputs)
+            do {
+                try await analyzer.prepareToAnalyze(in: format)
+                event(.init(kind: "prepared", elapsedSeconds: ProcessInfo.processInfo.systemUptime - started))
+                try await analyzer.start(inputSequence: inputs)
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                throw LocalASREngineUnavailable(reason: error.localizedDescription)
+            }
             for await data in stream {
                 try Task.checkCancellation()
                 let count = data.count / 2

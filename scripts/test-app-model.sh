@@ -5,6 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 SAYTILE_MODEL_SCRATCH="${SAYTILE_MODEL_SCRATCH:-/tmp/saytile-rc-model}"
 SAYTILE_MODEL_COMMAND=(swift build --scratch-path "$SAYTILE_MODEL_SCRATCH")
+if [[ "${SAYTILE_SWIFT_DISABLE_SANDBOX:-0}" == 1 ]]; then SAYTILE_MODEL_COMMAND+=(--disable-sandbox); fi
 if [[ -n "${SAYTILE_MODEL_BUILD_SYSTEM:-}" ]]; then SAYTILE_MODEL_COMMAND+=(--build-system "$SAYTILE_MODEL_BUILD_SYSTEM"); fi
 "${SAYTILE_MODEL_COMMAND[@]}"
 SAYTILE_MODEL_BIN_DIR="$("${SAYTILE_MODEL_COMMAND[@]}" --show-bin-path)"
@@ -16,12 +17,30 @@ fi
 [[ -f "$SAYTILE_MODEL_MODULE_MAP" ]] || { printf 'CAudio module map missing\n' >&2; exit 1; }
 SAYTILE_MODEL_TEMP="$(mktemp -d /tmp/saytile-model-probe.XXXXXX)"
 trap 'rm -rf "$SAYTILE_MODEL_TEMP"' EXIT
-swiftc -swift-version 6 -parse-as-library \
+if [[ -d "$SAYTILE_MODEL_BIN_DIR/Saytile_SaytileKit.bundle" ]]; then
+  ditto "$SAYTILE_MODEL_BIN_DIR/Saytile_SaytileKit.bundle" "$SAYTILE_MODEL_TEMP/Saytile_SaytileKit.bundle"
+fi
+SAYTILE_PROBE_FLAGS=(-swift-version 6 -parse-as-library -module-cache-path "$SAYTILE_MODEL_SCRATCH/probe-module-cache" \
   -I "$SAYTILE_MODEL_BIN_DIR" -I "$SAYTILE_MODEL_BIN_DIR/Modules" -I Sources/CSQLite \
   -Xcc "-fmodule-map-file=$SAYTILE_MODEL_MODULE_MAP" \
-  -L "$SAYTILE_MODEL_BIN_DIR" -lSaytileKit -lc++ \
-  Sources/SaytileApp/AppModel.swift tests/fixtures/AppModelProbe.swift \
+  -L "$SAYTILE_MODEL_BIN_DIR" -lSaytileKit -lSaytileVoiceUI -lRiftletFeedback -lc++)
+swiftc "${SAYTILE_PROBE_FLAGS[@]}" \
+  Sources/SaytileApp/AppModel.swift Sources/SaytileApp/FeedbackSettingsModel.swift Sources/SaytileApp/PanelTimelineDocument.swift tests/fixtures/AppModelProbe.swift \
   -o "$SAYTILE_MODEL_TEMP/probe"
 SAYTILE_MODEL_LOG="${SAYTILE_MODEL_LOG:-evidence/native-app-model.log}"
 mkdir -p "$(dirname "$SAYTILE_MODEL_LOG")"
 "$SAYTILE_MODEL_TEMP/probe" 2>&1 | tee "$SAYTILE_MODEL_LOG"
+
+# Exercise the same NSPanel mouse-event handler as the app, without global input.
+# A second process reads only the isolated placement written by the first.
+swiftc "${SAYTILE_PROBE_FLAGS[@]}" Sources/SaytileApp/VoicePanel.swift \
+  tests/fixtures/VoiceRailGestureProbe.swift -o "$SAYTILE_MODEL_TEMP/gesture-probe"
+for phase in write restore; do
+  "$SAYTILE_MODEL_TEMP/gesture-probe" "$phase" "$SAYTILE_MODEL_TEMP/placement.json"
+done
+
+# Feedback drafts/outbox use a separate SQLite fixture and an in-memory capability store.
+# Compile the actual controller to cover close/send races without a window or network.
+swiftc "${SAYTILE_PROBE_FLAGS[@]}" Sources/SaytileApp/FeedbackSettingsModel.swift \
+  tests/fixtures/FeedbackSettingsModelProbe.swift -o "$SAYTILE_MODEL_TEMP/feedback-probe"
+"$SAYTILE_MODEL_TEMP/feedback-probe" 2>&1 | tee -a "$SAYTILE_MODEL_LOG"

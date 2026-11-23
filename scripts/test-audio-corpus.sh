@@ -1,5 +1,6 @@
 #!/bin/bash
-# Reproducible, synthetic-only Mandarin benchmark; Apple assets may be downloaded free of charge.
+# Synthetic-only Mandarin benchmark. Existing Apple assets only by default;
+# opt in to the separate free asset preparation with SAYTILE_CORPUS_PREPARE=1.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 SAYTILE_CORPUS_BUILD="${SAYTILE_CORPUS_BUILD:-/tmp/saytile-rc-audio}"
@@ -22,4 +23,6 @@ swiftc -parse-as-library -I "$SAYTILE_CORPUS_BIN/Modules" -I Sources/CAudio/incl
   "$SAYTILE_CORPUS_BIN"/CAudio.build/webrtc/common_audio/vad/*.o \
   "$SAYTILE_CORPUS_BIN"/CAudio.build/webrtc/rtc_base/*.o \
   -lsqlite3 -lc++ -o "$SAYTILE_CORPUS_BUILD/corpus-probe"
-"$SAYTILE_CORPUS_BUILD/corpus-probe" tests/fixtures/MandarinCorpus.json "$SAYTILE_CORPUS_RUN/audio" "$SAYTILE_CORPUS_RUN/store"
+SAYTILE_CORPUS_COMMAND=("$SAYTILE_CORPUS_BUILD/corpus-probe" tests/fixtures/MandarinCorpus.json "$SAYTILE_CORPUS_RUN/audio" "$SAYTILE_CORPUS_RUN/store")
+if [[ "${SAYTILE_CORPUS_PREPARE:-0}" == 1 ]]; then SAYTILE_CORPUS_COMMAND+=(--prepare-speech); fi
+"${SAYTILE_CORPUS_COMMAND[@]}"

@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 import Testing
 @testable import SaytileKit
 
@@ -41,15 +42,22 @@ private final class FakeInputAccess: InputAccess {
     var hasPermission = true
     var target = sampleTarget()
     var attempts: [String] = []
+    var fieldWitness: String?
+    var onWitness: (() -> Void)?
+    func textWitness(at expected: InputTargetSnapshot) -> String? {
+        onWitness?()
+        return expected == target ? fieldWitness : nil
+    }
     var confirms = true
+    var timesOutAfterTextWrite = false
     var throwsAfterAttempt = false
     var confirmationsToDelay = 0
     var localTextMatches: Bool? = true
     var afterDispatch: (@MainActor () -> Void)?
     var observedSupport = InputObservationSupport(focus: true, content: true, page: true)
     var onChange: (@MainActor (InputTargetChange) -> Void)?
-    var onSnapshot: (@MainActor () -> Void)?
-    func snapshot() throws -> InputTargetSnapshot { onSnapshot?(); return target }
+    var onSnapshot: (@MainActor () throws -> Void)?
+    func snapshot() throws -> InputTargetSnapshot { try onSnapshot?(); return target }
     func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool? { localTextMatches }
     func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport { self.onChange = onChange; return observedSupport }
     func stopObserving() { onChange = nil }
@@ -58,6 +66,7 @@ private final class FakeInputAccess: InputAccess {
         attempts.append(text)
         target.selectionLocation += text.utf16.count
         afterDispatch?()
+        if timesOutAfterTextWrite { throw AXTextWriteTimeout() }
         if throwsAfterAttempt { throw NativeInputError.unsupported }
         return true
     }
@@ -70,6 +79,160 @@ private final class FakeInputAccess: InputAccess {
 @Suite("Input coordinator with isolated SQLite and simulated OS")
 @MainActor
 struct InputCoordinatorTests {
+    @Test(arguments: ["restored", "persistent", "one-settled-read", "second-content", "focus", "layout",
+                      "changed-process", "changed-window", "changed-editor", "changed-page", "incomplete-page",
+                      "changed-caret", "selected-range", "changed-prefix", "changed-suffix", "sensitive"])
+    func firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_ scenario: String) async throws {
+        let directory = testDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true
+        access.target.selectionLocation = 2
+        access.fieldWitness = "abz"
+        let input = NativeInputCoordinator(store: store, access: access)
+        try await input.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+        var snapshotReads = 0, unavailableReads = 0, completeFieldReads = 0
+        access.afterDispatch = {
+            access.fieldWitness = "ab你好😀z"
+            // Match the native Chrome failure: the very first content notification
+            // cannot read the focused AX range. Install the fault BEFORE notifying.
+            access.onSnapshot = {
+                snapshotReads += 1
+                if snapshotReads == 1 || scenario == "persistent" ||
+                    scenario == "one-settled-read" && snapshotReads > 2 {
+                    unavailableReads += 1
+                    throw NativeInputError.unsupported
+                }
+            }
+            access.onWitness = { if access.fieldWitness != nil { completeFieldReads += 1 } }
+            access.onChange?(.contentOrSelection)
+            #expect(unavailableReads == 1)
+            switch scenario {
+            case "second-content": access.onChange?(.contentOrSelection)
+            case "focus": access.onChange?(.focusOrDocument)
+            case "layout": access.onChange?(.layout)
+            case "changed-process": access.target.processID += 1
+            case "changed-window": access.target.windowID = UUID()
+            case "changed-editor": access.target.elementID = UUID()
+            case "changed-page": access.target.pageIdentity = "fixture://another-page"
+            case "incomplete-page": access.target.pageContextComplete = false
+            case "changed-caret": access.target.selectionLocation -= 1
+            case "selected-range": access.target.selectionLength = 1
+            case "changed-prefix": access.fieldWitness = "Ab你好😀z"
+            case "changed-suffix": access.fieldWitness = "ab你好😀Z"
+            case "sensitive": access.target.isSensitive = true
+            default: break
+            }
+        }
+        let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
+            stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
+        #expect(result == (scenario == "restored" ? .confirmed : .unverified))
+        #expect((input.binding != nil) == (scenario == "restored"))
+        #expect(access.attempts == ["你好😀"])
+        if scenario == "restored" {
+            // Initial verification plus TWO independently settled complete witnesses.
+            #expect(snapshotReads >= 3)
+            #expect(completeFieldReads >= 3)
+        }
+        if scenario == "one-settled-read" {
+            #expect(completeFieldReads == 2)
+            #expect(unavailableReads >= 2)
+        }
+        access.onSnapshot = nil; access.onWitness = nil; access.afterDispatch = nil
+        #expect(await input.insertStable(recordingID: record.id, revisionID: revision.id,
+            stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt) ==
+            (scenario == "restored" ? .noNewText : .cancelled))
+        if scenario != "restored" {
+            let correction = try await store.saveEdit(recordingID: record.id, text: "您好😀")
+            #expect(await input.repairOwned(revision: correction) == .correctionPending)
+        }
+        #expect(access.attempts == ["你好😀"])
+        // Uncertain delivery must not acquire a stored range for later corrections.
+        let db = try StoreDatabase(url: directory.appendingPathComponent("Saytile.sqlite"), readOnly: true)
+        let ownership = try db.rows("SELECT expected_text,valid FROM owned_input_ranges WHERE recording_id=?", [.text(record.id.uuidString)])
+        if scenario == "restored" {
+            #expect(ownership.count == 1 && ownership.first?["expected_text"] == "你好😀" && ownership.first?["valid"] == "1")
+        } else { #expect(ownership.isEmpty) }
+        try db.close()
+        try await store.close()
+    }
+
+    @Test(arguments: ["restored", "persistent", "late-focus", "observed-edit", "bad-caret", "field-changed"])
+    func uncertainWebReadbackNeedsTwoSubsequentFullWitnesses(_ scenario: String) async throws {
+        let directory = testDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true
+        access.target.selectionLocation = 2
+        access.fieldWitness = "abz"
+        let input = NativeInputCoordinator(store: store, access: access)
+        try await input.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+        var readsAfterWrite = 0
+        access.afterDispatch = {
+            access.fieldWitness = "ab你好😀z"
+            access.onChange?(.contentOrSelection)
+            access.onSnapshot = {
+                readsAfterWrite += 1
+                if readsAfterWrite == 1 || scenario == "persistent" { throw NativeInputError.unsupported }
+                if readsAfterWrite == 2 {
+                    switch scenario {
+                    case "late-focus": access.onChange?(.focusOrDocument)
+                    case "observed-edit": access.onChange?(.contentOrSelection)
+                    case "bad-caret": access.target.selectionLength = 1
+                    case "field-changed": access.fieldWitness = "cb你好😀z"
+                    default: break
+                    }
+                }
+            }
+        }
+        let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
+                                               stableUTF16End: 4, recordingStartedAt: record.createdAt)
+        #expect(result == (scenario == "restored" ? .confirmed : .unverified))
+        #expect((input.binding != nil) == (scenario == "restored"))
+        if scenario == "restored" { #expect(readsAfterWrite >= 3) }
+        #expect(access.attempts == ["你好😀"])
+    }
+
+    @Test(arguments: ["restored", "unreadable", "new-event", "changed-window", "changed-page", "changed-caret", "changed-field", "missing-before"])
+    func webInsertionNotificationWithMissingFieldNeverRetriesTheWrite(_ scenario: String) async throws {
+        let directory = testDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true
+        access.target.selectionLocation = 2
+        access.fieldWitness = scenario == "missing-before" ? nil : "abz"
+        let input = NativeInputCoordinator(store: store, access: access)
+        try await input.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+        var completeReads = 0
+        access.afterDispatch = {
+            access.fieldWitness = nil // Chrome exposes the expected caret before the whole AX field.
+            access.onChange?(.contentOrSelection)
+            access.fieldWitness = scenario == "unreadable" ? nil : "ab你好😀z"
+            access.onWitness = { if access.fieldWitness != nil { completeReads += 1 } }
+            switch scenario {
+            case "new-event": access.onChange?(.contentOrSelection)
+            case "changed-window": access.target.windowID = UUID()
+            case "changed-page": access.target.pageIdentity = "another page"
+            case "changed-caret": access.target.selectionLocation -= 1
+            case "changed-field": access.fieldWitness = "Ab你好😀z"
+            default: break
+            }
+        }
+        let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
+                                               stableUTF16End: 4, recordingStartedAt: record.createdAt)
+        access.onWitness = nil
+        #expect(result == (scenario == "missing-before" ? .cancelled : scenario == "restored" ? .confirmed : .unverified))
+        #expect((input.binding != nil) == (scenario == "restored"))
+        if scenario == "restored" { #expect(completeReads >= 3) } // Initial detection and two complete settled witnesses.
+        #expect(access.attempts == (scenario == "missing-before" ? [] : ["你好😀"]))
+    }
+
     @Test func teststableSuffixOnlyOnce() async throws {
         let directory = testDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
@@ -205,6 +368,48 @@ struct InputCoordinatorTests {
         access.onChange?(.focusOrDocument)
         #expect(coordinator.binding == nil)
     }
+    @Test func injectedWorkspaceActivationExpiresBindingWithoutChangingFakeSnapshot() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let activatedApplication = NSRunningApplication.current
+        // A command-line runner can report -1. Choose relative to the actual
+        // notification payload instead of assuming any sentinel is distinct.
+        access.target.processID = activatedApplication.processIdentifier == 123456 ? 123457 : 123456
+        try #require(access.target.processID != activatedApplication.processIdentifier)
+        let expectedTarget = access.target
+        let center = NotificationCenter()
+        let coordinator = NativeInputCoordinator(store: store, access: access,
+                                                  activationNotificationCenter: center)
+        try await coordinator.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "目标切换后不派发")
+        let invalidations = AsyncStream<Void>.makeStream()
+        defer { invalidations.continuation.finish() }
+        coordinator.onBindingInvalidated = { invalidations.continuation.yield(()) }
+
+        // Post only to the isolated center, using the production notification and
+        // payload type. No real activation, accessibility action or draft is involved.
+        center.post(name: NSWorkspace.didActivateApplicationNotification, object: nil,
+                    userInfo: [NSWorkspace.applicationUserInfoKey: activatedApplication])
+        let invalidated = await withTaskGroup(of: Bool.self) { group in
+            group.addTask {
+                for await _ in invalidations.stream { return true }
+                return false
+            }
+            group.addTask {
+                try? await Task.sleep(for: .seconds(2))
+                return false
+            }
+            let observed = await group.next() ?? false
+            group.cancelAll()
+            return observed
+        }
+        #expect(invalidated)
+        #expect(coordinator.binding == nil)
+        #expect(access.target == expectedTarget)
+        #expect(await coordinator.insert(recordingID: record.id, revisionID: revision.id) == .cancelled)
+        #expect(access.attempts.isEmpty)
+    }
     @Test func sameURLReusedWebEditorLayoutExpiresBinding() async throws {
         let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
         let store = try SaytileStore(directory: directory), access = FakeInputAccess()
@@ -213,6 +418,36 @@ struct InputCoordinatorTests {
         try await coordinator.bindCurrentTarget()
         access.onChange?(.layout)
         #expect(coordinator.binding == nil)
+    }
+    @Test(arguments: ["own-edit", "changed-prefix", "other-page", "changed-caret"])
+    func webTimedOutTextWriteNeedsExactReadback(scenario: String) async throws {
+        let directory = testDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory)
+        let access = FakeInputAccess()
+        access.target.isWeb = true
+        access.target.selectionLocation = 2
+        access.fieldWitness = "abz"
+        access.timesOutAfterTextWrite = true
+        let input = NativeInputCoordinator(store: store, access: access)
+        try await input.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+        access.afterDispatch = {
+            access.fieldWitness = scenario == "changed-prefix" ? "cb你好😀z" : "ab你好😀z"
+            if scenario == "other-page" { access.target.pageIdentity = "second synthetic document" }
+            if scenario == "changed-caret" { access.target.selectionLocation -= 1 }
+            access.onChange?(.contentOrSelection)
+        }
+        let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
+                                              stableUTF16End: 4, recordingStartedAt: record.createdAt)
+        #expect(result == (scenario == "own-edit" ? .confirmed : .unverified))
+        #expect((input.binding != nil) == (scenario == "own-edit"))
+        #expect(access.attempts == ["你好😀"])
+        if scenario == "own-edit" {
+            access.onChange?(.contentOrSelection)
+            #expect(input.binding == nil) // after return a new edit/undo notification expires ownership
+        }
     }
     @Test func unobservableWebOnlyAllowsExplicitManualInsertion() async throws {
         let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
@@ -369,4 +604,71 @@ private func sampleTarget() -> InputTargetSnapshot {
 }
 private func testDirectory() -> URL {
     FileManager.default.temporaryDirectory.appendingPathComponent("Saytile-input-tests-" + UUID().uuidString)
+}
+
+extension InputCoordinatorTests {
+    private func fusionPair(store: SaytileStore, ticket: RecognitionTicket, text: String) async throws -> [RecognitionCandidate] {
+        var result: [RecognitionCandidate] = []
+        for purpose in [RecognitionPurpose.chineseASR, .englishASR] {
+            let run = try await store.beginModelRun(ticket: ticket, configuration: .init(purpose: purpose,
+                provider: purpose == .chineseASR ? .qwenMessage : .assemblyAI, model: "isolated-input-fixture"))
+            let candidate = RecognitionCandidate(run: run, sequence: 0, text: text,
+                stableUTF16Length: text.utf16.count, audioEndSeconds: 1, isComplete: true)
+            _ = try await store.appendRecognitionCandidate(candidate)
+            result.append(candidate)
+        }
+        return result
+    }
+
+    @Test func productionFusionPublicationReachesIncrementalCoordinatorOnce() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        let record = try await store.createRecording(), ticket = try await store.beginFusionRecognition(recordingID: record.id)
+        let original = "不要改成 50 mg。😀"
+        let first = try await fusionPair(store: store, ticket: ticket, text: original)
+        let publication = try await store.publishFusion(ticket: ticket, proposal: PrecisionFusion.evaluate(candidates: first, mode: .highestQuality))
+        let head = try #require(publication.revision)
+        #expect(await coordinator.insertStable(recordingID: record.id, revisionID: head.id,
+            stableUTF16End: original.utf16.count, recordingStartedAt: record.createdAt) == .confirmed)
+        #expect(await coordinator.insertStable(recordingID: record.id, revisionID: head.id,
+            stableUTF16End: original.utf16.count, recordingStartedAt: record.createdAt) == .noNewText)
+        let updatedText = original + " 再说一次。"
+        let newer = first.map { RecognitionCandidate(run: $0.run, sequence: 1, text: updatedText,
+            stableUTF16Length: updatedText.utf16.count, audioEndSeconds: 2, isComplete: true) }
+        for candidate in newer { _ = try await store.appendRecognitionCandidate(candidate) }
+        let revised = try await store.publishFusion(ticket: ticket, proposal: PrecisionFusion.evaluate(
+            candidates: newer, mode: .highestQuality, committedPrefix: original))
+        let newHead = try #require(revised.revision)
+        #expect(await coordinator.insertStable(recordingID: record.id, revisionID: newHead.id,
+            stableUTF16End: updatedText.utf16.count, recordingStartedAt: record.createdAt) == .confirmed)
+        #expect(access.attempts == [original, " 再说一次。"])
+        #expect(try await store.fusionReservedPrefix(recordingID: record.id) == updatedText)
+        try await store.close()
+    }
+
+    @Test func failedFusionExpertPreventsStaleExternalAttemptWithoutBlockingNextSpeech() async throws {
+        let directory = testDirectory(); defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        let coordinator = NativeInputCoordinator(store: store, access: access)
+        try await coordinator.bindCurrentTarget()
+        let record = try await store.createRecording(), ticket = try await store.beginFusionRecognition(recordingID: record.id)
+        let candidates = try await fusionPair(store: store, ticket: ticket, text: "等待核对的文字")
+        let proposal = try await store.publishFusion(ticket: ticket, proposal: PrecisionFusion.evaluate(candidates: candidates, mode: .highestQuality))
+        let head = try #require(proposal.revision)
+        try await store.finishModelRun(candidates[0].run, error: "isolated timeout")
+        #expect(await coordinator.insertStable(recordingID: record.id, revisionID: head.id,
+            stableUTF16End: head.text.utf16.count, recordingStartedAt: record.createdAt) == .noNewText)
+        #expect(access.attempts.isEmpty)
+        #expect(coordinator.binding != nil)
+        let next = try await store.createRecording(), nextTicket = try await store.beginFusionRecognition(recordingID: next.id)
+        let independent = try await fusionPair(store: store, ticket: nextTicket, text: "后续独立表达")
+        let ready = try await store.publishFusion(ticket: nextTicket, proposal: PrecisionFusion.evaluate(candidates: independent, mode: .highestQuality))
+        let nextHead = try #require(ready.revision)
+        #expect(await coordinator.insertStable(recordingID: next.id, revisionID: nextHead.id,
+            stableUTF16End: nextHead.text.utf16.count, recordingStartedAt: next.createdAt) == .confirmed)
+        #expect(access.attempts == ["后续独立表达"])
+        try await store.close()
+    }
 }

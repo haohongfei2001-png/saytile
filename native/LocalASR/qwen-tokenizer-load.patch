@@ -1,0 +1,36 @@
+--- a/Sources/AudioCommon/Tokenizer.swift
++++ b/Sources/AudioCommon/Tokenizer.swift
+@@ -45,9 +45,9 @@
+         let data = try Data(contentsOf: url)
+ 
+         // vocab.json is a direct {token: id} mapping
+-        guard let vocab = try JSONSerialization.jsonObject(with: data) as? [String: Int] else {
+-            throw TokenizerError.invalidFormat("Expected {token: id} dictionary")
+-        }
++        let vocab = try JSONDecoder().decode([String: Int].self, from: data)
++        idToToken.reserveCapacity(vocab.count)
++        tokenToId.reserveCapacity(vocab.count)
+ 
+         for (token, id) in vocab {
+             idToToken[id] = token
+@@ -100,15 +100,17 @@
+         let content = try String(contentsOf: url, encoding: .utf8)
+         let lines = content.components(separatedBy: .newlines)
+ 
++        bpeMerges.reserveCapacity(lines.count)
++        bpeMergeRanks.reserveCapacity(lines.count)
+         for (index, line) in lines.enumerated() {
+             // Skip header line and empty lines
+             if line.hasPrefix("#") || line.isEmpty { continue }
+ 
+-            let parts = line.components(separatedBy: " ")
++            let parts = line.utf8.split(separator: 32, omittingEmptySubsequences: false)
+             guard parts.count == 2 else { continue }
+ 
+-            bpeMerges.append((parts[0], parts[1]))
+-            bpeMergeRanks["\(parts[0]) \(parts[1])"] = index
++            bpeMerges.append((String(decoding: parts[0], as: UTF8.self), String(decoding: parts[1], as: UTF8.self)))
++            bpeMergeRanks[line] = index
+         }
+     }
+ 

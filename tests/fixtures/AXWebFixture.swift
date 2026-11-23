@@ -1,19 +1,50 @@
 import AppKit
 import WebKit
 
+#if SAYTILE_FOREGROUND_FIXTURE
+typealias FixtureWindowBase = NSWindow
+#else
+typealias FixtureWindowBase = NSPanel
+#endif
+
+@MainActor
+final class WebFixturePanel: FixtureWindowBase {
+    var keyboardAllowed = false
+    var keyboardEvents = 0
+    override var canBecomeKey: Bool { keyboardAllowed }
+    override var canBecomeMain: Bool { keyboardAllowed }
+    override func sendEvent(_ event: NSEvent) {
+        if !keyboardAllowed, [.keyDown, .keyUp, .flagsChanged].contains(event.type) {
+            keyboardEvents += 1; return
+        }
+        super.sendEvent(event)
+    }
+}
+
 @MainActor
 final class WebFixtureController: NSObject, WKNavigationDelegate {
-    let window: NSPanel
+    let window: WebFixturePanel
     let web: WKWebView
     var commandBytes = Data()
     let foregroundArmed: Bool
     private var activated = false
     init(foregroundArmed: Bool = false) {
         self.foregroundArmed = foregroundArmed
+        if foregroundArmed {
+            // A new hosted GUI session starts NSSpellServer lazily during WK's
+            // first selection AX reads, before the actual input test. Complete
+            // one synthetic spelling request during fixture setup, before any
+            // window or focus is exposed. Keep the parent's 10s setup deadline,
+            // every AX deadline, ownership assertion and single activation.
+            let start = ProcessInfo.processInfo.systemUptime
+            _ = NSSpellChecker.shared.checkSpelling(of: "Synthetic composer", startingAt: 0)
+            print("WEB_FIXTURE_SPELLING_READY elapsed_ms", Int(1000 * (ProcessInfo.processInfo.systemUptime - start)))
+            fflush(nil)
+        }
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .nonPersistent()
         web = WKWebView(frame: NSRect(x: 0, y: 0, width: 640, height: 480), configuration: config)
-        window = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 640, height: 480), styleMask: foregroundArmed ? [.titled] : [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
+        window = WebFixturePanel(contentRect: NSRect(x: 0, y: 0, width: 640, height: 480), styleMask: foregroundArmed ? [.titled] : [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
         super.init()
         window.title = "Saytile synthetic web fixture"
         window.alphaValue = 0; window.ignoresMouseEvents = true
@@ -29,8 +60,14 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
     }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         _ = webView.accessibilityChildren()
-        webView.evaluateJavaScript("focusComposer()") { _, error in
-            FileHandle.standardOutput.write(Data((error == nil ? "WEB_FIXTURE_READY\n" : "WEB_FIXTURE_ERROR\n").utf8))
+        // Foreground activation owns the sole request for focus. Setting the initial
+        // selection on an unfocused textarea does not require a second activation.
+        let prepare = foregroundArmed ? "document.querySelector('textarea').setSelectionRange(7,7)" : "focusComposer()"
+        webView.evaluateJavaScript(prepare + ";document.querySelector('textarea').value==='PREFIX|SUFFIX'&&document.querySelector('textarea').selectionStart===7&&document.querySelector('textarea').selectionEnd===7") { [self] value, error in
+            guard error == nil, value as? Bool == true, !window.isKeyWindow, !window.isMainWindow, window.keyboardEvents == 0 else {
+                FileHandle.standardOutput.write(Data("WEB_FIXTURE_ISOLATION_FAILED\n".utf8)); return
+            }
+            FileHandle.standardOutput.write(Data("WEB_FIXTURE_ISOLATION initial_expected=true key=false main=false keyboard_events=0\nWEB_FIXTURE_READY\n".utf8))
         }
     }
     func consume(_ bytes: Data) {
@@ -43,7 +80,8 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
             case "activate":
                 guard foregroundArmed, !activated else { continue }
                 activated = true
-                NSApp.setActivationPolicy(.accessory)
+                window.keyboardAllowed = true
+                NSApp.setActivationPolicy(.regular)
                 window.alphaValue = 1; window.ignoresMouseEvents = false
                 window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
                 window.makeFirstResponder(web)
@@ -52,16 +90,29 @@ final class WebFixtureController: NSObject, WKNavigationDelegate {
             case "replaceContext": js = "let h=document.querySelector('h1');h.outerHTML=h.outerHTML;"
             case "largeTree": js = "for(let i=0;i<140;i++){let d=document.createElement('div');d.className='extra';d.textContent='Synthetic node '+i;document.body.append(d);}"
             case "blankContext": js = "document.querySelector('h1').textContent='';document.querySelector('#send').textContent='';"
+            case "holdAX":
+                guard foregroundArmed, activated, NSApp.isActive else { continue }
+                // Only this disposable process stalls. ACK first so the probe performs
+                // its next real AX read while the fixture cannot service the request.
+                let ack = ["command": command, "value": "holding", "error": ""]
+                if let data = try? JSONSerialization.data(withJSONObject: ack) {
+                    FileHandle.standardOutput.write(data + Data([10]))
+                }
+                Thread.sleep(forTimeInterval: 1.5)
+                continue
             case "silentContext": js = "document.querySelector('h1').textContent='Different synthetic chat with identical empty composer';"
             case "sameURL": js = "document.querySelector('h1').textContent='Second synthetic chat';document.querySelector('textarea').value='';focusComposer();"
             case "newURL": js = "history.pushState({},'', '/chat/two');document.querySelector('h1').textContent='Second synthetic chat';document.querySelector('textarea').value='';focusComposer();"
             case "replaceEditor": js = "document.querySelector('textarea').outerHTML='<textarea id=\"composer\" aria-label=\"Synthetic composer\"></textarea>';focusComposer();"
+            case "manualEdit": js = "let t=document.querySelector('textarea');t.value='PREFIX|我的改字SUFFIX';t.setSelectionRange(11,11);"
+            case "blur": js = "document.querySelector('#send').focus();"
             case "select": js = "document.querySelector('textarea').setSelectionRange(0,6);"
-            case "state": js = "JSON.stringify({text:document.querySelector('textarea').value,sends:window.sends,url:location.href})"
+            case "state": js = "(()=>{let t=document.querySelector('textarea').value;let known=['','PREFIX|SUFFIX','PREFIX|你好😀SUFFIX','PREFIX|你好😀，接着说SUFFIX','PREFIX|网页😀SUFFIX','PREFIX|50😀SUFFIX','PREFIX|500👩🏽‍💻SUFFIX','PREFIX|我的改字SUFFIX'].includes(t);return JSON.stringify({text:known?t:'UNEXPECTED_TEXT_OMITTED',knownSyntheticText:known,utf16Length:t.length,sends:window.sends,selectionStart:document.querySelector('textarea').selectionStart,selectionEnd:document.querySelector('textarea').selectionEnd,url:location.href});})()"
             default: continue
             }
-            web.evaluateJavaScript(js) { value, error in
-                let response: [String: Any] = ["command": command, "value": value.map { String(describing: $0) } ?? "", "error": error?.localizedDescription ?? ""]
+            web.evaluateJavaScript(js) { [self] value, error in
+                let response: [String: Any] = ["command": command, "value": value.map { String(describing: $0) } ?? "", "error": error?.localizedDescription ?? "",
+                    "keyWindow": window.isKeyWindow, "mainWindow": window.isMainWindow, "keyboardEvents": window.keyboardEvents]
                 if let data = try? JSONSerialization.data(withJSONObject: response) { FileHandle.standardOutput.write(data + Data([10])) }
             }
         }

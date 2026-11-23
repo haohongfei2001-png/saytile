@@ -1,0 +1,166 @@
+{
+  "status": "PASS",
+  "identities": [
+    {
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "source": "7c0df4728b113c17297a0cded20472de4ffc3337",
+      "version": "0.20",
+      "build": "533",
+      "executable_sha256": "d711d1cab97d0ff20e23129269b8d72989db2e5258f659d49276f77cf9ab4737"
+    },
+    {
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+      "version": "1.0.0",
+      "build": "572",
+      "executable_sha256": "d35c8f37ddf73b1a3820b7e12687464a8d17c309e186d8e03f58ba5dfc829f6b"
+    }
+  ],
+  "app_storage_profiles": [
+    {
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1",
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1",
+      "archive": "Saytile Mandarin Candidate"
+    },
+    {
+      "bundle": "app.saytile.mac.mandarin-candidate",
+      "byok_service": "app.saytile.mac.mandarin-candidate.byok.v1",
+      "hosted_service": "app.saytile.mac.mandarin-candidate.hosted.auth.v1",
+      "archive": "Saytile Mandarin Candidate"
+    }
+  ],
+  "fixture": {
+    "schema": 6,
+    "table_sha256": "2520d785172230f0c4a16f30e5baa8702a6926ffbb631f83fbc3ac15b5bef550",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "6312C0E1-E476-4197-B7CE-F25A85F54EC7/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "B33FA5E4-E38A-4CD3-8FDD-26E450BC10C1/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "25951574-76B6-447D-AF4E-2DAE2FC1DE20",
+      "F81FD4FC-51D6-41D8-A10C-0B60C81418B6"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0
+  },
+  "steps": [
+    {
+      "step": "old",
+      "records": 2,
+      "paragraphs": {
+        "idle_seconds": 180,
+        "boundaries": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            0
+          ]
+        ]
+      },
+      "cache_sha256": "3855cc81e798149c69fff7bede90924b40a8f53b7c48e98763a32bb7caaa1056",
+      "logical_tables_sha256": "2520d785172230f0c4a16f30e5baa8702a6926ffbb631f83fbc3ac15b5bef550",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ]
+    },
+    {
+      "step": "candidate",
+      "records": 2,
+      "paragraphs": {
+        "idle_seconds": 180,
+        "boundaries": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            1
+          ]
+        ]
+      },
+      "cache_sha256": "3855cc81e798149c69fff7bede90924b40a8f53b7c48e98763a32bb7caaa1056",
+      "logical_tables_sha256": "2520d785172230f0c4a16f30e5baa8702a6926ffbb631f83fbc3ac15b5bef550",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ]
+    },
+    {
+      "step": "old_reopened",
+      "records": 2,
+      "paragraphs": {
+        "idle_seconds": 180,
+        "boundaries": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            1
+          ]
+        ]
+      },
+      "cache_sha256": "3855cc81e798149c69fff7bede90924b40a8f53b7c48e98763a32bb7caaa1056",
+      "logical_tables_sha256": "2520d785172230f0c4a16f30e5baa8702a6926ffbb631f83fbc3ac15b5bef550",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ]
+    },
+    {
+      "step": "candidate_reopened",
+      "records": 2,
+      "paragraphs": {
+        "idle_seconds": 180,
+        "boundaries": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            2,
+            1,
+            1
+          ]
+        ]
+      },
+      "cache_sha256": "3855cc81e798149c69fff7bede90924b40a8f53b7c48e98763a32bb7caaa1056",
+      "logical_tables_sha256": "2520d785172230f0c4a16f30e5baa8702a6926ffbb631f83fbc3ac15b5bef550",
+      "wav_sha256": [
+        "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+        "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+      ]
+    }
+  ],
+  "network": "denied to all smoke and probe processes",
+  "launch": "explicit diagnostic directory, no capture or inference",
+  "keychain": "service names evaluated from the two exact sources using each signed bundle's identity; no secret inspected",
+  "empty_candidate_records": 0,
+  "original_fixture_unchanged": true,
+  "installed_binaries_unchanged": true
+}

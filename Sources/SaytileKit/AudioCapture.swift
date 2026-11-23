@@ -29,22 +29,24 @@ actor CaptureWorker {
     let ring: AudioRing
     let sampleRate: Double
     let recognitionEnabled: Bool
+    let recognitionFactory: RecognitionSessionFactory
     let journalIO: PCMJournal.IO
     let update: @Sendable (Bool, Float) -> Void
     let failed: @MainActor @Sendable (String) -> Void
     var segmenter: VoiceSegmenter
     var journal: PCMJournal?
     var recordingID: UUID?
-    var speech: LiveSpeechSession?
-    var retired: [LiveSpeechSession] = []
+    var speech: (any RecognitionSession)?
+    var retired: [any RecognitionSession] = []
     var converter: AVAudioConverter
     var sourceFormat: AVAudioFormat
     var targetFormat: AVAudioFormat
     var runTask: Task<Void, Never>?
     var stopping = false
-    init(store: SaytileStore, ring: AudioRing, sampleRate: Double, recognitionEnabled: Bool = true, journalIO: PCMJournal.IO = .live, update: @escaping @Sendable (Bool, Float) -> Void, failed: @escaping @MainActor @Sendable (String) -> Void) throws {
+    init(store: SaytileStore, ring: AudioRing, sampleRate: Double, recognitionEnabled: Bool = true, recognitionFactory: RecognitionSessionFactory = RecognitionSessionFactory(), journalIO: PCMJournal.IO = .live, update: @escaping @Sendable (Bool, Float) -> Void, failed: @escaping @MainActor @Sendable (String) -> Void) throws {
         self.store = store; self.ring = ring; self.sampleRate = sampleRate; self.recognitionEnabled = recognitionEnabled; self.update = update; self.failed = failed
         self.journalIO = journalIO
+        self.recognitionFactory = recognitionFactory
         segmenter = try VoiceSegmenter()
         sourceFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRate, channels: 1, interleaved: false)!
         targetFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 16_000, channels: 1, interleaved: false)!
@@ -64,23 +66,19 @@ actor CaptureWorker {
         var lastFramesAt = Date()
         do {
             while !Task.isCancelled {
-                if st_ring_dropped(ring.pointer) > 0 { throw AudioFailure.message("收音缓冲溢出，已保留此前原音；请恢复录音") }
+                if st_ring_dropped(ring.pointer) > 0 { throw AudioFailure.message("收音数据不连续，已保留此前原音；请确认麦克风后恢复录音") }
                 let n = samples.withUnsafeMutableBufferPointer { st_ring_read(ring.pointer, $0.baseAddress!, UInt32($0.count)) }
                 if n > 0 {
                     lastFramesAt = Date()
-                    let buffer = AVAudioPCMBuffer(pcmFormat: sourceFormat, frameCapacity: n)!
-                    buffer.frameLength = n
-                    samples.withUnsafeBufferPointer { buffer.floatChannelData![0].update(from: $0.baseAddress!, count: Int(n)) }
-                    let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: UInt32(ceil(Double(n) * 16_000 / sampleRate) + 32))!
-                    var supplied = false; var error: NSError?
-                    let status = converter.convert(to: output, error: &error) { _, state in
-                        if supplied { state.pointee = .noDataNow; return nil }
-                        supplied = true; state.pointee = .haveData; return buffer
-                    }
-                    if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
-                    if output.frameLength > 0 {
-                        let pcm = Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)
-                        try await acceptPCM(pcm)
+                    let batchEnd = lastFramesAt.addingTimeInterval(-Double(st_ring_pending(ring.pointer)) / sampleRate)
+                    FixturePerformanceTrace.record("capture.read", frames: Int(n))
+                    let convertStart = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
+                    let converted = try convertCapturedSamples(samples, count: n)
+                    FixturePerformanceTrace.record("capture.converted", frames: Int(n), since: convertStart)
+                    var remaining = converted.reduce(0) { $0 + $1.count }
+                    for pcm in converted {
+                        remaining -= pcm.count
+                        try await acceptPCM(pcm, endingAt: batchEnd.addingTimeInterval(-Double(remaining) / 32000))
                     }
                     let energy = samples.prefix(Int(n)).reduce(Float(0)) { $0 + $1 * $1 } / Float(n)
                     update(segmenter.speaking, min(1, sqrt(energy) * 7))
@@ -92,32 +90,77 @@ actor CaptureWorker {
         } catch is CancellationError { }
         catch { await cleanupCaptureFailure(error); await failed(error.localizedDescription) }
     }
-    func acceptPCM(_ pcm: Data) async throws {
-        for event in segmenter.accept(pcm) {
-            switch event {
-            case let .begin(preRoll): try await beginUtterance(); for frame in preRoll { try await append(frame) }
-            case let .audio(frame): try await append(frame)
-            case .end: try await endUtterance()
+    func convertCapturedSamples(_ samples: [Float], count: UInt32) throws -> [Data] {
+        precondition(count > 0 && Int(count) <= samples.count)
+        let buffer = AVAudioPCMBuffer(pcmFormat: sourceFormat, frameCapacity: count)!
+        buffer.frameLength = count
+        samples.withUnsafeBufferPointer { buffer.floatChannelData![0].update(from: $0.baseAddress!, count: Int(count)) }
+        var supplied = false, result: [Data] = []
+        repeat {
+            let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: UInt32(ceil(Double(count) * 16_000 / sampleRate) + 32))!
+            var error: NSError?
+            let status = converter.convert(to: output, error: &error) { _, state in
+                if supplied { state.pointee = .noDataNow; return nil }
+                supplied = true; state.pointee = .haveData; return buffer
             }
-        }
+            if status == .error { throw error ?? AudioFailure.message("收音格式转换失败") as NSError }
+            if output.frameLength > 0 { result.append(Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)) }
+            // A smaller output buffer can be filled entirely from the converter's
+            // earlier input. Keep this newly read ring batch until the callback
+            // actually accepts it; otherwise it vanishes without a ring overflow.
+            if !supplied && output.frameLength == 0 { throw AudioFailure.message("收音格式转换未继续处理输入，请恢复录音") }
+        } while !supplied
+        return result
     }
-    func flushTail() async throws {
+    func drainConvertedTail() throws -> [Data] {
+        var result: [Data] = []
         while true {
             let output = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: 4_096)!
             var error: NSError?
             let status = converter.convert(to: output, error: &error) { _, state in state.pointee = .endOfStream; return nil }
             if status == .error { throw error ?? AudioFailure.message("收音尾部转换失败") as NSError }
-            if output.frameLength > 0 { try await acceptPCM(Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)) }
+            if output.frameLength > 0 { result.append(Data(bytes: output.int16ChannelData![0], count: Int(output.frameLength) * 2)) }
             if output.frameLength == 0 || status == .endOfStream { break }
+        }
+        return result
+    }
+    private var lastPCMEnd: Date?
+    func acceptPCM(_ pcm: Data, endingAt time: Date = .now) async throws {
+        lastPCMEnd = time
+        // Resolve the route when speech actually starts. The endpoint policy
+        // and recognition ticket must refer to the same settings generation.
+        lazy var route = recognitionFactory.snapshot
+        let vadStart = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
+        let events = segmenter.accept(pcm, nextLimits: { route.captureLimits })
+        FixturePerformanceTrace.record("vad.accepted", frames: Int(segmenter.receivedSamples), since: vadStart)
+        for event in events {
+            switch event {
+            case let .begin(preRoll, sample):
+                try await beginUtterance(at: time.addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000), snapshot: route)
+                for frame in preRoll { try await append(frame) }
+            case let .audio(frame): try await append(frame)
+            case let .end(sample): try await endUtterance(at: time.addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000))
+            }
+        }
+    }
+    func flushTail() async throws {
+        for pcm in try drainConvertedTail() {
+            try await acceptPCM(pcm, endingAt: (lastPCMEnd ?? .now).addingTimeInterval(Double(pcm.count) / 32000))
         }
         for event in segmenter.finish() {
             if case let .audio(data) = event { try await append(data) }
-            if case .end = event { try await endUtterance() }
+            if case let .end(sample) = event {
+                try await endUtterance(at: (lastPCMEnd ?? .now).addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000))
+            }
         }
     }
-    func beginUtterance() async throws {
-        let record = try await store.createRecording()
+    func beginUtterance(at start: Date = .now, snapshot requested: RecognitionSessionFactory.Snapshot? = nil) async throws {
+        // A settings change during journal creation must not grant new destinations
+        // to audio that began under a local-only or older consent configuration.
+        let snapshot = requested ?? recognitionFactory.snapshot
+        let record = try await store.createRecording(createdAt: start)
         recordingID = record.id
+        FixturePerformanceTrace.record("vad.begin", recordingID: record.id, frames: Int(segmenter.receivedSamples))
         do {
             let journal = try PCMJournal(directory: store.audioDirectory, recordingID: record.id, io: journalIO)
             try journal.openChunk(); self.journal = journal
@@ -129,13 +172,21 @@ actor CaptureWorker {
         // Recognition setup cannot terminate the independent recorder.
         do {
             guard recognitionEnabled else { return }
-            let ticket = try await store.beginRecognition(recordingID: record.id)
-            speech = LiveSpeechSession(store: store, ticket: ticket)
+            let config = snapshot.configuration
+            if config.cloudEnabled && !snapshot.isHosted {
+                try await store.authorizeCloudRecovery(recordingID: record.id, configuration: config)
+            }
+            let ticket = try await (config.cloudEnabled
+                ? store.beginFusionRecognition(recordingID: record.id, mode: config.inputMode)
+                : store.beginRecognition(recordingID: record.id))
+            speech = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot, newCapture: true)
         } catch { speech = nil }
     }
     func append(_ data: Data) async throws {
         guard let journal, let recordingID else { return }
+        let journalStart = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
         try journal.append(data)
+        FixturePerformanceTrace.record("journal.appended", recordingID: recordingID, frames: Int(journal.frames), since: journalStart)
         if journal.needsCheckpoint || journal.needsRotation {
             try journal.checkpoint()
             try await store.registerAudioChunk(recordingID: recordingID, relativePath: journal.relativePath, frames: journal.frames)
@@ -148,7 +199,7 @@ actor CaptureWorker {
             try await store.registerAudioChunk(recordingID: recordingID, relativePath: journal.relativePath, frames: 0)
         }
     }
-    func endUtterance() async throws {
+    func endUtterance(at end: Date = .now) async throws {
         guard let recordingID else { return }
         guard let journal, journal.isOpen else {
             let error = AudioFailure.message("原音文件未创建，录音已停止")
@@ -157,12 +208,13 @@ actor CaptureWorker {
         do {
         try journal.closeChunk()
         try await store.registerAudioChunk(recordingID: recordingID, relativePath: journal.relativePath, frames: journal.frames)
-        try await store.finishRecording(id: recordingID)
+        try await store.finishRecording(id: recordingID, speechEndedAt: end)
+        FixturePerformanceTrace.record("vad.end", recordingID: recordingID, frames: Int(segmenter.receivedSamples))
         speech?.finish()
-        // At most two draining recognizers. Their inputs are already closed.
+        // Closed-input sessions finish independently. Admission is bounded by the
+        // cloud factory, never by cancelling older accepted recognition results.
         retired.removeAll { $0.isComplete }
         if let speech { retired.append(speech) }
-        if retired.count > 2 { for old in retired.dropLast(2) { old.cancel() } }
         self.speech = nil; self.journal = nil; self.recordingID = nil
         } catch { await cleanupCaptureFailure(error); throw error }
     }
@@ -189,11 +241,14 @@ actor CaptureWorker {
         speech = nil; journal = nil; self.recordingID = nil
     }
     func hasPendingRecognition() -> Bool { speech?.isComplete == false || retired.contains { !$0.isComplete } }
-    func cancelRecognitionAndWait() async {
-        let sessions = retired + (speech.map { [$0] } ?? [])
+    func cancelRecognitionAndWait(recordingID: UUID? = nil) async {
+        let sessions = (retired + (speech.map { [$0] } ?? [])).filter { recordingID == nil || $0.recordingID == recordingID }
+        let cancelledIDs = Set(sessions.map { ObjectIdentifier($0) })
         sessions.forEach { $0.cancel() }
         for session in sessions { await session.wait() }
-        retired.removeAll()
+        // The worker is reentrant while awaiting providers. Newly retired jobs
+        // still belong to us and must remain cancellable by the next revocation.
+        retired.removeAll { cancelledIDs.contains(ObjectIdentifier($0)) }
     }
 
 }
@@ -204,28 +259,36 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     @Published public private(set) var level: Float = 0
     @Published public var issue: String?
     @Published public private(set) var devices: [AudioInputDevice] = []
-    @Published public var selectedDeviceID: UInt32 = 0 {
-        didSet {
-            if !selectingDeviceUID { selectedDeviceUID = selectedDeviceID == 0 ? nil : devices.first(where: { $0.id == selectedDeviceID })?.uid }
-            guard oldValue != selectedDeviceID, state.isRunning else { return }
-            let generation = startGeneration
-            Task {
-                state = .paused
-                await stopCapture()
-                guard generation == startGeneration, requestedRunning else { return }
-                await start(requestPermission: false)
+    @Published public private(set) var selectedDeviceUID: String?
+    private static let staleDeviceNotice = "设备列表已变化，已保留原有输入选择。请重新选择麦克风。"
+    public var selectedDeviceID: UInt32 {
+        get { devices.first(where: { $0.uid == selectedDeviceUID })?.id ?? 0 }
+        set {
+            if newValue == 0 { selectDevice(uid: nil); return }
+            guard let device = devices.first(where: { $0.id == newValue }) else {
+                issue = Self.staleDeviceNotice
+                return
             }
+            selectDevice(uid: device.uid)
         }
     }
-    @Published public private(set) var selectedDeviceUID: String?
-    private var selectingDeviceUID = false
     @Published public private(set) var playingID: UUID?
+    @Published public private(set) var playingRecordingID: UUID?
+    /// Archive-only feedback. Missing originals never become a main-panel status.
+    @Published public private(set) var playbackNotice: String?
     @Published public private(set) var playbackPosition: Double = 0
     @Published public private(set) var playbackDuration: Double = 0
+    @Published public private(set) var preparingAppleSpeech = false
+    @Published public private(set) var appleResourceFailure: String?
     @Published public private(set) var speechStatus = "正在检查识别资源"
     @Published public private(set) var preparingSpeech = false
     @Published public private(set) var reprocessingID: UUID?
     private let store: SaytileStore
+    private let recognitionFactory: RecognitionSessionFactory
+    private let playbackRecord: @Sendable (UUID) async throws -> Recording?
+    private var pinnedInput: PinnedAudioInput?
+    // Set only by a real hardware start. File replay must work even on a closed notebook.
+    private var activeInputIsBuiltIn = false
     private var engine: AVAudioEngine?
     private var worker: CaptureWorker?
     private var stopTask: Task<Void, Never>?
@@ -238,34 +301,58 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
     private var ring: AudioRing?
     private var observers: [NSObjectProtocol] = []
     private var requestedRunning = false
+    public var onMicrophonePermissionLost: (() -> Void)?
+    private var restoringStandby = false
+    private var waitingForOpenLid = false
+    private var waitingForInputUID: String?
     private var startGeneration: UInt64 = 0
     private var automaticAssetAttempted = false
+    private var selectedLocalID: LocalASRID = .apple
     private var lifecycleGate = AudioLifecycleGate()
     private var lockBridge: AudioLockEventBridge?
     private var lifecycleTask: Task<Void, Never>?
     private var interruption = false
     private var playbackResume = false
     private var playbackGeneration: UInt64 = 0
-    private var playbackLease: UUID?
+    private var playbackLeases: [UUID: UUID] = [:]
+    private var playbackTransitionGeneration: UInt64 = 0
+    private var skippedPlaybackRecordings: Set<UUID> = []
     private var leaseReleaseTasks: [UUID: Task<Void, Never>] = [:]
     private var player: AVAudioPlayer?
-    private var playbackURLs: [URL] = []
+    private var playbackItems: [AudioPlaybackItem] = []
     private var playbackTimeline = AudioPlaybackTimeline(durations: [])
     private var playbackIndex = 0
     private var playbackProgressTask: Task<Void, Never>?
     private var retryTask: Task<Void, Never>?
     private var lastVoiceAt = Date.distantPast
     private var recoveryTask: Task<Void, Never>?
+    private var startupRecoveryReady: Bool
     private var meterTask: Task<Void, Never>?
     private var meterContinuation: AsyncStream<(Bool, Float)>.Continuation?
-    public init(store: SaytileStore) {
-        self.store = store; super.init(); refreshDevices()
+    public convenience init(store: SaytileStore, recognitionConfiguration: RecognitionConfiguration = RecognitionConfiguration(), startupRecoveryReady: Bool = true) {
+        self.init(store: store, recognitionFactory: RecognitionSessionFactory(configuration: recognitionConfiguration),
+                  startupRecoveryReady: startupRecoveryReady)
+    }
+    init(store: SaytileStore, recognitionFactory: RecognitionSessionFactory, startupRecoveryReady: Bool = true,
+         playbackRecord: (@Sendable (UUID) async throws -> Recording?)? = nil) {
+        self.startupRecoveryReady = startupRecoveryReady
+        self.store = store; self.recognitionFactory = recognitionFactory
+        self.playbackRecord = playbackRecord ?? { try await store.recording(id: $0) }
+        super.init(); refreshDevices()
         let center = NSWorkspace.shared.notificationCenter
         observers.append(center.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
-            self?.lifecycleGate.sleeping = true; await self?.suspend(reason: "Mac 已睡眠")
+            guard let self else { return }
+            self.lifecycleGate.sleeping = true
+            if AudioLifecycleGate.shouldSuspendForSystemLifecycle(state: self.state, requestedRunning: self.requestedRunning) {
+                await self.suspend(reason: "Mac 已睡眠")
+            }
         } })
         observers.append(center.addObserver(forName: NSWorkspace.sessionDidResignActiveNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
-            self?.lifecycleGate.sessionInactive = true; await self?.suspend(reason: "会话已暂停")
+            guard let self else { return }
+            self.lifecycleGate.sessionInactive = true
+            if AudioLifecycleGate.shouldSuspendForSystemLifecycle(state: self.state, requestedRunning: self.requestedRunning) {
+                await self.suspend(reason: "会话已暂停")
+            }
         } })
         observers.append(center.addObserver(forName: NSWorkspace.sessionDidBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in
             guard let self else { return }; self.lifecycleGate.sessionInactive = false; self.lifecycleGate.refresh(AudioSessionSnapshot.current())
@@ -301,22 +388,52 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 guard let self, !self.isShuttingDown else { break }
                 let previouslyAllowed = self.lifecycleGate.permitsCapture
                 self.lifecycleGate.refresh(AudioSessionSnapshot.current())
-                if self.state.isRunning && !self.lifecycleGate.permitsCapture {
-                    await self.suspend(reason: self.lifecycleGate.reason)
-                } else if self.state.isRunning && AVCaptureDevice.authorizationStatus(for: .audio) != .authorized {
+                let authorization = AVCaptureDevice.authorizationStatus(for: .audio)
+                let revokedWhileWaiting = self.requestedRunning && !self.state.isRunning && authorization != .authorized
+                if revokedWhileWaiting || AudioLifecycleGate.requiresPermissionSuspension(state: self.state, authorization: authorization) {
                     self.requestedRunning = false
+                    self.restoringStandby = false
+                    self.onMicrophonePermissionLost?()
                     await self.suspend(reason: "麦克风权限已撤回，请在系统设置恢复权限后重新开启")
-                } else if !previouslyAllowed && self.lifecycleGate.permitsCapture && self.requestedRunning {
-                    await self.start(requestPermission: false)
+                } else if self.state.isRunning && !self.lifecycleGate.permitsCapture {
+                    await self.suspend(reason: self.lifecycleGate.reason)
+                } else if self.state.isRunning && MicrophoneLid.blocks(builtIn: self.activeInputIsBuiltIn) {
+                    self.waitingForOpenLid = true
+                    await self.suspend(reason: MicrophoneLid.reason)
+                } else if let pinned = self.pinnedInput, self.state.isRunning {
+                    do { try pinned.checkProgress() }
+                    catch {
+                        self.refreshDevices()
+                        if let uid = self.selectedDeviceUID, !self.devices.contains(where: { $0.uid == uid }) {
+                            self.waitingForInputUID = uid
+                        }
+                        await self.suspend(reason: error.localizedDescription)
+                    }
+                } else if self.requestedRunning && self.lifecycleGate.permitsCapture && !self.state.isRunning {
+                    var canResume = !previouslyAllowed
+                    if self.waitingForOpenLid && !MicrophoneLid.blocks(builtIn: true) {
+                        self.waitingForOpenLid = false; canResume = true
+                    }
+                    if let uid = self.waitingForInputUID {
+                        self.refreshDevices()
+                        if self.selectedDeviceUID == uid && self.devices.contains(where: { $0.uid == uid }) {
+                            self.waitingForInputUID = nil; canResume = true
+                        }
+                    }
+                    if canResume { await self.start(requestPermission: false) }
                 }
             }
         }
-        availabilityTask = Task { speechStatus = await AppleSpeechService.availability().message }
+        updateAvailability {
+            recognitionFactory.usesCloud ? "单一语言专家识别 · " + recognitionFactory.configuration.inputMode.label : await recognitionFactory.localAvailability().message
+        }
         recoveryTask = Task { [weak self] in
             while !Task.isCancelled {
                 do { try await Task.sleep(for: .seconds(10)) } catch { break }
                 guard let self, self.canRecoverInBackground else { continue }
-                guard await AppleSpeechService.availability().installed,
+                let recognitionAvailable = self.recognitionFactory.usesCloud ? true : await self.recognitionFactory.localAvailability().installed
+                guard self.recognitionFactory.configuration.automaticRecovery,
+                      recognitionAvailable,
                       self.canRecoverInBackground,
                       let candidate = try? await self.store.claimRecoveryRecording() else { continue }
                 guard self.canRecoverInBackground else {
@@ -327,17 +444,214 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             }
         }
     }
+    /// Internal injection keeps lifecycle tests off microphones and user hardware.
+    convenience init(store: SaytileStore, initialWorker: CaptureWorker) {
+        self.init(store: store, startupRecoveryReady: false)
+        worker = initialWorker
+    }
+    private var recognitionSettingsGeneration: UInt64 = 0
+    /// Revoke future cloud sessions synchronously, before awaiting cancellation of old work.
+    private func beginMeterObservation() -> AsyncStream<(Bool, Float)>.Continuation {
+        let (meter, meterContinuation) = AsyncStream<(Bool, Float)>.makeStream(bufferingPolicy: .bufferingNewest(1))
+        self.meterContinuation = meterContinuation
+        meterTask = Task { [weak self] in
+            var lastMeter = Date.distantPast
+            for await (speaking, level) in meter {
+                guard let self, self.state.isRunning else { continue }
+                if speaking { self.lastVoiceAt = Date(); self.retryTask?.cancel() }
+                let nextState: CaptureState = speaking ? .speaking : .listening
+                if self.state != nextState { self.state = nextState }
+                if Date().timeIntervalSince(lastMeter) >= 0.1 {
+                    if abs(self.level - level) > 0.01 { self.level = level }
+                    lastMeter = Date()
+                }
+            }
+        }
+        return meterContinuation
+    }
+    /// Isolated file ingress for paced native acceptance. Uses the same VAD,
+    /// recorder, recognition factory and store as microphone callbacks.
+    public func replayLocalFixture(_ file: URL, recordOnly: Bool = false) async throws -> Double {
+        guard !recognitionFactory.usesCloud, state == .paused else { throw AudioFailure.message("需要空闲的本机识别环境") }
+        let source = try AVAudioFile(forReading: file, commonFormat: .pcmFormatFloat32, interleaved: false)
+        guard source.processingFormat.channelCount == 1, source.processingFormat.sampleRate == 16_000,
+              source.length <= 16_000 * 1_850 else { throw AudioFailure.message("需要 16 kHz 单声道测试语料") }
+        let ring = try AudioRing(capacity: 64_000)
+        let updates = beginMeterObservation()
+        defer {
+            updates.finish(); meterTask?.cancel(); meterTask = nil; meterContinuation = nil
+            state = .paused; level = 0
+        }
+        let worker = try CaptureWorker(store: store, ring: ring, sampleRate: 16_000,
+            recognitionEnabled: !recordOnly, recognitionFactory: recognitionFactory,
+            update: { updates.yield(($0, $1)) }, failed: { [weak self] message in self?.issue = message })
+        let clock = ContinuousClock(), began = clock.now
+        state = .listening
+        await worker.start()
+        let buffer = AVAudioPCMBuffer(pcmFormat: source.processingFormat, frameCapacity: 320)!
+        do {
+            while source.framePosition < source.length {
+                try source.read(into: buffer, frameCount: 320)
+                try await clock.sleep(until: began + .seconds(Double(source.framePosition) / 16_000))
+                st_ring_write(ring.pointer, buffer.floatChannelData!, 1, buffer.frameLength)
+                FixturePerformanceTrace.record("fixture.captured", frames: Int(source.framePosition))
+            }
+        } catch { await worker.stop(); throw error }
+        let eos = ProcessInfo.processInfo.systemUptime
+        await worker.stop()
+        if let issue { throw AudioFailure.message(issue) }
+        let limit = clock.now + .seconds(75)
+        while await worker.hasPendingRecognition() {
+            if clock.now > limit { await worker.cancelRecognitionAndWait(); throw AudioFailure.message("识别超时") }
+            try await Task.sleep(for: .milliseconds(50))
+        }
+        return eos
+    }
+    public func selectLocalModels(live: LocalASRID, archive: LocalASRID, service: LocalASRService, review: LocalTextReview? = nil, onUnavailable: (@Sendable (LocalASRID) -> Void)? = nil) {
+        guard live.capability != .batch else { return }
+        if live != selectedLocalID {
+            selectedLocalID = live
+            automaticAssetAttempted = false
+            Task { await service.releaseIdle() }
+        }
+        recognitionFactory.selectLocal(live: live, archive: archive, service: service, review: review, onUnavailable: onUnavailable)
+        refreshLocalModelStatus()
+    }
+    public func refreshLocalModelStatus() {
+        updateAvailability { [recognitionFactory] in
+            let snapshot = recognitionFactory.snapshot
+            return snapshot.configuration.cloudEnabled ? "云端识别" : await recognitionFactory.localAvailability().message
+        }
+    }
+    @discardableResult
+    func updateAvailability(_ read: @escaping @MainActor () async -> String) -> Task<Void, Never> {
+        availabilityTask?.cancel()
+        let task = Task {
+            let status = await read()
+            if !Task.isCancelled { speechStatus = status }
+        }
+        availabilityTask = task
+        return task
+    }
+    public func selectHostedRoute(_ route: HostedRoute, revoke: Bool = false) {
+        recognitionFactory.select(route, revoke: revoke)
+        if state.isRunning { prepareLocalSpeechResourcesIfNeeded() }
+    }
+
+    public func revokeCloudRecognition() {
+        recognitionSettingsGeneration &+= 1
+        var local = recognitionFactory.configuration; local.cloudEnabled = false
+        recognitionFactory.update(local)
+        if state.isRunning { prepareLocalSpeechResourcesIfNeeded() }
+        retryTask?.cancel()
+        speechStatus = "云端已停用 · 本机识别"
+    }
+    public func setRouteForNextUtterance(_ configuration: RecognitionConfiguration) {
+        recognitionSettingsGeneration &+= 1
+        recognitionFactory.update(configuration, nextUtteranceOnly: true)
+        if state.isRunning { prepareLocalSpeechResourcesIfNeeded() }
+        speechStatus = configuration.cloudEnabled ? "新讲话使用已选语言专家" : "新讲话使用本机识别"
+    }
+    public func setRecognitionConfiguration(_ configuration: RecognitionConfiguration) async {
+        recognitionSettingsGeneration &+= 1
+        let generation = recognitionSettingsGeneration
+        recognitionFactory.update(configuration)
+        await worker?.cancelRecognitionAndWait()
+        for old in drainingWorkers { await old.cancelRecognitionAndWait() }
+        guard generation == recognitionSettingsGeneration else { return }
+        retryTask?.cancel()
+        let message = configuration.cloudEnabled ? "单一语言专家识别 · " + configuration.inputMode.label : await recognitionFactory.localAvailability().message
+        guard generation == recognitionSettingsGeneration else { return }
+        speechStatus = message
+    }
+    /// Best-effort cancellation of in-flight requests. Already received remote audio
+    /// cannot be recalled; Store's epoch guard also rejects every later callback.
+    public func cancelRecognition(recordingID: UUID) async {
+        await worker?.cancelRecognitionAndWait(recordingID: recordingID)
+        for old in drainingWorkers { await old.cancelRecognitionAndWait(recordingID: recordingID) }
+        if reprocessingID == recordingID {
+            let activeRetry = retryTask
+            activeRetry?.cancel()
+            await activeRetry?.value
+        }
+    }
+    /// Prepares Apple's per-app language resource without delaying local capture. A later
+    /// route change cannot publish this model's status over the active model.
+    public func prepareLocalSpeechResourcesIfNeeded() {
+        guard !isShuttingDown else { return }
+        guard selectedLocalID == .apple, !recognitionFactory.usesCloud else {
+            automaticAssetAttempted = false
+            return
+        }
+        guard !automaticAssetAttempted, automaticAssetTask == nil else { return }
+        automaticAssetAttempted = true
+        automaticAssetTask = Task {
+            defer { automaticAssetTask = nil }
+            let availability = await AppleSpeechService.availability()
+            guard !Task.isCancelled, selectedLocalID == .apple, !recognitionFactory.usesCloud else { return }
+            if availability.installed { speechStatus = availability.message }
+            else if availability.supported { await prepareSpeechAssets() }
+            else { appleResourceFailure = availability.message; speechStatus = availability.message }
+        }
+    }
+
     public func prepareSpeechAssets() async {
+        await prepareSpeechAssets {
+            try await AppleSpeechService.prepare()
+            let status = await AppleSpeechService.availability()
+            guard status.installed else { throw AudioFailure.message(status.message) }
+            return status.message
+        }
+    }
+    // The system installer is the only injectable boundary; real progress, retry, and ownership of
+    // errors are shared with production. Never mark a successful request as an installed asset.
+    func prepareSpeechAssets(install: @escaping @MainActor () async throws -> String) async {
         guard !isShuttingDown else { return }
         if let assetTask { await assetTask.value; return }
+        // The system availability read can return after a complete download
+        // and retry. Its older answer no longer owns the visible status.
+        availabilityTask?.cancel()
+        let previousIssue = appleResourceFailure.map { "中文资源下载失败：" + $0 }
+        preparingAppleSpeech = true; appleResourceFailure = nil
+        defer { preparingAppleSpeech = false }
         let task = Task { @MainActor in
             preparingSpeech = true; defer { preparingSpeech = false }
-            speechStatus = "正在准备中文识别资源 · 原音继续保存"
-            do { try await AppleSpeechService.prepare(); try Task.checkCancellation(); speechStatus = await AppleSpeechService.availability().message }
+            if selectedLocalID == .apple && !recognitionFactory.usesCloud { speechStatus = "正在准备中文识别资源 · 原音继续保存" }
+            do {
+                let ready = try await install(); try Task.checkCancellation()
+                if selectedLocalID == .apple && !recognitionFactory.usesCloud { speechStatus = ready }
+                if let previousIssue, issue == previousIssue { issue = nil }
+            }
             catch is CancellationError { }
-            catch { if !isShuttingDown { issue = "中文资源下载失败：\(error.localizedDescription)"; speechStatus = issue! } }
+            catch {
+                guard !isShuttingDown else { return }
+                appleResourceFailure = error.localizedDescription
+                if selectedLocalID == .apple && !recognitionFactory.usesCloud {
+                    let message = "中文资源下载失败：\(error.localizedDescription)"
+                    issue = message
+                    speechStatus = message
+                }
+            }
         }
         assetTask = task; await task.value; assetTask = nil
+    }
+    /// Called only after local recovery and a persisted explicit opt-in. Never prompts.
+    public func restoreStandby() async {
+        guard startupRecoveryReady, !isShuttingDown, state == .paused,
+              AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else { return }
+        requestedRunning = true
+        restoringStandby = true
+        lifecycleGate.refresh(AudioSessionSnapshot.current())
+        guard lifecycleGate.permitsCapture else {
+            state = .interrupted(lifecycleGate.reason); issue = lifecycleGate.reason
+            return
+        }
+        await start(requestPermission: false)
+    }
+    public func cancelPendingStandbyRestoration() async {
+        guard restoringStandby else { return }
+        await pause()
+        issue = nil
     }
     public func start(requestPermission: Bool = true) async {
         guard !isShuttingDown else { return }
@@ -346,6 +660,8 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         lifecycleGate.refresh(AudioSessionSnapshot.current())
         guard !isShuttingDown, generationBeforeStop == startGeneration, lifecycleGate.permitsCapture else { return }
         guard !state.isRunning else { return }
+        waitingForOpenLid = false
+        waitingForInputUID = nil
         retryTask?.cancel()
         playbackResume = false; stopPlayback(); requestedRunning = true; state = .starting; issue = nil
         startGeneration &+= 1
@@ -353,62 +669,77 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         var allowed = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
         if requestPermission && AVCaptureDevice.authorizationStatus(for: .audio) == .notDetermined { allowed = await AVCaptureDevice.requestAccess(for: .audio) }
         guard generation == startGeneration, requestedRunning, state == .starting else { return }
-        guard allowed else { state = .interrupted("需要麦克风权限"); issue = "请在系统设置 → 隐私与安全性 → 麦克风中允许 Saytile"; return }
+        lifecycleGate.refresh(AudioSessionSnapshot.current())
+        guard lifecycleGate.permitsCapture else {
+            state = .interrupted(lifecycleGate.reason); issue = lifecycleGate.reason; return
+        }
+        guard allowed else {
+            requestedRunning = false; restoringStandby = false; onMicrophonePermissionLost?()
+            state = .interrupted("需要麦克风权限"); issue = "请在系统设置 → 隐私与安全性 → 麦克风中允许 Saytile"; return
+        }
         var startingEngine: AVAudioEngine?
         var tapInstalled = false
         do {
             refreshDevices()
-            let resolvedDevice: UInt32
+            let selected: AudioInputDevice?
             if let uid = selectedDeviceUID {
-                guard let device = devices.first(where: { $0.uid == uid }) else { throw AudioFailure.message("所选麦克风未连接，请连接设备或明确选择另一个麦克风") }
-                resolvedDevice = device.id
-            } else { resolvedDevice = selectedDeviceID }
-            let engine = AVAudioEngine()
-            startingEngine = engine
-            let input = engine.inputNode
-            if resolvedDevice != 0 {
-                var id = resolvedDevice
-                guard let audioUnit = input.audioUnit else { throw AudioFailure.message("所选麦克风的音频单元不可用") }
-                let result = AudioUnitSetProperty(audioUnit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0, &id, UInt32(MemoryLayout.size(ofValue: id)))
-                guard result == noErr else { throw AudioFailure.message("所选麦克风不可用，请重新选择") }
-            }
-            let format = input.outputFormat(forBus: 0)
-            guard format.sampleRate > 0, format.channelCount > 0, format.commonFormat == .pcmFormatFloat32, !format.isInterleaved else { throw AudioFailure.message("麦克风格式不受支持") }
-            let ring = try AudioRing(capacity: UInt32(format.sampleRate * 4))
-            let (meter, meterContinuation) = AsyncStream<(Bool, Float)>.makeStream(bufferingPolicy: .bufferingNewest(1))
-            self.meterContinuation = meterContinuation
-            meterTask = Task { [weak self] in
-                var lastMeter = Date.distantPast
-                for await (speaking, level) in meter {
-                    guard let self, self.state.isRunning else { continue }
-                    if speaking { self.lastVoiceAt = Date(); self.retryTask?.cancel() }
-                    let nextState: CaptureState = speaking ? .speaking : .listening
-                    if self.state != nextState { self.state = nextState }
-                    if Date().timeIntervalSince(lastMeter) >= 0.1 {
-                        if abs(self.level - level) > 0.01 { self.level = level }
-                        lastMeter = Date()
-                    }
+                guard let device = devices.first(where: { $0.uid == uid }) else {
+                    if requestPermission { requestedRunning = false }
+                    else { waitingForInputUID = uid }
+                    throw AudioFailure.message("所选麦克风未连接，请连接设备或明确选择另一个麦克风")
                 }
+                selected = device
+            } else {
+                selected = nil
             }
-            let worker = try CaptureWorker(store: store, ring: ring, sampleRate: format.sampleRate, update: { speaking, level in
+            let builtIn = MicrophoneLid.isBuiltIn(selected?.id ?? MicrophoneLid.defaultInput)
+            guard !MicrophoneLid.blocks(builtIn: builtIn) else {
+                if requestPermission { requestedRunning = false }
+                waitingForOpenLid = requestedRunning
+                throw AudioFailure.message(MicrophoneLid.reason)
+            }
+            activeInputIsBuiltIn = builtIn
+            let pinned = try selected.map(PinnedAudioInput.init)
+            let engine = pinned == nil ? AVAudioEngine() : nil
+            startingEngine = engine
+            let input = engine?.inputNode
+            let format = input?.outputFormat(forBus: 0)
+            if let format {
+                guard format.sampleRate > 0, format.channelCount > 0, format.commonFormat == .pcmFormatFloat32, !format.isInterleaved else { throw AudioFailure.message("麦克风格式不受支持") }
+            }
+            guard let sampleRate = pinned?.sampleRate ?? format?.sampleRate else { throw AudioFailure.message("没有可用的麦克风") }
+            let ring = try AudioRing(capacity: UInt32(sampleRate * 4))
+            let meterContinuation = beginMeterObservation()
+            let worker = try CaptureWorker(store: store, ring: ring, sampleRate: sampleRate, recognitionFactory: recognitionFactory, update: { speaking, level in
                 meterContinuation.yield((speaking, level))
             }, failed: { [weak self] message in Task { @MainActor in await self?.suspend(reason: message) } })
-            let channelCount = format.channelCount
-            input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.recording(ring: ring, channels: channelCount))
-            tapInstalled = true
-            engine.prepare(); try engine.start()
-            self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
-            await worker.start()
-            if !automaticAssetAttempted {
-                automaticAssetAttempted = true
-                automaticAssetTask = Task {
-                    let availability = await AppleSpeechService.availability()
-                    if availability.installed { speechStatus = availability.message }
-                    else if availability.supported { await prepareSpeechAssets() }
-                    else { speechStatus = availability.message }
+            if let pinned {
+                pinnedInput = pinned
+                try pinned.start(ring: ring)
+                while pinned.frames == 0 {
+                    try await Task.sleep(for: .milliseconds(20))
+                    guard generation == startGeneration, requestedRunning, state == .starting else { return }
+                    try pinned.checkProgress()
                 }
+            } else if let engine, let input, let format {
+                input.installTap(onBus: 0, bufferSize: 1_024, format: format, block: AudioTapCallbacks.recording(ring: ring, channels: format.channelCount, sampleRate: format.sampleRate))
+                tapInstalled = true
+                engine.prepare(); try engine.start()
             }
+            // An explicit queue may have suspended while waiting for its first buffer.
+            guard !MicrophoneLid.blocks(builtIn: builtIn) else {
+                if requestPermission { requestedRunning = false }
+                waitingForOpenLid = requestedRunning
+                throw AudioFailure.message(MicrophoneLid.reason)
+            }
+            self.engine = engine; self.ring = ring; self.worker = worker; state = .listening
+            restoringStandby = false
+            await worker.start()
+            prepareLocalSpeechResourcesIfNeeded()
         } catch {
+            guard generation == startGeneration else { return }
+            activeInputIsBuiltIn = false
+            pinnedInput?.stop(); pinnedInput = nil
             startingEngine?.stop()
             if tapInstalled { startingEngine?.inputNode.removeTap(onBus: 0) }
             meterContinuation?.finish(); meterContinuation = nil
@@ -416,20 +747,34 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             state = .interrupted(error.localizedDescription); issue = error.localizedDescription
         }
     }
-    public func pause() async { startGeneration &+= 1; playbackGeneration &+= 1; requestedRunning = false; playbackResume = false; state = .paused; await stopCapture() }
+    public func pause() async {
+        restoringStandby = false
+        waitingForOpenLid = false; waitingForInputUID = nil
+        startGeneration &+= 1; requestedRunning = false; playbackResume = false
+        stopPlayback(); state = .paused
+        await stopCapture()
+    }
     private func stopCapture() async {
         if let stopTask { await stopTask.value; return }
+        activeInputIsBuiltIn = false
+        pinnedInput?.stop(); pinnedInput = nil
         engine?.stop(); engine?.inputNode.removeTap(onBus: 0); engine = nil
         let old = worker; worker = nil; ring = nil; level = 0
         meterContinuation?.finish(); meterContinuation = nil; meterTask?.cancel(); meterTask = nil
-        let task = Task<Void, Never> { await old?.stop() }
+        // Keep ownership before the first suspension: revocation must find jobs
+        // even while this worker is draining/resynchronizing its final audio.
+        if let old { drainingWorkers.append(old) }
+        let task = Task<Void, Never> {
+            await old?.stop()
+            var pending: [CaptureWorker] = []
+            for candidate in drainingWorkers where await candidate.hasPendingRecognition() { pending.append(candidate) }
+            drainingWorkers = pending
+            // Waiters may start a new capture only after all stop bookkeeping,
+            // not merely after old.stop() while the pruning await is suspended.
+            stopTask = nil
+        }
         stopTask = task
         await task.value
-        if let old, await old.hasPendingRecognition() { drainingWorkers.append(old) }
-        var pending: [CaptureWorker] = []
-        for candidate in drainingWorkers where await candidate.hasPendingRecognition() { pending.append(candidate) }
-        drainingWorkers = pending
-        stopTask = nil
     }
     private func suspend(reason: String) async {
         guard !interruption else { return }; interruption = true; defer { interruption = false }
@@ -459,83 +804,174 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         }
     }
     public func selectDevice(uid: String?) {
-        selectingDeviceUID = true
+        if issue == Self.staleDeviceNotice { issue = nil }
+        guard uid != selectedDeviceUID else { return }
         selectedDeviceUID = uid
-        selectedDeviceID = uid.flatMap { uid in devices.first(where: { $0.uid == uid })?.id } ?? 0
-        selectingDeviceUID = false
-        if uid != nil && selectedDeviceID == 0 && state.isRunning {
-            Task { await suspend(reason: "所选麦克风未连接") }
+        guard state.isRunning else { return }
+        let generation = startGeneration
+        Task {
+            guard generation == startGeneration, requestedRunning, selectedDeviceUID == uid else { return }
+            if uid != nil && selectedDeviceID == 0 {
+                await suspend(reason: "所选麦克风未连接")
+                return
+            }
+            state = .paused
+            await stopCapture()
+            guard generation == startGeneration, requestedRunning else { return }
+            await start(requestPermission: false)
         }
     }
     public func play(recordingID: UUID) async throws {
+        try await play(recordingIDs: [recordingID], playbackID: recordingID)
+    }
+    /// A paragraph keeps its original recording IDs and files. Playback only
+    /// concatenates the caller's chronological selection, never rewrites audio.
+    public func play(recordingIDs: [UUID], playbackID: UUID) async throws {
         guard !isShuttingDown else { throw CancellationError() }
+        try Task.checkCancellation()
         let resume = state.isRunning || playbackResume
         playbackResume = false; stopPlayback()
+        playbackNotice = nil; skippedPlaybackRecordings = []
         let generation = playbackGeneration
-        var lease: UUID?
+        var leases: [UUID: UUID] = [:]
+        // Close the live journal before resolving its final chunk lengths. A
+        // paragraph may include the utterance that was still being recorded.
+        playingID = playbackID; playbackResume = resume
         do {
-            lease = try await store.acquireAudioLease(recordingID: recordingID)
-            let chunks = try await store.audioChunks(recordingID: recordingID)
-            var urls: [URL] = []; var durations: [Double] = []
-            let sampleRate = (try await store.recording(id: recordingID))?.sampleRate ?? 16_000
-            for chunk in chunks where chunk.frames > 0 {
-                urls.append(try await store.audioURL(for: chunk)); durations.append(Double(chunk.frames) / sampleRate)
-            }
-            guard !urls.isEmpty else { throw AudioFailure.message("原音不存在") }
-            guard generation == playbackGeneration, !isShuttingDown else { throw CancellationError() }
             await stopCapture()
-            guard generation == playbackGeneration, !isShuttingDown else { throw CancellationError() }
+            try checkPlayback(generation)
             state = .paused
-            playbackLease = lease; playbackResume = resume
-            playbackURLs = urls; playbackTimeline = AudioPlaybackTimeline(durations: durations)
-            playbackDuration = playbackTimeline.duration; playbackPosition = 0; playbackIndex = 0
-            playingID = recordingID; try playCurrentChunk(offset: 0)
+            var items: [AudioPlaybackItem] = [], seen: Set<UUID> = [], skipped: Set<UUID> = []
+            for id in recordingIDs where seen.insert(id).inserted {
+                try checkPlayback(generation)
+                do {
+                    let record = try await store.recording(id: id)
+                    guard let record, record.audioState == .available else { skipped.insert(id); continue }
+                    guard !record.isRecording else { throw StoreError.recordingActive }
+                    leases[id] = try await store.acquireAudioLease(recordingID: id)
+                    let chunks = try await store.audioChunks(recordingID: id)
+                    let countBefore = items.count
+                    for chunk in chunks where chunk.frames > 0 {
+                        let url = try await store.audioURL(for: chunk)
+                        if FileManager.default.fileExists(atPath: url.path) {
+                            items.append(.init(recordingID: id, url: url, duration: Double(chunk.frames) / record.sampleRate))
+                        } else { skipped.insert(id) }
+                    }
+                    if countBefore == items.count { skipped.insert(id) }
+                } catch StoreError.audioUnavailable { skipped.insert(id) }
+                  catch StoreError.missingRecording { skipped.insert(id) }
+            }
+            try checkPlayback(generation)
+            skippedPlaybackRecordings = skipped; updatePlaybackNotice()
+            guard !items.isEmpty else { throw AudioFailure.message("这段文字对应的原音已删除或不可用") }
+            playbackLeases = leases; playbackResume = resume
+            playbackItems = items; rebuildPlaybackTimeline()
+            playbackPosition = 0; playbackIndex = 0; playingID = playbackID
+            let transition = playbackTransitionGeneration
+            try await playCurrentChunk(index: 0, offset: 0, generation: generation, transition: transition)
+            guard generation == playbackGeneration, playingID == playbackID else { return }
             playbackProgressTask = Task { [weak self] in
                 while !Task.isCancelled {
                     do { try await Task.sleep(for: .milliseconds(100)) } catch { break }
-                    guard let self, let player = self.player, self.playingID != nil else { break }
+                    guard let self, generation == self.playbackGeneration, self.playingID != nil else { break }
+                    guard let player = self.player, self.playbackTimeline.starts.indices.contains(self.playbackIndex) else { continue }
                     self.playbackPosition = min(self.playbackDuration, self.playbackTimeline.starts[self.playbackIndex] + player.currentTime)
                 }
             }
         } catch {
             if generation == playbackGeneration { playbackResume = resume; stopPlayback() }
-            if let lease { try? await store.releaseAudioLease(lease) }; throw error
+            for lease in leases.values { try? await store.releaseAudioLease(lease) }
+            throw error
         }
     }
-    private func playCurrentChunk(offset: Double) throws {
-        guard playbackURLs.indices.contains(playbackIndex) else { stopPlayback(); return }
-        player?.stop()
-        player = try AVAudioPlayer(contentsOf: playbackURLs[playbackIndex]); player?.delegate = self
-        player?.currentTime = offset
-        guard player?.play() == true else { throw AudioFailure.message("无法播放原音") }
+    private func checkPlayback(_ generation: UInt64, transition: UInt64? = nil) throws {
+        try Task.checkCancellation()
+        guard generation == playbackGeneration, !isShuttingDown,
+              transition == nil || transition == playbackTransitionGeneration else { throw CancellationError() }
+    }
+    private func rebuildPlaybackTimeline() {
+        playbackTimeline = AudioPlaybackTimeline(durations: playbackItems.map(\.duration))
+        playbackDuration = playbackTimeline.duration
+    }
+    private func updatePlaybackNotice() {
+        playbackNotice = skippedPlaybackRecordings.isEmpty ? nil : "有 \(skippedPlaybackRecordings.count) 段原音已删除或不可用，已跳过"
+    }
+    private func playCurrentChunk(index requested: Int, offset: Double, generation: UInt64, transition: UInt64) async throws {
+        var index = requested, offset = offset
+        while playbackItems.indices.contains(index) {
+            try checkPlayback(generation, transition: transition)
+            let item = playbackItems[index]
+            let record = try await playbackRecord(item.recordingID)
+            try checkPlayback(generation, transition: transition)
+            if record?.audioState != .available {
+                // A queued original deleted during playback must not start later.
+                // Release its lease without touching the text or other originals.
+                let preceding = playbackItems.prefix(index).filter { $0.recordingID != item.recordingID }.count
+                playbackItems.removeAll { $0.recordingID == item.recordingID }
+                if let lease = playbackLeases.removeValue(forKey: item.recordingID) { releasePlaybackLease(lease) }
+                skippedPlaybackRecordings.insert(item.recordingID); updatePlaybackNotice()
+                rebuildPlaybackTimeline(); index = preceding; offset = 0
+                continue
+            }
+            let next: AVAudioPlayer
+            do { next = try AVAudioPlayer(contentsOf: item.url) }
+            catch {
+                // A missing or unreadable chunk cannot suppress the remainder.
+                playbackItems.remove(at: index); rebuildPlaybackTimeline()
+                skippedPlaybackRecordings.insert(item.recordingID); updatePlaybackNotice(); offset = 0
+                continue
+            }
+            try checkPlayback(generation, transition: transition)
+            player?.stop(); player = next; playbackIndex = index
+            playingRecordingID = item.recordingID
+            next.delegate = self; next.currentTime = offset
+            guard next.play() else { throw AudioFailure.message("无法播放原音") }
+            playbackPosition = playbackTimeline.starts[index] + offset
+            return
+        }
+        try checkPlayback(generation, transition: transition)
+        stopPlayback()
     }
     public func seekPlayback(to seconds: Double) {
         guard playingID != nil, let location = playbackTimeline.location(at: seconds) else { return }
-        do {
-            if location.index == playbackIndex { player?.currentTime = location.offset }
-            else { playbackIndex = location.index; try playCurrentChunk(offset: location.offset) }
+        playbackTransitionGeneration &+= 1
+        if location.index == playbackIndex, let player {
+            player.currentTime = location.offset
             playbackPosition = playbackTimeline.starts[location.index] + location.offset
-        } catch { issue = error.localizedDescription; stopPlayback() }
-    }
-    public func stopPlayback() {
-        playbackGeneration &+= 1
-        playbackProgressTask?.cancel(); playbackProgressTask = nil
-        player?.stop(); player = nil; playingID = nil; playbackURLs = []
-        playbackTimeline = AudioPlaybackTimeline(durations: []); playbackIndex = 0
-        playbackPosition = 0; playbackDuration = 0
-        if let lease = playbackLease {
-            playbackLease = nil
-            let store = store
-            leaseReleaseTasks[lease] = Task { @MainActor [weak self] in
-                try? await store.releaseAudioLease(lease)
-                self?.leaseReleaseTasks[lease] = nil
+            return
+        }
+        let generation = playbackGeneration, transition = playbackTransitionGeneration
+        player?.stop(); player = nil
+        playbackPosition = playbackTimeline.starts[location.index] + location.offset
+        Task {
+            do { try await playCurrentChunk(index: location.index, offset: location.offset, generation: generation, transition: transition) }
+            catch is CancellationError { }
+            catch {
+                guard generation == playbackGeneration, transition == playbackTransitionGeneration else { return }
+                issue = error.localizedDescription; stopPlayback()
             }
         }
+    }
+    private func releasePlaybackLease(_ lease: UUID) {
+        let store = store
+        leaseReleaseTasks[lease] = Task { @MainActor [weak self] in
+            try? await store.releaseAudioLease(lease)
+            self?.leaseReleaseTasks[lease] = nil
+        }
+    }
+    public func stopPlayback() {
+        playbackGeneration &+= 1; playbackTransitionGeneration &+= 1
+        playbackProgressTask?.cancel(); playbackProgressTask = nil
+        player?.stop(); player = nil; playingID = nil; playingRecordingID = nil; playbackItems = []
+        playbackTimeline = AudioPlaybackTimeline(durations: []); playbackIndex = 0
+        playbackPosition = 0; playbackDuration = 0
+        let leases = playbackLeases; playbackLeases = [:]
+        for lease in leases.values { releasePlaybackLease(lease) }
         if playbackResume {
             playbackResume = false
-            let generation = startGeneration
+            let generation = startGeneration, playback = playbackGeneration
             Task {
-                guard generation == startGeneration, requestedRunning else { return }
+                guard generation == startGeneration, playback == playbackGeneration, requestedRunning else { return }
                 await start(requestPermission: false)
             }
         }
@@ -544,8 +980,15 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         Task { @MainActor in
             guard self.player === player else { return }
             guard flag else { issue = "原音播放未完整完成，请重试"; stopPlayback(); return }
-            do { playbackIndex += 1; try playCurrentChunk(offset: 0) }
-            catch { issue = error.localizedDescription; stopPlayback() }
+            self.player = nil
+            playbackTransitionGeneration &+= 1
+            let generation = playbackGeneration, transition = playbackTransitionGeneration
+            do { try await playCurrentChunk(index: playbackIndex + 1, offset: 0, generation: generation, transition: transition) }
+            catch is CancellationError { }
+            catch {
+                guard generation == playbackGeneration, transition == playbackTransitionGeneration else { return }
+                issue = error.localizedDescription; stopPlayback()
+            }
         }
     }
     nonisolated public func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
@@ -555,11 +998,31 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             issue = message; stopPlayback()
         }
     }
+    /// Repair/import must finish before background recognition can claim saved audio.
+    public func completeStartupRecovery() { startupRecoveryReady = true }
     private var canRecoverInBackground: Bool {
-        !isShuttingDown && lifecycleGate.permitsCapture && playingID == nil && retryTask == nil &&
+        startupRecoveryReady && !isShuttingDown && lifecycleGate.permitsCapture && playingID == nil && retryTask == nil &&
         (state == .paused || (state == .listening && Date().timeIntervalSince(lastVoiceAt) >= 5))
     }
-    public func retry(recordingID: UUID, isAutomatic: Bool = false) async {
+    public func retry(recordingID: UUID, isAutomatic: Bool = false,
+                      expectedConfiguration: RecognitionConfiguration? = nil) async {
+        guard !isShuttingDown else { return }
+        // Capture the explicit action's destinations before any suspension. An
+        // automatic job can only reuse persisted per-recording authorization.
+        let captured = recognitionFactory.snapshot
+        let currentSnapshot = captured.isHosted ? captured.localOnly : captured
+        // The UI captures its applied configuration at the click. A queued task
+        // cannot silently acquire different cloud destinations before it starts.
+        let requestedSnapshot = expectedConfiguration == nil || expectedConfiguration == currentSnapshot.appliedConfiguration
+            ? currentSnapshot : currentSnapshot.localOnly
+        if !isAutomatic {
+            do {
+                if requestedSnapshot.configuration.cloudEnabled {
+                    try await store.authorizeCloudRecovery(recordingID: recordingID, configuration: requestedSnapshot.configuration)
+                }
+                try await store.resetRecognitionRetry(recordingID: recordingID)
+            } catch { issue = error.localizedDescription; return }
+        }
         guard !isShuttingDown else { return }
         if state == .speaking || state == .starting {
             try? await store.queueRecognition(recordingID: recordingID)
@@ -572,21 +1035,35 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
             reprocessingID = recordingID
             defer { retryTask = nil; reprocessingID = nil }
             var lease: UUID?
-            var session: LiveSpeechSession?
+            var session: (any RecognitionSession)?
             do {
+                try Task.checkCancellation()
+                let authorized = try await store.permitsAutomaticCloudRecovery(recordingID: recordingID,
+                    configuration: requestedSnapshot.configuration)
+                let snapshot = authorized ? requestedSnapshot : requestedSnapshot.localOnly
+                let config = snapshot.configuration
+                if isAutomatic && !config.cloudEnabled {
+                    let availability = await recognitionFactory.localAvailability()
+                    try Task.checkCancellation()
+                    guard availability.installed else {
+                        try await store.releaseRecoveryClaim(recordingID: recordingID)
+                        return
+                    }
+                }
+                try Task.checkCancellation()
                 lease = try await store.acquireAudioLease(recordingID: recordingID)
                 let chunks = try await store.audioChunks(recordingID: recordingID)
-                let ticket = try await store.beginRecognition(recordingID: recordingID)
-                let activeSession = LiveSpeechSession(store: store, ticket: ticket)
+                let ticket = try await (config.cloudEnabled
+                    ? store.beginFusionRecognition(recordingID: recordingID, mode: config.inputMode)
+                    : store.beginRecognition(recordingID: recordingID))
+                try Task.checkCancellation()
+                let activeSession = recognitionFactory.make(store: store, ticket: ticket, snapshot: snapshot, archived: !isAutomatic)
                 session = activeSession
-                for chunk in chunks {
+                for chunk in chunks where chunk.frames > 0 {
                     try Task.checkCancellation()
                     let handle = try FileHandle(forReadingFrom: try await store.audioURL(for: chunk))
                     defer { try? handle.close() }
-                    try handle.seek(toOffset: 44)
-                    while let data = try handle.read(upToCount: 6_400), !data.isEmpty {
-                        activeSession.append(data); try await Task.sleep(for: .milliseconds(100))
-                    }
+                    try await SavedAudioReplay.feed(handle: handle, append: { activeSession.append($0) })
                     try handle.close()
                 }
                 activeSession.finish()
@@ -613,9 +1090,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 NSWorkspace.shared.notificationCenter.removeObserver(observer)
             }
             observers.removeAll()
-            let lease = playbackLease; playbackLease = nil
             stopPlayback()
-            if let lease { try? await store.releaseAudioLease(lease) }
             for release in Array(leaseReleaseTasks.values) { await release.value }
             leaseReleaseTasks.removeAll()
             await stopCapture()
@@ -628,4 +1103,18 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
         shutdownTask = task; await task.value
     }
 
+}
+
+/// Saved mono Int16 16 kHz audio follows its source duration. Feeding faster can
+/// overflow a healthy real-time provider's bounded queue during long recoveries.
+enum SavedAudioReplay {
+    static func feed(handle: FileHandle, append: @Sendable (Data) -> Void,
+                     pause: @Sendable (Double) async throws -> Void = { try await Task.sleep(for: .seconds($0)) }) async throws {
+        try handle.seek(toOffset: 44)
+        while let data = try handle.read(upToCount: 6_400), !data.isEmpty {
+            try Task.checkCancellation()
+            append(data)
+            try await pause(Double(data.count) / 32_000)
+        }
+    }
 }

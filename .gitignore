@@ -12,6 +12,7 @@ node_modules/
 *.sqlite-wal
 *.sqlite-shm
 *.pcm
+!Sources/SaytileKit/Resources/ConnectionSample.pcm
 *.part
 .env
 .env.*
@@ -19,4 +20,12 @@ node_modules/
 # No blanket ZIP/PDF ignore: archived handoff assets are intentional.
 dist/
 .test-data/
+# ASR research: publish metadata and derived results only, never corpus audio/weights.
+research/**/*.wav
+research/**/*.flac
+research/**/*.mp3
+research/**/*.m4a
+research/**/*.safetensors
+research/**/*.parquet
+research/**/*.b64chunks
 *.dSYM/
