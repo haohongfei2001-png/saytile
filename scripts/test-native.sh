@@ -35,7 +35,11 @@ else
   # of unrelated tests. Run every player test unchanged in an isolated process.
   # This suite asserts a five-second live preview before closing a real
   # capture worker. Give it the same scheduling isolation as the socket peer.
-  timing_suites=(ProtocolNetworkIntegrationTests CloudConnectionVerificationTests CaptureCloudIntegrationTests 'AudioPlayerIntegrationTests|ParagraphPlaybackTests')
+  # Offline failover also waits for live asynchronous handover inside an
+  # eight-second observation window. Concurrent SQLite durability tests can
+  # starve its task executor beyond that window. Preserve the deadline and every
+  # assertion, but measure this suite in the same isolated scheduling context.
+  timing_suites=(ProtocolNetworkIntegrationTests CloudConnectionVerificationTests CaptureCloudIntegrationTests OfflineFailoverTests 'AudioPlayerIntegrationTests|ParagraphPlaybackTests')
   isolated_filter="$frame_suite"
   for suite in "${timing_suites[@]}"; do
     isolated_filter+="|$suite"

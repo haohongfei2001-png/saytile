@@ -1,0 +1,13 @@
+{
+  "evidence_head": "b1aae6385030f4049f95742dfb742bdbc31df8a4",
+  "product_source": "5ebff045ff10c34dbbe12ce5235e3cef4f6d07a0",
+  "run": 45162213965,
+  "job": 137650190102,
+  "status": "FAIL",
+  "runtime_changes_after_product": false,
+  "failure": "4 parameter cases in 3 OfflineFailoverTests hit the existing 8-second synthetic event observation deadline; 8 recorded issues including propagated errors",
+  "observation": "535 remaining Swift tests executed concurrently. Unrelated deterministic synchronous tests reported roughly 9-10 seconds; deadline failures occurred together. Product SHA had previously passed all 573 Swift Testing and 30 XCTest cases.",
+  "diagnosis": "Executor/resource contention from unrelated concurrent suites is the supported hypothesis; this log does not demonstrate a production cloud failover defect or a performance pass.",
+  "change": "Run OfflineFailoverTests once as an isolated no-parallel process alongside existing time-sensitive suites. No product, assertion, deadline, or test inclusion changes.",
+  "followup": "New full CI run required; results recorded in PR54 checks and final handoff receipt. Original failure retained."
+}

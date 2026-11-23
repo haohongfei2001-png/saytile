@@ -98,6 +98,12 @@ RSS 与上表短样本的 physical footprint 是不同指标，不混用；5 s �
 
 CI product run `45149564404`，Swift job `137607414180`、native `137607414597`、foreground `137607414643`。另有 design / cloud mock / black-brand 工作流通过。失败尝试保留：早期 Swift Testing 宏不接受 mutating #require 表达式；一期标点预期与已有语义不符；早期 CI Chrome 故障。修复前两项测试写法/预期，不降低保护；未改外部输入行为，最终同源 foreground 通过。历史签名包或历史 CI 不代替本轮最终 product SHA。
 
+### 证据提交后的 CI 再验证
+
+`b1aae6385030f4049f95742dfb742bdbc31df8a4` 没有改变产品源码，但自动 CI `45162213965` 的 Swift job `137650190102` **FAIL**：`OfflineFailoverTests` 三个测试的四个参数用例超过原有 8 秒异步观察期限，共 8 个 issue（包括传播的错误）。同轮 foreground 通过。原始失败日志与诊断保存在 `final/failures/evidence-head-swift-tests.*`，此前 product SHA 的成功不能覆盖这次失败。
+
+535 项剩余测试并发时，无关的纯计算检查也出现约 9–10 秒耗时，故障集中发生在等待异步事件的期限内。仅将 `OfflineFailoverTests` 纳入脚本已有的独立计时套件流程，保持 8 秒期限、全部断言和完整测试集合；不修改产品 failover 或识别行为。后续完整 CI 的实际结果以 PR #54 最终 head checks 与交付收据为准，不能在重跑完成前宣称通过。
+
 ## 继续与停止的边界
 
 选择 Qwen + 明确临时预览方向，拒绝把 Nemotron 当作中文质量升级。下一步是小范围真实语音体验与针对性修订策略，不扩张模型研究。原型未解决所有临时旧词回改，首次输出存在环境/模型波动；精度没有退化，长句发布等待获得可复核改善。公开发行继续 HOLD，而非用 CI 绿色宣布用户体验全部通过。
