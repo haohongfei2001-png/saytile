@@ -34,12 +34,17 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
         guard args.count == 4, let stride = Int(args[3]), (8_000...64_000).contains(stride) else { throw WorkerError.configuration }
         let id = args[1], directory = URL(fileURLWithPath: args[2], isDirectory: true)
         let rollingQwen = id == "qwen-small" || id == "qwen-large"
+        // The pinned multilingual bundle has no "zh" alias. Passing it silently
+        // selects the auto prompt (101), not Mandarin (4). Fail a mismatched
+        // bundle explicitly instead of benchmarking a different language policy.
+        let nemotronLanguage = "zh-CN"
         let nemo: NemotronStreamingASRMLXModel?
         let transcribe: (([Float], Bool) async throws -> String)?
         var verifiedTokens = 0
         switch id {
         case "nemotron-metal":
             nemo = try await .fromDirectory(directory)
+            guard nemo?.languages.promptDictionary[nemotronLanguage] != nil else { throw WorkerError.configuration }
             transcribe = nil
         case "qwen-small", "qwen-large":
             // Keep reusable Metal allocations bounded between incremental decodes.
@@ -71,7 +76,7 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
         default: throw WorkerError.configuration
         }
         try publish("", kind: "ready", frames: 0)
-        var stream = try nemo?.createSession(language: "zh")
+        var stream = try nemo?.createSession(language: nemotronLanguage)
         // Give the first hypothesis 800 ms of acoustic context even when later
         // previews are requested more frequently.
         let firstStride: Int
@@ -149,7 +154,7 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
                 try publish(update ?? last, kind: "final", frames: frames, decodes: decodes)
                 decodes.removeAll(keepingCapacity: true)
                 exactPreview = nil
-                stream = try nemo?.createSession(language: "zh")
+                stream = try nemo?.createSession(language: nemotronLanguage)
                 samples.removeAll(keepingCapacity: true)
                 prefix = ""; last = ""; next = firstStride; frames = 0
             } else if let update, !update.isEmpty, update != last, id == "nemotron-metal" || rollingQwen {

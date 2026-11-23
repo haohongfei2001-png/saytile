@@ -9,3 +9,8 @@ Prototype: bypass only the whole-hypothesis *reading* gate for provisional rolli
 Model download fixed to existing manifest and SHA-256; one small-file TLS failure retained in setup/download-first-attempt.log, followed by a bounded retry. Never enable unchecked partial weights.
 
 NOT_RUN: current prototype native acceptance, corpus comparison, CI. Mac lid stays closed; live microphone NOT_RUN. P2 artificial 5.33-core stress is not this prototype's only product gate.
+
+## Confirmed adapter defect
+The pinned Nemotron `languages.json` has `zh-CN:4`, `zh-TW:5`, `auto:101`, and no `zh`. Upstream `NemotronLanguages.slot(for:)` silently falls back to auto for the existing `createSession(language:"zh")`. Both initial and reset sessions now use the explicit available `zh-CN`; a missing tag fails configuration. Original auto-prompt real-time results remain in `native/paired16` and `native/repeated4`. They are pre-fix evidence, not the corrected model's score.
+
+0.23(568) prototype product SHA `d68c43a` is signed and native-tested. The only later changes before the adapter correction were tests/tools/evidence; a rebuild refused to overwrite its custom path, leaving that bundle unchanged. 0.23(569) will contain the explicit-language fix. No production installation.
