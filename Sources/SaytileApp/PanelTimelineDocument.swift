@@ -4,6 +4,7 @@ import SaytileVoiceUI
 
 extension TimelineEntry: GroupedVoiceTranscriptEntry {
     public var displayText: String { recording.text }
+    public var isProvisional: Bool { preferredOrigin == .partial }
 }
 
 typealias PanelTimelineDocument = SaytileVoiceUI.PanelTimelineDocument<TimelineEntry>

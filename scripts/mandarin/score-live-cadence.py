@@ -90,14 +90,14 @@ def describe_decodes(events, origin, gap):
                 previews_finishing_during_longest_timeline_gap=sum(a < end < b and not final for _, end, final in decode))
 
 
-def measure(manifest, audio, receipts, sha):
+def measure(manifest, audio, receipts, sha, model="qwen-small", automatic=True):
     rows, pools, raw_to_timeline, timeline_to_display = [], {}, [], []
     entries = json.loads(manifest.read_text())["samples"]
     for ref in entries:
         ident = ref["id"]
-        result = json.loads((receipts / f"auto-qwen-small-{ident}.json").read_text())
+        result = json.loads((receipts / f"{'auto-' if automatic else ''}{model}-{ident}.json").read_text())
         wav = audio / (ident + ".wav")
-        assert result["sha"] == sha and result["automatic"] and result["providers"] == ["qwen-small"]
+        assert result["sha"] == sha and result["automatic"] == automatic and result["providers"] == [model]
         assert result["audio_sha256"] == ref["audio_sha256"] == hashlib.sha256(wav.read_bytes()).hexdigest()
         onset, end = score["acoustic"](wav)
         end = min(end, result["endOfFile"])

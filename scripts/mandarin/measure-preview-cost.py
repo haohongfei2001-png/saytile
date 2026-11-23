@@ -26,7 +26,7 @@ def seconds(cpu_time):
     return int(minutes) * 60 + float(secs)
 
 
-def public_run(app, manifest, sample_id, weights, audio, out, profile=False, trace=False):
+def public_run(app, manifest, sample_id, weights, audio, out, profile=False, trace=False, model="qwen-small", automatic=True):
     meta = plistlib.loads((app / "Contents/Info.plist").read_bytes())
     row = next(r for r in json.loads(manifest.read_text())["samples"] if r["id"] == sample_id)
     wav = audio / (sample_id + ".wav")
@@ -37,11 +37,11 @@ def public_run(app, manifest, sample_id, weights, audio, out, profile=False, tra
         data = Path(tmp)
         shutil.copyfile(wav, data / "fixture.wav")
         (data / "LocalModels").mkdir()
-        subprocess.run(["cp", "-cR", weights / "qwen-small", data / "LocalModels"], check=True)
+        subprocess.run(["cp", "-cR", weights / model, data / "LocalModels"], check=True)
         with tempfile.TemporaryFile() as log:
             start = time.monotonic()
             p = subprocess.Popen([app / "Contents/MacOS/Saytile", "--data-directory", data,
-                                  "--local-stream-probe", "auto", *(["--performance-trace"] if trace else [])], stdout=log, stderr=log)
+                                  "--local-stream-probe", "auto" if automatic else model, *(["--performance-trace"] if trace else [])], stdout=log, stderr=log)
             samples, children, last_cpu = [], set(), {}
             profiles = {}
             try:
@@ -118,18 +118,18 @@ def public_run(app, manifest, sample_id, weights, audio, out, profile=False, tra
             assert p.returncode == 0, p.returncode
         receipt = json.loads((data / "visible.json").read_text())
         assert receipt["sha"] == meta["SaytileSourceRevision"]
-        assert receipt["automatic"] and receipt["providers"] == ["qwen-small"]
+        assert receipt["automatic"] == automatic and receipt["model"] == model and receipt["providers"] == [model]
         assert all(v == "completed" for v in receipt["recordStates"]) and len(receipt["archive"]) > 0
         assert receipt["frames"][-1]["text"] == "".join(reversed(receipt["archive"]))
         assert receipt["rawWorkerEvents"] and receipt["publications"]
         assert children and {p.pid, *children} <= last_cpu.keys()
         receipt.update(exit_code=p.returncode, audio_sha256=row["audio_sha256"], id=sample_id)
-        (out / f"auto-qwen-small-{sample_id}.json").write_text(json.dumps(receipt, ensure_ascii=False) + "\n")
+        (out / f"{'auto-' if automatic else ''}{model}-{sample_id}.json").write_text(json.dumps(receipt, ensure_ascii=False) + "\n")
     worker_s = sum(last_cpu[pid] for pid in children)
     total_s = last_cpu[p.pid] + worker_s
     raw = receipt["rawWorkerEvents"]
     decodes = [d for e in raw for d in e.get("decodes") or [] if not d["final"]]
-    result = dict(source=meta["SaytileSourceRevision"], build=meta["CFBundleVersion"], sample=sample_id,
+    result = dict(source=meta["SaytileSourceRevision"], build=meta["CFBundleVersion"], sample=sample_id, model=model, automatic=automatic,
                   audio_sha256=row["audio_sha256"], wall_s=round(elapsed, 3), app_cpu_s=last_cpu[p.pid],
                   workers_cpu_s=round(worker_s, 3), combined_cpu_s=round(total_s, 3),
                   process_equivalent_cores=round(total_s / elapsed, 4),
@@ -148,4 +148,6 @@ if __name__ == "__main__":
     cli.add_argument("--id", dest="sample_id", required=True)
     cli.add_argument("--profile", action="store_true", help="Sample only this App and its worker; diagnostic, not acceptance")
     cli.add_argument("--trace", action="store_true", help="Collect bounded stage timings inside the disposable replay")
+    cli.add_argument("--model", choices=["qwen-small", "nemotron-metal"], default="qwen-small")
+    cli.add_argument("--manual", action="store_false", dest="automatic", help="Select the requested research engine explicitly")
     public_run(**vars(cli.parse_args()))

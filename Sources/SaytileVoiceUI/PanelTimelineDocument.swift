@@ -10,12 +10,15 @@ public protocol VoiceTranscriptEntry: Equatable {
     var paragraphID: Int64 { get }
     /// Explicit paragraph-boundary override, shared by all original rows in a paragraph.
     var paragraphBreakHidden: Bool { get }
+    /// Acoustic preview, not a dispatch or finality guarantee. User edits are never provisional.
+    var isProvisional: Bool { get }
 }
 
 public extension VoiceTranscriptEntry {
     // Hosts without paragraph metadata retain the original continuous text flow.
     var paragraphID: Int64 { 0 }
     var paragraphBreakHidden: Bool { false }
+    var isProvisional: Bool { false }
 }
 
 /// A bounded slice of the editable transcript. Recording identities and time

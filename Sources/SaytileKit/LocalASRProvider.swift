@@ -211,7 +211,7 @@ public actor LocalASRService {
                 defer { sender.cancel() }
                 do {
                     var ready = !fresh, lastFrames = 0
-                    var liveText = LocalLiveText(model: id)
+                    var liveText = LocalLiveText(model: id, previewPolicy: .provisional)
                     for try await event in current.events {
                         try Task.checkCancellation()
                         if event.kind == "ready" && !ready { ready = true; continue }
@@ -249,13 +249,20 @@ public actor LocalASRService {
 /// preview is always an exact prefix of the current raw hypothesis. Only the cache-aware
 /// Nemotron decoder appends irrevocable token IDs during a stream.
 struct LocalLiveText {
+    /// `confirmed` preserves the 0.22 reading gate for paired candidate replay.
+    /// `provisional` is display-only: rolling hypotheses still grant zero UTF-16
+    /// dispatch length until EOS. Store ownership and target checks are unchanged.
+    enum PreviewPolicy { case confirmed, provisional }
     let model: LocalASRID
+    let previewPolicy: PreviewPolicy
     private(set) var previous = ""
     private(set) var presentation = ""
     private var readingPrefix = ""
     private var withheld: String?
     private var unconfirmedTail: String?
-    init(model: LocalASRID) { self.model = model }
+    init(model: LocalASRID, previewPolicy: PreviewPolicy = .confirmed) {
+        self.model = model; self.previewPolicy = previewPolicy
+    }
     mutating func accept(_ text: String, final: Bool) -> Int? {
         if final {
             presentation = text
@@ -272,6 +279,7 @@ struct LocalLiveText {
                 return nil
             }
             unconfirmedTail = nil
+            if previewPolicy == .confirmed {
             // The zh decoder can change the script of the whole hypothesis mid-utterance.
             // Compare scripts only for preview ownership. Publish the original model string.
             let matches = RecognitionUTF16.hasExactPrefix(text, prefix: readingPrefix)
@@ -302,6 +310,7 @@ struct LocalLiveText {
                 if supported.utf16.count > readingPrefix.utf16.count { readingPrefix = supported }
             }
             withheld = nil
+            }
         }
         // The rolling decoder ends almost every intermediate hypothesis with a
         // full stop, including on the first word. Reveal the words immediately.

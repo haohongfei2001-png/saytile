@@ -1,0 +1,13 @@
+config.json 1718
+lang2slot.json 1710
+languages.json 2020
+model.safetensors 767629118
+curl: (35) LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to huggingface.co:443 
+Traceback (most recent call last):
+  File "/private/tmp/saytile-023-download.py", line 10, in <module>
+    subprocess.run(["curl","-fLsS","--proxy","http://127.0.0.1:7895","--retry","1","--connect-timeout","20","--max-time","600","-o",str(part),url],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['curl', '-fLsS', '--proxy', 'http://127.0.0.1:7895', '--retry', '1', '--connect-timeout', '20', '--max-time', '600', '-o', '/private/tmp/saytile-023-weights/nemotron-metal/5339193d26b1eda4461358c6210f5039e97af213/tokenizer.model.part', 'https://huggingface.co/aufklarer/Nemotron-3.5-ASR-Streaming-0.6B-MLX-8bit/resolve/5339193d26b1eda4461358c6210f5039e97af213/tokenizer.model']' returned non-zero exit status 35.

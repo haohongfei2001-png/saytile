@@ -511,8 +511,22 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     }
 
     private func styleMarkers(in storage: NSTextStorage) {
+        styleProvisionalText(in: storage)
         for marker in rendered.markers where NSMaxRange(marker) <= storage.length {
             storage.addAttributes([.font: NSFont.systemFont(ofSize: 10), .foregroundColor: NSColor.secondaryLabelColor], range: marker)
+        }
+    }
+
+    private func styleProvisionalText(in storage: NSTextStorage) {
+        // Color alone does not change wrapping, focus, selection or the text snapshot.
+        // Finalizing an unchanged string must remove its provisional tint too.
+        storage.addAttribute(.foregroundColor, value: ReferencePanelStyle.ink,
+                             range: NSRange(location: 0, length: storage.length))
+        for span in rendered.spans where span.entry.isProvisional {
+            let length = min(span.range.length, storage.length - span.range.location)
+            guard length > 0 else { continue }
+            storage.addAttribute(.foregroundColor, value: ReferencePanelStyle.ink.withAlphaComponent(0.60),
+                                 range: NSRange(location: span.range.location, length: length))
         }
     }
 
@@ -627,6 +641,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
            Self.sameText(rendered.text, pending.text), rendered.markers == pending.markers {
             cancelLivePresentation()
             rendered = pending
+            styleMarkers(in: storage)
             return
         }
         let old = transcriptView.string as NSString
@@ -652,6 +667,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         rendered = target
         changingDocument = true
         storage.replaceCharacters(in: patch.range, with: NSAttributedString(string: patch.replacement, attributes: attributes))
+        styleProvisionalText(in: storage)
         (transcriptView.textContainer as? ReaderTextContainer)?.preserve(preservedWraps)
         if oldDocument.markers != rendered.markers || !rendered.markers.isEmpty {
             storage.setAttributes(attributes, range: NSRange(location: 0, length: new.length))
