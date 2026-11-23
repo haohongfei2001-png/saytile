@@ -74,7 +74,9 @@ def run_fixture(fixture_name, probe_name, log_name, ready, web=False):
         if not startup_isolated: raise RuntimeError("Owned fixture did not establish startup keyboard isolation")
         probe = subprocess.Popen([str(probe_bin), str(fixture.pid)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
         threading.Thread(target=lines_to_queue, args=(probe.stdout, "probe", messages), daemon=True).start()
-        deadline = time.monotonic() + 30
+        # A wall-paced 38.8-second public replay cannot use the accelerated
+        # fixture deadline. Other probes retain their original 30-second bound.
+        deadline = time.monotonic() + (55 if os.environ.get("SAYTILE_QWEN_STABLE_REPLAY") else 30)
         while time.monotonic() < deadline and (probe.poll() is None or not messages.empty()):
             try: name, line = messages.get(timeout=0.2)
             except queue.Empty: continue
@@ -194,8 +196,12 @@ if __name__ == "__main__":
     mode.add_argument("--compile-foreground-only", action="store_true", help="Compile opt-in fixtures/probe, without running or activating anything")
     mode.add_argument("--compile-dom-only", action="store_true", help="Compile the package-linked headless DOM probe, without launching any fixture")
     mode.add_argument("--qwen-preview-replay", type=Path, help="Replay public model events through the real coordinator and owned background NSTextView only")
+    mode.add_argument("--qwen-stable-replay", type=Path, help="Paced public candidates, early confirmed phrases and exact EOS on owned real AX")
     args = parser.parse_args()
-    if args.qwen_preview_replay:
+    if args.qwen_stable_replay:
+        os.environ["SAYTILE_QWEN_STABLE_REPLAY"] = str(args.qwen_stable_replay.resolve())
+        run_fixture("AXTextFixture", "AXCoordinatorProbe", "input-qwen-stable.log", "FIXTURE_READY")
+    elif args.qwen_preview_replay:
         os.environ["SAYTILE_QWEN_PREVIEW_REPLAY"] = str(args.qwen_preview_replay.resolve())
         run_fixture("AXTextFixture", "AXCoordinatorProbe", "input-qwen-preview.log", "FIXTURE_READY")
     elif args.compile_dom_only:

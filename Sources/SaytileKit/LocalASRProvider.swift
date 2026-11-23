@@ -221,6 +221,7 @@ public actor LocalASRService {
                 do {
                     var ready = !fresh, lastFrames = 0
                     var liveText = LocalLiveText(model: id, previewPolicy: .provisional)
+                    var qwenPrefix = QwenPrefixConfirmation()
                     for try await event in current.events {
                         try Task.checkCancellation()
                         if event.kind == "ready" && !ready {
@@ -238,7 +239,9 @@ public actor LocalASRService {
                         FixturePerformanceTrace.record("preview.decided", recordingID: recordingID, frames: event.frames,
                             since: confirmationStart, decision: stable == nil ? "withheld" : (final ? "final" : "preview"))
                         if let stable {
-                            try await ingress.receive(.init(text: liveText.presentation, stableUTF16Length: stable,
+                            let confirmed = id == .qwen && !final
+                                ? qwenPrefix.accept(event.text, frames: event.frames) : stable
+                            try await ingress.receive(.init(text: liveText.presentation, stableUTF16Length: confirmed,
                                 audioEndSeconds: Double(event.frames) / 16_000, timingGranularity: "utterance", isComplete: final))
                         }
                         if final {
@@ -263,7 +266,8 @@ public actor LocalASRService {
 struct LocalLiveText {
     /// `confirmed` preserves the 0.22 reading gate for paired candidate replay.
     /// `provisional` is display-only: rolling hypotheses still grant zero UTF-16
-    /// dispatch length until EOS. Store ownership and target checks are unchanged.
+    /// dispatch length here. Qwen phrase confirmation is an independent evidence
+    /// boundary; Store ownership and target checks still govern every write.
     enum PreviewPolicy { case confirmed, provisional }
     let model: LocalASRID
     let previewPolicy: PreviewPolicy

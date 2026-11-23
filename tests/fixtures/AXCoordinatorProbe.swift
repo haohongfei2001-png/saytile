@@ -50,6 +50,60 @@ struct AXCoordinatorProbe {
             guard condition else { throw Failure(description: message) }
             checks += 1; print("PASS " + message); fflush(nil)
         }
+        if let replay = ProcessInfo.processInfo.environment["SAYTILE_QWEN_STABLE_REPLAY"] {
+            let data = try JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: replay))) as! [String: Any]
+            let events = data["rawWorkerEvents"] as! [[String: Any]]
+            let binding = try await coordinator.bindCurrentTarget()
+            let recording = try await store.createRecording(createdAt: binding.boundAt.addingTimeInterval(1))
+            let ticket = try await store.beginRecognition(recordingID: recording.id)
+            let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: .qwen)
+            var preview = LocalLiveText(model: .qwen, previewPolicy: .provisional)
+            var confirmation = QwenPrefixConfirmation()
+            var earlyWrites = 0, firstWrite: Double?, finalText = ""
+            let started = ProcessInfo.processInfo.systemUptime
+            for event in events {
+                let kind = event["kind"] as! String, text = event["text"] as! String
+                guard ["partial", "final"].contains(kind), !text.isEmpty else { continue }
+                let final = kind == "final", frames = event["frames"] as! Int
+                let remaining = (event["t"] as! Double) - (ProcessInfo.processInfo.systemUptime - started)
+                if remaining > 0 { try await Task.sleep(for: .seconds(remaining)) }
+                guard let stable = preview.accept(text, final: final) else { continue }
+                let count = final ? stable : confirmation.accept(text, frames: frames)
+                try await ingress.receive(.init(text: preview.presentation, stableUTF16Length: count,
+                    audioEndSeconds: Double(frames) / 16_000, isComplete: final))
+                if final {
+                    try await ingress.finish(); finalText = text
+                    for correction in try await store.ownedCorrectionCandidates(bindingID: binding.id) {
+                        try expect(await coordinator.repairOwned(revision: correction) == .confirmed, "exact EOS repairs only our witnessed range")
+                    }
+                }
+                if let head = try await store.latestDispatchableRevision(recordingID: recording.id) {
+                    let result = await coordinator.insertStable(recordingID: recording.id, revisionID: head.id,
+                        stableUTF16End: head.text.utf16.count, recordingStartedAt: recording.createdAt)
+                    try expect([NativeInputResult.confirmed, .noNewText, .deferred].contains(result), "owned incremental delivery is confirmed or safely retained")
+                    if !final, result == .confirmed {
+                        earlyWrites += 1
+                        if firstWrite == nil { firstWrite = ProcessInfo.processInfo.systemUptime - started }
+                    }
+                }
+                if final {
+                    try expect(attribute(field, kAXValueAttribute) as? String == "PREFIX|" + text + "SUFFIX", "incremental Qwen final is exact and preserves user prefix/suffix")
+                    print("QWEN_STABLE_EXPERIENCE early_writes=\(earlyWrites) first_write_s=\(firstWrite ?? -1) eos_s=\(event["t"]!) paced_public_candidate_replay=true")
+                    break
+                }
+            }
+            try expect(earlyWrites >= 2 && !finalText.isEmpty, "continuous public speech produces multiple owned writes before EOS")
+            try expect(!activationAudit.finish().ownedActivated, "incremental Qwen fixture never takes focus")
+            coordinator.invalidate()
+            guard attribute(field, kAXValueAttribute) as? String == "PREFIX|" + finalText + "SUFFIX" else { throw Failure(description: "Owned field changed before cleanup") }
+            var selected = CFRange(location: 7, length: finalText.utf16.count)
+            guard let range = AXValueCreate(.cfRange, &selected),
+                  AXUIElementSetAttributeValue(field, kAXSelectedTextRangeAttribute as CFString, range) == .success,
+                  AXUIElementSetAttributeValue(field, kAXSelectedTextAttribute as CFString, "" as CFString) == .success else { throw Failure(description: "Owned cleanup failed") }
+            try await store.close(); completed = true
+            print("QWEN_STABLE_NATIVE_PASS \(checks); live_foreground_resolver=NOT_RUN")
+            return
+        }
         if let replay = ProcessInfo.processInfo.environment["SAYTILE_QWEN_PREVIEW_REPLAY"] {
             // Only a hash-recorded public fixture is supplied by the harness.
             // Replay recognition events, not keyboard events, against this PID.

@@ -1214,6 +1214,26 @@ extension SaytileStore {
             // selection without the external-prefix pin, then expose ONLY a correction head.
             try db.execute("DELETE FROM owned_correction_heads WHERE recording_id=?", [.text(ticket.recordingID.uuidString)])
             var acceptedProposal = proposal
+            // A local Qwen EOS is acoustic final evidence, not a GPT selection.
+            // Re-evaluate only that pinned, single local run. This cannot grant
+            // append authority across an already delivered conflicting prefix.
+            var localFinal: FusionProposal?
+            if current.count == 1, sources.count == 1, let candidate = current.first,
+               completeSources, !requiredFailed, proposal.selections.isEmpty,
+               requirements?.count == 1, let required = requirements?.first,
+               required.configurationID == LocalASRID.qwen.evidenceID,
+               required.purpose == .multilingualASR, required.requiresGPTReview != true,
+               candidate.run.configurationID == required.configurationID,
+               candidate.run.provider == LocalASRID.qwen.rawValue,
+               candidate.run.model == (try? LocalModelManifest.load(.qwen).revision),
+               candidate.stableUTF16Length == candidate.text.utf16.count,
+               candidate.text.utf8.elementsEqual(proposal.previewText.utf8) {
+                let checked = PrecisionFusion.evaluate(candidates: current, mode: .highestQuality,
+                    committedPrefix: "", requiredPurposes: [.multilingualASR],
+                    requiredConfigurationIDs: [required.configurationID])
+                if !checked.unresolved, !checked.needsAudioReview,
+                   checked.stableText.utf8.elementsEqual(candidate.text.utf8) { localFinal = checked }
+            }
             if !reservedPrefix.isEmpty, !RecognitionUTF16.hasExactPrefix(proposal.previewText, prefix: reservedPrefix),
                completeSources, !requiredFailed, !proposal.selections.isEmpty,
                proposal.selectionRequestedUnresolved == false, !proposal.needsAudioReview,
@@ -1227,6 +1247,15 @@ extension SaytileStore {
                 // Recognition can finish with a reviewed local correction even while its
                 // external replacement is pending. `revision` below remains the append head;
                 // acceptedProposal is the actual complete evidence decision consumed by GPT core.
+                acceptedProposal = corrected
+                try db.execute("INSERT INTO owned_correction_heads(recording_id,revision_id,recognition_id,candidate_ids) VALUES(?,?,?,?)",
+                    [.text(ticket.recordingID.uuidString), .text(archive), .text(ticket.id.uuidString),
+                     .text(try Self.encodeEvidence(current.map { $0.id.uuidString }.sorted()))])
+            }
+            if !reservedPrefix.isEmpty, !RecognitionUTF16.hasExactPrefix(proposal.previewText, prefix: reservedPrefix),
+               let corrected = localFinal,
+               let archive = try db.rows("SELECT v.id FROM fusion_archives a JOIN revisions v ON v.id=a.revision_id WHERE a.recording_id=? AND a.recognition_id=? AND v.origin='final' AND v.text=? ORDER BY v.rowid DESC LIMIT 1",
+                   [.text(ticket.recordingID.uuidString), .text(ticket.id.uuidString), .text(corrected.stableText)]).first?["id"] {
                 acceptedProposal = corrected
                 try db.execute("INSERT INTO owned_correction_heads(recording_id,revision_id,recognition_id,candidate_ids) VALUES(?,?,?,?)",
                     [.text(ticket.recordingID.uuidString), .text(archive), .text(ticket.id.uuidString),

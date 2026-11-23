@@ -403,6 +403,8 @@ final class AppModel: ObservableObject {
     private var recognitionSubscription: AnyCancellable?
     private var cleanupIDs: [UUID] = []
     private var refreshOperation: Task<Void, Never>?
+    private var automaticInputTask: Task<Void, Never>?
+    private var automaticInputRequested = false
     private var fullRefreshRequested = false
     private var refreshVersion: UInt64 = 0
     private var completedRefreshVersion: UInt64 = 0
@@ -1576,6 +1578,7 @@ final class AppModel: ObservableObject {
             privateArchiveTask?.cancel()
             await audio.shutdown()
             await refreshOperation?.value
+            await automaticInputTask?.value
             do { try await store.close() } catch { notice = error.localizedDescription }
         } else { feedback.cancelExit(); startRefreshTimer() }
     }
@@ -1584,10 +1587,11 @@ final class AppModel: ObservableObject {
     func refreshRecognition() async {
         // The board needs the newest text immediately. Archive and direct-input
         // consumers retain the full pass when active and on the regular timer.
-        await refresh(transcriptOnly: !archiveIsKey && input.binding == nil)
+        await refresh(transcriptOnly: !archiveIsKey, waitForDirectInput: false)
+        requestAutomaticInput()
     }
 
-    func refresh(transcriptOnly: Bool = false) async {
+    func refresh(transcriptOnly: Bool = false, waitForDirectInput: Bool = true) async {
         guard !exitPrepared else { return }
         if !transcriptOnly { fullRefreshRequested = true }
         refreshVersion &+= 1
@@ -1620,6 +1624,7 @@ final class AppModel: ObservableObject {
             await operation.value
             if refreshOperationID == operationID { self.refreshOperation = nil }
         }
+        if waitForDirectInput { await automaticInputTask?.value }
     }
     func initialLoad() async { await refresh() }
     private func performRefresh() async {
@@ -1705,6 +1710,29 @@ final class AppModel: ObservableObject {
             if !insertionLabels.keys.allSatisfy(visibleIDs.contains) {
                 insertionLabels = insertionLabels.filter { visibleIDs.contains($0.key) }
             }
+            requestAutomaticInput()
+        } catch { notice = error.localizedDescription }
+    }
+    /// AX confirmation can await a target for hundreds of milliseconds. Keep it
+    /// serialized and coalesced, independently of the live AppKit publication.
+    /// A new request never retries an uncertain dispatch: the coordinator's
+    /// durable cursor and invalidated binding still decide every operation.
+    private func requestAutomaticInput() {
+        guard directMode, input.binding != nil, !exitPrepared, !preparingForExit else { return }
+        automaticInputRequested = true
+        guard automaticInputTask == nil else { return }
+        automaticInputTask = Task { [weak self] in
+            guard let self else { return }
+            while automaticInputRequested, !exitPrepared, !preparingForExit {
+                automaticInputRequested = false
+                await performAutomaticInput()
+            }
+            automaticInputTask = nil
+        }
+    }
+    private func performAutomaticInput() async {
+        let visibleIDs = Set(records.map(\.id) + recent.map(\.id))
+        do {
             if directMode && !isInserting, let binding = input.binding {
                 for correction in try await store.ownedCorrectionCandidates(bindingID: binding.id) {
                     guard directMode, !isInserting, input.binding?.id == binding.id else { break }

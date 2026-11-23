@@ -128,6 +128,48 @@ private final class OwnedFixture {
 @Suite("Owned range correction production path with synthetic OS and SQLite")
 @MainActor
 struct OwnedRangeRepairTests {
+    @Test(arguments: ["normal", "user-edit", "target-change"])
+    func qwenEarlyPhraseAndExactEOSUseOwnedRangeOnly(scenario: String) async throws {
+        let f = try await OwnedFixture(createRuns: false)
+        let ticket = try await f.store.beginRecognition(recordingID: f.record.id)
+        let ingress = LocalCandidateIngress(store: f.store, ticket: ticket, model: .qwen)
+        var confirmation = QwenPrefixConfirmation()
+        let phrase = "今天阳光很好，", preview = phrase + "我们继续讨论接下来的安排"
+        for i in 0..<4 {
+            let frames = 16_000 + i * 8_000
+            try await ingress.receive(.init(text: preview, stableUTF16Length: confirmation.accept(preview, frames: frames),
+                audioEndSeconds: Double(frames) / 16_000))
+        }
+        let early = try #require(try await f.store.latestDispatchableRevision(recordingID: f.record.id))
+        #expect(early.text == phrase)
+        #expect(await f.input.insertStable(recordingID: f.record.id, revisionID: early.id,
+            stableUTF16End: early.text.utf16.count, recordingStartedAt: f.record.createdAt) == .confirmed)
+        #expect(f.os.text == "用户前缀｜" + phrase + "用户后缀")
+        #expect(f.os.insertions == [phrase])
+        let final = "今天阳光很好。我们继续讨论接下来的安排。"
+        try await ingress.receive(.init(text: final, stableUTF16Length: final.utf16.count, audioEndSeconds: 4, isComplete: true))
+        try await ingress.finish()
+        #expect(try await f.store.recording(id: f.record.id)?.text == final)
+        // A changed EOS is not an append head. It can only correct a verified owned range.
+        #expect(try await f.store.latestDispatchableRevision(recordingID: f.record.id)?.text == phrase)
+        let correction = try #require(try await f.store.ownedCorrectionCandidates(bindingID: f.binding.id).first)
+        if scenario == "user-edit" { f.os.text += "用户补充"; f.os.onChange?(.contentOrSelection) }
+        if scenario == "target-change" { f.os.target.windowID = UUID() }
+        let before = f.os.text
+        let result = await f.input.repairOwned(revision: correction)
+        if scenario == "normal" {
+            #expect(result == .confirmed)
+            #expect(f.os.text == "用户前缀｜" + final + "用户后缀")
+            #expect(f.os.replacements.count == 1)
+            #expect(await f.input.insertStable(recordingID: f.record.id, revisionID: correction.id,
+                stableUTF16End: final.utf16.count, recordingStartedAt: f.record.createdAt) == .noNewText)
+        } else {
+            #expect(result == .correctionPending)
+            #expect(f.os.text == before && f.os.replacements.isEmpty)
+        }
+        try await f.close()
+    }
+
     @Test func lengthChangingRepairPreservesUserPrefixSuffixAndAppendsOnlyNewSuffix() async throws {
         let f = try await OwnedFixture()
         let original = try await f.initial(), correction = try await f.correction()

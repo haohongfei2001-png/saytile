@@ -531,14 +531,24 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     private func styleProvisionalText(in storage: NSTextStorage) {
         // Color alone does not change wrapping, focus, selection or the text snapshot.
         // Finalizing an unchanged string must remove its provisional tint too.
-        storage.addAttribute(.foregroundColor, value: ReferencePanelStyle.ink,
-                             range: NSRange(location: 0, length: storage.length))
+        var desired: [(NSRange, NSColor)] = [], cursor = 0
         for span in rendered.spans where span.entry.isProvisional {
-            let length = min(span.range.length, storage.length - span.range.location)
-            guard length > 0 else { continue }
-            storage.addAttribute(.foregroundColor, value: ReferencePanelStyle.ink.withAlphaComponent(0.60),
-                                 range: NSRange(location: span.range.location, length: length))
+            let start = min(max(cursor, span.range.location), storage.length)
+            if start > cursor { desired.append((NSRange(location: cursor, length: start - cursor), ReferencePanelStyle.ink)) }
+            let end = min(NSMaxRange(span.range), storage.length)
+            if end > start { desired.append((NSRange(location: start, length: end - start), ReferencePanelStyle.ink.withAlphaComponent(0.60))) }
+            cursor = max(start, end)
         }
+        if cursor < storage.length { desired.append((NSRange(location: cursor, length: storage.length - cursor), ReferencePanelStyle.ink)) }
+        // Do not invalidate/repaint the entire history twice on every syllable
+        // (black, then provisional gray). Only changed tint runs need a mutation.
+        var changes: [(NSRange, NSColor)] = []
+        for (range, color) in desired {
+            storage.enumerateAttribute(.foregroundColor, in: range) { value, run, _ in
+                if (value as? NSColor) != color { changes.append((run, color)) }
+            }
+        }
+        for (range, color) in changes { storage.addAttribute(.foregroundColor, value: color, range: range) }
     }
 
     private var attributes: [NSAttributedString.Key: Any] {
@@ -677,6 +687,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         }
         rendered = target
         changingDocument = true
+        storage.beginEditing()
         storage.replaceCharacters(in: patch.range, with: NSAttributedString(string: patch.replacement, attributes: attributes))
         styleProvisionalText(in: storage)
         (transcriptView.textContainer as? ReaderTextContainer)?.preserve(preservedWraps)
@@ -684,6 +695,7 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
             storage.setAttributes(attributes, range: NSRange(location: 0, length: new.length))
             styleMarkers(in: storage)
         }
+        storage.endEditing()
         let caret = min(new.length, Self.shift(oldCaret, through: patch.range, replacementLength: patch.replacement.utf16.count))
         transcriptView.setSelectedRange(NSRange(location: caret, length: 0))
         let liveWrap = isFollowingLatest && !oldDocument.text.isEmpty && !rendered.newer &&

@@ -1,0 +1,41 @@
+2026-11-23 22:03:21.833 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-23 22:03:21.834 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-23 22:03:21.839 probe[1842:20075144] Failure on line 688 in function id scheduleApplicationNotification(LSNotificationCode, NSWorkspaceNotificationCenter *): noErr == _LSModifyNotification(notificationID, 1, &code, 0, NULL, NULL, NULL)
+PASS existing installs retain original glass, type and default dimensions
+PASS existing border preference survives appearance upgrade
+PASS existing install defaults to the original purple brand
+PASS black brand resolves a neutral button without overwriting panel choices
+PASS changing brand preserves glass, text, capture and recognition
+PASS black brand is persisted to the injected suite
+PASS purple restores the entire preexisting appearance
+2026-11-23 22:03:21.891 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-23 22:03:21.892 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+PASS appearance presets survive store and settings restart
+PASS relaunch restores black logo and colors together
+PASS restore defaults restores and persists the original purple brand
+PASS one reset restores the original appearance without touching ASR
+2026-11-23 22:03:21.914 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-23 22:03:21.914 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+PASS invalid appearance preferences safely fall back to current visual defaults
+PASS invalid brand falls back safely to purple
+2026-11-23 22:03:21.934 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-23 22:03:21.935 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+PASS first launch remains offline, paused, with no permission request
+PASS denial preserves the start guide and identifies microphone recovery
+PASS denied capsule opens recovery directly without a second start request
+PASS a cancelled start or empty saved recording is not first recognition
+PASS a partial reaches the board before a full archive refresh
+PASS an actual nonempty stored partial completes first use before end of speech
+2026-11-23 22:03:21.966 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-23 22:03:21.967 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+PASS relaunch retains completion without starting capture
+2026-11-23 22:03:21.988 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-23 22:03:21.988 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+PASS manual paging keeps visible overlap across eighty consecutive untranscribed recordings
+PASS new speech advances the live tail without taking over the pinned history page
+PASS returning to latest after manual paging reveals the actual newest live row
+2026-11-23 22:03:22.565 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+2026-11-23 22:03:22.565 probe[1842:20075144] IOPMScheduleUserActivityLevelNotification returned 0
+JOURNEY_REPRO revertedDraftCleared=true textGroupCopied=false
+PASS undoing every archive edit releases the automatic transcript
+Swift/ErrorType.swift:254: Fatal error: Error raised at top level: probe.AppModelProbe.Failure(message: "a new group awaiting its first word leaves the latest text paragraph available to copy")

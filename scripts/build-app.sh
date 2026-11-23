@@ -77,7 +77,10 @@ if [[ -n "$(git ls-files --others --exclude-standard Sources native/LocalASR pac
 /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $version" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :SaytileReleaseVersion string $version" "$bundle/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $(python3 scripts/build-number.py)" "$bundle/Contents/Info.plist"
-xattr -cr "$bundle"
+# Remove only signing-incompatible Finder metadata from our staging bundle.
+# Never remove quarantine or change system security policy.
+xattr -r -d com.apple.FinderInfo "$bundle" 2>/dev/null || true
+xattr -r -d com.apple.ResourceFork "$bundle" 2>/dev/null || true
 if [[ -n "${SAYTILE_ICLOUD_DEVELOPMENT_PROFILE:-}" ]]; then
   scripts/sign-icloud-development.sh "$bundle" "$SAYTILE_ICLOUD_DEVELOPMENT_PROFILE" "${SAYTILE_SIGN_IDENTITY:-}"
 elif [[ -n "${SAYTILE_DEVELOPER_ID:-}" ]]; then

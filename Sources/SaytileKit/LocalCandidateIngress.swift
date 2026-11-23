@@ -46,7 +46,13 @@ actor LocalCandidateIngress {
         FixturePerformanceTrace.record("transcript.persisted", recordingID: ticket.recordingID, since: publicationStart,
             decision: publication.deferred ? "protected" : "published")
         last = candidate
-        complete = event.isComplete && !publication.deferred
+        // An exact acoustic final may be archived while an external owned-range
+        // correction is pending. That is completed recognition, not permission
+        // to append or overwrite a target whose ownership has changed.
+        let accepted = publication.acceptedProposal
+        complete = event.isComplete && (!publication.deferred ||
+            (accepted?.unresolved == false && accepted?.needsAudioReview == false &&
+             accepted?.stableText.utf8.elementsEqual(event.text.utf8) == true))
         NotificationCenter.default.post(name: .init("SaytileRecognitionUpdated"), object: ticket.recordingID)
     }
     func finish() async throws {
