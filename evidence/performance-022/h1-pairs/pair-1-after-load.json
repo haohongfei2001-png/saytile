@@ -1,0 +1,92 @@
+{
+  "workers": [
+    {
+      "pid": 26520,
+      "cpu_s": 30.983965,
+      "wall_s": 46.593114,
+      "periods": 775,
+      "checksum": 12345369289686382873,
+      "actual_cores": 0.66499
+    },
+    {
+      "pid": 26521,
+      "cpu_s": 30.998222,
+      "wall_s": 46.591574,
+      "periods": 775,
+      "checksum": 14161231495781480729,
+      "actual_cores": 0.66532
+    },
+    {
+      "pid": 26522,
+      "cpu_s": 30.985996,
+      "wall_s": 46.589319,
+      "periods": 775,
+      "checksum": 5928866876064282905,
+      "actual_cores": 0.66509
+    },
+    {
+      "pid": 26523,
+      "cpu_s": 30.999288,
+      "wall_s": 46.587064,
+      "periods": 775,
+      "checksum": 9922405762278576409,
+      "actual_cores": 0.66541
+    },
+    {
+      "pid": 26524,
+      "cpu_s": 30.971284,
+      "wall_s": 46.585727,
+      "periods": 775,
+      "checksum": 2653299039409127705,
+      "actual_cores": 0.66482
+    },
+    {
+      "pid": 26525,
+      "cpu_s": 31.039208,
+      "wall_s": 46.584331,
+      "periods": 776,
+      "checksum": 10928238153563201817,
+      "actual_cores": 0.6663
+    },
+    {
+      "pid": 26526,
+      "cpu_s": 30.990965,
+      "wall_s": 46.581638,
+      "periods": 775,
+      "checksum": 18281333218662695193,
+      "actual_cores": 0.6653
+    },
+    {
+      "pid": 26527,
+      "cpu_s": 30.998474,
+      "wall_s": 46.579959,
+      "periods": 775,
+      "checksum": 17203430966060044569,
+      "actual_cores": 0.66549
+    }
+  ],
+  "failures": [],
+  "qos": "userInitiated",
+  "period_s": 0.06,
+  "cpu_target_per_period_s": 0.04,
+  "target_cores": 5.333333333333333,
+  "observed_cores": 5.3227,
+  "target_met": true,
+  "helper_sha256": "279ac9b303b00e124cdd54855cb847d4503a5322c362c18f28787b8b904ebd09",
+  "before": {
+    "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+    "load_average": [
+      12.01513671875,
+      9.7099609375,
+      6.611328125
+    ]
+  },
+  "after": {
+    "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+    "load_average": [
+      14.900390625,
+      10.7421875,
+      7.146484375
+    ]
+  }
+}

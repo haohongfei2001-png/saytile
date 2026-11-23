@@ -1,0 +1,484 @@
+{
+  "valid_pairs": 2,
+  "all_pairs": [
+    {
+      "directory": "evidence/performance-022/h1-pairs",
+      "pair": 1,
+      "arms": {
+        "before": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "load_valid": true,
+          "load_cores": 5.2434,
+          "first_visible_s": 1.566,
+          "longest_visible_gap_s": 3.372,
+          "fresh_gap_p95_s": 1.077,
+          "decode": {
+            "previews": 68,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.18,
+              "p95": 0.905
+            },
+            "preview_compute_sum_s": 19.5848,
+            "preview_start_intervals_s": {
+              "p50": 0.508,
+              "p95": 0.905
+            },
+            "previews_finishing_during_longest_timeline_gap": 5
+          },
+          "eos_s": 0.409,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 18.05,
+          "app_cpu_s": 2.8,
+          "worker_cpu_s": 15.25,
+          "observed_peak_MiB": 1741.3,
+          "reversals": [
+            {
+              "t": 29.0206,
+              "return_t": 30.9286,
+              "observations": 1,
+              "old": "理石",
+              "transient": "力士",
+              "no_new_tail": false
+            }
+          ]
+        },
+        "after": {
+          "source": "00d12fa7f0e91c13f32bbd7ded80f81be95adda1",
+          "load_valid": true,
+          "load_cores": 5.3227,
+          "first_visible_s": 3.783,
+          "longest_visible_gap_s": 3.783,
+          "fresh_gap_p95_s": 1.272,
+          "decode": {
+            "previews": 63,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.24,
+              "p95": 0.978
+            },
+            "preview_compute_sum_s": 23.7941,
+            "preview_start_intervals_s": {
+              "p50": 0.509,
+              "p95": 0.978
+            },
+            "previews_finishing_during_longest_timeline_gap": 1
+          },
+          "eos_s": 0.308,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 17.94,
+          "app_cpu_s": 3.23,
+          "worker_cpu_s": 14.71,
+          "observed_peak_MiB": 1721.7,
+          "reversals": [
+            {
+              "t": 29.543,
+              "return_t": 32.0761,
+              "observations": 1,
+              "old": "理石",
+              "transient": "力士",
+              "no_new_tail": false
+            }
+          ]
+        }
+      },
+      "valid": true,
+      "same_final_text": true
+    },
+    {
+      "directory": "evidence/performance-022/h1-pairs",
+      "pair": 2,
+      "arms": {
+        "before": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "load_valid": false,
+          "load_cores": 4.7089,
+          "first_visible_s": 1.331,
+          "longest_visible_gap_s": 4.555,
+          "fresh_gap_p95_s": 1.554,
+          "decode": {
+            "previews": 58,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.22,
+              "p95": 1.434
+            },
+            "preview_compute_sum_s": 24.2762,
+            "preview_start_intervals_s": {
+              "p50": 0.51,
+              "p95": 1.435
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          },
+          "eos_s": 1.132,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 19.83,
+          "app_cpu_s": 3.98,
+          "worker_cpu_s": 15.85,
+          "observed_peak_MiB": 1755.0,
+          "reversals": []
+        },
+        "after": {
+          "source": "00d12fa7f0e91c13f32bbd7ded80f81be95adda1",
+          "load_valid": true,
+          "load_cores": 5.3336,
+          "first_visible_s": 1.106,
+          "longest_visible_gap_s": 3.132,
+          "fresh_gap_p95_s": 1.56,
+          "decode": {
+            "previews": 67,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.184,
+              "p95": 0.852
+            },
+            "preview_compute_sum_s": 19.8534,
+            "preview_start_intervals_s": {
+              "p50": 0.507,
+              "p95": 0.853
+            },
+            "previews_finishing_during_longest_timeline_gap": 3
+          },
+          "eos_s": 0.604,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 17.6,
+          "app_cpu_s": 2.92,
+          "worker_cpu_s": 14.68,
+          "observed_peak_MiB": 1742.3,
+          "reversals": [
+            {
+              "t": 27.7962,
+              "return_t": 30.945,
+              "observations": 1,
+              "old": "理石",
+              "transient": "力士",
+              "no_new_tail": false
+            }
+          ]
+        }
+      },
+      "valid": false,
+      "same_final_text": true
+    },
+    {
+      "directory": "evidence/performance-022/h1-pairs",
+      "pair": 3,
+      "arms": {
+        "before": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "load_valid": false,
+          "load_cores": 4.3469,
+          "first_visible_s": 2.72,
+          "longest_visible_gap_s": 3.476,
+          "fresh_gap_p95_s": 1.844,
+          "decode": {
+            "previews": 52,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.419,
+              "p95": 1.452
+            },
+            "preview_compute_sum_s": 29.1823,
+            "preview_start_intervals_s": {
+              "p50": 0.509,
+              "p95": 1.683
+            },
+            "previews_finishing_during_longest_timeline_gap": 1
+          },
+          "eos_s": 0.753,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 20.97,
+          "app_cpu_s": 4.72,
+          "worker_cpu_s": 16.25,
+          "observed_peak_MiB": 1608.8,
+          "reversals": [
+            {
+              "t": 29.1073,
+              "return_t": 32.5739,
+              "observations": 1,
+              "old": "理石",
+              "transient": "力士",
+              "no_new_tail": false
+            }
+          ]
+        },
+        "after": {
+          "source": "00d12fa7f0e91c13f32bbd7ded80f81be95adda1",
+          "load_valid": true,
+          "load_cores": 5.3333,
+          "first_visible_s": 1.195,
+          "longest_visible_gap_s": 2.481,
+          "fresh_gap_p95_s": 1.19,
+          "decode": {
+            "previews": 65,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.198,
+              "p95": 0.939
+            },
+            "preview_compute_sum_s": 22.0974,
+            "preview_start_intervals_s": {
+              "p50": 0.509,
+              "p95": 0.939
+            },
+            "previews_finishing_during_longest_timeline_gap": 3
+          },
+          "eos_s": 0.344,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 18.72,
+          "app_cpu_s": 3.45,
+          "worker_cpu_s": 15.27,
+          "observed_peak_MiB": 1752.8,
+          "reversals": [
+            {
+              "t": 21.1455,
+              "return_t": 21.9481,
+              "observations": 1,
+              "old": "科查",
+              "transient": "喀察",
+              "no_new_tail": false
+            }
+          ]
+        }
+      },
+      "valid": false,
+      "same_final_text": true
+    },
+    {
+      "directory": "evidence/performance-022/h1-supplement",
+      "pair": 4,
+      "arms": {
+        "before": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "load_valid": true,
+          "load_cores": 5.3334,
+          "first_visible_s": 1.001,
+          "longest_visible_gap_s": 2.56,
+          "fresh_gap_p95_s": 1.49,
+          "decode": {
+            "previews": 68,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.184,
+              "p95": 0.78
+            },
+            "preview_compute_sum_s": 19.9287,
+            "preview_start_intervals_s": {
+              "p50": 0.507,
+              "p95": 0.78
+            },
+            "previews_finishing_during_longest_timeline_gap": 1
+          },
+          "eos_s": 0.569,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 16.84,
+          "app_cpu_s": 2.33,
+          "worker_cpu_s": 14.51,
+          "observed_peak_MiB": 1629.0,
+          "reversals": [
+            {
+              "t": 24.917,
+              "return_t": 26.0769,
+              "observations": 1,
+              "old": "理石",
+              "transient": "力士",
+              "no_new_tail": false
+            },
+            {
+              "t": 26.0769,
+              "return_t": 29.9277,
+              "observations": 2,
+              "old": "力士",
+              "transient": "理石",
+              "no_new_tail": false
+            },
+            {
+              "t": 29.9277,
+              "return_t": 32.4757,
+              "observations": 1,
+              "old": "理石",
+              "transient": "力士",
+              "no_new_tail": false
+            }
+          ]
+        },
+        "after": {
+          "source": "00d12fa7f0e91c13f32bbd7ded80f81be95adda1",
+          "load_valid": true,
+          "load_cores": 5.3331,
+          "first_visible_s": 1.035,
+          "longest_visible_gap_s": 2.008,
+          "fresh_gap_p95_s": 1.034,
+          "decode": {
+            "previews": 75,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.188,
+              "p95": 0.486
+            },
+            "preview_compute_sum_s": 15.7316,
+            "preview_start_intervals_s": {
+              "p50": 0.506,
+              "p95": 0.516
+            },
+            "previews_finishing_during_longest_timeline_gap": 4
+          },
+          "eos_s": 0.29,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 12.74,
+          "app_cpu_s": 1.49,
+          "worker_cpu_s": 11.25,
+          "observed_peak_MiB": 1750.0,
+          "reversals": []
+        }
+      },
+      "valid": true,
+      "same_final_text": true
+    },
+    {
+      "directory": "evidence/performance-022/h1-supplement",
+      "pair": 5,
+      "arms": {
+        "before": {
+          "source": "06997bd613ac4dede54450702385259f3bc02f2c",
+          "load_valid": false,
+          "load_cores": 5.0733,
+          "first_visible_s": 1.111,
+          "longest_visible_gap_s": 3.521,
+          "fresh_gap_p95_s": 1.234,
+          "decode": {
+            "previews": 62,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.294,
+              "p95": 0.937
+            },
+            "preview_compute_sum_s": 25.6862,
+            "preview_start_intervals_s": {
+              "p50": 0.507,
+              "p95": 0.939
+            },
+            "previews_finishing_during_longest_timeline_gap": 1
+          },
+          "eos_s": 1.053,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 19.88,
+          "app_cpu_s": 3.79,
+          "worker_cpu_s": 16.09,
+          "observed_peak_MiB": 1746.3,
+          "reversals": [
+            {
+              "t": 29.1589,
+              "return_t": 32.6819,
+              "observations": 1,
+              "old": "理石",
+              "transient": "力士",
+              "no_new_tail": false
+            }
+          ]
+        },
+        "after": {
+          "source": "00d12fa7f0e91c13f32bbd7ded80f81be95adda1",
+          "load_valid": false,
+          "load_cores": 4.8598,
+          "first_visible_s": 1.254,
+          "longest_visible_gap_s": 2.833,
+          "fresh_gap_p95_s": 0.997,
+          "decode": {
+            "previews": 58,
+            "final_decodes": 2,
+            "preview_compute_s": {
+              "p50": 0.243,
+              "p95": 1.305
+            },
+            "preview_compute_sum_s": 26.53,
+            "preview_start_intervals_s": {
+              "p50": 0.511,
+              "p95": 1.307
+            },
+            "previews_finishing_during_longest_timeline_gap": 2
+          },
+          "eos_s": 0.912,
+          "CER": {
+            "errors": 31,
+            "substitutions": 9,
+            "deletions": 22,
+            "insertions": 0,
+            "reference_units": 205
+          },
+          "cpu_s": 20.76,
+          "app_cpu_s": 4.6,
+          "worker_cpu_s": 16.16,
+          "observed_peak_MiB": 1546.3,
+          "reversals": [
+            {
+              "t": 21.4736,
+              "return_t": 22.3804,
+              "observations": 1,
+              "old": "科查",
+              "transient": "喀察",
+              "no_new_tail": false
+            }
+          ]
+        }
+      },
+      "valid": false,
+      "same_final_text": true
+    }
+  ],
+  "interpretation": "Invalid runs are retained, never counted as valid benefit. No automatic release decision."
+}

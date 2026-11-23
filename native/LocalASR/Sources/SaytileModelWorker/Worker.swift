@@ -45,8 +45,9 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
             // Keep reusable Metal allocations bounded between incremental decodes.
             // Profiled M5 previews repeatedly allocate/register Metal buffers
             // at the 32 MiB ceiling. Bound reuse within a decode at 128 MiB
-            // for the small live model. Upstream still clears it after every
-            // decode; this does not retain audio, KV state or change token math.
+            // for the small live model. Final decoding clears the pool;
+            // live previews retain only bounded spare allocations, not audio
+            // embeddings, KV state or different token math.
             MLX.Memory.cacheLimit = (id == "qwen-small" ? 128 : 32) * 1024 * 1024
             nemo = nil
             let model = try await Qwen3ASRModel.fromPretrained(modelId: id == "qwen-small"
