@@ -16,7 +16,7 @@ import wave
 parser = argparse.ArgumentParser(description=__doc__)
 for name in ("app", "weights", "wav", "manifest", "output"):
     parser.add_argument("--" + name, type=Path, required=True)
-parser.add_argument("--model", choices=("apple", "sherpa", "qwen-small", "qwen-large"), required=True)
+parser.add_argument("--model", choices=("apple", "sherpa", "qwen-small", "qwen-large", "nemotron-metal"), required=True)
 parser.add_argument("--automatic", action="store_true", help="Use the app's production default, with --model as the expected engine")
 args = parser.parse_args()
 rows = json.loads(args.manifest.read_text())["samples"]

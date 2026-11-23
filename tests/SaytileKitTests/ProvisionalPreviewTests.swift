@@ -50,7 +50,8 @@ import Testing
         #expect(preview.accept(a, final: false) == 0)
         #expect(preview.accept(b, final: false) == nil)
         #expect(preview.accept(a, final: false) == 0)
-        #expect(preview.presentation == String(a.dropLast()))
+        // Re-observing A confirms its punctuation too; the transient word B never appears.
+        #expect(preview.presentation == a)
         #expect(preview.accept(b, final: true) == b.utf16.count)
         #expect(preview.presentation == b)
     }

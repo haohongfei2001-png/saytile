@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import runpy
 import subprocess
+import time
 
 p = argparse.ArgumentParser(description=__doc__)
 for name in ["candidate", "baseline", "manifest", "weights", "audio", "out"]:
@@ -18,6 +19,9 @@ for i, row in enumerate(json.loads(a.manifest.read_text())["samples"]):
     order = routes[i % len(routes):] + routes[:i % len(routes)]
     for label, app, model in order:
         for process in ["SaytileModelWorker", "SaytileSherpa", "MandarinCohort"]:
+            deadline = time.monotonic() + 5
+            while subprocess.run(["pgrep", "-x", process], capture_output=True).returncode == 0 and time.monotonic() < deadline:
+                time.sleep(0.1)
             assert subprocess.run(["pgrep", "-x", process], capture_output=True).returncode == 1, process
         dest = a.out / label / row["id"]
         try:
