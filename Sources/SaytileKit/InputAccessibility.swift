@@ -76,25 +76,20 @@ final class AXInputAccess: InputAccess {
         let app = selection.application, root = selection.root, element = selection.element, window = selection.window
         currentSelection = selection
         AXUIElementSetMessagingTimeout(root, 0.12)
-        // Collect the same non-text field attributes in one AX request. This
-        // reduces serial browser round trips without caching or relaxing any
-        // identity/range proof. Never request the value of an unclassified field.
-        guard let field = contextAttributes(element, names: [kAXSelectedTextRangeAttribute, kAXWindowAttribute,
-                  kAXRoleAttribute, kAXSubroleAttribute, kAXRoleDescriptionAttribute, kAXIdentifierAttribute, kAXEnabledAttribute]),
-              let range = decodedRange(field[kAXSelectedTextRangeAttribute]) else {
-            unavailable("snapshot.field_attributes"); throw NativeInputError.unsupported
+        guard let range = selectedRange(element) else { throw NativeInputError.unsupported }
+        // Verify the element belongs to the focused window, when the application exposes it.
+        if let owningWindow = elementValue(element, kAXWindowAttribute), !CFEqual(owningWindow, window) {
+            throw NativeInputError.targetChanged
         }
-        if let raw = field[kAXWindowAttribute], CFGetTypeID(raw) == AXUIElementGetTypeID(),
-           !CFEqual(unsafeDowncast(raw, to: AXUIElement.self), window) { throw NativeInputError.targetChanged }
         let bundle = app.bundleIdentifier ?? ""
-        let role = field[kAXRoleAttribute] as? String ?? ""
-        let subrole = field[kAXSubroleAttribute] as? String ?? ""
-        let description = field[kAXRoleDescriptionAttribute] as? String ?? ""
-        let identifier = field[kAXIdentifierAttribute] as? String ?? ""
+        let role = string(element, kAXRoleAttribute) ?? ""
+        let subrole = string(element, kAXSubroleAttribute) ?? ""
+        let description = string(element, kAXRoleDescriptionAttribute) ?? ""
+        let identifier = string(element, kAXIdentifierAttribute) ?? ""
         let sensitive = InputSafetyPolicy.isSensitive(applicationID: bundle, role: role, subrole: subrole,
                                                        description: description, identifier: identifier)
         let editableRoles: Set<String> = [kAXTextFieldRole, kAXTextAreaRole, kAXComboBoxRole]
-        let editable = editableRoles.contains(role) && (field[kAXEnabledAttribute] as? Bool ?? true)
+        let editable = editableRoles.contains(role) && (bool(element, kAXEnabledAttribute) ?? true)
         // Never read text from a secure field, even for local confirmation.
         guard !sensitive else { throw NativeInputError.sensitive }
         let (isWeb, page, contextComplete) = try pageIdentity(element, window: window, appID: bundle)
@@ -458,10 +453,7 @@ final class AXInputAccess: InputAccess {
         return unsafeDowncast(value, to: AXUIElement.self)
     }
     private func selectedRange(_ element: AXUIElement) -> CFRange? {
-        decodedRange(attribute(element, kAXSelectedTextRangeAttribute))
-    }
-    private func decodedRange(_ raw: CFTypeRef?) -> CFRange? {
-        guard let value = raw, CFGetTypeID(value) == AXValueGetTypeID() else { return nil }
+        guard let value = attribute(element, kAXSelectedTextRangeAttribute), CFGetTypeID(value) == AXValueGetTypeID() else { return nil }
         let axValue = unsafeDowncast(value, to: AXValue.self)
         guard AXValueGetType(axValue) == .cfRange else { return nil }
         var range = CFRange()

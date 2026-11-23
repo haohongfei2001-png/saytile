@@ -242,3 +242,6 @@ No user-assisted display movement is needed. The two-screen check uses only the 
 
 
 0.21 AX 进展：fae4841 的 WKWebView 全套、Chrome 和 TextEdit 均通过；整个前台作业在随后 AppKit fixture 就绪判定失败，保持 FAIL。只增加现有读取结果的布尔/原因日志定位，未增读、未放宽断言。561 签名包已生成、18项资料故障回归通过，当前不替换用户533。无需用户操作。
+
+
+外部输入收口：0e6227a明确复现AppKit整组属性读取缺失，恢复该输入框原有逐项读取，只保留网页遍历批量化。Chrome不完整页面观察仍标失败、禁止重放。原日志保留，不以编译代替验收。561新包同15段原速回归已结束、更新及回退通过；产品修复须生成新的唯一交付包，用户安装和数据不变。

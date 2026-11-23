@@ -53,3 +53,10 @@ Local compilation and the same 22 deterministic fixture-policy checks PASS. The 
 Real WKWebView first insertion, append, length-changing correction, manual edit, blur, restart, post-reservation context change and AX stall all passed. TextEdit and Chrome (including interrupted first confirmation) passed. The job still FAILED: the subsequent AppKit fixture had a focused AXTextArea but did not meet the resolver readiness condition. Its previous diagnostic omitted the failing property. Add reason-only logging to the existing resolver reads, retaining exactly the existing checks/read count/deadline; do not re-activate or retry writes.
 
 A local nonactivating bare fixture could not register an NSRunningApplication identity. A temporary accessory-registration diagnostic was immediately stopped by the existing foreground isolation assertion before any AX mutation. It is not a PASS and is not adopted into the fixture; no further local activation attempt. Use disposable CI for the remaining test.
+
+
+## 0e6227a reproduction and narrowed batch scope
+
+The exact same product repeatedly reports `snapshot.field_attributes` for the AppKit editor, before binding or writing. This is a compatibility regression of the new field-wide batch; the preceding WKWebView cases continue to pass. Revert only that field-wide read to the established individual attribute reads. Keep web semantic-context batching and strict complete proof, ancestry and observer rules. No capability is inferred from a failed call and no retry is added.
+
+This run also preserves a Chrome first-write `unverified` result: DOM text was exact, but a subsequent `page.context_attributes` read was incomplete. No replay or send occurred. This remains a reliability failure until final live CI passes, and transient proof failures still fail closed. Full raw log and ZIP are preserved as `foreground-failed-0e6227a.*`.
