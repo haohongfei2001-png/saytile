@@ -1,3 +1,25 @@
+## 2026-11-23 · 0.21（563）最终签名候选
+
+整合PR49/50，交付0.21（563），产品源8514fea5d45a778aae84854db9b139f7a1fbb85b。修复两类中文候选阻塞和短尾往返，完成最终AX上下文批读及AppKit兼容修复。签名包、原生UI、前台输入、数据故障、升级回退及完整Xcode CI通过；7项作业成功。高负载2.564秒停顿/CPU无确定收益、公证、iCloud和反馈仍阻塞公开推广。保留全部失败，未替换533、未合并或发布。 [发布裁决](delivery/beta-021/STATUS.md) · [完整验收](delivery/beta-021/ACCEPTANCE.md)。
+
+以下为原始阶段记录，不替代最新结论。
+
+## 2026-11-17 · 内测 0.20 可选黑色品牌（专项验证通过）
+
+## 2026-11-23 · 前台缺失文字见证分类
+
+d03f446 最终CI再现WKWebView首次写入前witness_missing，零通知、同绑定；不以94db534先前成功覆盖。仅修改fixture，将同目标暂不可读见证与已读出不同文字区分，前者在原5秒期限内重新积累3次完整观察，后者仍失败。新增明确缺失观察注入及22项编译回归，产品源码/557包不变。原日志/ZIP及结论在 evidence/beta-021/final/foreground-readiness.md；最终真实CI待本提交。
+
+
+## 2026-11-23 · 0.21（557）最终收口
+
+整合PR49/50的0.21（557）产品源码9aace8f，最终fixture94db534；已修复受限双处修订、新词扩展确认及无新词短尾往返。所有六项CI成功。产品最终保持HOLD：竞争负载最长有效更新间隔2.564秒，CPU无确定收益；公证、真实iCloud与反馈账户阻塞。未合并、发布或替换533。 详见 [发布裁决](delivery/beta-021/STATUS.md) 与 [机器验收](delivery/beta-021/ACCEPTANCE.md)。
+
+
+继承 PR #48 的单一 Saytile 内测路径，加入默认紫色/可选黑色品牌设置；同步字标、语音控件和档案/设置强调色，保存选择并在启动恢复。原语音板颜色、透明度、字号、尺寸/位置偏好不随品牌切换被覆盖。图稿来源是本轮用户四图中的第2张，非重新生成。运行中 App 图标不写入签名包，Finder 静态图标仍遵循安装资源。
+
+验证记录见 [BLACK-BRAND-OPTION2.md](BLACK-BRAND-OPTION2.md)。实现 b159a297 的专项 CI 43946954900 已通过 macOS 编译、10 项外观测试、196 项 AppModel 回归和 5 张原生截图检查；实际测试的 PR 合并提交为 58919815。物理点击、用户安装与公开上线尚未执行。未改 main、官网、ASR、原音或私人资料。
+
 ## 2026-11-16 · 隔离确认框宿主修复
 
 499签名本机验收在确认框弹出后被前台保护拒绝，未执行该次确认，不交付该包。独立原生probe复现系统确认框另建可聚焦窗口、单次操作成功却返回-25205，并验证accessory→prohibited的实际策略切换后真实AX确认仍可用。仅反馈验收宿主改为禁止激活并断言实际策略；产品行为、普通控件和焦点保护均不变。正常/正反故障共13项最终签名验收及新源码CI待完成。现用0.18与用户资料保持。
@@ -246,3 +268,30 @@ An actual initial launch with an unlaid-out menu-bar item landed in the bottom c
 Real two-display dragging reproduced a shared-edge failure even though same-display dragging, menu hide/show and pure geometry passed. The unused top inset now tracks the native gesture in desktop coordinates; the app constrains the panel after release, not midway through a cross-display move. No visual chrome or new action was introduced. Work is isolated from all protected branches and profiles.
 
 Final private design candidate: build 275, product ef21bda1807e9152f41fd8dbc2597cb30e28c9fc. Installed in parallel and left paused. See V1-NATIVE-PRODUCT-ACCEPTANCE.md for native screenshots, live panel video, source-bound tests, geometry fixes and distribution limits.
+
+
+## 2026-11-23
+
+0.21：从PR49整合PR50；候选进度见 docs/delivery/beta-021/STATUS.md。拒绝冷启动回退的计算图试验；修复双词确认过严，待原生压力验收。
+
+## 原速固定集发现的尾词往返
+
+556 的同一15段原速对比，新旧终稿逐字一致（46/568，CER8.10%），首显P95为1.606→1.521秒、有效更新P95为1.094→1.067秒，CPU43.96→43.91秒，不能据此宣称CPU显著下降。长句压力尚未整体通过：6核目标后两轮未达标，记录全部保留；5.33核另行同条件验收，不冒充6核。
+
+固定集还复现“力士/理石”无新词往返。只对等长、最后8字内、最多相邻3个普通汉字的纯尾词改写增加一次确认；首字、新增字词、数字/否定词、其他引擎及原样EOS不受该分支延迟。既有所有权/原文约束继续执行，不拼接文本，不授予稳定派发。21项原生Swift Testing通过。最终签名包及原速/长稳/资料/更新回归继续执行。原556完整CI六项检查全部成功，567项后续测试须绑定新的产品SHA，不能继承成最终PASS。
+
+
+## 2026-11-23 · 0.21 最终前台输入回归
+
+557 的 WKWebView 首次写入前读到不完整网页上下文；原始失败未删除。仅修正 fixture 对未完成观察的分类，保留五秒截止、三个完整一致观察和全部目标安全条件。17 项独立属性回归通过；真实 AX 以随后 CI 为准。产品源和 557 安装包不变，无需用户操作。详见 `evidence/beta-021/final/foreground-readiness.md`。
+
+
+## 2026-11-23 · 最终 AX 读取修复候选
+
+09e5877 前台 CI 再次失败，原始日志及 ZIP 完整保留。此次失败进入产品绑定/写后校验，不能用前轮成功替代。批量读取相同非文字 AX 属性以减少跨进程往返；完整页面/光标/文本/窗口与观察失效规则不变。编译及22项策略回归通过；本机非激活 fixture 的进程身份获取阻断，真实验证转隔离 macOS CI。557 包暂保留原样，修复通过后重新绑定源码打包。无需用户操作，不改现有安装、私有资料或系统权限。
+
+
+0.21 AX 进展：fae4841 的 WKWebView 全套、Chrome 和 TextEdit 均通过；整个前台作业在随后 AppKit fixture 就绪判定失败，保持 FAIL。只增加现有读取结果的布尔/原因日志定位，未增读、未放宽断言。561 签名包已生成、18项资料故障回归通过，当前不替换用户533。无需用户操作。
+
+
+外部输入收口：0e6227a明确复现AppKit整组属性读取缺失，恢复该输入框原有逐项读取，只保留网页遍历批量化。Chrome不完整页面观察仍标失败、禁止重放。原日志保留，不以编译代替验收。561新包同15段原速回归已结束、更新及回退通过；产品修复须生成新的唯一交付包，用户安装和数据不变。

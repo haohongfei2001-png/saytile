@@ -64,6 +64,7 @@ def main():
         parser.add_argument("--" + key, required=True, type=Path)
     parser.add_argument("--expected-source", required=True)
     parser.add_argument("--probe", type=Path, default=Path("/private/tmp/saytile-011-frozen-process/probe"))
+    parser.add_argument("--probe-receipt", type=Path, help="Passed storage-process receipt for a probe rebuilt from this exact clean source")
     parser.add_argument("--public-feed", help="Optional signed HTTPS empty feed; no release is published by this test")
     parser.add_argument("--public-key", help="Public Ed25519 key for --public-feed")
     args = parser.parse_args()
@@ -81,7 +82,16 @@ def main():
     assert source.get("SaytileSourceDirty") is False
     assert not args.probe.is_symlink()
     probe_sha = digest(args.probe)
-    assert probe_sha in {LEGACY_PROBE_SHA, ARCHIVE_PROBE_SHA}
+    if args.probe_receipt:
+        provenance = json.loads(args.probe_receipt.read_text())
+        assert provenance["status"] == "PASS" and provenance["source_dirty"] is False
+        assert provenance["source_revision"] == args.expected_source
+        assert provenance["probe_sha256"] == probe_sha
+        assert provenance["fixture_network_denied"] is True and provenance["passed"] == len(provenance["checks"])
+        assert provenance["passed"] >= 16
+        assert digest(REPO / "tests/fixtures/StoreProcessProbe.swift") == ARCHIVE_PROBE_SOURCE
+    else:
+        assert probe_sha in {LEGACY_PROBE_SHA, ARCHIVE_PROBE_SHA}
     if probe_sha == ARCHIVE_PROBE_SHA:
         assert digest(REPO / "tests/fixtures/StoreProcessProbe.swift") == ARCHIVE_PROBE_SOURCE
     run("codesign", "--verify", "--deep", "--strict", args.app)

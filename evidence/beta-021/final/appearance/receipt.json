@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "checks": {
+    "native_process_completed": true,
+    "appearance_contract": true,
+    "real_menu_selections": true,
+    "border_action": true,
+    "brand_round_trip_actions": true,
+    "apply_size_action": true,
+    "reset_action": true,
+    "all_native_snapshots": true,
+    "no_candidate_activation": true
+  },
+  "source": "9aace8f5b0d7082bd67d2e9b1b6e1db6dcf05883",
+  "source_dirty": false,
+  "version": "0.21",
+  "build": "557",
+  "binary_sha256": "10895f5a01c615d408ac7fb95b9aac98ff2982638979bd11590d135e94fb6d33",
+  "images": {
+    "appearance-blue.png": "ae62338b26d43844f82ff654b6b5c160a8499d9d5437e64097f0af49da716e13",
+    "appearance-brand-black-settings.png": "aa516076d93c8ab3729756a510dd360939b1efb4c14a4e8a98a38ef09fee7760",
+    "appearance-brand-black.png": "960f41f41cbcc26afba4d403a206c0a930fffd3ea9f855e202994e1990d1d676",
+    "appearance-brand-purple-settings.png": "a874369371395a06e6b43673597d56faee245bf269875dd8be285b9164f918e0",
+    "appearance-brand-purple.png": "711a1df0072c15585a51356853f7455e1c8f12d8163d2fd17d833c2fa9a1706f",
+    "appearance-default.png": "88859fb5a5bf791e005e43452e51d7417e7c4efebe6bdda3536e5e132b914874",
+    "appearance-no-border.png": "76f70a9bc41498ba5359aa16390b23b7f478e10b400fa99ea3b37e66ed9a0728",
+    "appearance-opacity-dense.png": "e385570381a33c7e59d398ad1397d57f8536ae02e5c9ae0359983043b8a0c3ec",
+    "appearance-opacity-mist.png": "0d4b08551a42a1054fb055aceb80e3be9d2d1964fff0e4d9556f03eec6e3b3a5",
+    "appearance-opacity-opaque.png": "af0992959200229049618bbc194c68131f2317e6cc183357c1b4a978dd530d4b",
+    "appearance-restored.png": "88859fb5a5bf791e005e43452e51d7417e7c4efebe6bdda3536e5e132b914874",
+    "appearance-settings-custom.png": "772559280fce0a4d6dcbe1abeddb81cd89271298a8a6e0b8a6db58d2808ada7d",
+    "appearance-settings-default.png": "65ab334a879a305ff01a305714fd561c87ef2bc16d312f057c2b09182847ea95",
+    "appearance-settings-restored.png": "801310ab61695bcad0bdc7dfa08b304567bc02d74c42a6980980e453e6a686bc",
+    "appearance-type-extraLarge.png": "cf6eaff0e8fe1aac28c5b52c1b87b97ca4998e37d2bb1873f402f439f83c3be0",
+    "appearance-type-large.png": "52902b8de80a8673c2e10dec83fe356795978e546b8a53f5e94bf44afb2d8406",
+    "appearance-type-small.png": "2cc8beb6c37b2c649788d43ff2c4537497e58e5b896efd31b2d3afd7361f77bf",
+    "appearance-warm-graphite.png": "711a1df0072c15585a51356853f7455e1c8f12d8163d2fd17d833c2fa9a1706f",
+    "timeline-appearance-panel.png": "54af34fade4b44fe871acebcc301de614e258066bc1d744441fb5555836000fc",
+    "timeline-appearance-settings.png": "801310ab61695bcad0bdc7dfa08b304567bc02d74c42a6980980e453e6a686bc"
+  },
+  "scope": "Production SettingsView/InputPanelWindowView in owned nonactivating native windows; 11 picker selections through AXPress and AppKit menu actions; resets, border, font and edit/selection protection; synthetic capture boundary with zero starts and zero cloud calls. Size picker and apply button action only; actual AppDelegate window resizing is a separate acceptance. Images use AppKit cacheDisplay; backdrop blur composition is separately covered by scripts/test-product-windows.py."
+}

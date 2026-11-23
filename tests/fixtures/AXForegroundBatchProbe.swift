@@ -6,6 +6,45 @@ import ApplicationServices
 import Darwin
 
 private struct BatchFailure: Error { let message: String }
+
+private func verifyOwnedReadinessPolicy() throws {
+    let expected = InputTargetSnapshot(processID: 123, applicationID: "fixture", applicationName: "Owned fixture",
+        windowID: UUID(), elementID: UUID(), pageIdentity: "https://fixture.invalid/one\u{1f}Title\u{1f}context-digest",
+        selectionLocation: 7, selectionLength: 0, isWeb: true, isEditable: true, isSensitive: false, canSetSelectedText: true)
+    var incomplete = expected
+    incomplete.pageContextComplete = false
+    incomplete.pageIdentity = "https://fixture.invalid/one\u{1f}Title\u{1f}"
+    guard ownedWebContextUnavailable(incomplete, expected: expected),
+          !ownedWebContextUnavailable(expected, expected: expected) else {
+        throw BatchFailure(message: "Incomplete observation was confused with a complete proof")
+    }
+    let mutations: [(String, (inout InputTargetSnapshot) -> Void)] = [
+        ("process", { $0.processID += 1 }), ("application", { $0.applicationID += "other" }),
+        ("applicationLabel", { $0.applicationName += "other" }), ("window", { $0.windowID = UUID() }),
+        ("editor", { $0.elementID = UUID() }), ("caret", { $0.selectionLocation += 1 }),
+        ("selection", { $0.selectionLength = 1 }), ("native", { $0.isWeb = false }),
+        ("disabled", { $0.isEditable = false }), ("sensitive", { $0.isSensitive = true }),
+        ("setter", { $0.canSetSelectedText = false }), ("missingIdentity", { $0.pageIdentity = nil }),
+        ("differentURL", { $0.pageIdentity = "https://fixture.invalid/two\u{1f}Title\u{1f}" }),
+        ("differentTitle", { $0.pageIdentity = "https://fixture.invalid/one\u{1f}Other\u{1f}" }),
+        ("completeDifferentPage", { $0.pageContextComplete = true; $0.pageIdentity = "changed" })
+    ]
+    for (name, mutate) in mutations {
+        var changed = incomplete; mutate(&changed)
+        guard !ownedWebContextUnavailable(changed, expected: expected) else {
+            throw BatchFailure(message: "Readiness waited through changed " + name)
+        }
+    }
+    let original = "PREFIX|SUFFIX"
+    guard ownedWitnessReadiness(nil, original: original) == .unavailable,
+          ownedWitnessReadiness(original, original: original) == .ready,
+          ownedWitnessReadiness("", original: original) == .changed,
+          ownedWitnessReadiness("PREFIX|USER_EDIT", original: original) == .changed,
+          ownedWitnessReadiness("e\u{301}", original: "é") == .changed else {
+        throw BatchFailure(message: "Missing, changed or byte-different witness confused with complete proof")
+    }
+    print("PASS OWNED_READINESS_POLICY checks=22; absent evidence never proves readiness; changed identities and readable text reject")
+}
 private func inputIdleSeconds() -> Double {
     // Only event ages are queried. No event tap, key codes, text, coordinates or payloads.
     let types: [CGEventType] = [.keyDown, .keyUp, .flagsChanged, .mouseMoved, .leftMouseDown, .leftMouseUp,
@@ -247,6 +286,10 @@ private func immediateAbort(_ message: String) -> Never {
 
     @MainActor static func main() async {
         NSApplication.shared.setActivationPolicy(.prohibited)
+        if CommandLine.arguments == [CommandLine.arguments[0], "--readiness-policy-only"] {
+            do { try verifyOwnedReadinessPolicy(); exit(0) }
+            catch { print("FAIL OWNED_READINESS_POLICY", error); exit(1) }
+        }
         guard CommandLine.arguments.count == 4, CommandLine.arguments[1] == "--allow-foreground",
               ProcessInfo.processInfo.environment["SAYTILE_ALLOW_FOREGROUND_INPUT_FIXTURES"] == "1",
               let nativePID = Int32(CommandLine.arguments[2]), let webPID = Int32(CommandLine.arguments[3]), nativePID != webPID else {
@@ -286,11 +329,22 @@ private func immediateAbort(_ message: String) -> Never {
                 try await Task.sleep(for: .milliseconds(150))
                 print("FOREGROUND_STAGE target=\(kind) resolver_begin"); fflush(nil)
                 let access = AXInputAccess(selectionProvider: { try guardrail.selectFixture(pid) })
+                access.onProofUnavailable = { print("OWNED_RESOLVER_UNAVAILABLE", kind, $0); fflush(nil) }
                 var ready: InputTargetSnapshot?
-                for _ in 0..<40 {
+                for attempt in 0..<40 {
                     try guardrail.check(pid)
-                    if let candidate = try? access.snapshot(), candidate.isWeb == (kind == "web"), candidate.isEditable,
-                       candidate.selectionLocation == 7, candidate.selectionLength == 0 { ready = candidate; break }
+                    do {
+                        let candidate = try access.snapshot()
+                        if candidate.isWeb == (kind == "web"), candidate.isEditable,
+                           candidate.selectionLocation == 7, candidate.selectionLength == 0 { ready = candidate; break }
+                        if attempt == 0 || attempt == 39 {
+                            print("OWNED_RESOLVER_NOT_READY", kind, "web", candidate.isWeb,
+                                  "editable", candidate.isEditable, "caret", candidate.selectionLocation,
+                                  "range", candidate.selectionLength, "sensitive", candidate.isSensitive)
+                        }
+                    } catch {
+                        if attempt == 0 || attempt == 39 { print("OWNED_RESOLVER_ERROR", kind, error) }
+                    }
                     try await Task.sleep(for: .milliseconds(50))
                 }
                 guard let snapshot = ready else {
@@ -318,7 +372,11 @@ private func immediateAbort(_ message: String) -> Never {
                 let trace = FixtureAccessTrace(access)
                 let input = NativeInputCoordinator(store: store, access: trace)
                 input.onBindingInvalidated = { print("OWNED_BINDING_INVALIDATED", kind, ProcessInfo.processInfo.systemUptime); fflush(nil) }
+                trace.withholdOneBoundReadinessWitness = true
                 try await bindOwnedField(input, trace: trace, original: "PREFIX|SUFFIX", caret: 7, pid: pid, expectingWeb: kind == "web")
+                guard trace.withheldReadinessWitnesses == 1, trace.writes == 0 else {
+                    throw BatchFailure(message: "Missing-witness readiness test did not remain read-only")
+                }
                 let recording = try await store.createRecording()
                 let revision = try await store.saveEdit(recordingID: recording.id, text: "你好😀")
                 print("FOREGROUND_STAGE target=\(kind) first_insert_begin"); fflush(nil)

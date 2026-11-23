@@ -1,0 +1,84 @@
+{
+  "version": "0.21",
+  "build": 563,
+  "product_source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+  "dmg_sha256": "a77e9bcd2447cee254f8dac9dfc1a797318ab424d1e220e06e9ea535d646a1c2",
+  "dmg_bytes": 64500811,
+  "binary_sha256": "6bdc43a58c22af783a061ed875b7f2b1f11c747574929cd2a8cb6cd1c890a8eb",
+  "release_verdict": "HOLD",
+  "product_baseline": {
+    "pr49": "9ab5ae9bb0a02b122189cc46ba44ab824bbd42eb",
+    "pr50": "499dbfec1ba7df17678caa077e8f0566e4f4be63"
+  },
+  "ci": {
+    "status": "PASS",
+    "jobs_success": 7,
+    "jobs_total": 7,
+    "swift_testing_pass": 567,
+    "xctest_pass": 30,
+    "app_model_pass": 220,
+    "receipt": "ci.json"
+  },
+  "final_package": {
+    "native_ui": "PASS",
+    "native_ax_press": 56,
+    "native_mouse_edge_clicks": 7,
+    "native_menu_select": 9,
+    "native_speech_smoke_clips": 3,
+    "speech_before_eof": [
+      18,
+      9,
+      17
+    ],
+    "data_fault_checks_pass": 18,
+    "upgrade_rollback": "533 -> 563 -> 533 -> 563 PASS",
+    "real_sparkle_install_relaunch": "PASS",
+    "signature_timestamp": "PASS",
+    "notarization": "BLOCKED",
+    "gatekeeper": "REJECTED_UNNOTARIZED_DEVELOPER_ID"
+  },
+  "earlier_evidence": {
+    "binding": "component-equivalence.json",
+    "557": [
+      "paired15",
+      "pressure8",
+      "quality440",
+      "905-second soak",
+      "appearance",
+      "composited"
+    ],
+    "561": [
+      "full15 refresh"
+    ]
+  },
+  "known_failures": [
+    "5.33-core competition longest meaningful fresh-text gap 2.564 seconds; no consistent CPU gain",
+    "Five existing subsegments return empty raw final; audio retained; not counted successful"
+  ],
+  "blocked": [
+    "Notarization credentials",
+    "Live CloudKit account/provisioning: zero remote records and bytes",
+    "Live feedback receiving service deployment authorization",
+    "Physical sleep unsupported in hosted Mac VM",
+    "Specific fullscreen lease-retention path not reproduced in virtualized host"
+  ],
+  "not_run": [
+    "closed-lid built-in microphone",
+    "personal accent",
+    "real 8GB Mac",
+    "whole-device power/GPU/ANE",
+    "physical abrupt power loss",
+    "physical display hotplug",
+    "standard Sparkle dialog manual interaction"
+  ],
+  "safety": {
+    "paid_calls": 0,
+    "private_audio": "NOT_ACCESSED",
+    "production_data": "NOT_ACCESSED",
+    "installed_533": "UNCHANGED",
+    "main": "UNCHANGED",
+    "merge": "NOT_PERFORMED",
+    "public_release": "NOT_PERFORMED",
+    "public_feed": "UNCHANGED"
+  }
+}

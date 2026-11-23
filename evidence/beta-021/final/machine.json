@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-23",
+  "timezone": "Asia/Shanghai",
+  "decision": "HOLD",
+  "candidate": "0.21 (557)",
+  "product_source": "9aace8f5b0d7082bd67d2e9b1b6e1db6dcf05883",
+  "ci_source": "94db534265597e4bc26109e2d849b2406f62edb3",
+  "product_diff_paths": [
+    "Sources",
+    "native/LocalASR",
+    "Package.swift",
+    "Package.resolved",
+    "packaging",
+    "scripts/build-app.sh",
+    "scripts/build-local-runtime.sh",
+    "scripts/prepare-local-runtime.sh",
+    "scripts/encode-iconset.py",
+    "distribution/sign-app.sh",
+    "distribution/copy-verified-runtime.py"
+  ],
+  "product_diff_empty": true,
+  "dmg_sha256": "7e44a00ba5e1ae4f47b70b37360929dd658b1b9f17a7ce745339156d873e0f83",
+  "passes": [
+    "fixed15 final CER unchanged",
+    "440 whole-input final texts unchanged",
+    "905-second native soak 47/47",
+    "signed native UI and WindowServer",
+    "18 data failure/migration checks",
+    "Sparkle install and corrupted update rejection",
+    "533-557 rollback",
+    "6 CI jobs"
+  ],
+  "failures": [
+    "competitive load fresh-text gap 2.564 seconds; no CPU improvement demonstrated",
+    "5 pre-existing empty raw model finals remain retryable"
+  ],
+  "blocked": [
+    "new candidate notarization and Gatekeeper acceptance",
+    "real iCloud backup/restore/iPhone audio 0 records 0 bytes",
+    "real feedback routing/receipt",
+    "hosted virtual machine hardware sleep"
+  ],
+  "not_run": [
+    "closed-lid physical microphone",
+    "personal accent",
+    "8 GB hardware",
+    "whole-system power/GPU/ANE",
+    "physical power loss",
+    "physical display hot-plug"
+  ],
+  "protected": [
+    "installed 0.20 (533)",
+    "production archive/recordings/Keychain",
+    "main RC1 frozen RC2",
+    "Nearpane/Riftlet workspaces",
+    "public update feed and website"
+  ],
+  "latest_fixture_note": "d03f446 foreground failed on absent text witness; 22-case fixture-only correction requires final PR head real CI"
+}

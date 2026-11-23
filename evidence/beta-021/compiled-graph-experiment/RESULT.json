@@ -1,0 +1,74 @@
+{
+  "status": "REJECTED",
+  "reason": "No demonstrated CPU benefit; first cold run regressed to 5.267s. Do not ship.",
+  "rows": [
+    {
+      "arm": "new-1",
+      "source": "7482f6d1bb9db6d66f0f565386c4830c69f40e0c",
+      "cpu_s": 25.25,
+      "peak_MiB": 1520.9,
+      "first_visible_s": 5.267,
+      "gap_p95_s": 2.363,
+      "longest_s": 5.202,
+      "eos_s": 0.676,
+      "CER": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      }
+    },
+    {
+      "arm": "new-2",
+      "source": "7482f6d1bb9db6d66f0f565386c4830c69f40e0c",
+      "cpu_s": 24.22,
+      "peak_MiB": 1573.5,
+      "first_visible_s": 1.266,
+      "gap_p95_s": 1.751,
+      "longest_s": 3.696,
+      "eos_s": 0.464,
+      "CER": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      }
+    },
+    {
+      "arm": "old-1",
+      "source": "7c0df4728b113c17297a0cded20472de4ffc3337",
+      "cpu_s": 25.22,
+      "peak_MiB": 1631.4,
+      "first_visible_s": 1.644,
+      "gap_p95_s": 1.543,
+      "longest_s": 3.721,
+      "eos_s": 0.73,
+      "CER": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      }
+    },
+    {
+      "arm": "old-2",
+      "source": "7c0df4728b113c17297a0cded20472de4ffc3337",
+      "cpu_s": 23.7,
+      "peak_MiB": 1628.4,
+      "first_visible_s": 0.987,
+      "gap_p95_s": 1.605,
+      "longest_s": 4.879,
+      "eos_s": 0.835,
+      "CER": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      }
+    }
+  ]
+}

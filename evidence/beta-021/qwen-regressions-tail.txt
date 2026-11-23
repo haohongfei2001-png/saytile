@@ -1,0 +1,48 @@
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "Local model preview and download recovery" started.
+◇ Test aCommaAfterANegationIsNotAnOptionalStyleChange() started.
+◇ Test firstRollingWordAppearsImmediatelyAndGetsItsFinalPunctuationAtEOS() started.
+◇ Test mixedSpeechResumesAfterTwoRealObservationsOfANewLatinWordBoundary() started.
+◇ Test twoPassCorrectionSurvivesAnIndependentEarlierOscillation() started.
+◇ Test longPreviewRejectsWidelyChangedPassesDespiteSharedWords() started.
+◇ Test establishedWordAndUnfinishedTailCanBothBeCorrectedByGrowingPasses() started.
+◇ Test twoEarlierChineseWordsNeedWholeSpanCorroborationBeforeTailCanResume() started.
+◇ Test twoLexicallyIdenticalPassesCanCorroborateNewWordsAcrossARephrasedPause() started.
+◇ Test coldReopenVerifiesEqualSizeDamageAndReportsAllRemovableBytes() started.
+◇ Test longPreviewResumesAfterTwoAlignedCorrectionsFromTheDecoder() started.
+◇ Test localConfirmationNeedsARealSharedNewWordAndKeepsNegationBoundaries() started.
+◇ Test mixedSpeechCanGrowWhileEarlierWordsChangeTypography() started.
+◇ Test invalidCompleteResponsePreservesCheckpointForNextDownload() started.
+◇ Test localConfirmationRefusesUnsupportedWordsAmbiguousAnchorsOrChangedMeaning() started.
+◇ Test aSecondChangeAtTheRightEdgeCannotBypassProtectedEvidence() started.
+◇ Test corroboratedOldWordAndPunctuationCanKeepGrowingBeforeEOS() started.
+◇ Test rawQwenPeriodStopsBlinkingUntilSupportedByMoreSpeech() started.
+◇ Test tailConfirmationDoesNotWaitForNewWordsFirstWordsNumbersOrOtherEngines() started.
+◇ Test wordsAfterAnAppositionCanAppearWhileTheDecoderRestylesOldPauses() started.
+◇ Test tailOnlyWordFlipNeedsASecondObservationButNeverDelaysEOS() started.
+◇ Test numericalPunctuationCannotReleaseAConflictingHypothesis() started.
+✔ Test firstRollingWordAppearsImmediatelyAndGetsItsFinalPunctuationAtEOS() passed after 0.017 seconds.
+✔ Test aCommaAfterANegationIsNotAnOptionalStyleChange() passed after 0.017 seconds.
+✔ Test mixedSpeechCanGrowWhileEarlierWordsChangeTypography() passed after 0.016 seconds.
+✔ Test longPreviewResumesAfterTwoAlignedCorrectionsFromTheDecoder() passed after 0.017 seconds.
+✔ Test longPreviewRejectsWidelyChangedPassesDespiteSharedWords() passed after 0.017 seconds.
+✔ Test establishedWordAndUnfinishedTailCanBothBeCorrectedByGrowingPasses() passed after 0.017 seconds.
+✔ Test tailConfirmationDoesNotWaitForNewWordsFirstWordsNumbersOrOtherEngines() passed after 0.017 seconds.
+✔ Test corroboratedOldWordAndPunctuationCanKeepGrowingBeforeEOS() passed after 0.016 seconds.
+✔ Test rawQwenPeriodStopsBlinkingUntilSupportedByMoreSpeech() passed after 0.016 seconds.
+✔ Test localConfirmationNeedsARealSharedNewWordAndKeepsNegationBoundaries() passed after 0.017 seconds.
+✔ Test tailOnlyWordFlipNeedsASecondObservationButNeverDelaysEOS() passed after 0.017 seconds.
+✔ Test twoPassCorrectionSurvivesAnIndependentEarlierOscillation() passed after 0.017 seconds.
+✔ Test twoLexicallyIdenticalPassesCanCorroborateNewWordsAcrossARephrasedPause() passed after 0.017 seconds.
+✔ Test wordsAfterAnAppositionCanAppearWhileTheDecoderRestylesOldPauses() passed after 0.017 seconds.
+✔ Test twoEarlierChineseWordsNeedWholeSpanCorroborationBeforeTailCanResume() passed after 0.018 seconds.
+✔ Test aSecondChangeAtTheRightEdgeCannotBypassProtectedEvidence() passed after 0.018 seconds.
+✔ Test localConfirmationRefusesUnsupportedWordsAmbiguousAnchorsOrChangedMeaning() passed after 0.018 seconds.
+✔ Test numericalPunctuationCannotReleaseAConflictingHypothesis() passed after 0.018 seconds.
+✔ Test mixedSpeechResumesAfterTwoRealObservationsOfANewLatinWordBoundary() passed after 0.019 seconds.
+✔ Test coldReopenVerifiesEqualSizeDamageAndReportsAllRemovableBytes() passed after 0.031 seconds.
+✔ Test invalidCompleteResponsePreservesCheckpointForNextDownload() passed after 0.033 seconds.
+✔ Suite "Local model preview and download recovery" passed after 0.034 seconds.
+✔ Test run with 21 tests in 1 suite passed after 0.034 seconds.

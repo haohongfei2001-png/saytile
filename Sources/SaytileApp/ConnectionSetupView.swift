@@ -35,6 +35,7 @@ struct ConnectionSetupView: View {
                     .accessibilityIdentifier("connectionSetup.finish")
             }.padding(20)
         }.frame(minWidth: 600, minHeight: 640)
-            .foregroundStyle(WorkspaceStyle.foreground).tint(WorkspaceStyle.accent).background(WorkspaceStyle.background)
+            .foregroundStyle(WorkspaceStyle.foreground).tint(WorkspaceStyle.accent(for: model.brandAppearance))
+            .environment(\.brandAppearance, model.brandAppearance).background(WorkspaceStyle.background)
     }
 }

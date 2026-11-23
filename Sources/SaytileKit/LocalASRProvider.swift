@@ -240,6 +240,7 @@ struct LocalLiveText {
     private(set) var presentation = ""
     private var readingPrefix = ""
     private var withheld: String?
+    private var unconfirmedTail: String?
     init(model: LocalASRID) { self.model = model }
     mutating func accept(_ text: String, final: Bool) -> Int? {
         if final {
@@ -248,6 +249,15 @@ struct LocalLiveText {
         }
         let common = RecognitionUTF16.commonPrefix([previous, text])
         if model == .qwen || model == .qwenLarge {
+            if let correction = Self.tailOnlyCorrection(previous: previous, text: text),
+               unconfirmedTail != correction {
+                // A single unchanged-length tail spelling is not new speech.
+                // Keep the last observed words until this correction is repeated
+                // or fresh speech arrives. EOS always bypasses this preview gate.
+                unconfirmedTail = correction
+                return nil
+            }
+            unconfirmedTail = nil
             // The zh decoder can change the script of the whole hypothesis mid-utterance.
             // Compare scripts only for preview ownership. Publish the original model string.
             let matches = RecognitionUTF16.hasExactPrefix(text, prefix: readingPrefix)
@@ -290,6 +300,23 @@ struct LocalLiveText {
         }
         previous = text
         return model == .nemotron ? String(common.dropLast()).utf16.count : 0
+    }
+
+    private static func tailOnlyCorrection(previous: String, text: String) -> String? {
+        let old = Array(previous.filter { $0.isLetter || $0.isNumber })
+        let current = Array(text.filter { $0.isLetter || $0.isNumber })
+        guard old.count >= 12, old.count == current.count else { return nil }
+        let changed = old.indices.filter { old[$0] != current[$0] }
+        guard let first = changed.first, let last = changed.last,
+              first >= max(8, old.count - 8), last - first < 3 else { return nil }
+        func ordinaryHan(_ c: Character) -> Bool {
+            c.unicodeScalars.count == 1 && c.unicodeScalars.allSatisfy { (0x3400...0x9FFF).contains($0.value) }
+                && !protectsBoundary(c)
+        }
+        guard changed.allSatisfy({ ordinaryHan(old[$0]) && ordinaryHan(current[$0]) }) else { return nil }
+        // Comparison only: the actual displayed string still comes from the
+        // current raw hypothesis, after all existing ownership checks below.
+        return String(current)
     }
 
     private static func confirmedReadingPrefix(previous: String, prior: String, text: String, unchanged: Int) -> String? {
@@ -396,16 +423,31 @@ struct LocalLiveText {
         guard extensionAgreement.contains(where: { $0.0.isLetter || $0.0.isNumber }) else { return nil }
 
         let anchorEnd: Int
-        if last - first < 4, first >= 3, old.count - last > 12 {
+        let clusters = changes.reduce(into: [[Int]]()) { groups, index in
+            if let end = groups.last?.last, index == end + 1 { groups[groups.count - 1].append(index) }
+            else { groups.append([index]) }
+        }
+        if clusters.count == 2, clusters.allSatisfy({ $0.count <= 3 }), first >= 12,
+           clusters[1][0] - clusters[0].last! >= 4, old.count - last > 12 {
+            // Two independent earlier Chinese words can settle on the same pass.
+            // Both raw observations must corroborate the ENTIRE visible lexical
+            // span, not just a shared phrase. Reject numbers, negatives, changed
+            // word lengths and broad rewrites above; publish only the raw model
+            // hypothesis. Final text and external dispatch remain independent.
+            guard observed.prefix(old.count).elementsEqual(current.prefix(old.count)) else { return nil }
+            anchorEnd = old.count
+        } else if last - first < 4, first >= 3, old.count - last > 12 {
             // A different, earlier spelling on the prior pass must not invalidate
             // the local evidence when the current pass restores the displayed words.
             guard current[(first - 3)..<old.count].elementsEqual(observed[(first - 3)..<old.count]) else { return nil }
             let earlier = (0..<(first - 3)).filter { observed[$0] != current[$0] }
             if let a = earlier.first, let b = earlier.last {
                 guard b - a < 4, earlier.allSatisfy({ ordinaryHan(observed[$0]) && ordinaryHan(current[$0]) }) else { return nil }
-            } else if current != observed {
+            } else if !current.starts(with: observed) {
                 // Without an independent earlier change, this fallback admits
-                // only two whole lexical hypotheses that corroborate one another.
+                // only a whole corroborated lexical hypothesis and its exact
+                // extension. New speech must not invalidate already matching
+                // words, but a changed word in the observed tail still does.
                 return nil
             }
             anchorEnd = old.count

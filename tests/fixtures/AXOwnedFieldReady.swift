@@ -1,6 +1,33 @@
 import AppKit
 @testable import SaytileKit
 
+/// An incomplete web context is an absent observation, not a different page.
+/// This only schedules another read inside the original readiness deadline; it
+/// never accepts the field, rebinds it, changes focus, or issues an edit. Every
+/// independently readable target property must still match.
+func ownedWebContextUnavailable(_ current: InputTargetSnapshot, expected: InputTargetSnapshot) -> Bool {
+    guard expected.isWeb, expected.pageContextComplete, expected.pageIdentity != nil,
+          current.isWeb, !current.pageContextComplete else { return false }
+    // The adapter retains URL and title when only the bounded semantic traversal
+    // is incomplete. Do not wait through a changed URL/title or a missing identity.
+    guard let identity = expected.pageIdentity, let separator = identity.lastIndex(of: "\u{1f}"),
+          current.pageIdentity == String(identity[...separator]) else { return false }
+    var withoutMissingContext = current
+    withoutMissingContext.pageIdentity = expected.pageIdentity
+    withoutMissingContext.pageContextComplete = expected.pageContextComplete
+    return withoutMissingContext == expected
+}
+
+enum OwnedWitnessReadiness: Equatable { case ready, unavailable, changed }
+
+/// Absence cannot prove readiness, and a different readable value is a change.
+/// The caller must still prove the exact target snapshot before this read and
+/// require three new complete quiet observations within its original deadline.
+func ownedWitnessReadiness(_ witness: String?, original: String) -> OwnedWitnessReadiness {
+    guard let witness else { return .unavailable }
+    return witness.utf8.elementsEqual(original.utf8) ? .ready : .changed
+}
+
 /// Start one ordinary binding when the disposable editor has reported its full
 /// identity three times. The production observer remains attached through the
 /// quiet period and the subsequent test edit.
@@ -21,29 +48,29 @@ import AppKit
               "web", current.isWeb == expected.isWeb, "editable", current.isEditable == expected.isEditable,
               "sensitive", current.isSensitive == expected.isSensitive, "setter", current.canSetSelectedText == expected.canSetSelectedText)
     }
-    func ready(_ current: InputTargetSnapshot, phase: String) -> Bool {
+    func ready(_ current: InputTargetSnapshot, phase: String) -> OwnedWitnessReadiness {
         guard current.processID == pid && current.isWeb == expectingWeb && current.isEditable && !current.isSensitive && current.canSetSelectedText &&
               current.selectionLocation == caret && current.selectionLength == 0 else {
             print("OWNED_READY_REJECT", trace.stage, phase, "field_requirements",
                   "pid", current.processID == pid, "web", current.isWeb == expectingWeb,
                   "editable", current.isEditable, "sensitive", current.isSensitive, "setter", current.canSetSelectedText,
                   "caret", current.selectionLocation == caret, "collapsed", current.selectionLength == 0)
-            return false
+            return .changed
         }
         guard documentReady(current) else {
-            print("OWNED_READY_REJECT", trace.stage, phase, "document_requirements"); return false
+            print("OWNED_READY_REJECT", trace.stage, phase, "document_requirements"); return .changed
         }
         guard !current.isWeb || (current.pageContextComplete && current.pageIdentity != nil) else {
             print("OWNED_READY_REJECT", trace.stage, phase, "page_proof",
                   "complete", current.pageContextComplete, "identityPresent", current.pageIdentity != nil)
-            return false
+            return .changed
         }
-        let witness = access.textWitness(at: current)
-        guard witness == original else {
+        let witness = trace.readinessTextWitness(at: current, bound: phase == "bound")
+        let result = ownedWitnessReadiness(witness, original: original)
+        if result != .ready {
             print("OWNED_READY_REJECT", trace.stage, phase, witness == nil ? "witness_missing" : "witness_mismatch")
-            return false
         }
-        return true
+        return result
     }
     // WKWebView can temporarily expose an editable AX object before its web area
     // is readable. Only the known editor kind may start this three-read interval.
@@ -51,7 +78,7 @@ import AppKit
     var consecutive = 0
     while clock.now < deadline {
         let current = try? access.snapshot()
-        if let current, ready(current, phase: "initial") {
+        if let current, ready(current, phase: "initial") == .ready {
             if let first, first != current {
                 difference(current, from: first, phase: "initial_identity")
                 throw NativeInputError.targetChanged
@@ -114,12 +141,32 @@ import AppKit
             print("OWNED_READY_REJECT", trace.stage, abortReason)
             throw error
         }
+        if ownedWebContextUnavailable(current, expected: expected) {
+            // A bounded page traversal may expire while focus, editor and caret
+            // remain readable. Just like an unsupported snapshot above, it cannot
+            // count as a quiet read. Require three new complete exact observations.
+            quiet = 0
+            print("OWNED_READ_UNAVAILABLE", trace.stage, "web context; quiet interval reset")
+            try await clock.sleep(until: min(deadline, clock.now.advanced(by: .milliseconds(180))))
+            continue
+        }
         guard current == expected else {
             abortReason = "bound_snapshot_difference"
             difference(current, from: expected, phase: "bound")
             throw NativeInputError.targetChanged
         }
-        guard ready(current, phase: "bound") else {
+        switch ready(current, phase: "bound") {
+        case .ready: break
+        case .unavailable:
+            // textWitness includes its own before/after target snapshots. A
+            // missing reply is not evidence of a changed value, nor permission
+            // to edit. Reset the quiet interval, retaining the same binding,
+            // observer and deadline; a changed readable value still aborts.
+            quiet = 0
+            print("OWNED_READ_UNAVAILABLE", trace.stage, "text witness; quiet interval reset")
+            try await clock.sleep(until: min(deadline, clock.now.advanced(by: .milliseconds(180))))
+            continue
+        case .changed:
             abortReason = "bound_readiness_rejected"
             throw NativeInputError.targetChanged
         }
@@ -145,13 +192,29 @@ import AppKit
     private(set) var bound: InputTargetSnapshot?
     private(set) var support: InputObservationSupport?
     private(set) var notifications = 0
+    // Fault injection applies only to fixture readiness. Product witness reads
+    // are never intercepted; one absent sample must not grant readiness.
+    var withholdOneBoundReadinessWitness = false
+    private(set) var withheldReadinessWitnesses = 0
+    func readinessTextWitness(at expected: InputTargetSnapshot, bound: Bool) -> String? {
+        if bound && withholdOneBoundReadinessWitness {
+            withholdOneBoundReadinessWitness = false
+            withheldReadinessWitnesses += 1
+            print("OWNED_INJECTED_ABSENT_READINESS_WITNESS")
+            return nil
+        }
+        return base.textWitness(at: expected)
+    }
     // Optional test action between reservation and the last ownership check.
     var beforeSnapshot: (() throws -> Void)?
     // Hosted Chrome can interrupt only the application-level reply to the
     // first post-write read. The system-wide focus still comes from macOS.
     var interruptFirstWebFocusRead: (() -> Void)?
     private(set) var provedInterruptedFocus = false
-    init(_ base: AXInputAccess) { self.base = base }
+    init(_ base: AXInputAccess) {
+        self.base = base
+        base.onProofUnavailable = { print("OWNED_PROOF_UNAVAILABLE", $0); fflush(nil) }
+    }
     var hasPermission: Bool { base.hasPermission }
     func snapshot() throws -> InputTargetSnapshot {
         try tracedSnapshot(base.snapshot)

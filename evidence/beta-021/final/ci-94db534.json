@@ -1,0 +1,330 @@
+{
+  "tested_commit": "94db534265597e4bc26109e2d849b2406f62edb3",
+  "product_source": "9aace8f5b0d7082bd67d2e9b1b6e1db6dcf05883",
+  "workflow_runs": [
+    {
+      "id": 45083846030,
+      "name": "Saytile Cloud",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 143,
+      "jobs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/45083846030/jobs",
+      "logs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/45083846030/logs",
+      "workflow_id": 412588174
+    },
+    {
+      "id": 45083846199,
+      "name": "Black brand option 2",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 18,
+      "jobs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/45083846199/jobs",
+      "logs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/45083846199/logs",
+      "workflow_id": 420530580
+    },
+    {
+      "id": 45083846017,
+      "name": "Saytile design contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 347,
+      "jobs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/45083846017/jobs",
+      "logs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/45083846017/logs",
+      "workflow_id": 408543631
+    },
+    {
+      "id": 45083846290,
+      "name": "Saytile native",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 281,
+      "jobs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/45083846290/jobs",
+      "logs_url": "https://api.github.com/repos/haohongfei2001-png/saytile/actions/runs/45083846290/logs",
+      "workflow_id": 408681640
+    }
+  ],
+  "native_jobs": [
+    {
+      "id": 137397821755,
+      "name": "swift-tests",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45083846290,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run all XCTest and Swift Testing suites with the local protocol peer",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        }
+      ]
+    },
+    {
+      "id": 137397821973,
+      "name": "native",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45083846290,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Verify complete Xcode and record the actual tested revision",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Signed update packaging configuration",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Inherited Swift contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Run scripts/test-app-model.sh",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Owned native window boundary and restoration",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Preserve window boundary receipt",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Run scripts/build-app.sh",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Isolated cloud probe CLI boundaries",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Isolated connection setup CLI boundaries",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Edit directly in the native panel using a private clipboard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12
+        },
+        {
+          "name": "Shared natural paragraphs in real panel and archive",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13
+        },
+        {
+          "name": "Preserve natural paragraph screenshots and receipts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Native windows with synthetic data",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        },
+        {
+          "name": "Native feedback controls and process restart without network",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Native continuous timeline with 12000 isolated utterances",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
+          "name": "Preserve native panel screenshots and review manifest",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18
+        },
+        {
+          "name": "Isolated startup without microphone",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        },
+        {
+          "name": "Preserve app bundle permissions",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 42
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 43
+        }
+      ]
+    },
+    {
+      "id": 137397822049,
+      "name": "foreground",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 45083846290,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Exercise real AX on owned windows in this disposable GUI session",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Build the hosted editor probe",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Exercise TextEdit on a new disposable document",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Exercise Chrome on a new disposable profile",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Check kernel sleep with paused Saytile on the disposable host",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Preserve sleep preflight and kernel events",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        }
+      ]
+    }
+  ],
+  "swift_testing": {
+    "passed": 567,
+    "failed": 0
+  },
+  "xctest": {
+    "passed": 30,
+    "failed": 0
+  },
+  "app_model_checks": 220,
+  "foreground_policy_regressions": 17,
+  "hardware_sleep": "BLOCKED hosted VirtualMac2,1",
+  "release_verdict": "HOLD"
+}

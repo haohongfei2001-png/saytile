@@ -6,9 +6,21 @@ import ApplicationServices
 @main struct NativeUIControlProbe {
     @MainActor static func main() async {
         NSApplication.shared.setActivationPolicy(.prohibited)
-        guard CommandLine.arguments.count >= 3, let pid = Int32(CommandLine.arguments[1]),
-              NSRunningApplication(processIdentifier: pid) != nil else {
+        guard CommandLine.arguments.count >= 3, let pid = Int32(CommandLine.arguments[1]), pid > 1 else {
             print("USAGE fixturePID label [windowTitle] [set-value value | select-context-menu id title]"); exit(64)
+        }
+        // A directly executed, nonactivating fixture can temporarily disappear
+        // from Launch Services while its AppKit windows remain live. Check the
+        // actual process image, then keep the exact PID/window/control checks
+        // below. Do not reacquire a target by app name or activate any window.
+        var executable = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
+        let length = proc_pidpath(pid, &executable, UInt32(executable.count))
+        guard length > 0,
+              URL(fileURLWithPath: String(cString: executable)).lastPathComponent == "Saytile" else {
+            print("REFUSED target is not the supplied live Saytile fixture"); exit(6)
+        }
+        if NSRunningApplication(processIdentifier: pid) == nil {
+            print("NATIVE_UI_REGISTRATION_FALLBACK live_image_verified=true requested_pid_unchanged=true")
         }
         guard AXIsProcessTrusted() else { print("NOT_RUN accessibility permission unavailable; no prompt"); exit(5) }
         let before = NSWorkspace.shared.frontmostApplication?.processIdentifier

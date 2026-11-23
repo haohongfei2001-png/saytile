@@ -1,4 +1,20 @@
+## 2026-11-23 · 0.21（563）最终签名候选
+
+最终563：567 Swift Testing、30 XCTest、220 AppModel及7项CI作业成功；真实AppKit/WKWebView/TextEdit/Chrome输入通过。签名DMG的56次AXPress/7次边缘点击、三段原速出字、18项故障、533↔563及真实Sparkle安装重启通过。详测557和15段刷新561保留实际SHA，组件相同性可核；压力、空final和所有BLOCKED/NOT_RUN不改PASS。 [发布裁决](delivery/beta-021/STATUS.md) · [完整验收](delivery/beta-021/ACCEPTANCE.md)。
+
+以下为原始阶段记录，不替代最新结论。
+
 ## 2026-11-16 · 隔离确认框宿主修复
+
+## 2026-11-23 · 前台复验
+
+d03f446 前台FAIL原始证据已保留；22项缺失观察/目标与文本变异政策检查PASS。最终真实AppKit、WKWebView、Chrome、TextEdit需以本次fixture修复的PR head验收，不能沿用上一SHA成功。
+
+
+## 2026-11-23 · 0.21（557）最终收口
+
+PASS：567 Swift Testing、30 XCTest、220 AppModel；真实隔离AppKit/WKWebView/TextEdit/Chrome；最终签名包56 AXPress/7边缘点击/22 WindowServer场景、18项持久化故障、533↔557回退及真实Sparkle安装。原速15段新旧CER均8.10%、尾词往返2→0；420原段CER8.53%、20派生段8.51%，最终稿无退化。905秒长测47/47完成，79块原音一致、idle释放/恢复。FAIL：竞争负载仍2.564秒停顿；五个既有空final由原始模型证实为空，未改成成功。 详见 [发布裁决](delivery/beta-021/STATUS.md) 与 [机器验收](delivery/beta-021/ACCEPTANCE.md)。
+
 
 499签名本机验收在确认框弹出后被前台保护拒绝，未执行该次确认，不交付该包。独立原生probe复现系统确认框另建可聚焦窗口、单次操作成功却返回-25205，并验证accessory→prohibited的实际策略切换后真实AX确认仍可用。仅反馈验收宿主改为禁止激活并断言实际策略；产品行为、普通控件和焦点保护均不变。正常/正反故障共13项最终签名验收及新源码CI待完成。现用0.18与用户资料保持。
 
@@ -287,3 +303,30 @@ Verified two active WindowServer displays on the test Mac (1920 × 1080 and 800 
 On two 2× WindowServer displays, a real mouse event sequence failed on build 274 at X=8; with the fix the panel crossed X=0, landed at (-604,491) (408×298), survived a process restart at exactly that frame, and moved back. Both sides used the same foreground guard, no external text target, and a paused microphone. Release binary receipts follow.
 
 Build 275: PASS 426 Swift, 126 AppModel, 19 compositor scenes, 44 AX presses, 12,000 timeline rows, two real displays with exact restart and a single-window on-device Apple speech movie. See evidence/native-product-design/machine.json. Protected build 269 and formal/personal file metadata unchanged; no private content opened.
+
+
+## 2026-11-23
+
+0.21：Qwen恢复/候选保护18项Swift Testing通过；计算图原速四轮失败证据已保存。新完整CI及安装包待最终源码验收。
+
+## 原速固定集发现的尾词往返
+
+556 的同一15段原速对比，新旧终稿逐字一致（46/568，CER8.10%），首显P95为1.606→1.521秒、有效更新P95为1.094→1.067秒，CPU43.96→43.91秒，不能据此宣称CPU显著下降。长句压力尚未整体通过：6核目标后两轮未达标，记录全部保留；5.33核另行同条件验收，不冒充6核。
+
+固定集还复现“力士/理石”无新词往返。只对等长、最后8字内、最多相邻3个普通汉字的纯尾词改写增加一次确认；首字、新增字词、数字/否定词、其他引擎及原样EOS不受该分支延迟。既有所有权/原文约束继续执行，不拼接文本，不授予稳定派发。21项原生Swift Testing通过。最终签名包及原速/长稳/资料/更新回归继续执行。原556完整CI六项检查全部成功，567项后续测试须绑定新的产品SHA，不能继承成最终PASS。
+
+
+## 2026-11-23 · 0.21 最终前台输入回归
+
+557 的 WKWebView 首次写入前读到不完整网页上下文；原始失败未删除。仅修正 fixture 对未完成观察的分类，保留五秒截止、三个完整一致观察和全部目标安全条件。17 项独立属性回归通过；真实 AX 以随后 CI 为准。产品源和 557 安装包不变，无需用户操作。详见 `evidence/beta-021/final/foreground-readiness.md`。
+
+
+## 2026-11-23 · 最终 AX 读取修复候选
+
+09e5877 前台 CI 再次失败，原始日志及 ZIP 完整保留。此次失败进入产品绑定/写后校验，不能用前轮成功替代。批量读取相同非文字 AX 属性以减少跨进程往返；完整页面/光标/文本/窗口与观察失效规则不变。编译及22项策略回归通过；本机非激活 fixture 的进程身份获取阻断，真实验证转隔离 macOS CI。557 包暂保留原样，修复通过后重新绑定源码打包。无需用户操作，不改现有安装、私有资料或系统权限。
+
+
+0.21 AX 进展：fae4841 的 WKWebView 全套、Chrome 和 TextEdit 均通过；整个前台作业在随后 AppKit fixture 就绪判定失败，保持 FAIL。只增加现有读取结果的布尔/原因日志定位，未增读、未放宽断言。561 签名包已生成、18项资料故障回归通过，当前不替换用户533。无需用户操作。
+
+
+外部输入收口：0e6227a明确复现AppKit整组属性读取缺失，恢复该输入框原有逐项读取，只保留网页遍历批量化。Chrome不完整页面观察仍标失败、禁止重放。原日志保留，不以编译代替验收。561新包同15段原速回归已结束、更新及回退通过；产品修复须生成新的唯一交付包，用户安装和数据不变。

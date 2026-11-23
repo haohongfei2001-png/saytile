@@ -4,6 +4,78 @@ import Testing
 
 @Suite("Local model preview and download recovery")
 struct QwenRecoveryTests {
+    @Test func tailOnlyWordFlipNeedsASecondObservationButNeverDelaysEOS() {
+        let prefix = "老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大"
+        let shown = prefix + "理石的五倍。", transient = prefix + "力士的五倍。"
+        var live = LocalLiveText(model: .qwen)
+        #expect(live.accept(shown, final: false) == 0)
+        #expect(live.accept(transient, final: false) == nil)
+        #expect(live.previous == shown)
+        #expect(live.presentation == String(shown.dropLast()))
+        #expect(live.accept(shown, final: false) == 0)
+        #expect(live.accept(transient, final: false) == nil)
+        #expect(live.accept(transient, final: false) == 0)
+        #expect(live.previous == transient)
+        #expect(live.accept(shown, final: false) == nil)
+        #expect(live.accept(shown, final: true) == shown.utf16.count)
+        #expect(live.presentation == shown)
+    }
+
+    @Test func tailConfirmationDoesNotWaitForNewWordsFirstWordsNumbersOrOtherEngines() {
+        let shown = "这个例子介绍人类大理石的五倍。"
+        let changed = "这个例子介绍人类大力士的五倍。"
+        var live = LocalLiveText(model: .qwen)
+        #expect(live.accept(shown, final: false) == 0)
+        #expect(live.accept(changed, final: false) == nil)
+        #expect(live.accept(changed + "这里", final: false) == 0)
+        #expect(live.previous == changed + "这里")
+        for model in [LocalASRID.sherpa, .nemotron] {
+            var other = LocalLiveText(model: model)
+            #expect(other.accept(shown, final: false) != nil)
+            #expect(other.accept(changed, final: false) != nil)
+        }
+        for value in ["这是第一个例子费用一千五百元。", "这是第一个例子今天不能出发。"] {
+            var immediate = LocalLiveText(model: .qwen)
+            let update = value.replacingOccurrences(of: "五百", with: "六百").replacingOccurrences(of: "不能", with: "才能")
+            #expect(immediate.accept(value, final: false) == 0)
+            #expect(immediate.accept(update, final: false) == 0)
+        }
+    }
+    @Test func twoEarlierChineseWordsNeedWholeSpanCorroborationBeforeTailCanResume() {
+        // Same two independently changing words as the preserved loaded public
+        // recording. A new word at the right edge must not wait for an earlier
+        // spelling to revert, once two full raw observations agree.
+        let head = "毋庸置疑的是如果你会讲一门罗曼语那么学习葡萄牙语会更加容易"
+        let tail = "首选登山目的地科查莫山谷被称为南美洲的优美圣地"
+        let original = head + "人类大理石的五倍视力" + tail
+        let corrected = head + "人类大力士的五倍这里" + tail
+        func ready() -> LocalLiveText {
+            var live = LocalLiveText(model: .qwen)
+            _ = live.accept(original, final: false)
+            _ = live.accept(original + "。", final: false)
+            return live
+        }
+        var live = ready()
+        #expect(live.accept(corrected + "这里有各。", final: false) == nil)
+        let grown = corrected + "这里有各式各样的花岗岩。"
+        #expect(live.accept(grown, final: false) == 0)
+        #expect(live.presentation == String(grown.dropLast()))
+        #expect(live.previous == grown)
+        let final = corrected + "这里有各式各样的花岗岩大石壁。"
+        #expect(live.accept(final, final: true) == final.utf16.count)
+        #expect(live.presentation == final)
+        for unsafe in [head + "人类大力士的六倍这里" + tail,
+                       head + "人类大力士的五倍不是" + tail,
+                       head + "完全不同的另一种解释" + tail] {
+            var guarded = ready()
+            #expect(guarded.accept(unsafe + "这里有各。", final: false) == nil)
+            #expect(guarded.accept(unsafe + "这里有各式各样的花岗岩。", final: false) == nil)
+            #expect(guarded.previous == original + "。")
+        }
+        var disagreement = ready()
+        _ = disagreement.accept(corrected + "这里有各。", final: false)
+        #expect(disagreement.accept(head + "人类大博士的五倍这里" + tail + "这里有各式各样。", final: false) == nil)
+    }
     // Verbatim partials from the pinned Qwen worker on public FLEURS sample 9eb2d543a0a36152.
     private let original = [
         "嗯。", "致力首選燈。", "致力首选登山目的地。科", "致力首选登山目的地——喀嚓莫山。",
@@ -280,6 +352,24 @@ struct QwenRecoveryTests {
         #expect(ambiguous.accept(first, final: false) == nil)
         #expect(ambiguous.accept(correction + tail + "摊贩的笑声。", final: false) == nil)
         #expect(ambiguous.presentation == head + tail)
+    }
+
+    @Test func corroboratedOldWordAndPunctuationCanKeepGrowingBeforeEOS() {
+        // Verbatim endings from loaded-new-1 (0.21/555). At 31.117s both
+        // observations agreed on the correction and the entire earlier tail;
+        // an additional “声光” wrongly caused withholding until 33.207s EOS.
+        let head = "老虎是全能运动员，游泳跳远能够达到人类大力士的五倍。"
+        let correction = head.replacingOccurrences(of: "大力士", with: "大理石")
+        let tail = "这里首选登山目的地——科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁。平时你总能在这里听到游客"
+        let restyled = tail.replacingOccurrences(of: "——", with: "，").replacingOccurrences(of: "。", with: "，")
+        var live = LocalLiveText(model: .qwen)
+        for n in [6, 3, 0] { #expect(live.accept(head + String(tail.dropLast(n)), final: false) == 0) }
+        #expect(live.accept(correction + restyled + "和小摊贩的声音。", final: false) == nil)
+        let growing = correction + tail + "和小摊贩的声音，声光。"
+        #expect(live.accept(growing, final: false) == 0)
+        #expect(live.presentation == String(growing.dropLast()))
+        #expect(live.previous == growing)
+        // The contradictory-tail test above remains unchanged and must reject.
     }
 
     private func fixture(_ variant: String) throws -> LocalModelManifest {
