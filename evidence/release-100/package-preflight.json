@@ -1,0 +1,21 @@
+{
+  "app_signature": {
+    "exit": 0,
+    "output": "Executable=/private/tmp/saytile-release100-final/Saytile.app/Contents/MacOS/Saytile\nIdentifier=app.saytile.mac.mandarin-candidate\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=26446 flags=0x10000(runtime) hashes=815+7 location=embedded\nVersionPlatform=1\nVersionMin=1703936\nVersionSDK=1703936\nHash type=sha256 size=32\nCandidateCDHash sha256=52d531018d4796b1bfedfafa4e43215af88e71c1\nCandidateCDHashFull sha256=52d531018d4796b1bfedfafa4e43215af88e71c10fc9bfc3d1238674b5d8fb16\nHash choices=sha256\nCMSDigest=52d531018d4796b1bfedfafa4e43215af88e71c10fc9bfc3d1238674b5d8fb16\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=6160384\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=52d531018d4796b1bfedfafa4e43215af88e71c1\nSignature size=9042\nAuthority=Developer ID Application: hongfei hao (ZB9D4T66QB)\nAuthority=Developer ID Certification Authority\nAuthority=Apple Root CA\nTimestamp=Nov 23, 2026 at 22:47:32\nInfo.plist entries=33\nTeamIdentifier=ZB9D4T66QB\nRuntime Version=26.0.0\nSealed Resources version=2 rules=13 files=40\nInternal requirements count=1 size=196\nTotal signatures=1\nChosen signature=1\n"
+  },
+  "app_gatekeeper": {
+    "exit": 3,
+    "output": "/tmp/saytile-release100-final/Saytile.app: rejected\nsource=Unnotarized Developer ID\n"
+  },
+  "dmg_gatekeeper": {
+    "exit": 3,
+    "output": "/Users/hhf/Documents/GitHub/saytile/dist/1.0.0/Saytile-1.0.0-arm64.dmg: rejected\nsource=Unnotarized Developer ID\n"
+  },
+  "version": "1.0.0",
+  "build": 572,
+  "source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+  "dmg_sha256": "60e4abf60618d510c7f99d8e92a6ec456f16840f22cc0fcd7eb74ac729c9dba2",
+  "bytes": 65662466,
+  "notarized": false,
+  "policy": "User explicitly allows signed unnotarized distribution with per-app Apple confirmation. No quarantine removal or Gatekeeper changes."
+}

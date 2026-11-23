@@ -1,0 +1,111 @@
+{
+  "url": "http://127.0.0.1:57461/",
+  "source": "42d8e98 product; website working change",
+  "headless": true,
+  "privateBrowserProfile": false,
+  "systemClipboardAccess": false,
+  "checks": [
+    {
+      "name": "Official 1.0.0 DMG",
+      "pass": true
+    },
+    {
+      "name": "Version build and honest signing disclosure",
+      "pass": true
+    },
+    {
+      "name": "No obsolete current 0.18 download",
+      "pass": true
+    },
+    {
+      "name": "Layout 320",
+      "pass": true
+    },
+    {
+      "name": "Layout 390",
+      "pass": true
+    },
+    {
+      "name": "Layout 540",
+      "pass": true
+    },
+    {
+      "name": "Layout 768",
+      "pass": true
+    },
+    {
+      "name": "Layout 1000",
+      "pass": true
+    },
+    {
+      "name": "Layout 1440",
+      "pass": true
+    },
+    {
+      "name": "Layout 1600",
+      "pass": true
+    },
+    {
+      "name": "Download navigation .nav-cta",
+      "pass": true
+    },
+    {
+      "name": "Download navigation .hero-actions .button-dark",
+      "pass": true
+    },
+    {
+      "name": "Archive search",
+      "pass": true
+    },
+    {
+      "name": "Edited version preserved",
+      "pass": true
+    },
+    {
+      "name": "Favorite interactive",
+      "pass": true
+    },
+    {
+      "name": "Actual labelled TTS playback",
+      "pass": true
+    },
+    {
+      "name": "Audio pause",
+      "pass": true
+    },
+    {
+      "name": "Playback speed",
+      "pass": true
+    },
+    {
+      "name": "Actual seek",
+      "pass": false
+    },
+    {
+      "name": "New record stops old audio",
+      "pass": true
+    },
+    {
+      "name": "Editing survives tab and record switches",
+      "pass": true
+    },
+    {
+      "name": "Native screenshot dialog",
+      "pass": true
+    },
+    {
+      "name": "Dialog closes with Escape",
+      "pass": true
+    },
+    {
+      "name": "Original scripts and resources",
+      "pass": true
+    },
+    {
+      "name": "No JS or resource errors",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "status": "FAIL"
+}

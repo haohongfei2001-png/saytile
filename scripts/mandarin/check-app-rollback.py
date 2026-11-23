@@ -4,6 +4,7 @@ import argparse
 import array
 import hashlib
 import json
+import os
 from pathlib import Path
 import plistlib
 import re
@@ -63,7 +64,7 @@ print(String(decoding: try JSONEncoder().encode(values), as: UTF8.self))
     plist["CFBundleExecutable"] = "Contract"
     (helper / "Info.plist").write_bytes(plistlib.dumps(plist))
     exe = helper / "MacOS/Contract"
-    run("swiftc", "-swift-version", "6", "-module-cache-path", tmp.parent / "module-cache",
+    run("swiftc", "-swift-version", "6", "-module-cache-path", Path(os.environ.get("SAYTILE_PROFILE_MODULE_CACHE", str(tmp.parent / "module-cache"))),
         tmp / "profile.swift", tmp / "main.swift", "-o", exe)
     result = json.loads(run(*NETWORK_DENIED, exe))
     assert result["bundle"] == info["bundle_id"]

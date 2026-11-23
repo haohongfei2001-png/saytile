@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "status": "USER_AUTHORIZED_PRODUCTION_UPDATE",
-  "version": "R8-plus-approved-two-scenes-beta-download",
+  "status": "AUTHORIZED_RELEASE_1_0_0_PENDING_DEPLOYMENT",
+  "version": "R8-plus-approved-two-scenes-stable-1.0.0",
   "approval_date": "2026-11-14",
   "user_instruction": "加上这新设计的两页，然后上线吧，就是说修改现在的版本。然后修改这几页",
   "production_url": "https://saytile.com/",
@@ -9,7 +9,7 @@
   "base_main": "42499d6101fad7e974917b2f687abc07738d2c9c",
   "previous_snapshot": "reference/history/r3-snapshot.json",
   "runtime_file_count": 15,
-  "runtime_total_bytes": 702349,
+  "runtime_total_bytes": 702478,
   "runtime_files": [
     {
       "path": "assets/archive-native.png",
@@ -48,8 +48,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 25379,
-      "sha256": "485c7a7e6ae548319216fa60a9ca9e270a1317e5744f2b039751803096955597"
+      "bytes": 25508,
+      "sha256": "8b85289048fb9d071e51953a4d663b01a44657adab50da3ca1d0f2baf2697129"
     },
     {
       "path": "middle.css",
@@ -97,18 +97,22 @@
     "No released cloud-sync claim",
     "Archive edits stay in page memory",
     "Audio is labelled synthetic TTS",
-    "Native App source unchanged; existing signed 0.18 (492) package offered as a prerelease, not notarized"
+    "1.0.0 Developer ID signed, not notarized; Gatekeeper requires system confirmation",
+    "No iCloud or paid cloud acceptance claim"
   ],
   "download_update": {
-    "date": "2026-11-15",
-    "user_instruction": "产品的官网已经部署好了。然后你可以更新官网上的一个入口，内测版。可以下载了",
-    "base_main": "37d433033fa41bc3a5c9f6e1dd5830628ee8c6b7",
-    "release_url": "https://github.com/haohongfei2001-png/saytile/releases/tag/v0.18-beta.492",
-    "download_url": "https://github.com/haohongfei2001-png/saytile/releases/download/v0.18-beta.492/Saytile-0.18-mandarin-arm64.dmg",
-    "app_version": "0.18",
-    "app_build": "492",
-    "app_source_sha": "012999c2018f591f3cf9a529e4c0ae81e7b81f21",
-    "dmg_sha256": "654b08e926d90c88e0cb05ff4a5c116aa6c87c6cd59f7d71c24ca028c0d5f933",
-    "notarized": false
+    "date": "2026-11-23",
+    "user_instruction": "完成正式 1.0.0 发行及官网上线，保持已批准视觉",
+    "base_main": "4caf73c85e31a5c49de70c3430a84d4504aa701f",
+    "release_url": "https://github.com/haohongfei2001-png/saytile/releases/tag/v1.0.0",
+    "download_url": "https://github.com/haohongfei2001-png/saytile/releases/download/v1.0.0/Saytile-1.0.0-arm64.dmg",
+    "app_version": "1.0.0",
+    "app_build": "572",
+    "app_source_sha": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+    "dmg_sha256": "60e4abf60618d510c7f99d8e92a6ec456f16840f22cc0fcd7eb74ac729c9dba2",
+    "bytes": 65662466,
+    "notarized": false,
+    "gatekeeper": "Unnotarized Developer ID; per-app system confirmation required",
+    "release_status": "stable_pending_validation_and_publication"
   }
 }

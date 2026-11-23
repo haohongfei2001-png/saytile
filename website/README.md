@@ -19,3 +19,7 @@
 [批准范围](APPROVAL.md) · [本轮验证](VALIDATION.md) · [完整页面实拍](reference/full-page.jpg)
 
 原R3批准和摘要在reference/history/；旧预览保留追溯。官网与原生App分别管理。
+
+## 1.0.0 正式下载更新
+
+下载区准备指向正式 1.0.0（572），沿用已批准视觉，仅改入口、安装限制及版本说明。实际部署状态和公开下载校验见 VALIDATION.md；不能把本地检查当成上线完成。签名已验证，尚未公证，明确说明 Gatekeeper 单 App 确认。原 0.18 安装包仍保留在 GitHub 历史 Release。
