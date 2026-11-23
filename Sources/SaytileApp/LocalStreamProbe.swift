@@ -22,6 +22,7 @@ import SaytileKit
         let sample: String
         let rawWorkerEvents: [RawWorkerEvent]
         let clockOriginUptime: Double
+        let stages: [FixturePerformanceTrace.Event]?
         let publications: [Publication]
         let frames: [Frame]
         let displayedChanges: Int
@@ -135,7 +136,7 @@ import SaytileKit
             }
         }
         let receipt = Result(model: id.rawValue, automatic: requested == nil, sha: Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String,
-            sample: source.lastPathComponent, rawWorkerEvents: rawEvents.withLock { $0 }, clockOriginUptime: start,
+            sample: source.lastPathComponent, rawWorkerEvents: rawEvents.withLock { $0 }, clockOriginUptime: start, stages: FixturePerformanceTrace.snapshot,
             publications: publications, frames: frames, displayedChanges: changes, endOfFile: eos - start, pipelineSettledAt: settled,
             total: ProcessInfo.processInfo.systemUptime - start, archive: records.map(\.text), providers: providers.sorted(),
             recordStates: records.map { $0.recognitionState.rawValue }, recordingErrors: records.compactMap(\.lastError),

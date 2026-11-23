@@ -1,0 +1,54 @@
+{
+  "xcode_select": {
+    "command": [
+      "xcode-select",
+      "-p"
+    ],
+    "exit": 0,
+    "stdout": "/Library/Developer/CommandLineTools\n",
+    "stderr": ""
+  },
+  "xctrace": {
+    "command": [
+      "xcrun",
+      "--find",
+      "xctrace"
+    ],
+    "exit": 72,
+    "stdout": "",
+    "stderr": "xcrun: error: unable to find utility \"xctrace\", not a developer tool or in PATH\n"
+  },
+  "hardware": {
+    "command": [
+      "sysctl",
+      "-n",
+      "hw.memsize",
+      "hw.logicalcpu",
+      "hw.model",
+      "machdep.cpu.brand_string"
+    ],
+    "exit": 0,
+    "stdout": "25769803776\n10\nMac17,3\nApple M5\n",
+    "stderr": ""
+  },
+  "os": {
+    "command": [
+      "sw_vers"
+    ],
+    "exit": 0,
+    "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428\n",
+    "stderr": ""
+  },
+  "installed_app": {
+    "path": "/Users/hhf/Applications/Saytile.app",
+    "executable_sha256": "d711d1cab97d0ff20e23129269b8d72989db2e5258f659d49276f77cf9ab4737"
+  },
+  "restrictions": [
+    "no physical microphone: lid remains closed",
+    "no private archive",
+    "no paid API",
+    "no installation change",
+    "no notarization",
+    "no release"
+  ]
+}

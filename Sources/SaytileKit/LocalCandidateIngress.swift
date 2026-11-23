@@ -32,13 +32,19 @@ actor LocalCandidateIngress {
         if run == nil { try await start() }
         guard let run else { throw FusionError.staleGeneration }
         sequence += 1
+        let started = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
+        FixturePerformanceTrace.record("candidate.received", recordingID: ticket.recordingID, frames: Int(event.audioEndSeconds * 16_000))
         let candidate = RecognitionCandidate(run: run, sequence: sequence, event: event)
         guard try await store.appendRecognitionCandidate(candidate) else { throw FusionError.staleGeneration }
+        FixturePerformanceTrace.record("candidate.persisted", recordingID: ticket.recordingID, since: started)
         complete = event.isComplete
         let prefix = try await store.fusionReservedPrefix(recordingID: ticket.recordingID)
         let proposal = PrecisionFusion.evaluate(candidates: [candidate], mode: .highestQuality,
             committedPrefix: prefix, requiredPurposes: [.multilingualASR], requiredConfigurationIDs: [run.configurationID])
+        let publicationStart = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
         let publication = try await store.publishFusion(ticket: ticket, proposal: proposal)
+        FixturePerformanceTrace.record("transcript.persisted", recordingID: ticket.recordingID, since: publicationStart,
+            decision: publication.deferred ? "protected" : "published")
         last = candidate
         complete = event.isComplete && !publication.deferred
         NotificationCenter.default.post(name: .init("SaytileRecognitionUpdated"), object: ticket.recordingID)

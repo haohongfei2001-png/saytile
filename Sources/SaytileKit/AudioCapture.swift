@@ -71,7 +71,10 @@ actor CaptureWorker {
                 if n > 0 {
                     lastFramesAt = Date()
                     let batchEnd = lastFramesAt.addingTimeInterval(-Double(st_ring_pending(ring.pointer)) / sampleRate)
+                    FixturePerformanceTrace.record("capture.read", frames: Int(n))
+                    let convertStart = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
                     let converted = try convertCapturedSamples(samples, count: n)
+                    FixturePerformanceTrace.record("capture.converted", frames: Int(n), since: convertStart)
                     var remaining = converted.reduce(0) { $0 + $1.count }
                     for pcm in converted {
                         remaining -= pcm.count
@@ -127,7 +130,10 @@ actor CaptureWorker {
         // Resolve the route when speech actually starts. The endpoint policy
         // and recognition ticket must refer to the same settings generation.
         lazy var route = recognitionFactory.snapshot
-        for event in segmenter.accept(pcm, nextLimits: { route.captureLimits }) {
+        let vadStart = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
+        let events = segmenter.accept(pcm, nextLimits: { route.captureLimits })
+        FixturePerformanceTrace.record("vad.accepted", frames: Int(segmenter.receivedSamples), since: vadStart)
+        for event in events {
             switch event {
             case let .begin(preRoll, sample):
                 try await beginUtterance(at: time.addingTimeInterval(Double(sample - segmenter.receivedSamples) / 16000), snapshot: route)
@@ -154,6 +160,7 @@ actor CaptureWorker {
         let snapshot = requested ?? recognitionFactory.snapshot
         let record = try await store.createRecording(createdAt: start)
         recordingID = record.id
+        FixturePerformanceTrace.record("vad.begin", recordingID: record.id, frames: Int(segmenter.receivedSamples))
         do {
             let journal = try PCMJournal(directory: store.audioDirectory, recordingID: record.id, io: journalIO)
             try journal.openChunk(); self.journal = journal
@@ -177,7 +184,9 @@ actor CaptureWorker {
     }
     func append(_ data: Data) async throws {
         guard let journal, let recordingID else { return }
+        let journalStart = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
         try journal.append(data)
+        FixturePerformanceTrace.record("journal.appended", recordingID: recordingID, frames: Int(journal.frames), since: journalStart)
         if journal.needsCheckpoint || journal.needsRotation {
             try journal.checkpoint()
             try await store.registerAudioChunk(recordingID: recordingID, relativePath: journal.relativePath, frames: journal.frames)
@@ -200,6 +209,7 @@ actor CaptureWorker {
         try journal.closeChunk()
         try await store.registerAudioChunk(recordingID: recordingID, relativePath: journal.relativePath, frames: journal.frames)
         try await store.finishRecording(id: recordingID, speechEndedAt: end)
+        FixturePerformanceTrace.record("vad.end", recordingID: recordingID, frames: Int(segmenter.receivedSamples))
         speech?.finish()
         // Closed-input sessions finish independently. Admission is bounded by the
         // cloud factory, never by cancelling older accepted recognition results.
@@ -484,6 +494,7 @@ public final class AudioController: NSObject, ObservableObject, AVAudioPlayerDel
                 try source.read(into: buffer, frameCount: 320)
                 try await clock.sleep(until: began + .seconds(Double(source.framePosition) / 16_000))
                 st_ring_write(ring.pointer, buffer.floatChannelData!, 1, buffer.frameLength)
+                FixturePerformanceTrace.record("fixture.captured", frames: Int(source.framePosition))
             }
         } catch { await worker.stop(); throw error }
         let eos = ProcessInfo.processInfo.systemUptime

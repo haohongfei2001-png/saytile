@@ -1065,9 +1065,14 @@ final class AppModel: ObservableObject {
         guard window == timelineWindow else { return }
         timelineRead &+= 1
         let request = timelineRead
+        let readStart = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
         let (page, tail, textTail) = try await store.panelTimeline(window)
+        FixturePerformanceTrace.record("ui.timelineRead", since: readStart)
         guard window == timelineWindow, request == timelineRead else { return }
-        if timeline != page { timeline = page }
+        if timeline != page {
+            timeline = page
+            FixturePerformanceTrace.record("ui.timelinePublished")
+        }
         if !completedFirstTranscript, page.entries.contains(where: { !$0.recording.text.isEmpty }) || tail?.recording.text.isEmpty == false {
             completedFirstTranscript = true
             preferences.set(true, forKey: "firstTranscript.v1")

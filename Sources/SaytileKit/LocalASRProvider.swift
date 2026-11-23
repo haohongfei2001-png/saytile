@@ -160,14 +160,16 @@ public actor LocalASRService {
             helpers.appending(path: id.sherpaRuntime ? "SaytileSherpa" : "SaytileModelWorker").path)
         return .init(supported: true, installed: ready, message: ready ? id.title : "\(id.title) · 需要准备模型")
     }
-    fileprivate func recognize(_ id: LocalASRID, audio: AsyncStream<Data>, ingress: LocalCandidateIngress) async throws -> Bool {
+    fileprivate func recognize(_ id: LocalASRID, audio: AsyncStream<Data>, ingress: LocalCandidateIngress, recordingID: UUID) async throws -> Bool {
         let token = UUID()
         guard waiting.count < 8 else { throw AudioFailure.message("前段识别仍在进行，原音可重新识别") }
         waiting.append(token)
+        FixturePerformanceTrace.record("asr.queued", recordingID: recordingID)
         defer { waiting.removeAll { $0 == token } }
         while activeModel != nil || waiting.first != token { try await Task.sleep(for: .milliseconds(20)) }
         try Task.checkCancellation()
         activeModel = id
+        FixturePerformanceTrace.record("asr.admitted", recordingID: recordingID)
         idle?.cancel()
         defer {
             activeModel = nil
@@ -193,9 +195,15 @@ public actor LocalASRService {
             guard let current = worker else { throw LocalASREngineUnavailable(reason: "本机识别进程未启动") }
             return try await withTaskCancellationHandler {
                 let sender = Task.detached {
+                    var framesSent = 0
                     for await frame in audio {
                         try Task.checkCancellation()
-                        if !frame.isEmpty { try current.write(frame) }
+                        if !frame.isEmpty {
+                            let start = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
+                            try current.write(frame)
+                            framesSent += frame.count / 2
+                            FixturePerformanceTrace.record("asr.pipeWritten", recordingID: recordingID, frames: framesSent, since: start)
+                        }
                     }
                     try Task.checkCancellation()
                     try current.write(Data())
@@ -212,7 +220,12 @@ public actor LocalASRService {
                         }
                         lastFrames = event.frames
                         let final = event.kind == "final"
-                        if !event.text.isEmpty, let stable = liveText.accept(event.text, final: final) {
+                        FixturePerformanceTrace.record("asr.rawReceived", recordingID: recordingID, frames: event.frames, decision: event.kind)
+                        let confirmationStart = FixturePerformanceTrace.enabled ? ProcessInfo.processInfo.systemUptime : 0
+                        let stable = event.text.isEmpty ? nil : liveText.accept(event.text, final: final)
+                        FixturePerformanceTrace.record("preview.decided", recordingID: recordingID, frames: event.frames,
+                            since: confirmationStart, decision: stable == nil ? "withheld" : (final ? "final" : "preview"))
+                        if let stable {
                             try await ingress.receive(.init(text: liveText.presentation, stableUTF16Length: stable,
                                 audioEndSeconds: Double(event.frames) / 16_000, timingGranularity: "utterance", isComplete: final))
                         }
@@ -565,7 +578,7 @@ private final class ModelRecognitionSession: RecognitionSession, @unchecked Send
             let ingress = LocalCandidateIngress(store: store, ticket: ticket, model: model, review: review)
             do {
                 try await ingress.start()
-                if try await service.recognize(model, audio: audio, ingress: ingress) {
+                if try await service.recognize(model, audio: audio, ingress: ingress, recordingID: ticket.recordingID) {
                     try await ingress.finish()
                 } else {
                     await ingress.finishWithoutTranscript()

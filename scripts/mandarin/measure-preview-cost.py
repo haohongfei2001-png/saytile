@@ -26,7 +26,7 @@ def seconds(cpu_time):
     return int(minutes) * 60 + float(secs)
 
 
-def public_run(app, manifest, sample_id, weights, audio, out):
+def public_run(app, manifest, sample_id, weights, audio, out, profile=False):
     meta = plistlib.loads((app / "Contents/Info.plist").read_bytes())
     row = next(r for r in json.loads(manifest.read_text())["samples"] if r["id"] == sample_id)
     wav = audio / (sample_id + ".wav")
@@ -43,6 +43,7 @@ def public_run(app, manifest, sample_id, weights, audio, out):
             p = subprocess.Popen([app / "Contents/MacOS/Saytile", "--data-directory", data,
                                   "--local-stream-probe", "auto"], stdout=log, stderr=log)
             samples, children, last_cpu = [], set(), {}
+            profiles = {}
             try:
                 while p.poll() is None:
                     if time.monotonic() - start > 100:
@@ -53,6 +54,18 @@ def public_run(app, manifest, sample_id, weights, audio, out):
                     assert len(active) <= 1 and count < ctypes.sizeof(child_pids), active
                     children.update(active)
                     ids = [p.pid, *active]
+                    # Diagnostic runs only. Never use these instrumented timings
+                    # as an uninstrumented before/after performance comparison.
+                    # Targets come solely from this disposable App's process tree.
+                    if profile and time.monotonic() - start >= 8:
+                        for pid in ids:
+                            if pid not in profiles:
+                                role = "app" if pid == p.pid else "worker"
+                                profile_log = (out / f"sample-{role}.log").open("wb")
+                                command = ["/usr/bin/sample", str(pid), "30", "10", "-mayDie",
+                                           "-file", str(out / f"sample-{role}.txt")]
+                                sampler = subprocess.Popen(command, stdout=profile_log, stderr=profile_log)
+                                profiles[pid] = (sampler, profile_log, command)
                     process_times = subprocess.run(["ps", "-p", ",".join(map(str, ids)), "-o", "pid=,time="],
                                                    capture_output=True, text=True)
                     observed = {int(pid): seconds(t) for line in process_times.stdout.splitlines()
@@ -75,6 +88,17 @@ def public_run(app, manifest, sample_id, weights, audio, out):
                 if p.poll() is None:
                     p.terminate()
                     p.wait(timeout=4)
+                if profile:
+                    statuses = []
+                    for pid, (sampler, profile_log, command) in profiles.items():
+                        try:
+                            sampler.wait(timeout=8)
+                        except subprocess.TimeoutExpired:
+                            sampler.terminate()
+                            sampler.wait(timeout=4)
+                        profile_log.close()
+                        statuses.append(dict(pid=pid, command=command, exit_code=sampler.returncode))
+                    (out / "profilers.json").write_text(json.dumps(statuses, indent=2))
             elapsed = time.monotonic() - start
             # Keep the real failure before TemporaryDirectory/TemporaryFile cleanup.
             # These inputs are exclusively the hash-checked public fixture above.
@@ -118,4 +142,5 @@ if __name__ == "__main__":
     for name in ["app", "manifest", "weights", "audio", "out"]:
         cli.add_argument("--" + name, type=Path, required=True)
     cli.add_argument("--id", dest="sample_id", required=True)
+    cli.add_argument("--profile", action="store_true", help="Sample only this App and its worker; diagnostic, not acceptance")
     public_run(**vars(cli.parse_args()))
