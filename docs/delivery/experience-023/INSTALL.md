@@ -1,6 +1,6 @@
 # Saytile 0.23（571）隔离工程候选
 
-本包属于 Draft PR #54，产品源码 `a1ac008de50855ae0c03f30128f5b1f74269d617`，不是公开 Beta。当前安装 0.20（533）未被替换，个人数据库、录音、设置及 Keychain 未打开或迁移。
+本包属于 Draft PR #54，产品源码 `a1ac008de50855ae0c03f30128f5b1f74269d617`，不是公开 Beta。当前安装 0.20（533）未被替换，个人数据库与录音未打开，设置及 Saytile API 凭据未修改或迁移。
 
 - 文件：`/Users/hhf/Documents/GitHub/saytile/dist/internal-0.23-571/Saytile-0.23-571-arm64.dmg`
 - SHA-256：`1bae2309ca0b1493c7111e6080c24b3b8f6a86a83066008b53c0ca2f3d42b720`

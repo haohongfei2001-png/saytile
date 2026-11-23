@@ -12,7 +12,7 @@
 | 直接输入 | 实际 AX 通过 EOS 插入、去重、前后文和零发送保护；partial 稳定范围仍为 0，目标应用须等 EOS；早派发启发式存在反例，未加入 |
 | 准确率 | PASS：15 段 8.10%；420 段 8.53%；20 派生段 8.51%；全部 440 条文字及状态与 569 一致，五个旧空子段仍 failed |
 | 原速长句 | 首字 2.696→1.463 s；仍有 2.214 s 内部可见新字间隔，EOS 延迟未改善 |
-| 完整 CI | PENDING：等待本轮最终 head 的完整 Xcode、AppModel 与前台 CI；历史 CI 不代替本轮 |
+| 完整 CI | `20fea00`：完整 native PASS（573 Swift Testing + 30 XCTest、AppModel 220、原生 UI/前台）；品牌总清单过期失败已保存并补正。清单修复后的最终 head 结果见 PR #54 checks |
 | 签名 / 打包 / 隔离断网启动 | PASS：使用已测试的同一 App 二进制，无安装替换 |
 | 公证 / Gatekeeper | NOT_RUN / BLOCKED：任务禁止公证；App、DMG 均被拒绝为 Unnotarized Developer ID，无绕过 |
 | 麦克风 / 8 GB / 整机功耗 | NOT_RUN：保持合盖，不以公开 PCM 冒充本人讲话 |

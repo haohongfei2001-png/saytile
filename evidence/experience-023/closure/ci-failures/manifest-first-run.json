@@ -1,0 +1,8 @@
+{
+  "head": "20fea0090c1c9efcb2484c8603049c179d46f424",
+  "run": 45177628549,
+  "job": 137702881236,
+  "status": "FAIL",
+  "cause": "Tracked SHA256SUMS.txt was not refreshed for 16 intentionally modified source/docs/test files. Brand original/transport/resource SHA checks passed. No asset was changed.",
+  "fix": "Refresh manifest for reviewed changed files and newly committed closure evidence; preserve immutable archive entries and all check assertions."
+}

@@ -71,14 +71,14 @@ Qwen 的临时 `stableUTF16Length` 仍为 0。用一个真实公开混合句的 
 
 全 440 条质量回归 **PASS（结果保持）**：420 原始集 910/10663 = 8.53%，独立 20 派生集 65/764 = 8.51%。440 条最终文字与记录状态全部逐字等于 569；没有与原速 15 段合并评分。旧五个空定稿子段保持 failed、可重试及原音，不标 completed，也不因整体质量回归通过就宣称五个旧失败已解决。
 
-最终完整 Xcode CI：等待本轮最终 head，当前不借用 569 的历史绿灯。全量只在最终候选执行一次；原生前台输入、编辑/复制保护及通用契约由已有 CI 覆盖，不再次占用本机浏览器和用户焦点。
+完整 Xcode CI：`20fea00` 实测 573 Swift Testing + 30 XCTest，0 失败；AppModel 220、原生 UI/12000 条时间轴及 foreground 全部通过。清单修复后的最终 head 以 PR #54 checks 为准，不借用 569 的历史绿灯。品牌 job 的图标来源、运输件和资源 SHA 均通过，但仓库总清单遗漏更新 16 个已修改文件，原失败日志已保存。仅补正经过审查的源码/证据清单，不改任何断言或产品二进制。原生前台输入、编辑/复制保护及通用契约由已有 CI 覆盖，不再次占用本机浏览器和用户焦点。
 
 571 签名 App 与打包 App 是同一二进制。Developer ID + 安全时间戳、DMG 校验、只读挂载、临时 Applications 复制、隔离断网 smoke 通过。App 和 DMG 的 Gatekeeper 实测均拒绝 `Unnotarized Developer ID`，没有移除 quarantine 或关闭保护；任务禁止公证。
 
 - DMG：`Saytile-0.23-571-arm64.dmg`，64,551,729 bytes。
 - SHA-256：`1bae2309ca0b1493c7111e6080c24b3b8f6a86a83066008b53c0ca2f3d42b720`。
 - 本机路径：`/Users/hhf/Documents/GitHub/saytile/dist/internal-0.23-571/`。
-- 安装 533 前后 SHA-256：`d711d1cab97d0ff20e23129269b8d72989db2e5258f659d49276f77cf9ab4737`，未替换，未打开其个人库或 Keychain。
+- 安装 533 前后 SHA-256：`d711d1cab97d0ff20e23129269b8d72989db2e5258f659d49276f77cf9ab4737`，未替换，未打开其个人数据库、未读写 Saytile API 密钥。
 - 内置麦克风、真人现场、8 GB、整机功耗：NOT_RUN。保持合盖；公开 PCM 不冒充本人讲话。
 
 ## 证据索引及复现
