@@ -9,6 +9,7 @@ import { createServer } from 'node:http';
 import { createInterface } from 'node:readline';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const scratch=process.env.SAYTILE_INPUT_SCRATCH??'/tmp/saytile-rc-input';
+const evidence=resolve(process.env.SAYTILE_INPUT_EVIDENCE_DIRECTORY??`${root}/evidence/rc`);
 const require=createRequire(resolve(process.env.SAYTILE_PLAYWRIGHT_DIR??`${scratch}/browser-tools`,'package.json'));
 const {chromium}=require('playwright');
 const html=readFileSync(`${root}/tests/fixtures/input-browser.html`);
@@ -17,7 +18,7 @@ await new Promise(r=>server.listen(0,'127.0.0.1',r));
 let browser,child;const lines=[];
 const log=s=>{lines.push(s);console.log(s);};
 try {
- const build=spawnSync('/bin/zsh',['-c',`swiftc -swift-version 6 -parse-as-library -I Sources/CSQLite Sources/SaytileKit/Models.swift Sources/SaytileKit/Store*.swift Sources/SaytileKit/Input*.swift tests/fixtures/InputDOMCoordinatorProbe.swift -o '${scratch}/dom-coordinator-probe'`],{cwd:root,encoding:'utf8'});
+ const build=spawnSync('python3',[`${root}/scripts/test-input-native.py`,'--compile-dom-only'],{cwd:root,encoding:'utf8',maxBuffer:10*1024*1024});
  if(build.status!==0)throw Error(build.stderr);
  browser=await chromium.launch({headless:true, ...(process.env.SAYTILE_CHROMIUM_EXECUTABLE?{executablePath:process.env.SAYTILE_CHROMIUM_EXECUTABLE}:{})});
  log('HEADLESS_BROWSER '+browser.version());
@@ -51,6 +52,6 @@ try {
  await context.close();
 }finally{
  child?.kill();await browser?.close();server.close();
- mkdirSync(`${root}/evidence/rc`,{recursive:true});
- writeFileSync(`${root}/evidence/rc/input-browser-dom.log`,lines.join('\n')+'\n');
+ mkdirSync(evidence,{recursive:true});
+ writeFileSync(`${evidence}/input-browser-dom.log`,lines.join('\n')+'\n');
 }

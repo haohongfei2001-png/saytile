@@ -1,9 +1,8 @@
 import Foundation
 
-public enum RecordingFilter: Sendable { case all, pinned, needsRecovery }
+public enum RecordingFilter: Sendable { case all, transcribed, pinned, needsRecovery }
 public enum AudioState: String, Codable, Sendable { case available, deletePending, deleted, missing }
 public enum RecognitionState: String, Codable, Sendable { case queued, running, completed, failed, cancelled }
-public enum RevisionOrigin: String, Codable, Sendable { case partial, final, userEdit }
 public enum DispatchState: String, Codable, Sendable { case dispatching, confirmed, unverified, failed, cancelled }
 
 public struct Recording: Identifiable, Sendable, Equatable {
@@ -18,6 +17,14 @@ public struct Recording: Identifiable, Sendable, Equatable {
     public let isRecording: Bool
     public let lastError: String?
     public let sampleRate: Double
+
+    /// Keep Apple's original diagnostic in the archive; do not promise replay for deleted audio.
+    public var displayedError: String? {
+        guard lastError == "RecogRejected" else { return lastError }
+        return audioState == .available
+            ? "本地识别未能确认文字。原音已保留，可回听或重新识别。"
+            : "本地识别未能确认文字。"
+    }
 }
 public struct TranscriptRevision: Identifiable, Sendable, Equatable {
     public let id: UUID
@@ -60,11 +67,13 @@ public struct StoreRecovery: Sendable {
     public let unverifiedDispatches: Int
 }
 public enum StoreError: LocalizedError, Sendable {
+    case archiveEditingConflict(Recording)
     case database(String), missingRecording, missingRevision, audioUnavailable, recordingActive, audioInUse
     case invalidPath, invalidFrames, invalidBoundary, bindingInvalid, prefixChanged, lateRecognitionDeferred
     public var errorDescription: String? {
         switch self {
         case .database(let message): return "资料库暂时不可用：\(message)"
+        case .archiveEditingConflict: return "原文已修改，草稿已保留。请先核对当前文字。"
         case .missingRecording: return "记录不存在。"
         case .missingRevision: return "文字版本不存在。"
         case .audioUnavailable: return "原音不可用。"
@@ -78,4 +87,15 @@ public enum StoreError: LocalizedError, Sendable {
         case .prefixChanged: return "已输入的文字发生修订，后续文字保留在输入板。"
         }
     }
+}
+
+/// A replacement has its own at-most-once journal; insertion reservations remain immutable.
+public struct OwnedCorrectionReservation: Sendable {
+    public let id: UUID
+    public let bindingID: UUID
+    public let recordingID: UUID
+    public let revisionID: UUID
+    public let targetStart: Int
+    public let expectedText: String
+    public let replacement: String
 }

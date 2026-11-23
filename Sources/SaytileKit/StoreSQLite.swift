@@ -4,14 +4,16 @@ import CSQLite
 // The connection is owned by SaytileStore. No handle escapes its actor.
 final class StoreDatabase: @unchecked Sendable {
     private var handle: OpaquePointer?
-    init(url: URL) throws {
-        let result = sqlite3_open_v2(url.path, &handle, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX, nil)
+    init(url: URL, readOnly: Bool = false) throws {
+        let flags = readOnly ? SQLITE_OPEN_READONLY : (SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)
+        let result = sqlite3_open_v2(url.path, &handle, flags | SQLITE_OPEN_FULLMUTEX, nil)
         guard result == SQLITE_OK else { throw StoreError.database("无法打开 SQLite (\(result))") }
         sqlite3_busy_timeout(handle, 5000)
     }
     func configureForWriting() throws {
         try execute("PRAGMA journal_mode=WAL")
         try execute("PRAGMA synchronous=FULL")
+        try execute("PRAGMA fullfsync=ON")
         try execute("PRAGMA foreign_keys=ON")
     }
     func close() throws {
