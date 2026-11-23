@@ -329,11 +329,22 @@ private func immediateAbort(_ message: String) -> Never {
                 try await Task.sleep(for: .milliseconds(150))
                 print("FOREGROUND_STAGE target=\(kind) resolver_begin"); fflush(nil)
                 let access = AXInputAccess(selectionProvider: { try guardrail.selectFixture(pid) })
+                access.onProofUnavailable = { print("OWNED_RESOLVER_UNAVAILABLE", kind, $0); fflush(nil) }
                 var ready: InputTargetSnapshot?
-                for _ in 0..<40 {
+                for attempt in 0..<40 {
                     try guardrail.check(pid)
-                    if let candidate = try? access.snapshot(), candidate.isWeb == (kind == "web"), candidate.isEditable,
-                       candidate.selectionLocation == 7, candidate.selectionLength == 0 { ready = candidate; break }
+                    do {
+                        let candidate = try access.snapshot()
+                        if candidate.isWeb == (kind == "web"), candidate.isEditable,
+                           candidate.selectionLocation == 7, candidate.selectionLength == 0 { ready = candidate; break }
+                        if attempt == 0 || attempt == 39 {
+                            print("OWNED_RESOLVER_NOT_READY", kind, "web", candidate.isWeb,
+                                  "editable", candidate.isEditable, "caret", candidate.selectionLocation,
+                                  "range", candidate.selectionLength, "sensitive", candidate.isSensitive)
+                        }
+                    } catch {
+                        if attempt == 0 || attempt == 39 { print("OWNED_RESOLVER_ERROR", kind, error) }
+                    }
                     try await Task.sleep(for: .milliseconds(50))
                 }
                 guard let snapshot = ready else {

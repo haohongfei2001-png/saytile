@@ -46,3 +46,10 @@ Run 45087394247, foreground job 137409103330. Full original log and artifact ZIP
 The candidate now batches the same non-value AX attributes for field identity, ancestor identity and context nodes to reduce serial cross-process calls. Semantic values are still read only after classifying noneditable anchors. The 150 ms complete-context budget, 120 ms message timeout, complete page digest, exact text/caret/window checks and observer invalidation remain. Transport failure in ancestry fails closed, including a WKWebView hosted by a nonbrowser app. There is no proof cache, write retry, automatic focus action, rebind or relaxed observer policy. Optional fixture diagnostics contain reason labels only.
 
 Local compilation and the same 22 deterministic fixture-policy checks PASS. The nonactivating local native batch exits 2 before AX setup because `NSRunningApplication(processIdentifier:)` cannot establish the bare fixture's process identity on this host; it does not prove the product passed or failed. No activation or permission change was attempted. Real CI verification and a newly source-bound package are required for the product change. Previous 557 package evidence remains frozen.
+
+
+## fae4841 actual result; narrowed remaining failure
+
+Real WKWebView first insertion, append, length-changing correction, manual edit, blur, restart, post-reservation context change and AX stall all passed. TextEdit and Chrome (including interrupted first confirmation) passed. The job still FAILED: the subsequent AppKit fixture had a focused AXTextArea but did not meet the resolver readiness condition. Its previous diagnostic omitted the failing property. Add reason-only logging to the existing resolver reads, retaining exactly the existing checks/read count/deadline; do not re-activate or retry writes.
+
+A local nonactivating bare fixture could not register an NSRunningApplication identity. A temporary accessory-registration diagnostic was immediately stopped by the existing foreground isolation assertion before any AX mutation. It is not a PASS and is not adopted into the fixture; no further local activation attempt. Use disposable CI for the remaining test.
