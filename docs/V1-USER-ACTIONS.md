@@ -1,3 +1,9 @@
+## 2026-11-23 · 0.21（563）最终签名候选
+
+无需用户参与工程测试；现用533不动。待一个可用notarytool profile名称、既有Apple Team的CloudKit容器/App ID/开发profile，以及已有Cloudflare账户反馈部署授权。不给聊天/仓库密钥。真实麦克风按合盖决定NOT_RUN。取得授权不等于已满足公开推广，仍有压力响应和空定稿限制。 [发布裁决](delivery/beta-021/STATUS.md) · [完整验收](delivery/beta-021/ACCEPTANCE.md)。
+
+以下为原始阶段记录，不替代最新结论。
+
 ## 2026-11-16 · 隔离确认框宿主修复
 
 ## 2026-11-23 · 前台复验

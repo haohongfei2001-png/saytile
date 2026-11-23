@@ -1,3 +1,9 @@
+## 2026-11-23 · 0.21（563）最终签名候选
+
+最终563：567 Swift Testing、30 XCTest、220 AppModel及7项CI作业成功；真实AppKit/WKWebView/TextEdit/Chrome输入通过。签名DMG的56次AXPress/7次边缘点击、三段原速出字、18项故障、533↔563及真实Sparkle安装重启通过。详测557和15段刷新561保留实际SHA，组件相同性可核；压力、空final和所有BLOCKED/NOT_RUN不改PASS。 [发布裁决](delivery/beta-021/STATUS.md) · [完整验收](delivery/beta-021/ACCEPTANCE.md)。
+
+以下为原始阶段记录，不替代最新结论。
+
 ## 2026-11-16 · 隔离确认框宿主修复
 
 ## 2026-11-23 · 前台复验

@@ -60,3 +60,10 @@ A local nonactivating bare fixture could not register an NSRunningApplication id
 The exact same product repeatedly reports `snapshot.field_attributes` for the AppKit editor, before binding or writing. This is a compatibility regression of the new field-wide batch; the preceding WKWebView cases continue to pass. Revert only that field-wide read to the established individual attribute reads. Keep web semantic-context batching and strict complete proof, ancestry and observer rules. No capability is inferred from a failed call and no retry is added.
 
 This run also preserves a Chrome first-write `unverified` result: DOM text was exact, but a subsequent `page.context_attributes` read was incomplete. No replay or send occurred. This remains a reliability failure until final live CI passes, and transient proof failures still fail closed. Full raw log and ZIP are preserved as `foreground-failed-0e6227a.*`.
+
+
+## Final product 8514fea / 563
+
+The field-wide batch is removed; native field attributes use the established individual reads. Semantic context and ancestor role/parent reads remain batched to avoid unnecessary serial IPC. An incomplete ancestor/context still rejects ownership; no identity cache, missing-proof fallback, longer deadline, focus reacquisition or write replay is added.
+
+Run 45090352675, foreground job 137418391833, PASSED on source 8514fea5d45a778aae84854db9b139f7a1fbb85b. Real AppKit/WKWebView first insert, append, longer/shorter range revision, manual edit, cancellation, different window, missing readiness witness and uncertain dispatch cases passed. TextEdit and Chrome first/append, dedup and target mutation passed; Chrome interrupted confirmation used the real owned focus/selection observer path. Zero sends. Full logs and the original artifact ZIP are in ../final-563/. Previous failures remain, and the product still refuses a genuinely unavailable proof rather than promising every browser observation will always be available.

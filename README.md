@@ -1,6 +1,6 @@
 # Saytile
 
-最新独立开发候选为 **0.21（557）**，整合 PR49/50，尚未公开发布或替换安装。[准确率、真实原生验收和发布裁决](docs/delivery/beta-021/STATUS.md)。
+最新独立开发候选为 **0.21（563）**，整合 PR49/50，尚未公开发布或替换安装。[准确率、真实原生验收和发布裁决](docs/delivery/beta-021/STATUS.md)。
 
 本机个人内测为 **Saytile 0.20（533）**，支持 Apple Silicon、macOS 26 及以上版本。应用名称为 Saytile，版本与构建号在「关于」中显示。官网公开 Beta 为 0.18（492）。[本机版本与回退](docs/delivery/saytile-next-release/RELEASE.md) · [各项验收状态](docs/delivery/saytile-next-release/STATUS.md)
 

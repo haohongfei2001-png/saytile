@@ -1,0 +1,31 @@
+{
+  "source": "8514fea5d45a778aae84854db9b139f7a1fbb85b",
+  "version": "0.21",
+  "build": "563",
+  "bundle": "app.saytile.mac.mandarin-candidate",
+  "dmg_bytes": 64500811,
+  "dmg_sha256": "a77e9bcd2447cee254f8dac9dfc1a797318ab424d1e220e06e9ea535d646a1c2",
+  "binary_sha256": "6bdc43a58c22af783a061ed875b7f2b1f11c747574929cd2a8cb6cd1c890a8eb",
+  "checks": {
+    "signature": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": "--prepared:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Helpers/SaytileSherpa\n--validated:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Helpers/SaytileSherpa\n--prepared:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/libsherpa-onnx-c-api.dylib\n--validated:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/libsherpa-onnx-c-api.dylib\n--prepared:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/Sparkle.framework/Versions/Current/.\n--prepared:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/Sparkle.framework/Versions/Current/Autoupdate\n--validated:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/Sparkle.framework/Versions/Current/Autoupdate\n--prepared:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/Sparkle.framework/Versions/Current/Updater.app\n--validated:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/Sparkle.framework/Versions/Current/Updater.app\n--prepared:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/libonnxruntime.dylib\n--validated:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/libonnxruntime.dylib\n--prepared:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/Sparkle.framework/Versions/Current/XPCServices/Downloader.xpc\n--prepared:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/Sparkle.framework/Versions/Current/XPCServices/Installer.xpc\n--validated:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/Sparkle.framework/Versions/Current/XPCServices/Downloader.xpc\n--validated:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/Sparkle.framework/Versions/Current/XPCServices/Installer.xpc\n--validated:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Frameworks/Sparkle.framework/Versions/Current/.\n--prepared:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Helpers/SaytileModelWorker\n--validated:/private/tmp/saytile-021-563-app/Saytile.app/Contents/Helpers/SaytileModelWorker\n/private/tmp/saytile-021-563-app/Saytile.app: valid on disk\n/private/tmp/saytile-021-563-app/Saytile.app: satisfies its Designated Requirement\n"
+    },
+    "identity": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": "Executable=/private/tmp/saytile-021-563-app/Saytile.app/Contents/MacOS/Saytile\nIdentifier=app.saytile.mac.mandarin-candidate\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=26222 flags=0x10000(runtime) hashes=808+7 location=embedded\nVersionPlatform=1\nVersionMin=1703936\nVersionSDK=1703936\nHash type=sha256 size=32\nCandidateCDHash sha256=9abb0613830460472139324bb5d219711ce0070a\nCandidateCDHashFull sha256=9abb0613830460472139324bb5d219711ce0070a73da3e524271f1b8e39548c3\nHash choices=sha256\nCMSDigest=9abb0613830460472139324bb5d219711ce0070a73da3e524271f1b8e39548c3\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=6111232\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=9abb0613830460472139324bb5d219711ce0070a\nSignature size=9042\nAuthority=Developer ID Application: hongfei hao (ZB9D4T66QB)\nAuthority=Developer ID Certification Authority\nAuthority=Apple Root CA\nTimestamp=Nov 23, 2026 at 08:44:03\nInfo.plist entries=33\nTeamIdentifier=ZB9D4T66QB\nRuntime Version=26.0.0\nSealed Resources version=2 rules=13 files=40\nInternal requirements count=1 size=196\nTotal signatures=1\nChosen signature=1\n"
+    },
+    "gatekeeper": {
+      "exit": 3,
+      "stdout": "",
+      "stderr": "/private/tmp/saytile-021-563-app/Saytile.app: rejected\nsource=Unnotarized Developer ID\n"
+    },
+    "ticket": {
+      "exit": 65,
+      "stdout": "Processing: /private/tmp/saytile-021-563-app/Saytile.app\nSaytile.app does not have a ticket stapled to it.\n",
+      "stderr": ""
+    }
+  }
+}

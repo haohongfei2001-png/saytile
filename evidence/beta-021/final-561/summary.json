@@ -1,0 +1,77 @@
+{
+  "source": "fae4841196240b78d8af4b555006272f070691dc",
+  "clips": 15,
+  "final_text_equal_to_533": true,
+  "errors": 46,
+  "reference_units": 568,
+  "cer": 0.08098591549295775,
+  "cadence": {
+    "timeline": {
+      "fresh_gaps_s": {
+        "p50": 0.514,
+        "p95": 1.089
+      },
+      "previous_event_gaps_s": {
+        "p50": 0.514,
+        "p95": 1.089
+      },
+      "longest_per_clip_s": {
+        "p50": 1.224,
+        "p95": 1.998
+      },
+      "first_s": {
+        "p50": 0.9,
+        "p95": 1.508
+      },
+      "clips_with_repeated_updates": 15,
+      "number_of_gaps_at_least_2s": 0
+    },
+    "display": {
+      "fresh_gaps_s": {
+        "p50": 0.408,
+        "p95": 1.029
+      },
+      "previous_event_gaps_s": {
+        "p50": 0.408,
+        "p95": 1.029
+      },
+      "longest_per_clip_s": {
+        "p50": 1.251,
+        "p95": 1.885
+      },
+      "first_s": {
+        "p50": 0.94,
+        "p95": 1.509
+      },
+      "clips_with_repeated_updates": 15,
+      "number_of_gaps_at_least_2s": 0
+    },
+    "worker": {
+      "fresh_gaps_s": {
+        "p50": 0.513,
+        "p95": 1.036
+      },
+      "previous_event_gaps_s": {
+        "p50": 0.513,
+        "p95": 1.036
+      },
+      "longest_per_clip_s": {
+        "p50": 1.22,
+        "p95": 2.0
+      },
+      "first_s": {
+        "p50": 0.896,
+        "p95": 1.504
+      },
+      "clips_with_repeated_updates": 15,
+      "number_of_gaps_at_least_2s": 1
+    }
+  },
+  "end_of_file_s": {
+    "p50": 0.2,
+    "p95": 0.313
+  },
+  "combined_cpu_s": 45.11,
+  "peak_simultaneous_footprint_MiB": 1536.5,
+  "comparison_scope": "refresh pass after AX-only change; not an alternating paired CPU measurement"
+}

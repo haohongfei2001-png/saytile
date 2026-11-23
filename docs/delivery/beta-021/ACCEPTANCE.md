@@ -1,43 +1,49 @@
-# 0.21（557）机器验收
+# 0.21（563）机器验收
 
-日期：2026-11-23（Asia/Shanghai）。安装包和原生测试绑定产品源码 `9aace8f5b0d7082bd67d2e9b1b6e1db6dcf05883`，主程序 SHA `10895f5a01c615d408ac7fb95b9aac98ff2982638979bd11590d135e94fb6d33`。后续 fixture 修复在 `94db534265597e4bc26109e2d849b2406f62edb3`，产品代码、资源、运行时和打包脚本没有变化。
+日期：2026-11-23（Asia/Shanghai）。最终安装包源码 **`8514fea5d45a778aae84854db9b139f7a1fbb85b`**，主程序SHA `6bdc43a58c22af783a061ed875b7f2b1f11c747574929cd2a8cb6cd1c890a8eb`。逐项来源见 [最终机器收据](../../../evidence/beta-021/final-563/machine.json)。
 
-## 本机签名候选
+## 最终本机签名包
 
 | 项目 | 状态与证据 |
 | --- | --- |
-| 原生档案、选区、编辑、复制、回听、星标 | PASS。56 次 AXPress、7 次真实边缘点击；43 张常规和 3 张参考尺寸图，使用隔离合成资料。见 [manifest](../../../evidence/beta-021/final/native-ui/manifest.json)。 |
-| 外观与品牌 | PASS。11 次真实菜单选择，边框/尺寸/还原与黑色/原紫色 AXPress 往返；文字、选区、编辑器和自定义偏好保持。共20张图，见 [receipt](../../../evidence/beta-021/final/appearance/receipt.json)。 |
-| 实际材质与窗口 | PASS 工程场景，22 个 WindowServer 合成截图，捕获仅限同一隔离进程的两扇自有窗口。权限状态和讲话状态注入，不是物理授权/真实麦克风。[receipt](../../../evidence/beta-021/final/composited/receipt.json)。 |
-| 数据异常与旧版迁移 | PASS，18项。真实 SIGKILL、PCM 首写和轮转、WAL/事务、删除意图、低存储写失败、Beta/RC1→v6、幂等恢复。断网由进程禁止网络覆盖；实体突然断电 NOT_RUN。[receipt](../../../evidence/beta-021/final/storage/receipt.json)。 |
-| 533↔557 升级回退 | PASS，四步往返，九张表、2份WAV、4个版本和2份编辑稿哈希保持；模型标记不重下。Keychain 服务名与签名要求检查，未读真实密钥。[receipt](../../../evidence/beta-021/final/rollback.json)。 |
-| 原生 Sparkle | PASS，损坏包拒绝、有效包安装、无参数重启、数据及模型标记保持。loopback 和临时密钥，真实安装器配隔离用户驱动，不是公共线上更新或人工标准弹窗点击。[receipt](../../../evidence/beta-021/final/update/receipt.json)。 |
-| 最终中文管线 | 正常原速、压力和440段质量分别报告，不合并成“全部PASS”。[质量](QUALITY.md)。 |
-| 15分钟以上原速长测 | PASS：905.02秒真实原速，47/47完成、79块WAV逐块字节匹配，SQLite完整、0外部派发；45秒静音期间释放helper，随后恢复。[收据](../../../evidence/beta-021/final/soak.json)。 |
-| Developer ID / Gatekeeper | 签名及时间戳 PASS；Gatekeeper 实测拒绝未公证包，公证 BLOCKED。 |
+| 原生档案、选区、编辑、复制、回听、星标 | PASS：56次AXPress、7次边缘点击、9次菜单选择，43张常规及3张参考尺寸截图；隔离合成资料。[manifest](../../../evidence/beta-021/final-563/native-ui/manifest.json)。 |
+| 最终三段原速语音 | PASS：相同15段集中的三段，真实模型→正式音频管线→AppKit→SQLite；结束前18/9/17个不同文字状态，最终稿与完整回归一致。不是新增全量质量测量，也不是现场麦克风。[receipt](../../../evidence/beta-021/final-563/smoke3/receipt.json)。 |
+| 数据异常与旧版迁移 | PASS，18项：真实SIGKILL、PCM首写和轮转、WAL/事务、删除意图、存储不足写失败、Beta/RC1→v6、幂等恢复。进程禁止网络；物理断电NOT_RUN。[receipt](../../../evidence/beta-021/final-563/storage/receipt.json)。 |
+| 533↔563升级回退 | PASS，四步往返，9张表、2份WAV、4个版本和2份编辑稿哈希保持，模型标记不重下。只检查Keychain服务名和签名要求，未读真实密钥。[receipt](../../../evidence/beta-021/final-563/rollback.json)。 |
+| 原生Sparkle | PASS：损坏包拒绝，有效包安装、无参数重启及资料保留。真实安装器配临时loopback源/密钥和隔离用户驱动；不是公共更新源或普通弹窗人工点击。[receipt](../../../evidence/beta-021/final-563/update/receipt.json)。 |
+| 签名、公证、Gatekeeper | Developer ID、安全时间戳、严格签名PASS；Gatekeeper实测拒绝未公证包，公证BLOCKED。[receipt](../../../evidence/beta-021/final-563/signature.json)。 |
 
-实际检查了黑色设置、黑色主板、紫色档案与同尺度原图对照，没有重新设计主板。紫色保持默认；黑色仅改变可选品牌和强调色，不能篡改已签名 Finder 图标。运行中的 Dock/菜单/设置图形切换不代表静态安装图标更换。当前固定字号和按钮仍小于早期概念原图，可选边框也不相同；继承 PR49 后续产品决定，不能称为像素一致或用户已批准所有细节。
+上述本机UI仅操作自有临时PID和隔离数据；窗口不可成为key/main，控制、截图、编辑前后均检查，outside_foreground_observations=0。状态/授权UI场景由fixture注入，不冒称真实系统权限或物理麦克风通过。
 
-![同尺度原图与真实原生窗口](../../../evidence/beta-021/final/composited/reference-and-native.png)
+![最终563的真实原生档案](../../../evidence/beta-021/final-563/native-ui/archive.png)
 
-![真实黑色品牌设置](../../../evidence/beta-021/final/appearance/appearance-brand-black-settings.png)
+## 完整Xcode和真实前台输入
 
-## Xcode 与真实前台输入
+产品源码 `8514fea` 的 [native run 45090352675](https://github.com/haohongfei2001-png/saytile/actions/runs/45090352675) **SUCCESS**。完整Xcode运行567/567 Swift Testing、30/30 XCTest，失败0；时间敏感的38项分组和其余529项分进程执行，所有测试均执行，未将失败断言改为跳过。AppModel 220项、实际原生窗口、反馈离线重启、12000条时间轴等步骤成功。四个workflow共 **7项作业全部success**（native3、design1、cloud2、brand1）。[精确CI收据](../../../evidence/beta-021/final-563/ci.json) · [完整native日志](../../../evidence/beta-021/final-563/ci-native.log.gz) · [Swift日志](../../../evidence/beta-021/final-563/ci-swift.log.gz)。
 
-[GitHub native run 45083846290](https://github.com/haohongfei2001-png/saytile/actions/runs/45083846290) 使用完整 Xcode，测试源为 `94db534`。Swift Testing 567/567（38项协议分组加529项其余完整套件），XCTest 30/30，失败0；没有把断言改为跳过。AppModel 220项及原生窗口、反馈离线重启、12000条时间轴作业均成功。四个workflow共六项作业全部success，[完整CI收据](../../../evidence/beta-021/final/ci-94db534.json)；完整native日志保留。
+真实前台 **PASS**：WKWebView/AppKit首次和追加、重复抑制、长短范围修订、用户编辑/光标/目标变化、取消、未知结果禁止重发；TextEdit及独立Chrome实际Unicode插入、前后文保护、追加、切换目标及首次确认中断。零回车、零发送。全部使用托管Mac的一次性隔离窗口，不读取用户真实聊天。[完整前台日志](../../../evidence/beta-021/final-563/ci-foreground.log.gz) · [原始目标收据ZIP](../../../evidence/beta-021/final-563/foreground-8514fea.zip)。
 
-真实前台作业 PASS：WKWebView/AppKit 首次和追加、重复抑制、局部范围修订、手改/光标/目标变化、取消、未知结果禁止重发；TextEdit及独立Chrome的实际Unicode插入、前后文保持、追加和中断确认；零回车、零发送。所有目标是一次性隔离窗口，没有读取或写入用户聊天。完整 [前台日志](../../../evidence/beta-021/final/ci-94db534-foreground.log.gz) 和 [各目标机器证据](../../../evidence/beta-021/final/foreground-94db534.zip) 保留。
+已复现并分别处理：fixture将暂不可读的page/witness误判为已变化；生产AX串行上下文读取开销；新字段批读对AppKit的兼容回归。最终仅批读同组上下文/祖先属性，字段保持既有读取方式。缺失证明仍拒绝写入，完整上下文150ms预算和消息120ms超时不变，无缓存身份、盲重试、自动重取焦点或放宽所有权。[全部原始失败及修复过程](../../../evidence/beta-021/final/foreground-readiness.md)。一次通过不保证任何浏览器永远可读；不确定投递仍不重播。
 
-原始失败在 `9aace8f`：网页上下文一次读不完整，但焦点、窗口、编辑框、光标等均相同；fixture把“不完整”当作“改变”。只允许同URL/标题、所有独立属性不变的缺失观察重置就绪计数；仍须在原五秒期限内得到三次完整一致观察。17项属性变异回归，产品拒绝不确定写入的行为不变。没有写入重试、重新绑定或重新抢焦点。[原始失败与修复](../../../evidence/beta-021/final/foreground-readiness.md)
+## 保留实际来源的长测与视觉证据
 
-## 未被证明的范围
+以下实际来自557产品源码 `9aace8f`；最终563仅改InputAccessibility，ASR/音频/存储/UI及模型运行库载荷相同，[组件对照](../../../evidence/beta-021/final-563/component-equivalence.json)。未把这些旧收据改写成563实测。
 
-- BLOCKED：真实 iCloud Mac上传/新Mac恢复/iPhone回听，当前0条/0字节；反馈私有工单送达；新包公证。
-- BLOCKED：托管Mac不支持实际硬件睡眠（VirtualMac2,1，sleep request 71）。旧版全屏退出后系统保留被排斥窗口原几何的特定路径仍无法在虚拟机触发。没有把这些记PASS。
-- NOT_RUN：合盖内置麦克风、用户个人口音、8GB机器、功耗/GPU/ANE、真实突然断电和显示器热插拔。
-- iPhone Simulator的2项 UI 和离线恢复为PR49既有证据，本轮未改变读端，也未把它们冒称最终557的真实CloudKit验收。
+- 外观：11次真实菜单选择，边框/字号/尺寸/还原及黑↔紫AXPress往返，保留文字、选区和独立偏好，20张图。[收据](../../../evidence/beta-021/final/appearance/receipt.json)。
+- 材质：22个真实WindowServer场景，只截取同一临时进程的自有窗口；权限/讲话状态注入。[收据](../../../evidence/beta-021/final/composited/receipt.json)。
+- 905.02秒原速长测：47/47档案、79块WAV逐块匹配，SQLite完整，0外部派发；45秒静音期间释放helper后恢复。[收据](../../../evidence/beta-021/final/soak.json)。5秒采样App/helper CPU中位5.2%/22.6%，RSS峰122.91/799.0MiB；首末5分钟RSS中位App117.02/114.02、helper793.61/794.78MiB。不是整机功耗或8GB内存压力证明。
+- 常规、压力、440段准确率和561的15段刷新分别保留实际SHA、原始输出和失败；[质量报告](QUALITY.md)，不合并为“全部PASS”。
 
-长测5秒采样：App CPU中位5.2%、RSS峰122.91MiB；ASR helper CPU中位22.6%、RSS峰799.0MiB。首/末5分钟RSS中位分别App117.02/114.02MiB、helper793.61/794.78MiB。这是进程采样，不是整机功耗或物理内存压力证明。
+实际看过黑色设置/主板、紫色档案及同尺度原图。紫色仍默认，黑色是可选强调色；运行中图形可切换，不能修改已签名Finder静态图标。固定字号/按钮和边框继承PR49的后续产品决定，与早期概念原图并非像素一致，主观最终认可不由几何或截图数替代。
 
+![原图与真实原生窗口，同尺度对照，557](../../../evidence/beta-021/final/composited/reference-and-native.png)
 
-最终证据提交 `d03f446` 又复现一次前台失败：同目标的完整文字见证暂不可读，被fixture当作变化；发生于首次写入前，绑定仍有效、观察通知为0。原始日志/ZIP已保留。后续仅修fixture，缺失证据重置原期限内的就绪计数，已读出不同文字仍立即拒绝。22项编译回归通过；真实AppKit/WKWebView加入一次缺失就绪见证的明确注入，正式产品读取及安全条件不变。最终fixture CI以PR #51最新head为准，不能沿用94db534成功覆盖新失败。
+![实际黑色品牌设置，557](../../../evidence/beta-021/final/appearance/appearance-brand-black-settings.png)
+
+## FAIL、BLOCKED与NOT_RUN
+
+- **FAIL**：竞争负载有效新字最长2.564秒；未证明总CPU降低。五个既有子段原模型空final可复现，原音/失败保留。
+- **BLOCKED**：新包公证/Gatekeeper放行；真实iCloud Mac上传→新Mac恢复→iPhone回听（0条/0字节）；真实反馈私有工单送达。
+- **BLOCKED**：托管Mac不支持内核睡眠（VirtualMac2,1，sleep request 71）；该步骤的成功退出只是记录阻断，非睡眠通过。既有特定“退出全屏后仍保留被排斥窗口租约”路径无法在虚拟机触发。
+- **NOT_RUN**：合盖内置麦克风、个人口音、8GB Mac、整机功耗/GPU/ANE、物理突然断电、实体显示器热插拔、普通Sparkle弹窗人工点击。
+- iPhone Simulator两项UI及离线恢复为PR49已有证据；读端未改，不能冒称本轮563真实CloudKit验收。
