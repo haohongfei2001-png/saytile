@@ -51,6 +51,17 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
     }
     public private(set) var latestText = ""
     public var hasDeferredUpdate: Bool { !Self.sameText(transcriptView.string, latestText) }
+    /// Read-only state for the isolated native replay; does not release any edit guard.
+    public var presentationBlocker: String? {
+        if controlOnly { return "controlOnly" }
+        if changingDocument { return "applyingDocument" }
+        if selecting { return "selecting" }
+        if editing { return "editing" }
+        if transcriptView.composing || transcriptView.hasMarkedText() { return "composition" }
+        if applyEdits != nil && !Self.sameText(rendered.text, transcriptView.string) { return "uncommittedEdit" }
+        if transcriptView.selectedRange().length > 0 { return "selection" }
+        return nil
+    }
     var onFollowChange: (Bool) -> Void = { _ in }
     var onSelectionChange: (String) -> Void = { _ in }
 

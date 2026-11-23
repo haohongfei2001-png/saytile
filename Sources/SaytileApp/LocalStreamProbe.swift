@@ -14,6 +14,17 @@ import SaytileKit
         let text: String
         let frames: Int
         let decodes: [WorkerDecodeTiming]?
+        let startup: [WorkerStartupTiming]?
+    }
+    struct SurfaceState: Encodable {
+        let t: Double
+        let visible: Bool
+        let hidden: Bool
+        let following: Bool
+        let blocker: String?
+        let deferred: Bool
+        let selectedLength: Int
+        let renderedMatches: Bool
     }
     struct Result: Encodable {
         let model: String
@@ -25,6 +36,7 @@ import SaytileKit
         let stages: [FixturePerformanceTrace.Event]?
         let publications: [Publication]
         let frames: [Frame]
+        let surfaceStates: [SurfaceState]
         let displayedChanges: Int
         let endOfFile: Double
         let pipelineSettledAt: Double
@@ -62,7 +74,7 @@ import SaytileKit
             let t = ProcessInfo.processInfo.systemUptime - start
             rawEvents.withLock { entries in
                 entries.append(RawWorkerEvent(t: t, kind: event.kind, text: event.text, frames: event.frames,
-                                              decodes: event.decodes))
+                                              decodes: event.decodes, startup: event.startup))
             }
         }
         // These are host timeline publications before the view performs any presentation.
@@ -75,9 +87,17 @@ import SaytileKit
             }
         }
         defer { subscription.cancel() }
+        var surfaceStates: [SurfaceState] = []
         let observe = Task { @MainActor () -> ([Frame], Int) in
             var frames: [Frame] = [], last = "", changes = 0, captured = false
             while !Task.isCancelled {
+                if let view = textView(content), surfaceStates.count < 4096 {
+                    surfaceStates.append(SurfaceState(t: ProcessInfo.processInfo.systemUptime - start,
+                        visible: panel.isVisible, hidden: view.isHiddenOrHasHiddenAncestor,
+                        following: view.isFollowingLatest, blocker: view.presentationBlocker,
+                        deferred: view.hasDeferredUpdate, selectedLength: view.transcriptView.selectedRange().length,
+                        renderedMatches: view.rendered.text.utf16.elementsEqual(view.transcriptView.string.utf16)))
+                }
                 if panel.isVisible, let view = textView(content), !view.isHiddenOrHasHiddenAncestor,
                    let manager = view.transcriptView.layoutManager, manager.numberOfGlyphs > 0 {
                     let string = view.transcriptView.string
@@ -137,7 +157,7 @@ import SaytileKit
         }
         let receipt = Result(model: id.rawValue, automatic: requested == nil, sha: Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String,
             sample: source.lastPathComponent, rawWorkerEvents: rawEvents.withLock { $0 }, clockOriginUptime: start, stages: FixturePerformanceTrace.snapshot,
-            publications: publications, frames: frames, displayedChanges: changes, endOfFile: eos - start, pipelineSettledAt: settled,
+            publications: publications, frames: frames, surfaceStates: surfaceStates, displayedChanges: changes, endOfFile: eos - start, pipelineSettledAt: settled,
             total: ProcessInfo.processInfo.systemUptime - start, archive: records.map(\.text), providers: providers.sorted(),
             recordStates: records.map { $0.recognitionState.rawValue }, recordingErrors: records.compactMap(\.lastError),
             copiedArchiveParagraphs: copiedParagraphs)

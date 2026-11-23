@@ -20,9 +20,10 @@ func bytes(_ count: Int, allowEOF: Bool = false) throws -> Data? {
     return data
 }
 
-func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]] = []) throws {
+func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]] = [], startup: [[String: Any]] = []) throws {
     var event: [String: Any] = ["kind": kind, "text": text, "frames": frames]
     if !decodes.isEmpty { event["decodes"] = decodes }
+    if !startup.isEmpty { event["startup"] = startup }
     var line = try JSONSerialization.data(withJSONObject: event)
     line.append(10)
     try FileHandle.standardOutput.write(contentsOf: line)
@@ -30,6 +31,12 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
 
 @main struct Worker {
     static func main() async throws {
+        let traceStartup = ProcessInfo.processInfo.environment["SAYTILE_WORKER_TIMING"] == "1"
+        var startup: [[String: Any]] = []
+        func loading(_ stage: String) {
+            if traceStartup { startup.append(["stage": stage, "uptime": ProcessInfo.processInfo.systemUptime]) }
+        }
+        loading("main")
         let args = CommandLine.arguments
         guard args.count == 4, let stride = Int(args[3]), (8_000...64_000).contains(stride) else { throw WorkerError.configuration }
         let id = args[1], directory = URL(fileURLWithPath: args[2], isDirectory: true)
@@ -52,7 +59,8 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
             nemo = nil
             let model = try await Qwen3ASRModel.fromPretrained(modelId: id == "qwen-small"
                 ? "aufklarer/Qwen3-ASR-0.6B-MLX-4bit" : "aufklarer/Qwen3-ASR-1.7B-MLX-4bit",
-                cacheDir: directory, offlineMode: true)
+                cacheDir: directory, offlineMode: true,
+                progressHandler: { _, stage in loading(stage) })
             // The small model translated whole English clauses in Mandarin speech
             // when forced to Chinese. Leave it free to transcribe the spoken language.
             let language = id == "qwen-small" ? nil : "Chinese"
@@ -75,7 +83,8 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
             transcribe = { samples, _ in try await model.transcribe(audio: samples) }
         default: throw WorkerError.configuration
         }
-        try publish("", kind: "ready", frames: 0)
+        loading("ready")
+        try publish("", kind: "ready", frames: 0, startup: startup)
         var stream = try nemo?.createSession(language: nemotronLanguage)
         // Give the first hypothesis 800 ms of acoustic context even when later
         // previews are requested more frequently.

@@ -39,11 +39,17 @@ public struct WorkerDecodeTiming: Codable, Sendable {
     public let verifiedPreviewTokens: Int?
 }
 
+public struct WorkerStartupTiming: Codable, Sendable {
+    public let stage: String
+    public let uptime: Double
+}
+
 public struct WorkerEvent: Decodable, Sendable {
     public let kind: String
     public let text: String
     public let frames: Int
     public let decodes: [WorkerDecodeTiming]?
+    public let startup: [WorkerStartupTiming]?
 }
 
 final class ModelWorker: @unchecked Sendable {
@@ -179,11 +185,14 @@ public actor LocalASRService {
             let fresh = worker?.id != id || worker?.process.isRunning != true
             do {
                 let manifest = try LocalModelManifest.load(id)
+                FixturePerformanceTrace.record("asr.validationStarted", recordingID: recordingID)
                 let directory = try await library.validated(manifest)
+                FixturePerformanceTrace.record("asr.assetsReady", recordingID: recordingID)
                 try Task.checkCancellation()
                 if fresh {
                     worker?.stop()
                     let stride = chunkFrames ?? (id == .qwen ? 8_000 : 19_200)
+                    FixturePerformanceTrace.record("asr.workerLaunching", recordingID: recordingID)
                     worker = try ModelWorker(id: id, directory: directory, helpers: helpers, stride: stride,
                                              observe: probeObserver)
                 }
@@ -214,7 +223,10 @@ public actor LocalASRService {
                     var liveText = LocalLiveText(model: id, previewPolicy: .provisional)
                     for try await event in current.events {
                         try Task.checkCancellation()
-                        if event.kind == "ready" && !ready { ready = true; continue }
+                        if event.kind == "ready" && !ready {
+                            FixturePerformanceTrace.record("asr.workerReady", recordingID: recordingID)
+                            ready = true; continue
+                        }
                         guard ready, ["partial", "final"].contains(event.kind), event.frames >= lastFrames else {
                             throw LocalASREngineUnavailable(reason: "本机识别事件顺序异常")
                         }
