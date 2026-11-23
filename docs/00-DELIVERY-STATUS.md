@@ -1,39 +1,26 @@
-> 当前为 V1 RC1，源码 `8906a9d`；最新状态见 [V1-DEV-STATUS.md](V1-DEV-STATUS.md)，验证边界见 [RC清单](V1-RC-ACCEPTANCE.md)。**以下是设计恢复阶段历史快照**，不是当前未完成事项；PR #1/#2 已合并。
+# 当前：0.21（564）发行收口
 
-# 交付状态 · 2026-11-06
+本分支目标 main，当前裁决 HOLD。最终依据为 [统一 STATUS](delivery/release-021/STATUS.md) 和 `evidence/release-021`。以下为继承的历史记录，不能冒充本轮最终 SHA 验收。
 
-## 已实际完成
+---
 
-- 从恢复包读取并保存原始报告、七场景 HTML 原型、SQL、Swift 接口、测试脚本和来源索引。
-- 按已知截图约束重建两项未交付修订：音频独立删除；稳定前缀增量派发。
-- 完成 `contracts/schema.sql`（设计 schema v2）、`Contracts.swift`、可运行 SQLite/文件参考模型及测试。
-- 原型统一为 Saytile；区分删除原音/删除记录；保留修改历史；加明确确认和演示重置；加入重复 revision 与前缀改写场景。
-- 识别设置不再强制本地路线。默认原音保留至手动删除，启用期限整理须确认。
-- 完成产品、技术、验收与工程接续文档；保留原件哈希和差异来源。
+# Saytile V1 工程交付状态
 
-## 实际测试
+2026-11-23：最新独立候选为 **0.21（563）**，整合 PR49/50，见 [PR51 收口与发布裁决](delivery/beta-021/STATUS.md)。当前安装仍为 533；新包 Developer ID 签名完成但公证阻塞，压力场景仍有两秒以上停顿，暂不公开推广。以下均保留为既有安装或历史证据。
 
-| 范围 | 结果 | 不代表什么 |
-|---|---|---|
-| 继承 PCM/SQLite 合成实验 | 10/10 | 不代表 APFS 掉电恢复 |
-| 新增删除/派发/UTF-16 数据契约 | 37/37 | 不代表真正的 macOS 插入适配器 |
-| Chromium DOM 交互 | 48/48 | 不代表 Safari 或原生 App |
-| Swift 6 接口类型检查 | 通过 | 不代表实现了接口 |
-| Swift Foundation Unicode 边界断言 | 8/8（含 macOS 修复） | 不代表 AX 实际输入 |
+当前个人内测整合以 PR #49 和[本轮交付记录](delivery/saytile-next-release/STATUS.md)为准。实际安装源码、公证、公共 Beta 渠道与账户授权分别见该目录。下列 RC2 和 0.12–0.19 的条目保留为历史记录。
 
-浏览器采用 `set_content` 注入实际 HTML，因为执行环境禁止 file/http 导航。localStorage 在测试中使用明确的内存替身验证序列化与恢复；真实数据库重开/删除恢复由 SQLite 测试覆盖。未把替身写成真实磁盘耐久测试。
+此前独立开发为0.15自然段候选，基于已安装0.14（478）源码`7fd9296d8eb2bd81379bbaa7287844d0d46703d5`。主板与档案统一15秒自然段、默认60秒时间组；原音与历史版本保留。实现、独立审查及原生窗口回归完成，最终同源CI/签名包收据另行追加。[自然段交付说明](NATURAL-PARAGRAPHS.md)。以下旧版本说明保留为历史记录。
 
-## 尚未完成
+个人内测原版为 Saytile.app（0.12）。中文识别独立候选为 0.13（466），使用自己的档案和设置。[最终签名候选的原速对照和实测](../evidence/mandarin-preview-20261114/DELIVERY.md)。最新源码、原生体验证据与实际限制见[当前开发状态](V1-DEV-STATUS.md)及[逐版本实测记录](V1-TEST-RESULTS.md)；下述冻结候选记录独立保留。
 
-- 真实 macOS 录音、中文 ASR、ALAC 压缩、外部输入、设备/休眠行为和能耗。
-- 共享音频块中存活片段的生产级重写。当前参考模型采用保守延期清理，状态明确为未完成；不会误删其他记录。
-- 原 Pro 最后一轮文件的原件级恢复。那轮所称 12 项新增和 33 项浏览器检查无法复核，本轮不沿用其计数。
-## 远端发布与 CI（2026-11-06）
+独立 Draft PR #12 的时间轴预览使用源码 86dbd24。新包与 RC2 并存。[预览交付和机器收据](V1-CONTINUOUS-TIMELINE.md)
 
-- 正式仓库：`haohongfei2001-png/saytile`；公开状态由用户明确授权。
-- 已将完整 67 文件设计交付提交到 `recovery/v1-design-20261106`。
-- [PR #1](https://github.com/haohongfei2001-png/saytile/pull/1) 已创建并保持开放，**尚未合并到 main**；main 的原始提交为 `090ecd14`。
-- GitHub Actions：`swift-contracts` 与 `data-and-prototype` 已在修复 UTF-16 边界问题后双双通过。相关检查仅覆盖 Swift 契约、合成数据、浏览器原型，不代表原生 Mac App 验收。
-- 本次在真实 macOS 修复了 Foundation 在 UTF-16 代理对位置上的转换差异，新增组合字符边界断言。根目录 SHA256 清单已同步更新。
+冻结 RC2 工程候选 `1.0.0-rc.2-no-api.10`，源码 `5639058e6b178027861b18cc0521387487c919d5`。核心状态为 `READY_FOR_AUTHORIZED_API_ACCEPTANCE`。完整实机验收与公开分发仍为 BLOCKED。真实云端 NOT_RUN。生产 main、RC1 和 no-api.9.1 保留原版本。
 
-`scripts/publish_to_github.sh` 是历史准备脚本，不要在已有 PR 上再次运行。新的工程接续应直接使用现有 PR 或基于最新 main 新开功能分支。
+[封版报告和唯一安装包](V1-NO-API-DELIVERY.md) · [逐项证据](../evidence/no-api10/final/machine.json) · [授权事项](V1-USER-ACTIONS.md)
+
+
+2026-11-10 · 独立商业候选（未发布）：见 [Saytile Cloud 交付与阻塞](SAYTILE-CLOUD-DELIVERY.md)。线上网关存在；付费托管及公开分发尚未开放。
+
+2026-11-10 · 独立本机 ASR 候选 [签名包与 M5 机器验收](V1-LOCAL-ASR-ACCEPTANCE.md)。三种真流式、一种分块、三种归档；仅 Draft PR #15，不取代任何冻结版本。

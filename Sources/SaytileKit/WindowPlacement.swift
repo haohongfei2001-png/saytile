@@ -1,25 +1,169 @@
 import Foundation
 import CoreGraphics
 
+/// Optional starting sizes; manual dragging continues to use the saved frame.
+public enum PanelSizePreset: String, CaseIterable, Codable, Sendable {
+    case compact, standard, spacious
+
+    public var title: String {
+        switch self {
+        case .compact: "紧凑"
+        case .standard: "默认"
+        case .spacious: "宽敞"
+        }
+    }
+
+    private var scale: CGFloat {
+        switch self {
+        case .compact: 0.85
+        case .standard: 1
+        case .spacious: 1.35
+        }
+    }
+
+    fileprivate func scaled(_ size: CGSize) -> CGSize {
+        CGSize(width: size.width * scale, height: size.height * scale)
+    }
+}
+
 /// Window geometry uses visible frames, including displays with negative origins and menu bars.
 public enum WindowPlacement {
-    public static func panel(anchor: CGRect?, visibleFrame: CGRect, preferredSize: CGSize = CGSize(width: 400, height: 550)) -> CGRect {
-        let inset = visibleFrame.insetBy(dx: 8, dy: 8)
-        let size = CGSize(width: min(preferredSize.width, inset.width), height: min(preferredSize.height, inset.height))
-        let x = anchor.map { $0.maxX - size.width } ?? inset.midX - size.width / 2
-        let y = anchor.map { $0.minY - size.height - 8 } ?? inset.midY - size.height / 2
-        return CGRect(x: min(max(x, inset.minX), inset.maxX - size.width),
-                      y: min(max(y, inset.minY), inset.maxY - size.height), width: size.width, height: size.height)
+    public static let nearpaneWidthFraction: CGFloat = 0.125
+    public static let panelDefaultSize = CGSize(width: 344, height: 234)
+    public static let panelMinimumSize = VoicePanelFootprint.minimumSize
+
+    public static func panelLimits(visibleFrame: CGRect) -> (minimum: CGSize, maximum: CGSize) {
+        let maximum = visibleFrame.size
+        let width = min(maximum.width, max(20, maximum.width * nearpaneWidthFraction))
+        let height = min(maximum.height, max(1, VoiceRailProportions.factoryHeight(width: width, visibleHeight: maximum.height)))
+        return (CGSize(width: min(panelMinimumSize.width, width),
+                       height: min(panelMinimumSize.height, height)), maximum)
+    }
+
+    public static func panelSize(_ requested: CGSize, visibleFrame: CGRect) -> CGSize {
+        let limits = panelLimits(visibleFrame: visibleFrame)
+        let width = min(max(requested.width, limits.minimum.width), limits.maximum.width)
+        let height = min(max(requested.height, limits.minimum.height), limits.maximum.height)
+        return CGSize(width: width, height: height)
+    }
+
+    /// Nearpane voice section by itself; not a full-height sidebar or fixed card.
+    public static func initialPanel(visibleFrame: CGRect, preset: PanelSizePreset = .standard) -> CGRect {
+        let width = min(visibleFrame.width, max(20, visibleFrame.width * nearpaneWidthFraction))
+        let factory = CGSize(width: width, height: VoiceRailProportions.factoryHeight(width: width, visibleHeight: visibleFrame.height))
+        let size = panelSize(preset.scaled(factory), visibleFrame: visibleFrame)
+        // The glass touches the visible desktop's upper-right edge.
+        return CGRect(x: visibleFrame.maxX - size.width,
+                      y: visibleFrame.maxY - size.height,
+                      width: size.width, height: size.height)
+    }
+
+    /// Changing a size preset keeps the chosen upper-right corner, except where
+    /// fitting the resulting panel inside the usable display requires a shift.
+    public static func resizedPanel(_ frame: CGRect, preset: PanelSizePreset, visibleFrame: CGRect) -> CGRect {
+        let size = initialPanel(visibleFrame: visibleFrame, preset: preset).size
+        let proposed = CGRect(x: frame.maxX - size.width, y: frame.maxY - size.height,
+                              width: size.width, height: size.height)
+        return restoredPanel(proposed, visibleFrames: [visibleFrame])
+    }
+
+    public static func restoredPanel(_ frame: CGRect, visibleFrames: [CGRect]) -> CGRect {
+        guard let destination = destination(for: frame, visibleFrames: visibleFrames) else { return frame }
+        let size = panelSize(frame.size, visibleFrame: destination)
+        let left = destination.minX
+        let bottom = destination.minY
+        return CGRect(x: min(max(frame.minX, left), destination.maxX - size.width),
+                      y: min(max(frame.minY, bottom), destination.maxY - size.height),
+                      width: size.width, height: size.height)
+    }
+
+    /// Reopen at the compact panel's current position even if it was moved
+    /// while folded. Old compact placements have only a remembered height.
+    public static func expandedPanel(from frame: CGRect, on visible: CGRect,
+                                     width: CGFloat?, height: CGFloat?, anchorsRight: Bool?) -> CGRect {
+        let factory = initialPanel(visibleFrame: visible)
+        let readableWidth = width.flatMap { $0.isFinite && !VoicePanelFootprint.isCompact(outerWidth: $0) ? $0 : nil }
+        let readableHeight = height.flatMap { $0.isFinite && $0 > 0 ? $0 : nil }
+        let size = panelSize(CGSize(width: readableWidth ?? max(128, factory.width, frame.width),
+                                    height: readableHeight ?? max(64, factory.height, frame.height)), visibleFrame: visible)
+        let keepRight = anchorsRight ?? (frame.midX >= visible.midX)
+        let proposed = CGRect(x: keepRight ? frame.maxX - size.width : frame.minX, y: frame.maxY - size.height,
+                              width: size.width, height: size.height)
+        return restoredPanel(proposed, visibleFrames: [visible])
+    }
+
+    /// The cursor chooses the display even over its Dock or menu bar. Outside all
+    /// display bounds, keep the panel on its current available screen.
+    public static func dragDestination(pointer: CGPoint, currentPanel: CGRect,
+                                       displays: [(frame: CGRect, visible: CGRect)]) -> CGRect? {
+        displays.first { $0.frame.contains(pointer) }?.visible
+            ?? destination(for: currentPanel, visibleFrames: displays.map(\.visible))
+    }
+
+    private static func destination(for frame: CGRect, visibleFrames: [CGRect]) -> CGRect? {
+        visibleFrames.max { lhs, rhs in
+            let a = lhs.intersection(frame), b = rhs.intersection(frame)
+            let leftArea = a.isNull ? 0 : a.width * a.height
+            let rightArea = b.isNull ? 0 : b.width * b.height
+            if leftArea != rightArea { return leftArea < rightArea }
+            // After a monitor disconnects, use the nearest remaining screen
+            // instead of depending on the system's screen-array order.
+            let leftDistance = pow(lhs.midX - frame.midX, 2) + pow(lhs.midY - frame.midY, 2)
+            let rightDistance = pow(rhs.midX - frame.midX, 2) + pow(rhs.midY - frame.midY, 2)
+            return leftDistance > rightDistance
+        }
     }
 
     public static func restored(_ frame: CGRect, visibleFrames: [CGRect]) -> CGRect {
-        guard !visibleFrames.isEmpty else { return frame }
-        let destination = visibleFrames.max { lhs, rhs in
-            let a = lhs.intersection(frame), b = rhs.intersection(frame)
-            return (a.isNull ? 0 : a.width * a.height) < (b.isNull ? 0 : b.width * b.height)
-        }!
+        guard let destination = destination(for: frame, visibleFrames: visibleFrames) else { return frame }
         let size = CGSize(width: min(frame.width, destination.width), height: min(frame.height, destination.height))
         return CGRect(x: min(max(frame.minX, destination.minX), destination.maxX - size.width),
                       y: min(max(frame.minY, destination.minY), destination.maxY - size.height), width: size.width, height: size.height)
+    }
+}
+
+/// The user's placement is stored against the usable area of the original display.
+/// A temporary fallback never replaces it when the display is disconnected.
+public struct SavedPanelPlacement: Codable, Equatable {
+    public let displayID: String
+    public let frame: CGRect
+    public let visibleFrame: CGRect
+    /// All three are optional so existing v4 placements decode unchanged.
+    public let expandedHeight: CGFloat?
+    public let expandedWidth: CGFloat?
+    public let anchorsRightOnExpand: Bool?
+
+    public init?(frame: CGRect, visibleFrame: CGRect, displayID: String,
+                 expandedHeight: CGFloat? = nil, expandedWidth: CGFloat? = nil, anchorsRightOnExpand: Bool? = nil) {
+        guard !displayID.isEmpty, Self.valid(frame), Self.valid(visibleFrame) else { return nil }
+        self.frame = frame; self.visibleFrame = visibleFrame; self.displayID = displayID
+        self.expandedHeight = expandedHeight.flatMap { $0.isFinite && $0 > 0 ? $0 : nil }
+        self.expandedWidth = expandedWidth.flatMap { $0.isFinite && !VoicePanelFootprint.isCompact(outerWidth: $0) ? $0 : nil }
+        self.anchorsRightOnExpand = anchorsRightOnExpand
+    }
+    private static func valid(_ rect: CGRect) -> Bool {
+        [rect.minX, rect.minY, rect.width, rect.height].allSatisfy(\.isFinite) && rect.width > 0 && rect.height > 0
+    }
+    /// v2/v3 stored a transparent 32pt ring on every side. Recover the
+    /// previously chosen visible rectangle, including its display identity.
+    public func removingLegacyShadowMargin() -> Self? {
+        guard frame.width > 64, frame.height > 64 else { return nil }
+        return Self(frame: frame.insetBy(dx: 32, dy: 32), visibleFrame: visibleFrame, displayID: displayID)
+    }
+    public func restored(on screens: [(id: String, visible: CGRect)]) -> CGRect? {
+        guard Self.valid(frame), Self.valid(visibleFrame), !screens.isEmpty else { return nil }
+        guard let match = screens.first(where: { $0.id == displayID && Self.valid($0.visible) }) else {
+            return WindowPlacement.restoredPanel(frame, visibleFrames: screens.map(\.visible))
+        }
+        let dest = match.visible
+        if dest == visibleFrame { return WindowPlacement.restoredPanel(frame, visibleFrames: [dest]) }
+        let size = WindowPlacement.panelSize(frame.size, visibleFrame: dest)
+        func fraction(_ value: CGFloat, _ span: CGFloat) -> CGFloat { span > 0 ? min(1, max(0, value / span)) : 0.5 }
+        let fx = fraction(frame.minX - visibleFrame.minX, visibleFrame.width - frame.width)
+        let fy = fraction(frame.minY - visibleFrame.minY, visibleFrame.height - frame.height)
+        let projected = CGRect(x: dest.minX + fx * (dest.width - size.width),
+                               y: dest.minY + fy * (dest.height - size.height),
+                               width: size.width, height: size.height)
+        return WindowPlacement.restoredPanel(projected, visibleFrames: [dest])
     }
 }

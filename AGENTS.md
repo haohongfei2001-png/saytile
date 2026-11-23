@@ -29,3 +29,7 @@
 ## 官网正式更新（2026-11-14）
 
 用户已要求将R8保留部分及新两段上线到正式根首页。上述R3六文件冻结说明现在是历史记录；最新官网权威以website/README.md、AGENTS.md、APPROVAL.md与snapshot.json为准。此更新不改变原生App。
+
+## 0.21 发行候选（2026-11-23）
+
+本分支从main选择性整合PR49/50/51。先读docs/delivery/release-021/STATUS.md；历史视觉条目由用户后续批准的可选黑色品牌和现有语音板产品决策补充。不可重置为早期原型。当前533不动，Bundle ID与资料契约不变；发布器两轮失败方案不进入产品。构建号来自packaging/BUILD_NUMBER，不使用Git提交计数。不合并、不公开发布，不修改官网及公开更新源；待最终真实验收与公证/Gatekeeper裁决。

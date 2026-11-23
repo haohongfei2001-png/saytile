@@ -1,0 +1,59 @@
+{
+  "cloudEnabled": false,
+  "inputMode": "highestQuality",
+  "models": [
+    {
+      "id": "A71E0001-0000-4000-8000-000000000001",
+      "purpose": "chineseASR",
+      "provider": "qwenMessage",
+      "model": "qwen-audio-3.1-asr-flash-message",
+      "enabled": true,
+      "cloudConsent": false,
+      "region": "cn-beijing",
+      "workspaceID": "REPLACE-WITH-APPROVED-WORKSPACE",
+      "context": "",
+      "audioHourRate": null,
+      "inputMillionTokenRate": null,
+      "outputMillionTokenRate": null,
+      "currency": "USD",
+      "reasoningEffort": "high",
+      "reasoningMode": "standard"
+    },
+    {
+      "id": "A71E0001-0000-4000-8000-000000000002",
+      "purpose": "englishASR",
+      "provider": "assemblyAI",
+      "model": "universal-3-6-pro",
+      "enabled": true,
+      "cloudConsent": false,
+      "region": "global",
+      "workspaceID": "",
+      "context": "",
+      "audioHourRate": null,
+      "inputMillionTokenRate": null,
+      "outputMillionTokenRate": null,
+      "currency": "USD",
+      "reasoningEffort": "high",
+      "reasoningMode": "standard"
+    },
+    {
+      "id": "A71E0001-0000-4000-8000-000000000004",
+      "purpose": "textFusion",
+      "provider": "openAIResponses",
+      "model": "gpt-6-astra",
+      "enabled": true,
+      "cloudConsent": false,
+      "region": "global",
+      "workspaceID": "",
+      "context": "",
+      "audioHourRate": null,
+      "inputMillionTokenRate": null,
+      "outputMillionTokenRate": null,
+      "currency": "USD",
+      "reasoningEffort": "high",
+      "reasoningMode": "standard"
+    }
+  ],
+  "topicContext": "",
+  "automaticRecovery": false
+}

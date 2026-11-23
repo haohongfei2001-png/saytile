@@ -22,6 +22,10 @@ uint32_t st_ring_read(STAudioRing *r,float *out,uint32_t max){
  for(uint32_t i=0;i<n;i++)out[i]=r->samples[(rd+i)%r->capacity];
  atomic_store_explicit(&r->read,rd+n,memory_order_release);return n;
 }
+uint32_t st_ring_pending(STAudioRing *r){
+ uint64_t read=atomic_load_explicit(&r->read,memory_order_relaxed);
+ return (uint32_t)(atomic_load_explicit(&r->write,memory_order_acquire)-read);
+}
 uint64_t st_ring_dropped(STAudioRing *r){return atomic_load_explicit(&r->dropped,memory_order_relaxed);}
 struct STAudioProbe { _Atomic uint64_t frames, buffers; };
 STAudioProbe *st_probe_create(void){return calloc(1,sizeof(STAudioProbe));}

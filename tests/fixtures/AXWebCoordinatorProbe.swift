@@ -1,4 +1,7 @@
 import AppKit
+#if SAYTILE_PACKAGE_PROBE
+@testable import SaytileKit
+#endif
 import ApplicationServices
 
 @main
@@ -9,6 +12,7 @@ struct AXWebCoordinatorProbe {
         guard CommandLine.arguments.count == 2, let pid = Int32(CommandLine.arguments[1]), let app = NSRunningApplication(processIdentifier: pid) else { exit(2) }
         guard AXIsProcessTrusted() else { print("NO_ACCESSIBILITY_PERMISSION_NO_PROMPT"); exit(5) }
         let foreground = NSWorkspace.shared.frontmostApplication?.processIdentifier
+        let activationAudit = FixtureActivationAudit(fixturePID: pid)
         guard foreground != pid else { throw Failure(message: "Fixture owns foreground") }
         let root = AXUIElementCreateApplication(pid)
         func get(_ element: AXUIElement, _ name: String) -> CFTypeRef? {
@@ -47,7 +51,7 @@ struct AXWebCoordinatorProbe {
         let result = continuousAvailable ? await coordinator.insertStable(recordingID: record.id, revisionID: revision.id, stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt) : await coordinator.insert(recordingID: record.id, revisionID: revision.id)
         print("WEB_INSERT_RESULT \(result)"); fflush(nil)
         let actualText = get(try findEditor(), kAXValueAttribute) as? String
-        print("WEB_ACTUAL_TEXT \(String(describing: actualText))"); fflush(nil)
+        print("WEB_ACTUAL_TEXT unchanged_fixture=\(actualText == "PREFIX|SUFFIX") expected_inserted=\(actualText == "PREFIX|网页😀SUFFIX") utf16_length=\(actualText?.utf16.count ?? -1)"); fflush(nil)
         // A background-only WKWebView may acknowledge AXSelectedText without changing
         // its DOM value. Preserve the failed-attempt evidence; never activate it or resend.
         if actualText == "PREFIX|网页😀SUFFIX", result == .confirmed {
@@ -102,7 +106,9 @@ struct AXWebCoordinatorProbe {
         }
         print("FIXTURE_COMMAND state"); fflush(nil)
         try await Task.sleep(for: .milliseconds(100))
-        guard NSWorkspace.shared.frontmostApplication?.processIdentifier == foreground else { throw Failure(message: "Foreground changed") }
+        let activation = activationAudit.finish()
+        print("WEB_AX_FOREGROUND_OBSERVATION unchanged=\(NSWorkspace.shared.frontmostApplication?.processIdentifier == foreground) owned_activated=\(activation.ownedActivated) outside_activation_events=\(activation.outsideActivations); no cause inferred for outside transitions")
+        guard !activation.ownedActivated else { throw Failure(message: "Owned fixture or probe activated") }
         print("WEB_AX_PROBE_COMPLETE observerChecks=\(observerChecks)/6 continuousAvailable=\(continuousAvailable); invisible isolated WKWebView, injected selection only, no foreground insertion claim")
         if observerChecks != 6 { exit(1) }
     }

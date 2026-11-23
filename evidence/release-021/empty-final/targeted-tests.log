@@ -1,0 +1,79 @@
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite "On-device streaming and model integrity" started.
+◇ Suite "Local model preview and download recovery" started.
+◇ Test onlyNetworkFailuresBecomeEligibleForAutomaticResume() started.
+◇ Test shortPipeLineArrivesWithInputStillOpen() started.
+◇ Test downloadPreservesRoomForRecording() started.
+◇ Test pinnedCatalogSeparatesBatchFromStreaming() started.
+◇ Test changedSameLengthWeightsCannotBeOpened() started.
+◇ Test chunkCorrectionsStayInTheTailWithoutManufacturingEvidence(_:) started.
+◇ Test scriptChangeKeepsVerbatimPreviewAndNoDispatch() started.
+◇ Test firstRollingWordAppearsImmediatelyAndGetsItsFinalPunctuationAtEOS() started.
+◇ Test emptyWorkerFinalPreservesAudioPreviewAndUserEdit(hasPreview:) started.
+◇ Test onlyReadyModelsCanTakeTheNextTicket() started.
+◇ Test localConfirmationNeedsARealSharedNewWordAndKeepsNegationBoundaries() started.
+◇ Test twoPassCorrectionSurvivesAnIndependentEarlierOscillation() started.
+◇ Test localFinalReviewRetainsEvidence(mode:) started.
+◇ Test numericalPunctuationCannotReleaseAConflictingHypothesis() started.
+◇ Test confirmedNumberRenderingCanResumeAPreviewButCannotCreateDispatchEvidence() started.
+◇ Test corroboratedOldWordAndPunctuationCanKeepGrowingBeforeEOS() started.
+◇ Test mixedSpeechCanGrowWhileEarlierWordsChangeTypography() started.
+◇ Test coldReopenVerifiesEqualSizeDamageAndReportsAllRemovableBytes() started.
+◇ Test tailConfirmationDoesNotWaitForNewWordsFirstWordsNumbersOrOtherEngines() started.
+◇ Test wordsAfterAnAppositionCanAppearWhileTheDecoderRestylesOldPauses() started.
+◇ Test longPreviewRejectsWidelyChangedPassesDespiteSharedWords() started.
+◇ Test longPreviewResumesAfterTwoAlignedCorrectionsFromTheDecoder() started.
+◇ Test aCommaAfterANegationIsNotAnOptionalStyleChange() started.
+◇ Test aSecondChangeAtTheRightEdgeCannotBypassProtectedEvidence() started.
+◇ Test mixedSpeechResumesAfterTwoRealObservationsOfANewLatinWordBoundary() started.
+◇ Test rawQwenPeriodStopsBlinkingUntilSupportedByMoreSpeech() started.
+◇ Test twoLexicallyIdenticalPassesCanCorroborateNewWordsAcrossARephrasedPause() started.
+◇ Test establishedWordAndUnfinishedTailCanBothBeCorrectedByGrowingPasses() started.
+◇ Test localConfirmationRefusesUnsupportedWordsAmbiguousAnchorsOrChangedMeaning() started.
+◇ Test tailOnlyWordFlipNeedsASecondObservationButNeverDelaysEOS() started.
+◇ Test invalidCompleteResponsePreservesCheckpointForNextDownload() started.
+◇ Test twoEarlierChineseWordsNeedWholeSpanCorroborationBeforeTailCanResume() started.
+◇ Test case passing 1 argument id → .qwen to chunkCorrectionsStayInTheTailWithoutManufacturingEvidence(_:) started.
+◇ Test case passing 1 argument id → .qwenLarge to chunkCorrectionsStayInTheTailWithoutManufacturingEvidence(_:) started.
+◇ Test case passing 1 argument hasPreview → true to emptyWorkerFinalPreservesAudioPreviewAndUserEdit(hasPreview:) started.
+◇ Test case passing 1 argument hasPreview → false to emptyWorkerFinalPreservesAudioPreviewAndUserEdit(hasPreview:) started.
+◇ Test case passing 1 argument mode → "verified" to localFinalReviewRetainsEvidence(mode:) started.
+◇ Test case passing 1 argument mode → "revoked" to localFinalReviewRetainsEvidence(mode:) started.
+◇ Test case passing 1 argument mode → "offline" to localFinalReviewRetainsEvidence(mode:) started.
+✔ Test onlyReadyModelsCanTakeTheNextTicket() passed after 0.028 seconds.
+✔ Test downloadPreservesRoomForRecording() passed after 0.029 seconds.
+✔ Test firstRollingWordAppearsImmediatelyAndGetsItsFinalPunctuationAtEOS() passed after 0.028 seconds.
+✔ Test pinnedCatalogSeparatesBatchFromStreaming() passed after 0.029 seconds.
+✔ Test scriptChangeKeepsVerbatimPreviewAndNoDispatch() passed after 0.029 seconds.
+✔ Test chunkCorrectionsStayInTheTailWithoutManufacturingEvidence(_:) with 2 test cases passed after 0.029 seconds.
+✔ Test localConfirmationNeedsARealSharedNewWordAndKeepsNegationBoundaries() passed after 0.029 seconds.
+✔ Test twoPassCorrectionSurvivesAnIndependentEarlierOscillation() passed after 0.030 seconds.
+✔ Test confirmedNumberRenderingCanResumeAPreviewButCannotCreateDispatchEvidence() passed after 0.030 seconds.
+✔ Test numericalPunctuationCannotReleaseAConflictingHypothesis() passed after 0.030 seconds.
+✔ Test corroboratedOldWordAndPunctuationCanKeepGrowingBeforeEOS() passed after 0.030 seconds.
+✔ Test longPreviewRejectsWidelyChangedPassesDespiteSharedWords() passed after 0.030 seconds.
+✔ Test longPreviewResumesAfterTwoAlignedCorrectionsFromTheDecoder() passed after 0.030 seconds.
+✔ Test mixedSpeechCanGrowWhileEarlierWordsChangeTypography() passed after 0.030 seconds.
+✔ Test aCommaAfterANegationIsNotAnOptionalStyleChange() passed after 0.030 seconds.
+✔ Test wordsAfterAnAppositionCanAppearWhileTheDecoderRestylesOldPauses() passed after 0.030 seconds.
+✔ Test tailConfirmationDoesNotWaitForNewWordsFirstWordsNumbersOrOtherEngines() passed after 0.030 seconds.
+✔ Test rawQwenPeriodStopsBlinkingUntilSupportedByMoreSpeech() passed after 0.030 seconds.
+✔ Test aSecondChangeAtTheRightEdgeCannotBypassProtectedEvidence() passed after 0.030 seconds.
+✔ Test twoLexicallyIdenticalPassesCanCorroborateNewWordsAcrossARephrasedPause() passed after 0.030 seconds.
+✔ Test tailOnlyWordFlipNeedsASecondObservationButNeverDelaysEOS() passed after 0.030 seconds.
+✔ Test establishedWordAndUnfinishedTailCanBothBeCorrectedByGrowingPasses() passed after 0.030 seconds.
+✔ Test mixedSpeechResumesAfterTwoRealObservationsOfANewLatinWordBoundary() passed after 0.031 seconds.
+✔ Test localConfirmationRefusesUnsupportedWordsAmbiguousAnchorsOrChangedMeaning() passed after 0.031 seconds.
+✔ Test twoEarlierChineseWordsNeedWholeSpanCorroborationBeforeTailCanResume() passed after 0.031 seconds.
+✔ Test changedSameLengthWeightsCannotBeOpened() passed after 0.033 seconds.
+✔ Test coldReopenVerifiesEqualSizeDamageAndReportsAllRemovableBytes() passed after 0.035 seconds.
+✔ Test invalidCompleteResponsePreservesCheckpointForNextDownload() passed after 0.044 seconds.
+✔ Suite "Local model preview and download recovery" passed after 0.045 seconds.
+✔ Test onlyNetworkFailuresBecomeEligibleForAutomaticResume() passed after 0.046 seconds.
+✔ Test emptyWorkerFinalPreservesAudioPreviewAndUserEdit(hasPreview:) with 2 test cases passed after 0.065 seconds.
+✔ Test localFinalReviewRetainsEvidence(mode:) with 3 test cases passed after 0.068 seconds.
+✔ Test shortPipeLineArrivesWithInputStillOpen() passed after 0.480 seconds.
+✔ Suite "On-device streaming and model integrity" passed after 0.481 seconds.
+✔ Test run with 32 tests in 2 suites passed after 0.481 seconds.

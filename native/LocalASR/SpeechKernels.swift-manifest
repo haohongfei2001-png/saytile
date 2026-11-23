@@ -1,0 +1,21 @@
+// swift-tools-version: 6.0
+// The upstream project also has server, chat, and speech synthesis products.
+// Build its unmodified recognition sources with just their declared dependencies.
+import PackageDescription
+let mlx: Target.Dependency = .product(name: "MLX", package: "mlx-swift")
+let nn: Target.Dependency = .product(name: "MLXNN", package: "mlx-swift")
+let fast: Target.Dependency = .product(name: "MLXFast", package: "mlx-swift")
+let fft: Target.Dependency = .product(name: "MLXFFT", package: "mlx-swift")
+let package = Package(name: "SpeechKernels", platforms: [.macOS(.v15)], products: [
+    .library(name: "Qwen3ASR", targets: ["Qwen3ASR"]),
+    .library(name: "NemotronStreamingASR", targets: ["NemotronStreamingASR"])
+], dependencies: [
+    .package(url: "https://github.com/ml-explore/mlx-swift.git", exact: "0.31.4"),
+    .package(url: "https://github.com/huggingface/swift-transformers.git", exact: "1.1.6")
+], targets: [
+    .target(name: "AudioCommon", dependencies: [.product(name: "Hub", package: "swift-transformers")]),
+    .target(name: "MLXCommon", dependencies: ["AudioCommon", mlx, nn, fast, fft]),
+    .target(name: "SpeechVAD", dependencies: ["AudioCommon", "MLXCommon", mlx, nn]),
+    .target(name: "Qwen3ASR", dependencies: ["AudioCommon", "MLXCommon", "SpeechVAD", mlx, nn, fast]),
+    .target(name: "NemotronStreamingASR", dependencies: ["AudioCommon", "MLXCommon", mlx, nn, fast])
+], swiftLanguageModes: [.v5])

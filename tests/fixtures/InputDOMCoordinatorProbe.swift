@@ -1,4 +1,7 @@
 import AppKit
+#if SAYTILE_PACKAGE_PROBE
+@testable import SaytileKit
+#endif
 
 // This test-only adapter bridges the real coordinator and SQLite ledger to a
 // headless DOM fixture. It is not the macOS AX adapter or browser extension.
@@ -35,6 +38,10 @@ final class DOMInputAccess: InputAccess {
               current.selectionLocation == before.selectionLocation + text.utf16.count,
               matchesText(text, utf16Start: before.selectionLocation, at: current) == true else { return nil }
         return current
+    }
+    func textWitness(at expected: InputTargetSnapshot) -> String? {
+        guard (try? snapshot()) == expected else { return nil }
+        return (try? rpc("state"))?["text"] as? String
     }
     func matchesText(_ text: String, utf16Start: Int, at expected: InputTargetSnapshot) -> Bool? {
         try? rpc("matches", ["text": text, "start": utf16Start])["ok"] as? Bool
