@@ -31,6 +31,14 @@ python3 scripts/mandarin/report-realtime-cohort.py \
 
 8 项合成 PCM 报告回归通过：完整性、空稿分母、缺行/重复/乱序、进程未结束/残行、错误路由/帧数/哈希/加速喂入、坏 WAV/清单、CLI/fixture 篡改、慢喂入保留。未运行实际 ASR。
 
+### 事后补齐 CLI 与静态库绑定
+
+`evidence/release-101/report-audit/cohort-link-retrospective.json` 保存两臂原 CLI、原静态库、同一 fixture 和仅重链接产物的 SHA-256、命令及时间。先从二进制 OSO 条目确认 Debug 对象路径，再以 `nice 20` 重新编译/链接这一个 fixture；未构建 Package，未运行 CLI。
+
+两臂在仅归一化 Mach-O UUID、代码签名及签名派生的 `__LINKEDIT` 尺寸后，其余全部二进制字节相同。旧 CLI 确实对应 `release100-build/Debug/libSaytileKit.a`，新 CLI 对应 `release101-storage/Debug/libSaytileKit.a`。可运行同目录 `verify-link.py` 只读复核，不能把新产物的 SHA 改写成原测试 SHA。原 setup 收据保留。
+
+首次 sandbox 中 `nice` 被拒绝并最终超时的记录也保留。随后通过已有构建授权在 sandbox 外重链接，仍保留 `nice 20`，没有去掉优先级参数或运行识别。完整原速语料的资源结果若受这段低优先级编译干扰，应由主负责人对照时间记录；440 夹具本身没有 CPU/首字指标，不能据此制造性能结论。
+
 ## 已完整完成的原生 16 对结果
 
 原始收据：`evidence/release-101/regression-final/paired16/`；汇总：`native-comparison-including-failure.json`。上一版源码 `42d8e98eaf04a56d34a36cc1aca2aff7061150f4`，候选源码 `73ad857442964437929819ba9965f6bcfdcefd27`。每臂 16 条均严格对应原音 SHA、`automatic=true` 与唯一 `qwen-small`。
