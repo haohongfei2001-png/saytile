@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/private/tmp/saytile-101-onboarding/scripts/test-product-windows.py", line 126, in <module>
+    if req.get('scene')!=name or req['pid']!=proc.pid: raise RuntimeError('Native scene did not arrive: '+name+' exit='+str(proc.poll()))
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Native scene did not arrive: models exit=-6

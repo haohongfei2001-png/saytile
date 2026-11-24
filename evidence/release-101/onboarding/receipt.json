@@ -1,0 +1,33 @@
+{
+  "product_commit": "746e5256a6ecfb9aba6f68224f2df12ad905be6a",
+  "baseline_commit": "f3baa0a255931dbb16291690699790e3d54f8bde",
+  "source_files_sha256": {
+    "Sources/SaytileApp/AppModel.swift": "be401004b0c29ad7be5f998793ec81fea472c4d9172accb73bafe0887e3ff517",
+    "Sources/SaytileApp/LocalModelSettings.swift": "2dfc1db0decc002d3563de81289f33a02af743f43db06c0d6ad9895fd296e822",
+    "Sources/SaytileApp/SaytileApp.swift": "4f760e26155e941b440097f2cf6b5f92eb91c32289c3663b48213f67f9fee118",
+    "tests/fixtures/AppModelProbe.swift": "900ac003aebe124dfad2655d799013bfcadbc26a32997c35330cceff4394fc0e"
+  },
+  "binary_sha256": "0bafdbe22886947e15bfee4c7d9e7f84d4ffa578d89de66d04cc9b5d86356b69",
+  "build_command": "SAYTILE_MODEL_BUILD_SYSTEM=swiftbuild SAYTILE_SWIFT_DISABLE_SANDBOX=1 scripts/test-app-model.sh",
+  "app_model_checks": {
+    "passed": 226,
+    "failed": 0
+  },
+  "feedback_checks": {
+    "passed": 14,
+    "failed": 0
+  },
+  "native_settings_scenes": [
+    "models",
+    "models-recovery"
+  ],
+  "native_scope": "Two WindowServer-composited nonactivating settings windows with isolated synthetic data. No microphone input, permission prompt, provider call or external target.",
+  "fixture_package": "Ad-hoc development fixture assembled from the new debug executable and unchanged verified 1.0.0 resource/runtime bundle. Not a release candidate or installed application.",
+  "native_receipt_source": "The scene receipt identifies the baseline plus source_dirty=true because it was captured before the product commit. The executable and source-file hashes above bind those same product bytes to product_commit.",
+  "remaining": [
+    "Full integrated final-SHA CI and signed-app regression belong to the parent release task.",
+    "Actual first-use macOS permission dialog and physical microphone not exercised; permissions/capture state injected.",
+    "Public model download not repeated; current model-library integrity/network tests retained unchanged.",
+    "Automatic welcome-window dispatch verified by production hookup and AppModel callback; screenshot uses the actual settings view without activating the application."
+  ]
+}
