@@ -53,3 +53,7 @@ Chrome 普通路径与焦点超时路径，在首轮和 rerun 原始日志中均
 `tests/fixtures/InputWitnessSettlementProbe.swift` 使用 `@testable import SaytileKit`，可按现有 `scripts/test-owned-range-native.py` 的直接编译流程链接真实生产静态库。先编译基线库，再编译修改后库，使用相同探针源码；`before-build.json` 和 `after-build.json` 保存实际编译源码清单，`receipt.json` 保存探针和二进制摘要。探针仅使用随机 `/tmp/saytile-witness-*` SQLite，完成后关闭并删除自身夹具。
 
 整合后运行完整 Swift Testing，以及已有 foreground/owned-range CI，不修改现有门槛。如果 Safari 再次耗尽同一预算，继续记录 unverified 并保留失败证据；不能把此次有限读回改善包装成无条件自动输入成功。
+
+## 最终整合CI补充
+
+9a018417a743e2cd8c4df5249f226e10a022c012 的完整Xcode回归已通过582项Swift Testing和30项XCTest，包括本页新增故障场景。相同head的真实前台AppKit/WKWebView/TextEdit/Chrome/Edge/Safari检查通过；原始日志见 `evidence/release-101/ci/9a01841/foreground/`。没有据此删除历史Safari预算耗尽失败，也不把有限采样改为无限重试。最终575只改版本展示，其输入Kit树与574严格相同，最终整体CI另行记录。

@@ -32,3 +32,7 @@
 - 首张成功截图夹具继承了资源来源包的旧源码元数据。保留原收据 `failures/native-stale-metadata-receipt.json`，修正为本轮真实基线且 `source_dirty=true` 后重新采集。`receipt.json` 的源文件/二进制哈希将实际产品字节绑定到产品 commit，未宣称旧 SHA 已验证新功能。
 
 所有资料均为隔离合成记录；未读取用户生产 SQLite、私人录音、Keychain 明文，未调用付费服务，未操作用户外部窗口。
+
+## 整合后的补充证据
+
+574最终签名App完成56次真实AX控件操作和22个WindowServer场景；最初ad-hoc两图的范围仍保留。真实HTTPS断点恢复已通过，详见[模型恢复报告](MODEL-DOWNLOAD-RESUME.md)：64KiB缺失尾部、6文件完整性、重开库与重复下载零请求。完整首次下载和真实系统权限弹窗仍未宣称完成。
