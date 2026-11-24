@@ -1,0 +1,9 @@
+{
+  "compile": "PASS - swift-version 6, warnings-as-errors, real controller and pinned SDK",
+  "runtime": "NOT_RUN - CI is the only authorized runtime for this probe",
+  "compile_source_scope": "Uncommitted new probe; controller and probe content SHA are recorded in the original compiler receipt, Git parent alone does not identify the probe",
+  "initial_failure": "Default Clang ModuleCache outside sandbox was denied. Compiler uses existing /private/tmp module cache after correction. No UI was started.",
+  "receipt_note": "Original compile-only receipt is retained. Its public_network_denied field describes configured runtime policy, not a runtime observation; future runner records false for compile-only.",
+  "local_runtime_guard": "PASS - exits 2 before creating output or starting UI",
+  "probe_sha256": "6718d609f657385c90093c79193e1719c06071e30d0ccda00ecb9a754151f009"
+}

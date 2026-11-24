@@ -46,7 +46,7 @@
 | 真实 Qwen 模型缓存升级／回退保护 | PASS，6 文件／712,777,119 字节，全部 SHA 与 mtime 不变 | final-release-model-cache/receipt.json |
 | 实际设置「检查更新」控件与线上空 feed | PASS，外部 AXPress，未激活窗口、未抢焦点、未安装 | final-native-update/receipt.json、native-settings-about.png |
 | 原身份最终 ZIP 解包与完整性 | PASS，136 个文件／符号链接，内容及 mode 与最终签名 App 相同 | final-prepared-update/extraction-receipt.json、bundle-manifest.json |
-| 标准 Sparkle 弹窗视觉交互 | NOT_RUN，默认手动路径要求激活，当前不抢焦点夹具不适用 | standard-ui-preflight/receipt.json |
+| 标准 Sparkle 弹窗视觉交互 | NOT_RUN；CI 专用 probe 已编译，等待独立 GUI 会话首轮执行 | standard-ui-preflight/、standard-ui-compile/；CI artifact `Saytile-standard-update-ui` |
 | 最终 App/DMG 公证、Gatekeeper | BLOCKED，缺现成公证授权 | credential-metadata.json |
 | 生产 feed 更新/正式发行 | NOT_RUN | 主负责人统一放行后才执行 |
 
@@ -61,6 +61,12 @@
 - 当前 `UpdateReview.swift:140,165` 使用 `.prohibited` 与 deterministic driver；设置截图在 `196–200` 临时使用 `.accessory` 加专门的 nonactivating NSPanel。Sparkle 默认窗口不具备该夹具的非激活约束。Apple 明确规定 [`.prohibited` 不能创建窗口或激活](https://developer.apple.com/documentation/appkit/nsapplication/activationpolicy-swift.enum/prohibited)，因此没有强行创建窗口、swizzle 激活函数或拿隐藏 nib 截图冒充完整交互。
 
 结论保持 **NOT_RUN**，这不是更新逻辑 FAIL。剩余最小范围是在独立交互式 macOS 桌面会话进行标准手动弹窗验收，或集中安排一次可取得前台的检查；无需重跑安装、语料或存储回归。
+
+随后按主交付任务要求，在已有 `native` CI job 增加约 200 行的专用 probe，不新增 runner，也不修改产品。`StandardUpdateUIProbe.swift` 与原样 `AppUpdateController.swift` 一起编译，只有 AppModel 展示字段使用既有小型替身；不传自定义 user driver，因此由生产控制器创建 `SPUStandardUserDriver`。固定公钥和逐字保留的已签名 inline-notes feed 来自上方最终待发布文件，CI 不需要任何签名私钥。
+
+该探针只允许在显式启用的 GitHub Actions 环境运行 UI。本机完成 Swift 6／warnings-as-errors 编译和本机 UI 启动拒绝检查，没有激活任何窗口。CI 会在独立桌面显示真正 `SUUpdateAlert`，验证新旧版本、完整说明及 Install/Later 原生按钮，保存窗口截图，点击实际 Later 控件并验证关闭及控制器恢复。探针进程仅允许 loopback 网络，禁止公共网络；不点击 Install、不下载安装、不加载模型。机器收据明确标记 `full_product_ui=false`，不能冒充整个实际 App 的 UI 验收。
+
+首轮结果以 CI 的 `Saytile-standard-update-ui` artifact 为准。编译成功不是 GUI PASS；本地原始编译环境失败、修复后的编译收据与运行拒绝日志均保留于 `standard-ui-compile/`。
 
 ## 最终待发布文件
 
