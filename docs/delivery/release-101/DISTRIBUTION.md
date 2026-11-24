@@ -46,11 +46,21 @@
 | 真实 Qwen 模型缓存升级／回退保护 | PASS，6 文件／712,777,119 字节，全部 SHA 与 mtime 不变 | final-release-model-cache/receipt.json |
 | 实际设置「检查更新」控件与线上空 feed | PASS，外部 AXPress，未激活窗口、未抢焦点、未安装 | final-native-update/receipt.json、native-settings-about.png |
 | 原身份最终 ZIP 解包与完整性 | PASS，136 个文件／符号链接，内容及 mode 与最终签名 App 相同 | final-prepared-update/extraction-receipt.json、bundle-manifest.json |
-| 标准 Sparkle 弹窗视觉交互 | NOT_RUN | 与 deterministic driver 分开 |
+| 标准 Sparkle 弹窗视觉交互 | NOT_RUN，默认手动路径要求激活，当前不抢焦点夹具不适用 | standard-ui-preflight/receipt.json |
 | 最终 App/DMG 公证、Gatekeeper | BLOCKED，缺现成公证授权 | credential-metadata.json |
 | 生产 feed 更新/正式发行 | NOT_RUN | 主负责人统一放行后才执行 |
 
 证据目录均位于 `evidence/release-101/distribution/`。最终原生设置截图来自实际 `SettingsView`；为防止更新到生产 App，截图仍显示夹具版本 `0.18 / build 2`，只证明控件和布局，不能冒充实际 1.0.1 版本展示。标准 Sparkle 更新弹窗没有经过视觉点击验收；已实测的是实际更新说明验证／交付回调、原生设置按钮及完整安装链路。
+
+### 标准弹窗的不抢焦点可行性检查
+
+完成一次源码检查，没有启动会抢焦点的产品路径，也没有新增测试架构或修改产品。最终候选内 Sparkle 为 2.10.1，二进制 SHA-256 `978b6e7759c9f676385fe5077c3302cc9d322021adbcaeaff45494eea64610eb`。该 tag 与现有 CLI 固定 commit `ab7d71291238df6e0492143b120c9b696a35f603` 的两个 UI 源文件逐字相同，源码摘要与行号保存于机器收据。
+
+- 真实 `AppUpdateController.swift:52–55` 调用手动 `checkForUpdates()`。默认 [`SPUStandardUserDriver.m:538–558`](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Sparkle/SPUStandardUserDriver.m#L538) 在显示检查窗口前请求激活；新版本弹窗的手动路径 [`176–192`](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Sparkle/SPUStandardUserDriver.m#L176) 同样先激活非前台 App。内部激活方法 [`129–134`](https://github.com/sparkle-project/Sparkle/blob/2.10.1/Sparkle/SPUStandardUserDriver.m#L129) 调用 `activateIgnoringOtherApps:YES`。
+- 默认 driver 的自动提醒可在后台工作，但 Saytile 的实际 delegate 在 `AppUpdateController.swift:125` 返回 false，让用户从设置主动查看。改用另一 delegate 来显示后台弹窗不能证明现有手动产品路径。
+- 当前 `UpdateReview.swift:140,165` 使用 `.prohibited` 与 deterministic driver；设置截图在 `196–200` 临时使用 `.accessory` 加专门的 nonactivating NSPanel。Sparkle 默认窗口不具备该夹具的非激活约束。Apple 明确规定 [`.prohibited` 不能创建窗口或激活](https://developer.apple.com/documentation/appkit/nsapplication/activationpolicy-swift.enum/prohibited)，因此没有强行创建窗口、swizzle 激活函数或拿隐藏 nib 截图冒充完整交互。
+
+结论保持 **NOT_RUN**，这不是更新逻辑 FAIL。剩余最小范围是在独立交互式 macOS 桌面会话进行标准手动弹窗验收，或集中安排一次可取得前台的检查；无需重跑安装、语料或存储回归。
 
 ## 最终待发布文件
 
