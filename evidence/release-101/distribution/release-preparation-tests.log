@@ -1,0 +1,14 @@
+test_boolean_types_cannot_bypass_security_contract (test_release_update.ReleaseUpdateTests.test_boolean_types_cannot_bypass_security_contract) ... ok
+test_empty_notes_rejected (test_release_update.ReleaseUpdateTests.test_empty_notes_rejected) ... ok
+test_identity_and_each_security_contract_are_fail_closed (test_release_update.ReleaseUpdateTests.test_identity_and_each_security_contract_are_fail_closed) ... ok
+test_nonrelease_or_ambiguous_versions_are_rejected (test_release_update.ReleaseUpdateTests.test_nonrelease_or_ambiguous_versions_are_rejected) ... ok
+test_public_verifier_accepts_signature_and_rejects_changed_bytes (test_release_update.ReleaseUpdateTests.test_public_verifier_accepts_signature_and_rejects_changed_bytes) ... ok
+test_release_candidate_retains_existing_trust_and_identity (test_release_update.ReleaseUpdateTests.test_release_candidate_retains_existing_trust_and_identity) ... ok
+test_release_notes_are_authenticated_inline_plain_text (test_release_update.ReleaseUpdateTests.test_release_notes_are_authenticated_inline_plain_text) ... ok
+test_unsafe_archive_locations_rejected (test_release_update.ReleaseUpdateTests.test_unsafe_archive_locations_rejected) ... ok
+test_wrong_source_or_dirty_candidate_cannot_prepare_update (test_release_update.ReleaseUpdateTests.test_wrong_source_or_dirty_candidate_cannot_prepare_update) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 1.288s
+
+OK

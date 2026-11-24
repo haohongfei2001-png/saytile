@@ -58,6 +58,13 @@ def seed_helpers():
     return common
 
 
+def signing_helpers():
+    spec = importlib.util.spec_from_file_location("saytile_update_signing", REPO / "distribution/create-update.py")
+    common = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(common)
+    return common
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for key in ("app", "sparkle", "output"):
@@ -67,6 +74,7 @@ def main():
     parser.add_argument("--probe-receipt", type=Path, help="Passed storage-process receipt for a probe rebuilt from this exact clean source")
     parser.add_argument("--public-feed", help="Optional signed HTTPS empty feed; no release is published by this test")
     parser.add_argument("--public-key", help="Public Ed25519 key for --public-feed")
+    parser.add_argument("--signing-account", default="app.saytile.updates.v1", help="Existing authorized Keychain account; never creates or exports a key")
     args = parser.parse_args()
     args.app = args.app.resolve()
     args.output = args.output.resolve()
@@ -124,9 +132,14 @@ def main():
 
         def do_GET(self):
             request_log.append(dict(path=self.path, at=time.time()))
-            if self.path not in ("/appcast.xml", "/update.zip"):
+            if self.path not in ("/appcast.xml", "/update.zip", "/release-notes.html"):
                 self.send_error(404)
                 return
+            if self.path == "/update.zip":
+                # The deterministic driver accepts immediately. Leave the notes
+                # request time to finish before the separate archive rejection
+                # or installation closes the update session; not a latency test.
+                time.sleep(1)
             super().do_GET()
 
     def fixture_snapshot():
@@ -183,9 +196,8 @@ def main():
         server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Handler, directory=feed))
         threading.Thread(target=server.serve_forever, daemon=True).start()
         url = f"http://127.0.0.1:{server.server_port}/"
-        key = root / "session-key"
-        key.touch(mode=0o600)
-        public_key = run("swift", "-e", 'import Foundation; import CryptoKit; let key = Curve25519.Signing.PrivateKey(); try key.rawRepresentation.base64EncodedData().write(to: URL(fileURLWithPath:CommandLine.arguments[1])); print(key.publicKey.rawRepresentation.base64EncodedString())', key)
+        public_key = source["SUPublicEDKey"]
+        assert len(base64.b64decode(public_key, validate=True)) == 32
         for version, app in ((1, installed), (2, newer)):
             app.parent.mkdir()
             run("ditto", "--norsrc", args.app, app)
@@ -203,10 +215,15 @@ def main():
         archive = feed / "update.zip"
         run("ditto", "-c", "-k", "--keepParent", newer, archive)
         archive_hash = digest(archive)
-        signature = run(sign, "-f", key, "-p", archive)
+        signature = signing_helpers().sign_archive(sign, args.signing_account, archive, public_key)
+        notes = feed / "release-notes.html"
+        notes.write_text("<!doctype html><meta charset='utf-8'><h1>Saytile 隔离更新验收</h1><p>保留文字、原音、修改稿和模型缓存。</p>")
+        notes_signature = signing_helpers().sign_archive(sign, args.signing_account, notes, public_key)
+        notes_hash = digest(notes)
         appcast = feed / "appcast.xml"
-        appcast.write_text(f'''<?xml version="1.0"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel><title>Disposable native update fixture</title><item><title>2</title><sparkle:version>2</sparkle:version><sparkle:shortVersionString>0.18</sparkle:shortVersionString><enclosure url="{url}update.zip" length="{archive.stat().st_size}" type="application/octet-stream" sparkle:edSignature="{signature}"/></item></channel></rss>''')
-        run(sign, "-f", key, appcast)
+        appcast.write_text(f'''<?xml version="1.0"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel><title>Disposable native update fixture</title><item><title>2</title><sparkle:version>2</sparkle:version><sparkle:shortVersionString>0.18</sparkle:shortVersionString><sparkle:releaseNotesLink sparkle:edSignature="{notes_signature}" length="{notes.stat().st_size}">{url}release-notes.html</sparkle:releaseNotesLink><enclosure url="{url}update.zip" length="{archive.stat().st_size}" type="application/octet-stream" sparkle:edSignature="{signature}"/></item></channel></rss>''')
+        run(sign, "--account", args.signing_account, appcast)
+        run(sign, "--account", args.signing_account, "--verify", appcast)
 
         def flip_archive():
             with archive.open("r+b") as stream:
@@ -219,6 +236,8 @@ def main():
 
         # Deliberate corrupt case: same advertised length/signature, one bad byte.
         flip_archive()
+        notes.write_bytes(notes.read_bytes().replace(b"doctype", b"DOCTYPe", 1))
+        assert digest(notes) != notes_hash
         bad = launch("corrupt")
         wait_for(lambda entries: any(row["event"] == "complete" and row["case"] == "corrupt" for row in entries), process=bad)
         assert bad.wait(timeout=30) == 0
@@ -227,10 +246,14 @@ def main():
         corrupt_events = [row for row in rows(events) if row["case"] == "corrupt"]
         assert any(row["event"] == "update_error" and any(e["domain"] == "SUSparkleErrorDomain" and e["code"] == 4005 for e in row["errors"]) for row in corrupt_events)
         assert not any(row["event"] in ("ready_to_install", "installing") for row in corrupt_events)
+        assert any(row["event"] == "release_notes_error" for row in corrupt_events), "Tampered notes must be rejected"
+        assert not any(row["event"] == "release_notes" for row in corrupt_events), "Unverified notes must never be shown"
         result["corrupt_archive"] = dict(status="PASS", installed_version="1", archive_unchanged=True, rejection="SUSparkleErrorDomain/4005")
 
         # A separate, explicit valid case; no automatic retry of the failed check.
         flip_archive()
+        notes.write_bytes(notes.read_bytes().replace(b"DOCTYPe", b"doctype", 1))
+        assert digest(notes) == notes_hash
         assert digest(archive) == archive_hash
         good = launch("valid")
         completed = wait_for(lambda entries: any(row["event"] == "complete" and row["phase"] == "relaunch" for row in entries), process=good, allow_relaunch=True)
@@ -242,8 +265,9 @@ def main():
         assert before_launch[0]["pid"] != after_launch[0]["pid"]
         assert after_launch[0]["build"] == "2" and after_launch[0]["explicit_data_argument"] is False
         assert after_launch[0]["source"] == args.expected_source
-        for required in ("app_check_action", "checking", "update_found", "download_started", "extracting", "ready_to_install", "installing", "archive_loaded", "no_update"):
+        for required in ("app_check_action", "checking", "update_found", "release_notes", "download_started", "extracting", "ready_to_install", "installing", "archive_loaded", "no_update"):
             assert any(row["event"] == required for row in valid), required
+        assert not any(row["event"] == "release_notes_error" for row in valid)
         assert all(row["user_initiated"] for row in valid if row["event"] == "update_found")
         # Target's completion precedes its normal asynchronous shutdown; wait for
         # the exact recorded target PID rather than killing or forcing its save.
@@ -270,7 +294,10 @@ def main():
             argument_free_relaunch_isolated=True, preference_canary_preserved=True,
             installed_signature_verified=True, model_marker_bytes_and_mtime_unchanged=True,
             update_archive_sha256=archive_hash, update_appcast_sha256=digest(appcast),
-            updater_binary_sha256=original_binary, key_scope="ephemeral Ed25519 file; deleted, never emitted or read from Keychain")
+            updater_binary_sha256=original_binary, key_scope="existing authorized Sparkle signing account; tool-internal access only, no exported or generated key",
+            signing_account=args.signing_account, production_public_key=public_key, production_key_continuity_verified=True,
+            signed_release_notes_loaded=True, corrupted_release_notes_rejected=True, release_notes_sha256=notes_hash,
+            version_scope="same candidate binary using 1-to-2 fixture aliases; real release versions tested separately")
         if args.public_feed:
             # Reuse the established native AX harness. It only observes this
             # fixture's PID/window/identifier and never activates or posts keys.
@@ -348,9 +375,7 @@ def main():
             subprocess.run(["defaults", "delete", domain], capture_output=True)
         if cache.exists():
             shutil.rmtree(cache)
-        if result.get("cleanup_retained_root"):
-            (root / "session-key").unlink(missing_ok=True)
-        else:
+        if not result.get("cleanup_retained_root"):
             shutil.rmtree(root)
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
