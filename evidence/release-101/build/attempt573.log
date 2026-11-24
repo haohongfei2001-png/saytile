@@ -1,0 +1,121 @@
+Building for production...
+[Computing dependencies]
+[Pre-planning 1 / 300]
+[Planning deferred tasks]
+[63 / 144] Saytile_SaytileApp
+[65 / 144]
+[76 / 147] SaytileVoiceUI
+[89 / 156] CAudio
+[99 / 156] CAudio
+[100 / 157]
+[107 / 157] CAudio
+[114 / 157] CAudio
+[118 / 157] CAudio
+[121 / 157]
+[126 / 157] CAudio
+[131 / 185]
+[133 / 241]
+[141 / 244]
+[143 / 244]
+[145 / 246]
+[150 / 322]
+[158 / 322]
+[161 / 322]
+[167 / 322]
+[174 / 322]
+[176 / 322]
+[179 / 322]
+[182 / 322]
+[183 / 322]
+[188 / 322]
+[189 / 322]
+[191 / 322]
+[195 / 322]
+/private/tmp/saytile-release-101/Package.swift: CAudio: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[196 / 322]
+[198 / 322]
+[199 / 322]
+[204 / 322]
+[206 / 322]
+[207 / 322]
+[209 / 322]
+[210 / 322]
+[220 / 322]
+[222 / 322]
+[226 / 322]
+[227 / 322]
+[228 / 322]
+[229 / 322]
+[232 / 322]
+[234 / 322]
+[236 / 322]
+[238 / 322]
+[239 / 322]
+[240 / 322]
+[241 / 322]
+[247 / 322]
+[248 / 322]
+[249 / 322]
+[254 / 322]
+[255 / 322]
+[256 / 322]
+[258 / 322]
+[259 / 322]
+[260 / 322]
+[261 / 322]
+[272 / 322]
+[273 / 322]
+[275 / 322]
+[276 / 322]
+[278 / 322]
+[282 / 322]
+[285 / 322]
+[287 / 322]
+[290 / 322]
+[291 / 322]
+[292 / 322] RiftletFeedback
+/private/tmp/saytile-release-101/Package.swift: RiftletFeedback: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[298 / 322] RiftletFeedback
+[299 / 322]
+[300 / 322]
+[302 / 322]
+[303 / 322] SaytileVoiceUI
+/private/tmp/saytile-release-101/Package.swift: SaytileVoiceUI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/private/tmp/saytile-release-101/Sources/SaytileKit/SingleTranscriptEngine.swift:276:13: warning: variable 'usageRecorded' was written to, but never read
+274 |         var run: ModelRunTicket?
+275 |         let started = Date()
+276 |         var usageRecorded = false
+    |             `- warning: variable 'usageRecorded' was written to, but never read
+277 |         do {
+278 |             try await assertCurrent()
+[310 / 322] SaytileKit
+/private/tmp/saytile-release-101/Package.swift: SaytileKit: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[318 / 323] Saytile-product
+[323 / 330]
+[324 / 330]
+[325 / 330]
+/private/tmp/saytile-release-101/Sources/SaytileApp/AppModel.swift:965:89: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+ 957 |         let generation = UUID(); connectionCheckID = generation; checkingConnection = true
+ 958 |         recognitionSettingsNotice = "正在用内置合成语音检查连接，不会打开麦克风。"
+ 959 |         connectionCheckTask = Task {
+     |                                    |- note: 'self' implicitly strongly captured here
+     |                                    `- note: add 'self' as a capture list item to silence
+ 960 |             // A cancelled older check must fully close its sockets before another starts.
+ 961 |             await previous?.value
+     :
+ 963 |             guard connectionCheckID == generation, !Task.isCancelled else { return }
+ 964 |             do {
+ 965 |                 let report = try await connectionDependencies.verify(candidate) { [weak self] report in
+     |                                                                                         |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongC[326 / 330] Saytile-product
+apture]
+     |                                                                                         `- note: explicitly assign the capture list item to silence
+ 966 |                     Task { @MainActor [weak self] in
+ 967 |                         guard let self, self.connectionCheckID == generation, self.checkingConnection else { return }
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+/private/tmp/saytile-release-101/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/private/tmp/saytile-release-101/Package.swift: Saytile-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[328 / 330] Saytile-product
+[329 / 330] Saytile-product
+Build complete! (195.41秒)
+Expected the signed 0.23 (571) runtime donor

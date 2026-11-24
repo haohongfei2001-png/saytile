@@ -35,7 +35,7 @@ struct LocalModelSettings: View {
                 LabeledContent("下一段本机识别", value: model.selectedLocalModel.title)
                     .accessibilityIdentifier("models.nextLocalEngine")
                 if let readiness, readinessID == model.selectedLocalModel {
-                    Text(readiness.installed ? "识别已就绪，可以在语音板开始讲话。" :
+                    Text(readiness.installed ? "本机识别模型已就绪。" :
                         (model.audio.preparingAppleSpeech || items.values.contains(where: \.downloading)
                             ? "正在准备本机识别。资源就绪前，原音仍会保存，可稍后重新识别。"
                             : "本机识别尚未就绪。可继续下载或重新准备资源；已有原音和文字会保留。"))
