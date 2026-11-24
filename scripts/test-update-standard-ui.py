@@ -6,6 +6,7 @@ import http.server
 import json
 import os
 from pathlib import Path
+import platform
 import plistlib
 import shutil
 import subprocess
@@ -21,6 +22,13 @@ PUBLIC_KEY = 'yVPpMoHz8/6GJ82Becd+jgoKvCww+9h2v2Vs6xZu/iw='
 sha = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def native_target():
+    architecture = platform.machine()
+    if platform.system() != 'Darwin' or architecture not in ('arm64', 'x86_64'):
+        raise ValueError('Standard Sparkle UI requires native macOS arm64 or x86_64')
+    return architecture, architecture + '-apple-macos26.0'
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
@@ -28,6 +36,7 @@ def main():
     args = parser.parse_args()
     if not args.compile_only and not (os.environ.get('GITHUB_ACTIONS') == 'true' and os.environ.get('SAYTILE_ALLOW_STANDARD_UPDATE_UI') == '1'):
         parser.error('UI activation is allowed only in the explicitly enabled CI GUI session')
+    architecture, target = native_target()
     assert sha(FEED) == FEED_SHA, 'Keep the signed fixture bytes unchanged'
     args.output.mkdir(parents=True, exist_ok=False)
     with tempfile.TemporaryDirectory(prefix='saytile-standard-ui-', dir='/private/tmp') as directory:
@@ -64,7 +73,7 @@ def main():
         sdk = plistlib.loads((sparkle / 'Sparkle.framework/Resources/Info.plist').read_bytes())
         assert sdk['CFBundleShortVersionString'] == '2.10.1'
         executable = contents / 'MacOS/Probe'
-        command = ['swiftc', '-swift-version', '6', '-warnings-as-errors', '-target', 'arm64-apple-macos26.0',
+        command = ['swiftc', '-swift-version', '6', '-warnings-as-errors', '-target', target,
                    '-module-cache-path', os.environ.get('SAYTILE_UPDATE_PROBE_CACHE', '/private/tmp/saytile-update-probe-module-cache'),
                    '-I', str(products), '-I', str(products / 'Modules'), '-I', 'Sources/CSQLite',
                    '-Xcc', '-fmodule-map-file=' + modulemap, '-F', str(sparkle), '-L', str(products), '-lSaytileKit', '-lc++',
@@ -74,6 +83,7 @@ def main():
             subprocess.run(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
         result = dict(status='NOT_RUN' if args.compile_only else 'FAIL', source=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
                       source_dirty=bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT)), sparkle_version=sdk['CFBundleShortVersionString'],
+                      probe_architecture=architecture, swift_target=target, model_inference_performed=False,
                       controller_sha256=sha(ROOT / 'Sources/SaytileApp/AppUpdateController.swift'),
                       probe_sha256=sha(ROOT / 'tests/fixtures/StandardUpdateUIProbe.swift'), signed_feed_sha256=FEED_SHA,
                       public_key=PUBLIC_KEY, fixture_bundle_id=fixture_id, private_key_used=False, production_data_accessed=False,
@@ -91,7 +101,7 @@ def main():
                     subprocess.run(['sandbox-exec', '-p', profile, str(executable), str(args.output.resolve()), str(notes.resolve())],
                                    stdout=log, stderr=subprocess.STDOUT, check=True, timeout=45)
                 native = json.loads((args.output / 'native-receipt.json').read_text())
-                assert native['status'] == 'PASS' and requests and set(requests) == {'/appcast.xml'}
+                assert native['status'] == 'PASS' and native['architecture'] == architecture and requests and set(requests) == {'/appcast.xml'}
                 result.update(status='PASS', runtime_started=True, public_network_denied=True, archive_requested=False,
                               screenshot_sha256=sha(args.output / 'standard-update-dialog.png'))
         finally:

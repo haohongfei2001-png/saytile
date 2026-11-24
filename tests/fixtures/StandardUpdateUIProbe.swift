@@ -1,6 +1,14 @@
 import AppKit
 import Sparkle
 
+#if arch(arm64)
+private let probeArchitecture = "arm64"
+#elseif arch(x86_64)
+private let probeArchitecture = "x86_64"
+#else
+#error("Standard Sparkle UI supports only arm64 and x86_64")
+#endif
+
 // Presentation-only substitute, as in AppUpdateControllerProbe. The production
 // controller is compiled unchanged and creates its own default Sparkle driver.
 @MainActor final class AppModel {
@@ -16,7 +24,7 @@ import Sparkle
     let notes: String
     let model = AppModel()
     var controller: AppUpdateController?
-    var receipt: [String: Any] = ["status": "FAIL", "scope": "unchanged product controller + presentation-only model + SDK default user driver; not the complete Saytile application", "download_or_install_requested": false]
+    var receipt: [String: Any] = ["status": "FAIL", "architecture": probeArchitecture, "scope": "unchanged product controller + presentation-only model + SDK default user driver; not the complete Saytile application", "download_or_install_requested": false]
 
     init(output: URL, notes: String) { self.output = output; self.notes = notes }
     func applicationDidFinishLaunching(_ notification: Notification) {
