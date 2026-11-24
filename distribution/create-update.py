@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import plistlib
 import re
+import shutil
 import subprocess
 import tempfile
 from urllib.parse import urlsplit
@@ -31,6 +32,20 @@ def run(*command):
 def digest(path):
     with Path(path).open("rb") as stream:
         return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def executable_code_digest(path):
+    """Compare executable bytes apart from the code signature of a copy.
+
+    Re-signing an isolated bundle necessarily changes the embedded Mach-O code
+    signature. Only a never-executed scratch copy has that signature removed for
+    comparison. The tested apps retain their Developer ID signatures intact.
+    """
+    with tempfile.TemporaryDirectory(prefix="saytile-update-code-identity-") as folder:
+        comparison = Path(folder) / "executable"
+        shutil.copyfile(path, comparison)
+        run("codesign", "--remove-signature", comparison)
+        return digest(comparison)
 
 
 def validate_metadata(info, expected_source):
@@ -80,6 +95,31 @@ def sign_archive(sign_tool, account, archive, public_key):
     signature = run(sign_tool, "--account", account, "-p", archive)
     verify_signature(archive, signature, public_key)
     return signature
+
+
+def verify_storage_probe(provenance, probe, candidate_source):
+    """Bind a tested probe to unchanged storage sources without relabeling runs.
+
+    A documentation/tool-only commit may follow the app build while a storage
+    run finishes. Preserve both SHAs and prove all probe inputs are identical.
+    A changed storage input always requires a new real storage run.
+    """
+    probe_source = provenance.get("source_revision", "")
+    if (provenance.get("status") != "PASS" or provenance.get("source_dirty") is not False or
+            provenance.get("probe_sha256") != digest(probe) or provenance.get("fixture_network_denied") is not True or
+            provenance.get("passed", 0) != len(provenance.get("checks", [])) or provenance.get("passed", 0) < 16 or
+            not re.fullmatch(r"[0-9a-f]{40}", probe_source) or not re.fullmatch(r"[0-9a-f]{40}", candidate_source)):
+        raise ValueError("Storage probe receipt, source or binary did not validate")
+    inputs = ["Sources/SaytileKit", "Sources/CSQLite", "Sources/CAudio", "Package.swift",
+              "tests/fixtures/StoreProcessProbe.swift", "scripts/test-rc-storage-processes.py"]
+    candidate_tree = run("git", "-C", ROOT, "ls-tree", "-r", candidate_source, "--", *inputs)
+    tested_tree = run("git", "-C", ROOT, "ls-tree", "-r", probe_source, "--", *inputs)
+    if not candidate_tree or candidate_tree != tested_tree:
+        raise ValueError("Storage probe inputs differ from the candidate; a new storage run is required")
+    return dict(app_source=candidate_source, storage_test_source=probe_source,
+        binding="same SHA" if candidate_source == probe_source else "identical complete storage/probe input Git trees",
+        input_paths=inputs, input_tree_sha256=hashlib.sha256(candidate_tree.encode()).hexdigest(),
+        original_receipt_rewritten=False)
 
 
 def appcast(info, download_url, length, signature, notes):

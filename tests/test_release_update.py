@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -95,6 +96,38 @@ class ReleaseUpdateTests(unittest.TestCase):
             message.write_bytes(b"changed")
             with self.assertRaises(RuntimeError):
                 UPDATE.verify_signature(message, sig64, key64)
+
+    def test_probe_binding_accepts_docs_only_commit_and_rejects_storage_change(self):
+        with tempfile.TemporaryDirectory(prefix="saytile-update-source-binding-") as folder:
+            root = Path(folder)
+            def git(*args):
+                return subprocess.check_output(["git", "-C", str(root), "-c", "user.name=Update Fixture",
+                    "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false", *args], text=True).strip()
+            git("init", "-q")
+            store = root / "Sources/SaytileKit/Store.swift"
+            store.parent.mkdir(parents=True)
+            store.write_text("storage fixture")
+            git("add", "."); git("commit", "-qm", "storage inputs")
+            source = git("rev-parse", "HEAD")
+            probe = root / "probe"
+            probe.write_bytes(b"compiled probe fixture")
+            provenance = dict(status="PASS", source_dirty=False, probe_sha256=UPDATE.digest(probe),
+                source_revision=source, fixture_network_denied=True, passed=16, checks=list(range(16)))
+            (root / "README.md").write_text("documentation only")
+            git("add", "README.md"); git("commit", "-qm", "docs")
+            docs = git("rev-parse", "HEAD")
+            with patch.object(UPDATE, "ROOT", root):
+                binding = UPDATE.verify_storage_probe(provenance, probe, docs)
+                self.assertEqual(binding["storage_test_source"], source)
+                self.assertEqual(binding["app_source"], docs)
+                self.assertFalse(binding["original_receipt_rewritten"])
+                store.write_text("changed storage behavior")
+                git("add", str(store)); git("commit", "-qm", "changed storage")
+                with self.assertRaisesRegex(ValueError, "inputs differ"):
+                    UPDATE.verify_storage_probe(provenance, probe, git("rev-parse", "HEAD"))
+                probe.write_bytes(b"changed executable")
+                with self.assertRaisesRegex(ValueError, "did not validate"):
+                    UPDATE.verify_storage_probe(provenance, probe, docs)
 
 
 if __name__ == "__main__":

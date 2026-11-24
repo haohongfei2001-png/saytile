@@ -92,14 +92,11 @@ def main():
     probe_sha = digest(args.probe)
     if args.probe_receipt:
         provenance = json.loads(args.probe_receipt.read_text())
-        assert provenance["status"] == "PASS" and provenance["source_dirty"] is False
-        assert provenance["source_revision"] == args.expected_source
-        assert provenance["probe_sha256"] == probe_sha
-        assert provenance["fixture_network_denied"] is True and provenance["passed"] == len(provenance["checks"])
-        assert provenance["passed"] >= 16
+        probe_binding = signing_helpers().verify_storage_probe(provenance, args.probe, args.expected_source)
         assert digest(REPO / "tests/fixtures/StoreProcessProbe.swift") == ARCHIVE_PROBE_SOURCE
     else:
         assert probe_sha in {LEGACY_PROBE_SHA, ARCHIVE_PROBE_SHA}
+        probe_binding = {"binding": "previously frozen probe hash", "probe_sha256": probe_sha}
     if probe_sha == ARCHIVE_PROBE_SHA:
         assert digest(REPO / "tests/fixtures/StoreProcessProbe.swift") == ARCHIVE_PROBE_SOURCE
     run("codesign", "--verify", "--deep", "--strict", args.app)
@@ -123,7 +120,7 @@ def main():
     server = None
     processes = []
     request_log = []
-    result = dict(status="FAIL", source=args.expected_source, seed_probe_sha256=probe_sha, scope="real Saytile NSApplication and AppUpdateController -> SPUUpdater -> Sparkle installer -> argument-free app relaunch", user_driver="deterministic fixture driver; standard Sparkle window interaction NOT_RUN", fixture_bundle_id=bundle_id, original_app_untouched=True, production_data="NOT_ACCESSED", paid_services="NOT_CALLED")
+    result = dict(status="FAIL", source=args.expected_source, seed_probe_sha256=probe_sha, storage_probe_binding=probe_binding, scope="real Saytile NSApplication and AppUpdateController -> SPUUpdater -> Sparkle installer -> argument-free app relaunch", user_driver="deterministic fixture driver; standard Sparkle window interaction NOT_RUN", fixture_bundle_id=bundle_id, original_app_untouched=True, production_data="NOT_ACCESSED", paid_services="NOT_CALLED")
     original_binary = digest(args.app / "Contents/MacOS/Saytile")
 
     class Handler(http.server.SimpleHTTPRequestHandler):

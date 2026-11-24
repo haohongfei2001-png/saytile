@@ -2,7 +2,8 @@
 """Actual old/new release binaries + real versions through Sparkle's installer.
 
 Only disposable bundle IDs/feed URLs are substituted; neither version/build nor
-executable bytes are changed. The native host-app relaunch is a separate test.
+executable code is changed (the fixture code signature must change). The native
+host-app relaunch is a separate test.
 """
 import argparse
 import functools
@@ -47,6 +48,31 @@ def app_identity(app):
             "executable_sha256": digest(app / "Contents/MacOS/Saytile"), "info_sha256": digest(app / "Contents/Info.plist")}
 
 
+def wait_for_owned_installers(root, fixture_id, timeout=15):
+    """SparkleCLI exits from its error callback before its XPC helper exits.
+
+    Observe only helpers identified by this unique path/ID. No retries, cache
+    deletion, process killing or production-app inspection are used to make the
+    next user-initiated check succeed.
+    """
+    began = time.monotonic()
+    observed = set()
+    empty_observations = 0
+    while time.monotonic() - began < timeout:
+        entries = subprocess.check_output(["ps", "-axo", "pid=,command="], text=True).splitlines()
+        owned = []
+        for line in entries:
+            parts = line.strip().split(None, 1)
+            if len(parts) == 2 and (str(root) in parts[1] or fixture_id in parts[1]):
+                owned.append(int(parts[0]))
+        observed.update(owned)
+        empty_observations = empty_observations + 1 if not owned else 0
+        if empty_observations == 2:
+            return dict(owned_pids=sorted(observed), seconds=round(time.monotonic() - began, 3), all_exited=True)
+        time.sleep(0.1)
+    raise TimeoutError("Owned Sparkle installer has not terminated; retain the fixture")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for key in ("old", "candidate", "sparkle", "cli", "probe", "probe-receipt", "output"):
@@ -65,17 +91,19 @@ def main():
     new_version = tuple(int(v) for v in new_meta["CFBundleShortVersionString"].split("."))
     assert new_version >= old_version and int(new_meta["CFBundleVersion"]) > int(old_meta["CFBundleVersion"])
     provenance = json.loads(args.probe_receipt.read_text())
-    assert provenance["status"] == "PASS" and provenance["source_dirty"] is False
-    assert provenance["source_revision"] == args.expected_source and provenance["probe_sha256"] == digest(args.probe)
-    assert provenance["fixture_network_denied"] is True and provenance["passed"] == len(provenance["checks"]) >= 16
+    probe_binding = SUPPORT.verify_storage_probe(provenance, args.probe, args.expected_source)
     original = [app_identity(app) for app in (old, candidate)]
+    code_hashes = [SUPPORT.executable_code_digest(app / "Contents/MacOS/Saytile") for app in (old, candidate)]
     for app in (old, candidate):
         run("codesign", "--verify", "--deep", "--strict", app)
     identities = re.findall(r'(\b[0-9A-F]{40}) "Developer ID Application:', run("security", "find-identity", "-v", "-p", "codesigning"))
     assert len(identities) == 1
     args.output.mkdir(parents=True, exist_ok=False)
     result = dict(status="FAIL", original_apps=original, current_installation="NOT_ACCESSED", production_data="NOT_ACCESSED",
-        real_version_numbers=True, real_release_binary_bytes=True, scope="Sparkle CLI and real installer; host-app shutdown/relaunch tested separately",
+        storage_probe_binding=probe_binding,
+        real_version_numbers=True, executable_code_sha256=code_hashes,
+        binary_identity_scope="re-signing changes the Mach-O signature; code bytes are compared using never-executed unsigned scratch copies",
+        scope="Sparkle CLI and real installer; host-app shutdown/relaunch tested separately",
         notes_scope="signed inline text parsed by Sparkle; standard user-driver visual acceptance is separate",
         key_scope="existing account; signing tool internal access; no generated or exported key")
     requests = []
@@ -103,7 +131,7 @@ def main():
         server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Handler, directory=feed))
         threading.Thread(target=server.serve_forever, daemon=True).start()
         url = f"http://127.0.0.1:{server.server_port}/"
-        for source, destination in ((old, installed), (candidate, newer)):
+        for source, destination, code_hash in ((old, installed, code_hashes[0]), (candidate, newer, code_hashes[1])):
             destination.parent.mkdir()
             run("ditto", "--norsrc", source, destination)
             metadata = info(destination)
@@ -112,7 +140,7 @@ def main():
             (destination / "Contents/Info.plist").write_bytes(plistlib.dumps(metadata))
             run("codesign", "--force", "--options", "runtime", "--timestamp=none", "--sign", identities[0], destination)
             run("codesign", "--verify", "--deep", "--strict", destination)
-            assert digest(destination / "Contents/MacOS/Saytile") == digest(source / "Contents/MacOS/Saytile")
+            assert SUPPORT.executable_code_digest(destination / "Contents/MacOS/Saytile") == code_hash
         STORE.open_fixture(installed, data, 0)
         STORE.seed(data, args.probe.resolve())
         STORE.open_fixture(installed, data, 2)
@@ -155,13 +183,15 @@ def main():
         assert rejected.returncode != 0 and "4005 (SUSparkleErrorDomain)" in rejected.stderr
         assert info(installed)["CFBundleVersion"] == old_meta["CFBundleVersion"]
         assert STORE.snapshot(data, 2) == before
+        result["corrupt_helper_shutdown"] = wait_for_owned_installers(root, fixture_id)
         flip()
         assert digest(archive) == archive_hash
         accepted = check("valid")
         assert accepted.returncode == 0, accepted.stderr
         assert info(installed)["CFBundleVersion"] == new_meta["CFBundleVersion"]
         assert info(installed)["CFBundleShortVersionString"] == new_meta["CFBundleShortVersionString"]
-        assert digest(installed / "Contents/MacOS/Saytile") == original[1]["executable_sha256"]
+        assert digest(installed / "Contents/MacOS/Saytile") == digest(newer / "Contents/MacOS/Saytile")
+        assert SUPPORT.executable_code_digest(installed / "Contents/MacOS/Saytile") == code_hashes[1]
         run("codesign", "--verify", "--deep", "--strict", installed)
         STORE.open_fixture(installed, data, 2)
         assert STORE.snapshot(data, 2) == before and STORE.paragraph_state(data) == paragraphs
@@ -178,6 +208,7 @@ def main():
         result.update(status="PASS", fixture_bundle_id=fixture_id, version_before=old_meta["CFBundleShortVersionString"],
             version_after=new_meta["CFBundleShortVersionString"], build_before=old_meta["CFBundleVersion"], build_after=new_meta["CFBundleVersion"],
             corrupted_archive_rejected=True, valid_archive_installed=True, candidate_signature_verified=True,
+            original_executable_code_preserved=True,
             upgraded_app_launched_offline=True, current_version_not_reinstalled=True, manual_rollback_reopened=True,
             original_packages_unchanged=True, fixture_before=before, fixture_after=STORE.snapshot(data, 2),
             paragraph_metadata_preserved=True, model_cache_bytes_and_mtime_preserved=True,
@@ -194,9 +225,15 @@ def main():
         result["runner_sha256"] = digest(Path(__file__))
         (args.output / "receipt.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
         subprocess.run(["defaults", "delete", fixture_id], capture_output=True)
-        if cache.exists():
-            shutil.rmtree(cache)
-        shutil.rmtree(root)
+        try:
+            result["cleanup_helper_shutdown"] = wait_for_owned_installers(root, fixture_id)
+        except TimeoutError:
+            result["cleanup_retained_root"] = str(root)
+        if "cleanup_retained_root" not in result:
+            if cache.exists():
+                shutil.rmtree(cache)
+            shutil.rmtree(root)
+        (args.output / "receipt.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps({key: result[key] for key in ("status", "version_before", "version_after", "build_before", "build_after")}, indent=2))
 
 
