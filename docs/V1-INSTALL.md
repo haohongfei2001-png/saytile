@@ -1,17 +1,17 @@
-# Saytile 1.0.0 安装与更新
+# Saytile 1.0.1 安装与更新（发行候选）
 
 适用 Apple Silicon Mac、macOS 26 或更新系统。只从 https://saytile.com/ 或 https://github.com/haohongfei2001-png/saytile/releases 获取安装包及 SHA256SUMS.txt。
 
 1. 退出已运行的 Saytile；升级前保留旧 App 和资料备份。
 2. 验证下载文件 SHA-256 与该版本 Release 一致，打开 DMG，把 Saytile.app 拖到原安装位置。不要从 DMG 内长期运行。
-3. 打开 Saytile，在系统提示时允许麦克风。只有直接输入其他应用时需要辅助功能权限；复制、档案和自由记录不需要。
+3. 首次打开会显示一次本机识别准备页面。阅读说明、查看模型进度，再点击语音板右下角开始；此时才请求麦克风权限。只有直接输入其他应用时需要辅助功能权限；复制、档案和自由记录不需要。
 4. 首次联网准备约 713 MB Qwen 模型。设置中可查看进度；准备期间尝试系统 Apple 本地识别。已下载模型跨 App 更新保留。模型就绪后可以离线使用。
 
 ## 签名与首次打开
 
 本次发行使用 Developer ID 和安全时间戳签名。若 Release 的公证状态为“未公证”，macOS Gatekeeper 会阻止直接打开；签名通过不等于 Apple 公证通过。
 
-确认来源和 SHA-256 后，可以在首次被阻止后进入“系统设置 → 隐私与安全性”，使用系统为此 App 提供的“仍要打开”进行单次确认。详见 Apple 官方说明：https://support.apple.com/zh-cn/102445 。受组织管理的 Mac 可能不允许此操作；此时请等待公证版本或由管理员处理。
+1.0.1 候选尚未获得公证凭据，Gatekeeper 未通过。该状态不属于正式安全发行成功；保持当前已安装版本，待最终 Release 明确记录 Accepted、Staple 和 Gatekeeper 通过后再作为公开升级使用。
 
 不要关闭 Gatekeeper，不需要删除 quarantine，不要执行所谓“修复已损坏”的终端命令。文件校验或签名不匹配时应重新从官方来源下载。
 

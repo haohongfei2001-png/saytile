@@ -9,7 +9,7 @@
   "base_main": "42499d6101fad7e974917b2f687abc07738d2c9c",
   "previous_snapshot": "reference/history/r3-snapshot.json",
   "runtime_file_count": 15,
-  "runtime_total_bytes": 702478,
+  "runtime_total_bytes": 703281,
   "runtime_files": [
     {
       "path": "assets/archive-native.png",
@@ -48,8 +48,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 25508,
-      "sha256": "8b85289048fb9d071e51953a4d663b01a44657adab50da3ca1d0f2baf2697129"
+      "bytes": 26311,
+      "sha256": "8527eb2b8b254841e1687cdf45aa020d9c08be0fc27c98c4492be2f89d073e4a"
     },
     {
       "path": "middle.css",
@@ -119,5 +119,10 @@
     "pages_run": 45222069957,
     "public_acceptance": "PASS 25 browser checks, 15 runtime hashes, actual full DMG button download",
     "receipt": "evidence/release-100/publication/receipt.json"
+  },
+  "documentation_update": {
+    "date": "2026-11-25",
+    "scope": "Clarify optional Accessibility, local/offline storage, no unverified cloud restore. Download remains released 1.0.0 until 1.0.1 passes release conditions.",
+    "deployment": "NOT_RUN candidate branch"
   }
 }
