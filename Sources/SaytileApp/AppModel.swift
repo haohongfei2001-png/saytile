@@ -154,11 +154,11 @@ struct PanelCapturePresentation: Equatable {
         switch capture {
         case .paused:
             state = .paused
-            label = "暂停"
-            actionLabel = hasStarted ? "继续收音" : "开始收音"
+            label = microphoneDenied ? "需要麦克风权限" : "暂停"
+            actionLabel = microphoneDenied ? "打开麦克风权限设置" : hasStarted ? "继续收音" : "开始收音"
             actionSymbolName = "play.fill"
             symbolName = "play.fill"
-            detail = nil
+            detail = microphoneDenied ? "请在系统设置 → 隐私与安全性 → 麦克风中允许 Saytile。仍可编辑和复制已有文字。" : nil
         case .starting:
             state = .starting; label = "正在准备"; actionLabel = "取消开启"
             actionSymbolName = "xmark"; symbolName = "xmark"; detail = nil
@@ -389,6 +389,7 @@ final class AppModel: ObservableObject {
     var hidePanel: () -> Void = {}
     var openArchive: () -> Void = {}
     var openSettings: () -> Void = {}
+    var openFirstUse: (() -> Void)?
     var checkForUpdates: (() -> Void)?
     @Published var updateConfigured = false
     @Published var canCheckForUpdates = false
@@ -559,7 +560,7 @@ final class AppModel: ObservableObject {
     }
     var panelCapturePresentation: PanelCapturePresentation {
         PanelCapturePresentation(state: captureDependencies.state(audio), hasStarted: hasStarted,
-            measuredLevel: captureDependencies.level(audio), microphoneDenied: captureProblem && microphoneDenied)
+            measuredLevel: captureDependencies.level(audio), microphoneDenied: microphoneDenied)
     }
     var panelCaptureLabel: String { panelCapturePresentation.label }
     var panelCaptureDetail: String? {
@@ -570,7 +571,11 @@ final class AppModel: ObservableObject {
     var captureActionLabel: String { panelCapturePresentation.actionLabel }
     var captureActionSymbolName: String { panelCapturePresentation.actionSymbolName }
     var captureLabel: String { panelCaptureLabel }
-    var captureProblem: Bool { if case .interrupted = captureDependencies.state(audio) { return true }; return false }
+    var captureProblem: Bool {
+        let state = captureDependencies.state(audio)
+        if case .interrupted = state { return true }
+        return state == .paused && microphoneDenied
+    }
     var microphoneDenied: Bool { [.denied, .restricted].contains(captureDependencies.microphoneAuthorization()) }
     func openMicrophoneSettings() { captureDependencies.openMicrophonePreferences() }
     var microphoneLabel: String {
@@ -581,6 +586,16 @@ final class AppModel: ObservableObject {
         }
     }
     var accessibilityLabel: String { input.hasPermission ? "已允许" : "尚未允许 · 可正常复制" }
+    /// Only a normal launch calls this, after recovery has loaded existing text.
+    /// Closing the workspace is sufficient to dismiss the introduction; a denied
+    /// permission or failed model download must not make it reopen every launch.
+    func presentFirstUseIfNeeded() async {
+        await initialLoad()
+        guard recovered, !exitPrepared, !preparingForExit, !completedFirstTranscript,
+              !preferences.bool(forKey: "firstUse.presented.v1"), let openFirstUse else { return }
+        preferences.set(true, forKey: "firstUse.presented.v1")
+        openFirstUse()
+    }
     func recognitionPhaseLabel(for item: DisplayRecording) -> String {
         guard item.source.recognitionState == .running else { return item.stateLabel }
         return item.isRecording ? "正在记录" : "正在核对文字"
@@ -1003,7 +1018,7 @@ final class AppModel: ObservableObject {
         if state == .listening || state == .speaking { hasStarted = true }
     }
     func toggleCapture() {
-        if captureProblem && microphoneDenied { openMicrophoneSettings(); return }
+        if !captureDependencies.state(audio).isRunning && microphoneDenied { openMicrophoneSettings(); return }
         startupIntentConsumed = true
         captureActionGeneration &+= 1
         let generation = captureActionGeneration

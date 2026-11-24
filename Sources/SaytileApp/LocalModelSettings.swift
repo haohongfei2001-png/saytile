@@ -5,16 +5,43 @@ struct LocalModelSettings: View {
     @ObservedObject var model: AppModel
     @ViewState private var items: [LocalASRID: LocalModelStatus] = [:]
     @ViewState private var apple: SpeechAvailability?
+    @ViewState private var readiness: SpeechAvailability?
+    @ViewState private var readinessID: LocalASRID?
     @ViewState private var issue: String?
     @ViewState private var deletion: LocalASRID?
     @ViewState private var experiments: [LocalASRID] = []
     private func size(_ bytes: Int64) -> String { ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file) }
 
     var body: some View {
+        if !model.completedFirstTranscript {
+            Section("开始使用") {
+                Text("Saytile 将讲话实时记成文字，原音和修改保存在这台 Mac。默认在本机识别，无需账号或 API。")
+                Text("点击语音板右下角开始讲话，首次才会请求麦克风权限。自由记录和复制不需要辅助功能权限；需要直接输入到其他应用时，再到「输入与快捷键」授权。")
+                    .font(.callout).foregroundStyle(.secondary)
+                if model.microphoneDenied {
+                    Button("打开麦克风权限设置…", action: model.openMicrophoneSettings)
+                        .accessibilityIdentifier("models.firstUseMicrophone")
+                    Text("未允许麦克风时，仍可打字、编辑和复制。允许后回到语音板即可开始。")
+                        .font(.callout).foregroundStyle(.secondary)
+                } else {
+                    LabeledContent("麦克风", value: model.microphoneLabel)
+                }
+                Button("显示语音板", action: model.openPanel)
+                    .accessibilityIdentifier("models.showVoicePanel")
+            }.accessibilityIdentifier("models.firstUse")
+        }
         Section("本机识别使用的模型") {
             if model.deviceOnly {
                 LabeledContent("下一段本机识别", value: model.selectedLocalModel.title)
                     .accessibilityIdentifier("models.nextLocalEngine")
+                if let readiness, readinessID == model.selectedLocalModel {
+                    Text(readiness.installed ? "识别已就绪，可以在语音板开始讲话。" :
+                        (model.audio.preparingAppleSpeech || items.values.contains(where: \.downloading)
+                            ? "正在准备本机识别。资源就绪前，原音仍会保存，可稍后重新识别。"
+                            : "本机识别尚未就绪。可继续下载或重新准备资源；已有原音和文字会保留。"))
+                        .font(.callout).foregroundStyle(.secondary)
+                        .accessibilityIdentifier("models.readiness")
+                }
             }
             if let fallback = model.localFallbackMessage {
                 Text(fallback).font(.callout).foregroundStyle(.secondary)
@@ -23,6 +50,7 @@ struct LocalModelSettings: View {
                 LabeledContent("最近一次实际识别", value: last)
                     .accessibilityIdentifier("models.lastActualEngine")
             }
+            modelRow(LocalModelRecommendation.preferred)
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text("Apple 中文识别").font(.body.weight(.medium))
@@ -45,7 +73,7 @@ struct LocalModelSettings: View {
                     let result = await AppleSpeechService.availability()
                     if !Task.isCancelled { apple = result }
                 }
-            ForEach(LocalASRID.consumer.filter { $0 != .apple }, id: \.rawValue) { id in
+            ForEach(LocalASRID.consumer.filter { $0 != .apple && $0 != LocalModelRecommendation.preferred }, id: \.rawValue) { id in
                 modelRow(id)
             }
             if model.manualLocalModel != nil {
@@ -105,6 +133,10 @@ struct LocalModelSettings: View {
                     if !status.downloading && status.diskBytes > 0 { Button("删除…") { deletion = id }.controlSize(.small) }
                 }
                 if let error = status.error { Text(error).font(.callout).foregroundStyle(.secondary).textSelection(.enabled) }
+                if id == LocalModelRecommendation.preferred && !status.installed {
+                    Text("默认中文模型；只需下载一次，普通更新会保留。下载和准备不申请麦克风权限。")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
             } else {
                 Text("正在读取本机文件…").font(.caption).foregroundStyle(.secondary)
             }
@@ -119,6 +151,10 @@ struct LocalModelSettings: View {
                 guard !Task.isCancelled else { return }
                 if items[id] != state { items[id] = state }
             }
+            let selected = model.selectedLocalModel
+            let available = await model.localModels.availability(selected)
+            guard !Task.isCancelled else { return }
+            if selected == model.selectedLocalModel { readiness = available; readinessID = selected }
             do { try await Task.sleep(for: .seconds(1)) } catch { return }
         } while !Task.isCancelled
     }
