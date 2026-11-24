@@ -4,14 +4,14 @@
 
 ## 边界与当前裁决
 
-HOLD：1.0.1（574）已完成 Developer ID 签名构建，产品源码 `4ac4d90bc12e83e7293dd00597e68881090b57ee`、SourceDirty=false。最终验收进行中；缺少公证授权。当前安装 0.20（533）、用户真实资料、Keychain、模型缓存保持不变。仅隔离公开语音与合成资料。没有合并、发布、生产更新源切换。
+HOLD：1.0.1（574）已完成 Developer ID 签名构建，产品源码 `73ad857442964437929819ba9965f6bcfdcefd27`、SourceDirty=false。最终验收进行中；缺少公证授权。当前安装 0.20（533）、用户真实资料、Keychain、模型缓存保持不变。仅隔离公开语音与合成资料。没有合并、发布、生产更新源切换。
 
 ## 已实施，待最终候选验收
 
 - 首次使用：一次性展示本地模型准备页面，复制不强制 AX；拒绝权限后的首次点击直接进入恢复入口。
 - 外部输入：修复 witness 内部暂时不可读被折叠为失效，16 场景注入通过；保持4次采样、两次完整读回、一次写入。历史Safari预算耗尽仍安全拒绝，不宣称已根治。
 - 性能：原 5.451 秒首显中 4.231 秒位于首次模型解码；模型 ready 为 1.181 秒，模型输出到可见为 38 毫秒。三对历史复核未复现。本轮继续受限诊断，不盲目改变模型。
-- 发行：既有 Sparkle 账户挑战签名与原公钥验证通过；修复未被 SDK 调用的 Release Notes delegate。未找到公证 profile。最终真实升级仍待候选。
+- 发行：既有 Sparkle 账户挑战签名与原公钥验证通过；修复未被 SDK 调用的 Release Notes delegate。未找到公证 profile。最终真实572→574升级、原生host重启、坏包与篡改说明拒绝已通过；6个实际Qwen权重文件及mtime保持。
 
 ## 验收口径
 
@@ -28,3 +28,12 @@ HOLD：1.0.1（574）已完成 Developer ID 签名构建，产品源码 `4ac4d90
 ## 最终验收进度
 
 18项真实SIGKILL/迁移/写入失败与断网数据回归通过；AppModel226/226、Feedback14/14定向通过。最终原速队列已启动：16对AppKit、420+20两轮墙钟原速、15分钟连续运行串行。当前结果不能提前算PASS。完整Xcode CI在发行PR运行。
+
+## 2026-11-25 最终候选实测进展
+
+- 32次原生原速AB/BA均完成，16对最终文字相同；15段CER两版46/568=8.10%。当前首字P50/P95=1.052/2.126s，对照1.031/1.543s；不宣称延迟改善。中英混说单样本差异主要来自worker ready和首解码，原记录保留。
+- 实际App原生控件PASS：56次AXPress、16组操作，编辑/选区/私有剪贴板/星标重启保留；22个WindowServer原生场景PASS并已查看模型页、档案和语音板。
+- 0.18与533双向升级/回退、DMG独立目录离线安装及损坏资源拒绝PASS。
+- 最终DMG：65 MB级；SHA256 `4b677419cfabf19ab319bb8d390a847b5f564559a872413ef24cdf9322170661`。App和DMG签名/时间戳PASS，Gatekeeper实际拒绝Unnotarized Developer ID，Staple缺票据。不得正式放行。
+- 完整原速420+20两臂及15分钟连续运行仍在执行。GitHub foreground真实AppKit/WKWebView/TextEdit/Chrome/Edge/Safari通过，完整Swift Testing/XCTest与native排队，不能提前记PASS。
+- 原报告调用错用manual模式已修正为显式automatic；评分、音频哈希、SHA、provider断言全部保留。Pillow缺失和旧DMG应用名不匹配为夹具环境失败，原日志保留，使用已存在Pillow环境/真实旧包名称重验通过。

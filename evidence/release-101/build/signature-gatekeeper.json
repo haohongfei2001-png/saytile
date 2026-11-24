@@ -1,0 +1,46 @@
+{
+  "app_codesign": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "app_signature": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Executable=/private/tmp/saytile-release101-public/Saytile.app/Contents/MacOS/Saytile\nIdentifier=app.saytile.mac.mandarin-candidate\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=26510 flags=0x10000(runtime) hashes=817+7 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=cbbbefb53fd8656364a82d81ea718bcc8a85ffba\nCandidateCDHashFull sha256=cbbbefb53fd8656364a82d81ea718bcc8a85ffbafd6ae197a14312489544f204\nHash choices=sha256\nCMSDigest=cbbbefb53fd8656364a82d81ea718bcc8a85ffbafd6ae197a14312489544f204\nCMSDigestType=2\nCDHash=cbbbefb53fd8656364a82d81ea718bcc8a85ffba\nSignature size=9042\nAuthority=Developer ID Application: hongfei hao (ZB9D4T66QB)\nAuthority=Developer ID Certification Authority\nAuthority=Apple Root CA\nTimestamp=Nov 25, 2026 at 01:42:15\nInfo.plist entries=33\nTeamIdentifier=ZB9D4T66QB\nRuntime Version=26.0.0\nSealed Resources version=2 rules=13 files=40\nInternal requirements count=1 size=196\nTotal signatures=1\nChosen signature=1\n"
+  },
+  "dmg_codesign": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "dmg_signature": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Executable=/Users/hhf/Documents/GitHub/saytile/dist/1.0.1/Saytile-1.0.1-arm64.dmg\nIdentifier=Saytile-1.0.1-arm64\nFormat=disk image\nCodeDirectory v=20200 size=307 flags=0x0(none) hashes=1+6 location=embedded\nHash type=sha256 size=32\nCandidateCDHash sha256=59ecf688f503e2844947c830a5bc1a9dbbcf5fc0\nCandidateCDHashFull sha256=59ecf688f503e2844947c830a5bc1a9dbbcf5fc0ac4a6569acc65e9ee657b1af\nHash choices=sha256\nCMSDigest=59ecf688f503e2844947c830a5bc1a9dbbcf5fc0ac4a6569acc65e9ee657b1af\nCMSDigestType=2\nCDHash=59ecf688f503e2844947c830a5bc1a9dbbcf5fc0\nSignature size=9042\nAuthority=Developer ID Application: hongfei hao (ZB9D4T66QB)\nAuthority=Developer ID Certification Authority\nAuthority=Apple Root CA\nTimestamp=Nov 25, 2026 at 01:53:04\nInfo.plist=not bound\nTeamIdentifier=ZB9D4T66QB\nSealed Resources=none\nInternal requirements count=1 size=180\nTotal signatures=1\nChosen signature=1\n"
+  },
+  "app_gatekeeper": {
+    "exit": 3,
+    "stdout": "",
+    "stderr": "/private/tmp/saytile-release101-public/Saytile.app: rejected\nsource=Unnotarized Developer ID\n"
+  },
+  "dmg_gatekeeper": {
+    "exit": 3,
+    "stdout": "",
+    "stderr": "/Users/hhf/Documents/GitHub/saytile/dist/1.0.1/Saytile-1.0.1-arm64.dmg: rejected\nsource=Unnotarized Developer ID\n"
+  },
+  "app_staple": {
+    "exit": 65,
+    "stdout": "Processing: /private/tmp/saytile-release101-public/Saytile.app\nSaytile.app does not have a ticket stapled to it.\n",
+    "stderr": ""
+  },
+  "dmg_staple": {
+    "exit": 65,
+    "stdout": "Processing: /Users/hhf/Documents/GitHub/saytile/dist/1.0.1/Saytile-1.0.1-arm64.dmg\nSaytile-1.0.1-arm64.dmg does not have a ticket stapled to it.\n",
+    "stderr": ""
+  },
+  "source": "73ad857442964437929819ba9965f6bcfdcefd27",
+  "dmg_sha256": "4b677419cfabf19ab319bb8d390a847b5f564559a872413ef24cdf9322170661",
+  "dmg_bytes": 64573914,
+  "scope": "No quarantine removal, policy change, notarization attempt without configured credentials, or installation into user Applications."
+}

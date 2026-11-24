@@ -5,6 +5,7 @@ R=Path(__file__).resolve().parents[2]
 import argparse
 p=argparse.ArgumentParser(description=__doc__)
 for flag in ['root','manifest','audio']:p.add_argument('--'+flag,type=Path,required=True)
+p.add_argument('--automatic', action='store_true', help='Require every receipt to use the automatic production route')
 a=p.parse_args(); refs=json.loads(a.manifest.read_text())['samples']
 score=runpy.run_path(str(R/'scripts/score-local-asr.py'))
 cadence=runpy.run_path(str(R/'scripts/mandarin/score-live-cadence.py'))
@@ -18,9 +19,9 @@ for route in ['qwen-previous','qwen-current']:
   for ref in refs:
    folder=a.root/'paired16'/route/ref['id'];d=json.loads((folder/'visible-raw.json').read_text());inv=json.loads((folder/'invocation.json').read_text());samples=json.loads((folder/'process-samples.json').read_text());runs.append(d);calls.append(inv)
    d=dict(d,audio_sha256=inv['audio_sha256'],exit_code=inv['exit_code'])
-   (flat/f"qwen-small-{ref['id']}.json").write_text(json.dumps(d))
+   (flat/f"{'auto-' if a.automatic else ''}qwen-small-{ref['id']}.json").write_text(json.dumps(d))
    resources.append({'cpu_s':max(s['app_cpu_s'] or 0 for s in samples)+max(s['workers_cpu_s'] for s in samples),'peak_footprint_MiB':max(sum(s['footprint'].values()) for s in samples)/2**20})
-  measured=cadence['measure'](a.manifest,a.audio,flat,runs[0]['sha'],automatic=False)
+  measured=cadence['measure'](a.manifest,a.audio,flat,runs[0]['sha'],automatic=a.automatic)
   errors=collections.Counter(); first_any=[]; gap=[]
   for ref,d,row in zip(refs[:15],runs[:15],measured['rows'][:15]):
    errors.update(score['rating'](ref['reference'],''.join(reversed(d['archive']))))
