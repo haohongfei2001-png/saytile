@@ -35,5 +35,9 @@ HOLD：1.0.1（574）已完成 Developer ID 签名构建，产品源码 `73ad857
 - 实际App原生控件PASS：56次AXPress、16组操作，编辑/选区/私有剪贴板/星标重启保留；22个WindowServer原生场景PASS并已查看模型页、档案和语音板。
 - 0.18与533双向升级/回退、DMG独立目录离线安装及损坏资源拒绝PASS。
 - 最终DMG：65 MB级；SHA256 `4b677419cfabf19ab319bb8d390a847b5f564559a872413ef24cdf9322170661`。App和DMG签名/时间戳PASS，Gatekeeper实际拒绝Unnotarized Developer ID，Staple缺票据。不得正式放行。
-- 完整原速420+20两臂及15分钟连续运行仍在执行。GitHub foreground真实AppKit/WKWebView/TextEdit/Chrome/Edge/Safari通过，完整Swift Testing/XCTest与native排队，不能提前记PASS。
+- 完整原速420+20两臂及15分钟连续运行仍在执行。GitHub foreground真实AppKit/WKWebView/TextEdit/Chrome/Edge/Safari通过，完整Swift Testing/XCTest与native因GitHub托管ARM容量不足、未取得runner而被取消，无测试步骤执行。下一次完整测试保持全部断言，Swift测试改标准Intel池；native仍ARM。
 - 原报告调用错用manual模式已修正为显式automatic；评分、音频哈希、SHA、provider断言全部保留。Pillow缺失和旧DMG应用名不匹配为夹具环境失败，原日志保留，使用已存在Pillow环境/真实旧包名称重验通过。
+
+- 模型真实HTTPS断点恢复PASS：仅补64KiB、六文件SHA一致、再次下载零请求，不冒称完整首次下载或系统断网切换。
+- 标准Sparkle弹窗已加入独立CI桌面，复用真实控制器/默认SDK UI；本机仅编译，不抢占用户窗口，真实UI等待CI。
+- 官网当前1.0.0实际下载PASS，65,662,466字节、SHA与公开发行一致；1.0.1仍未发布。

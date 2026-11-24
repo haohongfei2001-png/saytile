@@ -12,7 +12,11 @@ concurrency:
   cancel-in-progress: true
 jobs:
   swift-tests:
-    runs-on: macos-26
+    # The full XCTest/Swift Testing suite has no model inference. Use the
+    # standard Intel macOS 26 pool when hosted arm64 capacity is unavailable;
+    # keep all suites/arguments unchanged. Native/runtime jobs remain arm64,
+    # and real Qwen product acceptance runs separately on the M5.
+    runs-on: macos-26-intel
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
