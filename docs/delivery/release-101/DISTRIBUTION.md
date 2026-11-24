@@ -1,6 +1,8 @@
 # 1.0.1 发行与更新验收
 
-基线：`f3baa0a255931dbb16291690699790e3d54f8bde`；产品修复：`7483536`。实际最终安装/更新收据在完成后追加，不能用本节的定向测试代替最终包验收。
+基线：`f3baa0a255931dbb16291690699790e3d54f8bde`；产品修复原始提交：`7483536`。最终更新验收绑定 **1.0.1（574）／`73ad857442964437929819ba9965f6bcfdcefd27`**，主可执行文件 SHA-256 为 `d6274b3dee146f5111b980175c86dabe0a9d6b00edbb888276f00db98be25445`。本页仅裁决发行与更新部分，产品质量及 CI 由统一交付报告汇总。
+
+**发行结论：HOLD。** 已完成真实隔离升级、原生更新控制器、回退和既有签名密钥闭环；未配置公证授权，生产空 feed 保持不变，没有公开发布或替换安装 533。
 
 ## 已复现与修复
 
@@ -8,7 +10,9 @@
 
 现已实现正确的 `updater(_:shouldDownloadReleaseNotesForUpdate:)`。仅已验证签名 feed 中的 HTTPS 说明可下载；隔离夹具另允许 loopback。说明文件本身仍由 Sparkle 验签。既有 `shouldProceedWithUpdate` 同样要求 feed 签名成功，正式输入、资料与身份无变更。
 
-实际控制器源码对固定 SDK 编译通过，使用 `-warnings-as-errors`；原生 selector 回归 PASS。此检查只替换模型的展示属性，没有替代 Sparkle，但不是整 App UI/说明展示通过。独立的原生 host 更新测试必须验证签名说明实际加载与损坏说明拒绝。
+实际控制器源码对固定 SDK 编译通过，使用 `-warnings-as-errors`；原生 selector 回归 PASS。该检查只替换模型的展示属性，不替代 Sparkle，也不独立证明整 App UI/说明展示。最终原生 host 测试另外证明：签名 feed 中的签名说明实际下载并交给 user driver，字节被篡改的说明被 Sparkle 拒绝（2001／3002），没有交给显示回调。
+
+`item.signingValidationStatus == .succeeded` 表示 **feed** 验签成功，仅 enclosure 的 `edSignature` 不能代替它。本次正例对 feed、archive、外部 notes 分别签名；正式待发布 feed 采用受 feed 签名覆盖的内联纯文字说明，不增加远程 HTML 请求。
 
 ## 签名与外部授权
 
@@ -23,7 +27,7 @@
 
 `distribution/create-update.py` 只准备 ZIP、带纯文字内联 Release Notes 的签名 Appcast 及收据，不上传、不发布。它检查干净源码 SHA、正式版本号、身份、渠道、已发布公钥、完整签名策略、Developer ID/hardened runtime/时间戳；归档用公开公钥独立验签。
 
-`scripts/test-release-update.py` 保留两个真实版本的版本号、build 和可执行代码；临时重签名会改变 Mach-O 签名区，使用不执行的比较副本去除签名后核对完整代码字节，验证真实 Sparkle installer 的 1.0.0→1.0.1 升级、损坏包拒绝、新包离线启动、完整合成资料、模型缓存及旧包回退打开。
+`scripts/test-release-update.py` 保留两个真实版本的版本号、build 和可执行代码；临时重签名会改变 Mach-O 签名区，使用不执行的比较副本去除签名后核对完整代码字节，验证真实 Sparkle installer 的 1.0.0→1.0.1 升级、损坏包拒绝、新包离线启动、完整合成资料及旧包回退打开。小型模型 marker 仅是 canary；本次另传入授权研究模型路径，将真实 Qwen 权重 APFS clone 到隔离 `LocalModels`，比较全部文件 SHA-256 和修改时间。没有读取生产缓存、运行模型或下载权重。
 
 `scripts/test-native-update.py` 验证最终候选实际 host/controller 的退出保存、签名说明加载、损坏说明拒绝、真实 Sparkle 安装器及无参数重启。此旧夹具仍使用 1→2 build aliases，必须与真实版本测试分别报告。两项均保留独立 Bundle ID、资料与缓存，只复用既有签名工具内部访问账户。
 
@@ -35,11 +39,28 @@
 | 修复后的真实 SDK selector | PASS | update-controller-probe.log |
 | 更新配置包装断言 | PASS，20 项 | update-configuration.log |
 | 新发行工具/公钥验签/篡改拒绝 | PASS，10 项 | release-preparation-tests.log |
-| 真实 572→574 安装与回退 | PASS，旧候选 4ac4d90；公开 SHA 重绑定后需重验 | real-version-update-r3/receipt.json |
-| 最终 host 签名说明/更新/重启 | NOT_RUN，待统一候选 | 不能以 selector 代替 |
+| 真实 572→574 安装与回退 | PASS，最终公开源码 73ad857 | final-release-update/receipt.json |
+| 最终 host 签名说明/更新/无参数重启 | PASS，实际 App；1→2 fixture aliases | final-native-update/receipt.json、events.jsonl |
+| 损坏 archive 拒绝／损坏 notes 拒绝 | PASS，4005／2001+3002 | 两层更新原始日志 |
+| 合成 SQLite、用户编辑、草稿、段落、原音 | PASS，2 条录音、4 修订，完整摘要相同 | final-release-model-cache/receipt.json |
+| 真实 Qwen 模型缓存升级／回退保护 | PASS，6 文件／712,777,119 字节，全部 SHA 与 mtime 不变 | final-release-model-cache/receipt.json |
+| 实际设置「检查更新」控件与线上空 feed | PASS，外部 AXPress，未激活窗口、未抢焦点、未安装 | final-native-update/receipt.json、native-settings-about.png |
+| 原身份最终 ZIP 解包与完整性 | PASS，136 个文件／符号链接，内容及 mode 与最终签名 App 相同 | final-prepared-update/extraction-receipt.json、bundle-manifest.json |
 | 标准 Sparkle 弹窗视觉交互 | NOT_RUN | 与 deterministic driver 分开 |
 | 最终 App/DMG 公证、Gatekeeper | BLOCKED，缺现成公证授权 | credential-metadata.json |
 | 生产 feed 更新/正式发行 | NOT_RUN | 主负责人统一放行后才执行 |
+
+证据目录均位于 `evidence/release-101/distribution/`。最终原生设置截图来自实际 `SettingsView`；为防止更新到生产 App，截图仍显示夹具版本 `0.18 / build 2`，只证明控件和布局，不能冒充实际 1.0.1 版本展示。标准 Sparkle 更新弹窗没有经过视觉点击验收；已实测的是实际更新说明验证／交付回调、原生设置按钮及完整安装链路。
+
+## 最终待发布文件
+
+目录：`/private/tmp/saytile-release101-update-prepared/`。该目录没有上传，feed 的未来下载 URL 当前不能当成公开可用链接。
+
+- `Saytile-1.0.1-update.zip`：55,577,565 字节；SHA-256 `b7417f53db6a49911ec15059376d2800456f09f16ae5eb351cc9bcf49f52a2d8`。
+- 签名 `appcast.xml`：SHA-256 `f2c372c76b374449313f1e21a3a4046f87013264b607d34c3cec69351de81622`。
+- 原有公开 Ed25519 公钥独立验签 PASS；ZIP 解包后 `codesign --verify --deep --strict` PASS，136 个 bundle 条目逐项 SHA／mode／symlink 与原签名候选完全相同。解包副本未启动、未注册 Launch Services、未移除 quarantine。
+- 收据、Appcast 及完整 manifest 已入库于 `final-prepared-update/`；55 MB ZIP 保留本机交付目录，不放入 Git 历史。
+- 候选 release notes 如实写明尚未公证／发布。公证、装订或任何包修改后必须重新生成签名 ZIP、签名 feed 和 SHA；本次签名不能覆盖未来修改的包。
 
 官方依据：[Sparkle 发行流程](https://sparkle-project.org/documentation/publishing/)、[Updater delegate](https://sparkle-project.org/documentation/api-reference/Protocols/SPUUpdaterDelegate.html)、[轻量更新提醒](https://sparkle-project.org/documentation/gentle-reminders/)。生产继续固定 Sparkle 2.10.1；当前文档新增的 2.11 beta feed bundle-identifier 强制设置未冒称现有运行库已支持。
 
@@ -51,4 +72,4 @@
 
 全量 storage 进程回归与候选可能因工具/文档提交处于不同 SHA；更新收据保留 App源码和实际 storage test HEAD，同时严格比较 `SaytileKit`、`CAudio`、`CSQLite`、Package、探针及存储测试程序的完整 Git 输入树。只接受所有输入对象完全相等，不修改旧收据；真实代码变化仍需重新测试。相关正负回归包含“仅文档变化接受、存储变化拒绝、探针字节变化拒绝”。
 
-主负责人随后因 GitHub 作者隐私策略对未推送提交改用公开 noreply（代码树不变），旧候选未覆盖。最终更新验收须绑定重新签名的公开源码候选；当前结果不能提前冒充该最终包通过。
+主负责人随后因 GitHub 作者隐私策略对未推送提交改用公开 noreply（代码树不变），旧候选未覆盖。上方 `final-*` 三组升级证据均重新运行于最终公开源码 `73ad857`，没有用旧 4ac4d90 收据替代；前两次失败和旧候选 PASS 作为原件继续保留。

@@ -48,6 +48,20 @@ def app_identity(app):
             "executable_sha256": digest(app / "Contents/MacOS/Saytile"), "info_sha256": digest(app / "Contents/Info.plist")}
 
 
+def model_snapshot(directory):
+    files = {}
+    for path in sorted(directory.rglob("*")):
+        if path.is_symlink():
+            raise ValueError("Research model fixture must not contain symbolic links")
+        if path.is_file():
+            metadata = path.stat()
+            files[str(path.relative_to(directory))] = dict(bytes=metadata.st_size,
+                mtime_ns=metadata.st_mtime_ns, sha256=digest(path))
+    if not files:
+        raise ValueError("Research model fixture is empty")
+    return files
+
+
 def wait_for_owned_installers(root, fixture_id, timeout=15):
     """SparkleCLI exits from its error callback before its XPC helper exits.
 
@@ -80,6 +94,7 @@ def main():
     parser.add_argument("--expected-source", required=True)
     parser.add_argument("--old-source", required=True)
     parser.add_argument("--signing-account", default="app.saytile.updates.v1")
+    parser.add_argument("--research-model-cache", type=Path, help="Authorized /private/tmp research qwen-small directory; never a production cache")
     args = parser.parse_args()
     old, candidate, cli = args.old.resolve(), args.candidate.resolve(), args.cli.resolve()
     old_meta, new_meta = info(old), info(candidate)
@@ -150,6 +165,21 @@ def main():
         canary.parent.mkdir(parents=True)
         canary.write_bytes(b"Existing local model: preserve bytes and modification time during update")
         canary_hash, canary_time = digest(canary), canary.stat().st_mtime_ns
+        model_before = None
+        if args.research_model_cache:
+            authorized_model = Path("/private/tmp/saytile-beta-021-20261123/.build/local-asr/weights/qwen-small")
+            assert args.research_model_cache.resolve() == authorized_model
+            assert not args.research_model_cache.is_symlink()
+            model_fixture = data / "LocalModels/qwen-small"
+            assert not model_fixture.exists()
+            source_models = model_snapshot(authorized_model)
+            run("cp", "-cR", "-p", authorized_model, model_fixture)
+            model_before = model_snapshot(model_fixture)
+            assert model_before == source_models
+            result["real_model_cache"] = dict(scope="authorized research weights cloned into isolated LocalModels; not loaded, downloaded or read from production",
+                source=str(authorized_model), files=model_before, file_count=len(model_before),
+                total_bytes=sum(value["bytes"] for value in model_before.values()), before_sha256_and_mtime_verified=True,
+                after_sha256_and_mtime_verified=False)
         archive = feed / "update.zip"
         run("ditto", "-c", "-k", "--keepParent", newer, archive)
         archive_hash = digest(archive)
@@ -204,6 +234,11 @@ def main():
         assert STORE.snapshot(data, 2) == before and STORE.paragraph_state(data) == paragraphs
         STORE.open_fixture(installed, data, 2)
         assert STORE.snapshot(data, 2) == before
+        if model_before is not None:
+            assert model_snapshot(model_fixture) == model_before
+            result["real_model_cache"]["after_sha256_and_mtime_verified"] = True
+            # Reading/copying the authorized research source must not mutate it.
+            assert model_snapshot(authorized_model) == source_models
         assert [app_identity(app) for app in (old, candidate)] == original
         result.update(status="PASS", fixture_bundle_id=fixture_id, version_before=old_meta["CFBundleShortVersionString"],
             version_after=new_meta["CFBundleShortVersionString"], build_before=old_meta["CFBundleVersion"], build_after=new_meta["CFBundleVersion"],
@@ -212,6 +247,7 @@ def main():
             upgraded_app_launched_offline=True, current_version_not_reinstalled=True, manual_rollback_reopened=True,
             original_packages_unchanged=True, fixture_before=before, fixture_after=STORE.snapshot(data, 2),
             paragraph_metadata_preserved=True, model_cache_bytes_and_mtime_preserved=True,
+            model_marker_scope="small synthetic canary; actual model files are separately reported in real_model_cache when supplied",
             signing_account=args.signing_account, published_public_key=old_meta["SUPublicEDKey"],
             archive_sha256=archive_hash, appcast_sha256=digest(appcast), probe_sha256=digest(args.probe),
             cli_sha256=digest(cli), signing_tool_sha256=digest(sign))

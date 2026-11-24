@@ -42,7 +42,7 @@ python3 distribution/create-update.py \
 
 更新验收分两层，不能互相冒充：
 
-- `scripts/test-release-update.py`：两个真正的旧/新二进制，保留实际版本号与构建号；重签的签名区差异单独归因，原始代码完整比对，使用官方 Sparkle CLI 和真实安装器。检查损坏包拒绝、安装、离线启动、两条合成档案/四个修订/原音/段落/模型缓存及手动回退。
+- `scripts/test-release-update.py`：两个真正的旧/新二进制，保留实际版本号与构建号；重签的签名区差异单独归因，原始代码完整比对，使用官方 Sparkle CLI 和真实安装器。检查损坏包拒绝、安装、离线启动、两条合成档案/四个修订/原音/段落及手动回退。默认模型 marker 只是小型 canary；传入已授权研究模型的 `--research-model-cache` 后，才会把真实权重 clone 到隔离目录，比较所有文件 SHA 和修改时间，且不加载模型。
 - `scripts/test-native-update.py`：最终候选的真实 `NSApplication`、`AppUpdateController`、异步退出及 Sparkle 无参数重启。沿用严格隔离身份与虚拟 1→2 构建号，验证签名说明加载和篡改说明拒绝；这项不是实际产品版本跨度的证据，也不是标准 Sparkle 窗口的视觉验收。
 
 两者都只改临时副本的身份/更新地址，使用独立合成资料，不访问安装 533 或其资料。既有发布公钥不变，签名账户默认 `app.saytile.updates.v1`。
