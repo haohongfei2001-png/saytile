@@ -229,7 +229,13 @@ final class AXInputAccess: InputAccess {
     /// Bounded runtime witness includes surrounding text so insertion/replacement can
     /// prove grapheme boundaries and preserve the user's prefix and suffix. Never stored.
     func textWitness(at expected: InputTargetSnapshot) -> String? {
-        guard let current = try? snapshot() else { unavailable("witness.before_snapshot"); return nil }
+        try? checkedTextWitness(at: expected)
+    }
+
+    func checkedTextWitness(at expected: InputTargetSnapshot) throws -> String? {
+        let current: InputTargetSnapshot
+        do { current = try snapshot() }
+        catch { unavailable("witness.before_snapshot"); throw error }
         guard current == expected, !current.isSensitive, current.isEditable,
               let element = currentElement else { unavailable("witness.before_identity"); return nil }
         guard let count = attribute(element, kAXNumberOfCharactersAttribute) as? NSNumber,
@@ -248,7 +254,10 @@ final class AXInputAccess: InputAccess {
             text = attribute(element, kAXValueAttribute) as? String
         } else { text = nil }
         guard let text, text.utf16.count == range.length else { unavailable("witness.text_range"); return nil }
-        guard (try? snapshot()) == expected else { unavailable("witness.after_identity"); return nil }
+        let after: InputTargetSnapshot
+        do { after = try snapshot() }
+        catch { unavailable("witness.after_snapshot"); throw error }
+        guard after == expected else { unavailable("witness.after_identity"); return nil }
         return text
     }
 

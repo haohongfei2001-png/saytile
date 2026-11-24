@@ -1,0 +1,46 @@
+{
+  "utc": "2026-11-24T17:23:19.331467+00:00",
+  "base_sha": "f3baa0a255931dbb16291690699790e3d54f8bde",
+  "branch": "codex/release-101-input",
+  "scope": "real production coordinator and SQLite with synthetic OS; native foreground execution NOT_RUN",
+  "source_sha256": {
+    "Sources/SaytileKit/InputAccessibility.swift": "67d3ac9451707d041f04eb6eefde9385ebc78b4bb58abf7c983861765896188c",
+    "Sources/SaytileKit/InputCoordinator.swift": "bd9481c6ac0c95b77a0a5a7963c33c30f8ef0968153a65e9dd7d94697bdd5ecf",
+    "tests/SaytileKitTests/InputTests.swift": "a1dd398fbfe80198b09b41ec2e84b7bd9a77cce445b94e3b4453a018cabed231",
+    "tests/fixtures/InputWitnessSettlementProbe.swift": "9572c24be70c5f8743b81b61c709bda5e04362918f441b0873a7c37d54f0672a",
+    "tests/fixtures/AXOwnedFieldReady.swift": "a32d63c2d6805135773eb454fef23d06a0ca16e45d890b907c43beca2803cbb8",
+    "tests/fixtures/AXCoordinatorProbe.swift": "f1ca7a58f8b840a09b4b99e60dc0fc8eeeea38e9915e5aae8933deaa1cec0c98"
+  },
+  "historical_evidence_sha256": {
+    "evidence/release-100/ci/e988-foreground/safari.log": "d902e0b21e4d0bcb122e5a6efa8ab945a9b2c08568e467d22fb3b04896aa8951",
+    "evidence/release-100/ci/e988-foreground-rerun/safari.log": "81b5eb4ae9e8b61db48556b282b521ed79956e4f486e2e7f07fd53dc7b6f7190",
+    "evidence/release-100/ci/e988-foreground/chrome.log": "e1c3e67f791a793720b8d63313e4fc1fc8ead8c406210b3faec3d0008ee78c79",
+    "evidence/release-100/ci/e988-foreground-rerun/chrome.log": "eea545196a89ffce6f5a2b968d08bdf9d018bd8c96f0aa720a6f62384f2b1f60",
+    "evidence/release-100/ci/e988-foreground/chrome-focus-timeout.log": "f26c28e262df49d734afae2b25c7500f6764b7754d36033ed63c3abdbe6d94e8",
+    "evidence/release-100/ci/e988-foreground-rerun/chrome-focus-timeout.log": "985ebce704e2c5e4259a2cb7a390896b54886a1d3438fb5608d86cc06f43ba97"
+  },
+  "binary_sha256": {
+    "production/libSaytileKit.a": "019f58adff7867b764c95b00e47d0d01696a5415ca98f35f2ef043ba63c9c51a",
+    "production-after/libSaytileKit.a": "99ca959a3fd9ddb8c5782cf9c61bbc97ca6d6b25edceafe20e5c6c0c5196d88d",
+    "InputWitnessSettlementProbe": "d13fe9c49d77b061f1716bea9659211f7022ae51a6f2674bb0abd9a175894713",
+    "InputWitnessSettlementProbe-after": "5ffb551f7497c43d2fd749cb0e2be1cb8cf2ee5506ec9d00e9ac79d5654c0f83",
+    "AXForegroundBatchProbe-after": "91193e9a81485f68c62ae699a9bb1cc44dea7c18e42a1854fa426965042a64a9"
+  },
+  "tests": {
+    "same_probe_before": "FAIL: witness read gap loses error; later safety challenges not reached",
+    "same_probe_after": "PASS 16/16; 1 recovery and 15 safe rejections; one external write attempt each",
+    "safari_historical_budget_shape": "PASS safety rejection; delivery remains UNVERIFIED in before and after",
+    "swift_testing": "BLOCKED locally; nested sandbox then known incomplete Xcode; pending CI",
+    "foreground_probe_compilation": "PASS",
+    "native_foreground_execution": "NOT_RUN; reserved for central final-SHA CI"
+  },
+  "constraints": {
+    "unchanged_settle_read_limit": 4,
+    "unchanged_settle_sleep_ms": 220,
+    "unchanged_web_AX_write_timeout_ms": 150,
+    "mutations_retried": false,
+    "clipboard_used": false,
+    "external_apps_activated": false,
+    "user_data_accessed": false
+  }
+}

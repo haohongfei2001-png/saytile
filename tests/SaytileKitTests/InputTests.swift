@@ -5,6 +5,24 @@ import Testing
 
 @Suite("Input identity and safety")
 struct InputPolicyTests {
+    @Test(arguments: ["unavailable", "changed", "permission", "sensitive"])
+    @MainActor func witnessReadErrorsRemainDistinctFromMissingProof(_ scenario: String) throws {
+        let error: NativeInputError = switch scenario {
+        case "unavailable": .unsupported
+        case "changed": .targetChanged
+        case "permission": .permission
+        default: .sensitive
+        }
+        let access = AXInputAccess(selectionProvider: { throw error }, permissionCheck: { true })
+        #expect(access.textWitness(at: sampleTarget()) == nil)
+        do {
+            _ = try access.checkedTextWitness(at: sampleTarget())
+            Issue.record("Snapshot read errors must reach the bounded post-write check")
+        } catch let caught {
+            #expect(String(describing: caught) == String(describing: error))
+        }
+    }
+
     @Test func testnoSelectedReplacement() throws {
         var snapshot = sampleTarget()
         snapshot.selectionLength = 3
@@ -44,7 +62,12 @@ private final class FakeInputAccess: InputAccess {
     var attempts: [String] = []
     var fieldWitness: String?
     var onWitness: (() -> Void)?
+    var onCheckedWitness: (() throws -> Void)?
     func textWitness(at expected: InputTargetSnapshot) -> String? {
+        try? checkedTextWitness(at: expected)
+    }
+    func checkedTextWitness(at expected: InputTargetSnapshot) throws -> String? {
+        try onCheckedWitness?()
         onWitness?()
         return expected == target ? fieldWitness : nil
     }
@@ -79,6 +102,102 @@ private final class FakeInputAccess: InputAccess {
 @Suite("Input coordinator with isolated SQLite and simulated OS")
 @MainActor
 struct InputCoordinatorTests {
+    @Test func safariFourReadBudgetWithOnlyOneFinalWitnessStillRefusesOwnership() async throws {
+        let directory = testDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true; access.target.selectionLocation = 2
+        access.fieldWitness = "abz"; access.timesOutAfterTextWrite = true
+        let input = NativeInputCoordinator(store: store, access: access)
+        try await input.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+        var settledReads = 0, ownNotification = false
+        access.afterDispatch = {
+            access.fieldWitness = "ab你好😀z"
+            access.onSnapshot = {
+                guard !ownNotification else { return }
+                settledReads += 1
+                if settledReads == 1 {
+                    ownNotification = true; access.onChange?(.contentOrSelection); ownNotification = false
+                }
+                if settledReads == 2 || settledReads == 3 { throw NativeInputError.unsupported }
+            }
+        }
+        // Preserve the e988 Safari observation sequence: readable own-write
+        // notifications, two unavailable reads, only ONE final complete read.
+        #expect(await input.insertStable(recordingID: record.id, revisionID: revision.id,
+            stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt) == .unverified)
+        // The coordinator makes a subsequent read only to decide whether an
+        // independent binding could survive; it cannot confirm this write.
+        #expect(settledReads >= 4)
+        #expect(input.binding == nil && access.attempts == ["你好😀"])
+        input.invalidate(); try await store.close()
+    }
+
+    @Test(arguments: ["restored", "persistent", "one-settled-read", "changed-window", "changed-editor",
+                      "changed-page", "changed-caret", "selected-range", "changed-prefix", "changed-suffix",
+                      "incomplete-page", "focus", "content", "layout", "cancel"])
+    func transientSnapshotInsideSettledWitnessRequiresTwoCompleteProofs(_ scenario: String) async throws {
+        let directory = testDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true
+        access.target.selectionLocation = 2
+        access.fieldWitness = "abz"
+        access.timesOutAfterTextWrite = true
+        let input = NativeInputCoordinator(store: store, access: access)
+        try await input.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+        var witnessReads = 0, successfulReadsAfterGap = 0
+        access.afterDispatch = {
+            access.fieldWitness = "ab你好😀z"
+            access.onChange?(.contentOrSelection)
+            access.onCheckedWitness = {
+                witnessReads += 1
+                // Initial exact readback succeeds. The next field witness loses
+                // an internal AX snapshot, while the outer snapshot still works.
+                if witnessReads == 2 || scenario == "persistent" && witnessReads > 2 ||
+                    scenario == "one-settled-read" && witnessReads == 4 {
+                    throw NativeInputError.unsupported
+                }
+                if witnessReads == 3 {
+                    switch scenario {
+                    case "changed-window": access.target.windowID = UUID()
+                    case "changed-editor": access.target.elementID = UUID()
+                    case "changed-page": access.target.pageIdentity = "fixture://other-page"
+                    case "changed-caret": access.target.selectionLocation -= 1
+                    case "selected-range": access.target.selectionLength = 1
+                    case "changed-prefix": access.fieldWitness = "Ab你好😀z"
+                    case "changed-suffix": access.fieldWitness = "ab你好😀Z"
+                    case "incomplete-page": access.target.pageContextComplete = false
+                    case "focus": access.onChange?(.focusOrDocument)
+                    case "content": access.onChange?(.contentOrSelection)
+                    case "layout": access.onChange?(.layout)
+                    case "cancel": input.invalidate()
+                    default: break
+                    }
+                }
+                if witnessReads > 2 { successfulReadsAfterGap += 1 }
+            }
+        }
+        let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
+            stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
+        #expect(result == (scenario == "restored" ? .confirmed : .unverified))
+        #expect((input.binding != nil) == (scenario == "restored"))
+        #expect(access.attempts == ["你好😀"])
+        #expect(witnessReads >= 3) // The post-gap safety challenge was actually reached.
+        if scenario == "restored" { #expect(successfulReadsAfterGap >= 2) }
+        access.onCheckedWitness = nil; access.afterDispatch = nil
+        #expect(await input.insertStable(recordingID: record.id, revisionID: revision.id,
+            stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt) ==
+            (scenario == "restored" ? .noNewText : .cancelled))
+        #expect(access.attempts == ["你好😀"])
+        input.invalidate()
+        try await store.close()
+    }
+
     @Test(arguments: ["restored", "persistent", "one-settled-read", "second-content", "focus", "layout",
                       "changed-process", "changed-window", "changed-editor", "changed-page", "incomplete-page",
                       "changed-caret", "selected-range", "changed-prefix", "changed-suffix", "sensitive"])

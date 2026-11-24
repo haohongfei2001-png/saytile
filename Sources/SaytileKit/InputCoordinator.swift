@@ -85,12 +85,16 @@ protocol InputAccess: AnyObject {
     func stopObserving()
     // Bounded, ephemeral witness; never persisted. Unknown text/boundaries forbid ownership.
     func textWitness(at expected: InputTargetSnapshot) -> String?
+    // Only post-write settlement uses this throwing form. A transient snapshot
+    // read error is distinct from a readable but changed target or full field.
+    func checkedTextWitness(at expected: InputTargetSnapshot) throws -> String?
     func replaceOwned(_ expectedText: String, with replacement: String, start: Int,
                       witness: String, at expected: InputTargetSnapshot, isCurrent: @MainActor () -> Bool) throws -> Bool
 }
 extension InputAccess {
     func snapshotAfterIssuedWebInsertion() throws -> InputTargetSnapshot { try snapshot() }
     func textWitness(at expected: InputTargetSnapshot) -> String? { nil }
+    func checkedTextWitness(at expected: InputTargetSnapshot) throws -> String? { textWitness(at: expected) }
     func replaceOwned(_ expectedText: String, with replacement: String, start: Int,
                       witness: String, at expected: InputTargetSnapshot, isCurrent: @MainActor () -> Bool) throws -> Bool { false }
 
@@ -278,7 +282,7 @@ public final class NativeInputCoordinator {
             guard generation == expectedGeneration, gapSequence == nil || gapSequence == observedEditSequence else { return false }
             do {
                 guard try access.snapshot() == target,
-                      access.textWitness(at: target)?.utf8.elementsEqual(witness.utf8) == true else { return false }
+                      try access.checkedTextWitness(at: target)?.utf8.elementsEqual(witness.utf8) == true else { return false }
             } catch NativeInputError.unsupported {
                 // No mutation while the AX field is unreadable. After any gap the
                 // same binding must give two new full witnesses without an edit,
