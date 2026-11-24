@@ -1,0 +1,21 @@
+{
+  "status": "FAIL_PRESERVED",
+  "run_id": 45461101374,
+  "job_id": 138683564370,
+  "job_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/45461101374/job/138683564370",
+  "source": "9a018417a743e2cd8c4df5249f226e10a022c012",
+  "artifact_id": 14953912225,
+  "artifact_sha256": "642849bde1d903e222e1e0f6d73a53f844f75f4b02a9f4c3e8aa60bc2d8c4a18",
+  "github_reported_artifact_sha256": "642849bde1d903e222e1e0f6d73a53f844f75f4b02a9f4c3e8aa60bc2d8c4a18",
+  "native_job_log_sha256": "09b57d23d3d6f0840b829b05e703e1827200c0313c7fa37c9cb74f2ca73bcb2a",
+  "failed_stage": "sandbox profile parsing, before the Swift native UI probe",
+  "exit": 65,
+  "standard_ui": "NOT_RUN",
+  "product_failure_observed": false,
+  "loopback_requests": [],
+  "root_cause": "Seatbelt remote/local ip addresses require wildcard or localhost host; 127.0.0.1:* is rejected by the parser",
+  "fix": "Only the fixture profile host literals changed to localhost; all UI assertions, public network denial and production code remain unchanged",
+  "local_regression": "original profile fails 65; fixed profile receives loopback response and rejects TEST-NET-2 connect immediately with EPERM; no UI or ASR",
+  "original_receipt_note": "runtime_started/public_network_denied in original FAIL receipt recorded requested mode, not successful sandbox/application startup; raw receipt is retained, future runner separates requested mode from observed native receipt",
+  "next": "Root coordinates a new CI head; this agent did not rerun or trigger any workflow"
+}

@@ -77,24 +77,28 @@ def main():
                       controller_sha256=sha(ROOT / 'Sources/SaytileApp/AppUpdateController.swift'),
                       probe_sha256=sha(ROOT / 'tests/fixtures/StandardUpdateUIProbe.swift'), signed_feed_sha256=FEED_SHA,
                       public_key=PUBLIC_KEY, fixture_bundle_id=fixture_id, private_key_used=False, production_data_accessed=False,
-                      full_product_ui=False, compile_only=args.compile_only, runtime_started=not args.compile_only,
-                      public_network_denied=not args.compile_only)
+                      full_product_ui=False, compile_only=args.compile_only, runtime_launch_requested=not args.compile_only,
+                      network_policy_requested=not args.compile_only)
         try:
             if not args.compile_only:
                 notes = args.output / 'expected-inline-notes.txt'
                 notes.write_text(ET.fromstring(FEED.read_bytes()).find('./channel/item/description').text)
                 threading.Thread(target=server.serve_forever, daemon=True).start()
-                profile = '(version 1)(allow default)(deny network*)(allow network-outbound (remote ip "127.0.0.1:*"))(allow network-inbound (local ip "127.0.0.1:*"))'
+                # Seatbelt's address grammar accepts localhost, not numeric host
+                # literals here. This still permits only loopback, never WAN.
+                profile = '(version 1)(allow default)(deny network*)(allow network-outbound (remote ip "localhost:*"))(allow network-inbound (local ip "localhost:*"))'
                 with (args.output / 'native.log').open('w') as log:
                     subprocess.run(['sandbox-exec', '-p', profile, str(executable), str(args.output.resolve()), str(notes.resolve())],
                                    stdout=log, stderr=subprocess.STDOUT, check=True, timeout=45)
                 native = json.loads((args.output / 'native-receipt.json').read_text())
                 assert native['status'] == 'PASS' and requests and set(requests) == {'/appcast.xml'}
-                result.update(status='PASS', archive_requested=False, screenshot_sha256=sha(args.output / 'standard-update-dialog.png'))
+                result.update(status='PASS', runtime_started=True, public_network_denied=True, archive_requested=False,
+                              screenshot_sha256=sha(args.output / 'standard-update-dialog.png'))
         finally:
             if not args.compile_only: server.shutdown()
             server.server_close()
             result['loopback_requests'] = requests
+            result['native_probe_receipt_present'] = (args.output / 'native-receipt.json').exists()
             (args.output / 'receipt.json').write_text(json.dumps(result, indent=2) + '\n')
         print(json.dumps(result))
 

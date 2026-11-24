@@ -46,7 +46,7 @@
 | 真实 Qwen 模型缓存升级／回退保护 | PASS，6 文件／712,777,119 字节，全部 SHA 与 mtime 不变 | final-release-model-cache/receipt.json |
 | 实际设置「检查更新」控件与线上空 feed | PASS，外部 AXPress，未激活窗口、未抢焦点、未安装 | final-native-update/receipt.json、native-settings-about.png |
 | 原身份最终 ZIP 解包与完整性 | PASS，136 个文件／符号链接，内容及 mode 与最终签名 App 相同 | final-prepared-update/extraction-receipt.json、bundle-manifest.json |
-| 标准 Sparkle 弹窗视觉交互 | NOT_RUN；CI 专用 probe 已编译，等待独立 GUI 会话首轮执行 | standard-ui-preflight/、standard-ui-compile/；CI artifact `Saytile-standard-update-ui` |
+| 标准 Sparkle 弹窗视觉交互 | NOT_RUN；首轮 CI 的 sandbox 夹具语法失败，修复后等待统一 CI | standard-ui-ci-9a01841/；CI artifact `Saytile-standard-update-ui` |
 | 最终 App/DMG 公证、Gatekeeper | BLOCKED，缺现成公证授权 | credential-metadata.json |
 | 生产 feed 更新/正式发行 | NOT_RUN | 主负责人统一放行后才执行 |
 
@@ -67,6 +67,10 @@
 该探针只允许在显式启用的 GitHub Actions 环境运行 UI。本机完成 Swift 6／warnings-as-errors 编译和本机 UI 启动拒绝检查，没有激活任何窗口。CI 会在独立桌面显示真正 `SUUpdateAlert`，验证新旧版本、完整说明及 Install/Later 原生按钮，保存窗口截图，点击实际 Later 控件并验证关闭及控制器恢复。探针进程仅允许 loopback 网络，禁止公共网络；不点击 Install、不下载安装、不加载模型。机器收据明确标记 `full_product_ui=false`，不能冒充整个实际 App 的 UI 验收。
 
 首轮结果以 CI 的 `Saytile-standard-update-ui` artifact 为准。编译成功不是 GUI PASS；本地原始编译环境失败、修复后的编译收据与运行拒绝日志均保留于 `standard-ui-compile/`。
+
+首轮实际运行 `45461101374`／job `138683564370` 在源码 `9a018417a743e2cd8c4df5249f226e10a022c012` 上 **FAIL（夹具）**：Seatbelt 不接受网络规则地址中的 `127.0.0.1:*`，`sandbox-exec` 在 Swift 探针启动前以 65 退出；无窗口、无 loopback 请求。原始 artifact ZIP、全部展开文件及完整 job 日志保留于 `standard-ui-ci-9a01841/`，artifact SHA 与 GitHub 返回摘要一致。
+
+仅把测试 profile 的主机写法改为 `localhost:*`，仍然只允许 loopback。无 UI 的本机网络回归复现旧规则 exit 65；新规则收到真实 loopback 响应，并以 `EPERM` 立即拒绝保留测试网段 `198.51.100.1:9` 连接。没有改变产品或降低 UI 断言。旧失败收据将“请求使用的模式”提前写为 runtime_started/public_network_denied，已原样保留并在 diagnosis 中解释；新 runner 分别记录启动请求、实际 native receipt 与成功结果。标准窗口结论仍待主负责人统一推送后的 CI，不能将这次网络回归称为 UI PASS。
 
 ## 最终待发布文件
 
