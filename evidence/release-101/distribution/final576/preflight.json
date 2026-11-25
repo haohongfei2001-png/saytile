@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "source": "2d12129f2031fdf827d51fa1796d155e79243e07",
+  "version": "1.0.1",
+  "build": "576",
+  "bundle_id": "app.saytile.mac.mandarin-candidate",
+  "source_dirty": false,
+  "executable_sha256": "037bb2de64765458cecd9288a09969d3e733345040a9a95e1e286b98b988536c",
+  "storage_probe_binding": {
+    "app_source": "2d12129f2031fdf827d51fa1796d155e79243e07",
+    "storage_test_source": "27e758662ec00708d56ae063561aaec0dc578b74",
+    "binding": "identical complete storage/probe input Git trees",
+    "input_paths": [
+      "Sources/SaytileKit",
+      "Sources/CSQLite",
+      "Sources/CAudio",
+      "Package.swift",
+      "tests/fixtures/StoreProcessProbe.swift",
+      "scripts/test-rc-storage-processes.py"
+    ],
+    "input_tree_sha256": "11d1c3311d83f43bd75877bbe79fe63a010fd70833f22e85f4f5a349dc362071",
+    "original_receipt_rewritten": false
+  },
+  "storage_process_checks": 18,
+  "test_scripts": {
+    "scripts/test-release-update.py": "9783311fd07a995ab43981e35f552473a0d47a36492dbbefd3a3314d11832528",
+    "scripts/test-native-update.py": "d7730644033d58bcdbc473e03a4edf67195080a19ff5ee709df693d5326169aa",
+    "distribution/create-update.py": "0eb04a51063211c90334ba6d4e3f9f4769c6f8e1806857c40c0dba7d5515f654",
+    "scripts/test-rc-storage-processes.py": "fbe3c095b3f27001fd11bece1e345506fd9448def91f39996aa770f7ddbb8d78",
+    "tests/fixtures/StoreProcessProbe.swift": "a57ad69df09ccdc37825415b1f7d01321d7ef64793190ff90a04bdd5bc94448e"
+  },
+  "production_installation": "NOT_ACCESSED",
+  "production_data": "NOT_ACCESSED",
+  "asr": "NOT_RUN"
+}
