@@ -1,0 +1,30 @@
+{"build":"1","case":"corrupt","event":"launched","explicit_data_argument":true,"phase":"check","pid":72378,"source":"8f25ea3be642263daf22ff297f337026395840a6","timestamp":1795569573.5776739}
+{"case":"corrupt","event":"archive_loaded","phase":"check","pid":72378,"pinned":2,"preferences_preserved":true,"recordings":2,"revisions":4,"timestamp":1795569573.5783639}
+{"case":"corrupt","configured":true,"event":"app_check_action","phase":"check","pid":72378,"timestamp":1795569573.5805011}
+{"case":"corrupt","event":"checking","phase":"check","pid":72378,"timestamp":1795569573.5809641}
+{"case":"corrupt","event":"update_found","phase":"check","pid":72378,"stage":0,"timestamp":1795569573.5921969,"user_initiated":true,"version":"2"}
+{"case":"corrupt","event":"download_started","phase":"check","pid":72378,"timestamp":1795569573.592361}
+{"case":"corrupt","errors":[{"code":2001,"domain":"SUSparkleErrorDomain"},{"code":3002,"domain":"SUSparkleErrorDomain"}],"event":"release_notes_error","phase":"check","pid":72378,"timestamp":1795569573.595135}
+{"bytes":55577498,"case":"corrupt","event":"download_size","phase":"check","pid":72378,"timestamp":1795569574.6055942}
+{"case":"corrupt","downloaded_bytes":55577498,"event":"extracting","phase":"check","pid":72378,"timestamp":1795569574.6350961}
+{"case":"corrupt","errors":[{"code":4005,"domain":"SUSparkleErrorDomain"},{"code":4005,"domain":"SUSparkleErrorDomain"},{"code":3002,"domain":"SUSparkleErrorDomain"}],"event":"update_error","phase":"check","pid":72378,"timestamp":1795569574.7745929}
+{"case":"corrupt","event":"complete","phase":"check","pid":72378,"reason":"Sparkle rejected a corrupted signed archive","status":"PASS","timestamp":1795569574.77476}
+{"case":"corrupt","event":"dismissed","phase":"check","pid":72378,"timestamp":1795569574.7773221}
+{"build":"1","case":"valid","event":"launched","explicit_data_argument":true,"phase":"check","pid":72396,"source":"8f25ea3be642263daf22ff297f337026395840a6","timestamp":1795569575.156585}
+{"case":"valid","event":"archive_loaded","phase":"check","pid":72396,"pinned":2,"preferences_preserved":true,"recordings":2,"revisions":4,"timestamp":1795569575.156882}
+{"case":"valid","configured":true,"event":"app_check_action","phase":"check","pid":72396,"timestamp":1795569575.1580369}
+{"case":"valid","event":"checking","phase":"check","pid":72396,"timestamp":1795569575.15892}
+{"case":"valid","event":"update_found","phase":"check","pid":72396,"stage":0,"timestamp":1795569575.1654248,"user_initiated":true,"version":"2"}
+{"case":"valid","event":"download_started","phase":"check","pid":72396,"timestamp":1795569575.1655591}
+{"case":"valid","event":"release_notes","phase":"check","pid":72396,"timestamp":1795569575.1671979}
+{"bytes":55577498,"case":"valid","event":"download_size","phase":"check","pid":72396,"timestamp":1795569576.188694}
+{"case":"valid","downloaded_bytes":55577498,"event":"extracting","phase":"check","pid":72396,"timestamp":1795569576.2122741}
+{"case":"valid","event":"ready_to_install","phase":"check","pid":72396,"timestamp":1795569578.1198721}
+{"application_terminated":false,"case":"valid","event":"installing","phase":"check","pid":72396,"timestamp":1795569578.120697}
+{"build":"2","case":"valid","event":"launched","explicit_data_argument":false,"phase":"relaunch","pid":72490,"source":"8f25ea3be642263daf22ff297f337026395840a6","timestamp":1795569578.4594841}
+{"case":"valid","event":"archive_loaded","phase":"relaunch","pid":72490,"pinned":2,"preferences_preserved":true,"recordings":2,"revisions":4,"timestamp":1795569578.459795}
+{"case":"valid","configured":true,"event":"app_check_action","phase":"relaunch","pid":72490,"timestamp":1795569578.4611759}
+{"case":"valid","event":"checking","phase":"relaunch","pid":72490,"timestamp":1795569578.594934}
+{"case":"valid","errors":[{"code":1001,"domain":"SUSparkleErrorDomain"}],"event":"no_update","phase":"relaunch","pid":72490,"timestamp":1795569578.6053801}
+{"case":"valid","event":"complete","phase":"relaunch","pid":72490,"reason":"Signed feed verified; no newer version available","status":"PASS","timestamp":1795569578.605514}
+{"case":"valid","event":"dismissed","phase":"relaunch","pid":72490,"timestamp":1795569578.605979}
