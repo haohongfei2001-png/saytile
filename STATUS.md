@@ -26,3 +26,7 @@
 ## 最小外部依赖
 
 账户持有人在本机为Team ZB9D4T66QB配置一次notarytool profile，密码只交给Apple本机工具，不发送到聊天。之后还必须真实公证、装订、重签更新文件、Gatekeeper及下载验收；这些没有执行，不算PASS。合盖内置麦克风、8GB实体Mac、物理断电NOT_RUN。iCloud和私有反馈服务未启用，不宣传未验证能力。
+
+## 最新fb3c361重复运行发现（未以旧PASS覆盖）
+
+此head仅补证据，native与583 Swift Testing/30 XCTest、标准更新UI仍通过；foreground在Chrome首写后page.context_attributes读取缺口变成contextComplete=false而安全unverified，后续Edge/Safari未运行。原日志在ci/fb3c361。正在仅对明确AX cannotComplete与短批次保留读取错误类型；真实语义上下文不足和页面变化继续拒绝，不改变协调器预算或增加写入。最终候选待此次修复回归，576仍只作为保留候选。
