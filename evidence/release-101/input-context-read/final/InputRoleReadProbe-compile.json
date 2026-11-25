@@ -1,0 +1,28 @@
+{
+  "arguments": [
+    "nice",
+    "-n",
+    "20",
+    "swiftc",
+    "-swift-version",
+    "6",
+    "-parse-as-library",
+    "-I",
+    "/private/tmp/saytile-101-input/Sources/CSQLite",
+    "-I",
+    "/private/tmp/saytile-context-read-final-build",
+    "-Xcc",
+    "-fmodule-map-file=/private/tmp/saytile-owned-range-native-gu0o0a0d/production/CAudio.modulemap",
+    "-L",
+    "/private/tmp/saytile-context-read-final-build",
+    "-lSaytileKit",
+    "-lc++",
+    "-module-cache-path",
+    "/private/tmp/saytile-context-read-final-build/clang-cache",
+    "/private/tmp/saytile-101-input/tests/fixtures/InputRoleReadProbe.swift",
+    "-o",
+    "/private/tmp/saytile-context-read-final-build/InputRoleReadProbe"
+  ],
+  "exit_code": 0,
+  "fixture_sha256": "520c365950f0dc32ea848f9f3ab2c0f79713353fc20aac7b568722f23799c1e5"
+}

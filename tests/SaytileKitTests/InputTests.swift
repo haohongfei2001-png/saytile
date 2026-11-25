@@ -1,10 +1,41 @@
 import Foundation
 import AppKit
+import ApplicationServices
 import Testing
 @testable import SaytileKit
 
 @Suite("Input identity and safety")
 struct InputPolicyTests {
+    @Test @MainActor func contextTransportFailureIsDistinctFromIncompletePage() throws {
+        let names = [kAXRoleAttribute, kAXTitleAttribute]
+        let complete: [AnyObject] = [kAXGroupRole as NSString, NSNull()]
+        for (status, items) in [(AXError.cannotComplete, Optional(complete)), (.success, nil), (.success, [complete[0]])] {
+            #expect(throws: NativeInputError.self) { try AXInputAccess.contextAttributes(status: status, items: items, names: names) }
+        }
+        var transport = AXError.cannotComplete
+        let transportValue = try #require(AXValueCreate(.axError, &transport))
+        #expect(throws: NativeInputError.self) {
+            try AXInputAccess.contextAttributes(status: .success, items: [transportValue, NSNull()], names: names)
+        }
+        for status in [AXError.invalidUIElement, .apiDisabled, .illegalArgument, .failure] {
+            #expect(try AXInputAccess.contextAttributes(status: status, items: complete, names: names) == nil)
+        }
+        #expect(try AXInputAccess.contextAttributes(status: .success, items: complete + [NSNull()], names: names) == nil)
+        // Missing required role is still semantic incompleteness, not a transport error.
+        let missingRole = try AXInputAccess.contextAttributes(status: .success, items: [NSNull(), NSNull()], names: names)
+        #expect(missingRole != nil && missingRole?[kAXRoleAttribute] == nil)
+        for status in [AXError.noValue, .attributeUnsupported] {
+            var status = status
+            let optional = try #require(AXValueCreate(.axError, &status))
+            let fields = try AXInputAccess.contextAttributes(status: .success, items: [complete[0], optional], names: names)
+            #expect(fields?[kAXRoleAttribute] as? String == kAXGroupRole && fields?[kAXTitleAttribute] == nil)
+        }
+        #expect(String(describing: InputSafetyPolicy.contextReadFailure(editable: true, selectionLength: 0, identityChanged: false)) == "unsupported")
+        #expect(String(describing: InputSafetyPolicy.contextReadFailure(editable: false, selectionLength: 0, identityChanged: false)) == "targetChanged")
+        #expect(String(describing: InputSafetyPolicy.contextReadFailure(editable: true, selectionLength: 1, identityChanged: false)) == "selection")
+        #expect(String(describing: InputSafetyPolicy.contextReadFailure(editable: true, selectionLength: 0, identityChanged: true)) == "targetChanged")
+    }
+
     @Test func unreadableRoleIsUnknownButExplicitDenialRemainsDefinitive() throws {
         for role in [Optional<String>.none, ""] {
             #expect(throws: NativeInputError.self) { try InputSafetyPolicy.isEditable(role: role, enabled: true) }
@@ -211,12 +242,18 @@ struct InputCoordinatorTests {
     }
 
     @Test(arguments: ["restored", "missing-role-restored", "empty-role-restored", "disabled-restored",
-                      "readonly-restored", "disabled-missing-role", "persistent", "one-settled-read", "second-content", "focus", "layout",
+                      "readonly-restored", "disabled-missing-role", "context-transport-restored", "context-short-restored",
+                      "context-missing-restored", "context-item-restored", "context-missing-role", "context-invalid-element",
+                      "context-extra-batch", "context-known-disabled", "context-known-selection", "context-known-target",
+                      "persistent", "one-settled-read", "second-content", "focus", "layout",
                       "changed-process", "changed-window", "changed-editor", "changed-page", "incomplete-page",
                       "changed-caret", "selected-range", "changed-prefix", "changed-suffix", "sensitive"])
     func firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_ scenario: String) async throws {
-        let shouldRecover = ["restored", "missing-role-restored", "empty-role-restored"].contains(scenario)
-        let explicitDenial = ["disabled-restored", "readonly-restored", "disabled-missing-role"].contains(scenario)
+        let shouldRecover = ["restored", "missing-role-restored", "empty-role-restored", "context-transport-restored",
+                             "context-short-restored", "context-missing-restored", "context-item-restored"].contains(scenario)
+        let explicitDenial = ["disabled-restored", "readonly-restored", "disabled-missing-role", "context-missing-role",
+                              "context-invalid-element", "context-extra-batch", "context-known-disabled",
+                              "context-known-selection", "context-known-target"].contains(scenario)
         let directory = testDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let store = try SaytileStore(directory: directory), access = FakeInputAccess()
@@ -234,6 +271,31 @@ struct InputCoordinatorTests {
             // cannot read the focused AX range. Install the fault BEFORE notifying.
             access.onSnapshot = {
                 snapshotReads += 1
+                if snapshotReads == 1 && scenario.hasPrefix("context-") {
+                    var transport = AXError.cannotComplete
+                    let error = AXValueCreate(.axError, &transport)!
+                    let names = [kAXRoleAttribute, kAXTitleAttribute]
+                    let items: [AnyObject]? = switch scenario {
+                    case "context-short-restored": [kAXGroupRole as NSString]
+                    case "context-missing-restored": nil
+                    case "context-item-restored": [error, NSNull()]
+                    case "context-missing-role": [NSNull(), NSNull()]
+                    case "context-extra-batch": [kAXGroupRole as NSString, NSNull(), NSNull()]
+                    default: [kAXGroupRole as NSString, NSNull()]
+                    }
+                    let status: AXError = scenario == "context-transport-restored" || scenario.hasPrefix("context-known-") ? .cannotComplete :
+                        scenario == "context-invalid-element" ? .invalidUIElement : .success
+                    if !explicitDenial { unavailableReads += 1 }
+                    let values: [String: AnyObject]?
+                    do { values = try AXInputAccess.contextAttributes(status: status, items: items, names: names) }
+                    catch NativeInputError.unsupported {
+                        throw InputSafetyPolicy.contextReadFailure(editable: scenario != "context-known-disabled",
+                            selectionLength: scenario == "context-known-selection" ? 1 : 0,
+                            identityChanged: scenario == "context-known-target")
+                    }
+                    access.target.pageContextComplete = values?[kAXRoleAttribute] as? String != nil
+                    return
+                }
                 if snapshotReads == 1 && (["missing-role-restored", "empty-role-restored"].contains(scenario) || explicitDenial) {
                     let role: String? = scenario == "empty-role-restored" ? "" :
                         scenario == "readonly-restored" ? "AXStaticText" :
@@ -254,6 +316,7 @@ struct InputCoordinatorTests {
             #expect(unavailableReads == (explicitDenial ? 0 : 1))
             if explicitDenial { #expect(input.binding == nil) }
             access.target.isEditable = true // A later readable snapshot cannot undo an explicit denial.
+            access.target.pageContextComplete = true
             switch scenario {
             case "second-content": access.onChange?(.contentOrSelection)
             case "focus": access.onChange?(.focusOrDocument)

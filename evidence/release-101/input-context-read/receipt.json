@@ -1,0 +1,77 @@
+{
+  "utc": "2026-11-25T06:18:29.201374+00:00",
+  "product_base": "2d12129f2031fdf827d51fa1796d155e79243e07",
+  "product_base_build": 576,
+  "original_failure": {
+    "head": "fb3c361eb10d69d06d8fd8c1506e29d55b18c2f9",
+    "run": 45552530436,
+    "sha256": "50354645a514282ac0d57c240cac59f70119fcbce22b48c1d1ac224593a3fca0",
+    "status": "FAIL retained",
+    "confirmed_stage": "first content notification after one successful write; page.context_attributes then pageContextComplete=false",
+    "underlying_AX_status": "UNKNOWN: old log did not distinguish whole-batch, per-attribute, shape, or absent required role"
+  },
+  "source_sha256": {
+    "Sources/SaytileKit/InputAccessibility.swift": "f3c23cdb358b6695f3594f766c42089ca015a4c639f03fdbc143135a7384bd1d",
+    "Sources/SaytileKit/InputCoordinator.swift": "bd9481c6ac0c95b77a0a5a7963c33c30f8ef0968153a65e9dd7d94697bdd5ecf",
+    "tests/SaytileKitTests/InputTests.swift": "38e87d70145e54263383a63414c990dddf711053f0a77b4893598ae3234a0df7",
+    "tests/fixtures/InputRoleReadProbe.swift": "520c365950f0dc32ea848f9f3ab2c0f79713353fc20aac7b568722f23799c1e5",
+    "tests/fixtures/InputWitnessSettlementProbe.swift": "9572c24be70c5f8743b81b61c709bda5e04362918f441b0873a7c37d54f0672a"
+  },
+  "binary_sha256": {
+    "libSaytileKit.a": "ae1ce60d427fd02b658ff67738ea21f87f630bd992a1782c54f6d90bfe6d00e6",
+    "InputRoleReadProbe": "1f8573ffe1c2ae7d37589cf945e947ec6ee8d8b3ca242274460b0b1e9afb36f1",
+    "InputWitnessSettlementProbe": "3d4d49246c2fb57849be5e0248589db3c7b1f0af35e54b3bc7b047d756e51266"
+  },
+  "validation": {
+    "InputContextReadProbe": {
+      "status": "PASS",
+      "passed": 28,
+      "scenarios": 28
+    },
+    "InputRoleReadProbe": {
+      "status": "PASS",
+      "passed": 21,
+      "scenarios": 21
+    },
+    "InputWitnessSettlementProbe": {
+      "status": "PASS",
+      "passed": 16,
+      "scenarios": 16
+    }
+  },
+  "swift_testing": "source syntax PASS; execution NOT_RUN locally, final CI required",
+  "native_foreground": "NOT_RUN; no external application launched",
+  "classification": {
+    "unsupported": [
+      "whole-batch cannotComplete",
+      "per-attribute cannotComplete",
+      "success with missing/short batch"
+    ],
+    "kept_incomplete_rejection": [
+      "other AX errors",
+      "extra batch entries",
+      "missing required role",
+      "budget/structure/anchor/children failure",
+      "readable different URL/title/context"
+    ],
+    "known_facts_override_read_failure": [
+      "previous PID/app change",
+      "remembered window/editor change",
+      "explicit not editable",
+      "nonempty selection"
+    ],
+    "sensitive_and_wrong_owning_window": "earlier rejection remains before page read",
+    "call_site_boundary": "Other errors return nil; pageContext retains incomplete rejection, while ancestry/window_metadata existing nil-to-unsupported behavior is unchanged."
+  },
+  "constraints": {
+    "coordinator_bytes_unchanged": true,
+    "four_220ms_settled_reads": true,
+    "two_full_witnesses_after_gap": true,
+    "one_write": true,
+    "replay_focus_send_changes": false,
+    "ASR_or_user_data_used": false,
+    "version_not_changed": true
+  },
+  "intermediate": "initial-typed-read retained separately; final result includes known-fact-denial guards",
+  "fixture_finding": "no demonstrated ordering defect: pre-bind DOM witness awaited; 3 initial and 3 bound quiet observations; input handler only updates two counters; no first-write DOM/navigation action"
+}
