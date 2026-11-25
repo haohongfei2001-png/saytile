@@ -1,0 +1,3317 @@
+{
+  "scope": "Three serial AB/BA/AB public-PCM pairs for each original outlier; not a replacement for original32. No microphone or independent hardware test.",
+  "followups": {
+    "startup-followup": {
+      "sample": "ascend-mixed-7c8bdcb41bb98a40",
+      "pairs": [
+        {
+          "pair": 1,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "arms": {
+            "baseline": {
+              "source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+              "build": "572",
+              "first_visible_reference_s": 1.047162291612476,
+              "display_first_while_speaking_s": 1.047,
+              "display_max_effective_gap_s": 1.437,
+              "display_gap_position": "interior",
+              "worker_max_effective_gap_s": 1.496,
+              "eos_to_pipeline_settled_s": 0.189,
+              "cpu_s": 2.27,
+              "peak_simultaneous_footprint_MiB": 1158.2524032592773,
+              "resource_summary_agrees": true,
+              "final_text": "但我觉得Three Pointer是一个非常efficient的一个方式去得分。",
+              "states": [
+                "completed"
+              ],
+              "recording_errors": [],
+              "final_visible_matches_archive": true,
+              "surface_blockers": {},
+              "aba": 0,
+              "measured": {
+                "id": "ascend-mixed-7c8bdcb41bb98a40",
+                "sha256": "fa81b08d0ca30c00ab08b1c66bd620dce60ae33327c7ae885c4320b925baff0d",
+                "onset": 0.02,
+                "end": 5.94,
+                "reference_available": true,
+                "final_CER": {
+                  "errors": 0,
+                  "substitutions": 0,
+                  "deletions": 0,
+                  "insertions": 0,
+                  "reference_units": 38
+                },
+                "matches_final_window": true,
+                "records": [
+                  "completed"
+                ],
+                "after_file_s": 0.189,
+                "after_last_signal_s": 0.252,
+                "timeline": {
+                  "count": 7,
+                  "first_s": 0.981,
+                  "gap_s": {
+                    "p50": 0.479,
+                    "p95": 1.496
+                  },
+                  "longest_s": 1.496,
+                  "longest_start_end_s": [
+                    3.96,
+                    5.456
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.867,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 1,
+                  "above_two_seconds": 0
+                },
+                "display": {
+                  "count": 11,
+                  "first_s": 1.047,
+                  "gap_s": {
+                    "p50": 0.369,
+                    "p95": 1.437
+                  },
+                  "longest_s": 1.437,
+                  "longest_start_end_s": [
+                    4.053,
+                    5.489
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.859,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "worker": {
+                  "count": 7,
+                  "first_s": 0.976,
+                  "gap_s": {
+                    "p50": 0.479,
+                    "p95": 1.496
+                  },
+                  "longest_s": 1.496,
+                  "longest_start_end_s": [
+                    3.957,
+                    5.453
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.867,
+                  "raw_outputs_inside_longest": 1,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "decode": {
+                  "previews": 11,
+                  "final_decodes": 1,
+                  "preview_compute_s": {
+                    "p50": 0.119,
+                    "p95": 0.15
+                  },
+                  "preview_compute_sum_s": 1.364,
+                  "preview_start_intervals_s": {
+                    "p50": 0.501,
+                    "p95": 0.549
+                  },
+                  "previews_finishing_during_longest_timeline_gap": 3
+                }
+              }
+            },
+            "candidate": {
+              "source": "73ad857442964437929819ba9965f6bcfdcefd27",
+              "build": "574",
+              "first_visible_reference_s": 1.0335031666513532,
+              "display_first_while_speaking_s": 1.034,
+              "display_max_effective_gap_s": 1.428,
+              "display_gap_position": "interior",
+              "worker_max_effective_gap_s": 1.469,
+              "eos_to_pipeline_settled_s": 0.194,
+              "cpu_s": 2.1399999999999997,
+              "peak_simultaneous_footprint_MiB": 1200.1118469238281,
+              "resource_summary_agrees": true,
+              "final_text": "但我觉得Three Pointer是一个非常efficient的一个方式去得分。",
+              "states": [
+                "completed"
+              ],
+              "recording_errors": [],
+              "final_visible_matches_archive": true,
+              "surface_blockers": {},
+              "aba": 0,
+              "measured": {
+                "id": "ascend-mixed-7c8bdcb41bb98a40",
+                "sha256": "fa81b08d0ca30c00ab08b1c66bd620dce60ae33327c7ae885c4320b925baff0d",
+                "onset": 0.02,
+                "end": 5.94,
+                "reference_available": true,
+                "final_CER": {
+                  "errors": 0,
+                  "substitutions": 0,
+                  "deletions": 0,
+                  "insertions": 0,
+                  "reference_units": 38
+                },
+                "matches_final_window": true,
+                "records": [
+                  "completed"
+                ],
+                "after_file_s": 0.194,
+                "after_last_signal_s": 0.265,
+                "timeline": {
+                  "count": 7,
+                  "first_s": 0.966,
+                  "gap_s": {
+                    "p50": 0.513,
+                    "p95": 1.469
+                  },
+                  "longest_s": 1.469,
+                  "longest_start_end_s": [
+                    3.998,
+                    5.467
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.863,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 1,
+                  "above_two_seconds": 0
+                },
+                "display": {
+                  "count": 11,
+                  "first_s": 1.034,
+                  "gap_s": {
+                    "p50": 0.376,
+                    "p95": 1.428
+                  },
+                  "longest_s": 1.428,
+                  "longest_start_end_s": [
+                    4.069,
+                    5.497
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.861,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "worker": {
+                  "count": 7,
+                  "first_s": 0.962,
+                  "gap_s": {
+                    "p50": 0.512,
+                    "p95": 1.469
+                  },
+                  "longest_s": 1.469,
+                  "longest_start_end_s": [
+                    3.995,
+                    5.464
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.863,
+                  "raw_outputs_inside_longest": 1,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "decode": {
+                  "previews": 11,
+                  "final_decodes": 1,
+                  "preview_compute_s": {
+                    "p50": 0.12,
+                    "p95": 0.152
+                  },
+                  "preview_compute_sum_s": 1.3526,
+                  "preview_start_intervals_s": {
+                    "p50": 0.504,
+                    "p95": 0.511
+                  },
+                  "previews_finishing_during_longest_timeline_gap": 3
+                }
+              }
+            }
+          },
+          "final_text_equal": true,
+          "states_equal": true,
+          "candidate_minus_baseline": {
+            "first_visible_reference_s": -0.01365912496112287,
+            "display_max_effective_gap_s": -0.009000000000000119,
+            "eos_to_pipeline_settled_s": 0.0050000000000000044,
+            "cpu_s": -0.13000000000000034,
+            "peak_simultaneous_footprint_MiB": 41.85944366455078
+          }
+        },
+        {
+          "pair": 2,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "arms": {
+            "baseline": {
+              "source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+              "build": "572",
+              "first_visible_reference_s": 1.0146882499288767,
+              "display_first_while_speaking_s": 1.015,
+              "display_max_effective_gap_s": 1.549,
+              "display_gap_position": "interior",
+              "worker_max_effective_gap_s": 1.591,
+              "eos_to_pipeline_settled_s": 0.168,
+              "cpu_s": 2.2800000000000002,
+              "peak_simultaneous_footprint_MiB": 1391.8305053710938,
+              "resource_summary_agrees": true,
+              "final_text": "但我觉得Three Pointer是一个非常efficient的一个方式去得分。",
+              "states": [
+                "completed"
+              ],
+              "recording_errors": [],
+              "final_visible_matches_archive": true,
+              "surface_blockers": {},
+              "aba": 0,
+              "measured": {
+                "id": "ascend-mixed-7c8bdcb41bb98a40",
+                "sha256": "fa81b08d0ca30c00ab08b1c66bd620dce60ae33327c7ae885c4320b925baff0d",
+                "onset": 0.02,
+                "end": 5.94,
+                "reference_available": true,
+                "final_CER": {
+                  "errors": 0,
+                  "substitutions": 0,
+                  "deletions": 0,
+                  "insertions": 0,
+                  "reference_units": 38
+                },
+                "matches_final_window": true,
+                "records": [
+                  "completed"
+                ],
+                "after_file_s": 0.168,
+                "after_last_signal_s": 0.232,
+                "timeline": {
+                  "count": 7,
+                  "first_s": 0.978,
+                  "gap_s": {
+                    "p50": 0.515,
+                    "p95": 1.59
+                  },
+                  "longest_s": 1.59,
+                  "longest_start_end_s": [
+                    3.943,
+                    5.534
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.875,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 1,
+                  "above_two_seconds": 0
+                },
+                "display": {
+                  "count": 10,
+                  "first_s": 1.015,
+                  "gap_s": {
+                    "p50": 0.473,
+                    "p95": 1.549
+                  },
+                  "longest_s": 1.549,
+                  "longest_start_end_s": [
+                    4.012,
+                    5.561
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.87,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "worker": {
+                  "count": 7,
+                  "first_s": 0.974,
+                  "gap_s": {
+                    "p50": 0.515,
+                    "p95": 1.591
+                  },
+                  "longest_s": 1.591,
+                  "longest_start_end_s": [
+                    3.939,
+                    5.531
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.875,
+                  "raw_outputs_inside_longest": 1,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "decode": {
+                  "previews": 11,
+                  "final_decodes": 1,
+                  "preview_compute_s": {
+                    "p50": 0.128,
+                    "p95": 0.192
+                  },
+                  "preview_compute_sum_s": 1.4276,
+                  "preview_start_intervals_s": {
+                    "p50": 0.505,
+                    "p95": 0.514
+                  },
+                  "previews_finishing_during_longest_timeline_gap": 3
+                }
+              }
+            },
+            "candidate": {
+              "source": "73ad857442964437929819ba9965f6bcfdcefd27",
+              "build": "574",
+              "first_visible_reference_s": 1.0256532500684261,
+              "display_first_while_speaking_s": 1.026,
+              "display_max_effective_gap_s": 1.419,
+              "display_gap_position": "interior",
+              "worker_max_effective_gap_s": 1.488,
+              "eos_to_pipeline_settled_s": 0.173,
+              "cpu_s": 2.15,
+              "peak_simultaneous_footprint_MiB": 1344.0336532592773,
+              "resource_summary_agrees": true,
+              "final_text": "但我觉得Three Pointer是一个非常efficient的一个方式去得分。",
+              "states": [
+                "completed"
+              ],
+              "recording_errors": [],
+              "final_visible_matches_archive": true,
+              "surface_blockers": {},
+              "aba": 0,
+              "measured": {
+                "id": "ascend-mixed-7c8bdcb41bb98a40",
+                "sha256": "fa81b08d0ca30c00ab08b1c66bd620dce60ae33327c7ae885c4320b925baff0d",
+                "onset": 0.02,
+                "end": 5.94,
+                "reference_available": true,
+                "final_CER": {
+                  "errors": 0,
+                  "substitutions": 0,
+                  "deletions": 0,
+                  "insertions": 0,
+                  "reference_units": 38
+                },
+                "matches_final_window": true,
+                "records": [
+                  "completed"
+                ],
+                "after_file_s": 0.173,
+                "after_last_signal_s": 0.243,
+                "timeline": {
+                  "count": 7,
+                  "first_s": 0.951,
+                  "gap_s": {
+                    "p50": 0.505,
+                    "p95": 1.497
+                  },
+                  "longest_s": 1.497,
+                  "longest_start_end_s": [
+                    3.984,
+                    5.481
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.867,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 1,
+                  "above_two_seconds": 0
+                },
+                "display": {
+                  "count": 12,
+                  "first_s": 1.026,
+                  "gap_s": {
+                    "p50": 0.446,
+                    "p95": 1.419
+                  },
+                  "longest_s": 1.419,
+                  "longest_start_end_s": [
+                    4.072,
+                    5.49
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.859,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "worker": {
+                  "count": 7,
+                  "first_s": 0.948,
+                  "gap_s": {
+                    "p50": 0.505,
+                    "p95": 1.488
+                  },
+                  "longest_s": 1.488,
+                  "longest_start_end_s": [
+                    3.981,
+                    5.469
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.865,
+                  "raw_outputs_inside_longest": 1,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "decode": {
+                  "previews": 11,
+                  "final_decodes": 1,
+                  "preview_compute_s": {
+                    "p50": 0.121,
+                    "p95": 0.182
+                  },
+                  "preview_compute_sum_s": 1.4292,
+                  "preview_start_intervals_s": {
+                    "p50": 0.504,
+                    "p95": 0.51
+                  },
+                  "previews_finishing_during_longest_timeline_gap": 3
+                }
+              }
+            }
+          },
+          "final_text_equal": true,
+          "states_equal": true,
+          "candidate_minus_baseline": {
+            "first_visible_reference_s": 0.010965000139549375,
+            "display_max_effective_gap_s": -0.1299999999999999,
+            "eos_to_pipeline_settled_s": 0.004999999999999977,
+            "cpu_s": -0.13000000000000034,
+            "peak_simultaneous_footprint_MiB": -47.796852111816406
+          }
+        },
+        {
+          "pair": 3,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "arms": {
+            "baseline": {
+              "source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+              "build": "572",
+              "first_visible_reference_s": 0.976028000023216,
+              "display_first_while_speaking_s": 0.976,
+              "display_max_effective_gap_s": 1.447,
+              "display_gap_position": "interior",
+              "worker_max_effective_gap_s": 1.496,
+              "eos_to_pipeline_settled_s": 0.19,
+              "cpu_s": 2.23,
+              "peak_simultaneous_footprint_MiB": 1343.9867782592773,
+              "resource_summary_agrees": true,
+              "final_text": "但我觉得Three Pointer是一个非常efficient的一个方式去得分。",
+              "states": [
+                "completed"
+              ],
+              "recording_errors": [],
+              "final_visible_matches_archive": true,
+              "surface_blockers": {},
+              "aba": 0,
+              "measured": {
+                "id": "ascend-mixed-7c8bdcb41bb98a40",
+                "sha256": "fa81b08d0ca30c00ab08b1c66bd620dce60ae33327c7ae885c4320b925baff0d",
+                "onset": 0.02,
+                "end": 5.94,
+                "reference_available": true,
+                "final_CER": {
+                  "errors": 0,
+                  "substitutions": 0,
+                  "deletions": 0,
+                  "insertions": 0,
+                  "reference_units": 38
+                },
+                "matches_final_window": true,
+                "records": [
+                  "completed"
+                ],
+                "after_file_s": 0.19,
+                "after_last_signal_s": 0.252,
+                "timeline": {
+                  "count": 7,
+                  "first_s": 0.914,
+                  "gap_s": {
+                    "p50": 0.534,
+                    "p95": 1.497
+                  },
+                  "longest_s": 1.497,
+                  "longest_start_end_s": [
+                    3.953,
+                    5.45
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.865,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 1,
+                  "above_two_seconds": 0
+                },
+                "display": {
+                  "count": 11,
+                  "first_s": 0.976,
+                  "gap_s": {
+                    "p50": 0.445,
+                    "p95": 1.447
+                  },
+                  "longest_s": 1.447,
+                  "longest_start_end_s": [
+                    4.035,
+                    5.483
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.861,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "worker": {
+                  "count": 7,
+                  "first_s": 0.907,
+                  "gap_s": {
+                    "p50": 0.537,
+                    "p95": 1.496
+                  },
+                  "longest_s": 1.496,
+                  "longest_start_end_s": [
+                    3.95,
+                    5.446
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.867,
+                  "raw_outputs_inside_longest": 1,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "decode": {
+                  "previews": 11,
+                  "final_decodes": 1,
+                  "preview_compute_s": {
+                    "p50": 0.125,
+                    "p95": 0.154
+                  },
+                  "preview_compute_sum_s": 1.366,
+                  "preview_start_intervals_s": {
+                    "p50": 0.506,
+                    "p95": 0.534
+                  },
+                  "previews_finishing_during_longest_timeline_gap": 3
+                }
+              }
+            },
+            "candidate": {
+              "source": "73ad857442964437929819ba9965f6bcfdcefd27",
+              "build": "574",
+              "first_visible_reference_s": 0.9899658750696108,
+              "display_first_while_speaking_s": 0.99,
+              "display_max_effective_gap_s": 1.374,
+              "display_gap_position": "interior",
+              "worker_max_effective_gap_s": 1.459,
+              "eos_to_pipeline_settled_s": 0.181,
+              "cpu_s": 2.1799999999999997,
+              "peak_simultaneous_footprint_MiB": 1172.971176147461,
+              "resource_summary_agrees": true,
+              "final_text": "但我觉得Three Pointer是一个非常efficient的一个方式去得分。",
+              "states": [
+                "completed"
+              ],
+              "recording_errors": [],
+              "final_visible_matches_archive": true,
+              "surface_blockers": {},
+              "aba": 0,
+              "measured": {
+                "id": "ascend-mixed-7c8bdcb41bb98a40",
+                "sha256": "fa81b08d0ca30c00ab08b1c66bd620dce60ae33327c7ae885c4320b925baff0d",
+                "onset": 0.02,
+                "end": 5.94,
+                "reference_available": true,
+                "final_CER": {
+                  "errors": 0,
+                  "substitutions": 0,
+                  "deletions": 0,
+                  "insertions": 0,
+                  "reference_units": 38
+                },
+                "matches_final_window": true,
+                "records": [
+                  "completed"
+                ],
+                "after_file_s": 0.181,
+                "after_last_signal_s": 0.252,
+                "timeline": {
+                  "count": 7,
+                  "first_s": 0.942,
+                  "gap_s": {
+                    "p50": 0.533,
+                    "p95": 1.459
+                  },
+                  "longest_s": 1.459,
+                  "longest_start_end_s": [
+                    3.99,
+                    5.45
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.861,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 1,
+                  "above_two_seconds": 0
+                },
+                "display": {
+                  "count": 12,
+                  "first_s": 0.99,
+                  "gap_s": {
+                    "p50": 0.409,
+                    "p95": 1.374
+                  },
+                  "longest_s": 1.374,
+                  "longest_start_end_s": [
+                    4.085,
+                    5.46
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.855,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "worker": {
+                  "count": 7,
+                  "first_s": 0.937,
+                  "gap_s": {
+                    "p50": 0.532,
+                    "p95": 1.459
+                  },
+                  "longest_s": 1.459,
+                  "longest_start_end_s": [
+                    3.988,
+                    5.447
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.863,
+                  "raw_outputs_inside_longest": 1,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "decode": {
+                  "previews": 11,
+                  "final_decodes": 1,
+                  "preview_compute_s": {
+                    "p50": 0.122,
+                    "p95": 0.149
+                  },
+                  "preview_compute_sum_s": 1.3269,
+                  "preview_start_intervals_s": {
+                    "p50": 0.502,
+                    "p95": 0.507
+                  },
+                  "previews_finishing_during_longest_timeline_gap": 3
+                }
+              }
+            }
+          },
+          "final_text_equal": true,
+          "states_equal": true,
+          "candidate_minus_baseline": {
+            "first_visible_reference_s": 0.013937875046394765,
+            "display_max_effective_gap_s": -0.07299999999999995,
+            "eos_to_pipeline_settled_s": -0.009000000000000008,
+            "cpu_s": -0.050000000000000266,
+            "peak_simultaneous_footprint_MiB": -171.0156021118164
+          }
+        }
+      ]
+    },
+    "long-tail-followup": {
+      "sample": "continuous-public-5",
+      "pairs": [
+        {
+          "pair": 1,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "arms": {
+            "baseline": {
+              "source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+              "build": "572",
+              "first_visible_reference_s": 1.0430144999409094,
+              "display_first_while_speaking_s": 1.043,
+              "display_max_effective_gap_s": 2.398,
+              "display_gap_position": "interior",
+              "worker_max_effective_gap_s": 1.656,
+              "eos_to_pipeline_settled_s": 0.533,
+              "cpu_s": 18.89,
+              "peak_simultaneous_footprint_MiB": 1837.0337219238281,
+              "resource_summary_agrees": true,
+              "final_text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地，科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁，平时你总能在这里听到游客和小摊贩的声音，声光。交织，就像在讲述一个动人的故。有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+              "states": [
+                "completed",
+                "completed"
+              ],
+              "recording_errors": [],
+              "final_visible_matches_archive": true,
+              "surface_blockers": {},
+              "aba": 2,
+              "measured": {
+                "id": "continuous-public-5",
+                "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+                "onset": 0.0,
+                "end": 38.8,
+                "reference_available": true,
+                "final_CER": {
+                  "errors": 31,
+                  "substitutions": 9,
+                  "deletions": 22,
+                  "insertions": 0,
+                  "reference_units": 205
+                },
+                "matches_final_window": true,
+                "records": [
+                  "completed",
+                  "completed"
+                ],
+                "after_file_s": 0.533,
+                "after_last_signal_s": 0.536,
+                "timeline": {
+                  "count": 58,
+                  "first_s": 0.982,
+                  "gap_s": {
+                    "p50": 0.523,
+                    "p95": 1.493
+                  },
+                  "longest_s": 2.384,
+                  "longest_start_end_s": [
+                    22.286,
+                    24.67
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.588,
+                  "raw_outputs_inside_longest": 4,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 1
+                },
+                "display": {
+                  "count": 95,
+                  "first_s": 1.043,
+                  "gap_s": {
+                    "p50": 0.411,
+                    "p95": 1.08
+                  },
+                  "longest_s": 2.398,
+                  "longest_start_end_s": [
+                    22.297,
+                    24.695
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.6,
+                  "raw_outputs_inside_longest": 4,
+                  "timeline_outputs_inside_longest": 3,
+                  "above_two_seconds": 1
+                },
+                "worker": {
+                  "count": 59,
+                  "first_s": 0.978,
+                  "gap_s": {
+                    "p50": 0.523,
+                    "p95": 1.496
+                  },
+                  "longest_s": 1.656,
+                  "longest_start_end_s": [
+                    22.28,
+                    23.935
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.494,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 3,
+                  "above_two_seconds": 0
+                },
+                "decode": {
+                  "previews": 71,
+                  "final_decodes": 2,
+                  "preview_compute_s": {
+                    "p50": 0.191,
+                    "p95": 0.793
+                  },
+                  "preview_compute_sum_s": 20.5962,
+                  "preview_start_intervals_s": {
+                    "p50": 0.506,
+                    "p95": 0.793
+                  },
+                  "previews_finishing_during_longest_timeline_gap": 4
+                }
+              }
+            },
+            "candidate": {
+              "source": "73ad857442964437929819ba9965f6bcfdcefd27",
+              "build": "574",
+              "first_visible_reference_s": 1.0674280833918601,
+              "display_first_while_speaking_s": 1.067,
+              "display_max_effective_gap_s": 1.973,
+              "display_gap_position": "interior",
+              "worker_max_effective_gap_s": 1.679,
+              "eos_to_pipeline_settled_s": 0.466,
+              "cpu_s": 18.96,
+              "peak_simultaneous_footprint_MiB": 1692.4087219238281,
+              "resource_summary_agrees": true,
+              "final_text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地，科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁，平时你总能在这里听到游客和小摊贩的声音，声光。交织，就像在讲述一个动人的故。有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+              "states": [
+                "completed",
+                "completed"
+              ],
+              "recording_errors": [],
+              "final_visible_matches_archive": true,
+              "surface_blockers": {},
+              "aba": 1,
+              "measured": {
+                "id": "continuous-public-5",
+                "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+                "onset": 0.0,
+                "end": 38.8,
+                "reference_available": true,
+                "final_CER": {
+                  "errors": 31,
+                  "substitutions": 9,
+                  "deletions": 22,
+                  "insertions": 0,
+                  "reference_units": 205
+                },
+                "matches_final_window": true,
+                "records": [
+                  "completed",
+                  "completed"
+                ],
+                "after_file_s": 0.466,
+                "after_last_signal_s": 0.479,
+                "timeline": {
+                  "count": 60,
+                  "first_s": 1.019,
+                  "gap_s": {
+                    "p50": 0.52,
+                    "p95": 1.498
+                  },
+                  "longest_s": 1.975,
+                  "longest_start_end_s": [
+                    22.385,
+                    24.36
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.616,
+                  "raw_outputs_inside_longest": 4,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "display": {
+                  "count": 106,
+                  "first_s": 1.067,
+                  "gap_s": {
+                    "p50": 0.373,
+                    "p95": 1.052
+                  },
+                  "longest_s": 1.973,
+                  "longest_start_end_s": [
+                    22.42,
+                    24.393
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.636,
+                  "raw_outputs_inside_longest": 4,
+                  "timeline_outputs_inside_longest": 3,
+                  "above_two_seconds": 0
+                },
+                "worker": {
+                  "count": 61,
+                  "first_s": 1.014,
+                  "gap_s": {
+                    "p50": 0.507,
+                    "p95": 1.069
+                  },
+                  "longest_s": 1.679,
+                  "longest_start_end_s": [
+                    30.147,
+                    31.826
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.464,
+                  "raw_outputs_inside_longest": 0,
+                  "timeline_outputs_inside_longest": 1,
+                  "above_two_seconds": 0
+                },
+                "decode": {
+                  "previews": 72,
+                  "final_decodes": 2,
+                  "preview_compute_s": {
+                    "p50": 0.184,
+                    "p95": 0.754
+                  },
+                  "preview_compute_sum_s": 19.4591,
+                  "preview_start_intervals_s": {
+                    "p50": 0.505,
+                    "p95": 0.77
+                  },
+                  "previews_finishing_during_longest_timeline_gap": 4
+                }
+              }
+            }
+          },
+          "final_text_equal": true,
+          "states_equal": true,
+          "candidate_minus_baseline": {
+            "first_visible_reference_s": 0.024413583450950682,
+            "display_max_effective_gap_s": -0.42500000000000004,
+            "eos_to_pipeline_settled_s": -0.067,
+            "cpu_s": 0.07000000000000028,
+            "peak_simultaneous_footprint_MiB": -144.625
+          }
+        },
+        {
+          "pair": 2,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "arms": {
+            "baseline": {
+              "source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+              "build": "572",
+              "first_visible_reference_s": 1.0390122500248253,
+              "display_first_while_speaking_s": 1.039,
+              "display_max_effective_gap_s": 2.193,
+              "display_gap_position": "interior",
+              "worker_max_effective_gap_s": 1.563,
+              "eos_to_pipeline_settled_s": 0.285,
+              "cpu_s": 18.72,
+              "peak_simultaneous_footprint_MiB": 1714.5024719238281,
+              "resource_summary_agrees": true,
+              "final_text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地，科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁，平时你总能在这里听到游客和小摊贩的声音，声光。交织，就像在讲述一个动人的故。有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+              "states": [
+                "completed",
+                "completed"
+              ],
+              "recording_errors": [],
+              "final_visible_matches_archive": true,
+              "surface_blockers": {},
+              "aba": 1,
+              "measured": {
+                "id": "continuous-public-5",
+                "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+                "onset": 0.0,
+                "end": 38.8,
+                "reference_available": true,
+                "final_CER": {
+                  "errors": 31,
+                  "substitutions": 9,
+                  "deletions": 22,
+                  "insertions": 0,
+                  "reference_units": 205
+                },
+                "matches_final_window": true,
+                "records": [
+                  "completed",
+                  "completed"
+                ],
+                "after_file_s": 0.285,
+                "after_last_signal_s": 0.289,
+                "timeline": {
+                  "count": 60,
+                  "first_s": 0.968,
+                  "gap_s": {
+                    "p50": 0.522,
+                    "p95": 1.483
+                  },
+                  "longest_s": 2.179,
+                  "longest_start_end_s": [
+                    22.397,
+                    24.576
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.633,
+                  "raw_outputs_inside_longest": 4,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 1
+                },
+                "display": {
+                  "count": 98,
+                  "first_s": 1.039,
+                  "gap_s": {
+                    "p50": 0.441,
+                    "p95": 1.072
+                  },
+                  "longest_s": 2.193,
+                  "longest_start_end_s": [
+                    22.404,
+                    24.597
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.627,
+                  "raw_outputs_inside_longest": 4,
+                  "timeline_outputs_inside_longest": 3,
+                  "above_two_seconds": 1
+                },
+                "worker": {
+                  "count": 62,
+                  "first_s": 0.963,
+                  "gap_s": {
+                    "p50": 0.523,
+                    "p95": 1.082
+                  },
+                  "longest_s": 1.563,
+                  "longest_start_end_s": [
+                    22.389,
+                    23.952
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.532,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 3,
+                  "above_two_seconds": 0
+                },
+                "decode": {
+                  "previews": 71,
+                  "final_decodes": 2,
+                  "preview_compute_s": {
+                    "p50": 0.193,
+                    "p95": 0.783
+                  },
+                  "preview_compute_sum_s": 20.1645,
+                  "preview_start_intervals_s": {
+                    "p50": 0.505,
+                    "p95": 0.8
+                  },
+                  "previews_finishing_during_longest_timeline_gap": 4
+                }
+              }
+            },
+            "candidate": {
+              "source": "73ad857442964437929819ba9965f6bcfdcefd27",
+              "build": "574",
+              "first_visible_reference_s": 1.0308147083269432,
+              "display_first_while_speaking_s": 1.031,
+              "display_max_effective_gap_s": 1.998,
+              "display_gap_position": "interior",
+              "worker_max_effective_gap_s": 1.604,
+              "eos_to_pipeline_settled_s": 0.295,
+              "cpu_s": 20.05,
+              "peak_simultaneous_footprint_MiB": 1712.5337219238281,
+              "resource_summary_agrees": true,
+              "final_text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地，科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁，平时你总能在这里听到游客和小摊贩的声音，声光。交织，就像在讲述一个动人的故。有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+              "states": [
+                "completed",
+                "completed"
+              ],
+              "recording_errors": [],
+              "final_visible_matches_archive": true,
+              "surface_blockers": {},
+              "aba": 1,
+              "measured": {
+                "id": "continuous-public-5",
+                "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+                "onset": 0.0,
+                "end": 38.8,
+                "reference_available": true,
+                "final_CER": {
+                  "errors": 31,
+                  "substitutions": 9,
+                  "deletions": 22,
+                  "insertions": 0,
+                  "reference_units": 205
+                },
+                "matches_final_window": true,
+                "records": [
+                  "completed",
+                  "completed"
+                ],
+                "after_file_s": 0.295,
+                "after_last_signal_s": 0.314,
+                "timeline": {
+                  "count": 60,
+                  "first_s": 0.968,
+                  "gap_s": {
+                    "p50": 0.508,
+                    "p95": 1.528
+                  },
+                  "longest_s": 1.992,
+                  "longest_start_end_s": [
+                    22.314,
+                    24.306
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.586,
+                  "raw_outputs_inside_longest": 4,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "display": {
+                  "count": 100,
+                  "first_s": 1.031,
+                  "gap_s": {
+                    "p50": 0.426,
+                    "p95": 1.024
+                  },
+                  "longest_s": 1.998,
+                  "longest_start_end_s": [
+                    22.337,
+                    24.335
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.6,
+                  "raw_outputs_inside_longest": 4,
+                  "timeline_outputs_inside_longest": 3,
+                  "above_two_seconds": 0
+                },
+                "worker": {
+                  "count": 61,
+                  "first_s": 0.964,
+                  "gap_s": {
+                    "p50": 0.507,
+                    "p95": 1.037
+                  },
+                  "longest_s": 1.604,
+                  "longest_start_end_s": [
+                    22.307,
+                    23.911
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.494,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 3,
+                  "above_two_seconds": 0
+                },
+                "decode": {
+                  "previews": 71,
+                  "final_decodes": 2,
+                  "preview_compute_s": {
+                    "p50": 0.208,
+                    "p95": 0.774
+                  },
+                  "preview_compute_sum_s": 19.7186,
+                  "preview_start_intervals_s": {
+                    "p50": 0.506,
+                    "p95": 0.774
+                  },
+                  "previews_finishing_during_longest_timeline_gap": 4
+                }
+              }
+            }
+          },
+          "final_text_equal": true,
+          "states_equal": true,
+          "candidate_minus_baseline": {
+            "first_visible_reference_s": -0.008197541697882116,
+            "display_max_effective_gap_s": -0.19500000000000006,
+            "eos_to_pipeline_settled_s": 0.010000000000000009,
+            "cpu_s": 1.3300000000000018,
+            "peak_simultaneous_footprint_MiB": -1.96875
+          }
+        },
+        {
+          "pair": 3,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "arms": {
+            "baseline": {
+              "source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+              "build": "572",
+              "first_visible_reference_s": 1.0699041666230187,
+              "display_first_while_speaking_s": 1.07,
+              "display_max_effective_gap_s": 1.673,
+              "display_gap_position": "interior",
+              "worker_max_effective_gap_s": 1.487,
+              "eos_to_pipeline_settled_s": 0.306,
+              "cpu_s": 20.27,
+              "peak_simultaneous_footprint_MiB": 1775.1118469238281,
+              "resource_summary_agrees": true,
+              "final_text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地，科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁，平时你总能在这里听到游客和小摊贩的声音，声光。交织，就像在讲述一个动人的故。有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+              "states": [
+                "completed",
+                "completed"
+              ],
+              "recording_errors": [],
+              "final_visible_matches_archive": true,
+              "surface_blockers": {},
+              "aba": 3,
+              "measured": {
+                "id": "continuous-public-5",
+                "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+                "onset": 0.0,
+                "end": 38.8,
+                "reference_available": true,
+                "final_CER": {
+                  "errors": 31,
+                  "substitutions": 9,
+                  "deletions": 22,
+                  "insertions": 0,
+                  "reference_units": 205
+                },
+                "matches_final_window": true,
+                "records": [
+                  "completed",
+                  "completed"
+                ],
+                "after_file_s": 0.306,
+                "after_last_signal_s": 0.31,
+                "timeline": {
+                  "count": 60,
+                  "first_s": 1.022,
+                  "gap_s": {
+                    "p50": 0.524,
+                    "p95": 1.478
+                  },
+                  "longest_s": 1.697,
+                  "longest_start_end_s": [
+                    22.486,
+                    24.183
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.612,
+                  "raw_outputs_inside_longest": 3,
+                  "timeline_outputs_inside_longest": 1,
+                  "above_two_seconds": 0
+                },
+                "display": {
+                  "count": 94,
+                  "first_s": 1.07,
+                  "gap_s": {
+                    "p50": 0.444,
+                    "p95": 1.083
+                  },
+                  "longest_s": 1.673,
+                  "longest_start_end_s": [
+                    22.518,
+                    24.191
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.631,
+                  "raw_outputs_inside_longest": 3,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "worker": {
+                  "count": 62,
+                  "first_s": 1.016,
+                  "gap_s": {
+                    "p50": 0.527,
+                    "p95": 1.071
+                  },
+                  "longest_s": 1.487,
+                  "longest_start_end_s": [
+                    8.022,
+                    9.51
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.824,
+                  "raw_outputs_inside_longest": 1,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "decode": {
+                  "previews": 70,
+                  "final_decodes": 2,
+                  "preview_compute_s": {
+                    "p50": 0.198,
+                    "p95": 0.761
+                  },
+                  "preview_compute_sum_s": 20.1337,
+                  "preview_start_intervals_s": {
+                    "p50": 0.505,
+                    "p95": 0.761
+                  },
+                  "previews_finishing_during_longest_timeline_gap": 3
+                }
+              }
+            },
+            "candidate": {
+              "source": "73ad857442964437929819ba9965f6bcfdcefd27",
+              "build": "574",
+              "first_visible_reference_s": 1.0402125833788887,
+              "display_first_while_speaking_s": 1.04,
+              "display_max_effective_gap_s": 1.512,
+              "display_gap_position": "interior",
+              "worker_max_effective_gap_s": 1.436,
+              "eos_to_pipeline_settled_s": 0.388,
+              "cpu_s": 21.07,
+              "peak_simultaneous_footprint_MiB": 1682.6743469238281,
+              "resource_summary_agrees": true,
+              "final_text": "毋庸置疑的是，如果你会讲一门罗曼语，那么学习葡萄牙语会更加容易。老虎是全能运动员，他会攀爬，虽然攀爬能力不是很强，游泳，跳远，拉力能拿到人类大理石的五倍。这里首选登山目的地，科查莫山谷，被称为南美洲的优美圣地。这里有各式各样的花岗岩大石壁和峭壁，平时你总能在这里听到游客和小摊贩的声音，声光。交织，就像在讲述一个动人的故。有些原子含有不稳定的原子核，这意味着它们很可能会在很少或没有刺激的情况下发生分裂。",
+              "states": [
+                "completed",
+                "completed"
+              ],
+              "recording_errors": [],
+              "final_visible_matches_archive": true,
+              "surface_blockers": {},
+              "aba": 1,
+              "measured": {
+                "id": "continuous-public-5",
+                "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+                "onset": 0.0,
+                "end": 38.8,
+                "reference_available": true,
+                "final_CER": {
+                  "errors": 31,
+                  "substitutions": 9,
+                  "deletions": 22,
+                  "insertions": 0,
+                  "reference_units": 205
+                },
+                "matches_final_window": true,
+                "records": [
+                  "completed",
+                  "completed"
+                ],
+                "after_file_s": 0.388,
+                "after_last_signal_s": 0.404,
+                "timeline": {
+                  "count": 60,
+                  "first_s": 0.976,
+                  "gap_s": {
+                    "p50": 0.533,
+                    "p95": 1.398
+                  },
+                  "longest_s": 1.559,
+                  "longest_start_end_s": [
+                    26.008,
+                    27.567
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.808,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 0,
+                  "above_two_seconds": 0
+                },
+                "display": {
+                  "count": 111,
+                  "first_s": 1.04,
+                  "gap_s": {
+                    "p50": 0.361,
+                    "p95": 1.045
+                  },
+                  "longest_s": 1.512,
+                  "longest_start_end_s": [
+                    26.081,
+                    27.594
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.803,
+                  "raw_outputs_inside_longest": 2,
+                  "timeline_outputs_inside_longest": 1,
+                  "above_two_seconds": 0
+                },
+                "worker": {
+                  "count": 61,
+                  "first_s": 0.971,
+                  "gap_s": {
+                    "p50": 0.533,
+                    "p95": 1.06
+                  },
+                  "longest_s": 1.436,
+                  "longest_start_end_s": [
+                    8.06,
+                    9.496
+                  ],
+                  "longest_position": "interior",
+                  "longest_input_above_minus55_fraction": 0.819,
+                  "raw_outputs_inside_longest": 1,
+                  "timeline_outputs_inside_longest": 2,
+                  "above_two_seconds": 0
+                },
+                "decode": {
+                  "previews": 71,
+                  "final_decodes": 2,
+                  "preview_compute_s": {
+                    "p50": 0.194,
+                    "p95": 0.768
+                  },
+                  "preview_compute_sum_s": 20.213,
+                  "preview_start_intervals_s": {
+                    "p50": 0.506,
+                    "p95": 0.769
+                  },
+                  "previews_finishing_during_longest_timeline_gap": 2
+                }
+              }
+            }
+          },
+          "final_text_equal": true,
+          "states_equal": true,
+          "candidate_minus_baseline": {
+            "first_visible_reference_s": -0.029691583244130015,
+            "display_max_effective_gap_s": -0.16100000000000003,
+            "eos_to_pipeline_settled_s": 0.08200000000000002,
+            "cpu_s": 0.8000000000000007,
+            "peak_simultaneous_footprint_MiB": -92.4375
+          }
+        }
+      ]
+    }
+  },
+  "original32_not_replaced": {
+    "qwen-previous": {
+      "source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+      "normal15": {
+        "quality": {
+          "errors": 46,
+          "substitutions": 11,
+          "deletions": 30,
+          "insertions": 5,
+          "reference_units": 568,
+          "cer": 0.08099
+        },
+        "first_any_reference_word_s": {
+          "p50": 1.031,
+          "p95": 1.543
+        },
+        "missing_first": 0,
+        "missed_before_end": 0,
+        "visible_update_gap_s": {
+          "p50": 0.345,
+          "p95": 0.977
+        },
+        "eos_s": {
+          "p50": 0.247,
+          "p95": 1.952
+        },
+        "aba": 2,
+        "cpu_s": 57.190000000000005,
+        "peak_footprint_MiB": 1512.2680740356445
+      },
+      "long_clip": {
+        "id": "continuous-public-5",
+        "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+        "onset": 0.0,
+        "end": 38.8,
+        "reference_available": true,
+        "final_CER": {
+          "errors": 31,
+          "substitutions": 9,
+          "deletions": 22,
+          "insertions": 0,
+          "reference_units": 205
+        },
+        "matches_final_window": true,
+        "records": [
+          "completed",
+          "completed"
+        ],
+        "after_file_s": 0.768,
+        "after_last_signal_s": 0.774,
+        "timeline": {
+          "count": 57,
+          "first_s": 1.531,
+          "gap_s": {
+            "p50": 0.512,
+            "p95": 1.726
+          },
+          "longest_s": 2.387,
+          "longest_start_end_s": [
+            28.129,
+            30.515
+          ],
+          "longest_position": "interior",
+          "longest_input_above_minus55_fraction": 0.55,
+          "raw_outputs_inside_longest": 2,
+          "timeline_outputs_inside_longest": 0,
+          "above_two_seconds": 2
+        },
+        "display": {
+          "count": 96,
+          "first_s": 1.599,
+          "gap_s": {
+            "p50": 0.371,
+            "p95": 1.223
+          },
+          "longest_s": 2.405,
+          "longest_start_end_s": [
+            28.14,
+            30.544
+          ],
+          "longest_position": "interior",
+          "longest_input_above_minus55_fraction": 0.55,
+          "raw_outputs_inside_longest": 2,
+          "timeline_outputs_inside_longest": 1,
+          "above_two_seconds": 2
+        },
+        "worker": {
+          "count": 58,
+          "first_s": 1.519,
+          "gap_s": {
+            "p50": 0.519,
+            "p95": 1.666
+          },
+          "longest_s": 2.031,
+          "longest_start_end_s": [
+            30.508,
+            32.539
+          ],
+          "longest_position": "interior",
+          "longest_input_above_minus55_fraction": 0.529,
+          "raw_outputs_inside_longest": 0,
+          "timeline_outputs_inside_longest": 1,
+          "above_two_seconds": 1
+        },
+        "decode": {
+          "previews": 62,
+          "final_decodes": 2,
+          "preview_compute_s": {
+            "p50": 0.355,
+            "p95": 1.1
+          },
+          "preview_compute_sum_s": 27.3924,
+          "preview_start_intervals_s": {
+            "p50": 0.508,
+            "p95": 1.101
+          },
+          "previews_finishing_during_longest_timeline_gap": 2
+        }
+      },
+      "surface": {
+        "archive_equal_count": 16,
+        "observations": 5107,
+        "blockers": {}
+      },
+      "failed_invocations": []
+    },
+    "qwen-current": {
+      "source": "73ad857442964437929819ba9965f6bcfdcefd27",
+      "normal15": {
+        "quality": {
+          "errors": 46,
+          "substitutions": 11,
+          "deletions": 30,
+          "insertions": 5,
+          "reference_units": 568,
+          "cer": 0.08099
+        },
+        "first_any_reference_word_s": {
+          "p50": 1.052,
+          "p95": 2.126
+        },
+        "missing_first": 0,
+        "missed_before_end": 0,
+        "visible_update_gap_s": {
+          "p50": 0.289,
+          "p95": 1.007
+        },
+        "eos_s": {
+          "p50": 0.29,
+          "p95": 1.701
+        },
+        "aba": 0,
+        "cpu_s": 55.42,
+        "peak_footprint_MiB": 1541.2212219238281
+      },
+      "long_clip": {
+        "id": "continuous-public-5",
+        "sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+        "onset": 0.0,
+        "end": 38.8,
+        "reference_available": true,
+        "final_CER": {
+          "errors": 31,
+          "substitutions": 9,
+          "deletions": 22,
+          "insertions": 0,
+          "reference_units": 205
+        },
+        "matches_final_window": true,
+        "records": [
+          "completed",
+          "completed"
+        ],
+        "after_file_s": 0.982,
+        "after_last_signal_s": 1.017,
+        "timeline": {
+          "count": 49,
+          "first_s": 1.397,
+          "gap_s": {
+            "p50": 0.573,
+            "p95": 1.956
+          },
+          "longest_s": 3.086,
+          "longest_start_end_s": [
+            30.712,
+            33.798
+          ],
+          "longest_position": "interior",
+          "longest_input_above_minus55_fraction": 0.669,
+          "raw_outputs_inside_longest": 1,
+          "timeline_outputs_inside_longest": 0,
+          "above_two_seconds": 2
+        },
+        "display": {
+          "count": 83,
+          "first_s": 1.506,
+          "gap_s": {
+            "p50": 0.272,
+            "p95": 1.553
+          },
+          "longest_s": 3.085,
+          "longest_start_end_s": [
+            30.743,
+            33.827
+          ],
+          "longest_position": "interior",
+          "longest_input_above_minus55_fraction": 0.675,
+          "raw_outputs_inside_longest": 1,
+          "timeline_outputs_inside_longest": 1,
+          "above_two_seconds": 2
+        },
+        "worker": {
+          "count": 50,
+          "first_s": 1.386,
+          "gap_s": {
+            "p50": 0.543,
+            "p95": 1.82
+          },
+          "longest_s": 3.082,
+          "longest_start_end_s": [
+            30.703,
+            33.785
+          ],
+          "longest_position": "interior",
+          "longest_input_above_minus55_fraction": 0.669,
+          "raw_outputs_inside_longest": 0,
+          "timeline_outputs_inside_longest": 1,
+          "above_two_seconds": 1
+        },
+        "decode": {
+          "previews": 57,
+          "final_decodes": 2,
+          "preview_compute_s": {
+            "p50": 0.423,
+            "p95": 1.54
+          },
+          "preview_compute_sum_s": 29.4755,
+          "preview_start_intervals_s": {
+            "p50": 0.508,
+            "p95": 1.54
+          },
+          "previews_finishing_during_longest_timeline_gap": 0
+        }
+      },
+      "surface": {
+        "archive_equal_count": 16,
+        "observations": 4893,
+        "blockers": {}
+      },
+      "failed_invocations": []
+    }
+  },
+  "soak": {
+    "receipt": {
+      "model": "qwen-small",
+      "requested_automatic": true,
+      "observed_automatic": true,
+      "source": "73ad857442964437929819ba9965f6bcfdcefd27",
+      "observed_window_source": "73ad857442964437929819ba9965f6bcfdcefd27",
+      "errors": [],
+      "fixture_sha256": "59803d4dab449d25256a9338aaf176000dff0dc5287e334241b4b16990b0defc",
+      "input_clips": [
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "continuous-public-5",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "continuous-public-5",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "continuous-public-5",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b",
+        "ascend-zh-4309bc70746a5c2c",
+        "ascend-zh-0c5639a6e24f539b",
+        "ascend-mixed-9255615fddf1a721",
+        "ascend-mixed-a0b0e736637c643c",
+        "ascend-mixed-ee4e2d5087648134",
+        "ascend-mixed-7c8bdcb41bb98a40",
+        "ascend-mixed-ff9c42612780330b",
+        "continuous-public-5",
+        "fleurs-1bc3201a9f24a2fe",
+        "fleurs-0ebe0fb634f8e4ac",
+        "fleurs-9eb2d543a0a36152",
+        "fleurs-914c948388ae30bd",
+        "fleurs-e50b6b02d6d90ddc",
+        "fleurs-8e93e440f571a4da",
+        "ascend-zh-6a23208e2c146088",
+        "ascend-zh-ed182ef57fba310b"
+      ],
+      "input_duration": 904.830375,
+      "elapsed": 904.8429444999201,
+      "exit_code": 0,
+      "ui_updates": 2135,
+      "retained_ui_frames": 512,
+      "providers": [
+        "qwen-small"
+      ],
+      "archived_seconds": 814.050375,
+      "archive_chunks": 80,
+      "states": [
+        [
+          "completed",
+          "available",
+          44
+        ]
+      ],
+      "completed_rows": 44,
+      "total_rows": 44,
+      "integrity": "ok",
+      "foreign_errors": 0,
+      "dispatches": 0,
+      "timeline_rows": 44,
+      "unmatched_chunk_ordinals": [],
+      "clips": [
+        {
+          "id": "fleurs-1bc3201a9f24a2fe",
+          "archive_frames": 165120,
+          "completed_frames": 165120,
+          "positions": [
+            1
+          ]
+        },
+        {
+          "id": "fleurs-0ebe0fb634f8e4ac",
+          "archive_frames": 238720,
+          "completed_frames": 238720,
+          "positions": [
+            2
+          ]
+        },
+        {
+          "id": "fleurs-9eb2d543a0a36152",
+          "archive_frames": 188480,
+          "completed_frames": 188480,
+          "positions": [
+            3
+          ]
+        },
+        {
+          "id": "fleurs-914c948388ae30bd",
+          "archive_frames": 152640,
+          "completed_frames": 152640,
+          "positions": [
+            4
+          ]
+        },
+        {
+          "id": "fleurs-e50b6b02d6d90ddc",
+          "archive_frames": 139840,
+          "completed_frames": 139840,
+          "positions": [
+            5
+          ]
+        },
+        {
+          "id": "fleurs-8e93e440f571a4da",
+          "archive_frames": 200640,
+          "completed_frames": 200640,
+          "positions": [
+            6
+          ]
+        },
+        {
+          "id": "ascend-zh-6a23208e2c146088",
+          "archive_frames": 67199,
+          "completed_frames": 67199,
+          "positions": [
+            7
+          ]
+        },
+        {
+          "id": "ascend-zh-ed182ef57fba310b",
+          "archive_frames": 94883,
+          "completed_frames": 94883,
+          "positions": [
+            7
+          ]
+        },
+        {
+          "id": "ascend-zh-4309bc70746a5c2c",
+          "archive_frames": 101119,
+          "completed_frames": 101119,
+          "positions": [
+            7
+          ]
+        },
+        {
+          "id": "ascend-zh-0c5639a6e24f539b",
+          "archive_frames": 115520,
+          "completed_frames": 115520,
+          "positions": [
+            7
+          ]
+        },
+        {
+          "id": "ascend-mixed-9255615fddf1a721",
+          "archive_frames": 103360,
+          "completed_frames": 103360,
+          "positions": [
+            7,
+            8
+          ]
+        },
+        {
+          "id": "ascend-mixed-a0b0e736637c643c",
+          "archive_frames": 146560,
+          "completed_frames": 146560,
+          "positions": [
+            8
+          ]
+        },
+        {
+          "id": "ascend-mixed-ee4e2d5087648134",
+          "archive_frames": 119040,
+          "completed_frames": 119040,
+          "positions": [
+            8
+          ]
+        },
+        {
+          "id": "ascend-mixed-7c8bdcb41bb98a40",
+          "archive_frames": 96000,
+          "completed_frames": 96000,
+          "positions": [
+            8
+          ]
+        },
+        {
+          "id": "ascend-mixed-ff9c42612780330b",
+          "archive_frames": 161920,
+          "completed_frames": 161920,
+          "positions": [
+            9
+          ]
+        },
+        {
+          "id": "continuous-public-5",
+          "archive_frames": 620800,
+          "completed_frames": 620800,
+          "positions": [
+            9,
+            10
+          ]
+        },
+        {
+          "id": "fleurs-1bc3201a9f24a2fe",
+          "archive_frames": 164319,
+          "completed_frames": 164319,
+          "positions": [
+            10
+          ]
+        },
+        {
+          "id": "fleurs-0ebe0fb634f8e4ac",
+          "archive_frames": 238559,
+          "completed_frames": 238559,
+          "positions": [
+            11
+          ]
+        },
+        {
+          "id": "fleurs-9eb2d543a0a36152",
+          "archive_frames": 188480,
+          "completed_frames": 188480,
+          "positions": [
+            12
+          ]
+        },
+        {
+          "id": "fleurs-914c948388ae30bd",
+          "archive_frames": 158559,
+          "completed_frames": 158559,
+          "positions": [
+            13
+          ]
+        },
+        {
+          "id": "fleurs-e50b6b02d6d90ddc",
+          "archive_frames": 139681,
+          "completed_frames": 139681,
+          "positions": [
+            14
+          ]
+        },
+        {
+          "id": "fleurs-8e93e440f571a4da",
+          "archive_frames": 200479,
+          "completed_frames": 200479,
+          "positions": [
+            15
+          ]
+        },
+        {
+          "id": "ascend-zh-6a23208e2c146088",
+          "archive_frames": 67199,
+          "completed_frames": 67199,
+          "positions": [
+            16
+          ]
+        },
+        {
+          "id": "ascend-zh-ed182ef57fba310b",
+          "archive_frames": 94883,
+          "completed_frames": 94883,
+          "positions": [
+            16
+          ]
+        },
+        {
+          "id": "ascend-zh-4309bc70746a5c2c",
+          "archive_frames": 101119,
+          "completed_frames": 101119,
+          "positions": [
+            16
+          ]
+        },
+        {
+          "id": "ascend-zh-0c5639a6e24f539b",
+          "archive_frames": 115520,
+          "completed_frames": 115520,
+          "positions": [
+            16
+          ]
+        },
+        {
+          "id": "ascend-mixed-9255615fddf1a721",
+          "archive_frames": 103360,
+          "completed_frames": 103360,
+          "positions": [
+            16,
+            17
+          ]
+        },
+        {
+          "id": "ascend-mixed-a0b0e736637c643c",
+          "archive_frames": 146560,
+          "completed_frames": 146560,
+          "positions": [
+            17
+          ]
+        },
+        {
+          "id": "ascend-mixed-ee4e2d5087648134",
+          "archive_frames": 119040,
+          "completed_frames": 119040,
+          "positions": [
+            17
+          ]
+        },
+        {
+          "id": "ascend-mixed-7c8bdcb41bb98a40",
+          "archive_frames": 96000,
+          "completed_frames": 96000,
+          "positions": [
+            17
+          ]
+        },
+        {
+          "id": "ascend-mixed-ff9c42612780330b",
+          "archive_frames": 161920,
+          "completed_frames": 161920,
+          "positions": [
+            18
+          ]
+        },
+        {
+          "id": "continuous-public-5",
+          "archive_frames": 620800,
+          "completed_frames": 620800,
+          "positions": [
+            18,
+            19
+          ]
+        },
+        {
+          "id": "fleurs-1bc3201a9f24a2fe",
+          "archive_frames": 165118,
+          "completed_frames": 165118,
+          "positions": [
+            19
+          ]
+        },
+        {
+          "id": "fleurs-0ebe0fb634f8e4ac",
+          "archive_frames": 238718,
+          "completed_frames": 238718,
+          "positions": [
+            20
+          ]
+        },
+        {
+          "id": "fleurs-9eb2d543a0a36152",
+          "archive_frames": 202878,
+          "completed_frames": 202878,
+          "positions": [
+            21
+          ]
+        },
+        {
+          "id": "fleurs-914c948388ae30bd",
+          "archive_frames": 152640,
+          "completed_frames": 152640,
+          "positions": [
+            22
+          ]
+        },
+        {
+          "id": "fleurs-e50b6b02d6d90ddc",
+          "archive_frames": 139840,
+          "completed_frames": 139840,
+          "positions": [
+            23
+          ]
+        },
+        {
+          "id": "fleurs-8e93e440f571a4da",
+          "archive_frames": 200638,
+          "completed_frames": 200638,
+          "positions": [
+            24
+          ]
+        },
+        {
+          "id": "ascend-zh-6a23208e2c146088",
+          "archive_frames": 67199,
+          "completed_frames": 67199,
+          "positions": [
+            25
+          ]
+        },
+        {
+          "id": "ascend-zh-ed182ef57fba310b",
+          "archive_frames": 94883,
+          "completed_frames": 94883,
+          "positions": [
+            25
+          ]
+        },
+        {
+          "id": "ascend-zh-4309bc70746a5c2c",
+          "archive_frames": 101119,
+          "completed_frames": 101119,
+          "positions": [
+            25
+          ]
+        },
+        {
+          "id": "ascend-zh-0c5639a6e24f539b",
+          "archive_frames": 115520,
+          "completed_frames": 115520,
+          "positions": [
+            26
+          ]
+        },
+        {
+          "id": "ascend-mixed-9255615fddf1a721",
+          "archive_frames": 103360,
+          "completed_frames": 103360,
+          "positions": [
+            26
+          ]
+        },
+        {
+          "id": "ascend-mixed-a0b0e736637c643c",
+          "archive_frames": 146560,
+          "completed_frames": 146560,
+          "positions": [
+            26
+          ]
+        },
+        {
+          "id": "ascend-mixed-ee4e2d5087648134",
+          "archive_frames": 119040,
+          "completed_frames": 119040,
+          "positions": [
+            26,
+            27
+          ]
+        },
+        {
+          "id": "ascend-mixed-7c8bdcb41bb98a40",
+          "archive_frames": 96000,
+          "completed_frames": 96000,
+          "positions": [
+            27
+          ]
+        },
+        {
+          "id": "ascend-mixed-ff9c42612780330b",
+          "archive_frames": 161920,
+          "completed_frames": 161920,
+          "positions": [
+            27
+          ]
+        },
+        {
+          "id": "continuous-public-5",
+          "archive_frames": 620800,
+          "completed_frames": 620800,
+          "positions": [
+            27,
+            28,
+            29
+          ]
+        },
+        {
+          "id": "fleurs-1bc3201a9f24a2fe",
+          "archive_frames": 164317,
+          "completed_frames": 164317,
+          "positions": [
+            29
+          ]
+        },
+        {
+          "id": "fleurs-0ebe0fb634f8e4ac",
+          "archive_frames": 238557,
+          "completed_frames": 238557,
+          "positions": [
+            30
+          ]
+        },
+        {
+          "id": "fleurs-9eb2d543a0a36152",
+          "archive_frames": 188480,
+          "completed_frames": 188480,
+          "positions": [
+            31
+          ]
+        },
+        {
+          "id": "fleurs-914c948388ae30bd",
+          "archive_frames": 158557,
+          "completed_frames": 158557,
+          "positions": [
+            32
+          ]
+        },
+        {
+          "id": "fleurs-e50b6b02d6d90ddc",
+          "archive_frames": 139683,
+          "completed_frames": 139683,
+          "positions": [
+            33
+          ]
+        },
+        {
+          "id": "fleurs-8e93e440f571a4da",
+          "archive_frames": 200477,
+          "completed_frames": 200477,
+          "positions": [
+            34
+          ]
+        },
+        {
+          "id": "ascend-zh-6a23208e2c146088",
+          "archive_frames": 67199,
+          "completed_frames": 67199,
+          "positions": [
+            35
+          ]
+        },
+        {
+          "id": "ascend-zh-ed182ef57fba310b",
+          "archive_frames": 94883,
+          "completed_frames": 94883,
+          "positions": [
+            35
+          ]
+        },
+        {
+          "id": "ascend-zh-4309bc70746a5c2c",
+          "archive_frames": 101119,
+          "completed_frames": 101119,
+          "positions": [
+            35
+          ]
+        },
+        {
+          "id": "ascend-zh-0c5639a6e24f539b",
+          "archive_frames": 115520,
+          "completed_frames": 115520,
+          "positions": [
+            35
+          ]
+        },
+        {
+          "id": "ascend-mixed-9255615fddf1a721",
+          "archive_frames": 103360,
+          "completed_frames": 103360,
+          "positions": [
+            35,
+            36
+          ]
+        },
+        {
+          "id": "ascend-mixed-a0b0e736637c643c",
+          "archive_frames": 146560,
+          "completed_frames": 146560,
+          "positions": [
+            36
+          ]
+        },
+        {
+          "id": "ascend-mixed-ee4e2d5087648134",
+          "archive_frames": 119040,
+          "completed_frames": 119040,
+          "positions": [
+            36
+          ]
+        },
+        {
+          "id": "ascend-mixed-7c8bdcb41bb98a40",
+          "archive_frames": 96000,
+          "completed_frames": 96000,
+          "positions": [
+            36
+          ]
+        },
+        {
+          "id": "ascend-mixed-ff9c42612780330b",
+          "archive_frames": 161920,
+          "completed_frames": 161920,
+          "positions": [
+            37
+          ]
+        },
+        {
+          "id": "continuous-public-5",
+          "archive_frames": 620800,
+          "completed_frames": 620800,
+          "positions": [
+            37,
+            38
+          ]
+        },
+        {
+          "id": "fleurs-1bc3201a9f24a2fe",
+          "archive_frames": 165116,
+          "completed_frames": 165116,
+          "positions": [
+            38
+          ]
+        },
+        {
+          "id": "fleurs-0ebe0fb634f8e4ac",
+          "archive_frames": 238716,
+          "completed_frames": 238716,
+          "positions": [
+            39
+          ]
+        },
+        {
+          "id": "fleurs-9eb2d543a0a36152",
+          "archive_frames": 202876,
+          "completed_frames": 202876,
+          "positions": [
+            40
+          ]
+        },
+        {
+          "id": "fleurs-914c948388ae30bd",
+          "archive_frames": 152640,
+          "completed_frames": 152640,
+          "positions": [
+            41
+          ]
+        },
+        {
+          "id": "fleurs-e50b6b02d6d90ddc",
+          "archive_frames": 139840,
+          "completed_frames": 139840,
+          "positions": [
+            42
+          ]
+        },
+        {
+          "id": "fleurs-8e93e440f571a4da",
+          "archive_frames": 200636,
+          "completed_frames": 200636,
+          "positions": [
+            43
+          ]
+        },
+        {
+          "id": "ascend-zh-6a23208e2c146088",
+          "archive_frames": 67199,
+          "completed_frames": 67199,
+          "positions": [
+            44
+          ]
+        },
+        {
+          "id": "ascend-zh-ed182ef57fba310b",
+          "archive_frames": 94883,
+          "completed_frames": 94883,
+          "positions": [
+            44
+          ]
+        }
+      ],
+      "readable_pcm_manifest": "ee0d945708f1801270bdb73cd5d703053e2adb2792c6f09830d357f90061e098",
+      "resources": {
+        "app": {
+          "samples": 180,
+          "median_cpu_percent": 5.1,
+          "peak_RSS_MiB": 118.31,
+          "first_5min_median_RSS_MiB": 112.19,
+          "last_5min_median_RSS_MiB": 113.52
+        },
+        "worker": {
+          "samples": 177,
+          "median_cpu_percent": 23.6,
+          "peak_RSS_MiB": 805.38,
+          "first_5min_median_RSS_MiB": 757.06,
+          "last_5min_median_RSS_MiB": 759.17
+        }
+      },
+      "idle": {
+        "input_range_seconds": [
+          483.4101875,
+          528.4101875
+        ],
+        "sampled_after_35_seconds": [
+          [
+            519.3467562500155,
+            false
+          ],
+          [
+            524.386582667008,
+            false
+          ]
+        ],
+        "released": true,
+        "worker_observed_again_after_speech": true
+      },
+      "passed": true
+    },
+    "fixture_reconstruction_sha_verified": true,
+    "public_clip_count": 72,
+    "distinct_public_clips": 16,
+    "clip_coverage": [
+      {
+        "id": "fleurs-1bc3201a9f24a2fe",
+        "archive_frames": 165120,
+        "completed_frames": 165120,
+        "positions": [
+          1
+        ],
+        "input_frames": 185920,
+        "archived_fraction_of_clip": 0.8881239242685026
+      },
+      {
+        "id": "fleurs-0ebe0fb634f8e4ac",
+        "archive_frames": 238720,
+        "completed_frames": 238720,
+        "positions": [
+          2
+        ],
+        "input_frames": 250560,
+        "archived_fraction_of_clip": 0.9527458492975734
+      },
+      {
+        "id": "fleurs-9eb2d543a0a36152",
+        "archive_frames": 188480,
+        "completed_frames": 188480,
+        "positions": [
+          3
+        ],
+        "input_frames": 214080,
+        "archived_fraction_of_clip": 0.8804185351270553
+      },
+      {
+        "id": "fleurs-914c948388ae30bd",
+        "archive_frames": 152640,
+        "completed_frames": 152640,
+        "positions": [
+          4
+        ],
+        "input_frames": 159360,
+        "archived_fraction_of_clip": 0.9578313253012049
+      },
+      {
+        "id": "fleurs-e50b6b02d6d90ddc",
+        "archive_frames": 139840,
+        "completed_frames": 139840,
+        "positions": [
+          5
+        ],
+        "input_frames": 151680,
+        "archived_fraction_of_clip": 0.9219409282700421
+      },
+      {
+        "id": "fleurs-8e93e440f571a4da",
+        "archive_frames": 200640,
+        "completed_frames": 200640,
+        "positions": [
+          6
+        ],
+        "input_frames": 225920,
+        "archived_fraction_of_clip": 0.8881019830028328
+      },
+      {
+        "id": "ascend-zh-6a23208e2c146088",
+        "archive_frames": 67199,
+        "completed_frames": 67199,
+        "positions": [
+          7
+        ],
+        "input_frames": 67199,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-ed182ef57fba310b",
+        "archive_frames": 94883,
+        "completed_frames": 94883,
+        "positions": [
+          7
+        ],
+        "input_frames": 94883,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-4309bc70746a5c2c",
+        "archive_frames": 101119,
+        "completed_frames": 101119,
+        "positions": [
+          7
+        ],
+        "input_frames": 101119,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-0c5639a6e24f539b",
+        "archive_frames": 115520,
+        "completed_frames": 115520,
+        "positions": [
+          7
+        ],
+        "input_frames": 115520,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-9255615fddf1a721",
+        "archive_frames": 103360,
+        "completed_frames": 103360,
+        "positions": [
+          7,
+          8
+        ],
+        "input_frames": 103360,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-a0b0e736637c643c",
+        "archive_frames": 146560,
+        "completed_frames": 146560,
+        "positions": [
+          8
+        ],
+        "input_frames": 146560,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-ee4e2d5087648134",
+        "archive_frames": 119040,
+        "completed_frames": 119040,
+        "positions": [
+          8
+        ],
+        "input_frames": 119040,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-7c8bdcb41bb98a40",
+        "archive_frames": 96000,
+        "completed_frames": 96000,
+        "positions": [
+          8
+        ],
+        "input_frames": 96000,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-ff9c42612780330b",
+        "archive_frames": 161920,
+        "completed_frames": 161920,
+        "positions": [
+          9
+        ],
+        "input_frames": 161920,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "continuous-public-5",
+        "archive_frames": 620800,
+        "completed_frames": 620800,
+        "positions": [
+          9,
+          10
+        ],
+        "input_frames": 620800,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "fleurs-1bc3201a9f24a2fe",
+        "archive_frames": 164319,
+        "completed_frames": 164319,
+        "positions": [
+          10
+        ],
+        "input_frames": 185920,
+        "archived_fraction_of_clip": 0.8838156196213425
+      },
+      {
+        "id": "fleurs-0ebe0fb634f8e4ac",
+        "archive_frames": 238559,
+        "completed_frames": 238559,
+        "positions": [
+          11
+        ],
+        "input_frames": 250560,
+        "archived_fraction_of_clip": 0.952103288633461
+      },
+      {
+        "id": "fleurs-9eb2d543a0a36152",
+        "archive_frames": 188480,
+        "completed_frames": 188480,
+        "positions": [
+          12
+        ],
+        "input_frames": 214080,
+        "archived_fraction_of_clip": 0.8804185351270553
+      },
+      {
+        "id": "fleurs-914c948388ae30bd",
+        "archive_frames": 158559,
+        "completed_frames": 158559,
+        "positions": [
+          13
+        ],
+        "input_frames": 159360,
+        "archived_fraction_of_clip": 0.9949736445783133
+      },
+      {
+        "id": "fleurs-e50b6b02d6d90ddc",
+        "archive_frames": 139681,
+        "completed_frames": 139681,
+        "positions": [
+          14
+        ],
+        "input_frames": 151680,
+        "archived_fraction_of_clip": 0.9208926687763713
+      },
+      {
+        "id": "fleurs-8e93e440f571a4da",
+        "archive_frames": 200479,
+        "completed_frames": 200479,
+        "positions": [
+          15
+        ],
+        "input_frames": 225920,
+        "archived_fraction_of_clip": 0.8873893413597733
+      },
+      {
+        "id": "ascend-zh-6a23208e2c146088",
+        "archive_frames": 67199,
+        "completed_frames": 67199,
+        "positions": [
+          16
+        ],
+        "input_frames": 67199,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-ed182ef57fba310b",
+        "archive_frames": 94883,
+        "completed_frames": 94883,
+        "positions": [
+          16
+        ],
+        "input_frames": 94883,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-4309bc70746a5c2c",
+        "archive_frames": 101119,
+        "completed_frames": 101119,
+        "positions": [
+          16
+        ],
+        "input_frames": 101119,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-0c5639a6e24f539b",
+        "archive_frames": 115520,
+        "completed_frames": 115520,
+        "positions": [
+          16
+        ],
+        "input_frames": 115520,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-9255615fddf1a721",
+        "archive_frames": 103360,
+        "completed_frames": 103360,
+        "positions": [
+          16,
+          17
+        ],
+        "input_frames": 103360,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-a0b0e736637c643c",
+        "archive_frames": 146560,
+        "completed_frames": 146560,
+        "positions": [
+          17
+        ],
+        "input_frames": 146560,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-ee4e2d5087648134",
+        "archive_frames": 119040,
+        "completed_frames": 119040,
+        "positions": [
+          17
+        ],
+        "input_frames": 119040,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-7c8bdcb41bb98a40",
+        "archive_frames": 96000,
+        "completed_frames": 96000,
+        "positions": [
+          17
+        ],
+        "input_frames": 96000,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-ff9c42612780330b",
+        "archive_frames": 161920,
+        "completed_frames": 161920,
+        "positions": [
+          18
+        ],
+        "input_frames": 161920,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "continuous-public-5",
+        "archive_frames": 620800,
+        "completed_frames": 620800,
+        "positions": [
+          18,
+          19
+        ],
+        "input_frames": 620800,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "fleurs-1bc3201a9f24a2fe",
+        "archive_frames": 165118,
+        "completed_frames": 165118,
+        "positions": [
+          19
+        ],
+        "input_frames": 185920,
+        "archived_fraction_of_clip": 0.8881131669535284
+      },
+      {
+        "id": "fleurs-0ebe0fb634f8e4ac",
+        "archive_frames": 238718,
+        "completed_frames": 238718,
+        "positions": [
+          20
+        ],
+        "input_frames": 250560,
+        "archived_fraction_of_clip": 0.9527378671775224
+      },
+      {
+        "id": "fleurs-9eb2d543a0a36152",
+        "archive_frames": 202878,
+        "completed_frames": 202878,
+        "positions": [
+          21
+        ],
+        "input_frames": 214080,
+        "archived_fraction_of_clip": 0.9476737668161435
+      },
+      {
+        "id": "fleurs-914c948388ae30bd",
+        "archive_frames": 152640,
+        "completed_frames": 152640,
+        "positions": [
+          22
+        ],
+        "input_frames": 159360,
+        "archived_fraction_of_clip": 0.9578313253012049
+      },
+      {
+        "id": "fleurs-e50b6b02d6d90ddc",
+        "archive_frames": 139840,
+        "completed_frames": 139840,
+        "positions": [
+          23
+        ],
+        "input_frames": 151680,
+        "archived_fraction_of_clip": 0.9219409282700421
+      },
+      {
+        "id": "fleurs-8e93e440f571a4da",
+        "archive_frames": 200638,
+        "completed_frames": 200638,
+        "positions": [
+          24
+        ],
+        "input_frames": 225920,
+        "archived_fraction_of_clip": 0.8880931303116147
+      },
+      {
+        "id": "ascend-zh-6a23208e2c146088",
+        "archive_frames": 67199,
+        "completed_frames": 67199,
+        "positions": [
+          25
+        ],
+        "input_frames": 67199,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-ed182ef57fba310b",
+        "archive_frames": 94883,
+        "completed_frames": 94883,
+        "positions": [
+          25
+        ],
+        "input_frames": 94883,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-4309bc70746a5c2c",
+        "archive_frames": 101119,
+        "completed_frames": 101119,
+        "positions": [
+          25
+        ],
+        "input_frames": 101119,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-0c5639a6e24f539b",
+        "archive_frames": 115520,
+        "completed_frames": 115520,
+        "positions": [
+          26
+        ],
+        "input_frames": 115520,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-9255615fddf1a721",
+        "archive_frames": 103360,
+        "completed_frames": 103360,
+        "positions": [
+          26
+        ],
+        "input_frames": 103360,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-a0b0e736637c643c",
+        "archive_frames": 146560,
+        "completed_frames": 146560,
+        "positions": [
+          26
+        ],
+        "input_frames": 146560,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-ee4e2d5087648134",
+        "archive_frames": 119040,
+        "completed_frames": 119040,
+        "positions": [
+          26,
+          27
+        ],
+        "input_frames": 119040,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-7c8bdcb41bb98a40",
+        "archive_frames": 96000,
+        "completed_frames": 96000,
+        "positions": [
+          27
+        ],
+        "input_frames": 96000,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-ff9c42612780330b",
+        "archive_frames": 161920,
+        "completed_frames": 161920,
+        "positions": [
+          27
+        ],
+        "input_frames": 161920,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "continuous-public-5",
+        "archive_frames": 620800,
+        "completed_frames": 620800,
+        "positions": [
+          27,
+          28,
+          29
+        ],
+        "input_frames": 620800,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "fleurs-1bc3201a9f24a2fe",
+        "archive_frames": 164317,
+        "completed_frames": 164317,
+        "positions": [
+          29
+        ],
+        "input_frames": 185920,
+        "archived_fraction_of_clip": 0.8838048623063683
+      },
+      {
+        "id": "fleurs-0ebe0fb634f8e4ac",
+        "archive_frames": 238557,
+        "completed_frames": 238557,
+        "positions": [
+          30
+        ],
+        "input_frames": 250560,
+        "archived_fraction_of_clip": 0.95209530651341
+      },
+      {
+        "id": "fleurs-9eb2d543a0a36152",
+        "archive_frames": 188480,
+        "completed_frames": 188480,
+        "positions": [
+          31
+        ],
+        "input_frames": 214080,
+        "archived_fraction_of_clip": 0.8804185351270553
+      },
+      {
+        "id": "fleurs-914c948388ae30bd",
+        "archive_frames": 158557,
+        "completed_frames": 158557,
+        "positions": [
+          32
+        ],
+        "input_frames": 159360,
+        "archived_fraction_of_clip": 0.99496109437751
+      },
+      {
+        "id": "fleurs-e50b6b02d6d90ddc",
+        "archive_frames": 139683,
+        "completed_frames": 139683,
+        "positions": [
+          33
+        ],
+        "input_frames": 151680,
+        "archived_fraction_of_clip": 0.9209058544303798
+      },
+      {
+        "id": "fleurs-8e93e440f571a4da",
+        "archive_frames": 200477,
+        "completed_frames": 200477,
+        "positions": [
+          34
+        ],
+        "input_frames": 225920,
+        "archived_fraction_of_clip": 0.8873804886685552
+      },
+      {
+        "id": "ascend-zh-6a23208e2c146088",
+        "archive_frames": 67199,
+        "completed_frames": 67199,
+        "positions": [
+          35
+        ],
+        "input_frames": 67199,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-ed182ef57fba310b",
+        "archive_frames": 94883,
+        "completed_frames": 94883,
+        "positions": [
+          35
+        ],
+        "input_frames": 94883,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-4309bc70746a5c2c",
+        "archive_frames": 101119,
+        "completed_frames": 101119,
+        "positions": [
+          35
+        ],
+        "input_frames": 101119,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-0c5639a6e24f539b",
+        "archive_frames": 115520,
+        "completed_frames": 115520,
+        "positions": [
+          35
+        ],
+        "input_frames": 115520,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-9255615fddf1a721",
+        "archive_frames": 103360,
+        "completed_frames": 103360,
+        "positions": [
+          35,
+          36
+        ],
+        "input_frames": 103360,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-a0b0e736637c643c",
+        "archive_frames": 146560,
+        "completed_frames": 146560,
+        "positions": [
+          36
+        ],
+        "input_frames": 146560,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-ee4e2d5087648134",
+        "archive_frames": 119040,
+        "completed_frames": 119040,
+        "positions": [
+          36
+        ],
+        "input_frames": 119040,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-7c8bdcb41bb98a40",
+        "archive_frames": 96000,
+        "completed_frames": 96000,
+        "positions": [
+          36
+        ],
+        "input_frames": 96000,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-mixed-ff9c42612780330b",
+        "archive_frames": 161920,
+        "completed_frames": 161920,
+        "positions": [
+          37
+        ],
+        "input_frames": 161920,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "continuous-public-5",
+        "archive_frames": 620800,
+        "completed_frames": 620800,
+        "positions": [
+          37,
+          38
+        ],
+        "input_frames": 620800,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "fleurs-1bc3201a9f24a2fe",
+        "archive_frames": 165116,
+        "completed_frames": 165116,
+        "positions": [
+          38
+        ],
+        "input_frames": 185920,
+        "archived_fraction_of_clip": 0.8881024096385542
+      },
+      {
+        "id": "fleurs-0ebe0fb634f8e4ac",
+        "archive_frames": 238716,
+        "completed_frames": 238716,
+        "positions": [
+          39
+        ],
+        "input_frames": 250560,
+        "archived_fraction_of_clip": 0.9527298850574712
+      },
+      {
+        "id": "fleurs-9eb2d543a0a36152",
+        "archive_frames": 202876,
+        "completed_frames": 202876,
+        "positions": [
+          40
+        ],
+        "input_frames": 214080,
+        "archived_fraction_of_clip": 0.9476644245142003
+      },
+      {
+        "id": "fleurs-914c948388ae30bd",
+        "archive_frames": 152640,
+        "completed_frames": 152640,
+        "positions": [
+          41
+        ],
+        "input_frames": 159360,
+        "archived_fraction_of_clip": 0.9578313253012049
+      },
+      {
+        "id": "fleurs-e50b6b02d6d90ddc",
+        "archive_frames": 139840,
+        "completed_frames": 139840,
+        "positions": [
+          42
+        ],
+        "input_frames": 151680,
+        "archived_fraction_of_clip": 0.9219409282700421
+      },
+      {
+        "id": "fleurs-8e93e440f571a4da",
+        "archive_frames": 200636,
+        "completed_frames": 200636,
+        "positions": [
+          43
+        ],
+        "input_frames": 225920,
+        "archived_fraction_of_clip": 0.8880842776203967
+      },
+      {
+        "id": "ascend-zh-6a23208e2c146088",
+        "archive_frames": 67199,
+        "completed_frames": 67199,
+        "positions": [
+          44
+        ],
+        "input_frames": 67199,
+        "archived_fraction_of_clip": 1.0
+      },
+      {
+        "id": "ascend-zh-ed182ef57fba310b",
+        "archive_frames": 94883,
+        "completed_frames": 94883,
+        "positions": [
+          44
+        ],
+        "input_frames": 94883,
+        "archived_fraction_of_clip": 1.0
+      }
+    ],
+    "boundaries": [
+      "The 904.830375 s fixture includes 72 one-second separators and 45 s inserted silence, not 15 min uninterrupted speech.",
+      "Stored PCM hashes and timeline associations were checked in the original process. The successful temporary archive was removed; this audit can recheck fixture SHA and retained receipt but not reopen its original SQLite/WAVs.",
+      "Every supplied clip has some completed-record audio coverage; the assertion is >0 frames, not complete voiced-frame recall or CER.",
+      "2135 display changes were counted, but only the first 512 text frames were retained. This does not establish a maximum display gap throughout the run.",
+      "Resources are five-second ps samples: separate process median CPU and RSS, not simultaneous footprint, GPU/ANE, power, or system memory pressure.",
+      "Two late-idle process observations are absent and a child later reappears. Raw full sampling trace and process-to-probe clock offset are not retained, so precise release/restart latency is not established.",
+      "Automatic route and persistence are exercised; microphone, sleep/wake, abrupt power loss, foreground browser resolver and 8 GB hardware are not."
+    ]
+  },
+  "live_qwen_to_owned_AX": {
+    "binding": {
+      "status": "PASS",
+      "product_source": "73ad857442964437929819ba9965f6bcfdcefd27",
+      "mode": "audio",
+      "input_sha256": "5e7b5564803cec7cb90282b0427e99cd345472b758464060bf1f2ae5ba013c04",
+      "fixture_sha256": "f1ca7a58f8b840a09b4b99e60dc0fc8eeeea38e9915e5aae8933deaa1cec0c98",
+      "kit_library_sha256": "f58e393f59a05d2a8dd91cae3de9229c10e71c84263c58b68ffabb40e76a35db",
+      "source_equivalence": {
+        "app_source": "73ad857442964437929819ba9965f6bcfdcefd27",
+        "tested_source": "34d418f5ac309f7361db6b2ea2d196b1aead025c",
+        "checked_paths": [
+          "Sources/SaytileKit",
+          "Sources/CSQLite",
+          "Sources/CAudio",
+          "Package.swift",
+          "tests/fixtures/StoreProcessProbe.swift"
+        ],
+        "tracked_input_diff": "empty",
+        "probe_sha256": "523df7c3180b15914c9613779bcb37e92bf5ba09c22e111256957a8148b83dda",
+        "assertions_unchanged": 18,
+        "note": "Separate real test SHA and packaged product SHA; only presentation/metadata/tool commits differ; no source receipt relabelling."
+      },
+      "foreground_resolver": "NOT_RUN: owned background target injected; CI tests real resolver separately",
+      "physical_microphone": "NOT_RUN",
+      "paid_api": "NOT_CALLED"
+    },
+    "early_confirmed_writes": 11,
+    "first_confirmed_write_s": 5.222128333407454,
+    "audio_s": 38.8,
+    "records": 2,
+    "scope": "Real Qwen + production coordinator + real background AppKit AX, but target selection injected. Not foreground browser or microphone acceptance. First confirmed write is not first panel preview.",
+    "log_otherIntact_false": "No alternate window is created in the background fixture; the optional alternateText nil comparison is false, not an observed overwrite."
+  },
+  "post_regression_events": [
+    {
+      "pair": 1,
+      "arm": "baseline",
+      "sample": "ascend-mixed-7c8bdcb41bb98a40",
+      "status": "PASS"
+    },
+    {
+      "pair": 1,
+      "arm": "candidate",
+      "sample": "ascend-mixed-7c8bdcb41bb98a40",
+      "status": "PASS"
+    },
+    {
+      "pair": 2,
+      "arm": "candidate",
+      "sample": "ascend-mixed-7c8bdcb41bb98a40",
+      "status": "PASS"
+    },
+    {
+      "pair": 2,
+      "arm": "baseline",
+      "sample": "ascend-mixed-7c8bdcb41bb98a40",
+      "status": "PASS"
+    },
+    {
+      "pair": 3,
+      "arm": "baseline",
+      "sample": "ascend-mixed-7c8bdcb41bb98a40",
+      "status": "PASS"
+    },
+    {
+      "pair": 3,
+      "arm": "candidate",
+      "sample": "ascend-mixed-7c8bdcb41bb98a40",
+      "status": "PASS"
+    },
+    {
+      "phase": "real-qwen-to-owned-AX",
+      "status": "PASS",
+      "exit": 0
+    }
+  ],
+  "input_sha256": {
+    "/private/tmp/saytile-experience-023/evidence/experience-023/setup/panel16.json": "a53fa0406e4d009fd0db33c88b65304f7e91840e361ad38897b9788429216eea",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/progress.json": "0dc31fa575c7a702589ff887f24dc28381683c20d4af8d4bb1daabd3a5eee61c",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-1/baseline/visible-raw.json": "582eb189e30b9497542d9832bf2a48b689c03399ee7e19d630dd99d439d11b57",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-1/baseline/invocation.json": "4de2765c121ed50bbcb63c657842ec17bc3eea9b06c4ca7a24ea0eb2ac86c74d",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-1/baseline/process.json": "41e632138e429c844990e9f1c9bdd2c0b3326bd36abbdda8ba9f3a85e1d3ac71",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-1/baseline/process-samples.json": "ca88fd12fe9a8050d43df284fedcdf3514ac914e4af23a83d0d549cbb2c86562",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-1/baseline/auto-qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "82324e36d1e11b3f81fced85c6c5c6c33cc04bfa200519273ccbaf1c8d6a2d52",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-1/candidate/visible-raw.json": "7d420af9252e95de010afb759891aeca835f0ee3b5022569b34dae0d791fbbe5",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-1/candidate/invocation.json": "0d6c6d721ab119be3eff114e9e2d172b2044a776512b193797ea1ae6d1fe014d",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-1/candidate/process.json": "091730ff7b0133de701d66f58b05a0b738d4fb8f64d96a3e65e492da38bea51f",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-1/candidate/process-samples.json": "06df0bbba337880f51360390f43983a56df191ffaf702b3e846a328076e2f41e",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-1/candidate/auto-qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "709d55f339e4f87935b35bc0b884a896a3a867007d3f0fb1595dd00b262ab67a",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-2/baseline/visible-raw.json": "69356c694d2bb3129a0e68d482da9f00e332d6fa43b50ae8a421bdf9df90e067",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-2/baseline/invocation.json": "4d3b23f0532ff5876675f8393b7d5c8817ba24b35044bde9359683913360248d",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-2/baseline/process.json": "32370d26bf77b6b2aed3cb3d75290af3bf5bedf03fab82ec91f1ddc99de21776",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-2/baseline/process-samples.json": "022d5f715c980b744e25e98b798ab62b67f9f4348d8eac741d6865db3de8df2c",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-2/baseline/auto-qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "17ce12ec1a35fb7e9ba930874a14c27ae563afa8164db17cac430b584a61493f",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-2/candidate/visible-raw.json": "29e51e8ff93fbf77e2b71740a8b35251dc6fbe1406c5d1cad719441bda280ab0",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-2/candidate/invocation.json": "2361d7b1d12f623f0154276d42df3e51daf5bdcc17fec49828321bb3ad335e1b",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-2/candidate/process.json": "b0d7abff7f9a6c574993d1398d27be70384dbf3a66dc13a66e90e74ecbb03c23",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-2/candidate/process-samples.json": "9e6cfa5cc991dffcfcbb4ad48605d552e1d9ffaa00bfc7695aa74f78ca8cd73c",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-2/candidate/auto-qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "2e0ba37531973e6eaf79eab40f85bb901e911544f394255e4831f3238cfaa7c2",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-3/baseline/visible-raw.json": "0ea7ffa024dbf4a52f042b992f09e2ae44fe9c1f18047454c1bf8f1c78cf3db9",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-3/baseline/invocation.json": "db1b1ab74a658791e970158c63c5bb1d1ead8a6eba698eea9be75415b73a89c7",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-3/baseline/process.json": "7fbf9bfdf53f7900efaaa28a31c06c6606aa41a6f0a75c2251f6f70eb15a1ab8",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-3/baseline/process-samples.json": "05b2eab7986b01a79c837b2f7fe52059a779e136353546c35c686fa2cbe17247",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-3/baseline/auto-qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "094e9932db0624e876fcea03e92982c65c5125e4039b2ad6fdf4569f85d269d0",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-3/candidate/visible-raw.json": "2fde515a0e57c71db33e3784dbc9a20102b57daf38b363bea6622c8ab89a6834",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-3/candidate/invocation.json": "534634b4ce96f2a5bd5fddacb299ee69ddcac0fdd1b89aa40f17402597d77196",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-3/candidate/process.json": "fa495d9cb3d6caca348f9f4d4ccae7a8442ef7b1da8f670c1e0b0d6c6a4d99d3",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-3/candidate/process-samples.json": "1483c550a22f4b6289e3fe4aa12f45b3f49ec75891e6f0a9098b94fb677532f4",
+    "/private/tmp/saytile-release-101/evidence/release-101/startup-followup/pair-3/candidate/auto-qwen-small-ascend-mixed-7c8bdcb41bb98a40.json": "5b0210eb178b819ccaac30bf194b6e0c095195d0be80a4adf73b192f7b08a279",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/progress.json": "7e8e3c5f859a89107087cc8f82808d21a330dfffa85038d6131d09b130b49f56",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-1/baseline/visible-raw.json": "444efe0397fe6ddd4e28478a43050030ea9cdffc77087360b819efaf23d2265a",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-1/baseline/invocation.json": "42a761a323b224cd391fed09cc1dd69032153ebc314170198f24e2494a004adb",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-1/baseline/process.json": "af326d5a97e57afa7a42c019f1226a668b91fe19b8b041476112274b3b5147a9",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-1/baseline/process-samples.json": "2ae2f2c8092873fdbeb0e3dcb7d09896f17c501a37936b03c23ab8808f713351",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-1/baseline/auto-qwen-small-continuous-public-5.json": "c96293e8aac0aad99aaec1b734528c0a85d14957ce9ea37ff0ed4d6eab0e2595",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-1/candidate/visible-raw.json": "4f44ad0cbed79bae7f3754861602d03d0c7d9cfa39433fe8398a0acc21f65480",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-1/candidate/invocation.json": "53899f61c54b2a939a10fcc089c98d8bd9fc02f2909ce077aed6ac6a9a9eee44",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-1/candidate/process.json": "cfff481ad46bc7fbea206d6cfdf019c696d7704178e07231ec3cf0f7d338f1d1",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-1/candidate/process-samples.json": "28f522bc3695d6bcb8514e258cb7136fbc7709b77d4a4f48417bba780c02d413",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-1/candidate/auto-qwen-small-continuous-public-5.json": "c59fb4dd65685364025f78002c988ed8cf8f3ffe6a71625c5af3713cf5e833c0",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-2/baseline/visible-raw.json": "b3aac7f6df2347ad3d7412ead4b0ea5b7b3fd6786382370993cec425779859d3",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-2/baseline/invocation.json": "7f9639ab5e049b9f564976139eccc156ebcadb3a83ad5fce59027ec4e33fca5b",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-2/baseline/process.json": "605de79f3f6678c1c1405704c6d982c8075c569875a33a2c46cd5234258a75c6",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-2/baseline/process-samples.json": "e24d304f64f61a1339b7d879c013e5af59dc92728059829923bd4ba378fc20cc",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-2/baseline/auto-qwen-small-continuous-public-5.json": "a0c86aabf781cc73f202937b86458e5cdf08269a47f59fdea52a6143c1745745",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-2/candidate/visible-raw.json": "0b144dad6fd7b6156d40c2b43a30bdb3ca5d9a1d0cb069bc4cfbb0a799a826c2",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-2/candidate/invocation.json": "4fd91e1fe415f0ecf8adfe92e82e1c1561fda06921b9458b738e9fbbb0681cce",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-2/candidate/process.json": "60b5d7df0c85cc8e050c6500453452a8ac09d168456f1889fca07ec5ffcdadfa",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-2/candidate/process-samples.json": "e43a0bf9ec2f025879abed30610dc7c0df097fccd6e33df70416a86292aaa5c3",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-2/candidate/auto-qwen-small-continuous-public-5.json": "f6af5e4a6b2909259343ba6e204a694ee14567dc8e54c17d93c7641a62e98037",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-3/baseline/visible-raw.json": "636d45e93c54d705b5428d0c0f9f3fc28d65e8ac490d3e9d096183184282d2ac",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-3/baseline/invocation.json": "ff3b6a75d4fd5761390289169c52e4958663f96480c63d01bef5934c11827582",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-3/baseline/process.json": "f26b37f1956e371eae50b55806609d1911a01a9e1765d196c25e54a402a88797",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-3/baseline/process-samples.json": "1d7802e967e6dde05b3c9e1aa81ae0c974d0a4898b55b6577d1687fe2eb7575e",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-3/baseline/auto-qwen-small-continuous-public-5.json": "e3b02d8e4264117a54b43c128a36f26c273d0c9eacb06db21fda9cd13acc4d0d",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-3/candidate/visible-raw.json": "770c26efcd0c08aa61b0a195fa764359ca784e8c21daae36ad3a3b36510865e6",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-3/candidate/invocation.json": "979d38f67aae9ebd833dd4f40d0f3070ef688ff4ac6e09f008c94231672eb10e",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-3/candidate/process.json": "ae76e1db2bb979a0fb2b38fd49f0a193acf765436c47cab29e1879259b2230ea",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-3/candidate/process-samples.json": "b0ea6d2c4894c68fc2d241a66df510cd66ff00709e090115f963a19a2c4ab05e",
+    "/private/tmp/saytile-release-101/evidence/release-101/long-tail-followup/pair-3/candidate/auto-qwen-small-continuous-public-5.json": "d675c90143c18fe25d5d04368a70e3eb3c7ad8fb2cf24265bd41f9f395219473",
+    "/private/tmp/saytile-release-101/evidence/release-101/regression-final/native-comparison-including-failure.json": "1b01cf6120b8c3c6bbba03c66878ac75e24352ab08363abb35bd445c30e036c6",
+    "/private/tmp/saytile-release-101/evidence/release-101/regression-final/soak.json": "bc6e6ba13c322362abbeff84785d112999069fb2b5ea1f7af3a6bad8fdf334fd",
+    "/private/tmp/saytile-release-101/evidence/release-101/qwen-input-audio/binding.json": "13fc614f323abd3efae474778b8e96d01bf7e7869e17d7584de8a18aebbde71a",
+    "/private/tmp/saytile-release-101/evidence/release-101/qwen-input-audio/input-audio.log": "67b3e70a3c03b80e6608784ea2d951c22012f583ecb7c6dda98dce7362802fdf",
+    "/private/tmp/saytile-release-101/evidence/release-101/post-regression.json": "7807fc3f7637586844b1167ce7efe7ec94525bae558c2da67076fd333cd7b26b"
+  }
+}
