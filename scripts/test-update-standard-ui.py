@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import tempfile
 import threading
+import time
 import uuid
 import xml.etree.ElementTree as ET
 
@@ -27,6 +28,40 @@ def native_target():
     if platform.system() != 'Darwin' or architecture not in ('arm64', 'x86_64'):
         raise ValueError('Standard Sparkle UI requires native macOS arm64 or x86_64')
     return architecture, architecture + '-apple-macos26.0'
+
+
+def run_native_probe(command, output, result):
+    # A synchronous AppKit/SDK stall cannot reach the Swift async deadlines.
+    # Sample only this owned PID before retaining the original 45-second limit.
+    began = time.monotonic()
+    with (output / 'native.log').open('w') as log:
+        process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)
+        result.update(native_process_pid=process.pid, native_process_spawned=True,
+                      native_timeout_seconds=45, native_process_timed_out=False)
+        try:
+            try:
+                process.wait(timeout=40)
+            except subprocess.TimeoutExpired:
+                with (output / 'sample.log').open('w') as sample_log:
+                    try:
+                        sample = subprocess.run(['/usr/bin/sample', str(process.pid), '1', '1', '-file',
+                                                 str(output.resolve() / 'native-timeout.sample.txt')],
+                                                stdout=sample_log, stderr=subprocess.STDOUT, timeout=3)
+                        result['native_sample_exit_code'] = sample.returncode
+                    except (OSError, subprocess.TimeoutExpired) as error:
+                        result['native_sample_error'] = type(error).__name__
+            code = process.wait(timeout=max(0.001, 45 - (time.monotonic() - began)))
+            if code:
+                raise subprocess.CalledProcessError(code, command)
+        except subprocess.TimeoutExpired:
+            result['native_process_timed_out'] = True
+            raise
+        finally:
+            if process.poll() is None:
+                process.kill()
+            process.wait()
+            result['native_exit_code'] = process.returncode
+            result['native_runtime_seconds'] = round(time.monotonic() - began, 3)
 
 
 def main():
@@ -97,9 +132,8 @@ def main():
                 # Seatbelt's address grammar accepts localhost, not numeric host
                 # literals here. This still permits only loopback, never WAN.
                 profile = '(version 1)(allow default)(deny network*)(allow network-outbound (remote ip "localhost:*"))(allow network-inbound (local ip "localhost:*"))'
-                with (args.output / 'native.log').open('w') as log:
-                    subprocess.run(['sandbox-exec', '-p', profile, str(executable), str(args.output.resolve()), str(notes.resolve())],
-                                   stdout=log, stderr=subprocess.STDOUT, check=True, timeout=45)
+                run_native_probe(['sandbox-exec', '-p', profile, str(executable), str(args.output.resolve()), str(notes.resolve())],
+                                 args.output, result)
                 native = json.loads((args.output / 'native-receipt.json').read_text())
                 assert native['status'] == 'PASS' and native['architecture'] == architecture and requests and set(requests) == {'/appcast.xml'}
                 result.update(status='PASS', runtime_started=True, public_network_denied=True, archive_requested=False,
@@ -109,6 +143,10 @@ def main():
             server.server_close()
             result['loopback_requests'] = requests
             result['native_probe_receipt_present'] = (args.output / 'native-receipt.json').exists()
+            progress = args.output / 'native-progress.json'
+            if progress.exists():
+                result['last_native_progress'] = json.loads(progress.read_text())
+                result['runtime_started'] = True
             (args.output / 'receipt.json').write_text(json.dumps(result, indent=2) + '\n')
         print(json.dumps(result))
 

@@ -1,0 +1,42 @@
+[
+  {
+    "native_process_pid": 3054,
+    "native_process_spawned": true,
+    "native_timeout_seconds": 45,
+    "native_process_timed_out": false,
+    "native_exit_code": 0,
+    "native_runtime_seconds": 0.024,
+    "case": "normal_exit",
+    "status": "PASS",
+    "observed_exception": null,
+    "elapsed_seconds": 0.024,
+    "ui_started": false
+  },
+  {
+    "native_process_pid": 3055,
+    "native_process_spawned": true,
+    "native_timeout_seconds": 45,
+    "native_process_timed_out": false,
+    "native_exit_code": 7,
+    "native_runtime_seconds": 0.024,
+    "case": "failure_exit",
+    "status": "PASS",
+    "observed_exception": "CalledProcessError",
+    "elapsed_seconds": 0.024,
+    "ui_started": false
+  },
+  {
+    "native_process_pid": 3056,
+    "native_process_spawned": true,
+    "native_timeout_seconds": 45,
+    "native_process_timed_out": true,
+    "native_sample_exit_code": 0,
+    "native_exit_code": -9,
+    "native_runtime_seconds": 45.004,
+    "case": "timeout",
+    "status": "PASS",
+    "observed_exception": "TimeoutExpired",
+    "elapsed_seconds": 45.004,
+    "ui_started": false
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "case": "loopback-network-sandbox",
+    "exit": 0,
+    "timed_out": false,
+    "checkpoints": [
+      "main_entered",
+      "shared_application",
+      "activation_prohibited",
+      "before_app_run",
+      "will_finish_launching",
+      "did_finish_launching",
+      "main_actor_task",
+      "main_actor_resumed"
+    ],
+    "windows_created": false,
+    "activation_policy": "prohibited",
+    "sparkle_loaded": false
+  },
+  {
+    "case": "without-network-sandbox",
+    "exit": 0,
+    "timed_out": false,
+    "checkpoints": [
+      "main_entered",
+      "shared_application",
+      "activation_prohibited",
+      "before_app_run",
+      "will_finish_launching",
+      "did_finish_launching",
+      "main_actor_task",
+      "main_actor_resumed"
+    ],
+    "windows_created": false,
+    "activation_policy": "prohibited",
+    "sparkle_loaded": false
+  }
+]
