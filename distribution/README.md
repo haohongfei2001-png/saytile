@@ -1,6 +1,6 @@
 # Saytile 正式发行
 
-版本由 packaging/VERSION 与 packaging/BUILD_NUMBER 固定；1.0.0（572）延续实际公开 0.18 和安装 533 的 app.saytile.mac.mandarin-candidate 身份。历史标识不更名，不移动资料或密钥。官网显示名称是 Saytile。
+版本由 packaging/VERSION 与 packaging/BUILD_NUMBER 固定；1.0.1 延续 1.0.0（572）、实际公开 0.18 和安装 533 的 app.saytile.mac.mandarin-candidate 身份。历史标识不更名，不移动资料或密钥。官网显示名称是 Saytile。
 
 ## 构建
 
@@ -12,9 +12,9 @@ export SAYTILE_SIGN_IDENTITY="$SAYTILE_DEVELOPER_ID"
 scripts/package-beta.sh
 ```
 
-package-beta.sh 是保留兼容的命令名，稳定版本会生成 Saytile-1.0.0-arm64.dmg，内含安装说明和 Applications 链接。构建号不依赖 Git 提交数量。签名运行库必须从固定依赖构建，或通过 copy-verified-runtime.py 的来源、签名和逐文件摘要校验后复用。不得读取用户模型或密钥作为构建输入。
+package-beta.sh 是保留兼容的命令名，生成名称使用实际 VERSION，内含安装说明和 Applications 链接。构建号不依赖 Git 提交数量。签名运行库必须从固定依赖构建，或通过 copy-verified-runtime.py 的来源、签名和逐文件摘要校验后复用。不得读取用户模型或密钥作为构建输入。
 
-公证仅使用既有可用 profile；不输出凭据。若 Apple 接受，装订 App 后重建 DMG，再提交及装订 DMG，重新计算最终 SHA。没有 profile 时，公证/Gatekeeper 记为 BLOCKED；依本轮明确发行授权，可分发真实 Developer ID 签名包，但必须在官网和 Release 披露未公证与系统单次打开限制。不得称 Gatekeeper 通过，不关闭 Gatekeeper、不删除 quarantine。
+公证仅使用既有可用 profile；不输出凭据。若 Apple 接受，装订 App 后重建 DMG，再提交及装订 DMG，重新计算最终 SHA。1.0.1 没有 profile 时，公证/Gatekeeper 记为 BLOCKED，保留签名候选，不公开发行。不关闭 Gatekeeper、不删除 quarantine。1.0.0 的历史分发决定保留在其发行验收记录中，不能替代新包公证。
 
 ## 放行
 
@@ -24,7 +24,7 @@ package-beta.sh 是保留兼容的命令名，稳定版本会生成 Saytile-1.0.
 
 ## 1.0.1 更新准备
 
-上述未公证分发说明保留为 1.0.0 的历史决定。1.0.1 在公证凭据未就绪时保留签名候选，不将公证或 Gatekeeper 记为通过，也不自动发布生产更新源。
+1.0.1 在公证凭据未就绪时保留签名候选，不将公证或 Gatekeeper 记为通过，也不自动发布生产更新源。
 
 `check-signing-availability.swift` 只查询 Keychain 属性与标准配置位置的文件数量，不读取密码、API Key 或签名私钥正文。`create-update.py` 调用 Sparkle 已配置账户在工具内部签名，并使用安装包原有公钥独立验证归档；不创建、导出或替换密钥。
 

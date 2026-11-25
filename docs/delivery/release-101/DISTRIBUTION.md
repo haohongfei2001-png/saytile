@@ -1,3 +1,18 @@
+# 当前577发行候选
+
+产品 `3e1cc6961df4da01a1c52310755a7dd215ef4310`，1.0.1（577），SourceDirty=false。此前576/575/574段落仅为历史证据，当前以本节和ACCEPTANCE为准。
+
+- DMG 64,577,002字节，SHA `7fec71094a5ecc325b2991426dc8347ec0f6f77a9944bbeb96604a32fc514b78`。
+- 原公钥签名ZIP 55,581,018字节，SHA `7cc3dcf91e28082e7a3f74b35f1fa504e691d0235f17e4e883ab113c4f7a2854`；feed SHA `bdc63d4d657be4e2ed16aea188cdbe84160329dcc9903c6af502240eab886ddb`。
+- Developer ID/安全时间戳/资源校验PASS；实际App及DMG Gatekeeper均拒绝未公证，票据不存在。没有安全绕过。
+- 同SHA18存储、572→577真实更新及回退/cache、actualhost说明验签/退出安装重启、独立公钥验签、136文件/67目录完整性PASS。0.18/533合成数据独立升级回退及只读DMG离线安装PASS。
+- 最终577标准更新窗口另由CI实际展示；固定展示fixture不是最终安装包，完整App安装证据在final577。
+- 未发布、未合并、未部署生产feed/官网，533及个人资料不变。公证后必须重新装订/打包/签更新，再走真实Gatekeeper和下载验证。
+
+机器证据：`distribution/final577/`、`build/signature-gatekeeper577.json`、`install-dmg577.json`和两项`rollback-*-577.json`。原brand完整性失败源于root未刷新SHA256SUMS，品牌资源自身通过，原日志保留且检查不改。
+
+---
+
 # 最终576发行候选
 
 本节为当前结果；下方575/574与失败记录是不可替代的历史证据。

@@ -1,0 +1,26 @@
+{
+  "product_source": "3e1cc6961df4da01a1c52310755a7dd215ef4310",
+  "reviewer": "root integration reviewer, separate from input author",
+  "reviewed_production_files": [
+    "Sources/SaytileKit/InputAccessibility.swift"
+  ],
+  "findings_fixed": [
+    "Read transport and semantic context incompleteness were collapsed; explicit cannotComplete and successful absent/short batches retain unreadable-proof error.",
+    "Known identity, editability and selection rejection takes precedence over later unreadable page proof."
+  ],
+  "unchanged_guards": [
+    "single write",
+    "four 220ms bounded reads",
+    "two complete fresh witnesses after unknown",
+    "sensitive field",
+    "scope ownership",
+    "prefix/suffix",
+    "no focus acquisition",
+    "no automatic send",
+    "no ASR change"
+  ],
+  "original_bottom_AX_cause": "UNKNOWN; original log lacked status code; not claimed resolved by injected proof",
+  "native_CI": "PENDING exact source",
+  "local_receipt": "evidence/release-101/input-context-read/receipt.json",
+  "result": "No new P0/P1 found in bounded code review; real CI required"
+}
