@@ -9,7 +9,7 @@
 - 最终577标准更新窗口另由CI实际展示；固定展示fixture不是最终安装包，完整App安装证据在final577。
 - 未发布、未合并、未部署生产feed/官网，533及个人资料不变。公证后必须重新装订/打包/签更新，再走真实Gatekeeper和下载验证。
 
-机器证据：`distribution/final577/`、`build/signature-gatekeeper577.json`、`install-dmg577.json`和两项`rollback-*-577.json`。原brand完整性失败源于root未刷新SHA256SUMS，品牌资源自身通过，原日志保留且检查不改。
+机器证据：`distribution/final577/`、`build/signature-gatekeeper577.json`、`install-dmg577.json`和两项`rollback-*-577.json`。原brand完整性失败源于root未刷新SHA256SUMS，原日志保留；23a1523刷新后的全部检查通过，检查本身不改。
 
 ---
 

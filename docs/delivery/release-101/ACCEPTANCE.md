@@ -15,7 +15,7 @@ Qwen权重、MLX、VAD、EOS、发布算法、用户稿优先级、存储与单A
 
 | 范围 | 结果及严格边界 |
 | --- | --- |
-| 完整软件/前台CI | 产品SHA 3e1cc69 的 native、584项Swift Testing、30项XCTest（零失败）、foreground及标准Sparkle窗口通过。真实隔离AppKit/WKWebView/TextEdit/Chrome/Edge/Safari通过；七个互斥Swift批次4+13+12+1+9+8+537，完整日志见最终CI收据。独立品牌job因5项源码清单陈旧FAIL，原日志保留；刷新既有清单后另验，不能以native绿色冒称当时全绿。 |
+| 完整软件/前台CI | 产品SHA 3e1cc69 的 native、584项Swift Testing、30项XCTest（零失败）、foreground及标准Sparkle窗口通过。真实隔离AppKit/WKWebView/TextEdit/Chrome/Edge/Safari通过；七个互斥Swift批次4+13+12+1+9+8+537，完整日志见最终CI收据。独立品牌job原因5项源码清单陈旧FAIL，原日志保留；刷新后23a1523四个workflow/七个job全PASS，品牌2892/2892，未修改断言。 |
 | 输入定向故障 | 新页面28/28、已有role21/21、witness16/16通过，生产分类函数/协调器/SQLite，OS异常注入不冒称真实AX故障。3e1cc69真实Chrome等通过；880840e与fb3c361原FAIL保留，旧日志不足以确定底层AX错误，仍UNKNOWN。 |
 | 最终577原生产品 | 56次AXPress、16组控件操作、编辑/选区/私有剪贴板/星标重启；四个真实WindowServer场景（关于、模型、档案、讲话）已逐图复核。仅四场景为577重拍，原574全22场景保留原SHA。 |
 | 原速最终包 | 577签名App使用38.8s公开PCM原速产生133次可见变化，EOS档案/状态与576逐项相同。是功能回归，不是性能改善证明；非内置麦克风。 |
@@ -57,3 +57,7 @@ Qwen权重、MLX、VAD、EOS、发布算法、用户稿优先级、存储与单A
 - ZIP：55,581,018字节，SHA `7cc3dcf91e28082e7a3f74b35f1fa504e691d0235f17e4e883ab113c4f7a2854`；feed SHA `bdc63d4d657be4e2ed16aea188cdbe84160329dcc9903c6af502240eab886ddb`。
 
 尚未公证，不能当作可放心推广的正式版。无需现在替换533或关闭Gatekeeper。配置公证授权后，仍需真实提交Accepted、装订、重建/重签更新归档及feed、Gatekeeper和实际下载验收，再合并/发布。旧576机器交付收据保留为`DELIVERY-576.json`，当前见`DELIVERY.json`。
+
+## 最后全检查收据
+
+23a1523再次完整运行584项Swift Testing、30项XCTest，零失败，native/foreground/brand/design/模拟cloud共七job全部通过。原始日志ZIP、元数据、源码对应在`evidence/release-101/ci/23a1523/`；当前签名产品仍是3e1cc69（577），所有编译对象一致。没有将外部公证阻断、硬件NOT_RUN或性能长尾改成PASS。

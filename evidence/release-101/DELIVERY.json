@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "build": 577,
   "product_source": "3e1cc6961df4da01a1c52310755a7dd215ef4310",
-  "ci_source": "3e1cc6961df4da01a1c52310755a7dd215ef4310",
+  "ci_source": "23a1523f185b2ba2c594a354bff070853be1c771",
   "verdict": "HOLD",
   "date": "2026-11-25 Asia/Shanghai",
   "evidence": {
@@ -72,8 +72,8 @@
       "sha256": "9c0f566dd1b635137c2fd439616adca26b7552e690c82b22aa95b1fadd44f573"
     },
     "ci": {
-      "file": "evidence/release-101/ci/3e1cc69-verified/receipt.json",
-      "sha256": "6ca5a919a481fd11a511289ca87426bdc00517e1bde5a99420a2ff306593fe12"
+      "file": "evidence/release-101/ci/23a1523/receipt.json",
+      "sha256": "a8ed6089f0797fbae6000c9e2d94fe409bfff587a4abe9de8ccf600e510856ab"
     },
     "standard_ui": {
       "file": "evidence/release-101/ci/3e1cc69-verified/standard-update-ui/native-receipt.json",
@@ -81,7 +81,7 @@
     },
     "root_review": {
       "file": "evidence/release-101/build/root-review577.json",
-      "sha256": "bafb895d70e1fe02ea32b5472418b798ec620b185472dcaef1987d5749e4d606"
+      "sha256": "f9285deb6e1ca7c1ea594a20e45235def0e30b8d9b8f669aa256bd3c5f0eb5a4"
     },
     "earlier_independent_review": {
       "file": "evidence/release-101/final-independent-review/receipt.json",
@@ -94,6 +94,14 @@
     "brand_original_failure": {
       "file": "evidence/release-101/ci/3e1cc69/brand-manifest-failure.json",
       "sha256": "36304f2485395110757e40510e2aaa113d4f5d17a09dc344254ac94b04878d74"
+    },
+    "prior_product_ci": {
+      "file": "evidence/release-101/ci/3e1cc69-verified/receipt.json",
+      "sha256": "6ca5a919a481fd11a511289ca87426bdc00517e1bde5a99420a2ff306593fe12"
+    },
+    "final_ci_source_binding": {
+      "file": "evidence/release-101/ci/23a1523/product-source-binding.json",
+      "sha256": "541570ea374e0f559054e0bbcbf737c1eca9c666f5464d004ccbe7ff19b4f898"
     }
   },
   "signature": "PASS",
@@ -128,12 +136,12 @@
       "passed": 30,
       "failed": 0
     },
-    "source": "3e1cc6961df4da01a1c52310755a7dd215ef4310"
+    "source": "23a1523f185b2ba2c594a354bff070853be1c771"
   },
   "ci_status": {
     "product_native": "PASS",
     "original_brand_manifest": "FAIL_PRESERVED",
-    "final_all_workflows": "PENDING_AFTER_REFRESHED_MANIFEST",
+    "final_all_workflows": "PASS_4_WORKFLOWS_7_JOBS",
     "assertions_and_workflows_relaxed": false
   }
 }
