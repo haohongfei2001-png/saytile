@@ -8,7 +8,6 @@ import os
 from pathlib import Path
 import platform
 import plistlib
-import shutil
 import subprocess
 import tempfile
 import threading
@@ -28,6 +27,29 @@ def native_target():
     if platform.system() != 'Darwin' or architecture not in ('arm64', 'x86_64'):
         raise ValueError('Standard Sparkle UI requires native macOS arm64 or x86_64')
     return architecture, architecture + '-apple-macos26.0'
+
+
+def prepare_fixture_icon(contents, scratch, output):
+    # The Intel test job does not build dist/Saytile.app. Use the same approved
+    # source, sizes and encoder fallback as build-app.sh without building an app.
+    source = ROOT / 'packaging/brand/SaytilePlate.png'
+    iconset = scratch / 'Saytile.iconset'
+    iconset.mkdir()
+    icon = contents / 'Resources/Saytile.icns'
+    with (output / 'icon-build.log').open('w') as log:
+        for size in (16, 32, 128, 256, 512):
+            for scale in (1, 2):
+                pixels = str(size * scale)
+                name = f'icon_{size}x{size}' + ('@2x' if scale == 2 else '') + '.png'
+                subprocess.run(['sips', '-s', 'format', 'png', '-z', pixels, pixels, str(source),
+                                '--out', str(iconset / name)], stdout=log, stderr=subprocess.STDOUT, check=True)
+        encoded = subprocess.run(['iconutil', '-c', 'icns', str(iconset), '-o', str(icon)],
+                                 stdout=log, stderr=subprocess.STDOUT)
+        if encoded.returncode:
+            subprocess.run(['python3', str(ROOT / 'scripts/encode-iconset.py'), str(iconset), str(icon)],
+                           stdout=log, stderr=subprocess.STDOUT, check=True)
+    return dict(source='packaging/brand/SaytilePlate.png', source_sha256=sha(source),
+                resource='Saytile.icns', resource_sha256=sha(icon))
 
 
 def run_native_probe(command, output, result):
@@ -95,12 +117,8 @@ def main():
                     SUFeedURL=f'http://127.0.0.1:{server.server_port}/appcast.xml', SUPublicEDKey=PUBLIC_KEY,
                     SURequireSignedFeed=True, SUSignedFeedFailureExpirationInterval=0, SUVerifyUpdateBeforeExtraction=True,
                     SUAllowsAutomaticUpdates=False, SUSendProfileInfo=False, SUScheduledCheckInterval=86400)
-        product = ROOT / 'dist/Saytile.app/Contents'
-        if (product / 'Info.plist').exists():
-            icon = plistlib.loads((product / 'Info.plist').read_bytes()).get('CFBundleIconFile')
-            icon_path = product / 'Resources' / (icon if icon and Path(icon).suffix else str(icon) + '.icns')
-            if icon and icon_path.is_file():
-                shutil.copy2(icon_path, contents / 'Resources' / icon_path.name); info['CFBundleIconFile'] = icon
+        host_icon = prepare_fixture_icon(contents, root, args.output)
+        info['CFBundleIconFile'] = 'Saytile'
         (contents / 'Info.plist').write_bytes(plistlib.dumps(info))
         products = Path(os.environ['SAYTILE_UPDATE_PROBE_PRODUCTS'])
         modulemap = os.environ['SAYTILE_UPDATE_PROBE_MODULE_MAP']
@@ -119,6 +137,7 @@ def main():
         result = dict(status='NOT_RUN' if args.compile_only else 'FAIL', source=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
                       source_dirty=bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT)), sparkle_version=sdk['CFBundleShortVersionString'],
                       probe_architecture=architecture, swift_target=target, model_inference_performed=False,
+                      host_icon=host_icon,
                       controller_sha256=sha(ROOT / 'Sources/SaytileApp/AppUpdateController.swift'),
                       probe_sha256=sha(ROOT / 'tests/fixtures/StandardUpdateUIProbe.swift'), signed_feed_sha256=FEED_SHA,
                       public_key=PUBLIC_KEY, fixture_bundle_id=fixture_id, private_key_used=False, production_data_accessed=False,
@@ -135,7 +154,8 @@ def main():
                 run_native_probe(['sandbox-exec', '-p', profile, str(executable), str(args.output.resolve()), str(notes.resolve())],
                                  args.output, result)
                 native = json.loads((args.output / 'native-receipt.json').read_text())
-                assert native['status'] == 'PASS' and native['architecture'] == architecture and requests and set(requests) == {'/appcast.xml'}
+                assert native['status'] == 'PASS' and native['architecture'] == architecture and native['host_icon_name_cached'] is True
+                assert requests and set(requests) == {'/appcast.xml'}
                 result.update(status='PASS', runtime_started=True, public_network_denied=True, archive_requested=False,
                               screenshot_sha256=sha(args.output / 'standard-update-dialog.png'))
         finally:

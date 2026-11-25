@@ -132,10 +132,25 @@ private func progress(_ output: URL, _ phase: String, _ details: [String: Any] =
         progress(output, "accessory_policy_begin")
         app.setActivationPolicy(.accessory)
         progress(output, "accessory_policy_returned", ["active": app.isActive])
+        // Sparkle 2.10.1 asks NSImage for the main application's icon before it
+        // creates its checking window. Preload the real bundled product icon so
+        // this UI fixture does not depend on the hosted VM's IconServices XPC.
+        // The SDK's driver, image lookup, windows and controls remain unchanged.
+        progress(output, "product_icon_load_begin")
+        guard let iconURL = Bundle.main.url(forResource: "Saytile", withExtension: "icns"),
+              let icon = NSImage(contentsOf: iconURL), icon.isValid,
+              icon.setName(NSImage.applicationIconName),
+              NSImage(named: NSImage.applicationIconName) === icon else {
+            throw NSError(domain: "StandardUpdateUIProbe", code: 6,
+                          userInfo: [NSLocalizedDescriptionKey: "Bundled product icon must satisfy the SDK's original named-image lookup"])
+        }
+        progress(output, "product_icon_registered")
         progress(output, "delegate_init_begin")
         let delegate = StandardUpdateUIProbe(output: output, notes: notes)
+        delegate.receipt["host_icon_name_cached"] = true
+        delegate.receipt["host_icon_scope"] = "real product .icns preloaded in fixture; dynamic system IconServices not accepted by this test"
         app.delegate = delegate
         progress(output, "before_app_run")
-        withExtendedLifetime(delegate) { app.run() }
+        withExtendedLifetime((delegate, icon)) { app.run() }
     }
 }
