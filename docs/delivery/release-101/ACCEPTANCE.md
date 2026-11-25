@@ -1,6 +1,6 @@
 # Saytile 1.0.1 验收与发行裁决
 
-**发行裁决：HOLD。** 最终575本机候选与产品回归已完成；标准更新弹窗CI仍在定向修复。 公证授权不存在；实际 Gatekeeper 拒绝 `Unnotarized Developer ID`。Developer ID 签名不等于公证。没有合并、公开发行、切换官网或生产 Sparkle feed，也没有替换当前安装的0.20（533）。
+**发行裁决：HOLD。** 最终575本机候选与产品回归已完成；标准更新弹窗CI及一次Chrome短暂AX状态变化仍在定向修复。 公证授权不存在；实际 Gatekeeper 拒绝 `Unnotarized Developer ID`。Developer ID 签名不等于公证。没有合并、公开发行、切换官网或生产 Sparkle feed，也没有替换当前安装的0.20（533）。
 
 ## 产品与证据身份
 
@@ -26,7 +26,7 @@
 | 完整 Xcode 软件回归 | fcddb90：582项Swift Testing、30项XCTest，零失败；标准macOS26 Intel runner、Xcode26.6。不是Apple Silicon推理测试。原ARM runner未取得机器的取消证据保留。 |
 | 15段原速中文 | 574与572均46/568=8.10%，16对（含38.8秒长句）最终文字和状态逐项相同；公开PCM经过真实原生App，不是现场麦克风。 |
 | 原生界面/控件 | 575：56次AXPress、16组操作、编辑/选区/复制/星标重启保存；实际WindowServer再验关于、模型、档案、讲话四场景，截图已查看。574的22场景保留原SHA，不冒称575全量截图；全部为生产SwiftUI/AppKit与隔离合成状态。 |
-| 外部输入 | fcddb90真实隔离前台AppKit/WKWebView/TextEdit/Chrome/Edge/Safari通过；16个AX读取故障注入通过。实际38.8s Qwen→自有后台AX在EOS前11次确认写入、首写5.222s、零发送；后台目标不冒充前台解析器。 |
+| 外部输入 | fcddb90真实隔离前台AppKit/WKWebView/TextEdit/Chrome/Edge/Safari通过；后续880840e Chrome首写正确但一次editable=false随后恢复导致unverified，安全停派发，原失败保留、尚未裁决根因，后续Edge/Safari未运行；16个AX读取故障注入通过。实际38.8s Qwen→自有后台AX在EOS前11次确认写入、首写5.222s、零发送；后台目标不冒充前台解析器。 |
 | 数据安全 | 18项真实SIGKILL、写入失败、迁移、原音保留/仅删除原音保留文字及修改稿通过；不是物理断电试验。源码输入树对应收据另存。 |
 | 模型断点恢复 | 真实HTTPS恢复缺失64KiB，六文件完整SHA一致，再次download零新请求；不冒称完整首次713MB下载或系统断网切换。 |
 | 升级与回退 | 575与公开0.18/安装533程序副本，在独立目录双向打开合成资料通过；2条录音、4修订、用户稿、原音与段落保留。 |

@@ -7,7 +7,7 @@ PR #56，base main `f3baa0a255931dbb16291690699790e3d54f8bde`。最终产品1.0.
 - 首次模型准备页只展示一次，说明Qwen体积与麦克风/可选AX权限；拒绝麦克风后的开始操作直达既有恢复入口。
 - 修复外部输入读回内部错误类型丢失；保持原4次预算/两次完整证据/一次写入，不自动抢焦点、重发或发送。
 - 修复Sparkle 2.10.1实际Release Notes delegate；版本展示去掉遗留“内测”前缀。
-- 完整Xcode CI：582 Swift Testing +30 XCTest，零失败；fcddb90的native/foreground通过。标准默认更新弹窗超时正在独立CI定向定位；原FAIL和容量取消证据保留。品牌原图/资源校验通过，repo清单4项过期导致原CI失败，统一更新清单后重验，不改断言。
+- 完整Xcode CI：582 Swift Testing +30 XCTest，零失败；fcddb90的native/foreground通过。标准默认更新弹窗超时已定位为CI IconServices同步阻塞，修复测试宿主加载真实产品图标后待重验；原FAIL和容量取消证据保留。品牌原图/资源校验与修复清单后的880840e CI已通过，不改断言。880840e Chrome新出现一次成功写入后editable=false→true导致安全unverified；Edge/Safari后续步骤未运行，原失败保留，正定向排查，不能用此前PASS覆盖。
 - 15原速CER 8.10%，完整420原速CER 8.5344%；440最终文字/状态新旧一致，5个失败子段仍保留。没有新增ASR或改变识别链路。
 - 904.83s公开语料持续运行、45s空闲释放/恢复、18项存储进程回归通过；非现场麦克风/物理断电/8GB验收。
 - 575：原生56次AXPress、编辑/复制/星标/重启、4实际窗口对照、一次38.8s真实Qwen原生出字通过。

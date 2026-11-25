@@ -111,3 +111,10 @@
 全量 storage 进程回归与候选可能因工具/文档提交处于不同 SHA；更新收据保留 App源码和实际 storage test HEAD，同时严格比较 `SaytileKit`、`CAudio`、`CSQLite`、Package、探针及存储测试程序的完整 Git 输入树。只接受所有输入对象完全相等，不修改旧收据；真实代码变化仍需重新测试。相关正负回归包含“仅文档变化接受、存储变化拒绝、探针字节变化拒绝”。
 
 主负责人随后因 GitHub 作者隐私策略对未推送提交改用公开 noreply（代码树不变），旧候选未覆盖。上方 `final-*` 三组升级证据均重新运行于最终公开源码 `73ad857`，没有用旧 4ac4d90 收据替代；前两次失败和旧候选 PASS 作为原件继续保留。
+
+
+## 标准更新弹窗的实测环境缺陷
+
+fcddb90 Intel作业编译通过但45秒无输出超时；没有下载请求。880840e保留原时限追加阶段记录和40秒自有PID采样后，明确卡在固定SDK `SUApplicationInfo.bestIconForHost:27` → `NSImage` → `NSWorkspace` → IconServices同步XPC。dSYM UUID与CI进程一致，不将此误判为网络请求或说明文字断言失败。
+
+修复仅完善测试宿主：用正式批准图源、相同尺寸与编码生成真实产品图标，再通过公开NSImage命名缓存提供给SDK原样图标查询。不修改SDK/默认driver/产品控制器/窗口控件/20秒与45秒时限/loopback限制。无窗口命名图像实验严格验证同一对象、无激活；底层IconServices为何不回复仍UNKNOWN。标准弹窗是否通过仍只取后续CI实测，动态系统图标服务不在此夹具通过范围内。
