@@ -46,7 +46,7 @@
 | 真实 Qwen 模型缓存升级／回退保护 | PASS，6 文件／712,777,119 字节，全部 SHA 与 mtime 不变 | final-release-model-cache/receipt.json |
 | 实际设置「检查更新」控件与线上空 feed | PASS，外部 AXPress，未激活窗口、未抢焦点、未安装 | final-native-update/receipt.json、native-settings-about.png |
 | 原身份最终 ZIP 解包与完整性 | PASS，136 个文件／符号链接，内容及 mode 与最终签名 App 相同 | final-prepared-update/extraction-receipt.json、bundle-manifest.json |
-| 标准 Sparkle 弹窗视觉交互 | NOT_RUN；首轮 CI 的 sandbox 夹具语法失败，修复后等待统一 CI | standard-ui-ci-9a01841/；CI artifact `Saytile-standard-update-ui` |
+| 标准 Sparkle 弹窗视觉交互 | NOT_RUN；修复后的 CI 因 ARM runner 容量未执行 | standard-ui-ci-9a01841/、standard-ui-ci-de45b0f/ |
 | 最终 App/DMG 公证、Gatekeeper | BLOCKED，缺现成公证授权 | credential-metadata.json |
 | 生产 feed 更新/正式发行 | NOT_RUN | 主负责人统一放行后才执行 |
 
@@ -71,6 +71,8 @@
 首轮实际运行 `45461101374`／job `138683564370` 在源码 `9a018417a743e2cd8c4df5249f226e10a022c012` 上 **FAIL（夹具）**：Seatbelt 不接受网络规则地址中的 `127.0.0.1:*`，`sandbox-exec` 在 Swift 探针启动前以 65 退出；无窗口、无 loopback 请求。原始 artifact ZIP、全部展开文件及完整 job 日志保留于 `standard-ui-ci-9a01841/`，artifact SHA 与 GitHub 返回摘要一致。
 
 仅把测试 profile 的主机写法改为 `localhost:*`，仍然只允许 loopback。无 UI 的本机网络回归复现旧规则 exit 65；新规则收到真实 loopback 响应，并以 `EPERM` 立即拒绝保留测试网段 `198.51.100.1:9` 连接。没有改变产品或降低 UI 断言。旧失败收据将“请求使用的模式”提前写为 runtime_started/public_network_denied，已原样保留并在 diagnosis 中解释；新 runner 分别记录启动请求、实际 native receipt 与成功结果。标准窗口结论仍待主负责人统一推送后的 CI，不能将这次网络回归称为 UI PASS。
+
+修复后的源码 `de45b0fb3c83e1fa13b6067a47b0342772e309ed` 对应 run `45466204990`／native job `138701660848` 被 GitHub 以 hosted ARM 容量不足取消：`runner_id=0`，没有任何 step。原始 check-run、job、annotations 及摘要保留于 `standard-ui-ci-de45b0f/`。这是 **BLOCKED_CI_CAPACITY**，既不是新 UI FAIL，也不是修复已通过；本代理没有触发重试或在用户桌面运行探针。
 
 ## 最终待发布文件
 
