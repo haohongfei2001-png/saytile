@@ -1,3 +1,19 @@
+# 最终576发行候选
+
+本节为当前结果；下方575/574与失败记录是不可替代的历史证据。
+
+- 产品1.0.1（576），源码 `2d12129f2031fdf827d51fa1796d155e79243e07`，主可执行SHA `037bb2de64765458cecd9288a09969d3e733345040a9a95e1e286b98b988536c`。
+- DMG 65,617,522字节，SHA `9c3d18e26b2d9085fc0e71c3bc4da5183c028432cbc95efc55d5eda0e7290d1f`。Developer ID及安全时间戳PASS；App/DMG Gatekeeper均BLOCKED_UNNOTARIZED。
+- 原身份更新ZIP 55,578,054字节，SHA `9c9aaf38958e9b33b5e0838e3894f678c3b8c67fd85d148eefc083279eadb080`；feed SHA `5fbe8913628ef8cd7242fd6f6d53a8441f3c8729f33ee658da8e72a2c8cc2d66`。原公钥独立验签及解包136文件/链接、67目录完整性PASS。未上传。
+- 实际572→576安装、坏包拒绝、离线资料与六个真实研究模型文件SHA/mtime保留、旧版回退PASS；实际完整host退出/安装/无参重启及签名说明/篡改拒绝PASS。后者使用1→2fixture版本，真实版本由前者覆盖。
+- 最终576重新跑18项存储故障，保留原严格源码树比较；旧575收据绑定被正确拒绝，没有放宽。
+- 27e7586 CI默认Sparkle窗口PASS：真实SUUpdateAlert可见，正确1.0.0/1.0.1、发行说明、Install/Later按钮，Later真正关闭并恢复可检查。使用展示测试宿主，完整App安装另验；未在用户桌面显示或激活更新窗口。原失败与IconServices定位完整保留。
+- 最终包只读DMG→独立Applications→离线启动、篡改拒绝、0.18/533合成数据往返PASS；不等于Gatekeeper首次下载放行。
+
+完整机器证据：`evidence/release-101/distribution/final576/`、`ci/27e7586/`、`build/signature-gatekeeper576.json`及`DELIVERY.json`。当前唯一公开阻塞为缺失公证授权；性能/设备/网页AX能力边界仍见ACCEPTANCE，不因发行系统完成宣称全部体验无缺陷。
+
+---
+
 # 1.0.1（575）最终发行与更新验收
 
 最终签名产品源码 `8f25ea3be642263daf22ff297f337026395840a6`，主程序 SHA-256 `43548784ae92bfc80c471d409be3f4df10e265a4ea97e8e1cc858b773b41499f`。**HOLD：未公证，不发布生产更新。**
