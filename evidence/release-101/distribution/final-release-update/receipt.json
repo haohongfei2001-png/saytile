@@ -1,0 +1,130 @@
+{
+  "status": "PASS",
+  "original_apps": [
+    {
+      "source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+      "version": "1.0.0",
+      "build": "572",
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "executable_sha256": "d35c8f37ddf73b1a3820b7e12687464a8d17c309e186d8e03f58ba5dfc829f6b",
+      "info_sha256": "a79c98b151b8578bd582c301eee2c0c4f7b2678745a58bd3ecb78ad2e9a294ad"
+    },
+    {
+      "source": "73ad857442964437929819ba9965f6bcfdcefd27",
+      "version": "1.0.1",
+      "build": "574",
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "executable_sha256": "d6274b3dee146f5111b980175c86dabe0a9d6b00edbb888276f00db98be25445",
+      "info_sha256": "089665ad6b3f52b621e51667c77155ecbca85260fa0ba6afe4947fa150cf2d8c"
+    }
+  ],
+  "current_installation": "NOT_ACCESSED",
+  "production_data": "NOT_ACCESSED",
+  "storage_probe_binding": {
+    "app_source": "73ad857442964437929819ba9965f6bcfdcefd27",
+    "storage_test_source": "34d418f5ac309f7361db6b2ea2d196b1aead025c",
+    "binding": "identical complete storage/probe input Git trees",
+    "input_paths": [
+      "Sources/SaytileKit",
+      "Sources/CSQLite",
+      "Sources/CAudio",
+      "Package.swift",
+      "tests/fixtures/StoreProcessProbe.swift",
+      "scripts/test-rc-storage-processes.py"
+    ],
+    "input_tree_sha256": "e61e8bbd53c35ad6f3fc68df95c3fd1a680c8237221306bfcf7a70ae42baa0fd",
+    "original_receipt_rewritten": false
+  },
+  "real_version_numbers": true,
+  "executable_code_sha256": [
+    "b8437697a57cc2a5f80739f60de34a4f6a62fffe9377779e8effd656f7134414",
+    "1ea37b654cc95518a27162fd2b1e6aa53e4c00e5004c81b1cf231b5a24801441"
+  ],
+  "binary_identity_scope": "re-signing changes the Mach-O signature; code bytes are compared using never-executed unsigned scratch copies",
+  "scope": "Sparkle CLI and real installer; host-app shutdown/relaunch tested separately",
+  "notes_scope": "signed inline text parsed by Sparkle; standard user-driver visual acceptance is separate",
+  "key_scope": "existing account; signing tool internal access; no generated or exported key",
+  "corrupt_helper_shutdown": {
+    "owned_pids": [],
+    "seconds": 0.171,
+    "all_exited": true
+  },
+  "fixture_bundle_id": "app.saytile.update-fixture.1f8c787b82984fdcace7caa98e9bc95f",
+  "version_before": "1.0.0",
+  "version_after": "1.0.1",
+  "build_before": "572",
+  "build_after": "574",
+  "corrupted_archive_rejected": true,
+  "valid_archive_installed": true,
+  "candidate_signature_verified": true,
+  "original_executable_code_preserved": true,
+  "upgraded_app_launched_offline": true,
+  "current_version_not_reinstalled": true,
+  "manual_rollback_reopened": true,
+  "original_packages_unchanged": true,
+  "fixture_before": {
+    "schema": 6,
+    "table_sha256": "0f02e78115158e4955c956082b431ac348eb697b8085036a26e6e0cd8a892d99",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "F13B7E4C-0EAC-4209-A872-A692BF3EBB28/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "2529C171-2373-49C4-8774-6EC641A826BF/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "0A3235B0-E613-4A8E-ABE5-703FD3E476C4",
+      "6B51CC41-D171-469A-B617-229B3723B86C"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0
+  },
+  "fixture_after": {
+    "schema": 6,
+    "table_sha256": "0f02e78115158e4955c956082b431ac348eb697b8085036a26e6e0cd8a892d99",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "F13B7E4C-0EAC-4209-A872-A692BF3EBB28/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "2529C171-2373-49C4-8774-6EC641A826BF/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "0A3235B0-E613-4A8E-ABE5-703FD3E476C4",
+      "6B51CC41-D171-469A-B617-229B3723B86C"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0
+  },
+  "paragraph_metadata_preserved": true,
+  "model_cache_bytes_and_mtime_preserved": true,
+  "signing_account": "app.saytile.updates.v1",
+  "published_public_key": "yVPpMoHz8/6GJ82Becd+jgoKvCww+9h2v2Vs6xZu/iw=",
+  "archive_sha256": "65c776988eda0064a43c99707ecdddc8488f1bc0d1fb23ef4111d066b84dc500",
+  "appcast_sha256": "7ea2540c5dd4095c4b85ac8bcdedf579de74c0b435ec468a9649a267422962f2",
+  "probe_sha256": "523df7c3180b15914c9613779bcb37e92bf5ba09c22e111256957a8148b83dda",
+  "cli_sha256": "2c50a03e723cb06d93f327cd7aed5da5f94643baf288ef07d8fae0fcc1fe1e73",
+  "signing_tool_sha256": "43c249771bafc3aa581228abae00731a012d324691b8292860896635050be76b",
+  "runner_sha256": "7ae7a404f8357824f2593b8d3fc7321538d2192bca2a600ae369f697e68d23fb",
+  "cleanup_helper_shutdown": {
+    "owned_pids": [],
+    "seconds": 0.195,
+    "all_exited": true
+  }
+}

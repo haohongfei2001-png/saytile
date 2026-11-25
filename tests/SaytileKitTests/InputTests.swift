@@ -1,10 +1,71 @@
 import Foundation
 import AppKit
+import ApplicationServices
 import Testing
 @testable import SaytileKit
 
 @Suite("Input identity and safety")
 struct InputPolicyTests {
+    @Test @MainActor func contextTransportFailureIsDistinctFromIncompletePage() throws {
+        let names = [kAXRoleAttribute, kAXTitleAttribute]
+        let complete: [AnyObject] = [kAXGroupRole as NSString, NSNull()]
+        for (status, items) in [(AXError.cannotComplete, Optional(complete)), (.success, nil), (.success, [complete[0]])] {
+            #expect(throws: NativeInputError.self) { try AXInputAccess.contextAttributes(status: status, items: items, names: names) }
+        }
+        var transport = AXError.cannotComplete
+        let transportValue = try #require(AXValueCreate(.axError, &transport))
+        #expect(throws: NativeInputError.self) {
+            try AXInputAccess.contextAttributes(status: .success, items: [transportValue, NSNull()], names: names)
+        }
+        for status in [AXError.invalidUIElement, .apiDisabled, .illegalArgument, .failure] {
+            #expect(try AXInputAccess.contextAttributes(status: status, items: complete, names: names) == nil)
+        }
+        #expect(try AXInputAccess.contextAttributes(status: .success, items: complete + [NSNull()], names: names) == nil)
+        // Missing required role is still semantic incompleteness, not a transport error.
+        let missingRole = try AXInputAccess.contextAttributes(status: .success, items: [NSNull(), NSNull()], names: names)
+        #expect(missingRole != nil && missingRole?[kAXRoleAttribute] == nil)
+        for status in [AXError.noValue, .attributeUnsupported] {
+            var status = status
+            let optional = try #require(AXValueCreate(.axError, &status))
+            let fields = try AXInputAccess.contextAttributes(status: .success, items: [complete[0], optional], names: names)
+            #expect(fields?[kAXRoleAttribute] as? String == kAXGroupRole && fields?[kAXTitleAttribute] == nil)
+        }
+        #expect(String(describing: InputSafetyPolicy.contextReadFailure(editable: true, selectionLength: 0, identityChanged: false)) == "unsupported")
+        #expect(String(describing: InputSafetyPolicy.contextReadFailure(editable: false, selectionLength: 0, identityChanged: false)) == "targetChanged")
+        #expect(String(describing: InputSafetyPolicy.contextReadFailure(editable: true, selectionLength: 1, identityChanged: false)) == "selection")
+        #expect(String(describing: InputSafetyPolicy.contextReadFailure(editable: true, selectionLength: 0, identityChanged: true)) == "targetChanged")
+    }
+
+    @Test func unreadableRoleIsUnknownButExplicitDenialRemainsDefinitive() throws {
+        for role in [Optional<String>.none, ""] {
+            #expect(throws: NativeInputError.self) { try InputSafetyPolicy.isEditable(role: role, enabled: true) }
+            #expect(try !InputSafetyPolicy.isEditable(role: role, enabled: false))
+        }
+        #expect(try !InputSafetyPolicy.isEditable(role: "AXStaticText", enabled: true))
+        #expect(try !InputSafetyPolicy.isEditable(role: "AXTextArea", enabled: false))
+        #expect(try InputSafetyPolicy.isEditable(role: "AXTextArea", enabled: true))
+        // Preserve the pre-existing optional AXEnabled compatibility contract.
+        #expect(try InputSafetyPolicy.isEditable(role: "AXTextField", enabled: nil))
+    }
+
+    @Test(arguments: ["unavailable", "changed", "permission", "sensitive"])
+    @MainActor func witnessReadErrorsRemainDistinctFromMissingProof(_ scenario: String) throws {
+        let error: NativeInputError = switch scenario {
+        case "unavailable": .unsupported
+        case "changed": .targetChanged
+        case "permission": .permission
+        default: .sensitive
+        }
+        let access = AXInputAccess(selectionProvider: { throw error }, permissionCheck: { true })
+        #expect(access.textWitness(at: sampleTarget()) == nil)
+        do {
+            _ = try access.checkedTextWitness(at: sampleTarget())
+            Issue.record("Snapshot read errors must reach the bounded post-write check")
+        } catch let caught {
+            #expect(String(describing: caught) == String(describing: error))
+        }
+    }
+
     @Test func testnoSelectedReplacement() throws {
         var snapshot = sampleTarget()
         snapshot.selectionLength = 3
@@ -44,7 +105,12 @@ private final class FakeInputAccess: InputAccess {
     var attempts: [String] = []
     var fieldWitness: String?
     var onWitness: (() -> Void)?
+    var onCheckedWitness: (() throws -> Void)?
     func textWitness(at expected: InputTargetSnapshot) -> String? {
+        try? checkedTextWitness(at: expected)
+    }
+    func checkedTextWitness(at expected: InputTargetSnapshot) throws -> String? {
+        try onCheckedWitness?()
         onWitness?()
         return expected == target ? fieldWitness : nil
     }
@@ -79,10 +145,115 @@ private final class FakeInputAccess: InputAccess {
 @Suite("Input coordinator with isolated SQLite and simulated OS")
 @MainActor
 struct InputCoordinatorTests {
-    @Test(arguments: ["restored", "persistent", "one-settled-read", "second-content", "focus", "layout",
+    @Test func safariFourReadBudgetWithOnlyOneFinalWitnessStillRefusesOwnership() async throws {
+        let directory = testDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true; access.target.selectionLocation = 2
+        access.fieldWitness = "abz"; access.timesOutAfterTextWrite = true
+        let input = NativeInputCoordinator(store: store, access: access)
+        try await input.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+        var settledReads = 0, ownNotification = false
+        access.afterDispatch = {
+            access.fieldWitness = "ab你好😀z"
+            access.onSnapshot = {
+                guard !ownNotification else { return }
+                settledReads += 1
+                if settledReads == 1 {
+                    ownNotification = true; access.onChange?(.contentOrSelection); ownNotification = false
+                }
+                if settledReads == 2 || settledReads == 3 { throw NativeInputError.unsupported }
+            }
+        }
+        // Preserve the e988 Safari observation sequence: readable own-write
+        // notifications, two unavailable reads, only ONE final complete read.
+        #expect(await input.insertStable(recordingID: record.id, revisionID: revision.id,
+            stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt) == .unverified)
+        // The coordinator makes a subsequent read only to decide whether an
+        // independent binding could survive; it cannot confirm this write.
+        #expect(settledReads >= 4)
+        #expect(input.binding == nil && access.attempts == ["你好😀"])
+        input.invalidate(); try await store.close()
+    }
+
+    @Test(arguments: ["restored", "persistent", "one-settled-read", "changed-window", "changed-editor",
+                      "changed-page", "changed-caret", "selected-range", "changed-prefix", "changed-suffix",
+                      "incomplete-page", "focus", "content", "layout", "cancel"])
+    func transientSnapshotInsideSettledWitnessRequiresTwoCompleteProofs(_ scenario: String) async throws {
+        let directory = testDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try SaytileStore(directory: directory), access = FakeInputAccess()
+        access.target.isWeb = true
+        access.target.selectionLocation = 2
+        access.fieldWitness = "abz"
+        access.timesOutAfterTextWrite = true
+        let input = NativeInputCoordinator(store: store, access: access)
+        try await input.bindCurrentTarget()
+        let record = try await store.createRecording()
+        let revision = try await store.saveEdit(recordingID: record.id, text: "你好😀")
+        var witnessReads = 0, successfulReadsAfterGap = 0
+        access.afterDispatch = {
+            access.fieldWitness = "ab你好😀z"
+            access.onChange?(.contentOrSelection)
+            access.onCheckedWitness = {
+                witnessReads += 1
+                // Initial exact readback succeeds. The next field witness loses
+                // an internal AX snapshot, while the outer snapshot still works.
+                if witnessReads == 2 || scenario == "persistent" && witnessReads > 2 ||
+                    scenario == "one-settled-read" && witnessReads == 4 {
+                    throw NativeInputError.unsupported
+                }
+                if witnessReads == 3 {
+                    switch scenario {
+                    case "changed-window": access.target.windowID = UUID()
+                    case "changed-editor": access.target.elementID = UUID()
+                    case "changed-page": access.target.pageIdentity = "fixture://other-page"
+                    case "changed-caret": access.target.selectionLocation -= 1
+                    case "selected-range": access.target.selectionLength = 1
+                    case "changed-prefix": access.fieldWitness = "Ab你好😀z"
+                    case "changed-suffix": access.fieldWitness = "ab你好😀Z"
+                    case "incomplete-page": access.target.pageContextComplete = false
+                    case "focus": access.onChange?(.focusOrDocument)
+                    case "content": access.onChange?(.contentOrSelection)
+                    case "layout": access.onChange?(.layout)
+                    case "cancel": input.invalidate()
+                    default: break
+                    }
+                }
+                if witnessReads > 2 { successfulReadsAfterGap += 1 }
+            }
+        }
+        let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
+            stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
+        #expect(result == (scenario == "restored" ? .confirmed : .unverified))
+        #expect((input.binding != nil) == (scenario == "restored"))
+        #expect(access.attempts == ["你好😀"])
+        #expect(witnessReads >= 3) // The post-gap safety challenge was actually reached.
+        if scenario == "restored" { #expect(successfulReadsAfterGap >= 2) }
+        access.onCheckedWitness = nil; access.afterDispatch = nil
+        #expect(await input.insertStable(recordingID: record.id, revisionID: revision.id,
+            stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt) ==
+            (scenario == "restored" ? .noNewText : .cancelled))
+        #expect(access.attempts == ["你好😀"])
+        input.invalidate()
+        try await store.close()
+    }
+
+    @Test(arguments: ["restored", "missing-role-restored", "empty-role-restored", "disabled-restored",
+                      "readonly-restored", "disabled-missing-role", "context-transport-restored", "context-short-restored",
+                      "context-missing-restored", "context-item-restored", "context-missing-role", "context-invalid-element",
+                      "context-extra-batch", "context-known-disabled", "context-known-selection", "context-known-target",
+                      "persistent", "one-settled-read", "second-content", "focus", "layout",
                       "changed-process", "changed-window", "changed-editor", "changed-page", "incomplete-page",
                       "changed-caret", "selected-range", "changed-prefix", "changed-suffix", "sensitive"])
     func firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_ scenario: String) async throws {
+        let shouldRecover = ["restored", "missing-role-restored", "empty-role-restored", "context-transport-restored",
+                             "context-short-restored", "context-missing-restored", "context-item-restored"].contains(scenario)
+        let explicitDenial = ["disabled-restored", "readonly-restored", "disabled-missing-role", "context-missing-role",
+                              "context-invalid-element", "context-extra-batch", "context-known-disabled",
+                              "context-known-selection", "context-known-target"].contains(scenario)
         let directory = testDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let store = try SaytileStore(directory: directory), access = FakeInputAccess()
@@ -100,6 +271,40 @@ struct InputCoordinatorTests {
             // cannot read the focused AX range. Install the fault BEFORE notifying.
             access.onSnapshot = {
                 snapshotReads += 1
+                if snapshotReads == 1 && scenario.hasPrefix("context-") {
+                    var transport = AXError.cannotComplete
+                    let error = AXValueCreate(.axError, &transport)!
+                    let names = [kAXRoleAttribute, kAXTitleAttribute]
+                    let items: [AnyObject]? = switch scenario {
+                    case "context-short-restored": [kAXGroupRole as NSString]
+                    case "context-missing-restored": nil
+                    case "context-item-restored": [error, NSNull()]
+                    case "context-missing-role": [NSNull(), NSNull()]
+                    case "context-extra-batch": [kAXGroupRole as NSString, NSNull(), NSNull()]
+                    default: [kAXGroupRole as NSString, NSNull()]
+                    }
+                    let status: AXError = scenario == "context-transport-restored" || scenario.hasPrefix("context-known-") ? .cannotComplete :
+                        scenario == "context-invalid-element" ? .invalidUIElement : .success
+                    if !explicitDenial { unavailableReads += 1 }
+                    let values: [String: AnyObject]?
+                    do { values = try AXInputAccess.contextAttributes(status: status, items: items, names: names) }
+                    catch NativeInputError.unsupported {
+                        throw InputSafetyPolicy.contextReadFailure(editable: scenario != "context-known-disabled",
+                            selectionLength: scenario == "context-known-selection" ? 1 : 0,
+                            identityChanged: scenario == "context-known-target")
+                    }
+                    access.target.pageContextComplete = values?[kAXRoleAttribute] as? String != nil
+                    return
+                }
+                if snapshotReads == 1 && (["missing-role-restored", "empty-role-restored"].contains(scenario) || explicitDenial) {
+                    let role: String? = scenario == "empty-role-restored" ? "" :
+                        scenario == "readonly-restored" ? "AXStaticText" :
+                        scenario == "disabled-restored" ? "AXTextArea" : nil
+                    let enabled = !scenario.hasPrefix("disabled")
+                    if !explicitDenial { unavailableReads += 1 }
+                    access.target.isEditable = try InputSafetyPolicy.isEditable(role: role, enabled: enabled)
+                    return
+                }
                 if snapshotReads == 1 || scenario == "persistent" ||
                     scenario == "one-settled-read" && snapshotReads > 2 {
                     unavailableReads += 1
@@ -108,7 +313,10 @@ struct InputCoordinatorTests {
             }
             access.onWitness = { if access.fieldWitness != nil { completeFieldReads += 1 } }
             access.onChange?(.contentOrSelection)
-            #expect(unavailableReads == 1)
+            #expect(unavailableReads == (explicitDenial ? 0 : 1))
+            if explicitDenial { #expect(input.binding == nil) }
+            access.target.isEditable = true // A later readable snapshot cannot undo an explicit denial.
+            access.target.pageContextComplete = true
             switch scenario {
             case "second-content": access.onChange?(.contentOrSelection)
             case "focus": access.onChange?(.focusOrDocument)
@@ -128,10 +336,10 @@ struct InputCoordinatorTests {
         }
         let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
             stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
-        #expect(result == (scenario == "restored" ? .confirmed : .unverified))
-        #expect((input.binding != nil) == (scenario == "restored"))
+        #expect(result == (shouldRecover ? .confirmed : .unverified))
+        #expect((input.binding != nil) == shouldRecover)
         #expect(access.attempts == ["你好😀"])
-        if scenario == "restored" {
+        if shouldRecover {
             // Initial verification plus TWO independently settled complete witnesses.
             #expect(snapshotReads >= 3)
             #expect(completeFieldReads >= 3)
@@ -143,8 +351,8 @@ struct InputCoordinatorTests {
         access.onSnapshot = nil; access.onWitness = nil; access.afterDispatch = nil
         #expect(await input.insertStable(recordingID: record.id, revisionID: revision.id,
             stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt) ==
-            (scenario == "restored" ? .noNewText : .cancelled))
-        if scenario != "restored" {
+            (shouldRecover ? .noNewText : .cancelled))
+        if !shouldRecover {
             let correction = try await store.saveEdit(recordingID: record.id, text: "您好😀")
             #expect(await input.repairOwned(revision: correction) == .correctionPending)
         }
@@ -152,7 +360,7 @@ struct InputCoordinatorTests {
         // Uncertain delivery must not acquire a stored range for later corrections.
         let db = try StoreDatabase(url: directory.appendingPathComponent("Saytile.sqlite"), readOnly: true)
         let ownership = try db.rows("SELECT expected_text,valid FROM owned_input_ranges WHERE recording_id=?", [.text(record.id.uuidString)])
-        if scenario == "restored" {
+        if shouldRecover {
             #expect(ownership.count == 1 && ownership.first?["expected_text"] == "你好😀" && ownership.first?["valid"] == "1")
         } else { #expect(ownership.isEmpty) }
         try db.close()

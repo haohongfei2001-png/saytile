@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "exit_code": 0,
+  "command": [
+    "python3",
+    "/private/tmp/saytile-101-input/scripts/mandarin/report-realtime-cohort.py",
+    "--root",
+    "/private/tmp/saytile-release-101/evidence/release-101/regression-final",
+    "--manifest",
+    "/private/tmp/saytile-release-101/evidence/release-101/setup/input440.json",
+    "--manifest-sha256",
+    "f275794d4a14d8e8dae5732deda2f50d5653583a32be27c921d66ac9b0e753c8",
+    "--fixture",
+    "/private/tmp/saytile-release-101/tests/fixtures/MandarinCohort.swift",
+    "--audio",
+    "/private/tmp/saytile-beta-021-20261123/.build/mandarin/wav",
+    "--out",
+    "/private/tmp/saytile-101-input/evidence/release-101/final-cohort-review/quality-comparison-complete.json"
+  ],
+  "arms": {
+    "baseline": {
+      "phase": "quality",
+      "arm": "baseline",
+      "status": "PASS",
+      "exit_code": 0,
+      "wall_time": 1795546003.03659
+    },
+    "candidate": {
+      "phase": "quality",
+      "arm": "candidate",
+      "status": "PASS",
+      "exit_code": 0,
+      "wall_time": 1795549283.1912792
+    }
+  },
+  "scorer_sha256": "3bb77f0c534ce2158a2651a24f365a3ab26a4649482d8b973aa984bf18ddbe45",
+  "started_utc": "2026-11-24T19:15:07.538124+00:00",
+  "finished_utc": "2026-11-24T19:41:24.104280+00:00",
+  "checks": 106,
+  "interval_seconds": 15,
+  "no_asr_started": true,
+  "root_evidence_modified": false
+}

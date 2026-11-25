@@ -1,0 +1,165 @@
+diff --git a/Sources/SaytileKit/InputAccessibility.swift b/Sources/SaytileKit/InputAccessibility.swift
+index e1e20cd..bb945c4 100644
+--- a/Sources/SaytileKit/InputAccessibility.swift
++++ b/Sources/SaytileKit/InputAccessibility.swift
+@@ -74,6 +74,7 @@ final class AXInputAccess: InputAccess {
+             selection = try systemFocus(matching: currentSelection)
+         }
+         let app = selection.application, root = selection.root, element = selection.element, window = selection.window
++        let previousSelection = currentSelection
+         currentSelection = selection
+         AXUIElementSetMessagingTimeout(root, 0.12)
+         guard let range = selectedRange(element) else { throw NativeInputError.unsupported }
+@@ -95,7 +96,20 @@ final class AXInputAccess: InputAccess {
+         do { editable = try InputSafetyPolicy.isEditable(role: role, enabled: enabled) }
+         catch { unavailable("editor-role-unavailable"); throw error }
+         if !editable { unavailable(enabled == false ? "editor-disabled" : "editor-role-not-editable") }
+-        let (isWeb, page, contextComplete) = try pageIdentity(element, window: window, appID: bundle)
++        let proof: (Bool, String?, Bool)
++        do { proof = try pageIdentity(element, window: window, appID: bundle) }
++        catch NativeInputError.unsupported {
++            // A later unreadable page must not erase an already-read denial or
++            // identity/selection change. Compare existing facts; issue no extra AX read.
++            let identityChanged = previousSelection.map {
++                $0.application.processIdentifier != app.processIdentifier || $0.application.bundleIdentifier != app.bundleIdentifier
++            } ?? false
++            let elementChanged = rememberedElement.map { !CFEqual($0, element) } ?? false
++            let windowChanged = rememberedWindow.map { !CFEqual($0, window) } ?? false
++            throw InputSafetyPolicy.contextReadFailure(editable: editable, selectionLength: range.length,
++                identityChanged: identityChanged || elementChanged || windowChanged)
++        }
++        let (isWeb, page, contextComplete) = proof
+         if rememberedElement == nil || !CFEqual(rememberedElement!, element) {
+             elementID = UUID(); rememberedElement = element
+         }
+@@ -328,13 +342,13 @@ final class AXInputAccess: InputAccess {
+         var pageTitle: String?
+         for _ in 0..<24 {
+             guard let current = node else { break }
+-            guard let ancestry = contextAttributes(current, names: [kAXRoleAttribute, kAXParentAttribute]) else {
++            guard let ancestry = try contextAttributes(current, names: [kAXRoleAttribute, kAXParentAttribute]) else {
+                 unavailable("page.ancestry"); throw NativeInputError.unsupported
+             }
+             if ancestry[kAXRoleAttribute] as? String == "AXWebArea" {
+                 isWeb = true
+                 currentWebArea = current
+-                guard let page = contextAttributes(current, names: [kAXURLAttribute, kAXDocumentAttribute, kAXTitleAttribute]) else {
++                guard let page = try contextAttributes(current, names: [kAXURLAttribute, kAXDocumentAttribute, kAXTitleAttribute]) else {
+                     unavailable("page.metadata"); return (true, nil, false)
+                 }
+                 url = attributeString(page[kAXURLAttribute]) ?? attributeString(page[kAXDocumentAttribute])
+@@ -346,7 +360,7 @@ final class AXInputAccess: InputAccess {
+                 node = unsafeDowncast(parent, to: AXUIElement.self)
+             } else { node = nil }
+         }
+-        guard let windowValues = contextAttributes(window, names: [kAXDocumentAttribute, kAXTitleAttribute]) else {
++        guard let windowValues = try contextAttributes(window, names: [kAXDocumentAttribute, kAXTitleAttribute]) else {
+             unavailable("page.window_metadata"); throw NativeInputError.unsupported
+         }
+         let document = attributeString(windowValues[kAXDocumentAttribute])
+@@ -354,7 +368,7 @@ final class AXInputAccess: InputAccess {
+         if isWeb {
+             let identity = url ?? document
+             guard let identity, !identity.isEmpty else { return (true, nil, false) }
+-            let context = currentWebArea.flatMap { pageContext($0, excluding: element) }
++            let context = try currentWebArea.flatMap { try pageContext($0, excluding: element) }
+             return (true, identity + "\u{1f}" + (pageTitle ?? title) + "\u{1f}" + (context ?? ""), context != nil)
+         }
+         // Native document changes in the same window also expire a binding.
+@@ -366,7 +380,7 @@ final class AXInputAccess: InputAccess {
+     /// semantic context before every write. Exclude the editor subtree and retain only
+     /// its in-memory digest; neither page text nor identifiers enter the database.
+     /// Exhausted budget / unreadable structure is unknown, never evidence of stability.
+-    private func pageContext(_ webArea: AXUIElement, excluding editor: AXUIElement) -> String? {
++    private func pageContext(_ webArea: AXUIElement, excluding editor: AXUIElement) throws -> String? {
+         let deadline = ProcessInfo.processInfo.systemUptime + 0.15
+         var queue = [webArea], visited = Set<CFHashCode>(), tokens: [String] = []
+         var textBytes = 0, semanticAnchors = 0, count = 0
+@@ -379,7 +393,7 @@ final class AXInputAccess: InputAccess {
+             count += 1
+             // Batch role and non-value context. Value/URL is read only after
+             // classifying an anchor/link; editable fields remain excluded.
+-            guard var values = contextAttributes(node, names: [kAXRoleAttribute, kAXTitleAttribute,
++            guard var values = try contextAttributes(node, names: [kAXRoleAttribute, kAXTitleAttribute,
+                       kAXIdentifierAttribute, kAXSelectedAttribute, kAXChildrenAttribute]),
+                   let role = values[kAXRoleAttribute] as? String else {
+                 unavailable("page.context_attributes"); return nil
+@@ -390,7 +404,7 @@ final class AXInputAccess: InputAccess {
+             let isAnchor = role == kAXStaticTextRole || role == "AXHeading"
+             if isAnchor || role == "AXLink" {
+                 let name = isAnchor ? kAXValueAttribute : kAXURLAttribute
+-                guard let semantic = contextAttributes(node, names: [name]) else {
++                guard let semantic = try contextAttributes(node, names: [name]) else {
+                     unavailable("page.context_semantic"); return nil
+                 }
+                 values[name] = semantic[name]
+@@ -422,11 +436,28 @@ final class AXInputAccess: InputAccess {
+ 
+     /// Unsupported optional attributes and missing values represent normal AX leaves.
+     /// Transport errors and incomplete batches cannot establish page identity.
+-    private func contextAttributes(_ node: AXUIElement, names: [String]) -> [String: AnyObject]? {
++    private func contextAttributes(_ node: AXUIElement, names: [String]) throws -> [String: AnyObject]? {
+         AXUIElementSetMessagingTimeout(node, 0.12)
+         var results: CFArray?
+-        guard AXUIElementCopyMultipleAttributeValues(node, names as CFArray, [], &results) == .success,
+-              let items = results as? [AnyObject], items.count == names.count else { return nil }
++        let status = AXUIElementCopyMultipleAttributeValues(node, names as CFArray, [], &results)
++        return try Self.contextAttributes(status: status, items: results as? [AnyObject], names: names, unavailable: unavailable)
++    }
++
++    /// Only an explicit AX messaging failure or absent/short successful response
++    /// preserves the unreadable-proof error. Other errors and semantically absent
++    /// attributes remain incomplete context, never a successful page observation.
++    static func contextAttributes(status: AXError, items: [AnyObject]?, names: [String],
++                                  unavailable: (String) -> Void = { _ in }) throws -> [String: AnyObject]? {
++        guard status == .success else {
++            unavailable("page.context_batch_status:\(status.rawValue)")
++            if status == .cannotComplete { throw NativeInputError.unsupported }
++            return nil
++        }
++        guard let items, items.count >= names.count else {
++            unavailable("page.context_batch_missing:0")
++            throw NativeInputError.unsupported
++        }
++        guard items.count == names.count else { unavailable("page.context_batch_extra:0"); return nil }
+         var values: [String: AnyObject] = [:]
+         for (name, item) in zip(names, items) {
+             if CFGetTypeID(item) == CFNullGetTypeID() { continue }
+@@ -434,8 +465,16 @@ final class AXInputAccess: InputAccess {
+                 let value = unsafeDowncast(item, to: AXValue.self)
+                 if AXValueGetType(value) == .axError {
+                     var error = AXError.failure
+-                    guard AXValueGetValue(value, .axError, &error),
+-                          error == .attributeUnsupported || error == .noValue else { return nil }
++                    guard AXValueGetValue(value, .axError, &error) else {
++                        unavailable("page.context_error_decode:0"); return nil
++                    }
++                    if error == .cannotComplete {
++                        unavailable("page.context_attribute_status:\(error.rawValue)")
++                        throw NativeInputError.unsupported
++                    }
++                    guard error == .attributeUnsupported || error == .noValue else {
++                        unavailable("page.context_attribute_status:\(error.rawValue)"); return nil
++                    }
+                     continue
+                 }
+             }
+@@ -478,6 +517,11 @@ struct AXTextWriteTimeout: Error {}
+ struct AXDispatchFailure: Error { let code: Int32 }
+ 
+ enum InputSafetyPolicy {
++    static func contextReadFailure(editable: Bool, selectionLength: Int, identityChanged: Bool) -> NativeInputError {
++        if identityChanged || !editable { return .targetChanged }
++        if selectionLength != 0 { return .selection }
++        return .unsupported
++    }
+     /// An unreadable role is missing proof, not proof of a non-editable target.
+     /// A known disabled field still refuses immediately, even if its role is absent.
+     /// The coordinator may only settle an already-issued write after this unknown;
+diff --git a/packaging/BUILD_NUMBER b/packaging/BUILD_NUMBER
+index bb7a7c1..3fa8150 100644
+--- a/packaging/BUILD_NUMBER
++++ b/packaging/BUILD_NUMBER
+@@ -1 +1 @@
+-576
++577

@@ -1,0 +1,16 @@
+{
+  "status": "PASS_REPORT_RECOMPUTED",
+  "scope": "Independent read-only scoring and public fixture reconstruction; no ASR/build/App/browser launched. No root evidence edited.",
+  "generated_utc": "2026-11-25T01:07:26.701207+00:00",
+  "file_sha256": {
+    "analyze.py": "c243971dd040756998dcc348b2959e4df863c23c15b3345846fdab8eb48a7ed8",
+    "comparison.json": "aff877d22fb1050b12fc33893261b65cae8f3231cceb15088a30798f7d1239fb",
+    "analyze.log": "d03fb698eadc0dd68b996b925f4d60aaa2db7f2554b8e71a9c921b6066943157",
+    "README.md": "ae4c58208a46ee0e223af1660f534961eebc69fa9e10c9623e4976b4830ab5e1"
+  },
+  "paired_invocations_checked": 12,
+  "final_pairs_equal": 6,
+  "soak_fixture_reconstructed_sha_matches": true,
+  "original32_preserved": true,
+  "conclusion": "Follow-up did not reproduce original outliers; original regression remains evidence. Long-clip CPU did not improve. Soak passes its bounded persistence/idle assertions only."
+}

@@ -1,25 +1,26 @@
-# Saytile 1.0.0（572）已正式发行
+# Saytile 1.0.1（577）— 签名候选，发行 HOLD
 
-[正式 Release](https://github.com/haohongfei2001-png/saytile/releases/tag/v1.0.0) · [官网下载](https://saytile.com/#start) · [完整验收](docs/delivery/release-100/ACCEPTANCE.md)
+产品源码 `3e1cc6961df4da01a1c52310755a7dd215ef4310`，SourceDirty=false；Draft PR #56面向main。已安装0.20（533）和个人档案/录音/密钥不变，未合并或发布。
 
-## 发行状态
+## 已完成
 
-- PR #55 已合并到 main，合并提交 `0aa5efd4f8c14e5fe2bb6279968cdd8f6aee3553`；v1.0.0 为正式、非草稿、非预发行 Release。#52–#54 的生产实现与历史来源保留。
-- 实际签名产品源码 `42d8e98eaf04a56d34a36cc1aca2aff7061150f4`，SourceDirty=false；后续提交仅更新测试夹具、验收和发行资料，193个产品文件摘要一致。
-- Pages 已成功部署。真实官网25项交互、15项运行资源逐字节摘要通过；实际点击下载65,662,466字节DMG，摘要与签名实测包完全相同。
-- DMG SHA-256：`60e4abf60618d510c7f99d8e92a6ec456f16840f22cc0fcd7eb74ac729c9dba2`。
-- 用户当前0.20（533）未被替换；没有访问或修改真实数据库、录音或Keychain。
+- 首次模型准备页只展示一次；说明本机识别、下载体积、麦克风及可选辅助功能权限。拒绝麦克风后的恢复入口、正式版本展示已修复。
+- AX未知角色、页面通信/短批次读取正确分类；已知目标/用户选区/只读/敏感字段拒绝优先。协调器、单次写入、两次完整证明、范围和零自动发送保护不变。页面28+role21+witness16场景通过。
+- 产品SHA 3e1cc69完整native、584项Swift Testing与30项XCTest（零失败）、真实六类前台输入及标准Sparkle窗口通过。23a1523最终四个workflow、七个job全部通过，品牌清单2892/2892；原brand FAIL保留，检查未削弱。
+- 原速15段CER8.10%，420段8.5344%，440样本最终稿和状态新旧一致；5个失败子段原音保留。完整测量绑定574；577识别/存储对象相同，最终包另验38.8s原生实时出字。
+- 最终577：56次原生控件操作、4场景真实截图；18项存储故障、0.18/533升级回退、只读DMG离线安装和篡改拒绝通过。
+- 572→577真实Sparkle安装/回退、签名说明、坏包拒绝、六模型文件SHA/mtime保留，以及ZIP/feed独立公钥验证通过。生产源未启用新版本。
 
-## 实际通过
+## 裁决与限制
 
-同批15段原速CER8.10%、420段CER8.53%，全部最终文字与571基线相同。真实Qwen原速到隔离AX目标11次EOS前输入；原音、编辑、前后文字和零发送保护通过。904.8秒连续运行44/44归档；最终签名App56次按钮、9次菜单交互通过。0.18/533副本升级、回退、再升级、DMG安装及损坏包拒绝通过。
+**HOLD。** 缺现成公证授权，App/DMG实测 `Unnotarized Developer ID`。性能长尾尚未根治：原速候选首字P95 2.126s，原长句最大可见间隔3.085s；后续三对不构成CPU/长尾根治。原Chrome底层AX原因UNKNOWN，保持原失败，不承诺所有网页异常消失。
 
-最终e988117七项CI全部SUCCESS，579项Swift Testing、30项XCTest零失败。前台AppKit、WKWebView、TextEdit、Chrome、Edge、Safari复核通过；前次Safari超时FAIL原件继续保留，不放宽保护或重发未确认文字。
+合盖麦克风、8GB实体Mac、真实断电NOT_RUN；CI kernel sleep因虚拟硬件BLOCKED。iCloud/私有反馈未启用，不宣传跨设备能力。
 
-## 已披露限制
+最终DMG `7fec71094a5ecc325b2991426dc8347ec0f6f77a9944bbeb96604a32fc514b78`，64,577,002字节，`dist/1.0.1/Saytile-1.0.1-arm64.dmg`。
 
-Developer ID及安全时间戳通过，**尚未公证**；Gatekeeper结果为Unnotarized Developer ID。按用户本轮明确允许的发行边界提供系统单App“仍要打开”说明，不关闭Gatekeeper、不移除隔离属性。
+[完整验收](docs/delivery/release-101/ACCEPTANCE.md) · [机器收据](evidence/release-101/DELIVERY.json) · [性能及失败](docs/delivery/release-101/PERFORMANCE.md)。
 
-首轮一次短句首显5.45秒，三对复核未重现，不能保证所有启动两秒内出字；长句仍会自然修订。Safari等网页在AX证据不完整时会安全暂停自动输入，文字保留且可复制。五个原有空定稿子段保留失败与重试。
+## 最小外部依赖
 
-Mac合盖内置麦克风、8GB实体机、付费云端/iCloud本轮NOT_RUN。Sparkle新包不自动推送，以官网和Release手动下载更新。完整原始结果、失败及发行收据位于evidence/release-100/。
+账户持有人仅需在本机为现有Team ZB9D4T66QB配置一次notarytool授权，不把密码发送到聊天。之后仍须真实公证Accepted、装订、更新重新签名、Gatekeeper与下载验收，才能合并和公开发行。缺此授权不伪造成功，也不要求用户进行开发测试。

@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/private/tmp/saytile-101-distribution/scripts/test-release-update.py", line 209, in <module>
+    main()
+    ~~~~^^
+  File "/private/tmp/saytile-101-distribution/scripts/test-release-update.py", line 164, in main
+    assert accepted.returncode == 0, accepted.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Error: Update has failed due to error 1004 (SUSparkleErrorDomain). Failed to resume installing update.
+

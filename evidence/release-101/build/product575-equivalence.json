@@ -1,0 +1,25 @@
+{
+  "previous_tested_product_source": "73ad857442964437929819ba9965f6bcfdcefd27",
+  "final_product_source": "8f25ea3be642263daf22ff297f337026395840a6",
+  "paths": [
+    "Sources/SaytileKit",
+    "Sources/CAudio",
+    "Sources/CSQLite",
+    "Sources/SaytileVoiceUI",
+    "Sources/RiftletFeedback",
+    "Sources/SaytileApp/AppModel.swift",
+    "Sources/SaytileApp/AppUpdateController.swift",
+    "Sources/SaytileApp/TranscriptTimelineView.swift",
+    "native/LocalASR",
+    "Package.swift",
+    "packaging/Info.plist",
+    "packaging/update-channels.json"
+  ],
+  "complete_product_changed_paths": [
+    "Sources/SaytileApp/SettingsView.swift",
+    "packaging/BUILD_NUMBER"
+  ],
+  "identical_git_input_tree_sha256": "22fef0e98956f5c207958b054221f44c5bd2955cb0a9fd21d7f447bcb4deccf9",
+  "method": "Exact Git object comparison, not a rewritten original receipt",
+  "scope": "All recognition, data, input, update controller and shared voice code unchanged. SettingsView removes the unconditional internal prefix; BUILD_NUMBER 574 to 575. Final 575 requires separate native display and signed package checks."
+}

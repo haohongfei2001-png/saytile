@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "scope": "workflow structure, constrained compiler targets, and local UI refusal only",
+  "baseline": "de45b0fb3c83e1fa13b6067a47b0342772e309ed",
+  "jobs_unchanged": [
+    "swift-tests",
+    "native",
+    "foreground"
+  ],
+  "native_other_steps_preserved": 21,
+  "protocol_steps_unchanged": true,
+  "foreground_job_unchanged": true,
+  "runner": "macos-26-intel",
+  "runner_added": false,
+  "ui_runtime": "NOT_RUN",
+  "model_inference": "NOT_RUN",
+  "target_cases": [
+    {
+      "system": "Darwin",
+      "architecture": "arm64",
+      "expected": "accepted",
+      "status": "PASS"
+    },
+    {
+      "system": "Darwin",
+      "architecture": "x86_64",
+      "expected": "accepted",
+      "status": "PASS"
+    },
+    {
+      "system": "Darwin",
+      "architecture": "i386",
+      "expected": "rejected",
+      "status": "PASS"
+    },
+    {
+      "system": "Linux",
+      "architecture": "arm64",
+      "expected": "rejected",
+      "status": "PASS"
+    },
+    {
+      "system": "Windows",
+      "architecture": "x86_64",
+      "expected": "rejected",
+      "status": "PASS"
+    }
+  ],
+  "local_ui_refusal_exit": 2
+}

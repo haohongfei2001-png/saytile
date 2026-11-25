@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "version": "1.0.1",
+  "build": 575,
+  "product_source": "8f25ea3be642263daf22ff297f337026395840a6",
+  "verdict": "HOLD",
+  "checked_at_date": "2026-11-25 Asia/Shanghai",
+  "evidence": {
+    "artifact": {
+      "file": "evidence/release-101/build/artifact-575.json",
+      "sha256": "8dc3fcfc3c33057dbf25b5a937db2f3e83141306299b264158e64e93cfd33a87"
+    },
+    "signature": {
+      "file": "evidence/release-101/build/signature-gatekeeper575.json",
+      "sha256": "033efb4fddb40c410bfc10dd0fec45986f566f49d91d837f1bc21450452c3c41"
+    },
+    "install": {
+      "file": "evidence/release-101/install-dmg575.json",
+      "sha256": "5eca83d34e06e8d028e6223fbb62e1148d90362080c5b0123b19737917287cb8"
+    },
+    "rollback018": {
+      "file": "evidence/release-101/rollback-018-575.json",
+      "sha256": "2e5fc8b202dbd36aa41bbd51700c3bda3dc5980320bf5e8f6af7a3fb52524a32"
+    },
+    "rollback533": {
+      "file": "evidence/release-101/rollback-533-575.json",
+      "sha256": "4e7ada52764eb0f8434f4b7f82db8505d1270114e2935600198c6b70270ba80c"
+    },
+    "native_controls": {
+      "file": "evidence/release-101/native575-controls/manifest.json",
+      "sha256": "7d3516c143dcede7d5797e0de9af39835a2fedbbac1cfa71014bfa1bdc393d00"
+    },
+    "native_windows": {
+      "file": "evidence/release-101/native575-windows/receipt.json",
+      "sha256": "eba71b69e502dcd63a3be004303f0a2630503f3d8a0ad0079d6fd679245489ba"
+    },
+    "native_asr": {
+      "file": "evidence/release-101/native575-asr/final-source-check.json",
+      "sha256": "7380c4feac34d860391037661208e6ecc94d56c82021a6df85c924548ec5335a"
+    },
+    "quality": {
+      "file": "evidence/release-101/final-cohort-review/quality-comparison-complete.json",
+      "sha256": "830a55f29e2a1c264bfbd32698c817d79f6433c4cefa40c38345374ba2deedde"
+    },
+    "paired": {
+      "file": "evidence/release-101/final-paired-review/comparison.json",
+      "sha256": "aff877d22fb1050b12fc33893261b65cae8f3231cceb15088a30798f7d1239fb"
+    },
+    "soak": {
+      "file": "evidence/release-101/regression-final/soak.json",
+      "sha256": "bc6e6ba13c322362abbeff84785d112999069fb2b5ea1f7af3a6bad8fdf334fd"
+    },
+    "store_processes": {
+      "file": "evidence/release-101/storage/processes-final.json",
+      "sha256": "12fe4f1fbed3ceb51edf51e23820af79b0a9bf543e357acb50652a0b7f9a5b6c"
+    },
+    "model_resume": {
+      "file": "evidence/release-101/model-resume-real/receipt.json",
+      "sha256": "aa80c3cdfed1115f2e117979b1cd5c3f80c3eb5bd1ff5e9c336796f39247546e"
+    },
+    "update": {
+      "file": "evidence/release-101/distribution/final575/summary.json",
+      "sha256": "6916ae9ff77de79b32aeb0605b8958bc8b1948a369c4ccd75bed3a6c4e4a7a7a"
+    },
+    "independent_review": {
+      "file": "evidence/release-101/independent-product-review.json",
+      "sha256": "a7091e16c64978d8c8a4dc643c838b952efe300719b115cb3bd161a9f76822e9"
+    }
+  },
+  "remaining": {
+    "notary": "BLOCKED_NO_AUTHORIZATION",
+    "standard_sparkle_ui": "FAIL_CI_ICON_SERVICES_TARGETED_FIX_PENDING",
+    "chrome_latest": "FAIL_UNVERIFIED_AFTER_TRANSIENT_EDITABILITY",
+    "microphone": "NOT_RUN_LID_CLOSED",
+    "8gb_physical_mac": "NOT_RUN",
+    "physical_power_loss": "NOT_RUN",
+    "power_watts": "NOT_MEASURED",
+    "icloud_private_feedback": "NOT_RUN_NOT_ENABLED"
+  },
+  "production_installed_build": 533,
+  "production_installed_preserved": true,
+  "published": false,
+  "paid_api_calls": false,
+  "private_audio_used": false
+}

@@ -1,0 +1,73 @@
+{
+  "status": "PASS",
+  "product_source": "8f25ea3be642263daf22ff297f337026395840a6",
+  "reviewed_head": "880840ec1c592d05e2ed1db28dccbb4153ff4c4e",
+  "paths": [
+    {
+      "path": "Sources",
+      "product_git_object": "a650491bcec1dbf5dbd04a54f43d7e0e1afe11f0",
+      "reviewed_git_object": "a650491bcec1dbf5dbd04a54f43d7e0e1afe11f0"
+    },
+    {
+      "path": "Package.swift",
+      "product_git_object": "e2e4954257bea04c02532bc84b4b93fcf0733574",
+      "reviewed_git_object": "e2e4954257bea04c02532bc84b4b93fcf0733574"
+    },
+    {
+      "path": "packaging",
+      "product_git_object": "df05d4cbf76d00603486b02022b04f91beded5d7",
+      "reviewed_git_object": "df05d4cbf76d00603486b02022b04f91beded5d7"
+    },
+    {
+      "path": "native/LocalASR",
+      "product_git_object": "0d10a69c14dc2b82566e1e94226c1242f5e8d96f",
+      "reviewed_git_object": "0d10a69c14dc2b82566e1e94226c1242f5e8d96f"
+    },
+    {
+      "path": "distribution/sign-app.sh",
+      "product_git_object": "98323bed63881fe324074c74c9a6ca5b4b7e2a52",
+      "reviewed_git_object": "98323bed63881fe324074c74c9a6ca5b4b7e2a52"
+    },
+    {
+      "path": "distribution/copy-verified-runtime.py",
+      "product_git_object": "dbcd5c4ace65169dfb18501a388754dff1973fdd",
+      "reviewed_git_object": "dbcd5c4ace65169dfb18501a388754dff1973fdd"
+    },
+    {
+      "path": "scripts/build-app.sh",
+      "product_git_object": "c8f696ef038ff074ad8fc8fd013ff4a05aa5425c",
+      "reviewed_git_object": "c8f696ef038ff074ad8fc8fd013ff4a05aa5425c"
+    },
+    {
+      "path": "scripts/build-number.py",
+      "product_git_object": "bb8a330e60add57ee56409767f3c21ff086b1f1c",
+      "reviewed_git_object": "bb8a330e60add57ee56409767f3c21ff086b1f1c"
+    },
+    {
+      "path": "scripts/build-local-runtime.sh",
+      "product_git_object": "5030171516192635171e2a30b282ed1ffdebb0d2",
+      "reviewed_git_object": "5030171516192635171e2a30b282ed1ffdebb0d2"
+    },
+    {
+      "path": "scripts/prepare-local-runtime.sh",
+      "product_git_object": "e2714ad8ec45aad69c40428f165db6b82fc4d399",
+      "reviewed_git_object": "e2714ad8ec45aad69c40428f165db6b82fc4d399"
+    },
+    {
+      "path": "scripts/prepare-updater.sh",
+      "product_git_object": "dc2081c2286e926cb2afc8a91c3229a99cc68d7f",
+      "reviewed_git_object": "dc2081c2286e926cb2afc8a91c3229a99cc68d7f"
+    },
+    {
+      "path": "scripts/configure-update-feed.py",
+      "product_git_object": "f1bcb9e16e3b91b06b5ec605a8c83b2c2f6f15f0",
+      "reviewed_git_object": "f1bcb9e16e3b91b06b5ec605a8c83b2c2f6f15f0"
+    },
+    {
+      "path": "scripts/encode-iconset.py",
+      "product_git_object": "18551841945857efad9c8396497f9bc3c84ec03f",
+      "reviewed_git_object": "18551841945857efad9c8396497f9bc3c84ec03f"
+    }
+  ],
+  "note": "Final source identity differs only in test/documentation commits; packaging is rebuilt and signed at immutable product source. Original tests keep their own SHA."
+}

@@ -35,7 +35,7 @@ struct SettingsView: View {
     }
     @ViewState private var cleanup = false
     private var page: SettingsPage { navigation.page }
-    private var version: String { (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String).map { "内测 \($0)" } ?? "开发构建" }
+    private var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "开发构建" }
     var body: some View {
         GeometryReader { geo in
             let compact = geo.size.width < 640

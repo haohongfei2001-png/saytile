@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/private/tmp/saytile-release-101/scripts/mandarin/check-app-rollback.py", line 198, in <module>
+    main()
+    ~~~~^^
+  File "/private/tmp/saytile-release-101/scripts/mandarin/check-app-rollback.py", line 130, in main
+    identities = [binary_info(app) for app in apps]
+                  ~~~~~~~~~~~^^^^^
+  File "/private/tmp/saytile-release-101/scripts/mandarin/check-app-rollback.py", line 35, in binary_info
+    meta = plistlib.loads((app / "Contents/Info.plist").read_bytes())
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/saytile-release101-018-mount/Saytile.app/Contents/Info.plist'

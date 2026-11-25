@@ -78,15 +78,31 @@ struct AppModelProbe {
             var authority: AVAuthorizationStatus = .notDetermined
             var session = CaptureState.paused
             var openedSettings = 0
-            let capture = AppCaptureDependencies(state: { _ in session }, start: { _ in session = .starting },
+            var starts = 0
+            var introductions = 0
+            let capture = AppCaptureDependencies(state: { _ in session }, start: { _ in starts += 1; session = .starting },
                 pause: { _ in session = .paused }, microphoneAuthorization: { authority }, openMicrophonePreferences: { openedSettings += 1 })
             let guide = try AppModel(directory: home, preferences: prefs, captureDependencies: capture)
+            guide.openFirstUse = { introductions += 1 }
             await guide.initialLoad()
             try require(!guide.isListening && !guide.completedFirstTranscript && guide.deviceOnly && !guide.microphoneDenied, "first launch remains offline, paused, with no permission request")
+            await guide.presentFirstUseIfNeeded()
+            await guide.presentFirstUseIfNeeded()
+            try require(introductions == 1 && starts == 0 && !guide.directMode && guide.input.binding == nil,
+                        "first-use introduction opens once without microphone capture or an input binding")
+            authority = .denied
+            guide.toggleCapture()
+            try require(openedSettings == 1 && starts == 0 && guide.captureProblem && guide.panelCaptureDetail != nil &&
+                        guide.captureActionLabel == "打开麦克风权限设置" && session == .paused,
+                        "denied permission on a paused relaunch opens settings directly without a failed start")
             authority = .denied; session = .interrupted("麦克风未获授权")
             try require(guide.microphoneDenied && guide.captureProblem && !guide.completedFirstTranscript, "denial preserves the start guide and identifies microphone recovery")
             guide.toggleCapture()
-            try require(openedSettings == 1 && guide.captureActionLabel == "打开麦克风权限设置" && !guide.isListening, "denied capsule opens recovery directly without a second start request")
+            try require(openedSettings == 2 && starts == 0 && guide.captureActionLabel == "打开麦克风权限设置" && !guide.isListening, "denied capsule opens recovery directly without a second start request")
+            authority = .restricted; session = .paused
+            guide.toggleCapture()
+            try require(openedSettings == 3 && starts == 0 && guide.captureProblem,
+                        "restricted microphone state has the same safe recovery and no repeated capture request")
             session = .paused; authority = .authorized
             let segment = try await guide.store.createRecording()
             await guide.refresh()
@@ -100,8 +116,44 @@ struct AppModelProbe {
             try await guide.store.finishRecording(id: segment.id)
             await guide.prepareForExit()
             let reopened = try AppModel(directory: home, preferences: prefs, captureDependencies: capture)
+            reopened.openFirstUse = { introductions += 1 }
+            await reopened.presentFirstUseIfNeeded()
             try require(reopened.completedFirstTranscript && !reopened.isListening, "relaunch retains completion without starting capture")
+            try require(introductions == 1, "completed first use does not reopen an introduction on relaunch")
             await reopened.prepareForExit()
+        }
+        do {
+            let home = directory.appendingPathComponent("dismissed-first-use")
+            let name = "app.saytile.dismissed-first-use." + UUID().uuidString
+            let prefs = UserDefaults(suiteName: name)!
+            defer { prefs.removePersistentDomain(forName: name) }
+            var shown = 0
+            let capture = AppCaptureDependencies(state: { _ in .paused }, start: { _ in }, pause: { _ in },
+                microphoneAuthorization: { .notDetermined }, openMicrophonePreferences: {})
+            let first = try AppModel(directory: home, preferences: prefs, captureDependencies: capture)
+            first.openFirstUse = { shown += 1 }
+            await first.presentFirstUseIfNeeded()
+            await first.prepareForExit()
+            let next = try AppModel(directory: home, preferences: prefs, captureDependencies: capture)
+            next.openFirstUse = { shown += 1 }
+            await next.presentFirstUseIfNeeded()
+            try require(shown == 1 && !next.completedFirstTranscript,
+                        "closing first-use settings before recording prevents repeated launch interruption")
+            await next.prepareForExit()
+
+            // A restored archive may not contain this device's preference marker.
+            prefs.removeObject(forKey: "firstUse.presented.v1")
+            let archive = try SaytileStore(directory: home)
+            let row = try await archive.createRecording()
+            try await archive.saveEdit(recordingID: row.id, text: "已有的编辑文字")
+            try await archive.finishRecording(id: row.id)
+            try await archive.close()
+            let restored = try AppModel(directory: home, preferences: prefs, captureDependencies: capture)
+            restored.openFirstUse = { shown += 1 }
+            await restored.presentFirstUseIfNeeded()
+            try require(shown == 1 && restored.completedFirstTranscript,
+                        "existing restored text is loaded before deciding whether to show first-use settings")
+            await restored.prepareForExit()
         }
         do {
             let suite = "app.saytile.scroll-pages." + UUID().uuidString

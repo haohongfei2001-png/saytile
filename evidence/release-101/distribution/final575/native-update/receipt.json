@@ -1,0 +1,105 @@
+{
+  "status": "PASS",
+  "source": "8f25ea3be642263daf22ff297f337026395840a6",
+  "seed_probe_sha256": "523df7c3180b15914c9613779bcb37e92bf5ba09c22e111256957a8148b83dda",
+  "storage_probe_binding": {
+    "app_source": "8f25ea3be642263daf22ff297f337026395840a6",
+    "storage_test_source": "34d418f5ac309f7361db6b2ea2d196b1aead025c",
+    "binding": "identical complete storage/probe input Git trees",
+    "input_paths": [
+      "Sources/SaytileKit",
+      "Sources/CSQLite",
+      "Sources/CAudio",
+      "Package.swift",
+      "tests/fixtures/StoreProcessProbe.swift",
+      "scripts/test-rc-storage-processes.py"
+    ],
+    "input_tree_sha256": "e61e8bbd53c35ad6f3fc68df95c3fd1a680c8237221306bfcf7a70ae42baa0fd",
+    "original_receipt_rewritten": false
+  },
+  "scope": "real Saytile NSApplication and AppUpdateController -> SPUUpdater -> Sparkle installer -> argument-free app relaunch",
+  "user_driver": "deterministic fixture driver; standard Sparkle window interaction NOT_RUN",
+  "fixture_bundle_id": "app.saytile.update-fixture.1f0ff0e9b8144ee0939034b69e00cb91",
+  "original_app_untouched": true,
+  "production_data": "NOT_ACCESSED",
+  "paid_services": "NOT_CALLED",
+  "corrupt_archive": {
+    "status": "PASS",
+    "installed_version": "1",
+    "archive_unchanged": true,
+    "rejection": "SUSparkleErrorDomain/4005"
+  },
+  "fixture_before": {
+    "schema": 6,
+    "table_sha256": "a58f7e6b0f075c1b9088f3bc4c268158fa371bf384c2f44995f05ec1d03970c5",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "9F75E044-FDFB-4089-A3F4-828DACA0DA92/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "DDD43247-1933-49EB-BB29-A563054F5D3B/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "6A782205-095A-4D39-A7A4-37272F4D14A2",
+      "65C9DE2C-BFE5-4C34-8908-A488D7BCCE22"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0,
+    "paragraph_metadata_sha256": "5a2f50f2c5753cf0cf4e63bee229d0009076b4c2eab5f15bc6f15f3270f8a54a"
+  },
+  "fixture_after": {
+    "schema": 6,
+    "table_sha256": "a58f7e6b0f075c1b9088f3bc4c268158fa371bf384c2f44995f05ec1d03970c5",
+    "row_counts": {
+      "recordings": 2,
+      "revisions": 4,
+      "editing_drafts": 2,
+      "chunks": 2,
+      "transcript_timeline": 2,
+      "archive_draft_bases": 2,
+      "recording_cloud_authorizations": 0,
+      "dispatches": 2,
+      "recognition_candidates": 0
+    },
+    "wav_sha256": {
+      "9F75E044-FDFB-4089-A3F4-828DACA0DA92/fixture.wav": "2bdaa5be0274e24e46dc31827253efb6f0bfe534797da1a89223cdeab5c8886e",
+      "DDD43247-1933-49EB-BB29-A563054F5D3B/fixture.wav": "2c538c36401773cbb4173b5a17ef3f6d8e38ce95aa7995a8cd883e5aa72d0b36"
+    },
+    "preferred_manual_revision_ids": [
+      "6A782205-095A-4D39-A7A4-37272F4D14A2",
+      "65C9DE2C-BFE5-4C34-8908-A488D7BCCE22"
+    ],
+    "integrity": "ok",
+    "foreign_key_errors": 0,
+    "paragraph_metadata_sha256": "5a2f50f2c5753cf0cf4e63bee229d0009076b4c2eab5f15bc6f15f3270f8a54a"
+  },
+  "real_native_install_relaunch": true,
+  "version_before": "1",
+  "version_after": "2",
+  "source_pid": 72396,
+  "relaunched_pid": 72490,
+  "argument_free_relaunch_isolated": true,
+  "preference_canary_preserved": true,
+  "installed_signature_verified": true,
+  "model_marker_bytes_and_mtime_unchanged": true,
+  "update_archive_sha256": "1b112404702957922699e8ffb9d758d60cb331099973568c616d8c792a8a5b2f",
+  "update_appcast_sha256": "be8695bab09463d55d662f75eeb69553d532645ab8262467205b9da8646a52eb",
+  "updater_binary_sha256": "43548784ae92bfc80c471d409be3f4df10e265a4ea97e8e1cc858b773b41499f",
+  "key_scope": "existing authorized Sparkle signing account; tool-internal access only, no exported or generated key",
+  "signing_account": "app.saytile.updates.v1",
+  "production_public_key": "yVPpMoHz8/6GJ82Becd+jgoKvCww+9h2v2Vs6xZu/iw=",
+  "production_key_continuity_verified": true,
+  "signed_release_notes_loaded": true,
+  "corrupted_release_notes_rejected": true,
+  "release_notes_sha256": "b7cf19fa10aeacccec56327d946bc0da6bb97149bd52a4f86d183639885d058f",
+  "version_scope": "same candidate binary using 1-to-2 fixture aliases; real release versions tested separately",
+  "runner_sha256": "d7730644033d58bcdbc473e03a4edf67195080a19ff5ee709df693d5326169aa"
+}

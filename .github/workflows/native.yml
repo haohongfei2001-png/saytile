@@ -1,10 +1,10 @@
 name: Saytile native
 on:
   pull_request:
-    paths: ['native/LocalASR/**', 'scripts/prepare-local-runtime.sh', 'Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/RiftletFeedbackTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/FeedbackSettingsModelProbe.swift', 'scripts/test-feedback-native.py', 'tests/fixtures/VoiceRailGestureProbe.swift', 'tests/fixtures/PanelBoundary*.swift', 'scripts/test-panel-boundary.sh', 'scripts/test-app-model.sh', 'tests/fixtures/AX*.swift', 'tests/fixtures/owned-chrome-draft.mjs', 'tests/fixtures/owned-safari-draft.mjs', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-native-timeline.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
+    paths: ['native/LocalASR/**', 'scripts/prepare-local-runtime.sh', 'Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/RiftletFeedbackTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/FeedbackSettingsModelProbe.swift', 'scripts/test-feedback-native.py', 'tests/fixtures/VoiceRailGestureProbe.swift', 'tests/fixtures/PanelBoundary*.swift', 'scripts/test-panel-boundary.sh', 'scripts/test-app-model.sh', 'tests/fixtures/AX*.swift', 'tests/fixtures/owned-chrome-draft.mjs', 'tests/fixtures/owned-safari-draft.mjs', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-native-timeline.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', 'distribution/**', 'tests/test_release_update.py', 'tests/fixtures/AppUpdateControllerProbe.swift', 'scripts/test-update-controller.sh', 'scripts/test-update-standard-ui.py', 'tests/fixtures/StandardUpdateUIProbe.swift', 'evidence/release-101/distribution/final-prepared-update/appcast.xml', '.github/workflows/native.yml']
   push:
     branches: [main]
-    paths: ['native/LocalASR/**', 'scripts/prepare-local-runtime.sh', 'Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/RiftletFeedbackTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/FeedbackSettingsModelProbe.swift', 'scripts/test-feedback-native.py', 'tests/fixtures/VoiceRailGestureProbe.swift', 'tests/fixtures/PanelBoundary*.swift', 'scripts/test-panel-boundary.sh', 'scripts/test-app-model.sh', 'tests/fixtures/AX*.swift', 'tests/fixtures/owned-chrome-draft.mjs', 'tests/fixtures/owned-safari-draft.mjs', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-native-timeline.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', '.github/workflows/native.yml']
+    paths: ['native/LocalASR/**', 'scripts/prepare-local-runtime.sh', 'Sources/**', 'contracts/**', 'tests/SwiftSmoke.swift', 'tests/SaytileKitTests/**', 'tests/RiftletFeedbackTests/**', 'tests/fixtures/AppModelProbe.swift', 'tests/fixtures/FeedbackSettingsModelProbe.swift', 'scripts/test-feedback-native.py', 'tests/fixtures/VoiceRailGestureProbe.swift', 'tests/fixtures/PanelBoundary*.swift', 'scripts/test-panel-boundary.sh', 'scripts/test-app-model.sh', 'tests/fixtures/AX*.swift', 'tests/fixtures/owned-chrome-draft.mjs', 'tests/fixtures/owned-safari-draft.mjs', 'scripts/test-input-native.py', 'scripts/test-app-model.sh', 'scripts/test-native-ui.py', 'scripts/test-native-timeline.py', 'scripts/test-connection-setup.py', 'scripts/open-rc2-connection-setup.sh', 'tests/fixtures/NativeUIControlProbe.swift', 'Package.swift', 'scripts/build-app.sh', 'scripts/test-native.sh', 'scripts/test-protocol-simulator.sh', 'tests/fixtures/protocol-simulator/**', 'research/asr/validation/fusion-quality/check-probe-isolation.py', 'packaging/**', 'distribution/**', 'tests/test_release_update.py', 'tests/fixtures/AppUpdateControllerProbe.swift', 'scripts/test-update-controller.sh', 'scripts/test-update-standard-ui.py', 'tests/fixtures/StandardUpdateUIProbe.swift', 'evidence/release-101/distribution/final-prepared-update/appcast.xml', '.github/workflows/native.yml']
 permissions:
   contents: read
 concurrency:
@@ -12,7 +12,12 @@ concurrency:
   cancel-in-progress: true
 jobs:
   swift-tests:
-    runs-on: macos-26
+    # The full XCTest/Swift Testing suite and standard Sparkle UI have no model
+    # inference. Reuse the Intel macOS 26 pool and protocol build products when
+    # hosted arm64 capacity is unavailable; keep all suites/arguments unchanged.
+    # Native/runtime jobs remain arm64,
+    # and real Qwen product acceptance runs separately on the M5.
+    runs-on: macos-26-intel
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -32,6 +37,26 @@ jobs:
             evidence/no-api-product/protocol/server.log
             evidence/no-api-product/protocol/wire-audit.json
           retention-days: 14
+      - name: Standard Sparkle dialog in the disposable CI desktop
+        env:
+          SAYTILE_ALLOW_STANDARD_UPDATE_UI: '1'
+        run: |
+          scripts/prepare-updater.sh
+          swift build --scratch-path /tmp/saytile-no-api-protocol-swift --product SaytileKit
+          export SAYTILE_UPDATE_PROBE_PRODUCTS="$(swift build --scratch-path /tmp/saytile-no-api-protocol-swift --show-bin-path)"
+          export SAYTILE_UPDATE_PROBE_MODULE_MAP="$SAYTILE_UPDATE_PROBE_PRODUCTS/CAudio.build/module.modulemap"
+          if [[ ! -f "$SAYTILE_UPDATE_PROBE_MODULE_MAP" ]]; then
+            export SAYTILE_UPDATE_PROBE_MODULE_MAP="$SAYTILE_UPDATE_PROBE_PRODUCTS/../../Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap"
+          fi
+          python3 scripts/test-update-standard-ui.py --output "$RUNNER_TEMP/standard-update-ui"
+      - name: Preserve standard update dialog and dismissal evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Saytile-standard-update-ui
+          path: ${{ runner.temp }}/standard-update-ui
+          if-no-files-found: warn
+          retention-days: 14
   native:
     runs-on: macos-26
     timeout-minutes: 25
@@ -48,8 +73,10 @@ jobs:
           swift --version
           git rev-parse HEAD
           test -d "$(xcode-select -p)/Platforms/MacOSX.platform"
-      - name: Signed update packaging configuration
-        run: python3 -m unittest discover -s tests -p test_update_configuration.py
+      - name: Signed update packaging and release preparation
+        run: |
+          python3 -m unittest discover -s tests -p test_update_configuration.py
+          python3 -m unittest discover -s tests -p test_release_update.py
       - name: Inherited Swift contracts
         run: |
           swiftc -swift-version 6 -typecheck contracts/Contracts.swift
@@ -75,6 +102,14 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - run: scripts/build-app.sh
+      - name: Real Sparkle release-notes delegate contract
+        run: |
+          export SAYTILE_UPDATE_PROBE_PRODUCTS="$(swift build --scratch-path /tmp/saytile-rc-model --show-bin-path)"
+          export SAYTILE_UPDATE_PROBE_MODULE_MAP="$SAYTILE_UPDATE_PROBE_PRODUCTS/CAudio.build/module.modulemap"
+          if [[ ! -f "$SAYTILE_UPDATE_PROBE_MODULE_MAP" ]]; then
+            export SAYTILE_UPDATE_PROBE_MODULE_MAP="$SAYTILE_UPDATE_PROBE_PRODUCTS/../../Intermediates.noindex/GeneratedModuleMaps/CAudio.modulemap"
+          fi
+          bash scripts/test-update-controller.sh
       - name: Isolated cloud probe CLI boundaries
         run: python3 research/asr/validation/fusion-quality/check-probe-isolation.py --app dist/Saytile.app/Contents/MacOS/Saytile --output "$RUNNER_TEMP/probe-isolation.json"
       - name: Isolated connection setup CLI boundaries

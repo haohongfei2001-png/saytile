@@ -61,7 +61,17 @@ final class AppUpdateController: NSObject, SPUUpdaterDelegate, @preconcurrency S
     }
     func feedURLString(for updater: SPUUpdater) -> String? { configuration?.feedURL.absoluteString }
     func allowedSystemProfileKeys(for updater: SPUUpdater) -> [String]? { [] }
-    func updaterShouldDownloadReleaseNotes(_ updater: SPUUpdater) -> Bool { false }
+    // Sparkle 2 calls this two-argument delegate method. The former
+    // updaterShouldDownloadReleaseNotes spelling was not a protocol method and
+    // silently left all note downloads enabled. Notes remain available, but only
+    // from the validated feed; Sparkle verifies their own signed bytes as well.
+    func updater(_ updater: SPUUpdater, shouldDownloadReleaseNotesForUpdate item: SUAppcastItem) -> Bool {
+        guard item.signingValidationStatus == .succeeded, let url = item.releaseNotesURL,
+              url.user == nil, url.password == nil, url.fragment == nil,
+              let host = url.host, !host.isEmpty else { return false }
+        if url.scheme == "https" { return true }
+        return configuration?.channel == "fixture" && url.scheme == "http" && host == "127.0.0.1"
+    }
     func updaterWillRelaunchApplication(_ updater: SPUUpdater) { model?.expectsUpdateRelaunch = true }
 
     func updater(_ updater: SPUUpdater, shouldProceedWithUpdate item: SUAppcastItem, updateCheck: SPUUpdateCheck) throws {

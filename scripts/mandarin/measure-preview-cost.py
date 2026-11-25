@@ -26,7 +26,9 @@ def seconds(cpu_time):
     return int(minutes) * 60 + float(secs)
 
 
-def public_run(app, manifest, sample_id, weights, audio, out, profile=False, trace=False, model="qwen-small", automatic=True, window_observer=None):
+def public_run(app, manifest, sample_id, weights, audio, out, profile=False, trace=False, model="qwen-small", automatic=True, window_observer=None, profile_start=8.0):
+    if profile_start < 0:
+        raise ValueError("profile_start must be nonnegative")
     meta = plistlib.loads((app / "Contents/Info.plist").read_bytes())
     row = next(r for r in json.loads(manifest.read_text())["samples"] if r["id"] == sample_id)
     wav = audio / (sample_id + ".wav")
@@ -61,7 +63,7 @@ def public_run(app, manifest, sample_id, weights, audio, out, profile=False, tra
                     # Diagnostic runs only. Never use these instrumented timings
                     # as an uninstrumented before/after performance comparison.
                     # Targets come solely from this disposable App's process tree.
-                    if profile and time.monotonic() - start >= 8:
+                    if profile and time.monotonic() - start >= profile_start:
                         for pid in ids:
                             if pid not in profiles:
                                 role = "app" if pid == p.pid else "worker"
@@ -119,7 +121,9 @@ def public_run(app, manifest, sample_id, weights, audio, out, profile=False, tra
             (out / "invocation.json").write_text(json.dumps(dict(
                 source=meta["SaytileSourceRevision"], build=meta["CFBundleVersion"],
                 sample=sample_id, audio_sha256=row["audio_sha256"],
-                exit_code=p.returncode, elapsed_s=elapsed)))
+                exit_code=p.returncode, elapsed_s=elapsed,
+                diagnostic_profile=profile, profile_start=profile_start if profile else None,
+                performance_trace=trace)))
             if (data / "visible.json").exists():
                 shutil.copyfile(data / "visible.json", out / "visible-raw.json")
             if (data / "partial.png").exists():
@@ -158,6 +162,8 @@ if __name__ == "__main__":
         cli.add_argument("--" + name, type=Path, required=True)
     cli.add_argument("--id", dest="sample_id", required=True)
     cli.add_argument("--profile", action="store_true", help="Sample only this App and its worker; diagnostic, not acceptance")
+    cli.add_argument("--profile-start", type=float, default=8.0,
+                     help="Seconds after owned App launch; use 0 to diagnose startup (instrumented, not a speed score)")
     cli.add_argument("--trace", action="store_true", help="Collect bounded stage timings inside the disposable replay")
     cli.add_argument("--model", choices=["qwen-small", "nemotron-metal"], default="qwen-small")
     cli.add_argument("--manual", action="store_false", dest="automatic", help="Select the requested research engine explicitly")

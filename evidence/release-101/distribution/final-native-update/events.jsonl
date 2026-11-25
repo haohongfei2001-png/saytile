@@ -1,0 +1,40 @@
+{"build":"1","case":"corrupt","event":"launched","explicit_data_argument":true,"phase":"check","pid":33822,"source":"73ad857442964437929819ba9965f6bcfdcefd27","timestamp":1795542340.320888}
+{"case":"corrupt","event":"archive_loaded","phase":"check","pid":33822,"pinned":2,"preferences_preserved":true,"recordings":2,"revisions":4,"timestamp":1795542340.3219399}
+{"case":"corrupt","configured":true,"event":"app_check_action","phase":"check","pid":33822,"timestamp":1795542340.325876}
+{"case":"corrupt","event":"checking","phase":"check","pid":33822,"timestamp":1795542340.3269639}
+{"case":"corrupt","event":"update_found","phase":"check","pid":33822,"stage":0,"timestamp":1795542340.3590021,"user_initiated":true,"version":"2"}
+{"case":"corrupt","event":"download_started","phase":"check","pid":33822,"timestamp":1795542340.3593969}
+{"case":"corrupt","errors":[{"code":2001,"domain":"SUSparkleErrorDomain"},{"code":3002,"domain":"SUSparkleErrorDomain"}],"event":"release_notes_error","phase":"check","pid":33822,"timestamp":1795542340.3647652}
+{"bytes":55577437,"case":"corrupt","event":"download_size","phase":"check","pid":33822,"timestamp":1795542341.3651619}
+{"case":"corrupt","downloaded_bytes":55577437,"event":"extracting","phase":"check","pid":33822,"timestamp":1795542341.4212389}
+{"case":"corrupt","errors":[{"code":4005,"domain":"SUSparkleErrorDomain"},{"code":4005,"domain":"SUSparkleErrorDomain"},{"code":3002,"domain":"SUSparkleErrorDomain"}],"event":"update_error","phase":"check","pid":33822,"timestamp":1795542341.5857151}
+{"case":"corrupt","event":"complete","phase":"check","pid":33822,"reason":"Sparkle rejected a corrupted signed archive","status":"PASS","timestamp":1795542341.5858722}
+{"case":"corrupt","event":"dismissed","phase":"check","pid":33822,"timestamp":1795542341.5864291}
+{"build":"1","case":"valid","event":"launched","explicit_data_argument":true,"phase":"check","pid":33847,"source":"73ad857442964437929819ba9965f6bcfdcefd27","timestamp":1795542342.0850921}
+{"case":"valid","event":"archive_loaded","phase":"check","pid":33847,"pinned":2,"preferences_preserved":true,"recordings":2,"revisions":4,"timestamp":1795542342.085501}
+{"case":"valid","configured":true,"event":"app_check_action","phase":"check","pid":33847,"timestamp":1795542342.087152}
+{"case":"valid","event":"checking","phase":"check","pid":33847,"timestamp":1795542342.0892282}
+{"case":"valid","event":"update_found","phase":"check","pid":33847,"stage":0,"timestamp":1795542342.0976028,"user_initiated":true,"version":"2"}
+{"case":"valid","event":"download_started","phase":"check","pid":33847,"timestamp":1795542342.0977778}
+{"case":"valid","event":"release_notes","phase":"check","pid":33847,"timestamp":1795542342.1001461}
+{"bytes":55577437,"case":"valid","event":"download_size","phase":"check","pid":33847,"timestamp":1795542343.116631}
+{"case":"valid","downloaded_bytes":55577437,"event":"extracting","phase":"check","pid":33847,"timestamp":1795542343.132}
+{"case":"valid","event":"ready_to_install","phase":"check","pid":33847,"timestamp":1795542344.697782}
+{"application_terminated":false,"case":"valid","event":"installing","phase":"check","pid":33847,"timestamp":1795542344.698451}
+{"build":"2","case":"valid","event":"launched","explicit_data_argument":false,"phase":"relaunch","pid":33888,"source":"73ad857442964437929819ba9965f6bcfdcefd27","timestamp":1795542345.332206}
+{"case":"valid","event":"archive_loaded","phase":"relaunch","pid":33888,"pinned":2,"preferences_preserved":true,"recordings":2,"revisions":4,"timestamp":1795542345.3326831}
+{"case":"valid","configured":true,"event":"app_check_action","phase":"relaunch","pid":33888,"timestamp":1795542345.334686}
+{"case":"valid","event":"checking","phase":"relaunch","pid":33888,"timestamp":1795542345.3359179}
+{"case":"valid","errors":[{"code":1001,"domain":"SUSparkleErrorDomain"}],"event":"no_update","phase":"relaunch","pid":33888,"timestamp":1795542345.34606}
+{"case":"valid","event":"complete","phase":"relaunch","pid":33888,"reason":"Signed feed verified; no newer version available","status":"PASS","timestamp":1795542345.3462181}
+{"case":"valid","event":"dismissed","phase":"relaunch","pid":33888,"timestamp":1795542345.3485398}
+{"build":"2","case":"public-empty","event":"launched","explicit_data_argument":true,"phase":"public-empty","pid":33931,"source":"73ad857442964437929819ba9965f6bcfdcefd27","timestamp":1795542348.478323}
+{"case":"public-empty","event":"archive_loaded","phase":"public-empty","pid":33931,"pinned":2,"preferences_preserved":true,"recordings":2,"revisions":4,"timestamp":1795542348.4787509}
+{"case":"public-empty","configured":true,"event":"app_check_action","phase":"public-empty","pid":33931,"timestamp":1795542348.4803538}
+{"can_become_key":false,"can_become_main":false,"candidate_activated":false,"case":"public-empty","event":"settings_preconditions","in_process_check_count":0,"in_process_checks":[],"in_process_toggle_count":0,"in_process_toggles":[],"is_key":false,"is_main":false,"phase":"public-empty","pid":33931,"timestamp":1795542348.872401}
+{"automatic":{"actions":["AXPress"],"enabled":true,"height":16,"identifier":"settings.automaticUpdates","names":["settings.automaticUpdates"],"role":"AXCheckBox","width":36},"case":"public-empty","check":{"actions":["AXPress"],"enabled":true,"height":24,"identifier":"settings.checkForUpdates","names":["检查更新…","settings.checkForUpdates"],"role":"AXButton","width":86},"event":"settings_native_controls","phase":"public-empty","pid":33931,"timestamp":1795542349.764163}
+{"case":"public-empty","event":"checking","phase":"public-empty","pid":33931,"timestamp":1795542349.875541}
+{"action":"AXUIElementPerformAction\/AXPress","automatic_updates_control_present":true,"candidate_activated":false,"case":"public-empty","event":"settings_control","foreground_unchanged":true,"height_pixels":1360,"height_points":680,"identifier":"settings.checkForUpdates","phase":"public-empty","pid":33931,"pressed":true,"timestamp":1795542350.0205541,"width_pixels":1840,"width_points":920}
+{"case":"public-empty","errors":[{"code":1001,"domain":"SUSparkleErrorDomain"}],"event":"no_update","phase":"public-empty","pid":33931,"timestamp":1795542351.7463911}
+{"case":"public-empty","event":"complete","phase":"public-empty","pid":33931,"reason":"Signed feed verified; no newer version available","status":"PASS","timestamp":1795542351.746568}
+{"case":"public-empty","event":"dismissed","phase":"public-empty","pid":33931,"timestamp":1795542351.747108}

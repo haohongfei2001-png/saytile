@@ -1,0 +1,15 @@
+{
+  "status": "FAIL_PRESERVED",
+  "source": "fb3c361eb10d69d06d8fd8c1506e29d55b18c2f9",
+  "run": 45552530436,
+  "product": "2d12129f2031fdf827d51fa1796d155e79243e07",
+  "first_write_exact": true,
+  "writes": 1,
+  "observed_reason": "page.context_attributes",
+  "first_snapshot_context_complete": false,
+  "next_context_complete": true,
+  "bottom_AX_cause": "UNKNOWN: old combined reason does not distinguish communication error, incomplete batch or missing required role",
+  "product_defect": "Transient AX context read failure can be represented as changed/incomplete context instead of a read error",
+  "wrong_window_or_duplicate_or_send": false,
+  "next_work": "Preserve only definite AX messaging/incomplete batch as unsupported; keep explicit semantic changes, unknown structural coverage and coordinator assertions unchanged"
+}

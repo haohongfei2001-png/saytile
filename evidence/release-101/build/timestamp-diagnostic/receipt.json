@@ -1,0 +1,26 @@
+[
+  {
+    "route": "http-proxy",
+    "exit": 0,
+    "response": "200 2.282201",
+    "error": "",
+    "tsr_valid": true,
+    "parsed": "Status info:\nStatus: Granted.\nStatus description: Operation Okay\nFailure info: unspecified\n\nTST info:\nVersion: 1\nPolicy OID: 1.2.3\nHash Algorithm: sha256\nMessage data:\n    0000 - 64 86 3d a4 93 ca e8 f0-03 56 14 24 9e 4d 07 0b   d.=......V.$.M..\n    0010 - de a8 b4 98 b2 c0 8a 3a-9d a8 2b ab 1d d1 0f 2a   .......:..+....*\nSerial number: 0x1921596B20697B37\nTime stamp: Nov 25 01:00:11 2026 GMT\nAccuracy: 0x01 seconds, unspecified millis, unspecified micros\nOrdering: no\nNonce: 0x17EEC5E5D5CFB8BF\nTSA: unspecified\nExtensions:\n"
+  },
+  {
+    "route": "https-proxy",
+    "exit": 35,
+    "response": "000 5.003959",
+    "error": "curl: (35) LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to timestamp.apple.com:443 \n",
+    "tsr_valid": false,
+    "parsed": ""
+  },
+  {
+    "route": "http-direct",
+    "exit": 0,
+    "response": "200 7.029813",
+    "error": "",
+    "tsr_valid": true,
+    "parsed": "Status info:\nStatus: Granted.\nStatus description: Operation Okay\nFailure info: unspecified\n\nTST info:\nVersion: 1\nPolicy OID: 1.2.3\nHash Algorithm: sha256\nMessage data:\n    0000 - 64 86 3d a4 93 ca e8 f0-03 56 14 24 9e 4d 07 0b   d.=......V.$.M..\n    0010 - de a8 b4 98 b2 c0 8a 3a-9d a8 2b ab 1d d1 0f 2a   .......:..+....*\nSerial number: 0x7BD10CC7F5EF9A2B\nTime stamp: Nov 25 01:00:20 2026 GMT\nAccuracy: 0x01 seconds, unspecified millis, unspecified micros\nOrdering: no\nNonce: 0x17EEC5E5D5CFB8BF\nTSA: unspecified\nExtensions:\n"
+  }
+]

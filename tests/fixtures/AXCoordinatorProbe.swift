@@ -358,4 +358,5 @@ private final class TargetMutationAccess: InputAccess {
     func observe(_ expected: InputTargetSnapshot, onChange: @escaping @MainActor (InputTargetChange) -> Void) -> InputObservationSupport { base.observe(expected, onChange: onChange) }
     func stopObserving() { base.stopObserving() }
     func textWitness(at expected: InputTargetSnapshot) -> String? { base.textWitness(at: expected) }
+    func checkedTextWitness(at expected: InputTargetSnapshot) throws -> String? { try base.checkedTextWitness(at: expected) }
 }

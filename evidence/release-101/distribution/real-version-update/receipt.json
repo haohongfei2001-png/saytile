@@ -1,0 +1,45 @@
+{
+  "status": "FAIL",
+  "original_apps": [
+    {
+      "source": "42d8e98eaf04a56d34a36cc1aca2aff7061150f4",
+      "version": "1.0.0",
+      "build": "572",
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "executable_sha256": "d35c8f37ddf73b1a3820b7e12687464a8d17c309e186d8e03f58ba5dfc829f6b",
+      "info_sha256": "a79c98b151b8578bd582c301eee2c0c4f7b2678745a58bd3ecb78ad2e9a294ad"
+    },
+    {
+      "source": "4ac4d90bc12e83e7293dd00597e68881090b57ee",
+      "version": "1.0.1",
+      "build": "574",
+      "bundle_id": "app.saytile.mac.mandarin-candidate",
+      "executable_sha256": "3a510f82e6d5fa08341be06ee9cf85f18c7950ff725687aa9c2fbc6d5ddf784f",
+      "info_sha256": "edb147ad65868ae921be3528fd5caeb524f7fa8caa45183809cac181438ca44b"
+    }
+  ],
+  "current_installation": "NOT_ACCESSED",
+  "production_data": "NOT_ACCESSED",
+  "storage_probe_binding": {
+    "app_source": "4ac4d90bc12e83e7293dd00597e68881090b57ee",
+    "storage_test_source": "34d418f5ac309f7361db6b2ea2d196b1aead025c",
+    "binding": "identical complete storage/probe input Git trees",
+    "input_paths": [
+      "Sources/SaytileKit",
+      "Sources/CSQLite",
+      "Sources/CAudio",
+      "Package.swift",
+      "tests/fixtures/StoreProcessProbe.swift",
+      "scripts/test-rc-storage-processes.py"
+    ],
+    "input_tree_sha256": "e61e8bbd53c35ad6f3fc68df95c3fd1a680c8237221306bfcf7a70ae42baa0fd",
+    "original_receipt_rewritten": false
+  },
+  "real_version_numbers": true,
+  "real_release_binary_bytes": true,
+  "scope": "Sparkle CLI and real installer; host-app shutdown/relaunch tested separately",
+  "notes_scope": "signed inline text parsed by Sparkle; standard user-driver visual acceptance is separate",
+  "key_scope": "existing account; signing tool internal access; no generated or exported key",
+  "failure": "",
+  "runner_sha256": "a301913ef2ac55d33e0f02fd7aa843ecbfe012ed40b13be46a2063714832a62f"
+}

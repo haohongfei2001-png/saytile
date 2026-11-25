@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "product_source": "73ad857442964437929819ba9965f6bcfdcefd27",
+  "mode": "stable",
+  "input_sha256": "7c9d7c0e9db36e5b236bfec6533bed8798c9ce419bf2966c6c17650d2ef9258f",
+  "fixture_sha256": "f1ca7a58f8b840a09b4b99e60dc0fc8eeeea38e9915e5aae8933deaa1cec0c98",
+  "kit_library_sha256": "f58e393f59a05d2a8dd91cae3de9229c10e71c84263c58b68ffabb40e76a35db",
+  "source_equivalence": {
+    "app_source": "73ad857442964437929819ba9965f6bcfdcefd27",
+    "tested_source": "34d418f5ac309f7361db6b2ea2d196b1aead025c",
+    "checked_paths": [
+      "Sources/SaytileKit",
+      "Sources/CSQLite",
+      "Sources/CAudio",
+      "Package.swift",
+      "tests/fixtures/StoreProcessProbe.swift"
+    ],
+    "tracked_input_diff": "empty",
+    "probe_sha256": "523df7c3180b15914c9613779bcb37e92bf5ba09c22e111256957a8148b83dda",
+    "assertions_unchanged": 18,
+    "note": "Separate real test SHA and packaged product SHA; only presentation/metadata/tool commits differ; no source receipt relabelling."
+  },
+  "foreground_resolver": "NOT_RUN: owned background target injected; CI tests real resolver separately",
+  "physical_microphone": "NOT_RUN",
+  "paid_api": "NOT_CALLED"
+}

@@ -1,0 +1,40 @@
+{
+  "architecture" : "x86_64",
+  "buttons" : [
+    {
+      "action" : "remindMeLater:",
+      "enabled" : true,
+      "title" : "Remind Me Later"
+    },
+    {
+      "action" : "installUpdate:",
+      "enabled" : true,
+      "title" : "Install Update"
+    },
+    {
+      "action" : "skipThisVersion:",
+      "enabled" : true,
+      "title" : "Skip This Version"
+    }
+  ],
+  "ci_application_activated" : true,
+  "controller_ready_after_dismissal" : true,
+  "dialog_closed" : true,
+  "download_or_install_requested" : false,
+  "host_icon_name_cached" : true,
+  "host_icon_scope" : "real product .icns preloaded in fixture; dynamic system IconServices not accepted by this test",
+  "inline_notes_exact_match" : true,
+  "later_action" : "NSButton.performClick -> SUUpdateAlert.remindMeLater:",
+  "native_visible" : true,
+  "scope" : "unchanged product controller + presentation-only model + SDK default user driver; not the complete Saytile application",
+  "screenshot_pixels" : [
+    532,
+    370
+  ],
+  "status" : "PASS",
+  "versions_displayed" : [
+    "1.0.0",
+    "1.0.1"
+  ],
+  "window_controller" : "SUUpdateAlert"
+}

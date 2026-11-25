@@ -1,0 +1,56 @@
+{
+  "status": "PASS",
+  "source": "2d12129f2031fdf827d51fa1796d155e79243e07",
+  "version": "1.0.1",
+  "build": "576",
+  "executable_sha256": "037bb2de64765458cecd9288a09969d3e733345040a9a95e1e286b98b988536c",
+  "storage_regression": {
+    "passed": 18,
+    "actual_test_head": "27e758662ec00708d56ae063561aaec0dc578b74",
+    "probe_sha256": "2e712cc983d2fe7c454faf16c504853f77227b38a07424abbb0a964d21dd6754",
+    "old_receipt_reused": false,
+    "original_acceptance_script_modified": false
+  },
+  "real_version_update": {
+    "from_build": "572",
+    "to_build": "576",
+    "corrupted_archive_rejected": true,
+    "valid_archive_installed": true,
+    "offline_opened": true,
+    "rollback_reopened": true,
+    "all_synthetic_data_preserved": true,
+    "model_files": 6,
+    "model_bytes": 712777119,
+    "model_hashes_and_mtimes_preserved": true
+  },
+  "native_host_update": {
+    "real_native_install_relaunch": true,
+    "argument_free_relaunch_isolated": true,
+    "signed_release_notes_loaded": true,
+    "corrupted_release_notes_rejected": true,
+    "version_scope": "same candidate binary using 1-to-2 fixture aliases; real release versions tested separately"
+  },
+  "prepared_update": {
+    "archive_bytes": 55578054,
+    "archive_sha256": "9c9aaf38958e9b33b5e0838e3894f678c3b8c67fd85d148eefc083279eadb080",
+    "feed_sha256": "5fbe8913628ef8cd7242fd6f6d53a8441f3c8729f33ee658da8e72a2c8cc2d66",
+    "archive_signature_verified_with_published_public_key": true,
+    "signed_feed_verified": true
+  },
+  "independent_zip_and_feed_public_verification": "PASS",
+  "extraction": {
+    "file_symlink_count": 136,
+    "directory_count": 67,
+    "all_contents_and_modes_equal": true,
+    "deep_strict_codesign": true
+  },
+  "standard_sparkle_ui": "NOT_RUN_BY_THIS_576_SUITE; CI retains unchanged 574 signed fixture",
+  "public_empty_feed_and_settings_ax": "NOT_RUN_BY_THIS_576_SUITE; historical evidence preserved separately",
+  "notarization_and_gatekeeper": "NOT_RUN_BY_THIS_SUITE; root retains missing-profile blocker",
+  "production_installation": "NOT_ACCESSED",
+  "production_data": "NOT_ACCESSED",
+  "asr": "NOT_RUN",
+  "public_release": "NOT_RUN",
+  "private_key_exported": false,
+  "key_generated": false
+}

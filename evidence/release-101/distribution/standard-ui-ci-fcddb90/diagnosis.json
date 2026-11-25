@@ -1,0 +1,45 @@
+{
+  "status": "FAIL",
+  "classification": "STANDARD_UI_PROCESS_TIMEOUT; exact synchronous stage unknown",
+  "run_id": 45520699343,
+  "job_id": 138891489076,
+  "source": "fcddb9088416c9ce8ce9974cda461cdaf0451966",
+  "runner": [
+    "macos-26-intel"
+  ],
+  "artifact_id": 14980751175,
+  "artifact_sha256": "3525361c0b28f737c6d85875dd34f2a73ca971badbe9ebb43c080ddb2a14388d",
+  "artifact_matches_github_digest": true,
+  "full_job_log_sha256": "909bb7268749c4fe1c12b43be4b0f711f0cb274491587e3d09fb70eede1a0dce",
+  "original_file_sha256": {
+    "original/build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "original/expected-inline-notes.txt": "32c56f3c1d2a7e3795722d89a60868b9c13335a0971a11d0bc3643ef3d0185dc",
+    "original/native.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "original/receipt.json": "b2651c1284f3969e91462f26b3a53dd8687a225c855ca1793a40e8db2550d9e1"
+  },
+  "compiled_architecture": "x86_64",
+  "compile_succeeded": true,
+  "runtime_timeout_seconds": 45,
+  "native_receipt_present": false,
+  "loopback_requests": [],
+  "original_source_dirty_flag": true,
+  "verified_source_file_hashes": {
+    "Sources/SaytileApp/AppUpdateController.swift": "ff85cccc7c14a84fbcb114ed520a042b45433bb68edd59050e1bc1f26f26313c",
+    "tests/fixtures/StandardUpdateUIProbe.swift": "df5a2c119d8a4034163c084e0a1a36445bfcfef121af0a6ba5d59385ee13bd31",
+    "evidence/release-101/distribution/final-prepared-update/appcast.xml": "f2c372c76b374449313f1e21a3a4046f87013264b607d34c3cec69351de81622"
+  },
+  "source_dirty_scope": "Original flag retained; changed-path inventory unavailable. Controller, probe and signed feed exactly match the tested commit.",
+  "product_defect": "UNKNOWN",
+  "notes_or_button_assertion_failure": "NOT_ESTABLISHED",
+  "new_patch_scope": "diagnostic breadcrumbs and owned PID sampling only; no product change, deadline extension, network exception or assertion removal",
+  "local_diagnostics_architecture": "arm64",
+  "standard_ui_local_runtime": "NOT_RUN",
+  "download_transport": {
+    "gh_api_metadata": "PASS",
+    "gh_redirected_job_log": "EOF; no partial content retained",
+    "gh_redirected_artifact": "EOF; no partial content retained",
+    "github_connector_full_job_log": "PASS decoded complete text",
+    "github_connector_artifact": "PASS original ZIP with independent digest check"
+  },
+  "next_step": "One root-controlled CI run of the instrumented unchanged UI contract; inspect native-progress and owned PID sample before attributing a cause."
+}
