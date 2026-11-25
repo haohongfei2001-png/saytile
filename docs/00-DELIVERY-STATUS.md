@@ -1,4 +1,4 @@
-> 当前 1.0.0（572）已正式发行，见 [STATUS](../STATUS.md) 和 [本轮验收](delivery/release-100/ACCEPTANCE.md)。以下为设计恢复阶段原始历史，不代表当前产品状态。
+> 当前公开版本仍为1.0.0（572），见[发行验收](delivery/release-100/ACCEPTANCE.md)。1.0.1候选的进展与真实限制见[STATUS](../STATUS.md)和[候选验收](delivery/release-101/ACCEPTANCE.md)，尚未公开发行。以下为设计恢复阶段原始历史，不代表当前产品状态。
 
 # 交付状态 · 2026-11-06
 

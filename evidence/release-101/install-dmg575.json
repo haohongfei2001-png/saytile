@@ -1,0 +1,62 @@
+{
+  "exact_tested_files": {
+    "Contents/Info.plist": "88cc3d7c0e61063c69c985f8e65d71b65f0b54555b3ed238f35b93cc8a3a00bf",
+    "Contents/MacOS/Saytile": "43548784ae92bfc80c471d409be3f4df10e265a4ea97e8e1cc858b773b41499f",
+    "Contents/Helpers/SaytileModelWorker": "fc6a05714209b3971bf1d06b9f2bbdff7e2a4f27e7d723b56d00a46f989d1e9c",
+    "Contents/Helpers/SaytileSherpa": "4575a201b98cf5dd2481d03cec19c771d502e99563348259c2ac658dfc62ba9d",
+    "Contents/Resources/default.metallib": "ba981ecf4fd7cdf808946c2be37b7eecff3a7b44eddbb9b7c8c51dc47b8b1617"
+  },
+  "app_signature": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "installed_info": {
+    "CFBundleDevelopmentRegion": "zh_CN",
+    "CFBundleDisplayName": "Saytile",
+    "CFBundleExecutable": "Saytile",
+    "CFBundleIconFile": "Saytile",
+    "CFBundleIdentifier": "app.saytile.mac.mandarin-candidate",
+    "CFBundleInfoDictionaryVersion": "6.0",
+    "CFBundleName": "Saytile",
+    "CFBundlePackageType": "APPL",
+    "CFBundleShortVersionString": "1.0.1",
+    "CFBundleVersion": "575",
+    "LSMinimumSystemVersion": "26.0",
+    "LSUIElement": true,
+    "NSHighResolutionCapable": true,
+    "NSMicrophoneUsageDescription": "Saytile 在你开启后持续接收讲话，独立保存原音并转为文字。你可以随时点语音板右侧的语音键暂停。",
+    "NSPrincipalClass": "NSApplication",
+    "NSSpeechRecognitionUsageDescription": "Saytile 将你选择的语音转写为中文，识别失败时仍保留原音。",
+    "SUAllowsAutomaticUpdates": false,
+    "SUAutomaticallyUpdate": false,
+    "SUEnableAutomaticChecks": true,
+    "SUEnableSystemProfiling": false,
+    "SUFeedURL": "https://raw.githubusercontent.com/haohongfei2001-png/saytile/codex/update-feed/mandarin/appcast.xml",
+    "SUPublicEDKey": "yVPpMoHz8/6GJ82Becd+jgoKvCww+9h2v2Vs6xZu/iw=",
+    "SURequireSignedFeed": true,
+    "SUScheduledCheckInterval": 86400,
+    "SUSendProfileInfo": false,
+    "SUSignedFeedFailureExpirationInterval": 0,
+    "SUVerifyUpdateBeforeExtraction": true,
+    "SaytileFeedbackSubmissionEnabled": false,
+    "SaytileReleaseVersion": "1.0.1",
+    "SaytileSourceDirty": false,
+    "SaytileSourceRevision": "8f25ea3be642263daf22ff297f337026395840a6",
+    "SaytileUpdateBundleIdentifier": "app.saytile.mac.mandarin-candidate",
+    "SaytileUpdateChannel": "mandarin"
+  },
+  "offline_first_launch": {
+    "exit": 0,
+    "stdout": "SAYTILE_SMOKE_OK records=0 microphone=已允许 bundled_sample_bytes=200706\n",
+    "stderr": "sandbox_extension_issue_file_to_process failed for /var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-release101-install-y1d2ohbf/Applications/Saytile.app: 1 (Operation not permitted)\n"
+  },
+  "tampered_resource_rejected": {
+    "exit": 1,
+    "stdout": "",
+    "stderr": "/var/folders/6f/fl5l5wdx1f1brqkw39j31wf80000gn/T/saytile-release101-install-y1d2ohbf/Applications/Saytile.app: a sealed resource is missing or invalid\n"
+  },
+  "status": "PASS",
+  "source": "8f25ea3be642263daf22ff297f337026395840a6",
+  "scope": "Read-only signed DMG -> isolated Applications -> offline empty store; exact tested executables and weights runtime; no installed 533 changes. Internet Gatekeeper is separately BLOCKED, no bypass."
+}
