@@ -5,6 +5,18 @@ import Testing
 
 @Suite("Input identity and safety")
 struct InputPolicyTests {
+    @Test func unreadableRoleIsUnknownButExplicitDenialRemainsDefinitive() throws {
+        for role in [Optional<String>.none, ""] {
+            #expect(throws: NativeInputError.self) { try InputSafetyPolicy.isEditable(role: role, enabled: true) }
+            #expect(try !InputSafetyPolicy.isEditable(role: role, enabled: false))
+        }
+        #expect(try !InputSafetyPolicy.isEditable(role: "AXStaticText", enabled: true))
+        #expect(try !InputSafetyPolicy.isEditable(role: "AXTextArea", enabled: false))
+        #expect(try InputSafetyPolicy.isEditable(role: "AXTextArea", enabled: true))
+        // Preserve the pre-existing optional AXEnabled compatibility contract.
+        #expect(try InputSafetyPolicy.isEditable(role: "AXTextField", enabled: nil))
+    }
+
     @Test(arguments: ["unavailable", "changed", "permission", "sensitive"])
     @MainActor func witnessReadErrorsRemainDistinctFromMissingProof(_ scenario: String) throws {
         let error: NativeInputError = switch scenario {
@@ -198,10 +210,13 @@ struct InputCoordinatorTests {
         try await store.close()
     }
 
-    @Test(arguments: ["restored", "persistent", "one-settled-read", "second-content", "focus", "layout",
+    @Test(arguments: ["restored", "missing-role-restored", "empty-role-restored", "disabled-restored",
+                      "readonly-restored", "disabled-missing-role", "persistent", "one-settled-read", "second-content", "focus", "layout",
                       "changed-process", "changed-window", "changed-editor", "changed-page", "incomplete-page",
                       "changed-caret", "selected-range", "changed-prefix", "changed-suffix", "sensitive"])
     func firstWebWriteNotificationWithUnreadableSnapshotRequiresFreshProof(_ scenario: String) async throws {
+        let shouldRecover = ["restored", "missing-role-restored", "empty-role-restored"].contains(scenario)
+        let explicitDenial = ["disabled-restored", "readonly-restored", "disabled-missing-role"].contains(scenario)
         let directory = testDirectory()
         defer { try? FileManager.default.removeItem(at: directory) }
         let store = try SaytileStore(directory: directory), access = FakeInputAccess()
@@ -219,6 +234,15 @@ struct InputCoordinatorTests {
             // cannot read the focused AX range. Install the fault BEFORE notifying.
             access.onSnapshot = {
                 snapshotReads += 1
+                if snapshotReads == 1 && (["missing-role-restored", "empty-role-restored"].contains(scenario) || explicitDenial) {
+                    let role: String? = scenario == "empty-role-restored" ? "" :
+                        scenario == "readonly-restored" ? "AXStaticText" :
+                        scenario == "disabled-restored" ? "AXTextArea" : nil
+                    let enabled = !scenario.hasPrefix("disabled")
+                    if !explicitDenial { unavailableReads += 1 }
+                    access.target.isEditable = try InputSafetyPolicy.isEditable(role: role, enabled: enabled)
+                    return
+                }
                 if snapshotReads == 1 || scenario == "persistent" ||
                     scenario == "one-settled-read" && snapshotReads > 2 {
                     unavailableReads += 1
@@ -227,7 +251,9 @@ struct InputCoordinatorTests {
             }
             access.onWitness = { if access.fieldWitness != nil { completeFieldReads += 1 } }
             access.onChange?(.contentOrSelection)
-            #expect(unavailableReads == 1)
+            #expect(unavailableReads == (explicitDenial ? 0 : 1))
+            if explicitDenial { #expect(input.binding == nil) }
+            access.target.isEditable = true // A later readable snapshot cannot undo an explicit denial.
             switch scenario {
             case "second-content": access.onChange?(.contentOrSelection)
             case "focus": access.onChange?(.focusOrDocument)
@@ -247,10 +273,10 @@ struct InputCoordinatorTests {
         }
         let result = await input.insertStable(recordingID: record.id, revisionID: revision.id,
             stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt)
-        #expect(result == (scenario == "restored" ? .confirmed : .unverified))
-        #expect((input.binding != nil) == (scenario == "restored"))
+        #expect(result == (shouldRecover ? .confirmed : .unverified))
+        #expect((input.binding != nil) == shouldRecover)
         #expect(access.attempts == ["你好😀"])
-        if scenario == "restored" {
+        if shouldRecover {
             // Initial verification plus TWO independently settled complete witnesses.
             #expect(snapshotReads >= 3)
             #expect(completeFieldReads >= 3)
@@ -262,8 +288,8 @@ struct InputCoordinatorTests {
         access.onSnapshot = nil; access.onWitness = nil; access.afterDispatch = nil
         #expect(await input.insertStable(recordingID: record.id, revisionID: revision.id,
             stableUTF16End: revision.text.utf16.count, recordingStartedAt: record.createdAt) ==
-            (scenario == "restored" ? .noNewText : .cancelled))
-        if scenario != "restored" {
+            (shouldRecover ? .noNewText : .cancelled))
+        if !shouldRecover {
             let correction = try await store.saveEdit(recordingID: record.id, text: "您好😀")
             #expect(await input.repairOwned(revision: correction) == .correctionPending)
         }
@@ -271,7 +297,7 @@ struct InputCoordinatorTests {
         // Uncertain delivery must not acquire a stored range for later corrections.
         let db = try StoreDatabase(url: directory.appendingPathComponent("Saytile.sqlite"), readOnly: true)
         let ownership = try db.rows("SELECT expected_text,valid FROM owned_input_ranges WHERE recording_id=?", [.text(record.id.uuidString)])
-        if scenario == "restored" {
+        if shouldRecover {
             #expect(ownership.count == 1 && ownership.first?["expected_text"] == "你好😀" && ownership.first?["valid"] == "1")
         } else { #expect(ownership.isEmpty) }
         try db.close()

@@ -1,0 +1,50 @@
+{
+  "utc": "2026-11-25T03:31:59.926567+00:00",
+  "base_agent_head": "b94f89f6964e0c45939b65f2a0a44df0f67218b1",
+  "scope": "production editability policy + coordinator + SQLite; deterministic AX metadata; no native foreground use",
+  "original_failure": {
+    "run": 45530413100,
+    "head": "880840e",
+    "path": "/private/tmp/saytile-release-101/evidence/release-101/ci/880840e/foreground/chrome.log",
+    "sha256": "224ba1d28ecbdcb7c4bc7d16cbe1eb68dd5201819b38f721a1fb1d245ae6310b",
+    "status": "FAIL retained",
+    "root_cause": "UNKNOWN: original log does not distinguish missing AXRole from explicitly false AXEnabled"
+  },
+  "confirmed_code_defect": "AXRole nil/failed read was coalesced to an empty string and false editability; the unknown could not enter the existing bounded issued-write readback path",
+  "source_sha256": {
+    "Sources/SaytileKit/InputAccessibility.swift": "e3cd8d2fe44572d2960c1be7a53c6496c4e74bdfbfd33650d658cb2cc3ca1219",
+    "Sources/SaytileKit/InputCoordinator.swift": "bd9481c6ac0c95b77a0a5a7963c33c30f8ef0968153a65e9dd7d94697bdd5ecf",
+    "tests/SaytileKitTests/InputTests.swift": "307a8089e5fa2f850dbdb6e6a002abf396953d43e2958fe11a00bad87ab69f73",
+    "tests/fixtures/InputRoleReadProbe.swift": "4cdbbcbab477628f0d147ec6567c60b9f8777479d43eedfa76298ee75ef40d8d",
+    "tests/fixtures/InputWitnessSettlementProbe.swift": "9572c24be70c5f8743b81b61c709bda5e04362918f441b0873a7c37d54f0672a"
+  },
+  "binaries": {
+    "libSaytileKit.a": "14cce2482fd81ebd207bbf1d23e1452fe510bce85d8efae081bc0264ee1af446",
+    "InputRoleReadProbe": "e448a06c49321a001b71f444f14e8c049e3cba6de83549a302ed2877e3d14f9b",
+    "InputWitnessSettlementProbe": "67c6a230293a0ed975dcffda79b75f83454f3dceee7a287e2fa99c186ba26fa5"
+  },
+  "tests": {
+    "production_kit_compile": "PASS",
+    "new_role_faults": "PASS 21/21: 2 recovered only with full proof, 19 safe refusals; one mutation each",
+    "existing_witness_faults": "PASS 16/16 unchanged",
+    "swift_testing": "NOT_RUN locally; existing incomplete-Xcode boundary, final CI required",
+    "real_foreground_chrome": "NOT_RUN; pending unified final CI",
+    "swift_testing_source_parse": "PASS syntax only; not Swift Testing execution"
+  },
+  "unchanged_safety": {
+    "coordinator_source_unchanged": true,
+    "settled_read_limit": 4,
+    "settled_read_sleep_ms": 220,
+    "new_write_attempts_per_dispatch": 1,
+    "explicit_disabled_role_denial": "immediate; also when role missing",
+    "known_noneditable_role_denial": "immediate",
+    "gap_requires_two_full_witnesses": true,
+    "window_editor_page_caret_range_surrounding_text_checks": "unchanged",
+    "edit_sequence_invalidates": "unchanged",
+    "focus_or_layout_or_cancel_invalidates": "unchanged",
+    "text_write_replay": false,
+    "automatic_send": false,
+    "foreground_activation": false,
+    "production_data_access": false
+  }
+}
