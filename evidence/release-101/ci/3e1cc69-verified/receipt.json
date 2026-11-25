@@ -1,0 +1,279 @@
+{
+  "schema": "saytile.release101.ci-independent-review.v1",
+  "reviewed_at_utc": "2026-11-25T10:38:30.576150+00:00",
+  "status": "PASS_WITH_EXPLICIT_SCOPE",
+  "source": "3e1cc6961df4da01a1c52310755a7dd215ef4310",
+  "version": "1.0.1",
+  "build": "577",
+  "run_id": 45576254680,
+  "run_attempt": 1,
+  "run_url": "https://github.com/haohongfei2001-png/saytile/actions/runs/45576254680",
+  "run_conclusion": "success",
+  "jobs": [
+    {
+      "id": 139074818134,
+      "name": "foreground",
+      "conclusion": "success",
+      "started_at": "2026-11-25T08:26:20Z",
+      "completed_at": "2026-11-25T08:29:18Z",
+      "all_steps_success": true
+    },
+    {
+      "id": 139074818416,
+      "name": "native",
+      "conclusion": "success",
+      "started_at": "2026-11-25T08:26:21Z",
+      "completed_at": "2026-11-25T08:43:47Z",
+      "all_steps_success": true
+    },
+    {
+      "id": 139074818576,
+      "name": "swift-tests",
+      "conclusion": "success",
+      "started_at": "2026-11-25T08:26:57Z",
+      "completed_at": "2026-11-25T08:33:00Z",
+      "all_steps_success": true
+    }
+  ],
+  "downloads": [
+    {
+      "file": "foreground.zip",
+      "bytes": 6917,
+      "sha256": "3c3fc5da23b117813f5df973e6cc0d3c5e2e21587b04dad4d2d199ff1ae25847",
+      "artifact_id": 15004032405,
+      "name": "single-asr-foreground",
+      "github_digest_verified": true
+    },
+    {
+      "file": "standard-update-ui.zip",
+      "bytes": 72041,
+      "sha256": "e5e9ca2f616e54ea702a5b811fa385dfe1bf76f20a453cda98aed7f2764ca679",
+      "artifact_id": 15005360164,
+      "name": "Saytile-standard-update-ui",
+      "github_digest_verified": true
+    },
+    {
+      "file": "run-logs.zip",
+      "bytes": 148148,
+      "sha256": "3ed8f0a2f5631be632cc5778766c7121b6923104061107c947d74353c508c6af",
+      "origin": "GET /repos/haohongfei2001-png/saytile/actions/runs/45576254680/logs"
+    }
+  ],
+  "swift_testing": {
+    "total": 584,
+    "passed": 584,
+    "failed": 0,
+    "skipped_result_lines": 0,
+    "method": "Seven disjoint runner summary totals cross-checked with 584 test start and 584 test pass lines; parameter-case lines not used as test total",
+    "batches": [
+      {
+        "label": "Isolated native viewport frames",
+        "tests_passed": 4,
+        "suites": 2,
+        "seconds": 0.89,
+        "log_line": 2021
+      },
+      {
+        "label": "Isolated ProtocolNetworkIntegrationTests",
+        "tests_passed": 13,
+        "suites": 1,
+        "seconds": 37.61,
+        "log_line": 2118
+      },
+      {
+        "label": "Isolated CloudConnectionVerificationTests",
+        "tests_passed": 12,
+        "suites": 1,
+        "seconds": 9.432,
+        "log_line": 2166
+      },
+      {
+        "label": "Isolated CaptureCloudIntegrationTests",
+        "tests_passed": 1,
+        "suites": 1,
+        "seconds": 0.939,
+        "log_line": 2183
+      },
+      {
+        "label": "Isolated OfflineFailoverTests",
+        "tests_passed": 9,
+        "suites": 1,
+        "seconds": 6.761,
+        "log_line": 2224
+      },
+      {
+        "label": "Isolated AudioPlayerIntegrationTests|ParagraphPlaybackTests",
+        "tests_passed": 8,
+        "suites": 2,
+        "seconds": 4.601,
+        "log_line": 2257
+      },
+      {
+        "label": "Remaining Swift suites",
+        "tests_passed": 537,
+        "suites": 64,
+        "seconds": 17.497,
+        "log_line": 3750
+      }
+    ],
+    "parameter_case_start_lines_diagnostic_only": 265,
+    "log": "run-logs/0_swift-tests.txt",
+    "xcode": "26.6 (17F113)",
+    "target": "x86_64-apple-macos14.0"
+  },
+  "xctest": {
+    "total": 30,
+    "passed": 30,
+    "failed": 0,
+    "skipped_result_lines": 0,
+    "method": "30 individual test-case pass lines; package and Selected tests summaries both say 30 and are not summed",
+    "package_summary_line": 2340,
+    "selected_summary_line": 2342
+  },
+  "foreground": {
+    "six_targets_passed": 6,
+    "separate_chrome_focus_timeout_passed": true,
+    "results": [
+      {
+        "target": "NSTextView",
+        "status": "PASS",
+        "evidence": "foreground/input-foreground-batch.log",
+        "checks": [
+          "PASS native real foreground insertion and local confirmation",
+          "PASS native duplicate stable range suppressed",
+          "PASS native UTF16 suffix preserves surrounding text",
+          "PASS native target mutation rejects stale insertion",
+          "PASS native no Return or send",
+          "PASS foreground native ignored-write no replay",
+          "PASS foreground native manual-edit no replay",
+          "PASS foreground native cancel no replay",
+          "PASS foreground native other-window no replay"
+        ]
+      },
+      {
+        "target": "WKWebView",
+        "status": "PASS",
+        "evidence": "foreground/input-foreground-batch.log",
+        "checks": [
+          "PASS web real foreground insertion and local confirmation",
+          "PASS web duplicate stable range suppressed",
+          "PASS web UTF16 suffix preserves surrounding text",
+          "PASS web target mutation rejects stale insertion",
+          "PASS web no Return or send",
+          "PASS foreground WKWebView longer",
+          "PASS foreground WKWebView shorter",
+          "PASS foreground WKWebView manualEdit",
+          "PASS foreground WKWebView blur",
+          "PASS foreground WKWebView restart",
+          "PASS foreground WKWebView silentContext",
+          "PASS foreground WKWebView holdAX"
+        ]
+      },
+      {
+        "target": "TextEdit",
+        "status": "PASS",
+        "evidence": "foreground/textedit.log",
+        "first_insert_write_count": 1,
+        "append_total_write_count": 2,
+        "deduplication_and_prefix_suffix_checked": true,
+        "selection_change_invalidated": true,
+        "zero_send_observation": "NOT_IN_ARTIFACT: plain TextEdit document has no DOM send counter; fixture and browser zero-send checks are separate"
+      },
+      {
+        "target": "Chrome",
+        "status": "PASS",
+        "evidence": "foreground/chrome.log",
+        "first_insert_write_count": 1,
+        "append_total_write_count": 2,
+        "deduplication_and_prefix_suffix_checked": true,
+        "selection_change_invalidated": true,
+        "manual_edit_cancel_target_switch_invalidated": true,
+        "dom_witnesses": 6,
+        "enter_events": 0,
+        "submits": 0
+      },
+      {
+        "target": "Edge",
+        "status": "PASS",
+        "evidence": "foreground/edge.log",
+        "first_insert_write_count": 1,
+        "append_total_write_count": 2,
+        "deduplication_and_prefix_suffix_checked": true,
+        "selection_change_invalidated": true,
+        "manual_edit_cancel_target_switch_invalidated": true,
+        "dom_witnesses": 6,
+        "enter_events": 0,
+        "submits": 0
+      },
+      {
+        "target": "Safari",
+        "status": "PASS",
+        "evidence": "foreground/safari.log",
+        "first_insert_write_count": 1,
+        "append_total_write_count": 2,
+        "deduplication_and_prefix_suffix_checked": true,
+        "selection_change_invalidated": true,
+        "manual_edit_cancel_target_switch_invalidated": true,
+        "dom_witnesses": 6,
+        "enter_events": 0,
+        "submits": 0
+      },
+      {
+        "target": "Chrome focus-timeout injection",
+        "status": "PASS",
+        "evidence": "foreground/chrome-focus-timeout.log",
+        "first_insert_write_count": 1,
+        "append_total_write_count": 2,
+        "deduplication_and_prefix_suffix_checked": true,
+        "selection_change_invalidated": true,
+        "manual_edit_cancel_target_switch_invalidated": true,
+        "dom_witnesses": 6,
+        "enter_events": 0,
+        "submits": 0
+      }
+    ],
+    "scope": "Disposable GUI CI native apps / owned synthetic documents; not user workstation or microphone acceptance"
+  },
+  "standard_update_ui": {
+    "status": "PASS",
+    "source_dirty_reported": true,
+    "source_bindings": [
+      {
+        "path": "Sources/SaytileApp/AppUpdateController.swift",
+        "sha256": "ff85cccc7c14a84fbcb114ed520a042b45433bb68edd59050e1bc1f26f26313c",
+        "matches_source_blob": true
+      },
+      {
+        "path": "tests/fixtures/StandardUpdateUIProbe.swift",
+        "sha256": "d54a40da5e148713296d6bfc76075c8b5f1724d0b0ece6b6797261a70ebb9e5b",
+        "matches_source_blob": true
+      },
+      {
+        "path": "packaging/brand/SaytilePlate.png",
+        "sha256": "cd86037992ab75fef87da47c6e2bd3206149b80165cd0333a679fba95ddf0a38",
+        "matches_source_blob": true
+      }
+    ],
+    "architecture": "x86_64",
+    "sdk": "Sparkle 2.10.1",
+    "controller": "SUUpdateAlert",
+    "native_visible": true,
+    "inline_notes_exact_match": true,
+    "later_button_actual_click": true,
+    "dialog_closed": true,
+    "controller_ready_after_dismissal": true,
+    "network": "loopback appcast only; public network denied",
+    "full_application": false,
+    "installed_update": false,
+    "fixture_build_note": "Presentation-only fixture retains its own 574 build metadata; actual product controller / probe / icon blobs verified against frozen 577 SHA. The fixture is not the signed 577 product package.",
+    "screenshot": "standard-update-ui/standard-update-dialog.png",
+    "scope": "unchanged product controller + presentation-only model + SDK default user driver; not the complete Saytile application"
+  },
+  "limitations": [
+    "This review fetches and verifies existing CI evidence only; no local tests, browser, model, or app were run.",
+    "Original failed runs 45530413100 (880840e) and 45552530436 (fb3c361) remain separate retained evidence; this success does not identify their previously unlogged underlying AX error.",
+    "No new notarization, Gatekeeper, install, rollback, speech quality, microphone, or private cloud claim is made by this CI evidence review.",
+    "Brand workflow 45576254661 is separate and not marked PASS here; root owns manifest correction and final CI.",
+    "Standard UI receipt reports source_dirty=true; no clean checkout assertion is invented. Exact relevant source blobs are cross-checked as listed."
+  ]
+}
