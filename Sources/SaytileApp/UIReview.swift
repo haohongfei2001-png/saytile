@@ -285,7 +285,7 @@ extension AppDelegate {
                 try await self.press("settings.rememberStandby", in: host)
                 guard model.remembersStandby == originalStandbyChoice else { throw ReviewFailure("standby preference did not revert") }
                 try await self.press("settings.page.about", in: host)
-                try await self.press("settings.compatibility", in: host)
+                try await self.mouseClick("settings.compatibility", side: .center, minimumWidth: 12, minimumHeight: 12, in: host)
                 try await self.press("settings.legacyCloud", in: host)
                 try await self.inspectSettings(in: host, required: ["hosted.upload-consent"], excluded: ["settings.inputDevice"])
                 try await self.chooseCloudService("自带 API", in: host)
@@ -293,7 +293,7 @@ extension AppDelegate {
                 try await self.press("settings.page.models", in: host)
                 try await self.inspectSettings(in: host, required: ["models.compatibility"],
                                               excluded: ["models.use.apple", "models.mode", "cloud.serviceInspector"])
-                try await self.press("models.compatibility", in: host)
+                try await self.mouseClick("models.compatibility", side: .center, minimumWidth: 12, minimumHeight: 12, in: host)
                 try await self.inspectSettings(in: host, required: ["models.use.apple"], excluded: ["models.mode", "cloud.serviceInspector"])
                 try await self.press("settings.page.speech", in: host)
                 guard model.deviceOnly, !model.hosted.selected, !model.hosted.consent,
@@ -755,21 +755,27 @@ extension AppDelegate {
         ownerMenu.performActionForItem(at: ownerMenu.index(of: item))
         print("NATIVE_ARCHIVE_VERSIONS own_paragraph_menu=true")
     }
-    private enum ReviewHitSide { case left, right }
+    private enum ReviewHitSide { case left, right, center }
 
     /// The helper observes a real native control's frame. Deliver mouse events only
     /// to our owned, nonactivating review window, including its actual hit-test path.
-    @MainActor private func mouseClick(_ id: String, side: ReviewHitSide, minimumWidth: CGFloat, in host: NSView) async throws {
+    @MainActor private func mouseClick(_ id: String, side: ReviewHitSide, minimumWidth: CGFloat,
+                                     minimumHeight: CGFloat = 22, in host: NSView) async throws {
         let result = try await performControl(id, in: host, arguments: ["control-frame"])
         let prefix = "NATIVE_UI_CONTROL_FRAME "
         guard let line = result.split(separator: "\n").first(where: { $0.hasPrefix(prefix) }),
               let metrics = try JSONSerialization.jsonObject(with: Data(line.dropFirst(prefix.count).utf8)) as? [CGFloat],
-              metrics.count == 4, metrics[2] >= minimumWidth, metrics[3] >= 22,
+              metrics.count == 4, metrics[2] >= minimumWidth, metrics[3] >= minimumHeight,
               let window = host.window, let primary = NSScreen.screens.first else {
             throw ReviewFailure("missing or undersized native hit region: \(id)")
         }
-        let edge = side == .left ? metrics[0] + 3 : metrics[0] + metrics[2] - 3
-        let screen = NSPoint(x: edge, y: primary.frame.maxY - (metrics[1] + metrics[3] / 2))
+        let horizontal: CGFloat
+        switch side {
+        case .left: horizontal = metrics[0] + 3
+        case .right: horizontal = metrics[0] + metrics[2] - 3
+        case .center: horizontal = metrics[0] + metrics[2] / 2
+        }
+        let screen = NSPoint(x: horizontal, y: primary.frame.maxY - (metrics[1] + metrics[3] / 2))
         let point = window.convertPoint(fromScreen: screen)
         guard host.bounds.contains(host.convert(point, from: nil)) else { throw ReviewFailure("coordinate outside fixture window") }
         func event(_ type: NSEvent.EventType) throws -> NSEvent {
@@ -786,7 +792,14 @@ extension AppDelegate {
             window.sendEvent(unconsumed)
         }
         try await Task.sleep(for: .milliseconds(80))
-        print("WORKSPACE_MOUSE_EDGE \(id) side=\(side) target=\(metrics[2])x\(metrics[3])")
+        // Lay out the transparent fixture after the actual native event so newly
+        // expanded lazy Form children are present for the next AX check.
+        host.layoutSubtreeIfNeeded()
+        if side == .center {
+            print("NATIVE_UI_DISCLOSURE_CLICK \(id) target=\(metrics[2])x\(metrics[3]) via=owned_mouse_events")
+        } else {
+            print("WORKSPACE_MOUSE_EDGE \(id) side=\(side) target=\(metrics[2])x\(metrics[3])")
+        }
     }
 
     @MainActor private func selectMenu(_ id: String, title: String, in root: NSView, hostID: String = "panel.transcript") async throws {
