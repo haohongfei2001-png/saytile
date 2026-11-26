@@ -5,6 +5,10 @@ import AppKit
 /// instead of pointing at an original menu item that a refresh can release.
 @MainActor
 final class TranscriptMenuItem: NSMenuItem {
+    // NSMenuItem.copy constructs the dynamic subclass through this initializer.
+    override init(title: String, action: Selector?, keyEquivalent: String) {
+        super.init(title: title, action: action, keyEquivalent: keyEquivalent)
+    }
     init(title: String, identifier: String, action: @escaping @MainActor () -> Void) {
         let command = TranscriptMenuCommand(action: action)
         super.init(title: title, action: #selector(TranscriptMenuCommand.performCommand(_:)), keyEquivalent: "")
