@@ -1,6 +1,6 @@
 # Saytile 1.1.0（578）— 开发候选
 
-基于 PR #56 的 `codex/release-101` / `c7b7a99478f4e33b554adf2840980b376ed38e68`，完整保留 1.0.1（577）有效修复。开发分支：`pro/release-110`。正式下载仍为 1.0.0（572）；1.1.0 尚未制作正式签名安装包或发行。
+基于 PR #56 的 `codex/release-101` / `c7b7a99478f4e33b554adf2840980b376ed38e68`，完整保留 1.0.1（577）有效修复。开发分支：`pro/release-110`，开发 [PR #57](https://github.com/haohongfei2001-png/saytile/pull/57)。正式下载仍为 1.0.0（572）；1.1.0 尚未制作正式签名安装包或发行。
 
 ## 本轮实际实现
 
@@ -11,6 +11,8 @@
 
 ## 验证状态
 
-新增自然段边界、升级保留、全段取用、原生选区、模型释放和首窗管道回归。远程macOS CI待运行；尚无本轮真实M系列首字延迟、长句停顿、内存和能耗测量，不以源码策略变化宣称实测速率提升。
+新增自然段边界、升级保留、全段取用、原生选区、模型释放和首窗管道回归。macOS与官网CI按提交运行，结果及保留的原始失败以 [PR #57 Checks](https://github.com/haohongfei2001-png/saytile/pull/57/checks) 为准；尚无本轮真实M系列首字延迟、长句停顿、内存和能耗测量，不以源码策略变化宣称实测速率提升。
 
 签名、公证、Gatekeeper、实体麦克风/睡眠/设备切换及最终安装升级由本机完成。公证凭据缺失不阻塞源码开发。已发行1.0.0和未发行1.0.1的既有证据分别保留在 `docs/delivery/release-100` 与 `docs/delivery/release-101`，不作为本轮重测结果。
+
+本机最少接续事项见 [LOCAL-HANDOFF](docs/delivery/release-110/LOCAL-HANDOFF.md)。

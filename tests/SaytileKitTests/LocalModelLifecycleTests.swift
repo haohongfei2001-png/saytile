@@ -5,7 +5,7 @@ import Testing
 
 private enum LifecycleProbeError: Error { case timedOut }
 
-private func waitForModelLifecycle(_ predicate: () async throws -> Bool) async throws {
+private func waitForModelLifecycle(_ predicate: @Sendable () async throws -> Bool) async throws {
     let deadline = ContinuousClock.now + .seconds(8)
     while try await !predicate() {
         guard ContinuousClock.now < deadline else { throw LifecycleProbeError.timedOut }

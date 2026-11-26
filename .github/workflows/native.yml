@@ -124,7 +124,8 @@ jobs:
           SAYTILE_EDITOR_REVIEW=reopen dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/editor-data" --ui-review "$RUNNER_TEMP/saytile-editor"
       - name: Shared natural paragraphs in real panel and archive
         run: |
-          SAYTILE_NATURAL_PARAGRAPHS=1 dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/natural-paragraph-data" --ui-review "$RUNNER_TEMP/saytile-natural-paragraphs"
+          swiftc -swift-version 6 -parse-as-library tests/fixtures/NativeUIControlProbe.swift -o "$RUNNER_TEMP/saytile-ui-control"
+          SAYTILE_UI_CONTROL_PROBE="$RUNNER_TEMP/saytile-ui-control" SAYTILE_NATURAL_PARAGRAPHS=1 dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/natural-paragraph-data" --ui-review "$RUNNER_TEMP/saytile-natural-paragraphs"
       - name: Preserve natural paragraph screenshots and receipts
         if: always()
         uses: actions/upload-artifact@v4
@@ -134,11 +135,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Native windows with synthetic data
-        run: python3 scripts/test-native-ui.py --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui"
+        run: python3 scripts/test-native-ui.py --controls --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui"
       - name: Native feedback controls and process restart without network
         run: python3 scripts/test-feedback-native.py --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui/feedback"
       - name: Native continuous timeline with 12000 isolated utterances
-        run: python3 scripts/test-native-timeline.py --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui/timeline"
+        run: python3 scripts/test-native-timeline.py --controls --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui/timeline"
       - name: Preserve native panel screenshots and review manifest
         if: always()
         uses: actions/upload-artifact@v4
