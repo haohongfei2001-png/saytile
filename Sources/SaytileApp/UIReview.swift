@@ -126,11 +126,16 @@ extension AppDelegate {
                 }
                 guard let firstSpan = scroll.rendered.spans.first else { throw ReviewFailure("missing old paragraph") }
                 scroll.transcriptView.setSelectedRange(.init(location: firstSpan.range.location, length: 1))
-                try await self.selectMenu("copy", title: "复制完整自然段", in: host)
+                let historyChangeCount = board.changeCount
+                do { try await self.selectMenu("copy", title: "复制完整自然段", in: host) }
+                catch {
+                    throw copyFailure("history menu action failed; clipboard_changes=\(board.changeCount - historyChangeCount): \(error.localizedDescription)",
+                                      copied: board.string(forType: .string))
+                }
                 let historyCopy = board.string(forType: .string)
                 guard !model.directMode else { throw copyFailure("history menu copy changed direct mode", copied: historyCopy) }
                 guard historyCopy == examples[0] else {
-                    throw copyFailure("history menu copy did not take its complete paragraph", copied: historyCopy)
+                    throw copyFailure("history menu copy did not take its complete paragraph; clipboard_changes=\(board.changeCount - historyChangeCount)", copied: historyCopy)
                 }
                 scroll.transcriptView.setSelectedRange(.init(location: 0, length: 0))
                 print("UI_CONTROL_PASS latest/history paragraph copy through real native context menu actions; no mode selection")
@@ -578,6 +583,16 @@ extension AppDelegate {
                       }) else { throw ReviewFailure("no visible historical line to select") }
                 scroll.transcriptView.setSelectedRange(span.range)
                 let anchor = scroll.contentView.bounds.minY
+                let paragraphMembers = scroll.rendered.spans.filter { $0.entry.paragraphID == span.entry.paragraphID }
+                guard paragraphMembers.count == 4,
+                      paragraphMembers.first?.entry.position == span.entry.paragraphID,
+                      paragraphMembers.enumerated().allSatisfy({ $0.element.entry.position == span.entry.paragraphID + Int64($0.offset) }) else {
+                    throw ReviewFailure("historical copy fixture did not retain all four natural-paragraph members")
+                }
+                // These four seeded Chinese sentences join without separators.
+                // Derive the expectation from the original displayed members,
+                // independently of the product's paragraph-copy query/helper.
+                let expectedParagraph = paragraphMembers.map(\.entry.displayText).joined()
                 let last = try await model.store.createRecording()
                 try await model.store.saveEdit(recordingID: last.id, text: "继续说，也留住刚才选中的文字。")
                 try await model.store.finishRecording(id: last.id)
@@ -586,7 +601,12 @@ extension AppDelegate {
                       !model.recent.contains(where: { $0.id == span.entry.id }) else { throw ReviewFailure("history selection moved or entered insertion list") }
                 if controls {
                     try await self.press("panel.copy", in: host)
-                    guard board.string(forType: .string) == span.entry.recording.text else { throw ReviewFailure("historical selection copy failed") }
+                    guard board.string(forType: .string) == expectedParagraph else { throw ReviewFailure("historical selection did not copy its complete four-member paragraph") }
+                    guard scroll.selectionSnapshot == span.entry.recording.text,
+                          scroll.transcriptView.selectedRange() == span.range,
+                          abs(anchor - scroll.contentView.bounds.minY) < 1 else {
+                        throw ReviewFailure("whole-paragraph copy disturbed the historical selection or viewport")
+                    }
                 }
                 print("TIMELINE_NATIVE_PASS idle_before_y=\(beforeIdle) selected=stable private_board=\(controls) history_isolated=true")
             })
@@ -783,6 +803,12 @@ extension AppDelegate {
               ids.contains(hostID == "panel.copy" ? "panel.more.copy" : "panel.menu.copy"),
               ids.contains(hostID == "panel.copy" ? "panel.more.insert" : "panel.menu.insert") else {
             throw ReviewFailure("native transcript menu did not retain paragraph reuse without target/mode setup")
+        }
+        if hostID == "panel.transcript" {
+            // AX acknowledges the request separately from AppKit dispatching the
+            // selected custom item. Await that actual event without replaying it.
+            do { try await reviewUntil { dispatchObserver.observed } }
+            catch { throw ReviewFailure("native text menu \(identifier) acknowledged AX selection but did not dispatch its action within five seconds") }
         }
     }
     @MainActor private func checkPrivateCopy(_ expected: String, board: NSPasteboard,
@@ -1957,10 +1983,12 @@ private final class ReviewActivations: @unchecked Sendable {
 
 @MainActor private final class ReviewMenuDispatch: NSObject {
     let identifier: String
+    private(set) var observed = false
     init(identifier: String) { self.identifier = identifier }
     @objc func menuSentAction(_ note: Notification) {
         guard let item = note.userInfo?["MenuItem"] as? NSMenuItem,
-              item.identifier?.rawValue == identifier else { return }
+              item.identifier?.rawValue == identifier || item.accessibilityIdentifier() == identifier else { return }
+        observed = true
         print("NATIVE_UI_MENU_DISPATCH \(identifier) target_present=\(item.target != nil)")
     }
 }
