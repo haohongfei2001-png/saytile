@@ -1,0 +1,593 @@
+{
+  "recorded_at": "2026-11-26T18:40:05.168074+08:00",
+  "product_source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+  "handoff_head": "7c86bf7cb9be40195acea2a94e75625959947f21",
+  "build": 578,
+  "host": {
+    "hardware": "Apple M5",
+    "logical_cpus": 10,
+    "unified_memory_bytes": 25769803776,
+    "macos": "27.0 (26A428)",
+    "lid_open": true,
+    "inputs": [
+      {
+        "name": "MacBook Air麦克风",
+        "transport": "coreaudio_device_type_builtin",
+        "channels": 1,
+        "sample_rate": 48000,
+        "system_default": true
+      }
+    ],
+    "real_switch": "NOT_RUN",
+    "sleep_wake": "NOT_RUN",
+    "unattended_wake_privilege": "sudo -n -l for a one-shot wake returned exit 1; a password is required",
+    "system_power_observation": "idle system sleep set to 0 with pre-existing sleep inhibitors",
+    "human_speech": "FAIL",
+    "qwen_live_natural_speech": "NOT_RUN",
+    "reference_acoustic_playback": "FAIL"
+  },
+  "unsigned_or_modified_product_code": false,
+  "microphone_authorized_status": "PASS",
+  "mic_probe": "DEVICE_PROBE hardware_buffers=49 hardware_frames=235200 sample_rate=48000.0 channels=1 no_samples_read_saved_or_recognized=true pinned_frames=240000 pinned_rate=48000.0",
+  "hardware_pause_resume": {
+    "mode": "cycle",
+    "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+    "build": 578,
+    "started": "2026-11-26T17:09:05.745624+08:00",
+    "status": "PASS",
+    "hardware_cycle": "PASS",
+    "normal_quit_request": true,
+    "integrity": "ok",
+    "record_summary": [
+      [
+        "failed",
+        "available",
+        6400,
+        0
+      ],
+      [
+        "failed",
+        "available",
+        4800,
+        0
+      ]
+    ],
+    "paragraph_count": 1,
+    "external_dispatches": 0
+  },
+  "idle": {
+    "warm": {
+      "status": "PASS",
+      "silence_seconds": 60,
+      "records": 2,
+      "process_events": [
+        {
+          "t": 0.02,
+          "worker": null
+        },
+        {
+          "t": 2.6,
+          "worker": 1
+        },
+        {
+          "t": 80.85,
+          "worker": null
+        }
+      ],
+      "raw_pcm_frames": 289280,
+      "providers": [
+        "qwen-small"
+      ],
+      "engine_events": [
+        {
+          "kind": "ready",
+          "at_s": 2.284
+        },
+        {
+          "kind": "final",
+          "at_s": 10.209
+        },
+        {
+          "kind": "final",
+          "at_s": 80.324
+        }
+      ]
+    },
+    "release": {
+      "status": "PASS",
+      "silence_seconds": 195,
+      "records": 2,
+      "process_events": [
+        {
+          "t": 0.02,
+          "worker": null
+        },
+        {
+          "t": 2.66,
+          "worker": 1
+        },
+        {
+          "t": 190.51,
+          "worker": null
+        },
+        {
+          "t": 207.6,
+          "worker": 2
+        },
+        {
+          "t": 215.78,
+          "worker": null
+        }
+      ],
+      "raw_pcm_frames": 289280,
+      "providers": [
+        "qwen-small"
+      ],
+      "engine_events": [
+        {
+          "kind": "ready",
+          "at_s": 2.23
+        },
+        {
+          "kind": "final",
+          "at_s": 10.141
+        },
+        {
+          "kind": "ready",
+          "at_s": 207.324
+        },
+        {
+          "kind": "final",
+          "at_s": 215.337
+        }
+      ]
+    }
+  },
+  "native_copy": {
+    "natural_paragraphs": "PASS",
+    "overscreen_history": "PASS",
+    "private_pasteboard": true,
+    "long_member_lines": 40,
+    "owned_panel_points": [
+      344,
+      234
+    ],
+    "pagination_anchor_movement_points": 1.0,
+    "warnings": [
+      "AppKit emitted two invalid glyph index warnings in the long seeded fixture. Selection, whole-paragraph copy, and viewport assertions passed."
+    ]
+  },
+  "paced_speech": {
+    "status": "PASS",
+    "ingress": "wall-paced public WAV",
+    "gaps_seconds": [
+      3,
+      32
+    ],
+    "fixture_sha256": "2c130c47ae74549ca6b33e06a547e2165e14f665380d29cefe6667fa5602fe47",
+    "app_exit": 0,
+    "rows": [
+      [
+        1,
+        1,
+        1795684713.723733,
+        1795684720.295551,
+        "completed",
+        "available"
+      ],
+      [
+        2,
+        1,
+        1795684726.880028,
+        1795684733.498501,
+        "completed",
+        "available"
+      ],
+      [
+        3,
+        3,
+        1795684769.079081,
+        1795684775.72158,
+        "completed",
+        "available"
+      ]
+    ],
+    "db_integrity": "ok",
+    "dispatches": 0,
+    "measured_speech_end_gaps_s": [
+      6.584,
+      35.581
+    ],
+    "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+    "visible_changes": 89,
+    "archive_paragraphs_copied": 2,
+    "final_text_matches_private_board": true
+  },
+  "normal_load_pairs": [
+    {
+      "pair": 1,
+      "build": "577",
+      "start_load": [
+        2.1396484375,
+        2.3701171875,
+        2.369140625
+      ],
+      "end_load": [
+        2.0771484375,
+        2.3095703125,
+        2.34423828125
+      ],
+      "exit": 0,
+      "status": "PASS",
+      "source": "3e1cc6961df4da01a1c52310755a7dd215ef4310",
+      "first_nonempty_frame_s": 1.074,
+      "first_effective_s": 1.109,
+      "longest_effective_gap_s": 2.048,
+      "before_eos_updates": 140,
+      "after_file_s": 0.293,
+      "rss_peak_MiB": 906.9,
+      "peak_footprint_MiB": 1835.0,
+      "cpu_s": 11.69,
+      "CER": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      },
+      "archive_sha256": "14f6e7c2bee4d3b376e9cccbaa3832ad7bd16b837d0779ec3d99e8eb86a4d7d5"
+    },
+    {
+      "pair": 1,
+      "build": "578",
+      "start_load": [
+        1.91064453125,
+        2.27099609375,
+        2.330078125
+      ],
+      "end_load": [
+        2.53662109375,
+        2.3779296875,
+        2.365234375
+      ],
+      "exit": 0,
+      "status": "PASS",
+      "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+      "first_nonempty_frame_s": 0.948,
+      "first_effective_s": 0.984,
+      "longest_effective_gap_s": 1.993,
+      "before_eos_updates": 135,
+      "after_file_s": 0.307,
+      "rss_peak_MiB": 908.8,
+      "peak_footprint_MiB": 1835.0,
+      "cpu_s": 11.47,
+      "CER": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      },
+      "archive_sha256": "14f6e7c2bee4d3b376e9cccbaa3832ad7bd16b837d0779ec3d99e8eb86a4d7d5"
+    },
+    {
+      "pair": 2,
+      "build": "578",
+      "start_load": [
+        2.37353515625,
+        2.3486328125,
+        2.3544921875
+      ],
+      "end_load": [
+        2.91162109375,
+        2.47802734375,
+        2.3994140625
+      ],
+      "exit": 0,
+      "status": "PASS",
+      "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+      "first_nonempty_frame_s": 0.923,
+      "first_effective_s": 0.961,
+      "longest_effective_gap_s": 1.996,
+      "before_eos_updates": 138,
+      "after_file_s": 0.293,
+      "rss_peak_MiB": 909.5,
+      "peak_footprint_MiB": 1726.0,
+      "cpu_s": 11.42,
+      "CER": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      },
+      "archive_sha256": "14f6e7c2bee4d3b376e9cccbaa3832ad7bd16b837d0779ec3d99e8eb86a4d7d5"
+    },
+    {
+      "pair": 2,
+      "build": "577",
+      "start_load": [
+        2.69091796875,
+        2.4453125,
+        2.388671875
+      ],
+      "end_load": [
+        2.81298828125,
+        2.51171875,
+        2.4150390625
+      ],
+      "exit": 0,
+      "status": "PASS",
+      "source": "3e1cc6961df4da01a1c52310755a7dd215ef4310",
+      "first_nonempty_frame_s": 0.95,
+      "first_effective_s": 0.986,
+      "longest_effective_gap_s": 1.987,
+      "before_eos_updates": 140,
+      "after_file_s": 0.287,
+      "rss_peak_MiB": 908.0,
+      "peak_footprint_MiB": 1738.5,
+      "cpu_s": 11.57,
+      "CER": {
+        "errors": 31,
+        "substitutions": 9,
+        "deletions": 22,
+        "insertions": 0,
+        "reference_units": 205
+      },
+      "archive_sha256": "14f6e7c2bee4d3b376e9cccbaa3832ad7bd16b837d0779ec3d99e8eb86a4d7d5"
+    }
+  ],
+  "same_final_archive_in_all_four": true,
+  "prior_pro_stress": {
+    "status": "BLOCKED",
+    "valid_pairs": 0,
+    "original_failed_round_sha256": "f45247cf92bd31054c53238a3d6e099f499d17e5a52c4bee188025b76ae8a8c7",
+    "original_pairs_summary_sha256": "05192317b5c92567ee5fbb1b7b98e8ba3c6c687701a3d19e578af17676a3a5fd",
+    "prior_verification_sha256": "6163e914eb3dea7ce9891831231a2fd288fe5cb99518694f0e1010ed3845abf4"
+  },
+  "installed_533_before_after": "d711d1cab97d0ff20e23129269b8d72989db2e5258f659d49276f77cf9ab4737",
+  "candidate_dmg": {
+    "bytes": 65698914,
+    "sha256": "4885779272eaf06cfb66432848b1f0db1259803c8bd2e2156ac2524d8e9cd268"
+  },
+  "packaging_fix": {
+    "status": "PASS",
+    "scope": "temporary packaging fixture only",
+    "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+    "build": "578",
+    "guide_title": "# Saytile 安装与更新",
+    "guide_sha256": "786edf82207237c7b2d9933cce37df8d30ef627d04d3c3f8196dd36f8332dbab",
+    "app_sha256": "7cd25d7fa5672775502adcbe2c12476abec97a3ecd195fa176f66a69e58c4e98",
+    "notary_input_zip_sha256": "eb3d9727cbc622daa50f0e65213b3ef2094ea8d5b87d33f5a4a6ce927e22cf92",
+    "signed_app_preserved": true,
+    "notary_requested": false
+  },
+  "notary": {
+    "profile": "Saytile-notary",
+    "last_check_exit": 69,
+    "reason": "Error: No Keychain password item found for profile: Saytile-notary",
+    "apple_submission_id": null,
+    "submitted": false
+  },
+  "gatekeeper": {
+    "app": {
+      "exit": 3,
+      "source": "source=Unnotarized Developer ID"
+    },
+    "dmg": {
+      "exit": 3,
+      "source": "source=Unnotarized Developer ID"
+    }
+  },
+  "installed_candidate_image": {
+    "mount": "readonly, no autoopen",
+    "guide_sha256": "32ce0ea86b467d9415ce4ee6a690d471509d6d293416fc467f5afd51267fb344",
+    "guide_title": "# Saytile 1.0.1 安装与更新（发行候选）",
+    "installed_in_isolated_copy": true,
+    "build": "578",
+    "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+    "app_sha256": "7cd25d7fa5672775502adcbe2c12476abec97a3ecd195fa176f66a69e58c4e98",
+    "gatekeeper_exit": 3,
+    "gatekeeper_source": [
+      "source=Unnotarized Developer ID"
+    ],
+    "fresh_launch": "NOT_RUN",
+    "fresh_launch_reason": "Gatekeeper rejected the isolated signed candidate"
+  },
+  "final_stapled_dmg": null,
+  "post_publication": "NOT_RUN",
+  "release_decision": "HOLD",
+  "receipt_archive_sha256": "fb1fe8a1063adae879767f8e4611da9dd2a64d9a195fd8933a70a3b5a0095da4",
+  "receipt_archive_members": 49,
+  "field_microphone": {
+    "status": "FAIL",
+    "build": 578,
+    "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+    "ingress": "on-site, authorized MacBook built-in microphone; no known transcript",
+    "capture_stopped": true,
+    "normal_exit": true,
+    "hardware_seconds": 152.868,
+    "integrity": "ok",
+    "dispatches": 0,
+    "providers": [
+      "apple-speech-analyzer"
+    ],
+    "originals_retained": 13,
+    "pcm_frames": 904640,
+    "audio_duration_s": 56.54,
+    "completed": 1,
+    "failed": 12,
+    "failure_reasons": {
+      "recognizer_rejected": 8,
+      "empty": 4
+    },
+    "max_observed_panel_utf16": 1,
+    "first_observed_nonempty_s": 88.704,
+    "paragraphs": 2,
+    "short_gaps_retained": 11,
+    "new_paragraph_gaps_s": [
+      38.445
+    ],
+    "actual_qwen_live_natural_speech": "NOT_RUN",
+    "personal_readability_rating": "NOT_REPORTED",
+    "cer": null,
+    "raw_microphone_or_transcript_in_attachment": false
+  },
+  "same_input_offline_qwen": {
+    "scope": "same archived microphone PCM, offline signed worker, one explicit EOS per original segment; no VAD or UI replay",
+    "build": 578,
+    "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+    "qwen_revision": "bc441bd1e4295c1f42d9879f056049a925b6e013",
+    "weight_files_verified": 6,
+    "diagnostic_non_json_lines": 4,
+    "records": 13,
+    "pcm_frames": 904640,
+    "original_frame_counts_matched_at_eos": true,
+    "actual_live_provider": "apple-speech-analyzer",
+    "original_states": {
+      "failed": 12,
+      "completed": 1
+    },
+    "apple_live_archive": {
+      "nonempty": 1,
+      "with_letter_or_number": 1,
+      "utf16_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "lexical_codepoint_counts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "qwen_worker": {
+      "nonempty": 5,
+      "with_letter_or_number": 5,
+      "utf16_lengths": [
+        0,
+        0,
+        2,
+        0,
+        2,
+        0,
+        2,
+        2,
+        0,
+        0,
+        0,
+        2,
+        0
+      ],
+      "lexical_codepoint_counts": [
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0
+      ]
+    },
+    "rms_dbfs_20ms": {
+      "25": -53.5,
+      "50": -50.2,
+      "75": -46.9,
+      "90": -44.3,
+      "95": -37.8,
+      "99": -18.8
+    },
+    "human_reference_available": false,
+    "cer": null,
+    "live_qwen": false
+  },
+  "isolated_route_preflight": {
+    "mode": "route",
+    "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+    "build": 578,
+    "started": "2026-11-26T18:33:16.968543+08:00",
+    "status": "PASS",
+    "route": "qwen-small",
+    "microphone": "off throughout the model selection",
+    "normal_quit_request": true,
+    "integrity": "ok",
+    "record_summary": [],
+    "paragraph_count": 0,
+    "external_dispatches": 0
+  },
+  "calibrated_public_playback": {
+    "mode": "acoustic",
+    "source": "7eb459f1a07473ef3a2b66e6bba6b26cbc4f28ef",
+    "build": 578,
+    "started": "2026-11-26T18:36:32.644293+08:00",
+    "status": "FAIL",
+    "fixture_sha256": "2c130c47ae74549ca6b33e06a547e2165e14f665380d29cefe6667fa5602fe47",
+    "default_input_and_output_builtin": true,
+    "hardware_cycle": "PASS",
+    "normal_quit_request": true,
+    "integrity": "ok",
+    "record_summary": [
+      [
+        "completed",
+        "available",
+        118400,
+        0
+      ],
+      [
+        "completed",
+        "available",
+        61760,
+        0
+      ],
+      [
+        "failed",
+        "available",
+        17600,
+        0
+      ]
+    ],
+    "paragraph_count": 1,
+    "external_dispatches": 0,
+    "route": [
+      "qwen-small"
+    ],
+    "file_route_chars": 39,
+    "acoustic_chars": 45,
+    "edit_distance_to_same_file_route": 38,
+    "native_changed_lengths_during_playback": 12,
+    "playback_seconds": 10.772,
+    "first_native_nonempty_after_playback_start_s": 2.828
+  },
+  "pr57_checks": {
+    "head": "7c86bf7cb9be40195acea2a94e75625959947f21",
+    "checks": 7,
+    "succeeded": 7
+  }
+}
