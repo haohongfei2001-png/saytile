@@ -771,14 +771,9 @@ extension AppDelegate {
 
     @MainActor private func selectMenu(_ id: String, title: String, in root: NSView, hostID: String = "panel.transcript") async throws {
         let identifier = (hostID == "panel.copy" ? "panel.more." : "panel.menu.") + id
-        let dispatchObserver = NotificationCenter.default.addObserver(forName: NSMenu.didSendActionNotification,
-            object: nil, queue: .main) { note in
-                MainActor.assumeIsolated {
-                    guard let item = note.userInfo?["MenuItem"] as? NSMenuItem,
-                          item.identifier?.rawValue == identifier else { return }
-                    print("NATIVE_UI_MENU_DISPATCH \(identifier) target_present=\(item.target != nil)")
-                }
-            }
+        let dispatchObserver = ReviewMenuDispatch(identifier: identifier)
+        NotificationCenter.default.addObserver(dispatchObserver, selector: #selector(ReviewMenuDispatch.menuSentAction(_:)),
+            name: NSMenu.didSendActionNotification, object: nil)
         defer { NotificationCenter.default.removeObserver(dispatchObserver) }
         let output = try await performControl(hostID, in: root, arguments: ["select-context-menu", identifier, title])
         guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix("NATIVE_UI_CONTEXT_ITEMS ") }),
@@ -1958,6 +1953,16 @@ private final class ReviewActivations: @unchecked Sendable {
     }
     var candidateActivated: Bool { lock.lock(); defer { lock.unlock() }; return own }
     var otherActivations: Int { lock.lock(); defer { lock.unlock() }; return others }
+}
+
+@MainActor private final class ReviewMenuDispatch: NSObject {
+    let identifier: String
+    init(identifier: String) { self.identifier = identifier }
+    @objc func menuSentAction(_ note: Notification) {
+        guard let item = note.userInfo?["MenuItem"] as? NSMenuItem,
+              item.identifier?.rawValue == identifier else { return }
+        print("NATIVE_UI_MENU_DISPATCH \(identifier) target_present=\(item.target != nil)")
+    }
 }
 
 @MainActor private final class ReviewCloudMenuSelection: NSObject {
