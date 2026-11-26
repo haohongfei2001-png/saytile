@@ -352,7 +352,7 @@ import ApplicationServices
                                 targets.formUnion(observation.names)
                                 pending.append(contentsOf: observation.children)
                             }
-                            if targets.contains("settings.floatingEntry"), targets.contains("settings.inputTarget"),
+                            if targets.contains("settings.floatingEntry"), targets.contains("settings.panelPlacement"),
                                !targets.contains("archive.favorites") { arrived = true; break }
                             try? await Task.sleep(for: .milliseconds(80))
                         }

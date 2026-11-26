@@ -57,6 +57,16 @@ public struct PanelTimelineDocument<Entry: VoiceTranscriptEntry>: Equatable {
         spans = rendered.spans
     }
 
+    /// A product action takes the whole paragraph at the beginning of an
+    /// explicit text selection. A caret or scrolling alone does not pick history.
+    /// Use UTF-16 positions, never substring matching (words may repeat).
+    public func selectedParagraphID(in range: NSRange) -> Int64? {
+        guard range.location >= 0, range.location != NSNotFound, range.length > 0,
+              range.location <= text.utf16.count,
+              range.length <= text.utf16.count - range.location else { return nil }
+        return spans.first { NSIntersectionRange($0.range, range).length > 0 }?.entry.paragraphID
+    }
+
     private static func render(_ entries: [Entry], replacing: [UUID: String] = [:],
                                hiddenBreaks: [Int64: Bool] = [:]) -> (text: String, spans: [Span]) {
         let content = NSMutableString(capacity: 256)

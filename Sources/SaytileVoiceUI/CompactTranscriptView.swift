@@ -80,6 +80,9 @@ public final class CompactTranscriptScrollView<Entry: VoiceTranscriptEntry>: NSS
         let range = transcriptView.selectedRange(), string = transcriptView.string as NSString
         return NSMaxRange(range) <= string.length ? string.substring(with: range) : ""
     }
+    public var selectedParagraphID: Int64? {
+        rendered.selectedParagraphID(in: transcriptView.selectedRange())
+    }
     func focus(on position: Int64?) {
         guard let position else { focusedPosition = nil; return }
         guard focusedPosition != position, let span = rendered.spans.first(where: { $0.entry.position == position }) else { return }

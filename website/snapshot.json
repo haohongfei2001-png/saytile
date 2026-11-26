@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "status": "PUBLISHED_STABLE_1_0_0_VERIFIED",
+  "status": "CANDIDATE_1_1_0_COPY_REFINEMENT_DOWNLOAD_REMAINS_1_0_0",
   "version": "R8-plus-approved-two-scenes-stable-1.0.0",
   "approval_date": "2026-11-14",
   "user_instruction": "加上这新设计的两页，然后上线吧，就是说修改现在的版本。然后修改这几页",
@@ -9,7 +9,7 @@
   "base_main": "42499d6101fad7e974917b2f687abc07738d2c9c",
   "previous_snapshot": "reference/history/r3-snapshot.json",
   "runtime_file_count": 17,
-  "runtime_total_bytes": 703695,
+  "runtime_total_bytes": 703772,
   "runtime_files": [
     {
       "path": "assets/archive-native.png",
@@ -48,8 +48,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 26510,
-      "sha256": "4975b3d9cf2f265a4ba4ecfaf004a541479a6ae2bab16b5d199b6eef96d37a37"
+      "bytes": 26587,
+      "sha256": "1e2f169504b7e91805122074cdb57a66b84768618066c868e62454a4822d0fae"
     },
     {
       "path": "middle.css",
@@ -131,8 +131,8 @@
     "receipt": "evidence/release-100/publication/receipt.json"
   },
   "documentation_update": {
-    "date": "2026-11-25",
-    "scope": "Clarify optional Accessibility, local/offline storage, no unverified cloud restore. Download remains released 1.0.0 until 1.0.1 passes release conditions.",
+    "date": "2026-11-26",
+    "scope": "Clarify local always-on expression, continuous natural paragraphs, copy-first use and optional Accessibility without changing the approved layout, styles, scripts or media. Download remains published 1.0.0 until the 1.1.0 signed package is ready.",
     "deployment": "NOT_RUN candidate branch"
   }
 }

@@ -261,16 +261,26 @@ public actor SaytileStore {
     }
     /// Freeze the exact text seen at a manual insertion click, without changing the selected draft.
     /// A volatile source may already have been pruned while the MainActor was scheduling this call.
-    public func freezeRevision(recordingID: UUID, revisionID: UUID, text: String) throws -> TranscriptRevision {
+    public func freezeRevision(recordingID: UUID, revisionID: UUID, text: String,
+                               presentationText: String? = nil) throws -> TranscriptRevision {
         _ = try requireRecording(recordingID)
         return try db.transaction {
-            let revision: TranscriptRevision
+            let frozenText = presentationText ?? text
+            var source: TranscriptRevision?
             if let row = try db.rows("SELECT * FROM revisions WHERE id=?",[.text(revisionID.uuidString)]).first {
                 let existing = try Self.decodeRevision(row)
-                guard existing.recordingID == recordingID, existing.text == text else { throw StoreError.missingRevision }
-                revision = existing
+                guard existing.recordingID == recordingID,
+                      existing.text.utf16.elementsEqual(text.utf16) else { throw StoreError.missingRevision }
+                source = existing
+            }
+            let revision: TranscriptRevision
+            if let source, source.text.utf16.elementsEqual(frozenText.utf16) {
+                revision = source
             } else {
-                revision = TranscriptRevision(id:UUID(),recordingID:recordingID,text:text,origin:.partial,createdAt:Date())
+                // Manual reuse may freeze the currently revealed prefix and the
+                // same separator as copy. Keep it unselected: neither the user's
+                // preferred revision nor their original recording is changed.
+                revision = TranscriptRevision(id:UUID(),recordingID:recordingID,text:frozenText,origin:.partial,createdAt:Date())
                 try insertRevision(revision,attempt:nil,base:nil)
             }
             try db.execute("INSERT OR IGNORE INTO frozen_revisions(revision_id) VALUES(?)",[.text(revision.id.uuidString)])

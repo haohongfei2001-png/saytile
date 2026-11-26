@@ -143,8 +143,8 @@ public struct VoiceSurfacePanel<Entry: VoiceTranscriptEntry, MenuItems: View>: V
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain).contextMenu(menuItems: menu)
-        .help(canCopy ? "复制文字；右键打开更多操作" : "右键打开更多操作")
-        .accessibilityLabel(selectedText.isEmpty ? "复制当前文字" : "复制所选文字")
+        .help(canCopy ? "复制完整自然段；右键打开更多操作" : "右键打开更多操作")
+        .accessibilityLabel(selectedText.isEmpty ? "复制最新自然段" : "复制所选自然段")
         .accessibilityHint("右键或打开上下文菜单可查看更多操作")
         .accessibilityIdentifier("panel.copy")
     }

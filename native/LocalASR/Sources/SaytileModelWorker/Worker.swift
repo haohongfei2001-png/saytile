@@ -131,12 +131,15 @@ func publish(_ text: String, kind: String, frames: Int, decodes: [[String: Any]]
                 // Upstream batch encoders have finite input windows. Bound history
                 // without retaining or retranscribing all preceding utterances.
                 if end || samples.count >= windowLimit || (rollingQwen && samples.count >= next) {
-                    // Once the first real result is visible, drain complete PCM
-                    // packets that arrived while MLX was decoding before asking
-                    // for the next preview. Always decode the window boundary
-                    // and EOS. Keep all samples, including partially read packets.
-                    if id == "qwen-small", !end, !last.isEmpty, samples.count < windowLimit,
-                       samples.count - next < maxPreviewBacklog, try input.hasNextFrameNow() { continue }
+                    // Drain complete packets already received, including on the
+                    // first pass: capture's 1 s pre-roll can otherwise send an
+                    // 800 ms silence-only window through a cold decoder while
+                    // speech is already queued. Never wait for future audio,
+                    // exceed the backlog bound, or skip a window boundary/EOS.
+                    // All original samples remain available to the final decode.
+                    if id == "qwen-small", !end,
+                       try input.coalescePreviewNow(samples: samples.count, next: next,
+                           windowLimit: windowLimit, maximumBacklog: maxPreviewBacklog) { continue }
                     let started = traceDecodes ? ProcessInfo.processInfo.systemUptime : 0
                     let verifyingPreview = id == "qwen-small" && !end && !last.isEmpty
                         && samples.count >= 48_000 && samples.count < windowLimit

@@ -213,7 +213,7 @@ struct AppModelProbe {
             app.updateEditorDraft("屏幕上的这句话"); _ = await app.flushEditorDrafts()
             let releasedDraft = try await app.store.loadDraft(recordingID: first.id)
             app.copy("已有剪贴板", quietly: true)
-            app.copyTimeline(selection: "", displayed: [:])
+            app.copyTimeline(displayed: [:])
             let copied = board.string(forType: .string)
             print("JOURNEY_REPRO revertedDraftCleared=\(releasedDraft == nil) textGroupCopied=\(copied == "屏幕上的这句话")")
             fflush(nil)
@@ -239,7 +239,7 @@ struct AppModelProbe {
             let next = try await app.store.createRecording()
             await app.refreshRecognition()
             let changeCount = board.changeCount
-            app.copyTimeline(selection: "", displayed: [:])
+            app.copyTimeline(displayed: [:])
             try require(!app.canCopyLatestParagraph && board.changeCount == changeCount,
                         "a new audio-only row after a clear cannot resurrect old text or replace the clipboard")
             try await app.store.finishRecording(id: silent.id)
@@ -332,14 +332,14 @@ struct AppModelProbe {
         try require(coalescedPasses < 10 && model.records.count == 2, "overlapping refresh callers share database work without losing archive contents")
         try require(model.recent.isEmpty, "historical records do not enter current insertion panel")
         try require(model.hasPanelInsertionScope && (try model.panelInsertionSnapshots()).map(\.recordingID) == [other.id],
-                    "a fresh app session can manually insert only the last time group from its archive")
+                    "a fresh app session can manually insert the latest natural paragraph")
         let oldRow = model.records.first { $0.id == old.id }!
         model.stageInPanel(oldRow)
         await model.refresh()
         try await until("explicit archive focus") { model.insertionArchiveEntry?.id == old.id }
         try require(model.recent.map(\.id) == [old.id], "only explicit historical reuse enters panel")
         try require((try model.panelInsertionSnapshots()).map(\.recordingID) == [old.id],
-                    "bringing one archive entry to the panel offers that record alone for manual reuse")
+                    "bringing an archive entry to the panel chooses its whole natural paragraph")
         model.followTimeline()
         try require((try model.panelInsertionSnapshots()).map(\.recordingID) == [other.id],
                     "returning to latest drops the archive-specific insertion scope")
@@ -447,7 +447,7 @@ struct AppModelProbe {
                     "whole-paragraph actions include all original recordings independently of the visible member page")
         let largeGroup = try model.panelInsertionSnapshots()
         try require(largeGroup.count == 116 && largeGroup.first?.recordingID == new.id,
-                    "manual group insertion spans multiple virtual pages in capture order")
+                    "manual paragraph insertion spans multiple virtual pages in capture order")
         guard let last = model.timelineTail else { throw Failure(message: "missing timeline tail for group insertion") }
         let newGroupStart = last.speechEnd.addingTimeInterval(121)
         let nextGroup = try await model.store.createRecording(createdAt: newGroupStart)
@@ -1169,13 +1169,13 @@ extension AppModelProbe {
             return (row, ticket)
         }
         _ = try await add(0, "上一自然段。")
-        let (second, ticket) = try await add(20, "这一段🙂")
-        _ = try await add(23, "继续说。")
+        let (second, ticket) = try await add(35, "这一段🙂")
+        _ = try await add(38, "继续说。")
         await model.refresh()
         let page = model.panelTimelinePage
         try check(Set(page.entries.map(\.group)).count == 1 && Set(page.entries.map(\.paragraphID)).count == 2,
                   "copy fixture has two natural paragraphs inside one time group")
-        model.copyTimeline(selection: "", displayed: PanelTimelineDocument(entries: page.entries).displayed)
+        model.copyTimeline(displayed: PanelTimelineDocument(entries: page.entries).displayed)
         try check(clipboard.string(forType: .string) == "这一段🙂继续说。",
                   "panel copy chooses one complete latest paragraph, never its timestamp group")
         guard let latest = model.archiveGroups.flatMap(\.paragraphs).max(by: { $0.id < $1.id }) else {
@@ -1184,39 +1184,39 @@ extension AppModelProbe {
         model.copyParagraph(latest)
         try check(clipboard.string(forType: .string) == "这一段🙂继续说。",
                   "archive and panel copy use the same natural paragraph")
-        model.copyTimeline(selection: "🙂", displayed: [:])
+        model.copyTimeline(paragraphID: page.entries[1].paragraphID, displayed: [:])
         let selectedCount = clipboard.changeCount
-        try check(clipboard.string(forType: .string) == "🙂", "selected Unicode text takes priority over paragraph copy")
+        try check(clipboard.string(forType: .string) == "这一段🙂继续说。", "product copy takes the complete explicitly selected paragraph")
         _ = try await model.store.applyRecognition(ticket: ticket, text: "后台新修订", isFinal: true)
         await model.refresh()
-        try check(clipboard.changeCount == selectedCount && clipboard.string(forType: .string) == "🙂",
+        try check(clipboard.changeCount == selectedCount && clipboard.string(forType: .string) == "这一段🙂继续说。",
                   "late ASR does not rewrite the copied snapshot")
-        model.copyTimeline(selection: "", displayed: [page.entries[1].position: "眼前的编辑🙂"])
+        model.copyTimeline(displayed: [page.entries[1].position: "眼前的编辑🙂"])
         try check(clipboard.string(forType: .string) == "眼前的编辑🙂继续说。",
                   "panel paragraph copy preserves the visible edited snapshot over a late revision")
         try model.editPanelRows([.init(id: second.id, before: "后台新修订", after: "后台新修订",
                                       paragraphBreakHidden: true, previousParagraphBreakHidden: false)])
         await model.refresh()
-        model.copyTimeline(selection: "", displayed: [:])
+        model.copyTimeline(displayed: [:])
         try check(!PanelTimelineDocument(entries: model.panelTimelinePage.entries).text.contains("\n") &&
                   clipboard.string(forType: .string) == "后台新修订继续说。",
                   "hiding a visual break preserves the same archive paragraph copy unit")
-        model.copyTimeline(selection: "上一自然段。后台新修订", displayed: [:])
-        try check(clipboard.string(forType: .string) == "上一自然段。后台新修订",
-                  "explicit selection can span natural paragraph boundaries")
+        model.copyTimeline(paragraphID: page.entries[0].paragraphID, displayed: [:])
+        try check(clipboard.string(forType: .string) == "上一自然段。",
+                  "a historical paragraph is resolved by identity without expanding to other selected text")
         _ = try await add(90, "")
         await model.refresh()
         model.pinTimeline()
-        model.copyTimeline(selection: "", displayed: [:])
+        model.copyTimeline(displayed: [:])
         try check(clipboard.string(forType: .string) == "后台新修订继续说。",
                   "a new empty paragraph and pinned reading do not expand the copy scope")
         model.clearPanel()
         let before = clipboard.changeCount
-        model.copyTimeline(selection: "", displayed: [:])
+        model.copyTimeline(displayed: [:])
         try check(clipboard.changeCount == before, "clearing the panel prevents implicit copy from resurrecting hidden history")
         _ = try await add(93, "清空后新说的话。")
         await model.refresh()
-        model.copyTimeline(selection: "", displayed: [:])
+        model.copyTimeline(displayed: [:])
         try check(clipboard.string(forType: .string) == "清空后新说的话。",
                   "copy after clear includes only the new paragraph portion")
         await model.prepareForExit()

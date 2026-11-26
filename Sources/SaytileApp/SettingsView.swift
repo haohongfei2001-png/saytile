@@ -7,7 +7,7 @@ enum SettingsPage: String, CaseIterable, Identifiable {
     case archive, appearance, speech, models, cloud, input, storage, feedback, about
     var id: Self { self }
     var title: String { switch self {
-    case .archive: "语音档案"; case .appearance: "外观"; case .speech: "麦克风"; case .models: "本地模型"; case .cloud: "云端服务"; case .input: "输入与快捷键"; case .storage: "原音与存储"; case .feedback: "用户反馈"; case .about: "关于"
+    case .archive: "语音档案"; case .appearance: "外观"; case .speech: "麦克风"; case .models: "本地识别"; case .cloud: "云端服务"; case .input: "使用与启动"; case .storage: "原音与存储"; case .feedback: "用户反馈"; case .about: "关于"
     } }
     var symbol: String { switch self {
     case .archive: "tray.full"; case .appearance: "rectangle.on.rectangle"; case .speech: "mic"; case .models: "cpu"; case .cloud: "cloud"; case .input: "keyboard"; case .storage: "internaldrive"; case .feedback: "bubble.left"; case .about: "info.circle"
@@ -35,6 +35,17 @@ struct SettingsView: View {
     }
     @ViewState private var cleanup = false
     private var page: SettingsPage { navigation.page }
+    // Keep existing service settings available for people who configured them,
+    // without making an unconfigured account/API setup part of everyday use.
+    private var navigationPages: [SettingsPage] {
+        SettingsPage.allCases.filter {
+            switch $0 {
+            case .cloud: page == .cloud || !model.deviceOnly || model.hosted.signedIn
+            case .feedback: page == .feedback || model.feedback.submissionAvailable
+            default: true
+            }
+        }
+    }
     private var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "开发构建" }
     var body: some View {
         GeometryReader { geo in
@@ -43,7 +54,7 @@ struct SettingsView: View {
                 if !compact {
                     VStack(alignment: .leading, spacing: 2) {
                         WorkspaceBrand().frame(maxWidth: .infinity).padding(.vertical, 16)
-                        ForEach(SettingsPage.allCases) { item in
+                        ForEach(navigationPages) { item in
                             WorkspaceNavRow(title: item.title, symbol: item.symbol, selected: page == item) { navigation.page = item }
                                 .accessibilityIdentifier("settings.page." + item.rawValue)
                         }
@@ -56,7 +67,7 @@ struct SettingsView: View {
                         ZStack(alignment: .leading) {
                             WorkspaceBrand(compact: true).frame(maxWidth: .infinity)
                             Menu {
-                                ForEach(SettingsPage.allCases) { item in
+                                ForEach(navigationPages) { item in
                                     Button { navigation.page = item } label: {
                                         if page == item { Label(item.title, systemImage: "checkmark") }
                                         else { Text(item.title) }
@@ -197,13 +208,9 @@ struct SettingsView: View {
         }
     }
     @ViewBuilder private var input: some View {
-        Section("直接输入") {
-            LabeledContent("辅助功能", value: model.accessibilityLabel)
-            LabeledContent("输入目标", value: model.targetLabel).accessibilityIdentifier("settings.inputTarget")
-            if !model.input.hasPermission { Button("允许跨应用插入…", action: model.requestAccessibility) }
-            Text("复制无需授权。直接输入只追加到你绑定的草稿。") .font(.callout).foregroundStyle(.secondary)
-        }
-        Section("输入板") {
+        Section("表达面板") {
+            Text("自然讲话，文字会持续出现在面板中。点击复制，取用完整自然段；不需要选择应用或输入位置。")
+                .font(.callout).foregroundStyle(.secondary)
             Picker("显示方式", selection: $model.panelPlacementMode) {
                 Text("浮板").tag(PanelPlacementMode.floating)
                 Text("实体边界").tag(PanelPlacementMode.boundary)
@@ -229,17 +236,27 @@ struct SettingsView: View {
                     Text("\(minute) 分钟").tag(minute * 60)
                 }
             }.accessibilityIdentifier("settings.timelineIdle")
-            Text("停顿约15秒后再次讲话时另起一段；时间标记使用更长的间隔。输入板和语音档案使用相同段落。")
+            Text("停顿约30秒后再次讲话时另起一段；时间标记使用更长的间隔。表达面板和语音档案使用相同段落。")
                 .font(.callout).foregroundStyle(.secondary)
-            Picker("展开或收起", selection: $model.shortcutChoice) {
-                Text("⌥ 空格").tag("option-space"); Text("⌃ ⌥ 空格").tag("control-option-space")
-                Text("⌘ ⇧ 空格").tag("command-shift-space"); Text("关闭快捷键").tag("disabled")
-            }
             Toggle("显示桌面语音入口", isOn: $model.floatingEntryEnabled).accessibilityIdentifier("settings.floatingEntry")
         }
         Section("启动") {
             Toggle("登录时启动 Saytile", isOn: Binding(get: { model.launchAtLogin }, set: { enabled in model.setLoginItem(enabled) })).disabled(!model.canManageLoginItem)
-            if !model.canManageLoginItem { Text("体验版从应用程序手动打开。").font(.callout).foregroundStyle(.secondary) }
+            if !model.canManageLoginItem { Text("请将 Saytile 放入应用程序文件夹后设置登录启动。").font(.callout).foregroundStyle(.secondary) }
+        }
+        Section {
+            DisclosureGroup("跨应用插入与快捷键") {
+                LabeledContent("辅助功能", value: model.accessibilityLabel)
+                LabeledContent("输入目标", value: model.targetLabel).accessibilityIdentifier("settings.inputTarget")
+                if !model.input.hasPermission { Button("允许跨应用插入…", action: model.requestAccessibility) }
+                Text("普通表达、记录、编辑和复制不需要辅助功能权限。已有跨应用插入只用于你明确选择的草稿。")
+                    .font(.callout).foregroundStyle(.secondary)
+                Picker("展开或收起", selection: $model.shortcutChoice) {
+                    Text("关闭快捷键").tag("disabled")
+                    Text("⌥ 空格").tag("option-space"); Text("⌃ ⌥ 空格").tag("control-option-space")
+                    Text("⌘ ⇧ 空格").tag("command-shift-space")
+                }
+            }.accessibilityIdentifier("settings.optionalInput")
         }
     }
     @ViewBuilder private var storage: some View {
@@ -249,9 +266,6 @@ struct SettingsView: View {
             Text("达到 10 GB 时提醒。删除原音会保留文字与修改版本。").font(.callout).foregroundStyle(.secondary)
             Button(model.preparingCleanup ? "正在查找原音…" : "预览可清理的原音…") { Task { cleanup = await model.previewCleanup() } }.disabled(model.preparingCleanup)
             Text("只清理 30 天前已有转写文字、且未收藏的原音。没有转写的录音会保留。").font(.callout).foregroundStyle(.secondary)
-        }
-        Section("iCloud 同步") {
-            LabeledContent("状态", value: model.privateArchiveStatus)
         }
         Section { Button("在 Finder 中显示资料目录", action: model.revealData) }
     }
@@ -271,11 +285,24 @@ struct SettingsView: View {
             Text(model.updateStatus).font(.callout).foregroundStyle(.secondary)
                 .textSelection(.enabled).accessibilityIdentifier("settings.updateStatus")
         }
-        Section("诊断信息") {
-            LabeledContent("识别状态", value: model.engineLabel)
-            if let revision = Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String {
-                LabeledContent("源码版本", value: String(revision.prefix(12))).textSelection(.enabled)
-            }
+        Section {
+            DisclosureGroup("诊断信息") {
+                LabeledContent("识别状态", value: model.engineLabel)
+                if let revision = Bundle.main.object(forInfoDictionaryKey: "SaytileSourceRevision") as? String {
+                    LabeledContent("源码版本", value: String(revision.prefix(12))).textSelection(.enabled)
+                }
+            }.accessibilityIdentifier("settings.diagnostics")
+            DisclosureGroup("高级与兼容设置") {
+                Button("已有云端服务设置…") { navigation.page = .cloud }
+                    .accessibilityIdentifier("settings.legacyCloud")
+                Text("保留以前配置的服务和授权。正常使用 Saytile 无需账号、API Key 或云端服务。")
+                    .font(.callout).foregroundStyle(.secondary)
+                if !model.feedback.submissionAvailable {
+                    Button("本机反馈草稿与记录…") { navigation.page = .feedback }
+                        .accessibilityIdentifier("settings.legacyFeedback")
+                }
+                LabeledContent("iCloud", value: model.privateArchiveStatus)
+            }.accessibilityIdentifier("settings.compatibility")
         }
     }
 }

@@ -126,30 +126,111 @@ final class ModelWorker: @unchecked Sendable {
     deinit { stop(); try? input.close() }
 }
 
+/// Pressure is a system condition, not a user-facing performance mode. This
+/// watcher owns no model and cannot start inference while the microphone is quiet.
+private final class LocalModelMemoryPressureMonitor: @unchecked Sendable {
+    private let source: any DispatchSourceMemoryPressure
+    init(_ changed: @escaping @Sendable (Bool) -> Void) {
+        source = DispatchSource.makeMemoryPressureSource(eventMask: [.normal, .warning, .critical],
+                                                        queue: .global(qos: .utility))
+        source.setEventHandler { [weak self] in
+            guard let self else { return }
+            changed(!self.source.data.intersection([.warning, .critical]).isEmpty)
+        }
+        source.activate()
+    }
+    deinit { source.cancel() }
+}
+
 public actor LocalASRService {
+    /// Thinking and reading pauses should normally reuse the already loaded
+    /// model. Pausing, sleeping and memory pressure can end this lease early.
+    static let warmIdleRetention: Duration = .seconds(180)
     public nonisolated let library: LocalModelLibrary
     private let helpers: URL
     private let chunkFrames: Int?
+    private let validatedDirectory: @Sendable (LocalASRID) async throws -> URL
+    private let idleRetention: Duration
     private var probeObserver: (@Sendable (WorkerEvent) -> Void)?
     private var waiting: [UUID] = []
     private var activeModel: LocalASRID?
     private var worker: ModelWorker?
     private var idle: Task<Void, Never>?
+    private var idleGeneration: UInt64 = 0
+    private var standbyEnabled = true
+    private var elevatedMemoryPressure = false
+    private var releaseRequested = false
+    private var pressureMonitor: LocalModelMemoryPressureMonitor?
     public init(root: URL, helpers: URL? = nil, chunkFrames: Int? = nil) {
-        library = LocalModelLibrary(root: root)
+        let library = LocalModelLibrary(root: root)
+        self.library = library
         self.helpers = helpers ?? Bundle.main.bundleURL.appending(path: "Contents/Helpers")
         self.chunkFrames = chunkFrames
+        idleRetention = Self.warmIdleRetention
+        validatedDirectory = { id in try await library.validated(LocalModelManifest.load(id)) }
     }
+    /// Isolated process tests exercise the real pipe, session and lifecycle with
+    /// a deterministic worker; production always uses the verified model library.
+    init(root: URL, helpers: URL, idleRetention: Duration,
+         validatedDirectory: @escaping @Sendable (LocalASRID) async throws -> URL) {
+        library = LocalModelLibrary(root: root)
+        self.helpers = helpers
+        self.chunkFrames = nil
+        self.idleRetention = idleRetention
+        self.validatedDirectory = validatedDirectory
+    }
+    deinit { idle?.cancel(); worker?.stop() }
     /// Called only by the isolated fixture probe before it starts its first session.
     public func observeFixtureWorker(_ observe: @escaping @Sendable (WorkerEvent) -> Void) {
         probeObserver = observe
     }
 
     public func releaseIdle() {
+        // Do not throw away an in-flight final. Remember the request so that
+        // completion actually releases it instead of starting another warm lease.
+        releaseRequested = true
+        stopIdleWorker()
+    }
+    public func setStandbyEnabled(_ enabled: Bool) {
+        standbyEnabled = enabled
+        if !enabled { stopIdleWorker() }
+    }
+    func memoryPressureChanged(elevated: Bool) {
+        elevatedMemoryPressure = elevated
+        if elevated { stopIdleWorker() }
+    }
+    private func cancelIdleRelease() {
+        idleGeneration &+= 1
+        idle?.cancel(); idle = nil
+    }
+    private func stopIdleWorker() {
         guard activeModel == nil else { return }
-        idle?.cancel()
+        cancelIdleRelease()
         worker?.stop()
         worker = nil
+        releaseRequested = false
+    }
+    private func finishedRecognition() {
+        activeModel = nil
+        guard standbyEnabled, !elevatedMemoryPressure, !releaseRequested, worker != nil else {
+            stopIdleWorker(); return
+        }
+        cancelIdleRelease()
+        let generation = idleGeneration, duration = idleRetention
+        idle = Task { [weak self] in
+            do { try await Task.sleep(for: duration) } catch { return }
+            await self?.expireIdleLease(generation)
+        }
+    }
+    private func expireIdleLease(_ generation: UInt64) {
+        guard generation == idleGeneration, activeModel == nil else { return }
+        stopIdleWorker()
+    }
+    private func monitorMemoryPressureIfNeeded() {
+        guard pressureMonitor == nil else { return }
+        pressureMonitor = LocalModelMemoryPressureMonitor { [weak self] elevated in
+            Task { await self?.memoryPressureChanged(elevated: elevated) }
+        }
     }
     public func delete(_ model: LocalASRID) async throws {
         guard activeModel != model else { throw AudioFailure.message("本段识别结束后可删除模型") }
@@ -167,6 +248,7 @@ public actor LocalASRService {
         return .init(supported: true, installed: ready, message: ready ? id.title : "\(id.title) · 需要准备模型")
     }
     fileprivate func recognize(_ id: LocalASRID, audio: AsyncStream<Data>, ingress: LocalCandidateIngress, recordingID: UUID) async throws -> Bool {
+        monitorMemoryPressureIfNeeded()
         let token = UUID()
         guard waiting.count < 8 else { throw AudioFailure.message("前段识别仍在进行，原音可重新识别") }
         waiting.append(token)
@@ -176,17 +258,13 @@ public actor LocalASRService {
         try Task.checkCancellation()
         activeModel = id
         FixturePerformanceTrace.record("asr.admitted", recordingID: recordingID)
-        idle?.cancel()
-        defer {
-            activeModel = nil
-            idle = Task { do { try await Task.sleep(for: .seconds(30)) } catch { return }; releaseIdle() }
-        }
+        cancelIdleRelease()
+        defer { finishedRecognition() }
         do {
             let fresh = worker?.id != id || worker?.process.isRunning != true
             do {
-                let manifest = try LocalModelManifest.load(id)
                 FixturePerformanceTrace.record("asr.validationStarted", recordingID: recordingID)
-                let directory = try await library.validated(manifest)
+                let directory = try await validatedDirectory(id)
                 FixturePerformanceTrace.record("asr.assetsReady", recordingID: recordingID)
                 try Task.checkCancellation()
                 if fresh {

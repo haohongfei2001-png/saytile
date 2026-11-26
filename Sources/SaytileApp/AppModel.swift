@@ -1142,16 +1142,11 @@ final class AppModel: ObservableObject {
 
     var canCopyLatestParagraph: Bool { (latestTextEntry?.position ?? 0) > hiddenThrough }
 
-    func copyTimeline(selection: String, displayed: [Int64: String]) {
-        if !selection.isEmpty { copy(selection, quietly: true); return }
-        guard let end = latestTextEntry, canCopyLatestParagraph else { return }
-        // A timestamp may contain several natural paragraphs. Copy the same unit
-        // shown by the archive, even while reading an older page; rendered text wins.
-        var snapshot = Dictionary(uniqueKeysWithValues: timeline.entries.map { ($0.position, $0.recording.text) })
-        snapshot[end.position] = end.recording.text
-        snapshot.merge(displayed) { _, rendered in rendered }
-        do { copy(try store.paragraphCopy(paragraphID: end.paragraphID, through: end.position,
-                                         after: hiddenThrough, displayed: snapshot), quietly: true) }
+    func copyTimeline(paragraphID: Int64? = nil, rendered: [TimelineEntry] = [], displayed: [Int64: String]) {
+        do {
+            let snapshot = try panelInsertionSnapshots(paragraphID: paragraphID, rendered: rendered, displayed: displayed)
+            copy(snapshot.map(\.text).joined(), quietly: true)
+        }
         catch { notice = error.localizedDescription }
     }
 
@@ -1183,32 +1178,28 @@ final class AppModel: ObservableObject {
     }
     var hasPanelInsertionScope: Bool {
         if let archive = insertionArchiveEntry { return !archive.recording.text.isEmpty }
-        return (timelineTail?.position ?? 0) > hiddenThrough
+        return canCopyLatestParagraph
     }
-    /// Resolve the exact group and immutable revisions at click time. An archive
-    /// explicitly brought to the panel is a single-record reuse action.
-    func panelInsertionSnapshots(rendered: [TimelineEntry] = [], displayed: [Int64: String] = [:]) throws -> [TimelineTextSnapshot] {
-        let candidates: [TimelineTextSnapshot]
-        if let entry = insertionArchiveEntry {
-            candidates = [TimelineTextSnapshot(entry)]
-        } else {
-            guard let tail = timelineTail, tail.position > hiddenThrough else { return [] }
-            candidates = try store.timelineGroupSnapshots(group: tail.group, through: tail.position)
-                .filter { $0.position > hiddenThrough }
-        }
+    /// Both product actions resolve exactly one natural paragraph at the click.
+    /// A text selection or an archive location explicitly chooses history; merely
+    /// scrolling keeps the latest paragraph as the default. System Copy remains
+    /// a normal NSTextView selection operation.
+    func panelInsertionSnapshots(paragraphID: Int64? = nil, rendered: [TimelineEntry] = [],
+                                 displayed: [Int64: String] = [:]) throws -> [TimelineTextSnapshot] {
+        let explicit = paragraphID ?? insertionArchiveEntry?.paragraphID
+        guard let paragraph = explicit ?? latestTextEntry?.paragraphID,
+              explicit != nil || canCopyLatestParagraph else { return [] }
+        let through = explicit == nil ? (latestTextEntry?.position ?? 0) : Int64.max
         var seen = Dictionary(uniqueKeysWithValues: timeline.entries.map { ($0.position, TimelineTextSnapshot($0)) })
-        if let tail = timelineTail { seen[tail.position] = TimelineTextSnapshot(tail) }
+        if let tail = latestTextEntry { seen[tail.position] = TimelineTextSnapshot(tail) }
         for entry in rendered { seen[entry.position] = TimelineTextSnapshot(entry) }
-        return candidates.compactMap { row in
-            let snapshot = seen[row.position] ?? row
-            guard snapshot.revisionID != nil, !snapshot.text.isEmpty, displayed[row.position] != "" else { return nil }
-            return snapshot
-        }
+        return try store.paragraphTextSnapshots(paragraphID: paragraph, through: through,
+            rendered: Array(seen.values), displayed: displayed)
     }
-    func insertFromPanel(rendered: [TimelineEntry], displayed: [Int64: String]) {
+    func insertFromPanel(paragraphID: Int64? = nil, rendered: [TimelineEntry], displayed: [Int64: String]) {
         guard !isInserting else { return }
         let snapshots: [TimelineTextSnapshot]
-        do { snapshots = try panelInsertionSnapshots(rendered: rendered, displayed: displayed) }
+        do { snapshots = try panelInsertionSnapshots(paragraphID: paragraphID, rendered: rendered, displayed: displayed) }
         catch { notice = error.localizedDescription; return }
         guard !snapshots.isEmpty else { notice = "这段还没有可插入的文字。"; return }
         isInserting = true
@@ -1219,7 +1210,8 @@ final class AppModel: ObservableObject {
                 var frozen: [TranscriptRevision] = []
                 for snapshot in snapshots {
                     guard let revisionID = snapshot.revisionID else { return }
-                    frozen.append(try await store.freezeRevision(recordingID: snapshot.recordingID, revisionID: revisionID, text: snapshot.text))
+                    frozen.append(try await store.freezeRevision(recordingID: snapshot.recordingID, revisionID: revisionID,
+                                                                 text: snapshot.sourceText, presentationText: snapshot.text))
                 }
                 for snapshot in frozen {
                     guard input.binding?.id == binding.id else { notice = NativeInputResult.cancelled.message; return }

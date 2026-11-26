@@ -32,3 +32,15 @@ jobs:
       - name: Offline ASR quality metrics and provenance
         run: python -m unittest discover -s research/asr/benchmark/quality-evaluation -p 'test_*.py' -v
       - run: python scripts/verify.py --ui
+      - name: Verify the official website and copy-first product description
+        run: |
+          export PLAYWRIGHT_MODULE="$(python -c 'import pathlib,playwright; print(pathlib.Path(playwright.__file__).parent / "driver" / "package")')"
+          export BROWSER_PATH="$SAYTILE_BROWSER_PATH"
+          node scripts/test-official-website-scenes.cjs website "$RUNNER_TEMP/saytile-website-110"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Saytile-official-website
+          path: ${{ runner.temp }}/saytile-website-110
+          if-no-files-found: warn
+          retention-days: 14

@@ -85,8 +85,8 @@ extension AppDelegate {
             // The first two paragraphs are one speaking session; a real idle gap starts the next.
             let now = Date.now
             let midnight = Calendar.current.dateInterval(of: .day, for: now)!.end
-            let base = midnight.timeIntervalSince(now) > 315 ? now.addingTimeInterval(1) : midnight
-            let offsets: [TimeInterval] = [0, 30, 280]
+            let base = midnight.timeIntervalSince(now) > 325 ? now.addingTimeInterval(1) : midnight
+            let offsets: [TimeInterval] = [0, 35, 280]
             for (index, text) in examples.enumerated() {
                 let row = try await model.store.createRecording(createdAt: base.addingTimeInterval(offsets[index]))
                 _ = try await model.store.saveEdit(recordingID: row.id, text: text)
@@ -97,21 +97,28 @@ extension AppDelegate {
                 if index == 1 { try await model.store.setPinned(recordingID: row.id, pinned: true) }
                 if index == 2 { try await model.store.deleteAudio(recordingID: row.id) }
             }
-            let originalOnly = try await model.store.createRecording(createdAt: base.addingTimeInterval(310))
+            let originalOnly = try await model.store.createRecording(createdAt: base.addingTimeInterval(320))
             try await model.store.finishRecording(id: originalOnly.id)
             await model.refresh()
             guard model.recordFilter == .transcribed, model.records.count == 3,
                   model.records.allSatisfy({ !$0.text.isEmpty }) else { throw ReviewFailure("archive did not open on transcribed paragraphs") }
             try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 340, height: 240), name: "panel-content", output: output) { host in
-                try await self.selectMenu("direct", title: "直接输入", in: host)
-                try await self.reviewUntil { model.directMode }
-                guard model.directMode else { throw ReviewFailure("direct mode button did not change mode") }
-                print("UI_NATIVE_MENU_ACK direct_mode=true")
-                try await self.selectMenu("free", title: "自由记录", in: host)
-                try await self.reviewUntil { !model.directMode }
-                guard !model.directMode else { throw ReviewFailure("free record button did not restore mode") }
-                print("UI_NATIVE_MENU_ACK direct_mode=false")
-                print("UI_CONTROL_PASS modes through real native transcript context menu actions")
+                let scroll = try self.compactTranscript(in: host)
+                guard let board = model.copyPasteboard, board.name != NSPasteboard.general.name else {
+                    throw ReviewFailure("paragraph menu review requires a private pasteboard")
+                }
+                try await self.selectMenu("copy", title: "复制完整自然段", in: host)
+                guard board.string(forType: .string) == examples[2], !model.directMode else {
+                    throw ReviewFailure("default menu copy did not take the latest paragraph")
+                }
+                guard let firstSpan = scroll.rendered.spans.first else { throw ReviewFailure("missing old paragraph") }
+                scroll.transcriptView.setSelectedRange(.init(location: firstSpan.range.location, length: 1))
+                try await self.selectMenu("copy", title: "复制完整自然段", in: host)
+                guard board.string(forType: .string) == examples[0], !model.directMode else {
+                    throw ReviewFailure("history menu copy did not take its complete paragraph")
+                }
+                scroll.transcriptView.setSelectedRange(.init(location: 0, length: 0))
+                print("UI_CONTROL_PASS latest/history paragraph copy through real native context menu actions; no mode selection")
             }
             try await reviewWindow(InputPanelView(model: model), size: CGSize(width: 320, height: 200), name: "panel-compact", output: output)
             guard let workspace = workspaceWindow(for: .archive), let content = workspace.contentView,
@@ -248,11 +255,16 @@ extension AppDelegate {
                 }
                 try await self.press("settings.rememberStandby", in: host)
                 guard model.remembersStandby == originalStandbyChoice else { throw ReviewFailure("standby preference did not revert") }
-                try await self.press("settings.page.cloud", in: host)
+                try await self.press("settings.page.about", in: host)
+                try await self.press("settings.compatibility", in: host)
+                try await self.press("settings.legacyCloud", in: host)
                 try await self.inspectSettings(in: host, required: ["hosted.upload-consent"], excluded: ["settings.inputDevice"])
                 try await self.chooseCloudService("自带 API", in: host)
                 try await self.inspectSettings(in: host, required: ["cloud.useBYOK"], excluded: ["hosted.upload-consent"])
                 try await self.press("settings.page.models", in: host)
+                try await self.inspectSettings(in: host, required: ["models.compatibility"],
+                                              excluded: ["models.use.apple", "models.mode", "cloud.serviceInspector"])
+                try await self.press("models.compatibility", in: host)
                 try await self.inspectSettings(in: host, required: ["models.use.apple"], excluded: ["models.mode", "cloud.serviceInspector"])
                 try await self.press("settings.page.speech", in: host)
                 guard model.deviceOnly, !model.hosted.selected, !model.hosted.consent,
@@ -262,8 +274,8 @@ extension AppDelegate {
             }
             try await reviewWindow(SettingsView(model: model), size: CGSize(width: 560, height: 570), name: "settings-compact", output: output)
             try await reviewWindow(SettingsView(model: model, initialPage: .models), size: CGSize(width: 650, height: 740), name: "settings-models", output: output) { host in
-                try await self.inspectSettings(in: host, required: ["models.use.apple"],
-                                              excluded: ["models.mode", "自动推荐", "手动选择", "hosted.upload-consent", "recognition.cloudEnabled"])
+                try await self.inspectSettings(in: host, required: ["models.compatibility"],
+                                              excluded: ["models.use.apple", "models.mode", "自动推荐", "手动选择", "hosted.upload-consent", "recognition.cloudEnabled"])
             }
             try await reviewWindow(SettingsView(model: model, initialPage: .cloud), size: CGSize(width: 650, height: 740), name: "settings-hosted", output: output) { host in
                 try await self.inspectSettings(in: host, required: ["cloud.serviceInspector", "hosted.email", "hosted.upload-consent"],
@@ -508,8 +520,8 @@ extension AppDelegate {
                 print("TIMELINE_PAGE_ANCHOR delta=\(pageOffset) points dx=\(sideways) lineShear=\(shear) characters=\(offsets.count)")
                 print("TIMELINE_NATIVE_PAGE rows=12003 resident=64 wheel_to_paint=\(began.duration(to: .now))")
                 let entries = scroll.rendered.spans
-                // This fixture has 24-second speech gaps: midnight changes the
-                // archive day, while the >15-second gap independently starts a paragraph.
+                // A 24-second pause continues the thought across midnight even
+                // though the civil time group changes. No artificial line break.
                 guard scroll.rendered.markers.isEmpty,
                       let nextDay = entries.indices.dropFirst().first(where: { entries[$0-1].entry.groupDay != entries[$0].entry.groupDay }) else {
                     throw ReviewFailure("midnight inserted a time heading or lost the adjacent historical owners")
@@ -518,14 +530,14 @@ extension AppDelegate {
                 let separation = NSRange(location: NSMaxRange(beforeMidnight.range),
                                          length: afterMidnight.range.location - NSMaxRange(beforeMidnight.range))
                 let displayed = scroll.transcriptView.string as NSString
-                guard afterMidnight.entry.recording.createdAt.timeIntervalSince(beforeMidnight.entry.speechEnd) >= 15,
-                      beforeMidnight.entry.paragraphID != afterMidnight.entry.paragraphID,
-                      separation.length == 1, displayed.substring(with: separation) == "\n",
+                guard afterMidnight.entry.recording.createdAt.timeIntervalSince(beforeMidnight.entry.speechEnd) < 30,
+                      beforeMidnight.entry.paragraphID == afterMidnight.entry.paragraphID,
+                      separation.length == 0,
                       displayed.substring(with: beforeMidnight.range) == beforeMidnight.entry.displayText,
                       displayed.substring(with: afterMidnight.range) == afterMidnight.entry.displayText else {
-                    throw ReviewFailure("24-second midnight pause did not preserve both originals with exactly one natural paragraph break")
+                    throw ReviewFailure("24-second midnight pause split a continuous natural paragraph")
                 }
-                print("TIMELINE_MIDNIGHT_PARAGRAPH one_newline=true original_text=true time_heading=false")
+                print("TIMELINE_MIDNIGHT_PARAGRAPH continuous=true original_text=true time_heading=false")
                 scroll.transcriptView.scrollRangeToVisible(entries[nextDay].range)
                 try self.captureReview(host, name: "timeline-midnight", output: output)
                 // Select a line already on screen. A second asynchronous AppKit scroll
@@ -737,9 +749,11 @@ extension AppDelegate {
         let output = try await performControl(hostID, in: root, arguments: ["select-context-menu", identifier, title])
         guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix("NATIVE_UI_CONTEXT_ITEMS ") }),
               let ids = try JSONSerialization.jsonObject(with: Data(line.dropFirst("NATIVE_UI_CONTEXT_ITEMS ".count).utf8)) as? [String],
-              ids.contains(hostID == "panel.copy" ? "panel.more.bind" : "panel.menu.bind"),
+              !ids.contains(hostID == "panel.copy" ? "panel.more.bind" : "panel.menu.bind"),
+              !ids.contains(hostID == "panel.copy" ? "panel.more.direct" : "panel.menu.direct"),
+              ids.contains(hostID == "panel.copy" ? "panel.more.copy" : "panel.menu.copy"),
               ids.contains(hostID == "panel.copy" ? "panel.more.insert" : "panel.menu.insert") else {
-            throw ReviewFailure("native transcript menu did not retain explicit bind/insert commands")
+            throw ReviewFailure("native transcript menu did not retain paragraph reuse without target/mode setup")
         }
     }
     @MainActor private func checkPrivateCopy(_ expected: String, board: NSPasteboard,
@@ -1343,12 +1357,11 @@ extension AppDelegate {
                 }
                 try self.captureReview(host, name: "panel-selection-held", output: output)
                 if hasControls {
-                    let expected = (text as NSString).substring(with: selected)
-                    try await self.checkPrivateCopy(expected, board: copyBoard, capture: capture, model: model, host: host)
+                    try await self.checkPrivateCopy(text, board: copyBoard, capture: capture, model: model, host: host)
                     guard scroll.transcriptView.selectedRange() == selected, scroll.hasDeferredUpdate else {
                         throw ReviewFailure("copy released the held visible NFD/emoji selection")
                     }
-                    print("UI_PRIVATE_COPY_PASS exact selected NFD/emoji copied to unique pasteboard; feedback settled; capture and held selection preserved")
+                    print("UI_PRIVATE_COPY_PASS whole selected paragraph including offscreen NFD/emoji copied; capture and held selection preserved")
                 }
                 if hasControls { try await self.selectMenu("latest", title: "回到最新", in: host) } else { scroll.jumpToLatest() }
                 try await self.reviewUntil { bodyText() == updated && scroll.isFollowingLatest }

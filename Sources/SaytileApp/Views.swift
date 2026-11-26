@@ -35,7 +35,7 @@ struct InputPanelView: View {
     private var document: PanelTimelineDocument {
         transcriptCache.document(for: model)
     }
-    private var canCopy: Bool { model.canCopyLatestParagraph || !selectedText.isEmpty }
+    private var canCopy: Bool { model.hasPanelInsertionScope || !selectedText.isEmpty }
     private var editTarget: DisplayRecording? {
         if let view = access.view {
             let selection = view.transcriptView.selectedRange()
@@ -76,13 +76,14 @@ struct InputPanelView: View {
     private func copyTranscript() {
         guard canCopy else { return }
         let view = access.view
-        model.copyTimeline(selection: view?.selectionSnapshot ?? selectedText, displayed: view?.rendered.displayed ?? [:])
+        model.copyTimeline(paragraphID: view?.selectedParagraphID,
+                           rendered: view?.rendered.spans.map(\.entry) ?? [], displayed: view?.rendered.displayed ?? [:])
     }
 
     private func insertTranscript() {
-        access.view?.settleLivePresentation()
         let document = access.view?.rendered
-        model.insertFromPanel(rendered: document?.spans.map(\.entry) ?? [], displayed: document?.displayed ?? [:])
+        model.insertFromPanel(paragraphID: access.view?.selectedParagraphID,
+                              rendered: document?.spans.map(\.entry) ?? [], displayed: document?.displayed ?? [:])
     }
 
     /// Both contextual surfaces expose the same commands and eligibility.
@@ -108,15 +109,12 @@ struct InputPanelView: View {
             windowCommand = .init(id: "hide", title: "收起语音板", action: { model.hidePanel() })
         }
         return [
-            [.init(id: "copy", title: selectedText.isEmpty ? "复制当前文字" : "复制所选文字", enabled: canCopy, action: { copyTranscript() }),
+            [.init(id: "copy", title: "复制完整自然段", enabled: canCopy, action: { copyTranscript() }),
              .init(id: "edit", title: "在档案中编辑这段文字", enabled: editTarget != nil, action: { if let item = editTarget { model.select(item) } }),
              .init(id: "latest", title: "回到最新", enabled: !followsLatest, action: { model.followTimeline(); latestRequest += 1 })],
             [.init(id: "settings", title: "语音档案与设置…", action: { model.openSettings() })],
-            [.init(id: "free", title: "自由记录", checked: !model.directMode, action: { model.setDirect(false) }),
-             .init(id: "direct", title: "直接输入", checked: model.directMode, action: { model.setDirect(true) }),
-             .init(id: "bind", title: "绑定当前草稿", action: { model.bindTarget() }),
-             .init(id: "insert", title: model.isInserting ? "正在插入…" : (model.insertionArchiveEntry == nil ? "插入最新时间组" : "插入档案定位的这段文字"),
-                   enabled: !model.isInserting && model.hasPanelInsertionScope, action: insertTranscript)],
+            [.init(id: "insert", title: model.isInserting ? "正在插入…" : "插入完整自然段",
+                   enabled: !model.isInserting && canCopy, action: insertTranscript)],
             [.init(id: "clear", title: "清空输入板（保留档案）", enabled: !model.isInserting && model.hasPanelInsertionScope, action: { model.clearPanel(); latestRequest += 1 }),
              windowCommand]
         ]

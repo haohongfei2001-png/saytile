@@ -54,6 +54,35 @@ import Foundation
         var r = PCMFrameReader(descriptor: split.fileHandleForReading.fileDescriptor)
         check(try r.next() == big); check(try r.next() == Data()); check(try r.next() == second)
         check(try r.next() == Data()); check(try r.next() == nil)
+        // The first 800 ms may be capture pre-roll, even though speech has
+        // already arrived behind it. Exercise the same nonblocking decision as
+        // Worker before it has any transcript, without an MLX model or microphone.
+        let onsetPipe = Pipe()
+        let preRoll = Data(repeating: 0, count: 25_600)
+        let onset = Data(repeating: 0x17, count: 6_400)
+        DispatchQueue.global().async { try! onsetPipe.fileHandleForWriting.write(contentsOf: packet(preRoll)) }
+        var onsetReader = PCMFrameReader(descriptor: onsetPipe.fileHandleForReading.fileDescriptor)
+        var finalPCM = try onsetReader.next()!
+        try onsetPipe.fileHandleForWriting.write(contentsOf: packet(onset) + packet(Data()))
+        check(try onsetReader.coalescePreviewNow(samples: 12_800, next: 12_800,
+                                                windowLimit: 512_000, maximumBacklog: 57_600))
+        finalPCM.append(try onsetReader.next()!)
+        check(finalPCM == preRoll + onset)
+        check(try onsetReader.coalescePreviewNow(samples: 16_000, next: 12_800,
+                                                windowLimit: 512_000, maximumBacklog: 57_600))
+        check(try onsetReader.next() == Data()) // EOS is still consumed once.
+        check(try !onsetReader.coalescePreviewNow(samples: 16_000, next: 12_800,
+                                                 windowLimit: 512_000, maximumBacklog: 57_600))
+        // Bounds must not consume or discard the already queued next packet.
+        try onsetPipe.fileHandleForWriting.write(contentsOf: packet(onset))
+        check(try !onsetReader.coalescePreviewNow(samples: 70_400, next: 12_800,
+                                                 windowLimit: 512_000, maximumBacklog: 57_600))
+        check(try !onsetReader.coalescePreviewNow(samples: 512_000, next: 512_000,
+                                                 windowLimit: 512_000, maximumBacklog: 57_600))
+        check(try onsetReader.next() == onset)
+        try onsetPipe.fileHandleForWriting.close()
+        check(try onsetReader.next() == nil)
         print("PASS nonblocking empty/header/body; repeated peek; EOS; adjacent utterances; 65,536B split packet; invalid length and truncated EOF")
+        print("PASS first-preview queued voice follows pre-roll; exact original PCM retained; nonblocking empty pipe; EOS once; bounded backlog and window")
     }
 }
