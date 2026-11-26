@@ -107,15 +107,30 @@ extension AppDelegate {
                 guard let board = model.copyPasteboard, board.name != NSPasteboard.general.name else {
                     throw ReviewFailure("paragraph menu review requires a private pasteboard")
                 }
-                try await self.selectMenu("copy", title: "复制完整自然段", in: host)
-                guard board.string(forType: .string) == examples[2], !model.directMode else {
-                    throw ReviewFailure("default menu copy did not take the latest paragraph")
+                let latestSnapshots = try model.panelInsertionSnapshots()
+                guard latestSnapshots.map(\.text).joined() == examples[2] else {
+                    throw ReviewFailure("latest paragraph snapshot did not match the synthetic fixture")
+                }
+                @MainActor func copyFailure(_ message: String, copied: String?) -> ReviewFailure {
+                    ReviewFailure("\(message); copied_fixture_index=\(String(describing: copied.flatMap { examples.firstIndex(of: $0) })) copied_utf16=\(copied?.utf16.count ?? -1) selection=\(scroll.transcriptView.selectedRange()) selected_paragraph=\(String(describing: scroll.selectedParagraphID)) latest_snapshot_recording=\(String(describing: latestSnapshots.last?.recordingID)) direct=\(model.directMode) notice=\(model.notice ?? "none")")
+                }
+                // The copy control's menu leaves the text selection alone. Opening
+                // NSTextView's contextual menu can select the word under its anchor,
+                // which is an explicit paragraph choice rather than the default.
+                scroll.transcriptView.setSelectedRange(.init(location: 0, length: 0))
+                try await self.selectMenu("copy", title: "复制完整自然段", in: host, hostID: "panel.copy")
+                let latestCopy = board.string(forType: .string)
+                guard !model.directMode else { throw copyFailure("default menu copy changed direct mode", copied: latestCopy) }
+                guard latestCopy == examples[2] else {
+                    throw copyFailure("default menu copy did not take the latest paragraph", copied: latestCopy)
                 }
                 guard let firstSpan = scroll.rendered.spans.first else { throw ReviewFailure("missing old paragraph") }
                 scroll.transcriptView.setSelectedRange(.init(location: firstSpan.range.location, length: 1))
                 try await self.selectMenu("copy", title: "复制完整自然段", in: host)
-                guard board.string(forType: .string) == examples[0], !model.directMode else {
-                    throw ReviewFailure("history menu copy did not take its complete paragraph")
+                let historyCopy = board.string(forType: .string)
+                guard !model.directMode else { throw copyFailure("history menu copy changed direct mode", copied: historyCopy) }
+                guard historyCopy == examples[0] else {
+                    throw copyFailure("history menu copy did not take its complete paragraph", copied: historyCopy)
                 }
                 scroll.transcriptView.setSelectedRange(.init(location: 0, length: 0))
                 print("UI_CONTROL_PASS latest/history paragraph copy through real native context menu actions; no mode selection")
@@ -208,6 +223,15 @@ extension AppDelegate {
                 model.updateEditorDraft(row.text + "\n这是会自动保留的编辑草稿。")
                 _ = await model.flushEditorDrafts()
                 try await reviewWindow(SettingsView(model: model, initialPage: .archive), size: CGSize(width: 1120, height: 720), name: "archive-detail", output: output) { host in
+                    guard let board = model.copyPasteboard, board.name != NSPasteboard.general.name else {
+                        throw ReviewFailure("detail paragraph copy review requires a private pasteboard")
+                    }
+                    let clickedDraft = model.editorDraft
+                    try await self.press("archive.detailCopyParagraph", in: host)
+                    guard board.string(forType: .string)?.utf16.elementsEqual(clickedDraft.utf16) == true else {
+                        throw ReviewFailure("native detail paragraph Copy did not include the current edited draft")
+                    }
+                    print("UI_DETAIL_PARAGRAPH_COPY_PASS native button and private clipboard include the current draft")
                     try await self.press("保存修改", in: host)
                     for _ in 0..<50 {
                         if (try await model.store.recording(id: row.id))?.text.contains("自动保留的编辑草稿") == true { break }

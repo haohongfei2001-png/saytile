@@ -409,7 +409,9 @@ struct RecordDetailView: View {
                 Button(!model.deviceOnly && !model.hosted.selected && model.appliedRecognitionConfiguration.cloudEnabled ? "用云端重新识别" : "本机重新识别") { model.retry(item) }
                     .help(!model.deviceOnly && !model.hosted.selected && model.appliedRecognitionConfiguration.cloudEnabled ? "仅将这段原音交给当前已授权的服务重新识别" : "仅在这台 Mac 上处理这段原音")
                     .disabled(!item.hasAudio || item.isRecording)
-                Button("复制") { model.copy(model.editorDraft) }.disabled(!model.editorCanEdit || model.editorDraft.isEmpty)
+                Button("复制") { model.copyEditorParagraph() }.disabled(!model.editorCanCopyParagraph)
+                    .accessibilityIdentifier("archive.detailCopyParagraph")
+                    .help("复制包含当前编辑的完整自然段")
             }.buttonStyle(QuietButton())
             HStack {
                 Button("带到输入板") { model.stageInPanel(item) }.disabled(item.text.isEmpty || model.editorDraft != item.text).help("先保存修改，再将这段表达带到输入板")

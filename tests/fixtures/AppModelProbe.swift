@@ -505,6 +505,7 @@ struct AppModelProbe {
         checks += try await capturePresentationChecks(directory: directory)
         checks += try await standbyChecks(directory: directory)
         checks += try await naturalArchiveChecks(directory: directory)
+        checks += try await detailParagraphCopyChecks(directory: directory)
         checks += try await paragraphCopyChecks(directory: directory)
         print("APP_MODEL_PROBE_PASS \(checks) checks; no microphone, no external input, no window activation")
     }
@@ -1219,6 +1220,72 @@ extension AppModelProbe {
         model.copyTimeline(displayed: [:])
         try check(clipboard.string(forType: .string) == "清空后新说的话。",
                   "copy after clear includes only the new paragraph portion")
+        await model.prepareForExit()
+        return count
+    }
+
+    @MainActor static func detailParagraphCopyChecks(directory: URL) async throws -> Int {
+        var count = 0
+        func check(_ result: Bool, _ title: String) throws {
+            guard result else { throw Failure(message: title) }
+            count += 1; print("PASS " + title)
+        }
+        let name = "app.saytile.detail-paragraph." + UUID().uuidString
+        let prefs = UserDefaults(suiteName: name)!
+        defer { prefs.removePersistentDomain(forName: name) }
+        let clipboard = NSPasteboard.withUniqueName()
+        defer { clipboard.releaseGlobally() }
+        let model = try AppModel(directory: directory.appendingPathComponent("detail-paragraph"),
+                                 preferences: prefs, copyPasteboard: clipboard)
+        await model.initialLoad()
+        let base = Calendar.current.startOfDay(for: Date()).addingTimeInterval(43_200)
+        func add(_ offset: TimeInterval, _ text: String, final: Bool = true) async throws -> (Recording, RecognitionTicket) {
+            let record = try await model.store.createRecording(createdAt: base.addingTimeInterval(offset))
+            try await model.store.finishRecording(id: record.id, speechEndedAt: base.addingTimeInterval(offset + 1))
+            let ticket = try await model.store.beginRecognition(recordingID: record.id)
+            _ = try await model.store.applyRecognition(ticket: ticket, text: text, isFinal: final)
+            if final { try await model.store.finishRecognition(ticket: ticket) }
+            return (record, ticket)
+        }
+        _ = try await add(0, "之前的自然段。")
+        let (head, _) = try await add(31, "开头。")
+        let (middle, ticket) = try await add(33, "待修订", final: false)
+        let (tail, _) = try await add(35, "结束。")
+        _ = try await add(66, "之后的自然段。")
+        await model.refresh()
+        guard let current = try await model.store.recording(id: middle.id) else {
+            throw Failure(message: "detail-copy fixture has no middle recording")
+        }
+        await model.selectForEditing(DisplayRecording(source: current))
+        model.updateEditorDraft("本人改写🙂")
+        model.copyEditorParagraph()
+        try check(clipboard.string(forType: .string) == "开头。本人改写🙂结束。",
+                  "detail Copy takes the complete selected paragraph and its current edited member, excluding adjacent paragraphs")
+        try check(try await model.store.recording(id: middle.id)?.preferredRevisionID == current.preferredRevisionID,
+                  "detail Copy does not commit or replace the selected recording's preferred version")
+        let copied = clipboard.changeCount
+        _ = try await model.store.applyRecognition(ticket: ticket, text: "迟到定稿", isFinal: true)
+        try await model.store.finishRecognition(ticket: ticket)
+        await model.refresh()
+        try check(clipboard.changeCount == copied && clipboard.string(forType: .string) == "开头。本人改写🙂结束。" &&
+                  model.editorDraft == "本人改写🙂",
+                  "late recognition preserves the detail draft and the paragraph snapshot already copied")
+
+        model.updateEditorDraft("")
+        model.copyEditorParagraph()
+        try check(model.editorCanCopyParagraph && clipboard.string(forType: .string) == "开头。结束。",
+                  "an empty edited member does not disable copying the rest of its paragraph")
+        _ = try await model.store.saveEdit(recordingID: head.id, text: "")
+        _ = try await model.store.saveEdit(recordingID: tail.id, text: "")
+        await model.refresh()
+        let beforeEmpty = clipboard.changeCount
+        model.copyEditorParagraph()
+        try check(clipboard.changeCount == beforeEmpty && clipboard.string(forType: .string) == "开头。结束。",
+                  "an entirely empty paragraph never clears the user's clipboard")
+        model.closeDetail()
+        model.copyEditorParagraph()
+        try check(!model.editorCanCopyParagraph && clipboard.changeCount == beforeEmpty,
+                  "closing the detail revokes its paragraph copy target")
         await model.prepareForExit()
         return count
     }

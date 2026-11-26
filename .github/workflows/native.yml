@@ -106,6 +106,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - run: scripts/build-app.sh
+        id: candidate
       - name: Real Sparkle release-notes delegate contract
         run: |
           export SAYTILE_UPDATE_PROBE_PRODUCTS="$(swift build --scratch-path /tmp/saytile-rc-model --show-bin-path)"
@@ -135,10 +136,13 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Native windows with synthetic data
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' }}
         run: python3 scripts/test-native-ui.py --controls --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui"
       - name: Native feedback controls and process restart without network
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' }}
         run: python3 scripts/test-feedback-native.py --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui/feedback"
       - name: Native continuous timeline with 12000 isolated utterances
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' }}
         run: python3 scripts/test-native-timeline.py --controls --app dist/Saytile.app --output "$RUNNER_TEMP/saytile-ui/timeline"
       - name: Preserve native panel screenshots and review manifest
         if: always()
@@ -149,10 +153,13 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Isolated startup without microphone
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' }}
         run: dist/Saytile.app/Contents/MacOS/Saytile --data-directory "$RUNNER_TEMP/saytile-smoke" --smoke-test
       - name: Preserve app bundle permissions
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' }}
         run: ditto -c -k --sequesterRsrc --keepParent dist/Saytile.app dist/Saytile-native-candidate.zip
       - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' }}
         with:
           name: Saytile-native-candidate
           path: dist/Saytile-native-candidate.zip

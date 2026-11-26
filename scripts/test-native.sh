@@ -39,7 +39,13 @@ else
   # eight-second observation window. Concurrent SQLite durability tests can
   # starve its task executor beyond that window. Preserve the deadline and every
   # assertion, but measure this suite in the same isolated scheduling context.
-  timing_suites=(ProtocolNetworkIntegrationTests CloudConnectionVerificationTests CaptureCloudIntegrationTests OfflineFailoverTests 'AudioPlayerIntegrationTests|ParagraphPlaybackTests')
+  # The coordinator's ten-second gates and capture's three-second missing-audio
+  # watchdog need the same isolation: CI's concurrent remainder delayed their
+  # observations by over twenty seconds. Model lifecycle tests also launch real
+  # child processes and observe wall-clock leases. Keep all three suites intact
+  # and move them out of the concurrent durability workload, without relaxing
+  # any timeout, watchdog or assertion.
+  timing_suites=(ProtocolNetworkIntegrationTests CloudConnectionVerificationTests CaptureCloudIntegrationTests OfflineFailoverTests 'AudioPlayerIntegrationTests|ParagraphPlaybackTests' RecognitionCoordinatorTests CaptureVADFinalizationTests LocalModelLifecycleTests)
   isolated_filter="$frame_suite"
   for suite in "${timing_suites[@]}"; do
     isolated_filter+="|$suite"

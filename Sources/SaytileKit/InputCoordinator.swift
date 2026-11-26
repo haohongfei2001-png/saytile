@@ -29,7 +29,7 @@ public enum NativeInputError: Error, LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .permission: "请在系统设置中允许 Saytile 使用辅助功能；复制无需此权限。"
-        case .noTarget: "请先在目标应用的输入框放好光标，再使用快捷键连接。"
+        case .noTarget: "请先在目标应用的输入框放好光标，再试一次插入；也可以复制这段文字。"
         case .unsupported: "此输入框不支持安全插入，请使用复制。"
         case .selection: "目标中有选中文字，请先放置光标；Saytile 不会替换已有选区。"
         case .sensitive: "密码框和终端不支持自动插入，请使用复制。"

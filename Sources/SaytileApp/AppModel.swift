@@ -445,6 +445,7 @@ final class AppModel: ObservableObject {
     }
     private var editorBase: UUID?
     private var editorRecordingID: UUID?
+    private var editorParagraphLocation: (position: Int64, paragraphID: Int64)?
     private var editorWasEdited = false
     private var editorSelectionGeneration = UUID()
     private var draftSequence: UInt64 = 0
@@ -452,6 +453,9 @@ final class AppModel: ObservableObject {
     private var latestEditorValues: [UUID: DraftWrite] = [:]
     private var committingEditorIDs: Set<UUID> = []
     var editorCanEdit: Bool { editorRecordingID != nil && !editorDraftLoading }
+    var editorCanCopyParagraph: Bool {
+        editorCanEdit && selected?.id == editorRecordingID && editorParagraphLocation != nil
+    }
     var hasUnpersistedDrafts: Bool { !pendingDraftWrites.isEmpty || feedback.hasUnsavedDraft }
 
     init(directory: URL, preferences: UserDefaults = .standard, normalLaunch: Bool = false, connectionDependencies: AppConnectionDependencies = .live,
@@ -1273,11 +1277,12 @@ final class AppModel: ObservableObject {
     func selectForEditing(_ item: DisplayRecording) async {
         if editorRecordingID == item.id { selected = item; await loadVersions(item.id); return }
         let generation = UUID(); editorSelectionGeneration = generation
-        selected = item; versions = []; editorDraftLoading = true; editorRecordingID = nil; editorDraft = ""; editorConflictingVersion = nil
+        selected = item; versions = []; editorDraftLoading = true; editorRecordingID = nil; editorParagraphLocation = nil; editorDraft = ""; editorConflictingVersion = nil
         _ = await flushEditorDrafts()
         do {
             let stored = try await store.archiveDraft(recordingID: item.id)
-            guard let current = try await store.recording(id: item.id) else { return }
+            guard let entry = try await store.archiveEntryForEditing(item.id, filter: .all) else { return }
+            let current = entry.recording
             guard editorSelectionGeneration == generation, selected?.id == item.id else { return }
             let pending = pendingDraftWrites[item.id]
             let draft = pending?.text ?? stored?.text
@@ -1287,6 +1292,7 @@ final class AppModel: ObservableObject {
             selected = DisplayRecording(source: current)
             editorDraft = draft ?? current.text
             editorWasEdited = draft != nil
+            editorParagraphLocation = (entry.position, entry.paragraphID)
             editorRecordingID = item.id; editorDraftLoading = false
             editorDraftStatus = pendingDraftWrites[item.id] == nil ? "修改会自动暂存，保存后更新这段文字" : "草稿尚未写入磁盘，请保留此窗口"
             // Older builds could leave a durable draft after an edit was fully undone.
@@ -1298,8 +1304,18 @@ final class AppModel: ObservableObject {
             if editorSelectionGeneration == generation { editorDraftStatus = "草稿读取失败，请重新选择记录"; notice = error.localizedDescription; editorDraftLoading = false }
         }
     }
+    func copyEditorParagraph() {
+        guard editorCanCopyParagraph, let location = editorParagraphLocation else { return }
+        // Resolve the owner while loading the editor, so the click reads every
+        // paragraph member and the current draft synchronously as one snapshot.
+        let draft = editorDraft
+        do {
+            copy(try store.paragraphCopy(paragraphID: location.paragraphID,
+                                        displayed: [location.position: draft]))
+        } catch { notice = error.localizedDescription }
+    }
     func closeDetail() {
-        editorSelectionGeneration = UUID(); selected = nil; editorRecordingID = nil; editorConflictingVersion = nil
+        editorSelectionGeneration = UUID(); selected = nil; editorRecordingID = nil; editorParagraphLocation = nil; editorConflictingVersion = nil
         Task { _ = await flushEditorDrafts() }
     }
     func updateEditorDraft(_ text: String) {
