@@ -285,7 +285,9 @@ extension AppDelegate {
                 try await self.press("settings.rememberStandby", in: host)
                 guard model.remembersStandby == originalStandbyChoice else { throw ReviewFailure("standby preference did not revert") }
                 try await self.press("settings.page.about", in: host)
-                try await self.mouseClick("settings.compatibility", side: .disclosure, minimumWidth: 12, minimumHeight: 12, in: host)
+                try await self.press("settings.compatibility", in: host)
+                try await self.inspectSettings(in: host, required: ["settings.legacyCloud"],
+                                              excluded: ["hosted.upload-consent"], waitForContent: true)
                 try await self.press("settings.legacyCloud", in: host)
                 try await self.inspectSettings(in: host, required: ["hosted.upload-consent"], excluded: ["settings.inputDevice"])
                 try await self.chooseCloudService("自带 API", in: host)
@@ -293,8 +295,9 @@ extension AppDelegate {
                 try await self.press("settings.page.models", in: host)
                 try await self.inspectSettings(in: host, required: ["models.compatibility"],
                                               excluded: ["models.use.apple", "models.mode", "cloud.serviceInspector"])
-                try await self.mouseClick("models.compatibility", side: .disclosure, minimumWidth: 12, minimumHeight: 12, in: host)
-                try await self.inspectSettings(in: host, required: ["models.use.apple"], excluded: ["models.mode", "cloud.serviceInspector"])
+                try await self.press("models.compatibility", in: host)
+                try await self.inspectSettings(in: host, required: ["models.use.apple"],
+                                              excluded: ["models.mode", "cloud.serviceInspector"], waitForContent: true)
                 try await self.press("settings.page.speech", in: host)
                 guard model.deviceOnly, !model.hosted.selected, !model.hosted.consent,
                       !model.recognitionConfiguration.cloudEnabled, !model.connectionCheckAuthorized else {
@@ -755,39 +758,23 @@ extension AppDelegate {
         ownerMenu.performActionForItem(at: ownerMenu.index(of: item))
         print("NATIVE_ARCHIVE_VERSIONS own_paragraph_menu=true")
     }
-    private enum ReviewHitSide { case left, right, disclosure }
+    private enum ReviewHitSide { case left, right }
 
     /// The helper observes a real native control's frame. Deliver mouse events only
     /// to our owned, nonactivating review window, including its actual hit-test path.
-    @MainActor private func mouseClick(_ id: String, side: ReviewHitSide, minimumWidth: CGFloat,
-                                     minimumHeight: CGFloat = 22, in host: NSView) async throws {
+    @MainActor private func mouseClick(_ id: String, side: ReviewHitSide, minimumWidth: CGFloat, in host: NSView) async throws {
         let result = try await performControl(id, in: host, arguments: ["control-frame"])
         let prefix = "NATIVE_UI_CONTROL_FRAME "
         guard let line = result.split(separator: "\n").first(where: { $0.hasPrefix(prefix) }),
               let metrics = try JSONSerialization.jsonObject(with: Data(line.dropFirst(prefix.count).utf8)) as? [CGFloat],
-              metrics.count == 4, metrics[2] >= minimumWidth, metrics[3] >= minimumHeight,
+              metrics.count == 4, metrics[2] >= minimumWidth, metrics[3] >= 22,
               let window = host.window, let primary = NSScreen.screens.first else {
             throw ReviewFailure("missing or undersized native hit region: \(id)")
         }
-        let horizontal: CGFloat
-        switch side {
-        case .left: horizontal = metrics[0] + 3
-        case .right: horizontal = metrics[0] + metrics[2] - 3
-        // AXDisclosureTriangle includes the label. Its leading, row-height
-        // square contains the actual disclosure arrow, not the label's center.
-        case .disclosure: horizontal = metrics[0] + min(metrics[3], metrics[2]) / 2
-        }
+        let horizontal = side == .left ? metrics[0] + 3 : metrics[0] + metrics[2] - 3
         let screen = NSPoint(x: horizontal, y: primary.frame.maxY - (metrics[1] + metrics[3] / 2))
         let point = window.convertPoint(fromScreen: screen)
         guard host.bounds.contains(host.convert(point, from: nil)) else { throw ReviewFailure("coordinate outside fixture window") }
-        if side == .disclosure {
-            // NSView.hitTest expects its superview's coordinates.
-            let hitPoint = host.superview?.convert(point, from: nil) ?? point
-            let hit = host.hitTest(hitPoint)
-            let hitClass = hit.map { NSStringFromClass(type(of: $0)) } ?? "none"
-            let hitFrame = hit.map { NSStringFromRect($0.convert($0.bounds, to: host)) } ?? "none"
-            print("NATIVE_UI_DISCLOSURE_HIT \(id) class=\(hitClass) frame_in_host=\(hitFrame) point_in_host=\(NSStringFromPoint(host.convert(point, from: nil)))")
-        }
         func event(_ type: NSEvent.EventType) throws -> NSEvent {
             guard let e = NSEvent.mouseEvent(with: type, location: point, modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime,
                                              windowNumber: window.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: type == .leftMouseDown ? 1 : 0)
@@ -802,14 +789,7 @@ extension AppDelegate {
             window.sendEvent(unconsumed)
         }
         try await Task.sleep(for: .milliseconds(80))
-        // Lay out the transparent fixture after the actual native event so newly
-        // expanded lazy Form children are present for the next AX check.
-        host.layoutSubtreeIfNeeded()
-        if side == .disclosure {
-            print("NATIVE_UI_DISCLOSURE_CLICK \(id) target=\(metrics[2])x\(metrics[3]) hit=leading_arrow via=owned_mouse_events")
-        } else {
-            print("WORKSPACE_MOUSE_EDGE \(id) side=\(side) target=\(metrics[2])x\(metrics[3])")
-        }
+        print("WORKSPACE_MOUSE_EDGE \(id) side=\(side) target=\(metrics[2])x\(metrics[3])")
     }
 
     @MainActor private func selectMenu(_ id: String, title: String, in root: NSView, hostID: String = "panel.transcript") async throws {
@@ -883,6 +863,12 @@ extension AppDelegate {
     }
     @MainActor func performControl(_ label: String, in root: NSView, arguments: [String] = []) async throws -> String {
         guard let path = ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"], let window = root.window else { throw ReviewFailure("Native UI control helper not configured") }
+        if window.title.hasPrefix("Saytile UI Review settings") {
+            // Finish the drawable Form's lazy layout before observing or acting
+            // on its accessibility elements; do not infer a disclosure hit point.
+            root.layoutSubtreeIfNeeded()
+            root.displayIfNeeded()
+        }
         let process = Process(), pipe = Pipe()
         process.executableURL = URL(fileURLWithPath: path)
         process.arguments = [String(ProcessInfo.processInfo.processIdentifier), label, window.title]
@@ -926,9 +912,10 @@ extension AppDelegate {
         let panel = ReviewPanel(contentRect: CGRect(origin: CGPoint(x: 0, y: 0), size: size),
                             styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.title = "Saytile UI Review " + name
-        // A fully transparent panel may disappear from AXWindows while idle.
-        // Keep the timeline fixture drawable outside every display, without taking focus.
-        let offscreen = name.hasPrefix("timeline-")
+        // A fully transparent panel may disappear from AXWindows while idle or
+        // leave SwiftUI Form accessibility geometry ahead of drawable layout.
+        // Keep timeline and settings fixtures drawable outside every display.
+        let offscreen = name.hasPrefix("timeline-") || name.hasPrefix("settings")
         panel.alphaValue = offscreen ? 1 : 0
         panel.ignoresMouseEvents = true
         panel.isReleasedWhenClosed = false
@@ -940,7 +927,7 @@ extension AppDelegate {
             let right = NSScreen.screens.map { $0.frame.maxX }.max() ?? 0
             panel.setFrameOrigin(NSPoint(x: right + 64, y: 0))
             guard NSScreen.screens.allSatisfy({ !$0.frame.intersects(panel.frame) }) else {
-                throw ReviewFailure("timeline fixture intersects a physical display")
+                throw ReviewFailure("drawable review fixture intersects a physical display")
             }
         }
         panel.makeFirstResponder(host)
@@ -948,6 +935,7 @@ extension AppDelegate {
         defer { panel.orderOut(nil); panel.close() }
         try await Task.sleep(for: .milliseconds(200))
         host.layoutSubtreeIfNeeded()
+        if offscreen { host.displayIfNeeded() }
         if name.hasPrefix("panel-") {
             guard (320...360).contains(host.bounds.width), (200...480).contains(host.bounds.height),
                   abs(host.bounds.width - size.width) < 1, abs(host.bounds.height - size.height) < 1 else {
@@ -1016,18 +1004,24 @@ extension AppDelegate {
         print("NATIVE_UI_CLOUD_SELECTION \(title) via=NSMenu.performActionForItem")
     }
 
-    @MainActor private func inspectSettings(in host: NSView, required: [String], excluded: [String]) async throws {
-        let output = try await performControl("settings", in: host, arguments: ["inspect-settings"])
-        let marker = "NATIVE_UI_SETTINGS_INSPECT "
-        guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix(marker) }),
-              let names = try JSONSerialization.jsonObject(with: Data(line.dropFirst(marker.count).utf8)) as? [String] else {
-            throw ReviewFailure("incomplete native settings inventory")
-        }
-        let actual = Set(names)
-        let missing = Set(required).subtracting(actual)
-        let unexpected = actual.intersection(excluded + ["settings.source", "开始收音", "继续收音", "暂停收音", "恢复收音", "取消开启"])
-        guard missing.isEmpty, unexpected.isEmpty else {
-            throw ReviewFailure("unexpected settings tree: missing=\(missing.sorted()) forbidden=\(unexpected.sorted())")
+    @MainActor private func inspectSettings(in host: NSView, required: [String], excluded: [String], waitForContent: Bool = false) async throws {
+        let deadline = ContinuousClock.now.advanced(by: .seconds(5))
+        while true {
+            let output = try await performControl("settings", in: host, arguments: ["inspect-settings"])
+            let marker = "NATIVE_UI_SETTINGS_INSPECT "
+            guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix(marker) }),
+                  let names = try JSONSerialization.jsonObject(with: Data(line.dropFirst(marker.count).utf8)) as? [String] else {
+                throw ReviewFailure("incomplete native settings inventory")
+            }
+            let actual = Set(names)
+            let missing = Set(required).subtracting(actual)
+            let unexpected = actual.intersection(excluded + ["settings.source", "开始收音", "继续收音", "暂停收音", "恢复收音", "取消开启"])
+            if missing.isEmpty, unexpected.isEmpty { return }
+            guard waitForContent, unexpected.isEmpty, ContinuousClock.now < deadline else {
+                throw ReviewFailure("unexpected settings tree: missing=\(missing.sorted()) forbidden=\(unexpected.sorted())")
+            }
+            print("NATIVE_UI_SETTINGS_WAIT missing=\(missing.sorted()) read_only=true")
+            try await Task.sleep(for: .milliseconds(80))
         }
     }
 
