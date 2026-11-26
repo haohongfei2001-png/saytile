@@ -285,7 +285,7 @@ extension AppDelegate {
                 try await self.press("settings.rememberStandby", in: host)
                 guard model.remembersStandby == originalStandbyChoice else { throw ReviewFailure("standby preference did not revert") }
                 try await self.press("settings.page.about", in: host)
-                try await self.mouseClick("settings.compatibility", side: .center, minimumWidth: 12, minimumHeight: 12, in: host)
+                try await self.mouseClick("settings.compatibility", side: .disclosure, minimumWidth: 12, minimumHeight: 12, in: host)
                 try await self.press("settings.legacyCloud", in: host)
                 try await self.inspectSettings(in: host, required: ["hosted.upload-consent"], excluded: ["settings.inputDevice"])
                 try await self.chooseCloudService("自带 API", in: host)
@@ -293,7 +293,7 @@ extension AppDelegate {
                 try await self.press("settings.page.models", in: host)
                 try await self.inspectSettings(in: host, required: ["models.compatibility"],
                                               excluded: ["models.use.apple", "models.mode", "cloud.serviceInspector"])
-                try await self.mouseClick("models.compatibility", side: .center, minimumWidth: 12, minimumHeight: 12, in: host)
+                try await self.mouseClick("models.compatibility", side: .disclosure, minimumWidth: 12, minimumHeight: 12, in: host)
                 try await self.inspectSettings(in: host, required: ["models.use.apple"], excluded: ["models.mode", "cloud.serviceInspector"])
                 try await self.press("settings.page.speech", in: host)
                 guard model.deviceOnly, !model.hosted.selected, !model.hosted.consent,
@@ -755,7 +755,7 @@ extension AppDelegate {
         ownerMenu.performActionForItem(at: ownerMenu.index(of: item))
         print("NATIVE_ARCHIVE_VERSIONS own_paragraph_menu=true")
     }
-    private enum ReviewHitSide { case left, right, center }
+    private enum ReviewHitSide { case left, right, disclosure }
 
     /// The helper observes a real native control's frame. Deliver mouse events only
     /// to our owned, nonactivating review window, including its actual hit-test path.
@@ -773,11 +773,21 @@ extension AppDelegate {
         switch side {
         case .left: horizontal = metrics[0] + 3
         case .right: horizontal = metrics[0] + metrics[2] - 3
-        case .center: horizontal = metrics[0] + metrics[2] / 2
+        // AXDisclosureTriangle includes the label. Its leading, row-height
+        // square contains the actual disclosure arrow, not the label's center.
+        case .disclosure: horizontal = metrics[0] + min(metrics[3], metrics[2]) / 2
         }
         let screen = NSPoint(x: horizontal, y: primary.frame.maxY - (metrics[1] + metrics[3] / 2))
         let point = window.convertPoint(fromScreen: screen)
         guard host.bounds.contains(host.convert(point, from: nil)) else { throw ReviewFailure("coordinate outside fixture window") }
+        if side == .disclosure {
+            // NSView.hitTest expects its superview's coordinates.
+            let hitPoint = host.superview?.convert(point, from: nil) ?? point
+            let hit = host.hitTest(hitPoint)
+            let hitClass = hit.map { NSStringFromClass(type(of: $0)) } ?? "none"
+            let hitFrame = hit.map { NSStringFromRect($0.convert($0.bounds, to: host)) } ?? "none"
+            print("NATIVE_UI_DISCLOSURE_HIT \(id) class=\(hitClass) frame_in_host=\(hitFrame) point_in_host=\(NSStringFromPoint(host.convert(point, from: nil)))")
+        }
         func event(_ type: NSEvent.EventType) throws -> NSEvent {
             guard let e = NSEvent.mouseEvent(with: type, location: point, modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime,
                                              windowNumber: window.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: type == .leftMouseDown ? 1 : 0)
@@ -795,8 +805,8 @@ extension AppDelegate {
         // Lay out the transparent fixture after the actual native event so newly
         // expanded lazy Form children are present for the next AX check.
         host.layoutSubtreeIfNeeded()
-        if side == .center {
-            print("NATIVE_UI_DISCLOSURE_CLICK \(id) target=\(metrics[2])x\(metrics[3]) via=owned_mouse_events")
+        if side == .disclosure {
+            print("NATIVE_UI_DISCLOSURE_CLICK \(id) target=\(metrics[2])x\(metrics[3]) hit=leading_arrow via=owned_mouse_events")
         } else {
             print("WORKSPACE_MOUSE_EDGE \(id) side=\(side) target=\(metrics[2])x\(metrics[3])")
         }
@@ -947,7 +957,14 @@ extension AppDelegate {
         try checkKeyboardIsolation(panel, phase: "before-validation")
         if let validation { try await validation(host); host.layoutSubtreeIfNeeded() }
         try checkKeyboardIsolation(panel, phase: "after-validation")
-        if let interaction, ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil { try await interaction(host); try await Task.sleep(for: .milliseconds(100)); host.layoutSubtreeIfNeeded() }
+        if let interaction, ProcessInfo.processInfo.environment["SAYTILE_UI_CONTROL_PROBE"] != nil {
+            do { try await interaction(host) }
+            catch {
+                if name.hasPrefix("settings") { try? captureReview(host, name: name + "-failed", output: output) }
+                throw error
+            }
+            try await Task.sleep(for: .milliseconds(100)); host.layoutSubtreeIfNeeded()
+        }
         try checkKeyboardIsolation(panel, phase: "after-interaction")
         try captureReview(host, name: name, output: output)
         let after = NSWorkspace.shared.frontmostApplication?.processIdentifier
