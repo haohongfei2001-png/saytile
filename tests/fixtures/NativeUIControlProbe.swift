@@ -246,7 +246,13 @@ import ApplicationServices
                     print("NATIVE_ARCHIVE_PARAGRAPH full_text=true height=\(geometry.height)"); exit(0)
                 }
                 if paragraph != nil { queue += observed.children; continue }
-                let applicable = controlFrame ? (canPress || canSet) : menuItem != nil ? (role == kAXTextAreaRole || canPress) : (setValue == nil ? canPress : canSet)
+                // A disclosure's explicit label action can retain a text role.
+                // Only these exact owned labels may use their advertised AXPress.
+                let disclosurePress = !controlFrame && menuItem == nil && setValue == nil && !inspect
+                    && ["settings.compatibility", "models.compatibility"].contains(label)
+                    && (value(node, kAXIdentifierAttribute) as? String) == label
+                    && availableActions(node).contains(kAXPressAction)
+                let applicable = controlFrame ? (canPress || canSet) : menuItem != nil ? (role == kAXTextAreaRole || canPress) : (setValue == nil ? (canPress || disclosurePress) : canSet)
                 if names.contains(label), applicable {
                     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("REFUSED foreground changed before action"); exit(6) }
                     if controlFrame {
@@ -401,7 +407,7 @@ import ApplicationServices
                     }
                     guard result == .success else { print("FAIL native control action error \(result.rawValue), role=\(role), actions=\(availableActions(node)), enabled=\(String(describing: value(node, kAXEnabledAttribute)))"); exit(1) }
                     guard NSWorkspace.shared.frontmostApplication?.processIdentifier == before else { print("FAIL AXPress changed foreground"); exit(6) }
-                    print("NATIVE_UI_\(setValue == nil ? "AXPRESS" : "AXSETVALUE") \(label) fixture_pid=\(pid) foreground_unchanged=true"); exit(0)
+                    print("NATIVE_UI_\(setValue == nil ? "AXPRESS" : "AXSETVALUE") \(label) fixture_pid=\(pid) foreground_unchanged=true role=\(role)"); exit(0)
                 }
                 queue += observed.children
             }

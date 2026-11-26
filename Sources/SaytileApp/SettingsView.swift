@@ -293,7 +293,7 @@ struct SettingsView: View {
                     LabeledContent("源码版本", value: String(revision.prefix(12))).textSelection(.enabled)
                 }
             }.accessibilityIdentifier("settings.diagnostics")
-            DisclosureGroup("高级与兼容设置", isExpanded: $compatibilityExpanded) {
+            DisclosureGroup(isExpanded: $compatibilityExpanded) {
                 Button("已有云端服务设置…") { navigation.page = .cloud }
                     .accessibilityIdentifier("settings.legacyCloud")
                 Text("保留以前配置的服务和授权。正常使用 Saytile 无需账号、API Key 或云端服务。")
@@ -303,8 +303,11 @@ struct SettingsView: View {
                         .accessibilityIdentifier("settings.legacyFeedback")
                 }
                 LabeledContent("iCloud", value: model.privateArchiveStatus)
-            }.accessibilityIdentifier("settings.compatibility")
-                .accessibilityAction { compatibilityExpanded.toggle() }
+            } label: {
+                Text("高级与兼容设置")
+                    .accessibilityIdentifier("settings.compatibility")
+                    .accessibilityAction { compatibilityExpanded.toggle() }
+            }
         }
     }
 }
