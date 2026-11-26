@@ -19,6 +19,27 @@ struct AppModelProbe {
             print("PASS " + description); fflush(nil)
         }
         do {
+            var invocations = 0
+            weak var sourceItem: NSMenuItem?
+            let copiedMenu: NSMenu = autoreleasepool {
+                let source = NSMenu()
+                source.autoenablesItems = false
+                let item = TranscriptMenuItem(title: "复制合成自然段", identifier: "fixture.paragraphCopy") {
+                    invocations += 1
+                }
+                sourceItem = item
+                source.addItem(item)
+                let copy = source.copy() as! NSMenu
+                source.removeAllItems()
+                return copy
+            }
+            try require(sourceItem == nil && copiedMenu.items.count == 1,
+                        "native contextual menu copy releases the original action item")
+            copiedMenu.performActionForItem(at: 0)
+            try require(invocations == 1,
+                        "copied native menu dispatches its retained command exactly once after the source item is released")
+        }
+        do {
             let name = "app.saytile.appearance." + UUID().uuidString
             let prefs = UserDefaults(suiteName: name)!
             defer { prefs.removePersistentDomain(forName: name) }

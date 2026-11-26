@@ -105,8 +105,53 @@ jobs:
             /tmp/saytile-panel-boundary-ci/other/*.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Identify exact native runtime build inputs
+        id: runtime_cache_key
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime_toolchain_hash="$(
+            {
+              sw_vers -buildVersion
+              uname -m
+              xcodebuild -version
+              xcode-select -p
+              swift --version
+              xcrun clang --version
+              xcrun --sdk macosx --show-sdk-build-version
+              xcrun --sdk macosx --show-sdk-path
+              pwd
+            } | shasum -a 256 | cut -d ' ' -f 1
+          )"
+          # Hash tracked inputs only: restoring .build/.vendor must not alter
+          # the key. Native dependency revisions/checksums live in these files.
+          runtime_inputs_hash="$(git ls-files -z native/LocalASR scripts/build-app.sh scripts/build-local-runtime.sh scripts/prepare-local-runtime.sh | xargs -0 shasum -a 256 | shasum -a 256 | cut -d ' ' -f 1)"
+          echo "key=local-runtime-v1-${{ runner.os }}-${{ runner.arch }}-$runtime_toolchain_hash-$runtime_inputs_hash" >> "$GITHUB_OUTPUT"
+      - name: Restore native runtime build intermediates
+        id: runtime_cache
+        uses: actions/cache/restore@v5
+        continue-on-error: true
+        with:
+          path: |
+            native/LocalASR/.build
+            native/LocalASR/.vendor
+            .build/local-asr
+          key: ${{ steps.runtime_cache_key.outputs.key }}
+          # No partial-key fallback, app bundles, models, or user data.
       - run: scripts/build-app.sh
         id: candidate
+      - name: Save successful native runtime build before UI checks
+        if: ${{ !cancelled() && steps.candidate.outcome == 'success' && steps.runtime_cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        continue-on-error: true
+        with:
+          path: |
+            native/LocalASR/.build
+            native/LocalASR/.vendor
+            .build/local-asr
+          key: ${{ steps.runtime_cache_key.outputs.key }}
+          # Cache availability is optional; every run still builds and signs
+          # the candidate, verifies pinned downloads, and runs SwiftPM.
       - name: Real Sparkle release-notes delegate contract
         run: |
           export SAYTILE_UPDATE_PROBE_PRODUCTS="$(swift build --scratch-path /tmp/saytile-rc-model --show-bin-path)"

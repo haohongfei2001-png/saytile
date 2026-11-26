@@ -554,12 +554,13 @@ extension AppDelegate {
                 let separation = NSRange(location: NSMaxRange(beforeMidnight.range),
                                          length: afterMidnight.range.location - NSMaxRange(beforeMidnight.range))
                 let displayed = scroll.transcriptView.string as NSString
-                guard afterMidnight.entry.recording.createdAt.timeIntervalSince(beforeMidnight.entry.speechEnd) < 30,
+                let midnightPause = afterMidnight.entry.recording.createdAt.timeIntervalSince(beforeMidnight.entry.speechEnd)
+                guard midnightPause == 24,
                       beforeMidnight.entry.paragraphID == afterMidnight.entry.paragraphID,
                       separation.length == 0,
                       displayed.substring(with: beforeMidnight.range) == beforeMidnight.entry.displayText,
                       displayed.substring(with: afterMidnight.range) == afterMidnight.entry.displayText else {
-                    throw ReviewFailure("24-second midnight pause split a continuous natural paragraph")
+                    throw ReviewFailure("midnight continuity failed: pause=\(midnightPause) positions=\(beforeMidnight.entry.position),\(afterMidnight.entry.position) paragraphs=\(beforeMidnight.entry.paragraphID),\(afterMidnight.entry.paragraphID) separator=\(separation.length)")
                 }
                 print("TIMELINE_MIDNIGHT_PARAGRAPH continuous=true original_text=true time_heading=false")
                 scroll.transcriptView.scrollRangeToVisible(entries[nextDay].range)
@@ -770,6 +771,15 @@ extension AppDelegate {
 
     @MainActor private func selectMenu(_ id: String, title: String, in root: NSView, hostID: String = "panel.transcript") async throws {
         let identifier = (hostID == "panel.copy" ? "panel.more." : "panel.menu.") + id
+        let dispatchObserver = NotificationCenter.default.addObserver(forName: NSMenu.didSendActionNotification,
+            object: nil, queue: .main) { note in
+                MainActor.assumeIsolated {
+                    guard let item = note.userInfo?["MenuItem"] as? NSMenuItem,
+                          item.identifier?.rawValue == identifier else { return }
+                    print("NATIVE_UI_MENU_DISPATCH \(identifier) target_present=\(item.target != nil)")
+                }
+            }
+        defer { NotificationCenter.default.removeObserver(dispatchObserver) }
         let output = try await performControl(hostID, in: root, arguments: ["select-context-menu", identifier, title])
         guard let line = output.split(separator: "\n").first(where: { $0.hasPrefix("NATIVE_UI_CONTEXT_ITEMS ") }),
               let ids = try JSONSerialization.jsonObject(with: Data(line.dropFirst("NATIVE_UI_CONTEXT_ITEMS ".count).utf8)) as? [String],

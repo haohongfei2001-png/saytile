@@ -27,7 +27,9 @@ with tempfile.TemporaryDirectory(prefix='saytile-timeline-review-') as raw:
     subprocess.run(command + ['--smoke-test'], check=True, timeout=30, capture_output=True)
     with sqlite3.connect(data / 'Saytile.sqlite') as db:
         midnight = int(datetime.datetime(2025,1,2).timestamp())
-        boundary = 11945
+        # Keep midnight inside a four-utterance paragraph. Its first member has
+        # an extra 200-second group gap, which must not become the midnight pause.
+        boundary = 11946
         for n in range(1, 12001):
             rid = f'00000000-0000-4000-8000-{n:012d}'
             vid = f'00000000-0001-4000-8000-{n:012d}'
@@ -35,6 +37,22 @@ with tempfile.TemporaryDirectory(prefix='saytile-timeline-review-') as raw:
             db.execute('INSERT INTO recordings(id,created_at,sample_rate,preferred_revision,is_recording,recognition_state) VALUES (?,?,16000,?,0,?)', (rid, time, vid, 'completed'))
             texts = ['先把今天想说的记下来。', '嗯，这一句还想再琢磨一下。', '有空的时候，再接着往下说。']
             db.execute('INSERT INTO revisions(id,recording_id,text,origin,created_at) VALUES (?,?,?,?,?)', (vid, rid, texts[n % 3], 'userEdit', time))
+        # Check the policy installed by the shipping app at insertion time, before
+        # any restart could backfill historical rows using compatibility rules.
+        midnight_rows = db.execute('''
+            SELECT t.position,t.started,COALESCE(t.ended,t.started+r.total_frames/r.sample_rate),
+                   t.day,p.paragraph_start
+            FROM transcript_timeline t JOIN recordings r ON r.id=t.recording_id
+            LEFT JOIN timeline_paragraphs p ON p.position=t.position
+            WHERE t.position IN (?,?) ORDER BY t.position
+        ''', (boundary-1, boundary)).fetchall()
+        if len(midnight_rows) != 2:
+            raise RuntimeError(f'midnight seed owners missing: {midnight_rows!r}')
+        before, after = midnight_rows
+        if (after[1]-before[2] != 24 or before[3] == after[3]
+                or before[4] is None or before[4] != after[4]):
+            raise RuntimeError(f'midnight seed must cross days with a 24-second pause in one paragraph: {midnight_rows!r}')
+        print(f'TIMELINE_SEED_MIDNIGHT pause=24 positions={before[0]},{after[0]} paragraph={before[4]} metadata=at_capture', flush=True)
     env = dict(os.environ, SAYTILE_TIMELINE_REVIEW='1')
     if args.record:
         env["SAYTILE_RECORD_TIMELINE"] = "1"
